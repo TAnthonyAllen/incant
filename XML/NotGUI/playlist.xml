@@ -1,0 +1,43 @@
+#registry music doNotCopy;
+<phone list heading delimiter="\t" endRecord="\r" fields=playListFields file="stuff.txt"/>
+#registry artist data value grouped asAttributes doNotCopy;
+    <ABBA/>
+    <"Arab Strap"/>
+    <"Dwight Yoakam"/>
+    <Kinky/>
+    <Muse/>
+    <Nirvana/>
+    <Raconteurs/>
+    <"Sawyer Brown"/>
+    <UB40/>
+    <U2/>
+<Heavy>
+    <Kinky/>
+    <Muse/>
+    <UB40/>
+    <U2;>
+<Light>
+    <ABBA/>
+    <"Arab Strap"/>
+    <"Sawyer Brown"/>
+    <"Dwight Yoakam";>
+<someList>
+    <Heavy/>
+    <Nirvana/>
+    <Light;>
+#registry album data value grouped asAttributes doNotCopy;
+#registry genre data value grouped asAttributes doNotCopy;
+<"Alt Rock"/>
+<Classical/>
+<Country/>
+#registry music;
+<playListFields>
+    <Name=song/>
+    <Artist=artist/>
+    <Album=album/>
+    <Genre=genre/>
+    <Year=year/>
+    <Time=time/>
+    <Location;>
+#search+ music artist year album genre;
+#load phone;

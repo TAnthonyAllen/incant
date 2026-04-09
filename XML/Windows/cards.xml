@@ -1,0 +1,26 @@
+#include /Users/anthony/Dropbox/data/InProcess/Groups/XML/HTML/traits.xml;
+#include /Users/anthony/Dropbox/data/InProcess/Groups/XML/Controls/templates.xml;
+        
+#registry dESCRIPTIONs asAttributes;
+<carded>This is the default description for Cards and Layers example</carded>
+<content2>You selected the red card</content2>
+
+#registry cARDS display search;
+<carded title="Cards and Layers" window closable resize x=600 y=300 width=350 height=410>
+    <body>
+        <cardTemplate copperFont cards=secondCard mRight=15 mBottom=15 padBottom=5>
+            <firstCard fill=white bordered flex down>
+                <content selectable=no>Use arrow keys to navigate cards. The last card illustrates the use of layers</content>
+                <bar1="|-->" margin=5 height=35 bordered fill=paleGray/></firstCard>
+            <secondCard fill=red bordered flex down>
+                <content2="This is the middle card"/>
+                <bar2="<-->" margin=5 height=35 bordered fill=paleGray/></secondCard>
+            <thirdCard fill=green bordered flex down>
+                <content3 layers>Layers not enabled for now</content3>
+                <bar3="<--|" margin=5 height=35 bordered fill=paleGray;>
+
+The merge process merges child blocks as well as the main block so all the components of cardTemplate get added to carded
+
+As with the tabs attribute, you can supply a value to the cards attribute to identify the card you want to show when the deck is laid out. If no value is supplied, the first member of the deck will be used as the card to display.
+
+In this example, the deck is the cardTemplate block and its members are the cards (That is how decks work. You cannot supply any old block tag as the value of the cards attribute, it has to be the tag of one of the deck member blocks).

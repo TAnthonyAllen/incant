@@ -1,0 +1,93 @@
+Stylish         style;
+GroupItem		currentColor,
+                drawingBlock,
+                trait;
+DrawPoint       currentDP;
+PLGitem         fillColor,
+                strokeColor;
+/***************************************************************************
+	Drawing data
+***************************************************************************/
+boolean
+    asPercentOfFrame
+    closeOut
+    gotoPoint
+    itsAllRelative
+    nested
+    saveGraphicState
+    translated
+    ;
+
+Groups()
+{
+    parserName  = "Groups Style Parser";
+    mainParser  = this;
+}
+
+/***************************************************************************
+	Parse the path defined in the text of the GroupItem passed in. It returns
+    a pathSet, a list of paths each of which is a list of DrawPoints.
+***************************************************************************/
+DrawPoint ***buildPath(GroupItem item)
+{
+PLGitem     entry,list,path;
+int         size;
+DrawPoint   **drawingPath, **atPath, ***pathSet, ***atSet;
+String      text = item.text;
+    //debug = true;
+    drawGroup = null;
+    if text
+        if path = run("PathList",item)
+            {
+            list = path["list"];
+            for entry = list size++;
+            atSet   =
+            pathSet = calloc(size + 1,sizeof(DrawPoint*));
+            for entry = list
+                {
+                size = 0;
+                for path = entry["path"] size++;
+                atPath      =
+                drawingPath = calloc(size + 1,sizeof(DrawPoint*));
+                for path = entry["path"]
+                    {
+                    PLGitem     point = path["point"];
+                    DrawPoint   dp = point.value;
+                    *atPath++ = dp;
+                    }
+                *atSet++ = drawingPath;
+                }
+            item["drawPathSet"] = (void*)pathSet;
+            pointer     = pathSet;
+            drawGroup   = item;
+            }
+        else cerr `"ERROR " item.tag ": Failed parse of drawing commands":;
+    else cerr `"ERROR " item.tag ": No drawing commands found":;
+    return pathSet;
+}
+
+/***************************************************************************
+    Process a keystroke specification used to match a key action.
+***************************************************************************/
+int processKeySpec(GroupItem keyTrait)
+{
+PLGitem    item;
+    trait   = keyTrait;
+    if trait && trait.value
+        {
+        if item = divertInput(trait.text,getRule("KeyStroke"))
+            {
+            trait.keyAction = true;
+            return true;
+            }
+        else cerr "processKeySpec: failed":;
+        }
+    return false;
+}
+
+PLGitem run(String rule,GroupItem item)
+{
+    trait   = item;
+	setInput(item.text);
+	return run(rule);
+}

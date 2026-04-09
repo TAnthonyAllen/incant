@@ -1,0 +1,431 @@
+include GUIincludes
+
+/*******************************************************************************
+	Layout view
+*******************************************************************************/
+class Layout extends View implements WbDelegate
+{
+GroupItem       activeMenu,
+                base,
+                storage,
+                selection;
+WbView          webView;
+URL             stubURL;
+Details         detail;
+Stak            displayStack;
+BOOL            debug,
+                drawn,
+                firstTimeThru,
+                hasVariableContent
+                isKeyEvent,
+                laidout,
+                noSelectSource,
+                notSelectable,
+                paging,
+                resized;
+
+/*******************************************************************************
+	Deselect the current selection
+*******************************************************************************/
+void deselect()
+{
+Details selectDetail;
+use selection
+    if selection
+        {
+        selectDetail    = selection.getDetail();
+        if style && (selectFill || selectStroke)
+            {
+            swapSelectDecor(filler,selectFill)
+            swapSelectDecor(stroker,selectStroke)
+            setModified(selection);
+            //if filler cout `"Deselect:",selection.tag,filler.getTagXML() :;
+            }
+        if isTab return;
+        selected        = false;
+        selection       = null;
+        }
+}
+
+/*******************************************************************************
+	Display an image (centered and cropped to fit the frame).
+*******************************************************************************/
+void displayImage(String text)
+{
+GroupItem   scale, origin, offset;
+Frame       imageFrame, adjustedFrame;
+NSString    fileName;
+Image		image;
+Point       *atOffset, *atOrigin;
+double		hp, wp, factor;
+    adjustedFrame   = detail.frame;
+    adjustedFrame.y = frame.height - adjustedFrame.y;
+    fileName = text;
+    if isURL(text)
+        {
+        URL url = makeURL(fileName);
+        image = new(url);
+        }
+    else image = new(fileName);
+    if origin = wig["oRIGIn"]
+        atOrigin = origin.pointer;
+    else {
+        atOrigin = calloc(1,sizeof(Point));
+        origin = wig["oRIGIn"] = (void*)atOrigin;
+        }
+    imageFrame.x = atOrigin.x;
+    imageFrame.y = atOrigin.y;
+    imageFrame.size = size();
+    if offset = wig["oFFSEt"]
+        atOffset = offset.pointer;
+    if offset && offset.fLAG
+        offset.fLAG = false;
+    else {
+        if scale = wig["sCALe"]
+            factor = scale.number;
+        hp = adjustedFrame.height / imageFrame.height;
+        wp = adjustedFrame.width / imageFrame.width;
+        if hp < wp hp = wp;
+        if factor hp *= factor;
+        imageFrame.height *= hp;
+        imageFrame.width *= hp;
+        if imageFrame.width > adjustedFrame.width
+            imageFrame.x = (imageFrame.width - adjustedFrame.width)/2;
+        if imageFrame.height > adjustedFrame.height
+            imageFrame.y = (imageFrame.height - adjustedFrame.height)/2;
+        image.setSize(imageFrame.size);
+        atOrigin.x = imageFrame.x;
+        atOrigin.y = imageFrame.y;
+        }
+    if atOffset
+        {
+        if atOffset.x + adjustedFrame.width > imageFrame.width
+            imageFrame.x = imageFrame.width - adjustedFrame.width;
+        else imageFrame.x += atOffset.x;
+        if atOffset.y + adjustedFrame.height > imageFrame.height
+            imageFrame.y = imageFrame.height - adjustedFrame.height;
+        else imageFrame.y += atOffset.y;
+        }
+    image.backgroundColor = black;
+    imageFrame.size = adjustedFrame.size;
+    image.drawIn(adjustedFrame,imageFrame,sourceOver,1.0);
+    //cout `"Frames",adjustedFrame``imageFrame :;
+    //image.drawIn(adjustedFrame);
+}
+
+/*******************************************************************************
+	Draw
+*******************************************************************************/
+void drawRect(Frame r)
+{
+GroupItem   group, item;
+use controller
+    webView.frame = r;
+    cout "drawRect:":;
+    if !laidout layout(base);
+    if !drawn
+        {
+        item    = base.copy();
+        if debug cout item :;
+        item.reset();
+        isRigorous      = true;
+        group           = makeCanvas(item);
+        group.affiliation = 0;
+        if group
+            {
+            String  htmlText    = group.toString();
+            if !stubURL stubURL = new(baseURL.text);
+            if htmlText && stubURL
+                webView.loadHTML(htmlText,stubURL);
+            }
+    /***************************************************************************
+        saveGS();
+        if displayStack.length
+        while group = displayStack.next()
+            {
+            detail = group.getDetail();
+            displayImage(group.text);
+            }
+        restoreGS();
+    ***************************************************************************/
+        isRigorous = false;
+        drawn = true;
+        }
+}
+
+/*******************************************************************************
+	Fire actions based on mouse events. This fires off the first action found
+    in the hierarchy working bottom up from block.
+*******************************************************************************/
+void fireAction(GroupItem block,Event event,int flag)
+{
+GroupItem	group,action;
+Details     blockDetail;
+int         actionFlag,
+            done;
+    select(block);
+    group   = block;
+    /***************************************************************************
+        In case the event is needed, set the event in block details.
+    ***************************************************************************/
+    while !done && group
+        {
+        blockDetail         = getDetail(group);
+        if !blockDetail return;
+        blockDetail.event   = event;
+        if group.deferredAction || group.hasActions
+            {
+            if group.method
+                && flag == group.rightClick && isKeyEvent == group.keyAction
+                {
+                group.method(group);
+                done = true;
+                }
+            /*******************************************************************
+                Run multiple attribute actions if they exist
+            *******************************************************************/
+            if group.hasActions
+                while action = group.nextAttribute(action)
+                    if action.method
+                        && action.deferredAction
+                            {
+                            if !isKeyEvent && flag == action.rightClick && !action.keyAction
+                                actionFlag = true;
+                            or isKeyEvent && action.keyAction && action.keyStrokeMatch()
+                                actionFlag = true;
+                            if actionFlag
+                                {
+                                if action.parent != group
+                                    action.parent = group;
+                                blockDetail         = getDetail(action);
+                                blockDetail.event   = event;
+                                action.method(action);
+                                done        = true;
+                                actionFlag  = false;
+                                }
+                            }
+            }
+        if done && group == activeMenu
+            {
+            setModified(activeMenu);
+            activeMenu = null;
+            }
+        group = group.parent;
+        }
+}
+
+Layout init(Frame f)
+{
+    frame           = f;
+    displayStack    = new;
+    storage         = new("storage");
+    return self;
+}
+
+/*******************************************************************************
+	Invert the y coordinate of the point passed in to correspond to top down
+    orientation and return revised point
+*******************************************************************************/
+Point invertY(Point point)
+{
+double  baseY = frame.height - point.y;
+    point.y = baseY;
+    return point;
+}
+
+/*******************************************************************************
+	Handle key clicks
+        If selection does not have a key action
+        searches parent hierarchy for a block that does have a key action
+*******************************************************************************/
+void keyUp(Event event)
+{
+Point		point = invertY(cursorPoint);
+int			code = keyCode();
+int         length;
+GroupItem   group;
+    if group = selection
+        {
+        while group && !group.keyAction group = group.parent;
+        if group
+            {
+            isKeyEvent = true;
+            fireAction(group,event,false);
+            isKeyEvent = false;
+            return;
+            }
+        group = selection;
+        }
+    if !group group = base.blockContaining(point);
+    if group
+        {
+        paging  = false;
+        switch(code)
+            {
+            case 116:
+                // page up
+                paging  = true;
+            case 126:
+                // arrow up
+                length  = 1;
+                break;
+            case 123:
+                // arrow left
+                code    = 0;
+                length  = 1;
+                break;
+            case 121:
+                // page down
+                paging  = true;
+            case 125:
+                // arrow down
+                length  = -1;
+                break;
+            case 124:
+                // arrow right
+                code    = 0;
+                length  = -1;
+                break;
+            default:
+                return;
+            }
+        scrollBlock(group,length,code);
+        }
+    else cerr "Layout keyUp: could not find containing block at" toString(point):;
+}
+
+/*******************************************************************************
+	Handle mouse clicks
+*******************************************************************************/
+void mouseUp(Event event)
+{
+Point		point = convertPoint(mouseAt(),nil);
+GroupItem   block;
+    point = invertY(point);
+    if activeMenu && !(block = activeMenu.blockContaining(point))
+        {
+        // turn off the menu
+        activeMenu = null;
+        drawn   = false;
+        mustDisplay(true);
+        }
+	if !block block = base.blockContaining(point);
+    if block
+        fireAction(block,event,false);
+	else cout "mouseUP:",base.tag ": Don't know who contains point",x,y :;
+    webView.mouseUp(event);
+}
+
+/*******************************************************************************
+	Handle right mouse click
+*******************************************************************************/
+void rightMouseUp(Event event)
+{
+Point		point = invertY(convertPoint(mouseAt(),nil));
+GroupItem   block;
+    if block = base.blockContaining(point)
+        fireAction(block,event,true);
+}
+
+/*******************************************************************************
+	Handle scroll wheel events
+*******************************************************************************/
+void scrollWheel(Event event)
+{
+Point		point = invertY(convertPoint(mouseAt(),nil));
+double		delta;
+int			down,
+			length;
+GroupItem   block;
+    paging  = false;
+	delta   = deltaY();
+	if delta < 0
+		{
+		down = true;
+		length = -delta;
+		}
+	else length = delta;
+	if !length length++;
+    if down length = -length;
+    // if direction is down, length is negative
+    if selection
+        selection.scrollBlock(length,1);
+    or block = base.blockContaining(point)
+        block.scrollBlock(length,1);
+}
+
+/*******************************************************************************
+	Set selection to the block passed in or if it is not selectable, select
+    the first selectable ancestor
+*******************************************************************************/
+int select(GroupItem block)
+{
+Details     selectionDetail,blockDetail;
+GroupItem	item;
+int         result;
+    if block blockDetail = block.getDetail();
+    if !notSelectable
+        {
+        if block && blockDetail && !block.selected && selectable
+            {
+            deselect();
+            selection  = block;
+            selectionDetail = blockDetail;
+            selection.selected  = true;
+            if style && (selectFill || selectStroke)
+                {
+                swapSelectDecor(filler,selectFill)
+                swapSelectDecor(stroker,selectStroke)
+                setModified(selection);
+                }
+            result = true;
+            }
+        }
+    else {
+        cout "Not selectable:",block.tag :;
+        if item = base["describe"]
+            item.text = "";
+        deselect();
+        }
+    if !noSelectSource && selection && result
+        {
+        lastSelect  = selection;
+        if selection.isGroup
+            selectSource.sourceItem = selection.group;
+        else selectSource.sourceItem = selection;
+        }
+    return result;
+}
+
+void viewDidEndLiveResize()
+{
+GroupItem   group;
+Frame       windowFrame = window.frame;
+	cout "View End resize":;
+    drawn       = false;
+    resized     = true;
+    setFrame(superview.frame);
+    if group = base.getAttribute("x")       group.count = windowFrame.x;
+    if group = base.getAttribute("y")       group.count = windowFrame.y;
+    if group = base.getAttribute("height")  group.count = frame.height;
+    if group = base.getAttribute("width")   group.count = frame.width;
+    laidout = false;
+    controller.layout(base);
+    drawRect(frame);
+}
+
+/*******************************************************************************
+	WebView delegate methods
+*******************************************************************************/
+void webView(WbView view,WbNavvy didFinishNavigation)
+{
+	if debug cout "Layout: Loaded web content":;
+}
+
+void webView(WbView view,WbNavvy didFailNavigation,NSError withError)
+{
+int     errorCode = (int)withError.code;
+String  errorText = withError.description();
+	cout "Layout: Got web content error",errorCode,errorText :;
+}
+}

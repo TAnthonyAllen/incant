@@ -1,0 +1,10 @@
+#registry GUI;
+<simple window x=300 y=450 width=400 height=200 rounded>
+    <third pad=5 fill=wall across>
+        <wrap fill=white>
+            <one text pad=5 border=off register>This is a whole lot of text that I am using to test out text views, scrolling, and isn't it nice that the xcode text editor wraps lines and indents auto-magically. The base rule is you have to specify everything you want, nothing implied except styles are inherited.</wrap>
+        <two fill=red left=2/>
+        <three fill=white width=50.0% left=2>
+            <stuff text=one pad=5 border=off/></third>
+    <fourth rounded pad fill=lightGreen onLayout>
+        print "Ran the onLayout method":;</simple>

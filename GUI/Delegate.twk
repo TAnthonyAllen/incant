@@ -1,0 +1,50 @@
+
+include GUIincludes
+
+/*******************************************************************************
+	A class to delegate
+*******************************************************************************/
+class Delegate extends Object implements WbDelegate WindowDelegate
+{
+
+Delegate init()
+{
+    cout "initializing delegates":;
+    return self;
+}
+
+/*******************************************************************************
+	WebView delegate methods
+*******************************************************************************/
+void webView(WbView view,WbNavvy didFinishNavigation)
+{
+	cout "Loaded web content":;
+}
+
+void webView(WbView view,WbNavvy didFailNavigation,NSError withError)
+{
+int     errorCode = (int)withError.code;
+String  errorText = withError.description();
+	cout "Got web content error",errorCode,errorText :;
+}
+
+void windowDidEndLiveResize()
+{
+	cout "Window End resize":;
+}
+
+/*******************************************************************************
+	Window delegate method invoked when window closes
+*******************************************************************************/
+void windowWillClose(NSNotification n)
+{
+	cout "Window closed\n";
+	base.noRoom = true;
+    drawn = false;
+    if base == root
+        {
+        cout "Bailing\n";
+        exit(0);
+        }
+}
+}

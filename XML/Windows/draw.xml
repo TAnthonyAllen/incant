@@ -1,0 +1,59 @@
+#registry dESCRIPTIONs asAttributes;
+<drawpath>An example of drawing in a block using a path.</drawpath>
+#registry GUI;
+<jitBody>
+    GroupItem   heading;
+    if heading.isSingleton print "Heading is a singleton string":;
+    else print "Something wrong with the JIT",heading.tag:;
+</jitBody>
+<drawpath window x=400 y=400 width=400 height=450 fill=gray title="Drawing" closable resize>
+    <intro height=50 pad fill=white rounded>
+        <heading="Draw Path Example" pad=10 label align=center font=title border=off shadow register/>
+        <space height=5)>
+    <jitter pad NOjit=jitBody stride=6 gap=12 depth=2>
+        <wrap pad layers perfColor=darkerGray>
+           <drawPerf perforation/>
+           <body pad=15 fill=paleGray rounded>
+               <arrow drawPath pad border fill=lightGreen>%@40 10 u~ 30 l 30, 40 50 40 -50 l 30 d: 30 T 0 100 R -90;@ 60 20 r 40 u: 30;;>
+
+Note: in arrow above, rotate happens after the shift and figuring out how much to shift and the x and y parameters of the shift was a trial and error process. Here is what I figured
+
+	rotate 90 then first shift x by 100%
+	rotate 180 then first shift both x and y by 100%
+	rotate 270 (or -90) then first shift y by 100%
+	
+The following is taken from the comment describing the path small language defined in Groups.g
+
+	Drawing grammar - short and sweet. Each command in a drawing path has
+    three components: an operator, an x offset from the current point and
+    optionally, a y offset from the current point. By default, the current
+    point is taken to be the frame origin. The operators that can be used are:
+    
+        %   Length parameters interpreted as % of frame. So an x offset of 50
+            is converted to 50% of the frame width.
+        ~   The current point is taken to be where we currently at and it changes
+            each time a new point is set.
+        @   Move to the new point defined by the following x and y values.
+        :   Close the current path after it is drawn.
+        !   Resets the % and ~ settings to default where offsets are pixel lengths
+            and the current point is the frame origin.
+        a   Draw an arc (do not think this is implemented yet).
+        c   Draw a curve (in addition to the target point, takes two more points as control arguments)
+        d   Direction is down (applies to the y offset).
+        g   Save graphics state
+        I   Invert the current path when drawn.
+        l   Direction is left (applies to the x offset).
+        o	Draw an oval (not implemented yet).
+        r   Direction is right (applies to the x offset).
+        R   Rotate current path by the degrees specified in the x offset.
+        S   Scale current path by amount specified in offsets. If no y offset
+            specified, both x and y are scaled by the x offset amount.
+        T   Shift path by amount specified in offsets.
+        u   Direction is up (applies to y offset).
+        ,	Separates commands that otherwise might be glommed onto the following command.
+        ;	Ends a path, if graphics state saved, restores it.
+        $   Stroke the current path
+        F   Fill the current path
+
+        The numeric arguments to all commands, except for the rotate command R, are scaled if the % operator is in effect. The arguments for @ resolve to a point. All numeric arguments not associated with the R and @ commands are taken to be lengths, as in how far to move, not defining a point to move to but how far away to move
+

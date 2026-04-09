@@ -1,0 +1,24 @@
+Displaying a group, maybe as part of a parent group display
+    issue: what does the group do when it is clicked on:
+        if group is a method, it gets run as group();
+        if group is an action or is coded, presumably group data and attributes serve as arguments and we can fire runAction(group, argument);
+
+/*******************************************************************************
+	Handling down=* or across=* (a given group can do one or the other not both)
+*******************************************************************************/
+test height=200 down=*
+    can have one member (which has to have a height and which can have components)
+    roomLeft = test.height - member.height
+    clear out all members except the first (try to reuse)
+    while roomLeft > member.height
+        add member copy
+        roomLeft -= member.height
+    scrolling would just change content
+    resizing only happens if the height changes (likely to)
+    
+/*******************************************************************************
+	Data sources
+*******************************************************************************/
+Ideally every source record will have indexed attributes (how to do that?) Maybe leave the indexing to a cell, which would mean going thru all the source records for every cell??? Or maybe just every cell that is a label (row and column labels) then using bit map & to fill in the array cells bit maps. Still have to loop thru those bitmaps to sum up results.
+        Maybe every source record has an attribute bitmap (pointer) and a value - if every row and column label attribute is bitmapped would enable fast match by bitmap
+        Do we want to bother. Only good reason to is if it can be done w/minimal user involvement like: set specs, load, and we done

@@ -1,0 +1,71 @@
+#registry tunes;
+<plist version="1.0">
+<dict>
+	<key>Major Version</key><integer>1</integer>
+	<key>Minor Version</key><integer>1</integer>
+	<key>Application Version</key><string>12.6.2.20</string>
+	<key>Date</key><date>2017-08-27T02:31:11Z</date>
+	<key>Features</key><integer>5</integer>
+	<key>Show Content Ratings</key><true/>
+	<key>Library Persistent ID</key><string>B34E04820898AC73</string>
+	<key>Tracks</key>
+	<dict>
+		<key>2534</key>
+		<dict>
+			<key>Track ID</key><integer>2534</integer>
+			<key>Size</key><integer>8114095</integer>
+			<key>Total Time</key><integer>233826</integer>
+			<key>Disc Number</key><integer>1</integer>
+			<key>Disc Count</key><integer>1</integer>
+			<key>Track Number</key><integer>1</integer>
+			<key>Track Count</key><integer>11</integer>
+			<key>Year</key><integer>2000</integer>
+			<key>Date Modified</key><date>2010-10-24T17:52:52Z</date>
+			<key>Date Added</key><date>2010-10-23T19:00:38Z</date>
+			<key>Bit Rate</key><integer>256</integer>
+			<key>Sample Rate</key><integer>44100</integer>
+			<key>Artwork Count</key><integer>1</integer>
+			<key>Persistent ID</key><string>8CAF9E05A778C296</string>
+			<key>Track Type</key><string>File</string>
+			<key>File Folder Count</key><integer>5</integer>
+			<key>Library Folder Count</key><integer>1</integer>
+			<key>Name</key><string>Kryptonite</string>
+			<key>Artist</key><string>3 Doors Down</string>
+			<key>Composer</key><string>Paul Ebersold</string>
+			<key>Album</key><string>The Better Life</string>
+			<key>Genre</key><string>Alternative &#38; Punk</string>
+			<key>Kind</key><string>AAC audio file</string>
+			<key>Sort Album</key><string>Better Life</string>
+			<key>Location</key><string>file:///Volumes/IOmega/Music/iTunes/iTunes%20Media/Music/3%20Doors%20Down/The%20Better%20Life/01%20Kryptonite.m4a</string>
+		</dict>
+		<key>2536</key>
+		<dict>
+			<key>Track ID</key><integer>2536</integer>
+			<key>Size</key><integer>9123373</integer>
+			<key>Total Time</key><integer>264906</integer>
+			<key>Disc Number</key><integer>1</integer>
+			<key>Disc Count</key><integer>1</integer>
+			<key>Track Number</key><integer>2</integer>
+			<key>Track Count</key><integer>11</integer>
+			<key>Year</key><integer>1999</integer>
+			<key>Date Modified</key><date>2010-10-24T17:52:53Z</date>
+			<key>Date Added</key><date>2010-10-23T19:00:38Z</date>
+			<key>Bit Rate</key><integer>256</integer>
+			<key>Sample Rate</key><integer>44100</integer>
+			<key>Artwork Count</key><integer>1</integer>
+			<key>Persistent ID</key><string>42A4944CB164D25C</string>
+			<key>Track Type</key><string>File</string>
+			<key>File Folder Count</key><integer>5</integer>
+			<key>Library Folder Count</key><integer>1</integer>
+			<key>Name</key><string>Loser</string>
+			<key>Artist</key><string>3 Doors Down</string>
+			<key>Composer</key><string>Paul Ebersold</string>
+			<key>Album</key><string>The Better Life</string>
+			<key>Genre</key><string>Alternative &#38; Punk</string>
+			<key>Kind</key><string>AAC audio file</string>
+			<key>Sort Album</key><string>Better Life</string>
+			<key>Location</key><string>file:///Volumes/IOmega/Music/iTunes/iTunes%20Media/Music/3%20Doors%20Down/The%20Better%20Life/02%20Loser.m4a</string>
+</plist>
+#list tunes;
+#print plist;
+#stop;

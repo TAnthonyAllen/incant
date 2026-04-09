@@ -1,0 +1,71 @@
+#include /Users/anthony/data/Tawk/Groups/XML/NotGUI/playlist.xml;
+#registry forest components;
+<glen>
+    <hard>
+        <oaks>
+            <pin/>
+            <"broad leaf"/></oaks>
+        <maples>
+            <sugar/>
+            <rock/></maples></hard>
+    <soft>
+        <pine/>
+        <fir/>
+        <hemlock/></soft>
+    <shrubs>
+        <holly/>
+        <blueberry/></glen>
+#search+ forest;
+#registry GUI;
+<layoutExample window closable resize x=400 y=400 width=500 height=600 fill=wall font=normal cards title="Laying Out">
+	<cardOne>
+		<first height=50 fill=white top left right rounded>
+			<space/>
+			<cardHead="Big Heading" height=43.0 text align=center font=title border=off/></first>
+		<second height=30% action=fire left right across>
+			<saber image="/Users/anthony/Pictures/Wallpaper/Saber.jpg" top bottom rounded=10.0/>
+			<logo image="/Users/anthony/Pictures/Between Trees.jpg" top bottom left rounded=10.0/></second>
+		<third pad across>
+			<wrap fill=white rounded>
+				<one text pad=5 border=off register>This is a whole lot of text that I am using to test out text views, scrolling, and isn't it nice that the xcode text editor wraps lines and indents auto-magically. The base rule is you have to specify everything you want, nothing implied except styles are inherited.</wrap>
+			<two button action=fire fill=red left=2 rounded/>
+			<three fill=white width=50.0% rounded left=2>
+				<stuff text=one pad=5 border=off/></third>
+		<fourth fill=white pad border=green rounded>
+			<short="More text here" text pad=5 border=off/></fourth>
+		<fifth source=phone pad rounded=5 fill=white border=black>
+            <heading tableHead>
+                <Artist sort=artist tableLabel selectable=no/>
+                <Album sort=album tableLabel selectable=no/>
+                <Song sort=song tableLabel selectable=no/></heading>
+            <space fill=blue height=1 border=off/>
+            <body tableBody>
+                <row tableRow next=fifth>
+                    <artist key trait tableCell/>
+                    <album key trait tableCell/>
+                    <song trait tableCell/></fifth>
+        <bar="|->" label align=center height=10 border=off/></cardOne>
+	<cardTwo>
+		<top text popup=dialog rounded>
+            If you click on this box it pops up a dialog panel that displays a simple example using a tree</top>
+		<bottom rounded>
+            <segundo name=$tercio content=$pull form/>
+            <tercio=$Body name="Another Label" content="Some Stuff" register form/>
+            <menu=$pull font=header pullDown=pull rounded height=16 align=left/>
+            <quatro fill=white pad=3 border=green rounded>
+            <cinco="Even more text here" text font=normal italic pad=5 border=off/></bottom>
+        <bar="<-|" label align=center height=10 border=off/></layoutExample>
+<dialog panel x=500 y=400 width=300 height=400 closable resize hide fill=white title="Dialog Title">
+	<box across>
+        <left tree=glen font=normal rounded>
+            <branch border=off across height=18 leaf>
+                <indent width=1/>
+                <entry label/></left>
+        <right="Nothing in here" text rounded/></dialog>
+The following block implements the pull down part of menu referred to above. It has to appear after the block that defines its visible window (that is: cardTwo) because blocks are drawn in the order they appear and you want the pull down menu to float over the underlying window.
+The item block below is a template and basically works like a macro. The way the xml parser works: attributes that have no value are searched for in the current registry first and if not found, then searched for in the registry search path. If found, the attributes (and members) of the found attribute are substituted into the block containing the original valueless attribute).
+<item height=16 border=off menuItem font=normal align=left/>
+<pull="Select something" fill=white border=black fit=text>
+    <one="First menu item" item/>
+    <two="Second item" item/>
+    <three="Last item" item/></pull>

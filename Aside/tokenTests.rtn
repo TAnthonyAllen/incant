@@ -1,0 +1,56 @@
+
+/***************************************************************************
+	Initializer method for accessing rule results (used in rule actions);
+***************************************************************************/
+GroupItem getLabelGroup(String name)
+{
+GroupItem       block = get(name);
+    if block && block.isGROUP && !block.gMethod && !block.listLength
+        && !block.negate
+        block = block.group;
+    return block;
+}
+                                                                            
+/***************************************************************************
+    incantMethod overloads () Called by Tok to handle group method invocations.
+***************************************************************************/
+GroupItem incantMethod()
+{
+GroupItem   argument;
+GroupItem   result;
+GroupItem   field;
+    if invoke {
+        if unInstructed     result = method(this);
+        or howInstructed {
+            if argument = get(2)
+                if argument.isGROUP argument = argument.group;
+            if field = get(1)
+                if field.isGROUP    field = field.group;
+            result = operat(field,argument); }
+        or isMethod
+            if isGROUP {
+                argument = group;
+                if argument.isGROUP argument = argument.group;
+                result = method(argument); }
+            else    result = method(0);
+        or isBlock {
+            /***************************************************************
+                Run thru block instructions. results are checked for branches
+                (break, continue, return);
+            ***************************************************************/
+            while field = next(field)
+                if result = field()
+                    if result.continued field = null;
+                    or result.returned {
+                        result.returned = false;
+                        break; }}
+        or isGROUP  result = group;
+        else        result = this; }
+    or isGROUP  result = group;
+    else        result = this;
+    if hasTemp
+        if isTempField  tempField.setContent(result);
+        else            tempArg.setContent(result);
+    return result;
+}
+

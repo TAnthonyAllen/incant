@@ -1,0 +1,44 @@
+#include /Users/anthony/Dropbox/data/InProcess/Groups/XML/HTML/traits.xml;
+#include /Users/anthony/Dropbox/data/InProcess/Groups/XML/Controls/templates.xml;
+#include /Users/anthony/data/Tawk/Groups/XML/NotGUI/playlist.xml;
+
+#search+ playlists artist album;
+#registry GUI;
+<selectedBits artist album genre year/>
+<listExample window closable resize x=400 y=400 width=450 height=300 fill=wall normalFont title="List With Attributes">
+    <body flex down mRight=25 mBottom=15>
+        <first height=50 fill=white bordered pad>
+            <heading="Variable Attributes List" flex center titleFont/></first>
+        <parts source=phone pad bordered fill=white>
+            <rows tableBody>
+                <row class height=50 pad next=parts filter=selectedBits>
+                    <firstRow class height=20 flex>
+                        <field tag width=100 tableCell/>
+                        <tags class source=row useNext useAttributes flex across=* height=16 register>
+                            <wrapTags class width=100 next=tags>
+                                <attribute tag tableCell/></firstRow>
+                    <secondRow class height=20 flex>
+                        <leaveBlank class width=100/>
+                        <contents class source=row useNext useAttributes flex across=* height=16 scrollWith="../../firstRow/tags">
+                            <wrapValues class width=100 next=contents>
+                                <stuff trait=source tableCell;>
+
+Want to add a couple of things here
+    First, the ability to filter only the attributes I am interested in
+        Can paths specify optional attributes (I think so but have not tested recently). No filtering happening though, that is something new because it produces a list of modified records.
+    Second, the ability to select the set of records I am interested in by using a path as filter and do it on the fly using the GUI
+    
+    May be able to do both by adding a filter attribute that works with source, the filter value would be a path applied to source
+    
+    Build an example that reads a source, gets its filter from a cell and prints the result
+        Or define a group based on a path and use it as the source. Issue comes when you want to change the path and redo the source
+    
+    Printing introduces a problem. Currently no method to filter out attributes in a print, as in a version of getTagXML() that takes an attribute list or path as argument. If we had such a method, could use JIT to loop thru the filtered source and print what it finds.
+    Also, would be nice to have a method that copies a group, applying a filter
+    
+    Bottom line, a filter is like a path but it extracts only the stuff you want and creates a set of new records containing that stuff
+    
+    Path defines a set of records DONE Still need to work thru doing it on the fly
+    Filter copies a record with only the pieces that get thru the filter (only works on attributes)
+        One potential use would be in extracting a subset of a DB table but this opens up another can of worms as it is essentially what SQL does and is good at.
+

@@ -1,0 +1,269 @@
+
+include groupIncludes
+
+external GroupItem
+{
+    initializer
+        GroupItem   getLabelGroup
+        ;
+}
+
+/*******************************************************************************
+	GroupRules
+*******************************************************************************/
+class GroupRules
+{
+    String          atRuleMark;
+    RuleStuff       ruleSTUFF;
+    /***************************************************************************
+        Registries
+    ***************************************************************************/
+    GroupItem
+                currentMETHOD,
+                currentRegistry,
+                debugJunk,
+                baseRegistryList,
+                commands,
+                grokking,
+                groupFields,
+                keyWords,
+                opFields,
+                properties,
+                registries;
+    /***************************************************************************
+        Global group fields
+    ***************************************************************************/
+    GroupItem
+                divertOutput,
+                falseResult,
+                inDENT,
+                lastREF,
+                printSPACE,
+                ruleSkipSet,
+                searchList,
+                tempField,
+                trueResult;
+    PLGset      alphaSet,
+                nameSet,
+                punctuateSet,
+                shortcutSet,
+                spaceSet;
+    Stak        blockSTAK,
+                bufferSTAK,
+                inputSTAK;
+    int         blocking,
+                labelIndex,
+                lastIndent,
+                rulesParsed;
+    String      ruleInputStart,
+                beforeSkip,
+                lastSkip;
+    Buffer      fieldBUFFER,
+                formatBUFFER,
+                stringBUFFER,
+                toBUFFER;
+    boolean
+            debugAllRules
+            debugGuards
+            defining
+            divertToRule
+            endParse
+            generating
+            ignoreThis
+            ignoreNoPrint
+            ignoreNoRoom
+            inputDiverted
+            isPERCENT
+            isPRINTING
+            isRELATIVE
+            isRigorous
+            noSkipping
+            processingCode
+            showWarnings
+            useDefaultSpace
+            ;
+
+/*******************************************************************************
+	GroupRules constructor
+*******************************************************************************/
+GroupRules()
+{
+    blockSTAK       = new;
+    bufferSTAK      = new;
+    alphaSet        = new("a-zA-Z");
+    nameSet         = new("a-zA-Z0-9");
+    punctuateSet    = new("]{}[();");
+    shortcutSet     = new("-+~`$_:,");
+    spaceSet        = new(" \n\r\t");
+    tempField       = new("tempField");
+    useDefaultSpace = true;
+}
+
+/*******************************************************************************
+	Skip over spaces if skipping and check for comments. If not skipping we do
+    not get here. The idea is we skip over spaces and comment and track the
+    indent level to be dealt with when tokenizing.
+*******************************************************************************/
+String checkSkip(String atContent)
+{
+GroupItem   stacked;
+int         commenting,
+            sawNewLine,
+            indented,
+            indenting;
+
+    if atContent && ruleSkipSet
+        {
+        PLGset  set = ruleSkipSet.characterSet;
+        while *atContent && set.contains(*atContent)
+            {
+            if atContent == '\n'
+                {
+                sawNewLine  = true;
+                indenting   = 0;
+                }
+            or atContent == ' '     indenting++;
+            or atContent == '\t'    indenting += 4;
+            or atContent == '/'
+                {
+                if *(atContent + 1) == '/'
+                    {
+                    while *atContent && *atContent != '\n'  atContent++;
+                    continue;
+                    }
+                or (atContent + 1) == '*'
+                    {
+                    commenting++;
+                    atContent += 2;
+                    }
+                or (atContent + 1) == '#'
+                    {
+                    atContent += 2;
+                    while *atContent && atContent != '#'  atContent++;
+                    }
+                else break;
+                }
+            while commenting
+                {
+                if !strncmp(atContent,"/*",2)
+                    {
+                    commenting++;
+                    atContent += 2;
+                    }
+                or !strncmp(atContent,"*/",2)
+                    {
+                    atContent += 2;
+                    commenting--;
+                    if !commenting
+                        {
+                        atRuleMark  = atContent;
+                        break;
+                        }
+                    }
+                atContent++;
+                }
+            atContent++;
+            }
+        }
+    /***************************************************************************
+        Check indent status to set block boundaries
+    ***************************************************************************/
+    indented = lastIndent;
+    if blocking && sawNewLine
+        while indenting != lastIndent {
+            if indenting > lastIndent {
+                atContent--;
+                *atContent      = '{';
+                stacked         = new("stacked");
+                stacked.count   = lastIndent;
+                blockSTAK       += stacked;
+                lastIndent      = indenting;
+                //cout ``"Starting block at",blocking,indenting,getDebugText(atContent,20):;
+                break; }
+            or indenting < lastIndent {
+                atContent--;
+                *atContent  = '}';
+                //cout ``"Ending block at",blocking,indenting,getDebugText(atContent,20):;
+                blocking--;
+                if stacked = blockSTAK.pop()    lastIndent = stacked.count;
+                else        lastIndent = indenting;
+                if !lastIndent  break; }
+            else break; }
+    if atContent > atRuleMark
+        {
+        beforeSkip  = atRuleMark;
+        lastSkip    = atContent;
+        noSkipping  = false;
+        }
+    else noSkipping = true;
+    return atContent;
+}
+
+/*******************************************************************************
+    Reverts input to prior source
+*******************************************************************************/
+void popInput()
+{
+    if inputSTAK
+        {
+        if inputDiverted && inputSTAK.length
+            {
+            GroupItem   savedInput = inputSTAK.pop();
+            if savedInput
+                {
+                atRuleMark      = savedInput.text;
+                ruleInputStart  = atRuleMark;
+                }
+            }
+        //cout "popInput:",head(atRuleMark,10):;
+        if !inputSTAK.length   inputDiverted = false;
+        }
+    else    inputDiverted = false;
+    return;
+}
+
+/*******************************************************************************
+    Diverts to the list of tokens passed in, pushing currentToken onto inputSTAK.
+*******************************************************************************/
+int pushInput(GroupItem source)
+{
+int     result;
+String  inputText;
+    if !source  cerr "pushInput: passed in a null argument":;
+    else    inputText = source.text;
+    if inputText    result = pushInput(inputText);
+    else cerr "pushInput: no input text provided in",source.tag:;
+    return result;
+}
+
+/*******************************************************************************
+    Diverts to the stream passed in, pushing current input onto inputSTAK.
+*******************************************************************************/
+int pushInput(String stream)
+{
+    if stream
+        {
+        if atRuleMark && *atRuleMark
+            {
+            GroupItem saveStream = new("saveStream");
+            saveStream.text = atRuleMark;
+            saveStream.fLAG = true;     // so we can figure out input is a stream in popInput()
+            if !inputSTAK  inputSTAK = new;
+            inputSTAK.push((void*)saveStream);
+            inputDiverted   = true;
+            }
+        atRuleMark      = stream;
+        ruleInputStart  = atRuleMark;
+        //cout "pushInput: tail",tail(stream,20):;
+        return true;
+        }
+    else cerr "pushInput: passed in a null stream":;
+    return false;
+}
+}
+
+include /Users/anthony/Dropbox/data/InProcess/Groups/GroupActions.rtn
+include /Users/anthony/Dropbox/data/InProcess/Groups/ruleActions.rtn
+include /Users/anthony/Dropbox/data/InProcess/Groups/Debug.rtn
+include /Users/anthony/Dropbox/data/InProcess/Groups/Instruct.rtn
+include /Users/anthony/Dropbox/data/InProcess/Groups/Generate.rtn

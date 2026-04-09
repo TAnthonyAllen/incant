@@ -1,0 +1,84 @@
+wrt my thoughts on a multi-processing compiler
+
+Associate an index w/statements, and with every instance in scope, where the instance index refers to the last preceeding statement index where the instance is changed
+    only worried about symbol instances
+The complication w/instances is they may have indirection and more than one index can refer to the same entity once indirection is resolved. Given that two instances can refer to the same thing but have different paths to get there (that is different depths based on parent hierarchy); need to translate an instance into a fully qualified reference to its symbol and associate the instance index based on that fully qualified reference.
+What this implies is that I have to increment and assign the statement index every time a statement is processed. Instances do not have a direct connection to the statement they are in, but I do not need it. What I need to know: what thread the statement that last changed the instance is running on because want to post any subsequent statements that depend on that change to the same thread
+        Thing is the statement index is not simple. The index has to refer to position within an enclosing method. But the enclosing method can be called by a statement in some other method entirely. My idea is to take point of entry (main) and build up a list of statements from that point. Once we have that we can assign indices and figure out which thread to run on. That done we have split the statement list into a set of sublists that each run on a different thread.
+        However, it may not be possible to produce thread specific lists that do not depend on stuff happening in other threads, so a thread may have to stall waiting on a change of index to proceed. This case happens when a thread needs to access an instance with an index greater than the current statement index. So if instance is changed in statement 200 (statement 200 is in some other thread) and the current thread is running a statement at any index > 200, it has to wait until the instance index reaches 200. Basically, a statement can only run if its index is greater than the indices of its component instances.
+It may be possible to spread a method's statements into separate thread lists. Maybe define for the method, the last index it depends on, and hold up the method call until it is reached, at which point the method thread lists get distributed, or enabled, not sure how the algorithm will handle it, however, it makes it easy to deal with methods that can be called multiple times from different places in code. Alternatively, if executing a statement handles the statement dependency, do not need a separate method dependency. Can still distribute the method thread lists without a care and BYU.
+Need an algorithm to control thread execution that does not require checking every statement as some, maybe most statements running in the thread can progress willy nilly. Only want to check when we get to a statement that involves an assignment. Ideally, want to avoid pausing the thread.
+Maybe we can produce a whole lot of thread lists and put pointers to each on a thread list stack, let threads run to their end at which point they pull the next list off the thread list stack, wait until the list dependencies are satisfied, and proceed. This introduces the notion of attaching an index to a thread list (which could be the index of its current statement, no additional variable required). <-- Spectacularly good idea (having a thread list)
+The notion of thread lists almost does away with methods, methods exist when writing code but the compiler tears them apart and distributes statements across thread lists to the extent possible. Debugging the result could be challenging, may need to use methods to manage instruction stack manipulation.
+
+Consider a group language, grok or whatever, where the compiler does not use the notion of instance but instead wraps all variables and methods in a GroupItem; then it might be easy to assign and update as needed the where changed index as a GroupItem component.
+    At present there is no grok so this may be HWF, but if we are to develop grok as a MP language, probably better to do it from as close to a clean slate as we can get. And there you have it. Let us proceed from there.
+    If grok rules all produce a group, then the resulting list of groups can be considered an instruction list that we can distribute across threads. The next step would be to process each list into the c++ code derived from the list. Thus grok rule produces an instruction (a group that is an instruction) so can take a list of these instructions and generate the corresponding c++ code. This can be the last step in compilaton, generating a c++ file split into thread methods, maybe one method per thread or methods put on the thread stack list, IAC the methods are compiled, ready to rock get assigned to a thread and BYU
+One benefit from my fuzzy notion of grok, is that variable discovery is handled by search, which is based on the search list. All the hoohaa that goes into figuring out what is in scope and making sure we are working with the right variable gets radically simplified. You find what you want in your search list that you specify or not; end story.
+    The compiler will know if you found what you are looking for because it is compiling in the environment the code it generates works in. But what if it has a black hat on? As in what if the code modifies the environment and changes stuff that subsequent code depends on. ITC a search might not succeed. At compile time that might be unknown and the compiler can throw a warning to say this might not be there. If it matters, code can be modified to opt for a search that throws an error or something if the search fails, with users  warned to take proper precaution.
+        May be worth using a modified version of locate that tosses cookies if its search does not succeed
+            
+So to try and concoct an example of sorts. How about figuring out grok syntax where almost every variable is a group
+    for group in anotherGroup
+        ITC group is a temp and if it does not exist it gets created no questions asked
+    what about pipes? Is that a thing or just HWF
+    
+Or, for now, never mind change in syntax; how about rig an example based on existing Tok methods and figure out how to split the statements. Do it in Test.twk
+    
+HWF I am thinking of a rule chain that can be a program: as in if a group has a JIT and rewrites its JIT in JIT. Maybe in the next life. For now, maybe supply input to the rule (the chain rule chain is and starts with a rule) and as the input is parsed by the rule maybe it does something like produce output.
+
+int CaseLabel3TawkNow(PLGitem iTEM)
+{
+// block A
+1   Tawk	    p           = iTEM.testParser;
+2   PLGitem     instance    = iTEM["instance"];
+3   PLGitem		field       = instance.get("field");
+4   Instance	label       = field.value;
+5   Symbol		symbol      = label.getSymbol();
+6   	if symbol.type == buttonType
+            || (symbol.structType && symbol.structType.isEnumerator)
+            {
+7           label           = new("case ");
+// dispatch block B and C
+// block B
+8           if symbol.type == buttonType
+                postfix     = symbol.array;
+            else postfix    = symbol.name;
+9           label.type      = intType;
+10          isConstant      = true;
+            }
+        else prefix     = "case "; // dispatch block C
+// block C
+11      isLabel         = true;
+12      isCase          = true;
+13      assuming        = false;
+14      instance.value  = label;
+15      return true;
+}
+
+Loop: From the POV of a thread looking at index that constrains its work
+    if quitting time adios
+    if I have work what my work pointer points at (a statement) is not null
+        Where we at? And is where we at greater than my constraint,
+        If where we at is past my stop sign then hi ho hi ho
+            Keep working until I hit a stop sign (constraint > where we at) at which point we back to Loop
+
+HWF what if every statement can have a condition(sort of like a rule?)
+    Condition is true or false (if true process statement otherwise back to Loop)
+
+More HWF can we break from method calls w/branching? What we lose is method return value
+    However, in a grok environment methods are called by groups and what they return is a group or null - maybe each thread has a group pointer to hold return values. Note: the next statement after the return has to run in the same thread if it assigns the return
+    What then to do with
+        if method() do whatever
+    translates to
+        method() if return value do whatever
+If threads had a class that contained thread statements:
+    The Yarn class processes statements that may access Yarn variables and methods
+    A Knitter class to manage Yarns and track where we at
+    Maybe a group can be a thread, like a group can be anything else, why not?
+
+
+Ideas
+    What about a way to extend groups to add state or use a group as a toggle - hey you, do you boogie?
+    How to extend groups, for instance to handle layout dimensions. Can we add some way to add offsets into memory like fields in a structure
+    Split off tests in group parser so that they return a simple yes/no and let a parse method handle iteration

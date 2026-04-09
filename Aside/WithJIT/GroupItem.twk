@@ -1,0 +1,2417 @@
+include groupIncludes
+
+/******************************************************************************
+	A group.
+******************************************************************************/
+class GroupItem C
+{
+String			tag;
+GroupItem		parent;
+BitMAP			attributes,
+                members;
+void            *other;
+GroupRegistry	registry;
+unsigned long	itemIndex;
+ParseXML		parser;
+String          gText;
+int				index;
+int             offset;
+union
+    int			gCount;
+    GroupItem   gGroup;
+    PLGitem		gItem;
+    BitMAP		gMap;
+    double		gNumber;
+    void		*gPointer;
+    PLGrgx      gRegex;
+    ;
+void        &method(GroupItem);
+boolean
+        fLAG
+        cdata
+        compareTags
+        copied
+        copyOnAdd
+        data:4[isCount isGroup isItem hasMap isNumber isString isDate isPointer isRegex]
+        deferred
+        deleted
+        descending
+        doNotChangeParent
+        doNotIndex
+        dotdot
+        expanded
+        hasActions
+        hasList
+        hasListener
+        hasMacro
+        hasRegex
+        indented
+        indexed
+        isAny
+        isAlternate
+        isAttribute
+        isClosed
+        isComment
+        isMacro
+        isMapped
+        isOption:3[star plus question bang]
+        isPercent
+        isRegistry
+        isShell
+        isSingleton
+        isStored
+        isTarget
+        keyAction
+        loaded
+        modified
+        mustIndent
+        noAnchor
+        noDuplicates
+        noMerge
+        noPrint
+        noTag
+        reacts
+        released
+        rightClick
+        track
+        ;
+static int	deferMaps;
+static Tawk tawkParser;
+#autoGetSet
+
+/***************************************************************************
+	This adds a GroupItem as an attribute without checking or setting
+    isAttribute for the item.
+***************************************************************************/
+void addAsAttribute(GroupItem group)
+{
+GroupItem   item;
+    if !attributes attributes = new(group.index);
+    else attributes += group.index;
+    group.parent = this;
+    if group.registry && registry != group.registry
+        if group.registry.grouped && parser.setName
+            {
+            item = group[setName];
+            if !item
+                {
+                item = group += setName;
+                item.noPrint = true;
+                item.isMapped = true;
+                item.registry = group.registry; // to avoid looping
+                item.addAsAttribute(group);
+                item.registry = null;
+                }
+            item += this;
+            group.isMapped = true;
+            }
+        or group.registry.tagged
+            group += this;
+}
+
+/***************************************************************************
+	Add an attribute to this group. Returns the attribute added.
+***************************************************************************/
+GroupItem addAttrDouble( String n,double v )
+{
+GroupItem	group;
+    if !n || !this return null;
+    group = add(n);
+	if group group.number = v;
+	return group;
+}
+
+GroupItem addAttrGroup( String n,GroupItem v )
+{
+GroupItem	block;
+    if !n || !this return null;
+    if block = add(n) block.group = v;
+	return block;
+}
+
+GroupItem addAttrInt( String n,int v )
+{
+GroupItem	group;
+    if !n || !this return null;
+    group = add(n);
+	if group group.count = v;
+	return group;
+}
+
+GroupItem addAttrItem( String n,PLGitem v )
+{
+GroupItem	group;
+    if !n || !this return null;
+	if v
+		{
+		group = add(n);
+		if group group.item = v;
+		}
+	return group;
+}
+
+void addAttrMap(BitMAP map)
+{
+    if !map || !this return;
+    if !attributes attributes = new(map);
+    else attributes += map;
+}
+
+GroupItem addAttrString( String n,String v )
+{
+GroupItem	group;
+    if !n || !this return null;
+	if v
+		{
+		group = add(n);
+		if group group.text = v;
+		}
+	return group;
+}
+
+GroupItem addAttrValue( String n,void *v )
+{
+GroupItem	group;
+    if !n || !this return null;
+	if v
+		{
+		group = add(n);
+		if group group.pointer = v;
+		}
+	return group;
+}
+
+/******************************************************************************
+	Add all attributes from the Group passed in.
+******************************************************************************/
+void addAttributesOf(GroupItem group)
+{
+    if group.attributes
+        if !attributes attributes = new(group.attributes);
+        else attributes += group.attributes;
+}
+
+/***************************************************************************
+	Add a body to this block
+***************************************************************************/
+void addBody(PLGitem body)
+{
+GroupItem	group;
+	if !body return;
+	if !members
+        {
+        item = body;
+        isSingleton = false;
+        }
+	else {
+		group = new("body");
+		group.item = body;
+		group.noTag = true;
+		add(group);
+		}
+}
+
+/***************************************************************************
+	Add a member to this group. If noDuplicates set and you try to add a
+	duplicate, returns null. No registration happening here.
+***************************************************************************/
+GroupItem addGroup(GroupItem group)
+{
+	if group && this
+        if notRecursive(group)
+            {
+            if group == this
+                {
+                cerr "GroupItem add: Tried to add " group.tag " to itself\n";
+                return null;
+                }
+            /*********************************************************************
+                The following handles adding a member (the normal case).
+            *********************************************************************/
+            if !deferMaps && !group.isAttribute
+                {
+                if !members
+                    {
+                    members = getMap(0);
+                    isSingleton = false;
+                    }
+                if noDuplicates && getMember(group.tag) return null;
+                if group.parent && copyOnAdd
+                    {
+                    group = group.copy();
+                    if registry && registry.loadComponents registry += group;
+                    }
+                members += group;
+                isSingleton = false;
+                if hasList clearList();
+                }
+            /*********************************************************************
+                The case where we add an attribute
+            *********************************************************************/
+            if group.isAttribute
+                {
+                if !attributes attributes = getMap(0);
+                if copyOnAdd && (group.value || !group.registry)
+                    group = group.copy(true);
+                attributes += group;
+                }
+            /*********************************************************************
+                Setting the parent of the group passed in
+            *********************************************************************/
+            if !isShell group.parent = this;
+            if parser group.parser = parser;
+            or group.parser parser = group.parser;
+            /*********************************************************************
+                If the group passed in is in a grouped registry, deal with it
+            *********************************************************************/
+            if group.registry && group.registry.grouped
+                if registry != group.registry && parser.setName
+                    {
+                    GroupItem   item = group[setName];
+                    if !item
+                        {
+                        item = group += setName;
+                        item.noPrint = true;
+                        item.isMapped = true;
+                        item.registry = group.registry; // to avoid looping
+                        item.addAsAttribute(group);
+                        item.registry = null;
+                        }
+                    item += this;
+                    group.isMapped = true;
+                    }
+                or group.registry.tagged
+                    group += this;
+            }
+        else cerr "addGroup: ERROR tried to add a recursive group",group.tag,"to",getTagXML():;
+	return group;
+}
+
+/***************************************************************************
+	Add members from the BitMAP passed in.
+***************************************************************************/
+void addMap(BitMAP map)
+{
+    if !map || !this return;
+    if !members
+        {
+        members = new(map);
+        isSingleton = false;
+        }
+    else members += map;
+    if hasList clearList();
+}
+
+/******************************************************************************
+	Add all members from the Group passed in.
+******************************************************************************/
+void addMembersOf(GroupItem group)
+{
+    if group.members
+        {
+        addMap(group.members);
+        return;
+        }
+    add(group);
+}
+
+/***************************************************************************
+	Add an attribute. If the attribute already exists, returns it,
+***************************************************************************/
+GroupItem addString(String n)
+{
+GroupItem	group;
+	if !n || !this return null;
+	group = getAttribute(n);
+	if !group
+        {
+        group     = new(n);
+        group.isAttribute	= true;
+        group               = add(group);
+        }
+	return group;
+}
+
+/******************************************************************************
+	Return a BitMAP for this item. If flag is set, builds a map of only
+    atomic elements;
+******************************************************************************/
+BitMAP buildMap(int flag)
+{
+GroupItem	item;
+BitMAP		myMap;
+	if !hasMap
+		{
+		myMap = new();
+		if members
+            {
+            myMap += members;
+            if flag myMap -= index;
+			while nextMember(item)
+				if item.members
+                    {
+                    myMap |= item.buildMap(flag);
+                    if flag myMap -= item.index;
+                    }
+				else set(item.index);
+            }
+		else set(index);
+		}
+	else myMap = map;
+	return myMap;
+}
+
+/***************************************************************************
+	Clears members and attributes and zeros out contents.
+    Retains: tag, other, index, offset, registry and parser.
+***************************************************************************/
+void clear()
+{
+String      saveTag     = tag;
+ParseXML    saveParser  = parser;
+void        *saveOther  = other;
+int         saveIndex   = index,
+            saveOffset  = offset;
+GroupRegistry    saveRegistry = registry;
+    //cout "Releasing " tag,index:;
+    if members
+        {
+        members.clear();
+        if hasList clearList();
+        }
+    if attributes
+        attributes.clear();
+    memset(this,0,sizeof(GroupItem));
+    tag     = saveTag;
+    parser  = saveParser;
+    other   = saveOther;
+    index   = saveIndex;
+    offset  = saveOffset;
+    registry = saveRegistry;
+}
+
+/*****************************************************************************
+	If hasList, clears the list, retaining the empty list in the LiST attribute
+*****************************************************************************/
+void clearList()
+{
+GroupItem       group = getAttribute("LiSt");
+    if group
+        {
+        DoubleLinkList   list = group.pointer;
+        if list && list.length list.clear();
+        }
+}
+
+/*****************************************************************************
+	Compare the value of this item to the value of the item passed in. The
+	results get a little arbitrary if the values differ.
+*****************************************************************************/
+int compare(GroupItem group)
+{
+int result = compare(tag,group.tag);
+    if !result
+        {
+        if registry && registry == group.registry && loadByValue
+            result = compare(text,group.text);
+        or value == group.value
+            switch(value)
+                {
+                case isCount:
+                case isNumber:
+                    result = (int)(number - group.number);
+                case isItem:
+                    result = item.compare(group.item);
+                case isString:
+                    result = compare(text,group.text);
+                }
+        or !value result = -1;
+        else result = 1;
+        }
+	return result;
+}
+
+/*****************************************************************************
+	Compare this item to item passed in based on attributes in the template
+*****************************************************************************/
+int compareMask(GroupItem item,GroupItem mask)
+{
+GroupItem	attribute,
+			left,
+			right;
+int			result;
+String      rTag;
+	if !item || !mask
+		cerr "GroupItem compare: invalid input\n";
+	else {
+		if mask.compareTags result = compare(item.tag,mask.tag);
+		if !result
+			while mask.nextAttribute(attribute)
+				{
+                rTag    = attribute.resolvedTag();
+				left    = getAttribute(rTag);
+				right   = item[rTag];
+				if attribute.descending
+					if !left result++;
+                    or !right result--;
+					else result = right.compare(left);
+				or !left result--;
+                or !right result++;
+				else result = left.compare(right);
+				if result break;
+				}
+		}
+    if mask.descending && result
+        return -result;
+	return result;
+}
+
+/***************************************************************************
+	Returns a copy of this group (does deep copy of members to maintain the
+	correct hierarchy). If you have a deep hierarchy, this gets ugly fast.
+***************************************************************************/
+GroupItem copyAttributes(int attributeFlag)
+{
+GroupItem	newItem,
+			itemCopy,
+			item;
+int			expand = doNotExpandMacros;
+    copied              = true;
+	newItem = new(this);
+	newItem.members		= null;
+    newItem.copied      = true;
+	newItem.copyOnAdd	= true;
+	if members
+		while nextMember(item)
+			itemCopy = newItem += item;
+	newItem.copyOnAdd = false;
+	if attributes && (hasMacro || attributeFlag)
+		{
+		newItem.attributes = null;
+		doNotExpandMacros = true;
+		while nextAttribute(item)
+			if item.isMacro || item.value
+				newItem.addAsAttribute(itemCopy = new(item));
+			else newItem.addAsAttribute(item);
+		doNotExpandMacros = expand;
+		}
+	return newItem;
+}
+
+GroupItem copy()
+{
+    return copy(false);
+}
+
+/***************************************************************************
+	Dumps group to stdout (only one level)
+***************************************************************************/
+void dumpAttribute(int indent)
+{
+int			i;
+GroupItem   item;
+	for (i = indent; i > 0; i--)
+		cout "\t";
+	cout "Attribute: ",index,tag;
+	if value || (registry && loadByValue) cout "=" text;
+    if registry cout ,offset;
+    if isMacro cout " macro";
+    if track cout " tracked";
+    if parent cout " parent " parent.tag,parent.index:; else cout " no parent":;
+    if members && !track && !noPrint
+        {
+        indent++;
+        while nextMember(item)
+            item.dump(indent,1);
+        indent--;
+        }
+    if noPrint return;
+    /*
+    {
+    GroupItem   item;
+    if attributes
+        while nextAttribute(item)
+            item.dumpAttribute(indent + 1);
+    if members
+        while nextMember(item)
+            item.dumpDetail(indent + 1,indent + 2);
+    }
+    */
+}
+
+/***************************************************************************
+	Dumps a string representation of this group, does not resolve macros
+***************************************************************************/
+void dumpDetail(int indent,int level)
+{
+int			i,
+            macroFlag = doNotExpandMacros;
+GroupItem	group;
+    doNotExpandMacros = true;
+	if isAttribute dumpAttribute(indent);
+    else {
+        for (i = indent; i > 0; i--)
+            cout "\t";
+        if registry cout tag,index,offset;
+        else cout tag,index;
+        if other cout " has detail";
+        if isTarget cout " target";
+        if parent cout " parent " parent.tag,parent.index; else cout " no parent";
+        cout "\n";
+        indent++;
+        if attributes
+            {
+            //attributes.dump();
+            while nextAttribute(group) group.dumpAttribute(indent);
+            }
+        if members && indent <= level
+            {
+            //members.dump();
+            while nextMember(group)
+                group.dump(indent,level);
+            }
+        }
+    doNotExpandMacros = macroFlag;
+}
+
+/*****************************************************************************
+	returns a copy of this group filtering out unwanted attributes.
+*****************************************************************************/
+GroupItem filter(GroupItem item)
+{
+GroupItem	traitKeep,
+            traitCopy,
+            group = new(this);
+    group.attributes = null;
+    group.copyOnAdd = true;
+    while item.nextAttribute(traitKeep)
+        if traitCopy = getAttribute(traitKeep.tag)
+            {
+            if !traitCopy.value || traitCopy.registry
+                group.addAsAttribute(traitCopy);
+            else group.addGroup(traitCopy);
+            }
+    group.copyOnAdd = false;
+    return group;
+}
+
+/*****************************************************************************
+	Searches bottom up for the first attribute or member matching name.
+	If not found, searches registries on the search list. 
+*****************************************************************************/
+GroupItem find(String name)
+{
+GroupItem   item = this,
+            group;
+    while item
+        {
+        if item.tag eq name
+            {
+            group = item;
+            break;
+            }
+        or group = item%name break;
+        or group = item/name break;
+        item = item.parent;
+        }
+    if !group && parser group = locate(name);
+    return group;
+}
+
+/*****************************************************************************
+	Searches ancestors bottom up for the first attribute matching name.
+*****************************************************************************/
+GroupItem findAttribute(String name)
+{
+GroupItem	result,
+            group = this;
+	while group
+		{
+        if (isAttribute && resolvedTag() eq name) result = group;
+        else result = group[name];
+        if result
+            {
+            // because parent is not guaranteed to be right for attributes w/no value
+            result.parent = group;
+            break;
+            }
+		group = group.parent;
+		}
+	return result;
+}
+
+/*****************************************************************************
+	Returns the named parent.
+*****************************************************************************/
+GroupItem findParent(String name)
+{
+GroupItem	group = this;
+    while group = group.parent
+        if group.tag eq name
+            break;
+    return group;
+}
+
+/*****************************************************************************
+	Like get, searches members to find the first one matching the tag passed
+    in, unlike get, search descends the hierarchy.
+*****************************************************************************/
+GroupItem first(String name)
+{
+GroupItem	result,block;
+	if !name return null;
+    //cout "Searching " tag:;
+	while nextMember(block)
+        if block.tag eq name return block;
+	while nextMember(block)
+        if result = block.first(name)
+            return result;
+	return null;
+}
+
+/*****************************************************************************
+    Returns the first member.
+*****************************************************************************/
+GroupItem firstMember()
+{
+GroupItem    block;
+    if !members return null;
+    return nextMember(block);
+}
+
+/*****************************************************************************
+	Searches members for one matching the name passed in. If not found, searches
+    the registry associated with this item, if there is one, and the currentRegistry.
+*****************************************************************************/
+GroupItem get(String name)
+{
+GroupItem	block;
+	if !name || !this return null;
+	block = getMember(name);
+	if !block
+        if registry block = registry[name];
+        or currentRegistry block = currentRegistry[name];
+	return block;
+}
+
+/***************************************************************************
+	Get the named attribute. This will return an attribute even if the
+	attribute noPrint flag is set.
+***************************************************************************/
+GroupItem getAttribute(String text)
+{
+GroupItem       attribute;
+GroupRegistry   type;
+	if text && this && attributes && attributes.bitCount
+        {
+        if registries type = registries[text];
+        while nextAttribute(attribute)
+            if attribute.tag eq text 
+                || (type && attribute.registry == type)
+                return attribute;
+        }
+	return null;
+}
+
+/*****************************************************************************
+    if there are members:
+        if hasList is set and there is a LiSt attribute, returns its list.
+        Otherwise makes a DoubleLinkList from the members map and stores the
+        list in the LiSt attribute, sets hasList.
+ *****************************************************************************/
+DoubleLinkList getList()
+{
+GroupItem       item;
+DoubleLinkList  list;
+    if members && members.bitCount > 0
+        {
+        if hasList
+            if item = getAttribute("LiSt")
+                list = item.pointer;
+            else hasList = false;
+        if !list
+            {
+            list = toList();
+            if !item
+                item = addAttribute("LiSt",(void*)list);
+            else item.pointer = list;
+            item.noPrint    = true;
+            hasList         = true;
+            }
+        }
+    return list;
+}
+
+/*****************************************************************************
+	Resolve a macro reference. Implies this is an attribute. If the macro
+    source is found, it gets listened to and the macro turns off, otherwise
+    checks for and resolves embedded macros. The search looks first at
+    attributes up the hierarchy then descendents, then ancestors. If not
+    found, it looks for embedded macros (the call to parseMacro).
+*****************************************************************************/
+void getMacro()
+{
+GroupItem	block;
+String      macro = gText;
+int         flag = doNotExpandMacros;
+    if doNotExpandMacros || !macro return;
+    isMacro = false;
+    block = find(macro);
+    if !block block = locate(macro);
+    if block
+        {
+        text    = block.text;
+        group   = block;            //Used in matrix processing
+        listenTo(block);
+        }
+    else parseMacro(this,macro);
+    doNotExpandMacros = flag;
+}
+
+/*****************************************************************************
+	Searches members to find the first one matching the tag passed in.
+*****************************************************************************/
+GroupItem getMember(String name)
+{
+GroupItem	block;
+	if name && this && members && members.bitCount
+        while nextMember(block)
+            if block.tag eq name break;
+	return block;
+}
+
+/*****************************************************************************
+	Return tag as a string
+*****************************************************************************/
+String getTagXML()
+{
+	scratch.reset();
+    writeTagXML(scratch);
+    return scratch.toString();
+}
+
+/*****************************************************************************
+	Value getters
+*****************************************************************************/
+char getChar()
+{
+String	atStart, atNext;
+	if value
+		{
+		if isString atStart = text;
+		if isItem
+			{
+			PLGitem token = item;
+			atStart = token.start;
+			}
+		}
+	if atStart
+		{
+		atNext = atStart + 1;
+		if atStart != '\\' return *atStart;
+		else
+		switch(*atNext)
+			{
+			case 'n':   return '\n';
+			case 'r':   return '\r';
+			case 'f':   return '\f';
+			case 't':   return '\t';
+			case '\\':  return '\\';
+			default:    return *atNext;
+			}
+		}
+	return null;
+}
+
+int getCount()
+{
+	if isMacro getMacro();
+	if isCount return count;
+	if isNumber return (int)number;
+    if isItem && gItem.amount return (int)gItem.amount;
+    if isGroup return group.getCount();
+	return 0;
+}
+
+int getDataType()
+{
+    if isGroup
+        if group == this return 0;
+    else return group.getDataType();
+    if isItem && gItem.amount return 5; // isNumber
+    return data;
+}
+
+GroupItem getGroup()
+{
+	if isMacro getMacro();
+	if isGroup return group;
+	return 0;
+}
+
+PLGitem getItem()
+{
+	if isMacro getMacro();
+	if isItem || isDate return item;
+    if isGroup return group.getItem();
+	return 0;
+}
+
+BitMAP getMap()
+{
+	if isMacro getMacro();
+    if isGroup return group.getMap();
+	if hasMap
+		if pointer return (BitMAP)pointer;
+		else value = 0;
+	return 0;
+}
+
+double getNumber()
+{
+	if isMacro getMacro();
+	if isNumber return number;
+	if isCount return (double)count;
+    if isItem && gItem.amount return gItem.amount;
+    if isGroup return group.getNumber();
+	return 0;
+}
+
+void *getPointer()
+{
+	if isMacro getMacro();
+	if isItem || isPointer || hasMap || isString || isGroup
+		if pointer return pointer;
+		else value = 0;
+	return 0;
+}
+
+PLGrgx getRegex()
+{
+	if isMacro getMacro();
+	if isRegex return regex;
+	return 0;
+}
+
+String getText()
+{
+String      junk;
+GroupItem   block;
+	if isMacro
+        getMacro();
+	if value
+		{
+		if isString || text
+            {
+			if text return text;
+			or isString value = 0;
+            }
+		or hasMap
+			if pointer return "mapped";
+			else value = 0;
+		or isItem || isDate
+			{
+			if item
+				{
+				PLGitem	token = item;
+				return token.toString();
+				}
+			else value = 0;
+			}
+		or isCount || isNumber
+			{
+			junk = malloc(20);
+			if isCount	print(junk) count;
+			or isNumber	print number;
+			if isPercent strcat(junk,"%");
+			}
+        or isGroup
+            {
+            if block = group
+                junk = block.getText();
+            else value = 0;
+            }
+		}
+    or registry && loadByValue
+        junk = tag;
+    or block = get("boDY")
+        return block.getText();
+	return junk;
+}
+
+/*****************************************************************************
+    Searches attributes first and then members for one matching the name passed in.
+*****************************************************************************/
+GroupItem getWhatever(String name)
+{
+GroupItem    block;
+    if !name || !this return null;
+    block = getAttribute(name);
+    if !block
+        block = getMember(name);
+    return block;
+}
+
+/*****************************************************************************
+	Processes a groupBy command
+*****************************************************************************/
+void groupBy(GroupItem grouper)
+{
+GroupItem   item;
+String      maskText;
+    if grouper maskText = grouper.text;
+    if !grouper || !maskText
+        cerr "ERROR groupBy could not get name of grouping item in " getTagXML():;
+    if item = locate(maskText) sort(item);
+    else sort(maskText);
+}
+
+/*****************************************************************************
+        Write out indent to buffer
+*****************************************************************************/
+void indent(Buffer buffer)
+{
+int i;
+	if tag eq "p" || tag eq "br" return;
+	indentCount++;
+    indented			= true;
+    for ( i = indentCount; i > 0; i-- )
+        print(buffer) "\t";
+	// if offset, a prior sibling exists
+	//if parent.isShell && offset print "\n";
+}
+
+/*****************************************************************************
+	Returns the relative index of this item in its parent. Returns zero if
+    not found.
+*****************************************************************************/
+int indexInParent()
+{
+GroupItem   item;
+int         i;
+    if parent
+        while parent.nextMember(item)
+            {
+            i++;
+            if item == this break;
+            }
+    return i;
+}
+
+/*****************************************************************************
+	Returns true if this index matches the itemIndex of the group passed in.
+	Also returns true if there is no index.
+*****************************************************************************/
+int indexMatches(GroupItem group)
+{
+unsigned long	mask,
+				result;
+	if !offset
+		|| !group
+		|| !group.offset
+		|| !registry
+		|| !group.registry
+		|| doNotIndex
+		|| group.doNotIndex return true;
+	mask = group.indexed ? group.itemIndex : group.setBitIndex();
+	if !indexed setBitIndex();
+	if !itemIndex || !mask return true;
+	result = itemIndex & mask;
+	return result > 0;
+}
+
+/***************************************************************************
+    And members of group with the members of item so that group ends up
+    containing only members that are in both group and item.
+***************************************************************************/
+void intersectWith(GroupItem item)
+{
+    if !item || !members || !item.members return;
+    or members &= item.members
+        return;
+    else {
+        members.clear();
+        mapTape.free(members);
+        members = null;
+        isSingleton = true;
+        }
+    if hasList clearList();
+}
+
+/*****************************************************************************
+	Returns the indexed element assuming it is in range.
+*****************************************************************************/
+GroupItem itemAt(int index)
+{
+GroupItem   item = groupList[index];
+    return item;
+}
+
+/*****************************************************************************
+	Listen to the group passed in as argument.
+*****************************************************************************/
+void listenTo(GroupItem group)
+{
+GroupItem	listener;
+	listener = group%lISTEn;
+	if !listener
+		{
+		listener = new("lISTEn");
+		listener.isAttribute = true;
+        listener.isShell = true;
+        // listener is made a shell so that when this is added to it, this parent
+        // does not change
+		listener.noPrint = true;
+		group += listener;
+		group.hasListener = true;
+		}
+	listener += this;
+	//cout "Adding to listener: " group.tag,group.text; if group.parent cout " of " group.parent.tag;
+    //cout `": " tag,text; if parent cout " of " parent.tag; cout :;
+}
+
+/***************************************************************************
+	Reads in a directory from the file system and creates a member of this
+    for every directory entry. Optionally, directory entries may be screened
+    (if there is a files attribute that provides a match value to test against.
+***************************************************************************/
+GroupItem loadDirectory()
+{
+Directory       *direct;
+DIR             *atDirect;
+GroupRegistry   registered;
+GroupItem       directory   = this%directory,
+                into        = this%into,
+                mask        = this%mask,
+                target      = this,
+                group;
+PLGrgx		    rgx;
+String          name;
+    if into
+        {
+        registered = registries[into.text];
+        if !registered
+            {
+            if parser target = locate(into);
+            if !target
+                {
+                cerr "loadDirectory: could not find target",into:;
+                return null;
+                }
+            }
+        }
+    if atDirect = opendir(directory.text)
+        while direct = readdir(atDirect)
+            {
+            if mask && mask.isRegex rgx = mask.regex;
+            if rgx && !rgx.matches(directoryName) continue;
+            if name = head(directoryName,'.')
+                {
+                group       = new(name);
+                group["file"] = copy(directoryName);
+                group       += directory;
+                if registered registered += group;
+                else target += group;
+                }
+            }
+    cout "loadDirectory: loaded",directory.text:;
+    return target;
+}
+
+/***************************************************************************
+	Creates a member list for this item by anding the members of each
+    attribute mapped by name.
+***************************************************************************/
+void mapAttributes()
+{
+GroupItem	group,map;
+    while nextAttribute(group)
+        if group.isMapped
+            {
+            map = group[tag];
+            if map && map.members
+                if members
+                    members &= map.members;
+                else members = new(map.members);
+            }
+    noPrint     = true;
+    isMapped    = true;
+    if members && !members.bitCount
+        {
+        members.clear();
+        members = null;
+        isSingleton = true;
+        if hasList clearList();
+        }
+}
+
+/***************************************************************************
+	Maps this item wrt the named block used as data source. Assumes this
+    is a group, the atomic elements of which were mapped for the data
+    source when loaded. Returns the attribute containing the created map.
+***************************************************************************/
+GroupItem mapContents(String name)
+{
+GroupItem	group,mapper,groupMap;
+    // Does not recreate map if it already exists.
+    //cout "mapContents: for " tag " wrt " name:;
+    if groupMap = getAttribute(name)
+        return groupMap;
+    or members
+        while group = nextMember(group)
+            {
+            mapper = group[name];
+            if !mapper mapper = group.mapContents(name);
+            if mapper
+                {
+                if !groupMap groupMap = addString(name);
+                groupMap.addMap(mapper.members);
+                }
+            }
+    if groupMap
+        {
+        groupMap.noPrint = true;
+        groupMap.addAsAttribute(this);
+        groupMap.isMapped = true;
+        isMapped = true;
+        }
+    return groupMap;
+}
+
+/*****************************************************************************
+	Check to see if this matches the target passed in
+*****************************************************************************/
+int matches(GroupItem target)
+{
+PLGrgx		rgx;
+	//cout ``"matches: " getTagXML()` "against: " target.getTagXML() :;
+	if !target.isAny
+        {
+        if target.isRegistry
+            if target.registry[resolvedTag()] goto matchSuccess;
+            else goto failedMatch;
+		or !target.isRegex
+			{
+			if !indexMatches(target) goto failedMatch;
+			if resolvedTag() ne target.resolvedTag() goto failedMatch;
+			}
+		else {
+			rgx = target.regex;
+			if !rgx goto failedMatch;
+            /*****************************************************************
+                If the target regular expression refers to the tag, there is
+                no gText set (since the tag is the text representation of the
+                expression. If it refers to the value, gText is set and it
+                gets tested against the value in the following block.
+            *****************************************************************/
+			if !target.gText && !noTag
+                if rgx.matches(resolvedTag()) goto matchSuccess;
+                else goto failedMatch;
+			}
+        }
+    else goto matchSuccess;
+	if target.value || (target.registry && target.registry.loadByValue)
+        if target.isRegex && rgx.matches(text)
+            goto matchSuccess;
+        else return text eq target.text;
+matchSuccess:
+	return true;
+failedMatch:
+	return false;
+}
+
+/*****************************************************************************
+	Return maximum (used sometimes in xPath specifications). If there is
+    no max attributes, the default max is 1.
+*****************************************************************************/
+int maximum()
+{
+GroupItem   max;
+    if hasMaximum
+        if max = getAttribute("max") return max.count;
+	return 1;
+}
+
+/*****************************************************************************
+	Returns the nth member (for example, the third or fourth) of this item.
+*****************************************************************************/
+GroupItem memberAt(int offset)
+{
+GroupItem   item;
+    if members item = itemAt(members.nth(offset));
+    return item;
+}
+
+/***************************************************************************
+	Merge group into this item. Does not add matching attributes.
+***************************************************************************/
+void merge(GroupItem group)
+{
+GroupItem	item;
+int         copyFlag = copyOnAdd,
+            macroFlag = doNotExpandMacros;
+    if !group return;
+    //cout "Merging " group.getTagXML() " into " getTagXML():;
+    doNotExpandMacros = true;
+    copyOnAdd = true;
+	if group.members
+		while group.nextMember(item)
+            add(item);
+    mergeAttributes(group);
+    copyOnAdd = copyFlag;
+    doNotExpandMacros = macroFlag;
+}
+
+/***************************************************************************
+	Merge attributes from the group passed in into this item. Does not add
+    matching attributes.
+***************************************************************************/
+void mergeAttributes(GroupItem group,int mergeFlag)
+{
+GroupItem	existing,replacement,item = this;
+int         copyFlag = copyOnAdd,
+            macroFlag = doNotExpandMacros;
+    doNotExpandMacros = true;
+    copyOnAdd = true;
+	item = null;
+	while group.nextAttribute(item)
+        {
+        String  itemTag = item.resolvedTag();
+        existing    = getAttribute(itemTag);
+		if !existing || (mergeFlag && existing != item)
+            {
+            int doNotMerge = item.noMerge || (item.registry && item.registry.noMerging);
+            /***************************************************************
+                The following only happens if item is supposed to override
+                an existing copy (based on the mergeFlag passed in)
+            ***************************************************************/
+            if existing removeAttribute(existing);
+            /***************************************************************
+                Note: if the attribute to be merged has its own attributes
+                or members, the attributes and members are merged but not
+                the attribute itself
+            ***************************************************************/
+            if !doNotMerge && (item.attributes || item.members)
+                {
+                merge(item);
+                if item.isMacro hasMacro = true;
+                continue;
+                }
+            if !item.value
+                {
+                if replacement = locate(itemTag)
+                    {
+                    doNotMerge = replacement.noMerge || (replacement.registry && replacement.registry.noMerging);
+                    if !doNotMerge && (replacement.attributes || replacement.members)
+                        {
+                        merge(replacement);
+                        if replacement.isMacro hasMacro = true;
+                        continue;
+                        }
+                    }
+                addAsAttribute(item);
+                continue;
+                }
+            else {
+                // if item has a value add a copy of item
+                replacement = new(item);
+                addAsAttribute(replacement);
+                if item.isMacro hasMacro = true;
+                }
+			}
+        }
+    copyOnAdd = copyFlag;
+    doNotExpandMacros = macroFlag;
+}
+
+/***************************************************************************
+	Locates the group named in the parameter and if found merges it in
+***************************************************************************/
+void mergeIfFound(String name)
+{
+GroupItem   group = locate(name);
+    if group merge(group);
+    else cerr "merge: could not find " name:;
+}
+
+/*****************************************************************************
+	Return minimum (used sometimes in xPath specifications).
+*****************************************************************************/
+int minimum()
+{
+GroupItem min;
+    if hasMinimum
+        if min = getAttribute("min") return min.count;
+	return 1;
+}
+
+/***************************************************************************
+	Iterates thru attributes. The group passed in is taken as the last item
+	iterated. If it is null, the first item is returned.
+***************************************************************************/
+GroupItem nextAttribute(GroupItem *&group)
+{
+int	i;
+	if attributes && attributes.bitCount
+		{
+		if group i = attributes.next(group.index);
+		else i = attributes.next(0);
+		group = get(i);
+		//if group && group.isMacro && !doNotExpandMacros group.getMacro();
+		}
+	else group = null;
+	return group;
+}
+
+/*****************************************************************************
+	Return the block following this in the parent
+*****************************************************************************/
+GroupItem nextBlock()
+{
+GroupItem	item = this;
+	if !parent return null;
+	item = (GroupItem)parent.nextMember(item);
+    return item;
+}
+
+/***************************************************************************
+	Iterates thru members. The group passed in is taken as the last item
+	iterated. If it is null, the first item is returned.
+***************************************************************************/
+GroupItem nextMember(GroupItem *&group)
+{
+int	i;
+DoubleLinkList  list;
+	if members && members.bitCount
+        {
+        if hasList
+            if list = getList()
+                if list.length > 0
+                    {
+                    GroupItem item;
+                    if group && (!entry || group != (GroupItem)entry.value)
+                        {
+                        entry = null;
+                        while item = list.next()
+                            if item == group break;
+                        if !item goto bailNextMember;
+                        }
+                    group = list.next();
+                    goto bailNextMember;
+                    }
+        if group i = members.next(group.index);
+        else i = members.next(0);
+        group = get(i);
+        }
+	else group = null;
+bailNextMember:
+	return group;
+}
+
+/*****************************************************************************
+    Returns true if the group passed in is not an ancestor of this.
+*****************************************************************************/
+int notRecursive(GroupItem group)
+{
+GroupItem   item = this;
+    while item
+        {
+        if item == group return false;
+        item = item.parent;
+        }
+    return true;
+}
+
+/*****************************************************************************
+	Debugging routine to print out mapped data
+*****************************************************************************/
+void printData(String name)
+{
+GroupItem	item, set;
+int         i;
+    for ( i = indentCount; i > 0; i-- ) cout "\t";
+    cout tag:;
+    indentCount++;
+    if members
+        {
+        while nextMember(item)
+            item.printData(name);
+        }
+    or set = getAttribute(name)
+        while set.nextMember(item)
+            {
+            for ( i = indentCount; i > 0; i-- ) cout "\t";
+            cout `item:;
+            }
+    else cout `"No data":;
+    indentCount--;
+}
+
+/*****************************************************************************
+	Return the block prior to this in the parent
+*****************************************************************************/
+GroupItem priorBlock()
+{
+GroupItem	item = this;
+	if !parent return null;
+	item = (GroupItem)parent.priorMember(item);
+    return item;
+}
+
+/***************************************************************************
+	Iterates thru members in reverse order. The group passed in is taken as
+	the last item iterated. If it is null, the last item is returned.
+***************************************************************************/
+GroupItem priorMember(GroupItem *&group)
+{
+DoubleLinkList  list;
+int	i;
+	if members && members.bitCount
+		{
+        if hasList
+            if list = getList()
+                if list.length > 0
+                    {
+                    GroupItem item;
+                    if group && (!entry || group != (GroupItem)entry.value)
+                        {
+                        entry = null;
+                        while item = list.prior()
+                            if item == group break;
+                        if !item goto bailPriorMember;
+                        }
+                    group = list.prior();
+                    goto bailPriorMember;
+                    }
+		if group i = members.prior(group.index);
+		else i = members.prior(0);
+		group = get(i);
+		}
+	else group = null;
+bailPriorMember:
+	return group;
+}
+
+/*****************************************************************************
+	Make sure this group is in the registry passed in, registers members
+	and attributes as well.
+*****************************************************************************/
+void registerIn(GroupRegistry type)
+{
+GroupItem	group;
+	if isRegex || isComment return;
+	//cout "Registering " tag:;
+	if !isShell
+		if group = type[tag] return;
+		else type.add(this);
+	if !noAttributes
+		while nextAttribute(group)
+			group.registerIn(type);
+    if type.loadComponents
+        while nextMember(group)
+            group.registerIn(type);
+}
+
+/***************************************************************************
+	Clears item and releases members and attributes if they exist. If the
+    stash parameter is not null, the released item is added to the stash.
+***************************************************************************/
+void release(GroupItem stash)
+{
+GroupItem   group;
+    if copied return;
+    while nextMember(group)
+        if !group.copied group.release(stash);
+    while nextAttribute(group)
+        if group.registry && !group.data && !group.members
+            && !group.attributes continue;
+        or !group.copied group.release(stash);
+    //cout "Releasing " tag,index:;
+    clear();
+    if members
+        {
+        mapTape.free((void*)members);
+        members = null;
+        }
+    if attributes
+        {
+        mapTape.free((void*)attributes);
+        attributes = null;
+        }
+    if stash stash += this;
+}
+
+/***************************************************************************
+	Remove group from attributes. Clears attributes bit map if it ends up empty.
+***************************************************************************/
+void removeAttribute(GroupItem group)
+{
+	if attributes
+        {
+		attributes -= group.index;
+        group.parent = null;
+        if !attributes.bitCount
+            {
+            attributes.clear();
+            mapTape.free((void*)attributes);
+            attributes = null;
+            }
+        }
+}
+
+/***************************************************************************
+	Remove group from members) and clears members bit map if it ends up empty.
+***************************************************************************/
+void removeMember(GroupItem group)
+{
+	if members
+        {
+		members -= group.index;
+        group.parent = null;
+        if !members.bitCount
+            {
+            members.clear();
+            mapTape.free((void*)members);
+            members = null;
+            isSingleton = true;
+            }
+        if hasList
+            {
+            DoubleLinkList list = getList();
+            list.remove((void*)group);
+            }
+        }
+}
+
+/***************************************************************************
+    Remove item members from group.
+***************************************************************************/
+void removeMembersOf(GroupItem item)
+{
+    if !item || !members || !item.members return;
+    else members -= item.members;
+    if hasList clearList();
+}
+
+/***************************************************************************
+    Replaces this item in its parent attributes with a new item of same name.
+    Typically, you use this when you are dealing with a registered item that
+    has no value and you want to modify it without affecting any other
+    GroupItem that might refer to it.
+***************************************************************************/
+GroupItem replace()
+{
+GroupItem   item;
+    if !isAttribute
+        {
+        cerr "GroupItem replace: only works on attributes."tag,"is not an attribute":;
+        return null;
+        }
+    if !parent
+        {
+        cerr "GroupItem replace: failed, no parent for",tag:;
+        return null;
+        }
+    item    = new(this);
+    parent %-= this;
+    parent += item;
+    return item;
+}
+
+/*******************************************************************************
+	Replace the contents of this item with the contents of the item passed in.
+    Basically, this becomes a copy of item without changing the current index
+    or the position of this item in its parent. Note: Be careful if this or
+    the item parameter is registered.
+*******************************************************************************/
+void replaceWith(GroupItem item)
+{
+int oldIndex = index;
+GroupItem   oldParent = parent;
+    if members
+        {
+        members.clear();
+        mapTape.free((void*)members);
+        if hasList clearList();
+        }
+    if attributes
+        {
+        attributes.clear();
+        mapTape.free((void*)attributes);
+        }
+    *this   = *item;
+    index   = oldIndex;
+    parent  = oldParent;
+    resetHierarchy();
+}
+
+/*****************************************************************************
+	Goes thru members and attributes to make sure they have this as parent
+*****************************************************************************/
+void resetHierarchy()
+{
+GroupItem	item;
+    while nextMember(item)
+        {
+        item.parent = this;
+        if !item.registry item.registry = registry;
+        if item.members item.resetHierarchy();
+        }
+    while nextAttribute(item) if item.parent item.parent = this;
+}
+
+String resolvedTag()
+{
+    if isAttribute && registry && loadByValue return type;
+    return tag;
+}
+
+/*****************************************************************************
+    Save to a file (if there is a file attribute specified). Returns true if
+    it succeeds.
+*****************************************************************************/
+int saveToAttributedFile()
+{
+GroupItem    file = findAttribute("file");
+    if file return save(file.text);
+    cerr "Could not find file attribute for",tag:;
+    return false;
+}
+
+/*****************************************************************************
+    Save to the file name passed in.
+*****************************************************************************/
+int saveToFile(String filename)
+{
+    if filename
+        {
+        if scratch.file scratch.closeFile();
+        else scratch.reset();
+        scratch.setFile(filename);
+        print(scratch) this;
+        scratch.closeFile();
+        return true;
+        }
+    else cerr "No file name provided to save",tag:;
+    return false;
+    #resetPRINT
+}
+
+/*****************************************************************************
+	Sets the itemIndex mask. Sets itemIndex for members too.
+*****************************************************************************/
+unsigned long setBitIndex()
+{
+GroupItem		group;
+int				i, bitSpan;
+unsigned long	groupIndex;
+	if !indexed
+		{
+		indexed = true;
+		if !registry || deleted  || noPrint || hasRegex || isRegex
+			goto bail;
+		bitSpan	= sizeof(long) << 3;
+		if !isShell && !isRegex
+			{
+			i = offset % bitSpan;
+			itemIndex = i ? 1 << bitSpan - i : 1;
+			}
+		while nextMember(group)
+			{
+			if group.deleted continue;
+			groupIndex = group.setBitIndex();
+			if group.isRegex || group.hasRegex || (isRegex && gText)
+				{
+				hasRegex = true;
+				goto bail;
+				}
+			or groupIndex itemIndex |= groupIndex;
+			}
+		while nextAttribute(group)
+			{
+			if group.deleted continue;
+			groupIndex = group.setBitIndex();
+			if group.isRegex || group.hasRegex || (isRegex && gText)
+				{
+				hasRegex = true;
+				goto bail;
+				}
+			or groupIndex itemIndex |= groupIndex;
+			}
+		//cout "Setting bit index for " tag " to " itemIndex "\n";
+		}
+	return itemIndex;
+bail:
+	return itemIndex = 0;
+}
+
+/*****************************************************************************
+	Value setters
+*****************************************************************************/
+void setCount(int i)
+{
+	isCount		= true;
+	count		= i;
+    text        = null;
+	if hasListener updateListeners();
+}
+
+void setGroup(GroupItem g)
+{
+	if g
+		{
+		isGroup		= true;
+		group		= g;
+		}
+	else {
+		value	= 0;
+		group	= null;
+		text	= null;
+		}
+	if hasListener updateListeners();
+}
+
+void setItem(PLGitem i)
+{
+	if i
+		{
+		isItem		= true;
+		pointer		= i;
+		}
+	else {
+		value	= 0;
+		pointer	= null;
+		text	= null;
+		}
+	if hasListener updateListeners();
+}
+
+void setMap(BitMAP i)
+{
+	if i
+		{
+		hasMap	= true;
+		map		= i;
+		}
+	else {
+		value	= 0;
+		map		= null;
+		text	= null;
+		}
+	if hasListener updateListeners();
+}
+
+void setMethod(void &m(GroupItem))
+{
+	if m method		= m;
+	else {
+		value       = 0;
+		method      = null;
+		text        = null;
+		}
+	if hasListener updateListeners();
+}
+
+void setNumber(double d)
+{
+	isNumber	= true;
+	number		= d;
+    text        = null;
+	if hasListener updateListeners();
+}
+
+void setParent(GroupItem item)
+{
+    if !doNotChangeParent parent = item;
+}
+
+void setPointer(void *v)
+{
+	if v
+		{
+		isPointer	= true;
+		pointer		= v;
+		}
+	else {
+		value	= 0;
+		text	= null;
+		pointer	= null;
+		}
+	if hasListener updateListeners();
+}
+
+void setRegex(PLGrgx v)
+{
+	if v
+		{
+		isRegex     = true;
+		regex		= v;
+		}
+	else {
+		value	= 0;
+		text	= null;
+		pointer	= null;
+		}
+	if hasListener updateListeners();
+}
+
+void setText(String s)
+{
+	if s
+		{
+		isString	= true;
+		text		= s;
+		}
+	else {
+		value	= 0;
+		text	= null;
+		pointer	= null;
+		}
+	if hasListener updateListeners();
+}
+
+void setGroupContent(GroupItem item)
+{
+	if item.isCount setCount(item.count);
+	or item.isNumber setNumber(item.number);
+    or item.isString || !item.data setText(item.text);
+	else {
+        setPointer(item.pointer);
+        data = item.data;
+        }
+	if hasListener updateListeners();
+}
+
+/***************************************************************************
+	Return a linked list of members, building up the list as a B-tree based
+    on the attribute named in the parameter. The list is flattened before
+    it is returned. Entries missing the named attribute are ignored.
+***************************************************************************/
+void sortByAttribute(String mask)
+{
+GroupItem		group,
+                block,
+				item;
+DoubleLinkList	list;
+DoubleLink		link;
+	if !members return;
+    /***********************************************************************
+        The dosido w/hasList because cannot interleave reading from with
+        manipulating list contents
+    ***********************************************************************/
+    hasList = true;
+	list = getList();
+    list.clear();
+    hasList = false;
+	while nextMember(group)
+		{
+        if block = group[mask]
+            if link = entry
+                while link
+                    {
+                    item = link.value;
+                    item = item[mask];
+                    if item && block.compare(item) < 0
+                        if prior link = prior;
+                        else {
+                            addLeft((void*)group);
+                            break;
+                            }
+                    or link.next link = link.next;
+                    else {
+                        addRight((void*)group);
+                        break;
+                        }
+                    }
+            else {
+                list += (void*)group;
+                entry = list.first;
+                }
+		}
+	list.flatten();
+    hasList = true;
+}
+
+/***************************************************************************
+	Return a linked list of members, building up the list as a B-tree using
+	the mask passed in as parameter to the compare method to determine order.
+	The list is flattened before it is returned.
+***************************************************************************/
+void sortByMask(GroupItem mask)
+{
+GroupItem		group,
+				item;
+DoubleLinkList	list;
+DoubleLink		link;
+	if !members return;
+    /***********************************************************************
+        The dosido w/hasList because cannot interleave reading from with
+        manipulating list contents. If there is a list, getList returns it.
+        If not it creates one. In either case, the list needs to be cleared
+        because we begin here with an empty list and fill it as we go.
+    ***********************************************************************/
+    hasList = true;
+	list = getList();
+    list.clear();
+    hasList = false;
+	while nextMember(group)
+		{
+		if link = entry
+			while link
+				{
+				item = link.value;
+				if group.compare(item,mask) < 0
+					if prior link = prior;
+					else {
+						addLeft((void*)group);
+						break;
+						}
+                or link.next
+                    link = link.next;
+				else {
+					addRight((void*)group);
+					break;
+					}
+				}
+		else {
+			list += (void*)group;
+			entry = list.first;
+			}
+		}
+	list.flatten();
+    hasList = true;
+}
+
+/*****************************************************************************
+	Returns a double indirection array of members. If this is not a group
+	returns a list with this as its only member.
+*****************************************************************************/
+GroupItem **toArray()
+{
+GroupItem	**list;
+	if !members
+		{
+		list = (GroupItem**)calloc(2,sizeof(GroupItem*));
+		*list = this;
+		}
+	else list = toArray(members);
+	return list;
+}
+
+/*****************************************************************************
+	Returns a double indirection array of members or attributes depending
+    on which map you pass in.
+*****************************************************************************/
+GroupItem **toArrayFromMap(BitMAP map)
+{
+GroupItem	**atList,**list;
+int         i;
+    atList	=
+    list = (GroupItem**)calloc(map.bitCount + 1,sizeof(GroupItem*));
+    while i = map.next(i)
+        { *atList++ = get(i); }
+	return list;
+}
+
+/*****************************************************************************
+	Print out group as an xml block to the buffer passed in.
+*****************************************************************************/
+void toBuffer(Buffer buffer)
+{
+String		junk        = tag,
+            atOption    = " *+?!";
+GroupItem	trait;
+
+    if isAttribute
+		{
+		junk = wrapValue();
+		if noBlankAttributes && !junk goto finish;
+        if isTarget print(buffer) "@";
+        if isRigorous && junk print tag  "=\"" junk "\"";
+        print " ";
+        if !isRigorous
+            {
+            print wrap(resolvedTag());
+            if junk print "=" wrap(junk);
+            }
+        if isOption print *(atOption + isOption)#c,;
+        if isAlternate print "|";
+		return;
+		}
+	if !isShell
+		{
+		if !noTag
+            {
+            if !members isSingleton = true;
+            if mustIndent indent(buffer);
+            writeTagXML(buffer);
+            }
+        or isSingleton
+            print "</" tag ">";         // Not an end tag just looks like one
+		if isComment
+            {
+            indent(buffer);
+            print "<?" text "?>";
+            goto finish;
+            }
+		}
+	if parent parent.nextMember(trait = this);
+    if members || (value && !isAttribute && !isSingleton) || isRigorous
+		{
+		writeBody(buffer);
+		if !isShell && !noTag
+			&& (isClosed || !parent || isRigorous
+			|| trait || tag eq parent.tag)
+			{
+            if isRigorous && indentCount indent(buffer);
+			print "</";
+			buffer += wrap(tag);
+			print ">";
+            if !parent print :;
+			}
+		}
+	if indented && indentCount
+		indentCount--;
+finish:
+	return;
+}
+
+/*****************************************************************************
+	Returns a list containing members of this item
+*****************************************************************************/
+DoubleLinkList toList()
+{
+DoubleLinkList	list;
+GroupItem		item;
+	if !members || !members.length return null;
+	list = new;
+	while nextMember(item)
+		list += item;
+	return list;
+}
+
+/*****************************************************************************
+	Return xml representation of block
+*****************************************************************************/
+String toString()
+{
+String		junk;
+	scratch.reset();
+	indentCount = 0;
+    toBuffer(scratch);
+    junk    = scratch.toString();
+	return junk;
+}
+
+/*****************************************************************************
+	Update any items whose values are set to the value of this item. If this
+    item reacts, it is marked as modified.
+*****************************************************************************/
+void updateListeners()
+{
+GroupItem	listener,item;
+    if reacts modified = true;
+	if listener = getAttribute("lISTEn")
+		{
+		while listener.nextAttribute(item)
+            {
+            item.setGroupContent(this);
+            item.modified    = true;
+            }
+		while listener.nextMember(item)
+            {
+            item.setGroupContent(this);
+            item.modified    = true;
+            }
+		}
+}
+
+/***************************************************************************
+	Iterates thru the member hierarchy in a depth first walk. The group
+    passed in is taken as the last item iterated. If it is null, this group
+    is returned. If the item passed in is this group, the first member of
+    this group is returned. This way the walk starts with the calling block
+    that is, the first block returned is the calling block, unless you pass
+    the calling block as the item parameter.
+***************************************************************************/
+GroupItem walk(GroupItem *item)
+{
+GroupItem result,group;
+    if !item result = this;
+    or item == this result = nextMember(group);
+    else {
+        group = item.parent;
+        if group == this || !group
+            {
+            if item.members
+                result = item.walk(item);
+            if !result result = nextMember(item);
+            return result;
+            }
+        result = group.walk(item);
+        if !result
+            while item = item.parent
+                {
+                if item == this break;
+                if group = item.parent
+                    if result = group.nextMember(result = item) break;
+                }
+        }
+    return result;
+}
+
+/*******************************************************************************
+	Return text containing funky characters wrapped in appropriate quotes.
+    If text contains both " and ' you are screwed.
+*******************************************************************************/
+String wrap(String text)
+{
+String	at = text;
+	if mustQuoteSet.foundIn(text)
+		{
+		while *at && *at != '"' at++;
+		if *at && at == '"' at = "'" text "'";
+		else at = "\"" text "\"";
+		}
+	return at;
+}
+
+/*****************************************************************************
+	If no item passed in, returns an empty string, otherwise it returns the
+    item text, wrapping it in quotes if the text contains any character
+    in the must quote set.
+*****************************************************************************/
+String wrapItem(PLGitem item)
+{
+String	at;
+int		i;
+    if !item return "";
+    at = start;
+    i = item.length;
+	if mustQuoteSet.foundIn(item)
+		{
+		while i-- && *at != '"' at++;
+		if *at && at == '"' at = "'" item "'";
+		else at = "\"" item "\"";
+		return at;
+		}
+	return item.toString();
+}
+
+/*******************************************************************************
+	Return text appropriate value (handles regex)
+*******************************************************************************/
+String wrapValue()
+{
+String	at;
+    if hasMap
+        at = "isBitMAP";
+    else
+        {
+        at = text;
+        if isRegex && at
+            at = "~'" at "'";
+        or isMacro && isString
+            at = "$" at;
+        }
+    return at;
+}
+
+/*****************************************************************************
+	Writes the body into the buffer passed in.
+*****************************************************************************/
+void writeBody(Buffer buffer)
+{
+int			flag, wasAttribute;
+GroupItem	block;
+String		junk;
+PLGitem		token;
+	if data && !(isMacro && doNotExpandMacros)
+		{
+		setMark();
+		if isItem
+			for token = item
+				{
+				if token.noPrint continue;
+				if !token.isEndTag
+                    {
+                    if !noTag indent(buffer);
+					print token;
+                    }
+				else print "</" wrap(token) ">";
+				}
+		//junk = buffer.getMarkedString();
+
+		// At this point the buffer no longer contains text
+		if parser && isRigorous && !noCDATA && cdataSet.contains(junk)
+			{
+			print "<![CDATA[";
+			flag = true;
+			}
+		if parser
+			if parent && parent.isShell
+				print junk;
+			else indentText(junk,buffer);
+		if flag print "]]>";
+		}
+    if members
+		{
+		while nextMember(block)
+            {
+            if block.isAttribute
+                {
+                wasAttribute = true;
+                block.isAttribute = false;
+                }
+            block.mustIndent = true;
+            if block.noTag print block;
+			else print :block;
+            block.mustIndent = false;
+            if wasAttribute
+                {
+                block.isAttribute = true;
+                wasAttribute = false;
+                }
+            }
+		}
+}
+
+/*****************************************************************************
+	Write tag to buffer
+*****************************************************************************/
+void writeTagXML(Buffer buffer)
+{
+GroupItem	group;
+int         wasAttribute;
+String      atOption    = " *+?!";
+	//setMark();
+    print "<";
+    if isTarget print "@";
+    if noAnchor print "%%";
+	if isComment
+		print tag ">";
+	else {
+		print wrap(tag);
+        if isOption print *(atOption + isOption)#c;
+        if value && text
+            if !isRigorous
+                print "=" wrap(wrapValue());
+            or isAttribute print "=\"" wrapValue() "\"";
+		while nextAttribute(group)
+			if !group.noPrint || ignoreNoPrint
+                {
+                if wasAttribute = !group.isAttribute
+                    group.isAttribute = true;
+                /*
+				if !value && registry && group.registry && group.registry != registry
+                    && group.registry.loadByValue
+                    if !isRigorous
+                        print group.registry.type "=" wrap(group.tag) " ";
+                    else print group.registry.type "=\"" group.tag "\" ";
+				else print group;
+                */
+                print group;
+                if wasAttribute group.isAttribute = false;
+                }
+		if isSingleton && !(value && isRigorous)
+			print "/>";
+        or cdata && !isRigorous print ":>";
+		else    print ">";
+		}
+	//unMark();
+}
+}
+
+/*******************************************************************************
+	Extends Buffer to append a group
+*******************************************************************************/
+void append(Buffer buffer,GroupItem item)
+{
+	item.toBuffer(buffer);
+}
+
+/*******************************************************************************
+	Extends BitMAP to add a group
+*******************************************************************************/
+void add(BitMAP map,GroupItem item)
+{
+	map += item.index;
+}
+
+/*******************************************************************************
+	Compile JIT method
+*******************************************************************************/
+void jIT(GroupItem item)
+{
+GroupItem   jitInclude = locate("jitInclude"),
+            group,
+            block;
+PLGitem     method,
+            body,
+            included;
+String      code,
+            includeText;
+use tawkParser
+use item
+    /***************************************************************************
+        If item specifies a block, assumes that block contains jit code.
+        Otherwise, looks for code in body of item parent.
+        Once block is found, if it has a method set then it has already been
+        compiled so no need to do it again.
+    ***************************************************************************/
+    if item.value
+        block = locate(item.text);
+    if !block && !(block = item.parent)
+        {
+        cerr "No parent for jit attribute\n";
+        return;
+        }
+    if !block.method
+        {
+        if group = block/"boDY"
+            body = group.item;
+        else body = block.item;
+        if !body
+            {
+            cerr "ERROR could not find jit code for",block.tag:;
+            return;
+            }
+        if !jitInclude
+            {
+            cerr "ERROR: could not find jitInclude":;
+            return;
+            }
+        includeText = jitInclude.text;
+        code  = alloca(strlen(includeText) + body.length + 100);
+        if !tawkParser
+            {
+            tawkParser = new;
+            initializeKeyWords();
+            setRules();
+            setOperators();
+            setComparisons();
+            initializeJIT();
+            }
+        setInput(includeText);
+        included = parse("Divert");
+        if !included
+            {
+            cerr "ERROR failed parsing jitInclude text:" includeText :;
+            return;
+            }
+        print(&code) "void " parent.tag "(GroupItem item)\n{":` body.string():"}":;
+        body.unString();
+        setInput(code);
+        if body = parse("JitMethod")
+            {
+            method = body["method"];
+            block.method   = method.value;
+            cout "Parsed jit method":;
+            }
+        else {
+            cerr "jit method parse failed for " item.parent.tag :;
+            return;
+            }
+        }
+    item.method     = block.method;
+}

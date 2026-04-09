@@ -1,0 +1,22 @@
+
+/*******************************************************************************
+	Commands fire C++ methods used to set flags, print out a block, whatever.
+    If a command is noPrint, the action gets fired when the parse
+    processes the attribute at definition time but the attribute is not added.
+*******************************************************************************/
+#register(cOMMANDs)
+define
+    virtual=processFlags immediateAction noPrint;
+    labelAction immediateAction noPrint;
+    tokenize labelAction;
+    ;
+/*******************************************************************************
+	These forward declarations are in setup so the bootstrapper (that loads setup)
+    can find them.
+*******************************************************************************/
+#register(Grokking)
+define
+    BlocK;
+    NumbeR              tokenize:
+        HeX='0'         x=[xX] value=[0-9a-fA-F]+ tokenize;;
+    ;

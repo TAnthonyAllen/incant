@@ -1,0 +1,216 @@
+register(Stuff);
+define
+    /***************************************************************************
+        flatten returns its argument converted into a stack that contains
+        the argument passed in and all its descendent members
+    ***************************************************************************/
+    flatten argument; {
+        stuk = stack;
+        stuk += argument;
+        for grup IN stuk;
+            if grup.hasMembers;
+                for stiff IN grup; members
+                    stuk += stiff;
+        return stuk;
+        }
+    /***********************************************************************
+        Layout a long string into a set of fixed length blocks
+    ***********************************************************************/
+    layingOut lineIn lineLength lines nextLine&; {
+        currentLine = lineIn;
+        do
+            if currentLine > lineLength;
+                nextLine    = currentLine + lineLength;
+            or currentLine > 0;
+                lineOut     = currentLine;
+                result      +/ new(lineOut);
+                break;
+            if !brake
+                if nextLine IN ruleSkipSet;
+                    while nextLine IN ruleSkipSet; nextLine++;
+                else
+                    until nextLine !IN ruleSkipSet;
+                        nextLine--;
+                        if nextLine IN ruleSkipSet;
+                            nextLine++;
+                            break;
+                currentLine -= nextLine;
+                lineOut     = currentLine;
+                result      +/ new(lineOut);
+                currentLine = nextLine;
+        while lines-- > 0;
+        return result;
+        }
+    /***************************************************************************
+        print out incant definition for the group passed in
+    ***************************************************************************/
+    printDefinition argument; {
+        if data;    print ,taG '=' argument;
+        else        print taG;
+        if hasAttributes;
+            for grup IN argument; attributes
+                if grup.isTYPE;     print "," grup;
+                else
+                    if grup.data;   print ,_grup.taG '=' grup;
+                    else            print _grup.taG;
+                if grup.hasAttributes;
+                    print ,"(";
+                    firstAttribute = 0;
+                    for attr IN grup; attributes
+                        if firstAttribute > 0; print _;
+                        firstAttribute++;
+                        if attr.data;   print ,attr.taG '=' attr;
+                        else            print attr.taG;
+                    print ")";
+        if hasMembers;
+            indenter++;
+            print ":";
+            clear(grup);
+            for grup IN argument; members
+                i = 0;
+                print :;
+                while i++ <= indenter; print `;
+                printDefinition(grup);
+            indenter--;
+            if !indenter;   print ";":;
+            else            print ";";
+        else    print ";";
+        }
+    /***************************************************************************
+        print out xml representation of the group passed in. Does not
+        handle cdata yet.
+    ***************************************************************************/
+    toXML argument; {
+        print ,"<" taG;
+        indenter++;
+        if data; print '=' argument;
+        if hasAttributes;
+            for grup IN argument; attributes
+                print _grup.taG;
+                if grup.data print ,'=' grup;
+        if hasMembers;
+            indenter++;
+            print ">";
+            for grup IN argument; members
+                i = 0;
+                print :;
+                while i++ < indenter; print `;
+                toXML(grup);
+            indenter--;
+        else    print "/>";
+        indenter--;
+        if hasMembers;  print ,"</" taG ">";
+        if !indenter;   print :;
+        }
+    /***************************************************************************
+        fillDown deals with down=* framing. It expects the argument passed in
+        to have one one member with a height and a full frame.
+                y   = pY;
+                scope newGrup: y;
+                pY  += nHeight;
+    ***************************************************************************/
+    fillDown argument; {
+        print "About to fill down for" argument:;
+        scope argument frame~ height;
+        pHeight = height;
+        grup    := argument[1];
+        scope grup height;
+        pHeight -= height;
+        i = pHeight / height;
+        if i > 1;
+            print `"Adding" i grup.taG "members down to" argument.taG:;
+            while i >= 1;
+                i--;
+                argument +/ new(grup);
+        print `"Setting down done":;
+        }
+    /***************************************************************************
+        fillAcross deals with across=* framing. It expects the argument passed in
+        to have one and only one member with a width and a full frame.
+        When it resizes the list of variable column members is trimmed or
+        extended as needed.
+    ***************************************************************************/
+    fillAcross argument; {
+        print "About to fill across for" argument:;
+        scope argument frame~ width;
+        pWidth  = width;
+        grup    = argument[1];
+        scope grup width;
+        pWidth  -= width;
+        i = pWidth / width;
+        if i > 1;
+            print `"Adding" i grup.taG "members across to" argument.taG:;
+            while i >= 1;
+                i--;
+                argument +/ new(grup);
+        print `"Setting across done":;
+        }
+    /***************************************************************************
+         Set frames for the members of the group passed in, which must have
+         a full frame that will be used to set the frames of group members.
+         
+         Should modify to check for noRoom and bail if there aint none
+    ***************************************************************************/
+    setFrame argument; {
+        print "Setting frame for" argument:;
+        scope argument across down frame~ width height x y;
+        sideRoom    = width;
+        pWidth      = width;
+        headRoom    = height;
+        pHeight     = height;
+        pX          = x;
+        pY          = y;
+        if across == "*";   fillAcross(argument);
+        or down == "*";     fillDown(argument);
+        for grup IN argument; members
+            scope grup width height :frame;
+            if !frame;  frame = fRAME;
+            if width > 0;
+                if width.isPercent; width = width * sideRoom / 100;
+                sideRoom    -= width;
+            or !across;     width = pWidth;
+            else            sideOut++   +/ grup;
+            if height > 0;
+                if height.isPercent; height = height * headRoom / 100;
+                headRoom    -= height;
+            or across;      height = pHeight;
+            else            upOut++     +/ grup;
+            scope frame: width height;
+        if upOut > 0;
+            headRoom /= upOut;
+            for grup IN upOut;
+                scope grup frame:~ height;
+                height = headRoom;
+        if sideOut > 0;
+            sideRoom /= sideOut;
+            for grup IN sideOut;
+                scope grup frame:~ width;
+                width = sideRoom;
+        headRoom    = 0;
+        sideRoom    = 0;
+        for grup IN argument; members
+            scope grup x y frame~ width height;
+            if across;
+                if !y;  y = pY;
+                if !x;  x = pX;
+                if sideRoom > 0; x += sideRoom;
+                sideRoom += width;
+            else
+                if !y;  y = pY;
+                if !x;  x = pX;
+                if headRoom > 0; y += headRoom;
+                headRoom += height;
+            scope frame: x y;
+        }
+    /***************************************************************************
+        Initialize a window frame based on width, height, x, and y attributes
+        and then run setFrame on the member hierarchy
+    ***************************************************************************/
+    initFrame argument; {
+        scope argument width height x y across :frame;
+        if !frame
+            frame = fRAME;
+            scope frame: width height x y;
+        setFrame(argument);
+        }
+    ;

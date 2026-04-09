@@ -1,0 +1,188 @@
+Amount!
+.
+use iTEM
+	if part
+		{
+        number.length += part.length;
+        part.itemStart++;
+        part.itemLength--;
+        part.amount = atoi(part.string());
+        part.unString();
+		isDouble = true;
+		number.amount = atof(number.string());
+		}
+    else number.amount = atoi(number.string());
+    number.unString();
+    floating = true;
+;
+
+DrawOperator!
+.
+GroupItem       group = drawingBlock.find(operate.string());
+    operate.unString();
+    if !group return false;
+    notBlock = false;
+    //cout "Saw operator group",group.tag:;
+    if group.isCount || group.isNumber
+        return false;
+     operate.value = group;
+||.
+    curving = true;
+|.
+    if operate.itemStart == 'F'
+        fillColor = color;
+    else strokeColor = color;
+;
+
+Hex!
+.
+unsigned int    ui;
+    sscanf(hexed.string(),"%x",&ui);
+    hexed.amount = (double)ui;
+    hexed.unString();
+;
+
+KeyStruck!
+.
+char    c = atoi(number.string());
+    number.unString();
+    *iTEM.itemStart = c;
+|.
+    if character.itemStart >= 'A' && character.itemStart <= 'Z'
+        shiftSet = true;
+;
+
+KeyStroke!
+.
+PLGitem modify;
+use trait
+    // The following modifiers are aliased in Group.g
+    for modify = modifiers
+        if modify.start == 'a'  altSet      = true;
+        or modify.start == 'c'  controlSet  = true;
+        or modify.start == 'f'  functionSet = true;
+        or modify.start == 'm'  commandSet  = true;
+        or modify.start == 'n'  numericSet  = true;
+        or modify.start == 's'  shiftSet    = true;
+    key.itemLength = 1;
+    trait.item = key;
+;
+
+Number!
+.
+    iTEM.amount = number.amount;
+|.
+GroupItem       group;
+    if number.itemLength == 1 && pathOpSet.contains(*itemStart)
+        return false;
+    if drawingBlock
+        group = drawingBlock.find(number.string());
+    number.unString();
+    if group && (group.isCount || group.isNumber)
+        if isCount      iTEM.amount = group.count;
+        else            iTEM.amount = group.number;
+    else return 0;
+;
+
+PathList!
+.
+    currentDP   = 0;
+;
+
+Point!
+.
+    currentDP   = new(point,yOffset);
+    point.value = currentDP;
+;
+
+PointOp!
+.
+GroupItem       block;
+DrawPoint       dp = point.value;
+String          atOP;
+    for draw
+        {
+        PLGitem operate = draw["operate"];
+        if operate
+            if block   = operate.value
+                dp.drawPathBlock    = block;
+            else {
+                for (atOP = operate.string(); *atOP; atOP++)
+                    switch(*atOP)
+                        {
+                        case ':':   dp.closeIt  = true;
+                                    direction   = 0;
+                                    shape       = 0;
+                                    translate   = 0;
+                        case 'd':   down        = true;
+                        case 'g':   saveGraph   = true;
+                        case 'I':   invert      = true;
+                        case 'l':   dp.left     = true;
+                        case '@':   dp.move     = true;
+                        case '!':   dp.reset();
+                        case 'r':   dp.right    = true;
+                        case 'R':   rotate      = true;
+                        case 'S':   scale       = true;
+                        case 'T':   shift       = true;
+                        case 'u':   up          = true;
+                        case '~':   itsAllRelative    = true;
+                        case '%':   asPercentOfFrame  = true;
+                        case 'a':   arc         = true;
+                        case 'c':   curve       = true;
+                        case 'o':   oval        = true;
+                        case 'F':   fillPath    = true;
+                        case '$':   strokePath  = true;
+                        }
+                operate.unString();
+                }
+        }
+    dp.percent  = asPercentOfFrame;
+    if itsAllRelative dp.relative = true;
+    if up || down
+        {
+        dp.y    = dp.x;
+        dp.x    = 0;
+        }
+    if dp.left xOperator = '-';
+    if dp.down yOperator = '-';
+    if xOperator || yOperator hasOperator = true;
+    if curving
+        {
+        curving     = false;
+        control1    = left["point"].value;
+        control2    = right["point"].value;
+        control1.relative   =
+        control2.relative   = dp.relative;
+        control1.percent    =
+        control2.percent    = dp.percent;
+        }
+    if p.fillColor
+        {
+        dp.fillColor = p.fillColor;
+        p.fillColor = null;
+        }
+    if p.strokeColor
+        {
+        dp.strokeColor = p.strokeColor;
+        p.strokeColor = null;
+        }
+    cout "PointOp:",dp:;
+;
+
+RGBvalue!
+.
+    cout "Saw hex amounts",iTEM:;
+|.
+PLGitem hexed = redValue["hexed"];
+    redValue.amount     = hexed.amount/255;
+    hexed               = greenValue["hexed"];
+    greenValue.amount   = hexed.amount/255;
+    hexed               = blueValue["hexed"];
+    blueValue.amount    = hexed.amount/255;
+;
+
+SetNotBlock!
+.
+    notBlock = true;
+;
+

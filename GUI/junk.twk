@@ -1,0 +1,97 @@
+include GUIincludes
+
+external
+{
+    GroupItem attributeToGroup(GroupItem item,String attribute);
+}
+
+GroupItem attributeToGroup(GroupItem item,String attribute)
+{
+GroupItem	group,
+			trait;
+String		name;
+ParseXML	parser = item.parser;
+	if item.registry
+		{
+        trait   = new(attribute);
+		group	= item.registry += trait;
+		trait	= item[attribute];
+		if trait && trait.value
+			{
+			name	= trait.text;
+			trait	= item.registry[name];
+			if !trait
+				{
+                GroupItem registeredItem = new(name);
+				trait = item.registry += registeredItem;
+				trait += attribute;
+				group += trait;
+				}
+			}
+		}
+	return trait;
+}
+
+class junk extends NSObject OC
+{
+ParseXML		parser;
+GroupRegistry	registry;
+
+id init()
+{
+	parser	= new;
+    parser.doNotExpandMacros = false;
+	registry = new("Groupify");
+	parser.currentRegistry = registry;
+	return self;
+}
+
+void test(String filename)
+{
+GroupItem	source = parseFile(filename),
+			artist,
+			album,
+			item;
+	while item = source.nextMember(item)
+		{
+		artist = item.attributeToGroup("artist");
+		album = item.attributeToGroup("album");
+		album += item;
+		if !artist.get(album.tag) artist += album;
+		}
+	item = registry["artist"];
+	item.dump(0,99);
+}
+}
+
+/*******************************************************************************
+	main
+*******************************************************************************/
+int main(int argc, String **argv)
+{
+junk	crap = new;
+	if argc == 2
+		crap.test(argv[1]);
+	else cerr "invoke w/file name as argument\n";
+}
+
+/*******************************************************************************
+	Return a string representation of a bit index
+*******************************************************************************/
+String bitString(unsigned long source)
+{
+char			digit;
+int				j;
+unsigned long	mask = 1;
+String			atText,
+				text = calloc(65,sizeof(char));
+	mask <<= 63;
+	atText = text;
+	for (j = 63; j >= 0; j--,atText++)
+		{
+		mask >>= 1;
+		digit = source & mask ? '1' : '0';
+		print(atText) digit;
+		}
+	return text;
+}

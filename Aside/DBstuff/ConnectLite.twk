@@ -1,0 +1,132 @@
+include groupIncludes
+
+external
+{
+	int itemCallback(void *n,int columns,char **value,char **label);
+	int memberCallback(void *n,int columns,char **value,char **label);
+}
+
+/******************************************************************************
+	ConnectLite provides a connection to a SQLite database and methods for
+	accessing it
+******************************************************************************/
+class ConnectLite
+{
+String		name;
+sqlite3		*database;
+int			&callback(void *n,int columns,char **value,char **label);
+boolean
+			debug
+			;
+
+ConnectLite(String dbName)
+{
+	name	= dbName;
+	connect();
+}
+
+/******************************************************************************
+	Close database connection
+******************************************************************************/
+void close()
+{
+	dbClose(database);
+	if debug cout "Closing connection\n";
+}
+
+/******************************************************************************
+	Establish a database connection
+******************************************************************************/
+int connect()
+{
+	if dbOpen(name,&database)
+		{
+		cerr "Unable to open database: " name "\n";
+		return false;
+		}
+	if debug cout "Connected\n";
+	return true;
+}
+
+/******************************************************************************
+	The exec method runs the select statement passed in, which is assumed to
+	not produce results.
+******************************************************************************/
+int exec(String select)
+{
+String	error;
+	if dbExec(database,select,callback,(void*)null,&error)
+		{
+		cerr "exec failed: " error "\n";
+		return false;
+		}
+	if debug cout "exec succeeded\n";
+	return true;
+}
+
+/******************************************************************************
+	load atomic elements into registry
+******************************************************************************/
+void getData(String select,GroupRegistry registry)
+{
+	query(select,(void*)registry,itemCallback);
+}
+
+/******************************************************************************
+	load GroupItem members.
+******************************************************************************/
+void getMembers(String select,GroupItem group)
+{
+	query(select,(void*)group,memberCallback);
+}
+
+/******************************************************************************
+	The query method runs query, which invokes the callback if supplied
+	(passing data as the first parameter to the callback). It returns true
+	if it succeeds, false otherwise.
+******************************************************************************/
+void query(String select,void *data,int &callback(void*,int,char**,char**))
+{
+String	error;
+	if dbExec(database,select,callback,data,&error)
+		cerr "Query failed: " error "\n";
+	if debug cout "Query succeeded\n";
+}
+}
+
+/******************************************************************************
+	Callback to load atomic elements into registry.
+	THIS NEEDS TO BE MODIFIED TO DEAL W/CONTENTS OF QUERY
+******************************************************************************/
+int itemCallback(void *n,int columns,char **value,char **label)
+{
+GroupRegistry	registry = n;
+GroupItem		item = add(*value);
+	isStored	= true;
+	return 0;
+}
+
+/******************************************************************************
+	Callback to load GroupItem members.
+******************************************************************************/
+int memberCallback(void *n,int columns,char **value,char **label)
+{
+GroupRegistry	registry;
+GroupItem		item = n,
+				member;
+	registry = registries[*value];
+	if !registry
+		{
+		cerr "getMembers: could not find registry " value[0] "\n";
+		return 1;
+		}
+	member = registry[value[1]];
+	if !member
+		{
+		cerr "getMembers: could not find " value[1] " in registry " type "\n";
+		return 1;
+		}
+	item += member;
+	return 0;
+}
+

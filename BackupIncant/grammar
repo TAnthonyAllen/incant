@@ -1,0 +1,112 @@
+register(Grokking);
+define
+    /*************************************************************************
+        The Grokking registry contains incant grammar. The following are
+        forward rule references.
+    *************************************************************************/
+    ElsE;
+    ExpressioN;
+    FormaT;
+    IF;
+    Lines;
+    listOK-=processFlags parseAction;
+    MEMbers;
+    SemI=";";
+    StatemenT guard=[{A-Za-z0-9+-;(];
+    TheN;
+    xpPart;
+
+    /*************************************************************************
+        incant rules
+    *************************************************************************/
+    ANYtoken:
+        ShortcuT;
+        GrouP;;
+    BlocK                       "{"- Lines=StatemenT+ "}"-;
+    BrancheS bin:
+        break;
+        continue;
+        return;;
+    BrancH                      BrancheS ExpressioN? SemI-;
+    DataDEF                     NamE listOK ExpressioN? listOK MEMbers? SemI-;
+    MEMbers=":"                 members=DataDEF+;
+    DO                          do- BLOCKing StatemenT while- ExpressioN SemI-;
+    DotXP="."                   GrouP@;
+    Rule=NamE;
+    Arguments:
+        List                    "("- listOK ExpressioN? listOK ")"-;
+        Reference               "["- ExpressioN endBrace="]";;
+    ExpressPart:
+        ExpressOP               Operators@;
+        StringXP                string listOK ExpressioN listOK ruleMethod=aCTionPrinT;
+        Expresses               Keywords!< ANYtoken DotXP? Arguments? FormaT?;
+        ExpressRule             Keywords!< Rule "("- argument}=")";;
+    ExpressioN                  xpPart=ExpressPart+;
+    Precision='.'               precision=counter*;
+    FormaT='%'                  flags=[-# 0+']* formatWIDTH?=NumbeR Precision? formatTYPE=[a-zA-Z] tokenize;
+    /*************************************************************************
+        Format flags are
+            #       forces a decimal
+            blank   leave a space before a positive number
+            -       left align (right align is default)
+            +       put + or - in front of number
+            '       show number in thousands (may not work w/o using setlocale(3)
+    *************************************************************************/
+    Looper=GrouP;
+    LoopRestrict:
+        loopOnAttributes="attributes";
+        loopOnMembers="members";;
+    FOR                         for- Looper in- ExpressioN SemI-? LoopRestrict? BLOCKing StatemenT;
+    ElsE:
+        BasicElse               else- BLOCKing StatemenT@;
+        ElseIf                  or- ExpressioN SemI-? BLOCKing StatemenT ElsE? ruleMethod=aCTionIF;;
+    IF                          if- ExpressioN SemI-? BLOCKing StatemenT ElsE?;
+    ToBuffer=">"                GrouP@;
+    PrinT                       print ToBuffer? listOK ExpressioN listOK SemI-;
+    WhilE                       while- ExpressioN SemI-? BLOCKing StatemenT;
+    Search                      search- searchEntries?=GrouP+ SemI-;
+    NEW                         new- DefinE;
+    /*************************************************************************
+        JSON rules invoked as JSONlist("json file name");
+    *************************************************************************/
+    JSONarray;
+    JSONlist;
+    JSONvalue:
+        JSONlist;
+        JSONarray;
+        GrouP;;                 // GrouP includes string number true false null
+    JSONfield                   QuotE ":"- value=JSONvalue ","?-; { QuotE = value; setLabel(QuotE); }
+    JSONarray                   "["- values=JSONvalue+ "]"-;
+    JSONlist                    "{"- fields@=JSONfield* "}"-;
+
+    Ward1:
+        Ward2:
+            DATA="data"         defines=DataDEF+ SemI-;
+            DO;
+            DEF="define"        define;
+            DebuG               debug- rules=GrouP*;;
+        IF;
+        FOR;
+        NEW;
+        WhilE;
+        PrinT;
+        BrancH;
+        Ward3:
+            ScopeXP             scope- scopeList=ANYtoken+ SemI-;
+            Search;;;
+    WardeD Keywords<- Ward1@;
+    /*************************************************************************
+        Start is the incant entry point.
+    *************************************************************************/
+    StatemenT:
+        BlocK;
+        WardeD;
+        Xpress                  ExpressioN@ SemI-;
+        SemI;
+        CheckFor="#";
+        Failed;;
+    Start=StatemenT+;
+
+    // The following has to happen after the rules that refer to it (want the action to run when the rule runs, not when the rule is being defined (otherwise the DefinE rule says hey this here noPrint rule attribute has an immediateAction, lets fire it before the rule even exists ... good plan). The lonely ; following ends definitions
+;
+Start();

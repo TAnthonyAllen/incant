@@ -1,0 +1,37 @@
+This is a basic canvas example
+
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title>Sample</title>
+    <script type="text/javascript" src="file:///Users/anthony/Tests/Scripts/utilities.js"></script>
+    <script type="text/javascript">
+      function draw() {
+        var canvas = document.getElementById('tutorial');
+        if (canvas.getContext) {
+          var ctx = canvas.getContext('2d');
+        }
+      }
+    </script>
+    <style type="text/css">
+      canvas { border: 1px solid black; }
+    </style>
+  </head>
+  <body onload="draw();">
+    <canvas id="tutorial" width="150" height="150"></canvas>
+  </body>
+</html>
+
+Displaying a group in js
+
+Borders: left this up to html but cannot do that using js drawing
+    Consider shitcanning margins, instead box within a padded box
+    Borders drawn using frame dimensions w/fill (if color not specified, use default)
+    pads determine the innerBox as currently defined, used to contain content. Guess that means the code has to apply outerBox to borders and use the innerBox for content
+        Does fill apply to innerBox or outerBox (I would say outerBox).
+    Have methods for rounded or squared borders
+    Partial borders (top bottom left and right) done w/line drawing and maybe should have a method for that
+Do we leave it up to each group to display itself. Makes sense to me. A group knows where and what. We will have to determine what role attributes play. Do they run their methods? Why not?
+If a group handles its display some stuff will have to change
+    drawPath/pATH turns into a method that does the drawing rather than define a path
+    tree needs to be rewritten

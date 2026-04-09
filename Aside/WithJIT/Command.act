@@ -1,0 +1,365 @@
+AttributeList
+.
+PLGitem item, text;
+    blockStack.clear();
+    for item = name
+        {
+        text = item["text"];
+        blockStack.push(text.toString());
+        }
+;
+
+Command
+.
+    currentBlock = null;
+	if !command currentRegistry = null;
+	else command.runDeferred();
+    commanding = false;
+;
+
+CommandText
+    includeFile(file.string());
+|
+PLGitem     flag;
+    //cout "Registering " type:;
+    type = type["text"];
+    pushState();
+    currentRegistry = getRegistry(type.toString());
+    /*************************************************************************
+        The optional value argument sets registry characteristics that
+        mostly relate to how the registry gets loaded
+    *************************************************************************/
+    for value
+        {
+        flag    = value["flag"];
+        if !value["not"] flag1 = true;
+        switch(*flag.start)
+            {
+            case 'a':
+                //  Flag all items in the registry as attributes
+                currentRegistry.loadAsAttributes = flag1;
+                if flag1 currentRegistry.noAttributes = false;
+                break;
+            case 'b':
+                if !baseRegistryList baseRegistryList = new;
+                baseRegistryList.put(currentRegistry.type,(void*)currentRegistry);
+                currentRegistry.isBaseRegistry = true;
+                break;
+            case 'c':
+                //  When registering a group, also register all its components
+                currentRegistry.loadComponents = flag1;
+                break;
+            case 'd':
+                if *(flag.start + 1) == 'a'
+                    {
+                    //  Register item text (as opposed to the tag)
+                    currentRegistry.loadFromData = flag1;
+                    }
+                else currentRegistry.doNotDuplicate = flag1;
+                break;
+            case 'g':
+                //  If registry is grouped, when you add an attribute from
+                //  the registry to an item, the item gets added to the attribute
+                //  in turn. That is, the attribute becomes a group of its parents
+                //  as well as an attribute of the item.
+                currentRegistry.grouped = flag1;
+                if flag1 && currentRegistry.tagged
+                    cerr "Warning: " type " registry should not be both tagged and grouped\n";
+                break;
+            case 'h':
+                currentRegistry.hasMethods = true;
+                break;
+            case 'n':
+                currentRegistry.noMerging = true;
+                break;
+            case 's':
+                //  Adds the current registry to the registry search list.
+                searchListAdd(currentRegistry);
+                break;
+            case 't':
+                //  When a tagged attribute is added to an item, the item gets added as
+                //  a member of the tagged attribute
+                currentRegistry.tagged = flag1;
+                if flag1 && currentRegistry.grouped
+                    cerr "Warning: " type " registry should not be both tagged and grouped\n";
+                break;
+            case 'v':
+                //  When adding an item to a registry, ignore the tag and load the value
+                //  When referenced the tag is resolved to be the registry name
+                currentRegistry.loadByValue = flag1;
+            }
+        }
+|                                                       //  dump list load print run or save
+GroupRegistry   registry;
+GroupItem       item,
+                group;
+String          text;
+    pushState();
+    /*************************************************************************
+        figure out the parameters
+    *************************************************************************/
+    if type
+        {
+        type = type["text"];
+        text = type.string();
+        if registries registry = registries[text];
+        }
+    if path
+        {
+        item = path["field"].value;
+        if !item cerr "print: no path match for " path:;
+        }
+    /*************************************************************************
+        If there is no block or registry argument the current outer block gets
+        dumped provided it exists.
+    *************************************************************************/
+    if !type && !path
+        {
+        if outerBlock
+            if action.start == 'd' outerBlock.dump();
+            else cout outerBlock;
+        return;
+        }
+    /*************************************************************************
+        Process commands
+    *************************************************************************/
+    switch(*action.start)
+        {
+        case 'l':
+            if action eq "load"
+                {
+                GroupItem        fieldItem;
+                GroupRegistry   registry;
+                for path
+                    if fieldItem = path["field"].value
+                        if fieldItem["registry"]    registry = getRegistry(fieldItem);
+                        or fieldItem%directory      item = fieldItem.loadDirectory();
+                        or fieldItem%json           item = loadJSON(fieldItem);
+                        or item = loadDelimited(fieldItem)
+                            if item.members
+                                cout "Loaded " item.members.bitCount " entries":;
+                            else cout "Nothing loaded":;
+                        else cerr "WARNING load: could not load " fieldItem.tag:;
+                    else cerr "ERROR load: Could not find " group:;
+                goto exitDump;
+                }
+        case 'd':
+        case 'm':
+        case 'p':
+            /*****************************************************************
+                If there is a registry argument we dump it
+            *****************************************************************/
+            if text eq "registries"
+                if registries
+                    {
+                    cout "Number of registries: " registries.length:;
+                    while registry = registries.next()
+                        if !number || number.amount-- > 0
+                            cout `registry.type `registry.length:;
+                    }
+                else cout `"No registries found":;
+            or registry
+                {
+                cout type `"Entries: " registry.length:;
+                registry.dump();
+                }
+            else {
+                group = null;
+                while group = item.nextMember(group)
+                    {
+                    if number && number.amount-- <= 0 break;
+                    if list printAttributes(group,blockStack);
+                    or action.start == 'd' group.dump();
+                    or action.start == 'p' || action eq "list" cout group:;
+                    }
+                }
+            break;
+        case 'r':
+                if !item.method item.jIT();
+                if item.method item.method(item);
+                else cerr "Could not run",item.tag:;
+                break;
+        case 's':
+            if text eq "registries"
+                while registry = registries.next() registry.save();
+            or registry registry.save();
+        }
+exitDump:
+    if type type.unString();
+    popState();
+|                                                               //  flags
+    //if debug cout "Reset debug":; else cout "Set debug":;
+	if flag.start == 'd' debug = !debug;
+    or flag.start == 'm' doNotExpandMacros = !doNotExpandMacros;
+    or flag.start == 's'
+        {
+        cout "Exiting\n";
+        exit(0);
+        }
+    or flag eq "noJIT"      { noLineByLine = !noLineByLine; }
+    or flag eq "noPrint"    { ignoreNoPrint = !ignoreNoPrint; }
+    else cout "Pausing":;
+|                                                               // search list
+PLGitem         name;
+GroupRegistry   registry;
+    /*************************************************************************
+        Create, print out, overwrite or append to the registry search list
+    *************************************************************************/
+    if !names dumpSearchList();
+    else {
+        if !plus searchList.reset();
+        if registries
+            for names
+                {
+                String  text;
+                name    = names["text"];
+                text    = name.string();
+                registry = searchList[text];
+                if !registry
+                    if registry = registries[text]
+                        searchListAdd(registry);
+                name.unString();
+                }
+        else cerr "ERROR search command: no registries exist":;
+        }
+|                                                               // merge
+PLGitem         item;
+GroupItem       group,
+                block,
+                mergeTarget;
+String          name;
+    /*************************************************************************
+        The merge command searches for its target in the current registry and
+        then, for each block in its name list, locates the merge block in the
+        search list and locates the corresponding block in the target and merges
+        the merge block into it.
+    *************************************************************************/
+    item    = target["text"];
+    if !currentRegistry
+        {
+        cerr "ERROR: merge finds no current registry":;
+        return;
+        }
+    if group = currentRegistry[item]
+        for names
+            {
+            item    = names["text"];
+            name    = item.string();
+            block = locate(name);
+            mergeTarget = group.first(name);
+            if block
+                if mergeTarget
+                    merge(block);
+                else cerr "ERROR: could not find merge target " name:;
+            else cerr "ERROR: could not find merge block " name:;
+            }
+    else cerr "ERROR: merge could not find target " item:;
+|
+GroupItem		item;
+    /*************************************************************************
+        No command specified, check the group passed in, if it has an action
+        run it otherwise print an error.
+    *************************************************************************/
+    if item = group["field"].value
+        if item["action"] cout tag " has an action\n";
+        else cout "No action found for " tag:;
+    else cerr "ERROR on invoke action: Could not find " group " this should never happen":;
+;
+
+GroupAction
+PLGitem   group;
+    target.runDeferred();
+    if group = target["group"]
+        if block = group.value
+            if !block.members || !block.members.bitCount
+                {
+                cerr `block.tag " is an empty group":;
+                block = null;
+                }
+            else action.runDeferred();
+    if !block cerr "Group action failed: " target,action:;
+;
+
+GroupCommand
+PLGitem     group;
+GroupItem	item;
+	target.runDeferred();
+    group = target["group"];
+    item = group.value;
+	if !item || !item.members
+		{
+		cerr "ERROR GroupCommand " target " No group or group has no members\n";
+		return;
+		}
+    if !operate field = item;
+    else {
+        if !block && field
+            {
+            block           = new(field);
+            block.registry  = null;
+            field           = null;
+            }
+        if !block
+            {
+            cerr "ERROR GroupCommand operation: block not set\n";
+            return;
+            }
+        else
+        switch(*operate.start)
+            {
+            case '+':
+            case '|':
+                block.addMembersOf(item);
+                break;
+            case '-':
+                if block.members block.members -= item.members;
+                break;
+            case '&':
+                if block.members block.members &= item.members;
+                break;
+            case '^':
+                if block.members block.members ^= item.members;
+            }
+        }
+;
+
+GroupTarget
+GroupItem   save = block;
+    block = group["field"].value;
+    block = new(block);         // a temp copy to work on
+	while command
+		{
+		command.runDeferred();
+		command = command.next;
+		}
+    group.value = block;
+    block = save;
+|
+    group.value = group["field"].value;
+;
+
+Locate
+.
+GroupItem       group;
+PLGitem         item = field["text"];
+GroupRegistry   registry;
+    if type
+        registry = type.value;
+    if registry group = registry[item];
+    else group = locate(item);
+    if group field.value = group;
+    else return false;
+;
+
+Registry
+.
+GroupRegistry   registry;
+    type = type["text"];
+    if registries && type ne "registries"
+        {
+        registry = registries[type.string()];
+        type.unString();
+        if !registry return false;
+        }
+    type.value = registry;
+;

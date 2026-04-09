@@ -1,0 +1,70 @@
+#registry tEMPLATEs;
+<expandable="+"/>
+<expanded="-"/>
+#registry testData search;
+<pull fill=white border=black one="Expand Menu" label align=center two="Second item" three="Last item">
+    <aOne/>
+    <aTwo>
+        <double/>
+        <duece/></aTwo>
+    <four/></pull>
+#registry GUI;
+<inspector window x=300 y=450 width=300 height=400 fill=wall title="Inspector" closable resize noSourceSelect source=pull useAttributes>
+    <banner fill=paleGray pad rounded=5 border=black height=50>
+        <heading tableHead height=35 label tag align=center fontSize=24/>
+        <space/></banner>
+    <bar height=20 fill=paleGray across font=header align=center tabs selectFill=#d1d1d1>
+        <one=Traits label action=tab body=traits left right rounded/>
+        <two=Members label action=tab body=members rounded/>
+        <three=Display label action=tab body=display left right rounded/></bar>
+    <bodies cards>
+        <traits pad rounded=5 fill=paleGray border=black register>
+            <columns tableHead fill=#d1d1d1>
+                <Attribute align=right right=5 tableLabel color=blue/>
+                <Value align=left tableLabel/></columns>
+            <space fill=blue height=1 border=off/>
+            <attributes tableBody>
+                <space height=5/>
+                <row height=25 pad tableRow next=inspector>
+                    <attribute tag align=right bottom=2 right=5 tableLabel font=header color=blue/>
+                    <wrap fill=white border right=5 show onValue=content>
+                        <content value pad=2 cell align=left border=off/></attributes>
+            <info action=toggle font=header pad fit>
+                <bar height=25 border=off>
+                    <rune toggle pad align=left>
+                        <"Show Description" label/>
+                        <"Hide Description" label/></bar>
+                <description="Nothing to see here." describe height=50 toggle=off fill=white rounded/></traits>
+        <members="The second tab body" register pad rounded=10.0 fill=#d1d1d1 selectable=no>
+            <jitter height=25 pad fill=white rounded across jit>
+                GroupItem   selection;
+                Details     detail = getDetail(item);
+                print "Result: " getTagXML():;
+                <body pad=2 fill=paleGray rounded width=25>
+                    <arrow drawPath pad border=green fill=lightGreen>%@-40 -85 u~ 80 l 55, 95 90 95 -90 l 55 d: 80;</jitter>
+            <memberTree tree=pull border=off>
+                <branch across align=left height=18>
+                    <expander label width=10/>
+                    <entry leaf label/></members>
+        <display="The third tab body" text register pad rounded=10.0 fill=#d1d1d1/></inspector>
+
+A jitter test
+
+<describes window closable title=Test resize x=400 y=400 width=360 height=400 fill=saberBrown font=normal>
+    <jitter pad rounded fill=lightGreen ji keyAction>
+        GroupItem   fill;
+        String      code;
+        code = item.keyCode();
+        switch(code)
+            {
+            case "a":
+            case "A":
+                cout "Saw alpha":;
+            case "e":
+            case "E":
+                cout "Saw ee":;
+            default:
+                cout "Saw default":;
+            }
+        if fill cout fill.text:;</jitter>
+    <space pad rounded fill=paleGray/></describes>

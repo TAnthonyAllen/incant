@@ -1,0 +1,297 @@
+include GUIincludes
+
+/*******************************************************************************
+	The DrawPoint class encapsulates a point and associated drawing directives
+    used when parsing drawing instructions (see Groups parser).
+*******************************************************************************/
+class DrawPoint
+{
+Point       point;
+char        xOperator,
+            yOperator;
+DrawPoint   control1,
+            control2;
+GroupItem   drawPathBlock;
+PLGitem     fillColor,
+            strokeColor;
+boolean
+    closeIt
+    direction:4[left right up down]
+    fillPath
+    hasOperator
+    middle
+    move
+    percent
+    relative
+    shape:3[arc curve oval]
+    strokePath
+    translate:4[invert rotate scale shift]
+    ;
+static GroupItem    drawGroup;
+static Point        priorPoint,
+                    targetPoint;
+
+DrawPoint(Point p)
+{
+    point = p;
+}
+
+DrawPoint(PLGitem x,PLGitem y)
+{
+PLGitem item;
+    if x
+        {
+        point.x = x.amount;
+        if item = x["operator"] xOperator = *item.start;
+        }
+    else point.x = 0.0;
+    if y
+        {
+        point.y = y.amount;
+        if item = y["operator"] yOperator = *item.start;
+        }
+    else point.y = 0.0;
+    //if x cout x; else cout "no x"; cout ,point.x`; if y cout y; else cout "no Y"; cout ,point.y:;
+}
+
+DrawPoint() {}
+
+/*******************************************************************************
+	Perform the drawing associated with this point.
+*******************************************************************************/
+void draw(Buffer buffer)
+{
+Point   c1,
+        c2;
+Details detail  = drawGroup.getDetail();
+    priorPoint  = targetPoint;
+    if drawPathBlock
+        {
+        double  repeat = point.x;
+        if !drawPathBlock%drawPathSet buildPath(drawPathBlock);
+        while repeat-- > 0 drawBlock(drawPathBlock,buffer);
+        }
+    else {
+        if translate
+            {
+            translated      = true;
+            priorPoint.x    = 0;
+            priorPoint.y    = 0;
+            }
+        if relative || hasOperator
+            targetPoint     = getPoint(frame,priorPoint);
+        else targetPoint    = get(detail.frame);
+        if translate
+            movePath(targetPoint,buffer);
+        or curve
+            {
+            c1 = control1.getPoint(frame,priorPoint);
+            c2 = control2.getPoint(frame,priorPoint);
+            print(buffer) `"ctx.bezierCurveTo(",c1,c2,targetPoint");":;
+            }
+        or arc
+            {
+            c1 = control1.getPoint(frame,priorPoint);
+            c2 = control2.getPoint(frame,priorPoint);
+            // Here c2.x contains the radius - not sure this works as intended
+            print `"ctx.arcTo("targetPoint,c1,(float)c2.x");":;
+            }
+        else {
+            if move     print `"ctx.moveTo("targetPoint");":;
+            else        print `"ctx.lineTo("targetPoint");":;
+            }
+        if fillPath
+            {
+            if fillColor print `"ctx.fillStyle = '"fillColor"';":;
+            print `"ctx.fill();":;
+            }
+        if strokePath
+            {
+            if strokeColor print `"ctx.strokeStyle = '"strokeColor"';":;
+            print `"ctx.stroke();":;
+            }
+        if closeIt
+            {
+            if translated    print `"ctx.setTransform(1, 0, 0, 1, 0, 0);":;
+            print `"ctx.closePath();":;
+            }
+        }
+}
+
+/*******************************************************************************
+	Draw the path contained in the GroupItem passed in
+*******************************************************************************/
+void drawBlock(GroupItem item,Buffer buffer)
+{
+Details     detail = item.getDetail();
+DrawPoint   **atPath,
+            **drawingPath,
+            **pathSet,
+            **atSet,
+            dp;
+    print `"ctx.save();":`"ctx.beginPath();":
+        `"ctx.translate(" frame.x + width/2 "," frame.y + height/2 ");":;
+    if item && item.parent && item.parent.isBuffer
+        {
+        pathSet = item.pointer;
+        for atSet = pathSet
+            {
+            drawingPath = (DrawPoint**)*atSet;
+            for atPath = drawingPath
+                {
+                dp      = *atPath;
+                dp.draw(item.parent.buffer);
+                }
+            }
+        }
+    else cerr "ERROR: drawBlock got invalid input":;
+    print `"ctx.restore();":;
+}
+
+/*******************************************************************************
+	Return point, adjusting if the point is specified in percents
+*******************************************************************************/
+Point get(Frame frame)
+{
+Point   rp;
+int     i;
+    if !drawPathBlock && percent && !rotate
+        {
+        i   = width * point.x * 0.01 + 0.5;
+        x   = i;
+        i   = height * point.y * 0.01 + 0.5;
+        y   = i;
+        }
+    else rp = point;
+    //cout "DrawPoint get:"`point.x,point.y,rp.x,rp.y:;
+    return rp;
+}
+
+/*******************************************************************************
+	Returns a resolved point derived from this drawPoint taking into account
+    that this drawPoint may be specified using relative offsets
+*******************************************************************************/
+Point getPoint(Frame frame,Point pp)
+{
+Point   dp = get(frame);
+use detail
+    if hasOperator
+        {
+        if xOperator == '+' dp.x += pp.x;
+        or xOperator == '-' dp.x = pp.x - dp.x;
+        or xOperator == '*' dp.x = pp.x * dp.x;
+        or xOperator == '/' dp.x = pp.x / dp.x;
+        or relative
+            dp.x += pp.x;
+        else dp.x = pp.x;
+        
+        if yOperator == '+' dp.y += pp.y;
+        or yOperator == '-' dp.y = pp.y - dp.y;
+        or yOperator == '*' dp.y = pp.y * dp.y;
+        or yOperator == '/' dp.y = pp.y / dp.y;
+        or relative
+            dp.y += pp.y;
+        else dp.y = pp.y;
+        }
+    or relative && !move && !translate
+        {
+        dp.x += pp.x;
+        dp.y += pp.y;
+        }
+    return dp;
+}
+
+/*******************************************************************************
+	Transform the current path by inverting, rotating, scaling, or shifting.
+*******************************************************************************/
+void movePath(Point p,Buffer buffer)
+{
+    if invert cout "movePath: must invert":;
+    // x gets converted to radians below
+    if rotate print `"ctx.rotate(" p.x * 0.01745 ");":;
+    or scale
+        if p.y cout "movePath: scaleBy(p.x,p.y);":;
+        else cout "movePath: scaleBy(p.x);":;
+    else print `"ctx.translate(" p.x "," p.y ");":;
+}
+
+/*******************************************************************************
+	Reset path parameters
+*******************************************************************************/
+void reset()
+{
+    asPercentOfFrame    = false;
+    itsAllRelative      = false;
+}
+
+/*******************************************************************************
+	Return a string representation of this point
+*******************************************************************************/
+String toString()
+{
+    bwanaBuffer.reset();
+    if percent  print(bwanaBuffer) "%";
+    if move     print "@";
+    if left     print "l";
+    if right    print "r";
+    if up       print "u";
+    if down     print "d";
+    if arc      print "a";
+    if curve    print "c";
+    if oval     print "o";
+    if relative print "~";
+    if invert   print "i";
+    if rotate   print "R";
+    if scale    print "S";
+    if shift    print "T";
+    if fillPath print "F";
+    if strokePath   print "$";
+    if drawPathBlock print drawPathBlock.tag;
+    print `;
+    print point.x#5.1f;
+    if xOperator print xOperator; else print ,;
+    print `point.y#5.1f;
+    if yOperator print yOperator; else print ,;
+    return bwanaBuffer.toString();
+}
+}
+
+/*******************************************************************************
+	Go thru the paths associated with GroupItem passed in and draw them.
+*******************************************************************************/
+void drawPath(GroupItem item)
+{
+Details     detail = item.getDetail();
+DrawPoint   **atPath,
+            **drawingPath,
+            **pathSet,
+            **atSet,
+            dp;
+Buffer      buffer;
+    if item && item.parent && item.parent.isBuffer
+        {
+        buffer = item.parent.buffer;
+        print(buffer) `"ctx.save();":`"ctx.beginPath();":
+            `"ctx.translate(" frame.x + width/2 "," frame.y + height/2 ");":;
+        if pathSet = item.pointer
+            {
+            for atSet = pathSet
+                {
+                drawingPath = (DrawPoint**)*atSet;
+                priorPoint.x    = 0;
+                priorPoint.y    = 0;
+                targetPoint.x   = 0;
+                targetPoint.y   = 0;
+                for atPath = drawingPath
+                    {
+                    dp      = *atPath;
+                    dp.draw(item.parent.buffer);
+                    }
+                // fill and stroke goes here
+                }
+            }
+        else cerr "drawPath: invalid pointer passed in from",item.tag:;
+        }
+    else cerr "ERROR drawPath: invalid input":;
+    if buffer print `"ctx.restore();":;
+}

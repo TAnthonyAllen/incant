@@ -1,0 +1,105 @@
+#noComments;
+
+The noComments command toggled on above ignores all comments
+
+macros are turned off here and then turned back on at the end of this file. This means that macros are not evaluated here but will be evaluated when any of the items having macros are referred to elsewhere.
+#macro;
+#registry tEMPLATEs base;
+<darken gradient=-0.1/>
+<lighten gradient=0.1/>
+<form height=30 across pad=5 border=off content=default>
+	<Label=$name font=header fill=off align=right label/>
+	<space width=5/>
+	<Body=$content cell font=normal rounded fill=white align=left;>
+
+The following are used in trees
+<expandable="+"/>
+<expanded="-"/>
+
+The following are used in sheets
+<matrixMethod sum=time/>
+<matrixBody cell matrixMethod popup=worksheetPanel rightClick width=$columnWidth align=right rounded pad fill=white/>
+<matrixBox pad style=matrixHead width=$labelWidth across>
+    <heading label style=matrixIndent;>
+<matrixColumnHead label pad width=$columnWidth height=$rowHeight rightClick=expand/>
+<matrixColumnExpand across fit height=$rowHeight rightClick=expand/>
+<matrixColumnTitle across fit=down>
+	<rowStub pad style=matrixHead width=$labelWidth across>
+		<heading label style=matrixIndent//>
+	<xBlock  down fit=both>
+        <columnTitle=$colLabel label pad style=matrixHead height=$rowHeight/>
+        <columnHead across fit=both style=matrixHead;>
+<matrixExpandColumn label style=matrixHead pad width=$columnWidth/>
+<matrixExpandItem height=16 border=off menuItem font=normal align=left action=expand/>
+<matrixExpandMenu menu fill=white rounded xOffset=20 yOffset=5 fit=text>
+    <head="Expand By" label border=bottom fill=saberBrown align=center height=20/></matrixExpandMenu>
+<matrixExpandTitle label style=matrixHead pad height=$rowHeight/>
+<matrixExpandWrapper down fit=both style=matrixBG/>
+<matrixRowWrapper down fit indent/>
+<matrixRowLabel height=$rowHeight across>
+	<rowStub pad style=matrixHead width=$labelWidth across>
+        <indent width=0/>
+		<heading label style=matrixIndent rightClick=expand;>
+<matrixWrapLabel label style=matrixHead pad height=$rowHeight/>
+
+The following are components of a perforated border. The stride gap and depth blocks below are default settings that can be overridden in a parent of the block containing the perforation attribute
+<stride=6/>
+<gap=12/>
+<depth=2/>
+<perfRight> d gap l depth d stride r depth;</perfRight>
+<perfLeft>r depth u stride l depth u gap;</perfLeft>
+<perfTop>u depth r gap d depth r stride;</perfTop>
+<perfBottom>u depth l stride d depth l gap;</perfBottom>
+The perforation block draws the perforation.
+<perforation drawPath fill=$perfColor border selectable=no>%@ 0 u~ 8 perfLeft 5 perfTop 5 u depth r 10 d 2 perfRight 5 d 8 l 10 perfBottom 5;</perforation>
+
+The following are used in tables
+<tableBody normalFont flex down=*/>
+<tableCell selectable=no style/>
+<tableHead headerFont height=30 across/>
+<tableLabel flex center selectable=no/>
+<tableRow height=20 across flex style/>
+
+The following are used in html conversion
+<baseURL="https://www.dropbox.com/"/>
+<bordered border=1 bStyle=solid stroke=black radius=5/>
+<shadow textShadow="-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black"/>
+<center alignAcross=center alignDown=center/>
+<spaced pad=5 margin=10 bordered/>
+<head>
+    <meta charset="UTF-8"></meta>
+    <title>Drawing</title>
+    <script type="text/javascript" buffer>
+var canvas;
+var ctx;
+function rounded(x, y, width, height, radius, fillIt)
+    {
+    ctx.beginPath();
+    ctx.moveTo(x, y + radius);
+    ctx.lineTo(x, y + height - radius);
+    ctx.arcTo(x, y + height, x + radius, y + height, radius);
+    ctx.lineTo(x + width - radius, y + height);
+    ctx.arcTo(x + width, y + height, x + width, y + height-radius, radius);
+    ctx.lineTo(x + width, y + radius);
+    ctx.arcTo(x + width, y, x + width - radius, y, radius);
+    ctx.lineTo(x + radius, y);
+    ctx.arcTo(x, y, x, y + radius, radius);
+    if (fillIt) ctx.fill();
+    ctx.stroke();
+    ctx.closePath();
+    }
+function drawBox(x, y, width, height, radius, fillIt, filler, strokeIt, stroker)
+    {
+    var ofst = ctx.lineWidth;
+    var lof = ofst * 2;
+    ctx.save();
+    if (filler)         ctx.fillStyle   = filler;
+    if (stroker)        ctx.strokeStyle = stroker;
+    if (radius)         rounded(x, y, width, height, radius, fillIt);
+    else {
+        if (fillIt)     ctx.fillRect(x+ofst,y+ofst,width-lof,height-lof);
+        if (strokeIt)   ctx.strokeRect(x,y,width,height);
+        }
+    ctx.restore();
+    }</head>
+#;

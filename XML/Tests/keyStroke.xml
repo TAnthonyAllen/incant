@@ -1,0 +1,34 @@
+How to have multiple keyboard driven methods associated with a block.
+
+In this example, the block is body and the methods are defined in controlA and controlB in the KeyStrokes registry. For it to work, you need noMerging set for the KeyStrokes registry.
+
+noMerging for a registry means when a registry item gets referred to as an attribute, it does not get merged. Otherwise, any attributes and members of the registry item would be merged into the block that references it. In this example, if the references to controlA and controlB were merged, since they both have a jit attribute, one would overwrite the other. With noMerging set, controlA and controlB are treated as simple attributes. The first time thru during layout, their attributes get processed and their jit methods get compiled. Note: if merged, one of the compiled jit methods would be associated with body (the other would be overwritten and effectively discarded). With noMerging set, the jit methods get associated with their enclosing attribute, controlA and controlB respectively.
+
+When keyboard events get processed, they are associated with the currently selected block. If the currently selected block does not  handle keyboard events, its parents get searched to find the first one that does handle keyboard events. In this example, if body is selected, it has two attributes, controlA and controlB, that respond to keyboard events (each has its own keyStroke attribute). The event action processing checks each one to see if the keyboard event matches the keyStroke and if it does it fires the associated jit action.
+
+Specifying key stroke matches.
+The text of a keyStroke attribute gets parsed to define the match. The text has 3 parts:
+	key modifiers (any combination of a,c,m,s or none). The modifiers refer to keys pressed.
+		a		alt
+		c		control
+		f		function
+		m		command
+		n		numeric (any key on the numeric pad)
+		s		shift
+	- delimiter
+	any key, which can be defined as a slash and a number (/019, for example. This is the
+		key stroke number not the letter number) or a letter such as Z or z. Note Z implies
+		a shift modifier so you do not need to specify the s modifier
+		
+#registry KeyStrokes noMerging search;
+<controlA keyStroke=c-A jit>cout "Saw control A":;</controlA>
+<controlB keyStroke=c-B jit>cout "Saw control B":;</controlB>
+#registry GUI;
+<jitInclude>include /Users/anthony/Dropbox/data/InProcess/Include/UIjit.ext
+external GroupItem { overload initializer getGroup; }</jitInclude>
+<keyStroking window closable resize x=400 y=400 width=360 height=400 fill=saberBrown title="Key Stroke Test">
+    <first height=70 pad=10 fill=white rounded>
+        <space/>
+        <heading="Keystroke Test" height=47.0 text align=center font=title border=off/></first>
+    <saber image="/Users/anthony/Pictures/Wallpaper/Saber.jpg" rounded=20.0 tip="Saber from Fate Stay Night"/>
+    <body="This block handles key events" label font=normal pad=15 fill=paleGray rounded controlA controlB;>

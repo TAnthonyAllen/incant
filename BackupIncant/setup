@@ -1,0 +1,198 @@
+//Setting up
+/*******************************************************************************
+	Commands fire C++ methods used to set flags, print out a block, whatever.
+    If a command is noPrint, the action gets fired when the parse
+    processes the attribute at definition time but the attribute is not added.
+*******************************************************************************/
+register(cOMMANDs);
+define
+    include=loadInputFromFile immediateAction;
+    virtual immediateAction=processFlags noPrint;
+    BLOCKing- parseAction;
+    bitmap immediateAction=setInternalType noPrint;
+    buffer immediateAction=setInternalType noPrint;
+    class immediateAction=rEGISTER noPrint;
+    clear immediateAction=cLEAR;
+    condition immediateAction=processFlags noPrint;
+    debugRule immediateAction=debugRULE noPrint;
+    debugGuard immediateAction=debugOnGuard noPrint;
+    draw=opDraw immediateAction;
+    dumpContents immediateAction;
+    dumpResults immediateAction;
+    file immediateAction=setInternalType noPrint;
+    fixedLength immediateAction=processFlags noPrint;
+    guard immediateAction virtual noPrint;
+    hash immediateAction=setInternalType noPrint;
+    hashOnly immediateAction=processFlags noPrint;
+    index immediateAction=processFlags noPrint;
+    isList immediateAction=processFlags noPrint;
+    isRule immediateAction=processFlags noPrint;
+    labelAction immediateAction noPrint;
+    listenTo immediateAction virtual noPrint;
+    load immediateAction=loadDirectory noPrint;
+    merge immediateAction=processFlags noPrint;
+    new=newField immediateAction;
+    pop=pOP immediateAction;
+    regex immediateAction=setInternalType noPrint;
+    setTag immediateAction;
+    sort immediateAction=processFlags noPrint;
+    stack immediateAction=setInternalType noPrint;
+    stop=stopParsingInput immediateAction;
+    testing immediateAction;
+    tokenize@ parseAction;
+    type immediateAction=setType noPrint;
+    unary immediateAction=aCTionUnarY noPrint;
+    ;
+/*******************************************************************************
+	Operators is a base registry, however, unlike most registries, it gets sorted
+    in descending order (so when comparing against an input stream, longest
+    match is returned by the parse)
+*******************************************************************************/
+register(Operators);
+define
+    '+' ruleMethod=opPlus;
+    '++' unary virtual ruleMethod=opPlusPlus;
+    '+=' ruleMethod=opPlusEqual;
+    '+%' ruleMethod=opAddAttribute;
+    '+/' ruleMethod=opAddMember;
+    '+*' ruleMethod=opAddComponentsOf;
+    '--' unary virtual ruleMethod=opMinusMinus;
+    '**' unary ruleMethod=opDoNothing;
+    
+    '==' ruleMethod=opEQ;
+    '=*' ruleMethod=opPointer;
+    '<' ruleMethod=opLT;
+    '>' ruleMethod=opGT;
+    '<=' ruleMethod=opLE;
+    '>=' ruleMethod=opGE;
+    '!=' ruleMethod=opNE;
+//  ':+' ruleMethod=opPlusGroup;        not written yet
+//  ':-' ruleMethod=opMinusGroup;       not written yet
+    '-=' ruleMethod=opMinusEqual;
+    '*=' ruleMethod=opStarEqual;
+    '/=' ruleMethod=opSlashEqual;
+    '~=' ruleMethod=opMatches;
+    
+    ':>' ruleMethod=opAssignText;
+    '<?' ruleMethod=opSearchUp;
+    '<:' ruleMethod=opFeedInto;
+    '>?' ruleMethod=opSearchDown;
+    
+    '.' ruleMethod=opDot;
+    '=' ruleMethod=opAssign;
+    '%' ruleMethod=opPercent preceed=1;
+    '&' ruleMethod=opBitAnd;
+    '*' ruleMethod=opStar;
+    '-' ruleMethod=opMinus;
+    '/' ruleMethod=opSlash;
+    '|' ruleMethod=opBitOr;
+    '!' unary;
+    '?' unary;
+    IN  ruleMethod=opContains;
+    AND ruleMethod=opAND;
+    OR  ruleMethod=opOR;
+    '$';
+    ':=' ruleMethod=opAssignGroup;
+    '^=';
+    '^';
+    '=<';
+    '<<=';
+    '>>=';
+    '<<';
+    '>>';
+    ;
+/*******************************************************************************
+	These forward declarations are in setup so the bootstrapper (that loads setup)
+    can find them.
+*******************************************************************************/
+register(Grokking);
+define
+    BlocK;
+    FAIL virtual noPrint ruleMethod=fAIL;
+    PoweR=["eE"] sign?=["+-"]  power=["0-9"]+;
+    FloaT="."           decimals=["0-9"]+ PoweR?;
+    NumbeR=["0-9"]+       FloaT? tokenize;
+    HeX='0'             x=["xX"] value=["0-9a-fA-F"]+ tokenize;
+    ShortcuT=["~`_:,"]+;
+    ;
+/*******************************************************************************
+	The hard coded bootstrap rules not shown here are defined in GroupMain
+    Note: GroupFields and pROPERTIEs are registries defined in GroupControl
+*******************************************************************************/
+register(pROPERTIEs);
+define
+    atEND;
+    false noPrint;
+    gUARD virtual noPrint;
+    isPERCENT;
+    isRELATIVE;
+    true noPrint;
+    ;
+/*******************************************************************************
+	GroupBody flags
+*******************************************************************************/
+register(GroupFields);
+define
+    counT=1;
+    grouP=2;
+    listLENGTH=3;
+    parenT=4;
+    registrY=5;
+    taG=6;
+    texT=7;
+    // data flags
+    data=8;
+    isAny=9;
+    isChar=10;
+    isEOF=11;
+    isSet=12;
+    isBuffer=13;
+    isCount=14;
+    isGroup=15;
+    isMap=16;
+    isNumber=17;
+    isObject=18;
+    isPercent=19;
+    isPointer=20;
+    isRegex=21;
+    isString=22;
+    isToken=23;
+    hasAttributes=24;
+    hasListener=25;
+    hasMembers=26;
+    numbeR=27;
+    characteR=28;
+    mergeOn=29;
+    isTYPE=40
+    // The following are GroupItem flags
+    zeroOrMore=200;
+    optional=201;
+    oneOrMore=201;
+    next=401;
+    prior=402;
+    first=403;
+    last=404;
+    ;
+/*******************************************************************************
+	Keywords contains groups that play a role in the grammar. Keywords cannot be
+    used as fields (the NamE rule rejects them);
+*******************************************************************************/
+register(Keywords);
+define
+    attributes;
+    break;
+    continue;
+    define;
+    do;
+    draw;
+    else;
+    for;
+    if;
+    members;
+    or;
+    print;
+    return;
+    search;
+    string;
+    while;
+    ;

@@ -1,0 +1,56 @@
+    /*************************************************************************
+        A dummy class for testing C++ generator
+    *************************************************************************/
+    GenerateTest class harry=0 anote="what it is", buffing buffer;:
+        /*********************************************************************
+            Actions
+                Note: testGen has a tYPE attribute that determines the return
+                type of the generated C++ version of testGen. If an action has
+                no tYPE attribute it is generated as a void method.
+        *********************************************************************/
+        testGen argument; {
+            harry += 13;
+            print stuff:;
+            for grup in argument; attributes
+                harry += 2;
+                print `grup harry:;
+            return harry; }
+        testVoid argument=0; {
+            buffing += anote harry; }
+
+/***************************************************************************
+	C++ classes in incant
+***************************************************************************/
+In incant a class is a registry, however, there is no notion of a class instance. Methinks we need a way to create one. isCLASS is a bin type, however, there is currently no way to link that to the registry that defines what the class is supposed to contain. A class instance (isCLASS) then is different from the class registry which is just a registry??? Conceptually it works and I like it but there is no enforcement to guarantee that the class instance contains all the attributes defined for it in the class registry.
+
+/***************************************************************************
+	In Process maybe
+***************************************************************************/
+register(Classes);
+define
+    String format="%s";
+    int format="%d";
+    Buffer  bufferName file current& end& mark& start& fd=0 roomLeft=0 size=0:
+        append argument; {
+            extend(10);
+            current += argument;
+            current = '\0';
+            roomLeft--; }
+        extend argument; { roomLeft++; } // just a place holder for now
+        
+// going to need wrappers for calloc ... or maybe not, just need to generate the right code not execute it
+    printXP xpress; {
+        target  = 1;
+        tail    = 2;
+        scope xpress~ target tail;
+        printTO(stringBUFFER);
+        print target;
+        if tail
+            operate     = 1;
+            argument    = 2;
+            for grup in tail
+                scope grup~ operate argument;
+                print operate.taG argument;
+        resetPrint();
+        return stringBUFFER.text; }
+

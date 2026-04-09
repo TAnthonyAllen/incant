@@ -1,0 +1,22 @@
+#include /Users/anthony/Dropbox/data/InProcess/Groups/XML/HTML/traits.xml;
+#include /Users/anthony/Dropbox/data/InProcess/Groups/XML/Controls/templates.xml;
+
+#print fill;
+#include /Users/anthony/data/Tawk/Groups/XML/NotGUI/playlist.xml;
+#registry GUI display;
+<dbExample window closable resize x=400 y=400 width=600 height=300 fill=wall normalFont title=Playlist lang=en-US hTML>
+    <body flex down mRight=25 mBottom=15>
+        <first height=50 fill=lightGreen bordered pad>
+            <heading="Playlist Example" flex center titleFont/></first>
+        <contents source=phone pad bordered fill=white flex down>
+            <columns tableHead fill=paleGray flex>
+                <Artist sort=artist tableLabel/>
+                <Album sort=album tableLabel/>
+                <Song sort=song tableLabel/></columns>
+            <space fill=blue height=5/>
+            <table tableBody>
+                <row tableRow next=contents>
+                    <artist key trait tableCell/>
+                    <album key trait tableCell/>
+                    <song trait tableCell/></dbExample>
+

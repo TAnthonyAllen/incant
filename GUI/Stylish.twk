@@ -1,0 +1,272 @@
+include GUIincludes
+
+/*******************************************************************************
+	Defined as class but just a structure really to encapsulate style attributes
+*******************************************************************************/
+class Stylish
+{
+String          styling;
+Shadow          shadow;
+NumberFormatter formatter;
+double			borderWidth,
+                radius,
+                transparency;
+GroupItem
+                blankItem,
+                commaItem,
+                createdBy,
+                filler,
+                fontItem,
+                formatItem,
+                selectFill,
+                selectStroke,
+                stroker,
+                texter,
+                zeroItem;
+boolean
+		align:3[center left right justify]
+		bottomBorder
+        fontModified
+		leftBorder
+		rightBorder
+		rounded
+		squared
+		topBorder
+		;
+
+Stylish(GroupItem item)
+{
+    texter      = colorRegister["black"];
+    styling     = item.tag;
+    createdBy   = item;
+	// This just zeros out everything
+}
+
+Stylish(String name)
+{
+    texter      = colorRegister["black"];
+	styling     = name;
+}
+
+Stylish(GroupItem item,Stylish source)
+{
+#initNOT
+	*this       = *source;
+    styling     = item.tag;
+    createdBy   = item;
+}
+}
+
+/*******************************************************************************
+	Process font attribute
+*******************************************************************************/
+void fONT(GroupItem item)
+{
+Details     detail = item.getDetail();
+GroupItem	element,namedFont,trait;
+String      name;
+Font        font;
+use item
+	if item.isPointer && style
+        if fontItem && !fontModified
+            return;           // Must have already processed this
+	if !style style = new(wig,getStyle());
+    if name = item.text
+        if namedFont = locate(name)
+            {
+            font = systemFontOfSize(0);
+            fontItem = namedFont;
+            setFont(font);
+            hold((void*)font);
+            namedFont.other = detail;
+            while namedFont.nextAttribute(element)
+                {
+                trait = properties[element.tag];
+                if !trait && element.registry
+                    trait = properties[element.registry.type];
+                if trait
+                    if trait.method trait.method(element);
+                    or element.isItem && trait["method"]
+                        if trait = properties[element.text] element.method = trait.method;
+                }
+            if fontModified font = getFont();
+            fontModified = false;
+            }
+        else cerr "font: could not locate",item:;
+    else cerr "font: no name specified":;
+	//cout "font: " wig.tag,font.displayName(),font.size():;
+}
+
+/*******************************************************************************
+	Process font name.
+*******************************************************************************/
+void fONTname(GroupItem item)
+{
+Details     detail  = item.getDetail();
+String      name    = item.text;
+Font        font,revisedFont;
+    if name
+        {
+        NSString    ocText = name;
+        if !style style = new(wig,getStyle());
+        if !fontItem
+            {
+            font = systemFontOfSize(0);
+            fontItem = new(name);
+            setFont(font);
+            }
+        else font = getFont();
+        if font
+            {
+            revisedFont = convert(font,ocText);
+            font    = revisedFont;
+            hold((void*)font);
+            fontModified = true;
+            setFont(font);
+            }
+        }
+    else cerr "fONTname: no name provided",item:;
+	//cout `"font name: " wig.tag,item.text,font.displayName(),font.size():;
+}
+
+/*******************************************************************************
+	Process font size.
+*******************************************************************************/
+void fONTsize(GroupItem item)
+{
+Details     detail = item.getDetail();
+double      amount = item.number;
+Font        font,revisedFont;
+    if amount == 0.0
+        {
+        cerr "fONTsize: no font size specified in",wig.getTagXML():;
+        return;
+        }
+	if !style style = new(wig,getStyle());
+	font = getFont();
+    if !font
+        cerr "fONTsize: no font found to set size of for",wig.getTagXML():;
+    else {
+        revisedFont = convert(font,amount);
+        font    = revisedFont;
+        hold((void*)font);
+        fontModified = true;
+        setFont(font);
+        //cout `"font size: " wig.tag,item.text,font.displayName(),font.size():;
+        }
+}
+
+/*******************************************************************************
+	Process font style (ie. bold, italic).
+*******************************************************************************/
+void fONTstyle(GroupItem item)
+{
+Details     detail = item.getDetail();
+int			mask = item.count;
+	if !style style = new(wig,getStyle());
+    if mask
+        {
+        Font font = getFont();
+        Font revisedFont;
+        if !font
+            {
+            font = systemFontOfSize(0);
+            if !fontItem fontItem = new("no name font");
+            setFont(font);
+            }
+        revisedFont = convert(font,mask);
+        font    = revisedFont;
+        hold((void*)font);
+        fontModified = true;
+        setFont(font);
+        }
+	//cout "style: " wig.tag,item.tag,font.displayName(),font.size():;
+}
+
+/*******************************************************************************
+	Set the print format for an item.
+*******************************************************************************/
+void fORMAT(GroupItem item)
+{
+Details     detail = item.getDetail();
+String      format = item.text;
+    if format
+        {
+        if !style style = new(wig,getStyle());
+        if *format != '%'
+            {
+            PLGitem     result = extendParser.divertInput(format,"Amount");
+            if result
+                {
+                PLGitem digits = result["number"];
+                PLGitem fraction = result["part"];
+                if !digits
+                    {
+                    cerr "fORMAT: expected a number format in " item.getTagXML():;
+                    return;
+                    }
+                if !formatter
+                    {
+                    formatter = new;
+                    formatter.numberStyle = decimalFS;
+                    }
+                if commaItem && !hasCommas
+                    {
+                    hasCommas = true;
+                    thousandSeparator = commaItem.text;
+                    }
+                maxDigits = digits.amount;
+                minDigits = 1;
+                if fraction
+                    {
+                    maxFractions = fraction.amount;
+                    minFractions = fraction.amount;
+                    }
+                else minFractions = 0;
+                }
+            }
+        formatItem = item;
+        }
+    else cerr "fORMAT: no format text in " item.getTagXML():;
+}
+
+/*******************************************************************************
+	Assign the style named in the item passed in as the current style. If there
+	is no named style, create one.
+*******************************************************************************/
+GroupItem sTYLE(GroupItem item)
+{
+Details         detail  = item.getDetail();
+String          name    = item.text;
+GroupItem       styles  = registries["sTYLEs"];
+GroupItem       styleItem;
+use style
+    if !styles
+        {
+        cerr "ERROR in " wig.tag ": could not find sTYLEs registry":;
+        return null;
+        }
+    if !name
+        {
+        cerr "ERROR in " wig.tag ": style attribute has to specify a name":;
+        return null;
+        }
+    if styleItem = styles[name]
+        {
+        if !styleItem.pointer
+            {
+            if style
+                style   = new(wig,style);
+            else style  = new(name);
+            styleItem.pointer = (void*)style;
+            }
+        else style = styleItem.pointer;
+        return null;
+        }
+	setStyle();
+    styling     = name;
+    styleItem   = new(name);
+    styleItem.pointer = (void*)style;
+    styles += styleItem;
+    return null;
+}

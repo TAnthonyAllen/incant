@@ -1,0 +1,18 @@
+#registry dESCRIPTIONs asAttributes;
+<fitExample>This demonstrates the use of the fit attribute, which is used to wrap a container around its contents. Fit can be applied to height or width separately, or both together, depending on the attribute value. If there is no value, the fit follows the direction of orientation, that is, fits height if orientation is down and fits width if orientation is across.</fitExample>
+<fitDefaultDown="When the fit attribute has no value, the fit follows the layout orientation, down in this case"/>
+<fitDefaultAcross="When the fit attribute has no value, the fit follows the layout orientation, across in this case"/>
+<fitHeight="When the fit attribute value is down, the fit is vertical even if the orientation is across"/>
+<fitBothWays="Both width and height are fit"/>
+#;
+#registry GUI;
+<fitItem height=16 border=off menuItem font=normal align=left/>
+<fitExample window closable resize width=360 height=700 x=500 y=200 fill=wall font=normal minimumHeight=100 title=Fitting>
+    <intro height=50 pad fill=white rounded>
+        <heading="Using The Fit Attribute" pad=10 label align=center font=title border=off shadow/></intro>
+    <container pad=5 down>
+        <fitDefaultDown down fit fill=paleGray rounded>
+            <short label height=50 width=50 fill=white pad=2 rounded/>
+            <tall="fit default down: The box enclosing this box is constrained to fit vertically by default because no fit value specified and it is laid out down. How long does it have to be? To test this adequately, pretty long and even longer than that." text height=100 width=200 fill=white pad=2 top=0 rounded/></container>
+    <help describe=fitExample rounded pad font=normal fill=lightGreen height=50/></fitExample>
+

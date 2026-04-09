@@ -1,0 +1,232 @@
+include /Users/anthony/Dropbox/data/InProcess/Groups/groupIncludes
+
+/******************************************************************************
+	GroupHash adds hashing to a group (via the incant hash command/attribute).
+    It should be in place before any components are added to the group. That
+    is: the hash attribute that creates a GroupHash should be the first
+    attribute of the hash group being defined. All attributes and
+    members that follow the hash attribute are included in the hash. Thus a
+    hash group can be populated by its definition. You can also add groups to the
+    hash after it is defined.
+******************************************************************************/
+class GroupHash
+{
+GroupItem   hashGroup;
+int         hashLength,
+            hashSize,
+            hashed;
+GroupItem   **hashStack;
+boolean
+    hashComponents:2[hashAll hashAttributes hashMembers]
+    ;
+
+/******************************************************************************
+	Constructors
+******************************************************************************/
+GroupHash(GroupItem g,int tableSize)
+{
+    hashGroup   = g;
+	hashSize	= tableSize;
+	hashStack	= (GroupItem**)calloc(hashSize + 2,sizeof(GroupItem*));
+}
+
+/******************************************************************************
+	Add the components of the group passed in to the hash.
+******************************************************************************/
+void addComponents(GroupItem hashItem)
+{
+GroupItem   part;
+    if hashComponents && hashItem.getListLength()
+        while part = hashItem.next(part)
+            addItem(part);
+}
+
+/******************************************************************************
+	Add item but not its components.
+******************************************************************************/
+void addItem(GroupItem hashItem)
+{
+GroupItem   atHash,
+            lastEntry;
+use hashItem
+    if hashItem && hashItem != hashGroup
+        {
+        int currentHash = getHashIndex(tag);
+        if hashMembers && !isMember  return;
+        if hashAttributes && !isAttribute return;
+        if findInHash(tag) return;
+        if atHash = hashStack[currentHash]
+            if tag lt atHash.tag
+                {
+                atHash.prepend(hashItem);
+                hashStack[currentHash] = hashItem;
+                }
+            else {
+                lastEntry = atHash;
+                // the hash may match multiple names so we have to check
+                while (atHash && tag gt atHash.tag)
+                    {
+                    lastEntry = atHash;
+                    atHash = atHash.nextInParent;
+                    }
+                lastEntry.append(hashItem);
+                }
+        else hashStack[currentHash] = hashItem;
+        hashLength++;
+        }
+}
+
+/******************************************************************************
+	Add a group to the hash.
+******************************************************************************/
+void addToHash(GroupItem hashItem)
+{
+GroupItem   part;
+    addItem(hashItem);
+    if hashComponents
+        while part = hashItem.next(part)
+            {
+            if hashMembers && !isMember  continue;
+            if hashAttributes && !isAttribute continue;
+            if findInHash(tag) continue;
+            addComponents(part);
+            }
+    }
+
+/*****************************************************************************
+	Clear hash.
+*****************************************************************************/
+void clearHash()
+{
+GroupItem   follow,
+            entry;
+    if hashLength
+        {
+        int i;
+        while i < hashSize
+            if entry = hashStack[i++]
+                while entry
+                    {
+                    entry.nextInParent = 0;
+                    entry.priorInParent = 0;
+                    entry   = follow;
+                    }
+        free(hashStack);
+        hashStack	= (GroupItem**)calloc(hashSize + 2,sizeof(GroupItem*));
+        hashLength  = 0;
+        }
+}
+
+/***************************************************************************
+	If it exists, return the group with tag == name
+***************************************************************************/
+GroupItem findInHash(String name)
+{
+    if hashLength && name
+        {
+        hashed = getHashIndex(name);
+        GroupItem	atHash = hashStack[hashed];
+        while (atHash && name gt tag)
+            atHash = nextInParent;
+        if atHash && tag eq name return atHash;
+        }
+    return null;
+}
+
+/***************************************************************************
+	Hash the name passed in and return the hash index
+***************************************************************************/
+int getHashIndex(String name)
+{
+unsigned int	h;
+char			*p	= name ;
+    while *p
+		{ h <<= 5; h += *p++; }
+	return h % hashSize;
+}
+
+/***************************************************************************
+	Debugging routine to list out the contents of the hashStack. The all
+    argument tells which hash entry to print out. If it is 0 they are all
+    printed. If it is negative, all entries are printed but only the initial
+    hashed entry is shown.
+***************************************************************************/
+void listHash(int all)
+{
+GroupItem   entry,
+            grup;
+int i = all;
+    if hashLength
+        {
+        if all < 0 i = 0;
+        cout hashGroup.tag,"hash table":;
+        debugIndent = 2;
+        while i < hashSize
+            {
+            if entry = hashStack[i]
+                {
+                cout `"Hash index:",i:;
+                while entry
+                    {
+                    grup = entry;
+                    indent(); debugText(1);
+                    entry = entry.nextInParent;
+                    if all < 0 break;
+                    }
+                }
+            if all > 0 break;
+            i++;
+            }
+        cout "Total entries in hash",hashLength:;
+        debugIndent = 0;
+        }
+}
+
+/***************************************************************************
+	Debugging routine to list out the contents of the hashStack for all
+    entries matching the hash index of the group passed in.
+***************************************************************************/
+void listHashFor(GroupItem grup)
+{
+    if !grup    listHash(0);
+    else        listHash(getHashIndex(tag));
+}
+
+/***************************************************************************
+    Return the group following the group passed in. If a null group is
+    passed in, returns the first group;
+***************************************************************************/
+GroupItem nextInHash(GroupItem grup)
+{
+GroupItem   entry;
+    if hashLength
+        {
+        if grup
+            if entry = grup.nextInParent        return entry;
+            else hashed = getHashIndex(grup.tag) + 1;
+        else hashed = 0;
+        while hashed < hashSize
+            if entry = hashStack[hashed]    return entry;
+            else hashed++;
+        }
+    return null;
+}
+
+/*****************************************************************************
+	Remove group from this hash table.
+*****************************************************************************/
+void removeFromHash(GroupItem grup)
+{
+    if hashLength
+        {
+        GroupItem entry = findInHash(grup.tag);
+        hashed = getHashIndex(grup.tag);
+        cout ``"GroupHash: removing",grup.tag:;
+        if entry
+            {
+            if entry = hashStack[hashed]   hashStack[hashed] = entry.nextInParent;
+            else    entry.priorInParent.nextInParent = entry.nextInParent;
+            }
+        }
+}
+}

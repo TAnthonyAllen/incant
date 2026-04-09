@@ -1,0 +1,176 @@
+/*******************************************************************************
+The plan is to have a very simple app from an Apple POV. A display would have a canvas view decorated by incant drawing commands.
+The incant drawing language is intended to output a set of draw points ready for the display draw method to go thru w/no additional fiddling required.
+Apple events need to be passed on to incant to deal with (should be no biggie)
+Drawing should be part of incant the way printing is; IOW in incant print is a statement that looks like:
+    print something something;
+So a draw statement would look like:    draw something something;    Where something something is a list of points returned by applying the incant drawing grammar (work in progress).
+
+	Old drawing grammar - short and sweet. Each command in a drawing path has
+    three components: an operator, an x offset from the current point and
+    optionally, a y offset from the current point. By default, the current
+    point is taken to be the frame origin. The operators that can be used are:
+    
+        %   Length parameters interpreted as % of frame. So an x offset of 50
+            is converted to 50% of the frame width.
+        ~   The current point is taken to be where we currently at and it changes
+            each time a new point is set.
+        @   Move to the new point defined by the following x and y values.
+        :   Close the current path after it is drawn.
+        !   Resets the % and ~ settings to default where offsets are pixel lengths
+            and the current point is the frame origin.
+        a   Draw an arc (do not think this is implemented yet).
+        c   Draw a curve (in addition to the target point, takes two more points as control arguments)
+        d   Direction is down (applies to the y offset).
+        g   Save graphics state
+        I   Invert the current path when drawn.
+        l   Direction is left (applies to the x offset).
+        o	Draw an oval (not implemented yet).
+        r   Direction is right (applies to the x offset).
+        R   Rotate current path by the degrees specified in the x offset.
+        S   Scale current path by amount specified in offsets. If no y offset
+            specified, both x and y are scaled by the x offset amount.
+        T   Shift path by amount specified in offsets.
+        u   Direction is up (applies to y offset).
+        ,	Separates commands that otherwise might be glommed onto the following command.
+        ;	Ends a path, if graphics state saved, restores it.
+        $   Stroke the current path
+        F   Fill the current path
+
+        The numeric arguments to all commands, except for the rotate command R, are scaled if the % operator is in effect. The arguments for @ resolve to a point. All numeric arguments not associated with the R and @ commands are taken to be lengths if relative, as in how far to move, not defining a point to move to but how far away to move
+
+    Note: the original drawing operators listed above are changed to the list
+    in the DrawOperator group defined below.
+        These were fields
+            point
+            style
+            pathBlock
+        These were flags
+            close
+            move        was the @ command
+            percent
+            relative    was the ~ command
+        These were direction flags
+            left
+            right
+            up
+            down
+        These were shape flags
+            arc
+            curve   Note: the control points (which are DrawPoints) move from DrawPoint into curve
+                control1
+                control2
+            oval
+        These were translate flags (for HPDL)
+            invert
+            rotate
+            scale
+            shift
+        These have a color attribute
+            fill
+            stroke
+
+    Colors and Borders should be drawOperators
+        Note: need to make sure RGBvalue comes out right when processed
+*******************************************************************************/
+register(Drawing);
+define
+    arc;
+    border;
+    clearPath;
+    clip;
+    close;
+    color;
+    curve;
+    down;
+    fill;
+    font;
+    home;
+    invert;
+    left;
+    line;
+    move;
+    oval;
+    pad;
+    percent;
+    relative;
+    right;
+    rotate;
+    rounded;
+    save;           // save graphics context?
+    scale;
+    shift;
+    stroke;
+    textColor;
+    up;
+    lineWidth;
+    /***************************************************************************
+        Drawing templates
+    ***************************************************************************/
+    stride;
+    gap;
+    depth;
+    perfRight down=gap left=depth down=stride right=depth;
+    perfLeft right=depth up=stride left=depth up=gap;
+    perfTop up=depth right=gap down=depth right=stride;
+    perfBottom up=depth left=stride down=depth left=gap;
+    perforation stride=6 gap=12 depth=2 fill=perfColor border home line percent up=8 perfLeft=5 perfTop=5 up=depth right=10 down=2 perfRight=5 down=8 left=10 perfBottom=5;;
+    ;
+/*******************************************************************************
+    Colors, Fonts, and Drawing actions. To handle hex processing, need a chop,
+    which returns a string w/number of characters chopped off string argument
+    leaving a shortened string (modify setHexColor???).
+*******************************************************************************/
+register(Colors);
+define
+    red="ef2b2d";
+    lightGreen="afd378";
+    ;
+register(Fonts);
+define
+    bold=2;
+    italic=1;
+    smallCaps=128;
+    courierFont="Courier New" size=24.0 bold;
+    titleFont=Palatino size=24.0 bold;
+    headerFont=Palatino size=14.0 bold;
+    normalFont=Palatino size=14.0;
+    copperFont=Copperplate size=12.0;
+    defaultFont=Helvetica size=10.0;
+    EBgaramond="EB Garamond" size=18.0 bold;
+    ;
+register(Grokking);
+define
+    /***************************************************************************
+        Drawing Grammar additions to incant
+    ***************************************************************************/
+    Point               x=NumbeR y?=NumbeR; {
+        label = aRG;
+        scope label x y;
+        print "Point input" x y:;
+        point = pOINT;
+        scope point: x y;
+        toX = x;
+        toY = y;
+        scope currentPOINT x y;
+        if isPERCENT
+            toX *= currentFRAME.width / 100;
+            toY *= currentFRAME.height / 100;
+        if isRELATIVE > 0
+            print `"So it is relative?" toX x toY y:;
+            x += toX;
+            y += toY;
+        else
+            x = toX;
+            y = toY;
+        print currentPOINT:;
+        return point;
+        }
+    DrawValue:
+        Point;
+        NamE;;          // could be color font or template
+    DrawAssign          '='- DrawValue@;
+    DrawCommand:
+        Drawing DrawAssign?;;
+    Draw                label="drawn" DrawCommand+ SemI-;
+;

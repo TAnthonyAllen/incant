@@ -1,0 +1,36 @@
+/*****************************************************************************
+	In the type registry count values are type size in bytes (sizeof);
+*****************************************************************************/
+register(tYPEs);
+define
+    pOINT=16 x=8.0 y=8.0 type, toString argument; {
+        scope argument x y;
+        strung = string ,"point x=" x " y=" y; };
+    fRAME=32 x=8.0 y=8.0 width=8.0 height=8.0 type, toString argument; {
+        scope argument width height x y;
+        strung = string ,"frame (width=" width " height=" height " x=" x " y=" y ")"; };
+    ;
+
+/*****************************************************************************
+    Type handling code taken from setContent
+*****************************************************************************/
+    or isTypeField {
+        if !data        data = item.data;
+        if isCOUNT      count = item.count;
+        or isNUMBER     number = item.number;
+        else cerr "GroupItem setContent: invalid type field data",tag,data:; }
+    or item.isTYPE {
+        if registry == item.registry {
+            // this is the same type as the item, copy its content
+            memcpy(pointer,item.pointer,item.count); }
+        or item.registry == types {
+            // makes this an empty type
+            pointer     = calloc(1,item.count);
+            isTYPE      = true;
+            registry    = item; }
+        else {
+            // make this a type w/contents the same as item
+            isTYPE      = true;
+            registry    = item.registry;
+            pointer     = malloc(registry.count);
+            memcpy(pointer,item.pointer,registry.count); } }

@@ -1,0 +1,262 @@
+
+/***************************************************************************
+	Returns a string version of data
+***************************************************************************/
+extern String dataType(GroupItem input)
+{
+String  name;
+    switch(data) {
+        case isCHAR:    name = "char";
+        case isSET:     name = "Set";
+        case isBUFFER:  name = "Buffer";
+        case isCOUNT:   name = "int";
+        case isGROUP:   name = "GroupItem";
+        case isITEM:    name = "PLGitem";
+        case isMAP:     name = "BitMAP";
+        case isNUMBER:  name = "double";
+        case isOBJECT:  name = "object";
+        case isREGEX:   name = "regex";
+        case isSTAK:    name = "Stak";
+        case isSTRING:  name = "String";
+        case isTOKEN:   name = "Token";
+        default:        name = "null"; }
+    return name;
+}
+
+/*****************************************************************************
+    Parse an action to generate code, which gets put into genCODE a
+    noPrint field stored in the action.
+*****************************************************************************/
+extern GroupItem generateCode(GroupItem field)
+{
+GroupRules  ruler       = groupRules;
+GroupItem   CodE        = field["CodE"];
+GroupItem   generate    = locate("generate"),
+            blockRULE   = grokking/BlocK,
+            lines,
+            coded       = field["genCODE"];
+GroupItem   statements;
+GroupItem   instruct;
+String      saveInput   = atRuleMark;
+int alreadyProcessing   = processingCode;
+    field.isAction      = true;
+    processingCode      = true;
+    if CodE {
+        atRuleMark      = CodE.gText;
+        /*******************************************************************
+            Local fields get stored in CodE when processing rule actions
+            otherwise they are stored in field (the action).
+            reset currentMETHOD at end
+        *******************************************************************/
+        if field.isRule currentMETHOD = CodE;
+        else            currentMETHOD = field;
+        if !coded {
+            generating  = true;
+            if !generate cerr "generateCode: could not find generate() action":;
+            else {
+            if !fieldBUFFER     fieldBUFFER = new;
+            if !formatBUFFER    formatBUFFER = new;
+            searchList  += groupFields;
+            if statements = blockRULE.parse(0) {
+                instruct    = field += "genCODE";
+                instruct.noPrint    = true;
+                instruct.count  = 988;
+                instruct    +% generate;
+                coded       = new("gDeclare");
+                coded       +% field;
+                // wrap coded and statements in a field then add field to instruct
+                lines       = statements.firstComponent("Lines");
+                lines.insertGroup(coded);
+                instruct    +% statements;      // this may not be right
+                invoke      = true;
+                isOperator  = true; }
+            else cerr "generateCode: parse failed for " field.tag:;
+            searchList.pop();
+            generating      = false; }
+        atRuleMark          = saveInput; }}
+    if !alreadyProcessing   processingCode = false;
+    currentMETHOD = null;
+    return instruct;
+}
+
+/*******************************************************************************
+	Generator method for the Print rule or the StringXP rule; invoked by
+    aCTionPrinT when generating.
+*******************************************************************************/
+extern GroupItem genPrint(GroupItem input)
+{
+GroupItem   stuff:;
+GroupItem   FormaT;
+GroupItem   grup;
+String      atText;
+GroupRules  ruler;
+use formatBUFFER
+    ruler   = groupRules;
+    input.clear();
+    useDefaultSpace = true;
+    formatBUFFER += "printf(\"";
+    while grup = stuff.next(grup) {
+        FormaT = grup["FormaT"];
+        if isShortcut {
+            for (atText = text; *atText; atText++)
+                switch(*atText) {
+                    case '~':   if inDENT.gCount > 0   tabRight(inDENT.gCount);
+                    case ',':   useDefaultSpace = !useDefaultSpace;
+                    case '_':   append(' ');
+                    case ':':   append("\\n");
+                    case '+':   inDENT.gCount++;
+                    case '-':   if inDENT.gCount > 0    inDENT.gCount--;
+                    case '`':   append("\\t"); }}
+        else {
+            /***************************************************************
+                Need to add switch entries for Stak, ...
+            ***************************************************************/
+            if FormaT {
+                formatBUFFER += FormaT.text;
+                print(fieldBUFFER) "," grup.text; }
+            or isLiteral        formatBUFFER += grup.text;
+            else {
+                switch(data) {
+                    case isCOUNT:   formatBUFFER += "%d";
+                    case isNUMBER:  formatBUFFER += "%.1f";
+                    case isSTRING:
+                    case isTOKEN:   formatBUFFER += "%s";
+                    default:        print grup.gText; }
+                print(fieldBUFFER) "," grup.gText; }
+            if useDefaultSpace && grup != stuff.lastInList  formatBUFFER += " "; }}
+    print(formatBUFFER) "\"";
+    if fieldBUFFER.length()     print fieldBUFFER.string();
+    print ")";
+    input.text  = formatBUFFER.toString();
+    formatBUFFER.reset();
+    fieldBUFFER.reset();
+    return input;
+}
+
+/***************************************************************************
+	Generate code from incant instruction list. This is called from
+    aCTionExpressioN() when generating, setting the ExpressioN result to an
+    expression string.
+***************************************************************************/
+extern GroupItem genXP(GroupItem input)
+{
+GroupItem   Tail:,
+            grup,
+            ExpressSubject:;
+GroupRules  ruler   = groupRules;
+    ExpressSubject  = genXPsubject(ExpressSubject);
+    if Tail
+        while grup = Tail.next(grup) {
+            GroupItem   argument = grup[2];
+            /***************************************************************
+                Make an instruction.
+            ***************************************************************/
+            GroupItem   ExpressOP = grup["ExpressOP"];
+            if isGROUP  ExpressOP = group;
+            print(fieldBUFFER) " " ExpressOP.tag " ";
+            genXPsubject(argument); }
+use input
+    clear();
+    text    = fieldBUFFER.toString();
+    data    = ExpressSubject.data;
+    isShortcut  = ExpressSubject.isShortcut;
+    isLiteral   = ExpressSubject.isLiteral;
+    fieldBUFFER.reset();
+    return  input;
+}
+
+/***************************************************************************
+	Generate C++ code for an expression subject (rule ExpressSubject).
+***************************************************************************/
+extern GroupItem genXPsubject(GroupItem subject)
+{
+GroupItem   fore:,
+            ExpressPart = subject["ExpressPart"],
+            aft:,
+            argument,
+            target;
+String      dataValue;
+GroupRules  ruler;
+    ruler   = groupRules;
+    subject.clear();
+    if ExpressPart {
+        if fore         print fore.text;
+        if ExpressPart.isGROUP {
+            ExpressPart = ExpressPart.group;
+            subject.group = ExpressPart; }
+        if ExpressPart.invoke {
+            target      = ExpressPart[1];
+            argument    = ExpressPart[2];
+            print text;
+            if argument print "(" argument.text ")";
+            else        print "()"; }
+        else        print ExpressPart.text;
+        if aft      print aft.tag;
+        target      = ExpressPart; }
+    or subject.invoke {
+        target      = subject[1];
+        argument    = subject[2];
+        print text;
+        if argument print "(" argument.text ")"; }
+    else    print subject.text;
+    if target {
+        if argument && !currentMETHOD[argument.tag]  currentMETHOD +% argument;
+        subject.isShortcut  = isShortcut;
+        subject.isLiteral   = isLiteral;
+        if !isShortcut && !isLiteral {
+            if !currentMETHOD[tag]   currentMETHOD +% target;
+            if !isLocal switch(data) {
+                case isBUFFER:  dataValue = ".gBuffer";
+                case isCOUNT:   dataValue = ".gCount";
+                case isCHAR:    dataValue = ".gChar";
+                case isMAP:     dataValue = ".gMap";
+                case isNUMBER:  dataValue = ".gNumber";
+                case isOBJECT:  dataValue = ".gObject";
+                case isSET:     dataValue = ".gCharacterSet";
+                case isSTAK:    dataValue = ".gSTAK";
+                case isTOKEN:
+                case isSTRING:  dataValue = ".gText";
+                case isGROUP:   dataValue = ".gGroup"; }
+            if dataValue {
+                print dataValue;
+                if isPRINTING
+                    switch(data) {
+                        case isBUFFER:
+                        case isMAP:
+                        case isOBJECT:
+                        case isSET:
+                        case isSTAK:
+                        case isTOKEN:
+                        case isSTRING:
+                        case isGROUP:   print ".getText()"; }}}
+        subject.text    = fieldBUFFER.toString(); }
+    return  subject;
+}
+
+/***************************************************************************
+	Returns a type field (from types: defined in the Generating registry)
+    based on the data of the field passed in.
+***************************************************************************/
+extern GroupItem getType(GroupItem field)
+{
+GroupItem   type,
+            types = locate("types");
+use field
+    if !types   cerr "getType: could not find types.":;
+    else {
+        if isLocal
+            switch(data) {
+                case isBUFFER:  type = types["Buffer*"];
+                case isCOUNT:   type = types["int"];
+                case isCHAR:    type = types["char"];
+                case isMAP:     type = types["BitMAP*"];
+                case isNUMBER:  type = types["double"];
+                case isOBJECT:  type = types["NSObject*"];
+                case isSET:     type = types["PLGset*"];
+                case isSTAK:    type = types["Stak*"];
+                case isTOKEN:
+                case isSTRING:  type = types["char*"];
+                case isGROUP:   type = types["GroupItem*"]; }
+        if !type                type = types["GroupItem*"]; }
+    return type;
+}

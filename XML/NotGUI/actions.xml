@@ -1,0 +1,35 @@
+This is an example for testing the effects of invoking actions. Since the pROPERTIEs registry defined below has its hasMethods attribute specified, every block added to it is assumed to have an associated method that gets searched for upon adding. Associated methods are searched for using the dlsym system call and must be declared as extern C methods so that their names do not get mangled like C++ names. The method name can be the same as the block tag (as in the case of iTEM below) or given as text (with menuItem below, the method name is menuITEM).
+All methods take a GroupItem argument and return a GroupItem. Methods blocks can specify one of the following methodType attributes:
+
+    immediate       The method gets fired as soon as the parser sees it
+    layout          The method gets fired during layout when HTML gets generated for display
+    deferred        The method gets fired only when directly invoked (typically when a display
+                        block is selected (clicked on HPDL). This is the default if no methodType is specified
+
+This is not done yet. Can specify that a registry hasMethods but the current version of ParseXML does nothing with that
+
+#registry pROPERTIEs hasMethods doNotCopy;
+<iTEM/>
+<menuItem=menuITEM layout/>
+<register=rEGISTER immediate/>
+
+#registry GUI doNotCopy;
+<item height=16 border=off menuItem align=left/>
+<methodTest layout>
+    <menuExample x=400 y=400 width=360 height=400 fill=wall font=normal title="Menu Options">
+        <top popup=dialog rounded/>
+        <bottom rounded>
+            <segundo name=$tercio content=$pull form/>
+            <tercio=$Body name="Another Label" content="Some Stuff" register form/>
+            <menuK=$pull font=header pullDown=pull rounded height=16 align=left/>
+            <quatro fill=white pad=3 border=green rounded>
+                <cinco="Even more text here" text font=normal italic pad=5 border=off/></menuExample>
+    <pull="Select something" panel target=pullText rounded fill=paleGray fit=text font=normal xOffset=20 yOffset=5>
+            <one="First menu item" item/>
+            <two="Second item" item register/>
+            <three="Last item" item;>
+/***************************************************************************
+    The block above implements the pull down part of menu referred to above. It has to appear after the block that defines its visible window because blocks are drawn in the order they appear and you want the pull down menu to float over the underlying window.
+    The item block above it is a template. The way the xml parser works: attributes that have no value are searched for in the current registry first and if not found, then searched for in the registry search path. If found, the attributes and members of the found attribute are substituted into the block containing the original valueless attribute). Bottom line: all the attributes of item get added to each entry in the pull down menu via substitution.
+***************************************************************************/
+#print methodTest;

@@ -1,0 +1,39 @@
+
+#registry Stocks value;
+<NFLX shares=1000/>
+<PYPL shares=2000/>
+<TSLA shares=3000/>
+<UA shares=6000/>
+<PRASX shares=43/>
+<PREMX shares=2601/>
+<PRIDX shares=2020/>
+<PRJPX shares=772/>
+<PRMSX shares=71/>
+<PRSCX shares=786/>
+<TREMX shares=100/>
+<EMB shares=801/>
+<EWJ shares=1706/>
+<HEFA shares=3253/>
+<IVW shares=672/>
+<FLATX shares=1570/>
+<AGRCX shares=171/>
+<AXA>
+    <AGRCX/>
+    <EMB/>
+    <EWJ/>
+    <HEFA/>
+    <IVW;>
+<TRP="T Rowe Price">
+    <Stocks>
+        <NFLX/>
+        <PYPL/>
+        <TSLA/>
+        <UA/></Stocks>
+    <Mutual Funds>
+        <PRASX/>
+        <PREMX/>
+        <PRIDX/>
+        <PRJPX/>
+        <PRMSX/>
+        <PRSCX/>
+        <TREMX;>

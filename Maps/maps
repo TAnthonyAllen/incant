@@ -1,0 +1,84 @@
+external	DoubleLinkList
+external	DoubleLink
+external	Segment
+
+external	BitMAP extends DoubleLinkList
+{
+	int				bitCount;
+    static int      emergency;
+
+	BitMAP();
+	BitMAP(int bit);
+	BitMAP(BitMAP map);
+	int             add(BitMAP map);
+	int             add(int bit);
+	int             andEqual(BitMAP map);
+	int				ands(BitMAP map);
+    void            clear();
+	int				contains(BitMAP map);
+	void			dump();
+	int				get(int bit);
+    Segment         getSegmentContaining(int bit);
+	int             minus(BitMAP map);
+	int             minus(int bit);
+	int				next(int bit);
+    int             nth(int bit);
+	int				prior(int bit);
+	void			setCount();
+	static int		subscript(int bit);
+	void			xorEqual(BitMAP map);
+	overload
+		+		add
+		+=		add
+		|=		add
+		&=		andEqual
+		&		ands
+		[]		get
+		-		minus
+		-=		minus
+		^=		xorEqual
+		;
+	alias
+		orEqual		add
+		reset		minus
+		set			add
+		;
+}
+
+external	Segment
+{
+    int				offset;
+    unsigned long	bits;
+    static int      leftMap[];
+
+	Segment(int bit);
+	Segment(Segment part);
+	void            add(int bit);
+	void            andEqual( Segment s );
+	int             ands(Segment map);
+	int             bitCount();
+	long            bitMask(int index);
+	void			dump();
+	int             get(int bit);
+	int             minus(Segment map);
+	int             minus(int bit);
+	int             next(int bit);
+    int             nth(int bit);
+	int             prior(int bit);
+	void            orEqual(Segment map);
+	int             overlaps(Segment map);
+	void            xorEqual(Segment map);
+	overload
+		+=		add
+		&=		andEqual
+		&		ands
+		+		orEqual
+		-		minus
+		-=		minus
+		|=		orEqual
+		^=		xorEqual
+		;
+	alias
+		set		add
+		;
+}

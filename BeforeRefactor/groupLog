@@ -1,0 +1,1467 @@
+/*****************************************************************************
+	Changes made prior to May 21 2024 backup
+*****************************************************************************/
+GroupActions.rtn
+    Added getAttributeByIndex and getMemberByIndex
+
+    scopeXP()   fixed bugs
+GroupBody       fixed bug in pop()
+GroupMain
+    {} added to Modifier to enable processing upTo and upToOver parse rules
+    Changed SetBrackets to eliminate aCTionBoX w/change to set definition to include quotes like set=["abc"]
+        Added reference to aCTionSetBrackets rule method
+    [ added to Modifier         WHY there is no code making use of it
+Operators.rtn
+    Added support for := operator w/method opAssignGroup()
+    cleared Looper at end of for statement in opFor()
+RuleStuff.twk
+    Added method testUpTo() to handle the process up to test associated w/flags upTo and upToOver
+    Added method testFixed() which has not been tested yet
+ruleActions.rtn
+    modified aCTionExpresses() to support arguments encased in {[( so that the Arguments rule now handles
+        regular arguments encased in ()
+        get member and get attribute arguments encased in [] and {}
+            the get takes an index  IT needs to be enhanced to also take a name
+    Added aCTionSetBrackets() rule method
+    Modified TraiTdata method to promote - (noLabel modifier)
+GroupItem.twk
+    Changed how arguments are handled in incantMethod
+    
+incant changes
+    Modified parse rules to support JSON parsing and comma delimited files. Also changed how files are defined so a file definition now has a file noPrint attribute and a fileName attribute
+    NEED to have a backup facility for incant files
+/*****************************************************************************
+	Changes made before May 28 2024 backup
+*****************************************************************************/
+Fixed the mess I made of argument handling in incantMethod()
+Added gGenerate method pointer in GroupBody. C++ action generation is still pulling its pants up
+Changed ruleMethod to stash generator in gGenerate (in the text union of GroupItem)
+Changed LoopOn definition and modified opFOR to accommodate
+/*****************************************************************************
+	Changes made before June 6 2024 backup
+*****************************************************************************/
+isLiteral set for numbers
+generating is working and am working to verify generated operator code
+Added indenting to generated code (modified runAction() and incantMethod())
+Jury is still out on generating
+Added checkOptions to RuleStuff and modified define action to set checkOPTIONS
+/*****************************************************************************
+	Changes made before June 10 2024 backup
+*****************************************************************************/
+RuleStuff
+    Separated passOrFail() into handleFailure() and handleSuccess()
+    Added counts of rules processed and rules avoided to GroupRules referenced in RuleStuff
+    Set onFail for embedded groups to parentStuff in getWhatFollows()
+GroupRules
+    Changed checkSkip to decrement blocking on block end (this eliminated a bunch of one liners in ruleActions.rtn and changed the BLOCKing action slightly)
+GroupActions
+    Changed listOK to a toggle in processFlags()
+    Change to setRuleAction() to null out name of method passed in (otherwise the name gets passed on unintentionally)
+Operators
+    Fixed opPlusEqual in Operators.rtn
+ruleActions
+    Changed the debug action to set debugAllRules when dEBUG is parsed
+    Got rid of aCTionElsE
+    Removed turning of listOK from print et all replaced by using listOK as a toggle in rules
+    Changed TraiTdata to contain a group if the group is registered, otherwise setContent() on input
+/*****************************************************************************
+	Changes made before June 13 2024 backup
+*****************************************************************************/
+GroupMain
+    removed [] from modifySet because not used and conflicts w/Limit
+    shitcanned getMemberByIndex and getAttributeByIndex from Expresses action for now to simplify Arguments rule
+ruleActions
+    modified Expresses action to be able to handle debugOn; debugOn(); and debugOn("rule1 rule2"); That change is also intended to enable using rule method calls as attributes (looking ahead to drawing and adds flexibility)
+/*****************************************************************************
+	Changes made before June 21 2024 backup
+*****************************************************************************/
+tokenTests
+    changed incantMethod to handle isArgument isGROUP
+GroupActions
+    changed return on runRule
+GroupDraw
+    moved layout
+    added drawBorder()
+Operators
+    changed opPlusPlus wrt string handling to clear input to make end definitive
+    revised opWhile to separate expression test
+RuleStuff
+    changed handleSuccess to not run method or action if no label
+ruleActions.rtn
+    changed define action to clear guard if necessary
+    began work on draw name
+    added actions for TraiTrule and TraiTvalue
+    modified Xpress to clear its label (Xpress- did not work???)
+/*****************************************************************************
+	Changes made before June 27 2024 backup
+*****************************************************************************/
+Operators
+    Stripped out all the generate code
+Generate
+    Revised all code to emit C++ w/plans to use incant syntax to write workable C++
+/*****************************************************************************
+	Changes made before second June 27 2024 backup
+*****************************************************************************/
+tokenTests
+    added check for generating
+Operators
+    added check for generating to FOR IF Print String While and Until operators
+GroupActions
+    made printGenerate have only one argument (the action argument was not being used)
+    changed ruleMethod to update generat method
+GroupBody
+    added gGen method in gText union and made generat alias
+GroupRules
+    included Generate.rtn
+ruleActions
+    added generat in aCTionBrancH aCTionExpresses (for dot operator) and aCTionExpressioN
+Generate
+    minor changes to eliminate unused local fields
+    simplified genPlusPlus POP required
+    changed genPrint
+    changed genString POP required
+/*****************************************************************************
+	Changes made before second July 27 2024 backup. Initial generate test works!!
+*****************************************************************************/
+Generate
+    modified generate()
+    modified genFor()
+    added generateAction()
+    added generateClass()
+GroupControl
+    added printBUFFER as a static
+GroupRules
+    got rid of currentCODE and currentRULE
+    changed inputStick and usedStuff to inputSTAK and usedSTAK so all Stak fields are consistently named
+    moved printBUFFER to a GroupControl static
+    added type setting to setInstructions (for use when generating C++)
+tokenTests
+	incantMethod: removed {} around blocks
+	incantMethod: changed generating code wrt indentation
+/*****************************************************************************
+	Changes made before August 2 2024 backup.
+*****************************************************************************/
+tokens
+    changes Arguments rule to add support for [] references
+Operators
+    added opGet to handle [] references
+GroupBody
+    changed toArray to set gArray (make the calling field an array)
+    modified get(int) to handle arrays
+ruleActions
+    changed Expresses action to handle [references] like field[3]
+/*****************************************************************************
+	Changes made before August 9 2024 backup.
+*****************************************************************************/
+Operators
+    Changed opGet to only do [] references when target isARRAY, otherwise does a search like opDOT
+    Changed opAssign to clear target if argument is null
+GroupActions
+    Revised debugOn for code cosmetics
+    Minor change to processFlags for sort
+    Changed setInstruction wrt type assignment
+GroupBody
+    Removed isEOF
+GroupItem
+    Changed clear() to set isInitialized false for everything cleared
+GroupMain
+    Redefined Group to include CounteR, took CounteR out of DatA
+    Changed SetBrackets rule to use aCTionBoX
+GroupRules
+    Changed pushInput to run printToString on list input
+ruleActions
+    Changed ExpressioN action to fix bug in list expressions
+    Fixed minor bug in search action
+    Modified TraiT action to assign TraiT tag
+/*****************************************************************************
+	Changes made before August 16 2024 backup.
+*****************************************************************************/
+The changes below relate to diverting output to a field containing a buffer (this way generating C++ does not have to worry about creating a file because the diverted output buffer handles it).
+Buffer
+    Changed setFile to just name the file not open it
+    Changed closeFile to not do anything if there is no open file
+    Changed flush to open the file if it is not already open before writing to it
+GroupActions
+    Added printToBuffer
+    Added resetPrint
+    Added buffer argument to printToString() printGenerate() and genPrint()
+Operators
+    Changed opPrint to handle divertOutput
+    Changed opString to supply buffer argument to printToString
+/*****************************************************************************
+	incant changes made before August 16.
+*****************************************************************************/
+grammar
+    Modified print rule to add print > buffer
+/*****************************************************************************
+	incant changes made before August 31.
+*****************************************************************************/
+print diversion tested and works
+Generate
+    revised generate() so its argument is a buffer to contain what gets generated
+    converted generateClass() generateAction() and generateDotH() to actions (see incant file: generate)
+ruleActions
+    set registry for isClass in Define action
+    revised print action to ignore input diversion (let opPrint deal w/it)
+    minor change to Xpress action
+GroupBody
+    added isStatic flag
+RuleStuff
+    minor change to label processing in handleSuccess
+GroupActions
+    minor change to resetPrint()
+Operators
+    added to opDot
+    minor change to opGet
+tokenTests.rtn
+    changed argument handling in incantMethod to deal w/multiple arguments
+/*****************************************************************************
+	incant changes made before September 16.
+*****************************************************************************/
+GroupBody
+    Added isMacro and recursive flags
+GroupItem
+    Changed getCount to handle Buffer
+    Changed setContent wrt to handling embedded groups in argument
+    Changed compareValues to handle Buffer
+GroupMain
+    Added $ to modifySet
+GroupActions
+    Added $ to addModifier()
+    Minor change to dumpContents to not invoke argument
+    Changed printGenerate and printToString to handle invoked argument properly
+    Minor change to restoreLocalFields
+    Changed argument handling in runAction to handle changes to setting local fields
+    Changed saveLocalFields to handle local field changes
+    Changes setTag() to setLabel()
+    Cosmetic change to WrapDot
+Operators
+    Changed opContains to handle argument sets
+    Changed opGet to not worry about arrays
+    Changed opMinusMinus to handle Stak
+ruleActions
+    Cosmetic changes to aCTionDefine and removed seting isArgument
+    Changed aCTionNamE to not make registered fields local
+    Added aCTionQuote WORK IN PROGRESS
+RuleStuff
+    Changed structure of RuleStuff to include savedMax (so testMacro can modify max and reset it) and testMatch
+    Simplified parseRule to run testMatch (which was not there before)
+    Changed checkOptions
+    Changed getLabel to clear any label passed in first
+    Changed label handling in handleSuccess()
+    Changed parseRULE a lot, mostly to handle testMatch
+    Added ruler and ruleStuff to test methods to facilite debugging
+Buffer
+    Added deleteFromBuffer() and insertIntoBuffer()
+/*****************************************************************************
+	incant changes made before September 25.
+*****************************************************************************/
+Current issue: need to change QuotE rule to use } modifier
+GroupAction
+    returned dummyResult in all methods that just need to return success
+    modified debugRULE()
+    changed where noPrint is set in processCode (so INstruct will be noPrint right of the bat)
+    added tokenInSet() replacing getFromStream() for use in testContainer
+GroupControl
+    made static fields regular fields and renamed stringBuffer
+    added inSetList to contain all characters in a containter for use in testContainer()
+GroupItem
+    added addAttrChar
+    modified addGroup to maintain inSetList
+    modified addString to make the added string a literal
+GroupMain
+    moved endNameSet to GroupControl
+    changed QuotE rule to use } modifier
+    changed DatA rule to not include opFields and moved where NotA is set
+    changed NamE to contain a set not a group that has a set (ie; got rid of embedded nameSet, big saving on rule nesting)
+        did the same for other embedded set groups in CounteR and Modifier
+        removed NamE rule action and replaced it w/GrouP action
+    changed Modifier option to star in TraiT and TraiTvalue
+GroupRules
+    Changed setGuard to handle banged correctly
+    modified addToGuard
+RuleStuff
+    added setMacroValue     POP required
+    changed onFail when members involved in getWhatFollows()
+    changed parseRULE to go to matchEnd after a parseAction
+    changed testContainer (a lot in a small method)
+    changed use of endNameSet in testString()
+    changed testUpTo
+ruleActions
+    added CheckFor()
+    removed Debug action (hosed the Debug rule)
+    changed Expresses action (mostly cosmetic)
+    replaced aCTionNamE w/aCTionGrouP
+    removed processTo action (was not being used)
+    added QuotE rule action
+    changed Xpress action to look for dummyResult
+tokenTests
+    removed getFromStream (was replaced by tokenInSet() in GroupActions)
+/*****************************************************************************
+	incant changes made before September 27. Efficiency cleanup.
+*****************************************************************************/
+GroupBody
+    Changed howInstructed
+GroupActions
+    Changed handleUnary
+    Changed setInstruction to deal w/changed howInstructed
+ruleActions
+    promoted group in DotXP
+tokenTests
+    Simplified incantMethod to make it more efficient wrt field and argument handling
+    Changed incantMethod to deal w/howInstructed
+/*****************************************************************************
+	incant changes made before October 15 for revised instruction handling.
+*****************************************************************************/
+GroupBody
+GroupControl
+GroupItem
+    got rid of groupCopies; replaced by isCopy
+GroupActions
+    changed setInstruction() and structure of instructions to make both target and argument attributes
+    shitcanned runAttributeRule
+/*****************************************************************************
+	incant changes made before October 29 mostly to streamline the parse in RuleStuff (slightly)
+*****************************************************************************/
+GroupControl
+    hashed KeyWords and GroupFields registries
+GroupMain
+    set checkOPTIONS for GrouP rule
+    moved define from Grokking to Keywords
+GroupRules
+    changed setGuard to handle hashes and fix bug wrt banged
+    fixed bug in checkSkip to correct indent blocking
+RuleStuff
+    changed getNewRuleStuff to set parentStuff and shitcan k argument
+    lots of changes to parseRULE eliminating handleSuccess and handleFailure
+    add parseAction and condition to testMatch
+    loop around testMatch/max until we succeed or fail
+        set ruleStuff to onSuccess or onFail
+    added onOption follow on to RuleStuff
+    added backOnFail and backOnSuccess flags
+    lots of changes to getWhatFollows
+    changed checkOptions() to use onOption
+    major change to testContainer to make sure we do not match printSomething when we only want print
+GroupActions
+    added bin command as alternate way to create a bin (aside from using the sort command)
+ruleActions
+    changed aCTionDefinE to add noOption flag to fix bug w/checkOPTIONS
+/*****************************************************************************
+	incant changes made before November 4
+*****************************************************************************/
+GroupActions
+    Change to printGenerate wrt backslash processing of quotes (related to bug in Tok)
+    removed any references to generating (aside from printGenerate which may be shitcanned later)
+GroupItem
+    Change to setContent to fix a bug wrt use of void atomic
+GroupRules
+    Removed include of Generate.rtn (planning to use incant to generate instead of C++. POP in progress)
+Operators
+    removed any references to generating
+tokenTests
+    removed any references to generating in incantMethod()
+/*****************************************************************************
+	incant changes made before November 11
+*****************************************************************************/
+GroupBody
+    reordered binType for no good reason
+GroupItem
+    minor modification w/inSet process in addGroup()
+    added getCharacterSet()
+GroupActions
+    removed group = null from runAction because it screws up return value
+ruleActions
+    changed aCTionBrancH
+    Turned off checkOPTIONS in aCTionDefine
+/*****************************************************************************
+	incant changes made before November 13
+*****************************************************************************/
+GroupBody
+    Removed isArgument
+    Changed priorInParent() to priorInParent in sort() No idea why it was the way it was. sort() requires POP
+GroupItem
+    Got rid of wipe as prequel to using GC
+GroupActions
+    Removed isArgument
+    Minor change to processCode
+    Got rid of resolveARG
+    Revised runAction pending work on interpret()
+    Got rid of saveLocalFields (combined w/runAction)
+Operators
+    Removed isArgument
+ruleActions
+    Changed aCTionBlocK to remove tag change to StatemenT
+    Changed aCTionBoX to handle backslashes
+    Minor change to aCTionBrancH
+    Changed aCTionDefinE to set isLocal for method attributes
+    Changed aCTionExpresses to put operator in instruction tag preparing for interpret()
+/*****************************************************************************
+	incant changes made before November 15 to split complex expressions into separate instructions
+*****************************************************************************/
+GroupBody
+    Added hasTemp isTempField isTempArg flags
+GroupControl
+    Instantiated tempField and TempArg in GroupControl constructor
+GroupRules
+    Added tempArg tempField opSTAK and recurseSTAK
+RuleStuff
+    Fixed bug w/banged on rule failure
+GroupActions
+    Added handleTempFields()
+    Modified printToString() to handle temp fields
+    Modified restoreLocalFields() to use recurseSTAK
+    Modified runAction to use recurseSTAK
+    Modified setInstruction to set temp flags
+Operators
+    Removed references to isTemp (which was shitcanned)
+ruleActions
+    Fixed bug in aCTionDefinE() wrt setting isLocal
+    Modified aCTionExpressioN() to use handleTempFields() to split complex expressions
+tokenTests
+    Modified incantMethod to shitcan code for invoked operands (no longer needed)
+    Modified incantMethod to accommodate temp fields
+/*****************************************************************************
+	incant changes made before November 20 to fix rules w/actions (like list)
+*****************************************************************************/
+Did not track the change details and most of the files have changes since Nov 15
+/*****************************************************************************
+	incant changes made before January 24 2025. Complete rewrite of interpreter.
+*****************************************************************************/
+Debug
+    Code moved from GroupActions.rtn to Debug.rtn
+    Changes made to debug routines in part to support a revised debug rule: DebuG. Way simpler and grammatically elegant. New rule is:  DebuG       debug- rules=GrouP*;
+GroupActions
+    Added extern GroupItem addInSet(GroupItem container). Relates to rework of testContainer() in RuleStuff
+    Moved debug methods to Debug.rtn
+    Added extern String dataType(GroupItem input). Probably should be moved to Debug.rtn
+    Removed
+        getArgument()
+        getAttributeByIndex()
+        getMemberByIndex()
+        handleUnary()
+        labelAction()
+        newField()
+        pOP()
+        printGenerate()
+        runAction() Let interpret() deal w/it
+        updateFrame()
+        wrapDot()
+        wrapDotInstruction()    good riddance
+    Revised
+        handleTempFields() to fit interpret() needs
+        processAction()
+        processCode()
+        processFlags()
+        rEGISTER()
+        restoreLocalFields()
+        saveLocalFields()
+        ruleMethod()
+        runRule()
+        setInstruction()
+        setRuleAction() to get rid of labelAction
+        scopeXP(), however, plan to get rid of it, maybe replace it with an incant method
+    Added void moveCode(GroupItem grup,GroupItem coded) to inline instructions for interpret(). This is a major change simplifying the instruction stream making instructions atomic to extent possible in interpret()
+GroupBody
+    Moved gArray up to union w/gText
+    Shitcanned gGen and a few boolean flags
+    Moved isARRAY to binType
+    Shuffled some boolean flags moving ones reference more frequently to top of the list
+    Changed name of debugRule to debugged
+    Shitcanned the insert method
+GroupControl
+    Got rid of aRG (argument handling has been completely reworked)
+    moved printBUFFER and stringBUFFER to GroupRules
+    Canned GroupItem itemFactory(PLGitem block)
+    Added GroupItem itemFactory(String c,Stak stuk)
+    Changed GroupItem itemFactory(GroupItem grup) to ignore w/GroupItem flags
+    Changed back locate to loop thru SearchList (it had been hashed). May want to revert this change but will have to make sure hashing works first (it was screwing up because was not returning a copy and the list links got buggered)
+    Canned locateRule. Added a RuleList to enable a fast rule search.
+    Unsorted Operators registry, indexing instead. Result of using a switch on operator indices in interpret()
+    Changes in setBaseRegistries to accomodate above changes
+GroupHash
+    Added void listHashFor(GroupItem grup). A debugging routine
+GroupItem
+    Added
+        addArgument()
+        getLabelGroup()     was in tokenTests.rtn
+        GroupItem insertGroup(GroupItem grup)
+        GroupItem next(GroupItem current)
+    Removed
+        All the addAttr...() methods
+        copyBody()
+        findUpward()
+        firstComponent()
+        include of tokenTests.rtn
+        replaceBodyFrom()
+    Revised
+        addGroup() removed inSet stuff
+        addAttribute()
+        addMember()
+        clear()
+        getGroup()  much simplified
+        setCount()
+        setContent()    does not protect data type. A future concern
+        setGroup()  to set pointer. This may need a rethink
+        setMap()    to not use pointer
+GroupRules
+    Shitcanned Generate.rtn and Operators.rtn includes. No longer using operate methods; replaced by interpret(). Code generating will be completely rewritten eventually.
+    Added inDENT reCURSE and RuleLIST fields and made listOK a boolean
+    Removed recurseSTAK stuffSTAK and usedSTAK
+    Added GroupItem getOP(String name,int opCode)
+    Revised pushInput()
+    Included Instruct.rtn, which contains interpreter code
+GroupMain
+    Added defining
+    Revised GrouP and InvokE rules (minor)
+RuleStuff
+    Removed
+        newSTUFF
+        cleanUp()
+    Revised
+        getNewRuleStuff()
+        getWhatFollows() to fix bug wrt onFail
+        parseRULE() wrt label handling on success
+ruleActions
+    Added
+        extern GroupItem aCTionDEFine(GroupItem input), a rewrite of the Define rule. Still under development
+        extern GroupItem aCTionExpressRule(GroupItem input)
+    Revised
+        ANYtoken()
+        aCTionBlocK()
+        aCTionBrancH () to generate instructions for break continue and return
+        old and still used aCTionDefinE()
+        aCTionExpressOP()
+        aCTionExpresses() simplified
+        aCTionExpressioN() lots of changes to support simplified instructions for interpret()
+        aCTionGrouP() simplified
+        aCTionRunRulE() simplified to support interpret()
+        aCTionSearch() simplified
+        aCTionStatemenT() to support interpret()
+        aCTionTraiT() slightly
+        aCTionXpress() to deal w/intepret()
+    Revised  to generate instructions for interpret()
+        aCTionDO()
+        aCTionFOR()
+        aCTionIF()
+        aCTionPrinT()
+        aCTionWhilE()
+    Removed
+        aCTionScopeXP()
+        aCTionStringXP()    functionality incorporated in aCTionPrint
+        aCTionUntiL() no more until in grammar
+/*****************************************************************************
+	incant changes made before February 16 2025. Added first cut at ParseStuff
+    further POP required. RuleStuff left in place. ParseStuff will replace it.
+*****************************************************************************/
+GroupBody
+    added gMatch for use in ParseStuff
+GroupDraw
+    moved isPERCENT and isRELATIVE from GroupRules
+GroupItem
+    isRule not passed on in addGroup() if group isLabel
+    minor change to simplify setContent
+GroupRules
+    added parseStuff
+    removed isPERCENT and isRELATIVE
+ParseStuff  added as pending replacement for RuleStuff
+Debug
+    commented out some debugText blather
+    changed testing() to work on ParseStuff
+GroupActions
+    added this field in processCode - label field to be added
+ruleActions
+    changed Expresses to allow for rule[braced]
+Instruct
+    changed IN case 5 to handle string char and set
+    added case 45 and 46 to handle ~% and ~+ operators
+    changed opDot() to handle string and token arguments and add isShortcut flag
+/*****************************************************************************
+	incant changes made before February 19 2025. First POP with ParseStuff
+    complete. Further testing needed including trying it in GroupMain.
+*****************************************************************************/
+GroupBody
+    added recursOK flag
+GroupItem
+    modified addGroup() to consider recurseOK
+ParseStuff
+    major change to the class. parseInstruct() split into two methods: parseInstruct() and runInstruct(). The data contents was made more like RuleStuff and each instruction has a pointer to its own instance of ParseStuff. In essence, the difference between RuleStuff and ParseStuff is the former runs a loop and the latter runs a chain.
+    added a ParseStuff constructor
+    changed getLabel() to not take an argument but get its data from ParseStuff
+    added runInstruct() as a ParseStuff method. The body of it differs from the old parseInstruct() to rely on ParseStuff data
+    moved parseInstruct() out of ParseStuff and made it an extern method that calls runInstruct() to do the work
+    moved setMatchMethod into ParseStuff removing its rule argument (rule is in ParseStuff)
+    moved setMatchOP out of ParseStuff and made it an extern method w/changes relating to referencing ParseStuff
+Debug
+    minor changes to testing()
+GroupActions
+    Change to processAction() to allow it to run with either RuleStuff or ParseStuff
+/*****************************************************************************
+	incant changes made before February 22 2025. More big revisions to ParseStuff
+*****************************************************************************/
+GroupBody
+    Changed labelACTION to matchACTION
+GroupRules
+    Change to setGuard to include first attribute in guard along w/embedded group. Done so ParseStuff can handle rules w/isGROUP and following attribute
+ParseStuff
+    blended runInstruct into parseInstruct, eliminating a method call. Some changes in flow included to get it to work
+    changed setMatchMethod to refer to match rather than method
+    changed setMatchOP mostly to correctly handle embedded group and return matchOP rather than onGroup
+ruleActions
+    changed naked . handling in aCTionExpressioN to use nextNNPattribute rather than nextAttribute
+/*****************************************************************************
+	incant changes made before February 23 2025. Tuning ParseStuff
+*****************************************************************************/
+GroupBody
+    added gParse as a debugging aid. May not keep it.
+GroupControl
+    modified dummyResult to include pointer to emptyParse
+GroupRules
+    added emptyParse to serve as begin/end point for ParseStuff
+ParseStuff
+    added onOption to handle member follow on
+    added ParseStuff() constructor used to set emptyParse
+    changed checkGuard to not have a parameter
+    added checkMembers() as equivalent to checkOptions() in RuleStuff, which will be scrubbed eventually
+    many changes to parseInstruct() and setMatchOP() to fix bugs
+    added a ParseStuff parameter to setMatchOP
+Debug
+    changed testing() to add emptyParse as an initial setMatchOP() parameter
+/*****************************************************************************
+	incant changes made before February 26 2025. Revised ParseStuff again
+    this time to make its data structure more like RuleStuff w/method changes
+    to adjust for data changes. The parse flow is basically unchanged.
+*****************************************************************************/
+GroupBody
+    removed gMatch and gParse
+ParseStuff
+    onSuccess, onGroup, etc changed from GroupItems to ParseStuff
+    got rid of matchOP (using rule instead). ParseStuff replaces instructions.
+    setMatchOP changed to return a ParseStuff
+    No more pointer to ParseStuff in parse instructions (no more instructions, using ParseStuff as instruction)
+    copy body of setMatchMethod into ParseStuff constructor (like RuleStuff)
+    All the test methods adjusted to take ParseStuff parameter
+    parseInstruct changed to handle the changes to onSuccess, onFail, ...
+Debug
+    made adjustments for changes to signature of setMatchOP() and parseInstruct()
+/*****************************************************************************
+	incant changes made before February 27 2025. ParseStuff POP failed because
+    setMatchOP() created a ParseStuff hierarchy nightmare. Stripped out
+    ParseStuff code, incorporated a few of its changes into RuleStuff. Plan
+    to have a whack at using the isACTING related changes.
+*****************************************************************************/
+GroupActions
+    runRule() now fires up parseRULE() instead of the newStuff hoohaa! KISS
+Debug
+    For all the above, stripped out references relating to ParseStuff
+ParseStuff
+    Removed it from the executable. Keeping the code until we figure out what to do w/isACTING, which should simplify RuleStuff some if we build it in
+RuleStuff
+    got rid of newStuff flag and references to it in parseRULE()
+    changed checkGuard() slightly for efficiency
+/*****************************************************************************
+	incant changes made before March 11.
+*****************************************************************************/
+GroupControl
+    Changed copyOf to copy GroupItem flags
+GroupItem
+    Changed how setContent handles embedded groups
+RuleStuff
+    Labels are created when ruleStuff is created
+        Every RuleStuff gets it own label, which gets used and reused in parsing.
+        labels get copied (copyOf) when they are dealt with in parseRULE on success.
+            On match success, if max == 1 parentStuff.label.setContent(label). Max > 1 label isGROUP handled as is done now; otherwise label is copied (copyOf)
+        once 
+    Added clearLabel()  probably should just revise GroupItem clear() to do it all (w/some worries about retaining data type and isPointer)
+    Changed getLabel() It is now called by getNewRuleStuff() so is not called in middle of the parse loop
+    Changed getNewRuleStuff() to eliminate the 2nd argument (the label)
+    Changed parseRULE() label handling to support revised getLabel() and clearLabel()
+GroupActions
+    Changed moveCode() to add attributes not members when adding to an instruction
+    Added setArgument() to set the argument properly when invoking an action w/argument
+Instruct
+    Changed how opDot returns its result as isInitialized (to be compatible with how interpret() ? operator tests a result)
+ruleActions
+    Got rid of reference to scoping in ExpressioN action
+    Minor change to IF and Print actions to treat instruction operands as attributes not members
+    Changed Xpress action to set action argument using setArgument(). Still assuming actions only take one argument. That may change.
+/*****************************************************************************
+	incant changes made before March 15.
+*****************************************************************************/
+GroupControl
+    stopped adding currentFRAME and currentPOINT to drawRegistry
+GroupDraw
+    removed currentFRAME currentPOINT isPERCENT and isRELATIVE (were added to properties)
+    removed drawBorder, which had all sorts of problems
+    rewrote getFrame()
+GroupItem
+    changed setGroup() to not worry about defining
+GroupMain
+    simplified definition rules, eliminating AttributeList
+    removed MethodBody, replacing it w/CodE
+    revised TraiTdata rule
+    removed all reference to defining
+Debug
+    changed testing() - this will happen a lot as testing() changes depending on what is being tested
+RuleStuff
+    changed how testCondition() turns conditions on and off
+GroupActions
+    added preliminary version of draw()
+    changed processCode to not push and pop input
+    removed scopeXP()   scoping has been redesigned and rewritten
+    revised setLabel() slightly
+    added setScope()    simplified version of scopeXP()
+    removed defining in processFlags()
+Instruct
+    minor changes to a few operations
+ruleActions
+    revised aCTionDefinE to get rid of AttributeList
+    got rid of DrawName and DrawCommand actions
+    revised aCTionScopeXP so it sets up setScope()
+    renamed TraiTvalue action as TraiTdata action
+    set and reset defining when processing attributes in aCTionDefinE
+    modified aCTionTraiT to do what defining did when trait isGROUP
+/*****************************************************************************
+	incant changes made before March 17.
+*****************************************************************************/
+GroupItem
+    moved ruleLIST management to addGroup()
+    changed clear()
+    added clearContent() like clearData() but does not clear data type
+    changes setContent() to clearContent() instead of clear()
+GroupMain
+    further simplification of define rules, eliminating DEFining rule
+GroupRules
+    added alphaSet
+RuleStuff
+    removed clearLabel() replacing its use w/clear()
+Debug
+    minor change to debugRuleNamed()
+GroupActions
+    changed cLEAR() to use clearContent() and clearList() instead of clear()
+Instruct
+    changed action initialization (op 983) to use clearContent() instead of clear()
+ruleActions
+    moved ruleLIST maintenance out of aCTionDefinE into addGroup()
+    changed aCTionGrouP to only create a new field if it starts w/alphaSet
+    changed aCTionStatemenT to reset isLabel if it is turned off (otherwise trouble starts)
+    changed aCTionTraiT to set trait to a copy of itself to avoid screwing up label
+    changed aCTionDefinE to delete reference to DEFining
+/*****************************************************************************
+	incant changes made before March 21, before definition changes in grammar
+    and ruleActions
+*****************************************************************************/
+GroupControl
+    Moved all GroupItems to GroupRules
+    Modified locate() so we can find registries
+GroupItem
+    Fixed bug in push()
+GroupRules
+    Copied over GroupItems from GroupControl
+    Removed indenter
+Debug
+    Minor change to dumpContents()
+GroupActions
+    Minor changes to rEGISTER() and setInstruction()
+Instruct
+    Changed appendGroup() to support new shortcuts for indenting
+    Changed += op to handle addMember()
+ruleActions
+    Changed clear() to clearList() in aCTionSearch()
+    Added aCTionDEFxp() and aCTionDataDEF() POP required
+    Modified ExpressioN() to fix bug w/unary operators
+/*****************************************************************************
+	incant changes made before April 1, after major changes to the expression grammar
+*****************************************************************************/
+GroupControl
+    Made Operators registry virtual
+GroupItem
+    Minor change to addGroup() so noPrint fields are not made isRule
+    clearContent() changes to make isInitialized false
+    Added copyListTo()
+    setContent() changed to always copy list
+GroupRules
+    Removed listOK.
+    Changed checkSkip() to set/reset noSkipping
+    Changed setGuard() to allow guards on registries and to set debugGuard for attributes if it is set for parent
+RuleStuff
+    Changed label handling and revised matchEnd process in parseRULE
+    Now checks for virtual fields in testContainer(). This was source of a subtle bug that was overwriting virtual fields
+GroupActions
+    Removed handleTempFields(). Expression processing changed to not need it.
+    Simplified moveCode(). No more inlining of action invocations.
+    Took out recursion handling from processCode() because no more inlining.
+    Changed processFlags() to add hasTemp and isUnary flags and remove listOK
+Instruct
+    Changed indent handling in appendGroup().
+    Simplified beginning of interpret().
+    Changed code for OR operator.
+    Changed how + operator handles tempArg.
+    Changed operators relating to save/restore local fields on recursion.
+    Added 988 operator to handle action invocations (including recursive calls)
+    Removed 997 print operator that printed result.
+    Changed opDot() handling of datA field
+    Removed opUnary()
+ruleActions
+    Changed ANYtoken to not return rules
+    Changed checkOPTIONS handling in aCTionDefinE
+    Simplified aCTionExpressOP() and removed aCTionExpressPart()
+    Added aCTionExpressSubject().
+    Number of changes to aCTionExpresses() to pick up some of what was in aCTionExpressioN()
+    Major simplifications of aCTionExpressioN().
+    Simplified aCTionPrinT(). No more listOK in print grammar. No more op 997.
+    Changed aCTionRunRulE() input to pick up the rule method if there is one
+    Removed aCTionUnarY().
+    Simplified aCTionXpress()
+/*****************************************************************************
+	incant changes made before April 2, to fix scope expressions
+*****************************************************************************/
+GroupActions
+    Changed setScope().
+ruleActions
+    Changed aCTionScopeXP() to add local fields from scope expression (was done in setScope - wrong)
+/*****************************************************************************
+	incant changes made before April 12 before preparing for generating C++ in incant.
+*****************************************************************************/
+GroupItem
+    Revised clearData() and got rid of clearContent()
+    Changed setContent() to clearData first
+    Changed setGroup() to set isGROUP even if argument is null
+GroupMain
+    Added TraiTlist as a TraiT attribute
+    Set printBUFFER and stringBUFFER values in properties
+GroupRules
+    Added isPERCENT and isRELATIVE back as booleansw
+RuleStuff
+    Labels get added as attributes not members
+Stylish
+    Started reworking it. Very unfinished.
+GroupActions
+    Working on draw(), still unfinished
+    Added support for getting parent and registry in setCode()
+    Added setTypeFromData() more design work needed to figure out how to use it
+Instruct
+    Changed for loop set up OP 993 to set group rather than gGroup
+    Changed next operator 994 to ignore noPrint attributes
+ruleActions
+    Removed DataDEF from grammar and associated rule action
+    Minor changes to aCTionDefinE
+    Added support for TraiTlist to aCTionTraiT
+    Fixed bug when checking for multiples
+/*****************************************************************************
+	incant changes made before April 17 preparing for generating C++ in incant.
+*****************************************************************************/
+GroupBody
+    Added deferAction flag associated with the defer command so can create a rule action that is not run as soon as the rule succeeds. The rule action can be run on demand via rule();
+GroupRules
+    Added toBUFFER linked to the printTO(buffer) command to divert print output into toBUFFER. printTO() with no argument resets toBUFFER and turns off print diversion
+RuleStuff
+    Changed getLabel to handle deferred actions and add labels as local fields
+    Changed parseRULE to not clear local field labels (local fields are cleared in end action OP 984)
+GroupActions
+    Revised printToBuffer
+    Added deferAction and generating as flags in processFlags()
+    Simplified processAction()
+    Moved some code around in processCode()
+Instruct
+    Changed opPrint() to handle revised toBUFFER
+    Moved clearing of local fields from OP 983 to OP 984 (clearing at end of action rather than at beginning)
+ruleActions
+    Revised aCTionDefinE to support deferAction
+    Revised aCTionPrinT to eliminate support for toBUFFER no longer needed (opPrint() handles it)
+    Revised aCTionExpresses to handle deferred actions
+/*****************************************************************************
+	incant changes made before April 26 mostly related to drawing.
+*****************************************************************************/
+GroupControl
+    Changed copyOf() to set hasMembers ...
+GroupDraw
+    Added getTextView() POP required
+GroupItem
+    Removed addComponentsOf() because it duplicates copyListTo()
+    Changed contents() to check for data, not just list or hash
+Layout
+    Added displayText() mostly copied from old GUI
+GroupActions
+    Added cOPY()
+    Changed priorMETHOD handling in processCode()
+    Revision of setScope()
+Instruct
+    Changed ~= OP to return true if target matches argument for length of argument
+    Changed +* OP to use copyListTo()
+    Changed [] OP 992 to check for literal so it handles [2] different from [width] where width=2
+    Changed comparison operators like > >= to set result to target
+    Changed += and +% operators to copy local arguments
+    Revised ! OP
+    Added +/ OP to add members
+    Changed return OP 982
+    Revised end method OP 984 to reset local fields right
+    Revised [] OP 992
+ruleActions
+    Fixed aCTionBrancH argument settings
+/*****************************************************************************
+	incant changes made before May 10. Working on generating.
+*****************************************************************************/
+GroupRules
+    Revised getOP() to not copy operator
+    Added link to Generate.rtn
+Generate
+    Added genC attribute to operators
+    wrote Generate.rtn
+GroupActions
+    Removed generate command from processFlags()
+    Modified setScope() including allowing scope fields to include an offset as in field=2 to return the 2nd field in lookin
+Instruct
+    Fixed bug in ++ op
+    Clear local fields except labels in OP 983 (to make sure local fields are unInitialized going in)
+ruleActions
+    Changed ExpressOP to return an operator copy (without attributes)
+/*****************************************************************************
+	incant changes made before July 16. 
+*****************************************************************************/
+Degug
+    Modified debugText()
+GroupControl
+    Got rid of follow
+    Added setting runList to constructor
+    Modified locateInMethod to look thru local fields are lists
+GroupItem
+    added replace() method
+    removed reset() moved to GroupActions
+    slight change to setContent()
+GroupRules
+    Added runList used in interpret when processing an action
+    Removed opSTAK and xpSTAK
+    Rearranged declarations
+    Modified getOP() slightly
+Generate
+    Basically rewrote it - generating still a WIP
+GroupActions
+    Removed getTypeField()
+    Added getType() not currenntly used
+    Added makeDataType() invoked in setInternalType()
+    Slight change to printToBuffer()
+    Moved reset() here from GroupItem
+    Revised setArgument() used in Instruct to set action argument
+    setInternalType() now basically a wrapper for makeDataType()
+    Removed setTypeFromData()
+Instruct
+    Modified appendGroup wrt formatting
+    Changed how opCode is set
+    Changed <: op to invoke makeDataType()
+    Modified += +% and :+ operators to handle list arguments
+    Added runList when processing an action invocation
+    Removed type handling from opDot()
+ruleActions
+    Lots of changes to support generating
+    Added aCTionExpressTail to support list arguments
+    Simplifications to aCTionExpresses()
+    Revised aCTionScopeXP() decision on whether or not to keep scope expressions is pending
+/*****************************************************************************
+	incant changes made before August 7. Diddling w/GO code generating; just starting.
+*****************************************************************************/
+GroupControl
+    Modified locateInMethod() to ignore noPrint attributes when searching thru local fields in current method
+Instruct
+    Fixed simple flow problem in for loop (operator 944)
+ruleActions
+    Minor change to aCTionFOR() wrt LoopRestrict setting
+/*****************************************************************************
+	incant changes made before August 26. Changed how booleans are declared in GroupBody.
+*****************************************************************************/
+GroupBody
+    Shitcanned a bunch of booleans and put the remaining booleans in a struct named flags.
+    Attempted to move some booleans into attributes w/no success
+GroupControl
+    Changed copyOf to use GroupItem options struct
+    Some minor changes to setBaseRegistries() to handle boolean revisions
+GroupItem
+    Lumped booleans into options struct
+    Lots of changes made to handle GroupBody boolean changes
+    Minor change to clearList()
+    Added copyData()
+    Replaced hasListener w/notifyLIST attributes (if there is a notifyLIST hasListener is redundant)
+    Got rid of type fields
+    Changed setContent() to work with copyData()
+    Changed toBuffer() to eliminate mustIndent and isComment. May eliminate C++ routines that print GroupItems because incant does it better.
+GroupMain
+    Minor changes to use copyData() and deal w/moving setup to SML/WorkingOn directory
+    Modified writeTagXML() to ignore isComment
+GroupRules
+    Added lastREF field to handle implicit parent when processing incant code
+RuleStuff
+    Got rid of testFixed match action. For now fixed length fields are not supported in the parse (not used)
+    getLabel() no longer worries about deferred actions (which are no longer supported - not used)
+    Minor change to getWhatFollows() to deal w/noPrint attributes (hasNNPattributes got changed from a boolean to a method)
+    setMacroValue() now uses copyData() instead of setContent()
+    Minor fix to checkOptions()
+    Reordered when checkOptions() is invoked
+Generate
+    Added support for lastREF. POP required
+    isShortcut is now a boolean w/minor changes to genXP() and genXPsubject() to handle it
+GroupActions
+    Changes to listenTo() to deal w/notiftLIST
+    Changes to processFlags() to deal w/changes to cOMMANDs registry
+    Shitcanned setType(). For now we no longer deal w/types
+Instruct
+    Changed = operator to use copyData() instead of setContent()
+    Minor changes to ignore booleans that no longer exist (like hasListener)
+ruleActions
+    Simplified aCTionBlocK()
+    Changed aCTionDefinE() to ignore booleans no longer there
+    Changed aCTionExpressOP() to skip around UnaryOPS
+    Simplified aCTionExpressTail()
+    Changed aCTionExpresses() to ignore deferredActions that are no longer used
+    Shitcanned aCTionFormaT()
+    Minor change to aCTionGrouP() to ignore missing boolean hasLocalFields
+    Added aCTionList(). List management much improved w/changes to grammar to allow argument (list of stuff)
+grammar
+    Changed expressions to handle lists
+/*****************************************************************************
+	incant changes made before September 16. Starting to make changes to support GO generation.
+*****************************************************************************/
+GroupBody
+    Shitcanned isARRAY and isTYPE.
+GroupControl
+    Changed locateInMethod to search lastREF
+GroupItem
+    Shitcanned getTagXML()
+    Minor change to addAttribute and addMember
+    Minor change to copyData()
+    get(int) no longer checks for array
+    Minor change to getAttribute()
+    toArray() no longer sets isARRAY (toArray will be shitcanned in GO)
+GroupMain
+    BLOCKing no longer added to properties
+GroupRules
+    Removed BLOCKing field
+    added isPRINTING flag
+Degug
+    Removed reference to isTYPE in debugText()
+Generate
+    Added groupFields to searchList (then removed) in generateCode()
+    Modified genXP to append .getText() when printing fields
+GroupActions
+    Added groupFields to searchList (then removed) in processCode()
+    Added isPRINTING and removed isARRAY to processFlags()
+Instruct
+    Modified = operator to handle lists/hash
+    Removed [] operator (handled in opDot)
+    Major change to opDot() eliminating support for a bunch of flags
+ruleActions
+    Changed aCTionExpresses() to use opDot for []
+    Removed setting lastREF from aCTionExpressioN()
+    Turning off isPRINTING in aCTionPrinT()
+XML files changed
+    generate work ongoing
+    grammar added support for PRINTing command
+    setup
+        added PRINTing command
+        shitcanned array command
+        changed ** operator to @
+        major changes to GroupFields registry
+    utilities changes ongoing in response to changes in GroupFields ...
+/*****************************************************************************
+	incant changes made before September 28. Changing how pointers are handled WIP
+*****************************************************************************/
+GroupItem
+    Simplified getPointer()
+    Changed setCount() setGroup() and setNumber() to ignore isPointer
+    Simplified setPointer()
+Generate
+    Added support for genCode and gDeclare actions
+GroupActions
+    Changed getType() to ignore isLocal
+Instruct
+    Made -- operator check for gText
+ruleActions
+    Changed aCTionFOR() to not set isPointer for Looper
+    Changed aCTionGrouP() to not set isPointer when creating isLocal fields
+/*****************************************************************************
+	incant changes made before September 30. Tested lastREF
+*****************************************************************************/
+GroupControl
+    Removed use of lastREF in locateInMethod()
+    Added lastREF to properties in setBaseRegistries()
+GroupItem
+    Changes setGroup() so that it leaves isGROUP as is (so you can have a group that is zero, which for loop requires in op 994)
+GroupRules
+    Added refSTAK because lastREF can be nested - gets pushed and popped in interpret()
+Generate
+    Fixed generateCode to support gDeclare (put it in correct place in instruction stream)
+    Set useDefaultSpace at start of genPrint()
+    Changed genXPsubject() to not add shortcuts and literals as local fields
+GroupActions
+    Changes to getType()
+    Minor changes in processCode() to support lastREF and to set priorMETHOD correctly
+    Changes to setArgument() to support lastREF
+Instruct
+    Changed @ operator so it only runs dumpContents()
+    Changes to 900 level operators to support lastREF
+    Bug fix in opDot()
+ruleActions
+    Change to aCTionExpresses() to use lastREF in naked groupField references for example, so tag becomes lastREF.tag
+    Changed generating action references to use tag rather than text
+/*****************************************************************************
+	incant changes made before October 22
+*****************************************************************************/
+GroupItem
+    Simplified addAttribute so it does not worry about setting rule guard
+    Simplified getCount() and getNumber() to not worry about isITEM
+GroupRules
+    Changed setGuard to set hasAttributes when adding gUARD
+Generate
+    Changed genXPsubject() to generate .count, .number, etc so GO code knows what it is dealing with
+GroupActions
+    Minor change to getType()
+    Changed setScope() to work w/grammar change to ScopeXP rule and add support for setting lastREF
+Instruct
+    bug change to op 996 (when printing)
+    bug fix so opDot() can handle no result
+ruleActions
+    reverted action references to use text not tag
+    added aCTionScopeToken() rule action to support setting lastREF in scope expressions
+    way simplified aCTionScopeXP()
+grammar
+    Added ScopeToken rule
+    Changed ScopeXP rule to replace scope w/: and use ScopeTokens
+/*****************************************************************************
+	incant changes made before October 26 All relatively minor fixes
+*****************************************************************************/
+GroupControl
+    Simplified locateInMethod()
+GroupItem
+    Modified addArgument()
+    Revised replace() to handle local fields
+Generate
+    Removed lastREF from generateCode()
+GroupActions
+    Removed lastREF from processCode()
+Instruct
+    Changed +% operator to use replace() rather than addAttribute()
+    Fixed @ operator to properly set lastREF.group
+    Changed next operator 994 to properly use attributes, members, or whatever
+ruleActions
+    Changed aCTionFOR() to properly set affiliation (in conjunction w/changes to operator 994)
+/*****************************************************************************
+	Accidentally backed up on Nov 6 so quite a few changes not documented
+	incant changes made before Nov 7 to finalize (hopefully) implementation of macros
+        have not tested embedding macros in middle of a parse - POP required
+*****************************************************************************/
+RuleStuff
+    Major overhaul of testUpTo() match method to handle binType argument to support macros
+Instruct
+    Added ** operator as op 46 - it just runs opDoNothing() to enable debugging
+    Changed opDoNothing so it dumps contents of its argument
+ruleActions
+    Changed aCTionDefinE() to noPrint any macro arguments (otherwise they were treated as rules to be processed in the parse)
+/*****************************************************************************
+	incant changes made before November 18 All relatively minor fixes
+*****************************************************************************/
+GroupControl
+    Added fieldBUFFER to pROPERTIEs
+GroupItem
+    Changed getText to use a switch
+RuleStuff
+    Made a few changes to parseRULE to fix a bug
+GroupActions
+    Changed processFlags to support exit command
+Instruct
+    Changed call to setArgument() in interpret op 988 to check for argument first
+ruleActions
+    Rewrote aCTionBoX() to use matches() which can use rules as box ends
+    Changed aCTionExpressioN() to handle ListOP rule as an alternative to ExpressOP
+/*****************************************************************************
+	incant changes made before March 5 2026.
+    Major refactoring and rewrite of interpreter and related methods.
+    Changes to grammar, expression rules in particular. 20%+ reduction in code.
+    The big conceptual change is the introduction of deferred rule actions,
+    and how instructions are handled, essentially a deferred rule action
+    becomes an instruction. Execution of instructions coalesce into the
+    runInstruct() method, which marshalls arguments and fires off actions,
+    methods, and rules (when they are invoked like methods).
+*****************************************************************************/
+Generate
+    Mostly unfinished
+    dataType() moved here from GroupActions
+    Arithmetic generator methods shitcanned and replaced by OP methods in Instruct:
+        adder() decrement() divide() increment() inSetOf() minusEqual() multiply()
+        plusEqual() slashEqual() starEqual() subtract()
+    Generator methods not yet refactored:
+        generateCode() genPrint() genXP() genXPsubject()
+    genIF() shitcanned
+    getType() method moved here from GroupActions
+GroupActions
+    checkRstuff() added to keep rStuff (RuleStuff field added to GroupItem) in sync.
+        Keeping rStuff in sync took a long time to work out
+    addModifier() removed and moved into modify()
+    addInSet() shitcanned
+    cOPY() shitcanned (or will be shitcanned)
+    dataType() moved to Generate
+    deepCopy() shitcanned
+    dispatch methods yet to be refactored
+        dispatch() moved to GroupItem
+        dispatcher()
+    emptyTrash() shitcanned made irrelevant by GC (not turned on yet)
+    fAIL() still needs work POP required
+    guard() command rewritten
+    getGuard() merged with setGuard() and moved to GroupItem
+    getMax() and getMin() shitcanned. Replaced by setLimits()
+    getQualifiedTag() shitcanned. May need to resurrect when we get back to displaying fields in a GUI
+    getType() moved to Generate
+    listenTo() minor changes POP required
+    makeDataType() removed hash as a type
+    modify() added to replace addModifier and integrate with rStuff
+    matches() shitcanned, replaced by GroupItem matches()
+    moveCode() shitcanned. No longer build an instruction list.
+    processAction() rewritten to incorporate code from processCode()
+    processCode() shitcanned
+    processFlags() minor changes/additions
+    rEGISTER() revised
+    reset() shitcanned
+    ruleMethod() revised to handle operations with two arguments
+    runInstruct() added to handle deferred expressions
+    restoreLocalFields() and saveLocalFields() rewritten by not installed yet
+    runRule() minor changes
+    setInternalType() minor changes
+    setLabel() changed but may revert. Used in JSON parsing, elegant but confusing
+    setLastREF() added removed added again
+    setLimits() added to handle min and max attributes
+    setScope() shitcanned. Scope handling simplified in ScopeXP rule
+    skipTO() shitcanned. Handled in RuleStuff testUpTo()
+    stopParsingInput() minor changes
+    toggle() shitcanned. Never used.
+    tokenInSet() shitcanned.
+    tokenize() rewritten
+    toTrash() shitcanned. GC will handle.
+GroupBody
+    Added GroupList to encapsulate list fields
+    Added PLGset guardSet field
+    Shuffled boolean flags and revised/added/deleted some
+    clearList() added from GroupItem
+GroupControl
+    groupTape field shitcanned. No longer using Tape class, back to using malloc to be GC compatible
+    identify and interpreting fields shitcanned
+    GroupControl() constructor simplified
+    addBaseRegistry() minor change
+    copyOf() added
+    getRegistry() no longer defaults registries to sorted
+    itemFactory() and ilk shitcanned. Replaced by fewer GroupItem constructors
+    locate() cosmetic changes
+    makeRegistry() moved to GroupItem
+    setBaseRegistries() rewritten (functionality basically unchanged)
+GroupDraw
+    minor changes. refactoring deferred until we get back to working on drawing/display
+GroupItem
+    major rewrite, over 100 changes
+    RuleStuff rStuff field added to contain rule info per field instance (bitch to get right)
+    options flags reduced to just affiliated and invoke (invoke may not keep)
+    Three GroupItem constructors replace the list of GroupItem factories that were in GroupControl
+    addGroup() simplified to support rStuff ICO rules and add guardSet for binType
+    addArgument() hanging on but will probably be shitcanned
+    addAttribute() and addMember() simplified
+    addString() modified to add as member when adding to a binType
+    append() minor fix
+    clear() revised/simplified now calls clearData() and clearList()
+    clearData() simplified
+    clearList() moved to GroupBody
+    contents() minor change
+    copyData() revised
+    copyListFrom() revised
+    copyListTo() revised
+    dispatch() moved here from GroupActions
+    filter() shitcanned
+    followingAttribute() and followingMember() moved to RuleStuff
+    get() and get(int) revised
+    getFromList() added
+    getLabelGroup() revised
+    getTagXML() shitcanned
+    getGuard() replaces setGuard() which was in GroupRules
+    getText() revised
+    inHierarchy() added but on list to shitcan
+    insertGroup() revised, functionality basically the same
+    makeRegistry() moved from GroupControl and revised
+    matches() moved here from GroupActions
+    moveToList() shitcanned
+    nextGroup() revised
+    original() added but not used so on shitcan list
+    nextNNPattribute() shitcanned
+    notRecursive() shitcanned
+    parse() minor change to return what parseRULE returns
+    pop() prepend() prior() push() put() revised for GroupList
+    release() shitcanned for GC
+    remove() and remove(String) revised for GroupList
+    replace() revised NBD
+    run() added but on shitcan list
+    changes to most set methods, mostly cosmetic
+    setContent() revised and simplified
+    setListFrom() shitcanned
+    sort() minor changes POP required
+    We no longer deal w/XML in GroupItem so the following methods got shitcanned
+        toArray() toBuffer() toFile() toString() wrap() wrapItem() wrapValue() writeBody()
+        writeOptions() writeTagXML()
+GroupList
+    added to encapsulate list fields
+GroupMain
+    refactored. No new methods but everything changed, mostly to incorporate rStuff and a few grammar mods
+GroupRules
+    dropped a few flags, added a few
+    getOP() shitcanned
+    addToGuard() shitcanned
+    setGuard() revised and moved to GroupItem getGuard()
+GroupStak
+    new class that adds a stack to GroupList to assist in binType lookups
+RuleStuff
+    removed a few fields and flags
+    RuleStuff constructor simplified
+    checkGuard() revised now primary point to trigger getGuard()
+    checkOptions() shitcanned, logic incorporated into parseRULE onFail processing
+    followingAttribute() and followingMember() moved from GroupItem
+    getLabel() shitcanned
+    getNewRuleStuff() shitcanned
+    getWhatFollows() simplified
+    setTestMatch() added to set testMatch() method
+    hasNNPattributes() shitcanned
+    parseRULE() rewritten so similar but different
+    testMacro() modified a little
+    testMatch methods all change slightly
+    testContainer() simplified
+    testUpTo() modified. POP required for the comma delimited skip feature
+Debug
+    debugHash() shitcanned
+    minor changes to most debug methods
+    debugText() simplified (it keeps changing)
+    dumpContents() simplified
+    dumpResults() shitcanned
+Instruct
+    major revisions
+    appendGroup() revised w/some code moved into new printField()
+    interpret() shitcanned replace a long list of OP methods
+    printField() added to format print/string output
+RuleActions
+    many changes
+    aCTionANYtoken() revised
+    aCTionBlocK() revised to run deferred statement actions
+    aCTionBoX() shitcanned, functionality moved to testUpTo() in RuleStuff
+    aCTionBrancH() simplified
+    aCTionDebuG() revised
+    aCTionCounteR() shitcanned
+    aCTionDefinE() revised
+    aCTionDO() simplified to interpret DO statement
+    aCTionExpressOP() shitcanned
+    aCTionExpressRule() simplified
+    aCTionExpressSubject() shitcanned
+    aCTionExpresses() simplified
+    aCTionExpressioN() rewritten to return a field w/method to run an expression (if warranted)
+    aCTionFOR() simplified to interpret FOR statement
+    aCTionGrouP() no longer handles virtual fields
+    aCTionIF() simplified to interpret IF statement
+    aCTionPrinT() simplified
+    aCTionRulE() simplified
+    aCTionScopeXP() revised to handle scope expressions (which have been simplified)
+    aCTionSearch() revised now handles setStakked() which seems odd
+    aCTionSetBrackets() revised
+    aCTionStatemenT() simplified, runs statement actions (interpreting)
+    aCTionTraiT() simplified (a lot)
+    aCTionTraiTdata() ditto
+    aCTionWhilE() simplified and interprets
+    aCTionXpress() simplified (a lot)
+/*****************************************************************************
+	incant changes made before March 10 2026
+    some changes not shown here because I lost track
+*****************************************************************************/
+GroupItem
+    setGroup changed to reject setting group to itself
+GroupMain
+    NamE rule modified to takeover GrouP action
+    debug rule replaced by DEBUG rule defined in grammar
+    search rule moved to grammar
+RuleStuff
+    sukcess set to false moved into checkGuard()
+GroupActions
+    processAction() modified to handle regular actions and rule actions
+    processCode() now sets currentMETHOD and resets currentMETHOD
+    runInstruct now descends thru isGROUP for arguments
+    runInstruct modified to take into account for changes to processCode() and processAction()
+Instruct
+    opDot changed to handle naked groupField
+    opDot modified to search tag not text when doing a lookup on non-groupField
+    opIN modified so it works diffently if target or argument is a set
+        If argument is a set returns true if target contains any character in it
+        If target is a set returns true if every character in argument is in the set
+    opPlusEQ revised to differntiate handling lists vs other bin types
+    printField changed to no longer handle naked groupField
+RuleActions
+    aCTionANYtoken revised to fail on operators and allow rules
+    aCTionDEBUG revised and simplified. ALL option eliminated. Checks for subrules.
+    aCTionDefinE minor changes
+    aCTionExpresses revised and changed to handle naked groupField
+    aCTionExpressRule shitcanned
+    aCTionFOR changed to clear Looper before looping - was descending into prior isGROUP
+        now sets/resets lastREF to what it loops over
+    aCTionGrouP shitcanned (functonality moved to aCTionNamE)
+    aCTionQuotE minor change
+    aCTionRunRulE minor change
+    aCTionTraiT minor change trait moved into input group
+    aCTionXpress minor cosmetic revision for better debugging
+/*****************************************************************************
+	Backup on April 2 including major revision to parse (gonna be epic).
+*****************************************************************************/
+GroupBody
+    Removed clearList() - replaced by GroupItem version
+    Removed guardOK flag (moved to RuleStuff)
+GroupControl
+    copyOf() fixed bug
+    minor change to getRegistry()
+GroupItem
+    minor change to copy constructor
+    added clearList() replacing GroupBody version
+    copyListFrom revised
+    deferred set for labels of deferred rules
+    getStuff() added called by parse()
+    parse() massive rewrite, new parse replaces parseRULE
+    minor changes to setGroup() and setContent()
+    setRuleStuff() revised
+    now checks for guardFAIL before running testOptions()
+GroupMain
+    changes to bootstrapper to remove setRuleStuff() calls and change tokenize definition
+GroupRules
+    Added tokenList field
+    Removed rulesAvoided
+    Modified constructor to initialize tokenList and set shorcutSet and fixed punctuateSet
+RuleStuff
+    Shitcannned parseRULE() replaced by GroupItem parse() this is a huge change
+    test match routines changed to take only a RuleStuff argument
+    testAction() revised
+    Added testAttributes() and testOptions() changing the parse flow
+    Added guardFAIL flag because guard fail is not the same as !guardOK
+    CheckGuard minor change to not worry about rulesAvoided
+    Moved some code into parse.rtn in case we decide to rewrite parseRULE
+    Added fields parentStuff inProcess and guardOK
+    Added copy constructor
+    Added checkInput() significant change called by GroupItem parse()
+    Shitcannned followingAttribute()
+    getWhatFollows() simplified
+    setMacroValue() revised
+GroupActions
+    cLEAR() revised to clear buffers and staks
+    getTokens() shitcanned
+    Added loadRegistryFromString() may not be used (but it works)
+    printToBuffer() minor changes
+    ruleMethod() revised to set isMethod and isOperator (why not done before is a mystery)
+    runInstruct() major rewrite, much simplified (together w/ExpressioN revision)
+        added checks for deferred target or arg
+    shitcanned checkRstuff()
+    runRule() simplified
+    tokenize() revised
+Instruct
+    opContains() shitcanned, duplicates opIN() which will be revised when we have set operators
+    opLastREF() added
+    removed tempField.clear() from methods that use tempField (opDiv opMinus opMultiply opPlus opSlash)
+RuleActions
+    aCTionANYtoken() eliminated check for op fields
+    aCTionArgs() fixed bug
+    aCTionDefinE() revised to better handle literals and attempts to redefine registries
+    aCTionExpresses() rewritten to not use runInstruct() in the field it returns
+    aCTionExpressioNf() rewritten to generate a chained xp used by runInstruct()
+    aCTionQuotE() simplified
+    aCTionTraiT() and aCTionTraiTdata() revised to modify() and setLimits() as needed

@@ -1,0 +1,66 @@
+include GUIincludes
+
+/*******************************************************************************
+	Path view used when drawing paths. The view gets positioned by the Layout
+    displayPath method.
+*******************************************************************************/
+class PathView extends View
+{
+Frame       boundary;
+Details     detail;
+Point       priorPoint,
+            targetPoint;
+Transform   transformer;
+Path        viewPath;
+
+/*******************************************************************************
+	Go thru the paths associated with GroupItem passed in and draw them in
+    this path view.
+*******************************************************************************/
+void drawPath(GroupItem item)
+{
+DrawPoint   **atPath,
+            **drawingPath,
+            **pathSet,
+            **atSet,
+            dp;
+Stylish     style = detail.style;
+    pathSet = item.pointer;
+    for atSet = pathSet
+        {
+        viewPath.clear();
+        saveGS();
+        drawingPath = (DrawPoint**)*atSet;
+        priorPoint.x    = 0;
+        priorPoint.y    = 0;
+        targetPoint.x   = 0;
+        targetPoint.y   = 0;
+        for atPath = drawingPath
+            {
+            dp      = *atPath;
+            dp.draw(self);
+            }
+        boundary = bounds();
+        if boundary.width != 0 && boundary.height != 0 viewPath.setClip();
+        if style
+            {
+            if filler handleFill(viewPath);
+            if borderWidth setLineWidth(borderWidth);
+            if stroker  stroker.setStroke();
+            if stroked  stroke();
+            }
+        restoreGS();
+        }
+}
+
+/*******************************************************************************
+	Draw this path in the current view.
+*******************************************************************************/
+void drawRect(Frame r)
+{
+    if !viewPath viewPath = bezierPath();
+    drawPath(wig);
+    viewPath.rectangle(boundary);
+    cout ``"Path frame:",wig.tag,boundary.x,boundary.y,boundary.width,boundary.height :;
+}
+}

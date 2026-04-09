@@ -1,0 +1,45 @@
+#include /Users/anthony/data/Tawk/Groups/XML/date.xml;
+#include /Users/anthony/data/Tawk/Groups/XML/NotGUI/playlist.xml;
+#include /Users/anthony/data/Tawk/Groups/XML/templates.xml;
+
+#registry genre;
+<:Alternative genre><genre=~Alt ;>
+<:Rocking genre><genre=~Rock ;>
+<stuff>
+    <Alternative/>
+    <Rocking;>
+
+#registry SHeeT;
+#search SHeeT music artist year album genre;
+
+<workSheet window closable resize x=300 y=300 width=360 height=400 fill=wall font=copper style=matrixBG title="Spreadsheet Test">
+    <intro height=50 pad fill=white rounded>
+        <heading="Interactive Worksheet" pad=10 label align=center font=title border=off shadow/></intro>
+    <sheet matrix source=phone down rowLabel=artist colLabel=Years columnWidth=50 rowHeight=20 labelWidth=100 indentIncrement=10 blank="-" zero="-">
+        <columns 70to99! across fit=down totals/>
+        <rows someList! stuff! xOther down/></workSheet>
+
+The spreadsheet above refers to the following groups defined in playlist.xml:
+    phone is a playlist loaded when playlist.xml is included
+    70to99 is a group of years
+    someList is a group of artists
+    stuff is a group of genres
+    Note: the ! following the attributes referenced above turns off merging
+    xOther is a spreadsheet attribute that builds as a virtual group of attributes not explicitly named as a spreadsheet attribute (in this case, any attributes not years, artist or genre) but contained in the underlying data
+The dialog panel defined below gets popped up when you right click on any body cell of the spreadsheet defined above (popup=worksheetPanel is specified in matrixBody). The list of items appearing in the panel is sourced from the currently selected item (which conveniently gets set to the cell you click on when you click on it). Because body cells are mapped, the source list is obtained from the mapped attribute of the cell. Note: a mapped cell has a map attribute named for the data source upon which the map is based and which contains as members, entries from the data source that match the dimensions of the cell.
+    NOTE: most of the matrix attributes defined for the SHeeT registry above can be applied in multiple worksheets, except for perhaps the matrixMethod and the name of the dialog in matrixBody (do not want one worksheet referencing the dialog of another unwittingly).
+
+<worksheetPanel panel x=500 y=400 width=400 height=400 closable resize hide fill=white title="Contents of Cell">
+    <fifth source=selected pad rounded=5 fill=white border=black>
+        <dialogHead tableHead>
+            <Artist sort=artist width=20% label align=left selectable=no/>
+            <Album sort=album width=20% label align=left selectable=no/>
+            <Year sort=year width=50 tableLabel selectable=no/>
+            <Song sort=song label align=leftl selectable=no/></dialogHead>
+        <space fill=blue height=1 border=off/>
+        <body tableBody>
+            <row tableRow next=fifth>
+                <artist key width=20% trait tableCell/>
+                <album key width=20% trait tableCell/>
+                <year key width=50 trait tableCell align=center/>
+                <song trait tableCell;>

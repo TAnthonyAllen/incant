@@ -1,0 +1,42 @@
+#include /Users/anthony/Dropbox/data/InProcess/Groups/XML/HTML/traits.xml;
+#include /Users/anthony/Dropbox/data/InProcess/Groups/XML/Controls/templates.xml;
+        
+#registry dESCRIPTIONs asAttributes;
+<fitExample>This demonstrates the use of the fit attribute, which is used to wrap a container around its contents. Fit can be applied to height or width separately, or both together, depending on the attribute value. If there is no value, the fit follows the direction of orientation, that is, fits height if orientation is down and fits width if orientation is across.</fitExample>
+<fitDefaultDown="When the fit attribute has no value, the fit follows the layout orientation, down in this case"/>
+<fitDefaultAcross="When the fit attribute has no value, the fit follows the layout orientation, across in this case"/>
+<fitHeight="When the fit attribute value is down, the fit is vertical even if the orientation is across"/>
+<fitBothWays="Both width and height are fit"/>
+
+#registry GUI display;
+<fitItem height=16 menuItem/>
+<fitExample window closable resize width=360 height=800 x=500 y=200 fill=wall minimumHeight=100 title=Fitting hTML="/Users/anthony/Tests/TokTests/Test.html">
+    <body normalFont mRight=15 mBottom=15>
+        <intro height=50 fill=white bordered>
+            <heading="Using The Fit Attribute" flex center titleFont shadow/></intro>
+        <container>
+            <fitDefaultDown fit fill=paleGray bordered>
+                <FDDshort height=50 width=50 fill=white bordered/>
+                <FDDtall="fit default down: The box enclosing this box is constrained to fit vertically by default because no fit value specified and it is laid out down. What if the text here is very long, much longer than the box can hold?" height=100 width=200 fill=white bordered mBottom=5/></fitDefaultDown>
+            <fitDefaultAcross flex fit fill=paleGray bordered>
+                <FDAthin height=50 width=50 fill=white bordered/>
+                <FDAfat="fit default across: The box enclosing this box is constrained to fit horizontally by default because no fit value specified and it is laid out across" height=100 width=200 fill=white bordered center mBottom=5/></fitDefaultAcross>
+            <fitHeight flex fit=height fill=paleGray bordered>
+                <FHshort height=50 width=50 fill=white bordered/>
+                <FHtall="fit height: The box enclosing this box is constrained to fit vertically even tho it is laid out across" height=100 width=200 fill=white bordered mBottom=5/></fitHeight>
+            <fitAcross fit=width fill=paleGray bordered>
+                <FAthin height=20 width=50 fill=white bordered/>
+                <FAfat="fit across: The box enclosing this box is constrained to fit horizontally even tho it is laid out down" height=80 width=200 fill=white bordered mBottom=10/></fitAcross>
+            <fitBothWays flex fit=both fill=paleGray bordered>
+                <FBWsquare height=50 width=75 fill=white bordered/>
+                <FBWtallAndFat="fit both ways: Because its fit value is both, the box enclosing this box is constrained to fit horizontally and vertically even tho it is laid out across" height=100 width=200 fill=white bordered/></fitBothWays>
+            <fitText fill=paleGray bordered fit=both>
+                <FTheading="List of Fitted Text" height=20 headerFont/>
+                <FTwrap height=80 width=100 fill=white bordered margin=5>
+                    <FTbody fit align=left>
+                        <one="First menu item" fitItem/>
+                        <two="Second item" fitItem/>
+                        <three="Last item" fitItem/></FTwrap>
+                <space height=10/></container>
+        <help describe=fitExample bordered fill=lightGreen height=50;>
+

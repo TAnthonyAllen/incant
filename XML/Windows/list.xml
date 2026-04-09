@@ -1,0 +1,93 @@
+#registry GUI;
+<listStuff with some attributes>
+    <first=whatwho this=also has=attributes/>
+    <second this=has attributes=in different=order/>
+    <third fewer=attributes valueless/>
+    <fourth attributes plus=content>
+        <one/>
+        <two/></listStuff>
+<listExample window closable resize x=400 y=400 width=360 height=300 fill=wall font=normal title="List With Attributes">
+    <first height=50 fill=white top left right rounded>
+        <space/>
+        <heading="Variable Attributes List" height=43.0 text align=center font=title border=off/></first>
+    <body source=listStuff pad rounded=5 fill=white border=black>
+        <?The source attribute creates a Source instance based on the listStuff group and stores a pointer to the instance in a hidden attribute named sRCe?>
+        <rows tableBody>
+            <row fit pad rounded next=body>
+                <?The next attribute above looks up the block named in its text (body), finds its source in that block, gets the next record from that source and assigns it to its parent (thus it sets row.group to the next record block). Also, it creates a hidden sRCe attribute in its parent (row), that contains a pointer to the source (created by the source attribute in the body block)?>
+                <firstRow height=16 across border=off>
+                    <field tag width=75 tableCell/>
+                        <?In the block above, the tag attribute gets the tag of the current source record and stores it in field.text to be displayed. It finds the current source record by looking up the hierarchy for the first sRCe attribute it finds (in this case, in the row block via its next attribute) and accessing the value of the sRCe parent, which is row.group?>
+                    <tags source=row useNext useAttributes across=* height=16 scrollWith=contents>
+                            <?In the tags block above, how the source works is modified by the useNext and useAttributes attributes. source=row refers to the row block above, which has a sRCe attribute created by next (its next attribute). The sRCe points to the row source, which is listStuff.
+                            The useNext attribute modifies the way source works to use the next record (stored in row.group as the source instead of listStuff.
+                            The useAttributes attributes modifies the working of any next command that accesses the source (as modified by useNext) so that it gets the next record from the source attributes rather than source members?>
+                        <wrap width=75 next=tags>
+                                <?next above accesses the source in tags (modified as described above) so that it is nexting thru the attributes of the current record. That is, the current record in wrap.group is set to the next attribute of the current record in tags?>
+                            <attribute tag tableCell/></firstRow>
+                                <?The tag attribute above finds its current source record by looking up the hierarchy for the first sRCe attribute it finds (in the wrap block) and accessing the tag of the value of the sRCe parent (wrap.group)?>
+                <secondRow height=16 across border=off>
+                    <space width=75/>
+                    <contents source=row useNext useAttributes across=* height=16 scrollWith=tags>
+                        <wrap width=75 next=contents>
+                            <vALUE trait=source tableCell/></secondRow>
+                <space  height=16;>
+
+traits and tags are attributes, associated with the cell attribute, and used to refrence the contents of a source.
+
+Note: Traits are only relevant in association with cells (specified by the cell attribute). The trait value is what the cell displays. The trait is used to access the text value of its source. The trait action puts the trait block into the trait parent (the enclosing block), that is, it sets trait.parent.text to trait.text. There are three basic steps involved:
+        
+		Find the source by looking up the hierarchy for the first sRCe, a hidden attribute. sRCe gets created by the source and next attributes and it contains a pointer to a Source instance.
+        
+        Get the record from the source that contains the data you want to access (this is what the next attribute does, it gets the next record and stashes it in its parents value. In the example above, the next record is stashed in wrap)
+        
+        Find the trait in the record that you wish to access or display (this is what the trait attribute does.)
+
+The trait attribute value provides three options:
+
+        Trait Value             Action
+        
+        None                    trait is set as next block[trait block tag].
+                                If the trait block is <name trait/> then trait displays next block["name"], that is, the name attribute of the data block associated with the block that has the next attribute. Choose this option when you know the source attribute you want to display. Refer to db.xml for example on use.
+                                Essentially the trait attribute refers to an attribute in the current record of its source (which is found by searching up the block hierarchy). The name of the record attribute associated with the trait is taken from the tag of the traits parent.
+
+        source                  As in trait=source. Here the word source is a literal, that is,
+                                not the name of source. The source block is found by walking up the block hierarchy to find the first parent with a source attribute and then using its source block, which is stored in that first parent group value.
+                                For example, the trait (in value block of the secondRow above) is set to source, which means it uses the current source block (set when the next attribute of wrap gets fired) as the source for the trait to be displayed.
+        
+        anything else           anything else is assumed to be the name of a registered item
+                                somewhere in the registry search list and trait = that registered item if it exists
+                                
+    There is a difference between trait and tag. They can both access the same attribute but tag sets the text of its parent to the attribute tag whereas trait sets the text to the attribute value. Normally, however, tag accesses the tag of the source block and trait accesses the value of an attribute of the source block.
+
+    The trait process:
+        
+    	Find its source (in its first ancestor with a source or next attribute)
+        
+    	Find its attribute in the source block
+        
+    	If trait has no value, the name of its attribute is taken as its parent block tag, that is, the block <something trait cell/> is referencing the something attribute of the source block.
+        
+        Set the parent block text to the text of the found attribute, in effect, parent.block.text = trait.text. Thus, if the something attribute of the source block is something=whatever then the trait parent block becomes <something=whatever trait cell/>
+        
+        The cell then display displays its parent block text (the text of the something block, which trait set to whatever, in this example).
+        
+    
+Sources
+
+The source attribute names a block to use as a data source. For Example, as above in the body block, the attribute source=listStuff says there is a block named listStuff that should be used as a source. The listStuff block is searched for by first walking up the block hierarchy above the block that specified the source attribute. If not found, the registry search list is searched for a registered block named listStuff.
+
+        By default, the source block makes available its members as data
+        However, if useAttributes appears as an attribute along with the source attribute, then the source block makes available its attributes as data instead of its members
+
+    Data in the source block is accessed via the next attribute. The value of the next attribute is the name of block that has a source. When the next attribute is processed, the next block available from the source is accessed.
+
+    In the example above, the body block has an attribute source=listStuff. There is no useAttributes attribute, so when the source is accessed, the listStuff members are made available (ie. first, second, third, fourth).
+
+    The row block has the attribute next=body which means the next block of source data associated with body becomes the data associated with row.
+    
+useNext
+    The tags block above has the attribute source=row. Normally this would mean that either the members of row would be accessed as the source, however, row also has a next attribute so there is already source data associated with row. In this case, the source associated with the next attribute is used as the source of tags data, because the tags block has the attribute useNext. Note: both things have to be true for this to work. That is, the block indicated by source (row in this case) has to have a next attribute, and the block specifying source (tags) has to have the useNext attribute (because if there is no next associated with the source, does not make sense to specify useNext and if you do it will be ignored).
+
+Need to explain contentVaries and tableBody
+Need to explain scrollWith and what is a scroller

@@ -1,0 +1,250 @@
+AttributeList!
+.
+PLGitem item, text;
+    blockStack.clear();
+    for item = name
+        {
+        text = item["text"];
+        blockStack.push(text.toString());
+        }
+;
+
+Command!
+.
+    currentBlock = null;
+	if !command
+        {
+        currentRegistry = null;
+        reset();
+        }
+	else command.runDeferred();
+    commanding = false;
+;
+
+CommandText!
+    includeFile(file.string());
+    file.unString();
+|
+/*****************************************************************************
+    Create registry
+*****************************************************************************/
+GroupItem   block;
+    type = type["text"];
+    pushState();
+    currentRegistry = getRegistry(type.toString());
+    /*************************************************************************
+        The optional value argument sets registry characteristics that
+        mostly relate to how the registry gets loaded
+    *************************************************************************/
+    for flag
+        {
+        switch(flag.string())
+            {
+            case "asAttributes":
+                currentRegistry.loadAsAttributes = true;
+                currentRegistry -= "noAttributes";
+            case "base":
+                addBaseRegistry(currentRegistry);
+            case "components":
+                //  When registering a group, also register its components
+                currentRegistry.loadComponents  = true;
+            case "data":
+                //  Register item text (as opposed to the tag)
+                currentRegistry.loadFromData    = true;
+            case "descending":
+                currentRegistry.sortDescending  = true;
+            case "display":
+                currentRegistry.isGUIregistry   = true;
+            case "grouped":
+                currentRegistry.grouped         = true;
+            case "noPrint":
+                currentRegistry.noPrint         = !currentRegistry.noPrint;
+            case "rules":
+                // if isRule is true for a registry then all registry entries are considered
+                // rules (enforced in GroupItem addRule() when adding groups to the registry).
+                currentRegistry.isRule          = true;
+                currentRegistry.noMerge         = true;
+            case "search":
+                //  Adds the current registry to the registry search list.
+                if !searchList[currentRegistry.tag]
+                    searchList += currentRegistry;
+            case "sort":
+                currentRegistry.sortAscending   = true;
+            case "value":
+                //  When adding an item to a registry, ignore the tag and load the value
+                //  When referenced the tag is resolved to be the registry name
+                currentRegistry.loadByValue     = true;
+            }
+        flag.unString();
+        }
+    ancestor = null;
+|
+/*****************************************************************************
+    Dump List or Print
+*****************************************************************************/
+GroupItem       item,
+                registri;
+String          text;
+    pushState();
+    /*************************************************************************
+        figure out the parameters
+    *************************************************************************/
+    if type
+        {
+        type = type["text"];
+        text = type.string();
+        if registries registri = registries[text];
+        }
+    if path
+        {
+        item = path["field"].value;
+        if !item cerr "print: no path match for " path:;
+        }
+    /*************************************************************************
+        If there is no block or registry argument the current outer block gets
+        dumped provided it exists.
+    *************************************************************************/
+    if !type && !path
+        {
+        if outerBlock
+            if action.start == 'd' outerBlock.dump();
+            else cout outerBlock;
+        return;
+        }
+    /*************************************************************************
+        Process commands
+    *************************************************************************/
+    if text eq "registries"
+        if registries
+            {
+            cout "Registries: contains",registries.groupListLength,"entries (maybe not all registries)":;
+            registri    = null;
+            while registri = registries.next(registri)
+                if registri.isRegistryGRP  cout `registri.tag,"entries:" `registri.groupListLength:;
+            }
+        else cout `"No registries found":;
+    if registri item = registri;
+    if number   recordNumber = (int)number.amount;
+    if item
+        {
+        if item.isRegistryGRP ignoreNoPrint=true;
+        if action eq "dump"
+            item.dump(99);
+        or action eq "print"
+            cout item:;
+        or action eq "test"
+            {
+            // use a directive to add a test matching on number
+            number = null;
+            }
+        else item.list();
+        ignoreNoPrint = false;
+        }
+    if type type.unString();
+    popState();
+|
+/*****************************************************************************
+    Process Flags
+*****************************************************************************/
+	if flag.start == 'd' debug              = !debug;
+    or flag.start == 'e' simpleSyntax       = !simpleSyntax;
+    or flag.start == 'm' doNotExpandMacros  = !doNotExpandMacros;
+    or flag.start == 's'
+        {
+        cout "Exiting":;
+        stopParsing = true;
+        }
+    or flag eq "noJIT"      { noLineByLine  = !noLineByLine; }
+    or flag eq "noPrint"    { ignoreNoPrint = !ignoreNoPrint; }
+    else cout "pausing":;
+|
+PLGitem         name;
+GroupItem       registri;
+/*****************************************************************************
+    Search List
+    Create, print out, overwrite or append to the registry search list
+*****************************************************************************/
+    if !names dumpSearchList();
+    else {
+        if registries
+            for names
+                {
+                String  text;
+                name    = names["text"];
+                text    = name.string();
+                registri = searchList[text];
+                if !registri
+                    if registri = registries[text]
+                        searchList += registri;
+                name.unString();
+                }
+        else cerr "ERROR search command: no registries exist":;
+        }
+|
+/*****************************************************************************
+    Process load command.
+*****************************************************************************/
+GroupItem       fieldItem,
+                item;
+    recordNumber = 0;
+    for path
+        if fieldItem = path["field"].value
+            if fieldItem%"directory"    item = fieldItem.loadDirectory();
+            or fieldItem%json           item = loadJSON(fieldItem);
+            or fieldItem.isRule || fieldItem%"rule"
+                if item = loadRule(fieldItem) item.dumpResults();
+            or item = loadDelimited(fieldItem)
+                if item.groupListLength
+                    cout "Loaded " item.groupListLength " entries":;
+                else cout "Nothing loaded":;
+            else cerr "WARNING load: could not load " fieldItem.tag:;
+        else cerr "ERROR load: Could not find " path:;
+|
+GroupItem		item,parameter,block;
+/*****************************************************************************
+    Check the group passed in, if it has a method and an argument run it.
+*****************************************************************************/
+    if block = group["field"].value
+        if !method
+            cerr ``"No method found for",block.tag:;
+        else {
+            if parameter = argument["field"].value
+                item = block.method(parameter);
+            else item = block.method(block);
+            if item cout ``"Succeeded running " block.tag:;
+            else cout ``block.tag`"method failed":;
+            }
+    // not sure what we do w/item ... just print it for now
+;
+
+Locate!
+.
+GroupItem       registri,
+                group;
+PLGitem         item = field["text"];
+String          text = item.string();
+    if type
+        registri = type.value;
+    if registri group = registri/text;
+    else group = locate(text);
+    item.unString();
+    if group field.value = group;
+    else return false;
+;
+
+Registry!
+.
+GroupItem   registri;
+    type = type["text"];
+    if registries && type ne "registries"
+        {
+        registri = registries[type.string()];
+        type.unString();
+        if !registri
+            {
+            //cout "Registry rule failed:",type:;
+            return false;
+            }
+        }
+    type.value = registri;
+;

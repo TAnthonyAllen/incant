@@ -1,0 +1,82 @@
+extern GroupItem parseRULE(GroupItem field,GroupItem parentLabel)
+{
+GroupRules  ruler = groupRules;
+RuleStuff   ruleStuff;
+startHere:
+use field
+    ruleStuff   = setRstuff();
+    if parentLabel  parentStuff = parentLabel.rStuff;
+continueHere:
+    /***************************************************************************
+        Handle space skipping then match on. Check the rule guard first then run
+        the follow rules in order as long as they succeed.
+    ***************************************************************************/
+    if !noSkip && atRuleMark != lastSkip && *atRuleMark    atRuleMark = checkSkip(atRuleMark);
+    if !(atRuleMark && *atRuleMark) {
+        if divertToRule || !getInput() {
+            if divertToRule divertToRule = false;
+            goto endParsing; }
+        if !noSkip atRuleMark = checkSkip(atRuleMark); }
+    rulesParsed++;
+startMatch:
+    hereAt      = atRuleMark;
+    ruleSTUFF   = ruleStuff;
+    if !checkGuard()    goto matchFailed;
+    if !noLabel
+        if isTarget     label = parentLabel;
+        or label        label.clear();
+        else {
+            label = new(tag);
+            label.rStuff    = ruleStuff;
+            label.isLabel   = true; }
+    if hasMacro
+        if !(sukcess = setMacroValue(field,parentLabel))        goto matchFailed;
+    if testMatch            sukcess = testMatch(field,label);
+    else                    sukcess = true;
+    if sukcess && onTrack {
+        if parseRULE(onTrack,label)    sukcess = true;
+        else    sukcess = false; }
+    /***************************************************************************
+        Success. Fire label method if there is one.
+    ***************************************************************************/
+    if sukcess && isMethod
+        if deferred {
+            label.method    = field.method;
+            if !label.data  label.setToken(hereAt,10); }
+        or !parseACTION
+            if !(label = method(label))   sukcess = false;
+    if !sukcess             goto matchFailed;
+    /***************************************************************************
+        Success. Deal w/label and increment kount
+    ***************************************************************************/
+    if label && !isTarget && parentLabel
+        if label.isGROUP && max > 1 parentLabel +% label.group;
+        else {  parentLabel +% label;
+                label = 0; }
+    kount++;
+    if !isOK && kount < max     goto continueHere;
+    goto endParsing;
+    /***************************************************************************
+        Deal w/failed match.
+    ***************************************************************************/
+matchFailed:
+    atRuleMark  = hereAt;
+    if kount >= min sukcess = true;
+    or onFail {
+        field = onFail;
+        ruleStuff   = rStuff;
+        if !checkGuard()
+            while field = field.nextInParent {
+                ruleStuff = rStuff;
+                if checkGuard() break; }
+        if field    goto startHere; }
+endParsing:
+    kount       = 0;
+    if sukcess && onSuccess {
+        field   = onSuccess;
+        goto    startHere; }
+    if endParse || !sukcess     return null;
+    or !label                   return trueResult;
+    return label;
+}
+

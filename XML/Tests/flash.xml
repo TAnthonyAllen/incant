@@ -1,0 +1,70 @@
+#registry Decks search;
+#include /Users/anthony/data/Tawk/Groups/XML/NotGUI/decks.xml;
+#list Decks;
+#registry methods hasMethods noMerging search;
+<jitInclude>include /Users/anthony/Dropbox/data/InProcess/Include/UIjit.ext
+external GroupItem { overload initializer getGroup; }</jitInclude>
+<updateDeck jit>
+	print "Changed text for",item:;
+</updateDeck>
+#registry GUI doNotDuplicate;			
+<deckList="Flash Card Deck List" fill=lightGreen>
+	<deckBox source=Decks rounded pad=10 fill=paleGray>
+		<deckHead tableHead fill=white border=off>
+			<Name label align=left left=20 selectable=no/>
+			<Description label align=left left=10 selectable=no/></deckHead>
+		<space fill=blue height=1 border=off/>
+		<body pad=10 tableBody>
+			<row tableRow next=deckBox>
+				<deckCardName tag left=10 align=left right=5 label setSource selectFill=lightBlue/>
+				<description value left=10 align=left right=5 cell onEndEdit=updateDeck/></body>
+		<deckButtons height=50 rounded across fill=white>
+			<deckPlus=+ label pad=15 width=50 selectable=no font=courier addToSource/>
+			<deckMinus="-" label top=15 bottom=15 width=50 selectable=no font=courier deleteFromSource/>
+			<space selectable=no/>
+			<Edit label rounded fill=lightGreen pad=15 aligh=center width=75 font=header selectable=no card=cardList;>
+			
+<cardList="Deck Card List" source fill=lightGreen>
+    <banner fill=paleGray rounded=10 border=black height=50>
+        <deckName font=header fontSize=18 border=off height=35 label value align=center/>
+        <space/></banner>
+	<cardBody pad=10 tableBody>
+		<cardRow tableRow next=cardList>
+			<cardTag tag left=10 align=left right=5 label setSource selectFill=lightBlue/>
+			<cardValue value left=10 align=left right=5 cell/></cardBody>
+	<cardButtons height=50 rounded across selectable=no fill=white>
+		<cardPlus=+ label pad=15 width=50 font=courier addToSource/>
+		<cardMinus="-" label top=15 bottom=15 width=40 font=courier deleteFromSource/>
+		<space/>
+		<listBack="Back to Deck list" width=200 font=header top=15 bottom=15 rounded fill=lightGreen label align=center card=deckList/>
+		<Edit label rounded fill=lightGreen pad=15 aligh=center width=75 font=header card=cardDetail;>
+		
+<cardDetail="Card Detail" source fill=lightGreen>
+    <banner fill=paleGray pad rounded=5 border=black height=35 font=header>
+    <cardValue across pad=5>
+    	<cardTag="Tag:" label align=right/>
+    	<space width=10/>
+        <cardName cell tag align=left/></banner>
+	<cardText pad=10 text value rounded fill=white editable font=normal/>
+	<detailBack=Back height=37 width=60 pad=10 rounded fill=white label align=center card=cardList;>
+
+<flash window closable resize x=400 y=400 width=360 height=400 fill=saberBrown title="Flash Cards">
+	<first height=70 pad=10 fill=white rounded>
+		<space height=20%/>
+		<heading=$pages label align=center font=title border=off/>
+		<space height=25%/></first>
+	<pages pad rounded=10.0 cards>
+		<deckList/>
+		<cardList/>
+		<cardDetail;>
+
+Notes:
+doNotDuplicate is set for the GUI registry so that deckList and cardList can be defined outside of the main window and then referred to without being duplicated. Just a cosmetic style to keep the main window simple while avoiding unnecessary copying.
+
+addToSource will add a new group to the current source with the tag New.
+deleteFrom Source will delete the selected item from the current source (if the selected item is in the source).
+
+In cardList above, the source is left unspecified because it will be set by the card method invoked by deckCardName when it is selected. cardList has to have a source specified or all the blocks that trigger off the cardList source will come up not specified.
+
+How the heading in the flash window is set. The current card is stored in pages.group (that is how cards work). The $pages macro returns the text associated with pages, which, because the value of pages is a group, returns the text associated with the group, in effect, the text of the current card.
+

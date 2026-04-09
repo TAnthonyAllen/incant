@@ -1,0 +1,455 @@
+
+include groupIncludes
+
+/*******************************************************************************
+	RuleStuff is used to stash data used by the parseRULE method
+*******************************************************************************/
+class RuleStuff
+{
+String      ruleName;       // for debugging
+String      hereAt;
+GroupItem   onFail,
+            onSuccess,
+            onTrack;
+GroupItem   rule;
+int         kount,
+            max,
+            min;
+int         &testMatch(GroupItem);
+boolean
+    banged
+    doNothing
+    followed
+    hasMacro
+    isOK
+    isOption
+    isTarget
+    limitsSet
+    noAdvance
+    noLabel
+    noSkip
+    overTo:2[upTo upToOver]
+    sukcess
+    ;
+
+/*******************************************************************************
+	RuleStuff constructors.
+*******************************************************************************/
+RuleStuff(GroupItem grup)
+{
+    rule        = grup;
+    ruleName    = tag;
+    // min and max may be overwritten by the TraiT rule action
+    max         = 1;
+    min         = 1;
+}
+
+/*******************************************************************************
+	checkGuard returns true if rule is unGuarded or input pointer is in guardSet
+*******************************************************************************/
+int checkGuard()
+{
+GroupRules  ruler = groupRules;
+GroupItem   field = rule;
+    sukcess = false;
+    if guardOK {
+        guardOK = false;
+        rulesAvoided++;
+        return true; }
+    if guardInProcess   guarding = 0;
+    if !guarding        getGuard();
+    if unGuarded        return true;
+    or guarded && guardSet.contains(*atRuleMark) return true;
+    return false;
+}
+
+/*****************************************************************************
+    Return the not noPrint attribute after this one in the parent list
+    Called by getWhatFollows() in RuleStuff
+*****************************************************************************/
+GroupItem followingAttribute()
+{
+    if parent
+        {
+        GroupItem   grup = rule;
+        while grup = grup.nextInParent
+            if grup.isAttribute && !grup.noPrint    break;
+        return grup;
+        }
+    else cerr "followingAttribute:",tag,"has no parent":;
+    return null;
+}
+
+/*****************************************************************************
+    Return the member following this group in the parent list
+    Called by getWhatFollows() in RuleStuff
+*****************************************************************************/
+GroupItem followingMember()
+{
+    if parent
+        {
+        GroupItem   grup = rule;
+        while grup = grup.nextInParent
+            if grup.isMember    break;
+        return grup;
+        }
+    return null;
+}
+
+/*******************************************************************************
+	Sets the fields of RuleStuff.
+*******************************************************************************/
+void getWhatFollows()
+{
+GroupItem   grup;
+use rule
+    followed        = true;
+    if !testMatch   setTestMatch();
+    if !binType {
+        if hasAttributes
+            while grup = nextAttribute(grup)
+                if !grup.noPrint {
+                    onTrack = grup;
+                    break; }
+        if hasMembers
+            if grup = nextMember(grup)
+                if !onTrack && !data    onTrack = grup;
+                else            onFail = grup;
+        if isGROUP {
+            grup    = group;
+            if grup.isMacro     hasMacro = true;
+            else {
+                if onTrack  grup.onTrack = onTrack;
+                onTrack     = grup; }}}
+    if isAttribute {
+        if grup = followingAttribute()  onSuccess = grup; }
+    or isMember && !parent.binType {
+        isTarget    = true;
+        if grup = followingMember() onFail = grup; }
+    or isEmbedded
+        if (data && data < 4) || max == 1 isTarget = true;
+}
+
+/*******************************************************************************
+	Set testMatch
+*******************************************************************************/
+void setTestMatch()
+{
+    if upTo || upToOver     testMatch = testUpTo;
+    or isBIN || isREGISTRY  testMatch = testContainer;
+    or data
+        switch(data)
+            {
+            case isANY:     testMatch = testAny;
+            case isCHAR:    testMatch = testCharacter;
+            case isSET:     testMatch = testSet;
+            case isGROUP:   testMatch = null;
+            default:        testMatch = testString;
+            }
+    or isMacro              testMatch = setMacroValue;
+    or isCondition          testMatch = testCondition;
+    or parseACTION          testMatch = testAction;
+    or !contents()
+        if isMethod         testMatch = testAction;
+        else                testMatch = testString;
+}
+}
+
+/*******************************************************************************
+	getInput
+*******************************************************************************/
+extern int getInput()
+{
+GroupRules  ruler = groupRules;
+    if !atRuleMark {
+        cerr "getInput: no input source":;
+        return false; }
+    /***************************************************************************
+        Check for end of input and deal w/diversion if diverted
+    ***************************************************************************/
+    if inputDiverted && !*atRuleMark
+        while inputDiverted && !*atRuleMark     popInput();
+    if !*atRuleMark     return null;
+    return true;
+}
+
+/*******************************************************************************
+	Revised stream parser. POP required.
+*******************************************************************************/
+extern GroupItem parseRULE(GroupItem field,GroupItem parentLabel)
+{
+GroupRules  ruler = groupRules;
+RuleStuff   ruleStuff;
+startHere:
+GroupItem   label;
+use field
+    ruleStuff   = rStuff;
+    rulesParsed++;
+    if !followed    getWhatFollows();
+continueHere:
+    /***************************************************************************
+        Handle space skipping then match on. Check the rule guard first then run
+        the follow rules in order as long as they succeed.
+    or noSkip && beforeSkip     hereAt = atRuleMark = beforeSkip;
+    ***************************************************************************/
+    if !noSkip && atRuleMark != lastSkip && *atRuleMark    atRuleMark = checkSkip(atRuleMark);
+    if !(atRuleMark && *atRuleMark) {
+        if divertToRule || !getInput() {
+            if divertToRule divertToRule = false;
+            goto endParsing; }
+        if !noSkip atRuleMark = checkSkip(atRuleMark); }
+startMatch:
+    hereAt  = atRuleMark;
+    if !checkGuard()        goto matchFailed;
+    if !noLabel
+        if isTarget         label = parentLabel;
+        else {
+            label = new(tag);
+            label.isLabel   = true; }
+    if hasMacro
+        if !(sukcess = setMacroValue(field,parentLabel))        goto matchFailed;
+    if testMatch            sukcess = testMatch(field,label);
+    else                    sukcess = true;
+    if sukcess && onTrack
+        if parseRULE(onTrack,label)     sukcess = true;
+        else                            sukcess = false;
+    if tokened && label     tokenize(hereAt,label);
+    /***************************************************************************
+        Success. Fire label method if there is one.
+    ***************************************************************************/
+    if sukcess && isMethod
+        if deferred {
+            label.method    = field.method;
+            if !label.data  label.setToken(hereAt,10); }
+        or !parseACTION {
+            ruleSTUFF = ruleStuff;
+            if !(label = method(label))   sukcess = false; }
+    if !sukcess             goto matchFailed;
+    /***************************************************************************
+        Success. Deal w/label and increment kount
+    ***************************************************************************/
+    if label && !isTarget && parentLabel
+        if label.isGROUP && max > 1 parentLabel +% label.group;
+        else                parentLabel +% label;
+    kount++;
+    if !isOK && kount < max {
+        label = 0;
+        goto continueHere; }
+    if sukcess              goto endParsing;
+    /***************************************************************************
+        Deal w/failed match.
+    ***************************************************************************/
+matchFailed:
+    atRuleMark = hereAt;
+    if label    label.clear();
+    if onFail {
+        field = onFail;
+        ruleStuff   = rStuff;
+        if !checkGuard()
+            while field = field.nextInParent {
+                ruleStuff = rStuff;
+                if checkGuard() break; }
+        if field    goto startHere; }
+    or kount >= min sukcess = true;
+endParsing:
+    kount       = 0;
+    if sukcess && onSuccess {
+        field   = onSuccess;
+        goto    startHere; }
+    if endParse || !sukcess     return null;
+    or !label                   return trueResult;
+    return label;
+}
+
+/*******************************************************************************
+	This sets the data of rule to the value of a previously processed label
+    with the same name as rule
+*******************************************************************************/
+extern int setMacroValue(GroupItem field,GroupItem label)
+{
+GroupItem grup;
+    field = field.group;
+    while grup = label.next(grup)
+        if field.tag eq grup.tag {
+            field.copyData(grup);
+            return true; }
+    cerr "setMacroValue: could not find",field.tag,"in label",label.tag:;
+    return false;
+}
+
+#testMacro(tester)-
+int         counter;
+GroupRules  ruler = groupRules;
+RuleStuff   ruleStuff = rStuff;
+    isOK = false;
+    if *atRuleMark {
+        while tester {
+            counter++;
+            atRuleMark++;
+            if !*atRuleMark || counter >= max break; }
+        if counter && counter >= min {
+            if noAdvance    atRuleMark = hereAt;
+            if label        label.setToken(hereAt,counter);
+            isOK    = true; }}
+    if isOK return true;
+    return  false;-
+
+/*******************************************************************************
+	Run a wild card test on this group against current input
+*******************************************************************************/
+extern int testAny(GroupItem field,GroupItem label)
+{
+use field
+testMacro(counter < max);
+}
+
+/*******************************************************************************
+	Run a character test on this group against current input
+*******************************************************************************/
+extern int testCharacter(GroupItem field,GroupItem label)
+{
+use field
+testMacro(*atRuleMark == character && counter < max);
+}
+
+/*******************************************************************************
+	Run a character set test on this group against current input
+*******************************************************************************/
+extern int testSet(GroupItem field,GroupItem label)
+{
+use field
+PLGset  set = characterSet;
+testMacro(set.contains(*atRuleMark));
+}
+
+/*******************************************************************************
+	Process a parseAction
+*******************************************************************************/
+extern int testAction(GroupItem field,GroupItem label)
+{
+GroupItem result = field.method(field);
+    if result {
+        if label    label.group = result;
+        return true; }
+    return false;
+}
+
+/*******************************************************************************
+	Process a condition
+*******************************************************************************/
+extern int testCondition(GroupItem field,GroupItem label)
+{
+RuleStuff   ruleStuff = field.rStuff;
+    if min  return true;
+    return  false;
+}
+
+/*******************************************************************************
+    Registry and Container test looks for an entry that matches the input stream.
+*******************************************************************************/
+extern int testContainer(GroupItem field,GroupItem label)
+{
+GroupItem   grup;
+use field
+GroupRules  ruler   = groupRules;
+RuleStuff   ruleStuff = rStuff;
+PLGset      inSet   = characterSet;
+String      atInput = atRuleMark;
+int         advance;
+Buffer      buffer  = stringBUFFER;
+    reset();
+    while *atInput
+        if contains(*atInput) appendChar(*atInput++);
+        else break;
+    if advance = length()
+        if grup = get(string()) {
+            if !noAdvance   atRuleMark += advance;
+            if label        label.group = grup;
+            return true; }
+    return false;
+}
+
+/*******************************************************************************
+	Run a string test on this group against current input
+*******************************************************************************/
+extern int testString(GroupItem field,GroupItem label)
+{
+GroupRules  ruler = groupRules;
+RuleStuff   ruleStuff = field.rStuff;
+String      matchedString = rule.matches(atRuleMark);
+    if matchedString {
+        if noAdvance    atRuleMark = hereAt;
+        if label        label.text = matchedString;
+        return true; }
+    return false;
+}
+    
+/***************************************************************************
+	Capture input until it gets a match. It returns a token and the input
+    stream is left pointing at the match if upTo or after the match if upToOver.
+    If the current rule is a set, the set is matched against.
+    If the current rule isSTRING its text is matched against. Otherwise
+    the default match is against a comma.
+***************************************************************************/
+extern int testUpTo(GroupItem field,GroupItem label)
+{
+GroupRules  ruler = groupRules;
+RuleStuff   ruleStuff   = field.rStuff;
+String      atText      = atRuleMark;
+String      endString;
+int         counter     = 1,
+            lngth,
+            matched,
+            matchLength = 1,
+            skipping;
+Buffer      buffer = stringBUFFER;
+GroupItem   grup = field.isGROUP ? field.group : field;
+    reset();
+    endString = text;
+    matchLength = (int)strlen(endString);
+use field
+    if noLabel && grup.isCOUNT {
+        counter = count;
+        skipping = true; }
+    grup = 0;
+    while counter-- {
+        /*******************************************************************
+            Advance atText until the rule matches
+        *******************************************************************/
+        for (; *atText; atText++ lngth++) {
+            if isSET && characterSet.contains(*atText)  matched++;
+            or groupList {
+                while grup = field.next(grup)
+                    if !compareToStream(grup.tag,atText) {
+                        matchLength = (int)strlen(grup.tag);
+                        matched++;
+                        goto gotMatch; }}
+            or matchLength == 1 {
+                if *atText == '\\'   atText++;
+                or *atText == *endString matched++; }
+            or !compareToStream(endString,atText) matched++;
+            if matched  break;
+            or *atText  buffer += *atText; }
+        /*******************************************************************
+            Fields w/o label are skips. The number of fields skipped is
+            determined by the counter set above from the field count
+        *******************************************************************/
+gotMatch:
+        if skipping {
+            atText  += matchLength;
+            lngth   += matchLength;
+            if counter > 0  continue;
+            else atRuleMark  += lngth; }
+        /*******************************************************************
+            If succeeds, update rule label and advance atRuleMark
+        *******************************************************************/
+        if matched {
+            if lngth {
+                if label {
+                    label.text = buffer.toString();
+                    if grup     label +% grup; }
+                atRuleMark      = atText; }
+            if upToOver     atRuleMark += matchLength;
+            return true; }}
+    return false;
+}

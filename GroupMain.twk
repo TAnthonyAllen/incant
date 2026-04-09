@@ -1,0 +1,338 @@
+include groupIncludes
+
+class GroupMain
+{
+GroupItem   grok;
+/*******************************************************************************
+	Constructor
+*******************************************************************************/
+GroupMain()
+{
+    groupController = new(10000);
+GroupRules  ruler = groupRules;
+    setBaseRegistries();
+    searchList      = getRegistry("SearchList");
+    grokking        = getRegistry("Grokking");
+    grokking.isRule = true;
+    grok            = grokking;
+    searchList      += grokking;
+    searchList.isSorted = false;
+}
+
+/*****************************************************************************
+	bootCommands loads commands needed for bootstrapping
+*****************************************************************************/
+void bootCommands(GroupItem commands)
+{
+GroupItem   item;
+    /*************************************************************************
+        We will need the parseAction command
+    *************************************************************************/
+    item = new("parseAction");
+    commands            += item;
+    method              = setRuleAction;
+    immediateACTION     = true;
+    isMethod            = true;
+    noPrint             = true;
+    /*************************************************************************
+        and the ruleMethod and operateMethod commands
+    *************************************************************************/
+    item = new("ruleMethod");
+    commands            += item;
+    method              = ruleMethod;
+    immediateACTION     = true;
+    isMethod            = true;
+    noPrint             = true;
+
+    item = new("operateMethod");
+    commands            += item;
+    method              = ruleMethod;
+    immediateACTION     = true;
+    isMethod            = true;
+    noPrint             = true;
+   /*************************************************************************
+        and the registry command
+    *************************************************************************/
+    item = new("registry");
+    commands            += item;
+    method              = rEGISTER;
+    immediateACTION     = true;
+    isMethod            = true;
+    noPrint             = true;
+}
+
+/*****************************************************************************
+	bootstrapper creates rules and groups incant needs to define and run a rule.
+	The bootstrap rule definitions are shown in the grammar listing.
+*****************************************************************************/
+GroupItem bootstrapper()
+{
+GroupItem   dStuff;
+GroupItem   item;
+GroupItem   stuff;
+GroupItem   strap;
+GroupRules  ruler = groupRules;
+
+    bootCommands(commands);
+    ruleSkipSet         = new("ruleSkipSet");
+    ruleSkipSet.characterSet = new(" \n\r\t/");
+    properties          += ruleSkipSet;
+    currentRegistry     = grok;
+    /*************************************************************************
+        bootstrap character sets. Do these need to be in Grokking?
+    *************************************************************************/
+    strap           = new("counter");
+    characterSet    = new("0-9");
+    item            = grok += strap;
+    strap           = new("nameSet");
+    characterSet    = nameSet;
+    grok            += strap;
+    strap           = new("numberSet");
+    characterSet    = new("0-9");
+    grok            += strap;
+    /*************************************************************************
+        bootstrap rule definition rules.
+    *************************************************************************/
+    strap           = new("Modifier");
+    strap           = grok += strap;
+    characterSet    = new("-~+?!%&|*@_<^{}$");
+
+    strap           = new("Limit");
+    strap           = grok += strap;
+    strap           +% new("[");
+    item            = new("min");
+    item            = strap +% item;
+    item.group      = grok/counter;
+    item            = item.group;
+    modify(item,"+");
+    item            = new("max");
+    item            = strap +% item;
+    item.group      = grok/counter;
+    item            = item.group;
+    modify(item,"*");
+    item            = new("]");
+    item            = strap +% item;
+
+    strap           = new("tokenize");
+    method          = tokenize;
+    unGuarded       = true;
+    strap           = grok += strap;
+    modify(strap,"^@");
+
+    strap           = grok += "Any";
+    strap.isANY     = true;
+    
+    strap           = grok += "PoweR";
+    characterSet    = new("eE");
+    item            = new("sign");
+    item.characterSet    = new("-+");
+    item            = strap +% item;
+    modify(item,"?");
+    item            = new("power");
+    item.characterSet    = new("0-9");
+    item            = strap +% item;
+    modify(item,"+");
+
+    strap           = grok += "FloaT";
+    character       = '.';
+    item            = new("decimals");
+    item.characterSet    = new("0-9");
+    item            = strap +% item;
+    modify(item,"+");
+    item            = grok/PoweR;
+    item            = strap +% item;
+    modify(item,"?");
+
+    strap           = grok += "QuotE";
+    method          = aCTionQuotE;
+    item            = new("tik");
+    item.characterSet    = new("'\"");
+    item            = strap +% item;
+    item            = new("quoteBody");
+    item            = strap +% item;
+    modify(item,"}");
+    strap           = item;
+    item            = new("tik");
+    group           = item;
+    item            = gGroup;
+    modify(item,"$");
+
+    strap           = grok += "NamE";
+    method          = aCTionNamE;
+    item            = new("first");
+    item.characterSet    = new("a-zA-Z");
+    item            = strap +% item;
+    modify(item,"-");
+    item            = grok["nameSet"];
+    item            = strap +% item;
+    modify(item,"-*");
+    item            = grok["tokenize"];
+    strap           +% item;
+    
+    strap           = grok += "NumbeR";
+    item            = grok["numberSet"];
+    group           = item;
+    item            = gGroup;
+    modify(item,"+");
+    method          = aCTionNumbeR;
+    immediateACTION = true;
+    item            = grok/FloaT;
+    item            = strap +% item;
+    modify(item,"?");
+    item            = grok["tokenize"];
+    strap           +% item;
+
+    strap           = grok += "GrouP";
+    dStuff          = strap;
+    item            = strap += grok/NamE;
+    item            = strap += grok/QuotE;
+
+    strap           = grok += "SetBrackets";
+    method          = aCTionSetBrackets;
+    item            = strap += "[";
+    modify(item,"-");
+    item            = strap += "]";
+    modify(item,"}");
+
+    strap           = grok += "DatA";
+    item            = strap += grok/GrouP;
+    item            = strap += grok/NumbeR;
+    item            = strap += grok/SetBrackets;
+    item            = new("NotA");
+    item.characterSet    = new("^ \t\r\n;");
+    item            = strap += item;
+    modify(item,"+");
+
+    strap           = grok += "CodE";
+    item            = strap += "{";
+    item            = strap += "}";
+    modify(item,"}");
+    item            = grok["tokenize"];
+    strap           +% item;
+
+    strap           = grok += "TraiTdata";
+    method          = aCTionTraiTdata;
+    immediateACTION = true;
+    item            = strap += "=";
+    modify(item,"-");
+    item            = grok/DatA;
+    item            = strap +% item;
+    item            = grok/Modifier;
+    item            = strap +% item;
+    modify(item,"*");
+    item            = grok/Limit;
+    item            = strap +% item;
+    modify(item,"?");
+    
+    /*************************************************************************
+        DefinE stub to be added to a little further down
+    *************************************************************************/
+    stuff           = grok += "DefinE";
+    stuff.method    = aCTionDefinE;
+
+    strap           = grok += "TraiT";
+    method          = aCTionTraiT;
+    immediateACTION = true;
+    item            = grok/GrouP;
+    item            = strap +% item;
+    item            = grok/Modifier;
+    item            = strap +% item;
+    modify(item,"*");
+    item            = grok/Limit;
+    item            = strap +% item;
+    modify(item,"?");
+    item            = grok/TraiTdata;
+    item            = strap +% item;
+    modify(item,"?");
+
+    strap           = grok += "NewGroup";
+    group           = grok/TraiT;
+
+    strap           = grok += "Attributes";
+    group           = grok/TraiT;
+    item            = gGroup;
+    modify(item,"+");
+
+    strap           = grok += "MemberS";
+    item            = strap += ":";
+    modify(item,"-");
+    item            = strap +% stuff;
+    modify(item,"+");
+
+    /*************************************************************************
+        DefinE gets filled in below. A bit of musical chairs happening
+    *************************************************************************/
+    strap           = stuff;
+    item            = grok/NewGroup;
+    item            = strap +% item;
+    method          = aCTionDefinE;
+    immediateACTION = true;
+    item            = grok/Attributes;
+    item            = strap +% item;
+    modify(item,"?");
+    item            = grok/MemberS;
+    item            = strap +% item;
+    modify(item,"?");
+    item            = new(";");
+    item            = strap +% item;
+    modify(item,"-");
+    item            = grok/CodE;
+    item            = strap +% item;
+    modify(item,"?");
+
+    /*************************************************************************
+        The define command (stuff is DefinE at this point).
+    *************************************************************************/
+    strap           = grok += "define";
+    isRule          = true;
+    item            = new("definitions");
+    item            = strap +% item;
+    item.group      = stuff;
+    item            = item.gGroup;
+    modify(item,"+");
+    item            = new(";");
+    item            = strap +% item;
+    modify(item,"-");
+
+    strap           = grok += "InvokE";
+    item            = new("(");
+    item            = strap +% item;
+    modify(item,"-");
+    item            = grok/GrouP;
+    item            = strap +% item;
+    modify(item,"?");
+    item            = new(")");
+    item            = strap +% item;
+    modify(item,"-");
+
+    strap           = grok += "RunRulE";
+    method          = aCTionRunRulE;
+    immediateACTION = true;
+    item            = grok/NamE;
+    item            = strap +% item;
+    item            = grok/InvokE;
+    item            = strap +% item;
+    modify(item,"?");
+    item            = new(";");
+    item            = strap +% item;
+    modify(item,"-?");
+
+    strap           = grok += "InitiatE";
+    isRule = true;
+    group           = grok/RunRulE;
+    item            = gGroup;
+    modify(item,"+");
+    item            = grok/InitiatE;
+    item            = 0;
+
+    pushInput(getStringFromFile("/Users/anthony/Dropbox/data/InProcess/Groups/XML/WorkingOn/setup"));
+    //getTokens();
+    strap.parse(0);
+    /*************************************************************************
+        Set the buffer links
+    *************************************************************************/
+    item            = properties["stringBUFFER"];
+    item.setBuffer(stringBUFFER);
+    return strap;
+}
+}

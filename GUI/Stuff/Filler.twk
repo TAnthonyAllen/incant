@@ -1,0 +1,96 @@
+include GUIincludes
+
+/*******************************************************************************
+	Defined as class but just a structure really to encapsulate color attributes
+*******************************************************************************/
+class Filler
+{
+Color			color;
+Gradient        gradient;
+union
+    double      angle;
+    Point       center;
+    ;
+
+Filler(Color c)
+{
+    color   = c;
+    center.x    = 0.0;
+    center.y    = 0.0;
+}
+
+/*******************************************************************************
+	Process fill attribute. Checks both color attributes and wig attributes
+    for transparency and gradient specs.
+*******************************************************************************/
+void checkColor(GroupItem item)
+{
+Details     detail = item.getDetail();
+GroupItem   colorAttribute,
+            grade,
+            gradeAngle,
+            transparent;
+Color       gradeColor;
+String      shade;
+use color
+    /***************************************************************************
+        Lookup color in color registry (to see if transparency or gradient
+        specified there). Could also be specified in the detail wig.
+    ***************************************************************************/
+    if item.text colorAttribute = colors[item.text];
+    if colorAttribute && colorAttribute.attributes
+        {
+        gradeAngle  = colorAttribute["angle"];
+        grade       = colorAttribute["gradient"];
+        transparent = colorAttribute["transparency"];
+        }
+    /***************************************************************************
+        Check transparency
+    ***************************************************************************/
+    if !transparent transparent     = wig["transparency"];
+    if transparent  transparency    = transparent.number;
+    if transparency
+        color = color.alpha(transparency);
+        //hold(color = color.alpha(transparency));
+    /***************************************************************************
+        Check gradient
+    ***************************************************************************/
+    if !grade grade = wig["gradient"];
+    if grade
+        {
+        shade = grade.text;
+        if shade
+            if shade != '#'
+                {
+                double red,green,blue,alpha,increment;
+                getRGB(&red,&green,&blue,&alpha);
+                increment = atof(shade);
+                if fabs(increment) > 1
+                    cerr "gradient increment must be >= 0 and <= 1\n";
+                else {
+                    red += increment;
+                    if red > 1.0    red = 1.0;
+                    or red < 0      red = 0.0;
+                    green += increment;
+                    if green > 1.0  green = 1.0;
+                    or green < 0    green = 0.0;
+                    blue += increment;
+                    if blue > 1.0   blue = 1.0;
+                    or blue < 0     blue = 0.0;
+                    gradeColor = rgbColor(red,green,blue,alpha);
+                    }
+                }
+            or colorize(grade)
+				{-%gradeColor = (__bridge NSColor*)getPointerGroupItem(grade);%-}
+                //gradeColor = grade.pointer;
+        if !gradeColor      cerr wig.tag ": no gradient color set\n";
+        else {
+            gradient = new(color,gradeColor);
+            hold((void*)gradient);
+            }
+        if !gradeAngle  gradeAngle = wig["angle"];
+        if gradeAngle   angle = gradeAngle.number;
+        filled = false;
+        }
+}
+}

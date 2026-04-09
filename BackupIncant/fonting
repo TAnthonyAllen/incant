@@ -1,0 +1,343 @@
+This is just a code stash (the filter rule below needs to be tested again)
+
+define
+    systemFonts directory="/System/Library/Fonts" load;
+    supplementalFonts directory="/System/Library/Fonts/Supplemental" load;
+    /***************************************************************************
+        filter shows how to use a regular expression, how to use skip to skip over
+        tokens as a noLabel rule option, and how to use ignoreLabel to return
+        results that are not wrapped in a label.
+        
+        makeFontList uses filter to screen fonts
+    ***************************************************************************/
+    filter="[.]tt[cf]"~ isRule ignoreLabel: skip-;;
+    makeFontList    filter+ isRule;
+    fakeFonts:      'what.ttf'; 'notThis.ott'; 'more.ttf';;
+    fontList:       'base.ttf';;
+    ;
+    /***************************************************************************
+        The following expression demonstrates how to use the += and <: operators
+        to screen fonts names from fakeFonts and append them to fontList. <: runs
+        the makeFontList rule on input from fontList (treated as an input source).
+        The argument to the += operator is the result from the makeFontList rule.
+        The result is a label and += adds its contents to its target (fontList).
+    ***************************************************************************/
+fontList += makeFontList <: fakeFonts;
+dumpContents(fontList);
+#register(Stuff)
+#stop
+fontList = makeFontList <: fakeFonts;
+dumpContents(fontList);
+
+register(Drawing);
+define
+    /***********************************************************************
+        Execute drawing commands of the group passed in and its descendants.
+    ***********************************************************************/
+    fireDraw argument {
+        for grup IN argument attributes
+            if reggie$ = grup.registrY;
+                if reggie == DrawOperators;     grup();
+                or reggie == Fonts;             font(grup);
+                or reggie == Colors;            color(grup);
+        for grup IN argument members
+            fireDraw(grup);
+        };
+    /***********************************************************************
+        Convert the hex string in the target passed in to a floating point number
+    ***********************************************************************/
+    hexToNumber {
+        target    := aRG;
+        while target;
+            numDBL  = target.numbeR;
+            if numDBL <= 57;    numDBL -= 48;
+            or numDBL <= 70;    numDBL -= 55;
+            or numDBL <= 102;   numDBL -= 87;
+            target++;
+            if num; num *= 16;
+            num += numDBL;
+        target = num; };
+    /***********************************************************************
+        Extract the red, green, and blue components of a color group passed in
+        as a six character hex string
+    ***********************************************************************/
+    setHexColor {
+        hex = aRG;
+        red = hex - 4;
+        hexToNumber(red);
+        green   = hex + 2;
+        green   -= 2;
+        hexToNumber(green);
+        blue    = hex + 4;
+        hexToNumber(blue);
+        print "Saw" red green blue:;
+        hex: red green blue;
+        dumpContents(hex); };
+    /***********************************************************************
+        Random simple tests
+    ***********************************************************************/
+    testBlock {
+        if isRELATIVE > 0
+            print `"So it is relative?":;
+            print `"Should not see this":;
+        else print `"Nothing relative here":; };
+    testNoList { if righty print "Yeah it works":; };
+    testPercent {
+        toX = 12;
+        if isPERCENT
+            toX *= righty / 100;
+        print "Percented" toX:; };
+    ;
+
+/***************************************************************************
+	draw method associated with arc. It reads two points:
+    fromPoint and toPoint, and a radius and issues arcTo().
+***************************************************************************/
+extern GroupItem drawARC(GroupItem arc)
+{
+GroupItem   fromPoint:,
+            toPoint:,
+            radius:;
+    if fromPoint && toPoint && radius
+        {
+        Point *startPoint   = atPoint(fromPoint);
+        Point *endPoint;
+        endPoint     = atPoint(toPoint);
+        if startPoint && endPoint   cout "arcTo",*startPoint,*endPoint,radius:;
+        //arcTo(startPoint,endPoint,radius.number);
+        }
+    else cerr "drawARC: error getting arguments in",arc:;
+    return arc;
+}
+
+/***************************************************************************
+	draw method associated with border
+***************************************************************************/
+extern GroupItem drawBORDER(GroupItem input)
+{
+GroupItem grup = parent;
+    cout "draw border for",grup.tag:;
+    //rectangle(currentFrame);
+    return grup;
+}
+
+/***************************************************************************
+	draw method associated with color
+***************************************************************************/
+extern GroupItem drawCOLOR(GroupItem input)
+{
+GroupItem grup = parent;
+    cout "set color for",grup.tag,"to",input:;
+    //rectangle(currentFrame);
+    return grup;
+}
+
+/***************************************************************************
+	draw method associated with curve. It reads three points:
+    target, control1, and control2 and issues curveTo().
+***************************************************************************/
+extern GroupItem drawCURVE(GroupItem curve)
+{
+GroupItem   target:,
+            control1:,
+            control2:;
+    if target && control1 && control2
+        {
+        Point *targetPoint      = atPoint(target);
+        Point *control1Point    = atPoint(control1);
+        Point *control2Point    = atPoint(control2);
+        cout "curveTo",*targetPoint,*control1Point,*control2Point:;
+        //curveTo(targetPoint,control1Point,control2Point);
+        }
+    else cerr "drawCURVE: error getting Point arguments":;
+    return curve;
+}
+
+/***************************************************************************
+	draw method associated with down
+***************************************************************************/
+extern GroupItem drawDOWN(GroupItem input)
+{
+GroupItem grup = parent;
+use currentPoint
+    if inPercents y -= grup.number * currentFrame.height * 0.01 + 0.5;
+    else y -= grup.number;
+    if drawLines    cout "drawDOWN: drawing line to",currentPoint:;
+    else            cout "drawDOWN: moving to",currentPoint:;
+    return grup;
+}
+
+/***************************************************************************
+	draw method associated with home line move and percent
+***************************************************************************/
+extern GroupItem drawFLAG(GroupItem input)
+{
+GroupItem grup = parent;
+    switch(*grup.tag)
+        {
+        case 'c':   if tag eq "clear"   cout "clear path":;
+                    else                cout "close path":;     //layoutPath.clear(); or closePath();
+        case 'f':   cout "fill: set fill color":;
+                    // not sure how color will be represented
+                    // if path fill path else fill box
+        case 'h':   cout "set to home":;                        //currentPoint = currentFrame.origin;
+        case 'l':   cout "line: turn on draw lines":;           //drawLines   = true;
+        case 'm':   cout "move: turn off draw lines":;          //drawLines   = false;
+        case 'p':   inPercents  = !inPercents;
+                    cout "percent: toggle",inPercents:;
+        case 's':   cout "stroke: set stroke color":;
+                    // not sure how color will be represented
+                    // if path stroke path else stroke box
+        }
+    return grup;
+}
+
+/***************************************************************************
+	draw method associated with font
+***************************************************************************/
+extern GroupItem drawFONT(GroupItem input)
+{
+GroupItem   grup = parent;
+GroupItem	element;
+FontManager fontManager = sharedFontManager();
+Font        font;
+    cout "set font for",grup.tag,"to",input:;
+    font = systemFontOfSize(0);
+    while element = input.nextAttribute(element)
+        if element.isNUMBER  font = convert(font,element.number);
+        or element.isCOUNT   font = convert(font,element.count);
+    hold((void*)font);
+    input.object = font;
+    return grup;
+}
+
+/***************************************************************************
+	draw method associated with left
+***************************************************************************/
+extern GroupItem drawLEFT(GroupItem input)
+{
+GroupItem grup = parent;
+use currentPoint
+    if inPercents x -= grup.number * currentFrame.width * 0.01 + 0.5;
+    else x -= grup.number;
+    if drawLines    cout "drawLEFT: drawing line to",currentPoint:;
+    else            cout "drawLEFT: moving to",currentPoint:;
+    return grup;
+}
+
+/***************************************************************************
+	draw method associated with point. It sets the data value of the group
+    passed in to point to a point
+***************************************************************************/
+extern GroupItem drawPOINT(GroupItem input)
+{
+GroupItem grup = parent;
+    cout "drawPOINT: not done yet":;
+    return grup;
+}
+
+/***************************************************************************
+	draw method associated with right
+***************************************************************************/
+extern GroupItem drawRIGHT(GroupItem input)
+{
+GroupItem grup = parent;
+use currentPoint
+    if inPercents x += grup.number * currentFrame.width * 0.01 + 0.5;
+    else x += grup.number;
+    if drawLines    cout "drawRIGHT: drawing line to",currentPoint:;
+    else            cout "drawRIGHT: moving to",currentPoint:;
+    return grup;
+}
+
+/***************************************************************************
+	draw method associated with rounded
+***************************************************************************/
+extern GroupItem drawROUNDED(GroupItem input)
+{
+GroupItem grup = parent;
+Frame   framed = grup.getFrame();
+    cout "draw rounded border for",grup.tag:;
+    cout `framed:;
+    //if framed rounded(framed);
+    return grup;
+}
+
+/***************************************************************************
+	draw method associated with text
+***************************************************************************/
+extern GroupItem drawTEXT(GroupItem input)
+{
+GroupItem grup = parent;
+    cout "draw text for",grup.tag:;
+    //rectangle(currentFrame);
+    return grup;
+}
+
+/***************************************************************************
+	draw method associated with up
+***************************************************************************/
+extern GroupItem drawUP(GroupItem input)
+{
+GroupItem grup = parent;
+use currentPoint
+    if inPercents y += grup.number * currentFrame.height * 0.01 + 0.5;
+    else y += grup.number;
+    if drawLines    cout "drawUP: drawing line to",currentPoint:;
+    else            cout "drawUP: moving to",currentPoint:;
+    return grup;
+}
+
+/****************************************************************************
+	Return the point from the group passed in.
+****************************************************************************/
+Point *atPoint(GroupItem item)
+{
+Point       *point;
+    if isPointer    point = (Point*)item.pointer;
+    else {
+        GroupItem   x = item[1],
+                    y = item[2];
+        point = calloc(1,sizeof(Point));
+        point.x = x.number;
+        point.y = y.number;
+        }
+    return point;
+}
+
+/***************************************************************************
+	Find the entry that matches the stream passed in. Assumes the match on
+    the stream is not zero terminated. Called from ruleTestContainer().
+***************************************************************************/
+GroupItem getFromStream(String stream)
+{
+    if stream && *stream
+        if contents()
+            {
+            GroupItem   contentSet:;
+            GroupItem   item;
+            String      name,
+                        atText;
+            PLGset      stuff;
+            if !contentSet
+                {
+                stuff = new;
+                contentSet                  = input += "contentSet";
+                contentSet.noPrint          = true;
+                while item = next(item)     stuff.set(item.tag);
+                contentSet.characterSet     = stuff;
+                }
+            else stuff = contentSet.characterSet;
+            stringBuffer.reset();
+            atText      = stream;
+            while stuff.contains(*atText)
+                {
+                stringBuffer += *atText;
+                atText++;
+                }
+            if atText > stream && !nameSet.contains(*atText)
+                if name = stringBuffer.string()
+                    return get(name);
+            }
+    return null;
+}

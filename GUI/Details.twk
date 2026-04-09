@@ -1,0 +1,749 @@
+include GUIincludes
+
+/*******************************************************************************
+	Display details for a GroupItem
+*******************************************************************************/
+class Details
+{
+GroupItem		wig;
+id				object;
+SEL				draw;
+Frame			innerBox,
+                frame;
+Stylish			style;
+Layout			view;
+Event           event;
+double			high,
+				length,
+				positionAt;
+int				level,
+				offset,
+				stretched;
+boolean
+		attributed
+        collapsed
+        content:3[isButton isCell isImage isPath isText]
+		deferDraw
+        editable
+		editing
+        fitted
+		fixHeight
+		fixWidth
+		fixX
+		fixY
+        imageSized
+		hasBox
+        hasOnLayout
+        hasReactions
+        isDisplayable
+        isNext
+        isTab
+        isToggled
+        keyField
+		noData
+        noScroll
+		orient:3[down across cards layers overlay]
+        pane:3[isCards isMenu isPanel isTabs isView isWindow]
+        reacting
+        refit
+        scrollableX
+        scrollableY
+        selectable
+        showBlank
+		sizeToFit:3[fitAcross fitDown fitBoth fitText]
+		sourced
+		subbed
+		trait
+        useTagForLabel
+        wasReset
+		;
+
+/*******************************************************************************
+	Reset text (assumes object is a TextView).
+*******************************************************************************/
+void changeText()
+{
+NSString			atText;
+TextString			aString;
+TextView            editor = object;
+TextStore			store;
+String				atStart;
+GroupItem			block;
+    if !editor return;
+	noData = false;
+	if !wig.value
+		if !trait atStart = wig.tag;
+		else {
+			noData = true;
+			return;
+			}
+	or wig.isGroup
+		{
+		block = wig.group;
+		if block atStart = block.text;
+		}
+	else atStart = wig.text;
+    offset  = 0;
+    store   = editor.store;
+    atText  = atStart;
+    aString = new(atText);
+    store.setText(aString);
+}
+
+/******************************************************************************
+	Checks if this detail is visible and sets noRoom
+******************************************************************************/
+void checkFit()
+{
+Details ancestor = wig.parent ? wig.parent.getDetail() : null;
+    if ancestor && ancestor.noRoom return;
+    if noRoom && (noData || isToggled || ancestor.cards) return;
+    noRoom = false;
+    //cout `"checkFit:",wig.tag:;
+    if ancestor
+        {
+        if x != ancestor.innerBox.x
+            if x >= ancestor.innerBox.x + ancestor.innerBox.width
+                || x + width <= ancestor.innerBox.x
+                {
+                wig.noRoom = true;
+                ancestor.scrollableX = true;
+                }
+            or x < ancestor.innerBox.x
+                || x + width > ancestor.innerBox.x + ancestor.innerBox.width
+                ancestor.scrollableX = true;
+        if y != ancestor.innerBox.y
+            if y >= ancestor.innerBox.y + ancestor.innerBox.height
+                || y + height <= ancestor.innerBox.y
+                {
+                wig.noRoom = true;
+                ancestor.scrollableY = true;
+                }
+            or y < ancestor.innerBox.y
+                || y + height > ancestor.innerBox.y + ancestor.innerBox.height
+                ancestor.scrollableY = true;
+        if !noRoom
+            {
+            if !ancestor.scrollableX && x < ancestor.innerBox.x
+                ancestor.scrollableX = true;
+            if !ancestor.scrollableY && y < ancestor.innerBox.y
+                ancestor.scrollableY = true;
+            }
+        }
+    if contentVaries
+        if down scrollableY = true;
+        else scrollableX    = true;
+}
+
+/******************************************************************************
+	Checks for unspecified width or height.
+******************************************************************************/
+void checkStretch()
+{
+int         fixed;
+GroupItem   item,
+            group;
+use wig
+    stretched   = 0;
+    if down     length = innerBox.height;
+    or across   length = innerBox.width;
+    if !length  return;
+    /***************************************************************************
+        Deal w/percent specifications in descendents. length gets further
+        adjustment in layout() after this returns.
+    ***************************************************************************/
+    if hasMembers
+        {
+        while item = nextMember(item)
+            if !item.isComment
+                {
+                Details detail = getDetail(item);
+                if down
+                    {
+                    group = item["height"];
+                    if !detail.fitDown && !detail.fitBoth
+                        if !group stretched++;
+                        or group.isPercent
+                            fixed += detail.height * group.number / 100;
+                        else fixed += group.number;
+                    else fixed += detail.height;
+                    }
+                or across
+                    {
+                    group = item["width"];
+                    if !detail.fitAcross && !detail.fitBoth
+                        if !group stretched++;
+                        or group.isPercent
+                            fixed += detail.width * group.number / 100;
+                        else fixed += group.number;
+                    else fixed += detail.width;
+                    }
+                }
+        }
+    if !stretched   length = 0;
+    or fixed        length -= fixed;
+}
+
+/*****************************************************************************
+	Wipes detail clean
+*****************************************************************************/
+void clear()
+{
+void    *strip = this;
+    memset(strip,0,sizeof(Details));
+}
+
+/*****************************************************************************
+	Check if point is in the frame defined here
+*****************************************************************************/
+int contains(Point p)
+{
+double	top, right;
+	//cout "Checking " wig.tag "\n";
+	if y > frame.y && x > frame.x
+		{
+		top		= frame.y + frame.height;
+		right	= frame.x + frame.width;
+		return y <= top && x <= right;
+		}
+	return false;
+}
+
+/******************************************************************************
+	Debugging dump of frame
+******************************************************************************/
+void dump()
+{
+int	i;
+String		text;
+GroupItem	group;
+use wig
+	for ( i = level; i > 0; i-- )
+        cout "\t";
+	if sourced || trait group = wig.group;
+	if group
+		if trait text = wig.tag " " group.text;
+		else text = wig.tag " " group.tag;
+	else text = wig.tag;
+	cout text,frame,"edge: "x + width,"bottom: "y + height,;
+    if parent cout parent.tag,;
+    if !selectable cout "!selectable ";
+    if style
+        {
+        cout "styled ";
+        if stroked cout "stroked ";
+        }
+    if selected cout "selected";
+    if noPrint cout " noPrint";
+    if noRoom cout " noRoom";
+    cout ,index:;
+    //wig.dump(level,0);
+}
+
+/******************************************************************************
+	Debugging dump of details used when debugging frame setting
+******************************************************************************/
+void dumpDetails()
+{
+String		room,text;
+GroupItem	group;
+use wig
+	if sourced || trait group = wig.group;
+	if group
+		if trait text = wig.tag " " group.text;
+		else text = wig.tag " " group.tag;
+	else text = wig.tag;
+	if noRoom
+        room = " No room";
+	cout ``text,frame``"length",length``"position at",positionAt,stretched;
+    if noPrint cout " noPrint";
+    if room cout room;
+    cout ,index:;
+    //wig.dump(level,0);
+}
+
+/*******************************************************************************
+	Get the fit settings.
+*******************************************************************************/
+void getFitSettings()
+{
+GroupItem   fit = wig%fit;
+char        way;
+String      fitting;
+    sizeToFit   = 0;
+    if !fit return;
+    fitting = fit.text;
+    if fitting way = *fitting;
+    if way == 't' fitText = true;
+    or way == 'b' fitBoth = true;
+    or way == 'w' || way == 'a' || (!way && across)
+        fitAcross = true;
+    or way == 'h' || way == 'd' || (!way && down)
+        fitDown = true;
+}
+
+/*******************************************************************************
+	Initializes display details for the GroupItem passed in
+*******************************************************************************/
+int initialize(GroupItem w)
+{
+GroupItem	item;
+String		text;
+int			repeat = 1,
+            flexed;
+Details     ancestor;
+use Control.bwana
+	wig = w;
+	if !wig return 0;
+    //cout "Details initialize:",wig.tag:;
+    ancestor = wig.parent ? wig.parent.getDetail() : null;
+	text = wig.tag;
+    orient          = null;
+    if wig.noRoom && !(noData || isToggled || ancestor.cards)
+        wig.noRoom      = false;
+    wig.contentVaries   = false;
+    if wig["flex"]
+        {
+        flexed  = true;
+        across  = true;
+        }
+	if item = wig["across"]
+		{
+		across  = true;
+		if item.isCount repeat = item.count;
+		or item.value wig.contentVaries = true;
+		}
+	or item = wig["down"]
+		{
+		down    = true;
+        if flexed wig["flexDirection"] = "column";
+		if item.isCount repeat = item.count;
+		or item.value wig.contentVaries = true;
+		}
+	or wig["cards"]     cards   = true;
+	or wig["layers"]	layers  = true;
+    or wig["overlay"]   overlay = true;
+	or !flexed          down    = true;
+    if wig["panel"]     isPanel = true;
+    or wig["window"]
+        if convertWindowToPanel isPanel = true;
+        else isWindow  = true;
+    subbed      =
+    fixX        =
+    fixY        =
+    fixHeight   =
+    fixWidth    = false;
+    wig.isPercent = false;
+    if item = wig["height"]
+        {
+        height		= number;
+        fixHeight	= true;
+        if isPercent wig.isPercent = true;
+        }
+    else height     = 0;
+    if item = wig["width"]
+        {
+        width		= number;
+        fixWidth	= true;
+        if isPercent wig.isPercent = true;
+        }
+    else width      = 0;
+	if isPanel || isWindow
+        {
+        windows[wig.tag] = (void*)wig;
+        if !root root = wig;
+        // Make sure layout based on current frame as opposed to initial dimensions
+        if view && resized  wasReset = true;
+        if wasReset         frame = view.frame;
+        }
+    else {
+        if item = wig["x"]
+            {
+            x = number;
+            fixX = true;
+            }
+        else x = 0;
+        if item = wig["y"]
+            {
+            y = number;
+            fixY = true;
+            }
+        else y = 0;
+        }
+    getFitSettings();
+	return repeat > 0 ? repeat : 1;
+}
+
+/*******************************************************************************
+	Fire attribute methods (the first time the associated detail gets laid out
+	and when some user action happens, like scrolling or hitting a button).
+    Attributed actions are only fired the first time thru after which attributed
+    flag is set. Reactions are attribute methods that are fired every time
+    (in which case, the attribute has react flag set).
+*******************************************************************************/
+void processAttributes()
+{
+Details saveDetail = attributeDetail;
+    if !attributed
+        {
+        selectable  = true;
+        processMethods();
+        attributed  = true;
+        }
+    attributeDetail = saveDetail;
+}
+
+/*******************************************************************************
+	Fire layout methods. Note the parent of attributes gets reset just to make sure.
+*******************************************************************************/
+void processMethods()
+{
+GroupItem	item,trait;
+use Control.bwana
+    attributeDetail = this;
+    wig.reset();
+    while item = wig.nextAttribute(item)
+        {
+        if item.immediateAction continue;
+        item.parent = wig;  // some attributes are shared
+        if item.method trait = item;
+        else trait = properties[item.tag];
+        if !trait && item.registry
+            trait = properties[item.registry.tag];
+        if trait trait.parent   = wig;
+        if !trait && !attributed && item.noMerge && item.hasAttributes
+            {
+            GroupItem   group;
+            trait = item;
+            trait.parent    = wig;
+            trait.reset();
+            while group = trait.nextAttribute()
+                if group.deferredAction || group.trackAction
+                    cerr group.tag,"in",trait.tag,"ignored":;
+                or group.method
+                    {
+                    group.parent    = trait;
+                    group.method(group);
+                    hasActions      = true;
+                    }
+            }
+        if trait
+            {
+            /*******************************************************************
+                If the item has a value, it will have the same name as the trait
+                but will not have its method, so we copy it over.
+            *******************************************************************/
+            if trait.method && !item.method item.method = trait.method;
+            if modified delayActions += item;
+            else {
+                if !attributed && trait.deferredAction && wig.method != trait.method
+                    wig.hasActions = true;
+                if trait.deferredAction || trait.trackAction || (attributed && hasOnLayout) continue;
+                if trait.method
+                    {
+                    //cout "processMethods:",wig.tag,trait.tag:;
+                    trait.method(item);
+                    }
+                }
+            }
+      }
+    /***************************************************************************
+        Delayed actions are flagged by modified to happen after all other actions
+        are processed. The modified flag gets set in Bwana when the action
+        trait is created.
+    ***************************************************************************/
+    if delayActions.length
+        while item = delayActions.pop()
+            if trait = properties[item.tag]
+                {
+                trait.parent    = wig;
+                if trait.method trait.method(item);
+                }
+            else cerr "processMethods: could not find",item.tag,"in properties":;
+    attributeDetail = null;
+}
+
+/*******************************************************************************
+	Fire layout method as a reaction
+*******************************************************************************/
+void processReaction()
+{
+GroupItem	item,trait;
+use Control.bwana
+    attributeDetail = this;
+    reacting        = true;
+    wig.reset();
+    while item = wig.nextAttribute(item)
+        {
+        if !item.reacts continue;
+        //cout "processReaction:" wig.tag,wig.index,item.tag:;
+        item.parent = wig;  // some attributes are shared
+        trait = properties[item.tag];
+        if !trait && item.registry
+            trait = properties[item.registry.tag];
+        if trait && trait.method trait.method(item);
+        or item.method item.method(item);
+        }
+    attributeDetail = null;
+    reacting    = false;
+}
+
+/*******************************************************************************
+	Scroll contents when contents are variable. Length is the amount to scroll
+    (in number of source records, 1 if driven by arrow keys, potentially more
+    than 1 is driven by scroll wheel) positive length is down, negative is up).
+    Paging set by page up or page down keys.
+*******************************************************************************/
+void scrollContent(int scrollAmount)
+{
+GroupItem	group,item;
+Source		source;
+Details		detail;
+int			pageSize;
+    wig.reset();
+    while item = wig.nextMember()
+        {
+        if !source
+            {
+            detail = item.getDetail();
+            if group = item.findAttribute("sRCe")
+                source = group.pointer;
+            }
+        if item.noRoom break;
+        pageSize++;
+        }
+    if paging scrollAmount *= pageSize;
+    if source
+        if pageShift(scrollAmount)
+            {
+            //cout "scrollContent",wig.tag,scrollAmount:;
+            updateListeners();
+            wig.setModified();
+            }
+}
+
+/*******************************************************************************
+	Sets frame dimensions
+*******************************************************************************/
+void setFrame()
+{
+GroupItem   item;
+Details     ancestor = wig.getAncestor();
+    //cout "Setting frame for " wig.tag,wig.index:;
+	if ancestor
+		{
+        /***********************************************************************
+            If this is the first member of ancestor, reset ancestor positionAt.
+            Because of flexible layout, may not be reset properly otherwise
+        ***********************************************************************/
+        if wig == wig.parent.firstMember()
+        ancestor.positionAt = 0;
+		switch(ancestor.orient)
+			{
+			case down:
+				if !fixX        x = ancestor.innerBox.x;
+				if !fixY        y = ancestor.innerBox.y + ancestor.positionAt;
+				if !fixWidth && !fitBoth    width	= ancestor.innerBox.width;
+                if !fitDown || fitBoth
+                    if !fixHeight
+                        if ancestor.stretched
+                            height      = ancestor.length/ancestor.stretched;
+                        else  height    = ancestor.innerBox.height;
+                    or wig.isPercent
+                        height = ancestor.innerBox.height * height / 100;
+                if height       ancestor.positionAt += height;
+				break;
+			case across:
+				if !fixX        x   = ancestor.innerBox.x + ancestor.positionAt;
+				if !fixY	    y	= ancestor.innerBox.y;
+				if !fixHeight || fitBoth    height  = ancestor.innerBox.height;
+                if !fitAcross || fitBoth
+                    if !fixWidth
+                        if ancestor.stretched
+                            width       = ancestor.length/ancestor.stretched;
+                        else width      = ancestor.innerBox.width;
+                    or wig.isPercent
+                        width = ancestor.innerBox.width * width / 100;
+                if width        ancestor.positionAt += width;
+				break;
+            case cards:
+            case layers:
+                if !ancestor.cards && wig != wig.parent.nextMember(item)
+                    isView = true;
+            case overlay:
+			default:
+				if !fixWidth    width   = ancestor.innerBox.width;
+				if !fixHeight   height  = ancestor.innerBox.height;
+                if !fixX        x = ancestor.innerBox.x;
+                if !fixY        y = ancestor.innerBox.y;
+			}
+		}
+	if x != 0 && x > -0.001 && x < 0.001 x = 0;
+	if y != 0 && y > -0.001 && y < 0.001 y = 0;
+	item        = null;
+    /***************************************************************************
+        Now set the innerBox
+    ***************************************************************************/
+    setInnerBox();
+}
+
+/*******************************************************************************
+	Set the inner box that defines the location and dimensions of the container
+    for descendents after adjusting for margins, borders, and padding.
+*******************************************************************************/
+void setInnerBox()
+{
+GroupItem   group = wig;
+GroupItem   item;
+double      number,bottom,left,right,top;
+    /***************************************************************************
+        Check for padding attributes
+    ***************************************************************************/
+    if item = group%pad
+        {
+        bottom = data ? item.number : 1.0;
+        left = right = top = bottom;
+        }
+    if item = group["padBottom"]
+        bottom  = data ? item.number : 1.0;
+    if item = group["padLeft"]
+        left    = data ? item.number : 1.0;
+    if item = group["padRight"]
+        right   = data ? item.number : 1.0;
+    if item = group["padTop"]
+        top     = data ? item.number : 1.0;
+    /***************************************************************************
+        Check for margins
+    ***************************************************************************/
+    if item = group%margin
+        {
+        number = data ? item.number : 1.0;
+        left    += number;
+        right   += number;
+        top     += number;
+        bottom  += number;
+        }
+    if item = group["mBottom"]
+        bottom  += data ? item.number : 1.0;
+    if item = group["mLeft"]
+        left    += data ? item.number : 1.0;
+    if item = group["mRight"]
+        right   += data ? item.number : 1.0;
+    if item = group["mTop"]
+        top     += data ? item.number : 1.0;
+    /***************************************************************************
+        border check
+    ***************************************************************************/
+    if item = group%"border"
+        {
+        number = data ? item.number : 1.0;
+        left    += number;
+        right   += number;
+        top     += number;
+        bottom  += number;
+        }
+    /***************************************************************************
+        Set the innerBox
+    ***************************************************************************/
+    innerBox.x      = x + left;
+    innerBox.y      = y + top;
+    innerBox.width  = width - (right + left);
+    innerBox.height = height - (top + bottom);
+    //cout `"setInnerBox: ",group.tag,"frame",frame " box",innerBox:;
+}
+
+/*******************************************************************************
+	Sets the content for and returns TextView based on frame w/text
+    supplied by associated GroupItem
+*******************************************************************************/
+TextView setPage(Frame indented)
+{
+Box				box;
+LayoutManager   manager;
+NSString		atText;
+TextString		aString;
+TextStore		store;
+TextView        editor;
+String          wigText = wig.text;
+    //cout "Setting page for " wig.tag:;
+	noData = false;
+	if !wigText
+		if !trait wigText = wig.tag;
+		else noData = true;
+    /***************************************************************************
+        wig.isGroup is true if the text block is linked to another text block
+        (in which case we do not set text because already did that).
+    ***************************************************************************/
+    if wig.isGroup
+        {
+        GroupItem group = wig.group;
+        Details sourceDetail = group.getDetail();
+        editor  = sourceDetail.object;
+        manager = editor.layoutManager;
+        box     = new(indented.size);
+        manager.addBox(box);
+        editor  = new(indented,box);
+        }
+    else {
+        offset  = 0;
+        editor  = new(indented);
+        if wigText
+            {
+            atText  = wigText;
+            store   = editor.store;
+            aString = new(atText);
+            store.setText(aString);
+            }
+        }
+    return editor;
+}
+
+/*******************************************************************************
+	Scroll if x or y scroll amount set - right now scrolls horizontal or vertical
+    not both. For 2D scroll, break into two parts.
+*******************************************************************************/
+void setScroll(int step,int goAcross)
+{
+    cout "setScroll has to be rewritten":;
+}
+
+/******************************************************************************
+	Return the style in effect (which may be a copy of ancestor style).
+******************************************************************************/
+void setStyle()
+{
+Details ancestor = wig.parent ? wig.parent.getDetail() : null;
+    if style return;
+    if ancestor && ancestor.style
+        style   = new(wig,ancestor.style);
+    else style  = new(wig);
+    /***************************************************************************
+        Set filler and selectFill.
+    ***************************************************************************/
+GroupItem   group = wig.findAttribute("fill");
+String      name;
+    if group
+        {
+        if name = text
+            if name != '#'
+                {
+                filler  = locate(name);
+                if !filler      cerr "setStyle could not find fill:",name:;
+                else group.text = filler.text;
+                }
+        filler = group;
+        }
+    if group = wig%"selectFill"
+        {
+        if name = text
+            if name != '#'
+                {
+                selectFill = locate(name);
+                if !selectFill  cerr "setStyle could not find selectFill:",name:;
+                else group.text = selectFill.text;
+                }
+        selectFill = group;
+        }
+}
+}
+include Details.rtn

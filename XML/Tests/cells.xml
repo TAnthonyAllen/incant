@@ -1,0 +1,74 @@
+#easy
+#registry GUI
+drawing window width=400 height=650 title="Drawing" pDF:
+    box fill=gray pad=5:
+        intro height=50 fill=lightGreen rounded padTop=5 padLeft=10 padRight=10:
+            heading="Draw Path Example" text align=center titleFont;intro
+        space height=5;
+        sample normalFont text justify padLeft=15 padRight=15 height=100 fill=white rounded radius=10:%
+            So how to have a simple simple GroupItem that could be an attribute and which only contains data (a number, or PLGitem, or something). If its content is defined by its state, then the GroupItem has to have state value and data - as well as setter and getter (which can presumably be accessed via state offset (using state as an index) into wherever such methods reside [and where is that?] wherever TFYW). In this model, state becomes data type (class) in that it defines what the GroupItem is (along w/its methods) So basically, a class is a registry (and what does this imply about class methods??? You stuck them where? :)%;
+        space height=5;
+        jitter image="/Users/anthony/Pictures/BetweenTrees.jpg" pad=5 stride=6 gap=12 depth=2 perfColor=darkerGray perforation clip;drawing
+#print drawing
+#stop
+texting:$This is a line of text with a semi ; that should be treated as a member$;
+#print texting
+stuff=whatever with attributes:
+    more=less;
+    much less than=that;;
+#print stuff
+#stop
+#registry GUI;
+<drawing window width=400 height=650 title="Drawing" pDF>
+    <box fill=gray pad=5>
+        <intro height=50 fill=lightGreen rounded padTop=5 padLeft=10 padRight=10>
+            <heading="Draw Path Example" text align=center titleFont></intro>
+        <space height=5/>
+        <sample normalFont text justify padLeft=15 padRight=15 height=100 fill=white rounded radius=10>Junk Text: So how to have a simple simple GroupItem that could be an attribute and which only contains data (a number, or PLGitem, or something). If its content is defined by its state, then the GroupItem has to have state value and data - as well as setter and getter (which can presumably be accessed via state offset (using state as an index) into wherever such methods reside [and where is that?] wherever TFYW). In this model, state becomes data type (class) in that it defines what the GroupItem is (along w/its methods) So basically, a class is a registry (and what does this imply about class methods??? You stuck them where? :)</sample>
+        <space height=5/>
+        <jitter image="/Users/anthony/Pictures/BetweenTrees.jpg" pad=5 stride=6 gap=12 depth=2 perfColor=darkerGray perforation clip;>
+
+/*******************************************************************************
+	GML rules, filters and paths
+*******************************************************************************/
+You can think of a rule as discussed below as a path (essentially a filter)
+with an associated jit method that gets applied only when the filter matches.
+
+There is no such concept in xml. The idea is borrowed from plg, except where
+plg parses text into tokens (PLGitem), gml deals with blocks (GroupItem) and
+attributes
+	rule is an attribute that has an action to treat the block it occurs
+	in as a rule. In the GUI it works in association with a source. In ParseXML
+	may have it work in association with a path.
+	
+	The idea is when you check the rule it acts as a filter, matching its
+	attributes against whatever you check it against. If the filter passes
+	and the rule has members, each member is checked in sequence until one
+	is found that matches, in which case its action is applied against the
+	matching block resulting in a block that is returned from the rule as
+	success. If there are no matching members the rule fails.
+	
+	The action of a matching rule member can modify the matched block or
+	add the matched block to some other block or whatever.
+	
+	In essence, a rule acts like a path specification but where a path only
+	does one thing, adds a matching block to the path list, a rule can do
+	anything since it has the JIT at its disposal.
+	
+	How does a rule work in conjunction with a source and next?
+	
+	Can you use a rule to change how a template works or to modify gml mid-parse
+	for example, to change a display depending on what is being displayed?
+
+/*******************************************************************************
+	Keystroke processing
+*******************************************************************************/
+Would like a means to specify a keystroke (or maybe a sequence of keystrokes) and an action to be invoked when the keystroke is recognized. These would be specified in xml and kept in a keystroke registry where they could be accessed as attributes. That means a block could add keystroke handling by adding keystroke attributes and could have multiple keystroke functions active.
+
+This would be part of GUI. Need a keystroke parser, which could be added to the Groups extended parser. A keystroke would be defined as modifiers followed by colon and a letter, with modifier being control, alt,command or shift, tho shift may be unnecessary. Use one letter abbreviations for modifiers with m for command. alternatively, instead of colon letter could do slash keyCode, that way you can use all the keys on a keyboard
+
+Need to change keyUp event handling in layout
+	When you get a key event, find the block that handles key events
+		check for standard events (up arrow, page down, ...) and process if needed
+		otherwise loop thru attributes. If attributes has a keyAction and the attribute text matches the event keyCharacter and modifiers (need to figure out how to store those modifiers in the attribute -- since modifierFlags are bit offsets control: 262144 alt: 524288 command: 1048576 we can add these constants to the attribute count field, check them by anding the event modifierFlags() and BYU
+		

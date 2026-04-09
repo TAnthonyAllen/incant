@@ -1,0 +1,107 @@
+#include /Users/anthony/Dropbox/data/InProcess/Groups/XML/HTML/traits.xml;
+#include /Users/anthony/Dropbox/data/InProcess/Groups/XML/Controls/templates.xml;
+
+#registry dESCRIPTIONs asAttributes;
+<bigifyExample="This is an example of the bigify layout, which is essentially a grid of same size items taken from the specified source, along with one large item with a size defined as a multiple of regular items. The grid is defined by rows and columns. The size of the large item is set in terms of rows and columns that must be less than or equal to the grid dimensions. When you select an item, it becomes the big item and the other items are shuffled to fit around it, maintaining their order.
+
+The bigify panel has two members, item, which provides the attributes applied to every normal size grid element; and bigItem, which provides attributes applied to the big item.
+
+Things I need to work on:
+    Modify directory handling to add in ability to read in an xml file
+    How to set item attributes on the fly based on file type??? Maybe could do it via JIT, that is the JIT action runs and reads the incoming attributes and based on them adds to them as necessary. One problem: when the input changes, as when scrolling, you have to run the action again and how to keep the initial state (unless bigify builds it from scratch every time, which it might).
+    What if there is not enough input to fill the grid?
+    There is a bug when paging in that after paging the big image is separated from the current selection so the description does not get updated."/>
+<Bent="Bent: First attempt at distorting a photo into a landscape of sorts. Never really amounted to much tho I kinda like the lonely mountain in what might be the foreground."/>
+<BentCity="BentCity: The bent cityscape. Walking in Baltimore and feeling depressed by one boring townhouse after another, I started wondering what the city would be like if it were a little less dirty brick and a little less rectangular That led me to take a photo and distort it to imagine the result."/>
+<Brush3c="Brush3c: A supernova of ideas with unconscious shapes in the background reacting to the explosion of shape in the foreground. It started out overwhelmingly reddish but I keep diddling with it changing color and composition to make it less flat."/>
+<Doodle="Doodle: Started out a a simple iphone doodle that got better then worse and it never managed to make it into what I wanted but different enough from my other paintings that I have reconciled myself to whatever it is."/>
+<Doodle2="Doodle2: A very early iphone doodle left pretty much in its original shape and form. Does not try to do too much and I like it despite the simplicity."/>
+<Doodle3="Doodle3: Another early iphone doodle made with a plan to use a lot of yellow. Finger paint and see what happens. Inspired by the Noonday Raga painting of Laxman Pai, which it looks nothing like, aside from the preponderance of yellow."/>
+<Doodle6e="Doodle6e: Based on a simple iphone doodle. I printed up an earlier version of this after I had crapped up simple w/too much useless stuff. The current version rubbed out much of that and added better shading. It looks good small. Not so sure about big."/>
+<Doodle7="Doodle7: What is shown here is a cropped version of a larger painting, which is interesting but the cropped version works in that it is focused more on the girl who gets lost in the larger painting."/>
+<Doodle9="Doodle9: An abstract landscape inspired by the maple trees that grow around ponds in New England and which turn bright red in early autumn. When I went to get this printed on canvas and they brought it out, a cute girl waiting in line behind me said that is so cool. Totally made my day and that is what I think of when I look at it to this day and it pretty much also determines how I feel about it."/>
+<Doodle10a="Doodle10a: Intended to be a play on texture avoiding the way too busy trap I tend to step into. I think it would look good on a big canvas but have been hesitant to find out."/>
+<Doodle11="Doodle11: From my way too busy period (which goes on and on). I look at it as a tropical man digging in his garden with his daughter looking on. Admittedly, that is an abstact interpretation."/>
+<Doodle12b="Doodle12b: A cropped and colorized version of a larger canvas that I feel I never got right."/>
+<Doodle13="Doodle13: This lacks a foreground and even tho it has been sitting around a long time, I consider it unfinished. In my head what it is becoming is coming into focus but not got there yet."/>
+<Doodle14="Doodle14: I did this thinking of Rusky, my father and while it is in no way a portrait, for some reason it reminds me of him."/>
+<Fractal2="Fractal2: Gods on a date. One of a number of very busy paintings that started from a fractal image. Patterns out of control. I never figured out how to make do more with less."/>
+<Fractal2a="Fractal2a: The first of a series of paintings based on the same fractal image. As with many of my paintings, this one is busy, probably way too busy but that is what I was working on at the time. I wanted to end up with something to examine."/>
+<Fractal2c="Fractat2c: A lone flower in an imaginary garden. Trying for a cosmic feel but pooched that with too much happening to no purpose."/>
+<Fractal3="Fractal3: The bitter pill that attempts to offset too much doodling with a simple shape in the foreground. It looks nice against a red wall. I find the key to any painting is finding a good place to display it and since many of my paintings are color riots, the background colors of thier resting place is important."/>
+<LatticeB="LatticeB: This is a colorized and revised version of an early painting that no one liked, not even me. In my head this does not quite get there but maybe if I let it sit longer and get back to it ..."/>
+<Lego2a="Lego2a: A hot mess playing with shapes and patterns that make no attempt to depict anything but carve out a space on the digital canvas. Never had it printed but have been tempted to wondering how it would look on a yellow wall. Originally considered this abject failure but it grows on me as long as I do not look at it often."/>
+<Lego5="Lego5: It started out as a Mandelbrot image but I colored all over it. One of my few attempts to paint something not overly encrusted with color and pattern. I consider it a simple exercise that came out better than expected."/>
+<Lego6="Lego6: An imaginary landscape at daybreak. Nothing too realstic."/>
+<Merge2a="Merge2a: A lot of effort went into this. It started out as a phone doodle by my brother Gregg onto which I inflicted my penchant for adding complexity. The structure of the original doodle holds it together and the complexity is blended in. I often wonder what it would look like on a big canvas."/>
+<Nataraja="Nataraja: The Lord of the dance. Feeling a little different at the time, I decided to paint something to capture whatever that feeling was. This is a nataraja, Siva dancing. I have often thought of doing a sequel but not got around to it. No problem with lack of foreground here."/>
+<NoWayJose="NoWayJose: Based on a distorted photo taken outside the No Way Jose bar in Federal Hill in Baltimore. There is no way to recognize the original photo in it. Like many of my paintings, it suffers from a lack of foreground but I like the composition."/>
+<Stairs="Stairs: Done around the same time as NoWayJose, this is based on a photo of stairs in my Baltimore townhouse, distorted into a landscape of slightly warped reality. Stairs on acid."/>
+<Star="Star: This started out when I was showing granddotter Paige how I did my digital painting. I was into painting colorful worm like things."/>
+<Swirl="Swirl: Aptly named in that there are a lot of swirly things happening that I like, however, the composition does not do it for me. Another painting that could use a new and improved sequel."/>
+<Wash="Wash: Laxman Pai, the Indian painter from Goa who was a family friend did a green raga that my father Rusky had but he sold it or gave it away. I set out to do a big green painting to replace it and this is what resulted."/>
+#registry GUIdata search;
+<pictures/>
+<fractals directory="/Users/anthony/Pictures/Jpegs/Fractals" descend mask=~'jpg' into=pictures/>
+<doodles directory="/Users/anthony/Pictures/Jpegs/Doodles" descend mask=~'jpg' into=pictures/>
+<regularItem margin=1 bordered next=bigifier setTag image reBigify/>
+<bigItem regularItem width/>
+<bigRow flex height mBottom=2/>
+<regularRow flex/>
+<bigColumn flex down/>
+#load fractals;
+#load doodles;
+#registry GUI display search;
+<bigifyExample window closable resize x=300 y=300 width=600 height=950 fill=gray copperFont style=matrixBG title="Bigify Layout Test" hTML="/Users/anthony/Tests/TokTests/test.html">
+    <body flex down mRight=25 mBottom=15>
+        <intro="Bigify Test" height=50 fill=white bordered flex center titleFont/>
+        <bigifier rows=4 columns=3 bigRows=3 bigColumns=2 source=pictures bigify/>
+        <bigifyHelp mTop=5 height=100 describe="Click on heading for description of how this works." bordered normalFont fill=darkerGray;>
+
+Would like to determine the type of content from the content and let bigify deal with it on the fly
+    maybe by using macros - except that macros deal with value and not the name of a block
+
+The simplification of bigify needs work - trying to combine bigify layout w/bigify action undid some of the simplicity. New plan is to have separate layout and action methods. Changes to bigify layout just involves getting rid of stuff. The basic method will be unchanged.
+
+    Bigify action will be rewritten to go back to my original analysis
+        There are only two things that need to happen, one or the other or both
+            big item can move within its row
+            or the big row can move
+    Should be able to do this and avoid running thru layout and no need for clearing and releasing; just shuffle rows/columns as needed and BYU
+    Almost but not quite. Row and columns shuffling done. However, the content needs to be shuffled too.
+
+/*******************************************************************************
+    bigify
+*******************************************************************************/
+    setMatrix (an alternative to setFrame)
+        matrix rows=3 columns=5 x y width height source
+        And voila we have a matrix with rows and columns sharing the same content but organized differently.
+            The matrix would have 2 fields: rows and columns
+                rows would have 3 fields each containing a list of 5 fields
+                columns would have 5 fields each containing a list of 3 fields
+            Each field would have the same width and height (and different x and y) if we are displaying
+        Advantage is we can access a row or column as a vector; maybe do some vector arithmetic
+        
+    Now say we want to add a big cell (rows,colums) at some cell position (need to know its position in the underlying matrix), IWC the big cell replaces the ones it overlays
+        The problem is we have to figure out where it fits
+    Bigify will change the matrix organization
+        We want to replace some arbitrary field in the matrix with a bigger one (as in click on the field and have it bigify automagically changing the matrix correspondingly)
+            The field clicked on defines the content of the bigified field. It does not define which field is being replace. That we have to figure out.
+                We need to know the position (dimension indices) of the selected field. So given a field, where the fuck is it in the matrix.
+                    Need whereIsIt() a method to return indices of the selected field in the matrix
+                    That provides the info needed to write a whereDoItFit() method that returns the matrix field to be replaced.
+        Given a 2 dimensional matrix like the one above, say we want to insert a big field 2 rows deep and 3 columns wide,
+            Because the content gets added from the source AFTER bigification we can take advantage
+                Need a trimMatrix() method that
+                    Trims 3 fields off the field row and its following row
+                    Trims 2 fields off the field column and 2 following columns
+                    Resizes the field replaced and BYU
+    Filling the resulting bigified matrix will require a data source
+
+indexOf argument; {
+    scope argument~ parent;
+    for grup in parent
+        indx++;
+        if grup == argument;
+            print argument.taG at indx:;
+            return indx; }

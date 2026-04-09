@@ -1,0 +1,37 @@
+#include /Users/anthony/Dropbox/data/InProcess/Groups/XML/Controls/traits.xml
+#include /Users/anthony/Dropbox/data/InProcess/Groups/XML/Controls/templates.xml
+
+#easy
+#registry GUI
+item height=16 border=off menuItem align=left;
+
+drawing window width=400 height=650 title="Drawing" pDF:
+    box fill=gray pad=5:
+        intro height=50 fill=lightGreen rounded padTop=5 padLeft=10 padRight=10:
+            heading="Draw Path Example" text align=center titleFont;intro
+        space height=5;
+        sample normalFont text justify padLeft=15 padRight=15 height=100 fill=white rounded radius=10:%     Yet More Testing: So how to have a simple simple GroupItem that could be an attribute and which only contains data (a number, or PLGitem, or something). If its content is defined by its state, then the GroupItem has to have state value and data - as well as setter and getter (which can presumably be accessed via state offset (using state as an index) into wherever such methods reside [and where is that?] wherever TFYW). In this model, state becomes data type (class) in that it defines what the GroupItem is (along w/its methods) So basically, a class is a registry (and what does this imply about class methods??? You stuck them where? :)%;
+        space height=5;
+        menuTest=$pull text headerFont pullDown=pull rounded height=28 padLeft=10 align=left:
+            pull="Select something" rounded fill=paleGray fit=text normalFont xOffset=20 yOffset=5:
+                    one="First menu item" item;
+                    two="Second item" item;
+                    three="Last item" item;menuTest
+        space height=5;
+        jitter image="/Users/anthony/Pictures/BetweenTrees.jpg" pad=5 stride=6 gap=12 depth=2 perfColor=darkerGray perforation clip;drawing
+#stop
+
+To have this come up in an app need to add Layout and put everything in an app project
+    Add PDFview as a subview of Layout (which is a subview of the app window) FAILED seems PDFview does not work as a subview of Layout
+    Work out how to pass our PDFdocument to the PDFview
+        create NSData to hold pdf bytes (maybe the dataWithData factory?)
+        pass the NSData to PDFDocument using initWithData
+        add the PDFDocument to PDFview using the document property
+    Also make sure the pdf gets refreshed as necessary in case it changes by events
+        how is necessary defined - maybe should reinstall setModified()
+
+How to implement a popup - does the popup have its own PDFview? Or is it just a frame that overwrites? no to that. If a frame is complex, requires input, whatever, then best for it to be its own window as a subview of the main window. That should work in all cases of input and anything the main window can handle, the popup can too.
+
+Need to rework the fitText method
+
+Still not handling bold and italic HANDLED

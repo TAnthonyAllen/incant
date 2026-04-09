@@ -1,0 +1,60 @@
+/*******************************************************************************
+    Can we write the drawing method in incant
+*******************************************************************************/
+As a command? Right now draw is a rule that reads tokens.
+How about a command draw(group) that loops thru group attributes firing draw methods as we go. Assuming the method is drawOP, it will have to handle draw groups like; perforation
+
+    /***************************************************************************
+        Drawing templates
+    ***************************************************************************/
+        stride=6;
+        gap=12;
+        depth=2;
+        perfRight down=gap left=depth down=stride right=depth;
+        perfLeft right=depth up=stride left=depth up=gap;
+        perfTop up=depth right=gap down=depth right=stride;
+        perfBottom up=depth left=stride down=depth left=gap;
+        perforation fill=perfColor border home line percent up=8 perfLeft=5 perfTop=5 up=depth right=10 down=2 perfRight=5 down=8 left=10 perfBottom=5;
+
+if drawOperators draw on an Apple canvas BYU. Will need the following accessible from incant and Apple
+    currentFrame
+    currentPoint
+    controlPoint1
+    controlPoint2
+Note: are points relative? Thinking maybe so, whereas drawPoint makes points not relative from relative input (not so smart).
+Probably also need
+    fillColor
+    strokeColor
+    textColor
+    
+/***************************************************************************
+	Handling color
+***************************************************************************/
+The attributes that deal w/color, like stroke fill text, would have an associated color value. So, for example:
+    green would set the fill color then apply it; fill with no value specified would use the existing fill color value. borders would use the stroke color. For this to work, every color specified would have fill implied. Stroke and text colors would be specified as attribute values. Color values would be a six digit hex string w/leading pound sign. The drawCOLOR method would convert that into a pointer to a color object if not already converted. Alpha value HPDL.
+/***************************************************************************
+	Handling fonts
+***************************************************************************/
+An incant font should specify typeface (font family name) size trait (bold, italic,...) not sure about font wieght.
+    Here is how fonts were specified in old GUI
+        <defaultFont font='10px Helvetica'/>
+        <EBgaramondFont font="EB Garamond" fontSize=18 bold/>
+    I am thinking more like
+        EBG18bold="EB Garamond" 18 bold;       Will know it is a font spec because it will be in the font registry
+/***************************************************************************
+    Execute drawing commands of the group passed in and its descendants.
+***************************************************************************/
+    fireDraw argument {
+        for grup IN argument attributes
+            if reggie$ = grup.registrY;
+                if reggie == DrawOperators;     grup();
+                or reggie == Fonts;             font(grup);
+                or reggie == Colors;            color(grup);
+                or reggie == Templates
+                    repeat = grup
+                    while repeat > 0
+                        fireDraw(grup);
+                        repeat--;
+        for grup IN argument members
+            fireDraw(grup);
+        };

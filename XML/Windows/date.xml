@@ -1,0 +1,97 @@
+#registry year value grouped asAttributes;
+    <1970/>
+    <1971/>
+    <1972/>
+    <1973/>
+    <1974/>
+    <1975/>
+    <1976/>
+    <1977/>
+    <1978/>
+    <1979/>
+    <1980/>
+    <1981/>
+    <1982/>
+    <1983/>
+    <1984/>
+    <1985/>
+    <1986/>
+    <1987/>
+    <1988/>
+    <1989/>
+    <1990/>
+    <1991/>
+    <1992/>
+    <1993/>
+    <1994/>
+    <1995/>
+    <1996/>
+    <1997/>
+    <1998/>
+    <1999/>
+    <2000/>
+    <2001/>
+    <2002/>
+    <2003/>
+    <2004/>
+    <2005/>
+    <2006/>
+    <2007/>
+    <2008/>
+    <2009/>
+    <2010/>
+    <2011/>
+    <2012/>
+    <2013/>
+    <2014/>
+    <2015/>
+/*****************************************************************************
+    A command expression that defines a group is started by <:
+        The tag becomes the name of the group
+        The attributes are the sources searched for members of the group
+        For example: <:70s year>
+            70s us the tag and name of the group being created.
+            year is an attribue.
+                It is the name of a registry (the year registry).
+                As such it refers to the block containing the year registry contents.
+            
+    Note the following paths used to define decades, that is, the attributes below with a regular expression for a tag, are followed by a space because a space ends the regular expression (if you want a space in the regular expression or you do not want the trailing space, quote the regular expression w/single quotes, that is, the bit following the ~, for example, ~'^197')
+
+    Note keep in mind that the year registry is loaded by value and its entries are all expected to be used as attributes. As attributes the registry type is used as its tag so <1970/> is treated as <year=1970/> That is why what would normally be a tag match becomes a value match in the following group specifications
+*****************************************************************************/
+<:70s year><year=~^197 ;>
+<:80s year><year=~^198 ;>
+<:90s year><year=~^199 ;>
+<:00s year><year=~^200 ;>
+<:10s year><year=~^201 ;>
+<70to99>
+    <70s/>
+    <80s/>
+    <90s/></70to99>
+<last2="Last 2 years">
+    <2014/>
+    <2015/></last2>
+<Years>
+    <2013/><last2/></Years>
+/*****************************************************************************
+	The month registry is turned off - see DelimitDate in Delimited.g
+*****************************************************************************/
+#registry month;
+<1=~^0?1/ name=January abbr=jan/>
+<2=~^0?2/ name=February abbr=feb/>
+<3=~^0?3/ name=March abbr=mar/>
+<4=~^0?4/ name=April abbr=apr/>
+<5=~^0?5/ name=May abbr=may/>
+<6=~^0?6/ name=June abbr=jun/>
+<7=~^0?7/ name=July abbr=jul/>
+<8=~^0?8/ name=August abbr=aug/>
+<9=~^0?9/ name=September abbr=sep/>
+<10=~^0?10/ name=October abbr=oct/>
+<11=~^0?11/ name=November abbr=nov/>
+<12=~^0?12/ name=December abbr=dec/>
+<1st="First Quarter"><1/><2/><3/></>
+<2nd="Second Quarter"><4/><5/><6/></>
+<3rd="Third Quarter"><7/><8/><9/></>
+<4th="Fourth Quarter"><10/><11/><12/></>
+<Quarters><1st/><2nd/><3rd/><4th/></>
+#;

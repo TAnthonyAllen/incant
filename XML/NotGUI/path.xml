@@ -1,0 +1,128 @@
+#registry tests search;
+<jitInclude>include /Users/anthony/Dropbox/data/InProcess/Include/UIjit.ext
+external GroupItem { overload initializer locateGroup; }</jitInclude>
+
+/*****************************************************************************
+    Defining a path
+*****************************************************************************/
+<! The following is entered as a comment to avoid reading the embedded xml as xml.
+A path is an xml group with optional extensions used in matching against other groups in a path command. A path command is itself a group with a command indicator, which is a colon following the initial less than sign that begins an xml group - that is <: The paths associated with the path command are passed in its members. The sources against which the paths are matched are passed in the command attributes.
+        For example
+            <:someNewGroup source1 source2><path1/> <path2;>
+        would create a group named someNewGroup with all groups in source1 and source2 that match the paths in path1 or path2. Note that path1 and path2 can be groups with members, where each member is part of the path.
+        If there are no sources specified or no paths, you get an error.
+There are two extensions to an xml attribute used to define a path
+    Tag prefix
+        @ specifies a target, that which will be selected as a member of the group upon a match. A target can be associated with a group or an attribute. A path may be many levels deep and the @ identifies which element of the path is to be added to the group being created by the path command.
+        % specifies that a group in a path is not anchored. It is only relevant when specified for the group and ignored if specified for an attribute. It means that the match can happen anywhere below in the target group hierarchy, that is, the match process will descend looking for a match
+    Regular Expressions
+        * can be used to match any tag
+        ~ followed by a regular expression can be specified for an attribute tag and/or an attribute value
+    Match modifiers can be applied to any attribute, including the initial attribute serving as the group tag. Modifiers duplicate some of the functionality of regular expressions
+        + select all matches, the default is only the first
+        ? match is optional (not sure if this makes any sense)
+        ! negative match (if it matches, do not want it)
+        | alternative for the following attribute, that is, either/or
+These sample groups are here to be matched against to illustrate the examples that follow
+<someGroup with traits/>
+<someGroup><kid with traits/></someGroup>
+<anotherGroup><someGroup without><kid with traits/></someGroup>
+    Path examples:
+        <@someGroup/> matches the first two groups above, returns the first. @ specifies the target, what gets returned
+        <@%someGroup+/> The % means the group is not anchored. It matches and returns the first two groups and the someGroup child of anotherGroup
+        <someGroup with/> matches only the first group above (since there is no target @ specified in the path it is assumed to apply to the outermost group matched by the path, in this case someGroup)
+        <someGroup @with/> like the path above but returns the first with attribute as the match result
+        <*% @~'with'+/> matches and returns the four with or without attributes
+
+/*****************************************************************************
+    Group Commands
+*****************************************************************************/
+Group command concepts - defining a new group based on a path or paths
+    path    a group that defines a path. It may or may not contain path metacharacters
+            In a group command, paths come in two flavors
+                a named path is a group that has an isPath attribute. Each member of the named path is a path specification to be matched against. If a named path is used, it must be found in the current registry search list
+                an unnamed path (no isPath attribute) is a plain path specification
+    source  a group (that must exist in the registry search path), the members of which are compared against the path or paths in a group command
+    
+    A group command defines a target group that will be populated by every entry matching path and source defined in the command. The command can specify multiple paths and multiple sources. Each path is run against each source and every match gets added to the target group.
+        The group command is structured such that
+            paths appear as members
+            sources appear as attributes
+
+/*****************************************************************************
+    Path modifiers and methods
+*****************************************************************************/
+Path Modifiers
+		debug		Add a debug attribute anywhere in the source and you get debug messages for the source group that has the debug attribute and its descendants as they are processed
+
+Path Methods
+	You can add attributes that have methods at any point in the path. Method attributes will be ignored for matching purposes. By default, the method will fire if the path block containing the method attribute matches. Alternatively, if the method attribute has an onFailure attribute, it will fire if the match fails.
+	Because method attributes in turn have attributes (they have to have a jit attribute, that is what makes it a method and they may have an onFailure attribute), you define them separately in a registry that has nomerging and hasMethods set (as in the methods registry below). Then you can add the method attributes to the path and they look like simple attributes to the parser.
+ends comment!>
+		
+/*****************************************************************************
+    Path tests
+*****************************************************************************/
+#registry paths search;
+<pathdata>
+	<someGroup with=traits and/>
+	<twoGroup><kid with="no traits" more/>
+		<boy with=nothing left/><trans/></twoGroup>
+	<anotherGroup><threeGroup without><girl with=sometraits attributes/></pathdata>
+
+The following command toggles the noLineByLine flag, which is set true by default
+#noJIT;
+String text;
+	text = "This is a test: Hello World. " 23;
+	cout text, pathdata.tag:;
+
+#noJIT;
+The line above toggles noLineByLine back to true
+#stop;
+#registry methods hasMethods noMerging;
+<displayTarget jit>print ``"found:",item.getTagXML():;</displayTarget>
+<onError jit onFailure>print ``"Failed:",item.getTagXML():;</onError>
+#registry tests;
+#search paths tests methods;
+<:pathtest pathdata><@%*+ with displayTarget onError;>
+#print pathtest;
+GroupItem pathdata;
+String	text "This is a test: Hello World. " pathdata.tag;
+	print text:;
+#stop;
+
+<:pathtest2 pathdata><%*+ @with;>
+#print pathtest2;
+#include /Users/anthony/data/Tawk/Groups/XML/NotGUI/playlist.xml;
+#registry paths;
+<mask genre artist album/>
+<testPath isPath><@*+ artist="A.R. Rahman" | album=Journey;>
+#registry music;
+#search paths music;
+The following two examples are equivalent
+<:groupOne phone><testPath;>
+<:groupTwo phone><@*+ artist="A.R. Rahman" | album=Journey;>
+		
+/*****************************************************************************
+    Referencing unidentified blocks in code
+*****************************************************************************/
+You do not have to declare blocks that you reference in code, as the JIT parser will look for any field names it cannot identify in the set of searchable blocks (it looks in the current registry search list).
+#search+ music artist year album genre;
+#load phone;
+#print 10 artist;
+#stop;
+/***************************************************************************
+	groupTwo extracts only those playlist records from phone that are by
+    A.R. Rahman or in the album Journey
+***************************************************************************/
+<:groupTwo phone><@*+ artist="A.R. Rahman" | album=Journey;>
+#print 4 groupTwo;
+<restrict song artist/>
+/***************************************************************************
+	filteredGroup filters groupTwo by including only the attributes from
+    the restrict mask defined above. Thus the records of filteredGroup
+    only have song and artist attributes.
+***************************************************************************/
+<:filteredGroup filterBy=restrict groupTwo/>
+#print filteredGroup;
+#;

@@ -1,0 +1,437 @@
+include GUIincludes
+
+/*******************************************************************************
+	Display a pop up window
+*******************************************************************************/
+GroupItem dISPLAY(GroupItem item)
+{
+Window      window;
+Details     detail = item.getDetail();
+GroupItem	block;
+String		name;
+    view.deselect();
+    if block = wig["popup"]
+        if name = block.text
+            {
+            block = windows[name];
+            if !block && wig["file"]
+                {
+                convertWindowToPanel = true;
+                controller.load(wig);
+                convertWindowToPanel = false;
+                block = windows[name];
+                }
+            if block
+                detail = block.getDetail();
+            }
+	if !detail
+		{
+		cerr "Could not find window for: " item.tag :;
+		return null;
+		}
+	if !object
+		{
+		cerr "Could not find window for: " wig.tag :;
+		return null;
+		}
+    if block
+        {
+        window  = object;
+        noRoom  = false;
+        setModified();
+        keyFront(window);
+        /**********************************************************************
+            reModified and redisplayed because otherwise pops up blank - WTF??
+        **********************************************************************/
+        setModified();
+        window.display();
+        //dump(block);
+        }
+    return null;
+}
+
+/*******************************************************************************
+	Process button action
+*******************************************************************************/
+GroupItem fIRE(GroupItem item)
+{
+Details	detail = item.getDetail();
+	cout "Fire action for " wig.tag "\n";
+    return null;
+}
+
+/*******************************************************************************
+    Set the current card associated with the item passed in to the card named in
+    the text passed in.
+*******************************************************************************/
+GroupItem gotoCARD(GroupItem item)
+{
+String      cardName    = item.text;
+GroupItem   card        = item.find(cardName);
+    if card
+        {
+        GroupItem   cards   = card.parent;
+        Details     detail  = cards.getDetail();
+        if isCards
+            {
+            GroupItem oldCard   = cards.group;
+            oldCard.noRoom      = true;
+            cards.group         = card;
+            card.noRoom         = false;
+            if selection && selection%setSource
+                card.setSourceTo(selection);
+            wig.setModified();
+            }
+        else cerr "gotoCARD:",cardName,"does not have cards attribute":;
+        }
+    else cerr "gotoCARD: could not find",cardName:;
+    return null;
+}
+
+/*******************************************************************************
+	Process default image action
+*******************************************************************************/
+GroupItem iMAGEwork(GroupItem item)
+{
+Details     detail  = item.getDetail();
+Image       image   = object;
+GroupItem   scale   = wig["sCALe"],
+            offset  = wig["oFFSEt"];
+double      factor,newX,newY;
+Size        size;
+Point       point,
+            *atPoint;
+	if image
+        {
+        size    = image.size();
+        if offset
+            atPoint = offset.pointer;
+        if scale
+            factor  = scale.number;
+        if controlKeyed
+            {
+            // at this point event should be set in detail
+            point   = convertPoint(mouseAt(),nil);
+            newX    = point.x - frame.x - detail.width/2;
+            newY    = point.y - frame.y - detail.height/2;
+            if !atPoint
+                {
+                atPoint = calloc(1,sizeof(Point));
+                offset = wig["oFFSEt"] = (void*)atPoint;
+                }
+            atPoint.x += newX;
+            atPoint.y += newY;
+            offset.fLAG = true;
+            }
+        else {
+            if !factor
+                {
+                factor  = 1.0;
+                wig["sCALe"] = factor;
+                scale   = wig["sCALe"];
+                }
+            or atPoint
+                {
+                newX    = atPoint.x / factor;
+                newY    = atPoint.y / factor;
+                }
+            factor += shiftKeyed ? -0.5 : 0.5;
+            if atPoint
+                {
+                atPoint.x = newX * factor;
+                atPoint.y = newY * factor;
+                }
+            scale.number = factor;
+            }
+        imageSized = true;
+        setModified(wig);
+        }
+    return null;
+}
+
+/*******************************************************************************
+	Process menu action
+*******************************************************************************/
+GroupItem mENU(GroupItem item)
+{
+Window      window;
+GroupItem	menu,attribute,offset;
+Details		baseDetail,
+            detail = item.getDetail();
+double      baseX,
+            baseY,
+            xOffset = 10,
+            yOffset;
+Frame       baseFrame;
+use detail.frame
+	/***************************************************************************
+		Set baseX and baseY to the screen coordinates of the block invoking
+        the menu (used to position the panel where you want the menu).
+	***************************************************************************/
+	if detail
+        {
+		if attribute = wig["pullDown"]
+            menu = attribute.group;
+        window      = view.window;
+        baseFrame   = window.frame;
+        baseX       = baseFrame.x + x;
+        baseY       = baseFrame.y + y;
+        }
+	if !menu
+		{
+		cerr "Could not find menu\n";
+		return null;
+		}
+	//cout "Processing menu action\n";
+	/***************************************************************************
+		Set the panel frame
+	***************************************************************************/
+    detail      = menu.getDetail();
+    window      = view.window;
+    baseDetail  = base.getDetail();
+    if offset = menu["yOffset"] yOffset = offset.number + y;
+    detail = menu.getDetail();
+    yOffset -= height;
+    if offset = menu["xOffset"] xOffset = offset.number + x;
+    baseFrame   = view.frame;
+    baseFrame.x += baseX + xOffset;
+    baseFrame.y += baseY + yOffset;
+    if baseFrame.x < 0 baseFrame.x = 0;
+    if baseFrame.y < 0 baseFrame.y = 0;
+    window.setFrame(baseFrame,0);
+	/***************************************************************************
+		Menu should be already laid out
+	***************************************************************************/
+    activeMenu  = menu;
+	menu.noRoom = false;
+    activeView  = view;
+
+    setModified();
+    keyFront(window);
+    /**************************************************************************
+        reModified and redisplayed because otherwise it pops up blank - WTF??
+    **************************************************************************/
+    setModified();
+    window.display();
+    return null;
+}
+
+/*******************************************************************************
+	Process a selectBlock action. This sets the count of the bigify attribute to
+    the position of the selected bloc and calls the bIGIFY method to redo the
+    layout of the bigified item.
+*******************************************************************************/
+GroupItem reBIGIFY(GroupItem item)
+{
+GroupItem   bigify      = item.findAttribute("bigify"),
+            selected    = selection;
+GroupItem   wrapper     = selection.parent,
+            bigItem,
+            bigRow,
+            group;
+String      selectTag   = selected.tag;
+    bigify  = bigify.parent;
+    if bigRow  = bigify/"bigRow"
+        while bigItem = bigRow.nextMember(bigItem)
+            if bigItem["width"] break;
+    if *wrapper.tag == 'r'
+        bigRow.swap(wrapper);
+    else bigItem.swap(wrapper);
+    if bigRow = bigify%"sRCe"
+        {
+        GroupItem   sourceItem;
+        Source      source = bigRow.pointer;
+        source.current  = priorStart;
+        bigItem.tag     = selected.tag;
+        bigItem.group   = selected.group;
+        while group = bigify.walk(group)
+            if group%"next"
+                {
+                if group == bigItem continue;
+                sourceItem = source.next();
+                if sourceItem.tag eq selectTag
+                    sourceItem = source.next();
+                group.group = sourceItem;
+                group.tag = sourceItem.tag;
+                }
+        }
+    bigify.setModified();
+    return null;
+}
+
+/*******************************************************************************
+	Selects tab named by item and stores the tab in the tab parent. A pointer
+    to the body associated with the tab is stored in the tab.
+*******************************************************************************/
+GroupItem sELECTtab(GroupItem item)
+{
+GroupItem   body,tab,tabAttribute,tabs;
+Details		detail = item.getDetail();
+    setStyle();
+    tabs = wig.parent;
+    if !tabs
+        {
+        cerr wig.tag ": block associated w/tab select action must have a parent":;
+        return null;
+        }
+    /***************************************************************************
+        Deselect prior tab and turn off tab body. The isTab flag in detail is set
+        so that tab selection is not affected by any other random selection.
+    ***************************************************************************/
+    isTab = true;
+	if tab = tabs.group
+        {
+        tab.selected = false;
+        if tabAttribute = tab%tabBODY
+            if body = tabAttribute.group
+                body.noRoom = true;
+        //cout "sELECTtab: set no Room for",body.tag:;
+        }
+    tabs.pointer = wig;
+    // Here body is set to the body associated with this tab
+    if tabAttribute = wig%tabBODY
+        if body = tabAttribute.group
+            {
+            body.noRoom = false;
+            body.parent.pointer = body;
+            }
+        else {
+            cerr "Could not find body of current tab":;
+            return null;
+            }
+    wig.selected = true;    // makes the tag selected (in addition to its body)
+    view.selection = item;
+    //cout "sELECTtab:",wig.tag,filler.getTagXML():;
+    if tab = body.findAttribute("cards")
+        {
+        tab.text = body.tag;
+        tab.setCARD();
+        }
+    return null;
+}
+
+/*******************************************************************************
+	Run the next actions associated with the item passed in
+*******************************************************************************/
+GroupItem setFLEXcontent(GroupItem item)
+{
+GroupItem   flexed = item.parent,
+            stuff,
+            group;
+    if flexed
+        {
+        while group = flexed.nextMember(group)
+            if stuff = group["next"]
+                {
+                //cout "setFLEXcontent:",group.tag,group.index:;
+                nEXT(stuff);
+                }
+        }
+    return null;
+}
+
+/*******************************************************************************
+	Sort by tag of item parent or item text depending upon whether or not the
+    sort attribute has a value. If shift keyed, sort is descending.
+*******************************************************************************/
+GroupItem sORT(GroupItem item)
+{
+GroupItem	mask,group;
+Source		source;
+Details		detail = item.getDetail();
+	group   = item.findAttribute("sRCe");
+    mask    = wig["sort"];
+    cout "Sorting " wig.tag:;
+	if group && mask
+        {
+		if source = group.pointer
+            {
+            if shiftKeyed sourceItem.sortDescending = true;
+            else sourceItem.sortAscending = true;
+            source.sort(mask.text);
+            }
+        setModified(wig);
+        }
+	if !source cerr "ERROR sort: source or sort attribute missing for " wig.tag :;
+    return null;
+}
+
+/*******************************************************************************
+	Toggle a block on or off.
+*******************************************************************************/
+GroupItem tOGGLE(GroupItem item)
+{
+GroupItem   toggle,
+            wrapper,
+            group;
+String      name;
+    toggle = item%toggled;
+    if name = toggle.text
+        {
+        //cout "Toggle: " group.getTagXML():;
+        if wrapper = locate(name)
+            {
+            while group = wrapper.walk(group)
+                if toggle = group%toggled
+                    {
+                    if name eq toggle.text
+                        if noRoom noRoom = false;
+                        else noRoom = true;
+                    cout "tOGGLE: changed toggle of",group.tag,"to",noRoom:;
+                    }
+            wrapper.setModified();
+            }
+        else cerr "tOGGLE ERROR: could not find",name:;
+        }
+    else {
+        cerr "tOGGLE ERROR: name does not exist":;
+        return null;
+        }
+    return null;
+}
+
+/*******************************************************************************
+	Process expand action in support of trees. This differs from the matrix
+    expand only in that there is no option for expanding columns and when you
+    click on an expanded item it collapses. Also, uses regular clicks not right
+    clicks.
+*******************************************************************************/
+GroupItem xPAND(GroupItem item)
+{
+Details     detail  = item.getDetail();
+GroupItem   group   = wig.findAttribute("leaf");
+    if group group = group.parent;
+    deselect();
+    //cout "xpand " wig.tag,xpand.tag,xpand.index:;
+    if !group
+        {
+        cerr "xPAND: could not find leaf to expand":;
+        return null;
+        }
+    if group.expanded cOLLAPSErow(group);
+    else expandTREE(group);
+    group.setExpander();
+    group.setModified();
+    return null;
+}
+
+/*******************************************************************************
+	Sets the actions for GUI components
+*******************************************************************************/
+class Actions
+{
+
+Actions()
+{
+    mapAction("card",gotoCARD);
+	mapAction("display",dISPLAY);
+	mapAction("expandTree",xPAND);
+	mapAction("fire",fIRE);
+	mapAction("iMAGEwork",iMAGEwork);
+	mapAction("menu",mENU);
+    mapAction("reBigify",reBIGIFY);
+	mapAction("sORT",sORT);
+	mapAction("tab",sELECTtab);
+    mapAction("toggle",tOGGLE);
+}
+}

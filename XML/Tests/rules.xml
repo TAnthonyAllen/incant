@@ -1,0 +1,24 @@
+
+HWF wrt parsing
+
+Right now my parsing is based on identity matches, essentially a comparison for equivalence resulting in a true or false assessment. What if we depart from equivalence?
+
+    There are other comparison operators not used in matching: < > <= >= for example, not to mention arithmetic operators or bit manipulators. All operators produce a result, even if for non-comparators the result may not be true or false. Extending parsing past equivalence begins to approach programming. Where does the transition take place? In an interpreter, parse and program are all but the same thing. However, typically interpreter relies on parse to translate language into instructions to be executed. A parser not limited by equivalence may not need translation. Is that anything different?
+
+    One big difference in extending a parser beyond matching would be parse structure: that is, decision making has more options to consider.
+
+        Testing produces a result. Extending parse operators requires additional tests, but does not necessarily require altering parse structure.
+        
+        Parse flow decides what the parse does based on results. Right now that just means assessing matches into a succeed or fail decision that dictates the flow of data thru the parse. Adding non-matching operators could be implemented to not affect parse flow, for example, treating non-match results as side effects. Alternatively, if non-match results impact flow, you essentially have a program.
+        
+        Parser becomes program when it can evalute results the way a program would. So why bother? The only reason I can think of, and which I find intriguing, is parser gains flexibility as it extends functionality. That might have an interesting impact on language design. A program tends hard coded and inflexible, definitely not extendable. A parser produces language. Note: a parser is a program so this HWF exercise may be getting wrapped around the axle of hair splitting semantics. IAC, I am assuming better, more flexible parser might produce better more flexible language.
+        
+Build it and they will come (even if only to say WTF?).
+
+Dominos falling. Extending parse operators could change data flowing thru the parse, in effect, changing the flow since flow is tied into the data being processed. If the parser has the ability to alter its syntax then ... might be too much flexibility, but why not? Redefine language on the fly in order to do something different instead of doing the same damn thing over and over.
+
+What if it has a black hat on? What if is not there? What if answer is ambiguous (fuzzy logic), unknowable, illogical, or random.
+
+Consider Scheme or Lisp where there is little difference between data and instruction. All data gets passed and some of it gets treated as instruction. Similarly, in an extended parser, data gets parsed, some data might define or extend the parser, essentially rebuilding the train or its track as it is running. Self extending code is anathema, but that may be because programs are seen to be fixed; they only do one thing, efficiently presumably. But in a parsing language designed to make self extending easy, why not?
+
+Considering making rule tests group methods. In doing so would like tests to be simpler, maybe by extracting the iteration part of tests and putting it into an assessor method. Right now, test is controlled by a switch on type (isString, isSet, ...). How about a rule test w/switch removed, IOW, set the test at same time as setting type. Problem is, currently we only have one method per group, and a rule needs a method to do whatever needs to be done when the rule is engaged. So why not have two methods for rules??? I think for now we leave as is.

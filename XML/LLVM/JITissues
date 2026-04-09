@@ -1,0 +1,28 @@
+
+/*******************************************************************************
+	SSA
+*******************************************************************************/
+Go thru instructions.
+    For every assignment
+        if field = SSAhash[target.tag]
+            if !before  before = field
+            newCount = field.count + 1;
+            newTag = target.tag newCount;
+            field = new(newTag,newCount);
+            SSAhash += field;
+            target = field;
+        else
+            field = new(target.tag,1);
+            SSAhash += field
+
+for each field assigned in a branch need to know before first second    // there may not be both first and second
+    initial lookup will set before if the field has been referred to    // how do we know it is referenced?
+    if first branch first is set to new assigned field                  // last assignment sticks for first and second
+    else second is set to new assigned field
+after branch statement
+    phis issued for every assignment that has before or first and second
+    SSAhash field is cleared of attributes (before first second)
+    might be able to reuse cleared attributes (should be able to pop them off garbageSTAK)
+
+Not sure how LLVM handles structures/classes like GroupItem
+

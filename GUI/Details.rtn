@@ -1,0 +1,273 @@
+
+
+/*******************************************************************************
+	Return the lowest descendent block that contains the point passed in.
+    Assumes the base passed in contains the point.
+*******************************************************************************/
+GroupItem blockContaining(GroupItem base,Point p)
+{
+Details     detail = base.getDetail();
+GroupItem   item,group;
+    if base
+        {
+        //cout "blockContaining starting at",base.tag,base.index,"Point:",p.x,p.y:;
+        base.reset();
+        while item = base.nextMember()
+            {
+            //String value; if item.isGroup value = item.group.getCellText(); if !value value = "no Value";
+            if item.noRoom continue;
+            detail = item.getDetail();
+            if !detail
+                {
+                //cout `"blockContaining NO detail",item.tag,value:;
+                if item && item.hasMembers
+                    {
+                    group = item.blockContaining(p);
+                    if item = group break;
+                    }
+                continue;
+                }
+            //cout `"blockContaining",item.tag,value,frame:;
+            if contains(p)
+                {
+                //cout ``"block Contained":;
+                if item && item.hasMembers
+                    {
+                    group = item.blockContaining(p);
+                    item = group;
+                    }
+                break;
+                }
+            }
+        }
+    return item;
+}
+
+
+Conditions
+    scrollableData  (contentVaries || scrollableSource || cards)
+    scrollableFit   (scrollableX || scrollableY)
+    scrollable      (scrollableData || scrollableFit)
+;
+/*******************************************************************************
+	Find a scrollable block
+*******************************************************************************/
+GroupItem findScrollable(GroupItem group)
+{
+GroupItem       block;
+Details         detail;
+    if block = group
+        for block = group on parent
+            if detail = block.getDetail()
+                if !noScroll && scrollable break;
+    return block;
+}
+
+/******************************************************************************
+	Return the detail of the first ancestor to have detail
+******************************************************************************/
+Details getAncestor(GroupItem item)
+{
+Details     ancestor;
+GroupItem   group = item.parent;
+    if group group = group.findAttribute("dETAILs");
+    if group    ancestor = group.pointer;
+	return ancestor;
+}
+
+/*******************************************************************************
+    Get the text to be displayed in a cell. Deals with case where value is
+    a group (so the data type is not obvious).
+*******************************************************************************/
+String getCellText(GroupItem item)
+{
+GroupItem   group;
+String      text;
+int         dataType = item.getDataType();
+Details     detail = item.getDetail();
+    if !detail
+        {
+        text = "getCellText: no detail for " item.tag;
+        goto endGetCellText;
+        }
+    if style && !showBlank
+        if formatItem && (dataType == 1 || dataType == 5)
+            if formatter
+                {
+                Number number;
+                if dataType == 1 number = new(item.count);
+                else number = new(item.number);
+                text = formatter.string(number);
+                }
+            else {
+                String formatText = formatItem.text;
+                if dataType == 1
+                    asprintf(&text,formatText,item.count);
+                or dataType == 5
+                    asprintf(&text,formatText,item.number);
+                }
+        or group = item.group
+            if !useTagForLabel
+                text = group.text;
+            else text = group.resolvedTag();
+        or !useTagForLabel
+            text = item.text;
+    if style && zeroItem && ((item.isCount && !item.count) || (item.isNumber && !item.number))
+        text = zeroItem.text;
+    or !text
+        if style && blankItem
+            text = blankItem.text;
+        or editable     text = "";
+endGetCellText:
+	return text;
+}
+
+/*******************************************************************************
+	Return the detail associated with the item passed in (this extends GroupItem).
+*******************************************************************************/
+extern Details getDetail(GroupItem item)
+{
+    if isAttribute
+        if parent item = parent;
+        else {
+            cerr "getDetail: failed to get detail for",item.tag:;
+            return null;
+            }
+    if hasDetails
+        {
+        GroupItem   details = item%"dETAILs";
+        if details
+            {
+            Details		detail  = details.pointer;
+            if detail   return detail;
+            }
+        }
+    return null;
+}
+
+#scrollAway-
+        if blockDetail = block.getDetail()
+            {
+            if contentVaries
+                scrollContent(length);
+            or cards block.scrollCards(length);
+            or scrollableY && isVertical
+                setScroll(length,false);
+            or scrollableX
+                setScroll(length,true);
+            or scrollableSource
+                block.scrollSource(length);
+            else return;
+            }-
+/*******************************************************************************
+	Scroll a block (assuming it is scrollable).
+*******************************************************************************/
+void scrollBlock(GroupItem group,int length,int isVertical)
+{
+GroupItem   scroller,block;
+Details     blockDetail;
+    cout "scrollBlock:",group.tag,group.index:;
+    if block = findScrollable(group)
+        {
+        cout `"scrollable is",block.tag,block.index:;
+        scrollAway;
+        if scroller = block%scrollWith
+            if scroller.isGroup
+                {
+                block = scroller.group;
+                scrollAway;
+                }
+            else {
+                block = null;
+                while block = scroller.nextMember(block)
+                    scrollAway;
+                }
+        }
+}
+
+/*******************************************************************************
+	Scroll a card stack (one card at a time).
+*******************************************************************************/
+void scrollCards(GroupItem block,int up)
+{
+Details     detail;
+GroupItem   page,
+            group;
+    if block page = block.group;
+    if page
+        {
+        block   = page.parent;
+        if block
+            {
+            if up > 0 group = block.priorMember(page);
+            else group = block.nextMember(page);
+            if group
+                {
+                detail          = group.getDetail();
+                if group.parent group.parent.group = group;
+                page.noRoom     = true;
+                group.noRoom    = false;
+                selection       = group;
+                }
+            }
+        }
+}
+
+/*******************************************************************************
+	Scroll the source associated with the block passed in.
+*******************************************************************************/
+void scrollSource(GroupItem item,int length)
+{
+Details     detail = getDetail(item);
+GroupItem   pageLength,
+            group;
+Source      source;
+    if item
+        if group = item%sRCe
+            if source = group.pointer
+                {
+                if paging
+                    if pageLength = item%pAGElength
+                        length *= pageLength.count;
+                return;
+                }
+    cerr "scrollSource: unable to scroll" item.tag " for " length:;
+}
+
+/*******************************************************************************
+	Return the detail associated with the item passed in (this extends GroupItem).
+*******************************************************************************/
+extern Details setDetail(GroupItem item)
+{
+Details detail;
+    if hasDetails
+        {
+        GroupItem   details = item%"dETAILs";
+        if details  detail = details.pointer;
+        }
+    else {
+        detail          = detailTape.getStrip();
+        GroupItem group = new("dETAILs");
+        group.noPrint   = true;
+        item.hasDetails = true;
+        group.pointer   = detail;
+        group.isAttribute = true;
+        item += group;
+        wig = item;
+        //cout "setDetail: detail attribute created for",item.tag:;
+        }
+    return detail;
+}
+
+/*******************************************************************************
+	Set the noRoom flag for this block NOTE: isTarget aliased to noRoom and
+    you cannot assign to noRoom here or you end up recursively calling this
+    (That is why the assignment is made to item.isTarget instead).
+*******************************************************************************/
+void setNoRoom(GroupItem item,int flag)
+{
+Details     detail = item.getDetail();
+    //cout "Setting no room for",item.tag,flag:;
+    item.isTarget = flag;
+    if flag && selected deselect();
+}

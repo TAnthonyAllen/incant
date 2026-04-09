@@ -1,0 +1,557 @@
+
+/*******************************************************************************
+	Print the field passed in to the buffer passed in
+*******************************************************************************/
+extern GroupItem appendGroup(GroupItem input,GroupItem FormaT,Buffer buffer)
+{
+String      atText;
+GroupRules  ruler = groupRules;
+String      format;
+int         indenting;
+GroupItem   grup,
+            field;
+    field = input;
+    if FormaT {
+        format = FormaT.text;
+        *format = '%'; }
+    if !field.isShortcut
+        if field.isLIST
+            while grup = field.next(grup)
+                printField(grup,format,buffer);
+        else    printField(field,format,buffer);
+    else {
+        for (atText = text; *atText; atText++)
+            switch(*atText) {
+                case '~':   indenting++;
+                case '$':   useDefaultSpace = !useDefaultSpace;
+                case '_':   append(' ');
+                case ':':   append('\n');
+                case '+':   inDENT.gCount++;
+                case '-':   if inDENT.gCount > 0    inDENT.gCount--;
+                case '`':   append('\t');
+                case ',':   grup = 0; }
+        if indenting && inDENT.gCount > 0   tabRight(inDENT.gCount); }
+    return field;
+}
+
+/***************************************************************************
+	Rule action for the +% operator
+***************************************************************************/
+extern GroupItem opAddAttribute(GroupItem argument,GroupItem target)
+{
+GroupItem   grup;
+    if argument.isLIST
+        while grup = argument.prior(grup)
+            target +% grup;
+    else    target +% argument;
+    target +% argument;
+    return target;
+}
+
+/***************************************************************************
+	Rule action for the AND operator
+***************************************************************************/
+extern GroupItem opAND(GroupItem argument,GroupItem target)
+{
+    if gCount && argument.gCount    return trueResult;
+    return null;
+}
+
+/***************************************************************************
+	Rule action for the = assign operator
+***************************************************************************/
+extern GroupItem opAssign(GroupItem argument,GroupItem target)
+{
+    target.setContent(argument);
+    return target;
+}
+
+/***************************************************************************
+	Rule action for the =* operator
+***************************************************************************/
+extern GroupItem opAssignGroup(GroupItem argument,GroupItem target)
+{
+    if !argument.isInitialized  target.clearData();
+    else    group = argument;
+    return  target;
+}
+
+/***************************************************************************
+	Rule action for the +* copy list operator
+***************************************************************************/
+extern GroupItem opCopyList(GroupItem argument,GroupItem target)
+{
+    if argument.groupList argument.copyListTo(target);
+    else    cerr "ERROR Operator +* failed because missing list for",argument.tag:;
+    return  target;
+}
+
+/***************************************************************************
+	Rule action for ** debug operator
+***************************************************************************/
+extern GroupItem opDebug(GroupItem result)
+{
+    //print result.tag:;
+    return  result;
+}
+
+/***************************************************************************
+	Rule action for the % integer div operator
+***************************************************************************/
+extern GroupItem opDiv(GroupItem argument,GroupItem target)
+{
+    if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER)
+        tempField.count = count % argument.count;
+    if !tempField.data  cerr "ERROR integer div operator failed on",tag,"and",argument.tag:;
+    return tempField;
+}
+
+/***************************************************************************
+	Dot operator method returns the field referenced in a dot product
+    expression like: field, IWC field can be a group field or the
+    name (in field.tag) of a component of target that may or may not exist.
+    Note: local fields are ignored
+***************************************************************************/
+extern GroupItem opDot(GroupItem argument,GroupItem target)
+{
+GroupRules  ruler = groupRules;
+GroupItem   product;
+use argument
+    if !argument
+        if lastREF {
+            argument = target;
+            target = lastREF; }
+        else    cerr "opDot: lastREF not set":;
+    if argument {
+        if registry != groupFields  product = target[tag];
+        else {
+            product = new(tag);
+            switch(gCount) {
+                case 1:     product.text    = target.tag;
+                case 2:     product.group   = target.parent;
+                case 3:     product.group   = target.registry;
+                case 4:     product.tag     = target.text;
+                case 5:     product.count   = target.listLength;
+                case 6:     product.count   = target.data;
+                case 7:     if target.hasAttributes product.count = 1;
+                case 8:     if target.hasMembers    product.count = 1;
+                case 9:     if target.isLocal       product.count = 1;
+                case 10:    if target.isArgument    product.count = 1;
+                case 11:    if target.invoke        product.count = 1;
+                case 23:    if target.isShortcut    product.count = 1;
+                case 28:    if target.noPrint       product.count = 1;
+                case 401:   product.group   = nextInParent;
+                case 402:   product.group   = priorInParent;
+                case 403:   product.group   = firstInList;
+                case 404:   product.group   = lastInList;
+                default:    product.text    = "access to " tag " not supported yet"; }
+            if product
+                if !product.isInitialized   return 0;
+                or !product.parent          product.parent = target; }}
+    return product;
+}
+
+/***************************************************************************
+	Rule action for the == operator
+***************************************************************************/
+extern GroupItem opEQ(GroupItem argument,GroupItem target)
+{
+    if !compareValues(target,argument)  return trueResult;
+    return null;
+}
+
+/***************************************************************************
+	Rule action for the =[ operator that handles [argument] references.
+    Called by Expresses rule when its argument is a Reference
+***************************************************************************/
+extern GroupItem opGet(GroupItem argument,GroupItem target)
+{
+String strung = argument.text;
+    return get(strung);
+}
+
+/***************************************************************************
+	Rule action for the =% getAttribute operator
+***************************************************************************/
+extern GroupItem opGetAttribute(GroupItem argument,GroupItem target)
+{
+String strung = argument.text;
+    return getAttribute(strung);
+}
+
+/***************************************************************************
+	Rule action for the =/ getMember operator
+***************************************************************************/
+extern GroupItem opGetMember(GroupItem argument,GroupItem target)
+{
+String strung = argument.text;
+    return getMember(strung);
+}
+
+/***************************************************************************
+	Rule action for the >= operator
+***************************************************************************/
+extern GroupItem opGE(GroupItem argument,GroupItem target)
+{
+    if compareValues(target,argument) >= 0  return trueResult;
+    return null;
+}
+
+/***************************************************************************
+	Rule action for the > operator
+***************************************************************************/
+extern GroupItem opGT(GroupItem argument,GroupItem target)
+{
+    if compareValues(target,argument) > 0   return trueResult;
+    return null;
+}
+
+/***************************************************************************
+	Rule action for the IN operator.
+        If argument is a set return true if target contains any character in it
+        If target is a set return true if every character in argument is in the set
+            REWRITE THIS ONCE WE HAVE SET OPERATORS need to know for any target
+                is first character in
+                is any character in argument set
+                are all characters in argument set
+***************************************************************************/
+extern GroupItem opIN(GroupItem argument,GroupItem target)
+{
+PLGset  set;
+    if argument.isSET
+        if set = argument.characterSet
+            if set.foundIn(target.text)     return trueResult;
+    if target.isSET
+        if set = target.characterSet
+            if set.contains(argument.text)  return trueResult;
+    return null;
+}
+
+/***************************************************************************
+	Rule action for @ operator
+***************************************************************************/
+extern GroupItem opLastREF(GroupItem result)
+{
+    lastREF = result;
+    return  result;
+}
+
+/***************************************************************************
+	Rule action for the <= operator
+***************************************************************************/
+extern GroupItem opLE(GroupItem argument,GroupItem target)
+{
+    if compareValues(target,argument) <= 0  return trueResult;
+    return null;
+}
+
+/***************************************************************************
+	Rule action for the < operator
+***************************************************************************/
+extern GroupItem opLT(GroupItem argument,GroupItem target)
+{
+    if compareValues(target,argument) < 0  return trueResult;
+    return null;
+}
+
+/***************************************************************************
+	Rule action for ~= match operator
+***************************************************************************/
+extern GroupItem opMatch(GroupItem argument,GroupItem target)
+{
+    if !compare(text,argument.text) return trueResult;
+    return null;
+}
+
+/***************************************************************************
+	Rule action for the - operator
+***************************************************************************/
+extern GroupItem opMinus(GroupItem argument,GroupItem target)
+{
+    if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER) {
+        if isCOUNT  tempField.count    = gCount - argument.count;
+        or isNUMBER tempField.number   = gNumber - argument.number; }
+    or (isSTRING || isTOKEN) && argument.count > 0
+        if gCount > argument.count  tempField.text = headToCount(text,gCount - argument.count);
+    if !tempField.data {
+        cerr "ERROR Operator - failed on",tag,"and",argument.tag:;
+        return null; }
+    return tempField;
+}
+
+/***************************************************************************
+	Rule action for the -= operator
+***************************************************************************/
+extern GroupItem opMinusEQ(GroupItem argument,GroupItem target)
+{
+GroupItem   result;
+use target
+    if binType  result = remove(argument.tag);
+    or data && argument.data {
+        result = target;
+        if isCOUNT  gCount  -= argument.count;
+        or isNUMBER gNumber -= argument.number;
+        or isSTRING || isTOKEN   text = headToCount(text,gCount - argument.count);
+        else    result = 0;
+        if !result  cerr "ERROR Operator -= failed on",tag,"and",argument.tag:; }
+    or argument.isLIST
+        while result = argument.prior(result)
+            opMinusEQ(result,target);
+    return result;
+}
+
+/***************************************************************************
+	Rule action for -- operator
+***************************************************************************/
+extern GroupItem opMinusMinus(GroupItem result)
+{
+    if isCOUNT   gCount--;
+    or isNUMBER  gNumber -= 1.0;
+    or isSTRING || isTOKEN
+        if isPointer {
+            gText--;
+            gCount++; }
+        or gText && gCount > 0 {
+            gCount--;
+            *(gText + gCount) = 0; }
+        else    text = 0;
+    or isSTAK   result = gStak.pop();
+    else    cerr "ERROR Operator -- not supported for data type of",tag:;
+    return  result;
+}
+
+/***************************************************************************
+	Rule action for the * multiply operator
+***************************************************************************/
+extern GroupItem opMultiply(GroupItem argument,GroupItem target)
+{
+    if argument.isCOUNT || argument.isNUMBER
+        if isCOUNT  tempField.count = count * argument.count;
+        or isNUMBER tempField.number = number * argument.number;
+    if !tempField.data {
+        cerr "ERROR Operator * failed on",tag,"and",argument.tag:;
+        return null; }
+    return tempField;
+}
+
+/***************************************************************************
+	Rule action for the *= operator
+***************************************************************************/
+extern GroupItem opMultiplyEQ(GroupItem argument,GroupItem target)
+{
+GroupItem   result;
+use target
+    if data && argument.data {
+        if isCOUNT  gCount  *= argument.count;
+        or isNUMBER gNumber *= argument.number;
+        result  = target;
+        if !result  cerr "ERROR Operator += failed on",tag,"and",argument.tag:; }
+    or argument.isLIST
+        while result = argument.prior(result)
+            opMultiplyEQ(result,target);
+    return result;
+}
+/***************************************************************************
+	Rule action for ! operator
+***************************************************************************/
+extern GroupItem opNOT(GroupItem result)
+{
+    if !(isInitialized && data && gCount)   return trueResult;
+    return null;
+}
+
+/***************************************************************************
+	Rule action for the != operator
+***************************************************************************/
+extern GroupItem opNotEQ(GroupItem argument,GroupItem target)
+{
+    if compareValues(target,argument)  return trueResult;
+    return null;
+}
+
+/***************************************************************************
+	Rule action for the OR operator
+***************************************************************************/
+extern GroupItem opOR(GroupItem argument,GroupItem target)
+{
+    if target
+        if gCount   return trueResult;
+        or argument && argument.gCount  return trueResult;
+    return null;
+}
+
+/***************************************************************************
+	Rule action for the + operator
+***************************************************************************/
+extern GroupItem opPlus(GroupItem argument,GroupItem target)
+{
+    if data && (argument.isCOUNT || argument.isNUMBER) {
+        if isCOUNT  tempField.count = gCount + argument.count;
+        or isNUMBER tempField.number = gNumber + argument.number;
+        or isSTRING || isTOKEN
+            if gCount > argument.count  tempField.text = gText + argument.count;
+            else    cerr "ERROR Operator + tried to advance string past length of",tag:; }
+    if !tempField.data {
+        cerr "ERROR Operator + failed on",tag,"and",argument.tag:;
+        return null; }
+    return tempField;
+}
+
+/***************************************************************************
+	Rule action for the += operator
+***************************************************************************/
+extern GroupItem opPlusEQ(GroupItem argument,GroupItem target)
+{
+GroupItem   grup;
+use target
+    if argument.isLIST
+        while grup = argument.prior(grup)
+            opPlusEQ(grup,target);
+    or argument.data
+        if target.data
+            switch(target.data) {
+                case isCOUNT:   gCount  += argument.count;
+                case isNUMBER:  gNumber += argument.number;
+                case isSTRING:
+                case isTOKEN:   text    += argument.text;
+                case isBUFFER:  buffer  += argument.text;
+                case isSTAK:    gStak.push(argument);
+                default:        cerr "ERROR Operator += failed on",tag,"and",argument.tag:; }
+        else    target.copyData(argument);
+    or target.binType || target.groupList   target += argument;
+
+    return target;
+}
+
+/***************************************************************************
+	Rule action for ++ operator
+***************************************************************************/
+extern GroupItem opPlusPlus(GroupItem result)
+{
+    if !data        count = 1;
+    or isCOUNT      gCount++;
+    or isNUMBER     gNumber++;
+    or isSTRING || isTOKEN
+        if gCount == 0 text = 0;
+        else {
+            gText++;
+            gCount--; }
+    else    cerr "ERROR Operator ++ not supported for data type of",tag:;
+    return  result;
+}
+
+/***************************************************************************
+	operator method for the print rule.
+***************************************************************************/
+extern GroupItem opPrint(GroupItem target,Buffer buffer)
+{
+GroupRules  ruler       = groupRules;
+String      printText   = string();
+    useDefaultSpace     = true;
+    if printText
+        if toBUFFER toBUFFER += printText;
+        else        cout printText;
+    else cerr "print: recieved no print text":;
+    useDefaultSpace = true;
+    reset();
+    bufferSTAK  += buffer;
+    return trueResult;
+}
+
+/***************************************************************************
+	Rule action for the :+ replace operator
+***************************************************************************/
+extern GroupItem opReplace(GroupItem argument,GroupItem target)
+{
+GroupItem   grup;
+    if argument.isLIST
+        while grup = argument.prior(grup)
+            opReplace(grup,target);
+    else    target.replace(argument);
+    return target;
+}
+
+/***************************************************************************
+	Rule action for the := set group operator
+***************************************************************************/
+extern GroupItem opSetGroup(GroupItem argument,GroupItem target)
+{
+    group   = argument;
+    return target;
+}
+
+/***************************************************************************
+	Rule action for the / divide operator
+***************************************************************************/
+extern GroupItem opSlash(GroupItem argument,GroupItem target)
+{
+    if argument.isCOUNT || argument.isNUMBER
+        if isCOUNT  tempField.count = (int)lround(number / argument.number);
+        or isNUMBER tempField.number = number / argument.number;
+    if !tempField.data {
+        cerr "ERROR Operator / not supported for",tag,"and",argument.tag:;
+        return null; }
+    return tempField;
+}
+
+/***************************************************************************
+	Rule action for the /= slash equal operator
+***************************************************************************/
+extern GroupItem opSlashEQ(GroupItem argument,GroupItem target)
+{
+GroupItem   result;
+use target
+    if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER) {
+        if isCOUNT  count   = (int)lround(number / argument.number);
+        or isNUMBER number  = number / argument.number;
+        result = target;
+        if !result  cerr "ERROR Operator /= failed on",tag,"and",argument.tag:; }
+    or argument.isLIST
+        while result = argument.prior(result)
+            opSlashEQ(result,target);
+    return result;
+}
+
+/***************************************************************************
+	operator method for the string rule.
+***************************************************************************/
+extern GroupItem opString(GroupItem target,Buffer buffer)
+{
+    target.clear();
+    target.text = toString();
+    useDefaultSpace = true;
+    reset();
+    bufferSTAK  += buffer;
+    return target;
+}
+
+/*******************************************************************************
+	Print the field passed in to the buffer passed in
+*******************************************************************************/
+extern void printField(GroupItem field,String format,Buffer buffer)
+{
+    if isMethod     field = method(field);
+    if isOperator && groupList   field = runInstruct(field);
+    if isGROUP      field = group;
+    if field {
+        if gText && data < 13 {
+            if !format  format = "%s";
+            append(text,format); }
+        else
+        switch(data) {
+            case isCOUNT:
+                if !format  format = "%d";
+                appendCount(gCount,format);
+            case isNUMBER:
+                if !format  format = "%.1f";
+                appendNumber(gNumber,format);
+            case isSTRING:
+            case isTOKEN:
+                if !format  format = "%s";
+                appendString(text,format);
+            default:
+                if !format  format = "%s";
+                append(text,format); }
+        if useDefaultSpace  append(' '); }
+    else        buffer += "ERROR: field method failed";
+}

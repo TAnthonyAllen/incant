@@ -1,0 +1,109 @@
+
+/*******************************************************************************
+    What would it take to divorce incant from GroupItem flags.
+*******************************************************************************/
+    Add flags to GroupFields
+    opDot just does get
+    opPercent does not overlap w/opDot, instead just reverts to remainder operator
+    processFlags can be shitcanned
+    we shitcan most if not all boolean flags
+    we change opIF to not care if its expression is initialized, the expression produces a result or not
+    
+    /***************************************************************************
+        Changes to GroupBody
+    ***************************************************************************/
+    In addition to first and last, add attributes and flags
+        methods that deal w/attributes and members get simpler
+        a simple true/false flag becomes true if it is in flags, false otherwise
+        last and prior only apply to members THIS WONT WORK
+        The Flags registry (replaces GroupFields) contains the list of flags
+
+/******************************************************************************
+	Toggles
+******************************************************************************/
+    Toggles? Some flags are toggles, like instructType which can be: isMethod isOperator isAction instructed or isCoded. Adding one toggle attribute has to remove the others. Maybe make toggles like
+        isMethod=instructType   Then having an embedded group makes a flag a toggle
+            so when setting isMethod, can look thru flags to find instructType which then becomes instructType=isMethod and BYU
+            instructType (and any toggle) has to be virtual because when its value changes, want the change to be local
+    Setting flags (or toggles)
+        should be like setting a member as in group += flag The flag registry lets addMember know it is dealing with a flag; same w/addAttribute. That way the user never has to worry about whether to use += or +% when adding flags, both will work
+
+    /***************************************************************************
+        Implications for Tok
+    ***************************************************************************/
+    Added a structure type of Flags (modeled after boolean).
+        Dealing w/toggles: in the following, isTat is in a toggle
+        setFlag("isTat");
+            look up isTat in the flagsTable (gonna need one)
+                since isTat is a button its group is the toggle
+                get the toggle from flags
+                if not there, get a new toggle copyOf toggle in flagsTable
+                    add toggle to flags
+                set toggle group to isTat
+                BYU
+        getFlag("isTat");
+            look up isTat in the flagsTable (gonna need one)
+                since isTat is a button its group is the toggle
+                get the toggle from flags
+                if toggle exists and the toggle group == isTat return true;
+                else return false;
+                BYU
+    Bottom line is Tok does not need to know about toggles. That is: toggles
+    and toggle options are just flags to Tok.
+        flags
+            one
+            two
+            tittle:2[isTit isTat isTattle]
+            ;
+    does not need the boolean specification of a toggle. For Tok it can be like
+        flags
+            one
+            two
+            tittle
+            isTit=tittle
+            isTag=tittle
+            isTattle=tittle
+            ;
+    Note: there is no apparent relationship between tittle and its components as far as Tok is concerned
+/******************************************************************************
+	The flagsTable is a hashed registry of flags (w/hashAll set)
+******************************************************************************/
+    Need an incant action to print out the contents of the flagsTable in Tok flags format. Not sure we need this.
+    Not sure if Tok needs to know anything about flags. It does booleans. Booleans work fine. Shit can booleans not in active use. Replace them w/flags in incant and lets see if that suffices.
+    setFlag will be invoked from assign operator methods
+    getFlag will be invoked by the GrouP method
+
+/******************************************************************************
+	Replace these booleans w/flags. Some may be shitcanned
+******************************************************************************/
+    cdata
+    expanded
+    hasActions
+    hasBodyText
+    hasFailMethod
+    ignoreContent
+    ignoreLabel
+    isPath
+    isReleased
+    isShell
+    isStacked
+    isTypeField
+    loadFromData
+    modified
+    noTag
+    onFailure
+    reacts
+
+Try using a =* operator to assign a pointer. Would it work in the following action???
+    grup =* would be the same as grup.pointer =
+        fireDraw argument {
+            for grup IN argument attributes
+                if reggie =* grup.registrY;
+                    if reggie == DrawOperators;     grup();
+                    or reggie == Fonts;             font(grup);
+                    or reggie == Colors;            color(grup);
+            for grup IN argument members
+                fireDraw(grup);
+            };
+Change == operator to recognize a pointer comparison then we should be good
+Only problem w/above action: we got no font or color method

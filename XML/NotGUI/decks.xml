@@ -1,0 +1,19 @@
+<Starter="Default Deck">
+	<Initial=Entry/>
+	<Second>This is an example card with a much longer description, too long to fit on one line and wondering how it will be handled</Second>
+	<Third=stuff;>
+<Another="Another Deck">
+	<one=First/>
+	<two=Second/>
+	<three=Third;>
+	
+	Still to be added is loading and saving of decks. Would like to load a registry from a single group w/members such that the registry group just becomes the registry item. The load would be a command like
+		load name file=whatever
+	where name is the name of the registry. If there already is a registryItem, the loaded data gets added into it
+	The save command would be similar. If there is no file attribute, it will use the file associated with the registry (which means we have to keep it in GroupRegistry)
+	
+	Alternatively, the current method of including a file and specifying the registry first or in the file, works fine and no change needed. However, there is no save command. If we have a default directory then save registry name could just dump out the registry to a file named after the registry. Attributes to the registry item could modify the directory and the file name but how best to set them. If there is no default directory or directory attribute, you get an error.
+	How about adding a registry keyword to the load command, in which case it sets the current registry, if the registry does not exist, creates a new registry and merges the specs into the registry item
+	GroupRegistry save would have to set the file in the scratch buffer, print the registry item to the scratch buffer, then close it
+	
+	How about a registry of spec files. That way you could have a command load whatever the name of the spec file registry is and it would load all the registries in one go. Alternatively, you could have a command load list of registries, that way you could only load selected registries, getting the specs from the specs registry. The latter is easier, just set the current registry to the specs registry and modify the load command to take a list.

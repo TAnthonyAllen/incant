@@ -1,0 +1,164 @@
+XML specification of groups and group query. At this stage this is all hand waving. Nothing implemented.
+
+Take group specification (which is xml), process it and produce new xml, which may include all the decoration needed to display in a browser or application. The specification would be terse and compact, while the processed query would contain the full set of specified data. In effect, it is an xml report writer where the input and output are xml. How the output xml is displayed is a separate problem.
+
+As with sql, the output of a group query can be used as part of an input specification because both input and output are groups
+
+Don't want the user to worry about remembering group codes, so groups can be specified using an xml configure like approach, matching attributes. The mechanism might have to get more sophisticated. The get(path) method pretty much covers this.
+
+Group specification would make use of
+
+	attribute matching (both on existence and value matches)
+	regex pattern matching on tags, attribute names and values
+	sql group specifications
+	attribute inheritance
+	hierarchy (groups exist in a hierarchy)
+
+To get the most out of the matching functionality, make extensive use of tagging
+
+Group codes are meaningless numbers
+
+Group functions
+	min, max
+	sorting
+	summation
+	apply method that operates on the group, creating a new group. Here is where the JIT would be nice.
+
+Develop api that enables you to do this so that it becomes easy to write code. Would like to be able to code group = "<some xml expression/>" Wonder if overloads would allow it (definitely should); We already do this!
+
+Bitmap functions for groups
+	Add bitmaps as attributes
+	methods to go from maps to groups and vice versa
+		map groups
+		manipulate using and, or, xor
+		convert resulting map to group
+
+Group filter takes a group and a filter expression (xml), applies the filter and
+produces a new group
+	Extend this to include query semantics where the filter is applied
+	to produce a multi-dimension array of groups - if this becomes easy to specify
+	along with actions to be applied as the filtering takes place - then you have
+	a powerful analytic tool
+	
+	Maybe can view query as a group reorganization, that is rebuild a group, or build a new group collapsing
+	and expanding dimensions to end up with a group configured the way you want
+	You can then apply group functions w/out all the jiggery pokery of query
+	processing
+	
+	Would need efficient and easy to apply techniques for traversing groups
+
+All these concepts get more complex when groups are no longer homogenous - some
+functions will only apply to homogenous groups
+
+Registering flags
+    The code underlying these is annotated in the second option of the CommandText rule (see Command.act)
+
+    asAttributes    every entry in the registry is flagged as an attribute
+
+    components      when registering a group, also register its components
+
+    data            when registering item by its text not its tag. For example, artist=Prince
+                    would register Prince because presumably the attribute tag: artist is the
+                    name of the registry
+
+    grouped         if a registry is grouped, when you add an attribute from the registry to an
+                    item, the item gets added to the registered attribute as well. That is, the
+                    attribute becomes a group of every item that contains it as well as being
+                    an attribute of the item
+
+    search          add the registry to end of the registry search list
+
+    tagged          when a tagged attribute gets added to an item, the item gets added as
+                    a member of the tagged attribute (this is similar to and not compatible
+                    with the grouped flag described above. Not sure what the difference is)
+
+    value           When adding an item to the registry, load its value as the tag.
+                    When referenced, the tag is resolved to be the registry name. Similar but
+                    not quite the same as the data flag. It is used when processing lists that
+                    have data but no tag
+
+<test jit year=70s artist=ABBA>
+    GroupItem   item;
+    Would like attributes and the enclosing group automatically declared if they are used
+
+    while test.nextAttribute(item)
+        if !test.members test.members = new(item.members)
+        else test.members &= item.members;
+    if test.members test.members.dump();</test>
+
+Problems w/jit code above:
+    BitMAP is not a C class so how do we find dump()? Make it a C class
+    How is new handled - factories will have to be global C methods
+    Need to test while loop
+    automagic declarations currently just hand waving
+    oh, and last but not least, jit not linked in
+The following cdata stuff has changed or should be changed to replace : with [
+<cdataTest>
+    <stuff>
+        In the [test] block that follows, the colon at the end of the tag means the body of the block will be treated as text (like CDATA). That is, the embedded [more] block will not be scanned as a block. By comparison, in the [next] block following, the [less] block is scanned and is closed when the [next] end tag is processed.</stuff>
+    <test:>short
+        <more junk=here>whatever</none></test>
+    <next><less>else and not<okay/></none></next>
+    <complex attribute>Because this has an attribute tag w/no value, this block is treated as an attribute of its parent rather than as a descendent block. Might be a way to print out complex attributes???
+        <first/>
+        <second/></cdataTest>
+    
+Piping
+
+The basic idea here is to adopt the unix pipe model for groups w/implications for interpreter syntax
+    blockA = block1 | block2 | block3;
+Which could be rewritten as
+    blockA = block3(block2(block1()));
+Then add block4 and
+    blockA = block1 | block2 | block3 | block4;
+becomes
+    blockA = block4(block3(block2(block1())));
+
+From parser perspective, given block1, fire its method and then deal with what it produces (a block). If there is a following pipe, pass the result to the block method following the pipe.
+With a pipe there is a supplier and a receiver, altho the supplier is null at the beginning of the pipe and the receiver is null at the end, leaving the last result as the result of the expression.
+    
+    So how does this work? If a block has a method, it fires it producing a result.
+    If a block is a rule, if first checks its input, if the input matches the rule, the rule method fires producing a result.
+    May not be efficient. It just has to work. If we dispense w/the pipes, that is: | and then treat each block as an instruction to be fired in order taking the output of the previous instruction as input then the result is the same, altho the syntax might not be apparent. This conflates operator (method) w/operand (block).
+    Take a + block that adds everything passed into it (presumably starts out null) into it (such that it is its own result)
+
+Given a pipeline as described above HWF, then add a stream, which is a list of blocks such that
+    block1 block2 block3 | +block | block4;
+The first three blocks here are a stream passed in order to the +block to be added with the result passed on to block4 - So how does a stream work? Perhaps a stream is a block w/members to be iterated over, however, who does the iteration? The parser which translates the above into
+        block1 | +block;
+        block2 | +block;
+        block3 | +block | block4;
+    It looks like the | operator is a shortcut means to pass an argument to a method (not so different from operator overloads in Tok - worth a shot)
+Syntactically do not like the stream of blocks, looking at it, which comes first? Alternatively, if the blocks are all components of a parent then it looks like blocks1-3 | +block | block4 No ambiguity
+How about a gather syntax? block1-3 += block1 block2 block3; would add 3 components to block1-3. The parser would have to figure out that block1 block2 block3 are a list and we would need an add(list) method in GroupItem. The notion of a list argument would have to be added to Tok. If there is no list method then Tok would generate
+        block1-3 += block1
+        block1-3 += block2
+        block1-3 += block3
+    probably good enough even if brute force. May not need it because ParseXML does it well w/no special syntax
+
+For now forget any interpreter. With what we got we can define rules w/methods written in Tok. What do we end up with? A bunch of compiled methods that need to be linked to the blocks/rules that contain them, if we could do this as a jit, it would be ideal, if not we end up with a linkage process. plg already does this sort of stuff, only in the case of compiling a single block, all the rule building that happens in a parser's setRule method can be simpler. Declare a block, assign its method and we done. In the case of multiple blocks, do it again. This does not need to happen in the same program. The program can be a set of methods generated when the block rule was parsed.
+    
+    ParseXML produces a PLGitem as its end product. A group parser would produce a group, a rule w/methods linked, ready to be compiled
+        group -> parse -> method code -> compile -> group program
+
+    Would be nice if tok methods were oriented to work with/on groups.
+    Could shit can the dynamic link library and the compile process reverts to a standard process but the result is pretty much the same. Assuming what gets compiled in is mostly stable and unchanged, we are just passing a new code file to be added into a make routine that compiles and links to produce an object file that contains what we want and BYU.
+    Automating the make process would be interesting. Given a list of what you need, it puts together the necessary components and voila. If the necessary components are all spelled out in the group you load, then make and run. If what you called does things in order, you end up running the program you loaded. If it was already compiled and ready, you skip the compile step. Since a group can end up including multiple programs, as long as the programs are all linked to groups that get declared upon load, they can coexist, and even call on each other (note: discovery has to happen late, after ALL the declarations)
+    What would the instructions to the make process look like: a group (the program name) w/an attribute for every component to be included. A command would take that group, generate the make file, and fire off a system call to run it
+What I like
+    I am working w/Tok and can enhance it as needed (not much needed)
+    No interpreter, it should be fast
+    I am intrigued by the automate make idea
+    I also like that a group here works like a program container, if not a program
+What I do not like
+    The compile/test process will be clunky (as it is now)
+What I may like (not sure)
+    No GUI. This can be done in Groups or Bot
+
+Layout Actions
+
+There is a layout option when specifying a registry, however, at present it does nothing
+    I am thinking that the layout spec should mean that any group added to the registry should have a layoutAction but not sure how and when to invoke it
+    Do not want to check every attribute for a layout action
+    Maybe every time a layout registry item is accessed, we fire the action? Or maybe put it on a list and when finished loading the group that contains it, we fire the action???
+    Or better yet, when layout happens (I am thinkingin the Bot target), we check for layout actions

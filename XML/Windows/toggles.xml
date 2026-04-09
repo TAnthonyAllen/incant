@@ -1,0 +1,8 @@
+#registry GUI;
+<toggleExample window x=900 y=450 width=360 height=400 fill=wall font=header closable resize title="Toggle Example">
+    <info=on toggle register>
+        <bar height=25 rounded fill=white pad align=left>
+            <"Show Description" border=off height=20 toggled=info label pad/>
+            <"Hide Description" border=off height=20 toggled=info off label pad/>
+            <space border=off height=5/></bar>
+        <description="Nothing to see here." text toggled=info off pad fill=lightGreen rounded;>

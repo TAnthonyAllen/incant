@@ -1,0 +1,39 @@
+
+/***************************************************************************
+    How to use rules to process display. Would like go thru display group
+    attributes like they are drawing instructions (but drawing instructions
+    are not just attributes: like arc and curve for example).
+***************************************************************************/
+How about an attribute that works like a rule expression, as in draw=text where the text is in drawing, the little language extended to do whatever is needed to display. That means the drawing language would have to handle framing colors fonts text lines paths and transformations. Problem is the drawing language grammar does not operate on attributes but the idea here is the draw rule attribute would convert its text into attributes that are drawing instructions. If the draw rule is noPrint, it can be fired up at definition to produce all the drawing attributes. Display then goes thru the attribute instructions and processes them. It can happen in Layout. Drawing instructions only need a frame as a starting point (POP required).
+        Issue: we do not currently support noPrint rule attributes; RuleStuff does not skip over noPrint attributes
+        Might no even have to change the definition handling of noPrint attributes. Just have to make sure that
+        Figuring a small change to runRule() and BYU
+            Issue: can a rule have a method and an action. The action runs after the rule runs. The method would run the rule. That should work w/no conflict. The method would have to be an immediateACTION, which would set the instructType to isMethod which the action code would overwrite to make it isAction and BYFU
+For example given the following group definitions
+    drawing virtual noPrint rule=Draw ruleMethod=runAttributeRule { action would put rule results in as attributes of drawing's parent };
+    someFramedGroup has attributes including drawing="text of little drawing language commands";
+    The Draw rule will have to be modified to eliminate the draw key word
+
+/***************************************************************************
+    How to load fixed length fields
+***************************************************************************/
+How to define fixed length fields, which can be a type, string, or number. All three options have a count that can be used as the input length. Fixed length fields would be defined like:
+        record isRule fixed
+            countField=5;
+            skipOver- =25;
+            numberField=10.0;
+            stringField="some string of length desired";
+            typeField=someType;; // someType could be fRAME for instance
+Note that the fixed length fields are defined as attributes. When the record rule is run its attributes are processed in order and the parser process each as a fixed length field and the results are stashed in the record label.
+
+/*******************************************************************************
+	Rules to process a comma delimited file. Does not handle type fields.
+*******************************************************************************/
+Delimited fields are handled like fixed length fields. The field values are only used to ID the field data type. If the field does not have a value, its data type defaults to isSTRING
+        record isRule
+            countField}=1;
+            skip-}=3;             // will skip over 3 fields (the - moderator triggers the skip)
+            numberField}=1.0;
+            stringField};;
+    commaStuff="44,two,  forty three,six,6.7,ninety one",
+

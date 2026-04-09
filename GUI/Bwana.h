@@ -1,0 +1,90 @@
+class Actions;
+@class NSFontManager;
+@class NSWindow;
+class Groups;
+class GroupItem;
+class BaseHash;
+class Source;
+class DoubleLinkList;
+class Control;
+class Stak;
+class Buffer;
+@class NSDate;
+//include Sheet.rtn
+/*******************************************************************************
+	Overseer for Group GUI
+*******************************************************************************/
+
+class Bwana
+{
+public:
+Actions *actions;
+NSFontManager *fontManager;
+NSWindow *window;
+Groups *extendParser;
+GroupItem *descriptions;
+GroupItem *types;
+BaseHash *windows;
+Source *expandables;
+Source *emptySource;
+Source *selectSource;
+DoubleLinkList *expandList;
+DoubleLinkList *sourceList;
+char *expandLabel;
+Control *controller;
+Stak *delayActions;
+Buffer *bwanaBuffer;
+double minimumHeight;
+double minimumWidth;
+Bwana(Control *c);
+GroupItem *mapAction(char *name, GroupItem *(*method)(GroupItem *));
+GroupItem *mapAndTrack(char *name, GroupItem *(*method)(GroupItem *));
+GroupItem *mapImmediate(char *name, GroupItem *(*method)(GroupItem *));
+GroupItem *mapMethod(char *name, GroupItem *(*method)(GroupItem *));
+void registerMethods();
+};
+GroupItem *aCTION(GroupItem *item);
+GroupItem *bIGIFY(GroupItem *trait);
+GroupItem *bUFFER(GroupItem *item);
+GroupItem *cANVAS(GroupItem *item);
+GroupItem *cOLLAPSErow(GroupItem *item);
+GroupItem *cssOnLoad(GroupItem *item);
+GroupItem *dESCRIBE(GroupItem *item);
+GroupItem *delimitFILE(GroupItem *item);
+GroupItem *expandTREE(GroupItem *item);
+GroupItem *flagFIELD(GroupItem *item);
+GroupItem *iMAGE(GroupItem *item);
+NSRect indent(NSRect f, double b);
+NSRect indent(NSRect f, double v, double h);
+char *keyCode(GroupItem *item);
+GroupItem *keySTROKE(GroupItem *item);
+int keyStrokeMatch(GroupItem *item);
+GroupItem *mERGE(GroupItem *item);
+GroupItem *mINIMUM(GroupItem *item);
+GroupItem *nEXT(GroupItem *item);
+void pATH(GroupItem *item);
+GroupItem *popUP(GroupItem *item);
+GroupItem *pullDOWN(GroupItem *item);
+GroupItem *resetTREE(GroupItem *item);
+GroupItem *rightCLICK(GroupItem *item);
+GroupItem *sELECTsource(GroupItem *item);
+GroupItem *sHOW(GroupItem *item);
+GroupItem *sOURCE(GroupItem *item);
+GroupItem *scrollWITH(GroupItem *item);
+GroupItem *setCARD(GroupItem *item);
+GroupItem *setExpander(GroupItem *item);
+void setModified(GroupItem *block);
+GroupItem *setSORT(GroupItem *item);
+GroupItem *setSourceTo(GroupItem *group, GroupItem *item);
+GroupItem *tABS(GroupItem *item);
+GroupItem *tAG(GroupItem *item);
+void tEXT(GroupItem *item);
+GroupItem *tOGGLED(GroupItem *item);
+GroupItem *tRAIT(GroupItem *item);
+GroupItem *tREE(GroupItem *item);
+GroupItem *tYPE(GroupItem *item);
+NSDate *timeEnd(NSDate *d);
+char *toString(NSPoint p);
+char *toString(NSRect f);
+GroupItem *wINDOW(GroupItem *item);
+GroupItem *xmlFILE(GroupItem *item);

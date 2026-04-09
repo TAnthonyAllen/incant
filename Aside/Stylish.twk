@@ -1,0 +1,468 @@
+include GUIincludes
+
+/*******************************************************************************
+	Defined as class but just a structure really to encapsulate style attributes
+*******************************************************************************/
+class Stylish
+{
+String          styling;
+Filler          filler,
+                selectFill;
+Color			selectStroke,
+                stroker,
+                texter;
+Shadow          shadow;
+NumberFormatter formatter;
+double			borderWidth,
+                radius,
+                transparency;
+GroupItem       createdBy,
+                blankItem,
+                commaItem,
+                fontItem,
+                formatItem,
+                zeroItem;
+boolean
+		align:3[center left right justify]
+		bottomBorder
+        fontModified
+        imageSized
+		leftBorder
+		rightBorder
+		rounded
+		squared
+		topBorder
+		;
+
+Stylish(GroupItem item)
+{
+    texter      = getColorNamed("black");
+    styling     = item.tag;
+    createdBy   = item;
+	// This just zeros out everything
+}
+
+Stylish(String name)
+{
+    texter      = getColorNamed("black");
+	styling     = name;
+}
+
+Stylish(GroupItem item,Stylish source)
+{
+#initNOT
+	*this       = *source;
+    styling     = item.tag;
+    createdBy   = item;
+}
+
+/*******************************************************************************
+    wrapper to get a font from a GroupItem to get around ARC stupidity and
+    because __bridge not supported in tok
+*******************************************************************************/
+Font getFont()
+{
+Font   font;
+    if !fontItem return null;
+    -%font = (__bridge NSFont*)getPointerGroupItem(fontItem);%-
+    return font;
+}
+
+/*******************************************************************************
+    wrapper to set a font in an item to get around ARC stupidity and because
+    __bridge not supported in tok. Assumes fontItem is set. This should
+    be a macro.
+*******************************************************************************/
+void setFont(Font font)
+{
+    -%setPointerGroupItem(fontItem,(__bridge void*)font);%-
+}
+}
+
+/*******************************************************************************
+	Set text alignment in current style
+*******************************************************************************/
+void aLIGN(GroupItem item)
+{
+Details		detail = item.getDetail();
+String		text = item.text;
+	if !style   style = new(wig,getStyle());
+	if !text
+		{
+		style.center	=
+		style.left		=
+		style.right		= false;
+		}
+	or text == 'c'
+		style.center = true;
+	or text == 'l'
+		style.left = true;
+	or text == 'r'
+		style.right = true;
+}
+
+/*******************************************************************************
+	Process border attributes
+*******************************************************************************/
+void bORDER(GroupItem item)
+{
+Details	detail = item.getDetail();
+	if !style
+		{
+		style = new(wig,getStyle());
+		stroked			=
+		bottomBorder	=
+		leftBorder		=
+		rightBorder		=
+		topBorder		=
+		rounded			=
+		squared			= false;
+		}
+	if item.tag == 'b'
+		if item.value border(item,style);
+		else {
+			squared = true;
+            rounded = false;
+			stroked = true;
+			}
+	else {
+		if item.tag == 'u'
+			{
+			bottomBorder = true;
+			rounded =
+			squared = false;
+			}
+		or item.tag == 'r'
+			{
+			rounded = true;
+			squared = false;
+			if item.value radius = item.number;
+			else radius = 5.0;
+			}
+		stroked = true;
+		}
+	if stroked wig.noPrint = false;
+}
+
+/*******************************************************************************
+	Process fill attribute. Checks both color attributes and wig attributes
+    for transparency and gradient specs.
+*******************************************************************************/
+void fILL(GroupItem item)
+{
+Details     detail = item.getDetail();
+Filler      wash;
+int         off;
+use item
+	if !style style = new(wig,getStyle());
+    if (item.text eq "off") off = true;
+    or !isPointer colorize(item);
+    if item.tag == 'f'
+        {
+        if off
+            {
+            filler  = null;
+            filled  = false;
+            }
+        else {
+            if item.isPointer wash = filler = new(getColor(item));
+            if filler filled = true;
+            }
+        }
+    else {
+        if item.tag eq "selectStroke"
+            if off selectStroke = null;
+            else selectStroke = getColor(item);
+        else {
+            if off
+                {
+                selectFill  = null;
+                filled  = false;
+                }
+            if item.isPointer wash = selectFill = new(getColor(item));
+            if selectFill filled = true;
+            }
+        }
+	wig.noPrint = false;
+    if wash checkColor(item);
+}
+
+/*******************************************************************************
+	Process font attribute
+*******************************************************************************/
+void fONT(GroupItem item)
+{
+Details     detail = item.getDetail();
+GroupItem	element,namedFont,trait;
+String      name;
+Font        font;
+use item
+	if item.isPointer && style
+        if fontItem && !fontModified
+            return;           // Must have already processed this
+	if !style style = new(wig,getStyle());
+    if name = item.text
+        if namedFont = locate(name)
+            {
+            font = systemFontOfSize(0);
+            fontItem = namedFont;
+            setFont(font);
+            hold((void*)font);
+            namedFont.other = detail;
+            while namedFont.nextAttribute(element)
+                {
+                trait = properties[element.tag];
+                if !trait && element.registry
+                    trait = properties[element.registry.type];
+                if trait
+                    if trait.method trait.method(element);
+                    or element.isItem && trait["method"]
+                        if trait = properties[element.text] element.method = trait.method;
+                }
+            if fontModified font = getFont();
+            fontModified = false;
+            }
+        else cerr "font: could not locate",item:;
+    else cerr "font: no name specified":;
+	//cout "font: " wig.tag,font.displayName(),font.size():;
+}
+
+/*******************************************************************************
+	Process font name.
+*******************************************************************************/
+void fONTname(GroupItem item)
+{
+Details     detail  = item.getDetail();
+String      name    = item.text;
+Font        font,revisedFont;
+    if name
+        {
+        NSString    ocText = name;
+        if !style style = new(wig,getStyle());
+        if !fontItem
+            {
+            font = systemFontOfSize(0);
+            fontItem = new(name);
+            setFont(font);
+            }
+        else font = getFont();
+        if font
+            {
+            revisedFont = convert(font,ocText);
+            font    = revisedFont;
+            hold((void*)font);
+            fontModified = true;
+            setFont(font);
+            }
+        }
+    else cerr "fONTname: no name provided",item:;
+	//cout `"font name: " wig.tag,item.text,font.displayName(),font.size():;
+}
+
+/*******************************************************************************
+	Process font size.
+*******************************************************************************/
+void fONTsize(GroupItem item)
+{
+Details     detail = item.getDetail();
+double      amount = item.number;
+Font        font,revisedFont;
+    if amount == 0.0
+        {
+        cerr "fONTsize: no font size specified in",wig.getTagXML():;
+        return;
+        }
+	if !style style = new(wig,getStyle());
+	font = getFont();
+    if !font
+        cerr "fONTsize: no font found to set size of for",wig.getTagXML():;
+    else {
+        revisedFont = convert(font,amount);
+        font    = revisedFont;
+        hold((void*)font);
+        fontModified = true;
+        setFont(font);
+        //cout `"font size: " wig.tag,item.text,font.displayName(),font.size():;
+        }
+}
+
+/*******************************************************************************
+	Process font style (ie. bold, italic).
+*******************************************************************************/
+void fONTstyle(GroupItem item)
+{
+Details     detail = item.getDetail();
+int			mask = item.count;
+	if !style style = new(wig,getStyle());
+    if mask
+        {
+        Font font = getFont();
+        Font revisedFont;
+        if !font
+            {
+            font = systemFontOfSize(0);
+            if !fontItem fontItem = new("no name font");
+            setFont(font);
+            }
+        revisedFont = convert(font,mask);
+        font    = revisedFont;
+        hold((void*)font);
+        fontModified = true;
+        setFont(font);
+        }
+	//cout "style: " wig.tag,item.tag,font.displayName(),font.size():;
+}
+
+/*******************************************************************************
+	Set the print format for an item.
+*******************************************************************************/
+void fORMAT(GroupItem item)
+{
+Details     detail = item.getDetail();
+String      format = item.text;
+    if format
+        {
+        if !style style = new(wig,getStyle());
+        if *format != '%'
+            {
+            PLGitem     result = extendParser.divertInput(format,"Amount");
+            if result
+                {
+                PLGitem digits = result["number"];
+                PLGitem fraction = result["part"];
+                if !digits
+                    {
+                    cerr "fORMAT: expected a number format in " item.getTagXML():;
+                    return;
+                    }
+                if !formatter
+                    {
+                    formatter = new;
+                    formatter.numberStyle = decimalFS;
+                    }
+                if commaItem && !hasCommas
+                    {
+                    hasCommas = true;
+                    thousandSeparator = commaItem.text;
+                    }
+                maxDigits = digits.amount;
+                minDigits = 1;
+                if fraction
+                    {
+                    maxFractions = fraction.amount;
+                    minFractions = fraction.amount;
+                    }
+                else minFractions = 0;
+                }
+            }
+        formatItem = item;
+        }
+    else cerr "fORMAT: no format text in " item.getTagXML():;
+}
+
+/*******************************************************************************
+	wrapper to get a color to get around ARC stupidity and because __bridge
+    not supported in tok
+*******************************************************************************/
+Color getColorFromItem(GroupItem item)
+{
+Color   color;
+    -%color = (__bridge NSColor*)getPointerGroupItem(item);%-
+    return color;
+}
+
+/*******************************************************************************
+    Look up the color in the cOLOr registry, convert it as needed and return
+    the associated Color field.
+*******************************************************************************/
+Color getColorNamed(String name)
+{
+Color   color;
+GroupItem   item = locate(name);
+    if item
+        if !item.isPointer colorize(item);
+    if item.isPointer return getColor(item);
+    else cerr "getColor: could not get color",name:;
+    return color;
+}
+
+/*******************************************************************************
+	Process shadow.
+*******************************************************************************/
+void sHADOW(GroupItem item)
+{
+Details     detail = item.getDetail();
+GroupItem   blur    = wig["shadowBlur"],
+            offset  = wig["shadowOffset"],
+            xOffset = wig["shadowX"],
+            yOffset = wig["shadowY"],
+            color   = wig["shadowColor"];
+	if !style style = new(wig,getStyle());
+    if !shadow
+        {
+        shadow = new;
+        hold((void*)shadow);
+        }
+    if blur shadow.blur(blur.number);
+    else shadow.blur(3.0);
+    if color
+        {
+        if !color.isPointer colorize(color);
+        shadow.color(getColor(color));
+        }
+    else shadow.color(black.alpha(0.3));
+    if offset
+        shadow.offset(sized(offset.number,-offset.number));
+    or xOffset && yOffset
+        shadow.offset(sized(xOffset.number,yOffset.number));
+    else shadow.offset(sized(2.0,-2.0));
+}
+
+/*******************************************************************************
+	Assign the style named in the item passed in as the current style. If there
+	is no named style, create one.
+*******************************************************************************/
+void sTYLE(GroupItem item)
+{
+Details         detail = item.getDetail();
+String          name = item.text;
+GroupRegistry   styles = registries["sTYLEs"];
+GroupItem       styleItem,
+                saveItem = wig;
+use style
+    if !styles styles = getRegistry("sTYLEs");
+    if !name
+        {
+        cerr "ERROR in " wig.tag ": style attribute has to specify a name\n";
+        return;
+        }
+    or styleItem = styles[name]
+        {
+        if !styleItem.pointer
+            {
+            if style
+                style   = new(wig,style);
+            else style  = new(name);
+            styleItem.pointer = (void*)style;
+            }
+        else style = styleItem.pointer;
+        return;
+        }
+	style       = new(wig,getStyle());
+    styling     = name;
+    styleItem   = controller.itemFactory(name);
+    styleItem.pointer = (void*)style;
+    styles += styleItem;
+}
+
+/*******************************************************************************
+	Process text color attribute
+*******************************************************************************/
+void textCOLOR(GroupItem item)
+{
+Details	detail = item.getDetail();
+	if !style style = new(wig,getStyle());
+		if !item.isPointer colorize(item);
+    if item.isPointer texter = getColor(item);
+	if texter wig.noPrint = false;
+}

@@ -1,0 +1,1401 @@
+
+/*******************************************************************************
+	set an action
+*******************************************************************************/
+GroupItem aCTION(GroupItem item)
+{
+Details	detail = item.getDetail();
+String      name = item.text;
+use item
+    if !wig
+        cerr "ERROR no parent found when assigning action for " item.getTagXML():;
+    or name
+        {
+        // Note: this sets action on the attribute not the parent
+        setAction(item,name);
+        return null;
+        }
+    else cerr "ERROR could not find action in " wig.getTagXML():;
+    return null;
+}
+
+#bigifyCheck(arggg)-
+    checkExist(bIGIFY,arggg)-
+/*******************************************************************************
+	Build a bigify layout block. This is an immediate action that gets run
+    upon load.
+*******************************************************************************/
+GroupItem bIGIFY(GroupItem trait)
+{
+GroupItem   group,
+            attr,
+            bigify      = trait.parent;
+    bigifyCheck(bigify);
+GroupItem   bigColumns  = bigify%bigColumns,
+            bigRows     = bigify%bigRows,
+            columns     = bigify%columns,
+            rows        = bigify%rows,
+            bigItem     = locate("bigItem"),
+            regularItem = locate("regularItem"),
+            regularRow  = locate("regularRow"),
+            bigColumn   = locate("bigColumn"),
+            biggie,
+            bigRow;
+    /***************************************************************************
+        Sanity checks
+    ***************************************************************************/
+    bigifyCheck(bigColumn);
+    bigifyCheck(bigItem);
+    bigifyCheck(regularItem);
+    bigifyCheck(bigColumns);
+    bigifyCheck(bigRows);
+    bigifyCheck(columns);
+    bigifyCheck(regularRow);
+    bigifyCheck(rows);
+int     regularRows     = rows.count - bigRows.count;
+int     regularColumns  = columns.count - bigColumns.count;
+int     totalItems      = 1 + regularRows * columns.count + regularColumns * (rows.count - regularRows);
+int     j,col,current;
+String  name;
+    /***************************************************************************
+        Bigification starts here
+    ***************************************************************************/
+    while current < totalItems
+        {
+        if bigRow goto processRow;
+        /***********************************************************************
+            Create big row wrapper
+        ***********************************************************************/
+        if !bigRow
+            {
+            bigRow  = locate("bigRow");
+            bigifyCheck(bigRow);
+            bigRow  = bigify += bigRow;
+            group   = bigRow%"height";
+            group.count     = 100 * bigRows.count / rows.count;
+            group.isPercent = true;
+            }
+        /***********************************************************************
+            Fill big row w/component columns
+        ***********************************************************************/
+        while col < regularColumns
+            {
+            GroupItem   columny = bigRow += bigColumn;
+            //cout "bIGIFY: processing big column",current:;
+            name        = "column" current;
+            j           = bigRows.count;
+            columny.tag   = name;
+            while j--
+                {
+                attr    = columny += regularItem;
+                current++;
+                }
+            col++;
+            }
+        if !biggie
+            {
+            //cout "bIGIFY: processing big item",current:;
+            biggie              = bigRow += bigItem;
+            biggie              = biggie%"width";
+            biggie.count        = 100 * bigColumns.count / columns.count;
+            biggie.isPercent    = true;
+            current++;
+            }
+        continue;
+        /***********************************************************************
+            Build a regular row
+        ***********************************************************************/
+processRow:
+        //cout "bIGIFY: processing regular row",current:;
+        name        = "row" current;
+        group       = bigify += regularRow;
+        group.tag   = name;
+        j = columns.count;
+        // regularItem gets copied when it is added
+        while j--
+            {
+            attr = group += regularItem;
+            current++;
+            }
+        }
+    return null;
+}
+
+/*******************************************************************************
+	Make parent a buffer block
+*******************************************************************************/
+GroupItem bUFFER(GroupItem item)
+{
+    item.noPrint = true;
+    if parent
+        {
+        Buffer  buffet = new;
+        parent.buffer = buffet;
+        }
+    return null;
+}
+
+/*******************************************************************************
+	Make block a canvas
+*******************************************************************************/
+GroupItem cANVAS(GroupItem item)
+{
+    item.text   = item.parent.tag;
+    item.tag    = "id";
+    item.copied = false;
+    item.registry   = null;
+    item.parent.tag = "canvas";
+    return null;
+}
+
+/*******************************************************************************
+	Collapse a previously expanded row of a matrix
+*******************************************************************************/
+GroupItem cOLLAPSErow(GroupItem item)
+{
+Details     wrapDetail,
+            detail  = item.getDetail();
+GroupItem   group,
+            firstItem,
+            wrapper;
+    checkError(cOLLAPSErow,!item.expanded,"Cannot collapse row. It was not expanded.");
+    item.expanded = false;
+    for wrapper = wig on parent
+        if wrapper.tag eq "wrapper" break;
+    // Note the avoidance of commas in the 3rd argument below
+    checkError(cOLLAPSErow,!wrapper,"Could not find expand block for " wig.tag " " wig.text);
+    /***************************************************************************
+        Default case, totals first
+    ***************************************************************************/
+    firstItem = wrapper.nextMember(firstItem);
+    wrapper         -= firstItem;
+    group           = wrapper.parent;
+    wrapper.replaceWith(firstItem);
+    wrapDetail      = wrapper.getDetail();
+    wrapDetail.wig  = wrapper;
+    wrapper         = wrapper.parent;
+    // Check case where totals last or no totals
+    return null;
+}
+
+/*******************************************************************************
+	This is an onLoad method that gets added to the pROPERTIEs registry to link
+    properties that have css equivalents.
+*******************************************************************************/
+GroupItem cssOnLoad(GroupItem item)
+{
+GroupItem   cssGroup;
+String      cssName = item.text;
+    if cssName
+        if cssGroup = cssRegister/cssName
+            item.group = cssGroup;
+    return item;
+}
+
+/*******************************************************************************
+	Load a delimited list file into the current block. In the following method,
+    the block that load returns is wig populated w/records from the list file.
+*******************************************************************************/
+GroupItem delimitFILE(GroupItem item)
+{
+Details         detail = item.getDetail();
+GroupItem       block;
+use groupParser
+    block = loadDelimited(wig);
+    cout "Loading delimited file into " wig.tag :;
+    checkError(delimitFILE,!block,"Failed to load file for " wig.tag);
+    return null;
+}
+
+/*******************************************************************************
+	Set the text of item parent to the description of the last selection.
+*******************************************************************************/
+GroupItem dESCRIBE(GroupItem item)
+{
+Details         selectDetail,
+                detail = item.getDetail();
+GroupItem       last,group;
+String          blurb,
+                name = item.text;
+use groupParser
+    setStyle();
+    if wig%"text"
+        cerr "Warning at block: " wig.tag:`
+            "Do not need (or want) text attribute if describe specified\n";
+    else {
+        isText          = true;
+        isDisplayable   = true;
+        editable        = false;
+        }
+    if !name && !lastSelect name = wig.tag;
+    wig.text = "";
+    /***************************************************************************
+        First time thru: if there is a descriptions registry add a reaction to
+            this block to fire this method when any block gets selected.
+        Every other time thru: look up the selection in the descriptions registry
+            and if found, set text for this block and its display to the
+            description text.
+    ***************************************************************************/
+    if descriptions && descriptions.length
+        {
+        if !attributed
+            {
+            hasReactions    = true;
+            item.reacts     = true;
+            selectSource.addListener(wig);
+            }
+        group   = wig%describeAny;
+        /***********************************************************************
+            The following statement checks to make sure we are only describing
+            things that apply to the current view.
+        ***********************************************************************/
+        if lastSelect && !group
+            if selectDetail = lastSelect.getDetail()
+                if attributed && selectDetail.view != detail.view
+                    return null;
+        /***********************************************************************
+            The check of attributed is to make sure things happen properly on
+            selection (once attributed) and also on first time thru
+        ***********************************************************************/
+        if attributed
+            for last = lastSelect on parent
+                {
+                name = last.tag;
+                if group = descriptions[name] break;
+                }
+        or name = item.text;
+        else name = wig.tag;
+        if name group = descriptions[name];
+        if group
+            {
+            blurb   = group.text;
+            if !blurb
+                {
+                GroupItem   description = group["description"];
+                if description group = description;
+                }
+            }
+        or !last group = descriptions[name];
+        /***********************************************************************
+            At this point group should be block to be described
+        ***********************************************************************/
+        if group
+            {
+            if group.isItem
+                wig.item        = group.item;
+            or blurb wig.text   = blurb;
+            }
+        else wig.text       = name;
+        setModified(wig);
+        }
+    //cout `"Setting description of " name " for " wig.tag,"to":``blurb:;
+    return null;
+}
+
+/*******************************************************************************
+	Expand a tree after it has been collapsed.
+*******************************************************************************/
+GroupItem expandTREE(GroupItem item)
+{
+GroupItem       branch,expandedRow,part,group,row;
+int             indentWidth;
+use item
+    /***************************************************************************
+        Figure out the indent
+    ***************************************************************************/
+    if group = item.findAttribute("indentIncrement")
+        indentWidth = group.count;
+    else indentWidth = 10;
+    if part = item/"indent"
+        if part = part%"width"
+            indentWidth += part.count;
+    /***************************************************************************
+        Embed item in a wrapper and expand
+    ***************************************************************************/
+    expandedRow     = new(item);
+    item.tag        = "wrapper";
+    item.parts.clear();
+    item.mergeIfFound("matrixRowWrapper");
+    item["border"]  = "off";
+    item += expandedRow;
+    group   = item.group;
+    checkError(expandTREE,!group,"leaf expand group not found");
+    while branch = group.nextMember(branch)
+        {
+        row     = new(expandedRow.tag);
+        row.merge(expandedRow);
+        row.group = branch;
+        item    += row;
+        if part = row/"indent"
+            {
+            part.clearAttributes();
+            part["width"] = indentWidth;
+            }
+        if part = row/"entry"
+            part.group = branch;
+        }
+    //cout :"expandTREE":item:;
+    expandedRow.expanded = true;
+    return null;
+}
+
+/*******************************************************************************
+	Turn on detail flags
+*******************************************************************************/
+GroupItem flagFIELD(GroupItem item)
+{
+Details	detail = item.getDetail();
+String  text = item.text;
+    setStyle();
+    switch(*item.tag)
+        {
+        case 'b':
+            blankItem       = item;
+            break;
+        case 'c':
+            commaItem       = item;
+            if formatter && text
+                {
+                hasCommas = true;
+                thousandSeparator = ocString(text);
+                }
+            break;
+        case 'd':
+            noScroll        = true;
+            break;
+        case 'e':
+            editable        = true;
+            break;
+        case 'k':
+            // key (used in sorted lists when deciding to show repeated attributes)
+            if (item.tag eq "keyAction") keyAction = true;
+            else keyField   = true;
+            break;
+        case 'n':
+            // do not set selectSource
+            noSelectSource  = true;
+            break;
+        case 's':
+            // selectable
+            if item.tag eq "selectable"
+                if item.text
+                    {
+                    if !wig.parent view.notSelectable = true;
+                    selectable  = false;
+                    }
+                else selectable = true;
+            break;
+        case 'z':
+            zeroItem        = item;
+        }
+    return null;
+}
+
+/*******************************************************************************
+	process an image attribute and set the default image action
+*******************************************************************************/
+GroupItem iMAGE(GroupItem item)
+{
+String      fileName;
+Details		detail = item.getDetail();
+GroupItem   group,
+            file,
+            directory;
+use item
+    //cout "iMAGE: processing",wig.tag:;
+    isImage     = true;
+    imageSized  = true;
+    /***************************************************************************
+        If image has text, assume it is the name of the file containing the image.
+        Otherwise, look for directory and file attributes and if found, construct
+        the file name containing the image.
+    ***************************************************************************/
+    if sourced
+        {
+        if group = wig.group
+            if group.value fileName = group.text;
+            or file = group["file"]
+                if directory = group["directory"]
+                     fileName = directory.text "/" file.text;
+                else fileName = file.text;
+       }
+    or item.value fileName = getText();
+    or file = wig.findAttribute("file")
+        if directory = wig.findAttribute("directory")
+            fileName = directory.text "/" file.text;
+        else fileName = file.text;
+    if !fileName cerr "iMAGE: file name not found for",wig.getTagXML():;
+	item.text       = fileName;
+    // image creation moved to Layout displayImage()
+    displayStack    += (void*)item;
+    // draw = @displayImage;
+    setModified(wig);
+    setAction(item,"iMAGEwork");
+    return null;
+}
+
+Frame indent(Frame f,double b)
+{
+	return rectangle(x + b,y + b, width - 2 * b,height - 2 * b);
+}
+
+Frame indent(Frame f,double v,double h)
+{
+	return rectangle(x + v,y + h, width - 2 * v,height - 2 * h);
+}
+
+/*******************************************************************************
+	Convenience method to get a key code entered in the block passed in. Need
+    this because Objective-C calls not working in jit (and unlike the
+    event keyCode method this does not crap out if event not a key event.
+*******************************************************************************/
+extern String keyCode(GroupItem item)
+{
+Details		detail = item.getDetail();
+String      text;
+    if event && event.type == 11
+        {
+        text = event.keyString();
+        if !strlen(text)
+            text = toString(event.keyCode());
+        }
+    return text;
+}
+
+/*******************************************************************************
+    Process key stroke specification
+*******************************************************************************/
+GroupItem keySTROKE(GroupItem item)
+{
+Details    detail = item.getDetail();
+    if !item.keyAction
+        if processKeySpec(item)
+            {
+            item.parent.keyAction = true;
+            wig.keyAction = true;
+            }
+    return null;
+}
+
+/*******************************************************************************
+    Returns true if the event key stroke matches the parameter item key stroke.
+*******************************************************************************/
+int keyStrokeMatch(GroupItem item)
+{
+Details     detail  = item.getDetail();
+String      keyText = keyString;
+GroupItem   group   = findAttribute("keyStroke");
+    if !altSet || altKeyed
+        if !controlSet || controlKeyed
+            if !commandSet || commandKeyed
+                if !shiftSet || shiftKeyed
+                    if group.item eq keyText
+                        return true;
+    return false;
+}
+
+/*******************************************************************************
+	Trigger an override merge with source. The source attributes override (so
+    they take effect when used in conjunction with a next attribute).
+*******************************************************************************/
+GroupItem mERGE(GroupItem item)
+{
+Details         detail  = item.getDetail();
+GroupItem       sourceAttribute;
+GroupItem       block   = wig;
+Source      source;
+    while block
+        {
+        if sourceAttribute = block["sRCe"]
+            {
+            source = sourceAttribute.pointer;
+            if block = block.group
+                {
+                //cout "Merging",block.tag,"into",wig.tag,wig.index:;
+                wig.mergeAttributes(block,true);
+                if !reacting
+                    {
+                    wig.merge(block);
+                    source.addListener(wig);
+                    hasReactions    = true;
+                    item.reacts     = true;
+                    }
+                }
+            break;
+            }
+        else block = block.parent;
+        }
+    return null;
+}
+
+/*******************************************************************************
+	Sets minimum width or height.
+*******************************************************************************/
+GroupItem mINIMUM(GroupItem item)
+{
+    if item.tag eq "minimumHeight"
+        { minimumHeight = item.number; }
+    else minimumWidth = item.number;
+    return null;
+}
+
+/*******************************************************************************
+	Set wig data to the next source item, if there is one.
+*******************************************************************************/
+GroupItem nEXT(GroupItem item)
+{
+Details     contentDetails,
+            detail = item.getDetail();
+Source      source;
+GroupItem   content,sourceAttribute,block;
+String      name;
+    //cout ``"nEXT test1:",wig.tag,attributed,wig.index:;
+    if name = item.text
+        {
+        if block = wig.findParent(name)
+            if sourceAttribute = block%sRCe
+                source = sourceAttribute.pointer;
+        if source
+            {
+            if !sourced
+                {
+                // source attribute may have been copied and we need a new one
+                if sourceAttribute = wig%sRCe wig.remove(sourceAttribute);
+                sourceAttribute = wig["sRCe"] = (void*)source;
+                sourced = true;
+                content = item;
+                /***************************************************************
+                    The variable content parent gets added as a source listener
+                    and this item gets added to its down or across attribute
+                    (which has * value) and the attribute has setFLEXcontent
+                    set as its action method. When you scroll, the source fires
+                    the listeners, setFLEXcontent runs, which ends up running
+                    this nEXT method to update the displayed value.
+                ***************************************************************/
+                while content = content.parent
+                    if content.contentVaries
+                        {
+                        source.resetOnResize = true;
+                        if (block = content["across"]) || (block = content["down"])
+                            {
+                            if !content%sRCe content += sourceAttribute;
+                            if !content.indexed
+                                {
+                                source.addListener(content);
+                                // indexed flags variable content block as source listener
+                                content.indexed     = true;
+                                if contentDetails = content.getDetail()
+                                    contentDetails.hasReactions = true;
+                                block.reacts        = true;
+                                block.method        = setFLEXcontent;
+                                }
+                            }
+                        break;
+                        }
+                }
+            block   = source.next();
+            isNext  = true;
+            if !block
+                {
+                wig.group   = null;
+                noData      = true;
+                wig.noRoom  = true;
+                //cout ``"nEXT: no data " wig.tag,wig.index:;
+                }
+            else {
+                wig.group   = block;
+                noData      = false;
+                wig.noRoom  = false;
+                if wig%setTag   wig.tag = block.tag;
+                //cout ``"nEXT: " wig.tag,wig.index,source.current,block.getTagXML():;
+                }
+            }
+        }
+    else cerr wig.tag ": source block not specified for next\n";
+    return null;
+}
+
+/*******************************************************************************
+	Process path attribute. A path list can consist of multiple paths. Each path
+    is a list of draw points that get stored in a drawingPath. The drawingPaths
+    are then stored in a pathSet (created in Groups buildPath method). Both
+    pathSet and drawingPath are null terminated double indirection pointers
+    (so the pathSet field below is a triple indirection pointer).
+*******************************************************************************/
+void pATH(GroupItem item)
+{
+Details     detail  = item.getDetail();
+Buffer      buffer  = new;
+    if detail
+        {
+        DrawPoint   ***pathSet;
+        item.text       = wig.text;
+        drawingBlock    = wig;
+        wig.remove("boDY");
+        wig.hasBodyText = false;
+        if pathSet = buildPath(item)
+            {
+            wig.buffer      = buffer;
+            item.pointer    = pathSet;
+            isPath          = true;
+            isDisplayable   = true;
+            drawPath(item);
+            }
+        }
+    //setModified(wig);
+}
+
+/*******************************************************************************
+	Set the pop up action.
+*******************************************************************************/
+GroupItem popUP(GroupItem item)
+{
+    setAction(item,"display");
+    return null;
+}
+
+/*******************************************************************************
+	Set up pull down block
+*******************************************************************************/
+GroupItem pullDOWN(GroupItem item)
+{
+GroupItem	menu;
+Details		detail = item.getDetail();
+String		name = item.text;
+use item
+    setAction(item,"menu");
+	if name
+		{
+		if menu = locate(name)
+            {
+            item.group          = menu;
+            menu["pULLdOWN"]    = wig;
+            }
+		}
+	else cerr "No pull down block found\n";
+    return null;
+}
+
+/*******************************************************************************
+	Reset the root of a tree (should not need this if jit can read a boolean).
+*******************************************************************************/
+GroupItem resetTREE(GroupItem item)
+{
+Details	detail = item.getDetail();
+    sourced = false;
+    tREE(item);
+    return null;
+}
+
+/*******************************************************************************
+	associate current action w/right mouse button
+*******************************************************************************/
+GroupItem rightCLICK(GroupItem item)
+{
+Details	detail = item.getDetail();
+String  name = item.text;
+    if wig
+        {
+        if name setAction(item,name);
+        wig.rightClick  = true;
+        }
+    else cerr "ERROR no parent found when assigning right click action for " item.getTagXML():;
+    return null;
+}
+
+/*******************************************************************************
+	Associates groups that get scrolled along with this one.
+*******************************************************************************/
+GroupItem scrollWITH(GroupItem item)
+{
+GroupItem   scroller,target,scrollBlock = item.parent;
+String      name = item.text;
+    if scrollBlock
+        {
+        /***********************************************************************
+            scrollWith attribute identifies the block it scrolls with in its text.
+            It looks for the block using the simplePath method first and if that
+            does not work it tries the locate method that looks thru the
+            current registry and then thru the registry search list.
+            At the end of this, each scrollWith attribute is set to point to
+            the other scrollWith parent;
+        ***********************************************************************/
+        scrollBlock.doNotChangeParent = true;
+        if !(target = simplePath(item))
+            target = locate(name);
+        if target
+            {
+            if !(scroller = target%scrollWith)
+                {
+                scroller = target += "scrollWith";
+                scroller.group = item;
+                }
+            // add this block to the scroll list
+            scroller += scrollBlock;
+            item.group = scroller;
+            }
+        else  cerr "scrollWith could not locate",name:;
+        scrollBlock.doNotChangeParent = false;
+        }
+    else cerr "scrollWith: missing scroll block":;
+    return null;
+}
+
+/*******************************************************************************
+	Set source to the selection (two flavors, one for attributes, one for
+    members depending on whether or not there is an attributes attribute.
+    The parent of item is set to listen to the selected source.
+*******************************************************************************/
+GroupItem sELECTsource(GroupItem item)
+{
+Details         detail = item.getDetail();
+Source          source;
+GroupItem       group;
+    source = selectSource;
+    group = wig["sRCe"] = (void*)source;
+    group.noPrint = true;
+    sourced = true;
+    source.addListener(wig);
+    return null;
+}
+
+/*******************************************************************************
+	Set the initial card. In Details setFrame it is set to the first card,
+    however, if the cards attribute has a value, that value is taken to be the
+    name of the card that should be initially displayed and that is set here.
+*******************************************************************************/
+GroupItem setCARD(GroupItem item)
+{
+Details     detail = item.getDetail();
+GroupItem   deck = item.parent,
+            group,
+            page;
+String      name = item.getText();
+    //cout "setCARD:",item:;
+    isCards = true;
+    /***************************************************************************
+        If item, the cards attribute, has no text, we bail and the first card is
+        kept as the default. If item has text, we assume it is the name of the
+        card to be shown initially and set things accordingly.
+    ***************************************************************************/
+    checkError(setCARD,!deck,"invalid deck passed in")
+    if !name
+        {
+        page = deck.firstMember();
+        checkError(setCARD,!page,"could not set card");
+        }
+    else {
+        page = deck.get(name);
+        checkError(setCARD,!page,"could not find card " name);
+        }
+    /***************************************************************************
+        All the cards except page get turned off
+        page is the new current card being turned on
+    ***************************************************************************/
+    while group = deck.nextMember(group)
+        group.noRoom = true;
+    item.group      = page;
+    page.noRoom     = false;
+    return null;
+}
+
+/*******************************************************************************
+	Sets the expander indicator for trees.
+*******************************************************************************/
+GroupItem setExpander(GroupItem item)
+{
+GroupItem       expander,
+                group,
+                leaf,
+                source,
+                templates;
+
+    if registries templates = registries["tEMPLATEs"];
+    if templates
+        while group = item.walk(group)
+            if group.tag eq "expander"
+                if leaf = group.findAttribute("leaf")
+                    if leaf = leaf.parent
+                        if source = leaf.group
+                            {
+                            if source.hasMembers
+                                if leaf.expanded
+                                    expander = templates/"expanded";
+                                else expander = templates/expandable;
+                            if expander group.group = expander;
+                            else group.text = "";
+                            expander = null;
+                            }
+    return null;
+}
+
+/*******************************************************************************
+	Set modified for the block passed in and mark its view as not drawn
+*******************************************************************************/
+void setModified(GroupItem block)
+{
+Details         detail = block.getDetail();
+    if detail
+        {
+        //cout "setModified: for",wig.tag:;
+        laidout     = false;
+        drawn       = false;
+        modified    = true;
+        mustDisplay(true);
+        }
+}
+
+/*******************************************************************************
+    Set the source associated with group to the item passed in
+*******************************************************************************/
+GroupItem setSourceTo(GroupItem group,GroupItem item)
+{
+GroupItem   sourceAttribute = group%sRCe;
+GroupItem   sourceBlock = item.isGroup ? item.group : item;
+Source      source;
+Details    detail = item.getDetail();
+    checkError(setSourceTo,!group,"no group provided");
+    checkError(setSourceTo,!sourceBlock,"no source target provided");
+    if sourceAttribute
+        source  = sourceAttribute.pointer;
+    else {
+        source  = new(sourceBlock);
+        group["sRCe"] = (void*)source;
+        if detail sourced = true;
+        }
+    sourceItem = sourceBlock;
+    setModified(item);
+    return null;
+}
+
+/*******************************************************************************
+	Set sort parameters and add sort action
+*******************************************************************************/
+GroupItem setSORT(GroupItem item)
+{
+	if item.value
+		{
+		item += item.text;
+		//cout "sort " item.getTagXML():;
+        setAction(item,"sORT");
+		}
+	else cerr "sort attribute not specified\n";
+    return null;
+}
+
+/*******************************************************************************
+	Display the parent of the item passed in as argument if the group identified
+    by the item text has data (for example, if the item passed in is the attribute
+    show=something, something is the group that either has or does not have data
+    to be displayed). If the group has data to display, the noRoom flag of the
+    item parent, is set false, otherwise it is set to true.
+*******************************************************************************/
+GroupItem sHOW(GroupItem item)
+{
+GroupItem       sourceAttribute,
+                block,
+                group;
+Source          source;
+Details         detail  = item.getDetail();
+int             flag    = true;
+String          name    = item.text;
+    if !detail return null;
+    sourceAttribute = wig.findAttribute("sRCe");
+    //checkError(sHOW,!sourceAttribute,"could not find source for " wig.getTagXML());
+    if !sourceAttribute
+        {
+        cerr "sHOW could not find source for",wig.getTagXML():;
+        return null;
+        }
+    if !attributed
+        {
+        source = sourceAttribute.pointer;
+        if !sourced
+            {
+            source.addListener(wig);
+            sourced         = true;
+            }
+        hasReactions    = true;
+        item.reacts     = true;
+        }
+    if block = sourceAttribute.parent
+        block = block.group;
+    if name group = wig.get(name);
+    else    group = wig;
+    if block && !(group%"value" && !block.text)
+        flag = false;
+    wig.noRoom = flag;
+    //cout "Show: " wig.tag,block ? block.text : "no text",flag:;
+    return null;
+}
+
+/*******************************************************************************
+	Locate the block named by the item passed in and set the wig sRCe attribute
+    to point to the source derived from that bloc.
+*******************************************************************************/
+GroupItem sOURCE(GroupItem item)
+{
+GroupItem	block,
+            entry = item.parent,
+            group,
+            nextBlock,
+            oldAttribute,
+            sourceBlock,
+            sourceRegister,
+            useNext;
+Source		source;
+String		name = item.getText();
+Details     blockDetail,
+            detail = item.getDetail();
+int         isNext;
+use item
+use groupParser
+    //cout `"sOURCE: test1" wig.tag,item:;
+    if name
+        {
+        if name eq "selected"
+            {
+            sELECTsource(item);
+            return null;
+            }
+        if sourceRegister = registries[name]
+            block = sourceRegister;
+        else block = locate(item);
+        if block
+            {
+            blockDetail = block.getDetail();
+            sourceBlock = block%sRCe;
+            if blockDetail isNext = blockDetail.isNext;
+            if sourceBlock && !isNext
+                source = sourceBlock.pointer;
+            else {
+                useNext = entry["useNext"];
+                if isNext && useNext nextBlock = block.group;
+                /***************************************************************
+                    There is no source associated with the named block so
+                    create one for the block. If source is not loaded, load it.
+                ***************************************************************/
+                if block["list"] && !block.loaded load(block);
+                if useNext
+                    if nextBlock
+                        source  = new(nextBlock);
+                    else source = emptySource;
+                else source = new(block);
+                if entry%useAttributes
+                    sourceAttributes = true;
+                /***************************************************************
+                    If there is a sRCe attribute, it is a copy and we have to
+                    remove it or we will screw up the source in the copy
+                ***************************************************************/
+                if oldAttribute = entry%sRCe entry.remove(oldAttribute);
+                group = entry["sRCe"] = (void*)source;
+                group.noPrint = true;
+                if detail
+                    {
+                    sourced = true;
+                    if !sourceList sourceList = new;
+                    sourceList += source;
+                    }
+                //cout "Source " entry.tag,entry.index,sourceItem.tag:;
+                }
+            }
+        else cerr "Could not find a source named " name:;
+		}
+    else {
+        /***********************************************************************
+            Source name not specified so set source to entry (parent of item).
+        ***********************************************************************/
+        source = new(entry);
+        if entry%useAttributes
+            sourceAttributes = true;
+        group = entry[sRCe] = (void*)source;
+        group.noPrint = true;
+        if detail sourced = true;
+        }
+    return null;
+}
+
+/*******************************************************************************
+	Set the selected tab and associated tab body on initial layout.
+*******************************************************************************/
+GroupItem tABS(GroupItem item)
+{
+GroupItem   selectTab,tab,tabBody,tabBlock;
+String      name;
+Details     detail = item.getDetail();
+
+    isTabs = true;
+    if (name = item.text)
+        selectTab = wig/name;
+    if !selectTab selectTab = wig.nextMember(tabBlock);
+    if !selectTab
+        {
+        cerr "Could not find first tab for " wig.tag :;
+        return null;
+        }
+    wig.pointer         = selectTab;
+    view.selection      = selectTab;
+    selectTab.selected  = true;
+    if !currentRegistry
+        {
+        cerr "Registry not set\n\tTab body blocks must be registered":;
+        return null;
+        }
+    // Loop thru tabs setting pointer to tab body
+    while tabBlock = wig.nextMember(tabBlock)
+        {
+        GroupItem card;
+        if tabBody = tabBlock%tabBODY
+            if (name = tabBody.text)
+                {
+                card = currentRegistry[name];
+                if tabBlock == selectTab tab = card;
+                }
+        if !card
+            {
+            cerr "Could not find body for tag " tag :;
+            return null;
+            }
+        tabBody.group = card;
+        }
+    // set the cards attribute for tab bodies
+    if tabBody = tab.parent
+        if tabBlock = tabBody["cards"]
+            tabBlock.text = tab.tag;
+        else tabBody["cards"] = tab.tag;
+    else cerr "tABS: could not set cards for tab body block":;
+    detail = selectTab.getDetail();
+    setStyle();
+    if style && (selectFill || selectStroke)
+        {
+        swapSelectDecor(filler,selectFill)
+        swapSelectDecor(stroker,selectStroke)
+        //cout "tABS:" filler.getTagXML():;
+        }
+    return null;
+}
+
+/*******************************************************************************
+	Set the detail tag to the tag of the source. Used to access the tag or value
+    of sourced content (as opposed to accessing an attribute - see tRAIT).
+*******************************************************************************/
+GroupItem tAG(GroupItem item)
+{
+Details     sourceDetail,
+            detail = item.getDetail();
+GroupItem   sourceAttribute,block;
+Source      source;
+use groupParser
+    //cout "tAG: " wig.index, wig.getTagXML():;
+    if sourceAttribute = item.findAttribute("sRCe")
+        {
+        source = sourceAttribute.pointer;
+        if sourceAttribute.parent
+            {
+            sourceDetail = sourceAttribute.parent.getDetail();
+            if sourceDetail.noData goto bailTAG;
+            if block = sourceAttribute.parent.group;
+            or lastSelect
+                if block    = lastSelect.group;
+                else block  = lastSelect;
+            }
+        }
+    if block
+        {
+        wig.text = null;
+        if (*item.tag == 't') useTagForLabel = true;
+        wig.group = block;
+        }
+    or source && sourceItem
+        wig.text = sourceItem.resolvedTag();
+    else wig.text = "Nothing selected";
+bailTAG:
+    if !attributed
+        {
+        if source source.addListener(wig);
+        hasReactions    = true;
+        item.reacts     = true;
+        }
+    return null;
+}
+
+/*******************************************************************************
+	Set the detail passed in as text. Note: text applies to blocks and modified
+    gets set to false when a block gets drawn.
+*******************************************************************************/
+void tEXT(GroupItem item)
+{
+GroupItem   block;
+Details		sourceDetail,
+            detail = item.getDetail();
+String		name = *item.tag == 't' ? item.getText() : null;
+use item
+    if attributed && wig.modified
+        {
+        detail.changeText();
+        return;
+        }
+    if hasReactions item.reacts = true;
+	if detail && item
+		{
+        isText          = true;
+        editable        = false;   // default is not editable but how to change???
+        isDisplayable   = true;
+		if name
+            {
+            block = wig.registry[name];
+            if block
+                {
+                sourceDetail    = block.getDetail();
+                detail.object   = sourceDetail.object;
+                wig.group = block;
+                }
+            else cerr wig.tag ": could not find block in current registry: " name:;
+            }
+        else {
+            Frame   indented = indent(detail.frame,5.0);
+            detail.object = setPage(indented);
+            }
+		}
+	else cerr "Bogus parameter to tEXT\n";
+    // need to call setPage to set TextView
+}
+
+/*******************************************************************************
+	Print elapsed time from the date passed in and return the current time.
+    The date passed in is presumably released via auto reference.
+*******************************************************************************/
+Date timeEnd(Date d)
+{
+Date    current;
+double  seconds = -d.toNow();
+    current = d += seconds;
+    cout "Elapsed time: " seconds :;
+    return current;
+}
+
+String toString(Point p)
+{
+String	text;
+	text =  toString(x) "," toString(y);
+	return text;
+}
+
+String toString(Frame f)
+{
+String	text;
+	text =  toString(origin) "," toString(width) "," toString(height);
+	return text;
+}
+
+/*******************************************************************************
+	Determine toggle state and turn display of the parent block accordingly
+    If the parent block has an off attribute it is turned off (noRoom set true).
+*******************************************************************************/
+GroupItem tOGGLED(GroupItem item)
+{
+GroupItem   group   = item.parent;
+GroupItem   off     = group%"off";
+Details     detail = item.getDetail();
+    isToggled = true;
+    if off group.noRoom = true;
+    setAction(group,"toggle");
+    //cout "Set toggle for",group.tag,group.noRoom:;
+    return null;
+}
+
+/*******************************************************************************
+	Sets detail value to value of the attribute (named by item) in its source.
+*******************************************************************************/
+GroupItem tRAIT(GroupItem item)
+{
+Details     sourceDetail,
+            detail = item.getDetail();
+GroupItem   priorBlock,priorItem,sourceAttribute,sourceBlock,traitBlock,block;
+Source      source;
+    //cout "trait:",wig.getTagXML():;
+    if sourceAttribute = item.findAttribute("sRCe")
+        {
+        source = sourceAttribute.pointer;
+        if sourceBlock = sourceAttribute.parent
+            {
+            sourceDetail    = sourceBlock.getDetail();
+            block           = sourceBlock.group;
+            if !block wig.text = "";
+            else {
+                String itemText = item.text;
+                if !itemText itemText = wig.tag;
+                if (itemText eq "source") traitBlock = block;
+                else {
+                    traitBlock = block[itemText];
+                    if traitBlock && keyField
+                        if block = sourceBlock.parent
+                            if block = block.priorMember(sourceBlock)
+                                if priorBlock = block.group
+                                    priorItem = priorBlock[itemText];
+                    }
+                wig.group = traitBlock;
+                /*******************************************************************
+                    showBlank is set for matching key fields already displayed
+                *******************************************************************/
+                if priorItem
+                    showBlank = priorItem && (traitBlock.text eq priorItem.text);
+                //cout "tRAIT:",wig.tag,; if traitBlock cout traitBlock,; else cout "No data",; if priorItem cout priorItem; else cout "No prior item"; cout " show blank:",showBlank:;
+                }
+            setModified(wig);
+            }
+        if !attributed
+            {
+            trait   = true;
+            if source source.addListener(wig);
+            hasReactions    = true;
+            item.reacts     = true;
+            }
+        }
+    //else cerr "Could not find source for " wig.tag " to set trait\n";
+    return null;
+}
+
+/*******************************************************************************
+	Set tree source and tree action
+*******************************************************************************/
+GroupItem tREE(GroupItem item)
+{
+Details     detail = item.getDetail();
+GroupItem	branch,leaf,group;
+use item
+use groupParser
+    while branch = wig.walk(branch)
+        if leaf = branch%"leaf" break;
+    if !leaf
+        {
+        cerr "ERROR: tree must have a descendent block with a leaf attribute":;
+        return null;
+        }
+	if item.value
+        if (item.text eq "selected")
+            {
+            if !hasReactions
+                {
+                selectSource.addListener(wig);
+                hasReactions    = true;
+                item.reacts     = true;
+                }
+            if group = lastSelect
+                if branch.expanded cOLLAPSErow(leaf);
+            }
+		or !sourced group = locate(item);
+        else return null;
+    /***************************************************************************
+        If group is set tree has not been set or must be set as a reaction
+        to the last selection. The tree group is assigned to the first branch.
+    ***************************************************************************/
+    if branch
+        if group
+            {
+            branch.group = group;
+            if leaf = wig.first("entry")
+                leaf.group = group;
+            else cerr "ERROR: tree could not find branch entry":;
+            branch.setExpander();
+            if !sourced sourced = true;
+            }
+         or !hasReactions cerr "ERROR: tree set up could not find " item.text :;
+    return null;
+}
+
+/*******************************************************************************
+	Set the value of the type attribute to the name of its parents registry.
+*******************************************************************************/
+GroupItem tYPE(GroupItem item)
+{
+Details     detail = item.getDetail();
+    if wig.registry item.text = wig.registry.tag;
+    return null;
+}
+
+/*******************************************************************************
+	Set up a window or pane
+*******************************************************************************/
+GroupItem wINDOW(GroupItem item)
+{
+Window      window;
+Frame       box;
+GroupItem	block,
+			windowBlock;
+String		name;
+int         mask;
+Details     detail = item.getDetail();
+Layout      layout = detail.view;
+View        view;
+use Control.bwana
+    if attributed return null;
+    detail.view.deselect();
+    windowBlock = wig;
+    if windowBlock["closable"]	mask |= closable;
+    if windowBlock["title"]     mask |= titled;
+    if windowBlock["resize"]	mask |= resizable;
+    if item.parent == root window = bwana.window;
+    or isPanel
+        {
+        Panel	pane = new(detail.frame,mask,buffered,true);
+        window	=
+        object	= pane;
+        }
+    else {
+        window = new(detail.frame,mask,buffered,true);
+        object	= window;
+        }
+    view        = window.contentView();
+    box         = window.frame;
+    if block = windowBlock%"x"  box.x = block.number;
+    if block = windowBlock%"y"  box.y = block.number;
+    box.width   = detail.width;
+    box.height  = detail.height + box.height - view.frame.height;
+    window.setFrame(box,0);
+    if block = windowBlock%title name = block.text;
+    if mask & titled window.setTitle(name);
+    //if windowBlock%hide noRoom = true;
+    if !webView
+        {
+        WbViewConfig configuration = new();
+        webView = new(box,configuration);
+        navigationDelegate  = layout;
+        //if navigationDelegate cout `"has navigation delegate":; else cout `"no navigation delegate":;
+        }
+    view.add(webView);
+    view.add(layout);
+    makeFirstResponder(layout);
+    base    = windowBlock;
+    mustDisplay(true);
+    setModified(wig);
+    return null;
+}
+
+/*******************************************************************************
+	Load an xml file. If the item passed in has a value, it is assumed to be
+	a file name. If not, looks for file attribute in item parent. The block
+    resulting from parsing the xml file gets merged into the current block.
+*******************************************************************************/
+GroupItem xmlFILE(GroupItem item)
+{
+Details         detail = item.getDetail();
+GroupItem       block,
+                saveRegistry = currentRegistry;
+use groupParser
+	currentRegistry = wig.registry;
+	if item.data
+		block = parseFile(item.text);
+	or item.parent
+		{
+		block = item.parent["file"];
+		if block && block.value
+			block = parseFile(block.text);
+		else block = null;
+		}
+	if !block
+		cerr wig.tag " Failed xml file load\n";
+    else wig.merge(block);
+    currentRegistry = saveRegistry;
+    return null;
+}

@@ -1,0 +1,723 @@
+
+/***************************************************************************
+	operator method associated with &&
+***************************************************************************/
+extern GroupItem opAND(GroupItem target,GroupItem argument)
+{
+    if (target.gText || (target.data && target.gCount))
+        && (argument.gText || (argument.data && argument.gCount))
+        return target;
+    return null;
+}
+
+/***************************************************************************
+	operator method associated with +% to add an attribute. If the attribute
+    is not already there, add it, then return it.
+***************************************************************************/
+extern GroupItem opAddAttribute(GroupItem target,GroupItem argument)
+{
+    argument = target +% argument;
+    return argument;
+}
+
+/***************************************************************************
+	operator method associated with =* to add components of the argument
+    to the target.
+***************************************************************************/
+extern GroupItem opAddComponentsOf(GroupItem target,GroupItem argument)
+{
+    target.addComponentsOf(argument);
+    return target;
+}
+
+/***************************************************************************
+	operator method associated with =+ to add a member. If the member is not
+    already there, add it, then return it.
+***************************************************************************/
+extern GroupItem opAddMember(GroupItem target,GroupItem argument)
+{
+    argument = target += argument;
+    return argument;
+}
+
+/***************************************************************************
+	assignment operator =
+***************************************************************************/
+extern GroupItem opAssign(GroupItem target,GroupItem argument)
+{
+use target
+    if argument setContent(argument);
+    else        target.clear();
+    return target;
+}
+
+/***************************************************************************
+	operator method for := (assign group)
+***************************************************************************/
+extern GroupItem opAssignGroup(GroupItem target,GroupItem argument)
+{
+    target.group = argument;
+    return target;
+}
+
+/***************************************************************************
+	operator method associated with :> assigns target text to its argument.
+    This inverts the normal role of operands w/argument on the receiving end.
+    The idea is to support statements like rule <: input :> output.
+    See also opFeedInto
+***************************************************************************/
+extern GroupItem opAssignText(GroupItem target,GroupItem argument)
+{
+    argument.text = target.text;
+    return argument;
+}
+
+/***************************************************************************
+	operator method associated with & does bitwise and. THIS IS UNFINISHED.
+***************************************************************************/
+extern GroupItem opBitAnd(GroupItem target,GroupItem argument)
+{
+    return target;
+}
+
+/***************************************************************************
+	operator method associated with | does bitwise or. THIS IS UNFINISHED.
+***************************************************************************/
+extern GroupItem opBitOr(GroupItem target,GroupItem argument)
+{
+    return target;
+}
+
+/***************************************************************************
+	operator method associated with BrancH rule.
+***************************************************************************/
+extern GroupItem opBranch(GroupItem target,GroupItem argument)
+{
+use target
+    if tag == 'b'   brake.fLAG  = true;
+    or tag == 'c'   continued   = true;
+    or tag == 'r'
+        if argument {
+            argument.returned   = true;
+            return argument; }
+        else returned = true;
+    return target;
+}
+
+/***************************************************************************
+	operator method associated with IN. It returns true if the target
+    (which must be a set) contains the argument (which must be a string or
+    character). If argument is a string; if it is also a pointer it is
+    treated as a character otherwise it is treated as a string
+***************************************************************************/
+extern GroupItem opContains(GroupItem argument,GroupItem target)
+{
+int         result;
+PLGset      set;
+    if target.isSET && argument.isSTRING {
+        if set = target.characterSet
+            if argument.isPointer   result = set.contains(*argument.gText);
+            else                    result = set.contains(argument.text); }
+    or argument.isSET && target.isSTRING
+        if set = argument.characterSet
+            if target.isPointer     result = set.contains(*target.gText);
+            else                    result = set.foundIn(target.text);
+    if result   return target;
+    return null;
+}
+
+/***************************************************************************
+	Process a do loop.
+        DO=do   StatemenT while ExpressioN SemI-;
+***************************************************************************/
+extern GroupItem opDO(GroupItem target)
+{
+GroupItem   expression  = target[2],
+            statement   = target[1],
+            result;
+    while !brake.fLAG {
+        result = statement();
+        if !expression() break; }
+    brake.fLAG = false;
+    return result;
+}
+
+/***************************************************************************
+	operator method associated with ==
+***************************************************************************/
+extern GroupItem opEQ(GroupItem target,GroupItem argument)
+{
+    if !compareValues(target,argument)      return target;
+    return null;
+}
+
+/***************************************************************************
+	operator method associated with <: The target must be a rule and the
+    argument is the source of input to that rule. The rule gets processed.
+    The rule label is returned as its result.
+***************************************************************************/
+extern GroupItem opFeedInto(GroupItem target,GroupItem argument)
+{
+GroupItem result;
+GroupRules  ruler = groupRules;
+    if argument {
+        String  input = argument.text;
+        if input
+            if target.isRule {
+                pushInput(input);
+                result = parseRULE(target);
+                popInput(); }
+            else cerr "operator <: requires a rule target":;
+        else cerr "operator <: expected a string argument":; }
+    else cerr "operator <: expected an argument":;
+    return result;
+}
+
+/***************************************************************************
+	Process a for loop.
+***************************************************************************/
+extern GroupItem opFor(GroupItem target)
+{
+GroupItem   Looper:,
+            LoopOn:,
+            LoopRestrict:,
+            StatemenT:,
+            result;
+int         restrict;
+    LoopOn  = LoopOn[1];
+    if LoopOn.invoke    LoopOn = LoopOn();
+    or LoopOn.isGROUP   LoopOn = LoopOn.group;
+    target  = null;
+    if LoopRestrict         restrict = *LoopRestrict.gText == 'a' ? 1 : 0;
+    while target=LoopOn.next(target) {
+        if brake.fLAG {
+            brake.fLAG = false;
+            break; }
+        if LoopRestrict
+            if restrict && target.isMember      continue;
+            or !restrict && target.isAttribute  continue;
+        if target.noPrint || target == Looper   continue;
+        Looper.group = target;
+        result  = StatemenT(); }
+    Looper.clear();
+    if !result  return dummyResult;
+    return result;
+}
+
+/***************************************************************************
+	operator method associated with Reference rule [].
+        NOTE: if target is an array, argument treated as an index; otherwise
+        argument is treated as text so target[2] is treated like target["2"]
+        and matched against
+***************************************************************************/
+extern GroupItem opGet(GroupItem target,GroupItem argument)
+{
+GroupItem   result;
+    if argument.isCOUNT || argument.isNUMBER    result = target[argument.count];
+    else {
+        String matchOn = argument.text;
+        result = target.get(matchOn);
+        }
+    return  result;
+}
+
+/***************************************************************************
+	operator method associated with =% (get an attribute)
+***************************************************************************/
+extern GroupItem opGetAttribute(GroupItem target,GroupItem argument)
+{
+String      matchOn = argument.text;
+GroupItem   product = target.getAttribute(matchOn);
+    return product;
+}
+
+/***************************************************************************
+	operator method associated with =/ (get a member)
+***************************************************************************/
+extern GroupItem opGetMember(GroupItem target,GroupItem argument)
+{
+String      matchOn = argument.text;
+GroupItem   product = target.getMember(matchOn);
+    return product;
+}
+
+/***************************************************************************
+	operator method associated with >=
+***************************************************************************/
+extern GroupItem opGE(GroupItem target,GroupItem argument)
+{
+    if compareValues(target,argument) >= 0  return target;
+    return null;
+}
+
+/***************************************************************************
+	operator method associated with >
+***************************************************************************/
+extern GroupItem opGT(GroupItem target,GroupItem argument)
+{
+    if compareValues(target,argument) > 0   return target;
+    return null;
+}
+
+/***************************************************************************
+	operator method associated with if statement
+***************************************************************************/
+extern GroupItem opIF(GroupItem target)
+{
+GroupItem   expression  = target[1],
+            statement   = target[2],
+            Else        = target[3],
+            result;
+    result  = expression();
+    if Else && !Else.isInitialized  Else = null;
+    if result
+        if (expression.negate && (!isInitialized || count == 0))
+            || (data && count != 0) || isInitialized
+            result = statement();
+        else    result = null;
+    if !result && Else  result = Else();
+    return  result;
+}
+
+/***************************************************************************
+	operator method associated with <=
+***************************************************************************/
+extern GroupItem opLE(GroupItem target,GroupItem argument)
+{
+    if compareValues(target,argument) <= 0  return target;
+    return null;
+}
+
+/***************************************************************************
+	operator method associated with <.
+***************************************************************************/
+extern GroupItem opLT(GroupItem target,GroupItem argument)
+{
+    if compareValues(target,argument) < 0   return target;
+    return null;
+}
+
+/***************************************************************************
+	opMatches returns the target field if it matches the field passed in.
+    THIS IS UNFINISHED
+***************************************************************************/
+extern GroupItem opMatches(GroupItem target,GroupItem argument)
+{
+    return target;
+}
+
+/***************************************************************************
+	operator method associated with - If target and argument are numeric
+    result = target - argument; If target is a string and argument is numeric
+    result = target with argument count chopped off the end. if target and
+    argument are strings result = target truncated at the argument.
+***************************************************************************/
+extern GroupItem opMinus(GroupItem target,GroupItem argument)
+{
+GroupItem   result;
+use target
+    if isCOUNT || isNUMBER
+        if argument.isCOUNT || argument.isNUMBER {
+            if isCOUNT       result  = new("temp",gCount - argument.count);
+            or isNUMBER      result  = new("temp",gNumber - argument.number); }
+        else cerr "opMinus: expected a numeric argument",argument:;
+    or isSTRING {
+        int length  = target.count;
+        int shift;
+        if argument.isCOUNT || argument.isNUMBER {
+            shift = length - argument.count;
+            if shift <= 0    cerr "opMinus: invalid shift amount",argument:; }
+        or argument.isSTRING {
+            shift = (int)(argument.gText - gText);
+            if shift < 0 && shift > length  cerr "opMinus: argument",argument, "is not in target",target:; }
+        if shift > 0    result = new("temp",headToCount(gText,shift)); }
+    else    cerr "opMinus: invalid target",target:;
+    if result   result.toTrash();
+    return result;
+}
+
+/***************************************************************************
+	operator method associated with -=  If target is a string, the number
+    of characters specified in the argument are chopped off the end of the
+    target string. If target is numeric, target is decremented by the number
+    in the argument.
+***************************************************************************/
+extern GroupItem opMinusEqual(GroupItem target,GroupItem argument)
+{
+use target
+    if isCOUNT || isNUMBER
+        if argument.isCOUNT || argument.isNUMBER {
+            if isCOUNT   gCount   -= argument.count;
+            or isNUMBER  gNumber  -= argument.number; }
+        else cerr "opMinus: expected a numeric argument",argument:;
+    or isSTRING {
+        int length  = target.count;
+        int shift;
+        if argument.isCOUNT || argument.isNUMBER || argument.isSTRING {
+            shift = length - argument.count;
+            if shift <= 0    text = null; }
+        if shift > 0    text = head(target.gText,shift); }
+    else    cerr "opMinusEqual: target must be numeric or string",target:;
+    return target;
+}
+
+/***************************************************************************
+	operator method associated with -- If target is a string a character is
+    chopped off the end of it. If target is numeric it is decremented.
+    If target is a Stak it returns what pops off it.
+***************************************************************************/
+extern GroupItem opMinusMinus(GroupItem input)
+{
+    if !data        count = -1;
+    or isCOUNT      gCount--;
+    or isNUMBER     gNumber -= 1.0;
+    or isSTAK       return (GroupItem*)stak--;
+    or isSTRING
+        if isPointer {
+            gText--;
+            gCount++; }
+        else {
+            int length = (int)strlen(gText);
+            if length
+                {
+                String  atText = malloc(length);
+                strncpy(atText,gText,--length);
+                text = atText;
+                }
+            else text = 0; }
+    return input;
+}
+
+/***************************************************************************
+	operator method associated with !=
+***************************************************************************/
+extern GroupItem opNE(GroupItem target,GroupItem argument)
+{
+    if compareValues(target,argument)   return target;
+    return null;
+}
+
+/***************************************************************************
+	operator method associated with || (OR in incant)
+***************************************************************************/
+extern GroupItem opOR(GroupItem target,GroupItem argument)
+{
+    if target && target.data        return target;
+    if argument && argument.data    return argument;
+    return null;
+}
+
+/***************************************************************************
+	operator method associated with % (remainder)
+***************************************************************************/
+extern GroupItem opPercent(GroupItem target,GroupItem argument)
+{
+GroupItem   product;
+use target
+    product = new("temp",target.count % argument.count);
+    product.toTrash();
+    return product;
+}
+
+/***************************************************************************
+	operator method associated with +
+***************************************************************************/
+extern GroupItem opPlus(GroupItem target,GroupItem argument)
+{
+GroupItem   result;
+use target
+    if !data result = argument;
+    if argument.data && !(argument.isCOUNT || argument.isNUMBER)
+        cerr "opPlus: expected a numeric argument",argument:;
+    or isCOUNT       result  = new("temp",gCount + argument.count);
+    or isNUMBER      result  = new("temp",gNumber + argument.number);
+    or isSTRING {
+        int shift   = argument.count;
+        if count > shift && shift > 0
+            if isPointer {
+                result = new("temp",gText + shift);
+                result.isPointer = true; }
+            else        result = new("temp",copyString(gText + shift));
+        else cerr "opPlus: tried to shift past the length of",target:; }
+    else cerr "opPlus: expected a numeric target or a pointer",target:;
+    if result   result.toTrash();
+    return result;
+}
+ 
+/***************************************************************************
+	operator method associated with +=
+***************************************************************************/
+extern GroupItem opPlusEqual(GroupItem target,GroupItem argument)
+{
+use target
+    if target && argument {
+        switch(data) {
+            case isBUFFER:          buffer  += argument.text;
+            case isCOUNT:           count   = count + argument.count;
+            case isNUMBER:          number  = number + argument.number;
+            case isSTAK:            stak    += argument;
+            case isSTRING:          text    += argument.text;
+            default:                copyData(argument); }}
+    return target;
+}
+
+/***************************************************************************
+	operator method associated with ++
+***************************************************************************/
+extern GroupItem opPlusPlus(GroupItem input)
+{
+    if !data        count = 1;
+    or isCOUNT      gCount++;
+    or isNUMBER     gNumber++;
+    or isSTRING
+        if gCount >= 1 {
+            gText++;
+            gCount--;
+            if !gCount input.clear(); }
+    return input;
+}
+
+/***************************************************************************
+	operator method associated with =*
+***************************************************************************/
+extern GroupItem opPointer(GroupItem target,GroupItem argument)
+{
+    target.pointer = argument;
+    return target;
+}
+
+/***************************************************************************
+	operator method associated with / If target and argument are numeric
+    returns a result that is target divided by argument.
+***************************************************************************/
+extern GroupItem opSlash(GroupItem target,GroupItem argument)
+{
+GroupItem   result;
+use target
+    if target && argument {
+        double  tdub, adub;
+        if (argument.isCOUNT || argument.isNUMBER)
+            && (target.isCOUNT || target.isNUMBER) {
+            result = new(target.tag);
+            tdub = target.number;
+            adub = argument.number;
+            tdub /= adub;
+            if target.isCOUNT   result.count = (int)lround(tdub);
+            else result.number  = tdub;  }
+        else cerr "opStar: multiplication arguments must be numeric",target.tag,argument.tag:; }
+    else cerr "opStar: missing a multiplication argument":;
+    return result;
+}
+
+/***************************************************************************
+	operator method associated with /=
+***************************************************************************/
+extern GroupItem opSlashEqual(GroupItem target,GroupItem argument)
+{
+    if target && argument {
+        double  tdub, adub;
+        if (argument.isCOUNT || argument.isNUMBER)
+            && (target.isCOUNT || target.isNUMBER) {
+            tdub = target.number;
+            adub = argument.number;
+            tdub /= adub;
+            if target.isCOUNT   target.count = (int)lround(tdub);
+            else target.number  = tdub; }
+        else cerr "/= operator fail: arguments must be numeric",target.tag,argument.tag:; }
+    return target;
+}
+
+/***************************************************************************
+	operator method associated with *
+***************************************************************************/
+extern GroupItem opStar(GroupItem target,GroupItem argument)
+{
+GroupItem   result;
+    if target && argument {
+        double  tdub, adub;
+        if (argument.isCOUNT || argument.isNUMBER)
+            && (target.isCOUNT || target.isNUMBER) {
+            result = new(target.tag);
+            tdub = target.number;
+            adub = argument.number;
+            tdub *= adub;
+            if target.isCOUNT   result.count = (int)lround(tdub);
+            else result.number  = tdub; }
+        else cerr "opStar: multiplication arguments must be numeric",target.tag,argument.tag:; }
+    else cerr "opStar: missing a multiplication argument":;
+    return result;
+}
+
+/***************************************************************************
+	operator method associated with *=
+***************************************************************************/
+extern GroupItem opStarEqual(GroupItem target,GroupItem argument)
+{
+use target
+    if target && argument {
+        double  tdub, adub;
+        if (argument.isCOUNT || argument.isNUMBER)
+            && (target.isCOUNT || target.isNUMBER) {
+            tdub = target.number;
+            adub = argument.number;
+            tdub *= adub;
+            if target.isCOUNT   target.count = (int)lround(tdub);
+            else target.number  = tdub; }
+        else cerr "opStarEqual: multiplication arguments must be numeric",target.tag,argument.tag:; }
+    else cerr "opStarEqual: a multiplication argument":;
+    return target;
+}
+
+/***************************************************************************
+	operator method for the StringXP rule. Note: target is the string rule label
+***************************************************************************/
+extern GroupItem opString(GroupItem target)
+{
+GroupItem   printList = target[1];
+    if printList.isSTRING {
+        free(gText);
+        printList.text = 0; }
+    if printList {
+        String printText = printList.printToString(printBUFFER);
+        if printText    printList.text = printText; }
+    else cerr "opString recieved no print list":;
+    return printList;
+}
+
+/***************************************************************************
+	method associated with unary ! or ? expression.
+***************************************************************************/
+extern GroupItem opUnary(GroupItem input)
+{
+GroupItem   target  = group;
+use input
+    if isTrue && (negate && (!target.isInitialized || target.count == 0))   return input;
+    if !negate && target.count != 0         return input;
+    if negate
+        if !data || !target.isInitialized   return properties["true"];
+        or target.data && target.count == 0 return properties["true"];
+    return null;
+}
+
+/***************************************************************************
+	Process a while loop.
+        WhilE=while     ExpressioN SemI- StatemenT;
+***************************************************************************/
+extern GroupItem opWhile(GroupItem target)
+{
+GroupItem   expression  = target[1],
+            statement   = target[2],
+            field,
+            result;
+    if expression.isGROUP
+        expression = expression.group;
+    while !brake.fLAG {
+        if expression.invoke    result = expression();
+        else result = expression;
+        if result && result.data {
+            if !statement.isBlock   result = statement();
+            else
+            while field = statement.nextMember(field)
+                if result = field()
+                    if result.continued field = null;
+                    or result.returned {
+                        brake.fLAG      = true;
+                        result.returned = false;
+                        break; }
+                    or brake.fLAG {
+                        brake.fLAG      = false;
+                        break; }}
+        else break; }
+    brake.fLAG = false;
+    return result;
+}
+
+/*****************************************************************************
+     Process rule action. Called when a rule succeeds and its method is an action.
+*****************************************************************************/
+extern GroupItem processAction(GroupItem label)
+{
+GroupRules  ruler = groupRules;
+GroupItem   result,
+            action = currentMETHOD,
+            instructions,
+            field;
+    if action {
+        instructions = action["INstruct"];
+        while field = label.next(field)
+            if result = instructions[field.tag] {
+                if !result.invoke {
+                    result.clear();
+                    result.setContent(field);
+                    if field.isLabel    result.isLabel = true; }}
+            else instructions +% field;
+        if action.isCoded instructions = processCode(action);
+        if instructions {
+            while field = instructions.next(field) {
+                if invoke || isLabel    continue; // skip over instructions
+                if isLocal              field.clear(); }
+            /*****************************************************************
+                Results are checked for branches (break, continue, return);
+            *****************************************************************/
+            field = null;
+            while field = instructions.next(field) {
+                if !invoke continue;
+                if result = field()
+                    if result.continued field = null;
+                    or result.returned {
+                        result.returned = false;
+                        break; }}
+            label.group = result; }
+        else cerr "processAction: no instructions found for" action.tag:; }
+    else cerr "processAction: no current method found for label", label.tag:;
+    return result;
+}
+
+/*****************************************************************************
+	Wrapper to handle action invocation. Does not handle default arguments.
+*****************************************************************************/
+extern GroupItem runAction(GroupItem action,GroupItem argument)
+{
+GroupItem   declaredARG;
+GroupItem   instructions;
+GroupItem   result;
+GroupRules  ruler   = groupRules;
+Stak        stak    = recurseSTAK;
+GroupItem   local,
+            attr;
+use action
+    if isCoded && !(result = processCode(action))  return null;
+    currentMETHOD   = action;
+    /*************************************************************************
+        Clear local fields, put them on stak if recursing
+    *************************************************************************/
+    while attr = action.nextAttribute(attr)
+        if attr.isLocal {
+            if action.recursive {
+                local = new(attr);
+                stak += local; }
+            attr.clear(); }
+    /*************************************************************************
+        Update argument (which ATP is a cleared local field)
+    *************************************************************************/
+    if argument
+        while declaredARG = action.next(declaredARG) {
+            if declaredARG.noPrint  continue;
+            declaredARG.group       = argument;
+            break; }
+    /*************************************************************************
+        The following will be handled by interpret() eventually
+    *************************************************************************/
+    if instructions = action["INstruct"]
+        {
+        GroupItem   field;
+        while field = instructions.next(field)
+            if result = field() {
+                if result.continued field   = null;
+                or result.returned {
+                    result.returned         = false;
+                    break; }}}
+    if action.recursive restoreLocalFields();
+    if result   result.isLabel = true;      // so Xpress will not consider result a new field to be added to current registry
+    return result;
+}

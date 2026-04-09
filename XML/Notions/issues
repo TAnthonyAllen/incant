@@ -1,0 +1,178 @@
+
+/*****************************************************************************
+	 Grammar issues
+*****************************************************************************/
+Need to keep the last successful rule and point reached when parsing so we can figure out where parse failed if it does. Need a failed right at this here spot field. To be set in runResultCheck on failure if not already set, and if already set gets reset if runResultCheck is successful.
+Would be nice to have an end everything delimiter to replace ;; maybe .
+
+/*****************************************************************************
+	 Hash issues
+*****************************************************************************/
+Need to modify GroupLink to ensure hash reflects changes (for example, in the remove method). Right now GroupBody remove() deals with the hash if it exists. GroupLink does not know about hashing.
+
+/*****************************************************************************
+	 Types
+*****************************************************************************/
+Changes to support types
+    move gPointer go a union w/gText
+    add isTypeField flag
+If a group is a type in the Types registry, its data is the size of the type fieldSize (sizeof); that is, typeSize (count)
+Type fields, which are attributes of the Type group in the Types registry contain their offset from their parents pointer.
+
+Creating a type instance (happens in define triggered by noPrint command setType(type);):
+    look up the type in the Types registry
+    allocate the type value
+    may also want to define a type instance as an expression: group = Type; So, let opAssign call setType to do the needful, or alternatively, make a new operator (maybe =<)to keep opAssign simple
+Accessing a type field:
+    use the dot operator so in opDot if target is a Type instance, handle it
+        if frame is a type instance frame.x would return a new type field named x containing a pointer to the x in frame and a copy of its value
+Referencing a type field in a scope expression. In the following example:
+            argument frame, width height;
+            for grup IN argument members
+                grup width height frame: width height;
+    In the first scope expression above, frame is recognized as a type. When scopeXP looks up width and height in frame, it needs to create the type fields: width and height. The rest should be BYU
+    In the second scope expression ... Houston we have a problem
+        Need to add type lookup to scopeXP when processing : and when setting field via lookFirstIn
+        Assigning a type or type field. No changes when type is the argument, but if type is the target as in frame = someOtherFrame
+            that does memcpy(target.pointer,argument.pointer,sizeof(Type))
+            or if the target is a type field like x in frame like does not go into like
+                width = 32.4 has to become *width = 32.4
+
+/*****************************************************************************
+	 C methods and structures
+*****************************************************************************/
+Make incant able to invoke C methods? How? Will have to wait until we have a JIT or we will be writing a lot of wrapper methods.
+
+Would be nice if incant had a way to access C++ structure fields -> maybe a syntactically simple way to go from field to attribute and vice versa. How would that work?
+        Take a group that represents a frame type that has
+            as its data, a pointer to a frame w/isPointer true
+            a sizeof attribute (may not need this unless we also want a way to make a new frame)
+            frame fields: x y width and height would be frame members. Each would be a type.
+            Boolean attributes will be lots of fun to program.
+        This will be a significant change that opens the door to incant actions replacing C++ methods. Good plan. Not easy.
+
+A field should have type and an offset. Its data should be a pointer to where it is at in C++.
+A type should have a size and its members should be fields, if it has fields.
+isPointer is set for fields
+With the above we should be able to access or set C++ data. The only issue is how to initialize a field pointer.
+How about:
+    field.pointer = field in C++ called from C++ and BYU
+    getFieldPointer() should set gText to point to the field in C++ based on field attributes.
+    getters and setters should be modified to handle fields
+        may need to call getFieldPointer
+        resolve field indirection
+    
+POP can we use this approach for frames? It will impact scope expressions.
+Will first need to see if we can get this to work in C++. Worried about the pointer resolution
+New fields (ie, not accessing an existing C++ field) will require an incant version of new(). Should be easy enough using calloc.
+What if we could treat all incant groups as fields???? Would make for tight link w/C++.
+    A group that is a type laid out like a C++ structure. A group could have a type field that provides all the attributes needed to lay out a structure based on a field group. With getters and setters doing most of the work no need to change much else.
+    POP would be laying out a GroupItem. Lets get incestuous. But first figure out how to handle boolean fields.
+        I am thinking a boolean field has a parent that contains an unsigned long and the field offset is then the offset into the parent keeping in mind it is a boolean offset. We will need an isBoolGRP flag.
+A field has to know its type at inception? Once we set the field pointer in gText we good. Fields do not move about in memory.
+
+/*****************************************************************************
+	 Type == Flag fields
+*****************************************************************************/
+Would be nice if setting a flag (attribute) also sets the associated C++ flag
+in the attributes parent. flag attributes should have a method that returns
+their value. Any reference to the flag fires its method
+
+/*****************************************************************************
+	 Types
+*****************************************************************************/
+Field metadata (type)
+    field   isPointer is true;
+    type is like a registry
+    field parent is the containing field type
+    its data value is an offset from its parents gText (or can get offset by using sizeof)
+    it has a sizeof attribute used when creating a field
+    field names should probably be unique so we can stick them all in a hashed registry
+
+Loading fields - two options
+    right now we load into groups copying data from what we load from
+    with a field we load into groups that contain a pointer to the loaded data
+
+The dot operator becomes interesting w/fields
+    Say we have a field that is a frame. It contains a pointer to the frame structure. It does not have fields but it has a type that defines its fields.
+    The dot operator getting frame.width would have to deal if there is no attribute to return (so it has to create one based on the field metadata). We need a getThisHereField(String) method (w/side effect: add as attribute), or we could just modify get() to do the needful.
+        if parent is a type and field does not exist but is in type ... then add new field to parent
+    Do we also have to modify next()? Better to write another version of next if we need it.
+    Maybe we would need a fleshOut() to add respective attributes for type fields. A bridge to cross?
+
+    /*************************************************************************
+         Second thoughts
+    *************************************************************************/
+    Not sure it is worth it. It adds complexity. May not be too hard to implement. But what does it do?
+    ICO frame it might eliminate the getFrame method. If type fields are only kept in methods there would be some savings.
+        Ideally would want to be able to create a structure based on a type and return the structure or a pointer to it w/o carrying around an attribute for every type field (the type fields would be virtual kept in the type definition???)
+            Advantage is can create and manage structures w/o having to write more wrapper methods (that would be a huge win)
+
+/***************************************************************************
+	What Types Need
+***************************************************************************/
+What needs to be added to support C++ structure integration
+    type registry
+    need type command so define will look for it, defined group a type (isTypeGRP), and add it to type registry
+        If the type command does not have data, the group being defined is a type
+        In a define a type=name attribute makes the defined group that type (name must be a type)
+    type fields will be made isPointer and isTypeGRP w/parent pointing at the containing type
+    type field count is set to type field sizeof in bytes
+
+Given that we have a Point rule, can that rule return a result that contains a Point structure? How to get there ideally w/o having to write a Point rule method (maybe an action?)
+    Can we add a type command to the Point rule so when the rule is defined, it creates a Point entry in the tYPEs registry? Thinking not. Instead add types to the tYPEs registry and set type sizeof manually for now.
+
+/***************************************************************************
+	Issues w/types
+***************************************************************************/
+How are types handled in define?
+    Point type
+    Point rule          should return a Point field (will need a rule action)
+    a Point field has a type=Point attribute
+    Point type has isTypeGRP=true and a pointer to a point structure
+    Creating a new type instance will require calloc - where and when to do that?
+        when defining a new group that has a type attribute (the only indicator it has a type)
+        group = type;   in assign add type as attribute to group and invoke group.makeType()
+
+Would be nice to have standard type methods like one to print out a type. This gets into a broader idea about what should a type know about itself; like maybe it has a bunch of action attributes that work on it, IWC a type is a lot like a C++ class in that it has data and methods that work on that data (a type can have attributes w/methods so maybe BYU)
+
+/*****************************************************************************
+	 Can we write parse in incant?
+*****************************************************************************/
+It will involve rewriting a bunch of C++ methods in incant and where do we stop?
+    matchSet is a small parse method that calls
+        getMax
+        getMin
+        and the PLGset method contains
+    getMin would be the simplest to convert
+    /*****************************************************************************
+            Returns minimum iterations of a rule. The default is 1.
+    *****************************************************************************/
+    int getMin(GroupItem item)
+    {
+        if starGRP || questionGRP   return 0;
+        if hasLimitGRP
+            {
+            GroupItem   limit = getAttribute("min");
+            if limit    return limit.count;
+            }
+        return 1;
+    }
+
+First problem is how to handle group flags like starGRP. Could promote the flags to attributes (maybe fields if we get that working). Assuming fields work there would be almost no change. The incant code would look something like
+min {
+    if zeroOrMore || optional   min = 0;
+    else min = 1;
+    };
+    This is a lefty problem. That is, min may not exist in which case we create one and return it. If min does exist, we do not want to run its initialization method. Right now we differentiate between min and min() and we shitcanned initialization. Have to resurrect it. I knew it was a good idea but at the time had no good example to verify.
+    The implication of an initializer is: when referenced, we create a group (even if all we want to know is does it exist). min is created as a local field (w/initialization the method is only fired once). Need to test this out (once initialize is resurrected)
+    What if we have to separate local references to min. ITC min must be virtual and have an initializer.
+    BTW do we run an initializer (or any method) on the left side of an assignment???? Yeah, incantMethod does do that.
+
+/*****************************************************************************
+	  action issues
+*****************************************************************************/
+    action code processing should search parent hierarchy first when locating fields, so modify locate() to include
+        if processingCode search parent hierarchy first
+Why this is relevant: assuming zeroOrMore is an attribute referenced in an action. zeroOrMore is an attribute masquerading as a boolean flag in its parent. Without a parent, zeroOrMore has no meaning. So in the min action zeroOrMore could be referring to an attribute in a parent where neither attribute nor parent exist. For such an attribute, if it exists it is true, otherwise it is false. In this case, isInstantiated flags existence. That is: if there is no attribute, the zeroOrMore local field exists but is not instantiated.
+

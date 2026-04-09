@@ -1,0 +1,199 @@
+include GUIincludes
+
+#checkExist(methodic,argument)-
+    if !argument
+        {
+        cerr "methodic ERROR: argument does not exist":;
+        return null;
+        }-
+#checkError(methodic,argument,message)-
+    if argument
+        {
+        cerr "methodic ERROR:",message:;
+        return null;
+        }-
+include Map.rtn
+//include Sheet.rtn
+/*******************************************************************************
+	Overseer for Group GUI
+*******************************************************************************/
+class Bwana
+{
+Actions			actions;
+FontManager		fontManager;
+Window			window;
+Groups			extendParser;
+GroupItem   	descriptions,
+                types;
+BaseHash        windows;
+Source          expandables,
+                emptySource,
+                selectSource;
+DoubleLinkList  expandList;
+DoubleLinkList  sourceList;
+String          expandLabel;
+Control			controller;
+Stak            delayActions;
+Buffer          bwanaBuffer;
+double          minimumHeight,
+                minimumWidth;
+
+Bwana(Control c)
+{
+int         i = sizeof(Source);
+use groupParser
+    cout "Source size:",i:;
+    controller      = c;
+    registries += "doNotCopy";
+    setBaseRegistries();
+    extendParser    = new;
+    colorRegistry       = getRegistry("cOLOr");
+    fontRegistry        = getRegistry("fONt");
+    properties          += "hasOnLoadAction";
+    properties.method   = cssOnLoad;
+    types               = getRegistry("tYPEs");
+    windows             = new;
+    descriptions        = getRegistry("dESCRIPTIONs");
+    fontManager         = sharedFontManager();
+    delayActions        = new;
+    lastSelect          = new("EmptySource");
+    emptySource         = new(lastSelect);
+    expandList          = new;
+    lastSelect          = null;
+    selectSource        = new;
+    bwanaBuffer         = new;
+}
+
+/*******************************************************************************
+	Map a method to an attribute registered in attributes and set it as a
+    deferred action invoked on user input (as in a mouse click).
+*******************************************************************************/
+GroupItem mapAction(String name,GroupItem &method(GroupItem))
+{
+GroupItem		item;
+    item                = mapMethod(name,method);
+    item.deferredAction = true;
+    return item;
+}
+
+/*******************************************************************************
+	Map action and set to track parents as members of the attribute created
+    by the mapAction method. Building the track is done in ParseXML each time
+    the named attribute is parsed. Basically it tracks each block that has
+    the named attribute.
+*******************************************************************************/
+GroupItem mapAndTrack(String name,GroupItem &method(GroupItem))
+{
+GroupItem		item = mapMethod(name,method);
+    item.trackAction    = true;
+    return item;
+}
+
+/*******************************************************************************
+	Map a method to an attribute registered in attributes and set it as an
+    immediate action invoked when first encountered on layout (and subsequently
+    ignored).
+*******************************************************************************/
+GroupItem mapImmediate(String name,GroupItem &method(GroupItem))
+{
+GroupItem		item;
+    item                = mapAndTrack(name,method);
+    immediateAction     = true;
+    return item;
+}
+
+/*******************************************************************************
+	Map a method to an attribute registered in attributes. The method will be
+    invoked during layout.
+*******************************************************************************/
+GroupItem mapMethod(String name,GroupItem &method(GroupItem))
+{
+GroupItem		item = new(name);
+    item.isSingleton    = true;
+    item.isClosed       = true;
+    item.layoutAction   = true;
+	setMethod(method);
+	properties += item;
+    return item;
+}
+
+/*******************************************************************************
+	Register methods for attributes. These are the methods that setup and display
+	elements of a layout (buttons, images, fonts, etc.)
+    
+    Note: in some cases the order of attributes is important. They are listed
+    below alphabetically, except in cases where that interferes with their
+    functionality (that is, when they should be processed after the process of
+    some other attribute appearing earlier in the alphabetic sequence).
+*******************************************************************************/
+void registerMethods()
+{
+GroupItem   group;
+	actions = new();
+    /***************************************************************************
+        The next three attributes have order dependencies and have to be
+        processed before one or more of the attributes listed below.
+    ***************************************************************************/
+	mapMethod("panel",wINDOW);
+    mapMethod("drawPath",pATH);     // has to preceed style and style related attributes
+	mapMethod("window",wINDOW);
+    /***************************************************************************
+        Flag settings
+    ***************************************************************************/
+	mapMethod("blank",flagFIELD);
+	mapMethod("commas",flagFIELD);
+	mapMethod("doNotScroll",flagFIELD);
+    mapMethod("editable",flagFIELD);
+	mapMethod("key",flagFIELD);
+	mapMethod("keyAction",flagFIELD);
+	mapMethod("noSourceSelect",flagFIELD);
+	mapMethod("selectable",flagFIELD);
+	mapMethod("zero",flagFIELD);
+    /***************************************************************************
+        Other layout attributes
+    ***************************************************************************/
+	mapMethod("action",aCTION);
+    mapImmediate("bigify",bIGIFY);
+    mapImmediate("buffer",bUFFER);
+    mapImmediate("canvas",cANVAS);
+    mapMethod("cards",setCARD);
+   	mapMethod("image",iMAGE);
+    mapMethod("keyStroke",keySTROKE);
+	mapMethod("list",delimitFILE);
+	mapMethod("merge",mERGE);
+	mapMethod("minimumHeight",mINIMUM);
+	mapMethod("minimumWidth",mINIMUM);
+	mapMethod("next",nEXT);
+	mapMethod("popup",popUP);
+	mapMethod("pullDown",pullDOWN);
+    mapImmediate("register",rEGISTER);
+    mapMethod("rightClick",rightCLICK);
+	mapMethod("scrollWith",scrollWITH);
+	mapMethod("sort",setSORT);
+	mapMethod("source",sOURCE);
+	mapMethod("tabs",tABS);
+	mapMethod("tag",tAG);
+    mapMethod("text",tEXT);
+	mapMethod("toggled",tOGGLED);
+	mapMethod("trait",tRAIT);
+	mapMethod("tree",tREE);
+	mapMethod("type",tYPE);
+	mapMethod("value",tAG);
+	mapMethod("xml",xmlFILE);
+    /***************************************************************************
+        The following attributes have order dependencies and have to be processed
+        after one or more of the attributes listed above. Entering in the registry
+        at the end as is done here does not guarantee that. The only way
+        is to make sure the attribute appears after any attribute
+        that it is dependent on.
+        
+        Alternatively, setting the modified flag on the attribute will delay
+        when the method is run in Details processMethods()
+    ***************************************************************************/
+	mapMethod("describe",dESCRIBE);
+	group   = mapMethod("show",sHOW);
+    // isShell is set so when members added to show, their parent is unchanged
+    group.isShell   = true;
+    group.modified  = true;
+}
+}

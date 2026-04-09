@@ -1,0 +1,3113 @@
+include groupIncludes
+
+/*******************************************************************************
+            Rule action declarations
+        *******************************************************************************/
+external
+{
+void AttributeParseXMLAct(PLGitem iTEM);
+void CommandTextParseXMLAct(PLGitem iTEM);
+int EndTagParseXMLNow(PLGitem iTEM);
+void EndTagParseXMLAct(PLGitem iTEM);
+void JSONrepeatEntryParseXMLAct(PLGitem iTEM);
+void JSONpairParseXMLAct(PLGitem iTEM);
+int RegistryParseXMLNow(PLGitem iTEM);
+int LocateParseXMLNow(PLGitem iTEM);
+int ModifierParseXMLNow(PLGitem iTEM);
+void ModifierParseXMLAct(PLGitem iTEM);
+int NumberParseXMLNow(PLGitem iTEM);
+void DelimitNumberParseXMLAct(PLGitem iTEM);
+int StopHereParseXMLNow(PLGitem iTEM);
+int PartParseXMLNow(PLGitem iTEM);
+int Quoted2ParseXMLNow(PLGitem iTEM);
+int SetTagFlagParseXMLNow(PLGitem iTEM);
+void CommandText4ParseXMLAct(PLGitem iTEM);
+void TextBodyParseXMLAct(PLGitem iTEM);
+int AttributeListParseXMLNow(PLGitem iTEM);
+int CommandParseXMLNow(PLGitem iTEM);
+void CommandText3ParseXMLAct(PLGitem iTEM);
+void CommandText2ParseXMLAct(PLGitem iTEM);
+void CommandText5ParseXMLAct(PLGitem iTEM);
+void CommandText6ParseXMLAct(PLGitem iTEM);
+void CommandText7ParseXMLAct(PLGitem iTEM);
+int BodyPartsParseXMLNow(PLGitem iTEM);
+void ClosingParseXMLAct(PLGitem iTEM);
+void Closing2ParseXMLAct(PLGitem iTEM);
+int DebuggingParseXMLNow(PLGitem iTEM);
+int EndBraceParseXMLNow(PLGitem iTEM);
+int DelimitEmptyParseXMLNow(PLGitem iTEM);
+int EndTag2ParseXMLNow(PLGitem iTEM);
+void EndTag2ParseXMLAct(PLGitem iTEM);
+int FieldName3ParseXMLNow(PLGitem iTEM);
+int FieldName4ParseXMLNow(PLGitem iTEM);
+int MacroPartParseXMLNow(PLGitem iTEM);
+int MacroParseXMLNow(PLGitem iTEM);
+int PathParseXMLNow(PLGitem iTEM);
+void PathItemParseXMLAct(PLGitem iTEM);
+int QuotedParseXMLNow(PLGitem iTEM);
+void SetAttributesParseXMLAct(PLGitem iTEM);
+int SetSimpleEndParseXMLNow(PLGitem iTEM);
+void SimpleEndParseXMLAct(PLGitem iTEM);
+void SimpleEnd2ParseXMLAct(PLGitem iTEM);
+void StartTagParseXMLAct(PLGitem iTEM);
+void StartTag2ParseXMLAct(PLGitem iTEM);
+int StartXMLParseXMLNow(PLGitem iTEM);
+int StringSetParseXMLNow(PLGitem iTEM);
+void Tag2ParseXMLAct(PLGitem iTEM);
+void Tag3ParseXMLAct(PLGitem iTEM);
+void UpParseXMLAct(PLGitem iTEM);
+void DelimitTextParseXMLAct(PLGitem iTEM);
+void DelimitText2ParseXMLAct(PLGitem iTEM);
+void DelimitText3ParseXMLAct(PLGitem iTEM);
+int DelimitFieldNameParseXMLNow(PLGitem iTEM);
+int FieldItemParseXMLNow(PLGitem iTEM);
+int SkipGuardParseXMLNow(PLGitem iTEM);
+void JSONblockParseXMLAct(PLGitem iTEM);
+void JSONdataParseXMLAct(PLGitem iTEM);
+void JSONdata2ParseXMLAct(PLGitem iTEM);
+void JSONdata3ParseXMLAct(PLGitem iTEM);
+int JSONlistEntryParseXMLNow(PLGitem iTEM);
+void JSONrepeatParseXMLAct(PLGitem iTEM);
+}
+
+/*****************************************************************************
+	ParseXML class definition
+*****************************************************************************/
+class ParseXML extends PLGparse
+{
+PLGset	alphaSet;
+PLGset	anchorSet;
+PLGset	bodySet;
+PLGset	commentSet;
+PLGset	dateSet;
+PLGset	delimitSet;
+PLGset	fieldSet;
+PLGset	nameSet;
+PLGset	notSpace;
+PLGset	simpleEnd;
+PLGset	singleQuote;
+PLGset	spaces;
+PLGset	tagSet;
+PLGset	textFollow;
+int	simpleSyntax;
+int	stopParsing;
+String	endString;
+String	subString;
+KeyTable Registering;
+KeyTable Flag;
+KeyTable CommandAction;
+
+void initializeKeyWords()
+{
+	Registering = new("Registering");
+	Registering.add("asAttributes");
+	Registering.add("base");
+	Registering.add("components");
+	Registering.add("data");
+	Registering.add("descending");
+	Registering.add("display");
+	Registering.add("grouped");
+	Registering.add("layout");
+	Registering.add("noPrint");
+	Registering.add("rules");
+	Registering.add("search");
+	Registering.add("sort");
+	Registering.add("track");
+	Registering.add("value");
+
+	Flag = new("Flag");
+	Flag.add("debug");
+	Flag.add("easy");
+	Flag.add("macro");
+	Flag.add("pause");
+	Flag.add("noJIT");
+	Flag.add("noPrint");
+	Flag.add("stop");
+
+	CommandAction = new("CommandAction");
+	CommandAction.add("dump");
+	CommandAction.add("list");
+	CommandAction.add("print");
+	CommandAction.add("save");
+	CommandAction.add("test");
+}
+void initializeSetTable()
+{
+	setTable["alphaSet"] = (void*)alphaSet;
+	setTable["anchorSet"] = (void*)anchorSet;
+	setTable["bodySet"] = (void*)bodySet;
+	setTable["commentSet"] = (void*)commentSet;
+	setTable["dateSet"] = (void*)dateSet;
+	setTable["delimitSet"] = (void*)delimitSet;
+	setTable["fieldSet"] = (void*)fieldSet;
+	setTable["nameSet"] = (void*)nameSet;
+	setTable["notSpace"] = (void*)notSpace;
+	setTable["simpleEnd"] = (void*)simpleEnd;
+	setTable["singleQuote"] = (void*)singleQuote;
+	setTable["spaces"] = (void*)spaces;
+	setTable["tagSet"] = (void*)tagSet;
+	setTable["textFollow"] = (void*)textFollow;
+}
+GroupItem       ancestor,
+                block,
+                currentBlock,
+                field,
+                fieldRegistry,
+                fileList,
+                jitInclude,
+                lastSelect,
+                list,
+                monthRegistry,
+				outerBlock,
+                record,
+                yearRegistry;
+PLGitem			jitHeader,
+                testItem;
+Buffer			scratch;
+String			skip,
+                setName;
+char			delimiter,
+				endRecord,
+				outputDelimit,
+				outputEnd;
+int				groupItems,
+				openTags
+                recordNumber;
+PLGset			notSpace,
+				spaces;
+Stak			blockStack,
+                endTags,
+                immediates;
+ParseXML		pathParser;
+boolean
+                jsonType:3[isBlock isJSONtext isRepeat]
+                complexPath
+				doneWithHeading
+                droppedAnchor
+				firstTag
+				hasHeading
+				ignoreSkip
+				isThreaded
+                commanding
+                noLineByLine
+				numberValues
+                settingPath
+				targetSet
+				trimLeadingSpace
+                useStash
+				;
+
+/*****************************************************************************
+	Constructor
+*****************************************************************************/
+ParseXML()
+{
+	endTags			= new;
+    immediates      = new;
+	notSpace		= new("^ \t\r\f\n");
+	scratch			= new("scratch buffer");
+	spaces			= new(" \t");
+	if !mustQuoteSet mustQuoteSet = new(" +?*:!#/@|$%<>~.,;=()\"[\r\t\n'{}");
+    doNotExpandMacros   = true;
+	trimLeadingSpace    = true;
+	outputDelimit	=
+	delimiter		= ',';
+	outputEnd		=
+	endRecord		= '\n';
+    blockStack      = new;
+	skip			= "skip";
+    mainParser      = this;
+    noLineByLine    = true;
+    noComments      = true;
+}
+
+ParseXML(ParseXML p)
+{
+#initNOT
+	*this = *p;
+    mainParser  = this;
+    rules       = new;
+	reset();
+}
+
+/*******************************************************************************
+	Modifies the item passed in to handle backslash escape sequences
+*******************************************************************************/
+void convertItem(PLGitem item)
+{
+String  atText = convertSetInput(item);
+int     atLength = (int)strlen(atText);
+    if item.length != atLength
+        {
+        item.itemStart  = atText;
+        item.length     = atLength;
+        }
+}
+
+/*******************************************************************************
+	Handles input specifying backslash escape sequences
+*******************************************************************************/
+String convertSetInput(PLGitem item)
+{
+String  atText = itemStart;
+int     i;
+    scratch.reset();
+    while i < itemLength
+        if *atText == '\\'
+            {
+            if *(atText+1) == 'f'
+                print(scratch) "\f";
+            or *(atText+1) == 'n'
+                print "\n";
+            or *(atText+1) == 'r'
+                print "\r";
+            or *(atText+1) == 't'
+                print "\t";
+            else goto exitConvert;
+            i       += 2;
+            atText  += 2;
+            }
+        else {
+exitConvert:
+            print *atText++;
+            i++;
+            }
+    return scratch.toString();
+}
+
+/******************************************************************************
+	Utility routine to convert spaces in a string to underlines
+******************************************************************************/
+String despace(String s)
+{
+String atText = s;
+	while *atText
+		{
+		if !nameSet.contains(*atText)
+			{ *atText = '_'; }
+		atText++;
+		}
+	return s;
+}
+
+/*****************************************************************************
+	Create a new group filtered so that its members only contain the attributes
+    that are in the filter. The sources that get filtered are expected to be
+    listed as attributes of the group passed in (along with a filterBy attribute
+    that contains the attributes to be filtered in).
+*****************************************************************************/
+void filterBy(GroupItem group,GroupItem filter)
+{
+GroupItem   item,
+            itemPart,
+            mask,
+            partCopy;
+    if filter && filter.data
+        if mask = locate(filter.text)
+            {
+            while item = group.nextAttribute(item)
+                if item != filter
+                    {
+                    item    = null;
+                    while itemPart = item.nextMember(item)
+                        if partCopy = itemPart.filter(mask)
+                            group.addGroup(partCopy);
+                    }
+            }
+        else cerr "filterBy: could not find filter",filter:;
+    else cerr "filterBy: no filter value specified":;
+}
+
+/*******************************************************************************
+	Build and return the next field block (used when processing delimited fields).
+*******************************************************************************/
+GroupItem getFieldBlock(PLGitem item)
+{
+String  text = field.gText ? field.text : field.tag;
+    if item
+        {
+        if field.registry
+            {
+            if !(block = field.registry.get(item))
+                {
+                block = new(item);
+                field.registry += block;
+                }
+            }
+        else block = new(text);
+        }
+    else block = null;
+    return block;
+}
+
+/***************************************************************************
+	Returns true if path has a target set
+***************************************************************************/
+int hasTarget(GroupItem path)
+{
+GroupItem   group;
+use path
+    if path
+        {
+        if isTarget return true;
+        if hasMembers
+            while group = path.nextMember(group)
+                if hasTarget(group) return true;
+        if hasAttributes
+            {
+            group = null;
+            while group = path.nextAttribute(group)
+                if hasTarget(group) return true;
+            }
+        }
+    return false;
+}
+
+/***************************************************************************
+	Include and parse the file named in its argument
+***************************************************************************/
+void includeFile(String filename)
+{
+String  input;
+    if !fileList fileList = getRegistry("FileList");
+    or fileList[filename]
+        return;
+    fileList += filename;
+    input = getStringFromFile(filename);
+    cout "Including file: " filename:;
+    if input
+		{
+		divertInput(input);
+		parse("StartXML");
+		revertInput();
+		}
+}
+
+/*****************************************************************************
+        Indent text
+*****************************************************************************/
+void indentText(String source,Buffer buffer)
+{
+int i = debugIndent;
+String	text, atText, begin;
+	if !source return;
+	text = alloca(debugIndent + 1);
+	atText = text;
+    for ( i = debugIndent + 1; i > 0; i-- )
+		*atText++ = '\t';
+	*atText = 0;
+	begin	=
+	atText	= source;
+	while *atText
+		{
+		if *atText == '\n'
+			{
+			if atText == begin
+				{
+				print(buffer) "\n" text;
+				atText++;
+				goto newLine;
+				}
+			*atText = 0;
+			print begin "\n" text;
+			*atText++ = '\n';
+			}
+		else {
+			atText++;
+			continue;
+			}
+newLine:
+		while *atText && *atText == '\n'
+			{
+			print '\n';
+			atText++;
+			}
+		begin = atText;
+		}
+	if begin != atText print begin;
+}
+
+/*******************************************************************************
+	Returns a PLGitem if text is a URL
+*******************************************************************************/
+PLGitem isURL(String text)
+{
+PLGitem result;
+    divertInput(text);
+	result = run("URLhead");
+    revertInput();
+	return result;
+}
+
+/***************************************************************************
+    Debugging routine to list out registries
+***************************************************************************/
+void listRegistries()
+{
+GroupItem   registri;
+    cout "Registry List":;
+    if registries && registries.groupListLength
+        while registri = registries.next(registri)
+            cout `registri.tag:;
+    else cout `"contains no entries":;
+}
+
+/******************************************************************************
+	Load a delimited file and convert into a group item. The specs item
+	passed in defines the delimit parameters.
+******************************************************************************/
+GroupItem loadDelimited(GroupItem specs)
+{
+String			inputFile,
+                diverted;
+GroupItem		field,
+                intoRegistry,
+                item;
+	list = null;
+    setName = specs.tag;
+	if !specs.hasAttributes && specs.data
+		inputFile = specs.text;
+    if !fieldRegistry
+        {
+        fieldRegistry = getRegistry("LoadFields");
+        fieldRegistry.isSorted = false;
+        }
+    /**************************************************************************
+        Read the attributes of the delimited file specification and set
+        associated flags and fields
+    **************************************************************************/
+    if item = specs["file"]         inputFile   = item.text;
+    if item = specs["heading"]      hasHeading  = true;
+    if item = specs["noSkip"]       ignoreSkip  = true;
+    if item = specs["delimiter"]    delimiter   = item.getCharacter();
+    if item = specs["endRecord"]    endRecord   = item.getCharacter();
+    if item = specs["skip"]         skip        = item.text;
+    if item = specs["into"]
+        {
+        list = locate(item);
+        if !list
+            if intoRegistry = registries[item.text]
+                list = intoRegistry;
+        }
+    if delimiter && endRecord
+        {
+        delimitSet.clear();
+        delimitSet.set(delimiter);
+        delimitSet.set(endRecord);
+        }
+    or delimiter || endRecord
+        cerr "loadDelimited: warning must set both delimiter and endRecord or neither; assuming defaults":;
+    else cout "loadDelimited: assuming default delimiter , and endRecord: carriage return":;
+	if inputFile
+		{
+        cout "Loading " inputFile:;
+        if isURL(inputFile)
+            {
+            scratch.reset();
+            if getURLintoBuffer(inputFile,scratch)
+                if scratch.length()
+                    {
+                    diverted = scratch.toString();
+                    divertInput(diverted);
+                    }
+            if !diverted
+                {
+                cerr "URL load failed":;
+                // at this point field is null
+                return field;
+                }
+            }
+        else divertInput(getStringFromFile(inputFile));
+		doneWithHeading = hasHeading ? false : true;
+        /**********************************************************************
+            Read the heading line of the delimited file, if there is one
+            to fill the field registry.
+        **********************************************************************/
+		if hasHeading
+			run("Heading");
+        /**********************************************************************
+            Flag the fields of interest and make sure the registries associated
+            w/fields are not closed.
+        **********************************************************************/
+        if item = specs["fields"] loadFieldSpecs(item);
+        else
+        while field = fieldRegistry.nextMember(field)
+            {
+            // Assume we want all the fields since no field list provided
+            field.fLAG = true;
+            }
+		if specs["debug"]
+            {
+            fieldRegistry.dump();
+            specs.dump();
+            cout "List of delimited fields":;
+            item = null;
+            while item = fieldRegistry.nextMember(item)
+                if item.fLAG cout `item.tag,"flagged":;
+                else cout ``item.tag:;
+            listRegistries();
+            }
+        /**********************************************************************
+            Clear list of fields from specs.
+        **********************************************************************/
+        if !list
+            {
+            list = specs;
+            if list.groupListStart list.clear();
+            }
+        field = null;
+		run("List");
+        resetItemTape();
+		}
+	else cerr "No input file specified":;
+    /**************************************************************************
+        Close the registries for registered fields
+    **************************************************************************/
+    item = null;
+    while item = fieldRegistry.nextMember(item)
+        if item.fLAG && item.registry && registry%"loadFromData" item.registry.isClosed = true;
+    if inputFile revertInput();
+    setName = null;
+    block   =
+    field   = null;
+	return list;
+}
+
+/*******************************************************************************
+    Reads field specifications and adds them to the field registry. Used in
+    loadDelimited() and loadJSON().
+        A field name of skip means ignore the field. If skip has a number
+        value, that many fields are skipped.
+ 
+        If there is a heading line, members of spec are merged with existing
+        fields in the field registry.
+*******************************************************************************/
+void loadFieldSpecs(GroupItem fieldSpecs)
+{
+String          skipName;
+GroupItem       field = locate(fieldSpecs),
+                item;
+int             i,skipper;
+    if !field
+        {
+        cerr "loadFieldSpecs: could not find" fieldSpecs:;
+        return;
+        }
+    else fieldSpecs = field;
+    record = new;
+    while item = fieldSpecs.nextMember(item)
+        {
+        skipName = item.data ? item.text : item.tag;
+        if field = fieldRegistry[item.tag]
+            {
+            GroupItem registered = registries[skipName];
+            field.fLAG = true;
+            field.registry = registered;
+            field.text = item.text;
+            }
+        or (item.tag eq skip)
+            if !item.data
+                {
+                skipName = skip skipper++;
+                fieldRegistry += itemFactory(skipName);
+                }
+            else
+            for (i = item.count; i > 0; i--)
+                {
+                skipName = skip skipper++;
+                fieldRegistry += itemFactory(skipName);
+                }
+        else {
+            fieldRegistry += item;
+            item.fLAG = true;
+            field = item;
+            }
+        if field.registry field.registry.isClosed = false;
+        /**********************************************************************
+            Check field attributes.
+        **********************************************************************/
+        if field && field.hasAttributes
+            {
+            /******************************************************************
+                Date attributes are excised for now
+            if field["mdy"]
+                {
+                //  field count set to 1 if date in MDY format
+                field.count = 1;
+                field.isDate = true;
+                }
+            or field["ymd"]
+                field.isDate = true;
+            if field.isDate && !monthRegistry
+                {
+                monthRegistry   = registries["month"];
+                yearRegistry    = registries["year"];
+                if !monthRegistry || !yearRegistry
+                    cerr "ERROR: month or year registry does not exist":;
+                }
+            ******************************************************************/
+            // If there is a tag attribute, use the field as the record tag
+            if field["key"]
+                {
+                field.isTarget = true;
+                record.isTarget = true;
+                }
+            if field["noMerge"]
+                field.noMerge = true;
+            }
+        }
+}
+
+/******************************************************************************
+    Load a json file and convert into a group item. The specs passed in defines
+    the load parameters.
+******************************************************************************/
+GroupItem loadJSON(GroupItem specs)
+{
+GroupItem       registered,
+                item;
+String          diverted,
+                inputFile,
+                outputName;
+    /**************************************************************************
+        Read the parameters of the specification
+    **************************************************************************/
+    list    = null;
+    if !fieldRegistry
+        fieldRegistry = getRegistry("LoadFields");
+    if item = specs["file"]         inputFile   = item.text;
+    if item = specs["into"]
+        {
+        list        = locate(item);
+        outputName  = item.text;
+        if !list && outputName
+            if registered = registries[outputName]
+                list = registered;
+        if !list && !registered cerr "loadJSON: could not find",item:;
+        }
+    else list = specs;
+    if inputFile
+        {
+        cout "Loading JSON data from",inputFile:;
+        if isURL(inputFile)
+            {
+            scratch.reset();
+            if getURLintoBuffer(inputFile,scratch)
+                if scratch.length()
+                    {
+                    diverted = scratch.toString();
+                    //cout diverted:;
+                    divertInput(diverted);
+                    }
+            if !diverted
+                {
+                cerr "URL load failed":;
+                return null;
+                }
+            }
+        else divertInput(getStringFromFile(inputFile));
+        if item = specs["fields"] loadFieldSpecs(item);
+        //debug = true;
+        run("JSONlist");
+        //debug = false;
+        revertInput();
+        if !list list = currentRegistry;
+        }
+    else {
+        cerr "loadJSON: No input file specified":;
+        list = null;
+        }
+    return list;
+}
+
+/******************************************************************************
+	Invoke gml rule parser applying the rule on the file given as attributes
+    in the specs passed in. If you supply a file name in the specs, the file
+    is used as input to the rule test, otherwise the current parser input is
+    used. If no rule attribute is specified, the specs file is assumed to be
+    a rule and is used for the test. The skip attribute is optional and only
+    needed if the default skip set (which contains spaces, tabs, new lines,
+    form feeds, and returns) does not suffice.
+******************************************************************************/
+GroupItem loadRule(GroupItem specs)
+{
+GroupItem   rule = specs%"rule";
+GroupItem   file = specs%"file";
+GroupItem   skip = specs%"skip";
+GroupItem   methodName = specs%"methodName";
+GroupItem   item;
+String      name;
+use specs
+use groupParser
+    /*********************************************************************
+        item is set as the label of the rule to be parsed.
+    *********************************************************************/
+    if methodName   name = methodName.text;
+    else name = specs.tag;
+    item = locate(name);
+    if !item
+        {
+        item    = new(name);
+        if currentRegistry  currentRegistry += item;
+        }
+    /*********************************************************************
+        Does this have to happen every fortnight? Looks like setup.
+    *********************************************************************/
+    if !wordEnd     wordEnd     = locate("wordEnd");
+    if skip && skip.isSetGRP
+        if ruleSkipSet ruleSkipSet.characterSet = skip.characterSet;
+        else ruleSkipSet = skip;
+    else if !ruleSkipSet
+        {
+        ruleSkipSet = new("skip");
+        ruleSkipSet.characterSet = defaultSkip;
+        // defaultSkip is defined in PLGparse
+        }
+    /*********************************************************************
+        Determine what input will be parsed.
+    *********************************************************************/
+    atRuleMark  = null;
+    if file
+        {
+        String inputFile    = file.text;
+        if inputFile
+            atRuleMark      = getStringFromFile(inputFile);
+        else cerr "loadRule: no file name given in attribute of",specs.getTagXML():;
+        }
+    or !(atRuleMark = specs.text)
+        atRuleMark  = plgStart;
+    ruleInputStart  = atRuleMark;
+    if !atRuleMark  cerr "loadRule: rule input not set",specs.getTagXML():;
+    /*********************************************************************
+        Determine parse rule. Start is default rule if no rule specified.
+    *********************************************************************/
+    if rule
+        {
+        String ruleName     = rule.text;
+        if ruleName rule    = locate(ruleName);
+        else        rule    = null;
+        }
+    if !rule        rule    = locate("Start");
+    if !rule        cerr "loadRule: could not find rule",specs.getTagXML():;
+    /*********************************************************************
+        Fire in the hole. Run parser. Return result.
+    *********************************************************************/
+    if item && atRuleMark && rule
+        if rule.isRule
+            {
+            ruleInput       = specs;
+            if rule.runParseRule(item)    return item;
+            }
+        else cerr "loadRule:",rule.tag,"is not a rule":;
+    return null;
+}
+
+GroupItem locate(PLGitem item)
+{
+String      name = item.string();
+GroupItem   group = locate(name);
+    item.unString();
+    return group;
+}
+
+/*****************************************************************************
+	Parse the file (presumably contains an xml string) into a list of blocks
+*****************************************************************************/
+GroupItem parseFile(String filename)
+{
+String      text = getStringFromFile(filename);
+    if text return parseString(text);
+    return null;
+}
+
+/***************************************************************************
+	Parses a macro. Diverts input to do it.
+***************************************************************************/
+void parseMacro(GroupItem macro,String text)
+{
+    block = macro;
+    divertInput(text,getRule("Macro"));
+    block = null;
+}
+
+/*****************************************************************************
+	Parse the xml string into a linked list of blocks
+*****************************************************************************/
+GroupItem parseString(String path,String tag)
+{
+    if !path || !tag return (GroupItem)null;
+	reset();
+    setInput(path);
+    run(tag);
+    return outerBlock;
+}
+
+/*****************************************************************************
+	pop the saved state of the parser off the state stack. If there is no
+    saved state, nothing happens;
+*****************************************************************************/
+void popState()
+{
+    if !blockStack.length
+        cerr "ERROR popState: nothing on block stack":;
+    else {
+        outerBlock      = blockStack.pop();
+        currentBlock    = blockStack.pop();
+        ancestor        = blockStack.pop();
+        }
+}
+
+/*****************************************************************************
+	Debugging routine to print to standard output the attributes from this
+    item listed in the Stak passed in. If the parameter is null, all attributes
+    are printed
+*****************************************************************************/
+void printAttributes(GroupItem group,Stak list)
+{
+String      name;
+GroupItem   item;
+    if group
+        {
+        cout tag;
+        if !list
+            while item = group.nextAttribute(item)
+                {
+                if item.data cout `item.tag "=" item.text;
+                or name eq item.registry.tag
+                     cout `name "=" item.text;
+                else cout `item.tag;
+                }
+        else
+        while name = list.next()
+            if item = group.getAttribute(name)
+                if item.data cout `item.tag "=" item.text;
+                or name eq item.registry.tag
+                     cout `name "=" item.text;
+                else cout `item.tag;
+        cout :;
+        item = null;
+        while item = group.nextMember(item) printAttributes(item,list);
+        }
+}
+
+/***************************************************************************
+	Process a parsed delimited field. This adds the item passed in to the
+    current record. When end of record encountered, writes record to the
+    list and starts a new record. record, field, block and list are GroupItems
+    declared by this here parser.
+***************************************************************************/
+void processDelimitField(PLGitem item)
+{
+PLGitem delimit;
+    delimit = item["delimit"];
+    if field.fLAG
+        {
+        //cout "Processing field: " field.tag,item,recordNumber:;
+        item.runDeferred();
+        //cout `"processDelimitField:",block:;
+        }
+	if block
+        if field.isTarget
+            {
+            block.noMerge   = field.noMerge;
+            record.group    = block;
+            }
+        else {
+            if block.registry = field.registry
+                {
+                block.text  = block.tag;
+                block.tag   = field.tag;
+                }
+            block.isAttributeGRP = true;
+            block = record += block;
+           }
+	if delimit.start == endRecord
+		{
+        if record.isTarget
+            {
+            block = record.group;
+            if block.noMerge    block.copyList(record);
+            else                block.merge(record);
+            record.clear();
+            if list.isRegistryGRP
+                list.registry += block;
+            else list += block;
+            }
+        else {
+            record.tag = list.tag recordNumber++;
+            if list.isRegistryGRP
+                list.registry += record;
+            else list += record;
+            record = new;
+            }
+		}
+    block = null;
+}
+
+/*****************************************************************************
+    Process a path specification
+*****************************************************************************/
+void processPath(GroupItem item)
+{
+GroupItem       group, part, path;
+    if item%LiSt
+        cerr "processPath: already processed", item.getTagXML():;
+    or item.hasMembers
+        {
+        GroupItem   list = new("targets");
+        /*********************************************************************
+            We copy item members to list and remove them from item here so it
+            does not mess up adding to item or looping thru list with nextMember.
+            So list contains the members, which are the paths to be processed,
+            and item only contains attributes, which are the sources.
+        *********************************************************************/
+        while group = item.nextMember(group)
+            {
+            list += group;
+            item.remove(group);
+            }
+        item.hasMembers = false;
+        while part = list.nextMember(part)
+            if part.isPath
+                {
+                // isPath IS NEVER SET
+                if group = locate(part.tag)
+                    while path = group.nextMember(path)
+                        {
+                        if !hasTarget(path) path.isTarget = true;
+                        processSourceByPath(path,item);
+                        }
+                }
+            else {
+                path = part;
+                if !hasTarget(path) path.isTarget = true;
+                processSourceByPath(path,item);
+                }
+        item.isTarget   = false;
+        list.clear();
+        }
+    else cerr "processPath: no paths specified as members of",item:;
+}
+
+/*****************************************************************************
+    Process a path against one or more sources
+*****************************************************************************/
+void processSourceByPath(GroupItem path,GroupItem item)
+{
+GroupItem       group, source;
+PathIterator    iterator;
+    /*************************************************************************
+        The attributes of item contain the sources to be matched against.
+        If an attribute has no members, it is ignored, assumed to be a
+        regular attribute. If debug specified it will apply to all sources
+        specified after the debug attribute.
+    *************************************************************************/
+    if item.hasAttributes
+        {
+        GroupItem debugFlag = item["debug"];
+        while source = item.nextAttribute(source)
+            {
+            if !source.hasMembers continue;
+            if !iterator iterator = new(path,source);
+            else {
+                initialPath = path;
+                initialBlock = source;
+                }
+            if debugFlag debugAll = true;
+            while group = iterator.next()
+                item += group;
+            }
+        }
+    else cerr "processSourceByPath: no source provided":;
+}
+
+/*****************************************************************************
+	Create a block from the parsed components
+*****************************************************************************/
+GroupItem processTag(PLGitem attributes)
+{
+GroupItem   block, trait, attribute;
+PLGitem	    item;
+	attributes.runDeferred();
+	block		= currentBlock;
+    while ancestor && ancestor.isSingleton
+		ancestor = ancestor.parent;
+    for item = attributes.next
+		{
+        currentBlock = null;
+		item.runDeferred();
+		if trait = currentBlock
+			{
+            int     saveAffiliation;
+            if trait.immediateActionGRP && !trait.isRule && trait.noPrint
+                {
+                // noPrint immediate actions get fired but not added as attributes
+                immediates += trait;
+                continue;
+                }
+            /*****************************************************************
+                Since we are adding an attribute, it should not be a member.
+            *****************************************************************/
+            if !trait.isAttributeGRP
+                {
+                saveAffiliation = trait.affiliation;
+                trait.isAttributeGRP = true;
+                }
+            attribute = block += trait;
+            if saveAffiliation  trait.affiliation = saveAffiliation;
+			if attribute.isMacro block.hasMacro = true;
+			}
+		}
+    if commanding commanding = false;
+	return block;
+}
+
+/*****************************************************************************
+	push the current state of the parser onto the state stack
+*****************************************************************************/
+void pushState()
+{
+    blockStack.push((void*)ancestor);
+    blockStack.push((void*)currentBlock);
+    blockStack.push((void*)outerBlock);
+}
+
+/*****************************************************************************
+	reset the parser to its original state (clear outerblock)
+*****************************************************************************/
+void reset()
+{
+	ancestor	=
+	currentBlock =
+    outerBlock	= null;
+	targetSet	= false;
+}
+
+/*****************************************************************************
+	reset the itemTape to free all releasable PLGitems for reuse
+*****************************************************************************/
+void resetItemTape()
+{
+Tape    tape = itemTape;
+PLGitem item;
+int     count,
+        freed,
+        inUse,
+        gone;
+void**  spot;
+    tape.list.resetIterator();
+    while spot = tape.atIndex(count++)
+        {
+        item = (PLGitem*)spot;
+        if released gone++;
+        or noRelease inUse++;
+        else {
+            item.free();
+            freed++;
+            }
+        spot += stripSize;
+        }
+    cout "resetItemTape: count",count,"freed",freed,"released",gone,"in use",inUse:;
+    //tape.status();
+}
+
+PLGitem run(String rule,String text)
+{
+PLGitem item;
+	divertInput(text);
+	item = run(rule);
+    revertInput();
+    return item;
+}
+
+/*****************************************************************************
+	Adds current block to ancestor and sets ancestor and outerBlock
+*****************************************************************************/
+void setAncestry()
+{
+    if !outerBlock
+        outerBlock  = ancestor ? ancestor : currentBlock;
+    if ancestor && ancestor != currentBlock
+        ancestor    = ancestor.add(currentBlock);
+	else ancestor   = currentBlock;
+}
+
+/*****************************************************************************
+	Navigate a simple path, setting item.group to its end point
+*****************************************************************************/
+GroupItem simplePath(GroupItem item)
+{
+    if !pathParser pathParser = new(this);
+    if block = item.parent
+        {
+        pathParser.reset();
+        setInput(item.text);
+        run("Path");
+        if !block cerr "simplePath failed to navigate path: " item.text:;
+        //else cout "simplePath: found",block.tag,block.index:;
+        }
+    else cerr "simplePath: no path provided":;
+    return block;
+}
+
+/*****************************************************************************
+	trim end space off the PLGitem passed in
+*****************************************************************************/
+PLGitem trimEnd(PLGitem item)
+{
+unsigned char	*endBody;
+	if item
+		{
+		if skipSet
+			{
+			if trimLeadingSpace
+				while length && skipSet.contains(*item.start)
+					{
+					item.start++;
+					length--;
+					}
+			endBody = (unsigned char*)item.start + length - 1;
+			while length > 0 && skipSet.contains(*endBody)
+				{
+				endBody--;
+				length--;
+				}
+			}
+		if length
+			return item;
+		}
+	return null;
+}
+
+void setRules()
+{
+	setSkip();
+alphaSet = getSet( "alphaSet","A-Za-z_" );
+anchorSet = getSet( "anchorSet","/%" );
+bodySet = getSet( "bodySet","^<>'\"" );
+commentSet = getSet( "commentSet","!?-" );
+dateSet = getSet( "dateSet","0-9/:APM " );
+delimitSet = getSet( "delimitSet",",\n" );
+fieldSet = getSet( "fieldSet","^ `,:+?*:!#/@|$%&<>~.;=()[\r\t\n'{}\"" );
+nameSet = getSet( "nameSet","A-Za-z0-9_" );
+notSpace = getSet( "notSpace","^ \t\n\r\f" );
+simpleEnd = getSet( "simpleEnd","!@#$%&*()_" );
+singleQuote = getSet( "singleQuote","'" );
+spaces = getSet( "spaces"," \t\n\r\f" );
+tagSet = getSet( "tagSet"," =~" );
+textFollow = getSet( "textFollow","A-Za-z0-9_" );
+//
+currentRule = getRule("Attribute");
+currentRule.defer = AttributeParseXMLAct;
+currentSet = getSet("@%");
+addTest(6,(void*)currentSet,"target",0,268435455,"defaultSKIP");
+addTest(5,(void*)getRule("Field"),"name",1,1,(String)null);
+addTest(5,(void*)getRule("Value"),"value",0,1,"defaultSKIP");
+addTest(5,(void*)getRule("Modifier"),"modify",0,1,"defaultSKIP");
+//
+currentRule = getRule("CommandText");
+currentRule.defer = CommandTextParseXMLAct;
+addTest(7,(void*)"include",(String)null,1,1,"defaultSKIP");
+currentSet = textFollow;
+addTest(6,(void*)currentSet,(String)null,-1,1,"defaultSKIP");
+addTest(7,(void*)";","file",0,1,(String)null);
+currentTest.processUpTo = true;
+currentRule.next = getRule("CommandText2");
+//
+currentRule = getRule("EndTag");
+currentRule.immediate = EndTagParseXMLNow;
+currentRule.defer = EndTagParseXMLAct;
+addTest(7,(void*)"<",(String)null,1,1,"defaultSKIP");
+addTest(5,(void*)getRule("Closing"),"action",1,1,"defaultSKIP");
+addTest(5,(void*)getRule("Field"),"field",0,1,"defaultSKIP");
+addTest(7,(void*)">",(String)null,1,1,"defaultSKIP");
+currentRule.next = getRule("EndTag2");
+//
+currentRule = getRule("Epilog");
+currentRule.doNotGuard = true;
+addTest(3,(void*)null,"epilog",0,1,(String)null);
+currentTest.skipOverMatch = true;
+currentTest.processUpTo = true;
+//
+currentRule = getRule("JSONrepeatEntry");
+currentRule.defer = JSONrepeatEntryParseXMLAct;
+addTest(5,(void*)getRule("JSONdata"),"data",1,1,"defaultSKIP");
+addTest(7,(void*)",",(String)null,0,1,"defaultSKIP");
+//
+currentRule = getRule("Field");
+addTest(5,(void*)getRule("FieldName"),"field",1,1,"defaultSKIP");
+//
+currentRule = getRule("Comment4");
+addTest(5,(void*)getRule("Comment4BalancE"),"comment",1,1,(String)null);
+//
+currentRule = getRule("JSONpair");
+currentRule.defer = JSONpairParseXMLAct;
+addTest(5,(void*)getRule("JSONtext"),"name",1,1,"defaultSKIP");
+addTest(7,(void*)":",(String)null,1,1,"defaultSKIP");
+addTest(5,(void*)getRule("JSONdata"),"data",1,1,"defaultSKIP");
+addTest(7,(void*)",",(String)null,0,1,"defaultSKIP");
+//
+currentRule = getRule("Integer");
+addTest(5,(void*)getRule("IntegerBlock10"),"count",1,1,"defaultSKIP");
+//
+currentRule = getRule("LocateRegistry");
+//
+currentRule = getRule("Registry");
+currentRule.immediate = RegistryParseXMLNow;
+addTest(5,(void*)getRule("Text"),"type",1,1,"defaultSKIP");
+//
+currentRule = getRule("Locate");
+currentRule.immediate = LocateParseXMLNow;
+addTest(5,(void*)getRule("Registry"),"type",0,1,"defaultSKIP");
+addTest(5,(void*)getRule("Text"),"field",1,1,"defaultSKIP");
+//
+currentRule = getRule("Max");
+addTest(7,(void*)",",(String)null,1,1,"defaultSKIP");
+addTest(5,(void*)getRule("Integer"),"maximum",1,1,"defaultSKIP");
+//
+currentRule = getRule("Modifier");
+currentRule.immediate = ModifierParseXMLNow;
+currentRule.defer = ModifierParseXMLAct;
+addTest(5,(void*)getRule("Limit"),"limit",0,1,"defaultSKIP");
+currentSet = getSet("+?!*{}%&<");
+addTest(6,(void*)currentSet,"modifier",0,268435455,"defaultSKIP");
+addTest(7,(void*)"|","alternate",0,1,"defaultSKIP");
+//
+currentRule = getRule("Number");
+currentRule.immediate = NumberParseXMLNow;
+addTest(5,(void*)getRule("NumberBlock1"),"number",1,1,(String)null);
+addTest(5,(void*)getRule("NumberBlock2"),"part",0,1,(String)null);
+currentSet = alphaSet;
+addTest(6,(void*)currentSet,(String)null,-1,1,(String)null);
+//
+currentRule = getRule("Lines");
+addTest(5,(void*)getRule("Line"),"lines",1,268435455,(String)null);
+//
+currentRule = getRule("DelimitNumber");
+currentRule.defer = DelimitNumberParseXMLAct;
+currentSet = getSet("'\"");
+addTest(6,(void*)currentSet,(String)null,0,1,(String)null);
+addTest(5,(void*)getRule("Number"),"number",1,1,(String)null);
+currentSet = getSet("'\"");
+addTest(6,(void*)currentSet,(String)null,0,1,(String)null);
+currentSet = delimitSet;
+addTest(6,(void*)currentSet,"delimit",1,1,(String)null);
+//
+currentRule = getRule("StopHere");
+currentRule.immediate = StopHereParseXMLNow;
+//
+currentRule = getRule("Parameter");
+//
+currentRule = getRule("Part");
+currentRule.immediate = PartParseXMLNow;
+addTest(5,(void*)getRule("BodyParts"),"prefix",0,268435455,"defaultSKIP");
+addTest(5,(void*)getRule("Tag"),"body",0,1,(String)null);
+currentTest.skipOverMatch = true;
+currentTest.processUpTo = true;
+//
+currentRule = getRule("Reference");
+//
+currentRule = getRule("NumberBlock2");
+currentSet = getSet(".0-9");
+addTest(6,(void*)currentSet,(String)null,1,268435455,(String)null);
+//
+currentRule = getRule("Quoted2");
+currentRule.immediate = Quoted2ParseXMLNow;
+currentSet = getSet("'");
+addTest(6,(void*)currentSet,(String)null,1,1,(String)null);
+addTest(5,(void*)getRule("Quoted2Block4"),"text",1,1,(String)null);
+currentSet = getSet("'");
+addTest(6,(void*)currentSet,(String)null,1,1,(String)null);
+//
+currentRule = getRule("SetTagFlag");
+currentRule.immediate = SetTagFlagParseXMLNow;
+//
+currentRule = getRule("Tag");
+addTest(5,(void*)getRule("Command"),(String)null,1,1,"defaultSKIP");
+currentRule.next = getRule("Tag2");
+//
+currentRule = getRule("CommandText4");
+currentRule.defer = CommandText4ParseXMLAct;
+addTest(4,(void*)Flag,"flag",1,1,"defaultSKIP");
+currentSet = textFollow;
+addTest(6,(void*)currentSet,(String)null,-1,1,(String)null);
+currentRule.next = getRule("CommandText5");
+//
+currentRule = getRule("Text");
+addTest(5,(void*)getRule("Quoted"),"text",1,1,(String)null);
+currentRule.next = getRule("Text2");
+//
+currentRule = getRule("TextBody");
+currentRule.defer = TextBodyParseXMLAct;
+addTest(5,(void*)getRule("SetSimpleEnd"),(String)null,1,1,"defaultSKIP");
+addTest(7,(void*)&endString,"body",0,1,(String)null);
+currentTest.aVariable = true;
+currentTest.skipOverMatch = true;
+currentTest.processUpTo = true;
+addTest(7,(void*)";",(String)null,1,1,"defaultSKIP");
+//
+currentRule = getRule("Comment3BoDY");
+currentRule.immediate = balancEbody;
+addTest(7,(void*)"<?","begin",0,1,(String)null);
+addTest(7,(void*)"?>","end",0,1,(String)null);
+currentRule.next = getRule("Comment3Any");
+//
+currentRule = getRule("Value");
+addTest(7,(void*)"=~","regex",1,1,"defaultSKIP");
+addTest(5,(void*)getRule("RegexText"),"text",1,1,"defaultSKIP");
+currentRule.next = getRule("Value2");
+//
+currentRule = getRule("AttributeList");
+currentRule.immediate = AttributeListParseXMLNow;
+addTest(7,(void*)"[",(String)null,1,1,"defaultSKIP");
+addTest(5,(void*)getRule("Text"),"name",1,268435455,"defaultSKIP");
+//
+currentRule = getRule("Command");
+currentRule.immediate = CommandParseXMLNow;
+addTest(7,(void*)"#",(String)null,1,1,"defaultSKIP");
+addTest(5,(void*)getRule("CommandText"),"command",0,1,"defaultSKIP");
+addTest(7,(void*)";",(String)null,1,1,"defaultSKIP");
+//
+currentRule = getRule("CommandText3");
+currentRule.defer = CommandText3ParseXMLAct;
+addTest(4,(void*)CommandAction,"action",1,1,"defaultSKIP");
+currentSet = textFollow;
+addTest(6,(void*)currentSet,(String)null,-1,1,(String)null);
+addTest(5,(void*)getRule("Registry"),"type",0,1,"defaultSKIP");
+addTest(5,(void*)getRule("Locate"),"path",0,1,"defaultSKIP");
+addTest(5,(void*)getRule("AttributeList"),"list",0,1,"defaultSKIP");
+addTest(5,(void*)getRule("Number"),"number",0,1,"defaultSKIP");
+currentRule.next = getRule("CommandText4");
+//
+currentRule = getRule("CommandText2");
+currentRule.defer = CommandText2ParseXMLAct;
+addTest(7,(void*)"registry",(String)null,1,1,"defaultSKIP");
+currentSet = textFollow;
+addTest(6,(void*)currentSet,(String)null,-1,1,(String)null);
+addTest(5,(void*)getRule("Text"),"type",1,1,"defaultSKIP");
+addTest(4,(void*)Registering,"flag",0,268435455,"defaultSKIP");
+currentRule.next = getRule("CommandText3");
+//
+currentRule = getRule("CommandText5");
+currentRule.defer = CommandText5ParseXMLAct;
+addTest(7,(void*)"search",(String)null,1,1,"defaultSKIP");
+currentSet = textFollow;
+addTest(6,(void*)currentSet,(String)null,-1,1,(String)null);
+addTest(7,(void*)"+","plus",0,1,"defaultSKIP");
+addTest(5,(void*)getRule("Text"),"names",0,268435455,"defaultSKIP");
+currentRule.next = getRule("CommandText6");
+//
+currentRule = getRule("CommandText6");
+currentRule.defer = CommandText6ParseXMLAct;
+addTest(7,(void*)"load",(String)null,1,1,"defaultSKIP");
+currentSet = textFollow;
+addTest(6,(void*)currentSet,(String)null,-1,1,(String)null);
+addTest(5,(void*)getRule("Locate"),"path",1,1,"defaultSKIP");
+currentRule.next = getRule("CommandText7");
+//
+currentRule = getRule("CommandText7");
+currentRule.defer = CommandText7ParseXMLAct;
+addTest(5,(void*)getRule("Locate"),"group",1,1,"defaultSKIP");
+addTest(5,(void*)getRule("CommandArgument"),"argument",0,1,"defaultSKIP");
+//
+currentRule = getRule("BodyParts");
+currentRule.immediate = BodyPartsParseXMLNow;
+addTest(5,(void*)getRule("BodyPartsBalancE"),"part",1,1,"defaultSKIP");
+currentRule.next = getRule("BodyParts2");
+//
+currentRule = getRule("Closing");
+currentRule.defer = ClosingParseXMLAct;
+addTest(7,(void*)"/","closing",1,268435455,"defaultSKIP");
+currentRule.next = getRule("Closing2");
+//
+currentRule = getRule("CommentBoDY");
+currentRule.immediate = balancEbody;
+addTest(7,(void*)"/*","begin",0,1,(String)null);
+addTest(7,(void*)"*/","end",0,1,(String)null);
+currentRule.next = getRule("CommentAny");
+//
+currentRule = getRule("Closing2");
+currentRule.defer = Closing2ParseXMLAct;
+addTest(7,(void*)";","closing",1,1,"defaultSKIP");
+//
+currentRule = getRule("Debugging");
+currentRule.immediate = DebuggingParseXMLNow;
+//
+currentRule = getRule("EndBrace");
+currentRule.immediate = EndBraceParseXMLNow;
+addTest(7,(void*)"]","endBrace",1,1,(String)null);
+//
+currentRule = getRule("DelimitEmpty");
+currentRule.immediate = DelimitEmptyParseXMLNow;
+currentRule.doNotGuard = true;
+currentSet = getSet("'\"");
+addTest(6,(void*)currentSet,(String)null,0,268435455,(String)null);
+currentSet = delimitSet;
+addTest(6,(void*)currentSet,"delimit",1,1,(String)null);
+//
+currentRule = getRule("EndTag2");
+currentRule.immediate = EndTag2ParseXMLNow;
+currentRule.defer = EndTag2ParseXMLAct;
+addTest(8,(void*)&simpleSyntax,(String)null,1,1,"defaultSKIP");
+currentTest.isConditionTestPLG = true;
+addTest(5,(void*)getRule("Closing"),"action",1,1,"defaultSKIP");
+//
+currentRule = getRule("QuotedBlock3");
+currentSet = getSet("^\"");
+addTest(6,(void*)currentSet,(String)null,1,268435455,(String)null);
+//
+currentRule = getRule("FieldName3");
+currentRule.immediate = FieldName3ParseXMLNow;
+addTest(7,(void*)"\"",(String)null,1,1,"defaultSKIP");
+addTest(5,(void*)getRule("FieldName3Block7"),"field",1,1,"defaultSKIP");
+addTest(7,(void*)"\"",(String)null,1,1,"defaultSKIP");
+currentRule.next = getRule("FieldName4");
+//
+currentRule = getRule("FieldName4");
+currentRule.immediate = FieldName4ParseXMLNow;
+currentSet = getSet("'");
+addTest(6,(void*)currentSet,(String)null,1,1,"defaultSKIP");
+addTest(5,(void*)getRule("FieldName4Block8"),"field",1,1,"defaultSKIP");
+currentSet = getSet("'");
+addTest(6,(void*)currentSet,(String)null,1,1,"defaultSKIP");
+currentRule.next = getRule("FieldName5");
+//
+currentRule = getRule("FieldName3Block7");
+currentSet = getSet("^\"");
+addTest(6,(void*)currentSet,(String)null,1,268435455,(String)null);
+//
+currentRule = getRule("DelimitDate");
+currentSet = getSet("'\"");
+addTest(6,(void*)currentSet,(String)null,0,1,(String)null);
+addTest(5,(void*)getRule("DelimitDateBlock0"),"date",1,1,(String)null);
+currentSet = getSet("'\"");
+addTest(6,(void*)currentSet,(String)null,0,1,(String)null);
+currentSet = delimitSet;
+addTest(6,(void*)currentSet,"delimit",1,1,(String)null);
+//
+currentRule = getRule("MacroPart");
+currentRule.immediate = MacroPartParseXMLNow;
+addTest(7,(void*)"$",(String)null,1,1,(String)null);
+addTest(5,(void*)getRule("Text"),"text",1,1,(String)null);
+currentRule.next = getRule("MacroPart2");
+//
+currentRule = getRule("Macro");
+currentRule.immediate = MacroParseXMLNow;
+addTest(5,(void*)getRule("MacroPart"),"macro",1,268435455,(String)null);
+//
+currentRule = getRule("Limit");
+addTest(7,(void*)"{",(String)null,1,1,"defaultSKIP");
+addTest(5,(void*)getRule("Number"),"minimum",1,1,"defaultSKIP");
+addTest(7,(void*)",",(String)null,0,1,"defaultSKIP");
+addTest(5,(void*)getRule("Number"),"maximum",0,1,"defaultSKIP");
+addTest(7,(void*)"}",(String)null,1,1,"defaultSKIP");
+//
+currentRule = getRule("Path");
+currentRule.immediate = PathParseXMLNow;
+addTest(5,(void*)getRule("Up"),"up",0,1,(String)null);
+addTest(5,(void*)getRule("PathItem"),"path",0,268435455,(String)null);
+//
+currentRule = getRule("ValueText2");
+addTest(5,(void*)getRule("Text"),"text",1,1,"defaultSKIP");
+//
+currentRule = getRule("PathItem");
+currentRule.defer = PathItemParseXMLAct;
+addTest(5,(void*)getRule("Text"),"text",1,1,(String)null);
+addTest(7,(void*)"/","slash",0,1,(String)null);
+//
+currentRule = getRule("Quoted");
+currentRule.immediate = QuotedParseXMLNow;
+addTest(7,(void*)"\"",(String)null,1,1,(String)null);
+addTest(5,(void*)getRule("QuotedBlock3"),"text",1,1,(String)null);
+addTest(7,(void*)"\"",(String)null,1,1,(String)null);
+currentRule.next = getRule("Quoted2");
+//
+currentRule = getRule("SetAttributes");
+currentRule.defer = SetAttributesParseXMLAct;
+addTest(5,(void*)getRule("SetTagFlag"),(String)null,0,1,"defaultSKIP");
+addTest(5,(void*)getRule("Attribute"),"attributes",1,268435455,"defaultSKIP");
+//
+currentRule = getRule("BodyPartsBalancE");
+currentRule.immediate = balancE;
+addTest(7,(void*)"<![CDATA[","start",1,1,"defaultSKIP");
+currentTest.leftBalance = true;
+addTest(5,(void*)getRule("BodyPartsBoDY"),"body",0,268435455,"defaultSKIP");
+addTest(7,(void*)"]]>","finish",1,1,(String)null);
+currentTest.rightBalance = true;
+//
+currentRule = getRule("Comment4BalancE");
+currentRule.immediate = balancE;
+addTest(7,(void*)"<-","start",1,1,(String)null);
+currentTest.leftBalance = true;
+addTest(5,(void*)getRule("Comment4BoDY"),"body",0,268435455,(String)null);
+addTest(7,(void*)"->","finish",1,1,(String)null);
+currentTest.rightBalance = true;
+//
+currentRule = getRule("Comment3BalancE");
+currentRule.immediate = balancE;
+addTest(7,(void*)"<?","start",1,1,(String)null);
+currentTest.leftBalance = true;
+addTest(5,(void*)getRule("Comment3BoDY"),"body",0,268435455,(String)null);
+addTest(7,(void*)"?>","finish",1,1,(String)null);
+currentTest.rightBalance = true;
+//
+currentRule = getRule("Comment2BalancE");
+currentRule.immediate = balancE;
+addTest(7,(void*)"<!","start",1,1,(String)null);
+currentTest.leftBalance = true;
+addTest(5,(void*)getRule("Comment2BoDY"),"body",0,268435455,(String)null);
+addTest(7,(void*)"!>","finish",1,1,(String)null);
+currentTest.rightBalance = true;
+//
+currentRule = getRule("CommentBalancE");
+currentRule.immediate = balancE;
+addTest(7,(void*)"/*","start",1,1,(String)null);
+currentTest.leftBalance = true;
+addTest(5,(void*)getRule("CommentBoDY"),"body",0,268435455,(String)null);
+addTest(7,(void*)"*/","finish",1,1,(String)null);
+currentTest.rightBalance = true;
+//
+currentRule = getRule("SetSimpleEnd");
+currentRule.immediate = SetSimpleEndParseXMLNow;
+currentSet = simpleEnd;
+addTest(6,(void*)currentSet,(String)null,1,268435455,"defaultSKIP");
+//
+currentRule = getRule("SimpleEnd");
+currentRule.defer = SimpleEndParseXMLAct;
+addTest(7,(void*)":",(String)null,1,1,"defaultSKIP");
+addTest(5,(void*)getRule("TextBody"),"textBody",0,1,"defaultSKIP");
+currentRule.next = getRule("SimpleEnd2");
+//
+currentRule = getRule("SimpleEnd2");
+currentRule.defer = SimpleEnd2ParseXMLAct;
+currentSet = getSet(",;");
+addTest(6,(void*)currentSet,"close",1,268435455,"defaultSKIP");
+addTest(5,(void*)getRule("Field"),"field",0,1,(String)null);
+//
+currentRule = getRule("StartTag");
+currentRule.defer = StartTagParseXMLAct;
+addTest(7,(void*)"<",(String)null,1,1,"defaultSKIP");
+currentSet = commentSet;
+addTest(6,(void*)currentSet,(String)null,-1,1,"defaultSKIP");
+addTest(5,(void*)getRule("SetAttributes"),"traits",1,1,"defaultSKIP");
+addTest(5,(void*)getRule("Closing"),"singleton",0,1,"defaultSKIP");
+addTest(7,(void*)">",(String)null,1,1,"defaultSKIP");
+currentRule.next = getRule("StartTag2");
+//
+currentRule = getRule("StartTag2");
+currentRule.defer = StartTag2ParseXMLAct;
+addTest(8,(void*)&simpleSyntax,(String)null,1,1,"defaultSKIP");
+currentTest.isConditionTestPLG = true;
+addTest(5,(void*)getRule("SetAttributes"),"traits",1,1,"defaultSKIP");
+addTest(5,(void*)getRule("SimpleEnd"),"end",1,1,"defaultSKIP");
+//
+currentRule = getRule("StartXML");
+currentRule.immediate = StartXMLParseXMLNow;
+addTest(5,(void*)getRule("Part"),(String)null,1,268435455,"defaultSKIP");
+currentSet = spaces;
+addTest(6,(void*)currentSet,(String)null,0,268435455,"defaultSKIP");
+addTest(5,(void*)getRule("Epilog"),"epilog",0,1,"defaultSKIP");
+//
+currentRule = getRule("StringSet");
+currentRule.immediate = StringSetParseXMLNow;
+addTest(7,(void*)"[",(String)null,1,1,(String)null);
+addTest(5,(void*)getRule("EndBrace"),"text",0,1,(String)null);
+currentTest.skipOverMatch = true;
+currentTest.processUpTo = true;
+//
+currentRule = getRule("Tag2");
+currentRule.defer = Tag2ParseXMLAct;
+addTest(5,(void*)getRule("StartTag"),"tag",1,1,"defaultSKIP");
+currentRule.next = getRule("Tag3");
+//
+currentRule = getRule("Tag3");
+currentRule.defer = Tag3ParseXMLAct;
+addTest(5,(void*)getRule("EndTag"),"tag",1,1,"defaultSKIP");
+//
+currentRule = getRule("Up");
+currentRule.defer = UpParseXMLAct;
+addTest(7,(void*)"..",(String)null,1,1,(String)null);
+addTest(7,(void*)"/..","more",0,268435455,(String)null);
+addTest(7,(void*)"/","slash",0,1,(String)null);
+//
+currentRule = getRule("CommandArgument");
+addTest(7,(void*)"(",(String)null,1,1,"defaultSKIP");
+addTest(5,(void*)getRule("Locate"),"argument",0,1,"defaultSKIP");
+addTest(7,(void*)")",(String)null,1,1,"defaultSKIP");
+//
+currentRule = getRule("RegexTextBlock6");
+currentSet = getSet("^'");
+addTest(6,(void*)currentSet,(String)null,1,268435455,(String)null);
+//
+currentRule = getRule("URLhead");
+addTest(7,(void*)"ftp:",(String)null,1,1,"defaultSKIP");
+currentRule.next = getRule("URLhead2");
+//
+currentRule = getRule("Comment");
+addTest(5,(void*)getRule("CommentBalancE"),"comment",1,1,(String)null);
+currentRule.next = getRule("Comment2");
+//
+currentRule = getRule("URLhead2");
+addTest(7,(void*)"file:",(String)null,1,1,"defaultSKIP");
+currentRule.next = getRule("URLhead3");
+//
+currentRule = getRule("URLhead3");
+addTest(7,(void*)"http",(String)null,1,1,"defaultSKIP");
+addTest(7,(void*)"s",(String)null,0,1,"defaultSKIP");
+addTest(7,(void*)":",(String)null,1,1,"defaultSKIP");
+currentRule.next = getRule("URLhead4");
+//
+currentRule = getRule("JSONtext");
+addTest(7,(void*)"\"","quote",1,1,"defaultSKIP");
+addTest(7,(void*)"\"","name",0,1,(String)null);
+currentTest.skipOverMatch = true;
+currentTest.processUpTo = true;
+currentRule.next = getRule("JSONtext2");
+//
+currentRule = getRule("URLhead4");
+addTest(7,(void*)"data:",(String)null,1,1,"defaultSKIP");
+//
+currentRule = getRule("DelimitText");
+currentRule.defer = DelimitTextParseXMLAct;
+addTest(7,(void*)"\"",(String)null,1,1,(String)null);
+addTest(7,(void*)"\"","text",0,1,(String)null);
+currentTest.skipOverMatch = true;
+currentTest.processUpTo = true;
+currentSet = delimitSet;
+addTest(6,(void*)currentSet,"delimit",1,1,(String)null);
+currentRule.next = getRule("DelimitText2");
+//
+currentRule = getRule("DelimitText2");
+currentRule.defer = DelimitText2ParseXMLAct;
+currentSet = singleQuote;
+addTest(6,(void*)currentSet,(String)null,1,1,(String)null);
+currentSet = singleQuote;
+addTest(6,(void*)currentSet,"text",0,1,(String)null);
+currentTest.skipOverMatch = true;
+currentTest.processUpTo = true;
+currentSet = delimitSet;
+addTest(6,(void*)currentSet,"delimit",1,1,(String)null);
+currentRule.next = getRule("DelimitText3");
+//
+currentRule = getRule("DelimitText3");
+currentRule.defer = DelimitText3ParseXMLAct;
+currentRule.doNotGuard = true;
+currentSet = delimitSet;
+addTest(6,(void*)currentSet,"text",0,1,(String)null);
+currentTest.processUpTo = true;
+currentSet = delimitSet;
+addTest(6,(void*)currentSet,"delimit",1,1,(String)null);
+//
+currentRule = getRule("DelimitFieldName");
+currentRule.immediate = DelimitFieldNameParseXMLNow;
+addTest(5,(void*)getRule("DelimitText"),"name",1,1,(String)null);
+//
+currentRule = getRule("FieldName");
+addTest(7,(void*)"~","regex",1,1,"defaultSKIP");
+addTest(5,(void*)getRule("RegexText"),(String)null,1,1,"defaultSKIP");
+currentRule.next = getRule("FieldName2");
+//
+currentRule = getRule("TagBody");
+currentSet = bodySet;
+addTest(6,(void*)currentSet,(String)null,1,268435455,"defaultSKIP");
+currentRule.next = getRule("TagBody2");
+//
+currentRule = getRule("FieldItem");
+currentRule.immediate = FieldItemParseXMLNow;
+addTest(5,(void*)getRule("Skipping"),"skips",0,268435455,(String)null);
+addTest(5,(void*)getRule("DelimitField"),"item",1,1,(String)null);
+//
+currentRule = getRule("SkipGuard");
+currentRule.immediate = SkipGuardParseXMLNow;
+//
+currentRule = getRule("JSONblock");
+currentRule.defer = JSONblockParseXMLAct;
+addTest(7,(void*)"{",(String)null,1,1,"defaultSKIP");
+addTest(5,(void*)getRule("JSONpair"),"pair",1,268435455,"defaultSKIP");
+addTest(7,(void*)"}",(String)null,1,1,"defaultSKIP");
+//
+currentRule = getRule("JSONdata");
+currentRule.defer = JSONdataParseXMLAct;
+addTest(5,(void*)getRule("JSONtext"),"name",1,1,"defaultSKIP");
+currentRule.next = getRule("JSONdata2");
+//
+currentRule = getRule("JSONdata2");
+currentRule.defer = JSONdata2ParseXMLAct;
+addTest(5,(void*)getRule("JSONblock"),"block",1,1,"defaultSKIP");
+currentRule.next = getRule("JSONdata3");
+//
+currentRule = getRule("JSONdata3");
+currentRule.defer = JSONdata3ParseXMLAct;
+addTest(5,(void*)getRule("JSONrepeat"),"repeat",1,1,"defaultSKIP");
+//
+currentRule = getRule("ValueText");
+addTest(5,(void*)getRule("Number"),"amount",1,1,"defaultSKIP");
+addTest(7,(void*)"%","percent",0,1,(String)null);
+currentRule.next = getRule("ValueText2");
+//
+currentRule = getRule("JSONlistEntry");
+currentRule.immediate = JSONlistEntryParseXMLNow;
+addTest(5,(void*)getRule("JSONblock"),"entry",1,1,"defaultSKIP");
+//
+currentRule = getRule("JSONrepeat");
+currentRule.defer = JSONrepeatParseXMLAct;
+addTest(7,(void*)"[",(String)null,1,1,"defaultSKIP");
+addTest(5,(void*)getRule("JSONrepeatEntry"),"entry",1,268435455,"defaultSKIP");
+addTest(7,(void*)"]",(String)null,0,1,"defaultSKIP");
+//
+currentRule = getRule("DelimitDateBlock0");
+currentSet = dateSet;
+addTest(6,(void*)currentSet,(String)null,1,268435455,(String)null);
+//
+currentRule = getRule("DelimitField");
+addTest(5,(void*)getRule("DelimitDate"),"item",1,1,(String)null);
+currentRule.next = getRule("DelimitField2");
+//
+currentRule = getRule("Comment2Any");
+currentRule.immediate = balancEbail;
+addTest(1,(void*)null,(String)null,1,1,(String)null);
+//
+currentRule = getRule("DelimitField2");
+addTest(5,(void*)getRule("DelimitNumber"),"item",1,1,(String)null);
+currentRule.next = getRule("DelimitField3");
+//
+currentRule = getRule("DelimitField3");
+addTest(5,(void*)getRule("DelimitText"),"item",1,1,(String)null);
+currentRule.next = getRule("DelimitField4");
+//
+currentRule = getRule("DelimitField4");
+addTest(5,(void*)getRule("DelimitEmpty"),"item",1,1,(String)null);
+//
+currentRule = getRule("Heading");
+addTest(5,(void*)getRule("DelimitFieldName"),(String)null,1,268435455,(String)null);
+//
+currentRule = getRule("Skipping");
+addTest(5,(void*)getRule("SkipGuard"),"skip",1,1,(String)null);
+currentSet = delimitSet;
+addTest(6,(void*)currentSet,"data",0,1,(String)null);
+currentTest.skipOverMatch = true;
+currentTest.processUpTo = true;
+//
+currentRule = getRule("List");
+addTest(5,(void*)getRule("FieldItem"),(String)null,1,268435455,(String)null);
+//
+currentRule = getRule("NumberBlock1");
+addTest(7,(void*)"-",(String)null,0,1,(String)null);
+currentSet = getSet("0-9");
+addTest(6,(void*)currentSet,(String)null,1,268435455,(String)null);
+//
+currentRule = getRule("Value3");
+addTest(7,(void*)"=",(String)null,1,1,"defaultSKIP");
+addTest(7,(void*)"$","dollar",0,1,"defaultSKIP");
+addTest(5,(void*)getRule("ValueText"),"text",1,1,"defaultSKIP");
+//
+currentRule = getRule("JSONtext2");
+currentSet = getSet("^,:{}[ \\]\t\n\r");
+addTest(6,(void*)currentSet,"name",1,268435455,"defaultSKIP");
+//
+currentRule = getRule("JSONlist");
+addTest(5,(void*)getRule("JSONlistEntry"),"blocks",1,268435455,"defaultSKIP");
+//
+currentRule = getRule("CommentAny");
+currentRule.immediate = balancEbail;
+addTest(1,(void*)null,(String)null,1,1,(String)null);
+//
+currentRule = getRule("FieldName5Block9");
+currentSet = fieldSet;
+addTest(6,(void*)currentSet,(String)null,1,268435455,(String)null);
+//
+currentRule = getRule("Comment2");
+addTest(5,(void*)getRule("Comment2BalancE"),"comment",1,1,(String)null);
+currentRule.next = getRule("Comment3");
+//
+currentRule = getRule("MacroPart2");
+addTest(5,(void*)getRule("MacroPart2Block11"),"text",1,1,(String)null);
+//
+currentRule = getRule("Comment2BoDY");
+currentRule.immediate = balancEbody;
+addTest(7,(void*)"<!","begin",0,1,(String)null);
+addTest(7,(void*)"!>","end",0,1,(String)null);
+currentRule.next = getRule("Comment2Any");
+//
+currentRule = getRule("Comment3");
+addTest(5,(void*)getRule("Comment3BalancE"),"comment",1,1,(String)null);
+currentRule.next = getRule("Comment4");
+//
+currentRule = getRule("Comment3Any");
+currentRule.immediate = balancEbail;
+addTest(1,(void*)null,(String)null,1,1,(String)null);
+//
+currentRule = getRule("Comment4BoDY");
+currentRule.immediate = balancEbody;
+addTest(7,(void*)"<-","begin",0,1,(String)null);
+addTest(7,(void*)"->","end",0,1,(String)null);
+currentRule.next = getRule("Comment4Any");
+//
+currentRule = getRule("Comment4Any");
+currentRule.immediate = balancEbail;
+addTest(1,(void*)null,(String)null,1,1,(String)null);
+//
+currentRule = getRule("Quoted2Block4");
+currentSet = getSet("^'");
+addTest(6,(void*)currentSet,(String)null,1,268435455,(String)null);
+//
+currentRule = getRule("Text2");
+addTest(5,(void*)getRule("Text2Block5"),"text",1,1,(String)null);
+//
+currentRule = getRule("Text2Block5");
+currentSet = fieldSet;
+addTest(6,(void*)currentSet,(String)null,1,268435455,(String)null);
+//
+currentRule = getRule("RegexText");
+currentSet = getSet("'");
+addTest(6,(void*)currentSet,(String)null,1,1,(String)null);
+addTest(5,(void*)getRule("RegexTextBlock6"),"text",1,1,(String)null);
+currentSet = getSet("'");
+addTest(6,(void*)currentSet,(String)null,1,1,(String)null);
+currentRule.next = getRule("RegexText2");
+//
+currentRule = getRule("RegexText2");
+currentSet = notSpace;
+addTest(6,(void*)currentSet,(String)null,1,268435455,(String)null);
+//
+currentRule = getRule("SubString");
+currentRule.doNotGuard = true;
+addTest(7,(void*)&subString,(String)null,0,1,(String)null);
+currentTest.aVariable = true;
+currentTest.skipOverMatch = true;
+currentTest.processUpTo = true;
+//
+currentRule = getRule("FieldName2");
+currentSet = getSet("*$");
+addTest(6,(void*)currentSet,"any",1,1,"defaultSKIP");
+currentRule.next = getRule("FieldName3");
+//
+currentRule = getRule("FieldName4Block8");
+currentSet = getSet("^'");
+addTest(6,(void*)currentSet,(String)null,1,268435455,(String)null);
+//
+currentRule = getRule("FieldName5");
+addTest(5,(void*)getRule("FieldName5Block9"),(String)null,1,1,"defaultSKIP");
+//
+currentRule = getRule("Line");
+currentRule.doNotGuard = true;
+addTest(7,(void*)"\n","line",0,1,(String)null);
+currentTest.skipOverMatch = true;
+currentTest.processUpTo = true;
+//
+currentRule = getRule("Value2");
+addTest(7,(void*)"=",(String)null,1,1,"defaultSKIP");
+addTest(5,(void*)getRule("StringSet"),"text",1,1,"defaultSKIP");
+currentRule.next = getRule("Value3");
+//
+currentRule = getRule("IntegerBlock10");
+currentSet = getSet("0-9");
+addTest(6,(void*)currentSet,(String)null,1,268435455,(String)null);
+//
+currentRule = getRule("TagBody2");
+addTest(7,(void*)"\"",(String)null,1,1,"defaultSKIP");
+currentSet = getSet("^\"");
+addTest(6,(void*)currentSet,(String)null,1,268435455,"defaultSKIP");
+addTest(7,(void*)"\"",(String)null,1,1,"defaultSKIP");
+currentRule.next = getRule("TagBody3");
+//
+currentRule = getRule("TagBody3");
+currentSet = getSet("'");
+addTest(6,(void*)currentSet,(String)null,1,1,"defaultSKIP");
+currentSet = getSet("^'");
+addTest(6,(void*)currentSet,(String)null,1,268435455,"defaultSKIP");
+currentSet = getSet("'");
+addTest(6,(void*)currentSet,(String)null,1,1,"defaultSKIP");
+//
+currentRule = getRule("BodyPartsBoDY");
+currentRule.immediate = balancEbody;
+addTest(7,(void*)"<![CDATA[","begin",0,1,(String)null);
+addTest(7,(void*)"]]>","end",0,1,(String)null);
+currentRule.next = getRule("BodyPartsAny");
+//
+currentRule = getRule("BodyPartsAny");
+currentRule.immediate = balancEbail;
+addTest(1,(void*)null,(String)null,1,1,(String)null);
+//
+currentRule = getRule("BodyParts2");
+addTest(5,(void*)getRule("Comment"),(String)null,1,1,"defaultSKIP");
+//
+currentRule = getRule("MacroPart2Block11");
+currentSet = getSet("^$");
+addTest(6,(void*)currentSet,(String)null,1,268435455,(String)null);
+}
+
+PLGitem run(String name)
+{
+	initializeKeyWords();
+	if !rules.length
+		{
+		setRules();
+		initialize();
+		}
+	return parse(name);
+}
+}
+/*******************************************************************************
+                Rule actions
+            *******************************************************************************/
+
+void AttributeParseXMLAct(PLGitem iTEM)
+{
+PLGitem target = iTEM["target"];
+PLGitem name = iTEM["name"];
+PLGitem value = iTEM["value"];
+PLGitem modify = iTEM["modify"];
+ParseXML	p = iTEM.testParser;
+PLGitem			field   = name["field"];
+PLGitem			regex   = field/"regex";
+String          fieldID = field.toString();
+PLGitem			dollar,
+                item,
+				text,
+				valueRegex;
+GroupItem		block;
+PLGrgx			rgx;
+
+	currentBlock = null;
+	if value
+		{
+        dollar      = value["dollar"];
+		text        = value["text"];
+		valueRegex  = value["regex"];
+		}
+    if settingPath currentBlock = new(fieldID);
+	if !currentBlock    currentBlock = locate(fieldID);
+    if !currentBlock    currentBlock = new(fieldID);
+    if target
+        {
+        String atText = target.string();
+        while *atText
+            {
+            if atText == '@'
+                currentBlock.isTarget = true;
+            or atText == '%'
+                currentBlock.noAnchor = true;
+            atText++;
+            }
+        target.unString();
+        }
+	if modify modify.runDeferred();
+    /*********************************************************************
+        Check for tag regular expression. Note that the currentBlock
+        text is not set. Check for isAny and isEOF.
+    *********************************************************************/
+    if regex
+        {
+        fieldID++;
+        rgx = new(fieldID);
+        currentBlock.regex  = rgx;
+        }
+    if field/"any"
+        if field.itemStart == '*' currentBlock.isAnyGRP = true;
+        else currentBlock.isEOFGRP = true;
+    //cout `"Attribute: " currentBlock.tag:;
+
+	/*************************************************************************
+		Process value if there is one and compile value regular expressions
+	*************************************************************************/
+	if value
+		{
+        if currentBlock.isRegexGRP
+            cerr "Error: " fieldID " is regex and cannot have a value: " value:;
+        item = value/"number";
+        if item
+            {
+            if item.floating
+                currentBlock.number = item.amount;
+            else currentBlock.count = (int)item.amount;
+            if value/"percent"
+                currentBlock.isPercent = true;
+            }
+        or valueRegex
+            {
+            rgx = new(text.toString());
+            currentBlock.regex = rgx;
+            }
+        else {
+            if dollar
+                currentBlock.isMacro = true;
+            or text
+                if currentRegistry.isRule && (block = locate(text))
+                    if block != currentBlock
+                        {
+                        block               = new(block);
+                        currentBlock.group  = block;
+                        block.parent        = currentBlock;
+                        }
+                    else cerr "Attribute: tried to assign",block.tag,"to itself":;
+                or text.isSetPLG        currentBlock.characterSet = (PLGset)text.value;
+                else currentBlock.item = text;
+            }
+		}
+    if firstTag firstTag = false;
+    or !currentBlock.registry
+        currentBlock.isAttributeGRP = true;
+doneAttribute:
+    field.value	= currentBlock;
+}
+
+void CommandTextParseXMLAct(PLGitem iTEM)
+{
+PLGitem file = iTEM["file"];
+ParseXML	p = iTEM.testParser;
+includeFile(file.string());
+    file.unString();
+}
+
+int EndTagParseXMLNow(PLGitem iTEM)
+{
+PLGitem action = iTEM["action"];
+PLGitem field = iTEM["field"];
+ParseXML	p = iTEM.testParser;
+GroupItem   group = ancestor;
+    if field
+        while group && field ne group.tag
+            { group = group.parent; }
+return true;
+}
+
+void EndTagParseXMLAct(PLGitem iTEM)
+{
+PLGitem action = iTEM["action"];
+PLGitem field = iTEM["field"];
+ParseXML	p = iTEM.testParser;
+GroupItem	listTag;
+	currentBlock = ancestor;
+    if field
+        while currentBlock
+            if currentBlock.tag eq field
+                break;
+            else currentBlock = currentBlock.parent;
+	if !currentBlock
+		{
+        if field
+            {
+            listTag			= new(field);
+            field.isEndTag	= true;
+            }
+        else listTag = new;
+		listTag.noTag	= true;
+        listTag.isSingleton = true;
+        if !ancestor
+            {
+            if outerBlock && !outerBlock.isClosed && !outerBlock.isSingleton
+                currentBlock = outerBlock;
+            else currentBlock = listTag;
+            }
+		}
+	if listTag
+		{
+		if ancestor
+            {
+            if ancestor.hasMembers
+                ancestor += listTag;
+            or field
+                {
+                PLGitem item    = ancestor.item;
+                field.isEndTag  = true;
+                if item item += field;
+                else ancestor.item = field;
+                }
+            currentBlock = ancestor;
+            }
+		or listTag != currentBlock
+			currentBlock += listTag;
+		endTags += listTag;
+		}
+    else {
+		while ancestor && ancestor != currentBlock
+			{
+			ancestor.isClosed = true;
+			ancestor = ancestor.parent;
+			}
+		currentBlock.isClosed = true;
+		ancestor = currentBlock.parent;
+        if !ancestor    outerBlock = currentBlock;
+		openTags--;
+		}
+    if action action.run();
+}
+
+void JSONrepeatEntryParseXMLAct(PLGitem iTEM)
+{
+PLGitem data = iTEM["data"];
+ParseXML	p = iTEM.testParser;
+data.runDeferred();
+}
+
+void JSONpairParseXMLAct(PLGitem iTEM)
+{
+PLGitem name = iTEM["name"];
+PLGitem data = iTEM["data"];
+ParseXML	p = iTEM.testParser;
+String      fieldName = name.toString();
+   if fieldRegistry
+        {
+        GroupItem   rename = fieldRegistry[fieldName];
+        if rename   fieldName = rename.text;
+        }
+    currentBlock    = new(fieldName);
+    if !ancestor
+        if list list += currentBlock;
+        or currentRegistry currentRegistry += currentBlock;
+        else cerr "JSONpair rule: do not know what to load",currentBlock.tag,"into":;
+    //cout "JSONpair: created a new block",fieldName:;
+    data.runDeferred();
+}
+
+int RegistryParseXMLNow(PLGitem iTEM)
+{
+PLGitem type = iTEM["type"];
+ParseXML	p = iTEM.testParser;
+GroupItem   registri;
+    type = type["text"];
+    if registries && type ne "registries"
+        {
+        registri = registries[type.string()];
+        type.unString();
+        if !registri
+            {
+            //cout "Registry rule failed:",type:;
+            return false;
+            }
+        }
+    type.value = registri;
+return true;
+}
+
+int LocateParseXMLNow(PLGitem iTEM)
+{
+PLGitem type = iTEM["type"];
+PLGitem field = iTEM["field"];
+ParseXML	p = iTEM.testParser;
+GroupItem       registri,
+                group;
+PLGitem         item = field["text"];
+String          text = item.string();
+    if type
+        registri = type.value;
+    if registri group = registri/text;
+    else group = locate(text);
+    item.unString();
+    if group field.value = group;
+    else return false;
+return true;
+}
+
+int ModifierParseXMLNow(PLGitem iTEM)
+{
+PLGitem limit = iTEM["limit"];
+PLGitem modifier = iTEM["modifier"];
+PLGitem alternate = iTEM["alternate"];
+ParseXML	p = iTEM.testParser;
+    if !modifier && !limit && !alternate
+        return false;
+return true;
+}
+
+void ModifierParseXMLAct(PLGitem iTEM)
+{
+PLGitem limit = iTEM["limit"];
+PLGitem modifier = iTEM["modifier"];
+PLGitem alternate = iTEM["alternate"];
+ParseXML	p = iTEM.testParser;
+GroupItem	attribute;
+PLGitem     item;
+int         modifiers;
+    if modifier
+        while modifiers < modifier.length
+            switch (*(modifier.start + modifiers++))
+                {
+                case '!':
+                    currentBlock.bangedGRP  = true;
+                    currentBlock.noMerge    = true;
+                case '?':
+                    currentBlock.questionGRP    = true;
+                case '+':
+                    currentBlock.plusGRP        = true;
+                case '*':
+                    currentBlock.starGRP        = true;
+                case '}':
+                    currentBlock.skipOverGRP    = true;
+                case '{':
+                    currentBlock.processUpToGRP = true;
+                case '%':
+                    currentBlock.noAdvance      = true;
+                case '<':
+                    currentBlock.isContainerGRP = true;
+                case '&':
+                    currentBlock.noSkip         = true;
+                }
+    if limit
+        {
+        if item = limit["minimum"]
+            if item.amount != 1
+                {
+                attribute       = currentBlock["min"] = item.amount;
+                attribute.noPrint       = true;
+                currentBlock.hasMinGRP  = true;
+                }
+        if item = limit["maximum"]
+            if item.amount != 1
+                {
+                attribute	= currentBlock["max"] = item.amount;
+                attribute.noPrint       = true;
+                currentBlock.hasMaxGRP  = true;
+                }
+        }
+	if alternate currentBlock.isAlternate = true;
+}
+
+int NumberParseXMLNow(PLGitem iTEM)
+{
+PLGitem number = iTEM["number"];
+PLGitem part = iTEM["part"];
+ParseXML	p = iTEM.testParser;
+    if part
+        {
+        number.length += part.length;
+        number.floating = true;
+        }
+    number.amount = atof(number.string());
+    number.unString();
+return true;
+}
+
+void DelimitNumberParseXMLAct(PLGitem iTEM)
+{
+PLGitem number = iTEM["number"];
+PLGitem delimit = iTEM["delimit"];
+ParseXML	p = iTEM.testParser;
+//cout `"number: " number:;
+    if getFieldBlock(number) && !block.registry
+        if number.floating
+            block.number = number.amount;
+        else block.count = (int)number.amount;
+}
+
+int StopHereParseXMLNow(PLGitem iTEM)
+{
+ParseXML	p = iTEM.testParser;
+    debug = false;
+return true;
+}
+
+int PartParseXMLNow(PLGitem iTEM)
+{
+PLGitem prefix = iTEM["prefix"];
+PLGitem body = iTEM["body"];
+ParseXML	p = iTEM.testParser;
+GroupItem   group;
+String      suffixStart;
+PLGitem     suffix;
+PLGitem     head;
+    if stopParsing return false;
+    /***************************************************************************
+        If there are prefix parts (cdata), they get appended to body.
+        If there is a suffix (any random text), it too gets appended to body.
+        Code gets parsed and executed and does not exist as far as xml concerned.
+        *** Code parsing and execution removed pending JIT rework
+    ***************************************************************************/
+    head = body.valueItem;
+    for prefix
+        {
+        PLGitem part = prefix["part"];
+        // Note: because comments are not labeled in BodyParts, they get ignored here
+        if part body += part;
+        }
+    if !ancestor && body.length
+        {
+        suffixStart   = body.itemStart;
+        }
+    if suffixStart && suffixStart < plgStart
+        {
+        suffix = new(suffixStart,(int)(plgStart - suffixStart));
+        body += suffix;
+        }
+    if ancestor && body.length
+        {
+        if ancestor.isBufferGRP
+            ancestor.buffer += body;
+        else {
+            group = new("boDY");
+            group.item = body;
+            group.noTag		= true;
+            isComment       = true;
+            isClosed		= true;
+            ancestor += group;
+            ancestor.hasBodyText    = true;
+            }
+        }
+    if head head.runDeferred();
+return true;
+}
+
+int Quoted2ParseXMLNow(PLGitem iTEM)
+{
+PLGitem text = iTEM["text"];
+ParseXML	p = iTEM.testParser;
+    convertItem(text);
+    text.flag2 = true;
+return true;
+}
+
+int SetTagFlagParseXMLNow(PLGitem iTEM)
+{
+ParseXML	p = iTEM.testParser;
+	firstTag = true;
+return true;
+}
+
+void CommandText4ParseXMLAct(PLGitem iTEM)
+{
+PLGitem flag = iTEM["flag"];
+ParseXML	p = iTEM.testParser;
+/*****************************************************************************
+    Process Flags
+*****************************************************************************/
+	if flag.start == 'd' debug              = !debug;
+    or flag.start == 'e' simpleSyntax       = !simpleSyntax;
+    or flag.start == 'm' doNotExpandMacros  = !doNotExpandMacros;
+    or flag.start == 's'
+        {
+        cout "Exiting":;
+        stopParsing = true;
+        }
+    or flag eq "noJIT"      { noLineByLine  = !noLineByLine; }
+    or flag eq "noPrint"    { ignoreNoPrint = !ignoreNoPrint; }
+    else cout "pausing":;
+}
+
+void TextBodyParseXMLAct(PLGitem iTEM)
+{
+PLGitem body = iTEM["body"];
+ParseXML	p = iTEM.testParser;
+endString = null;
+    if ancestor && body.length
+        {
+        if ancestor.isBufferGRP
+            ancestor.buffer += body;
+        else {
+            GroupItem   group = new("boDY");
+            group.item      = body;
+            group.noTag		= true;
+            isComment       = true;
+            isClosed		= true;
+            ancestor += group;
+            ancestor.hasBodyText    = true;
+            }
+        }
+    ancestor = currentBlock.parent;
+}
+
+int AttributeListParseXMLNow(PLGitem iTEM)
+{
+PLGitem name = iTEM["name"];
+ParseXML	p = iTEM.testParser;
+PLGitem item, text;
+    blockStack.clear();
+    for item = name
+        {
+        text = item["text"];
+        blockStack.push(text.toString());
+        }
+return true;
+}
+
+int CommandParseXMLNow(PLGitem iTEM)
+{
+PLGitem command = iTEM["command"];
+ParseXML	p = iTEM.testParser;
+    currentBlock = null;
+	if !command
+        {
+        currentRegistry = null;
+        reset();
+        }
+	else command.runDeferred();
+    commanding = false;
+return true;
+}
+
+void CommandText3ParseXMLAct(PLGitem iTEM)
+{
+PLGitem action = iTEM["action"];
+PLGitem type = iTEM["type"];
+PLGitem path = iTEM["path"];
+PLGitem list = iTEM["list"];
+PLGitem number = iTEM["number"];
+ParseXML	p = iTEM.testParser;
+/*****************************************************************************
+    Dump List or Print
+*****************************************************************************/
+GroupItem       item,
+                registri;
+String          text;
+    pushState();
+    /*************************************************************************
+        figure out the parameters
+    *************************************************************************/
+    if type
+        {
+        type = type["text"];
+        text = type.string();
+        if registries registri = registries[text];
+        }
+    if path
+        {
+        item = path["field"].value;
+        if !item cerr "print: no path match for " path:;
+        }
+    /*************************************************************************
+        If there is no block or registry argument the current outer block gets
+        dumped provided it exists.
+    *************************************************************************/
+    if !type && !path
+        {
+        if outerBlock
+            if action.start == 'd' outerBlock.dump();
+            else cout outerBlock;
+        return;
+        }
+    /*************************************************************************
+        Process commands
+    *************************************************************************/
+    if text eq "registries"
+        if registries
+            {
+            cout "Registries: contains",registries.groupListLength,"entries (maybe not all registries)":;
+            registri    = null;
+            while registri = registries.next(registri)
+                if registri.isRegistryGRP  cout `registri.tag,"entries:" `registri.groupListLength:;
+            }
+        else cout `"No registries found":;
+    if registri item = registri;
+    if number   recordNumber = (int)number.amount;
+    if item
+        {
+        if item.isRegistryGRP ignoreNoPrint=true;
+        if action eq "dump"
+            item.dump(99);
+        or action eq "print"
+            cout item:;
+        or action eq "test"
+            {
+            // use a directive to add a test matching on number
+            number = null;
+            }
+        else item.list();
+        ignoreNoPrint = false;
+        }
+    if type type.unString();
+    popState();
+}
+
+void CommandText2ParseXMLAct(PLGitem iTEM)
+{
+PLGitem type = iTEM["type"];
+PLGitem flag = iTEM["flag"];
+ParseXML	p = iTEM.testParser;
+/*****************************************************************************
+    Create registry
+*****************************************************************************/
+GroupItem   block;
+    type = type["text"];
+    pushState();
+    currentRegistry = getRegistry(type.toString());
+    /*************************************************************************
+        The optional value argument sets registry characteristics that
+        mostly relate to how the registry gets loaded
+    *************************************************************************/
+    for flag
+        {
+        switch(flag.string())
+            {
+            case "asAttributes":
+                currentRegistry.loadAsAttributes = true;
+                currentRegistry -= "noAttributes";
+            case "base":
+                addBaseRegistry(currentRegistry);
+            case "components":
+                //  When registering a group, also register its components
+                currentRegistry.loadComponents  = true;
+            case "data":
+                //  Register item text (as opposed to the tag)
+                currentRegistry.loadFromData    = true;
+            case "descending":
+                currentRegistry.sortDescending  = true;
+            case "display":
+                currentRegistry.isGUIregistry   = true;
+            case "grouped":
+                currentRegistry.grouped         = true;
+            case "noPrint":
+                currentRegistry.noPrint         = !currentRegistry.noPrint;
+            case "rules":
+                // if isRule is true for a registry then all registry entries are considered
+                // rules (enforced in GroupItem addRule() when adding groups to the registry).
+                currentRegistry.isRule          = true;
+                currentRegistry.noMerge         = true;
+            case "search":
+                //  Adds the current registry to the registry search list.
+                if !searchList[currentRegistry.tag]
+                    searchList += currentRegistry;
+            case "sort":
+                currentRegistry.sortAscending   = true;
+            case "value":
+                //  When adding an item to a registry, ignore the tag and load the value
+                //  When referenced the tag is resolved to be the registry name
+                currentRegistry.loadByValue     = true;
+            }
+        flag.unString();
+        }
+    ancestor = null;
+}
+
+void CommandText5ParseXMLAct(PLGitem iTEM)
+{
+PLGitem plus = iTEM["plus"];
+PLGitem names = iTEM["names"];
+ParseXML	p = iTEM.testParser;
+PLGitem         name;
+GroupItem       registri;
+/*****************************************************************************
+    Search List
+    Create, print out, overwrite or append to the registry search list
+*****************************************************************************/
+    if !names dumpSearchList();
+    else {
+        if registries
+            for names
+                {
+                String  text;
+                name    = names["text"];
+                text    = name.string();
+                registri = searchList[text];
+                if !registri
+                    if registri = registries[text]
+                        searchList += registri;
+                name.unString();
+                }
+        else cerr "ERROR search command: no registries exist":;
+        }
+}
+
+void CommandText6ParseXMLAct(PLGitem iTEM)
+{
+PLGitem path = iTEM["path"];
+ParseXML	p = iTEM.testParser;
+/*****************************************************************************
+    Process load command.
+*****************************************************************************/
+GroupItem       fieldItem,
+                item;
+    recordNumber = 0;
+    for path
+        if fieldItem = path["field"].value
+            if fieldItem%"directory"    item = fieldItem.loadDirectory();
+            or fieldItem%json           item = loadJSON(fieldItem);
+            or fieldItem.isRule || fieldItem%"rule"
+                if item = loadRule(fieldItem) item.dumpResults();
+            or item = loadDelimited(fieldItem)
+                if item.groupListLength
+                    cout "Loaded " item.groupListLength " entries":;
+                else cout "Nothing loaded":;
+            else cerr "WARNING load: could not load " fieldItem.tag:;
+        else cerr "ERROR load: Could not find " path:;
+}
+
+void CommandText7ParseXMLAct(PLGitem iTEM)
+{
+PLGitem group = iTEM["group"];
+PLGitem argument = iTEM["argument"];
+ParseXML	p = iTEM.testParser;
+GroupItem		item,parameter,block;
+/*****************************************************************************
+    Check the group passed in, if it has a method and an argument run it.
+*****************************************************************************/
+    if block = group["field"].value
+        if !method
+            cerr ``"No method found for",block.tag:;
+        else {
+            if parameter = argument["field"].value
+                item = block.method(parameter);
+            else item = block.method(block);
+            if item cout ``"Succeeded running " block.tag:;
+            else cout ``block.tag`"method failed":;
+            }
+    // not sure what we do w/item ... just print it for now
+}
+
+int BodyPartsParseXMLNow(PLGitem iTEM)
+{
+PLGitem part = iTEM["part"];
+ParseXML	p = iTEM.testParser;
+    if currentBlock currentBlock.cdata = true;
+return true;
+}
+
+void ClosingParseXMLAct(PLGitem iTEM)
+{
+PLGitem closing = iTEM["closing"];
+ParseXML	p = iTEM.testParser;
+GroupItem   block = currentBlock;
+    for closing
+        if block
+            {
+            isClosed    = true;
+            ancestor    =
+            block       = parent;
+            if ancestor currentBlock = ancestor;
+            }
+    //currentBlock should be now set to the last block closed
+}
+
+void Closing2ParseXMLAct(PLGitem iTEM)
+{
+PLGitem closing = iTEM["closing"];
+ParseXML	p = iTEM.testParser;
+GroupItem   block = currentBlock;
+    while block
+        {
+        isClosed = true;
+        if !hasMembers isSingleton = true;
+        ancestor    =
+        block       = parent;
+        if ancestor currentBlock = ancestor;
+        }
+}
+
+int DebuggingParseXMLNow(PLGitem iTEM)
+{
+ParseXML	p = iTEM.testParser;
+    plgItemDebug = true;
+return true;
+}
+
+int EndBraceParseXMLNow(PLGitem iTEM)
+{
+PLGitem endBrace = iTEM["endBrace"];
+ParseXML	p = iTEM.testParser;
+    if *(itemStart-1) == '\\' return false;
+return true;
+}
+
+int DelimitEmptyParseXMLNow(PLGitem iTEM)
+{
+PLGitem delimit = iTEM["delimit"];
+ParseXML	p = iTEM.testParser;
+    item.flag1 = true;
+return true;
+}
+
+int EndTag2ParseXMLNow(PLGitem iTEM)
+{
+PLGitem action = iTEM["action"];
+ParseXML	p = iTEM.testParser;
+    if !ancestor return false;
+return true;
+}
+
+void EndTag2ParseXMLAct(PLGitem iTEM)
+{
+PLGitem action = iTEM["action"];
+ParseXML	p = iTEM.testParser;
+if currentBlock = ancestor
+        {
+        currentBlock.isClosed = true;
+        currentBlock    =
+        ancestor        = currentBlock.parent;
+        if action action.run();
+        }
+}
+
+int FieldName3ParseXMLNow(PLGitem iTEM)
+{
+PLGitem field = iTEM["field"];
+ParseXML	p = iTEM.testParser;
+    convertItem(field);
+return true;
+}
+
+int FieldName4ParseXMLNow(PLGitem iTEM)
+{
+PLGitem field = iTEM["field"];
+ParseXML	p = iTEM.testParser;
+    convertItem(field);
+return true;
+}
+
+int MacroPartParseXMLNow(PLGitem iTEM)
+{
+PLGitem text = iTEM["text"];
+ParseXML	p = iTEM.testParser;
+GroupItem   group;
+String      name;
+    name = text.string();
+    group = block.findUpward(name);
+    if !group group = locate(name);
+    text.unString();
+    if group text.setString(group.text);
+return true;
+}
+
+int MacroParseXMLNow(PLGitem iTEM)
+{
+PLGitem macro = iTEM["macro"];
+ParseXML	p = iTEM.testParser;
+PLGitem text;
+    scratch.setMark();
+    for macro
+        {
+        text    = macro["text"];
+        print(scratch) text;
+        }
+    block.text = scratch.getMarkedString();
+return true;
+}
+
+int PathParseXMLNow(PLGitem iTEM)
+{
+PLGitem up = iTEM["up"];
+PLGitem path = iTEM["path"];
+ParseXML	p = iTEM.testParser;
+    if up up.runDeferred();
+    if up["slash"]
+        for path
+            {
+            path.runDeferred();
+            if path["slash"] continue;
+            or path.next
+                {
+                cerr "Invalid path: expected a /":;
+                block = null;
+                break;
+                }
+            }
+    or path
+        {
+        cerr "Invalid path: expected a /":;
+        block = null;
+        }
+return true;
+}
+
+void PathItemParseXMLAct(PLGitem iTEM)
+{
+PLGitem text = iTEM["text"];
+PLGitem slash = iTEM["slash"];
+ParseXML	p = iTEM.testParser;
+String  name = text.string();
+    if block block = block/name;
+    text.unString();
+}
+
+int QuotedParseXMLNow(PLGitem iTEM)
+{
+PLGitem text = iTEM["text"];
+ParseXML	p = iTEM.testParser;
+    convertItem(text);
+    text.flag2 = true;
+return true;
+}
+
+void SetAttributesParseXMLAct(PLGitem iTEM)
+{
+PLGitem attributes = iTEM["attributes"];
+ParseXML	p = iTEM.testParser;
+GroupItem	item,
+            block;
+    block           =
+    currentBlock    = processTag(attributes);
+    if !ancestor
+        outerBlock = block;
+    if ancestor     block = ancestor.add(block);
+    or currentRegistry && !block.registry
+        {
+        if !block.parent    currentRegistry += block;
+        or (block.parent != currentRegistry && currentRegistry%"loadComponents")
+            || (block.parent.registry && block.parent.registry != currentRegistry)
+            currentRegistry += block;
+       }
+    currentBlock = block;
+    if immediates.length
+        while item = immediates.pop()
+            {
+            item.parent = block;    // method needs to find block
+            item.method(item);
+            }
+}
+
+int SetSimpleEndParseXMLNow(PLGitem iTEM)
+{
+ParseXML	p = iTEM.testParser;
+        endString       = iTEM.toString();
+return true;
+}
+
+void SimpleEndParseXMLAct(PLGitem iTEM)
+{
+PLGitem textBody = iTEM["textBody"];
+ParseXML	p = iTEM.testParser;
+if ancestor         currentBlock.parent = ancestor;
+    ancestor            = currentBlock;
+    if textBody textBody.runDeferred();
+    currentBlock.isSingleton    = false;
+}
+
+void SimpleEnd2ParseXMLAct(PLGitem iTEM)
+{
+PLGitem close = iTEM["close"];
+PLGitem field = iTEM["field"];
+ParseXML	p = iTEM.testParser;
+int i;
+GroupItem   block = currentBlock;
+    block.isSingleton    = true;
+    while block && i++ < close.length
+        {
+        block.isClosed   = true;
+        block = block.parent;
+        }
+    if field
+        while block
+            {
+            block.isClosed   = true;
+            if block.tag eq field    break;
+            block = block.parent;
+            }
+    if ancestor && ancestor.isClosed
+        ancestor = ancestor.parent;
+}
+
+void StartTagParseXMLAct(PLGitem iTEM)
+{
+PLGitem traits = iTEM["traits"];
+PLGitem singleton = iTEM["singleton"];
+ParseXML	p = iTEM.testParser;
+traits.runDeferred();
+GroupItem   block = currentBlock;
+	/*************************************************************************
+		Set block status wrt being open or closed
+	*************************************************************************/
+    if !singleton
+        {
+        isClosed    = false;
+        isSingleton = false;
+        ancestor    = block;
+        openTags++;
+        }
+    else {
+        singleton.run();
+        isSingleton = true;
+        }
+}
+
+void StartTag2ParseXMLAct(PLGitem iTEM)
+{
+PLGitem traits = iTEM["traits"];
+PLGitem end = iTEM["end"];
+ParseXML	p = iTEM.testParser;
+traits.runDeferred();
+    end.runDeferred();
+}
+
+int StartXMLParseXMLNow(PLGitem iTEM)
+{
+PLGitem epilog = iTEM["epilog"];
+ParseXML	p = iTEM.testParser;
+GroupItem	epilogBlock;
+    if epilog && notSpace.foundIn(epilog) && trimEnd(epilog)
+		if ancestor && !ancestor.hasMembers && !ancestor.data
+			ancestor.item = epilog;
+		else {
+			epilogBlock = new("epilog");
+			epilogBlock.item = epilog;
+			epilogBlock.noTag = true;
+            if !outerBlock
+                outerBlock = epilogBlock;
+            else {
+                if ancestor ancestor += epilogBlock;
+                else outerBlock += epilogBlock;
+                }
+			}
+	//cout "Total blocks: " groupController.length:;
+	if endTags && endTags.length
+		{
+        GroupItem block;
+		cout "End tags pending":;
+		while block = endTags.next()
+			cout `block.tag:;
+		}
+    resetItemTape();
+    //groupTape.status();
+    //itemTape.status();
+    //globalLinkTape.status();
+return true;
+}
+
+int StringSetParseXMLNow(PLGitem iTEM)
+{
+PLGitem text = iTEM["text"];
+ParseXML	p = iTEM.testParser;
+PLGset  set = getSet(convertSetInput(text));
+    text.value      = set;
+    text.isSetPLG   = true;
+return true;
+}
+
+void Tag2ParseXMLAct(PLGitem iTEM)
+{
+PLGitem tag = iTEM["tag"];
+ParseXML	p = iTEM.testParser;
+tag.runDeferred();
+}
+
+void Tag3ParseXMLAct(PLGitem iTEM)
+{
+PLGitem tag = iTEM["tag"];
+ParseXML	p = iTEM.testParser;
+tag.runDeferred();
+}
+
+void UpParseXMLAct(PLGitem iTEM)
+{
+PLGitem more = iTEM["more"];
+PLGitem slash = iTEM["slash"];
+ParseXML	p = iTEM.testParser;
+if block block = block.parent;
+    for more
+        if block block = block.parent;
+}
+
+void DelimitTextParseXMLAct(PLGitem iTEM)
+{
+PLGitem text = iTEM["text"];
+PLGitem delimit = iTEM["delimit"];
+ParseXML	p = iTEM.testParser;
+if getFieldBlock(text) && !block.registry block.item = text;
+}
+
+void DelimitText2ParseXMLAct(PLGitem iTEM)
+{
+PLGitem text = iTEM["text"];
+PLGitem delimit = iTEM["delimit"];
+ParseXML	p = iTEM.testParser;
+if getFieldBlock(text) && !block.registry block.item = text;
+}
+
+void DelimitText3ParseXMLAct(PLGitem iTEM)
+{
+PLGitem text = iTEM["text"];
+PLGitem delimit = iTEM["delimit"];
+ParseXML	p = iTEM.testParser;
+if getFieldBlock(text) && !block.registry block.item = text;
+}
+
+int DelimitFieldNameParseXMLNow(PLGitem iTEM)
+{
+PLGitem name = iTEM["name"];
+ParseXML	p = iTEM.testParser;
+PLGitem delimit = name["delimit"],
+        text    = name["text"];
+    if !doneWithHeading
+        fieldRegistry += itemFactory(text);
+    else {
+        block = null;
+        return false;
+        }
+    if delimit.start == endRecord
+        doneWithHeading = true;
+return true;
+}
+
+int FieldItemParseXMLNow(PLGitem iTEM)
+{
+PLGitem skips = iTEM["skips"];
+PLGitem item = iTEM["item"];
+ParseXML	p = iTEM.testParser;
+    if !item.flag1 processDelimitField(item);
+return true;
+}
+
+int SkipGuardParseXMLNow(PLGitem iTEM)
+{
+ParseXML	p = iTEM.testParser;
+    field = fieldRegistry.nextMember(0);
+    if field.fLAG   return false;
+    //cout `"Skipping: " field.tag:;
+return true;
+}
+
+void JSONblockParseXMLAct(PLGitem iTEM)
+{
+PLGitem pair = iTEM["pair"];
+ParseXML	p = iTEM.testParser;
+GroupItem   pater = ancestor,
+            blk = currentBlock;
+    ancestor = currentBlock;
+    for pair pair.runDeferred();
+    ancestor = pater;
+    currentBlock = blk;
+}
+
+void JSONdataParseXMLAct(PLGitem iTEM)
+{
+PLGitem name = iTEM["name"];
+ParseXML	p = iTEM.testParser;
+// name may be an empty string
+    if name currentBlock.item = name;
+    //cout `"JSONdata: added attribute",currentBlock,"to",ancestor:;
+    if ancestor && ancestor.expanded
+        {
+        ancestor += currentBlock;
+        //cout `"JSONdata: adding block",currentBlock.tag,"to",ancestor.tag:;
+        ancestor = currentBlock;
+        }
+    else ancestor += currentBlock;
+    isJSONtext = true;
+}
+
+void JSONdata2ParseXMLAct(PLGitem iTEM)
+{
+PLGitem block = iTEM["block"];
+ParseXML	p = iTEM.testParser;
+if block block.runDeferred();
+    if ancestor && ancestor != currentBlock
+        {
+        ancestor += currentBlock;
+        //cout `"JSONdata2: adding block",currentBlock.tag,"to",ancestor.tag:;
+        }
+    isBlock = true;
+}
+
+void JSONdata3ParseXMLAct(PLGitem iTEM)
+{
+PLGitem repeat = iTEM["repeat"];
+ParseXML	p = iTEM.testParser;
+// to flag the current block as a repeat block
+    currentBlock.expanded = true;
+    ancestor = currentBlock;
+    repeat.runDeferred();
+    isRepeat = true;
+}
+
+int JSONlistEntryParseXMLNow(PLGitem iTEM)
+{
+PLGitem entry = iTEM["entry"];
+ParseXML	p = iTEM.testParser;
+    entry.runDeferred();
+return true;
+}
+
+void JSONrepeatParseXMLAct(PLGitem iTEM)
+{
+PLGitem entry = iTEM["entry"];
+ParseXML	p = iTEM.testParser;
+for entry
+        entry.runDeferred();
+}

@@ -1,0 +1,192 @@
+include /Users/anthony/Dropbox/data/InProcess/Groups/groupIncludes
+
+/*******************************************************************************
+	Layout view
+*******************************************************************************/
+class Layout extends View implements WindowDelegate
+{
+GroupItem       base,
+                selection;
+Path            layoutPath;
+Color           strokeColor,
+                textColor,
+                wallColor;
+Font            currentFont;
+
+/*******************************************************************************
+	Display text
+void displayText(GroupItem field)
+{
+Box				box;
+TextView		editor;
+String			alignment;
+Frame           framed = getFrame(field);
+	if object
+		editor = object;
+	else {
+        editor  = getTextView(field);
+        object  = editor;
+        box = editor.textContainer;
+		box.trackHeight(true);
+		box.trackWidth(true);
+		if group = field["align"] alignment = group.text;
+		if alignment
+			if alignment == 'c'
+				editor.align(alignCenter);
+			or alignment == 'l'
+				editor.align(alignLeft);
+			or alignment == 'r'
+				editor.align(alignRight);
+        editor.bgColor = clearColor;
+        editor.setFont(style.getFont());
+        editor.setEditable(false);
+		}
+    editor.setFrame(framed);
+    if !subbed
+        {
+        addSubview(editor);
+        subbed  = true;
+        }
+    //editor.displayIfNeededIgnoringOpacity();
+}
+*******************************************************************************/
+
+/*******************************************************************************
+	Draw
+*******************************************************************************/
+void drawRect(Frame r)
+{
+    cout "drawRect: not written yet":;
+}
+
+Layout init(Frame f)
+{
+    frame       = f;
+    layoutPath  = bezierPath();
+    return self;
+}
+
+/*******************************************************************************
+	Invert the y coordinate of the point passed in to correspond to top down
+    orientation and return revised point
+*******************************************************************************/
+Point invertY(Point point)
+{
+double  baseY = frame.height - point.y;
+    point.y = baseY;
+    return point;
+}
+
+/*******************************************************************************
+	Handle key clicks
+        If selection does not have a key action
+        searches parent hierarchy for a block that does have a key action
+*******************************************************************************/
+void keyUp(Event event)
+{
+Point		point = cursorPoint;
+int			code = keyCode();
+int         length;
+GroupItem   group;
+    group = base.blockContaining(point);
+    if group
+        {
+        switch(code)
+            {
+            case 116:
+                // page up
+                cout "Page up":;
+            case 126:
+                // arrow up
+                length  = 1;
+                break;
+            case 123:
+                // arrow left
+                code    = 0;
+                length  = 1;
+                break;
+            case 121:
+                // page down
+                cout "Page down":;
+            case 125:
+                // arrow down
+                length  = -1;
+                break;
+            case 124:
+                // arrow right
+                code    = 0;
+                length  = -1;
+                break;
+            default:
+                return;
+            }
+        //scrollBlock(group,length,code);
+        }
+    else cerr "Layout keyUp: could not find containing block at" toString(point):;
+}
+
+/*******************************************************************************
+	Handle mouse clicks
+*******************************************************************************/
+void mouseUp(Event event)
+{
+Point		point = convertPoint(mouseAt(),nil);
+GroupItem   block = base.blockContaining(point);
+    if block    cout "mouseUp: interpret block??":;
+	else cout "mouseUp:",base.tag ": Don't know who contains point",x,y :;
+}
+
+/*******************************************************************************
+	Handle right mouse click
+*******************************************************************************/
+void rightMouseUp(Event event)
+{
+Point		point = convertPoint(mouseAt(),nil);
+GroupItem   block = base.blockContaining(point);
+    if block    cout "right mouseUp: interpret block??":;
+}
+
+/*******************************************************************************
+	Handle scroll wheel events
+*******************************************************************************/
+void scrollWheel(Event event)
+{
+double		delta;
+int			down,
+			length;
+    //paging  = false;
+	delta   = deltaY();
+	if delta < 0
+		{
+		down = true;
+		length = -delta;
+		}
+	else length = delta;
+	if !length length++;
+    if down length = -length;
+    // if direction is down, length is negative
+    /***************************************************************************
+        HPDL
+Point		point = convertPoint(mouseAt(),nil);
+GroupItem   block;
+    if selection
+        selection.scrollBlock(length,1);
+    or block = base.blockContaining(point)
+        block.scrollBlock(length,1);
+    ***************************************************************************/
+}
+
+void viewDidEndLiveResize()
+{
+	cout "View End resize":;
+    setFrame(superview.frame);
+    //base.updateFrame(frame);
+    drawRect(frame);
+}
+
+void windowWillClose(Notification notification)
+{
+    cout "Window closing: will exit":;
+    exit(0);
+}
+}

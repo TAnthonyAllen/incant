@@ -1,0 +1,118 @@
+Start();
+define
+    /*************************************************************************
+        Data
+    *************************************************************************/
+    maximus=11;
+    righty=13;
+    styleTest merge lightGreen rounded;
+    sumple="WTF if it is a long string." height=200 width=250 x=100 y=100 down=* :
+        crossing height=50;;
+    simple across styleTest height=212 width=250 x=100 y=100:
+        quinto width=150;
+        sexto height=12;
+        fifth;;
+    sample x=300 y=450 width=400 height=200:
+        second;
+        third pad=5 fill=wall across:
+            wrap="This is a whole lot of text that I am using to test out text views, scrolling, and isn't it nice that the xcode text editor wraps lines and indents auto-magically. The base rule is you have to specify everything you want, nothing implied." fill=purple:
+                one text pad=7 border;;
+            two fill=red left=2;
+            three fill=white width=50% left=2:
+                stuff text=one pad=6;;;
+        fourth rounded pad fill=lightGreen height=12;
+        fifth;;
+    aGroup one two three;
+    hasGroup=simple;
+
+    /*************************************************************************
+        Actions
+    *************************************************************************/
+    accessTest argument; { print "accessTest: "; if argument.across; print `"Saw across in" tag:; else print `"No across in" tag:; }
+    anotherTest; { print "anotherTest: max should be" maximus " + 3"``"it is", maximus + 3, "and we done":; }
+    callMyself argument; {
+        print ~"callMyself: First time:" argument righty,:+;
+        if righty == 13;
+            righty++;
+            callMyself(aGroup);
+        print ~"Second time:" argument righty,:-;
+        }
+    commaStuff="44,two,  forty three,six,6.7,ninety one";
+    delimitRecord isRule countField}=1 skip-}=3 numberField}=1.0 stringField};
+    feeling='having a few doubts ends here';
+    formatTest; { print "formatTest:" `is "Formatted"%12s maybe:; }
+    ifTest; {
+        print "ifTest:"`;
+        if !across.isLocal;
+            if righty; print "Got it":;
+        or hasGroup; print "No across, saw or statement":; }
+    invokeTest; { print "invokeTest:"` clear(aGroup); anotherTest(); print Invoked:; }
+    jsonFile file="/Users/anthony/Dropbox/data/InProcess/Groups/Tests/test.json";
+    layout; { gruber = 23; print "layout:"`"Here is" parent.tag and gruber:; }
+    list isRule entries=ANYstring+ SemI?-; {
+        print "list tests the for statement:":;
+        for sumGrup in entries; print `sumGrup:; }
+    lefty=3; { lefty += 43; print "lefty:"``"got reset to" lefty:; return lefty; }
+    printTest; { print "printTest:"`"lefty should return itself. It returns" lefty():; }
+    simpleIF; { print "simpleIF:":`; if righty; maximus = righty + 35; else maximus = 12; anotherTest(); }
+    stringTest; { print "stringTest:"`what = righty + 2, "added 2 to righty" $whatsIt; }
+    testOR; { print "testOR:"`; if !righty OR feeling; print Saw righty feeling:; else print "I see nothing":; }
+    testARG argument; { print "testARG: Argument is:" argument:; }
+    testForC argument second=56 third="WTF?"; {
+        print "testForC:"`"Components of" argument with second third:;
+        for grup in argument; attributes
+            print `grup += righty:; }
+    testGet; { sumple.width = 251; print "testGet: should set sumple width to 251. It is", sumple.width:; }
+    testIndentBlock; {
+        print "testIndentBlock:":;
+        if righty;
+            print ~++One:;
+            print ~Two:;
+        print ~-Three:;
+        print ~-Four:; }
+    testNegate; { print "testNegate: does not matter if the ! comes before or after"`; if !whatever; print "No result":; else print "Negate failed":; }
+    testNew argument; { grup = new(argument); grup++; return grup; }
+    testPointer lineIn; {
+        print "testPointer:"`;
+        argument = lineIn + 4;
+        if argument& > lineIn; print "Yes it is":; else print "No it aint":; }
+    testList; {
+        print `"Processing testList action that runs list rule":;
+        list("righty 3.1 seven eight nine"); }
+    testScope argument; {
+            :argument width height;
+            print tag width height:;
+            :simple width height quinto@;
+            print tag width height:; }
+    testUnary; {
+        print "testUnary:":;
+        if ++grup; print ``"++grup is" grup:;
+        if grup++; print ``"now grup++ is still" grup "Unary operators must preceed their argument":; }
+    testInterpret; {
+        print "testInterpret":`"dot test:", maximus.tag:;
+        maximus = 11;
+        if maximus; print `"Processed IF:", maximus += 4:;
+        else
+            print `"or else":;
+            maximus = 11;
+        print `"Process do:":;
+        do
+            maximus += 2;
+            print  ``Saw maximus:;
+        while maximus < 20;
+        print `"Process while:":;
+        while maximus <= 27;
+            maximus += 3;
+            print ``Saw maximus:;
+        print `"Process for loop:":;
+        for grup in styleTest;
+            print ``Saw grup.tag:;
+        //print `"Process method call in print: New righty =" testNew(righty) "Old righty =" righty:;
+        grup = 0;
+        testUnary();
+        testList();
+        print ``"we DONE":;
+        }
+    whatsIt;
+    xpTest HooHaa result=3 message="Gomer is a goober"; { print "xpTest:" `HooHaa, result++, ++result, message whatsIt:; }
+    ;

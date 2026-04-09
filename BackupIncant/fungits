@@ -1,0 +1,38 @@
+/#
+/***************************************************************************
+	The fungi model???
+***************************************************************************/
+Consider each group a node w/listener, listening to its connections and maybe reacting differently depending on which it hears from. Will require modifying updateListeners() to inform listeners of who they will be reacting to (and let the listeners do whatever as they react).
+    Ideally each listener will react in its own thread and away we go. Right now we have no threads
+    Need a listenToThis GroupItem method that checks for a listen attribute w/action and fires it passing in the listened to group as argument.
+
+/***************************************************************************
+	Threading
+***************************************************************************/
+The Bot BotServer and BotClient classes will need some revision (hopefully minor) to support groups. Together they provide a means to set up a named service overseeing remote connections between groups. POP required wrt connections across computers but past testing provides POP for local connections.
+Using group Bots should enable unrelated groups to communicate and share work. Linking Bots and listeners at this point is HWF but no reason it cannot be done.
+DispatchQs provide a means to multi-thread connected groups; that is groups working in the same incant environment. Again POP required. My only experience w/DispatchQs is in Splitter.twk, which was designed to split parsing using ParseXML. A similar approach should work w/incant parsing, however, that is a very specific case. DispatchQs are a flexible way to do concurrent processing. Just need a good example problem to apply DispatchQing on. Listeners would seem to be the example at hand. DONE in that listeners now run in a DispatchQ and seem to work.
+PROBLEMS
+    Cannot run an action in two threads safely. So???
+    More important problem: threads are not made to communicate with other threads (based on my admittedly preliminary assessment).
+
+/***************************************************************************
+	Listening
+***************************************************************************/
+Right now the listenTo attribute defines what a group listens to. listenTo is a noPrint attribute that runs at define time. Thinking would be better to have a listen operator that is a rule (can we have both at same time?) so we can say
+    someGroup listen to op list of groups to listen to; <- I like this
+
+/***************************************************************************
+	An incant version of Awk???
+***************************************************************************/
+incant looks a little like awk on steroids. However, there is one big difference. awk processes input, running it against its patterns. If the patterns match, awk fires the pattern actions against what it matched, and then it carries on processing input.
+    Unlike awk, incant works like a compiler. That is, it matches input against a set of rules until it encounters input that does not match its rule set, at which point it quits.
+        How about we provide an awk like alternative for incant that runs its rules against input, skips over does not match stuff, and continues until it runs out of input (or until it is encounters input that tells it to stop)
+        awk actions are just incant actions
+    How would it work?
+        An awk rule would process input against its members (all rules).
+        It would have to have a what to do if nothing matches rule (like advance to the next new line and continue)
+    Treat each line of input as a possible command, or like a record to be matched against (does this record have this or that and maybe something else). If so then somebody DO something (do what, who do, and to what). Match criteria might be a wee bit of fuzzy logic, perhaps determining parameters; what to do would be specific????
+            Shades of my old java tool for specifying procedures used to match against a list of procedures and fire off the one that matched parameters provided
+    The when nothing matches rule is a general case that the incant grammar does not handle. Perhaps we can change the grammar to fix that?
+    

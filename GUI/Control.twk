@@ -1,0 +1,1059 @@
+include GUIincludes
+external GroupItem
+{
+    initializer
+        GroupItem   getAttribute
+        ;
+}
+
+/*******************************************************************************
+	Controller for Group GUI
+*******************************************************************************/
+class Control
+{
+GroupItem       baseURL,
+                classList,
+                loadedItem,
+                root;
+Layout          activeView;
+Delegate        delegator;
+BaseHash        flexLayoutStash;
+Tape            detailTape;
+Details         attributeDetail;
+Date            timer;
+Buffer          controlBuffer;
+boolean
+    convertWindowToPanel
+    showWarnings
+    ;
+static Bwana        bwana;
+static GroupItem    fontRegistry;
+static GroupItem    colorRegistry;
+
+Control()
+{
+    timer       = date();
+	detailTape	= new("Details details",1000,sizeof(Details));
+    groupController     = new(10000);
+    registries += "doNotCopy";
+    setBaseRegistries();
+    doNotExpandMacros   = false;
+    Control.bwana       = new(this);
+    classList           = new("classes");
+    delegator           = new;
+    controlBuffer       = scratch;
+    setup();
+}
+
+/*******************************************************************************
+	This takes the chain of PLGitems in the calling parent block that ParseXML
+    creates when it is parsing text and converts it into <p> html blocks that
+    get added to the parent block
+*******************************************************************************/
+GroupItem addPara(GroupItem block,String s)
+{
+GroupItem   group       = new("p");
+    group.text          = s;
+    group.isClosed      = true;
+    if block.firstMember()
+        {
+        group.groupLink = block.entry.insert(group.tag,group);
+        group.isMember  = true;
+        group.parent    = block;
+        block.hasMembers = true;
+        }
+    else block += group;
+    block.item          = null;
+    group.registry      = htmlRegister;
+    return group;
+}
+
+/******************************************************************************
+	Debugging dump of frame
+******************************************************************************/
+void dump(GroupItem group)
+{
+Details     detail = group.getDetail();
+GroupItem   item;
+	if detail detail.dump();
+    group.reset();
+    if group.hasMembers
+        while item = group.nextMember()
+            if !item.isComment dump(item);
+}
+
+/*******************************************************************************
+	Populate the width, and height attributes. The x and y attributes are left
+    out and get ignored, letting html deal w/positioning
+*******************************************************************************/
+void fillFrame(GroupItem item)
+{
+Details     detail = item.getDetail();
+GroupItem   group;
+    if detail
+        {
+        if group = item["width"]    group.number = width;
+        else group = item["width"] = width;
+        if group = item["height"]   group.number = height;
+        else group = item["height"] = height;
+        }
+}
+
+/*******************************************************************************
+	Set the size of this based on the size of the components. Triggered by
+    the fit attribute. If the fit attribute has no value, the fit follows the
+    direction of the current item's layout orientation. The fit values are:
+        height          vertical fit
+        width           horizontal fit
+        both            both horizontal and vertical
+        none            horizontal, if orientation is across
+                        vertical, if orientation is down
+*******************************************************************************/
+void fitSize(GroupItem item)
+{
+Details     detail = getDetail(item);
+GroupItem   group,
+            fit     = item%fit;
+String      fitting = fit.text;
+int         noFitAcross,
+            noFitDown;
+    //cout `"Fitting: " item.tag:;
+    if fitDown
+        if (fitting ne "width")     height = 0;
+        else {
+            noFitDown = true;
+            width = 0;
+            }
+    or fitAcross
+        if (fitting ne "height")    width = 0;
+        else {
+            noFitAcross = true;
+            height = 0;
+            }
+    or fitBoth
+        width = height = 0;
+	while group = item.nextMember(group)
+		{
+        GroupItem   groupFit = group["fit"];
+        int         groupHeight;
+        int         groupWidth;
+        if groupFit
+            {
+            fitSize(group);
+            groupHeight = height;
+            groupWidth  = width;
+            }
+        else {
+            if groupFit = group%"height"    groupHeight = groupFit.number;
+            if groupFit = group%"width"     groupWidth = groupFit.number;
+            }
+        if !noFitDown && (fitDown || fitBoth)
+            {
+            if down
+                height += groupHeight;
+            or across && groupHeight > height
+                height = groupHeight;
+            }
+        if !noFitAcross && (fitAcross || fitBoth)
+            if across
+                width += groupWidth;
+            or down && groupWidth > width
+                width = groupWidth;
+        }
+}
+
+/*******************************************************************************
+	Set layout of flexible contents.
+*******************************************************************************/
+void flexLayout(GroupItem group)
+{
+GroupItem	first,item;
+Details		itemDetail,detail;
+double		added,extent,roomLeft;
+    // indexed turned off so new flex content added as a source listener in nEXT()
+    group.indexed   = false;
+    detail          = group.setDetail();
+    if view.resized high = 0;
+    if across
+        {
+        if high && high >= width return;
+        if !high roomLeft = width;
+        else roomLeft = width - high;
+        }
+    else {
+        if high && high >= height return;
+        if !high roomLeft = height;
+        else roomLeft = height - high;
+        }
+    offset = 0;
+    group.reset();
+    while item = group.nextMember()
+        {
+        itemDetail = item.setDetail();
+        if detail.across
+            {
+            extent = itemDetail.width;
+            if !extent cerr "variable content members of",group.tag,"must specify width":;
+            }
+        else {
+            extent = itemDetail.height;
+            if !extent cerr "variable content members of",group.tag,"must specify height":;
+            }
+        if !extent exit(0);
+        offset += (int)extent;
+        }
+    roomLeft -= offset;
+    //cout "flexLayout:",group.tag,extent,offset,roomLeft:;
+    while offset <= roomLeft
+        {
+        roomLeft    -= offset;
+        high        += offset;
+        item        = setFlexDetails(group);
+        if !first first = item;
+        added++;
+        }
+    //cout `"added",added:;
+    /***************************************************************************
+        Would like to just call layout on group but that would get us into a
+        loop since layout would send us back here. Here we need to setDetails
+        and layout everything added (starting with first).
+    ***************************************************************************/
+    if added
+        if item = first
+            {
+            do  detail = setDetails(item);
+            while item = group.walk(item);
+            item = first;
+            do  {
+                detail = getDetail(item);
+                setFrame();
+                checkStretch();
+                //dumpDetails();
+                }
+            while item = group.walk(item);
+            }
+}
+
+/*******************************************************************************
+	Reset the layout
+*******************************************************************************/
+void layout(GroupItem base)
+{
+GroupItem   show,group,item;
+Details     ancestor,detail;
+Source      source;
+    //cout "Control: layout":;
+    if sourceList
+        while source = sourceList.next()
+            if resized && resetOnResize
+                {
+                // The following is necessary in case of nested variable content
+                if listeners listeners.clear();
+                source.reset();
+                }
+    while item = base.walk(item)
+        {
+        detail = setDetails(item);
+        if contentVaries && activeView && resized && hasVariableContent
+            resetVariableContent(item);
+        }
+	while item = base.walk(item)
+        {
+		detail      = item.getDetail();
+        if sizeToFit fitSize(item);
+		}
+    while item = base.walk(item)
+        {
+		detail      = item.getDetail();
+        setFrame();
+        checkStretch();
+        if !view
+            {
+            if item.parent
+                {
+                ancestor = getDetail(item.parent);
+                if view = ancestor.view
+                    goto hasView;
+                }
+            or isWindow || isPanel
+                {
+                view        = new(frame);
+                view.base   = wig;
+                activeView  = view;
+                //cout "Layout frame:",view.frame :;
+                view.mustDisplay(true);
+               }
+            or !activeView
+                cerr "Control layout: no active view for " wig.tag:;
+            else view = activeView;
+            }
+hasView:
+        if !view cerr "Control layout: could not set view for",item.tag:;
+        if contentVaries
+            {
+            if activeView hasVariableContent = true;
+            flexLayout(item);
+            }
+        }
+   /***************************************************************************
+        This goes thru everything once again to run any layout methods. It also
+        checks for show.
+    ***************************************************************************/
+    show = properties/"show";
+	while item = base.walk(item)
+        {
+		detail      = item.getDetail();
+        if group = item["show"]
+            if !show.getMember(item.tag)
+                show += item;
+        if !attributed || hasReactions processAttributes();
+        }
+    /***************************************************************************
+        One more walk thru to make padding adjustments, check selectability
+        and debugging attributes.
+        This goes thru everything to make sure there is room to
+        display it in the current view, taking into account that flexible
+        content may have changed during layout.
+   ***************************************************************************/
+	while item = base.walk(item)
+        {
+        detail = item.getDetail();
+        if noRoom continue;
+        checkFit();
+        if item%dEBUG   view.debug = true;
+        if item%pRINT   cout item:;
+        if item%dUMP    dump(item);
+        if group = item%hTML
+            {
+            String  filename = group.text;
+            group   = item.copy();
+            isRigorous = true;
+            if filename
+                {
+                group = makeCanvas(group);
+                group.toFile(filename);
+                }
+            else cout makeCanvas(group);
+            isRigorous = false;
+            }
+        // if an item is not selectable, neither are its descendents
+        // here dotdot is used as a temporary flag to avoid descending multiple times
+        if !selectable
+            if !dotdot
+                {
+                group   = item;
+                while group = item.walk(group)
+                    {
+                    if group.registry && !group.registry%isGUIregistry
+                        continue;
+                    if detail = group.setDetail()
+                        {
+                        selectable  = false;
+                        if !noRoom  dotdot = true;
+                        }
+                    }
+                }
+            else dotdot = false;
+        }
+    base.setModified();
+    laidout = true;
+    display();
+    //cout base:;
+    //dump(base);
+}
+
+/*******************************************************************************
+	Load an xml file specifying a layout
+*******************************************************************************/
+void load(String name)
+{
+    groupParser.reset();
+	doNotExpandMacros = true;
+	if !(loadedItem = parseFile(name))
+        cerr "Load: failed for",name :;
+	doNotExpandMacros = false;
+    cout "Loaded " name:;
+    //timer = timeEnd(timer);
+}
+
+void load(GroupItem item)
+{
+GroupItem   file = item["file"];
+    if file
+        {
+        GroupItem   directory = item.findAttribute("directory");
+        String      fileName;
+        if directory fileName = directory.text "/" file.text;
+        else fileName = file.text;
+        if fileName load(fileName);
+        if loadedItem.isShell
+            {
+            GroupItem group;
+            while group = loadedItem.nextMember()
+                if group["window"] || group["panel"]
+                    layout(group);
+            }
+        or loadedItem["window"] || loadedItem["panel"]
+            layout(loadedItem);
+            }
+}
+
+/*******************************************************************************
+    This is based on makeHTML. It builds a web page based on a canvas.
+*******************************************************************************/
+GroupItem makeCanvas(GroupItem group)
+{
+GroupItem       head = locate("head"),
+                title,
+                body,
+                canvas,
+                script,
+                block;
+    noCDATA         = true;
+    ignoreNoRoom    = true;
+    classList.clear();
+    if !head
+        {
+        group = new("makeCanvas: could not find head block");
+        return group;
+        }
+    else group.insert(head);
+    body = group/"body";
+    if !body
+        {
+        group = new("makeCanvas: could not find body block");
+        return group;
+        }
+    canvas = body/"canvas";
+    if !canvas
+        {
+        group = new("makeCanvas: could not find canvas block");
+        return group;
+        }
+    else {
+        fillFrame(canvas);
+        canvas.reset();
+        while block = canvas.nextMember()
+            block.noPrint = true;
+        }
+    group.tag = "html";
+    // remember, when you add a group you get a copy so here head is set to its copy
+    // otherwise references to head, and title will point to the wrong stuff
+    head = group += head;
+    head.isMember = true;
+    if title = head/"title"
+        {
+        if block = group.findAttribute("title")
+            title.text = block.text;
+        if !title.data
+            {
+            group = new("makeCanvas: could not find title text");
+            return group;
+            }
+        title.isSingleton = false;
+        }
+    else {
+        group = new("makeCanvas: could not find title block");
+        return group;
+        }
+    /***************************************************************************
+        Generate draw function
+    ***************************************************************************/
+    if block = canvas["id"]
+        {
+        script  = head["script"];
+        buffer  = script.buffer;
+        buffer.unMark();
+        buffer.setMark();
+        print(buffer) :"function draw()"
+            :`"{"
+            :`"var canvas = document.getElementById('" block.text "');"
+            :`"if (canvas.getContext)"
+            :``"{ ctx = canvas.getContext('2d');":;
+        block = null;
+        while block = walkVisible(body,block)
+            if !block.isComment && !block.noRoom && block.hasAttributes
+                && block.registry != htmlRegister
+                block.jsDraw(buffer);
+        print `"}}";
+        }
+    else cerr "makeCanvas: could not find canvas id":;
+    return group;
+}
+
+/*******************************************************************************
+	Convert a block into a css style statement and return it in a PLGitem
+*******************************************************************************/
+PLGitem makeCSSline(GroupItem  block)
+{
+GroupItem   group;
+PLGitem     item;
+String      lineText;
+use groupParser
+    controlBuffer.reset();
+    if block.tag eq "class"
+        print(controlBuffer) "." block.text " {";
+    or block.registry != htmlRegister
+        print "#" block.tag " {";
+    else print block.tag " {";
+    block.reset();
+    while group = block.nextAttribute()
+        if !group.noPrint toCSS(group);
+    print " }";
+    lineText = controlBuffer.toString();
+    item = new(lineText);
+    return item;
+}
+
+/*******************************************************************************
+	Make block passed in a div block and convert attributes to css
+*******************************************************************************/
+PLGitem   makeDiv(GroupItem block)
+{
+GroupItem   classy,
+            labeled,
+            styling,
+            group;
+GroupLink   link;
+PLGitem     item;
+int         hasStyle;
+String      text;
+Details     detail = block.getDetail();
+use groupParser
+    //cout "makeDiv: processing",block.tag:;
+    controlBuffer.reset();
+    styling = block.extract("style");
+    labeled = block.extract("label");
+    fillFrame(block);
+    classy  = block["class"];
+    if classy && !classy.data
+        {
+        classy.text = block.tag;
+        group = classList[block.tag];
+        if !group
+            {
+            print "." block.tag " {";
+            classy = classList += block.tag;
+            while group = block.nextAttribute(group)
+                if group.registry != htmlRegister
+                    classy += group;
+            }
+        else classy = group;
+        }
+    or !styling
+        {
+        if block.registry != htmlRegister
+            print "#" block.tag " {";
+        else print block.tag " {";
+        }
+    if block.isGroup && block["next"] block.fLAG = true;
+    if block.hasAttributes
+        {
+        block.resetIterator();
+        block.hasAttributes = false;
+        while link = block.nextLink()
+            {
+            group   = link.value;
+            if !group.isAttribute || group.registry == htmlRegister continue;
+            if !group.noPrint
+                {
+                if !classy || !classy[group.tag]
+                    if toCSS(group) hasStyle = true;
+                if group.tag eq "image" text = group.text;
+                group.release();
+                link.remove();
+                }
+            else block.hasAttributes = true;
+            }
+        }
+    if block.registry != htmlRegister
+        {
+        String  label = block.text;
+        GroupItem idAttribute;
+        if !classy && !styling
+            {
+            idAttribute             = new("id");
+            idAttribute.isAttribute = true;
+            idAttribute.text        = block.tag;
+            block += idAttribute;
+            }
+        if htmlRegister[label]
+            {
+            block.tag   = label;
+            block.text  = null;
+            }
+        else {
+            String oldTag       = block.tag;
+            block.tag           = "div";
+            if text
+                {
+                group = new("img");
+                block += group;
+                group["alt"] = oldTag;
+                group["src"] = text;
+                group["width"]  = "100%";
+                group["height"] = "100%";
+                }
+            or !block.fLAG && !block.isComment
+                if detail && showBlank
+                    addPara(block," ");
+                or block.isItem
+                    {
+                    item=block.item;
+                    do addPara(block,item.toString());
+                    while item = item.next;
+                    }
+                or labeled
+                    addPara(block,oldTag);
+                or block.data && (text = block.getCellText())
+                    addPara(block,text);
+            block.isSingleton   = false;
+            }
+        }
+    if styling && hasStyle
+        {
+        styling.text = controlBuffer.toString();
+        block += styling;
+        }
+    or hasStyle
+        {
+        print " }";
+        item = new(controlBuffer.toString());
+        }
+    return item;
+}
+
+/*******************************************************************************
+	Convert the block passed in to HTML.
+        Set title text from block text
+        Change block tag to "html"
+   Walk block so for each block:
+        if not an html block, convert it to div (merge w/div, generate id).
+        Get style. If hasAttributes create an id style block w/all css attributes
+        Add id block to style.
+        Convert style to html/css syntax (print each memeber as css).
+    The group passed in should be copied first to not muck up the original
+*******************************************************************************/
+GroupItem makeHTML(GroupItem group)
+{
+GroupItem       head = locate("head"),
+                style,
+                title,
+                body,
+                block;
+GroupLink       link;
+PLGitem         styleItem,
+                item;
+    noCDATA         = true;
+    ignoreNoRoom    = true;
+    classList.clear();
+    if !head
+        {
+        group = new("makeHTML: could not find head block");
+        return group;
+        }
+    else head.isAttribute = true;
+    body = group/"body";
+    if !body
+        {
+        group = new("makeHTML: could not find body block");
+        return group;
+        }
+    group.tag = "html";
+    // remember, when you add a group you get a copy so here head is set to its copy
+    // otherwise references to head, style and title will point to the wrong stuff
+    head = group += head;
+    head.isMember = true;
+    style = head/"style";
+    if !style
+        {
+        group = new("makeHTML: could not find style block");
+        return group;
+        }
+    if title = head/"title"
+        {
+        if block = group.findAttribute("title")
+            title.text = block.text;
+        if !title.data
+            {
+            group = new("makeHTML: could not find title text");
+            return group;
+            }
+        title.isSingleton = false;
+        }
+    else {
+        group = new("makeHTML: could not find title block");
+        return group;
+        }
+    //cout group:;
+    /***************************************************************************
+        Add style block
+    ***************************************************************************/
+    if style.hasMembers
+        while link = style.nextLink()
+            {
+            block = link.value;
+            if !block.isMember continue;
+            if item = makeCSSline(block)
+                if !styleItem styleItem = item;
+                else styleItem += item;
+            block.release();
+            link.remove();
+            }
+    block = null;
+    while block = walkVisible(body,block)
+        if !block.isComment && !block.noRoom && block.hasAttributes
+            && block.tag ne "img"
+            if item = makeDiv(block)
+                if !styleItem styleItem = item;
+                else styleItem += item;
+    /***************************************************************************
+        Add class styles
+    ***************************************************************************/
+    while block = classList.nextAttribute()
+        {
+        block.text  = block.tag;
+        block.tag   = "class";
+        if item = makeCSSline(block)
+            if !styleItem styleItem = item;
+            else styleItem += item;
+        }
+    block           = new("boDY");
+    block.item      = styleItem;
+    block.noTag     = true;
+    block.isComment = true;
+    block.isClosed  = true;
+    style += block;
+    return group;
+}
+
+/*******************************************************************************
+	Runs a tracked action on all its members. The tracked members are the blocks
+    enclosing the attribute being tracked. In some cases, the tracked attribute
+    may have a value, in which case you have to use the local copy of the attribute
+    stored in the block (when there is no value, the registered copy of the
+    attribute is sufficient).
+*******************************************************************************/
+void processActionTrack(GroupItem action)
+{
+GroupItem	attribute,group;
+    action.reset();
+    while group = action.nextMember()
+        {
+        // deferred usually applies to actions, here it is used on the action parent
+        // to indicate that the tracked action was run (do not want to run it again);
+        if group.deferredAction continue;
+        group.deferredAction = true;
+        if attribute = group[action.tag]
+            {
+            // attribute parent set because wont be right in case of flex layout
+            attribute.parent = group;
+            action.method(attribute);
+            }
+        else cerr "processAction: could not find attribute " action.tag " in "
+            group.tag:`group.getTagXML():;
+        }
+}
+
+/*******************************************************************************
+	This resets the variable content group passed in to its initial state
+    before any flex layout happens.
+*******************************************************************************/
+void resetVariableContent(GroupItem group)
+{
+GroupItem   item,
+            content = group%vCONTENt;
+    if !content || !content.hasMembers return;
+    cout "Resetting variable content for",group.tag:;
+    group.clearMembers();
+    content.reset();
+    while item = content.nextMember()
+        group += item;
+    //cout "After reset",group:;
+}
+
+/*******************************************************************************
+	Set layout details for the GroupItem passed in and its members.
+    Called from layout() flexLayout() and recursively
+*******************************************************************************/
+Details setDetails(GroupItem item)
+{
+Details		ancestor,detail;
+GroupItem	stuff,group,record,member;
+int			repeat;
+use item
+    item.reset();
+    detail  = setDetail();
+    if ancestor = item.getAncestor()
+        level = ancestor.level + 1;
+    x = y = height = width = 0;
+    length = 0;
+    repeat = initialize(item);
+    if contentVaries
+        {
+        record = item%vCONTENt;
+        if !record && item.hasMembers
+            {
+            record = addString("vCONTENt");
+            deferDraw = true;
+            item.reset();
+            while member = nextMember()
+                {
+                group = record += member;
+                record.hasMembers = true;
+                if stuff = group["down"]
+                    { if stuff.gText && stuff.gText == '*' group.contentVaries = true; }
+                or stuff = group["across"]
+                    if stuff.gText && stuff.gText == '*' group.contentVaries = true;
+                }
+            // do not think we need deferDraw (defers draw on resizing???)
+            }
+        }
+    return detail;
+}
+
+/*******************************************************************************
+	Add a record of flexible content for the GroupItem passed in
+*******************************************************************************/
+GroupItem setFlexDetails(GroupItem group)
+{
+GroupItem	first,block,item,record = group["vCONTENt"];
+    if !record
+        {
+        cerr "setFlexDetails: could not find record for " group.tag:;
+        exit(0);
+        }
+    record.reset();
+    while item = record.nextMember()
+        {
+        block = group += item;
+        if !first first = block;
+        }
+    return first;
+}
+
+/*******************************************************************************
+	Set the layout for item and descendents
+*******************************************************************************/
+void setLayout(GroupItem item,Layout lay)
+{
+GroupItem   group;
+Details     detail;
+    while group = item.walk(group)
+        if detail = group.getDetail()
+            view = lay;
+}
+
+/*****************************************************************************
+	Set up the attributes and types registries
+*****************************************************************************/
+void setup()
+{
+GroupItem		item, type;
+use bwana
+	registerMethods();
+    fontRegistry    = getRegistry("fONTs");
+    colorRegistry   = getRegistry("cOLOr");
+    properties.reset();
+	while item = properties.next()
+		{
+		type = item["type"];
+		if type && !type.value
+			{
+			type = types += item.tag;
+			if item["register"] type.pointer = getRegistry(type.tag);
+			}
+		}
+}
+
+/******************************************************************************
+	Start the display
+******************************************************************************/
+void start(Window window)
+{
+GroupItem   item,group;
+    bwana.window    = window;
+    window.delegate = delegator;
+    //if window.delegate cout "has window delegate":; else cout "no window delegate":;
+    baseURL = locate("baseURL");
+    if !baseURL
+        {
+        cerr "Control start: could not set base URL, bailing":;
+        return;
+        }
+	if loadedItem.isShell
+        {
+        loadedItem.reset();
+		while group = loadedItem.nextMember()
+			if group["window"] || group["panel"]
+                layout(group);
+        }
+	or loadedItem["window"] || loadedItem["panel"]
+        layout(loadedItem);
+    if !windows.length
+        {
+        item = new("<error window closable text>No window block found</error>");
+        layout(item);
+        }
+    timer = timeEnd(timer);
+    //laidout = false;
+    /***************************************************************************
+        Fixes problem w/text blocks scrolling to bottom. Not sure why it happens.
+        May also fix problem with window showing up blank sometimes (No!).
+    ***************************************************************************/
+    keyFront(window);
+    window.display();
+    cout "Done starting\n";
+}
+
+/*******************************************************************************
+	Print a group as a style statement attribute to the scratch buffer. Gets
+    called by makeDiv(). cssRegister and properties referenced are registries
+    defined in GroupMain and globally accessible from the static driver. The
+    buffer buffer is accessible from the parser also defined in GroupMain
+*******************************************************************************/
+int toCSS(GroupItem  group)
+{
+GroupItem   cssGroup    = cssRegister[group.tag],
+            property;
+String      content,
+            groupText   = group.text;
+    if group.isPercent group.isPercent = false;
+    if !cssGroup
+        {
+        property    = properties[group.tag];
+        if property
+            if property.isGroup
+                cssGroup = property.group;
+            else {
+                if content = property.text
+                    if cssGroup    = cssRegister[content]
+                        property.group = cssGroup;
+                }
+        }
+    if cssGroup
+        {
+        if groupText content = groupText;
+        else content = cssGroup.text;
+        if content
+            {
+            print ,cssGroup.tag ":" content;
+            if cssGroup["needsUnit"] print "px;";
+            else print ";";
+            }
+        }
+    else return false;
+    return true;
+}
+}
+
+/*******************************************************************************
+	Generate the code to draw the block passed in
+*******************************************************************************/
+void   jsDraw(GroupItem block,Buffer buffer)
+{
+Details detail = block.getDetail();
+GroupItem   rounded:,
+            border:,
+            stroke:,
+            fill:,
+            group;
+int         fillIt,
+            radius,
+            strokeIt;
+String      filler,
+            stroker;
+use detail
+    if rounded || border || fill
+        {
+        if fill
+            {
+            fillIt  = true;
+            if filler   = fill.text
+            if group = colorRegistry[filler]
+                if group.data
+                    filler  = "'" group.text "'";
+            if !filler filler = "0";
+            }
+        if stroke   stroker = stroke.text;
+        strokeIt    = true;
+        if rounded
+            {
+            radius = rounded.count;
+            if !radius  radius = 5;
+            }
+        if border && border.data  stroker = border.text;
+        if stroker
+            if group = colorRegistry[stroker]
+                if group.data
+                    stroker = "'" group.text "'";
+        if !stroker stroker = "0";
+        print(buffer) "//",block.tag:``"drawBox("x#4.1f
+            ","y#4.1f
+            ","width#4.1f
+            ","height#4.1f
+            ","radius
+            ","fillIt
+            ","filler
+            ","strokeIt
+            ","stroker
+            ");":;
+        }
+    /***************************************************************************
+        If this draws a path, the starting point gets first set to be the middle
+        of the enclosing block (by translation, so the middle gets set to be the
+        point at 0,0).
+    ***************************************************************************/
+    if isPath
+        print "//",block.tag: block.buffer.string():;
+    if isText
+        {
+        TextView    editor = object;
+        if editor
+            {
+            String  imageName   = "Base64Image" block.tag;
+            BitImageRep BMrep   = getBitmapRep(visibleRect);
+            Data        data    = getImageRep(NSJPEGFileType, dictionaryWithObject(numberWithFloat(0.5), NSImageCompressionFactor));
+            Data        encoded = base64encode(lineLength64);
+            String      text    = bytes();
+            print "var",imageName,"= new Image();":
+                imageName ".src = \"data:image/jpeg;base64,"text"\";":
+                "ctx.drawImage("imageName","frame");":;
+            }
+        }
+}
+
+#walkMacro-
+while group = item.parent
+    {
+    do
+        item = group.nextMember(item);
+    while item && item.noRoom;
+    if !item && group.parent
+        {
+        if group == base return null;
+        item = group;
+        }
+    else return item;
+    }-
+/*******************************************************************************
+    Returns the next visible item using a depth first walk that skips over
+	blocks that have no room
+*******************************************************************************/
+GroupItem walkVisible(GroupItem base,GroupItem item)
+{
+GroupItem group;
+    if !item return base;
+    if item.noRoom
+        walkMacro;
+    if item.hasMembers
+        {
+        item.reset();
+        do
+            group = item.nextMember();
+        while group && group.noRoom;
+        if group return group;
+        }
+    if item != base walkMacro;
+    return null;
+}

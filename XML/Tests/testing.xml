@@ -1,0 +1,81 @@
+#include /Users/anthony/Dropbox/data/InProcess/Groups/XML/HTML/traits.xml
+#include /Users/anthony/Dropbox/data/InProcess/Groups/XML/Controls/templates.xml
+
+#registry GUI;
+<drawing window x=400 y=400 width=400 height=450 fill=gray title="Drawing" html hTML="/Users/anthony/Tests/TokTests/Test.html">
+    <body onLoad="draw();" padRight=15 padBottom=15>
+        <drawn canvas>
+            <intro height=50 pad fill=lightGreen rounded>
+                <heading="Draw Path Example" flex pad center titleFont></intro>
+            <jitter pad stride=6 gap=12 depth=2 mTop=5>
+                <wrap pad layers perfColor=darkerGray>
+                   <drawingBox pad=15 fill=paleGray border=green>
+                       <arrow drawPath fill=lightGreen>%@ 0 0 u~ 30 l 30 !%@ 0 0 d~ 30 r$ 30;</jitter>
+            <sample text height=30>This is a test of my attempt to use TextView in the background (except maybe when editing?)</drawing>
+An interesting thing about applying group concept to GUI specs (like above)
+    Rather than having some program processing and interpreting attributes
+    The group concept turns that on its head; and attributes can be invoked to process and interpret themselves. Do not need to implement a program to deal with lots of different stuff.
+    Program just has to deal with itself (and its input). Work gets mostly done by other little programs
+So I am a program w/links to attributes and components, both of which might be programs. As program
+    I have an action
+    I may be a rule (depends who is looking)
+    So question: what happens when invoked
+        action fired
+        action can in turn fire off any attribute or component actions (do you start to see an outline of what such a program would look like as compared to what all current GUI processing code does now)
+So how to write a program to interpret a program. Both the following parsers produce a group
+    A parser to read groups
+    A parser to read actions
+        resulting action group gets fed into an interpreter to execute the action
+    Hence the interpreter takes a group as input. The group could be a simple action or an entire program
+    The result of interpretation is an executed program/action
+So now we just need a parser to read whatever the fuck is coming in as input. Not sure I'm able to HWF at that hard. Would an AI be able to? If not we are stuck with a machine that takes a single limited set of instructions and whatever means delivers is. So I interpret that as: if data gets converted into the set of expected input, I can try to parse it.
+    
+What about a state variable: a way to view and work with a maybe variable length block of code that stores state in booleans. The issues I have w/state result because the way state is defined is inflexible. How about the state as an offset, an offset into an address, and its value can be used to access anything catalogued by state (you can do that with booleans but it is not obvious). That slightly bigger role might help justify using attributes for state.
+        So is state true? then becomes: the attribute exists and is set to some acceptable value. If either of those things is untrue things are unstated or presumably false
+        So is state then an offset AND possible data? Tried the offset approach and bailed on it. Too complex to bother with.
+        A state attribute pretty much means state is a registry
+        A field can have multiple states (the way a group has attributes).
+Hence any group can have states, and if a group is treated as a class, can it have its own registry of state? Only if a group can be a registry. Lets see here
+    This actually gets pretty interesting. If we can add variable state ability to tok, then GroupItem can adopt variable state for all its booleans and toggles, one of which can define isRegistry and then: the item can add a BaseHash as its data; and all the current registry methods become external. Basically, the registry GroupItem becomes a class. Is there anyway to define it as such? Making it a subclass of GroupItem does not quite cut it. Too restricting??? And it is still just a GroupItem differentiated only by its content.
+    Would be nice if we could define a class or type of GroupItem. If you meet these requirements, you are a class as far as I am concerned. This gets even more interesting because then you may have to deal w/classes that change on the fly
+So how to have a simple simple GroupItem that could be an attribute and which only contains data (a number, or PLGitem, or something). If its content is defined by its state, then the GroupItem has to have state value and data - as well as setter and getter (which can presumably be accessed via state offset (using state as an index) into wherever such methods reside [and where is that?] wherever TFYW). In this model, state becomes data type (class) in that it defines what the GroupItem is (along w/its methods) So basically, a class is a registry (and what does this imply about class methods??? You stuck them where? :)
+If everything is a GroupItem then item A is just like item B while the two can be completely different in content. This makes discovery interesting, as in WTF are you? This becomes a pattern match problem, perhaps something to be dealt with using rules
+
+Action Item <------ <------
+    Ammend locate in ParseXML to set up a registry of found objects and set the registry of found objects as the first place to look in a search. Also move towards using a GroupItem as the searchlist (then can have multiple searchlists)
+    The problem w/this is that objects w/same name can appear in different places and they are all different. How would a registry know which one is searched for (unless the search parameters are sufficient for identification)
+    It works as long as we use the same search pattern. Whatever you find is the same as whatever you find every time you search. This means found objects get cleared when the search pattern changes - And isnt it interesting that does not limit how the pattern changes.
+DONE
+
+As an aside
+
+Would it be possible to have two GroupItems responding to a completely different set of instructions??? If group can change some innate capability like its search pattern, then as long as that change is not also applied to the other group, you end up with two groups that may have been identical but are no longer, hence they may not react identically to input.
+If a GroupItem can have its own searchlist, that searchlist must be presumably an attribute, so a searchlist is a GroupItem (used as a searchlist)???
+
+How about a toggle attribute?
+or a union attribute - Actually an attribute, being a GroupItem, is a union of sorts. It can contain the same types of data, but in addition it can have attributes; hence an attribute is a union with attributes (and members).
+
+    A GroupItem has as part of its identity: its attributes; and its place in the hierarchy that it is a part of (and which may not exist)
+
+Making a boolean out of an attribute is straightforward. How about implementing a toggle as an attribute. How would you do that?
+    I am thinking attribute.value would hold the current toggle value (as isGroup), the toggle attribute itself is the container, and the toggles would be attributes of the toggle attribute. BTW the toggle does not know it is a toggle, just a random GroupItem. The programmer supplies the Its a toggle info.
+    Could also do it as a toggle attribute that takes on a toggle value and use the setter/getter to make sure that it is a valid value
+
+Musing
+The logical end of efforts to make GroupItem a universal gizmo would make GroupItem just an ID and a means to append functionality. That way you will know its name but not what it can do because that depends on what got added and what was taken away.
+
+    A group can only add groups, however, the groups it adds can be rules, attributes, members, methods, data, ...
+    So to run a method, a group has find it first - a locate, which may fail
+    What is a group then (aside from its ID) ... the sum of its parts and whatever it can find?
+    A group may provide no way of knowing what it is intended to be. It can provide access to its contents (which may contain methods) and its data.
+
+What if you could implement this not by adding components in a list but instead redefine the contents of a group on the fly to include addresses of its contents: that is, add a field not an attribute. And how to know what fields it added? Might be able to define a group class to serve as template, such that, if a group is of that class, the class can be accessed to determine its fields (and their location)
+    
+It is just a pipe
+    A GroupItem method takes a GroupItem argument and returns a GroupItem, which can be seen as: it takes input and produces an output.
+In the interpreter, if we call a method on a GroupItem and there is no method (which the interpreter can check) then the GroupItem called is akin to the result it would have returned if it had a method (a default identity method, in effect)
+How about a rudimentary shell.
+    execl takes a pathname and a list of string arguments - would have to generate the parameters, pass them to execl and fire away. Voila: we have the basics for a gml shell. Should be able to have a canned group method that does that, operating on itself, as in group gets passed in to group()
+    would be nice to link input for the invoked process to output from the running process.
+        if process is listening to a port and I write to the port, should work. Bot is intended to do this but I have never really developed it beyond basic proof of concept.
+wrt piping, check out wikipedia netcat (which also explains ncat) for setting up pipes and listeners across computers (that conveniently handle unix stdin and stdout)

@@ -1,0 +1,320 @@
+
+/*******************************************************************************
+	Global
+    if NewGroup.tag eq "Start" debugRuleNamed("RunRulE");
+    if NewGroup.tag eq "xpTest" debugAllRules = true;
+    if NewGroup.tag eq "ShortcuT" item = 0;
+    cout "aCTionDefinE:",NewGroup.tag:;
+    if NewGroup.tag eq "simple"
+        {
+        debugRuleNamed("DefinE");
+        debugRuleNamed("NewGroup");
+        debugRuleNamed("MemberS");
+        debugRuleNamed("TraiT");
+        debugRuleNamed("NamE");
+        }
+*******************************************************************************/
+#globals
+aCTionDebuG debugged ctive
+    if debugged print "Debugging",grup.tag:;
+#;
+aCTionDebuG subrule.debugged ctive
+    if subrule.debugged print "Debugging",subrule.tag:;
+#;
+aCTionDebuG embed.debugged ctive
+    if embed.debugged print "Debugging",embed.tag:;
+#;
+aCTionDefinE "if Attributes" before active
+    cout "aCTionDefinE:",NewGroup.tag:;
+#;
+aCTionDefinE item before ctive
+    if CodE.tag eq "Start" CodE.fLAG = false;
+#;
+aCTionElsE if ctive
+    if blocking cout "unBlocked:", blocking:;
+#;
+aCTionExpresses clear ctive
+    if field.tag eq "callMyself" argument = 0;
+#;
+aCTionNamE if before active
+    if arg eq "StatemenT"  result = 0;
+#;
+aCTionRunRulE if within ctive
+    if tag eq "define" debugAllRules = true;
+#;
+aCTionSearch cout ctive
+    debugAllRules = true;
+#;
+aCTionXpress result before ctive
+    print "Instructions for",action.tag: list:;
+#;
+/*******************************************************************************
+        if rule.tag eq "ElsE" guardOK = false;
+*******************************************************************************/
+checkGuard return before ctive
+    if !guardOK && (debugAllRules || debugRule) {
+        indent();
+        cout "Guard failed for",rule.tag,"on text",getDebugText(atRuleMark,10):;
+        guardOK = false; }
+#;
+generateCode return before ctive
+    dumpContents(instruct);
+    dumpContents(lines);
+#;
+guard GroupItem ctive
+    debugGuards = true;
+#;
+guard clearData ctive
+    debugGuards = false;
+#;
+interpret argument ctive
+    if debugIndent < 0 debugIndent = 0;
+    debugIndent++;
+    indent("  ");
+    cout "Before op " instruk.count;
+    if target {
+        cout `tag;
+        if data     cout "=" text,; }
+    else            cout `"no target ";
+    if argument {
+        cout `argument.tag;
+        if argument.data    cout "=" argument.text,argument.invoke; }
+    else            cout `"no argument";
+    cout :;
+#;
+interpret debugOP before ctive
+    indent("  ");
+    cout "After: ";
+    if !target && !argument cout "no operands":;
+    if target {
+        cout `tag;
+        if data cout "=" text,; }
+    else        cout `"no target ";
+    if argument {
+        cout `argument.tag;
+        if argument.data    cout "=" argument.text,argument.invoke; }
+    else        cout `"no argument";
+    cout :;
+    debugIndent--;
+#;
+loadInputFromFile return before ctive
+     if name eq "grammar" debugAllRules = true;
+#;
+/*******************************************************************************
+    opDoNothing
+    if tag eq "MemberS"   doNothing = false;
+*******************************************************************************/
+opDoNothing return before ctive
+    currentMETHOD.dumpContents();
+#;
+opPrinter if
+    target.dumpContents();
+#;
+opPrinter printText before
+    printLIST.dumpContents();
+#;
+/*******************************************************************************
+    if !inputDiverted   cout "Rules parsed " rulesParsed,"Rules avoided " rulesAvoided:;
+        if tag eq "listOK"   trueResult.fLAG = false;
+    if guardOK && (debugAllRules || debugRule)
+    if tag eq "list"   debugged = true;
+    debugAllRules = true;
+    if tag eq "define" {
+        debugRuleNamed("DefinE");
+        debugRuleNamed("NewGroup");
+        debugRuleNamed("TraiT");
+        debugRuleNamed("Attributes");
+        debugRuleNamed("MemberS"); }
+*******************************************************************************/
+processAction setLastREF ctive
+    debugAllRules = true;
+#;
+processCode processingCode ctive
+    debugAllRules = true;
+#;
+rEGISTER currentRegistry active
+    cout ````"Current registry:",currentRegistry.tag:;
+    item = 0;
+#;
+runDefer processingCode ctive
+    debugRuleNamed("ExpressioN");
+#;
+runAction "if instructions" before ctive
+    interpret(action);
+#;
+runInstruct if ctive
+    if operate.tag eq "@"   target = 0;
+#;
+runRule if ctive
+    if tag eq "list" debugRuleNamed("list");
+
+#;
+scopeXP return before ctive
+    currentMETHOD.dumpContents();
+#;
+setCompiledMethod block
+    cout "setCompiledMethod: set method",name,"for",block.tag:;
+#;
+
+/*******************************************************************************
+	GroupItem
+    if group.tag eq "Drawing" cout ``"addGroup: adding",group.tag,"to",tag:;
+*******************************************************************************/
+#GroupItem
+addGroup starting ctive
+    if tag eq "ruleLIST" && group.tag eq "argument" group.dotdot = false;
+#;
+addGroup ending ctive
+    if tag eq "Stuff" cout ``"addGroup: adding",group.tag,"to",tag:;
+#;
+addToGuard if before
+    if parent && parent.debugGuard cout "addToGuard: add to",guardSet,"from",block.tag:;
+#;
+addToGuard "if blockGuard" within
+    if debugGuard cout "addToGuard: add to",guardSet,"from",blockGuard:;
+#;
+addToGuard "if isCHAR" within
+    if debugGuard cout "addToGuard: adding character",character,"to",guardSet.name,"from",block.tag:;
+#;
+addToGuard "or isSTRING" within
+    if debugGuard cout "addToGuard: adding string","to",guardSet.name,"from",block.getTagXML():;
+#;
+addToGuard "or isITEM" within
+    if debugGuard cout "addToGuard: adding item",item,"to",guardSet.name,"from",block.tag:;
+#;
+addToGuard "or isSET" within
+    if debugGuard cout "addToGuard: adding set","to",guardSet.name,"from",block.tag:characterSet:;
+#;
+/*******************************************************************************
+	Guarding
+int debugging = tag eq "Mlist";
+int debugging = debugGuards || debugGuard;
+        if tag eq "GrouP"   junk = 0; }
+*******************************************************************************/
+getGuard if before active
+int debugging = debugGuards || debugGuard;
+#;
+getGuard "if isCondition" before active
+    if debugging {
+        if parent cout "Setting guard for",tag,"in",parent.tag:;
+        else cout "Setting guard for",tag:;
+        junk = 0; }
+#;
+getGuard returnGuard before active
+    if debugging {
+        if guarding
+            if guarded  cout `"setGuard:",tag``guardSet:;
+            else        cout `"setGuard:",tag,"is unguarded":;
+        junk = 0; }
+#;
+getStuff if before ctive
+    if tag eq "NumbeR" stuff = 0;
+#;
+listenTo ending
+	cout "Adding to listener: " group.tag,group.text; if group.parent cout " of " group.parent.tag;
+    cout `": " tag,text; if parent cout " of " parent.tag; cout :;
+#;
+/*******************************************************************************
+	parse debugging
+        if tag eq "MemberS"   doNothing = false;
+*******************************************************************************/
+parse "if !checkInput" before active
+    if debugAllRules || rule.debugged {
+        if debugIndent < 0 debugIndent = 0;
+        indent("  ");
+        cout "Match",ruleName,"on text>"getDebugText(atRuleMark,20):;
+        debugIndent++; }
+#;
+parse matchSucceeded active
+    if tag eq "Search"  doNothing = false;
+#;
+parse kount active
+    if debugAllRules || rule.debugged {
+        debugIndent--;
+        indent("  ");
+        cout ruleName,"succeeded";
+        if label {
+            cout ,"label:",label.tag;
+            if label.data   cout "=" label.text; }
+        else    cout " w/no label";
+        cout ,"at: " getDebugText(atRuleMark,10):;
+        doNothing = false; }
+#;
+parse debugHere active
+    if debugAllRules || rule.debugged {
+        debugIndent--;
+        indent("  ");
+        if sukcess {
+            cout ruleName,"not failure";
+            if label {
+                cout ,"label:",label.tag;
+                if label.data   cout "=" label.text; }
+            else    cout " w/no label";
+            cout ,"at: " getDebugText(atRuleMark,10):; }
+        else    cout ruleName,"match failed":;
+    doNothing = false; }
+#;
+push if before ctive
+    if tag eq "Stuff" cout ``"push: adding",grup.tag,"to",tag:;
+#;
+push finishAdd ctive
+    if tag eq "Stuff" dumpContents(this);
+#;
+printToBuffer printItem
+    cout ``"printToBuffer before processing:",bufferName,printEntry,i:;
+    printEntry.dumpContents();
+#;
+remove if before ctive
+    if tag eq "ShortcuT" fLAG = false;
+#;
+setGroup starting ctive
+    if g && g.tag eq "iF1"  g.fLAG = false;
+#;
+setRuleStuff if before ctive
+    if tag eq "followedBy" invoke = false;
+#;
+updateContentFlags starting
+    if tag eq "Keywords" fLAG = 0;
+#;
+/*******************************************************************************
+	GroupMain
+    debugGuards     = true;
+    debugAllRules   = true;
+    debugRuleNamed("IF");
+*******************************************************************************/
+#GroupMain
+bootstrapper pushInput active
+    debugAllRules   = true;
+#;
+/*******************************************************************************
+	GroupRules
+    if tag eq "SemI" debugging = true;
+*******************************************************************************/
+#GroupRules
+checkSkip blockSTAK ctive
+    cout ``"Starting block at",indenting,getDebugText(atContent,20):;
+#;
+checkSkip toTrash ctive
+    cout ``"Ending block at",indenting,getDebugText(atContent,20):;
+#;
+pushInput return before ctive
+    cout ``"Pushing input",getDebugText(atRuleMark,20):;
+#;
+popInput return before ctive
+    cout ``"Popped input back to",getDebugText(atRuleMark,20):;
+#;
+/*******************************************************************************
+	RuleStuff
+    if tag eq "CodE" cout :``"getWhatFollows:",tag;
+    if tag eq "NamE"    completed = 0;
+*******************************************************************************/
+#RuleStuff
+getLabel if before ctive
+    if tag eq "debug"  doNothing = 0;
+#;
+getLabel endLabel ctive
+    if tag eq "DefinE"  doNothing = 0;
+#;
+getWhatFollows followed ctive
+    if tag eq "NumbeR"   doNothing = 0;
+#;

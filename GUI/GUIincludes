@@ -1,0 +1,21 @@
+external    GroupItem
+external    GroupHasher
+external    GroupList
+external    GroupLink
+external
+{
+    alias
+        Avoid       GroupItem
+        Hasher      GroupHasher
+        HashList    GroupList
+        HashLink    GroupLink
+        ;
+}
+include /Users/anthony/Dropbox/data/InProcess/Include/OCframe
+include /Users/anthony/Dropbox/data/InProcess/Include/globals
+include /Users/anthony/Dropbox/data/InProcess/Include/maps
+include /Users/anthony/Dropbox/data/InProcess/Include/frame
+include /Users/anthony/Dropbox/data/InProcess/Include/plg.ext
+include /Users/anthony/Dropbox/data/InProcess/Include/groups.ext
+include /Users/anthony/Dropbox/data/InProcess/Include/GUIexternals
+

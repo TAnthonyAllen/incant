@@ -1,0 +1,249 @@
+include GUIincludes
+
+/*******************************************************************************
+	Data source wrapper for a GroupItem. Maintains a copy of member list as
+	an array.
+*******************************************************************************/
+class Source
+{
+GroupItem       **list,
+                sourceItem;
+DoubleLinkList  listeners;
+int             current,
+                length,
+                priorStart;
+boolean
+        exhausted
+        noNext
+        resetOnResize
+        sourceSelected
+        sorted
+        sourceAttributes
+        ;
+
+/*******************************************************************************
+	Constructors
+*******************************************************************************/
+Source()
+{
+    // empty constructor
+}
+
+Source(GroupItem item)
+{
+	setSourceItem(item);
+}
+
+/*****************************************************************************
+	Add a listener to this source.
+*****************************************************************************/
+void addListener(GroupItem item)
+{
+    if !listeners
+        listeners           = new;
+    // Adding a listener done as follows to not bugger item parent
+    //cout "addListener",item.tag:;
+    listeners += item;
+}
+
+/******************************************************************************
+	Debugging dump of list
+******************************************************************************/
+void dump()
+{
+GroupItem	**atList,item;
+    cout "Source listeners\n";
+    if !listeners cout "\tnone\n";
+    else
+    while item = listeners.next()
+        cout "\t" item.getTagXML():;
+    if sourceItem
+        {
+        cout "Source: " sourceItem.getTagXML():`"Content":;
+        if list
+            for atList = list
+                {
+                item = *atList;
+                cout ``item.getTagXML():;
+                }
+        or sourceAttributes && hasAttributes
+            while item = sourceItem.nextAttribute(item)
+                cout ``item.getTagXML():;
+        or hasMembers
+        while item = sourceItem.nextMember(item)
+            cout ``item.getTagXML():;
+        else cout `"Content empty\n";
+        }
+}
+
+/*****************************************************************************
+	Returns the indexed element of this list, assuming it is in range,
+	otherwise null. Index starts at one and is decremented because the
+    list index starts at zero.
+*****************************************************************************/
+GroupItem get(int index)
+{
+    if !list setList();
+    /*************************************************************************
+        current gets modified when the source is scrolled so it is added
+        to index so get returns the current element relative to scrolling
+    *************************************************************************/
+    index += current;
+    if --index >= 0 && index < parts.length
+        return list[index];
+	return null;
+}
+
+/*****************************************************************************
+	Returns the next element of this source and increments the current index
+    that points to the next item. Sets exhausted if at the end of the list.
+*****************************************************************************/
+GroupItem next()
+{
+GroupItem   item;
+use sourceItem
+    if !noNext
+        {
+        if sourceItem
+            {
+            if !list setList();
+            if !exhausted && current >= 0 && current + 1 < parts.length
+                item = list[current++];
+            }
+        if !item exhausted = true;
+        }
+	return item;
+}
+
+/*****************************************************************************
+	Reduce current by the amount passed in making sure that it does not exceed
+	the bounds of the underlying list.
+*****************************************************************************/
+int pageShift(int length)
+{
+int start = current;
+    noNext = false;
+    if (exhausted && length < 0) || (start == 0 && length > 0)
+        return false;
+    start -= length;
+    if start >= parts.length
+        {
+        start = parts.length - 1;
+        exhausted = true;
+        }
+    or start <= 0
+        {
+        start = 0;
+        exhausted = false;
+        }
+    current = start;
+    return true;
+}
+
+/*******************************************************************************
+    Reset current pointer - not sure if should be setting current to priorStart
+*******************************************************************************/
+void reset()
+{
+    noNext      = false;
+    current     = priorStart;
+    exhausted   = current < length;
+}
+
+/******************************************************************************
+	Set the list to a double indirection array of sourceItem contents.
+    If the sourceItem has no contents, creates an empty list.
+******************************************************************************/
+void setList()
+{
+    //cout "Setting list for " sourceItem.getTagXML():;
+    if sourceItem
+        {
+        GroupItem   group;
+        use sourceItem
+        if list free(list);
+        if !sourceItem.parts
+            list    = (GroupItem**)calloc(2,sizeof(GroupItem*));
+        else {
+            list    = (GroupItem**)calloc(parts.length + 1,sizeof(GroupItem*));
+            GroupItem   **atList = list;
+            reset();
+            length  = 0;
+            if !sourceAttributes && hasMembers
+                while group = nextMember()
+                    {
+                    *atList++ = group;
+                    length++;
+                    }
+            or sourceAttributes && hasAttributes
+                while group = nextAttribute()
+                    {
+                    *atList++ = group;
+                    length++;
+                    }
+            }
+        }
+}
+
+/******************************************************************************
+	sourceItem setter
+******************************************************************************/
+void setSourceItem(GroupItem item)
+{
+    if item
+        {
+        sourceItem  = item;
+        exhausted   = false;
+        sorted      = false;
+        current       = 0;
+        if list
+            {
+            free(list);
+            list = null;
+            }
+        updateListeners();
+        }
+    else sourceItem = null;
+}
+
+/*****************************************************************************
+	Sort the source. sortAscending or sortDescending must be set first.
+*****************************************************************************/
+void sort(String name)
+{
+    noNext = false;
+    if !name
+        {
+        cerr "Source sort: name passed in is null":;
+        return;
+        }
+    sourceItem.sort(name);
+    setList();
+    sorted      = true;
+    current     = 0;
+    exhausted   = false;
+    updateListeners();
+}
+
+/*****************************************************************************
+	Updates listeners that depend on this source (set in the sOURCE method).
+*****************************************************************************/
+void updateListeners()
+{
+GroupItem	item;
+Details		detail;
+    if !listeners return;
+    //cout `"updateListeners for source: " sourceItem.tag:;
+    while item = listeners.next()
+        {
+        if !(detail = item.getDetail())
+            {
+            cerr "ERROR: Source updateListeners could not find detail for " item.tag:;
+            return;
+            }
+        //cout ``"updateListeners for " item.tag,item.index:;
+        if hasReactions processReaction();
+        }
+    //cout `"updateListeners done":;
+}
+}

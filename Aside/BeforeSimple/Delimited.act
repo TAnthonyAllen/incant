@@ -1,0 +1,148 @@
+/*****************************************************************************
+    Date stuff commented out for now
+DateGuard!
+.
+    if !field.isDate
+        return false;
+;
+
+DelimitDate!
+    if getFieldBlock(date)
+        {
+        if !block.registry
+            {
+            block.item      = date;
+            block.isDate    = true;
+            }
+        /*********************************************************************
+            The code to add month and year as attributes of date is commented out
+
+        PLGitem     item,parsedDate;
+        if field.gCount  parsedDate = parseMDY(date);
+        else parsedDate = parseYMD(date);
+        if !parsedDate
+            cerr "Could not parse date: " date:;
+        else {
+            if item = parsedDate["month"]
+                block["month"] = item;
+            if item = parsedDate["year"]
+                block["year"] = item;
+            }
+        *********************************************************************/
+        }
+;
+*****************************************************************************/
+
+DelimitEmpty!
+.
+    item.flag1 = true;
+;
+
+DelimitNumber!
+    //cout `"number: " number:;
+    if getFieldBlock(number) && !block.registry
+        if number.floating
+            block.number = number.amount;
+        else block.count = (int)number.amount;
+;
+
+DelimitText!
+    if getFieldBlock(text) && !block.registry block.item = text;
+|
+    if getFieldBlock(text) && !block.registry block.item = text;
+|
+    if getFieldBlock(text) && !block.registry block.item = text;
+;
+
+DelimitFieldName!
+.
+PLGitem delimit = name["delimit"],
+        text    = name["text"];
+    if !doneWithHeading
+        fieldRegistry += itemFactory(text);
+    else {
+        block = null;
+        return false;
+        }
+    if delimit.start == endRecord
+        doneWithHeading = true;
+;
+
+FieldItem!
+.
+    if !item.flag1 processDelimitField(item);
+;
+
+SkipGuard!
+.
+    field = fieldRegistry.nextMember(0);
+    if field.fLAG   return false;
+    //cout `"Skipping: " field.tag:;
+;
+
+JSONblock!
+GroupItem   pater = ancestor,
+            blk = currentBlock;
+    ancestor = currentBlock;
+    for pair pair.runDeferred();
+    ancestor = pater;
+    currentBlock = blk;
+;
+
+JSONdata!
+    // name may be an empty string
+    if name currentBlock.item = name;
+    //cout `"JSONdata: added attribute",currentBlock,"to",ancestor:;
+    if ancestor && ancestor.expanded
+        {
+        ancestor += currentBlock;
+        //cout `"JSONdata: adding block",currentBlock.tag,"to",ancestor.tag:;
+        ancestor = currentBlock;
+        }
+    else ancestor += currentBlock;
+    isJSONtext = true;
+|
+    if block block.runDeferred();
+    if ancestor && ancestor != currentBlock
+        {
+        ancestor += currentBlock;
+        //cout `"JSONdata2: adding block",currentBlock.tag,"to",ancestor.tag:;
+        }
+    isBlock = true;
+|
+    // to flag the current block as a repeat block
+    currentBlock.expanded = true;
+    ancestor = currentBlock;
+    repeat.runDeferred();
+    isRepeat = true;
+;
+
+JSONlistEntry!
+.
+    entry.runDeferred();
+;
+
+JSONpair!
+String      fieldName = name.toString();
+   if fieldRegistry
+        {
+        GroupItem   rename = fieldRegistry[fieldName];
+        if rename   fieldName = rename.text;
+        }
+    currentBlock    = new(fieldName);
+    if !ancestor
+        if list list += currentBlock;
+        or currentRegistry currentRegistry += currentBlock;
+        else cerr "JSONpair rule: do not know what to load",currentBlock.tag,"into":;
+    //cout "JSONpair: created a new block",fieldName:;
+    data.runDeferred();
+;
+
+JSONrepeat!
+    for entry
+        entry.runDeferred();
+;
+
+JSONrepeatEntry!
+    data.runDeferred();
+;

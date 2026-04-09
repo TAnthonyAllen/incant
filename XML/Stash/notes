@@ -1,0 +1,47 @@
+/*******************************************************************************
+    The { and } modifiers skip to and skip over
+*******************************************************************************/
+    The delimitRecord rule uses skip overs, that is what the } modifier does.
+    The result (whatever gets skipped up to the skip match) is put in the
+    label the modifier is associated with. That is, the skip returns everything
+    up to the skip stashed in the label.
+        If the skip modifier is { the rule input is left pointing at the match.
+        If the modifier is } rule input is left pointing just after the match.
+        In both cases, the skip match is ignored.
+    The value of the skip label can determine the skip match. To clarify,
+    given the attribute: countField}=1 countField is the label, } is its
+    modifier, and 1 is its value
+        If the value is a set, the skip matches against the set.
+        If it is a string its text is matched against.
+        If it is numeric, it does not change the match but determines the
+            value of the label after the match. That is, the label value
+            will be either a count or a number (floating point).
+        The default skip match (when the label value is not a set or a string)
+        is a comma (useful for processing comma delimited files).
+    Fields w/o a label (no label is set w/modifier -), as in skip-}=3,
+    ignore fields skipped over, and the number of fields ignored is determined
+    by the value of the label if it is numeric. Thus skip-}=3 ignores 3 fields.
+    If you want to capture the skip match, use { and the following rule will
+    match against it.
+        That is, label{ nextRule=matchValue will return the match value in
+        nextRule (actually, in the nextRule label).
+
+    The delimitRecord rule applied to commaStuff, both defined above as
+        delimitRecord isRule countField}=1 skip-}=3 numberField}=1.0 stringField};
+        commaStuff="44,two,  forty three,six,6.7,ninety one";)
+    uses the default comma skip match and sets countField to 44; ignores
+    fields: two, forty three, and six; sets numberField to 6.7; and sets
+    stringField to "ninety one".
+    
+/*******************************************************************************
+    Rule expressions look like method invocations and apply a rule to its argument
+*******************************************************************************/
+    A rule expression like: rule(field) can be used as a command, a method call
+    in an action, or as an attribute. It applies the rule to the contents
+    of field (field is its argument and is expected to be a string).
+    
+    The basic idea with rule expressions is it allows you to apply a rule to selected
+    input as opposed to applying a rule on the input stream, which is the norm for rules.
+    
+    Using a rule expression as an attribute is still WIP
+

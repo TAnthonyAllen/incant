@@ -1,0 +1,589 @@
+/*****************************************************************************
+	XML parser actions
+*****************************************************************************/
+Attribute
+PLGitem			field   = name["field"];
+PLGitem			regex   = field/"regex";
+String          fieldID = field.toString();
+PLGitem			dollar,
+                item,
+				text,
+				valueRegex;
+GroupItem		block;
+PLGrgx			rgx;
+GroupRegistry	fieldRegistry;
+
+	currentBlock = null;
+	if value
+		{
+        dollar      = value["dollar"];
+		text        = value["text"];
+		valueRegex  = value["regex"];
+		}
+    if settingPath currentBlock = new(fieldID);
+	/*************************************************************************
+		If attribute has no value: look for it in the current registry and
+        search registries in that order. If this is a block tag, check to see
+        if it is registered in the current registry. If it is and has no parent use it.
+	*************************************************************************/
+	if (!currentRegistry || !currentRegistry.isBaseRegistry) && !currentBlock && !value && !firstTag
+        {
+        /*********************************************************************
+            If the attribute is a registry name, make it an instance of the
+            registryItem.
+        *********************************************************************/
+        if fieldRegistry = registries[fieldID]
+            currentBlock = fieldRegistry.registryItem;
+        or block = locate(fieldID)
+            {
+            currentBlock = block;
+            // If the attribute should be merged, add to the mergeStack
+            if block.members || block.attributes
+                if !block.track && !block.noMerge && !commanding
+                    mergeStack += block;
+            }
+        }
+	/*************************************************************************
+		If attribute has a value: check if attribute is registered
+	*************************************************************************/
+	if !block && value && !regex && !valueRegex && registries
+        {
+        /*********************************************************************
+            If the name of the attribute is a registry name.
+        *********************************************************************/
+		if fieldRegistry = registries[fieldID]
+			{
+			if fieldRegistry.loadFromData
+				block = fieldRegistry += itemFactory(text);
+			else block = fieldRegistry[text];
+            currentBlock    = block;
+			value           = null;
+			// Do not want value processed below
+			}
+        /*********************************************************************
+            If attribute not registered check to see if it appears in a
+            registry on the searchList.
+        *********************************************************************/
+        if !block block = locate(fieldID);
+        }
+	/*************************************************************************
+        At this point, if block exists, it is registered.
+		If attribute is registered and has a value, make the attribute a copy
+        of the registered attribute so as to retain the parent hierarchy
+	*************************************************************************/
+    if block && !currentBlock && value
+        {
+        currentBlock = new(block);
+        if firstTag currentBlock.isAttribute = false;
+        }
+	/*************************************************************************
+		If current block still not set, set it
+	*************************************************************************/
+    if !firstTag && !currentBlock && !fieldRegistry && currentRegistry
+        && !value
+        currentBlock = currentRegistry[fieldID];
+    if !currentBlock
+        currentBlock = new(fieldID);
+    if target
+        {
+        String atText = target.string();
+        while *atText
+            {
+            if *atText == '@'
+                currentBlock.isTarget = true;
+            else currentBlock.noAnchor = true;
+            atText++;
+            }
+        target.unString();
+        }
+	if modify modify.runDeferred();
+    if firstTag
+        firstTag = false;
+    or !currentBlock.registry
+        currentBlock.isAttribute = true;
+    /*********************************************************************
+        Check for tag regular expression. Note that the currentBlock
+        text is not set. Check for isAny.
+    *********************************************************************/
+    if regex
+        {
+        fieldID++;
+        rgx = new(fieldID);
+        currentBlock.regex  = rgx;
+        }
+    if field/"any" currentBlock.isAny = true;
+    //cout "\tAttribute: " currentBlock.tag "\n";
+
+	/*************************************************************************
+		Process value if there is one and compile value regular expressions
+	*************************************************************************/
+	if value
+		{
+        if currentBlock.isRegex
+            cerr "Error: " fieldID " is regex and cannot have a value: " value:;
+		item = value/"number";
+        currentBlock.text = text.toString();
+		if item
+            {
+            if item.floating
+                currentBlock.number = item.amount;
+            else currentBlock.count = (int)item.amount;
+            if value/"percent"
+                currentBlock.isPercent = true;
+            }
+        or valueRegex
+            {
+            rgx = new(currentBlock.text);
+            currentBlock.regex = rgx;
+            }
+        else {
+            if dollar
+                currentBlock.isMacro = true;
+            else currentBlock.item = text;
+            }
+		}
+doneAttribute:
+    field.value	= currentBlock;
+;
+
+Body
+.
+String      codeBegin,
+            codeEnd,
+            suffixStart;
+PLGitem     code,
+            suffix;
+    /***************************************************************************
+        If there are prefix parts (comments or cdata), they get appended to body.
+        If there is a suffix (any random text), it too gets appended to body.
+        Code gets parsed and executed and does not exist as far as xml concerned.
+    ***************************************************************************/
+    for prefix
+        {
+        PLGitem part = prefix["part"];
+        body += part;
+        }
+    if !ancestor && body.length
+        {
+        //cout "Body:"body:;
+        codeBegin   = body.itemStart;
+        /***************************************************************************
+            Setup run the first time thru
+        ***************************************************************************/
+        if !tawkParser
+            {
+            tawkParser      = new;
+            externalFind    = getGroupInstance;
+            externalENV     = p;
+            tawkParser.initializeKeyWords();
+            tawkParser.setRules();
+            tawkParser.initialize();
+            setOperators();
+            setComparisons();
+            initializeJIT();
+            }
+        if !noLineByLine && (codeEnd = parseStatements(codeBegin))
+            {
+            code = new(codeBegin,(int)(codeEnd - codeBegin));
+            //cout `"Body code:":code:;
+            if codeEnd < plgStart  suffixStart = codeEnd;
+            }
+        else suffixStart = codeBegin;
+       }
+    if suffixStart && suffixStart < plgStart
+        {
+        suffix = new(suffixStart,(int)(plgStart - suffixStart));
+        body += suffix;
+        //cout `"Body suffix",suffix:;
+        }
+;
+
+BodyParts
+.
+    if currentBlock currentBlock.cdata = true;
+;
+
+EndTag
+GroupItem	listTag;
+    //cout `"Processing end tag: "; if field cout field:; else cout :;
+	currentBlock = ancestor;
+    if field
+        while currentBlock
+            && (currentBlock.isSingleton || currentBlock.tag ne field)
+            currentBlock = currentBlock.parent;
+	if !currentBlock
+		{
+        if field
+            {
+            listTag			= new(field);
+            field.isEndTag	= true;
+            }
+        else listTag = new;
+		listTag.parser	= iTEM.testParser;
+		listTag.noTag	= true;
+        listTag.isSingleton = true;
+        if !ancestor
+            {
+            if !deferMaps
+                && (!outerBlock || !outerBlock.isShell || outerBlock.isClosed)
+                makeShell();
+            if outerBlock && !outerBlock.isClosed && !outerBlock.isSingleton
+                currentBlock = outerBlock;
+            else currentBlock = listTag;
+            }
+		}
+	if listTag
+		{
+		if ancestor
+            {
+            if ancestor.members
+                ancestor += listTag;
+            or field
+                {
+                PLGitem item    = ancestor.item;
+                field.isEndTag  = true;
+                if item item += field;
+                else ancestor.item = field;
+                }
+            currentBlock = ancestor;
+            }
+		or listTag != currentBlock
+			currentBlock += listTag;
+		endTags += listTag;
+		}
+	or !currentBlock.isShell
+		{
+		//cout "Processing end tag for: " currentBlock.tag "\n";
+		while ancestor != currentBlock
+			{
+			ancestor.isClosed = true;
+			ancestor = ancestor.parent;
+			}
+		currentBlock.isClosed = true;
+		ancestor = currentBlock.parent;
+		openTags--;
+		}
+    /*************************************************************************
+        Check for method registry blocks
+    *************************************************************************/
+    if currentBlock.registry && currentBlock.registry.hasMethods
+        {
+        GroupItem   jitter = currentBlock["jit"];
+        if jitter
+            {
+            // To make sure of parentage
+            jitter.parent = currentBlock;
+            if jitter && currentBlock.members && !currentBlock.method
+                jitter.jIT();
+            }
+        }
+.
+GroupItem   group = ancestor;
+    if field
+        while group && field ne group.tag
+            { group = group.parent; }
+    /*************************************************************************
+        is isTarget is set then this block is a path command
+    *************************************************************************/
+    if group && group.isTarget processPath(group);
+;
+
+MacroPart
+.
+GroupItem   group;
+String      name;
+    name = text.string();
+    group = block.find(name);
+    if !group group = locate(name);
+    text.unString();
+    if group text.setString(group.text);
+;
+
+Macro
+.
+PLGitem text;
+    scratch.setMark();
+    for macro
+        {
+        text    = macro["text"];
+        print(scratch) text;
+        }
+    block.text = scratch.getMarkedString();
+;
+
+Modifier
+int	i = -0xefffffff;
+GroupItem	attribute;
+PLGitem     item;
+    if modifier
+        switch (*modifier.start)
+            {
+            case '!':
+                attribute	= currentBlock["min"] = -1;
+                attribute.noPrint = true;
+                currentBlock.bang = true;
+                currentBlock.hasMinimum = true;
+                currentBlock.noMerge = true;
+                break;
+            case '?':
+                attribute	= currentBlock["min"] = 0;
+                attribute.noPrint = true;
+                currentBlock.question  = true;
+                currentBlock.hasMinimum = true;
+                attribute	= currentBlock["max"] = 1;
+                attribute.noPrint = true;
+                currentBlock.hasMaximum = true;
+                break;
+            case '+':
+                attribute	= currentBlock["min"] = 1;
+                attribute.noPrint = true;
+                currentBlock.plus  = true;
+                currentBlock.hasMinimum = true;
+                attribute	= currentBlock["max"] = i;
+                attribute.noPrint = true;
+                currentBlock.hasMaximum = true;
+                break;
+            case '*':
+                attribute	= currentBlock["min"] = 0;
+                attribute.noPrint = true;
+                currentBlock.plus  = true;
+                currentBlock.hasMinimum = true;
+                attribute	= currentBlock["max"] = i;
+                attribute.noPrint = true;
+                currentBlock.hasMaximum = true;
+             }
+    if limit
+        {
+        item        = limit["minimum"];
+        attribute   = currentBlock["min"] = item.amount;
+        attribute.noPrint = true;
+        currentBlock.hasMinimum = true;
+        if item = limit["maximum"]
+            {
+			attribute	= currentBlock["max"] = item.amount;
+            attribute.noPrint = true;
+            currentBlock.hasMaximum = true;
+            }
+        }
+	if alternate currentBlock.isAlternate = true;
+.
+    if !modifier && !limit && !alternate
+        return false;
+;
+
+Number
+.
+    if part
+        {
+        number.length += part.length;
+        number.floating = true;
+        }
+    number.amount = atof(number.string());
+    number.unString();
+;
+
+Part
+.
+GroupItem   group;
+    //cout "Part head:",head:;
+    if body.length
+        {
+        //cout `"Part body:",body:;
+        if trimEnd(body)
+            {
+            group			= new("boDY");
+            group.parser	= iTEM.testParser;
+            group.item		= body;
+            group.noTag		= true;
+            isComment       = true;
+            isClosed		= true;
+            if !ignoreComments
+                if ancestor ancestor.add(group);
+                or !deferMaps
+                    {
+                    if !outerBlock || !outerBlock.isShell
+                        makeShell();
+                    outerBlock += group;
+                    }
+            }
+        }
+    head.runDeferred();
+;
+
+Path
+.
+    if up up.runDeferred();
+    if up["slash"]
+        for path
+            {
+            path.runDeferred();
+            if path["slash"] continue;
+            or path.next
+                {
+                cerr "Invalid path: expected a /":;
+                block = null;
+                break;
+                }
+            }
+    or path
+        {
+        cerr "Invalid path: expected a /":;
+        block = null;
+        }
+;
+
+PathItem
+String  name = text.string();
+    if block block = block/name;
+    text.unString();
+;
+
+SetTagFlag
+.
+	firstTag = true;
+;
+
+StartTag
+GroupItem	item,block;
+	/*************************************************************************
+		Block gets created whether regular block or command block
+	*************************************************************************/
+    if command
+        {
+        commanding    = true;
+        }
+    block		 = processTag(attributes);
+    if currentRegistry && !(block.isRegex && !block.gText) && !registry
+        && (currentRegistry.loadComponents || !ancestor)
+        currentRegistry += block;
+    if !ancestor && !command && !deferMaps
+        if !outerBlock outerBlock = block;
+        else {
+            if !outerBlock.isShell
+                makeShell();
+            outerBlock += block;
+            }
+
+	/*************************************************************************
+		Process commands
+	*************************************************************************/
+    if command
+        if command.start == ':'
+            {
+            if item = block["groupBy"]
+                block.groupBy(item);
+            or item = block["filterBy"]
+                filterBy(block);
+            or item = block["makeGroup"]
+                item = parseString(item.text,"GroupAction");
+            else  block.isTarget = true;
+            block.noMerge = true;
+            /*****************************************************************
+                Setting isTarget above marks block as a group defined by a path
+                or paths to be processed by the EndTag rule
+            *****************************************************************/
+            }
+        else block.cdata = true;
+	/*************************************************************************
+		Set block status wrt being open or closed
+	*************************************************************************/
+    if !singleton
+        {
+        // Cannot add members to registered block unless it in the current registry
+        if block.registry && block.registry != currentRegistry
+            {
+            block               = new(block);
+            block.registry      = null;
+            block.isSingleton   = false;
+            block.isAttribute   = false;
+            }
+        isClosed    = false;
+        openTags++;
+        }
+    if ancestor     block = ancestor.add(block);
+    if singleton
+        {
+        switch(*singleton.start)
+            {
+            case ')':
+                if block.parent
+                    {
+                    item = block.parent;
+                    while item
+                        if !item.isClosed
+                            {
+                            item.isClosed = true;
+                            ancestor    = item.parent;
+                            item        = null;
+                            }
+                        else item = item.parent;
+                    }
+            case '/':
+                isClosed    = true;
+                isSingleton = !members;
+                break;
+            case ';':
+                item = block;
+                while item
+                    {
+                    item.isClosed = true;
+                    if !item.members item.isSingleton = true;
+                    or !item.parent && item.isTarget processPath(item);
+                    item = item.parent;
+                    }
+                 ancestor = null;
+            }
+        }
+    if !isClosed    ancestor = block;
+    currentBlock    = block;
+;
+
+StartXML
+.
+GroupItem	epilogBlock;
+    if epilog && notSpace.foundIn(epilog) && trimEnd(epilog)
+		if ancestor && !ancestor.members && !ancestor.value
+			ancestor.item = epilog;
+		else {
+			epilogBlock = new("epilog");
+			epilogBlock.parser = iTEM.testParser;
+			epilogBlock.item = epilog;
+			epilogBlock.noTag = true;
+			if !deferMaps
+				if !outerBlock
+					outerBlock = epilogBlock;
+				else {
+					if outerBlock.isClosed && !outerBlock.isShell
+						makeShell();
+					if ancestor ancestor += epilogBlock;
+					or !outerBlock.isSingleton && !outerBlock.isClosed
+						outerBlock += epilogBlock;
+					else outerBlock = null;
+					}
+			}
+	//cout "Total blocks: " groupList.length:;
+	if endTags && endTags.length
+		{
+        GroupItem block;
+		cout "End tags pending\n";
+		while block = endTags.next()
+			cout `block.tag:;
+		}
+;
+
+StopHere
+.
+    debug = false;
+;
+
+Tag
+	tag.runDeferred();
+|
+    tag.runDeferred();
+;
+
+Up
+    if block block = block.parent;
+    for more
+        if block block = block.parent;
+;

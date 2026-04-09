@@ -1,0 +1,124 @@
+register(Grokking);
+define
+    /*********************************************************************F******
+        The Grokking registry contains incant grammar. The following are
+        forward rule references.
+    ***************************************************************************/
+    AttributeS;
+    DrawOP;                     // This is defined in drawing grammar extensions
+    ExpressioN;
+    SemI=';';
+    BrancH guard=["bcr"] Keywords ExpressioN? SemI-;
+    ElsE;
+    EquaL='=';
+    FormaT;
+    formatting condition;
+    IF;
+    label noPrint virtual;
+    listOK-=processFlags parseAction;
+    notEndSet=["a-zA-Z0-9"];
+    Point;                      // This is defined in drawing grammar extensions
+    StatemenT guard=["{A-Za-z0-9+-;("];
+    TheN;
+    xpPart;
+
+    /***************************************************************************
+        incant rules
+    ***************************************************************************/
+    ANYtoken:
+        NumbeR;
+        ShortcuT;
+        QuotE;
+        NamE;;
+    BlocK                       '{'- statements=StatemenT+ '}'-;
+    DO                          do- BLOCKing StatemenT while- ExpressioN SemI-;
+    DotXP='.'                   GrouP@;
+    Rule=NamE;
+    Arguments                   brace=["[{("] ExpressioN? endBrace=[")}]"]-;
+    ExpressPart:
+        StringXP                string- listOK ExpressioN;
+        ScopeXP                 scope- listOK ExpressioN;
+        ExpressOP=Operators;
+        Expresses               ANYtoken DotXP? Arguments? FormaT?;;
+    ExpressioN                  xpPart=ExpressPart+;
+    Precision='.'               precision=counter*;
+    FormaT='%'                  flags=["-# 0+'"]* formatWIDTH?=NumbeR Precision? formatTYPE=["a-zA-Z"] tokenize;
+    /***************************************************************************
+        Format flags are
+            #       forces a decimal
+            blank   leave a space before a positive number
+            -       left align (right align is default)
+            +       put + or - in front of number
+            '       show number in thousands (may not work w/o using setlocale(3)
+    ***************************************************************************/
+    Looper=NamE;
+    LoopOn                      IN- ExpressioN SemI-?;
+    LoopRestrict:
+        loopOnAttributes="attributes";
+        loopOnMembers="members";;
+    FOR                         for- Looper LoopOn? LoopRestrict? BLOCKing StatemenT;
+    ElsE                        else- BLOCKing StatemenT@:
+        ElseIf                  or- ExpressioN SemI-? BLOCKing StatemenT ElsE? ruleMethod=aCTionIF;
+        SemI-;;
+    IF                          if- ExpressioN SemI-? BLOCKing StatemenT ElsE?;
+    PrinT                       print- listOK ExpressioN SemI-;
+    UntiL                       until- ExpressioN SemI-? BLOCKing StatemenT;
+    WhilE                       while- ExpressioN SemI-? BLOCKing StatemenT;
+    Search                      search- searchEntries?=NamE+ SemI-;
+    DEF="define"                definitions=DefinE+ SemI-;
+    /***************************************************************************
+        JSON rules invoked as JSONlist("json file name");
+    ***************************************************************************/
+    JSONarray;
+    JSONlist;
+    JSONvalue:
+        JSONlist;
+        JSONarray;
+        ANYtoken;;          // ANYtoken includes string number true false null
+    JSONfield               field=QuotE ':'- value=JSONvalue ','?-; { setTag(field); field = value; }
+    JSONarray               '['- values=JSONvalue+ ']'-;
+    JSONlist                '{'- fields@=JSONfield* '}'-;
+
+    WardeD:
+        BlocK;
+        DEF;
+        DO;
+        PrinT;
+        IF;
+        FOR;
+        UntiL;
+        WhilE;;
+    /***************************************************************************
+        Start is the incant entry point.
+    ***************************************************************************/
+    StatemenT:
+        WardeD;
+        BrancH;
+        Search;
+        Xpress                  ExpressioN@ SemI-;
+        SemI;
+        Failed;;
+    Start=StatemenT+;
+
+    // The following has to happen after the rules that refer to it (want the action to run when the rule runs, not when the rule is being defined (otherwise the DefinE rule says hey this here noPrint rule attribute has an immediateAction, lets fire it before the rule even exists ... good plan). The lonely ; at the end of this file ends definitions
+;
+register(cOMMANDs);
+Start();
+define
+    // debugOn is defined here and not in setup because ANYtoken is not defined until after setup is processed
+    debugOn target?=Rule+ immediateAction isRule;
+    notHere;
+    ;
+/*******************************************************************************
+	In the type registry count values are type size in bytes (sizeof);
+*******************************************************************************/
+search reset Grokking list;
+register(tYPEs);
+define
+    pOINT=16 x=8.0 y=8.0 type, toString argument; {
+        scope argument x y;
+        strung = string ,"point x=" x " y=" y; };
+    fRAME=32 x=8.0 y=8.0 width=8.0 height=8.0 type, toString argument; {
+        scope argument width height x y;
+        strung = string ,"frame (width=" width " height=" height " x=" x " y=" y ")"; };
+    ;

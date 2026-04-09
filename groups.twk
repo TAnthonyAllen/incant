@@ -1,0 +1,33 @@
+include /Users/anthony/Dropbox/data/InProcess/Groups/groupIncludes
+
+/*******************************************************************************
+	This is a dummy class that is only here to contain the main entry point
+    Probably should move main into GroupMain (duh)
+*******************************************************************************/
+class groups
+{
+int	dummy;
+
+void run()
+{
+	return;
+}
+}
+
+/*******************************************************************************
+	main
+*******************************************************************************/
+int main(int argc, String **argv)
+{
+GroupMain	crap = new;
+String      name = argv[1];
+GroupRules  ruler = groupRules;
+    if name
+        {
+        GroupItem       boot = bootstrapper();
+        atRuleMark      = getStringFromFile(name);
+        ruleInputStart  = atRuleMark;
+        boot.parse(0);
+        }
+}
+

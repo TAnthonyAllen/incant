@@ -1,0 +1,137 @@
+include /Users/anthony/Dropbox/data/InProcess/Groups/groupIncludes
+
+/*******************************************************************************
+	A class that contains a double link item
+    globalLinkTape          = new("globalLinkTape",50000,sizeof(GroupLink));
+*******************************************************************************/
+class GroupLink
+{
+String          key;
+int             linkHash,
+                linkOrder;
+GroupItem       value;
+GroupBody       list;
+GroupLink       next,
+                before;
+static Tape     globalLinkTape;
+
+GroupLink(GroupItem grup)
+{
+    key         = grup.tag;
+    value       = grup;
+    list        = groupBody;
+}
+
+/*****************************************************************************
+	Append a new link to this one
+*****************************************************************************/
+void append(GroupLink link)
+{
+GroupLink save	= next;
+	next		= link;
+	next.before	= this;
+	next.next	= save;
+	next.list	= list;
+	if save
+		save.before	= link;
+	if list
+        {
+        link.linkOrder  = ++listLength;
+		if !save last   = link;
+        }
+}
+
+/*****************************************************************************
+    Create a new link for the group passed in and append it to this one
+*****************************************************************************/
+GroupLink append(GroupItem grup)
+{
+GroupLink link = list ? getLink(grup) : new(grup);
+    append(link);
+    return link;
+}
+
+/***************************************************************************
+	Print out debug info for the group passed in.
+***************************************************************************/
+void debugLink()
+{
+String parentText;
+String tagText;
+use groupBody
+    if parent parentText    = "parent: " parent.tag " " parent.index; else parentText = "no parent";
+    if data tagText         = tag "=" wrap(wrapValue()); else tagText = tag " no data";
+    tagText = alignLeft(tagText,20);
+    parentText = alignLeft(parentText,23);
+    cout `tagText,index#4d,parentText;
+    if before cout ,"before:",before.value;
+    if next   cout ,"next:",next.value;
+    cout :;
+    delete parentText;
+    delete tagText;
+}
+
+/*****************************************************************************
+    Extract this link from the chain it is in. It leaves list current entry
+    pointing to the entry that preceeds this extracted link so that you can
+    next thru the list extracting or removing as you go.
+*****************************************************************************/
+void extract()
+{
+    if entry = before
+        before.next = next;
+    else first      = next;
+    if next
+        next.before = before;
+    else last       = before;
+    if list
+        {
+        listLength--;
+        if !listLength
+            first   =
+            entry   =
+            last    = null;
+        list = null;
+        }
+}
+
+/*****************************************************************************
+	Insert the link passed in before this one.
+*****************************************************************************/
+void prepend(GroupLink toBeInserted)
+{
+GroupLink save  = before;
+	toBeInserted.before	= save;
+	toBeInserted.next	= this;
+    before              = toBeInserted;
+	if save
+		save.next	    = toBeInserted;
+	if list
+		{
+        toBeInserted.list = list;
+        toBeInserted.linkOrder = ++listLength;
+		if !save list.first = toBeInserted;
+		}
+}
+
+/*****************************************************************************
+    Create a new link and insert it before this one. This does not change
+    the current item on the parent list of this item.
+*****************************************************************************/
+GroupLink prepend(GroupItem grup)
+{
+GroupLink  newEntry = list ? getLink(grup) : new(grup);
+    prepend(newEntry);
+    return newEntry;
+}
+
+/*****************************************************************************
+	Remove this link from the chain it is in and return to the reuse list
+*****************************************************************************/
+void remove()
+{
+	extract();
+    globalLinkTape.free(this);
+}
+}
+

@@ -1,0 +1,224 @@
+#include /Users/anthony/data/Tawk/Groups/XML/date.xml;
+#registry tEMPLATEs;
+<mint list heading delimiter=, endRecord='\n'>
+    <Date=date mdy/>
+    <Description=store/>
+    <Amount/>
+	<'Transaction Type'=type/>
+	<Category=category/>
+	<'Account Name'=account/></mint>
+#registry store data value grouped;
+#registry category data value grouped;
+<Income/>
+<"Interest Income"/>
+<Investments/>
+<Financial/>
+<Paycheck/>
+<"Account transfer"/>
+<Transfer/>
+<"Transfer for Cash Spending"/>
+<Check/>
+<"Credit Card Payment"/>
+<"Cash & ATM"/>
+<"Finance Charge"/>
+<"Late Fee"/>
+<"Bank Fee"/>
+<"Auto Insurance"/>
+<"Home Insurance"/>
+<"Life Insurance"/>
+<"Mortgage & Rent"/>
+<"Home Services"/>
+<"Home Supplies"/>
+<"Home Improvement"/>
+<Furnishings/>
+<"Lawn & Garden"/>
+<Utilities/>
+<"Bills & Utilities"/>
+<"Home Phone"/>
+<"Mobile Phone"/>
+<Internet/>
+<"Auto Payment"/>
+<"Auto & Transport"/>
+<"Auto fees"/>
+<"Gas & Fuel"/>
+<"Rental Car & Taxi"/>
+<Parking/>
+<Groceries/>
+<Shopping/>
+<Clothing/>
+<Toys/>
+<Art/>
+<"Electronics & Software"/>
+<"Office Supplies"/>
+<"Sporting Goods"/>
+<Shipping/>
+<Entertainment/>
+<Arts/>
+<Music/>
+<Books/>
+<"Kids Books"/>
+<"Newspapers & Magazines"/>
+<"Movies & DVDs"/>
+<Hobbies/>
+<Television/>
+<Sports/>
+<"Alcohol & Bars"/>
+<Restaurants/>
+<"Food & Dining"/>
+<"Coffee Shops"/>
+<"Fast Food"/>
+<Doctor/>
+<Dentist/>
+<Pharmacy/>
+<Eyecare/>
+<"Health & Fitness"/>
+<"Spa & Massage"/>
+<"Personal Care"/>
+<Hair/>
+<Legal/>
+<"Service & Parts"/>
+<"Service Fee"/>
+<Vacation/>
+<Travel/>
+<"Air Travel"/>
+<Hotel/>
+<Laundry/>
+<Taxes/>
+<"State Tax"/>
+<"Federal Tax"/>
+<"Property Tax"/>
+<"Trade Commissions"/>
+<Gift/>
+<Charity/>
+<Uncategorized/>
+<Buy/>
+<Advertising/>
+<Finance>
+    <Income/>
+    <"Interest Income"/>
+    <Investments/>
+    <Financial/>
+    <Paycheck/>
+    <"Account transfer"/>
+    <Transfer/>
+    <"Transfer for Cash Spending"/>
+    <Check/>
+    <"Credit Card Payment"/>
+    <"Cash & ATM"/>
+    <"Finance Charge"/>
+    <"Late Fee"/>
+    <"Bank Fee"/></Finance>
+<Insurance>
+    <"Life Insurance"/>
+    <"Auto Insurance"/>
+    <"Home Insurance"/></Insurance>
+<Utility>
+    <Utilities/>
+    <"Bills & Utilities"/>
+    <"Home Phone"/>
+    <"Mobile Phone"/>
+    <Internet/></Utility>
+<Housing>
+    <"Mortgage & Rent"/>
+    <"Home Services"/>
+    <"Home Supplies"/>
+    <"Home Improvement"/>
+    <Furnishings/>
+    <"Lawn & Garden"/>
+    <Utility/></Housing>
+<Transportation>
+    <"Auto Payment"/>
+    <"Auto & Transport"/>
+    <"Auto fees"/>
+    <"Gas & Fuel"/>
+    <"Rental Car & Taxi"/>
+    <Parking/></Transportation>
+<Stuff>
+    <Shopping/>
+    <Clothing/>
+    <Toys/>
+    <Art/>
+    <"Electronics & Software"/>
+    <"Office Supplies"/>
+    <"Sporting Goods"/></Stuff>
+<Consumption>
+    <Groceries/>
+    <Stuff/>
+    <Shipping/></Consumption>
+<"Going Out">
+    <"Alcohol & Bars"/>
+    <Restaurants/>
+    <"Food & Dining"/>
+    <"Coffee Shops"/>
+    <"Fast Food"/></"Going Out">
+<Diversions>
+    <Entertainment/>
+    <Arts/>
+    <Music/>
+    <Books/>
+    <"Kids Books"/>
+    <"Newspapers & Magazines"/>
+    <"Movies & DVDs"/>
+    <Hobbies/>
+    <Television/>
+    <Sports/>
+    <"Going Out"/></Diversions>
+<"Other Health">
+    <"Health & Fitness"/>
+    <"Spa & Massage"/>
+    <"Personal Care"/>
+    <Hair/></"Other Health">
+<Health>
+    <Doctor/>
+    <Dentist/>
+    <Pharmacy/>
+    <Eyecare/>
+    <"Other Health"/></Health>
+<Services>
+    <Legal/>
+    <"Service & Parts"/>
+    <"Service Fee"/></Services>
+<Traveling>
+    <Vacation/>
+    <Travel/>
+    <"Air Travel"/>
+    <Hotel/>
+    <Laundry/></Traveling>
+<Taxing>
+    <Taxes/>
+    <"State Tax"/>
+    <"Federal Tax"/>
+    <"Property Tax"/>
+    <"Trade Commissions"/></Taxing>
+<Giving>
+    <Gift/>
+    <Charity/></Giving>
+<"Odds & Ends">
+    <Uncategorized/>
+    <Buy/>
+    <Advertising/></"Odds & Ends">
+<Accounts>
+    <Finance/>
+    <Insurance/>
+    <Housing/>
+    <Transportation/>
+    <Consumption/>
+    <Diversions/>
+    <Health/>
+    <Services/>
+    <Traveling/>
+    <Taxing/>
+    <Giving/>
+    <"Odds & Ends"/></Accounts>
+<Basics>
+    <Housing/>
+    <Transportation/></Basics>
+#registry account data value grouped;
+#registry finances;
+    If templates is not on the registry search list, the mint attribute of transactions does not get merged with the templates version of mint that defines what you want to load from transactions
+#search finances;
+<transactions mint file="/Volumes/IOmega/mintAccounts"/>
+#;
+#load transactions;
+
+We need a way to define a group that is a residual. Do we do it with a group construction grammer? Paths? Problem is the path specification is too damn complex.

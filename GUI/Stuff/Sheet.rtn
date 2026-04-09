@@ -1,0 +1,1520 @@
+
+/*******************************************************************************
+    Add a new group to the current source if there is one - unused Action
+*******************************************************************************/
+void addToSOURCE(GroupItem item)
+{
+Details     detail  = item.getDetail();
+GroupItem   group   = item.findAttribute("sRCe");
+Source      source;
+    if group
+        if source = group.pointer
+            {
+            sourceItem += new("New");
+            source.reset();
+            updateListeners();
+            }
+    setModified();
+    laidout = false;
+}
+
+/*******************************************************************************
+    Delete the selected group from the current source - unused Action
+*******************************************************************************/
+void deleteFromSOURCE(GroupItem item)
+{
+Details     detail  = item.getDetail();
+GroupItem   group   = item.findAttribute("sRCe");
+Source      source;
+    if group
+        if source = group.pointer
+            if selection && selection.group
+                {
+                sourceItem -= selection.group;
+                source.reset();
+                updateListeners();
+                setModified();
+                laidout = false;
+                }
+            else cerr "deleteFromSOURCE: delete failed":;
+}
+
+/*******************************************************************************
+	Adjust the height of the item passed in following a collapse, based on the
+    height of its components, which also get adjusted.
+*******************************************************************************/
+int adjustHeight(GroupItem item,double rowHeight)
+{
+GroupItem   block,
+            fit,
+            group;
+Details     detail = item.other;
+double      amount, tallest;
+char        way;
+int         fitDown;
+    fit = item["fit"];
+    if fit && fit.gText way = *fit.gText;
+    fitDown = way == 'b' || way == 'h' || way == 'd' || (!way && down);
+    if down
+        while item.nextMember(group)
+            {
+            if group.hasMembers amount += group.adjustHeight(rowHeight);
+            or block = group["height"]
+                amount += block.number;
+            }
+    else {
+        while item.nextMember(group)
+            if group.hasMembers
+                {
+                amount = group.adjustHeight(rowHeight);
+                if amount > tallest tallest = amount;
+                }
+        if !tallest tallest = rowHeight;
+        while item.nextMember(group)
+            {
+            if group.hasMembers continue;
+            if block = group["height"]
+                block.number = tallest;
+            }
+        amount = tallest;
+        }
+    block = item["height"];
+    if !fitDown && block block.number = amount;
+    return amount;
+}
+
+/*******************************************************************************
+	Build a bigify layout block.
+*******************************************************************************/
+void bigify(GroupItem item)
+{
+int         bigColumns,
+            bigRows,
+            buildColumns,
+            columns,
+            columnsLeft,
+            counter,
+            offset      = 1,
+            rows,
+            rowsLeft,
+            sourceCounter;
+Source      source;
+GroupRegistry   properties = getRegistry("pROPERTIEs");
+GroupItem   bIList,
+            bigItem,
+            group,
+            rowWrapper,
+            smallTemplate,
+            bigTemplate,
+            wrap;
+String      error;
+
+    if !item || !item.parent
+        error = "passed in a null block";
+    else item = item.parent;
+    if !properties
+        error = "could not find property registry";
+    if error goto bailOnError;
+    /*************************************************************************
+        Get dimensions, source, and big item if it exists
+        Get the cell templates first time thru and stash in the sRCe attribute
+    *************************************************************************/
+    if group = item%"rows"      rows = group.count;
+    if group = item%"columns"   columns = group.count;
+    if group = item%"bigRows"   bigRows = group.count;
+    if group = item%"bigColumns" bigColumns = group.count;
+    if group = item%"sRCe"
+        {
+        source = group.pointer;
+        bigTemplate = group.nextMember(smallTemplate);
+        group.nextMember(bigTemplate);
+        }
+    else {
+        bigTemplate = item.nextMember(smallTemplate);
+        item.nextMember(bigTemplate);
+        group = item%"source";
+        sOURCE(group);
+        group.parent %-= group;
+        if group = item%"sRCe"
+            source = group.pointer;
+        group += smallTemplate;
+        group += bigTemplate;
+        item.scrollableSource = true;
+        item["pAGElength"] = 1 + rows * columns - bigRows * bigColumns;
+        }
+    bIList = item%"bIList";
+    if !bIList
+        bIList = item += "bIList";
+    if !rows || !columns || !bigRows || !bigColumns
+        error = "missing dimension";
+    if bigRows > rows
+        error = "bigRows must be <= rows";
+    if bigColumns > columns
+        error = "bigColumns must be <= columns";
+    if !source
+        error = "cannot find source";
+
+    /*************************************************************************
+        Check for cell templates and clear item members
+    *************************************************************************/
+    if !smallTemplate || !bigTemplate
+        error = "missing cell templates that should be members of " item.tag;
+    if error goto bailOnError;
+    item.clearMembers();
+
+    /*************************************************************************
+        Loop thru rows that appear before the row containing the big item
+    *************************************************************************/
+    //cout "bigify: checking rows before big item":;
+    rowsLeft = rows - bigRows;
+    bIList.offset   =
+    offset          = item.count ? item.count : 1;
+    while offset > columns && rowsLeft
+        {
+        offset      -= columns;
+        group       = bIList.getStashedItem("row");
+        group.buildBigifyRow(bIList,smallTemplate,source,columns,sourceCounter);
+        item        += group;
+        rowsLeft--;
+        }
+    /*************************************************************************
+        Deal with the row containing the big item. The row becomes a wrapper
+        with up to 3 columns: a columns to the left of the big item; a column
+        composed of the big item; and a column of anything after the big item.
+        The non big item columns contain as many rows as the depth of bigItem
+        (which is expressed in rows as bigRows).
+        
+        First create row wrapper, then deal with anything left of big item.
+    *************************************************************************/
+    //cout "bigify: dealing w/big item row":;
+    columnsLeft = columns - bigColumns;
+    rowWrapper  = bIList.getStashedItem("bigItemRow");
+    item        += rowWrapper;
+    group       = properties/"across";
+    rowWrapper  += group;
+    group       = rowWrapper += "height";
+    group.number = 100.0 * bigRows / rows;
+    group.isPercent = true;
+    if buildColumns = offset - 1
+        {
+        if columnsLeft < buildColumns buildColumns = columnsLeft;
+        wrap    = bIList.getStashedItem("leftColumn");
+        rowWrapper  += wrap;
+        counter = bigRows;
+        while counter--
+            {
+            group   = bIList.getStashedItem("row");
+            group.buildBigifyRow(bIList,smallTemplate,source,buildColumns,sourceCounter);
+            wrap    += group;
+            }
+        }
+    /*************************************************************************
+        Add big item to rowWrapper row
+    *************************************************************************/
+    //cout "bigify: adding big item":;
+    if group = source.get(bIList.offset)
+        {
+        bigItem       = bIList.getStashedItem("cell");
+        bigItem.count = bIList.offset;
+        bigItem.merge(bigTemplate);
+        bigItem.merge(group);
+        bigItem.tag = group.tag;
+        wrap        = bigItem += "width";
+        wrap.number = 100.0 * bigColumns / columns;
+        wrap.isPercent = true;
+        rowWrapper += bigItem;
+        }
+    /*************************************************************************
+        Deal with anything to the right of big item on rowWrapper row
+    *************************************************************************/
+    //cout "bigify: dealing w/stuff to right of big item":;
+    if columnsLeft > buildColumns
+        {
+        buildColumns = columnsLeft - buildColumns;
+        wrap    = bIList.getStashedItem("rightColumn");
+        rowWrapper  += wrap;
+        counter = bigRows;
+        while counter--
+            {
+            group   = bIList.getStashedItem("row");
+            group.buildBigifyRow(bIList,smallTemplate,source,buildColumns,sourceCounter);
+            wrap    += group;
+            }
+        wrap.isClosed = true;
+        }
+    rowWrapper.isClosed = true;
+
+    //cout "bigify: dealing w/remaining rows on bottom, if any":;
+    while rowsLeft-- > 0
+        {
+        group   = bIList.getStashedItem("endRow");
+        group.buildBigifyRow(bIList,smallTemplate,source,columns,sourceCounter);
+        item    += group;
+        }
+    bIList.noPrint  = true;
+    bIList.group    = null;
+    item.noPrint    = false;
+    return;
+bailOnError:
+    cerr "ERROR bigify: " error:;
+}
+
+/*****************************************************************************
+    Build a row in the bigify layout (this gets called repeatedly in the
+    bigify method. Tried it as a lambda. Collosal fail.
+*****************************************************************************/
+void buildBigifyRow(GroupItem grp,GroupItem list,GroupItem st,Source src,int cols,int &sc)
+{
+GroupItem   cellItem,
+            sourceGroup;
+int         i = 1;
+    if cols > 1
+        grp += properties/"across";
+    while i++ <= cols
+        {
+        if ++sc == list.offset { ++sc; }
+        if sourceGroup = src.get(sc)
+            if cols > 1
+                {
+                cellItem = list.getStashedItem("cell");
+                cellItem.count = sc;
+                setAction(cellItem,"makeBIG");
+                cellItem.merge(st);
+                cellItem.merge(sourceGroup);
+                cellItem.tag = sourceGroup.tag;
+                grp += cellItem;
+                }
+            else {
+                grp.count = sc;
+                setAction(grp,"makeBIG");
+                grp.merge(st);
+                grp.merge(sourceGroup);
+                grp.tag = sourceGroup.tag;
+                }
+        else break;
+        }
+}
+
+/*****************************************************************************
+	Build a matrix based on the specs in item attributes. 
+*****************************************************************************/
+void buildMatrix(GroupItem item)
+{
+GroupItem       col,columnHead,colMap,columns,cell,
+                cellMap,source,row,rowMap,rows,stuff;
+String          data;
+GroupRegistry   rowRegistry,saveRegistry;
+use item.parser
+    saveRegistry = currentRegistry;
+    currentRegistry = null;
+    item        = item.parent;
+    source      = item["source"];
+    /*************************************************************************
+        Sanity checks. 
+    *************************************************************************/
+    if !source
+        {
+        cerr "Missing source attribute: " item:;
+        return;
+        }
+    data    = source.text;
+    if !data
+        {
+        cerr "Missing source value: " item:;
+        return;
+        }
+    if source = locate(data)
+        if source["list"] && !source.loaded load(source);
+    //ignoreNoPrint = true; cout "buildMatrix start:" item:;
+    rows            = item/"rows";
+    rows.noPrint    = true;
+    columns         = item/"columns";
+    columns.noPrint = true;
+    if !rows || !columns
+        {
+        cerr "Missing columns or rows: " item:;
+        return;
+        }
+    /*************************************************************************
+        Set the matrix map. 
+    *************************************************************************/
+    combine(item,data);
+    if !item.isMapped
+        {
+        cerr "No content found for " item.tag:;
+        return;
+        }
+    /*************************************************************************
+        Build column headings 
+    *************************************************************************/
+    columns.mergeIfFound("matrixColumnTitle");
+    if stuff = item%rowLabel if cell = columns/rowStub/heading
+        cell.text = stuff.text;
+    columnHead  = columns/xBlock;
+    columnHead  = columnHead/"columnHead";
+    columnHead.mergeAttributes(columns);
+    /*************************************************************************
+        Expand rows and columns if necessary. 
+    *************************************************************************/
+    rowRegistry = expand(rows);
+    while rows.nextMember(row)
+        row.mergeIfFound("matrixRowLabel");
+    expand(columnHead);
+    while columnHead.nextMember(col)
+        {
+        col.mergeIfFound("matrixColumnHead");
+        col.isOption = true;    // used by columnAt to identify expanded columns
+        }
+    /*************************************************************************
+        Build the matrix. 
+    *************************************************************************/
+    stuff = locate("matrixBody");
+    while rows.nextMember(row)
+        {
+        rowMap  = row[data];
+        cell    = row/rowStub;
+        cell    = cell/heading;
+        cell.text = row.tag;
+        while columnHead.nextMember(col)
+            {
+            colMap = col[data];
+            cell = new("rowCell");
+            cell.isOption = true;   // isOtion is used to flag matrix cells
+            cell.merge(stuff);
+            if colMap && rowMap && colMap.hasMembers && rowMap.hasMembers
+                && colMap.hasMembers & rowMap.hasMembers
+                {
+                cell.isMapped   = true;
+                cellMap = cell += data;
+                cellMap.members = new(colMap.members);
+                cellMap.members &= rowMap.members;
+                /*********************************************************
+                    The cellMaps get the row and column attributes 
+                *********************************************************/
+                if colMap.attributes cellMap.attributes = new(colMap.attributes);
+                else cellMap.attributes = new(col.index);
+                if rowMap.attributes cellMap.attributes += rowMap.attributes;
+                else cellMap.attributes += row.index;
+                cellMap.noPrint     = true;
+                cellMap.isMapped    = true;
+                }
+            row += cell;
+            }
+        }
+    currentRegistry = saveRegistry;
+    item.noPrint = false;
+    //cout "buildMatrix at end":`item:;
+}
+
+/*******************************************************************************
+	Collapse a previously expanded column of a matrix
+*******************************************************************************/
+void cOLLAPSEcolumn(GroupItem item)
+{
+Details     wrapDetail,
+            detail      = item.getDetail();
+GroupItem   block,
+            columnHead,
+            group,
+            wrapper;
+int         column,
+            rowHeight;
+    if block = item.findAttribute("rowHeight") rowHeight = block.number;
+    for wrapper = wig on parent
+        if wrapper.tag eq "aA" break;
+    if !wrapper
+        {
+        cerr "Could not find expand block for " wig.tag,wig.text:;
+        return;
+        }
+    /***************************************************************************
+        Adjust column headings
+    ***************************************************************************/
+    for block = item on parent
+        if block.tag eq "columnHead" break;
+    if !block
+        {
+        cerr "ERROR cOLLAPSEcolumn: could not find columnHead\n";
+        return;
+        }
+    columnHead          = block;
+    group               = wrapper%pRIOR;
+    wrapper.attributes  = group.attributes;
+    wrapper.tag         = group.text;
+    wrapper.members     = null;
+    wrapper.isSingleton = true;
+    wrapper.expanded    = false;
+    wrapper.noPrint     = false;
+    wrapDetail          = wrapper.other;
+    wrapDetail.clear();
+    /***************************************************************************
+        Remove expanded entries from body
+    ***************************************************************************/
+    column  = wrapper.columnIndex() + 1;
+    if group = group.findAttribute("matrix")
+        if group = group.parent
+            block = group.get("rows");
+    if block
+        removeBodyColumns(block,column);
+    columnHead.resetHeight(rowHeight);
+    columnHead.adjustHeight(rowHeight);
+}
+
+/*******************************************************************************
+	Returns the item associated with column i of the row passed in.
+*******************************************************************************/
+GroupItem columnAt(GroupItem row,int i)
+{
+GroupItem   group;
+int         count = i;
+    while group = row.walk(group)
+        if !group.members && group.isOption
+            if count == 1 return group;
+            else count--;
+    cerr "Could not find column " i " in " row.tag,row.index:;
+    return null;
+}
+
+/*******************************************************************************
+	Figures out and returns the column index associated with a heading cell
+*******************************************************************************/
+int columnIndex(GroupItem item)
+{
+GroupItem   group = item;
+int         count;
+    while group = priorBlock()
+        if group.members count += group.columnCount();
+        else count++;
+    for group = item.parent on parent
+        if group.tag eq "aA" break;
+    if group count += group.columnIndex();
+    return count + 1;
+}
+
+int columnCount(GroupItem item)
+{
+int         count;
+GroupItem   block,group;
+    while item.nextMember(block)
+        if block.members
+            {
+            count += block.members.bitCount;
+            group = null;
+            while block.nextMember(group)
+                if group.members count += group.columnCount();
+            }
+    return count;
+}
+
+/***************************************************************************
+	Produces a GroupItem map for the matrix passed in with respect to
+    the data set identified by name. The resulting map ands together all the
+    attributes mapped by name. The set of those mapped attributes is taken
+    from the attributes of group members, that is, group members are scanned
+    for attributes mapped to name and any found are anded into the combined
+    map, which becomes an attribute of group with the tag set to the name
+    passed in.
+***************************************************************************/
+void combine(GroupItem group,String name)
+{
+GroupItem   block,
+            item,
+            mapItem,
+            source;
+use group
+    while nextMember(block)
+        while block.nextAttribute(item)
+            {
+            if item[name] goto addToSource;
+            if item.registry && item.registry.grouped
+                {
+                //cout "combine: " tag " with " item.getTagXML():;
+                if mapItem = item.mapContents(name)
+                    {
+addToSource:        if !source
+                        {
+                        source = group.add(name);
+                        source.isMapped = true;
+                        }
+                    source.addAsAttribute(item);
+                    }
+                }
+            }
+    if !source || !source.attributes
+        cerr "Combined map for " tag " is empty\n";
+    else {
+        isMapped = true;
+        source.mapAttributes();
+        //cout `group.getTagXML():source;
+        }
+}
+
+/*******************************************************************************
+	Set item parent value to count of mapped data
+*******************************************************************************/
+void cOUNT(GroupItem item)
+{
+GroupItem   block,
+            map;
+    if map = getMapped(item)
+        {
+        block = map.parent;
+        if map.members block.count = map.members.bitCount;
+        else block.count = 0;
+        }
+}
+
+/***************************************************************************
+	Debugging routine to dump maps
+***************************************************************************/
+void dumpMaps(GroupItem item,String wrt)
+{
+GroupItem   group;
+    if group = item[wrt]
+        cout item.tag,item.index,group.getTagXML(),group.members.bitCount:;
+    group = null;
+    while item.nextMember(group)
+        dumpMaps(group,wrt);
+}
+
+/*****************************************************************************
+	Expand a block based on the attribute named by the expand attribute. If
+    there is no expand attribute, the first registered attribute is used. The
+    expand is constrained to only contain entries that have matching content
+    in the block named in the source (if there is one). The registry used in
+    the expand is returned (used in buildMatrix).
+*****************************************************************************/
+GroupRegistry expand(GroupItem item)
+{
+GroupItem	attribute, map, matrixMap, source, xpander;
+String      field,type;
+use item
+    /*************************************************************************
+        One of the parents of item is supposed to have a source attribute.
+        Here we only want the name (type) of the source.
+    *************************************************************************/
+    if source = item.findAttribute("source")
+        if type = source.text
+            {
+            matrixMap = item.findAttribute(type);
+            if item.isMapped map = item[type];
+            if attribute = item.findAttribute("expand")
+                if (field = attribute.text)
+                    xpander = item[field];
+            if !xpander
+                while item.nextAttribute(xpander)
+                    if xpander.isMapped && !xpander.noPrint break;
+            if !xpander
+                cerr "ERROR expand: cannot set expander\n";
+            }
+        else cerr "ERROR expand: cannot find source\n";
+    /*************************************************************************
+        If item map is not set we need to create it. Note: the members of the
+        map created is constrained by every dimension included in the map.
+    *************************************************************************/
+    if !map
+        {
+        map         = new(type);
+        attribute   = null;
+        while item.nextAttribute(attribute)
+            if attribute.isMapped && attribute[type]
+                map %= attribute;
+        map.mapAttributes();
+        map.isAttribute = true;
+        item.isMapped   = true;
+        item += map;
+        }
+    /*************************************************************************
+        Here map is set to the matrix map.
+    *************************************************************************/
+    if xpander
+        {
+        expand(item,xpander,matrixMap);
+        return xpander.registry;
+        }
+    cerr "ERROR expand: cannot expand " item.getTagXML():;
+    return null;
+}
+
+/*****************************************************************************
+	Expand a block based on the attribute passed in. If the map argument is
+    provided, the expand is constrained to only contain entries that have
+    matching content in the map.
+*****************************************************************************/
+void expand(GroupItem item,GroupItem attribute,GroupItem map)
+{
+GroupItem	block,xpand,record,totals;
+String      type;
+use item
+    //cout "expand: " item.getTagXML():`attribute.getTagXML():`map.getTagXML():;
+    if map type = map.tag;
+    // Flag gets set in expandThisRow (which handles totals)
+    if !fLAG && (totals = item.findAttribute("totals"))
+        if !totals.value
+            {
+            totals = getExpandRecord(attribute,item,type);
+            item += totals;
+            totals = null;
+            }
+     /*************************************************************************
+        If the expand attribute is registered and the registry
+        is mapped, it will have a map attribute named for the
+        mapped set. The map members presumably belong to the mapped set
+        and have an attribute that matches the expand attribute.
+    *************************************************************************/
+    while attribute.nextMember(block)
+        {
+        // block is a child of the expand attribute
+        if type xpand = block[type];
+        // xpand is the map attribute for block
+        if !type || (xpand && map && map.members && xpand.members
+            && map.members & xpand.members)
+            {
+            // dim members may be constrained by other attributes
+            // hence the & above to make sure that the expanded
+            // item has mapped members taking into account all
+            // constraints
+            if record = getExpandRecord(block,item,type)
+                item += record;
+            }
+        }
+    if totals
+        {
+        totals = getExpandRecord(attribute,item,type);
+        item += totals;
+        }
+}
+
+/*******************************************************************************
+	Expand a row or column of a matrix
+*******************************************************************************/
+void eXPAND(GroupItem item)
+{
+GroupItem   xpander,
+            group;
+Details     detail = item.getDetail();
+    /***************************************************************************
+        If an expand menu item selected, turn off the menu. Also, make sure
+        the parent hierarchy for the attribute to expand is correct.
+    ***************************************************************************/
+    if xpander = item["expand"]
+        {
+        group   = xpander.group;
+        if xpander = item%pater
+            group.parent    =
+            xpander         = xpander.group;
+        activeMenu = null;
+        }
+    else xpander = item;
+    activeView = view;
+    /***************************************************************************
+        Figure out if columns or rows are being expanded and deal with it.
+    ***************************************************************************/
+    for group = xpander on parent
+        if tag eq "columns"
+            {
+            if shiftKeyed cOLLAPSEcolumn(item);
+            else eXPANDcolumn(item);
+            detail  = group.other;
+            goto finishExpand;
+            }
+        or tag eq "rows"
+            {
+            if shiftKeyed cOLLAPSErow(item);
+            else eXPANDrow(item);
+            detail  = group.other;
+            goto finishExpand;
+            }
+    cerr "ERROR: eXPAND cannot determine row or column\n";
+    return;
+finishExpand:
+    base.resetHierarchy();
+    laidout = false;
+    wig.setModified();
+    //cout base:;
+}
+
+/*******************************************************************************
+	Expand a column of a matrix
+*******************************************************************************/
+void eXPANDcolumn(GroupItem item)
+{
+Details     detail = item.getDetail();
+GroupItem   xpander;
+use item
+    if item.expanded
+        {
+        cerr "Cannot expand column again. Collapse first":;
+        return;
+        }
+    if xpander = expandWhat(wig)
+        expandThisColumn(xpander);
+    if !isMenu item.expanded = true;
+}
+
+/*******************************************************************************
+	Split column heading into two stacked blocks and return the lower block
+*******************************************************************************/
+GroupItem expandHeading(GroupItem item)
+{
+GroupItem   columns,columnHead,entry,expandedHeading,rowHeight;
+Details     detail;
+use item
+
+    /***************************************************************************
+        Figure out the height of heading columns (not such a simple matter
+        with multiple expands/collapses happening).
+    ***************************************************************************/
+    columns = item;
+    do  {
+        if columns.tag eq "columnHead" break;
+        entry   = columns;
+        columns = columns.parent;
+        }
+    while columns;
+    if !columns
+        {
+        cerr "ERROR expandHeading: could not find columnHead ancestor of " item.tag:;
+        return null;
+        }
+    columnHead  = columns;
+    rowHeight   = columns.findAttribute("rowHeight");
+    if !rowHeight
+        {
+        cerr "ERROR expandHeading: could not find rowHeight in ancestors of " item.tag:;
+        return null;
+        }
+    columnHead.resetHeight(rowHeight.number);
+    /***************************************************************************
+        Convert item passed in to a stack of two blocks
+    ***************************************************************************/
+    columns = item;
+    expandedHeading = new("aB",item.tag);
+    columns = new(item.tag);
+    columns.attributes  = item.attributes;
+    item.attributes = null;
+    item    += expandedHeading;
+    item    += columns;
+    expandedHeading.mergeIfFound("matrixExpandTitle");
+    item.tag = "aA";
+    detail          = item.other;
+    detail.noPrint  = true;
+    detail.draw     = null;
+    detail.fitBoth  = true;
+    item.mergeIfFound("matrixExpandWrapper");
+    item.fLAG   = true;
+    /***************************************************************************
+        Adjust height of column headings as needed.
+    ***************************************************************************/
+    columnHead.adjustHeight(rowHeight.number);
+    return columns;
+}
+
+/*****************************************************************************
+	Returns a group with members from each unique instance: of the
+    attribute specified in the type parameter; from the set of records
+    in source.
+*****************************************************************************/
+GroupItem expandOnTrait(GroupItem source,String type)
+{
+GroupItem	block,
+			trait,
+			group,
+			item;
+String      name;
+use source
+    group   = new(type);
+    trait   = new(source);
+    group   += trait;
+    group.isMapped = true;
+    while source.nextMember(item)
+        if trait = item[type]
+            if name = trait.text
+                {
+                block = group/name;
+                if !block
+                    {
+                    //cout "Adding group " name " to " group.tag :;
+                    block   = new(trait);
+                    block.isAttribute = false;
+                    group += block;
+                    }
+                }
+    return group;
+}
+
+/*****************************************************************************
+	Adds other attributes, taken from the first record in source, to the
+    expand menu passed in.
+*****************************************************************************/
+void expandOther(GroupItem source,GroupItem menu)
+{
+GroupItem	block,
+			group,
+			item,
+            menuItem,
+            target;
+use source
+    if source.nextMember(block)
+        while block.nextAttribute(group)
+            if group.registry && group.registry.grouped
+                {
+                item = null;
+                //cout "Checking for expand: " group.registry.type,group.tag:;
+                while menu.nextMember(item)
+                    if item.registry == group.registry break;
+                if item continue;
+                //cout `"Adding expand attribute: " group.registry.type:;
+                menuItem = new("<expandItem matrixExpandItem/>");
+                target  = expandOnTrait(source,group.registry.type);
+                menuItem["expand"] = target;
+                target.parent = source.parent;
+                menuItem.text = target.tag;
+                menu += menuItem;
+                }
+    //cout menu;
+}
+
+/*******************************************************************************
+	Expand a row of a matrix
+*******************************************************************************/
+void eXPANDrow(GroupItem item)
+{
+Details     detail = item.getDetail();
+GroupItem   xpander;
+use item
+    if item.expanded
+        {
+        cerr "Cannot expand row again. Collapse first":;
+        return;
+        }
+    if xpander = expandWhat(item)
+        expandThisRow(xpander);
+    if !isMenu item.expanded = true;
+}
+
+/*******************************************************************************
+	Expand column based on the attribute passed in.
+*******************************************************************************/
+void expandThisColumn(Group xpander)
+{
+GroupItem   column,columnMap,cellMap,heading,matrix,
+            matrixMap,row,rowMap,rows,totals,group,item;
+String      type;
+int         spot;
+Details     detail;
+    expandLabel = "column";
+    item    = xpander.parent;
+    /***************************************************************************
+        Sanity checks
+    ***************************************************************************/
+    if matrix = item.findAttribute("matrix")
+        matrix = matrix.parent;
+    if !matrix
+        {
+        cerr "ERROR: could not find matrix attribute for " item.tag :;
+        return;
+        }
+    if matrixMap = matrix%"source"
+        if (type = matrixMap.text)
+            matrixMap = matrix[type];
+    rows = matrix/"rows";
+    if !type
+        {
+        cerr "ERROR: could not find source for " item.tag :;
+        return;
+        }
+    if !rows
+        {
+        cerr "ERROR: could not find rows block in " item.tag :;
+        return;
+        }
+    spot    = item.columnIndex();
+    /***************************************************************************
+        Expand the column heading
+    ***************************************************************************/
+    if heading = expandHeading(item)
+        {
+        BitMAP  saveAttributes = heading.attributes;
+        heading.attributes  = null;
+        heading.mergeIfFound("matrixColumnExpand");
+        expand(heading,xpander,matrixMap);
+        heading.addAsAttribute(xpander);
+        /***********************************************************************
+            Save state of column prior to expanding
+        ***********************************************************************/
+        group = heading.parent[pRIOR] = heading.tag;
+        group.attributes = saveAttributes;
+        while heading.nextMember(column)
+            {
+            column.mergeIfFound("matrixExpandColumn");
+            column.isOption = true;
+            }
+        }
+    /***************************************************************************
+        Go through rows and add the expanded cells
+    ***************************************************************************/
+    //ignoreNoPrint = true;
+    totals  = item.findAttribute("totals");
+    expandList.clear();
+    setExpandRowList(rows,row);
+    while row = expandList.next()
+        {
+        rowMap  = row[type];
+        column  = matrix.columnAt(spot);
+        columnMap = column[type];
+        column  = row.columnAt(spot);
+        cellMap = column[type];
+        if totals column += totals;
+        expand(column,xpander,matrixMap);
+        //cout "expandThisColumn Column " column; if columnMap cout `"column map " columnMap.getTagXML():; else cout "no column map":; if rowMap cout `"row map " rowMap.getTagXML():;
+        group = null;
+        /***********************************************************************
+            Set new cell attributes and constrained map of contents
+        ***********************************************************************/
+        while column.nextMember(group)
+            {
+            group.isOption = true;
+            GroupItem   trait;
+            cellMap = group[type];
+            if rowMap
+                {
+                cellMap.attributes += rowMap.attributes;
+                cellMap &= rowMap;
+                }
+            while column.nextAttribute(trait)
+                if !trait.isMapped group += trait;
+            }
+        column.attributes = null;
+        column.text = (String)null;
+        column += "across";
+        column += "fit";
+        if detail = column.other attributed = false;
+        }
+    //cout "expandThiscolumn":`matrix:;
+}
+
+/*******************************************************************************
+	Expand row based on the attribute passed in.
+*******************************************************************************/
+void expandThisRow(Group xpander)
+{
+GroupItem       cell,column,columnHead,columnMap,expandedRow
+                matrix,matrixMap,row,rowMap,group,item;
+String          type;
+int             indentWidth;
+    item    = xpander.parent;
+    /***************************************************************************
+        Sanity checks
+    ***************************************************************************/
+    if matrix = item.findAttribute("matrix")
+        matrix = matrix.parent;
+    if !matrix
+        {
+        cerr "ERROR: could not find matrix attribute for " item.tag :;
+        return;
+        }
+    columnHead = matrix.first("columnHead");
+    if matrixMap = matrix%"source"
+        if (type = matrixMap.text)
+            matrixMap = matrix[type];
+    if !type
+        {
+        cerr "ERROR: could not find source for " item.tag :;
+        return;
+        }
+    /***************************************************************************
+        Embed item in a wrapper and expand
+    ***************************************************************************/
+    expandedRow     = new(item);
+    item.tag        = "wrapper";
+    item.attributes = null;
+    item.members    = null;
+    item.other      = null;
+    item.mergeIfFound("matrixRowWrapper");
+    item += expandedRow;
+    while expandedRow.nextAttribute(cell)
+        if cell != xpander && cell.isMapped item.addAsAttribute(cell);
+    item.fLAG       = true;
+    expand(item,xpander,matrixMap);
+    item.fLAG       = false;
+    /***************************************************************************
+        Figure out the indent for the row label
+    ***************************************************************************/
+    if cell = item.findAttribute("indentIncrement")
+        indentWidth = cell.count;
+    else indentWidth = 10;
+    item.nextMember(row);
+    if group = row/rowStub/"indent"%"width";
+        indentWidth += cell.count;
+    /***************************************************************************
+        Merge in the cell entries for each expanded row
+    ***************************************************************************/
+    while item.nextMember(row)
+        {
+        int i;
+        row.merge(expandedRow);
+        /***********************************************************************
+            Clear out and replace the old indent width that got merged in
+        ***********************************************************************/
+        if group = row/rowStub
+            {
+            if cell = group/heading cell.text = row.tag;
+            if cell = group/"indent"
+                {
+                cell.clear();    // This clears out members, attributes and settings
+                cell["width"] = indentWidth;
+                }
+            }
+        rowMap = row[type];
+        cell = null;
+        /***********************************************************************
+            Clear out and replace the old map that got merged in
+        ***********************************************************************/
+        while cell = row.walk(cell)
+            {
+            if cell.members || !cell.isOption continue;
+            group = cell[type];
+            // get rid of old map and make a new one
+            if group cell.attributes -= group.index;
+            if column = columnHead.columnAt(++i) if columnMap = column[type] if rowMap
+                {
+                group = new(rowMap);
+                group.attributes += columnMap.attributes;
+                group.members &= columnMap.members;
+                cell += group;
+                }
+            }
+        }
+    //cout :"expandThisRow":item:;
+    //dump(item);
+}
+
+/*******************************************************************************
+	Figure out what to expand on. If more than one option, pop up a dialog
+    to let the user choose.
+*******************************************************************************/
+GroupItem expandWhat(GroupItem item)
+{
+GroupItem   group, menu, menuItem, target, xpand;
+int         counter;
+use item
+    if group = item["expand"]
+        {
+        if group.isGroup group = group.group;
+        else group = item[group.text];
+        if target = item%pater group.parent = target.group;
+        activeMenu = null;
+        return group;
+        }
+    for target = item on parent
+        {
+        while target.nextAttribute(group)
+            if group.noPrint && group.isMapped break;
+        if group break;
+        }
+    if !group
+        {
+        cerr "Could not find map for " item.tag:;
+        return null;
+        }
+    target = null;
+    while group.nextAttribute(target)
+        if target.members
+            {
+            counter++;
+            if !xpand xpand = target;
+            //cout "Target: " target.getTagXML():;
+            }
+    if counter > 1
+        if menuItem = item%mENu
+            menu = menuItem.group;
+        else {
+            menu = new("<expandMenu matrixExpandMenu/>");
+            while group.nextAttribute(target)
+                if target.members
+                    {
+                    menuItem = new("<expandItem matrixExpandItem/>");
+                    menuItem["expand"]  = target;
+                    menuItem["pater"]   = group.parent;
+                    menuItem.registry   = target.registry;
+                    menuItem.text = target.text;
+                    menu += menuItem;
+                    }
+            if item.findAttribute("xOther") expandOther(group,menu);
+            item["mENu"] = menu;
+            menu.group = item;
+            }
+    or xpand
+        xpand.parent = group.parent;
+    if menu
+        {
+        mENU(item);
+        xpand = null;
+        }
+    return xpand;
+}
+
+/******************************************************************************
+	Utility to create a record. gets called multiple times from expand.
+******************************************************************************/
+GroupItem getExpandRecord(GroupItem block,GroupItem item,String type)
+{
+GroupItem group,map,record,oldMap;
+use block
+    record = new(block);
+    record.members = null;
+    record.addAsAttribute(block);
+    record.isAttribute  = false;
+    record.registry     = null;
+    record.noPrint      = false;
+    while item.nextAttribute(group)
+        if group.registry && group.registry != block.registry && group.isMapped
+            record.addAsAttribute(group);
+    if type
+        {
+        if oldMap = record[type]
+            record %-= oldMap;
+        if map = record.mapWRT(type)
+            record += map;
+        else {
+            record.release();
+            record = null;
+            }
+        }
+    return record;
+}
+
+/*******************************************************************************
+	Get attribute containing mapped data
+*******************************************************************************/
+GroupItem getMapped(GroupItem item)
+{
+Details     detail = item.getDetail();
+GroupItem   source,
+            map;
+String      name;
+    if source = wig.findAttribute("source")
+        if (name = source.text)
+            map = wig[name];
+    return map;
+}
+
+/*****************************************************************************
+    getStashedItem first time thru (noPrint not set) returns new items and
+    puts them on the stash. Every next time thru reuses items from the stash.
+*****************************************************************************/
+GroupItem getStashedItem(GroupItem stash,String text)
+{
+GroupItem   group,lastSI;
+Details     detail;
+use stash
+    if stash.noPrint
+        if lastSI = next()
+            {
+            lastSI.release();
+            lastSI.tag      = text;
+            lastSI.parser   = parser;
+            if detail = lastSI.getDetail()
+                {
+                attributed  = false;
+                object      = null;
+                }
+            }
+        else cerr "getStashedItem: ran out of stuff on stack":;
+    else {
+        // Only get here the first time bigify is called
+        lastSI  = new(text);
+        stash   += lastSI;
+        }
+    if group = lastSI["height"] lastSI %-= group;
+    if group = lastSI["width"]  lastSI %-= group;
+    return lastSI;
+}
+
+/*******************************************************************************
+	Process default image action
+*******************************************************************************/
+void iMAGEwork(GroupItem item)
+{
+Details     detail  = item.getDetail();
+Image       image   = object;
+GroupItem   scale   = wig["sCALe"],
+            offset  = wig["oFFSEt"];
+double      factor,newX,newY;
+Size        size;
+Point       point,
+            *atPoint;
+	if !image return;
+    size    = image.size();
+    if offset
+        atPoint = offset.pointer;
+    if scale
+        factor  = scale.number;
+    if controlKeyed
+        {
+        // at this point event should be set in detail
+        point   = convertPoint(mouseAt(),nil);
+        newX    = point.x - frame.x - detail.width/2;
+        newY    = point.y - frame.y - detail.height/2;
+        if !atPoint
+            {
+            atPoint = calloc(1,sizeof(Point));
+            offset = wig["oFFSEt"] = (void*)atPoint;
+            }
+        atPoint.x += newX;
+        atPoint.y += newY;
+        offset.fLAG = true;
+        }
+    else {
+        if !factor
+            {
+            factor  = 1.0;
+            wig["sCALe"] = factor;
+            scale   = wig["sCALe"];
+            }
+        or atPoint
+            {
+            newX    = atPoint.x / factor;
+            newY    = atPoint.y / factor;
+            }
+        factor += shiftKeyed ? -0.5 : 0.5;
+        if atPoint
+            {
+            atPoint.x = newX * factor;
+            atPoint.y = newY * factor;
+            }
+        scale.number = factor;
+        }
+    imageSized = true;
+    setModified(wig);
+}
+
+/*******************************************************************************
+    Creates a jit method attached to the item passed in, based on the code in
+    the item text.
+*******************************************************************************/
+void jitMETHOD(GroupItem item)
+{
+    // if item has no value, we need to get our own copy of it
+    if !item.value
+        item = item.replace();
+    item.jIT();
+    item.parent.deferred    = true;
+}
+
+/*******************************************************************************
+	This is the action associated with all the small items in a bigified panel
+*******************************************************************************/
+void makeBIG(GroupItem item)
+{
+Details     detail  = item.getDetail();
+GroupItem   group = item.findAttribute("bigify");
+    if group
+        {
+        item = group.parent;
+        item.count = wig.count;
+        bigify(group);
+        laidout = false;
+        group.setModified();
+        }
+    else cerr "makeBIG: could not find bigify block":;
+}
+
+/***************************************************************************
+	Returns a map for this block with respect to the data source specified
+    by name constrained by any mapped attributes. If a map does not already
+    exist, it gets created by anding together the maps of the mapped
+    attributes.
+***************************************************************************/
+GroupItem mapWRT(GroupItem item,String name)
+{
+GroupItem   block, group;
+use item
+    block = getAttribute(name);
+    if !block
+        {
+        block = new(name);
+        block.isMapped = true;
+        block.noPrint = true;
+        block.isAttribute = true;
+        while nextAttribute(group)
+            if group.isMapped && !group.noPrint
+                block.addAsAttribute(group);
+        block.mapAttributes();
+        if !block.members
+            {
+            block.release();
+            block = null;
+            }
+        }
+    return block;
+}
+
+/*******************************************************************************
+	Return the next cell in the current row.
+*******************************************************************************/
+GroupItem nextCell(GroupItem row,GroupItem item)
+{
+GroupItem   block;
+    if !item
+        if row.nextMember(item)
+            if !item.members return item;
+            else return nextCell(row,item);
+    if item
+        {
+        if block = item.parent
+            if block.nextMember(item)
+                if !item.members return item;
+                else return nextCell(item,block = null);
+        if block != row
+            {
+            item = block.parent;
+            if item.nextMember(block)
+                if !block.members return block;
+                else return nextCell(block,item = null);
+            }
+        }
+    return null;
+}
+
+/*******************************************************************************
+	Return the next row. This has to deal with rows that may have been expanded.
+*******************************************************************************/
+GroupItem nextRow(GroupItem rows,GroupItem item)
+{
+GroupItem   block;
+    if !item
+        if rows.nextMember(item)
+            if item["across"] return item;
+    if item
+        {
+        if item["down"]
+            {
+            if item.nextMember(block)
+                if block["down"] return nextRow(block,item = null);
+            return block;
+            }
+        block = item.parent;
+        if block.nextMember(item)
+            if item["across"] return item;
+            else return nextRow(item,block = null);
+        item = block.parent;
+        if item.nextMember(block)
+            if block["across"] return block;
+            or item != rows return nextRow(item,block);
+        }
+    return null;
+}
+
+/*******************************************************************************
+	Remove the body columns in a collapse. If a column was expanded, then the
+    column entry in a row contains as members, the columns that were created
+    in the expand. The tricky part is finding the column in the case of multiple
+    expands across rows and columns.
+*******************************************************************************/
+void removeBodyColumns(GroupItem block,int column)
+{
+GroupItem   wrapper,cell,group;
+Details     detail;
+int         count;
+String      wrapTag;
+    // block is a row or parent of a set of rows w/columns to be collapsed
+    while block.nextMember(group)
+        {
+        //cout "collapse checking row: " group.tag,group.index:;
+        detail = group.other;
+        if !detail.across
+            {
+            removeBodyColumns(group,column);
+            continue;
+            }
+        count   = 1;
+        wrapper = null;
+        cell    = group;
+        while cell.nextMember(wrapper)
+            {
+            if count == column break;
+            if wrapper.members && wrapper.tag eq "rowCell"
+                {
+                if count + wrapper.members.bitCount > column
+                    {
+                    cell    = wrapper;
+                    wrapper = null;
+                    }
+                else count += wrapper.members.bitCount;
+                continue;
+                }
+            count++;
+            }
+        if wrapper
+            {
+            wrapTag     = wrapper.tag;
+            cell        = null;
+            if wrapper.nextMember(cell)
+                {
+                wrapper -= cell;
+                wrapper.replaceWith(cell);
+                wrapper.tag = wrapTag;
+                detail      = wrapper.other;
+                detail.wig  = wrapper;
+                }
+            else {
+                cerr "ERROR removeBodyColumns: should not get here\n";
+                return;
+                }
+            //cout "Collapsed column: " wrapper.tag,wrapper.index:;
+            }
+        }
+}
+
+/*******************************************************************************
+	Reset the height of column titles to original setting. These get adjusted
+    as needed in the adjustHeight method
+*******************************************************************************/
+void resetHeight(GroupItem item,double rowHeight)
+{
+GroupItem   block,
+            group;
+    while group = item.walk(group)
+        {
+        if group.members continue;
+        if block = group["height"]
+            block.number = rowHeight;
+        }
+}
+
+/*******************************************************************************
+	set expand row list.
+*******************************************************************************/
+void setExpandRowList(GroupItem rows,GroupItem item)
+{
+GroupItem   block;
+    while rows.nextMember(item)
+        if item["across"] expandList += item;
+        else setExpandRowList(item,block);
+}
+
+/*******************************************************************************
+	Set item parent value to sum of mapped data or if item value names an
+    attribute, to the sum of the attribute of the mapped data
+*******************************************************************************/
+void sUM(GroupItem item)
+{
+Details     detail = item.getDetail();
+GroupItem   block,
+            map,
+            target;
+String      name;
+double amount;
+    if map = getMapped(item)
+        {
+        name = item.text;
+        while map.nextMember(block)
+            if name
+                { if target = block[name] amount += target.number; }
+            else amount += block.number;
+        wig.number = amount;
+        //cout "sUM:",wig.tag,map.getTagXML(),amount:;
+        }
+}

@@ -1,0 +1,140 @@
+include /Users/anthony/Dropbox/data/InProcess/Groups/groupIncludes
+
+external GroupItem
+{
+    initializer
+        GroupItem   getLabelGroup
+        ;
+}
+
+/*******************************************************************************
+	A class that contains drawing data and methods
+*******************************************************************************/
+class GroupDraw
+{
+GroupItem   drawRegistry;
+Layout      layout;
+static GroupDraw    drawer;
+
+/*******************************************************************************
+	Set up a window or pane
+*******************************************************************************/
+void setWindow(GroupItem block)
+{
+Window      window;
+Frame       framed = getFrame(),
+            windowFrame;
+int         mask;
+View        view;
+    if block["closable"]    mask |= closable;
+    if block["title"]       mask |= titled;
+    if block["resize"]      mask |= resizable;
+    if block["panel"]
+        {
+        Panel	pane = new(framed,mask,buffered,true);
+        window	= pane;
+        object	= pane;
+        }
+    else {
+        window = new(framed,mask,buffered,true);
+        object	= window;
+        }
+    view        = window.contentView();
+    windowFrame = window.frame;
+    layout      = new(framed);
+    layout.base = block;
+    framed.height  += windowFrame.height - view.frame.height;
+    window.setFrame(framed,0);
+    setContentView(layout);
+    if mask & titled window.setTitle(block.text);
+    keyFront(nil);
+    mustDisplay(true);
+}
+}
+
+/*******************************************************************************
+	Return the lowest descendent block that contains the point passed in.
+    Assumes the group passed in contains the point.
+*******************************************************************************/
+extern GroupItem blockContaining(GroupItem grup,Point p)
+{
+GroupItem   item,group;
+    if grup && grup.containsPoint(p)
+        {
+        //cout "blockContaining",base.tag,frame,"Point:",p.x,p.y:;
+        while item = grup.nextMember(item)
+            if item.containsPoint(p) break;
+        if item && item.hasMembers
+            if group = item.blockContaining(p)
+                return group;
+        }
+    return item;
+}
+
+/*****************************************************************************
+	Check if point is in the frame defined here. Edges do not count.
+*****************************************************************************/
+extern int containsPoint(GroupItem grup,Point p)
+{
+Frame   frame = getFrame(grup);
+	if y > frame.y && y < frame.y + height && x > frame.x && x < frame.x + width
+        return true;
+	return false;
+}
+
+/****************************************************************************
+	Get the frame struct for the group passed in.
+****************************************************************************/
+extern Frame getFrame(GroupItem item)
+{
+GroupItem   x:,
+            y:,
+            width:,
+            height:;
+Frame       framed;
+    framed.x        = x ? x.number : 0.0;
+    framed.y        = y ? y.number : 0.0;
+    framed.width    = width ? width.number : 0.0;
+    framed.height   = height ? height.number : 0.0;
+    return framed;
+}
+
+/*******************************************************************************
+	Sets the content for and returns TextView to display the field passed in
+*******************************************************************************/
+extern TextView getTextView(GroupItem field)
+{
+NSString		atText;
+TextString		aString;
+TextStore		store;
+TextView        editor;
+Frame           frame = getFrame(field);
+String          txt = text;
+    if txt
+        {
+        if isOBJECT editor = object;
+        else        editor = new(frame);
+        atText  = txt;
+        store   = editor.store;
+        aString = new(atText);
+        store.setText(aString);
+        }
+    return editor;
+}
+
+/*****************************************************************************
+	Print utilities
+*****************************************************************************/
+String toString(Point p)
+{
+String	text;
+	text =  toString(x) "," toString(y);
+	return text;
+}
+
+String toString(Frame f)
+{
+String	text;
+	text =  toString(origin) "," toString(width) "," toString(height);
+	return text;
+}

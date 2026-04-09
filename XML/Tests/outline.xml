@@ -1,0 +1,61 @@
+My thoughts on using gml to write an outliner
+
+Need to add online insert, edit and delete
+    insert means adding a new group and because groups appear in bitmap order, it presents a problem. We can use an order attribute and then sortByAttribute. insert then means adding a group and inserting it in the parent list, probably best done using an insert method that we do not have yet.
+    edit, assuming we are using a text field, mac does this for us but we need to make sure that the edited text is updated in the group. Or use an edit field, separate from the outline that gets filled in when you select an entry to edit - I like this idea, tho probably not commercially viable
+    delete, probably can use the remove method but it will have to be updated to include list handling DONE
+    cut and paste will be needed, can make this a delete then insert but have to keep the latest delete item
+
+Not sure if setDetails will add the details for inserted group. Looks like it does. Have to test and see.
+Initially can write the outline in gml the old fashioned way, using a text editor and have the outliner work mostly as a viewer, adding new capability as needed. That way we can test out the look and feel and add the ability to modify it online as we go; ie. outline is a tree
+
+Add an outline attribute, as in outline=order where order is the name of the attribute that will define the outline order
+    First time thru, when there may be no order attribute present, we inject one as we create the outline, hence we will need an outline method added to Bwana
+
+Rather than use the tree model (too limited), try expand and collapse methods that work on a selected group. To collapse, turn noRoom on and replace with group tag in a cell sized to fit text. To expand, noRoom the tag and turn on the group.
+
+Might be nice to recast this as a folding xml editor. That provided much of the utility of an outline but fits well w/GUI. I would add auto indenting extended to commands and coloring of text and comments. Maybe dispense w/bracing; use tag tab text (set to body of getTagXML). That would be simple but eliminates the interesting stuff in that you cannot see what the xml looks like. Really would prefer to have the xml actionable as gml.
+
+#include /Users/anthony/data/Tawk/Groups/XML/templates.xml;
+#registry dATA search;
+<displayable cell image label text/>
+<outline>
+    <firstEntry/>
+    <container pad=5 down>
+        <fitDefaultDown down fit fill=paleGray rounded>
+            <short label height=50 width=50 fill=white pad=2 rounded/>
+            <tall="fit default down: The box enclosing this box is constrained to fit vertically by default because no fit value specified and it is laid out down" text height=100 width=200 fill=white pad=2 top=0 rounded/></fitDefaultDown>
+        <fitDefaultAcross across fit fill=paleGray rounded>
+            <thin label height=50 width=50 fill=white pad=2 rounded/>
+            <fat="fit default across: The box enclosing this box is constrained to fit horizontally by default because no fit value specified and it is laid out across" text height=100 width=200 fill=white pad=2 rounded/></fitDefaultAcross>
+        <fitHeight across fit=height fill=paleGray rounded>
+            <short label height=50 width=50 fill=white pad=2 rounded/>
+            <tall="fit height: The box enclosing this box is constrained to fit vertically even tho it is laid out across" text height=100 width=200 fill=white pad=2 rounded/></fitHeight>
+        <fitAcross down fit=width fill=paleGray rounded>
+            <thin label height=20 width=50 fill=white pad=2 rounded/>
+            <fat="fit across: The box enclosing this box is constrained to fit horizontally even tho it is laid out down" text height=80 width=200 fill=white pad=2 top=0 rounded/></fitAcross>
+        <fitBothWays across fit=both fill=paleGray rounded>
+            <square label height=50 width=50 fill=white pad=2 rounded/>
+            <tallAndFat="fit both ways: Because its fit value is both, the box enclosing this box is constrained to fit horizontally and vertically even tho it is laid out across" text height=100 width=200 fill=white pad=2 rounded/></fitBothWays>
+        <fitText fill=paleGray rounded fit=both>
+            <heading="List of Fitted Text" label height=20 border=off font=header/>
+            <body pad=5 fill=white fit=text align=left rounded>
+                    <one="First menu item" fitItem/>
+                    <two="Second item" fitItem/>
+                    <three="Last item" fitItem;>
+#registry GUIcomponents;
+<outlineExample window closable resize x=400 y=400 width=360 height=400 fill=saberBrown title="Outline">
+    <outlineBody>
+        <first height=50 pad fill=white rounded>
+            <space/>
+            <heading="Outline Example" height=43.0 text align=center font=title border=off/></first>
+        <second pad across indentIncrement=10>
+            <left tree=outline font=normal fontSize=14 rounded>
+                <leftBranch border=off across fit=down leaf>
+                    <indent width=1/>
+                    <wrap width=10>
+                        <expander label height=18/>
+                        <space)>
+                    <entry label=tag height=20/></outlineBody>
+    <outlineItem height=25% fill=paleGray pad rounded;>
+

@@ -1,0 +1,141 @@
+include groupIncludes
+
+struct FieldMap
+	{
+	int			row;
+	MYSQL_FIELD	dbField;
+	};
+
+/******************************************************************************
+	ConnectM provides a connection to a mysql database and methods for
+	accessing a database to load GroupItems
+******************************************************************************/
+class ConnectM
+{
+MYSQL		mysql;
+BaseHash	fields;
+MYSQL_RES	result;
+char**		row;
+String		host,
+			user,
+			password,
+			DB,
+			socket;
+int			port,
+			columns;
+long		rows;
+boolean
+			debug
+			;
+ConnectM()
+{
+	host		= "TonyG5.local";
+	user		= "root";
+	password	= "alix";
+	DB			= "test";
+	port		= 3306;
+	fields		= new;
+	connect();
+}
+
+/******************************************************************************
+	Close database connection
+******************************************************************************/
+void close()
+{
+	mysql_close(mysql);
+	if debug cout "Closing connection\n";
+}
+
+/******************************************************************************
+	Establish a database connection
+******************************************************************************/
+int connect()
+{
+	mysql = mysql_init(null);
+	if !mysql_real_connect(mysql,host,user,password,DB,port,socket,0)
+		{
+		cerr "Could not connect: " mysql_error(mysql) "\n";
+		return false;
+		}
+	if debug cout "Connected\n";
+	return true;
+}
+
+/******************************************************************************
+	load atomic elements into registry
+******************************************************************************/
+void getData(String select,GroupRegistry registry)
+{
+GroupItem	item;
+int*		lengths;
+	if query(select)
+		while row = mysql_fetch_row(result)
+			{
+			lengths = (int*)mysql_fetch_lengths(result);
+			item = add(row[0],lengths[0]);
+			item.isStored = true;
+			}
+}
+
+/******************************************************************************
+	load GroupItem members.
+******************************************************************************/
+void getMembers(String select,GroupItem group)
+{
+GroupItem	item;
+int*		lengths;
+	if query(select)
+		while row = mysql_fetch_row(result)
+			{
+			lengths = (int*)mysql_fetch_lengths(result);
+			if (type ne (String)row[0])
+				cerr "heterogenous groups not supported\n";
+			item = registry.add(row[1],lengths[1]);
+			item.isStored = true;
+			group += item;
+			}
+}
+
+/******************************************************************************
+	connects, runs query, gets the fields list and then closes connection
+	query returns true if the query succeeded and false otherwise. Note any
+	prior results get freed first.
+******************************************************************************/
+int query(String select)
+{
+String		error;
+FieldMap	field;
+MYSQL_FIELD column;
+int			i = 0;
+	if result
+		{
+		fields.reset();
+		result = null;
+		}
+	if mysql_query(mysql,select)
+		{
+		error = (String)mysql_error(mysql);
+		goto failure;
+		}
+	result = mysql_store_result(mysql);
+	if !result error = (String)mysql_error(mysql);
+	if error goto failure;
+
+	columns = mysql_num_fields(result);
+	rows	= mysql_num_rows(result);
+	while column = mysql_fetch_field(result)
+		{
+		field = malloc(sizeof(FieldMap));
+		field.row = i;
+		field.dbField = column;
+		fields[name] = field;
+		i++;
+		}
+	if debug cout "Query succeeded\n";
+	return true;
+failure:
+	cerr "Query failed: " error "\n";
+	return false;
+}
+}

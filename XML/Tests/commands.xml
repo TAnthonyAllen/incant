@@ -1,0 +1,54 @@
+#registry tEMPLATEs search;
+<playlist list heading delimiter="\t" lineEnd="\r">
+	<Name=song/>
+	<Artist=artist/>
+	<Album=album/>
+	<Genre=genre/>
+    <Year=year/>
+    <Time=time/>
+	<Location/></playlist>
+<mask genre artist album/>
+    The playlist specification (the phone block below) does not have to be in the music registry but for sanity sake best to keep specification and data loaded in the same registry. Same with any groups defined against that data.
+#include /Users/anthony/data/Tawk/Groups/XML/playlist.xml;
+#;
+    The following groups need to be redefined
+#registry genre;
+<stuff=Genres>
+    <:Alternet path="/@~^Alt"/>
+    <Country/>
+    <:Rocking path="/@~^R"/></stuff>
+    The following is a work in progress on redefining how paths are specified
+<phone><@*+ artist=ABBA|artist=~^A /></phone>
+#stop;
+    In the following two group expressions, the path is matched against every entry in the current registry since no target against which to match the path is provided
+    The current registry is reset to music just in case it was set to something else in the included file
+#registry music;
+<:first /phone/@*+ artist=ABBA|artist=~^A :>
+<:second /phone/@*+ artist=Kinky:>
+<:third (second | first)/@*+:>
+<#grouping first groupBy mask/>
+<#nextGroup third groupBy artist/>
+<:jpop /grouping/@ABBA:>
+    THE FOLLOWING EXPLANATION IS SO FUCKED!
+    Note the registry search list is set to include music, otherwise grouping would not be found above. In a group tag, the path block tag (jpop in this case) is located, looking first in every registry on the search list and if not found then in  the current registry. If the path block is not found and it specifies a regular expression or * then every entry in the current registry, if set, is matched against.
+	Note Attributes are checked to see if they are registered so templates=mask is a reference to mask in the templates registry, assuming there is such a registry. The beauty of this is that no change to xml syntax required.
+dump jpop;
+#registry genre;
+<what>
+    This is a group built from an unnamed group specification and a normal block. Note that Soundtrack gets incorporated into the block named fourth because fourth is not closed.
+    <: /@~^A:>
+    <:fourth /@~^R>
+    <Soundtrack/></what>
+print what;
+<test>
+    <fourth/>Since fourth has no attributes or value, it gets looked up and if found, should be read as closed and not add Tracks
+    <Tracks/></test>
+print test;
+
+Commands
+
+Modify the print command to take a registry or group as parameter. Add an optional list of attributes to print for every item printed. Right now each item is printed as xml, not including components.
+    Currently print only takes a path parameter. This basically defines a group.
+    Write GroupItem printAttributes
+    Modify GroupItem toString version that takes a list of attributes as an optional parameter,
+        which if supplied, causes toString to use printAttributes instead of writeTagXML

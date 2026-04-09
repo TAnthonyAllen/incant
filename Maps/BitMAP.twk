@@ -1,0 +1,544 @@
+include frameIncludes
+
+/*******************************************************************************
+	This is a revised version of BitMAP that uses a simpler segment structure.
+*******************************************************************************/
+class BitMAP extends DoubleLinkList
+{
+int				bitCount;
+static int      emergency;
+
+/*******************************************************************************
+	Consructors
+*******************************************************************************/
+BitMAP()
+{
+}
+
+BitMAP(int bit)
+{
+	set(bit);
+}
+
+BitMAP(BitMAP map)
+{
+DoubleLink	item;
+Segment		part,
+			newPart;
+	for item = map.first
+		{
+		part	= value;
+		newPart	= new(part);
+		DoubleLinkList.add((void*)newPart);
+		}
+	bitCount = map.bitCount;
+}
+
+/*******************************************************************************
+	Logically ORs this map with the map passed in. Returns true if count increased.
+*******************************************************************************/
+int add(BitMAP map)
+{
+DoubleLink	item	= first,
+			mapItem	= map.first;
+Segment		part,
+			mapPart;
+int         increased;
+	if mapItem
+        {
+        mapPart = mapItem.value;
+        if !item
+            while mapItem
+                {
+                mapPart = new(mapPart);
+                DoubleLinkList.add((void*)mapPart);
+                if mapItem = mapItem.next
+                    mapPart = mapItem.value;
+                }
+        else
+        for item
+            {
+            part = item.value;
+            while mapItem && part.offset > mapPart.offset
+                {
+                mapPart = new(mapPart);
+                item.insert((void*)mapPart);
+                if mapItem = mapItem.next
+                    mapPart = mapItem.value;
+                else mapPart = null;
+                increased = true;
+                }
+            if mapPart && part.offset == mapPart.offset
+                {
+                part.bits |= mapPart.bits;
+                increased = true;
+                if mapItem = mapItem.next
+                    mapPart = mapItem.value;
+                else break;
+                }
+            if !mapPart break;
+            }
+        for mapItem
+            {
+            mapPart = mapItem.value;
+            mapPart = new(mapPart);
+            DoubleLinkList.add((void*)mapPart);
+            increased = true;
+            }
+        if increased setCount();
+        }
+    return increased;
+}
+
+/*******************************************************************************
+	Find the right segment and set the right bit in that segment. Returns true
+    if a bit was set (if bit was already set, returns false).
+*******************************************************************************/
+int add(int bit)
+{
+DoubleLink	item;
+Segment		part;
+int			bitOffset = subscript(bit);
+	if get(bit) return false;
+	or !length
+		{
+		part = new(bit);
+		DoubleLinkList.add((void*)part);
+		}
+	else
+	for item = first
+		{
+		part	= value;
+		if bitOffset > offset
+			if item.next continue;
+			else {
+				part = new(bit);
+				item.append((void*)part);
+				break;
+				}
+		if bitOffset < offset
+			{
+			part = new(bit);
+			item.insert((void*)part);
+			break;
+			}
+		part.set(bit);
+		break;
+		}
+	bitCount++;
+    return true;
+}
+
+/*******************************************************************************
+	Logically ANDs the parameter map into this one. Returns the number left
+    in this map.
+*******************************************************************************/
+int andEqual(BitMAP map)
+{
+DoubleLink	item	= first,
+			mapItem,
+			last;
+Segment		part,
+			mapPart;
+	if !map clear();
+    if mapItem = map.first
+        {
+        mapPart = mapItem.value;
+        while last = item
+            {
+            part = item.value;
+            if mapPart
+                {
+                if part.offset < mapPart.offset
+                    {
+                    item = item.next;
+                    last.remove();
+                    continue;
+                    }
+                while mapItem && part.offset > mapPart.offset
+                    {
+                    mapItem = mapItem.next;
+                    if mapItem mapPart = mapItem.value;
+                    else mapPart = null;
+                    }
+                if mapPart && part.offset == mapPart.offset
+                    {
+                    item = item.next;
+                    if !(part.bits &= mapPart.bits)
+                        last.remove();
+                    continue;
+                    }
+                }
+            item = item.next;
+            last.remove();
+            }
+        }
+	setCount();
+    return bitCount;
+}
+
+/*******************************************************************************
+	Returns true if this map intersects the map passed in
+*******************************************************************************/
+int ands(BitMAP map)
+{
+DoubleLink	item = first,
+			mapItem;
+Segment		part,
+			mapPart;
+	if !map || !map.first return false;
+	mapItem	= map.first;
+	mapPart = mapItem.value;
+	for item
+		{
+		part = item.value;
+		if part.offset < mapPart.offset
+			continue;
+		while mapItem && part.offset > mapPart.offset
+			{
+			mapItem = mapItem.next;
+			if mapItem mapPart = mapItem.value;
+			else mapPart = null;
+			}
+		if !mapPart break;
+        if part.bits & mapPart.bits
+			return true;
+		}
+	return false;
+}
+
+/*******************************************************************************
+	Frees map segments and clears bitCount.
+*******************************************************************************/
+void clear()
+{
+Segment segment;
+    entry   = null;
+    while segment = DoubleLinkList.next()
+        delete segment;
+    bitCount = 0;
+    DoubleLinkList.clear();
+}
+
+/*******************************************************************************
+	Returns true if this map contains all entries in the map passed in
+*******************************************************************************/
+int contains(BitMAP map)
+{
+DoubleLink	item	= first,
+			mapItem;
+Segment		part,
+			mapPart;
+unsigned long	wad;
+	if !map || !map.first return false;
+	mapItem	= map.first;
+	mapPart = mapItem.value;
+	for item
+		{
+		part = item.value;
+		if part.offset < mapPart.offset
+			continue;
+		if part.offset == mapPart.offset
+			{
+			wad = part.bits & mapPart.bits;
+			if mapPart.bits != wad return false;
+			}
+		mapItem = mapItem.next;
+		if !mapItem return true;
+		mapPart = mapItem.value;
+		}
+	return false;
+}
+
+/*******************************************************************************
+	Treats BitMAP like a queue and pops off the first bit and returns it
+*******************************************************************************/
+int dQ()
+{
+    return minus(next(0));
+}
+
+/*******************************************************************************
+ dump out the BitMAP
+*******************************************************************************/
+void dump()
+{
+DoubleLink	item	= first;
+Segment		part;
+	cout "Bits set: " bitCount:;
+	for item
+		{
+		part	= value;
+        part.dump();
+		}
+}
+
+/*******************************************************************************
+	get a bit
+*******************************************************************************/
+int get(int bit)
+{
+DoubleLink	item;
+Segment		part;
+int			bitOffset = subscript(bit);
+	for item = first
+		{
+		part	= value;
+		if bitOffset < offset break;
+		if bitOffset > offset continue;
+		return part.get(bit);
+		}
+	return false;
+}
+
+/*******************************************************************************
+	get the segment that contains the bit passed in
+*******************************************************************************/
+Segment getSegmentContaining(int bit)
+{
+DoubleLink	item	= first;
+Segment		part;
+int			limit = sizeof(long) * 8;
+	
+	for item
+		{
+		part	= value;
+        if bit >= offset && bit < offset + limit
+            return part;
+		}
+    return (Segment)null;
+}
+
+/*******************************************************************************
+	Returns the last bit set
+*******************************************************************************/
+int lastBit()
+{
+Segment		part;
+int         lastBit;
+    if last
+        if part = last.value
+            lastBit = part.rightMost();
+    return lastBit;
+}
+
+/*******************************************************************************
+	Subtracts the map passed in from this one. Returns true if anything was
+    subtracted.
+*******************************************************************************/
+int minus(BitMAP map)
+{
+DoubleLink	item	= first,
+			mapItem	= map.first,
+			last;
+Segment		part,
+			mapPart;
+int         reduced;
+	if !mapItem return false;
+	mapPart = mapItem.value;
+	while last = item
+		{
+		part = item.value;
+		if part.offset < mapPart.offset
+			{
+			item = item.next;
+			continue;
+			}
+		while mapItem && part.offset > mapPart.offset
+			{
+			mapItem = mapItem.next;
+			if mapItem mapPart = mapItem.value;
+			else mapPart = null;
+			}
+		if mapPart
+			{
+			item = item.next;
+			if part -= mapPart
+                {
+                if !part.bits last.remove();
+                reduced = true;
+                }
+			continue;
+			}
+		else break;
+		}
+	if reduced
+        {
+        setCount();
+        return true;
+        }
+    return false;
+}
+
+/*******************************************************************************
+	clear a bit and delete segment if it goes empty. Returns the bit if it
+    is found and deleted.
+*******************************************************************************/
+int minus(int bit)
+{
+DoubleLink	item;
+Segment		part;
+int			bitOffset;
+    if bit
+        {
+        bitOffset = subscript(bit);
+        for item = first
+            {
+            part	= value;
+            if bitOffset == offset
+                {
+                if part -= bit
+                    {
+                    if !part.bits
+                        {
+                        item.remove();
+                        delete part;
+                        }
+                    bitCount--;
+                    return bit;
+                    }
+                break;
+                }
+            }
+        }
+    return 0;
+}
+
+/*******************************************************************************
+	Return the position of the next bit greater than the bit argument
+*******************************************************************************/
+int next(int bit)
+{
+DoubleLink	item;
+Segment		part;
+int			bitOffset = subscript(bit),
+			result;
+	for item = first
+		{
+		part	= value;
+		if bitOffset > offset continue;
+		if result = part.next(bit) break;
+		}
+	return result;
+}
+
+/*******************************************************************************
+	Return the offset of the nth set bit
+*******************************************************************************/
+int nth(int bit)
+{
+DoubleLink	item;
+Segment		part;
+int			count;
+	for item = first
+		{
+		part	= value;
+        count   = bitCount(bits);
+		if count < bit bit -= count;
+        else return part.nth(bit);
+		}
+    return 0;
+}
+
+/*******************************************************************************
+	Treats BitMAP like a stack and pops off the last bit and returns it
+*******************************************************************************/
+int pop()
+{
+Segment		part;
+int         lastBit;
+    if last
+        if part = last.value
+            lastBit = part.rightMost();
+    return minus(lastBit);
+}
+
+/*******************************************************************************
+	Return the position of the bit preceeding the bit argument
+*******************************************************************************/
+int prior(int bit)
+{
+DoubleLink	item;
+Segment		part;
+int			bitOffset = subscript(bit),
+			result;
+	if !bit item = last;
+	else
+	for item = first
+		{
+		part = value;
+		if bitOffset <= offset break;
+		}
+	for item on prior
+		{
+		part = value;
+		if result = part.prior(bit) break;
+		}
+	return result;
+}
+
+/*******************************************************************************
+	Sets bitCount (done after any operation that combines or alters map).
+*******************************************************************************/
+void setCount()
+{
+DoubleLink	item;
+Segment		part;
+	bitCount		= 0;
+	for item = first
+		{
+		part	= value;
+		bitCount += bitCount(bits);
+		}
+}
+
+/*******************************************************************************
+	Convert bit to a subscript to an offset.
+*******************************************************************************/
+static int subscript(int bit)
+{
+int	i;
+	//	The 6 used below corresponds to 64 bits per long
+	if !bit return 0;
+	i = (bit - 1) >> 6;
+	return i << 6;
+}
+
+/*******************************************************************************
+	Logically XORs the parameter map into this one
+*******************************************************************************/
+int xorEqual(BitMAP map)
+{
+DoubleLink	item	= first,
+			mapItem	= map.first,
+			last;
+Segment		part,
+			mapPart;
+	if !mapItem return 0;
+	mapPart = mapItem.value;
+	for item
+		{
+		part = item.value;
+		while mapItem && part.offset > mapPart.offset
+			{
+			mapPart = new(mapPart);
+			item.insert((void*)mapPart);
+			if mapItem = mapItem.next
+				mapPart = mapItem.value;
+			else mapPart = null;
+			}
+		if mapPart && part.offset == mapPart.offset
+			{
+			part.bits ^= mapPart.bits;
+			if !part.bits last = item;
+			if mapItem = mapItem.next
+				mapPart = mapItem.value;
+			else break;
+			}
+		if !mapPart break;
+		}
+	if last last.remove();
+	setCount();
+    return bitCount;
+}
+}

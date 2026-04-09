@@ -1,0 +1,41 @@
+/*****************************************************************************
+	 Grammar issues
+*****************************************************************************/
+
+TBD develop incant commands to replace ParseXML commands like:
+    include DONE links to the GroupItem loadInputFromFile method
+    search DONE in that you can redefine SearchList to contain what you want
+    stop DONE
+        probably can all be handled as rules w/actions
+list    target=GrouP*:{ print target.tag:; for someGrup in target print `someGrup.tag:; };
+
+want to say as a command
+    list SearchList someGroup;
+Right now we can create the list rule but we have no way to invoke it as a command. list(someGroup)??? Why not? It is an action.
+
+I like the way plg handles failure with the FAIL rule. Plan to add it to incant. DONE
+
+Would be nice if we could define an if statement that has no else w/o looking to see if there is an else. DONE tho you have to use ; instead of else. Will make the or syntax cleaner
+
+Would also be nice if did not have to end if test with a ; DONE thru use of noReservedWords and prinTing flags that end expressions. We can do without the ; but not sure it works right.
+
+/***************************************************************************
+    defining groups
+***************************************************************************/
+There are two options. The define command, which is a statement, can be run as a shell command or embedded in a group action (POP required). Also a simple assign to an undefined group creates the group;
+
+/***************************************************************************
+    Dealing with actions that are rules
+***************************************************************************/
+How to specify input to the action rule. The parser does not deal w/arguments so in the expression: actionRule(argument) in incant as it is currently, the argument is ignored. Right now we embed the argument (only one allowed) in the group being invoked with an argument. It seems to work.
+
+/***************************************************************************
+    Rule conditions
+***************************************************************************/
+Have wanted to add conditions to incant rules for a while but was not sure how to or what a condition was. Thinking now that a condition is a noPrint attribute.
+    If the condition has an action, it gets run (that is no change from what is done now). But if the condition has no action but has a count, success is set to the count. Issue is then how to turn it on and off. Maybe if the condition appearing in a rule is optional, its value is set but not evaluated????
+    So  rule condition=1?   would not evaluate the condition and turn it on.
+        rule condition=0?   would not evaluate the condition and turn it off.
+        rule condition      would evaluate the condition and the rule would fail if it is not set
+        rule condition=1    would evaluate the condition and then set it to true
+Have to define the condition and set it to noPrint after it is defined. DONE

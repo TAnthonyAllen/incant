@@ -1,0 +1,33 @@
+
+/*******************************************************************************
+	Editor
+*******************************************************************************/
+Features
+    Ability to pin spot in code: as debugging breakpoint; as pin drop used by goto keys (page up, right arrow, ...). Pins are invisible fields.
+        shift up or left arrow puts prior pin at top of page
+        shift down or right arrow puts next pin at top of page
+    A selection is a token field. Need to be able to operate on it like change font; means need to be able to split editor text to isolate selection (because of different display characteristics) and to cut/paste a selection. When a selection is operated on, editor text gets split around it and recombined if the selection is cut/deleted
+        May or may not want to maintain a list of selections while editing; shitcan the list when editing done
+    Test cutting and pasting from/to a text string. Try doing it in actions.
+    Editor should be able to incorporate user rules to enable user controled syntax coloring, for example
+    Took a look at LaTex. It sets the standard for a really ugly language. I suppose I could write an incant version to generate LaTex. Will think on it.
+    How about a display pop up approach to tracking field values for debugging. If rule based could set the list of fields to display depending on when and where the pop up is fired. See CheckFor rule
+
+How about using plain text and a style list that defines styles w/insert points in the plain text.
+    print would have to be able to blend the two
+    editor would have to also, however, it would only have to blend what is visible. That would be relatively trivial wrt computing
+Styles would set
+    font
+    colors
+    page characteristics
+        justification
+        margins
+        line spacing
+        header
+        footer
+In Apple environment maybe can do this in an attributed string
+Or maybe printing to a canvas IWC need to know all font details
+How about printing glyphs where a glyph is an image or maybe a set of drawing commands
+Maybe AI can help
+
+Define a page as an image, wrap image in a simple pdf, print pdf, BYU

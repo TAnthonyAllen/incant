@@ -1,0 +1,148 @@
+include groupIncludes
+
+/******************************************************************************
+	Tests group functions
+******************************************************************************/
+class Grope
+{
+Connect		connector;
+
+Grope()
+{
+	// Does not do anything
+}
+
+Grope(String name)
+{
+	connector = new(name);
+}
+
+/******************************************************************************
+	Create the database group tables
+******************************************************************************/
+void createTables()
+{
+String statement;
+	statement	= "create table items (item primary key,type,sequence,
+		tag,value)";
+	exec(statement);
+	statement	= "create table members (member primary key,parentType,
+		parentIndex,parent,sequence,type,tag)";
+	exec(statement);
+}
+
+/*****************************************************************************
+	This is a cut at replicating the expand function from ISIS. It needs to
+    be reworked.
+*****************************************************************************/
+void expand(GroupItem source,GroupItem attribute)
+{
+GroupItem group,item;
+	if !attribute.attributes && !attribute.value
+		while source.nextAttribute(item)
+			if attribute.tag eq item.tag
+				{
+				attribute = item;
+				break;
+				}
+	item = null;
+	while attribute.nextAttribute(item)
+		{
+		if item.registry && item.registry.loadByValue
+			group = new(item.text);
+		else group = new(item.tag);
+		group.attributes = new(source.attributes);
+		group.attributes -= attribute.index;
+		group += item;
+		add(group);
+		}
+}
+
+/******************************************************************************
+	Looks up a group
+******************************************************************************/
+GroupItem find( String type,String tag )
+{
+GroupRegistry	registry = getRegistry(type);
+	if registry return (GroupItem)registry[tag];
+	return null;
+}
+
+/******************************************************************************
+	Load types into registries
+******************************************************************************/
+GroupRegistry load(String name)
+{
+GroupRegistry	registry = getRegistry(name);
+GroupItem		item;
+String			select;
+	if !dataLoaded
+		{
+		select = "select tag,sequence,value,flags from items where type='"
+			type "'";
+		getData(select,registry);
+		dataLoaded = true;
+		while item = next(item)
+			load(item);
+		}
+	//cout "Dump after loading " name "\n";
+	//dump(3);
+	return registry;
+}
+
+/***************************************************************************
+	Load attributes and members for an item
+***************************************************************************/
+void load(GroupItem item)
+{
+String		select;
+	if loaded return;
+	loaded = true;
+	select = "select childType, child from members where"
+		" parentType='" type " and parentIndex=" index
+		"' and parent='" tag "' order by sequence";
+	getMembers(select,item);
+}
+}
+
+/***************************************************************************
+	Extends GroupItem. Write the SQL string to load item into a database
+	into the buffer passed in
+***************************************************************************/
+void updateStringTo(GroupItem item,Buffer buffer)
+{
+int			sequence;
+GroupItem	group;
+use item
+	if isStored
+		print "update items set ";
+	else {
+		print "insert into items values ('" type index "','" type "'," index ",'" tag;
+		if value print "','" text "');\n";
+		else print "',NULL);\n";
+		sequence = 1;
+		while group = nextMember(group)
+			{
+			print "insert into members values ('" type index "-"
+				sequence "','" type "'," index ",'" tag "'," sequence
+				",'" group.type "','" group.tag "');\n";
+			sequence++;
+			}
+		while group = nextAttribute(group)
+			{
+			print "insert into members values ('" type index "-"
+					sequence "','" type "'," index ",'" tag "'," sequence
+				",NULL,'" group.tag "');\n";
+			sequence++;
+			}
+		}
+}
+
+/******************************************************************************
+	main program
+******************************************************************************/
+int
+main( int argc, char **argv )
+{
+Grope		groper = new("tester");
+}

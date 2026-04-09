@@ -1,0 +1,45 @@
+
+/*******************************************************************************
+	incant notions HWF
+*******************************************************************************/
+Would like to ensure that list manipulation methods like pop or put can be used when iterating over. I think it does it out of the box. No, pop leaves next and prior pointers in the popped field but remove clears them so next(field) has nowhere to next to
+How to provide class functionality such that assigning a field to a class (which is a registry) gives the field access to class methods/actions??? Maybe modify search so that class methods/actions look like field methods/action. Why not??
+        If we go w/class methods, may need to use lastREF
+Thinking of changing statements so that the ID attribute tells what the statement is, even tho that ID attribute is ignored. Code generation can make use of it so we do not need to set statement text as is done now (will require changing generator component tags - no biggie; and changing runGenerator to get the ID)
+
+/*******************************************************************************
+	What to do wrt drawing
+*******************************************************************************/
+Add currentFrame colors and font to Layout
+Write code to update those from current field
+Thinking we keep the old GUI methods in Layout for display (w/modifications as needed): displayCell() displayImage() displayPath() and displayText()
+Steal walkVisible() from old Control.twk. Alternative to having a noRoom flagMay be able to implement in incant, maybe change it to displayVisible() DONE
+
+Thinking a 2 part approach to drawing
+    Write a drawing alternative to interpret() to process the list of drawing instructions
+    Use incant to set frames and produce a list of drawing instructions (that would cover what needs to be done to display a frame) and ideally no if statements
+        Drawing instructions would include
+            getFrame
+            get current point(s)
+            do whatever
+            next
+Drawing instruction format
+    use drawing command
+    command contents would contain target and argument as needed (mostly not needed)
+    commands not in the drawing registry would be handled like perforation fields (because we want the ability to iterate over a command or group of commands). That treats such commands as action of a sort. This needs brainworks to figure out how best to implement.
+            The complication here is a drawing command like left=3 looks a lot like a repeat=5
+            Also, need to convert left to its drawing OP (use a drawing OP attribute as the instruction?)
+    probably need to rethink the little drawing language (and make it easier to follow)
+
+/*******************************************************************************
+    Considering
+*******************************************************************************/
+
+        if !testMatch && !onGroup && !hasAttributes             sukcess = testOptions(ruleStuff);
+        else {
+            if testMatch                                        sukcess = testMatch(this);
+            if sukcess && onGroup && onGroup.parse(ruleStuff)   sukcess = true;
+            if sukcess && hasAttributes                         sukcess = testAttributes(ruleStuff);
+            if !sukcess && onFail && onFail.parse(ruleStuff)    sukcess = true; }
+        if !sukcess     goto matchFailed;
+

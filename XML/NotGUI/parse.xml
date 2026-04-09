@@ -1,0 +1,44 @@
+This is notional hand waving wrt defining a parse rule
+
+Issues
+    What is the best way to print a rule? with or without actions (options)
+    DONE Attribute modifiers already exist in the parse, altho will have to add { and } as modifiers and switch places between modifier and limit in the parse
+    DONE Need to extend the definition of Value to include character sets: [^whatever]
+    The idea is run ParseXML on the rule set as if a standard gml. Then run thru the result treating
+        it as a rule set and parsing it - voila BYU!
+
+    DONE Test results: test returns a GroupItem if labeled and succeeds; if not labeled or fails returns null and you have to check error code to figure out if it failed (because unlabeled tests return null even when they succeed). Done but still need to test out how well it works.
+    
+    DONE Key Table match is the same as a tag match. Key Tables are registries
+    
+    DONE What kind of result do you get w/multiples?
+        If more than one match, the GroupItem returned has all the matches as members
+
+    Condition table is a registry
+    
+    DONE Basic test: first test group depending on type (isText isRegx ...); then test its attributes (same same test). If they all succeed return a GroupItem that contains all labeled attributes, each of which is a text attribute containing the input that matched
+    
+        If any test fails, test members (each is a rule alternative) in the same same way until get a match and if there are no matches, then the rule fails. Any member match returns rule success.
+    
+    DONE up to test artfully handled, maybe too artfully, needs testing
+    
+    balance test not done and may not be
+
+    The parse registry must have noMerging flag set. Not sure we even have a parse registry???
+    
+    DONE checkSkip stolen from PLGtester and rewritten in GroupRules.
+    
+For example, here is the StartTag rule taken from ParseXML and converted to a gml based rule
+The action has to be defined first, just referenced here as an attribute. Presumably it knows it is an action, either immediate or deferred
+
+<StartTag '<' commentSet! command=[:[]? SetTagFlag? attributes=Attribute+ singleton=[)/;]? '>' StartTagAction/>
+
+Maybe the action code is coded up somewhere else (unless we resurrect our JIT, probably should try). If somewhere else then StartTagAction will have to be the name of a registered method - not much different from what I do now except for the method registration step, which we already can do.
+
+Giving up on interpreter. Tok registered actions will have to do (and they work well). Can add in javascript actions and see how they work as a complement.
+How about taking action registration out of code and putting it into an action (a start to enable bootstrapping of a sort). You still have to provide the action source in a method that gets compiled in. Should be able to compile the code as a dynamic link library and load it on the fly.
+<blockACTION setACTION/>
+    If blockACTION has an associated method in code, setACTION looks for and registers the method in the action registry (if not found, it gets a dummy action). setACTION just calls GroupItem setCode() to locate and assign the method to blockACTION.
+<block fieldSet+ blockACTION/> This is a rule w/action
+
+For testing, and until we have a working interpreter, how about a default action that just prints out every labeled match

@@ -1,0 +1,252 @@
+include groupIncludes
+
+Conditions
+    keepGoing       (count < min || (iteratePath%hasMaximum && count <= max))
+    ;
+/******************************************************************************
+    A class that implements a path iterator
+******************************************************************************/
+class PathIterator
+{
+GroupItem   initialPath,
+            initialBlock,
+            iteratePath,
+            iterateBlock,
+            target,
+            targetPath;
+Stak        iterateStack;
+boolean
+    debugPath:2[debugBlock debugAll]
+    endPath
+    hitBottom
+    pathError:3[methodFailed noAttributes notDeepEnough noMatch]
+    ;
+    
+#autoGetSet
+
+PathIterator(GroupItem p,GroupItem s)
+{
+#initNOT
+    setInitialPath(p);
+    setInitialBlock(s);
+    target = null;
+    iterateStack = new;
+}
+
+/*****************************************************************************
+    Returns true if the attributes of the iterateBlock match the attributes
+    of iteratePath.
+*****************************************************************************/
+int attributesMatch()
+{
+GroupItem   currentBlock,
+            pathAttribute;
+int         alternateFlag;
+use iterateBlock
+    while pathAttribute = iteratePath.nextAttribute(pathAttribute)
+        {
+        if pathAttribute.isOption || pathAttribute.noPrint continue;
+        if alternateFlag
+            {
+            alternateFlag = pathAttribute.isAlternate;
+            continue;
+            }
+        if !hasAttributes
+            {
+            noAttributes = true;
+            goto failedMatch;
+            }
+        /*****************************************************************
+            if pathAttribute is not a regular expression, can do a simple
+            search for a matching attribute based on tag.
+        *****************************************************************/
+        if !pathAttribute.isRegexGRP
+            {
+            if currentBlock = getAttribute(pathAttribute.tag)
+                {
+if debugPath cout `"path attribute: " pathAttribute.tag "=" pathAttribute.text,currentBlock.tag:;
+                if currentBlock.matches(pathAttribute)
+                    goto checkAlternate;
+                }
+            if !pathAttribute.isAlternate goto failedMatch;
+            continue;
+            }
+        /*****************************************************************
+            pathAttribute is a regular expression so loop thru attributes
+            to see if any match the expression.
+        *****************************************************************/
+        currentBlock = null;
+        while currentBlock = nextAttribute(currentBlock)
+            if currentBlock.matches(pathAttribute) goto checkAlternate;
+        if !pathAttribute.isAlternate break;
+        continue;
+checkAlternate:
+        if pathAttribute.isTarget target = currentBlock;
+        /*****************************************************************
+            The alternateFlag is set when the attribute matches and
+            the pathAttribute is an alternate (that is, any following
+            alternate pathAttribute can be skipped).
+        *****************************************************************/
+        alternateFlag = pathAttribute.isAlternate;
+        }
+if debugPath cout ``"attributesMatch succeeded":;
+    return true;
+failedMatch:
+    if !pathError noMatch = true;
+    target = null;
+if debugPath cout ``"attributesMatch failed":;
+    return false;
+}
+
+/*****************************************************************************
+    Walk the path, checking for actions. Also checks to see if we need to
+    descend any attributes. Note: an attribute cannot have both. That is if
+    it has a method, we do not descend it.
+*****************************************************************************/
+void checkForActions(GroupItem path)
+{
+GroupItem group,pathAttribute;
+    while group = path.walk(group)
+        {
+        while pathAttribute = group.nextAttribute(pathAttribute)
+            {
+            //  modified overloaded to indicate path has attribute descend
+            if pathAttribute.method
+                {
+                if pathAttribute["onFailure"] pathAttribute.onFailure = true;
+                }
+            or !path.modified && !path.hasMembers && pathAttribute.hasMembers
+                {
+                path.modified = true;
+                checkForActions(pathAttribute);
+                }
+            }
+        }
+}
+
+/*****************************************************************************
+    Error messages
+*****************************************************************************/
+void displayError()
+{
+    cerr ```"Failed: ";
+    if noAttributes cerr "Expected attributes from ";
+    or notDeepEnough cerr "Expected members from ";
+    or noMatch cerr "No match for ";
+    cerr iterateBlock.getTagXML(),"comparing to",iteratePath.getTagXML():;
+}
+
+/*****************************************************************************
+    Returns the next block that matches the path.
+*****************************************************************************/
+GroupItem next()
+{
+GroupItem pathAttribute;
+    target      = null;
+    hitBottom   = false;
+    if !endPath
+        {
+        if !iterateBlock iterateBlock = initialBlock.nextMember(0);
+        while iterateBlock
+            {
+            if iterateBlock["debug"] debugBlock = true;
+if debugPath cout "Walked to",iterateBlock.getTagXML():;
+            pathError = 0;
+            if !(iterateBlock.matches(iteratePath))
+                pathError = true;
+            or !(iteratePath.hasAttributes && attributesMatch())
+                pathError = true;
+            or iteratePath.isTarget
+                {
+                target = iterateBlock;
+if debugPath cout ```"found target",iterateBlock.tag:;
+                }
+                
+            /*****************************************************************
+                Process any path methods.
+            *****************************************************************/
+            while pathAttribute = iteratePath.nextAttribute(pathAttribute)
+                if pathAttribute.method
+                    {
+                    if !pathError && !pathAttribute.onFailure
+                        pathAttribute(iterateBlock);
+                    or pathError && pathAttribute.onFailure
+                        pathAttribute(iterateBlock);
+                    }
+            if pathError && debugPath displayError(); or debugPath cout ```"succeeded":;
+            iterateBlock = walkPath();
+            if hitBottom
+                {
+                if debugBlock debugPath = false;
+                break;
+                }
+          }
+        }
+    return target;
+}
+
+/*****************************************************************************
+    Initialize the path.
+*****************************************************************************/
+void setInitialPath(GroupItem path)
+{
+    initialPath     = path;
+    iteratePath     = path;
+    checkForActions(path);
+}
+
+/*****************************************************************************
+    Initialize the initial block.
+*****************************************************************************/
+void setInitialBlock(GroupItem source)
+{
+    initialBlock    = source;
+    if initialBlock["debug"] debugAll = true;
+    iterateBlock    = null;
+}
+
+/*******************************************************************************
+    Walks blocks keeping path in sync
+*******************************************************************************/
+GroupItem walkPath()
+{
+GroupItem group,path;
+    if !iterateBlock.hasMembers
+        {
+        if iteratePath.hasMembers notDeepEnough = true;
+        or target hitBottom = true;
+        }
+    or iteratePath.noAnchor || iteratePath.hasMembers
+        {
+        if iteratePath.noAnchor || (path = iteratePath.nextMember(0))
+            {
+            push(iteratePath);
+if debugPath cout `"pushing",iteratePath.getTagXML():;
+            if path iteratePath = path;
+            iterateBlock = iterateBlock.nextMember(0);
+            return iterateBlock;
+            }
+        }
+    while group = iterateBlock.parent
+        {
+        if iterateBlock = group.nextMember(0)
+            break;
+        if group == initialBlock
+            {
+            iterateBlock = null;
+            endPath = true;
+            break;
+            }
+        if !iterateBlock && group.parent
+            {
+            iterateBlock = group;
+            if iterateBlock == target hitBottom = true;
+            // reset path up because we are about to ascend
+            if iteratePath = pop()
+                if debugPath cout `"popping",iteratePath.getTagXML(),iterateBlock.tag:;
+            }
+        }
+    return iterateBlock;
+}
+}
+

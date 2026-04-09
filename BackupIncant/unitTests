@@ -1,0 +1,213 @@
+include("/Users/anthony/Dropbox/data/InProcess/Groups/XML/tokens");
+include("/Users/anthony/Dropbox/data/InProcess/Groups/XML/utilities");
+register(Stuff);
+search reset Grokking Stuff list;
+define
+    /***************************************************************************
+        Data
+    ***************************************************************************/
+    indenter=0;
+    maximus=11;
+    righty=13;
+    someString="this is just a test string";
+    styleTest merge lightGreen rounded;
+    sumple height=200 width=250 x=100 y=100 down=*:
+        crossing height=50;;
+    simple across styleTest height=212 width=250 x=100 y=100:
+        quinto width=150;
+        sexto height=12;
+        fifth;;
+    sample x=300 y=450 width=400 height=200:
+        second;
+        third pad=5 fill=wall across:
+            wrap="This is a whole lot of text that I am using to test out text views, scrolling, and isn't it nice that the xcode text editor wraps lines and indents auto-magically. The base rule is you have to specify everything you want, nothing implied." fill=purple:
+                one text pad=7 border;;
+            two fill=red left=2;
+            three fill=white width=50% left=2:
+                stuff text=one pad=6;;;
+        fourth rounded pad fill=lightGreen height=12;
+        fifth;;
+    aGroup one two three;
+    distance="height";
+    hasGroup=simple;
+    lightBlue=ceffff;
+
+    /***************************************************************************
+        Actions
+    ***************************************************************************/
+    accessTest argument; { print "accessTest: "; if argument.across; print `"Saw across in" taG:; else print `No "across in" taG:; }
+    anotherTest; { print "anotherTest: max should be 14"``"it is" maximus + 3 and "we done":; }
+    breakPointTest argument; {
+        print "breakPointTest:";
+        dumpResults(argument);
+        }
+    callMyself argument; {
+        print :"callMyself:"`;
+        print "First time:" argument righty;
+        if righty == 13;
+            righty++;
+            callMyself(aGroup);
+        print "Second time:" argument righty;
+        }
+    commaStuff="44,two,  forty three,six,6.7,ninety one";
+    delimitRecord isRule countField}=1 skip-}=3 numberField}=1.0 stringField};
+    feeling='having a few doubts ends here';
+    formatTest; { print "formatTest:" `is "Formatted"%12s maybe:; }
+    ifTest; { print "ifTest:"`; if across; if righty; print "Got it":;;
+        or hasGroup; print `"No across, saw or statement":; }
+    invokeTest; { print "invokeTest:"` clear(aGroup); anotherTest(); print Invoked:; }
+    jsonFile file="/Users/anthony/Dropbox/data/InProcess/Groups/Tests/test.json";
+    layout; { gruber = 23; print "layout:"`"Here is" parenT.taG and gruber:; }
+    lefty=3; { lefty += 43; print "lefty:"`"got reset to" lefty:; }
+    list isRule target=ANYtoken+ SemI-; {
+        print "list tests the for statement:":;
+        for sumGrup IN target; print `sumGrup:; }
+    printTest; { print "printTest:":``"lefty should return itself but instead it returns" lefty():
+        ``"We need to write a return method":; }
+    simpleIF; { print "simpleIF:":`; if righty; maximus = righty + 35; else maximus = 12; anotherTest(); }
+    stringTest; { print "stringTest:"`what = righty + 2 "added 2 to righty" whatsIt; }
+    testAnd; { print "testAnd:"`; if righty! OR feeling; print Saw righty feeling:; else print "I see nothing":; }
+    testARG argument; { print "testARG:"`"Argument is:" argument:; }
+    testForC argument second=56 third="WTF?"; {
+        print "testForC:"`"Components of" argument with second third:;
+        for grup IN argument; attributes
+            print `grup += righty:; }
+    testIndentBlock; {
+        print "testIndentBlock:":;
+        if righty;
+            print `One:;
+            print `Two:;
+        else print Three:; }
+    testNegate; { print "testNegate:"`; if whatever!; print "No result":; else print "Negate failed":; }
+    testNew argument; { grup = new(argument); grup++; return grup; }
+    testPointer lineIn; {
+        print "testPointer:"`;
+        argument = lineIn + 4;
+        if argument& > lineIn; print "Yes it is":; else print "No it aint":; }
+    xpTest HooHaa result=3 message="Gomer is a goober"; { print "xpTest:" `HooHaa result++ result++ message whatsIt:; }
+    ;
+
+whatsIt = string is what "I am talking about":;
+print :``This whatsIt;
+print "New righty =" testNew(righty) "Old righty =" righty:;
+accessTest();
+accessTest(simple);
+anotherTest();
+breakPointTest(simple);
+ifTest();
+maximus = righty + 35;
+printDefinition(simple);
+printTest();
+simpleIF();
+testAnd();
+testARG(hasGroup);
+testARG(righty += 22);
+testARG(righty += 22); 
+testIndentBlock();
+stringTest();
+xpTest();
+list; some random stuff and we done;
+list("righty 3.1 seven eight nine;");
+printDefinition(JSONlist(jsonFile));
+printDefinition(delimitRecord(commaStuff));
+stop();
+
+/*******************************************************************************
+    Test commands
+*******************************************************************************/
+whatsIt = string is what "I am talking about":;
+accessTest();
+accessTest(simple);
+anotherTest();
+breakPointTest(simple);
+ifTest();
+maximus = righty + 35;
+printDefinition(simple);
+printTest();
+simpleIF();
+testAnd();
+testARG(hasGroup);
+testARG(righty += 22);
+testARG(righty += 22);
+stringTest();
+xpTest();
+list; some random stuff and we done;
+list(righty 3.1 seven eight nine);
+initFrame(sample);
+printDefinition(sample);
+initFrame(sumple);
+printDefinition(sumple);
+/*******************************************************************************
+    The following tests need work
+*******************************************************************************/
+draw curve 2 3 5.1 5.2 6.2 6.7;
+    /***************************************************************************
+        Data
+    ***************************************************************************/
+    indenter=0;
+    maximus=11;
+    righty=13;
+    someString="this is just a test string";
+    styleTest mergeOn lightGreen rounded;
+    simple styleTest across height=250 width=250 x=100 y=50:
+        quinto width=150;
+        sexto:
+            primo red;
+            segundo copperFont;;;
+    aGroup one two three;
+    distance="height";
+    hasGroup=simple;
+    lightBlue=ceffff;
+
+    /***************************************************************************
+        Actions
+    ***************************************************************************/
+    accessTest argument; { print "accessTest: "; if argument.across; print `"Saw across in" taG:; else print `No "across in" taG:; }
+    anotherTest; { print "anotherTest: max should be 14"``"it is" maximus + 3 and "we done":; }
+    breakPointTest argument; {
+        print "breakPointTest:";
+        dumpResults(argument);
+        }
+    callMyself argument; {
+        print :"callMyself:"`;
+        print "First time:" argument righty;
+        if righty == 13;
+            righty++;
+            callMyself(aGroup);
+        print "Second time:" argument righty;
+        }
+    feeling='having a few doubts ends here';
+    formatTest; { print "formatTest:" `is "Formatted"%12s maybe:; }
+    ifTest; { print "ifTest:"`; if across; if righty; print "Got it":;;
+        or hasGroup; print `"No across, saw or statement":; }
+    invokeTest; { print "invokeTest:"` clear(aGroup); anotherTest(); print Invoked:; }
+    jsonFile file="/Users/anthony/Dropbox/data/InProcess/Groups/Tests/test.json";
+    layout; { gruber = 23; print "layout:"`"Here is" parenT.taG and gruber:; }
+    lefty=3; { lefty += 43; print "lefty:"`"got reset to" lefty:; }
+    list isRule target=ANYtoken+ SemI-; {
+        print "list tests the for statement:":;
+        for sumGrup IN target; print `sumGrup:; }
+    printTest; { print "printTest:":``"lefty should return itself but instead it returns" lefty():
+        ``"We need to write a return method":; }
+    simpleIF; { print "simpleIF:":`; if righty; maximus = righty + 35; else maximus = 12; anotherTest(); }
+    stringTest; { print "stringTest:"`what = righty + 2 "added 2 to righty" whatsIt; }
+    testAnd; { print "testAnd:"`; if righty! OR feeling; print Saw righty feeling:; else print "I see nothing":; }
+    testARG argument; { print "testARG:"`"Argument is:" argument:; }
+    testForC argument second=56 third="WTF?"; {
+        print "testForC:"`"Components of" argument with second third:;
+        for grup IN argument; attributes
+            print `grup += righty:; }
+    testIndentBlock; {
+        print "testIndentBlock:":;
+        if righty;
+            print `One:;
+            print `Two:;
+        else print Three:; }
+    testNegate; { print "testNegate:"`; if whatever!; print "No result":; else print "Negate failed":; }
+    testNew argument; { grup = new(argument); grup++; return grup; }
+    testPointer lineIn; {
+        print "testPointer:"`;
+        argument = lineIn + 4;
+        if argument& > lineIn; print "Yes it is":; else print "No it aint":; }
+    xpTest HooHaa result=3 message="Gomer is a goober"; { print "xpTest:" `HooHaa result++ result++ message whatsIt:; }
+    ;

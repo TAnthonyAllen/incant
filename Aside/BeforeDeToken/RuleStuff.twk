@@ -1,0 +1,599 @@
+
+include groupIncludes
+
+/*******************************************************************************
+	RuleStuff is used to stash data used by the parseRULE method
+*******************************************************************************/
+class RuleStuff
+{
+String      ruleName;       // for debugging
+String      hereAt;
+GroupItem   label;
+RuleStuff   parentStuff,
+            onGroup,
+            onSuccess,
+            onFail,
+            onTrack,
+            priorStuff;
+GroupItem   rule;
+int         kount,
+            max,
+            min;
+boolean
+    completed
+    followed
+    guardOK
+    inProcess
+    isSpaced
+    lastTest
+    sukcess
+    ;
+static RuleStuff    newSTUFF;
+
+/*******************************************************************************
+	RuleStuff constructor.
+*******************************************************************************/
+RuleStuff(GroupItem grup)
+{
+    rule    = grup;
+    max     = getMax(rule);
+    min     = getMin(rule);
+    ruleName    = tag;
+    stuffSTAK   += this;
+}
+
+/*******************************************************************************
+	Return a new or used ruleStuff instance
+*******************************************************************************/
+RuleStuff getNewRuleStuff(GroupItem grup,GroupItem lb,int k)
+{
+RuleStuff   ruleStuff;
+GroupRules  ruler = groupRules;
+use rule
+    if usedStuff.length
+        {
+        ruleStuff = usedStuff.pop();
+        memset(ruleStuff,0,sizeof(RuleStuff));
+        ruleStuff.rule      = grup;
+        ruleStuff.hereAt    = hereAt;
+        ruleStuff.max       = getMax(grup);
+        ruleStuff.min       = getMin(grup);
+        ruleStuff.ruleName  = grup.tag;
+        stuffSTAK           += ruleStuff;
+        }
+    else    ruleStuff = new(grup);
+    ruleStuff.label         = lb;
+    ruleStuff.kount         = k;
+    ruleStuff.sukcess       = false;
+    ruleStuff.priorStuff    = this;
+    return ruleSTUFF = ruleStuff;
+}
+}
+
+/*******************************************************************************
+	checkGuard sets the guardSet if it does not exist and returns true if the
+    current input pointer is in the guardSet
+*******************************************************************************/
+extern int checkGuard(RuleStuff ruleStuff)
+{
+PLGset      guardSet = getGuard(rule);
+use rule
+    if !guardSet || (atRuleMark && guardSet.contains(*atRuleMark))  guardOK = true;
+    else    guardOK = false;
+    sukcess = guardOK || !min || kount >= min;
+    return guardOK;
+}
+
+/*******************************************************************************
+        Runs when parse ends to stash any ruleStuff hanging around into usedStuff
+*******************************************************************************/
+extern void cleanUp()
+{
+RuleStuff   ruleStuff;
+GroupRules  ruler = groupRules;
+GroupItem   grup;
+int         registered;
+    groupTape.status();
+    while grup = registries.nextMember(grup)
+        registered += contents();
+    cout "Registered groups:",registered:;
+    while grup = registries.nextMember(grup)
+        cout `tag,contents():;
+    if stuffSTAK.length
+        {
+        cout :"cleanUp: moving",stuffSTAK.length,"RuleStack instances to usedStuff":;
+        while ruleStuff = stuffSTAK.pop()   usedStuff += ruleStuff;
+        }
+    else cout :"cleanUp: no RuleStuff to move to usedStuff":;
+    cout "Done":;
+}
+
+/*******************************************************************************
+	getInput
+*******************************************************************************/
+extern int getInput()
+{
+GroupRules  ruler = groupRules;
+    if !atRuleMark
+        {
+        cerr "getInput: no input source":;
+        return false;
+        }
+    /***************************************************************************
+        Check for end of input and deal w/diversion if diverted
+    ***************************************************************************/
+    if inputDiverted && !*atRuleMark
+        while inputDiverted && !*atRuleMark     popInput();
+    if !*atRuleMark     return null;
+    return true;
+}
+
+/*******************************************************************************
+	Get a label.
+*******************************************************************************/
+extern GroupItem getLabel()
+{
+GroupRules  ruler = groupRules;
+RuleStuff   ruleStuff = ruleSTUFF;
+GroupItem   pending;
+use rule
+    if parentStuff   pending = parentStuff.label;
+    or processingCode
+        {
+        if currentMETHOD.isLabel    label = currentMETHOD;
+        else    label = currentMETHOD["INstruct"];
+        goto endLabel;
+        }
+    if label = getAttribute("label")
+        if label = label.group  goto endLabel;
+    if !pending && isEmbedded && parent && parent.noLabel  goto endLabel;
+    if pending && pending.isTarget
+        {
+        label = pending;
+        pending.isTarget = false;
+        }
+    or isTarget     label = pending;
+    else {
+        if isRule || data || (isMember && parent.isRule) || isREGISTRY || isBIN
+            {
+            if pending
+                if pending.fLAG
+                    {
+                    label           = pending;
+                    label.isLabel   = true;
+                    label.fLAG      = false;
+                    }
+                or (isMember && parent.isRule) || isEmbedded
+                    if max == 1 || isANY || isCHAR || isSET || (isEmbedded && !isOption)
+                        label   = pending;
+            }
+        if !label
+            {
+            label           = new(tag);
+            label.isLabel   = true;
+            }
+        }
+endLabel:
+    return label;
+}
+
+/*******************************************************************************
+	Updates onSuccess and onFail, makes sure both have their ruleStuff. This
+    then cascades thru all the rules descending from the rule in this RuleStuff.
+    or !(star || plus)  onSuccess  = parentStuff;
+*******************************************************************************/
+extern void getWhatFollows(RuleStuff ruleStuff)
+{
+GroupItem   grup;
+RuleStuff   embedStuff;
+use ruleStuff
+use rule
+    followed = true;
+    if hasMembers && !binType
+        {
+        grup    = rule.nextMember(0);
+        if !data && !hasNNPattributes && !parseACTION
+            {
+            onTrack = getNewRuleStuff(grup,0,0);
+            onTrack.parentStuff = ruleStuff;
+            onFail  = parentStuff;
+            }
+        else {
+            onFail  = getNewRuleStuff(grup,label,0);
+            onFail.parentStuff = ruleStuff;
+            }
+        }
+    if hasNNPattributes && !parseACTION
+        {
+        grup    = rule.nextNNPattribute(0);
+        onTrack = getNewRuleStuff(grup,0,0);
+        onTrack.parentStuff = ruleStuff;
+        }
+    if isAttribute
+        {
+        if grup = rule.followingAttribute()
+            {
+            onSuccess   = getNewRuleStuff(grup,0,0);
+            onSuccess.parentStuff   = parentStuff;
+            }
+        else {
+            lastTest    = true;
+            if max > 1 && (!data || data > 3)
+                {
+                cout :;
+                indent();
+                cerr "getWhatFollows: ERROR",tag,"allows multiples, should be embedded or onSuccess will be wrong";
+                exit(1);
+                }
+            onSuccess = parentStuff;
+            }
+        }
+    or isMember
+        {
+        // parentStuff check because first rule will be a member and not have it
+        if max > 1 && (!data || data > 3)
+            {
+            cout :;
+            indent();
+            cerr "getWhatFollows: ERROR",tag,"members should not have + or * modifier";
+            exit(1);
+            }
+        if parentStuff
+            {
+            if parentStuff.noLabel  noLabel = true;
+            onSuccess = parentStuff;
+            if grup = followingMember()
+                {
+                onFail = getNewRuleStuff(grup,label,0);
+                onFail.parentStuff  = parentStuff;
+                }
+            else        lastTest = true;        // should we set onFail = parentStuff here???
+            }
+        }
+    or isEmbedded
+        if parentStuff
+            {
+            if max > 1 && (!data || data > 3)   onSuccess = ruleStuff;
+            or parentStuff.onTrack              onSuccess = parentStuff.onTrack;
+            else                                onSuccess = parentStuff;
+            lastTest = true;
+            }
+        or showWarnings cerr :`"getWhatFollows: no parent stuff for",tag;
+    if isGROUP
+        {
+        onGroup         = getNewRuleStuff(group,0,0);
+        if hasMembers   onGroup.onFail = onFail;
+        onGroup.parentStuff = ruleStuff;
+        }
+    if !onSuccess
+        if max > 1 && (!data || data > 3)  onSuccess = ruleStuff;
+        else        onSuccess = parentStuff;
+    if !onFail && parentStuff
+        if isEmbedded
+            {
+            embedStuff = ruleStuff;
+            while embedStuff && embedStuff.isEmbedded   embedStuff = embedStuff.parentStuff;
+            if embedStuff.min > 0 && (embedStuff.max == 1 || embedStuff.data < 4)
+                if embedStuff.isAttribute  onFail = embedStuff.onFail;
+                else ruleStuff.onFail = embedStuff;
+            }
+}
+
+/*******************************************************************************
+	Revised stream parser. POP required.
+*******************************************************************************/
+extern GroupItem parseRULE(GroupItem input)
+{
+RuleStuff   ruleStuff = ruleSTUFF = new(input);
+GroupRules  ruler   = groupRules;
+use rule
+    if getInput()
+        while rule
+            {
+            if !followed    getWhatFollows(ruleStuff);
+            ruleSTUFF       = ruleStuff;
+            hereAt          = atRuleMark;
+            /*******************************************************************
+                Handle space skipping
+            *******************************************************************/
+            if !rule.noSkip && atRuleMark != lastSkip && atRuleMark != beforeSkip && *atRuleMark
+                atRuleMark  = checkSkip(atRuleMark);
+            if !*atRuleMark
+                if getInput()
+                    {
+                    if divertToRule divertToRule = false;
+                    continue;
+                    }
+                else            goto endParsing;
+            if isCondition
+                {
+                guardOK     = true;
+                sukcess     = true;
+                if plus     count += 1;
+                if sukcess = count > 0
+                    if noLabel  gCount--;
+                goto matchEnd;
+                }
+            sukcess     = false;
+            /*******************************************************************
+                Check the rule guard
+            *******************************************************************/
+            if !checkGuard(ruleStuff)   goto matchEnd;
+            if label && label.isTrashed label = 0;
+            if !label && !noLabel       getLabel();
+            /*******************************************************************
+                Match on.
+            *******************************************************************/
+            if parseACTION || (!data && !contents() && isMethod)
+                if label    sukcess = rule.method(label) ? true : false;
+                else        sukcess = rule.method(rule) ? true : false;
+            or isBIN || isREGISTRY          sukcess = testContainer();
+            or !isGROUP
+                if data
+                    switch(data)
+                        {
+                        case isANY:             sukcess = testAny();
+                        case isCHAR:            sukcess = testCharacter();
+                        case isSET:             sukcess = testSet();
+                        case isBUFFER:
+                        case isFILE:
+                        case isITEM:
+                        case isSTRING:
+                        case isTOKEN:           sukcess = testString();
+                        default:                cout "parseRULE: type match not supported":;
+                        }
+                or isAttribute && !contents() sukcess = testString();
+matchEnd:
+            if guardOK && sukcess
+                {
+                if !inProcess && !parseACTION && hasNNPattributes     inProcess = true;
+                if isGROUP  ruleStuff = onGroup;
+                or onTrack  ruleStuff = onTrack;
+                if ruleStuff != ruleSTUFF   continue;
+                }
+            ruleStuff = passOrFail(ruleStuff);
+            if !ruleStuff || completed break;
+            }
+endParsing:
+    if !processingCode      cout :"parseRULE: ending parse":;
+    //cleanUp();
+    if ruleStuff && sukcess return label;
+    cerr :"parseRULE: parse failed":;
+    return null;
+}
+
+/*******************************************************************************
+	Check if the rule passed or failed. It returns the next rule to process.
+*******************************************************************************/
+extern RuleStuff passOrFail(RuleStuff ruleStuff)
+{
+GroupRules  ruler   = groupRules;
+GroupItem   grup;
+int         failure;
+use rule
+    /***************************************************************************
+        The rule status changes if banged.
+    ***************************************************************************/
+    if banged
+        {
+        sukcess = !sukcess;
+        goto checkSuccess;
+        }
+    if sukcess
+        if !guardOK
+            {
+            sukcess = false;
+            goto clearLabel;
+            }
+        else goto checkSuccess;
+checkFailure:
+    if !followed    getWhatFollows(ruleStuff);
+    atRuleMark = hereAt;
+    if onFail && !data && !hasAttributes && (isMember || hasMembers)   return onFail;
+clearLabel:
+    if label
+        {
+        label.toTrash();
+        if !isMember && !hasMembers label = null;
+        }
+    /***************************************************************************
+        If kount we did not completely fail
+    ***************************************************************************/
+    if kount >= min
+        if lastTest
+            {
+            ruleStuff   = parentStuff;
+            inProcess   = false;
+            sukcess     = true;
+            failure     = true;
+            goto checkSuccess;
+            }
+        else return onSuccess;
+    if onFail && onFail != parentStuff  ruleStuff = onFail;
+    or parentStuff
+        {
+        parentStuff.sukcess = sukcess;
+        ruleStuff   = parentStuff;
+        if sukcess  goto checkSuccess;
+        goto checkFailure;
+        }
+    else ruleStuff = null;
+    goto exitPassOrFail;
+    
+checkSuccess:
+    /***************************************************************************
+        Rule succeeded, if there is a rule method or action run it, which may
+        alter sukcess.
+    ***************************************************************************/
+    if !followed    getWhatFollows(ruleStuff);
+    if !inProcess
+        {
+        if instructType && !parseACTION && sukcess
+            {
+            /*******************************************************************
+                The method might change ruleSTUFF (ie. RunRulE).
+            *******************************************************************/
+            ruleSTUFF = ruleStuff;
+            if isMethod
+                {
+                grup = method(label);
+                if grup     sukcess = true;
+                else        sukcess = false;
+                if newSTUFF
+                    {
+                    newSTUFF.parentStuff = ruleStuff;
+                    ruleStuff   = newSTUFF;
+                    if *parentStuff.ruleName == 'X' affiliation = 0;
+                    newSTUFF    = null;
+                    goto exitPassOrFail;
+                    }
+                }
+            or label && (isAction || isCoded)   sukcess = processAction(rule,label);
+            if !sukcess goto checkFailure;
+            }
+        hereAt      = atRuleMark;
+        /***********************************************************************
+            Deal w/label and increment kount
+        ***********************************************************************/
+        if label
+            if parentStuff
+                {
+                if parentStuff.label && label != parentStuff.label
+                    if max > 1 && label.isGROUP && !label.isRule && !label.howInstructed
+                        && !label.instructType && !label.listLength
+                        parentStuff.label += label.group;
+                    else parentStuff.label += label;
+                label.toTrash();
+                label = 0;
+                }
+        if sukcess && max > 1 && (!data || data > 3)    kount++;    // otherwise kount is irrelevant
+        /***********************************************************************
+            Process parent success if this is parent last test
+        ***********************************************************************/
+        if parentStuff && !completed
+            {
+            if isMember
+                {
+                onSuccess.sukcess   = true;
+                ruleStuff           = onSuccess;
+                inProcess           = false;
+                goto checkSuccess;
+                }
+            if lastTest
+                if !sukcess || (max == 1 || (data && data < 4))
+                    {
+                    if isAttribute  parentStuff.inProcess = false;
+                    parentStuff.sukcess = true;
+                    ruleStuff       = parentStuff;
+                    goto checkSuccess;
+                    }
+            }
+        else {
+            completed = true;
+            goto    exitPassOrFail;
+            }
+        }
+    /***************************************************************************
+        Set success follow. The if statement below handles continuation for
+        attributes w/max > 1 that do not succeed until they fail.
+    ***************************************************************************/
+    if isAttribute && !(max > 1 && (!data || data > 3) && !isEmbedded && failure)
+        if inProcess    ruleStuff = onTrack;
+        else            ruleStuff = onSuccess;
+exitPassOrFail:
+    return ruleStuff;
+}
+
+#testMacro(tester)-
+int         counter;
+    if *atRuleMark
+        {
+        while tester
+            {
+            counter++;
+            atRuleMark++;
+            if !*atRuleMark || counter >= max break;
+            }
+        if counter && counter >= min
+            {
+            if noAdvance    atRuleMark = hereAt;
+            or label        label.setToken(hereAt,counter);
+            return true;
+            }
+        }
+    return false;-
+
+/*******************************************************************************
+	Run a wild card test on this group against current input
+*******************************************************************************/
+extern int testAny()
+{
+GroupRules  ruler   = groupRules;
+RuleStuff   ruleStuff = ruleSTUFF;
+testMacro(counter < max);
+}
+
+/*******************************************************************************
+	Run a character test on this group against current input
+*******************************************************************************/
+extern int testCharacter()
+{
+GroupRules  ruler   = groupRules;
+RuleStuff   ruleStuff = ruleSTUFF;
+testMacro(*atRuleMark == rule.character && counter < max);
+}
+
+/*******************************************************************************
+	Run a character set test on this group against current input
+*******************************************************************************/
+extern int testSet()
+{
+GroupRules  ruler   = groupRules;
+RuleStuff   ruleStuff = ruleSTUFF;
+PLGset  set = rule.characterSet;
+testMacro(set.contains(*atRuleMark));
+}
+
+/*******************************************************************************
+    Registry and Container test looks for an entry that matches the input stream.
+*******************************************************************************/
+extern int testContainer()
+{
+GroupRules  ruler = groupRules;
+RuleStuff   ruleStuff = ruleSTUFF;
+GroupItem   item = getFromStream(atRuleMark);
+    if item
+        {
+        if rule.noAdvance   atRuleMark = hereAt;
+        or label
+            {
+            label.group = item;
+            atRuleMark  += strlen(item.tag);
+            }
+        return      true;
+        }
+endContainerTest:
+    return false;
+}
+
+/*******************************************************************************
+	Run a string test on this group against current input
+*******************************************************************************/
+extern int testString()
+{
+GroupRules  ruler = groupRules;
+RuleStuff   ruleStuff = ruleSTUFF;
+String      matchedString = matches(rule,atRuleMark);
+    if matchedString
+        {
+        GroupItem   endNameSet = grok["endNameSet"];
+        PLGset      set = endNameSet.characterSet;
+        if rule.isLiteral || set.contains(*matchedString) || set.contains(*atRuleMark)
+            {
+            if rule.noAdvance   atRuleMark = hereAt;
+            or label    label.text = matchedString;
+            return      true;
+            }
+        }
+    return false;
+}

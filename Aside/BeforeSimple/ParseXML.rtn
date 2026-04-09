@@ -1,0 +1,1029 @@
+GroupItem       ancestor,
+                block,
+                currentBlock,
+                field,
+                fieldRegistry,
+                fileList,
+                jitInclude,
+                lastSelect,
+                list,
+                monthRegistry,
+				outerBlock,
+                record,
+                yearRegistry;
+PLGitem			jitHeader,
+                testItem;
+Buffer			scratch;
+String			skip,
+                setName;
+char			delimiter,
+				endRecord,
+				outputDelimit,
+				outputEnd;
+int				groupItems,
+				openTags
+                recordNumber;
+PLGset			notSpace,
+				spaces;
+Stak			blockStack,
+                endTags,
+                immediates;
+ParseXML		pathParser;
+boolean
+                jsonType:3[isBlock isJSONtext isRepeat]
+                complexPath
+				doneWithHeading
+                droppedAnchor
+				firstTag
+				hasHeading
+				ignoreSkip
+				isThreaded
+                commanding
+                noLineByLine
+				numberValues
+                settingPath
+				targetSet
+				trimLeadingSpace
+                useStash
+				;
+
+/*****************************************************************************
+	Constructor
+*****************************************************************************/
+ParseXML()
+{
+	endTags			= new;
+    immediates      = new;
+	notSpace		= new("^ \t\r\f\n");
+	scratch			= new("scratch buffer");
+	spaces			= new(" \t");
+    doNotExpandMacros   = true;
+	trimLeadingSpace    = true;
+	outputDelimit	=
+	delimiter		= ',';
+	outputEnd		=
+	endRecord		= '\n';
+    blockStack      = new;
+	skip			= "skip";
+    mainParser      = this;
+    noLineByLine    = true;
+    noComments      = true;
+}
+
+ParseXML(ParseXML p)
+{
+#initNOT
+	*this = *p;
+    mainParser  = this;
+    rules       = new;
+	reset();
+}
+
+/*******************************************************************************
+	Modifies the item passed in to handle backslash escape sequences
+*******************************************************************************/
+void convertItem(PLGitem item)
+{
+String  atText = convertSetInput(item);
+int     atLength = (int)strlen(atText);
+    if item.length != atLength
+        {
+        item.itemStart  = atText;
+        item.length     = atLength;
+        }
+}
+
+/*******************************************************************************
+	Handles input specifying backslash escape sequences
+*******************************************************************************/
+String convertSetInput(PLGitem item)
+{
+String  atText = itemStart;
+int     i;
+    scratch.reset();
+    while i < itemLength
+        if *atText == '\\'
+            {
+            if *(atText+1) == 'f'
+                print(scratch) "\f";
+            or *(atText+1) == 'n'
+                print "\n";
+            or *(atText+1) == 'r'
+                print "\r";
+            or *(atText+1) == 't'
+                print "\t";
+            else goto exitConvert;
+            i       += 2;
+            atText  += 2;
+            }
+        else {
+exitConvert:
+            print *atText++;
+            i++;
+            }
+    return scratch.toString();
+}
+
+/******************************************************************************
+	Utility routine to convert spaces in a string to underlines
+******************************************************************************/
+String despace(String s)
+{
+String atText = s;
+	while *atText
+		{
+		if !nameSet.contains(*atText)
+			{ *atText = '_'; }
+		atText++;
+		}
+	return s;
+}
+
+/*****************************************************************************
+	Create a new group filtered so that its members only contain the attributes
+    that are in the filter. The sources that get filtered are expected to be
+    listed as attributes of the group passed in (along with a filterBy attribute
+    that contains the attributes to be filtered in).
+*****************************************************************************/
+void filterBy(GroupItem group,GroupItem filter)
+{
+GroupItem   item,
+            itemPart,
+            mask,
+            partCopy;
+    if filter && filter.data
+        if mask = locate(filter.text)
+            {
+            while item = group.nextAttribute(item)
+                if item != filter
+                    {
+                    item    = null;
+                    while itemPart = item.nextMember(item)
+                        if partCopy = itemPart.filter(mask)
+                            group.addGroup(partCopy);
+                    }
+            }
+        else cerr "filterBy: could not find filter",filter:;
+    else cerr "filterBy: no filter value specified":;
+}
+
+/*******************************************************************************
+	Build and return the next field block (used when processing delimited fields).
+*******************************************************************************/
+GroupItem getFieldBlock(PLGitem item)
+{
+String  text = field.gText ? field.text : field.tag;
+    if item
+        {
+        if field.registry
+            {
+            if !(block = field.registry.get(item))
+                {
+                block = new(item);
+                field.registry += block;
+                }
+            }
+        else block = new(text);
+        }
+    else block = null;
+    return block;
+}
+
+/***************************************************************************
+	Returns true if path has a target set
+***************************************************************************/
+int hasTarget(GroupItem path)
+{
+GroupItem   group;
+use path
+    if path
+        {
+        if isTarget return true;
+        if hasMembers
+            while group = path.nextMember(group)
+                if hasTarget(group) return true;
+        if hasAttributes
+            {
+            group = null;
+            while group = path.nextAttribute(group)
+                if hasTarget(group) return true;
+            }
+        }
+    return false;
+}
+
+/***************************************************************************
+	Include and parse the file named in its argument
+***************************************************************************/
+void includeFile(String filename)
+{
+String  input;
+    if !fileList fileList = getRegistry("FileList");
+    or fileList[filename]
+        return;
+    fileList += filename;
+    input = getStringFromFile(filename);
+    cout "Including file: " filename:;
+    if input
+		{
+		divertInput(input);
+		parse("StartXML");
+		revertInput();
+		}
+}
+
+/*****************************************************************************
+        Indent text
+*****************************************************************************/
+void indentText(String source,Buffer buffer)
+{
+int i = debugIndent;
+String	text, atText, begin;
+	if !source return;
+	text = alloca(debugIndent + 1);
+	atText = text;
+    for ( i = debugIndent + 1; i > 0; i-- )
+		*atText++ = '\t';
+	*atText = 0;
+	begin	=
+	atText	= source;
+	while *atText
+		{
+		if *atText == '\n'
+			{
+			if atText == begin
+				{
+				print(buffer) "\n" text;
+				atText++;
+				goto newLine;
+				}
+			*atText = 0;
+			print begin "\n" text;
+			*atText++ = '\n';
+			}
+		else {
+			atText++;
+			continue;
+			}
+newLine:
+		while *atText && *atText == '\n'
+			{
+			print '\n';
+			atText++;
+			}
+		begin = atText;
+		}
+	if begin != atText print begin;
+}
+
+/*******************************************************************************
+	Returns a PLGitem if text is a URL
+*******************************************************************************/
+PLGitem isURL(String text)
+{
+PLGitem result;
+    divertInput(text);
+	result = run("URLhead");
+    revertInput();
+	return result;
+}
+
+/***************************************************************************
+    Debugging routine to list out registries
+***************************************************************************/
+void listRegistries()
+{
+GroupItem   registri;
+    cout "Registry List":;
+    if registries && registries.groupListLength
+        while registri = registries.next(registri)
+            cout `registri.tag:;
+    else cout `"contains no entries":;
+}
+
+/******************************************************************************
+	Load a delimited file and convert into a group item. The specs item
+	passed in defines the delimit parameters.
+******************************************************************************/
+GroupItem loadDelimited(GroupItem specs)
+{
+String			inputFile,
+                diverted;
+GroupItem		field,
+                intoRegistry,
+                item;
+	list = null;
+    setName = specs.tag;
+	if !specs.hasAttributes && specs.data
+		inputFile = specs.text;
+    if !fieldRegistry
+        {
+        fieldRegistry = getRegistry("LoadFields");
+        fieldRegistry.isSorted = false;
+        }
+    /**************************************************************************
+        Read the attributes of the delimited file specification and set
+        associated flags and fields
+    **************************************************************************/
+    if item = specs["file"]         inputFile   = item.text;
+    if item = specs["heading"]      hasHeading  = true;
+    if item = specs["noSkip"]       ignoreSkip  = true;
+    if item = specs["delimiter"]    delimiter   = item.getCharacter();
+    if item = specs["endRecord"]    endRecord   = item.getCharacter();
+    if item = specs["skip"]         skip        = item.text;
+    if item = specs["into"]
+        {
+        list = locate(item);
+        if !list
+            if intoRegistry = registries[item.text]
+                list = intoRegistry;
+        }
+    if delimiter && endRecord
+        {
+        delimitSet.clear();
+        delimitSet.set(delimiter);
+        delimitSet.set(endRecord);
+        }
+    or delimiter || endRecord
+        cerr "loadDelimited: warning must set both delimiter and endRecord or neither; assuming defaults":;
+    else cout "loadDelimited: assuming default delimiter , and endRecord: carriage return":;
+	if inputFile
+		{
+        cout "Loading " inputFile:;
+        if isURL(inputFile)
+            {
+            scratch.reset();
+            if getURLintoBuffer(inputFile,scratch)
+                if scratch.length()
+                    {
+                    diverted = scratch.toString();
+                    divertInput(diverted);
+                    }
+            if !diverted
+                {
+                cerr "URL load failed":;
+                // at this point field is null
+                return field;
+                }
+            }
+        else divertInput(getStringFromFile(inputFile));
+		doneWithHeading = hasHeading ? false : true;
+        /**********************************************************************
+            Read the heading line of the delimited file, if there is one
+            to fill the field registry.
+        **********************************************************************/
+		if hasHeading
+			run("Heading");
+        /**********************************************************************
+            Flag the fields of interest and make sure the registries associated
+            w/fields are not closed.
+        **********************************************************************/
+        if item = specs["fields"] loadFieldSpecs(item);
+        else
+        while field = fieldRegistry.nextMember(field)
+            {
+            // Assume we want all the fields since no field list provided
+            field.fLAG = true;
+            }
+		if specs["debug"]
+            {
+            fieldRegistry.dump();
+            specs.dump();
+            cout "List of delimited fields":;
+            item = null;
+            while item = fieldRegistry.nextMember(item)
+                if item.fLAG cout `item.tag,"flagged":;
+                else cout ``item.tag:;
+            listRegistries();
+            }
+        /**********************************************************************
+            Clear list of fields from specs.
+        **********************************************************************/
+        if !list
+            {
+            list = specs;
+            if list.groupListStart list.clear();
+            }
+        field = null;
+		run("List");
+        resetItemTape();
+		}
+	else cerr "No input file specified":;
+    /**************************************************************************
+        Close the registries for registered fields
+    **************************************************************************/
+    item = null;
+    while item = fieldRegistry.nextMember(item)
+        if item.fLAG && item.registry && registry%"loadFromData" item.registry.isClosed = true;
+    if inputFile revertInput();
+    setName = null;
+    block   =
+    field   = null;
+	return list;
+}
+
+/*******************************************************************************
+    Reads field specifications and adds them to the field registry. Used in
+    loadDelimited() and loadJSON().
+        A field name of skip means ignore the field. If skip has a number
+        value, that many fields are skipped.
+ 
+        If there is a heading line, members of spec are merged with existing
+        fields in the field registry.
+*******************************************************************************/
+void loadFieldSpecs(GroupItem fieldSpecs)
+{
+String          skipName;
+GroupItem       field = locate(fieldSpecs),
+                item;
+int             i,skipper;
+    if !field
+        {
+        cerr "loadFieldSpecs: could not find" fieldSpecs:;
+        return;
+        }
+    else fieldSpecs = field;
+    record = new;
+    while item = fieldSpecs.nextMember(item)
+        {
+        skipName = item.data ? item.text : item.tag;
+        if field = fieldRegistry[item.tag]
+            {
+            GroupItem registered = registries[skipName];
+            field.fLAG = true;
+            field.registry = registered;
+            field.text = item.text;
+            }
+        or (item.tag eq skip)
+            if !item.data
+                {
+                skipName = skip skipper++;
+                fieldRegistry += itemFactory(skipName);
+                }
+            else
+            for (i = item.count; i > 0; i--)
+                {
+                skipName = skip skipper++;
+                fieldRegistry += itemFactory(skipName);
+                }
+        else {
+            fieldRegistry += item;
+            item.fLAG = true;
+            field = item;
+            }
+        if field.registry field.registry.isClosed = false;
+        /**********************************************************************
+            Check field attributes.
+        **********************************************************************/
+        if field && field.hasAttributes
+            {
+            /******************************************************************
+                Date attributes are excised for now
+            if field["mdy"]
+                {
+                //  field count set to 1 if date in MDY format
+                field.count = 1;
+                field.isDate = true;
+                }
+            or field["ymd"]
+                field.isDate = true;
+            if field.isDate && !monthRegistry
+                {
+                monthRegistry   = registries["month"];
+                yearRegistry    = registries["year"];
+                if !monthRegistry || !yearRegistry
+                    cerr "ERROR: month or year registry does not exist":;
+                }
+            ******************************************************************/
+            // If there is a tag attribute, use the field as the record tag
+            if field["key"]
+                {
+                field.isTarget = true;
+                record.isTarget = true;
+                }
+            if field["noMerge"]
+                field.noMerge = true;
+            }
+        }
+}
+
+/******************************************************************************
+    Load a json file and convert into a group item. The specs passed in defines
+    the load parameters.
+******************************************************************************/
+GroupItem loadJSON(GroupItem specs)
+{
+GroupItem       registered,
+                item;
+String          diverted,
+                inputFile,
+                outputName;
+    /**************************************************************************
+        Read the parameters of the specification
+    **************************************************************************/
+    list    = null;
+    if !fieldRegistry
+        fieldRegistry = getRegistry("LoadFields");
+    if item = specs["file"]         inputFile   = item.text;
+    if item = specs["into"]
+        {
+        list        = locate(item);
+        outputName  = item.text;
+        if !list && outputName
+            if registered = registries[outputName]
+                list = registered;
+        if !list && !registered cerr "loadJSON: could not find",item:;
+        }
+    else list = specs;
+    if inputFile
+        {
+        cout "Loading JSON data from",inputFile:;
+        if isURL(inputFile)
+            {
+            scratch.reset();
+            if getURLintoBuffer(inputFile,scratch)
+                if scratch.length()
+                    {
+                    diverted = scratch.toString();
+                    //cout diverted:;
+                    divertInput(diverted);
+                    }
+            if !diverted
+                {
+                cerr "URL load failed":;
+                return null;
+                }
+            }
+        else divertInput(getStringFromFile(inputFile));
+        if item = specs["fields"] loadFieldSpecs(item);
+        //debug = true;
+        run("JSONlist");
+        //debug = false;
+        revertInput();
+        if !list list = currentRegistry;
+        }
+    else {
+        cerr "loadJSON: No input file specified":;
+        list = null;
+        }
+    return list;
+}
+
+/******************************************************************************
+	Invoke gml rule parser applying the rule on the file given as attributes
+    in the specs passed in. If you supply a file name in the specs, the file
+    is used as input to the rule test, otherwise the current parser input is
+    used. If no rule attribute is specified, the specs file is assumed to be
+    a rule and is used for the test. The skip attribute is optional and only
+    needed if the default skip set (which contains spaces, tabs, new lines,
+    form feeds, and returns) does not suffice.
+******************************************************************************/
+GroupItem loadRule(GroupItem specs)
+{
+GroupItem   rule = specs%"rule";
+GroupItem   file = specs%"file";
+GroupItem   skip = specs%"skip";
+GroupItem   methodName = specs%"methodName";
+GroupItem   item;
+String      name;
+use specs
+use groupParser
+    /*********************************************************************
+        item is set as the label of the rule to be parsed.
+    *********************************************************************/
+    if methodName   name = methodName.text;
+    else name = specs.tag;
+    item = locate(name);
+    if !item
+        {
+        item    = new(name);
+        if currentRegistry  currentRegistry += item;
+        }
+    /*********************************************************************
+        Does this have to happen every fortnight? Looks like setup.
+    *********************************************************************/
+    if !wordEnd     wordEnd     = locate("wordEnd");
+    if skip && skip.isSetGRP
+        if ruleSkipSet ruleSkipSet.characterSet = skip.characterSet;
+        else ruleSkipSet = skip;
+    else if !ruleSkipSet
+        {
+        ruleSkipSet = new("skip");
+        ruleSkipSet.characterSet = defaultSkip;
+        // defaultSkip is defined in PLGparse
+        }
+    /*********************************************************************
+        Determine what input will be parsed.
+    *********************************************************************/
+    atRuleMark  = null;
+    if file
+        {
+        String inputFile    = file.text;
+        if inputFile
+            atRuleMark      = getStringFromFile(inputFile);
+        else cerr "loadRule: no file name given in attribute of",specs.getTagXML():;
+        }
+    or !(atRuleMark = specs.text)
+        atRuleMark  = plgStart;
+    ruleInputStart  = atRuleMark;
+    if !atRuleMark  cerr "loadRule: rule input not set",specs.getTagXML():;
+    /*********************************************************************
+        Determine parse rule. Start is default rule if no rule specified.
+    *********************************************************************/
+    if rule
+        {
+        String ruleName     = rule.text;
+        if ruleName rule    = locate(ruleName);
+        else        rule    = null;
+        }
+    if !rule        rule    = locate("Start");
+    if !rule        cerr "loadRule: could not find rule",specs.getTagXML():;
+    /*********************************************************************
+        Fire in the hole. Run parser. Return result.
+    *********************************************************************/
+    if item && atRuleMark && rule
+        if rule.isRule
+            {
+            ruleInput       = specs;
+            if rule.runParseRule(item)    return item;
+            }
+        else cerr "loadRule:",rule.tag,"is not a rule":;
+    return null;
+}
+
+GroupItem locate(PLGitem item)
+{
+String      name = item.string();
+GroupItem   group = locate(name);
+    item.unString();
+    return group;
+}
+
+/*****************************************************************************
+	Parse the file (presumably contains an xml string) into a list of blocks
+*****************************************************************************/
+GroupItem parseFile(String filename)
+{
+String      text = getStringFromFile(filename);
+    if text return parseString(text);
+    return null;
+}
+
+/***************************************************************************
+	Parses a macro. Diverts input to do it.
+***************************************************************************/
+void parseMacro(GroupItem macro,String text)
+{
+    block = macro;
+    divertInput(text,getRule("Macro"));
+    block = null;
+}
+
+/*****************************************************************************
+	Parse the xml string into a linked list of blocks
+*****************************************************************************/
+GroupItem parseString(String path,String tag)
+{
+    if !path || !tag return (GroupItem)null;
+	reset();
+    setInput(path);
+    run(tag);
+    return outerBlock;
+}
+
+/*****************************************************************************
+	pop the saved state of the parser off the state stack. If there is no
+    saved state, nothing happens;
+*****************************************************************************/
+void popState()
+{
+    if !blockStack.length
+        cerr "ERROR popState: nothing on block stack":;
+    else {
+        outerBlock      = blockStack.pop();
+        currentBlock    = blockStack.pop();
+        ancestor        = blockStack.pop();
+        }
+}
+
+/*****************************************************************************
+	Debugging routine to print to standard output the attributes from this
+    item listed in the Stak passed in. If the parameter is null, all attributes
+    are printed
+*****************************************************************************/
+void printAttributes(GroupItem group,Stak list)
+{
+String      name;
+GroupItem   item;
+    if group
+        {
+        cout tag;
+        if !list
+            while item = group.nextAttribute(item)
+                {
+                if item.data cout `item.tag "=" item.text;
+                or name eq item.registry.tag
+                     cout `name "=" item.text;
+                else cout `item.tag;
+                }
+        else
+        while name = list.next()
+            if item = group.getAttribute(name)
+                if item.data cout `item.tag "=" item.text;
+                or name eq item.registry.tag
+                     cout `name "=" item.text;
+                else cout `item.tag;
+        cout :;
+        item = null;
+        while item = group.nextMember(item) printAttributes(item,list);
+        }
+}
+
+/***************************************************************************
+	Process a parsed delimited field. This adds the item passed in to the
+    current record. When end of record encountered, writes record to the
+    list and starts a new record. record, field, block and list are GroupItems
+    declared by this here parser.
+***************************************************************************/
+void processDelimitField(PLGitem item)
+{
+PLGitem delimit;
+    delimit = item["delimit"];
+    if field.fLAG
+        {
+        //cout "Processing field: " field.tag,item,recordNumber:;
+        item.runDeferred();
+        //cout `"processDelimitField:",block:;
+        }
+	if block
+        if field.isTarget
+            {
+            block.noMerge   = field.noMerge;
+            record.group    = block;
+            }
+        else {
+            if block.registry = field.registry
+                {
+                block.text  = block.tag;
+                block.tag   = field.tag;
+                }
+            block.isAttributeGRP = true;
+            block = record += block;
+           }
+	if delimit.start == endRecord
+		{
+        if record.isTarget
+            {
+            block = record.group;
+            if block.noMerge    block.copyList(record);
+            else                block.merge(record);
+            record.clear();
+            if list.isRegistryGRP
+                list.registry += block;
+            else list += block;
+            }
+        else {
+            record.tag = list.tag recordNumber++;
+            if list.isRegistryGRP
+                list.registry += record;
+            else list += record;
+            record = new;
+            }
+		}
+    block = null;
+}
+
+/*****************************************************************************
+    Process a path specification
+*****************************************************************************/
+void processPath(GroupItem item)
+{
+GroupItem       group, part, path;
+    if item%LiSt
+        cerr "processPath: already processed", item.getTagXML():;
+    or item.hasMembers
+        {
+        GroupItem   list = new("targets");
+        /*********************************************************************
+            We copy item members to list and remove them from item here so it
+            does not mess up adding to item or looping thru list with nextMember.
+            So list contains the members, which are the paths to be processed,
+            and item only contains attributes, which are the sources.
+        *********************************************************************/
+        while group = item.nextMember(group)
+            {
+            list += group;
+            item.remove(group);
+            }
+        item.hasMembers = false;
+        while part = list.nextMember(part)
+            if part.isPath
+                {
+                // isPath IS NEVER SET
+                if group = locate(part.tag)
+                    while path = group.nextMember(path)
+                        {
+                        if !hasTarget(path) path.isTarget = true;
+                        processSourceByPath(path,item);
+                        }
+                }
+            else {
+                path = part;
+                if !hasTarget(path) path.isTarget = true;
+                processSourceByPath(path,item);
+                }
+        item.isTarget   = false;
+        list.clear();
+        }
+    else cerr "processPath: no paths specified as members of",item:;
+}
+
+/*****************************************************************************
+    Process a path against one or more sources
+*****************************************************************************/
+void processSourceByPath(GroupItem path,GroupItem item)
+{
+GroupItem       group, source;
+PathIterator    iterator;
+    /*************************************************************************
+        The attributes of item contain the sources to be matched against.
+        If an attribute has no members, it is ignored, assumed to be a
+        regular attribute. If debug specified it will apply to all sources
+        specified after the debug attribute.
+    *************************************************************************/
+    if item.hasAttributes
+        {
+        GroupItem debugFlag = item["debug"];
+        while source = item.nextAttribute(source)
+            {
+            if !source.hasMembers continue;
+            if !iterator iterator = new(path,source);
+            else {
+                initialPath = path;
+                initialBlock = source;
+                }
+            if debugFlag debugAll = true;
+            while group = iterator.next()
+                item += group;
+            }
+        }
+    else cerr "processSourceByPath: no source provided":;
+}
+
+/*****************************************************************************
+	Create a block from the parsed components
+*****************************************************************************/
+GroupItem processTag(PLGitem attributes)
+{
+GroupItem   block, trait, attribute;
+PLGitem	    item;
+	attributes.runDeferred();
+	block		= currentBlock;
+    while ancestor && ancestor.isSingleton
+		ancestor = ancestor.parent;
+    for item = attributes.next
+		{
+        currentBlock = null;
+		item.runDeferred();
+		if trait = currentBlock
+			{
+            int     saveAffiliation;
+            if trait.immediateActionGRP && !trait.isRule && trait.noPrint
+                {
+                // noPrint immediate actions get fired but not added as attributes
+                immediates += trait;
+                continue;
+                }
+            /*****************************************************************
+                Since we are adding an attribute, it should not be a member.
+            *****************************************************************/
+            if !trait.isAttributeGRP
+                {
+                saveAffiliation = trait.affiliation;
+                trait.isAttributeGRP = true;
+                }
+            attribute = block += trait;
+            if saveAffiliation  trait.affiliation = saveAffiliation;
+			if attribute.isMacro block.hasMacro = true;
+			}
+		}
+    if commanding commanding = false;
+	return block;
+}
+
+/*****************************************************************************
+	push the current state of the parser onto the state stack
+*****************************************************************************/
+void pushState()
+{
+    blockStack.push((void*)ancestor);
+    blockStack.push((void*)currentBlock);
+    blockStack.push((void*)outerBlock);
+}
+
+/*****************************************************************************
+	reset the parser to its original state (clear outerblock)
+*****************************************************************************/
+void reset()
+{
+	ancestor	=
+	currentBlock =
+    outerBlock	= null;
+	targetSet	= false;
+}
+
+/*****************************************************************************
+	reset the itemTape to free all releasable PLGitems for reuse
+*****************************************************************************/
+void resetItemTape()
+{
+Tape    tape = itemTape;
+PLGitem item;
+int     count,
+        freed,
+        inUse,
+        gone;
+void**  spot;
+    tape.list.resetIterator();
+    while spot = tape.atIndex(count++)
+        {
+        item = (PLGitem*)spot;
+        if released gone++;
+        or noRelease inUse++;
+        else {
+            item.free();
+            freed++;
+            }
+        spot += stripSize;
+        }
+    cout "resetItemTape: count",count,"freed",freed,"released",gone,"in use",inUse:;
+    //tape.status();
+}
+
+PLGitem run(String rule,String text)
+{
+PLGitem item;
+	divertInput(text);
+	item = run(rule);
+    revertInput();
+    return item;
+}
+
+/*****************************************************************************
+	Adds current block to ancestor and sets ancestor and outerBlock
+*****************************************************************************/
+void setAncestry()
+{
+    if !outerBlock
+        outerBlock  = ancestor ? ancestor : currentBlock;
+    if ancestor && ancestor != currentBlock
+        ancestor    = ancestor.add(currentBlock);
+	else ancestor   = currentBlock;
+}
+
+/*****************************************************************************
+	Navigate a simple path, setting item.group to its end point
+*****************************************************************************/
+GroupItem simplePath(GroupItem item)
+{
+    if !pathParser pathParser = new(this);
+    if block = item.parent
+        {
+        pathParser.reset();
+        setInput(item.text);
+        run("Path");
+        if !block cerr "simplePath failed to navigate path: " item.text:;
+        //else cout "simplePath: found",block.tag,block.index:;
+        }
+    else cerr "simplePath: no path provided":;
+    return block;
+}
+
+/*****************************************************************************
+	trim end space off the PLGitem passed in
+*****************************************************************************/
+PLGitem trimEnd(PLGitem item)
+{
+unsigned char	*endBody;
+	if item
+		{
+		if skipSet
+			{
+			if trimLeadingSpace
+				while length && skipSet.contains(*item.start)
+					{
+					item.start++;
+					length--;
+					}
+			endBody = (unsigned char*)item.start + length - 1;
+			while length > 0 && skipSet.contains(*endBody)
+				{
+				endBody--;
+				length--;
+				}
+			}
+		if length
+			return item;
+		}
+	return null;
+}

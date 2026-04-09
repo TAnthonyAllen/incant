@@ -1,0 +1,180 @@
+include("tokens");
+include("drawing");
+include("utilities");
+
+/***************************************************************************
+	Testing
+***************************************************************************/
+register(Stuff);
+search reset Grokking Stuff list;
+define
+    righty=13;
+    hasGroup=simple;
+    feeling='having a few doubts ends here';
+    styleTest merge lightGreen rounded;
+    drawing virtual rule=Draw ruleMethod=runAttributeRule;
+    sumple drawing="border move=12 53 left=5;" height=200 width=250 x=100 y=100 down=*:
+        crossing height=50;;
+    semple drawing="border move=12 53 left=5;" height=200 width=250 x=100 y=100 across=*:
+        crossing width=50;;
+    simple styleTest across height=212 width=250 x=100 y=100:
+        quinto width=150;
+        sexto height=12;
+        fifth;;
+    sample x=300 y=450 width=400 height=200:
+        second;
+        third pad=5 fill=wall across:
+            wrap="This is a whole lot of text I am using to test out text views, scrolling, and isn't it nice the xcode text editor wraps lines and indents auto-magically. The base rule is you have to specify everything you want, nothing implied." fill=purple:
+                one text pad=7 border;;
+            two fill=red left=2;
+            three fill=white width=50% left=2:
+                stuff text=one pad=6;;;
+        fourth rounded pad fill=lightGreen height=12;
+        fifth;;
+    indenter=0;
+    /***********************************************************************
+        What we are working on
+    ***********************************************************************/
+    delimitRecord isRule countField}=1 skip-}=3 numberField}=1.0 stringField};
+    commaStuff="44,two,  forty three,six,6.7,ninety one";
+    ;
+
+initFrame(sumple);
+printDefinition(sumple);
+stop();
+/***************************************************************************
+	Recent tests
+***************************************************************************/
+initFrame(sumple);
+printDefinition(sumple);
+printDefinition(delimitRecord(commaStuff));
+printDefinition(JSONlist(jsonFile));
+testIndentBlock();
+testDefinition(sumple);
+testPercent();
+testCurrentFrame();
+draw border move 12 53;
+initFrame(sumple);
+printDefinition(sumple);
+reviseFrame(sumple);
+printDefinition(sumple);
+search reset Grokking Drawing Colors Fonts Stuff list;
+scopeTest(simple);
+
+/***************************************************************************
+	Test Code Stash
+***************************************************************************/
+include("/Users/anthony/Dropbox/data/InProcess/Groups/XML/drawing");
+search reset Grokking DrawOperators Colors Fonts Stuff list;
+setFrame(simple);
+dumpResults(simple);
+list; some random stuff and we done;
+list(righty 3.1 seven eight nine);
+
+Test the list rule with a list that contains an expression (like change seven to 3 + 4)
+
+define
+    righty=13;
+    styleTest mergeOn lightGreen rounded;
+    simple styleTest across height=250 width=250 x=100 y=50:
+        quinto width=150;
+        sexto:
+            primo red perforation;
+            segundo copperFont;;;
+    sample x=300 y=450 width=400 height=200:
+        third pad=5 fill=wall across:
+            wrap="This is a whole lot of text that I am using to test out text views, scrolling, and isn't it nice that the xcode text editor wraps lines and indents auto-magically. The base rule is you have to specify everything you want, nothing implied except styles are inherited." fill=purple:
+                one text pad=7 border;;
+            two fill=red left=2;
+            three fill=white width=50% left=2:
+                stuff text=one pad=6;;;
+        fourth rounded pad fill=lightGreen height=12;
+        fifth;;
+    aType=pOINT;
+    accessTest argument { if argument.across print `"Saw across in" taG:; else print `No "across in" taG:; };
+    testAnd { if !righty OR stringing print Saw righty stringing:; else print "I see nothing":; };
+    debugLine="123456789 111111111 2222222222      33333 123456789 123456789 6666666666 123456789 123456789 9999999999 123456789 ";
+    aGroup one two three;
+    two 'a few' things isList;
+    one 'this has' two 'and no three' isList;
+    wrongly=33;
+    stringing="not too long"&;
+    ;
+    lefty=3 initialize { lefty += 43; print `"lefty got reset to" lefty:; };
+    initializeTest { print "on first reference lefty should run and return itself" lefty:; };
+    callMyself argument {
+        print "First time:" argument righty:;
+        if righty == 13;
+            righty++;
+            callMyself(aGroup);
+        print "Second time:" argument righty:;
+        };
+    newTest {
+        newRighty   =< new(righty);
+        newRighty++;
+        print "Test new",newRighty_;
+        newRighty   = new(righty);
+        newRighty   = 88;
+        print righty newRighty:;
+        };
+    min argument {
+        if zeroOrMore OR optional;  min = 0;
+        else min = 1;
+        print "Minimum is" min:;
+        };
+    scopeTest argument {
+        scope argument width frame!?=fRAME:~ width;
+        print frame:; };
+    testCurrentFrame {
+        isPERCENT++;
+        isRELATIVE++;
+        currentFRAME = fRAME;
+        x = 50;
+        y = 10;
+        width = 260;
+        height = 200;
+        scope currentFRAME: x y width height;
+        print currentFRAME:; };
+    testIndentBlock {
+        print "testIndentBlock:":;
+        if righty
+            print `One:;
+            if hasGroup print `Two:;
+        print Three:; };
+    testPercent {
+        toX = 12;
+        toX *= currentFRAME.width / 100;
+        print `"Percented" toX:; };
+    testKey { if righty print Yes:; };
+    testDefinition argument {
+        print taG;
+        if data print '=' argument;
+        if hasAttributes;
+            for grup IN argument; attributes
+                if grup.isTYPE  print "," grup;
+                else
+                    print _grup.taG;
+                    if grup.data print ,'=' grup;
+                if grup.hasAttributes;
+                    print ,"(";
+                    first = 0;
+                    for attr IN grup attributes
+                        if first > 0 print _;
+                        first++;
+                        print attr;
+                        if attr.data print ,'=' attr;
+                    print ")";
+        if hasMembers
+            indenter++;
+            print ":";
+            for grup IN argument members
+                i = 0;
+                print :;
+                while i++ <= indenter print `;
+                testDefinition(grup);
+            indenter--;
+            if !indenter   print ";":;
+            else            print ";";
+        else    print ";";
+        };
+    ;
