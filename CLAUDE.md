@@ -2,7 +2,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Overview
+Read incant.md for current project state and architecture decisions. That document is the source of truth for ongoing design choices."
+
+Per the Phase 0 plan in incant.md, switch GroupItem allocation from new/malloc to GC_malloc. Use the BDWGC C++ API (gc_cpp.h or gc_allocator). Find and remove any stray delete calls on GroupItems. Don't touch the .twk files. Run the build when you're done and report errors.
+
+You can include "ask before making non-obvious changes" in your initial instructions.## Overview
 
 This is the **Groups** system - a custom parser-generator and rule-based language processing framework. The codebase is written in **tok**, a custom language that compiles to Objective-C++. Groups implements a domain-specific language (DSL) for defining parsing rules and generating C++ code. The system uses a recursive descent parser with a custom syntax and compiles to native code.
 
