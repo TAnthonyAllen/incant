@@ -1,12 +1,10 @@
 # incant — Project State & Design Notes
 
-I just added this line to make it easier for me to see if the commit worked
-
 A living document capturing where the incant compiler/runtime project stands,
 the decisions made, and the questions still open. Read this first when picking
 up the project after a break, or when bringing a new conversation up to speed.
 
-Last updated: 2026-04-26
+Last updated: 2026-04-26 (evening — bytecode design session)
 
 ---
 
@@ -23,6 +21,30 @@ is what makes the system reflective.
 Repo: https://github.com/TAnthonyAllen/incant
 Working drafts of grammar/runtime files live in `XML/WorkingOn/`.
 C++/Obj-C++ runtime files (`.twk`, `.h`, `.mm`) live at the repo root.
+
+---
+
+## Files to fetch at session start
+
+When picking up this project in a new conversation, fetch these in order. The
+first one is this file itself; the rest are the design surface for the
+in-flight bytecode work.
+
+- https://github.com/TAnthonyAllen/incant/blob/main/incant.md  (this file — read first)
+- https://github.com/TAnthonyAllen/incant/blob/main/XML/WorkingOn/grammar
+- https://github.com/TAnthonyAllen/incant/blob/main/XML/WorkingOn/setup
+- https://github.com/TAnthonyAllen/incant/blob/main/XML/WorkingOn/generate
+- https://github.com/TAnthonyAllen/incant/blob/main/XML/WorkingOn/utilities
+- https://github.com/TAnthonyAllen/incant/blob/main/XML/WorkingOn/oneTest
+- https://github.com/TAnthonyAllen/incant/blob/main/XML/WorkingOn/unitTests
+
+If the web_fetch tool refuses any of these (intermittent behavior on github.com
+in some sessions), ask the project owner to attach them directly — uploading
+into the chat is reliable and fast.
+
+The `.mm` runtime files at the repo root are not fetched proactively — pull
+them only when the conversation actually needs them. The same goes for the
+`.rtn` include files.
 
 ---
 
@@ -98,13 +120,14 @@ GUI), not debt.
 
 ### Migrates to incant, roughly in this order
 
-1. Code generation logic (`generate` file is already mostly there)
-2. Bytecode emitter (Phase 2 of the plan — natural next step)
-3. Optimization passes on bytecode (constant folding, DCE, etc.)
-4. Higher-level rule actions currently in C++
-5. Standard library / utility functions (`utilities` already does this)
-6. Eventually: the LLVM IR emitter from bytecode, written in incant
-7. Long-range stretch goal: all rule actions in incant, assuming the JIT
+1. Bytecode emitter (Phase 2) — `generate` rewritten to emit bytecode
+   GroupItems; the prior C++-source emit path is being abandoned, not
+   preserved
+2. Optimization passes on bytecode (constant folding, DCE, etc.)
+3. Higher-level rule actions currently in C++
+4. Standard library / utility functions (`utilities` already does this)
+5. Eventually: the LLVM IR emitter from bytecode, written in incant
+6. Long-range stretch goal: all rule actions in incant, assuming the JIT
    makes them fast enough
 
 ### Migration rule
@@ -143,19 +166,20 @@ in service of the self-hosting goal above.
 manual `new`/`malloc` to `GC_malloc`. itemFactory replaced with a simpler
 constructor. GC statistics added to `stopParsingInput` for visibility.
 
-**Phase 1 — Fix and flesh out `generateCode()`** so it produces a real,
-useful IR. The IR has been chosen: bytecode represented as GroupItems
-(see "The bytecode question" below). `generateCode` itself is working but
-skeletal — intentionally not flushed out further until Phase 2 starts,
-since the bytecode shape decisions made there determine what it should
-emit.
+**Phase 1 — `generateCode()` repurposed as bytecode emitter entry point.**
+The placeholder C++-source emit path is being abandoned; the existing
+`gBlocK`/`gIF`/`gFOR`/`gWhilE`/`gDO`/`gXpress`/`gPrinT` actions in
+`generate` will be rewritten in Phase 2 to emit bytecode GroupItems
+instead. `generateCode` itself stays as the user-facing entry point.
 
-**Phase 2 — Build a bytecode emitter in incant itself**, modeled on the
-existing `generate` file (which already walks statements via a hashed
-dispatch table — `gBlock`, `gDo`, `gFor`, `gIf`, `gWhile`, `gXpress`, etc.).
-Bytecode is represented as a `GroupItem` so it stays inspectable and
-manipulable from incant code. C++-side support is a small interpreter
-loop and gating hook; the design center of gravity is in incant.
+**Phase 2 — Build a bytecode emitter** by rewriting the existing
+statement-dispatch actions in `generate` (`gBlocK`, `gDo`, `gFor`,
+`gIf`, `gWhile`, `gXpress`, `gPrinT`) to emit bytecode GroupItems
+instead of placeholder C++ source. Bytecode is represented as a
+`GroupItem` so it stays inspectable and manipulable from incant code.
+C++-side support is a small interpreter loop (`Bytecode.{h,mm}`) and
+gating hook; the design center of gravity is in incant. Staged in
+two halves — see "Phase 2 staging" below.
 
 **Phase 3 — Add an LLVM JIT backend** using the ORC v2 API, with `alloca`
 + the `mem2reg` pass so we don't have to hand-manage SSA construction.
@@ -243,9 +267,20 @@ code can construct, inspect, and modify. Opaque LLVM IR can't fill that role.
 
 - **The unboxing dance at the top of runOP** (resolving GROUP-flagged
   args, evaluating invokable subexpressions) disappears in bytecode.
-  The emitter materializes subexpression results into vregs eagerly, so
-  by the time an instruction runs, its operands are already values.
-  This is also what makes the eventual LLVM lowering mem2reg-friendly.
+  The emitter materializes subexpression results into a destination
+  slot eagerly, so by the time an instruction runs, its operands are
+  already values. This is also what makes the eventual LLVM lowering
+  mem2reg-friendly.
+
+- **Intermediates are flat by language design.** incant has no
+  parenthetical sub-expressions and no operator precedence — expressions
+  are walked right-to-left, each operation taking the previous result
+  and a new operand. `B.C`, `B[C]`, `B(C)` are fused into single
+  tokens at parse time, not treated as operators. As a result, at any
+  point in a statement exactly **one** unnamed intermediate is live.
+  This is what makes both `tempField` (interpreter) and a single-vreg-
+  per-statement scheme (JIT) sufficient — there's no nested-temp
+  situation to handle.
 
 ### Bytecode physical layout (phase 2)
 
@@ -266,23 +301,27 @@ regular GroupItem attribute (not a new C++ field on GroupItem itself).
 
 ### What lives in C++ vs incant for phase 2
 
-- **Emitter — incant.** New file `XML/WorkingOn/bytecode`, parallel to
-  `generate`. Defines the new `bc*` ops in a registry, plus emitter
-  actions (`bcBlock`, `bcFor`, `bcIf`, etc.) modeled on `gBlock`/`gFor`/
-  `gIf` from `generate`.
+- **Emitter — incant.** *Reuses the existing `gIF`/`gFOR`/`gWhilE`/
+  `gDO`/`gXpress`/`gPrinT`/`gBlocK` actions in `generate`*, rewriting
+  their bodies to emit bytecode GroupItems instead of C++ source. The
+  C++-source emit path is being abandoned (it was a stepping stone, not
+  the JIT path), so there is no two-jobs problem. No new
+  `XML/WorkingOn/bytecode` file — `generate` becomes the bytecode
+  emitter. `runGenerated` stays as the dispatch hub. Names like `gIF`
+  stay because they correspond directly to grammar tags (`IF`).
 - **Interpreter — C++.** New file `Bytecode.{h,mm}` at repo root,
-  hand-edited (not via Tok). Walks bytecode GroupItems, dispatches via
-  the existing op machinery (mostly reuses runOP-style dispatch). Small;
-  ~200–300 lines.
-  
-  Note: if I have to write it, will write it initially
-  in Tok (more programmer friendly than C++) and then switch to the .mm file.
-  It would help if claude can provide a pseudo code template for me to
-  work from.
+  hand-edited (not via Tok). Walks bytecode GroupItems via a single
+  dispatch loop: read `instr.tag`, look up its method, call it, use
+  its return value as the next ip. Small; ~200–300 lines.
+
+  Owner will write the first cut in Tok and then switch to .mm. Pseudocode
+  template for the first cut is in this file under "Step 2a interpreter
+  pseudocode" below.
 - **Gating hook — C++.** Where rule-action dispatch lands for a coded
-  action, check whether bytecode is attached and run that path; otherwise
-  fall through to the existing tree-walk. Lives wherever
-  `aCTionStatemenT` or its callers currently dispatch action bodies.
+  action, check whether the action has a `bytecodE` attribute and run
+  `Bytecode::run()` on it; otherwise fall through to the existing
+  tree-walk. Lives wherever `aCTionStatemenT` or its callers currently
+  dispatch action bodies. Exact site TBD next session.
 
 ### Phase 2 first step
 
@@ -291,25 +330,167 @@ expression — and round-trip it through emitter → bytecode GroupItem →
 interpreter end-to-end before generalizing. Each new opcode added
 afterward is incremental: one emitter action, one interpreter case.
 
-Note: I added a testByteCode action in unitTests that should suffice as
-a trivial action to work on
+Target action: `testByteCode` (in `unitTests`), which is:
+```
+testByteCode; { if righty > 0; maximus = righty * 2; }
+```
+
+### Phase 2 staging — tempField then vregs
+
+Phase 2 is split in two for risk reduction:
+
+**Step 2a — `tempField`-based bytecode.** Emit using the existing
+interpreter's `tempField` slot as the implicit destination for every
+intermediate. The bytecode is correct under sequential interpretation
+but not LLVM-friendly (everything aliases through one slot). This step
+exists to validate the bytecode-as-GroupItem shape end-to-end, with
+the smallest possible delta from the existing interpreter. The schema
+uses a `dst` attribute set to `tempField` so step 2b can change *what*
+goes in `dst` without changing the schema.
+
+**Step 2b — vregs.** Replace `tempField` references with vreg indices
+minted by the emitter. One fresh vreg per intermediate. The bytecode
+body gains a `vregCount` attribute so the interpreter sizes its array.
+Sets up Phase 3's alloca + mem2reg lowering cleanly.
+
+### `bc*` opcode registry — first cut
+
+Three entries cover what `testByteCode` needs:
+
+```
+registry(Bytecode);
+define
+    bcBR    interpretMethod=runBR;
+    bcBRZ   interpretMethod=runBRZ;
+    bcRET   interpretMethod=runRET;
+    ;
+```
+
+- `bcBR` — unconditional branch. Operand: `target` (GroupItem ref to
+  destination instruction).
+- `bcBRZ` — branch if zero. Operands: `cond` (slot to test — `tempField`
+  in step 2a, vreg ref in step 2b) and `target`.
+- `bcRET` — end of action body. No operands. Explicit (not implicit
+  end-of-members) so dumps are easy to read.
+
+Notably absent: `bcCALL`, `bcMOV`, `bcCONST`. Add when a test forces them.
+Existing `Operators` registry entries (`opGT`, `opMultiply`, `opAssign`,
+etc.) reuse their existing identity — the bytecode interpreter dispatches
+on `instr.tag` regardless of which registry it came from.
+
+### Branch target representation — decided
+
+Branch targets are direct GroupItem references to the destination
+instruction, not integer offsets. Backpatching: when emitting a forward
+branch (e.g., `gIF` emitting a `bcBRZ` to skip the then-block), append
+the branch instruction with `target` unset, finish emitting the body,
+then assign the now-known instruction at the join point as `target`.
+No symbol tables, no offsets.
+
+### Step 2a interpreter pseudocode (template for `Bytecode.{h,mm}`)
+
+C++-flavored pseudocode the owner can adapt to Tok then `.mm`:
+
+```
+// Bytecode.h
+class Bytecode {
+public:
+    static GroupItem* run(GroupItem* bytecodeBody, GroupItem* invocationContext);
+};
+
+// Bytecode.mm
+GroupItem* Bytecode::run(GroupItem* body, GroupItem* ctx) {
+    GroupItem* ip = body->firstMember();
+    while (ip != nullptr) {
+        GroupItem* opcode = ip->tag();
+        Method m = lookupInterpretMethod(opcode);
+        if (m == nullptr) { reportError("unknown opcode", opcode); return nullptr; }
+        ip = m(ip, ctx);   // method returns next ip, or nullptr to halt
+    }
+    return ctx->returnValue();
+}
+
+GroupItem* runBR(GroupItem* instr, GroupItem* ctx) {
+    return instr->getAttribute("target");
+}
+
+GroupItem* runBRZ(GroupItem* instr, GroupItem* ctx) {
+    GroupItem* condSlot = instr->getAttribute("cond");
+    GroupItem* value = condSlot->resolveValue();
+    return value->isZero()
+        ? instr->getAttribute("target")
+        : instr->nextMember();
+}
+
+GroupItem* runRET(GroupItem* instr, GroupItem* ctx) {
+    return nullptr;
+}
+```
+
+Existing operator opcodes (`opGT`, `opMultiply`, `opAssign`) need to be
+callable with the same `(instr, ctx) -> next-ip` signature. Two options:
+write thin shim methods that pull operands from `instr` attributes and
+call the existing `op*` methods, or extend the existing methods to take
+`(instr, ctx)` directly. Cheapest for step 2a: shims (3 of them, ~5
+lines each). Decision deferred until coding.
+
+### Open question — dispatch attribute name
+
+`Operators` uses `operateMethod`, the new `Bytecode` registry uses
+`interpretMethod`. The dispatch hub needs to handle both. Three options:
+(a) try one, fall back to the other; (b) add `interpretMethod` to
+operator entries too; (c) unify under one attribute name. Leaning (a)
+for minimum disruption — confirm next session.
 
 ---
 
-## What we were about to look at when we paused
+## Next session — start here
 
-Open work for the next session:
+We left off having designed step 2a on paper. Next concrete moves, in order:
 
-1. Implement the `sourceLine` promotion: change `RuleStuff::sourceLine`
-   from int to GroupItem*, update the stamping in `aCTionStatemenT` to
-   construct a fresh GroupItem with `lineNumber` (snapshotted by value)
-   and `fileName` (aliased) attributes. DONE.
-2. Define the `bc*` ops registry — pick names, add to `setup` or to a
-   new bytecode-specific setup section.
-3. Pick the trivial coded action for the round-trip test. DONE.
-4. Stub `Bytecode.h` and `Bytecode.mm` at the repo root — interpreter
-   loop and gating hook.
-5. Begin the incant-side emitter file in `XML/WorkingOn/bytecode`.
+1. **On-paper walkthrough** of what `generateCode(testByteCode)` should
+   produce, instruction by instruction, with explicit GroupItem shapes.
+   Validate the schema before any code lands. Expected output (step 2a):
+   ```
+   1: opGT       lhs=righty rhs=0  dst=tempField  sourceLine=...
+   2: bcBRZ      cond=tempField target=<instr 5>  sourceLine=...
+   3: opMultiply lhs=righty rhs=2  dst=tempField  sourceLine=...
+   4: opAssign   target=maximus value=tempField   sourceLine=...
+   5: bcRET      sourceLine=...
+   ```
+
+2. **Add `Bytecode` registry to `setup`** — three entries (`bcBR`,
+   `bcBRZ`, `bcRET`), as specified in the "first cut" block above.
+
+3. **Stub `Bytecode.h` / `Bytecode.mm`** at repo root using the
+   pseudocode template above. Owner writes first cut in Tok, switches
+   to `.mm`. Includes `runBR`, `runBRZ`, `runRET`, and decide-and-implement
+   shims for `opGT` / `opMultiply` / `opAssign`.
+
+4. **Resolve dispatch-attribute question** (a/b/c above) — decision
+   needed before #3 lands.
+
+5. **Rewrite `gIF`, `gXpress`, `gBlocK`** in `generate` to emit bytecode
+   GroupItems instead of placeholder text. Get `testByteCode` emitting.
+
+6. **Wire the gating hook** — find the action-dispatch site in
+   `GroupRules.mm` (or wherever `aCTionStatemenT` calls action bodies)
+   and add the `bytecodE` attribute check.
+
+7. **Run `testByteCode()`** through the bytecode path. Verify
+   `maximus` ends up at 26.
+
+### Already done from the previous session's open-work list
+- ✅ `sourceLine` promotion (RuleStuff::sourceLine is now a GroupItem)
+- ✅ Trivial coded action picked (`testByteCode`)
+
+### Decisions landed this session
+- `gIF`/`gFOR`/etc. are repurposed in place; no new `XML/WorkingOn/bytecode` file.
+- C++-source emit path (the old `generate` job) is abandoned, not preserved.
+- Phase 2 is staged: 2a uses `tempField` as implicit dst; 2b switches to vregs.
+- Branch targets are direct GroupItem refs, not integer offsets.
+- `bcRET` is explicit (not implicit end-of-members).
+- `testByteCode` confirmed as the round-trip target; expected emit is 5 instructions.
 
 ---
 
@@ -317,12 +498,14 @@ Open work for the next session:
 
 ### incant source (in `XML/WorkingOn/`)
 - `grammar` — incant grammar rules, loaded after bootstrap
-- `setup` — registries: cOMMANDs, Operators, pROPERTIEs, Keywords, GroupFields
-- `generate` — code generation actions (the `gBlock`/`gFor`/etc. dispatch table)
+- `setup` — registries: cOMMANDs, Operators, pROPERTIEs, Keywords, GroupFields,
+  *(planned, phase 2)* Bytecode
+- `generate` — bytecode emitter: `gBlocK`/`gIF`/`gFOR`/etc. dispatch table,
+  rewritten in phase 2 to emit bytecode GroupItems (was: C++ source emit)
 - `utilities` — JSON, layout, frame-fill, hex-color helpers
 - `oneTest` — entry-point test driver
-- `unitTests` — test fixtures and assertions
-- `bytecode` — *(planned, phase 2)* bytecode emitter, parallel to `generate`
+- `unitTests` — test fixtures and assertions (includes `testByteCode`,
+  the phase 2 round-trip target)
 
 ### Runtime (C++/Obj-C++ at repo root)
 The `.mm` files are the actual compiled source. The `.twk` files are written
