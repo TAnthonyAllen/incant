@@ -1,3 +1,5 @@
+#include <gc/gc_cpp.h>
+
 class GroupBody;
 class RuleStuff;
 class Buffer;
@@ -10,7 +12,6 @@ class BitMAP;
 struct GroupOptions
 	{
 	unsigned int affiliation:2;
-	unsigned int invoke:1;
 	unsigned int recursive:1;
 	unsigned int isCopy:1;
 	};
@@ -22,7 +23,7 @@ struct GroupOptions
 	A group.
 ******************************************************************************/
 
-class GroupItem
+class GroupItem : public gc
 {
 public:
 GroupBody *groupBody;

@@ -29,6 +29,7 @@ struct bools
 	unsigned int hasAttributes:1;
 	unsigned int hasListeners:1;
 	unsigned int hasMembers:1;
+	unsigned int invoke:1;
 	unsigned int isArgument:1;
 	unsigned int isAssign:1;
 	unsigned int isCondition:1;
@@ -88,7 +89,7 @@ struct bools
 	The body of a GroupItem containing its data
 *******************************************************************************/
 
-class GroupBody
+class GroupBody : public gc
 {
 public:
 char *tag;

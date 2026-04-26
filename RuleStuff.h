@@ -1,9 +1,11 @@
+#include <gc/gc_cpp.h>
+
 class GroupItem;
 /*******************************************************************************
 	RuleStuff is used to stash data used by the parse
 *******************************************************************************/
 
-class RuleStuff
+class RuleStuff : public gc
 {
 public:
 char *ruleName;
@@ -15,6 +17,7 @@ GroupItem *rule;
 int kount;
 int max;
 int min;
+int sourceLine;
 RuleStuff *parentStuff;
 int (*testMatch)(GroupItem *);
 struct 

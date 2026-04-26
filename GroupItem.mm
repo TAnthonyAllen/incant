@@ -308,21 +308,19 @@ void GroupItem::clearData()
 }
 
 /***************************************************************************
-	Clear the list. Deletes groupList for now (later will let GC handle it).
+	Clear the list. GC handles deallocation.
 ***************************************************************************/
 void GroupItem::clearList()
 {
 	if ( !groupBody->groupList )
 		return;
-	if ( groupBody->groupList->stakked )
-		delete groupBody->groupList->stakked;
-	delete groupBody->groupList;
 	groupBody->groupList = 0;
 	groupBody->flags.hasAttributes = groupBody->flags.hasMembers = 0;
 }
 
 /*****************************************************************************
-	Returns true if this is a registry or data or anything on the list
+	Returns true if this is a registry or data or has anything on its list
+    If fLAG is set return true even without contents
 *****************************************************************************/
 int GroupItem::contents()
 {
@@ -685,7 +683,6 @@ int 		debugging = ruler->debugGuards || groupBody->flags.debugGuard;
 			switch (groupBody->flags.data)
 				{
 				case 3:
-					delete groupBody->guardSet;
 					groupBody->guardSet = getCharacterSet();
 					groupBody->flags.guarding = 1;
 					goto endSetGuard;
@@ -763,7 +760,6 @@ endSetGuard:
 		{
 		if ( groupBody->guardSet->isEmpty() )
 			{
-			delete groupBody->guardSet;
 			groupBody->guardSet = 0;
 			}
 		if ( groupBody->guardSet )
@@ -891,8 +887,7 @@ RuleStuff 	*stuff = 0;
 *****************************************************************************/
 char *GroupItem::getText()
 {
-char 		*junkText = 0;
-GroupItem 	*block = 0;
+char 	*junkText = 0;
 	if ( isTOKEN(groupBody->flags.data) )
 		{
 		junkText = (char*)::malloc(groupBody->gCount + 1);
@@ -937,19 +932,6 @@ GroupItem 	*block = 0;
 				*junkText = groupBody->gCharacter;
 				*(junkText + 1) = 0;
 			}
-	else
-	if ( isFile(groupBody->flags.fileType) )
-		{
-		if ( block = get("file") )
-			if ( isSTRING(block->groupBody->flags.data) )
-				{
-				junkText = ::getStringFromFile(block->groupBody->gText);
-				if ( !junkText )
-					::fprintf(stderr,"getText: ERROR could not load file from %s\n",block->groupBody->gText);
-				else	groupBody->gText = junkText;
-				}
-			else	::fprintf(stderr,"getText: ERROR expected a file name in file attribute\n");
-		}
 	else
 	if ( groupBody->tag )
 		junkText = groupBody->tag;
@@ -1167,16 +1149,9 @@ GroupItem *GroupItem::nextAttribute(GroupItem *current)
 GroupItem *GroupItem::nextGroup(GroupItem *grup)
 {
 	if ( groupBody->groupList )
-		{
-		if ( sortDescending(groupBody->flags.isSorted) )
-			if ( grup )
-				return grup->priorInParent;
-			else	return groupBody->groupList->lastInList;
-		else
 		if ( grup )
 			return grup->nextInParent;
-		return groupBody->groupList->firstInList;
-		}
+		else	return groupBody->groupList->firstInList;
 	else	::fprintf(stderr,"nextGroup: ERROR %s does not contain a list\n",groupBody->tag);
 	return 0;
 }
@@ -1239,8 +1214,6 @@ RuleStuff 	*ruleStuff = getStuff(pStuff);
 		Success. Fire label method if there is one.
 		*******************************************************************/
 matchSucceeded:
-		if ( ::compare(groupBody->tag,"Search") == 0 )
-			ruleStuff->doNothing = 0;
 		ruler->ruleSTUFF = ruleStuff;
 		if ( isMethod(groupBody->flags.instructType) && ruleStuff->label )
 			if ( groupBody->flags.deferred )
@@ -1248,7 +1221,7 @@ matchSucceeded:
 				ruleStuff->label->setMethod(groupBody->gMethod);
 				ruleStuff->label->groupBody->flags.deferred = 1;
 				if ( !ruleStuff->label->groupBody->flags.data )
-					ruleStuff->label->setToken(ruleStuff->hereAt,10);
+					ruleStuff->label->setText(::concat(2,"g",groupBody->tag));
 				}
 			else
 			if ( !parseACTION(groupBody->flags.methodType) )
@@ -1370,13 +1343,12 @@ void GroupItem::prepend(GroupItem *grup)
 ***************************************************************************/
 GroupItem *GroupItem::prior(GroupItem *grup)
 {
-	if ( sortDescending(groupBody->flags.isSorted) )
+	if ( groupBody->groupList )
 		if ( grup )
-			return grup->nextInParent;
-		else	return groupBody->groupList->firstInList;
-	if ( grup )
-		return grup->priorInParent;
-	return groupBody->groupList->lastInList;
+			return grup->priorInParent;
+		else	return groupBody->groupList->lastInList;
+	else	::fprintf(stderr,"nextGroup: ERROR %s does not contain a list\n",groupBody->tag);
+	return 0;
 }
 
 /*****************************************************************************
