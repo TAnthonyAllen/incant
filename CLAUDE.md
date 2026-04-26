@@ -2,11 +2,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-Read incant.md for current project state and architecture decisions. That document is the source of truth for ongoing design choices."
+Read incant.md for current project state and architecture decisions. That document is the source of truth for ongoing design choices, including any guidance here that has gone out of date.
 
-Per the Phase 0 plan in incant.md, switch GroupItem allocation from new/malloc to GC_malloc. Use the BDWGC C++ API (gc_cpp.h or gc_allocator). Find and remove any stray delete calls on GroupItems. Don't touch the .twk files. Run the build when you're done and report errors.
+Phase 0 (BDWGC integration) is complete. Phase 2 (bytecode emitter in incant) is the next phase of work. See incant.md for the current plan.
 
-You can include "ask before making non-obvious changes" in your initial instructions.## Overview
+Ask before making non-obvious changes.
 
 This is the **Groups** system - a custom parser-generator and rule-based language processing framework. The codebase is written in **tok**, a custom language that compiles to Objective-C++. Groups implements a domain-specific language (DSL) for defining parsing rules and generating C++ code. The system uses a recursive descent parser with a custom syntax and compiles to native code.
 
@@ -198,11 +198,12 @@ GroupItem supports these data types (via `data` field):
 ## Important Patterns
 
 ### GroupItem Creation
-Use GroupControl::groupController->itemFactory() methods, never raw new():
-```cpp
-GroupItem *item = GroupControl::groupController->itemFactory("name");
-GroupItem *item = GroupControl::groupController->itemFactory("name", value);
-```
+Use the GroupItem constructor directly. itemFactory has been replaced with simpler constructors in anticipation of GC management:
+
+GroupItem *item = new GroupItem("name");
+GroupItem *item = new GroupItem("name", value);
+
+(Under BDWGC, `new` resolves to GC-managed allocation since GroupItem inherits from `gc`. No manual delete is needed.)
 
 ### Registry/Scope Lookup
 ```cpp

@@ -4,7 +4,7 @@ A living document capturing where the incant compiler/runtime project stands,
 the decisions made, and the questions still open. Read this first when picking
 up the project after a break, or when bringing a new conversation up to speed.
 
-Last updated: 2026-04-25
+Last updated: 2026-04-26
 
 ---
 
@@ -117,6 +117,19 @@ Code that's just "stuff that happens" — works fine, no one needs to extend
 it, performance matters — stays in C++ even if it could in principle be
 rewritten. This is a deliberate constraint to prevent thrashing.
 
+---
+
+## GroupItem allocation
+
+CLAUDE.md previously referenced `GroupControl::groupController->itemFactory(...)`.
+This is out of date. itemFactory has been replaced with a simpler `GroupItem`
+constructor in anticipation of the BDWGC migration. Use the constructor
+directly when allocating GroupItems in C++. CLAUDE.md should be updated to
+match — until it is, treat this file as the source of truth per CLAUDE.md's
+own guidance.
+
+---
+
 ## The current goal
 
 Move incant from pure interpretation toward a bytecode/JIT compilation pipeline,
@@ -124,29 +137,23 @@ in service of the self-hosting goal above.
 
 ### Phased plan
 
-**Phase 0 — Integrate BDWGC.** Switch `GroupItem` allocation from manual
-`new`/`malloc` to `GC_malloc`. Touches every allocation site but is largely
-mechanical. Done before serious JIT work because doing it during would
-conflate two sources of bugs.
-
-Phase 0 is simpler than it would be in most C++ codebases:
-- **No destructors are in use.** The only manual cleanup is a small number
-  of `delete` calls that should just go away once GC handles lifetime.
-- **The project owner has prior experience with Apple's GC** without issues,
-  so the conceptual model is familiar. BDWGC is the same idea with a
-  different name.
-- **NSObject interop is a future concern, not a current one.** A native
-  Apple window interface is planned but deferred until incant is JITed and
-  fast. Until then, the GC/NSObject-lifetime question doesn't bite.
+**Phase 0 — Integrate BDWGC.** Done. `GroupItem` allocation switched from
+manual `new`/`malloc` to `GC_malloc`. itemFactory replaced with a simpler
+constructor. GC statistics added to `stopParsingInput` for visibility.
 
 **Phase 1 — Fix and flesh out `generateCode()`** so it produces a real,
-useful IR (which we've decided is bytecode — see below).
+useful IR. The IR has been chosen: bytecode represented as GroupItems
+(see "The bytecode question" below). `generateCode` itself is working but
+skeletal — intentionally not flushed out further until Phase 2 starts,
+since the bytecode shape decisions made there determine what it should
+emit.
 
 **Phase 2 — Build a bytecode emitter in incant itself**, modeled on the
 existing `generate` file (which already walks statements via a hashed
 dispatch table — `gBlock`, `gDo`, `gFor`, `gIf`, `gWhile`, `gXpress`, etc.).
 Bytecode is represented as a `GroupItem` so it stays inspectable and
-manipulable from incant code.
+manipulable from incant code. C++-side support is a small interpreter
+loop and gating hook; the design center of gravity is in incant.
 
 **Phase 3 — Add an LLVM JIT backend** using the ORC v2 API, with `alloca`
 + the `mem2reg` pass so we don't have to hand-manage SSA construction.
@@ -155,34 +162,40 @@ bytecode and emits machine code; bytecode remains the canonical IR.
 
 ### Cross-cutting concern: debugger-readiness
 
-`sourceLINE` and `sourceFILE` fields have been added to the relevant data
-structures but are not yet populated or consumed. They're future-proofing
-for an incant debugger. Any new code that handles tokens, expressions, or
-statements should plumb these through from the start, even if nothing reads
-them yet.
+`sourceLINE` and `sourceFILE` live on `GroupRules` as the running parser
+cursor and update as input is parsed. `aCTionStatemenT` already snapshots
+these into `RuleStuff::sourceLine` (currently typed as int) at parse time.
 
----
+**Decision:** `RuleStuff::sourceLine` is promoted to a GroupItem named
+`sourcePos`, carrying:
 
-## Key insight from the last grammar revision
+- attribute `lineNumber` — count, snapshotted from `sourceLINE` by value
+  at stamping time (must be a frozen value, not an alias of the live
+  parser cursor)
+- attribute `fileName` — group reference; aliasing is fine since the
+  file being parsed doesn't change mid-statement
 
-The expression grammar was reworked so that `ExpressioN` now hands its action
-a **list of resolved tokens** (sometimes a single token). Token resolution
-happens in `TokenXP`, which handles:
+This shape:
 
-- Simple tokens: `A`, `B`
-- Invocations: `A(B)`, `A()`
-- Member access: `A.B`
-- Nested cases: `A(C.D)` where `C.D` itself must be invoked before being
-  passed to `A`
+- Matches the reflectivity rule — a debugger written in incant inspects
+  source positions through the same field-walking machinery used for
+  everything else.
+- Absorbs future attributes (column, span end, macro context, "inlined
+  from" chain) without changing consumers.
+- Costs one pointer per RuleStuff instance; allocation pressure is
+  negligible at parse time.
 
-Invocation goes through `runOP(token)`. So a parsed expression like
-`A = B + C` becomes a flat token list with operator tokens that, when walked,
-produce a `GroupItem` result.
+**Stamping site:** `aCTionStatemenT`, replacing the current int assignment
+with a fresh GroupItem constructed via the GroupItem constructor.
 
-**Why this matters for bytecode:** the token list is already linearized.
-A bytecode emitter is essentially a token-list walker that emits opcodes
-instead of invoking `runOP` directly. The transformation should be local and
-mechanical — no separate AST traversal needed.
+**Granularity:** statement-level for now. Per-expression and per-token
+stamping can be added later by giving those GroupItems their own
+`sourcePos` attribute. The shape doesn't change.
+
+**Bytecode connection:** the phase-2 bytecode emitter copies the statement's
+`sourcePos` onto each emitted instruction GroupItem. The interpreter
+ignores it; the debugger reads it. No separate `bcLINE` pseudo-op is
+needed when every instruction already carries position attributes.
 
 ---
 
@@ -202,43 +215,95 @@ eventually emit its own bytecode and drive its own JIT (see C++ floor →
 migration list), bytecode must be a `GroupItem`-shaped thing that incant
 code can construct, inspect, and modify. Opaque LLVM IR can't fill that role.
 
-Open sub-questions on bytecode design — to be answered when we start Phase 2:
+### Bytecode design — what we know
 
-- Stack machine vs register machine for the bytecode VM?
-- Opcode set: how primitive? Mostly `runOP`-flavored, or finer-grained?
-- Encoding: how is bytecode laid out as a `GroupItem` structure?
-- Relationship to the token list `ExpressioN` already produces — is the
-  token list essentially proto-bytecode, or a separate representation?
+- **The expression triples already built by `aCTionExpressioN` are proto-bytecode.**
+  Each `{op, target, arg}` group with `gMethod = runOP` is essentially a
+  three-address instruction. Phase 2 is not new IR design — it's
+  linearization across statements, explicit branch instructions for
+  control flow (if/while/for/break/continue/return), and a per-action
+  vreg array. The "opcode" of an instruction is just the op GroupItem
+  itself, drawn from the existing `Operators` registry plus a small set
+  of new control-flow ops (`bcBR`, `bcBRZ`, `bcCALL`, `bcRET`).
+
+- **runOP's polymorphism is statically decidable at emit time.** runOP
+  dispatches across five cases (operator, C++ method, coded rule, coded
+  action, generic-invokable). All five are distinguishable when the
+  emitter sees the op GroupItem — by registry membership and by the
+  attribute set already established during parsing. The bytecode emitter
+  selects the right specialized opcode rather than emitting a generic
+  RUNOP and re-doing the dispatch at runtime.
+
+- **opAND, opOR, opIN are not short-circuiting.** Their bodies (in
+  `Instruct.rtn`, with C++ versions in `GroupItem.mm`) inspect already-
+  evaluated operand values. By the time runOP reaches them, both target
+  and argument have been resolved. Eager linearization in the bytecode
+  emitter — post-order flattening with operands materialized into vregs
+  — preserves current semantics exactly. (If short-circuit `&&`/`||` are
+  wanted later, they'd be added as a separate grammar-level construct
+  that lowers to BR/BRZ patterns.)
+
+- **The unboxing dance at the top of runOP** (resolving GROUP-flagged
+  args, evaluating invokable subexpressions) disappears in bytecode.
+  The emitter materializes subexpression results into vregs eagerly, so
+  by the time an instruction runs, its operands are already values.
+  This is also what makes the eventual LLVM lowering mem2reg-friendly.
+
+### Bytecode physical layout (phase 2)
+
+Bytecode for a coded action is a GroupItem. The expected shape:
+
+- Top-level GroupItem represents the bytecoded action body.
+- Members are instruction GroupItems, in execution order.
+- Each instruction GroupItem has:
+  - tag = the opcode (the op GroupItem itself, or a `bc*` control-flow op)
+  - attributes = the operands (vreg references, branch targets, literals)
+  - a `sourcePos` attribute for debugger plumbing (see above)
+- vregs are addressed by index; the per-action vreg array lives as a
+  member or attribute on the bytecode GroupItem.
+
+This shape is reachable from incant code through normal field access — no
+C++-side special case. A coded action gains a bytecode reference as a
+regular GroupItem attribute (not a new C++ field on GroupItem itself).
+
+### What lives in C++ vs incant for phase 2
+
+- **Emitter — incant.** New file `XML/WorkingOn/bytecode`, parallel to
+  `generate`. Defines the new `bc*` ops in a registry, plus emitter
+  actions (`bcBlock`, `bcFor`, `bcIf`, etc.) modeled on `gBlock`/`gFor`/
+  `gIf` from `generate`.
+- **Interpreter — C++.** New file `Bytecode.{h,mm}` at repo root,
+  hand-edited (not via Tok). Walks bytecode GroupItems, dispatches via
+  the existing op machinery (mostly reuses runOP-style dispatch). Small;
+  ~200–300 lines.
+- **Gating hook — C++.** Where rule-action dispatch lands for a coded
+  action, check whether bytecode is attached and run that path; otherwise
+  fall through to the existing tree-walk. Lives wherever
+  `aCTionStatemenT` or its callers currently dispatch action bodies.
+
+### Phase 2 first step
+
+Pick one trivial coded action — something with one if and one arithmetic
+expression — and round-trip it through emitter → bytecode GroupItem →
+interpreter end-to-end before generalizing. Each new opcode added
+afterward is incremental: one emitter action, one interpreter case.
 
 ---
 
 ## What we were about to look at when we paused
 
-How the input stream is managed in `GroupRules.twk` and `GroupMain.twk`.
-The motivation: this is where source-position tracking would hook in for
-the eventual debugger, and understanding the read path will inform how
-`generateCode` consumes its input.
+Open work for the next session:
 
-**Next concrete step:** fetch `GroupRules.twk` and `GroupMain.twk`,
-focusing on:
-
-- Where the input stream is read and tokenized
-- Where line/column counters live (or where they'd need to be added)
-- How `aCTionExpressioN` and `aCTionTokenXP` access the token stream
-- Whether `sourceLINE`/`sourceFILE` are wired in but unused, or not yet wired
-
----
-
-## State of `generateCode` today
-
-Working but skeletal. The structure is in place — `generateCode(action)`
-parses the action and produces something that gets handed to `interpret()`
-(see `generate` file, `generateAction` rule). The `generator` hash dispatches
-per-statement-type to `gBlock`, `gFor`, `gIf`, etc.
-
-Intentionally not flushed out further until the bytecode/IR question above
-is settled. No point writing emitters when we don't yet know what they
-emit.
+1. Implement the `sourcePos` promotion: change `RuleStuff::sourceLine`
+   from int to GroupItem*, update the stamping in `aCTionStatemenT` to
+   construct a fresh GroupItem with `lineNumber` (snapshotted by value)
+   and `fileName` (aliased) attributes.
+2. Define the `bc*` ops registry — pick names, add to `setup` or to a
+   new bytecode-specific setup section.
+3. Pick the trivial coded action for the round-trip test.
+4. Stub `Bytecode.h` and `Bytecode.mm` at the repo root — interpreter
+   loop and gating hook.
+5. Begin the incant-side emitter file in `XML/WorkingOn/bytecode`.
 
 ---
 
@@ -251,6 +316,7 @@ emit.
 - `utilities` — JSON, layout, frame-fill, hex-color helpers
 - `oneTest` — entry-point test driver
 - `unitTests` — test fixtures and assertions
+- `bytecode` — *(planned, phase 2)* bytecode emitter, parallel to `generate`
 
 ### Runtime (C++/Obj-C++ at repo root)
 The `.mm` files are the actual compiled source. The `.twk` files are written
@@ -270,6 +336,7 @@ specifically about Tok generation.**
 - `RuleStuff.{h,mm}` — rule helper utilities
 - `Layout.{h,mm}` — layout engine
 - `groups.{C,h,mm}` — top-level group handling
+- `Bytecode.{h,mm}` — *(planned, phase 2)* bytecode interpreter and gating hook
 
 ### Other
 - `Generate.rtn`, `Debug.rtn`, `Instruct.rtn`, `parse.rtn`,
