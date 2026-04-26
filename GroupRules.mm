@@ -3176,19 +3176,19 @@ GroupItem	*stat;
 
 	// Populate input with GC stats as attributes
 	stat = new GroupItem("gcCollections");
-	stat->setCount(gc_count);
+	stat->setCount((int)gc_count);
 	input->addAttribute(stat);
 
 	stat = new GroupItem("gcHeapSize");
-	stat->setCount(heap_size);
+	stat->setCount((int)heap_size);
 	input->addAttribute(stat);
 
 	stat = new GroupItem("gcUsedBytes");
-	stat->setCount(used_bytes);
+	stat->setCount((int)used_bytes);
 	input->addAttribute(stat);
 
 	stat = new GroupItem("gcFreeBytes");
-	stat->setCount(free_bytes);
+	stat->setCount((int)free_bytes);
 	input->addAttribute(stat);
 
 	stat = new GroupItem("gcHeapUtilization");
@@ -3196,11 +3196,11 @@ GroupItem	*stat;
 	input->addAttribute(stat);
 
 	stat = new GroupItem("gcTotalBytes");
-	stat->setCount(total_bytes);
+	stat->setCount((int)total_bytes);
 	input->addAttribute(stat);
 
 	stat = new GroupItem("gcBytesSinceGC");
-	stat->setCount(bytes_since_gc);
+	stat->setCount((int)bytes_since_gc);
 	input->addAttribute(stat);
 
 	return input;
