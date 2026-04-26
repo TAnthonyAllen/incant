@@ -1,5 +1,7 @@
 # incant — Project State & Design Notes
 
+I just added this line to make it easier for me to see if the commit worked
+
 A living document capturing where the incant compiler/runtime project stands,
 the decisions made, and the questions still open. Read this first when picking
 up the project after a break, or when bringing a new conversation up to speed.
