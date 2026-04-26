@@ -166,14 +166,10 @@ bytecode and emits machine code; bytecode remains the canonical IR.
 cursor and update as input is parsed. `aCTionStatemenT` already snapshots
 these into `RuleStuff::sourceLine` (currently typed as int) at parse time.
 
-**Decision:** `RuleStuff::sourceLine` is promoted to a GroupItem named
-`sourcePos`, carrying:
-
-- attribute `lineNumber` — count, snapshotted from `sourceLINE` by value
-  at stamping time (must be a frozen value, not an alias of the live
-  parser cursor)
-- attribute `fileName` — group reference; aliasing is fine since the
-  file being parsed doesn't change mid-statement
+**Decision:** `RuleStuff::sourceLine` is promoted to a GroupItem with its
+count set to the current line number in aCTionStatemenT. A copy of sourceFILE
+is added to sourceLine so it effectively tracks source file and the
+source line at the statement level.
 
 This shape:
 
@@ -190,10 +186,10 @@ with a fresh GroupItem constructed via the GroupItem constructor.
 
 **Granularity:** statement-level for now. Per-expression and per-token
 stamping can be added later by giving those GroupItems their own
-`sourcePos` attribute. The shape doesn't change.
+`sourceLine` attribute. The shape doesn't change.
 
 **Bytecode connection:** the phase-2 bytecode emitter copies the statement's
-`sourcePos` onto each emitted instruction GroupItem. The interpreter
+`sourceLine` onto each emitted instruction GroupItem. The interpreter
 ignores it; the debugger reads it. No separate `bcLINE` pseudo-op is
 needed when every instruction already carries position attributes.
 
@@ -258,7 +254,7 @@ Bytecode for a coded action is a GroupItem. The expected shape:
 - Each instruction GroupItem has:
   - tag = the opcode (the op GroupItem itself, or a `bc*` control-flow op)
   - attributes = the operands (vreg references, branch targets, literals)
-  - a `sourcePos` attribute for debugger plumbing (see above)
+  - a `sourceLine` attribute for debugger plumbing (see above)
 - vregs are addressed by index; the per-action vreg array lives as a
   member or attribute on the bytecode GroupItem.
 
@@ -276,6 +272,11 @@ regular GroupItem attribute (not a new C++ field on GroupItem itself).
   hand-edited (not via Tok). Walks bytecode GroupItems, dispatches via
   the existing op machinery (mostly reuses runOP-style dispatch). Small;
   ~200–300 lines.
+  
+  Note: if I have to write it, will write it initially
+  in Tok (more programmer friendly than C++) and then switch to the .mm file.
+  It would help if claude can provide a pseudo code template for me to
+  work from.
 - **Gating hook — C++.** Where rule-action dispatch lands for a coded
   action, check whether bytecode is attached and run that path; otherwise
   fall through to the existing tree-walk. Lives wherever
@@ -288,19 +289,22 @@ expression — and round-trip it through emitter → bytecode GroupItem →
 interpreter end-to-end before generalizing. Each new opcode added
 afterward is incremental: one emitter action, one interpreter case.
 
+Note: I added a testByteCode action in unitTests that should suffice as
+a trivial action to work on
+
 ---
 
 ## What we were about to look at when we paused
 
 Open work for the next session:
 
-1. Implement the `sourcePos` promotion: change `RuleStuff::sourceLine`
+1. Implement the `sourceLine` promotion: change `RuleStuff::sourceLine`
    from int to GroupItem*, update the stamping in `aCTionStatemenT` to
    construct a fresh GroupItem with `lineNumber` (snapshotted by value)
-   and `fileName` (aliased) attributes.
+   and `fileName` (aliased) attributes. DONE.
 2. Define the `bc*` ops registry — pick names, add to `setup` or to a
    new bytecode-specific setup section.
-3. Pick the trivial coded action for the round-trip test.
+3. Pick the trivial coded action for the round-trip test. DONE.
 4. Stub `Bytecode.h` and `Bytecode.mm` at the repo root — interpreter
    loop and gating hook.
 5. Begin the incant-side emitter file in `XML/WorkingOn/bytecode`.
