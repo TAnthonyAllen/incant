@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <gc/gc.h>
 #include "OCroutines.h"
 #include "StringRoutines.h"
 #include "GroupItem.h"
@@ -3133,10 +3134,12 @@ char 		*name = 0;
 
 /***************************************************************************
 	Immediate method for the stop command.
+	Triggers GC collection and populates input with GC statistics as attributes.
 ***************************************************************************/
 extern "C" GroupItem *stopParsingInput(GroupItem *input)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem	*stat;
 	if ( ruler->inputDiverted )
 		{
 		ruler->popInput();
@@ -3147,6 +3150,59 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		ruler->endParse = 1;
 		::printf("\nstop: end parsing\n");
 		}
+
+	// Trigger garbage collection
+	GC_gcollect();
+
+	// Get GC statistics
+	size_t heap_size = GC_get_heap_size();
+	size_t free_bytes = GC_get_free_bytes();
+	size_t total_bytes = GC_get_total_bytes();
+	size_t bytes_since_gc = GC_get_bytes_since_gc();
+	unsigned long gc_count = (unsigned long)GC_get_gc_no();
+	size_t used_bytes = heap_size - free_bytes;
+	double heap_utilization = heap_size > 0 ? (used_bytes * 100.0 / heap_size) : 0.0;
+
+	// Print statistics
+	::printf("\n========== Garbage Collector Statistics ==========\n");
+	::printf("Collections:      %lu\n", gc_count);
+	::printf("Heap size:        %zu bytes (%.2f MB)\n", heap_size, heap_size / (1024.0 * 1024.0));
+	::printf("Used memory:      %zu bytes (%.2f MB)\n", used_bytes, used_bytes / (1024.0 * 1024.0));
+	::printf("Free memory:      %zu bytes (%.2f MB)\n", free_bytes, free_bytes / (1024.0 * 1024.0));
+	::printf("Heap utilization: %.1f%%\n", heap_utilization);
+	::printf("Total allocated:  %zu bytes (%.2f MB)\n", total_bytes, total_bytes / (1024.0 * 1024.0));
+	::printf("Since last GC:    %zu bytes (%.2f KB)\n", bytes_since_gc, bytes_since_gc / 1024.0);
+	::printf("==================================================\n\n");
+
+	// Populate input with GC stats as attributes
+	stat = new GroupItem("gcCollections");
+	stat->setCount(gc_count);
+	input->addAttribute(stat);
+
+	stat = new GroupItem("gcHeapSize");
+	stat->setCount(heap_size);
+	input->addAttribute(stat);
+
+	stat = new GroupItem("gcUsedBytes");
+	stat->setCount(used_bytes);
+	input->addAttribute(stat);
+
+	stat = new GroupItem("gcFreeBytes");
+	stat->setCount(free_bytes);
+	input->addAttribute(stat);
+
+	stat = new GroupItem("gcHeapUtilization");
+	stat->setNumber(heap_utilization);
+	input->addAttribute(stat);
+
+	stat = new GroupItem("gcTotalBytes");
+	stat->setCount(total_bytes);
+	input->addAttribute(stat);
+
+	stat = new GroupItem("gcBytesSinceGC");
+	stat->setCount(bytes_since_gc);
+	input->addAttribute(stat);
+
 	return input;
 }
 
