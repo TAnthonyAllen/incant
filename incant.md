@@ -4,7 +4,7 @@ A living document capturing where the incant compiler/runtime project stands,
 the decisions made, and the questions still open. Read this first when picking
 up the project after a break, or when bringing a new conversation up to speed.
 
-Last updated: 2026-04-27 (interpreter loop shape pinned)
+Last updated: 2026-04-27 (bytecode operand-resolution design session)
 
 ---
 
@@ -40,7 +40,9 @@ in-flight bytecode work.
 
 If the web\_fetch tool refuses any of these (intermittent behavior on github.com
 in some sessions), ask the project owner to attach them directly — uploading
-into the chat is reliable and fast.
+into the chat is reliable and fast. The direct raw-blob URL also tends to work:
+
+* <https://github.com/TAnthonyAllen/incant/blob/main/incant.md> ← use this form
 
 The `.mm` runtime files at the repo root are not fetched proactively — pull
 them only when the conversation actually needs them. The same goes for the
@@ -182,10 +184,9 @@ gating hook; the design center of gravity is in incant. Staged in
 two halves — see "Phase 2 staging" below.
 
 **Phase 3 — Add an LLVM JIT backend** using the ORC v2 API, with `alloca`
-
-* the `mem2reg` pass so we don't have to hand-manage SSA construction.
-  LLVM converts stack slots to SSA registers automatically. The JIT consumes
-  bytecode and emits machine code; bytecode remains the canonical IR.
++ the `mem2reg` pass so we don't have to hand-manage SSA construction.
+LLVM converts stack slots to SSA registers automatically. The JIT consumes
+bytecode and emits machine code; bytecode remains the canonical IR.
 
 ### Cross-cutting concern: debugger-readiness
 
@@ -245,15 +246,13 @@ code can construct, inspect, and modify. Opaque LLVM IR can't fill that role.
   three-address instruction. Phase 2 is not new IR design — it's
   linearization across statements, explicit branch instructions for
   control flow (if/while/for/break/continue/return), and a per-action
-  vreg array. The "opcode" of an instruction is just the op GroupItem
-  itself, drawn from the existing `Operators` registry plus a small set
-  of new control-flow ops (`bcBR`, `bcBRZ`, `bcCALL`, `bcRET`).
+  vreg array.
 * **runOP's polymorphism is statically decidable at emit time.** runOP
   dispatches across five cases (operator, C++ method, coded rule, coded
   action, generic-invokable). All five are distinguishable when the
   emitter sees the op GroupItem — by registry membership and by the
   attribute set already established during parsing. The bytecode emitter
-  selects the right specialized opcode rather than emitting a generic
+  selects the right specialized handler rather than emitting a generic
   RUNOP and re-doing the dispatch at runtime.
 * **opAND, opOR, opIN are not short-circuiting.** Their bodies (in
   `Instruct.rtn`, with C++ versions in `GroupItem.mm`) inspect already-
@@ -279,86 +278,142 @@ code can construct, inspect, and modify. Opaque LLVM IR can't fill that role.
   per-statement scheme (JIT) sufficient — there's no nested-temp
   situation to handle.
 
+### Operand-resolution rule — decided this session
+
+**Every operand to a handler is a value or a slot holding a value.**
+Sub-expressions, invocations, and indexed accesses are linearized into
+their own prior instructions; their results land in `tempField`
+(step 2a) or a vreg (step 2b), and the consuming instruction reads
+that slot.
+
+This is the option-β commitment from the 2026-04-27 session. It does
+more work in the emitter — `gXpress` has to break composite operands
+into a sequence of instructions — but every handler stays simple and
+uniform. Handler bodies do not call back into `runOP` to resolve
+operands at run time; that polymorphism happens once, at emit time,
+when the emitter chooses which handler to use.
+
+Concretely, for `A(B) > 42` (where `A(B)` is a fused token whose
+behavior depends on what `A` is):
+
+```
+1: runCall  callee=A  arg=B          result=tempField  nextField=<2>
+2: runGT    op1=tempField  op2=42    result=tempField  nextField=<3>
+```
+
+`runGT`'s body is `result = op1 > op2;`. The `>` runs through the
+existing `>` machinery, but its operands are already values — `op1`
+is `tempField` (holding what `A(B)` produced), `op2` is the literal
+`42`. No invocation work happens inside `runGT`.
+
+For bare field operands (e.g., `righty` in `testByteCode`), no
+resolution instruction is needed — the field reference is already
+value-yielding for `>`'s purposes. Whether to insert explicit
+`runLoad`-style instructions for field reads is a step 2b / Phase 3
+decision; step 2a leaves them bare.
+
+**Build handlers as tests force them.** `testByteCode` has no
+composite operands, so it needs only `runGT`, `runMultiply`, `runAssign`,
+`runBRZ`, and `runRET`. The first test that contains `A(B)` adds
+`runCall`. The first with `A.B` or `A[B]` adds whatever handler that
+needs. Same logic incant.md already used for `bcCALL`/`bcMOV`/`bcCONST`
+under the old naming — only build what a test requires.
+
 ### Bytecode physical layout (phase 2)
 
 Bytecode for a coded action is a GroupItem. The expected shape:
 
 * Top-level GroupItem represents the bytecoded action body.
 * Members are instruction GroupItems, in execution order.
-* Each instruction GroupItem has:
-  + tag = the opcode (the op GroupItem itself, or a `bc*` control-flow op)
-  + attributes = the operands (vreg references, branch targets, literals)
-  + a `sourceLine` attribute for debugger plumbing (see above)
-* vregs are addressed by index; the per-action vreg array lives as a
-  member or attribute on the bytecode GroupItem.
+* Each instruction GroupItem has operands as members or attributes
+  (operand layout per-handler), plus a `sourceLine` attribute for
+  debugger plumbing.
+* vregs (when introduced in 2b) are addressed by index; the per-action
+  vreg array lives as a member or attribute on the bytecode GroupItem.
 
 This shape is reachable from incant code through normal field access — no
 C++-side special case. A coded action gains a bytecode reference as a
 regular GroupItem attribute (not a new C++ field on GroupItem itself).
 
-### What lives in C++ vs incant for phase 2
+### Open question — handler identity on instructions
 
-* **Emitter — incant.** *Reuses the existing `gIF`/`gFOR`/`gWhilE`/
-  `gDO`/`gXpress`/`gPrinT`/`gBlocK` actions in `generate`*, rewriting
-  their bodies to emit bytecode GroupItems instead of C++ source. The
-  C++-source emit path is being abandoned (it was a stepping stone, not
-  the JIT path), so there is no two-jobs problem. No new
-  `XML/WorkingOn/bytecode` file — `generate` becomes the bytecode
-  emitter. `runGenerated` stays as the dispatch hub. Names like `gIF`
-  stay because they correspond directly to grammar tags (`IF`).
-* **Interpreter — C++.** New file `Bytecode.{h,mm}` at repo root,
-  hand-edited (not via Tok). Walks bytecode GroupItems via a single
-  dispatch loop: read `instr.tag`, look up its method, call it, use
-  its return value as the next ip. Small; ~200–300 lines.
+Earlier design: each instruction's tag is the opcode (e.g., `opGT`,
+`bcBRZ`), and the dispatch hub looks up `tag.interpretMethod` to find
+the handler.
 
-  Owner will write the first cut in Tok and then switch to .mm. Pseudocode
-  template for the first cut is in this file under "Step 2a interpreter
-  pseudocode" below.
-* **Gating hook — C++.** Where rule-action dispatch lands for a coded
-  action, check whether the action has a `bytecodE` attribute and run
-  `Bytecode::run()` on it; otherwise fall through to the existing
-  tree-walk. Lives wherever `aCTionStatemenT` or its callers currently
-  dispatch action bodies. Exact site TBD next session.
+The 2026-04-27 session surfaced two alternatives that drop the
+intermediate opcode-as-name layer, since the handler itself uniquely
+identifies the operation:
 
-### Phase 2 first step
+* **Handler-as-tag.** The instruction's tag is `runGT` (the handler
+  GroupItem) directly. Dispatch: `runMethod = field.tag; field = runMethod(field, ctx);`
+* **Handler-as-attribute.** The instruction has an `interpret` (or
+  similarly named) attribute pointing to `runGT`. Dispatch:
+  `runMethod = field.interpret; field = runMethod(field, ctx);`
+* **Original opcode-as-tag.** `runMethod = field.tag.interpretMethod;`
 
-Pick one trivial coded action — something with one if and one arithmetic
-expression — and round-trip it through emitter → bytecode GroupItem →
-interpreter end-to-end before generalizing. Each new opcode added
-afterward is incremental: one emitter action, one interpreter case.
+The owner objected to "opcode-as-tag" because in GroupItem semantics
+the tag is the field's name, and that's not what the original design
+meant. The objection dissolves if the tag points at the handler
+(handler-as-tag), or it's avoided entirely (handler-as-attribute).
 
-Target action: `testByteCode` (in `unitTests`), which is:
+**Pending decision** — pick one before generating any bytecode:
+
+1. handler-as-tag, OR
+2. handler-as-attribute (and pick the attribute name).
+
+Option 1 is one pointer cheaper per instruction. Option 2 keeps tag
+free for "what kind of instruction this is" if a category emerges
+later. No strong preference from Claude; owner's call.
+
+### Open question — dispatch attribute name on registry entries
+
+Independent of how instructions store their handler, the registries
+(`Operators`, the new `Bytecode` registry) need an attribute that the
+emitter reads to find each op's handler. Candidates:
+
+* `interpret` — short, matches the action name
+* `interpretMethod` — matches the existing `operateMethod` convention
+* `runMethod` — neutral between "interpret" and "emit"
+
+So an Operators entry becomes one of:
 
 ```
-testByteCode; { if righty > 0; maximus = righty * 2; }
+'>'  operateMethod=opGT  interpret=runGT;
+'>'  operateMethod=opGT  interpretMethod=runGT;
+'>'  operateMethod=opGT  runMethod=runGT;
 ```
 
-### Phase 2 staging — tempField then vregs
+When Phase 3 lands, a parallel attribute (`jitEmitMethod` or similar)
+is added alongside, pointing to the IR-emitting handler.
 
-Phase 2 is split in two for risk reduction:
+**Pending decision** — owner's call.
 
-**Step 2a — `tempField`-based bytecode.** Emit using the existing
-interpreter's `tempField` slot as the implicit destination for every
-intermediate. The bytecode is correct under sequential interpretation
-but not LLVM-friendly (everything aliases through one slot). This step
-exists to validate the bytecode-as-GroupItem shape end-to-end, with
-the smallest possible delta from the existing interpreter. The schema
-uses a `dst` attribute set to `tempField` so step 2b can change *what*
-goes in `dst` without changing the schema.
+### Open question — instruction successor representation
 
-**Step 2b — vregs.** Replace `tempField` references with vreg indices
-minted by the emitter. One fresh vreg per intermediate. The bytecode
-body gains a `vregCount` attribute so the interpreter sizes its array.
-Sets up Phase 3's alloca + mem2reg lowering cleanly.
+* **Implicit-next.** Instructions are members of the body in execution
+  order; "next" means "next sibling member." Branches override by
+  returning their `target`. Cheaper, but the dispatch loop has to
+  distinguish "fall through" from "jump."
+* **Explicit `nextField`.** Every instruction carries a `nextField`
+  slot pointing to its successor. Branches set it conditionally.
+  Every handler returns `nextField` symmetrically; the dispatch loop
+  is uniform.
 
-### `bc*` opcode registry — first cut
+The owner's `runGT` sketch this session uses explicit `nextField`.
+Reasonable choice — confirm and lock in.
 
-Three entries cover what `testByteCode` needs:
+### `bc*` opcode registry — first cut (under handler-as-tag-or-attribute design)
+
+Under the new design, the `Bytecode` registry's role is the same as
+`Operators`: a place where instruction-kind GroupItems live, each
+carrying a handler attribute. Three entries cover what `testByteCode`
+needs:
 
 ```
 registry(Bytecode);
 define
-    bcBR    interpretMethod=runBR;
+    bcBR    interpretMethod=runBR;     // (or whichever attribute name wins)
     bcBRZ   interpretMethod=runBRZ;
     bcRET   interpretMethod=runRET;
     ;
@@ -371,54 +426,76 @@ define
 * `bcRET` — end of action body. No operands. Explicit (not implicit
   end-of-members) so dumps are easy to read.
 
-Notably absent: `bcCALL`, `bcMOV`, `bcCONST`. Add when a test forces them.
-Existing `Operators` registry entries (`opGT`, `opMultiply`, `opAssign`,
-etc.) reuse their existing identity — the bytecode interpreter dispatches
-on `instr.tag` regardless of which registry it came from.
+If the design lands on handler-as-tag (no `bc*` opcode names at all),
+then `runBR`/`runBRZ`/`runRET` become the identifiers and the
+`Bytecode` registry might disappear or change shape. Resolve the
+handler-identity question first; this section is provisional until then.
 
 ### Branch target representation — decided
 
 Branch targets are direct GroupItem references to the destination
 instruction, not integer offsets. Backpatching: when emitting a forward
-branch (e.g., `gIF` emitting a `bcBRZ` to skip the then-block), append
-the branch instruction with `target` unset, finish emitting the body,
-then assign the now-known instruction at the join point as `target`.
-No symbol tables, no offsets.
+branch (e.g., `gIF` emitting a `bcBRZ`/`runBRZ` to skip the then-block),
+append the branch instruction with `target` unset, finish emitting the
+body, then assign the now-known instruction at the join point as
+`target`. No symbol tables, no offsets.
 
-### Interpreter loop shape — decided
+### Phase 2 staging — tempField then vregs
 
-**The instruction owns advancement.** Every `interpretMethod` returns the
-next instruction to execute, and the interpreter loop simply assigns that
-return value back into the cursor. There is no separate "is this a goto
-result" check, no label-shaped no-op markers, and no `for instr in body`
-loop that owns the advancement itself. The pattern is:
+Phase 2 is split in two for risk reduction:
+
+**Step 2a — `tempField`-based bytecode.** Emit using the existing
+interpreter's `tempField` slot as the implicit destination for every
+intermediate. The bytecode is correct under sequential interpretation
+but not LLVM-friendly (everything aliases through one slot). This step
+exists to validate the bytecode-as-GroupItem shape end-to-end, with
+the smallest possible delta from the existing interpreter.
+
+**Step 2b — vregs.** Replace `tempField` references with vreg indices
+minted by the emitter. One fresh vreg per intermediate. The bytecode
+body gains a `vregCount` attribute so the interpreter sizes its array.
+Sets up Phase 3's alloca + mem2reg lowering cleanly.
+
+### Phase 2 first step
+
+Pick one trivial coded action — something with one if and one arithmetic
+expression — and round-trip it through emitter → bytecode GroupItem →
+interpreter end-to-end before generalizing. Each new handler added
+afterward is incremental: one emitter case, one handler function.
+
+Target action: `testByteCode` (in `unitTests`), which is:
 
 ```
-field = body.firstMember;
-while field;
-    field = field.interpretMethod(field, ctx);
+testByteCode; { if righty > 0; maximus = righty * 2; }
 ```
 
-Each opcode's contract:
+### Expected emit for `testByteCode` (step 2a)
 
-* Non-branch instructions return `instr.nextMember`.
-* `bcBR` returns `instr.target`.
-* `bcBRZ` returns `instr.target` if the cond slot is zero, else `instr.nextMember`.
-* `bcRET` returns null and the loop falls out.
+All operands here are simple (bare field, literal, assignment target),
+so no resolution instructions are needed under the option-β rule.
+The five-instruction emit:
 
-This is a deliberate departure from the tree-walker's style, where
-control flow propagates through C++ globals (`isBranch`, `isContinue`,
-`isReturn`) consumed by the nearest enclosing `aCTionBlocK`/`aCTionWhilE`/
-etc. In bytecode the branches are first-class instructions; the global
-flags don't need to participate in normal control flow inside a bytecoded
-action. The gating hook still has to leave the C++ globals in a sane state
-on entry/exit so interpreted code calling into bytecode'd actions (and
-vice versa) doesn't see stale flags — that's a boundary concern, not an
-inner-loop concern.
+```
+1: runGT       op1=righty  op2=0      result=tempField  nextField=<2>  sourceLine=...
+2: runBRZ      cond=tempField  target=<5>              nextField=<3>  sourceLine=...
+3: runMultiply op1=righty  op2=2      result=tempField  nextField=<4>  sourceLine=...
+4: runAssign   target=maximus  value=tempField          nextField=<5>  sourceLine=...
+5: runRET                                                              sourceLine=...
+```
+
+(Names in the leftmost column reflect handler-as-identity. If the
+design lands on opcode-as-tag-with-handler-attribute, replace with
+`opGT`/`bcBRZ`/`opMultiply`/`opAssign`/`bcRET` and read the handler
+through the registry attribute.)
+
+The `nextField` column is included assuming explicit-next is chosen;
+omit it if implicit-next wins.
 
 ### Step 2a interpreter pseudocode (template for `Bytecode.{h,mm}`)
 
-C++-flavored pseudocode the owner can adapt to Tok then `.mm`:
+C++-flavored pseudocode the owner can adapt to Tok then `.mm`. This
+version assumes handler-as-attribute and explicit `nextField`; adjust
+once the open questions resolve.
 
 ```
 // Bytecode.h
@@ -431,10 +508,9 @@ public:
 GroupItem* Bytecode::run(GroupItem* body, GroupItem* ctx) {
     GroupItem* ip = body->firstMember();
     while (ip != nullptr) {
-        GroupItem* opcode = ip->tag();
-        Method m = lookupInterpretMethod(opcode);
-        if (m == nullptr) { reportError("unknown opcode", opcode); return nullptr; }
-        ip = m(ip, ctx);   // method returns next ip, or nullptr to halt
+        Method m = ip->getAttribute("interpret");   // or whatever name wins
+        if (m == nullptr) { reportError("no handler", ip); return nullptr; }
+        ip = m(ip, ctx);   // method returns next instruction, or nullptr to halt
     }
     return ctx->returnValue();
 }
@@ -448,7 +524,7 @@ GroupItem* runBRZ(GroupItem* instr, GroupItem* ctx) {
     GroupItem* value = condSlot->resolveValue();
     return value->isZero()
         ? instr->getAttribute("target")
-        : instr->nextMember();
+        : instr->getAttribute("nextField");
 }
 
 GroupItem* runRET(GroupItem* instr, GroupItem* ctx) {
@@ -456,53 +532,41 @@ GroupItem* runRET(GroupItem* instr, GroupItem* ctx) {
 }
 ```
 
-Existing operator opcodes (`opGT`, `opMultiply`, `opAssign`) need to be
-callable with the same `(instr, ctx) -> next-ip` signature. Two options:
-write thin shim methods that pull operands from `instr` attributes and
-call the existing `op*` methods, or extend the existing methods to take
-`(instr, ctx)` directly. Cheapest for step 2a: shims (3 of them, ~5
-lines each). Decision deferred until coding.
-
-### Open question — dispatch attribute name
-
-`Operators` uses `operateMethod`, the new `Bytecode` registry uses
-`interpretMethod`. The dispatch hub needs to handle both. Three options:
-(a) try one, fall back to the other; (b) add `interpretMethod` to
-operator entries too; (c) unify under one attribute name. Leaning (a)
-for minimum disruption — confirm next session.
+Existing operator handlers (`opGT`, `opMultiply`, `opAssign`) need shim
+wrappers (`runGT`, `runMultiply`, `runAssign`) that pull operands from
+the bytecode instruction and call into the existing op-method machinery.
+Each shim is small (~5 lines): unpack instruction members into op1/op2/
+result, call the existing op, return `nextField`.
 
 ---
 
 ## Next session — start here
 
-We left off having designed step 2a on paper, and the project owner is
-writing the first cut of the `bc*` opcodes (`runBR`/`runBRZ`/`runRET`)
-in Tok for review. Next concrete moves, in order:
+Owner is going to flesh out the bytecode-emitting actions in `generate`
+(rewriting `gXpress`, `gIF`, `gBlocK`, etc.) before we reconvene. When
+we pick back up, the open questions to resolve in order are:
 
-1. **Review the project owner's first cut of `bc*` opcodes** when
-   delivered. Verify the loop-shape contract above is honored — every
-   method returns next-ip, branches return target, bcRET returns null.
-2. **On-paper walkthrough** of what `generateCode(testByteCode)` should
-   produce, instruction by instruction, with explicit GroupItem shapes.
-   Validate the schema before any code lands. Expected output (step 2a):
+1. **Handler identity on instructions** — handler-as-tag, or
+   handler-as-attribute (with what attribute name)?
+2. **Dispatch attribute name on registry entries** — `interpret`,
+   `interpretMethod`, or `runMethod`?
+3. **Successor representation** — implicit (next sibling) or explicit
+   (`nextField` slot on every instruction)?
 
-   ```
-   1: opGT       lhs=righty rhs=0  dst=tempField  sourceLine=...
-   2: bcBRZ      cond=tempField target=<instr 5>  sourceLine=...
-   3: opMultiply lhs=righty rhs=2  dst=tempField  sourceLine=...
-   4: opAssign   target=maximus value=tempField   sourceLine=...
-   5: bcRET      sourceLine=...
-   ```
-3. **Add `Bytecode` registry to `setup`** — three entries (`bcBR`,
-   `bcBRZ`, `bcRET`), as specified in the "first cut" block above.
-4. **Resolve dispatch-attribute question** (a/b/c above) — decision
-   needed before #3 lands.
-5. **Rewrite `gIF`, `gXpress`, `gBlocK`** in `generate` to emit bytecode
-   GroupItems instead of placeholder text. Get `testByteCode` emitting.
-6. **Wire the gating hook** — find the action-dispatch site in
+Then concrete moves:
+
+4. **On-paper walkthrough** of what `generateCode(testByteCode)` should
+   produce, validated against the owner's emitted output, instruction
+   by instruction.
+5. **Add `Bytecode` registry to `setup`** (or whatever survives of it
+   under the chosen handler-identity scheme).
+6. **Stub `Bytecode.h` / `Bytecode.mm`** at repo root using the
+   pseudocode template above. Includes `runBR`, `runBRZ`, `runRET`,
+   and shims for `opGT` / `opMultiply` / `opAssign`.
+7. **Wire the gating hook** — find the action-dispatch site in
    `GroupRules.mm` (or wherever `aCTionStatemenT` calls action bodies)
    and add the `bytecodE` attribute check.
-7. **Run `testByteCode()`** through the bytecode path. Verify
+8. **Run `testByteCode()`** through the bytecode path. Verify
    `maximus` ends up at 26.
 
 ### Already done from the previous session's open-work list
@@ -510,21 +574,28 @@ in Tok for review. Next concrete moves, in order:
 * ✅ `sourceLine` promotion (RuleStuff::sourceLine is now a GroupItem)
 * ✅ Trivial coded action picked (`testByteCode`)
 
-### Decisions landed this session
+### Decisions landed this session (2026-04-27)
 
-* Interpreter loop shape pinned: instruction owns advancement; every
-  `interpretMethod` returns next-ip; while-loop in `Bytecode::run`
-  assigns the return value into the cursor; branches are first-class
-  rather than going through global flags. (See "Interpreter loop shape
-  — decided" above.)
+* **Operand-resolution rule (option β).** Operands to handlers are
+  values or slots holding values. Sub-expressions, invocations, and
+  indexed accesses linearize into prior instructions. Handlers do
+  not call back into runOP for operand resolution at run time.
+* **Build handlers as tests force them.** `testByteCode` needs five
+  handlers; further handlers are added when a test exercises them.
+* **No separate opcode-as-name layer in the design center.** The
+  handler uniquely identifies the operation. (Final form pending the
+  handler-identity question above.)
+* **Owner's `runGT` sketch is the reference shape** for op-handler
+  bodies: unpack instruction operands, call the underlying language
+  operation, return successor.
 
-### Decisions landed in previous sessions
+### Decisions landed earlier sessions
 
 * `gIF`/`gFOR`/etc. are repurposed in place; no new `XML/WorkingOn/bytecode` file.
 * C++-source emit path (the old `generate` job) is abandoned, not preserved.
 * Phase 2 is staged: 2a uses `tempField` as implicit dst; 2b switches to vregs.
 * Branch targets are direct GroupItem refs, not integer offsets.
-* `bcRET` is explicit (not implicit end-of-members).
+* `runRET` (a.k.a. `bcRET`) is explicit (not implicit end-of-members).
 * `testByteCode` confirmed as the round-trip target; expected emit is 5 instructions.
 
 ---
