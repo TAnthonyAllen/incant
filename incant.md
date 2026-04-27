@@ -4,7 +4,7 @@ A living document capturing where the incant compiler/runtime project stands,
 the decisions made, and the questions still open. Read this first when picking
 up the project after a break, or when bringing a new conversation up to speed.
 
-Last updated: 2026-04-27 (bytecode-as-field design clarified; walker moves to incant)
+Last updated: 2026-04-27 (interpreter loop shape pinned)
 
 ---
 
@@ -123,14 +123,11 @@ GUI), not debt.
 1. Bytecode emitter (Phase 2) — `generate` rewritten to emit bytecode
    GroupItems; the prior C++-source emit path is being abandoned, not
    preserved
-2. **The bytecode walker itself** (Phase 2) — a short incant action that
-   loops over the bytecode body and dispatches each instruction's
-   per-op method. C++ keeps only the gating hook.
-3. Optimization passes on bytecode (constant folding, DCE, etc.)
-4. Higher-level rule actions currently in C++
-5. Standard library / utility functions (`utilities` already does this)
-6. Eventually: the LLVM IR emitter from bytecode, written in incant
-7. Long-range stretch goal: all rule actions in incant, assuming the JIT
+2. Optimization passes on bytecode (constant folding, DCE, etc.)
+3. Higher-level rule actions currently in C++
+4. Standard library / utility functions (`utilities` already does this)
+5. Eventually: the LLVM IR emitter from bytecode, written in incant
+6. Long-range stretch goal: all rule actions in incant, assuming the JIT
    makes them fast enough
 
 ### Migration rule
@@ -180,9 +177,9 @@ statement-dispatch actions in `generate` (`gBlocK`, `gDo`, `gFor`,
 `gIf`, `gWhile`, `gXpress`, `gPrinT`) to emit bytecode GroupItems
 instead of placeholder C++ source. Bytecode is represented as a
 `GroupItem` so it stays inspectable and manipulable from incant code.
-The walker is a short incant action; the C++ side is just a gating
-hook plus per-op interpret methods. Staged in two halves —
-see "Phase 2 staging" below.
+C++-side support is a small interpreter loop (`Bytecode.{h,mm}`) and
+gating hook; the design center of gravity is in incant. Staged in
+two halves — see "Phase 2 staging" below.
 
 **Phase 3 — Add an LLVM JIT backend** using the ORC v2 API, with `alloca`
 
@@ -225,140 +222,6 @@ needed when every instruction already carries position attributes.
 
 ---
 
-## What a bytecode is, structurally
-
-This section captures the design center of Phase 2. It exists because
-"bytecode" carries a lot of conventional baggage that doesn't apply here —
-incant's bytecode is unusual in shape, and the unusual shape is the whole
-point.
-
-### A bytecode is a field that *is* an instance of its op
-
-A single bytecode instruction is a GroupItem whose identity *is* the op
-(opMultiply, opGT, bcBRZ, etc.) — the same way every field in incant is
-an instance of some kind. There is no separate `tag` attribute; the field
-doesn't *point at* opMultiply, it *is* opMultiply, with this instruction's
-specific operands hung off it as attributes:
-
-```
-opMultiply{lhs=righty, rhs=2, dst=tempField, sourceLine=N}
-```
-
-A bytecoded action body is a parent GroupItem whose members are these
-instruction fields, in execution order:
-
-```
-testByteCode_bytecode (parent)
-├── opGT{lhs=righty, rhs=0, dst=tempField, sourceLine=N}
-├── bcBRZ{cond=tempField, target=<ref to bcRET below>, sourceLine=N}
-├── opMultiply{lhs=righty, rhs=2, dst=tempField, sourceLine=N+1}
-├── opAssign{target=maximus, value=tempField, sourceLine=N+1}
-└── bcRET{sourceLine=N+1}
-```
-
-That's the entire physical layout. No tag attribute, no dispatch table, no
-parallel data structures.
-
-### A bytecode field has no method of its own
-
-This is the structural break from the existing `runOP` token. A `runOP`
-token is self-driving — it carries `runOP` as its method, and tree-walking
-calls `.run()` on each node. A bytecode field is **inert data**. The
-method that interprets it (or compiles it, or prints it) lives on the op,
-not on the instruction.
-
-The walker reads each instruction's op-affiliation, looks up the
-appropriate method on the op, and calls it. The instruction never decides
-anything for itself.
-
-### Each op carries one method per consumer
-
-Every op grows method attributes — one per kind of walker:
-
-```
-opMultiply
-├── operateMethod    = runMultiply         (today: tree-walking interpreter)
-├── interpretMethod  = bcMultiply          (Phase 2: bytecode interpreter)
-└── emitMethod       = emitMultiply        (Phase 3: JIT codegen)
-```
-
-A walker is hard-wired to one of these attribute names. The interpreter
-walker fetches `interpretMethod`. The JIT-emit walker fetches `emitMethod`.
-The "choice" of which method to use isn't per-instruction — it's per-walker,
-made once at the boundary where bytecode meets execution.
-
-This is **option (b)** of the previous open dispatch-attribute question:
-every op carries every method-attribute any consumer in the system needs.
-No fallback chains, no unified single name, no internal branching inside
-methods. Closed and resolved.
-
-`bc*` ops (control-flow only — bcBR, bcBRZ, bcRET) carry `interpretMethod`
-and eventually `emitMethod`, but no `operateMethod` — they don't exist
-in source, so the tree-walker never sees them. That asymmetry is fine
-and informative.
-
-### The walker is a short incant action, not C++
-
-```
-runBytecode body; {
-    result = body[1];
-    for field in body
-        result = field.interpretMethod(field, result);
-    return result;
-}
-```
-
-(Final syntax pending; this is the shape.) `field.interpretMethod` resolves
-because `field` is an instance of its op, and the op has an `interpretMethod`
-attribute pointing at the per-op method. The method receives `field` as an
-argument so it can read operand attributes (`lhs`, `rhs`, `dst`, etc.) off
-it, and `result` so it can chain values across the loop.
-
-The walker doesn't mutate the bytecode field — `interpretMethod` is read,
-not stamped. A second walker (the JIT, an optimizer, a printer) over the
-same bytecode body sees the same untouched data and reads its own
-attribute on the op. The bytecode is consumer-agnostic by construction.
-
-This is what makes the multi-consumer property work, and it's why the
-walker stays in incant rather than C++: the inner loop is trivial, and
-keeping it in incant means an incant programmer can later wrap it,
-instrument it, or replace it with a stepping debugger walker.
-
-### Operand handling: pre-resolved, not nested
-
-When `gXpress` emits a sub-expression's result into a slot, the slot
-reference (e.g., `tempField` in step 2a, a vreg index in step 2b) is what
-gets stored in the consuming instruction's operand attribute. By the time
-an instruction runs, its operands are already values or slot references
-to values — never nested expressions that need evaluating.
-
-This is what "the unboxing dance disappears in bytecode" means: the
-runtime work `runOP` currently does to resolve GROUP-flagged args and
-evaluate invokable subexpressions is moved to emit time. The interpreter
-just reads a slot.
-
-### Why this shape
-
-The shape is forced by three commitments:
-
-1. **Reflectivity.** Bytecode is GroupItems, walked by ordinary
-   field-traversal machinery. Incant code can inspect, generate, and
-   transform bytecode using the same operations that work on any other
-   data.
-2. **Multi-consumer flexibility.** The same bytecode is consumed by the
-   interpreter (Phase 2), the JIT (Phase 3), eventually by optimizers
-   and debuggers. Per-instruction data and per-op behavior are kept
-   separate so consumers don't interfere.
-3. **Uniformity.** Everything in incant is a field. Bytecode follows
-   that rule. The "slight inefficiency" of looking up an operand
-   attribute instead of reading a packed-byte stream is the price of
-   not having half a dozen incompatible storage shapes (instruction
-   stream + dispatch table + operand stack + ...). At interpreter
-   speeds it's negligible; in the JIT it's literally zero at runtime
-   because lowering happens once.
-
----
-
 ## The bytecode question — decided
 
 **What does `generateCode` generate?** Settled: **bytecode as the canonical
@@ -381,9 +244,10 @@ code can construct, inspect, and modify. Opaque LLVM IR can't fill that role.
   Each `{op, target, arg}` group with `gMethod = runOP` is essentially a
   three-address instruction. Phase 2 is not new IR design — it's
   linearization across statements, explicit branch instructions for
-  control flow (if/while/for/break/continue/return), per-instruction
-  fields-that-are-instances-of-their-op, and a per-action vreg array
-  (in step 2b).
+  control flow (if/while/for/break/continue/return), and a per-action
+  vreg array. The "opcode" of an instruction is just the op GroupItem
+  itself, drawn from the existing `Operators` registry plus a small set
+  of new control-flow ops (`bcBR`, `bcBRZ`, `bcCALL`, `bcRET`).
 * **runOP's polymorphism is statically decidable at emit time.** runOP
   dispatches across five cases (operator, C++ method, coded rule, coded
   action, generic-invokable). All five are distinguishable when the
@@ -415,6 +279,23 @@ code can construct, inspect, and modify. Opaque LLVM IR can't fill that role.
   per-statement scheme (JIT) sufficient — there's no nested-temp
   situation to handle.
 
+### Bytecode physical layout (phase 2)
+
+Bytecode for a coded action is a GroupItem. The expected shape:
+
+* Top-level GroupItem represents the bytecoded action body.
+* Members are instruction GroupItems, in execution order.
+* Each instruction GroupItem has:
+  + tag = the opcode (the op GroupItem itself, or a `bc*` control-flow op)
+  + attributes = the operands (vreg references, branch targets, literals)
+  + a `sourceLine` attribute for debugger plumbing (see above)
+* vregs are addressed by index; the per-action vreg array lives as a
+  member or attribute on the bytecode GroupItem.
+
+This shape is reachable from incant code through normal field access — no
+C++-side special case. A coded action gains a bytecode reference as a
+regular GroupItem attribute (not a new C++ field on GroupItem itself).
+
 ### What lives in C++ vs incant for phase 2
 
 * **Emitter — incant.** *Reuses the existing `gIF`/`gFOR`/`gWhilE`/
@@ -425,30 +306,26 @@ code can construct, inspect, and modify. Opaque LLVM IR can't fill that role.
   `XML/WorkingOn/bytecode` file — `generate` becomes the bytecode
   emitter. `runGenerated` stays as the dispatch hub. Names like `gIF`
   stay because they correspond directly to grammar tags (`IF`).
-* **Walker — incant.** A short action (sketch under "What a bytecode is,
-  structurally" above). Loops over the bytecode body, calls each
-  instruction's op's `interpretMethod`, threads the result. Five lines.
-* **Per-op interpret methods — C++ for operators, incant for `bc*`.**
-  `opMultiply.interpretMethod`, `opGT.interpretMethod`, etc. wrap the
-  existing operator logic in `.mm` (cheapest path: thin shims that
-  pull operands from `field` attributes and call the existing `op*`
-  methods). The `bc*` ops (`bcBR`, `bcBRZ`, `bcRET`) are trivial
-  enough to be incant actions — they just inspect attributes and
-  return next-ip references. Decision can be revisited if a `bc*`
-  method gets non-trivial.
+* **Interpreter — C++.** New file `Bytecode.{h,mm}` at repo root,
+  hand-edited (not via Tok). Walks bytecode GroupItems via a single
+  dispatch loop: read `instr.tag`, look up its method, call it, use
+  its return value as the next ip. Small; ~200–300 lines.
+
+  Owner will write the first cut in Tok and then switch to .mm. Pseudocode
+  template for the first cut is in this file under "Step 2a interpreter
+  pseudocode" below.
 * **Gating hook — C++.** Where rule-action dispatch lands for a coded
-  action, check whether the action has a `bytecodE` attribute; if so,
-  invoke `runBytecode` (the incant walker) on it; otherwise fall through
-  to the existing tree-walk. Lives wherever `aCTionStatemenT` or its
-  callers currently dispatch action bodies. Exact site TBD next session.
-  This is the *only* C++ Phase 2 deliverable.
+  action, check whether the action has a `bytecodE` attribute and run
+  `Bytecode::run()` on it; otherwise fall through to the existing
+  tree-walk. Lives wherever `aCTionStatemenT` or its callers currently
+  dispatch action bodies. Exact site TBD next session.
 
 ### Phase 2 first step
 
 Pick one trivial coded action — something with one if and one arithmetic
 expression — and round-trip it through emitter → bytecode GroupItem →
-walker end-to-end before generalizing. Each new opcode added afterward
-is incremental: one emitter action, one `interpretMethod` on its op.
+interpreter end-to-end before generalizing. Each new opcode added
+afterward is incremental: one emitter action, one interpreter case.
 
 Target action: `testByteCode` (in `unitTests`), which is:
 
@@ -496,8 +373,8 @@ define
 
 Notably absent: `bcCALL`, `bcMOV`, `bcCONST`. Add when a test forces them.
 Existing `Operators` registry entries (`opGT`, `opMultiply`, `opAssign`,
-etc.) gain an `interpretMethod` attribute alongside their existing
-`operateMethod` (this is option (b) of the dispatch-attribute decision).
+etc.) reuse their existing identity — the bytecode interpreter dispatches
+on `instr.tag` regardless of which registry it came from.
 
 ### Branch target representation — decided
 
@@ -508,20 +385,103 @@ the branch instruction with `target` unset, finish emitting the body,
 then assign the now-known instruction at the join point as `target`.
 No symbol tables, no offsets.
 
+### Interpreter loop shape — decided
+
+**The instruction owns advancement.** Every `interpretMethod` returns the
+next instruction to execute, and the interpreter loop simply assigns that
+return value back into the cursor. There is no separate "is this a goto
+result" check, no label-shaped no-op markers, and no `for instr in body`
+loop that owns the advancement itself. The pattern is:
+
+```
+field = body.firstMember;
+while field;
+    field = field.interpretMethod(field, ctx);
+```
+
+Each opcode's contract:
+
+* Non-branch instructions return `instr.nextMember`.
+* `bcBR` returns `instr.target`.
+* `bcBRZ` returns `instr.target` if the cond slot is zero, else `instr.nextMember`.
+* `bcRET` returns null and the loop falls out.
+
+This is a deliberate departure from the tree-walker's style, where
+control flow propagates through C++ globals (`isBranch`, `isContinue`,
+`isReturn`) consumed by the nearest enclosing `aCTionBlocK`/`aCTionWhilE`/
+etc. In bytecode the branches are first-class instructions; the global
+flags don't need to participate in normal control flow inside a bytecoded
+action. The gating hook still has to leave the C++ globals in a sane state
+on entry/exit so interpreted code calling into bytecode'd actions (and
+vice versa) doesn't see stale flags — that's a boundary concern, not an
+inner-loop concern.
+
+### Step 2a interpreter pseudocode (template for `Bytecode.{h,mm}`)
+
+C++-flavored pseudocode the owner can adapt to Tok then `.mm`:
+
+```
+// Bytecode.h
+class Bytecode {
+public:
+    static GroupItem* run(GroupItem* bytecodeBody, GroupItem* invocationContext);
+};
+
+// Bytecode.mm
+GroupItem* Bytecode::run(GroupItem* body, GroupItem* ctx) {
+    GroupItem* ip = body->firstMember();
+    while (ip != nullptr) {
+        GroupItem* opcode = ip->tag();
+        Method m = lookupInterpretMethod(opcode);
+        if (m == nullptr) { reportError("unknown opcode", opcode); return nullptr; }
+        ip = m(ip, ctx);   // method returns next ip, or nullptr to halt
+    }
+    return ctx->returnValue();
+}
+
+GroupItem* runBR(GroupItem* instr, GroupItem* ctx) {
+    return instr->getAttribute("target");
+}
+
+GroupItem* runBRZ(GroupItem* instr, GroupItem* ctx) {
+    GroupItem* condSlot = instr->getAttribute("cond");
+    GroupItem* value = condSlot->resolveValue();
+    return value->isZero()
+        ? instr->getAttribute("target")
+        : instr->nextMember();
+}
+
+GroupItem* runRET(GroupItem* instr, GroupItem* ctx) {
+    return nullptr;
+}
+```
+
+Existing operator opcodes (`opGT`, `opMultiply`, `opAssign`) need to be
+callable with the same `(instr, ctx) -> next-ip` signature. Two options:
+write thin shim methods that pull operands from `instr` attributes and
+call the existing `op*` methods, or extend the existing methods to take
+`(instr, ctx)` directly. Cheapest for step 2a: shims (3 of them, ~5
+lines each). Decision deferred until coding.
+
+### Open question — dispatch attribute name
+
+`Operators` uses `operateMethod`, the new `Bytecode` registry uses
+`interpretMethod`. The dispatch hub needs to handle both. Three options:
+(a) try one, fall back to the other; (b) add `interpretMethod` to
+operator entries too; (c) unify under one attribute name. Leaning (a)
+for minimum disruption — confirm next session.
+
 ---
 
 ## Next session — start here
 
-We left off having clarified that bytecode instructions are op-instances
-(no separate tag attribute) and that the walker is a short incant action.
-Next concrete moves, in order:
+We left off having designed step 2a on paper, and the project owner is
+writing the first cut of the `bc*` opcodes (`runBR`/`runBRZ`/`runRET`)
+in Tok for review. Next concrete moves, in order:
 
-1. **Day-one syntax check.** Verify in incant that
-   `field.interpretMethod(field, result)` resolves and invokes correctly
-   when `field` is an instance of an op carrying an `interpretMethod`
-   attribute. If yes, the walker is two lines and we proceed. If no,
-   the language gap is "call the method behind an attribute path" — a
-   small, generally-useful extension to fill before the walker can land.
+1. **Review the project owner's first cut of `bc*` opcodes** when
+   delivered. Verify the loop-shape contract above is honored — every
+   method returns next-ip, branches return target, bcRET returns null.
 2. **On-paper walkthrough** of what `generateCode(testByteCode)` should
    produce, instruction by instruction, with explicit GroupItem shapes.
    Validate the schema before any code lands. Expected output (step 2a):
@@ -535,50 +495,37 @@ Next concrete moves, in order:
    ```
 3. **Add `Bytecode` registry to `setup`** — three entries (`bcBR`,
    `bcBRZ`, `bcRET`), as specified in the "first cut" block above.
-4. **Add `interpretMethod` attribute** to `opGT`, `opMultiply`, `opAssign`
-   in the `Operators` registry. Each value is a thin shim that pulls
-   operands from the instruction field's attributes and calls the
-   existing `op*` operate method. Three shims, ~5 lines each.
-5. **Implement `runBR`, `runBRZ`, `runRET`** as incant actions (or `.mm`
-   methods if incant-side method invocation can't yet take a field
-   argument cleanly — revisit after step 1).
-6. **Write `runBytecode`** as a short incant action. Five lines, per
-   the shape under "What a bytecode is, structurally."
-7. **Rewrite `gIF`, `gXpress`, `gBlocK`** in `generate` to emit bytecode
+4. **Resolve dispatch-attribute question** (a/b/c above) — decision
+   needed before #3 lands.
+5. **Rewrite `gIF`, `gXpress`, `gBlocK`** in `generate` to emit bytecode
    GroupItems instead of placeholder text. Get `testByteCode` emitting.
-   Each emitted instruction is constructed as an instance of its op
-   with operand attributes attached locally; no tag attribute.
-8. **Wire the gating hook** — find the action-dispatch site in
+6. **Wire the gating hook** — find the action-dispatch site in
    `GroupRules.mm` (or wherever `aCTionStatemenT` calls action bodies)
-   and add the `bytecodE` attribute check. This is the only C++ change
-   in Phase 2.
-9. **Run `testByteCode()`** through the bytecode path. Verify
+   and add the `bytecodE` attribute check.
+7. **Run `testByteCode()`** through the bytecode path. Verify
    `maximus` ends up at 26.
 
-### Already done from previous sessions
+### Already done from the previous session's open-work list
 
 * ✅ `sourceLine` promotion (RuleStuff::sourceLine is now a GroupItem)
 * ✅ Trivial coded action picked (`testByteCode`)
-* ✅ Dispatch-attribute question resolved as option (b): every op
-  carries every method-attribute any consumer needs
-* ✅ Bytecode-instruction shape settled: instruction *is* an instance
-  of its op; no separate tag attribute
-* ✅ Walker placement settled: incant, not C++
 
 ### Decisions landed this session
 
-* Bytecode instruction = an op-instance. Dispatch is `field.<methodAttr>`,
-  not `field.tag.<methodAttr>` — the field *is* the op.
-* Walker is a short incant action (~5 lines), not a C++ interpreter loop.
-  The previous "Step 2a interpreter pseudocode" C++ template is obsolete.
-* Walker is non-mutating: it reads `interpretMethod` off the op, never
-  stamps it onto the instruction. Multi-consumer property preserved.
-* Each op carries one method-attribute per consumer (`operateMethod`,
-  `interpretMethod`, eventually `emitMethod`). Closed and resolved —
-  this is option (b) of the prior open question.
-* C++ in Phase 2 shrinks to one piece: the gating hook on action
-  dispatch. Walker, per-`bc*` methods, and (probably) per-operator
-  shim methods are all in incant.
+* Interpreter loop shape pinned: instruction owns advancement; every
+  `interpretMethod` returns next-ip; while-loop in `Bytecode::run`
+  assigns the return value into the cursor; branches are first-class
+  rather than going through global flags. (See "Interpreter loop shape
+  — decided" above.)
+
+### Decisions landed in previous sessions
+
+* `gIF`/`gFOR`/etc. are repurposed in place; no new `XML/WorkingOn/bytecode` file.
+* C++-source emit path (the old `generate` job) is abandoned, not preserved.
+* Phase 2 is staged: 2a uses `tempField` as implicit dst; 2b switches to vregs.
+* Branch targets are direct GroupItem refs, not integer offsets.
+* `bcRET` is explicit (not implicit end-of-members).
+* `testByteCode` confirmed as the round-trip target; expected emit is 5 instructions.
 
 ---
 
@@ -590,8 +537,7 @@ Next concrete moves, in order:
 * `setup` — registries: cOMMANDs, Operators, pROPERTIEs, Keywords, GroupFields,
   *(planned, phase 2)* Bytecode
 * `generate` — bytecode emitter: `gBlocK`/`gIF`/`gFOR`/etc. dispatch table,
-  rewritten in phase 2 to emit bytecode GroupItems (was: C++ source emit).
-  *(planned, phase 2)* `runBytecode` walker action.
+  rewritten in phase 2 to emit bytecode GroupItems (was: C++ source emit)
 * `utilities` — JSON, layout, frame-fill, hex-color helpers
 * `oneTest` — entry-point test driver
 * `unitTests` — test fixtures and assertions (includes `testByteCode`,
@@ -606,9 +552,7 @@ read the `.mm` files; ignore the `.twk` source unless the question is
 specifically about Tok generation.**
 
 * `GroupItem.{h,mm}` — the universal data type
-* `GroupRules.{h,mm}` — rule machinery (parsing, action dispatch).
-  *(planned, phase 2)* gating hook on coded-action dispatch lives here
-  or in a caller.
+* `GroupRules.{h,mm}` — rule machinery (parsing, action dispatch)
 * `GroupMain.{h,mm}` — top-level driver, input handling
 * `GroupBody.{h,mm}` — group bodies / member lists
 * `GroupControl.{h,mm}` — control flow primitives
@@ -618,10 +562,7 @@ specifically about Tok generation.**
 * `RuleStuff.{h,mm}` — rule helper utilities
 * `Layout.{h,mm}` — layout engine
 * `groups.{C,h,mm}` — top-level group handling
-
-(Note: the previously-planned `Bytecode.{h,mm}` is no longer needed.
-The walker moved to incant; the only C++ Phase 2 deliverable is the
-gating hook, which lives in an existing file.)
+* `Bytecode.{h,mm}` — *(planned, phase 2)* bytecode interpreter and gating hook
 
 ### Other
 
