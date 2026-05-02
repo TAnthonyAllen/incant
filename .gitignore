@@ -1,1 +1,53 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Editor swap / backup files
+*.swp
+*.swo
+*~
+.*.swp
+.*.swo
+
+# Backup / legacy stashes — attic boxes, not source of truth
 Sessions/
+BeforeRefactor/
+BeforeSave/
+XML/BackupXML/
+NewPLG/
+
+# Xcode — user state
+**/xcuserdata/
+**/*.xcuserstate
+**/project.xcworkspace/xcuserdata/
+
+# Xcode — build output
+build/
+DerivedData/
+*.moved-aside
+*.hmap
+
+# C/C++ build artifacts
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.exe
+*.out
+*.app
+*.gch
+*.pch
+
+# Loose archive / backup files
+*.zip
+*.save
+*.new
+*.bak
+
+# Logs / misc
+*.log
