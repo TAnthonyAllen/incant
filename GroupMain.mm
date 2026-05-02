@@ -2,7 +2,6 @@
 #include <string.h>
 #include <stdio.h>
 #include "OCroutines.h"
-#include "StringRoutines.h"
 #include "GroupItem.h"
 #include "PLGset.h"
 #include "Buffer.h"
@@ -59,7 +58,7 @@ GroupItem 	*item = 0;
 	item->groupBody->flags.methodType = 1;
 	item->groupBody->flags.instructType = 1;
 	item->groupBody->flags.noPrint = 1;
-	/*************************************************************************
+	/**************************************************************************
 	and the registry command
 	*************************************************************************/
 	item = new GroupItem("registry");
@@ -86,6 +85,14 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	ruler->ruleSkipSet->setCharacterSet(new PLGset(" \n\r\t/"));
 	ruler->properties->addMember(ruler->ruleSkipSet);
 	ruler->currentRegistry = grok;
+	/**************************************************************************
+	Define the setupFILE declared in GroupRules. It gets loaded at the
+	end of this bootstrapper method.
+	*************************************************************************/
+	ruler->setupFILE = new GroupItem("setup");
+	item = ruler->setupFILE->addString("File");
+	item->setText("XML/WorkingOn/setup");
+	item = ruler->setupFILE->addString("atLINE");
 	/*************************************************************************
 	bootstrap character sets. Do these need to be in Grokking?
 	*************************************************************************/
@@ -309,9 +316,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	::modify(item,"+");
 	item = grok->getMember("InitiatE");
 	item = 0;
-	ruler->pushInput(::getStringFromFile("/Users/anthony/Dropbox/data/InProcess/Groups/XML/WorkingOn/setup"));
-	//getTokens();
-	strap->parse(0);
+	if ( ::getFile(ruler->setupFILE) )
+		strap->parse(0);
 	/*************************************************************************
 	Set the buffer links
 	*************************************************************************/

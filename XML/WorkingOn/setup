@@ -32,6 +32,7 @@ define
     exit immediateAction=processFlags;
     file immediateAction=setInternalType noPrint;
     generateCode immediateAction;
+    genPrint immediateAction;
     getType immediateAction;
     guard immediateAction noPrint;
     index immediateAction=processFlags noPrint;
@@ -41,6 +42,7 @@ define
     load immediateAction=loadDirectory noPrint;
     macro immediateAction=processFlags noPrint;
     merge immediateAction=processFlags noPrint;
+    new immediateAction=makeNew;
     printTO immediateAction=printToBuffer;
     quoted  immediateAction;
     regex immediateAction=setInternalType noPrint;
@@ -135,7 +137,8 @@ define
         '++';
         '@';
         '!';
-        '**';;
+        '**';
+        '.';;
     ;
 /*******************************************************************************
 	Keywords is a base registry defined on startup. It contains groups that play
@@ -189,13 +192,23 @@ define
     isInitializeD;
     isLiteraL;
     isMacrO;
+    isMethoD=19;
+    isOperatoR=20;
     isPercenT;
     isPointeR;
     isRulE;
-    isShortcuT=23;
+    isShortcuT=24;
     isVirtuaL;
     mergeON;
     negatE;
     noPrinT=28;
     noSkiP;
+    ;
+registry(fILEs);
+define
+    grammar File='XML/WorkingOn/grammar';
+    drawing File='XML/WorkingOn/drawing';
+    utilities File='XML/WorkingOn/utilities';
+    unitTests File='XML/WorkingOn/unitTests';
+    generate File='XML/WorkingOn/generate';
     ;

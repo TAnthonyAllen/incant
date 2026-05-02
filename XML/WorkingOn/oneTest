@@ -1,15 +1,18 @@
-include('WorkingOn/grammar');
-include('WorkingOn/drawing');
-include('WorkingOn/utilities');
-include('WorkingOn/unitTests');
+include(grammar);
+include(drawing);
+include(utilities);
+include(generate);
+include(unitTests);
 
-search reset stack Grokking list;
+search reset stack Grokking Generating Stuff list;
 
+generateCode(testByteCode);
+stop;
 /*****************************************************************************
 	Unit Tests
 *****************************************************************************/
 whatsIt = string 'is what I am talking about':;
-print This $whatsIt;
+print ``This $whatsIt;
 accessTest(simple);
 anotherTest();
 ifTest();
@@ -30,14 +33,16 @@ printDefinition(sumple);
 printDefinition(simple);
 printDefinition(sample);
 stop();
-callMyself(sumple);
-whatsIt="slk8877[]";
-print whatsIt:;
-print quoteIfNeeded(whatsIt):;
 
 /*******************************************************************************
 	Test Code Stash
 *******************************************************************************/
+generateCode(accessTest);
+ExpressioN("maximus += testing() - 3;");
+callMyself(sumple);
+whatsIt="slk8877[]";
+print whatsIt:;
+print quoteIfNeeded(whatsIt):;
 search reset Grokking Drawing Colors Fonts Stuff list;
     aType=pOINT;
     debugLine="123456789 111111111 2222222222      33333 123456789 123456789 6666666666 123456789 123456789 9999999999 123456789 ";

@@ -11,6 +11,7 @@ String      hereAt;
 GroupItem   label,
             onFail,
             onGroup,
+            sourceLine,
             rule;
 int         kount,
             max,
@@ -93,7 +94,9 @@ GroupItem   field = rule;
         while inputDiverted && !*atRuleMark     popInput();
         if *atRuleMark
             if !noSkip atRuleMark = checkSkip(atRuleMark); }
-    if !*atRuleMark     goto checkFailed;
+    if !*atRuleMark {
+        sourceFILE = 0;
+        goto checkFailed; }
     /***************************************************************************
         Check the rule guard if there is one
     ***************************************************************************/

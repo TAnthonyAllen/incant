@@ -364,8 +364,8 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	label = 0;
 	onFail = 0;
 	onGroup = 0;
-	kount = 0;
 	sourceLine = 0;
+	kount = 0;
 	parentStuff = 0;
 	banged = 0;
 	doNothing = 0;
@@ -397,10 +397,10 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	hereAt = 0;
 	onFail = 0;
 	onGroup = 0;
+	sourceLine = 0;
 	rule = 0;
 	max = 0;
 	min = 0;
-	sourceLine = 0;
 	banged = 0;
 	doNothing = 0;
 	followed = 0;

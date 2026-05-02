@@ -75,7 +75,7 @@ define
         change its set when entering it as an attribute; for instance,
             followedBy=[a set definition].
     *************************************************************************/
-    ExpressioN;
+    ExpressioN guard="^,;{}[]`";
     StatemenT guard=[{A-Za-z0-9+-;(];
     followedBy<^-=notInNameSet;
 
@@ -88,30 +88,30 @@ define
     ANYtoken=NamE;
     ANYstring=[^ \n\r\t;]+;
     BlocK                       "{"- Lines=StatemenT+ "}"- defer;
-    BLOCKing parseAction guard="n";
-    PRINTing parseAction=processFlags guard="n";
+    BLOCKing parseAction guard='n';
+    PRINTing parseAction=processFlags guard='n';
     BrancheS bin:
         break;
         continue;
         return;;
     SemI=";";
-    Argument:
-        DotXP                   '.' ANYtoken;
-        Braces                  '[' ExpressioN "]"-;
-        Parens                  '(' ExpressioN? ")"-;;
     FormaT="#"                  flags=[-# 0+']* formatWIDTH?=NumbeR Precision? formatTYPE=[a-zA-Z] tokenize;
     PrintXP:
         ShortcuT;
         PrintField              ExpressioN FormaT?;;
-    ExpressPart defer:
-        Expresses               ANYtoken Argument?;
-        StringXP                string followedBy PRINTing- stuff=PrintXP+ ruleMethod=aCTionPrinT defer;
+    UnaryXP                     UnaryOPS ANYtoken;
+    InvokeArg:
+        Braced                  "["- ExpressioN "]"-;
+        Parens                  "("- ExpressioN? ")"-;
+        UnaryXP;;
+    TokenXP                     UnaryOPS? ANYtoken InvokeArg?;
+    Token:
         QuotE;
-        NumbeR;;
-    ExpressTail:
-        Operators;
-        Args                    ExpressPart+;;
-    ExpressioN                  tails=ExpressTail+;
+        NumbeR;
+        StringXP                string followedBy PRINTing- stuff=PrintXP+ ruleMethod=aCTionPrinT defer;
+        TokenXP;
+        Operators;;
+    ExpressioN                  Token+;
     Precision='.'               precision=counter*;
     /*************************************************************************
         Format flags are

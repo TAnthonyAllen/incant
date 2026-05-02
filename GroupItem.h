@@ -1,4 +1,4 @@
-#include <gc/gc_cpp.h>
+#include "gc/gc_cpp.h"
 
 class GroupBody;
 class RuleStuff;

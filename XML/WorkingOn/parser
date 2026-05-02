@@ -32,14 +32,41 @@ Drawing instruction format
     probably need to rethink the little drawing language (and make it easier to follow)
 
 /*******************************************************************************
-    Considering
+	What to do about emitters
 *******************************************************************************/
+emitters are fields that contain methods to be run when emitting jit code. In the emit action,the argument passed in is expected to be a list of fields that are bytecodes. trying to work thru what gets emitted for testByteCode which is defined as
 
-        if !testMatch && !onGroup && !hasAttributes             sukcess = testOptions(ruleStuff);
-        else {
-            if testMatch                                        sukcess = testMatch(this);
-            if sukcess && onGroup && onGroup.parse(ruleStuff)   sukcess = true;
-            if sukcess && hasAttributes                         sukcess = testAttributes(ruleStuff);
-            if !sukcess && onFail && onFail.parse(ruleStuff)    sukcess = true; }
-        if !sukcess     goto matchFailed;
+    testByteCode; {
+        if righty > 0; maximus = righty * 2; }
 
+Planning a new registry to contain emitter method fields
+
+registry(Emitters);
+define
+runGT argument; {
+    :argument op1 op2 result nextField
+    // nextField should have been set when bytecode (argument) was set up?
+    result = op1 > op2;
+    return nextField;}
+    ;
+
+plan to modify the Operators registry to add an emitter entry for each operator in it. Take the > operator for example. Its new definition would be.
+
+    '>'     operateMethod=opGT emitter=runGT;
+
+The emit action would then look like
+
+Here are the revised versions of runGT and interpret
+runGT argument; {
+    :argument op1 op2 result nextField
+    // nextField should have been set when bytecode (argument) was set up?
+    result = op1 > op2;
+    return nextField;}
+    ;
+interpret argument; {
+    field = argument[1];
+    while field
+        op = field[1];
+        if runMethod = op.interpret;
+            // new result will be in field, what do we do with it?
+            field = runMethod(field); }

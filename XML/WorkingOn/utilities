@@ -50,13 +50,14 @@ define
             print out incant definition for the group passed in
         ***************************************************************************/
         printDefinition argument recurse; {
-            if argument.datA != 0;  print ~$argument.taG "=" argument;
-            else    print ~$argument.taG;
+            **argument;
+            if datA != 0;  print ~$taG "=" argument;
+            else    print ~$taG;
             if hasAttributeS;
                 for grup in argument; attributes
-                    if grup.datA != 0;
-                        print $_grup.taG "=" grup;
-                    else    print $_grup.taG;
+                    if datA != 0;
+                        print $_taG "=" grup;
+                    else    print $_taG;
             if hasMemberS;
                 print ":":;
                 for grup in argument; members

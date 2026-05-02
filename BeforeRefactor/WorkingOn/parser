@@ -1,0 +1,123 @@
+
+/*******************************************************************************
+	incant notions HWF
+*******************************************************************************/
+Would like to ensure that list manipulation methods like pop or put can be used when iterating over. I think it does it out of the box. No, pop leaves next and prior pointers in the popped field but remove clears them so next(field) has nowhere to next to
+How to provide class functionality such that assigning a field to a class (which is a registry) gives the field access to class methods/actions??? Maybe modify search so that class methods/actions look like field methods/action. Why not??
+        If we go w/class methods, may need to use lastREF
+Thinking of changing statements so that the ID attribute tells what the statement is, even tho that ID attribute is ignored. Code generation can make use of it so we do not need to set statement text as is done now (will require changing generator component tags - no biggie; and changing runGenerator to get the ID)
+
+/*******************************************************************************
+	What to do wrt drawing
+*******************************************************************************/
+Add currentFrame colors and font to Layout
+Write code to update those from current field
+Thinking we keep the old GUI methods in Layout for display (w/modifications as needed): displayCell() displayImage() displayPath() and displayText()
+Steal walkVisible() from old Control.twk. Alternative to having a noRoom flagMay be able to implement in incant, maybe change it to displayVisible() DONE
+
+Thinking a 2 part approach to drawing
+    Write a drawing alternative to interpret() to process the list of drawing instructions
+    Use incant to set frames and produce a list of drawing instructions (that would cover what needs to be done to display a frame) and ideally no if statements
+        Drawing instructions would include
+            getFrame
+            get current point(s)
+            do whatever
+            next
+Drawing instruction format
+    use drawing command
+    command contents would contain target and argument as needed (mostly not needed)
+    commands not in the drawing registry would be handled like perforation fields (because we want the ability to iterate over a command or group of commands). That treats such commands as action of a sort. This needs brainworks to figure out how best to implement.
+            The complication here is a drawing command like left=3 looks a lot like a repeat=5
+            Also, need to convert left to its drawing OP (use a drawing OP attribute as the instruction?)
+    probably need to rethink the little drawing language (and make it easier to follow)
+    
+/*******************************************************************************
+    Working on
+*******************************************************************************/
+Thinking about tokenizing the parse/splitting parseRULE into two parts
+    a tokenizer is a rule that assembles input into a bin of tokens
+        tokens are not located
+        tokens can have a data type
+        tokens are just a tag with maybe a type
+    a parser that processes commands in a bin
+        commands drive the process
+            commands can be
+                first token of a statement (like: define print for if ...)
+        field tokens get located (not sure where this happens - the parser has to figure out it early on)
+
+Approach: write a scanner to tokenize input into tokens bin DONE
+
+/*******************************************************************************
+	Token parser
+*******************************************************************************/
+extern GroupItem parseRULE(GroupItem field,GroupItem parentLabel)
+{
+GroupRules  ruler = groupRules;
+RuleStuff   ruleStuff;
+GroupItem   label,
+            token;
+use field
+    ruleStuff   = rStuff;
+    /***************************************************************************
+        Get next token.
+    ***************************************************************************/
+    token = locateToken();
+startHere:
+    rulesParsed++;
+    if !followed    getWhatFollows();
+continueHere:
+    // checkGuard will have to check guardSet against token tag
+    if !checkGuard()        goto matchFailed;
+    // tests will set label
+    if !noLabel && isTarget label = parentLabel;
+    if hasMacro
+        if !(sukcess = setMacroValue(field,parentLabel))        goto matchFailed;
+    if testMatch            sukcess = testMatch(field,label);
+    else                    sukcess = true;
+    if sukcess && onTrack
+        if parseRULE(onTrack,label)   sukcess = true;
+        else                            sukcess = false;
+    if tokened && label     tokenize(hereAt,label);
+    /***************************************************************************
+        Success. Fire label method if there is one.
+    ***************************************************************************/
+    if sukcess && isMethod
+        if deferred         label.method    = field.method;
+        or !parseACTION {
+            ruleSTUFF = ruleStuff;
+            if !(label = method(label))   sukcess = false; }
+    if !sukcess             goto matchFailed;
+    /***************************************************************************
+        Success. Deal w/label, increment kount, get next token
+    ***************************************************************************/
+    // ideally label should not be isGROUP
+    if label && !isTarget && parentLabel    parentLabel +% label;
+    kount++;
+    token = locateToken();
+    if !isOK && kount < max {
+        label = 0;
+        goto continueHere; }
+    if sukcess              goto endParsing;
+    /***************************************************************************
+        Deal w/failed match.
+    ***************************************************************************/
+matchFailed:
+    // there should not be a label to clear
+    if onFail {
+        field = onFail;
+        ruleStuff   = rStuff;
+        if !checkGuard()
+            while field = field.nextInParent {
+                ruleStuff = rStuff;
+                if checkGuard() break; }
+        if field    goto startHere; }
+    or kount >= min sukcess = true;
+endParsing:
+    kount       = 0;
+    if sukcess && onSuccess {
+        field   = onSuccess;
+        goto    startHere; }
+    if endParse || !sukcess     return null;
+    or !label                   return trueResult;
+    return label;
+}

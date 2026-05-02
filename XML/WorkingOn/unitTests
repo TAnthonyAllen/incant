@@ -28,7 +28,7 @@ define
     /*************************************************************************
         Actions
     *************************************************************************/
-    accessTest argument; { print "accessTest: "; if argument.across; print `"Saw across in" taG:; else print `"No across in" taG:; }
+    accessTest argument; { print "accessTest: " taG; if argument.across; print `"Saw across in" taG:; else print `"No across in" taG:; }
     anotherTest; { print "anotherTest: max should be" maximus " + 3"``"it is", maximus + 3, "and we done":; }
     callMyself argument; {
         print ~"callMyself: First time:" argument righty,:+;
@@ -62,7 +62,7 @@ define
         print "testForC:"`"Components of" argument with second third:;
         for grup in argument; attributes
             print `grup += righty:; }
-    testGet; { sumple.width = 251; print "testGet: should set sumple width to 251. It is", sumple.width:; }
+    testGet; { sumple[width] = 251; print "testGet: should set sumple width to 251. It is", sumple.width:; }
     testIndentBlock; {
         print "testIndentBlock:":;
         if righty;
@@ -113,11 +113,14 @@ define
         testList();
         print ``"we DONE":;
         }
+    testByteCode; {
+        if righty > 0; maximus = righty * 2; }
     whatsIt;
-    xpTest HooHaa result=3 message="Gomer is a goober"; { print "xpTest:" `HooHaa, result++, ++result, message whatsIt:; }
-    xpTest2 HooHaa result=3; { print result++, ++result:; }
+    xpTest HooHaa result=3 message="Gomer is a goober"; { print "xpTest:" `HooHaa, ++result, ++result, message whatsIt:; }
 
 /*****************************************************************************
 	Working On
 *****************************************************************************/
+    bracing argument; {
+        xp  = argument[1]; }
     ;

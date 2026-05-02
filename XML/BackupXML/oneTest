@@ -1,0 +1,104 @@
+include(grammar);
+include(drawing);
+include(utilities);
+include(generate);
+include(unitTests);
+
+search reset stack Grokking Generating list;
+
+XPlist("maximus += testing() - 3;");
+stop();
+generateCode(accessTest);
+
+/*****************************************************************************
+	Unit Tests
+*****************************************************************************/
+accessTest(simple);
+anotherTest();
+ifTest();
+printTest();
+simpleIF();
+testOR();
+testARG(hasGroup);
+testARG(righty += 22);
+testARG(righty += 22); 
+testIndentBlock();
+stringTest();
+xpTest();
+list(); some random stuff and we done;
+list("righty 3.1 seven eight nine;");
+testInterpret();
+testGet();
+printDefinition(sumple);
+printDefinition(simple);
+printDefinition(sample);
+stop();
+callMyself(sumple);
+whatsIt="slk8877[]";
+print whatsIt:;
+print quoteIfNeeded(whatsIt):;
+
+/*******************************************************************************
+	Test Code Stash
+*******************************************************************************/
+search reset Grokking Drawing Colors Fonts Stuff list;
+    aType=pOINT;
+    debugLine="123456789 111111111 2222222222      33333 123456789 123456789 6666666666 123456789 123456789 9999999999 123456789 ";
+    two 'a few' things isList;
+    one 'this has' two 'and no three' isList;
+    stringing="not too long"&;
+    min argument; {
+        if zeroOrMore OR optional;  min = 0;
+        else min = 1;
+        print "Minimum is" min:;
+        }
+    dumpInstruct action; {
+        print "Code list for" action:;
+        code = action.BlocK;
+        for grup in code;
+            print ,`grup.tag "=" grup;
+            for operand in grup
+                print _operand;
+                print :; }
+    invokeTest; { print "invokeTest:"` clear(aGroup); anotherTest(); print Invoked:; }
+    testBuffer stuff file="WHAT" buffer;
+    testCurrentFrame; {
+        isPERCENT++;
+        isRELATIVE++;
+        currentFRAME = fRAME;
+        x = 50;
+        y = 10;
+        width = 260;
+        height = 200;
+        scope currentFRAME: x y width height;
+        print currentFRAME:; }
+    testDotH argument=0; {
+        print :"class" argument: startBlock :"public:":;
+        for grup in argument; attributes
+            if stuff = declareTypes[grup.datA];             print stuff ,grup.tag ";":; }
+    testFor argument; {
+        print "TestFor: for loop in action":;
+        righty += 13;
+        for grup in argument; attributes
+            print `grup:;
+            righty += 2;
+        }
+    testPercent; {
+        toX = 12;
+        toX *= currentFRAME.width / 100;
+        print `"Percented" toX:; }
+    testSet=[a-b\]];
+    testSimple argument; {
+        lefty += 22;
+        if righty > 50;
+            print argument righty:;
+            righty++;
+        else print "Must be lefty" righty:; }
+
+data
+    aGroup=one two=maximus + 42 testARG(hasGroup) three list(righty 3.1 seven eight nine):
+        four:
+            fourA D E;
+            fourB;;
+        five;;
+;

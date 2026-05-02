@@ -1,0 +1,167 @@
+include /Users/anthony/data/Tawk/Tokf/frame
+include /Users/anthony/Dropbox/data/InProcess/Include/plg.ext
+/*******************************************************************************
+            Rule action declarations
+        *******************************************************************************/
+external
+{
+int AlternateTestNow(PLGitem iTEM);
+int TestTestNow(PLGitem iTEM);
+int BalanceTestNow(PLGitem iTEM);
+int CheckMacroParametersTestNow(PLGitem iTEM);
+int MacroArgumentListTestNow(PLGitem iTEM);
+int ParameterTestNow(PLGitem iTEM);
+void ProcessTestAct(PLGitem iTEM);
+}
+
+/*****************************************************************************
+	Test class definition
+*****************************************************************************/
+class Test extends PLGparse
+{
+PLGset	testSet;
+
+void setRules()
+{
+	setSkip();
+currentSet = getSet(testSet,"A-Z");
+//
+currentRule = getRule("ParameterItem");
+//
+currentRule = getRule("Alternate");
+currentRule.immediate = AlternateTestNow;
+//
+currentRule = getRule("Test");
+currentRule.immediate = TestTestNow;
+//
+currentRule = getRule("Balance");
+currentRule.immediate = BalanceTestNow;
+//
+currentRule = getRule("CheckMacroParameters");
+currentRule.immediate = CheckMacroParametersTestNow;
+//
+currentRule = getRule("MacroArgumentList");
+currentRule.immediate = MacroArgumentListTestNow;
+//
+currentRule = getRule("Parameter");
+currentRule.immediate = ParameterTestNow;
+//
+currentRule = getRule("Process");
+currentRule.defer = ProcessTestAct;
+}
+
+PLGitem run(String name)
+{
+	if !rules.length
+		{
+		setRules();
+		initialize();
+		}
+	return parse(name);
+}
+}
+/*******************************************************************************
+                Rule actions
+            *******************************************************************************/
+
+int AlternateTestNow(PLGitem iTEM)
+{
+Test	p = iTEM.testParser;
+    for alternate
+        {
+        PLGitem	subset = alternate.find("subset");
+        print "Alternate: " alternate:;
+        if subset print "   subset: " subset:;
+        }
+return true;
+}
+
+int TestTestNow(PLGitem iTEM)
+{
+Test	p = iTEM.testParser;
+	process.runDeferred();
+	print "All alternatives: " alternatives:"Macro: " macro:;
+return true;
+}
+
+int BalanceTestNow(PLGitem iTEM)
+{
+Test	p = iTEM.testParser;
+PLGitem	left = mark.get("start"),
+		right = mark.get("finish"),
+		body = mark.get("body");
+	print "Balance":`
+        "left: " left:`
+		"right: " right:`
+		"body: " body:;
+return true;
+}
+
+int CheckMacroParametersTestNow(PLGitem iTEM)
+{
+Test	p = iTEM.testParser;
+PLGitem body = braced["body"];
+    if body
+        {
+        divertInput(body.string(),"MacroArgumentList");
+        body.unString();
+        }
+
+return true;
+}
+
+int MacroArgumentListTestNow(PLGitem iTEM)
+{
+Test	p = iTEM.testParser;
+PLGitem part;
+    for argument
+        if part = argument.get("part")
+            cout part:;
+return true;
+}
+
+int ParameterTestNow(PLGitem iTEM)
+{
+Test	p = iTEM.testParser;
+PLGitem name;
+    cout "Parameters":;
+    for item
+        {
+        name = item["name"];
+        cout `name:;
+        }
+return true;
+}
+
+void ProcessTestAct(PLGitem iTEM)
+{
+Test	p = iTEM.testParser;
+print "Testing up to no skip: " body
+		"**\n\tskip: " tail "**":;
+}
+void testFail(PLGtester t)
+{
+    cout "Abject failure test":;
+}
+
+/*******************************************************************************
+	main
+*******************************************************************************/
+int
+main( int argc, String argv[] )
+{
+Test parser = new();
+	//debug = true;
+    if argc == 2
+		{
+		setInput(getStringFromFile(argv[1]));
+		run("Test");
+		print "Parsed it\n";
+		}
+    or argc == 3
+		{
+		setInput(argv[1]);
+		run(argv[2]);
+		}
+}
+

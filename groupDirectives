@@ -2,8 +2,8 @@
 /*******************************************************************************
 	Global
     if NewGroup.tag eq "Start" debugRuleNamed("RunRulE");
-    if NewGroup.tag eq "xpTest" debugAllRules = true;
-    if NewGroup.tag eq "ShortcuT" item = 0;
+    if NewGroup.tag eq "Start" debugAllRules = true;
+    if NewGroup.tag eq "UnaryOPS" item = 0;
     cout "aCTionDefinE:",NewGroup.tag:;
     if NewGroup.tag eq "simple"
         {
@@ -26,6 +26,11 @@ aCTionDebuG embed.debugged ctive
 #;
 aCTionDefinE "if Attributes" before active
     cout "aCTionDefinE:",NewGroup.tag:;
+    if NewGroup.tag eq "bracing"
+        {
+        debugRuleNamed("Start");
+        debugRuleNamed("StatemenT");
+        }
 #;
 aCTionDefinE item before ctive
     if CodE.tag eq "Start" CodE.fLAG = false;
@@ -33,11 +38,11 @@ aCTionDefinE item before ctive
 aCTionElsE if ctive
     if blocking cout "unBlocked:", blocking:;
 #;
-aCTionExpresses clear ctive
-    if field.tag eq "callMyself" argument = 0;
+aCTionExpressioN while before ctive
+    if entries.listLength == 1   result = 0;
 #;
-aCTionNamE if before active
-    if arg eq "StatemenT"  result = 0;
+aCTionNamE if before ctive
+    if arg eq "StatemenT"   result = 0;
 #;
 aCTionRunRulE if within ctive
     if tag eq "define" debugAllRules = true;
@@ -66,36 +71,6 @@ guard GroupItem ctive
 #;
 guard clearData ctive
     debugGuards = false;
-#;
-interpret argument ctive
-    if debugIndent < 0 debugIndent = 0;
-    debugIndent++;
-    indent("  ");
-    cout "Before op " instruk.count;
-    if target {
-        cout `tag;
-        if data     cout "=" text,; }
-    else            cout `"no target ";
-    if argument {
-        cout `argument.tag;
-        if argument.data    cout "=" argument.text,argument.invoke; }
-    else            cout `"no argument";
-    cout :;
-#;
-interpret debugOP before ctive
-    indent("  ");
-    cout "After: ";
-    if !target && !argument cout "no operands":;
-    if target {
-        cout `tag;
-        if data cout "=" text,; }
-    else        cout `"no target ";
-    if argument {
-        cout `argument.tag;
-        if argument.data    cout "=" argument.text,argument.invoke; }
-    else        cout `"no argument";
-    cout :;
-    debugIndent--;
 #;
 loadInputFromFile return before ctive
      if name eq "grammar" debugAllRules = true;
@@ -126,11 +101,12 @@ opPrinter printText before
         debugRuleNamed("Attributes");
         debugRuleNamed("MemberS"); }
 *******************************************************************************/
-processAction setLastREF ctive
-    debugAllRules = true;
+processAction if before ctive
+    if tag eq "runGenerated" result = 0;
 #;
 processCode processingCode ctive
-    debugAllRules = true;
+    if tag eq "runGenerated" {
+        debugRuleNamed("TokenXP"); }
 #;
 rEGISTER currentRegistry active
     cout ````"Current registry:",currentRegistry.tag:;
@@ -139,8 +115,9 @@ rEGISTER currentRegistry active
 runDefer processingCode ctive
     debugRuleNamed("ExpressioN");
 #;
-runAction "if instructions" before ctive
-    interpret(action);
+runAction if before ctive
+    debugRuleNamed("BlocK");
+    debugRuleNamed("StatemenT");
 #;
 runInstruct if ctive
     if operate.tag eq "@"   target = 0;
@@ -225,8 +202,8 @@ parse "if !checkInput" before active
         cout "Match",ruleName,"on text>"getDebugText(atRuleMark,20):;
         debugIndent++; }
 #;
-parse matchSucceeded active
-    if tag eq "Search"  doNothing = false;
+parse matchSucceeded ctive
+    if tag eq "ExpressioN"  doNothing = false;
 #;
 parse kount active
     if debugAllRules || rule.debugged {
@@ -283,7 +260,7 @@ updateContentFlags starting
     debugRuleNamed("IF");
 *******************************************************************************/
 #GroupMain
-bootstrapper pushInput active
+bootstrapper "if getFile" before active
     debugAllRules   = true;
 #;
 /*******************************************************************************

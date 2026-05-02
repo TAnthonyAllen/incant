@@ -1,0 +1,55 @@
+/*******************************************************************************
+    Write incant as a command in a language that does not exist and then run it.
+    
+    incant is a computer language with flexible syntax and the ability to extend itself.
+    Its grammar is similar to Python, however, unlike Python, incant is designed
+    to define itself and write itself. For now, incant can be extended in incant;
+    in future, the plan is incant will be written in incant from GO to whoa.
+    The basic idea is: turn incant into an ouroboros (maybe phoenix is a better
+    analogy) language able to regenerate itself. The bottom line is: if you do not
+    like incant syntax, rewrite it as you like.
+*******************************************************************************/
+Rewriting incant in incant. A one and a two and a three step list to getting it done (thank you Laurence Welk - nobody below the age of 70 will get that reference).
+    GO is a relatively new computer language.
+    In its current form incant is written in C++. The idea is: rewrite incant in incant, translate incant code into GO and replace the existing C++ code w/the generated GO code (Why? Because I like GO better than C++. It provides a means to make the incant runtime better).
+    
+    Out of the box the only thing the C++ version of incant can do is:
+        Define an incant field. An incant field is akin to a var in javascript. A field is the only thing incant understands, everything is a field to incant, including incant.
+
+        In C++, incant is a field defined as a C++ class called GroupItem. Like a javascript var, GroupItem has a name and can contain data: a number or a string or a pointer to something (which can be another field).
+        
+        The incant field (GroupItem) can contain a list of incant fields as attributes or members in addition to its data.
+            An attribute describes something about the field (like its color or capacity).
+            A member is content, what is in the field.
+            Attributes and members are fields (so they can contain data with their own attributes and members)
+        
+        An incant field can contain a hard coded method (pointer to a method). incant methods take an incant field as an argument and return an incant field. In C++ an incant method's signature looks like:
+                GroupItem someName(GroupItem argument);
+                The someName is usually the name of the method, however, you can assign a method with a different name to the field named someName (for example, when you want to reference a method from more than one field)
+        
+        An incant field can also define an action written in incant that works like a hard coded method, albeit less efficient since actions are interpreted.
+        
+        The C++ implementing incant has utility methods not contained in or pointed to from incant fields.
+        One of the utility methods in incant is a parser that functions as a compiler compiler not unlike yacc or similar programs. The parser coincidentally has the same signature as an incant method; it takes an incant field as an argument and returns one. It can read input from a file, string, or stdin, and match that input against the rule that invokes it, encapsulating the results of the match in the incant field it returns.
+        The rule used by the parser is the argument passed into the parse method.
+        Essentially, any incant field can be treated as a rule. Rules are the backbone of any compiler.
+        For example, a rule can define a for statement, a while statement, or a whatever statement.
+        When the parser matches a rule, it passes the matched result to the rule's method, if there is one. The rule method can manipulate the result, put it somewhere, do whatever.
+        
+        Stretching truth just a bit, incant is a field that can define itself. Out of the box (OOB) it can define a field, which can be treated as a rule, that can be fed into the incant parser to process input. A set of rules can define a grammar to define a computer language. The current version of incant defines its own grammar into a working computer language able to do computer stuff.
+        
+        In addition to its parser, incant has an interpreter able to process instructions defined by its grammar.
+        
+        The parser and interpreter are part of the incant runtime (the program the runs incant). If you look at incant as a program, it has runtime methods (utility methods, hard coded incant methods currently written in C++, and incant actions, which are methods written in incant). From a user perspective, most of the runtime is code under the surface, but it all looks like incant because it sort of is; incant provides the means to access any method with an incant method signature by associating the method in an incant field.
+        
+        In essence it all works as follows.
+            OOB incant contains a hard wired initial set of 30 bootstrap rules that define a simple grammar that can only do one thing: define more fields/rules.
+            Its parser can treat a field as a parse rule
+            The parser uses those initial rules to process input to define more fields/rules to extend the OOB grammer into incant the computer language.
+            You can then write programs in incant to be run by the interpreter to do stuff.
+
+Where are we now?
+    At this point incant is a working language written in C++, partly written in incant. We plan to replace the C++ code with GO by rewriting the set of C++ methods that implement incant in incant. Let us call the resulting set of incant methods the BASE methods.
+        We want to write incant TRANSLATOR methods to translate the BASE methods. BASE methods written in incant will work but must be interpreted. Not efficient! The TRANSLATOR methods translate the BASE methods into GO code that can be compiled to replace the C++ incant methods. Translation is relatively simple in incant, requiring a couple of hundred lines of incant.
+        What does this buy? GO provides garbage collection, internet connectivity, multi-processing support, and a syntax that is even uglier than C++; GO also provides a robust set of utility packages that could replace part of the incant code base (the C++ utility classes written to underpin incant thereby getting rid of about 3000 lines of support code). If it works as intended, the incant to GO translator will allow us to write GO using incant (the benefit being incant is not as ugly as C++ or GO, and if you do not like the incant grammar you can change it).
+        The end result, if it works: incant will rewrite itself as a better version that does the same thing as the old version but written in its own grammar and compiled into a hopefully efficient GO program.

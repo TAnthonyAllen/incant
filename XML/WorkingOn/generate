@@ -56,39 +56,36 @@ define
         generate (print) code. It is used in the generate() action below.
     ***************************************************************************/
     runGenerated argument; {
-        entry   = argument.text;
-        //print ```"runGenerated:" entry:;
-        if action = generator[entry];
-            //print ~+"action is:" action "entry is:" entry:;
+        whuut   = texT;
+        print ```"runGenerated:" whuut:;
+        if action =* generator.whuut;
+            print ~+"action is:" action.taG:;
             action(argument);
-            //print ~"end action" action:-;
+            //print ~"end action" action.taG:,-;
         else    print ~,argument ";":; }
-    generator hash:
-        gBlock argument; {
+    generator:
+        gBlocK argument; {
             //print "process block":;
             lines = argument[1];
-            print "{":+;
             for grup in lines;
-                runGenerated(grup);
-            print ~,"}":-; }
-        "break";
-        "continue";
+                runGenerated(grup); }
         gDeclare argument; {
             for field in argument; attributes
                 if !isArgument
                     print "gDeclare: field and argument" tag argument.tag:;
                     if !isLocal AND !isArgument; print "GroupItem*" tag, "= locate(" tag ");":;
                     else    print  getType(field) ,tag ";":; }
-        gDo argument; {
+        gDO argument; {
             //print "generate do":;
             st  = argument[1];
             xp  = argument[2];
             print ~"do"`;
             runGenerated(st);
             print ~,"while(" xp ");":; }
-        gFor argument; {
+        gExpressioN argument; {
+            print "Need to work out how to generate an expression":; }
+        gFOR argument; {
             //print "generate for":;
-            argument**;
             lp  = argument[1];
             xp  = argument[2];
             lr  = argument["LoopRestrict"];
@@ -102,17 +99,14 @@ define
                 if lr   print ~+"if (" lr ")",+:;
             runGenerated(st);
             print ,-; }
-        gIf argument; {
-            //print "generate if statement":;
-            xp  = argument[1];
-            st  = argument[2];
-            els = argument[3];
-            print ,~+"if (" xp ")",+:;
-            runGenerated(st);
-            print ";":-; }
-        "return" argument;
-        gString argument;
-        gWhile argument; {
+        gIF argument; {
+            print "generate if statement":;
+            **argument;
+            }
+        gPrinT argument; {
+            print "Need to work out how to generate print statement":;
+            genPrint(argument); }
+        gWhilE argument; {
             xp  = argument[1];
             st  = argument[2];
             print ~,"while(" xp ")":+;
@@ -121,9 +115,11 @@ define
         gXpress argument; {
             print "Saw xpress" argument:; }
         ;
-    generate statementList; {
-        //print :"About to generate":;
-        runGenerated(statementList); }
+    generatE argument; {
+        print :"About to generate":;
+        for field in argument;
+            print "This is what we are generating from" field:;
+            runGenerated(field); }
     /***************************************************************************
         Working on
     ***************************************************************************/

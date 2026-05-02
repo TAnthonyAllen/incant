@@ -1,0 +1,61 @@
+void whereDoesThisGo()
+{
+    // Declared at top of generated file, not included in the parse class
+    return;
+}
+/*******************************************************************************
+            Rule action declarations
+        *******************************************************************************/
+external
+{
+int ActionRuleSimpleNow(PLGitem iTEM);
+}
+
+/*****************************************************************************
+	Simple class definition
+*****************************************************************************/
+class Simple extends PLGparse
+{
+
+void howAboutThis()
+{
+    // This will be output in the class before setRules()
+    return;
+}
+
+void setRules()
+{
+	setSkip();
+//
+currentRule = getRule("ActionRule");
+currentRule.immediate = ActionRuleSimpleNow;
+}
+
+PLGitem run(String name)
+{
+	if !rules.length
+		{
+		setRules();
+		initialize();
+		}
+	return parse(name);
+}
+}
+/*******************************************************************************
+                Rule actions
+            *******************************************************************************/
+
+int ActionRuleSimpleNow(PLGitem iTEM)
+{
+Simple	p = iTEM.testParser;
+    PLGitem atOption = list;
+    cout "Action: " ruleName "\n";
+    ruleActionName = ruleName;
+    optionCount = 1;
+    while atOption
+		{
+		atOption.runDeferred();
+		atOption = atOption.next;
+		}
+return true;
+}

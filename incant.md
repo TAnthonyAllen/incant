@@ -58,7 +58,10 @@ These shape the work and shouldn't get re-litigated each session:
   in Tok, a C++ preprocessor the project owner maintains separately. Its
   parser is hard to debug. Working alone the owner would still use Tok, but
   is happy to leave it behind when working with Claude. Read and edit the
-  `.mm` files directly. Don't propose changes that would require Tok work.
+  `.mm` *and* `.h` files directly — both are treated as the source now, even
+  though they were originally generated from `.twk`. Don't propose changes
+  that would require Tok work, and don't try to "preserve" edits by
+  back-porting them to `.twk`. Ignore `.twk` entirely.
   (Long-term: incant itself replaces Tok — see "The deeper goal" below.)
 * **Reflectivity is a feature, not an accident.** Anything in the language
   ecosystem (bytecode, IR, generated code) should remain inspectable as a

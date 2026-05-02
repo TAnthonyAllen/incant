@@ -1,0 +1,72 @@
+/*******************************************************************************
+            Rule action declarations
+        *******************************************************************************/
+external
+{
+void ActionOptionactionAct(PLGitem iTEM);
+void ActionOption2actionAct(PLGitem iTEM);
+int ActionRuleactionNow(PLGitem iTEM);
+}
+
+void setRules()
+{
+	setSkip();
+//
+currentRule = getRule("ActionOption");
+currentRule.defer = ActionOptionactionAct;
+//
+currentRule = getRule("ActionOption2");
+currentRule.defer = ActionOption2actionAct;
+//
+currentRule = getRule("ActionRule");
+currentRule.immediate = ActionRuleactionNow;
+}
+
+PLGitem run(String name)
+{
+	if !rules.length
+		{
+		setRules();
+		initialize();
+		}
+	return parse(name);
+}
+}
+/*******************************************************************************
+                Rule actions
+            *******************************************************************************/
+
+void ActionOptionactionAct(PLGitem iTEM)
+{
+action	p = iTEM.testParser;
+for option
+        optionCount += option.itemLength;
+}
+
+void ActionOption2actionAct(PLGitem iTEM)
+{
+action	p = iTEM.testParser;
+buffer.reset();
+    ruleActionName.toBuffer(buffer);
+    if optionCount > 1 print(buffer) optionCount;
+	action.value = (void*)((long)optionCount);
+    currentRule = getRule(buffer.toString());
+    if immediate
+		currentRule.immediateAction = action;
+    else currentRule.deferAction = action;
+}
+
+int ActionRuleactionNow(PLGitem iTEM)
+{
+action	p = iTEM.testParser;
+    PLGitem atOption = list;
+    cout "Action: " ruleName "\n";
+    ruleActionName = ruleName;
+    optionCount = 1;
+    while atOption
+		{
+		atOption.runDeferred();
+		atOption = atOption.next;
+		}
+return true;
+}

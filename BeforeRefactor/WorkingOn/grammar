@@ -1,0 +1,154 @@
+/*****************************************************************************
+    The 32 bootstrap rules listed in this comment are hard coded in the
+    incant runtime bootstrapper method and added to the Grokking registry
+    defined before bootstrapping. The bootstrapper creates the rules
+    and fields incant needs to define and run a rule. Note a rule is a field
+    and a field can be a rule. Fields can also be data, a method, a container,
+    and other stuff that is not a rule.
+    
+	The following are definitions, written in incant field syntax, for the
+    incant hard coded bootstrap rules. The rest of the rules that define
+    incant are loaded from the setup file containing more incant definitions
+    (not hard coded) loaded by the bootstrapper.
+    
+    Note: rules have rule actions, which for the following rules are all hard
+    coded methods invoked when a rule is parsed successfully by the incant
+    parser. These rule actions not shown here have names that follow a pattern
+    recognized by the incant parser (aCTion prepended to the name of the field
+    being defined. For the DefinE rule, the pattern would be aCTionDefinE).
+    When defining a field, the DefinE rule action searches for a method in
+    the incant runtime object code for a name matching that pattern. If found,
+    the method is assigned to the field being defined and BYU (Bobs Yo Uncle).
+    
+    If this seems a little like multiple trips around the mulberry bush, pop
+    goes the weasel. A language that defines itself does this sort of thing
+    and where do it end? To be determined.
+    
+    The following are the bootstrap rules added to Grokking in the bootstrapper.
+    
+counter=[0-9];
+modifySet=[-~+?!%&|*@_<^{}$];
+nameSet=[a-zA-Z0-9];
+PoweR=[eE] sign?=[+-]  power=[0-9]+;
+FloaT="."           decimals=[0-9]+ PoweR?;
+    // Note: the tokened flag is set directly in bootstrapper because the tokenize command not defined yet
+NumbeR=numberSet=[0-9]+       FloaT? tokenize;              // happens tho grammar does not allow it
+DefinE;
+QuotE               tik=['"] quoteBody}=tik$@;
+NamE                first-=[a-zA-Z] nameSet-* tokenize;
+GrouP:
+    NamE;
+    QuotE;;
+DatA:
+    GrouP;
+    NumbeR;         NumbeR is updated when setup is loaded in bootstrapper
+    SetBrackets     '['- ']'};
+    NotA=[^ \t\r\n;]+;;
+debug               "ALL"? "GUARD"? rules=NamE* ';'-;
+InvokE              '('- NamE? ')'-;
+Limit               '['- min=[0-9]+ max?=[0-9]+ ']'- noPrint;
+CodE                '{' '}'} tokenize;
+MemberS             ':'- Mlist=DefinE+;
+Modifier=[-~+?!%&|*@_<^{}$] noPrint;
+TraiTdata           '='- DatA Modifier* Limit?;
+TraiT               NamE Modifier* Limit? TraiTdata?;
+Attributes=TraiT+;
+NewGroup            TraiT@;
+DefinE              NewGroup Attributes? MemberS? ';'- CodE?;
+define              definitions=DefinE+ ';'-;
+RunRulE             NamE InvokE? ';'-?;
+InitiatE=RunRulE+;
+
+    The Grokking registry contains the incant grammar. The incant grammar rules
+    are added to it here.
+*****************************************************************************/
+registry(Grokking);
+define
+    /*************************************************************************
+        Note: the registry attribute makes Grokking the current registry and
+        all subsequent defines will be added to it (until the end of define).
+        
+        The first few rules are forward definitions filled in later below
+        Note: followedBy, defined in the pROPERTIEs registry is used as an
+        attribute to avoid matching on a substring. It succeeds if the next
+        character following a match is in its set. Being virtual, you can
+        change its set when entering it as an attribute; for instance,
+            followedBy=[a set definition].
+    *************************************************************************/
+    ExpressioN;
+    StatemenT guard=[{A-Za-z0-9+-;(];
+    followedBy<^-=notInNameSet virtual;
+
+    /*************************************************************************
+        incant grammar rules
+    *************************************************************************/
+    HeX                         zero-="0" x-=[xX] value-=[0-9a-fA-F]+ tokenize;
+    CheckFor="#";
+    ShortcuT=[-+~`$_:,]+;
+    ANYtoken=NamE;
+    ANYstring=[^ \n\r\t;]+;
+    BlocK                       "{"- Lines=StatemenT+ "}"- defer;
+    BLOCKing parseAction guard="n";
+    PRINTing parseAction=processFlags guard="n";
+    BrancheS bin:
+        break;
+        continue;
+        return;;
+    SemI=";";
+    Argument:
+        DotXP                   '.' ANYtoken;
+        Braces                  '[' ExpressioN "]"-;
+        Parens                  '(' ExpressioN? ")"-;;
+    FormaT="#"                  flags=[-# 0+']* formatWIDTH?=NumbeR Precision? formatTYPE=[a-zA-Z] tokenize;
+    PrintXP:
+        ShortcuT;
+        PrintField              ExpressioN FormaT?;;
+    ExpressPart defer:
+        Expresses               ANYtoken Argument?;
+        StringXP                string followedBy PRINTing- stuff=PrintXP+ ruleMethod=aCTionPrinT defer;
+        QuotE;
+        NumbeR;;
+    ExpressTail:
+        Operators;
+        Args                    ExpressPart+;;
+    ExpressioN                  tails=ExpressTail+;
+    Precision='.'               precision=counter*;
+    /*************************************************************************
+        Format flags are
+            #       forces a decimal
+            blank   leave a space before a positive number
+            -       left align (right align is default)
+            +       put + or - in front of number
+            '       show number in thousands (may not work w/o using setlocale(3)
+    *************************************************************************/
+    Looper=ANYtoken;
+    LoopRestrict:
+        loopOnAttributes="attributes";
+        loopOnMembers="members";;
+    ElsE:
+        BasicElse   else- followedBy BLOCKing- StatemenT@ defer;
+        ElseIf      or- ExpressioN SemI-? BLOCKing- StatemenT ElsE? ruleMethod=aCTionIF defer;;
+    WardeD:
+        DEBUG       "debug"- followedBy rules?=NamE+;
+        DEF         "define"- followedBy define;
+        DO          do- followedBy BLOCKing- StatemenT while- ExpressioN SemI- defer;
+        IF          if- followedBy ExpressioN SemI-? BLOCKing- StatemenT ElsE? defer;
+        FOR         for- followedBy Looper in- ExpressioN SemI- LoopRestrict? BLOCKing- StatemenT defer;
+        WhilE       while- followedBy ExpressioN SemI-? BLOCKing- StatemenT defer;
+        PrinT       print followedBy PRINTing- stuff=PrintXP+  SemI- defer;
+        Search      "search"- followedBy GrouP+ SemI-;
+        BrancH      BrancheS ExpressioN? SemI- defer;
+        ScopeXP     ":"- scopeList=ANYtoken+ SemI- defer;;
+    Xpress          ExpressioN SemI-;
+    StatemenT:
+        BlocK;
+        WardeD;
+        Xpress;
+        SemI;
+        CheckFor;;
+    /*************************************************************************
+        Start is the incant entry point.
+    *************************************************************************/
+    Start=StatemenT+;
+;
+

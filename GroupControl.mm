@@ -45,6 +45,7 @@ GroupItem *GroupControl::copyOf(GroupItem *grup)
 {
 GroupItem 	*block = new GroupItem();
 	*block->groupBody = *grup->groupBody;
+	block->groupBody->groupList = 0;
 	if ( grup->groupBody->groupList )
 		block->copyListFrom(grup);
 	return block;
@@ -148,6 +149,7 @@ void GroupControl::setBaseRegistries()
 GroupItem 	*action = 0;
 	groupRules->fieldBUFFER = ::bufferFactory1();
 	groupRules->stringBUFFER = ::bufferFactory2("string buffer");
+	groupRules->formatBUFFER = ::bufferFactory2("format buffer");
 	groupRules->registries = getRegistry("registries");
 	groupRules->registries->groupBody->registry = groupRules->registries;
 	groupRules->registries->groupBody->groupList = new GroupList(groupRules->registries);
@@ -166,6 +168,7 @@ GroupItem 	*action = 0;
 	groupRules->falseResult = groupRules->properties->addMember(new GroupItem("false"));
 	groupRules->falseResult->groupBody->flags.data = 5;
 	groupRules->falseResult->groupBody->flags.noPrint = 1;
+	groupRules->lastREF = groupRules->properties->addMember(new GroupItem("lastREF"));
 	/***********************************************************************
 	Create other base registries
 	***********************************************************************/
@@ -175,9 +178,11 @@ GroupItem 	*action = 0;
 	groupRules->opFields->groupBody->flags.instructType = 2;
 	groupRules->groupFields = getRegistry("GroupFields");
 	groupRules->commands = getRegistry("cOMMANDs");
+	groupRules->files = getRegistry("fILEs");
 	addBaseRegistry(groupRules->properties);
 	addBaseRegistry(groupRules->opFields);
 	addBaseRegistry(groupRules->commands);
+	addBaseRegistry(groupRules->files);
 	addBaseRegistry(groupRules->keyWords);
 	addBaseRegistry(groupRules->groupFields);
 	GroupDraw::drawer->drawRegistry = getRegistry("Drawing");

@@ -1,0 +1,1503 @@
+include groupIncludes
+
+/******************************************************************************
+	A group.
+******************************************************************************/
+class GroupItem
+{
+GroupBody       groupBody;
+GroupItem	    parent,
+                nextInParent,
+                priorInParent;
+RuleStuff       rStuff;
+boolean GroupOptions {
+    affiliation:2[isAttribute isMember isEmbedded]
+    invoke
+    recursive
+    isCopy } options;
+#autoGetSet
+
+/*******************************************************************************
+    GroupItem constructors
+*******************************************************************************/
+GroupItem()
+{
+    groupBody   = new;
+    isSingleton = true;
+}
+
+GroupItem(String c)
+{
+    groupBody   = new(c);
+    isSingleton = true;
+}
+
+/******************************************************************************
+    Copy constructor. Changes to this group will change the group passed in and
+    vice versa. This group will have no parent (that will change as soon as it
+    is added to another). The affiliation remains the same pending any change
+    in parent.
+******************************************************************************/
+GroupItem(GroupItem grup)
+{
+    groupBody   = grup.groupBody;
+    isCopy      = true;
+    if grup.rStuff {
+        rStuff = new(this);
+        *rStuff = *grup.rStuff;
+        rule    = this;
+        followed = isOK = sukcess = false; }
+}
+
+/***************************************************************************
+	Add a group to this group. Should only be called from addAttribute()
+    or addMember().
+***************************************************************************/
+GroupItem addGroup(GroupItem group)
+{
+	if group
+        {
+        if !groupList   groupList = new(this);
+        if group == this
+            {
+            cerr "GroupItem add: Tried to add " group.tag " to itself\n";
+            return null;
+            }
+        if isREGISTRY || isCLASS
+            if !group.registry      group.registry = this;
+        /***************************************************************
+            The following handles adding an attribute or member.
+            Note: if group has a parent it gets copied (using new) before
+            it is added.
+        ***************************************************************/
+        if group.parent             group = new(group);
+        group.parent    = this;
+        if isSorted || actionType
+                put(group);
+        else    push(group);
+        isInitialized   = true;
+        if !isREGISTRY && group.registry && group.registry["grouped"]
+            group += this;
+        if binType {
+            PLGset binGuard = guardSet;
+            altered         = true;
+            set((int)*group.tag);
+            binGuard        = characterSet;
+            set(group.tag);
+            if isIndexed    group.count = listLength; }
+            }
+	return group;
+}
+
+/***************************************************************************
+	Add an attribute.
+***************************************************************************/
+GroupItem addAttribute(GroupItem grup)
+{
+    if !grup            return null;
+    grup                = addGroup(grup);
+    grup.isAttribute	= true;
+    hasAttributes       = true;
+	return grup;
+}
+
+/***************************************************************************
+	Add a member.
+***************************************************************************/
+GroupItem addMember(GroupItem grup)
+{
+    if !grup            return null;
+    grup                = addGroup(grup);
+    grup.isMember       = true;
+    hasMembers          = true;
+    isSingleton         = false;
+	return grup;
+}
+
+/***************************************************************************
+	Adds an attribute, or if this is a container (binType), adds a member.
+    If the entry already exists, returns it,
+***************************************************************************/
+GroupItem addString(String n)
+{
+GroupItem	group;
+	if n {
+        group = getFromList(n);
+        if !group
+            {
+            group   = new(n);
+            if binType  group = addMember(group);
+            else        group = addAttribute(group);
+           }
+        }
+	return group;
+}
+
+/*****************************************************************************
+	Append the group passed in to this one. Does not care if there is no
+    parent (does not increment parent or listLength).
+*****************************************************************************/
+void append(GroupItem grup)
+{
+    grup.priorInParent  = this;
+    grup.nextInParent   = nextInParent;
+    if nextInParent     nextInParent.priorInParent  = grup;
+    or parent           parent.lastInList = grup;
+	nextInParent		= grup;
+}
+
+/******************************************************************************
+    Clear list and data. Flags are not cleared, neither is rStuff.
+******************************************************************************/
+void clear()
+{
+    clearData();
+    clearList();
+}
+
+/******************************************************************************
+    Clears data. Does not clear pointer.
+******************************************************************************/
+void clearData()
+{
+    if !isPointer   gText = 0;
+    data            = 0;
+    gNumber         = 0;
+}
+
+/***************************************************************************
+	Clear the list. Deletes groupList for now (later will let GC handle it).
+***************************************************************************/
+void clearList()
+{
+    if !groupList   return;
+    if stakked      delete stakked;
+    delete          groupList;
+    groupList       = 0;
+    hasAttributes = hasMembers = 0;
+}
+
+/*****************************************************************************
+	Returns true if this is a registry or data or has anything on its list
+    If fLAG is set return true even without contents
+*****************************************************************************/
+int contents()
+{
+    if isREGISTRY || data           return true;
+    if groupList && listLength      return true;
+    return false;
+}
+
+/*****************************************************************************
+	copyData copies data but not lists. Data type is changed to match input.
+    It is called by setContent() which then copies list;
+*****************************************************************************/
+void copyData(GroupItem item)
+{
+    if item
+        if !item.data   text = item.tag;
+        else {
+            data    = item.data;
+            gText   = item.gText;
+            gNumber = item.gNumber; }
+    if data isInitialized   = true;
+    else    isInitialized   = false;
+    if hasListeners  updateListeners();
+}
+
+/*****************************************************************************
+    Copy the list of this from the list of the group passed in. The new entries
+    have the same data content as the source entries (but they are copies
+    so they have a new parent);
+*****************************************************************************/
+void copyListFrom(GroupItem grup)
+{
+GroupItem   fild,
+            entry;
+    if grup.groupList
+        while entry = grup.next(entry) {
+            if entry.groupList    fild = new(entry);
+            else    fild = entry;
+            if entry.isAttribute  addAttribute(fild);
+            else    addMember(fild); }
+}
+
+/*****************************************************************************
+    Copy this list into the grup passed in.
+*****************************************************************************/
+void copyListTo(GroupItem grup)
+{
+GroupItem   entry;
+    if groupList
+        while entry = next(entry)
+            if entry.isAttribute    grup.addAttribute(entry);
+            else    grup.addMember(entry);
+}
+
+/*****************************************************************************
+	Run a group method in the dispatch Q
+*****************************************************************************/
+void dispatch()
+{
+DispatchQ   dq = dispatchQ;
+    dq.data = (void*)this;
+	if dispatchGroup dispatch_group_async_f(dispatchGroup,qu,dq.data,dispatcher);
+	else dispatch_async_f(qu,dq.data,dispatcher);
+}
+
+/***************************************************************************
+	Like pop treats the list as stack but pops off first item, not last.
+***************************************************************************/
+GroupItem dQ()
+{
+GroupItem   stuff;
+    if firstInList {
+        GroupItem   follows = firstInList.nextInParent;
+        stuff       = firstInList.remove();
+        if follows  follows.priorInParent = null;
+        firstInList = follows; }
+    return stuff;
+}
+
+/*****************************************************************************
+	Searches ancestors bottom up for the first attribute matching name.
+    Keep in mind the parent hierarchy has to be reset first for this to work.
+*****************************************************************************/
+GroupItem findAttribute(String name)
+{
+GroupItem	result,
+            group = this;
+	while group
+		{
+        if result = group%name break;
+		if group = group.parent
+            if result = group.findAttribute(name) break;
+		}
+	return result;
+}
+
+/*****************************************************************************
+	Returns the named parent.
+*****************************************************************************/
+GroupItem findParent(String name)
+{
+GroupItem	group = this;
+    while group
+        {
+        if group.tag eq name
+            break;
+        group = group.parent;
+        }
+    return group;
+}
+
+/***************************************************************************
+	Returns first component with matching tag. Unlike get() it recurses and descends.
+    This should check to make sure it does not search the same field more
+    than once or it ends up in an infinite loop. TBD need a searchable Stak
+***************************************************************************/
+GroupItem firstComponent(String name)
+{
+GroupItem   grup;
+GroupItem   entry = get(name);
+    if !entry
+        if listLength
+            while entry = next(entry)
+                if grup = entry.firstComponent(name) {
+                    entry = grup;
+                    break; }
+    return entry;
+}
+
+/***************************************************************************
+	Returns first component with tag == name. The search does not descend.
+***************************************************************************/
+GroupItem get(String name)
+{
+GroupItem   entry;
+    if name
+        if groupList {
+            if binType {
+                if stakked                              return getFromStak(name);
+                or guarded && !guardSet.contains(*name) return null; }
+            if listLength
+                while entry = next(entry)
+                    if entry.tag eq name return entry; }
+    return null;
+}
+
+/*****************************************************************************
+    Return nth component if it exists. Not efficient unless this is stakked.
+*****************************************************************************/
+GroupItem get(int offset)
+{
+GroupItem   entry;
+int         i;
+    if groupList {
+        if stakked      return getFromStak(offset);
+        or --offset <= listLength {
+            entry = firstInList;
+            while offset > i++
+                entry = entry.nextInParent; }
+        return entry; }
+    return null;
+}
+
+/*****************************************************************************
+	Get the named attribute. This will return an attribute even if the
+	attribute noPrint flag is set.
+*****************************************************************************/
+GroupItem getAttribute(String name)
+{
+GroupItem   block;
+    if name
+        if block = get(name)
+            if block.isAttribute return block;
+    return null;
+}
+
+/***************************************************************************
+	Returns first component with tag == name. The search does not descend.
+    Called from put() because unlike get() it does not search stakked.
+***************************************************************************/
+GroupItem getFromList(String name)
+{
+GroupItem   entry;
+    if name
+        if groupList
+            if guarded && !guardSet.contains(*name) return null;
+            or listLength
+                while entry = next(entry)
+                    if entry.tag eq name return entry;
+    return null;
+}
+
+/***************************************************************************
+	Initializer method for accessing rule results (used in rule actions);
+***************************************************************************/
+GroupItem getLabelGroup(String name)
+{
+GroupItem   block = get(name);
+    while block && block.isGROUP && !block.isMethod && !block.isRule
+        block = block.group;
+    return block;
+}
+
+/*****************************************************************************
+	Return the member matching the tag passed in.
+*****************************************************************************/
+GroupItem getMember(String name)
+{
+    if name && hasMembers
+        {
+        GroupItem    block = get(name);
+        if block && block.isMember return block;
+        }
+    return null;
+}
+
+/*****************************************************************************
+	Value getters
+*****************************************************************************/
+Buffer getBuffer()
+{
+	if isBUFFER
+        return buffer;
+	return 0;
+}
+
+char getCharacter()
+{
+String	atStart, atNext;
+	if data
+        if isCHAR   return character;
+		or isSTRING && gCount == 1  atStart = gText;
+	if atStart
+		{
+		if atStart != '\\' return *atStart;
+		else {
+            atNext = atStart + 1;
+            switch(*atNext)
+                {
+                case 'n':   return '\n';
+                case 'r':   return '\r';
+                case 'f':   return '\f';
+                case 't':   return '\t';
+                case '\\':  return '\\';
+                default:    return *atNext;
+                }
+            }
+		}
+	return null;
+}
+
+PLGset getCharacterSet()
+{
+	if isSET
+        return characterSet;
+	return 0;
+}
+
+int getCount()
+{
+    if data
+        {
+        if isCOUNT || isTOKEN || isCHAR || isSTRING return count;
+        if isNUMBER     return (int)number;
+        if isBUFFER     return buffer.length();
+        if isGROUP      return group.getCount();
+        }
+	return 0;
+}
+
+int getDataType()
+{
+    if isGROUP
+        if group == this return 0;
+    else return group.getDataType();
+    if isITEM && gItem.amount return 5; // isNUMBER
+    return data;
+}
+
+/*****************************************************************************
+	Need to test how getMacro works in this case
+*****************************************************************************/
+GroupItem getGroup()
+{
+	if isGROUP  return gGroup;
+	return 0;
+}
+
+/*******************************************************************************
+	Return the guard set. Create it if we have to
+*******************************************************************************/
+PLGset getGuard()
+{
+GroupRules  ruler = groupRules;
+GroupItem   item;
+PLGset      itemGuard;
+String      junk;
+int         noMoreAttributes;
+    setRuleStuff();
+    if guarding     goto returnGuard;
+    if isCondition {
+        unGuarded = true;
+        goto endSetGuard; }
+use rStuff
+use guardSet
+    guardInProcess  = true;
+    guardSet = new();
+    /***************************************************************************
+        Handle data
+    ***************************************************************************/
+    if registry == opFields || (!data && !groupList) {
+        set((int)*tag);
+        goto endSetGuard; }
+    if !binType
+        if data {
+            switch(data) {
+                case isSET:     delete guardSet;
+                                guardSet   = characterSet;
+                                guarded     = true;
+                                goto endSetGuard;
+                case isGROUP:
+                    item = group;
+                    itemGuard           = item.getGuard();
+                    if item.guardInProcess  goto returnGuard;
+                    if item.unGuarded   unGuarded = true;
+                    else                guardSet += itemGuard;
+                    if item.rStuff && item.min  goto endSetGuard;
+                case isANY:
+                case isBUFFER:
+                case isITEM:
+                case isMAP:
+                case isOBJECT:
+                case isREGEX:
+                case isSTAK:
+                    unGuarded = true;
+                default:
+                    if junk = text  set((int)*junk);
+                    else            unGuarded = true; }
+            if min  goto endSetGuard; }
+        or !groupList   set((int)*tag);
+    /***************************************************************************
+        Handle hashes, attributes and members
+    ***************************************************************************/
+    if binType
+        while item = next(item)     guardSet += *item.tag;
+    else {
+        if hasAttributes
+            while item = nextAttribute(item) {
+                if item.noPrint continue;
+                itemGuard       = item.getGuard();
+                if item.isAttribute
+                    if noMoreAttributes             continue;
+                    or item.guardInProcess          goto returnGuard;
+                    or item.guarded && item.min     noMoreAttributes = true;
+                if item.unGuarded   unGuarded = true;
+                if itemGuard        guardSet += itemGuard;
+                if unGuarded || noMoreAttributes    break; }
+        item = 0;
+        if hasMembers
+            while item = nextMember(item)
+                if itemGuard = item.getGuard()  guardSet += itemGuard; }
+    /***************************************************************************
+        Rule guard set built. Assess result and see if we need to keep it.
+    ***************************************************************************/
+endSetGuard:
+    if guardSet {
+        if isEmpty()    {
+            delete guardSet;
+            guardSet    = 0; }
+        if guardSet {
+            guardSet.name = tag " Guardset";
+            guarded         = true;
+            if isMember && parent.guardSet  parent.guardSet += guardSet; }}
+    else unGuarded = true;
+returnGuard:
+    return  guardSet;
+}
+
+PLGitem getItem()
+{
+	if isITEM || isDate return item;
+    if isGROUP return group.getItem();
+	return 0;
+}
+
+double getNumber()
+{
+    if data
+        {
+        if isNUMBER  return number;
+        if isCOUNT   return (double)count;
+        if isGROUP   return group.getNumber();
+        }
+	return 0;
+}
+
+Object getObject()
+{
+	if isOBJECT return object;
+    if isGROUP return group.getObject();
+	return 0;
+}
+
+void *getPointer()
+{
+    if isPointer    return pointer;
+	return 0;
+}
+    
+PLGrgx getRegex()
+{
+	if isREGEX return regex;
+	return 0;
+}
+
+Stak getStak()
+{
+	if isSTAK return stak;
+	return 0;
+}
+
+/*******************************************************************************
+	Returns rStuff unless it is inProcess, IWC returns a fresh copy of rStuff
+*******************************************************************************/
+RuleStuff getStuff(RuleStuff pStuff)
+{
+RuleStuff   stuff;
+    if !rStuff  rStuff = new(this);
+    if rStuff.rule != this || rStuff.inProcess {
+        stuff   = new(rStuff);
+        rule    = this; }
+    else stuff  = rStuff;
+    parentStuff = pStuff;
+    if !followed    getWhatFollows();
+    return stuff;
+}
+
+/*****************************************************************************
+	getText does what it can to return the contents of this group as text.
+    Note: if has text but is not a string, text is ignored.
+*****************************************************************************/
+String getText()
+{
+String      junkText;
+    if isTOKEN
+        {
+        junkText = malloc(count + 1);
+        strncpy(junkText,gText,count);
+        *(junkText + count) = 0;
+        }
+	or data && !binType
+		switch(data ){
+            case isSTRING:
+                if text     junkText = text;
+                else        data = 0;
+            case isCOUNT:
+            case isNUMBER:
+                junkText = malloc(20);
+                if isCOUNT	print(junkText) count;
+                or isNUMBER	print number;
+                if isPercent strcat(junkText,"%");
+            case isGROUP:   if group    junkText =  group.getText();
+            case isSET:     junkText = characterSet.name;
+            case isBUFFER:  junkText = buffer.toString();
+            case isITEM:    junkText = item.toString();
+            case isCHAR:
+                junkText        = malloc(2);
+                *junkText       = character;
+                *(junkText + 1) = 0; }
+    or tag  junkText = tag;
+	return  junkText;
+}
+
+/*****************************************************************************
+	Insert an item at the beginning of this list. If list has entries and is
+    sorted will throw an error and return null;
+*****************************************************************************/
+GroupItem insertGroup(GroupItem grup)
+{
+    if !groupList || !listLength    return addGroup(grup);
+    if isSorted {
+        cerr "insertGroup: cannot insert into a sorted list":;
+        return 0; }
+    if firstInList  firstInList.prepend(grup);
+    else            firstInList = lastInList = push(grup);
+    grup.parent = this;
+    listLength++;
+    return firstInList;
+}
+
+/***************************************************************************
+    Makes the group passed in a registry
+***************************************************************************/
+void makeRegistry()
+{
+    if groupList && listLength && !sortAscending
+        cerr "ERROR makeRegistry: " tag " has unsorted list":;
+    or !registries[tag]
+        {
+        /*******************************************************************
+            Set the registry. Note: stakked is not set here, it is set
+            after the registry is filled using the define command (if there
+            are more than 10 members defined).
+        *******************************************************************/
+        isREGISTRY      = true;
+        sortAscending   = true;
+        if groupList && listLength {
+            GroupItem   grup;
+            guardSet    = new();
+            while grup = next(grup) guardSet += *grup.tag;
+            guarded = true; }
+        registries      += this;
+        registry        = this;
+        }
+    else cerr tag,"is already a registry":;
+}
+
+/*****************************************************************************
+    Returns true if this data matches data of the group passed in.
+*****************************************************************************/
+int matches(GroupItem arg)
+{
+String  thisString  = data ? text : tag;
+String  argString   = arg.data ? arg.text : arg.tag;
+    if data && data == arg.data
+        switch(data)
+            {
+            case isCOUNT:
+                return gCount == arg.gCount;
+            case isNUMBER:
+                return gNumber == arg.gNumber;
+            case isITEM:
+                return item.compare(arg.item) == 0;
+            default:
+                return compare(thisString,argString) == 0;
+            }
+    return  compare(thisString,argString) == 0;
+}
+
+/*****************************************************************************
+	Check to see if this matches the string passed in. If this has text
+    it matches with the text, otherwise it matches the tag (registry matches
+    are always against the tag). If this matches, returns the matching text
+    and advances the stream pointer passed in.
+*****************************************************************************/
+String matches(String &atString)
+{
+String  atText      = text;
+String  matchText   = atString;
+String  atStart     = atText;
+    while *atText
+        if *atText == *atString {
+            atText++;
+            atString++;  }
+        else break;
+    if !*atText    return atStart;
+    atString = matchText;
+    return null;
+}
+
+/***************************************************************************
+	Merge group into this item. Does not add matching attributes.
+***************************************************************************/
+void merge(GroupItem group)
+{
+    if group && group.listLength
+        {
+        if group.hasAttributes mergeAttributes(group);
+        if group.hasMembers
+            {
+            GroupItem	item;
+            isSingleton = false;
+            hasMembers  = true;
+            while item = group.nextMember(item)
+                addMember(item);
+            }
+        }
+}
+
+/***************************************************************************
+	Merge attributes from the group passed in into this item. Does not add
+    matching attributes.
+***************************************************************************/
+void mergeAttributes(GroupItem group,int mergeFlag)
+{
+GroupItem	existing,replacement,item;
+	while item = group.nextAttribute(item)
+        {
+        existing        = getAttribute(item.tag);
+		if !existing || (mergeFlag && existing != item)
+            {
+            /***************************************************************
+                The following only happens if item is supposed to override
+                an existing copy (based on the mergeFlag passed in)
+            ***************************************************************/
+            if existing existing.remove();
+            /***************************************************************
+                Note: if the attribute to be merged has its own attributes
+                or members, the attributes and members are merged but not
+                the attribute itself
+            ***************************************************************/
+            if item.mergeOn && item.listLength
+                {
+                merge(item);
+                continue;
+                }
+            if !item.data
+                {
+                if replacement = locate(item.tag)
+                    {
+                    if replacement.mergeOn && replacement.listLength
+                        {
+                        merge(replacement);
+                        continue;
+                        }
+                    }
+                addAttribute(item);
+                continue;
+                }
+            else addAttribute(item);
+			}
+        }
+}
+
+/***************************************************************************
+    Moves this group to the item passed in. No copy involved because remove
+    clears the item parent.
+***************************************************************************/
+void moveTo(GroupItem item)
+{
+    remove();
+    if isAttribute  item.addAttribute(this);
+    else    item.addMember(this);
+    updateContentFlags();
+}
+
+/***************************************************************************
+	Iterates thru attributes and members. The group passed in is taken as
+    the last item iterated. If it is null, the first entry found is returned.
+***************************************************************************/
+GroupItem next(GroupItem current)
+{
+    while current = nextGroup(current)
+        if ignoreNoPrint && current.noPrint continue;
+        else    break;
+    return current;
+}
+
+/***************************************************************************
+	Iterates thru attributes. The group passed in is taken as the last item
+	iterated. If it is null, the first attribute found is returned.
+***************************************************************************/
+GroupItem nextAttribute(GroupItem current)
+{
+    while current = nextGroup(current)
+        if current.isAttribute break;
+    return current;
+}
+
+/***************************************************************************
+    Return the group following the group passed in. If a null group is
+    passed in, returns the first group;
+***************************************************************************/
+GroupItem nextGroup(GroupItem grup)
+{
+    if groupList
+        if grup return grup.nextInParent;
+        else    return firstInList;
+    else cerr "nextGroup: ERROR",tag,"does not contain a list":;
+    return null;
+}
+
+/***************************************************************************
+	Iterates thru members. The group passed in is taken as the last member
+	iterated thru. If it is null, the first member found is returned.
+***************************************************************************/
+GroupItem nextMember(GroupItem current)
+{
+    while current = nextGroup(current)
+        if current.isMember break;
+    return current;
+}
+
+/***************************************************************************
+    Treat this field as a rule and match it against the input stream.
+***************************************************************************/
+GroupItem parse(RuleStuff pStuff)
+{
+GroupItem   parentLabel;
+GroupRules  ruler       = groupRules;
+RuleStuff   ruleStuff   = getStuff(pStuff);
+    if pStuff   parentLabel = pStuff.label;
+    kount       = 0;
+    isOK        = false;
+    inProcess   = true;
+    while !isOK && kount < max {
+        if !checkInput()    goto matchFailed;
+        if hasMacro         setMacroValue(this);
+        /*******************************************************************
+            Run the matches that determine if this rule succeeds
+        *******************************************************************/
+        if testMatch || onGroup || hasAttributes {
+            if testMatch                                        sukcess = testMatch(this);
+            if sukcess && onGroup && onGroup.parse(ruleStuff)   sukcess = true;
+            if sukcess && hasAttributes                         sukcess = testAttributes(ruleStuff); }
+        else            sukcess = false;
+        if !sukcess     goto matchFailed;
+        /*******************************************************************
+            Success. Fire label method if there is one.
+        *******************************************************************/
+matchSucceeded:
+        ruleSTUFF   = ruleStuff;
+        if isMethod && label
+            if deferred {
+                label.method    = method;
+                label.deferred  = true;
+                if !label.data  label.text = "g" tag; }
+            or !parseACTION
+                if !(label = method(label))   sukcess = false;
+        if sukcess {
+            kount++;
+            /***************************************************************
+                Deal w/label and increment kount. GC will deal w/label leak
+            ***************************************************************/
+            if label
+                if !isTarget && parentLabel
+                    if label.isGROUP && max > 1 {
+                        parentLabel +% label.group;
+                        label.clear();
+                        label.fLAG  = true; }
+                    else    parentLabel +% label; }
+        else break; }
+matchFailed:
+    if !sukcess {
+        if hasMembers && !guardFAIL
+            if sukcess = testOptions(ruleStuff)     goto matchSucceeded;
+        if !sukcess && kount >= min sukcess = true;
+debugHere:
+        if !sukcess {
+            atRuleMark  = hereAt;
+            if label    label = 0; }}
+    if sukcess && !label    label = trueResult;
+    inProcess   = false;
+    return label;
+}
+
+/***************************************************************************
+    Pop treats the list as a stack and pops off the last item.
+***************************************************************************/
+GroupItem pop()
+{
+GroupItem    stuff;
+    if groupList && listLength {
+        stuff = lastInList;
+        if lastInList = stuff.priorInParent   lastInList.nextInParent = null;
+        stuff.parent        = 0;
+        stuff.priorInParent = 0;
+        listLength--;
+        if !listLength  clearList(); }
+    return  stuff;
+}
+
+/*****************************************************************************
+	Insert the group passed in before this one. Does not update listLength
+    or parent (in case called from addHash).
+*****************************************************************************/
+void prepend(GroupItem grup)
+{
+    grup.priorInParent  = priorInParent;
+	grup.nextInParent	= this;
+    if priorInParent    priorInParent.nextInParent  = grup;
+    or parent           parent.firstInList = grup;
+	priorInParent		= grup;
+}
+
+/***************************************************************************
+    Return the group preceeding the group passed in. If a null group is
+    passed in, returns the last group;
+***************************************************************************/
+GroupItem prior(GroupItem grup)
+{
+    if groupList
+        if grup return grup.priorInParent;
+        else    return lastInList;
+    else cerr "nextGroup: ERROR",tag,"does not contain a list":;
+    return null;
+}
+
+/*****************************************************************************
+	Add to list. Does not care about duplicates. If sorted sorts in ascending
+    order. next and prior methods flip if sort is descending.
+*****************************************************************************/
+GroupItem push(GroupItem grup)
+{
+int         comparison;
+GroupItem   entry = firstInList;
+    if !grup
+        {
+        cerr "GroupBody add: tried to add a null entry":;
+        return grup;
+        }
+    if isSorted
+        {
+        while entry
+            {
+            comparison = compare(grup.tag,entry.tag);
+            if comparison > 0
+                if entry = entry.nextInParent continue;
+                else goto appendLink;
+            or comparison == 0
+                goto appendLink;
+            else goto insertLink;
+            }
+        }
+    else {
+        if lastInList lastInList.append(grup);
+        else    firstInList = grup;
+        lastInList    = grup;
+        goto finishAdd;
+        }
+appendLink:
+    if entry    entry.append(grup);
+    or lastInList {
+        lastInList.append(grup);
+        lastInList    = grup; }
+    else {
+        firstInList = lastInList = grup;
+        grup.nextInParent   = null;
+        grup.priorInParent  = null;
+        }
+    goto finishAdd;
+insertLink:
+    if entry    entry.prepend(grup);
+    or firstInList    firstInList.prepend(grup);
+    else {
+        firstInList = lastInList = grup;
+        grup.nextInParent   = null;
+        grup.priorInParent  = null;
+        }
+finishAdd:
+    listLength++;
+    return grup;
+}
+
+/*****************************************************************************
+	Adds an entry unless it already exists. No duplicates
+*****************************************************************************/
+void put(GroupItem grup)
+{
+    if !getFromList(grup.tag)   push(grup);
+}
+
+/*****************************************************************************
+	Remove this group from its parent list and return it.
+*****************************************************************************/
+GroupItem remove()
+{
+    if parent && parent.groupList
+        {
+        GroupItem   grup;
+        if parent.listLength    parent.listLength--;
+        if !parent.listLength   parent.clearList();
+        else {
+            if priorInParent
+                if !nextInParent
+                    {
+                    parent.lastInList = priorInParent;
+                    priorInParent.nextInParent      = null;
+                    }
+                else  priorInParent.nextInParent    = nextInParent;
+            else parent.firstInList = nextInParent;
+            nextInParent            = priorInParent = null;
+            if isAttribute {
+                grup = parent.nextAttribute(grup);
+                if !grup parent.hasAttributes = false; }
+            or isMember {
+                grup = parent.nextMember(grup);
+                if !grup parent.hasMembers = false; }
+            if parent.stakked   parent.altered = true;
+            parent = null; }}
+    return this;
+}
+
+/*****************************************************************************
+	Remove named group from this list, if there is a matching group on the list.
+    Returns the removed group.
+*****************************************************************************/
+GroupItem remove(String name)
+{
+GroupItem   group = getFromList(name);
+    if group group.remove();
+    return  group;
+}
+
+/*****************************************************************************
+	If this contains an entry matching the tag of the argument passed in, replace
+    the entry with the argument. If no matching entry, insert the argument.
+*****************************************************************************/
+GroupItem replace(GroupItem argument)
+{
+GroupItem   grup = getFromList(argument.tag);
+    if grup grup.setContent(argument);
+    or argument.isAttribute argument = addAttribute(argument);
+    else                    argument = addMember(argument);
+    return  argument;
+}
+
+/***************************************************************************
+    Returns the right tag in case of loadByValue groups
+***************************************************************************/
+String resolvedTag()
+{
+    if isAttribute && registry && registry%"loadByValue" return registry.tag;
+    return tag;
+}
+
+/*****************************************************************************
+	Value setters
+*****************************************************************************/
+void setBuffer(Buffer b)
+{
+    buffer      = b;
+    if b        isBUFFER = true;
+    else data   = 0;
+    isInitialized   = true;
+    if hasListeners updateListeners();
+}
+
+void setCharacter(char c)
+{
+    character   = c;
+    if c        isCHAR = true;
+    else data   = 0;
+    isInitialized   = true;
+    if hasListeners updateListeners();
+}
+
+void setCharacterSet(PLGset set)
+{
+    characterSet    = set;
+    if set          isSET = true;
+    else data       = 0;
+    isInitialized   = true;
+    if hasListeners updateListeners();
+}
+/*****************************************************************************
+	setContent is not a setter. It updates data.
+*****************************************************************************/
+void setContent(GroupItem item)
+{
+    if item {
+        if groupBody != item.groupBody
+            if !item.contents() text = item.tag;
+            else {
+                if item.groupList   copyListFrom(item);
+                if item.isGROUP     group = item.gGroup;
+                or item.data        copyData(item); }
+        else    cerr "setContent: tried to set group to itself",tag:; }
+    else clearData();
+}
+
+void setCount(int i)
+{
+	isCOUNT = true;
+    count   = i;
+	if hasListeners  updateListeners();
+    isInitialized   = true;
+}
+
+void setGroup(GroupItem g)
+{
+    if groupBody == g.groupBody {
+        cerr "setGroup: cannot add a group",tag,"to itself":;
+        return; }
+    if g
+        if isLocal || isLabel   gGroup = g;
+        else {
+            if !g.parent    gGroup = g;
+            else            gGroup = new(g);
+            gGroup.parent       = this;
+            gGroup.isEmbedded   = true; }
+    isInitialized   = true;
+    isGROUP         = true;
+    if hasListeners updateListeners();
+}
+
+void setItem(PLGitem i)
+{
+    item        = i;
+	if i        isITEM = true;
+    else data   = 0;
+    isInitialized = true;
+    if hasListeners updateListeners();
+}
+
+void setMap(BitMAP i)
+{
+    gMap        = i;
+    if i        isMAP   = true;
+    else data   = 0;
+    isInitialized = true;
+    if hasListeners updateListeners();
+}
+
+void setMethod(GroupItem &m(GroupItem))
+{
+	isMethod	= true;
+    method      = m;
+}
+
+void setNumber(double d)
+{
+	isNUMBER    = true;
+    number      = d;
+	if hasListeners  updateListeners();
+    isInitialized   = true;
+}
+
+void setObject(Object v)
+{
+    object      = v;
+    if v        isOBJECT = true;
+    else data   = 0;
+    isInitialized = true;
+    if hasListeners updateListeners();
+}
+
+void setOperat(GroupItem &m(GroupItem,GroupItem))
+{
+	isOperator	= true;
+    operat      = m;
+}
+
+void setPointer(void *v)
+{
+    pointer     = v;
+    isPointer   = true;
+    isInitialized = true;
+    if hasListeners updateListeners();
+}
+
+void setRegex(PLGrgx v)
+{
+    gRegex      = v;
+    if v        isREGEX = true;
+    else data   = 0;
+    isInitialized = true;
+    if hasListeners updateListeners();
+}
+
+void setStak(Stak s)
+{
+    if s {
+        isSTAK  = true;
+        stak = s; }
+    else data   = 0;
+    isInitialized = true;
+    if hasListeners updateListeners();
+}
+
+void setText(String s)
+{
+    gText       = s;
+    if s {
+        gCount      = (int)strlen(s);
+        isSTRING	= true;
+		}
+    else data   = 0;
+    isInitialized = true;
+    if hasListeners updateListeners();
+}
+
+/*******************************************************************************
+    Set rStuff and isRule. This takes no argument so not a setter
+*******************************************************************************/
+void setRuleStuff()
+{
+    if !isRule
+        if registry && registry.isRule              isRule = true;
+        or parent && parent.isRule
+            if !registry || registry == keyWords    isRule = true;
+    if !rStuff  rStuff = new(this);
+    if rule != this {
+        rStuff  = new(rStuff);
+        rule    = this; }
+}
+
+/*****************************************************************************
+	setToken is not a setter (there is no token field)
+*****************************************************************************/
+void setToken(String s,int length)
+{
+    isTOKEN  = true;
+    gText       = s;
+    gCount      = length;
+    isInitialized = true;
+}
+
+/***************************************************************************
+    Sorts list using the compare method. The basic idea is to walk the list
+    forward, and keep the already traversed part of the list in order.
+    At the end of the list we done. If order is not null, sort is descending
+    NEED TO MAKE SURE THIS WORKS
+***************************************************************************/
+void sort(int &comparisor(GroupItem,GroupItem))
+{
+GroupItem   follow;
+GroupItem   current;
+    if isSorted
+        {
+        int order = sortDescending ? -1 : 1;
+        while current = next(current)
+            {
+moveForward:
+            follow = nextInParent;
+            if order * comparisor(current,follow) <= 0 continue;
+            else {
+                while current = priorInParent
+                    {
+                    if order * comparisor(follow,current) < 0 continue;
+                    else {
+                        current.append(follow);
+                        goto moveForward;
+                        }
+                    }
+                if !current && firstInList
+                    {
+                    firstInList.prepend(follow);
+                    goto moveForward;
+                    }
+                }
+            }
+        return;
+        }
+     cerr "GroupBody sort: must set isSorted first":;
+}
+
+/*****************************************************************************
+    Sort members by the value of the attribute named in the parameter
+    passed in.
+*****************************************************************************/
+void sortByAttribute(String attributeName)
+{
+String  saveText = text;
+    text = attributeName;
+    sort(compareAttribute);
+    text = saveText;
+}
+
+/*******************************************************************************
+	Make sure affiliation and content flags (hasMembers, hasAttributes) match
+*******************************************************************************/
+void updateContentFlags()
+{
+	if parent
+        if isAttribute  parent.hasAttributes    = true;
+        or isMember     parent.hasMembers       = true;
+    if listLength
+        {
+        GroupItem   item;
+        hasAttributes   = false;
+        hasMembers      = false;
+        while item = next(item)
+            if !hasAttributes && item.isAttribute
+                {
+                hasAttributes   = true;
+                if hasMembers   break;
+                }
+            or !hasMembers && item.isMember
+                {
+                hasMembers          = true;
+                if hasAttributes    break;
+                }
+        }
+}
+
+/*****************************************************************************
+	Notify groups listening to this one.
+*****************************************************************************/
+void updateListeners()
+{
+GroupItem	item,listener;
+    if !dispatchQ
+        {
+        dispatchQ = new;
+        dispatchGroup = makeGroup();
+        }
+	if listener = getAttribute("notifyLIST")
+		while item = listener.next(item)
+            item.dispatch();
+    cout `tag,"finished dispatching listeners":;
+	dispatchQ.wait(forever);
+    cout `tag,"finished updating listeners":;
+}
+
+/***************************************************************************
+	Iterates thru the member hierarchy in a depth first walk. The group pointer
+    passed in is taken as the last item iterated. If it is null, this group
+    is returned. If the item passed in is this group, the first member of
+    this group is returned. This way the walk starts with the calling block
+    that is, the first block returned is the calling block, unless you pass
+    the calling block as the item parameter.
+***************************************************************************/
+GroupItem walk(GroupItem item)
+{
+GroupItem result,group;
+    if !item result = this;
+    or item == this
+        result = next(result);
+    or item.listLength     result = item.next(result);
+    else {
+        group = item.parent;
+        if group.groupBody == groupBody || !group
+            {
+            if item.listLength
+                result = item.next(result);
+            if !result
+                {
+                result = item;
+                result = next(result);
+                }
+            }
+        else {
+            result = item.nextInParent;
+            if !result
+                while item = item.parent
+                    {
+                    if item.groupBody == groupBody break;
+                    if group = item.parent
+                        {
+                        result = item;
+                        if result = group.next(result) break;
+                        }
+                    }
+            }
+        }
+    return result;
+}
+}
+
+/*****************************************************************************
+    Compare tag of group1 to tag of group2. Attributes are less than members.
+*****************************************************************************/
+int compareTags(GroupItem group1,GroupItem group2)
+{
+int result;
+    if group1.isAttribute && !group2.isAttribute result = -1;
+    or group1.isMember && !group2.isMember result = 1;
+    or !result && group1.isMember
+        {
+        result = compare(group1.tag,group2.tag);
+        if !result && registry && registry == group1.registry && registry%"loadByValue"
+            result = compare(group1.text,group2.text);
+        }
+    return result;
+}
+
+/*****************************************************************************
+    Compare value of group1 to value of group2.
+*****************************************************************************/
+int compareValues(GroupItem group1,GroupItem group2)
+{
+int result = -1;
+use group1
+    if group1 && !group2    result = 1;
+    or group2 && !group1    result = -1;
+    or groupBody == group2.groupBody    result = 0;
+    or data
+        switch(data)
+            {
+            case isITEM:        result = item.compare(group2.item);
+            case isNUMBER:
+                if group2.isCOUNT || group2.isNUMBER || group2.isSTRING
+                                result = (int)(gNumber - group2.number);
+            case isBUFFER:
+            case isSTRING:
+                if group2.isCOUNT || group2.isNUMBER
+                                result = count - group2.count;
+                else            result = compare(text,group2.text);
+            case isCOUNT:
+                if group2.isCOUNT || group2.isNUMBER || group2.isSTRING
+                                result = count - group2.count;
+            default:            result = compare(text,group2.text);
+            }
+    or group2.data              result = -1;
+    else result = compare(text,group2.text);
+    return result;
+}
+
+/*****************************************************************************
+    Compare attribute value of group1 to attribute value of group2. The results
+    get a little arbitrary if the values differ in type. Attributes are less than members.
+    The way this works is text in the group being sorted is set to the name
+    of the tag in the attributes whose values are used in the compare for the sort
+*****************************************************************************/
+int compareAttribute(GroupItem group1,GroupItem group2)
+{
+String      traitName   = group1.parent.text;
+GroupItem   trait1      = group1[traitName];
+GroupItem   trait2      = group2[traitName];
+int result;
+    if group1.isAttribute && !group2.isAttribute result = -1;
+    or group1.isMember && !group2.isMember result = 1;
+    or !result && group1.isMember
+        {
+        if trait1.data == trait2.data
+            switch(trait1.data)
+                {
+                case isCOUNT:
+                case isNUMBER:
+                    result = (int)(trait1.number - trait2.number);
+                case isITEM:
+                    result = trait1.item.compare(trait2.item);
+                case isSTRING:
+                    result = compare(trait1.text,trait2.text);
+                }
+        or !trait1.data result = -1;
+        else result = 1;
+        }
+    return result;
+}

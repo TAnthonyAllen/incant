@@ -1,0 +1,720 @@
+
+/*******************************************************************************
+	The ANYtoken rule action excludes key words and undefined token fields
+*******************************************************************************/
+extern GroupItem aCTionANYtoken(GroupItem input)
+{
+GroupItem   token;
+    if input.isGROUP    token = input.group;
+    else                token = input;
+    if token && token.registry == keyWords      return null;
+    return input;
+}
+
+/*******************************************************************************
+	The BlocK rule action.
+*******************************************************************************/
+extern GroupItem aCTionBlocK(GroupItem input)
+{
+GroupItem   Lines:,
+            grup,
+            result;
+    while grup = Lines.next(grup) {
+        if grup.isMethod    result = grup.gMethod(grup);
+        else                result = grup;
+        if result && isBranch break; }
+    if result && isGROUP  result = gGroup;
+    return result;
+}
+
+/*******************************************************************************
+	Rule action for Braced rule.
+        Braced      "["- ExpressioN "]"-;
+*******************************************************************************/
+extern GroupItem aCTionBraced(GroupItem input)
+{
+GroupItem ExpressioN:;
+    input.clear();
+    input.group = ExpressioN;
+    input.fLAG  = true;
+    return input;
+}
+
+/*******************************************************************************
+	Rule action for BrancH.
+*******************************************************************************/
+extern GroupItem aCTionBrancH(GroupItem input)
+{
+GroupItem   BrancheS:,
+            ExpressioN:;
+GroupItem   arg = ExpressioN;
+    if !arg         arg = BrancheS;
+    or isMethod     arg = arg.gMethod(arg);
+    switch(*BrancheS.tag) {
+        case 'b':   isBreak     = true;
+        case 'c':   isContinue  = true;
+        case 'r':   isReturn    = true; }
+    return arg;
+}
+
+/*******************************************************************************
+    CheckFor is a debugging tool. It matches its text and returns null
+    if it matches so it fails even if it succeeds.
+    It should be entered as a rule attribute like: CheckFor?="some text".
+    It enables you to stop the parse at some arbitrary point in the input
+    stream and you can modify it to do whatever before it returns (like
+    turn on debugAllRules). It runs in the parse not at runtime, unlike
+    the similar opDoNothing operator that runs at code execution.
+*******************************************************************************/
+extern GroupItem aCTionCheckFor(GroupItem input)
+{
+    debugAllRules = true;
+    return null;
+}
+
+/*******************************************************************************
+	Immediate method for DEBUG rule
+        DEBUG       "debug"- followedBy rules?=NamE+;
+*******************************************************************************/
+extern GroupItem aCTionDEBUG(GroupItem input)
+{
+GroupItem   lastRule,
+            rules:,
+            subrule,
+            GUARD,
+            grup;
+    if rules
+        while grup = rules.next(grup) {
+            if isRule {
+                if GUARD    debugGuard =! debugGuard;
+                lastRule    = grup;
+                debugged    = !debugged; }
+            or grup.text eq "GUARD" {
+                GUARD = trueResult;
+                continue; }
+            or lastRule && (subrule = lastRule[tag]) {
+use subrule
+                debugged = !debugged;
+                if GUARD debugGuard =! debugGuard; }
+            else    cerr "aCTionDebuG: " tag " is not a rule":; }
+    else    debugAllRules = !debugAllRules;
+    return input;
+}
+
+/*******************************************************************************
+	Immediate method for the Define rule that defines a rule.
+*******************************************************************************/
+extern GroupItem aCTionDefinE(GroupItem input)
+{
+GroupRules  ruler       = groupRules;
+GroupItem   NewGroup    = input[1],
+            Attributes:,
+            CodE:,
+            MemberS:;
+GroupItem   grup,
+            item;
+use NewGroup
+    defining    = true;
+    if isGROUP  NewGroup = group;
+    if isLiteral {
+        tag    = text;
+        text   = 0; }
+    if NewGroup
+        {
+        /***********************************************************************
+            If currentRegistry and NewGroup is not a registry, add it to the current registry.
+        ***********************************************************************/
+        if !registry {
+            affiliation = 0;
+            parent      = null; }
+        if currentRegistry {
+            if registry != currentRegistry     NewGroup = currentRegistry += NewGroup;
+            if currentRegistry.isRule {
+                if !binType     isRule = true;
+                if !rStuff      rStuff = new(NewGroup); }}
+       /***********************************************************************
+            Process Attributes.
+        ***********************************************************************/
+use item
+        if Attributes
+            while item = Attributes.next(item)
+                if noPrint && immediateACTION {
+                    /*******************************************************
+                        if item gets run but is not added to the new group.
+                        fLAG set so method can verify it is called from a
+                        definition (some commands can be run as define
+                        attributes or from the command line).
+                    *******************************************************/
+                    parent      = NewGroup;
+                    fLAG        = true;
+                    method(item);
+                    fLAG        = false; }
+                else {
+                    if tag eq "argument"    isArgument = true;
+                    if NewGroup.isMacro     noPrint = true;
+                    isInitialized  = true;
+                    if NewGroup.isRule && !item.binType    item.isRule = true;
+                    if item.isLiteral {
+                        grup = new(item.text);
+                        if item.rStuff {
+                        grup.rStuff = item.rStuff;
+                        grup.ruleName   = grup.tag; }}
+                    else    grup = item;
+                    grup    = NewGroup +% grup; }
+        /***********************************************************************
+            If there is code NewGroup is flagged as coded. The code gets processed
+            by processCode() the first time NewGroup is included in an expression.
+        ***********************************************************************/
+use NewGroup
+        if CodE {
+            grup            = NewGroup += "this";
+            grup.isLocal    = true;
+            grup.noPrint    = true;
+            grup.group      = NewGroup;
+            if isMacro {
+                CodE.gText++;
+                CodE.gCount     -= 2;
+                text   = CodE.text; }
+            else {
+                isCoded         = true;
+                CodE.noPrint    = true;
+                CodE.parent     = 0;
+                grup            = NewGroup +% CodE;
+                grup.isRule     = false;
+                grup.noPrint    = true; }}
+        or isMacro  cerr "ERROR: A macro definition must have code specified as its body":;
+        /***********************************************************************
+            Process Members.
+        ***********************************************************************/
+        if MemberS
+            while item = MemberS.next(item)
+                grup = NewGroup += item;}
+        /***********************************************************************
+            If NewGroup is a rule check to see if it has a rule method .
+            Note: method is fired even if there is an incant action associated with
+            the rule, in which case the method is expeced to run the action.
+            Also makes sure if NewGroup isGROUP the group is made a rule
+        ***********************************************************************/
+        if isRule {
+            if !isREGISTRY && !isMethod {
+                String  methodName = "aCTion" tag;
+                void*   methodAddress;
+                if methodAddress = dlsym(RTLD_SELF,methodName) gMethod = methodAddress;
+                or isCoded     method = processAction;
+                free(methodName);
+                if gMethod {
+                    isMethod   = true;
+                    immediateACTION = true; }}}
+    input.clear();
+    isInitialized   = true;
+    if NewGroup.registry && !NewGroup.parent    NewGroup.parent = currentRegistry;
+    input.group     = NewGroup;
+    defining        = false;
+    return input;
+}
+
+/*******************************************************************************
+	Sets the operator method in a do statement
+        DO      do- BLOCKing StatemenT while- ExpressioN SemI-;
+*******************************************************************************/
+extern GroupItem aCTionDO(GroupItem input)
+{
+GroupItem   StatemenT:,
+            ExpressioN:,
+            result;
+    do {
+        result = StatemenT.gMethod(StatemenT);
+        if isBranch {
+            if isContinue   continue;
+            or isReturn     return result;
+            break; }}
+    while ExpressioN.gMethod(ExpressioN);
+    if !result  result = falseResult;
+    return result;
+}
+
+/*******************************************************************************
+	ExpressioN rule immediate action. Note: operators including unary operators
+    have to preceed their arguments.
+        ExpressioN      Token+ SemI?- defer;
+*******************************************************************************/
+extern GroupItem aCTionExpressioN(GroupItem xpList)
+{
+GroupItem   op,
+            target,
+            arg,
+            xl,
+            token;
+    if xpList.listLength == 1 {
+        arg = xpList.firstInList;
+        if arg.isGROUP && !arg.isArgument   arg = arg.group;
+        goto finishXP; }
+    while token = xpList.prior(token) {
+        if registry == opFields   op = token;
+        else {
+            if !arg arg = token;
+            or op {
+                target  = token;
+                if xl   xl = null; }
+            else {
+                if !xl {
+                    xl = new("xl");
+                    xl.isLIST   = true; }
+                if arg != xl    xl += arg;
+                xl  += token;
+                arg = xl; }
+             }
+        if op
+            if arg
+                if target {
+                    xl  = new("xl");
+                    xl  += op;
+                    xl  += target;
+                    xl  += arg;
+                    xl.method = runOP;
+                    op = 0;
+                    target = 0;
+                    arg = xl; }
+        }
+use arg
+    if arg  invoke = true;
+finishXP:
+    xpList.clear();
+    xpList.group = arg;
+    return xpList;
+}
+
+/*******************************************************************************
+	If the parse gets here it failed.
+*******************************************************************************/
+extern GroupItem aCTionFailed(GroupItem input)
+{
+    cout "Parse failed on text:",getDebugText(atRuleMark,20):;
+    stopParsingInput(input);
+    return input;
+}
+
+/*******************************************************************************
+	Runs a for statement
+        Looper=ANYtoken;
+        LoopRestrict:
+            loopOnAttributes="attributes";
+            loopOnMembers="members";;
+        FOR         for- followedBy Looper in- ExpressioN SemI- LoopRestrict? BLOCKing- StatemenT defer;
+    At present no loopModifier condition to control loop direction???
+*******************************************************************************/
+extern GroupItem aCTionFOR(GroupItem input)
+{
+GroupRules  ruler   = groupRules;
+GroupItem   Looper  = input["Looper"],
+            ExpressioN = input["ExpressioN"],
+            LoopOn,
+            LoopRestrict:,
+            StatemenT:,
+            grup,
+            result;
+int         restrict;
+    if Looper.isGROUP       Looper = Looper.group;
+    Looper.clear();
+    if LoopRestrict {
+        String restriction = LoopRestrict.text;
+        if restriction eq "attributes"  restrict = 1;
+        or restriction eq "members"     restrict = 2; }
+    if ExpressioN.isMethod  LoopOn = ExpressioN.gMethod(ExpressioN);
+    else                    LoopOn = ExpressioN;
+    while LoopOn.isGROUP    LoopOn = LoopOn.group;
+    LoopRestrict    = lastREF.group;
+    while grup = LoopOn.next(grup) {
+        Looper.group = grup;
+        if restrict && grup.affiliation != restrict   continue;
+        lastREF.group       = grup;
+        result = StatemenT.gMethod(StatemenT);
+        if isBranch {
+            if isContinue   continue;
+            or isReturn     return result;
+            break; }}
+    if !result  result = falseResult;
+    if LoopRestrict     lastREF.group = LoopRestrict;
+    else                lastREF.clear();
+    return result;
+}
+
+/*******************************************************************************
+	IF rule action
+        IF=if ExpressioN ';'? StatemenT ElsE?;
+*******************************************************************************/
+extern GroupItem aCTionIF(GroupItem input)
+{
+GroupItem   ExpressioN:,
+            StatemenT:,
+            ElsE:;
+GroupItem   result = ExpressioN;
+    if isMethod result = result.gMethod(result);
+    else        result = ExpressioN;
+    if result && isInitialized   result = StatemenT.gMethod(StatemenT);
+    or ElsE     result = ElsE.gMethod(ElsE);
+    if !result  result = falseResult;
+    return result;
+}
+
+/***************************************************************************
+    NamE rule action
+***************************************************************************/
+extern GroupItem aCTionNamE(GroupItem input)
+{
+GroupRules  ruler = groupRules;
+GroupItem   action = currentMETHOD;
+GroupItem   result;
+String      arg = input.text;
+    if result = locateInMethod(arg) {
+        if processingCode && result != action && !action[arg]   result = action +% result; }
+    or currentRegistry == opFields || alphaSet.contains(*arg) {
+        result = new(arg);
+        if processingCode {
+            result      = action +% result;
+            isLocal     = true; }}
+    input.group = result;
+    return input;
+}
+
+/*******************************************************************************
+	immediate method for the incant Number rule.
+        NumbeR=[0-9]+               FloaT? tokenize:
+            HeX='0'                 x=[xX] value=[0-9a-fA-F]+ tokenize;;
+        FloaT='.'                   float=[0-9]+ PoweR?;
+*******************************************************************************/
+extern GroupItem aCTionNumbeR(GroupItem input)
+{
+String  arg = input.text;
+    if arg
+        {
+        GroupItem   FloaT:;
+        if FloaT    input.number = atof(arg);
+        else        input.count  = atoi(arg);
+        input.isLiteral = true;
+        }
+    return input;
+}
+
+/*******************************************************************************
+	Rule action for Parens rule.
+        Braced      "("- ExpressioN? ")"-;
+*******************************************************************************/
+extern GroupItem aCTionParens(GroupItem input)
+{
+GroupItem ExpressioN:;
+    if ExpressioN {
+        input.clear();
+        input.group = ExpressioN; }
+    return input;
+}
+
+/*******************************************************************************
+	Immediate method for the Print rule or the StringXP rule.
+        ToBuffer=">"    NamE@;
+        PrinT           print ToBuffer? stuff=ExpressioN+  SemI-;
+        StringXP        string stuff=ExpressioN+ ruleMethod=aCTionPrinT;
+*******************************************************************************/
+extern GroupItem aCTionPrinT(GroupItem input)
+{
+GroupRules  ruler   = groupRules;
+GroupItem   stuff:;
+GroupItem   command = input.firstInList;
+GroupItem   grup;
+Buffer      buffer = bufferSTAK.pop();
+    if !buffer      buffer = new("print buffer");
+    isPRINTING      = false;
+    while grup = stuff.nextAttribute(grup) {
+        if noPrint  continue;
+        GroupItem   FormaT:,
+                    result,
+                    ExpressioN:;
+        if ExpressioN {
+            if isMethod result = method(ExpressioN);
+            else        result = ExpressioN;
+            appendGroup(result,FormaT,buffer); }
+        else            appendGroup(grup,FormaT,buffer); }
+    if command.tag == 'p'   return opPrint(input,buffer);
+    else                    return opString(input,buffer);
+}
+
+/***************************************************************************
+    QuotE rule action
+        QuotE       tik=['"] isRule quoteBody}=tik;
+***************************************************************************/
+extern GroupItem aCTionQuotE(GroupItem input)
+{
+GroupItem   tik:,
+            quoteBody:;
+String      body = text;
+use input
+    clear();
+    quoteBody.clear();
+    if strlen(body) == 1     character = *body;
+    else    text = body;
+    if tik.gText != '"'
+        if tik = opFields[body] group = tik;
+        else    isLiteral = true;
+    else    isLiteral = true;
+    return  input;
+}
+
+/*******************************************************************************
+	runs the rule passed in, returns the rule result if it succeeds.
+*******************************************************************************/
+extern GroupItem aCTionRunRulE(GroupItem input)
+{
+GroupItem   argument,
+            InvokE:,
+            rule = input[1];
+    if rule
+        {
+        rule = group;
+        input.clear();
+        if InvokE
+            if argument = InvokE[1]
+                if argument.isGROUP argument = argument.group;
+        if !isRule
+            {
+            input   += rule;
+            if rule.isMethod    input.method = rule.method;
+            if argument input += argument;
+            if input.isMethod
+                if argument     input.method(argument);
+                else            input.method(rule);
+            else    cerr "RunRulE: expected a method not", rule.tag:;
+            }
+        else rule   = runRule(argument,rule);
+        }
+    return input;
+}
+
+/***************************************************************************
+    Process a scope expression. It is a convenient way to set local fields.
+    The first field in the scope list becomes the lookin field searched for
+    the fields that follow. Fields then found update local fields. The
+    respective local fields then point to the found fields.
+***************************************************************************/
+extern void aCTionScopeXP(GroupItem input)
+{
+GroupRules  ruler = groupRules;
+GroupItem   action = currentMETHOD,
+            field,
+            listItem,
+            localField,
+            lookin,
+            source,
+            scopeList:,
+            grup;
+    while listItem = scopeList.next(listItem) {
+        if listItem.isGROUP grup = listItem.group;
+        else    grup = listItem;
+        if !lookin  lookin = grup;
+        else {
+            if isCOUNT  field = action[gCount];
+            else        field = action[tag];
+            if localField = field
+                if source = lookin[tag] localField.group = source;
+                else        localField.clearData(); }}
+}
+
+/*******************************************************************************
+	Search rule action. List, setStakked, add to, or reset the SearchList.
+*******************************************************************************/
+extern GroupItem aCTionSearch(GroupItem input)
+{
+GroupItem   searchLIST = searchList;
+GroupItem   base,
+            grup = input[1];
+int         setStakked;
+    while grup = input.next(grup)
+        if tag eq "reset"  searchLIST.clearList();
+        or tag eq "list"
+            if !searchLIST.listLength print "Search list is empty":;
+            else {
+                cout "Search list:";
+                base    = 0;
+                while base = searchLIST.next(base)  cout ,base.tag;
+                cout :; }
+        or tag eq "stack"  setStakked = true;
+        or binType {
+            if setStakked
+                if !groupList || listLength < 10    cerr "WARNING:",tag,"list too short to stack":;
+                or !stakked     stakked = new(grup);
+            base = searchLIST += grup; }
+        else cout "WARNING:",tag,"must be a registry to add to searchlist":;
+    return input;
+}
+
+/*******************************************************************************
+	Create a set from the string passed in
+*******************************************************************************/
+extern GroupItem aCTionSetBrackets(GroupItem group)
+{
+GroupItem   setText = group[1];
+String      stuff = text;
+PLGset      set = new(stuff);
+use group
+    clear();
+    characterSet = set;
+    return group;
+}
+
+/*******************************************************************************
+	Process string shortcuts.
+*******************************************************************************/
+extern GroupItem aCTionShortcuT(GroupItem group)
+{
+    if gCount == 2 && opFields[text]    return null;
+    isShortcut = true;
+    return group;
+}
+
+/*******************************************************************************
+	Process a statement (if we are not parsing code), otherwise return it.
+*******************************************************************************/
+extern GroupItem aCTionStatemenT(GroupItem input)
+{
+RuleStuff   ruleStuff = rStuff;
+    sourceLine      = sourceLINE;
+    if !processingCode {
+        GroupItem   statement = input;
+        if isGROUP  statement = group;
+        if method   return method(statement); }
+    return input;
+}
+
+/*******************************************************************************
+	TokenXP returns a token or a token expression.
+*******************************************************************************/
+extern GroupItem aCTionTokenXP(GroupItem xpress)
+{
+GroupItem   arg,
+            op,
+            UnaryOPS:,
+            InvokeArg = xpress["InvokeArg"],
+            ANYtoken = xpress["ANYtoken"];
+    xpress.clear();
+    if isGROUP  ANYtoken = group;
+    if UnaryOPS {
+        op  = new("uxp");
+        op  +% UnaryOPS;
+        op  +% ANYtoken;
+        op.method = runOP;
+        op.invoke = true;
+        if InvokeArg ANYtoken = op;
+        else {
+            xpress.group = op;
+            goto endToken; }}
+    if !InvokeArg {
+        if registry == groupFields {
+            op = opFields["."];
+            xpress  +% op;
+            xpress  +% ANYtoken;
+            // w/no argument opDot will try to use lastREF
+            xpress.invoke = true; }
+        else xpress.group = ANYtoken; }
+    else {
+        if InvokeArg.groupList {
+            // this happens when InvokeArg is UnaryXP
+            op  = InvokeArg.firstInList;
+            arg = InvokeArg.lastInList;
+            if op.isGROUP   op = op.group;
+            if arg.isGROUP  arg = arg.group;
+            xpress  +% op;
+            xpress  +% ANYtoken;
+            xpress  +% arg; }
+        else {
+            if InvokeArg.fLAG op = opFields["."];
+            else    op = falseResult;
+            if InvokeArg.isGROUP arg = InvokeArg.group;
+            if !arg arg = InvokeArg;
+            xpress  +% op;
+            xpress  +% ANYtoken;
+            xpress  +% arg; }
+        xpress.invoke = true; }
+    if xpress.invoke    xpress.method = runOP;
+endToken:
+    return xpress;
+}
+
+/*******************************************************************************
+	Immediate method for the TraiT rule that defines an attribute. It can be
+        TraiTdata="="       DatA Modifier? Limit?;
+        TraiT               NamE@ Modifier? Limit? TraiTdata? TraiTlist?;
+*******************************************************************************/
+extern GroupItem aCTionTraiT(GroupItem input)
+{
+GroupItem   Modifier:,
+            Limit:,
+            TraiTdata = input["TraiTdata"],
+            trait = input[1];
+    /***************************************************************************
+        A trait value can be a group or a literal. Limit and Modifier are passed
+        to trait to be handled in DefinE. Same applies to TraiTdata.
+    ***************************************************************************/
+    input.clearList();
+    if isGROUP      trait = group;
+    if Modifier || Limit {
+        isAttribute = true;
+        if rStuff   trait = new(trait);
+        else        setRuleStuff();
+        if Modifier modify(trait,Modifier.text);
+        if Limit    setLimits(trait,Limit); }
+    if TraiTdata    setContent(TraiTdata);
+    input.group     = trait;
+    return input;
+}
+
+/*******************************************************************************
+    Immediate method for the TraiTdata rule.
+*******************************************************************************/
+extern GroupItem aCTionTraiTdata(GroupItem input)
+{
+GroupItem   Modifier:,
+            Limit:,
+            DatA:;
+    input.clear();
+    if Modifier || Limit {
+        isAttribute = true;
+        if rStuff   DatA = new(DatA);
+        else        setRuleStuff();
+        if Modifier modify(DatA,Modifier.text);
+        if Limit    setLimits(DatA,Limit);
+        isRule      = true; }
+    if isRule || registry == opFields    input.group = DatA;
+    else input.setContent(DatA);
+    return  input;
+}
+
+/*******************************************************************************
+	Sets the operator method in a while statement
+        WhilE   while- ExpressioN SemI-? BLOCKing StatemenT;
+*******************************************************************************/
+extern GroupItem aCTionWhilE(GroupItem input)
+{
+GroupItem   ExpressioN:,
+            StatemenT:;
+GroupItem   result;
+    while ExpressioN.gMethod(ExpressioN) {
+        result = StatemenT.gMethod(StatemenT);
+        if isBranch {
+            if isContinue   continue;
+            or isReturn     return result;
+            break; }}
+    if !result  result = falseResult;
+    return result;
+}
+
+/*******************************************************************************
+	Xpress rule method.
+*******************************************************************************/
+extern GroupItem aCTionXpress(GroupItem input)
+{
+GroupItem   ExpressioN:;
+    if !processingCode && method    ExpressioN = method(ExpressioN);
+    or ExpressioN {
+        input.clear();
+        input.group = ExpressioN; }
+    return input;
+}

@@ -16,10 +16,14 @@ GroupItem   grup,
         *format = '%'; }
     if !field.isShortcut
         if field.isLIST
-            while grup = field.next(grup)
+            while grup = field.prior(grup)
                 printField(grup,format,buffer);
         else    printField(field,format,buffer);
     else {
+        /*******************************************************************
+            The following treats field text as a string of print short cuts,
+            each then gets processed to implement the short cut
+        *******************************************************************/
         for (atText = text; *atText; atText++)
             switch(*atText) {
                 case '~':   indenting++;
@@ -120,17 +124,17 @@ use argument
     if !argument
         if lastREF {
             argument = target;
-            target = lastREF; }
+            target = lastREF.group; }
         else    cerr "opDot: lastREF not set":;
     if argument {
-        if registry != groupFields  product = target[tag];
+        if registry != groupFields  product = target[text];
         else {
             product = new(tag);
             switch(gCount) {
                 case 1:     product.text    = target.tag;
                 case 2:     product.group   = target.parent;
                 case 3:     product.group   = target.registry;
-                case 4:     product.tag     = target.text;
+                case 4:     product.text    = target.text;
                 case 5:     product.count   = target.listLength;
                 case 6:     product.count   = target.data;
                 case 7:     if target.hasAttributes product.count = 1;
@@ -138,7 +142,9 @@ use argument
                 case 9:     if target.isLocal       product.count = 1;
                 case 10:    if target.isArgument    product.count = 1;
                 case 11:    if target.invoke        product.count = 1;
-                case 23:    if target.isShortcut    product.count = 1;
+                case 19:    if target.isMethod      product.count = 1;
+                case 20:    if target.isOperator    product.count = 1;
+                case 24:    if target.isShortcut    product.count = 1;
                 case 28:    if target.noPrint       product.count = 1;
                 case 401:   product.group   = nextInParent;
                 case 402:   product.group   = priorInParent;
@@ -161,13 +167,12 @@ extern GroupItem opEQ(GroupItem argument,GroupItem target)
 }
 
 /***************************************************************************
-	Rule action for the =[ operator that handles [argument] references.
-    Called by Expresses rule when its argument is a Reference
+	Rule action that handles [argument] references.
 ***************************************************************************/
 extern GroupItem opGet(GroupItem argument,GroupItem target)
 {
-String strung = argument.text;
-    return get(strung);
+    if argument.isCOUNT return get(argument.count);
+    else                return get(argument.text);
 }
 
 /***************************************************************************
@@ -232,7 +237,7 @@ PLGset  set;
 ***************************************************************************/
 extern GroupItem opLastREF(GroupItem result)
 {
-    lastREF = result;
+    lastREF.group = result;
     return  result;
 }
 
@@ -531,7 +536,6 @@ extern GroupItem opString(GroupItem target,Buffer buffer)
 extern void printField(GroupItem field,String format,Buffer buffer)
 {
     if isMethod     field = method(field);
-    if isOperator && groupList   field = runInstruct(field);
     if isGROUP      field = group;
     if field {
         if gText && data < 13 {

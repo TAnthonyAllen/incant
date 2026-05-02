@@ -1,0 +1,24 @@
+
+/*****************************************************************************
+	Testing class definition
+*****************************************************************************/
+class Testing extends PLGparse
+{
+PLGset	alphaSet;
+
+void setRules()
+{
+	setSkip();
+currentSet = getSet(alphaSet,"A-Za-z_");
+}
+
+PLGitem run(String name)
+{
+	if !rules.length
+		{
+		setRules();
+		initialize();
+		}
+	return parse(name);
+}
+}

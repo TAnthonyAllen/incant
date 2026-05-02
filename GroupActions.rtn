@@ -148,13 +148,59 @@ use input
     else cerr "FAIL: should be a rule attribute":;
     return trueResult;
 }
-                                                                            
-/***************************************************************************
-	Immediate method to get a naked group field (call set up in Expresses action).
-***************************************************************************/
-extern GroupItem getGroupField(GroupItem field)
+
+/******************************************************************************
+    Reads the field passed in as a file spec and loads the field buffer (creating
+    it if necessary) with text read in from the file. Returns the loaded field.
+******************************************************************************/
+extern GroupItem getFile(GroupItem filing)
 {
-    return opDot(0,gGroup);
+GroupRules  ruler = groupRules;
+GroupItem   File:,
+            atLINE:;
+long        length, increment;
+int         file;
+String      fileName;
+Buffer      buffet;
+use filing
+    if !filing {
+        cerr "getFile: no file name provided":;
+        return null; }
+    if File     fileName = File.text;
+    else        fileName = filing.text;
+    file = open( fileName,O_RDWR );
+    if file > 0
+        {
+        length    = lseek(file,0,SEEK_END);
+        increment = length + 500;
+        /**********************************************************************
+            Make sure filing has a buffer to stuff input into
+        **********************************************************************/
+        if !isBUFFER {
+            buffer  = new(tag,(int)increment);
+            buffer.setFile(fileName);
+            buffet  = buffer; }
+        else {
+            buffet      = getBuffer();
+            buffet.reSize((int)increment); }
+        lseek(file,0,SEEK_SET);
+        increment = read(file,start,length);
+        if increment != length
+            cerr "getFile: Problem reading in " tag:;
+        else    end = start + length;
+        close( file );
+        }
+    else {
+        String  errorMessage = "getFile: could not open file: " fileName;
+        checkSys(file,errorMessage);
+        cerr `"current directory: ";
+        system("pwd");
+        return null;
+        }
+    if !atLINE      atLINE = filing += "atLINE";
+    atLINE.count    = 0;
+    pushInput(filing);
+    return filing;
 }
 
 /***************************************************************************
@@ -162,20 +208,25 @@ extern GroupItem getGroupField(GroupItem field)
     the rule that has not been guarded.
     If the guard attribute contains:
         a set as data, the set becomes the rule guard set.
-        any other data will make the rule unguarded
-    If the guard attribute contains no data, the rule getGuard() method runs.
+        a string, the string is used to create the guard set.
+        a character will make the rule unguarded
+        nothing will turn debugGuard on
 ***************************************************************************/
 extern GroupItem guard(GroupItem item)
 {
     if fLAG {
         GroupItem target = parent;
         if !guarding
-            if item.data
-                if item.isSET {
+            switch(item.data) {
+                case isCHAR:    unGuarded = true;
+                case isSET:
                     guardSet    = item.characterSet;
-                    guarded     = true; }
-                else unGuarded = true;
-            else    debugGuard = true; }
+                    guarded     = true;
+                case isSTRING:
+                case isTOKEN:
+                    guardSet    = new(item.text);
+                    guarded     = true;
+                default:        debugGuard = true; }}
     else cerr "ERROR guard should be used as an attribute when defining":;
     clearData();
     return item;
@@ -252,15 +303,12 @@ String      directoryName,
 	Immediate method for include command that reads in file to be processed.
     It does not specify what rule to run on the new input.
 *****************************************************************************/
-extern GroupItem loadInputFromFile(GroupItem input)
+extern GroupItem loadInputFromFile(GroupItem source)
 {
-String  inputFromFile,
-        name = text;
-    if inputFromFile = getStringFromFile(name) {
-        cout "Including file: " name:;
-        pushInput(inputFromFile); }
-    else cerr :``"loadInputFromFile: ERROR could not get file name":;
-    return trueResult;
+GroupRules  ruler = groupRules;
+    if source.getFile()     return source;
+    else cerr ``"loadInputFromFile: failed getting file from",tag:;
+    return falseResult;
 }
 
 /*******************************************************************************
@@ -325,6 +373,16 @@ use target
         case 's':   stak        = new;
         default:    cerr argument.tag,"is not a known type":; }
     return target;
+}
+
+/*****************************************************************************
+	Command to make a new field w/tag set from input text
+*****************************************************************************/
+extern GroupItem makeNew(GroupItem input)
+{
+String  strung = text;
+GroupItem   grup = new(strung);
+    return grup;
 }
 
 /*****************************************************************************
@@ -572,74 +630,48 @@ use input
 }
 
 /*******************************************************************************
-	Run an action that may need code processing. Called from aCTionExpresses.
+	Run an action that may need code processing.
 *******************************************************************************/
 extern GroupItem runAction(GroupItem argument,GroupItem field)
 {
 GroupItem   result,
             ruleArg;
 use field
+    if argument && argument.isGROUP argument = argument.group;
+    if ruleArg = field["argument"]
+        if argument ruleArg.group = result = argument;
+        else        ruleArg.group = result = field;
+    else    result = field;
+    lastREF.group  = result;
     if isCoded
         if !processCode(field)  return null;
     if recursive    saveLocalFields(field);
-    if argument && argument.isGROUP argument = argument.group;
-    if ruleArg = field["argument"]
-        if argument ruleArg.group = lastREF = argument;
-        else        ruleArg.group = lastREF = field;
-    else    lastREF = field;
     result  = processAction(field);
     if recursive    restoreLocalFields(field);
     return  result;
 }
 
 /***************************************************************************
-    runInstruct treats the input passed in as a chain of instructions to
-    loop thru. The instructions get processed in right to left order as
-    determined by the ExpressioN rule action.
+    runOP fires off a field that might be an action, a rule, a method,
+    or an operator
 ***************************************************************************/
-extern GroupItem runInstruct(GroupItem op)
+extern GroupItem runOP(GroupItem field)
 {
-GroupItem   target,
-            arg,
-            result;
-int         notChained;
-use op
-    if isGROUP  op = gGroup;
-    else    notChained = true;
-    while op {
-        if !groupList && isMethod   result = method(op);
-        else {
-            if listLength > 1   arg = op[2];
-            if arg
-                if arg.deferred arg = arg.method(arg);
-                or arg.isGROUP  arg = arg.group;
-            target = op[1];
-            if target.isGROUP       target = target.group;
-            if target.deferred      target = method(target);
-            or target.isOperator    target = runOP(target);
-            if isUnary
-                if op.fLAG      result = method(target);
-                else            target = method(target);
-            or isMethod result = method(arg);
-            else {
-                if !arg arg = result;
-                result  = operat(arg,target);
-                arg     = null; }}
-        if notChained  break;
-        op = nextInParent; }
-    return result;
-}
-
-/***************************************************************************
-    runOP is a method that runs an operation.
-***************************************************************************/
-extern GroupItem runOP(GroupItem op)
-{
-GroupItem   target = op[1],
-            arg = op[2],
-            result;
-    if target.isGROUP   target = target.group;
+GroupItem   result,
+            op      = field[1],
+            arg     = field[3],
+            target  = field[2];
+    if isGROUP              target = group;
+    if arg && arg.isGROUP   arg = arg.group;
+    if !arg && isMethod && invoke           target = method(target);
+    if arg && arg.isMethod && arg.invoke    arg = arg.method(arg);
     if op.isOperator    result = op.operat(arg,target);
+    or op.isMethod      result = op.method(target);
+    or isRule           result = runRule(arg,target);
+    or actionType       result = runAction(arg,target);
+    or isMethod {
+        if !arg arg = target;
+        result = method(arg); }
     return result;
 }
 
@@ -652,7 +684,7 @@ extern GroupItem runRule(GroupItem field,GroupItem rule)
 GroupRules  ruler = groupRules;
 GroupItem   result;
 use rule
-    if field {
+    if field && field.data {
         divertToRule    = true;
         pushInput(field); }
     result      = rule.parse(0);

@@ -12,7 +12,6 @@ GroupItem	    parent,
 RuleStuff       rStuff;
 boolean GroupOptions {
     affiliation:2[isAttribute isMember isEmbedded]
-    invoke
     recursive
     isCopy } options;
 #autoGetSet
@@ -178,12 +177,13 @@ void clearList()
 }
 
 /*****************************************************************************
-	Returns true if this is a registry or data or anything on the list
+	Returns true if this is a registry or data or has anything on its list
+    If fLAG is set return true even without contents
 *****************************************************************************/
 int contents()
 {
-    if isREGISTRY || data       return true;
-    if groupList && listLength  return true;
+    if isREGISTRY || data           return true;
+    if groupList && listLength      return true;
     return false;
 }
 
@@ -623,7 +623,6 @@ RuleStuff   stuff;
 String getText()
 {
 String      junkText;
-GroupItem   block;
     if isTOKEN
         {
         junkText = malloc(count + 1);
@@ -649,15 +648,6 @@ GroupItem   block;
                 junkText        = malloc(2);
                 *junkText       = character;
                 *(junkText + 1) = 0; }
-    or isFile
-        {
-        if block = get("file")
-            if block.isSTRING {
-                junkText = getStringFromFile(block.text);
-                if !junkText cerr "getText: ERROR could not load file from",block.text:;
-                else    text = junkText; }
-            else cerr "getText: ERROR expected a file name in file attribute":;
-        }
     or tag  junkText = tag;
 	return  junkText;
 }
@@ -854,12 +844,9 @@ GroupItem nextAttribute(GroupItem current)
 ***************************************************************************/
 GroupItem nextGroup(GroupItem grup)
 {
-    if groupList {
-        if sortDescending
-            if grup return grup.priorInParent;
-            else    return lastInList;
-        or grup     return grup.nextInParent;
-        return firstInList; }
+    if groupList
+        if grup return grup.nextInParent;
+        else    return firstInList;
     else cerr "nextGroup: ERROR",tag,"does not contain a list":;
     return null;
 }
@@ -908,7 +895,7 @@ matchSucceeded:
             if deferred {
                 label.method    = method;
                 label.deferred  = true;
-                if !label.data  label.setToken(hereAt,10); }
+                if !label.data  label.text = "g" tag; }
             or !parseACTION
                 if !(label = method(label))   sukcess = false;
         if sukcess {
@@ -973,11 +960,11 @@ void prepend(GroupItem grup)
 ***************************************************************************/
 GroupItem prior(GroupItem grup)
 {
-    if sortDescending
-        if grup     return grup.nextInParent;
-        else        return firstInList;
-    if grup return grup.priorInParent;
-    return lastInList;
+    if groupList
+        if grup return grup.priorInParent;
+        else    return lastInList;
+    else cerr "nextGroup: ERROR",tag,"does not contain a list":;
+    return null;
 }
 
 /*****************************************************************************

@@ -131,6 +131,7 @@ void setBaseRegistries()
 GroupItem   action;
     fieldBUFFER             = new;
     stringBUFFER            = new("string buffer");
+    formatBUFFER            = new("format buffer");
     registries              = getRegistry("registries");
     registries.registry     = registries;
     registries.groupList    = new(registries);
@@ -149,6 +150,7 @@ GroupItem   action;
     falseResult             = properties += new("false");
     falseResult.isCOUNT     = true;
     falseResult.noPrint     = true;
+    lastREF                 = properties += new("lastREF");
 
     /***********************************************************************
         Create other base registries
@@ -159,9 +161,11 @@ GroupItem   action;
     opFields.isOperator = true;
     groupFields = getRegistry("GroupFields");
     commands    = getRegistry("cOMMANDs");
+    files       = getRegistry("fILEs");
     addBaseRegistry(properties);
     addBaseRegistry(opFields);
     addBaseRegistry(commands);
+    addBaseRegistry(files);
     addBaseRegistry(keyWords);
     addBaseRegistry(groupFields);
     drawRegistry    = getRegistry("Drawing");

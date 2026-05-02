@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <gc/gc.h>
 #include "OCroutines.h"
 #include "StringRoutines.h"
 #include "GroupItem.h"
@@ -776,7 +775,9 @@ extern "C" GroupItem *aCTionShortcuT(GroupItem *group)
 extern "C" GroupItem *aCTionStatemenT(GroupItem *input)
 {
 RuleStuff 	*ruleStuff = input->rStuff;
-	ruleStuff->sourceLine = GroupControl::groupController->groupRules->sourceLINE;
+	ruleStuff->sourceLine = new GroupItem("sourceAt");
+	ruleStuff->sourceLine->setCount(GroupControl::groupController->groupRules->sourceLINE);
+	ruleStuff->sourceLine->addAttribute(GroupControl::groupController->copyOf(GroupControl::groupController->groupRules->sourceFILE));
 	if ( !GroupControl::groupController->groupRules->processingCode )
 		{
 		GroupItem 	*statement = input;
@@ -1448,8 +1449,8 @@ Buffer 		*buffer = ruler->formatBUFFER;
 			if ( FormaT )
 				{
 				buffer->appendString(FormaT->getText());
-				ruler->fieldBUFFER->appendString(",");
-				ruler->fieldBUFFER->appendString(grup->getText());
+				buffer->appendString(",");
+				buffer->appendString(grup->getText());
 				}
 			else
 			if ( grup->groupBody->flags.isLiteral )
@@ -1468,10 +1469,10 @@ Buffer 		*buffer = ruler->formatBUFFER;
 						buffer->appendString("%s");
 						break;
 					default:
-						ruler->fieldBUFFER->appendString(grup->groupBody->gText);
+						buffer->appendString(grup->groupBody->gText);
 					}
-				ruler->fieldBUFFER->appendString(",");
-				ruler->fieldBUFFER->appendString(grup->groupBody->gText);
+				buffer->appendString(",");
+				buffer->appendString(grup->groupBody->gText);
 				}
 			if ( ruler->useDefaultSpace && grup != stuff->groupBody->groupList->lastInList )
 				buffer->appendString(" ");
@@ -2890,6 +2891,7 @@ GroupItem 	*grup = 0;
 			{
 			body = (GroupBody*)recurseSTAK->pop();
 			*grup->groupBody = *body;
+			delete body;
 			}
 }
 
@@ -3134,12 +3136,10 @@ char 		*name = 0;
 
 /***************************************************************************
 	Immediate method for the stop command.
-	Triggers GC collection and populates input with GC statistics as attributes.
 ***************************************************************************/
 extern "C" GroupItem *stopParsingInput(GroupItem *input)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem	*stat;
 	if ( ruler->inputDiverted )
 		{
 		ruler->popInput();
@@ -3150,59 +3150,6 @@ GroupItem	*stat;
 		ruler->endParse = 1;
 		::printf("\nstop: end parsing\n");
 		}
-
-	// Trigger garbage collection
-	GC_gcollect();
-
-	// Get GC statistics
-	size_t heap_size = GC_get_heap_size();
-	size_t free_bytes = GC_get_free_bytes();
-	size_t total_bytes = GC_get_total_bytes();
-	size_t bytes_since_gc = GC_get_bytes_since_gc();
-	unsigned long gc_count = (unsigned long)GC_get_gc_no();
-	size_t used_bytes = heap_size - free_bytes;
-	double heap_utilization = heap_size > 0 ? (used_bytes * 100.0 / heap_size) : 0.0;
-
-	// Print statistics
-	::printf("\n========== Garbage Collector Statistics ==========\n");
-	::printf("Collections:      %lu\n", gc_count);
-	::printf("Heap size:        %zu bytes (%.2f MB)\n", heap_size, heap_size / (1024.0 * 1024.0));
-	::printf("Used memory:      %zu bytes (%.2f MB)\n", used_bytes, used_bytes / (1024.0 * 1024.0));
-	::printf("Free memory:      %zu bytes (%.2f MB)\n", free_bytes, free_bytes / (1024.0 * 1024.0));
-	::printf("Heap utilization: %.1f%%\n", heap_utilization);
-	::printf("Total allocated:  %zu bytes (%.2f MB)\n", total_bytes, total_bytes / (1024.0 * 1024.0));
-	::printf("Since last GC:    %zu bytes (%.2f KB)\n", bytes_since_gc, bytes_since_gc / 1024.0);
-	::printf("==================================================\n\n");
-
-	// Populate input with GC stats as attributes
-	stat = new GroupItem("gcCollections");
-	stat->setCount((int)gc_count);
-	input->addAttribute(stat);
-
-	stat = new GroupItem("gcHeapSize");
-	stat->setCount((int)heap_size);
-	input->addAttribute(stat);
-
-	stat = new GroupItem("gcUsedBytes");
-	stat->setCount((int)used_bytes);
-	input->addAttribute(stat);
-
-	stat = new GroupItem("gcFreeBytes");
-	stat->setCount((int)free_bytes);
-	input->addAttribute(stat);
-
-	stat = new GroupItem("gcHeapUtilization");
-	stat->setNumber(heap_utilization);
-	input->addAttribute(stat);
-
-	stat = new GroupItem("gcTotalBytes");
-	stat->setCount((int)total_bytes);
-	input->addAttribute(stat);
-
-	stat = new GroupItem("gcBytesSinceGC");
-	stat->setCount((int)bytes_since_gc);
-	input->addAttribute(stat);
-
 	return input;
 }
 

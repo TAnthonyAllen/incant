@@ -1,3 +1,21 @@
 /*******************************************************************************
-	Fields as parser???
+	Simplifying expressions
 *******************************************************************************/
+
+/*******************************************************************************
+	UnaryXP checks for unary expressions.
+        UnaryXP     UnaryOPS? ANYtoken;
+*******************************************************************************/
+extern GroupItem aCTionUnaryXP(GroupItem input)
+{
+GroupItem   UnaryOPS:,
+            ANYtoken:,
+            uxp = new("uxp");
+    method = runOP;
+    uxp +% UnaryOPS;
+    uxp +% ANYtoken;
+    uxp.invoke = true;
+    input.clear();
+    input.group = uxp;
+    return input;
+}
