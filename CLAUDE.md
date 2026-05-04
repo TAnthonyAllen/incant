@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Read incant.md for current project state and architecture decisions. That document is the source of truth for ongoing design choices, including any guidance here that has gone out of date.
 
-Phase 0 (BDWGC integration) is complete. Phase 2 (bytecode emitter in incant) is the next phase of work. See incant.md for the current plan.
+Phase 0 (BDWGC integration) is complete. Phase 1 (`generateCode` repurposed as bytecode emitter entry point) complete in spirit — the placeholder C++-source emit path is being abandoned. Phase 2 (bytecode emitter in incant) is **in progress**: the three design questions are decided (see "Code Generation" section below), Phase 2 is now ready to implement. See incant.md for the canonical plan and TODO.md for the immediate task list.
+
+**Workflow note (temporary):** Currently edit `.mm` files directly, not `.twk`. The TAWK autopsy is pending; once it lands, `.twk` becomes the preferred source again.
 
 Ask before making non-obvious changes.
 
@@ -164,19 +166,51 @@ Toggle debugging in specific functions/actions by uncommenting directives:
 - Per-rule: `debugRuleNamed("DefinE");`
 - Per-action: Add debugging flag to specific aCTion* functions
 
-## Code Generation
+## Code Generation — Phase 2 (bytecode, in progress)
 
-The system generates C++ code through:
-1. **Parse phase** - Rules match input and build GroupItem trees
-2. **Generate phase** - `generating` flag enables code generation mode
-3. **Actions** - aCTion* functions transform parsed structures into code
-4. **Output** - Generated code emitted via Buffer system
+The old C++-source emit path is **being abandoned**, not preserved. The new target is **bytecode as canonical IR**, represented as GroupItems so incant code can construct, inspect, and manipulate it. LLVM IR (Phase 3) will be generated *from* bytecode for the JIT.
 
-Key generation functions in Generate.rtn:
-- `adder()` - Generates + operator code
-- `decrement()` - Generates -- operator code
-- `divide()` - Generates / operator code
-- Other operator and expression generators
+### Pipeline as it currently stands
+
+1. **Parse phase** — rules match input, build GroupItem trees (unchanged).
+2. **`generateCode(action)`** in `Generate.rtn:30-40` — C++ entry point. Looks up the incant `generatE` action and runs it. This is the bridge from the runtime into the incant-side emitter.
+3. **`generatE`** in `XML/WorkingOn/generate:118-122` — top-level emitter, walks fields and dispatches via `runGenerated`.
+4. **`runGenerated`** in `XML/WorkingOn/generate:58-65` — dispatch hub. Looks up handler in the `generator` registry by statement kind.
+5. **Per-statement handlers** (`gBlocK`, `gIF`, `gFOR`, `gWhilE`, `gDO`, `gExpressioN`, `gXpress`, `gPrinT`) — currently emit C++ source via `print` statements. **All to be rewritten** to emit bytecode GroupItems.
+6. **`interpret(generated)`** — called from `generateAction` after `generateCode` returns. **Does not yet exist.** Implementation lives in the planned `Bytecode.{h,mm}` and walks the bytecode GroupItem stream.
+
+### Handler status
+
+| Handler | Status |
+|---|---|
+| `gBlocK`, `gFOR`, `gWhilE`, `gDO`, `gDeclare` | Functional but emit old-style C++ source — to be rewritten as bytecode emitters |
+| `gIF` | Stub (`print "generate if statement"; **argument`) |
+| `gExpressioN` | Stub (`print "Need to work out how to generate an expression"`) |
+| `gXpress` | Stub (`print "Saw xpress" argument`) |
+| `gPrinT` | Stub — currently delegates to `genPrint()` (old printf-style C++ generator in `Generate.rtn:45-93`) |
+
+### Bytecode-side missing pieces
+
+- **`bcOPs` registry** in `setup` — separate from `Operators`. Holds the new control-flow ops (`bcBR`, `bcBRZ`, `bcRET`, etc.) so user code walking `Operators` doesn't see them. Not yet defined.
+- **C++ handlers** at repo root (`Bytecode.{h,mm}` or folded in nearby) — the per-op handlers (`runBR`, `runBRZ`, `runRET`, plus thin shims for `opGT` / `opMultiply` / `opAssign`). Not yet written.
+- **Gating hook** — somewhere near `aCTionStatemenT`'s action-dispatch site, check for a `bytecodE` attribute on the coded action and route through the bytecode `interpret()` when present. Not yet wired.
+- **`interpret()`** — the dispatch loop. Open question whether to write it in incant or in C++ (see TODO.md "Open assessment").
+
+### Round-trip target
+
+`testByteCode` in `XML/WorkingOn/unitTests:116-117`:
+```
+testByteCode; { if righty > 0; maximus = righty * 2; }
+```
+Expected emit (per `incant.md`'s 5-instruction walk-through): `runGT`, `runBRZ`, `runMultiply`, `runAssign`, `runRET`. Verify `maximus` ends up at 26.
+
+### Three design questions — DECIDED
+
+1. **Handler identity on instructions** — the instruction's tag is the **op GroupItem itself**, drawn from the existing `Operators` registry (for `>`, `*`, `=`, etc.) plus a new `bcOPs` registry (for `bcBR`, `bcBRZ`, `bcRET`, etc.). The op GroupItem carries the handler reference; the interpreter dispatches via that reference (`runOP`-style).
+2. **Dispatch registry split** — `Operators` and `bcOPs` are **separate registries**, *not* folded together. User-level operators stay in `Operators`; bytecode control-flow ops live in `bcOPs`. An incant program walking `Operators` should not see `bcBR`.
+3. **Instruction successor** — **implicit-next** (sibling member). Instructions are members of the body in execution order; "next" means "next sibling member." Branches override by returning their target. Operands materialize into vregs (Phase-2 step 2b applies; the `tempField` intermediate stage is being skipped).
+
+See `incant.md` for the broader discussion and `Sessions/incant-bytecode-session.md` for the design reasoning these choices flow from.
 
 ## Data Type System
 
@@ -198,12 +232,14 @@ GroupItem supports these data types (via `data` field):
 ## Important Patterns
 
 ### GroupItem Creation
-Use the GroupItem constructor directly. itemFactory has been replaced with simpler constructors in anticipation of GC management:
+Use the GroupItem constructor directly. `itemFactory` has been replaced with simpler constructors as part of the BDWGC migration:
 
+```cpp
 GroupItem *item = new GroupItem("name");
 GroupItem *item = new GroupItem("name", value);
+```
 
-(Under BDWGC, `new` resolves to GC-managed allocation since GroupItem inherits from `gc`. No manual delete is needed.)
+Under BDWGC, `new` resolves to GC-managed allocation since GroupItem inherits from `gc`. No manual `delete` is needed. (Earlier docs referenced `GroupControl::groupController->itemFactory(...)` — that path is gone; the constructor is the only path.)
 
 ### Registry/Scope Lookup
 ```cpp
@@ -232,8 +268,7 @@ Limited test infrastructure. The `Tests/test.json` contains a sample widget defi
 
 - All paths in includes are absolute (not relative)
 - The system expects specific include directory structure in parent directories
-- .mm files are generated from .twk files via `tok` compiler - edit .twk source, not .mm
-- Generated .mm/.h files should match .twk files in naming
+- **Currently edit `.mm` files directly, not `.twk`.** TAWK autopsy is pending; the `.twk → .mm` pipeline is unreliable for collaboration. Once TAWK is fixed, `.twk` becomes the preferred source again. Do not back-port `.mm` edits to `.twk` in the meantime.
+- Generated .mm/.h files match .twk files in naming (when .twk-as-source resumes)
 - Rule names are case-sensitive
 - Tag names must start with a letter (enforced by NamE rule guard)
-- After modifying .twk files, recompile with `tok <filename>.twk` to regenerate .mm files
