@@ -783,6 +783,17 @@ RuleStuff 	*ruleStuff = input->rStuff;
 		GroupItem 	*statement = input;
 		if ( isGROUP(statement->groupBody->flags.data) )
 			statement = statement->getGroup();
+		// Phase 2 gating hook — if a bytecodE attribute is attached, route
+		// through the incant interpret() action instead of the tree-walker.
+		// Falls through to gMethod when bytecode isn't present, or when
+		// interpret() isn't loaded yet.
+		GroupItem 	*bc = statement->getAttribute("bytecodE");
+		if ( bc )
+			{
+			GroupItem 	*interpretField = GroupControl::groupController->locate("interpret");
+			if ( interpretField )
+				return ::runAction(bc, interpretField);
+			}
 		if ( statement->groupBody->gMethod )
 			return statement->groupBody->gMethod(statement);
 		}
