@@ -11,11 +11,13 @@
 //    * Return null = implicit-next (interpret() falls through to next sibling).
 //    * Return non-null = jump to that instruction next.
 //
+//  Vreg slots: there aren't any. A "vreg" in the bytecode design is just
+//  a GroupItem field being used as a register — `dst->setGroup(result)` is
+//  the storage primitive. No special type, no per-action vreg array. The
+//  field IS the register. (Everything is a field — same principle that
+//  makes incant reflective.)
+//
 //  Open / verify-on-first-run:
-//    * vreg slot semantics — `dst->setGroup(result)` is the best guess for
-//      "store result into slot." If a vreg slot needs different storage
-//      (count cell, member of a vreg array, etc.), update the four sites
-//      flagged "VERIFY VREG SLOT SEMANTICS" below.
 //    * runRET halt semantics — currently returns null (implicit-next),
 //      relying on runRET being the last instruction so next-sibling lookup
 //      yields nothing. If we need a mid-body halt, introduce a sentinel.
@@ -82,7 +84,7 @@ extern "C" GroupItem *runGT(GroupItem *instr)
     GroupItem *result = ::opGT(op2, op1);
 
     if ( dst )
-        dst->setGroup(result);   // VERIFY VREG SLOT SEMANTICS
+        dst->setGroup(result);
     return 0;
 }
 
@@ -96,7 +98,7 @@ extern "C" GroupItem *runMultiply(GroupItem *instr)
     GroupItem *result = ::opMultiply(op2, op1);
 
     if ( dst )
-        dst->setGroup(result);   // VERIFY VREG SLOT SEMANTICS
+        dst->setGroup(result);
     return 0;
 }
 
