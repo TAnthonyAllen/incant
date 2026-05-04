@@ -1,17 +1,24 @@
 //
-//  Bytecode.mm — incant bytecode handlers (Phase 2 step 2a SCAFFOLDING)
+//  Bytecode.mm — incant bytecode handlers (Phase 2 step 2b)
 //
-//  Skeleton bodies — every handler returns null (implicit-next "no special
-//  next, caller does next-sibling"). Real bodies arrive in step 2b after
-//  the operand-layout convention is reviewed.
+//  Per-op interpreter handlers, dispatched from incant's interpret() loop
+//  via the interpretMethod attribute on op GroupItems (registered in
+//  XML/WorkingOn/setup under Operators and bcOPs registries).
 //
-//  The runRET handler returns null too, but its semantic is "halt." That
-//  works under the current convention because interpret()'s loop ends when
-//  it can no longer find a next instruction; runRET being the last
-//  instruction in the body means next-sibling lookup yields nothing.
-//  (If we want runRET to halt explicitly mid-body, we'd need a sentinel
-//  return value distinct from "fall through." Open question — flag for
-//  step 2b.)
+//  Convention (locked in step 2a discussion):
+//    * Operands read by named attribute on the instruction GroupItem
+//      (op1, op2, cond, target, value, dst).
+//    * Return null = implicit-next (interpret() falls through to next sibling).
+//    * Return non-null = jump to that instruction next.
+//
+//  Open / verify-on-first-run:
+//    * vreg slot semantics — `dst->setGroup(result)` is the best guess for
+//      "store result into slot." If a vreg slot needs different storage
+//      (count cell, member of a vreg array, etc.), update the four sites
+//      flagged "VERIFY VREG SLOT SEMANTICS" below.
+//    * runRET halt semantics — currently returns null (implicit-next),
+//      relying on runRET being the last instruction so next-sibling lookup
+//      yields nothing. If we need a mid-body halt, introduce a sentinel.
 //
 
 #include "Bytecode.h"
@@ -24,49 +31,89 @@ extern "C" GroupItem *opGT       (GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opMultiply (GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opAssign   (GroupItem *argument, GroupItem *target);
 
-// ---------- Control-flow handlers ----------
+// ---------- Control-flow handlers (registered in bcOPs) ----------
 
 extern "C" GroupItem *runBR(GroupItem *instr)
 {
-    // TODO step 2b: return instr->getAttribute("target");
-    return 0;
+    // Unconditional branch: jump to instr.target.
+    return instr->getAttribute("target");
 }
 
 extern "C" GroupItem *runBRZ(GroupItem *instr)
 {
-    // TODO step 2b: read instr->getAttribute("cond"), test for zero,
-    //               return instr->getAttribute("target") if zero, else 0.
+    // Branch if zero: read cond, jump to target if zero, else fall through.
+    GroupItem *cond   = instr->getAttribute("cond");
+    GroupItem *target = instr->getAttribute("target");
+    // "Zero" interpretation: a null cond, a count of 0, or a falsy GroupItem
+    // (no result from preceding op handler — opGT etc. return trueResult or
+    // null, so the natural test is "is cond null/falsy?"). Using getCount()
+    // covers numeric zero; falling through to null-check covers the
+    // null-result case from comparison ops.
+    if ( !cond || !cond->getCount() )
+        return target;
     return 0;
 }
 
 extern "C" GroupItem *runRET(GroupItem *instr)
 {
-    // TODO step 2b: confirm null-return halt semantics (see file header note).
+    // Halt — see file header note on null-return semantics.
     return 0;
 }
 
 extern "C" GroupItem *runCall(GroupItem *instr)
 {
-    // TODO step 2b: invoke callee with args, store result in instr->getAttribute("dst").
+    // Step 2b stub: real implementation lands when the first test exercises
+    // a composite operand like A(B). For testByteCode (no calls), returning
+    // null is harmless.
+    // TODO: invoke instr.callee with instr.args; store result in instr.dst.
     return 0;
 }
 
-// ---------- Operator-shim handlers ----------
+// ---------- Operator-shim handlers (registered as interpretMethod on Operators) ----------
 
 extern "C" GroupItem *runGT(GroupItem *instr)
 {
-    // TODO step 2b: see preview body in chat; this stub returns null pending review.
+    GroupItem *op1 = instr->getAttribute("op1");   // left  operand (target)
+    GroupItem *op2 = instr->getAttribute("op2");   // right operand (argument)
+    GroupItem *dst = instr->getAttribute("dst");
+
+    // opGT signature: opGT(argument, target). op1 is left/target, op2 is
+    // right/argument. Pass (op2, op1) to preserve compareValues(target, arg).
+    GroupItem *result = ::opGT(op2, op1);
+
+    if ( dst )
+        dst->setGroup(result);   // VERIFY VREG SLOT SEMANTICS
     return 0;
 }
 
 extern "C" GroupItem *runMultiply(GroupItem *instr)
 {
-    // TODO step 2b: same shape as runGT, calling ::opMultiply.
+    GroupItem *op1 = instr->getAttribute("op1");
+    GroupItem *op2 = instr->getAttribute("op2");
+    GroupItem *dst = instr->getAttribute("dst");
+
+    // Same arg-order rule as runGT: (argument, target) → (op2, op1).
+    GroupItem *result = ::opMultiply(op2, op1);
+
+    if ( dst )
+        dst->setGroup(result);   // VERIFY VREG SLOT SEMANTICS
     return 0;
 }
 
 extern "C" GroupItem *runAssign(GroupItem *instr)
 {
-    // TODO step 2b: read value + target attrs, call ::opAssign(value, target).
+    // For assignment the operand naming flips slightly — the destination is
+    // the field being assigned to (target), and the value is the right-hand
+    // side. opAssign signature: opAssign(argument, target). Pass (value,
+    // target) so target := value semantically.
+    GroupItem *target = instr->getAttribute("target");
+    GroupItem *value  = instr->getAttribute("value");
+
+    GroupItem *result = ::opAssign(value, target);
+
+    // opAssign already mutates target; no separate dst write needed.
+    // Some emit patterns may also want the assigned value in a dst slot
+    // for downstream use — wire that here if it turns out to matter.
+    (void)result;
     return 0;
 }
