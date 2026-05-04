@@ -9,23 +9,31 @@
         result  = handler(grup);        // call its method (runX in Bytecode.mm)
 
     Successor convention (Q3 — implicit-next):
-        result == null   → fall through to body.next(grup)
-        result != null   → jump to that instruction (branch override)
+        result == null   → for-loop's natural next-member step (fall through)
+        result != null   → branch override; reassign grup, for-loop advances
+                           from there next iteration
 
-    Loop end is the natural one — body.next(grup) returns null after the
-    last instruction (runRET, by emitter convention, sits there).
+    The for-loop-as-while trick: `for grup in body; members` is C-equivalent
+    to `while grup = body.nextMember(grup);`. Reassigning grup mid-loop
+    (when a handler returns a branch target) transparently redirects the
+    next iteration's nextMember() lookup. This is also how labels work:
+    when an emitted body contains label sentinels, a branch can target a
+    label and the for-loop's natural "next sibling" advance from the label
+    lands on the actual continuation instruction — no special label-skip
+    logic needed.
+
+    Loop end is the natural one — body.nextMember(grup) returns null after
+    the last instruction (runRET, by emitter convention, sits there).
 *****************************************************************************/
 register(Bytecoding);
 define
     interpret body; {
-        grup = body[1];
-        while grup;
+        for grup in body; members
             handler = grup.interpret;
             if !handler;
                 print "interpret: no handler for" grup.taG:;
                 return;
             result = handler(grup);
-            if result; grup = result;
-            else grup = body.next(grup);
+            if result;  grup = result;
         }
     ;
