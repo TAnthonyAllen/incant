@@ -2,8 +2,11 @@
 //  Bytecode.mm — incant bytecode handlers (Phase 2 step 2b)
 //
 //  Per-op interpreter handlers, dispatched from incant's interpret() loop
-//  via the interpretMethod attribute on op GroupItems (registered in
-//  XML/WorkingOn/setup under Operators and bcOPs registries).
+//  via the `interpret` sub-attribute on op GroupItems (registered in
+//  XML/WorkingOn/setup under Operators and bcOPs registries). Two-step
+//  dispatch: `handler = grup.interpret; handler(grup);` — incant's
+//  one-method-per-field invariant means the attribute's method IS the
+//  handler.
 //
 //  Convention (locked in step 2a discussion):
 //    * Operands read by named attribute on the instruction GroupItem

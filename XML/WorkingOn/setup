@@ -71,14 +71,14 @@ define
     '?';
     '>>';
     '>='    operateMethod=opGE;
-    '>'     operateMethod=opGT  interpretMethod=runGT;
+    '>'     operateMethod=opGT  interpret=runGT;
 
     '=='    operateMethod=opEQ;
     '=['    operateMethod=opGet;
     '=/'    assign operateMethod=opGetMember;
     '=*'    operateMethod=opAssignGroup;
     '=%'    assign operateMethod=opGetAttribute;
-    '='     assign operateMethod=opAssign  interpretMethod=runAssign;
+    '='     assign operateMethod=opAssign  interpret=runAssign;
 
     '<='    operateMethod=opLE;
     '<<';
@@ -103,7 +103,7 @@ define
     '+%'    operateMethod=opAddAttribute;
     '+'     operateMethod=opPlus;
     '*='    operateMethod=opMultiplyEQ;
-    '*'     operateMethod=opMultiply  interpretMethod=runMultiply;
+    '*'     operateMethod=opMultiply  interpret=runMultiply;
     '@'     unary ruleMethod=opLastREF;
     '&';
     '%'     operateMethod=opDiv;
@@ -115,15 +115,18 @@ define
 /*******************************************************************************
 	bcOPs — bytecode control-flow opcodes. Separate from Operators by design
 	(per 2026-04-27 design decision): user code never writes bcBR, and an
-	incant program walking Operators should not see them. Each entry's
-	interpretMethod attribute names the C++ handler in Bytecode.{h,mm}.
+	incant program walking Operators should not see them. Each entry has an
+	`interpret` sub-attribute whose method is the C++ handler in
+	Bytecode.{h,mm}. Dispatch from incant: `handler = grup.interpret;
+	handler(grup);` (single-method-per-field rule — interpret is the
+	attribute, runX is its method).
 *******************************************************************************/
 registry(bcOPs);
 define
-    bcBR    interpretMethod=runBR;
-    bcBRZ   interpretMethod=runBRZ;
-    bcCALL  interpretMethod=runCall;
-    bcRET   interpretMethod=runRET;
+    bcBR    interpret=runBR;
+    bcBRZ   interpret=runBRZ;
+    bcCALL  interpret=runCall;
+    bcRET   interpret=runRET;
     ;
 /*******************************************************************************
 	pROPERTIEs is a base registry defined on startup and extended here
