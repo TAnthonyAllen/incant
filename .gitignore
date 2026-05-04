@@ -12,7 +12,8 @@
 .*.swo
 
 # Backup / legacy stashes — attic boxes, not source of truth
-Sessions/
+# (Sessions/ removed from this list — session docs are now tracked
+#  as institutional memory, parallel to PLG repo's Sessions/ dir.)
 BeforeRefactor/
 BeforeSave/
 XML/BackupXML/
