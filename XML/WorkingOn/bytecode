@@ -1,0 +1,31 @@
+/*****************************************************************************
+    bytecode — incant-side bytecode dispatch and (eventually) emitter actions.
+
+    Phase 2 step 4: interpret(). Walks a bytecoded action body's member
+    instructions, dispatching each through its op's `interpret` sub-attribute.
+
+    Dispatch idiom (per design Q1 + the single-method-per-field rule):
+        handler = grup.interpret;       // resolve interpret sub-attribute
+        result  = handler(grup);        // call its method (runX in Bytecode.mm)
+
+    Successor convention (Q3 — implicit-next):
+        result == null   → fall through to body.next(grup)
+        result != null   → jump to that instruction (branch override)
+
+    Loop end is the natural one — body.next(grup) returns null after the
+    last instruction (runRET, by emitter convention, sits there).
+*****************************************************************************/
+register(Bytecoding);
+define
+    interpret body; {
+        grup = body[1];
+        while grup;
+            handler = grup.interpret;
+            if !handler;
+                print "interpret: no handler for" grup.taG:;
+                return;
+            result = handler(grup);
+            if result; grup = result;
+            else grup = body.next(grup);
+        }
+    ;

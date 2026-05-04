@@ -227,4 +227,5 @@ define
     utilities File='XML/WorkingOn/utilities';
     unitTests File='XML/WorkingOn/unitTests';
     generate File='XML/WorkingOn/generate';
+    bytecode File='XML/WorkingOn/bytecode';
     ;
