@@ -71,14 +71,14 @@ define
     '?';
     '>>';
     '>='    operateMethod=opGE;
-    '>'     operateMethod=opGT;
+    '>'     operateMethod=opGT  interpretMethod=runGT;
 
     '=='    operateMethod=opEQ;
     '=['    operateMethod=opGet;
     '=/'    assign operateMethod=opGetMember;
     '=*'    operateMethod=opAssignGroup;
     '=%'    assign operateMethod=opGetAttribute;
-    '='     assign operateMethod=opAssign;
+    '='     assign operateMethod=opAssign  interpretMethod=runAssign;
 
     '<='    operateMethod=opLE;
     '<<';
@@ -103,7 +103,7 @@ define
     '+%'    operateMethod=opAddAttribute;
     '+'     operateMethod=opPlus;
     '*='    operateMethod=opMultiplyEQ;
-    '*'     operateMethod=opMultiply;
+    '*'     operateMethod=opMultiply  interpretMethod=runMultiply;
     '@'     unary ruleMethod=opLastREF;
     '&';
     '%'     operateMethod=opDiv;
@@ -111,6 +111,19 @@ define
     '!'     unary ruleMethod=opNOT;
     '+/';
     '**'    unary ruleMethod=opDebug;
+    ;
+/*******************************************************************************
+	bcOPs — bytecode control-flow opcodes. Separate from Operators by design
+	(per 2026-04-27 design decision): user code never writes bcBR, and an
+	incant program walking Operators should not see them. Each entry's
+	interpretMethod attribute names the C++ handler in Bytecode.{h,mm}.
+*******************************************************************************/
+registry(bcOPs);
+define
+    bcBR    interpretMethod=runBR;
+    bcBRZ   interpretMethod=runBRZ;
+    bcCALL  interpretMethod=runCall;
+    bcRET   interpretMethod=runRET;
     ;
 /*******************************************************************************
 	pROPERTIEs is a base registry defined on startup and extended here
