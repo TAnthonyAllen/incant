@@ -1,274 +1,281 @@
-# CLAUDE.md
+# CLAUDE.md — Incant Repository
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file orients Claude Code (Clod) when working in this repository.
+Read `projectBible.md` for the full ecosystem context (PLG/TAWK/Incant).
 
-Read incant.md for current project state and architecture decisions. That document is the source of truth for ongoing design choices, including any guidance here that has gone out of date.
+---
 
-Phase 0 (BDWGC integration) is complete. Phase 1 (`generateCode` repurposed as bytecode emitter entry point) complete in spirit — the placeholder C++-source emit path is being abandoned. Phase 2 (bytecode emitter in incant) is **in progress**: the three design questions are decided (see "Code Generation" section below), Phase 2 is now ready to implement. See incant.md for the canonical plan and TODO.md for the immediate task list.
+## What Incant Is
 
-**Workflow note (temporary):** Currently edit `.mm` files directly, not `.twk`. The TAWK autopsy is pending; once it lands, `.twk` becomes the preferred source again.
+Incant is the third project in the ecosystem: **PLG recognizes, TAWK transforms, Incant reasons.**
 
-Ask before making non-obvious changes.
+Incant is a reflexive, homoiconic, stack-aware language. Code and data have the same structure — a GroupItem field IS the rule that describes it. Programs construct, inspect, and rewrite their own structure. The bytecode IR is itself a tree of GroupItems, walked by an `interpret()` written in incant.
 
-This is the **Groups** system - a custom parser-generator and rule-based language processing framework. The codebase is written in **tok**, a custom language that compiles to Objective-C++. Groups implements a domain-specific language (DSL) for defining parsing rules and generating C++ code. The system uses a recursive descent parser with a custom syntax and compiles to native code.
+The runtime is C++/Objective-C++; the language surface is `.twk` source compiled to `.mm` via TAWK.
 
-## Core Architecture
+---
 
-### Language Pipeline
-The system processes files through multiple stages:
-1. **Source files (.twk)** - Source files written in the tok custom language
-2. **Compilation** - `tok` compiler transpiles .twk files to Objective-C++ (.mm files)
-   - Example: `tok GroupItem.twk` → produces `GroupItem.mm`
-3. **Runtime (.rtn)** - Runtime instruction files containing action definitions and control flow
-4. **Native compilation** - .mm files compiled to native code
+## Repository Structure
 
-### Key Components
+```
+Groups/
+├── GroupItem.{twk,mm,h}    — Core GroupItem class. Doubly-linked tree node. Polymorphic data
+│                              (string, number, group, buffer, set, regex, etc.). BDWGC-managed.
+├── GroupBody.{twk,mm,h}    — Storage container backing a GroupItem. Tag, registry, list pointers,
+│                              union-based polymorphic data.
+├── GroupControl.{twk,mm,h} — Factory + registry manager. Singleton (groupController). itemFactory
+│                              path is gone; constructors are now the only path.
+├── GroupRules.{twk,mm,h}   — Recursive-descent parser/runtime. pushInput/popInput, checkSkip,
+│                              setGuard, action dispatch. The bytecode gating hook lives at
+│                              GroupRules.mm:786.
+├── GroupMain.{twk,mm,h}    — main() entry point. Bootstraps, loads input, runs parse.
+├── GroupDraw.{twk,mm,h}    — Drawing primitives for GUI work (HPDL).
+├── GroupList.{twk,mm,h}    — DoubleLinkList wrapper.
+├── GroupStak.{twk,mm}      — Stack support for the runtime.
+├── RuleStuff.{twk,mm,h}    — Rule metadata: labels, guards, repetition, onSuccess/onFail wiring.
+├── GroupHash.{twk,mm,h}    — Hash-based GroupItem lookup.
+├── Bytecode.{mm,h}         — Phase 2 bytecode interpreter handlers (runBR, runBRZ, etc.)
+├── parts.twk, action.twk   — Supporting source.
+├── Generate.rtn            — Runtime: generateCode() bridge from C++ into incant emitter.
+├── GroupActions.rtn        — Runtime action definitions.
+├── grammar                 — Bootstrap grammar — 32 seed rules.
+├── groupIncludes           — Include manifest for the build.
+├── groupDirectives         — TAWK directive file for Incant classes.
+├── XML/                    — Window-definition DSL files. WorkingOn/ is the active subdir;
+│                              the other 11 subdirs are GUI material to be folded in later.
+├── Maps/                   — Symlink → ~/data/support/Maps (BitMAP, Segment).
+└── projectBible.md, TODO.md, CLAUDE.md
+```
 
-**GroupItem (GroupItem.h/mm/twk)**
-- Core doubly-linked list structure for representing parsed elements
-- Uses Boehm garbage collector (gc/gc_cpp.h) for automatic memory management
-- Supports multiple data types via unions: strings, numbers, groups, buffers, regex, etc.
-- Contains affiliation system: attributes vs members (isAttribute/isMember)
-- Provides recursive tree navigation with parent/child relationships
+**Symlinked support classes** (Frame, Include, KeyTable, Maps) live once in
+`~/data/support/`. The InProcess paths are symlinks that keep existing
+`.twk` `include` directives working unchanged.
 
-**GroupBody (GroupBody.h)**
-- Storage container for GroupItem data
-- Manages tag, registry, linked list pointers (first/last), and listLength
-- Contains union-based polymorphic data storage (gText, gBuffer, gGroup, gNumber, etc.)
-- Implements bitfield flags for item properties (debugged, isLabel, isRule, etc.)
+**Backup directories** (`Aside/`, `BackupIncant/`, `BeforeRefactor/`, `BeforeSave/`)
+are gitignored. Incant repo IS the backup; no separate copies needed.
 
-**GroupRules (GroupRules.h/mm)**
-- Core parsing engine implementing recursive descent parsing
-- Manages rule execution, input stacks, and parsing state
-- Contains debugging infrastructure (debugAllRules, debugGuards flags)
-- Handles input diversion, blocking (Python-like indentation), and code generation
-- Key methods: pushInput(), popInput(), checkSkip(), setGuard()
+---
 
-**GroupControl (GroupControl.h/mm)**
-- Factory for creating GroupItems
-- Manages registries (symbol tables) for different scopes
-- Singleton pattern via static groupController
-- Methods: itemFactory(), locate(), getRegistry(), setBaseRegistries()
+## File Types
 
-**RuleStuff (RuleStuff.h/mm/twk)**
-- Metadata about parsing rules (labels, guards, min/max repetition)
-- Tracks what follows a rule (onSuccess, onTrack, onGroup, onFail)
+- `.twk` — TAWK source. **Source of truth.** Compile with `tok FileName.twk` → `.mm`.
+- `.mm` — Generated Objective-C++. Do not edit by hand when the `.twk` pipeline is reliable.
+- `.h` — Generated headers.
+- `.rtn` — Runtime files: action definitions, control flow, C++ glue.
+- Files with no extension (`grammar`, `groupIncludes`, `groupDirectives`) — TAWK manifests / directive files.
 
-**GroupHash (GroupHash.h/mm/twk)**
-- Hash-based lookup for groups
-- Used for efficient registry/symbol table access
+**Workflow note (temporary):** the TAWK runtime replacement (Phase 2 of the
+ecosystem arc) is in flight. While that's pending, some `.mm` edits are
+hand-applied and not yet back-ported to `.twk`. Once TAWK runtime replacement
+lands, `.twk` becomes the authoritative source again across the board.
+Check the bible's "TAWK Runtime Replacement (Phase 2 Arc)" section for
+the current state before assuming.
 
-### Rule System
+---
 
-The Groups language defines parsing rules with:
-- **Guards** - Character sets or tokens that must match for rule to apply
-- **Labels** - Named captures (e.g., `name=[a-zA-Z]+`)
-- **Modifiers** - Control rule behavior:
-  - `+` plus (one or more)
-  - `*` star (zero or more)
-  - `?` question (optional)
-  - `!` banged (negation)
-  - `<` noAdvance (don't consume input)
-  - `%` isPercent
-  - `&` isPointer
-  - `@` isTarget
-  - `|` isAlternate
-  - `-` noLabel
-  - `_` unGuarded
-  - `^` noSkip
-  - `{` upTo
-  - `}` upToOver
-  - `$` isMacro
-- **Attributes** - Rule properties starting with `:` (e.g., `MemberS=':'`)
-- **Actions** - Code executed when rule matches (aCTion* functions)
+## Build Workflow
 
-### File Organization
-
-**Source Structure:**
-- `.twk` files - tok language source files (49 files in this codebase) - compiled by `tok` to produce .mm files
-- `.mm` files - Objective-C++ implementation (generated from .twk or hand-written)
-- `.h` files - C++ headers
-- `.rtn` files - Runtime action/instruction definitions (text-based)
-
-**Key Directories:**
-- `GUI/` - Graphical interface components (Bwana.*, Control.*, Actions.*, etc.)
-- `Aside/`, `BeforeRefactor/`, `BeforeSave/` - Backup/archive directories
-- `Maps/` - Mapping data structures
-- `XML/` - XML processing support
-- `Tests/` - Test files (test.json is a sample widget definition)
-
-**Include Dependencies (groupIncludes):**
-The build system expects these includes in order:
-1. `/Users/anthony/Dropbox/data/InProcess/Include/globals`
-2. `/Users/anthony/Dropbox/data/InProcess/Include/frame`
-3. `/Users/anthony/Dropbox/data/InProcess/Include/plg.ext`
-4. `/Users/anthony/Dropbox/data/InProcess/Include/maps`
-5. `/Users/anthony/Dropbox/data/InProcess/Include/OCframe`
-6. `/Users/anthony/Dropbox/data/InProcess/Include/groups.ext`
-
-## tok Language Features
-
-The tok language has special directives that control code generation:
-
-- **`#import <header>`** - Adds an import statement to the generated .h file
-  - Example: `#import <Cocoa/Cocoa.h>` in .twk → appears in generated .h file
-- **`#autoGetSet`** - Automatically generates getter/setter methods (seen in GroupItem.twk)
-- **`include <file>`** - Includes another file (e.g., `include groupIncludes`)
-- **`use <variable>`** - Provides convenient access to fields/methods of a variable within a block
-
-tok syntax also supports:
-- **Class inheritance** - Uses `extends` keyword instead of C++ `:` syntax
-  - tok: `class MyClass extends gc { ... }` compiles to C++: `class MyClass : public gc { ... }`
-- Boolean bitfield declarations (e.g., `boolean GroupOptions { ... }`)
-- Type specifications with bit widths (e.g., `affiliation:2[isAttribute isMember isEmbedded]`)
-- Simplified switch/case and if/else syntax
-- Member access operators that compile to C++ pointer/reference syntax
-
-## Development Workflow
-
-### Building
-1. **Compile .twk files to .mm using tok compiler:**
-   ```bash
-   tok GroupItem.twk    # Produces GroupItem.mm
-   tok GroupControl.twk # Produces GroupControl.mm
-   # ... repeat for other .twk files
-   ```
-
-2. **Compile the generated .mm files** (and hand-written .mm files) to native code using your C++ compiler
-
-3. **Link and create executable**
-
-The main entry point is `groups.mm` which contains `main()`. The system:
-1. Creates GroupMain instance
-2. Calls bootstrapper() to set up core rules
-3. Loads input file specified as command-line argument
-4. Parses input using the rule system
-
-### Running
 ```bash
-# Run with an input file
+# 1. Edit .twk source
+# 2. Regenerate .mm
+tok GroupItem.twk    # produces GroupItem.mm + GroupItem.h
+# (repeat for each changed .twk)
+
+# 3. Compile via Xcode (incantGUI target) or command-line C++ compiler
+# 4. Run
 ./groups <input_file>
 ```
 
-The program reads a file and parses it according to the loaded rules.
+Same TAWK quirks as the rest of the ecosystem (see plg/CLAUDE.md or the
+bible's TAWK Known Issues table):
+- Empty `//` lines reset field-resolution context — remove from method bodies
+- `field = new` sometimes fails type inference — use `field = new ClassName()`
+- Re-tawk drops `#include` lines and include guards in `.h` — re-add manually
+- `extern "C"` blocks get clobbered on re-tawk — keep C-linkage in hand-written files
 
-### Debugging
-The system has extensive debugging support controlled by flags:
-- `debugAllRules` - Trace all rule matching
-- `debugGuards` - Show guard evaluation
-- `debugRule` - Debug specific rules
-- Use `debugRuleNamed("RuleName")` to enable debugging for specific rules
-- Debug directives are in `groupDirectives` file
+---
 
-### Key Debugging Hooks (from groupDirectives)
-Toggle debugging in specific functions/actions by uncommenting directives:
-- Global debugging: `debugGuards = true;` or `debugAllRules = true;`
-- Per-rule: `debugRuleNamed("DefinE");`
-- Per-action: Add debugging flag to specific aCTion* functions
+## Core Architecture
 
-## Code Generation — Phase 2 (bytecode, in progress)
-
-The old C++-source emit path is **being abandoned**, not preserved. The new target is **bytecode as canonical IR**, represented as GroupItems so incant code can construct, inspect, and manipulate it. LLVM IR (Phase 3) will be generated *from* bytecode for the JIT.
-
-### Pipeline as it currently stands
-
-1. **Parse phase** — rules match input, build GroupItem trees (unchanged).
-2. **`generateCode(action)`** in `Generate.rtn:30-40` — C++ entry point. Looks up the incant `generatE` action and runs it. This is the bridge from the runtime into the incant-side emitter.
-3. **`generatE`** in `XML/WorkingOn/generate:118-122` — top-level emitter, walks fields and dispatches via `runGenerated`.
-4. **`runGenerated`** in `XML/WorkingOn/generate:58-65` — dispatch hub. Looks up handler in the `generator` registry by statement kind.
-5. **Per-statement handlers** (`gBlocK`, `gIF`, `gFOR`, `gWhilE`, `gDO`, `gExpressioN`, `gXpress`, `gPrinT`) — currently emit C++ source via `print` statements. **All to be rewritten** to emit bytecode GroupItems.
-6. **`interpret(generated)`** — called from `generateAction` after `generateCode` returns. **Does not yet exist.** Implementation lives in the planned `Bytecode.{h,mm}` and walks the bytecode GroupItem stream.
-
-### Handler status
-
-| Handler | Status |
-|---|---|
-| `gBlocK`, `gFOR`, `gWhilE`, `gDO`, `gDeclare` | Functional but emit old-style C++ source — to be rewritten as bytecode emitters |
-| `gIF` | Stub (`print "generate if statement"; **argument`) |
-| `gExpressioN` | Stub (`print "Need to work out how to generate an expression"`) |
-| `gXpress` | Stub (`print "Saw xpress" argument`) |
-| `gPrinT` | Stub — currently delegates to `genPrint()` (old printf-style C++ generator in `Generate.rtn:45-93`) |
-
-### Bytecode-side missing pieces
-
-- **`bcOPs` registry** in `setup` — separate from `Operators`. Holds the new control-flow ops (`bcBR`, `bcBRZ`, `bcRET`, etc.) so user code walking `Operators` doesn't see them. Not yet defined.
-- **C++ handlers** at repo root (`Bytecode.{h,mm}` or folded in nearby) — the per-op handlers (`runBR`, `runBRZ`, `runRET`, plus thin shims for `opGT` / `opMultiply` / `opAssign`). Not yet written.
-- **Gating hook** — somewhere near `aCTionStatemenT`'s action-dispatch site, check for a `bytecodE` attribute on the coded action and route through the bytecode `interpret()` when present. Not yet wired.
-- **`interpret()`** — the dispatch loop. Open question whether to write it in incant or in C++ (see TODO.md "Open assessment").
-
-### Round-trip target
-
-`testByteCode` in `XML/WorkingOn/unitTests:116-117`:
-```
-testByteCode; { if righty > 0; maximus = righty * 2; }
-```
-Expected emit (per `incant.md`'s 5-instruction walk-through): `runGT`, `runBRZ`, `runMultiply`, `runAssign`, `runRET`. Verify `maximus` ends up at 26.
-
-### Three design questions — DECIDED
-
-1. **Handler identity on instructions** — the instruction's tag is the **op GroupItem itself**, drawn from the existing `Operators` registry (for `>`, `*`, `=`, etc.) plus a new `bcOPs` registry (for `bcBR`, `bcBRZ`, `bcRET`, etc.). The op GroupItem carries the handler reference; the interpreter dispatches via that reference (`runOP`-style).
-2. **Dispatch registry split** — `Operators` and `bcOPs` are **separate registries**, *not* folded together. User-level operators stay in `Operators`; bytecode control-flow ops live in `bcOPs`. An incant program walking `Operators` should not see `bcBR`.
-3. **Instruction successor** — **implicit-next** (sibling member). Instructions are members of the body in execution order; "next" means "next sibling member." Branches override by returning their target. Operands materialize into vregs (Phase-2 step 2b applies; the `tempField` intermediate stage is being skipped).
-
-See `incant.md` for the broader discussion and `Sessions/incant-bytecode-session.md` for the design reasoning these choices flow from.
-
-## Data Type System
-
-GroupItem supports these data types (via `data` field):
-- `isCOUNT` - Integer count
-- `isNUMBER` - Floating point (double)
-- `isSTRING` - String with length
-- `isTOKEN` - Text token
-- `isCHAR` - Single character
-- `isSET` - Character set (PLGset)
-- `isGROUP` - Nested group
-- `isHASH` - Hash table
-- `isBUFFER` - Text buffer
-- `isSTAK` - Stack structure
-- `isREGEX` - Regular expression
-- `isMAP` - Bitmap
-- `isOBJECT` - NSObject (Cocoa)
-
-## Important Patterns
-
-### GroupItem Creation
-Use the GroupItem constructor directly. `itemFactory` has been replaced with simpler constructors as part of the BDWGC migration:
+### GroupItem
+The universal tree node. Every value, rule, field, and bytecode op is a
+GroupItem. Boehm-GC managed (inherits from `gc`); no manual `delete`.
 
 ```cpp
 GroupItem *item = new GroupItem("name");
 GroupItem *item = new GroupItem("name", value);
 ```
 
-Under BDWGC, `new` resolves to GC-managed allocation since GroupItem inherits from `gc`. No manual `delete` is needed. (Earlier docs referenced `GroupControl::groupController->itemFactory(...)` — that path is gone; the constructor is the only path.)
+Data types (via `data` field): `isCOUNT`, `isNUMBER`, `isSTRING`, `isTOKEN`,
+`isCHAR`, `isSET`, `isGROUP`, `isHASH`, `isBUFFER`, `isSTAK`, `isREGEX`,
+`isMAP`, `isOBJECT`. Affiliation: `isAttribute` vs `isMember` vs `isEmbedded`.
 
-### Registry/Scope Lookup
-```cpp
-GroupItem *item = locate("name");              // Search current scope
-GroupItem *item = locateInMethod("name");      // Search method scope
-GroupItem *item = getRegistry("RegistryName"); // Get registry
-```
+### Rule System
+Rules carry guards, labels, modifiers, and actions. Modifier characters:
+`+ * ?` (repetition), `!` (banged/negation), `<` (noAdvance), `^` (noSkip),
+`{ }` (upTo / upToOver), `% & @ |` (semantic markers), `_` (unGuarded),
+`$` (isMacro), `-` (noLabel).
 
 ### List Navigation
 ```cpp
-GroupItem *item = group->next(current);           // Next in list
-GroupItem *item = group->nextAttribute(current);  // Next attribute
-GroupItem *item = group->nextMember(current);     // Next member
+group->next(current);          // next in list
+group->nextAttribute(current); // next attribute only
+group->nextMember(current);    // next member only
 ```
 
-### Memory Management
-- Uses Boehm GC - no manual delete needed
-- GroupItem inherits from `gc` base class
-- garbageSTAK exists for compatibility but not required for GC
+For recursive contexts use the safe pattern (shared `entry` state in default
+`next()` gets clobbered by nested calls):
+```cpp
+for (DoubleLink *link = list->first; link; link = link->next) {
+    GroupItem *item = (GroupItem*)link->value;
+}
+```
+
+### Registry / Scope
+```cpp
+locate("name");                // current scope
+locateInMethod("name");        // method scope
+getRegistry("RegistryName");   // named registry
+```
+
+`GroupControl::groupController` is the singleton entry point.
+
+---
+
+## Phase 2 — Bytecode Generation
+
+The old C++-source emit path is being **abandoned**, not preserved. The new
+target is **bytecode as canonical IR**, represented as GroupItems so incant
+code can construct and walk it. LLVM IR (Phase 3) will be generated *from*
+bytecode for the JIT.
+
+### Pipeline
+
+1. Parse builds GroupItem trees (unchanged).
+2. `generateCode(action)` in `Generate.rtn` — C++ entry. Looks up the incant
+   `generatE` action and runs it.
+3. `generatE` (in `XML/WorkingOn/generate`) — top-level emitter. Walks
+   fields and dispatches via `runGenerated`.
+4. `runGenerated` — dispatch hub. Looks up handler in the `generator`
+   registry by statement kind.
+5. Per-statement handlers (`gBlocK`, `gIF`, `gFOR`, `gWhilE`, `gDO`,
+   `gExpressioN`, `gXpress`, `gPrinT`, `gDeclare`) — emit bytecode
+   GroupItems. **gIF and gExpressioN are the active rewrites.**
+6. `interpret(bytecode)` — the dispatch loop. Written in incant
+   (`XML/WorkingOn/bytecode`). Walks the bytecode stream; each op
+   GroupItem's `interpret` sub-attribute is the handler.
+
+### Settled design decisions
+
+1. **Op identity** — an instruction's tag IS the op GroupItem itself. Drawn
+   from `Operators` (for `>`, `*`, `=`) plus `bcOPs` (for `bcBR`, `bcBRZ`,
+   `bcRET`).
+2. **Two registries** — `Operators` and `bcOPs` are separate. User code
+   walking `Operators` should not see control-flow ops.
+3. **Implicit-next dispatch** — instructions are members of the body in
+   execution order. Branch ops override by reassigning `grup` mid-loop.
+4. **Bytecodes are GroupItems.** No vregs as separate objects — "a virtual
+   register is just a GroupItem field."
+
+### Status
+
+| Component | State |
+|---|---|
+| `interpret()` (in incant) | ✅ Written |
+| `Bytecode.{h,mm}` (C++ handlers) | ✅ Written |
+| Gating hook in `GroupRules.mm:786` | ✅ Wired (falls through to gMethod when no bytecode) |
+| `bcOPs` registry | ✅ Defined |
+| `Bytecode.mm` in Xcode target | 🔧 Manual drag pending |
+| `gIF` emitter | 🔧 Stub — needs rewrite |
+| `gExpressioN` emitter | 🔧 Stub — needs rewrite |
+| `testByteCode` end-to-end | 🎯 POP target: `if righty > 0; maximus = righty * 2;` → `maximus = 26` |
+
+### Incant Dispatch Idiom (IMPORTANT)
+Two steps — never chain:
+```
+handler = field.attribute;    // get the attribute
+handler(argument);            // call its method
+```
+One method per field by design. Sub-attribute pattern for second invokable behavior.
+
+---
+
+## XML Directory
+
+`XML/` is a window-definition DSL — XML-flavored declarative incant. Tags
+are GroupItem field declarations; attributes are sub-fields; bodies can be
+content, nested fields, or — when an attribute names an event (e.g.
+`onLayout`) — incant action code. Closing-tag conventions are lax (one `</tag>`
+can pop several opens).
+
+Only `XML/WorkingOn/` is currently active. The other 11 subdirectories
+(`Windows/`, `Controls/`, `Notions/`, `NotGUI/`, `Tests/`, `HTML/`, `LLVM/`,
+`Generating/`, `Stash/`, `Groups/`, `BackupXML/`-gitignored) are GUI-arc
+material — staged for the conversion-to-incant work that's part of the
+long-term GUI thread.
+
+---
+
+## Current State
+
+### Working ✅
+- Incant parses and interprets itself
+- BDWGC integration complete (Phase 0)
+- `generateCode()` repurposed as bytecode emitter entry point (Phase 1)
+- Bytecode interpreter written in incant + C++ handlers in place
+- Gating hook wired at `GroupRules.mm:786`
+
+### In Progress
+- `gIF` and `gExpressioN` emitter rewrites — the blockers for `testByteCode`
+- `Bytecode.mm` → Xcode incantGUI target (manual drag)
+
+### Next
+- `gPrinT` proper bytecode emit (currently delegates to old `genPrint()`)
+- `gXpress` beyond stub
+- `gDeclare` verification
+- More test cases beyond `testByteCode`
+- Phase 3: LLVM IR from bytecode for JIT (HPDL)
+
+---
 
 ## Testing
 
-Limited test infrastructure. The `Tests/test.json` contains a sample widget definition for testing JSON/XML parsing capabilities.
+```
+testByteCode in XML/WorkingOn/unitTests:116-117
+  testByteCode; { if righty > 0; maximus = righty * 2; }
+  expected emit: runGT, runBRZ, runMultiply, runAssign, runRET
+  expected outcome: maximus = 26
+```
 
-## Important Constraints
+`Tests/test.json` — sample widget definition for JSON/XML parsing exercises.
 
-- All paths in includes are absolute (not relative)
-- The system expects specific include directory structure in parent directories
-- **Currently edit `.mm` files directly, not `.twk`.** TAWK autopsy is pending; the `.twk → .mm` pipeline is unreliable for collaboration. Once TAWK is fixed, `.twk` becomes the preferred source again. Do not back-port `.mm` edits to `.twk` in the meantime.
-- Generated .mm/.h files match .twk files in naming (when .twk-as-source resumes)
-- Rule names are case-sensitive
-- Tag names must start with a letter (enforced by NamE rule guard)
+---
+
+## Debugging
+
+Flags in scope:
+- `debugAllRules` — trace all rule matching
+- `debugGuards` — show guard evaluation
+- `debugRule` — debug specific rule (set with `debugRuleNamed("RuleName")`)
+
+Use `groupDirectives` for ephemeral instrumentation — TAWK directive files
+let you inject trace code without polluting `.twk` source. See the bible's
+"TAWK Directives used in anger" entry.
+
+---
+
+## Working Relationship
+
+**Anthony (Tony, Haps)** — architect, domain expert, final authority.
+**Clay** (Claude at claude.ai) — design, reasoning, architecture, HWF navigation.
+**Clod** (Claude Code) — execution, file edits, GitHub, build verification.
+
+**Standing permissions**: Clod changes any code in source directories
+without asking. Ask before GitHub pushes.
+
+**Resurrection-reader standard**: this file (and the bible, TODO, HWF, all
+project `.md` files) must read clean to fresh-Claude tomorrow with no
+memory of today. See bible's Working Relationship section for the full
+statement.
+
+See `projectBible.md` for full glossary, HWF protocol, and ecosystem context.
