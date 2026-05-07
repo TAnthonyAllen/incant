@@ -1,21 +1,30 @@
 /*******************************************************************************
 	Simplifying expressions
 *******************************************************************************/
+Good morning. Here are the repos you need to review to get up to speed.
+https://github.com/TAnthonyAllen/incant
+https://github.com/TAnthonyAllen/plg
+https://github.com/TAnthonyAllen/support
+https://github.com/TAnthonyAllen/Tawk
 
-/*******************************************************************************
-	UnaryXP checks for unary expressions.
-        UnaryXP     UnaryOPS? ANYtoken;
-*******************************************************************************/
-extern GroupItem aCTionUnaryXP(GroupItem input)
-{
-GroupItem   UnaryOPS:,
-            ANYtoken:,
-            uxp = new("uxp");
-    method = runOP;
-    uxp +% UnaryOPS;
-    uxp +% ANYtoken;
-    uxp.invoke = true;
-    input.clear();
-    input.group = uxp;
-    return input;
-}
+I have looked over the bible. A few minor concerns. It still mentions the TOK xcode project I said to ignore
+
+At around line 339 the bible states when the current state was last updated. That does not concur with what the Apple Finder says (It says changed on May 6. The line says May 5) I assume the line did not get updated when bible was updated. No worries.
+
+Please remove eRocka from the glossary. That was a one liner best forgotten
+
+After reviewing the bible, I started to review CLAUDE.md and stopped. md files can drift out of date and what were truths might now be lies. How to fix that? And is it worth fixing? We seem to make do fine as is.
+
+I fired up the InProcess xcode. It looks good; will be my main xcode project going forward. The only bit that needs work is the PLG bits that are not current. Will need to update them to reflect changes in plg once it settles. I can do that. Tonto can then yaml the InProcess xcode project when time allows.
+
+FYI: the /Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/XML directory has 12 directories under it. We have only been working with what is in the WorkingOn directory because it contains the current incant input files and a few other related files including the flags file where this note I am typing is currently residing. At some point, Tonto should do a recon thru those files. Most of them will not be relevant until we start working on a GUI. The files are small, most < 50 lines long.
+Follow on background note: my GUI work started out using an xml parser that turned into plg. The XML files in the XML directory are ready to be converted to incant almost as is. The xml files define windows, and like html are all but a language unto themselves invoking C++ methods I would like to turn into incant actions. We just needs incant ready to do what needs be done to make it happen. And what needs be done is a long GUI discussion for another day. If you like we can take a look at one of the files so you can better assess the situation.
+
+yesterdays HWF discussion was good stuff and I really like where we came out.
+
+I reread What is Incant? from the incant repo wiki. On re-read it is impressive. Of course, that is with me as audience, talk about preaching to the choir.
+When we finish the plg project we should write a wiki for it too.
+
+We spoke of documenting tawk directives and how they work. No urgent need to dive right in, but lets keep it on our todo list
+
+Meanwhile, I would like to get Clod working on our task list. So what is our task list. It should be right there in TODO.md
