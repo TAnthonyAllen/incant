@@ -89,7 +89,7 @@ struct bools
 	The body of a GroupItem containing its data
 *******************************************************************************/
 
-class GroupBody : public gc
+class GroupBody
 {
 public:
 char *tag;

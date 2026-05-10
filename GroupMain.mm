@@ -3,9 +3,9 @@
 #include <stdio.h>
 #include "OCroutines.h"
 #include "GroupItem.h"
-#include "PLGset.h"
 #include "Buffer.h"
 #include "GroupControl.h"
+#include "PLGset.h"
 #include "GroupRules.h"
 #include "GroupBody.h"
 #include "RuleStuff.h"
@@ -230,6 +230,9 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	*************************************************************************/
 	stuff = grok->addString("DefinE");
 	stuff->setMethod(::aCTionDefinE);
+	strap = grok->addString("DEFINing");
+	strap->setMethod(::processFlags);
+	strap->groupBody->flags.guarding = 2;
 	strap = grok->addString("TraiT");
 	strap->setMethod(::aCTionTraiT);
 	strap->groupBody->flags.methodType = 1;
@@ -280,11 +283,17 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	*************************************************************************/
 	strap = grok->addString("define");
 	strap->groupBody->flags.isRule = 1;
+	item = grok->getMember("DEFINing");
+	item = strap->addAttribute(item);
+	::modify(item,"-");
 	item = new GroupItem("definitions");
 	item = strap->addAttribute(item);
 	item->setGroup(stuff);
 	item = item->groupBody->gGroup;
 	::modify(item,"+");
+	item = grok->getMember("DEFINing");
+	item = strap->addAttribute(item);
+	::modify(item,"-");
 	item = new GroupItem(";");
 	item = strap->addAttribute(item);
 	::modify(item,"-");

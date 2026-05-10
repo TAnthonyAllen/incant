@@ -5,9 +5,9 @@
 #include "OCroutines.h"
 #include "StringRoutines.h"
 #include "GroupItem.h"
-#include "PLGset.h"
 #include "Buffer.h"
 #include "DispatchQ.h"
+#include "PLGset.h"
 #include "GroupRules.h"
 #include "GroupList.h"
 #include "GroupBody.h"
@@ -45,7 +45,6 @@ GroupItem *GroupControl::copyOf(GroupItem *grup)
 {
 GroupItem 	*block = new GroupItem();
 	*block->groupBody = *grup->groupBody;
-	block->groupBody->groupList = 0;
 	if ( grup->groupBody->groupList )
 		block->copyListFrom(grup);
 	return block;

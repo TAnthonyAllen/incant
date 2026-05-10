@@ -11,11 +11,11 @@
 #include "StringRoutines.h"
 #include "GroupItem.h"
 #include "DoubleLinkList.h"
-#include "PLGset.h"
 #include "Stak.h"
 #include "Buffer.h"
 #include "regex.h"
 #include "GroupControl.h"
+#include "PLGset.h"
 #include "PLGrgx.h"
 #include "BitMAP.h"
 #include "GroupList.h"
@@ -212,7 +212,6 @@ GroupItem 	*CodE = input->getLabelGroup("CodE");
 GroupItem 	*MemberS = input->getLabelGroup("MemberS");
 GroupItem 	*grup = 0;
 GroupItem 	*item = 0;
-	ruler->defining = 1;
 	if ( isGROUP(NewGroup->groupBody->flags.data) )
 		NewGroup = NewGroup->getGroup();
 	if ( NewGroup->groupBody->flags.isLiteral )
@@ -245,7 +244,6 @@ GroupItem 	*item = 0;
 		/***********************************************************************
 		Process Attributes.
 		***********************************************************************/
-		::printf("aCTionDefinE: %s\n",NewGroup->groupBody->tag);
 		if ( Attributes )
 			while ( item = Attributes->next(item) )
 				if ( item->groupBody->flags.noPrint && immediateACTION(item->groupBody->flags.methodType) )
@@ -346,7 +344,6 @@ GroupItem 	*item = 0;
 	if ( NewGroup->groupBody->registry && !NewGroup->parent )
 		NewGroup->parent = ruler->currentRegistry;
 	input->setGroup(NewGroup);
-	ruler->defining = 0;
 	return input;
 }
 
@@ -783,17 +780,6 @@ RuleStuff 	*ruleStuff = input->rStuff;
 		GroupItem 	*statement = input;
 		if ( isGROUP(statement->groupBody->flags.data) )
 			statement = statement->getGroup();
-		// Phase 2 gating hook — if a bytecodE attribute is attached, route
-		// through the incant interpret() action instead of the tree-walker.
-		// Falls through to gMethod when bytecode isn't present, or when
-		// interpret() isn't loaded yet.
-		GroupItem 	*bc = statement->getAttribute("bytecodE");
-		if ( bc )
-			{
-			GroupItem 	*interpretField = GroupControl::groupController->locate("interpret");
-			if ( interpretField )
-				return ::runAction(bc, interpretField);
-			}
 		if ( statement->groupBody->gMethod )
 			return statement->groupBody->gMethod(statement);
 		}
@@ -1016,10 +1002,10 @@ GroupItem 	*field = 0;
 					ruler->useDefaultSpace = !ruler->useDefaultSpace;
 					break;
 				case '_':
-					buffer->appendChar(' ');
+					buffer->appendChar(' ',0,0);
 					break;
 				case ':':
-					buffer->appendChar('\n');
+					buffer->appendChar('\n',0,0);
 					break;
 				case '+':
 					ruler->inDENT->groupBody->gCount++;
@@ -1029,7 +1015,7 @@ GroupItem 	*field = 0;
 						ruler->inDENT->groupBody->gCount--;
 					break;
 				case '`':
-					buffer->appendChar('\t');
+					buffer->appendChar('\t',0,0);
 					break;
 				case ',':
 					grup = 0;
@@ -1420,7 +1406,7 @@ Buffer 		*buffer = ruler->formatBUFFER;
 	ruler = GroupControl::groupController->groupRules;
 	input->clear();
 	ruler->useDefaultSpace = 1;
-	buffer->appendString("printf(\"");
+	buffer->appendString("printf(\"",0,0);
 	while ( grup = stuff->next(grup) )
 		{
 		FormaT = grup->get("FormaT");
@@ -1437,10 +1423,10 @@ Buffer 		*buffer = ruler->formatBUFFER;
 						ruler->useDefaultSpace = !ruler->useDefaultSpace;
 						break;
 					case '_':
-						buffer->appendChar(' ');
+						buffer->appendChar(' ',0,0);
 						break;
 					case ':':
-						buffer->appendString("\\n");
+						buffer->appendString("\\n",0,0);
 						break;
 					case '+':
 						ruler->inDENT->groupBody->gCount++;
@@ -1450,7 +1436,7 @@ Buffer 		*buffer = ruler->formatBUFFER;
 							ruler->inDENT->groupBody->gCount--;
 						break;
 					case '`':
-						buffer->appendString("\\t");
+						buffer->appendString("\\t",0,0);
 					}
 			}
 		else {
@@ -1459,40 +1445,40 @@ Buffer 		*buffer = ruler->formatBUFFER;
 			***************************************************************/
 			if ( FormaT )
 				{
-				buffer->appendString(FormaT->getText());
-				buffer->appendString(",");
-				buffer->appendString(grup->getText());
+				buffer->appendString(FormaT->getText(),0,0);
+				buffer->appendString(",",0,0);
+				buffer->appendString(grup->getText(),0,0);
 				}
 			else
 			if ( grup->groupBody->flags.isLiteral )
-				buffer->appendString(grup->getText());
+				buffer->appendString(grup->getText(),0,0);
 			else {
 				switch (grup->groupBody->flags.data)
 					{
 					case 5:
-						buffer->appendString("%d");
+						buffer->appendString("%d",0,0);
 						break;
 					case 9:
-						buffer->appendString("%.1f");
+						buffer->appendString("%.1f",0,0);
 						break;
 					case 13:
 					case 14:
-						buffer->appendString("%s");
+						buffer->appendString("%s",0,0);
 						break;
 					default:
-						buffer->appendString(grup->groupBody->gText);
+						buffer->appendString(grup->groupBody->gText,0,0);
 					}
-				buffer->appendString(",");
-				buffer->appendString(grup->groupBody->gText);
+				buffer->appendString(",",0,0);
+				buffer->appendString(grup->groupBody->gText,0,0);
 				}
 			if ( ruler->useDefaultSpace && grup != stuff->groupBody->groupList->lastInList )
-				buffer->appendString(" ");
+				buffer->appendString(" ",0,0);
 			}
 		}
-	buffer->appendString("\"");
+	buffer->appendString("\"",0,0);
 	if ( buffer->length() )
-		buffer->appendString(buffer->string());
-	buffer->appendString(")");
+		buffer->appendString(buffer->string(),0,0);
+	buffer->appendString(")",0,0);
 	input->setText(buffer->toString());
 	buffer->reset();
 	return input;
@@ -1811,7 +1797,7 @@ PLGset 		*fieldSet = new PLGset("^ \n\r\t");
 			buffer->reset();
 			while ( fieldSet->contains(*input) )
 				{
-				buffer->appendChar(*input);
+				buffer->appendChar(*input,0,0);
 				input++;
 				}
 			strung = buffer->toString();
@@ -2461,7 +2447,7 @@ GroupItem 	*grup = 0;
 					target->setText(::concat(2,target->getText(),argument->getText()));
 					break;
 				case 4:
-					target->getBuffer()->appendString(argument->getText());
+					target->getBuffer()->appendString(argument->getText(),0,0);
 					break;
 				case 12:
 					target->groupBody->gStak->push(argument);
@@ -2511,7 +2497,7 @@ char 		*printText = buffer->string();
 	ruler->useDefaultSpace = 1;
 	if ( printText )
 		if ( ruler->toBUFFER )
-			ruler->toBUFFER->appendString(printText);
+			ruler->toBUFFER->appendString(printText,0,0);
 		else	::printf("%s",printText);
 	else	::fprintf(stderr,"print: recieved no print text\n");
 	ruler->useDefaultSpace = 1;
@@ -2613,7 +2599,7 @@ extern "C" void printField(GroupItem *field, char *format, Buffer *buffer)
 			{
 			if ( !format )
 				format = "%s";
-			buffer->appendString(field->getText(),format);
+			buffer->appendString(field->getText(),0,0);
 			}
 		else
 		switch (field->groupBody->flags.data)
@@ -2621,28 +2607,28 @@ extern "C" void printField(GroupItem *field, char *format, Buffer *buffer)
 			case 5:
 				if ( !format )
 					format = "%d";
-				buffer->appendCount(field->groupBody->gCount,format);
+				buffer->appendInt(field->groupBody->gCount,0,0);
 				break;
 			case 9:
 				if ( !format )
 					format = "%.1f";
-				buffer->appendNumber(field->groupBody->gNumber,format);
+				buffer->appendString(::toStringFromDouble(field->groupBody->gNumber),0,0);
 				break;
 			case 13:
 			case 14:
 				if ( !format )
 					format = "%s";
-				buffer->appendString(field->getText(),format);
+				buffer->appendString(field->getText(),0,0);
 				break;
 			default:
 				if ( !format )
 					format = "%s";
-				buffer->appendString(field->getText(),format);
+				buffer->appendString(field->getText(),0,0);
 			}
 		if ( GroupControl::groupController->groupRules->useDefaultSpace )
-			buffer->appendChar(' ');
+			buffer->appendChar(' ',0,0);
 		}
-	else	buffer->appendString("ERROR: field method failed");
+	else	buffer->appendString("ERROR: field method failed",0,0);
 }
 
 /***************************************************************************
@@ -2782,6 +2768,9 @@ GroupItem 	*target = item->parent;
 			case 'd':
 				target->groupBody->flags.deferred = 1;
 				break;
+			case 'D':
+				ruler->defining = !ruler->defining;
+				break;
 			case 'e':
 				::printf("Exiting parse\n");
 				::exit(0);
@@ -2883,8 +2872,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		registry. argument likely points to a copy
 		*******************************************************************/
 		ruler->currentRegistry = argument->groupBody->registry;
-		::printf("\t\t\t\tCurrent registry: %s\n",ruler->currentRegistry->groupBody->tag);
-		item = 0;
 		}
 	return ruler->trueResult;
 }
@@ -3349,13 +3336,17 @@ int 		indenting = 0;
 	Check indent status to set block boundaries
 	***************************************************************************/
 	indented = lastIndent;
-	if ( blocking && sawNewLine )
+	if ( sawNewLine && (blocking || defining) )
 		while ( indenting != lastIndent )
 			{
 			if ( indenting > lastIndent )
 				{
 				atContent--;
-				*atContent = '{';
+				if ( blocking * atContent = '{' )
+					;
+				else
+				if ( defining * atContent = ':' )
+					;
 				stacked = new GroupItem("stacked");
 				stacked->setCount(lastIndent);
 				blockSTAK->push(stacked);
@@ -3367,7 +3358,11 @@ int 		indenting = 0;
 			if ( indenting < lastIndent )
 				{
 				atContent--;
-				*atContent = '}';
+				if ( blocking * atContent = '}' )
+					;
+				else
+				if ( defining * atContent = ';' )
+					;
 				//cout ``"Ending block at",blocking,indenting,getDebugText(atContent,20):;
 				blocking--;
 				if ( stacked = (GroupItem*)blockSTAK->pop() )
