@@ -91,7 +91,7 @@ int         advance;
 Buffer      buffer  = stringBUFFER;
     reset();
     while *atInput
-        if contains(*atInput) appendChar(*atInput++);
+        if contains(*atInput) { buffer += *atInput; atInput++; }
         else break;
     if advance = length()
         if grup = get(string()) {

@@ -4,9 +4,9 @@
 #include "OCroutines.h"
 #include "StringRoutines.h"
 #include "GroupItem.h"
-#include "PLGset.h"
 #include "Buffer.h"
 #include "GroupControl.h"
+#include "PLGset.h"
 #include "GroupRules.h"
 #include "GroupList.h"
 #include "GroupBody.h"
@@ -154,7 +154,10 @@ Buffer 		*buffer = ruler->stringBUFFER;
 	buffer->reset();
 	while ( *atInput )
 		if ( inSet->contains(*atInput) )
-			buffer->appendChar(*atInput++);
+			{
+			buffer->appendChar(*atInput,0,0);
+			atInput++;
+			}
 		else	break;
 	if ( advance = buffer->length() )
 		if ( grup = field->get(buffer->string()) )
@@ -316,7 +319,7 @@ GroupItem 	*grup = isGROUP(field->groupBody->flags.data) ? field->getGroup() : f
 				break;
 			else
 			if ( *atText )
-				buffer->appendChar(*atText);
+				buffer->appendChar(*atText,0,0);
 			}
 		/*******************************************************************
 		Fields w/o label are skips. The number of fields skipped is
