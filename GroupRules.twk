@@ -156,11 +156,11 @@ int         commenting,
                     }
                 or !strncmp(atContent,"*/",2)
                     {
-                    atContent += 2;
+                    atContent++;
                     commenting--;
                     if !commenting
                         {
-                        atRuleMark  = atContent;
+                        atRuleMark  = atContent + 1;
                         break;
                         }
                     }
