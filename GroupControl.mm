@@ -7,11 +7,10 @@
 #include "GroupItem.h"
 #include "Buffer.h"
 #include "DispatchQ.h"
-#include "PLGset.h"
 #include "GroupRules.h"
 #include "GroupList.h"
 #include "GroupBody.h"
-#include "GroupDraw.h"
+#include "PLGset.h"
 #include "GroupControl.h"
 GroupControl *GroupControl::groupController;
 
@@ -146,13 +145,12 @@ GroupItem 	*result = 0;
 void GroupControl::setBaseRegistries()
 {
 GroupItem 	*action = 0;
-	groupRules->fieldBUFFER = ::bufferFactory1();
-	groupRules->stringBUFFER = ::bufferFactory2("string buffer");
-	groupRules->formatBUFFER = ::bufferFactory2("format buffer");
+	groupRules->fieldBUFFER = new Buffer();
+	groupRules->stringBUFFER = new Buffer("string buffer");
+	groupRules->formatBUFFER = new Buffer("format buffer");
 	groupRules->registries = getRegistry("registries");
 	groupRules->registries->groupBody->registry = groupRules->registries;
 	groupRules->registries->groupBody->groupList = new GroupList(groupRules->registries);
-	GroupDraw::drawer = new GroupDraw();
 	groupRules->inDENT = new GroupItem("indenter");
 	groupRules->inDENT->groupBody->flags.data = 5;
 	/***********************************************************************
@@ -184,7 +182,6 @@ GroupItem 	*action = 0;
 	addBaseRegistry(groupRules->files);
 	addBaseRegistry(groupRules->keyWords);
 	addBaseRegistry(groupRules->groupFields);
-	GroupDraw::drawer->drawRegistry = getRegistry("Drawing");
 	/***********************************************************************
 	Initialize commands needed by the rule parser (associating those
 	commands w/their methods). A bit of bootstrapping. Once done the

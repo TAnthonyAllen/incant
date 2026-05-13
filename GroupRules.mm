@@ -13,16 +13,15 @@
 #include "DoubleLinkList.h"
 #include "Stak.h"
 #include "Buffer.h"
-#include "regex.h"
-#include "GroupControl.h"
-#include "PLGset.h"
-#include "PLGrgx.h"
 #include "BitMAP.h"
+#include "GroupControl.h"
 #include "GroupList.h"
 #include "GroupBody.h"
+#include "regex.h"
 #include "RuleStuff.h"
 #include "GroupStak.h"
-#include "GroupDraw.h"
+#include "PLGset.h"
+#include "PLGrgx.h"
 #include "GroupRules.h"
 
 /***************************************************************************
@@ -208,7 +207,7 @@ extern "C" GroupItem *aCTionDefinE(GroupItem *input)
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*NewGroup = input->get(1);
 GroupItem 	*Attributes = input->getLabelGroup("Attributes");
-GroupItem 	*CodE = input->getLabelGroup("CodE");
+GroupItem 	*CodE = 0;
 GroupItem 	*MemberS = input->getLabelGroup("MemberS");
 GroupItem 	*grup = 0;
 GroupItem 	*item = 0;
@@ -260,6 +259,13 @@ GroupItem 	*item = 0;
 					item->groupBody->flags.fLAG = 0;
 					}
 				else {
+					if ( ::compare(item->groupBody->tag,"code") == 0 )
+						{
+						CodE = item;
+						CodE->groupBody->tag = "CodE";
+						CodE->groupBody->flags.isRule = 0;
+						CodE->groupBody->flags.noPrint = 1;
+						}
 					if ( ::compare(item->groupBody->tag,"argument") == 0 )
 						item->groupBody->flags.isArgument = 1;
 					if ( NewGroup->groupBody->flags.isMacro )
@@ -297,11 +303,7 @@ GroupItem 	*item = 0;
 				}
 			else {
 				NewGroup->groupBody->flags.actionType = 2;
-				CodE->groupBody->flags.noPrint = 1;
 				CodE->parent = 0;
-				grup = NewGroup->addAttribute(CodE);
-				grup->groupBody->flags.isRule = 0;
-				grup->groupBody->flags.noPrint = 1;
 				}
 			}
 		else
@@ -586,7 +588,7 @@ GroupItem 	*command = input->groupBody->groupList->firstInList;
 GroupItem 	*grup = 0;
 Buffer 		*buffer = (Buffer*)ruler->bufferSTAK->pop();
 	if ( !buffer )
-		buffer = ::bufferFactory2("print buffer");
+		buffer = new Buffer("print buffer");
 	ruler->isPRINTING = 0;
 	while ( grup = stuff->nextAttribute(grup) )
 		{
@@ -1218,135 +1220,6 @@ GroupItem 	*notifyLIST = grup->parent;
 }
 
 /***************************************************************************
-	Immediate method for the draw command.
-        or registry.tag eq "Colors" // set background color
-        or registry.tag eq "Fonts"  // set current font
-***************************************************************************/
-extern "C" GroupItem *draw(GroupItem *input)
-{
-GroupItem 	*currentFRAME = GroupControl::groupController->groupRules->properties->get("currentFRAME");
-GroupItem 	*isPERCENT = GroupControl::groupController->groupRules->properties->get("isPERCENT");
-GroupItem 	*isRELATIVE = GroupControl::groupController->groupRules->properties->get("isRELATIVE");
-GroupItem 	*grup = 0;
-NSRect 		frame = ::getFrame(currentFRAME);
-NSPoint 	point = frame.origin;
-double 		amount = 0;
-	if ( isGROUP(input->groupBody->flags.data) )
-		input = input->getGroup();
-	while ( grup = input->nextAttribute(grup) )
-		if ( grup->groupBody->registry == GroupDraw::drawer->drawRegistry )
-			switch (*grup->groupBody->tag)
-				{
-				case 'a':
-					//if tag eq "arc" arc=group containing from=Point to=Point radius=NumbeR
-					//else            align must have a value: center left right, or letter c l or r
-					break;
-				case 'b':
-					// border can have values: tblr
-					break;
-				case 'c':
-					// if tag eq "clip" or tag eq "close"
-					// else    // curve=group containing target=Point control1=Point control2=Point
-					break;
-				case 'd':
-					if ( isPERCENT )
-						amount = grup->getNumber() * frame.size.width / 100;
-					if ( isRELATIVE )
-						point.y -= amount;
-					else	point.y = amount;
-					::printf("down lineTo %s\n",::toString(point));
-					break;
-				case 'f':
-					// fill can take a color value
-					break;
-				case 'h':
-					// home;
-					break;
-				case 'i':
-					// invert
-					break;
-				case 'l':
-					if ( ::compare(grup->groupBody->tag,"left") == 0 )
-						{
-						if ( isPERCENT )
-							amount = grup->getNumber() * frame.size.width / 100;
-						if ( isRELATIVE )
-							point.x -= amount;
-						else	point.x = amount;
-						::printf("left lineTo %s\n",::toString(point));
-						}
-					break;
-				case 'm':
-					::printf("move to %s\n",::toString(point));
-					//moveTo(point);
-					break;
-				case 'o':
-					// oval
-					break;
-				case 'p':
-					if ( ::compare(grup->groupBody->tag,"point") == 0 )
-						{
-						GroupItem 	*X = grup->get("x");
-						GroupItem 	*Y = grup->get("y");
-						point.x = X->getNumber();
-						point.y = Y->getNumber();
-						}
-					else
-					if ( isPERCENT->getCount() )
-						isPERCENT->setCount(0);
-					else	isPERCENT->setCount(1);
-					break;
-				case 'r':
-					if ( ::compare(grup->groupBody->tag,"relative") == 0 )
-						if ( isRELATIVE->getCount() )
-							isRELATIVE->setCount(0);
-						else	isRELATIVE->setCount(1);
-					else
-					if ( ::compare(grup->groupBody->tag,"right") == 0 )
-						{
-						if ( isPERCENT != 0 )
-							grup->groupBody->gNumber *= frame.size.width / 100;
-						if ( isRELATIVE != 0 )
-							point.x += grup->getNumber();
-						else	point.x = grup->getNumber();
-						::printf("right lineTo %s\n",::toString(point));
-						}
-					/*
-					or tag eq "rectangle"
-					or tag eq "rounded" may have a radius value
-					else rotate */
-					break;
-				case 's':
-					/*
-					if tag eq "save"
-					or tag eq "scale"
-					or tag eq "shift"
-					else    // stroke can take a color value */
-					break;
-				case 'u':
-					if ( isPERCENT != 0 )
-						grup->groupBody->gNumber *= frame.size.width / 100;
-					if ( isRELATIVE != 0 )
-						point.y += grup->getNumber();
-					else	point.y = grup->getNumber();
-					::printf("up lineTo %s\n",::toString(point));
-					break;
-				case 'w':
-					// write can take a color value
-					break;
-				case 'x':
-					point.x = grup->getNumber();
-					break;
-				case 'y':
-					point.y = grup->getNumber();
-					break;
-				default:
-					::fprintf(stderr,"draw: WTF? %s\n",grup->groupBody->tag);
-				}
-	return input;
-}
-
-/***************************************************************************
 	Dump components of group passed in (like dumpResults but does not descend)
 ***************************************************************************/
 extern "C" GroupItem *dumpContents(GroupItem *stuff)
@@ -1511,17 +1384,21 @@ extern "C" char *getDebugText(char *input, int length)
 {
 char 	*debugText = (char*)::calloc(length + 2,sizeof(char));
 char 	*atInput = debugText;
+int 	advance = 0;
 	if ( input )
-		{
-		while ( *input && length-- )
+		while ( *input && length > advance )
+			{
 			if ( *input == '\n' )
 				{
 				*atInput++ = '#';
 				input++;
 				}
 			else	*atInput++ = *input++;
-		*atInput = ':';
-		}
+			advance++;
+			}
+	if ( advance <= 1 )
+		debugText = ":reached end of input";
+	else	*atInput = ':';
 	return debugText;
 }
 
@@ -1557,7 +1434,7 @@ Buffer 		*buffet = 0;
 		**********************************************************************/
 		if ( !isBUFFER(filing->groupBody->flags.data) )
 			{
-			filing->setBuffer(::bufferFactory3(filing->groupBody->tag,(int)increment));
+			filing->setBuffer(new Buffer(filing->groupBody->tag,(int)increment));
 			filing->getBuffer()->setFile(fileName);
 			buffet = filing->getBuffer();
 			}
@@ -1822,7 +1699,7 @@ char 		*fileName = 0;
 		case 'b':
 			if ( ::compare(argument->groupBody->tag,"buffer") == 0 )
 				{
-				target->setBuffer(::bufferFactory1());
+				target->setBuffer(new Buffer());
 				target->groupBody->flags.data = 4;
 				if ( isFile(target->groupBody->flags.fileType) )
 					{
@@ -2770,6 +2647,8 @@ GroupItem 	*target = item->parent;
 				break;
 			case 'D':
 				ruler->defining = !ruler->defining;
+				if ( !ruler->defining )
+					ruler->lastIndent = 0;
 				break;
 			case 'e':
 				::printf("Exiting parse\n");
@@ -2846,6 +2725,7 @@ extern "C" GroupItem *rEGISTER(GroupItem *item)
 GroupItem 	*registri = 0;
 GroupItem 	*argument = item->groupBody->flags.fLAG ? item->parent : item;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
+char 		*name = item->getText();
 	if ( ::compare(item->groupBody->tag,"class") == 0 )
 		{
 		argument->makeRegistry();
@@ -2854,7 +2734,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	else
 	if ( ::compare(item->groupBody->tag,"register") == 0 )
 		{
-		char 	*name = item->getText();
 		/*******************************************************************
 		Add argument to the named registry or the current
 		registry if there is no name
@@ -3265,9 +3144,11 @@ char *GroupRules::checkSkip(char *atContent)
 {
 GroupItem 	*stacked = 0;
 int 		commenting = 0;
-int 		sawNewLine = 0;
-int 		indented = 0;
 int 		indenting = 0;
+int 		lastINDENT = lastIndent;
+int 		sawNewLine = 0;
+char 		lastNotSpace = 0;
+char 		*atReplaceNewline = 0;
 	if ( atContent && ruleSkipSet )
 		{
 		PLGset 	*set = ruleSkipSet->getCharacterSet();
@@ -3275,9 +3156,13 @@ int 		indenting = 0;
 			{
 			if ( *atContent == '\n' )
 				{
-				sawNewLine = 1;
+				if ( indenting )
+					{
+					sawNewLine = 1;
+					lastNotSpace = *(atContent - 1);
+					indenting = 0;
+					}
 				sourceLINE++;
-				indenting = 0;
 				}
 			else
 			if ( *atContent == ' ' )
@@ -3319,11 +3204,11 @@ int 		indenting = 0;
 				else
 				if ( !::strncmp(atContent,"*/",2) )
 					{
-					atContent += 2;
+					atContent++;
 					commenting--;
 					if ( !commenting )
 						{
-						atRuleMark = atContent;
+						atRuleMark = atContent + 1;
 						break;
 						}
 					}
@@ -3335,49 +3220,67 @@ int 		indenting = 0;
 	/***************************************************************************
 	Check indent status to set block boundaries
 	***************************************************************************/
-	indented = lastIndent;
-	if ( sawNewLine && (blocking || defining) )
-		while ( indenting != lastIndent )
-			{
-			if ( indenting > lastIndent )
+	if ( !lastINDENT )
+		lastINDENT = indenting;
+	if ( sawNewLine == ';' )
+		atReplaceNewline = 0;
+	if ( indenting && indenting != lastINDENT )
+		if ( blocking || defining )
+			while ( indenting != lastINDENT && sawNewLine )
 				{
-				atContent--;
-				if ( blocking * atContent = '{' )
-					;
+				atReplaceNewline = atContent - 1;
+				if ( indenting > lastINDENT && lastNotSpace )
+					{
+					if ( defining )
+						if ( lastNotSpace != ':' )
+							{
+							*atReplaceNewline = ':';
+							}
+						else
+						if ( blocking )
+							if ( lastNotSpace != '{' )
+								{
+								*atReplaceNewline = '{';
+								}
+					stacked = new GroupItem("stacked");
+					stacked->setCount(lastINDENT);
+					blockSTAK->push(stacked);
+					lastINDENT = indenting;
+					}
 				else
-				if ( defining * atContent = ':' )
-					;
-				stacked = new GroupItem("stacked");
-				stacked->setCount(lastIndent);
-				blockSTAK->push(stacked);
-				lastIndent = indenting;
-				//cout ``"Starting block at",blocking,indenting,getDebugText(atContent,20):;
-				break;
-				}
-			else
-			if ( indenting < lastIndent )
-				{
-				atContent--;
-				if ( blocking * atContent = '}' )
-					;
+				if ( indenting < lastINDENT && lastNotSpace )
+					{
+					if ( lastNotSpace )
+						if ( defining )
+							if ( lastNotSpace != '>' )
+								{
+								*atReplaceNewline = '>';
+								}
+							else
+							if ( blocking )
+								{
+								if ( lastNotSpace != '}' )
+									{
+									*atReplaceNewline = '}';
+									}
+								blocking--;
+								}
+					if ( stacked = (GroupItem*)blockSTAK->pop() )
+						lastINDENT = stacked->getCount();
+					else	lastINDENT = indenting;
+					}
 				else
-				if ( defining * atContent = ';' )
-					;
-				//cout ``"Ending block at",blocking,indenting,getDebugText(atContent,20):;
-				blocking--;
-				if ( stacked = (GroupItem*)blockSTAK->pop() )
-					lastIndent = stacked->getCount();
-				else	lastIndent = indenting;
-				if ( !lastIndent )
-					break;
+				if ( !lastNotSpace )
+					lastNotSpace = 0;
+				if ( atReplaceNewline )
+					atContent = atReplaceNewline;
 				}
-			else	break;
-			}
 	if ( atContent > atRuleMark )
 		{
 		beforeSkip = atRuleMark;
 		lastSkip = atContent;
 		noSkipping = 0;
+		lastIndent = lastINDENT;
 		}
 	else	noSkipping = 1;
 	return atContent;

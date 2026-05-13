@@ -117,7 +117,6 @@ extern "C" GroupItem *debugOnGuard(GroupItem *input);
 extern "C" void debugRuleNamed(char *name);
 extern "C" void debugText(GroupItem *debugStuff, int flag);
 extern "C" void dispatcher(void *stuff);
-extern "C" GroupItem *draw(GroupItem *input);
 extern "C" GroupItem *dumpContents(GroupItem *stuff);
 extern "C" GroupItem *fAIL(GroupItem *input);
 extern "C" GroupItem *genPrint(GroupItem *input);
