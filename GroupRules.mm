@@ -133,6 +133,44 @@ extern "C" GroupItem *aCTionCheckFor(GroupItem *input)
 }
 
 /*******************************************************************************
+	CodE rule action Note: box boundaries defined by its left and right attributes
+*******************************************************************************/
+extern "C" GroupItem *aCTionCodE(GroupItem *rule)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*lefty = rule->get(1);
+GroupItem 	*righty = rule->get(2);
+GroupItem 	*label = rule->rStuff->label;
+	if ( lefty && righty )
+		{
+		char 	*atInput = ruler->atRuleMark;
+		char 	*beginBox = 0;
+		char 	*endBox = 0;
+		char 	*left = lefty->getText();
+		char 	*right = righty->getText();
+		while ( *atInput && *atInput != *left )
+			atInput++;
+		if ( *atInput )
+			{
+			beginBox = atInput;
+			atInput++;
+			while ( *atInput && *atInput != *right )
+				atInput++;
+			if ( *atInput )
+				endBox = atInput;
+			}
+		if ( beginBox && endBox++ )
+			{
+			label->setToken(beginBox,(int)(endBox - beginBox));
+			ruler->atRuleMark = endBox;
+			}
+		else	::fprintf(stderr,"CodE action failed for %s\n",rule->groupBody->tag);
+		}
+	else	::fprintf(stderr,"CodE action did not find left and right attributes in %s\n",rule->groupBody->tag);
+	return label;
+}
+
+/*******************************************************************************
 	Immediate method for DEBUG rule
         DEBUG       "debug"- followedBy rules?=NamE+;
 *******************************************************************************/
@@ -243,6 +281,12 @@ GroupItem 	*item = 0;
 		/***********************************************************************
 		Process Attributes.
 		***********************************************************************/
+		::printf("aCTionDefinE: %s %d\n",NewGroup->groupBody->tag,ruler->lastIndent);
+		if ( ::compare(NewGroup->groupBody->tag,"dummY") == 0 )
+			{
+			::debugRuleNamed("DatA");
+			::debugRuleNamed("CodE");
+			}
 		if ( Attributes )
 			while ( item = Attributes->next(item) )
 				if ( item->groupBody->flags.noPrint && immediateACTION(item->groupBody->flags.methodType) )
@@ -263,7 +307,6 @@ GroupItem 	*item = 0;
 						{
 						CodE = item;
 						CodE->groupBody->tag = "CodE";
-						CodE->groupBody->flags.isRule = 0;
 						CodE->groupBody->flags.noPrint = 1;
 						}
 					if ( ::compare(item->groupBody->tag,"argument") == 0 )
@@ -520,6 +563,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*action = ruler->currentMETHOD;
 GroupItem 	*result = 0;
 char 		*arg = input->getText();
+	if ( ::compare(arg,"include") == 0 )
+		result = 0;
 	if ( result = GroupControl::groupController->locateInMethod(arg) )
 		{
 		if ( ruler->processingCode && result != action && !action->get(arg) )
@@ -773,11 +818,14 @@ extern "C" GroupItem *aCTionShortcuT(GroupItem *group)
 *******************************************************************************/
 extern "C" GroupItem *aCTionStatemenT(GroupItem *input)
 {
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = input->rStuff;
+GroupItem 	*sourceFile = new GroupItem("sourceFile");
 	ruleStuff->sourceLine = new GroupItem("sourceAt");
-	ruleStuff->sourceLine->setCount(GroupControl::groupController->groupRules->sourceLINE);
-	ruleStuff->sourceLine->addAttribute(GroupControl::groupController->copyOf(GroupControl::groupController->groupRules->sourceFILE));
-	if ( !GroupControl::groupController->groupRules->processingCode )
+	ruleStuff->sourceLine->setCount(ruler->sourceLINE);
+	sourceFile->setText(ruler->sourceFILE->groupBody->tag);
+	ruleStuff->sourceLine->addAttribute(sourceFile);
+	if ( !ruler->processingCode )
 		{
 		GroupItem 	*statement = input;
 		if ( isGROUP(statement->groupBody->flags.data) )
@@ -1646,6 +1694,7 @@ char 		*name = 0;
 extern "C" GroupItem *loadInputFromFile(GroupItem *source)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	::printf("\t\t\tincluding %s\n",source->groupBody->tag);
 	if ( ::getFile(source) )
 		return source;
 	else	::fprintf(stderr,"\t\tloadInputFromFile: failed getting file from %s\n",source->groupBody->tag);
@@ -2751,6 +2800,8 @@ char 		*name = item->getText();
 		registry. argument likely points to a copy
 		*******************************************************************/
 		ruler->currentRegistry = argument->groupBody->registry;
+		::printf("\t\t\t\tCurrent registry: %s\n",ruler->currentRegistry->groupBody->tag);
+		item = 0;
 		}
 	return ruler->trueResult;
 }
@@ -3095,6 +3146,7 @@ GroupRules::GroupRules()
 	setupFILE = 0;
 	sourceFILE = 0;
 	trueResult = 0;
+	skipSet = 0;
 	inputSTAK = 0;
 	blocking = 0;
 	labelIndex = 0;
@@ -3149,19 +3201,15 @@ int 		lastINDENT = lastIndent;
 int 		sawNewLine = 0;
 char 		lastNotSpace = 0;
 char 		*atReplaceNewline = 0;
-	if ( atContent && ruleSkipSet )
+	if ( atContent && skipSet )
 		{
-		PLGset 	*set = ruleSkipSet->getCharacterSet();
-		while ( *atContent && set->contains(*atContent) )
+		while ( *atContent && skipSet->contains(*atContent) )
 			{
 			if ( *atContent == '\n' )
 				{
-				if ( indenting )
-					{
-					sawNewLine = 1;
-					lastNotSpace = *(atContent - 1);
-					indenting = 0;
-					}
+				sawNewLine = 1;
+				lastNotSpace = *(atContent - 1);
+				indenting = 0;
 				sourceLINE++;
 				}
 			else
@@ -3209,6 +3257,7 @@ char 		*atReplaceNewline = 0;
 					if ( !commenting )
 						{
 						atRuleMark = atContent + 1;
+						indenting = 0;
 						break;
 						}
 					}
@@ -3226,55 +3275,57 @@ char 		*atReplaceNewline = 0;
 		atReplaceNewline = 0;
 	if ( indenting && indenting != lastINDENT )
 		if ( blocking || defining )
-			while ( indenting != lastINDENT && sawNewLine )
-				{
-				atReplaceNewline = atContent - 1;
-				if ( indenting > lastINDENT && lastNotSpace )
+			while ( indenting != lastINDENT )
+				if ( sawNewLine )
 					{
-					if ( defining )
-						if ( lastNotSpace != ':' )
-							{
-							*atReplaceNewline = ':';
-							}
-						else
-						if ( blocking )
-							if ( lastNotSpace != '{' )
-								{
-								*atReplaceNewline = '{';
-								}
-					stacked = new GroupItem("stacked");
-					stacked->setCount(lastINDENT);
-					blockSTAK->push(stacked);
-					lastINDENT = indenting;
-					}
-				else
-				if ( indenting < lastINDENT && lastNotSpace )
-					{
-					if ( lastNotSpace )
+					atReplaceNewline = atContent - 1;
+					if ( indenting > lastINDENT && lastNotSpace )
+						{
 						if ( defining )
-							if ( lastNotSpace != '>' )
+							if ( lastNotSpace != ':' )
 								{
-								*atReplaceNewline = '>';
+								*atReplaceNewline = ':';
 								}
 							else
 							if ( blocking )
-								{
-								if ( lastNotSpace != '}' )
+								if ( lastNotSpace != '{' )
 									{
-									*atReplaceNewline = '}';
+									*atReplaceNewline = '{';
 									}
-								blocking--;
-								}
-					if ( stacked = (GroupItem*)blockSTAK->pop() )
-						lastINDENT = stacked->getCount();
-					else	lastINDENT = indenting;
+						stacked = new GroupItem("stacked");
+						stacked->setCount(lastINDENT);
+						blockSTAK->push(stacked);
+						lastINDENT = indenting;
+						}
+					else
+					if ( indenting < lastINDENT && lastNotSpace )
+						{
+						if ( lastNotSpace )
+							if ( defining )
+								if ( lastNotSpace != '>' )
+									{
+									*atReplaceNewline = '>';
+									}
+								else
+								if ( blocking )
+									{
+									if ( lastNotSpace != '}' )
+										{
+										*atReplaceNewline = '}';
+										}
+									blocking--;
+									}
+						if ( stacked = (GroupItem*)blockSTAK->pop() )
+							lastINDENT = stacked->getCount();
+						else	lastINDENT = indenting;
+						}
+					else
+					if ( !lastNotSpace )
+						lastNotSpace = 0;
+					if ( atReplaceNewline )
+						atContent = atReplaceNewline;
 					}
-				else
-				if ( !lastNotSpace )
-					lastNotSpace = 0;
-				if ( atReplaceNewline )
-					atContent = atReplaceNewline;
-				}
+				else	break;
 	if ( atContent > atRuleMark )
 		{
 		beforeSkip = atRuleMark;

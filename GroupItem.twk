@@ -454,7 +454,6 @@ int getDataType()
     if isGROUP
         if group == this return 0;
     else return group.getDataType();
-    if isITEM && gItem.amount return 5; // isNUMBER
     return data;
 }
 
@@ -1169,7 +1168,7 @@ void setItem(PLGitem i)
 {
     item        = i;
 	if i        isITEM = true;
-    else data   = 0;
+    else groupBody.data   = 0;
     isInitialized = true;
     if hasListeners updateListeners();
 }

@@ -73,6 +73,36 @@ extern GroupItem aCTionCheckFor(GroupItem input)
 }
 
 /*******************************************************************************
+	CodE rule action Note: box boundaries defined by its left and right attributes
+*******************************************************************************/
+extern GroupItem aCTionCodE(GroupItem rule)
+{
+GroupRules  ruler   = groupRules;
+GroupItem   lefty   = rule[1],
+            righty  = rule[2],
+            label   = rule.label;
+    if lefty && righty {
+        String  atInput = atRuleMark;
+        String  beginBox,
+                endBox;
+        String  left    = lefty.text;
+        String  right   = righty.text;
+        while *atInput && *atInput != *left     atInput++;
+        if *atInput {
+            beginBox = atInput;
+            atInput++;
+            while *atInput && *atInput != *right    atInput++;
+            if *atInput  endBox = atInput; }
+        if beginBox && endBox++ {
+            label.setToken(beginBox,(int)(endBox - beginBox));
+            atRuleMark = endBox; }
+        else cerr "CodE action failed for", rule.tag:;
+        }
+    else cerr "CodE action did not find left and right attributes in", rule.tag:;
+    return label;
+}
+
+/*******************************************************************************
 	Immediate method for DEBUG rule
         DEBUG       "debug"- followedBy rules?=NamE+;
 *******************************************************************************/
@@ -109,12 +139,11 @@ extern GroupItem aCTionDefinE(GroupItem input)
 GroupRules  ruler       = groupRules;
 GroupItem   NewGroup    = input[1],
             Attributes:,
-            CodE:,
+            CodE,
             MemberS:;
 GroupItem   grup,
             item;
 use NewGroup
-    defining    = true;
     if isGROUP  NewGroup = group;
     if isLiteral {
         tag    = text;
@@ -150,6 +179,10 @@ use item
                     method(item);
                     fLAG        = false; }
                 else {
+                    if tag eq "code" {
+                        CodE                = item;
+                        CodE.tag            = "CodE";
+                        CodE.noPrint        = true; }
                     if tag eq "argument"    isArgument = true;
                     if NewGroup.isMacro     noPrint = true;
                     isInitialized  = true;
@@ -177,11 +210,7 @@ use NewGroup
                 text   = CodE.text; }
             else {
                 isCoded         = true;
-                CodE.noPrint    = true;
-                CodE.parent     = 0;
-                grup            = NewGroup +% CodE;
-                grup.isRule     = false;
-                grup.noPrint    = true; }}
+                CodE.parent     = 0; }}
         or isMacro  cerr "ERROR: A macro definition must have code specified as its body":;
         /***********************************************************************
             Process Members.
@@ -209,7 +238,6 @@ use NewGroup
     isInitialized   = true;
     if NewGroup.registry && !NewGroup.parent    NewGroup.parent = currentRegistry;
     input.group     = NewGroup;
-    defining        = false;
     return input;
 }
 
@@ -262,8 +290,7 @@ GroupItem   op,
                     xl.isLIST   = true; }
                 if arg != xl    xl += arg;
                 xl  += token;
-                arg = xl; }
-             }
+                arg = xl; }}
         if op
             if arg
                 if target {
@@ -275,8 +302,7 @@ GroupItem   op,
                     xl.invoke   = true;
                     op = 0;
                     target = 0;
-                    arg = xl; }
-        }
+                    arg = xl; }}
 finishXP:
     xpList.clear();
     xpList.group = arg;
@@ -574,10 +600,13 @@ extern GroupItem aCTionShortcuT(GroupItem group)
 *******************************************************************************/
 extern GroupItem aCTionStatemenT(GroupItem input)
 {
+GroupRules  ruler = groupRules;
 RuleStuff   ruleStuff = rStuff;
+GroupItem   sourceFile = new("sourceFile");
     sourceLine  = new("sourceAt");
     sourceLine.count = sourceLINE;
-    sourceLine  +% copyOf(sourceFILE);
+    sourceFile.text = sourceFILE.tag;
+    sourceLine  +% sourceFile;
     if !processingCode {
         GroupItem   statement = input;
         if isGROUP  statement = group;

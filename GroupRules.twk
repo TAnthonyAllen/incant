@@ -50,6 +50,7 @@ class GroupRules
                 nameSet,
                 punctuateSet,
                 shortcutSet,
+                skipSet,
                 spaceSet;
     Stak        blockSTAK,
                 bufferSTAK,
@@ -111,21 +112,21 @@ String checkSkip(String atContent)
 {
 GroupItem   stacked;
 int         commenting,
-            sawNewLine,
-            indented,
-            indenting;
+            indenting,
+            lastINDENT=lastIndent,
+            sawNewLine;
+char        lastNotSpace;
+String      atReplaceNewline;
 
-    if atContent && ruleSkipSet
+    if atContent && skipSet
         {
-        PLGset  set = ruleSkipSet.characterSet;
-        while *atContent && set.contains(*atContent)
+        while *atContent && skipSet.contains(*atContent)
             {
-            if atContent == '\n'
-                {
+            if atContent == '\n' {
                 sawNewLine  = true;
-                sourceLINE++;
+                lastNotSpace  = *(atContent-1);
                 indenting   = 0;
-                }
+                sourceLINE++; }
             or atContent == ' '     indenting++;
             or atContent == '\t'    indenting += 4;
             or atContent == '/'
@@ -161,6 +162,7 @@ int         commenting,
                     if !commenting
                         {
                         atRuleMark  = atContent + 1;
+                        indenting = 0;
                         break;
                         }
                     }
@@ -172,32 +174,40 @@ int         commenting,
     /***************************************************************************
         Check indent status to set block boundaries
     ***************************************************************************/
-    indented = lastIndent;
-    if blocking && sawNewLine
-        while indenting != lastIndent {
-            if indenting > lastIndent {
-                atContent--;
-                *atContent      = '{';
-                stacked         = new("stacked");
-                stacked.count   = lastIndent;
-                blockSTAK       += stacked;
-                lastIndent      = indenting;
-                //cout ``"Starting block at",blocking,indenting,getDebugText(atContent,20):;
-                break; }
-            or indenting < lastIndent {
-                atContent--;
-                *atContent  = '}';
-                //cout ``"Ending block at",blocking,indenting,getDebugText(atContent,20):;
-                blocking--;
-                if stacked = blockSTAK.pop()    lastIndent = stacked.count;
-                else        lastIndent = indenting;
-                if !lastIndent  break; }
-            else break; }
+    if !lastINDENT  lastINDENT = indenting;
+    if sawNewLine == ';'    atReplaceNewline = 0;
+    if indenting && indenting != lastINDENT
+        if blocking || defining
+            while indenting != lastINDENT
+                if sawNewLine {
+                    atReplaceNewline    = atContent - 1;
+                    if indenting > lastINDENT && lastNotSpace {
+                        if defining
+                            if lastNotSpace != ':'    { *atReplaceNewline  = ':'; }
+                        or blocking
+                            if lastNotSpace != '{'    { *atReplaceNewline  = '{'; }
+                        stacked         = new("stacked");
+                        stacked.count   = lastINDENT;
+                        blockSTAK       += stacked;
+                        lastINDENT = indenting; }
+                    or indenting < lastINDENT && lastNotSpace {
+                        if lastNotSpace
+                            if defining
+                                if lastNotSpace != '>'    { *atReplaceNewline  = '>'; }
+                            or blocking {
+                                if lastNotSpace != '}'    { *atReplaceNewline  = '}'; }
+                                blocking--; }
+                        if stacked = blockSTAK.pop()    lastINDENT = stacked.count;
+                        else                            lastINDENT = indenting; }
+                    or !lastNotSpace        lastNotSpace = 0;
+                    if atReplaceNewline     atContent = atReplaceNewline; }
+                else    break;
     if atContent > atRuleMark
         {
         beforeSkip  = atRuleMark;
         lastSkip    = atContent;
         noSkipping  = false;
+        lastIndent  = lastINDENT;
         }
     else noSkipping = true;
     return atContent;

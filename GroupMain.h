@@ -1,5 +1,5 @@
 class GroupItem;
-// for debugging
+// for Balanced
 
 class GroupMain
 {

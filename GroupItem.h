@@ -1,5 +1,3 @@
-#include "gc/gc_cpp.h"
-
 class GroupBody;
 class RuleStuff;
 class Buffer;
@@ -23,7 +21,7 @@ struct GroupOptions
 	A group.
 ******************************************************************************/
 
-class GroupItem : public gc
+class GroupItem
 {
 public:
 GroupBody *groupBody;

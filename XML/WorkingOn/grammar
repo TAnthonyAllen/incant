@@ -36,29 +36,31 @@ NumbeR=numberSet=[0-9]+       FloaT? tokenize;  // happens tho grammar does not 
 DefinE;
 QuotE               tik=['"] quoteBody}=tik$@;
 NamE                first-=[a-zA-Z] nameSet-* tokenize;
-GrouP:
+GrouP
     NamE;
-    QuotE;;
-DatA:
+    QuotE;
+CodE                "{" "}" parseAction;
+DatA
     GrouP;
     NumbeR;         NumbeR is updated when setup is loaded in bootstrapper
+    CodE;
     SetBrackets     '['- ']'};
-    NotA=[^ \t\r\n;]+;;
+    NotA=[^ \t\r\n;]+;
 debug               "ALL"? "GUARD"? rules=NamE* ';'-;
 InvokE              '('- NamE? ')'-;
 Limit               '['- min=[0-9]+ max?=[0-9]+ ']'- noPrint;
-CodE                '{' '}'} tokenize;
 MemberS             ':'- Mlist=DefinE+;
 Modifier=[-~+?!%&|*@_<^{}$] noPrint;
 TraiTdata           '='- DatA Modifier* Limit?;
 TraiT               NamE Modifier* Limit? TraiTdata?;
 Attributes=TraiT+;
 NewGroup            TraiT@;
-DefinE              NewGroup Attributes? MemberS? ';'- CodE?;
-define              definitions=DefinE+ ';'-;
+DefinE              NewGroup Attributes? MemberS endDefine-=[;>];
+define              DEFINing- definitions=DefinE+ DEFINing- ';'-;
 RunRulE             NamE InvokE? ';'-?;
 InitiatE=RunRulE+;
 
+    DEFINing is a command that sets a defining flag
     The Grokking registry contains the incant grammar. The incant grammar rules
     are added to it here.
 *****************************************************************************/
@@ -78,6 +80,7 @@ define
     ExpressioN guard="^,;{}[]`";
     StatemenT guard=[{A-Za-z0-9+-;(];
     followedBy<^-=notInNameSet;
+    SemI=";";
 
     /*************************************************************************
         incant grammar rules
@@ -86,33 +89,32 @@ define
     CheckFor="#";
     ShortcuT=[-+~`$_:,]+;
     ANYtoken=NamE;
-    ANYstring=[^ \n\r\t;]+;
+    ANYstring=[^ \n\r\t;];
     BlocK                       "{"- Lines=StatemenT+ "}"- defer;
     BLOCKing parseAction guard='n';
     PRINTing parseAction=processFlags guard='n';
-    BrancheS bin:
+    BrancheS bin
         break;
         continue;
-        return;;
-    SemI=";";
+        return;
+    Precision='.'               precision=counter*;
     FormaT="#"                  flags=[-# 0+']* formatWIDTH?=NumbeR Precision? formatTYPE=[a-zA-Z] tokenize;
-    PrintXP:
+    PrintXP
         ShortcuT;
-        PrintField              ExpressioN FormaT?;;
+        PrintField              ExpressioN FormaT?;
     UnaryXP                     UnaryOPS ANYtoken;
-    InvokeArg:
+    InvokeArg
         Braced                  "["- ExpressioN "]"-;
         Parens                  "("- ExpressioN? ")"-;
-        UnaryXP;;
+        UnaryXP;
     TokenXP                     UnaryOPS? ANYtoken InvokeArg?;
-    Token:
+    Token
         QuotE;
         NumbeR;
         StringXP                string followedBy PRINTing- stuff=PrintXP+ ruleMethod=aCTionPrinT defer;
         TokenXP;
-        Operators;;
+        Operators;
     ExpressioN                  Token+;
-    Precision='.'               precision=counter*;
     /*************************************************************************
         Format flags are
             #       forces a decimal
@@ -122,13 +124,13 @@ define
             '       show number in thousands (may not work w/o using setlocale(3)
     *************************************************************************/
     Looper=ANYtoken;
-    LoopRestrict:
+    LoopRestrict
         loopOnAttributes="attributes";
-        loopOnMembers="members";;
-    ElsE:
+        loopOnMembers="members";
+    ElsE
         BasicElse   else- followedBy BLOCKing- StatemenT@ defer;
-        ElseIf      or- ExpressioN SemI-? BLOCKing- StatemenT ElsE? ruleMethod=aCTionIF defer;;
-    WardeD:
+        ElseIf      or- ExpressioN SemI-? BLOCKing- StatemenT ElsE? ruleMethod=aCTionIF defer;
+    WardeD
         DEBUG       "debug"- followedBy rules?=NamE+ SemI-;
         DEF         "define"- followedBy define;
         DO          do- followedBy BLOCKing- StatemenT while- ExpressioN SemI- defer;
@@ -138,14 +140,14 @@ define
         PrinT       print followedBy PRINTing- stuff=PrintXP+  SemI- defer;
         Search      "search"- followedBy GrouP+ SemI-;
         BrancH      BrancheS ExpressioN? SemI- defer;
-        ScopeXP     ":"- scopeList=ANYtoken+ SemI- defer;;
+        ScopeXP     ":"- scopeList=ANYtoken+ SemI- defer;
     Xpress          ExpressioN SemI-;
-    StatemenT:
+    StatemenT
         SemI;
         BlocK;
         WardeD;
         Xpress;
-        CheckFor;;
+        CheckFor;
     /*************************************************************************
         Start is the incant entry point.
     *************************************************************************/

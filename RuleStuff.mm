@@ -5,13 +5,12 @@
 #include "StringRoutines.h"
 #include "GroupItem.h"
 #include "Buffer.h"
-#include "GroupControl.h"
-#include "PLGset.h"
 #include "GroupRules.h"
+#include "GroupControl.h"
 #include "GroupList.h"
 #include "GroupBody.h"
 #include "RuleStuff.h"
-#include "GroupDraw.h"
+#include "PLGset.h"
 
 /*******************************************************************************
 	This sets the data of rule to the value of a previously processed label
@@ -41,10 +40,13 @@ GroupItem 	*ancestor = 0;
 *******************************************************************************/
 extern "C" int testAction(GroupItem *field)
 {
-	if ( field->rStuff->label && field->groupBody->gMethod(field->rStuff->label) )
-		return 1;
+	if ( parseACTION(field->groupBody->flags.methodType) || !field->rStuff->label )
+		{
+		if ( field->groupBody->gMethod(field) )
+			return 1;
+		}
 	else
-	if ( field->groupBody->gMethod(field) )
+	if ( field->rStuff->label && field->groupBody->gMethod(field->rStuff->label) )
 		return 1;
 	return 0;
 }
@@ -87,13 +89,18 @@ RuleStuff 	*ruleStuff = field->rStuff;
 extern "C" int testAttributes(RuleStuff *stuff)
 {
 GroupItem 	*grup = 0;
+int 		result = 0;
 	while ( grup = stuff->rule->nextAttribute(grup) )
 		if ( grup->groupBody->flags.noPrint )
 			continue;
 		else
-		if ( !grup->parse(stuff) )
-			return 0;
-	return 1;
+		if ( grup->parse(stuff) )
+			result = 1;
+		else {
+			result = 0;
+			break;
+			}
+	return result;
 }
 
 /*******************************************************************************
@@ -461,7 +468,7 @@ GroupItem 	*field = rule;
 		goto checkFailed;
 		}
 	if ( *ruler->atRuleMark )
-		if ( !noSkip )
+		if ( !noSkip && ruler->skipSet->contains(*ruler->atRuleMark) )
 			ruler->atRuleMark = ruler->checkSkip(ruler->atRuleMark);
 	/***************************************************************************
 	Check for end of input and deal w/diversion if diverted
@@ -471,7 +478,7 @@ GroupItem 	*field = rule;
 		while ( ruler->inputDiverted && !*ruler->atRuleMark )
 			ruler->popInput();
 		if ( *ruler->atRuleMark )
-			if ( !noSkip )
+			if ( !noSkip && ruler->skipSet->contains(*ruler->atRuleMark) )
 				ruler->atRuleMark = ruler->checkSkip(ruler->atRuleMark);
 		}
 	if ( !*ruler->atRuleMark )
@@ -615,9 +622,6 @@ void RuleStuff::setTestMatch()
 	else
 	if ( !rule->contents() )
 		if ( isMethod(rule->groupBody->flags.instructType) )
-			{
 			testMatch = ::testAction;
-			rule->groupBody->flags.methodType = 2;
-			}
 		else	testMatch = ::testString;
 }

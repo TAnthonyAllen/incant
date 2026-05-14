@@ -6,23 +6,21 @@
 #include "OCroutines.h"
 #include "StringRoutines.h"
 #include "GroupItem.h"
-#include "PLGtester.h"
 #include "DoubleLinkList.h"
-#include "PLGitem.h"
-#include "PLGset.h"
 #include "Stak.h"
 #include "Buffer.h"
 #include "DispatchQ.h"
-#include "regex.h"
-#include "GroupControl.h"
-#include "PLGrgx.h"
 #include "BitMAP.h"
 #include "GroupRules.h"
+#include "GroupControl.h"
 #include "GroupList.h"
 #include "GroupBody.h"
+#include "regex.h"
 #include "RuleStuff.h"
 #include "GroupStak.h"
-#include "GroupDraw.h"
+#include "PLGset.h"
+#include "PLGrgx.h"
+#include "PLGitem.h"
 
 /*****************************************************************************
     Compare attribute value of group1 to attribute value of group2. The results
@@ -308,12 +306,15 @@ void GroupItem::clearData()
 }
 
 /***************************************************************************
-	Clear the list. GC handles deallocation.
+	Clear the list. Deletes groupList for now (later will let GC handle it).
 ***************************************************************************/
 void GroupItem::clearList()
 {
 	if ( !groupBody->groupList )
 		return;
+	if ( groupBody->groupList->stakked )
+		delete groupBody->groupList->stakked;
+	delete groupBody->groupList;
 	groupBody->groupList = 0;
 	groupBody->flags.hasAttributes = groupBody->flags.hasMembers = 0;
 }
@@ -606,9 +607,6 @@ int GroupItem::getDataType()
 		if ( getGroup() == this )
 			return 0;
 		else	return getGroup()->getDataType();
-	if ( isITEM(groupBody->flags.data) && groupBody->gItem->amount )
-		return 5;
-	// isNUMBER
 	return groupBody->flags.data;
 }
 
@@ -683,6 +681,7 @@ int 		debugging = ruler->debugGuards || groupBody->flags.debugGuard;
 			switch (groupBody->flags.data)
 				{
 				case 3:
+					delete groupBody->guardSet;
 					groupBody->guardSet = getCharacterSet();
 					groupBody->flags.guarding = 1;
 					goto endSetGuard;
@@ -760,6 +759,7 @@ endSetGuard:
 		{
 		if ( groupBody->guardSet->isEmpty() )
 			{
+			delete groupBody->guardSet;
 			groupBody->guardSet = 0;
 			}
 		if ( groupBody->guardSet )
@@ -1239,7 +1239,7 @@ matchSucceeded:
 					{
 					::printf(" label: %s",ruleStuff->label->groupBody->tag);
 					if ( ruleStuff->label->groupBody->flags.data )
-						::printf("=%s",ruleStuff->label->getText());
+						::printf("=%s",::getDebugText(ruleStuff->label->getText(),10));
 					}
 				else	::printf(" w/no label");
 				::printf(" at: %s\n",::getDebugText(ruler->atRuleMark,10));
@@ -1604,7 +1604,7 @@ void GroupItem::setItem(PLGitem *i)
 	groupBody->gItem = i;
 	if ( i )
 		groupBody->flags.data = 7;
-	else	i->test->data = (void*)0;
+	else	groupBody->flags.data = 0;
 	groupBody->flags.isInitialized = 1;
 	if ( groupBody->flags.hasListeners )
 		updateListeners();

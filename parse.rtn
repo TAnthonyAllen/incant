@@ -49,8 +49,9 @@ testMacro(set.contains(*atRuleMark));
 *******************************************************************************/
 extern int testAction(GroupItem field)
 {
-    if label && field.method(label) return true;
-    or field.method(field)          return true;
+    if parseACTION || !label
+        { if field.method(field)    return true; }
+    or label && field.method(label) return true;
     return false;
 }
 
@@ -60,10 +61,14 @@ extern int testAction(GroupItem field)
 extern int testAttributes(RuleStuff stuff)
 {
 GroupItem   grup;
+int         result;
     while grup = rule.nextAttribute(grup)
         if noPrint  continue;
-        or !parse(stuff) return false;
-    return  true;
+        or parse(stuff) result = true;
+        else {
+            result = false;
+            break; }
+    return  result;
 }
 
 /*******************************************************************************

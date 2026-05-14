@@ -4,12 +4,11 @@
 #include "OCroutines.h"
 #include "GroupItem.h"
 #include "Buffer.h"
-#include "GroupControl.h"
-#include "PLGset.h"
 #include "GroupRules.h"
+#include "GroupControl.h"
 #include "GroupBody.h"
 #include "RuleStuff.h"
-#include "GroupDraw.h"
+#include "PLGset.h"
 #include "GroupMain.h"
 
 /*******************************************************************************
@@ -82,7 +81,8 @@ GroupItem 	*strap = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	bootCommands(ruler->commands);
 	ruler->ruleSkipSet = new GroupItem("ruleSkipSet");
-	ruler->ruleSkipSet->setCharacterSet(new PLGset(" \n\r\t/"));
+	ruler->skipSet = new PLGset(" \n\r\t/");
+	ruler->ruleSkipSet->setCharacterSet(ruler->skipSet);
 	ruler->properties->addMember(ruler->ruleSkipSet);
 	ruler->currentRegistry = grok;
 	/**************************************************************************
@@ -107,6 +107,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	grok->addMember(strap);
 	/*************************************************************************
 	bootstrap rule definition rules.
+	ANYstring=[^ \n\r\t;]+;
 	*************************************************************************/
 	strap = new GroupItem("Modifier");
 	strap = grok->addMember(strap);
@@ -131,8 +132,9 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	strap->groupBody->flags.guarding = 2;
 	strap = grok->addMember(strap);
 	::modify(strap,"^@");
-	strap = grok->addString("Any");
+	strap = grok->addMember(new GroupItem("Any"));
 	strap->groupBody->flags.data = 1;
+	strap->groupBody->flags.isRule = 1;
 	strap = grok->addString("PoweR");
 	strap->setCharacterSet(new PLGset("eE"));
 	item = new GroupItem("sign");
@@ -198,20 +200,21 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	::modify(item,"-");
 	item = strap->addString("]");
 	::modify(item,"}");
+	strap = grok->addMember(new GroupItem("CodE"));
+	strap->setMethod(::aCTionCodE);
+	strap->groupBody->flags.methodType = 2;
+	strap->groupBody->flags.isRule = 1;
+	item = strap->addString("{");
+	item = strap->addString("}");
 	strap = grok->addString("DatA");
 	item = strap->addMember(grok->getMember("GrouP"));
 	item = strap->addMember(grok->getMember("NumbeR"));
+	item = strap->addMember(grok->getMember("CodE"));
 	item = strap->addMember(grok->getMember("SetBrackets"));
 	item = new GroupItem("NotA");
 	item->setCharacterSet(new PLGset("^ \t\r\n;"));
 	item = strap->addMember(item);
 	::modify(item,"+");
-	strap = grok->addString("CodE");
-	item = strap->addString("{");
-	item = strap->addString("}");
-	::modify(item,"}");
-	item = grok->get("tokenize");
-	strap->addAttribute(item);
 	strap = grok->addString("TraiTdata");
 	strap->setMethod(::aCTionTraiTdata);
 	strap->groupBody->flags.methodType = 1;
@@ -272,12 +275,10 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	item = grok->getMember("MemberS");
 	item = strap->addAttribute(item);
 	::modify(item,"?");
-	item = new GroupItem(";");
+	item = new GroupItem("endDefine");
+	item->setCharacterSet(new PLGset(";>"));
 	item = strap->addAttribute(item);
 	::modify(item,"-");
-	item = grok->getMember("CodE");
-	item = strap->addAttribute(item);
-	::modify(item,"?");
 	/*************************************************************************
 	The define command (stuff is DefinE at this point).
 	*************************************************************************/

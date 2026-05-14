@@ -75,7 +75,8 @@ GroupRules  ruler = groupRules;
 
     bootCommands(commands);
     ruleSkipSet         = new("ruleSkipSet");
-    ruleSkipSet.characterSet = new(" \n\r\t/");
+    skipSet             = new(" \n\r\t/");
+    ruleSkipSet.characterSet = skipSet;
     properties          += ruleSkipSet;
     currentRegistry     = grok;
    /**************************************************************************
@@ -100,6 +101,7 @@ GroupRules  ruler = groupRules;
     grok            += strap;
     /*************************************************************************
         bootstrap rule definition rules.
+    ANYstring=[^ \n\r\t;]+;
     *************************************************************************/
     strap           = new("Modifier");
     strap           = grok += strap;
@@ -127,8 +129,9 @@ GroupRules  ruler = groupRules;
     strap           = grok += strap;
     modify(strap,"^@");
 
-    strap           = grok += "Any";
-    strap.isANY     = true;
+    strap           = grok += new("Any");
+    isANY           = true;
+    isRule          = true;
     
     strap           = grok += "PoweR";
     characterSet    = new("eE");
@@ -202,21 +205,22 @@ GroupRules  ruler = groupRules;
     item            = strap += "]";
     modify(item,"}");
 
+    strap           = grok += new("CodE");
+    method          = aCTionCodE;
+    parseACTION     = true;
+    isRule          = true;
+    item            = strap += "{";
+    item            = strap += "}";
+
     strap           = grok += "DatA";
     item            = strap += grok/GrouP;
     item            = strap += grok/NumbeR;
+    item            = strap += grok/CodE;
     item            = strap += grok/SetBrackets;
     item            = new("NotA");
     item.characterSet    = new("^ \t\r\n;");
     item            = strap += item;
     modify(item,"+");
-
-    strap           = grok += "CodE";
-    item            = strap += "{";
-    item            = strap += "}";
-    modify(item,"}");
-    item            = grok["tokenize"];
-    strap           +% item;
 
     strap           = grok += "TraiTdata";
     method          = aCTionTraiTdata;
@@ -237,6 +241,10 @@ GroupRules  ruler = groupRules;
     *************************************************************************/
     stuff           = grok += "DefinE";
     stuff.method    = aCTionDefinE;
+
+    strap           = grok += "DEFINing";
+    method          = processFlags;
+    unGuarded       = true;
 
     strap           = grok += "TraiT";
     method          = aCTionTraiT;
@@ -281,23 +289,27 @@ GroupRules  ruler = groupRules;
     item            = grok/MemberS;
     item            = strap +% item;
     modify(item,"?");
-    item            = new(";");
+    item            = new("endDefine");
+    item.characterSet    = new(";>");
     item            = strap +% item;
     modify(item,"-");
-    item            = grok/CodE;
-    item            = strap +% item;
-    modify(item,"?");
 
     /*************************************************************************
         The define command (stuff is DefinE at this point).
     *************************************************************************/
     strap           = grok += "define";
     isRule          = true;
+    item            = grok/DEFINing;
+    item            = strap +% item;
+    modify(item,"-");
     item            = new("definitions");
     item            = strap +% item;
     item.group      = stuff;
     item            = item.gGroup;
     modify(item,"+");
+    item            = grok/DEFINing;
+    item            = strap +% item;
+    modify(item,"-");
     item            = new(";");
     item            = strap +% item;
     modify(item,"-");

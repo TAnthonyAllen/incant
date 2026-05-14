@@ -86,14 +86,14 @@ GroupItem   field = rule;
         cerr "checkInput: no input source":;
         goto checkFailed; }
     if *atRuleMark
-        if !noSkip atRuleMark = checkSkip(atRuleMark);
+        if !noSkip && skipSet.contains(*atRuleMark)         atRuleMark = checkSkip(atRuleMark);
     /***************************************************************************
         Check for end of input and deal w/diversion if diverted
     ***************************************************************************/
     if !*atRuleMark && inputDiverted {
         while inputDiverted && !*atRuleMark     popInput();
         if *atRuleMark
-            if !noSkip atRuleMark = checkSkip(atRuleMark); }
+            if !noSkip && skipSet.contains(*atRuleMark)     atRuleMark = checkSkip(atRuleMark); }
     if !*atRuleMark {
         sourceFILE = 0;
         goto checkFailed; }
@@ -185,9 +185,7 @@ void setTestMatch()
     or isCondition          testMatch = testCondition;
     or parseACTION          testMatch = testAction;
     or !contents()
-        if isMethod {
-            testMatch = testAction;
-            parseACTION = true; }
+        if isMethod         testMatch = testAction;
         else                testMatch = testString;
 }
 }
