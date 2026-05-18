@@ -271,7 +271,10 @@ let you inject trace code without polluting `.twk` source. See the bible's
 **Clod** (Claude Code) — execution, file edits, GitHub, build verification.
 
 **Standing permissions**: Clod changes any code in source directories
-without asking. Ask before GitHub pushes.
+without asking. Trivial repo operations (commits, pushes for routine
+work) happen at Clod's discretion; flag non-trivial or uncertain
+situations before acting. Same commit-and-push freedom — no
+verification round-trip on routine work.
 
 **Resurrection-reader standard**: this file (and the bible, TODO, HWF, all
 project `.md` files) must read clean to fresh-Claude tomorrow with no
