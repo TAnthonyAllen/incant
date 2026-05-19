@@ -34,7 +34,7 @@ Groups/
 ├── GroupStak.{twk,mm}      — Stack support for the runtime.
 ├── RuleStuff.{twk,mm,h}    — Rule metadata: labels, guards, repetition, onSuccess/onFail wiring.
 ├── GroupHash.{twk,mm,h}    — Hash-based GroupItem lookup.
-├── Bytecode.{mm,h}         — Phase 2 bytecode interpreter handlers (runBR, runBRZ, etc.)
+├── Bytecode.{mm,h}         — Phase Bytecode interpreter handlers (runBR, runBRZ, etc.)
 ├── parts.twk, action.twk   — Supporting source.
 ├── Generate.rtn            — Runtime: generateCode() bridge from C++ into incant emitter.
 ├── GroupActions.rtn        — Runtime action definitions.
@@ -64,12 +64,12 @@ are gitignored. Incant repo IS the backup; no separate copies needed.
 - `.rtn` — Runtime files: action definitions, control flow, C++ glue.
 - Files with no extension (`grammar`, `groupIncludes`, `groupDirectives`) — TAWK manifests / directive files.
 
-**Workflow note (temporary):** the TAWK runtime replacement (Phase 2 of the
-ecosystem arc) is in flight. While that's pending, some `.mm` edits are
-hand-applied and not yet back-ported to `.twk`. Once TAWK runtime replacement
-lands, `.twk` becomes the authoritative source again across the board.
-Check the bible's "TAWK Runtime Replacement (Phase 2 Arc)" section for
-the current state before assuming.
+**Workflow note (temporary):** the TAWK runtime replacement (Phase Integrate)
+is in flight. While that's pending, some `.mm` edits are hand-applied and
+not yet back-ported to `.twk`. Once Phase Integrate lands, `.twk` becomes
+the authoritative source again across the board. Check the bible's "TAWK
+Runtime Replacement (Phase Integrate)" section for the current state
+before assuming.
 
 ---
 
@@ -81,12 +81,13 @@ the current state before assuming.
 tok GroupItem.twk    # produces GroupItem.mm + GroupItem.h
 # (repeat for each changed .twk)
 
-# 3. Compile via Xcode (incantGUI target) or command-line C++ compiler
+# 3. Compile via command-line C++ compiler
+#    (incantGUI Xcode target work is out of scope for the current Phase Bytecode arc)
 # 4. Run
 ./groups <input_file>
 ```
 
-Same TAWK quirks as the rest of the ecosystem (see plg/CLAUDE.md or the
+Same TAWK quirks as the rest of the ecosystem (see Parse/CLAUDE.md or the
 bible's TAWK Known Issues table):
 - Empty `//` lines reset field-resolution context — remove from method bodies
 - `field = new` sometimes fails type inference — use `field = new ClassName()`
@@ -142,11 +143,11 @@ getRegistry("RegistryName");   // named registry
 
 ---
 
-## Phase 2 — Bytecode Generation
+## Phase Bytecode
 
 The old C++-source emit path is being **abandoned**, not preserved. The new
 target is **bytecode as canonical IR**, represented as GroupItems so incant
-code can construct and walk it. LLVM IR (Phase 3) will be generated *from*
+code can construct and walk it. LLVM IR (Phase JIT) will be generated *from*
 bytecode for the JIT.
 
 ### Pipeline
@@ -185,7 +186,6 @@ bytecode for the JIT.
 | `Bytecode.{h,mm}` (C++ handlers) | ✅ Written |
 | Gating hook in `GroupRules.mm:786` | ✅ Wired (falls through to gMethod when no bytecode) |
 | `bcOPs` registry | ✅ Defined |
-| `Bytecode.mm` in Xcode target | 🔧 Manual drag pending |
 | `gIF` emitter | 🔧 Stub — needs rewrite |
 | `gExpressioN` emitter | 🔧 Stub — needs rewrite |
 | `testByteCode` end-to-end | 🎯 POP target: `if righty > 0; maximus = righty * 2;` → `maximus = 26` |
@@ -227,22 +227,24 @@ long-term GUI thread.
 
 ### In Progress
 - `gIF` and `gExpressioN` emitter rewrites — the blockers for `testByteCode`
-- `Bytecode.mm` → Xcode incantGUI target (manual drag)
 
 ### Next
 - `gPrinT` proper bytecode emit (currently delegates to old `genPrint()`)
 - `gXpress` beyond stub
 - `gDeclare` verification
 - More test cases beyond `testByteCode`
-- Phase 3: LLVM IR from bytecode for JIT (HPDL)
+- Phase JIT: LLVM IR from bytecode (HPDL)
+
+**Out of scope for current arc:** `Bytecode.mm` into the incantGUI Xcode
+target. Phase Bytecode proceeds via the command-line C++ compiler path.
 
 ---
 
 ## Testing
 
 ```
-testByteCode in XML/WorkingOn/unitTests:116-117
-  testByteCode; { if righty > 0; maximus = righty * 2; }
+testByteCode in XML/WorkingOn/unitTests:124
+  testByteCode code={ if righty > 0; maximus = righty * 2; };
   expected emit: runGT, runBRZ, runMultiply, runAssign, runRET
   expected outcome: maximus = 26
 ```
