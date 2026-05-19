@@ -5,7 +5,7 @@
 *******************************************************************************/
 register(Generating);
 define
-    types:
+    types
         "Buffer*";
         int;
         char;
@@ -18,7 +18,7 @@ define
         "PLGset*";
         "Stak*";
         "void*";
-        void;;
+        void;
     startBlock='{';
     endBlock='}';
     asterisk='*';
@@ -26,7 +26,7 @@ define
     /***************************************************************************
         Generate action code.
     ***************************************************************************/
-    generateAction action; {
+    generateAction action code={
         // generateCode parses the action to produce code to interpret
         generated = generateCode(action);
         //printTO(stringBUFFER);
@@ -37,11 +37,11 @@ define
             interpret(generated);
             //printTO(null);
         else print "generateCode failed":;
-        }
+        };
     /***************************************************************************
         Generate C++ method signature.
     ***************************************************************************/
-    generateSignature action; {
+    generateSignature action code={
         //print "Generating signature for" tag:;
         print "GroupItem*",tag "(";
         for field in action; attributes
@@ -50,41 +50,41 @@ define
                 print getType(field) tag;
                 follows++;
         print ")";
-        }
+        };
     /***************************************************************************
         generator is a hashed list of actions that process statements that
         generate (print) code. It is used in the generate() action below.
     ***************************************************************************/
-    runGenerated argument; {
+    runGenerated argument code={
         whuut   = texT;
         print ```"runGenerated:" whuut:;
         if action =* generator.whuut;
             print ~+"action is:" action.taG:;
             action(argument);
             //print ~"end action" action.taG:,-;
-        else    print ~,argument ";":; }
-    generator:
-        gBlocK argument; {
+        else    print ~,argument ";":; };
+    generator
+        gBlocK argument code={
             //print "process block":;
             lines = argument[1];
             for grup in lines;
-                runGenerated(grup); }
-        gDeclare argument; {
+                runGenerated(grup); };
+        gDeclare argument code={
             for field in argument; attributes
                 if !isArgument
                     print "gDeclare: field and argument" tag argument.tag:;
                     if !isLocal AND !isArgument; print "GroupItem*" tag, "= locate(" tag ");":;
-                    else    print  getType(field) ,tag ";":; }
-        gDO argument; {
+                    else    print  getType(field) ,tag ";":; };
+        gDO argument code={
             //print "generate do":;
             st  = argument[1];
             xp  = argument[2];
             print ~"do"`;
             runGenerated(st);
-            print ~,"while(" xp ");":; }
-        gExpressioN argument; {
-            print "Need to work out how to generate an expression":; }
-        gFOR argument; {
+            print ~,"while(" xp ");":; };
+        gExpressioN argument code={
+            print "Need to work out how to generate an expression":; };
+        gFOR argument code={
             //print "generate for":;
             lp  = argument[1];
             xp  = argument[2];
@@ -98,36 +98,35 @@ define
                 print,_"= " xp ".next(" lp ")";
                 if lr   print ~+"if (" lr ")",+:;
             runGenerated(st);
-            print ,-; }
-        gIF argument; {
+            print ,-; };
+        gIF argument code={
             print "generate if statement":;
             **argument;
-            }
-        gPrinT argument; {
+            };
+        gPrinT argument code={
             print "Need to work out how to generate print statement":;
-            genPrint(argument); }
-        gWhilE argument; {
+            genPrint(argument); };
+        gWhilE argument code={
             xp  = argument[1];
             st  = argument[2];
             print ~,"while(" xp ")":+;
             runGenerated(st);
-            print ,-; }
-        gXpress argument; {
-            print "Saw xpress" argument:; }
-        ;
-    generatE argument; {
+            print ,-; };
+        gXpress argument code={
+            print "Saw xpress" argument:; };
+    generatE argument code={
         print :"About to generate":;
         for field in argument;
             print "This is what we are generating from" field:;
-            runGenerated(field); }
+            runGenerated(field); };
     /***************************************************************************
         Working on
     ***************************************************************************/
-    genBlock argument; {
+    genBlock argument code={
         for grup in sumple; attributes
             maximus += 22;
-            print `,grup:; }
-    genForC; {
+            print `,grup:; };
+    genForC code={
         for grup in sumple; attributes
             maximus += 22;
             print `,grup:;
@@ -137,5 +136,4 @@ define
         while maximus < 20;
         while maximus <= 27;
             maximus += 3;
-            print ``Saw maximus:; }
-    ;
+            print ``Saw maximus:; };;

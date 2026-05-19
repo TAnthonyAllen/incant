@@ -54,80 +54,6 @@ GroupItem   notifyLIST  = parent;
         if notifier cerr "dispatcher: needs to be rewritten":;
         else cerr "dispatcher: ERROR could not get notifier for",grup.tag:; }
 }
-/***************************************************************************
-	Immediate method for the draw command.
-        or registry.tag eq "Colors" // set background color
-        or registry.tag eq "Fonts"  // set current font
-***************************************************************************/
-extern GroupItem draw(GroupItem input)
-{
-GroupItem   currentFRAME = properties["currentFRAME"],
-            isPERCENT = properties["isPERCENT"],
-            isRELATIVE = properties["isRELATIVE"],
-            grup;
-Frame       frame = getFrame(currentFRAME);
-Point       point = frame.origin;
-double      amount;
-    if input.isGROUP input = input.group;
-    while grup = input.nextAttribute(grup)
-        if registry == drawRegistry
-            switch(*tag) {
-                case 'a':
-                            //if tag eq "arc" arc=group containing from=Point to=Point radius=NumbeR
-                            //else            align must have a value: center left right, or letter c l or r
-                case 'b':   // border can have values: tblr
-                case 'c':
-                            // if tag eq "clip" or tag eq "close"
-                            // else    // curve=group containing target=Point control1=Point control2=Point
-                case 'd':   if isPERCENT    amount = number * width / 100;
-                            if isRELATIVE   point.y -= amount;
-                            else            point.y = amount;
-                            cout "down lineTo",point:;
-                case 'f':   // fill can take a color value
-                case 'h':   // home;
-                case 'i':   // invert
-                case 'l':   if tag eq "left" {
-                                if isPERCENT    amount = number * width / 100;
-                                if isRELATIVE   point.x -= amount;
-                                else            point.x = amount;
-                                cout "left lineTo",point:; }
-                case 'm':   cout "move to",point:;  //moveTo(point);
-                case 'o':   // oval
-                case 'p':   if tag eq "point" {
-                                GroupItem X = grup["x"];
-                                GroupItem Y = grup["y"];
-                                point.x = X.number;
-                                point.y = Y.number; }
-                            or isPERCENT.count isPERCENT.count = 0;
-                            else isPERCENT.count = 1;
-                case 'r':   if tag eq "relative"
-                                if isRELATIVE.count isRELATIVE.count = 0;
-                                else isRELATIVE.count = 1;
-                            or tag eq "right" {
-                                if isPERCENT != 0   number *= width / 100;
-                                if isRELATIVE != 0  point.x += number;
-                                else                point.x = number;
-                                cout "right lineTo",point:; }
-                            /*
-                            or tag eq "rectangle"
-                            or tag eq "rounded" may have a radius value
-                            else rotate */
-                case 's':
-                            /*
-                            if tag eq "save"
-                            or tag eq "scale"
-                            or tag eq "shift"
-                            else    // stroke can take a color value */
-                case 'u':   if isPERCENT != 0   number *= width / 100;
-                            if isRELATIVE != 0  point.y += number;
-                            else                point.y = number;
-                            cout "up lineTo",point:;
-                case 'w':   // write can take a color value
-                case 'x':   point.x = number;
-                case 'y':   point.y = number;
-                default:    cerr "draw: WTF?",tag:; }
-    return input;
-}
 
 /***************************************************************************
 	The fAIL method expects to have the name of the fail method passed in as
@@ -518,6 +444,8 @@ GroupItem   target  = parent;
             case 'c':   isCondition     = true;
                         // condition on by default, off if entered as condition?
             case 'd':   deferred        = true;
+            case 'D':   defining        = !defining;
+                        if !defining    lastIndent = 0;
             case 'e':   print "Exiting parse":;
                         exit(0);
             case 'i':
@@ -567,11 +495,11 @@ extern GroupItem rEGISTER(GroupItem item)
 GroupItem   registri;
 GroupItem   argument = item.fLAG ? item.parent : item;
 GroupRules  ruler = groupRules;
+String      name = item.text;
     if item.tag eq "class" {
         makeRegistry();
         isCLASS         = true; }
     or item.tag eq "register" {
-        String name     = item.text;
         /*******************************************************************
             Add argument to the named registry or the current
             registry if there is no name
@@ -663,8 +591,8 @@ GroupItem   result,
             target  = field[2];
     if isGROUP              target = group;
     if arg && arg.isGROUP   arg = arg.group;
-    if !arg && isMethod && invoke           target = method(target);
-    if arg && arg.isMethod && arg.invoke    arg = arg.method(arg);
+    if op.instructType && isMethod      target = method(target);
+    if arg && arg.isMethod  arg = arg.method(arg);
     if op.isOperator    result = op.operat(arg,target);
     or op.isMethod      result = op.method(target);
     or isRule           result = runRule(arg,target);

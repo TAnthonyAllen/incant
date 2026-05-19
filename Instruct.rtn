@@ -540,22 +540,22 @@ extern void printField(GroupItem field,String format,Buffer buffer)
     if field {
         if gText && data < 13 {
             if !format  format = "%s";
-            append(text,format); }
+            print(buffer) text; }
         else
         switch(data) {
             case isCOUNT:
                 if !format  format = "%d";
-                appendCount(gCount,format);
+                print gCount;
             case isNUMBER:
                 if !format  format = "%.1f";
-                appendNumber(gNumber,format);
+                print gNumber;
             case isSTRING:
             case isTOKEN:
                 if !format  format = "%s";
-                appendString(text,format);
+                print text;
             default:
                 if !format  format = "%s";
-                append(text,format); }
+                print text; }
         if useDefaultSpace  append(' '); }
     else        buffer += "ERROR: field method failed";
 }

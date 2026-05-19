@@ -135,7 +135,6 @@ GroupItem   action;
     registries              = getRegistry("registries");
     registries.registry     = registries;
     registries.groupList    = new(registries);
-    drawer                  = new;
     inDENT                  = new("indenter");
     inDENT.isCOUNT          = true;
     /***********************************************************************
@@ -168,7 +167,6 @@ GroupItem   action;
     addBaseRegistry(files);
     addBaseRegistry(keyWords);
     addBaseRegistry(groupFields);
-    drawRegistry    = getRegistry("Drawing");
     /***********************************************************************
         Initialize commands needed by the rule parser (associating those
         commands w/their methods). A bit of bootstrapping. Once done the

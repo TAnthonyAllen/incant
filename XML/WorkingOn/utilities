@@ -1,22 +1,10 @@
 define
-    Stuff registry;
-        /*************************************************************************
-            JSON rules invoked as JSONlist("json file name");
-        *************************************************************************/
-        JSONarray isRule;
-        JSONlist isRule;
-        JSONvalue isRule:
-            JSONlist;
-            JSONarray;
-            GrouP;;     // GrouP includes string number true false null
-        JSONfield       isRule QuotE ":"- value=JSONvalue ","?-; { QuotE = value; setLabel(QuotE); }
-        JSONarray       "["- values=JSONvalue+ "]"-;
-        JSONlist        "{"- fields@=JSONfield* "}"-;
+    Stuff registry
         /***************************************************************************
             Check to make sure the field passed in fits in the current frame before
             displaying it.
         ***************************************************************************/
-        displayIfVisible argument; {
+        displayIfVisible argument code={
             :parent x y width height;
             px  = x;
             py  = y;
@@ -34,22 +22,34 @@ define
                 if !goodToGo
                     yh = y + height;
                     goodToGo = yh > py AND yh < pyh;
-            if goodToGo print "OK to display" argument.tag; }
+            if goodToGo print "OK to display" argument.tag; };
+        /*************************************************************************
+            JSON rules invoked as JSONlist("json file name");
+        *************************************************************************/
+        JSONarray isRule;
+        JSONlist isRule;
+        JSONvalue isRule
+            JSONlist;
+            JSONarray;
+            GrouP;      // GrouP includes string number true false null
+        JSONfield       isRule QuotE ":"- value=JSONvalue ","?- code={ QuotE = value; setLabel(QuotE); };
+        JSONarray       "["- values=JSONvalue+ "]"-;
+        JSONlist        "{"- fields@=JSONfield* "}"-;
         /***************************************************************************
             flatten converts the hierarchy of its argument into a list in whatsIt.
             Just a test action for now.
         ***************************************************************************/
-        flatten argument; {
+        flatten argument code={
             for grup in argument; members
                 if grup.hasMembers; flatten(grup);
                 else
                     print "Adding" grup.tag:;
                     whatsIt += grup;
-            }
+            };
         /***************************************************************************
             print out incant definition for the group passed in
         ***************************************************************************/
-        printDefinition argument recurse; {
+        printDefinition argument recurse code={
             **argument;
             if datA != 0;  print ~$taG "=" argument;
             else    print ~$taG;
@@ -59,19 +59,19 @@ define
                         print $_taG "=" grup;
                     else    print $_taG;
             if hasMemberS;
-                print ":":;
+                print :;
                 for grup in argument; members
                     print +;
                     printDefinition(grup);
                     print ,-;
             else
                 print ";":;
-            }
+            };
         /***************************************************************************
             print out xml representation of the group passed in. Does not
             handle cdata yet.
         ***************************************************************************/
-        toXML argument; {
+        toXML argument code={
             print ~,"<" tag;
             if datA; print ,"=" argument;
             if hasAttributes;
@@ -88,12 +88,12 @@ define
             else    print "/>";
             if hasMembers;      print ,-"</" tag ">";
             if recurse == 0     print :;
-            }
+            };
         /***************************************************************************
             fillDown deals with down=* framing. It expects the argument passed in
             to have only one member with a height and a full frame.
         ***************************************************************************/
-        fillDown argument; {
+        fillDown argument code={
             print "About to fill down for" argument:;
             :argument height;
             pHeight = height;
@@ -107,14 +107,14 @@ define
                     argument +/ copy(grup);
                 print `"Setting down done":;
                 return;
-            }
+            };
         /***************************************************************************
             fillAcross deals with across=* framing. It expects the argument passed in
             to have one and only one member with a width and a full frame.
             When it resizes the list of variable column members is trimmed or
             extended as needed.
         ***************************************************************************/
-        fillAcross argument; {
+        fillAcross argument code={
             print "About to fill across for" argument:;
             :argument width;
             pWidth  = width;
@@ -128,14 +128,28 @@ define
                     argument +/ copy(grup);
                 print `"Setting across done":;
                 return;
-            }
+            };
+        /***********************************************************************
+            Convert the hex string in the target passed in to a floating point number
+        ***********************************************************************/
+        hexToNumber target code={
+            while target;
+                numDBL  = target.numbeR;
+                if numDBL <= 57;    numDBL -= 48;
+                or numDBL <= 70;    numDBL -= 55;
+                or numDBL <= 102;   numDBL -= 87;
+                target++;
+                if num; num *= 16;
+                num += numDBL;
+            target  = num;
+            return target; };
         /***************************************************************************
              Set frames for members of the group passed in. It must have x y width
              and height attributes.
              
              Should modify to check for noRoom and bail if there aint none
         ***************************************************************************/
-        setFrame argument; {
+        setFrame argument code={
             print "Setting frame for" argument:;
             :argument across down width height x y;
             sideRoom    = width;
@@ -197,34 +211,20 @@ define
                         if headRoom > 0;    y += headRoom;
                         grup +% x;
                     headRoom += height;
-            }
-        /***********************************************************************
-            Convert the hex string in the target passed in to a floating point number
-        ***********************************************************************/
-        hexToNumber target; {
-            while target;
-                numDBL  = target.numbeR;
-                if numDBL <= 57;    numDBL -= 48;
-                or numDBL <= 70;    numDBL -= 55;
-                or numDBL <= 102;   numDBL -= 87;
-                target++;
-                if num; num *= 16;
-                num += numDBL;
-            target  = num;
-            return target; }
+            };
         /***********************************************************************
             Return text wrapped in quotes if the field passed in contains text
             not a valid name.
         ***********************************************************************/
-        quoteIfNeeded argument; {
+        quoteIfNeeded argument code={
             if nameSet IN argument;
                 this = argument;
-            else    this = string $'"' argument '"'; }
+            else    this = string $'"' argument '"'; };
         /***********************************************************************
             Extract the red, green, and blue components of a color group passed
             in as a six character hex string
         ***********************************************************************/
-        setHexColor hex; {
+        setHexColor hex code={
             RGBred  = hex - 4;
             hex     +% hexToNumber(RGBred);
             RGBgreen    = hex + 2;
@@ -232,5 +232,4 @@ define
             hex     +% hexToNumber(RGBgreen);
             RGBblue = hex + 4;
             hex     +% hexToNumber(RGBblue);
-            dumpContents(hex); }
-    ;
+            dumpContents(hex); };;;

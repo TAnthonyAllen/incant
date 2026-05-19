@@ -27,12 +27,12 @@ define
     copy immediateAction=cOPY;
     debugGuard immediateAction=debugOnGuard noPrint;
     defer immediateAction=processFlags noPrint;
-    draw immediateAction;
     dumpContents immediateAction;
     exit immediateAction=processFlags;
     file immediateAction=setInternalType noPrint;
     generateCode immediateAction;
     genPrint immediateAction;
+    getFile immediateAction;
     getType immediateAction;
     guard immediateAction noPrint;
     index immediateAction=processFlags noPrint;
@@ -47,6 +47,7 @@ define
     quoted  immediateAction;
     regex immediateAction=setInternalType noPrint;
     register immediateAction=rEGISTER noPrint;
+    registry immediateAction=rEGISTER noPrint;
     setLabel immediateAction;
     sort immediateAction=processFlags noPrint;
     stack immediateAction=setInternalType noPrint;
@@ -136,25 +137,26 @@ define
     atEND;
     currentPOINT;
     currentFRAME;
+    delimiter="#>";
     extern noPrint;
     fAIL noPrint;
     gUARD noPrint;
     hexSet=[0-9a-fA-F];
     // ListOP is used as a rule but entered here so it will not be a rule (nor its members)
-    ListOP bin:
+    ListOP bin
         '=/';
         '=%';
-        ':+';;
+        ':+';
     null=0;
     notInNameSet=[^a-zA-Z0-9];
     stringBUFFER;
-    UnaryOPS bin:
+    UnaryOPS bin
         '--';
         '++';
         '@';
         '!';
         '**';
-        '.';;
+        '.';
     ;
 /*******************************************************************************
 	Keywords is a base registry defined on startup. It contains groups that play

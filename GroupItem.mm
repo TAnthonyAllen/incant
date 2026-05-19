@@ -1188,7 +1188,7 @@ RuleStuff 	*ruleStuff = getStuff(pStuff);
 			if ( StringRoutines::debugIndent < 0 )
 				StringRoutines::debugIndent = 0;
 			::indent(StringRoutines::debugIndent,"  ",0);
-			::printf("Match %s on text>%s\n",ruleStuff->ruleName,::getDebugText(ruler->atRuleMark,20));
+			::printf("Match %s on text %s\n",ruleStuff->ruleName,::getDebugText(ruler->atRuleMark,20));
 			StringRoutines::debugIndent++;
 			}
 		if ( !ruleStuff->checkInput() )
@@ -1202,10 +1202,13 @@ RuleStuff 	*ruleStuff = getStuff(pStuff);
 			{
 			if ( ruleStuff->testMatch )
 				ruleStuff->sukcess = ruleStuff->testMatch(this);
-			if ( ruleStuff->sukcess && ruleStuff->onGroup && ruleStuff->onGroup->parse(ruleStuff) )
-				ruleStuff->sukcess = 1;
-			if ( ruleStuff->sukcess && groupBody->flags.hasAttributes )
-				ruleStuff->sukcess = ::testAttributes(ruleStuff);
+			if ( !parseACTION(groupBody->flags.methodType) )
+				{
+				if ( ruleStuff->sukcess && ruleStuff->onGroup && ruleStuff->onGroup->parse(ruleStuff) )
+					ruleStuff->sukcess = 1;
+				if ( ruleStuff->sukcess && groupBody->flags.hasAttributes )
+					ruleStuff->sukcess = ::testAttributes(ruleStuff);
+				}
 			}
 		else	ruleStuff->sukcess = 0;
 		if ( !ruleStuff->sukcess )

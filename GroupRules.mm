@@ -282,11 +282,6 @@ GroupItem 	*item = 0;
 		Process Attributes.
 		***********************************************************************/
 		::printf("aCTionDefinE: %s %d\n",NewGroup->groupBody->tag,ruler->lastIndent);
-		if ( ::compare(NewGroup->groupBody->tag,"dummY") == 0 )
-			{
-			::debugRuleNamed("DatA");
-			::debugRuleNamed("CodE");
-			}
 		if ( Attributes )
 			while ( item = Attributes->next(item) )
 				if ( item->groupBody->flags.noPrint && immediateACTION(item->groupBody->flags.methodType) )
@@ -563,8 +558,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*action = ruler->currentMETHOD;
 GroupItem 	*result = 0;
 char 		*arg = input->getText();
-	if ( ::compare(arg,"include") == 0 )
-		result = 0;
 	if ( result = GroupControl::groupController->locateInMethod(arg) )
 		{
 		if ( ruler->processingCode && result != action && !action->get(arg) )
@@ -755,7 +748,7 @@ extern "C" GroupItem *aCTionSearch(GroupItem *input)
 {
 GroupItem 	*searchLIST = GroupControl::groupController->groupRules->searchList;
 GroupItem 	*base = 0;
-GroupItem 	*grup = input->get(1);
+GroupItem 	*grup = 0;
 int 		setStakked = 0;
 	while ( grup = input->next(grup) )
 		if ( ::compare(grup->groupBody->tag,"reset") == 0 )
@@ -849,22 +842,10 @@ GroupItem 	*ANYtoken = xpress->get("ANYtoken");
 	xpress->clear();
 	if ( isGROUP(ANYtoken->groupBody->flags.data) )
 		ANYtoken = ANYtoken->getGroup();
-	if ( UnaryOPS )
-		{
-		op = new GroupItem("uxp");
-		op->addAttribute(UnaryOPS);
-		op->addAttribute(ANYtoken);
-		op->setMethod(::runOP);
-		op->groupBody->flags.invoke = 1;
-		if ( InvokeArg )
-			ANYtoken = op;
-		else {
-			xpress->setGroup(op);
-			goto endToken;
-			}
-		}
 	if ( !InvokeArg )
 		{
+		if ( UnaryOPS )
+			goto handleUnary;
 		if ( ANYtoken->groupBody->registry == GroupControl::groupController->groupRules->groupFields )
 			{
 			op = GroupControl::groupController->groupRules->opFields->get(".");
@@ -885,9 +866,23 @@ GroupItem 	*ANYtoken = xpress->get("ANYtoken");
 				op = op->getGroup();
 			if ( isGROUP(arg->groupBody->flags.data) )
 				arg = arg->getGroup();
-			xpress->addAttribute(op);
-			xpress->addAttribute(ANYtoken);
-			xpress->addAttribute(arg);
+			if ( UnaryOPS )
+				{
+				// this happens with two unary ops like: !field.someThing
+				GroupItem *xp = new GroupItem("xp");
+				xp->addAttribute(op);
+				xp->addAttribute(ANYtoken);
+				xp->addAttribute(arg);
+				ANYtoken = xp;
+				xp->setMethod(::runOP);
+				xp->groupBody->flags.invoke = 1;
+				goto handleUnary;
+				}
+			else {
+				xpress->addAttribute(op);
+				xpress->addAttribute(ANYtoken);
+				xpress->addAttribute(arg);
+				}
 			}
 		else {
 			if ( InvokeArg->groupBody->flags.fLAG )
@@ -902,6 +897,17 @@ GroupItem 	*ANYtoken = xpress->get("ANYtoken");
 			xpress->addAttribute(arg);
 			}
 		xpress->groupBody->flags.invoke = 1;
+		}
+handleUnary:
+	if ( UnaryOPS )
+		{
+		op = new GroupItem("uxp");
+		op->addAttribute(UnaryOPS);
+		op->addAttribute(ANYtoken);
+		op->setMethod(::runOP);
+		op->groupBody->flags.invoke = 1;
+		xpress->setGroup(op);
+		goto endToken;
 		}
 	if ( xpress->groupBody->flags.invoke )
 		xpress->setMethod(::runOP);
@@ -1446,7 +1452,6 @@ int 	advance = 0;
 			}
 	if ( advance <= 1 )
 		debugText = ":reached end of input";
-	else	*atInput = ':';
 	return debugText;
 }
 
@@ -2895,9 +2900,9 @@ GroupItem 	*target = field->get(2);
 		target = target->getGroup();
 	if ( arg && isGROUP(arg->groupBody->flags.data) )
 		arg = arg->getGroup();
-	if ( !arg && isMethod(target->groupBody->flags.instructType) && target->groupBody->flags.invoke )
+	if ( op->groupBody->flags.instructType && isMethod(target->groupBody->flags.instructType) )
 		target = target->groupBody->gMethod(target);
-	if ( arg && isMethod(arg->groupBody->flags.instructType) && arg->groupBody->flags.invoke )
+	if ( arg && isMethod(arg->groupBody->flags.instructType) )
 		arg = arg->groupBody->gMethod(arg);
 	if ( isOperator(op->groupBody->flags.instructType) )
 		result = op->groupBody->gOp(arg,target);
@@ -3198,6 +3203,7 @@ GroupItem 	*stacked = 0;
 int 		commenting = 0;
 int 		indenting = 0;
 int 		lastINDENT = lastIndent;
+int 		replaced = 0;
 int 		sawNewLine = 0;
 char 		lastNotSpace = 0;
 char 		*atReplaceNewline = 0;
@@ -3257,6 +3263,8 @@ char 		*atReplaceNewline = 0;
 					if ( !commenting )
 						{
 						atRuleMark = atContent + 1;
+						sawNewLine = 0;
+						lastNotSpace = 0;
 						indenting = 0;
 						break;
 						}
@@ -3271,61 +3279,65 @@ char 		*atReplaceNewline = 0;
 	***************************************************************************/
 	if ( !lastINDENT )
 		lastINDENT = indenting;
-	if ( sawNewLine == ';' )
-		atReplaceNewline = 0;
-	if ( indenting && indenting != lastINDENT )
+	if ( sawNewLine && indenting != lastINDENT )
 		if ( blocking || defining )
 			while ( indenting != lastINDENT )
-				if ( sawNewLine )
+				{
+				atReplaceNewline = atContent - 1;
+				if ( indenting > lastINDENT && lastNotSpace )
 					{
-					atReplaceNewline = atContent - 1;
-					if ( indenting > lastINDENT && lastNotSpace )
+					if ( defining )
 						{
-						if ( defining )
-							if ( lastNotSpace != ':' )
-								{
-								*atReplaceNewline = ':';
-								}
-							else
-							if ( blocking )
-								if ( lastNotSpace != '{' )
-									{
-									*atReplaceNewline = '{';
-									}
-						stacked = new GroupItem("stacked");
-						stacked->setCount(lastINDENT);
-						blockSTAK->push(stacked);
-						lastINDENT = indenting;
+						if ( lastNotSpace != ':' )
+							{
+							replaced = 1;
+							*atReplaceNewline = ':';
+							}
 						}
 					else
-					if ( indenting < lastINDENT && lastNotSpace )
-						{
-						if ( lastNotSpace )
-							if ( defining )
-								if ( lastNotSpace != '>' )
-									{
-									*atReplaceNewline = '>';
-									}
-								else
-								if ( blocking )
-									{
-									if ( lastNotSpace != '}' )
-										{
-										*atReplaceNewline = '}';
-										}
-									blocking--;
-									}
-						if ( stacked = (GroupItem*)blockSTAK->pop() )
-							lastINDENT = stacked->getCount();
-						else	lastINDENT = indenting;
-						}
-					else
-					if ( !lastNotSpace )
-						lastNotSpace = 0;
-					if ( atReplaceNewline )
-						atContent = atReplaceNewline;
+					if ( blocking )
+						if ( lastNotSpace != '{' )
+							{
+							replaced = 1;
+							*atReplaceNewline = '{';
+							}
+					stacked = new GroupItem("stacked");
+					stacked->setCount(lastINDENT);
+					blockSTAK->push(stacked);
+					lastINDENT = indenting;
 					}
-				else	break;
+				else
+				if ( indenting < lastINDENT && lastNotSpace )
+					{
+					if ( lastNotSpace )
+						if ( defining )
+							{
+							if ( lastNotSpace != '>' || (!indenting && lastNotSpace != ';') )
+								{
+								replaced = 1;
+								*atReplaceNewline = '>';
+								}
+							}
+						else
+						if ( blocking )
+							{
+							if ( lastNotSpace != '}' )
+								{
+								replaced = 1;
+								*atReplaceNewline = '}';
+								}
+							blocking--;
+							}
+					if ( stacked = (GroupItem*)blockSTAK->pop() )
+						lastINDENT = stacked->getCount();
+					else	lastINDENT = indenting;
+					}
+				else
+				if ( !lastNotSpace )
+					lastNotSpace = 0;
+				if ( replaced )
+					atContent = atReplaceNewline;
+				}
 	if ( atContent > atRuleMark )
 		{
 		beforeSkip = atRuleMark;

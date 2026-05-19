@@ -1,20 +1,13 @@
-#registry dESCRIPTIONs asAttributes;
-<drawpath>An example of drawing in a block using a path.</drawpath>
 #registry GUI;
-<jitBody>
-    GroupItem   heading;
-    if heading.isSingleton print "Heading is a singleton string":;
-    else print "Something wrong with the JIT",heading.tag:;
-</jitBody>
 <drawpath window x=400 y=400 width=400 height=450 fill=gray title="Drawing" closable resize>
     <intro height=50 pad fill=white rounded>
         <heading="Draw Path Example" pad=10 label align=center font=title border=off shadow register/>
-        <space height=5)>
-    <jitter pad NOjit=jitBody stride=6 gap=12 depth=2>
+        <space height=5/>
+    <jitter pad stride=6 gap=12 depth=2>
         <wrap pad layers perfColor=darkerGray>
            <drawPerf perforation/>
            <body pad=15 fill=paleGray rounded>
-               <arrow drawPath pad border fill=lightGreen>%@40 10 u~ 30 l 30, 40 50 40 -50 l 30 d: 30 T 0 100 R -90;@ 60 20 r 40 u: 30;;>
+               <arrow drawPath pad border fill=lightGreen>%@40 10 u~ 30 l 30, 40 50 40 -50 l 30 d: 30 T 0 100 R -90;@ 60 20 r 40 u: 30;;></drawpath>
 
 Note: in arrow above, rotate happens after the shift and figuring out how much to shift and the x and y parameters of the shift was a trial and error process. Here is what I figured
 
@@ -57,3 +50,14 @@ The following is taken from the comment describing the path small language defin
 
         The numeric arguments to all commands, except for the rotate command R, are scaled if the % operator is in effect. The arguments for @ resolve to a point. All numeric arguments not associated with the R and @ commands are taken to be lengths, as in how far to move, not defining a point to move to but how far away to move
 
+If I were changing the xml drawpath above to incant it would look like
+drawpath window x=400 y=400 width=400 height=450 fill=gray title="Drawing" closable resize:
+    intro height=50 pad fill=white rounded:
+        heading="Draw Path Example" pad=10 label align=center font=title border=off shadow register;
+        space height=5;;
+    jitter pad stride=6 gap=12 depth=2:
+        wrap pad layers perfColor=darkerGray:
+           drawPerf perforation;    // perforation is a topic for the drawing HWF
+           body pad=15 fill=paleGray rounded:
+               arrow draw="%@40 10 u~ 30 l 30, 40 50 40 -50 l 30 d: 30 T 0 100 R -90;@ 60 20 r 40 u: 30" pad border fill=lightGreen;;;;
+Note: the multiple ;;;; is an open issue being worked on at HWF stage. Note how the drawing language text was moved into the draw attribute of arrow.

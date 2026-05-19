@@ -14,7 +14,6 @@ class GroupDraw
 {
 GroupItem   drawRegistry;
 Layout      layout;
-static GroupDraw    drawer;
 
 /*******************************************************************************
 	Set up a window or pane
@@ -80,6 +79,81 @@ Frame   frame = getFrame(grup);
 	if y > frame.y && y < frame.y + height && x > frame.x && x < frame.x + width
         return true;
 	return false;
+}
+
+/***************************************************************************
+	Immediate method for the draw command.
+        or registry.tag eq "Colors" // set background color
+        or registry.tag eq "Fonts"  // set current font
+***************************************************************************/
+extern GroupItem draw(GroupItem input)
+{
+GroupItem   currentFRAME = properties["currentFRAME"],
+            isPERCENT = properties["isPERCENT"],
+            isRELATIVE = properties["isRELATIVE"],
+            grup;
+Frame       frame = getFrame(currentFRAME);
+Point       point = frame.origin;
+double      amount;
+    if input.isGROUP input = input.group;
+    while grup = input.nextAttribute(grup)
+        if registry == drawRegistry
+            switch(*tag) {
+                case 'a':
+                            //if tag eq "arc" arc=group containing from=Point to=Point radius=NumbeR
+                            //else            align must have a value: center left right, or letter c l or r
+                case 'b':   // border can have values: tblr
+                case 'c':
+                            // if tag eq "clip" or tag eq "close"
+                            // else    // curve=group containing target=Point control1=Point control2=Point
+                case 'd':   if isPERCENT    amount = number * width / 100;
+                            if isRELATIVE   point.y -= amount;
+                            else            point.y = amount;
+                            cout "down lineTo",point:;
+                case 'f':   // fill can take a color value
+                case 'h':   // home;
+                case 'i':   // invert
+                case 'l':   if tag eq "left" {
+                                if isPERCENT    amount = number * width / 100;
+                                if isRELATIVE   point.x -= amount;
+                                else            point.x = amount;
+                                cout "left lineTo",point:; }
+                case 'm':   cout "move to",point:;  //moveTo(point);
+                case 'o':   // oval
+                case 'p':   if tag eq "point" {
+                                GroupItem X = grup["x"];
+                                GroupItem Y = grup["y"];
+                                point.x = X.number;
+                                point.y = Y.number; }
+                            or isPERCENT.count isPERCENT.count = 0;
+                            else isPERCENT.count = 1;
+                case 'r':   if tag eq "relative"
+                                if isRELATIVE.count isRELATIVE.count = 0;
+                                else isRELATIVE.count = 1;
+                            or tag eq "right" {
+                                if isPERCENT != 0   number *= width / 100;
+                                if isRELATIVE != 0  point.x += number;
+                                else                point.x = number;
+                                cout "right lineTo",point:; }
+                            /*
+                            or tag eq "rectangle"
+                            or tag eq "rounded" may have a radius value
+                            else rotate */
+                case 's':
+                            /*
+                            if tag eq "save"
+                            or tag eq "scale"
+                            or tag eq "shift"
+                            else    // stroke can take a color value */
+                case 'u':   if isPERCENT != 0   number *= width / 100;
+                            if isRELATIVE != 0  point.y += number;
+                            else                point.y = number;
+                            cout "up lineTo",point:;
+                case 'w':   // write can take a color value
+                case 'x':   point.x = number;
+                case 'y':   point.y = number;
+                default:    cerr "draw: WTF?",tag:; }
+    return input;
 }
 
 /****************************************************************************

@@ -85,13 +85,15 @@ extern String getDebugText(String input,int length)
 {
 String	debugText = (char*)calloc(length + 2,sizeof(char));
 String  atInput = debugText;
-	if input {
-        while *input && length--
+int     advance;
+	if input
+        while *input && length > advance {
             if *input == '\n' {
                 *atInput++ = '#';
                 input++; }
             else *atInput++ = *input++;
-        *atInput = ':'; }
+            advance++; }
+    if advance <= 1     debugText =":reached end of input";
     return debugText;
 }
                                                                             

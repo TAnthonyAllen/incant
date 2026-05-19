@@ -2,16 +2,12 @@
 /*******************************************************************************
 	Global
     if NewGroup.tag eq "Start" debugRuleNamed("RunRulE");
-    if NewGroup.tag eq "Start" debugAllRules = true;
-    if NewGroup.tag eq "UnaryOPS" item = 0;
+    if NewGroup.tag eq "Grokking" debugAllRules = true;
+    if NewGroup.tag eq "genForC" item = 0;
     cout "aCTionDefinE:",NewGroup.tag:;
-    if NewGroup.tag eq "simple"
-        {
-        debugRuleNamed("DefinE");
-        debugRuleNamed("NewGroup");
-        debugRuleNamed("MemberS");
-        debugRuleNamed("TraiT");
-        debugRuleNamed("NamE");
+    if NewGroup.tag eq "dummY" {
+        debugRuleNamed("DatA");
+        debugRuleNamed("CodE");
         }
 *******************************************************************************/
 #globals
@@ -25,15 +21,7 @@ aCTionDebuG embed.debugged ctive
     if embed.debugged print "Debugging",embed.tag:;
 #;
 aCTionDefinE "if Attributes" before active
-    cout "aCTionDefinE:",NewGroup.tag:;
-    if NewGroup.tag eq "bracing"
-        {
-        debugRuleNamed("Start");
-        debugRuleNamed("StatemenT");
-        }
-#;
-aCTionDefinE item before ctive
-    if CodE.tag eq "Start" CodE.fLAG = false;
+    cout "aCTionDefinE:",NewGroup.tag,lastIndent:;
 #;
 aCTionElsE if ctive
     if blocking cout "unBlocked:", blocking:;
@@ -42,7 +30,7 @@ aCTionExpressioN while before ctive
     if entries.listLength == 1   result = 0;
 #;
 aCTionNamE if before ctive
-    if arg eq "StatemenT"   result = 0;
+    if arg eq "include"   result = 0;
 #;
 aCTionRunRulE if within ctive
     if tag eq "define" debugAllRules = true;
@@ -52,15 +40,6 @@ aCTionSearch cout ctive
 #;
 aCTionXpress result before ctive
     print "Instructions for",action.tag: list:;
-#;
-/*******************************************************************************
-        if rule.tag eq "ElsE" guardOK = false;
-*******************************************************************************/
-checkGuard return before ctive
-    if !guardOK && (debugAllRules || debugRule) {
-        indent();
-        cout "Guard failed for",rule.tag,"on text",getDebugText(atRuleMark,10):;
-        guardOK = false; }
 #;
 generateCode return before ctive
     dumpContents(instruct);
@@ -72,8 +51,8 @@ guard GroupItem ctive
 guard clearData ctive
     debugGuards = false;
 #;
-loadInputFromFile return before ctive
-     if name eq "grammar" debugAllRules = true;
+loadInputFromFile if before active
+     cout ```"including",tag:;
 #;
 /*******************************************************************************
     opDoNothing
@@ -94,7 +73,7 @@ opPrinter printText before
     if guardOK && (debugAllRules || debugRule)
     if tag eq "list"   debugged = true;
     debugAllRules = true;
-    if tag eq "define" {
+    if name eq "Grokking" {
         debugRuleNamed("DefinE");
         debugRuleNamed("NewGroup");
         debugRuleNamed("TraiT");
@@ -124,7 +103,6 @@ runInstruct if ctive
 #;
 runRule if ctive
     if tag eq "list" debugRuleNamed("list");
-
 #;
 scopeXP return before ctive
     currentMETHOD.dumpContents();
@@ -199,7 +177,7 @@ parse "if !checkInput" before active
     if debugAllRules || rule.debugged {
         if debugIndent < 0 debugIndent = 0;
         indent("  ");
-        cout "Match",ruleName,"on text>"getDebugText(atRuleMark,20):;
+        cout "Match",ruleName,"on text",getDebugText(atRuleMark,20):;
         debugIndent++; }
 #;
 parse matchSucceeded ctive
@@ -212,7 +190,7 @@ parse kount active
         cout ruleName,"succeeded";
         if label {
             cout ,"label:",label.tag;
-            if label.data   cout "=" label.text; }
+            if label.data   cout "=" getDebugText(label.text,10); }
         else    cout " w/no label";
         cout ,"at: " getDebugText(atRuleMark,10):;
         doNothing = false; }
@@ -268,11 +246,13 @@ bootstrapper "if getFile" before active
     if tag eq "SemI" debugging = true;
 *******************************************************************************/
 #GroupRules
-checkSkip blockSTAK ctive
-    cout ``"Starting block at",indenting,getDebugText(atContent,20):;
+checkSkip stacked before ctive
+    if defining || blocking
+        cout ``"Starting indent at",defining,blocking,indenting,getDebugText(atContent,20):;
 #;
-checkSkip toTrash ctive
-    cout ``"Ending block at",indenting,getDebugText(atContent,20):;
+checkSkip "if stacked" before ctive
+    if defining || blocking
+        cout ``"Ending indent at",defining,blocking,indenting,getDebugText(atContent,20):;
 #;
 pushInput return before ctive
     cout ``"Pushing input",getDebugText(atRuleMark,20):;
@@ -286,6 +266,9 @@ popInput return before ctive
     if tag eq "NamE"    completed = 0;
 *******************************************************************************/
 #RuleStuff
+checkGuard sukcess ctive
+    if tag eq "CodE" sukcess = false;
+#;
 getLabel if before ctive
     if tag eq "debug"  doNothing = 0;
 #;

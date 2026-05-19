@@ -6,13 +6,12 @@
 #include "DoubleLinkList.h"
 #include "Stak.h"
 #include "Buffer.h"
-#include "regex.h"
-#include "PLGitem.h"
-#include "PLGset.h"
-#include "PLGrgx.h"
 #include "BitMAP.h"
 #include "GroupList.h"
-#include "GroupDraw.h"
+#include "regex.h"
+#include "PLGset.h"
+#include "PLGrgx.h"
+#include "PLGitem.h"
 #include "GroupBody.h"
 
 /*****************************************************************************

@@ -881,9 +881,8 @@ RuleStuff   ruleStuff   = getStuff(pStuff);
         *******************************************************************/
         if testMatch || onGroup || hasAttributes {
             if testMatch                                        sukcess = testMatch(this);
-            if sukcess && onGroup && onGroup.parse(ruleStuff)   sukcess = true;
-            if sukcess && hasAttributes                         sukcess = testAttributes(ruleStuff); }
-        else            sukcess = false;
+            if !parseACTION {
+            else            sukcess = false;
         if !sukcess     goto matchFailed;
         /*******************************************************************
             Success. Fire label method if there is one.

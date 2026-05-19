@@ -89,7 +89,7 @@ define
     CheckFor="#";
     ShortcuT=[-+~`$_:,]+;
     ANYtoken=NamE;
-    ANYstring=[^ \n\r\t;];
+    ANYstring=[^ \n\r\t;]+;
     BlocK                       "{"- Lines=StatemenT+ "}"- defer;
     BLOCKing parseAction guard='n';
     PRINTing parseAction=processFlags guard='n';
@@ -150,7 +150,6 @@ define
         CheckFor;
     /*************************************************************************
         Start is the incant entry point.
+        Note its ending:    first ; ends Start second ; ends define command
     *************************************************************************/
-    Start=StatemenT+;
-;
-
+    Start=StatemenT+;;

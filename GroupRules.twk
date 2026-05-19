@@ -114,6 +114,7 @@ GroupItem   stacked;
 int         commenting,
             indenting,
             lastINDENT=lastIndent,
+            replaced,
             sawNewLine;
 char        lastNotSpace;
 String      atReplaceNewline;
@@ -162,7 +163,9 @@ String      atReplaceNewline;
                     if !commenting
                         {
                         atRuleMark  = atContent + 1;
-                        indenting = 0;
+                        sawNewLine  = 0;
+                        lastNotSpace = 0;
+                        indenting   = 0;
                         break;
                         }
                     }
@@ -175,33 +178,38 @@ String      atReplaceNewline;
         Check indent status to set block boundaries
     ***************************************************************************/
     if !lastINDENT  lastINDENT = indenting;
-    if sawNewLine == ';'    atReplaceNewline = 0;
-    if indenting && indenting != lastINDENT
+    if sawNewLine && indenting != lastINDENT
         if blocking || defining
-            while indenting != lastINDENT
-                if sawNewLine {
-                    atReplaceNewline    = atContent - 1;
-                    if indenting > lastINDENT && lastNotSpace {
-                        if defining
-                            if lastNotSpace != ':'    { *atReplaceNewline  = ':'; }
-                        or blocking
-                            if lastNotSpace != '{'    { *atReplaceNewline  = '{'; }
-                        stacked         = new("stacked");
-                        stacked.count   = lastINDENT;
-                        blockSTAK       += stacked;
-                        lastINDENT = indenting; }
-                    or indenting < lastINDENT && lastNotSpace {
-                        if lastNotSpace
-                            if defining
-                                if lastNotSpace != '>'    { *atReplaceNewline  = '>'; }
-                            or blocking {
-                                if lastNotSpace != '}'    { *atReplaceNewline  = '}'; }
-                                blocking--; }
-                        if stacked = blockSTAK.pop()    lastINDENT = stacked.count;
-                        else                            lastINDENT = indenting; }
-                    or !lastNotSpace        lastNotSpace = 0;
-                    if atReplaceNewline     atContent = atReplaceNewline; }
-                else    break;
+            while indenting != lastINDENT {
+                atReplaceNewline    = atContent - 1;
+                if indenting > lastINDENT && lastNotSpace {
+                    if defining {
+                        if lastNotSpace != ':' {
+                            replaced    = true;
+                            *atReplaceNewline  = ':'; }}
+                    or blocking
+                        if lastNotSpace != '{' {
+                            replaced    = true;
+                            *atReplaceNewline  = '{'; }
+                    stacked         = new("stacked");
+                    stacked.count   = lastINDENT;
+                    blockSTAK       += stacked;
+                    lastINDENT = indenting; }
+                or indenting < lastINDENT && lastNotSpace {
+                    if lastNotSpace
+                        if defining {
+                            if lastNotSpace != '>' || (!indenting && lastNotSpace != ';') {
+                                replaced    = true;
+                                *atReplaceNewline  = '>'; }}
+                        or blocking {
+                            if lastNotSpace != '}' {
+                                replaced    = true;
+                                *atReplaceNewline  = '}'; }
+                            blocking--; }
+                    if stacked = blockSTAK.pop()    lastINDENT = stacked.count;
+                    else                            lastINDENT = indenting; }
+                or !lastNotSpace        lastNotSpace = 0;
+                if replaced     atContent = atReplaceNewline; }
     if atContent > atRuleMark
         {
         beforeSkip  = atRuleMark;

@@ -1,13 +1,10 @@
 include(grammar);
-include(drawing);
+include(unitTests);
 include(utilities);
 include(generate);
-include(unitTests);
 
 search reset stack Grokking Generating Stuff list;
 
-generateCode(testByteCode);
-stop;
 /*****************************************************************************
 	Unit Tests
 *****************************************************************************/
@@ -33,6 +30,7 @@ printDefinition(sumple);
 printDefinition(simple);
 printDefinition(sample);
 stop();
+generateCode(testByteCode);
 
 /*******************************************************************************
 	Test Code Stash

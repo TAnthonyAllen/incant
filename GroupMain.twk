@@ -101,7 +101,6 @@ GroupRules  ruler = groupRules;
     grok            += strap;
     /*************************************************************************
         bootstrap rule definition rules.
-    ANYstring=[^ \n\r\t;]+;
     *************************************************************************/
     strap           = new("Modifier");
     strap           = grok += strap;
@@ -207,6 +206,8 @@ GroupRules  ruler = groupRules;
 
     strap           = grok += new("CodE");
     method          = aCTionCodE;
+    guardSet        = new("{");
+    guarded         = true;
     parseACTION     = true;
     isRule          = true;
     item            = strap += "{";

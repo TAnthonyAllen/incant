@@ -11,7 +11,7 @@
 #include "DoubleLinkList.h"
 #include "PLGrule.h"
 #include "PLGitem.h"
-#include "PLGset.h"
+#include "CharSet.h"
 #include "BaseHash.h"
 #include "Bwana.h"
 #include "PLGtester.h"

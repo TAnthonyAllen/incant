@@ -202,6 +202,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	::modify(item,"}");
 	strap = grok->addMember(new GroupItem("CodE"));
 	strap->setMethod(::aCTionCodE);
+	strap->groupBody->guardSet = new PLGset("{");
+	strap->groupBody->flags.guarding = 1;
 	strap->groupBody->flags.methodType = 2;
 	strap->groupBody->flags.isRule = 1;
 	item = strap->addString("{");

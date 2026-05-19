@@ -1,12 +1,10 @@
-#include "gc/gc_cpp.h"
-
 class GroupItem;
 class GroupStak;
 /*******************************************************************************
 	A skeleton class containing a group list (used in GroupBody)
 *******************************************************************************/
 
-class GroupList : public gc
+class GroupList
 {
 public:
 GroupItem *firstInList;

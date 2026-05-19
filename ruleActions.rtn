@@ -550,7 +550,7 @@ extern GroupItem aCTionSearch(GroupItem input)
 {
 GroupItem   searchLIST = searchList;
 GroupItem   base,
-            grup = input[1];
+            grup;
 int         setStakked;
     while grup = input.next(grup)
         if tag eq "reset"  searchLIST.clearList();
@@ -626,17 +626,8 @@ GroupItem   arg,
             ANYtoken = xpress["ANYtoken"];
     xpress.clear();
     if isGROUP  ANYtoken = group;
-    if UnaryOPS {
-        op  = new("uxp");
-        op  +% UnaryOPS;
-        op  +% ANYtoken;
-        op.method = runOP;
-        op.invoke = true;
-        if InvokeArg ANYtoken = op;
-        else {
-            xpress.group = op;
-            goto endToken; }}
     if !InvokeArg {
+        if UnaryOPS goto handleUnary;
         if registry == groupFields {
             op = opFields["."];
             xpress  +% op;
@@ -651,9 +642,20 @@ GroupItem   arg,
             arg = InvokeArg.lastInList;
             if op.isGROUP   op = op.group;
             if arg.isGROUP  arg = arg.group;
-            xpress  +% op;
-            xpress  +% ANYtoken;
-            xpress  +% arg; }
+            if UnaryOPS {
+                // this happens with two unary ops like: !field.someThing
+                GroupItem xp = new("xp");
+                xp  +% op;
+                xp  +% ANYtoken;
+                xp  +% arg;
+                ANYtoken    = xp;
+                xp.method   = runOP;
+                xp.invoke   = true;
+                goto handleUnary; }
+            else {
+                xpress  +% op;
+                xpress  +% ANYtoken;
+                xpress  +% arg; }}
         else {
             if InvokeArg.fLAG op = opFields["."];
             else    op = falseResult;
@@ -663,6 +665,15 @@ GroupItem   arg,
             xpress  +% ANYtoken;
             xpress  +% arg; }
         xpress.invoke = true; }
+handleUnary:
+    if UnaryOPS {
+        op  = new("uxp");
+        op  +% UnaryOPS;
+        op  +% ANYtoken;
+        op.method = runOP;
+        op.invoke = true;
+        xpress.group = op;
+        goto endToken; }
     if xpress.invoke    xpress.method = runOP;
 endToken:
     return xpress;

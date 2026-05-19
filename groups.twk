@@ -21,7 +21,6 @@ int main(int argc, String **argv)
 {
 GroupMain	crap = new;
 String      name = argv[1];
-GroupRules  ruler = groupRules;
     if name
         {
         GroupItem       boot = bootstrapper();

@@ -1,30 +1,90 @@
+
 /*******************************************************************************
-	Simplifying expressions
+	Documentation Structure
 *******************************************************************************/
-Good morning. Here are the repos you need to review to get up to speed.
-https://github.com/TAnthonyAllen/incant
-https://github.com/TAnthonyAllen/plg
-https://github.com/TAnthonyAllen/support
-https://github.com/TAnthonyAllen/Tawk
+A document would be an incant field (with a document attribute implied or explicit?) containing some or all of the following members sketched out below in incant field form
 
-I have looked over the bible. A few minor concerns. It still mentions the TOK xcode project I said to ignore
+    description="some short descriptive title" title;
+    contents="a list of the sections within";
+    purpose="
+        text describing purpose goes here.
+        note that incant quotes can span multiple lines";
+    tasks has a list of individual tasks like
+        task="multi line text can go here" status;
+    concerns is like tasks but contains a list of
+        concern="short text describing a worry that may not surface
+            but maybe it will so watch for it.";
+    issues is like concerns but each issue describes a well defined problem
+    Sections contains a list of sections (like chapters but may be real short)
+        each section follows the form for a document outlined above, but containing only the outline bits that seem relevant
 
-At around line 339 the bible states when the current state was last updated. That does not concur with what the Apple Finder says (It says changed on May 6. The line says May 5) I assume the line did not get updated when bible was updated. No worries.
+The fields that define a document are not mandatory. So if there are no concerns just leave it out
+And any name can be used for members, not just description,contents,purpose ...
 
-Please remove eRocka from the glossary. That was a one liner best forgotten
+HWF1="HWF on Documentation Strategy — Session Summary" title;
+Origin=
 
-After reviewing the bible, I started to review CLAUDE.md and stopped. md files can drift out of date and what were truths might now be lies. How to fix that? And is it worth fixing? We seem to make do fine as is.
+Session opened with Tony's bottom-line concern: *"I do not think we are getting adequate return on our HWF work, which I find helpful and valuable."*
 
-I fired up the InProcess xcode. It looks good; will be my main xcode project going forward. The only bit that needs work is the PLG bits that are not current. Will need to update them to reflect changes in plg once it settles. I can do that. Tonto can then yaml the InProcess xcode project when time allows.
+Initial framing was "fix HWF." That framing was wrong. Tony reframed mid-session:
 
-FYI: the /Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/XML directory has 12 directories under it. We have only been working with what is in the WorkingOn directory because it contains the current incant input files and a few other related files including the flags file where this note I am typing is currently residing. At some point, Tonto should do a recon thru those files. Most of them will not be relevant until we start working on a GUI. The files are small, most < 50 lines long.
-Follow on background note: my GUI work started out using an xml parser that turned into plg. The XML files in the XML directory are ready to be converted to incant almost as is. The xml files define windows, and like html are all but a language unto themselves invoking C++ methods I would like to turn into incant actions. We just needs incant ready to do what needs be done to make it happen. And what needs be done is a long GUI discussion for another day. If you like we can take a look at one of the files so you can better assess the situation.
+> *"I want to maximize the return on our HWF efforts and include HWF in a documentation strategy that currently does not exist. The point I want to get to is be able to generate documentation in incant. ... The ability to do it from incant means if we want to change how documentation looks or how it is generated, that becomes an incant problem and I want incant to be able to handle it. That way what the documentation looks like is just an incant `printDocument()` action."*
 
-yesterdays HWF discussion was good stuff and I really like where we came out.
+The real goal: **all project documentation generated from incant data, with HWF as one input among several.**
 
-I reread What is Incant? from the incant repo wiki. On re-read it is impressive. Of course, that is with me as audience, talk about preaching to the choir.
-When we finish the plg project we should write a wiki for it too.
+---
 
-We spoke of documenting tawk directives and how they work. No urgent need to dive right in, but lets keep it on our todo list
+## The Reframe (Settled)
 
-Meanwhile, I would like to get Clod working on our task list. So what is our task list. It should be right there in TODO.md
+The destination is incant-generated documentation for the entire project — code documentation, HWF session records, projectBible.md, TODO.md, CLAUDE.md per repo. All of it.
+
+Today's markdown files are source-of-truth. In the destination state, the source-of-truth becomes incant data (GroupItems with documentation-bearing fields), and the markdown files become *output* produced by `printDocument()` walking the incant data.
+
+Implications:
+
+- Editing the bible becomes "modify the incant data" rather than "edit projectBible.md."
+- Cross-repo mirroring becomes a property of rendering rather than a Clod chore.
+- Resurrection-readers consume rendered output, not source markdown.
+
+The Javadoc model is one renderer (`printJavadoc()`), not the model. `printJavadoc()`, `printBible()`, `printHWF()` are siblings — all walking the same documentation data, each shaping output for their target.
+
+/*******************************************************************************
+	My initial notes on Documentation Structure
+*******************************************************************************/
+HWF sections (each section would follow this format
+	section=description w/title attribute which is a style
+	why?
+	tasks has a list of
+		task w/status
+	concerns (worries that are not issues yet)
+	issues
+	Sections
+
+sections in existing HWF
+	Rules of Engagement
+	Resurrection
+	Trim ritual
+	Graduation ritual
+	Sessions status=whatever All the embedded sections just list of bullet points
+		Decisions
+		Definitions
+		Questions
+		Lessons
+		add a section on Coding (impact on code). If we know new methods/actions needed that will go here
+	Glossary
+	Next
+could add a Proof of Pudding section to define/evaluate success. Is it soup yet
+
+style attributes
+	title
+	body
+	bullet
+display attributes
+	bold
+	italic
+	font
+	color
+	…
+other attributes
+	date
+	status

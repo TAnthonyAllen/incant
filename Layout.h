@@ -12,7 +12,6 @@ class GroupItem;
 {
 @public
 GroupItem *base;
-GroupItem *fireDraw;
 GroupItem *selection;
 NSBezierPath *layoutPath;
 NSColor *strokeColor;
