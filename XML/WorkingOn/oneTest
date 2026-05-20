@@ -5,6 +5,12 @@ include(generate);
 
 search reset stack Grokking Generating Stuff list;
 
+generateCode(testEmitBC);
+print testEmitBC.bcLIST:;
+stop();
+
+generateCode(testByteCode);
+stop();
 /*****************************************************************************
 	Unit Tests
 *****************************************************************************/

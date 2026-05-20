@@ -33,9 +33,19 @@ extern GroupItem generateCode(GroupItem field)
         if !processCode(field)  return null;
 GroupItem   BlocK:;
 GroupItem   Lines:;
+GroupItem   generator   = locate("generator");
 GroupItem   generate    = locate("generatE");
+GroupItem   bcLIST      = new("bcLIST");
+GroupItem   genAction   = new("genAction");
+    genAction.group     = field;
+    generator           +% genAction;
+    bcLIST.noPrint      = true;
+    bcLIST.isLocal      = true;
+    field +% bcLIST;
+    generating = true;
     if !generate cerr "generateCode: could not find generatE() action":;
     or Lines    runAction(Lines,generate);
+    generating = false;
     return null;
 }
 

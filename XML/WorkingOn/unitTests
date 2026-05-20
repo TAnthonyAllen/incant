@@ -121,7 +121,12 @@ define
 /*****************************************************************************
 	Working On
 *****************************************************************************/
-    testByteCode code={ if righty > 0; maximus = righty * 2; };
+    testByteCode code={
+        if righty > 0; maximus = righty * 2; };
+    testEmitBC code={
+        emitBC(bcPushLit=5);
+        emitBC(bcMul);
+        emitBC(bcStoreField="maximus"); };
     bracing argument code={
         xp  = argument[1]; };
     ;

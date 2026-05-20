@@ -100,8 +100,12 @@ define
             runGenerated(st);
             print ,-; };
         gIF argument code={
-            print "generate if statement":;
-            **argument;
+            :generator genAction;
+            **genAction;
+            xp  =* argument[1];
+            st  =* argument[2];
+            el  =* argument[3];
+            gXpress(xp);
             };
         gPrinT argument code={
             print "Need to work out how to generate print statement":;
@@ -114,11 +118,16 @@ define
             print ,-; };
         gXpress argument code={
             print "Saw xpress" argument:; };
-    generatE argument code={
-        print :"About to generate":;
-        for field in argument;
-            print "This is what we are generating from" field:;
-            runGenerated(field); };
+        emitBC operand code={
+            :generator genAction;
+            :genAction bcLIST;
+            bcLIST +% operand; };
+        generatE argument code={
+            print :"About to generate":;
+            for field in argument;
+                print "This is what we are generating from" field:;
+                runGenerated(field);
+        };
     /***************************************************************************
         Working on
     ***************************************************************************/
