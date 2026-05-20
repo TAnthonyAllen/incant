@@ -5,6 +5,10 @@ include(generate);
 
 search reset stack Grokking Generating Stuff list;
 
+generateCode(testGXLeaf);
+print testGXLeaf.bcLIST:;
+stop();
+
 generateCode(testEmitBC);
 print testEmitBC.bcLIST:;
 stop();

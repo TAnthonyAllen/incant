@@ -127,6 +127,9 @@ define
         emitBC(bcPushLit=5);
         emitBC(bcMul);
         emitBC(bcStoreField="maximus"); };
+    testGXLeaf code={
+        righty;
+        42; };
     bracing argument code={
         xp  = argument[1]; };
     ;

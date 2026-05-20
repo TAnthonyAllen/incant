@@ -117,7 +117,8 @@ define
             runGenerated(st);
             print ,-; };
         gXpress argument code={
-            print "Saw xpress" argument:; };
+            if argument.isLiteral;  emitBC(bcPushLit=argument);
+            else                    emitBC(bcPushField=argument); };
         emitBC operand code={
             :generator genAction;
             :genAction bcLIST;
