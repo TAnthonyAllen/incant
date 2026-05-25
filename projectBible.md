@@ -103,6 +103,50 @@ A GroupItem is incant's universal data structure: every value, every rule, every
 
 Generators are incant's parse-tree-walking machinery: they traverse GroupItems and produce output. Output can be text or GroupItems, depending on call context. The same generator infrastructure can power C++ code emission, bytecode emission, or whatever future targets emerge.
 
+### Incant Field Semantics
+An incant field is declared in C++ as a pointer to a field, but does not behave as a C++ pointer. Assignment (`A = B`, opAssign) copies B's content into A; A and B remain distinct fields. The pointer-shaped storage is structural — it makes field-passing uniform across all data types and keeps the GroupItem-as-universal-shape claim concrete — but field operations have value-content semantics, not pointer-alias semantics.
+
+Two assignment operators with distinct meanings:
+- **`=` (opAssign)** — value-copy. Sets A's content to B's content. A and B remain distinct.
+- **`:=` (opSetGroup)** — group-binding. Different structural operation; preserves binding to the group rather than copying values out.
+
+Consequences this shapes:
+- Field accessors like `field.taG`, `field.texT`, `field.next` return *temporary text-snapshots*, not aliases. Mutating the returned thing doesn't touch the original. Identity comparisons (`X.taG == Y.taG`) compare text content, not field identity. Each access produces a fresh temporary.
+- Some operations read the bound-group's "view" of content; others read the pointer-target's intrinsic state. When two incant operations on the same data give different answers (e.g., dumpBC walks children, but listLengtH says no list), the question is "which is reading what" — both can be correct within incant's semantics, and the divergence is signal.
+- Distinguishing pointer-substrate from value-semantics is the load-bearing skill for anyone (Tony, Claude, Clod) reasoning about incant at the C++ implementation level. This is a substantively different language semantics than C++ even though the implementation is in C++.
+
+This was a substantial design challenge — the parser has to do semantic work that conventional parsers can defer, because incant's meaning of "bind, assign, reference" is non-orthogonal to its syntax. C++ training prepares one for pointer-alias semantics; incant requires unlearning that and reading expressions through the value-content lens.
+
+### Name Resolution and Base Registries
+Bare references in incant code (writing `getFile` or `'>'` or `bcCALL`) resolve through a registry walk. Resolution order:
+
+1. **Current registry** (set globally via `register(name)` or `define name registry ...;`)
+2. **searchList** (user-controllable working set, maintained via the `search` command — e.g., `search reset stack Grokking Generating Stuff list;`)
+3. **Base registries** (always searched; six entries set in C++):
+   - `properties` (pROPERTIEs) — mirrors of GroupRules fields, accessible from incant
+   - `opFields` — operators (also referenced as `Operators` in incant source; same registry, two names)
+   - `commands` — command-style primitives like getFile, defer, isList
+   - `files` — file-related field registry
+   - `keyWords` — parse-reserved names
+   - `groupFields` — field-name registry
+
+The base-registry property is what makes bare-name lookup universal — anywhere in incant code, `getFile(filename)` works without qualification. The lookup mechanism lives in aCTionNamE (ruleActions.rtn:388) via `locateInMethod()`.
+
+For operators with non-alpha names, single quotes are used to look up the operator as data: `field = '>'` sets field to the `>` operator. `field = '+'` without quotes would invoke the operator. Single-quote form means "treat this as a name lookup, not as the operator itself in expression position."
+
+currentRegistry is a global; both setters (`register()` and `define name registry`) set it for the rest of the file or session until changed again. No automatic scoping.
+
+### Attributes with Methods — Two Patterns
+Any attribute can have a method. How the method is used distinguishes two patterns:
+
+**Setter-attribute pattern.** Attribute has `noPrint=true` and `immediateACTION=true`. When aCTionDefinE (ruleActions.rtn:137) processes a definition's attributes, it dispatches setter-attributes through their method — running the method with the defining-field as context, with `fLAG=true` so the method knows it's being called from a definition. After running, the attribute itself is discarded. The method's purpose was to set state on the parent field. Example: `operateMethod=opGT` in an Operators entry sets `op.method = opGT` and disappears; the op itself becomes callable as `op.method(...)`.
+
+**Persistent attribute with method.** Method exists on the attribute, but doesn't fire automatically. To use it, the attribute is accessed and its method called explicitly: `attribute.method(arg)` or `attribute.method(attribute)`. Example: `interpret` sub-attribute on bcOPs entries (if it has a method) is invoked explicitly by the bytecode interpret() loop rather than firing during definition.
+
+The discriminator is `noPrint && immediateACTION`. With both flags set, the attribute is a setter and is discarded after firing. Without them, the attribute persists with whatever method it has.
+
+This distinction matters when reading registry definitions — a definition that looks like `field someAttr=someValue` may either (a) configure the field at definition time and disappear (setter), or (b) leave someAttr as a sub-attribute available for later use (persistent). Knowing which is which requires either looking at the source definition's attribute declarations (does someAttr carry noPrint+immediateACTION?) or knowing the pattern from project conventions.
+
 ### Support Classes (in support/Frame, sister citizens)
 - **PLGset** — parser-rule set class. Uses `inSet[256]` representation. Lives in support/Frame as of 2026-05-14 (commit 8223af6), resolving months of source-of-truth ambiguity.
 - **CharSet** — character-set utility. Same `inSet[256]` representation. Sister of PLGset.
@@ -400,6 +444,8 @@ See HWF.md for active session content. Bible carries the index so resurrection-r
 
 **Findings, not failures**: Clod's execution-side discipline of surfacing observations rather than treating them as recovery from setbacks. Clay matches the tone from the design side — when Clod surfaces a finding, Clay treats it as the system working correctly, not as a problem to recover from. The discipline collapses if either side breaks it; today it holds because both sides hold it.
 
+**Bones-verification over shape-reading (2026-05-24 pinning)**: Verification means what the bones show — actual trace output, actual emit chains, actual bcLIST contents — not what shape-reading of source predicts. "Appears to work" is not the same as "bones-confirmed." Phase Bytecode caught us three times in one week with the same trap: testGXLeaf passing via leaf-fallthrough coincidence (2026-05-22), "works as intended" overnight not surviving Brief 3 verification (2026-05-23→24), and bcLIST `single field xp` symptom masked by emit lines visible in trace (2026-05-23). The pattern: a path through the code that produces apparently-correct surface output without exercising the intended mechanism. Discipline: when Brief verification fires, run the actual tests under all relevant conditions and dump the actual state. Shape-reading is a first pass, not a verification.
+
 **End-of-session ritual**: Clay drafts bible + TODO, Clod pushes to all 4 repos. Before every Goodnight Gracie. Cross-doc consistency check is part of the draft pass: bible index ↔ HWF.md trims ↔ TODO session references ↔ Priority Plan phases all agree, or discrepancies are surfaced and resolved before sign-off (resurrection-reader sanity check, lightweight version). Tony optionally leads on a "how did the cha cha work today" beat as the session closes.
 
 **Resurrection-reader standard**: All .md files in this project (bible, HWF.md, TODO, CLAUDE.md, jit.md, etc.) must make sense to fresh-Claude reading them cold tomorrow with no memory of today. The .md files exist to make resurrection work — *Claude* reads them as the day's starting move, not Tony. That asymmetry shapes how the files are written: for Claude/Clod's resurrection, not for Tony's review. See HWF.md preamble for the full statement.
@@ -408,8 +454,35 @@ See HWF.md for active session content. Bible carries the index so resurrection-r
 
 ---
 
-## Current State (last updated: May 19 2026)
+## Current State (last updated: May 25 2026)
 
+**Deltas since previous mark (May 24):**
+- Phase Bytecode major progress 2026-05-24 evening through 2026-05-25 morning. Five fixes (Tony offline): recursion handling in TokenXP, local field cleanup timing in processAction, aCTionStatemenT gText routing for statement-body dispatch, Operator-registry back-link, GC cleanup (four stray deletes removed). gXpress simplified end-to-end and tested on testByteCode in isolation.
+- Clod's 2026-05-25 verification run surfaced six tar babies: sequential state corruption between generateCode calls (Tar 1, active blocker), gXpress assignment operator-asymmetry (Tar 5), parse-time constant folding during generation (Tar 3), numeric-literal classification (Tar 4), stale header comment (Tar 6). Plus gXpress simplification cleanup (Operators[X] → bare 'X').
+- Morning 2026-05-25 architecture recon. Bible Architecture gains two entries: Name Resolution and Base Registries (six base registries, resolution order, single-quote convention for non-alpha lookups), and Attributes with Methods Two Patterns (setter-attribute vs persistent-attribute distinction, the noPrint+immediateACTION discriminator). Both surfaced from reading ruleActions.rtn and GroupActions.rtn directly.
+- Design note for bcOPs-fold-into-opFields drafted at Groups/docs/bcOPs-fold-design.md. Rationale: base-registry property makes bytecode markers bare-findable (anywhere in incant code, `bcCALL` resolves without qualification). Implementation deferred.
+- Mutual-recursion gap surfaced (A→B→A not detected by current recursive-flag mechanism) — flagged for future structural fix via Stak-based call-stack.
+- Tony status-report convention pinned in TODO standing practices (issues, design changes, follow-ups, files changed).
+
+**Deltas since previous mark (May 23):**
+- Three overnight bug fixes 2026-05-24 (Tony work): runAction double-unwrap removed, printField zero-result handler added, bcLIST linkage fix (group-binding rather than setContent copy).
+- First invokE-gating attempt broke runGenerated dispatch (lazy-parse of generator bodies under global flag). Refactor 2026-05-24: `generating` moved from GroupRules global to GroupBody per-action, set in generateCode against the action being generated, checked by TokenXP and ExpressioN via currentMETHOD. Dispatch restored.
+- Brief 3 verification advanced but not closed. bcLIST linkage fix effect visible in testByteCode (six entries) but NOT in testEmitBC or testGXLeaf (still `single field xp`) — asymmetry across the three tests is the new finding. Two open questions parked for Tony: isLiteraL=1 on operator Tokens, bcLIST scope-resolution asymmetry inside-vs-outside for-loop body.
+- New Working Relationship pinning: Bones-verification over shape-reading. Three lucky-coincidence-trap instances this week made it a pattern worth pinning durable.
+- Wiki first-pass restructure landed 2026-05-24: What-Is-Incant page reordered (bootstrap → Appendix B, For the Nerds → Appendix A, JSON/YAML moved earlier). Weekly cadence proposed.
+- Cha-cha practice update: finding-location reporting refined. Clod's reports include file/method/line/conditions for generator-side findings. C++ archaeology stays in Tony's lane unless delegated.
+
+**Deltas since previous mark (May 22):**
+- Phase Bytecode Brief 3 verification advanced 2026-05-23 but not closed. gXpress Option A descent landed (walks Tokens, recurses operator branches via `Operators[X]` lookup, falls through to leaf-emit). testGXLeaf and testEmitBC produce expected emit traces; testByteCode parked on listLengtH question — `if argument.listLengtH;` returns falsy on `:=`-extracted xp values that dumpBC clearly walks as multi-child lists. Three `**` breakpoints planted; Tony to inspect after-hours.
+- runAction unwrap-at-parse-time bug fixed 2026-05-23 (Tony work). Runtime now binds argument after code parse rather than before. Doesn't fully solve runGenerated (residual `dummy = argument` hack at lines 201-205 still in play).
+- ifTest modified 2026-05-23 to exercise gXpress-shape nesting (outer if/or/else around inner if/or/or/else inside for-loop). Durable test-suite value.
+- New bible Architecture entry: Incant Field Semantics. Pointer-shaped storage with value-content semantics; `=` vs `:=` distinction; consequences for accessors and operation-divergence. Foundational concept; several incant idioms follow from it.
+- Six incant style/semantics idioms surfaced and pinned in TODO for eventual incant-idioms.md draft.
+
+**Deltas since previous mark (May 19):**
+- Three incant-machinery investigations resolved 2026-05-22 (Tony after-hours): righty/isLiteraL incomplete definition, opDot redundant unwrap, ElsE missing rowradr declaration. Brief 3 verification now unblocked.
+- Incant bytecode short-doc landed atop XML/WorkingOn/generate (2026-05-22) — structure, registries, emit-side mechanics, contrast vs. standard bytecodes. Surfaces the bcPushLit/bcPushField/bcStoreField/bcMul registration gap explicitly.
+- incantGUI Xcode-target name now glossed as vestigial; rename added to TOK Xcode housekeeping line.
 **Deltas since previous mark (May 15):**
 - **Session 9 closed and graduated (2026-05-18 / 2026-05-19).** plg gained the incant idiom in two places it didn't have it: parse debug machinery via tok directives on named hook sites in PLGrule::match + Alternative::match (Track A), and rule actions via labels-as-locals shorthand with .act files repurposed as splice-verbatim content (Track B). Testing.g → Testing.twk → Testing.C → Testing.o pipeline works. PLGitem grew `getLabel(name)` accessor; PLGrule grew four hook sites + a debug field; IncludeplgNow routes by extension; generateRules emits the new file shape `[includes] [externs] [.act splice] [class <BaseName> extends PLGparse { setRules() }]`. 21 commits across four repos. Trim at `Parse/HWFattic/session9plgDebugAndActions.md`; working-level plan at `Parse/docs/Session9plan.md`.
 - **Bible item #12 (trap pattern) earned its keep in real-time** — documented 2026-05-17, fired and caught 2026-05-18 during Session 9 Brief 7. Real-instance note in Housekeeping.
@@ -508,6 +581,10 @@ incant POP: runs to completion, test action fires end-to-end
 - **Bonfire** — retired code.
 - **Attic** — commented-out code. Findable. (Distinct from HWFattic.)
 - **HWFattic** — directory for graduated HWF session trims. Lives at `Parse/HWFattic/`. When a session closes, its trimmed/condensed form lands here for archival.
+- **incantGUI** — name of the current Xcode target that builds the incant CLI
+  binary (`~/bin/incant`). Vestigial: from when GUI work was active. GUI work is
+  out of scope for the current phase arc. Read as "the incant build target"
+  until rename lands. Tracked in TODO Housekeeping (TOK Xcode project line).
 - **Clay** — Claude at claude.ai.
 - **Clod** — Claude Code. Not disparaging.
 - **do the needful** — Hinglish. Standing instruction.
@@ -515,6 +592,11 @@ incant POP: runs to completion, test action fires end-to-end
 - **The cha cha** — Clay designs, Clod executes, Anthony architects.
 - **Tar baby** — problem that gets stickier. Avoid.
 - **Resurrection-reader** — fresh-Claude reading the .md files cold tomorrow with no memory of today. The audience all project documentation must serve.
+- **rowradr forward declaration** — incant grammar pattern: rules referenced
+  before their full definition need a `rowradr` forward declaration. The
+  2026-05-22 if/or/else fix was an instance — ElsE was used inside ElseIf
+  before being fully defined, surfacing as a malformed three-way chain.
+  Cousin of plg ordering issues.
 - **Generators** — incant's parse-tree-walking machinery. Hashed dispatch on tag (`generator gBlocK`, `generator gIF`, etc.). Output can be text or GroupItems, call-context-driven. Lives in Generate.rtn. The active code surface for Phase Bytecode.
 - **Clod working states** — Nebulizing, Gallivanting, Zesting, Swirling, Fiddling, Moonwalking, Forging, Bebopping, Topsy turving, Embellishing, Churning, Pouncing, Reticulating, Baking, Puttering, Blanching, Catapulting, Percolating, Tempering, Stewing, Tinkering, Coalescing, Transfiguring, Cooking, Razzmatazzing, Frolicking, Kneading, Fiddle-faddling, Cerebrating, Galloping, Forging sigils, Flibbertigibbeting, Transmuting, Philosophising, Shoveling coal, Sketching, Scaffolding, Frosting, Hatching, Humping, Bamboozling, Clauding, Smooshing, Wondering, Boondoggling, Swooping, Shenaniganing, Tomfoolering, Inferring, Pollinating, Combobulating, Waddling, Accomplishing, Catapulting.
 - **Tonto** — Clod's highest working state. Scout mode: read-only reconnaissance, holds the perimeter, reports cleanly, doesn't touch anything, doesn't get lost, doesn't gallivant. Distinguished by disciplined restraint. "Tonto goes in alone, kemosabe stays at the campfire."
