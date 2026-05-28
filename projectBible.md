@@ -287,6 +287,7 @@ When a grammar rule contains inline `( A | B )` syntax, PLG decomposes it into a
 9. **No include search paths** — all includes must be absolute paths.
 10. **TAWK iteration trap** — `for` loop already advances. Never add manual advance inside body.
 11. **TAWK Directives** — debug injection without source pollution. `tawk filename directiveFile`. Directive files exist for PLG, Incant, TAWK. Use BEFORE adding print statements to source.
+    **tok directives are insert-only.** A directive can splice code at a named hook site (a tok-recognizable goto label). It cannot replace or delete existing generated code. Consequence: directives are an *instrumentation* mechanism (additive observation — debug prints, tracing) not a *development* mechanism (real source edits replace and delete as much as they insert). This ceiling motivates the incant-directives-for-development design (see TODO held finding): incant directives, to serve development, must support replace and delete, which is span/extent addressing rather than point addressing. Surfaced 2026-05-28 during GroupRules round-trip — 24 of 40 .mm hunks had deletions that no directive could carry.
 
 ---
 
@@ -454,7 +455,12 @@ See HWF.md for active session content. Bible carries the index so resurrection-r
 
 ---
 
-## Current State (last updated: May 25 2026)
+## Current State (last updated: May 28 2026)
+
+**Deltas since previous mark (May 26):**
+- **GroupRules.twk restored as source of truth (2026-05-28).** The 2026-05-26 hand-edits to GroupRules.mm are now fully reproducible from a bare `tok GroupRules.twk`. Path: triage revealed ~37 of 40 .mm hunks were regeneration lag (the .rtn includes were already ahead of the stale .mm), not porting work. Only `applyDirectives` and `spliceDirectives` were genuinely .mm-only — hand-authored directives infrastructure that had never been added to source. Both moved into `Instruct.rtn` as native tawk; external decls added to `Include/groups.ext`; the `+=` DiR dispatch hook landed in `opPlusEQ` as clean tawk (`if !compare(head(argument.tag,3),"DiR")` generating the tag-match that routes directive-tagged arguments to `applyDirectives`). Debug printf/breakpoint scaffolding stripped from source (transient, re-injectable via `groupDirectives`). Verified: GroupRules.mm now fully derivable from source; only cosmetic emit-order residual remains.
+- **The directive round-trip route was explored and set aside as unnecessary for this task.** Original plan was to capture the .mm changes as tok directives and prove `.twk + directives → .mm` idempotently. Triage showed the changes already lived in .rtn source — the elegant route wasn't needed. The exploration was not wasted: it surfaced the insert-only finding below.
+- **tok directives are insert-only — no replace, no delete (2026-05-28).** Confirmed during the GroupRules triage: 24 of 40 .mm hunks had deletions, which no tok directive can express. Insert-only is sufficient for instrumentation (debug-print injection at hook sites — Session 9's use, Directive Feature A's model) but is a hard ceiling for using directives to carry development changes (refactors, behavior edits, replacements). Belongs in the directive-mechanism awareness cluster (cousins of bible #12 positional-arg trap and #13 hook sites; relates to TAWK Known Issues #11 TAWK Directives).
 
 **Deltas since previous mark (May 24):**
 - Phase Bytecode major progress 2026-05-24 evening through 2026-05-25 morning. Five fixes (Tony offline): recursion handling in TokenXP, local field cleanup timing in processAction, aCTionStatemenT gText routing for statement-body dispatch, Operator-registry back-link, GC cleanup (four stray deletes removed). gXpress simplified end-to-end and tested on testByteCode in isolation.

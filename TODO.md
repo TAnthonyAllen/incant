@@ -6,6 +6,28 @@
 
 ## Tomorrow's wake-up
 
+**Incant Directives v1 SHIPPED (green) — 2026-05-27 (Clod/Tony/Clay session):**
+- Three-state POP passed (active prints / inactive silent / re-apply idempotent), plus
+  `at=ending` and multi-directive composition. No `oneTest` regression. Mechanism:
+  `target += DiRfoo` → `opPlusEQ` (DiR-prefix) → `applyDirectives` (registers in a `DiRs`
+  list, idempotent) → `spliceDirectives` (moves the directive's statements into the
+  target's cached BlocK, front/back per `at`). Full status: `docs/incant-directives-v1-status.md`.
+- **⚠️ Code is hand-applied in `GroupRules.mm`+`.h` only, NOT in `.rtn` sources. Re-toking
+  `GroupRules.twk groupDirectives` WIPES it.** Proven copies at `BeforeSave/*.directives-proven`.
+  Do not re-tok GroupRules.twk until the durability decision is made.
+- **Next tasks (deferred deliberately, end-of-session):**
+  1. Durability decision — fold to `.rtn` source (post-POP graduation; blocked on whether
+     `spliceDirectives`'s node fields `nextInParent`/`parent`/`firstInList` are `.rtn`-expressible
+     — needs a tok probe) **vs** express as a dev directive (Tony's emerging idempotent-dev model,
+     which would survive re-tok and keep source clean). Tony's new working-model note bears here.
+  2. `DiR`-prefix ⟺ no-method invariant in `aCTionDefinE` (not yet added).
+  3. Multi-target: directives are currently single-target (statements moved, not deep-copied; the
+     copy ctor drops `instructType`). Fix = deep-clone preserving `instructType` or fix copy ctor.
+  4. Named-hook v1.1 (`// <label>` scan); incant-native port (gated on #1's node-access answer).
+- Key runtime findings banked in Clod memory + status doc: executed BlocK is cached (not rebuilt
+  every run); `getLabelGroup` dereferences to the real statement group; `addGroup` copies a parented
+  node and the copy loses `instructType`.
+
 **Current state (mid-2026-05-25 PM, Phase Bytecode arc — Brief 3 verification close but not closed):**
 - **Phase Bytecode major progress 2026-05-24 evening through 2026-05-25 morning.** Five distinct findings closed (Tony offline work):
   - Recursion handling fixed in TokenXP — was silently broken because the recursive flag was being set in the wrong place after refactors. Self-recursion now sets the flag correctly. Mutual recursion (A→B→A) still NOT handled — see reentrancy arc below.
@@ -60,6 +82,31 @@ Named 2026-05-25. Three distinct cases got conflated in earlier work; pinning th
 Naming this as a single arc keeps the layers from being treated as unrelated work. Each one moves us closer to the others. Each one earns its keep on its own (Layer 1 unblocks Brief 3, Layer 2 unblocks robust mutual recursion, Layer 3 unblocks directives B).
 
 **Cross-layer family resemblance.** The bcLIST-wiring and tempField-bleed findings from Clod's 2026-05-25 morning run are evidence of "shared mutable state surviving across action invocations" — which is the family pattern all three layers address differently. Each layer has its own trigger (sequential top-level calls for Layer 1, mutual recursion for Layer 2, hot-patching live actions for Layer 3) and its own fix (push/pop generator state, Stak-based call-stack, governance doctrine with reentrancy prerequisite). The findings themselves are Layer 1 evidence; the family-resemblance is what makes "reentrancy arc" useful as a frame. When Layer 2 picks up, design work includes how Layer 1's push/pop and Layer 2's Stak-stack interact.
+
+---
+
+## Development directives need replace/delete — buffer span vocabulary is the substrate
+
+*Held finding (2026-05-28). Filed so it doesn't evaporate. Not opened as HWF; arc opens when directive work moves past Feature A. Buffer-span-vocabulary is Phase 1.*
+
+**The arc, both ends:**
+- **Morning (offline, parked):** buffer/string manipulation — incant can append a field to a buffer but cannot insert a string at an arbitrary point; Buffer has the machinery (`insertIntoBuffer`, `setMark`, `getMarkedString`) but incant can't reach it. Sketch: `setMark` with optional offset, find-string-in-buffer-set-mark, `insertAtMark(GroupItem field)`, remove-at-mark. The pattern: teach Buffer what an incant field is, add incant extern methods to support classes (mirrors Session 9's plg-side support-class extern pattern).
+- **Evening (2026-05-28 session's finding):** tok directives are insert-only; development directives (the thing we want — directives that carry real source changes) need replace and delete; replace = remove-span + insert; that is span/extent addressing, not point addressing.
+
+**The convergence:** the buffer span vocabulary (set mark, find span, insert, remove) IS the operation set development directives need. Buffer-knows-what-an-incant-field-is externs ARE the bridge a directive-written-in-incant would call to edit an artifact. The morning's parked buffer work is the foundation layer for development directives, not isolated ergonomics. Same span-vs-point addressing question at two levels.
+
+**Stack, bottom-up:**
+1. Buffer gains span vocabulary + incant-field externs (Tony's next offline task).
+2. incant directives gain replace/delete, expressed as buffer span ops on the artifact (in incant).
+3. Idempotent development — directives have the full edit vocabulary, source changes capturable as reproducible transformations.
+
+**Idempotent-programming through-line:** the goal is source changes expressible as reproducible transformations so the artifact is derivable from `source-plus-transformation`. Hard parts are not the replace operator itself but: edit-vocabulary closure (tractable), determinism (tok mostly has it), and composition/conflict semantics (the tar — overlapping replace/delete spans need resolution; "last wins" or "overlap is error" are legitimate small answers). incant is well-positioned because GroupItem-as-universal-shape and code-is-data mean "transformation over source" is incant operating on incant — homoiconicity cashing out as a practical capability rather than a philosophical claim.
+
+**One leftover feeds the next task:** the DiR dispatch landed clean 2026-05-28 via `head(argument.tag,3)`, but the broader string-matching idiom (`beginsWith` / tag-matching) is exactly what the offline buffer/string pass will design properly. The string facility is the common dependency under both the leftover idiom and the development-directive substrate.
+
+**Not opened as HWF now.** Directive Feature A (insert-only, load-time instrumentation) ships as-is and needs none of this. This arc opens when directive work moves past Feature A, with buffer-span-vocabulary as Phase 1.
+
+---
 
 **Reading targets:**
 - `Groups/` — incant repo root. Phase Bytecode work lives here.
@@ -341,6 +388,7 @@ Random or in-flight .md files land in `Groups/docs/` (the Incant repo docs/ dire
 
 ### Recent (2026-05)
 
+- [x] **GroupRules.twk restored as source of truth (2026-05-28)** — 2026-05-26 .mm hand-edits now fully reproducible from bare `tok GroupRules.twk`. Triage: ~37/40 hunks were regeneration lag (.rtn already ahead of stale .mm); 2 functions (`applyDirectives`, `spliceDirectives`) moved .mm→Instruct.rtn as native source; `groups.ext` externs added; `+=` DiR dispatch landed in `opPlusEQ` (`head(argument.tag,3)` match → `applyDirectives`); debug scaffolding stripped to `groupDirectives`. Directive round-trip route explored, set aside as unnecessary (changes already in .rtn). Surfaced the tok-directives-insert-only finding.
 - [x] **Wiki first-pass restructure (2026-05-24)** — What-Is-Incant page revised: bootstrap section moved to Appendix B with framing intro, For the Nerds moved to Appendix A, JSON/YAML progression moved earlier in the flow (placed right after Foundation: What Is a Field?). The reflexive/homoiconic incant-grammar example folded into "What Is a Rule?" where it earns its place. Tone preserved. Weekly cadence proposed for ongoing wiki refinement. Features+working-examples list as next destination (rather than single illustrative program). Pushed to incant.wiki by Clod 2026-05-24.
 - [x] **Per-action `generating` flag (2026-05-24, Tony work)** — Refactored from GroupRules global to GroupBody per-action. Set in generateCode() against the action being generated; TokenXP and ExpressioN actions check via currentMETHOD. Fixes the dispatch regression caused by the first gating attempt (which broke runGenerated because lazy parses of generator method bodies happened under the global flag). Clean fix; no other implementation changes needed.
 - [x] **Three overnight bug fixes (2026-05-24, Tony work)** — runAction double-unwrap removed (runOP already unwraps); printField zero-result handler (substitutes falseResult global); bcLIST linkage fix (bcLIST.group points at the real bcLIST rather than setContent copy).
