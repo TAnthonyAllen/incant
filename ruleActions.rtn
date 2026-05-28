@@ -204,6 +204,9 @@ use NewGroup
             grup.isLocal    = true;
             grup.noPrint    = true;
             grup.group      = NewGroup;
+            grup            = NewGroup += "tempField";
+            grup.isLocal    = true;
+            grup.noPrint    = true;
             if isMacro {
                 CodE.gText++;
                 CodE.gCount     -= 2;
@@ -345,8 +348,7 @@ int         restrict;
         String restriction = LoopRestrict.text;
         if restriction eq "attributes"  restrict = 1;
         or restriction eq "members"     restrict = 2; }
-    if ExpressioN.isMethod  LoopOn = ExpressioN.gMethod(ExpressioN);
-    else                    LoopOn = ExpressioN;
+    LoopOn = ExpressioN;
     while LoopOn.isGROUP    LoopOn = LoopOn.group;
     LoopRestrict    = lastREF.group;
     while grup = LoopOn.next(grup) {
@@ -391,13 +393,13 @@ GroupRules  ruler = groupRules;
 GroupItem   action = currentMETHOD;
 GroupItem   result;
 String      arg = input.text;
-    if result = locateInMethod(arg) {
-        if processingCode && result != action && !action[arg]   result = action +% result; }
-    or currentRegistry == opFields || alphaSet.contains(*arg) {
-        result = new(arg);
-        if processingCode {
-            result      = action +% result;
-            isLocal     = true; }}
+    result = locateInMethod(arg);
+    if !result
+        if currentRegistry == opFields || alphaSet.contains(*arg) {
+            result = new(arg);
+            if processingCode {
+                result      = action +% result;
+                isLocal     = true; }}
     input.group = result;
     return input;
 }
@@ -475,12 +477,15 @@ String      body = text;
 use input
     clear();
     quoteBody.clear();
-    if strlen(body) == 1     character = *body;
-    else    text = body;
     if tik.gText != '"'
         if tik = opFields[body] group = tik;
-        else    isLiteral = true;
-    else    isLiteral = true;
+        else {
+            if strlen(body) == 1     character = *body;
+            else    text = body;
+            isLiteral = true; }
+    else {
+        text = body;
+        isLiteral = true; }
     return  input;
 }
 
@@ -522,13 +527,10 @@ GroupItem   argument,
 ***************************************************************************/
 extern void aCTionScopeXP(GroupItem input)
 {
-GroupRules  ruler = groupRules;
 GroupItem   action = currentMETHOD,
             field,
             listItem,
-            localField,
             lookin,
-            source,
             scopeList:,
             grup;
     while listItem = scopeList.next(listItem) {
@@ -536,11 +538,14 @@ GroupItem   action = currentMETHOD,
         else    grup = listItem;
         if !lookin  lookin = grup;
         else {
-            if isCOUNT  field = action[gCount];
-            else        field = action[tag];
-            if localField = field
-                if source = lookin[tag] localField.group = source;
-                else        localField.clearData(); }}
+            if isCOUNT  field = lookin[gCount];
+            else        field = lookin[tag];
+            if field    grup = action[field.tag];
+            if !grup {
+                grup = new(field.tag);
+                grup.isLocal = true;
+                action  +% grup; }
+            group = field; }}
 }
 
 /*******************************************************************************
@@ -611,6 +616,12 @@ GroupItem   sourceFile = new("sourceFile");
         GroupItem   statement = input;
         if isGROUP  statement = group;
         if method   return method(statement); }
+    or generating && !input.gText
+        if input.isGROUP {
+            GroupItem xpStatement = input.group;
+            input.clear();
+            input.text  = "gXpress";
+            input   +% xpStatement; }
     return input;
 }
 
@@ -619,6 +630,7 @@ GroupItem   sourceFile = new("sourceFile");
 *******************************************************************************/
 extern GroupItem aCTionTokenXP(GroupItem xpress)
 {
+GroupRules  ruler = groupRules;
 GroupItem   arg,
             op,
             UnaryOPS:,
@@ -657,7 +669,7 @@ GroupItem   arg,
                 xpress  +% ANYtoken;
                 xpress  +% arg; }}
         else {
-            if InvokeArg.fLAG op = opFields["."];
+            if InvokeArg.fLAG op = opFields["=["];
             else    op = falseResult;
             if InvokeArg.isGROUP arg = InvokeArg.group;
             if !arg arg = InvokeArg;

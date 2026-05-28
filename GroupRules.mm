@@ -281,7 +281,6 @@ GroupItem 	*item = 0;
 		/***********************************************************************
 		Process Attributes.
 		***********************************************************************/
-		::printf("aCTionDefinE: %s %d\n",NewGroup->groupBody->tag,ruler->lastIndent);
 		if ( Attributes )
 			while ( item = Attributes->next(item) )
 				if ( item->groupBody->flags.noPrint && immediateACTION(item->groupBody->flags.methodType) )
@@ -333,6 +332,9 @@ GroupItem 	*item = 0;
 			grup->groupBody->flags.isLocal = 1;
 			grup->groupBody->flags.noPrint = 1;
 			grup->setGroup(NewGroup);
+			grup = NewGroup->addString("tempField");
+			grup->groupBody->flags.isLocal = 1;
+			grup->groupBody->flags.noPrint = 1;
 			if ( NewGroup->groupBody->flags.isMacro )
 				{
 				CodE->groupBody->gText++;
@@ -485,9 +487,7 @@ int 		restrict = 0;
 		if ( ::compare(restriction,"members") == 0 )
 			restrict = 2;
 		}
-	if ( isMethod(ExpressioN->groupBody->flags.instructType) )
-		LoopOn = ExpressioN->groupBody->gMethod(ExpressioN);
-	else	LoopOn = ExpressioN;
+	LoopOn = ExpressioN;
 	while ( isGROUP(LoopOn->groupBody->flags.data) )
 		LoopOn = LoopOn->getGroup();
 	LoopRestrict = ruler->lastREF->getGroup();
@@ -558,21 +558,17 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*action = ruler->currentMETHOD;
 GroupItem 	*result = 0;
 char 		*arg = input->getText();
-	if ( result = GroupControl::groupController->locateInMethod(arg) )
-		{
-		if ( ruler->processingCode && result != action && !action->get(arg) )
-			result = action->addAttribute(result);
-		}
-	else
-	if ( ruler->currentRegistry == ruler->opFields || ruler->alphaSet->contains(*arg) )
-		{
-		result = new GroupItem(arg);
-		if ( ruler->processingCode )
+	result = GroupControl::groupController->locateInMethod(arg);
+	if ( !result )
+		if ( ruler->currentRegistry == ruler->opFields || ruler->alphaSet->contains(*arg) )
 			{
-			result = action->addAttribute(result);
-			result->groupBody->flags.isLocal = 1;
+			result = new GroupItem(arg);
+			if ( ruler->processingCode )
+				{
+				result = action->addAttribute(result);
+				result->groupBody->flags.isLocal = 1;
+				}
 			}
-		}
 	input->setGroup(result);
 	return input;
 }
@@ -660,14 +656,19 @@ GroupItem 	*quoteBody = input->getLabelGroup("quoteBody");
 char 		*body = quoteBody->getText();
 	input->clear();
 	quoteBody->clear();
-	if ( ::strlen(body) == 1 )
-		input->setCharacter((char)*body);
-	else	input->setText(body);
 	if ( *tik->groupBody->gText != '"' )
 		if ( tik = GroupControl::groupController->groupRules->opFields->get(body) )
 			input->setGroup(tik);
-		else	input->groupBody->flags.isLiteral = 1;
-	else	input->groupBody->flags.isLiteral = 1;
+		else {
+			if ( ::strlen(body) == 1 )
+				input->setCharacter((char)*body);
+			else	input->setText(body);
+			input->groupBody->flags.isLiteral = 1;
+			}
+	else {
+		input->setText(body);
+		input->groupBody->flags.isLiteral = 1;
+		}
 	return input;
 }
 
@@ -713,13 +714,10 @@ GroupItem 	*rule = input->get(1);
 ***************************************************************************/
 extern "C" void aCTionScopeXP(GroupItem *input)
 {
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*action = ruler->currentMETHOD;
+GroupItem 	*action = GroupControl::groupController->groupRules->currentMETHOD;
 GroupItem 	*field = 0;
 GroupItem 	*listItem = 0;
-GroupItem 	*localField = 0;
 GroupItem 	*lookin = 0;
-GroupItem 	*source = 0;
 GroupItem 	*scopeList = input->getLabelGroup("scopeList");
 GroupItem 	*grup = 0;
 	while ( listItem = scopeList->next(listItem) )
@@ -731,12 +729,17 @@ GroupItem 	*grup = 0;
 			lookin = grup;
 		else {
 			if ( isCOUNT(grup->groupBody->flags.data) )
-				field = action->get(grup->groupBody->gCount);
-			else	field = action->get(grup->groupBody->tag);
-			if ( localField = field )
-				if ( source = lookin->get(grup->groupBody->tag) )
-					localField->setGroup(source);
-				else	localField->clearData();
+				field = lookin->get(grup->groupBody->gCount);
+			else	field = lookin->get(grup->groupBody->tag);
+			if ( field )
+				grup = action->get(field->groupBody->tag);
+			if ( !grup )
+				{
+				grup = new GroupItem(field->groupBody->tag);
+				grup->groupBody->flags.isLocal = 1;
+				action->addAttribute(grup);
+				}
+			grup->setGroup(field);
 			}
 		}
 }
@@ -826,6 +829,15 @@ GroupItem 	*sourceFile = new GroupItem("sourceFile");
 		if ( statement->groupBody->gMethod )
 			return statement->groupBody->gMethod(statement);
 		}
+	else
+	if ( ruler->generating && !input->groupBody->gText )
+		if ( isGROUP(input->groupBody->flags.data) )
+			{
+			GroupItem 	*xpStatement = input->getGroup();
+			input->clear();
+			input->setText("gXpress");
+			input->addAttribute(xpStatement);
+			}
 	return input;
 }
 
@@ -834,6 +846,7 @@ GroupItem 	*sourceFile = new GroupItem("sourceFile");
 *******************************************************************************/
 extern "C" GroupItem *aCTionTokenXP(GroupItem *xpress)
 {
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*arg = 0;
 GroupItem 	*op = 0;
 GroupItem 	*UnaryOPS = xpress->getLabelGroup("UnaryOPS");
@@ -846,9 +859,9 @@ GroupItem 	*ANYtoken = xpress->get("ANYtoken");
 		{
 		if ( UnaryOPS )
 			goto handleUnary;
-		if ( ANYtoken->groupBody->registry == GroupControl::groupController->groupRules->groupFields )
+		if ( ANYtoken->groupBody->registry == ruler->groupFields )
 			{
-			op = GroupControl::groupController->groupRules->opFields->get(".");
+			op = ruler->opFields->get(".");
 			xpress->addAttribute(op);
 			xpress->addAttribute(ANYtoken);
 			// w/no argument opDot will try to use lastREF
@@ -886,8 +899,8 @@ GroupItem 	*ANYtoken = xpress->get("ANYtoken");
 			}
 		else {
 			if ( InvokeArg->groupBody->flags.fLAG )
-				op = GroupControl::groupController->groupRules->opFields->get(".");
-			else	op = GroupControl::groupController->groupRules->falseResult;
+				op = ruler->opFields->get("=[");
+			else	op = ruler->falseResult;
 			if ( isGROUP(InvokeArg->groupBody->flags.data) )
 				arg = InvokeArg->getGroup();
 			if ( !arg )
@@ -1083,6 +1096,37 @@ GroupItem 	*field = 0;
 }
 
 /***************************************************************************
+	Register one or more directives on a target action and splice each newly
+	registered one into the target's BlocK. opReplace-shaped: list-recurse via
+	prior(), single registration per directive. Idempotent: a directive already
+	in the target's DiRs list is not registered or spliced again, so a re-apply
+	or double-trigger cannot stack a second copy. The target's executed BlocK is
+	built once and cached, so a one-time splice persists across later runs.
+***************************************************************************/
+extern "C" GroupItem *applyDirectives(GroupItem *argument, GroupItem *target)
+{
+GroupItem 	*grup = 0;
+GroupItem 	*DiRs = 0;
+	if ( isLIST(argument->groupBody->flags.binType) )
+		while ( grup = argument->prior(grup) )
+			::applyDirectives(grup,target);
+	else {
+		DiRs = target->get("DiRs");
+		if ( !DiRs )
+			{
+			DiRs = target->addString("DiRs");
+			DiRs->groupBody->flags.noPrint = 1;
+			}
+		if ( !DiRs->get(argument->groupBody->tag) )
+			{
+			DiRs->addMember(argument);
+			::spliceDirectives(target,argument);
+			}
+		}
+	return target;
+}
+
+/***************************************************************************
 	This clears its argument. If data is a buffer, it is reset. If data is
     a stak, it is cleared. Otherwise input is cleared.
 ***************************************************************************/
@@ -1200,8 +1244,16 @@ char 	*type = 0;
 int 	length = 0;
 	if ( debugStuff->groupBody->groupList )
 		length = debugStuff->groupBody->groupList->listLength;
+	/*
+	if isCoded          cout ,alignLeft("coded",10);
+	if isMethod || isOperator   cout ,alignLeft("has method",10);
+	if isRule           cout ,alignLeft("is rule",10);
+	if isAction         cout ,alignLeft("is action",10);
+	if registry         cout ,"registry:",registry.tag;
+	*/
+	::printf("%s",::alignLeft(debugStuff->groupBody->tag,20));
 	if ( debugStuff->groupBody->flags.isPointer )
-		tagText = ::concat(2,debugStuff->groupBody->tag," pointer");
+		tagText = "pointer";
 	if ( debugStuff->groupBody->flags.data )
 		{
 		switch (debugStuff->groupBody->flags.data)
@@ -1225,16 +1277,7 @@ int 	length = 0;
 			tagText = ::concat(4,debugStuff->groupBody->tag,"=",debugStuff->getText(),type);
 		else	tagText = ::concat(3,debugStuff->groupBody->tag," ",type);
 		}
-	else	tagText = ::concat(2,debugStuff->groupBody->tag," no data");
-	tagText = ::alignLeft(tagText,25);
-	::printf("\t%s",tagText);
-	/*
-	if isCoded          cout ,alignLeft("coded",10);
-	if isMethod || isOperator   cout ,alignLeft("has method",10);
-	if isRule           cout ,alignLeft("is rule",10);
-	if isAction         cout ,alignLeft("is action",10);
-	if registry         cout ,"registry:",registry.tag;
-	*/
+	else	tagText = "no data";
 	if ( isAttribute(debugStuff->options.affiliation) )
 		::printf(" %s",::alignLeft("attribute",10));
 	else
@@ -1248,6 +1291,7 @@ int 	length = 0;
 		::printf(" length %d",length);
 	if ( isGROUP(debugStuff->groupBody->flags.data) && debugStuff->groupBody->gGroup )
 		::printf(" %s",debugStuff->groupBody->gGroup->groupBody->tag);
+	::printf("\t%s",tagText);
 	if ( flag )
 		::printf("\n");
 }
@@ -1417,17 +1461,38 @@ Buffer 		*buffer = ruler->formatBUFFER;
 *****************************************************************************/
 extern "C" GroupItem *generateCode(GroupItem *field)
 {
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( !ruler->generator )
+		ruler->generator = GroupControl::groupController->locate("generator");
+GroupItem 	*generate = ruler->generator->get("generatE");
+	if ( isCoded(generate->groupBody->flags.actionType) )
+		if ( !::processCode(generate) )
+			return 0;
+	ruler->generating = 1;
 	if ( isCoded(field->groupBody->flags.actionType) )
 		if ( !::processCode(field) )
 			return 0;
-GroupItem *BlocK = field->getLabelGroup("BlocK");
-GroupItem *Lines = BlocK->getLabelGroup("Lines");
-GroupItem *generate = GroupControl::groupController->locate("generatE");
-	if ( !generate )
-		::fprintf(stderr,"generateCode: could not find generatE() action\n");
-	else
-	if ( Lines )
-		::runAction(Lines,generate);
+	ruler->generating = 0;
+GroupItem 	*BlocK = field->getLabelGroup("BlocK");
+GroupItem 	*Lines = BlocK->getLabelGroup("Lines");
+GroupItem 	*bcLIST = new GroupItem("bcLIST");
+	bcLIST->groupBody->flags.noPrint = 1;
+	bcLIST->groupBody->flags.isLocal = 1;
+	field->addAttribute(bcLIST);
+	bcLIST = ruler->generator->replace(bcLIST);
+	if ( !ruler->generator )
+		::fprintf(stderr,"generateCode: could not find generator\n");
+	else {
+		generate = ruler->generator->get("generatE");
+		if ( !generate )
+			::fprintf(stderr,"generateCode: could not find generatE() action\n");
+		else
+		if ( Lines )
+			{
+			::printf("generateCode: running on %s\n",field->groupBody->tag);
+			::runAction(Lines,generate);
+			}
+		}
 	return 0;
 }
 
@@ -1699,7 +1764,6 @@ char 		*name = 0;
 extern "C" GroupItem *loadInputFromFile(GroupItem *source)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	::printf("\t\t\tincluding %s\n",source->groupBody->tag);
 	if ( ::getFile(source) )
 		return source;
 	else	::fprintf(stderr,"\t\tloadInputFromFile: failed getting file from %s\n",source->groupBody->tag);
@@ -1882,7 +1946,6 @@ GroupItem 	*grup = 0;
 		while ( grup = argument->prior(grup) )
 			target->addAttribute(grup);
 	else	target->addAttribute(argument);
-	target->addAttribute(argument);
 	return target;
 }
 
@@ -1891,18 +1954,8 @@ GroupItem 	*grup = 0;
 ***************************************************************************/
 extern "C" GroupItem *opAssign(GroupItem *argument, GroupItem *target)
 {
-	target->setContent(argument);
-	return target;
-}
-
-/***************************************************************************
-	Rule action for the =* operator
-***************************************************************************/
-extern "C" GroupItem *opAssignGroup(GroupItem *argument, GroupItem *target)
-{
-	if ( !argument->groupBody->flags.isInitialized )
-		target->clearData();
-	else	target->setGroup(argument);
+	if ( argument )
+		target->setContent(argument);
 	return target;
 }
 
@@ -1960,6 +2013,10 @@ GroupItem 	*product = 0;
 		if ( argument->groupBody->registry != ruler->groupFields )
 			product = target->get(argument->getText());
 		else {
+			while ( target && isGROUP(target->groupBody->flags.data) )
+				target = target->getGroup();
+			if ( !target )
+				return 0;
 			product = new GroupItem(argument->groupBody->tag);
 			switch (argument->groupBody->gCount)
 				{
@@ -1976,7 +2033,9 @@ GroupItem 	*product = 0;
 					product->setText(target->getText());
 					break;
 				case 5:
-					product->setCount(target->groupBody->groupList->listLength);
+					if ( target->groupBody->groupList )
+						product->setCount(target->groupBody->groupList->listLength);
+					else	product = 0;
 					break;
 				case 6:
 					product->setCount((int)target->groupBody->flags.data);
@@ -1999,6 +2058,10 @@ GroupItem 	*product = 0;
 					break;
 				case 11:
 					if ( target->groupBody->flags.invoke )
+						product->setCount(1);
+					break;
+				case 17:
+					if ( target->groupBody->flags.isLiteral )
 						product->setCount(1);
 					break;
 				case 19:
@@ -2054,6 +2117,20 @@ extern "C" GroupItem *opEQ(GroupItem *argument, GroupItem *target)
 }
 
 /***************************************************************************
+	Rule action for =] operator that returns the last item on the arguments
+    list
+***************************************************************************/
+extern "C" GroupItem *opEnd(GroupItem *argument, GroupItem *target)
+{
+	if ( argument->groupBody->groupList )
+		{
+		target->setGroup(argument->groupBody->groupList->lastInList);
+		return target;
+		}
+	return 0;
+}
+
+/***************************************************************************
 	Rule action for the >= operator
 ***************************************************************************/
 extern "C" GroupItem *opGE(GroupItem *argument, GroupItem *target)
@@ -2078,9 +2155,15 @@ extern "C" GroupItem *opGT(GroupItem *argument, GroupItem *target)
 ***************************************************************************/
 extern "C" GroupItem *opGet(GroupItem *argument, GroupItem *target)
 {
+GroupItem 	*result = 0;
+char 		*txt = 0;
+	if ( isGROUP(argument->groupBody->flags.data) && argument->groupBody->gText )
+		txt = argument->groupBody->gText;
+	else	txt = argument->getText();
 	if ( isCOUNT(argument->groupBody->flags.data) )
-		return target->get(argument->getCount());
-	else	return target->get(argument->getText());
+		result = target->get(argument->getCount());
+	else	result = target->get(txt);
+	return result;
 }
 
 /***************************************************************************
@@ -2112,16 +2195,22 @@ char 	*strung = argument->getText();
 ***************************************************************************/
 extern "C" GroupItem *opIN(GroupItem *argument, GroupItem *target)
 {
-PLGset 	*set = 0;
+PLGset 		*set = 0;
+GroupItem 	*result = 0;
 	if ( isSET(argument->groupBody->flags.data) )
+		{
 		if ( set = argument->getCharacterSet() )
 			if ( set->foundIn(target->getText()) )
-				return GroupControl::groupController->groupRules->trueResult;
+				result = GroupControl::groupController->groupRules->trueResult;
+		}
+	else
 	if ( isSET(target->groupBody->flags.data) )
+		{
 		if ( set = target->getCharacterSet() )
 			if ( set->contains(argument->getText()) )
-				return GroupControl::groupController->groupRules->trueResult;
-	return 0;
+				result = GroupControl::groupController->groupRules->trueResult;
+		}
+	return result;
 }
 
 /***************************************************************************
@@ -2246,6 +2335,9 @@ extern "C" GroupItem *opMinusMinus(GroupItem *result)
 	else
 	if ( isSTAK(result->groupBody->flags.data) )
 		result = (GroupItem*)result->groupBody->gStak->pop();
+	else
+	if ( result->groupBody->groupList )
+		result->pop();
 	else	::fprintf(stderr,"ERROR Operator -- not supported for data type of %s\n",result->groupBody->tag);
 	return result;
 }
@@ -2359,6 +2451,8 @@ extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target)
 extern "C" GroupItem *opPlusEQ(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*grup = 0;
+	if ( !::compare(::headToCount(argument->groupBody->tag,3),"DiR") )
+		return ::applyDirectives(argument,target);
 	if ( isLIST(argument->groupBody->flags.binType) )
 		while ( grup = argument->prior(grup) )
 			::opPlusEQ(grup,target);
@@ -2455,7 +2549,10 @@ GroupItem 	*grup = 0;
 ***************************************************************************/
 extern "C" GroupItem *opSetGroup(GroupItem *argument, GroupItem *target)
 {
-	target->setGroup(argument);
+	if ( argument )
+		if ( !argument->groupBody->flags.isInitialized )
+			target->clearData();
+		else	target->setGroup(argument);
 	return target;
 }
 
@@ -2522,44 +2619,36 @@ extern "C" void printField(GroupItem *field, char *format, Buffer *buffer)
 {
 	if ( isMethod(field->groupBody->flags.instructType) )
 		field = field->groupBody->gMethod(field);
+	if ( !field )
+		field = GroupControl::groupController->groupRules->falseResult;
+	else
 	if ( isGROUP(field->groupBody->flags.data) )
 		field = field->getGroup();
-	if ( field )
+	switch (field->groupBody->flags.data)
 		{
-		if ( field->groupBody->gText && field->groupBody->flags.data < 13 )
-			{
+		case 5:
+			if ( !format )
+				format = "%d";
+			buffer->appendInt(field->groupBody->gCount,0,0);
+			break;
+		case 9:
+			if ( !format )
+				format = "%.1f";
+			buffer->appendString(::toStringFromDouble(field->groupBody->gNumber),0,0);
+			break;
+		case 13:
+		case 14:
 			if ( !format )
 				format = "%s";
 			buffer->appendString(field->getText(),0,0);
-			}
-		else
-		switch (field->groupBody->flags.data)
-			{
-			case 5:
-				if ( !format )
-					format = "%d";
-				buffer->appendInt(field->groupBody->gCount,0,0);
-				break;
-			case 9:
-				if ( !format )
-					format = "%.1f";
-				buffer->appendString(::toStringFromDouble(field->groupBody->gNumber),0,0);
-				break;
-			case 13:
-			case 14:
-				if ( !format )
-					format = "%s";
-				buffer->appendString(field->getText(),0,0);
-				break;
-			default:
-				if ( !format )
-					format = "%s";
-				buffer->appendString(field->getText(),0,0);
-			}
-		if ( GroupControl::groupController->groupRules->useDefaultSpace )
-			buffer->appendChar(' ',0,0);
+			break;
+		default:
+			if ( !format )
+				format = "%s";
+			buffer->appendString(field->getText(),0,0);
 		}
-	else	buffer->appendString("ERROR: field method failed",0,0);
+	if ( GroupControl::groupController->groupRules->useDefaultSpace )
+		buffer->appendChar(' ',0,0);
 }
 
 /***************************************************************************
@@ -2594,17 +2683,14 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = ruler->ruleSTUFF;
 GroupItem 	*label = field;
 GroupItem 	*code = 0;
-GroupItem 	*fild = 0;
 GroupItem 	*grup = 0;
 GroupItem 	*result = 0;
+GroupItem 	*priorMETHOD = ruler->currentMETHOD;
+GroupItem 	*priorTempField = ruler->tempField;
 GroupItem 	*action = field;
-	if ( field->groupBody->flags.isLabel )
-		{
+	ruler->currentMETHOD = action;
+	if ( action->groupBody->flags.isLabel )
 		action = ruleStuff->rule;
-		if ( isCoded(action->groupBody->flags.actionType) )
-			if ( !::processCode(action) )
-				return 0;
-		}
 	/*************************************************************************
 	if action is a rule, update local fields from label contents.
 	*************************************************************************/
@@ -2612,22 +2698,38 @@ GroupItem 	*action = field;
 		{
 		code = action->get("CodE");
 		while ( grup = label->nextAttribute(grup) )
-			if ( fild = code->get(grup->groupBody->tag) )
-				fild->setContent(grup);
+			if ( result = code->get(grup->groupBody->tag) )
+				result->setContent(grup);
+			else {
+				grup->groupBody->flags.isLocal = 1;
+				code->addAttribute(grup);
+				}
 		}
+	if ( !::processCode(field) )
+		return 0;
 	if ( result = action->get("BlocK") )
 		{
-		if ( result = result->groupBody->gMethod(result) )
-			result->groupBody->flags.isBranch = 0;
 		/*********************************************************************
 		The following clears local fields after action ends.
 		*********************************************************************/
 		if ( action->groupBody->flags.isRule )
 			action = code;
 		while ( grup = action->nextAttribute(grup) )
-			if ( grup->groupBody->flags.isLocal || grup->groupBody->flags.isArgument )
+			if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.isLabel )
 				grup->clear();
+		if ( ruler->runningActions->get(field->groupBody->tag) )
+			field->groupBody->flags.recursive = 1;
+		ruler->runningActions->addMember(field);
+		if ( field->groupBody->flags.recursive )
+			::saveLocalFields(field);
+		if ( result = result->groupBody->gMethod(result) )
+			result->groupBody->flags.isBranch = 0;
+		if ( field->groupBody->flags.recursive )
+			::restoreLocalFields(field);
+		ruler->runningActions->pop();
 		}
+	ruler->currentMETHOD = priorMETHOD;
+	ruler->tempField = priorTempField;
 	return result;
 }
 
@@ -2805,10 +2907,24 @@ char 		*name = item->getText();
 		registry. argument likely points to a copy
 		*******************************************************************/
 		ruler->currentRegistry = argument->groupBody->registry;
-		::printf("\t\t\t\tCurrent registry: %s\n",ruler->currentRegistry->groupBody->tag);
-		item = 0;
 		}
 	return ruler->trueResult;
+}
+
+/*****************************************************************************
+	Process an argument list to run any list elements that are methods
+    or actions and return a new field containing the resolved list.
+*****************************************************************************/
+extern "C" GroupItem *resolveList(GroupItem *input)
+{
+GroupItem 	*result = new GroupItem("resolvedList");
+GroupItem 	*grup = 0;
+	while ( grup = input->next(grup) )
+		if ( isMethod(grup->groupBody->flags.instructType) )
+			result->addMember(grup->groupBody->gMethod(grup));
+		else	result->addMember(grup);
+	result->groupBody->flags.binType = 3;
+	return result;
 }
 
 /*****************************************************************************
@@ -2819,12 +2935,15 @@ extern "C" void restoreLocalFields(GroupItem *action)
 Stak 		*recurseSTAK = action->getStak();
 GroupBody 	*body = 0;
 GroupItem 	*grup = 0;
+	if ( !recurseSTAK->length )
+		action->groupBody->flags.recursive = 0;
+	else
 	while ( grup = action->prior(grup) )
 		if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.noPrint )
 			{
 			body = (GroupBody*)recurseSTAK->pop();
 			*grup->groupBody = *body;
-			delete body;
+			body = 0;
 			}
 }
 
@@ -2867,22 +2986,16 @@ extern "C" GroupItem *runAction(GroupItem *argument, GroupItem *field)
 {
 GroupItem 	*result = 0;
 GroupItem 	*ruleArg = 0;
-	if ( argument && isGROUP(argument->groupBody->flags.data) )
-		argument = argument->getGroup();
+	if ( isCoded(field->groupBody->flags.actionType) )
+		if ( !::processCode(field) )
+			return 0;
 	if ( ruleArg = field->get("argument") )
 		if ( argument )
 			ruleArg->setGroup(result = argument);
 		else	ruleArg->setGroup(result = field);
 	else	result = field;
 	GroupControl::groupController->groupRules->lastREF->setGroup(result);
-	if ( isCoded(field->groupBody->flags.actionType) )
-		if ( !::processCode(field) )
-			return 0;
-	if ( field->options.recursive )
-		::saveLocalFields(field);
 	result = ::processAction(field);
-	if ( field->options.recursive )
-		::restoreLocalFields(field);
 	return result;
 }
 
@@ -2896,14 +3009,18 @@ GroupItem 	*result = 0;
 GroupItem 	*op = field->get(1);
 GroupItem 	*arg = field->get(3);
 GroupItem 	*target = field->get(2);
-	if ( isGROUP(target->groupBody->flags.data) )
+	if ( isGROUP(target->groupBody->flags.data) && !target->groupBody->flags.isPointer )
 		target = target->getGroup();
-	if ( arg && isGROUP(arg->groupBody->flags.data) )
+	if ( arg && isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isPointer )
 		arg = arg->getGroup();
-	if ( op->groupBody->flags.instructType && isMethod(target->groupBody->flags.instructType) )
+	if ( op->groupBody->flags.instructType && isMethod(target->groupBody->flags.instructType) && target->groupBody->flags.invoke )
 		target = target->groupBody->gMethod(target);
-	if ( arg && isMethod(arg->groupBody->flags.instructType) )
-		arg = arg->groupBody->gMethod(arg);
+	if ( arg )
+		if ( isMethod(arg->groupBody->flags.instructType) && arg->groupBody->flags.invoke )
+			arg = arg->groupBody->gMethod(arg);
+		else
+		if ( isLIST(arg->groupBody->flags.binType) )
+			arg = ::resolveList(arg);
 	if ( isOperator(op->groupBody->flags.instructType) )
 		result = op->groupBody->gOp(arg,target);
 	else
@@ -2939,7 +3056,7 @@ GroupItem 	*result = 0;
 		ruler->pushInput(field);
 		}
 	result = rule->parse(0);
-	if ( field )
+	if ( field && field->groupBody->flags.data )
 		ruler->popInput();
 	return result;
 }
@@ -3068,6 +3185,69 @@ char 		*name = 0;
 }
 
 /***************************************************************************
+	Splice one directive's statements into a target action's BlocK. The
+	target's BlocK is built (processCode) if it does not exist yet, then the
+	directive's own BlocK is built and its statements (BlocK->Lines members)
+	are moved into the target's Lines: appended at the body bottom for
+	at=ending, or front-inserted at the body top otherwise (at=starting /
+	default, walked in reverse so original order leads the target's body).
+	Statements are moved, not copied: addGroup copies a node that still has a
+	parent and the copy loses instructType (aCTionBlocK then skips it), so each
+	statement is detached (parent = 0) before it is added.
+***************************************************************************/
+extern "C" void spliceDirectives(GroupItem *target, GroupItem *directive)
+{
+GroupItem 	*BlocK = target->get("BlocK");
+GroupItem 	*targetLines = 0;
+GroupItem 	*dBlocK = 0;
+GroupItem 	*dLines = 0;
+GroupItem 	*at = 0;
+GroupItem 	*stmt = 0;
+GroupItem 	*adjacent = 0;
+int 		ending = 0;
+	if ( !BlocK )
+		{
+		::processCode(target);
+		BlocK = target->get("BlocK");
+		}
+	if ( !BlocK )
+		return;
+	targetLines = BlocK->getLabelGroup("Lines");
+	if ( !targetLines )
+		return;
+	::processCode(directive);
+	dBlocK = directive->get("BlocK");
+	if ( !dBlocK )
+		return;
+	dLines = dBlocK->getLabelGroup("Lines");
+	if ( !dLines || !dLines->groupBody->groupList )
+		return;
+	at = directive->get("at");
+	ending = at && ::compare(at->getText(),"ending") == 0;
+	if ( ending )
+		{
+		stmt = dLines->groupBody->groupList->firstInList;
+		while ( stmt )
+			{
+			adjacent = stmt->nextInParent;
+			stmt->parent = 0;
+			targetLines->addMember(stmt);
+			stmt = adjacent;
+			}
+		}
+	else {
+		stmt = dLines->groupBody->groupList->lastInList;
+		while ( stmt )
+			{
+			adjacent = stmt->priorInParent;
+			stmt->parent = 0;
+			targetLines->insertGroup(stmt);
+			stmt = adjacent;
+			}
+		}
+}
+
+/***************************************************************************
 	Immediate method for the stop command.
 ***************************************************************************/
 extern "C" GroupItem *stopParsingInput(GroupItem *input)
@@ -3076,7 +3256,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( ruler->inputDiverted )
 		{
 		ruler->popInput();
-		::printf("\nstop: ending input divert");
+		::printf("\nstop: ending input divert\n");
 		}
 	else {
 		*ruler->atRuleMark = 0;
@@ -3106,6 +3286,17 @@ char 		*atEnd = GroupControl::groupController->groupRules->atRuleMark;
 int 		tokenLength = (int)(atEnd - ruleStuff->hereAt);
 	label->setToken(ruleStuff->hereAt,tokenLength);
 	return label;
+}
+
+/***************************************************************************
+	Rule action for unWrap
+***************************************************************************/
+extern "C" GroupItem *unWrap(GroupItem *result)
+{
+GroupItem 	*grup = result;
+	if ( !grup->groupBody->flags.isPointer && isGROUP(grup->groupBody->flags.data) )
+		grup = grup->getGroup();
+	return grup;
 }
 
 /***************************************************************************
@@ -3145,6 +3336,7 @@ GroupRules::GroupRules()
 	falseResult = 0;
 	inDENT = 0;
 	lastREF = 0;
+	generator = 0;
 	printSPACE = 0;
 	ruleSkipSet = 0;
 	searchList = 0;
@@ -3186,6 +3378,7 @@ GroupRules::GroupRules()
 	alphaSet = new PLGset("a-zA-Z");
 	nameSet = new PLGset("a-zA-Z0-9");
 	punctuateSet = new PLGset("]{}[();");
+	runningActions = new GroupItem("runningActions");
 	shortcutSet = new PLGset("-+~`$_:,");
 	spaceSet = new PLGset(" \n\r\t");
 	tempField = new GroupItem("tempField");
@@ -3400,8 +3593,6 @@ int 	result = 0;
 			if ( !inputSTAK )
 				inputSTAK = new Stak();
 			inputSTAK->push((void*)sourceFILE);
-			inputDiverted = 1;
-			atLINE->setCount(sourceLINE);
 			if ( !buffer )
 				{
 				GroupItem 	*atMARK = sourceFILE->get("atMARK");
@@ -3410,6 +3601,8 @@ int 	result = 0;
 				atMARK->setText(atRuleMark);
 				}
 			else	buffer->current = atRuleMark;
+			inputDiverted = 1;
+			atLINE->setCount(sourceLINE);
 			}
 		sourceFILE = source;
 		sourceLINE = 0;

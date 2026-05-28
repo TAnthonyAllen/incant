@@ -31,7 +31,15 @@ String  tagText;
 String  type;
 int     length;
     if groupList    length = listLength;
-    if isPointer    tagText = tag " pointer";
+    /*
+    if isCoded          cout ,alignLeft("coded",10);
+    if isMethod || isOperator   cout ,alignLeft("has method",10);
+    if isRule           cout ,alignLeft("is rule",10);
+    if isAction         cout ,alignLeft("is action",10);
+    if registry         cout ,"registry:",registry.tag;
+    */
+    cout alignLeft(tag,20);
+    if isPointer        tagText = "pointer";
     if data {
         switch(data) {
             case isCOUNT:   type = " int";
@@ -41,22 +49,14 @@ int     length;
             default:        type = " other"; }
         if !noPrint         tagText = tag "="  text type;
         else                tagText = tag " " type; }
-    else            tagText = tag " no data";
-    tagText = alignLeft(tagText,25);
-    cout `tagText;
-    /*
-    if isCoded          cout ,alignLeft("coded",10);
-    if isMethod || isOperator   cout ,alignLeft("has method",10);
-    if isRule           cout ,alignLeft("is rule",10);
-    if isAction         cout ,alignLeft("is action",10);
-    if registry         cout ,"registry:",registry.tag;
-    */
+    else            tagText = "no data";
     if isAttribute      cout ,alignLeft("attribute",10);
     or isMember         cout ,alignLeft("member",10);
     if isLocal          cout ,"is local";
     if noPrint          cout ,"noPrint";
     if length           cout ,"length",length;
     if isGROUP && gGroup    cout ,gGroup.tag;
+    cout `tagText;
     if flag cout :;
 }
 

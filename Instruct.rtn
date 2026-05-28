@@ -48,7 +48,6 @@ GroupItem   grup;
         while grup = argument.prior(grup)
             target +% grup;
     else    target +% argument;
-    target +% argument;
     return target;
 }
 
@@ -66,18 +65,8 @@ extern GroupItem opAND(GroupItem argument,GroupItem target)
 ***************************************************************************/
 extern GroupItem opAssign(GroupItem argument,GroupItem target)
 {
-    target.setContent(argument);
+    if argument     target.setContent(argument);
     return target;
-}
-
-/***************************************************************************
-	Rule action for the =* operator
-***************************************************************************/
-extern GroupItem opAssignGroup(GroupItem argument,GroupItem target)
-{
-    if !argument.isInitialized  target.clearData();
-    else    group = argument;
-    return  target;
 }
 
 /***************************************************************************
@@ -129,19 +118,23 @@ use argument
     if argument {
         if registry != groupFields  product = target[text];
         else {
+            while target && target.isGROUP    target = target.group;
+            if !target  return 0;
             product = new(tag);
             switch(gCount) {
                 case 1:     product.text    = target.tag;
                 case 2:     product.group   = target.parent;
                 case 3:     product.group   = target.registry;
                 case 4:     product.text    = target.text;
-                case 5:     product.count   = target.listLength;
+                case 5:     if target.groupList     product.count = target.listLength;
+                            else                    product = 0;
                 case 6:     product.count   = target.data;
                 case 7:     if target.hasAttributes product.count = 1;
                 case 8:     if target.hasMembers    product.count = 1;
                 case 9:     if target.isLocal       product.count = 1;
                 case 10:    if target.isArgument    product.count = 1;
                 case 11:    if target.invoke        product.count = 1;
+                case 17:    if target.isLiteral     product.count = 1;
                 case 19:    if target.isMethod      product.count = 1;
                 case 20:    if target.isOperator    product.count = 1;
                 case 24:    if target.isShortcut    product.count = 1;
@@ -167,12 +160,31 @@ extern GroupItem opEQ(GroupItem argument,GroupItem target)
 }
 
 /***************************************************************************
+	Rule action for =] operator that returns the last item on the arguments
+    list
+***************************************************************************/
+extern GroupItem opEnd(GroupItem argument,GroupItem target)
+{
+use argument
+    if groupList {
+        target.group = lastInList;
+        return target; }
+    return null;
+}
+
+/***************************************************************************
 	Rule action that handles [argument] references.
 ***************************************************************************/
 extern GroupItem opGet(GroupItem argument,GroupItem target)
 {
-    if argument.isCOUNT return get(argument.count);
-    else                return get(argument.text);
+GroupItem   result;
+String      txt;
+    if argument.isGROUP && argument.gText txt = argument.gText;
+    else    txt = argument.text;
+use target
+    if argument.isCOUNT result = get(argument.count);
+    else                result = get(txt);
+    return result;
 }
 
 /***************************************************************************
@@ -223,13 +235,14 @@ extern GroupItem opGT(GroupItem argument,GroupItem target)
 extern GroupItem opIN(GroupItem argument,GroupItem target)
 {
 PLGset  set;
-    if argument.isSET
+GroupItem   result;
+    if argument.isSET {
         if set = argument.characterSet
-            if set.foundIn(target.text)     return trueResult;
-    if target.isSET
+            if set.foundIn(target.text)     result = trueResult; }
+    or target.isSET {
         if set = target.characterSet
-            if set.contains(argument.text)  return trueResult;
-    return null;
+            if set.contains(argument.text)  result = trueResult; }
+    return result ;
 }
 
 /***************************************************************************
@@ -321,6 +334,7 @@ extern GroupItem opMinusMinus(GroupItem result)
             *(gText + gCount) = 0; }
         else    text = 0;
     or isSTAK   result = gStak.pop();
+    or groupList    pop();
     else    cerr "ERROR Operator -- not supported for data type of",tag:;
     return  result;
 }
@@ -356,6 +370,7 @@ use target
             opMultiplyEQ(result,target);
     return result;
 }
+
 /***************************************************************************
 	Rule action for ! operator
 ***************************************************************************/
@@ -408,6 +423,8 @@ extern GroupItem opPlus(GroupItem argument,GroupItem target)
 extern GroupItem opPlusEQ(GroupItem argument,GroupItem target)
 {
 GroupItem   grup;
+    if !compare(head(argument.tag,3),"DiR")
+        return applyDirectives(argument,target);
 use target
     if argument.isLIST
         while grup = argument.prior(grup)
@@ -477,12 +494,90 @@ GroupItem   grup;
 }
 
 /***************************************************************************
+	Register one or more directives on a target action and splice each newly
+	registered one into the target's BlocK. opReplace-shaped: list-recurse via
+	prior(), single registration per directive. Idempotent: a directive already
+	in the target's DiRs list is not registered or spliced again, so a re-apply
+	or double-trigger cannot stack a second copy. The target's executed BlocK is
+	built once and cached, so a one-time splice persists across later runs.
+***************************************************************************/
+extern GroupItem applyDirectives(GroupItem argument,GroupItem target)
+{
+GroupItem   grup;
+GroupItem   DiRs;
+    if argument.isLIST
+        while grup = argument.prior(grup)
+            applyDirectives(grup,target);
+    else {
+        DiRs = target["DiRs"];
+        if !DiRs {
+            DiRs = target += "DiRs";
+            DiRs.noPrint = true; }
+        if !DiRs[argument.tag] {
+            DiRs += argument;
+            spliceDirectives(target,argument); }}
+    return target;
+}
+
+/***************************************************************************
+	Splice one directive's statements into a target action's BlocK. The
+	target's BlocK is built (processCode) if it does not exist yet, then the
+	directive's own BlocK is built and its statements (BlocK->Lines members)
+	are moved into the target's Lines: appended at the body bottom for
+	at=ending, or front-inserted at the body top otherwise (at=starting /
+	default, walked in reverse so original order leads the target's body).
+	Statements are moved, not copied: addGroup copies a node that still has a
+	parent and the copy loses instructType (aCTionBlocK then skips it), so each
+	statement is detached (parent = 0) before it is added.
+***************************************************************************/
+extern void spliceDirectives(GroupItem target,GroupItem directive)
+{
+GroupItem   BlocK = target["BlocK"];
+GroupItem   targetLines;
+GroupItem   dBlocK;
+GroupItem   dLines;
+GroupItem   at;
+GroupItem   stmt;
+GroupItem   adjacent;
+int         ending;
+    if !BlocK {
+        processCode(target);
+        BlocK = target["BlocK"]; }
+    if !BlocK   return;
+    targetLines = BlocK.getLabelGroup("Lines");
+    if !targetLines     return;
+    processCode(directive);
+    dBlocK = directive["BlocK"];
+    if !dBlocK  return;
+    dLines = dBlocK.getLabelGroup("Lines");
+    if !dLines || !dLines.groupList     return;
+    at = directive["at"];
+    ending = at && compare(at.text,"ending") == 0;
+    if ending {
+        stmt = dLines.firstInList;
+        while stmt {
+            adjacent = stmt.nextInParent;
+            stmt.parent = null;
+            targetLines += stmt;
+            stmt = adjacent; }}
+    else {
+        stmt = dLines.lastInList;
+        while stmt {
+            adjacent = stmt.priorInParent;
+            stmt.parent = null;
+            targetLines.insertGroup(stmt);
+            stmt = adjacent; }}
+}
+
+/***************************************************************************
 	Rule action for the := set group operator
 ***************************************************************************/
 extern GroupItem opSetGroup(GroupItem argument,GroupItem target)
 {
-    group   = argument;
-    return target;
+    if argument
+        if !argument.isInitialized  target.clearData();
+        else    group = argument;
+    return  target;
 }
 
 /***************************************************************************
@@ -530,32 +625,37 @@ extern GroupItem opString(GroupItem target,Buffer buffer)
     return target;
 }
 
+/***************************************************************************
+	Rule action for unWrap
+***************************************************************************/
+extern GroupItem unWrap(GroupItem result)
+{
+GroupItem   grup = result;
+    if !isPointer && grup.isGROUP   grup = group;
+    return grup;
+}
+
 /*******************************************************************************
 	Print the field passed in to the buffer passed in
 *******************************************************************************/
 extern void printField(GroupItem field,String format,Buffer buffer)
 {
     if isMethod     field = method(field);
-    if isGROUP      field = group;
-    if field {
-        if gText && data < 13 {
+    if !field       field = falseResult;
+    or isGROUP      field = group;
+    switch(data) {
+        case isCOUNT:
+            if !format  format = "%d";
+            print(buffer) gCount;
+        case isNUMBER:
+            if !format  format = "%.1f";
+            print gNumber;
+        case isSTRING:
+        case isTOKEN:
             if !format  format = "%s";
-            print(buffer) text; }
-        else
-        switch(data) {
-            case isCOUNT:
-                if !format  format = "%d";
-                print gCount;
-            case isNUMBER:
-                if !format  format = "%.1f";
-                print gNumber;
-            case isSTRING:
-            case isTOKEN:
-                if !format  format = "%s";
-                print text;
-            default:
-                if !format  format = "%s";
-                print text; }
-        if useDefaultSpace  append(' '); }
-    else        buffer += "ERROR: field method failed";
+            print text;
+        default:
+            if !format  format = "%s";
+            print text; }
+    if useDefaultSpace  append(' ');
 }

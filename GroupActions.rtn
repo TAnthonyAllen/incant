@@ -365,30 +365,40 @@ GroupRules  ruler = groupRules;
 RuleStuff   ruleStuff = ruleSTUFF;
 GroupItem   label = field,
             code,
-            fild,
             grup,
             result,
+            priorMETHOD = currentMETHOD,
+            priorTempField = tempField,
             action = field;
-    if field.isLabel {
-        action  = rule;
-        if isCoded
-            if !processCode(action)  return null; }
+    currentMETHOD   = action;
+    if isLabel      action = rule;
     /*************************************************************************
          if action is a rule, update local fields from label contents.
     *************************************************************************/
     if isRule {
         code = action[CodE];
         while grup = label.nextAttribute(grup)
-            if fild = code[grup.tag]  fild.setContent(grup); }
+            if result = code[grup.tag]  result.setContent(grup);
+            else {
+                grup.isLocal    = true;
+                code +% grup; }}
+    if !processCode(field)  return null;
     if result = action["BlocK"] {
-        if result = result.gMethod(result)  result.isBranch = 0;
         /*********************************************************************
             The following clears local fields after action ends.
         *********************************************************************/
         if isRule   action = code;
 use grup
         while grup = action.nextAttribute(grup)
-            if isLocal || isArgument clear(); }
+            if isLocal && !isLabel clear();
+        if runningActions[field.tag]        field.recursive = true;
+        runningActions  += field;
+        if field.recursive      saveLocalFields(field);
+        if result = result.gMethod(result)  result.isBranch = 0;
+        if field.recursive      restoreLocalFields(field);
+        runningActions.pop(); }
+    currentMETHOD   = priorMETHOD;
+    tempField       = priorTempField;
     return result;
 }
 
@@ -518,6 +528,21 @@ String      name = item.text;
 }
 
 /*****************************************************************************
+	Process an argument list to run any list elements that are methods
+    or actions and return a new field containing the resolved list.
+*****************************************************************************/
+extern GroupItem resolveList(GroupItem input)
+{
+GroupItem   result = new("resolvedList"),
+            grup;
+    while grup = input.next(grup)
+        if grup.isMethod    result += grup.method(grup);
+        else                result += grup;
+    result.isLIST = true;
+    return result;
+}
+
+/*****************************************************************************
 	Restore local fields after a recursive call.
 *****************************************************************************/
 extern void restoreLocalFields(GroupItem action)
@@ -525,11 +550,13 @@ extern void restoreLocalFields(GroupItem action)
 Stak        recurseSTAK = action.stak;
 GroupBody   body;
 GroupItem   grup;
+    if !recurseSTAK.length  action.recursive = false;
+    else
     while grup = action.prior(grup)
         if grup.isLocal && !grup.noPrint {
             body = recurseSTAK.pop();
             *groupBody = *body;
-            delete body;}
+            body = 0;}
 }
 
 /*****************************************************************************
@@ -565,17 +592,14 @@ extern GroupItem runAction(GroupItem argument,GroupItem field)
 GroupItem   result,
             ruleArg;
 use field
-    if argument && argument.isGROUP argument = argument.group;
+    if isCoded
+        if !processCode(field)  return null;
     if ruleArg = field["argument"]
         if argument ruleArg.group = result = argument;
         else        ruleArg.group = result = field;
     else    result = field;
     lastREF.group  = result;
-    if isCoded
-        if !processCode(field)  return null;
-    if recursive    saveLocalFields(field);
     result  = processAction(field);
-    if recursive    restoreLocalFields(field);
     return  result;
 }
 
@@ -589,10 +613,12 @@ GroupItem   result,
             op      = field[1],
             arg     = field[3],
             target  = field[2];
-    if isGROUP              target = group;
-    if arg && arg.isGROUP   arg = arg.group;
-    if op.instructType && isMethod      target = method(target);
-    if arg && arg.isMethod  arg = arg.method(arg);
+    if isGROUP && !isPointer                    target = group;
+    if arg && arg.isGROUP && !arg.isPointer     arg = arg.group;
+    if op.instructType && isMethod && invoke    target = method(target);
+    if arg
+        if arg.isMethod && arg.invoke           arg = arg.method(arg);
+        or arg.isLIST   arg = resolveList(arg);
     if op.isOperator    result = op.operat(arg,target);
     or op.isMethod      result = op.method(target);
     or isRule           result = runRule(arg,target);
@@ -616,7 +642,7 @@ use rule
         divertToRule    = true;
         pushInput(field); }
     result      = rule.parse(0);
-    if field    popInput();
+    if field && field.data   popInput();
     return result;
 }
 
@@ -729,7 +755,7 @@ extern GroupItem stopParsingInput(GroupItem input)
 GroupRules  ruler = groupRules;
     if inputDiverted {
         popInput();
-        cout :"stop: ending input divert"; }
+        cout :"stop: ending input divert":; }
     else {
         *atRuleMark = 0;
         endParse    = true;

@@ -39,8 +39,10 @@ class GroupRules
                 falseResult,
                 inDENT,
                 lastREF,
+                generator,
                 printSPACE,
                 ruleSkipSet,
+                runningActions,
                 searchList,
                 setupFILE,
                 sourceFILE,
@@ -97,6 +99,7 @@ GroupRules()
     alphaSet        = new("a-zA-Z");
     nameSet         = new("a-zA-Z0-9");
     punctuateSet    = new("]{}[();");
+    runningActions  = new("runningActions");
     shortcutSet     = new("-+~`$_:,");
     spaceSet        = new(" \n\r\t");
     tempField       = new("tempField");
@@ -263,13 +266,13 @@ int     result;
             if !atLINE      atLINE = sourceFILE += "atLINE";
             if !inputSTAK   inputSTAK = new;
             inputSTAK.push((void*)sourceFILE);
-            inputDiverted   = true;
-            atLINE.count    = sourceLINE;
             if !buffer {
                 GroupItem atMARK = sourceFILE["atMARK"];
                 if !atMARK      atMARK = sourceFILE += "atMARK";
                 atMARK.text     = atRuleMark; }
-            else    current = atRuleMark; }
+            else    current = atRuleMark;
+            inputDiverted   = true;
+            atLINE.count    = sourceLINE; }
         sourceFILE  = source;
         sourceLINE  = 0;
         buffer = source.buffer;

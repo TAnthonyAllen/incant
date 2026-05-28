@@ -29,23 +29,30 @@ String  name;
 *****************************************************************************/
 extern GroupItem generateCode(GroupItem field)
 {
+GroupRules  ruler = groupRules;
+    if !generator       generator = locate("generator");
+GroupItem   generate    = generator["generatE"];
+    if generate.isCoded
+        if !processCode(generate)   return null;
+use field
+    generating = true;
     if isCoded
-        if !processCode(field)  return null;
+        if !processCode(field)      return null;
+    generating = false;
 GroupItem   BlocK:;
 GroupItem   Lines:;
-GroupItem   generator   = locate("generator");
-GroupItem   generate    = locate("generatE");
 GroupItem   bcLIST      = new("bcLIST");
-GroupItem   genAction   = new("genAction");
-    genAction.group     = field;
-    generator           +% genAction;
     bcLIST.noPrint      = true;
     bcLIST.isLocal      = true;
-    field +% bcLIST;
-    generating = true;
-    if !generate cerr "generateCode: could not find generatE() action":;
-    or Lines    runAction(Lines,generate);
-    generating = false;
+    field   +% bcLIST;
+    bcLIST = generator.replace(bcLIST);
+    if !generator   cerr "generateCode: could not find generator":;
+    else {
+        generate = generator["generatE"];
+        if !generate    cerr "generateCode: could not find generatE() action":;
+        or Lines {
+            cout "generateCode: running on",field.tag:;
+            runAction(Lines,generate); }}
     return null;
 }
 
