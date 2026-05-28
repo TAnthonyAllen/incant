@@ -12,7 +12,6 @@ GroupItem	    parent,
 RuleStuff       rStuff;
 boolean GroupOptions {
     affiliation:2[isAttribute isMember isEmbedded]
-    recursive
     isCopy } options;
 #autoGetSet
 
@@ -165,13 +164,12 @@ void clearData()
 }
 
 /***************************************************************************
-	Clear the list. Deletes groupList for now (later will let GC handle it).
+	Clear the list.
 ***************************************************************************/
 void clearList()
 {
     if !groupList   return;
-    if stakked      delete stakked;
-    delete          groupList;
+    groupList.clear();
     groupList       = 0;
     hasAttributes = hasMembers = 0;
 }
@@ -213,6 +211,7 @@ void copyListFrom(GroupItem grup)
 {
 GroupItem   fild,
             entry;
+    clearList();
     if grup.groupList
         while entry = grup.next(entry) {
             if entry.groupList    fild = new(entry);
@@ -484,6 +483,10 @@ int         noMoreAttributes;
 use rStuff
 use guardSet
     guardInProcess  = true;
+    if isSET {
+        guardSet   = characterSet;
+        guarded     = true;
+        goto endSetGuard; }
     guardSet = new();
     /***************************************************************************
         Handle data
@@ -494,10 +497,6 @@ use guardSet
     if !binType
         if data {
             switch(data) {
-                case isSET:     delete guardSet;
-                                guardSet   = characterSet;
-                                guarded     = true;
-                                goto endSetGuard;
                 case isGROUP:
                     item = group;
                     itemGuard           = item.getGuard();
@@ -544,9 +543,7 @@ use guardSet
     ***************************************************************************/
 endSetGuard:
     if guardSet {
-        if isEmpty()    {
-            delete guardSet;
-            guardSet    = 0; }
+        if isEmpty()    guardSet    = 0;
         if guardSet {
             guardSet.name = tag " Guardset";
             guarded         = true;
@@ -646,7 +643,8 @@ String      junkText;
             case isCHAR:
                 junkText        = malloc(2);
                 *junkText       = character;
-                *(junkText + 1) = 0; }
+                *(junkText + 1) = 0;
+            default:        junkText = tag "data type has no toString() method"; }
     or tag  junkText = tag;
 	return  junkText;
 }
@@ -666,6 +664,20 @@ GroupItem insertGroup(GroupItem grup)
     grup.parent = this;
     listLength++;
     return firstInList;
+}
+
+/*****************************************************************************
+    Insert grup into this's parent list immediately after this. Bookkeeping
+    parallel: append() only adjusts sibling pointers, so this wraps it with
+    parent/listLength/lastInList updates so the parent list stays consistent.
+*****************************************************************************/
+void insertAfter(GroupItem grup)
+{
+    append(grup);
+    grup.parent = parent;
+    if parent {
+        parent.listLength++;
+        if !grup.nextInParent   parent.lastInList = grup; }
 }
 
 /***************************************************************************
@@ -874,6 +886,7 @@ RuleStuff   ruleStuff   = getStuff(pStuff);
     isOK        = false;
     inProcess   = true;
     while !isOK && kount < max {
+continueHere:
         if !checkInput()    goto matchFailed;
         if hasMacro         setMacroValue(this);
         /*******************************************************************
@@ -882,7 +895,9 @@ RuleStuff   ruleStuff   = getStuff(pStuff);
         if testMatch || onGroup || hasAttributes {
             if testMatch                                        sukcess = testMatch(this);
             if !parseACTION {
-            else            sukcess = false;
+                if sukcess && onGroup && onGroup.parse(ruleStuff)   sukcess = true;
+                if sukcess && hasAttributes                         sukcess = testAttributes(ruleStuff); }}
+        else            sukcess = false;
         if !sukcess     goto matchFailed;
         /*******************************************************************
             Success. Fire label method if there is one.
@@ -911,9 +926,14 @@ matchSucceeded:
         else break; }
 matchFailed:
     if !sukcess {
-        if hasMembers && !guardFAIL
+        if isRule && hasMembers && !guardFAIL
             if sukcess = testOptions(ruleStuff)     goto matchSucceeded;
         if !sukcess && kount >= min sukcess = true;
+        if !*atRuleMark && inputDiverted {
+            while inputDiverted && !*atRuleMark {
+                lastIndent = 0;
+                popInput(); }
+            if sukcess && *atRuleMark   goto continueHere; }
 debugHere:
         if !sukcess {
             atRuleMark  = hereAt;
@@ -1078,8 +1098,8 @@ GroupItem   group = getFromList(name);
 GroupItem replace(GroupItem argument)
 {
 GroupItem   grup = getFromList(argument.tag);
-    if grup grup.setContent(argument);
-    or argument.isAttribute argument = addAttribute(argument);
+    if grup grup.remove();
+    if argument.isAttribute argument = addAttribute(argument);
     else                    argument = addMember(argument);
     return  argument;
 }

@@ -10,7 +10,6 @@ class BitMAP;
 struct GroupOptions
 	{
 	unsigned int affiliation:2;
-	unsigned int recursive:1;
 	unsigned int isCopy:1;
 	};
 #define isAttribute(button) (button == 1)
@@ -73,6 +72,7 @@ PLGrgx *getRegex();
 Stak *getStak();
 RuleStuff *getStuff(RuleStuff *pStuff);
 char *getText();
+void insertAfter(GroupItem *grup);
 GroupItem *insertGroup(GroupItem *grup);
 void makeRegistry();
 int matches(GroupItem *arg);

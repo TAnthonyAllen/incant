@@ -306,15 +306,13 @@ void GroupItem::clearData()
 }
 
 /***************************************************************************
-	Clear the list. Deletes groupList for now (later will let GC handle it).
+	Clear the list.
 ***************************************************************************/
 void GroupItem::clearList()
 {
 	if ( !groupBody->groupList )
 		return;
-	if ( groupBody->groupList->stakked )
-		delete groupBody->groupList->stakked;
-	delete groupBody->groupList;
+	groupBody->groupList->clear();
 	groupBody->groupList = 0;
 	groupBody->flags.hasAttributes = groupBody->flags.hasMembers = 0;
 }
@@ -362,6 +360,7 @@ void GroupItem::copyListFrom(GroupItem *grup)
 {
 GroupItem 	*fild = 0;
 GroupItem 	*entry = 0;
+	clearList();
 	if ( grup->groupBody->groupList )
 		while ( entry = grup->next(entry) )
 			{
@@ -650,22 +649,21 @@ PLGset 		*itemGuard = 0;
 char 		*junk = 0;
 int 		noMoreAttributes = 0;
 	setRuleStuff();
-int 		debugging = ruler->debugGuards || groupBody->flags.debugGuard;
+int 		debugging = ::compare(groupBody->tag,"Invoke") == 0;
 	if ( groupBody->flags.guarding )
 		goto returnGuard;
-	if ( debugging )
-		{
-		if ( parent )
-			::printf("Setting guard for %s in %s\n",groupBody->tag,parent->groupBody->tag);
-		else	::printf("Setting guard for %s\n",groupBody->tag);
-		junk = 0;
-		}
 	if ( groupBody->flags.isCondition )
 		{
 		groupBody->flags.guarding = 2;
 		goto endSetGuard;
 		}
 	groupBody->flags.guarding = 3;
+	if ( isSET(groupBody->flags.data) )
+		{
+		groupBody->guardSet = getCharacterSet();
+		groupBody->flags.guarding = 1;
+		goto endSetGuard;
+		}
 	groupBody->guardSet = new PLGset();
 	/***************************************************************************
 	Handle data
@@ -680,11 +678,6 @@ int 		debugging = ruler->debugGuards || groupBody->flags.debugGuard;
 			{
 			switch (groupBody->flags.data)
 				{
-				case 3:
-					delete groupBody->guardSet;
-					groupBody->guardSet = getCharacterSet();
-					groupBody->flags.guarding = 1;
-					goto endSetGuard;
 				case 6:
 					item = getGroup();
 					itemGuard = item->getGuard();
@@ -758,10 +751,7 @@ endSetGuard:
 	if ( groupBody->guardSet )
 		{
 		if ( groupBody->guardSet->isEmpty() )
-			{
-			delete groupBody->guardSet;
 			groupBody->guardSet = 0;
-			}
 		if ( groupBody->guardSet )
 			{
 			groupBody->guardSet->name = ::concat(2,groupBody->tag," Guardset");
@@ -775,8 +765,8 @@ endSetGuard:
 		{
 		if ( groupBody->flags.guarding )
 			if ( guarded(groupBody->flags.guarding) )
-				::printf("\tsetGuard: %s\t\t%s\n",groupBody->tag,groupBody->guardSet->toString());
-			else	::printf("\tsetGuard: %s is unguarded\n",groupBody->tag);
+				::printf("setGuard: %s\t\t%s",groupBody->tag,groupBody->guardSet->toString());
+			else	::printf("setGuard: %s is unguarded\n",groupBody->tag);
 		junk = 0;
 		}
 returnGuard:
@@ -931,11 +921,31 @@ char 	*junkText = 0;
 				junkText = (char*)::malloc(2);
 				*junkText = groupBody->gCharacter;
 				*(junkText + 1) = 0;
+				break;
+			default:
+				junkText = ::concat(2,groupBody->tag,"data type has no toString() method");
 			}
 	else
 	if ( groupBody->tag )
 		junkText = groupBody->tag;
 	return junkText;
+}
+
+/*****************************************************************************
+    Insert grup into this's parent list immediately after this. Bookkeeping
+    parallel: append() only adjusts sibling pointers, so this wraps it with
+    parent/listLength/lastInList updates so the parent list stays consistent.
+*****************************************************************************/
+void GroupItem::insertAfter(GroupItem *grup)
+{
+	append(grup);
+	grup->parent = parent;
+	if ( parent )
+		{
+		parent->groupBody->groupList->listLength++;
+		if ( !grup->nextInParent )
+			parent->groupBody->groupList->lastInList = grup;
+		}
 }
 
 /*****************************************************************************
@@ -1183,6 +1193,7 @@ RuleStuff 	*ruleStuff = getStuff(pStuff);
 	ruleStuff->inProcess = 1;
 	while ( !ruleStuff->isOK && ruleStuff->kount < ruleStuff->max )
 		{
+continueHere:
 		if ( ruler->debugAllRules || ruleStuff->rule->groupBody->flags.debugged )
 			{
 			if ( StringRoutines::debugIndent < 0 )
@@ -1266,11 +1277,21 @@ matchSucceeded:
 matchFailed:
 	if ( !ruleStuff->sukcess )
 		{
-		if ( groupBody->flags.hasMembers && !ruleStuff->guardFAIL )
+		if ( groupBody->flags.isRule && groupBody->flags.hasMembers && !ruleStuff->guardFAIL )
 			if ( ruleStuff->sukcess = ::testOptions(ruleStuff) )
 				goto matchSucceeded;
 		if ( !ruleStuff->sukcess && ruleStuff->kount >= ruleStuff->min )
 			ruleStuff->sukcess = 1;
+		if ( !*ruler->atRuleMark && ruler->inputDiverted )
+			{
+			while ( ruler->inputDiverted && !*ruler->atRuleMark )
+				{
+				ruler->lastIndent = 0;
+				ruler->popInput();
+				}
+			if ( ruleStuff->sukcess && *ruler->atRuleMark )
+				goto continueHere;
+			}
 debugHere:
 		if ( ruler->debugAllRules || ruleStuff->rule->groupBody->flags.debugged )
 			{
@@ -1492,8 +1513,7 @@ GroupItem *GroupItem::replace(GroupItem *argument)
 {
 GroupItem 	*grup = getFromList(argument->groupBody->tag);
 	if ( grup )
-		grup->setContent(argument);
-	else
+		grup->remove();
 	if ( isAttribute(argument->options.affiliation) )
 		argument = addAttribute(argument);
 	else	argument = addMember(argument);

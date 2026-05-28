@@ -481,15 +481,183 @@ String      printText   = string();
 }
 
 /***************************************************************************
-	Rule action for the :+ replace operator
+	Rule action for the :+ replace operator. DiR-prefix dispatch routes
+	directive arguments to ReplaceDirective (parallel to opPlusEQ's
+	dispatch to applyDirectives).
 ***************************************************************************/
 extern GroupItem opReplace(GroupItem argument,GroupItem target)
 {
 GroupItem   grup;
+    if !compare(head(argument.tag,3),"DiR")
+        return ReplaceDirective(argument,target);
     if argument.isLIST
         while grup = argument.prior(grup)
             opReplace(grup,target);
     else    target.replace(argument);
+    return target;
+}
+
+/***************************************************************************
+	Statement equivalence test. v1: top-level GroupItem.matches (tag, data,
+	content equality at the root node). v2 candidate: recursive AST walk.
+***************************************************************************/
+extern int statementMatches(GroupItem a,GroupItem b)
+{
+    return a.matches(b);
+}
+
+/***************************************************************************
+	Text-substrate substring replace. Uses containsString (returns char* to
+	match position, hand-edited in support/Frame/StringRoutines.C). Single-
+	occurrence; returns text unchanged if from not found. Transitional
+	helper for the incant text-directive hybrid prototype (2026-05-28);
+	will be retired when Buffer extern incant methods provide in-place
+	span surgery directly.
+***************************************************************************/
+extern String replaceUsingFind(String text,String fromTxt,String toTxt)
+{
+String  position = containsString(text,fromTxt);
+int     fromLen, toLen, prefixLen, suffixLen;
+String  result;
+    if !position    return text;
+    fromLen   = (int)strlen(fromTxt);
+    toLen     = (int)strlen(toTxt);
+    prefixLen = (int)(position - text);
+    suffixLen = (int)strlen(text) - prefixLen - fromLen;
+    result    = (char*)calloc((size_t)(prefixLen + toLen + suffixLen + 1),sizeof(char));
+    strncpy(result,text,(size_t)prefixLen);
+    strcpy(result + prefixLen,toTxt);
+    strcpy(result + prefixLen + toLen,position + fromLen);
+    return result;
+}
+
+/***************************************************************************
+	Match engine. Walks targetLines looking for the first member that
+	starts a span structurally equal to fromBlock's Lines. Returns that
+	anchor member, or null.
+***************************************************************************/
+extern GroupItem matchSpanInLines(GroupItem targetLines,GroupItem fromBlock)
+{
+GroupItem   fromBlocK = fromBlock["BlocK"];
+GroupItem   fromLines;
+GroupItem   firstFrom;
+GroupItem   candidate;
+GroupItem   tWalk;
+GroupItem   fWalk;
+    if !fromBlocK   return null;
+    fromLines = fromBlocK.getLabelGroup("Lines");
+    if !fromLines || !fromLines.groupList   return null;
+    firstFrom = fromLines.firstInList;
+    candidate = targetLines.firstInList;
+    while candidate {
+        if statementMatches(candidate,firstFrom) {
+            tWalk = candidate.nextInParent;
+            fWalk = firstFrom.nextInParent;
+            while fWalk && tWalk && statementMatches(tWalk,fWalk) {
+                tWalk = tWalk.nextInParent;
+                fWalk = fWalk.nextInParent; }
+            if !fWalk   return candidate; }
+        candidate = candidate.nextInParent; }
+    return null;
+}
+
+/***************************************************************************
+	Detach the matched span from targetLines (proper bookkeeping via
+	GroupItem.remove), then splice toBlock's Lines members in at the
+	same position. toBlock may be null (delete case). Uses the parent=null
+	move idiom for the toLines side since toLines is abandoned after
+	the splice (cousin of spliceDirectives' move loop).
+***************************************************************************/
+extern void ReplaceAtAnchor(GroupItem targetLines,GroupItem anchor,
+                            GroupItem fromBlock,GroupItem toBlock)
+{
+GroupItem   fromBlocK = fromBlock["BlocK"];
+GroupItem   fromLines;
+GroupItem   toBlocK;
+GroupItem   toLines;
+GroupItem   spanWalk;
+GroupItem   adjacent;
+GroupItem   priorAnchor = anchor.priorInParent;
+int         spanLength;
+int         i;
+    if !fromBlocK   return;
+    fromLines = fromBlocK.getLabelGroup("Lines");
+    if !fromLines   return;
+    spanLength = fromLines.listLength;
+    spanWalk = anchor;
+    for ( i = 0; i < spanLength; i++ ) {
+        if !spanWalk    break;
+        adjacent = spanWalk.nextInParent;
+        spanWalk.remove();
+        spanWalk = adjacent; }
+    if toBlock {
+        toBlocK = toBlock["BlocK"];
+        if toBlocK {
+            toLines = toBlocK.getLabelGroup("Lines");
+            if toLines && toLines.groupList {
+                spanWalk = toLines.lastInList;
+                while spanWalk {
+                    adjacent = spanWalk.priorInParent;
+                    spanWalk.parent = null;
+                    if priorAnchor  priorAnchor.insertAfter(spanWalk);
+                    else            targetLines.insertGroup(spanWalk);
+                    spanWalk = adjacent; } } } }
+}
+
+/***************************************************************************
+	Replace-directive orchestrator. Parallel to applyDirectives but does
+	match-and-swap rather than splice-into-end. Idempotent via the target's
+	DiRs registry. Routes here from opReplace's DiR-prefix hook.
+***************************************************************************/
+extern GroupItem ReplaceDirective(GroupItem argument,GroupItem target)
+{
+GroupItem   grup;
+GroupItem   DiRs;
+GroupItem   fromAttr;
+GroupItem   toAttr;
+GroupItem   fromBlk;
+GroupItem   toBlk;
+GroupItem   anchor;
+GroupItem   targetLines;
+    if argument.isLIST
+        while grup = argument.prior(grup)
+            ReplaceDirective(grup,target);
+    else {
+        DiRs = target["DiRs"];
+        if !DiRs {
+            DiRs = target += "DiRs";
+            DiRs.noPrint = true; }
+        if DiRs[argument.tag]   return target;
+        DiRs += argument;
+
+        if !target["BlocK"]     processCode(target);
+        /* Positional access (Tony 2026-05-28): directive's children are the
+           from-ref (first) and to-ref (second). No from=/to= labels.
+           Try .group first (parser-resolved reference); fall back to the
+           child itself in case the child IS the resolved field directly. */
+        fromAttr = argument.firstInList;
+        if !fromAttr {
+            cerr "Replace directive needs 'from' as first child:",argument.tag:;
+            return target; }
+        fromBlk = fromAttr.group;
+        if !fromBlk     fromBlk = fromAttr;
+        if !fromBlk["BlocK"]    processCode(fromBlk);
+
+        toAttr = fromAttr.nextInParent;
+        if toAttr {
+            toBlk = toAttr.group;
+            if !toBlk   toBlk = toAttr;
+            if !toBlk["BlocK"]  processCode(toBlk); }
+
+        targetLines = target["BlocK"].getLabelGroup("Lines");
+        if !targetLines     return target;
+        anchor = matchSpanInLines(targetLines,fromBlk);
+        if !anchor {
+            cerr "Replace directive could not match 'from' in target:",target.tag:;
+            return target; }
+
+        ReplaceAtAnchor(targetLines,anchor,fromBlk,toBlk);
+    }
     return target;
 }
 

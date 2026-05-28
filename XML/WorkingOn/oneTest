@@ -5,15 +5,31 @@ include(generate);
 
 search reset stack Grokking Generating Stuff list;
 
+generateCode(testByteCode);
+dumpBC(testByteCode.bcLIST);
+
 generateCode(testGXLeaf);
 print testGXLeaf.bcLIST:;
-stop();
+dumpBC(testGXLeaf.bcLIST);
 
 generateCode(testEmitBC);
 print testEmitBC.bcLIST:;
-stop();
+dumpBC(testEmitBC.bcLIST);
 
-generateCode(testByteCode);
+/*****************************************************************************
+	Directive tests — splice baseline + new replace + new delete (2026-05-28)
+*****************************************************************************/
+testDirective();
+testDirectiveReplace();
+testDirectiveDelete();
+
+/*****************************************************************************
+	Minimal probes — isolate testStringQuoting/testHybridPrototype parse fail
+*****************************************************************************/
+testJustPrint();
+testWithTab();
+testWithAssign();
+
 stop();
 /*****************************************************************************
 	Unit Tests

@@ -44,10 +44,21 @@ define
     feeling='having a few doubts ends here';
     formatTest code={ print "formatTest:" `is "Formatted"%12s maybe:; };
     ifTest code={
-        print "ifTest:"`;
-        if !across.isLocaL;
-            if righty; print "Got it":;
-        or hasGroup; print "No across, saw or statement":; };
+        print "ifTest:":;
+        for grup in aGroup;
+            print ``"grup=" grup.taG ":":;
+            if grup.taG == "one";
+                if righty == 13;
+                    print "  outer-then, inner-then":;
+                or righty == 99;
+                    print "  outer-then, inner-or":;
+                else
+                    print "  outer-then, inner-else":;
+            or grup.taG == "two";
+                print "  outer-or":;
+            else
+                print "  outer-else":;
+        };
     invokeTest code={ print "invokeTest:"` clear(aGroup); anotherTest(); print Invoked:; };
     jsonFile file="/Users/anthony/Dropbox/data/InProcess/Groups/Tests/test.json";
     layout code={ gruber = 23; print "layout:"`"Here is" parent.taG and gruber:; };
@@ -121,6 +132,31 @@ define
 /*****************************************************************************
 	Working On
 *****************************************************************************/
+    someField code={
+        print "First line":;
+        // @someFieldDirective1
+        print "Last line":;};
+    someFieldDirective1={ this is just text pretending to be code to see where it ends up };
+    dirTarget code={
+        print "target line 1":;
+        print "target line 2":; };
+    DiRgreeting at=starting code={
+        print "*** directive fired (starting) ***":; };
+    DiRfarewell at=ending code={
+        print "*** directive fired (ending) ***":; };
+    testDirective code={
+        print ``"--- STATE inactive: dirTarget, no directive ---":;
+        dirTarget();
+        print ``"--- STATE active: dirTarget += DiRgreeting (starting) ---":;
+        dirTarget += DiRgreeting;
+        dirTarget();
+        print ``"--- add DiRfarewell (ending), run ---":;
+        dirTarget += DiRfarewell;
+        dirTarget();
+        print ``"--- idempotent: re-apply both, run again ---":;
+        dirTarget += DiRgreeting;
+        dirTarget += DiRfarewell;
+        dirTarget(); };
     testByteCode code={
         if righty > 0; maximus = righty * 2; };
     testEmitBC code={
@@ -132,4 +168,73 @@ define
         if 42;      maximus = 1; };
     bracing argument code={
         xp  = argument[1]; };
+    testEnd code={
+        result =] styleTest;
+        **result; };
+    bcLISTdump argument code={
+        print "bcLIST contents:":;
+        for bc in argument
+            print `bc.tag ":" bc:; };
+    /*************************************************************************
+        Replace-directive test fixtures + runner.
+        Modeled on testDirective (line 147). Three states + delete variant.
+
+        Open syntax question (resolved by first run): does `from={...}` /
+        `to={...}` parse the curly-block as a code body on the directive
+        attribute? If not, the runtime sees from/to as text-only and the
+        match engine has nothing to walk. Adjust syntax based on dump output.
+    *************************************************************************/
+    replaceTarget code={
+        print "target line 1":;
+        print "original line":;
+        print "target line 3":; };
+    /* Positional shape (Tony 2026-05-28): directive's children ARE the
+       from-ref (first) and to-ref (second). ReplaceDirective uses firstInList
+       / nextInParent to access them; no from=/to= labels needed. */
+    fromBody code={ print "original line":; };
+    toBody   code={ print "replaced line":; };
+    DiRReplaceFoo fromBody toBody;
+    DiRDeleteFoo  fromBody;
+    testDirectiveReplace code={
+        print ``"--- STATE inactive: replaceTarget, no directive ---":;
+        replaceTarget();
+        print ``"--- STATE active: replaceTarget :+ DiRReplaceFoo ---":;
+        replaceTarget :+ DiRReplaceFoo;
+        replaceTarget();
+        print ``"--- idempotent: re-apply, run again ---":;
+        replaceTarget :+ DiRReplaceFoo;
+        replaceTarget(); };
+    deleteTarget code={
+        print "delete line 1":;
+        print "original line":;
+        print "delete line 3":; };
+    testDirectiveDelete code={
+        print ``"--- STATE inactive: deleteTarget, no directive ---":;
+        deleteTarget();
+        print ``"--- STATE active: deleteTarget :+ DiRDeleteFoo ---":;
+        deleteTarget :+ DiRDeleteFoo;
+        deleteTarget(); };
+    /*************************************************************************
+        Hybrid prototype (2026-05-28): load a .twk file into a buffer field as
+        text, do a text-level replace on it, print before/after. Probes the
+        text-substrate path WITHOUT going through `field += DiRfoo` (the
+        applyDirectives path won't handle text-fields yet). If the replace
+        lands in fileField.text, the substrate path is validated and we know
+        what's needed to wire it into the `+=` mechanism.
+
+        No file write yet — Buffer extern incant methods (setFile + flush)
+        aren't reachable from incant. The buffer holds the modified text in
+        memory; printing it confirms.
+    *************************************************************************/
+    /*************************************************************************
+        Minimal probes — isolate parse failure root cause for the hybrid
+        prototype. Each probe tests ONE hypothesis.
+    *************************************************************************/
+    testJustPrint code={
+        print "hello":; };
+    testWithTab code={
+        print "tab\there":; };
+    testWithAssign x code={
+        x = "hi";
+        print x:; };
     ;

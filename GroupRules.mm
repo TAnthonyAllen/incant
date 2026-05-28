@@ -42,6 +42,130 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return ruler->trueResult;
 }
 
+/***************************************************************************
+	Detach the matched span from targetLines (proper bookkeeping via
+	GroupItem.remove), then splice toBlock's Lines members in at the
+	same position. toBlock may be null (delete case). Uses the parent=null
+	move idiom for the toLines side since toLines is abandoned after
+	the splice (cousin of spliceDirectives' move loop).
+***************************************************************************/
+extern "C" void ReplaceAtAnchor(GroupItem *targetLines, GroupItem *anchor, GroupItem *fromBlock, GroupItem *toBlock)
+{
+GroupItem 	*fromBlocK = fromBlock->get("BlocK");
+GroupItem 	*fromLines = 0;
+GroupItem 	*toBlocK = 0;
+GroupItem 	*toLines = 0;
+GroupItem 	*spanWalk = 0;
+GroupItem 	*adjacent = 0;
+GroupItem 	*priorAnchor = anchor->priorInParent;
+int 		spanLength = 0;
+int 		i = 0;
+	if ( !fromBlocK )
+		return;
+	fromLines = fromBlocK->getLabelGroup("Lines");
+	if ( !fromLines )
+		return;
+	spanLength = fromLines->groupBody->groupList->listLength;
+	spanWalk = anchor;
+	for ( i = 0; i < spanLength; i++ )
+		{
+		if ( !spanWalk )
+			break;
+		adjacent = spanWalk->nextInParent;
+		spanWalk->remove();
+		spanWalk = adjacent;
+		}
+	if ( toBlock )
+		{
+		toBlocK = toBlock->get("BlocK");
+		if ( toBlocK )
+			{
+			toLines = toBlocK->getLabelGroup("Lines");
+			if ( toLines && toLines->groupBody->groupList )
+				{
+				spanWalk = toLines->groupBody->groupList->lastInList;
+				while ( spanWalk )
+					{
+					adjacent = spanWalk->priorInParent;
+					spanWalk->parent = 0;
+					if ( priorAnchor )
+						priorAnchor->insertAfter(spanWalk);
+					else	targetLines->insertGroup(spanWalk);
+					spanWalk = adjacent;
+					}
+				}
+			}
+		}
+}
+
+/***************************************************************************
+	Replace-directive orchestrator. Parallel to applyDirectives but does
+	match-and-swap rather than splice-into-end. Idempotent via the target's
+	DiRs registry. Routes here from opReplace's DiR-prefix hook.
+***************************************************************************/
+extern "C" GroupItem *ReplaceDirective(GroupItem *argument, GroupItem *target)
+{
+GroupItem 	*grup = 0;
+GroupItem 	*DiRs = 0;
+GroupItem 	*fromAttr = 0;
+GroupItem 	*toAttr = 0;
+GroupItem 	*fromBlk = 0;
+GroupItem 	*toBlk = 0;
+GroupItem 	*anchor = 0;
+GroupItem 	*targetLines = 0;
+	if ( isLIST(argument->groupBody->flags.binType) )
+		while ( grup = argument->prior(grup) )
+			::ReplaceDirective(grup,target);
+	else {
+		DiRs = target->get("DiRs");
+		if ( !DiRs )
+			{
+			DiRs = target->addString("DiRs");
+			DiRs->groupBody->flags.noPrint = 1;
+			}
+		if ( DiRs->get(argument->groupBody->tag) )
+			return target;
+		DiRs->addMember(argument);
+		if ( !target->get("BlocK") )
+			::processCode(target);
+		/* Positional access (Tony 2026-05-28): directive's children are the
+		from-ref (first) and to-ref (second). No from=/to= labels.
+		Try .group first (parser-resolved reference); fall back to the
+		child itself in case the child IS the resolved field directly. */
+		fromAttr = argument->groupBody->groupList->firstInList;
+		if ( !fromAttr )
+			{
+			::fprintf(stderr,"Replace directive needs 'from' as first child: %s\n",argument->groupBody->tag);
+			return target;
+			}
+		fromBlk = fromAttr->getGroup();
+		if ( !fromBlk )
+			fromBlk = fromAttr;
+		if ( !fromBlk->get("BlocK") )
+			::processCode(fromBlk);
+		toAttr = fromAttr->nextInParent;
+		if ( toAttr )
+			{
+			toBlk = toAttr->getGroup();
+			if ( !toBlk )
+				toBlk = toAttr;
+			if ( !toBlk->get("BlocK") )
+				::processCode(toBlk);
+			}
+		targetLines = target->get("BlocK")->getLabelGroup("Lines");
+		if ( !targetLines )
+			return target;
+		anchor = ::matchSpanInLines(targetLines,fromBlk);
+		if ( !anchor )
+			{
+			::fprintf(stderr,"Replace directive could not match 'from' in target: %s\n",target->groupBody->tag);
+			return target;
+			}
+		::ReplaceAtAnchor(targetLines,anchor,fromBlk,toBlk);
+		}
+	return target;
+}
+
 /*******************************************************************************
 	The ANYtoken rule action excludes key words and undefined token fields
 *******************************************************************************/
@@ -281,6 +405,9 @@ GroupItem 	*item = 0;
 		/***********************************************************************
 		Process Attributes.
 		***********************************************************************/
+		::printf("aCTionDefinE: %s %d\n",NewGroup->groupBody->tag,ruler->lastIndent);
+		if ( ::compare(NewGroup->groupBody->tag,"<:") == 0 )
+			item = 0;
 		if ( Attributes )
 			while ( item = Attributes->next(item) )
 				if ( item->groupBody->flags.noPrint && immediateACTION(item->groupBody->flags.methodType) )
@@ -558,6 +685,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*action = ruler->currentMETHOD;
 GroupItem 	*result = 0;
 char 		*arg = input->getText();
+	if ( ::compare(arg,"entries") == 0 )
+		result = 0;
 	result = GroupControl::groupController->locateInMethod(arg);
 	if ( !result )
 		if ( ruler->currentRegistry == ruler->opFields || ruler->alphaSet->contains(*arg) )
@@ -1764,6 +1893,7 @@ char 		*name = 0;
 extern "C" GroupItem *loadInputFromFile(GroupItem *source)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	::printf("\t\t\tincluding %s\n",source->groupBody->tag);
 	if ( ::getFile(source) )
 		return source;
 	else	::fprintf(stderr,"\t\tloadInputFromFile: failed getting file from %s\n",source->groupBody->tag);
@@ -1868,6 +1998,45 @@ extern "C" GroupItem *makeNew(GroupItem *input)
 char 		*strung = input->getText();
 GroupItem 	*grup = new GroupItem(strung);
 	return grup;
+}
+
+/***************************************************************************
+	Match engine. Walks targetLines looking for the first member that
+	starts a span structurally equal to fromBlock's Lines. Returns that
+	anchor member, or null.
+***************************************************************************/
+extern "C" GroupItem *matchSpanInLines(GroupItem *targetLines, GroupItem *fromBlock)
+{
+GroupItem 	*fromBlocK = fromBlock->get("BlocK");
+GroupItem 	*fromLines = 0;
+GroupItem 	*firstFrom = 0;
+GroupItem 	*candidate = 0;
+GroupItem 	*tWalk = 0;
+GroupItem 	*fWalk = 0;
+	if ( !fromBlocK )
+		return 0;
+	fromLines = fromBlocK->getLabelGroup("Lines");
+	if ( !fromLines || !fromLines->groupBody->groupList )
+		return 0;
+	firstFrom = fromLines->groupBody->groupList->firstInList;
+	candidate = targetLines->groupBody->groupList->firstInList;
+	while ( candidate )
+		{
+		if ( ::statementMatches(candidate,firstFrom) )
+			{
+			tWalk = candidate->nextInParent;
+			fWalk = firstFrom->nextInParent;
+			while ( fWalk && tWalk && ::statementMatches(tWalk,fWalk) )
+				{
+				tWalk = tWalk->nextInParent;
+				fWalk = fWalk->nextInParent;
+				}
+			if ( !fWalk )
+				return candidate;
+			}
+		candidate = candidate->nextInParent;
+		}
+	return 0;
 }
 
 /*****************************************************************************
@@ -2532,11 +2701,15 @@ char 		*printText = buffer->string();
 }
 
 /***************************************************************************
-	Rule action for the :+ replace operator
+	Rule action for the :+ replace operator. DiR-prefix dispatch routes
+	directive arguments to ReplaceDirective (parallel to opPlusEQ's
+	dispatch to applyDirectives).
 ***************************************************************************/
 extern "C" GroupItem *opReplace(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*grup = 0;
+	if ( !::compare(::headToCount(argument->groupBody->tag,3),"DiR") )
+		return ::ReplaceDirective(argument,target);
 	if ( isLIST(argument->groupBody->flags.binType) )
 		while ( grup = argument->prior(grup) )
 			::opReplace(grup,target);
@@ -2907,8 +3080,39 @@ char 		*name = item->getText();
 		registry. argument likely points to a copy
 		*******************************************************************/
 		ruler->currentRegistry = argument->groupBody->registry;
+		::printf("\t\t\t\tCurrent registry: %s\n",ruler->currentRegistry->groupBody->tag);
+		item = 0;
 		}
 	return ruler->trueResult;
+}
+
+/***************************************************************************
+	Text-substrate substring replace. Uses containsString (returns char* to
+	match position, hand-edited in support/Frame/StringRoutines.C). Single-
+	occurrence; returns text unchanged if from not found. Transitional
+	helper for the incant text-directive hybrid prototype (2026-05-28);
+	will be retired when Buffer extern incant methods provide in-place
+	span surgery directly.
+***************************************************************************/
+extern "C" char *replaceUsingFind(char *text, char *fromTxt, char *toTxt)
+{
+char 	*position = ::containsString(text,fromTxt);
+int 	fromLen = 0;
+int 	toLen = 0;
+int 	prefixLen = 0;
+int 	suffixLen = 0;
+char 	*result = 0;
+	if ( !position )
+		return text;
+	fromLen = (int)::strlen(fromTxt);
+	toLen = (int)::strlen(toTxt);
+	prefixLen = (int)(position - text);
+	suffixLen = (int)::strlen(text) - prefixLen - fromLen;
+	result = (char*)::calloc((size_t)(prefixLen + toLen + suffixLen + 1),sizeof(char));
+	::strncpy(result,text,(size_t)prefixLen);
+	::strcpy(result + prefixLen,toTxt);
+	::strcpy(result + prefixLen + toLen,position + fromLen);
+	return result;
 }
 
 /*****************************************************************************
@@ -2935,6 +3139,7 @@ extern "C" void restoreLocalFields(GroupItem *action)
 Stak 		*recurseSTAK = action->getStak();
 GroupBody 	*body = 0;
 GroupItem 	*grup = 0;
+	::printf("restoreLocalFields for: %s on stak: %d\n",action->groupBody->tag,recurseSTAK->length);
 	if ( !recurseSTAK->length )
 		action->groupBody->flags.recursive = 0;
 	else
@@ -3083,6 +3288,7 @@ GroupItem 	*grup = 0;
 			grup->clear();
 			recurseSTAK->push(body);
 			}
+	::printf("saveLocalFields for: %s on stak: %d\n",action->groupBody->tag,recurseSTAK->length);
 }
 
 /***************************************************************************
@@ -3245,6 +3451,15 @@ int 		ending = 0;
 			stmt = adjacent;
 			}
 		}
+}
+
+/***************************************************************************
+	Statement equivalence test. v1: top-level GroupItem.matches (tag, data,
+	content equality at the root node). v2 candidate: recursive AST walk.
+***************************************************************************/
+extern "C" int statementMatches(GroupItem *a, GroupItem *b)
+{
+	return a->matches(b);
 }
 
 /***************************************************************************
@@ -3619,4 +3834,5 @@ int 	result = 0;
 }
 /*	Warning: the following methods were referenced but not declared
 	read(int,char*,long)
+	insertAfter(GroupItem*)
 */
