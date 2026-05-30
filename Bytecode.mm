@@ -1,124 +1,158 @@
-//
-//  Bytecode.mm — incant bytecode handlers (Phase 2 step 2b)
-//
-//  Per-op interpreter handlers, dispatched from incant's interpret() loop
-//  via the `interpret` sub-attribute on op GroupItems (registered in
-//  XML/WorkingOn/setup under Operators and bcOPs registries). Two-step
-//  dispatch: `handler = grup.interpret; handler(grup);` — incant's
-//  one-method-per-field invariant means the attribute's method IS the
-//  handler.
-//
-//  Convention (locked in step 2a discussion):
-//    * Operands read by named attribute on the instruction GroupItem
-//      (op1, op2, cond, target, value, dst).
-//    * Return null = implicit-next (interpret() falls through to next sibling).
-//    * Return non-null = jump to that instruction next.
-//
-//  Vreg slots: there aren't any. A "vreg" in the bytecode design is just
-//  a GroupItem field being used as a register — `dst->setGroup(result)` is
-//  the storage primitive. No special type, no per-action vreg array. The
-//  field IS the register. (Everything is a field — same principle that
-//  makes incant reflective.)
-//
-//  Open / verify-on-first-run:
-//    * runRET halt semantics — currently returns null (implicit-next),
-//      relying on runRET being the last instruction so next-sibling lookup
-//      yields nothing. If we need a mid-body halt, introduce a sentinel.
-//
-
-#include "Bytecode.h"
+#include <Cocoa/Cocoa.h>
+#include <string.h>
+#include <stdio.h>
+#include "OCroutines.h"
 #include "GroupItem.h"
 #include "GroupRules.h"
-#include "GroupControl.h"
+#include "Bytecode.h"
 
-// Forward declarations of the existing op handlers we wrap.
-extern "C" GroupItem *opGT       (GroupItem *argument, GroupItem *target);
-extern "C" GroupItem *opMultiply (GroupItem *argument, GroupItem *target);
-extern "C" GroupItem *opAssign   (GroupItem *argument, GroupItem *target);
+// opGT / opMultiply / opAssign are declared via groupIncludes (included above).
+/***************************************************************************
+    The operand stack for an instruction's body -- a plain field used as a
+    stack. interpret() hangs an `opStack` field off the bcLIST before walking
+    it; every handler reaches it through the instruction's parent (the bcLIST).
+***************************************************************************/
+extern "C" GroupItem *opStackOf(GroupItem *instr)
+{
+GroupItem 	*body = instr->parent;
+	return body->getAttribute("opStack");
+}
 
-// ---------- Control-flow handlers (registered in bcOPs) ----------
-
+/***************************************************************************
+    bcBR — unconditional branch to the `dst` label.
+***************************************************************************/
 extern "C" GroupItem *runBR(GroupItem *instr)
 {
-    // Unconditional branch: jump to instr.target.
-    return instr->getAttribute("target");
+	return instr->getAttribute("dst");
 }
 
+// ---------- control flow: cond from stack, target from instruction ----------
+/***************************************************************************
+    bcBRZ — pop the condition; if zero/false, branch to the label carried in
+    the instruction's `dst` attribute. Otherwise fall through (null).
+***************************************************************************/
 extern "C" GroupItem *runBRZ(GroupItem *instr)
 {
-    // Branch if zero: read cond, jump to target if zero, else fall through.
-    GroupItem *cond   = instr->getAttribute("cond");
-    GroupItem *target = instr->getAttribute("target");
-    // "Zero" interpretation: a null cond, a count of 0, or a falsy GroupItem
-    // (no result from preceding op handler — opGT etc. return trueResult or
-    // null, so the natural test is "is cond null/falsy?"). Using getCount()
-    // covers numeric zero; falling through to null-check covers the
-    // null-result case from comparison ops.
-    if ( !cond || !cond->getCount() )
-        return target;
-    return 0;
+GroupItem 	*stack = ::opStackOf(instr);
+GroupItem 	*cond = stack->pop();
+	if ( !cond || !cond->getCount() )
+		return instr->getAttribute("dst");
+	return 0;
 }
 
-extern "C" GroupItem *runRET(GroupItem *instr)
-{
-    // Halt — see file header note on null-return semantics.
-    return 0;
-}
-
+/***************************************************************************
+    bcCALL — invoke a callable; result lands on the stack. Stub: no calls in
+    the current test surface.
+    TODO: invoke instr's callee with its args; push the result.
+***************************************************************************/
 extern "C" GroupItem *runCall(GroupItem *instr)
 {
-    // Step 2b stub: real implementation lands when the first test exercises
-    // a composite operand like A(B). For testByteCode (no calls), returning
-    // null is harmless.
-    // TODO: invoke instr.callee with instr.args; store result in instr.dst.
-    return 0;
+	return 0;
 }
 
-// ---------- Operator-shim handlers (registered as interpretMethod on Operators) ----------
-
+// ---------- op-shims: pop two, materialize a stable result, push ----------
+/***************************************************************************
+    runGT — pop right then left, compare, push a STABLE 0/1 cond node. opGT
+    returns a shared trueResult (or null on false), so we never push its
+    return directly: materialize a fresh count node instead.
+***************************************************************************/
 extern "C" GroupItem *runGT(GroupItem *instr)
 {
-    GroupItem *op1 = instr->getAttribute("op1");   // left  operand (target)
-    GroupItem *op2 = instr->getAttribute("op2");   // right operand (argument)
-    GroupItem *dst = instr->getAttribute("dst");
-
-    // opGT signature: opGT(argument, target). op1 is left/target, op2 is
-    // right/argument. Pass (op2, op1) to preserve compareValues(target, arg).
-    GroupItem *result = ::opGT(op2, op1);
-
-    if ( dst )
-        dst->setGroup(result);
-    return 0;
+GroupItem 	*stack = ::opStackOf(instr);
+GroupItem 	*op2 = stack->pop();
+	// right operand (pushed last)
+GroupItem 	*op1 = stack->pop();
+	// left  operand
+GroupItem 	*cond = new GroupItem("cond");
+GroupItem 	*hit = ::opGT(op2,op1);
+	// keep opGT(argument, target) order
+	if ( hit )
+		cond->setCount(1);
+	else	cond->setCount(0);
+	stack->push(cond);
+	return 0;
 }
 
+/***************************************************************************
+    runMultiply — pop two, multiply, push a COPY of the product. opMultiply
+    returns the shared tempField (value overwritten by the next arith op), so
+    we copy its value into a fresh node before pushing. prod is pushed even on
+    a null result (stays empty), keeping the stack depth predictable.
+***************************************************************************/
 extern "C" GroupItem *runMultiply(GroupItem *instr)
 {
-    GroupItem *op1 = instr->getAttribute("op1");
-    GroupItem *op2 = instr->getAttribute("op2");
-    GroupItem *dst = instr->getAttribute("dst");
-
-    // Same arg-order rule as runGT: (argument, target) → (op2, op1).
-    GroupItem *result = ::opMultiply(op2, op1);
-
-    if ( dst )
-        dst->setGroup(result);
-    return 0;
+GroupItem 	*stack = ::opStackOf(instr);
+GroupItem 	*op2 = stack->pop();
+GroupItem 	*op1 = stack->pop();
+GroupItem 	*result = ::opMultiply(op2,op1);
+GroupItem 	*prod = new GroupItem("prod");
+	if ( result )
+		prod->setContent(result);
+	// copy value off the shared temp
+	stack->push(prod);
+	return 0;
 }
 
-extern "C" GroupItem *runAssign(GroupItem *instr)
+/***************************************************************************
+    bcPushField — push the referenced field's value. Same shape as bcPushLit
+    today (the emit currently folds the value onto the instruction). When the
+    emit carries a real field reference instead, this reads + pushes the
+    field's CURRENT value.
+***************************************************************************/
+extern "C" GroupItem *runPushField(GroupItem *instr)
 {
-    // For assignment the operand naming flips slightly — the destination is
-    // the field being assigned to (target), and the value is the right-hand
-    // side. opAssign signature: opAssign(argument, target). Pass (value,
-    // target) so target := value semantically.
-    GroupItem *target = instr->getAttribute("target");
-    GroupItem *value  = instr->getAttribute("value");
+GroupItem 	*stack = ::opStackOf(instr);
+GroupItem 	*value = new GroupItem("fld");
+	value->setContent(instr);
+	stack->push(value);
+	return 0;
+}
 
-    GroupItem *result = ::opAssign(value, target);
+// ---------- producers: push a fresh value node onto the operand stack ----------
+/***************************************************************************
+    bcPushLit — push the literal the instruction carries. A fresh node copies
+    the value off the instruction (setContent copies its data), so the live
+    bcLIST member is never moved onto the stack.
+***************************************************************************/
+extern "C" GroupItem *runPushLit(GroupItem *instr)
+{
+GroupItem 	*stack = ::opStackOf(instr);
+GroupItem 	*value = new GroupItem("lit");
+	value->setContent(instr);
+	stack->push(value);
+	return 0;
+}
 
-    // opAssign already mutates target; no separate dst write needed.
-    // Some emit patterns may also want the assigned value in a dst slot
-    // for downstream use — wire that here if it turns out to matter.
-    (void)result;
-    return 0;
+/***************************************************************************
+    bcRET — halt. Returns null; relies on runRET being the last instruction so
+    the next-sibling lookup yields nothing. interpret() also asserts the
+    operand stack is empty here.
+***************************************************************************/
+extern "C" GroupItem *runRET(GroupItem *instr)
+{
+	return 0;
+}
+
+// ---------- consumer: pop a value, store into a field ----------
+/***************************************************************************
+    bcStoreField — pop the top value, assign it into the target field the
+    instruction names (e.g. maximus). Delegates to opAssign (target := value).
+***************************************************************************/
+extern "C" GroupItem *runStoreField(GroupItem *instr)
+{
+GroupItem 	*stack = ::opStackOf(instr);
+GroupItem 	*value = stack->pop();
+GroupItem 	*target = instr->getAttribute("target");
+	::opAssign(value,target);
+	return 0;
+}
+
+/*******************************************************************************
+	RuleStuff
+    if tag eq "CodE" cout :``"getWhatFollows:",tag;
+    if tag eq "NamE"    completed = 0;
+*******************************************************************************/
+void Bytecode::run()
+{
+	return;
 }

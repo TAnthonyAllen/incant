@@ -1,0 +1,49 @@
+/*****************************************************************************
+    bytecode — incant-side bytecode dispatch (interpret).
+
+    interpret(body) walks a bytecoded action body and runs each op.
+
+    Dispatch (post bcOPs->Operators fold, 2026-05-30):
+        an instruction's tag resolves against the Operators registry; that
+        entry's `interpret` sub-attribute is the C++ handler.
+            op      = Operators[grup.taG];
+            handler = op.interpret;
+            result  = handler(grup);
+        One registry, one lookup -- no bcOPs, no fallback. (Works because the
+        bcBR/bcBRZ/bcPushLit/... entries were folded into Operators carrying
+        interpret= but no operateMethod.)
+
+    Stack-form (2026-05-30): operands live on an operand stack hung off the
+    body as its `opStack` attribute -- a plain field used as a stack via
+    push/pop. interpret() creates it here; producers (bcPushLit/bcPushField)
+    push, consumers/op-shims (bcStoreField/runGT/runMultiply) pop, and the
+    branch label rides on the instruction's `dst` attribute. Handlers reach the
+    stack via opStackOf(instr) -> instr.parent.getAttribute("opStack").
+
+    Successor convention (unchanged):
+        result == null  -> fall through to the next sibling instruction.
+        result != null  -> branch; reassign grup so the walk continues from the
+                           returned target.
+
+    MACHINERY NOTE (unresolved, incant-side -- flag for Tony/Clay): this is a
+    MEMBER walk (`for grup in body; members`). For it to see the instructions,
+    emitBC must attach them as MEMBERS of bcLIST. emitBC today uses `+%`
+    (opAddAttribute = attributes), so as written this loop would iterate
+    nothing. Reconcile the emit side: instructions as members, opStack left as
+    an attribute (so the member walk skips it while opStackOf still finds it via
+    getAttribute). This is the long-flagged members-vs-attributes discrepancy.
+*****************************************************************************/
+register(Bytecoding);
+define
+    interpret body; {
+        body +% opStack;
+        for grup in body; members
+            handler = grup.interpret;
+            if !handler;
+                print "interpret: no handler for" grup.taG:;
+                return;
+            result = handler(grup);
+            if result;  grup = result;
+        if opStack.listLengtH;  print "interpret: opStack not empty at end:" opStack.listLengtH:;
+        }
+    ;

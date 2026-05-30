@@ -1,0 +1,182 @@
+include /Users/anthony/Dropbox/data/InProcess/Groups/groupIncludes
+
+//
+//  Bytecode.twk — incant bytecode handlers (STACK-FORM)
+//
+//  Source of truth for the per-op interpreter handlers. Compile with
+//  `tok Bytecode.twk` -> Bytecode.mm + Bytecode.h. Replaces the hand-written
+//  three-address Bytecode.mm (2026-05-30 stack-form rewrite, Clay's call).
+//
+//  Dispatched from incant's interpret() loop via the `interpret` sub-attribute
+//  on op GroupItems: `handler = grup.interpret; handler(grup)`.
+//
+//  STACK-FORM contract:
+//    * The operand stack is a PLAIN GroupItem field used directly as a stack:
+//      field.push(x) appends to its list, field.pop() removes from the end
+//      (LIFO) and detaches the node (parent = 0). No embedded Stak object.
+//      It hangs off the bcLIST body as the `opStack` attribute; interpret()
+//      creates/clears it at entry (incant/bytecode change, landing next).
+//      Reached here via opStackOf(instr) -> instr.parent's opStack.
+//    * Because push/pop manipulate the list directly (no copy-on-add), a
+//      producer must push a FRESH node, never a live bcLIST member.
+//    * Producers (bcPushLit, bcPushField) push a value node; consumers
+//      (op-shims, bcStoreField) pop. Op-shims pop two, MATERIALIZE a stable
+//      result node (never the shared opGT/opMultiply temp), push it. prod is
+//      always pushed -- empty / count-0 on a null op result.
+//    * The branch target is the ONLY operand carried on the instruction, under
+//      the `dst` attribute (emitted inline; named consistently so it survives
+//      a future bcOPs->Operators fold). runBRZ/runBR read it via
+//      getAttribute("dst").
+//    * Return: null  = implicit-next (interpret() falls to next sibling).
+//             non-null = branch; interpret() jumps to that instruction.
+//
+
+// Dummy class so tok emits Bytecode.mm (the output is named after the class).
+// The real content is the extern handlers below.
+class Bytecode
+{
+int dummy;
+void run()
+{
+	return;
+}
+}
+
+// opGT / opMultiply / opAssign are declared via groupIncludes (included above).
+
+/***************************************************************************
+    The operand stack for an instruction's body -- a plain field used as a
+    stack. interpret() hangs an `opStack` field off the bcLIST before walking
+    it; every handler reaches it through the instruction's parent (the bcLIST).
+***************************************************************************/
+extern GroupItem opStackOf(GroupItem instr)
+{
+GroupItem   body = instr.parent;
+    return body.getAttribute("opStack");
+}
+
+// ---------- producers: push a fresh value node onto the operand stack ----------
+
+/***************************************************************************
+    bcPushLit — push the literal the instruction carries. A fresh node copies
+    the value off the instruction (setContent copies its data), so the live
+    bcLIST member is never moved onto the stack.
+***************************************************************************/
+extern GroupItem runPushLit(GroupItem instr)
+{
+GroupItem   stack = opStackOf(instr);
+GroupItem   value = new("lit");
+    value.setContent(instr);
+    stack.push(value);
+    return null;
+}
+
+/***************************************************************************
+    bcPushField — push the referenced field's value. Same shape as bcPushLit
+    today (the emit currently folds the value onto the instruction). When the
+    emit carries a real field reference instead, this reads + pushes the
+    field's CURRENT value.
+***************************************************************************/
+extern GroupItem runPushField(GroupItem instr)
+{
+GroupItem   stack = opStackOf(instr);
+GroupItem   value = new("fld");
+    value.setContent(instr);
+    stack.push(value);
+    return null;
+}
+
+// ---------- consumer: pop a value, store into a field ----------
+
+/***************************************************************************
+    bcStoreField — pop the top value, assign it into the target field the
+    instruction names (e.g. maximus). Delegates to opAssign (target := value).
+***************************************************************************/
+extern GroupItem runStoreField(GroupItem instr)
+{
+GroupItem   stack  = opStackOf(instr);
+GroupItem   value  = stack.pop();
+GroupItem   target = instr.getAttribute("target");
+    opAssign(value, target);
+    return null;
+}
+
+// ---------- op-shims: pop two, materialize a stable result, push ----------
+
+/***************************************************************************
+    runGT — pop right then left, compare, push a STABLE 0/1 cond node. opGT
+    returns a shared trueResult (or null on false), so we never push its
+    return directly: materialize a fresh count node instead.
+***************************************************************************/
+extern GroupItem runGT(GroupItem instr)
+{
+GroupItem   stack = opStackOf(instr);
+GroupItem   op2   = stack.pop();        // right operand (pushed last)
+GroupItem   op1   = stack.pop();        // left  operand
+GroupItem   cond  = new("cond");
+GroupItem   hit   = opGT(op2, op1);     // keep opGT(argument, target) order
+    if hit  cond.setCount(1);
+    else    cond.setCount(0);
+    stack.push(cond);
+    return null;
+}
+
+/***************************************************************************
+    runMultiply — pop two, multiply, push a COPY of the product. opMultiply
+    returns the shared tempField (value overwritten by the next arith op), so
+    we copy its value into a fresh node before pushing. prod is pushed even on
+    a null result (stays empty), keeping the stack depth predictable.
+***************************************************************************/
+extern GroupItem runMultiply(GroupItem instr)
+{
+GroupItem   stack  = opStackOf(instr);
+GroupItem   op2    = stack.pop();
+GroupItem   op1    = stack.pop();
+GroupItem   result = opMultiply(op2, op1);
+GroupItem   prod   = new("prod");
+    if result   prod.setContent(result);   // copy value off the shared temp
+    stack.push(prod);
+    return null;
+}
+
+// ---------- control flow: cond from stack, target from instruction ----------
+
+/***************************************************************************
+    bcBRZ — pop the condition; if zero/false, branch to the label carried in
+    the instruction's `dst` attribute. Otherwise fall through (null).
+***************************************************************************/
+extern GroupItem runBRZ(GroupItem instr)
+{
+GroupItem   stack = opStackOf(instr);
+GroupItem   cond  = stack.pop();
+    if !cond || !cond.getCount()    return instr.getAttribute("dst");
+    return null;
+}
+
+/***************************************************************************
+    bcBR — unconditional branch to the `dst` label.
+***************************************************************************/
+extern GroupItem runBR(GroupItem instr)
+{
+    return instr.getAttribute("dst");
+}
+
+/***************************************************************************
+    bcRET — halt. Returns null; relies on runRET being the last instruction so
+    the next-sibling lookup yields nothing. interpret() also asserts the
+    operand stack is empty here.
+***************************************************************************/
+extern GroupItem runRET(GroupItem instr)
+{
+    return null;
+}
+
+/***************************************************************************
+    bcCALL — invoke a callable; result lands on the stack. Stub: no calls in
+    the current test surface.
+    TODO: invoke instr's callee with its args; push the result.
+***************************************************************************/
+extern GroupItem runCall(GroupItem instr)
+{
+    return null;
+}

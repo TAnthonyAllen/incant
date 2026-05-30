@@ -1,0 +1,341 @@
+/*******************************************************************************
+    Incant bytecodes — structure, registries, and how the generator emits them.
+
+    --------------------------------------------------------------------------
+    1. What a bytecode IS
+
+    A bytecode instruction is a GroupItem. (Same shape as everything else in
+    incant — homoiconic at the bytecode layer, not just at the source layer.)
+
+    Each instruction has:
+        * a tag       — the opcode mnemonic (bcBR, bcPushLit, '>', '=', '*', ...)
+        * operands    — named sub-attributes on the instruction. Conventional
+                        slot names: op1, op2, cond, target, value, dst.
+                        Bytecode.mm handlers read operands by name:
+                            instr->getAttribute("op1")
+        * interpret   — sub-attribute whose method is the C++ handler that
+                        executes the op. Resolved at dispatch time by the
+                        one-method-per-field rule:
+                            handler = grup.interpret;
+                            result  = handler(grup);
+
+    The `interpret` sub-attribute is NOT stored on each emitted instance —
+    it's inherited from the registry entry where the op was declared. Emitting
+    an op by tag is enough; dispatch finds the handler via the registered
+    template.
+
+    Note vs. standard bytecodes: most VMs encode bytecodes as opaque
+    tuples — an opcode byte followed by operand bytes, decoded by a
+    switch in the interpreter. Incant bytecodes are GroupItems, the
+    same data shape as source and as everything else in the language,
+    so dispatch is attribute lookup rather than decoding, and the
+    interpreter can be written in incant. incant's primary
+    interpreter runs off the parse tree, not off bytecode; the bytecode
+    layer is the IR the JIT will eventually compile, and exists today
+    as an interpretable second path gated per-action by the bytecodE
+    attribute.
+
+    --------------------------------------------------------------------------
+    2. Where bytecodes live (the registries)
+
+    Bytecodes come from two registries today, with a third gap noted below.
+
+    (a) bcOPs (incant/setup) — control flow only.
+            bcBR    interpret=runBR
+            bcBRZ   interpret=runBRZ
+            bcCALL  interpret=runCall
+            bcRET   interpret=runRET
+        Kept separate from Operators per the 2026-04-27 design decision: user
+        code never writes bcBR, and an incant program walking Operators should
+        not see them.
+
+    (b) Operators (incant/setup) — user-facing operators that ALSO act
+        as bytecode ops, via a second `interpret=` sub-attribute alongside the
+        existing `operateMethod=`. Each shim is a runX in Bytecode.mm that
+        wraps the corresponding opX. Today:
+            '>'   operateMethod=opGT        interpret=runGT
+            '='   operateMethod=opAssign    interpret=runAssign
+            '*'   operateMethod=opMultiply  interpret=runMultiply
+        Extending this set is a matter of (i) writing runX in Bytecode.mm,
+        (ii) adding `interpret=runX` to the Operators entry. The op's tag is
+        its symbol — that's what appears in the emitted instruction stream.
+
+    (c) Gap — data-movement ops referenced by the emitter but not yet
+        registered anywhere:
+            bcPushLit, bcPushField, bcStoreField, bcMul
+        These show up in gXpress and testEmitBC. They land in bcLIST with
+        their tag and payload, but have no `interpret` sub-attribute, so the
+        interpret() loop will fail with "no handler for <tag>" on first
+        encounter. Open question: do these get added to bcOPs (matching the
+        bcBR family), or does bcMul collapse into '*' (matching the operator-
+        shim pattern in (b))? Worth deciding before the emitter grows further.
+
+    --------------------------------------------------------------------------
+    3. The emit side — bcPushField and friends
+
+    The call shape is:
+        emitBC(bcPushField:=argument);
+
+    Read this as: pass one operand to emitBC, whose tag is bcPushField and
+    whose value is the source-tree GroupItem referenced by `argument`.
+    Inside emitBC:
+        :generator genAction;     // find the current action being generated
+        :genAction bcLIST;        // find its bytecode accumulator
+        bcLIST +% operand;        // attach the instruction
+
+    So `bcLIST` accumulates the emitted instruction stream for one action.
+    Each emitBC() call adds one instruction. The instruction's tag IS the
+    opcode; its payload (when present) IS the value of the field passed in.
+
+    Multi-operand instructions are not expressed by the current single-operand
+    emitBC shape — when those emerge (anything needing op1/op2/dst together),
+    the emitter will need to build the instruction GroupItem with named
+    sub-attributes filled in, then attach it. Forward-looking, not blocking.
+
+    Note: bcLIST is attached as a member (isLocal, noPrint) in generateCode().
+    interpret() iterates with `for grup in body; members` — members, not
+    attributes. The emitter uses `+%` (opAddAttribute). The members-vs-
+    attributes discrepancy may relate to current testGXLeaf "2 entries, same
+    value" behavior; investigation is on the incant-machinery side.
+
+    --------------------------------------------------------------------------
+    4. Generating registry — how the pieces fit
+
+    `Generating` is the registry this file defines. It holds:
+        * types               — data → C++ type mapping (used by getType)
+        * generateAction      — entry point: generates one action's code by
+                                parsing it (generateCode), then either firing
+                                interpret() over the resulting bytecode or
+                                emitting C++ source directly
+        * generateSignature   — C++ method signature emitter
+        * runGenerated        — dispatcher. Looks up the per-tag generator
+                                method by texT and invokes it on the argument.
+                                Falls through to a literal print if no handler
+                                exists for the tag.
+        * generator           — hashed list of per-tag generator methods. Each
+                                method handles one statement form:
+                                    gBlocK, gDeclare, gDO, gExpressioN,
+                                    gFOR, gIF, gPrinT, gWhilE, gXpress
+                                These are reached via runGenerated, which is
+                                the single point of dispatch over the parse
+                                tree.
+        * emitBC              — append-one-instruction primitive used by the
+                                generator methods that produce bytecode (vs.
+                                producing C++ text directly).
+        * generatE            — top-level walk that calls runGenerated on each
+                                top-level statement.
+
+    The generator-methods-to-bytecode chain, in one breath:
+        generateAction → generateCode → generatE → runGenerated → gXX → emitBC
+                                                                       → bcLIST
+        ...then interpret(bcLIST) walks bcLIST and dispatches each grup via
+        its interpret sub-attribute to a Bytecode.mm handler.
+
+    Two output modes co-exist in the same generator machinery: gBlocK / gFOR /
+    gWhilE / gDO emit C++ source text via print; gIF / gExpressioN / gXpress
+    emit bytecode via emitBC. Once Phase Bytecode is complete the text-emit
+    paths get replaced (see jit.md). Until then, mixed output from one
+    generateCode pass is expected.
+
+*******************************************************************************/
+
+/*******************************************************************************
+	Types registry is a list of the types associated with field data. Referenced
+    in getType(). Isn't it nice we can use quotes to define a field tag.
+    Note: type tags use C++ syntax for pointer to type
+*******************************************************************************/
+register(Generating);
+define
+    types
+        "Buffer*";
+        int;
+        char;
+        "char*";
+        "GroupItem*";
+        GroupItem;
+        "BitMAP*";
+        double;
+        "NSObject*";
+        "PLGset*";
+        "Stak*";
+        "void*";
+        void;
+    startBlock='{';
+    endBlock='}';
+    asterisk='*';
+    declareList sort;
+    /***************************************************************************
+        Generate action code.
+    ***************************************************************************/
+    generateAction action code={
+        // generateCode parses the action to produce code to interpret
+        generated = generateCode(action);
+        //printTO(stringBUFFER);
+        if generated;
+            generateSignature(action);
+            print _;
+            //generated**;
+            interpret(generated);
+            //printTO(null);
+        else print "generateCode failed":;
+        };
+    /***************************************************************************
+        Generate C++ method signature.
+    ***************************************************************************/
+    generateSignature action code={
+        //print "Generating signature for" tag:;
+        print "GroupItem*",tag "(";
+        for field in action; attributes
+            if field.isArgument
+                if follows;  print ",";
+                print getType(field) tag;
+                follows++;
+        print ")";
+        };
+    /***************************************************************************
+        generator is a hashed list of actions that process statements that
+        generate (print) code. It is used in the generate() action below.
+    ***************************************************************************/
+    runGenerated argument code={
+        print :"runGenerated: ";
+        clear(action);
+        **argument;
+        if action := generator[argument];
+            print "action is:" action.taG:;
+            action(argument);
+        else    print ~,argument ";":;
+        print "End of runGenerated":; };
+    generator
+        gBlocK argument code={
+            print "process block":;
+            lines = argument[1];
+            for grup in lines;
+                runGenerated(grup);
+            };
+        gDeclare argument code={
+            for field in argument; attributes
+                if !isArgument
+                    print "gDeclare: field and argument" tag argument.tag:;
+                    if !isLocal AND !isArgument; print "GroupItem*" tag, "= locate(" tag ");":;
+                    else    print  getType(field) ,tag ";":; };
+        gDO argument code={
+            //print "generate do":;
+            st  = argument[1];
+            xp  = argument[2];
+            print ~"do"`;
+            runGenerated(st);
+            print ~,"while(" xp ");":; };
+        gExpressioN argument code={
+            print "Need to work out how to generate an expression":; };
+        gFOR argument code={
+            print "generate for":;
+            lp  = argument[1];
+            xp  = argument[2];
+            lr  = argument["LoopRestrict"];
+            st  = argument["StatemenT"];
+            print ~"while" lp;
+            if lr
+                if lr == "attributes";  print,_"= " xp ".nextAttribute(" lp ")";
+                or lr == "members";     print,_"= " xp ".nextMember(" lp ")";
+            else
+                print,_"= " xp ".next(" lp ")";
+                if lr   print ~+"if (" lr ")",+:;
+            runGenerated(st);
+            print ,-; };
+        gIF argument code={
+            print `"gIF: tag=" argument.taG "text=" argument.texT:;
+            xp  := argument[1];
+            st  := argument[2];
+            el  := argument[3];
+            endLabel = new("bcLabel");
+            gXpress(xp);
+            if el.listLengtH;
+                elseLabel = new("bcLabel");
+                dst := elseLabel;
+            else
+                dst := endLabel;
+            emitBC(bcBRZ +% dst);
+            runGenerated(st);
+            if el.listLengtH;
+                dst := endLabel;
+                emitBC(bcBR +% dst);
+                emitBC(elseLabel);
+                runGenerated(el);
+            emitBC(endLabel);
+            print `"End of gIF":;
+            };
+        gPrinT argument code={
+            print `"Need to work out how to generate print statement":; };
+        gWhilE argument code={
+            xp  = argument[1];
+            st  = argument[2];
+            print ~,"while(" xp ")":+;
+            runGenerated(st);
+            print ,-; };
+        gXpress argument tgt& rhs& theOp& target& code={
+            tmp = unWrap(argument);
+            if tmp.listLengtH;
+                hasOp = 0;
+                for child in tmp;
+                    if child.isOperatoR;  hasOp = 1;
+                if hasOp;
+                    for child in tmp;
+                        if child.isOperatoR;  theOp := child;
+                    tgt := tmp[2];
+                    rhs := tmp[3];
+                    gXpress(tgt);
+                    gXpress(rhs);
+                    emitBC(theOp);
+                else
+                    for child in tmp;
+                        target := child;
+                    rhs := tmp[1];
+                    gXpress(rhs);
+                    emitBC(bcStoreField +% target);
+            else
+                if tmp.isLiteraL;
+                    emitBC(bcPushLit=tmp);
+                else
+                    emitBC(bcPushField=tmp);
+            };
+        emitBC argument code={
+            :generator bcLIST;
+            **bcLIST;
+            bcLIST +% argument;
+            print `"emit tag=" argument.taG "content=" argument:; };
+        /***********************************************************************
+            Debugging action. Walks a bcLIST and prints each entry's tag and
+            value. Use after emit-phase to verify what landed in the accumulator.
+        ***********************************************************************/
+        dumpBC argument code={
+            print `"dumpBC for" argument.taG ":":;
+            if argument.listLengtH;
+                for grup in argument;
+                    print ``"  tag=" grup.taG " op=" grup:;
+            else print ``"single field xp":;
+            };
+        generatE argument code={
+            print :"About to generate":;
+            dumpContents(argument);
+            for field in argument;
+                runGenerated(field);
+            print "End of generatE":;
+        };
+    /***************************************************************************
+        Working on
+    ***************************************************************************/
+    genBlock argument code={
+        for grup in sumple; attributes
+            maximus += 22;
+            print `,grup:; };
+    genForC code={
+        for grup in sumple; attributes
+            maximus += 22;
+            print `,grup:;
+        do
+            maximus += 2;
+            print  ``Saw maximus:;
+        while maximus < 20;
+        while maximus <= 27;
+            maximus += 3;
+            print ``Saw maximus:; };;
