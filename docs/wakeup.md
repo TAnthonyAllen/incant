@@ -1,117 +1,86 @@
-# Tok/plg arc — Status & Handoff (2026-05-30)
+# Wake-up — Status & Handoff (2026-05-31)
 
-*Written by Clod for a fresh Clay tomorrow. Assumes no memory of today. Self-contained — this doc
-is your memory across the gap, not the transcript.*
+*Written by Clod for a fresh Clay/Clod tomorrow. Self-contained. For the deep plg internals
+reference see `plg-wakeup.md`; this doc is "where we are + what's next."*
 
-## What this is
+## What landed today — the Tawk action-rule migration
 
-We spent today migrating the TAWK toolchain (`Tokf/`) off a dead type (`PLGtester`) and onto the
-current PLGitem surface — the file-by-file **Phase Integrate** work that gets us to a rebuilt
-`~/bin/tokTemp`. We did not expect to touch Tawk at all today; we ended up deep in it. The arc
-surfaced **one real blocker** that is your seat for next session: plg cannot yet generate a
-Tawk.twk that tok can parse. Everything else from today is done and confirmed.
+`plg Tawk.g` now generates a **structurally-correct `Tawk.twk`**, and the original blocker is
+gone:
 
-## The lens (hold these five facts and you can reason about the whole thing)
+- **181 action methods** (144 `…Now` immediate + 37 `…Act` deferred) expanded as methods
+  **inside** the `class Tawk extends PLGparse { … }`, each with its capture declarations
+  injected (`PLGitem start = iTEM.children["start"];`), no parser-pointer.
+- **0 `ERROR Inheritance`** — the `.rtn` field declarations now sit inside the class, and the
+  raw `.act` content is gone (expanded, not spliced).
+- `include includes` header; no `external{}` block in the `.twk` (signatures live in
+  `tok.ext`'s `external Tawk`); `setRules()` intact.
 
-1. **The pipeline is `Tawk.g → (plg) → Tawk.twk → (tok) → Tawk.C`.** plg reads the grammar
-   `Tawk.g` and emits `Tawk.twk` (TAWK source); tok compiles `Tawk.twk` to C++. Both steps must
-   succeed for TOK (the `~/bin/tokTemp` target) to build.
-2. **`Tawk.twk` is one class plus free functions.** It is `class Tawk extends PLGparse { …fields…
-   setRules() …action-method bodies… }`, preceded by an `external { }` block and the includes.
-   The parser's *state* lives in **class fields** (`SymbolType currentClass, …`); the rule
-   *actions* are **free functions** (externs) that reach the parser via the item.
-3. **plg's `generateRules` assembles `Tawk.twk` by splicing.** It writes the includes, an extern
-   block, then a verbatim "splice" of the `.act/.rtn` files, then the `class Tawk { setRules() }`
-   wrapper. Its design assumption: everything in the splice is a top-level extern.
-4. **That assumption is half-wrong — and that's the blocker.** The splice also carries the **class
-   field declarations**. They land at file scope, *above* the class. tok cannot parse
-   `SymbolType currentClass,` outside a class → it dies with `ERROR Inheritance`, writes an empty
-   `Tawk.h` and leaves `Tawk.C` stale. So the freshly-generated `Tawk.twk` is **not buildable**.
-5. **Today we proved the migration bones are sound by going around the blocker** — the legacy
-   hand-maintained `Tawk.twk` still toks. The blocker is purely in plg's *generation*, not in the
-   migrated source.
+How we got there (all in `plg`'s hand-maintained runtime classes — see `plg-wakeup.md` §3,5):
+new `.act` format (`ruleName[:tag] [defer] … enD`), `PLGparse::attachActions` rewritten to
+parse it, all 5 Tokf `.act` files migrated (incl. the `|`/`|.`/`||.` multi-option splits),
+`PLGrule::writeActions`/`writeCaptures` emit the in-class methods, and `generate()` takes
+`parserName` as a parameter (fixing a latent `parentParser` null-deref).
 
-## OPEN — the blocker, root-caused (your seat next session)
+PLGitem surface support added so the bodies compile (see `plg-wakeup.md` §7): `overload []
+getLabel` (PLGrevision), `getAmount()`, and the `amount` field.
 
-**`generateRules` (in `PLGparse.twk`) must split class-body material from extern bodies.**
-- Symptom: `plg Tawk.g` → `Tawk.twk`; `tok Tawk.twk` fails immediately —
-  `ERROR Inheritance: at ==>SymbolType` / `==>currentClass,` …, empty `Tawk.h`, stale `Tawk.C`.
-- Root cause: the splice flush dumps the `.act/.rtn` content (which mixes **class field
-  declarations** and **extern action bodies**) entirely at top level, before the
-  `class Tawk extends PLGparse { … }` wrapper. Extern bodies at top level is correct. Class
-  fields at top level is not — tok only accepts field declarations *inside* a class.
-- The fix is a design call (yours): teach `generateRules` to route class-body material (the
-  `#autoGetSet` block + field declarations like `SymbolType currentClass, …`) **inside** the
-  class wrapper, while keeping the free-function action bodies at top level. The hard part is that
-  the splice is currently one undifferentiated blob; the split needs a principled seam (e.g. the
-  `.rtn`/`.act` files declaring what is class-body vs extern, or generateRules recognizing field
-  declarations). That seam is the design conversation.
+## Key decisions captured
 
-## DONE today — bones-confirmed (verification level noted per item)
+- **`enD`, not `end`, is the action-body terminator.** `end` is too common a body variable
+  (e.g. `PoundCommand`'s `PLGitem end = state;`); `enD` is case-distinct and never collides.
+- **`amount` is a real settable PLGitem field**, and **`getAmount()`** is the read accessor
+  for text-derived numerics (`atoi(toString())`). Both coexist — field for stored values
+  (there are explicit `array.amount = i;` writes), `getAmount()` for recompute-from-text.
+- **Generated-file banner (pending task):** plg should emit
+  `// Generated by plg from <grammarFile> — do not edit directly` as the first line of every
+  generated `.twk`. Add it in `PLGparse::generateRules`.
 
-- **PLGitem surface migration**: `Symbol.twk`, `SymbolType.twk`, `Instance.twk`, `Directive.twk`,
-  `FormatC.twk` — all migrated off `PLGtester`/old accessors. **Tony confirmed Symbol, SymbolType,
-  Instance, Directive building clean in Xcode; FormatC confirmed via tok exit 0 only — not yet
-  exercised in a full build.** (The rule set was: `iTEM.get(s)` and `iTEM[s]` →
-  `iTEM.children[s]`; `.string()`/`.unString()` → `.toString()`.)
-- **Two-arg `divertInput` reinstated** in `PLGparse.twk` and declared in the `PLGrevision`
-  externals: `PLGitem divertInput(String s, PLGrule rule)` and `(String s, String ruleName)`.
-  They were dropped in the refactor; their absence was breaking every caller. Thin wrappers over
-  the surviving `divertInput(s)` / `parse(rule)` / `revertInput()` primitives.
-- **FAIL handlers relocated.** The four rule FAIL handlers (`assignFailed`, `caseLabelFail`,
-  `expressPartFailed`, `instanceTailFail`) were free functions in `Tawk.g`'s `%%` epilogue, which
-  plg's regen does not carry. Moved to `Tok.twk` as file-scope externals reaching the parser via a
-  new `static Tawk Tok::testParser` (set once in `main`). They compile, **but are dormant** — see
-  DEFERRED. `Tawk.g`'s epilogue was stripped of them.
-- **plg now writes `Tawk.twk` directly** — the `Tawk.regen.twk` name is retired. (The source did
-  this since ~2026-05-19; the installed binary was a stale 2026-05-17 build still emitting
-  `.regen`. Rebuilt today.) `~/bin/plg` is now a symlink → `Parse/build/Debug/plg`.
+## What's parked — the named-options design pass
 
-## DEFERRED — not now; whose call
+~10 `tok Tawk.twk` FAILs remain, **all** from one cause: `writeCaptures` injects labels from
+*all* alternatives of a rule, so a multi-alternative rule like `FieldBody` (3 alternatives:
+`prefix`,`part` / `name` / `name`) injects a `name` capture that collides with the body's own
+`PLGitem name = part["name"];`. The correct fix is **per-option capture injection** (option N
+gets alternative N's labels), which is the **named-options design** — it can't be solved
+without deciding the option-tag syntax and the option→rule/alternative mapping in `plg.g` +
+`action.g` together. Parked there by design (Tony + Clay). Full detail in `plg-wakeup.md`
+§6, §11.
 
-- **FAIL-handler wiring in plg's new format** (plg's seat, after the blocker). The new regen emits
-  **zero** `currentRule.fail = …` wirings. So even once the blocker is fixed, the relocated FAIL
-  handlers stay *defined but never called* until plg learns to emit FAIL wiring. Dormant by
-  design for now.
-- **tok auto-include bug** (a known tok defect; fix lives in `FormatC.twk`). tok emits an
-  `#include` for every external declaration in scope, used or not. This injected phantom
-  `#include "PLGparse.h"` and `"PLGitem.h"` into `support/Frame/PLGset.C`, which broke the plg
-  rebuild. We hand-pruned them — **but they return on any `tok PLGset.twk`.** Durable fix is the
-  tok bug itself.
+That pass should: design option syntax in `plg.g`/`action.g`; make `writeCaptures`
+per-option; enable `include(action.g)` + wire `ActionRuleplgNow`; migrate
+`Parse/Grammar/plg.act` to the new format; sweep the inline-action `.g` files and the
+plg-side grammar files for the same PLGitem modernization; then prove the self-host POP
+(`plg plg.g` regenerates today's plg).
 
-## Files touched / state
+## NEXT TASK ON THE DOCK — back to bytecode generation
 
-- Clean & toked: `Symbol.twk`, `SymbolType.twk`, `Instance.twk`, `Directive.twk`, `FormatC.twk`,
-  `Tok.twk` (+ the `Tok::testParser` static), `PLGparse.twk`, `PLGrevision`, `Tawk.g` (epilogue
-  stripped), `support/Frame/PLGset.C` (phantom includes pruned).
-- **`Tawk.twk` is currently the legacy old-format version (git commit `89a3abc`), which toks** —
-  it is the working baseline. **Do NOT use** HEAD `ef2730d` (the "Phase Splice" intermediate —
-  new-format setRules with C++ `elem->` arrows tok can't parse) or a fresh `plg Tawk.g` overwrite
-  (fields-outside-class). Both are broken; both recoverable from git.
+With the plg/Tawk foundation in good shape, the active thread returns to **Phase Bytecode**
+(the incant work in this Groups repo). Orientation:
 
-## To resume — next actions in order
+- **Pipeline:** `generateCode(action)` (C++ entry, `Generate.rtn`) → `generatE` (top-level
+  emitter, `incant/generate`) → `runGenerated` (dispatch hub, by statement kind) →
+  per-statement handlers (`gBlocK`, `gIF`, `gFOR`, `gWhilE`, `gDO`, `gExpressioN`, `gXpress`,
+  `gPrinT`, `gDeclare`) emitting bytecode GroupItems → `interpret(bytecode)` (the dispatch
+  loop, written in incant, `incant/bytecode`).
+- **The active rewrites / blockers:** `gIF` and `gExpressioN` emitters are stubs. They are
+  what stand between us and the POP test.
+- **POP target — `testByteCode`** (`incant/unitTests:124`):
+  `if righty > 0; maximus = righty * 2;` → expected emit `runGT, runBRZ, runMultiply,
+  runAssign, runRET`; expected outcome `maximus = 26`.
+- **Dispatch idiom (don't chain):** `handler = field.attribute;` then `handler(argument);`.
+  One method per field; sub-attribute pattern for a second invokable behaviour.
+- **Verify by running**, not shape-reading: "verified" means output captured from a run.
 
-1. Open the **generateRules woodshed**: design the class-body / extern split in `generateRules`.
-2. Decide the seam: does `generateRules` learn to recognize field declarations, or do the
-   `.rtn`/`.act` files mark class-body vs extern content explicitly? That's the core design call.
-3. Clod executes the chosen split, regenerates `Tawk.twk`, and confirms `tok Tawk.twk` produces a
-   non-empty `Tawk.h` + fresh `Tawk.C` with no `ERROR Inheritance`. Then the FAIL-wiring item
-   (DEFERRED) is the next plg step.
+Settled bytecode design (recap): an instruction's tag IS the op GroupItem; two registries
+(`Operators` vs `bcOPs`); implicit-next dispatch with branch ops reassigning `grup`;
+bytecodes are GroupItems. See this repo's `CLAUDE.md` "Phase Bytecode" section and
+`projectBible.md` for the full context.
 
-**Tony — to brief Clay, upload these:** `Parse/PLGparse.twk` (the `generateRules` method is the
-subject), `Tokf/Tawk.g` (the grammar plg reads), and a freshly-generated `Tokf/Tawk.twk` showing
-the breakage (the field block sitting above `class Tawk extends PLGparse` near the end). That trio
-is enough to design the split cold.
+## Repo / commit state at handoff
 
-## Gotchas (durable — will bite again)
-
-- **tok won't concatenate juxtaposed strings inside a method-call argument** — it flattens them to
-  comma-separated args. `foo("a" x "b", 0)` becomes a 6-arg call. Hoist the concatenation into a
-  `String` declaration first, then pass the variable. (Hit in `FormatC.twk`'s `close()`.)
-- **plg's Release config is broken** — the `support` dependency can't find `PLGparse.h`. Use the
-  **Debug** config to build plg.
-- **`Tawk.twk` is generated** — hand-edits to it are temporary until the plg-generation fix lands.
-  The durable source is `Tawk.g` (+ the `.act/.rtn` splice files).
-- **`tok X.twk` without `groupDirectives` silently strips directive-injected code** — 52 lines
-  vanished from `GroupItem.mm` before Clod caught it today. Always run `tok X.twk groupDirectives`
-  for any instrumented file.
+Committed the keeper edits (the hand-maintained runtime-class changes, the migrated `.act`
+files, the PLGrevision externals, and these docs). **Left uncommitted on purpose:** the
+`PLG.twk` `IncludeplgNow` stopgap (routes `.act` → `attachActions`) — it's a generated-file
+bootstrap that the named-options pass replaces via `plg.g`/`action.g`, so it must not be
+committed. Build plg **Debug only**; always `tok … plgDirectives`.
