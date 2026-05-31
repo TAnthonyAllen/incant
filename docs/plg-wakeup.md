@@ -161,7 +161,7 @@ Current `PLGitem` (in `Parse/PLGitem.twk`; external decl in `PLGrevision`):
   - `iTEM.get("L")` → `iTEM.children["L"]`
   - `iTEM["L"]` → still works: **`overload [] getLabel`** is declared in PLGrevision's
     `external PLGitem`, so the subscript form resolves to `getLabel` (→ `children[…]`).
-    Only PLGitem `[]` is overloaded — KeyTable/BaseHash/Stak subscripts are unaffected.
+    Only PLGitem `[]` is overloaded — KeyTable/BaseHash/Stak subscripts are unaffected. Haps edit: KeyTable, BaseHash, and a couple of other support classes also overload [] and []=; not an issue if they are not used. The overloads for those classes are defined in the tok external file frame that lives in the Include directory (I am not sure where to find it in the repos)
   - `iTEM.testParser.X` → bare `X` (action methods are on the parser).
   - `iTEM.test.X` → gone; review case-by-case (one site was simply removable).
 
@@ -187,45 +187,28 @@ tok Tawk.twk                            # compile the generated transpiler
 
 - **Debug config only.** plg's Release config is broken (the `support` dependency can't
   find `PLGparse.h`).
-- **Always pass `plgDirectives`** to `tok` for plg's `.twk` files, or directive-injected
-  code is silently stripped.
-- `~/bin/plg` is a symlink → `Parse/build/Debug/plg`. Rebuild after any change to a runtime
-  `.twk` that plg uses.
-- A change to a `PLGrevision` external block (e.g. an overload) is consumed by `tok` when it
-  compiles a *consumer* file (like `Tawk.twk` via `include includes`) — no plg rebuild
-  needed for that effect, though plg's own files include PLGrevision too.
+- **Always pass `plgDirectives`** to `tok` for plg's `.twk` files, or directive-injected code is silently stripped.
+- `~/bin/plg` is a symlink → `Parse/build/Debug/plg`. Rebuild after any change to a runtime `.twk` that plg uses.
+- A change to a `PLGrevision` external block (e.g. an overload) is consumed by `tok` when it compiles a *consumer* file (like `Tawk.twk` via `include includes`) — no plg rebuild needed for that effect, though plg's own files include PLGrevision too.
 
 ---
 
 ## 9. The grammar-drift problem (why this matters)
 
-During the May refactor, plg was revised by hand-editing the generated `PLG.twk` and the
-runtime classes directly; `plg.g`/`plg.rtn`/`plg.act` were **not** kept in step, so they'd
-regenerate an *old* plg. Treat the grammar sources as suspect until a `plg plg.g`
-round-trip is proven. The action.g/named-options pass (§11) is where this gets reconciled.
+During the May refactor, plg was revised by hand-editing the generated `PLG.twk` and the runtime classes directly; `plg.g`/`plg.rtn`/`plg.act` were **not** kept in step, so they'd regenerate an *old* plg. Treat the grammar sources as suspect until a `plg plg.g` round-trip is proven. The action.g/named-options pass (§11) is where this gets reconciled.
 
 ---
 
 ## 10. ParseXML flag (future GUI work)
 
-The window-definition XML is parsed by an **archived `ParseXML`**, not by `GUI/Groups.g`
-(`Groups.g` is the *drawing-language* parser, a misleading name). Before any GUI conversion
-work, `ParseXML` needs its own deep recon session — flagged here so it isn't assumed to be
-covered by the `XML/` directory survey.
+The window-definition XML is parsed by an **archived `ParseXML`**, not by `GUI/Groups.g` (`Groups.g` is the *drawing-language* parser, a misleading name).
+Before any GUI conversion work, `ParseXML` needs its own deep recon session — flagged here so it isn't assumed to be covered by the `XML/` directory survey.
 
 ---
 
 ## 11. PENDING: the named-options design pass
 
-The one piece deliberately parked. `writeCaptures` currently injects labels from **all**
-alternatives of a rule. For a multi-alternative rule this over-injects: e.g. `FieldBody`
-has 3 alternatives (`prefix`,`part` / `name` / `name`), so it injects a `name` capture that
-collides with the body's own `PLGitem name = part["name"];`. The template injected only the
-relevant option's labels.
+The one piece deliberately parked. `writeCaptures` currently injects labels from **all** alternatives of a rule. For a multi-alternative rule this over-injects: e.g. `FieldBody` has 3 alternatives (`prefix`,`part` / `name` / `name`), so it injects a `name` capture that collides with the body's own `PLGitem name = part["name"];`. The template injected only the relevant option's labels.
 
-The correct fix is **per-option capture injection** — option N's action gets alternative
-N's labels — which *is* the named-options design (how options map to rules/alternatives,
-and what the option-tag syntax should be). It can't be solved cleanly without that design.
-The named-options pass should: design the option syntax in `plg.g` + `action.g` together,
-make `writeCaptures` per-option, enable `action.g` (§6), migrate `plg.act`, and prove
-`plg plg.g` self-hosts. The ~10 remaining `tok Tawk.twk` FAILs are all this collision.
+The correct fix is **per-option capture injection** — option N's action gets alternative N's labels — which *is* the named-options design (how options map to rules/alternatives, and what the option-tag syntax should be). It can't be solved cleanly without that design.
+The named-options pass should: design the option syntax in `plg.g` + `action.g` together, make `writeCaptures` per-option, enable `action.g` (§6), migrate `plg.act`, and prove `plg plg.g` self-hosts. The ~10 remaining `tok Tawk.twk` FAILs are all this collision.
