@@ -138,6 +138,12 @@ enable `include(action.g)`, wire `ActionRuleplgNow`, migrate `Parse/Grammar/plg.
 new format, and confirm `plg plg.g` self-hosts. Until then, `attachActions` (§5) is the
 working bootstrap.
 
+⚠️ **Pending code change (not just a design note):** `action.g`'s `ActionEnd` rule still
+matches `'end'`. It must be updated to **`'enD'`** to match the terminator the migration and
+`attachActions` now use (§4). Until that edit lands, the grammar-driven path and the
+bootstrap parser disagree on the terminator. This is a concrete one-line fix to make as part
+of enabling `action.g`.
+
 ---
 
 ## 7. The PLGitem surface (post Phase-Integrate)

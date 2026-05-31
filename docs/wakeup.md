@@ -77,6 +77,14 @@ Settled bytecode design (recap): an instruction's tag IS the op GroupItem; two r
 bytecodes are GroupItems. See this repo's `CLAUDE.md` "Phase Bytecode" section and
 `projectBible.md` for the full context.
 
+**Standing agenda for the generating session** (came up today — keep on the radar):
+- **`bcLIST` vs bytecode design question** — how the bytecode stream is represented/held
+  (a `bcLIST` structure vs the bytecode-GroupItems-in-execution-order model). Resolve the
+  representation before leaning further on `gIF`/`gExpressioN`.
+- **Expression simplification / wrapped-group problem** — expressions wrapped in a group
+  need a simplification/unwrap step before/while emitting. Decide where that lives in the
+  `gExpressioN`/`gXpress` path.
+
 ## Repo / commit state at handoff
 
 Committed the keeper edits (the hand-maintained runtime-class changes, the migrated `.act`
