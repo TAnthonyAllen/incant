@@ -369,6 +369,8 @@ Go-style channel messaging — steal Go's goroutine/channel pattern. HPDL. Ken T
 
 ZFS-flavored storage — copy-on-write, snapshots as GroupItem operations. HPDL.
 
+Eliminate the `string` keyword from incant — incant currently uses a string expression that incorporates `string` as a keyword. Revise the language so string concatenation needs no keyword (tok's declaration-context concatenation — `String x = "a" var "b";` lowering to `concat(...)` — is the model Tony likes). HPDL.
+
 The JIT is the enabling technology. Without JIT, incant is an interpreter. With JIT, incant ships.
 
 ---
@@ -489,7 +491,7 @@ See HWF.md for active session content. Bible carries the index so resurrection-r
 
 **Deltas since previous mark (May 19):**
 - Three incant-machinery investigations resolved 2026-05-22 (Tony after-hours): righty/isLiteraL incomplete definition, opDot redundant unwrap, ElsE missing rowradr declaration. Brief 3 verification now unblocked.
-- Incant bytecode short-doc landed atop XML/WorkingOn/generate (2026-05-22) — structure, registries, emit-side mechanics, contrast vs. standard bytecodes. Surfaces the bcPushLit/bcPushField/bcStoreField/bcMul registration gap explicitly.
+- Incant bytecode short-doc landed atop incant/generate (2026-05-22) — structure, registries, emit-side mechanics, contrast vs. standard bytecodes. Surfaces the bcPushLit/bcPushField/bcStoreField/bcMul registration gap explicitly.
 - incantGUI Xcode-target name now glossed as vestigial; rename added to TOK Xcode housekeeping line.
 **Deltas since previous mark (May 15):**
 - **Session 9 closed and graduated (2026-05-18 / 2026-05-19).** plg gained the incant idiom in two places it didn't have it: parse debug machinery via tok directives on named hook sites in PLGrule::match + Alternative::match (Track A), and rule actions via labels-as-locals shorthand with .act files repurposed as splice-verbatim content (Track B). Testing.g → Testing.twk → Testing.C → Testing.o pipeline works. PLGitem grew `getLabel(name)` accessor; PLGrule grew four hook sites + a debug field; IncludeplgNow routes by extension; generateRules emits the new file shape `[includes] [externs] [.act splice] [class <BaseName> extends PLGparse { setRules() }]`. 21 commits across four repos. Trim at `Parse/HWFattic/session9plgDebugAndActions.md`; working-level plan at `Parse/docs/Session9plan.md`.
@@ -555,7 +557,7 @@ See HWF.md for active session content. Bible carries the index so resurrection-r
 - New kinds: kAny=4, kEof=5, kKeyTable=7, kCondition=8, kVariable=9, kUpTo=10, kBalanced=11
 
 ### Incant Working ✅ [updated 2026-05-15]
-- interpret() in incant (XML/WorkingOn/bytecode)
+- interpret() in incant (incant/bytecode)
 - bcOPs registry + C++ handlers (Bytecode.mm)
 - Gating hook in GroupRules.mm:786
 - **POP runs to completion; test action fires end-to-end**

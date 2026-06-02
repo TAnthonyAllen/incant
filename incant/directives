@@ -1,0 +1,108 @@
+Start();
+register(Directives);
+define
+    /*************************************************************************
+        Replace-directive test fixtures + runner.
+        Modeled on testDirective (line 147). Three states + delete variant.
+
+        Open syntax question (resolved by first run): does `from={...}` /
+        `to={...}` parse the curly-block as a code body on the directive
+        attribute? If not, the runtime sees from/to as text-only and the
+        match engine has nothing to walk. Adjust syntax based on dump output.
+    *************************************************************************/
+    replaceTarget code={
+        print "target line 1":;
+        print "original line":;
+        print "target line 3":; };
+    /* Positional shape (Tony 2026-05-28): directive's children ARE the
+       from-ref (first) and to-ref (second). ReplaceDirective uses firstInList
+       / nextInParent to access them; no from=/to= labels needed. */
+    fromBody code={ print "original line":; };
+    toBody   code={ print "replaced line":; };
+    DiRReplaceFoo fromBody toBody;
+    DiRDeleteFoo  fromBody;
+    testDirectiveReplace code={
+        print ``"--- STATE inactive: replaceTarget, no directive ---":;
+        replaceTarget();
+        print ``"--- STATE active: replaceTarget :+ DiRReplaceFoo ---":;
+        replaceTarget :+ DiRReplaceFoo;
+        replaceTarget();
+        print ``"--- idempotent: re-apply, run again ---":;
+        replaceTarget :+ DiRReplaceFoo;
+        replaceTarget(); };
+    deleteTarget code={
+        print "delete line 1":;
+        print "original line":;
+        print "delete line 3":; };
+    testDirectiveDelete code={
+        print ``"--- STATE inactive: deleteTarget, no directive ---":;
+        deleteTarget();
+        print ``"--- STATE active: deleteTarget :+ DiRDeleteFoo ---":;
+        deleteTarget :+ DiRDeleteFoo;
+        deleteTarget(); };
+    /*************************************************************************
+        Hybrid prototype (2026-05-28): load a .twk file into a buffer field as
+        text, do a text-level replace on it, print before/after. Probes the
+        text-substrate path WITHOUT going through `field += DiRfoo` (the
+        applyDirectives path won't handle text-fields yet). If the replace
+        lands in fileField.text, the substrate path is validated and we know
+        what's needed to wire it into the `+=` mechanism.
+
+        No file write yet — Buffer extern incant methods (setFile + flush)
+        aren't reachable from incant. The buffer holds the modified text in
+        memory; printing it confirms.
+    *************************************************************************/
+    /*************************************************************************
+        Minimal probes — isolate parse failure root cause for the hybrid
+        prototype. Each probe tests ONE hypothesis.
+    *************************************************************************/
+    testJustPrint code={
+        print "hello":; };
+    testWithTab code={
+        print "tab\there":; };
+    testWithAssign x code={
+        x = "hi";
+        print x:; };
+    /*************************************************************************
+        Text-substrate directive POP (2026-05-28). Loads groups.twk into a
+        buffer field, applies a DiRSwapInt directive (replaces "int dummy"
+        with "int REPLACED" in the buffer text), prints before/after. The
+        whole thing routes through opPlusEQ's DiR-buffer dispatch →
+        applyTextDirective → opIN's BUFFER branch → Buffer.findInBuffer +
+        mark-aware += and -=. If we see "int REPLACED" in AFTER and the
+        rest of the file intact, the text substrate works end-to-end.
+        File-write parked: closeFile(fileField) is wired but commented
+        out so we don't actually modify groups.twk on disk.
+    *************************************************************************/
+    swapFrom = "int	dummy";
+    swapTo   = "int	REPLACED";
+    DiRSwapInt swapFrom swapTo;
+    testTextDirective code={
+        fileField = new("/Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/groups.twk");
+        getFile(fileField);
+        print ``"--- BEFORE text directive ---":;
+        print fileField:;
+        fileField += DiRSwapInt;
+        print ``"--- AFTER text directive ---":;
+        print fileField:;
+        /* closeFile(fileField); */ };
+    ;
+
+/*****************************************************************************
+	Directive tests — splice baseline + new replace + new delete (2026-05-28)
+*****************************************************************************/
+testDirective();
+testDirectiveReplace();
+testDirectiveDelete();
+
+/*****************************************************************************
+	Minimal probes — isolate testStringQuoting/testHybridPrototype parse fail
+*****************************************************************************/
+testJustPrint();
+testWithTab();
+testWithAssign();
+
+/*****************************************************************************
+	Text-substrate directive POP (2026-05-28)
+*****************************************************************************/
+testTextDirective();

@@ -1382,7 +1382,10 @@ GroupItem *GroupItem::prior(GroupItem *grup)
 GroupItem *GroupItem::push(GroupItem *grup)
 {
 int 		comparison = 0;
-GroupItem 	*entry = groupBody->groupList->firstInList;
+GroupItem 	*entry = 0;
+	if ( !groupBody->groupList )
+		groupBody->groupList = new GroupList(this);
+	entry = groupBody->groupList->firstInList;
 	if ( !grup )
 		{
 		::fprintf(stderr,"GroupBody add: tried to add a null entry\n");

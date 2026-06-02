@@ -23,6 +23,7 @@ class GroupRules
                 currentRegistry,
                 debugJunk,
                 baseRegistryList,
+                bcOPs,
                 commands,
                 files,
                 grokking,
@@ -284,6 +285,7 @@ int     result;
 }
 }
 
+include /Users/anthony/Dropbox/data/InProcess/Groups/Commands.rtn
 include /Users/anthony/Dropbox/data/InProcess/Groups/GroupActions.rtn
 include /Users/anthony/Dropbox/data/InProcess/Groups/ruleActions.rtn
 include /Users/anthony/Dropbox/data/InProcess/Groups/Debug.rtn

@@ -1,4 +1,5 @@
 # What Is Incant?
+
 A question that keeps evolving. This document is a snapshot, not an answer.
 
 ---
@@ -17,31 +18,6 @@ Simple like a seed is simple. What grows from it is not.
 
 ---
 
-## For the Nerds
-
-Incant is reflexive (it can describe and modify itself), homoiconic (code and data have the same structure — a field IS a rule IS a result), transpiler-backed (generates C++ via TAWK, so the entire C++ ecosystem is available), bootstrap-defined (32 hard-coded rules seed a language that then defines itself), and stack and queue aware (a field can be treated as either, by design not accident).
-
-The closest relatives: Lisp's homoiconicity, Forth's minimalism, PostScript's stack elegance, Python's readable syntax. Incant steals the best ideas from all of them and generates to C++ so you get the ecosystem for free.
-
-The key departure from all of them: everything is a GroupItem field. Not a list. Not a stack frame. Not an expression. A field — which can BE any of those things, simultaneously, depending on context.
-
-Here is what reflexive and homoiconic mean in practice. This is incant's grammar, written in incant:
-
-```
-StatemenT:
-    SemI;
-    BlocK;
-    WardeD;
-    Xpress;
-    CheckFor;;
-
-Start=StatemenT+;
-```
-
-This is not pseudocode. This IS incant, being run by incant, to define what incant statements look like. The parser that reads this is the same parser that uses these rules to parse incant programs. Code and data — same structure, same syntax, same mechanism.
-
----
-
 ## The Foundation: What Is a Field?
 
 A field is incant's universal container. It can hold data (text, number, character set, another field, or a pointer), a list of fields (members), a C++ method callable from incant, an incant action written in incant itself, a parser that reads input and produces results, and attributes that characterize this field.
@@ -52,50 +28,33 @@ In most languages those would be four separate things. In incant they're one fie
 
 ---
 
-## The Bootstrap: How Incant Defines Itself
+## JSON, YAML, and Incant — A Syntax Progression
 
-Incant starts with nothing but a concept: the field. From that, 32 bootstrap rules are hard-coded in C++ — the minimal seed needed to define everything else.
+The same hierarchical data, three syntaxes:
 
-Here they are, written in incant's own syntax:
+JSON (ugly, but ubiquitous):
 
 ```
-counter=[0-9];
-modifySet=[-~+?!%&|*@_<^{}$];
-nameSet=[a-zA-Z0-9];
-PoweR=[eE] sign?=[+-]  power=[0-9]+;
-FloaT="."           decimals=[0-9]+ PoweR?;
-tokenize^@;
-NumbeR=numberSet=[0-9]+       FloaT? tokenize;
-DefinE;
-QuotE               tik=['"] quoteBody}=tik$@;
-NamE                first-=[a-zA-Z] nameSet-* tokenize;
-GrouP:
-    NamE;
-    QuotE;;
-DatA:
-    GrouP;
-    NumbeR;
-    SetBrackets     '['- ']'};
-    NotA=[^ \t\r\n;]+;;
-debug               "ALL"? "GUARD"? rules=NamE* ';'-;
-InvokE              '('- NamE? ')'-;
-Limit               '['- min=[0-9]+ max?=[0-9]+ ']'- noPrint;
-CodE                '{' '}'} tokenize;
-MemberS             ':'- Mlist=DefinE+;
-Modifier=[-~+?!%&|*@_<^{}$] noPrint;
-TraiTdata           '='- DatA Modifier* Limit?;
-TraiT               NamE Modifier* Limit? TraiTdata?;
-Attributes=TraiT+;
-NewGroup            TraiT@;
-DefinE              NewGroup Attributes? MemberS? ';'- CodE?;
-define              definitions=DefinE+ ';'-;
-RunRulE             NamE InvokE? ';'-?;
-InitiatE=RunRulE+;
+{"person": {"name": "Anthony", "age": 42}}
 ```
 
-Notice `DefinE` appears twice — first as a bare declaration (`DefinE;`) and then fully defined. That's incant's way of handling forward references. The bare declaration says "this exists, trust me, details to follow." Same concept as a C++ forward declaration or an empty TAWK external block, but expressed in incant's own syntax. No special keyword needed — the placeholder has the same shape as the thing it's holding a place for.
+YAML (cleaner, used for config files):
 
-From these 32 rules, incant loads a setup file that defines the rest of the language. Then incant can define new rules, which define new languages, which can define anything.
+```
+person:
+  name: Anthony
+  age: 42
+```
+
+Incant (minimal noise, maximum signal):
+
+```
+person name="Anthony" age=42;
+```
+
+Each step removes syntax ceremony and keeps signal. Incant wins on elegance. The progression illustrates what incant is doing — expressing structure with the least possible noise.
+
+Incant can parse JSON in four or five rules. The reverse (JSON expressing incant structure) is theoretically possible but aesthetically unfortunate.
 
 ---
 
@@ -125,6 +84,21 @@ DatA:
 
 `DatA` tries each option in order until one succeeds. This is not just pattern matching — it's grammar definition. Incant IS its own grammar.
 
+Here is what reflexive and homoiconic mean in practice. This is incant's grammar, written in incant:
+
+```
+StatemenT:
+    SemI;
+    BlocK;
+    WardeD;
+    Xpress;
+    CheckFor;;
+
+Start=StatemenT+;
+```
+
+This is not pseudocode. This IS incant, being run by incant, to define what incant statements look like. The parser that reads this is the same parser that uses these rules to parse incant programs. Code and data — same structure, same syntax, same mechanism.
+
 ---
 
 ## A Rule Called as a Method
@@ -144,12 +118,6 @@ list isRule entries=ANYstring+ SemI?-; {
 If that action instead messaged a GroupItem in AWS — which happens to be Claude — which returned a response stored back as a field — then `list("some input")` would trigger a chain of events spanning devices, networks, and AI models. The caller just called a method. It didn't know or care what happened inside.
 
 That's the power hiding in the simplicity. A rule is a method is a parser is a field. One thing, four faces.
-
----
-
-## Labels vs Rules
-
-When a rule matches, it produces a result stored in a label — a field with the same name as the rule that produced it. Labels and rules share names but carry different flags: `isRule` marks a field as a rule definition, `isLabel` marks a field as a result captured from matching a rule. Same name, two different roles. Navigation follows the flags. Everything inside a label context is `isLabel` — mixing them is a bug.
 
 ---
 
@@ -179,30 +147,9 @@ The `defer` keyword says: match this now, fire the action later. A block of code
 
 ---
 
-## JSON, YAML, and Incant — A Syntax Progression
+## Labels vs Rules
 
-The same hierarchical data, three syntaxes:
-
-JSON (ugly, but ubiquitous):
-```json
-{"person": {"name": "Anthony", "age": 42}}
-```
-
-YAML (cleaner, used for config files):
-```yaml
-person:
-  name: Anthony
-  age: 42
-```
-
-Incant (minimal noise, maximum signal):
-```
-person name="Anthony" age=42;
-```
-
-Each step removes syntax ceremony and keeps signal. Incant wins on elegance. The progression illustrates what incant is doing — expressing structure with the least possible noise.
-
-Incant can parse JSON in four or five rules. The reverse (JSON expressing incant structure) is theoretically possible but aesthetically unfortunate.
+When a rule matches, it produces a result stored in a label — a field with the same name as the rule that produced it. Labels and rules share names but carry different flags: `isRule` marks a field as a rule definition, `isLabel` marks a field as a result captured from matching a rule. Same name, two different roles. Navigation follows the flags. Everything inside a label context is `isLabel` — mixing them is a bug.
 
 ---
 
@@ -246,6 +193,61 @@ That's what incant is for. And the answer to "what will it be used for" is still
 
 ---
 
+## Appendix A — For the Nerds
+
+Incant is reflexive (it can describe and modify itself), homoiconic (code and data have the same structure — a field IS a rule IS a result), transpiler-backed (generates C++ via TAWK, so the entire C++ ecosystem is available), bootstrap-defined (32 hard-coded rules seed a language that then defines itself), and stack and queue aware (a field can be treated as either, by design not accident).
+
+The closest relatives: Lisp's homoiconicity, Forth's minimalism, PostScript's stack elegance, Python's readable syntax. Incant steals the best ideas from all of them and generates to C++ so you get the ecosystem for free.
+
+The key departure from all of them: everything is a GroupItem field. Not a list. Not a stack frame. Not an expression. A field — which can BE any of those things, simultaneously, depending on context.
+
+---
+
+## Appendix B — The Bootstrap: How Incant Defines Itself
+
+Incant starts with nothing but a concept: the field. From that, 32 bootstrap rules are hard-coded in C++ — the minimal seed needed to define everything else. From these 32 rules, incant loads a setup file that defines the rest of the language. Then incant can define new rules, which define new languages, which can define anything.
+
+For the curious — here are the 32 bootstrap rules, written in incant's own syntax:
+
+```
+counter=[0-9];
+modifySet=[-~+?!%&|*@_<^{}$];
+nameSet=[a-zA-Z0-9];
+PoweR=[eE] sign?=[+-]  power=[0-9]+;
+FloaT="."           decimals=[0-9]+ PoweR?;
+tokenize^@;
+NumbeR=numberSet=[0-9]+       FloaT? tokenize;
+DefinE;
+QuotE               tik=['"] quoteBody}=tik$@;
+NamE                first-=[a-zA-Z] nameSet-* tokenize;
+GrouP:
+    NamE;
+    QuotE;;
+DatA:
+    GrouP;
+    NumbeR;
+    SetBrackets     '['- ']'};
+    NotA=[^ \t\r\n;]+;;
+debug               "ALL"? "GUARD"? rules=NamE* ';'-;
+InvokE              '('- NamE? ')'-;
+Limit               '['- min=[0-9]+ max?=[0-9]+ ']'- noPrint;
+CodE                '{' '}'} tokenize;
+MemberS             ':'- Mlist=DefinE+;
+Modifier=[-~+?!%&|*@_<^{}$] noPrint;
+TraiTdata           '='- DatA Modifier* Limit?;
+TraiT               NamE Modifier* Limit? TraiTdata?;
+Attributes=TraiT+;
+NewGroup            TraiT@;
+DefinE              NewGroup Attributes? MemberS? ';'- CodE?;
+define              definitions=DefinE+ ';'-;
+RunRulE             NamE InvokE? ';'-?;
+InitiatE=RunRulE+;
+```
+
+Notice `DefinE` appears twice — first as a bare declaration (`DefinE;`) and then fully defined. That's incant's way of handling forward references. The bare declaration says "this exists, trust me, details to follow." Same concept as a C++ forward declaration or an empty TAWK external block, but expressed in incant's own syntax. No special keyword needed — the placeholder has the same shape as the thing it's holding a place for.
+
+---
+
 ## For Clod
 
-Incant source lives in `/Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/`. GitHub repo: https://github.com/TAnthonyAllen/incant. The grammar file is `grammar` — the bootstrap rules are in the comment at the top. GroupItem is the universal field type — everything in incant is a GroupItem. TAWK (.twk files) generates the C++ that implements incant. The JIT is the current major work item — it changes everything. See projectBible.md for ecosystem context and TODO.md for current tasks.
+Incant source lives in `/Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/`. GitHub repo: <https://github.com/TAnthonyAllen/incant>. The grammar file is `grammar` — the bootstrap rules are in the comment at the top. GroupItem is the universal field type — everything in incant is a GroupItem. TAWK (.twk files) generates the C++ that implements incant. The JIT is the current major work item — it changes everything. See projectBible.md for ecosystem context and TODO.md for current tasks.

@@ -123,8 +123,8 @@ use argument
             product = new(tag);
             switch(gCount) {
                 case 1:     product.text    = target.tag;
-                case 2:     product.group   = target.parent;
-                case 3:     product.group   = target.registry;
+                case 2:     if !target.parent    product = null; else product.group = target.parent;
+                case 3:     if !target.registry  product = null; else product.group = target.registry;
                 case 4:     product.text    = target.text;
                 case 5:     if target.groupList     product.count = target.listLength;
                             else                    product = 0;
@@ -139,10 +139,10 @@ use argument
                 case 20:    if target.isOperator    product.count = 1;
                 case 24:    if target.isShortcut    product.count = 1;
                 case 28:    if target.noPrint       product.count = 1;
-                case 401:   product.group   = nextInParent;
-                case 402:   product.group   = priorInParent;
-                case 403:   product.group   = firstInList;
-                case 404:   product.group   = lastInList;
+                case 401:   if !nextInParent    product = null; else product.group = nextInParent;
+                case 402:   if !priorInParent   product = null; else product.group   = priorInParent;
+                case 403:   if !firstInList     product = null; else product.group   = firstInList;
+                case 404:   if !lastInList      product = null; else product.group   = lastInList;
                 default:    product.text    = "access to " tag " not supported yet"; }
             if product
                 if !product.isInitialized   return 0;
@@ -242,6 +242,12 @@ GroupItem   result;
     or target.isSET {
         if set = target.characterSet
             if set.contains(argument.text)  result = trueResult; }
+    or target.isBUFFER {
+        /* Text-substrate find: argument is a string field, target is a
+           buffer field. On match, buffer's mark is set to start of match
+           (side effect); we return argument so caller has the matched
+           string for length-of-match computations (argument.count). */
+        if target.buffer.findInBuffer(argument.text)    result = argument; }
     return result ;
 }
 
@@ -424,7 +430,9 @@ extern GroupItem opPlusEQ(GroupItem argument,GroupItem target)
 {
 GroupItem   grup;
     if !compare(head(argument.tag,3),"DiR")
-        return applyDirectives(argument,target);
+        if target.isBUFFER  return applyTextDirective(argument,target);
+        else                return applyDirectives(argument,target);
+    // incant directive tags start with DiR
 use target
     if argument.isLIST
         while grup = argument.prior(grup)
@@ -545,7 +553,7 @@ GroupItem   candidate;
 GroupItem   tWalk;
 GroupItem   fWalk;
     if !fromBlocK   return null;
-    fromLines = fromBlocK.getLabelGroup("Lines");
+    fromLines = fromBlocK;
     if !fromLines || !fromLines.groupList   return null;
     firstFrom = fromLines.firstInList;
     candidate = targetLines.firstInList;
@@ -581,7 +589,7 @@ GroupItem   priorAnchor = anchor.priorInParent;
 int         spanLength;
 int         i;
     if !fromBlocK   return;
-    fromLines = fromBlocK.getLabelGroup("Lines");
+    fromLines = fromBlocK;
     if !fromLines   return;
     spanLength = fromLines.listLength;
     spanWalk = anchor;
@@ -593,7 +601,7 @@ int         i;
     if toBlock {
         toBlocK = toBlock["BlocK"];
         if toBlocK {
-            toLines = toBlocK.getLabelGroup("Lines");
+            toLines = toBlocK;
             if toLines && toLines.groupList {
                 spanWalk = toLines.lastInList;
                 while spanWalk {
@@ -649,7 +657,7 @@ GroupItem   targetLines;
             if !toBlk   toBlk = toAttr;
             if !toBlk["BlocK"]  processCode(toBlk); }
 
-        targetLines = target["BlocK"].getLabelGroup("Lines");
+        targetLines = target["BlocK"];
         if !targetLines     return target;
         anchor = matchSpanInLines(targetLines,fromBlk);
         if !anchor {
@@ -712,12 +720,12 @@ int         ending;
         processCode(target);
         BlocK = target["BlocK"]; }
     if !BlocK   return;
-    targetLines = BlocK.getLabelGroup("Lines");
+    targetLines = BlocK;
     if !targetLines     return;
     processCode(directive);
     dBlocK = directive["BlocK"];
     if !dBlocK  return;
-    dLines = dBlocK.getLabelGroup("Lines");
+    dLines = dBlocK;
     if !dLines || !dLines.groupList     return;
     at = directive["at"];
     ending = at && compare(at.text,"ending") == 0;
@@ -735,6 +743,85 @@ int         ending;
             stmt.parent = null;
             targetLines.insertGroup(stmt);
             stmt = adjacent; }}
+}
+
+/***************************************************************************
+    Buffer-side mark machinery wrappers — thin passthroughs to Buffer's
+    setMark/unMark/setFile/closeFile. Used by incant code that wants
+    explicit control over the mark, and by applyTextDirective to
+    arm/disarm Buffer.markIsSet around find-and-replace sweeps.
+***************************************************************************/
+extern void setMark(GroupItem bufField)
+{
+    if bufField.isBUFFER    bufField.buffer.setMark();
+}
+
+extern void unMark(GroupItem bufField)
+{
+    if bufField.isBUFFER    bufField.buffer.unMark();
+}
+
+extern void setFile(GroupItem bufField,String name)
+{
+    if bufField.isBUFFER    bufField.buffer.setFile(name);
+}
+
+/***************************************************************************
+    Close the file associated with the buffer. If no file has been set,
+    fall back to using the field's tag as the filename — the tag is a
+    handle the user already controls and serves no other purpose in this
+    context, so it's a reasonable default destination.
+***************************************************************************/
+extern int closeFile(GroupItem bufField)
+{
+    if bufField.isBUFFER {
+        if !bufField.buffer.file    bufField.buffer.setFile(bufField.tag);
+        return bufField.buffer.closeFile(); }
+    return 0;
+}
+
+/***************************************************************************
+    Text-substrate directive orchestrator. Parallel to applyDirectives but
+    operates on a buffer-bearing target rather than an AST target. Walks
+    the buffer doing find-and-replace via the mark machinery: for each
+    occurrence of fromText in target's buffer, delete the matched chars
+    and insert toText in their place. Mark threads naturally through
+    opIN (sets it on match), += (insert at mark, advance), -= (delete
+    at mark, stay). Idempotent via the target's DiRs registry.
+***************************************************************************/
+extern GroupItem applyTextDirective(GroupItem argument,GroupItem target)
+{
+GroupItem   grup;
+GroupItem   DiRs;
+GroupItem   fromText;
+GroupItem   toText;
+Buffer      buf;
+    if argument.isLIST
+        while grup = argument.prior(grup)
+            applyTextDirective(grup,target);
+    else {
+        DiRs = target["DiRs"];
+        if !DiRs {
+            DiRs = target += "DiRs";
+            DiRs.noPrint = true; }
+        if DiRs[argument.tag]   return target;
+        DiRs += argument;
+
+        fromText = argument.firstInList;
+        if !fromText {
+            cerr "Text directive needs 'from' as first child:",argument.tag:;
+            return target; }
+        toText = fromText.nextInParent;
+
+        if !target.isBUFFER     return target;
+        buf = target.buffer;
+        buf.setMark();
+        while buf.findInBuffer(fromText.text) {
+            buf.deleteFromBuffer(fromText.count);
+            if toText   buf.appendString(toText.text,0,0); }
+        buf.unMark();
+    }
+    return target;
 }
 
 /***************************************************************************
@@ -791,16 +878,6 @@ extern GroupItem opString(GroupItem target,Buffer buffer)
     reset();
     bufferSTAK  += buffer;
     return target;
-}
-
-/***************************************************************************
-	Rule action for unWrap
-***************************************************************************/
-extern GroupItem unWrap(GroupItem result)
-{
-GroupItem   grup = result;
-    if !isPointer && grup.isGROUP   grup = group;
-    return grup;
 }
 
 /*******************************************************************************

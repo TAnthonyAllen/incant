@@ -36,19 +36,6 @@ void GroupControl::addBaseRegistry(GroupItem *r)
 	groupRules->baseRegistryList->addMember(r);
 }
 
-/******************************************************************************
-    copyOf() makes a copy of the field passed in. The copy groupBody is a copy
-    as is its groupList.
-******************************************************************************/
-GroupItem *GroupControl::copyOf(GroupItem *grup)
-{
-GroupItem 	*block = new GroupItem();
-	*block->groupBody = *grup->groupBody;
-	if ( grup->groupBody->groupList )
-		block->copyListFrom(grup);
-	return block;
-}
-
 /***************************************************************************
 	Debugging routine to list out the registry search list
 ***************************************************************************/
@@ -176,6 +163,8 @@ GroupItem 	*action = 0;
 	groupRules->groupFields = getRegistry("GroupFields");
 	groupRules->commands = getRegistry("cOMMANDs");
 	groupRules->files = getRegistry("fILEs");
+	groupRules->bcOPs = getRegistry("bcOPs");
+	groupRules->bcOPs->groupBody->flags.instructType = 2;
 	addBaseRegistry(groupRules->properties);
 	addBaseRegistry(groupRules->opFields);
 	addBaseRegistry(groupRules->commands);

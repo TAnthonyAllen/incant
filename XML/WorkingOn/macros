@@ -6,6 +6,9 @@ Current thinking is use StringXP to do macros
     embedded quotes could be provided using GroupItem quoted() method TBD
     this seems like the simplest solution altho it does not look like a macro
 
+I had an interesting few fields defined for defining a macro. Sadly they are gone and I do not know what happened to them. Karma. We will have to design how macros get defined and are used from scratch, and not even sure we need macros in incant.
+
+
 /*******************************************************************************
 	Back up This is stuff to consider once we have a JIT
 *******************************************************************************/
@@ -20,25 +23,4 @@ But what if we want to change grammar and save the changes. Right now xCode does
         take Buffer out of the file command (so file command only makes its target a file)
         modify buffer += stuff so that it checks stuff; if it is a file it loads buffer w/getStringFromFile()
     need a way in incant to flush a buffer
-
-/*******************************************************************************
-	Parsing operators
-*******************************************************************************/
-    how to loop thru set characters
-    IN operator is not enough (simple but confusing)
-    we have a testSet match method and a ~= match operator
-        would be nice if the match operator could figure out how to do its job wrt data types
-        how about an operator bin for each type so incant checks the type bin when locating operators???
-            would treat a type as an incant version of a class w/methods
-            might simpify a JIT
-            slow the parse a wee bit but simplify op methods by eliminating type checks - worth a think
-    should a set be a bin type???
-
-    // Good notion
-    We do not know the target when encountering an operator; do not know until we are processing an expression
-        Add a refine operator pass in expression process to identify the right operator version depending on target data type (and argument data type and ...???)
-            Will flood incant w/small op methods, speed run time, hopefully minor increase in parse time
-            Definitely will be a boon when generating code or JIT
-        How do we find the right operator version
-            Check op for data attribute (should be the only attribute)
 

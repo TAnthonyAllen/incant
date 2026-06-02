@@ -54,7 +54,7 @@ presence of a `bytecode` attribute on the coded action.
 
 **Where things live for phase 2:**
 
-- **Emitter — incant.** New file `XML/WorkingOn/bytecode`, parallel to
+- **Emitter — incant.** New file `incant/bytecode`, parallel to
   `generate`. Defines new `bc*` ops in a registry, plus emitter actions
   (`bcBlock`, `bcFor`, `bcIf`, etc.) modeled on `gBlock`/`gFor`/`gIf`.
 - **Interpreter — C++.** New file `Bytecode.{h,mm}` at repo root,
@@ -112,7 +112,7 @@ needed.
    shouldn't see it.
 4. Pick the trivial coded action for the round-trip test.
 5. Stub `Bytecode.h` and `Bytecode.mm` at the repo root.
-6. Begin the incant-side emitter file `XML/WorkingOn/bytecode`.
+6. Begin the incant-side emitter file `incant/bytecode`.
 
 ### Other things that came up
 
@@ -420,7 +420,7 @@ Where C++ side lives: Bytecode.{h,mm} at repo root, hand-edited.
 ~200–300 lines. Interpreter loop + gating hook. No BCinstr/BCfunction
 C++ types — those names were artifacts of wrong framing.
 
-Where incant side lives: new XML/WorkingOn/bytecode file, parallel to
+Where incant side lives: new incant/bytecode file, parallel to
 generate. Defines bc* ops in registry, plus emitter actions.
 
 Asked: should I draft the updated bytecode section of incant.md? And:
@@ -698,7 +698,7 @@ handler(grup);                  // call its method
 Get the field, then call it. Two lines.
 
 This is the dispatch line in `interpret()` (in
-`XML/WorkingOn/bytecode`) and applies anywhere we want to call a
+`incant/bytecode`) and applies anywhere we want to call a
 method that lives behind a sub-attribute.
 
 ### `interpret()` lives in incant, not C++
@@ -715,7 +715,7 @@ bytecode.
 
 Net effect: C++ side shrank to ~30 lines (six small handler functions
 in `Bytecode.mm`, plus one stub for runCall), and `interpret()` is
-~10 lines of incant in `XML/WorkingOn/bytecode`.
+~10 lines of incant in `incant/bytecode`.
 
 ### `dst` slot = GroupItem field
 
@@ -727,7 +727,7 @@ removed once Anthony confirmed.
 
 ## Implementation landed
 
-- `XML/WorkingOn/setup` — new `bcOPs` registry (4 entries, all with
+- `incant/setup` — new `bcOPs` registry (4 entries, all with
   `interpret=` sub-attribute); three `Operators` entries (`>`, `*`,
   `=`) gained `interpret=` alongside their existing `operateMethod=`.
 - `Bytecode.h` (new, repo root) — extern "C" declarations for the
@@ -736,12 +736,12 @@ removed once Anthony confirmed.
 - `Bytecode.mm` (new, repo root) — real bodies for six; runCall left
   as a TODO stub (no current test exercises composite operands like
   `A(B)`, per the "build handlers as tests force them" rule).
-- `XML/WorkingOn/bytecode` (new) — `interpret()` in incant. Walks
+- `incant/bytecode` (new) — `interpret()` in incant. Walks
   the body's member instructions, dispatches via two-step idiom,
   honours implicit-next (null return = next sibling, non-null =
   jump to target). Registered in setup's `fILEs` so the bootstrapper
   picks it up.
-- `XML/WorkingOn/setup` `fILEs` — added `bytecode` entry.
+- `incant/setup` `fILEs` — added `bytecode` entry.
 - `CLAUDE.md`, `TODO.md`, `projectBible.md` (in 4 repos) — updated
   to reflect decisions; "no vregs" line propagated; design-Q section
   flipped from "open" to "decided."
@@ -760,7 +760,7 @@ removed once Anthony confirmed.
   routes through `interpret()`, run `testByteCode; { if righty > 0;
   maximus = righty * 2; }` and verify `maximus = 26`.
 - **Bytecode emitters** — `gIF`, `gExpressioN`, `gXpress`, `gPrinT`
-  in `XML/WorkingOn/generate` are still stubs (or old C++-source
+  in `incant/generate` are still stubs (or old C++-source
   emitters in the case of `gBlocK`/`gFOR`/`gWhilE`/`gDO`/`gDeclare`).
   Need rewriting to emit bytecode GroupItems. Each emitter is
   small once the shape is locked.
@@ -793,7 +793,7 @@ removed once Anthony confirmed.
 - `6eb0809` — Drop VERIFY VREG markers — vregs are just GroupItem fields
 - `3100f9f` — Bible: no vregs in incant — they're just GroupItem fields
 - `a2896e6` — Fix bytecode wiring: interpret=runX (sub-attribute), not interpretMethod=
-- `60e297a` — Add interpret() in incant — XML/WorkingOn/bytecode (Phase 2 step 4)
+- `60e297a` — Add interpret() in incant — incant/bytecode (Phase 2 step 4)
 
 Plus mirror-bible commits in plg, tawk, support repos.
 
@@ -884,7 +884,7 @@ rules, grup.taG spelling, return; without value).
 - Indentation, Python-style, no braces (see GroupItem checkSkip)
 - grup.taG correct (Cap-on-last-letter)
 - return; works (branch commands exist)
-Approved. Write to XML/WorkingOn/bytecode. Then create
+Approved. Write to incant/bytecode. Then create
 Sessions/plg-bootstrap-session.md and extend
 incant-bytecode-session.md.
 

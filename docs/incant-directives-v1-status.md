@@ -39,7 +39,7 @@ No regression: `oneTest` runs clean to completion.
 xcodebuild -scheme Groups -configuration Debug build   # (from TOK/)
 incant <driver>                                         # driver includes unitTests
 ```
-Driver runs `testDirective();` (defined in `XML/WorkingOn/unitTests`, "Working On"
+Driver runs `testDirective();` (defined in `incant/unitTests`, "Working On"
 section). Fixtures there: `dirTarget`, `DiRgreeting` (at=starting), `DiRfarewell`
 (at=ending), `testDirective`.
 
@@ -52,7 +52,7 @@ The feature is **hand-applied in `GroupRules.mm` + `GroupRules.h`**, NOT in the
 - `applyDirectives` — NEW (would back-port to `Instruct.rtn`).
 - `spliceDirectives` — NEW (would back-port to `Instruct.rtn`).
 - `GroupRules.h` — 2 hand-added decls (tok regenerates these on back-port).
-- `XML/WorkingOn/unitTests` — fixtures added; old incant `applyDirectives` rule
+- `incant/unitTests` — fixtures added; old incant `applyDirectives` rule
   removed (per Tony).
 
 **Re-toking `tok GroupRules.twk groupDirectives` WILL WIPE all of the above** — it

@@ -1,5 +1,5 @@
 /*****************************************************************************
-    The 32 bootstrap rules listed in this comment are hard coded in the
+    The bootstrap rules listed in this comment are hard coded in the
     incant runtime bootstrapper method and added to the Grokking registry
     defined before bootstrapping. The bootstrapper creates the rules
     and fields incant needs to define and run a rule. Note a rule is a field
@@ -81,6 +81,7 @@ define
     StatemenT guard=[{A-Za-z0-9+-;(];
     followedBy<^-=notInNameSet;
     SemI=";";
+    ElsE;
 
     /*************************************************************************
         incant grammar rules
@@ -90,7 +91,7 @@ define
     ShortcuT=[-+~`$_:,]+;
     ANYtoken=NamE;
     ANYstring=[^ \n\r\t;]+;
-    BlocK                       "{"- Lines=StatemenT+ "}"- defer;
+    BlocK                       "{"- StatemenT+ "}"- defer;
     BLOCKing parseAction guard='n';
     PRINTing parseAction=processFlags guard='n';
     BrancheS bin
@@ -135,7 +136,7 @@ define
         DEF         "define"- followedBy define;
         DO          do- followedBy BLOCKing- StatemenT while- ExpressioN SemI- defer;
         IF          if- followedBy ExpressioN SemI-? BLOCKing- StatemenT ElsE? defer;
-        FOR         for- followedBy Looper in- ExpressioN SemI- LoopRestrict? BLOCKing- StatemenT defer;
+        FOR         for- followedBy Looper in- reversE?="<-" ExpressioN SemI- LoopRestrict? BLOCKing- StatemenT defer;
         WhilE       while- followedBy ExpressioN SemI-? BLOCKing- StatemenT defer;
         PrinT       print followedBy PRINTing- stuff=PrintXP+  SemI- defer;
         Search      "search"- followedBy GrouP+ SemI-;

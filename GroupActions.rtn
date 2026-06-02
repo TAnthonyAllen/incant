@@ -14,29 +14,6 @@ GroupRules  ruler = groupRules;
     return trueResult;
 }
 
-/***************************************************************************
-	This clears its argument. If data is a buffer, it is reset. If data is
-    a stak, it is cleared. Otherwise input is cleared.
-***************************************************************************/
-extern GroupItem cLEAR(GroupItem input)
-{
-    if isBUFFER     buffer.reset();
-    or isSTAK       stak.clear();
-    else {
-        input.clearData();
-        input.clearList(); }
-    return input;
-}
-
-/***************************************************************************
-	Returns a copy of the field passed in
-***************************************************************************/
-extern GroupItem cOPY(GroupItem field)
-{
-GroupItem newField = new(field);
-    return newField;
-}
-
 /*****************************************************************************
 	The dispatcher is designed to take a group argument disguised as a void*
     The group argument is on the listener notifyLIST. The notifier is the
@@ -73,168 +50,6 @@ use input
         else cerr "FAIL: no fail method argument provided":;
     else cerr "FAIL: should be a rule attribute":;
     return trueResult;
-}
-
-/******************************************************************************
-    Reads the field passed in as a file spec and loads the field buffer (creating
-    it if necessary) with text read in from the file. Returns the loaded field.
-******************************************************************************/
-extern GroupItem getFile(GroupItem filing)
-{
-GroupRules  ruler = groupRules;
-GroupItem   File:,
-            atLINE:;
-long        length, increment;
-int         file;
-String      fileName;
-Buffer      buffet;
-use filing
-    if !filing {
-        cerr "getFile: no file name provided":;
-        return null; }
-    if File     fileName = File.text;
-    else        fileName = filing.text;
-    file = open( fileName,O_RDWR );
-    if file > 0
-        {
-        length    = lseek(file,0,SEEK_END);
-        increment = length + 500;
-        /**********************************************************************
-            Make sure filing has a buffer to stuff input into
-        **********************************************************************/
-        if !isBUFFER {
-            buffer  = new(tag,(int)increment);
-            buffer.setFile(fileName);
-            buffet  = buffer; }
-        else {
-            buffet      = getBuffer();
-            buffet.reSize((int)increment); }
-        lseek(file,0,SEEK_SET);
-        increment = read(file,start,length);
-        if increment != length
-            cerr "getFile: Problem reading in " tag:;
-        else    end = start + length;
-        close( file );
-        }
-    else {
-        String  errorMessage = "getFile: could not open file: " fileName;
-        checkSys(file,errorMessage);
-        cerr `"current directory: ";
-        system("pwd");
-        return null;
-        }
-    if !atLINE      atLINE = filing += "atLINE";
-    atLINE.count    = 0;
-    pushInput(filing);
-    return filing;
-}
-
-/***************************************************************************
-	guard command should be run as a rule attribute to specify a guard for
-    the rule that has not been guarded.
-    If the guard attribute contains:
-        a set as data, the set becomes the rule guard set.
-        a string, the string is used to create the guard set.
-        a character will make the rule unguarded
-        nothing will turn debugGuard on
-***************************************************************************/
-extern GroupItem guard(GroupItem item)
-{
-    if fLAG {
-        GroupItem target = parent;
-        if !guarding
-            switch(item.data) {
-                case isCHAR:    unGuarded = true;
-                case isSET:
-                    guardSet    = item.characterSet;
-                    guarded     = true;
-                case isSTRING:
-                case isTOKEN:
-                    guardSet    = new(item.text);
-                    guarded     = true;
-                default:        debugGuard = true; }}
-    else cerr "ERROR guard should be used as an attribute when defining":;
-    clearData();
-    return item;
-}
-
-/*****************************************************************************
-	The input argument is expected to be a listenTo attribute that contains
-    a list of groups that will be listened to by listenTo's parent (the listener).
-    The listenTo attribute is noPrint and runs when its parent gets defined.
-    It runs thru its list of groups and adds its parent to the notifyList
-    of every group on that list.
-    The notifyList is an attribute of the group being listened to. If the
-    listened to group changes, it runs updateListeners(), which will notify
-    its listeners that something changed and time to do what needs done.
-*****************************************************************************/
-extern GroupItem listenTo(GroupItem input)
-{
-GroupItem   listener = input.parent;
-GroupItem	grup,
-            notifyList;
-    listener.hasListeners   = true;
-    if input.fLAG
-        while grup = input.nextAttribute(grup) {
-            notifyList = grup%notifyLIST;
-            if !notifyList {
-                notifyList      = new("notifyLIST");
-                noPrint         = true;
-                grup    +% notifyList; }
-            notifyList  +% listener; }
-    else    cerr "listenTo: should be invoked as an attribute when its parent is defined":;
-    return trueResult;
-}
-
-/***************************************************************************
-	The loadDirectory is a noPrint command usually invoked by the define rule
-    that reads in a directory and for every file in the directory creates
-    an entry in the input parent group.
-    DOES NOT HANDLE FILE MASKS??? It used to I think.
-***************************************************************************/
-extern GroupItem loadDirectory(GroupItem input)
-{
-Directory   *direct;
-DIR         *atDirect;
-GroupItem   target = parent;
-GroupItem   directory:,
-            group;
-String      directoryName,
-            name;
-    if input.fLAG {
-        if !target              target = input;
-        if directory            directoryName = directory.text;
-        or target.isSTRING      directoryName = target.text;
-        else directoryName = target.tag;
-        if atDirect = opendir(directoryName) {
-            //cout "Directory",directoryName:;
-            while direct = readdir(atDirect) {
-                if *dirFileName == '.'          continue;
-                if contains(dirFileName,".")    name = dirFileName;
-                if !name && *dirFileName >= 'a' name = dirFileName;
-                if name {
-                    //cout `name:;
-                    group   = new(name);
-                    target  += group;
-                    name    = null; }}}
-        else {
-            perror("loadDirectory");
-            cerr "load: could not open",directoryName:;
-            target = null; }}
-    else    cerr "loadDirectory: should be invoked as an attribute when its parent is defined":;
-    return target;
-}
-
-/*****************************************************************************
-	Immediate method for include command that reads in file to be processed.
-    It does not specify what rule to run on the new input.
-*****************************************************************************/
-extern GroupItem loadInputFromFile(GroupItem source)
-{
-GroupRules  ruler = groupRules;
-    if source.getFile()     return source;
-    else cerr ``"loadInputFromFile: failed getting file from",tag:;
-    return falseResult;
 }
 
 /*******************************************************************************
@@ -302,16 +117,6 @@ use target
 }
 
 /*****************************************************************************
-	Command to make a new field w/tag set from input text
-*****************************************************************************/
-extern GroupItem makeNew(GroupItem input)
-{
-String  strung = text;
-GroupItem   grup = new(strung);
-    return grup;
-}
-
-/*****************************************************************************
 	modify processes modifiers for field passed in updating the field RuleStuff
 *****************************************************************************/
 extern void modify(GroupItem field,String modifier)
@@ -336,23 +141,6 @@ extern void modify(GroupItem field,String modifier)
             case '}':   upToOver    = true;
                         unGuarded   = true;
             case '$':   isMacro     = true; }
-}
-
-/***************************************************************************
-	Sets toBUFFER to the buffer in bufferField. toBUFFER gets reset.
-    If there is no bufferField toBUFFER is set to null;
-***************************************************************************/
-extern GroupItem printToBuffer(GroupItem bufferField)
-{
-    if bufferField && isBUFFER {
-        toBUFFER = bufferField.buffer;
-        toBUFFER.reset();
-        print "printToBuffer: diverting print output to " bufferField.tag:; }
-    or toBUFFER {
-        toBUFFER = 0;
-        print "printToBuffer: stopping print to buffer (buffer not reset)":; }
-    else cerr "printToBuffer: ignored":;
-    return trueResult;
 }
 
 /*****************************************************************************
@@ -433,98 +221,6 @@ use field
     currentMETHOD   = priorMETHOD;
     if result       return true;
     return false;
-}
-
-/***************************************************************************
-	Processes attribute flags like noPrint.
-***************************************************************************/
-extern GroupItem processFlags(GroupItem item)
-{
-GroupRules  ruler   = groupRules;
-String      command = tag;
-GroupItem   target  = parent;
-    if item
-        switch(*command) {
-            case 'a':
-                if command eq "assign"    isAssign    = true;
-            case 'b':   isBIN = true;
-                        if !guardSet {
-                            guardSet    = new;
-                            guarded     = true; }
-            case 'c':   isCondition     = true;
-                        // condition on by default, off if entered as condition?
-            case 'd':   deferred        = true;
-            case 'D':   defining        = !defining;
-                        if !defining    lastIndent = 0;
-            case 'e':   print "Exiting parse":;
-                        exit(0);
-            case 'i':
-                if command eq "index"   isIndexed = true;
-                or command eq "isList"  isLIST = true;
-                or command eq "isRule" {
-                    isRule      = true;
-                    if !rStuff  rStuff = new(target); }
-            case 'm':
-                if command eq "macro"   isMacro = true;
-                else    mergeOn         = true;
-            case 'n':   noPrint         = true;
-            case 'P':   isPRINTING      = true;
-            case 's':
-                // sort
-                if item.isSTRING && item.gText == 'd'   sortDescending = true;
-                else    sortAscending   = true;
-            case 't':   tokened         = true;
-            case 'u':   isUnary         = true;
-            case 'v':   isVirtual       = true;
-            default:    cerr "processFlag: invalid argument",command:; }
-    else    cerr "processFlags: no command provided":;
-    return trueResult;
-}
-
-/*****************************************************************************
-	Output text enclosed in quotes
-*****************************************************************************/
-extern GroupItem quoted(GroupItem input)
-{
-String  strung = "\"" text "\"";
-GroupItem   grup = new(strung);
-    return grup;
-}
-
-/***************************************************************************
-	Register the parent block of item in the currentRegistry. This method is
-    associated with register and class attributes defined in bootCommands()
-    NOTE: the class attribute that makes its parent a registry should preceed any
-    attribute to be registered. The index attribute should come before class.
-    
-    Note the argument passed in may be a copy of a registry, hence the use
-    of registri below to make sure argument references the original
-***************************************************************************/
-extern GroupItem rEGISTER(GroupItem item)
-{
-GroupItem   registri;
-GroupItem   argument = item.fLAG ? item.parent : item;
-GroupRules  ruler = groupRules;
-String      name = item.text;
-    if item.tag eq "class" {
-        makeRegistry();
-        isCLASS         = true; }
-    or item.tag eq "register" {
-        /*******************************************************************
-            Add argument to the named registry or the current
-            registry if there is no name
-        *******************************************************************/
-        if name registri = registries[name];
-        else    registri = currentRegistry;
-        registri += argument; }
-    else {
-        if !isREGISTRY  makeRegistry();
-        /*******************************************************************
-            The argument registry points to the original instance of the
-            registry. argument likely points to a copy
-        *******************************************************************/
-        currentRegistry = argument.registry; }
-    return trueResult;
 }
 
 /*****************************************************************************
@@ -682,30 +378,6 @@ void*       methodAddress;
     return false;
 }
 
-/***************************************************************************
-    A cOMMANDs method associated with commands like hash and buffer that set
-    the appropriate value for the grup passed in.
-***************************************************************************/
-extern GroupItem setInternalType(GroupItem grup)
-{
-    if grup {
-        GroupItem   target = parent;
-        if target
-            if target = makeDataType(target,grup)   return target; }
-    if grup cerr "ERROR setInternalType: failed for",tag:;
-    else    cerr "ERROR setInternalType: failed because no argument provided":;
-    return null;
-}
-
-/***************************************************************************
-    setLabel sets the rule label to input. THIS NEEDS FIXING no more label
-***************************************************************************/
-extern GroupItem setLabel(GroupItem input)
-{
-    // all it did was set label = input in RuleStuff that no longer has a label
-    return input;
-}
-
 /*****************************************************************************
 	setLimits() checks field passed in for limits (min and max).
 *****************************************************************************/
@@ -745,22 +417,6 @@ String      name;
         else cerr "setRuleAction: could not set action for",block.tag:; }
     else cerr "setRuleAction: could not set action target":;
     return item;
-}
-
-/***************************************************************************
-	Immediate method for the stop command.
-***************************************************************************/
-extern GroupItem stopParsingInput(GroupItem input)
-{
-GroupRules  ruler = groupRules;
-    if inputDiverted {
-        popInput();
-        cout :"stop: ending input divert":; }
-    else {
-        *atRuleMark = 0;
-        endParse    = true;
-        cout :"stop: end parsing":; }
-    return  input;
 }
 
 /***************************************************************************

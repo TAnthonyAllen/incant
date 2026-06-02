@@ -85,7 +85,7 @@ GroupRules  ruler = groupRules;
     *************************************************************************/
     setupFILE           = new("setup");
     item                = setupFILE += "File";
-    item.text           = "XML/WorkingOn/setup";
+    item.text           = "incant/setup";
     item                = setupFILE += "atLINE";
     /*************************************************************************
         bootstrap character sets. Do these need to be in Grokking?
@@ -347,6 +347,7 @@ GroupRules  ruler = groupRules;
     item            = 0;
 
     if getFile(setupFILE)     strap.parse(0);
+    popInput();
     /*************************************************************************
         Set the buffer links
     *************************************************************************/

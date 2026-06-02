@@ -32,18 +32,6 @@ void addBaseRegistry(GroupItem r)
     baseRegistryList += r;
 }
 
-/******************************************************************************
-    copyOf() makes a copy of the field passed in. The copy groupBody is a copy
-    as is its groupList.
-******************************************************************************/
-GroupItem copyOf(GroupItem grup)
-{
-GroupItem block = new;
-    *groupBody = *grup.groupBody;
-    if grup.groupList   copyListFrom(grup);
-    return block;
-}
-
 /***************************************************************************
 	Debugging routine to list out the registry search list
 ***************************************************************************/
@@ -83,6 +71,23 @@ GroupItem registri;
     return registri;
 }
 
+/******************************************************************************
+    Locate a group looking for it in the usual suspects.
+******************************************************************************/
+GroupItem locate(String name)
+{
+GroupItem   registri,
+            group = registries[name];
+GroupRules  ruler = groupRules;
+    if !group && currentRegistry    group = currentRegistry[name];
+    if group                        return group;
+    while registri = searchList.next(registri)
+        if group = registri[name]   return group;
+    while registri = baseRegistryList.next(registri)
+        if group = registri[name]   return group;
+    if name eq registries.tag       group = registries;
+    return group;
+}
 /******************************************************************************
 	Locate a group looking for it in the usual suspects.
 ******************************************************************************/
@@ -161,6 +166,8 @@ GroupItem   action;
     groupFields = getRegistry("GroupFields");
     commands    = getRegistry("cOMMANDs");
     files       = getRegistry("fILEs");
+    bcOPs       = getRegistry("bcOPs");
+    bcOPs.isOperator    = true;
     addBaseRegistry(properties);
     addBaseRegistry(opFields);
     addBaseRegistry(commands);

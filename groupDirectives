@@ -2,8 +2,8 @@
 /*******************************************************************************
 	Global
     if NewGroup.tag eq "Start" debugRuleNamed("RunRulE");
-    if NewGroup.tag eq "Grokking" debugAllRules = true;
-    if NewGroup.tag eq "genForC" item = 0;
+    if NewGroup.tag eq "gXpress" debugAllRules = true;
+    if NewGroup.tag eq "<:" item = 0;
     cout "aCTionDefinE:",NewGroup.tag:;
     if NewGroup.tag eq "dummY" {
         debugRuleNamed("DatA");
@@ -29,8 +29,8 @@ aCTionElsE if ctive
 aCTionExpressioN while before ctive
     if entries.listLength == 1   result = 0;
 #;
-aCTionNamE if before ctive
-    if arg eq "include"   result = 0;
+aCTionNamE result before active
+    if arg eq "entries"   result = 0;
 #;
 aCTionRunRulE if within ctive
     if tag eq "define" debugAllRules = true;
@@ -41,9 +41,9 @@ aCTionSearch cout ctive
 aCTionXpress result before ctive
     print "Instructions for",action.tag: list:;
 #;
-generateCode return before ctive
-    dumpContents(instruct);
-    dumpContents(lines);
+generateCode generating ctive
+    debugRuleNamed("StatemenT");
+    debugRuleNamed("Xpress");
 #;
 guard GroupItem ctive
     debugGuards = true;
@@ -84,8 +84,13 @@ processAction if before ctive
     if tag eq "runGenerated" result = 0;
 #;
 processCode processingCode ctive
-    if tag eq "runGenerated" {
-        debugRuleNamed("TokenXP"); }
+    if tag eq "gXpress" {
+        debugRuleNamed("FOR");
+        debugRuleNamed("IF");
+        debugRuleNamed("ElseIf");
+        debugRuleNamed("ElsE");
+        debugRuleNamed("ExpressioN");
+        debugRuleNamed("StatemenT"); }
 #;
 rEGISTER currentRegistry active
     cout ````"Current registry:",currentRegistry.tag:;
@@ -98,11 +103,17 @@ runAction if before ctive
     debugRuleNamed("BlocK");
     debugRuleNamed("StatemenT");
 #;
-runInstruct if ctive
-    if operate.tag eq "@"   target = 0;
+runOP starting ctive
+    if op.isUnary   result = 0;
 #;
 runRule if ctive
     if tag eq "list" debugRuleNamed("list");
+#;
+restoreLocalFields starting active
+    cout "restoreLocalFields for:",action.tag " on stak:",recurseSTAK.length:;
+#;
+saveLocalFields ending active
+    cout "saveLocalFields for:",action.tag " on stak:",recurseSTAK.length:;
 #;
 scopeXP return before ctive
     currentMETHOD.dumpContents();
@@ -142,24 +153,27 @@ addToGuard "or isSET" within
 #;
 /*******************************************************************************
 	Guarding
-int debugging = tag eq "Mlist";
+int debugging = tag eq "first";
 int debugging = debugGuards || debugGuard;
-        if tag eq "GrouP"   junk = 0; }
+        if tag eq "first"   junk = 0; }
 *******************************************************************************/
 getGuard if before active
-int debugging = debugGuards || debugGuard;
+int debugging = tag eq "Invoke";
 #;
-getGuard "if isCondition" before active
+getGuard "if isCondition" before ctive
     if debugging {
         if parent cout "Setting guard for",tag,"in",parent.tag:;
         else cout "Setting guard for",tag:;
         junk = 0; }
 #;
+getGuard endSetGuard ctive
+    if tag eq "first"   junk = 0; }
+#;
 getGuard returnGuard before active
     if debugging {
         if guarding
-            if guarded  cout `"setGuard:",tag``guardSet:;
-            else        cout `"setGuard:",tag,"is unguarded":;
+            if guarded  cout "setGuard:",tag``guardSet;
+            else        cout "setGuard:",tag,"is unguarded":;
         junk = 0; }
 #;
 getStuff if before ctive
@@ -239,7 +253,7 @@ updateContentFlags starting
 *******************************************************************************/
 #GroupMain
 bootstrapper "if getFile" before active
-    debugAllRules   = true;
+    debugGuards     = true;
 #;
 /*******************************************************************************
 	GroupRules
@@ -254,11 +268,12 @@ checkSkip "if stacked" before ctive
     if defining || blocking
         cout ``"Ending indent at",defining,blocking,indenting,getDebugText(atContent,20):;
 #;
-pushInput return before ctive
-    cout ``"Pushing input",getDebugText(atRuleMark,20):;
+pushInput sourceFILE before ctive
+    cout ``"Pushing input from:",source.tag:;
 #;
 popInput return before ctive
-    cout ``"Popped input back to",getDebugText(atRuleMark,20):;
+    if sourceFILE   cout ``"popInput: popping off",sourceFILE.tag:;
+    cout ```"Popped input back to",getDebugText(atRuleMark,20):;
 #;
 /*******************************************************************************
 	RuleStuff

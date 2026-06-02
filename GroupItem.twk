@@ -992,7 +992,9 @@ GroupItem prior(GroupItem grup)
 GroupItem push(GroupItem grup)
 {
 int         comparison;
-GroupItem   entry = firstInList;
+GroupItem   entry;
+    if !groupList   groupList = new(this);
+    entry = firstInList;
     if !grup
         {
         cerr "GroupBody add: tried to add a null entry":;

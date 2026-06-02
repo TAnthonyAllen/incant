@@ -25,6 +25,7 @@ define
     clear immediateAction=cLEAR;
     condition immediateAction=processFlags noPrint;
     copy immediateAction=cOPY;
+    copyOf immediateAction;
     debugGuard immediateAction=debugOnGuard noPrint;
     defer immediateAction=processFlags noPrint;
     dumpContents immediateAction;
@@ -231,6 +232,10 @@ define
     negatE;
     noPrinT=28;
     noSkiP;
+    nexT=401;
+    prioR=402;
+    firsT=403;
+    lasT=404;
     ;
 registry(fILEs);
 define

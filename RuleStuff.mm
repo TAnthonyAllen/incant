@@ -471,21 +471,13 @@ GroupItem 	*field = rule;
 		if ( !noSkip && ruler->skipSet->contains(*ruler->atRuleMark) )
 			ruler->atRuleMark = ruler->checkSkip(ruler->atRuleMark);
 	/***************************************************************************
-	Check for end of input and deal w/diversion if diverted
+	Check for end of input
 	***************************************************************************/
-	if ( !*ruler->atRuleMark && ruler->inputDiverted )
-		{
-		while ( ruler->inputDiverted && !*ruler->atRuleMark )
-			ruler->popInput();
-		if ( *ruler->atRuleMark )
-			if ( !noSkip && ruler->skipSet->contains(*ruler->atRuleMark) )
-				ruler->atRuleMark = ruler->checkSkip(ruler->atRuleMark);
-		}
+	if ( *ruler->atRuleMark )
+		if ( !noSkip && ruler->skipSet->contains(*ruler->atRuleMark) )
+			ruler->atRuleMark = ruler->checkSkip(ruler->atRuleMark);
 	if ( !*ruler->atRuleMark )
-		{
-		ruler->sourceFILE = 0;
 		goto checkFailed;
-		}
 	/***************************************************************************
 	Check the rule guard if there is one
 	***************************************************************************/

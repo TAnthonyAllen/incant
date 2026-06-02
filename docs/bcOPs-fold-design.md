@@ -42,7 +42,7 @@ This is concrete utility, not aesthetic cleanup. The fold earns its keep at the 
 
 When implementing (deferred):
 
-1. **Move `bcOPs` entries into the `opFields` registry definition** in `XML/WorkingOn/setup`. The entries themselves don't need shape changes — they're already in fields/registry form. Just live in `opFields` rather than `bcOPs`.
+1. **Move `bcOPs` entries into the `opFields` registry definition** in `incant/setup`. The entries themselves don't need shape changes — they're already in fields/registry form. Just live in `opFields` rather than `bcOPs`.
 
 2. **Update generation-side consumers** that explicitly look in `bcOPs` (if any do today; emitBC currently uses bare names like `emitBC(bcStoreField=tgt)` so likely no explicit registry-name reference). Grep for `bcOPs` references and update each.
 
@@ -65,7 +65,7 @@ Each of these is structural at the interpret-loop level rather than method-dispa
 
 - Source code that walks `opFields` after the fold WILL see bcCALL. Code that wanted "only source-level operators" needs to filter by "has method" or by tag-naming convention. The audience-separation property is lost.
 - Some existing tests or tooling may rely on the bcOPs name. Each reference needs updating.
-- The bytecode short-doc atop `XML/WorkingOn/generate` describes bcOPs as a separate registry. Needs updating post-fold.
+- The bytecode short-doc atop `incant/generate` describes bcOPs as a separate registry. Needs updating post-fold.
 
 ## When To Do This
 

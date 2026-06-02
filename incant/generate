@@ -175,7 +175,7 @@ define
             generateSignature(action);
             print _;
             //generated**;
-            interpret(generated);
+            interpretBC(generated);
             //printTO(null);
         else print "generateCode failed":;
         };
@@ -188,7 +188,7 @@ define
         for field in action; attributes
             if field.isArgument
                 if follows;  print ",";
-                print getType(field) tag;
+                print getType(field) taG;
                 follows++;
         print ")";
         };
@@ -215,9 +215,9 @@ define
         gDeclare argument code={
             for field in argument; attributes
                 if !isArgument
-                    print "gDeclare: field and argument" tag argument.tag:;
-                    if !isLocal AND !isArgument; print "GroupItem*" tag, "= locate(" tag ");":;
-                    else    print  getType(field) ,tag ";":; };
+                    print "gDeclare: field and argument" taG argument.taG:;
+                    if !isLocal AND !isArgument; print "GroupItem*" taG, "= locate(" taG ");":;
+                    else    print  getType(field) ,taG ";":; };
         gDO argument code={
             //print "generate do":;
             st  = argument[1];
@@ -244,10 +244,13 @@ define
             print ,-; };
         gIF argument code={
             print `"gIF: tag=" argument.taG "text=" argument.texT:;
-            xp  := argument[1];
+            dumpContents(argument);
+            xp  := argument["ExpressioN"];
+            xp  = unWrap(xp);
             st  := argument[2];
             el  := argument[3];
             endLabel = new("bcLabel");
+            dumpContents(xp);
             gXpress(xp);
             if el.listLengtH;
                 elseLabel = new("bcLabel");
@@ -255,7 +258,13 @@ define
             else
                 dst := endLabel;
             emitBC(bcBRZ +% dst);
-            runGenerated(st);
+            // then-branch: descend to the generated revisedList (st is a non-isGROUP
+            // StatemenT whose expression hangs off as an attribute, so unWrap can't
+            // reach it) and emit directly, same as the condition; fall back to
+            // runGenerated for compound (block/nested) then-branches.
+            stXP := st["revisedList"];
+            if stXP.listLengtH;  gXpress(stXP);
+            else    runGenerated(st);
             if el.listLengtH;
                 dst := endLabel;
                 emitBC(bcBR +% dst);
@@ -272,37 +281,21 @@ define
             print ~,"while(" xp ")":+;
             runGenerated(st);
             print ,-; };
-        gXpress argument tgt& rhs& theOp& target& code={
+        gXpress argument code={
             tmp = unWrap(argument);
-            if tmp.listLengtH;
-                hasOp = 0;
-                for child in tmp;
-                    if child.isOperatoR;  hasOp = 1;
-                if hasOp;
-                    for child in tmp;
-                        if child.isOperatoR;  theOp := child;
-                    tgt := tmp[2];
-                    rhs := tmp[3];
-                    gXpress(tgt);
-                    gXpress(rhs);
-                    emitBC(theOp);
-                else
-                    for child in tmp;
-                        target := child;
-                    rhs := tmp[1];
-                    gXpress(rhs);
-                    emitBC(bcStoreField +% target);
-            else
-                if tmp.isLiteraL;
-                    emitBC(bcPushLit=tmp);
-                else
-                    emitBC(bcPushField=tmp);
+            for child in tmp; members
+                nextChild = child.nexT;
+                if child.isOperatoR;
+                    if child.taG != "=";  emitBC(child);
+                or child.registrY == "bcOPs";  emitBC(child);
+                or child.isLiteraL;  emitBC(copyOf(bcPushLit)=child);
+                else  emitBC(copyOf(bcPushField) +% child);
             };
         emitBC argument code={
             :generator bcLIST;
-            **bcLIST;
             bcLIST +% argument;
-            print `"emit tag=" argument.taG "content=" argument:; };
+            print `"emit tag=" argument.taG "content=" argument:;
+            };
         /***********************************************************************
             Debugging action. Walks a bcLIST and prints each entry's tag and
             value. Use after emit-phase to verify what landed in the accumulator.
@@ -321,6 +314,21 @@ define
                 runGenerated(field);
             print "End of generatE":;
         };
+    /***************************************************************************
+        Bytecode test actions — generator fixtures driven by generateCode()
+        from oneTest. Moved here from unitTests' Working On block 2026-06-02;
+        this is their home. POP target: testByteCode -> maximus = 26.
+    ***************************************************************************/
+    testByteCode code={
+        if righty > 0; maximus = righty * 2; };
+    testEmitBC code={
+        emitBC(bcPushLit=5);
+        emitBC(bcMul);
+        emitBC(bcStoreField="maximus"); };
+    testGXLeaf code={
+        if righty;  maximus = 0;
+        if 42;      maximus = 1; };
+    testIfElse code={ if righty > 0; maximus = righty * 2; else maximus = 7; };
     /***************************************************************************
         Working on
     ***************************************************************************/

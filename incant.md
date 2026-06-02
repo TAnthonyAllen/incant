@@ -19,7 +19,7 @@ methods, registries — and the parser invokes rule actions named
 is what makes the system reflective.
 
 Repo: <https://github.com/TAnthonyAllen/incant>
-Working drafts of grammar/runtime files live in `XML/WorkingOn/`.
+Working drafts of grammar/runtime files live in `incant/`.
 C++/Obj-C++ runtime files (`.twk`, `.h`, `.mm`) live at the repo root.
 
 ---
@@ -31,12 +31,12 @@ first one is this file itself; the rest are the design surface for the
 in-flight bytecode work.
 
 * <https://github.com/TAnthonyAllen/incant/blob/main/incant.md> (this file — read first)
-* <https://github.com/TAnthonyAllen/incant/blob/main/XML/WorkingOn/grammar>
-* <https://github.com/TAnthonyAllen/incant/blob/main/XML/WorkingOn/setup>
-* <https://github.com/TAnthonyAllen/incant/blob/main/XML/WorkingOn/generate>
-* <https://github.com/TAnthonyAllen/incant/blob/main/XML/WorkingOn/utilities>
-* <https://github.com/TAnthonyAllen/incant/blob/main/XML/WorkingOn/oneTest>
-* <https://github.com/TAnthonyAllen/incant/blob/main/XML/WorkingOn/unitTests>
+* <https://github.com/TAnthonyAllen/incant/blob/main/incant/grammar>
+* <https://github.com/TAnthonyAllen/incant/blob/main/incant/setup>
+* <https://github.com/TAnthonyAllen/incant/blob/main/incant/generate>
+* <https://github.com/TAnthonyAllen/incant/blob/main/incant/utilities>
+* <https://github.com/TAnthonyAllen/incant/blob/main/incant/oneTest>
+* <https://github.com/TAnthonyAllen/incant/blob/main/incant/unitTests>
 
 If the web\_fetch tool refuses any of these (intermittent behavior on github.com
 in some sessions), ask the project owner to attach them directly — uploading
@@ -594,7 +594,7 @@ Then concrete moves:
 
 ### Decisions landed earlier sessions
 
-* `gIF`/`gFOR`/etc. are repurposed in place; no new `XML/WorkingOn/bytecode` file.
+* `gIF`/`gFOR`/etc. are repurposed in place; no new `incant/bytecode` file.
 * C++-source emit path (the old `generate` job) is abandoned, not preserved.
 * Phase 2 is staged: 2a uses `tempField` as implicit dst; 2b switches to vregs.
 * Branch targets are direct GroupItem refs, not integer offsets.
@@ -605,7 +605,7 @@ Then concrete moves:
 
 ## File map (quick reference)
 
-### incant source (in `XML/WorkingOn/`)
+### incant source (in `incant/`)
 
 * `grammar` — incant grammar rules, loaded after bootstrap
 * `setup` — registries: cOMMANDs, Operators, pROPERTIEs, Keywords, GroupFields,
@@ -658,5 +658,5 @@ specifically about Tok generation.**
 3. Keep it terse. This is orientation, not history. Old decisions that
    are no longer relevant should be cut, not archived.
 
-The `XML/WorkingOn/` files are the design surface; this file is the index
+The `incant/` files are the design surface; this file is the index
 to where we are in working on them.

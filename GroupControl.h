@@ -17,7 +17,6 @@ DispatchQ *dispatchQ;
 static GroupControl *groupController;
 GroupControl(int i);
 void addBaseRegistry(GroupItem *r);
-GroupItem *copyOf(GroupItem *grup);
 void dumpSearchList();
 GroupItem *getRegistry(char *c);
 GroupItem *locate(char *name);

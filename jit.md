@@ -36,7 +36,7 @@ The "bytecodes are GroupItems" decision is the load-bearing one. It collapses wh
 
 ## interpret() — written in incant
 
-Located in `XML/WorkingOn/bytecode` in the incant repo:
+Located in `incant/bytecode` in the incant repo:
 
 ```
 interpret body; {

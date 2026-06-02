@@ -12,6 +12,7 @@ struct bools
 	unsigned int isRule:1;
 	unsigned int isLabel:1;
 	unsigned int noPrint:1;
+	unsigned int invoke:1;
 	unsigned int data:5;
 	unsigned int actionType:2;
 	unsigned int binType:3;
@@ -29,7 +30,6 @@ struct bools
 	unsigned int hasAttributes:1;
 	unsigned int hasListeners:1;
 	unsigned int hasMembers:1;
-	unsigned int invoke:1;
 	unsigned int isArgument:1;
 	unsigned int isAssign:1;
 	unsigned int isCondition:1;
@@ -45,8 +45,10 @@ struct bools
 	unsigned int isToggle:1;
 	unsigned int isUnary:1;
 	unsigned int isVirtual:1;
+	unsigned int isXP:1;
 	unsigned int mergeOn:1;
 	unsigned int negate:1;
+	unsigned int recursive:1;
 	unsigned int tokened:1;
 	};
 #define isGROUP(button) (button == 6)

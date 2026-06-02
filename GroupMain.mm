@@ -91,7 +91,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	*************************************************************************/
 	ruler->setupFILE = new GroupItem("setup");
 	item = ruler->setupFILE->addString("File");
-	item->setText("XML/WorkingOn/setup");
+	item->setText("incant/setup");
 	item = ruler->setupFILE->addString("atLINE");
 	/*************************************************************************
 	bootstrap character sets. Do these need to be in Grokking?
@@ -107,7 +107,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	grok->addMember(strap);
 	/*************************************************************************
 	bootstrap rule definition rules.
-	ANYstring=[^ \n\r\t;]+;
 	*************************************************************************/
 	strap = new GroupItem("Modifier");
 	strap = grok->addMember(strap);
@@ -330,6 +329,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	item = 0;
 	if ( ::getFile(ruler->setupFILE) )
 		strap->parse(0);
+	ruler->popInput();
 	/*************************************************************************
 	Set the buffer links
 	*************************************************************************/

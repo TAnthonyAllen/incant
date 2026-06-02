@@ -1,7 +1,5 @@
-Start();
-register(Stuff);
+register(UnitTests);
 define
-    testCodE={ maximus = 2; };
     /*************************************************************************
         Data
     *************************************************************************/
@@ -128,113 +126,52 @@ define
         };
     whatsIt;
     xpTest HooHaa result=3 message="Gomer is a goober" code={ print "xpTest:" `HooHaa, ++result, ++result, message whatsIt:; };
+    /*************************************************************************
+        print out incant definition for the group passed in
+    *************************************************************************/
+    printDefinition argument recurse code={
+        **argument;
+        if datA != 0;  print ~$taG "=" argument;
+        else    print ~$taG;
+        if hasAttributeS;
+            for grup in argument; attributes
+                if datA != 0;
+                    print $_taG "=" grup;
+                else    print $_taG;
+        if hasMemberS;
+            print :;
+            for grup in argument; members
+                print +;
+                printDefinition(grup);
+                print ,-;
+        else
+            print ";":;
+        };
 
 /*****************************************************************************
-	Working On
+	Unit Test runner — calls every action in the Unit Tests block, moved here
+	from oneTest so the tester file just invokes testUnitTests().
 *****************************************************************************/
-    someField code={
-        print "First line":;
-        // @someFieldDirective1
-        print "Last line":;};
-    someFieldDirective1={ this is just text pretending to be code to see where it ends up };
-    dirTarget code={
-        print "target line 1":;
-        print "target line 2":; };
-    DiRgreeting at=starting code={
-        print "*** directive fired (starting) ***":; };
-    DiRfarewell at=ending code={
-        print "*** directive fired (ending) ***":; };
-    testDirective code={
-        print ``"--- STATE inactive: dirTarget, no directive ---":;
-        dirTarget();
-        print ``"--- STATE active: dirTarget += DiRgreeting (starting) ---":;
-        dirTarget += DiRgreeting;
-        dirTarget();
-        print ``"--- add DiRfarewell (ending), run ---":;
-        dirTarget += DiRfarewell;
-        dirTarget();
-        print ``"--- idempotent: re-apply both, run again ---":;
-        dirTarget += DiRgreeting;
-        dirTarget += DiRfarewell;
-        dirTarget(); };
-    testByteCode code={
-        if righty > 0; maximus = righty * 2; };
-    testEmitBC code={
-        emitBC(bcPushLit=5);
-        emitBC(bcMul);
-        emitBC(bcStoreField="maximus"); };
-    testGXLeaf code={
-        if righty;  maximus = 0;
-        if 42;      maximus = 1; };
-    bracing argument code={
-        xp  = argument[1]; };
-    testEnd code={
-        result =] styleTest;
-        **result; };
-    bcLISTdump argument code={
-        print "bcLIST contents:":;
-        for bc in argument
-            print `bc.tag ":" bc:; };
-    /*************************************************************************
-        Replace-directive test fixtures + runner.
-        Modeled on testDirective (line 147). Three states + delete variant.
-
-        Open syntax question (resolved by first run): does `from={...}` /
-        `to={...}` parse the curly-block as a code body on the directive
-        attribute? If not, the runtime sees from/to as text-only and the
-        match engine has nothing to walk. Adjust syntax based on dump output.
-    *************************************************************************/
-    replaceTarget code={
-        print "target line 1":;
-        print "original line":;
-        print "target line 3":; };
-    /* Positional shape (Tony 2026-05-28): directive's children ARE the
-       from-ref (first) and to-ref (second). ReplaceDirective uses firstInList
-       / nextInParent to access them; no from=/to= labels needed. */
-    fromBody code={ print "original line":; };
-    toBody   code={ print "replaced line":; };
-    DiRReplaceFoo fromBody toBody;
-    DiRDeleteFoo  fromBody;
-    testDirectiveReplace code={
-        print ``"--- STATE inactive: replaceTarget, no directive ---":;
-        replaceTarget();
-        print ``"--- STATE active: replaceTarget :+ DiRReplaceFoo ---":;
-        replaceTarget :+ DiRReplaceFoo;
-        replaceTarget();
-        print ``"--- idempotent: re-apply, run again ---":;
-        replaceTarget :+ DiRReplaceFoo;
-        replaceTarget(); };
-    deleteTarget code={
-        print "delete line 1":;
-        print "original line":;
-        print "delete line 3":; };
-    testDirectiveDelete code={
-        print ``"--- STATE inactive: deleteTarget, no directive ---":;
-        deleteTarget();
-        print ``"--- STATE active: deleteTarget :+ DiRDeleteFoo ---":;
-        deleteTarget :+ DiRDeleteFoo;
-        deleteTarget(); };
-    /*************************************************************************
-        Hybrid prototype (2026-05-28): load a .twk file into a buffer field as
-        text, do a text-level replace on it, print before/after. Probes the
-        text-substrate path WITHOUT going through `field += DiRfoo` (the
-        applyDirectives path won't handle text-fields yet). If the replace
-        lands in fileField.text, the substrate path is validated and we know
-        what's needed to wire it into the `+=` mechanism.
-
-        No file write yet — Buffer extern incant methods (setFile + flush)
-        aren't reachable from incant. The buffer holds the modified text in
-        memory; printing it confirms.
-    *************************************************************************/
-    /*************************************************************************
-        Minimal probes — isolate parse failure root cause for the hybrid
-        prototype. Each probe tests ONE hypothesis.
-    *************************************************************************/
-    testJustPrint code={
-        print "hello":; };
-    testWithTab code={
-        print "tab\there":; };
-    testWithAssign x code={
-        x = "hi";
-        print x:; };
+    testUnitTests code={
+        whatsIt = string 'is what I am talking about':;
+        print ``This $whatsIt;
+        accessTest(simple);
+        anotherTest();
+        ifTest();
+        printTest();
+        simpleIF();
+        testOR();
+        testARG(hasGroup);
+        testARG(righty += 22);
+        testARG(righty += 22);
+        testIndentBlock();
+        stringTest();
+        xpTest();
+        list("righty 3.1 seven eight nine;");
+        testInterpret();
+        testGet();
+        printDefinition(sumple);
+        printDefinition(simple);
+        printDefinition(sample);
+        };
     ;

@@ -16,10 +16,9 @@ GroupItem   token;
 *******************************************************************************/
 extern GroupItem aCTionBlocK(GroupItem input)
 {
-GroupItem   Lines:,
-            grup,
+GroupItem   grup,
             result;
-    while grup = Lines.next(grup) {
+    while grup = input.next(grup) {
         if grup.isMethod    result = grup.gMethod(grup);
         else                result = grup;
         if result && isBranch break; }
@@ -276,6 +275,48 @@ GroupItem   op,
             arg,
             xl,
             token;
+    if generating {
+        GroupItem revisedList = new("revisedList");
+        GroupItem grup, store;
+        if xpList.listLength == 1 {
+            arg = xpList.firstInList;
+            if arg.isGROUP && !arg.isArgument   arg = arg.group;
+            revisedList += arg; }
+        else {
+            // Mirror the non-generating walk's op/target/arg identification
+            // (right-to-left, precedence-correct via the same state machine),
+            // but emit flat RPN instead of building the runOP tree: for each
+            // completed instruction emit target, then arg (when a leaf), then
+            // op; for '=' emit the value then a bcStoreField carrying target.
+            while token = xpList.prior(token) {
+                grup = token;
+                if grup.isGROUP
+                    while grup.isGROUP
+                        grup = grup.group;
+                if grup.isOperator   op = grup;
+                else {
+                    if !arg arg = grup;
+                    or op   target = grup; }
+                if op
+                    if target {
+                        if op.tag eq "=" {
+                            if !arg.method   revisedList += arg;
+                            store = copyOf(bcOPs["bcStoreField"]);
+                            store +% target;
+                            revisedList += store; }
+                        else {
+                            revisedList += target;
+                            if !arg.method   revisedList += arg;
+                            revisedList += op; }
+                        xl = new("xl");
+                        xl.method   = runOP;
+                        op = 0;
+                        target = 0;
+                        arg = xl; }}}
+        dumpContents(revisedList);
+        xpList.clear();
+        xpList.group = revisedList;
+        return xpList; }
     if xpList.listLength == 1 {
         arg = xpList.firstInList;
         if arg.isGROUP && !arg.isArgument   arg = arg.group;
@@ -295,7 +336,8 @@ GroupItem   op,
                 xl  += token;
                 arg = xl; }}
         if op
-            if arg
+            if arg {
+                if arg.actionType || arg.instructType   arg.invoke = true;
                 if target {
                     xl  = new("xl");
                     xl  += op;
@@ -305,7 +347,7 @@ GroupItem   op,
                     xl.invoke   = true;
                     op = 0;
                     target = 0;
-                    arg = xl; }}
+                    arg = xl; }}}
 finishXP:
     xpList.clear();
     xpList.group = arg;
@@ -323,12 +365,12 @@ extern GroupItem aCTionFailed(GroupItem input)
 }
 
 /*******************************************************************************
-	Runs a for statement
+	Runs the action associated with a for statement
         Looper=ANYtoken;
         LoopRestrict:
             loopOnAttributes="attributes";
             loopOnMembers="members";;
-        FOR         for- followedBy Looper in- ExpressioN SemI- LoopRestrict? BLOCKing- StatemenT defer;
+        FOR         for- followedBy Looper in- reversE="<-"? ExpressioN SemI- LoopRestrict? BLOCKing- StatemenT defer;
     At present no loopModifier condition to control loop direction???
 *******************************************************************************/
 extern GroupItem aCTionFOR(GroupItem input)
@@ -336,6 +378,7 @@ extern GroupItem aCTionFOR(GroupItem input)
 GroupRules  ruler   = groupRules;
 GroupItem   Looper  = input["Looper"],
             ExpressioN = input["ExpressioN"],
+            reversE = input["reversE"],
             LoopOn,
             LoopRestrict:,
             StatemenT:,
@@ -351,7 +394,7 @@ int         restrict;
     LoopOn = ExpressioN;
     while LoopOn.isGROUP    LoopOn = LoopOn.group;
     LoopRestrict    = lastREF.group;
-    while grup = LoopOn.next(grup) {
+    while grup = reversE ? LoopOn.prior(grup) : LoopOn.next(grup) {
         Looper.group = grup;
         if restrict && grup.affiliation != restrict   continue;
         lastREF.group       = grup;
@@ -636,6 +679,8 @@ GroupItem   arg,
             UnaryOPS:,
             InvokeArg = xpress["InvokeArg"],
             ANYtoken = xpress["ANYtoken"];
+    if generating {
+        return xpress; }
     xpress.clear();
     if isGROUP  ANYtoken = group;
     if !InvokeArg {

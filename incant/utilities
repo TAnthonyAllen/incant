@@ -47,27 +47,6 @@ define
                     whatsIt += grup;
             };
         /***************************************************************************
-            print out incant definition for the group passed in
-        ***************************************************************************/
-        printDefinition argument recurse code={
-            **argument;
-            if datA != 0;  print ~$taG "=" argument;
-            else    print ~$taG;
-            if hasAttributeS;
-                for grup in argument; attributes
-                    if datA != 0;
-                        print $_taG "=" grup;
-                    else    print $_taG;
-            if hasMemberS;
-                print :;
-                for grup in argument; members
-                    print +;
-                    printDefinition(grup);
-                    print ,-;
-            else
-                print ";":;
-            };
-        /***************************************************************************
             print out xml representation of the group passed in. Does not
             handle cdata yet.
         ***************************************************************************/
@@ -129,20 +108,6 @@ define
                 print `"Setting across done":;
                 return;
             };
-        /***********************************************************************
-            Convert the hex string in the target passed in to a floating point number
-        ***********************************************************************/
-        hexToNumber target code={
-            while target;
-                numDBL  = target.numbeR;
-                if numDBL <= 57;    numDBL -= 48;
-                or numDBL <= 70;    numDBL -= 55;
-                or numDBL <= 102;   numDBL -= 87;
-                target++;
-                if num; num *= 16;
-                num += numDBL;
-            target  = num;
-            return target; };
         /***************************************************************************
              Set frames for members of the group passed in. It must have x y width
              and height attributes.
@@ -220,6 +185,20 @@ define
             if nameSet IN argument;
                 this = argument;
             else    this = string $'"' argument '"'; };
+        /***********************************************************************
+            Convert the hex string in the target passed in to a floating point number
+        ***********************************************************************/
+        hexToNumber target code={
+            while target;
+                numDBL  = target.numbeR;
+                if numDBL <= 57;    numDBL -= 48;
+                or numDBL <= 70;    numDBL -= 55;
+                or numDBL <= 102;   numDBL -= 87;
+                target++;
+                if num; num *= 16;
+                num += numDBL;
+            target  = num;
+            return target; };
         /***********************************************************************
             Extract the red, green, and blue components of a color group passed
             in as a six character hex string

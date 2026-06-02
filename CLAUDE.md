@@ -41,8 +41,11 @@ Groups/
 ├── grammar                 — Bootstrap grammar — 32 seed rules.
 ├── groupIncludes           — Include manifest for the build.
 ├── groupDirectives         — TAWK directive file for Incant classes.
-├── XML/                    — Window-definition DSL files. WorkingOn/ is the active subdir;
-│                              the other 11 subdirs are GUI material to be folded in later.
+├── incant/                 — Active incant source files (setup, grammar, generate, bytecode,
+│                              directives, oneTest, unitTests, utilities). Promoted from
+│                              XML/WorkingOn/ on 2026-05-29.
+├── XML/                    — Window-definition DSL files. 12 subdirs of GUI material
+│                              staged for later conversion-to-incant work.
 ├── Maps/                   — Symlink → ~/data/support/Maps (BitMAP, Segment).
 └── projectBible.md, TODO.md, CLAUDE.md
 ```
@@ -155,7 +158,7 @@ bytecode for the JIT.
 1. Parse builds GroupItem trees (unchanged).
 2. `generateCode(action)` in `Generate.rtn` — C++ entry. Looks up the incant
    `generatE` action and runs it.
-3. `generatE` (in `XML/WorkingOn/generate`) — top-level emitter. Walks
+3. `generatE` (in `incant/generate`) — top-level emitter. Walks
    fields and dispatches via `runGenerated`.
 4. `runGenerated` — dispatch hub. Looks up handler in the `generator`
    registry by statement kind.
@@ -163,7 +166,7 @@ bytecode for the JIT.
    `gExpressioN`, `gXpress`, `gPrinT`, `gDeclare`) — emit bytecode
    GroupItems. **gIF and gExpressioN are the active rewrites.**
 6. `interpret(bytecode)` — the dispatch loop. Written in incant
-   (`XML/WorkingOn/bytecode`). Walks the bytecode stream; each op
+   (`incant/bytecode`). Walks the bytecode stream; each op
    GroupItem's `interpret` sub-attribute is the handler.
 
 ### Settled design decisions
@@ -208,11 +211,13 @@ content, nested fields, or — when an attribute names an event (e.g.
 `onLayout`) — incant action code. Closing-tag conventions are lax (one `</tag>`
 can pop several opens).
 
-Only `XML/WorkingOn/` is currently active. The other 11 subdirectories
-(`Windows/`, `Controls/`, `Notions/`, `NotGUI/`, `Tests/`, `HTML/`, `LLVM/`,
-`Generating/`, `Stash/`, `Groups/`, `BackupXML/`-gitignored) are GUI-arc
-material — staged for the conversion-to-incant work that's part of the
-long-term GUI thread.
+The 11 `XML/` subdirectories (`Windows/`, `Controls/`, `Notions/`, `NotGUI/`,
+`Tests/`, `HTML/`, `LLVM/`, `Generating/`, `Stash/`, `Groups/`, `WorkingOn/`,
+`BackupXML/`-gitignored) are GUI-arc material — staged for the
+conversion-to-incant work that's part of the long-term GUI thread. The
+active incant source files (setup, grammar, generate, bytecode, directives,
+oneTest, unitTests, utilities) now live at the top-level `incant/` directory
+(2026-05-29 promotion); see "Repository Structure" above.
 
 ---
 
@@ -243,7 +248,7 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 ## Testing
 
 ```
-testByteCode in XML/WorkingOn/unitTests:124
+testByteCode in incant/unitTests:124
   testByteCode code={ if righty > 0; maximus = righty * 2; };
   expected emit: runGT, runBRZ, runMultiply, runAssign, runRET
   expected outcome: maximus = 26

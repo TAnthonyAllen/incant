@@ -1,102 +1,18 @@
-
 /*******************************************************************************
-	incant notions HWF
+	Restructuring incant files
 *******************************************************************************/
-Would like to ensure that list manipulation methods like pop or put can be used when iterating over. I think it does it out of the box. No, pop leaves next and prior pointers in the popped field but remove clears them so next(field) has nowhere to next to
-How to provide class functionality such that assigning a field to a class (which is a registry) gives the field access to class methods/actions??? Maybe modify search so that class methods/actions look like field methods/action. Why not??
-        If we go w/class methods, may need to use lastREF
-Thinking of changing statements so that the ID attribute tells what the statement is, even tho that ID attribute is ignored. Code generation can make use of it so we do not need to set statement text as is done now (will require changing generator component tags - no biggie; and changing runGenerator to get the ID)
+I would like to redo/rearrange our incant working and test files (not setup and grammar) to adopt the way unitTests and oneTest interact. unitTests is the template for a definition file; and oneTest is template for a tester file. The basic idea is we have definition files that define data and actions, including one or more test drive actions that run all or some of the other actions. To do work, the user sets up oneTest (or some tester file) to include one or more definition files; sets the testers search list to include registries specified in the definition files; then runs one or more (preferably only one but does not have to be) of the test drive actions defined in those definition files.
+With this structure each definition file will contain a test drive action that runs thru all the actions defined in it, so running that test drive action can be invoked from the tester for POP going thru every action defined in the definition file. The definition file itself does not run anything.
+Changes from the current structure we have been using are: each definition file
+    1. contains its own registry
+    2. has a testDrive action that runs all its actions for POP
+What this implies: all the working on definitions relating to generating move from unitTests into generate, which then can be considered a definition file; and oneTest only runs one test, not the list of individual unitTest actions as it does now (the run only one test is not a hard rule; more like the prefered way to do things; a tester file like oneTest can run more than one test if testing requires that).
+As a first should be easy move to that end and Clod should be able to handle it; he knows how to modify incant files. Changes needed to get started are:
+    Change the unitTest registry from Stuff to UnitTests
+    Remove its Working On section to move the actions there in to other definition files. For example, the generating working on actions move into the generate file. If the target definition file for a working on action is not obvious I get to decide where to put it.
+    Write the unitTest testDrive action to run all the unitTest actions now listed and run individually from oneTest
+It means when we want to run POP on a definition file or files, we modify oneTest to set its search list accordingly and run the respective testDrive actions. That is not a big burdon.
+Once we have this structure in place and have worked with it enough to be comfortable, adjusting the structure as needed; we will have to revise the other incant files like utilities, drawing, generate to take the shape of a definitions file
 
-/*******************************************************************************
-	What to do about emitters
-*******************************************************************************/
-emitters are fields that contain methods to be run when emitting jit code. In the emit action,the argument passed in is expected to be a list of fields that are bytecodes. trying to work thru what gets emitted for testByteCode which is defined as
-
-    testByteCode; {
-        if righty > 0; maximus = righty * 2; }
-
-Planning a new registry to contain emitter method fields
-
-registry(Emitters);
-define
-runGT argument; {
-    :argument op1 op2 result nextField
-    // nextField should have been set when bytecode (argument) was set up?
-    result = op1 > op2;
-    return nextField;}
-    ;
-
-plan to modify the Operators registry to add an emitter entry for each operator in it. Take the > operator for example. Its new definition would be.
-
-    '>'     operateMethod=opGT emitter=runGT;
-
-The emit action would then look like
-
-Here are the revised versions of runGT and interpret
-runGT argument; {
-    :argument op1 op2 result nextField
-    // nextField should have been set when bytecode (argument) was set up?
-    result = op1 > op2;
-    return nextField;}
-    ;
-interpret argument; {
-    field = argument[1];
-    while field
-        op = field[1];
-        if runMethod = op.interpret;
-            // new result will be in field, what do we do with it?
-            field = runMethod(field); }
-
-/*******************************************************************************
-	TokenXP returns a token or a token expression.
-*******************************************************************************/
-extern GroupItem aCTionTokenXP(GroupItem xpress)
-{
-GroupItem   arg,
-            op,
-            UnaryOPS:,
-            InvokeArg = xpress["InvokeArg"],
-            ANYtoken = xpress["ANYtoken"];
-    xpress.clear();
-    if isGROUP  ANYtoken = group;
-    if UnaryOPS {
-        op  = new("uxp");
-        op  +% UnaryOPS;
-        op  +% ANYtoken;
-        op.method = runOP;
-        op.invoke = true;
-        if InvokeArg ANYtoken = op;
-        else {
-            xpress.group = op;
-            goto endToken; }}
-    if !InvokeArg {
-        if registry == groupFields {
-            op = opFields["."];
-            xpress  +% op;
-            xpress  +% ANYtoken;
-            // w/no argument opDot will try to use lastREF
-            xpress.invoke = true; }
-        else xpress.group = ANYtoken; }
-    else {
-        if InvokeArg.groupList {
-            // this happens when InvokeArg is UnaryXP
-            op  = InvokeArg.firstInList;
-            arg = InvokeArg.lastInList;
-            if op.isGROUP   op = op.group;
-            if arg.isGROUP  arg = arg.group;
-            xpress  +% op;
-            xpress  +% ANYtoken;
-            xpress  +% arg; }
-        else {
-            if InvokeArg.fLAG op = opFields["."];
-            else    op = falseResult;
-            if InvokeArg.isGROUP arg = InvokeArg.group;
-            if !arg arg = InvokeArg;
-            xpress  +% op;
-            xpress  +% ANYtoken;
-            xpress  +% arg; }
-        xpress.invoke = true; }
-    if xpress.invoke    xpress.method = runOP;
-endToken:
-    return xpress;
-}
+As we do this, each definition file should include comments that explain each action. The shape and content of those comments probably should follow a template (you get to help define that). Methinks that template includes a description of the action purpose (what is it doing and why) and POP criteria for the action.
+I like the way groovy uses assert to run an action and check its result matching result to what is expected; a POP action in effect. The assert action to be defined and tested as a next step.

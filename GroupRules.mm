@@ -62,7 +62,7 @@ int 		spanLength = 0;
 int 		i = 0;
 	if ( !fromBlocK )
 		return;
-	fromLines = fromBlocK->getLabelGroup("Lines");
+	fromLines = fromBlocK;
 	if ( !fromLines )
 		return;
 	spanLength = fromLines->groupBody->groupList->listLength;
@@ -80,7 +80,7 @@ int 		i = 0;
 		toBlocK = toBlock->get("BlocK");
 		if ( toBlocK )
 			{
-			toLines = toBlocK->getLabelGroup("Lines");
+			toLines = toBlocK;
 			if ( toLines && toLines->groupBody->groupList )
 				{
 				spanWalk = toLines->groupBody->groupList->lastInList;
@@ -152,7 +152,7 @@ GroupItem 	*targetLines = 0;
 			if ( !toBlk->get("BlocK") )
 				::processCode(toBlk);
 			}
-		targetLines = target->get("BlocK")->getLabelGroup("Lines");
+		targetLines = target->get("BlocK");
 		if ( !targetLines )
 			return target;
 		anchor = ::matchSpanInLines(targetLines,fromBlk);
@@ -185,10 +185,9 @@ GroupItem 	*token = 0;
 *******************************************************************************/
 extern "C" GroupItem *aCTionBlocK(GroupItem *input)
 {
-GroupItem 	*Lines = input->getLabelGroup("Lines");
 GroupItem 	*grup = 0;
 GroupItem 	*result = 0;
-	while ( grup = Lines->next(grup) )
+	while ( grup = input->next(grup) )
 		{
 		if ( isMethod(grup->groupBody->flags.instructType) )
 			result = grup->groupBody->gMethod(grup);
@@ -405,9 +404,6 @@ GroupItem 	*item = 0;
 		/***********************************************************************
 		Process Attributes.
 		***********************************************************************/
-		::printf("aCTionDefinE: %s %d\n",NewGroup->groupBody->tag,ruler->lastIndent);
-		if ( ::compare(NewGroup->groupBody->tag,"<:") == 0 )
-			item = 0;
 		if ( Attributes )
 			while ( item = Attributes->next(item) )
 				if ( item->groupBody->flags.noPrint && immediateACTION(item->groupBody->flags.methodType) )
@@ -528,6 +524,69 @@ GroupItem 	*target = 0;
 GroupItem 	*arg = 0;
 GroupItem 	*xl = 0;
 GroupItem 	*token = 0;
+	if ( GroupControl::groupController->groupRules->generating )
+		{
+		GroupItem 	*revisedList = new GroupItem("revisedList");
+		GroupItem 	*grup = 0;
+		GroupItem 	*store = 0;
+		if ( xpList->groupBody->groupList->listLength == 1 )
+			{
+			arg = xpList->groupBody->groupList->firstInList;
+			if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
+				arg = arg->getGroup();
+			revisedList->addMember(arg);
+			}
+		else {
+			// Mirror the non-generating walk's op/target/arg identification
+			// (right-to-left, precedence-correct via the same state machine),
+			// but emit flat RPN instead of building the runOP tree: for each
+			// completed instruction emit target, then arg (when a leaf), then
+			// op; for '=' emit the value then a bcStoreField carrying target.
+			while ( token = xpList->prior(token) )
+				{
+				grup = token;
+				if ( isGROUP(grup->groupBody->flags.data) )
+					while ( isGROUP(grup->groupBody->flags.data) )
+						grup = grup->getGroup();
+				if ( isOperator(grup->groupBody->flags.instructType) )
+					op = grup;
+				else {
+					if ( !arg )
+						arg = grup;
+					else
+					if ( op )
+						target = grup;
+					}
+				if ( op )
+					if ( target )
+						{
+						if ( ::compare(op->groupBody->tag,"=") == 0 )
+							{
+							if ( !arg->groupBody->gMethod )
+								revisedList->addMember(arg);
+							store = ::copyOf(GroupControl::groupController->groupRules->bcOPs->get("bcStoreField"));
+							store->addAttribute(target);
+							revisedList->addMember(store);
+							}
+						else {
+							revisedList->addMember(target);
+							if ( !arg->groupBody->gMethod )
+								revisedList->addMember(arg);
+							revisedList->addMember(op);
+							}
+						xl = new GroupItem("xl");
+						xl->setMethod(::runOP);
+						op = 0;
+						target = 0;
+						arg = xl;
+						}
+				}
+			}
+		::dumpContents(revisedList);
+		xpList->clear();
+		xpList->setGroup(revisedList);
+		return xpList;
+		}
 	if ( xpList->groupBody->groupList->listLength == 1 )
 		{
 		arg = xpList->groupBody->groupList->firstInList;
@@ -563,6 +622,9 @@ GroupItem 	*token = 0;
 			}
 		if ( op )
 			if ( arg )
+				{
+				if ( arg->groupBody->flags.actionType || arg->groupBody->flags.instructType )
+					arg->groupBody->flags.invoke = 1;
 				if ( target )
 					{
 					xl = new GroupItem("xl");
@@ -575,6 +637,7 @@ GroupItem 	*token = 0;
 					target = 0;
 					arg = xl;
 					}
+				}
 		}
 finishXP:
 	xpList->clear();
@@ -583,12 +646,12 @@ finishXP:
 }
 
 /*******************************************************************************
-	Runs a for statement
+	Runs the action associated with a for statement
         Looper=ANYtoken;
         LoopRestrict:
             loopOnAttributes="attributes";
             loopOnMembers="members";;
-        FOR         for- followedBy Looper in- ExpressioN SemI- LoopRestrict? BLOCKing- StatemenT defer;
+        FOR         for- followedBy Looper in- reversE="<-"? ExpressioN SemI- LoopRestrict? BLOCKing- StatemenT defer;
     At present no loopModifier condition to control loop direction???
 *******************************************************************************/
 extern "C" GroupItem *aCTionFOR(GroupItem *input)
@@ -596,6 +659,7 @@ extern "C" GroupItem *aCTionFOR(GroupItem *input)
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*Looper = input->get("Looper");
 GroupItem 	*ExpressioN = input->get("ExpressioN");
+GroupItem 	*reversE = input->get("reversE");
 GroupItem 	*LoopOn = 0;
 GroupItem 	*LoopRestrict = input->getLabelGroup("LoopRestrict");
 GroupItem 	*StatemenT = input->getLabelGroup("StatemenT");
@@ -618,7 +682,7 @@ int 		restrict = 0;
 	while ( isGROUP(LoopOn->groupBody->flags.data) )
 		LoopOn = LoopOn->getGroup();
 	LoopRestrict = ruler->lastREF->getGroup();
-	while ( grup = LoopOn->next(grup) )
+	while ( grup = reversE ? LoopOn->prior(grup) : LoopOn->next(grup) )
 		{
 		Looper->setGroup(grup);
 		if ( restrict && grup->options.affiliation != restrict )
@@ -685,8 +749,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*action = ruler->currentMETHOD;
 GroupItem 	*result = 0;
 char 		*arg = input->getText();
-	if ( ::compare(arg,"entries") == 0 )
-		result = 0;
 	result = GroupControl::groupController->locateInMethod(arg);
 	if ( !result )
 		if ( ruler->currentRegistry == ruler->opFields || ruler->alphaSet->contains(*arg) )
@@ -981,6 +1043,10 @@ GroupItem 	*op = 0;
 GroupItem 	*UnaryOPS = xpress->getLabelGroup("UnaryOPS");
 GroupItem 	*InvokeArg = xpress->get("InvokeArg");
 GroupItem 	*ANYtoken = xpress->get("ANYtoken");
+	if ( ruler->generating )
+		{
+		return xpress;
+		}
 	xpress->clear();
 	if ( isGROUP(ANYtoken->groupBody->flags.data) )
 		ANYtoken = ANYtoken->getGroup();
@@ -1256,8 +1322,75 @@ GroupItem 	*DiRs = 0;
 }
 
 /***************************************************************************
-	This clears its argument. If data is a buffer, it is reset. If data is
-    a stak, it is cleared. Otherwise input is cleared.
+    Text-substrate directive orchestrator. Parallel to applyDirectives but
+    operates on a buffer-bearing target rather than an AST target. Walks
+    the buffer doing find-and-replace via the mark machinery: for each
+    occurrence of fromText in target's buffer, delete the matched chars
+    and insert toText in their place. Mark threads naturally through
+    opIN (sets it on match), += (insert at mark, advance), -= (delete
+    at mark, stay). Idempotent via the target's DiRs registry.
+***************************************************************************/
+extern "C" GroupItem *applyTextDirective(GroupItem *argument, GroupItem *target)
+{
+GroupItem 	*grup = 0;
+GroupItem 	*DiRs = 0;
+GroupItem 	*fromText = 0;
+GroupItem 	*toText = 0;
+Buffer 		*buf = 0;
+	if ( isLIST(argument->groupBody->flags.binType) )
+		while ( grup = argument->prior(grup) )
+			::applyTextDirective(grup,target);
+	else {
+		DiRs = target->get("DiRs");
+		if ( !DiRs )
+			{
+			DiRs = target->addString("DiRs");
+			DiRs->groupBody->flags.noPrint = 1;
+			}
+		if ( DiRs->get(argument->groupBody->tag) )
+			return target;
+		DiRs->addMember(argument);
+		fromText = argument->groupBody->groupList->firstInList;
+		if ( !fromText )
+			{
+			::fprintf(stderr,"Text directive needs 'from' as first child: %s\n",argument->groupBody->tag);
+			return target;
+			}
+		toText = fromText->nextInParent;
+		if ( !isBUFFER(target->groupBody->flags.data) )
+			return target;
+		buf = target->getBuffer();
+		buf->setMark();
+		while ( buf->findInBuffer(fromText->getText()) )
+			{
+			buf->deleteFromBuffer(fromText->getCount());
+			if ( toText )
+				buf->appendString(toText->getText(),0,0);
+			}
+		buf->unMark();
+		}
+	return target;
+}
+
+/*******************************************************************************
+    Commands.rtn
+    Home for extern methods backing the cOMMANDs base registry. Commands fire
+    C++ methods used to set flags or perform side effects; they are wired up
+    via the immediateAction attribute in incant/setup.
+
+    Externs are ordered alphabetically by method name (case-sensitive ASCII,
+    matching tok's emit order so the .rtn order and .mm order line up).
+    
+    Note: incant commands are defined at setup in the cOMMANDs registry. They
+    come in two flavors: commands with a noPrint attribute are invoked during
+    field definition to modify the field being defined; the command is not
+    added to the definition; it is fire and forget. Commands without a noPrint
+    attribute are intended to be run on the command line.
+*******************************************************************************/
+/***************************************************************************
+	The incant clear command invokes this. It clears its argument.
+    If data is a buffer, it is reset. If data is a stak, it is cleared.
+    Otherwise input is cleared wiping data and list.
 ***************************************************************************/
 extern "C" GroupItem *cLEAR(GroupItem *input)
 {
@@ -1280,6 +1413,37 @@ extern "C" GroupItem *cOPY(GroupItem *field)
 {
 GroupItem 	*newField = new GroupItem(field);
 	return newField;
+}
+
+/***************************************************************************
+    Close the file associated with the buffer. If no file has been set,
+    fall back to using the field's tag as the filename — the tag is a
+    handle the user already controls and serves no other purpose in this
+    context, so it's a reasonable default destination.
+***************************************************************************/
+extern "C" int closeFile(GroupItem *bufField)
+{
+	if ( isBUFFER(bufField->groupBody->flags.data) )
+		{
+		if ( !bufField->getBuffer()->file )
+			bufField->getBuffer()->setFile(bufField->groupBody->tag);
+		return bufField->getBuffer()->closeFile();
+		}
+	return 0;
+}
+
+/***************************************************************************
+	copyOf() makes a copy of the field passed in. The copy groupBody is a copy
+    as is its groupList. Relocated from GroupControl class to an extern so it
+    can be registered as the incant copyOf command (2026-06-02).
+***************************************************************************/
+extern "C" GroupItem *copyOf(GroupItem *grup)
+{
+GroupItem 	*block = new GroupItem();
+	*block->groupBody = *grup->groupBody;
+	if ( grup->groupBody->groupList )
+		block->copyListFrom(grup);
+	return block;
 }
 
 /***************************************************************************
@@ -1336,7 +1500,8 @@ char 	*name = 0;
 }
 
 /***************************************************************************
-	Turns on debugGuard
+	The incant debugGuard command invokes this to toggle the debugGuard
+    flag in the argument passed in
 ***************************************************************************/
 extern "C" GroupItem *debugOnGuard(GroupItem *input)
 {
@@ -1447,7 +1612,8 @@ GroupItem 	*notifyLIST = grup->parent;
 }
 
 /***************************************************************************
-	Dump components of group passed in (like dumpResults but does not descend)
+	The incant dumpContents command runs this. It is used mostly for debugging.
+    It lists out the componenst of the argument passed in.
 ***************************************************************************/
 extern "C" GroupItem *dumpContents(GroupItem *stuff)
 {
@@ -1493,6 +1659,10 @@ char 	*name = input->getText();
 
 /*******************************************************************************
 	Generator method for the Print rule or the StringXP rule.
+	Trailing `print();` clears tok's sticky `print(buffer)` default so bare
+	`print` sites in later externs/files don't pick up our local buffer.
+    This method is a work in progress pending outcome of work on generating
+    bytecodes.
 *******************************************************************************/
 extern "C" GroupItem *genPrint(GroupItem *input)
 {
@@ -1581,11 +1751,12 @@ Buffer 		*buffer = ruler->formatBUFFER;
 	buffer->appendString(")",0,0);
 	input->setText(buffer->toString());
 	buffer->reset();
+	::printf("");
 	return input;
 }
 
 /*****************************************************************************
-    This is the simplified generateCode method that leaves all the dirty work
+    This is the simplified generateCode command method that leaves dirty work
     to the incant actions in the incant generate file
 *****************************************************************************/
 extern "C" GroupItem *generateCode(GroupItem *field)
@@ -1603,7 +1774,6 @@ GroupItem 	*generate = ruler->generator->get("generatE");
 			return 0;
 	ruler->generating = 0;
 GroupItem 	*BlocK = field->getLabelGroup("BlocK");
-GroupItem 	*Lines = BlocK->getLabelGroup("Lines");
 GroupItem 	*bcLIST = new GroupItem("bcLIST");
 	bcLIST->groupBody->flags.noPrint = 1;
 	bcLIST->groupBody->flags.isLocal = 1;
@@ -1616,10 +1786,10 @@ GroupItem 	*bcLIST = new GroupItem("bcLIST");
 		if ( !generate )
 			::fprintf(stderr,"generateCode: could not find generatE() action\n");
 		else
-		if ( Lines )
+		if ( BlocK )
 			{
 			::printf("generateCode: running on %s\n",field->groupBody->tag);
-			::runAction(Lines,generate);
+			::runAction(BlocK,generate);
 			}
 		}
 	return 0;
@@ -1650,8 +1820,9 @@ int 	advance = 0;
 }
 
 /******************************************************************************
-    Reads the field passed in as a file spec and loads the field buffer (creating
-    it if necessary) with text read in from the file. Returns the loaded field.
+    This incant command method reads the field passed in as a file spec and
+    loads the field buffer (creating it if necessary) with text read in from
+    the file. Returns the loaded field.
 ******************************************************************************/
 extern "C" GroupItem *getFile(GroupItem *filing)
 {
@@ -1698,10 +1869,9 @@ Buffer 		*buffet = 0;
 		}
 	else {
 		char 	*errorMessage = ::concat(2,"getFile: could not open file: ",fileName);
-		::checkSys(file,errorMessage);
 		::fprintf(stderr,"\tcurrent directory: ");
 		::system("pwd");
-		return 0;
+		::checkSys(file,errorMessage);
 		}
 	if ( !atLINE )
 		atLINE = filing->addString("atLINE");
@@ -1763,7 +1933,7 @@ GroupItem 	*types = GroupControl::groupController->locate("types");
 
 /***************************************************************************
 	guard command should be run as a rule attribute to specify a guard for
-    the rule that has not been guarded.
+    a rule that has not been guarded.
     If the guard attribute contains:
         a set as data, the set becomes the rule guard set.
         a string, the string is used to create the guard set.
@@ -1832,9 +2002,9 @@ GroupItem 	*notifyList = 0;
 }
 
 /***************************************************************************
-	The loadDirectory is a noPrint command usually invoked by the define rule
-    that reads in a directory and for every file in the directory creates
-    an entry in the input parent group.
+	The incant load command, a noPrint command designed used as an
+    attribute invokes loadDirectory to read in a directory and for every file
+    in the directory creates an entry in the input parent group.
     DOES NOT HANDLE FILE MASKS??? It used to I think.
 ***************************************************************************/
 extern "C" GroupItem *loadDirectory(GroupItem *input)
@@ -1887,13 +2057,12 @@ char 		*name = 0;
 }
 
 /*****************************************************************************
-	Immediate method for include command that reads in file to be processed.
+	The incant include command call this method to read in file to be processed.
     It does not specify what rule to run on the new input.
 *****************************************************************************/
 extern "C" GroupItem *loadInputFromFile(GroupItem *source)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	::printf("\t\t\tincluding %s\n",source->groupBody->tag);
 	if ( ::getFile(source) )
 		return source;
 	else	::fprintf(stderr,"\t\tloadInputFromFile: failed getting file from %s\n",source->groupBody->tag);
@@ -2015,7 +2184,7 @@ GroupItem 	*tWalk = 0;
 GroupItem 	*fWalk = 0;
 	if ( !fromBlocK )
 		return 0;
-	fromLines = fromBlocK->getLabelGroup("Lines");
+	fromLines = fromBlocK;
 	if ( !fromLines || !fromLines->groupBody->groupList )
 		return 0;
 	firstFrom = fromLines->groupBody->groupList->firstInList;
@@ -2193,10 +2362,14 @@ GroupItem 	*product = 0;
 					product->setText(target->groupBody->tag);
 					break;
 				case 2:
-					product->setGroup(target->parent);
+					if ( !target->parent )
+						product = 0;
+					else	product->setGroup(target->parent);
 					break;
 				case 3:
-					product->setGroup(target->groupBody->registry);
+					if ( !target->groupBody->registry )
+						product = 0;
+					else	product->setGroup(target->groupBody->registry);
 					break;
 				case 4:
 					product->setText(target->getText());
@@ -2250,16 +2423,24 @@ GroupItem 	*product = 0;
 						product->setCount(1);
 					break;
 				case 401:
-					product->setGroup(argument->nextInParent);
+					if ( !argument->nextInParent )
+						product = 0;
+					else	product->setGroup(argument->nextInParent);
 					break;
 				case 402:
-					product->setGroup(argument->priorInParent);
+					if ( !argument->priorInParent )
+						product = 0;
+					else	product->setGroup(argument->priorInParent);
 					break;
 				case 403:
-					product->setGroup(argument->groupBody->groupList->firstInList);
+					if ( !argument->groupBody->groupList->firstInList )
+						product = 0;
+					else	product->setGroup(argument->groupBody->groupList->firstInList);
 					break;
 				case 404:
-					product->setGroup(argument->groupBody->groupList->lastInList);
+					if ( !argument->groupBody->groupList->lastInList )
+						product = 0;
+					else	product->setGroup(argument->groupBody->groupList->lastInList);
 					break;
 				default:
 					product->setText(::concat(3,"access to ",argument->groupBody->tag," not supported yet"));
@@ -2378,6 +2559,16 @@ GroupItem 	*result = 0;
 		if ( set = target->getCharacterSet() )
 			if ( set->contains(argument->getText()) )
 				result = GroupControl::groupController->groupRules->trueResult;
+		}
+	else
+	if ( isBUFFER(target->groupBody->flags.data) )
+		{
+		/* Text-substrate find: argument is a string field, target is a
+		buffer field. On match, buffer's mark is set to start of match
+		(side effect); we return argument so caller has the matched
+		string for length-of-match computations (argument.count). */
+		if ( target->getBuffer()->findInBuffer(argument->getText()) )
+			result = argument;
 		}
 	return result;
 }
@@ -2621,7 +2812,10 @@ extern "C" GroupItem *opPlusEQ(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*grup = 0;
 	if ( !::compare(::headToCount(argument->groupBody->tag,3),"DiR") )
-		return ::applyDirectives(argument,target);
+		if ( isBUFFER(target->groupBody->flags.data) )
+			return ::applyTextDirective(argument,target);
+		else	return ::applyDirectives(argument,target);
+	// incant directive tags start with DiR
 	if ( isLIST(argument->groupBody->flags.binType) )
 		while ( grup = argument->prior(grup) )
 			::opPlusEQ(grup,target);
@@ -2825,8 +3019,10 @@ extern "C" void printField(GroupItem *field, char *format, Buffer *buffer)
 }
 
 /***************************************************************************
-	Sets toBUFFER to the buffer in bufferField. toBUFFER gets reset.
-    If there is no bufferField toBUFFER is set to null;
+	The incant printTO command runs this to set toBUFFER to the buffer in
+    bufferField. toBUFFER gets reset. If there is no bufferField toBUFFER
+    is set to null. If toBUFFER is not null, opPrint(), invoked by the
+    print command via the PrinT rule, writes in toBUFFER instead of stdout
 ***************************************************************************/
 extern "C" GroupItem *printToBuffer(GroupItem *bufferField)
 {
@@ -2945,7 +3141,10 @@ int 		processing = ruler->processingCode;
 }
 
 /***************************************************************************
-	Processes attribute flags like noPrint.
+	The processFlags method is invoked by multiple incant noPrint fire and
+    forget commands run at field definition). The item passed in as argument
+    is used to figure out what flag to set/reset; the exception is the exit
+    command that is not fire and forget; it is fire and exit.
 ***************************************************************************/
 extern "C" GroupItem *processFlags(GroupItem *item)
 {
@@ -3031,7 +3230,8 @@ GroupItem 	*target = item->parent;
 }
 
 /*****************************************************************************
-	Output text enclosed in quotes
+	The incant quoted command is usually used in a print statement to output
+    its argument text in quotes.
 *****************************************************************************/
 extern "C" GroupItem *quoted(GroupItem *input)
 {
@@ -3044,8 +3244,9 @@ GroupItem 	*grup = new GroupItem(strung);
 	Register the parent block of item in the currentRegistry. This method is
     associated with register and class attributes defined in bootCommands()
     NOTE: the class attribute that makes its parent a registry should preceed any
-    attribute to be registered. The index attribute should come before class.
-    
+    attribute to be registered. The index attribute if it exists, should come
+    before class.
+
     Note the argument passed in may be a copy of a registry, hence the use
     of registri below to make sure argument references the original
 ***************************************************************************/
@@ -3080,8 +3281,6 @@ char 		*name = item->getText();
 		registry. argument likely points to a copy
 		*******************************************************************/
 		ruler->currentRegistry = argument->groupBody->registry;
-		::printf("\t\t\t\tCurrent registry: %s\n",ruler->currentRegistry->groupBody->tag);
-		item = 0;
 		}
 	return ruler->trueResult;
 }
@@ -3139,7 +3338,6 @@ extern "C" void restoreLocalFields(GroupItem *action)
 Stak 		*recurseSTAK = action->getStak();
 GroupBody 	*body = 0;
 GroupItem 	*grup = 0;
-	::printf("restoreLocalFields for: %s on stak: %d\n",action->groupBody->tag,recurseSTAK->length);
 	if ( !recurseSTAK->length )
 		action->groupBody->flags.recursive = 0;
 	else
@@ -3266,6 +3464,24 @@ GroupItem 	*result = 0;
 	return result;
 }
 
+/***************************************************************************
+    C extern backing the incant `system` command. Named runSystem to avoid
+    the extern "C" symbol clash with libc system(3). User-beware: no escaping,
+    no stdout capture, no elaborate error handling. Returns trueResult on
+    exit code 0, falseResult otherwise.
+***************************************************************************/
+extern "C" GroupItem *runSystem(GroupItem *command)
+{
+char 	*cmdText = command->getText();
+int 	status = 0;
+	if ( !cmdText )
+		return GroupControl::groupController->groupRules->falseResult;
+	status = ::system(cmdText);
+	if ( status == 0 )
+		return GroupControl::groupController->groupRules->trueResult;
+	return GroupControl::groupController->groupRules->falseResult;
+}
+
 /*****************************************************************************
 	Save action fields before a recursive call.
 *****************************************************************************/
@@ -3288,7 +3504,6 @@ GroupItem 	*grup = 0;
 			grup->clear();
 			recurseSTAK->push(body);
 			}
-	::printf("saveLocalFields for: %s on stak: %d\n",action->groupBody->tag,recurseSTAK->length);
 }
 
 /***************************************************************************
@@ -3307,6 +3522,12 @@ void 	*methodAddress = 0;
 		else	::fprintf(stderr,"\n\tsetCompiledMethod: ERROR no method found %s",name);
 	::fprintf(stderr,"\n\tsetCompiledMethod: failed for %s\n",block->groupBody->tag);
 	return 0;
+}
+
+extern "C" void setFile(GroupItem *bufField, char *name)
+{
+	if ( isBUFFER(bufField->groupBody->flags.data) )
+		bufField->getBuffer()->setFile(name);
 }
 
 /***************************************************************************
@@ -3329,11 +3550,11 @@ extern "C" GroupItem *setInternalType(GroupItem *grup)
 }
 
 /***************************************************************************
-    setLabel sets the rule label to input. THIS NEEDS FIXING no more label
+    setLabel sets the rule label to input.
 ***************************************************************************/
 extern "C" GroupItem *setLabel(GroupItem *input)
 {
-	// all it did was set label = input in RuleStuff that no longer has a label
+	// all it did was set RuleStuff label = input. Used in the JSONfield rule.
 	return input;
 }
 
@@ -3348,6 +3569,18 @@ GroupItem 	*minimum = limits->getAttribute("min");
 	ruleStuff->min = minimum->getCount();
 	if ( maximum )
 		ruleStuff->max = maximum->getCount();
+}
+
+/***************************************************************************
+    Buffer-side mark machinery wrappers — thin passthroughs to Buffer's
+    setMark/unMark/setFile/closeFile. Used by incant code that wants
+    explicit control over the mark, and by applyTextDirective to
+    arm/disarm Buffer.markIsSet around find-and-replace sweeps.
+***************************************************************************/
+extern "C" void setMark(GroupItem *bufField)
+{
+	if ( isBUFFER(bufField->groupBody->flags.data) )
+		bufField->getBuffer()->setMark();
 }
 
 /***************************************************************************
@@ -3418,14 +3651,14 @@ int 		ending = 0;
 		}
 	if ( !BlocK )
 		return;
-	targetLines = BlocK->getLabelGroup("Lines");
+	targetLines = BlocK;
 	if ( !targetLines )
 		return;
 	::processCode(directive);
 	dBlocK = directive->get("BlocK");
 	if ( !dBlocK )
 		return;
-	dLines = dBlocK->getLabelGroup("Lines");
+	dLines = dBlocK;
 	if ( !dLines || !dLines->groupBody->groupList )
 		return;
 	at = directive->get("at");
@@ -3503,8 +3736,14 @@ int 		tokenLength = (int)(atEnd - ruleStuff->hereAt);
 	return label;
 }
 
+extern "C" void unMark(GroupItem *bufField)
+{
+	if ( isBUFFER(bufField->groupBody->flags.data) )
+		bufField->getBuffer()->unMark();
+}
+
 /***************************************************************************
-	Rule action for unWrap
+	Rule action for unWrap used in the gXpress generator action.
 ***************************************************************************/
 extern "C" GroupItem *unWrap(GroupItem *result)
 {
@@ -3528,6 +3767,25 @@ char 	*junkText = input->getText();
 	return junkText;
 }
 
+/***************************************************************************
+    Write a buffer field's contents to /tmp/<field.tag> and close. Used as
+    the buffer-to-disk handoff for pipelines that need to run an external
+    tool (tok, etc.) on the buffer contents and consume the tool's output.
+    Returns the field unchanged so it can be threaded through a pipeline.
+    Used in incant directives processing.
+***************************************************************************/
+extern "C" GroupItem *writeTempFile(GroupItem *bufField)
+{
+char 	*tempPath = 0;
+	if ( isBUFFER(bufField->groupBody->flags.data) )
+		{
+		tempPath = ::concat(2,"/tmp/",bufField->groupBody->tag);
+		bufField->getBuffer()->setFile(tempPath);
+		bufField->getBuffer()->closeFile();
+		}
+	return bufField;
+}
+
 /*******************************************************************************
 	GroupRules constructor
 *******************************************************************************/
@@ -3539,6 +3797,7 @@ GroupRules::GroupRules()
 	currentRegistry = 0;
 	debugJunk = 0;
 	baseRegistryList = 0;
+	bcOPs = 0;
 	commands = 0;
 	files = 0;
 	grokking = 0;

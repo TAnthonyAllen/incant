@@ -1,7 +1,9 @@
 /*****************************************************************************
-    bytecode — incant-side bytecode dispatch (interpret).
+    bytecode — incant-side bytecode dispatch (interpretBC).
 
-    interpret(body) walks a bytecoded action body and runs each op.
+    interpretBC(body) walks a bytecoded action body and runs each op. (Named
+    interpretBC, not interpret, to avoid clashing with the `interpret=`
+    sub-attribute each op carries — that attribute is the per-op C++ handler.)
 
     Dispatch (post bcOPs->Operators fold, 2026-05-30):
         an instruction's tag resolves against the Operators registry; that
@@ -35,7 +37,7 @@
 *****************************************************************************/
 register(Bytecoding);
 define
-    interpret body; {
+    interpretBC body; {
         body +% opStack;
         for grup in body; members
             handler = grup.interpret;
