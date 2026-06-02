@@ -134,8 +134,8 @@ define
     bcBRZ        interpret=runBRZ;
     bcCALL       interpret=runCall;
     bcRET        interpret=runRET;
-    bcPushLit    interpret=runPushLit;
-    bcPushField  interpret=runPushField;
+    bcPushLit    virtual interpret=runPushLit;
+    bcPushField  virtual interpret=runPushField;
     bcStoreField interpret=runStoreField;
     ;
 /*******************************************************************************

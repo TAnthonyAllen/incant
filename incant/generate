@@ -288,8 +288,8 @@ define
                 if child.isOperatoR;
                     if child.taG != "=";  emitBC(child);
                 or child.registrY == "bcOPs";  emitBC(child);
-                or child.isLiteraL;  emitBC(copyOf(bcPushLit)=child);
-                else  emitBC(copyOf(bcPushField) +% child);
+                or child.isLiteraL;  emitBC(bcPushLit=child);
+                else  emitBC(bcPushField +% child);
             };
         emitBC argument code={
             :generator bcLIST;

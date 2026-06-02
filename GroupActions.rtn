@@ -315,6 +315,7 @@ GroupItem   result,
     if arg
         if arg.isMethod && arg.invoke           arg = arg.method(arg);
         or arg.isLIST   arg = resolveList(arg);
+    if target && target.isVirtual               target = copyOf(target);
     if op.isOperator    result = op.operat(arg,target);
     or op.isMethod      result = op.method(target);
     or isRule           result = runRule(arg,target);

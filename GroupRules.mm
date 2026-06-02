@@ -3424,6 +3424,8 @@ GroupItem 	*target = field->get(2);
 		else
 		if ( isLIST(arg->groupBody->flags.binType) )
 			arg = ::resolveList(arg);
+	if ( target && target->groupBody->flags.isVirtual )
+		target = ::copyOf(target);
 	if ( isOperator(op->groupBody->flags.instructType) )
 		result = op->groupBody->gOp(arg,target);
 	else
