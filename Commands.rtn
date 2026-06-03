@@ -171,6 +171,14 @@ GroupItem   bcLIST      = new("bcLIST");
         or BlocK {
             cout "generateCode: running on",field.tag:;
             runAction(BlocK,generate); }}
+    // Copy the accumulated instructions from generator's bcLIST back to the
+    // action's own bcLIST. Both slots are kept by design; this just brings the
+    // action's copy up to date after generation runs (emitBC accumulates into
+    // generator's bcLIST via :generator bcLIST).
+GroupItem   accumulated = generator["bcLIST"];
+GroupItem   fieldList   = field.getAttribute("bcLIST");
+    if accumulated && fieldList
+        if accumulated.groupList    accumulated.copyListTo(fieldList);
     return null;
 }
 

@@ -1,0 +1,26 @@
+Start();
+/*****************************************************************************
+    Layer B — text-up-to-delimiter rule, exercised standalone.
+
+    } = upToOver: read up to AND consume the delimiter (verified against
+    testUpTo in parse.rtn). delimiter is a plain "#>" (virtual deferred to its
+    own test). The string-arg invocation lives inside an action (runDelim) so
+    it parses through TokenXP -> Parens -> ExpressioN, which binds a quoted
+    argument; runDelim() is then a no-arg top-level call.
+
+    Also a regression check for the checkSkip sibling-define fix: delimiter,
+    DelimOver and runDelim are three sibling defs in one block — each should
+    get its own definition (no phantom ":" making one a member of another).
+*****************************************************************************/
+search reset Grokking list;
+register(Delim);
+define
+    delimiter="#>";
+    DelimOver isRule body}=delimiter code={
+        print "DelimOver captured body:" body:;
+        };
+    runDelim code={ DelimOver("hello world#>rest"); };
+    ;
+
+runDelim();
+stop();

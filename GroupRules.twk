@@ -181,7 +181,7 @@ String      atReplaceNewline;
     /***************************************************************************
         Check indent status to set block boundaries
     ***************************************************************************/
-    if !lastINDENT  lastINDENT = indenting;
+    if sawNewLine && !lastINDENT  lastINDENT = indenting;
     if sawNewLine && indenting != lastINDENT
         if blocking || defining
             while indenting != lastINDENT {

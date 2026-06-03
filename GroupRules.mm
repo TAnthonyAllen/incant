@@ -537,11 +537,13 @@ GroupItem 	*token = 0;
 			revisedList->addMember(arg);
 			}
 		else {
-			// Mirror the non-generating walk's op/target/arg identification
-			// (right-to-left, precedence-correct via the same state machine),
-			// but emit flat RPN instead of building the runOP tree: for each
-			// completed instruction emit target, then arg (when a leaf), then
-			// op; for '=' emit the value then a bcStoreField carrying target.
+			/******************************************************************
+			Mirror the non-generating walk's op/target/arg identification
+			(right-to-left, precedence-correct via the same state machine),
+			but emit flat RPN instead of building the runOP tree: for each
+			completed instruction emit target, then arg (when a leaf), then
+			op; for '=' emit the value then a bcStoreField carrying target.
+			*******************************************************************/
 			while ( token = xpList->prior(token) )
 				{
 				grup = token;
@@ -1792,6 +1794,15 @@ GroupItem 	*bcLIST = new GroupItem("bcLIST");
 			::runAction(BlocK,generate);
 			}
 		}
+	// Copy the accumulated instructions from generator's bcLIST back to the
+	// action's own bcLIST. Both slots are kept by design; this just brings the
+	// action's copy up to date after generation runs (emitBC accumulates into
+	// generator's bcLIST via :generator bcLIST).
+GroupItem 	*accumulated = ruler->generator->get("bcLIST");
+GroupItem 	*fieldList = field->getAttribute("bcLIST");
+	if ( accumulated && fieldList )
+		if ( accumulated->groupBody->groupList )
+			accumulated->copyListTo(fieldList);
 	return 0;
 }
 
@@ -3946,7 +3957,7 @@ char 		*atReplaceNewline = 0;
 	/***************************************************************************
 	Check indent status to set block boundaries
 	***************************************************************************/
-	if ( !lastINDENT )
+	if ( sawNewLine && !lastINDENT )
 		lastINDENT = indenting;
 	if ( sawNewLine && indenting != lastINDENT )
 		if ( blocking || defining )
