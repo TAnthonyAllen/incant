@@ -171,6 +171,34 @@ NOTE: `unitTests` now lives at
 
 ---
 
+## Aisle 3 cleanup — 2026-06-04 (delimTest + directives distilled)
+
+First-pass distillation of `incant/delimTest` + `incant/directives` from WIP
+into legible, headed files (committed `5e98bb2`; Clay to polish headers/structure).
+
+- **delimTest** — comment-only; header leads with the Layer C headline, the
+  load-bearing run-order constraint is now a documented finding. Output verified
+  identical to baseline.
+- **directives** — reorganized per-deliverable + unitTests-style header; POP
+  table documents ACTUAL behavior. Two bugs surfaced and documented (not fixed):
+
+  1. **Directive replace/delete content-match broken.** `testDirectiveReplace`
+     and `testDirectiveDelete` drop the target block's FIRST line regardless of
+     content — "replaced line" never appears, fromBody/toBody don't drive the
+     match. Suspected non-functional content-match in `statementMatches` /
+     `matchSpanInLines` (positional drop, not content-driven splice). Next-pass
+     bug hunt for Tony + Clod. The text-substrate path (DiRSwapInt) DOES
+     content-match, so the break is specific to the BlocK-line path.
+  2. **getFile pushInput parses loaded files** (Tony chasing in Xcode).
+     `testTextDirective` exits 2 with `getFile: ... include: Is a directory`.
+     `getFile` (Commands.rtn:235) does `pushInput(filing)` — it reads the file
+     AND queues it as incant input to parse. Loading real TAWK source
+     (groups.twk) then parses its unquoted `include <path>` first line, which
+     can't bind an arg → `getFile("include")` → the include/ dir. Replace
+     itself still lands. A parse-inert fixture would sidestep it.
+
+---
+
 ## Phase Bytecode — full plan (active)
 
 ### Design (locked)
