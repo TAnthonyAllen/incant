@@ -78,6 +78,25 @@ Root cause fully traced:
    - `bcPushField` handler needs `getAttribute("field")` to resolve current value;
      currently `setContent(instr)` copies empty content. Fix both sides together.
 
+**Brief 5 pass — 2026-06-04 (Clod, committed `413ab2a`):** ran the gate
+empirically; the root cause above is confirmed (dumpBC → "single field xp",
+opPlusEQ trace at Instruct.rtn:437-451). Outcomes:
+- **Fix 1 (members vs attributes) = STALE.** emitBC already uses `+=`; the
+  blocker is the bcLIST-not-a-list bootstrap above, not the walk side. Stale
+  notes in `incant/generate` + `incant/bytecode` corrected.
+- **Fix 2 (gXpress `=` asymmetry) = MOOT.** Verified across testByteCode,
+  testIfElse, testGXLeaf: the assignment target is never pushed (ruleActions
+  pre-transforms `=`→bcStoreField; gXpress sees `[rhs..., bcStoreField]`).
+  Adding an `=` branch to gXpress would be dead code — NOT implemented.
+- **Fix 3 = DONE.** Stale `testEmitBC` (called unregistered `bcMul`) retired
+  from `generate` + `oneTest`.
+- **New gap:** `testIfElse` else-branch (`maximus = 7`) emits NOTHING —
+  `runGenerated(el)` at gIF (generate:274) produces no instructions. Separate
+  from the gate; worth a look once bcLIST is walkable.
+- Emit stream is structurally correct (9 ops). Remaining path to maximus=26 is
+  all Tony's seat: (1) bcLIST list-typing, then (2) the slot-name reconciliation
+  above. interpretBC isn't even called by oneTest yet (generateAction calls it).
+
 **gExpressioN — DEAD, DO NOT RESURRECT.**
 ExpressioN is not a deferred rule. The label feeding `generatE` is `gXpress`,
 set as an exception in the `StatemenT` rule action. There is no `gExpressioN`
