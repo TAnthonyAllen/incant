@@ -38,13 +38,16 @@
     --------------------------------------------------------------------------
     2. Where bytecodes live (the registries)
 
-    Bytecodes come from two registries today, with a third gap noted below.
+    Bytecodes come from two registries today.
 
-    (a) bcOPs (incant/setup) — control flow only.
-            bcBR    interpret=runBR
-            bcBRZ   interpret=runBRZ
-            bcCALL  interpret=runCall
-            bcRET   interpret=runRET
+    (a) bcOPs (incant/setup) — control flow plus data-movement ops.
+            bcBR         interpret=runBR
+            bcBRZ        interpret=runBRZ
+            bcCALL       interpret=runCall
+            bcRET        interpret=runRET
+            bcPushLit    interpret=runPushLit     (virtual)
+            bcPushField  interpret=runPushField   (virtual)
+            bcStoreField interpret=runStoreField
         Kept separate from Operators per the 2026-04-27 design decision: user
         code never writes bcBR, and an incant program walking Operators should
         not see them.
@@ -60,15 +63,13 @@
         (ii) adding `interpret=runX` to the Operators entry. The op's tag is
         its symbol — that's what appears in the emitted instruction stream.
 
-    (c) Gap — data-movement ops referenced by the emitter but not yet
-        registered anywhere:
-            bcPushLit, bcPushField, bcStoreField, bcMul
-        These show up in gXpress and testEmitBC. They land in bcLIST with
-        their tag and payload, but have no `interpret` sub-attribute, so the
-        interpret() loop will fail with "no handler for <tag>" on first
-        encounter. Open question: do these get added to bcOPs (matching the
-        bcBR family), or does bcMul collapse into '*' (matching the operator-
-        shim pattern in (b))? Worth deciding before the emitter grows further.
+    (c) Resolved (2026-06-03): the data-movement ops bcPushLit, bcPushField
+        and bcStoreField are now registered in bcOPs (setup:137-139) with
+        handlers in Bytecode.twk (runPushLit, runPushField, runStoreField).
+        bcMul was NOT added: multiply dispatches through the '*' operator
+        (interpret=runMultiply in Operators, the shim pattern in (b)), so the
+        emitter emits '*', never bcMul. (The stale testEmitBC fixture that still
+        referenced bcMul was retired 2026-06-04 — Brief 5 Fix 3.)
 
     --------------------------------------------------------------------------
     3. The emit side — bcPushField and friends
@@ -78,10 +79,9 @@
 
     Read this as: pass one operand to emitBC, whose tag is bcPushField and
     whose value is the source-tree GroupItem referenced by `argument`.
-    Inside emitBC:
-        :generator genAction;     // find the current action being generated
-        :genAction bcLIST;        // find its bytecode accumulator
-        bcLIST +% operand;        // attach the instruction
+    Inside emitBC (actual, generate:296):
+        :generator bcLIST;        // bind the accumulator off the generator
+        bcLIST += argument;       // append the instruction as a member
 
     So `bcLIST` accumulates the emitted instruction stream for one action.
     Each emitBC() call adds one instruction. The instruction's tag IS the
@@ -92,11 +92,18 @@
     the emitter will need to build the instruction GroupItem with named
     sub-attributes filled in, then attach it. Forward-looking, not blocking.
 
-    Note: bcLIST is attached as a member (isLocal, noPrint) in generateCode().
-    interpret() iterates with `for grup in body; members` — members, not
-    attributes. The emitter uses `+%` (opAddAttribute). The members-vs-
-    attributes discrepancy may relate to current testGXLeaf "2 entries, same
-    value" behavior; investigation is on the incant-machinery side.
+    The members-vs-attributes note is STALE (corrected 2026-06-04, Brief 5):
+    emitBC uses `+=` (opPlusEQ), not `+%`. On a list-typed target `+=` appends
+    as a member, which is exactly what interpretBC's `for grup in body; members`
+    walk needs. THE REAL BLOCKER is upstream: bcLIST is born via new("bcLIST")
+    in generateCode (Commands.rtn:162) with NO data and NO groupList, so the
+    first `+=` falls into opPlusEQ's copyData branch (Instruct.rtn:450) — it
+    copies the first instruction's scalar data INTO bcLIST instead of appending,
+    and every later `+=` does scalar arithmetic. bcLIST never becomes a list, so
+    nothing accumulates as members and the copy-back to field.bcLIST (gated on
+    accumulated.groupList, Commands.rtn:181) never fires. Fix: give bcLIST a
+    groupList at creation so opPlusEQ takes the list-append branch (line 451).
+    C++/.rtn change, rebuild-gated — Tony's seat. See TODO 2026-06-04.
 
     --------------------------------------------------------------------------
     4. Generating registry — how the pieces fit
@@ -286,14 +293,14 @@ define
             for child in tmp; members
                 nextChild = child.nexT;
                 if child.isOperatoR;
-                    if child.taG != "=";  emitBC(child);
-                or child.registrY == "bcOPs";  emitBC(child);
-                or child.isLiteraL;  emitBC(bcPushLit=child);
+                    if child.taG != "=";        emitBC(child);
+                or child.registrY == "bcOPs";   emitBC(child);
+                or child.isLiteraL;             emitBC(bcPushLit=child);
                 else  emitBC(bcPushField +% child);
             };
         emitBC argument code={
             :generator bcLIST;
-            bcLIST +% argument;
+            bcLIST += argument;
             print `"emit tag=" argument.taG "content=" argument:;
             };
         /***********************************************************************
@@ -321,10 +328,10 @@ define
     ***************************************************************************/
     testByteCode code={
         if righty > 0; maximus = righty * 2; };
-    testEmitBC code={
-        emitBC(bcPushLit=5);
-        emitBC(bcMul);
-        emitBC(bcStoreField="maximus"); };
+    // testEmitBC retired 2026-06-04 (Brief 5 Fix 3): it called emitBC(bcMul),
+    // but bcMul is not registered — multiply dispatches through the '*' operator
+    // (interpret=runMultiply). Its operands also predate the current stack-form
+    // contract. gXpress emits '*' directly; no hand-built emitBC fixture needed.
     testGXLeaf code={
         if righty;  maximus = 0;
         if 42;      maximus = 1; };

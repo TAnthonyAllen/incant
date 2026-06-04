@@ -5,15 +5,15 @@
     interpretBC, not interpret, to avoid clashing with the `interpret=`
     sub-attribute each op carries — that attribute is the per-op C++ handler.)
 
-    Dispatch (post bcOPs->Operators fold, 2026-05-30):
-        an instruction's tag resolves against the Operators registry; that
-        entry's `interpret` sub-attribute is the C++ handler.
-            op      = Operators[grup.taG];
-            handler = op.interpret;
+    Dispatch (the 2026-05-30 bcOPs->Operators fold was REVERTED — see setup's
+    bcOPs comment): each op carries its own `interpret` sub-attribute,
+    inherited from its bcOPs/Operators registry entry. interpretBC reads it
+    off the instruction directly — no registry lookup, no fold:
+            handler = grup.interpret;
             result  = handler(grup);
-        One registry, one lookup -- no bcOPs, no fallback. (Works because the
-        bcBR/bcBRZ/bcPushLit/... entries were folded into Operators carrying
-        interpret= but no operateMethod.)
+        bcOPs remains a SEPARATE registry from Operators (the fold experiment
+        failed to parse the emitter source); both just happen to carry
+        interpret= on their entries, which is all dispatch needs.
 
     Stack-form (2026-05-30): operands live on an operand stack hung off the
     body as its `opStack` attribute -- a plain field used as a stack via
@@ -27,13 +27,16 @@
         result != null  -> branch; reassign grup so the walk continues from the
                            returned target.
 
-    MACHINERY NOTE (unresolved, incant-side -- flag for Tony/Clay): this is a
-    MEMBER walk (`for grup in body; members`). For it to see the instructions,
-    emitBC must attach them as MEMBERS of bcLIST. emitBC today uses `+%`
-    (opAddAttribute = attributes), so as written this loop would iterate
-    nothing. Reconcile the emit side: instructions as members, opStack left as
-    an attribute (so the member walk skips it while opStackOf still finds it via
-    getAttribute). This is the long-flagged members-vs-attributes discrepancy.
+    MACHINERY NOTE (corrected 2026-06-04, Brief 5): this is a MEMBER walk
+    (`for grup in body; members`), and emitBC DOES attach instructions as
+    members — it uses `+=` (opPlusEQ), not `+%`. The old "emitBC uses +%, so
+    this loop iterates nothing" claim was stale. The remaining blocker is
+    upstream of this walk: bcLIST is born with no groupList, so opPlusEQ's first
+    `+=` copies scalar data instead of list-appending and bcLIST never becomes a
+    walkable list (see generate's emit-side note + Commands.rtn:162/181). Once
+    bcLIST is list-typed at creation (C++/.rtn fix, Tony's seat), this walk sees
+    the instructions as members; opStack is hung as an attribute (line 41) so
+    the member walk skips it while opStackOf still finds it via getAttribute.
 *****************************************************************************/
 register(Bytecoding);
 define
