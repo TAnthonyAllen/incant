@@ -1,26 +1,113 @@
+/*****************************************************************************
+                Directives registry — runtime code & text rewriting.
+
+    A directive is a small named group whose children name a from-target and
+    (optionally) a to-replacement. Applying a directive to a field is meant to
+    rewrite that field in place:
+
+        target :+ DiRReplaceFoo      replace: swap the matching line
+        target :+ DiRDeleteFoo       delete:  drop the matching line
+        fileField += DiRSwapInt      text-substrate: rewrite buffer text
+
+    Intended positional shape (Tony 2026-05-28): no from=/to= labels — the
+    directive's children ARE the refs. First child = from, second child = to;
+    ReplaceDirective walks them via firstInList / nextInParent. A one-child
+    directive (DiRDeleteFoo) is a delete.
+
+    Organization: one fixtures+Directives define block, then one runner per
+    deliverable, each self-contained and runnable standalone.
+
+    ==========================================================================
+    KNOWN BUG — content matching is NOT working (the headline finding).
+    Both testDirectiveReplace and testDirectiveDelete drop the target block's
+    FIRST line regardless of content:
+      - "replaced line" NEVER appears in the replace output.
+      - the line that SHOULD match (fromBody = "original line") survives in
+        both cases; the line that gets dropped is the unrelated first line.
+      - the from/to refs (fromBody / toBody) do not appear to drive the match
+        at all — the splice is positional, not content-driven.
+    Suspected non-functional content-match in statementMatches /
+    matchSpanInLines: a positional first-line drop rather than a content-driven
+    splice. This is a finding for Tony + Clod to chase in the next pass. The
+    reorganization here EXISTS TO ENABLE that hunt; it does not fix the bug.
+    ==========================================================================
+
+    --------------------------------------------------------------------------
+    POP — ACTUAL output (2026-06-04 baseline), not intended behavior:
+
+    testDirectiveReplace()
+        inactive:  "target line 1" / "original line" / "target line 3"
+        active:    "original line" / "target line 3"
+                   (first line dropped; NO "replaced line" — see KNOWN BUG)
+        re-apply:  same as active (stable across re-apply)
+    testDirectiveDelete()
+        inactive:  "delete line 1" / "original line" / "delete line 3"
+        active:    "original line" / "delete line 3"
+                   (first line dropped, NOT the matching "original line")
+    testJustPrint()        "hello"
+    testWithTab()          "tab<TAB>here"   (\t in the literal renders as a tab)
+    testWithAssign()       (NO output — see finding below)
+    testTextDirective()
+        BEFORE:  empty dump (see finding below)
+        AFTER:   the loaded file with "int REPLACED" in place of "int dummy",
+                 rest of the file intact. The path routes through opPlusEQ's
+                 DiR-buffer dispatch -> applyTextDirective -> opIN's BUFFER
+                 branch -> Buffer.findInBuffer + mark-aware += / -=. File write
+                 is parked (closeFile commented out) so groups.twk on disk is
+                 never modified. NOTE: the text-substrate path DOES content-
+                 match ("int dummy" -> "int REPLACED"); the BlocK-line path
+                 (replace/delete above) is the one that's broken.
+                 BUT this runner currently exits 2 with a stderr error — see
+                 KNOWN ISSUE below. The replace itself still lands (AFTER shows
+                 "int REPLACED"); the error is a side effect of loading the
+                 file, not of the directive.
+
+    ==========================================================================
+    KNOWN ISSUE — testTextDirective() exits 2 with:
+        getFile: could not open file: include: Is a directory
+    Root cause (traced, left for Tony to fix in Xcode): getFile does
+    pushInput(filing) at Commands.rtn:235 — it not only reads the file into a
+    buffer, it QUEUES the file as incant input to be parsed. So loading real
+    TAWK source (groups.twk) makes incant parse groups.twk afterward; its first
+    line `include /Users/.../groupIncludes` (an unquoted slash-path) can't bind
+    as an argument to the incant `include` command, which falls through to
+    getFile("include") -> the include/ directory -> error. A self-contained,
+    parse-inert fixture (text wrapped in an incant comment) would sidestep it,
+    but the underlying getFile/pushInput behavior is Tony's to address.
+    ==========================================================================
+
+    --------------------------------------------------------------------------
+    Other findings (banked, not chased here):
+      testWithAssign() emits nothing — `x = "hi"; print x:` produces no output
+        when the action is called with no argument bound to x. Probe behavior,
+        unexplained.
+      testTextDirective() BEFORE dump prints empty; the buffer text only shows
+        AFTER the directive applies. Display/mark-timing quirk in print-of-
+        buffer (AFTER shows the full file, so no data loss).
+
+    Removed 2026-06-04: testDirective() (the splice-baseline runner this file's
+    comments were once "modeled on") — its action no longer exists, so the call
+    was a dangling no-op. (It was NOT the source of the exit-2 error: that comes
+    from testTextDirective, see KNOWN ISSUE above. Removing testDirective() left
+    the error unchanged.)
+*****************************************************************************/
 Start();
 register(Directives);
 define
     /*************************************************************************
-        Replace-directive test fixtures + runner.
-        Modeled on testDirective (line 147). Three states + delete variant.
-
-        Open syntax question (resolved by first run): does `from={...}` /
-        `to={...}` parse the curly-block as a code body on the directive
-        attribute? If not, the runtime sees from/to as text-only and the
-        match engine has nothing to walk. Adjust syntax based on dump output.
+        Replace directive — fixtures + runner.
+        DiRReplaceFoo's two children (fromBody, toBody) are the from/to refs.
+        Intended: find the line matching fromBody ("original line") in
+        replaceTarget's BlocK and swap in toBody ("replaced line").
+        Actual: drops the first line instead — see KNOWN BUG in the header.
     *************************************************************************/
     replaceTarget code={
         print "target line 1":;
         print "original line":;
         print "target line 3":; };
-    /* Positional shape (Tony 2026-05-28): directive's children ARE the
-       from-ref (first) and to-ref (second). ReplaceDirective uses firstInList
-       / nextInParent to access them; no from=/to= labels needed. */
     fromBody code={ print "original line":; };
     toBody   code={ print "replaced line":; };
     DiRReplaceFoo fromBody toBody;
-    DiRDeleteFoo  fromBody;
     testDirectiveReplace code={
         print ``"--- STATE inactive: replaceTarget, no directive ---":;
         replaceTarget();
@@ -30,49 +117,31 @@ define
         print ``"--- idempotent: re-apply, run again ---":;
         replaceTarget :+ DiRReplaceFoo;
         replaceTarget(); };
+
+    /*************************************************************************
+        Delete directive — fixtures + runner.
+        DiRDeleteFoo has one child (fromBody only) -> delete, no replacement.
+        Intended: drop the line matching fromBody ("original line").
+        Actual: drops the first line instead — see KNOWN BUG in the header.
+    *************************************************************************/
     deleteTarget code={
         print "delete line 1":;
         print "original line":;
         print "delete line 3":; };
+    DiRDeleteFoo fromBody;
     testDirectiveDelete code={
         print ``"--- STATE inactive: deleteTarget, no directive ---":;
         deleteTarget();
         print ``"--- STATE active: deleteTarget :+ DiRDeleteFoo ---":;
         deleteTarget :+ DiRDeleteFoo;
         deleteTarget(); };
-    /*************************************************************************
-        Hybrid prototype (2026-05-28): load a .twk file into a buffer field as
-        text, do a text-level replace on it, print before/after. Probes the
-        text-substrate path WITHOUT going through `field += DiRfoo` (the
-        applyDirectives path won't handle text-fields yet). If the replace
-        lands in fileField.text, the substrate path is validated and we know
-        what's needed to wire it into the `+=` mechanism.
 
-        No file write yet — Buffer extern incant methods (setFile + flush)
-        aren't reachable from incant. The buffer holds the modified text in
-        memory; printing it confirms.
-    *************************************************************************/
     /*************************************************************************
-        Minimal probes — isolate parse failure root cause for the hybrid
-        prototype. Each probe tests ONE hypothesis.
-    *************************************************************************/
-    testJustPrint code={
-        print "hello":; };
-    testWithTab code={
-        print "tab\there":; };
-    testWithAssign x code={
-        x = "hi";
-        print x:; };
-    /*************************************************************************
-        Text-substrate directive POP (2026-05-28). Loads groups.twk into a
-        buffer field, applies a DiRSwapInt directive (replaces "int dummy"
-        with "int REPLACED" in the buffer text), prints before/after. The
-        whole thing routes through opPlusEQ's DiR-buffer dispatch →
-        applyTextDirective → opIN's BUFFER branch → Buffer.findInBuffer +
-        mark-aware += and -=. If we see "int REPLACED" in AFTER and the
-        rest of the file intact, the text substrate works end-to-end.
-        File-write parked: closeFile(fileField) is wired but commented
-        out so we don't actually modify groups.twk on disk.
+        Text-substrate directive — fixtures + runner. This is the path that
+        DOES content-match. Loads a .twk file into a buffer field and rewrites
+        the buffer TEXT (not a code body): DiRSwapInt replaces "int dummy" with
+        "int REPLACED". File write is parked — closeFile(fileField) is wired
+        but commented out so groups.twk on disk is never touched.
     *************************************************************************/
     swapFrom = "int	dummy";
     swapTo   = "int	REPLACED";
@@ -86,23 +155,27 @@ define
         print ``"--- AFTER text directive ---":;
         print fileField:;
         /* closeFile(fileField); */ };
+
+    /*************************************************************************
+        Parse probes — minimal one-hypothesis-each fixtures kept from isolating
+        a since-resolved parse failure. testWithAssign currently emits nothing
+        (see findings in the header).
+    *************************************************************************/
+    testJustPrint code={
+        print "hello":; };
+    testWithTab code={
+        print "tab\there":; };
+    testWithAssign x code={
+        x = "hi";
+        print x:; };
     ;
 
 /*****************************************************************************
-	Directive tests — splice baseline + new replace + new delete (2026-05-28)
+    Run the deliverables, then the parse probes, then the text-substrate POP.
 *****************************************************************************/
-testDirective();
 testDirectiveReplace();
 testDirectiveDelete();
-
-/*****************************************************************************
-	Minimal probes — isolate testStringQuoting/testHybridPrototype parse fail
-*****************************************************************************/
 testJustPrint();
 testWithTab();
 testWithAssign();
-
-/*****************************************************************************
-	Text-substrate directive POP (2026-05-28)
-*****************************************************************************/
 testTextDirective();

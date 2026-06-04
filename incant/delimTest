@@ -1,17 +1,81 @@
-Start();
 /*****************************************************************************
-    Layer B — text-up-to-delimiter rule, exercised standalone.
+                delimTest — live grammar mutation + up-to-delimiter capture.
 
-    } = upToOver: read up to AND consume the delimiter (verified against
-    testUpTo in parse.rtn). delimiter is the base property "#)" (setup:150,
-    changed from "#>" on 2026-06-03 — see the opener note below). The string-
-    arg invocation lives inside an action (runDelim) so it parses through
-    TokenXP -> Parens -> ExpressioN, which binds a quoted argument; runDelim()
-    is then a no-arg top-level call.
+    HEADLINE (Layer C): incant's bootstrap grammar is live-mutable. A new
+    alternative is grafted into the DatA rule at runtime, and the very next
+    field definition routes its data through that brand-new alternative. The
+    locomotive changes while the train stays on schedule. The two moves are:
 
-    Also a regression check for the checkSkip sibling-define fix: DelimOver,
-    runDelim and DelimText are siblings in one block — each gets its own
-    definition (no phantom ":" making one a member of another).
+        DatA += DelimText;      graft the alternative (raw member append)
+        guard(DatA);            force the parser to re-derive DatA's guard set
+
+    Layer B: DelimOver / runDelim — up-to-delimiter capture via the } (upToOver)
+    modifier, driven by a string-arg invocation from inside an action.
+
+    --------------------------------------------------------------------------
+    Two language facts this file leans on:
+
+    } is upToOver: read up to AND consume the delimiter. (Contrast { = upTo,
+        which leaves the delimiter in the stream.) Verified against testUpTo in
+        parse.rtn.
+
+    A raw graft alone is not enough. DatA's guard set is computed at bootstrap;
+        DatA += DelimText grows the member list but leaves the cached guard
+        stale, so the parser never tries the new opener. guard(DatA) run as a
+        COMMAND clears guardSet AND resets guarding=0, forcing a re-derive on
+        the next parse — now seeing DelimText's '(' opener. (guard() run as an
+        ATTRIBUTE still SETS a guard, the old behavior, unchanged.)
+
+    --------------------------------------------------------------------------
+    KNOWN FINDING — run order is load-bearing. Layer B's runDelim() is deferred
+    to the END, AFTER Layer C move 3, ON PURPOSE. DelimOver's successful
+    upToOver leaves shared parser state (the mark/stream globals) that corrupts
+    a subsequent live-grammar parse: run it before move 3 and the graft trigger
+    drops out of Start. Order-of-execution coupling in the upToOver mark/stream
+    global — worth a closer look; banked as a finding.
+
+    --------------------------------------------------------------------------
+    Opener / closer choices banked from the build:
+      Opener is '(' (not '>'): '>' is in endDefine=[;>], so checkSkip eats a
+        '>' right after '='. '(' is checkSkip-neutral. NotA must also exclude
+        '(' (bootstrap NotA=[^ \t\r\n;(]+) or NotA's catch-all claims the
+        opener before DelimText's guard is consulted.
+      Closer is "#)" — DelimText's own delimParen field, NOT the shared base
+        delimiter (setup:150), because DelimOver runs first and leaves the
+        shared delimiter consumed.
+      DelimText is BARE — no inline code={}. An inline code body is a CodE
+        instance, and grafting a CodE-bearing rule into DatA (which already
+        holds the CodE rule as a member) trips addGroup's self-add guard ("add
+        CodE to itself"). Real DatA alternatives (SetBrackets/NotA) carry no
+        inline code either.
+
+    --------------------------------------------------------------------------
+    POP — expected output (2026-06-03 baseline):
+      move 1a   DatA baseline dump: 5 alternatives
+                (GrouP NumbeR CodE SetBrackets NotA)
+      move 2    DatA dump: 6 alternatives — DelimText grafted at the tail
+      move 3    doc dump: doc.dtext = "hello world", captured through the
+                grafted alternative (a rule that did not exist at bootstrap)
+      Layer B   "DelimOver captured body: hello world"
+
+    OPEN POLISH (deferred): the capture lands in doc.dtext, not doc's own data.
+    DelimText captures into its named dtext subfield; NotA-style alternatives
+    set the field content directly via aCTionTraiTdata. For doc itself to carry
+    the text, DelimText should capture into self, not a subfield.
+*****************************************************************************/
+Start();
+
+/*****************************************************************************
+    Layer B definitions + the Layer C graft target. All siblings in one
+    define block (also a regression check for the checkSkip sibling-define
+    fix: each gets its own definition, no phantom ":" making one a member of
+    another).
+      DelimOver  — body}=delimiter, upToOver capture against the base delimiter.
+      runDelim   — drives DelimOver with a quoted string arg from inside an
+                   action (parses through TokenXP -> Parens -> ExpressioN).
+      DelimText  — the alternative grafted into DatA below. '(' opener, then
+                   capture up to/over its own delimParen close. BARE on purpose
+                   (see header). Mirrors SetBrackets' bracket-pair shape.
 *****************************************************************************/
 search reset Grokking list;
 register(Delim);
@@ -20,30 +84,12 @@ define
         print "DelimOver captured body:" body:;
         };
     runDelim code={ DelimOver("hello world#)rest"); };
-    /*************************************************************************
-        DelimText — the alternative we graft into DatA. Mirrors SetBrackets'
-        bracket-pair shape: an opener literal, then capture up to/over a close
-        delimiter. SetBrackets is '['- ']'} ; DelimText is '('- body}=delimParen
-        (close = its own "#)" field; a dedicated field, not the shared base
-        delimiter, because DelimOver runs first and leaves the shared delimiter
-        in a consumed state). BARE on purpose: no inline
-        code={} action. An inline code body is a CodE instance, and grafting a
-        CodE-bearing rule into DatA (which already holds the CodE rule as a
-        member) trips addGroup's self-add guard ("add CodE to itself"). The
-        real DatA alternatives (SetBrackets/NotA) carry no inline code either.
-
-        Opener is '(' not '>': '>' is in endDefine=[;>] and checkSkip keys on
-        it, so a '>' right after '=' is eaten at the define level before DatA
-        dispatches. '(' is checkSkip-neutral. NotA must exclude '(' (bootstrap
-        NotA=[^ \t\r\n;(]+) so NotA's catch-all doesn't claim the opener before
-        DelimText's guard gets a look.
-    *************************************************************************/
     delimParen="#)";
     DelimText isRule '('- dtext}=delimParen;
     ;
 
 /*****************************************************************************
-    Layer C — move 1a: baseline dump of the live DatA bootstrap rule. Confirms
+    Layer C move 1a — baseline dump of the live DatA bootstrap rule. Confirms
     DatA resolves by name from a test file running against the live grammar,
     and shows its five bootstrap alternatives (the graft slot for a sixth).
 *****************************************************************************/
@@ -52,17 +98,14 @@ print ``"--- Layer C 1a: DatA baseline dump ---":;
 dumpContents(DatA);
 
 /*****************************************************************************
-    Layer C — move 2: graft DelimText into the live DatA alternation list, at
+    Layer C move 2 — graft DelimText into the live DatA alternation list, at
     runtime, while incant is parsing with that very grammar.
-      DatA += DelimText  -- append the alternative as a raw member add. The
-        directive path (applyDirectives / ReplaceDirective) can NOT graft a
-        rule: move 1b showed it only splices BlocK Lines, and a grammar rule
-        like DatA has no BlocK.
-      guard(DatA)        -- the append grew DatA's member list but left its
-        cached guardSet stale (no '('), so the parser would reject the new
-        opener before ever trying DelimText. guard() run as a COMMAND (the new
-        !fLAG branch in Commands.rtn) clears guardSet and resets guarding=0, so
-        the next parse re-derives DatA's guard — now including DelimText's '('.
+      DatA += DelimText  raw member append. The directive path (applyDirectives
+        / ReplaceDirective) can NOT graft a rule alternative: it only splices
+        BlocK Lines (code bodies), and a grammar rule like DatA has no BlocK.
+      guard(DatA)        the append left DatA's cached guardSet stale (no '(');
+        guard() as a COMMAND clears it + resets guarding=0 so the next parse
+        re-derives the guard, now including DelimText's '(' opener.
 *****************************************************************************/
 print ``"--- Layer C 2: DatA += DelimText (graft) + guard(DatA), then re-dump ---":;
 DatA += DelimText;
@@ -70,17 +113,13 @@ guard(DatA);
 dumpContents(DatA);
 
 /*****************************************************************************
-    Layer C — move 3: the verdict. Define a field whose data is shaped to
+    Layer C move 3 — THE VERDICT. Define a field whose data is shaped to
     trigger the just-grafted alternative: '(' opens DelimText, which captures
-    up to/over "#)" — exactly analogous to code={...} triggering CodE. doc
-    comes back carrying "hello world" (in its body capture field), proving the
-    live parser read DatA's freshly grafted member at parse time.
+    up to/over "#)" (exactly analogous to code={...} triggering CodE). doc
+    comes back carrying "hello world", proving the live parser read DatA's
+    freshly grafted member at parse time.
 
     => incant's grammar is live-mutable post-bootstrap.
-
-    (Open polish, deferred to next session: the capture lands in doc.dtext, not
-    doc's own data — DelimText captures into its named dtext field, whereas
-    NotA-style alternatives set the field content directly via aCTionTraiTdata.)
 *****************************************************************************/
 search reset Grokking list;
 register(Delim);
@@ -92,11 +131,9 @@ dumpContents(doc);
 print "doc:" doc:;
 
 /*****************************************************************************
-    Layer B standalone run is deferred to here, AFTER the move-3 verdict.
-    DelimOver's successful upToOver leaves shared parser state that corrupts a
-    subsequent live grammar parse, so running it before move-3 breaks the
-    graft trigger. Order-of-execution coupling — worth a closer look, banked
-    as a finding for next session.
+    Layer B standalone run, deferred to HERE on purpose — see the KNOWN
+    FINDING in the header. Running it before move 3 leaves shared upToOver
+    parser state that corrupts the live-grammar graft trigger.
 *****************************************************************************/
 runDelim();
 
