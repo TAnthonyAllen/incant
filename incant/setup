@@ -147,7 +147,7 @@ define
     branchNum;
     currentPOINT;
     currentFRAME;
-    delimiter="#>";
+    delimiter="#)";
     extern noPrint;
     fAIL noPrint;
     gUARD noPrint;

@@ -213,7 +213,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	item = strap->addMember(grok->getMember("CodE"));
 	item = strap->addMember(grok->getMember("SetBrackets"));
 	item = new GroupItem("NotA");
-	item->setCharacterSet(new PLGset("^ \t\r\n;"));
+	item->setCharacterSet(new PLGset("^ \t\r\n;("));
 	item = strap->addMember(item);
 	::modify(item,"+");
 	strap = grok->addString("TraiTdata");

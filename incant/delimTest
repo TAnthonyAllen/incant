@@ -3,24 +3,101 @@ Start();
     Layer B — text-up-to-delimiter rule, exercised standalone.
 
     } = upToOver: read up to AND consume the delimiter (verified against
-    testUpTo in parse.rtn). delimiter is a plain "#>" (virtual deferred to its
-    own test). The string-arg invocation lives inside an action (runDelim) so
-    it parses through TokenXP -> Parens -> ExpressioN, which binds a quoted
-    argument; runDelim() is then a no-arg top-level call.
+    testUpTo in parse.rtn). delimiter is the base property "#)" (setup:150,
+    changed from "#>" on 2026-06-03 — see the opener note below). The string-
+    arg invocation lives inside an action (runDelim) so it parses through
+    TokenXP -> Parens -> ExpressioN, which binds a quoted argument; runDelim()
+    is then a no-arg top-level call.
 
-    Also a regression check for the checkSkip sibling-define fix: delimiter,
-    DelimOver and runDelim are three sibling defs in one block — each should
-    get its own definition (no phantom ":" making one a member of another).
+    Also a regression check for the checkSkip sibling-define fix: DelimOver,
+    runDelim and DelimText are siblings in one block — each gets its own
+    definition (no phantom ":" making one a member of another).
 *****************************************************************************/
 search reset Grokking list;
 register(Delim);
 define
-    delimiter="#>";
     DelimOver isRule body}=delimiter code={
         print "DelimOver captured body:" body:;
         };
-    runDelim code={ DelimOver("hello world#>rest"); };
+    runDelim code={ DelimOver("hello world#)rest"); };
+    /*************************************************************************
+        DelimText — the alternative we graft into DatA. Mirrors SetBrackets'
+        bracket-pair shape: an opener literal, then capture up to/over a close
+        delimiter. SetBrackets is '['- ']'} ; DelimText is '('- body}=delimParen
+        (close = its own "#)" field; a dedicated field, not the shared base
+        delimiter, because DelimOver runs first and leaves the shared delimiter
+        in a consumed state). BARE on purpose: no inline
+        code={} action. An inline code body is a CodE instance, and grafting a
+        CodE-bearing rule into DatA (which already holds the CodE rule as a
+        member) trips addGroup's self-add guard ("add CodE to itself"). The
+        real DatA alternatives (SetBrackets/NotA) carry no inline code either.
+
+        Opener is '(' not '>': '>' is in endDefine=[;>] and checkSkip keys on
+        it, so a '>' right after '=' is eaten at the define level before DatA
+        dispatches. '(' is checkSkip-neutral. NotA must exclude '(' (bootstrap
+        NotA=[^ \t\r\n;(]+) so NotA's catch-all doesn't claim the opener before
+        DelimText's guard gets a look.
+    *************************************************************************/
+    delimParen="#)";
+    DelimText isRule '('- dtext}=delimParen;
     ;
 
+/*****************************************************************************
+    Layer C — move 1a: baseline dump of the live DatA bootstrap rule. Confirms
+    DatA resolves by name from a test file running against the live grammar,
+    and shows its five bootstrap alternatives (the graft slot for a sixth).
+*****************************************************************************/
+search reset Grokking list;
+print ``"--- Layer C 1a: DatA baseline dump ---":;
+dumpContents(DatA);
+
+/*****************************************************************************
+    Layer C — move 2: graft DelimText into the live DatA alternation list, at
+    runtime, while incant is parsing with that very grammar.
+      DatA += DelimText  -- append the alternative as a raw member add. The
+        directive path (applyDirectives / ReplaceDirective) can NOT graft a
+        rule: move 1b showed it only splices BlocK Lines, and a grammar rule
+        like DatA has no BlocK.
+      guard(DatA)        -- the append grew DatA's member list but left its
+        cached guardSet stale (no '('), so the parser would reject the new
+        opener before ever trying DelimText. guard() run as a COMMAND (the new
+        !fLAG branch in Commands.rtn) clears guardSet and resets guarding=0, so
+        the next parse re-derives DatA's guard — now including DelimText's '('.
+*****************************************************************************/
+print ``"--- Layer C 2: DatA += DelimText (graft) + guard(DatA), then re-dump ---":;
+DatA += DelimText;
+guard(DatA);
+dumpContents(DatA);
+
+/*****************************************************************************
+    Layer C — move 3: the verdict. Define a field whose data is shaped to
+    trigger the just-grafted alternative: '(' opens DelimText, which captures
+    up to/over "#)" — exactly analogous to code={...} triggering CodE. doc
+    comes back carrying "hello world" (in its body capture field), proving the
+    live parser read DatA's freshly grafted member at parse time.
+
+    => incant's grammar is live-mutable post-bootstrap.
+
+    (Open polish, deferred to next session: the capture lands in doc.dtext, not
+    doc's own data — DelimText captures into its named dtext field, whereas
+    NotA-style alternatives set the field content directly via aCTionTraiTdata.)
+*****************************************************************************/
+search reset Grokking list;
+register(Delim);
+define
+    doc = (hello world#);
+    ;
+print ``"--- Layer C 3: triggered field doc ---":;
+dumpContents(doc);
+print "doc:" doc:;
+
+/*****************************************************************************
+    Layer B standalone run is deferred to here, AFTER the move-3 verdict.
+    DelimOver's successful upToOver leaves shared parser state that corrupts a
+    subsequent live grammar parse, so running it before move-3 breaks the
+    graft trigger. Order-of-execution coupling — worth a closer look, banked
+    as a finding for next session.
+*****************************************************************************/
 runDelim();
+
 stop();

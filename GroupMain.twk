@@ -219,7 +219,7 @@ GroupRules  ruler = groupRules;
     item            = strap += grok/CodE;
     item            = strap += grok/SetBrackets;
     item            = new("NotA");
-    item.characterSet    = new("^ \t\r\n;");
+    item.characterSet    = new("^ \t\r\n;(");
     item            = strap += item;
     modify(item,"+");
 

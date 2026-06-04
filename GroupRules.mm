@@ -1950,6 +1950,13 @@ GroupItem 	*types = GroupControl::groupController->locate("types");
         a string, the string is used to create the guard set.
         a character will make the rule unguarded
         nothing will turn debugGuard on
+    Run instead as a command on a rule -- guard(SomeRule) -- it CLEARS that
+    rule's guardSet AND resets guarding to 0 so the parser re-derives the guard
+    on the next parse (clearing the set alone leaves guarding=1, and the parser
+    then dereferences a guardSet that is no longer there). This is needed after
+    a live graft (Rule += newAlternative) adds an alternative whose first
+    character is not in the cached guardSet: the member list grew but the stale
+    guardSet would otherwise reject the new alternative's input.
 ***************************************************************************/
 extern "C" GroupItem *guard(GroupItem *item)
 {
@@ -1974,6 +1981,12 @@ extern "C" GroupItem *guard(GroupItem *item)
 				default:
 					target->groupBody->flags.debugGuard = 1;
 				}
+		}
+	else
+	if ( item->groupBody->flags.isRule && item->groupBody->guardSet )
+		{
+		item->groupBody->guardSet = 0;
+		item->groupBody->flags.guarding = 0;
 		}
 	else	::fprintf(stderr,"ERROR guard should be used as an attribute when defining\n");
 	item->clearData();

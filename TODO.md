@@ -95,19 +95,54 @@ captured `body: hello world` cleanly. Modifier mapping confirmed from `parse.rtn
 `}` = upToOver (consume), `{` = upTo (leave). Multi-char terminator confirmed
 working (`#>` two-char match via `compareToStream`). Rule lives in `incant/delimTest`.
 
-**Layer C — resume point (three moves in order):**
-1. **Directive-on-rule probe** — point an existing-shape DiR at DatA (or a
-   throwaway rule), read the dump. One run, binary answer: does
-   `applyDirectives/ReplaceDirective` work on a grammar rule (no BlocK), or do
-   we need `insertGroup/insertAfter` directly? Both outcomes are informative.
-2. **In-place graft** — reach the real bootstrapped DatA in Grokking, insert
-   the DelimOver-style alternative before `SetBrackets`. Skip the shadow-copy
-   detour — existing references already point at the real node. Mutate in place.
-3. **The verdict** — does the parser read DatA's members live at parse time
-   (grammar is live-mutable post-bootstrap, point proven) or frozen at bootstrap
-   (deep architectural finding on incant's mutability boundary)? Both worth knowing.
+**Layer C — DONE AND PROVEN 2026-06-03. VERDICT: incant's grammar IS
+live-mutable post-bootstrap.** A new alternative (`DelimText`) was grafted into
+the bootstrap `DatA` rule at runtime, and a subsequent field definition routed
+its data through that brand-new alternative. Output: `doc = (hello world#)`
+yields `doc.dtext = "hello world"` via DelimText, a rule that did not exist at
+bootstrap. The locomotive changed while the train stayed on schedule.
 
-**Headline question:** Is incant's grammar live-mutable post-bootstrap?
+The three moves, as they actually played out:
+1. **Directive-on-rule probe (1b)** — `DatA += DiRProbe` (a DiR-tagged arg) →
+   `applyDirectives`/`spliceDirectives` only splices BlocK *Lines* (code bodies);
+   DatA has no BlocK, so it just registered a `DiRs` bookkeeping sub-registry and
+   grafted nothing (`ERROR processCode: DatA parse failed`). Directives CANNOT
+   graft a rule alternative. So the graft goes in raw.
+2. **In-place graft** — `DatA += DelimText` (a non-DiR arg falls past the
+   directive branch in `opPlusEQ` to `target += argument` = raw member append).
+   Structure mutated: DatA went 5→6 members. But the parser still rejected the
+   new opener, because **DatA's cached `guardSet` is computed at bootstrap and a
+   raw append does NOT re-wire it.** Fix: a new language primitive — `guard(DatA)`
+   run as a COMMAND (new `!fLAG` branch in `Commands.rtn`: clears `guardSet` AND
+   resets `guarding=0`) forces the parser to re-derive the guard on next parse,
+   now seeing DelimText's opener. So: structure is live-mutable; guard-dispatch
+   is wired at definition-time, but `guard()`-as-command re-wires it.
+3. **The verdict** — proven live-mutable (see above).
+
+**Findings banked (Layer C):**
+- **`guard()` is now a reset command.** Run as an attribute it SETS a guard (old
+  behavior, unchanged); run as a command on a rule it CLEARS guardSet + resets
+  guarding so the parser re-derives. `Commands.rtn` → `GroupRules.mm` (tokked).
+- **Opener char must clear two gates.** It must be excluded from `NotA` (else
+  NotA's catch-all eats it before DelimText's guard is consulted) AND be
+  checkSkip-neutral. `>` clears NotA but FAILS checkSkip (it's in
+  `endDefine=[;>]`; a `>` right after `=` is eaten at the define level). Switched
+  to `(`: `NotA=[^ \t\r\n;(]+` (GroupMain bootstrap) + `delimiter="#)"`
+  (setup:150). Closer is DelimText's own `delimParen="#)"` field.
+- **upToOver leaves shared parser state.** Running Layer B's `DelimOver`
+  (successful `upToOver`) BEFORE the move-3 graft corrupts the live parse —
+  move-3 drops out of Start. Deferring `runDelim()` to AFTER move-3 fixes it.
+  Order-of-execution coupling in the upToOver mark/stream global — open finding,
+  worth a closer look.
+- **Bare graft only.** DelimText must carry NO inline `code={}` action: an inline
+  code body is a CodE instance, and grafting a CodE-bearing rule into DatA (which
+  holds the CodE rule as a member) trips addGroup's self-add guard ("add CodE to
+  itself"). Real DatA alternatives (SetBrackets/NotA) carry no inline code.
+
+**Open polish (next session):** the capture lands in `doc.dtext`, not `doc`'s own
+data — DelimText captures into its named `dtext` field, whereas NotA-style
+alternatives set the field content directly via `aCTionTraiTdata`. If we want
+`doc` itself to carry the text, DelimText should capture into self, not a subfield.
 
 ### unitTests comment rewrite — DONE 2026-06-03
 Inline per-action comments scrubbed. Leading block added with four sections:
@@ -122,6 +157,11 @@ NOTE: `unitTests` now lives at
   (`GroupRules.twk` + regenerated `GroupRules.mm`, checkSkip sawNewLine gate).
   `incant/delimTest` (Layer B rule + driver) and `Commands.rtn` (bcLIST
   copy-back) rode along in the same commit — see commit body.
+- **Layer C live-grammar-mutation win — COMMITTED 2026-06-03.** Files:
+  `Commands.rtn` (guard-reset command) + regenerated `GroupRules.mm`;
+  `GroupMain.twk`/`GroupMain.mm` (`NotA` excludes `(`); `incant/setup`
+  (`delimiter="#)"`); `incant/delimTest` (Layer C graft + verdict). Only these
+  six files staged — the parked WIP below was deliberately left out.
 - **Parked WIP (still uncommitted, leave separate):** `incant/generate` +
   `incant/bytecode` (Fix 1 `+%→+=` + Fix 4 comment corrections).
 - **Tony's review needed (uncommitted):** `groupDirectives` + `GroupItem.mm`
