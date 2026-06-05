@@ -105,7 +105,7 @@ void setMap(BitMAP *i);
 void setMethod(GroupItem *(*m)(GroupItem *));
 void setNumber(double d);
 void setObject(NSObject *v);
-void setOperat(GroupItem *(*m)(GroupItem *, GroupItem *));
+void setOperat(void *m);
 void setPointer(void *v);
 void setRegex(PLGrgx *v);
 void setRuleStuff();

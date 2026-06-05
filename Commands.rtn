@@ -40,15 +40,20 @@ GroupItem newField = new(field);
 }
 
 /***************************************************************************
-	copyOf() makes a copy of the field passed in. The copy groupBody is a copy
-    as is its groupList. Relocated from GroupControl class to an extern so it
-    can be registered as the incant copyOf command (2026-06-02).
+	copyOf() makes a copy of the field passed in. The copy groupBody is a copy.
+    if the source isVirtual the copy will share the same list as grup (the source).
+    If source is not isVirtual the copy list will be distinct but will have
+    the same elements as the source. Difference is adding anything to the
+    copy's list will not add anything to the source list.
 ***************************************************************************/
 extern GroupItem copyOf(GroupItem grup)
 {
 GroupItem block = new;
     *groupBody = *grup.groupBody;
-    if grup.groupList   copyListFrom(grup);
+    if isVirtual        isVirtual = false;
+    or grup.groupList {
+        block.groupList = new();
+        grup.copyListTo(block); }
     return block;
 }
 
@@ -160,8 +165,8 @@ use field
     generating = false;
 GroupItem   BlocK:;
 GroupItem   bcLIST      = new("bcLIST");
-    bcLIST.noPrint      = true;
-    bcLIST.isLocal      = true;
+    groupList   = new;
+    noPrint     = true;
     field   +% bcLIST;
     bcLIST = generator.replace(bcLIST);
     if !generator   cerr "generateCode: could not find generator":;
@@ -175,11 +180,9 @@ GroupItem   bcLIST      = new("bcLIST");
     // action's own bcLIST. Both slots are kept by design; this just brings the
     // action's copy up to date after generation runs (emitBC accumulates into
     // generator's bcLIST via :generator bcLIST).
-GroupItem   accumulated = generator["bcLIST"];
 GroupItem   fieldList   = field.getAttribute("bcLIST");
-    if accumulated && fieldList
-        if accumulated.groupList    accumulated.copyListTo(fieldList);
-    return null;
+    dumpContents(fieldList);
+    return fieldList;
 }
 
 /******************************************************************************

@@ -174,25 +174,27 @@ define
     /***************************************************************************
         Generate action code.
     ***************************************************************************/
-    generateAction action code={
-        // generateCode parses the action to produce code to interpret
-        generated = generateCode(action);
+    generateAction argument code={
+        print "Generating action for" tag:;
+        generated = generateCode(argument);
+        **generated;
         //printTO(stringBUFFER);
         if generated;
-            generateSignature(action);
+            generateSignature(argument);
             print _;
-            //generated**;
+            print :"About to run interpretBC":;
             interpretBC(generated);
+            print "Ran interpretBC":;
             //printTO(null);
         else print "generateCode failed":;
         };
     /***************************************************************************
         Generate C++ method signature.
     ***************************************************************************/
-    generateSignature action code={
-        //print "Generating signature for" tag:;
-        print "GroupItem*",tag "(";
-        for field in action; attributes
+    generateSignature argument code={
+        print "Generating signature for" taG:;
+        print "GroupItem*",taG "(";
+        for field in argument; attributes
             if field.isArgument
                 if follows;  print ",";
                 print getType(field) taG;
@@ -206,7 +208,6 @@ define
     runGenerated argument code={
         print :"runGenerated: ";
         clear(action);
-        **argument;
         if action := generator[argument];
             print "action is:" action.taG:;
             action(argument);
@@ -289,19 +290,24 @@ define
             runGenerated(st);
             print ,-; };
         gXpress argument code={
-            tmp = unWrap(argument);
+            tmp = argument;
+            print "Entering gXpress":;
             for child in tmp; members
                 nextChild = child.nexT;
                 if child.isOperatoR;
                     if child.taG != "=";        emitBC(child);
                 or child.registrY == "bcOPs";   emitBC(child);
                 or child.isLiteraL;             emitBC(bcPushLit=child);
-                else  emitBC(bcPushField +% child);
+                else
+                    bcPushField = bcPushField += child;
+                    emitBC(bcPushField);
             };
         emitBC argument code={
             :generator bcLIST;
             bcLIST += argument;
             print `"emit tag=" argument.taG "content=" argument:;
+            if arguments.listLengtH;    dumpContents(argument);
+            else print ``taG "has no list to dump":;
             };
         /***********************************************************************
             Debugging action. Walks a bcLIST and prints each entry's tag and
@@ -332,6 +338,17 @@ define
     // but bcMul is not registered — multiply dispatches through the '*' operator
     // (interpret=runMultiply). Its operands also predate the current stack-form
     // contract. gXpress emits '*' directly; no hand-built emitBC fixture needed.
+    interpretBC argument code={
+        argument +% opStack;
+        for grup in argument; members
+            handler = grup.interpret;
+            if !handler;
+                print "interpret: no handler for" grup.taG:;
+                return;
+            result = handler(grup);
+            if result;  grup = result;
+        if opStack.listLengtH;  print "interpret: opStack not empty at end:" opStack.listLengtH:;
+        };
     testGXLeaf code={
         if righty;  maximus = 0;
         if 42;      maximus = 1; };

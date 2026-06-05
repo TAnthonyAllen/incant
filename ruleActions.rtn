@@ -283,14 +283,20 @@ GroupItem   op,
             if arg.isGROUP && !arg.isArgument   arg = arg.group;
             revisedList += arg; }
         else {
-            // Mirror the non-generating walk's op/target/arg identification
-            // (right-to-left, precedence-correct via the same state machine),
-            // but emit flat RPN instead of building the runOP tree: for each
-            // completed instruction emit target, then arg (when a leaf), then
-            // op; for '=' emit the value then a bcStoreField carrying target.
+            /******************************************************************
+                Mirror the non-generating walk's op/target/arg identification
+                (right-to-left, precedence-correct via the same state machine),
+                but emit flat RPN instead of building the runOP tree: for each
+                completed instruction emit target, then arg (when a leaf), then
+                op; for '=' emit the value then a bcStoreField carrying target.
+            *******************************************************************/
             while token = xpList.prior(token) {
                 grup = token;
-                if grup.isGROUP
+                // Operator-skip guard: never unwrap an operator. Operators carry
+                // their interpret=/operateMethod= as attributes (e.g. > has
+                // interpret=runGT), which is the dispatch handler gXpress/
+                // interpretBC need — unwrapping would dis-member the op.
+                if grup.isGROUP && !grup.isOperator
                     while grup.isGROUP
                         grup = grup.group;
                 if grup.isOperator   op = grup;
@@ -603,7 +609,7 @@ int         setStakked;
     while grup = input.next(grup)
         if tag eq "reset"  searchLIST.clearList();
         or tag eq "list"
-            if !searchLIST.listLength print "Search list is empty":;
+            if !searchLIST.listLength cout "Search list is empty":;
             else {
                 cout "Search list:";
                 base    = 0;
@@ -680,6 +686,14 @@ GroupItem   arg,
             InvokeArg = xpress["InvokeArg"],
             ANYtoken = xpress["ANYtoken"];
     if generating {
+        // Bare the simple field-ref operand for the generating path: mirror the
+        // non-generating normalization below (xpress.group = ANYtoken) so
+        // aCTionExpressioN's unwrap (while grup.isGROUP grup = grup.group)
+        // reaches the bare field instead of depositing the TokenXP wrapper.
+        // Invoke / unary / dot operands are left raw for now (Brief 2026-06-04).
+        if isGROUP  ANYtoken = group;
+        if !InvokeArg && !UnaryOPS && registry != groupFields
+            xpress.group = ANYtoken;
         return xpress; }
     xpress.clear();
     if isGROUP  ANYtoken = group;

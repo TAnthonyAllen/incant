@@ -1,18 +1,25 @@
 /*******************************************************************************
-	Restructuring incant files
+	Offline Status Report
 *******************************************************************************/
-I would like to redo/rearrange our incant working and test files (not setup and grammar) to adopt the way unitTests and oneTest interact. unitTests is the template for a definition file; and oneTest is template for a tester file. The basic idea is we have definition files that define data and actions, including one or more test drive actions that run all or some of the other actions. To do work, the user sets up oneTest (or some tester file) to include one or more definition files; sets the testers search list to include registries specified in the definition files; then runs one or more (preferably only one but does not have to be) of the test drive actions defined in those definition files.
-With this structure each definition file will contain a test drive action that runs thru all the actions defined in it, so running that test drive action can be invoked from the tester for POP going thru every action defined in the definition file. The definition file itself does not run anything.
-Changes from the current structure we have been using are: each definition file
-    1. contains its own registry
-    2. has a testDrive action that runs all its actions for POP
-What this implies: all the working on definitions relating to generating move from unitTests into generate, which then can be considered a definition file; and oneTest only runs one test, not the list of individual unitTest actions as it does now (the run only one test is not a hard rule; more like the prefered way to do things; a tester file like oneTest can run more than one test if testing requires that).
-As a first should be easy move to that end and Clod should be able to handle it; he knows how to modify incant files. Changes needed to get started are:
-    Change the unitTest registry from Stuff to UnitTests
-    Remove its Working On section to move the actions there in to other definition files. For example, the generating working on actions move into the generate file. If the target definition file for a working on action is not obvious I get to decide where to put it.
-    Write the unitTest testDrive action to run all the unitTest actions now listed and run individually from oneTest
-It means when we want to run POP on a definition file or files, we modify oneTest to set its search list accordingly and run the respective testDrive actions. That is not a big burdon.
-Once we have this structure in place and have worked with it enough to be comfortable, adjusting the structure as needed; we will have to revise the other incant files like utilities, drawing, generate to take the shape of a definitions file
+Read the bible for orientation and todo I pasted in. Do not respond yet. We will get to it; nothing has changed wrt to its task list and the work priorities baked in there, however, let us do a wee big of language design work first.
+I did some reorganizing of the incant twk files, moving actions defined in Commands.rtn that are not really command oriented to GroupActions.rtn. I went thru those files to keep the actions in them and in Instruct.rtn in alphabetical order.
+I did do some thinking on changing incant method signature for operators to change their target parameter to pass by reference instead of pass by value. You were concerned with the blast radius of that change. Still would like to discuss it with you and maybe set Tonto on a recon to assess the blast radius. It is important for op methods that return target because any changes made to target get lost as a result of pass by value. We have tripped over this in our generator work and will proabably trip over it again. By my count, Clod can verify, there are 7 op methods that return target in Instruct.rtn; 2 methods in Commands.rtn; and 11 in GroupActions.rtn.
+To verify that changing the signature of gMethod, declared in GroupBody and aliased to method, I added a test to groups.twk that shows making target passed by reference instead of pass by value works. I am pasting in groups.twk for your review. Note: the test runs and then incant carries on like it was never run POP that the test did no damage. We can strip it from groups.twk after our discussion and no way to know the test ever happened.
+Once we are done w/our method signature change discussion we need to decide how to proceed. Finishing up work on generating is currently at top of our task list, but if we can devise a way to make the change to the incant method signature (keeping in mind the blast radius is all encompassing) it should fix a problem that keeps poking its way into our generating work.
 
-As we do this, each definition file should include comments that explain each action. The shape and content of those comments probably should follow a template (you get to help define that). Methinks that template includes a description of the action purpose (what is it doing and why) and POP criteria for the action.
-I like the way groovy uses assert to run an action and check its result matching result to what is expected; a POP action in effect. The assert action to be defined and tested as a next step.
+/*******************************************************************************
+	Tests to be written
+*******************************************************************************/
+    assert action a la groovy to be defined and tested.
+    An implied field test to show how lastDEF works in a dot op expression; and in a FOR loop; and how to explicitly set the implied field source using the @field unaryOP.
+        This may imply changing how fields are found. In aCTionNamE(): if locate does not find a field, and lastREF is set, it should look in lastREF for the field (it does not at this point). Also, lastREF is scoped within a for loop and gets reset to what it was when the for loop exits. Worth demonstrating that in the test.
+    A buffer test showing how setMark and unMark interact;
+        also demonstrate stdout to a buffer. Take a simple action that prints to stdout then use printTO to divert print to print to a buffer;
+        when printTO diverts print to a buffer, presumably that diversion applies to any subsequent prints even across different following actions until printTO runs again and undiverts. Something to illustrate by example.
+    A bin used as a switch test a la generator/runGenerator
+    Need incant commands to insert a field before (change GroupItem insertGroup to insertInto) or after another field
+
+/*******************************************************************************
+	Follow up clean up
+*******************************************************************************/
+ 

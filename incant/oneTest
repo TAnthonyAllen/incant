@@ -10,6 +10,8 @@ search Generating UnitTests bcOPs list;
 *****************************************************************************/
 generateCode(testByteCode);
 dumpBC(testByteCode.bcLIST);
+dumpContents(testByteCode);
+generateAction(testByteCode);
 stop();
 
 generateCode(testGXLeaf);

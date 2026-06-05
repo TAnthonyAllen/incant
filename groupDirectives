@@ -3,11 +3,12 @@
 	Global
     if NewGroup.tag eq "Start" debugRuleNamed("RunRulE");
     if NewGroup.tag eq "gXpress" debugAllRules = true;
-    if NewGroup.tag eq "<:" item = 0;
+    if NewGroup.tag eq "Start" item = 0;
     cout "aCTionDefinE:",NewGroup.tag:;
-    if NewGroup.tag eq "dummY" {
-        debugRuleNamed("DatA");
-        debugRuleNamed("CodE");
+    if NewGroup.tag eq "Start" {
+        debugRuleNamed("Start");
+        debugRuleNamed("StatemenT");
+        debugRuleNamed("Xpress");
         }
 *******************************************************************************/
 #globals
@@ -22,6 +23,7 @@ aCTionDebuG embed.debugged ctive
 #;
 aCTionDefinE "if Attributes" before active
     cout "aCTionDefinE:",NewGroup.tag,lastIndent:;
+    if NewGroup.tag eq "bcPushField" item = 0;
 #;
 aCTionElsE if ctive
     if blocking cout "unBlocked:", blocking:;
@@ -29,7 +31,7 @@ aCTionElsE if ctive
 aCTionExpressioN while before ctive
     if entries.listLength == 1   result = 0;
 #;
-aCTionNamE result before active
+aCTionNamE result before ctive
     if arg eq "entries"   result = 0;
 #;
 aCTionRunRulE if within ctive
@@ -40,6 +42,9 @@ aCTionSearch cout ctive
 #;
 aCTionXpress result before ctive
     print "Instructions for",action.tag: list:;
+#;
+copyOf starting active
+    if grup.tag eq "bcPushField"    fLAG = true;
 #;
 generateCode generating ctive
     debugRuleNamed("StatemenT");
@@ -55,11 +60,10 @@ loadInputFromFile if before active
      cout ```"including",tag:;
 #;
 /*******************************************************************************
-    opDoNothing
     if tag eq "MemberS"   doNothing = false;
 *******************************************************************************/
-opDoNothing return before ctive
-    currentMETHOD.dumpContents();
+opDebug return before ctive
+    debugAllRules = true;
 #;
 opPrinter if
     target.dumpContents();
@@ -84,15 +88,9 @@ processAction if before ctive
     if tag eq "runGenerated" result = 0;
 #;
 processCode processingCode ctive
-    if tag eq "gXpress" {
-        debugRuleNamed("FOR");
-        debugRuleNamed("IF");
-        debugRuleNamed("ElseIf");
-        debugRuleNamed("ElsE");
-        debugRuleNamed("ExpressioN");
-        debugRuleNamed("StatemenT"); }
+    debugAllRules = true;
 #;
-rEGISTER currentRegistry active
+rEGISTER currentRegistry ctive
     cout ````"Current registry:",currentRegistry.tag:;
     item = 0;
 #;
@@ -109,10 +107,10 @@ runOP starting ctive
 runRule if ctive
     if tag eq "list" debugRuleNamed("list");
 #;
-restoreLocalFields starting active
+restoreLocalFields starting ctive
     cout "restoreLocalFields for:",action.tag " on stak:",recurseSTAK.length:;
 #;
-saveLocalFields ending active
+saveLocalFields ending ctive
     cout "saveLocalFields for:",action.tag " on stak:",recurseSTAK.length:;
 #;
 scopeXP return before ctive
@@ -207,6 +205,7 @@ parse kount active
             if label.data   cout "=" getDebugText(label.text,10); }
         else    cout " w/no label";
         cout ,"at: " getDebugText(atRuleMark,10):;
+        if tag eq "Start"  doNothing = false;
         doNothing = false; }
 #;
 parse debugHere active

@@ -1,8 +1,84 @@
+/*******************************************************************************
+                UnitTests registry — incant unit test suite.
+
+    Organization: one Data block (shared test fixtures), one Actions block
+    (one action per language feature under test), one runner (testUnitTests).
+    Each action is self-contained and can be run standalone or via the runner.
+    Actions NOT called by testUnitTests are marked unverified — legacy-POP sweep
+    pending (see TODO). callMyself is known broken (infinite recursion).
+
+    --------------------------------------------------------------------------
+    Incant diverges from C++ in ways that bite new readers. The list below is
+    the concentrated version; the actions that follow demonstrate each one.
+
+    or vs else if
+        incant uses 'or' where C++ uses 'else if'. The chain is not bracketed —
+        indentation and keywords define the structure. See ifTest.
+
+    ! binds tight to its operand. See the testOR action in the Actions section.
+
+    Unary operators precede their operand
+        ++grup is the only form. grup++ parses but does not increment — no
+        postfix form exists. See testUnary.
+
+    A field can hold a value AND run code on use
+        lefty=3 code={...} sets an initial value; the code block fires when
+        lefty is referenced. Unlike C++, data and behavior coexist on one field.
+        See lefty and printTest.
+
+    string uses print syntax but returns a value
+        string captures print-style output into a field rather than emitting it.
+        Same shortcuts, same concatenation rules. See stringTest vs printTest.
+
+    Arguments can be expressions
+        testARG(righty += 22) passes the result of an expression as an argument,
+        not just a field reference. The expression evaluates at call time.
+        See testARG.
+
+    : as the first field in a statement binds names from the field that follows
+        into local scope. ':argument width height' makes width and height from
+        argument available by name in the local scope. No C++ equivalent.
+        See testScope.
+
+    & is a field modifier, not a type declaration
+        argument& dereferences a pointer-arithmetic result. & follows the field
+        name as a modifier rather than preceding a type. See testPointer.
+
+    --------------------------------------------------------------------------
+    POP table — expected output for each verified action (2026-06-02 baseline).
+    Unverified actions omitted; see TODO legacy-POP sweep.
+
+    accessTest(simple)      "Saw across in simple"
+    anotherTest()           "anotherTest: max should be 11 + 3  it is 14 and we done"
+    ifTest()                "one" → "outer-then, inner-then"
+                            "two" → "outer-or"
+                            "three" → "outer-else"
+    printTest()             "printTest: lefty should return itself. It returns 46"
+    simpleIF()              maximus = righty+35 = 48; anotherTest prints
+                            "max should be 48 + 3  it is 51 and we done"
+    testOR()                "testOR:  I see nothing"
+    testARG(hasGroup)       "Argument is: hasGroup"
+    testARG(righty += 22)   "Argument is: 35" then "57" on second call
+    testIndentBlock()       One/Two indented, Three/Four dedenting
+    stringTest()            "stringTest:  59 added 2 to righty is what I am talking about"
+    xpTest()                "xpTest:  HooHaa 4 5 Gomer is a goober is what I am talking about"
+    list(...)               each token printed on its own line
+    testInterpret()         sequential output from each statement type, ending "we DONE"
+    testGet()               "testGet: should set sumple width to 251. It is 251"
+    lefty (via printTest)   "lefty: got reset to 46"
+    printDefinition()       prints out its argument in incant field definition format
+                            and tests recursion
+
+    --------------------------------------------------------------------------
+    Known broken: callMyself — infinite recursion. righty++ does not persist
+    across the self-recursive call so righty==13 never goes false. See TODO
+    reentrancy arc.
+*******************************************************************************/
 register(UnitTests);
 define
-    /*************************************************************************
+    /***************************************************************************
         Data
-    *************************************************************************/
+    ***************************************************************************/
     maximus=11;
     righty=13;
     styleTest merge lightGreen rounded;
@@ -25,31 +101,11 @@ define
     aGroup one two three;
     hasGroup=simple;
 
-    /*************************************************************************
+    /***************************************************************************
         Actions
-        Each action below tests a single incant rule or statement to verify it
-        parses and executes as intended. Where incant behavior differs from C++
-        that difference is noted explicitly.
-
-        Note: printTest and stringTest are intentionally paired as both a unit
-        test and a teaching example. This is a pattern worth following for other
-        actions where incant diverges sharply from C++ — the test that proves it
-        works is also the best explanation of what it does.
-
-        POPs below are taken from captured testUnitTests output (2026-06-02).
-        Actions NOT exercised by testUnitTests are marked unverified and are on
-        the legacy-POP sweep (see TODO); some are known broken (callMyself).
-    *************************************************************************/
-    // Tests: field attribute-presence access (argument.across)
-    // POP: accessTest(simple) -> "Saw across in simple"  (simple IS declared with across)
+    ***************************************************************************/
     accessTest argument code={ print "accessTest: " taG; if argument.across; print `"Saw across in" taG:; else print `"No across in" taG:; };
-    // Tests: arithmetic expression on a field value
-    // POP: "anotherTest: max should be 11 + 3  it is 14 and we done"
     anotherTest code={ print "anotherTest: max should be" maximus " + 3"``"it is", maximus + 3, "and we done":; };
-    // Tests: recursive action invocation
-    // POP: BROKEN — infinite recursion: righty++ does not persist across the
-    //      self-recursive call so righty==13 never goes false. Not in
-    //      testUnitTests. See TODO (reentrancy / legacy-POP).
     callMyself argument code={
         print ~"callMyself: First time:" argument righty,:+;
         if righty == 13;
@@ -60,14 +116,7 @@ define
     commaStuff="44,two,  forty three,six,6.7,ninety one";
     delimitRecord isRule countField}=1 skip-}=3 numberField}=1.0 stringField};
     feeling='having a few doubts ends here';
-    // Tests: printf-style format string (%12s)
-    // POP: not in testUnitTests — unverified (TODO legacy-POP)
     formatTest code={ print "formatTest:" `is "Formatted"%12s maybe:; };
-    // Tests: if/or/else with a nested if/or/else, inside a for loop
-    // Note: incant uses 'or' where C++ uses 'else if'; the chain is not
-    //       bracketed — indentation and keywords define the structure.
-    // POP: "one" -> "outer-then, inner-then"; "two" -> "outer-or";
-    //      "three" -> "outer-else"
     ifTest code={
         print "ifTest:":;
         for grup in aGroup;
@@ -84,66 +133,23 @@ define
             else
                 print "  outer-else":;
         };
-    // Tests: action invocation and clear()
-    // POP: not in testUnitTests — unverified (TODO legacy-POP)
     invokeTest code={ print "invokeTest:"` clear(aGroup); anotherTest(); print Invoked:; };
     jsonFile file="/Users/anthony/Dropbox/data/InProcess/Groups/Tests/test.json";
-    // Tests: parent field access and local variable assignment
-    // POP: not in testUnitTests — unverified (TODO legacy-POP)
     layout code={ gruber = 23; print "layout:"`"Here is" parent.taG and gruber:; };
-    // Tests: user-defined rule (isRule) with an entry pattern + for loop
-    // Note: unlike an action, list is a RULE — it parses its input stream
-    //       directly. Rule attributes (entries=ANYstring+ SemI?-) define the
-    //       parse pattern; on success their results bind to like-named rule
-    //       fields. The code= block IS the rule action (no separate callback).
-    // POP: list("righty 3.1 seven eight nine;") prints each token on its own line
     list isRule entries=ANYstring+ SemI?- code={
         print "list tests the for statement:":;
         for sumGrup in entries; print `sumGrup:; };
-    // Tests: field carrying both an initial value and code that fires on reference
-    // Note: lefty=3 sets the value; the code block runs when lefty is referenced.
-    //       Unlike C++, a field can hold a value AND run code on use.
-    // POP: "lefty: got reset to 46"  (exercised via printTest)
     lefty=3 code={ lefty += 43; print "lefty:"``"got reset to" lefty:; return lefty; };
-    // Tests: calling an action that returns a value (lefty())
-    // POP: "printTest: lefty should return itself. It returns 46"
-    // (Proposed expansion to demo each print modifier is a separate logic task.)
     printTest code={ print "printTest:"`"lefty should return itself. It returns" lefty():; };
-    // Tests: if/else with a field assignment in each branch, then calls anotherTest
-    // POP: righty truthy so maximus = righty+35 = 48; anotherTest then prints
-    //      "max should be 48 + 3  it is 51 and we done"
     simpleIF code={ print "simpleIF:":`; if righty; maximus = righty + 35; else maximus = 12; anotherTest(); };
-    // Tests: 'string' captures print-style output into a field
-    // Note: string uses identical syntax to print — same shortcuts, same
-    //       concatenation. Where print emits a line, string returns it as a
-    //       field value. Compare printTest, which prints directly.
-    // POP: "stringTest:  59 added 2 to righty is what I am talking about"
     stringTest code={ print "stringTest:"`what = righty + 2, "added 2 to righty" $whatsIt; };
-    // Tests: logical OR and ! negation in an if condition
-    // Note: incant parses '!righty OR feeling' as !(righty OR feeling) — '!'
-    //       scopes the WHOLE following expression, not just righty (unlike the
-    //       C++ reading (!righty) OR feeling). righty=13 and feeling set, so
-    //       !(true OR true) = false -> the else branch.
-    // POP: "testOR:  I see nothing"
     testOR code={ print "testOR:"`; if !righty OR feeling; print Saw righty feeling:; else print "I see nothing":; };
-    // Tests: argument passing, including an inline expression as the argument
-    // Note: an argument can be an expression, not just a field reference
-    // POP: testARG(hasGroup) -> "Argument is: hasGroup";
-    //      testARG(righty += 22) twice -> "Argument is: 35" then "57"
     testARG argument code={ print "testARG: Argument is:" argument:; };
-    // Tests: for loop over attributes with multiple action arguments
-    // Note: 'attributes' restricts the loop to attribute fields only
-    // POP: not in testUnitTests — unverified (TODO legacy-POP)
     testForC argument second=56 third="WTF?" code={
         print "testForC:"`"Components of" argument with second third:;
         for grup in argument; attributes
             print `grup += righty:; };
-    // Tests: indexed field write and read via []
-    // POP: "testGet: should set sumple width to 251. It is 251"
     testGet code={ sumple[width] = 251; print "testGet: should set sumple width to 251. It is", sumple.width:; };
-    // Tests: print indent modifiers (~ apply, + increase, - decrease)
-    // Note: indent level is print state and persists across print statements
-    // POP: One/Two indented, then Three/Four dedenting
     testIndentBlock code={
         print "testIndentBlock:":;
         if righty;
@@ -151,48 +157,24 @@ define
             print ~Two:;
         print ~-Three:;
         print ~-Four:; };
-    // Tests: ! negation on an undefined field
-    // POP: not in testUnitTests — unverified (TODO legacy-POP)
     testNegate code={ print "testNegate: does not matter if the ! comes before or after"`; if !whatever; print "No result":; else print "Negate failed":; };
-    // Tests: new() to create a fresh GroupItem, then ++ to increment
-    // Note: new(argument) creates a field named for argument's tag
-    // POP: not in testUnitTests — unverified (TODO legacy-POP)
     testNew argument code={ grup = new(argument); grup++; return grup; };
-    // Tests: pointer arithmetic and the & dereference modifier
-    // Note: argument = lineIn + 4 is pointer arithmetic; argument& dereferences.
-    //       Unlike C++, & is a field modifier, not a type declaration.
-    // POP: not in testUnitTests — unverified (TODO legacy-POP)
     testPointer lineIn code={
         print "testPointer:"`;
         argument = lineIn + 4;
         if argument& > lineIn; print "Yes it is":; else print "No it aint":; };
-    // Tests: invoking a rule from inside an action
-    // POP: "Processing testList action that runs list rule" then the list output
-    //      (exercised via testInterpret)
     testList code={
         print `"Processing testList action that runs list rule":;
         list("righty 3.1 seven eight nine;"); };
-    // Tests: the ':' scope operator binding local names from another group
-    // Note: ':argument width height' binds width/height from argument into local
-    //       scope — no C++ equivalent
-    // POP: not in testUnitTests — unverified (TODO legacy-POP)
     testScope argument code={
             :argument width height;
             print taG width height:;
             :simple width height quinto@;
             print taG width height:; };
-    // Tests: prefix ++ unary operator
-    // Note: incant unary operators must PRECEDE their operand — no postfix form
-    // POP: "++grup is 1" then "now grup++ is still 1 Unary operators must
-    //      preceed their argument"  (exercised via testInterpret)
     testUnary code={
         print "testUnary:":;
         if ++grup; print ``"++grup is" grup:;
         if grup++; print ``"now grup++ is still" grup "Unary operators must preceed their argument":; };
-    // Tests: integration of if/else, do/while, while, and for in one action
-    // Note: good smoke test — exercises multiple statement types in sequence;
-    //       also drives testUnary and testList
-    // POP: sequential output from each statement type, ending with "we DONE"
     testInterpret code={
         print "testInterpret":`"dot test:", maximus.taG:;
         maximus = 11;
@@ -219,15 +201,14 @@ define
         print ``"we DONE":;
         };
     whatsIt;
-    // Tests: ++ used inline in a print expression
-    // Note: incant ++ precedes its operand and returns the incremented value
-    //       (no separate pre/post forms as in C++)
-    // POP: "xpTest:  HooHaa 4 5 Gomer is a goober is what I am talking about"
-    //      (result starts 3, ++result twice -> 4 then 5; whatsIt from the opener)
     xpTest HooHaa result=3 message="Gomer is a goober" code={ print "xpTest:" `HooHaa, ++result, ++result, message whatsIt:; };
-    /*************************************************************************
-        print out incant definition for the group passed in
-    *************************************************************************/
+
+    /***************************************************************************
+        print out incant definition for the group passed in. Note: the **argument;
+        line is a debugging entry that enables you to stop the code parse and
+        examine the value of argument by putting a break in opDebug() while
+        debugging. incant does not have a debugger like xcode ... yet.
+    ***************************************************************************/
     printDefinition argument recurse code={
         **argument;
         if datA != 0;  print ~$taG "=" argument;
@@ -247,10 +228,10 @@ define
             print ";":;
         };
 
-/*****************************************************************************
-	Unit Test runner — calls every action in the Unit Tests block, moved here
-	from oneTest so the tester file just invokes testUnitTests().
-*****************************************************************************/
+    /***************************************************************************
+        Unit test runner — calls every verified action in sequence.
+        Moved here from oneTest so the test harness just invokes testUnitTests().
+    ***************************************************************************/
     testUnitTests code={
         whatsIt = string 'is what I am talking about':;
         print ``This $whatsIt;

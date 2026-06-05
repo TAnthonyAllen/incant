@@ -10,8 +10,16 @@
 #include "GroupList.h"
 
 /*****************************************************************************
-	Constructor
+	Constructors
 *****************************************************************************/
+GroupList::GroupList()
+{
+	firstInList = 0;
+	lastInList = 0;
+	listLength = 0;
+	stakked = 0;
+}
+
 GroupList::GroupList(GroupItem *item)
 {
 	firstInList = 0;

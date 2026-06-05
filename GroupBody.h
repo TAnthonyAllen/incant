@@ -101,7 +101,7 @@ PLGset *guardSet;
 union 
 	{
 	GroupItem *(*gMethod)(GroupItem *);
-	GroupItem *(*gOp)(GroupItem *, GroupItem *);
+	GroupItem *(*gOp)(GroupItem *, GroupItem *&);
 	};
 union 
 	{

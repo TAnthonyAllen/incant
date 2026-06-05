@@ -1226,10 +1226,13 @@ void setObject(Object v)
     if hasListeners updateListeners();
 }
 
-void setOperat(GroupItem &m(GroupItem,GroupItem))
+void setOperat(void *m)
 {
-	isOperator	= true;
-    operat      = m;
+    isOperator  = true;
+    // gOp by-ref: tok can't render a fnptr cast with a reference param (FormatC.twk bug).
+    // Until that's fixed, take the dlsym result as void* and hand-cast it here in raw C++.
+    // Revise to typed `void setOperat(GroupItem &m(GroupItem,GroupItem&)){ operat = m; }` post-fix.
+    -% groupBody->gOp = (GroupItem*(*)(GroupItem*,GroupItem*&))m; %-
 }
 
 void setPointer(void *v)

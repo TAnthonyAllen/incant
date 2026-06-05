@@ -50,6 +50,7 @@ define
     register immediateAction=rEGISTER noPrint;
     registry immediateAction=rEGISTER noPrint;
     setLabel immediateAction;
+    setPointer immediateAction=opPointer noPrint;
     sort immediateAction=processFlags noPrint;
     stack immediateAction=setInternalType noPrint;
     stop=stopParsingInput immediateAction;
@@ -82,7 +83,7 @@ define
     '=['    operateMethod=opGet;
     '=]'    operateMethod=opEnd;
     '=/'    assign operateMethod=opGetMember;
-    '=*'    operateMethod=opAssignGroup;
+    '=*'    unary ruleMethod=opPointer;
     '=%'    assign operateMethod=opGetAttribute;
     '='     assign operateMethod=opAssign;
 
@@ -135,7 +136,7 @@ define
     bcCALL       interpret=runCall;
     bcRET        interpret=runRET;
     bcPushLit    virtual interpret=runPushLit;
-    bcPushField  virtual interpret=runPushField;
+    bcPushField  virtual interpret=runPushField setPointer;
     bcStoreField interpret=runStoreField;
     ;
 /*******************************************************************************
@@ -166,6 +167,7 @@ define
         '@';
         '!';
         '**';
+        '=*';
         '.';
     ;
 /*******************************************************************************

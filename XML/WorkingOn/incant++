@@ -1,39 +1,13 @@
 /*****************************************************************************
     plg offline work summary
 *****************************************************************************/
-Yesterday we were grinding trying to figure out why tok segfaults on Tawk.twk. I looked into that, and while I did not totally succeed, I made progress. After looking over all the Tawk .act files, I identified the references to old PLG fields that are no longer there. tok should not have segfaulted over them but to clean up the generated Tawk.twk, I created a dummy.ext file (in Tokf/Tests) to declare externals for the missing fields. tok just needs to find them and does not care if the fields do not actually exist because it assumes they do when it finds an external reference.
-I also made an attempt to analyse whether or not the references to the missing fields listed in dummy.ext should be missing or did we throw the baby out with the bath water when we deleted them from the new PLG classes. I pretty much decided that the following PLGitem fields should be reinstated: next, value, flag1 and flag4.
-I marked up places in all the act files that references those fields and added a comment as //dealWith
-    to make those places easy to find (except for references to value that I new right off should be added to PLGitem, so when that is done no reason to go looking for where it is used). We will have to follow up on those dealWith bits, altho if we figure out what is going on with PLGitem next, dealing with them will probably be: find and delete the comment
-PLGitem.next is used a lot, but I do not know where it is set or rather was set by the old plg. It is referenced frequently in Tawk but most of the time I cannot tell where it is set. Some recon is required to figure it out. A fuzzy memory may have a clue. I remember looping thru PLGitems (using the tok for loop that uses next). In those case, PLGitem.next was probably set in rules that look like label=field+ or field* There may be cases in Tawk.twk that look like: for item { do something w/item }. If such cases exist, the next will not be visible in the code, only in the C++ that right now we can not generate because of the segfaults.
-With the .act changes made, I ran plg Tawk.g. The amount of debugging text plg prints out when run against Tawk.g is almost frightening but it does run to completion and produce a Tawk.twk file with all the dealWith comments in place.
-Running tok on Tawk.twk includeing dummy.ext no longer produces lots of field errors but it still segfaults and I know why. When writing out an action, plg should include a declaration for every label in the associated rule. It usually does but apparently not always. tok now segfaults at StatementBody14TawkNow because two label declarations are missing. Here is the body of it:
-
-int StatementBody14TawkNow(PLGitem iTEM)
-{
-PLGitem statement = iTEM.children["statement"];
-Statement	line = new(DELETE);					// delete
-PLGitem	    item = instance["field"];
-Instance    current = item.value;
-	if array postfix = "[]";
-    line.add(current);
-    statement.value = line;
-return true;
-}
-
-Here is the associated rule:
-			|
-				statement	= 'delete'
-				array		= '[]'?
-				instance    = Qualified
-				';'
-Note: PLGitem statement is declared in StatementBody14TawkNow but array and instance are not declared. The line PLGitem	    item = instance["field"]; then causes the segfault.
-Other following actions have similar issues. This is a plg issue, not a Tawk issue. Fixing it and adding the PLGitem fields listed in dummy.ext to PLGitem will likely get us thru a complete tok Tawk.twk run. Not positive but a step in the right direction anyway.
-
-I clobbered Tawk.twk and Tawk.C in Tokf. They will have to be restored from the repo. Do not restore any of the Tawk .g .act or .rtn files. We will be using them when we run plg on Tawk.g in Tokf/Tests where they are symlinked into (except for Tawk.g, which is an identical copy).
-
-We may still have some grinding to do but the dummy.ext trick may have eliminated the worst of it. Heres hoping.
-
-I do not want to spend all day whack-a-moling on this. Lets do the recon on PLGitem.next, diving into old PLG for it and wherever that leads us. Next on the list are two things on plg: can we turn off all the debug stuff? And lets figure out why those action labels are not being declared. There will still be work to do to make sure Tawk works as intended but that is a task for another day after we get tok Tawk.twk to not segfault.
-
-Clod wrote a wakeup.md and tawk-tok-compile-frontier.md (to summarize status after our grind). I am attaching those files for your orientation
+for your orientation
+    read the todo.md and projectBible.md. The latest todo.md is my downloads directory. Clay writes the todo.md as part of our shut down process. You usually move it into one or more of the local source source directories linked to our git repos. I do not know where you put it locally (there are todo.md files in a couple of places. None of them look current to me).
+The following are things I usually have to remind you of (probably should go into the projectBible)
+    Running incant involves a bit of a cha cha when any of the twk or rtn files we use changes. What is involved is:
+        Change a twk file
+        Run tok on the file(s) that have changed. It will produce changed .mm files. Inform me once the tok run completes
+        I then run incant in xcode that links to the .mm files and that run rebuilds the incant command hanging out in my ~/bin
+        You can then run incant w/argument being the incant file of your choice on the command line as: incant filename;
+    I often apply directives to twk files when I am working with them. When I do there is no longer a 1:1 match between the twk file getting directives applied to and the respective .mm file that tok generates. This tends to worry you because it looks like a file change you were not aware of. FYI I never change .mm files. I always work in twk files and I frequently apply directives to them. I have started warning you when that happens but sometimes I forget to. If something looks odd to you in an .mm file it is probably because it has directives applied. I suggest, as part of our shut down process, that we retok any tok file whose .mm file is more recent then the tok file to get things back in sync. Directives are idempotent in that they change .mm files and do not change .twk files.
+Let me know when you are oriented and ready to rock

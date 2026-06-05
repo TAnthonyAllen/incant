@@ -11,8 +11,12 @@ int			    listLength;
 GroupStak       stakked;
 	
 /*****************************************************************************
-	Constructor
+	Constructors
 *****************************************************************************/
+GroupList()
+{
+}
+
 GroupList(GroupItem item)
 {
     if binType {

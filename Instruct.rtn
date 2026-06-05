@@ -1,47 +1,8 @@
 
-/*******************************************************************************
-	Print the field passed in to the buffer passed in
-*******************************************************************************/
-extern GroupItem appendGroup(GroupItem input,GroupItem FormaT,Buffer buffer)
-{
-String      atText;
-GroupRules  ruler = groupRules;
-String      format;
-int         indenting;
-GroupItem   grup,
-            field;
-    field = input;
-    if FormaT {
-        format = FormaT.text;
-        *format = '%'; }
-    if !field.isShortcut
-        if field.isLIST
-            while grup = field.prior(grup)
-                printField(grup,format,buffer);
-        else    printField(field,format,buffer);
-    else {
-        /*******************************************************************
-            The following treats field text as a string of print short cuts,
-            each then gets processed to implement the short cut
-        *******************************************************************/
-        for (atText = text; *atText; atText++)
-            switch(*atText) {
-                case '~':   indenting++;
-                case '$':   useDefaultSpace = !useDefaultSpace;
-                case '_':   append(' ');
-                case ':':   append('\n');
-                case '+':   inDENT.gCount++;
-                case '-':   if inDENT.gCount > 0    inDENT.gCount--;
-                case '`':   append('\t');
-                case ',':   grup = 0; }
-        if indenting && inDENT.gCount > 0   tabRight(inDENT.gCount); }
-    return field;
-}
-
 /***************************************************************************
 	Rule action for the +% operator
 ***************************************************************************/
-extern GroupItem opAddAttribute(GroupItem argument,GroupItem target)
+extern GroupItem opAddAttribute(GroupItem argument,GroupItem &target)
 {
 GroupItem   grup;
     if argument.isLIST
@@ -54,7 +15,7 @@ GroupItem   grup;
 /***************************************************************************
 	Rule action for the AND operator
 ***************************************************************************/
-extern GroupItem opAND(GroupItem argument,GroupItem target)
+extern GroupItem opAND(GroupItem argument,GroupItem &target)
 {
     if gCount && argument.gCount    return trueResult;
     return null;
@@ -63,7 +24,7 @@ extern GroupItem opAND(GroupItem argument,GroupItem target)
 /***************************************************************************
 	Rule action for the = assign operator
 ***************************************************************************/
-extern GroupItem opAssign(GroupItem argument,GroupItem target)
+extern GroupItem opAssign(GroupItem argument,GroupItem &target)
 {
     if argument     target.setContent(argument);
     return target;
@@ -72,11 +33,11 @@ extern GroupItem opAssign(GroupItem argument,GroupItem target)
 /***************************************************************************
 	Rule action for the +* copy list operator
 ***************************************************************************/
-extern GroupItem opCopyList(GroupItem argument,GroupItem target)
+extern GroupItem opCopyList(GroupItem argument,GroupItem &target)
 {
     if argument.groupList argument.copyListTo(target);
     else    cerr "ERROR Operator +* failed because missing list for",argument.tag:;
-    return  target;
+    return target;
 }
 
 /***************************************************************************
@@ -85,13 +46,13 @@ extern GroupItem opCopyList(GroupItem argument,GroupItem target)
 extern GroupItem opDebug(GroupItem result)
 {
     //print result.tag:;
-    return  result;
+    return result;
 }
 
 /***************************************************************************
 	Rule action for the % integer div operator
 ***************************************************************************/
-extern GroupItem opDiv(GroupItem argument,GroupItem target)
+extern GroupItem opDiv(GroupItem argument,GroupItem &target)
 {
     if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER)
         tempField.count = count % argument.count;
@@ -105,7 +66,7 @@ extern GroupItem opDiv(GroupItem argument,GroupItem target)
     name (in field.tag) of a component of target that may or may not exist.
     Note: local fields are ignored
 ***************************************************************************/
-extern GroupItem opDot(GroupItem argument,GroupItem target)
+extern GroupItem opDot(GroupItem argument,GroupItem &target)
 {
 GroupRules  ruler = groupRules;
 GroupItem   product;
@@ -153,7 +114,7 @@ use argument
 /***************************************************************************
 	Rule action for the == operator
 ***************************************************************************/
-extern GroupItem opEQ(GroupItem argument,GroupItem target)
+extern GroupItem opEQ(GroupItem argument,GroupItem &target)
 {
     if !compareValues(target,argument)  return trueResult;
     return null;
@@ -163,7 +124,7 @@ extern GroupItem opEQ(GroupItem argument,GroupItem target)
 	Rule action for =] operator that returns the last item on the arguments
     list
 ***************************************************************************/
-extern GroupItem opEnd(GroupItem argument,GroupItem target)
+extern GroupItem opEnd(GroupItem argument,GroupItem &target)
 {
 use argument
     if groupList {
@@ -175,7 +136,7 @@ use argument
 /***************************************************************************
 	Rule action that handles [argument] references.
 ***************************************************************************/
-extern GroupItem opGet(GroupItem argument,GroupItem target)
+extern GroupItem opGet(GroupItem argument,GroupItem &target)
 {
 GroupItem   result;
 String      txt;
@@ -190,7 +151,7 @@ use target
 /***************************************************************************
 	Rule action for the =% getAttribute operator
 ***************************************************************************/
-extern GroupItem opGetAttribute(GroupItem argument,GroupItem target)
+extern GroupItem opGetAttribute(GroupItem argument,GroupItem &target)
 {
 String strung = argument.text;
     return getAttribute(strung);
@@ -199,7 +160,7 @@ String strung = argument.text;
 /***************************************************************************
 	Rule action for the =/ getMember operator
 ***************************************************************************/
-extern GroupItem opGetMember(GroupItem argument,GroupItem target)
+extern GroupItem opGetMember(GroupItem argument,GroupItem &target)
 {
 String strung = argument.text;
     return getMember(strung);
@@ -208,7 +169,7 @@ String strung = argument.text;
 /***************************************************************************
 	Rule action for the >= operator
 ***************************************************************************/
-extern GroupItem opGE(GroupItem argument,GroupItem target)
+extern GroupItem opGE(GroupItem argument,GroupItem &target)
 {
     if compareValues(target,argument) >= 0  return trueResult;
     return null;
@@ -217,7 +178,7 @@ extern GroupItem opGE(GroupItem argument,GroupItem target)
 /***************************************************************************
 	Rule action for the > operator
 ***************************************************************************/
-extern GroupItem opGT(GroupItem argument,GroupItem target)
+extern GroupItem opGT(GroupItem argument,GroupItem &target)
 {
     if compareValues(target,argument) > 0   return trueResult;
     return null;
@@ -232,7 +193,7 @@ extern GroupItem opGT(GroupItem argument,GroupItem target)
                 is any character in argument set
                 are all characters in argument set
 ***************************************************************************/
-extern GroupItem opIN(GroupItem argument,GroupItem target)
+extern GroupItem opIN(GroupItem argument,GroupItem &target)
 {
 PLGset  set;
 GroupItem   result;
@@ -257,13 +218,13 @@ GroupItem   result;
 extern GroupItem opLastREF(GroupItem result)
 {
     lastREF.group = result;
-    return  result;
+    return result;
 }
 
 /***************************************************************************
 	Rule action for the <= operator
 ***************************************************************************/
-extern GroupItem opLE(GroupItem argument,GroupItem target)
+extern GroupItem opLE(GroupItem argument,GroupItem &target)
 {
     if compareValues(target,argument) <= 0  return trueResult;
     return null;
@@ -272,7 +233,7 @@ extern GroupItem opLE(GroupItem argument,GroupItem target)
 /***************************************************************************
 	Rule action for the < operator
 ***************************************************************************/
-extern GroupItem opLT(GroupItem argument,GroupItem target)
+extern GroupItem opLT(GroupItem argument,GroupItem &target)
 {
     if compareValues(target,argument) < 0  return trueResult;
     return null;
@@ -281,7 +242,7 @@ extern GroupItem opLT(GroupItem argument,GroupItem target)
 /***************************************************************************
 	Rule action for ~= match operator
 ***************************************************************************/
-extern GroupItem opMatch(GroupItem argument,GroupItem target)
+extern GroupItem opMatch(GroupItem argument,GroupItem &target)
 {
     if !compare(text,argument.text) return trueResult;
     return null;
@@ -290,7 +251,7 @@ extern GroupItem opMatch(GroupItem argument,GroupItem target)
 /***************************************************************************
 	Rule action for the - operator
 ***************************************************************************/
-extern GroupItem opMinus(GroupItem argument,GroupItem target)
+extern GroupItem opMinus(GroupItem argument,GroupItem &target)
 {
     if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER) {
         if isCOUNT  tempField.count    = gCount - argument.count;
@@ -306,7 +267,7 @@ extern GroupItem opMinus(GroupItem argument,GroupItem target)
 /***************************************************************************
 	Rule action for the -= operator
 ***************************************************************************/
-extern GroupItem opMinusEQ(GroupItem argument,GroupItem target)
+extern GroupItem opMinusEQ(GroupItem argument,GroupItem &target)
 {
 GroupItem   result;
 use target
@@ -342,13 +303,13 @@ extern GroupItem opMinusMinus(GroupItem result)
     or isSTAK   result = gStak.pop();
     or groupList    pop();
     else    cerr "ERROR Operator -- not supported for data type of",tag:;
-    return  result;
+    return result;
 }
 
 /***************************************************************************
 	Rule action for the * multiply operator
 ***************************************************************************/
-extern GroupItem opMultiply(GroupItem argument,GroupItem target)
+extern GroupItem opMultiply(GroupItem argument,GroupItem &target)
 {
     if argument.isCOUNT || argument.isNUMBER
         if isCOUNT  tempField.count = count * argument.count;
@@ -362,7 +323,7 @@ extern GroupItem opMultiply(GroupItem argument,GroupItem target)
 /***************************************************************************
 	Rule action for the *= operator
 ***************************************************************************/
-extern GroupItem opMultiplyEQ(GroupItem argument,GroupItem target)
+extern GroupItem opMultiplyEQ(GroupItem argument,GroupItem &target)
 {
 GroupItem   result;
 use target
@@ -389,7 +350,7 @@ extern GroupItem opNOT(GroupItem result)
 /***************************************************************************
 	Rule action for the != operator
 ***************************************************************************/
-extern GroupItem opNotEQ(GroupItem argument,GroupItem target)
+extern GroupItem opNotEQ(GroupItem argument,GroupItem &target)
 {
     if compareValues(target,argument)  return trueResult;
     return null;
@@ -398,7 +359,7 @@ extern GroupItem opNotEQ(GroupItem argument,GroupItem target)
 /***************************************************************************
 	Rule action for the OR operator
 ***************************************************************************/
-extern GroupItem opOR(GroupItem argument,GroupItem target)
+extern GroupItem opOR(GroupItem argument,GroupItem &target)
 {
     if target
         if gCount   return trueResult;
@@ -409,7 +370,7 @@ extern GroupItem opOR(GroupItem argument,GroupItem target)
 /***************************************************************************
 	Rule action for the + operator
 ***************************************************************************/
-extern GroupItem opPlus(GroupItem argument,GroupItem target)
+extern GroupItem opPlus(GroupItem argument,GroupItem &target)
 {
     if data && (argument.isCOUNT || argument.isNUMBER) {
         if isCOUNT  tempField.count = gCount + argument.count;
@@ -426,7 +387,7 @@ extern GroupItem opPlus(GroupItem argument,GroupItem target)
 /***************************************************************************
 	Rule action for the += operator
 ***************************************************************************/
-extern GroupItem opPlusEQ(GroupItem argument,GroupItem target)
+extern GroupItem opPlusEQ(GroupItem argument,GroupItem &target)
 {
 GroupItem   grup;
     if !compare(head(argument.tag,3),"DiR")
@@ -437,6 +398,7 @@ use target
     if argument.isLIST
         while grup = argument.prior(grup)
             opPlusEQ(grup,target);
+    or target.binType || target.groupList   target += argument;
     or argument.data
         if target.data
             switch(target.data) {
@@ -448,7 +410,6 @@ use target
                 case isSTAK:    gStak.push(argument);
                 default:        cerr "ERROR Operator += failed on",tag,"and",argument.tag:; }
         else    target.copyData(argument);
-    or target.binType || target.groupList   target += argument;
 
     return target;
 }
@@ -467,7 +428,21 @@ extern GroupItem opPlusPlus(GroupItem result)
             gText++;
             gCount--; }
     else    cerr "ERROR Operator ++ not supported for data type of",tag:;
-    return  result;
+    return result;
+}
+
+/*****************************************************************************
+	=* as unary op to make its argument a pointer
+*****************************************************************************/
+extern GroupItem opPointer(GroupItem field)
+{
+    // Fired as a noPrint definition attribute (setPointer), fLAG is set on the
+    // command node — redirect to its parent (the field being defined), a la
+    // processFlags/rEGISTER. As the =* unary op, fLAG is clear and we mark the
+    // operand directly.
+    if field.fLAG  field = field.parent;
+    field.isPointer = true;
+    return field;
 }
 
 /***************************************************************************
@@ -490,14 +465,14 @@ String      printText   = string();
 
 /***************************************************************************
 	Rule action for the :+ replace operator. DiR-prefix dispatch routes
-	directive arguments to ReplaceDirective (parallel to opPlusEQ's
+	directive arguments to replaceDirective (parallel to opPlusEQ's
 	dispatch to applyDirectives).
 ***************************************************************************/
-extern GroupItem opReplace(GroupItem argument,GroupItem target)
+extern GroupItem opReplace(GroupItem argument,GroupItem &target)
 {
 GroupItem   grup;
     if !compare(head(argument.tag,3),"DiR")
-        return ReplaceDirective(argument,target);
+        return replaceDirective(argument,target);
     if argument.isLIST
         while grup = argument.prior(grup)
             opReplace(grup,target);
@@ -506,328 +481,9 @@ GroupItem   grup;
 }
 
 /***************************************************************************
-	Statement equivalence test. v1: top-level GroupItem.matches (tag, data,
-	content equality at the root node). v2 candidate: recursive AST walk.
-***************************************************************************/
-extern int statementMatches(GroupItem a,GroupItem b)
-{
-    return a.matches(b);
-}
-
-/***************************************************************************
-	Text-substrate substring replace. Uses containsString (returns char* to
-	match position, hand-edited in support/Frame/StringRoutines.C). Single-
-	occurrence; returns text unchanged if from not found. Transitional
-	helper for the incant text-directive hybrid prototype (2026-05-28);
-	will be retired when Buffer extern incant methods provide in-place
-	span surgery directly.
-***************************************************************************/
-extern String replaceUsingFind(String text,String fromTxt,String toTxt)
-{
-String  position = containsString(text,fromTxt);
-int     fromLen, toLen, prefixLen, suffixLen;
-String  result;
-    if !position    return text;
-    fromLen   = (int)strlen(fromTxt);
-    toLen     = (int)strlen(toTxt);
-    prefixLen = (int)(position - text);
-    suffixLen = (int)strlen(text) - prefixLen - fromLen;
-    result    = (char*)calloc((size_t)(prefixLen + toLen + suffixLen + 1),sizeof(char));
-    strncpy(result,text,(size_t)prefixLen);
-    strcpy(result + prefixLen,toTxt);
-    strcpy(result + prefixLen + toLen,position + fromLen);
-    return result;
-}
-
-/***************************************************************************
-	Match engine. Walks targetLines looking for the first member that
-	starts a span structurally equal to fromBlock's Lines. Returns that
-	anchor member, or null.
-***************************************************************************/
-extern GroupItem matchSpanInLines(GroupItem targetLines,GroupItem fromBlock)
-{
-GroupItem   fromBlocK = fromBlock["BlocK"];
-GroupItem   fromLines;
-GroupItem   firstFrom;
-GroupItem   candidate;
-GroupItem   tWalk;
-GroupItem   fWalk;
-    if !fromBlocK   return null;
-    fromLines = fromBlocK;
-    if !fromLines || !fromLines.groupList   return null;
-    firstFrom = fromLines.firstInList;
-    candidate = targetLines.firstInList;
-    while candidate {
-        if statementMatches(candidate,firstFrom) {
-            tWalk = candidate.nextInParent;
-            fWalk = firstFrom.nextInParent;
-            while fWalk && tWalk && statementMatches(tWalk,fWalk) {
-                tWalk = tWalk.nextInParent;
-                fWalk = fWalk.nextInParent; }
-            if !fWalk   return candidate; }
-        candidate = candidate.nextInParent; }
-    return null;
-}
-
-/***************************************************************************
-	Detach the matched span from targetLines (proper bookkeeping via
-	GroupItem.remove), then splice toBlock's Lines members in at the
-	same position. toBlock may be null (delete case). Uses the parent=null
-	move idiom for the toLines side since toLines is abandoned after
-	the splice (cousin of spliceDirectives' move loop).
-***************************************************************************/
-extern void ReplaceAtAnchor(GroupItem targetLines,GroupItem anchor,
-                            GroupItem fromBlock,GroupItem toBlock)
-{
-GroupItem   fromBlocK = fromBlock["BlocK"];
-GroupItem   fromLines;
-GroupItem   toBlocK;
-GroupItem   toLines;
-GroupItem   spanWalk;
-GroupItem   adjacent;
-GroupItem   priorAnchor = anchor.priorInParent;
-int         spanLength;
-int         i;
-    if !fromBlocK   return;
-    fromLines = fromBlocK;
-    if !fromLines   return;
-    spanLength = fromLines.listLength;
-    spanWalk = anchor;
-    for ( i = 0; i < spanLength; i++ ) {
-        if !spanWalk    break;
-        adjacent = spanWalk.nextInParent;
-        spanWalk.remove();
-        spanWalk = adjacent; }
-    if toBlock {
-        toBlocK = toBlock["BlocK"];
-        if toBlocK {
-            toLines = toBlocK;
-            if toLines && toLines.groupList {
-                spanWalk = toLines.lastInList;
-                while spanWalk {
-                    adjacent = spanWalk.priorInParent;
-                    spanWalk.parent = null;
-                    if priorAnchor  priorAnchor.insertAfter(spanWalk);
-                    else            targetLines.insertGroup(spanWalk);
-                    spanWalk = adjacent; } } } }
-}
-
-/***************************************************************************
-	Replace-directive orchestrator. Parallel to applyDirectives but does
-	match-and-swap rather than splice-into-end. Idempotent via the target's
-	DiRs registry. Routes here from opReplace's DiR-prefix hook.
-***************************************************************************/
-extern GroupItem ReplaceDirective(GroupItem argument,GroupItem target)
-{
-GroupItem   grup;
-GroupItem   DiRs;
-GroupItem   fromAttr;
-GroupItem   toAttr;
-GroupItem   fromBlk;
-GroupItem   toBlk;
-GroupItem   anchor;
-GroupItem   targetLines;
-    if argument.isLIST
-        while grup = argument.prior(grup)
-            ReplaceDirective(grup,target);
-    else {
-        DiRs = target["DiRs"];
-        if !DiRs {
-            DiRs = target += "DiRs";
-            DiRs.noPrint = true; }
-        if DiRs[argument.tag]   return target;
-        DiRs += argument;
-
-        if !target["BlocK"]     processCode(target);
-        /* Positional access (Tony 2026-05-28): directive's children are the
-           from-ref (first) and to-ref (second). No from=/to= labels.
-           Try .group first (parser-resolved reference); fall back to the
-           child itself in case the child IS the resolved field directly. */
-        fromAttr = argument.firstInList;
-        if !fromAttr {
-            cerr "Replace directive needs 'from' as first child:",argument.tag:;
-            return target; }
-        fromBlk = fromAttr.group;
-        if !fromBlk     fromBlk = fromAttr;
-        if !fromBlk["BlocK"]    processCode(fromBlk);
-
-        toAttr = fromAttr.nextInParent;
-        if toAttr {
-            toBlk = toAttr.group;
-            if !toBlk   toBlk = toAttr;
-            if !toBlk["BlocK"]  processCode(toBlk); }
-
-        targetLines = target["BlocK"];
-        if !targetLines     return target;
-        anchor = matchSpanInLines(targetLines,fromBlk);
-        if !anchor {
-            cerr "Replace directive could not match 'from' in target:",target.tag:;
-            return target; }
-
-        ReplaceAtAnchor(targetLines,anchor,fromBlk,toBlk);
-    }
-    return target;
-}
-
-/***************************************************************************
-	Register one or more directives on a target action and splice each newly
-	registered one into the target's BlocK. opReplace-shaped: list-recurse via
-	prior(), single registration per directive. Idempotent: a directive already
-	in the target's DiRs list is not registered or spliced again, so a re-apply
-	or double-trigger cannot stack a second copy. The target's executed BlocK is
-	built once and cached, so a one-time splice persists across later runs.
-***************************************************************************/
-extern GroupItem applyDirectives(GroupItem argument,GroupItem target)
-{
-GroupItem   grup;
-GroupItem   DiRs;
-    if argument.isLIST
-        while grup = argument.prior(grup)
-            applyDirectives(grup,target);
-    else {
-        DiRs = target["DiRs"];
-        if !DiRs {
-            DiRs = target += "DiRs";
-            DiRs.noPrint = true; }
-        if !DiRs[argument.tag] {
-            DiRs += argument;
-            spliceDirectives(target,argument); }}
-    return target;
-}
-
-/***************************************************************************
-	Splice one directive's statements into a target action's BlocK. The
-	target's BlocK is built (processCode) if it does not exist yet, then the
-	directive's own BlocK is built and its statements (BlocK->Lines members)
-	are moved into the target's Lines: appended at the body bottom for
-	at=ending, or front-inserted at the body top otherwise (at=starting /
-	default, walked in reverse so original order leads the target's body).
-	Statements are moved, not copied: addGroup copies a node that still has a
-	parent and the copy loses instructType (aCTionBlocK then skips it), so each
-	statement is detached (parent = 0) before it is added.
-***************************************************************************/
-extern void spliceDirectives(GroupItem target,GroupItem directive)
-{
-GroupItem   BlocK = target["BlocK"];
-GroupItem   targetLines;
-GroupItem   dBlocK;
-GroupItem   dLines;
-GroupItem   at;
-GroupItem   stmt;
-GroupItem   adjacent;
-int         ending;
-    if !BlocK {
-        processCode(target);
-        BlocK = target["BlocK"]; }
-    if !BlocK   return;
-    targetLines = BlocK;
-    if !targetLines     return;
-    processCode(directive);
-    dBlocK = directive["BlocK"];
-    if !dBlocK  return;
-    dLines = dBlocK;
-    if !dLines || !dLines.groupList     return;
-    at = directive["at"];
-    ending = at && compare(at.text,"ending") == 0;
-    if ending {
-        stmt = dLines.firstInList;
-        while stmt {
-            adjacent = stmt.nextInParent;
-            stmt.parent = null;
-            targetLines += stmt;
-            stmt = adjacent; }}
-    else {
-        stmt = dLines.lastInList;
-        while stmt {
-            adjacent = stmt.priorInParent;
-            stmt.parent = null;
-            targetLines.insertGroup(stmt);
-            stmt = adjacent; }}
-}
-
-/***************************************************************************
-    Buffer-side mark machinery wrappers — thin passthroughs to Buffer's
-    setMark/unMark/setFile/closeFile. Used by incant code that wants
-    explicit control over the mark, and by applyTextDirective to
-    arm/disarm Buffer.markIsSet around find-and-replace sweeps.
-***************************************************************************/
-extern void setMark(GroupItem bufField)
-{
-    if bufField.isBUFFER    bufField.buffer.setMark();
-}
-
-extern void unMark(GroupItem bufField)
-{
-    if bufField.isBUFFER    bufField.buffer.unMark();
-}
-
-extern void setFile(GroupItem bufField,String name)
-{
-    if bufField.isBUFFER    bufField.buffer.setFile(name);
-}
-
-/***************************************************************************
-    Close the file associated with the buffer. If no file has been set,
-    fall back to using the field's tag as the filename — the tag is a
-    handle the user already controls and serves no other purpose in this
-    context, so it's a reasonable default destination.
-***************************************************************************/
-extern int closeFile(GroupItem bufField)
-{
-    if bufField.isBUFFER {
-        if !bufField.buffer.file    bufField.buffer.setFile(bufField.tag);
-        return bufField.buffer.closeFile(); }
-    return 0;
-}
-
-/***************************************************************************
-    Text-substrate directive orchestrator. Parallel to applyDirectives but
-    operates on a buffer-bearing target rather than an AST target. Walks
-    the buffer doing find-and-replace via the mark machinery: for each
-    occurrence of fromText in target's buffer, delete the matched chars
-    and insert toText in their place. Mark threads naturally through
-    opIN (sets it on match), += (insert at mark, advance), -= (delete
-    at mark, stay). Idempotent via the target's DiRs registry.
-***************************************************************************/
-extern GroupItem applyTextDirective(GroupItem argument,GroupItem target)
-{
-GroupItem   grup;
-GroupItem   DiRs;
-GroupItem   fromText;
-GroupItem   toText;
-Buffer      buf;
-    if argument.isLIST
-        while grup = argument.prior(grup)
-            applyTextDirective(grup,target);
-    else {
-        DiRs = target["DiRs"];
-        if !DiRs {
-            DiRs = target += "DiRs";
-            DiRs.noPrint = true; }
-        if DiRs[argument.tag]   return target;
-        DiRs += argument;
-
-        fromText = argument.firstInList;
-        if !fromText {
-            cerr "Text directive needs 'from' as first child:",argument.tag:;
-            return target; }
-        toText = fromText.nextInParent;
-
-        if !target.isBUFFER     return target;
-        buf = target.buffer;
-        buf.setMark();
-        while buf.findInBuffer(fromText.text) {
-            buf.deleteFromBuffer(fromText.count);
-            if toText   buf.appendString(toText.text,0,0); }
-        buf.unMark();
-    }
-    return target;
-}
-
-/***************************************************************************
 	Rule action for the := set group operator
 ***************************************************************************/
-extern GroupItem opSetGroup(GroupItem argument,GroupItem target)
+extern GroupItem opSetGroup(GroupItem argument,GroupItem &target)
 {
     if argument
         if !argument.isInitialized  target.clearData();
@@ -838,7 +494,7 @@ extern GroupItem opSetGroup(GroupItem argument,GroupItem target)
 /***************************************************************************
 	Rule action for the / divide operator
 ***************************************************************************/
-extern GroupItem opSlash(GroupItem argument,GroupItem target)
+extern GroupItem opSlash(GroupItem argument,GroupItem &target)
 {
     if argument.isCOUNT || argument.isNUMBER
         if isCOUNT  tempField.count = (int)lround(number / argument.number);
@@ -852,7 +508,7 @@ extern GroupItem opSlash(GroupItem argument,GroupItem target)
 /***************************************************************************
 	Rule action for the /= slash equal operator
 ***************************************************************************/
-extern GroupItem opSlashEQ(GroupItem argument,GroupItem target)
+extern GroupItem opSlashEQ(GroupItem argument,GroupItem &target)
 {
 GroupItem   result;
 use target
@@ -880,27 +536,23 @@ extern GroupItem opString(GroupItem target,Buffer buffer)
     return target;
 }
 
-/*******************************************************************************
-	Print the field passed in to the buffer passed in
-*******************************************************************************/
-extern void printField(GroupItem field,String format,Buffer buffer)
+/***************************************************************************
+    Buffer-side mark machinery wrappers — thin passthroughs to Buffer's
+    setMark/unMark/setFile/closeFile. Used by incant code that wants
+    explicit control over the mark, and by applyTextDirective to
+    arm/disarm Buffer.markIsSet around find-and-replace sweeps.
+***************************************************************************/
+extern void setMark(GroupItem bufField)
 {
-    if isMethod     field = method(field);
-    if !field       field = falseResult;
-    or isGROUP      field = group;
-    switch(data) {
-        case isCOUNT:
-            if !format  format = "%d";
-            print(buffer) gCount;
-        case isNUMBER:
-            if !format  format = "%.1f";
-            print gNumber;
-        case isSTRING:
-        case isTOKEN:
-            if !format  format = "%s";
-            print text;
-        default:
-            if !format  format = "%s";
-            print text; }
-    if useDefaultSpace  append(' ');
+    if bufField.isBUFFER    bufField.buffer.setMark();
+}
+
+extern void unMark(GroupItem bufField)
+{
+    if bufField.isBUFFER    bufField.buffer.unMark();
+}
+
+extern void setFile(GroupItem bufField,String name)
+{
+    if bufField.isBUFFER    bufField.buffer.setFile(name);
 }

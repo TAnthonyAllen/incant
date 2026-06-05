@@ -4,323 +4,314 @@
 
 ---
 
-## Phase Generate Tawk — BLOCKER + today's state (2026-05-30)
+## Phase Bytecode — current state (end of 2026-06-04)
 
-**🚧 generateRules class-body/extern split (THE blocker).** `plg Tawk.g → Tawk.twk`
-runs and is clean of PLGtester, but the output **does not tok**: generateRules
-dumps Tawk's class field declarations at file scope (above the `class Tawk
-extends PLGparse` wrapper, alongside the extern action bodies). tok →
-`ERROR Inheritance` on the first field → empty `Tawk.h`, stale `Tawk.C`. Fix:
-split class-body material (fields → inside the class) from extern bodies. Design
-work / woodshed session. Full writeup in projectBible.md "Phase Generate Tawk".
+**🚧 interpretBC: `interpret=runPushField` not surviving `+=` into bcLIST.**
+The emit pipeline is confirmed clean — dumpBC shows 9 correct instructions in bcLIST
+(bcPushField / bcPushLit 0 / > / bcBRZ / bcPushField / bcPushLit 2 / * / bcStoreField / endLabel).
+`interpretBC` runs and returns without error but silently — `runPushField` never fires.
+Root cause: `bcPushField` in bcLIST has an empty groupList, so `interpret=runPushField`
+is not visible to dispatch. `+=` into bcLIST goes through `addMember` which does its own
+copy internally, bypassing `copyOf`. That copy path loses the groupList.
+**First move tomorrow: breakpoint in `addMember`, trace what copy mechanism fires when
+appending `bcPushField` to bcLIST, and confirm whether the groupList (carrying
+`interpret=runPushField`) survives the copy.**
 
-**Done today (keep, don't redo):**
-- **plg outputs `Tawk.twk` directly** (no `.regen`). `~/bin/plg` → symlink to
-  `Parse/build/Debug/plg` (old binary at `~/bin/plg.may17.bak`). Release config
-  broken (`support` can't find `PLGparse.h`); Debug used.
-- **Two-arg `divertInput` reinstated** in PLGparse (`divertInput(s,rule)` /
-  `(s,ruleName)`) + declared in `PLGrevision`. Was dropped in the refactor;
-  unblocked Instance/Directive/etc.
-- **FAIL handlers relocated** `Tawk.g %%` → `Tok.twk` as file-scope externals
-  using a new `static Tawk Tok::testParser` (set in main). Tawk.g epilogue
-  stripped. NOTE: new regen emits **zero** `currentRule.fail` wiring (separate
-  plg FAIL-codegen gap) — handlers are defined but **dormant** until that lands.
-- **PLGset.C phantom-include hand-prune.** `support/Frame/PLGset.C` had spurious
-  `#include "PLGparse.h"` + `"PLGitem.h"` (tok auto-include bug); pruned to let
-  plg rebuild. ⚠️ Re-added on any `tok PLGset.twk` — durable fix is the tok
-  auto-include bug (FormatC.twk).
-- **Tawk.twk for now = legacy commit `89a3abc`** (old format, toks). Avoid HEAD
-  `ef2730d` (broken Phase Splice) and fresh regen overwrites.
+**Open threads (in priority order):**
 
----
+- **`interpret=runPushField` not surviving `+=` into bcLIST** (blocking interpretBC dispatch).
+  See above. `addMember` copy path is the chase target.
+- **`Token=0` / `Token=2` literals still Token-wrapped in revisedList.** `bcPushLit` is
+  receiving Token-wrapped literals; `child.isLiteraL` check in `gXpress` isn't catching them.
+  Separate from the bcPushField issue — fix after dispatch is unblocked.
+- **`testIfElse` else branch emits nothing.** `runGenerated(el)` at gIF:274 produces no
+  instructions for the else clause. Parked — not blocking `testByteCode`; becomes relevant
+  when `testIfElse` is the POP target.
+- **`generateSignature` not closing properly.** Prints `GroupItem* testByteCode (` without
+  closing paren/brace. Minor, parked.
+- **`Instruct.rtn` alpha ordering pooched by Clod** — good offline task for Tony. Low risk.
 
-## Tomorrow's wake-up — 2026-06-03
+**What landed today (2026-06-04):**
+- Aisle 3 clean: `delimTest` and `directives` reorganized with unitTests-style headers.
+  Two bugs surfaced and documented honestly (directive content-match broken on BlocK-line
+  path; `getFile` parses what it loads — `pushInput` cascade). Tony owns debugging in Xcode.
+- `opPlusEQ` list-append fix: promoted `or target.binType || target.groupList` branch above
+  `or argument.data` so list-shaped targets take the append path immediately.
+- `setPointer` / `opPointer` chain: `bcPushField` now carries `isPointer` at definition via
+  `setPointer immediateAction=opPointer noPrint` in setup bcOPs block. `copyOf` carries it
+  through virtual copies via `*groupBody = *grup.groupBody`.
+- `copyOf` revised: skips `copyListTo` for virtual sources (shared list by pointer is correct;
+  deep copy was overwriting with empty list). Load-bearing design constraint documented:
+  virtual instance lists are read-only shared references, never modify at runtime.
+  `isVirtual` cleared on copy (`isVirtual = false` after `*groupBody` copy).
+- `aCTionTokenXP` bare-field-ref fix: generating branch now sets `xpress.group = ANYtoken`
+  for simple field operands, mirroring non-generating path. Operator guard added:
+  `if grup.isGROUP && !grup.isOperator` prevents dismembering operators (their `length 1`
+  is `interpret=runGT` etc. — load-bearing, not a wrapper).
+- `generateCode` bcLIST groupList allocation: `new GroupList(bcLIST)` before `+%` / replace
+  so first `+=` takes the list-append branch not copyData.
+- `generateCode` copy-back removed: `accumulated` and `fieldList` were the same slot after
+  `replace()`; `copyListTo` was walking a list into itself (walkabout). Copy-back block
+  removed; `generateCode` returns `fieldList`.
+- `generateAction` argument naming fix: incant action parameters must be named `argument`;
+  `action` was silently empty. Fixed throughout `generateAction`.
+- `interpretBC` wired into `generate` for testing (copied from `bytecode` file, `code=` added).
+- `generateAction(testByteCode)` wired into `oneTest`.
+- `testEmitBC` retired (called unregistered `bcMul`).
+- `=*` / `opPointer` landed as new unary-style operator for isPointer marking.
+  `setPointer` command is the cleaner definition-time path; `=*` remains available for
+  use-time marking when needed.
+- New `GroupList()` constructor added (was missing; existing constructor only created list
+  on attribute-add).
 
-**Current state (end of 2026-06-03, Phase Bytecode arc + checkSkip fix + Layer B delimiter test):**
+**Uncommitted working tree (ready to commit — debug directives cleared from GroupRules.mm/GroupItem.mm via no-directive re-tok):**
+- `Commands.rtn` — copyOf clears isVirtual on copy
+- `Instruct.rtn` — opPointer fLAG-redirect (=* and setPointer)
+- `incant/setup` — setPointer command + bcPushField setPointer
+- `incant/generate` — gXpress cleanup, interpretBC, generateAction fixes
+- `incant/bytecode` — Brief-5 comment de-staling + interpretBC
+- `incant/oneTest` — generateAction(testByteCode) wired in
+- `ruleActions.rtn` — bare-field-ref fix (operand baring + operator-skip guard)
+- `GroupRules.mm` / `GroupRules.h` — re-tok'd clean (no directives) from the .rtn changes above
+- `GroupItem.twk` / `GroupItem.mm` — copyOf revision
+- `GroupList.twk` / `GroupList.mm` — default constructor added
 
-### checkSkip — CLOSED 2026-06-03
-Year-old flakiness finally fixed. Root cause: the indent-adopt in checkSkip grabbed
-inter-token whitespace as an indent level because `indenting` counts any whitespace,
-not just post-newline whitespace. One gate — `sawNewLine && !lastINDENT` — is the
-entire fix. Gate on the commit (`blocking||defining`) was over-engineering and caused
-a regression; pulled back. Full suite validated: delim repro, oneTest, directives,
-full testUnitTests POP. All green. checkSkip now actually right for the first time.
-NOTE: checkSkip runs on every parse — validate full suite on any change.
+**Language design findings banked today:**
+- `opPlusEQ` branches on target state, not argument type — list-shaped target must be
+  checked before data-copy branches or GroupItem arguments with no data fall through to
+  the error case.
+- Virtual copies share groupList by pointer via `*groupBody = *grup.groupBody`. `copyListTo`
+  after this overwrites with empty list — skip for virtuals.
+- `setPointer` / `opPointer` / `fLAG` pattern is the canonical way to set a flag at field
+  definition time (noPrint + immediateAction, fLAG redirects to parent field).
+- `:=` passes by value; changes to the left-hand side inside the op don't persist to caller.
+  `=*` / isPointer is the mechanism to prevent runOP unwrapping.
+- incant action parameters must literally be named `argument` — any other name silently
+  receives empty values (cousin of the emitBC `operand` bug from 2026-05-26).
 
-### Phase Bytecode — current gate
-`generateCode(testByteCode)` producing correct bcLIST (9-op stream, structurally
-right for `if righty > 0; maximus = righty * 2;`). The gate: bcLIST accumulator not
-populating `testByteCode.bcLIST`. Instructions land on `generator.bcLIST` but not
-the action's own slot.
-
-Root cause fully traced:
-- `new("bcLIST")` with no data means `+=` in `opPlusEQ` hits the `copyData` path
-  (target has no data → copies first instruction's data INTO bcLIST) rather than
-  list-append. Every subsequent emit then does arithmetic on the scalar, not append.
-- Fix: mark bcLIST list-typed at creation in `Commands.rtn` (candidate 1) so `+=`
-  routes to the `target.groupList` list-append branch in `opPlusEQ`. Targeted, no
-  blast radius.
-- `opPlusEQ` global fix (copyData→+=) was tried and caused SIGTERM blast radius —
-  reverted. Do not retry that approach.
-- `Commands.rtn` copy-back (accumulated→fieldList after `runAction`) still in place,
-  harmless, may become load-bearing or redundant once accumulator fills.
-
-**Next move on Phase Bytecode:**
-1. Mark `bcLIST.groupList = true` (or equivalent) in `Commands.rtn` after
-   `new("bcLIST")`, before `generator.replace(bcLIST)`. Re-tok, Tony rebuilds.
-2. Verify `interpretBC` walks the 9-op stream.
-3. Slot-name reconciliation pass: `target`/`field`/`dst` convention across
-   `ruleActions.rtn` + `gXpress` + `Bytecode.twk` in one pass (Clod offered to
-   draft this brief). Sub-findings pending gate open:
-   - `runStoreField` reads `getAttribute("target")` but `ruleActions.rtn:307`
-     keys destination under target's tag ("maximus") not "target". Fix in
-     `ruleActions.rtn` (Tony's seat).
-   - `bcPushField` handler needs `getAttribute("field")` to resolve current value;
-     currently `setContent(instr)` copies empty content. Fix both sides together.
-
-**Brief 5 pass — 2026-06-04 (Clod, committed `413ab2a`):** ran the gate
-empirically; the root cause above is confirmed (dumpBC → "single field xp",
-opPlusEQ trace at Instruct.rtn:437-451). Outcomes:
-- **Fix 1 (members vs attributes) = STALE.** emitBC already uses `+=`; the
-  blocker is the bcLIST-not-a-list bootstrap above, not the walk side. Stale
-  notes in `incant/generate` + `incant/bytecode` corrected.
-- **Fix 2 (gXpress `=` asymmetry) = MOOT.** Verified across testByteCode,
-  testIfElse, testGXLeaf: the assignment target is never pushed (ruleActions
-  pre-transforms `=`→bcStoreField; gXpress sees `[rhs..., bcStoreField]`).
-  Adding an `=` branch to gXpress would be dead code — NOT implemented.
-- **Fix 3 = DONE.** Stale `testEmitBC` (called unregistered `bcMul`) retired
-  from `generate` + `oneTest`.
-- **New gap:** `testIfElse` else-branch (`maximus = 7`) emits NOTHING —
-  `runGenerated(el)` at gIF (generate:274) produces no instructions. Separate
-  from the gate; worth a look once bcLIST is walkable.
-- Emit stream is structurally correct (9 ops). Remaining path to maximus=26 is
-  all Tony's seat: (1) bcLIST list-typing, then (2) the slot-name reconciliation
-  above. interpretBC isn't even called by oneTest yet (generateAction calls it).
-
-**gExpressioN — DEAD, DO NOT RESURRECT.**
-ExpressioN is not a deferred rule. The label feeding `generatE` is `gXpress`,
-set as an exception in the `StatemenT` rule action. There is no `gExpressioN`
-and there never will be. Remove any reference to it on sight.
-
-### Delimiter / DatA grammar test — Layer B banked, Layer C is next
-Self-contained file: `incant/delimTest`.
-
-**Layer A (virtual delimiter)** — deferred. Virtual field earns its own test when
-it demonstrates something a plain field doesn't. Not this test.
-
-**Layer B** — DONE AND PROVEN. `DelimOver` rule (`body}=delimiter`, `}` = upToOver,
-consumes delimiter) defined and driven standalone. `DelimOver("hello world #>")`
-captured `body: hello world` cleanly. Modifier mapping confirmed from `parse.rtn`:
-`}` = upToOver (consume), `{` = upTo (leave). Multi-char terminator confirmed
-working (`#>` two-char match via `compareToStream`). Rule lives in `incant/delimTest`.
-
-**Layer C — DONE AND PROVEN 2026-06-03. VERDICT: incant's grammar IS
-live-mutable post-bootstrap.** A new alternative (`DelimText`) was grafted into
-the bootstrap `DatA` rule at runtime, and a subsequent field definition routed
-its data through that brand-new alternative. Output: `doc = (hello world#)`
-yields `doc.dtext = "hello world"` via DelimText, a rule that did not exist at
-bootstrap. The locomotive changed while the train stayed on schedule.
-
-The three moves, as they actually played out:
-1. **Directive-on-rule probe (1b)** — `DatA += DiRProbe` (a DiR-tagged arg) →
-   `applyDirectives`/`spliceDirectives` only splices BlocK *Lines* (code bodies);
-   DatA has no BlocK, so it just registered a `DiRs` bookkeeping sub-registry and
-   grafted nothing (`ERROR processCode: DatA parse failed`). Directives CANNOT
-   graft a rule alternative. So the graft goes in raw.
-2. **In-place graft** — `DatA += DelimText` (a non-DiR arg falls past the
-   directive branch in `opPlusEQ` to `target += argument` = raw member append).
-   Structure mutated: DatA went 5→6 members. But the parser still rejected the
-   new opener, because **DatA's cached `guardSet` is computed at bootstrap and a
-   raw append does NOT re-wire it.** Fix: a new language primitive — `guard(DatA)`
-   run as a COMMAND (new `!fLAG` branch in `Commands.rtn`: clears `guardSet` AND
-   resets `guarding=0`) forces the parser to re-derive the guard on next parse,
-   now seeing DelimText's opener. So: structure is live-mutable; guard-dispatch
-   is wired at definition-time, but `guard()`-as-command re-wires it.
-3. **The verdict** — proven live-mutable (see above).
-
-**Findings banked (Layer C):**
-- **`guard()` is now a reset command.** Run as an attribute it SETS a guard (old
-  behavior, unchanged); run as a command on a rule it CLEARS guardSet + resets
-  guarding so the parser re-derives. `Commands.rtn` → `GroupRules.mm` (tokked).
-- **Opener char must clear two gates.** It must be excluded from `NotA` (else
-  NotA's catch-all eats it before DelimText's guard is consulted) AND be
-  checkSkip-neutral. `>` clears NotA but FAILS checkSkip (it's in
-  `endDefine=[;>]`; a `>` right after `=` is eaten at the define level). Switched
-  to `(`: `NotA=[^ \t\r\n;(]+` (GroupMain bootstrap) + `delimiter="#)"`
-  (setup:150). Closer is DelimText's own `delimParen="#)"` field.
-- **upToOver leaves shared parser state.** Running Layer B's `DelimOver`
-  (successful `upToOver`) BEFORE the move-3 graft corrupts the live parse —
-  move-3 drops out of Start. Deferring `runDelim()` to AFTER move-3 fixes it.
-  Order-of-execution coupling in the upToOver mark/stream global — open finding,
-  worth a closer look.
-- **Bare graft only.** DelimText must carry NO inline `code={}` action: an inline
-  code body is a CodE instance, and grafting a CodE-bearing rule into DatA (which
-  holds the CodE rule as a member) trips addGroup's self-add guard ("add CodE to
-  itself"). Real DatA alternatives (SetBrackets/NotA) carry no inline code.
-
-**Open polish (next session):** the capture lands in `doc.dtext`, not `doc`'s own
-data — DelimText captures into its named `dtext` field, whereas NotA-style
-alternatives set the field content directly via `aCTionTraiTdata`. If we want
-`doc` itself to carry the text, DelimText should capture into self, not a subfield.
-
-### unitTests comment rewrite — DONE 2026-06-03
-Inline per-action comments scrubbed. Leading block added with four sections:
-registry description, concentrated incant-vs-C++ divergences, POP table, known
-broken note (callMyself). File replaced at `Groups/incant/unitTests`.
-NOTE: `unitTests` now lives at
-`/Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/incant/`
-(post-reorganization). Update projectBible.md directory map to reflect this.
-
-### Git state (end of 2026-06-03)
-- **checkSkip win — COMMITTED + PUSHED as `fe9612d`** on `origin/main`
-  (`GroupRules.twk` + regenerated `GroupRules.mm`, checkSkip sawNewLine gate).
-  `incant/delimTest` (Layer B rule + driver) and `Commands.rtn` (bcLIST
-  copy-back) rode along in the same commit — see commit body.
-- **Layer C live-grammar-mutation win — COMMITTED 2026-06-03.** Files:
-  `Commands.rtn` (guard-reset command) + regenerated `GroupRules.mm`;
-  `GroupMain.twk`/`GroupMain.mm` (`NotA` excludes `(`); `incant/setup`
-  (`delimiter="#)"`); `incant/delimTest` (Layer C graft + verdict). Only these
-  six files staged — the parked WIP below was deliberately left out.
-- **Parked WIP (still uncommitted, leave separate):** `incant/generate` +
-  `incant/bytecode` (Fix 1 `+%→+=` + Fix 4 comment corrections).
-- **Tony's review needed (uncommitted):** `groupDirectives` + `GroupItem.mm`
-  (debug scaffolding from the checkSkip hunt — revert when done), pre-existing
-  comment drift (`unitTests`, `utilities`, `ruleActions.rtn`, `oneTest`,
-  `XML/WorkingOn/parser`).
+**Directive bugs (Tony's Xcode seat, not blocking bytecode):**
+- BlocK-line path content-match broken: `statementMatches` / `matchSpanInLines` suspected.
+  Both replace and delete directives drop the target block's first line regardless of content.
+  Text-substrate path (DiRSwapInt) does content-match correctly — break is specific to
+  BlocK-line path.
+- `getFile` parses what it loads: `pushInput(filing)` at Commands.rtn `getFile` queues loaded
+  file as incant input, triggering parse of `include <path>` first line → directory error.
+  Fix likely needs a load-without-parse variant or a suppress-parse flag on `getFile`.
 
 ---
 
-## Aisle 3 cleanup — 2026-06-04 (delimTest + directives distilled)
+## Tomorrow's wake-up
 
-First-pass distillation of `incant/delimTest` + `incant/directives` from WIP
-into legible, headed files (committed `5e98bb2`; Clay to polish headers/structure).
+**State:** bcLIST is a clean 9-op list. `interpretBC` runs but dispatch is silent because
+`interpret=runPushField` doesn't survive the `+=` copy into bcLIST. First move: breakpoint
+in `addMember`, trace the copy path, find where the groupList gets lost.
 
-- **delimTest** — comment-only; header leads with the Layer C headline, the
-  load-bearing run-order constraint is now a documented finding. Output verified
-  identical to baseline.
-- **directives** — reorganized per-deliverable + unitTests-style header; POP
-  table documents ACTUAL behavior. Two bugs surfaced and documented (not fixed):
+**After dispatch unblocked:** slot-name reconciliation in handlers.
+- `runPushField` calls `value.setContent(instr)` — needs to find `righty` on the instruction.
+  The instruction currently shows `content= bcPushField` (tag name, not field reference).
+- `runStoreField` calls `instr.getAttribute("target")` — destination key may not match
+  what `gXpress` emits.
+These are Xcode-debugger findings — break in each handler, see what's on `instr`.
 
-  1. **Directive replace/delete content-match broken.** `testDirectiveReplace`
-     and `testDirectiveDelete` drop the target block's FIRST line regardless of
-     content — "replaced line" never appears, fromBody/toBody don't drive the
-     match. Suspected non-functional content-match in `statementMatches` /
-     `matchSpanInLines` (positional drop, not content-driven splice). Next-pass
-     bug hunt for Tony + Clod. The text-substrate path (DiRSwapInt) DOES
-     content-match, so the break is specific to the BlocK-line path.
-  2. **getFile pushInput parses loaded files** (Tony chasing in Xcode).
-     `testTextDirective` exits 2 with `getFile: ... include: Is a directory`.
-     `getFile` (Commands.rtn:235) does `pushInput(filing)` — it reads the file
-     AND queues it as incant input to parse. Loading real TAWK source
-     (groups.twk) then parses its unquoted `include <path>` first line, which
-     can't bind an arg → `getFile("include")` → the include/ dir. Replace
-     itself still lands. A parse-inert fixture would sidestep it.
+**POP sequence for testByteCode:**
+1. `addMember` copy fix → `interpret=runPushField` survives into bcLIST
+2. Run → `runPushField` fires
+3. Slot-name reconciliation (what `righty` is on the instruction; what `runStoreField` reads)
+4. `maximus = 26`, `opStack` empty at end — POP
 
----
-
-## Phase Bytecode — full plan (active)
-
-### Design (locked)
-- bytecodes are GroupItems in a bcLIST, dispatched via `interpret=` sub-attribute
-- two registries: `bcOPs` (incant-defined control/data-movement ops) and
-  `Operators` (C++-defined arithmetic/compare ops, carry `interpret=` directly)
-- `gXpress` walks the RPN revisedList and emits one push/op per child
-- `interpretBC` walks bcLIST members, dispatches via `grup.interpret`
-
-### Active code (incant/generate + Commands.rtn + Bytecode.twk)
-- [x] Fix 1: `emitBC` `+%→+=` (instructions land as members)
-- [x] Fix 4: comment rot in `generate` header §2(a), §2(c) and `bytecode` header
-- [ ] **NEXT: mark `bcLIST.groupList = true` at creation in `Commands.rtn`**
-- [ ] Verify `interpretBC` walks 9-op stream after above fix
-- [ ] Slot-name reconciliation: `target`/`field`/`dst` across
-      `ruleActions.rtn` + `gXpress` + `Bytecode.twk`
-- [ ] Run remaining bytecode tests: `testGXLeaf`, `testEmitBC`, `testIfElse`
-- [ ] `testEmitBC` bcMul stale — replace with `*` operator token
-- [ ] interpret() build-out: handlers for bcPushField/bcPushLit/bcStoreField
-      (registered at setup:137-139; handlers in Bytecode.twk need fixing)
-- [ ] `testByteCode` POP: `maximus = 26`
-
-### Findings / decisions banked
-- `bcMul` does not exist and never will — multiply handler is `runMultiply` on
-  the `*` operator (setup:113); `gXpress` emits `*` token directly.
-- Tar 3 (constant folding of `righty * 2`) is moot — `righty` is a runtime field,
-  can't fold a variable operand. The multiply reaches the emitter correctly.
-- `bcBRZ dst` linkage: `+%` keys attribute as "dst" (field name), matches
-  `runBRZ`'s `getAttribute("dst")`. Display artifact in dump — dst is attached.
-  Node-identity question (branch target = copy or original?) verify-by-running.
-- `bcStoreField` emit is handled in `ruleActions.rtn` generating branch (lines
-  304-308), NOT in `gXpress`. `gXpress` sees `bcStoreField` already transformed
-  and emits it via `child.registrY == "bcOPs"` branch. Do NOT add `=` branch to
-  `gXpress` — dead code.
+**Reading targets (upload at session start):**
+- `Groups/incant/generate`
+- `Groups/incant/oneTest`
+- `Groups/incant/bytecode`
+- `Groups/incant/setup`
+- `Groups/Commands.rtn`
+- `Groups/Instruct.rtn`
+- `Groups/ruleActions.rtn`
+- `Groups/Bytecode.twk`
 
 ---
 
-## Tests to be written (Tony's offline list — not a priority queue)
+## Directive work — parked pending Xcode debug
 
-- **assert action** à la groovy — define and test. Low friction, high value.
-- **implied field / lastDEF test** — lastDEF in dot-op expression; in FOR loop;
-  explicit @field unaryOP to set implied field source. Note: `aCTionNamE()` does
-  not currently look in `lastREF` when locate fails and `lastREF` is set — may
-  need fixing. `lastREF` scoped within FOR loop, resets on exit — demonstrate that.
-- **buffer test** — setMark/unMark interaction; stdout to buffer via `printTO`;
-  `printTO` diversion persists across subsequent actions until explicitly undone —
-  that persistence is the surprising-to-new-users semantic that needs an example.
-- **document text / delimiter test** — see Layer C above. This IS that test.
-- **directive test** — probably exists in directives file; verify and polish.
-- **delimiter rule / `}{` modifier test** — Layer B is this test, now banked.
-- **bin as a switch test** à la generator/runGenerator.
+Per offline status report 2026-06-04: directives and delimTest reorganized (aisle 3 clean).
+Two bugs documented in `directives` header. Tony debugs in Xcode at own pace; not blocking
+bytecode arc.
 
----
+**getFile bug:** `new(path)` vs plain assignment was investigated and ruled out as root cause.
+Same error either way. `pushInput` in `getFile` is the likely root — loads file and queues as
+incant input unconditionally. Fix: load-without-parse variant or suppress-parse flag.
 
-## Comment/code shape — iteration 2 (pending, not today)
-
-Scrub inline per-action comments from `generate` file. Lift gist into header
-section at top, à la the bytecode explanation. Preserve teaching bits. Treat as
-evolving iteration — comment and reality diverge is a first-class smell.
-`unitTests` done (2026-06-03). `generate` is next when Phase Bytecode has a
-natural pause.
+**Directive content-match bug:** BlocK-line path drops first line positionally; from/to refs
+don't drive match. Text-substrate path works. `statementMatches` / `matchSpanInLines` in
+`Instruct.rtn` are the suspects.
 
 ---
 
-## Phase Bytecode findings (2026-05-25 through 2026-06-03)
+## Phase Generate Tawk — BLOCKER (parked, not current arc)
 
-- [x] **checkSkip sawNewLine gate (2026-06-03, Clod+Tony work)** — year-old
-  flakiness: adopt grabbed inter-token whitespace as indent level. One gate
-  (`sawNewLine && !lastINDENT`) fixes it. Validated: delim repro, oneTest,
-  directives, full testUnitTests POP all green.
-- [x] **emitBC `+%→+=` Fix 1 (2026-06-03)** — instructions now land as members
-  in bcLIST so `interpretBC`'s `for grup in body; members` loop can walk them.
-- [x] **Comment rot Fix 4 (2026-06-03)** — `generate` header §2(a)/(c) and
-  `bytecode` header updated to match reality (three data-movement ops now
-  registered; bcOPs→Operators fold reverted; `interpretBC` dispatches via
-  `grup.interpret` directly).
-- [x] **bcLIST copy-back in generateCode (2026-06-03)** — after `runAction`
-  completes, copy accumulated instructions from `generator.bcLIST` back to
-  `field.bcLIST`. In `Commands.rtn`. Currently inert (source list empty);
-  becomes load-bearing or redundant once accumulator fills.
-- [x] **gExpressioN killed (2026-06-03)** — not a real thing. `gXpress` is the
-  label for ExpressioN nodes, set as exception in `StatemenT` rule action.
-  All TODO references removed.
-- [x] **members vs attributes gate identified (2026-06-03)** — `emitBC` used
-  `+%` (attribute); `interpretBC` walks members. Fix 1 corrects emit side.
-- [x] **bcStoreField emit location clarified (2026-06-03)** — built in
-  `ruleActions.rtn` generating branch (304-308), not `gXpress`. `gXpress`
-  receives already-transformed `bcStoreField` and emits via `bcOPs` branch.
-- [x] **Tar 3 moot (2026-06-03)** — `righty` is a runtime field; `righty * 2`
-  cannot constant-fold. Multiply reaches emitter correctly. Tar 3 closed.
-- [x] **bcOPs registry complete (2026-06-03)** — `bcPushLit`, `bcPushField`,
-  `bcStoreField` now registered at `setup:137-139`. `bcMul` intentionally absent
-  (multiply is `*` operator via `runMultiply`).
-- [x] **Brief 3 verification closed (2026-05-26)** — both root causes of
-  cross-test bleed identified and fixed. Full writeup in prior TODO entries.
+**🚧 generateRules class-body/extern split.** `plg Tawk.g → Tawk.twk` runs clean but output
+does not tok: generateRules dumps class field declarations at file scope. tok → `ERROR
+Inheritance`. Fix: split class-body material from extern bodies. Full writeup in
+projectBible.md "Phase Generate Tawk".
 
 ---
 
-## Closed phases (unchanged)
+## Reentrancy arc — three layers
 
-- [x] Phase Integrate migrations 1+2 (2026-05-16)
-- [x] Phase Splice complete (commit ef2730d, 2026-05-09)
-- [x] All earlier items
+- [x] **Layer 1: Sequential generateCode calls.** Cleared 2026-05-26.
+- [ ] **Layer 2: Mutual recursion (A→B→A).** Stak-based call-stack design sketched, not implemented.
+- [ ] **Layer 3: Hot-patching currently-running actions.** Gates directive feature B. HPDL.
+
+---
+
+## Pending (not current arc)
+
+- [ ] **Tar 5: gXpress operator-asymmetry** — moot per 2026-06-04 verification. ruleActions
+  pre-transforms `=` → `bcStoreField`; gXpress never sees `=` or tgt token. Dead code if added.
+  TODO entry closed.
+- [ ] **testIfElse else branch** — `runGenerated(el)` at gIF:274 emits nothing. Parked.
+- [ ] **generateSignature closing paren** — cosmetic, parked.
+- [ ] **tok: fnptr cast with reference param (`FormatC.twk`)** — tok drops the `&` when rendering a
+  function-pointer type inside a *cast expression*, emitting malformed `(GroupItem*(*)(GroupItem*,))`.
+  Renders `GroupItem*&` fine in *declarations*; only casts break. Surfaced by the gOp by-ref change
+  (2026-06-05), worked around with a `-% … %-` CodePass inside `setOperat`. Real fix: teach
+  `FormatC.twk` to render reference params in fnptr casts — then revise `setOperat` back to typed
+  `void setOperat(GroupItem &m(GroupItem,GroupItem&)){ operat = m; }` and drop the passthrough.
+  Latent: resurfaces for any by-ref fnptr field.
+- [ ] **incant-idioms.md v0** — substantial accumulation now. Draft when bytecode arc closes.
+- [ ] **Bytecode.mm rewrite into tok** — after Phase Bytecode current arc closes.
+- [ ] **bcOPs-fold-into-opFields** — deferred, design at `Groups/docs/bcOPs-fold-design.md`.
+- [ ] **Print bytecode plan document** — `Groups/docs/printGenerationPlan.md`.
+- [ ] **`=:` operator grammar-change design** — parked.
+- [ ] **Wiki weekly refinement.**
+- [ ] **Tawk.twk migration arc** — 587 sites.
+- [ ] **Bible refresh** — minor sync passes after major arcs settle.
+- [ ] **argument[N] on +=-stored children** — Q3 of Brief 3 findings. Parked.
+- [ ] **emitBC parameter naming convention** — CLAUDE.md note pending.
+- [ ] **Brief 2 verification lesson** — bible Working Relationship entry pending.
+- [ ] **Three-way if/or/or chain test** — durable regression test pending in unitTests.
+- [ ] **incant field semantics bible entry** — `=` vs `:=`, pointer-storage vs value-semantics.
+- [ ] **Clay/Clod lane division** — Xcode debugger is Tony's seat. Bible note pending.
+- [ ] **HWF graduation ritual for Sessions 4 and 5** — pending.
+- [ ] **Session 9 follow-up items** — small, interleave.
+
+---
+
+## Phase Integrate — extended (parked)
+
+- [ ] TAWK autopsy remainder
+- [ ] Scoped TAWK autopsy: GC inheritance fix, include guard fix
+
+---
+
+## 🔭 Longer Term (HPDL)
+
+- [ ] Claude as native GroupItem field type (`isCLAUDE`)
+- [ ] Incant as distributed virtual OS
+- [ ] Go-style channel messaging
+- [ ] ZFS-flavored storage
+- [ ] Incant display/layout field
+- [ ] File system as GroupItems
+- [ ] PLG written in Incant
+- [ ] Incant self-hosting via JIT — Phase JIT
+- [ ] Xcode-like development environment written in incant
+
+---
+
+## 🗂️ Housekeeping
+
+- [ ] plg.g `%%` assumption — document/fix
+- [ ] doNotGuard accumulation
+- [ ] +1000 offset reporting quirk
+- [ ] ~/bin/plg dated Nov 2024 — verify or rebuild
+- [ ] Support repo update process — needs a look
+- [ ] Move Groups/GUI/ to Reference/ sibling
+- [ ] Move Groups/Maps/ to support source
+- [ ] Accumulated working-tree drift sort: GroupDraw (76 lines), GroupControl (2), GroupItem (3), Stylish (2)
+- [ ] **Xcode-update discipline:** Clean Build Folder before debugging weird runtime behavior.
+- [ ] **Visibility-gap discipline:** source-of-truth files MUST live in tracked locations.
+- [ ] **Tests/ just-in-case stash** — Parse/Tests/ mostly dangling symlinks post-flatten.
+- [ ] **PLGset.init() stub** — dead code, retained for API compatibility. Remove in cleanup pass.
+- [ ] **TOK Xcode project yaml** — no project.yml. Reverse-engineer from .pbxproj. Rename target incantGUI → incant.
+- [ ] **plg xcode link cleanup + yaml refresh** — post-flatten cosmetic work.
+- [ ] **projectBible.md directory map** — update to reflect unitTests relocation.
+
+---
+
+## ✅ Done
+
+### 2026-06-05
+
+- [x] **gOp pass-by-reference — operator `target` now by-ref.** Op methods that do structural work on
+  `target` and `return target` no longer lose it to the value-copy (the bug that kept poking the
+  generator work). Gates A+B+C, one commit, full unit-test sweep clean (byte-identical across runs):
+  `gOp` pointer + all 29 `operateMethod` operators (`Instruct.rtn`) + 3 directive delegates
+  (`applyDirectives`/`applyTextDirective`/`replaceDirective`, `GroupActions.rtn`) all take
+  `GroupItem &target`. `setOperat` reshaped to `void setOperat(void *m)`; dlsym binding goes through an
+  explicit `setOperat(dlsym(name))` call with the one unavoidable cast in a `-% … %-` CodePass inside
+  the body (tok can't render the by-ref fnptr cast — see Pending/`FormatC.twk`). Recon + full writeup:
+  `docs/gOp-byref-recon.md`. `groups.ext` (in `support/Include/`) committed separately. `gMethod` and
+  the non-operator return-target methods (`loadDirectory`/`setInternalType`/`makeDataType`) left for a
+  later pass — not on the gOp path.
+
+### 2026-06-04
+
+- [x] **Aisle 3 clean** — `delimTest` and `directives` reorganized with unitTests-style headers.
+  Two bugs surfaced and documented: directive content-match broken on BlocK-line path;
+  getFile parses what it loads. delimTest: comment-only cleanup, output verified identical
+  to baseline. Layer C headline (live DatA mutation) and run-order constraint documented.
+- [x] **`opPlusEQ` list-append fix** — promoted `or target.binType || target.groupList` branch
+  above `or argument.data`. List-shaped targets now take append path regardless of argument type.
+- [x] **`setPointer` / `opPointer` chain** — `bcPushField` carries `isPointer` at definition.
+  `copyOf` carries it through virtual copies. `=*` available as use-time operator.
+- [x] **`copyOf` virtual-copy revision** — skips `copyListTo` for virtual sources; clears
+  `isVirtual` on copy. Load-bearing constraint: virtual instance lists are read-only shared
+  references.
+- [x] **`aCTionTokenXP` bare-field-ref fix** — operand baring + explicit operator-skip guard
+  (`!isOperator`) in generating branch.
+- [x] **`generateCode` bcLIST groupList allocation** — `new GroupList(bcLIST)` before first `+=`.
+- [x] **`generateCode` copy-back removed** — `accumulated` and `fieldList` were same slot;
+  `copyListTo` was walking list into itself.
+- [x] **`generateAction` argument naming fix** — parameter renamed from `action` to `argument`.
+- [x] **`interpretBC` wired into `generate`** — copied from bytecode file, `code=` added.
+- [x] **`generateAction(testByteCode)` wired into `oneTest`.**
+- [x] **`testEmitBC` retired** — called unregistered `bcMul`.
+- [x] **New `GroupList()` constructor added.**
+
+### 2026-05-28 through 2026-06-03
+
+- [x] **Incant directives: replace + delete on AST substrate (2026-05-28 PM)**
+- [x] **Text-substrate directive design landed (2026-05-28 PM)**
+- [x] **GroupRules.twk restored as source of truth (2026-05-28)**
+- [x] **DatA live grammar mutation (Layer C) complete and passing** — `DatA += DelimText;
+  guard(DatA)` grafts new alternative at runtime; live parser picks it up immediately.
+  guardSet scrub + guarding flag reset both required. `>#` → `)#` delimiter fix (checkSkip
+  interaction). Run-order constraint documented: Layer B deferred after Layer C move 3.
+- [x] **checkSkip `indenting` fix (2026-06-03)** — was counting inter-token whitespace instead
+  of only post-newline whitespace. `sawNewLine && !lastINDENT` gate resolved it.
+
+### Earlier 2026-05
+
+- [x] **Brief 3 verification closed (2026-05-26)**
+- [x] **runOP isPointer guard (2026-05-26)**
+- [x] **Per-action tempField via aCTionDefinE + pointer redirect (2026-05-26)**
+- [x] **getText Stak handling + dumpText polish (2026-05-26)**
+- [x] **replace() actual-swap fix (2026-05-26)**
+- [x] **`&` modifier on gXpress signature parameters (2026-05-26)**
+- [x] **Phase Bytecode major progress 2026-05-24/25 evening** (five findings)
+- [x] **gXpress simplified and tested (2026-05-24)**
+- [x] **ElsE forward-reference grammar fix (2026-05-22)**
+- [x] **opDot late-binding unwrap removed (2026-05-22)**
+- [x] **Three incant-machinery investigations resolved (2026-05-22)**
+- [x] **Incant unit-test suite passing (2026-05-16)**
+- [x] **Phase Generate Tawk done items (2026-05-30)**
+- [x] **Phase Integrate migrations 1 and 2 (2026-05-16)**
+- [x] **checkSkip double-define bug fixed (2026-05-15)**
+- [x] **Bible v2 + jit.md mirrored (2026-05-15)**
+- [x] **PLGmain split from PLGparse (2026-05-15)**
+- [x] **plg directory flatten (2026-05-14)**
+- [x] **CodE/DatA parseAction approach (2026-05-14)**
+- [x] **PLGset migrated to support/Frame (2026-05-14)**
 
 ### Earlier
 

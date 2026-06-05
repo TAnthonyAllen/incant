@@ -147,7 +147,8 @@ define
     swapTo   = "int	REPLACED";
     DiRSwapInt swapFrom swapTo;
     testTextDirective code={
-        fileField = new("/Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/groups.twk");
+        fileField = "/Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/groups.twk";
+        **fileField;
         getFile(fileField);
         print ``"--- BEFORE text directive ---":;
         print fileField:;
