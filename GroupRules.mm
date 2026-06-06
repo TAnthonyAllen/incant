@@ -405,6 +405,7 @@ GroupItem 	*token = 0;
 		GroupItem 	*revisedList = new GroupItem("revisedList");
 		GroupItem 	*grup = 0;
 		GroupItem 	*store = 0;
+		GroupItem 	*tgt = 0;
 		if ( xpList->groupBody->groupList->listLength == 1 )
 			{
 			arg = xpList->groupBody->groupList->firstInList;
@@ -447,7 +448,9 @@ GroupItem 	*token = 0;
 							if ( !arg->groupBody->gMethod )
 								revisedList->addMember(arg);
 							store = ::copyOf(GroupControl::groupController->groupRules->bcOPs->get("bcStoreField"));
-							store->addAttribute(target);
+							tgt = new GroupItem("target");
+							tgt->setGroup(target);
+							store->addAttribute(tgt);
 							revisedList->addMember(store);
 							}
 						else {
@@ -1888,6 +1891,33 @@ extern "C" GroupItem *guard(GroupItem *item)
 }
 
 /*****************************************************************************
+    interpretMethod — binds a bytecode op's interpret handler. Unlike
+    operateMethod (which binds the op's own operat slot, then vanishes as a
+    setter), this creates a PERSISTENT `interpret` child on the op and binds
+    the named C++ handler as that child's method, so interpretBC can dispatch
+    it in place via grup.interpret(grup). The op's own flags/slots stay clear.
+*****************************************************************************/
+extern "C" GroupItem *interpretMethod(GroupItem *input)
+{
+char 		*name = input->getText();
+GroupItem 	*interp = 0;
+	if ( input->groupBody->flags.fLAG )
+		if ( name )
+			{
+			GroupItem 	*grup = input->parent;
+			if ( grup )
+				{
+				interp = grup->addString("interpret");
+				interp->setMethod((GroupItem*(*)(GroupItem*))::dlsym(RTLD_SELF,name));
+				}
+			else	::fprintf(stderr,"interpretMethod: no parent to attach interpret to\n");
+			}
+		else	::fprintf(stderr,"interpretMethod: expected a handler name in text\n");
+	else	::fprintf(stderr,"interpretMethod: should be invoked as a definition attribute\n");
+	return input->getGroup();
+}
+
+/*****************************************************************************
 	The input argument is expected to be a listenTo attribute that contains
     a list of groups that will be listened to by listenTo's parent (the listener).
     The listenTo attribute is noPrint and runs when its parent gets defined.
@@ -3001,7 +3031,12 @@ GroupItem 	*action = field;
 		code = action->get("CodE");
 		while ( grup = label->nextAttribute(grup) )
 			if ( result = code->get(grup->groupBody->tag) )
-				result->setContent(grup);
+				{
+				if ( grup->groupBody->groupList )
+					result->groupBody->groupList = grup->groupBody->groupList;
+				if ( grup->groupBody->flags.data )
+					result->copyData(grup);
+				}
 			else {
 				grup->groupBody->flags.isLocal = 1;
 				code->addAttribute(grup);
@@ -3457,6 +3492,22 @@ GroupItem 	*ruleArg = 0;
 	GroupControl::groupController->groupRules->lastREF->setGroup(result);
 	result = ::processAction(field);
 	return result;
+}
+
+/***************************************************************************
+    runByteFn — Track A dispatch primitive. A bytecode op carries a
+    method-bound `interpret` child (built by interpretMethod). Invoking that
+    child's method from incant is the poochifier (`=` drops the binding), so
+    interpretBC delegates here: fetch the child and call its bound handler in
+    place, with the op as the instruction. No copy, no `=`. Label ops have no
+    `interpret` child -> null -> interpretBC treats it as a no-op fall-through.
+***************************************************************************/
+extern "C" GroupItem *runByteFn(GroupItem *instr)
+{
+GroupItem 	*interp = instr->get("interpret");
+	if ( interp )
+		return interp->groupBody->gMethod(instr);
+	return 0;
 }
 
 /***************************************************************************

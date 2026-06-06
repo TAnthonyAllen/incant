@@ -177,7 +177,6 @@ define
     generateAction argument code={
         print "Generating action for" tag:;
         generated = generateCode(argument);
-        **generated;
         //printTO(stringBUFFER);
         if generated;
             generateSignature(argument);
@@ -185,6 +184,7 @@ define
             print :"About to run interpretBC":;
             interpretBC(generated);
             print "Ran interpretBC":;
+            print "maximus =" maximus:;
             //printTO(null);
         else print "generateCode failed":;
         };
@@ -298,9 +298,7 @@ define
                     if child.taG != "=";        emitBC(child);
                 or child.registrY == "bcOPs";   emitBC(child);
                 or child.isLiteraL;             emitBC(bcPushLit=child);
-                else
-                    bcPushField = bcPushField += child;
-                    emitBC(bcPushField);
+                else                            emitBC(bcPushField=child);
             };
         emitBC argument code={
             :generator bcLIST;
@@ -341,11 +339,7 @@ define
     interpretBC argument code={
         argument +% opStack;
         for grup in argument; members
-            handler = grup.interpret;
-            if !handler;
-                print "interpret: no handler for" grup.taG:;
-                return;
-            result = handler(grup);
+            result = runByteFn(grup);
             if result;  grup = result;
         if opStack.listLengtH;  print "interpret: opStack not empty at end:" opStack.listLengtH:;
         };

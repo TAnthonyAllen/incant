@@ -175,6 +175,30 @@ use input
     return trueResult;
 }
 
+/*****************************************************************************
+    interpretMethod — binds a bytecode op's interpret handler. Unlike
+    operateMethod (which binds the op's own operat slot, then vanishes as a
+    setter), this creates a PERSISTENT `interpret` child on the op and binds
+    the named C++ handler as that child's method, so interpretBC can dispatch
+    it in place via grup.interpret(grup). The op's own flags/slots stay clear.
+*****************************************************************************/
+extern GroupItem interpretMethod(GroupItem input)
+{
+String      name = text;
+GroupItem   interp;
+use input
+    if input.fLAG
+        if name {
+            GroupItem   grup = parent;
+            if grup {
+                interp = addString("interpret");
+                interp.method = dlsym(RTLD_SELF,name); }
+            else    cerr "interpretMethod: no parent to attach interpret to":; }
+        else    cerr "interpretMethod: expected a handler name in text":;
+    else    cerr "interpretMethod: should be invoked as a definition attribute":;
+    return group;
+}
+
 /*******************************************************************************
 	Load a registry (create it if necessary) from a string. It does not deal
     w/attributes, just loads any field of non-space characters.
@@ -344,7 +368,9 @@ GroupItem   label = field,
     if isRule {
         code = action[CodE];
         while grup = label.nextAttribute(grup)
-            if result = code[grup.tag]  result.setContent(grup);
+            if result = code[grup.tag] {
+                if grup.groupList   result.groupList = grup.groupList;
+                if grup.data        result.copyData(grup); }
             else {
                 grup.isLocal    = true;
                 code +% grup; }}
@@ -600,6 +626,21 @@ use field
     lastREF.group  = result;
     result  = processAction(field);
     return  result;
+}
+
+/***************************************************************************
+    runByteFn — Track A dispatch primitive. A bytecode op carries a
+    method-bound `interpret` child (built by interpretMethod). Invoking that
+    child's method from incant is the poochifier (`=` drops the binding), so
+    interpretBC delegates here: fetch the child and call its bound handler in
+    place, with the op as the instruction. No copy, no `=`. Label ops have no
+    `interpret` child -> null -> interpretBC treats it as a no-op fall-through.
+***************************************************************************/
+extern GroupItem runByteFn(GroupItem instr)
+{
+GroupItem   interp = instr["interpret"];
+    if interp   return interp.gMethod(instr);
+    return null;
 }
 
 /***************************************************************************

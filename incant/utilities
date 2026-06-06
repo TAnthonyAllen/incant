@@ -1,5 +1,15 @@
 define
-    Stuff registry
+    Utilities registry
+        /***********************************************************************
+            dumpField — print a field as tag=value, then an indented list of the
+            child tags (or a no-list note). Incant-side cousin of dumpContents.
+        ***********************************************************************/
+        dumpField argument code={
+            print `argument.taG "=" argument:;
+            if argument.listLengtH;
+                for grup in argument;    print ``grup.taG:;
+            else print ``"(no list)":;
+            };
         /***********************************************************************
             Check to make sure the field passed in fits in the current frame before
             displaying it.

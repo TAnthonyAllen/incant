@@ -277,7 +277,7 @@ GroupItem   op,
             token;
     if generating {
         GroupItem revisedList = new("revisedList");
-        GroupItem grup, store;
+        GroupItem grup, store, tgt;
         if xpList.listLength == 1 {
             arg = xpList.firstInList;
             if arg.isGROUP && !arg.isArgument   arg = arg.group;
@@ -308,7 +308,9 @@ GroupItem   op,
                         if op.tag eq "=" {
                             if !arg.method   revisedList += arg;
                             store = copyOf(bcOPs["bcStoreField"]);
-                            store +% target;
+                            tgt = new("target");
+                            tgt.group = target;
+                            store +% tgt;
                             revisedList += store; }
                         else {
                             revisedList += target;

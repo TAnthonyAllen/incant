@@ -4,6 +4,7 @@
 #include "OCroutines.h"
 #include "GroupItem.h"
 #include "GroupRules.h"
+#include "GroupBody.h"
 #include "Bytecode.h"
 
 // opGT / opMultiply / opAssign are declared via groupIncludes (included above).
@@ -87,23 +88,25 @@ GroupItem 	*op1 = stack->pop();
 GroupItem 	*result = ::opMultiply(op2,op1);
 GroupItem 	*prod = new GroupItem("prod");
 	if ( result )
-		prod->setContent(result);
+		prod->copyData(result);
 	// copy value off the shared temp
 	stack->push(prod);
 	return 0;
 }
 
 /***************************************************************************
-    bcPushField — push the referenced field's value. Same shape as bcPushLit
-    today (the emit currently folds the value onto the instruction). When the
-    emit carries a real field reference instead, this reads + pushes the
-    field's CURRENT value.
+    bcPushField — push the referenced field's value. The emit folds the
+    field's value onto the instruction as data (gXpress: emitBC(bcPushField=
+    child)), so a clean copyData lifts just that value onto the stack — never
+    the instruction's structure (tag, interpret child). When the emit later
+    carries a real field reference, this reads + pushes the field's CURRENT
+    value instead.
 ***************************************************************************/
 extern "C" GroupItem *runPushField(GroupItem *instr)
 {
 GroupItem 	*stack = ::opStackOf(instr);
 GroupItem 	*value = new GroupItem("fld");
-	value->setContent(instr);
+	value->copyData(instr);
 	stack->push(value);
 	return 0;
 }
@@ -118,7 +121,7 @@ extern "C" GroupItem *runPushLit(GroupItem *instr)
 {
 GroupItem 	*stack = ::opStackOf(instr);
 GroupItem 	*value = new GroupItem("lit");
-	value->setContent(instr);
+	value->copyData(instr);
 	stack->push(value);
 	return 0;
 }
@@ -135,23 +138,22 @@ extern "C" GroupItem *runRET(GroupItem *instr)
 
 // ---------- consumer: pop a value, store into a field ----------
 /***************************************************************************
-    bcStoreField — pop the top value, assign it into the target field the
-    instruction names (e.g. maximus). Delegates to opAssign (target := value).
+    bcStoreField — pop the top value, store it into the target field the
+    instruction names (e.g. maximus). A bytecode store is a clean data copy
+    into the live destination, so it does that directly (copyData) rather than
+    routing through opAssign/setContent — decoupled from the `=` redesign and
+    immune to setContent's empty-source-copies-tag pitfall.
 ***************************************************************************/
 extern "C" GroupItem *runStoreField(GroupItem *instr)
 {
 GroupItem 	*stack = ::opStackOf(instr);
 GroupItem 	*value = stack->pop();
 GroupItem 	*target = instr->getAttribute("target");
-	::opAssign(value,target);
+GroupItem 	*dest = target->getGroup();
+	dest->copyData(value);
 	return 0;
 }
 
-/*******************************************************************************
-	RuleStuff
-    if tag eq "CodE" cout :``"getWhatFollows:",tag;
-    if tag eq "NamE"    completed = 0;
-*******************************************************************************/
 void Bytecode::run()
 {
 	return;

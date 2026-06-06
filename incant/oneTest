@@ -1,9 +1,10 @@
 Start();
 include(unitTests);
 include(generate);
+include(utilities);
 
 search reset stack Grokking;
-search Generating UnitTests bcOPs list;
+search Generating UnitTests bcOPs Utilities list;
 
 /*****************************************************************************
 	Bytecode generation — POP target: testByteCode -> maximus = 26

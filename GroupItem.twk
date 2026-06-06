@@ -650,6 +650,22 @@ String      junkText;
 }
 
 /*****************************************************************************
+	dumpField — debugging dump of one field: tag, data value, and (if it has
+	a list) the member tags only. tok cousin of the incant dumpField action.
+	Uses cerr (not print) so it never disturbs the sticky print default.
+	Read-only; never mutates. Call as item.dumpField().
+*****************************************************************************/
+void dumpField()
+{
+GroupItem   grup;
+	if groupList {
+		cerr "  ",tag," | data=",getText()," | listLen=",listLength:;
+		while grup = next(grup)
+			cerr "      - ",grup.tag:; }
+	else cerr "  ",tag," | data=",getText()," | (no list)":;
+}
+
+/*****************************************************************************
 	Insert an item at the beginning of this list. If list has entries and is
     sorted will throw an error and return null;
 *****************************************************************************/

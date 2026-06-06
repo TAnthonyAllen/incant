@@ -47,6 +47,7 @@ void copyListFrom(GroupItem *grup);
 void copyListTo(GroupItem *grup);
 GroupItem *dQ();
 void dispatch();
+void dumpField();
 GroupItem *findAttribute(char *name);
 GroupItem *findParent(char *name);
 GroupItem *firstComponent(char *name);

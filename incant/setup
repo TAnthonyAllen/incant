@@ -49,6 +49,7 @@ define
     regex immediateAction=setInternalType noPrint;
     register immediateAction=rEGISTER noPrint;
     registry immediateAction=rEGISTER noPrint;
+    runByteFn immediateAction=runByteFn;
     setLabel immediateAction;
     setPointer immediateAction=opPointer noPrint;
     sort immediateAction=processFlags noPrint;
@@ -77,7 +78,7 @@ define
     '?';
     '>>';
     '>='    operateMethod=opGE;
-    '>'     operateMethod=opGT  interpret=runGT;
+    '>'     operateMethod=opGT  interpretMethod=runGT;
 
     '=='    operateMethod=opEQ;
     '=['    operateMethod=opGet;
@@ -111,7 +112,7 @@ define
     '+%'    operateMethod=opAddAttribute;
     '+'     operateMethod=opPlus;
     '*='    operateMethod=opMultiplyEQ;
-    '*'     operateMethod=opMultiply  interpret=runMultiply;
+    '*'     operateMethod=opMultiply  interpretMethod=runMultiply;
     '@'     unary ruleMethod=opLastREF;
     '&';
     '%'     operateMethod=opDiv;
@@ -126,18 +127,18 @@ define
 	so if they were operator-tokens the emitter source would fail to parse (it
 	did — the 2026-05-30 fold experiment). Instead bcOPs is added to the search
 	list, so bare references resolve here as names and the emitted op inherits
-	its interpret= handler; interpret() then dispatches via grup.interpret like
+	its interpretMethod= handler; interpret() then dispatches via grup.interpret like
 	everything else.
 *******************************************************************************/
 registry(bcOPs);
 define
-    bcBR         interpret=runBR;
-    bcBRZ        interpret=runBRZ;
-    bcCALL       interpret=runCall;
-    bcRET        interpret=runRET;
-    bcPushLit    virtual interpret=runPushLit;
-    bcPushField  virtual interpret=runPushField setPointer;
-    bcStoreField interpret=runStoreField;
+    bcBR         interpretMethod=runBR;
+    bcBRZ        interpretMethod=runBRZ;
+    bcCALL       interpretMethod=runCall;
+    bcRET        interpretMethod=runRET;
+    bcPushLit    virtual interpretMethod=runPushLit;
+    bcPushField  virtual interpretMethod=runPushField setPointer;
+    bcStoreField interpretMethod=runStoreField;
     ;
 /*******************************************************************************
 	pROPERTIEs is a base registry defined on startup and extended here

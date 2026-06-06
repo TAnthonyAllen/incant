@@ -50,6 +50,13 @@ GroupItem   item;
     immediateACTION     = true;
     isMethod            = true;
     noPrint             = true;
+
+    item = new("interpretMethod");
+    commands            += item;
+    method              = interpretMethod;
+    immediateACTION     = true;
+    isMethod            = true;
+    noPrint             = true;
    /**************************************************************************
         and the registry command
     *************************************************************************/

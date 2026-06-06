@@ -417,6 +417,24 @@ DispatchQ 	*dq = GroupControl::groupController->dispatchQ;
 }
 
 /*****************************************************************************
+	dumpField — debugging dump of one field: tag, data value, and (if it has
+	a list) the member tags only. tok cousin of the incant dumpField action.
+	Uses cerr (not print) so it never disturbs the sticky print default.
+	Read-only; never mutates. Call as item.dumpField().
+*****************************************************************************/
+void GroupItem::dumpField()
+{
+GroupItem 	*grup = 0;
+	if ( groupBody->groupList )
+		{
+		::fprintf(stderr,"   %s  | data= %s  | listLen= %d\n",groupBody->tag,getText(),groupBody->groupList->listLength);
+		while ( grup = next(grup) )
+			::fprintf(stderr,"      -  %s\n",grup->groupBody->tag);
+		}
+	else	::fprintf(stderr,"   %s  | data= %s  | (no list)\n",groupBody->tag,getText());
+}
+
+/*****************************************************************************
 	Searches ancestors bottom up for the first attribute matching name.
     Keep in mind the parent hierarchy has to be reset first for this to work.
 *****************************************************************************/

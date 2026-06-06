@@ -4,32 +4,74 @@
 
 ---
 
-## Phase Bytecode — current state (end of 2026-06-04)
+## Phase Bytecode — current state (2026-06-06)
 
-**🚧 interpretBC: `interpret=runPushField` not surviving `+=` into bcLIST.**
-The emit pipeline is confirmed clean — dumpBC shows 9 correct instructions in bcLIST
-(bcPushField / bcPushLit 0 / > / bcBRZ / bcPushField / bcPushLit 2 / * / bcStoreField / endLabel).
-`interpretBC` runs and returns without error but silently — `runPushField` never fires.
-Root cause: `bcPushField` in bcLIST has an empty groupList, so `interpret=runPushField`
-is not visible to dispatch. `+=` into bcLIST goes through `addMember` which does its own
-copy internally, bypassing `copyOf`. That copy path loses the groupList.
-**First move tomorrow: breakpoint in `addMember`, trace what copy mechanism fires when
-appending `bcPushField` to bcLIST, and confirm whether the groupList (carrying
-`interpret=runPushField`) survives the copy.**
+**🎯🎉 POP LANDED — `testByteCode` → `maximus = 26`.** The bytecode interpreter
+runs end to end: parse → emit (clean 9-op bcLIST) → dispatch → handlers → store.
+Verified by run, not shape: `maximus = 26`, opStack empty, zero errors.
 
-**Open threads (in priority order):**
+How it landed (Track A — dispatch in place, NOT via `=`):
+- **`runByteFn` primitive** (`GroupActions.rtn`) fetches an op's method-bound
+  `interpret` child and invokes its `gMethod` with the op — no copy, sidesteps the
+  `=`/setContent method-drop entirely. Registered as command in `incant/setup` (MUST be
+  `runByteFn immediateAction=runByteFn;` — the bare no-value form silently fails to bind;
+  setRuleAction reads the method name from `item.text`). `interpretBC` (`incant/generate`)
+  now does `result = runByteFn(grup)`.
+- **`righty`×4 emit bug fixed** (`incant/generate` gXpress): `bcPushField += child; emitBC(
+  bcPushField)` mutated the shared registry op and emitted it by reference (all instructions
+  aliased one growing list). Replaced with `emitBC(bcPushField=child)` — snapshots the
+  field's value as data, mirroring bcPushLit. Each bcPushField now carries its own `=13`.
+- **Handlers** (`Bytecode.twk`): runPushField/runPushLit/runMultiply use `copyData` (lift the
+  value, not the instruction's structure); runStoreField uses `dest.copyData(value)` directly
+  (a bytecode store is a clean data copy — decoupled from opAssign/`=`, immune to the
+  empty-source-copies-tag pitfall that produced `maximus = "prod"`).
+- The `interpret` child DOES survive the `+=` into bcLIST (the 06-04 "doesn't survive" worry
+  was wrong). `dumpField()` added to `GroupItem.twk` as a reusable debug dump (keeper).
 
-- **`interpret=runPushField` not surviving `+=` into bcLIST** (blocking interpretBC dispatch).
-  See above. `addMember` copy path is the chase target.
-- **`Token=0` / `Token=2` literals still Token-wrapped in revisedList.** `bcPushLit` is
-  receiving Token-wrapped literals; `child.isLiteraL` check in `gXpress` isn't catching them.
-  Separate from the bcPushField issue — fix after dispatch is unblocked.
-- **`testIfElse` else branch emits nothing.** `runGenerated(el)` at gIF:274 produces no
-  instructions for the else clause. Parked — not blocking `testByteCode`; becomes relevant
-  when `testIfElse` is the POP target.
-- **`generateSignature` not closing properly.** Prints `GroupItem* testByteCode (` without
-  closing paren/brace. Minor, parked.
-- **`Instruct.rtn` alpha ordering pooched by Clod** — good offline task for Tony. Low risk.
+**Next (post-POP):**
+- **Track B — `=` semantics / divineIntent.** `opAssign`/`setContent` redesign: `=` means
+  data copy; explicit operators for structure/reference/clone-with-method. Design-first
+  (Clay + Tony). See divineIntent summary. opAssign untouched pending the vocabulary spec.
+- Bytecode handlers beyond the POP path (other ops, real field references vs folded values).
+- Dead `incant/bytecode` copy — salvage doc header, then delete.
+
+**Earlier plan (for history): `docs/bytecode-dispatch-plan.md`.**
+
+Today's arc (resolved the 06-04 blocker, then dug to the real one):
+- **06-04 blocker resolved.** `bcPushField` had an empty groupList because gXpress did
+  `bcPushField = bcPushField += child` — the `=` ran self-`setContent` and clobbered the list.
+  Dropped the `=` → list retained → "no handler" gone. (Not addMember; the copy-ctor *shares*
+  the body. The addMember chase was a wrong lead.)
+- **Real blocker found.** `interpret=runX` never bound the handler — `interpret` was not a
+  registered command, so the bare token was stored as a **string** → all 9 ops `method=0`,
+  nothing ever dispatched. The bytecode interpreter had never executed an op. Not a regression,
+  unfinished wiring.
+- **Binder built and WORKING.** `interpretMethod` command (GroupMain bootCommands, below
+  operateMethod) + binder in `GroupActions.rtn` (alpha-slot fAIL↔loadRegistryFromString).
+  It creates a persistent `interpret` child on the op and `setMethod`s the dlsym'd handler.
+  Registry flipped to `interpretMethod=runX` (`incant/setup`). Confirmed: ops carry a
+  method-bound `interpret` child.
+- **Final blocker (the poochifier).** interpretBC can't *invoke* the bound child from incant:
+  `handler = grup.interpret` → `=`/`setContent` copies data+lists but **not the method**;
+  chained `grup.interpret(grup)` parse-fails; `:=` wrapper doesn't dispatch.
+
+**Resume tomorrow** (per the plan doc): two paths, lean toward **Path B (fix the poochifier)** —
+make `setContent` carry the method binding (Tony's constraint: don't bloat setContent's hot
+path; parameterize `contents()` default-preserving; decide the **(a) gated-in-setContent vs
+(b) separate method-aware copy** fork). If B sweeps clean, `maximus = 26` falls out and the
+wart's gone. **Path A (gByteFn slot)** is the targeted fallback. Both fully spec'd in the doc.
+
+**Other open threads (parked):**
+- **The poochifier itself** — `setContent`/`=` silently drop `gMethod`/`gOp`. The root wart;
+  Path B fixes it. See [[setcontent-ignores-methods]] memory.
+- **`righty`×4 on bcPushField** — bare `bcPushField += child` mutates the *shared* virtual
+  registry op, accumulating the operand across emits. Independent of dispatch; fix after.
+- **`Token=0`/`Token=2` literals Token-wrapped in revisedList** — `child.isLiteraL` in gXpress
+  isn't catching them. Fix after dispatch.
+- **`testIfElse` else branch emits nothing** (gIF:274). Parked.
+- **`generateSignature` not closing** — cosmetic, parked.
+- Dead `incant/bytecode` copy — salvage its doc header, then delete. `dumpField` shipped to
+  `Utilities` (keeper). interpretBC debug scaffolding stripped.
 
 **What landed today (2026-06-04):**
 - Aisle 3 clean: `delimTest` and `directives` reorganized with unitTests-style headers.
