@@ -37,6 +37,51 @@ How it landed (Track A — dispatch in place, NOT via `=`):
 
 **Earlier plan (for history): `docs/bytecode-dispatch-plan.md`.**
 
+---
+
+## Parse error handling + divineIntent prep (2026-06-06 PM)
+
+**Committed (dormant infrastructure — prep for divineIntent):**
+- `aCTionFailed` (`ruleActions.rtn`) upgraded from a one-line text dump to a structured
+  report: line, 40-char offending-text window, last-parsed hint. **Still dormant** — no
+  `Failed` catch-all rule is wired, so it never fires yet. Recon finding: the parser
+  *backtracks silently* and the top-level `strap.parse(0)` result is unchecked, so parse
+  errors currently produce NOTHING. Wiring a `Failed` catch-all as the last `StatemenT`
+  alternative is the hook — bear-trap caveat: its guard must exclude `}` / `;` / EOF or it
+  false-positives at every block close. (NOTE: a `Failed`-in-StatemenT catches incant
+  statement errors but NOT JSON failures — JSON parses via a different path.)
+- `lastStatement` marker (`GroupRules` field, set in `aCTionStatemenT`'s `!processingCode`
+  branch on confirmed top-level statement execution; read by `aCTionFailed`). Survives
+  backtracking, unlike `ruleSTUFF.label`. Top-level granularity only; in-block is a future
+  refinement. Commits: `d2e69fa`, `d17b26b` (Groups) + `e783750` (Include/groups.ext).
+
+## JSON grammar — diagnosis done, fold pending (2026-06-06 PM, Tony's WIP)
+
+Goal: make `JSONlist` return a usable data tree (the isCLAUDE response-parser bridge).
+**Capture bug fully diagnosed — two causes:**
+1. **setLabel wrote to the wrong RuleStuff.** `code={ ...; setLabel(QuotE); }` runs inside a
+   BlocK frame, so global `ruleSTUFF` is the BlocK's, not QuotE's. Fix (validated in Xcode):
+   `RuleStuff ruleStuff = rStuff;` (QuotE's own) instead of `= ruleSTUFF`. After this,
+   `JSONfield succeeded label: QuotE=main` — field keying works.
+2. **`aCTionRunRulE` drops the rule result.** On the isRule path it does
+   `rule = runRule(argument, rule); return input;` — `input` was `clear()`'d, so the JSONlist
+   result (which DOES hold the field list) is thrown away. The comment says "returns the rule
+   result" but it only does so on the `!isRule` branch.
+
+**Plan (Tony doing the fold at own pace):** rather than fix the hot `aCTionRunRulE` return,
+fold the JSON rules (JSONarray/JSONlist/JSONvalue/JSONfield) from `incant/utilities` (Utilities
+registry) back into `incant/grammar` (Grokking) and parse JSON **under Start** — Start's
+`parse()` accumulates onto `parentLabel` correctly and never hits the leaky invocation path.
+Open question: the entry trigger (how a oneTest line gets parsed as JSON vs incant — `{...}`
+collides with BlocK). Then the test is a oneTest line + `dumpField`/`dumpContents` on the result.
+**Also still open (recon):** JSON coverage gaps — numbers (`JSONvalue → GrouP = NamE|QuotE`, no
+NumbeR), array element commas (`JSONarray` has no separator), string escapes (`QuotE` `upTo`
+truncates at `\"` — needs a JSONstring rule: grammar `(escape|normal)*` for delimiting + action
+to resolve). Empty `{}` is valid/expected (keep `*` not `+`).
+
+**Uncommitted WIP (Tony's):** `Commands.rtn` (setLabel `rStuff`), `GroupRules.mm` (regen),
+`incant/utilities` (JSONlist field-label dropped), `incant/jsonTest` (untracked scratch repro).
+
 Today's arc (resolved the 06-04 blocker, then dug to the real one):
 - **06-04 blocker resolved.** `bcPushField` had an empty groupList because gXpress did
   `bcPushField = bcPushField += child` — the `=` ran self-`setContent` and clobbered the list.
