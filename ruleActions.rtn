@@ -367,7 +367,16 @@ finishXP:
 *******************************************************************************/
 extern GroupItem aCTionFailed(GroupItem input)
 {
-    cout "Parse failed on text:",getDebugText(atRuleMark,20):;
+RuleStuff   ruleStuff  = ruleSTUFF;
+GroupItem   lastParsed = ruleStuff.label;
+    // NOTE: parentLabel (the parse-tree accumulator) is a local of
+    // GroupItem::parse() and not reachable here. ruleSTUFF.label is the only
+    // global hook into live parse state; the parser resets it constantly, so
+    // "Last parsed" is a best-effort hint, not a guarantee.
+    cout "Parse failed":;
+    cout "  Line:        ", sourceLINE:;
+    cout "  Failed at:   ", getDebugText(atRuleMark, 40):;
+    if lastParsed   cout "  Last parsed: ", lastParsed.tag:;
     stopParsingInput(input);
     return input;
 }

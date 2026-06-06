@@ -597,7 +597,17 @@ int 		restrict = 0;
 *******************************************************************************/
 extern "C" GroupItem *aCTionFailed(GroupItem *input)
 {
-	::printf("Parse failed on text: %s\n",::getDebugText(GroupControl::groupController->groupRules->atRuleMark,20));
+RuleStuff 	*ruleStuff = GroupControl::groupController->groupRules->ruleSTUFF;
+GroupItem 	*lastParsed = ruleStuff->label;
+	// NOTE: parentLabel (the parse-tree accumulator) is a local of
+	// GroupItem::parse() and not reachable here. ruleSTUFF.label is the only
+	// global hook into live parse state; the parser resets it constantly, so
+	// "Last parsed" is a best-effort hint, not a guarantee.
+	::printf("Parse failed\n");
+	::printf("  Line:         %d\n",GroupControl::groupController->groupRules->sourceLINE);
+	::printf("  Failed at:    %s\n",::getDebugText(GroupControl::groupController->groupRules->atRuleMark,40));
+	if ( lastParsed )
+		::printf("  Last parsed:  %s\n",lastParsed->groupBody->tag);
 	::stopParsingInput(input);
 	return input;
 }
@@ -3664,6 +3674,8 @@ extern "C" GroupItem *setInternalType(GroupItem *grup)
 ***************************************************************************/
 extern "C" GroupItem *setLabel(GroupItem *input)
 {
+RuleStuff 	*ruleStuff = GroupControl::groupController->groupRules->ruleSTUFF;
+	ruleStuff->label = input;
 	// all it did was set RuleStuff label = input. Used in the JSONfield rule.
 	return input;
 }

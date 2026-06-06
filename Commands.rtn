@@ -547,6 +547,8 @@ extern GroupItem setInternalType(GroupItem grup)
 ***************************************************************************/
 extern GroupItem setLabel(GroupItem input)
 {
+RuleStuff ruleStuff = ruleSTUFF;
+    label = input;
     // all it did was set RuleStuff label = input. Used in the JSONfield rule.
     return input;
 }
