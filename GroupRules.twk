@@ -40,6 +40,7 @@ class GroupRules
                 falseResult,
                 inDENT,
                 lastREF,
+                lastStatement,
                 generator,
                 printSPACE,
                 ruleSkipSet,

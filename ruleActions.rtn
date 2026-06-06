@@ -367,16 +367,15 @@ finishXP:
 *******************************************************************************/
 extern GroupItem aCTionFailed(GroupItem input)
 {
-RuleStuff   ruleStuff  = ruleSTUFF;
-GroupItem   lastParsed = ruleStuff.label;
-    // NOTE: parentLabel (the parse-tree accumulator) is a local of
-    // GroupItem::parse() and not reachable here. ruleSTUFF.label is the only
-    // global hook into live parse state; the parser resets it constantly, so
-    // "Last parsed" is a best-effort hint, not a guarantee.
+GroupItem   lastStatement = groupRules.lastStatement;
+    // lastStatement is a stable marker set in aCTionStatemenT only on confirmed
+    // top-level statement execution (!processingCode) — it survives backtracking,
+    // unlike ruleSTUFF.label. Top-level granularity for now; in-block is a future
+    // refinement.
     cout "Parse failed":;
     cout "  Line:        ", sourceLINE:;
     cout "  Failed at:   ", getDebugText(atRuleMark, 40):;
-    if lastParsed   cout "  Last parsed: ", lastParsed.tag:;
+    if lastStatement   cout "  Last parsed: ", lastStatement.tag:;
     stopParsingInput(input);
     return input;
 }
@@ -675,6 +674,7 @@ GroupItem   sourceFile = new("sourceFile");
     if !processingCode {
         GroupItem   statement = input;
         if isGROUP  statement = group;
+        lastStatement = statement;
         if method   return method(statement); }
     or generating && !input.gText
         if input.isGROUP {

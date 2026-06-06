@@ -29,6 +29,7 @@ GroupItem *divertOutput;
 GroupItem *falseResult;
 GroupItem *inDENT;
 GroupItem *lastREF;
+GroupItem *lastStatement;
 GroupItem *generator;
 GroupItem *printSPACE;
 GroupItem *ruleSkipSet;

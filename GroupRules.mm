@@ -597,17 +597,16 @@ int 		restrict = 0;
 *******************************************************************************/
 extern "C" GroupItem *aCTionFailed(GroupItem *input)
 {
-RuleStuff 	*ruleStuff = GroupControl::groupController->groupRules->ruleSTUFF;
-GroupItem 	*lastParsed = ruleStuff->label;
-	// NOTE: parentLabel (the parse-tree accumulator) is a local of
-	// GroupItem::parse() and not reachable here. ruleSTUFF.label is the only
-	// global hook into live parse state; the parser resets it constantly, so
-	// "Last parsed" is a best-effort hint, not a guarantee.
+GroupItem 	*lastStatement = GroupControl::groupController->groupRules->lastStatement;
+	// lastStatement is a stable marker set in aCTionStatemenT only on confirmed
+	// top-level statement execution (!processingCode) — it survives backtracking,
+	// unlike ruleSTUFF.label. Top-level granularity for now; in-block is a future
+	// refinement.
 	::printf("Parse failed\n");
 	::printf("  Line:         %d\n",GroupControl::groupController->groupRules->sourceLINE);
 	::printf("  Failed at:    %s\n",::getDebugText(GroupControl::groupController->groupRules->atRuleMark,40));
-	if ( lastParsed )
-		::printf("  Last parsed:  %s\n",lastParsed->groupBody->tag);
+	if ( lastStatement )
+		::printf("  Last parsed:  %s\n",lastStatement->groupBody->tag);
 	::stopParsingInput(input);
 	return input;
 }
@@ -912,6 +911,7 @@ GroupItem 	*sourceFile = new GroupItem("sourceFile");
 		GroupItem 	*statement = input;
 		if ( isGROUP(statement->groupBody->flags.data) )
 			statement = statement->getGroup();
+		ruler->lastStatement = statement;
 		if ( statement->groupBody->gMethod )
 			return statement->groupBody->gMethod(statement);
 		}
@@ -3932,6 +3932,7 @@ GroupRules::GroupRules()
 	falseResult = 0;
 	inDENT = 0;
 	lastREF = 0;
+	lastStatement = 0;
 	generator = 0;
 	printSPACE = 0;
 	ruleSkipSet = 0;
