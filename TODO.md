@@ -8,12 +8,10 @@
 
 ## 🌅 Pre-Session Tasks (Tonto recon / morning design — no build risk)
 
-- [ ] **incant setup command reference** — document the commands registered at startup: what each does, calling convention, where it lives. Wiki candidate.
-- [x] **`modedOP.taG` recon** (done 2026-06-07) — `docs/modedOP-taG-recon.md`.
-  Bottom line: `.taG` is dispatch-neutral (`runOP` never reads the tag), but it is
-  the operator's **match key + guard seed** — not a free slot. A binding-label/alias
-  needs a *separate* slot (sub-attribute cleanest); runtime rebinding must go through
-  `operateMethod`/`setOperat`, never `=` (which ignores `gOp`).
+- [ ] **incant setup command reference** — document the commands registered at startup: what each does, calling convention, where it lives. Wiki candidate. Clay's task.
+- [x] **`modedOP.taG` recon** — done. See `docs/modedOP-taG-recon.md`. Bottom line: `.taG` is the parser match key, not a free slot. Alias must live in a sub-attribute (`modedOP.boundTo`), set via `interpret`-child pattern. Runtime rebinding must route through `operateMethod/setOperat` — `=` won't rebind `gOp` (poochifier). Three tar babies documented.
+- [ ] **`modedOP.boundTo` alias design** — morning Clay+Tony design pass. Read `docs/modedOP-taG-recon.md` first. Three open questions: is `gText` free on operators; which "alias" we mean (second-name vs current-binding-label); incant syntax for setting `boundTo` at rebind time. Output: a spec for Clod to implement.
+- [ ] **`modedOP.boundTo` implementation** — Clod execution task, follows the design pass above. Thin C++ + setup registration, same pattern as `interpret` child on bytecode ops.
 
 ---
 
@@ -271,8 +269,8 @@ projectBible.md "Phase Generate Tawk".
   grammarOnTheFly's *own* text (prepend the captured comment to the file =
   `insertBefore`). But `getFile` reads AND parses (`pushInput`) what it loads, so
   loading the file re-executes it. Needs a load-without-parse path (cf. the
-  `getFile` suppress-parse item under Directive work). Worth a proper design look
-  before touching anything. Full context: `docs/grammarOnTheFly-findings.md`.
+  `getFile` suppress-parse item under Directive work). Full context:
+  `docs/grammarOnTheFly-findings.md`.
 - [ ] **grammarOnTheFly cleanup (next session)** — strip scaffolding (M1/M2/M3,
   WRITE-2 placeholder, `dumpContents`) back to clean `oneTest` shape; rewrite the
   payload comments to match reality (keeping the no-literal-`#)` constraint); slot
@@ -349,6 +347,7 @@ projectBible.md "Phase Generate Tawk".
 - [ ] **TOK Xcode project yaml** — no project.yml. Reverse-engineer from .pbxproj. Rename target incantGUI → incant.
 - [ ] **plg xcode link cleanup + yaml refresh** — post-flatten cosmetic work.
 - [ ] **projectBible.md directory map** — update to reflect unitTests relocation.
+
 
 ---
 
