@@ -2,6 +2,19 @@
 
 *Read this first every session. Keep it current.*
 
+*On wakeup: flag any Pre-Session Tasks below that are pending. They are designed for quiet reading/design work before Clod is active — do not let them get buried.*
+
+---
+
+## 🌅 Pre-Session Tasks (Tonto recon / morning design — no build risk)
+
+- [ ] **incant setup command reference** — document the commands registered at startup: what each does, calling convention, where it lives. Wiki candidate.
+- [x] **`modedOP.taG` recon** (done 2026-06-07) — `docs/modedOP-taG-recon.md`.
+  Bottom line: `.taG` is dispatch-neutral (`runOP` never reads the tag), but it is
+  the operator's **match key + guard seed** — not a free slot. A binding-label/alias
+  needs a *separate* slot (sub-attribute cleanest); runtime rebinding must go through
+  `operateMethod`/`setOperat`, never `=` (which ignores `gOp`).
+
 ---
 
 ## Phase Bytecode — current state (2026-06-06)
@@ -253,6 +266,20 @@ projectBible.md "Phase Generate Tawk".
 
 ## Pending (not current arc)
 
+- [ ] **grammarOnTheFly write-2: source a file's own text without re-parsing it** —
+  OPEN QUESTION (named, parked 2026-06-07). The demo's real second write is
+  grammarOnTheFly's *own* text (prepend the captured comment to the file =
+  `insertBefore`). But `getFile` reads AND parses (`pushInput`) what it loads, so
+  loading the file re-executes it. Needs a load-without-parse path (cf. the
+  `getFile` suppress-parse item under Directive work). Worth a proper design look
+  before touching anything. Full context: `docs/grammarOnTheFly-findings.md`.
+- [ ] **grammarOnTheFly cleanup (next session)** — strip scaffolding (M1/M2/M3,
+  WRITE-2 placeholder, `dumpContents`) back to clean `oneTest` shape; rewrite the
+  payload comments to match reality (keeping the no-literal-`#)` constraint); slot
+  what was built into the wiki piece. One clean rebuild pending to bind
+  `flushBuffer` (zero-error startup). See `docs/grammarOnTheFly-findings.md`.
+- [ ] **printTO / opPrint buffer-diversion unit test** — confirmed working, no test
+  exists. Add one (`docs/grammarOnTheFly-findings.md`).
 - [ ] **Tar 5: gXpress operator-asymmetry** — moot per 2026-06-04 verification. ruleActions
   pre-transforms `=` → `bcStoreField`; gXpress never sees `=` or tgt token. Dead code if added.
   TODO entry closed.
