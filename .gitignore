@@ -19,6 +19,9 @@ BeforeSave/
 XML/BackupXML/
 NewPLG/
 
+# Offline conversion-to-incant workspace (skeleton mirrors XML/; not tracked)
+XML-Incant/
+
 # Xcode — user state
 **/xcuserdata/
 **/*.xcuserstate
