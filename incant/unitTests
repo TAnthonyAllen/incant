@@ -81,6 +81,7 @@ define
     ***************************************************************************/
     maximus=11;
     righty=13;
+    name="world";
     styleTest merge lightGreen rounded;
     sumple="What if it is a long string." height=200 width=250 x=100 y=100 down=*
         crossing height=50;
@@ -210,7 +211,6 @@ define
         debugging. incant does not have a debugger like xcode ... yet.
     ***************************************************************************/
     printDefinition argument recurse code={
-        **argument;
         if datA != 0;  print ~$taG "=" argument;
         else    print ~$taG;
         if hasAttributeS;

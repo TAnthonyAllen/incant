@@ -218,8 +218,10 @@ use NewGroup
             Process Members.
         ***********************************************************************/
         if MemberS
-            while item = MemberS.next(item)
-                grup = NewGroup += item;}
+            while item = MemberS.next(item) {
+                GroupItem newMember = NewGroup += item;
+                if isRule && rStuff && (!data || data > 3)
+                    if max != 1 || min != 1 rStuff = new(newMember); }}
         /***********************************************************************
             If NewGroup is a rule check to see if it has a rule method .
             Note: method is fired even if there is an incant action associated with
@@ -290,6 +292,19 @@ GroupItem   op,
                 completed instruction emit target, then arg (when a leaf), then
                 op; for '=' emit the value then a bcStoreField carrying target.
             *******************************************************************/
+            // No-operator expression (a bare operand sequence, e.g. the print
+            // operands `"hello" name`): the RPN walk below only emits when it
+            // completes an op+target, so with no operator it produces an EMPTY
+            // revisedList and the clear() below would destroy the tokens. Detect
+            // that and leave xpList intact so aCTionPrinT/appendGroup can print
+            // the operands directly. (Operator expressions fall through to RPN.)
+            GroupItem   hasOp, tk;
+            while tk = xpList.prior(tk)
+                if tk.isOperator   hasOp = tk;
+            if !hasOp {
+                xpList.isLIST       = true;
+                xpList.reversePrint = true;
+                return xpList; }
             while token = xpList.prior(token) {
                 grup = token;
                 // Operator-skip guard: never unwrap an operator. Operators carry
@@ -368,14 +383,16 @@ finishXP:
 extern GroupItem aCTionFailed(GroupItem input)
 {
 GroupItem   lastStatement = groupRules.lastStatement;
+use input
     // lastStatement is a stable marker set in aCTionStatemenT only on confirmed
     // top-level statement execution (!processingCode) — it survives backtracking,
     // unlike ruleSTUFF.label. Top-level granularity for now; in-block is a future
     // refinement.
-    cout "Parse failed":;
-    cout "  Line:        ", sourceLINE:;
-    cout "  Failed at:   ", getDebugText(atRuleMark, 40):;
-    if lastStatement   cout "  Last parsed: ", lastStatement.tag:;
+    cout "Rule " tag:;
+    cout `"Failed at:" `getDebugText(failedAt, 40):;
+    cout `"on Line:" ``sourceLINE,:;
+    // added the gText guard (for cases that do not use StatemenT
+    if lastStatement.gText   cout "  Last parsed: ", lastStatement.text:;
     stopParsingInput(input);
     return input;
 }
@@ -507,6 +524,28 @@ GroupRules  ruler   = groupRules;
 GroupItem   stuff:;
 GroupItem   command = input.firstInList;
 GroupItem   grup;
+    /***********************************************************************
+        Generating branch — currently UNUSED on the bytecode print path
+        (gPrinT passes the statement to bcPrint; runPrint calls aCTionPrinT
+        with generating false). Kept (a) because it's the future home for real
+        operand compilation and (b) because its presence keeps stuff: resolving
+        to `input` in codegen. Never entered while generating is false.
+    ***********************************************************************/
+    if generating {
+        GroupItem   revisedList = new("revisedList");
+        while grup = stuff.nextAttribute(grup) {
+            use grup
+            if noPrint  continue;
+            GroupItem   FormaT:,
+                        ExpressioN:,
+                        result;
+            if ExpressioN   result = ExpressioN;
+            else            result = grup;
+            if result.isGROUP && !result.isArgument result = result.group;
+            if FormaT   result += FormaT;
+            revisedList += result; }
+        input.group = revisedList;
+        return input; }
 Buffer      buffer = bufferSTAK.pop();
     if !buffer      buffer = new("print buffer");
     isPRINTING      = false;

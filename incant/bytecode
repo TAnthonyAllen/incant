@@ -41,12 +41,14 @@
 register(Bytecoding);
 define
     interpretBC argument code={
+        print `"interpretBC got=" argument.taG " len=" argument.listLengtH:;
         argument +% opStack;
         for grup in argument; members
             handler = grup.interpret;
             if !handler;
                 print "interpret: no handler for" grup.taG:;
                 return;
+            print `"DISP " grup.taG " handler=" handler.taG " method=" handler.isMethod:;
             result = handler(grup);
             if result;  grup = result;
         if opStack.listLengtH;  print "interpret: opStack not empty at end:" opStack.listLengtH:;

@@ -76,6 +76,7 @@ boolean bools {
     mergeOn
     negate
     recursive
+    reversePrint
     tokened } flags;
 	
 /*****************************************************************************

@@ -1,13 +1,20 @@
 /*****************************************************************************
                 delimTest — live grammar mutation + up-to-delimiter capture.
 
+    The objective here is to graft DelimText into DatA, one of incant's bootstrap
+    rules, without changing the bootstrap rule permanently. DelimText is a
+    tiny one line rule designed to capture text wrapped by '(' at the start
+    and terminated by but not including the string "#)" The idea is the
+    captured text can contain any character string up to the ending delimiter,
+    including quotes comments newlines ...
+    
     HEADLINE (Layer C): incant's bootstrap grammar is live-mutable. A new
     alternative is grafted into the DatA rule at runtime, and the very next
     field definition routes its data through that brand-new alternative. The
     locomotive changes while the train stays on schedule. The two moves are:
 
         DatA += DelimText;      graft the alternative (raw member append)
-        guard(DatA);            force the parser to re-derive DatA's guard set
+        guard(DatA);            force the parser to reset DatA's guard set
 
     Layer B: DelimOver / runDelim — up-to-delimiter capture via the } (upToOver)
     modifier, driven by a string-arg invocation from inside an action.

@@ -94,6 +94,30 @@ GroupItem 	*prod = new GroupItem("prod");
 	return 0;
 }
 
+// ---------- print: passthrough — walk the carried statement's stuff ----------
+/***************************************************************************
+    bcPrint — passthrough. gPrinT emitted this op carrying the whole print
+    statement under the `src` attribute (src.group = the StatemenT). We do
+    exactly what non-gen aCTionPrinT does: pull the statement's `stuff`, walk
+    its PrintXP attributes, appendGroup each (the ExpressioN when present, else
+    the shortcut grup itself, honoring FormaT), then opPrint. Reliable C++
+    accessors reach the operands that incant accessors couldn't. Returns null
+    (implicit-next); opPrint's trueResult must NOT be returned or interpret()
+    reads it as a branch target.
+***************************************************************************/
+extern "C" GroupItem *runPrint(GroupItem *instr)
+{
+GroupItem 	*statement = instr->get(2);
+	// gPrinT attached the print statement here (op +% argument)
+	::aCTionPrinT(statement);
+	// print directly (runOP unwrapping pooches it). Operand
+	// order is handled by the fLAG flag aCTionExpressioN set
+	// on the operand list, which appendGroup reads.
+	return 0;
+	// do NOT return its result: interpret() reads non-null
+	// as a branch target.
+}
+
 /***************************************************************************
     bcPushField — push the referenced field's value. The emit folds the
     field's value onto the instruction as data (gXpress: emitBC(bcPushField=
@@ -151,6 +175,22 @@ GroupItem 	*value = stack->pop();
 GroupItem 	*target = instr->getAttribute("target");
 GroupItem 	*dest = target->getGroup();
 	dest->copyData(value);
+	return 0;
+}
+
+/***************************************************************************
+    bcString — same firing as bcPrint, but a string statement produces a VALUE
+    (aCTionPrinT's opString branch returns it), so push that onto the operand
+    stack. Untested by the print POP (the 'p' path); here for the StringXP rule.
+***************************************************************************/
+extern "C" GroupItem *runString(GroupItem *instr)
+{
+GroupItem 	*statement = instr->get(2);
+GroupItem 	*stack = ::opStackOf(instr);
+GroupItem 	*result = ::aCTionPrinT(statement);
+	if ( stack )
+		if ( result )
+			stack->push(result);
 	return 0;
 }
 

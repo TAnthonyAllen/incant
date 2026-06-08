@@ -16,8 +16,12 @@ GroupItem   grup,
         *format = '%'; }
     if !field.isShortcut
         if field.isLIST
-            while grup = field.prior(grup)
-                printField(grup,format,buffer);
+            if field.reversePrint
+                while grup = field.next(grup)
+                    printField(grup,format,buffer);
+            else
+                while grup = field.prior(grup)
+                    printField(grup,format,buffer);
         else    printField(field,format,buffer);
     else {
         /*******************************************************************

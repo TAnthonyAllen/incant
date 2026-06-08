@@ -5,9 +5,12 @@ define
             child tags (or a no-list note). Incant-side cousin of dumpContents.
         ***********************************************************************/
         dumpField argument code={
-            print `argument.taG "=" argument:;
+            if datA != 0;   print $taG "=" argument:;
+            else            print $taG:;
             if argument.listLengtH;
-                for grup in argument;    print ``grup.taG:;
+                for grup in argument;
+                    if datA != 0;   print `$taG "=" grup:;
+                    else            print `$taG:;
             else print ``"(no list)":;
             };
         /***********************************************************************
@@ -34,18 +37,27 @@ define
                     goodToGo = yh > py AND yh < pyh;
             if goodToGo print "OK to display" argument.tag; };
         /***********************************************************************
-            JSON rules invoked as JSONlist("json file name");
+            JSON rules invoked as JSONlist("json string or json file name");
+            
+            Note: true and false are added as rule options to JSONtoken as
+            quoted literals so they get picked up instead of the true=1 and false=0
+            fields in the pROPERTIEs base registry (which are probably fine for
+            incant purposes but look strange on print out since they print as
+            numbers 1 and 0 and not the names true and false.
         ***********************************************************************/
-        JSONarray isRule;
-        JSONlist isRule;
+        JSONtoken isRule
+            "false";
+            "true";
+            GrouP;
+            NumbeR;
         JSONvalue isRule
             JSONlist;
             JSONarray;
-            GrouP;      // GrouP includes string number true false null
-        JSONfield       isRule QuotE ":"- value=JSONvalue ","?- code={ QuotE = value; setLabel(QuotE); };
-        JSONarray       "["- values=JSONvalue+ "]"-;
-        JSONlist        "{"- fields@=JSONfield* "}"-;
-        /***********************************************************************
+            JSONtoken;
+        JSONfield isRule JSONtoken ":"- JSONvalue ","?- code={ return setLabel(JSONtoken); };
+        JSONarray isRule "["- values=JSONvalue+ "]"-;
+        JSONlist isRule fail "{"- JSONfield* "}"-;
+       /***********************************************************************
             flatten converts the hierarchy of its argument into a list in whatsIt.
             Just a test action for now.
         ***********************************************************************/

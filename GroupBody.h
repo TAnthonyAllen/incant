@@ -49,6 +49,7 @@ struct bools
 	unsigned int mergeOn:1;
 	unsigned int negate:1;
 	unsigned int recursive:1;
+	unsigned int reversePrint:1;
 	unsigned int tokened:1;
 	};
 #define isGROUP(button) (button == 6)

@@ -353,7 +353,12 @@ GroupItem 	*item = 0;
 		***********************************************************************/
 		if ( MemberS )
 			while ( item = MemberS->next(item) )
-				grup = NewGroup->addMember(item);
+				{
+				GroupItem 	*newMember = NewGroup->addMember(item);
+				if ( newMember->groupBody->flags.isRule && newMember->rStuff && (!newMember->groupBody->flags.data || newMember->groupBody->flags.data > 3) )
+					if ( newMember->rStuff->max != 1 || newMember->rStuff->min != 1 )
+						newMember->rStuff = new RuleStuff(newMember);
+				}
 		}
 	/***********************************************************************
 	If NewGroup is a rule check to see if it has a rule method .
@@ -421,6 +426,23 @@ GroupItem 	*token = 0;
 			completed instruction emit target, then arg (when a leaf), then
 			op; for '=' emit the value then a bcStoreField carrying target.
 			*******************************************************************/
+			// No-operator expression (a bare operand sequence, e.g. the print
+			// operands `"hello" name`): the RPN walk below only emits when it
+			// completes an op+target, so with no operator it produces an EMPTY
+			// revisedList and the clear() below would destroy the tokens. Detect
+			// that and leave xpList intact so aCTionPrinT/appendGroup can print
+			// the operands directly. (Operator expressions fall through to RPN.)
+			GroupItem *hasOp = 0;
+			GroupItem *tk = 0;
+			while ( tk = xpList->prior(tk) )
+				if ( isOperator(tk->groupBody->flags.instructType) )
+					hasOp = tk;
+			if ( !hasOp )
+				{
+				xpList->groupBody->flags.binType = 3;
+				xpList->groupBody->flags.reversePrint = 1;
+				return xpList;
+				}
 			while ( token = xpList->prior(token) )
 				{
 				grup = token;
@@ -602,11 +624,12 @@ GroupItem 	*lastStatement = GroupControl::groupController->groupRules->lastState
 	// top-level statement execution (!processingCode) — it survives backtracking,
 	// unlike ruleSTUFF.label. Top-level granularity for now; in-block is a future
 	// refinement.
-	::printf("Parse failed\n");
-	::printf("  Line:         %d\n",GroupControl::groupController->groupRules->sourceLINE);
-	::printf("  Failed at:    %s\n",::getDebugText(GroupControl::groupController->groupRules->atRuleMark,40));
-	if ( lastStatement )
-		::printf("  Last parsed:  %s\n",lastStatement->groupBody->tag);
+	::printf("Rule %s\n",input->groupBody->tag);
+	::printf("\tFailed at:\t%s\n",::getDebugText(input->rStuff->failedAt,40));
+	::printf("\ton Line:\t\t%d \n",GroupControl::groupController->groupRules->sourceLINE);
+	// added the gText guard (for cases that do not use StatemenT
+	if ( lastStatement->groupBody->gText )
+		::printf("  Last parsed:  %s\n",lastStatement->getText());
 	::stopParsingInput(input);
 	return input;
 }
@@ -705,6 +728,35 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*stuff = input->getLabelGroup("stuff");
 GroupItem 	*command = input->groupBody->groupList->firstInList;
 GroupItem 	*grup = 0;
+	/***********************************************************************
+	Generating branch — currently UNUSED on the bytecode print path
+	(gPrinT passes the statement to bcPrint; runPrint calls aCTionPrinT
+	with generating false). Kept (a) because it's the future home for real
+	operand compilation and (b) because its presence keeps stuff: resolving
+	to `input` in codegen. Never entered while generating is false.
+	***********************************************************************/
+	if ( ruler->generating )
+		{
+		GroupItem 	*revisedList = new GroupItem("revisedList");
+		while ( grup = stuff->nextAttribute(grup) )
+			{
+			if ( grup->groupBody->flags.noPrint )
+				continue;
+			GroupItem *FormaT = grup->getLabelGroup("FormaT");
+			GroupItem *ExpressioN = grup->getLabelGroup("ExpressioN");
+			GroupItem *result = 0;
+			if ( ExpressioN )
+				result = ExpressioN;
+			else	result = grup;
+			if ( isGROUP(result->groupBody->flags.data) && !result->groupBody->flags.isArgument )
+				result = result->getGroup();
+			if ( FormaT )
+				result->addMember(FormaT);
+			revisedList->addMember(result);
+			}
+		input->setGroup(revisedList);
+		return input;
+		}
 Buffer 		*buffer = (Buffer*)ruler->bufferSTAK->pop();
 	if ( !buffer )
 		buffer = new Buffer("print buffer");
@@ -1152,6 +1204,10 @@ GroupItem 	*field = 0;
 		}
 	if ( !field->groupBody->flags.isShortcut )
 		if ( isLIST(field->groupBody->flags.binType) )
+			if ( field->groupBody->flags.reversePrint )
+				while ( grup = field->next(grup) )
+					::printField(grup,format,buffer);
+			else
 			while ( grup = field->prior(grup) )
 				::printField(grup,format,buffer);
 		else	::printField(field,format,buffer);
@@ -1538,7 +1594,7 @@ GroupItem 	*grup = 0;
 		::debugText(grup,1);
 		}
 	StringRoutines::debugIndent--;
-	if ( isGROUP(stuff->groupBody->flags.data) && !stuff->groupBody->groupList->listLength )
+	if ( isGROUP(stuff->groupBody->flags.data) && !stuff->groupBody->groupList )
 		{
 		stuff = stuff->getGroup();
 		::dumpContents(stuff);
@@ -1567,6 +1623,12 @@ char 	*name = input->getText();
 		else	::fprintf(stderr,"FAIL: no fail method argument provided\n");
 	else	::fprintf(stderr,"FAIL: should be a rule attribute\n");
 	return GroupControl::groupController->groupRules->trueResult;
+}
+
+extern "C" void flushBuffer(GroupItem *bufField)
+{
+	if ( isBUFFER(bufField->groupBody->flags.data) )
+		bufField->getBuffer()->flush();
 }
 
 /*******************************************************************************
@@ -2890,9 +2952,7 @@ GroupItem 	*grup = 0;
 extern "C" GroupItem *opSetGroup(GroupItem *argument, GroupItem *&target)
 {
 	if ( argument )
-		if ( !argument->groupBody->flags.isInitialized )
-			target->clearData();
-		else	target->setGroup(argument);
+		target->setGroup(argument);
 	return target;
 }
 
@@ -3159,6 +3219,10 @@ GroupItem 	*target = item->parent;
 			case 'e':
 				::printf("Exiting parse\n");
 				::exit(0);
+				break;
+			case 'f':
+				if ( target->groupBody->flags.isRule )
+					target->rStuff->notifyFail = 1;
 				break;
 			case 'i':
 				if ( ::compare(command,"index") == 0 )
@@ -3651,6 +3715,19 @@ extern "C" void setFile(GroupItem *bufField, char *name)
 }
 
 /***************************************************************************
+    setFileOp — operator-signature shim over Buffer.setFile, for the modedOP
+    writable-operator path: `doc modedOP "path"` points doc's buffer at a
+    file. target is the buffer field, argument carries the path text. Same
+    (argument, &target) shape as opAssign and the other binary op methods.
+***************************************************************************/
+extern "C" GroupItem *setFileOp(GroupItem *argument, GroupItem *&target)
+{
+	if ( isBUFFER(target->groupBody->flags.data) )
+		target->getBuffer()->setFile(argument->getText());
+	return target;
+}
+
+/***************************************************************************
     A cOMMANDs method associated with commands like hash and buffer that set
     the appropriate value for the grup passed in.
 ***************************************************************************/
@@ -3674,10 +3751,13 @@ extern "C" GroupItem *setInternalType(GroupItem *grup)
 ***************************************************************************/
 extern "C" GroupItem *setLabel(GroupItem *input)
 {
-RuleStuff 	*ruleStuff = GroupControl::groupController->groupRules->ruleSTUFF;
-	ruleStuff->label = input;
-	// all it did was set RuleStuff label = input. Used in the JSONfield rule.
-	return input;
+RuleStuff 	*ruleStuff = input->rStuff;
+GroupItem 	*pLabel = ruleStuff->parentStuff->label;
+GroupItem 	*JSONtoken = pLabel->getLabelGroup("JSONtoken");
+GroupItem 	*JSONvalue = pLabel->getLabelGroup("JSONvalue");
+GroupItem 	*grup = new GroupItem(JSONtoken->getText());
+	grup->setText(JSONvalue->getText());
+	return grup;
 }
 
 /*****************************************************************************

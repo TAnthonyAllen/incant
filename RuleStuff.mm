@@ -371,6 +371,7 @@ RuleStuff::RuleStuff(GroupItem *grup)
 {
 	testMatch = 0;
 	hereAt = 0;
+	failedAt = 0;
 	label = 0;
 	onFail = 0;
 	onGroup = 0;
@@ -391,6 +392,7 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	noAdvance = 0;
 	noLabel = 0;
 	noSkip = 0;
+	notifyFail = 0;
 	overTo = 0;
 	sukcess = 0;
 	rule = grup;
@@ -405,6 +407,7 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	testMatch = 0;
 	ruleName = 0;
 	hereAt = 0;
+	failedAt = 0;
 	onFail = 0;
 	onGroup = 0;
 	sourceLine = 0;
@@ -425,6 +428,7 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	noAdvance = 0;
 	noLabel = 0;
 	noSkip = 0;
+	notifyFail = 0;
 	overTo = 0;
 	*this = *r;
 	label = 0;
@@ -439,7 +443,6 @@ RuleStuff::RuleStuff(RuleStuff *r)
 int RuleStuff::checkGuard(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	sukcess = 0;
 	if ( guardInProcess(field->groupBody->flags.guarding) )
 		field->groupBody->flags.guarding = 0;
 	if ( !field->groupBody->flags.guarding )
@@ -460,7 +463,6 @@ int RuleStuff::checkInput()
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*field = rule;
-	sukcess = 0;
 	guardFAIL = 0;
 	if ( !ruler->atRuleMark )
 		{

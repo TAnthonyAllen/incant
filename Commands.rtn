@@ -83,7 +83,7 @@ GroupItem   grup;
         //debugLink();
         debugText(grup,1); }
     debugIndent--;
-    if stuff.isGROUP && !stuff.listLength {
+    if stuff.isGROUP && !stuff.groupList {
         stuff = stuff.group;
         dumpContents(stuff); }
     return trueResult;
@@ -440,6 +440,7 @@ GroupItem   target  = parent;
                         if !defining    lastIndent = 0;
             case 'e':   print "Exiting parse":;
                         exit(0);
+            case 'f':   if isRule notifyFail = true;
             case 'i':
                 if command eq "index"   isIndexed = true;
                 or command eq "isList"  isLIST = true;
@@ -547,10 +548,13 @@ extern GroupItem setInternalType(GroupItem grup)
 ***************************************************************************/
 extern GroupItem setLabel(GroupItem input)
 {
-RuleStuff ruleStuff = ruleSTUFF;
-    label = input;
-    // all it did was set RuleStuff label = input. Used in the JSONfield rule.
-    return input;
+RuleStuff ruleStuff = rStuff;
+GroupItem   pLabel = parentStuff.label;
+GroupItem   JSONtoken:,
+            JSONvalue:;
+GroupItem   grup = new(JSONtoken.text);
+    text    = JSONvalue.text;
+    return grup;
 }
 
 /***************************************************************************

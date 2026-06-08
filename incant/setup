@@ -23,6 +23,7 @@ define
     buffer immediateAction=setInternalType noPrint;
     class immediateAction=rEGISTER noPrint;
     clear immediateAction=cLEAR;
+    closeFile immediateAction=closeFile;
     condition immediateAction=processFlags noPrint;
     copy immediateAction=cOPY;
     copyOf immediateAction;
@@ -30,7 +31,9 @@ define
     defer immediateAction=processFlags noPrint;
     dumpContents immediateAction;
     exit immediateAction=processFlags;
+    fail immediateAction=processFlags noPrint;
     file immediateAction=setInternalType noPrint;
+    flushBuffer immediateAction=flushBuffer;
     generateCode immediateAction;
     genPrint immediateAction;
     getFile immediateAction;
@@ -50,6 +53,7 @@ define
     register immediateAction=rEGISTER noPrint;
     registry immediateAction=rEGISTER noPrint;
     runByteFn immediateAction=runByteFn;
+    setFile immediateAction=setFile;
     setLabel immediateAction;
     setPointer immediateAction=opPointer noPrint;
     sort immediateAction=processFlags noPrint;
@@ -75,6 +79,7 @@ define
     IN      operateMethod=opIN;
     GO;
     AND     operateMethod=opAND;
+    modedOP operateMethod=setFileOp;
     '?';
     '>>';
     '>='    operateMethod=opGE;
@@ -139,6 +144,8 @@ define
     bcPushLit    virtual interpretMethod=runPushLit;
     bcPushField  virtual interpretMethod=runPushField setPointer;
     bcStoreField interpretMethod=runStoreField;
+    bcPrint      interpretMethod=runPrint;
+    bcString     interpretMethod=runString;
     ;
 /*******************************************************************************
 	pROPERTIEs is a base registry defined on startup and extended here

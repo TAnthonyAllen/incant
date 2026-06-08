@@ -75,7 +75,7 @@
     3. The emit side — bcPushField and friends
 
     The call shape is:
-        emitBC(bcPushField:=argument);
+        emitBC(bcPushField=argument);
 
     Read this as: pass one operand to emitBC, whose tag is bcPushField and
     whose value is the source-tree GroupItem referenced by `argument`.
@@ -233,8 +233,6 @@ define
             print ~"do"`;
             runGenerated(st);
             print ~,"while(" xp ");":; };
-        gExpressioN argument code={
-            print "Need to work out how to generate an expression":; };
         gFOR argument code={
             print "generate for":;
             lp  = argument[1];
@@ -282,7 +280,14 @@ define
             print `"End of gIF":;
             };
         gPrinT argument code={
-            print `"Need to work out how to generate print statement":; };
+            // Passthrough: emit one bcPrint carrying the print statement at [2].
+            // runPrint fires aCTionPrinT on it at interpret time (reliable C++
+            // accessors reach the operands incant accessors can't); operand
+            // order is preserved by the reversePrint flag appendGroup reads.
+            op = copyOf(bcOPs["bcPrint"]);
+            op +% argument;
+            emitBC(op);
+            };
         gWhilE argument code={
             xp  = argument[1];
             st  = argument[2];
@@ -332,6 +337,8 @@ define
     ***************************************************************************/
     testByteCode code={
         if righty > 0; maximus = righty * 2; };
+    // POP target: testPrint -> "hello world" via the bytecode print path.
+    testPrint code={ print "hello" name:; };
     // testEmitBC retired 2026-06-04 (Brief 5 Fix 3): it called emitBC(bcMul),
     // but bcMul is not registered — multiply dispatches through the '*' operator
     // (interpret=runMultiply). Its operands also predate the current stack-form

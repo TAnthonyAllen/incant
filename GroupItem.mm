@@ -1204,6 +1204,7 @@ RuleStuff 	*ruleStuff = getStuff(pStuff);
 	while ( !ruleStuff->isOK && ruleStuff->kount < ruleStuff->max )
 		{
 continueHere:
+		ruleStuff->sukcess = 0;
 		if ( !ruleStuff->checkInput() )
 			goto matchFailed;
 		if ( ruleStuff->hasMacro )
@@ -1282,11 +1283,14 @@ matchFailed:
 debugHere:
 		if ( !ruleStuff->sukcess )
 			{
+			ruleStuff->failedAt = ruler->atRuleMark;
 			ruler->atRuleMark = ruleStuff->hereAt;
 			if ( ruleStuff->label )
 				ruleStuff->label = 0;
 			}
 		}
+	if ( !ruleStuff->sukcess && ruleStuff->notifyFail )
+		::aCTionFailed(ruleStuff->rule);
 	if ( ruleStuff->sukcess && !ruleStuff->label )
 		ruleStuff->label = ruler->trueResult;
 	ruleStuff->inProcess = 0;

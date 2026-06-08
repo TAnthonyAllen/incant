@@ -7,7 +7,8 @@ include groupIncludes
 class RuleStuff
 {
 String      ruleName;       // for debugging
-String      hereAt;
+String      hereAt,
+            failedAt;
 GroupItem   label,
             onFail,
             onGroup,
@@ -33,6 +34,7 @@ boolean
     noAdvance
     noLabel
     noSkip
+    notifyFail
     overTo:2[upTo upToOver]
     sukcess
     ;
@@ -64,7 +66,6 @@ RuleStuff(RuleStuff r)
 int checkGuard(GroupItem field)
 {
 GroupRules  ruler = groupRules;
-    sukcess = false;
     if guardInProcess   guarding = 0;
     if !guarding        getGuard();
     if unGuarded        return true;
@@ -80,7 +81,6 @@ int checkInput()
 {
 GroupRules  ruler = groupRules;
 GroupItem   field = rule;
-    sukcess     = false;
     guardFAIL   = false;
     if !atRuleMark {
         cerr "checkInput: no input source":;

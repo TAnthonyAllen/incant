@@ -1,13 +1,4 @@
 /*****************************************************************************
-    plg offline work summary
+    Notions
 *****************************************************************************/
-for your orientation
-    read the todo.md and projectBible.md. The latest todo.md is my downloads directory. Clay writes the todo.md as part of our shut down process. You usually move it into one or more of the local source source directories linked to our git repos. I do not know where you put it locally (there are todo.md files in a couple of places. None of them look current to me).
-The following are things I usually have to remind you of (probably should go into the projectBible)
-    Running incant involves a bit of a cha cha when any of the twk or rtn files we use changes. What is involved is:
-        Change a twk file
-        Run tok on the file(s) that have changed. It will produce changed .mm files. Inform me once the tok run completes
-        I then run incant in xcode that links to the .mm files and that run rebuilds the incant command hanging out in my ~/bin
-        You can then run incant w/argument being the incant file of your choice on the command line as: incant filename;
-    I often apply directives to twk files when I am working with them. When I do there is no longer a 1:1 match between the twk file getting directives applied to and the respective .mm file that tok generates. This tends to worry you because it looks like a file change you were not aware of. FYI I never change .mm files. I always work in twk files and I frequently apply directives to them. I have started warning you when that happens but sometimes I forget to. If something looks odd to you in an .mm file it is probably because it has directives applied. I suggest, as part of our shut down process, that we retok any tok file whose .mm file is more recent then the tok file to get things back in sync. Directives are idempotent in that they change .mm files and do not change .twk files.
-Let me know when you are oriented and ready to rock
+As with modedOP would like a way to change the method associated with an op (but only if the op is modifiable?).

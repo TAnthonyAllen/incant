@@ -485,9 +485,7 @@ GroupItem   grup;
 ***************************************************************************/
 extern GroupItem opSetGroup(GroupItem argument,GroupItem &target)
 {
-    if argument
-        if !argument.isInitialized  target.clearData();
-        else    group = argument;
+    if argument     group = argument;
     return  target;
 }
 
@@ -555,4 +553,21 @@ extern void unMark(GroupItem bufField)
 extern void setFile(GroupItem bufField,String name)
 {
     if bufField.isBUFFER    bufField.buffer.setFile(name);
+}
+
+extern void flushBuffer(GroupItem bufField)
+{
+    if bufField.isBUFFER    bufField.buffer.flush();
+}
+
+/***************************************************************************
+    setFileOp — operator-signature shim over Buffer.setFile, for the modedOP
+    writable-operator path: `doc modedOP "path"` points doc's buffer at a
+    file. target is the buffer field, argument carries the path text. Same
+    (argument, &target) shape as opAssign and the other binary op methods.
+***************************************************************************/
+extern GroupItem setFileOp(GroupItem argument,GroupItem &target)
+{
+    if target.isBUFFER  target.buffer.setFile(argument.text);
+    return target;
 }

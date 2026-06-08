@@ -264,6 +264,16 @@ projectBible.md "Phase Generate Tawk".
 
 ## Pending (not current arc)
 
+- [ ] **Print: real operand compilation (Track B)** — emit operands as push ops via `gXpress`
+  so print is true bytecode, not the current thunk. Needs the operand revisedLists populated in
+  gen mode (the no-op `aCTionExpressioN` case currently leaves them intact for interpretation).
+- [ ] **Print: FormaT survival + operand count on `bcPrint`** — for the real-bytecode path,
+  FormaT must ride to the consumer (`copyData` drops it) and `bcPrint` needs an operand count.
+  The thunk sidesteps both (fires `aCTionPrinT`, which walks `stuff` directly).
+- [ ] **Print: complex print lines** — operators+operands mixed, formats, shortcuts interleaved,
+  multiple `PrintXP`: order/handling UNVERIFIED. `reversePrint`-forward only covers bare operand seqs.
+- [ ] **Print: `runString` fixture** — wire a StringXP test; verify the value lands on opStack.
+- [ ] **Dead `aCTionPrinT` gen branch** — kept only so codegen keeps `stuff:`→`input`; remove in cleanup.
 - [ ] **grammarOnTheFly write-2: source a file's own text without re-parsing it** —
   OPEN QUESTION (named, parked 2026-06-07). The demo's real second write is
   grammarOnTheFly's *own* text (prepend the captured comment to the file =
@@ -352,6 +362,27 @@ projectBible.md "Phase Generate Tawk".
 ---
 
 ## ✅ Done
+
+### 2026-06-08
+
+- [x] **Print POP — `testPrint` → `hello world` through the bytecode path.** Verified by run.
+  Pragmatic "thunk" (Clay+Tony agreed): print is *interpreted*, not compiled to operand
+  bytecode — `runPrint` fires `aCTionPrinT` on the statement; operands NOT emitted as push
+  ops. Slightly slower print; does NOT disturb the JIT's IR shape — real operand compilation
+  deferred. How it landed:
+  - **`gPrinT`** (`incant/generate`) — passthrough: `op = copyOf(bcOPs["bcPrint"]); op +%
+    argument; emitBC(op)`. One `bcPrint` carrying the print statement at `[2]`.
+  - **`runPrint`** (`Bytecode.twk`) — `aCTionPrinT(instr[2])` (runOP unwrapping pooched it;
+    `runString` parallel passthrough, UNTESTED).
+  - **`aCTionExpressioN` no-op fix** (`ruleActions.rtn`) — the RPN gen-walk emitted nothing for
+    operator-less expressions (`"hello" name`), then `clear()` destroyed the tokens → empty
+    revisedList. Now: no-operator → leave `xpList` intact, set `isLIST` + `reversePrint`, return.
+  - **`reversePrint` flag** (GroupBody, NEW) — `appendGroup` walks the flagged list forward
+    (`next`) vs its default reverse (`prior`). `fLAG` crashes `addGroup` on a parse node;
+    `generating` pooches `aCTionExpressioN`'s gen guard. Dedicated flag was the clean answer.
+  - **tok caveat (cost hours):** `//` comments in `.rtn` method bodies cascade field-resolution
+    bleed across following functions (`stuff:`→`tgt`/`targetLines`, undefined-symbol errors).
+    Keep them out of method bodies. Also: changing GroupBody flags requires re-tok'ing every class.
 
 ### 2026-06-05
 

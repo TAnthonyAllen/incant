@@ -8,6 +8,7 @@ class RuleStuff
 public:
 char *ruleName;
 char *hereAt;
+char *failedAt;
 GroupItem *label;
 GroupItem *onFail;
 GroupItem *onGroup;
@@ -34,6 +35,7 @@ struct
 	unsigned int noAdvance:1;
 	unsigned int noLabel:1;
 	unsigned int noSkip:1;
+	unsigned int notifyFail:1;
 	unsigned int overTo:2;
 	unsigned int sukcess:1;
 	};
