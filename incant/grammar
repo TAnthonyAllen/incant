@@ -92,7 +92,6 @@ define
     ANYtoken=NamE;
     ANYstring=[^ \n\r\t;]+;
     BlocK                       "{"- StatemenT+ "}"- defer;
-    BLOCKing parseAction guard='n';
     PRINTing parseAction=processFlags guard='n';
     BrancheS bin
         break;
@@ -129,15 +128,15 @@ define
         loopOnAttributes="attributes";
         loopOnMembers="members";
     ElsE
-        BasicElse   else- followedBy BLOCKing- StatemenT@ defer;
-        ElseIf      or- ExpressioN SemI-? BLOCKing- StatemenT ElsE? ruleMethod=aCTionIF defer;
+        BasicElse   else- followedBy StatemenT@ defer;
+        ElseIf      or- ExpressioN SemI-? StatemenT ElsE? ruleMethod=aCTionIF defer;
     WardeD
         DEBUG       "debug"- followedBy rules?=NamE+ SemI-;
-        DEF         "define"- followedBy define;
-        DO          do- followedBy BLOCKing- StatemenT while- ExpressioN SemI- defer;
-        IF          if- followedBy ExpressioN SemI-? BLOCKing- StatemenT ElsE? defer;
-        FOR         for- followedBy Looper in- reversE?="<-" ExpressioN SemI- LoopRestrict? BLOCKing- StatemenT defer;
-        WhilE       while- followedBy ExpressioN SemI-? BLOCKing- StatemenT defer;
+        DEF         "define"- followedBy define^;
+        DO          do- followedBy StatemenT while- ExpressioN SemI- defer;
+        IF          if- followedBy ExpressioN SemI-? StatemenT ElsE? defer;
+        FOR         for- followedBy Looper in- reversE?="<-" ExpressioN SemI- LoopRestrict? StatemenT defer;
+        WhilE       while- followedBy ExpressioN SemI-? StatemenT defer;
         PrinT       print followedBy PRINTing- stuff=PrintXP+  SemI- defer;
         Search      "search"- followedBy GrouP+ SemI-;
         BrancH      BrancheS ExpressioN? SemI- defer;

@@ -20,6 +20,7 @@ define
     assign immediateAction=processFlags noPrint;
     bin immediateAction=processFlags noPrint;
     bitmap immediateAction=setInternalType noPrint;
+    BLOCKing immediateAction=processFlags guard;
     buffer immediateAction=setInternalType noPrint;
     class immediateAction=rEGISTER noPrint;
     clear immediateAction=cLEAR;

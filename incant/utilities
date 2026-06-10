@@ -1,236 +1,266 @@
+register(Utilities);
 define
-    Utilities registry
-        /***********************************************************************
-            dumpField — print a field as tag=value, then an indented list of the
-            child tags (or a no-list note). Incant-side cousin of dumpContents.
-        ***********************************************************************/
-        dumpField argument code={
-            if datA != 0;   print $taG "=" argument:;
-            else            print $taG:;
-            if argument.listLengtH;
-                for grup in argument;
-                    if datA != 0;   print `$taG "=" grup:;
-                    else            print `$taG:;
-            else print ``"(no list)":;
-            };
-        /***********************************************************************
-            Check to make sure the field passed in fits in the current frame before
-            displaying it.
-        ***********************************************************************/
-        displayIfVisible argument code={
-            :parent x y width height;
-            px  = x;
-            py  = y;
-            pw  = width;
-            ph  = height;
-            pyh = py + ph;
-            pxw = px + pw;
-            :x y width height;
-            goodToGo = x > px AND x < pxw;
+    /***************************************************************************
+        dumpField — print a field as tag=value, then an indented list of the
+        child tags (or a no-list note). Incant-side cousin of dumpContents.
+    ***************************************************************************/
+    dumpField argument code={
+        if datA != 0;   print $taG "=" argument:;
+        else            print $taG:;
+        if argument.listLengtH;
+            for grup in argument;
+                if datA != 0;   print `$taG "=" grup:;
+                else            print `$taG:;
+        else print ``"(no list)":;
+        };
+    /***************************************************************************
+        Check to make sure the field passed in fits in the current frame before
+        displaying it.
+    ***************************************************************************/
+    displayIfVisible argument code={
+        :parent x y width height;
+        px  = x;
+        py  = y;
+        pw  = width;
+        ph  = height;
+        pyh = py + ph;
+        pxw = px + pw;
+        :x y width height;
+        goodToGo = x > px AND x < pxw;
+        if !goodToGo
+            xw  = x + width;
+            goodToGo = xw > px AND xw < pxw;
+        if goodToGo
+            goodToGo = y > py AND y < pyh;
             if !goodToGo
-                xw  = x + width;
-                goodToGo = xw > px AND xw < pxw;
-            if goodToGo
-                goodToGo = y > py AND y < pyh;
-                if !goodToGo
-                    yh = y + height;
-                    goodToGo = yh > py AND yh < pyh;
-            if goodToGo print "OK to display" argument.tag; };
-        /***********************************************************************
-            JSON rules invoked as JSONlist("json string or json file name");
-            
-            Note: true and false are added as rule options to JSONtoken as
-            quoted literals so they get picked up instead of the true=1 and false=0
-            fields in the pROPERTIEs base registry (which are probably fine for
-            incant purposes but look strange on print out since they print as
-            numbers 1 and 0 and not the names true and false.
-        ***********************************************************************/
-        JSONtoken isRule
-            "false";
-            "true";
-            GrouP;
-            NumbeR;
-        JSONvalue isRule
-            JSONlist;
-            JSONarray;
-            JSONtoken;
-        JSONfield isRule JSONtoken ":"- JSONvalue ","?- code={ return setLabel(JSONtoken); };
-        JSONarray isRule "["- values=JSONvalue+ "]"-;
-        JSONlist isRule fail "{"- JSONfield* "}"-;
-       /***********************************************************************
-            flatten converts the hierarchy of its argument into a list in whatsIt.
-            Just a test action for now.
-        ***********************************************************************/
-        flatten argument code={
+                yh = y + height;
+                goodToGo = yh > py AND yh < pyh;
+        if goodToGo print "OK to display" argument.tag; };
+    /***************************************************************************
+        JSON rules invoked as JSONlist("json string or json file name");
+        
+        Note: true and false are added as rule options to JSONtoken as
+        quoted literals so they get picked up instead of the true=1 and false=0
+        fields in the pROPERTIEs base registry (which are probably fine for
+        incant purposes but look strange on print out since they print as
+        numbers 1 and 0 and not the names true and false.
+    ***************************************************************************/
+    JSONtoken isRule
+        "false";
+        "true";
+        GrouP;
+        NumbeR;
+    JSONvalue isRule
+        JSONlist;
+        JSONarray;
+        JSONtoken;
+    JSONfield isRule JSONtoken ":"- JSONvalue ","?- code={ return setLabel(JSONtoken); };
+    JSONarray isRule "["- values=JSONvalue+ "]"-;
+    JSONlist isRule fail "{"- JSONfield* "}"-;
+    /***************************************************************************
+        flatten converts the hierarchy of its argument into a list in whatsIt.
+        Just a test action for now.
+    ***************************************************************************/
+    flatten argument code={
+        for grup in argument; members
+            if grup.hasMembers; flatten(grup);
+            else
+                print "Adding" grup.tag:;
+                whatsIt += grup;
+        };
+    /***************************************************************************
+        print out xml representation of the group passed in. Does not
+        handle cdata yet.
+    ***************************************************************************/
+    toXML argument code={
+        print ~,"<" tag;
+        if datA; print ,"=" argument;
+        if hasAttributes;
+            for grup in argument; attributes
+                print _grup.tag;
+                if grup.datA print ,"=" grup;
+        if hasMembers;
+            print ">":+;
             for grup in argument; members
-                if grup.hasMembers; flatten(grup);
-                else
-                    print "Adding" grup.tag:;
-                    whatsIt += grup;
-            };
-        /***********************************************************************
-            print out xml representation of the group passed in. Does not
-            handle cdata yet.
-        ***********************************************************************/
-        toXML argument code={
-            print ~,"<" tag;
-            if datA; print ,"=" argument;
-            if hasAttributes;
-                for grup in argument; attributes
-                    print _grup.tag;
-                    if grup.datA print ,"=" grup;
-            if hasMembers;
-                print ">":+;
-                for grup in argument; members
-                    recurse++;
-                    toXML(grup);
-                    recurse--;
-                    if grup.next    print :;
-            else    print "/>";
-            if hasMembers;      print ,-"</" tag ">";
-            if recurse == 0     print :;
-            };
-        /***********************************************************************
-            fillDown deals with down=* framing. It expects the argument passed in
-            to have only one member with a height and a full frame.
-        ***********************************************************************/
-        fillDown argument code={
-            print "About to fill down for" argument:;
-            :argument height;
-            pHeight = height;
-            for grup in argument; members
-                :grup height;
-                pHeight -= height;
-                i = pHeight / height;
-                print `"Adding" i grup.tag "members down to" argument.tag:;
-                while i > 0;
-                    i--;
-                    argument +/ copy(grup);
-                print `"Setting down done":;
-                return;
-            };
-        /***********************************************************************
-            fillAcross deals with across=* framing. It expects the argument passed in
-            to have one and only one member with a width and a full frame.
-            When it resizes the list of variable column members is trimmed or
-            extended as needed.
-        ***********************************************************************/
-        fillAcross argument code={
-            print "About to fill across for" argument:;
-            :argument width;
-            pWidth  = width;
-            for grup in argument; members
-                :grup width;
-                pWidth -= width;
-                i = pWidth / width;
-                print `"Adding" i grup.tag "members across to" argument.tag:;
-                while i > 0;
-                    i--;
-                    argument +/ copy(grup);
-                print `"Setting across done":;
-                return;
-            };
-        /***********************************************************************
-             Set frames for members of the group passed in. It must have x y width
-             and height attributes.
-             
-             Should modify to check for noRoom and bail if there aint none
-        ***********************************************************************/
-        setFrame argument code={
-            print "Setting frame for" argument:;
-            :argument across down width height x y;
-            sideRoom    = width;
-            pWidth      = width;
-            headRoom    = height;
-            pHeight     = height;
-            pX          = x;
-            pY          = y;
-            if across == "*";   fillAcross(argument);
-            or down == "*";     fillDown(argument);
-        /***********************************************************************
+                recurse++;
+                toXML(grup);
+                recurse--;
+                if grup.next    print :;
+        else    print "/>";
+        if hasMembers;      print ,-"</" tag ">";
+        if recurse == 0     print :;
+        };
+    /***************************************************************************
+        fillDown deals with down=* framing. It expects the argument passed in
+        to have only one member with a height and a full frame.
+    ***************************************************************************/
+    fillDown argument code={
+        print "About to fill down for" argument:;
+        :argument height;
+        pHeight = height;
+        for grup in argument; members
+            :grup height;
+            pHeight -= height;
+            i = pHeight / height;
+            print `"Adding" i grup.tag "members down to" argument.tag:;
+            while i > 0;
+                i--;
+                argument +/ copy(grup);
+            print `"Setting down done":;
+            return;
+        };
+    /***************************************************************************
+        fillAcross deals with across=* framing. It expects the argument passed in
+        to have one and only one member with a width and a full frame.
+        When it resizes the list of variable column members is trimmed or
+        extended as needed.
+    ***************************************************************************/
+    fillAcross argument code={
+        print "About to fill across for" argument:;
+        :argument width;
+        pWidth  = width;
+        for grup in argument; members
+            :grup width;
+            pWidth -= width;
+            i = pWidth / width;
+            print `"Adding" i grup.tag "members across to" argument.tag:;
+            while i > 0;
+                i--;
+                argument +/ copy(grup);
+            print `"Setting across done":;
+            return;
+        };
+    /***************************************************************************
+         Set frames for members of the group passed in. It must have x y width
+         and height attributes.
+         
+         Should modify to check for noRoom and bail if there aint none
+    ***************************************************************************/
+    setFrame argument code={
+        print "Setting frame for" argument:;
+        :argument across down width height x y;
+        sideRoom    = width;
+        pWidth      = width;
+        headRoom    = height;
+        pHeight     = height;
+        pX          = x;
+        pY          = y;
+        if across == "*";   fillAcross(argument);
+        or down == "*";     fillDown(argument);
+    /***************************************************************************
                  Create frame and set width and height
-        ***********************************************************************/
-            for grup in argument; members
-                :grup width height;
-                if width > 0;
-                    if width.isPercent; width = width * sideRoom / 100;
-                    sideRoom    -= width;
-                or !across;     width = pWidth;
-                else            sideOut++   +/ grup;
-                if height > 0;
-                    if height.isPercent; height = height * headRoom / 100;
-                    headRoom    -= height;
-                or across;      height = pHeight;
-                else            upOut++     +/ grup;
-                grup +% width height;
-            if upOut > 0;
-                headRoom /= upOut;
-                for grup in upOut;
-                    height = headRoom;
-                    scope grup: height;
-            if sideOut > 0;
-                sideRoom /= sideOut;
-                for grup in sideOut;
-                    width = sideRoom;
-                    scope grup: width;
-            headRoom    = 0;
-            sideRoom    = 0;
-        /***********************************************************************
-                 Set x and y in frame
-        ***********************************************************************/
-            for grup in argument; members
-                :grup~ x y width height;
-                if across;
-                    if !y;
-                        y = pY;
-                        grup +% y;
-                    if !x;
-                        x = pX;
-                        if sideRoom > 0;    x += sideRoom;
-                        grup +% x;
-                    sideRoom += width;
-                else
-                    if !y;
-                        y = pY;
-                        grup +% y;
-                    if !x;
-                        x = pX;
-                        if headRoom > 0;    y += headRoom;
-                        grup +% x;
-                    headRoom += height;
-            };
-        /***********************************************************************
-            Return text wrapped in quotes if the field passed in contains text
-            not a valid name.
-        ***********************************************************************/
-        quoteIfNeeded argument code={
-            if nameSet IN argument;
-                this = argument;
-            else    this = string $'"' argument '"'; };
-        /***********************************************************************
-            Convert the hex string in the target passed in to a floating point number
-        ***********************************************************************/
-        hexToNumber target code={
-            while target;
-                numDBL  = target.numbeR;
-                if numDBL <= 57;    numDBL -= 48;
-                or numDBL <= 70;    numDBL -= 55;
-                or numDBL <= 102;   numDBL -= 87;
-                target++;
-                if num; num *= 16;
-                num += numDBL;
-            target  = num;
-            return target; };
-        /***********************************************************************
-            Extract the red, green, and blue components of a color group passed
-            in as a six character hex string
-        ***********************************************************************/
-        setHexColor hex code={
-            RGBred  = hex - 4;
-            hex     +% hexToNumber(RGBred);
-            RGBgreen    = hex + 2;
-            RGBgreen    -= 2;       // to chop off the blue component
-            hex     +% hexToNumber(RGBgreen);
-            RGBblue = hex + 4;
-            hex     +% hexToNumber(RGBblue);
-            dumpContents(hex); };;;
+    ***************************************************************************/
+        for grup in argument; members
+            :grup width height;
+            if width > 0;
+                if width.isPercent; width = width * sideRoom / 100;
+                sideRoom    -= width;
+            or !across;     width = pWidth;
+            else            sideOut++   +/ grup;
+            if height > 0;
+                if height.isPercent; height = height * headRoom / 100;
+                headRoom    -= height;
+            or across;      height = pHeight;
+            else            upOut++     +/ grup;
+            grup +% width height;
+        if upOut > 0;
+            headRoom /= upOut;
+            for grup in upOut;
+                height = headRoom;
+                scope grup: height;
+        if sideOut > 0;
+            sideRoom /= sideOut;
+            for grup in sideOut;
+                width = sideRoom;
+                scope grup: width;
+        headRoom    = 0;
+        sideRoom    = 0;
+    /***************************************************************************
+             Set x and y in frame
+    ***************************************************************************/
+        for grup in argument; members
+            :grup~ x y width height;
+            if across;
+                if !y;
+                    y = pY;
+                    grup +% y;
+                if !x;
+                    x = pX;
+                    if sideRoom > 0;    x += sideRoom;
+                    grup +% x;
+                sideRoom += width;
+            else
+                if !y;
+                    y = pY;
+                    grup +% y;
+                if !x;
+                    x = pX;
+                    if headRoom > 0;    y += headRoom;
+                    grup +% x;
+                headRoom += height;
+        };
+    /***************************************************************************
+        Return text wrapped in quotes if the field passed in contains text
+        not a valid name.
+    ***************************************************************************/
+    quoteIfNeeded argument code={
+        if nameSet IN argument;
+            this = argument;
+        else    this = string $'"' argument '"'; };
+    /***************************************************************************
+        Convert the hex string in the target passed in to a floating point number
+    ***************************************************************************/
+    hexToNumber target code={
+        while target;
+            numDBL  = target.numbeR;
+            if numDBL <= 57;    numDBL -= 48;
+            or numDBL <= 70;    numDBL -= 55;
+            or numDBL <= 102;   numDBL -= 87;
+            target++;
+            if num; num *= 16;
+            num += numDBL;
+        target  = num;
+        return target; };
+    /***************************************************************************
+        changeDatA changes the DatA bootstrap rule defined in GroupMain to
+        add support for setting a field string to a block of text delimited
+        by a starting '(' and ended by the text of the delimiter field.
+        Note: the starting and ending limiters are not included in the
+        resulting field string. And the DatA rule is not permanently changed.
+        It reverts when incant gets a stop() command.
+    ***************************************************************************/
+    DelimText isRule '('- dtext^}=delimiter;
+    changeDatA code={
+        DatA += DelimText;
+        guard(DatA); };
+    /***************************************************************************
+        Extract the red, green, and blue components of a color group passed
+        in as a six character hex string
+    ***************************************************************************/
+    setHexColor hex code={
+        RGBred  = hex - 4;
+        hex     +% hexToNumber(RGBred);
+        RGBgreen    = hex + 2;
+        RGBgreen    -= 2;       // to chop off the blue component
+        hex     +% hexToNumber(RGBgreen);
+        RGBblue = hex + 4;
+        hex     +% hexToNumber(RGBblue);
+        dumpContents(hex); };
+    /***************************************************************************
+        initFORMs — collapses the foldable part of per-form boilerplate into
+        one call. Recon (2026-06-09) established the ceiling:
+          - changeDatA() and search both run synchronously in an action body.
+          - include() RUNS but pushInputs (deferred parse): its registry is not
+            visible to later statements in the SAME body. So include(unitTests)
+            and "search UnitTests" cannot share a body, and the includes must
+            stay top-level (parsed before this call). printDefinition lives in
+            UnitTests, so forms genuinely need it.
+          - Start() re-enters the parser and cannot be wrapped at all.
+        A form's top-level boilerplate therefore shrinks 6 -> 4 lines:
+            Start(); include(unitTests); include(utilities); initFORMs();
+    ***************************************************************************/
+    initFORMs code={
+        search reset stack Grokking;
+        search UnitTests Utilities list;
+        changeDatA(); };
+    ;
