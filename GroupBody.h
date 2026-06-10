@@ -23,6 +23,7 @@ struct bools
 	unsigned int isSorted:2;
 	unsigned int methodType:2;
 	unsigned int altered:1;
+	unsigned int byRef:1;
 	unsigned int debugged:1;
 	unsigned int debugGuard:1;
 	unsigned int deferred:1;

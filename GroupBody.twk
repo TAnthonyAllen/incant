@@ -50,6 +50,7 @@ boolean bools {
     methodType:2[immediateACTION parseACTION]
 
     altered
+    byRef
     debugged
     debugGuard
     deferred

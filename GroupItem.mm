@@ -1582,7 +1582,7 @@ void GroupItem::setGroup(GroupItem *g)
 		return;
 		}
 	if ( g )
-		if ( groupBody->flags.isLocal || groupBody->flags.isLabel )
+		if ( groupBody->flags.isLocal || groupBody->flags.isLabel || g->groupBody->flags.byRef )
 			groupBody->gGroup = g;
 		else {
 			if ( !g->parent )

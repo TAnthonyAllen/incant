@@ -113,21 +113,6 @@ Buffer      buf;
 }
 
 /***************************************************************************
-	This sets up for blocking via indent (like Python). It inserts a {
-    into the input stream so the following StatemenT will be a block.
-    The end of the block is handled by checking indentation in GroupRules
-    checkSkip.
-***************************************************************************/
-extern GroupItem BLOCKing(GroupItem input)
-{
-GroupRules  ruler = groupRules;
-    if beforeSkip == '\n' {
-        if !blocking    atRuleMark = beforeSkip;
-        blocking++; }
-    return trueResult;
-}
-
-/***************************************************************************
     Close the file associated with the buffer. If no file has been set,
     fall back to using the field's tag as the filename — the tag is a
     handle the user already controls and serves no other purpose in this
@@ -333,6 +318,7 @@ extern void printField(GroupItem field,String format,Buffer buffer)
     if !field       field = falseResult;
     or isGROUP      field = group;
     switch(data) {
+        case 0:
         case isCOUNT:
             if !format  format = "%d";
             print(buffer) gCount;
@@ -410,6 +396,7 @@ GroupItem   blockRULE = grokking/BlocK,
             result,
             priorMETHOD = currentMETHOD,
             action = field;
+int         indenter = lastIndent;
 int processing  = processingCode;
 use field
     if isLabel  field = rule;
@@ -418,6 +405,7 @@ use field
     currentMETHOD   = action;
     divertToRule    = true;
     pushInput(code);
+    lastIndent      = 0;
     processingCode  = true;
     if result = blockRULE.parse(0) {
         result.noPrint  = true;
@@ -425,6 +413,7 @@ use field
         field.isAction = true; }
     else    cerr "ERROR processCode: " field.tag,"parse failed":;
     if !processing  processingCode = false;
+    lastIndent      = indenter;
     popInput();
     currentMETHOD   = priorMETHOD;
     if result       return true;
@@ -643,7 +632,9 @@ use field
 extern GroupItem runByteFn(GroupItem instr)
 {
 GroupItem   interp = instr["interpret"];
-    if interp   return interp.gMethod(instr);
+GroupItem   result;
+    if interp   result = interp.gMethod(instr);
+    if interp   return result;
     return null;
 }
 

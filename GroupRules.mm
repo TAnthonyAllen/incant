@@ -24,24 +24,6 @@
 #include "PLGrgx.h"
 #include "GroupRules.h"
 
-/***************************************************************************
-	This sets up for blocking via indent (like Python). It inserts a {
-    into the input stream so the following StatemenT will be a block.
-    The end of the block is handled by checking indentation in GroupRules
-    checkSkip.
-***************************************************************************/
-extern "C" GroupItem *BLOCKing(GroupItem *input)
-{
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	if ( *ruler->beforeSkip == '\n' )
-		{
-		if ( !ruler->blocking )
-			ruler->atRuleMark = ruler->beforeSkip;
-		ruler->blocking++;
-		}
-	return ruler->trueResult;
-}
-
 /*******************************************************************************
 	The ANYtoken rule action excludes key words and undefined token fields
 *******************************************************************************/
@@ -2308,12 +2290,17 @@ GroupItem 	*grup = 0;
 }
 
 /***************************************************************************
-	Rule action for the = assign operator
+	Rule action for the = assign operator. A byRef argument (one that came
+	through := / opSetGroup) is stored BY REFERENCE so the `=` does not undo the
+	reference via setContent. Everything else copies via setContent exactly as
+	before — the non-byRef path is byte-identical. (2026-06-09)
 ***************************************************************************/
 extern "C" GroupItem *opAssign(GroupItem *argument, GroupItem *&target)
 {
 	if ( argument )
-		target->setContent(argument);
+		if ( argument->groupBody->flags.byRef )
+			target->setGroup(argument);
+		else	target->setContent(argument);
 	return target;
 }
 
@@ -2371,7 +2358,7 @@ GroupItem 	*product = 0;
 		if ( argument->groupBody->registry != ruler->groupFields )
 			product = target->get(argument->getText());
 		else {
-			while ( target && isGROUP(target->groupBody->flags.data) )
+			while ( target && isGROUP(target->groupBody->flags.data) && target->getGroup() )
 				target = target->getGroup();
 			if ( !target )
 				return 0;
@@ -2443,24 +2430,24 @@ GroupItem 	*product = 0;
 						product->setCount(1);
 					break;
 				case 401:
-					if ( !argument->nextInParent )
+					if ( !target->nextInParent )
 						product = 0;
-					else	product->setGroup(argument->nextInParent);
+					else	product = target->nextInParent;
 					break;
 				case 402:
-					if ( !argument->priorInParent )
+					if ( !target->priorInParent )
 						product = 0;
-					else	product->setGroup(argument->priorInParent);
+					else	product = target->priorInParent;
 					break;
 				case 403:
-					if ( !argument->groupBody->groupList->firstInList )
+					if ( !target->groupBody->groupList->firstInList )
 						product = 0;
-					else	product->setGroup(argument->groupBody->groupList->firstInList);
+					else	product = target->groupBody->groupList->firstInList;
 					break;
 				case 404:
-					if ( !argument->groupBody->groupList->lastInList )
+					if ( !target->groupBody->groupList->lastInList )
 						product = 0;
-					else	product->setGroup(argument->groupBody->groupList->lastInList);
+					else	product = target->groupBody->groupList->lastInList;
 					break;
 				default:
 					product->setText(::concat(3,"access to ",argument->groupBody->tag," not supported yet"));
@@ -2947,12 +2934,19 @@ GroupItem 	*grup = 0;
 }
 
 /***************************************************************************
-	Rule action for the := set group operator
+	Rule action for the := set group operator. Stamps byRef on the argument so
+	setGroup stores it BY REFERENCE (no copy). byRef is left SET (sticky) on
+	purpose: a later `=` of the same field then also references, because opAssign
+	honors byRef too. (2026-06-09. See TODO: audit := sites whose fields later
+	get legitimately =-copied — sticky byRef would alias them.)
 ***************************************************************************/
 extern "C" GroupItem *opSetGroup(GroupItem *argument, GroupItem *&target)
 {
 	if ( argument )
+		{
+		argument->groupBody->flags.byRef = 1;
 		target->setGroup(argument);
+		}
 	return target;
 }
 
@@ -3026,6 +3020,7 @@ extern "C" void printField(GroupItem *field, char *format, Buffer *buffer)
 		field = field->getGroup();
 	switch (field->groupBody->flags.data)
 		{
+		case 0:
 		case 5:
 			if ( !format )
 				format = "%d";
@@ -3152,6 +3147,7 @@ GroupItem 	*code = 0;
 GroupItem 	*result = 0;
 GroupItem 	*priorMETHOD = ruler->currentMETHOD;
 GroupItem 	*action = field;
+int 		indenter = ruler->lastIndent;
 int 		processing = ruler->processingCode;
 	if ( field->groupBody->flags.isLabel )
 		field = field->rStuff->rule;
@@ -3161,6 +3157,7 @@ int 		processing = ruler->processingCode;
 	ruler->currentMETHOD = action;
 	ruler->divertToRule = 1;
 	ruler->pushInput(code);
+	ruler->lastIndent = 0;
 	ruler->processingCode = 1;
 	if ( result = blockRULE->parse(0) )
 		{
@@ -3171,6 +3168,7 @@ int 		processing = ruler->processingCode;
 	else	::fprintf(stderr,"ERROR processCode: %s parse failed\n",field->groupBody->tag);
 	if ( !processing )
 		ruler->processingCode = 0;
+	ruler->lastIndent = indenter;
 	ruler->popInput();
 	ruler->currentMETHOD = priorMETHOD;
 	if ( result )
@@ -3297,7 +3295,7 @@ extern "C" GroupItem *rEGISTER(GroupItem *item)
 GroupItem 	*registri = 0;
 GroupItem 	*argument = item->groupBody->flags.fLAG ? item->parent : item;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-char 		*name = item->getText();
+char 		*name = item->groupBody->flags.data ? item->getText() : (char*)0;
 	if ( ::compare(item->groupBody->tag,"class") == 0 )
 		{
 		argument->makeRegistry();
@@ -3579,8 +3577,11 @@ GroupItem 	*ruleArg = 0;
 extern "C" GroupItem *runByteFn(GroupItem *instr)
 {
 GroupItem 	*interp = instr->get("interpret");
+GroupItem 	*result = 0;
 	if ( interp )
-		return interp->groupBody->gMethod(instr);
+		result = interp->groupBody->gMethod(instr);
+	if ( interp )
+		return result;
 	return 0;
 }
 
@@ -3917,13 +3918,32 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 }
 
 /***************************************************************************
-	Immediate method for the testing command.
+	Immediate method for the testing command — scratch verification harness.
+
+	Currently primes a fresh, list-typed bcLIST on the generator the way
+	generateCode does (Commands.rtn:167-171), so emitBC's `:generator bcLIST`
+	appends members instead of hitting opPlusEQ's copyData branch on a missing
+	list. `input` is the host field (mirrors generateCode's `field`); then runs
+	the action's body against the primed list. Invoke like generateCode:
+		testing(testBRZEmit);
+	NB: keep this body free of `//` comments — they bleed field-resolution into
+	the following externs (unWrap/writeTempFile). Doc goes here, in the block.
 ***************************************************************************/
 extern "C" GroupItem *testing(GroupItem *input)
 {
-GroupItem 	*num = new GroupItem("dumb");
-	num->setCount(33);
-	return num;
+GroupItem 	*generator = GroupControl::groupController->locate("generator");
+	if ( !generator )
+		{
+		::fprintf(stderr,"testing: could not find generator\n");
+		return 0;
+		}
+GroupItem 	*bcLIST = new GroupItem("bcLIST");
+	bcLIST->groupBody->groupList = new GroupList();
+	bcLIST->groupBody->flags.noPrint = 1;
+	input->addAttribute(bcLIST);
+	bcLIST = generator->replace(bcLIST);
+	::runAction(0,input);
+	return generator->get("bcLIST");
 }
 
 /***************************************************************************
@@ -4022,7 +4042,6 @@ GroupRules::GroupRules()
 	trueResult = 0;
 	skipSet = 0;
 	inputSTAK = 0;
-	blocking = 0;
 	labelIndex = 0;
 	lastIndent = 0;
 	rulesParsed = 0;
@@ -4150,7 +4169,7 @@ char 		*atReplaceNewline = 0;
 	if ( sawNewLine && !lastINDENT )
 		lastINDENT = indenting;
 	if ( sawNewLine && indenting != lastINDENT )
-		if ( blocking || defining )
+		if ( processingCode || defining )
 			while ( indenting != lastINDENT )
 				{
 				atReplaceNewline = atContent - 1;
@@ -4165,7 +4184,7 @@ char 		*atReplaceNewline = 0;
 							}
 						}
 					else
-					if ( blocking )
+					if ( processingCode )
 						if ( lastNotSpace != '{' )
 							{
 							replaced = 1;
@@ -4189,14 +4208,13 @@ char 		*atReplaceNewline = 0;
 								}
 							}
 						else
-						if ( blocking )
+						if ( processingCode )
 							{
 							if ( lastNotSpace != '}' )
 								{
 								replaced = 1;
 								*atReplaceNewline = '}';
 								}
-							blocking--;
 							}
 					if ( stacked = (GroupItem*)blockSTAK->pop() )
 						lastINDENT = stacked->getCount();

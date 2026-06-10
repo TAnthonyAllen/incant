@@ -258,12 +258,15 @@ define
             endLabel = new("bcLabel");
             dumpContents(xp);
             gXpress(xp);
+            // bcBRZ jumps to elseLabel when there is an else, else endLabel. Emit
+            // the label directly — no shared dst variable (:= binds/aliases, so
+            // reusing one dst clobbered the earlier label; the indirection was
+            // never needed).
             if el.listLengtH;
                 elseLabel = new("bcLabel");
-                dst := elseLabel;
+                emitBC(copyOf(bcBRZ) +% elseLabel);
             else
-                dst := endLabel;
-            emitBC(bcBRZ +% dst);
+                emitBC(copyOf(bcBRZ) +% endLabel);
             // then-branch: descend to the generated revisedList (st is a non-isGROUP
             // StatemenT whose expression hangs off as an attribute, so unWrap can't
             // reach it) and emit directly, same as the condition; fall back to
@@ -272,10 +275,12 @@ define
             if stXP.listLengtH;  gXpress(stXP);
             else    runGenerated(st);
             if el.listLengtH;
-                dst := endLabel;
-                emitBC(bcBR +% dst);
+                emitBC(copyOf(bcBR) +% endLabel);
                 emitBC(elseLabel);
-                runGenerated(el);
+                // else-branch: same revisedList descent the then-branch needs.
+                elXP := el["revisedList"];
+                if elXP.listLengtH;  gXpress(elXP);
+                else    runGenerated(el);
             emitBC(endLabel);
             print `"End of gIF":;
             };
@@ -336,7 +341,7 @@ define
         this is their home. POP target: testByteCode -> maximus = 26.
     ***************************************************************************/
     testByteCode code={
-        if righty > 0; maximus = righty * 2; };
+        if righty <= 0; maximus = righty * 2; };
     // POP target: testPrint -> "hello world" via the bytecode print path.
     testPrint code={ print "hello" name:; };
     // testEmitBC retired 2026-06-04 (Brief 5 Fix 3): it called emitBC(bcMul),
@@ -346,9 +351,15 @@ define
     interpretBC argument code={
         argument +% opStack;
         for grup in argument; members
+            print `"grup:" taG:;
             result = runByteFn(grup);
-            if result;  grup = result;
+            print `"After runBF" result:;
+            if result;
+                **result;
+                grup := result;
+            else print `"Hit else":;
         if opStack.listLengtH;  print "interpret: opStack not empty at end:" opStack.listLengtH:;
+        print "Leaving interpretBC":;
         };
     testGXLeaf code={
         if righty;  maximus = 0;
@@ -357,6 +368,40 @@ define
     /***************************************************************************
         Working on
     ***************************************************************************/
+    // Step-through verification fixture for the label/BRZ emit (Fearless,
+    // 2026-06-10). Each step dumps its result so it can be verified by run
+    // before the next runs — a POP in miniature. Tony may insert **field /
+    // dumpField lines to break in Xcode. DRIVE IT WITH: testing(testBRZEmit)
+    // — the testing() command (Commands.rtn) primes a fresh, list-typed bcLIST
+    // on the generator first (the one step emitBC's :generator bcLIST needs and
+    // incant can't easily do), then runs this action against it.
+    testBRZEmit code={
+        // Step 1: mint the label — verify tag survives :=
+        endLabel := new("bcLabel1");
+        print `"Step 1 endLabel tag=" endLabel.taG " data=" endLabel:;
+        dumpField(endLabel);
+
+        // Step 2: clean copy of bcBRZ — verify interpret intact
+        op = copyOf(bcOPs["bcBRZ"]);
+        print `"Step 2 op tag=" op.taG:;
+        dumpField(op);
+
+        // Step 3: attach label — verify member or attribute?
+        op +% endLabel;
+        print `"Step 3 op after +%":;
+        dumpContents(op);
+
+        // Step 4: emit the branch — dump bcLIST
+        emitBC(op);
+        print `"Step 4 bcLIST after emitBC(op)":;
+        :generator bcLIST;
+        dumpContents(bcLIST);
+
+        // Step 5: emit the label target — dump bcLIST again
+        emitBC(endLabel);
+        print `"Step 5 bcLIST after emitBC(endLabel)":;
+        dumpContents(bcLIST);
+        };
     genBlock argument code={
         for grup in sumple; attributes
             maximus += 22;

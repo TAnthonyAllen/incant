@@ -1193,7 +1193,7 @@ void setGroup(GroupItem g)
         cerr "setGroup: cannot add a group",tag,"to itself":;
         return; }
     if g
-        if isLocal || isLabel   gGroup = g;
+        if isLocal || isLabel || g.byRef   gGroup = g;
         else {
             if !g.parent    gGroup = g;
             else            gGroup = new(g);

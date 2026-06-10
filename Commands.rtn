@@ -490,7 +490,7 @@ extern GroupItem rEGISTER(GroupItem item)
 GroupItem   registri;
 GroupItem   argument = item.fLAG ? item.parent : item;
 GroupRules  ruler = groupRules;
-String      name = item.text;
+String      name = item.data ? item.text : 0;
     if item.tag eq "class" {
         makeRegistry();
         isCLASS         = true; }
@@ -574,13 +574,29 @@ GroupRules  ruler = groupRules;
 }
 
 /***************************************************************************
-	Immediate method for the testing command.
+	Immediate method for the testing command — scratch verification harness.
+
+	Currently primes a fresh, list-typed bcLIST on the generator the way
+	generateCode does (Commands.rtn:167-171), so emitBC's `:generator bcLIST`
+	appends members instead of hitting opPlusEQ's copyData branch on a missing
+	list. `input` is the host field (mirrors generateCode's `field`); then runs
+	the action's body against the primed list. Invoke like generateCode:
+		testing(testBRZEmit);
+	NB: keep this body free of `//` comments — they bleed field-resolution into
+	the following externs (unWrap/writeTempFile). Doc goes here, in the block.
 ***************************************************************************/
 extern GroupItem testing(GroupItem input)
 {
-GroupItem num = new("dumb");
-    num.count = 33;
-    return num;
+GroupItem   generator   = locate("generator");
+    if !generator { cerr "testing: could not find generator":; return null; }
+GroupItem   bcLIST      = new("bcLIST");
+use bcLIST
+    groupList   = new;
+    noPrint     = true;
+    input   +% bcLIST;
+    bcLIST  = generator.replace(bcLIST);
+    runAction(0,input);
+    return generator["bcLIST"];
 }
 
 /***************************************************************************

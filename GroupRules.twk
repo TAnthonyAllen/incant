@@ -59,8 +59,7 @@ class GroupRules
     Stak        blockSTAK,
                 bufferSTAK,
                 inputSTAK;
-    int         blocking,
-                labelIndex,
+    int         labelIndex,
                 lastIndent,
                 rulesParsed,
                 sourceLINE;
@@ -184,7 +183,7 @@ String      atReplaceNewline;
     ***************************************************************************/
     if sawNewLine && !lastINDENT  lastINDENT = indenting;
     if sawNewLine && indenting != lastINDENT
-        if blocking || defining
+        if processingCode || defining
             while indenting != lastINDENT {
                 atReplaceNewline    = atContent - 1;
                 if indenting > lastINDENT && lastNotSpace {
@@ -192,7 +191,7 @@ String      atReplaceNewline;
                         if lastNotSpace != ':' {
                             replaced    = true;
                             *atReplaceNewline  = ':'; }}
-                    or blocking
+                    or processingCode
                         if lastNotSpace != '{' {
                             replaced    = true;
                             *atReplaceNewline  = '{'; }
@@ -206,11 +205,10 @@ String      atReplaceNewline;
                             if lastNotSpace != '>' || (!indenting && lastNotSpace != ';') {
                                 replaced    = true;
                                 *atReplaceNewline  = '>'; }}
-                        or blocking {
+                        or processingCode {
                             if lastNotSpace != '}' {
                                 replaced    = true;
-                                *atReplaceNewline  = '}'; }
-                            blocking--; }
+                                *atReplaceNewline  = '}'; }}
                     if stacked = blockSTAK.pop()    lastINDENT = stacked.count;
                     else                            lastINDENT = indenting; }
                 or !lastNotSpace        lastNotSpace = 0;

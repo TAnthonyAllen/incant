@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "OCroutines.h"
+#include "StringRoutines.h"
 #include "GroupItem.h"
 #include "GroupRules.h"
 #include "GroupBody.h"
@@ -24,7 +25,7 @@ GroupItem 	*body = instr->parent;
 ***************************************************************************/
 extern "C" GroupItem *runBR(GroupItem *instr)
 {
-	return instr->getAttribute("dst");
+	return instr->getFromList("dst");
 }
 
 // ---------- control flow: cond from stack, target from instruction ----------
@@ -36,8 +37,21 @@ extern "C" GroupItem *runBRZ(GroupItem *instr)
 {
 GroupItem 	*stack = ::opStackOf(instr);
 GroupItem 	*cond = stack->pop();
+GroupItem 	*body = instr->parent;
+	// the bcLIST
+GroupItem 	*label = 0;
+GroupItem 	*grup = 0;
 	if ( !cond || !cond->getCount() )
-		return instr->getAttribute("dst");
+		{
+		// the branch target is carried as the non-interpret attribute; its tag
+		// names the label. The attribute is a COPY (shares GroupBody, different
+		// node) so resolve to the actual stream member by tag.
+		while ( grup = instr->nextAttribute(grup) )
+			if ( ::compare(grup->groupBody->tag,"interpret") != 0 )
+				label = grup;
+		if ( label )
+			return body->getFromList(label->groupBody->tag);
+		}
 	return 0;
 }
 

@@ -293,7 +293,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	strap->groupBody->flags.isRule = 1;
 	item = grok->getMember("DEFINing");
 	item = strap->addAttribute(item);
-	::modify(item,"-");
+	::modify(item,"-^");
 	item = new GroupItem("definitions");
 	item = strap->addAttribute(item);
 	item->setGroup(stuff);

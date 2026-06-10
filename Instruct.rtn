@@ -22,11 +22,16 @@ extern GroupItem opAND(GroupItem argument,GroupItem &target)
 }
 
 /***************************************************************************
-	Rule action for the = assign operator
+	Rule action for the = assign operator. A byRef argument (one that came
+	through := / opSetGroup) is stored BY REFERENCE so the `=` does not undo the
+	reference via setContent. Everything else copies via setContent exactly as
+	before — the non-byRef path is byte-identical. (2026-06-09)
 ***************************************************************************/
 extern GroupItem opAssign(GroupItem argument,GroupItem &target)
 {
-    if argument     target.setContent(argument);
+    if argument
+        if argument.byRef   group = argument;
+        else                target.setContent(argument);
     return target;
 }
 
@@ -79,7 +84,7 @@ use argument
     if argument {
         if registry != groupFields  product = target[text];
         else {
-            while target && target.isGROUP    target = target.group;
+            while target && target.isGROUP && target.group    target = target.group;
             if !target  return 0;
             product = new(tag);
             switch(gCount) {
@@ -100,10 +105,10 @@ use argument
                 case 20:    if target.isOperator    product.count = 1;
                 case 24:    if target.isShortcut    product.count = 1;
                 case 28:    if target.noPrint       product.count = 1;
-                case 401:   if !nextInParent    product = null; else product.group = nextInParent;
-                case 402:   if !priorInParent   product = null; else product.group   = priorInParent;
-                case 403:   if !firstInList     product = null; else product.group   = firstInList;
-                case 404:   if !lastInList      product = null; else product.group   = lastInList;
+                case 401:   if !target.nextInParent    product = null; else product = target.nextInParent;
+                case 402:   if !target.priorInParent   product = null; else product = target.priorInParent;
+                case 403:   if !target.firstInList     product = null; else product = target.firstInList;
+                case 404:   if !target.lastInList      product = null; else product = target.lastInList;
                 default:    product.text    = "access to " tag " not supported yet"; }
             if product
                 if !product.isInitialized   return 0;
@@ -481,11 +486,17 @@ GroupItem   grup;
 }
 
 /***************************************************************************
-	Rule action for the := set group operator
+	Rule action for the := set group operator. Stamps byRef on the argument so
+	setGroup stores it BY REFERENCE (no copy). byRef is left SET (sticky) on
+	purpose: a later `=` of the same field then also references, because opAssign
+	honors byRef too. (2026-06-09. See TODO: audit := sites whose fields later
+	get legitimately =-copied — sticky byRef would alias them.)
 ***************************************************************************/
 extern GroupItem opSetGroup(GroupItem argument,GroupItem &target)
 {
-    if argument     group = argument;
+    if argument {
+        argument.byRef  = true;
+        group = argument; }
     return  target;
 }
 
