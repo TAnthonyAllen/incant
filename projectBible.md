@@ -596,18 +596,26 @@ See HWF.md for active session content. Bible carries the index so resurrection-r
 - legacy kind=3 still kSet but spec semantics differ
 - New kinds: kAny=4, kEof=5, kKeyTable=7, kCondition=8, kVariable=9, kUpTo=10, kBalanced=11
 
-### Incant Working ✅ [updated 2026-05-15]
-- interpret() in incant (incant/bytecode)
+### Incant Working ✅ [updated 2026-06-10]
+- interpret() in incant (incant/bytecode) — now C++ (`interpretBC` in Bytecode.twk)
 - bcOPs registry + C++ handlers (Bytecode.mm)
 - Gating hook in GroupRules.mm:786
-- **POP runs to completion; test action fires end-to-end**
-- **Full unit-test suite: partial pass, step-by-step work-through pending (Tony after-hours)**
+- Full unit-test suite passing clean
+- `byRef` / `:=` pointer semantics (opSetGroup/opAssign/setGroup)
+- `gIF` emitter — then+else arms, unique labels (`bcLabel<n>` via `:=`), verified 2026-06-10
+- `gXpress` emitter — push-ops and operators from revisedList
+- `runByteFn` primitive — fetches and invokes interpret child without copy
+- `testByteCode` → `maximus = 26` ✅ (true branch, 9-op bcLIST)
+- `testPrint` → `"hello world"` ✅ (via gPrinT thunk)
+- `grammarOnTheFly` — live grammar mutation at runtime ✅
 
 ### Incant Next
-- Unit-test suite step-through to clean state (precondition for everything below)
-- Then: Bytecode.mm → Xcode target (manual)
-- Then: Fill in gIF and gExpressioN in Generate.rtn (Phase Bytecode active code work)
-- Then: testByteCode POP
+- **C++ `interpretBC` dispatch loop** — spec in `docs/branch-mechanism.md`;
+  implementation checklist in TODO.md. Current POP target:
+  testByteCode true→26 / false→11, testIfElse→26/7.
+- `modedOP.boundTo` alias design + implementation (morning design pass pending)
+- JSON grammar — simple parse working, step-by-step complexity ramp in progress
+- Track B: `=` semantics / divineIntent redesign (design-first, post-bytecode-stabilize)
 
 ### Known Working Tests
 ```
