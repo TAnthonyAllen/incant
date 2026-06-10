@@ -90,9 +90,9 @@ Replacement* Phases A–E, and the `tawk-tok-compile-frontier.md` loop:
 (a) the **regen route** above (`plg Tawk.g` → grind the `.act` bodies → tok), which the
 2026-05-31 frontier doc treats as active; and (b) a **legacy-source hand-migration** —
 `Tokf/TODO`'s "Tawk.twk invalid-surface migration: ~587 sites across 5 surface types,
-next major work item." These are two paths to the same new-API Tawk. The frontier
-(regen) is the most recent work; the 587-site item reads like the alternative/earlier
-framing. **Worth confirming which is the committed path before more grind** (don't chase — flag).
+next major work item." These are two paths to the same new-API Tawk. **Settled (Clay, 2026-06-10): the `.act`-grind /
+regen route is the committed path; the legacy 587-site hand-migration is retired** — it predates
+the regen being clean.
 
 ---
 
@@ -110,12 +110,11 @@ Named in the docs, **not fully specified** (Finding F3):
   `,678→Max`, `Grammar/Testing.g` (90/91 bytes), `Grammar/plg.g` (39 rules),
   `Tokf/Tawk.g` (200 rules, 177 populated, 5 includes 100%).
 
-**Gap F3**: the docs don't pin **which inputs** form the equivalence corpus, nor whether
-the bar is **byte-identical** output or **functional/compile-equivalent** output. A
-real Track-A exit gate needs that spelled out. (Caveat the new binary is *expected* to
-differ in some emitted text — new API — so "byte-identical to old tok output" may be the
-wrong bar; "the new binary re-toks the whole ecosystem and everything still builds + runs"
-is the more likely real gate. Flagging the ambiguity, not resolving it.)
+**F3 — settled (Clay, 2026-06-10).** Byte-identity is the **wrong** bar: the new API means
+emitted text differs by design. **The gate is functional: re-tok the whole ecosystem with
+`tokTemp` and confirm everything still builds and runs.** Seed corpus = the files we tok
+regularly — **`plg.g`, `Tawk.g`, `GroupItem.twk`, `GroupRules.twk`**. That is the
+functional-equivalence bar.
 
 ---
 
@@ -168,15 +167,21 @@ is the more likely real gate. Flagging the ambiguity, not resolving it.)
 1. **Finish the `.act` action-body grind** in `Tokf/Tests/` until `tok Tawk.twk` completes
    `Tawk.C` + `Tawk.h` with no FAIL/segfault. Drive with the bisect loop (R4). Close the
    owed mappings (`type.flag4` + the removed-field set) as Tony supplies them.
-2. **Resolve F2 first** — confirm the regen route is the committed path (vs the 587-site
-   legacy migration) so the grind isn't redone.
+2. **(F2 settled — Clay, 2026-06-10.)** The `.act`-grind / regen route **is** the committed
+   path; the legacy 587-site hand-migration is **retired** (it predates the regen being clean).
+   No re-decision needed — proceed on the grind.
 3. **TOK Xcode reconfig** to the `Tests/`-derived sources; reach **clean compile against new
    plg**; build **`~/bin/tokTemp`** (NOT over `~/bin/tok`).
 4. **Tony Xcode debug pass** on the integrated build (bugs-after-compile are features).
-5. **Define + run the equivalence gate** (close F3): pick the input corpus (start from the
-   Known-Working anchors), decide byte-vs-functional bar, run `tokTemp` vs `~/bin/tok` in
-   `Tokf/Tests/`, Phase Sandbox smoke → Phase Triage runtime validation.
-6. **Promote** — back up the current `~/bin/tok`, then `~/bin/tok ← tokTemp`. Only after 5 is green.
+5. **Run the functional equivalence gate** (F3 settled — Clay, 2026-06-10): **re-tok the
+   regular corpus with `tokTemp` — `plg.g`, `Tawk.g`, `GroupItem.twk`, `GroupRules.twk` —
+   and confirm everything still builds and runs.** Byte-identity is NOT the bar (new API →
+   emitted text differs by design). Then Phase Sandbox smoke → Phase Triage runtime
+   validation, in `Tokf/Tests/`.
+6. **Back up `~/bin/tok`** — copy the working binary aside (e.g. `~/bin/tok.bak-<date>`)
+   **before touching it**. Named step on purpose: this is the bootstrap safety net (R1) —
+   a bad promote can't re-tok its way out.
+7. **Promote** — `~/bin/tok ← tokTemp`. Only after step 5 is green **and** step 6's backup exists.
 
 ### Track B — improvements, separate, slow, no disruption to the working binary
 
@@ -201,10 +206,11 @@ is the more likely real gate. Flagging the ambiguity, not resolving it.)
 - **F1-loc** — TAWK docs are split across repos: this plan + `tawk-tok-compile-frontier.md`
   live in `Groups/docs/`, but `fieldResolutionRecon.md`/`CLAUDE.md`/`TODO.md` are in `Tokf/`.
   A future cleanup could consolidate TAWK docs under `Tokf/docs/`.
-- **F2** — two migration routes (regen-via-`.act`-grind vs legacy 587-site hand-migration)
-  both live in the TODO; the committed path isn't stated.
-- **F3** — the equivalence test gate is named (Phase D / Tests-sandbox-vs-`~/bin/tok`) but not
-  specified (which inputs, byte-vs-functional bar).
+- **F2 — RESOLVED (Clay, 2026-06-10)**: the `.act`-grind / regen route is the committed path;
+  the legacy 587-site hand-migration is retired (predates the regen being clean).
+- **F3 — RESOLVED (Clay, 2026-06-10)**: functional gate, not byte-identity — re-tok the
+  ecosystem (`plg.g`, `Tawk.g`, `GroupItem.twk`, `GroupRules.twk`) with `tokTemp`; everything
+  must still build and run.
 - **F4** — the "incant unit-test cleanup" precondition may be stale relative to the regen path.
 - **F5** — **the bible is ~1 day behind the frontier doc.** Bible *Phase Generate Tawk* (2026-05-30,
   recently folded in from Parse's bible) still calls the `generateRules` class-body/extern split
