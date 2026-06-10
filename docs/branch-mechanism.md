@@ -1,5 +1,13 @@
 # Bytecode branch mechanism — investigation + decision (2026-06-09)
 
+> **⚠️ SUPERSEDED (2026-06-10).** The conclusion below — "the branch isn't expressible in
+> interpreted incant, move the dispatch loop to C++" — was **overtaken by events.** After the
+> unique-label emit (`bcLabel<n>` via `:=`) and the `byRef`/`:=` pointer-semantics work landed,
+> the cleaned-up **incant** `interpretBC` (`incant/generate`) takes the branch correctly:
+> `testByteCode` false→11, `testIfElse`→26/7. **The C++ dispatch loop was never built and is
+> not needed** — the interpreter stays in incant. Kept as the historical reasoning; the
+> "Confirmed working" findings (byRef, opDot unwrap, runBRZ retrieval) all still stand.
+
 *Why conditional branches (`bcBRZ`/`bcBR`) couldn't be made to work from
 interpreted incant, what got fixed along the way, and the decision: **move the
 bytecode dispatch loop to C++** while the IR stays homoiconic.*

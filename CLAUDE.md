@@ -191,33 +191,20 @@ bytecode for the JIT.
 | `Bytecode.{h,mm}` (C++ handlers) | ✅ Written |
 | Gating hook in `GroupRules.mm:786` | ✅ Wired (falls through to gMethod when no bytecode) |
 | `bcOPs` registry | ✅ Defined |
-| `gIF` emitter | ✅ emit correct (fixed 2026-06-09) — then *and* else arms: condition via `gXpress`, `bcBRZ`→`elseLabel`/`endLabel`, then-branch, `bcBR`, `elseLabel`, else body (own `revisedList` descent), `endLabel`. Branch *execution* still blocked by the C++ cond bug below |
+| `gIF` emitter | ✅ emit correct — then *and* else arms (condition via `gXpress`, `bcBRZ`→`elseLabel`/`endLabel`, then-branch, `bcBR`, `elseLabel`, else body, `endLabel`); **unique labels** `bcLabel<n>` via `:=` + `labelIndex` (2026-06-10) |
 | `gXpress` emitter | ✅ Live — emits push-ops/operators from a `revisedList`'s members |
 | `gExpressioN` path | ✅ Live — `aCTionExpressioN` builds the `revisedList` that `gXpress` walks |
-| `testByteCode` end-to-end | ⚠️ true-branch only — `if righty > 0; maximus = righty * 2;` → `maximus = 26` via the real path (9-op `bcLIST`, `interpretBC`). The branch mechanism is **not actually working** — see below |
+| `testByteCode` / `testIfElse` end-to-end | ✅ **branches taken** — `testByteCode` true→26 / false→11, `testIfElse`→26/7, all through the incant `interpretBC` (9-op `bcLIST`) |
 
-**The branch mechanism doesn't take the branch yet (deep dive 2026-06-09 →
-`docs/branch-mechanism.md`).** Long debugging session; net result below.
-
-CONFIRMED working (don't re-debug): `gIF` emit (then+else — fixed: direct label
-emit, no shared `dst`; else arm gets the `revisedList` descent); the
-`runGT`/`opGT` **cond is correct** (cond=0 false, cond=1 true — *not* the bug, my
-earlier "truthy cond" claim was wrong); `runBRZ` retrieval returns the real
-`endLabel` member; `opDot` wrapping fixed; `+=`/`addGroup` link members correctly.
-
-THE WALL: the design's "branch ops override by reassigning `grup` mid-loop" is
-**not expressible in interpreted incant**. (1) `for grup in argument; members`
-ignores a mid-loop `grup = result` (advances on its own cursor). (2) An explicit
-`while grup != 0;` cursor loop parses, but `grup = argument.firsT` / `grup =
-result` go through **opAssign → `setContent`** (the bear trap) which **copies** the
-member into a `"grup"`-tagged field with no opcode tag and bogus `nextInParent`,
-instead of *referencing* the real node → endless re-dispatch. The for-loop binds
-`grup` to real members via its own machinery; an incant `=` in the body can't.
-
-OPEN (Tony/Clay design call): how to bind the loop cursor to a member *by
-reference* — a reference operator if one exists, or move branch handling into the
-interpret loop's machinery, or a different jump mechanism (recursive `interpret`,
-label table). See `docs/branch-mechanism.md` for the full reasoning + tree state.
+**The branch works — in incant (resolved 2026-06-10).** The 2026-06-09 deep dive
+(`docs/branch-mechanism.md`) concluded the branch wasn't expressible in interpreted
+incant and prescribed moving the dispatch loop to C++. That turned out **unnecessary**:
+the unique-label emit (`bcLabel<n>` via `:=`) plus the `byRef`/`:=` pointer semantics let
+the cleaned-up incant `interpretBC` (`incant/generate`) take the branch after all —
+`testByteCode` false→11 and `testIfElse`→26/7 run correctly. The C++ dispatch loop was
+**not built**; the interpreter stays in incant. `branch-mechanism.md` is superseded (kept
+as historical reasoning). Remaining: broaden the bytecode-generation POP (more statement
+forms, `gPrinT` proper emit, `gDeclare`, real field refs vs folded values).
 
 ### Incant Dispatch Idiom (IMPORTANT)
 Two steps — never chain:
@@ -259,17 +246,16 @@ oneTest, unitTests, utilities) now live at the top-level `incant/` directory
   the `gExpressioN`/`revisedList` path all emit; `interpretBC` runs the stream.
   `testByteCode` produces `maximus = 26`, `testIfElse` emits a correct 13-op
   `bcLIST`, and `testPrint` produces `"hello world"` (via the `gPrinT` thunk).
-  **Caveat:** branch *execution* is still broken (below) — `maximus = 26` is
-  true-branch-only, and `testIfElse` runs to `7` because `bcBR` doesn't skip.
+  **Branch execution works (2026-06-10):** `testByteCode` false→11 and `testIfElse`→26/7
+  run correctly through the incant `interpretBC` — the unique-label + `byRef`/`:=` work let
+  the incant loop take the branch; the planned C++ dispatch loop was not needed.
 
 ### In Progress
-- **Branch execution — blocked on an interpret-loop design question**
-  (deep dive 2026-06-09 → `docs/branch-mechanism.md`). Emit, cond, and `runBRZ`
-  retrieval are all confirmed correct; the wall is that "reassign `grup` to take
-  the branch" isn't expressible in interpreted incant (the for-loop ignores the
-  reassignment; an explicit cursor loop's `grup = …` copies the member via
-  `setContent` instead of referencing it). Needs a reference-bind for the cursor,
-  or branch handling moved into the loop machinery — a Tony/Clay design call.
+- **Broaden the bytecode-generation POP.** Branch execution is **done** — it works in
+  incant (see above); the planned C++ dispatch loop was not needed. Next proof points as
+  generation work continues: more statement forms, real field references vs folded values,
+  `gPrinT` proper emit, `gDeclare`. (`docs/branch-mechanism.md` is superseded — kept as the
+  historical 2026-06-09 reasoning.)
 
 ### Next
 - `gPrinT` proper bytecode emit (currently a thunk that re-fires `aCTionPrinT`)
@@ -289,8 +275,10 @@ testByteCode in incant/generate:338  (testIfElse at :356; fixtures in unitTests:
   testByteCode code={ if righty > 0; maximus = righty * 2; };   // righty = 13
   actual emit (op-tag form, 9 ops):
     bcPushField 13 · bcPushLit 0 · > · bcBRZ ·
-    bcPushField 13 · bcPushLit 2 · * · bcStoreField · endLabel
-  outcome: maximus = 26  ✅ (true branch; no bcRET — stream ends at endLabel)
+    bcPushField 13 · bcPushLit 2 · * · bcStoreField · bcLabel 1
+  outcome: maximus = 26  ✅ (true branch). Branch execution works (2026-06-10):
+  the `if righty <= 0` false variant → 11, testIfElse → 26/7, via the incant
+  interpretBC. (label is now the unique `bcLabel 1`, not the old `endLabel`)
 ```
 
 Note: `oneTest:21` has a `stop()` right after the `testPrint` block, so the

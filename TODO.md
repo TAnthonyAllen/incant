@@ -39,32 +39,25 @@ How it landed (Track A — dispatch in place, NOT via `=`):
 - The `interpret` child DOES survive the `+=` into bcLIST (the 06-04 "doesn't survive" worry
   was wrong). `dumpField()` added to `GroupItem.twk` as a reusable debug dump (keeper).
 
-### 🎯 FIRST THING TOMORROW (2026-06-10): C++ dispatch loop
+### ✅ RESOLVED (2026-06-10): branch execution works in incant — no C++ loop needed
 
-**Decision (Clay+Tony, 2026-06-09): the bytecode dispatch loop moves to C++.**
-Full rationale + spec → `docs/branch-mechanism.md`. The branch ("reassign `grup`
-mid-loop") is NOT expressible in interpreted incant (a local can't *become* a node
-nor be nulled to terminate). The IR stays homoiconic (bytecodes = GroupItems); only
-the walker becomes C++ — natural, since the handlers (`runGT`/`runBRZ`/…) are already
-C++, and the JIT supersedes the loop anyway.
+**The 2026-06-09 decision to move the dispatch loop to C++ was overtaken.** After the
+unique-label emit (`bcLabel<n>` via `:=` + `labelIndex`) and the `byRef`/`:=` pointer
+semantics landed, the cleaned-up **incant** `interpretBC` (`incant/generate`) takes the
+branch: `testByteCode` true→26 / **false→11**, `testIfElse`→26/7. The C++ `interpretBC` in
+`Bytecode.twk` was **never written and is not needed** — the interpreter stays in incant.
+`docs/branch-mechanism.md` is superseded (kept as historical reasoning).
 
-Implementation checklist:
-- [ ] **Tony:** write C++ `interpretBC(body)` in `Bytecode.twk` (spec in
-  branch-mechanism.md: hang opStack; `grup = first member`; loop: `next` = successor,
-  `result = runByteFn(grup)`, `grup = result ? result : next`; null terminates).
-  Then `tok Bytecode.twk` → rebuild.
-- [ ] **Clod (incant-side, no retok):** register `interpretBC immediateAction=interpretBC;`
-  in `incant/setup` (mirror runByteFn; bare no-`=value` form fails to bind); remove the
-  interpreted `interpretBC` from `incant/generate` AND the dormant one in `incant/bytecode`.
-  Both the C++ build and this swap must land before the run.
-- [ ] **Verify:** `testByteCode` true→26 / false→11, `testIfElse`→26/7. Then run the
-  full unit suite (sticky-`byRef` aliasing check).
-- [ ] **Cleanup:** revert `runByteFn` capture-into-`result` (GroupActions.rtn, debug-only);
-  restore `oneTest:21` `stop()`.
+Still done + in the build (keep): `byRef` flag + `:=` pointer semantics (opSetGroup/opAssign/
+setGroup), `opDot` reference unwrap (case 401-404 + deref-loop `&& target.group` stop), `gIF`
+emit (then+else, **unique labels** `bcLabel<n>`), cond, `runBRZ` retrieval — all verified.
 
-Already DONE and tok'd into the build (keep): `byRef` flag + `:=` pointer semantics
-(opSetGroup/opAssign/setGroup), `opDot` reference unwrap (case 401-404 + the deref-loop
-`&& target.group` stop). `gIF` emit (then+else), cond, `runBRZ` retrieval all verified.
+**Next — broaden the bytecode-generation POP:** more statement forms, real field refs vs
+folded values, `gPrinT` proper emit (currently a thunk), `gDeclare` verification, test cases
+beyond testByteCode/testIfElse.
+
+Remaining cleanup: revert `runByteFn` capture-into-`result` (GroupActions.rtn, behaviorally
+identical debug scaffolding). (`oneTest:21` `stop()` already restored.)
 - [ ] **AUDIT (after bytecode stabilizes) — sticky `byRef` aliasing** — `byRef` is left set
   and never cleared, so any field ever passed as the argument of `:=` references-on-`=`
   forever (opAssign honors it). Fine while nothing else reads the flag, but audit existing
