@@ -597,7 +597,7 @@ See HWF.md for active session content. Bible carries the index so resurrection-r
 - New kinds: kAny=4, kEof=5, kKeyTable=7, kCondition=8, kVariable=9, kUpTo=10, kBalanced=11
 
 ### Incant Working ✅ [updated 2026-06-10]
-- interpret() dispatch loop — a tiny, clean **incant** `interpretBC` (`incant/generate`) walking the stream via `runByteFn`; runs the true-branch path (`testByteCode → 26`). The C++-dispatch-loop move planned in `branch-mechanism.md` is **deferred** — the incant version is doing the job (the wall there was the *branch*, not dispatch).
+- interpret() dispatch loop — a tiny, clean **incant** `interpretBC` (`incant/generate`) walking the stream via `runByteFn`. **Takes branches**: `testByteCode` true→26 / false→11 and `testIfElse`→26/7 all run through it. The `branch-mechanism.md` wall (a for-loop cursor ignoring `grup := result`) was circumvented by the unique-label + `byRef`/`:=` work — so the planned **C++ dispatch loop is not needed**; the interpreter stays in incant. (Branch mechanics work; broader POP across more generation cases still to come — see Next.)
 - bcOPs registry + C++ handlers (Bytecode.mm)
 - Gating hook in GroupRules.mm:786
 - Full unit-test suite passing clean
@@ -610,11 +610,11 @@ See HWF.md for active session content. Bible carries the index so resurrection-r
 - `grammarOnTheFly` — live grammar mutation at runtime ✅
 
 ### Incant Next
-- **Branch execution** (the open POP) — make `interpretBC` actually take the branch:
-  `testByteCode` false→11, `testIfElse`→26/7. The clean incant loop dispatches fine, but
-  `branch-mechanism.md`'s wall (a for-loop cursor ignores `grup := result`) still stands for
-  the *false* path. Mechanism is an open call: solve it in incant, or fall back to the C++
-  dispatch loop (spec + checklist in `branch-mechanism.md` / TODO.md).
+- **Bytecode generation — broaden the POP.** Branch execution now works in incant
+  (`testByteCode` true→26 / false→11, `testIfElse`→26/7); further POP required as
+  bytecode-generation work continues — more statement forms, real field references vs
+  folded values, `gPrinT` proper emit (currently a thunk), `gDeclare` verification, and
+  test cases beyond testByteCode/testIfElse.
 - `modedOP.boundTo` alias design + implementation (morning design pass pending)
 - JSON grammar — simple parse working, step-by-step complexity ramp in progress
 - Track B: `=` semantics / divineIntent redesign (design-first, post-bytecode-stabilize)
