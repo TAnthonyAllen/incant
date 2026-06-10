@@ -255,7 +255,12 @@ define
             xp  = unWrap(xp);
             st  := argument[2];
             el  := argument[3];
-            endLabel = new("bcLabel");
+            // Mint a uniquely-tagged label (bcLabel1, bcLabel2, ...) so multiple
+            // ifs in one action don't collide on getFromList(label.tag). `:=`
+            // keeps the bcLabelN tag (a plain `=` would re-tag it to "endLabel").
+            ++labelIndex;
+            labelName = string "bcLabel" labelIndex;
+            endLabel := new(labelName);
             dumpContents(xp);
             gXpress(xp);
             // bcBRZ jumps to elseLabel when there is an else, else endLabel. Emit
@@ -263,7 +268,9 @@ define
             // reusing one dst clobbered the earlier label; the indirection was
             // never needed).
             if el.listLengtH;
-                elseLabel = new("bcLabel");
+                ++labelIndex;
+                labelName = string "bcLabel" labelIndex;
+                elseLabel := new(labelName);
                 emitBC(copyOf(bcBRZ) +% elseLabel);
             else
                 emitBC(copyOf(bcBRZ) +% endLabel);
@@ -351,15 +358,9 @@ define
     interpretBC argument code={
         argument +% opStack;
         for grup in argument; members
-            print `"grup:" taG:;
             result = runByteFn(grup);
-            print `"After runBF" result:;
-            if result;
-                **result;
-                grup := result;
-            else print `"Hit else":;
+            if result;  grup := result;
         if opStack.listLengtH;  print "interpret: opStack not empty at end:" opStack.listLengtH:;
-        print "Leaving interpretBC":;
         };
     testGXLeaf code={
         if righty;  maximus = 0;
