@@ -359,6 +359,43 @@ One method per field by design. Sub-attribute pattern for second invokable behav
 
 ---
 
+## C++ floor — settled architecture
+
+incant aims for **pragmatic self-hosting**, not maximalist: a small, stable C++
+kernel stays permanently; everything above it migrates to incant as the JIT makes
+that practical. The goal is to *program in incant*, not to eliminate C++ — C++ is
+leverage (LLVM, GC, NSObject, macOS GUI), not debt. (The *why* — self-hosting so
+all programming happens in incant, where grammar and syntax are under Tony's
+control — is the deeper goal the JIT serves; see "The JIT is the enabling
+technology" below.)
+
+**Stays in C++ permanently:**
+- Bootstrap: the 32 hard-coded rules + the loader that runs `setup`/`grammar`
+- Input stream and tokenizer (hot path; source-position tracking)
+- `GroupItem` allocator and GC — **BDWGC** (Boehm-Demers-Weiser), not hand-rolled; allocation via `GC_malloc`
+- LLVM JIT integration and codegen glue (**ORC v2**, not MCJIT)
+- Platform calls: drawing, file I/O, GUI bridge, NSObject interop
+- A small set of primitive operations the JIT compiles into directly
+
+**Migrates to incant, roughly in order:**
+1. Bytecode emitter — `generate` emits bytecode GroupItems (the prior C++-source emit path is abandoned, not preserved)
+2. Optimization passes on bytecode (constant folding, DCE, …)
+3. Higher-level rule actions currently in C++
+4. Standard library / utility functions (`utilities` already does this)
+5. The LLVM IR emitter from bytecode, written in incant
+6. Stretch: all rule actions in incant, once the JIT makes them fast enough
+
+**Migration rule** — code moves C++ → incant only when **both** hold: (1) it's no
+longer performance-critical because the JIT handles it, and (2) expressing it in
+incant gives the eventual incant programmer meaningful control or extensibility.
+"Stuff that just happens" — works fine, no one needs to extend it, performance
+matters — stays in C++ even if it could in principle be rewritten. A deliberate
+constraint to prevent thrashing.
+
+*(Folded from the retired `incant.md` project-state doc, 2026-06-10.)*
+
+---
+
 ## The Long Game — Incant as Distributed Virtual OS
 
 GroupItem fields are deployable units. Run anywhere. Message each other across platforms. Location transparent.
