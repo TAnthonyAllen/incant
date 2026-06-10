@@ -164,7 +164,9 @@ bytecode for the JIT.
    registry by statement kind.
 5. Per-statement handlers (`gBlocK`, `gIF`, `gFOR`, `gWhilE`, `gDO`,
    `gExpressioN`, `gXpress`, `gPrinT`, `gDeclare`) — emit bytecode
-   GroupItems. **gIF and gExpressioN are the active rewrites.**
+   GroupItems. **`gIF`, `gXpress`, and the `aCTionExpressioN`-built
+   `revisedList` (the `gExpressioN` path) are live** — they carry
+   `testByteCode` to `maximus = 26` (see Status).
 6. `interpret(bytecode)` — the dispatch loop. Written in incant
    (`incant/bytecode`). Walks the bytecode stream; each op
    GroupItem's `interpret` sub-attribute is the handler.
@@ -189,9 +191,33 @@ bytecode for the JIT.
 | `Bytecode.{h,mm}` (C++ handlers) | ✅ Written |
 | Gating hook in `GroupRules.mm:786` | ✅ Wired (falls through to gMethod when no bytecode) |
 | `bcOPs` registry | ✅ Defined |
-| `gIF` emitter | 🔧 Stub — needs rewrite |
-| `gExpressioN` emitter | 🔧 Stub — needs rewrite |
-| `testByteCode` end-to-end | 🎯 POP target: `if righty > 0; maximus = righty * 2;` → `maximus = 26` |
+| `gIF` emitter | ✅ emit correct (fixed 2026-06-09) — then *and* else arms: condition via `gXpress`, `bcBRZ`→`elseLabel`/`endLabel`, then-branch, `bcBR`, `elseLabel`, else body (own `revisedList` descent), `endLabel`. Branch *execution* still blocked by the C++ cond bug below |
+| `gXpress` emitter | ✅ Live — emits push-ops/operators from a `revisedList`'s members |
+| `gExpressioN` path | ✅ Live — `aCTionExpressioN` builds the `revisedList` that `gXpress` walks |
+| `testByteCode` end-to-end | ⚠️ true-branch only — `if righty > 0; maximus = righty * 2;` → `maximus = 26` via the real path (9-op `bcLIST`, `interpretBC`). The branch mechanism is **not actually working** — see below |
+
+**The branch mechanism doesn't take the branch yet (deep dive 2026-06-09 →
+`docs/branch-mechanism.md`).** Long debugging session; net result below.
+
+CONFIRMED working (don't re-debug): `gIF` emit (then+else — fixed: direct label
+emit, no shared `dst`; else arm gets the `revisedList` descent); the
+`runGT`/`opGT` **cond is correct** (cond=0 false, cond=1 true — *not* the bug, my
+earlier "truthy cond" claim was wrong); `runBRZ` retrieval returns the real
+`endLabel` member; `opDot` wrapping fixed; `+=`/`addGroup` link members correctly.
+
+THE WALL: the design's "branch ops override by reassigning `grup` mid-loop" is
+**not expressible in interpreted incant**. (1) `for grup in argument; members`
+ignores a mid-loop `grup = result` (advances on its own cursor). (2) An explicit
+`while grup != 0;` cursor loop parses, but `grup = argument.firsT` / `grup =
+result` go through **opAssign → `setContent`** (the bear trap) which **copies** the
+member into a `"grup"`-tagged field with no opcode tag and bogus `nextInParent`,
+instead of *referencing* the real node → endless re-dispatch. The for-loop binds
+`grup` to real members via its own machinery; an incant `=` in the body can't.
+
+OPEN (Tony/Clay design call): how to bind the loop cursor to a member *by
+reference* — a reference operator if one exists, or move branch handling into the
+interpret loop's machinery, or a different jump mechanism (recursive `interpret`,
+label table). See `docs/branch-mechanism.md` for the full reasoning + tree state.
 
 ### Incant Dispatch Idiom (IMPORTANT)
 Two steps — never chain:
@@ -229,15 +255,26 @@ oneTest, unitTests, utilities) now live at the top-level `incant/` directory
 - `generateCode()` repurposed as bytecode emitter entry point (Phase 1)
 - Bytecode interpreter written in incant + C++ handlers in place
 - Gating hook wired at `GroupRules.mm:786`
+- Emit path is live and correct: `gIF` (then **and** else arms), `gXpress`, and
+  the `gExpressioN`/`revisedList` path all emit; `interpretBC` runs the stream.
+  `testByteCode` produces `maximus = 26`, `testIfElse` emits a correct 13-op
+  `bcLIST`, and `testPrint` produces `"hello world"` (via the `gPrinT` thunk).
+  **Caveat:** branch *execution* is still broken (below) — `maximus = 26` is
+  true-branch-only, and `testIfElse` runs to `7` because `bcBR` doesn't skip.
 
 ### In Progress
-- `gIF` and `gExpressioN` emitter rewrites — the blockers for `testByteCode`
+- **Branch execution — blocked on an interpret-loop design question**
+  (deep dive 2026-06-09 → `docs/branch-mechanism.md`). Emit, cond, and `runBRZ`
+  retrieval are all confirmed correct; the wall is that "reassign `grup` to take
+  the branch" isn't expressible in interpreted incant (the for-loop ignores the
+  reassignment; an explicit cursor loop's `grup = …` copies the member via
+  `setContent` instead of referencing it). Needs a reference-bind for the cursor,
+  or branch handling moved into the loop machinery — a Tony/Clay design call.
 
 ### Next
-- `gPrinT` proper bytecode emit (currently delegates to old `genPrint()`)
-- `gXpress` beyond stub
+- `gPrinT` proper bytecode emit (currently a thunk that re-fires `aCTionPrinT`)
 - `gDeclare` verification
-- More test cases beyond `testByteCode`
+- More test cases beyond `testByteCode` / `testIfElse`
 - Phase JIT: LLVM IR from bytecode (HPDL)
 
 **Out of scope for current arc:** `Bytecode.mm` into the incantGUI Xcode
@@ -248,11 +285,18 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 ## Testing
 
 ```
-testByteCode in incant/unitTests:124
-  testByteCode code={ if righty > 0; maximus = righty * 2; };
-  expected emit: runGT, runBRZ, runMultiply, runAssign, runRET
-  expected outcome: maximus = 26
+testByteCode in incant/generate:338  (testIfElse at :356; fixtures in unitTests:82)
+  testByteCode code={ if righty > 0; maximus = righty * 2; };   // righty = 13
+  actual emit (op-tag form, 9 ops):
+    bcPushField 13 · bcPushLit 0 · > · bcBRZ ·
+    bcPushField 13 · bcPushLit 2 · * · bcStoreField · endLabel
+  outcome: maximus = 26  ✅ (true branch; no bcRET — stream ends at endLabel)
 ```
+
+Note: `oneTest:21` has a `stop()` right after the `testPrint` block, so the
+`testByteCode` block (oneTest:23) does not run from `oneTest` as-is. Drive it
+with a small scratch file that includes `unitTests`/`generate`/`utilities`,
+sets the search list, then `generateCode(testByteCode); … generateAction(...)`.
 
 `Tests/test.json` — sample widget definition for JSON/XML parsing exercises.
 
@@ -268,6 +312,68 @@ Flags in scope:
 Use `groupDirectives` for ephemeral instrumentation — TAWK directive files
 let you inject trace code without polluting `.twk` source. See the bible's
 "TAWK Directives used in anger" entry.
+
+---
+
+## Bear Traps
+
+Hard-won lessons. Each one has cost real debugging time.
+
+1. **`=` tag-imposition (opAssign → setContent)** — `A = B` copies B's content into A
+   but reimprints A's own tag. B's tag does not transfer. `endLabel = new("bcLabel1")`
+   gives a node tagged `endLabel`, not `bcLabel1`. Use `:=` when the argument's tag
+   must survive.
+
+2. **`setContent` method-drop** — `=` (setContent) drops method bindings on copied
+   content. A `copyOf` through `=` loses its `interpret` child's method. The inline
+   `copyOf → +% → emitBC` path preserves it; an intermediate `=` assignment does not.
+
+3. **`byRef` sticky** — `:=` stamps `byRef` on the argument permanently. Any later `=`
+   on that same field also references instead of copying. Audit `:=` sites whose fields
+   later get legitimately `=`-copied (see TODO audit note).
+
+4. **`//` comments in `.rtn` method bodies** — cascade field-resolution bleed into
+   following externs. Keep them out of method bodies entirely. Doc goes in the block
+   comment above the method.
+
+5. **`tok` drops `#include` lines and include guards on retok** — re-add manually.
+
+6. **`extern "C"` blocks clobbered on retok** — keep C-linkage in hand-written files.
+
+7. **`immediateAction` binding — bare usually works; verify dispatch.** Bare
+   `name immediateAction;` binds to the extern named `name`, and works for the common
+   case — `copyOf`, `dumpContents`, and `testing` are all registered bare. The
+   `=method` form (`x immediateAction=processFlags;`) is only needed to bind a command
+   to a *differently*-named extern. **Exception:** `runByteFn` had to be
+   `runByteFn immediateAction=runByteFn;` — the bare form silently failed to bind there
+   (setRuleAction reads the method name from `item.text`). Cause of the asymmetry vs the
+   bare-works cases is unreconciled; if a bare registration doesn't dispatch, switch to
+   the explicit `=name` form.
+
+8. **`setGroup: cannot add group to itself`** — benign but noisy. Caused by a redundant
+   `:generator bcLIST` rebind inside `emitBC` scope.
+
+---
+
+## The `testing` Command
+
+```
+testing(actionName);
+```
+
+Scratch verification harness in `Commands.rtn`. Primes a fresh list-typed `bcLIST`
+on the generator (same way `generateCode` does), runs the named action's body against
+it, returns `generator["bcLIST"]` for inspection.
+
+Use instead of `generateCode` for isolated emit verification — run it, dump the
+result, verify the structure before wiring into real code. When the next verification
+need arises, rewrite the C++ body to focus on it. No new command method needed.
+
+Invocation: `testing(testBRZEmit);` in `oneTest`.
+
+**NB:** keep the C++ body free of `//` comments — bear trap #4 applies. (`testing()` lives
+in `Commands.rtn` and is regenerated by `tok GroupRules.twk` like any other extern — it is
+*not* a hand-applied `.mm` edit.)
 
 ---
 
