@@ -39,6 +39,38 @@ How it landed (Track A — dispatch in place, NOT via `=`):
 - The `interpret` child DOES survive the `+=` into bcLIST (the 06-04 "doesn't survive" worry
   was wrong). `dumpField()` added to `GroupItem.twk` as a reusable debug dump (keeper).
 
+### 🎯 FIRST THING TOMORROW (2026-06-10): C++ dispatch loop
+
+**Decision (Clay+Tony, 2026-06-09): the bytecode dispatch loop moves to C++.**
+Full rationale + spec → `docs/branch-mechanism.md`. The branch ("reassign `grup`
+mid-loop") is NOT expressible in interpreted incant (a local can't *become* a node
+nor be nulled to terminate). The IR stays homoiconic (bytecodes = GroupItems); only
+the walker becomes C++ — natural, since the handlers (`runGT`/`runBRZ`/…) are already
+C++, and the JIT supersedes the loop anyway.
+
+Implementation checklist:
+- [ ] **Tony:** write C++ `interpretBC(body)` in `Bytecode.twk` (spec in
+  branch-mechanism.md: hang opStack; `grup = first member`; loop: `next` = successor,
+  `result = runByteFn(grup)`, `grup = result ? result : next`; null terminates).
+  Then `tok Bytecode.twk` → rebuild.
+- [ ] **Clod (incant-side, no retok):** register `interpretBC immediateAction=interpretBC;`
+  in `incant/setup` (mirror runByteFn; bare no-`=value` form fails to bind); remove the
+  interpreted `interpretBC` from `incant/generate` AND the dormant one in `incant/bytecode`.
+  Both the C++ build and this swap must land before the run.
+- [ ] **Verify:** `testByteCode` true→26 / false→11, `testIfElse`→26/7. Then run the
+  full unit suite (sticky-`byRef` aliasing check).
+- [ ] **Cleanup:** revert `runByteFn` capture-into-`result` (GroupActions.rtn, debug-only);
+  restore `oneTest:21` `stop()`.
+
+Already DONE and tok'd into the build (keep): `byRef` flag + `:=` pointer semantics
+(opSetGroup/opAssign/setGroup), `opDot` reference unwrap (case 401-404 + the deref-loop
+`&& target.group` stop). `gIF` emit (then+else), cond, `runBRZ` retrieval all verified.
+- [ ] **AUDIT (after bytecode stabilizes) — sticky `byRef` aliasing** — `byRef` is left set
+  and never cleared, so any field ever passed as the argument of `:=` references-on-`=`
+  forever (opAssign honors it). Fine while nothing else reads the flag, but audit existing
+  `:=` sites for fields that later get legitimately `=`-copied — those would now alias.
+  Clay's flag, not today's problem; don't let it get buried.
+
 **Next (post-POP):**
 - **Track B — `=` semantics / divineIntent.** `opAssign`/`setContent` redesign: `=` means
   data copy; explicit operators for structure/reference/clone-with-method. Design-first
@@ -342,6 +374,7 @@ projectBible.md "Phase Generate Tawk".
 
 ## 🗂️ Housekeeping
 
+- [ ] **`string` keyword is on the chopping block — gIF's label mint depends on it.** `gIF` mints unique bytecode labels with `string "bcLabel" labelIndex` (`incant/generate`), works today (2026-06-10). The bible flags wanting to *eliminate* the `string` keyword (declaration-context concat — `String x = "a" var "b";` lowering to `concat(...)` — is the target model). If/when `string` goes, that mint site must move to the no-keyword concat form. Future flag, not urgent.
 - [ ] plg.g `%%` assumption — document/fix
 - [ ] doNotGuard accumulation
 - [ ] +1000 offset reporting quirk

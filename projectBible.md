@@ -414,10 +414,11 @@ The JIT is the enabling technology. Without JIT, incant is an interpreter. With 
 
 ## Priority Plan (current)
 
-**Phase Generate Tawk: PLG → Tawk.g ✅ COMPLETE**
-- PLG parses plg.g ✅ — 39 rules
-- PLG parses Tawk.g ✅ — 200 rules, 177 populated
-- Tawk.regen.twk generated in new format ✅
+**Phase Generate Tawk: PLG → Tawk.g — ⚠️ BLOCKED (parsing done, output un-tokkable)**
+- PLG parses plg.g ✅ (39 rules) and Tawk.g ✅ (200 rules, 177 populated); `setRules()` emits in the new format ✅
+- **PLG regen-output contract**: `PLG.process()` writes `<base>.twk` in the *invocation* directory (CWD) — "this file here, output here," invocation-relative, not source-resolved (the `.regen.twk` suffix is gone as of ~May 19). So `plg Tawk.g` run from `Tokf/` overwrites `Tokf/Tawk.twk` **directly** — which is why the regen must be tokkable before that's safe. It is NOT yet.
+- **🚧 BLOCKER — generateRules emits an un-tokkable `Tawk.twk` (class-body / extern split), found 2026-05-30.** The "splice flush" dumps the whole `.act/.rtn` splice ABOVE the `class Tawk extends PLGparse {…}` wrapper (correct for action-method bodies, which are top-level externs) — but it ALSO carries Tawk's **class field declarations** (`currentClass`, …, accessed as `parser->currentClass`). Fields can't live at file scope, so tok fails `ERROR Inheritance` on the first field and emits an empty `Tawk.h`. Fix = teach generateRules to split class-body material (fields → inside the wrapper) from extern bodies (→ top level). Design work (woodshed), not a patch. Until it lands, **`Tokf/Tawk.twk` stays the hand-maintained legacy file** (commit `89a3abc`, old format, toks) — NOT the regen. Broken intermediates to avoid: `ef2730d` (new-format setRules with C++ `elem->` arrows tok can't parse) and any fresh `plg Tawk.g` overwrite (fields-outside-class).
+*(Phase Generate Tawk detail + regen contract folded from Parse's projectBible.md, 2026-06-10.)*
 
 **Phase Integrate: TAWK Runtime Replacement (multi-session arc)**
 - Recon, file-by-file migration of Tokf/, build ~/bin/tokTemp, validate, promote
@@ -487,6 +488,8 @@ See HWF.md for active session content. Bible carries the index so resurrection-r
 **Bones-verification over shape-reading (2026-05-24 pinning)**: Verification means what the bones show — actual trace output, actual emit chains, actual bcLIST contents — not what shape-reading of source predicts. "Appears to work" is not the same as "bones-confirmed." Phase Bytecode caught us three times in one week with the same trap: testGXLeaf passing via leaf-fallthrough coincidence (2026-05-22), "works as intended" overnight not surviving Brief 3 verification (2026-05-23→24), and bcLIST `single field xp` symptom masked by emit lines visible in trace (2026-05-23). The pattern: a path through the code that produces apparently-correct surface output without exercising the intended mechanism. Discipline: when Brief verification fires, run the actual tests under all relevant conditions and dump the actual state. Shape-reading is a first pass, not a verification.
 
 **End-of-session ritual**: Clay drafts bible + TODO, Clod pushes to all 4 repos. Before every Goodnight Gracie. Cross-doc consistency check is part of the draft pass: bible index ↔ HWF.md trims ↔ TODO session references ↔ Priority Plan phases all agree, or discrepancies are surfaced and resolved before sign-off (resurrection-reader sanity check, lightweight version). Tony optionally leads on a "how did the cha cha work today" beat as the session closes.
+
+**Small-fix-first investigation discipline (2026-05-26 pinning)**: "The smallest fix that explains the symptom is more likely than the structural fix that would explain a family of symptoms." Phase Bytecode hit this three times in one 2026-05-26 session: per-action tempField didn't clear bleed (real mechanism was runOP unwrap), isPointer-via-unWrap didn't reach (real mechanism was runOP's inline unwrap), replace()-actual-swap didn't move Root 2 (real mechanism was concat-failing-on-Stak-text in dumpText). Each time the "obvious structural fix" was correct-shape but unneeded. Discipline: when a structural fix doesn't move the symptom, trust the bones over the design hypothesis — investigate the actual mechanism before committing to a broader fix. Cousin of bones-verification: that catches "did the fix land?"; this catches "is the fix for the right thing?" *(Folded from Parse's projectBible.md, 2026-06-10.)*
 
 **Resurrection-reader standard**: All .md files in this project (bible, HWF.md, TODO, CLAUDE.md, jit.md, etc.) must make sense to fresh-Claude reading them cold tomorrow with no memory of today. The .md files exist to make resurrection work — *Claude* reads them as the day's starting move, not Tony. That asymmetry shapes how the files are written: for Claude/Clod's resurrection, not for Tony's review. See HWF.md preamble for the full statement.
 
