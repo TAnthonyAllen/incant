@@ -21,11 +21,22 @@ GroupItem 	*body = instr->parent;
 }
 
 /***************************************************************************
-    bcBR — unconditional branch to the `dst` label.
+    bcBR — unconditional branch to the label carried as the non-interpret
+    attribute (its tag names the label). Mirrors runBRZ's target resolution,
+    minus the condition: resolve to the actual stream member by tag.
 ***************************************************************************/
 extern "C" GroupItem *runBR(GroupItem *instr)
 {
-	return instr->getFromList("dst");
+GroupItem 	*body = instr->parent;
+	// the bcLIST
+GroupItem 	*label = 0;
+GroupItem 	*grup = 0;
+	while ( grup = instr->nextAttribute(grup) )
+		if ( ::compare(grup->groupBody->tag,"interpret") != 0 )
+			label = grup;
+	if ( label )
+		return body->getFromList(label->groupBody->tag);
+	return 0;
 }
 
 // ---------- control flow: cond from stack, target from instruction ----------

@@ -121,7 +121,7 @@
                                 exists for the tag.
         * generator           — hashed list of per-tag generator methods. Each
                                 method handles one statement form:
-                                    gBlocK, gDeclare, gDO, gExpressioN,
+                                    gBlocK, gDO, gExpressioN,
                                     gFOR, gIF, gPrinT, gWhilE, gXpress
                                 These are reached via runGenerated, which is
                                 the single point of dispatch over the parse
@@ -179,7 +179,6 @@ define
         generated = generateCode(argument);
         //printTO(stringBUFFER);
         if generated;
-            generateSignature(argument);
             print _;
             print :"About to run interpretBC":;
             interpretBC(generated);
@@ -187,19 +186,6 @@ define
             print "maximus =" maximus:;
             //printTO(null);
         else print "generateCode failed":;
-        };
-    /***************************************************************************
-        Generate C++ method signature.
-    ***************************************************************************/
-    generateSignature argument code={
-        print "Generating signature for" taG:;
-        print "GroupItem*",taG "(";
-        for field in argument; attributes
-            if field.isArgument
-                if follows;  print ",";
-                print getType(field) taG;
-                follows++;
-        print ")";
         };
     /***************************************************************************
         generator is a hashed list of actions that process statements that
@@ -220,12 +206,6 @@ define
             for grup in lines;
                 runGenerated(grup);
             };
-        gDeclare argument code={
-            for field in argument; attributes
-                if !isArgument
-                    print "gDeclare: field and argument" taG argument.taG:;
-                    if !isLocal AND !isArgument; print "GroupItem*" taG, "= locate(" taG ");":;
-                    else    print  getType(field) ,taG ";":; };
         gDO argument code={
             //print "generate do":;
             st  = argument[1];
@@ -259,7 +239,7 @@ define
             // ifs in one action don't collide on getFromList(label.tag). `:=`
             // keeps the bcLabelN tag (a plain `=` would re-tag it to "endLabel").
             ++labelIndex;
-            labelName = string "bcLabel" labelIndex;
+            labelName = string $"bcLabel" labelIndex;
             endLabel := new(labelName);
             dumpContents(xp);
             gXpress(xp);
@@ -269,7 +249,7 @@ define
             // never needed).
             if el.listLengtH;
                 ++labelIndex;
-                labelName = string "bcLabel" labelIndex;
+                labelName = string $"bcLabel" labelIndex;
                 elseLabel := new(labelName);
                 emitBC(copyOf(bcBRZ) +% elseLabel);
             else
@@ -355,13 +335,6 @@ define
     // but bcMul is not registered — multiply dispatches through the '*' operator
     // (interpret=runMultiply). Its operands also predate the current stack-form
     // contract. gXpress emits '*' directly; no hand-built emitBC fixture needed.
-    interpretBC argument code={
-        argument +% opStack;
-        for grup in argument; members
-            result = runByteFn(grup);
-            if result;  grup := result;
-        if opStack.listLengtH;  print "interpret: opStack not empty at end:" opStack.listLengtH:;
-        };
     testGXLeaf code={
         if righty;  maximus = 0;
         if 42;      maximus = 1; };

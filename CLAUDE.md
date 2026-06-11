@@ -194,17 +194,26 @@ bytecode for the JIT.
 | `gIF` emitter | ✅ emit correct — then *and* else arms (condition via `gXpress`, `bcBRZ`→`elseLabel`/`endLabel`, then-branch, `bcBR`, `elseLabel`, else body, `endLabel`); **unique labels** `bcLabel<n>` via `:=` + `labelIndex` (2026-06-10) |
 | `gXpress` emitter | ✅ Live — emits push-ops/operators from a `revisedList`'s members |
 | `gExpressioN` path | ✅ Live — `aCTionExpressioN` builds the `revisedList` that `gXpress` walks |
-| `testByteCode` / `testIfElse` end-to-end | ✅ **branches taken** — `testByteCode` true→26 / false→11, `testIfElse`→26/7, all through the incant `interpretBC` (9-op `bcLIST`) |
+| `testByteCode` / `testIfElse` end-to-end | ✅ **branches taken** — `testByteCode` false→11, `testIfElse`→26, both through the **C++ `interpretBC`** dispatch loop (9-op / 13-op `bcLIST`) |
 
-**The branch works — in incant (resolved 2026-06-10).** The 2026-06-09 deep dive
-(`docs/branch-mechanism.md`) concluded the branch wasn't expressible in interpreted
-incant and prescribed moving the dispatch loop to C++. That turned out **unnecessary**:
-the unique-label emit (`bcLabel<n>` via `:=`) plus the `byRef`/`:=` pointer semantics let
-the cleaned-up incant `interpretBC` (`incant/generate`) take the branch after all —
-`testByteCode` false→11 and `testIfElse`→26/7 run correctly. The C++ dispatch loop was
-**not built**; the interpreter stays in incant. `branch-mechanism.md` is superseded (kept
-as historical reasoning). Remaining: broaden the bytecode-generation POP (more statement
-forms, `gPrinT` proper emit, `gDeclare`, real field refs vs folded values).
+**The branch works — via the C++ dispatch loop (resolved 2026-06-11).** The 2026-06-09 deep
+dive (`docs/branch-mechanism.md`) concluded the branch wasn't expressible in interpreted
+incant and prescribed moving the dispatch loop to C++. A 2026-06-10 claim that the incant
+`interpretBC` took the branch was a **shape-read** — under a clean run it fell straight
+through (`testByteCode`→26, `testIfElse`→7). Two entangled incant blockers were the cause:
+(A) `grup := result` **welds** the test variable to the branch-target node (bear-trap #3 —
+`=`/setContent can't re-tag, so it can't be reset); (B) `aCTionFOR` advances its **own**
+C++ cursor, so a body `:=` can't steer iteration. The fix was Clay's: a small **C++
+`interpretBC`** (`GroupActions.rtn`) with a plain C++ cursor — no `:=`/byRef weld, and
+`nextGroup` is stateless so it relocates to an arbitrary branch-target member cleanly.
+`runByteFn` returns the target stream-member on a taken branch; the loop relocates by tag,
+else `nextMember`. Also fixed: `runBR` (Bytecode.twk) now mirrors `runBRZ`'s attribute-walk
+(was a dead `getFromList("dst")`). Verified: `testByteCode` false→**11**, `testIfElse`
+true→**26** (init `maximus=11`; no-op→11/11, straight-through→26/7, correct branching→11/26).
+The incant `interpretBC` is retired; `branch-mechanism.md` is vindicated (kept as the
+reasoning trail; see `docs/branch-dispatch-findings.md` for the resolution). Remaining:
+broaden the bytecode-generation POP (more statement forms, `gPrinT` proper emit, `gDeclare`,
+real field refs vs folded values).
 
 ### Incant Dispatch Idiom (IMPORTANT)
 Two steps — never chain:
@@ -240,22 +249,24 @@ oneTest, unitTests, utilities) now live at the top-level `incant/` directory
 - Incant parses and interprets itself
 - BDWGC integration complete (Phase 0)
 - `generateCode()` repurposed as bytecode emitter entry point (Phase 1)
-- Bytecode interpreter written in incant + C++ handlers in place
+- Bytecode interpreter: **C++ `interpretBC` dispatch loop** (`GroupActions.rtn`) + C++ op handlers (`Bytecode.twk`/`.mm`)
 - Gating hook wired at `GroupRules.mm:786`
 - Emit path is live and correct: `gIF` (then **and** else arms), `gXpress`, and
-  the `gExpressioN`/`revisedList` path all emit; `interpretBC` runs the stream.
-  `testByteCode` produces `maximus = 26`, `testIfElse` emits a correct 13-op
-  `bcLIST`, and `testPrint` produces `"hello world"` (via the `gPrinT` thunk).
-  **Branch execution works (2026-06-10):** `testByteCode` false→11 and `testIfElse`→26/7
-  run correctly through the incant `interpretBC` — the unique-label + `byRef`/`:=` work let
-  the incant loop take the branch; the planned C++ dispatch loop was not needed.
+  the `gExpressioN`/`revisedList` path all emit; the C++ `interpretBC` runs the stream.
+  `testByteCode` emits a 9-op `bcLIST`, `testIfElse` a 13-op `bcLIST`, and `testPrint`
+  produces `"hello world"` (via the `gPrinT` thunk).
+  **Branch execution works (2026-06-11) via the C++ `interpretBC`:** `testByteCode` false→11
+  and `testIfElse` true→26 run correctly (init `maximus=11`; only correct branching yields
+  11/26). The plain C++ cursor sidesteps the `:=`/byRef weld and `aCTionFOR`'s non-steerable
+  advance that blocked the incant loop; `runBR` was also fixed to mirror `runBRZ`'s
+  attribute-walk. The incant `interpretBC` is retired. See `docs/branch-dispatch-findings.md`.
 
 ### In Progress
-- **Broaden the bytecode-generation POP.** Branch execution is **done** — it works in
-  incant (see above); the planned C++ dispatch loop was not needed. Next proof points as
-  generation work continues: more statement forms, real field references vs folded values,
-  `gPrinT` proper emit, `gDeclare`. (`docs/branch-mechanism.md` is superseded — kept as the
-  historical 2026-06-09 reasoning.)
+- **Broaden the bytecode-generation POP.** Branch execution is **done** — it works via the
+  C++ `interpretBC` dispatch loop (see above). Next proof points as generation work
+  continues: more statement forms, real field references vs folded values, `gPrinT` proper
+  emit, `gDeclare`. (`docs/branch-mechanism.md`'s C++-dispatch conclusion was vindicated;
+  kept as the 2026-06-09 reasoning trail.)
 
 ### Next
 - `gPrinT` proper bytecode emit (currently a thunk that re-fires `aCTionPrinT`)
@@ -271,20 +282,24 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 ## Testing
 
 ```
-testByteCode in incant/generate:338  (testIfElse at :356; fixtures in unitTests:82)
-  testByteCode code={ if righty > 0; maximus = righty * 2; };   // righty = 13
-  actual emit (op-tag form, 9 ops):
-    bcPushField 13 · bcPushLit 0 · > · bcBRZ ·
-    bcPushField 13 · bcPushLit 2 · * · bcStoreField · bcLabel 1
-  outcome: maximus = 26  ✅ (true branch). Branch execution works (2026-06-10):
-  the `if righty <= 0` false variant → 11, testIfElse → 26/7, via the incant
-  interpretBC. (label is now the unique `bcLabel 1`, not the old `endLabel`)
+testByteCode / testIfElse fixtures in incant/generate; init maximus=11, righty=13 (unitTests:82)
+  testByteCode code={ if righty <= 0; maximus = righty * 2; };
+    emit (9 ops): bcPushField 13 · bcPushLit 0 · <= · bcBRZ ·
+                  bcPushField 13 · bcPushLit 2 · * · bcStoreField · bcLabel1
+    outcome: maximus = 11  ✅ — bcBRZ branches past the then-arm (false condition)
+  testIfElse code={ if righty > 0; maximus = righty * 2; else maximus = 7; };
+    emit (13 ops): … bcBRZ→bcLabel2 … bcBR→bcLabel1 · bcLabel2 · …else… · bcLabel1
+    outcome: maximus = 26  ✅ — then runs, bcBR jumps to bcLabel1 skipping else
+  Both run through the C++ `interpretBC` dispatch loop (2026-06-11). Labels are the
+  unique, space-free `bcLabel1`/`bcLabel2` ($-suppressed). Only correct branching in
+  both directions yields 11/26 (no-op→11/11, straight-through→26/7).
 ```
 
-Note: `oneTest:21` has a `stop()` right after the `testPrint` block, so the
-`testByteCode` block (oneTest:23) does not run from `oneTest` as-is. Drive it
-with a small scratch file that includes `unitTests`/`generate`/`utilities`,
-sets the search list, then `generateCode(testByteCode); … generateAction(...)`.
+Note: `oneTest` currently runs `generateAction(testByteCode); stop();` at the top, so
+`testByteCode` (→ `maximus = 11`) runs directly from `oneTest`. For `testIfElse` (or any
+other fixture) drive it with a small scratch file that includes `unitTests`/`generate`/
+`utilities`, sets the search list, then `generateAction(<fixture>); stop();` — single pass
+(a second generate on the same action still hits the sequential-state-corruption tar baby).
 
 `Tests/test.json` — sample widget definition for JSON/XML parsing exercises.
 

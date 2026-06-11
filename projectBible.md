@@ -596,22 +596,22 @@ See HWF.md for active session content. Bible carries the index so resurrection-r
 - legacy kind=3 still kSet but spec semantics differ
 - New kinds: kAny=4, kEof=5, kKeyTable=7, kCondition=8, kVariable=9, kUpTo=10, kBalanced=11
 
-### Incant Working ✅ [updated 2026-06-10]
-- interpret() dispatch loop — a tiny, clean **incant** `interpretBC` (`incant/generate`) walking the stream via `runByteFn`. **Takes branches**: `testByteCode` true→26 / false→11 and `testIfElse`→26/7 all run through it. The `branch-mechanism.md` wall (a for-loop cursor ignoring `grup := result`) was circumvented by the unique-label + `byRef`/`:=` work — so the planned **C++ dispatch loop is not needed**; the interpreter stays in incant. (Branch mechanics work; broader POP across more generation cases still to come — see Next.)
-- bcOPs registry + C++ handlers (Bytecode.mm)
+### Incant Working ✅ [updated 2026-06-11]
+- interpret() dispatch loop — a small **C++** `interpretBC` (`GroupActions.rtn`) walking the bcLIST via `runByteFn`. **Takes branches**: `testByteCode` false→11 and `testIfElse` true→26 (init `maximus=11`; only correct branching in both directions gives 11/26). The 2026-06-09 `branch-mechanism.md` prescription (move the dispatch loop to C++) was right; the 2026-06-10 "resolved in incant" was a shape-read. The two incant blockers were (A) `grup := result` **welds** the test variable to the target node (bear-trap #3 — `=`/setContent can't re-tag, so no reset works) and (B) `aCTionFOR` advances its own C++ cursor, so a body `:=` can't steer iteration. The C++ loop uses a plain cursor (no weld) and `nextGroup` is stateless (relocates to an arbitrary branch-target member). The incant `interpretBC` is retired. (Branch mechanics work; broader generation POP still to come — see Next.)
+- bcOPs registry + C++ handlers (Bytecode.twk/.mm); `runBR` fixed 2026-06-11 to mirror `runBRZ`'s attribute-walk (was a dead `getFromList("dst")`)
 - Gating hook in GroupRules.mm:786
 - Full unit-test suite passing clean
 - `byRef` / `:=` pointer semantics (opSetGroup/opAssign/setGroup)
-- `gIF` emitter — then+else arms, unique labels (`bcLabel<n>` via `:=`), verified 2026-06-10
+- `gIF` emitter — then+else arms, unique space-free labels (`bcLabel1`/`bcLabel2` via `labelIndex` in pROPERTIEs + `$`-suppressed concat), verified 2026-06-11
 - `gXpress` emitter — push-ops and operators from revisedList
 - `runByteFn` primitive — fetches and invokes interpret child without copy
-- `testByteCode` → `maximus = 26` ✅ (true branch, 9-op bcLIST)
+- `testByteCode` → `maximus = 11` ✅ (false branch taken, 9-op bcLIST); `testIfElse` → `maximus = 26` ✅ (then runs, BR skips else, 13-op bcLIST)
 - `testPrint` → `"hello world"` ✅ (via gPrinT thunk)
 - `grammarOnTheFly` — live grammar mutation at runtime ✅
 
 ### Incant Next
-- **Bytecode generation — broaden the POP.** Branch execution now works in incant
-  (`testByteCode` true→26 / false→11, `testIfElse`→26/7); further POP required as
+- **Bytecode generation — broaden the POP.** Branch execution now works via the C++
+  `interpretBC` (`testByteCode` false→11, `testIfElse` true→26); further POP required as
   bytecode-generation work continues — more statement forms, real field references vs
   folded values, `gPrinT` proper emit (currently a thunk), `gDeclare` verification, and
   test cases beyond testByteCode/testIfElse.

@@ -9,6 +9,8 @@ search Generating UnitTests bcOPs Utilities list;
 /*****************************************************************************
 	Bytecode generation — POP target: testByteCode -> maximus = 26
 *****************************************************************************/
+generateAction(testByteCode);
+stop();
 /*****************************************************************************
 	Bytecode print generation — POP target: testPrint -> "hello world"
 	Placed FIRST so the aCTionPrinT breakpoint trips on the testPrint generate

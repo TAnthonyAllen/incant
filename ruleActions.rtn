@@ -428,6 +428,7 @@ int         restrict;
     while LoopOn.isGROUP    LoopOn = LoopOn.group;
     LoopRestrict    = lastREF.group;
     while grup = reversE ? LoopOn.prior(grup) : LoopOn.next(grup) {
+        result = 0;
         Looper.group = grup;
         if restrict && grup.affiliation != restrict   continue;
         lastREF.group       = grup;

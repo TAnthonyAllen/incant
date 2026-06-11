@@ -36,7 +36,6 @@ define
     file immediateAction=setInternalType noPrint;
     flushBuffer immediateAction=flushBuffer;
     generateCode immediateAction;
-    genPrint immediateAction;
     getFile immediateAction;
     getType immediateAction;
     guard immediateAction noPrint;
@@ -54,6 +53,7 @@ define
     register immediateAction=rEGISTER noPrint;
     registry immediateAction=rEGISTER noPrint;
     runByteFn immediateAction=runByteFn;
+    interpretBC immediateAction=interpretBC;
     setFile immediateAction=setFile;
     setLabel immediateAction;
     setPointer immediateAction=opPointer noPrint;
@@ -162,11 +162,7 @@ define
     fAIL noPrint;
     gUARD noPrint;
     hexSet=[0-9a-fA-F];
-    // ListOP is used as a rule but entered here so it will not be a rule (nor its members)
-    ListOP bin
-        '=/';
-        '=%';
-        ':+';
+    labelIndex;     // used in bytecode label generate
     null=0;
     notInNameSet=[^a-zA-Z0-9];
     stringBUFFER;

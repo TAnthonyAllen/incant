@@ -639,6 +639,30 @@ GroupItem   result;
 }
 
 /***************************************************************************
+    interpretBC — C++ dispatch loop over a bcLIST. Replaces the incant
+    interpretBC. A plain C++ cursor sidesteps the :=/byRef weld and the
+    for-loop's non-steerable advance (see docs/branch-dispatch-findings.md).
+    runByteFn returns the branch-target stream member on a taken branch
+    (null on every non-branch op); relocate the cursor to it by tag, then
+    advance. opStack is hung off the bcLIST so the bcOP handlers reach it
+    via opStackOf (parent.getAttribute("opStack")).
+***************************************************************************/
+extern GroupItem interpretBC(GroupItem argument)
+{
+GroupItem   stack   = new("opStack");
+GroupItem   cursor;
+GroupItem   result;
+    argument.addAttribute(stack);
+    cursor = argument.nextMember(0);
+    while cursor {
+        result = runByteFn(cursor);
+        if result   cursor = argument.getFromList(result.tag);
+        else        cursor = argument.nextMember(cursor);
+        }
+    return argument;
+}
+
+/***************************************************************************
     runOP fires off a field that might be an action, a rule, a method,
     or an operator
 ***************************************************************************/

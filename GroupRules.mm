@@ -573,6 +573,7 @@ int 		restrict = 0;
 	LoopRestrict = ruler->lastREF->getGroup();
 	while ( grup = reversE ? LoopOn->prior(grup) : LoopOn->next(grup) )
 		{
+		result = 0;
 		Looper->setGroup(grup);
 		if ( restrict && grup->options.affiliation != restrict )
 			continue;
@@ -1613,104 +1614,6 @@ extern "C" void flushBuffer(GroupItem *bufField)
 		bufField->getBuffer()->flush();
 }
 
-/*******************************************************************************
-	Generator method for the Print rule or the StringXP rule.
-	Trailing `print();` clears tok's sticky `print(buffer)` default so bare
-	`print` sites in later externs/files don't pick up our local buffer.
-    This method is a work in progress pending outcome of work on generating
-    bytecodes.
-*******************************************************************************/
-extern "C" GroupItem *genPrint(GroupItem *input)
-{
-GroupItem 	*stuff = input->getLabelGroup("stuff");
-GroupItem 	*FormaT = 0;
-GroupItem 	*grup = 0;
-char 		*atText = 0;
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-Buffer 		*buffer = ruler->formatBUFFER;
-	buffer->reset();
-	ruler = GroupControl::groupController->groupRules;
-	input->clear();
-	ruler->useDefaultSpace = 1;
-	buffer->appendString("printf(\"",0,0);
-	while ( grup = stuff->next(grup) )
-		{
-		FormaT = grup->get("FormaT");
-		if ( grup->groupBody->flags.isShortcut )
-			{
-			for ( atText = grup->getText(); *atText; atText++ )
-				switch (*atText)
-					{
-					case '~':
-						if ( ruler->inDENT->groupBody->gCount > 0 )
-							buffer->tabRight(ruler->inDENT->groupBody->gCount);
-						break;
-					case ',':
-						ruler->useDefaultSpace = !ruler->useDefaultSpace;
-						break;
-					case '_':
-						buffer->appendChar(' ',0,0);
-						break;
-					case ':':
-						buffer->appendString("\\n",0,0);
-						break;
-					case '+':
-						ruler->inDENT->groupBody->gCount++;
-						break;
-					case '-':
-						if ( ruler->inDENT->groupBody->gCount > 0 )
-							ruler->inDENT->groupBody->gCount--;
-						break;
-					case '`':
-						buffer->appendString("\\t",0,0);
-					}
-			}
-		else {
-			/***************************************************************
-			Need to add switch entries for Stak, ...
-			***************************************************************/
-			if ( FormaT )
-				{
-				buffer->appendString(FormaT->getText(),0,0);
-				buffer->appendString(",",0,0);
-				buffer->appendString(grup->getText(),0,0);
-				}
-			else
-			if ( grup->groupBody->flags.isLiteral )
-				buffer->appendString(grup->getText(),0,0);
-			else {
-				switch (grup->groupBody->flags.data)
-					{
-					case 5:
-						buffer->appendString("%d",0,0);
-						break;
-					case 9:
-						buffer->appendString("%.1f",0,0);
-						break;
-					case 13:
-					case 14:
-						buffer->appendString("%s",0,0);
-						break;
-					default:
-						buffer->appendString(grup->groupBody->gText,0,0);
-					}
-				buffer->appendString(",",0,0);
-				buffer->appendString(grup->groupBody->gText,0,0);
-				}
-			if ( ruler->useDefaultSpace && grup != stuff->groupBody->groupList->lastInList )
-				buffer->appendString(" ",0,0);
-			}
-		}
-	buffer->appendString("\"",0,0);
-	if ( buffer->length() )
-		buffer->appendString(buffer->string(),0,0);
-	buffer->appendString(")",0,0);
-	input->setText(buffer->toString());
-	buffer->reset();
-	::printf("");
-	return input;
-}
-
 /*****************************************************************************
     This is the simplified generateCode command method that leaves dirty work
     to the incant actions in the incant generate file
@@ -1942,6 +1845,32 @@ extern "C" GroupItem *guard(GroupItem *item)
 	else	::fprintf(stderr,"ERROR guard should be used as an attribute when defining\n");
 	item->clearData();
 	return item;
+}
+
+/***************************************************************************
+    interpretBC — C++ dispatch loop over a bcLIST. Replaces the incant
+    interpretBC. A plain C++ cursor sidesteps the :=/byRef weld and the
+    for-loop's non-steerable advance (see docs/branch-dispatch-findings.md).
+    runByteFn returns the branch-target stream member on a taken branch
+    (null on every non-branch op); relocate the cursor to it by tag, then
+    advance. opStack is hung off the bcLIST so the bcOP handlers reach it
+    via opStackOf (parent.getAttribute("opStack")).
+***************************************************************************/
+extern "C" GroupItem *interpretBC(GroupItem *argument)
+{
+GroupItem 	*stack = new GroupItem("opStack");
+GroupItem 	*cursor = 0;
+GroupItem 	*result = 0;
+	argument->addAttribute(stack);
+	cursor = argument->nextMember(0);
+	while ( cursor )
+		{
+		result = ::runByteFn(cursor);
+		if ( result )
+			cursor = argument->getFromList(result->groupBody->tag);
+		else	cursor = argument->nextMember(cursor);
+		}
+	return argument;
 }
 
 /*****************************************************************************
@@ -4042,7 +3971,6 @@ GroupRules::GroupRules()
 	trueResult = 0;
 	skipSet = 0;
 	inputSTAK = 0;
-	labelIndex = 0;
 	lastIndent = 0;
 	rulesParsed = 0;
 	sourceLINE = 0;
