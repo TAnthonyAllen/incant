@@ -94,7 +94,7 @@ define
     '=%'    assign operateMethod=opGetAttribute;
     '='     assign operateMethod=opAssign;
 
-    '<='    operateMethod=opLE;
+    '<='    operateMethod=opLE  interpretMethod=runLE;
     '<<';
     '<:';   // not used
     '<'     operateMethod=opLT;
@@ -116,7 +116,7 @@ define
     '++'    unary ruleMethod=opPlusPlus;
     '+*'    operateMethod=opCopyList;
     '+%'    operateMethod=opAddAttribute;
-    '+'     operateMethod=opPlus;
+    '+'     operateMethod=opPlus  interpretMethod=runPlus;
     '*='    operateMethod=opMultiplyEQ;
     '*'     operateMethod=opMultiply  interpretMethod=runMultiply;
     '@'     unary ruleMethod=opLastREF;
@@ -145,6 +145,7 @@ define
     bcPushLit    virtual interpretMethod=runPushLit;
     bcPushField  virtual interpretMethod=runPushField setPointer;
     bcStoreField interpretMethod=runStoreField;
+    bcForNext    interpretMethod=runForNext;
     bcPrint      interpretMethod=runPrint;
     bcString     interpretMethod=runString;
     ;

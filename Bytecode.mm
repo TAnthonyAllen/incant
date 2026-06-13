@@ -5,6 +5,7 @@
 #include "StringRoutines.h"
 #include "GroupItem.h"
 #include "GroupRules.h"
+#include "GroupList.h"
 #include "GroupBody.h"
 #include "Bytecode.h"
 
@@ -35,7 +36,11 @@ GroupItem 	*grup = 0;
 		if ( ::compare(grup->groupBody->tag,"interpret") != 0 )
 			label = grup;
 	if ( label )
-		return body->getFromList(label->groupBody->tag);
+		{
+		grup = body->getFromList(label->groupBody->tag);
+		grup->groupBody->flags.byRef = 1;
+		return grup;
+		}
 	return 0;
 }
 
@@ -61,7 +66,11 @@ GroupItem 	*grup = 0;
 			if ( ::compare(grup->groupBody->tag,"interpret") != 0 )
 				label = grup;
 		if ( label )
-			return body->getFromList(label->groupBody->tag);
+			{
+			grup = body->getFromList(label->groupBody->tag);
+			grup->groupBody->flags.byRef = 1;
+			return grup;
+			}
 		}
 	return 0;
 }
@@ -73,6 +82,95 @@ GroupItem 	*grup = 0;
 ***************************************************************************/
 extern "C" GroupItem *runCall(GroupItem *instr)
 {
+	return 0;
+}
+
+/***************************************************************************
+    bcForNext — the for-loop iterator op. Carries the loop variable (Looper),
+    the iterable (ExpressioN), and optional LoopRestrict, all +%-attached by
+    gFOR and read here by tag. Mirrors aCTionFOR's iteration on a single op:
+
+      * Operands. Read by tag: the loop var is tagged "ANYtoken" (grammar
+        `Looper=ANYtoken` -- the role is "Looper" but the parse node's tag is
+        ANYtoken), the iterable "ExpressioN", the optional filter "LoopRestrict".
+      * Descent. Looper is a group-typed wrapper whose .group is the real loop
+        var; descend one level. ExpressioN is the (possibly nested) revisedList
+        wrapper; descend by .group while isGROUP-typed until the list-bearing
+        field (the descent keys on the isGROUP DATA TYPE, so it stops at a
+        typed field like a string-valued `sumple` rather than its children).
+      * Cursor (index form, v1). A live list member can't be round-tripped as
+        a node's .group between passes -- setGroup re-parents it out of the
+        iterable, so next() can no longer navigate from it (aCTionFOR sidesteps
+        this by keeping its cursor in a C++ local; a re-entrant op has none). So
+        instead the op carries a "cursor" child holding an INTEGER match-index
+        (setCount/getCount -- pure data, no re-parenting). Each pass re-walks the
+        iterable from the start, skipping match-index matches, and returns the
+        next one. O(n^2) over the loop; fine for v1, optimize with a re-parent-
+        safe cursor later.
+      * Filter. LoopRestrict ("attributes"/"members") maps to affiliation 1/2;
+        non-matching items are skipped during the walk (continue).
+      * Result. On the next unseen match: bump the index, push a count-1 node ->
+        bcBRZ falls through to the body. On exhaustion: reset the index to 0
+        (self-clean so the NEXT run restarts) and push count-0 -> bcBRZ branches
+        to the exit label.
+
+    Deferred for v1 (documented gaps): reversE (prior() walk); loop-var VALUE
+    binding (body can't read the current element yet -- binding via setGroup
+    re-parents, same root cause as the cursor; the counter-body POP doesn't need
+    it); byRef body-steering / break-mid-loop.
+***************************************************************************/
+extern "C" GroupItem *runForNext(GroupItem *instr)
+{
+GroupItem 	*stack = ::opStackOf(instr);
+GroupItem 	*LoopOn = instr->getAttribute("ExpressioN");
+GroupItem 	*restF = instr->getAttribute("LoopRestrict");
+GroupItem 	*loopOn = 0;
+GroupItem 	*grup = 0;
+GroupItem 	*prod = 0;
+GroupItem 	*cursorHolder = 0;
+int 		restrict = 0;
+int 		target = 0;
+int 		seen = 0;
+	loopOn = LoopOn;
+	while ( isGROUP(loopOn->groupBody->flags.data) )
+		loopOn = loopOn->getGroup();
+	if ( ::compare(loopOn->groupBody->tag,"revisedList") == 0 )
+		loopOn = loopOn->groupBody->groupList->firstInList;
+	if ( restF )
+		{
+		char 	*restriction = restF->getText();
+		if ( ::compare(restriction,"attributes") == 0 )
+			restrict = 1;
+		else
+		if ( ::compare(restriction,"members") == 0 )
+			restrict = 2;
+		}
+	cursorHolder = instr->getAttribute("cursor");
+	if ( !cursorHolder )
+		{
+		cursorHolder = new GroupItem("cursor");
+		instr->addAttribute(cursorHolder);
+		}
+	target = cursorHolder->getCount();
+	seen = 0;
+	while ( grup = loopOn->next(grup) )
+		{
+		if ( restrict && grup->options.affiliation != restrict )
+			continue;
+		if ( seen == target )
+			{
+			cursorHolder->setCount(target + 1);
+			prod = new GroupItem("prod");
+			prod->setCount(1);
+			stack->push(prod);
+			return 0;
+			}
+		++seen;
+		}
+	cursorHolder->setCount(0);
+	prod = new GroupItem("prod");
+	prod->setCount(0);
+	stack->push(prod);
 	return 0;
 }
 
@@ -100,6 +198,30 @@ GroupItem 	*hit = ::opGT(op2,op1);
 }
 
 /***************************************************************************
+    runLE — pop right then left, compare, push a STABLE 0/1 cond node. Mirror
+    of runGT: opLE(argument,target) computes compareValues(target,argument)<=0,
+    so the opLE(op2,op1) order matches runGT's. opLE returns a shared
+    trueResult (or null), so we materialize a fresh count node, never push the
+    return directly.
+***************************************************************************/
+extern "C" GroupItem *runLE(GroupItem *instr)
+{
+GroupItem 	*stack = ::opStackOf(instr);
+GroupItem 	*op2 = stack->pop();
+	// right operand (pushed last)
+GroupItem 	*op1 = stack->pop();
+	// left  operand
+GroupItem 	*cond = new GroupItem("cond");
+GroupItem 	*hit = ::opLE(op2,op1);
+	// keep opLE(argument, target) order
+	if ( hit )
+		cond->setCount(1);
+	else	cond->setCount(0);
+	stack->push(cond);
+	return 0;
+}
+
+/***************************************************************************
     runMultiply — pop two, multiply, push a COPY of the product. opMultiply
     returns the shared tempField (value overwritten by the next arith op), so
     we copy its value into a fresh node before pushing. prod is pushed even on
@@ -116,6 +238,26 @@ GroupItem 	*prod = new GroupItem("prod");
 		prod->copyData(result);
 	// copy value off the shared temp
 	stack->push(prod);
+	return 0;
+}
+
+/***************************************************************************
+    runPlus — pop two, add, push a COPY of the sum. Mirror of runMultiply:
+    opPlus (like opMultiply) returns the shared tempField, so we copy its
+    value into a fresh node before pushing. sum is pushed even on a null
+    result (stays empty), keeping the stack depth predictable.
+***************************************************************************/
+extern "C" GroupItem *runPlus(GroupItem *instr)
+{
+GroupItem 	*stack = ::opStackOf(instr);
+GroupItem 	*op2 = stack->pop();
+GroupItem 	*op1 = stack->pop();
+GroupItem 	*result = ::opPlus(op2,op1);
+GroupItem 	*sum = new GroupItem("sum");
+	if ( result )
+		sum->copyData(result);
+	// copy value off the shared temp
+	stack->push(sum);
 	return 0;
 }
 
@@ -144,18 +286,28 @@ GroupItem 	*statement = instr->get(2);
 }
 
 /***************************************************************************
-    bcPushField — push the referenced field's value. The emit folds the
-    field's value onto the instruction as data (gXpress: emitBC(bcPushField=
-    child)), so a clean copyData lifts just that value onto the stack — never
-    the instruction's structure (tag, interpret child). When the emit later
-    carries a real field reference, this reads + pushes the field's CURRENT
-    value instead.
+    bcPushField — push the referenced field's CURRENT value. The emit now
+    carries the field by reference (gXpress: emitBC(copyOf(bcPushField) +%
+    child)) -- the +% attribute shares the field's GroupBody, so reading it
+    sees writes that bcStoreField makes to the same field (live read; this is
+    what lets a while-loop condition observe the body's updates). Walk the
+    attributes, skip the "interpret" handler, copyData the field node. Fallback
+    to the instruction itself for the older folded-value form (bcPushField=x).
 ***************************************************************************/
 extern "C" GroupItem *runPushField(GroupItem *instr)
 {
 GroupItem 	*stack = ::opStackOf(instr);
 GroupItem 	*value = new GroupItem("fld");
-	value->copyData(instr);
+GroupItem 	*field = 0;
+GroupItem 	*grup = 0;
+	while ( grup = instr->nextAttribute(grup) )
+		{
+		if ( ::compare(grup->groupBody->tag,"interpret") != 0 )
+			field = grup;
+		}
+	if ( !field )
+		field = instr;
+	value->copyData(field);
 	stack->push(value);
 	return 0;
 }

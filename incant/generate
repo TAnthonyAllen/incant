@@ -1,3 +1,325 @@
+
+/*******************************************************************************
+	Types registry is a list of the types associated with field data. Referenced
+    in getType(). Isn't it nice we can use quotes to define a field tag.
+    Note: type tags use C++ syntax for pointer to type
+*******************************************************************************/
+register(Generating);
+define
+    types
+        "Buffer*";
+        int;
+        char;
+        "char*";
+        "GroupItem*";
+        GroupItem;
+        "BitMAP*";
+        double;
+        "NSObject*";
+        "PLGset*";
+        "Stak*";
+        "void*";
+        void;
+    startBlock='{';
+    endBlock='}';
+    asterisk='*';
+    declareList sort;
+    /***************************************************************************
+        Generate action code.
+    ***************************************************************************/
+    generateAction argument code={
+        print "Generating action for" tag:;
+        generated = generateCode(argument);
+        //printTO(stringBUFFER);
+        if generated;
+            print _;
+            print :"About to run interpretBC":;
+            interpretBC(generated);
+            print "Ran interpretBC":;
+            print "maximus =" maximus:;
+            //printTO(null);
+        else print "generateCode failed":;
+        };
+    /***************************************************************************
+        generator is a hashed list of actions that process statements that
+        generate (print) code. It is used in the generate() action below.
+    ***************************************************************************/
+    runGenerated argument code={
+        print :"runGenerated: ";
+        clear(action);
+        if action := generator[argument];
+            print "action is:" action.taG:;
+            action(argument);
+        else    print ~,argument ";":;
+        print "End of runGenerated":; };
+    generator
+        gBlocK argument code={
+            print "process block":;
+            lines = argument[1];
+            for grup in lines;
+                runGenerated(grup);
+            };
+        gDO argument code={
+            // do-while: same ops as gWhilE, body-before-condition. Grammar
+            // `DO StatemenT while- ExpressioN` puts the body (StatemenT) at
+            // [1] and the condition as the named ExpressioN (unWrap as gIF).
+            st  := argument[1];
+            xp  := argument["ExpressioN"];
+            xp  = unWrap(xp);
+            // Mint top + exit labels (`:=` keeps the bcLabelN tag, bear-trap #1).
+            ++labelIndex;
+            labelName = string $"bcLabel" labelIndex;
+            topLabel := new(labelName);
+            ++labelIndex;
+            labelName = string $"bcLabel" labelIndex;
+            exitLabel := new(labelName);
+            // Loop top: body runs first (do-while executes it at least once).
+            emitBC(topLabel);
+            stXP := st["revisedList"];
+            if stXP.listLengtH;  gXpress(stXP);
+            else    runGenerated(st);
+            // Condition, then branch: bcBRZ exits on false; fall through to
+            // bcBR back-edge on true.
+            gXpress(xp);
+            emitBC(copyOf(bcBRZ) +% exitLabel);
+            emitBC(copyOf(bcBR) +% topLabel);
+            emitBC(exitLabel);
+            };
+        gFOR argument code={
+            // for-loop on the gWhilE skeleton. The new bcForNext op carries the
+            // loop var, the iterable, and (optional) restrict; runForNext owns
+            // the descent + advance + affiliation filter + self-clean. No pre-
+            // loop clear op -- runForNext clears the cursor on exhaustion.
+            Looper   := argument["Looper"];
+            xp       := argument["ExpressioN"];
+            restrict := argument["LoopRestrict"];
+            st       := argument["StatemenT"];
+            // Mint top + exit labels (`:=` keeps the bcLabelN tag, bear-trap #1).
+            ++labelIndex;
+            labelName = string $"bcLabel" labelIndex;
+            topLabel := new(labelName);
+            ++labelIndex;
+            labelName = string $"bcLabel" labelIndex;
+            exitLabel := new(labelName);
+            // Loop top: bcForNext advances + pushes 1/0; bcBRZ exits when 0.
+            emitBC(topLabel);
+            op := copyOf(bcOPs["bcForNext"]);
+            op +% Looper;
+            op +% xp;
+            if restrict.taG;   op +% restrict;
+            emitBC(op);
+            emitBC(copyOf(bcBRZ) +% exitLabel);
+            // Body: descend to its revisedList like gWhilE's body.
+            stXP := st["revisedList"];
+            if stXP.listLengtH;  gXpress(stXP);
+            else    runGenerated(st);
+            // Back edge: jump to the top to advance the cursor again.
+            emitBC(copyOf(bcBR) +% topLabel);
+            emitBC(exitLabel);
+            };
+        gIF argument code={
+            print `"gIF: tag=" argument.taG "text=" argument.texT:;
+            dumpContents(argument);
+            xp  := argument["ExpressioN"];
+            xp  = unWrap(xp);
+            st  := argument[2];
+            el  := argument[3];
+            // Mint a uniquely-tagged label (bcLabel1, bcLabel2, ...) so multiple
+            // ifs in one action don't collide on getFromList(label.tag). `:=`
+            // keeps the bcLabelN tag (a plain `=` would re-tag it to "endLabel").
+            ++labelIndex;
+            labelName = string $"bcLabel" labelIndex;
+            endLabel := new(labelName);
+            dumpContents(xp);
+            gXpress(xp);
+            // bcBRZ jumps to elseLabel when there is an else, else endLabel. Emit
+            // the label directly — no shared dst variable (:= binds/aliases, so
+            // reusing one dst clobbered the earlier label; the indirection was
+            // never needed).
+            if el.listLengtH;
+                ++labelIndex;
+                labelName = string $"bcLabel" labelIndex;
+                elseLabel := new(labelName);
+                emitBC(copyOf(bcBRZ) +% elseLabel);
+            else
+                emitBC(copyOf(bcBRZ) +% endLabel);
+            // then-branch: descend to the generated revisedList (st is a non-isGROUP
+            // StatemenT whose expression hangs off as an attribute, so unWrap can't
+            // reach it) and emit directly, same as the condition; fall back to
+            // runGenerated for compound (block/nested) then-branches.
+            stXP := st["revisedList"];
+            if stXP.listLengtH;  gXpress(stXP);
+            else    runGenerated(st);
+            if el.listLengtH;
+                emitBC(copyOf(bcBR) +% endLabel);
+                emitBC(elseLabel);
+                // else-branch: same revisedList descent the then-branch needs.
+                elXP := el["revisedList"];
+                if elXP.listLengtH;  gXpress(elXP);
+                else    runGenerated(el);
+            emitBC(endLabel);
+            print `"End of gIF":;
+            };
+        gPrinT argument code={
+            // Passthrough: emit one bcPrint carrying the print statement at [2].
+            // runPrint fires aCTionPrinT on it at interpret time (reliable C++
+            // accessors reach the operands incant accessors can't); operand
+            // order is preserved by the reversePrint flag appendGroup reads.
+            op = copyOf(bcOPs["bcPrint"]);
+            op +% argument;
+            emitBC(op);
+            };
+        gWhilE argument code={
+            // Condition: access by name + unWrap, exactly as gIF does (a bare
+            // argument[1] hands gXpress the wrapping ExpressioN, not the expr).
+            xp  := argument["ExpressioN"];
+            xp  = unWrap(xp);
+            st  := argument[2];
+            // Mint top + exit labels. `:=` keeps the bcLabelN tag (a plain `=`
+            // would re-tag it -- bear-trap #1).
+            ++labelIndex;
+            labelName = string $"bcLabel" labelIndex;
+            topLabel := new(labelName);
+            ++labelIndex;
+            labelName = string $"bcLabel" labelIndex;
+            exitLabel := new(labelName);
+            // Loop top: condition check, branch past the body when false.
+            emitBC(topLabel);
+            gXpress(xp);
+            emitBC(copyOf(bcBRZ) +% exitLabel);
+            // Body: descend to its revisedList like gIF's then-branch;
+            // runGenerated handles compound (block/nested) bodies.
+            stXP := st["revisedList"];
+            if stXP.listLengtH;  gXpress(stXP);
+            else    runGenerated(st);
+            // Back edge: jump to the top to re-check the condition.
+            emitBC(copyOf(bcBR) +% topLabel);
+            emitBC(exitLabel);
+            };
+        gXpress argument code={
+            tmp = argument;
+            print "Entering gXpress":;
+            for child in tmp; members
+                nextChild = child.nexT;
+                if child.isOperatoR;
+                    if child.taG != "=";        emitBC(child);
+                or child.registrY == "bcOPs";   emitBC(child);
+                or child.isLiteraL;             emitBC(bcPushLit=child);
+                // Field ref: carry the field by reference (+% shares its
+                // GroupBody) instead of folding its value via `=`, so the
+                // push reads the LIVE field each pass -- mirrors how bcBRZ
+                // carries its label and bcStoreField its target.
+                else                            emitBC(copyOf(bcPushField) +% child);
+            };
+        emitBC argument code={
+            :generator bcLIST;
+            bcLIST += argument;
+            print `"emit tag=" argument.taG "content=" argument:;
+            if arguments.listLengtH;    dumpContents(argument);
+            else print ``taG "has no list to dump":;
+            };
+        /***********************************************************************
+            Debugging action. Walks a bcLIST and prints each entry's tag and
+            value. Use after emit-phase to verify what landed in the accumulator.
+        ***********************************************************************/
+        dumpBC argument code={
+            print `"dumpBC for" argument.taG ":":;
+            if argument.listLengtH;
+                for grup in argument;
+                    print ``"  tag=" grup.taG " op=" grup:;
+            else print ``"single field xp":;
+            };
+        generatE argument code={
+            print :"About to generate":;
+            dumpContents(argument);
+            for field in argument;
+                runGenerated(field);
+            print "End of generatE":;
+        };
+    /***************************************************************************
+        Bytecode test actions — generator fixtures driven by generateCode()
+        from oneTest. Moved here from unitTests' Working On block 2026-06-02;
+        this is their home. POP target: testByteCode -> maximus = 26.
+    ***************************************************************************/
+    testByteCode code={
+        if righty <= 0; maximus = righty * 2; };
+    // POP target: testPrint -> "hello world" via the bytecode print path.
+    testPrint code={ print "hello" name:; };
+    // testEmitBC retired 2026-06-04 (Brief 5 Fix 3): it called emitBC(bcMul),
+    // but bcMul is not registered — multiply dispatches through the '*' operator
+    // (interpret=runMultiply). Its operands also predate the current stack-form
+    // contract. gXpress emits '*' directly; no hand-built emitBC fixture needed.
+    testGXLeaf code={
+        if righty;  maximus = 0;
+        if 42;      maximus = 1; };
+    testIfElse code={ if righty > 0; maximus = righty * 2; else maximus = 7; };
+    // POP target: testWhilE -> righty = 21. Counter loop from init righty=13;
+    // `righty <= 20` true for 13..20 (8 iterations of the back-edge), false at
+    // 21 -> exit. Bound is >13 on purpose: `<= 10` would be false at entry and
+    // never exercise the loop. Exercises the freshly-wired `<=`.
+    testWhilE code={ while righty <= 20; righty = righty + 1; };
+    // POP target: testDo -> righty = 21. Body-first do-while cross-checks
+    // testWhilE: same init (righty=13) and `<= 20` gate, so same result.
+    // Body runs unconditionally once, then the condition gates the back-edge.
+    testDo code={ do righty = righty + 1; while righty <= 20; };
+    // POP target: testFor -> counter = 5. sumple has 5 attributes (height,
+    // width, x, y, down) + 1 member (crossing); the `attributes` restrict walks
+    // the 5, body bumps counter each pass. Own loop var (grup) + own accumulator
+    // (counter) -- independent of the while/do fixtures that consume righty.
+    testFor code={ for grup in sumple; attributes  counter = counter + 1; };
+    /***************************************************************************
+        Working on
+    ***************************************************************************/
+    // Step-through verification fixture for the label/BRZ emit (Fearless,
+    // 2026-06-10). Each step dumps its result so it can be verified by run
+    // before the next runs — a POP in miniature. Tony may insert **field /
+    // dumpField lines to break in Xcode. DRIVE IT WITH: testing(testBRZEmit)
+    // — the testing() command (Commands.rtn) primes a fresh, list-typed bcLIST
+    // on the generator first (the one step emitBC's :generator bcLIST needs and
+    // incant can't easily do), then runs this action against it.
+    testBRZEmit code={
+        // Step 1: mint the label — verify tag survives :=
+        endLabel := new("bcLabel1");
+        print `"Step 1 endLabel tag=" endLabel.taG " data=" endLabel:;
+        dumpField(endLabel);
+
+        // Step 2: clean copy of bcBRZ — verify interpret intact
+        op = copyOf(bcOPs["bcBRZ"]);
+        print `"Step 2 op tag=" op.taG:;
+        dumpField(op);
+
+        // Step 3: attach label — verify member or attribute?
+        op +% endLabel;
+        print `"Step 3 op after +%":;
+        dumpContents(op);
+
+        // Step 4: emit the branch — dump bcLIST
+        emitBC(op);
+        print `"Step 4 bcLIST after emitBC(op)":;
+        :generator bcLIST;
+        dumpContents(bcLIST);
+
+        // Step 5: emit the label target — dump bcLIST again
+        emitBC(endLabel);
+        print `"Step 5 bcLIST after emitBC(endLabel)":;
+        dumpContents(bcLIST);
+        };
+    genBlock argument code={
+        for grup in sumple; attributes
+            maximus += 22;
+            print `,grup:; };
+    genForC code={
+        for grup in sumple; attributes
+            maximus += 22;
+            print `,grup:;
+        do
+            maximus += 2;
+            print  ``Saw maximus:;
+        while maximus < 20;
+        while maximus <= 27;
+            maximus += 3;
+            print ``Saw maximus:; };;
+
 /*******************************************************************************
     Incant bytecodes — structure, registries, and how the generator emits them.
 
@@ -114,13 +436,15 @@
                                 parsing it (generateCode), then either firing
                                 interpret() over the resulting bytecode or
                                 emitting C++ source directly
-        * generateSignature   — C++ method signature emitter
         * runGenerated        — dispatcher. Looks up the per-tag generator
                                 method by texT and invokes it on the argument.
                                 Falls through to a literal print if no handler
                                 exists for the tag.
-        * generator           — hashed list of per-tag generator methods. Each
-                                method handles one statement form:
+        * generator           — hashed list of per-tag generator methods.
+                                incant has no switch statment; it uses a
+                                hashed table to do much the same thing
+                                Each incant field action in generator's
+                                field list handles one statement form:
                                     gBlocK, gDO, gExpressioN,
                                     gFOR, gIF, gPrinT, gWhilE, gXpress
                                 These are reached via runGenerated, which is
@@ -133,261 +457,14 @@
                                 top-level statement.
 
     The generator-methods-to-bytecode chain, in one breath:
-        generateAction → generateCode → generatE → runGenerated → gXX → emitBC
-                                                                       → bcLIST
+        generateAction → generateCode → generatE → runGenerated → gXX → emitBC → bcLIST
         ...then interpret(bcLIST) walks bcLIST and dispatches each grup via
-        its interpret sub-attribute to a Bytecode.mm handler.
+        its interpret sub-attribute to a Bytecode handler.
 
-    Two output modes co-exist in the same generator machinery: gBlocK / gFOR /
-    gWhilE / gDO emit C++ source text via print; gIF / gExpressioN / gXpress
+    Two output modes co-exist in the same generator machinery: gBlocK / gFOR
+    emit C++ source text via print; gIF / gWhilE / gDO / gExpressioN / gXpress
     emit bytecode via emitBC. Once Phase Bytecode is complete the text-emit
     paths get replaced (see jit.md). Until then, mixed output from one
     generateCode pass is expected.
 
 *******************************************************************************/
-
-/*******************************************************************************
-	Types registry is a list of the types associated with field data. Referenced
-    in getType(). Isn't it nice we can use quotes to define a field tag.
-    Note: type tags use C++ syntax for pointer to type
-*******************************************************************************/
-register(Generating);
-define
-    types
-        "Buffer*";
-        int;
-        char;
-        "char*";
-        "GroupItem*";
-        GroupItem;
-        "BitMAP*";
-        double;
-        "NSObject*";
-        "PLGset*";
-        "Stak*";
-        "void*";
-        void;
-    startBlock='{';
-    endBlock='}';
-    asterisk='*';
-    declareList sort;
-    /***************************************************************************
-        Generate action code.
-    ***************************************************************************/
-    generateAction argument code={
-        print "Generating action for" tag:;
-        generated = generateCode(argument);
-        //printTO(stringBUFFER);
-        if generated;
-            print _;
-            print :"About to run interpretBC":;
-            interpretBC(generated);
-            print "Ran interpretBC":;
-            print "maximus =" maximus:;
-            //printTO(null);
-        else print "generateCode failed":;
-        };
-    /***************************************************************************
-        generator is a hashed list of actions that process statements that
-        generate (print) code. It is used in the generate() action below.
-    ***************************************************************************/
-    runGenerated argument code={
-        print :"runGenerated: ";
-        clear(action);
-        if action := generator[argument];
-            print "action is:" action.taG:;
-            action(argument);
-        else    print ~,argument ";":;
-        print "End of runGenerated":; };
-    generator
-        gBlocK argument code={
-            print "process block":;
-            lines = argument[1];
-            for grup in lines;
-                runGenerated(grup);
-            };
-        gDO argument code={
-            //print "generate do":;
-            st  = argument[1];
-            xp  = argument[2];
-            print ~"do"`;
-            runGenerated(st);
-            print ~,"while(" xp ");":; };
-        gFOR argument code={
-            print "generate for":;
-            lp  = argument[1];
-            xp  = argument[2];
-            lr  = argument["LoopRestrict"];
-            st  = argument["StatemenT"];
-            print ~"while" lp;
-            if lr
-                if lr == "attributes";  print,_"= " xp ".nextAttribute(" lp ")";
-                or lr == "members";     print,_"= " xp ".nextMember(" lp ")";
-            else
-                print,_"= " xp ".next(" lp ")";
-                if lr   print ~+"if (" lr ")",+:;
-            runGenerated(st);
-            print ,-; };
-        gIF argument code={
-            print `"gIF: tag=" argument.taG "text=" argument.texT:;
-            dumpContents(argument);
-            xp  := argument["ExpressioN"];
-            xp  = unWrap(xp);
-            st  := argument[2];
-            el  := argument[3];
-            // Mint a uniquely-tagged label (bcLabel1, bcLabel2, ...) so multiple
-            // ifs in one action don't collide on getFromList(label.tag). `:=`
-            // keeps the bcLabelN tag (a plain `=` would re-tag it to "endLabel").
-            ++labelIndex;
-            labelName = string $"bcLabel" labelIndex;
-            endLabel := new(labelName);
-            dumpContents(xp);
-            gXpress(xp);
-            // bcBRZ jumps to elseLabel when there is an else, else endLabel. Emit
-            // the label directly — no shared dst variable (:= binds/aliases, so
-            // reusing one dst clobbered the earlier label; the indirection was
-            // never needed).
-            if el.listLengtH;
-                ++labelIndex;
-                labelName = string $"bcLabel" labelIndex;
-                elseLabel := new(labelName);
-                emitBC(copyOf(bcBRZ) +% elseLabel);
-            else
-                emitBC(copyOf(bcBRZ) +% endLabel);
-            // then-branch: descend to the generated revisedList (st is a non-isGROUP
-            // StatemenT whose expression hangs off as an attribute, so unWrap can't
-            // reach it) and emit directly, same as the condition; fall back to
-            // runGenerated for compound (block/nested) then-branches.
-            stXP := st["revisedList"];
-            if stXP.listLengtH;  gXpress(stXP);
-            else    runGenerated(st);
-            if el.listLengtH;
-                emitBC(copyOf(bcBR) +% endLabel);
-                emitBC(elseLabel);
-                // else-branch: same revisedList descent the then-branch needs.
-                elXP := el["revisedList"];
-                if elXP.listLengtH;  gXpress(elXP);
-                else    runGenerated(el);
-            emitBC(endLabel);
-            print `"End of gIF":;
-            };
-        gPrinT argument code={
-            // Passthrough: emit one bcPrint carrying the print statement at [2].
-            // runPrint fires aCTionPrinT on it at interpret time (reliable C++
-            // accessors reach the operands incant accessors can't); operand
-            // order is preserved by the reversePrint flag appendGroup reads.
-            op = copyOf(bcOPs["bcPrint"]);
-            op +% argument;
-            emitBC(op);
-            };
-        gWhilE argument code={
-            xp  = argument[1];
-            st  = argument[2];
-            print ~,"while(" xp ")":+;
-            runGenerated(st);
-            print ,-; };
-        gXpress argument code={
-            tmp = argument;
-            print "Entering gXpress":;
-            for child in tmp; members
-                nextChild = child.nexT;
-                if child.isOperatoR;
-                    if child.taG != "=";        emitBC(child);
-                or child.registrY == "bcOPs";   emitBC(child);
-                or child.isLiteraL;             emitBC(bcPushLit=child);
-                else                            emitBC(bcPushField=child);
-            };
-        emitBC argument code={
-            :generator bcLIST;
-            bcLIST += argument;
-            print `"emit tag=" argument.taG "content=" argument:;
-            if arguments.listLengtH;    dumpContents(argument);
-            else print ``taG "has no list to dump":;
-            };
-        /***********************************************************************
-            Debugging action. Walks a bcLIST and prints each entry's tag and
-            value. Use after emit-phase to verify what landed in the accumulator.
-        ***********************************************************************/
-        dumpBC argument code={
-            print `"dumpBC for" argument.taG ":":;
-            if argument.listLengtH;
-                for grup in argument;
-                    print ``"  tag=" grup.taG " op=" grup:;
-            else print ``"single field xp":;
-            };
-        generatE argument code={
-            print :"About to generate":;
-            dumpContents(argument);
-            for field in argument;
-                runGenerated(field);
-            print "End of generatE":;
-        };
-    /***************************************************************************
-        Bytecode test actions — generator fixtures driven by generateCode()
-        from oneTest. Moved here from unitTests' Working On block 2026-06-02;
-        this is their home. POP target: testByteCode -> maximus = 26.
-    ***************************************************************************/
-    testByteCode code={
-        if righty <= 0; maximus = righty * 2; };
-    // POP target: testPrint -> "hello world" via the bytecode print path.
-    testPrint code={ print "hello" name:; };
-    // testEmitBC retired 2026-06-04 (Brief 5 Fix 3): it called emitBC(bcMul),
-    // but bcMul is not registered — multiply dispatches through the '*' operator
-    // (interpret=runMultiply). Its operands also predate the current stack-form
-    // contract. gXpress emits '*' directly; no hand-built emitBC fixture needed.
-    testGXLeaf code={
-        if righty;  maximus = 0;
-        if 42;      maximus = 1; };
-    testIfElse code={ if righty > 0; maximus = righty * 2; else maximus = 7; };
-    /***************************************************************************
-        Working on
-    ***************************************************************************/
-    // Step-through verification fixture for the label/BRZ emit (Fearless,
-    // 2026-06-10). Each step dumps its result so it can be verified by run
-    // before the next runs — a POP in miniature. Tony may insert **field /
-    // dumpField lines to break in Xcode. DRIVE IT WITH: testing(testBRZEmit)
-    // — the testing() command (Commands.rtn) primes a fresh, list-typed bcLIST
-    // on the generator first (the one step emitBC's :generator bcLIST needs and
-    // incant can't easily do), then runs this action against it.
-    testBRZEmit code={
-        // Step 1: mint the label — verify tag survives :=
-        endLabel := new("bcLabel1");
-        print `"Step 1 endLabel tag=" endLabel.taG " data=" endLabel:;
-        dumpField(endLabel);
-
-        // Step 2: clean copy of bcBRZ — verify interpret intact
-        op = copyOf(bcOPs["bcBRZ"]);
-        print `"Step 2 op tag=" op.taG:;
-        dumpField(op);
-
-        // Step 3: attach label — verify member or attribute?
-        op +% endLabel;
-        print `"Step 3 op after +%":;
-        dumpContents(op);
-
-        // Step 4: emit the branch — dump bcLIST
-        emitBC(op);
-        print `"Step 4 bcLIST after emitBC(op)":;
-        :generator bcLIST;
-        dumpContents(bcLIST);
-
-        // Step 5: emit the label target — dump bcLIST again
-        emitBC(endLabel);
-        print `"Step 5 bcLIST after emitBC(endLabel)":;
-        dumpContents(bcLIST);
-        };
-    genBlock argument code={
-        for grup in sumple; attributes
-            maximus += 22;
-            print `,grup:; };
-    genForC code={
-        for grup in sumple; attributes
-            maximus += 22;
-            print `,grup:;
-        do
-            maximus += 2;
-            print  ``Saw maximus:;
-        while maximus < 20;
-        while maximus <= 27;
-            maximus += 3;
-            print ``Saw maximus:; };;

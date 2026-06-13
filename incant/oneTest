@@ -7,9 +7,21 @@ search reset stack Grokking;
 search Generating UnitTests bcOPs Utilities list;
 
 /*****************************************************************************
-	Bytecode generation — POP target: testByteCode -> maximus = 26
+	Bytecode generation — runLE wiring POP.
+	testByteCode FIRST (from init maximus=11): `if righty <= 0` is 13<=0 false,
+	so the store is skipped -> maximus = 11. Clean discriminator: a broken
+	runLE (then-arm wrongly taken) would write 26. Running it first matters --
+	if testIfElse ran first it would leave maximus=26 and mask this result.
+	testIfElse SECOND: 13>0 true -> then runs -> maximus = 26. The pair also
+	exercises the Wall-3 back-to-back fix (two generateActions before stop).
 *****************************************************************************/
 generateAction(testByteCode);
+generateAction(testIfElse);
+generateAction(testWhilE);
+righty = 13;
+generateAction(testDo);
+counter = 0;
+generateAction(testFor);
 stop();
 /*****************************************************************************
 	Bytecode print generation — POP target: testPrint -> "hello world"
