@@ -1,0 +1,77 @@
+Search list: Grokking Generating UnitTests bcOPs Utilities
+		This is what I am talking about 
+accessTest:  simple 	Saw across in simple 
+anotherTest: max should be 11 + 3 		it is 14 and we done 
+ifTest: 
+		grup= one : 
+outer-then, inner-then 
+		grup= two : 
+outer-or 
+		grup= three : 
+outer-else 
+lefty: 		got reset to 3 
+printTest: 	lefty should return itself. It returns 3 
+simpleIF: 
+	anotherTest: max should be 48 + 3 		it is 51 and we done 
+testOR: 	I see nothing 
+testARG: Argument is: hasGroup 
+testARG: Argument is: 35 
+testARG: Argument is: 57 
+testIndentBlock: 
+		One 
+		Two 
+	Three 
+Four 
+stringTest: 	59 added 2 to righty is what I am talking about 
+xpTest: 	HooHaa 4 5 Gomer is a goober is what I am talking about 
+ 
+list tests the for statement: 
+	righty 
+	3.1 
+	seven 
+	eight 
+	nine 
+testInterpret 
+	dot test: maximus 
+	Processed IF: 15 
+	Process do: 
+		Saw 17 
+		Saw 19 
+		Saw 21 
+	Process while: 
+		Saw 24 
+		Saw 27 
+		Saw 30 
+	Process for loop: 
+		Saw lightGreen 
+		Saw rounded 
+testUnary: 
+		++grup is 1 
+		now grup++ is still 1 Unary operators must preceed their argument 
+	Processing testList action that runs list rule 
+list tests the for statement: 
+	righty 
+	3.1 
+	seven 
+	eight 
+	nine 
+		we DONE 
+testGet: should set sumple width to 251. It is 251 
+sumple=What if it is a long string. height=200 width=251 x=100 y=100 down=*
+	crossing height=50; 
+simple across styleTest height=212 width=250 x=100 y=100
+	quinto width=150; 
+	sexto height=12; 
+	fifth; 
+sample x=300 y=450 width=400 height=200
+	second=56; 
+	third=WTF? pad=5 fill=wall across
+		wrap=This is a whole lot of text that I am using to test out text views, scrolling, and isn't it nice that the xcode text editor wraps lines and indents auto-magically. The base rule is you have to specify everything you want, nothing implied. fill=purple
+			one text pad=7 border; 
+		two fill=red left=2; 
+		three fill=white DatA=50% left=2
+			stuff text pad=6; 
+	fourth rounded pad fill=lightGreen height=12; 
+	fifth; 
+
+stop: ending input divert

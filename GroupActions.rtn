@@ -342,7 +342,6 @@ extern void printField(GroupItem field,String format,Buffer buffer)
     if !field       field = falseResult;
     or isGROUP      field = group;
     switch(data) {
-        case 0:
         case isCOUNT:
             if !format  format = "%d";
             print(buffer) gCount;
@@ -353,6 +352,7 @@ extern void printField(GroupItem field,String format,Buffer buffer)
         case isTOKEN:
             if !format  format = "%s";
             print text;
+        case 0:
         default:
             if !format  format = "%s";
             print text; }

@@ -2954,7 +2954,6 @@ extern "C" void printField(GroupItem *field, char *format, Buffer *buffer)
 		field = field->getGroup();
 	switch (field->groupBody->flags.data)
 		{
-		case 0:
 		case 5:
 			if ( !format )
 				format = "%d";
@@ -2971,6 +2970,7 @@ extern "C" void printField(GroupItem *field, char *format, Buffer *buffer)
 				format = "%s";
 			buffer->appendString(field->getText(),0,0);
 			break;
+		case 0:
 		default:
 			if ( !format )
 				format = "%s";
