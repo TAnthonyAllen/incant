@@ -254,6 +254,12 @@ define
         if righty;  maximus = 0;
         if 42;      maximus = 1; };
     testIfElse code={ if righty > 0; maximus = righty * 2; else maximus = 7; };
+    // Relational-op POPs (init righty=13, maximus=0). EQ/LT/GE take the then-arm
+    // (maximus=1); NE takes else (maximus=2). Exercise runEQ/runNotEQ/runLT/runGE.
+    testEQ   code={ if righty == 13; maximus = 1; else maximus = 2; };
+    testNE   code={ if righty != 13; maximus = 1; else maximus = 2; };
+    testLTbc code={ if righty <  20; maximus = 1; else maximus = 2; };
+    testGEbc code={ if righty >= 13; maximus = 1; else maximus = 2; };
     // POP target: testWhilE -> righty = 21. Counter loop from init righty=13;
     // `righty <= 20` true for 13..20 (8 iterations of the back-edge), false at
     // 21 -> exit. Bound is >13 on purpose: `<= 10` would be false at entry and

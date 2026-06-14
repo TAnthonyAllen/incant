@@ -83,10 +83,10 @@ define
     modedOP operateMethod=setFileOp;
     '?';
     '>>';
-    '>='    operateMethod=opGE;
+    '>='    operateMethod=opGE  interpretMethod=runGE;
     '>'     operateMethod=opGT  interpretMethod=runGT;
 
-    '=='    operateMethod=opEQ;
+    '=='    operateMethod=opEQ  interpretMethod=runEQ;
     '=['    operateMethod=opGet;
     '=]'    operateMethod=opEnd;
     '=/'    assign operateMethod=opGetMember;
@@ -97,7 +97,7 @@ define
     '<='    operateMethod=opLE  interpretMethod=runLE;
     '<<';
     '<:';   // not used
-    '<'     operateMethod=opLT;
+    '<'     operateMethod=opLT  interpretMethod=runLT;
 
     ':>';
     ':='    operateMethod=opSetGroup;
@@ -112,7 +112,7 @@ define
 
     '**'    unary ruleMethod=opDebug;
     '-'     operateMethod=opMinus;
-    '+='    operateMethod=opPlusEQ  interpretMethod=runPlusEQ;
+    '+='    operateMethod=opPlusEQ;
     '++'    unary ruleMethod=opPlusPlus;
     '+*'    operateMethod=opCopyList;
     '+%'    operateMethod=opAddAttribute;
@@ -122,7 +122,7 @@ define
     '@'     unary ruleMethod=opLastREF;
     '&';
     '%'     operateMethod=opDiv;
-    '!='    operateMethod=opNotEQ;
+    '!='    operateMethod=opNotEQ  interpretMethod=runNotEQ;
     '!'     unary ruleMethod=opNOT;
     '+/';
     ;

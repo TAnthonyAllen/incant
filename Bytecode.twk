@@ -227,6 +227,65 @@ GroupItem   hit   = opLE(op2, op1);     // keep opLE(argument, target) order
 }
 
 /***************************************************************************
+    runEQ / runNotEQ / runLT / runGE — relational mirrors of runGT/runLE.
+    Each pops right then left, calls its opXXX(argument,target) (all four take
+    (argument,target) and return a shared trueResult or null), and pushes a
+    fresh 0/1 cond node -- never the shared return -- so bcBRZ reads a stable
+    count. op(op2,op1) keeps the same argument=right, target=left order as runGT.
+***************************************************************************/
+extern GroupItem runEQ(GroupItem instr)
+{
+GroupItem   stack = opStackOf(instr);
+GroupItem   op2   = stack.pop();
+GroupItem   op1   = stack.pop();
+GroupItem   cond  = new("cond");
+GroupItem   hit   = opEQ(op2, op1);
+    if hit  cond.setCount(1);
+    else    cond.setCount(0);
+    stack.push(cond);
+    return null;
+}
+
+extern GroupItem runNotEQ(GroupItem instr)
+{
+GroupItem   stack = opStackOf(instr);
+GroupItem   op2   = stack.pop();
+GroupItem   op1   = stack.pop();
+GroupItem   cond  = new("cond");
+GroupItem   hit   = opNotEQ(op2, op1);
+    if hit  cond.setCount(1);
+    else    cond.setCount(0);
+    stack.push(cond);
+    return null;
+}
+
+extern GroupItem runLT(GroupItem instr)
+{
+GroupItem   stack = opStackOf(instr);
+GroupItem   op2   = stack.pop();
+GroupItem   op1   = stack.pop();
+GroupItem   cond  = new("cond");
+GroupItem   hit   = opLT(op2, op1);
+    if hit  cond.setCount(1);
+    else    cond.setCount(0);
+    stack.push(cond);
+    return null;
+}
+
+extern GroupItem runGE(GroupItem instr)
+{
+GroupItem   stack = opStackOf(instr);
+GroupItem   op2   = stack.pop();
+GroupItem   op1   = stack.pop();
+GroupItem   cond  = new("cond");
+GroupItem   hit   = opGE(op2, op1);
+    if hit  cond.setCount(1);
+    else    cond.setCount(0);
+    stack.push(cond);
+    return null;
+}
+
+/***************************************************************************
     runMultiply — pop two, multiply, push a COPY of the product. opMultiply
     returns the shared tempField (value overwritten by the next arith op), so
     we copy its value into a fresh node before pushing. prod is pushed even on

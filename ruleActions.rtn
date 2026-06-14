@@ -277,7 +277,7 @@ GroupItem   op,
             arg,
             xl,
             token;
-    if generating && !isPRINTING {
+    if generating {
         GroupItem revisedList = new("revisedList");
         GroupItem grup, store, tgt;
         if xpList.listLength == 1 {

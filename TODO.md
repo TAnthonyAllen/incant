@@ -289,6 +289,17 @@ projectBible.md "Phase Generate Tawk".
 
 ## Pending (not current arc)
 
+- [ ] **Sticky `isPRINTING` root-cause fix (Option B)** — `isPRINTING` is set true at
+  `Commands.rtn:398` (`case 'P'`) and only reset in `aCTionPrinT`'s non-generating loop
+  (`ruleActions.rtn:554`), so on a print-less generate it stays true and bled into condition
+  generation. Today's fix (2026-06-14) removed the `&& !isPRINTING` guard from
+  `aCTionExpressioN:280` (the `aCTionTokenXP:743` guard alone protects the print thunk —
+  verified via the unit-test golden). Proper fix: scope `isPRINTING` to the print emission
+  (clear before / set local), then re-evaluate whether any gate is needed. Also revisit the
+  one remaining un-guarded `if generating` at `aCTionPrinT:537`.
+- [ ] **Dead `nextChild` in `gXpress`** — `incant/generate` gXpress computes
+  `nextChild = child.nexT;` and never uses it (present since c632421, never an active reorder;
+  the reorder lives in `aCTionExpressioN`'s generating branch). Remove in cleanup.
 - [ ] **Print: real operand compilation (Track B)** — emit operands as push ops via `gXpress`
   so print is true bytecode, not the current thunk. Needs the operand revisedLists populated in
   gen mode (the no-op `aCTionExpressioN` case currently leaves them intact for interpretation).

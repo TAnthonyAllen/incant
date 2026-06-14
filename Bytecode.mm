@@ -87,6 +87,27 @@ extern "C" GroupItem *runCall(GroupItem *instr)
 }
 
 /***************************************************************************
+    runEQ / runNotEQ / runLT / runGE — relational mirrors of runGT/runLE.
+    Each pops right then left, calls its opXXX(argument,target) (all four take
+    (argument,target) and return a shared trueResult or null), and pushes a
+    fresh 0/1 cond node -- never the shared return -- so bcBRZ reads a stable
+    count. op(op2,op1) keeps the same argument=right, target=left order as runGT.
+***************************************************************************/
+extern "C" GroupItem *runEQ(GroupItem *instr)
+{
+GroupItem 	*stack = ::opStackOf(instr);
+GroupItem 	*op2 = stack->pop();
+GroupItem 	*op1 = stack->pop();
+GroupItem 	*cond = new GroupItem("cond");
+GroupItem 	*hit = ::opEQ(op2,op1);
+	if ( hit )
+		cond->setCount(1);
+	else	cond->setCount(0);
+	stack->push(cond);
+	return 0;
+}
+
+/***************************************************************************
     bcForNext — the for-loop iterator op. Carries the loop variable (Looper),
     the iterable (ExpressioN), and optional LoopRestrict, all +%-attached by
     gFOR and read here by tag. Mirrors aCTionFOR's iteration on a single op:
@@ -179,6 +200,20 @@ int 		seen = 0;
 	return 0;
 }
 
+extern "C" GroupItem *runGE(GroupItem *instr)
+{
+GroupItem 	*stack = ::opStackOf(instr);
+GroupItem 	*op2 = stack->pop();
+GroupItem 	*op1 = stack->pop();
+GroupItem 	*cond = new GroupItem("cond");
+GroupItem 	*hit = ::opGE(op2,op1);
+	if ( hit )
+		cond->setCount(1);
+	else	cond->setCount(0);
+	stack->push(cond);
+	return 0;
+}
+
 // ---------- op-shims: pop two, materialize a stable result, push ----------
 /***************************************************************************
     runGT — pop right then left, compare, push a STABLE 0/1 cond node. opGT
@@ -226,6 +261,20 @@ GroupItem 	*hit = ::opLE(op2,op1);
 	return 0;
 }
 
+extern "C" GroupItem *runLT(GroupItem *instr)
+{
+GroupItem 	*stack = ::opStackOf(instr);
+GroupItem 	*op2 = stack->pop();
+GroupItem 	*op1 = stack->pop();
+GroupItem 	*cond = new GroupItem("cond");
+GroupItem 	*hit = ::opLT(op2,op1);
+	if ( hit )
+		cond->setCount(1);
+	else	cond->setCount(0);
+	stack->push(cond);
+	return 0;
+}
+
 /***************************************************************************
     runMultiply — pop two, multiply, push a COPY of the product. opMultiply
     returns the shared tempField (value overwritten by the next arith op), so
@@ -243,6 +292,20 @@ GroupItem 	*prod = new GroupItem("prod");
 		prod->copyData(result);
 	// copy value off the shared temp
 	stack->push(prod);
+	return 0;
+}
+
+extern "C" GroupItem *runNotEQ(GroupItem *instr)
+{
+GroupItem 	*stack = ::opStackOf(instr);
+GroupItem 	*op2 = stack->pop();
+GroupItem 	*op1 = stack->pop();
+GroupItem 	*cond = new GroupItem("cond");
+GroupItem 	*hit = ::opNotEQ(op2,op1);
+	if ( hit )
+		cond->setCount(1);
+	else	cond->setCount(0);
+	stack->push(cond);
 	return 0;
 }
 

@@ -387,7 +387,7 @@ GroupItem 	*target = 0;
 GroupItem 	*arg = 0;
 GroupItem 	*xl = 0;
 GroupItem 	*token = 0;
-	if ( GroupControl::groupController->groupRules->generating && !GroupControl::groupController->groupRules->isPRINTING )
+	if ( GroupControl::groupController->groupRules->generating )
 		{
 		GroupItem 	*revisedList = new GroupItem("revisedList");
 		GroupItem 	*grup = 0;
