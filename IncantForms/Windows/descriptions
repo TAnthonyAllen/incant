@@ -1,0 +1,52 @@
+#include /Users/anthony/Dropbox/data/InProcess/Groups/XML/HTML/traits.xml;
+#include /Users/anthony/Dropbox/data/InProcess/Groups/XML/Controls/templates.xml;
+
+#registry dESCRIPTIONs asAttributes;
+<describeHead>Using descriptions (help text or descriptions associated with display blocks) involves two components:
+    A descriptions registry containing blocks with descriptive text as content. The description blocks have the same name as the display blocks they describe.
+    A describe block, essentially just a text block with a describe attribute (the green help block in this example).
+    
+The describe attribute: When a GUI block is selected and there is a descriptions registry, the tag of the selected block is used to look up a description block in the registry. If a description block is found, its content is put in as the text of the describe block. If the describe attribute of the describe block has a value, the value is used when nothing is selected. If there is no describe attribute value, the selected block tag is used as the describe text. Here, the green help block has no associated entry in the descriptions registry so what is displayed if you select the green block is the value of its describe attribute. Likewise, the same thing happens when nothing is selected (as when you first bring up this example).
+
+The describeAny attribute, not used in this example, is used in conjunction with the describe attribute to indicate that descriptions displayed do not just apply to the containing window. Any field in any window or panel that is selected and has an entry in the descriptions registry will be displayed. This attribute is needed if you are building an inspector that operates in its own window but which is designed to inspect the contents of other windows.
+
+For example, if the saber anime image is selected by clicking on it, the saber block description is copied into the help block text (that is the default action associated with the describe attribute). When the help block is drawn, the saber description gets displayed and BYU.
+
+The default image action when you click enlarges the image, shift click shrinks it, control click centers the image on the point where you control click.
+
+Note: The describe attribute implies text.</describeHead>
+<saber>Fate Stay Night is a favorite anime, however, in Fate Stay Night, Saber does not dress anything like shown here</saber>
+<trees>Standing between a couple of funky trees at the beach in Santa Monica. Trees on acid, so not straight and the deep groove bark adds to the weirdity.</trees>
+<describeHelp="Descriptions are available for the two images and a description appears in the help box when you click on one of the images. For a description of how it works, select the heading."/>
+
+#registry GUI display search;
+<webViewExample window closable resize width=500 height=600 x=500 y=200 fill=wall minimumHeight=100 title='WebView Test' dEBUG>
+    <body>
+        <wrap mRight=15 mBottom=15>
+            <first height=50 pad=5 fill=lightGreen bordered>
+                <describeHead="Using Descriptions" flex center titleFont color=white shadow/></first>
+            <second flex normalFont pad=5 mBottom=5>
+                <saber="Saber from Fate Stay Night" image="/Users/anthony/Pictures/Wallpaper/Saber.jpg" bordered fill=paleGray pad mBottom=5/>
+                <trees="Beach trees in Santa Monica" image="/Users/anthony/Pictures/BetweenTrees.jpg" bordered fill=paleGray pad mBottom=5/></second>
+            <describeHelp describe="This is the default text description when nothing is selected" bordered normalFont pad=5 fill=lightGreen;>
+
+FYI you should not put a margin in the window block
+
+The problem w/putting in styles as a text body to the style block is that text does not inherit the way attributes do - as in no merging. Much prefer the idea of building style block on the fly based on block attributes. Need to know what are css attributes so you can generate id css entries. It will be less elegant wrt the generated html but the gml is clean. Maybe test a wee bit at a time???
+
+The html attribute changes htmlTest tag to html, adds lang attribute and head via merging
+
+All the components of body will be div blocks w/id set to the respective block tag.
+
+Numeric values are in px units by default
+
+x and y get calculated but they are not used if position not set (so do not compute).
+    x defaults to the left edge
+    y defaults to 0 (so you usually have to compute it)
+
+width and/or height are usually required - user problem
+
+Text will have to be decorated w/paragraph markers on new line boundaries. This should work with the way comments are handled, however, do not know how it will work with a source
+
+The center attribute will center both horizontally and vertically and only applies w/flex
+

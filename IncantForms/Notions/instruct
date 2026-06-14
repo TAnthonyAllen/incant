@@ -1,0 +1,48 @@
+
+/*******************************************************************************
+	Any ideas on getting at C++ methods from incant
+*******************************************************************************/
+Maybe a more sophisticated version of setCompiledMethod albeit still limited to extern methods (which is most of the methods in Frame).
+wrt Objective-C++ we can try to use objc_msgSend(...). It requires a selector argument. Use getSelector(string) which returns a selector
+
+/*******************************************************************************
+	Ranges and subsets
+*******************************************************************************/
+In incant:  for field in list   will loop over the whole list. But what if you only want to loop over some of the list. Seems like a good case for ranges.
+At present incant does not support either but why not
+    define a subset as field = list from go to woe    where list is a container
+    from and to can be tags or indices
+    A range is a rule defined as
+        range := attributes? from? to? skip?; { strainer }
+            it has to have from and/or to or strainer (checked in range rule action)
+    IAC the resulting field looks like any incant container. First and last are copies w/nextInParent and priorInParent modified, all the other components are pointers into the source list
+    Want to loop over a range, it looks like any other incant loop
+        for grup IN field and BYU
+    The associated method would be a GroupItem method of field
+
+/*******************************************************************************
+	makeRange makes this a range over the parent list of the start and end
+    passed in. start and end have to have the same parent
+*******************************************************************************/
+GroupItem makeRange(GroupItem start,GroupItem end)
+{
+    if start && end && start.parent == end.parent {
+        clear();
+        first   = copyOf(start);     // change copyOf to ignore GroupItem booleans
+        first.nextInParent  = start.nextInParent;
+        first.priorInParent = null;
+        last    = copyOf(end);
+        last.nextInParent   = null;
+        last.priorInParent  = end.priorInParent; }
+    else cerr tag,"makeRange: invalid boundaries",start.tag,end.tag:;
+}
+
+/*******************************************************************************
+	HWF how about ranges in a matrix
+*******************************************************************************/
+maybe define a 2D matrix having 2 entries: rows and columns where the components of both are ranges into the matrix.
+    How to define a matrix like that?
+        Define each row as a range
+            the ranges can overlap and include other ranges (like a total rows range)
+        Define each column as a range (looks much like a row range)
+        

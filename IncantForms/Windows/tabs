@@ -1,0 +1,60 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+initFORMs();
+search Generating bcOPs list;
+
+register(dESCRIPTIONs);
+define
+    tabFORM=(In this example, there are two key components to a tabFORM interface, the tabBAR (a block with a tabs attribute containing tab blocks). The second component is a block of body panels, with each panel associated with a tab. Each tab block must include a tab attribute whose value is the tag of the body block associated with the tab. The body panel blocks must have unique name and must all be registered in the current registry (done here via the register attribute). This implies the current registry must be set (in this case, it is set as the FORMs registry).#);
+    tabBAR=(Note the use of selectFill to set the background color of the tab when a tab is selected. Here the selected tab color is matched to the color of the associated body panel but it does not have to be.#);
+    ;
+register(FORMs);
+define
+    tabFORM window closable resize x=400 y=400 width=360 height=400 fill=wall title="Using Tabs"
+        body
+            intro height=50 fill=white bordered
+                heading="Tabs Example" flex center titleFont;
+            tabBAR height=25 flex headerFont tabs=tabTwo
+                tabOne=firstCard bordered fill=lightGreen selectFill=green;
+                tabTwo=secondCard fill=lightGreen selectFill=blue bordered;
+                tabThree=thirdCard fill=lightGreen selectFill=red bordered;
+            bodies cards
+                firstCard="The first tab body" register bordered fill=green;
+                secondCard="The second tab body" register bordered fill=blue;
+                thirdCard="The third tab body" register bordered fill=red;
+            help describe=tabFORM bordered height=100 fill=lightGreen;
+    oldBC argument code={
+        argument +% opStack;
+        setPointer(result);
+        for grup in argument; members
+            clear(result);
+            result := runByteFn(grup);
+            **result;
+        };
+    testGenAction argument code={
+        print "Generating action for" taG:;
+        generated = generateCode(argument);
+        if generated;
+            print :"About to run oldBC":;
+            oldBC(generated);
+        else print "generateCode failed":;
+        };
+    testFer code={ for grup in sumple; attributes  print `taG:; };
+    ;
+
+generateAction(testFer);
+stop();
+printDefinition(tabFORM);
+testFer();
+testGenAction(testFer);
+generateAction(testFer);
+
+    *****************************************************************************
+
+Note the value of the tabs attribute in the tabBAR block below is set to tabTwo. That sets the initially selected tab to be tabTwo. If the tabs attribute has no value, the default will use the first tab block (tabOne in this case) as the initially selected tab.
+Also note: this text is not wrapped in a comment; the incant parser stops parsing and exits at the stop() command so there is no need to.
+And it would be nice to wrap everything at the top of this file into an incant action up to and including the changeDatA() line to not have to copy all those lines into the almost 100 form files we now have (and there will likely be more forthcoming).
+The printDefinition(tabFORM); line before the stop() command is there as POP to show that the xml to incant conversion works as intended.
+

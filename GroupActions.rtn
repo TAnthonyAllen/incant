@@ -50,7 +50,7 @@ GroupItem   grup,
 	or double-trigger cannot stack a second copy. The target's executed BlocK is
 	built once and cached, so a one-time splice persists across later runs.
 ***************************************************************************/
-extern GroupItem applyDirectives(GroupItem argument,GroupItem &target)
+extern GroupItem applyDirectives(GroupItem argument,GroupItem target)
 {
 GroupItem   grup;
 GroupItem   DiRs;
@@ -77,7 +77,7 @@ GroupItem   DiRs;
     opIN (sets it on match), += (insert at mark, advance), -= (delete
     at mark, stay). Idempotent via the target's DiRs registry.
 ***************************************************************************/
-extern GroupItem applyTextDirective(GroupItem argument,GroupItem &target)
+extern GroupItem applyTextDirective(GroupItem argument,GroupItem target)
 {
 GroupItem   grup;
 GroupItem   DiRs;
@@ -162,6 +162,30 @@ use input
         else cerr "FAIL: no fail method argument provided":;
     else cerr "FAIL: should be a rule attribute":;
     return trueResult;
+}
+
+/***************************************************************************
+    interpretBC — C++ dispatch loop over a bcLIST. Replaces the incant
+    interpretBC. A plain C++ cursor sidesteps the :=/byRef weld and the
+    for-loop's non-steerable advance (see docs/branch-dispatch-findings.md).
+    runByteFn returns the branch-target stream member on a taken branch
+    (null on every non-branch op); relocate the cursor to it by tag, then
+    advance. opStack is hung off the bcLIST so the bcOP handlers reach it
+    via opStackOf (parent.getAttribute("opStack")).
+***************************************************************************/
+extern GroupItem interpretBC(GroupItem argument)
+{
+GroupItem   stack   = new("opStack");
+GroupItem   cursor;
+GroupItem   result;
+    argument.addAttribute(stack);
+    cursor = argument.nextMember(0);
+    while cursor {
+        result = runByteFn(cursor);
+        if result   cursor = argument.getFromList(result.tag);
+        else        cursor = argument.nextMember(cursor);
+        }
+    return argument;
 }
 
 /*****************************************************************************
@@ -364,7 +388,7 @@ GroupItem   label = field,
             else {
                 grup.isLocal    = true;
                 code +% grup; }}
-    if !processCode(field)  return null;
+    if isCoded && !processCode(field)  return null;
     if result = action["BlocK"] {
         /*********************************************************************
             The following clears local fields after action ends.
@@ -493,7 +517,7 @@ int         i;
 	match-and-swap rather than splice-into-end. Idempotent via the target's
 	DiRs registry. Routes here from opReplace's DiR-prefix hook.
 ***************************************************************************/
-extern GroupItem replaceDirective(GroupItem argument,GroupItem &target)
+extern GroupItem replaceDirective(GroupItem argument,GroupItem target)
 {
 GroupItem   grup;
 GroupItem   DiRs;
@@ -636,30 +660,6 @@ GroupItem   result;
     if interp   result = interp.gMethod(instr);
     if interp   return result;
     return null;
-}
-
-/***************************************************************************
-    interpretBC — C++ dispatch loop over a bcLIST. Replaces the incant
-    interpretBC. A plain C++ cursor sidesteps the :=/byRef weld and the
-    for-loop's non-steerable advance (see docs/branch-dispatch-findings.md).
-    runByteFn returns the branch-target stream member on a taken branch
-    (null on every non-branch op); relocate the cursor to it by tag, then
-    advance. opStack is hung off the bcLIST so the bcOP handlers reach it
-    via opStackOf (parent.getAttribute("opStack")).
-***************************************************************************/
-extern GroupItem interpretBC(GroupItem argument)
-{
-GroupItem   stack   = new("opStack");
-GroupItem   cursor;
-GroupItem   result;
-    argument.addAttribute(stack);
-    cursor = argument.nextMember(0);
-    while cursor {
-        result = runByteFn(cursor);
-        if result   cursor = argument.getFromList(result.tag);
-        else        cursor = argument.nextMember(cursor);
-        }
-    return argument;
 }
 
 /***************************************************************************

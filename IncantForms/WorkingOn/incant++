@@ -1,0 +1,4 @@
+/*****************************************************************************
+    Notions
+*****************************************************************************/
+As with modedOP would like a way to change the method associated with an op (but only if the op is modifiable?).

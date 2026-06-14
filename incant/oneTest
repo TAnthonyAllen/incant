@@ -15,6 +15,8 @@ search Generating UnitTests bcOPs Utilities list;
 	testIfElse SECOND: 13>0 true -> then runs -> maximus = 26. The pair also
 	exercises the Wall-3 back-to-back fix (two generateActions before stop).
 *****************************************************************************/
+generateAction(testFor);
+stop();
 generateAction(testByteCode);
 generateAction(testIfElse);
 generateAction(testWhilE);

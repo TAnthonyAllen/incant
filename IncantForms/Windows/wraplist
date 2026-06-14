@@ -1,0 +1,20 @@
+#include /Users/anthony/data/Tawk/Groups/XML/NotGUI/playlist.xml;
+#registry GUI;
+<showTag>
+    print "You fired action of: " text:;</showTag>
+<wraplist window x=400 y=400 width=400 height=450 fill=saberBrown title="Wrap List" closable resize>
+    <intro height=50 pad fill=white rounded>
+        <heading="Wrap Across And Down" pad=10 label align=center font=title border=off shadow register/></intro>
+    <box pad rounded stride=6 gap=12 depth=2>
+        <wrap pad layers perfColor=darkerGray>
+            <wrapPerf perforation/>
+            <body source=artist pad=15 border=off font=normal>
+                <rows pad rounded down=* fill=paleGray>
+                    <cells across=* height=20 border=off doNotScroll>
+                        <crap label=tag align=left left=5 right=5 next=body width=160 jit=showTag></rows>
+                <more across border=off height=40%>
+                    <blank pad rounded fill=lightGreen width=50%/>
+                    <list pad rounded down=* fill=paleGray>
+                        <junk label=tag next=body height=20 border=off jit=showTag;>
+
+Note: in the cell block above you need doNotScroll because want scrolling to happen at rows block level (and the scroll block search goes bottom up looking for a scrollable block and without doNotScroll it would find the cells block first and think it was done)

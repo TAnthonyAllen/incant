@@ -1,0 +1,96 @@
+/*******************************************************************************
+	Offline Status Report
+*******************************************************************************/
+Do we have any documentation or example on how to set modedOP? There is the recon doc but it does not say how the recon was implemented. The whole concept of modedOP seems to me to be a first step in an interesting direction.
+I think attributes are prime candidate for aliasing (Clod or Tonto mentioned something along those lines in passing after a recent recon). It would be easy if alias were the field and what it translates to were its attribute or maybe its isGROUP value, which runOP unwrapping would handle with no change at all for ops. Another candidate for aliasing is groupFields, which is fall off the table easy. An alias for a boolean groupField only has to have the same number value as the boolean field it is aliasing and done and dusted. I was looking at my old GUI drawing parser, it aliases field booleans for its own purposes. Those aliases are done in tok .act methods. No need for such if we revise the drawing grammar in incant, in which case the aliased groupFields would do the needful w/no programming required. And if the drawing grammar is walled off like with grammarOnTheFly, The grammar and extensions to the GroupFields registry would happen in the incant file defining the drawing grammar. Not quite idempotent wrt to groupField aliases, but definitely serves well for grammar extensions that would be there in the file and invisible outside it.
+What is the status of the grammarOnTheFly wiki we drafted. I do not think we put it anywhere safe at shut down yesterday. It may be there in the session log.
+
+/*******************************************************************************
+	Tests to be written
+*******************************************************************************/
+    assert action a la groovy to be defined and tested.
+    An implied field test to show how lastDEF works in a dot op expression; and in a FOR loop; and how to explicitly set the implied field source using the @field unaryOP.
+        This may imply changing how fields are found. In aCTionNamE(): if locate does not find a field, and lastREF is set, it should look in lastREF for the field (it does not at this point). Also, lastREF is scoped within a for loop and gets reset to what it was when the for loop exits. Worth demonstrating that in the test.
+    A buffer test showing how setMark and unMark interact;
+        also demonstrate stdout to a buffer. Take a simple action that prints to stdout then use printTO to divert print to print to a buffer;
+        when printTO diverts print to a buffer, presumably that diversion applies to any subsequent prints even across different following actions until printTO runs again and undiverts. Something to illustrate by example.
+    A bin used as a switch test a la generator/runGenerator
+    Need incant commands to insert a field before (change GroupItem insertGroup to insertInto) or after another field
+
+/*******************************************************************************
+	wiki addition
+*******************************************************************************/
+Grammar on the fly
+Incant is homoiconic: a grammar rule is a field, and a field is a first-class object. grammarOnTheFly is a short file that demonstrates what that means in practice — a live grammar mutation, a self-capture, and a file write, all from running incant code.
+Its crux is three lines:
+DelimText isRule '('- dtext^}=delimiter;
+DatA += DelimText;
+guard(DatA);
+DelimText is a new rule that captures everything between ( and a closing delimiter string. += appends it as a live alternative to DatA, one of incant's 32 bootstrap rules. guard(DatA) clears the cached guard set so the parser re-derives it after seeing DelimText for the first time.
+On the very next definition, incant parses a 3654-byte comment block through the alternative that did not exist when the session began. No recompile, no restart, no grammar file rewrite. The parser's own rule table is a live data structure, reachable and writable from incant code. The locomotive changes while the train stays on schedule.
+The demonstration goes one step further. grammarOnTheFly uses printTO to feed the captured comment into a buffer field, then writes it to disk using a modifiable operator writable at runtime:
+modedOP operateMethod=setFileOp;            // rebinds modedOP's function pointer to setFileOp,
+                                            // a wrapper method that works as an incant operator
+doc modedOP "incant/grammarOnTheFly.out";   // fires setFileOp: doc is target, path is argument
+closeFile(doc);
+Note: grammarOnTheFly was written not because writing a file is hard, and neither is adding a comment to the top of one. It was written to show that incant can capture its own documentation through a grammar rule that didn't exist at startup, then write the proof to disk.
+stop() exits and leaves the original bootstrap grammar in place so the graft does not persist. The proof is not a toy string — it is a lengthy comment block captured through the rule that wasn't there when incant started.
+
+/*******************************************************************************
+	ModedOP
+*******************************************************************************/
+⏺ Here's how modedOP works and how to use it. I confirmed all of this against the source — it's real and wired, with a working
+  example in incant/grammarOnTheFly.
+
+  What modedOP is
+
+  modedOP is an operator whose method (gOp) is settable — a "writable operator." It's an ordinary infix operator registered in
+  the Operators registry, but the design intent is that the function it dispatches to can be re-pointed. Right now its method
+  is bound once at startup; true runtime rebinding from incant is the deferred next step (the boundTo task still on the
+  TODO).
+
+  The three pieces that wire it up
+
+  1. The shim — Instruct.rtn:569. A binary-operator method with the standard (argument, &target) shape (same as opAssign):
+
+  extern GroupItem setFileOp(GroupItem argument, GroupItem &target)
+  {
+      if target.isBUFFER  target.buffer.setFile(argument.text);
+      return target;
+  }
+  Left operand = target (a buffer), right operand = argument (the path text).
+
+  2. The registration — incant/setup:82, in the Operators registry:
+
+  modedOP operateMethod=setFileOp;
+  operateMethod= binds the gOp slot (via setOperat(dlsym("setFileOp"))). This is the operator analog of
+  interpretMethod=/ruleMethod=; it's tag-gated to the gOp/isOperator path.
+
+  3. The use site — write it as an infix operator, target modedOP argument:
+
+  doc modedOP "/Users/.../incant/grammarOnTheFly.out";
+  doc is the target (must be a buffer), the string is the argument. This fires setFileOp, pointing doc's buffer at that file.
+
+  The minimal end-to-end example
+
+  This is exactly the pattern in incant/grammarOnTheFly (your working test file):
+
+  doc buffer;                                      # 1. doc is a buffer field
+  ...                                              # (fill doc with content)
+  doc modedOP "/path/to/output.out";               # 2. point doc's buffer at a file
+  closeFile(doc);                                  # 3. flush/close → content written
+
+  So the operator's job here is "attach this buffer to this file." Because the method is bound through operateMethod=, the
+  same modedOP symbol could later be re-pointed at a different method — that's the "moded" part, and the not-yet-built half.
+
+  The current limitation (matches the TODO)
+
+  The gOp is pre-bound in setup. Rebinding from incant at runtime (modedOP operateMethod=...; as a live statement, or aliasing
+  via modedOP.boundTo) is not done yet — that's the open modedOP.boundTo design+impl pair in your Pre-Session Tasks. = will
+  not rebind it (=/setContent ignores gOp — the poochifier), which is exactly why rebinding has to route through
+  operateMethod/setOperat.
+
+  One note worth flagging: XML/WorkingOn/parser already contains your own question asking this same thing ("Do we have any
+  documentation or example on how to set modedOP?"). If you'd like, I can drop a short version of the above into a
+  docs/modedOP-usage.md so it's not just in this transcript — but you said you only needed it written out here, so I'll leave
+  that to your call.

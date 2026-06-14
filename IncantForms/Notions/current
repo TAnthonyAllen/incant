@@ -1,0 +1,42 @@
+
+/***************************************************************************
+	Problems
+***************************************************************************/
+This shits the bed w/tempField and tempArg
+    if argument.isSTRING OR argument IN ruleSkipSet;   print ,'="' argument '"';
+
+currentFRAME is a GroupItem not a Frame so drawBorder does not compile
+
+/*******************************************************************************
+	Inspired by GO
+*******************************************************************************/
+Using GO as base language for incant has huge advantages over C++
+    I like the way it does slices and ranges and the way support classes use them seamlessly
+        Still have questions about ranges
+    switch is done the way I like (except for fall thru)
+    for switch and if support initiating declarations. Not sure incant needs it WSS
+    the support classes are SO well integrated (even tho not classes per se)
+    concurrency support is off the chart amazing
+    It has GC
+    break and continue can take an argument (as in where to break to)
+    no pointer arithmetic. I suppose we can live without it
+    interfaces are shades of java implementations
+    go doc tool is cool
+    go methods can return multiple values. incant methods take one argument and return one value (both of which can contain multiple components). I like the incant approach but will revisit when and if we change base language to GO
+    short variable declarations are interesting but incant does not bother with declarations
+    GO does not use ; to end statements (uses line end???)
+    I like the way flags are used, may solve my issues w/linking C++ flags to incant (or not)
+    GO uses Type(x) instead of casting as (Type)x.
+    raw string literals use `backquotes` and can extend over multiple lines
+    strings are immutable. This will likely cause a problem w/incant
+One implication of concurrency: we should be able to run interpret in a separate thread so it is only called once and when it runs out of input, wait on more input. Maybe same same w/parser
+/*****************************************************************************
+	Working on
+*****************************************************************************/
+How about
+    sumPint=point(x y);
+        point would have to be defined as a rule like list()
+        POP needed
+
+in Drawing registry???
+How to process Arc or Curve. Both are rules. Their actions should add NamE w/other attributes appended to the current registry. End up w/named arc or curve that can be added as an attribute in a field to be drawn. A drawing field is a field w/draw attributes.

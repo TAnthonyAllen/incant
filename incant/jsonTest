@@ -1,0 +1,8 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+field = JSONlist('{"name": "main", @#This$% is not right}');
+dumpField(field);
+stop();

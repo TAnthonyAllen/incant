@@ -1,0 +1,62 @@
+#include /Users/anthony/Dropbox/data/InProcess/Groups/XML/HTML/traits.xml;
+#include /Users/anthony/Dropbox/data/InProcess/Groups/XML/Controls/templates.xml;
+        
+#noPrint;
+#registry dESCRIPTIONs asAttributes;
+<inspector="Replace with content of selection."/>
+<help="The bottom pane was selected"/>
+<target="Do we get this description when target is selected?"/>
+#registry GUI;
+<inspectorExample title=Inspector window closable resize x=400 y=400 width=360 height=400 fill=wall>
+    <intro height=50 fill=white rounded>
+        <heading="Inspector Example"  flex center titleFont shadow/></intro>
+    <tOP popup=inspector bordered fill=radialGreen lighten/>
+    <help="Click on the panel above to pop up an inspector" text rounded font=normal pad fill=lightGreen/>
+    <target why select=this height=20 three=plus four=extra left right bottom across>
+        <leftSide rounded pad fill=white/>
+        <rightSide rounded pad fill=white/></inspectorExample>
+
+Inspector Notes
+The noSourceSelect attribute in an item turns off selection of members and attributes within the body of the item
+The useAttributes attribute toggles the the source to use the attributes of the current selection. useAttributes only makes sense when source=selected
+<inspector panel x=300 y=450 width=300 height=400 fill=wall title="Inspector" closable resize noSourceSelect source=selected useAttributes>
+    <notBody mRight=15>
+        <banner=Heading fill=paleGray bordered flex center height=50 titleFont/>
+        <bar height=20 fill=paleGray flex headerFont tabs>
+            <onebar=Traits action=tab tabBODY=traits bordered fill=paleGray selectFill=wall/>
+            <twobar=Members action=tab tabBODY=members bordered fill=paleGray selectFill=#d1d1d1/>
+            <threebar=Style action=tab tabBODY=stylE bordered fill=paleGray selectFill=lightGreen/></bar>
+        <bodies cards>
+            <traits bordered fill=wall register mBottom=20>
+                <columns tableHead fill=#d1d1d1>
+                    <Attribute align=right tableLabel color=blue width=100/>
+                    <Value align=left tableLabel/></columns>
+                <space fill=blue height=1/>
+                <attributes tableBody margin=5>
+                    <row height=25 tableRow next=inspector show>
+                        <attribute tag tableLabel headerFont color=blue width=100/>
+                        <wrap bordered show=content>
+                            <content value/></attributes>
+                <info headerFont register fit fill=lightGreen>
+                    <description height=25 bordered fill=white>
+                        <showIt="Show Description" height=20 toggled=info/>
+                        <hideIt="Hide Description" height=20 toggled=info off/></description>
+                    <toggles height=50>
+                        <noHelp toggled=info/>
+                        <inspectorHelp describe="Nothing to see here." describeAny toggled=info off fill=lightGreen bordered/></traits>
+            <members="The second tab body" register bordered fill=#d1d1d1 selectable=no>
+                <jitter height=25 fill=white bordered across>
+                    <grafic fill=paleGray bordered width=25>
+                        <spaceRow across>
+                            <space width=40%/>
+                            <arrow drawPath pad border fill=lightGreen>%@-40 -85 u~ 80 l 55, 95 90 95 -90 l 55 d: 80 R 90;</spaceRow>
+                        <spaceColumn height=35%/></jitter>
+                <memberTree tree=selected>
+                    <branch across height=18 leaf>
+                        <indent width=1/>
+                        <expander width=10/>
+                        <entry/></members>
+            <stylE register bordered fill=lightGreen>
+                <styleName="Style Name" tableHead;>
+What to put in info if we had a JIT
+    bar/rune.text = selected ? "-" : "+";

@@ -1,0 +1,10 @@
+#registry fONTs base;
+<libraryFonts directory="/Library/Fonts" mask=~'[.]tt[cf]' into=fONTs/>
+<systemFonts directory="/System/Library/Fonts" mask=~'[.]tt[cf]' into=fONTs/>
+#load libraryFonts;
+#load systemFonts;
+#print fONTs;
+
+In PDF.twk need to modify getFontFrom() to handle bold and italic (along w/bold and italic)
+    Basically, go thru the font instances checking the returned name for Bold or Italic
+    return the right font option

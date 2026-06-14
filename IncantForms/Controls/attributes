@@ -1,0 +1,92 @@
+Registry pound commands can take the following qualifiers after the registry name
+
+    asAttributes    items loaded into the registry will be marked as attributes. This also changes the default behavior in which attributes are not loaded into a registry
+    
+    base            marks the registry as a base registry
+    
+    components      if this is not specified, only outermost blocks are loaded otherwise component blocks are loaded too
+    
+    data            registry will be populated from attributes. For example, if a block being loaded has an attribute: artist and artist is registered (ie, there is a registry named artist) then the value associated with the artist attribute (presumably the artists name) will be registered if not already in the registry.
+    
+    doNotCopy       if referring to a registry item in a group attribute, do not copy it. Normally,
+                    registered items are copied when referenced.
+
+    grouped         if an attribute is registered, when it is added to its associated block, the block is in turn added to the registered attribute, in effect making the attribute a group containing all the blocks with which it is associated
+    
+    hasMethods      when adding to the registry, check to see if the group added has a method (jit attribute) and if it does, compile it
+    
+    noMerging       do not merge any of the registry groups if they are referenced as attributes
+    
+    search          adds the registry to the registry search list
+    
+    tagged          When a tagged attribute is added to an item, the item gets added as
+        a member of the tagged attribute
+    
+    value           by default, when a block gets loaded into a registry, its tag is the key. However, if the value qualifier is set, the block value as text is used as the key.
+Mac fonts are stored in /Library/Fonts or /System/Library/Fonts
+<fontList/>
+<libraryFonts directory="/Library/Fonts" mask=~'[.]tt[cf]' into=fontList/>
+<systemFonts directory="/System/Library/Fonts" mask=~'[.]tt[cf]' into=fontList/>
+<supplementalFonts directory="/System/Library/Fonts/Supplemental" mask=~'[.]tt[cf]' into=fontList/>
+#load libraryFonts;
+#load systemFonts;
+
+Most registered attributes are added in the registerMethods method of Bwana. The following add to those or amend them w/attributes
+#registry pROPERTIEs asAttributes base;
+<across/>
+<action/>
+<attributes/>
+<bold/>
+<bottom/>
+<caps/>
+<color type=cOLOr/> This is the same as textColor
+<down/>
+<dump/>
+<fill type=cOLOr/>
+<italic/>
+<left/>
+<minimumHeight="inherited attribute determines minumum height when height proportional or %"/>
+<minimumWidth="inherited attribute determines minumum width when width proportional or %"/>
+<pad/>
+<pdfDirectory="/Users/anthony/Dropbox/data/Tawk/Groups/PDFs/"/>
+<right/>
+<stroke type=cOLOr/>
+<textColor type=cOLOr/>
+<top/>
+<xOther="Used in matrix when you want to allow expanding on group on the fly attributes"/>
+#registry sTYLEs base;
+<matrixHead rounded fill=paleGray font=copper align=left/>
+<matrixIndent fill=paleGray font=copper align=left/>
+/*******************************************************************************
+    Colors
+*******************************************************************************/
+#registry cOLOr base;
+<red=#ef2b2d/>
+<blue=#0051ba/>
+<lightBlue=#ceffff/>
+<lightGreen=#afd378/>
+<radialGreen=#afd378 gradient=-0.1 angle=90.0/>
+<green=#009e0f/>
+<paleGray=#f1f1f1/>
+<gray=#d6d8d3/>
+<darkerGray=#afbcbf/>
+<wall=#f7e8aa/>
+<white=#ffffff/>
+<black=#000000/>
+<saberBrown=#e6d1a2/>
+<darkBrown=#6b4714/>
+/*******************************************************************************
+    Fonts
+*******************************************************************************/
+#registry fONTs base;
+<courierFont font='bold 24px "Courier New"'/>
+<titleFont font='bold 24.0px Palatino'/>
+<headerFont font='bold 14.0px Palatino'/>
+<normalFont font='14.0px Palatino'/>
+<copperFont font='12px Copperplate'/>
+<defaultFont font='10px Helvetica'/>
+<EBgaramondFont font="EB Garamond" fontSize=18 bold/>
+#;
+
+#include /Users/anthony/data/Tawk/Groups/XML/Controls/templates.xml;
+

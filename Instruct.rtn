@@ -2,7 +2,7 @@
 /***************************************************************************
 	Rule action for the +% operator
 ***************************************************************************/
-extern GroupItem opAddAttribute(GroupItem argument,GroupItem &target)
+extern GroupItem opAddAttribute(GroupItem argument,GroupItem target)
 {
 GroupItem   grup;
     if argument.isLIST
@@ -15,7 +15,7 @@ GroupItem   grup;
 /***************************************************************************
 	Rule action for the AND operator
 ***************************************************************************/
-extern GroupItem opAND(GroupItem argument,GroupItem &target)
+extern GroupItem opAND(GroupItem argument,GroupItem target)
 {
     if gCount && argument.gCount    return trueResult;
     return null;
@@ -27,7 +27,7 @@ extern GroupItem opAND(GroupItem argument,GroupItem &target)
 	reference via setContent. Everything else copies via setContent exactly as
 	before — the non-byRef path is byte-identical. (2026-06-09)
 ***************************************************************************/
-extern GroupItem opAssign(GroupItem argument,GroupItem &target)
+extern GroupItem opAssign(GroupItem argument,GroupItem target)
 {
     if argument
         if argument.byRef   group = argument;
@@ -38,7 +38,7 @@ extern GroupItem opAssign(GroupItem argument,GroupItem &target)
 /***************************************************************************
 	Rule action for the +* copy list operator
 ***************************************************************************/
-extern GroupItem opCopyList(GroupItem argument,GroupItem &target)
+extern GroupItem opCopyList(GroupItem argument,GroupItem target)
 {
     if argument.groupList argument.copyListTo(target);
     else    cerr "ERROR Operator +* failed because missing list for",argument.tag:;
@@ -57,7 +57,7 @@ extern GroupItem opDebug(GroupItem result)
 /***************************************************************************
 	Rule action for the % integer div operator
 ***************************************************************************/
-extern GroupItem opDiv(GroupItem argument,GroupItem &target)
+extern GroupItem opDiv(GroupItem argument,GroupItem target)
 {
     if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER)
         tempField.count = count % argument.count;
@@ -71,7 +71,7 @@ extern GroupItem opDiv(GroupItem argument,GroupItem &target)
     name (in field.tag) of a component of target that may or may not exist.
     Note: local fields are ignored
 ***************************************************************************/
-extern GroupItem opDot(GroupItem argument,GroupItem &target)
+extern GroupItem opDot(GroupItem argument,GroupItem target)
 {
 GroupRules  ruler = groupRules;
 GroupItem   product;
@@ -119,7 +119,7 @@ use argument
 /***************************************************************************
 	Rule action for the == operator
 ***************************************************************************/
-extern GroupItem opEQ(GroupItem argument,GroupItem &target)
+extern GroupItem opEQ(GroupItem argument,GroupItem target)
 {
     if !compareValues(target,argument)  return trueResult;
     return null;
@@ -129,7 +129,7 @@ extern GroupItem opEQ(GroupItem argument,GroupItem &target)
 	Rule action for =] operator that returns the last item on the arguments
     list
 ***************************************************************************/
-extern GroupItem opEnd(GroupItem argument,GroupItem &target)
+extern GroupItem opEnd(GroupItem argument,GroupItem target)
 {
 use argument
     if groupList {
@@ -141,7 +141,7 @@ use argument
 /***************************************************************************
 	Rule action that handles [argument] references.
 ***************************************************************************/
-extern GroupItem opGet(GroupItem argument,GroupItem &target)
+extern GroupItem opGet(GroupItem argument,GroupItem target)
 {
 GroupItem   result;
 String      txt;
@@ -156,7 +156,7 @@ use target
 /***************************************************************************
 	Rule action for the =% getAttribute operator
 ***************************************************************************/
-extern GroupItem opGetAttribute(GroupItem argument,GroupItem &target)
+extern GroupItem opGetAttribute(GroupItem argument,GroupItem target)
 {
 String strung = argument.text;
     return getAttribute(strung);
@@ -165,7 +165,7 @@ String strung = argument.text;
 /***************************************************************************
 	Rule action for the =/ getMember operator
 ***************************************************************************/
-extern GroupItem opGetMember(GroupItem argument,GroupItem &target)
+extern GroupItem opGetMember(GroupItem argument,GroupItem target)
 {
 String strung = argument.text;
     return getMember(strung);
@@ -174,7 +174,7 @@ String strung = argument.text;
 /***************************************************************************
 	Rule action for the >= operator
 ***************************************************************************/
-extern GroupItem opGE(GroupItem argument,GroupItem &target)
+extern GroupItem opGE(GroupItem argument,GroupItem target)
 {
     if compareValues(target,argument) >= 0  return trueResult;
     return null;
@@ -183,7 +183,7 @@ extern GroupItem opGE(GroupItem argument,GroupItem &target)
 /***************************************************************************
 	Rule action for the > operator
 ***************************************************************************/
-extern GroupItem opGT(GroupItem argument,GroupItem &target)
+extern GroupItem opGT(GroupItem argument,GroupItem target)
 {
     if compareValues(target,argument) > 0   return trueResult;
     return null;
@@ -198,7 +198,7 @@ extern GroupItem opGT(GroupItem argument,GroupItem &target)
                 is any character in argument set
                 are all characters in argument set
 ***************************************************************************/
-extern GroupItem opIN(GroupItem argument,GroupItem &target)
+extern GroupItem opIN(GroupItem argument,GroupItem target)
 {
 PLGset  set;
 GroupItem   result;
@@ -229,7 +229,7 @@ extern GroupItem opLastREF(GroupItem result)
 /***************************************************************************
 	Rule action for the <= operator
 ***************************************************************************/
-extern GroupItem opLE(GroupItem argument,GroupItem &target)
+extern GroupItem opLE(GroupItem argument,GroupItem target)
 {
     if compareValues(target,argument) <= 0  return trueResult;
     return null;
@@ -238,7 +238,7 @@ extern GroupItem opLE(GroupItem argument,GroupItem &target)
 /***************************************************************************
 	Rule action for the < operator
 ***************************************************************************/
-extern GroupItem opLT(GroupItem argument,GroupItem &target)
+extern GroupItem opLT(GroupItem argument,GroupItem target)
 {
     if compareValues(target,argument) < 0  return trueResult;
     return null;
@@ -247,7 +247,7 @@ extern GroupItem opLT(GroupItem argument,GroupItem &target)
 /***************************************************************************
 	Rule action for ~= match operator
 ***************************************************************************/
-extern GroupItem opMatch(GroupItem argument,GroupItem &target)
+extern GroupItem opMatch(GroupItem argument,GroupItem target)
 {
     if !compare(text,argument.text) return trueResult;
     return null;
@@ -256,7 +256,7 @@ extern GroupItem opMatch(GroupItem argument,GroupItem &target)
 /***************************************************************************
 	Rule action for the - operator
 ***************************************************************************/
-extern GroupItem opMinus(GroupItem argument,GroupItem &target)
+extern GroupItem opMinus(GroupItem argument,GroupItem target)
 {
     if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER) {
         if isCOUNT  tempField.count    = gCount - argument.count;
@@ -272,7 +272,7 @@ extern GroupItem opMinus(GroupItem argument,GroupItem &target)
 /***************************************************************************
 	Rule action for the -= operator
 ***************************************************************************/
-extern GroupItem opMinusEQ(GroupItem argument,GroupItem &target)
+extern GroupItem opMinusEQ(GroupItem argument,GroupItem target)
 {
 GroupItem   result;
 use target
@@ -314,7 +314,7 @@ extern GroupItem opMinusMinus(GroupItem result)
 /***************************************************************************
 	Rule action for the * multiply operator
 ***************************************************************************/
-extern GroupItem opMultiply(GroupItem argument,GroupItem &target)
+extern GroupItem opMultiply(GroupItem argument,GroupItem target)
 {
     if argument.isCOUNT || argument.isNUMBER
         if isCOUNT  tempField.count = count * argument.count;
@@ -328,7 +328,7 @@ extern GroupItem opMultiply(GroupItem argument,GroupItem &target)
 /***************************************************************************
 	Rule action for the *= operator
 ***************************************************************************/
-extern GroupItem opMultiplyEQ(GroupItem argument,GroupItem &target)
+extern GroupItem opMultiplyEQ(GroupItem argument,GroupItem target)
 {
 GroupItem   result;
 use target
@@ -355,7 +355,7 @@ extern GroupItem opNOT(GroupItem result)
 /***************************************************************************
 	Rule action for the != operator
 ***************************************************************************/
-extern GroupItem opNotEQ(GroupItem argument,GroupItem &target)
+extern GroupItem opNotEQ(GroupItem argument,GroupItem target)
 {
     if compareValues(target,argument)  return trueResult;
     return null;
@@ -364,7 +364,7 @@ extern GroupItem opNotEQ(GroupItem argument,GroupItem &target)
 /***************************************************************************
 	Rule action for the OR operator
 ***************************************************************************/
-extern GroupItem opOR(GroupItem argument,GroupItem &target)
+extern GroupItem opOR(GroupItem argument,GroupItem target)
 {
     if target
         if gCount   return trueResult;
@@ -375,7 +375,7 @@ extern GroupItem opOR(GroupItem argument,GroupItem &target)
 /***************************************************************************
 	Rule action for the + operator
 ***************************************************************************/
-extern GroupItem opPlus(GroupItem argument,GroupItem &target)
+extern GroupItem opPlus(GroupItem argument,GroupItem target)
 {
     if data && (argument.isCOUNT || argument.isNUMBER) {
         if isCOUNT  tempField.count = gCount + argument.count;
@@ -392,7 +392,7 @@ extern GroupItem opPlus(GroupItem argument,GroupItem &target)
 /***************************************************************************
 	Rule action for the += operator
 ***************************************************************************/
-extern GroupItem opPlusEQ(GroupItem argument,GroupItem &target)
+extern GroupItem opPlusEQ(GroupItem argument,GroupItem target)
 {
 GroupItem   grup;
     if !compare(head(argument.tag,3),"DiR")
@@ -473,7 +473,7 @@ String      printText   = string();
 	directive arguments to replaceDirective (parallel to opPlusEQ's
 	dispatch to applyDirectives).
 ***************************************************************************/
-extern GroupItem opReplace(GroupItem argument,GroupItem &target)
+extern GroupItem opReplace(GroupItem argument,GroupItem target)
 {
 GroupItem   grup;
     if !compare(head(argument.tag,3),"DiR")
@@ -492,18 +492,16 @@ GroupItem   grup;
 	honors byRef too. (2026-06-09. See TODO: audit := sites whose fields later
 	get legitimately =-copied — sticky byRef would alias them.)
 ***************************************************************************/
-extern GroupItem opSetGroup(GroupItem argument,GroupItem &target)
+extern GroupItem opSetGroup(GroupItem argument,GroupItem target)
 {
-    if argument {
-        argument.byRef  = true;
-        group = argument; }
-    return  target;
+    if argument group = argument;
+    return      target;
 }
 
 /***************************************************************************
 	Rule action for the / divide operator
 ***************************************************************************/
-extern GroupItem opSlash(GroupItem argument,GroupItem &target)
+extern GroupItem opSlash(GroupItem argument,GroupItem target)
 {
     if argument.isCOUNT || argument.isNUMBER
         if isCOUNT  tempField.count = (int)lround(number / argument.number);
@@ -517,7 +515,7 @@ extern GroupItem opSlash(GroupItem argument,GroupItem &target)
 /***************************************************************************
 	Rule action for the /= slash equal operator
 ***************************************************************************/
-extern GroupItem opSlashEQ(GroupItem argument,GroupItem &target)
+extern GroupItem opSlashEQ(GroupItem argument,GroupItem target)
 {
 GroupItem   result;
 use target
@@ -537,7 +535,6 @@ use target
 ***************************************************************************/
 extern GroupItem opString(GroupItem target,Buffer buffer)
 {
-    target.clear();
     target.text = toString();
     useDefaultSpace = true;
     reset();
@@ -575,9 +572,9 @@ extern void flushBuffer(GroupItem bufField)
     setFileOp — operator-signature shim over Buffer.setFile, for the modedOP
     writable-operator path: `doc modedOP "path"` points doc's buffer at a
     file. target is the buffer field, argument carries the path text. Same
-    (argument, &target) shape as opAssign and the other binary op methods.
+    (argument, target) shape as opAssign and the other binary op methods.
 ***************************************************************************/
-extern GroupItem setFileOp(GroupItem argument,GroupItem &target)
+extern GroupItem setFileOp(GroupItem argument,GroupItem target)
 {
     if target.isBUFFER  target.buffer.setFile(argument.text);
     return target;

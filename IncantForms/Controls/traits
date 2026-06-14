@@ -1,0 +1,77 @@
+In the pROPERTIEs registry, if a component has a attribute, it is the alias. This registry has to load after the CSS registry
+#registry pROPERTIEs asAttributes base;
+<across/>
+<action/>
+<alignAcross/>
+<alignDown/>
+<bStyle/>
+<bold=2/>
+<border/>
+<bottomBorder/>
+<leftBorder/>
+<rightBorder/>
+<topBorder/>
+<bottom/>
+<caps=128/>
+<down/>
+<dump/>
+<fill/>
+<italic=1/>
+<label/>
+<lineHeight/>
+<mBottom/>
+<mLeft/>
+<mRight/>
+<mTop/>
+<minimumHeight="inherited attribute determines minumum height when height proportional or %"/>
+<minimumWidth="inherited attribute determines minumum width when width proportional or %"/>
+<pad/>
+<padBottom/>
+<padLeft/>
+<padRight/>
+<padTop/>
+<pdfDirectory="/Users/anthony/Dropbox/data/InProcess/Bot/PDFs/"/>
+<radius/>
+<right/>
+<stroke/>
+<strokeWidth=1/>
+<text/>
+<textShadow/>
+<x/>
+<y/>
+#;
+/*******************************************************************************
+    Colors
+*******************************************************************************/
+#registry cOLOr base;
+<red=#ef2b2d/>
+<blue=#0051ba/>
+<lightBlue=#ceffff/>
+<lightGreen=#afd378/>
+<radialGreen=#afd378 gradient=-0.1 angle=90.0/>
+<green=#009e0f/>
+<paleGray=#f1f1f1/>
+<gray=#d6d8d3/>
+<darkerGray=#afbcbf/>
+<wall=#f7e8aa/>
+<white=#ffffff/>
+<black=#000000/>
+<saberBrown=#e6d1a2/>
+<darkBrown=#6b4714/>
+/*******************************************************************************
+    Fonts
+    Mac fonts are stored in /Library/Fonts or /System/Library/Fonts
+*******************************************************************************/
+#registry fONTs base;
+<courierFont font="Courier New" fontSize=24 bold/>
+<titleFont font=Palatino fontSize=24 bold/>
+<headerFont font=Palatino fontSize=14 bold/>
+<normalFont font=Palatino fontSize=14/>
+<copperFont font=Copperplate fontSize=12/>
+<defaultFont normalFont/>
+<EBgaramondFont font="EB Garamond" fontSize=18 bold/>
+<libraryFonts directory="/Library/Fonts" mask=~'[.]tt[cf]' into=fONTs/>
+<systemFonts directory="/System/Library/Fonts" mask=~'[.]tt[cf]' into=fONTs/>
+#load libraryFonts;
+#load systemFonts;
+#;

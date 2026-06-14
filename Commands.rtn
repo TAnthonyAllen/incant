@@ -124,6 +124,7 @@ GroupItem   bcLIST      = new("bcLIST");
     // generator's bcLIST via :generator bcLIST).
 GroupItem   fieldList   = field.getAttribute("bcLIST");
     dumpContents(fieldList);
+    byRef   = true;
     return fieldList;
 }
 
@@ -334,6 +335,7 @@ extern GroupItem makeNew(GroupItem input)
 {
 String  strung = text;
 GroupItem   grup = new(strung);
+    isInitialized = true;
     return grup;
 }
 
@@ -547,7 +549,8 @@ use bcLIST
 extern GroupItem unWrap(GroupItem result)
 {
 GroupItem   grup = result;
-    if !isPointer && grup.isGROUP   grup = group;
+    if isGROUP
+        while isGROUP   grup = group;
     return grup;
 }
 

@@ -1,0 +1,31 @@
+ParseXML would be nice to have ways to manipulate the search list (clear,replace with). KIM a search list is just a group. So wanting to manipulate it can apply to any group. Sort of thing incant should be able to handle.
+
+ODDS AND ENDS
+We do not handle | when processing incant rules. Gotta fix that. OTOH rule options sort of do that already.
+Would be nice if we flagged descrepancies between external and class declarations.
+Could use set of comparison method operators for GroupItem. Incant does it or will??? For instance, take expression: groupA == groupB could mean groupBody is the same, or values are the same. Definitely, incant should handle it. Maybe we got an autopilot for expressions (comes w/wild exaggeration of functionality and a couple of years delay).
+
+wrt Directives: would be nice to apply a rule to match against point in code. Would make it way easier when dealing w/code hard to match on. Presuposes we support directives in incant. Do we need to???
+You want me to do what? Cannot do that, but let me examine my code to see if I can modify myself to add the ability to do what you want. That could be motto for my vision of incant (based on my imaginary understanding of DNA, which does all that with 4 letters (nucleotides whatever) woven into a long chain of those letters).
+
+LOADING API
+wrt interpreting methods or linking to compiled methods that might be in an API. incant needs to be loaded. Imagine an incant registry, the contents of which are linked to API methods. What if there are a lot of methods and you only want to use one.
+    You need to:
+        link in the API library, no way to avoid that
+        load the registry with all its groups, all of which have incant methods, however, and this is a big (HUGE) however, incant code, including registries, and their contents, is plain text. So you can copy the registry contents you want to supply just what you need and no more. That minimizes what incant has to load to do what you want.
+        Once a group containing an incant method is loaded, it has to be interpreted, and the first time a method is interpreted there is some set up needs doing. IAC, the point is methods you do not use do not need to be interpreted
+    It would be sweet if user does not have to do anything to use this approach. We need an incant method that takes a group (hey, all incant methods take a group argument:) and exports a text representation of the group and all its dependencies. That is: output a group representation to load and go with no worries as to what it needs to run because the representation ensures that you already have that. I LOVE THIS!
+
+DOT OPERATOR
+Do we need to register ALL labels? Most labels are probably intermediate results and if the outermost label is registered, all the other labels are in its component tree. But what if we want one of those intermediate results? Assuming the outermost label is registered it is accessible, however, we need a way to find intermediate results. Maybe the dot operator? For example, outer.inner would resolve to just inner (no matter how deeply nested inner is). Bit the bullet and modified GroupItem(first) to search members AND attributes so the dot operator can just run first() and BYU. Beauty is first() is run in incant, not in the interpreter, so the interpreter only sees inner and does not have to follow the pointer trail of outer.inner.
+
+GROUP FIELDS
+The incant parser currently has no way to specify a rule that examines content of a group. It can identify a group but has no idea what kind of group it is. Could specify a rule with an immediate method that looks into the guts of its attributes??? For example, take the group:
+        IsItANumber someGroup;
+    If IsItANumber has an immediate method that returns someGroup if someGroup is a number and null otherwise we get around the incant parser limitation, altho we have to write and link in an immediate method to do it. Not something to do just in case.
+There is a problem here needing some thought. Given a group containing data:
+    What type is it?
+    Give me its data if it is this here type????
+Maybe an indexed registry is useful here, altho it will require some jiggery pokery wrt syntax (as in, I have this here index and I want the registered group w/that index). In C++ you access a class field using the dot operator, which incant does not support at present.
+
+

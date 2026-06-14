@@ -1,4 +1,3 @@
-
 /*******************************************************************************
 	Types registry is a list of the types associated with field data. Referenced
     in getType(). Isn't it nice we can use quotes to define a field tag.
@@ -90,7 +89,9 @@ define
             // loop var, the iterable, and (optional) restrict; runForNext owns
             // the descent + advance + affiliation filter + self-clean. No pre-
             // loop clear op -- runForNext clears the cursor on exhaustion.
-            Looper   := argument["Looper"];
+            //      NOTE: I changed the name below to looper not Looper because
+            //      it was crashing (Looper is a rule, not a local field)
+            looper   := argument["Looper"];
             xp       := argument["ExpressioN"];
             restrict := argument["LoopRestrict"];
             st       := argument["StatemenT"];
@@ -104,7 +105,7 @@ define
             // Loop top: bcForNext advances + pushes 1/0; bcBRZ exits when 0.
             emitBC(topLabel);
             op := copyOf(bcOPs["bcForNext"]);
-            op +% Looper;
+            op +% looper;
             op +% xp;
             if restrict.taG;   op +% restrict;
             emitBC(op);

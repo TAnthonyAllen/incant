@@ -1,0 +1,44 @@
+#include /Users/anthony/data/Tawk/Groups/XML/templates.xml;
+#registry dESCRIPTIONs asAttributes;
+<treeExample>An example of two trees. A tree is defined by the tree attribute that sets its source. A tree must have one member that defines a branch that serves as template for its branches. The branch template must hava a leaf attribute that marks the branch as expandable. Some component of the branch template must have an expandTree attribute which provides the method to expand or contract the branch. Each branch should have an indent with an initial width as its first member and may have an expander member that works as described in the description of the left tree below. If there is an expander, it should have the expandTree attribute. Finally, a branch must have a member named entry to display the contents of the branch.</treeExample>
+<leftTree>Note the expander block in the left tree. It gets its value set whenever its branch is created, expanded or contracted. Two entries in the templates registry, expandable and expanded, contain the values that get displayed in the expander. In this example, the values are + and - but they could just as easily be icons or images.</leftTree>
+<rightTree>The right tree does not have an expander and there is no indication that a branch is expandable. Collapsibility is obvious from indentation, however, you only find out if a branch is expandable by clicking on it. Because the expandTree action associated with the entry rather than an expander, you cannot specify another action on the entry (only the first action specified will be found)</rightTree>
+#registry forest components search;
+<glen>
+    <hard>
+        <oaks>
+            <pin/>
+            <"broad leaf"/></oaks>
+        <maples>
+            <sugar/>
+            <rock/>
+            <swamp/></hard>
+    <soft>
+        <pine/>
+        <fir/>
+        <hemlock/></soft>
+    <shrubs>
+        <holly/>
+        <blueberry/></glen>
+#registry tEMPLATEs;
+<expandable="+"/>
+<expanded="-"/>
+#registry GUIcomponents;
+<showTag>
+    print "You fired action of: " text:;</showTag>
+<treeExample window closable resize x=400 y=400 width=360 height=400 fill=saberBrown title="Tree Types">
+    <first height=50 pad fill=white rounded>
+        <space/>
+        <heading="Tree Example" height=43.0 text align=center font=title border=off/></first>
+    <second pad across indentIncrement=10>
+        <left tree=glen font=normal fontSize=14 rounded>
+            <leftBranch border=off across height=18 leaf>
+                <indent width=1/>
+                <expander label width=10 expandTree/>
+                <entry label jit=showTag/></left>
+        <right tree=glen rounded>
+            <rightBranch border=off across height=18 leaf>
+                <indent width=1/>
+                <entry label expandTree/></second>
+    <help describe=treeExample rounded height=100 pad font=normal fill=lightGreen/></treeExample>
+

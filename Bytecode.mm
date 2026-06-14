@@ -5,6 +5,7 @@
 #include "StringRoutines.h"
 #include "GroupItem.h"
 #include "GroupRules.h"
+#include "GroupControl.h"
 #include "GroupList.h"
 #include "GroupBody.h"
 #include "Bytecode.h"
@@ -122,6 +123,7 @@ extern "C" GroupItem *runCall(GroupItem *instr)
 extern "C" GroupItem *runForNext(GroupItem *instr)
 {
 GroupItem 	*stack = ::opStackOf(instr);
+GroupItem 	*Looper = instr->getAttribute("Looper");
 GroupItem 	*LoopOn = instr->getAttribute("ExpressioN");
 GroupItem 	*restF = instr->getAttribute("LoopRestrict");
 GroupItem 	*loopOn = 0;
@@ -159,6 +161,9 @@ int 		seen = 0;
 			continue;
 		if ( seen == target )
 			{
+			grup->groupBody->flags.byRef = 1;
+			Looper->setGroup(grup);
+			GroupControl::groupController->groupRules->lastREF->setGroup(grup);
 			cursorHolder->setCount(target + 1);
 			prod = new GroupItem("prod");
 			prod->setCount(1);

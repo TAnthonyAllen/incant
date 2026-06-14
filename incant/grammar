@@ -86,35 +86,35 @@ define
     /*************************************************************************
         incant grammar rules
     *************************************************************************/
-    HeX                         zero-="0" x-=[xX] value-=[0-9a-fA-F]+ tokenize;
+    HeX             zero-="0" x-=[xX] value-=[0-9a-fA-F]+ tokenize;
     CheckFor="#";
     ShortcuT=[-+~`$_:,]+;
     ANYtoken=NamE;
     ANYstring=[^ \n\r\t;]+;
-    BlocK                       "{"- StatemenT+ "}"- defer;
+    BlocK           "{"- StatemenT+ "}"- defer;
     PRINTing parseAction=processFlags guard='n';
     BrancheS bin
         break;
         continue;
         return;
-    Precision='.'               precision=counter*;
-    FormaT="#"                  flags=[-# 0+']* formatWIDTH?=NumbeR Precision? formatTYPE=[a-zA-Z] tokenize;
+    Precision='.'   precision=counter*;
+    FormaT="#"      flags=[-# 0+']* formatWIDTH?=NumbeR Precision? formatTYPE=[a-zA-Z] tokenize;
     PrintXP
         ShortcuT;
-        PrintField              ExpressioN FormaT?;
-    UnaryXP                     UnaryOPS ANYtoken;
+        PrintField  ExpressioN FormaT?;
+    UnaryXP         UnaryOPS ANYtoken;
     InvokeArg
-        Braced                  "["- ExpressioN "]"-;
-        Parens                  "("- ExpressioN? ")"-;
+        Braced      "["- ExpressioN "]"-;
+        Parens      "("- ExpressioN? ")"-;
         UnaryXP;
-    TokenXP                     UnaryOPS? ANYtoken InvokeArg?;
+    TokenXP         UnaryOPS? ANYtoken InvokeArg?;
     Token
         QuotE;
         NumbeR;
-        StringXP                string followedBy PRINTing- stuff=PrintXP+ ruleMethod=aCTionPrinT defer;
+        StringXP    string followedBy PRINTing- stuff=PrintXP+ ruleMethod=aCTionPrinT defer;
         TokenXP;
         Operators;
-    ExpressioN                  Token+;
+    ExpressioN      Token+;
     /*************************************************************************
         Format flags are
             #       forces a decimal

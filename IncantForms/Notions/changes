@@ -1,0 +1,113 @@
+
+/*******************************************************************************
+	draw command
+*******************************************************************************/
+The issue here is how is it invoked and when? If there is a display command that operates on a field that is a frame, doing whatever is required to display the field, then if the field contains something that needs to be drawn, display should fire the draw command to do the needful. The draw command (which should be defined in the Drawing registry) draws its argument, which can be a drawing command, can contain drawing commands, can contain a group that contains drawing commands, or can contain a value (an argument to the command)
+Drawing may require a rule action and a method (shades of scope)
+    Draw rule reads input and stashes result in its label
+    draw method takes Draw rule result and processes it (expecting complex instructions like arc or curve to be resolved)
+
+extern GroupItem draw(GroupItem input)
+{
+Frame       frame = getFrame(input);
+Point       point = frame.origin;
+double      amount;
+GroupItem   content,
+            grup;
+String      thirdIN;
+    if input.isGROUP input = input.group;
+    while grup = input.next(grup) {
+        thirdIN = tag + 2;
+        if registry == drawRegistry
+            switch(*tag) {
+                case 'a':   // align must have a value: center left right, or letter c l or r
+                case 'b':   // border can have values: tblr
+                case 'c':
+                    if thirdIN == 'i'   clip(frame);
+                    else                closePath();
+                case 'd':   if isPERCENT    amount = number * width / 100;
+                            else            amount = number;
+                            point.y -= amount;
+                            cout "down lineTo",point:;
+                case 'f':   // fill can take a color value
+                case 'h':   // home;
+                case 'i':   // invert
+                case 'l':
+                    if thirdIN == 'f' {
+                        if isPERCENT    amount = number * width / 100;
+                        else    amount = number;
+                        point.x -= amount;
+                        cout "left to",point:; }
+                    else {
+                        point  = setPoint(grup);
+                        cout "lineTo",point:; }
+                case 'm':   moveTo(point);
+                case 'o':   // oval
+                case 'p':   isPERCENT = !isPERCENT;
+                case 'P':   // point
+                case 'r':
+                    if thirdIN == 'c'   rectangle(frame);
+                    or thirdIN == 'l'   isRELATIVE = !isRELATIVE;
+                    or thirdIN == 'g' {
+                        if isPERCENT    amount = number * width / 100;
+                        else    amount = number;
+                        point.x += amount;
+                        cout "right to",point:; }
+                    or thirdIN == 't' {
+                        cout "not sure how to rotate, see Transform":;
+                        }
+                    else {
+                        amount = number;
+                        if amount == 0  amount = 5;
+                        rounded(frame,amount,amount);
+                        cout "rounded":;
+                case 's':
+                    if thirdIN == 'v' {
+                        cout "save but not sure what is being saved???":;
+                        }
+                    or thirdIN == 'a' { cout "scale, not sure how see Transform":; }
+                    or thirdIN == 'i' { cout "shift, not sure how see Transform":; }
+                    else    // stroke can take a color value
+                case 'u':   // up
+                case 'w':   // write can take a color value
+                default:    cerr "draw: WTF?",tag:; }
+        or registry.tag eq "Colors" // set background color
+        or registry.tag eq "Fonts"  // set current font
+}
+/*******************************************************************************
+	Working on
+*******************************************************************************/
+Thinking if a registry has a method, should be applied to every member when referenced (if not already applied)
+    Registries that would use it include Colors Fonts
+    color: when drawing it sets stroke color, when writing text it sets text color, when framing it sets the background color. User does not have to know about its 3 flavors.
+    border: would like to be able to invoke it as border(list) or just border
+        where list could contain a color, a width, an edge=[tblr]+
+            so border(red width=3) would draw a red rectangle border w/lineWidth=3
+            border(lr) would draw stroke color lines on left and right edges lineWidth=1
+        border rule would be
+            border color? width?=CounteR edges=[tblr]*;
+            action sets color and width, draws the border taking edges into account or a rectangle if no edges
+    rounded: invoked as rounded(list) or rounded
+        rule would be
+            rounded color? width? radius?;
+    write: like border would be invoked as write(list) or just write
+        list values would be align options left right center; color; font; and maybe other options like shadow
+        text would be taken from the enclosing field which must have a frame
+        The write rule POP done; just needs an action body; similar approach should work for border rounded pad
+            align bin:
+                center;
+                left;
+                right;;
+            write    align? color=Colors? font=Fonts?;
+    display(field) C++ method to display the field passed in, sets frame and processes field drawing commands in order, ignoring attributes that are not drawing commands
+    layout(field) C++ method to walk the field displaying as it goes
+
+The old GUI used point based drawing. Every drawing command used the last current point and set a new current point. Can we do this again using drawing instructions where targets and arguments are x and y coordinates. Some instructions like clip or close will have no arguments.
+Drawing commands would then look like
+    move(19 5) or line(0 6) - each such command would be processed on definition??? resulting in
+    move or lineTo containing a pointer to a Point so that move would apply to its point. The point would be fully resolved, taking relative/percent into account
+        or we could do it as 19 5 move 0 6 line and the draw command looks like
+    Draw        points=Point* drawCommand
+    draw        drawList=Draw+
+Thinking attribute that looks like draw(whatever list) <- gets parsed on definition w/result stored as attribute
+        will need to be able to process the resulting attribute relative to the parent frame

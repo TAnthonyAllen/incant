@@ -313,8 +313,8 @@ void GroupItem::clearList()
 {
 	if ( !groupBody->groupList )
 		return;
-	groupBody->groupList->clear();
-	groupBody->groupList = 0;
+	while ( groupBody->groupList )
+		pop();
 	groupBody->flags.hasAttributes = groupBody->flags.hasMembers = 0;
 }
 
@@ -400,6 +400,8 @@ GroupItem 	*stuff = 0;
 		if ( follows )
 			follows->priorInParent = 0;
 		groupBody->groupList->firstInList = follows;
+		if ( !groupBody->groupList->listLength )
+			groupBody->groupList = 0;
 		}
 	return stuff;
 }
@@ -1312,7 +1314,7 @@ GroupItem 	*stuff = 0;
 		stuff->priorInParent = 0;
 		groupBody->groupList->listLength--;
 		if ( !groupBody->groupList->listLength )
-			clearList();
+			groupBody->groupList = 0;
 		}
 	return stuff;
 }
@@ -1651,7 +1653,7 @@ void GroupItem::setOperat(void *m)
 	// gOp by-ref: tok can't render a fnptr cast with a reference param (FormatC.twk bug).
 	// Until that's fixed, take the dlsym result as void* and hand-cast it here in raw C++.
 	// Revise to typed `void setOperat(GroupItem &m(GroupItem,GroupItem&)){ operat = m; }` post-fix.
-	 groupBody->gOp = (GroupItem*(*)(GroupItem*,GroupItem*&))m; 
+	 groupBody->gOp = (GroupItem*(*)(GroupItem*,GroupItem*))m; 
 }
 
 void GroupItem::setPointer(void *v)

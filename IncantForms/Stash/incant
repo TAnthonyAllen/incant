@@ -1,0 +1,401 @@
+/*******************************************************************************
+    Write incant as a command in a language that does not exist and then run it.
+    
+    incant is a computer language with flexible syntax and the ability to extend itself.
+    Its grammar is similar to Python, however, unlike Python, incant is designed
+    to define itself and write itself. For now, incant can be extended in incant;
+    in future, the plan is incant will be written in incant from GO to whoa.
+    The basic idea is: turn incant into an ouroboros (maybe phoenix is a better
+    analogy) language able to regenerate itself. The bottom line is: if you do not
+    like incant syntax, rewrite it as you like.
+*******************************************************************************/
+Rewriting incant in incant. A one and a two and a three step list to getting it done (thank you Laurence Welk - nobody below the age of 70 will get that reference).
+    GO is a relatively new computer language.
+    In its current form incant is written in C++. The idea is: rewrite incant in incant, translate incant code into GO and replace the existing C++ code w/the generated GO code (Why? Because I like GO better than C++. It provides a means to make the incant runtime better).
+    
+    Out of the box the only thing the C++ version of incant can do is:
+        Define an incant field. An incant field is akin to a var in javascript. A field is the only thing incant understands, everything is a field to incant, including incant.
+
+        In C++, incant is a field defined as a C++ class called GroupItem. Like a javascript var, GroupItem has a name and can contain data: a number or a string or a pointer to something (which can be another field).
+        
+        The incant field (GroupItem) can contain a list of incant fields as attributes or members in addition to its data.
+            An attribute describes something about the field (like its color or capacity).
+            A member is content, what is in the field.
+            Attributes and members are fields (so they can contain data with their own attributes and members)
+        
+        An incant field can contain a hard coded method (pointer to a method). incant methods take an incant field as an argument and return an incant field. In C++ an incant method's signature looks like:
+                GroupItem someName(GroupItem argument);
+                The someName is usually the name of the method, however, you can assign a method with a different name to the field named someName (for example, when you want to reference a method from more than one field)
+        
+        An incant field can also define an action written in incant that works like a hard coded method, albeit less efficient since actions are interpreted.
+        
+        The C++ implementing incant has utility methods not contained in or pointed to from incant fields.
+        One of the utility methods in incant is a parser that functions as a compiler compiler not unlike yacc or similar programs. The parser coincidentally has the same signature as an incant method; it takes an incant field as an argument and returns one. It can read input from a file, string, or stdin, and match that input against the rule that invokes it, encapsulating the results of the match in the incant field it returns.
+        The rule used by the parser is the argument passed into the parse method.
+        Essentially, any incant field can be treated as a rule. Rules are the backbone of any compiler.
+        For example, a rule can define a for statement, a while statement, or a whatever statement.
+        When the parser matches a rule, it passes the matched result to the rule's method, if there is one. The rule method can manipulate the result, put it somewhere, do whatever.
+        
+        Stretching truth just a bit, incant is a field that can define itself. Out of the box (OOB) it can define a field, which can be treated as a rule, that can be fed into the incant parser to process input. A set of rules can define a grammar to define a computer language. The current version of incant defines its own grammar into a working computer language able to do computer stuff.
+        
+        In addition to its parser, incant has an interpreter able to process instructions defined by its grammar.
+        
+        The parser and interpreter are part of the incant runtime (the program the runs incant). If you look at incant as a program, it has runtime methods (utility methods, hard coded incant methods currently written in C++, and incant actions, which are methods written in incant). From a user perspective, most of the runtime is code under the surface, but it all looks like incant because it sort of is; incant provides the means to access any method with an incant method signature by associating the method in an incant field.
+        
+        In essence it all works as follows.
+            OOB incant contains a hard wired initial set of 30 bootstrap rules that define a simple grammar that can only do one thing: define more fields/rules.
+            Its parser can treat a field as a parse rule
+            The parser uses those initial rules to process input to define more fields/rules to extend the OOB grammer into incant the computer language.
+            You can then write programs in incant to be run by the interpreter to do stuff.
+
+Where are we now?
+    At this point incant is a working language written in C++, partly written in incant. We plan to replace the C++ code with GO by rewriting the set of C++ methods that implement incant in incant. Let us call the resulting set of incant methods the BASE methods.
+        We want to write incant TRANSLATOR methods to translate the BASE methods. BASE methods written in incant will work but must be interpreted. Not efficient! The TRANSLATOR methods translate the BASE methods into GO code that can be compiled to replace the C++ incant methods. Translation is relatively simple in incant, requiring a couple of hundred lines of incant.
+        What does this buy? GO provides garbage collection, internet connectivity, multi-processing support, and a syntax that is even uglier than C++; GO also provides a robust set of utility packages that could replace part of the incant code base (the C++ utility classes written to underpin incant thereby getting rid of about 3000 lines of support code). If it works as intended, the incant to GO translator will allow us to write GO using incant (the benefit being incant is not as ugly as C++ or GO, and if you do not like the incant grammar you can change it).
+        The end result, if it works: incant will rewrite itself as a better version that does the same thing as the old version but written in its own grammar and compiled into a hopefully efficient GO program.
+
+What is incant
+    Out of the box the only thing incant can do is: define a field such that
+    An incant field is akin to a var in javascript.
+    A field can contain data (an integer, a floating point number, a string, or a pointer to something).
+    A field can also contain a list of fields along with its data. It can also have an associated method.
+ 
+The following methods need fixing or shitcanning
+/*****************************************************************************
+	The dispatcher is designed to take a group argument disguised as a void*
+    The group argument is on the listener notifyLIST. The notifier is the
+    notifyLIST parent. dispatcher then runs grup(notifier) in a separate thread.
+
+            if !grup(notifier)  cerr "dispatcher:",grup.tag "(" notifier.tag ") failed":;
+            else cout "dispatcher:",grup.tag "(" notifier.tag ") succeeded":;
+*****************************************************************************/
+extern void dispatcher(void* stuff)
+{
+GroupItem   grup        = stuff;
+GroupItem   notifyLIST  = parent;
+    if notifyLIST {
+        GroupItem   notifier = parent;
+        if notifier cerr "dispatcher: needs to be rewritten":;
+        else cerr "dispatcher: ERROR could not get notifier for",grup.tag:; }
+}
+
+/***************************************************************************
+        Returns a field whose tag is a qualified tag of the field passed in
+***************************************************************************/
+extern String getQualifiedTag(GroupItem input)
+{
+GroupRules  ruler = groupRules;
+GroupItem   tagged = falseResult;
+GroupItem   nextTag;
+GroupItem   grup = input;
+String      qualifiedTag;
+use stringBUFFER
+    reset();
+    while grup {
+        if isREGISTRY  break;
+        nextTag = grup.parent;
+        tagged  += grup;
+        grup    = nextTag; }
+    grup    = 0;
+    while grup = tagged.prior(grup) {
+        append(grup.tag);
+        if grup.priorInParent   append('.'); }
+    tagged.clear();
+    qualifiedTag = toString();
+    return qualifiedTag;
+}
+
+/***************************************************************************
+	Sets toggle fields in GroupFields registry
+***************************************************************************/
+extern GroupItem toggle(GroupItem toggleItem)
+{
+GroupRules  ruler   = groupRules;
+GroupItem   grup    = toggleItem.parent;
+GroupItem   entry;
+int         i;
+    while entry = grup.next(entry) {
+        entry.count     = ++i;
+        entry.isToggle  = true;
+        entry.registry  = grup;
+        groupFields     += entry; }
+    return grup;
+}
+
+/*****************************************************************************
+	returns a copy of this group filtering out unwanted attributes.
+    Only the attributes matching the attributes of the item passed are
+    copied. All members are retained.
+*****************************************************************************/
+GroupItem filter(GroupItem item)
+{
+GroupItem	keep,
+            group = new(tag);
+    if hasAttributes
+        {
+        while keep = next(keep)
+            if keep.isAttribute
+                {
+                if !item.getAttribute(keep.tag) continue;
+                group += keep;
+                }
+            else group += keep;
+        }
+    return group;
+}
+
+/*****************************************************************************
+	Print out group as an xml block to the buffer passed in.
+*****************************************************************************/
+void toBuffer(Buffer buffet)
+{
+String		junkText;
+    if noPrint && ignoreNoPrint return;
+    if isTarget && ignoreNoRoom return;
+    if isAttribute && parent
+        {
+        if data junkText = wrapValue();
+        if isRigorous && junkText print tag  "=\"" junkText "\"";
+        print(buffet) " ";
+        if isTarget print "@";
+        if !isRigorous
+            {
+            print wrap(tag);
+            if junkText print "=" wrap(junkText);
+            }
+        if isOption || noAdvance || noSkip writeOption(buffet);
+        return;
+        }
+    if tag  writeTagXML(buffet);
+    or isSingleton
+        print "</" tag ">";         // Not an end tag just looks like one
+    if !isSingleton
+		{
+        if hasMembers || (data && !isAttribute)
+            writeBody(buffet);
+		if tag
+			{
+			print "</";
+			buffet += wrap(tag);
+			print ">";
+            //if !parent print :;
+			}
+		}
+finish:
+	return;
+}
+
+/*****************************************************************************
+	Write xml representation to file
+*****************************************************************************/
+void toFile(String filename)
+{
+    if isBUFFER
+        {
+        buffer.file = filename;
+        buffer.flush();
+        }
+    else {
+        Buffer  buff    = new;
+        buff.file       = filename;
+        debugIndent     = 0;
+        toBuffer(buff);
+        buff.flush();
+        delete buff;
+        }
+}
+
+/*****************************************************************************
+	Return xml representation of block
+*****************************************************************************/
+String toString()
+{
+String		junkText;
+int         saveAffiliation = affiliation;
+    affiliation = 0;
+    stringBUFFER.reset();
+    toBuffer(stringBUFFER);
+    junkText    = stringBUFFER.toString();
+    affiliation = saveAffiliation;
+	return junkText;
+}
+
+/*******************************************************************************
+	Return text containing funky characters wrapped in appropriate quotes.
+    If text contains both " and ' you are screwed.
+*******************************************************************************/
+String wrap(String text)
+{
+String	at = text;
+	if !isSET && mustQuoteSet.foundIn(text)
+		{
+		while *at && *at != '"' at++;
+		if *at && at == '"' at = "'" text "'";
+		else at = "\"" text "\"";
+		}
+	return at;
+}
+
+/*****************************************************************************
+	If no item passed in, returns an empty string, otherwise it returns the
+    item text, wrapping it in quotes if the text contains any character
+    in the must quote set.
+*****************************************************************************/
+String wrapItem(PLGitem item)
+{
+String	at;
+int		i;
+    if !item return "";
+    at = start;
+    i = item.length;
+	if mustQuoteSet.foundIn(item)
+		{
+		while i-- && *at != '"' at++;
+		if *at && at == '"' at = "'" item "'";
+		else at = "\"" item "\"";
+		return at;
+		}
+	return item.toString();
+}
+
+/*******************************************************************************
+	Return text appropriate value (handles regex)
+*******************************************************************************/
+String wrapValue()
+{
+String	at;
+    if data
+        if isMAP
+            at = "isBitMAP";
+        else
+            {
+            if isSET
+                at = "[" characterSet.setBuffer.string() "]";
+            or isREGEX && text
+                at = "~'" text "'";
+            or isGROUP
+                {
+                if group.isInitialized at = group.tag "=" group.wrapValue();
+                else at = group.tag;
+                }
+            else    at = text;
+            }
+    return at;
+}
+
+/*****************************************************************************
+	Writes the body into the buffer passed in.
+*****************************************************************************/
+void writeBody(Buffer buffet)
+{
+int			flag;
+GroupItem	block;
+String		junkText;
+PLGitem		token;
+    setMark();
+	if isRigorous && data && !isGROUP
+		{
+		if isITEM
+			for token = item
+				{
+				if token.noPrint continue;
+				if !token.isEndTag
+                    {
+                    if tag          indent(buffet);
+					print(buffet)   token;
+                    }
+				else print "</" wrap(token) ">";
+				}
+        else print text;
+		junkText = buffet.getMarkedString();
+		// At this point the buffer no longer contains text
+		if isRigorous && cdataSet.contains(*junkText)
+			{
+			print "<![CDATA[";
+			flag = true;
+			}
+		print junkText;
+		if flag print "]]>";
+		}
+    if hasMembers
+		{
+		while block = nextMember(block)
+            {
+            if block.isTarget && ignoreNoRoom continue;
+            debugIndent++;
+            if !block.tag   print block;
+			else print :block;
+            debugIndent--;
+            }
+		}
+}
+
+/*******************************************************************************
+	Writes out rule options
+*******************************************************************************/
+void writeOption(Buffer buffet)
+{
+    if isOption
+        if plus          print "+";
+        or star          print "*";
+        or question      print "?";
+    if banged            print "!";
+    if noAdvance            print "<";
+    if noSkip               print "&";
+    if isAlternate          print "|";
+    if noLabel              print "-";
+    if unGuarded         print "_";
+    print ,;
+}
+
+/*****************************************************************************
+	Write tag to buffer
+*****************************************************************************/
+void writeTagXML(Buffer buffet)
+{
+GroupItem	group;
+	//setMark();
+    print "<";
+    if !isRigorous
+        {
+        if isTarget print "@";
+        if noAnchor print "%%";
+        }
+    print wrap(tag);
+    if data && text
+        if !isRigorous
+            print "=" wrap(wrapValue());
+        or isAttribute print "=\"" wrapValue() "\"";
+    if isOption || noAdvance || noSkip writeOption(buffet);
+    if hasAttributes
+        {
+        while group = nextAttribute(group)
+            if !group.noPrint || ignoreNoPrint
+                print group;
+        if *(buffet.current - 1) == ' ' && buffet.current > buffet.start
+            buffet.current--;
+        }
+    if isSingleton
+        print "/>";
+    else    print ">";
+	//unMark();
+}
+
+/*******************************************************************************
+	Generator method for the IF rule rule; invoked by aCTionIF when generating.
+*******************************************************************************/
+extern GroupItem genIF(GroupItem input)
+{
+GroupItem   expression  = input[1],
+            statement   = input[2],
+            Else        = input[3];
+GroupRules  ruler;
+    ruler   = groupRules;
+use input
+    clear();
+    print(fieldBUFFER) "if (" expression.gText ") " statement.gText;
+    if Else print Else;
+    text = fieldBUFFER.toString();
+    fieldBUFFER.reset();
+    return input;
+}

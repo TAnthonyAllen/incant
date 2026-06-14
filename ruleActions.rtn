@@ -115,9 +115,9 @@ GroupItem   lastRule,
     if rules
         while grup = rules.next(grup) {
             if isRule {
-                if GUARD    debugGuard =! debugGuard;
+                if GUARD    debugGuard = true;
                 lastRule    = grup;
-                debugged    = !debugged; }
+                debugged    = true; }
             or grup.text eq "GUARD" {
                 GUARD = trueResult;
                 continue; }
@@ -277,7 +277,7 @@ GroupItem   op,
             arg,
             xl,
             token;
-    if generating {
+    if generating && !isPRINTING {
         GroupItem revisedList = new("revisedList");
         GroupItem grup, store, tgt;
         if xpList.listLength == 1 {
@@ -431,15 +431,17 @@ int         restrict;
         result = 0;
         Looper.group = grup;
         if restrict && grup.affiliation != restrict   continue;
-        lastREF.group       = grup;
+        if !LoopOn.byRef      lastREF.group = grup;
         result = StatemenT.gMethod(StatemenT);
+        if byRef    grup = result.priorInParent;
         if isBranch {
             if isContinue   continue;
             or isReturn     return result;
             break; }}
     if !result  result = falseResult;
-    if LoopRestrict     lastREF.group = LoopRestrict;
-    else                lastREF.clear();
+    if LoopRestrict
+        if !LoopRestrict.byRef  lastREF.group = LoopRestrict;
+        else                    lastREF.clear();
     return result;
 }
 
@@ -561,7 +563,7 @@ Buffer      buffer = bufferSTAK.pop();
             appendGroup(result,FormaT,buffer); }
         else            appendGroup(grup,FormaT,buffer); }
     if command.tag == 'p'   return opPrint(input,buffer);
-    else                    return opString(input,buffer);
+    else                    return opString(command,buffer);
 }
 
 /***************************************************************************
@@ -707,6 +709,7 @@ extern GroupItem aCTionStatemenT(GroupItem input)
 GroupRules  ruler = groupRules;
 RuleStuff   ruleStuff = rStuff;
 GroupItem   sourceFile = new("sourceFile");
+use input
     sourceLine  = new("sourceAt");
     sourceLine.count = sourceLINE;
     sourceFile.text = sourceFILE.tag;
@@ -716,12 +719,13 @@ GroupItem   sourceFile = new("sourceFile");
         if isGROUP  statement = group;
         lastStatement = statement;
         if method   return method(statement); }
-    or generating && !input.gText
-        if input.isGROUP {
-            GroupItem xpStatement = input.group;
+    or generating
+        if !gText && isGROUP {
+            GroupItem xpStatement = group;
             input.clear();
-            input.text  = "gXpress";
+            text    = "gXpress";
             input   +% xpStatement; }
+        or gText eq "gFOR" doNothing = 0;
     return input;
 }
 
@@ -736,7 +740,7 @@ GroupItem   arg,
             UnaryOPS:,
             InvokeArg = xpress["InvokeArg"],
             ANYtoken = xpress["ANYtoken"];
-    if generating {
+    if generating && !isPRINTING {
         // Bare the simple field-ref operand for the generating path: mirror the
         // non-generating normalization below (xpress.group = ANYtoken) so
         // aCTionExpressioN's unwrap (while grup.isGROUP grup = grup.group)

@@ -149,6 +149,7 @@ GroupItem   dest   = target.group;
 extern GroupItem runForNext(GroupItem instr)
 {
 GroupItem   stack   = opStackOf(instr);
+GroupItem   Looper  = instr.getAttribute("Looper");
 GroupItem   LoopOn  = instr.getAttribute("ExpressioN");
 GroupItem   restF   = instr.getAttribute("LoopRestrict");
 GroupItem   loopOn, grup, prod, cursorHolder;
@@ -169,6 +170,9 @@ int         restrict, target, seen;
     while grup = loopOn.next(grup) {
         if restrict && grup.affiliation != restrict   continue;
         if seen == target {
+            grup.byRef = true;
+            Looper.group = grup;
+            lastREF.group = grup;
             cursorHolder.setCount(target + 1);
             prod = new("prod");
             prod.setCount(1);

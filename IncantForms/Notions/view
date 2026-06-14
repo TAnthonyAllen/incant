@@ -1,0 +1,138 @@
+/*******************************************************************************
+    Can we write the drawing method in incant
+*******************************************************************************/
+As a command? Right now draw is a rule that reads tokens.
+How about a command draw(group) that loops thru group attributes firing draw methods as we go. Assuming the method is drawOP, it will have to handle draw groups like; perforation
+
+    /***************************************************************************
+        Drawing templates
+    ***************************************************************************/
+        stride=6;
+        gap=12;
+        depth=2;
+        perfRight down=gap left=depth down=stride right=depth;
+        perfLeft right=depth up=stride left=depth up=gap;
+        perfTop up=depth right=gap down=depth right=stride;
+        perfBottom up=depth left=stride down=depth left=gap;
+        perforation fill=perfColor border home line percent up=8 perfLeft=5 perfTop=5 up=depth right=10 down=2 perfRight=5 down=8 left=10 perfBottom=5;
+
+if drawOperators draw on an Apple canvas BYU. Will need the following accessible from incant and Apple
+    currentFrame
+    currentPoint
+    controlPoint1
+    controlPoint2
+Note: are points relative? Thinking maybe so, whereas drawPoint makes points not relative from relative input (not so smart).
+Probably also need
+    fillColor
+    strokeColor
+    textColor
+    
+/***************************************************************************
+	Handling color
+***************************************************************************/
+The attributes that deal w/color, like stroke fill text, would have an associated color value. So, for example:
+    green would set the fill color then apply it; fill with no value specified would use the existing fill color value. borders would use the stroke color. For this to work, every color specified would have fill implied. Stroke and text colors would be specified as attribute values. Color values would be a six digit hex string w/leading pound sign. The drawCOLOR method would convert that into a pointer to a color object if not already converted. Alpha value HPDL.
+/***************************************************************************
+	Handling fonts
+***************************************************************************/
+An incant font should specify typeface (font family name) size trait (bold, italic,...) not sure about font wieght.
+    Here is how fonts were specified in old GUI
+        <defaultFont font='10px Helvetica'/>
+        <EBgaramondFont font="EB Garamond" fontSize=18 bold/>
+    I am thinking more like
+        EBG18bold="EB Garamond" 18 bold;       Will know it is a font spec because it will be in the font registry
+/***************************************************************************
+    Execute drawing commands of the group passed in and its descendants.
+***************************************************************************/
+    fireDraw argument {
+        for grup IN argument attributes
+            if reggie$ = grup.registrY;
+                if reggie == DrawOperators;     grup();
+                or reggie == Fonts;             font(grup);
+                or reggie == Colors;            color(grup);
+                or reggie == Templates
+                    repeat = grup
+                    while repeat > 0
+                        fireDraw(grup);
+                        repeat--;
+        for grup IN argument members
+            fireDraw(grup);
+        };
+
+/***************************************************************************
+    Strings and manipulating text
+***************************************************************************/
+How about a set of incant actions for manipulating text, like inserting and deleting.
+    Issues: where to insert or delete. In a view, cursor and a click will determine, however, the actions can be agnostic wrt how the position is set.
+    How to handle undo? When something is done (like an insert), stack a command to undo it? HPDL
+    Thinking insert will shange isSTRING to isBUFFER and use Buffer to handle inserts/deletes
+
+/***************************************************************************
+    Displaying text
+***************************************************************************/
+Given a long string of text in a buffer, how do we split it across multiple fields. This is a layout problem that ideally should happen in incant much like setFrame(). The layoutText action will have to work on a buffer. It will have to know:
+        source text
+        offset (buffer mark if set)
+        length that fits
+        offset (mark) gets set to end of laid out text
+    If we go w/this approach layoutText will be changing buffer mark as it goes (and should reset the mark when done). It all looks easy peasy except for the fitting part which will require application of font metrics. Can font metrics be handled in an incant action??? The current layingOut action will have to be updated to do that.
+        How about building an array of font width by character. A base width for a "normal" 10 point font and see how it works adjustable by scaling the base width depending on the font point size with an optional adjustment factor for the font type??? Should be good enough for gummint purposes.
+            TextView does its own layout, just saying, only need to be close enough //  I like this
+            maybe use AI to build the base array. Or better yet use sets of skinny, fat, and normal characters w/associated widths, normal being 1 skinny being 0.5 and fat being 2; actual values to be determined by experimentation
+            embedded newlines will be a wrinkle layoutText will have to handle
+    How to support pagination with resizing involved: Page back. To where. How far. And who keeps track or needs to. If we had a page mark array it would be easy but who builds the array and when (actually it would be interesting to have an array of fields w/strings pointing to text in the buffer, sort of like Buffer mark)
+
+    /***********************************************************************
+        Layout a long string into a set of fixed length blocks. This needs
+        to change to return all the text that should fit in a display field
+        using a buffer passed is as the text source (that is change lineIn
+        to a buffer instead of a string)
+    ***********************************************************************/
+    layingOut lineIn lineLength lines nextLine&; {
+        currentLine = lineIn;
+        do
+            if currentLine > lineLength;
+                nextLine    = currentLine + lineLength;
+                if nextLine IN ruleSkipSet;
+                    while nextLine IN ruleSkipSet; nextLine++;
+                else
+                    until nextLine !IN ruleSkipSet;
+                        nextLine--;
+                        if nextLine IN ruleSkipSet;
+                            nextLine++;
+                            break;
+                currentLine -= nextLine;
+                lineOut     = currentLine;
+                result      +/ new(lineOut);
+                currentLine = nextLine;
+            else
+                lineOut     = currentLine;
+                result      +/ new(lineOut);
+                break;
+        while lines-- > 0;
+        return result;
+        }
+
+    /***********************************************************************
+        layingOut revised takes two arguments, the text source which is
+        expected to be a buffer, and the field that will display the text
+    ***********************************************************************/
+    layingOut source field nextLine&; {
+
+/****************************************************************************
+	Sets the frame attributes for the group passed in from the frame passed in.
+****************************************************************************/
+extern void updateFrame(GroupItem grup,Frame frame)
+{
+GroupItem   setFrame = locate("setFrame");
+GroupItem   frameSource = grup % "frame";
+GroupItem   x = frameSource % "x";
+GroupItem   y = frameSource % "y";
+GroupItem   width = frameSource % "width";
+GroupItem   height = frameSource % "height";
+    x.number    = frame.x;
+    y.number    = frame.x;
+    width.number    = frame.width;
+    height.number   = frame.height;
+    runAction(setFrame,grup);
+}

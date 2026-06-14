@@ -62,7 +62,8 @@ use trait
         or modify.start == 'c'  controlSet  = true;
         or modify.start == 'f'  functionSet = true;
         or modify.start == 'm'  commandSet  = true;
-        or modify.start == 'n'  numericSet  = true;
+        or modify.start == 'n'
+        ls  = true;
         or modify.start == 's'  shiftSet    = true;
     key.itemLength = 1;
     trait.item = key;

@@ -1,0 +1,23 @@
+#registry dESCRIPTIONs asAttributes;
+<scrollExample>This demonstrates the use of embedded macros and implied scrolling. Select the heading or the block with the colored boxes for more info.</scrollExample>
+<scrollHeading>In the heading block, the value text contains an embedded macro. When the text is accessed, the macro search looks first in attributes of the block containing the macro, then in attributes of ancestors, then in descendents then ancestors. If still not found, it looks thru the search registries and the current registry. In this case, the macro three is found in the current registry because the components flag is set, which adds component blocks to the GUI registry (without components set, only the outer block would appear in the GUI registry).</scrollHeading>
+<scrollSecond>The body of the block with the red box does not fit. The combined width of its components exceeds its width. So the block is implicitly made horizontally scrollable and can be scrolled using the scroll wheel. Changing the cursor to indicate scrollability not done yet.</scrollSecond>
+<scrollThird>The block with the blue box is vertically scrollable using the scroll wheel because its height is less than the combined height of its components.</scrollThird>
+#registry GUI;
+<scrollExample window closable resize x=400 y=400 width=360 height=400 fill=wall font=normal title=Scrolling>
+    <scrollFirst height=50 fill=white top left right rounded>
+        <space/>
+        <scrollHeading=$"Put The $three One Here" height=43.0 text align=center font=title border=off/></scrollFirst>
+    <scrollSecond height=100 across action=fire pad fill=saberBrown rounded>
+        <one width=100 rounded/>
+        <two width=100 fill=red/>
+        <three=third width=100 rounded register/>
+        <four width=100 fill=green/>
+        <five width=100 rounded/></scrollSecond>
+    <scrollThird=thirty height=100 pad fill=saberBrown rounded>
+        <uno height=50/>
+        <dos height=50 fill=blue/>
+        <tres height=50/>
+        <quatro height=50 fill=green/>
+        <cinco height=50/></scrollThird>
+    <help describe=scrollExample rounded pad font=normal fill=lightGreen/></scrollExample>

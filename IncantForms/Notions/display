@@ -1,0 +1,49 @@
+    
+/*******************************************************************************
+	Data sources
+*******************************************************************************/
+Ideally every source record will have indexed attributes (how to do that?) Maybe leave the indexing to a cell, which would mean going thru all the source records for every cell??? Or maybe just every cell that is a label (row and column labels) then using bit map & to fill in the array cells bit maps. Still have to loop thru those bitmaps to sum up results.
+        Maybe every source record has an attribute bitmap (pointer) and a value - if every row and column label attribute is bitmapped would enable fast match by bitmap
+        Do we want to bother. Only good reason to is if it can be done w/minimal user involvement like: set specs, load, and we done
+
+/*******************************************************************************
+	How do we draw?
+*******************************************************************************/
+Framing attributes like border and pad should be framing commands not drawing commands. Displaying a group then runs:
+    setFrame
+    framing to set borders, colors, text, cells, etc.
+    draw
+            NOTE: percent should not apply to shift scale invert or rotate
+            Also line should be the default w/moveTo for a change in path; relative should also be default; should moveTo imply an endPath???
+borders and padding have to handle top, bottom, left, and right. How about border(width) or border(top bottom left right), which would make an attribute a method/rule invocation. The same could be applied to draw and frame. It would make for a consistent implementation. Come to think of it, same idea could apply to debug(list of rules).
+        Right now an attribute can be a rule that may or may not have a value w/input from input stream.
+        An attribute that looks like a method call would be rule(rule input) that diverts input from its arguments. The rule action would have to do the needful.
+        If this works, and it should, it will eliminate annoying attributes like borderTop, padLeft, etc.
+    Best of all it will require extending incant using capabilities it already has. BYFU
+Would require a change to TraiT DONE extended TraiTdata in tokens
+    Ideally border(width=3 top) would be processed at define time and result in border having two attributes width and top
+    NOTE: TraiTrule action has not been defined
+
+If we do this we can change the arrow to
+    arrow draw(percent moveTo(40 10) up=30 left=30 line(40 50) line(40 -50) left=30 down=30 closePath shift(0 100) rotate= -90 endPath moveTo(60 20) right=40 up=30 closePath);
+    It is more verbose but easier to understand
+    IWC draw is processing attributes.
+    Rule attributes will be more complex than regular attributes but so flexible.
+So how about
+    border(width=3 color=fuscia top bottom) to draw top and bottom borders with width=3 in fuscia. You can leave out any of the arguments and get what you expect: default width, default color, complete border
+    Thinking setFrame should run framing and draw actions.
+        First, write framing and draw actions and WSS (we shall see).
+    Still not sure how to and when to fire the attribute actions. POP required
+
+/*******************************************************************************
+	What we draw?
+*******************************************************************************/
+I am thinking a deep hierarchy of push button icons tied to incant groups (rules, data, actions). Provide links for Siri SDK. Then the challenge becomes what to do, how to do it, and how to arrange it (and maybe how to rearrange things on the fly).
+
+/*******************************************************************************
+	go left, right, up, or down
+*******************************************************************************/
+extern GroupItem goThatWay(GroupItem direction)
+{
+}
+

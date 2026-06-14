@@ -1,0 +1,170 @@
+
+/*****************************************************************************
+	This file contains stuff that should go into tok documentation
+*****************************************************************************/
+On print
+FYI when using tok do not call any of the Buffer append directly. use print or cout. Assume buffer exists:
+	print(buffer) text;		gets converted by tok into
+	buffer->appendString(text,0,0);
+	buffer += text			produces the same result. buffer += is type aware so buffer += 42; works the same way
+print(buffer) sets the default print output to the buffer instead of stdout. As code is parsed, every subsequent print command will do the same until there is a print command like
+	print() whatever…;		the empty parens reset the default printer to stdout
+
+tok is serious about being C++ syntax sugar
+
+Need to document strings in tok and incant. We got multi line strings, string assigning, and how string assignment can concatenate multiple fields; in tok that just happens, in incant you use the string command, as in: field = string and all the string bits following get concatenated;
+
+/*******************************************************************************
+    Directives
+*******************************************************************************/
+    Directives are a tok feature that provides a means of inserting debugging code into a tok file as it is being compiled into C++. The directive code is written in tok and gets compiled into the C++ code that the tok compiler produces. The tok file is not changed in the process.
+	The following incant definition of a directive shows how a directive is structured. In it incant fields making up the definition are:
+            method is the name of a method.
+            codeToInsertAtLocation is code, could be multiple lines of code, to insert into the method;
+            location is a string (quoted if it includes blanks) matched against the beginning of code lines in the method. If the location matches: the codeToInsertAtLocation is inserted;
+            where says where to insert the codeToInsertAtLocation relative to the matched line. The where field can have the following values:
+                before              puts location before the current line (after is the default)
+                starting            puts location before the first non-declare statement in method
+                ending              puts location just before the } ending the method.
+                within              if the current line is followed by a block delimited by {}. the code will be inserted after the {
+            status can be: active; any other value means not active and the directive is skipped over
+            #; marks the end of a directive.
+    One final note on directives. They happen in order. If a directive matches in a method, the next directive searches thru the lines in the method for a match, looking ahead, not at lines already read. The parser is parsing lines of code, directive matching is done by the parser. The parser goes thru text, line by line, sequentially.
+
+/*******************************************************************************
+	Documentation In Incant
+*******************************************************************************/
+You want to add an HWF on documentation to the HWF list. The HWF session you're documenting needs structure — not just as a wake-up tool for me and Clod but as a tool for you. The structure would include:
+
+A title
+A short description that explains what it is about
+Why we are doing it and how it fits in with our overall plans (overall plan documentation needed to support that)
+Issues: for each issue: what is it and how do we plan to address it
+What parts of our ecosystem are/will be affected to implement
+What has been done
+What has yet to be done
+What is the implementation plan
+
+Then the wrinkles you added:
+Sketch a design for an incant documentation field to capture all that, with a printDocument() action to do what its name says.
+Make printDocument() able to print rich text (using fonts and such). Open question: where does that rich text functionality reside in incant? Is it a feature of the print/display tooling so it's generally available when printing in any incant action?
+You wanted my thoughts on rich text printing and what our options are.
+The list-with-gates piece:
+Printing and Display are HWF topics to go on the HWF list. That list itself should have a structure — "you wanna add a topic to the list, you gotta answer some questions and fill in these here boxes." Same boxes as the session structure above, in my reading.
+The bottom-line you stated:
+You do not think we are getting adequate return on our HWF work, which you find helpful and valuable.
+
+Let me restate that bottom line: I want to maximize the return on our HWF efforts and include HWF in a documentation strategy that currently does not exist. The point I want to get to is be able to generate documentation in incant. What that documentation looks like to be determined. In that regard, I like the way java documents java classes. We can use that as a model. The ability to do it from incant means if we want to change how documentation looks or how it is generated, that becomes an incant problem and I want incant to be able to handle it. That way what the documentation looks like is just an incant printDocument() action.
+I do not want to flog all this into a long session. Maybe we touch on each point briefly and then assess with an eye towards figuring out how we proceed further.
+
+As soon as we gain momentum, the number of incant files like setup grammar utilities documentation (not there yet) explode. We need to think how we want to manage them
+
+/*****************************************************************************
+	incant wiki
+*****************************************************************************/
+I like the incant wiki and think we should take regular cuts to strengthen it
+My son (who works with Claude) liked the json -> yaml -> incant comparison in the wiki
+We should do more such comparisons to show what incant is made of
+	expand the sections on:
+		The Foundation: What Is a Field
+			list what a field can contain
+			expand a little on methods vs actions and the one signature model for both
+		What Is a Rule?
+			an incant field has a built in parser, it knows how to parse itself (a field can be a rule, a rule can be complex, as complex as the incant grammar which is about a hundred or so interconnected rules)
+			incant rules typically invoke other rules that invoke other rules and it is turtles all the way up down sideways forward and back
+			an incant rule definition can look much like a compiler compiler rule in yacc with regex like features  (field Modifiers particularly)
+			however, incant rules are not just for a computer language grammar; they can be used to read input, possibly from a database, pull out the bits you are interested in, so you can do something with them in the rule method or action that triggers when the rule succeeds
+	how about comparing incant vs javascript
+		and an incant field vs a javascript var
+	once we get into the incant GUI stuff we can do incant vs html
+		and incant vs css
+
+/*******************************************************************************
+	Documentation Structure
+*******************************************************************************/
+A document would be an incant field (with a document attribute implied or explicit?) containing some or all of the following members sketched out below in incant field form
+
+    description="some short descriptive title" title;
+    contents="a list of the sections within";
+    purpose="
+        text describing purpose goes here.
+        note that incant quotes can span multiple lines";
+    tasks has a list of individual tasks like
+        task="multi line text can go here" status;
+    concerns is like tasks but contains a list of
+        concern="short text describing a worry that may not surface
+            but maybe it will so watch for it.";
+    issues is like concerns but each issue describes a well defined problem
+    Sections contains a list of sections (like chapters but may be real short)
+        each section follows the form for a document outlined above, but containing only the outline bits that seem relevant
+
+The fields that define a document are not mandatory. So if there are no concerns just leave it out
+And any name can be used for members, not just description,contents,purpose ...
+
+HWF1="HWF on Documentation Strategy — Session Summary" title;
+Origin=
+
+Session opened with Tony's bottom-line concern: *"I do not think we are getting adequate return on our HWF work, which I find helpful and valuable."*
+
+Initial framing was "fix HWF." That framing was wrong. Tony reframed mid-session:
+
+> *"I want to maximize the return on our HWF efforts and include HWF in a documentation strategy that currently does not exist. The point I want to get to is be able to generate documentation in incant. ... The ability to do it from incant means if we want to change how documentation looks or how it is generated, that becomes an incant problem and I want incant to be able to handle it. That way what the documentation looks like is just an incant `printDocument()` action."*
+
+The real goal: **all project documentation generated from incant data, with HWF as one input among several.**
+
+---
+
+## The Reframe (Settled)
+
+The destination is incant-generated documentation for the entire project — code documentation, HWF session records, projectBible.md, TODO.md, CLAUDE.md per repo. All of it.
+
+Today's markdown files are source-of-truth. In the destination state, the source-of-truth becomes incant data (GroupItems with documentation-bearing fields), and the markdown files become *output* produced by `printDocument()` walking the incant data.
+
+Implications:
+
+- Editing the bible becomes "modify the incant data" rather than "edit projectBible.md."
+- Cross-repo mirroring becomes a property of rendering rather than a Clod chore.
+- Resurrection-readers consume rendered output, not source markdown.
+
+The Javadoc model is one renderer (`printJavadoc()`), not the model. `printJavadoc()`, `printBible()`, `printHWF()` are siblings — all walking the same documentation data, each shaping output for their target.
+
+/*******************************************************************************
+	My initial notes on Documentation Structure
+*******************************************************************************/
+HWF sections (each section would follow this format
+	section=description w/title attribute which is a style
+	why?
+	tasks has a list of
+		task w/status
+	concerns (worries that are not issues yet)
+	issues
+	Sections
+
+sections in existing HWF
+	Rules of Engagement
+	Resurrection
+	Trim ritual
+	Graduation ritual
+	Sessions status=whatever All the embedded sections just list of bullet points
+		Decisions
+		Definitions
+		Questions
+		Lessons
+		add a section on Coding (impact on code). If we know new methods/actions needed that will go here
+	Glossary
+	Next
+could add a Proof of Pudding section to define/evaluate success. Is it soup yet
+
+style attributes
+	title
+	body
+	bullet
+display attributes
+	bold
+	italic
+	font
+	color
+	…
+other attributes
+	date
+	status

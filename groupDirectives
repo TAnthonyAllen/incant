@@ -3,7 +3,7 @@
 	Global
     if NewGroup.tag eq "Start" debugRuleNamed("RunRulE");
     if NewGroup.tag eq "gXpress" debugAllRules = true;
-    if NewGroup.tag eq "Start" item = 0;
+    if NewGroup.tag eq "setHexColor" item = 0;
     cout "aCTionDefinE:",NewGroup.tag:;
     if NewGroup.tag eq "Start" {
         debugRuleNamed("Start");
@@ -21,9 +21,9 @@ aCTionDebuG subrule.debugged ctive
 aCTionDebuG embed.debugged ctive
     if embed.debugged print "Debugging",embed.tag:;
 #;
-aCTionDefinE "if Attributes" before active
+aCTionDefinE "if Attributes" before ctive
     cout "aCTionDefinE:",NewGroup.tag,lastIndent:;
-    if NewGroup.tag eq "modedOP" item = 0;
+    if NewGroup.tag eq "tabFORM" item = 0;
 #;
 aCTionElsE if ctive
     if blocking cout "unBlocked:", blocking:;
@@ -32,7 +32,7 @@ aCTionExpressioN while before ctive
     if entries.listLength == 1   result = 0;
 #;
 aCTionNamE result before ctive
-    if arg eq "true"   result = 0;
+    if arg eq "Looper"   result = 0;
 #;
 aCTionRunRulE if within ctive
     if tag eq "define" debugAllRules = true;
@@ -47,8 +47,9 @@ copyOf starting active
     if grup.tag eq "bcPushField"    fLAG = true;
 #;
 generateCode generating ctive
-    debugRuleNamed("StatemenT");
-    debugRuleNamed("Xpress");
+    if tag eq "testIfElse" {
+        debugRuleNamed("StringXP");
+        }
 #;
 guard GroupItem ctive
     debugGuards = true;
@@ -84,13 +85,16 @@ opPrinter printText before
         debugRuleNamed("Attributes");
         debugRuleNamed("MemberS"); }
 *******************************************************************************/
-processAction if before active
-    if tag eq "testPrint" result = 0;
+processAction tempField ctive
+    if tag eq "gFOR" dumpContents(action);
 #;
 processCode processingCode ctive
-    debugAllRules = true;
+    if tag eq "gFOR" result = 0;
 #;
-rEGISTER currentRegistry ctive
+processCode result ctive
+    if tag eq "gFOR" dumpContents(action);
+#;
+rEGISTER currentRegistry active
     cout ````"Current registry:",currentRegistry.tag:;
     item = 0;
 #;
@@ -190,11 +194,10 @@ parse "if !checkInput" before active
         if debugIndent < 0 debugIndent = 0;
         indent("  ");
         cout "Match",ruleName,"on text",getDebugText(atRuleMark,20):;
-        if tag eq "DelimText"   doNothing = false;
         debugIndent++; }
 #;
 parse matchSucceeded ctive
-    if tag eq "ExpressioN"  doNothing = false;
+    if tag eq "StringXP"  doNothing = false;
 #;
 parse kount active
     if debugAllRules || rule.debugged {
@@ -252,7 +255,7 @@ updateContentFlags starting
 *******************************************************************************/
 #GroupMain
 bootstrapper "if getFile" before active
-    debugGuards     = true;
+    debugAllRules   = true;
 #;
 /*******************************************************************************
 	GroupRules

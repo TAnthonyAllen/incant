@@ -1,0 +1,34 @@
+
+/*******************************************************************************
+	wiki additions
+*******************************************************************************/
+Grammar on the fly
+Incant is homoiconic: a grammar rule is a field, and a field is a first-class object. grammarOnTheFly is a short file that demonstrates what that means in practice — a live grammar mutation, a self-capture, and a file write, all from running incant code.
+Its crux is three lines:
+DelimText isRule '('- dtext^}=delimiter;
+DatA += DelimText;
+guard(DatA);
+DelimText is a rule that captures everything between ( and a closing delimiter string. += appends it as a live alternative to DatA, one of incant's 32 bootstrap rules. guard(DatA) clears the cached guard set so the parser re-derives it after seeing DelimText for the first time.
+On the very next definition, incant parses a 3654-byte comment block through the alternative that did not exist when the session began. No recompile, no restart, no grammar file rewrite. The parser's own rule table is a live data structure, reachable and writable from incant code. The locomotive changes while the train stays on schedule.
+These three lines are wrapped in a single utility action:
+changeDatA();
+Users need not know or care what it does under the hood — but it is doing exactly this. The DatA rule mutation is not a demonstration artifact; it is load-bearing. The (…#) delimited literals that appear in the comment block it reads — containing commas, periods, and embedded parentheses — are parsed through the DatA alternative that changeDatA grafts in.
+The demonstration goes one step further. grammarOnTheFly uses printTO to feed the captured comment into a buffer field, then writes it to disk using a modifiable operator writable at runtime:
+modedOP operateMethod=setFileOp;         // rebinds modedOP's function pointer to setFileOp,
+                                         // a wrapper method that works as an incant operator
+doc modedOP "incant/grammarOnTheFly.out"; // fires setFileOp: doc is target, path is argument
+closeFile(doc);
+grammarOnTheFly was written not because writing a file is hard, and neither is adding a comment to one. It was written to show incant can capture its own documentation through a grammar rule that didn't exist at startup, then write it to disk.
+stop() exits and leaves the original bootstrap grammar in place so the graft does not persist beyond the file. The proof is not a toy string — it is a lengthy comment block captured through the rule that wasn't there when incant started.
+
+modedOP — a writable operator
+Incant operators are fields. Like any field, the method an operator dispatches to is an attribute — which means it can be set. modedOP is an ordinary infix operator in the Operators registry whose method slot (operateMethod) is designed to be re-pointed. It is incant's proof of concept for a runtime-rebindable operator.
+In its current form, modedOP is pre-bound at startup to setFileOp, a shim that attaches a buffer field to a file path:
+doc modedOP "/path/to/output.out";
+Left operand is the target (a buffer field); right operand is the path. After this fires, writing to doc and calling closeFile(doc) lands the content on disk. The working example is in incant/grammarOnTheFly:
+doc buffer;                               // doc is a buffer field
+...                                       // fill doc with content
+doc modedOP "incant/grammarOnTheFly.out"; // attach to file
+closeFile(doc);                           // flush and close
+The "moded" in the name points at what isn't built yet: true runtime rebinding from incant code, so that modedOP can be re-pointed at a different method mid-session without a recompile. The pre-binding through operateMethod=setFileOp in setup establishes the pattern; the open task is making that same binding writable from a live incant statement via modedOP.boundTo. Note that = will not do it — setContent ignores the gOp slot by design — so rebinding has to route through operateMethod and its underlying setOperat call.
+When boundTo is implemented, modedOP becomes a general-purpose operator slot: name it once, re-point it as needed, and any code using the symbol picks up the new behavior. The file-write use case is the first concrete application; the mechanism is the point.

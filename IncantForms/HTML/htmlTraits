@@ -1,0 +1,130 @@
+#registry HTML base;
+<'*'/>
+<alt/>
+<body/>
+<class/>
+<div/>
+<h1/>
+<h2/>
+<h3/>
+<href/>
+<id/>
+<img/>
+<lang/>
+<link/>
+<meta/>
+<p/>
+<script/>
+<src/>
+#;
+Current thinking is that attributes of CSS entries are the allowable values. We shall see how this works. If a value is assigned it is taken as the default when referenced w/no value
+#registry CSS asAttributes noMerging base;
+<align-items baseline center flex-end flex-start stretch/>
+<background-color/>
+<border needsUnit/>
+<border-color/>
+<border-radius needsUnit/>
+<border-style dashed dotted double groove hidden inset none outset ridge solid/>
+<box-sizing/>
+<color/>
+<display=flex/>
+<flex-direction row row-reverse column column-reverse/>
+<font/>
+<font-family/>
+<font-size/>
+<font-style=italic/>
+<font-weight=bold/>
+<height needsUnit/>
+<justify-content center flex-end flex-start/>
+<left needsUnit/>
+<line-height/>
+<margin needsUnit/>
+<margin-bottom needsUnit/>
+<margin-left needsUnit/>
+<margin-right needsUnit/>
+<margin-top needsUnit/>
+<overflow=hidden/>
+<padding=5 needsUnit/>
+<padding-bottom needsUnit/>
+<padding-left needsUnit/>
+<padding-right needsUnit/>
+<padding-top needsUnit/>
+<position=relative absolute static relative fixed sticky/>
+<rel/>
+<text-shadow/>
+<top needsUnit/>
+<width needsUnit/>
+In the pROPERTIEs registry, if a component has a attribute, it is the alias. This registry has to load after the CSS registry
+#registry pROPERTIEs asAttributes base;
+<across/>
+<action/>
+<alignAcross=justify-content/>
+<alignDown=align-items/>
+<bStyle=border-style/>
+<bold=font-weight/>
+<bottom/>
+<down/>
+<dump/>
+<fill=background-color/>
+<flex=display/>
+<flexDirection=flex-direction/>
+<fontSize=font-size/>
+<italic=font-style/>
+<label/>
+<lineHeight=line-height/>
+<mBottom=margin-bottom/>
+<mLeft=margin-left/>
+<mRight=margin-right/>
+<mTop=margin-top/>
+<minimumHeight="inherited attribute determines minumum height when height proportional or %"/>
+<minimumWidth="inherited attribute determines minumum width when width proportional or %"/>
+<pad=padding/>
+<padBottom=padding-bottom/>
+<padLeft=padding-left/>
+<padRight=padding-right/>
+<padTop=padding-top/>
+<pdfDirectory="/Users/anthony/Dropbox/data/Tawk/Groups/PDFs/"/>
+<radius=border-radius/>
+<right/>
+<stroke=border-color/>
+<text=p/>
+<textShadow=text-shadow/>
+<x=left/>
+<y=top/>
+#;
+/*******************************************************************************
+    Colors
+*******************************************************************************/
+#registry cOLOr base;
+<red=#ef2b2d/>
+<blue=#0051ba/>
+<lightBlue=#ceffff/>
+<lightGreen=#afd378/>
+<radialGreen=#afd378 gradient=-0.1 angle=90.0/>
+<green=#009e0f/>
+<paleGray=#f1f1f1/>
+<gray=#d6d8d3/>
+<darkerGray=#afbcbf/>
+<wall=#f7e8aa/>
+<white=#ffffff/>
+<black=#000000/>
+<saberBrown=#e6d1a2/>
+<darkBrown=#6b4714/>
+/*******************************************************************************
+    Fonts
+    Mac fonts are stored in /Library/Fonts or /System/Library/Fonts
+*******************************************************************************/
+#registry fONTs base;
+<courierFont font="Courier New" fontSize=24 bold/>
+<titleFont font=Palatino fontSize=24 bold/>
+<headerFont font=Palatino fontSize=14 bold/>
+<normalFont font=Palatino fontSize=14/>
+<copperFont font=Copperplate fontSize=12/>
+<defaultFont normalFont/>
+<EBgaramondFont font="EB Garamond" fontSize=18 bold/>
+<fontList/>
+<libraryFonts directory="/Library/Fonts" mask=~'[.]tt[cf]' into=fontList/>
+<systemFonts directory="/System/Library/Fonts" mask=~'[.]tt[cf]' into=fontList/>
+#load libraryFonts;
+#load systemFonts;
+#;

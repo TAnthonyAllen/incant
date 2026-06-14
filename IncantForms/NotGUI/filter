@@ -1,0 +1,29 @@
+#include /Users/anthony/data/Tawk/Groups/XML/attributes.xml;
+#registry artist data value grouped asAttributes;
+#registry album data value grouped asAttributes;
+#registry genre data value grouped asAttributes;
+#registry music;
+<playlist list heading delimiter="\t" endRecord="\r">
+    <Name=song/>
+    <Artist=artist/>
+    <Album=album/>
+    <Genre=genre/>
+    <Year=year/>
+    <Time=time/>
+    <Location;>
+<one playlist file="/Volumes/IOmega/One.txt"/>
+#load one;
+#noPrint;
+#list 5 artist;
+#registry paths;
+<mask artist song/>
+<filter genre artist album song/>
+<testPath isPath><@*+ genre=Rock | genre=Pop;>
+#search paths music;
+<:filterTest filterBy=filter one/>
+<:groupOne filterTest><testPath;>
+#print 5 groupOne;
+<:groupOne groupBy=mask/>
+
+Why is an external struct not processed via the Structure rule????
+This needs some serious explaining

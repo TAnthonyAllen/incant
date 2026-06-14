@@ -1,0 +1,64 @@
+#registry forest components;
+<glen>
+    <hard>
+        <oaks>
+            <pin/>
+            <"broad leaf"/></oaks>
+        <maples>
+            <sugar/>
+            <rock/>
+            <swamp/></hard>
+    <soft>
+        <pine/>
+        <fir/>
+        <hemlock/></soft>
+    <shrubs>
+        <holly/>
+        <blueberry/></glen>
+#registry GUI;
+<menuExample window closable resize x=400 y=400 width=360 height=400 fill=wall font=normal title="Menu Options">
+    <top popup=dialog rounded/>
+    <bottom rounded>
+        <segundo name=$tercio content=$pull form/>
+        <tercio=$Body name="Another Label" content="Some Stuff" register form/>
+        <menuK=$pull font=header pullDown=pull rounded height=16 align=left/>
+        <quatro fill=white pad=3 border=green rounded>
+            <cinco="Even more text here" text font=normal italic pad=5 border=off/></menuExample>
+#search+ forest;
+<dialog panel x=500 y=400 width=300 height=400 closable resize fill=white title="Dialog Title">
+	<box across font=normal fontSize=14>
+        <left tree=glen rounded>
+            <leftBranch border=off across height=18 leaf>
+                <indent width=1/>
+                <entry label expandTree/></left>
+        <right="Nothing in here" text rounded/></dialog>
+
+The following block implements the pull down part of menu referred to above. It has to appear after the block that defines its visible window because blocks are drawn in the order they appear and you want the pull down menu to float over the underlying window.
+The item block below is a template. The way the xml parser works: attributes that have no value are searched for in the current registry first and if not found, then searched for in the registry search path. If found, the attributes and members of the found attribute are substituted into the block containing the original valueless attribute). Bottom line: all the attributes of item get added to each entry in the pull down menu via substitution.
+
+<item height=16 border=off menuItem align=left/>
+<pull="Select something" panel target=pullText rounded fill=paleGray fit=text font=normal xOffset=20 yOffset=5>
+        <one="First menu item" item/>
+        <two="Second item" item/>
+        <three="Last item" item/></pull>
+
+In the pull down, the action for each menu item is contained in the menuItem attribute, which copies its value to its parent. That is, if you select block two from the pull down, its value "Second item" is copied into block pull so "Select something" is replaced by "Second item". The value of pull is then displayed as the value of the menuK block in the outer window (via macro $pull).
+How the content of the form entry in the tercio block gets set is confusing but simple. If you look at the form template used in the tercio block, its Body cell is filled with the value of the content attribute. The form content attribute, initialized to default, is overridden by the content attribute in block tercio (template attributes get overridden by existing attributes in the block invoking the template) so form content gets initialized to "Some Stuff".
+
+Here is the form template (commented out so it does not mess things up)
+<!form height=30 across pad=5 border=off content=default>
+	<Label=$name font=header fill=off align=right label/>
+	<space width=5/>
+	<Body=$content cell font=normal rounded fill=white align=left/></form!>
+
+        Here is the sequence
+            The segundo block and the tercio block in the pull down both invoke the form template.
+            When the form template is processed, the form attributes and blocks, including Body are added to the segundo and tercio block
+            The content attribute of form is overridden by the segundo content attribute, which gets its value from the pull down text (ie. Select Something).
+            The content attribute of form is  overridden by the tercio content attribute value (Some Stuff).
+            The pull block value is set when you select an item from the pull down menu.
+                This sets the value of segundo content to the selected value from the pull down.
+            Body is a cell. A cells value is taken from the value of its block. The Body block value (see form) is set as a macro to the value of the content attribute. The text of the tercio block gets set to its Body value, which equals the content value which initially is "Some Stuff", which in turn is copied into the name of the segundo block. So if you edit the content of tercio (thus changing Body), the edited content becomes the name of segundo because the segundo name value is a macro pointing at tercio.
+            The value of tercio is set to the value of Body via macro. Thus data is moved via macro from pull to Body to tercio.
+            
+Need to add a menu action to illustrate how they work. A jit action would be nice.

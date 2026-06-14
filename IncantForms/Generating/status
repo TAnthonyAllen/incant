@@ -1,0 +1,17 @@
+/*****************************************************************************
+	Offline work status report
+*****************************************************************************/
+Issues found and mostly resolved altho some follow up may be needed
+    incant recursion handling was turned off because past changes left the recursion flag dangling (and in the wrong place because incant changed substantially since it was last working). This fixed a silent bug in case where gXpress was calling itself. Follow up is needed because the current recursion mechanism handles the case where an action calls itself; it does not handle the case where an action calls someother action which then calls the first action which has not finished yet.
+    local field clean up happened in processAction() AFTER the action was run. I moved it to clear local fields BEFORE the action runs. Needed to do that in case of actions being called again from different places in maybe multiple actions before the action ends so clean up happened at the wrong time.
+    Both those fixes will be insufficient and we are lucky that things are working as well as they are. Recon required to get familiar with how those things work with a focus on how it might lead to future problems. I think the recon is more Clay than Tonto at this point but I expect we all may get involved.
+
+    I added a line to aCTionStatemenT() to set the statement text to gXpress and worked thru the generating actions to handle the statement case in gIF, which we had parked while we worked on the express case. POP required. It was confusing to sort out.
+    
+    Had another late night brainstorm in the wee hours. We need an HWF on directives. We (OK I) use diretives in Tok/Tawk for debugging and they work well. I think we need something similar in incant altho incant is not a transpiler like Tok so implementation will be different and something we will have to work out. There may be a debugging benefit in incant but I think incant directives could also be useful for programming, maybe by allowing you to insert incant at runtime into tried and true incant actions that we want to modify w/o changing existing code because that works and who want to open up that can of worms willy nilly. Directives could provide a cautious little steps for little feet way to test modifications w/o changing existing code. YMMV (your mileage may vary).
+    
+    I may have made minor changes that I forgot, so I plan to capture status while I work and produce a status report like this when I work offline
+    
+    I simplified gXpress and tested it out. I left it so it runs the statement bit in gIF; the expression call to gXpress is commented out to focus on the statement, but it works. Have not tried running both sequentially. POP for today. Adding the gXpress text in an expression statement was needed to get the gIF call to gXpress(st); working.
+    
+    Good morning. Yesterday was a debugging nightmare. Hopefully, today will not be.

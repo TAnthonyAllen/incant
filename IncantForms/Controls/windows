@@ -1,0 +1,30 @@
+#registry GUI;
+<windowList>
+    <"Attribute List" popup=listExample file="Windows/list.xml"/>
+    <Bigify popup=bigifyExample file="Windows/bigify.xml"/>
+    <Cards popup=carded file="Windows/cards.xml"/>
+    <"Database Table" popup=dbExample file="Windows/db.xml"/>
+    <Descriptions popup=describes file="Windows/descriptions.xml"/>
+    <Draw popup=drawpath file="Windows/draw.xml"/>
+    <Fit popup=fitExample file="Windows/fit.xml"/>
+    <Inspector popup=inspectorExample file="Windows/inspector.xml"/>
+    <Layout popup=layoutExample file="Windows/layout.xml"/>
+    <KeyAction popup=keyStroking file="Windows/keyStroke.xml"/>
+    <Menu popup=menuExample file="Windows/menu.xml"/>
+    <Scrolling popup=scrollExample file="Windows/scroll.xml"/>
+    <Simple popup=simple file="Windows/simple.xml"/>
+    <Toggles popup=toggleExample file="Windows/toggles.xml"/>
+    <Tabs popup=tabbed file="Windows/tabs.xml"/>
+    <Tree popup=treeExample file="Windows/tree.xml"/>
+    <Worksheet popup=workSheet file="Windows/sheet.xml"/>
+    <Wrapping popup=wraplist file="Windows/wraplist.xml";>
+
+<windowMenu window x=900 y=450 width=360 height=400 fill=wall font=header>
+    <intro height=50 pad fill=white rounded>
+        <heading="Windows" label align=center font=title border=off/>
+        <space height=5/></intro>
+    <buttons source=windowList down=* directory="/Users/anthony/data/Tawk/Groups/XML">
+        <button height=25 across border=off pad next=buttons>
+            <one rounded left=20 right=20 fill=paleGray pad>
+                <body border=off left=5 cell tag merge/></buttons>
+    <windowHelp="Each of the buttons above will open a new window" cell height=30 pad fill=lightGreen rounded;>

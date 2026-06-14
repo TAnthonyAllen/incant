@@ -112,7 +112,7 @@ define
 
     '**'    unary ruleMethod=opDebug;
     '-'     operateMethod=opMinus;
-    '+='    operateMethod=opPlusEQ;
+    '+='    operateMethod=opPlusEQ  interpretMethod=runPlusEQ;
     '++'    unary ruleMethod=opPlusPlus;
     '+*'    operateMethod=opCopyList;
     '+%'    operateMethod=opAddAttribute;

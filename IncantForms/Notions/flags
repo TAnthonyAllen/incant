@@ -1,0 +1,34 @@
+Grab the handbasket handles, we is in for a ride. Lots happened yesterday wrt to my offline work that did not go offline so much as it involved me/Clod w/me directing and Clod coding (he does not make coding errors that I do; the errors he makes are usually due to an incomplete understanding of our working environment mixed with the mental transition from C++ to incant. That we are getting better at working thru as the coding happens).
+
+/*******************************************************************************
+	What about strings? You have seen this from an earlier status report of
+    mine. I include it here because this is what I worked on with Clod and
+    a fair bit of work got done, and we bombed Hanoi (OK we did not actually,
+    but the victory was well beyond the scent of napalm; it was pretty epic).
+*******************************************************************************/
+incant cannot now
+    insert a field that is a string into a buffer at some arbitrary point. Buffer can do it but incant cannot yet. It can append a field at end of buffer but not insert into it
+    how do you define an arbitrary point in a buffer. Buffer has tail() and setMark() methods.
+        Buffer method String tail(int offset) may need revision as to how it handles bogus offsets
+        There is no way for incant to set buffer mark
+        Buffer setMark() should be revised to take an optional offset (w/no offset set mark to current)
+        Buffer class provides void insertIntoBuffer(String text,int offset)
+        Methinks would be nice as an incant extern method like insertAtMark(GroupItem field).
+    would be nice for incant to have buffer manipulation operators to
+        set buffer mark
+        insert string into buffer at mark
+        remove string from buffer at mark
+        find a string in a buffer (and set mark at where it starts) so maybe can say
+            setMark(findStringInBuffer(someStringField));
+            Note what is missing in that statement: the buffer; this may be an implied lastREF case or we can provide incant a way to fake a class method reference. Maybe with a buffer definition that returns its internal fields (how about adding extern methods in buffer in incant standard method format, then we can define attributes of buffer that have their methods being those methods by applying a bit of ruleMethod assignment). Basically, teach Buffer what an incant field is and provide Buffer extern methods to handle incant fields
+    buffers seem to be an incant feature worth investing more design in
+Come to think of it, adding incant extern methods to our support classes looks like a good pattern to expand upon
+
+/*******************************************************************************
+	What Clod and I did.
+*******************************************************************************/
+We changed/enhanced Buffer.twk to support better string manipulation and integrated buffers into our work on directives. This follows a pattern you started when we loaded incant input streams into buffers. I can provide you Buffer.twk to look over (or you can get it from the support repo; that seems to have worked recently altho we have had issues with you getting stale cached files from the repo).
+We changed the directives design to work off buffers, which turned out to be a good idea making directive processing simpler.
+Clod wrote incant actions to test w/comments to explain what those actions do. I stashed those actions in a new incant file: directives and made a couple of simple changes in how we load incant files to facilitate processing those files from the command line so you can say: incant directives; to run the directives file without loading any other incant files (it works because directives does not refer to any incant actions defined in other files). Look over the directives file I attached.
+What is the current state of incant? All the unitTests work. The generator process works and is in the state we left it ready to continue fleshing out bytecode generation. The directive tests work but some of the directive infrastructure needs finishing up; no additional programming required but need to add the incant commands to link to the Buffer related extern methods Clod added. I have not tried the definition of directive victory: field += directives; as an incant expression but it should work. That POP is on the task list for today; not urgent, and task order is up for discussion here.
+We determined definitely that tok directives cannot be used for development due to syntax restrictions; they cannot replace code and do not handle injection of complete methods. So I decided to try incant directives for development on twk files; the directives file is the result and the idea panned out really well (poor Hanoi). We stopped short of full idempotency. To get to idempotency we have to take the results from the directive processing and write it to a file. We cannot write it to the file we read in because it would overwrite the twk file we enhanced w/directives. My proposed solution is write to a temp file that we name in the buffer (buffers have a file name; pretty sure it need not be the name of the file read into it); then in a short script, we run tok on that temp file; it should generate a .mm file to replace the .mm file that running tok on the original un-directived file we read in would generate; then the script deletes the temp file and BYU. Ideally, to do that incant should run that script at the end of the action that applies directives. I am thinking we teach incant the unix system command, which should enable incant to run a script from text in an incant field.

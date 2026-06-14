@@ -1,0 +1,31 @@
+
+parameter examples
+
+<BitMAP jit>testBitMAP();</BitMAP>
+<command jit>testCommands(item.text);</command>
+<debugRules="the debug text that triggers debugging" rule1 rule2=test rule3=guard/>
+
+The command line examples
+
+<run BitMAP/>
+<run="whatever the command is" command debugRules/>
+
+run attributes
+
+	summarize		To get summary of rule status
+	guards			To print out the guard sets
+	debug			To turn on debugging
+	
+Issues
+
+junk will have to be compiled as a C file, preferably without the appended class name on every method name. I know I have that as an option but forget what the option is since I do not use it very often (actually, you have to add addClassNameToMethods for it to happen, by default it does not).
+
+Command line processing will have to include the run xml file. Ideally, that should be the only file specified. It should include the parameters.xml file and a run block that gets merged when it is read. A #run command then runs the run block.
+
+Ideally, any customization can happen in the run block. Alternatively, you can clone a parameter block, rename it and change as needed before referencing it in the run block.
+
+Debugging from the command line
+
+Would be nice to have a parameter parser that is separate from the main parser and which can modify the main parser with debugging options. That is, the debug rule list and options should all be in the parameter parser
+
+To do the parameter matching want a simple path specification that matches tag and attributes

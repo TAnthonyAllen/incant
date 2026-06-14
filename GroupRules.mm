@@ -168,9 +168,9 @@ GroupItem 	*grup = 0;
 			if ( grup->groupBody->flags.isRule )
 				{
 				if ( GUARD )
-					grup->groupBody->flags.debugGuard = !grup->groupBody->flags.debugGuard;
+					grup->groupBody->flags.debugGuard = 1;
 				lastRule = grup;
-				grup->groupBody->flags.debugged = !grup->groupBody->flags.debugged;
+				grup->groupBody->flags.debugged = 1;
 				}
 			else
 			if ( ::compare(grup->getText(),"GUARD") == 0 )
@@ -387,7 +387,7 @@ GroupItem 	*target = 0;
 GroupItem 	*arg = 0;
 GroupItem 	*xl = 0;
 GroupItem 	*token = 0;
-	if ( GroupControl::groupController->groupRules->generating )
+	if ( GroupControl::groupController->groupRules->generating && !GroupControl::groupController->groupRules->isPRINTING )
 		{
 		GroupItem 	*revisedList = new GroupItem("revisedList");
 		GroupItem 	*grup = 0;
@@ -577,8 +577,11 @@ int 		restrict = 0;
 		Looper->setGroup(grup);
 		if ( restrict && grup->options.affiliation != restrict )
 			continue;
-		ruler->lastREF->setGroup(grup);
+		if ( !LoopOn->groupBody->flags.byRef )
+			ruler->lastREF->setGroup(grup);
 		result = StatemenT->groupBody->gMethod(StatemenT);
+		if ( result->groupBody->flags.byRef )
+			grup = result->priorInParent;
 		if ( result->groupBody->flags.isBranch )
 			{
 			if ( isContinue(result->groupBody->flags.isBranch) )
@@ -592,8 +595,9 @@ int 		restrict = 0;
 	if ( !result )
 		result = ruler->falseResult;
 	if ( LoopRestrict )
-		ruler->lastREF->setGroup(LoopRestrict);
-	else	ruler->lastREF->clear();
+		if ( !LoopRestrict->groupBody->flags.byRef )
+			ruler->lastREF->setGroup(LoopRestrict);
+		else	ruler->lastREF->clear();
 	return result;
 }
 
@@ -762,7 +766,7 @@ Buffer 		*buffer = (Buffer*)ruler->bufferSTAK->pop();
 		}
 	if ( *command->groupBody->tag == 'p' )
 		return ::opPrint(input,buffer);
-	else	return ::opString(input,buffer);
+	else	return ::opString(command,buffer);
 }
 
 /***************************************************************************
@@ -951,14 +955,17 @@ GroupItem 	*sourceFile = new GroupItem("sourceFile");
 			return statement->groupBody->gMethod(statement);
 		}
 	else
-	if ( ruler->generating && !input->groupBody->gText )
-		if ( isGROUP(input->groupBody->flags.data) )
+	if ( ruler->generating )
+		if ( !input->groupBody->gText && isGROUP(input->groupBody->flags.data) )
 			{
 			GroupItem 	*xpStatement = input->getGroup();
 			input->clear();
-			input->setText("gXpress");
+			xpStatement->setText("gXpress");
 			input->addAttribute(xpStatement);
 			}
+		else
+		if ( ::compare(input->groupBody->gText,"gFOR") == 0 )
+			ruleStuff->doNothing = 0;
 	return input;
 }
 
@@ -973,7 +980,7 @@ GroupItem 	*op = 0;
 GroupItem 	*UnaryOPS = xpress->getLabelGroup("UnaryOPS");
 GroupItem 	*InvokeArg = xpress->get("InvokeArg");
 GroupItem 	*ANYtoken = xpress->get("ANYtoken");
-	if ( ruler->generating )
+	if ( ruler->generating && !ruler->isPRINTING )
 		{
 		// Bare the simple field-ref operand for the generating path: mirror the
 		// non-generating normalization below (xpress.group = ANYtoken) so
@@ -1241,7 +1248,7 @@ GroupItem 	*field = 0;
 	or double-trigger cannot stack a second copy. The target's executed BlocK is
 	built once and cached, so a one-time splice persists across later runs.
 ***************************************************************************/
-extern "C" GroupItem *applyDirectives(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *applyDirectives(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*grup = 0;
 GroupItem 	*DiRs = 0;
@@ -1273,7 +1280,7 @@ GroupItem 	*DiRs = 0;
     opIN (sets it on match), += (insert at mark, advance), -= (delete
     at mark, stay). Idempotent via the target's DiRs registry.
 ***************************************************************************/
-extern "C" GroupItem *applyTextDirective(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *applyTextDirective(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*grup = 0;
 GroupItem 	*DiRs = 0;
@@ -1657,6 +1664,7 @@ GroupItem 	*bcLIST = new GroupItem("bcLIST");
 	// generator's bcLIST via :generator bcLIST).
 GroupItem 	*fieldList = field->getAttribute("bcLIST");
 	::dumpContents(fieldList);
+	fieldList->groupBody->flags.byRef = 1;
 	return fieldList;
 }
 
@@ -1865,7 +1873,7 @@ GroupItem 	*result = 0;
 	cursor = argument->nextMember(0);
 	while ( cursor )
 		{
-		result = ::runByteFn(cursor);
+		result = runByteFn(cursor);
 		if ( result )
 			cursor = argument->getFromList(result->groupBody->tag);
 		else	cursor = argument->nextMember(cursor);
@@ -2097,6 +2105,7 @@ extern "C" GroupItem *makeNew(GroupItem *input)
 {
 char 		*strung = input->getText();
 GroupItem 	*grup = new GroupItem(strung);
+	grup->groupBody->flags.isInitialized = 1;
 	return grup;
 }
 
@@ -2198,7 +2207,7 @@ extern "C" void modify(GroupItem *field, char *modifier)
 /***************************************************************************
 	Rule action for the AND operator
 ***************************************************************************/
-extern "C" GroupItem *opAND(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opAND(GroupItem *argument, GroupItem *target)
 {
 	if ( target->groupBody->gCount && argument->groupBody->gCount )
 		return GroupControl::groupController->groupRules->trueResult;
@@ -2208,7 +2217,7 @@ extern "C" GroupItem *opAND(GroupItem *argument, GroupItem *&target)
 /***************************************************************************
 	Rule action for the +% operator
 ***************************************************************************/
-extern "C" GroupItem *opAddAttribute(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opAddAttribute(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*grup = 0;
 	if ( isLIST(argument->groupBody->flags.binType) )
@@ -2224,7 +2233,7 @@ GroupItem 	*grup = 0;
 	reference via setContent. Everything else copies via setContent exactly as
 	before — the non-byRef path is byte-identical. (2026-06-09)
 ***************************************************************************/
-extern "C" GroupItem *opAssign(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opAssign(GroupItem *argument, GroupItem *target)
 {
 	if ( argument )
 		if ( argument->groupBody->flags.byRef )
@@ -2236,7 +2245,7 @@ extern "C" GroupItem *opAssign(GroupItem *argument, GroupItem *&target)
 /***************************************************************************
 	Rule action for the +* copy list operator
 ***************************************************************************/
-extern "C" GroupItem *opCopyList(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opCopyList(GroupItem *argument, GroupItem *target)
 {
 	if ( argument->groupBody->groupList )
 		argument->copyListTo(target);
@@ -2256,7 +2265,7 @@ extern "C" GroupItem *opDebug(GroupItem *result)
 /***************************************************************************
 	Rule action for the % integer div operator
 ***************************************************************************/
-extern "C" GroupItem *opDiv(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opDiv(GroupItem *argument, GroupItem *target)
 {
 	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
 		GroupControl::groupController->groupRules->tempField->setCount(target->getCount() % argument->getCount());
@@ -2271,7 +2280,7 @@ extern "C" GroupItem *opDiv(GroupItem *argument, GroupItem *&target)
     name (in field.tag) of a component of target that may or may not exist.
     Note: local fields are ignored
 ***************************************************************************/
-extern "C" GroupItem *opDot(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opDot(GroupItem *argument, GroupItem *target)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*product = 0;
@@ -2395,7 +2404,7 @@ GroupItem 	*product = 0;
 /***************************************************************************
 	Rule action for the == operator
 ***************************************************************************/
-extern "C" GroupItem *opEQ(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opEQ(GroupItem *argument, GroupItem *target)
 {
 	if ( !::compareValues(target,argument) )
 		return GroupControl::groupController->groupRules->trueResult;
@@ -2406,7 +2415,7 @@ extern "C" GroupItem *opEQ(GroupItem *argument, GroupItem *&target)
 	Rule action for =] operator that returns the last item on the arguments
     list
 ***************************************************************************/
-extern "C" GroupItem *opEnd(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opEnd(GroupItem *argument, GroupItem *target)
 {
 	if ( argument->groupBody->groupList )
 		{
@@ -2419,7 +2428,7 @@ extern "C" GroupItem *opEnd(GroupItem *argument, GroupItem *&target)
 /***************************************************************************
 	Rule action for the >= operator
 ***************************************************************************/
-extern "C" GroupItem *opGE(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opGE(GroupItem *argument, GroupItem *target)
 {
 	if ( ::compareValues(target,argument) >= 0 )
 		return GroupControl::groupController->groupRules->trueResult;
@@ -2429,7 +2438,7 @@ extern "C" GroupItem *opGE(GroupItem *argument, GroupItem *&target)
 /***************************************************************************
 	Rule action for the > operator
 ***************************************************************************/
-extern "C" GroupItem *opGT(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opGT(GroupItem *argument, GroupItem *target)
 {
 	if ( ::compareValues(target,argument) > 0 )
 		return GroupControl::groupController->groupRules->trueResult;
@@ -2439,7 +2448,7 @@ extern "C" GroupItem *opGT(GroupItem *argument, GroupItem *&target)
 /***************************************************************************
 	Rule action that handles [argument] references.
 ***************************************************************************/
-extern "C" GroupItem *opGet(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opGet(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*result = 0;
 char 		*txt = 0;
@@ -2455,7 +2464,7 @@ char 		*txt = 0;
 /***************************************************************************
 	Rule action for the =% getAttribute operator
 ***************************************************************************/
-extern "C" GroupItem *opGetAttribute(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opGetAttribute(GroupItem *argument, GroupItem *target)
 {
 char 	*strung = argument->getText();
 	return target->getAttribute(strung);
@@ -2464,7 +2473,7 @@ char 	*strung = argument->getText();
 /***************************************************************************
 	Rule action for the =/ getMember operator
 ***************************************************************************/
-extern "C" GroupItem *opGetMember(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opGetMember(GroupItem *argument, GroupItem *target)
 {
 char 	*strung = argument->getText();
 	return target->getMember(strung);
@@ -2479,7 +2488,7 @@ char 	*strung = argument->getText();
                 is any character in argument set
                 are all characters in argument set
 ***************************************************************************/
-extern "C" GroupItem *opIN(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opIN(GroupItem *argument, GroupItem *target)
 {
 PLGset 		*set = 0;
 GroupItem 	*result = 0;
@@ -2512,7 +2521,7 @@ GroupItem 	*result = 0;
 /***************************************************************************
 	Rule action for the <= operator
 ***************************************************************************/
-extern "C" GroupItem *opLE(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opLE(GroupItem *argument, GroupItem *target)
 {
 	if ( ::compareValues(target,argument) <= 0 )
 		return GroupControl::groupController->groupRules->trueResult;
@@ -2522,7 +2531,7 @@ extern "C" GroupItem *opLE(GroupItem *argument, GroupItem *&target)
 /***************************************************************************
 	Rule action for the < operator
 ***************************************************************************/
-extern "C" GroupItem *opLT(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opLT(GroupItem *argument, GroupItem *target)
 {
 	if ( ::compareValues(target,argument) < 0 )
 		return GroupControl::groupController->groupRules->trueResult;
@@ -2541,7 +2550,7 @@ extern "C" GroupItem *opLastREF(GroupItem *result)
 /***************************************************************************
 	Rule action for ~= match operator
 ***************************************************************************/
-extern "C" GroupItem *opMatch(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opMatch(GroupItem *argument, GroupItem *target)
 {
 	if ( !::compare(target->getText(),argument->getText()) )
 		return GroupControl::groupController->groupRules->trueResult;
@@ -2551,7 +2560,7 @@ extern "C" GroupItem *opMatch(GroupItem *argument, GroupItem *&target)
 /***************************************************************************
 	Rule action for the - operator
 ***************************************************************************/
-extern "C" GroupItem *opMinus(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opMinus(GroupItem *argument, GroupItem *target)
 {
 	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
 		{
@@ -2576,7 +2585,7 @@ extern "C" GroupItem *opMinus(GroupItem *argument, GroupItem *&target)
 /***************************************************************************
 	Rule action for the -= operator
 ***************************************************************************/
-extern "C" GroupItem *opMinusEQ(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opMinusEQ(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*result = 0;
 	if ( target->groupBody->flags.binType )
@@ -2641,7 +2650,7 @@ extern "C" GroupItem *opMinusMinus(GroupItem *result)
 /***************************************************************************
 	Rule action for the * multiply operator
 ***************************************************************************/
-extern "C" GroupItem *opMultiply(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opMultiply(GroupItem *argument, GroupItem *target)
 {
 	if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
 		if ( isCOUNT(target->groupBody->flags.data) )
@@ -2660,7 +2669,7 @@ extern "C" GroupItem *opMultiply(GroupItem *argument, GroupItem *&target)
 /***************************************************************************
 	Rule action for the *= operator
 ***************************************************************************/
-extern "C" GroupItem *opMultiplyEQ(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opMultiplyEQ(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*result = 0;
 	if ( target->groupBody->flags.data && argument->groupBody->flags.data )
@@ -2694,7 +2703,7 @@ extern "C" GroupItem *opNOT(GroupItem *result)
 /***************************************************************************
 	Rule action for the != operator
 ***************************************************************************/
-extern "C" GroupItem *opNotEQ(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opNotEQ(GroupItem *argument, GroupItem *target)
 {
 	if ( ::compareValues(target,argument) )
 		return GroupControl::groupController->groupRules->trueResult;
@@ -2704,7 +2713,7 @@ extern "C" GroupItem *opNotEQ(GroupItem *argument, GroupItem *&target)
 /***************************************************************************
 	Rule action for the OR operator
 ***************************************************************************/
-extern "C" GroupItem *opOR(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opOR(GroupItem *argument, GroupItem *target)
 {
 	if ( target )
 		if ( target->groupBody->gCount )
@@ -2718,7 +2727,7 @@ extern "C" GroupItem *opOR(GroupItem *argument, GroupItem *&target)
 /***************************************************************************
 	Rule action for the + operator
 ***************************************************************************/
-extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target)
 {
 	if ( target->groupBody->flags.data && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
 		{
@@ -2744,7 +2753,7 @@ extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *&target)
 /***************************************************************************
 	Rule action for the += operator
 ***************************************************************************/
-extern "C" GroupItem *opPlusEQ(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opPlusEQ(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*grup = 0;
 	if ( !::compare(::headToCount(argument->groupBody->tag,3),"DiR") )
@@ -2850,7 +2859,7 @@ char 		*printText = buffer->string();
 	directive arguments to replaceDirective (parallel to opPlusEQ's
 	dispatch to applyDirectives).
 ***************************************************************************/
-extern "C" GroupItem *opReplace(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opReplace(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*grup = 0;
 	if ( !::compare(::headToCount(argument->groupBody->tag,3),"DiR") )
@@ -2869,20 +2878,17 @@ GroupItem 	*grup = 0;
 	honors byRef too. (2026-06-09. See TODO: audit := sites whose fields later
 	get legitimately =-copied — sticky byRef would alias them.)
 ***************************************************************************/
-extern "C" GroupItem *opSetGroup(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opSetGroup(GroupItem *argument, GroupItem *target)
 {
 	if ( argument )
-		{
-		argument->groupBody->flags.byRef = 1;
 		target->setGroup(argument);
-		}
 	return target;
 }
 
 /***************************************************************************
 	Rule action for the / divide operator
 ***************************************************************************/
-extern "C" GroupItem *opSlash(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opSlash(GroupItem *argument, GroupItem *target)
 {
 	if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
 		if ( isCOUNT(target->groupBody->flags.data) )
@@ -2901,7 +2907,7 @@ extern "C" GroupItem *opSlash(GroupItem *argument, GroupItem *&target)
 /***************************************************************************
 	Rule action for the /= slash equal operator
 ***************************************************************************/
-extern "C" GroupItem *opSlashEQ(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *opSlashEQ(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*result = 0;
 	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
@@ -2927,7 +2933,6 @@ GroupItem 	*result = 0;
 ***************************************************************************/
 extern "C" GroupItem *opString(GroupItem *target, Buffer *buffer)
 {
-	target->clear();
 	target->setText(buffer->toString());
 	GroupControl::groupController->groupRules->useDefaultSpace = 1;
 	buffer->reset();
@@ -3036,7 +3041,7 @@ GroupItem 	*action = field;
 				code->addAttribute(grup);
 				}
 		}
-	if ( !::processCode(field) )
+	if ( isCoded(action->groupBody->flags.actionType) && !::processCode(field) )
 		return 0;
 	if ( result = action->get("BlocK") )
 		{
@@ -3315,7 +3320,7 @@ int 		i = 0;
 	match-and-swap rather than splice-into-end. Idempotent via the target's
 	DiRs registry. Routes here from opReplace's DiR-prefix hook.
 ***************************************************************************/
-extern "C" GroupItem *replaceDirective(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *replaceDirective(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*grup = 0;
 GroupItem 	*DiRs = 0;
@@ -3648,9 +3653,9 @@ extern "C" void setFile(GroupItem *bufField, char *name)
     setFileOp — operator-signature shim over Buffer.setFile, for the modedOP
     writable-operator path: `doc modedOP "path"` points doc's buffer at a
     file. target is the buffer field, argument carries the path text. Same
-    (argument, &target) shape as opAssign and the other binary op methods.
+    (argument, target) shape as opAssign and the other binary op methods.
 ***************************************************************************/
-extern "C" GroupItem *setFileOp(GroupItem *argument, GroupItem *&target)
+extern "C" GroupItem *setFileOp(GroupItem *argument, GroupItem *target)
 {
 	if ( isBUFFER(target->groupBody->flags.data) )
 		target->getBuffer()->setFile(argument->getText());
@@ -3899,8 +3904,9 @@ extern "C" void unMark(GroupItem *bufField)
 extern "C" GroupItem *unWrap(GroupItem *result)
 {
 GroupItem 	*grup = result;
-	if ( !grup->groupBody->flags.isPointer && isGROUP(grup->groupBody->flags.data) )
-		grup = grup->getGroup();
+	if ( isGROUP(grup->groupBody->flags.data) )
+		while ( isGROUP(grup->groupBody->flags.data) )
+			grup = grup->getGroup();
 	return grup;
 }
 

@@ -1,0 +1,55 @@
+The following registry has a descending sort to make sure longest matches come first
+#registry GUI descending;
+<get/>
+<getReadySetGo/>
+<getReadyEddy/>
+<getReadySet/>
+<getReady/>
+<setTest stringAttribute=stuff setAttribute=[^0-9]/>
+#;
+#dump GUI;
+#registry TestRules rules search;
+<@token=[^ \t\n]+/>
+<begin+ 'This is a string test' failure? '#' token GUI=atYourMark>
+    <begin2 GUI '#'/>
+    <begin3=[\n]};>
+#print begin;
+#load begin;
+
+This is a string test #getReadySet
+getReady#
+And the rest don't score
+
+Because there is only one attribute for begin3 maybe we could define it as the attribute?
+    what you lose then is the ability to set a modifier such as *?+ on begin3 - unless we can apply a modifer after } and handle the result correctly. You can only use one modifier, however, a rule can have a test.
+    Need to test case where begin3 is declared as a test before begin and referenced with another modifier
+    
+What do we need for a bare minimum interpreter operating thru the parse (and will that work?)
+    A group as a statement (block, if, tests, loops, arithmetic) The statement group will have a method so to execute the statement just invoke the method. Should work the same way as the rules parser, in fact any methods associated with a rule could be statement methods (the statement would be a rule attribute, one that does not get tested by the rule parser).
+    
+    There would be an action registry such that any group added to it gets flagged as having a method
+        Because you can have complied and interpreted methods, which can be immediate or deferred, will need to differentiate these w/flags or attributes: deferred would be the default.
+        Note: as far as GroupItem is concerned, all methods are compiled. Interpreted actions get handled by the interpreter method (which is compiled)
+        Probably will have to use the registerMethod approach to set the methods in the action registry. Could use dlopen and dlsym to find the methods and it is worth a test
+            This is how it was done for JIT:
+                void    *address = dlsym(RTLD_SELF,symbol.name);
+            Then have to cast to GroupItem &method(GroupItem) and BYU theoretically
+
+        
+GroupItem *(*gMethod)(GroupItem *);
+GroupItem &method(GroupItem) <-- The generated cast for this is missing an * for the return value
+    The signature gets it right but not the cast
+
+These need to be done when loading the respective attributes into pROPERTIEs
+
+A potential benefit of the group as program of rules idea is that it may be possible to back up to some point in a running program. This assumes that a matched rule tracks its location in the input stream, so to back up, revert to that point, and run the rule again. Not so useful unless you have the ability to step thru rules (ideally ignoring rules you have no interest in, maybe by using a stop in rule list??).
+    Maybe cannot do this in a compiled program, but should be able to do it in an interpreter. OTOH the stop in rule list would work even with a compiled program, tho you would not have the flexibility that an interpreter would provide. The problem comes when the problem happens deep in an input stream. ITC need to be able to recognize the point at which rule monitoring should start and trigger it. Can do this as a directive added to the rule. A crappy way to implement the stop in rule list would be using directives added to the rules to be stopped (check status of trigger, stop if triggered - have to use debugger stops)
+    BTW should add atStart and atEnd as alternatives to before in directives (would avoid some of the hunt for code matching)
+
+Tokens
+    This would be a new feature (useful in a registry test), that defines a token and then enables testing against the current token rather than against the raw input stream. Not sure how to implement it. Ideally, the token could be defined by any potentially really complex rule set that results in a group w/string text to be tested against.
+    Current issue is how to associate a token as input to a rule?
+        I am thinking to define a token by specifying @ that sets atTarget. Next I need a way to let the parser know to test against the token rather than against the input stream. If an attribute is a target, make it the current token. If there is a current token, test against it.
+        When to turn off token. I am thinking after the first test that uses it. If the test is a rule, the input stream gets diverted to the text of the token, and after the rule test, the token gets forgotten and the input stream reverts.
+
+            Will need an input stream stack, so every time a token is encountered, the current stream is pushed onto the stack and the token becomes the input stream. When done w/token, the stream stacked is popped. Might work. Needs testing.
