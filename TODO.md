@@ -8,7 +8,7 @@
 
 ## 🌅 Pre-Session Tasks (Tonto recon / morning design — no build risk)
 
-- [ ] **incant setup command reference** — document the commands registered at startup: what each does, calling convention, where it lives. Wiki candidate. Clay's task.
+- [ ] **incant setup command reference** — document the commands registered at startup: what each does, calling convention, where it lives. Wiki candidate. Clay's task. **Now more urgent:** `setMark` and `getMarkLineAt` added 2026-06-15 and need entries.
 - [x] **`modedOP.taG` recon** — done. See `docs/modedOP-taG-recon.md`. Bottom line: `.taG` is the parser match key, not a free slot. Alias must live in a sub-attribute (`modedOP.boundTo`), set via `interpret`-child pattern. Runtime rebinding must route through `operateMethod/setOperat` — `=` won't rebind `gOp` (poochifier). Three tar babies documented.
 - [ ] **`modedOP.boundTo` alias design** — morning Clay+Tony design pass. Read `docs/modedOP-taG-recon.md` first. Three open questions: is `gText` free on operators; which "alias" we mean (second-name vs current-binding-label); incant syntax for setting `boundTo` at rebind time. Output: a spec for Clod to implement.
 - [ ] **`modedOP.boundTo` implementation** — Clod execution task, follows the design pass above. Thin C++ + setup registration, same pattern as `interpret` child on bytecode ops.
@@ -58,6 +58,15 @@ beyond testByteCode/testIfElse.
 
 Remaining cleanup: revert `runByteFn` capture-into-`result` (GroupActions.rtn, behaviorally
 identical debug scaffolding). (`oneTest:21` `stop()` already restored.)
+- [ ] **Move `replaceAt` / `insertAt` + docs into `incant/directives`** — replace the
+  previous directive work (known-bug drop-first-line code/text path). Add documenting text
+  explaining how the new actions work and their known limits (non-idempotent; comment-match
+  requires `checkSkip()` change). Clod execution task.
+- [ ] **Rip obsolete C++ directive methods** — previous directive infrastructure in C++ is
+  dead; Clod confirmed benign. Remove in cleanup pass.
+- [ ] **`incant/directives` POP pattern** — copy target file into `Groups/Tests/` (not a
+  symlink), run incant against the copy, diff copy against original. Tests/ copies are
+  gitignored scratch. Document this in the directives file.
 - [ ] **AUDIT (after bytecode stabilizes) — sticky `byRef` aliasing** — `byRef` is left set
   and never cleared, so any field ever passed as the argument of `:=` references-on-`=`
   forever (opAssign honors it). Fine while nothing else reads the flag, but audit existing
@@ -399,6 +408,26 @@ projectBible.md "Phase Generate Tawk".
 ---
 
 ## ✅ Done
+
+### 2026-06-15
+
+- [x] **`replaceAt` / `insertAt` directive actions** — text replace and before/after line
+  insert. Better than tok directives: mid-line match, arbitrary block size, large block
+  replace/insert. Non-idempotent (see Bear Traps). Tested via `dIRECTive1/2/3` fixtures in
+  `IncantForms/Windows/tabs`. POP: verified working during offline development.
+- [x] **`NamE` rule `^` noSkip fix** — missing `^` modifier in `nameSet` was silently
+  consuming two-word names (`x code` parsed as one name). Fix: `NamE first-=[a-zA-Z] nameSet-^* tokenize;`
+- [x] **`getFile` / `atLINE` fix** — `getFile` was setting `atLINE` on non-action files.
+  Removed from `getFile`; `atLINE` now set correctly in `processCode` as a `noPrint`
+  attribute of an action. `pushInput` also removed from `getFile`; `loadInputFromFile`
+  adjusted accordingly.
+- [x] **`setMark` promoted to accessible incant command; `getMarkLineAt` added** — returns
+  the line containing the buffer mark. Both in `Instruct.rtn`.
+- [x] **`Buffer.twk`** — `appendString` / `appendChar` formatted variants + new
+  `shiftAtMark`. Hammered hard during directive development; held up well.
+- [x] **Full-monty POP clean** — 77/77 unit tests match golden; `testByteCode`→11,
+  `testIfElse`→26 (both branch directions); `replaceAt`/`insertAt` trace verified. Committed
+  `101fb5c`.
 
 ### 2026-06-08
 
