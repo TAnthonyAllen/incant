@@ -58,15 +58,18 @@ beyond testByteCode/testIfElse.
 
 Remaining cleanup: revert `runByteFn` capture-into-`result` (GroupActions.rtn, behaviorally
 identical debug scaffolding). (`oneTest:21` `stop()` already restored.)
-- [ ] **Move `replaceAt` / `insertAt` + docs into `incant/directives`** — replace the
-  previous directive work (known-bug drop-first-line code/text path). Add documenting text
-  explaining how the new actions work and their known limits (non-idempotent; comment-match
-  requires `checkSkip()` change). Clod execution task.
+- [x] **Move `replaceAt` / `insertAt` + docs into `incant/directives`** — done 2026-06-15.
+  Old BlocK-line `:+ DiRFoo` drop-first-line path replaced wholesale. Actions moved verbatim
+  (proven), self-contained read-only POP against committed `incant/dirSample`, full usage
+  guide + KNOWN LIMITS (non-idempotent; comment-match needs `checkSkip()` change) after stop().
+  Runs clean; baseline still 77/77.
 - [ ] **Rip obsolete C++ directive methods** — previous directive infrastructure in C++ is
-  dead; Clod confirmed benign. Remove in cleanup pass.
-- [ ] **`incant/directives` POP pattern** — copy target file into `Groups/Tests/` (not a
-  symlink), run incant against the copy, diff copy against original. Tests/ copies are
-  gitignored scratch. Document this in the directives file.
+  dead; Clod confirmed benign. Remove in cleanup pass. **DEFERRED per Clay** — hold until the
+  new incant directives are fully bedded in.
+- [x] **`incant/directives` POP pattern** — done 2026-06-15. Documented in the directives
+  file: copy target into `Groups/Tests/` (real copy, not symlink — Tests/ is gitignored
+  scratch), getFile/apply/closeFile, diff copy against original. The in-file POP is read-only
+  (no closeFile) so it never touches the committed sample.
 - [ ] **AUDIT (after bytecode stabilizes) — sticky `byRef` aliasing** — `byRef` is left set
   and never cleared, so any field ever passed as the argument of `:=` references-on-`=`
   forever (opAssign honors it). Fine while nothing else reads the flag, but audit existing

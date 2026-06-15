@@ -45,44 +45,10 @@ define
     testWithAssign x code={
         x = "hi";
         print x:; };
-    /***************************************************************************
-        Directives
-    ***************************************************************************/
-    source="Tests/dirPOP";
-    dIRECTive1 source fromThis="matchOnThis:" toThis="\tStick this in instead";
-    dIRECTive2 source fromThis="x =" toThis='\t\tprint "Stuck this in before":;\n' where=before;
-    dIRECTive3 source fromThis="x:;" toThis='\t\tprint "Stuck this in after":;\n' where;
-    replaceAt argument code={
-        print "Running replaceAt":;
-        :argument source fromThis toThis;
-        if fromThis IN source;
-            source -= fromThis;
-            if toThis;  source += toThis;
-        else    print "Did not find" fromThis "in source":; };
-    insertAt argument code={
-        print "Running insertAt":;
-        :argument source fromThis toThis where;
-        line = getLine(argument);
-        if where == "before";
-            source += toThis;
-        else
-            where +% source;
-            markOffset = new("markOffset");
-            markOffset = line;
-            where +% markOffset;
-            setMark(where);
-            source += toThis;
-        };
     ;
 
-getFile(source);
-print "At start the source text having directives applied is:":source:;
-replaceAt(dIRECTive1);
-insertAt(dIRECTive2);
-insertAt(dIRECTive3);
-print "After applying directives the source text is:":source:"We done";
-stop();
 printDefinition(tabFORM);
+stop();
 testFer();
 testGenAction(testFer);
 generateAction(testFer);

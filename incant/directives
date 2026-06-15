@@ -1,183 +1,139 @@
 Start();
+/*****************************************************************************
+    Directives registry — runtime text rewriting of a buffer.
+
+    An incant directive is a small named field whose sub-fields describe an
+    edit to apply to a text buffer (a file loaded with getFile). Two actions
+    consume directives:
+
+        replaceAt(directive)   replace matched text with new text
+        insertAt(directive)    insert new text before/after a matched line
+
+    A directive's sub-fields:
+        source     the buffer to edit (a field loaded via getFile)
+        fromThis   the text to match
+        toThis     the text to substitute / insert
+        where      (insertAt only) "before" to insert ahead of the matched
+                   line; any other value (or none) inserts after it
+
+    These improve on tok directives on two axes Tony cares about:
+      - content match ANYWHERE on a line (tok matches line-start only)
+      - arbitrary block size — toThis can be a single token or many lines, so
+        you can swap a whole set of actions for a revised set.
+
+    See the usage guide and KNOWN LIMITS after stop() at the bottom.
+
+    Supersedes the previous BlocK-line `:+ DiRFoo` splice path (the
+    drop-first-line content-match bug). That positional mechanism is retired;
+    these buffer-text actions content-match correctly (verified).
+*****************************************************************************/
 register(Directives);
 define
     /*************************************************************************
-        Replace directive — fixtures + runner.
-        DiRReplaceFoo's two children (fromBody, toBody) are the from/to refs.
-        Intended: find the line matching fromBody ("original line") in
-        replaceTarget's BlocK and swap in toBody ("replaced line").
-        Actual: drops the first line instead — see KNOWN BUG in the header.
+        POP fixtures. source points at a committed read-only sample
+        (incant/dirSample). The POP only getFile's it (read) and rewrites the
+        in-memory buffer — it never closeFile's, so the sample on disk is
+        never touched. To rewrite a REAL file, see the copy-to-Tests/ workflow
+        in the guide below.
     *************************************************************************/
-    replaceTarget code={
-        print "target line 1":;
-        print "original line":;
-        print "target line 3":; };
-    fromBody code={ print "original line":; };
-    toBody   code={ print "replaced line":; };
-    DiRReplaceFoo fromBody toBody;
-    testDirectiveReplace code={
-        print ``"--- STATE inactive: replaceTarget, no directive ---":;
-        replaceTarget();
-        print ``"--- STATE active: replaceTarget :+ DiRReplaceFoo ---":;
-        replaceTarget :+ DiRReplaceFoo;
-        replaceTarget();
-        print ``"--- idempotent: re-apply, run again ---":;
-        replaceTarget :+ DiRReplaceFoo;
-        replaceTarget(); };
+    source="incant/dirSample";
+    dIRECTive1 source fromThis="matchOnThis:" toThis="\tStick this in instead";
+    dIRECTive2 source fromThis="x =" toThis='\t\tprint "Stuck this in before":;\n' where=before;
+    dIRECTive3 source fromThis="x:;" toThis='\t\tprint "Stuck this in after":;\n' where;
 
     /*************************************************************************
-        Delete directive — fixtures + runner.
-        DiRDeleteFoo has one child (fromBody only) -> delete, no replacement.
-        Intended: drop the line matching fromBody ("original line").
-        Actual: drops the first line instead — see KNOWN BUG in the header.
+        replaceAt — find fromThis in source, replace it with toThis.
+        IN sets the buffer mark at the match; -= removes the matched text at
+        the mark; += inserts toThis there. With no toThis it is a delete.
     *************************************************************************/
-    deleteTarget code={
-        print "delete line 1":;
-        print "original line":;
-        print "delete line 3":; };
-    DiRDeleteFoo fromBody;
-    testDirectiveDelete code={
-        print ``"--- STATE inactive: deleteTarget, no directive ---":;
-        deleteTarget();
-        print ``"--- STATE active: deleteTarget :+ DiRDeleteFoo ---":;
-        deleteTarget :+ DiRDeleteFoo;
-        deleteTarget(); };
+    replaceAt argument code={
+        print "Running replaceAt":;
+        :argument source fromThis toThis;
+        if fromThis IN source;
+            source -= fromThis;
+            if toThis;  source += toThis;
+        else    print "Did not find" fromThis "in source":; };
 
     /*************************************************************************
-        Text-substrate directive — fixtures + runner. This is the path that
-        DOES content-match. Loads a .twk file into a buffer field and rewrites
-        the buffer TEXT (not a code body): DiRSwapInt replaces "int dummy" with
-        "int REPLACED". File write is parked — closeFile(fileField) is wired
-        but commented out so groups.twk on disk is never touched.
+        insertAt — find the line containing fromThis, insert toThis relative
+        to it. where=before inserts ahead of the line; otherwise after it
+        (the mark is repositioned past the matched line via setMark).
     *************************************************************************/
-    swapFrom = "int	dummy";
-    swapTo   = "int	REPLACED";
-    DiRSwapInt swapFrom swapTo;
-    testTextDirective code={
-        fileField = "/Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/groups.twk";
-        **fileField;
-        getFile(fileField);
-        print ``"--- BEFORE text directive ---":;
-        print fileField:;
-        fileField += DiRSwapInt;
-        print ``"--- AFTER text directive ---":;
-        print fileField:;
-        /* closeFile(fileField); */ };
-
-    /*************************************************************************
-        Parse probes — minimal one-hypothesis-each fixtures kept from isolating
-        a since-resolved parse failure. testWithAssign currently emits nothing
-        (see findings in the header).
-    *************************************************************************/
-    testJustPrint code={
-        print "hello":; };
-    testWithTab code={
-        print "tab\there":; };
-    testWithAssign x code={
-        x = "hi";
-        print x:; };
+    insertAt argument code={
+        print "Running insertAt":;
+        :argument source fromThis toThis where;
+        line = getLine(argument);
+        if where == "before";
+            source += toThis;
+        else
+            where +% source;
+            markOffset = new("markOffset");
+            markOffset = line;
+            where +% markOffset;
+            setMark(where);
+            source += toThis;
+        };
     ;
 
 /*****************************************************************************
-    Run the deliverables, then the parse probes, then the text-substrate POP.
+    POP — load the read-only sample, apply one replace + two inserts, show
+    before/after. Verify by diff: the AFTER buffer should show
+      - "matchOnThis:" replaced by "Stick this in instead"
+      - a "Stuck this in before" line ahead of the `x =` line
+      - a "Stuck this in after" line following the `print x:;` line
+    The sample file incant/dirSample is unchanged on disk afterward.
 *****************************************************************************/
-testDirectiveReplace();
-testDirectiveDelete();
-testJustPrint();
-testWithTab();
-testWithAssign();
-testTextDirective();
+getFile(source);
+print ``"--- BEFORE directives ---":source:;
+replaceAt(dIRECTive1);
+insertAt(dIRECTive2);
+insertAt(dIRECTive3);
+print ``"--- AFTER directives ---":source:;
 stop();
 
-    /*************************************************************************/
-                Directives registry — runtime code & text rewriting.
+    *****************************************************************************
+                    Incant Directives — usage guide
+    *****************************************************************************
 
-    A directive is a small named group whose children name a from-target and
-    (optionally) a to-replacement. Applying a directive to a field is meant to
-    rewrite that field in place:
+This text is past stop(); the incant parser halts there, so it need not be
+wrapped in a comment.
 
-        target :+ DiRReplaceFoo      replace: swap the matching line
-        target :+ DiRDeleteFoo       delete:  drop the matching line
-        fileField += DiRSwapInt      text-substrate: rewrite buffer text
+WHAT A DIRECTIVE IS
+    A named field with these sub-fields:
+        source     the buffer to edit (load it with getFile(source))
+        fromThis   match text (any substring of a line — not just line-start)
+        toThis     replacement / insertion text (a token or a multi-line block)
+        where      insertAt only: "before" inserts ahead of the matched line;
+                   anything else (or no value) inserts after it
+    Example:
+        myReplace source fromThis="old text" toThis="new text";
+        myInsert  source fromThis="anchor"  toThis="line\n" where=before;
 
-    Intended positional shape (Tony 2026-05-28): no from=/to= labels — the
-    directive's children ARE the refs. First child = from, second child = to;
-    ReplaceDirective walks them via firstInList / nextInParent. A one-child
-    directive (DiRDeleteFoo) is a delete.
+THE TWO ACTIONS
+    replaceAt(directive)   replace the matched text with toThis (delete if no
+                           toThis is given)
+    insertAt(directive)    insert toThis before/after the line holding fromThis
+    Both mutate source's buffer in place via the mark-aware buffer operators
+    (IN finds and sets the mark; += / -= insert/remove at the mark).
 
-    Organization: one fixtures+Directives define block, then one runner per
-    deliverable, each self-contained and runnable standalone.
+APPLYING DIRECTIVES TO A REAL FILE — the copy-to-Tests/ workflow
+    Directives are NOT idempotent (see KNOWN LIMITS), and writing the buffer
+    back (closeFile) overwrites the file. So never directivise a source file
+    (or a symlink to one) directly. Instead:
+        1. Copy the target file into Groups/Tests/ (a real copy, not a
+           symlink). Tests/ is gitignored scratch, safe to clobber.
+        2. Point source at the copy:  source="Tests/myfile";
+        3. getFile(source); apply your directives; closeFile(source); to write
+           the rewritten copy back to Tests/myfile.
+        4. diff Tests/myfile against the original to confirm the edits landed.
+    This POP itself is read-only (no closeFile), so it runs against the
+    committed sample incant/dirSample without copying.
 
-    ==========================================================================
-    KNOWN BUG — content matching is NOT working (the headline finding).
-    Both testDirectiveReplace and testDirectiveDelete drop the target block's
-    FIRST line regardless of content:
-      - "replaced line" NEVER appears in the replace output.
-      - the line that SHOULD match (fromBody = "original line") survives in
-        both cases; the line that gets dropped is the unrelated first line.
-      - the from/to refs (fromBody / toBody) do not appear to drive the match
-        at all — the splice is positional, not content-driven.
-    Suspected non-functional content-match in statementMatches /
-    matchSpanInLines: a positional first-line drop rather than a content-driven
-    splice. This is a finding for Tony + Clod to chase in the next pass. The
-    reorganization here EXISTS TO ENABLE that hunt; it does not fix the bug.
-    ==========================================================================
-
-    --------------------------------------------------------------------------
-    POP — ACTUAL output (2026-06-04 baseline), not intended behavior:
-
-    testDirectiveReplace()
-        inactive:  "target line 1" / "original line" / "target line 3"
-        active:    "original line" / "target line 3"
-                   (first line dropped; NO "replaced line" — see KNOWN BUG)
-        re-apply:  same as active (stable across re-apply)
-    testDirectiveDelete()
-        inactive:  "delete line 1" / "original line" / "delete line 3"
-        active:    "original line" / "delete line 3"
-                   (first line dropped, NOT the matching "original line")
-    testJustPrint()        "hello"
-    testWithTab()          "tab<TAB>here"   (\t in the literal renders as a tab)
-    testWithAssign()       (NO output — see finding below)
-    testTextDirective()
-        BEFORE:  empty dump (see finding below)
-        AFTER:   the loaded file with "int REPLACED" in place of "int dummy",
-                 rest of the file intact. The path routes through opPlusEQ's
-                 DiR-buffer dispatch -> applyTextDirective -> opIN's BUFFER
-                 branch -> Buffer.findInBuffer + mark-aware += / -=. File write
-                 is parked (closeFile commented out) so groups.twk on disk is
-                 never modified. NOTE: the text-substrate path DOES content-
-                 match ("int dummy" -> "int REPLACED"); the BlocK-line path
-                 (replace/delete above) is the one that's broken.
-                 BUT this runner currently exits 2 with a stderr error — see
-                 KNOWN ISSUE below. The replace itself still lands (AFTER shows
-                 "int REPLACED"); the error is a side effect of loading the
-                 file, not of the directive.
-
-    ==========================================================================
-    KNOWN ISSUE — testTextDirective() exits 2 with:
-        getFile: could not open file: include: Is a directory
-    Root cause (traced, left for Tony to fix in Xcode): getFile does
-    pushInput(filing) at Commands.rtn:235 — it not only reads the file into a
-    buffer, it QUEUES the file as incant input to be parsed. So loading real
-    TAWK source (groups.twk) makes incant parse groups.twk afterward; its first
-    line `include /Users/.../groupIncludes` (an unquoted slash-path) can't bind
-    as an argument to the incant `include` command, which falls through to
-    getFile("include") -> the include/ directory -> error. A self-contained,
-    parse-inert fixture (text wrapped in an incant comment) would sidestep it,
-    but the underlying getFile/pushInput behavior is Tony's to address.
-    ==========================================================================
-
-    --------------------------------------------------------------------------
-    Other findings (banked, not chased here):
-      testWithAssign() emits nothing — `x = "hi"; print x:` produces no output
-        when the action is called with no argument bound to x. Probe behavior,
-        unexplained.
-      testTextDirective() BEFORE dump prints empty; the buffer text only shows
-        AFTER the directive applies. Display/mark-timing quirk in print-of-
-        buffer (AFTER shows the full file, so no data loss).
-
-    Removed 2026-06-04: testDirective() (the splice-baseline runner this file's
-    comments were once "modeled on") — its action no longer exists, so the call
-    was a dangling no-op. (It was NOT the source of the exit-2 error: that comes
-    from testTextDirective, see KNOWN ISSUE above. Removing testDirective() left
-    the error unchanged.)
+KNOWN LIMITS
+    Non-idempotent — applying the same directive twice doubles the effect
+        (a second insert inserts again; a second replace re-replaces toThis if
+        toThis contains fromThis). Always work on a fresh copy, as above.
+    Comment matching does not work — checkSkip() swallows anything that looks
+        like a comment even when wrapped in quotes, so fromThis cannot be a
+        //comment or /* */ block. Matching a label: or ordinary code text is
+        fine. Lifting this needs a checkSkip() change.

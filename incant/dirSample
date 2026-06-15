@@ -1,0 +1,6 @@
+    testFer code={ for grup in sumple; attributes  print `taG:; };
+matchOnThis:
+    testWithAssign x code={
+        x = "hi";
+        print x:;
+        y = "Thats all she wrote": };
