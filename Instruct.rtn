@@ -208,12 +208,12 @@ GroupItem   result;
     or target.isSET {
         if set = target.characterSet
             if set.contains(argument.text)  result = trueResult; }
-    or target.isBUFFER {
+    or argument.isBUFFER {
         /* Text-substrate find: argument is a string field, target is a
            buffer field. On match, buffer's mark is set to start of match
            (side effect); we return argument so caller has the matched
            string for length-of-match computations (argument.count). */
-        if target.buffer.findInBuffer(argument.text)    result = argument; }
+        if argument.buffer.findInBuffer(target.text)    result = target; }
     return result ;
 }
 
@@ -279,10 +279,13 @@ use target
     if binType  result = remove(argument.tag);
     or data && argument.data {
         result = target;
-        if isCOUNT  gCount  -= argument.count;
-        or isNUMBER gNumber -= argument.number;
-        or isSTRING || isTOKEN   text = headToCount(text,gCount - argument.count);
-        else    result = 0;
+        switch(data) {
+            case isCOUNT:   gCount  -= argument.count;
+            case isNUMBER:  gNumber -= argument.number;
+            case isBUFFER:  buffer  -= argument.count;
+            case isSTRING:
+            case isTOKEN:   text = headToCount(text,gCount - argument.count);
+            default:        result = 0; }
         if !result  cerr "ERROR Operator -= failed on",tag,"and",argument.tag:; }
     or argument.isLIST
         while result = argument.prior(result)
@@ -405,17 +408,18 @@ use target
             opPlusEQ(grup,target);
     or target.binType || target.groupList   target += argument;
     or argument.data
-        if target.data
-            switch(target.data) {
+        if data
+            switch(data) {
                 case isCOUNT:   gCount  += argument.count;
                 case isNUMBER:  gNumber += argument.number;
                 case isSTRING:
                 case isTOKEN:   text    += argument.text;
                 case isBUFFER:  buffer  += argument.text;
+                    // if buffer mark is set, argument is inserted into buffer at mark
+                    // otherwise it is appended at end of buffer. mark is left as is
                 case isSTAK:    gStak.push(argument);
                 default:        cerr "ERROR Operator += failed on",tag,"and",argument.tag:; }
         else    target.copyData(argument);
-
     return target;
 }
 
@@ -548,14 +552,65 @@ extern GroupItem opString(GroupItem target,Buffer buffer)
     explicit control over the mark, and by applyTextDirective to
     arm/disarm Buffer.markIsSet around find-and-replace sweeps.
 ***************************************************************************/
-extern void setMark(GroupItem bufField)
+extern void flushBuffer(GroupItem bufField)
 {
-    if bufField.isBUFFER    bufField.buffer.setMark();
+    if bufField.isBUFFER    bufField.buffer.flush();
 }
 
-extern void unMark(GroupItem bufField)
+/*****************************************************************************
+    The argument passed in to getMarkLineAt must have source and fromThis attributes
+    It returns the line wrapped in a GroupItem field using setToken (as a stream
+    pointer into the buffer with a length). The field will only contain
+    valid text as long as the buffer contains it in place. Note: getMarkLineAt
+    calls findInBuffer to locate the matching line so if there is already
+    a mark set, it will search for the matching line from that mark on.
+    It then sets mark at beginning of the line in the source buffer. This
+    method is called by the getLine incant command defined in setup.
+*****************************************************************************/
+extern GroupItem getMarkLineAt(GroupItem argument)
 {
-    if bufField.isBUFFER    bufField.buffer.unMark();
+GroupItem   source = argument["source"],
+            fromThis = argument["fromThis"];
+GroupItem   result;
+    if source && source.isBUFFER
+        if fromThis {
+            Buffer      buffer = source.buffer;
+            int         matchLength;
+            String      lineStart;
+            if buffer
+                if matchLength = findInBuffer(fromThis.text) {
+                    lineStart = mark;
+                    while lineStart != start && lineStart != '\n' lineStart--;
+                    if lineStart >= start lineStart++;
+                    else lineStart = start;
+                    mark = lineStart + matchLength;
+                    while mark < current && mark != '\n' mark++;
+                    mark++;
+                    result = new("markLine");
+                    result.setToken(lineStart,(int)(mark - lineStart));
+                    mark = lineStart; }}
+        else cerr "getMarkLineAt: ERROR no match field provided":;
+    else cerr "getMarkLineAt: ERROR no source or source is not a buffer":;
+    return result;
+}
+
+/*****************************************************************************
+    The argument passed in to getMarkLineAt must have source and markOffset
+    attributes. The source must contain a buffer and markOffset must contain
+    a valid count. setMark is defined as an incant command in setup.
+*****************************************************************************/
+extern GroupItem setMark(GroupItem argument)
+{
+GroupItem   source = argument["source"],
+            markOffset = argument["markOffset"];
+int         offset = markOffset.count;
+    if source {
+        Buffer buffer = source.buffer;
+        if mark && current >= mark + offset     mark += offset;
+        or current >= start + offset            mark = start + offset;
+        else cerr "setMark: ERROR mark offset exceeds current buffer length":; }
+    else cerr "setMark: ERROR no buffer source provided":;
+    return null;
 }
 
 extern void setFile(GroupItem bufField,String name)
@@ -563,9 +618,9 @@ extern void setFile(GroupItem bufField,String name)
     if bufField.isBUFFER    bufField.buffer.setFile(name);
 }
 
-extern void flushBuffer(GroupItem bufField)
+extern void unMark(GroupItem bufField)
 {
-    if bufField.isBUFFER    bufField.buffer.flush();
+    if bufField.isBUFFER    bufField.buffer.unMark();
 }
 
 /***************************************************************************

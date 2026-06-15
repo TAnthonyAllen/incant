@@ -42,9 +42,45 @@ define
         else print "generateCode failed":;
         };
     testFer code={ for grup in sumple; attributes  print `taG:; };
+    testWithAssign x code={
+        x = "hi";
+        print x:; };
+    /***************************************************************************
+        Directives
+    ***************************************************************************/
+    source="Tests/dirPOP";
+    dIRECTive1 source fromThis="matchOnThis:" toThis="\tStick this in instead";
+    dIRECTive2 source fromThis="x =" toThis='\t\tprint "Stuck this in before":;\n' where=before;
+    dIRECTive3 source fromThis="x:;" toThis='\t\tprint "Stuck this in after":;\n' where;
+    replaceAt argument code={
+        print "Running replaceAt":;
+        :argument source fromThis toThis;
+        if fromThis IN source;
+            source -= fromThis;
+            if toThis;  source += toThis;
+        else    print "Did not find" fromThis "in source":; };
+    insertAt argument code={
+        print "Running insertAt":;
+        :argument source fromThis toThis where;
+        line = getLine(argument);
+        if where == "before";
+            source += toThis;
+        else
+            where +% source;
+            markOffset = new("markOffset");
+            markOffset = line;
+            where +% markOffset;
+            setMark(where);
+            source += toThis;
+        };
     ;
 
-generateAction(testFer);
+getFile(source);
+print "At start the source text having directives applied is:":source:;
+replaceAt(dIRECTive1);
+insertAt(dIRECTive2);
+insertAt(dIRECTive3);
+print "After applying directives the source text is:":source:"We done";
 stop();
 printDefinition(tabFORM);
 testFer();
@@ -53,7 +89,9 @@ generateAction(testFer);
 
     *****************************************************************************
 
-Note the value of the tabs attribute in the tabBAR block below is set to tabTwo. That sets the initially selected tab to be tabTwo. If the tabs attribute has no value, the default will use the first tab block (tabOne in this case) as the initially selected tab.
+The initFORMs() action run at the top of this file is defined in utilities. It changes the incant grammar to allow a field definition to take the form: field=(a delimited block of text that can contain any characters up to the delimiter that ends the text block. The delimiter field used has a value of #).
+    The two fields defined in the dESCRIPTIONs registry above make use of this.
+Note the value of the tabs attribute in the tabBAR block above is set to tabTwo. That sets the initially selected tab to be tabTwo. If the tabs attribute has no value, the default will use the first tab block (tabOne in this case) as the initially selected tab.
 Also note: this text is not wrapped in a comment; the incant parser stops parsing and exits at the stop() command so there is no need to.
 And it would be nice to wrap everything at the top of this file into an incant action up to and including the changeDatA() line to not have to copy all those lines into the almost 100 form files we now have (and there will likely be more forthcoming).
 The printDefinition(tabFORM); line before the stop() command is there as POP to show that the xml to incant conversion works as intended.

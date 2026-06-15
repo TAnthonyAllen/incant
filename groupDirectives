@@ -21,9 +21,9 @@ aCTionDebuG subrule.debugged ctive
 aCTionDebuG embed.debugged ctive
     if embed.debugged print "Debugging",embed.tag:;
 #;
-aCTionDefinE "if Attributes" before ctive
+aCTionDefinE "if Attributes" before active
     cout "aCTionDefinE:",NewGroup.tag,lastIndent:;
-    if NewGroup.tag eq "tabFORM" item = 0;
+    if NewGroup.tag eq "DiRReplaceFoo" item = 0;
 #;
 aCTionElsE if ctive
     if blocking cout "unBlocked:", blocking:;
@@ -78,7 +78,7 @@ opPrinter printText before
     if guardOK && (debugAllRules || debugRule)
     if tag eq "list"   debugged = true;
     debugAllRules = true;
-    if name eq "Grokking" {
+    if tag eq "Grokking" {
         debugRuleNamed("DefinE");
         debugRuleNamed("NewGroup");
         debugRuleNamed("TraiT");
@@ -89,7 +89,9 @@ processAction tempField ctive
     if tag eq "gFOR" dumpContents(action);
 #;
 processCode processingCode ctive
-    if tag eq "gFOR" result = 0;
+    if tag eq "replaceAt" {
+        debugRuleNamed("StatemenT");
+        }
 #;
 processCode result ctive
     if tag eq "gFOR" dumpContents(action);

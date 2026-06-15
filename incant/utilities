@@ -222,18 +222,6 @@ define
         target  = num;
         return target; };
     /***************************************************************************
-        changeDatA changes the DatA bootstrap rule defined in GroupMain to
-        add support for setting a field string to a block of text delimited
-        by a starting '(' and ended by the text of the delimiter field.
-        Note: the starting and ending limiters are not included in the
-        resulting field string. And the DatA rule is not permanently changed.
-        It reverts when incant gets a stop() command.
-    ***************************************************************************/
-    DelimText isRule '('- dtext^}=delimiter;
-    changeDatA code={
-        DatA += DelimText;
-        guard(DatA); };
-    /***************************************************************************
         Extract the red, green, and blue components of a color group passed
         in as a six character hex string
     ***************************************************************************/
@@ -246,6 +234,18 @@ define
         RGBblue = hex + 4;
         hex     +% hexToNumber(RGBblue);
         dumpContents(hex); };
+    /***************************************************************************
+        changeDatA changes the DatA bootstrap rule defined in GroupMain to
+        add support for setting a field string to a block of text delimited
+        by a starting '(' and ended by the text of the delimiter field.
+        Note: the starting and ending limiters are not included in the
+        resulting field string. And the DatA rule is not permanently changed.
+        It reverts when incant gets a stop() command.
+    ***************************************************************************/
+    DelimText isRule '('- dtext^}=delimiter;
+    changeDatA code={
+        DatA += DelimText;
+        guard(DatA); };
     /***************************************************************************
         initFORMs — collapses the foldable part of per-form boilerplate into
         one call. Recon (2026-06-09) established the ceiling:

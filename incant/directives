@@ -1,4 +1,95 @@
+Start();
+register(Directives);
+define
+    /*************************************************************************
+        Replace directive — fixtures + runner.
+        DiRReplaceFoo's two children (fromBody, toBody) are the from/to refs.
+        Intended: find the line matching fromBody ("original line") in
+        replaceTarget's BlocK and swap in toBody ("replaced line").
+        Actual: drops the first line instead — see KNOWN BUG in the header.
+    *************************************************************************/
+    replaceTarget code={
+        print "target line 1":;
+        print "original line":;
+        print "target line 3":; };
+    fromBody code={ print "original line":; };
+    toBody   code={ print "replaced line":; };
+    DiRReplaceFoo fromBody toBody;
+    testDirectiveReplace code={
+        print ``"--- STATE inactive: replaceTarget, no directive ---":;
+        replaceTarget();
+        print ``"--- STATE active: replaceTarget :+ DiRReplaceFoo ---":;
+        replaceTarget :+ DiRReplaceFoo;
+        replaceTarget();
+        print ``"--- idempotent: re-apply, run again ---":;
+        replaceTarget :+ DiRReplaceFoo;
+        replaceTarget(); };
+
+    /*************************************************************************
+        Delete directive — fixtures + runner.
+        DiRDeleteFoo has one child (fromBody only) -> delete, no replacement.
+        Intended: drop the line matching fromBody ("original line").
+        Actual: drops the first line instead — see KNOWN BUG in the header.
+    *************************************************************************/
+    deleteTarget code={
+        print "delete line 1":;
+        print "original line":;
+        print "delete line 3":; };
+    DiRDeleteFoo fromBody;
+    testDirectiveDelete code={
+        print ``"--- STATE inactive: deleteTarget, no directive ---":;
+        deleteTarget();
+        print ``"--- STATE active: deleteTarget :+ DiRDeleteFoo ---":;
+        deleteTarget :+ DiRDeleteFoo;
+        deleteTarget(); };
+
+    /*************************************************************************
+        Text-substrate directive — fixtures + runner. This is the path that
+        DOES content-match. Loads a .twk file into a buffer field and rewrites
+        the buffer TEXT (not a code body): DiRSwapInt replaces "int dummy" with
+        "int REPLACED". File write is parked — closeFile(fileField) is wired
+        but commented out so groups.twk on disk is never touched.
+    *************************************************************************/
+    swapFrom = "int	dummy";
+    swapTo   = "int	REPLACED";
+    DiRSwapInt swapFrom swapTo;
+    testTextDirective code={
+        fileField = "/Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/groups.twk";
+        **fileField;
+        getFile(fileField);
+        print ``"--- BEFORE text directive ---":;
+        print fileField:;
+        fileField += DiRSwapInt;
+        print ``"--- AFTER text directive ---":;
+        print fileField:;
+        /* closeFile(fileField); */ };
+
+    /*************************************************************************
+        Parse probes — minimal one-hypothesis-each fixtures kept from isolating
+        a since-resolved parse failure. testWithAssign currently emits nothing
+        (see findings in the header).
+    *************************************************************************/
+    testJustPrint code={
+        print "hello":; };
+    testWithTab code={
+        print "tab\there":; };
+    testWithAssign x code={
+        x = "hi";
+        print x:; };
+    ;
+
 /*****************************************************************************
+    Run the deliverables, then the parse probes, then the text-substrate POP.
+*****************************************************************************/
+testDirectiveReplace();
+testDirectiveDelete();
+testJustPrint();
+testWithTab();
+testWithAssign();
+testTextDirective();
+stop();
+
+    /*************************************************************************/
                 Directives registry — runtime code & text rewriting.
 
     A directive is a small named group whose children name a from-target and
@@ -90,93 +181,3 @@
     was a dangling no-op. (It was NOT the source of the exit-2 error: that comes
     from testTextDirective, see KNOWN ISSUE above. Removing testDirective() left
     the error unchanged.)
-*****************************************************************************/
-Start();
-register(Directives);
-define
-    /*************************************************************************
-        Replace directive — fixtures + runner.
-        DiRReplaceFoo's two children (fromBody, toBody) are the from/to refs.
-        Intended: find the line matching fromBody ("original line") in
-        replaceTarget's BlocK and swap in toBody ("replaced line").
-        Actual: drops the first line instead — see KNOWN BUG in the header.
-    *************************************************************************/
-    replaceTarget code={
-        print "target line 1":;
-        print "original line":;
-        print "target line 3":; };
-    fromBody code={ print "original line":; };
-    toBody   code={ print "replaced line":; };
-    DiRReplaceFoo fromBody toBody;
-    testDirectiveReplace code={
-        print ``"--- STATE inactive: replaceTarget, no directive ---":;
-        replaceTarget();
-        print ``"--- STATE active: replaceTarget :+ DiRReplaceFoo ---":;
-        replaceTarget :+ DiRReplaceFoo;
-        replaceTarget();
-        print ``"--- idempotent: re-apply, run again ---":;
-        replaceTarget :+ DiRReplaceFoo;
-        replaceTarget(); };
-
-    /*************************************************************************
-        Delete directive — fixtures + runner.
-        DiRDeleteFoo has one child (fromBody only) -> delete, no replacement.
-        Intended: drop the line matching fromBody ("original line").
-        Actual: drops the first line instead — see KNOWN BUG in the header.
-    *************************************************************************/
-    deleteTarget code={
-        print "delete line 1":;
-        print "original line":;
-        print "delete line 3":; };
-    DiRDeleteFoo fromBody;
-    testDirectiveDelete code={
-        print ``"--- STATE inactive: deleteTarget, no directive ---":;
-        deleteTarget();
-        print ``"--- STATE active: deleteTarget :+ DiRDeleteFoo ---":;
-        deleteTarget :+ DiRDeleteFoo;
-        deleteTarget(); };
-
-    /*************************************************************************
-        Text-substrate directive — fixtures + runner. This is the path that
-        DOES content-match. Loads a .twk file into a buffer field and rewrites
-        the buffer TEXT (not a code body): DiRSwapInt replaces "int dummy" with
-        "int REPLACED". File write is parked — closeFile(fileField) is wired
-        but commented out so groups.twk on disk is never touched.
-    *************************************************************************/
-    swapFrom = "int	dummy";
-    swapTo   = "int	REPLACED";
-    DiRSwapInt swapFrom swapTo;
-    testTextDirective code={
-        fileField = "/Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/groups.twk";
-        **fileField;
-        getFile(fileField);
-        print ``"--- BEFORE text directive ---":;
-        print fileField:;
-        fileField += DiRSwapInt;
-        print ``"--- AFTER text directive ---":;
-        print fileField:;
-        /* closeFile(fileField); */ };
-
-    /*************************************************************************
-        Parse probes — minimal one-hypothesis-each fixtures kept from isolating
-        a since-resolved parse failure. testWithAssign currently emits nothing
-        (see findings in the header).
-    *************************************************************************/
-    testJustPrint code={
-        print "hello":; };
-    testWithTab code={
-        print "tab\there":; };
-    testWithAssign x code={
-        x = "hi";
-        print x:; };
-    ;
-
-/*****************************************************************************
-    Run the deliverables, then the parse probes, then the text-substrate POP.
-*****************************************************************************/
-testDirectiveReplace();
-testDirectiveDelete();
-testJustPrint();
-testWithTab();
-testWithAssign();
-testTextDirective();

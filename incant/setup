@@ -24,7 +24,7 @@ define
     buffer immediateAction=setInternalType noPrint;
     class immediateAction=rEGISTER noPrint;
     clear immediateAction=cLEAR;
-    closeFile immediateAction=closeFile;
+    closeFile immediateAction;
     condition immediateAction=processFlags noPrint;
     copy immediateAction=cOPY;
     copyOf immediateAction;
@@ -37,6 +37,7 @@ define
     flushBuffer immediateAction=flushBuffer;
     generateCode immediateAction;
     getFile immediateAction;
+    getLine immediateAction=getMarkLineAt;
     getType immediateAction;
     guard immediateAction noPrint;
     index immediateAction=processFlags noPrint;
@@ -56,6 +57,7 @@ define
     interpretBC immediateAction=interpretBC;
     setFile immediateAction=setFile;
     setLabel immediateAction;
+    setMark immediateAction;
     setPointer immediateAction=opPointer noPrint;
     sort immediateAction=processFlags noPrint;
     stack immediateAction=setInternalType noPrint;

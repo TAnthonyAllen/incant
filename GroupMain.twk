@@ -90,10 +90,9 @@ GroupRules  ruler = groupRules;
         Define the setupFILE declared in GroupRules. It gets loaded at the
         end of this bootstrapper method.
     *************************************************************************/
-    setupFILE           = new("setup");
-    item                = setupFILE += "File";
-    item.text           = "incant/setup";
-    item                = setupFILE += "atLINE";
+    setupFILE       = new("setup");
+    item            = setupFILE += "File";
+    item.text       = "incant/setup";
     /*************************************************************************
         bootstrap character sets. Do these need to be in Grokking?
     *************************************************************************/
@@ -182,7 +181,7 @@ GroupRules  ruler = groupRules;
     modify(item,"-");
     item            = grok["nameSet"];
     item            = strap +% item;
-    modify(item,"-*");
+    modify(item,"-^*");
     item            = grok["tokenize"];
     strap           +% item;
     
@@ -353,7 +352,8 @@ GroupRules  ruler = groupRules;
     item            = grok/InitiatE;
     item            = 0;
 
-    if getFile(setupFILE)     strap.parse(0);
+    pushInput(getFile(setupFILE));
+    if sourceFILE   strap.parse(0);
     popInput();
     /*************************************************************************
         Set the buffer links

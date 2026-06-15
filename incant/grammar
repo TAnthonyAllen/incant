@@ -35,7 +35,7 @@ tokenize^@;                                     // method set to tokenize()
 NumbeR=numberSet=[0-9]+       FloaT? tokenize;  // happens tho grammar does not allow it
 DefinE;
 QuotE               tik=['"] quoteBody}=tik$@;
-NamE                first-=[a-zA-Z] nameSet-* tokenize;
+NamE                first-=[a-zA-Z] nameSet-^* tokenize;
 GrouP
     NamE;
     QuotE;

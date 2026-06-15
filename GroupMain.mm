@@ -98,7 +98,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	ruler->setupFILE = new GroupItem("setup");
 	item = ruler->setupFILE->addString("File");
 	item->setText("incant/setup");
-	item = ruler->setupFILE->addString("atLINE");
 	/*************************************************************************
 	bootstrap character sets. Do these need to be in Grokking?
 	*************************************************************************/
@@ -180,7 +179,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	::modify(item,"-");
 	item = grok->get("nameSet");
 	item = strap->addAttribute(item);
-	::modify(item,"-*");
+	::modify(item,"-^*");
 	item = grok->get("tokenize");
 	strap->addAttribute(item);
 	strap = grok->addString("NumbeR");
@@ -333,7 +332,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	::modify(item,"+");
 	item = grok->getMember("InitiatE");
 	item = 0;
-	if ( ::getFile(ruler->setupFILE) )
+	ruler->pushInput(::getFile(ruler->setupFILE));
+	if ( ruler->sourceFILE )
 		strap->parse(0);
 	ruler->popInput();
 	/*************************************************************************

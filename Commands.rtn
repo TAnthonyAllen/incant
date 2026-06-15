@@ -135,9 +135,7 @@ GroupItem   fieldList   = field.getAttribute("bcLIST");
 ******************************************************************************/
 extern GroupItem getFile(GroupItem filing)
 {
-GroupRules  ruler = groupRules;
-GroupItem   File:,
-            atLINE:;
+GroupItem   File:;
 long        length, increment;
 int         file;
 String      fileName;
@@ -167,7 +165,7 @@ use filing
         increment = read(file,start,length);
         if increment != length
             cerr "getFile: Problem reading in " tag:;
-        else    end = start + length;
+        else    current = start + length;
         close( file );
         }
     else {
@@ -176,9 +174,6 @@ use filing
         system("pwd");
         checkSys(file,errorMessage);
         }
-    if !atLINE      atLINE = filing += "atLINE";
-    atLINE.count    = 0;
-    pushInput(filing);
     return filing;
 }
 
@@ -323,7 +318,9 @@ String      directoryName,
 extern GroupItem loadInputFromFile(GroupItem source)
 {
 GroupRules  ruler = groupRules;
-    if source.getFile()     return source;
+    if source.getFile() {
+        pushInput(source);
+        return source; }
     else cerr ``"loadInputFromFile: failed getting file from",tag:;
     return falseResult;
 }

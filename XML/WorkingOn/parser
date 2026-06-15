@@ -1,19 +1,46 @@
 /*******************************************************************************
 	Offline Status Report
 *******************************************************************************/
-No major news to report. I worked on testing the generating actions that loop: gFOR gWhile ... made minor changes to runForNext, notably to support incants use of lastREF. Related change made to aCTionFOR and generateCode so that lastREF is not changed when looping over bcLIST. Bottom line: now when I run
-        testFer code={ for grup in sumple; attributes  print `taG:; };
-        using generateAction(testFer);
-    we get:
-        About to run interpretBC
-            height
-            width
-            x
-            y
-            down
-    In doing so all the current twk files were used in anger and the incant command in my ~/bin works on our generate actions. However, I did not do a run on the unit tests to verify they still work. Always a chance some of the changes made since our last unit test run broke something. Please commit everything now. Then before shut down today let us discuss the shape and form of generate to set a goal (a victory criteria) we can work towards to do a full monty verification run make sure everything working as it should after we make changes during development. Ideally, we run unit tests and generate tests to make sure they work as intended before we do our next round of commits.
-    I suggest Tonto do a recon on the current state of our twk and mm files comparing against what is in the repo and summarize the status before committing.
-    After committing, today tasks are just: keep working on generate actions and adding runOPS to Bytecode.twk. Victory to be defined by being able to run generateAction() successfully on all the unit tests. That will not happen today, but we are making progress at a faster pace recently so victory maybe not too far off.
+Got a late start and then dived into incant directives with nice results, however, I did not expect to have to make so many changes (listed below) to incant twk files. Have not done POP using unit tests or generate actions to ensure the changes do not mess something up. I did hammer on the changes I made pretty hard and they held up well. Most of the changes were minor, some subtle. I suggest we do the full monty POP and then commit everything.
+The directive stuff I worked on is in the incant tabs file that I have been using for offline work and testing. I wrote two short incant actions. One to replace text (which is an improvement on tok directives that cannot); and one to insert before or after a buffer line that contains a match on some match text you provide in the directive. That too is better than tok directive that can only match the beginning of a line. OTOH, tok directives are idempotent; incant directives are not, unless you work on a copy of the file you are applying directives to. Have not come up with a way to fix that.
+One advantage of the incant directives, not only can you insert large blocks of text, you can replace large blocks with other large blocks; nice if you want to replace a set of actions with a revised set of actions or some such.
+Our idea of using comments to match on is not going to work unless we change checkSkip(), which swallows anything that looks like a comment even if it is wrapped in quotes.
+I would like to move my directive stuff out of the tabs file and into the directives file where it belongs, along with some documenting text to explain how it all works. Fairly simple to use with a few subtleties worth explaining.
+
+Here is a summary of the changes I made. I did not rip out the C++ directive related methods associated with our previous directive work, but I think we can. No worries.
+methods changed in GroupMain.twk
+	bootstrapper changed to fix setupFILE setting
+	Fixed a hysterical booboo in Name rule defined in GroupMain that fixed
+		testWithAssign x code={
+        		x = "hi";
+        		print x:; };
+		The problem was NamE was swallowing x code as if it were “x code” because of a missing noSkip modifier in the nameSet attribute. corrected rule is now
+	NamE                first-=[a-zA-Z] nameSet-^* tokenize;
+		the ^ modifier was missing before
+method changed in GroupRules.twk
+    int pushInput(GroupItem source) to set RuleMark to the buffer start not current
+method changed in groups.twk
+    main changed to call loadInputFromFile instead of getFile since getFile no longer calls pushInput()
+methods changed in Commands.rtn
+	extern GroupItem getFile(GroupItem filing) to remove atLINE setting and pushInput
+		getFile was adding atLINE into files that are not actions. Should not happen. atLINE should be set in processCode as a noPrint attribute of an action.
+    extern GroupItem loadInputFromFile(GroupItem source) to adjust for change in getFile w/no pushInput
+methods changed in Instruct.rtn
+	extern GroupItem opMinusEQ(GroupItem argument,GroupItem target)
+	extern GroupItem opPlusEQ(GroupItem argument,GroupItem target)
+    extern GroupItem opIN(GroupItem argument,GroupItem target) to switch Buffer case references to target and argument
+    extern GroupItem setMark(GroupItem argument) revised and now accessible as an incant command
+    added extern GroupItem getMarkLineAt(GroupItem argument) to return line containing buffer mark
+methods changed a lot in Buffer.twk (in support) mostly cosmetic aside from
+    void appendString(String text,String format,int width)
+    void appendChar(char c,String format,int width)
+	added void shiftAtMark(int length)
+	POP required but I have been banging on it during directives development
+In incant files
+	grammar changed to correctly show NamE rule in top comment
+	utilities rearranged order of a couple of actions. No code changes
+	derivatives moved comment from top to bottom. No code changes
+
 
 /*******************************************************************************
 	This is my list of unit tests to be written. No need to add it into any md file.
@@ -27,22 +54,22 @@ No major news to report. I worked on testing the generating actions that loop: g
     A bin used as a switch test a la generator/runGenerator. Generator is the gay iconic example, but perhaps a wee bit (a wee bit that we have worked on for a month :) to complex for a unit test.
     Need incant commands to insert a field before (change GroupItem insertGroup to insertInto) or after another field
 
+/*******************************************************************************
+	Working On
+*******************************************************************************/
+If source is a buffer and a directiveField argument has three fields in its list: source fromBody toBody. fromBody and toBody are strings (use of doc text fields may be called for). Normal use would have fromBody match text in source: text to be matched could look like a C++ label: or a //comment,
+    or no reason the fromBody match could not be a block of text spanning multiple lines. The doc block feature used in grammarOnTheFly could be applied in fromBody for that purpose
+    Once a fromBody match is found, the fromBody text is replaced by the toBody text
+    Using source=getFile(filename); source text can be loaded from a file;
+    if fromBody IN source; is true and sets source mark as side effect (it does)
+    and source -= fromBody; deletes fromBody.count characters in source starting at mark
+    and source += text; inserts text at buffer mark
+    then BYU
+Note: fromBody IN source will start looking from source.mark if it is set, otherwise it starts looking from source.start. If you want to make sure source search starts from start, unMark(source); first.
+To do the needful then run replaceAt ah so: replaceAt(directiveField); and as the Kpop Demon Hunter girls sing: Thats how its done done done.
 
-/***************************************************************************
-    runPlusEQ — pop two, run opPlusEQ, copying its data into the sum.sum is
-    pushed onto the stack even on a null result (stays empty), keeping the
-    stack depth predictable.
-***************************************************************************/
-extern GroupItem runPlusEQ(GroupItem instr)
-{
-GroupItem   stack  = opStackOf(instr);
-GroupItem   op2    = stack.pop();
-GroupItem   op1    = stack.pop();
-GroupItem   result = opPlusEQ(op2, op1);
-GroupItem   sum    = new("sum");
-    if result   sum.copyData(result);      // copy value off the result (op1)
-    stack.push(sum);
-    return null;
-}
-//  externals declaration
-    extern GroupItem    runPlusEQ(GroupItem instr);
+Need to add insertDirective w/before atStart and atEnd options
+Need a lineContaining action or C++ extern method to return a field with text as the whole line containing the match; so fromBody could be specified as fromBody=lineContaining(matchText)
+A replace action directive is not needed for incant, adding a revised action copy in the current registry will effectively do that idempotently since the current registry is searched before the search list
+Replacing a field in a field list already handled by :+ opReplace()
+        

@@ -276,7 +276,7 @@ int     result;
         sourceLINE  = 0;
         buffer = source.buffer;
         if !buffer  atRuleMark = text;
-        else        atRuleMark = buffer.current;
+        else        atRuleMark = buffer.start;
         if !atRuleMark cerr "pushInput: no input text provided in",tag:; }
     if atRuleMark   result = true;
     return result;

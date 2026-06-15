@@ -1615,6 +1615,12 @@ char 	*name = input->getText();
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
+/***************************************************************************
+    Buffer-side mark machinery wrappers — thin passthroughs to Buffer's
+    setMark/unMark/setFile/closeFile. Used by incant code that wants
+    explicit control over the mark, and by applyTextDirective to
+    arm/disarm Buffer.markIsSet around find-and-replace sweeps.
+***************************************************************************/
 extern "C" void flushBuffer(GroupItem *bufField)
 {
 	if ( isBUFFER(bufField->groupBody->flags.data) )
@@ -1699,9 +1705,7 @@ int 	advance = 0;
 ******************************************************************************/
 extern "C" GroupItem *getFile(GroupItem *filing)
 {
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*File = filing->getLabelGroup("File");
-GroupItem 	*atLINE = filing->getLabelGroup("atLINE");
 long 		length = 0;
 long 		increment = 0;
 int 		file = 0;
@@ -1737,7 +1741,7 @@ Buffer 		*buffet = 0;
 		increment = read(file,buffet->start,length);
 		if ( increment != length )
 			::fprintf(stderr,"getFile: Problem reading in %s\n",filing->groupBody->tag);
-		else	buffet->end = buffet->start + length;
+		else	buffet->current = buffet->start + length;
 		::close(file);
 		}
 	else {
@@ -1746,11 +1750,51 @@ Buffer 		*buffet = 0;
 		::system("pwd");
 		::checkSys(file,errorMessage);
 		}
-	if ( !atLINE )
-		atLINE = filing->addString("atLINE");
-	atLINE->setCount(0);
-	ruler->pushInput(filing);
 	return filing;
+}
+
+/*****************************************************************************
+    The argument passed in to getMarkLineAt must have source and fromThis attributes
+    It returns the line wrapped in a GroupItem field using setToken (as a stream
+    pointer into the buffer with a length). The field will only contain
+    valid text as long as the buffer contains it in place. Note: getMarkLineAt
+    calls findInBuffer to locate the matching line so if there is already
+    a mark set, it will search for the matching line from that mark on.
+    It then sets mark at beginning of the line in the source buffer. This
+    method is called by the getLine incant command defined in setup.
+*****************************************************************************/
+extern "C" GroupItem *getMarkLineAt(GroupItem *argument)
+{
+GroupItem 	*source = argument->get("source");
+GroupItem 	*fromThis = argument->get("fromThis");
+GroupItem 	*result = 0;
+	if ( source && isBUFFER(source->groupBody->flags.data) )
+		if ( fromThis )
+			{
+			Buffer 	*buffer = source->getBuffer();
+			int 	matchLength = 0;
+			char 	*lineStart = 0;
+			if ( buffer )
+				if ( matchLength = buffer->findInBuffer(fromThis->getText()) )
+					{
+					lineStart = buffer->mark;
+					while ( lineStart != buffer->start && *lineStart != '\n' )
+						lineStart--;
+					if ( lineStart >= buffer->start )
+						lineStart++;
+					else	lineStart = buffer->start;
+					buffer->mark = lineStart + matchLength;
+					while ( buffer->mark < buffer->current && *buffer->mark != '\n' )
+						buffer->mark++;
+					buffer->mark++;
+					result = new GroupItem("markLine");
+					result->setToken(lineStart,(int)(buffer->mark - lineStart));
+					buffer->mark = lineStart;
+					}
+			}
+		else	::fprintf(stderr,"getMarkLineAt: ERROR no match field provided\n");
+	else	::fprintf(stderr,"getMarkLineAt: ERROR no source or source is not a buffer\n");
+	return result;
 }
 
 /***************************************************************************
@@ -2003,7 +2047,10 @@ extern "C" GroupItem *loadInputFromFile(GroupItem *source)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( ::getFile(source) )
+		{
+		ruler->pushInput(source);
 		return source;
+		}
 	else	::fprintf(stderr,"\t\tloadInputFromFile: failed getting file from %s\n",source->groupBody->tag);
 	return ruler->falseResult;
 }
@@ -2506,14 +2553,14 @@ GroupItem 	*result = 0;
 				result = GroupControl::groupController->groupRules->trueResult;
 		}
 	else
-	if ( isBUFFER(target->groupBody->flags.data) )
+	if ( isBUFFER(argument->groupBody->flags.data) )
 		{
 		/* Text-substrate find: argument is a string field, target is a
 		buffer field. On match, buffer's mark is set to start of match
 		(side effect); we return argument so caller has the matched
 		string for length-of-match computations (argument.count). */
-		if ( target->getBuffer()->findInBuffer(argument->getText()) )
-			result = argument;
+		if ( argument->getBuffer()->findInBuffer(target->getText()) )
+			result = target;
 		}
 	return result;
 }
@@ -2594,15 +2641,24 @@ GroupItem 	*result = 0;
 	if ( target->groupBody->flags.data && argument->groupBody->flags.data )
 		{
 		result = target;
-		if ( isCOUNT(target->groupBody->flags.data) )
-			target->groupBody->gCount -= argument->getCount();
-		else
-		if ( isNUMBER(target->groupBody->flags.data) )
-			target->groupBody->gNumber -= argument->getNumber();
-		else
-		if ( isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data) )
-			target->setText(::headToCount(target->getText(),target->groupBody->gCount - argument->getCount()));
-		else	result = 0;
+		switch (target->groupBody->flags.data)
+			{
+			case 5:
+				target->groupBody->gCount -= argument->getCount();
+				break;
+			case 9:
+				target->groupBody->gNumber -= argument->getNumber();
+				break;
+			case 4:
+				target->getBuffer()->deleteFromBuffer(argument->getCount());
+				break;
+			case 13:
+			case 14:
+				target->setText(::headToCount(target->getText(),target->groupBody->gCount - argument->getCount()));
+				break;
+			default:
+				result = 0;
+			}
 		if ( !result )
 			::fprintf(stderr,"ERROR Operator -= failed on %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
 		}
@@ -2784,6 +2840,8 @@ GroupItem 	*grup = 0;
 					break;
 				case 4:
 					target->getBuffer()->appendString(argument->getText(),0,0);
+					// if buffer mark is set, argument is inserted into buffer at mark
+					// otherwise it is appended at end of buffer. mark is left as is
 					break;
 				case 12:
 					target->groupBody->gStak->push(argument);
@@ -3708,16 +3766,28 @@ GroupItem 	*minimum = limits->getAttribute("min");
 		ruleStuff->max = maximum->getCount();
 }
 
-/***************************************************************************
-    Buffer-side mark machinery wrappers — thin passthroughs to Buffer's
-    setMark/unMark/setFile/closeFile. Used by incant code that wants
-    explicit control over the mark, and by applyTextDirective to
-    arm/disarm Buffer.markIsSet around find-and-replace sweeps.
-***************************************************************************/
-extern "C" void setMark(GroupItem *bufField)
+/*****************************************************************************
+    The argument passed in to getMarkLineAt must have source and markOffset
+    attributes. The source must contain a buffer and markOffset must contain
+    a valid count. setMark is defined as an incant command in setup.
+*****************************************************************************/
+extern "C" GroupItem *setMark(GroupItem *argument)
 {
-	if ( isBUFFER(bufField->groupBody->flags.data) )
-		bufField->getBuffer()->setMark();
+GroupItem 	*source = argument->get("source");
+GroupItem 	*markOffset = argument->get("markOffset");
+int 		offset = markOffset->getCount();
+	if ( source )
+		{
+		Buffer 	*buffer = source->getBuffer();
+		if ( buffer->mark && buffer->current >= buffer->mark + offset )
+			buffer->mark += offset;
+		else
+		if ( buffer->current >= buffer->start + offset )
+			buffer->mark = buffer->start + offset;
+		else	::fprintf(stderr,"setMark: ERROR mark offset exceeds current buffer length\n");
+		}
+	else	::fprintf(stderr,"setMark: ERROR no buffer source provided\n");
+	return 0;
 }
 
 /***************************************************************************
@@ -4238,7 +4308,7 @@ int 	result = 0;
 		buffer = source->getBuffer();
 		if ( !buffer )
 			atRuleMark = source->getText();
-		else	atRuleMark = buffer->current;
+		else	atRuleMark = buffer->start;
 		if ( !atRuleMark )
 			::fprintf(stderr,"pushInput: no input text provided in %s\n",source->groupBody->tag);
 		}

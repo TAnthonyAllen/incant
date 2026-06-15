@@ -19,7 +19,7 @@ char 		*name = argv[1];
 		{
 		GroupItem 	*boot = crap->bootstrapper();
 		GroupItem 	*source = new GroupItem(name);
-		::getFile(source);
+		::loadInputFromFile(source);
 		boot->parse(0);
 		}
 }
