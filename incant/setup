@@ -53,6 +53,7 @@ define
     regex immediateAction=setInternalType noPrint;
     register immediateAction=rEGISTER noPrint;
     registry immediateAction=rEGISTER noPrint;
+    reset immediateAction=resetField;
     runByteFn immediateAction=runByteFn;
     interpretBC immediateAction=interpretBC;
     setFile immediateAction=setFile;

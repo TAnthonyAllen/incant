@@ -623,6 +623,17 @@ extern void unMark(GroupItem bufField)
     if bufField.isBUFFER    bufField.buffer.unMark();
 }
 
+/*****************************************************************************
+    reset — incant command (bound as reset immediateAction=resetField in
+    setup). Self-describing by argument: for now it knows buffers (resets the
+    mark). A fuller incant action dispatching on argument.taG comes later.
+*****************************************************************************/
+extern GroupItem resetField(GroupItem argument)
+{
+    if argument.isBUFFER    argument.buffer.unMark();
+    return null;
+}
+
 /***************************************************************************
     setFileOp — operator-signature shim over Buffer.setFile, for the modedOP
     writable-operator path: `doc modedOP "path"` points doc's buffer at a

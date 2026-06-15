@@ -63,9 +63,20 @@ identical debug scaffolding). (`oneTest:21` `stop()` already restored.)
   (proven), self-contained read-only POP against committed `incant/dirSample`, full usage
   guide + KNOWN LIMITS (non-idempotent; comment-match needs `checkSkip()` change) after stop().
   Runs clean; baseline still 77/77.
+- [x] **`reset` incant command** — done 2026-06-15. Resets a buffer's mark so a fresh pass
+  of directives can be applied (directives chain forward — the mark only advances, so
+  out-of-order targeting fails; getFile or reset(source) returns the mark to the start).
+  Thin C++ `resetField` (Instruct.rtn, dispatches on argument — buffer for now), declared in
+  groups.ext, bound `reset immediateAction=resetField` in setup. Coexists with the `search
+  reset` token (no collision, like `stack`). Verified: baseline 77/77; reset(source) lets a
+  post-insert match at the top of the buffer succeed.
+  - [ ] **later** — promote to a full incant action that dispatches on `argument.taG` to
+    reset other field kinds, not just buffer marks.
 - [ ] **Rip obsolete C++ directive methods** — previous directive infrastructure in C++ is
   dead; Clod confirmed benign. Remove in cleanup pass. **DEFERRED per Clay** — hold until the
-  new incant directives are fully bedded in.
+  new incant directives are fully bedded in. Includes: remove the `DiR`-tag dispatch gate
+  (`if !compare(head(argument.tag,3),"DiR")`) from opPlusEQ — the new explicit replaceAt/
+  insertAt calls make the tag-sniffing dead weight.
 - [x] **`incant/directives` POP pattern** — done 2026-06-15. Documented in the directives
   file: copy target into `Groups/Tests/` (real copy, not symlink — Tests/ is gitignored
   scratch), getFile/apply/closeFile, diff copy against original. The in-file POP is read-only

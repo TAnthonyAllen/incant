@@ -3471,6 +3471,18 @@ char 	*result = 0;
 }
 
 /*****************************************************************************
+    reset — incant command (bound as reset immediateAction=resetField in
+    setup). Self-describing by argument: for now it knows buffers (resets the
+    mark). A fuller incant action dispatching on argument.taG comes later.
+*****************************************************************************/
+extern "C" GroupItem *resetField(GroupItem *argument)
+{
+	if ( isBUFFER(argument->groupBody->flags.data) )
+		argument->getBuffer()->unMark();
+	return 0;
+}
+
+/*****************************************************************************
 	Process an argument list to run any list elements that are methods
     or actions and return a new field containing the resolved list.
 *****************************************************************************/

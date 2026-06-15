@@ -190,6 +190,7 @@ extern "C" GroupItem *rEGISTER(GroupItem *item);
 extern "C" void replaceAtAnchor(GroupItem *targetLines, GroupItem *anchor, GroupItem *fromBlock, GroupItem *toBlock);
 extern "C" GroupItem *replaceDirective(GroupItem *argument, GroupItem *target);
 extern "C" char *replaceUsingFind(char *text, char *fromTxt, char *toTxt);
+extern "C" GroupItem *resetField(GroupItem *argument);
 extern "C" GroupItem *resolveList(GroupItem *input);
 extern "C" void restoreLocalFields(GroupItem *action);
 extern "C" GroupItem *ruleMethod(GroupItem *input);
