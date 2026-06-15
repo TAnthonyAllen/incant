@@ -31,7 +31,6 @@ define
         for grup in argument; members
             clear(result);
             result := runByteFn(grup);
-            **result;
         };
     testGenAction argument code={
         print "Generating action for" taG:;
