@@ -2,30 +2,38 @@ Start();
 /*****************************************************************************
     Directives registry — runtime text rewriting of a buffer.
 
-    An incant directive is a small named field whose sub-fields describe an
-    edit to apply to a text buffer (a file loaded with getFile). Two actions
-    consume directives:
+    An incant directive is a small named field whose sub-fields describe a
+    single edit to apply to a text buffer loaded via getFile. Two actions
+    consume them:
 
-        replaceAt(directive)   replace matched text with new text
-        insertAt(directive)    insert new text before/after a matched line
+        replaceAt(directive)   replace matched text in-place
+        insertAt(directive)    insert text before or after a matched line
 
-    A directive's sub-fields:
-        source     the buffer to edit (a field loaded via getFile)
-        fromThis   the text to match
-        toThis     the text to substitute / insert
-        where      (insertAt only) "before" to insert ahead of the matched
-                   line; any other value (or none) inserts after it
+    Directive sub-fields:
+        source     field loaded via getFile — the buffer being edited
+        fromThis   text to match (any substring, not just line-start)
+        toThis     replacement or insertion text; may be a single token or a
+                   large multi-line block (quote with \n for newlines)
+        where      insertAt only — "before" inserts ahead of the matched line;
+                   any other value (or omitted) inserts after it
 
-    These improve on tok directives on two axes Tony cares about:
-      - content match ANYWHERE on a line (tok matches line-start only)
-      - arbitrary block size — toThis can be a single token or many lines, so
-        you can swap a whole set of actions for a revised set.
+    Advantages over tok directives:
+        - fromThis matches anywhere on a line; tok matches line-start only
+        - toThis can be arbitrarily large — swap a single token or an entire
+          set of actions for a revised set in one directive
+        - replaceAt with no toThis is a delete
 
-    See the usage guide and KNOWN LIMITS after stop() at the bottom.
+    These actions mutate source's in-memory buffer via the mark-aware buffer
+    operators: IN finds fromThis and sets the mark; -= removes at the mark;
+    += inserts at the mark. The mark only advances — it never moves backward.
+    Directives on one buffer must therefore target locations in forward
+    (top-to-bottom) order; a fromThis that falls behind the current mark will
+    not match. getFile resets the mark to the buffer start.
+
+    See APPLYING DIRECTIVES and KNOWN LIMITS in the usage guide after stop().
 
     Supersedes the previous BlocK-line `:+ DiRFoo` splice path (the
-    drop-first-line content-match bug). That positional mechanism is retired;
-    these buffer-text actions content-match correctly (verified).
+    drop-first-line content-match bug). That positional mechanism is retired.
 *****************************************************************************/
 register(Directives);
 define
@@ -99,41 +107,72 @@ This text is past stop(); the incant parser halts there, so it need not be
 wrapped in a comment.
 
 WHAT A DIRECTIVE IS
-    A named field with these sub-fields:
-        source     the buffer to edit (load it with getFile(source))
-        fromThis   match text (any substring of a line — not just line-start)
-        toThis     replacement / insertion text (a token or a multi-line block)
+    A named field with sub-fields describing one edit:
+        source     the buffer to edit — load it first with getFile(source)
+        fromThis   match text — any substring of any line, not just line-start
+        toThis     the replacement or insertion text; a token or a multi-line
+                   block (use \n for embedded newlines, \t for tabs)
         where      insertAt only: "before" inserts ahead of the matched line;
-                   anything else (or no value) inserts after it
-    Example:
-        myReplace source fromThis="old text" toThis="new text";
-        myInsert  source fromThis="anchor"  toThis="line\n" where=before;
+                   any other value (or omitted) inserts after it
+
+    Example — replace:
+        myFix source fromThis="old text" toThis="new text";
+
+    Example — insert before a line:
+        myInsert source fromThis="anchor line" toThis="new line\n" where=before;
+
+    Example — delete (no toThis):
+        myDelete source fromThis="line to remove\n";
 
 THE TWO ACTIONS
-    replaceAt(directive)   replace the matched text with toThis (delete if no
-                           toThis is given)
-    insertAt(directive)    insert toThis before/after the line holding fromThis
-    Both mutate source's buffer in place via the mark-aware buffer operators
-    (IN finds and sets the mark; += / -= insert/remove at the mark).
+    replaceAt(directive)
+        Finds fromThis anywhere in the buffer, removes it, inserts toThis at
+        the mark. If toThis is absent the match is deleted. Uses IN to set the
+        mark, -= to remove, += to insert.
+
+    insertAt(directive)
+        Finds the line containing fromThis. If where=before, inserts toThis
+        at the mark (ahead of the line). Otherwise advances the mark past the
+        matched line via setMark/markOffset, then inserts toThis after it.
+
+    The mark only advances. Directives on one buffer must target locations in
+    forward order — out-of-order application fails (fromThis falls behind the
+    mark and won't match). When you need to re-apply or start over, call
+    reset(source) to reset the mark to the buffer start, or getFile again.
 
 APPLYING DIRECTIVES TO A REAL FILE — the copy-to-Tests/ workflow
-    Directives are NOT idempotent (see KNOWN LIMITS), and writing the buffer
-    back (closeFile) overwrites the file. So never directivise a source file
-    (or a symlink to one) directly. Instead:
-        1. Copy the target file into Groups/Tests/ (a real copy, not a
-           symlink). Tests/ is gitignored scratch, safe to clobber.
-        2. Point source at the copy:  source="Tests/myfile";
-        3. getFile(source); apply your directives; closeFile(source); to write
-           the rewritten copy back to Tests/myfile.
+    Directives are NOT idempotent (see KNOWN LIMITS) and closeFile overwrites
+    the file. Never directivise a source file or a symlink to one directly.
+
+        1. Copy the target into Groups/Tests/ — a real copy, not a symlink.
+           Tests/ is gitignored scratch, safe to clobber.
+        2. Point source at the copy:
+               source = "Tests/myfile";
+        3. getFile(source);
+           — apply your directives —
+           closeFile(source);
+           The rewritten buffer is written back to Tests/myfile.
         4. diff Tests/myfile against the original to confirm the edits landed.
-    This POP itself is read-only (no closeFile), so it runs against the
-    committed sample incant/dirSample without copying.
+
+    The POP fixture in this file is read-only (no closeFile). It runs against
+    the committed sample incant/dirSample, which is never touched on disk.
+
+    Note: source must be a real getFile'd buffer — getFile is the only path
+    to a real Buffer. The `source` sub-field on a directive definition is a
+    real functional field holding the buffer reference. Do not confuse it with
+    the `**source` double-star statement, which is a debug/inspection marker
+    (a no-op useful for eyeballing the field in Xcode). Always getFile before
+    applying any directive.
 
 KNOWN LIMITS
-    Non-idempotent — applying the same directive twice doubles the effect
-        (a second insert inserts again; a second replace re-replaces toThis if
-        toThis contains fromThis). Always work on a fresh copy, as above.
-    Comment matching does not work — checkSkip() swallows anything that looks
-        like a comment even when wrapped in quotes, so fromThis cannot be a
-        //comment or /* */ block. Matching a label: or ordinary code text is
-        fine. Lifting this needs a checkSkip() change.
+    Non-idempotent — applying the same directive twice doubles the effect.
+        A second insert inserts again; a second replace re-replaces toThis if
+        toThis happens to contain fromThis. Always work on a fresh copy.
+
+    Comment matching is broken — checkSkip() swallows anything that looks
+        like a comment even when it is wrapped in quotes. fromThis cannot be
+        a //comment or a /* */ block. Matching a label:, a string, or ordinary
+        code text works fine. Fixing this requires a checkSkip() change.
+
+    No undo — there is no rollback. If a directive fires incorrectly, discard
+        the Tests/ copy and start from a fresh one.
