@@ -66,6 +66,12 @@ define
         insertAt — find the line containing fromThis, insert toThis relative
         to it. where=before inserts ahead of the line; otherwise after it
         (the mark is repositioned past the matched line via setMark).
+        Note: getLine(argument) returns a field containing the line following
+        mark that contains the text of fromThis. incant text fields keep their
+        length in field.count, altho they do not have an isCOUNT data type
+        since they have an isSTRING data type. However, field.count uses the
+        getCount() getter that deals with that no problem. That is how markOffset
+        is passed to setMark, which treats it as both a count and a string.
     *************************************************************************/
     insertAt argument code={
         print "Running insertAt":;
@@ -139,6 +145,8 @@ THE TWO ACTIONS
     forward order — out-of-order application fails (fromThis falls behind the
     mark and won't match). When you need to re-apply or start over, call
     reset(source) to reset the mark to the buffer start, or getFile again.
+    Call reset(source) when done to clear the mark — ops like += check for it
+    and behave differently when it is set.
 
 APPLYING DIRECTIVES TO A REAL FILE — the copy-to-Tests/ workflow
     Directives are NOT idempotent (see KNOWN LIMITS) and closeFile overwrites

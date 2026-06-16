@@ -844,6 +844,7 @@ GroupItem 	*listItem = 0;
 GroupItem 	*lookin = 0;
 GroupItem 	*scopeList = input->getLabelGroup("scopeList");
 GroupItem 	*grup = 0;
+char 		*name = 0;
 	while ( listItem = scopeList->next(listItem) )
 		{
 		if ( isGROUP(listItem->groupBody->flags.data) )
@@ -852,18 +853,21 @@ GroupItem 	*grup = 0;
 		if ( !lookin )
 			lookin = grup;
 		else {
+			name = grup->groupBody->tag;
 			if ( isCOUNT(grup->groupBody->flags.data) )
 				field = lookin->get(grup->groupBody->gCount);
-			else	field = lookin->get(grup->groupBody->tag);
+			else	field = lookin->get(name);
 			if ( field )
-				grup = action->get(field->groupBody->tag);
+				name = field->groupBody->tag;
+			grup = action->get(name);
 			if ( !grup )
 				{
-				grup = new GroupItem(field->groupBody->tag);
+				grup = new GroupItem(name);
 				grup->groupBody->flags.isLocal = 1;
 				action->addAttribute(grup);
 				}
-			grup->setGroup(field);
+			if ( field )
+				grup->setGroup(field);
 			}
 		}
 }

@@ -634,19 +634,22 @@ GroupItem   action = currentMETHOD,
             lookin,
             scopeList:,
             grup;
+String      name;
     while listItem = scopeList.next(listItem) {
         if listItem.isGROUP grup = listItem.group;
         else    grup = listItem;
         if !lookin  lookin = grup;
         else {
+            name = grup.tag;
             if isCOUNT  field = lookin[gCount];
-            else        field = lookin[tag];
-            if field    grup = action[field.tag];
+            else        field = lookin[name];
+            if field    name = field.tag;
+            grup = action[name];
             if !grup {
-                grup = new(field.tag);
+                grup = new(name);
                 grup.isLocal = true;
                 action  +% grup; }
-            group = field; }}
+            if field    grup.group = field; }}
 }
 
 /*******************************************************************************
