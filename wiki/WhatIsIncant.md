@@ -206,6 +206,7 @@ The key departure from all of them: everything is a GroupItem field. Not a list.
 ## Appendix B — The Bootstrap: How Incant Defines Itself
 
 Incant starts with nothing but a concept: the field. From that, 32 bootstrap rules are hard-coded in C++ — the minimal seed needed to define everything else. From these 32 rules, incant loads a setup file that defines the rest of the language. Then incant can define new rules, which define new languages, which can define anything.
+→ [Deep dive: The Bootstrap Rules](BootstrapRules)
 
 For the curious — here are the 32 bootstrap rules, written in incant's own syntax:
 
