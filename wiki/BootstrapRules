@@ -1,0 +1,312 @@
+# The Bootstrap Rules
+
+Every language has to start somewhere. Incant starts with 32 rules hard-coded in C++.
+
+That's the bootstrap problem: you need a language to define a language. Incant solves it by
+hard-coding the smallest possible set of rules — just enough to define what a field is and
+how fields are written. Once those 32 rules exist, incant can read a setup file written in
+its own syntax and define everything else from there.
+
+This page walks through those 32 rules: what each one does, and how they fit together into
+something that can define itself.
+
+---
+
+## What They Do
+
+The bootstrap rules fall into four natural groups. It helps to see the groups before
+looking at the rules one by one.
+
+**Character matchers** — the smallest building blocks. Rules that recognize a digit, a
+letter, a quote character, a modifier symbol. Everything else is built from these.
+
+**Literal matchers** — rules that recognize specific pieces of incant syntax: numbers,
+names, quoted strings, code blocks, character sets.
+
+**Structure rules** — rules that recognize the *shape* of an incant definition: a trait
+(name plus optional data), a set of attributes, a set of members, the full definition
+itself.
+
+**Housekeeping rules** — rules that handle the mechanics of running incant: invoking a
+rule by name, running a sequence of rules at startup, turning on debug output.
+
+Here is the full list, grouped that way:
+
+```
+// Character matchers
+counter=[0-9];
+modifySet=[-~+?!%&|*@_<^{}$];
+nameSet=[a-zA-Z0-9];
+
+// Literal matchers
+PoweR=[eE] sign?=[+-] power=[0-9]+;
+FloaT="." decimals=[0-9]+ PoweR?;
+tokenize^@;
+NumbeR=numberSet=[0-9]+ FloaT? tokenize;
+QuotE               tik=['"] quoteBody}=tik$@;
+NamE                first-=[a-zA-Z] nameSet-^* tokenize;
+GrouP
+    NamE;
+    QuotE;
+CodE                "{" "}" parseAction;
+DatA
+    GrouP;
+    NumbeR;
+    CodE;
+    SetBrackets     '['- ']'};
+    NotA=[^ \t\r\n;]+;
+
+// Structure rules
+Modifier=[-~+?!%&|*@_<^{}$] noPrint;
+TraiTdata           '='- DatA Modifier* Limit?;
+TraiT               NamE Modifier* Limit? TraiTdata?;
+Attributes=TraiT+;
+Limit               '['- min=[0-9]+ max?=[0-9]+ ']'- noPrint;
+MemberS             ':'- Mlist=DefinE+;
+NewGroup            TraiT@;
+DefinE;
+DefinE              NewGroup Attributes? MemberS endDefine-=[;>];
+
+// Housekeeping
+debug               "ALL"? "GUARD"? rules=NamE* ';'-;
+InvokE              '('- NamE? ')'-;
+define              DEFINing- definitions=DefinE+ DEFINing- ';'-;
+RunRulE             NamE InvokE? ';'-?;
+InitiatE=RunRulE+;
+```
+
+---
+
+## How They Work
+
+### The character matchers
+
+```
+counter=[0-9];
+modifySet=[-~+?!%&|*@_<^{}$];
+nameSet=[a-zA-Z0-9];
+```
+
+These three rules each match a single character from a set. The `[...]` syntax is a
+character set — same idea as a regular expression character class.
+
+`counter` matches any digit. `nameSet` matches any letter or digit. `modifySet` matches
+any of the special symbols that act as modifier characters in incant syntax — the `?`, `+`,
+`*`, `@`, `^`, `}`, and others that you will see attached to rules throughout the bootstrap
+list.
+
+They don't do anything on their own. They exist so other rules can reference them.
+
+---
+
+### Building a number
+
+```
+PoweR=[eE] sign?=[+-] power=[0-9]+;
+FloaT="." decimals=[0-9]+ PoweR?;
+tokenize^@;
+NumbeR=numberSet=[0-9]+ FloaT? tokenize;
+```
+
+`PoweR` matches a scientific notation exponent: the letter `e` or `E`, an optional sign,
+and one or more digits. The `?` on `sign` means optional.
+
+`FloaT` matches a decimal fraction: a literal dot, one or more digits, and an optional
+exponent.
+
+`NumbeR` matches a complete number: one or more digits, an optional `FloaT`, and then
+`tokenize`. The `=` prefix on `NumbeR` means the whole match is stored as a single data
+value rather than broken into sub-fields.
+
+`tokenize` is unusual — it has no parsing definition of its own. The `^@` means its
+behavior is a hard-coded C++ method. When `NumbeR` finishes matching digits and an
+optional decimal, `tokenize` fires and converts the raw matched text into an actual
+numeric value. It's the bridge between "characters that look like a number" and "a number."
+
+---
+
+### Names and quoted strings
+
+```
+QuotE               tik=['"] quoteBody}=tik$@;
+NamE                first-=[a-zA-Z] nameSet-^* tokenize;
+```
+
+`QuotE` matches a quoted string. It captures the opening quote character (either `'` or
+`"`) into `tik`, then matches everything up to the matching closing quote. The `}=tik`
+means "match until you see the character stored in `tik`." The `$@` means the result is
+handled by a C++ method. So `QuotE` can handle both `'single quoted'` and `"double
+quoted"` strings using the same rule — it remembers which quote it opened with and
+matches until it sees the same one.
+
+`NamE` matches an identifier. It requires a letter first (`first-=[a-zA-Z]`), followed by
+zero or more letters or digits (`nameSet-^*`). The `-` modifier means these sub-matches
+are consumed but not stored as separate fields — only the whole name matters. `tokenize`
+fires at the end to finalize the name as a value.
+
+---
+
+### Groups, code blocks, and data
+
+```
+GrouP
+    NamE;
+    QuotE;
+
+CodE                "{" "}" parseAction;
+
+DatA
+    GrouP;
+    NumbeR;
+    CodE;
+    SetBrackets     '['- ']'};
+    NotA=[^ \t\r\n;]+;
+```
+
+`GrouP` is an *options rule* — it tries `NamE` first, then `QuotE`. The indented list
+without colons is incant's way of writing alternatives: try each one in order until one
+succeeds. A group is either a name or a quoted string.
+
+`CodE` matches a `{ ... }` block. The `parseAction` at the end is a hard-coded C++ method
+that processes the block's contents as incant code. This is how action bodies get
+attached to rules.
+
+`DatA` is the most general data matcher — it tries five alternatives in order: a `GrouP`
+(name or quoted string), a `NumbeR`, a `CodE` block, a `SetBrackets` character set
+(`[...]`), or a `NotA` — anything that isn't whitespace or a semicolon. `DatA` is the
+rule that answers "what kind of value can a field hold?" The answer is: any of these five
+things.
+
+---
+
+### The structure rules — how a definition is built
+
+This is where the bootstrap closes on itself. These rules define what an incant field
+definition looks like — and they are themselves field definitions.
+
+```
+Modifier=[-~+?!%&|*@_<^{}$] noPrint;
+TraiTdata           '='- DatA Modifier* Limit?;
+TraiT               NamE Modifier* Limit? TraiTdata?;
+Attributes=TraiT+;
+Limit               '['- min=[0-9]+ max?=[0-9]+ ']'- noPrint;
+MemberS             ':'- Mlist=DefinE+;
+NewGroup            TraiT@;
+```
+
+A `Modifier` is one of the special symbols — `?`, `+`, `*`, `@`, `^`, `}`, and others.
+`noPrint` means the modifier character itself is not included in the result; only its
+effect matters.
+
+A `TraiT` is a name optionally followed by modifiers, an optional repeat `Limit`, and
+optional `TraiTdata` (which is an `=` sign followed by a value). A trait is the basic
+unit of a field definition — a name, its behavior flags, and optionally its data.
+
+`Attributes` is one or more traits. When you write something like:
+
+```
+person name="Anthony" age=42;
+```
+
+`name="Anthony"` and `age=42` are both traits. Together they are the attributes of the
+`person` field.
+
+`Limit` matches a `[min max]` repeat constraint — the `[0-9]+` in many rules above is
+shorthand for "one or more," which is a limit with min=1.
+
+`MemberS` matches the member list of a field — a colon followed by one or more `DefinE`
+rules. This is where fields nest: a field's members are themselves full field definitions.
+
+`NewGroup` matches the opening trait of a definition with the `@` modifier, which means
+"store the whole matched result here."
+
+---
+
+### DefinE — the rule that defines all rules
+
+```
+DefinE;
+DefinE              NewGroup Attributes? MemberS endDefine-=[;>];
+```
+
+`DefinE` appears twice. The first line is a forward declaration — a bare name with
+nothing but a semicolon. It says: this rule exists. Trust me. Details to follow.
+
+This is necessary because `MemberS` references `DefinE` (a member list is a list of
+`DefinE` rules), and `DefinE` references `MemberS`. Each one needs the other. The forward
+declaration breaks the chicken-and-egg problem the same way a C++ forward declaration
+does — no special keyword needed, just a placeholder with the same shape as the real
+thing.
+
+The second `DefinE` is the full definition. A complete field definition consists of:
+
+- A `NewGroup` — the name and opening trait
+- Optional `Attributes` — zero or more name=value pairs
+- Optional `MemberS` — a nested member list
+- `endDefine` — which matches either `;` or `>` to close the definition
+
+`endDefine` with the `-` modifier means the closing character is consumed but not stored.
+`=[;>]` means it accepts either a semicolon or a `>` as the terminator.
+
+This single rule — `DefinE` — is what allows everything in incant to be defined in incant
+syntax. When you write `person name="Anthony" age=42;`, `DefinE` is the rule that
+recognizes and processes it.
+
+---
+
+### DEFINing and clean indentation
+
+```
+define              DEFINing- definitions=DefinE+ DEFINing- ';'-;
+```
+
+The `define` rule wraps a block of `DefinE` rules. The `DEFINing` on each side is a
+command that sets a flag in the runtime. That flag tells the pretty-printer it is inside a
+definition block, which is how incant definitions get their clean Python-like indentation.
+The language cares about how it looks — not as an afterthought, but baked into the parsing
+machinery from the start.
+
+---
+
+### The housekeeping rules
+
+```
+debug               "ALL"? "GUARD"? rules=NamE* ';'-;
+InvokE              '('- NamE? ')'-;
+RunRulE             NamE InvokE? ';'-?;
+InitiatE=RunRulE+;
+```
+
+`debug` turns on diagnostic output — optionally for all rules, optionally with guard
+tracing, optionally for named rules only.
+
+`InvokE` matches the `(name)` call syntax used when invoking a rule as a method.
+
+`RunRulE` matches a single rule invocation: a name, an optional `InvokE`, and an optional
+semicolon. It's how incant runs things.
+
+`InitiatE` is one or more `RunRulE` invocations. It's the entry point — the rule that
+reads and executes the startup sequence when incant launches.
+
+---
+
+## The Payoff
+
+Thirty-two rules. Most of them fit on one line. Together they define:
+
+- What a character set looks like
+- What a number looks like
+- What a name looks like
+- What a quoted string looks like
+- What a field definition looks like
+- What a member list looks like
+- How to run things at startup
+
+From these 32, incant loads its setup file — which is written in incant syntax, read by
+these same rules — and defines the rest of the language. Then programs written in that
+language can define new rules. Those rules can define new languages. The field that
+started as a comma matcher ends up, several layers of definition later, as a distributed
+messaging primitive or a cloud-hosted AI.
+
+That's what it means for a language to define itself. The 32 rules are not clever. They
+are the minimum. Everything clever comes after.
