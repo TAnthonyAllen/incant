@@ -1597,6 +1597,27 @@ GroupItem 	*grup = 0;
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
+/* emitPlus  tok-native + emitter. Operand access (target.jitData.jitValue) and
+   the CreateAdd call are tok-native; only the builder grab is passthrough (the
+   one narrow case). Stores the result back into the target node's jit value. */
+extern "C" GroupItem *emitPlus(GroupItem *op, GroupItem *target, GroupItem *argument)
+{
+llvm::IRBuilder<> 	*b = 0;
+JitData 		*td = 0;
+JitData 		*ad = 0;
+llvm::Value 			*l = 0;
+llvm::Value 			*r = 0;
+llvm::Value 			*sum = 0;
+	 b = gJitBuilder; 
+	td = target->jitData;
+	ad = argument->jitData;
+	l = td->jitValue;
+	r = ad->jitValue;
+	sum = b->CreateAdd(l,r,"add");
+	td->setJitter(sum);
+	return target;
+}
+
 /***************************************************************************
 	The fAIL method expects to have the name of the fail method passed in as
     text of the FAIL attribute.
@@ -2018,9 +2039,16 @@ extern "C" int jitRunAddTwo()
 	llvm::FunctionType::get(i32, false),
 	llvm::Function::ExternalLinkage, "addTwo", mod.get());
 	B.SetInsertPoint(llvm::BasicBlock::Create(*ctx, "entry", fn));
-	llvm::Value *sum = B.CreateAdd(llvm::ConstantInt::get(i32, 3),
-	llvm::ConstantInt::get(i32, 5), "sum");
-	B.CreateRet(sum);
+	
+	// Drive the add through the tok-native emitPlus: two operand nodes carrying
+	// constant jit values, emitPlus folds them, result lands on the target node.
+	gJitBuilder = &B;
+	GroupItem *gx = new GroupItem("x"); gx->jitData = new JitData();
+	gx->jitData->setJitter(llvm::ConstantInt::get(i32, 3));
+	GroupItem *gy = new GroupItem("y"); gy->jitData = new JitData();
+	gy->jitData->setJitter(llvm::ConstantInt::get(i32, 5));
+	GroupItem *res = emitPlus(0, gx, gy);
+	B.CreateRet(res->jitData->jitValue);
 	
 	if (auto err = jit->addIRModule(
 	llvm::orc::ThreadSafeModule(std::move(mod), std::move(ctx)))) {

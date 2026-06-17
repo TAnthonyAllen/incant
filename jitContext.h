@@ -15,6 +15,12 @@
 #include "llvm/ExecutionEngine/Orc/LLJIT.h"
 #include <memory>
 
+// The builder the emitters write into. Set by the compile driver before walking
+// an action body; grabbed by each emitter in a one-line -% %- (the only passthrough
+// the otherwise tok-native emitters need). C++17 inline var → one definition across
+// TUs, header-defined so it never reaches GroupRules.h.
+inline llvm::IRBuilder<> *gJitBuilder = nullptr;
+
 // Per-field JIT state, hung on the GroupItem node during emission (the Emitter.twk
 // JitData pattern). Transient: meaningful only while an action is being compiled.
 class JitData {

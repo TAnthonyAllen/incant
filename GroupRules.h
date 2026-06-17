@@ -125,6 +125,7 @@ extern "C" void debugRuleNamed(char *name);
 extern "C" void debugText(GroupItem *debugStuff, int flag);
 extern "C" void dispatcher(void *stuff);
 extern "C" GroupItem *dumpContents(GroupItem *stuff);
+extern "C" GroupItem *emitPlus(GroupItem *op, GroupItem *target, GroupItem *argument);
 extern "C" GroupItem *fAIL(GroupItem *input);
 extern "C" void flushBuffer(GroupItem *bufField);
 extern "C" GroupItem *generateCode(GroupItem *field);

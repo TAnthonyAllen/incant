@@ -129,7 +129,7 @@ external IRBuilder<>
    field types from JitData's (global) scope rather than only namespace llvm. */
 external Value
 external Type
-external JitData
+external JitData jitContext.h
 {
 #autoGetSet
 Value           jitSlot;

@@ -7,7 +7,7 @@
 #include "StringRoutines.h"
 #include "GroupItem.h"
 #include "DoubleLinkList.h"
-#include "JitData.h"
+#include "jitContext.h"
 #include "Stak.h"
 #include "Buffer.h"
 #include "DispatchQ.h"
