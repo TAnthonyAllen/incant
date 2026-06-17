@@ -150,8 +150,15 @@ getRegistry("RegistryName");   // named registry
 
 The old C++-source emit path is being **abandoned**, not preserved. The new
 target is **bytecode as canonical IR**, represented as GroupItems so incant
-code can construct and walk it. LLVM IR (Phase JIT) will be generated *from*
-bytecode for the JIT.
+code can construct and walk it.
+
+**Phase JIT does NOT go through bytecode (2026-06-17 decision).** Bytecode and
+JIT are *parallel, independent lowerings* of the same cached BlocK — not a
+pipeline. LLVM IR comes straight from the ops/BlocK (the incant ops emit IR
+directly via a `jitting` gate), **not** from `bcLIST`. The prior "LLVM IR
+generated from bytecode" plan is superseded. Full rationale:
+`docs/llvm-jit-recon.md` (ADDENDUM section) and the `jit-design.md` /
+`jit.md` design pair.
 
 ### Pipeline
 
@@ -272,7 +279,7 @@ oneTest, unitTests, utilities) now live at the top-level `incant/` directory
 - `gPrinT` proper bytecode emit (currently a thunk that re-fires `aCTionPrinT`)
 - `gDeclare` verification
 - More test cases beyond `testByteCode` / `testIfElse`
-- Phase JIT: LLVM IR from bytecode (HPDL)
+- Phase JIT: LLVM IR straight from the ops/BlocK (parallel to bytecode, not from it) (HPDL)
 
 **Out of scope for current arc:** `Bytecode.mm` into the incantGUI Xcode
 target. Phase Bytecode proceeds via the command-line C++ compiler path.

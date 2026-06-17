@@ -285,6 +285,37 @@ calls resolve. `UIjit.ext` is the precedent for *what goes in that set and its
 type shapes* — pruned to the non-GUI subset and refreshed for the current
 GroupItem ABI (constructors-not-itemFactory, by-value targets).
 
+## Post-install build facts (LLVM 22.1.7, recorded 2026-06-17)
+The toolchain decision resolved: stale x86_64 LLVMs (Homebrew 10.0.1, `~/Web`
+LLVM 9, IOmega 3.3) were removed; **LLVM 22.1.7 arm64** installed via arm64
+Homebrew at `/opt/homebrew/opt/llvm` (keg-only). This validates `jit-design.md`'s
+API assumptions: opaque pointers, ORCv2 `LLJIT`/`ExecutorAddr`, new PassManager.
+
+**Build flags (from `/opt/homebrew/opt/llvm/bin/llvm-config`):**
+- `--cxxflags`: `-I/opt/homebrew/Cellar/llvm/22.1.7_1/include -std=c++17 -stdlib=libc++
+  -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -fno-exceptions`
+- `--ldflags`: `-L/opt/homebrew/Cellar/llvm/22.1.7_1/lib -Wl,-search_paths_first
+  -Wl,-headerpad_max_install_names`
+- `--libs core orcjit native`: `-lLLVM-22` (one monolithic shared lib)
+- `--system-libs`: (none)
+
+**Phase-1 pbxproj wiring — C++ standard is a HARD requirement, not polish:**
+- LLVM 22 needs `-std=c++17` + `-stdlib=libc++`.
+- **Two TOK.xcodeproj configs are on `CLANG_CXX_LANGUAGE_STANDARD = "c++0x"`** (the
+  obsolete alias for **C++11**) — C++11 **will not compile** LLVM 22 headers. Must
+  be raised to `c++17` (or `c++20`). The other configs are `"compiler-default"`
+  (ambiguous — set explicitly).
+- Set `CLANG_CXX_LIBRARY = "libc++"` (currently `compiler-default`).
+- Existing `OTHER_CPLUSPLUSFLAGS` has `-D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS`
+  but is **missing `-D__STDC_FORMAT_MACROS`** — add it.
+- `-fno-exceptions`: LLVM libs built without exceptions; decide whether to match
+  it on LLVM-including TUs or confirm incant's exception use doesn't clash.
+- Prefer the Cellar path is versioned (`.../22.1.7_1/...`); use the stable
+  `/opt/homebrew/opt/llvm` symlink in build settings so a future `brew upgrade`
+  doesn't strand the path.
+- Rip out the dead refs while here: `libLLVM-3.3.dylib` (gone), the `~/Web/llvm9.0`
+  search paths (removed), the `/usr/local/incllude` typo, the empty `LLVM` groups.
+
 ### When Plan B (port Emitter.twk) comes back
 If folding emit-mode into the live ops proves to entangle the interpreter path
 badly (e.g. control-flow inversion can't co-exist cleanly with the executing

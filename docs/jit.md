@@ -52,27 +52,85 @@ The slot array is the per-call live frame. It is ephemeral. When the call return
 
 ## What Each Slot Holds
 
-Every slot holds a GroupItem pointer — the action's own copy of the field wrapper for that field. This is uniform across all field categories. There are no special cases.
+**Slots are native-typed, not GroupItem pointers.** The conservative alternative — slots as GroupItem*, body calling opPlus/etc. via CreateCall — is not worth building: it gives frame discipline but no real performance win over the interpreter. Native typing is Phase 1.
 
-**Locals** — the GroupItem's GroupBody is not shared with anything outside this action. Writes stay local. The slot goes away when the call returns.
+Each slot holds the field's native LLVM value, typed at emit time:
+- `isCOUNT` fields → `i32` slot (from `int gCount` in GroupItem's data union)
+- `isNUMBER` fields → `double` slot
+- `isSTRING`/`isTOKEN` fields → `ptr` slot (Phase 3; Phase 1/2 fall back for string fields)
 
-**Globals** — the GroupItem is a copy of the global's wrapper, but both wrappers point at the same GroupBody. Writing through the slot writes through to the shared GroupBody automatically. The JIT inherits the interpreter's global-writeback semantics for free, with no explicit writeback pass needed. This is how the interpreter works today; the JIT does not change it.
+Fields with unjittable types (group, op, item, etc.) cause the whole action to
+fall back to the interpreter — the monomorphic gate (see `jit-design.md`).
 
-The JIT cannot distinguish locals from globals by inspecting a slot — nor does it need to. The GroupItem pointer indirection handles both cases uniformly.
+**Type stamping at define time is required for jit-eligible actions.** The gate
+walks the field list and reads the type tag directly — no inference pass. For
+an action to be jittable, every field must have its type stamped at define time
+(e.g. `count x, y, result;`). This is a dialect constraint on jit-eligible
+actions, not on the language at large.
+
+### Prologue: unboxing into native slots
+
+At function entry (emitted IR), for each field in the schema:
+1. Load the GroupItem* from the incoming C++ slot array argument.
+2. Read the native value from the GroupItem's typed data member
+   (`gCount`/`gNumber`/`gText` at the appropriate offset).
+3. Store into the field's `alloca` slot.
+
+This unboxing is the prologue's work. After it runs, the function body operates
+entirely on native values in LLVM allocas — no GroupItem indirection during
+arithmetic.
+
+### Epilogue: reboxing back to GroupItem
+
+At function exit, for each field:
+1. Load the final native value from its `alloca` slot.
+2. Store it back to the GroupItem's typed data member.
+
+For the return value: the action's result is reboxed into the result field's
+GroupItem, and that GroupItem* is what the function returns — not the raw
+native value. The function signature remains `GroupItem* (*)(GroupItem* slotArray,
+GroupItem* argument)` at the C++ boundary.
+
+### Locals vs. globals under the native model
+
+**Locals** — the alloca slot is the authoritative value for the duration of the
+call. Epilogue rebox writes back to the local GroupItem (which goes away on
+return). No issue.
+
+**Globals** — the alloca slot holds the unboxed copy of the global's value.
+Writes during the action update the alloca, not the shared GroupBody.
+**Global writeback is deferred to the epilogue, not immediate.**
+
+This is a semantic divergence from the interpreter, where writing a global's
+slot writes through to the shared GroupBody immediately. Two consequences:
+
+1. A global updated mid-action is not visible to other incant code until the
+   action returns and the epilogue reboxes. Phase 1 and 2 are safe (no
+   concurrent access, no callbacks reading globals mid-action). Phase 3
+   (callbacks into the runtime) must treat this carefully — a callee reading a
+   global that the jitted caller has updated will see the pre-call value.
+2. On abnormal exit (error, longjmp), the epilogue may not run and global
+   updates are lost. Document this as a known limitation for Phase 1.
 
 ---
 
 ## Assign Semantics Under JIT
 
-With locals as stack slots, assignment semantics become unambiguous:
+With native-typed alloca slots, assignment semantics become unambiguous:
 
-- `A = B` where both are locals: slot-to-slot copy. A's slot gets B's GroupBody content. Fully static, no tag-lookup at runtime.
-- `A = B` where B is an argument attribute: dereference the argument handle, copy value into A's slot.
-- `:=` (byRef): store a pointer-to-slot (or pointer-to-attribute) in the local slot rather than a value. Expressible cleanly because slots have stable addresses for the lifetime of the call frame.
+- `A = B` where both are locals: native value copy. A's slot gets B's native
+  value (i32, double, or ptr). Fully static, no tag-lookup at runtime.
+- `A = B` where B is an argument attribute: unbox B's value from the argument
+  GroupItem into A's slot at the point of assignment.
+- `:=` (byRef): store a pointer-to-slot in the local slot rather than a value.
+  Slots have stable addresses for the lifetime of the call frame (BDWGC heap).
 
-The tag-aliasing ambiguity that complicates `A = B` in the interpreter disappears because A and B are now distinct indexed slots, not lookups into a shared attribute namespace.
+The tag-aliasing ambiguity that complicates `A = B` in the interpreter
+disappears because A and B are now distinct indexed slots.
 
-**One hazard carries over.** "Fully static" above means the *tag-aliasing* ambiguity is gone — A and B are distinct slots, no shared-namespace lookup. It does not mean every `=` hazard is gone. Slot-to-slot copy is still content copy: it moves data and lists, not method bindings. A method-bound field (`gMethod`/`gOp`) copied A ← B still loses its method, exactly as in the interpreter. The slot model relocates that hazard to a new address space; it does not cure it. Method-bound fields must be dispatched in place, never copied-then-called — under JIT as under the interpreter.
+**Method-bound fields are gated out.** Fields with `gMethod`/`gOp` type are not
+in the jittable set — the gate rejects any action containing them. Within a
+jitted body, method-dispatch hazards cannot arise.
 
 ---
 
