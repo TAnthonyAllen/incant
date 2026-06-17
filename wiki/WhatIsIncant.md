@@ -153,6 +153,10 @@ When a rule matches, it produces a result stored in a label — a field with the
 
 ---
 
+For a deeper dive into the bootstrap rules — the hard-coded seed from which incant defines itself — see **[The Bootstrap Rules](BootstrapRules)**.
+
+---
+
 ## The Distributed Vision — Where This Is Going
 
 A GroupItem field is not just a data structure. It's a deployable unit.
@@ -183,72 +187,12 @@ The language works. It interprets itself. It defines itself as far as it can wit
 
 Because software should be able to grow. Most programs are frozen at compile time — they know what they know, they do what they do. Changing them means stopping them, rewriting them, restarting them. Incant doesn't work that way. An incant program can learn new rules while it runs, extend itself, redefine what it is. That's not a feature. That's a different philosophy of what software is.
 
-The technical answer: none of the existing languages had the right combination. Lisp had the homoiconicity but the parentheses. Forth had the minimalism but the stack gymnastics. Python had the readability but the performance. C++ had the ecosystem but the ceremony.
+The technical answer: none of the existing languages had the right combination. Lisp had the homoiconicity but the parentheses. Forth had the minimalism but the stack gymnastics. C++ had the ecosystem but the ceremony. Python had the readability that incant copies. Incant tries to steal the best ideas from all of them as it tries to invent its own programming paradigm.
 
-And none of them had the field as a universal primitive. One concept that is simultaneously data, rule, method, parser, and container. One concept that can represent a number, a grammar rule, a file system, a messaging protocol, or an AI model — using the same syntax, the same operations, the same mental model.
+And none of them had the field as a universal primitive. One concept simultaneously data, rule, method, parser, and container. One concept to represent a number, a grammar rule, a file system, a messaging protocol, or an AI model — using the same syntax, the same operations, the same mental model.
+    The key departure from all of them: everything is a GroupItem field. Not a list. Not a stack frame.
+    Not an expression. A field — which can BE any of those things, simultaneously, depending on context.
 
 That's what incant is for. And the answer to "what will it be used for" is still evolving.
 
 "Cannot answer that yet."
-
----
-
-## Appendix A — For the Nerds
-
-Incant is reflexive (it can describe and modify itself), homoiconic (code and data have the same structure — a field IS a rule IS a result), transpiler-backed (generates C++ via TAWK, so the entire C++ ecosystem is available), bootstrap-defined (32 hard-coded rules seed a language that then defines itself), and stack and queue aware (a field can be treated as either, by design not accident).
-
-The closest relatives: Lisp's homoiconicity, Forth's minimalism, PostScript's stack elegance, Python's readable syntax. Incant steals the best ideas from all of them and generates to C++ so you get the ecosystem for free.
-
-The key departure from all of them: everything is a GroupItem field. Not a list. Not a stack frame. Not an expression. A field — which can BE any of those things, simultaneously, depending on context.
-
----
-
-## Appendix B — The Bootstrap: How Incant Defines Itself
-
-Incant starts with nothing but a concept: the field. From that, 32 bootstrap rules are hard-coded in C++ — the minimal seed needed to define everything else. From these 32 rules, incant loads a setup file that defines the rest of the language. Then incant can define new rules, which define new languages, which can define anything.
-→ [Deep dive: The Bootstrap Rules](BootstrapRules)
-
-For the curious — here are the 32 bootstrap rules, written in incant's own syntax:
-
-```
-counter=[0-9];
-modifySet=[-~+?!%&|*@_<^{}$];
-nameSet=[a-zA-Z0-9];
-PoweR=[eE] sign?=[+-]  power=[0-9]+;
-FloaT="."           decimals=[0-9]+ PoweR?;
-tokenize^@;
-NumbeR=numberSet=[0-9]+       FloaT? tokenize;
-DefinE;
-QuotE               tik=['"] quoteBody}=tik$@;
-NamE                first-=[a-zA-Z] nameSet-* tokenize;
-GrouP:
-    NamE;
-    QuotE;;
-DatA:
-    GrouP;
-    NumbeR;
-    SetBrackets     '['- ']'};
-    NotA=[^ \t\r\n;]+;;
-debug               "ALL"? "GUARD"? rules=NamE* ';'-;
-InvokE              '('- NamE? ')'-;
-Limit               '['- min=[0-9]+ max?=[0-9]+ ']'- noPrint;
-CodE                '{' '}'} tokenize;
-MemberS             ':'- Mlist=DefinE+;
-Modifier=[-~+?!%&|*@_<^{}$] noPrint;
-TraiTdata           '='- DatA Modifier* Limit?;
-TraiT               NamE Modifier* Limit? TraiTdata?;
-Attributes=TraiT+;
-NewGroup            TraiT@;
-DefinE              NewGroup Attributes? MemberS? ';'- CodE?;
-define              definitions=DefinE+ ';'-;
-RunRulE             NamE InvokE? ';'-?;
-InitiatE=RunRulE+;
-```
-
-Notice `DefinE` appears twice — first as a bare declaration (`DefinE;`) and then fully defined. That's incant's way of handling forward references. The bare declaration says "this exists, trust me, details to follow." Same concept as a C++ forward declaration or an empty TAWK external block, but expressed in incant's own syntax. No special keyword needed — the placeholder has the same shape as the thing it's holding a place for.
-
----
-
-## For Clod
-
-Incant source lives in `/Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/`. GitHub repo: <https://github.com/TAnthonyAllen/incant>. The grammar file is `grammar` — the bootstrap rules are in the comment at the top. GroupItem is the universal field type — everything in incant is a GroupItem. TAWK (.twk files) generates the C++ that implements incant. The JIT is the current major work item — it changes everything. See projectBible.md for ecosystem context and TODO.md for current tasks.

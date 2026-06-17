@@ -1,13 +1,13 @@
 # The Bootstrap Rules
 
-Every language has to start somewhere. Incant starts with 32 rules hard-coded in C++.
+Every language has to start somewhere. Incant starts with 28 rules hard-coded in C++.
 
 That's the bootstrap problem: you need a language to define a language. Incant solves it by
 hard-coding the smallest possible set of rules — just enough to define what a field is and
-how fields are written. Once those 32 rules exist, incant can read a setup file written in
+how fields are written. Once those 28 rules exist, incant can read a setup file written in
 its own syntax and define everything else from there.
 
-This page walks through those 32 rules: what each one does, and how they fit together into
+This page walks through those 28 rules: what each one does, and how they fit together into
 something that can define itself.
 
 ---
@@ -65,7 +65,7 @@ Limit               '['- min=[0-9]+ max?=[0-9]+ ']'- noPrint;
 MemberS             ':'- Mlist=DefinE+;
 NewGroup            TraiT@;
 DefinE;
-DefinE              NewGroup Attributes? MemberS endDefine-=[;>];
+DefinE              NewGroup Attributes? MemberS? endDefine-=[;>];
 
 // Housekeeping
 debug               "ALL"? "GUARD"? rules=NamE* ';'-;
@@ -77,7 +77,64 @@ InitiatE=RunRulE+;
 
 ---
 
-## How They Work
+## The Payoff
+
+Twenty-eight rules. Most of them fit on one line. Together they define:
+
+- What a character set looks like
+- What a number looks like
+- What a name looks like
+- What a quoted string looks like
+- What a field definition looks like
+- What a member list looks like
+- How to run things at startup
+
+After the bootstrapper defines these rules, incant loads its setup file that
+contains a list of definitions, mostly data definitions, that flesh out the rest
+of the language base. Then programs written on that base are able to define
+more complex rules, rules that may define a new programming language even.
+The field that started as a comma matcher ends up, several layers of definition
+later, as a distributed messaging primitive or a cloud-hosted AI.
+
+That's what it means for a language to define itself. The 28 rules are not clever.
+They are the minimum. Everything clever comes after.
+
+---
+
+## How Do Rules Work?
+
+The incant parser, built into every field, is designed to process an
+input stream. There is no lexer to run first and tokeninize the input;
+the field parse does all that on its own. The input stream the field
+parses is usually a big string loaded from a file, or maybe just a string
+passed in when the field is invoked as a method. For example: field(argument);
+invokes a field's method. The argument is of course a field that
+can contain anything, but if the field is a rule, the argument must contain a
+string to be used as its input stream. If there is no argument, as in: field();
+That field rule reads its input stream from stdin, or more commonly, from a field
+previously loaded from a file via incant's include command that loads an
+input stream akin to stdin. The field parse ends on a parse error, or when the
+parse reads the stop() command, or when the input stream ends.
+
+An incant rule can contain data, no data, and/or a list of fields. It looks like
+any incant field. When a field is added to a list, it is added as either an
+attribute or a member, an option determined in field definition.
+
+For a rule to succeed, if it has data, its data must match what is on the
+input stream, and all its attributes must also match. The input stream cursor
+is advanced on a match and holds tight on no match. If there is no match, and
+the field list contains members, those members are tested in order, and if
+any of them match, the parent field is considered a match as well, and the
+member match result becomes the parent match result.
+
+Essentially, a field, its attributes, and its members make up a rule tree.
+Once the incant grammar is read in, the Start rule, defined in the grammar
+file that is read in after the setup file, becomes the point of entry to the
+incant language: one rule, and it, and its component rules define incant:
+all the rules and rule components are fields; it is turtles all the way down.
+---
+
+## Bootstrap Rule Details.
 
 ### The character matchers
 
@@ -93,7 +150,8 @@ character set — same idea as a regular expression character class.
 `counter` matches any digit. `nameSet` matches any letter or digit. `modifySet` matches
 any of the special symbols that act as modifier characters in incant syntax — the `?`, `+`,
 `*`, `@`, `^`, `}`, and others that you will see attached to rules throughout the bootstrap
-list.
+list. Most of the modifiers will be familiar to anyone using a parser like yacc. They are
+listed and defined below: (a full modifier reference appears in Appendix C.).
 
 They don't do anything on their own. They exist so other rules can reference them.
 
@@ -108,20 +166,17 @@ tokenize^@;
 NumbeR=numberSet=[0-9]+ FloaT? tokenize;
 ```
 
-`PoweR` matches a scientific notation exponent: the letter `e` or `E`, an optional sign,
-and one or more digits. The `?` on `sign` means optional.
+`PoweR` matches a scientific notation exponent.
 
 `FloaT` matches a decimal fraction: a literal dot, one or more digits, and an optional
 exponent.
 
-`NumbeR` matches a complete number: one or more digits, an optional `FloaT`, and then
-`tokenize`. The `=` prefix on `NumbeR` means the whole match is stored as a single data
-value rather than broken into sub-fields.
+`NumbeR` matches a complete number: one or more digits, an optional `FloaT`. The tokenize
+attribute makes everything the NumbeR rule matches look like a recognizable integer
+or floating point number.
 
-`tokenize` is unusual — it has no parsing definition of its own. The `^@` means its
-behavior is a hard-coded C++ method. When `NumbeR` finishes matching digits and an
-optional decimal, `tokenize` fires and converts the raw matched text into an actual
-numeric value. It's the bridge between "characters that look like a number" and "a number."
+`tokenize` is unusual — it has no parsing definition of its own. It gathers all the
+components of its parent rule as one string.
 
 ---
 
@@ -133,16 +188,11 @@ NamE                first-=[a-zA-Z] nameSet-^* tokenize;
 ```
 
 `QuotE` matches a quoted string. It captures the opening quote character (either `'` or
-`"`) into `tik`, then matches everything up to the matching closing quote. The `}=tik`
-means "match until you see the character stored in `tik`." The `$@` means the result is
-handled by a C++ method. So `QuotE` can handle both `'single quoted'` and `"double
-quoted"` strings using the same rule — it remembers which quote it opened with and
-matches until it sees the same one.
+`"`) into `tik`, then matches everything up to the matching closing quote.
 
 `NamE` matches an identifier. It requires a letter first (`first-=[a-zA-Z]`), followed by
-zero or more letters or digits (`nameSet-^*`). The `-` modifier means these sub-matches
-are consumed but not stored as separate fields — only the whole name matters. `tokenize`
-fires at the end to finalize the name as a value.
+zero or more letters or digits (`nameSet-^*`). The tokenize attribute fires at the end
+to concatenate the matched characters into the name that NamE returns.
 
 ---
 
@@ -163,13 +213,15 @@ DatA
     NotA=[^ \t\r\n;]+;
 ```
 
-`GrouP` is an *options rule* — it tries `NamE` first, then `QuotE`. The indented list
+`GrouP` is rule with two options — it tries `NamE` first, then `QuotE`. The indented list
 without colons is incant's way of writing alternatives: try each one in order until one
 succeeds. A group is either a name or a quoted string.
 
-`CodE` matches a `{ ... }` block. The `parseAction` at the end is a hard-coded C++ method
-that processes the block's contents as incant code. This is how action bodies get
-attached to rules.
+`CodE` matches a `{ ... }` block that contains incant statements that at bootstrap incant
+is not ready to deal with. The `parseAction` at the end is a hard-coded C++ method
+that returns a string from { to } that will be passed lazily to the parser when needed;
+that is, when a user invokes the field containing CodE as an action that needs to be
+compiled (interpreted).
 
 `DatA` is the most general data matcher — it tries five alternatives in order: a `GrouP`
 (name or quoted string), a `NumbeR`, a `CodE` block, a `SetBrackets` character set
@@ -181,8 +233,8 @@ things.
 
 ### The structure rules — how a definition is built
 
-This is where the bootstrap closes on itself. These rules define what an incant field
-definition looks like — and they are themselves field definitions.
+This is where the bootstrap closes on itself. The following rules define what an incant
+field definition looks like — and they are themselves field definitions.
 
 ```
 Modifier=[-~+?!%&|*@_<^{}$] noPrint;
@@ -194,9 +246,8 @@ MemberS             ':'- Mlist=DefinE+;
 NewGroup            TraiT@;
 ```
 
-A `Modifier` is one of the special symbols — `?`, `+`, `*`, `@`, `^`, `}`, and others.
-`noPrint` means the modifier character itself is not included in the result; only its
-effect matters.
+A `Modifier` alters how the attribute it is associated with is parsed. Modifier definitions
+are shown in Appendix C.
 
 A `TraiT` is a name optionally followed by modifiers, an optional repeat `Limit`, and
 optional `TraiTdata` (which is an `=` sign followed by a value). A trait is the basic
@@ -208,7 +259,7 @@ unit of a field definition — a name, its behavior flags, and optionally its da
 person name="Anthony" age=42;
 ```
 
-`name="Anthony"` and `age=42` are both traits. Together they are the attributes of the
+`name="Anthony"` and `age=42` are both traits. Together they could be attributes of a
 `person` field.
 
 `Limit` matches a `[min max]` repeat constraint — the `[0-9]+` in many rules above is
@@ -216,9 +267,14 @@ shorthand for "one or more," which is a limit with min=1.
 
 `MemberS` matches the member list of a field — a colon followed by one or more `DefinE`
 rules. This is where fields nest: a field's members are themselves full field definitions.
+Note: the colon is required in the MemberS rule, but the user never types it.
+Incant's parser has no separate lexer — it processes the input stream character by
+character in a single pass. When it skips whitespace (spaces, tabs, newlines) looking
+for the next field, it inserts the structural colon automatically. Indentation is how
+you signal nesting; the colon is the parser's way of recording it.
 
-`NewGroup` matches the opening trait of a definition with the `@` modifier, which means
-"store the whole matched result here."
+`NewGroup` is a rule that essentially just wraps the result TraiT delivers with the name
+NewGroup.
 
 ---
 
@@ -226,7 +282,7 @@ rules. This is where fields nest: a field's members are themselves full field de
 
 ```
 DefinE;
-DefinE              NewGroup Attributes? MemberS endDefine-=[;>];
+DefinE              NewGroup Attributes? MemberS? endDefine-=[;>];
 ```
 
 `DefinE` appears twice. The first line is a forward declaration — a bare name with
@@ -245,8 +301,9 @@ The second `DefinE` is the full definition. A complete field definition consists
 - Optional `MemberS` — a nested member list
 - `endDefine` — which matches either `;` or `>` to close the definition
 
-`endDefine` with the `-` modifier means the closing character is consumed but not stored.
-`=[;>]` means it accepts either a semicolon or a `>` as the terminator.
+`endDefine` with the `-` modifier means the closing character is consumed but not kept.
+`=[;>]` means it accepts either a semicolon or a `>` as the terminator. As with the
+colon in the MemberS rule, `>` is never entered, it is provided via indenting.
 
 This single rule — `DefinE` — is what allows everything in incant to be defined in incant
 syntax. When you write `person name="Anthony" age=42;`, `DefinE` is the rule that
@@ -277,36 +334,114 @@ RunRulE             NamE InvokE? ';'-?;
 InitiatE=RunRulE+;
 ```
 
-`debug` turns on diagnostic output — optionally for all rules, optionally with guard
-tracing, optionally for named rules only.
+`debug` turns on diagnostic output. The optional `ALL` keyword enables additional output. If `GUARD` is provided, it turns on debugging for rule guards. If no rules are specified, all rules are debugged.
 
 `InvokE` matches the `(name)` call syntax used when invoking a rule as a method.
 
 `RunRulE` matches a single rule invocation: a name, an optional `InvokE`, and an optional
-semicolon. It's how incant runs things.
+semicolon. It's how incant runs things when only bootstrap rules are available to run on.
 
 `InitiatE` is one or more `RunRulE` invocations. It's the entry point — the rule that
 reads and executes the startup sequence when incant launches.
 
 ---
 
-## The Payoff
+## Modifiers
 
-Thirty-two rules. Most of them fit on one line. Together they define:
+Modifiers are single characters that appear after a rule name (or after its `=data`) in a definition. They change how the rule matches — how many times it must match, whether it consumes input, whether it labels its result, and so on. The modifier characters are drawn from `modifySet`:
 
-- What a character set looks like
-- What a number looks like
-- What a name looks like
-- What a quoted string looks like
-- What a field definition looks like
-- What a member list looks like
-- How to run things at startup
+```
+modifySet=[-~+?!%&|*@_<^{}$];
+```
 
-From these 32, incant loads its setup file — which is written in incant syntax, read by
-these same rules — and defines the rest of the language. Then programs written in that
-language can define new rules. Those rules can define new languages. The field that
-started as a comma matcher ends up, several layers of definition later, as a distributed
-messaging primitive or a cloud-hosted AI.
+More than one modifier can follow a single rule reference, in any order.
 
-That's what it means for a language to define itself. The 32 rules are not clever. They
-are the minimum. Everything clever comes after.
+| Modifier | Name | Effect |
+|----------|------|--------|
+| `+` | one-or-more | The rule must match at least once; repeats as many times as it can. |
+| `*` | zero-or-more | The rule may match zero times; repeats as many times as it can. |
+| `?` | optional | The rule may match zero or one time. Failure is not an error. |
+| `!` | bang | Inverts match sense — succeeds where the rule would fail, fails where it would succeed. |
+| `-` | no-label | The matched value is consumed but not stored. Used for punctuation that must be present but isn't data. |
+| `^` | no-skip | Suppresses whitespace skipping before this match. The parser normally skips spaces, tabs, and newlines between rule elements; `^` turns that off for this element. |
+| `<` | no-advance | Matches without consuming input. The cursor stays where it is after a successful match. Useful for lookahead. |
+| `@` | target | Marks this element as the target — the result the parent rule returns. |
+| `_` | unguarded | Bypasses the rule's guard check. |
+| `{` | up-to | Matches everything up to (but not including) the rule's match. Implies unguarded. |
+| `}` | up-to-over | Matches everything up to and including the rule's match. Implies unguarded. |
+| `&` | pointer | Treats the matched value as a pointer reference rather than a copy. |
+| `$` | macro | Marks this element as a macro expansion point. |
+
+The remaining members of `modifySet` — `%`, `|`, and `~` — currently have no effect in the
+modifier processor. (`%` has an implemented behavior but is not used anywhere, so "no
+effect" holds in practice.) They are present in the set and reserved for future use.
+
+A few modifiers combine naturally. `+` and `*` both set `max` to unlimited; `*` also sets `min` to zero. So `nameSet-^*` means: match zero or more characters from `nameSet`, suppress whitespace skipping (`^`), and don't label the result (`-`). Three modifiers, any order, one tight match expression.
+
+The `-` modifier deserves special mention because it appears constantly throughout the bootstrap rules. Every piece of required syntax that isn't data gets `-`: the `'='` in `TraiTdata`, the `'['` and `']'` in `SetBrackets` and `Limit`, the `'('` and `')'` in `InvokE`. The rule must see it — but it doesn't become part of the result.
+
+---
+
+## Rule Actions
+
+A rule matching its input does not, by itself, do anything. The match succeeds or fails — that is all. To make something happen when a rule matches, you attach a rule action: a piece of C++ code that fires the moment the match completes.
+
+Most bootstrap rules have no action. They match, they return what they matched, done. But a few rules need to do real work — work that cannot be expressed as pattern matching alone. Those rules have actions, and without them incant would not get off the ground.
+
+### NamE — building a label, and something more
+
+In most languages, before you can use a variable you must declare it. You tell the compiler its name and type, and the compiler reserves space for it. Incant has no declarations. A field comes into existence the first time it is named — and `aCTionNamE` is where that happens.
+
+```
+NamE    first-=[a-zA-Z] nameSet-^* tokenize;
+```
+
+`NamE` matches an identifier: one letter, then zero or more letters-or-digits. The `-` modifiers mean none of those characters are individually labeled — they are consumed but not kept as separate results. `tokenize` fires at the end and stitches the characters back together into a single string. Without it, matching `Anthony` would consume seven characters and produce nothing a caller could use.
+
+That is the matching half. The action half is where things get interesting.
+
+When `aCTionNamE` fires, it takes the assembled name and looks it up in the current method — `locateInMethod`. If it finds a field with that name, that field becomes the result. Normal enough.
+
+But if no field is found, and the action is firing inside a code block being compiled (`processingCode`), incant does not fail. It creates a new field with that name, attaches it to the current action as a local, and returns it. The field now exists because it was named.
+
+This is incant's no-declaration model at its root. There is no `var`, no `int`, no `count` declaration required. Writing a new name inside an action body is the declaration. The parser sees the name, finds nothing, and quietly builds the field on the spot — marked `isLocal`, attached to the action, ready to use.
+
+`DefinE`'s action builds fields from explicit definitions. `NamE`'s action builds fields from mere mention. Together they cover the two ways a field comes into existence in incant.
+
+---
+
+### DefinE — making definitions do something
+
+```
+DefinE    NewGroup Attributes? MemberS? endDefine-=[;>];
+```
+
+When `DefinE` matches, it has recognized the shape of a field definition. But recognition alone does not create a field. `aCTionDefinE` fires after the match and does the real work — and there is quite a lot of it.
+
+**Registry wiring.** If there is a current registry when the definition is processed, the new field gets added to it automatically. You do not register things explicitly. Defining a field inside a registry context is registration. The act of definition and the act of registration are the same act.
+
+**Attributes as immediate actions.** Most attributes get stored on the new field — they become its data. But some attributes are marked `noPrint` and carry an `immediateACTION` flag. Those do not get stored. They get *run*, right then, during the definition itself. A command can execute at define time rather than at call time. This is how things like `register()` and `initFORMs()` work when they appear as attributes in a definition block — they are not declarations, they are invocations wearing declaration syntax.
+
+**Code attachment and lazy compilation.** If the definition includes a code block, incant does not compile it immediately. Instead it sets `isCoded` on the new field and parks the raw code string. The first time something invokes that field as an action, `processCode` fires and the code gets compiled then. The field is live and usable before its code is ever looked at.
+
+**The hidden locals.** When a code block is present, `aCTionDefinE` quietly adds two fields to the new field before anyone touches the code: `this` — a reference back to the field itself — and `tempField` — a scratch field used by operators to hold intermediate results. The programmer never writes these. They are simply there, every time, in every action body. `this` is how an action refers to itself. `tempField` is how `opPlus` and its siblings return a value without modifying either operand.
+
+**Method discovery by naming convention.** If the new field is a rule, incant looks for a C++ function whose name is `aCTion` followed by the field's tag — `aCTionNamE`, `aCTionDefinE`, `aCTionExpressioN`, and so on. It finds them via `dlsym`, the same mechanism the operating system uses to locate symbols in loaded libraries. If the function exists, it gets wired as the rule's method automatically. No registration table. No explicit binding. The naming convention *is* the binding.
+
+This last mechanism closes a loop that might otherwise seem mysterious: how does a bootstrap rule written in C++ connect to the incant grammar that names it? The answer is that it does not need to be connected. It just needs to be named correctly. When `DefinE` processes the `NamE` rule definition, it looks for `aCTionNamE`, finds it in the binary, and wires it. The C++ and the incant grammar meet at the name.
+
+Every field you define in incant, every registry entry, every operator binding, every rule in the grammar — all of it passes through `aCTionDefinE` on the way to existence. It is the most consequential action in the bootstrap, and most of what it does is invisible to the programmer writing definitions.
+
+---
+
+### parseAction — deferred compilation
+
+```
+CodE    "{" "}" parseAction;
+```
+
+`CodE` matches a `{ ... }` block. But at bootstrap time, incant is not yet ready to compile and run arbitrary code — the language isn't fully defined yet. So `CodE`'s action does something deliberately minimal: it captures everything between the braces as a raw string and stores it on the field, untouched.
+
+Later, when something actually invokes that field as an action, the stored string gets handed to the compiler. The work happens then, not at parse time.
+
+This is lazy evaluation baked into the bootstrap. It is how incant can parse code blocks it isn't yet equipped to run — and it is why you can write action bodies in incant syntax before the full language exists to interpret them.
