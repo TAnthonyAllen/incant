@@ -1,0 +1,5 @@
+/***************************************************************************
+    jitEmitters dot rtn  Phase JIT emitters, written tok native using the
+    declarations in jitExterns. Mirrors the retired emitter file from Tokf.
+    Real emitters land here next.
+***************************************************************************/

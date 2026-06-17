@@ -1,5 +1,6 @@
 class GroupBody;
 class RuleStuff;
+class JitData;
 class Buffer;
 class PLGset;
 class PLGitem;
@@ -29,6 +30,7 @@ GroupItem *nextInParent;
 GroupItem *priorInParent;
 RuleStuff *rStuff;
 GroupOptions options;
+JitData *jitData;
 GroupItem();
 GroupItem(GroupItem *grup);
 GroupItem(char *c);

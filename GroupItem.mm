@@ -7,6 +7,7 @@
 #include "StringRoutines.h"
 #include "GroupItem.h"
 #include "DoubleLinkList.h"
+#include "JitData.h"
 #include "Stak.h"
 #include "Buffer.h"
 #include "DispatchQ.h"
@@ -139,6 +140,7 @@ GroupItem::GroupItem()
 	nextInParent = 0;
 	priorInParent = 0;
 	rStuff = 0;
+	jitData = 0;
 	groupBody = new GroupBody();
 	groupBody->flags.isSingleton = 1;
 }
@@ -155,6 +157,7 @@ GroupItem::GroupItem(GroupItem *grup)
 	nextInParent = 0;
 	priorInParent = 0;
 	rStuff = 0;
+	jitData = 0;
 	groupBody = grup->groupBody;
 	options.isCopy = 1;
 	if ( grup->rStuff )
@@ -172,6 +175,7 @@ GroupItem::GroupItem(char *c)
 	nextInParent = 0;
 	priorInParent = 0;
 	rStuff = 0;
+	jitData = 0;
 	groupBody = new GroupBody(c);
 	groupBody->flags.isSingleton = 1;
 }

@@ -10,6 +10,7 @@ GroupItem	    parent,
                 nextInParent,
                 priorInParent;
 RuleStuff       rStuff;
+JitData         jitData;
 boolean GroupOptions {
     affiliation:2[isAttribute isMember isEmbedded]
     isCopy } options;

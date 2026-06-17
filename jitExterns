@@ -1,0 +1,140 @@
+/*******************************************************************************
+    jitExterns — the LLVM 22 API declared as TAWK externals, so JIT emitters
+    can be written tok-native (the approach of the retired Tokf/Emitter.twk).
+
+    Modeled on OLDtawkDoNotTouch/Include/jit, modernized for LLVM 22:
+      - owned LLVMContext (getGlobalContext is gone since LLVM 4.0)
+      - opaque pointers: CreateLoad takes an explicit Type
+      - ORCv2 engine (LLJIT) is handled in -% %- passthrough in jitEmitters,
+        not declared here (the builder/Expected<> API is awkward as externals)
+
+    Umbrella header: jitContext.h (pulls the real llvm/IR headers).
+    Phase-1 scope: count(i32) / number(double) arithmetic + structural pieces.
+    Extend per phase. Included via groupIncludes so the types are known before
+    jitEmitters.rtn uses them.
+*******************************************************************************/
+external    LLVMContext
+            APFloat
+            APInt
+            BasicBlock
+            Constant
+            ConstantFP
+            ConstantInt
+            Function
+            FunctionType
+            IRBuilder<>
+            Module
+            Type
+            Value
+            jitContext.h noClassForward namespace llvm
+
+external APFloat type
+{
+    APFloat(double d);
+}
+external APInt type
+{
+    APInt(int numBits,long value,int isSigned);
+}
+external Type
+{
+    static Type             getInt32Ty(LLVMContext c);
+    static Type             getDoubleTy(LLVMContext c);
+    static Type             getVoidTy(LLVMContext c);
+}
+external Value
+{
+    Type                    getType();
+    void                    setName(String s);
+}
+external Constant extends Value
+external ConstantInt extends Constant
+{
+    static Value            get(Type t,long v,int isSigned);
+    alias
+        getInt          get
+        ;
+}
+external ConstantFP extends Constant
+{
+    static Value            get(Type t,double d);
+    alias
+        getDouble       get
+        ;
+}
+external BasicBlock
+{
+    static BasicBlock       Create(LLVMContext c,String name,Function f);
+    alias
+        makeBlock       Create
+        ;
+}
+external Function extends Value
+{
+    static int              ExternalLinkage;
+    static Function         Create(FunctionType f,int linkage,String name,Module m);
+    alias
+        makeFunction    Create
+        ;
+}
+external FunctionType
+{
+    static FunctionType     get(Type t,int isVariadic);
+}
+external Module
+{
+    Module(String s,LLVMContext c);
+}
+// IRBuilder is a dummy type because tok would consider IRBuilder<> invalid otherwise
+// (same trick as OLDtawkDoNotTouch/Include/jit).
+external IRBuilder
+external IRBuilder<>
+{
+    Value                   CreateAdd(Value l,Value r,String s);
+    Value                   CreateSub(Value l,Value r,String s);
+    Value                   CreateMul(Value l,Value r,String s);
+    Value                   CreateSDiv(Value l,Value r,String s);
+    Value                   CreateSRem(Value l,Value r,String s);
+    Value                   CreateFAdd(Value l,Value r,String s);
+    Value                   CreateFSub(Value l,Value r,String s);
+    Value                   CreateFMul(Value l,Value r,String s);
+    Value                   CreateFDiv(Value l,Value r,String s);
+    Value                   CreateICmpEQ(Value l,Value r,String s);
+    Value                   CreateICmpNE(Value l,Value r,String s);
+    Value                   CreateICmpSLT(Value l,Value r,String s);
+    Value                   CreateICmpSLE(Value l,Value r,String s);
+    Value                   CreateICmpSGT(Value l,Value r,String s);
+    Value                   CreateICmpSGE(Value l,Value r,String s);
+    Value                   CreateFCmpULT(Value l,Value r,String s);
+    Value                   CreateFCmpULE(Value l,Value r,String s);
+    Value                   CreateFCmpUGT(Value l,Value r,String s);
+    Value                   CreateFCmpUGE(Value l,Value r,String s);
+    Value                   CreateFCmpUEQ(Value l,Value r,String s);
+    Value                   CreateFCmpUNE(Value l,Value r,String s);
+    Value                   CreateAlloca(Type t,Value arraySize,String s);
+    Value                   CreateLoad(Type t,Value ptr,String s);
+    Value                   CreateStore(Value v,Value ptr);
+    Value                   CreateBr(BasicBlock dest);
+    Value                   CreateCondBr(Value cond,BasicBlock t,BasicBlock f);
+    Value                   CreateRet(Value v);
+    void                    SetInsertPoint(BasicBlock b);
+    BasicBlock              GetInsertBlock();
+    alias
+        Builder         IRBuilder<>
+        ;
+}
+
+/* Per-field JIT state hung on the GroupItem node (the Emitter.twk pattern).
+   Stub re-declarations of Value/Type precede JitData so tok can resolve its
+   field types from JitData's (global) scope rather than only namespace llvm. */
+external Value
+external Type
+external JitData
+{
+#autoGetSet
+Value           jitSlot;
+Value           jitValue;
+Type            jitType;
+    Value       getJitter();
+    void        setJitter(Value v);
+}
