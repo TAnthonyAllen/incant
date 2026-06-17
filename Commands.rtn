@@ -529,6 +529,7 @@ GroupRules  ruler = groupRules;
 extern GroupItem testing(GroupItem input)
 {
 GroupItem   generator   = locate("generator");
+    jitRunAddTwo();
     if !generator { cerr "testing: could not find generator":; return null; }
 GroupItem   bcLIST      = new("bcLIST");
 use bcLIST

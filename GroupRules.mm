@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include "jitContext.h"
 #include "OCroutines.h"
 #include "StringRoutines.h"
 #include "GroupItem.h"
@@ -1954,6 +1955,87 @@ GroupItem 	*interp = 0;
 		else	::fprintf(stderr,"interpretMethod: expected a handler name in text\n");
 	else	::fprintf(stderr,"interpretMethod: should be invoked as a definition attribute\n");
 	return input->getGroup();
+}
+
+extern "C" void *jitEngine()
+{
+	
+	static std::unique_ptr<llvm::orc::LLJIT> theJIT;
+	if (!theJIT) {
+	jitInitOnce();
+	auto created = llvm::orc::LLJITBuilder().create();
+	if (created) theJIT = std::move(*created);
+	}
+	return theJIT.get();
+	
+}
+
+/***************************************************************************
+    jitEmitters dot rtn  Phase JIT engine and emitters. Written tok native
+    using the declarations in jitExterns; passthrough used only for the one
+    time ORCv2 engine setup. Mirrors the retired emitter file from Tokf.
+    NOTE keep passthrough markers and declared type names out of comments.
+***************************************************************************/
+/* Pulls jitContext.h into GroupRules.mm: a tok-native use of an external type
+   (plain signature, so the generated header stays llvm-clean). The real emitters
+   will use the externs in their bodies; until then this forces the include. */
+extern "C" void jitForceInclude()
+{
+llvm::IRBuilder<> 	*b = 0;
+	b = 0;
+}
+
+extern "C" void jitInitOnce()
+{
+	
+	static bool done = false;
+	if (done) return;
+	llvm::InitializeNativeTarget();
+	llvm::InitializeNativeTargetAsmPrinter();
+	llvm::InitializeNativeTargetAsmParser();
+	done = true;
+	
+}
+
+/* Pipeline proof: hand-build the IR for an addTwo-shaped function
+   ( i32 f(){ return 3 + 5; } ), JIT-compile it via the engine, call it, and
+   return the result. Proves emit -> ORCv2 compile -> lookup -> native call.
+   The generic body-walk + tok-native emitters replace the hand-built IR next. */
+extern "C" int jitRunAddTwo()
+{
+	
+	printf("=== jitRunAddTwo: entering ===\n"); fflush(stdout);
+	jitInitOnce();
+	llvm::orc::LLJIT *jit = (llvm::orc::LLJIT*)jitEngine();
+	if (!jit) { printf("=== JIT engine null ===\n"); fflush(stdout); return -1; }
+	
+	auto ctx = std::make_unique<llvm::LLVMContext>();
+	auto mod = std::make_unique<llvm::Module>("addTwoMod", *ctx);
+	llvm::IRBuilder<> B(*ctx);
+	
+	llvm::Type *i32 = llvm::Type::getInt32Ty(*ctx);
+	llvm::Function *fn = llvm::Function::Create(
+	llvm::FunctionType::get(i32, false),
+	llvm::Function::ExternalLinkage, "addTwo", mod.get());
+	B.SetInsertPoint(llvm::BasicBlock::Create(*ctx, "entry", fn));
+	llvm::Value *sum = B.CreateAdd(llvm::ConstantInt::get(i32, 3),
+	llvm::ConstantInt::get(i32, 5), "sum");
+	B.CreateRet(sum);
+	
+	if (auto err = jit->addIRModule(
+	llvm::orc::ThreadSafeModule(std::move(mod), std::move(ctx)))) {
+	llvm::consumeError(std::move(err));
+	printf("=== JIT addIRModule failed ===\n");
+	return -2;
+	}
+	auto sym = jit->lookup("addTwo");
+	if (!sym) { llvm::consumeError(sym.takeError());
+	printf("=== JIT lookup failed ===\n"); return -3; }
+	int (*fp)() = sym->toPtr<int(*)()>();
+	int r = fp();
+	printf("=== JIT addTwo result = %d ===\n", r); fflush(stdout);
+	return r;
+	
 }
 
 /*****************************************************************************
@@ -3952,6 +4034,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 extern "C" GroupItem *testing(GroupItem *input)
 {
 GroupItem 	*generator = GroupControl::groupController->locate("generator");
+	jitRunAddTwo();
 	if ( !generator )
 		{
 		::fprintf(stderr,"testing: could not find generator\n");

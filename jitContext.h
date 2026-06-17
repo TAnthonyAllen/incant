@@ -11,8 +11,9 @@
 #include "llvm/IR/Function.h"
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Value.h"
-
-namespace llvm { namespace orc { class LLJIT; } }
+#include "llvm/Support/TargetSelect.h"
+#include "llvm/ExecutionEngine/Orc/LLJIT.h"
+#include <memory>
 
 // Per-field JIT state, hung on the GroupItem node during emission (the Emitter.twk
 // JitData pattern). Transient: meaningful only while an action is being compiled.
@@ -41,10 +42,8 @@ public:
         : ctx(c), builder(b), fn(0), entryBB(0), ok(true) {}
 };
 
-// One-time LLVM process setup (InitializeNativeTarget etc.). Idempotent.
-void jitInitOnce();
-
-// The process-wide ORCv2 JIT engine (created once). nullptr if creation failed.
-llvm::orc::LLJIT *jitEngine();
+// jitInitOnce() / jitEngine() are emitted by jitEmitters.rtn as extern "C"
+// (tok generates their prototypes in GroupRules.h). jitEngine() returns the
+// llvm::orc::LLJIT* as void* to keep its tok-extern signature header-clean.
 
 #endif // JITCONTEXT_H
