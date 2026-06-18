@@ -7,4 +7,7 @@ search reset stack Grokking;
 search Generating UnitTests bcOPs Utilities list;
 
 testing(jitAdd);
+testing(jitAddF);
+testing(jitMix);
+testing(jitFieldAdd);
 stop();

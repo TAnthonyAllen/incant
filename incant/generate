@@ -251,6 +251,17 @@ define
     // generic dispatch reaches the tok-native emitter (vs the hand-built
     // jitRunAddTwo scaffold, kept as a regression check).
     jitAdd code={ 3 + 5; };
+    // Number-add POP: proves the CreateFAdd variant + number-literal seeding
+    // (double ConstantFP) + the driver's FPToSI-on-double return. 3.0 + 5.0 = 8.0
+    // -> FPToSI -> 8. Same jitEmitBinary(jitAdd) path, float branch.
+    jitAddF code={ 3.0 + 5.0; };
+    // count+number coercion POP: the count operand is SIToFP-promoted to double
+    // before the FAdd (numeric promotion). 3 + 5.0 = 8.0 -> FPToSI -> 8.
+    jitMix code={ 3 + 5.0; };
+    // Field-unbox POP (Increment 2): righty is a REAL count field (=13, unitTests:83),
+    // not a seeded literal. jitSeedField bakes its address and CreateLoads gCount at
+    // run time. righty(13) + 5 = 18. The proof that makes the literal scaffold obsolete.
+    jitFieldAdd code={ righty + 5; };
     // POP target: testPrint -> "hello world" via the bytecode print path.
     testPrint code={ print "hello" name:; };
     // testEmitBC retired 2026-06-04 (Brief 5 Fix 3): it called emitBC(bcMul),

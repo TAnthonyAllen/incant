@@ -363,6 +363,14 @@ Hard-won lessons. Each one has cost real debugging time.
 8. **`setGroup: cannot add group to itself`** — benign but noisy. Caused by a redundant
    `:generator bcLIST` rebind inside `emitBC` scope.
 
+9. **JIT gate: `else jitSeedField` assumes a non-literal operand is a real field.** In
+   `aCTionExpressioN`'s jitting branch, an operand that isn't a literal is routed to
+   `jitSeedField` (unbox a real field). That holds for single-op POPs (`righty + 5`), but
+   a chained expression `a + b + c` produces an inner *result* node that is also
+   non-literal — and it would be wrongly handed to `jitSeedField`, which bakes a bogus
+   `gCount` address. Latent: only bites when chaining lands. Guard on "already carries
+   `jitData`" (the emit result) before treating an operand as a field. (Phase JIT, 2026-06-18.)
+
 ---
 
 ## The `testing` Command

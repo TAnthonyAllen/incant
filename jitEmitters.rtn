@@ -45,12 +45,81 @@ extern void* jitEngine()
 extern GroupItem jitSeedLiteral(GroupItem token)
 {
     -%
+    llvm::LLVMContext &ctx = gJitBuilder->getContext();
     JitData *d = new JitData();
-    d->setJitter(llvm::ConstantInt::get(
-        llvm::Type::getInt32Ty(gJitBuilder->getContext()),
-        (long)token->getCount(), false));
+    if (isNUMBER(token->groupBody->flags.data))
+        d->setJitter(llvm::ConstantFP::get(
+            llvm::Type::getDoubleTy(ctx), token->getNumber()));
+    else
+        d->setJitter(llvm::ConstantInt::get(
+            llvm::Type::getInt32Ty(ctx), (long)token->getCount(), false));
     token->jitData = d;
     return token;
+    %-
+}
+
+/* jitSeedField  unbox a real count/number field operand — the past-constant-folding
+   path. Bakes the field's stable GroupItem storage address as a constant pointer and
+   emits a CreateLoad of its gCount/gNumber, so the operand reads the LIVE field value
+   at run time rather than a folded compile-time constant. The field's address is
+   stable (BDWGC-managed, persists), so baking it is sound. (Slot-array calling
+   convention per jit.md is the later refinement; this proves the unbox mechanism.) */
+extern GroupItem jitSeedField(GroupItem token)
+{
+    -%
+    llvm::IRBuilder<> *b = gJitBuilder;
+    llvm::LLVMContext &ctx = b->getContext();
+    JitData *d = new JitData();
+    if (isNUMBER(token->groupBody->flags.data)) {
+        void *addr = &(token->groupBody->gNumber);
+        llvm::Value *p = b->CreateIntToPtr(
+            llvm::ConstantInt::get(llvm::Type::getInt64Ty(ctx), (uint64_t)addr),
+            llvm::PointerType::getUnqual(ctx));
+        d->setJitter(b->CreateLoad(llvm::Type::getDoubleTy(ctx), p, "unbox"));
+    } else {
+        void *addr = &(token->groupBody->gCount);
+        llvm::Value *p = b->CreateIntToPtr(
+            llvm::ConstantInt::get(llvm::Type::getInt64Ty(ctx), (uint64_t)addr),
+            llvm::PointerType::getUnqual(ctx));
+        d->setJitter(b->CreateLoad(llvm::Type::getInt32Ty(ctx), p, "unbox"));
+    }
+    token->jitData = d;
+    return token;
+    %-
+}
+
+/* jitEmitBinary  the shared binary-arithmetic emitter. Each arithmetic opMethod's
+   jitting gate is one line onto this — jitEmitBinary(argument, target, jitAdd) —
+   so the boilerplate (operand load, result store, gJitResult stash, return) lives
+   once. The int/float variant of the instruction is picked from the operand's LLVM
+   type; operands are assumed matched (same type) per the target-drives-representation
+   model. `op` is a jitOp (jitContext.h). Header-clean signature (no llvm:: types);
+   the LLVM lives in the passthrough body, the jitSeedLiteral pattern. */
+extern GroupItem jitEmitBinary(GroupItem argument,GroupItem target,int op)
+{
+    -%
+    llvm::IRBuilder<> *b = gJitBuilder;
+    llvm::Value *l = target->jitData->jitValue;
+    llvm::Value *r = argument->jitData->jitValue;
+    // Numeric promotion: if either operand is double, the op is floating-point and
+    // the integer operand is promoted (CreateSIToFP) before it. This is where
+    // "assume operands match" comes due — mixed count+number now coerces cleanly.
+    bool fp = l->getType()->isDoubleTy() || r->getType()->isDoubleTy();
+    if (fp) {
+        llvm::Type *d = llvm::Type::getDoubleTy(b->getContext());
+        if (l->getType() != d) l = b->CreateSIToFP(l, d, "promo");
+        if (r->getType() != d) r = b->CreateSIToFP(r, d, "promo");
+    }
+    llvm::Value *res = nullptr;
+    switch (op) {
+        case jitAdd:  res = fp ? b->CreateFAdd(l,r,"add") : b->CreateAdd(l,r,"add");  break;
+        case jitSub:  res = fp ? b->CreateFSub(l,r,"sub") : b->CreateSub(l,r,"sub");  break;
+        case jitMul:  res = fp ? b->CreateFMul(l,r,"mul") : b->CreateMul(l,r,"mul");  break;
+        case jitSDiv: res = fp ? b->CreateFDiv(l,r,"div") : b->CreateSDiv(l,r,"div"); break;
+    }
+    target->jitData->setJitter(res);
+    gJitResult = res;
+    return target;
     %-
 }
 
@@ -75,9 +144,14 @@ extern int jitRunAction(GroupItem action)
     llvm::IRBuilder<> B(*ctx);
 
     llvm::Type *i32 = llvm::Type::getInt32Ty(*ctx);
+    // Unique name per run: the LLJIT engine is long-lived, so reusing "jitFn"
+    // collides on the second addIRModule (duplicate symbol in the JITDylib).
+    static int jitFnSeq = 0;
+    char fnName[32];
+    snprintf(fnName, sizeof(fnName), "jitFn%d", jitFnSeq++);
     llvm::Function *fn = llvm::Function::Create(
         llvm::FunctionType::get(i32, false),
-        llvm::Function::ExternalLinkage, "jitFn", mod.get());
+        llvm::Function::ExternalLinkage, fnName, mod.get());
     B.SetInsertPoint(llvm::BasicBlock::Create(*ctx, "entry", fn));
 
     gJitBuilder = &B;
@@ -92,18 +166,22 @@ extern int jitRunAction(GroupItem action)
     if (!gJitResult) {
         printf("=== jitRunAction: no result emitted (gate did not fire?) ===\n");
         fflush(stdout); return -2; }
+    if (gJitResult->getType()->isDoubleTy())
+        gJitResult = B.CreateFPToSI(gJitResult, i32, "ret");
     B.CreateRet(gJitResult);
 
     if (auto err = jit->addIRModule(
             llvm::orc::ThreadSafeModule(std::move(mod), std::move(ctx)))) {
         llvm::consumeError(std::move(err));
         printf("=== JIT addIRModule failed ===\n"); fflush(stdout); return -3; }
-    auto sym = jit->lookup("jitFn");
+    auto sym = jit->lookup(fnName);
     if (!sym) { llvm::consumeError(sym.takeError());
                 printf("=== JIT lookup failed ===\n"); fflush(stdout); return -4; }
     int (*fp)() = sym->toPtr<int(*)()>();
     int r = fp();
     printf("=== jitRunAction result = %d ===\n", r); fflush(stdout);
+    gJitBuilder = nullptr;   // don't leave it dangling at this run's destroyed stack B
+    gJitResult  = nullptr;
     return r;
     %-
 }

@@ -166,3 +166,49 @@ A wrapper carries both: the inspectable GroupItem (with its attribute list as fr
 - **Recompile on structural edit.** The compiled entry point is opaque and assumes the action's structure is fixed (see the schema-closure precondition above). If incant ever rewrites a JIT'd action in place, its compiled code goes stale. The action wrapper — carrying both the inspectable GroupItem and the entry-point pointer — is the deliberate seam where an invalidate-and-recompile story would attach. Deferred, and coupled to the same "no in-place modification" discipline that schema-closure rests on.
 - **Type inference for optimization.** The conservative JIT emits code that still does runtime type checks through the GroupItem pointer indirection — semantically identical to the interpreter, just with stack-frame discipline. A specialization pass that locks in types for hot paths and emits tighter machine code is a follow-on optimization, not a prerequisite.
 - **`modedOP.boundTo`** interaction with JIT'd dispatch. Deferred pending that design pass.
+
+---
+
+## Status (2026-06-18) — Phase 1 straight-line arithmetic
+
+**Design chosen: Plan A — the jitting gate lives *inside* the opMethod.** `opPlus`
+grows an `if jitting { … }` emit branch above its interpret body; `aCTionExpressioN`'s
+jitting branch dispatches the operator's own `operat` (no `jit` child), which
+self-gates. At endgame the interpret body and the gate strip out mechanically and the
+opMethod *is* the emitter. (Plan B — emitter on a `jit` child — is the abandoned
+alternative; it would have left N siblings to fold back in. See `docs/layout-recon.md`
+sibling discussion only for the parallel-lowerings framing.)
+
+**Proven end-to-end (POPs, all in one pass, via `jitRunAction`):**
+| POP | expression | result | path |
+|---|---|---|---|
+| `jitAdd` | `3 + 5` | 8 | `CreateAdd` (count / i32) |
+| `jitAddF` | `3.0 + 5.0` | 8 | `CreateFAdd` (number / double) |
+| `jitMix` | `3 + 5.0` | 8 | count `SIToFP`-promoted → `FAdd` (numeric promotion) |
+| `jitFieldAdd` | `righty + 5` | 18 | **field unbox** — `jitSeedField` bakes the stable GroupItem address, `CreateLoad`s `gCount` at run time |
+
+- **`jitEmitBinary`** (jitContext.h `enum jitOp`) is the shared binary-arith emitter —
+  one line per op; int/float variant and operand promotion centralized there. Header-clean
+  signature (`GroupItem,GroupItem,int`), LLVM in the passthrough body.
+- **`jitSeedLiteral`** types literals (i32 count / double number); **`jitSeedField`**
+  unboxes real field operands (load, not fold).
+- **Driver:** `i32()` function, one compile+run per call, **unique function name per run**
+  (the LLJIT engine is long-lived — reusing `jitFn` collides on the 2nd `addIRModule`).
+  Double results returned via `FPToSI`.
+- Bytecode path unaffected (`testByteCode` → 11).
+
+**Next proof points / deferred:**
+- **Rebox/return `GroupItem*` (the epilogue).** Field unbox proves the prologue's first
+  piece (operand *load*); writeback of a result *into* a field, and returning a real
+  `GroupItem*` per this doc's frame model, is not done. The driver still returns a native
+  `i32`.
+- **Slot-array calling convention** (this doc): current field unbox bakes a *stable*
+  address. The slot ABI is the refinement for non-stable fields and recompile-on-edit.
+- **Cached-function refire.** The load-vs-fold distinction is invisible while compile+run
+  is one shot — it becomes observable (JIT stops looking like a constant folder) once a
+  compiled action is cached and re-fired after a field changes.
+- **Chained-operand gate guard.** The gate assumes a non-literal operand is a real field,
+  so `a + b + c` mis-routes the inner result to `jitSeedField`. Single-op POPs hide it.
+  (Bear trap — CLAUDE.md.)
+- **Other op families:** `jitEmitCompare` (relational → `i1`), unary, assign. Then
+  Phase 2 (control flow) and Phase 3 (string ops, runtime callbacks).

@@ -27,6 +27,11 @@ inline llvm::IRBuilder<> *gJitBuilder = nullptr;
 // Single-result for the Phase-1 straight-line proof; widens to per-field rebox later.
 inline llvm::Value *gJitResult = nullptr;
 
+// Binary-op selector for jitEmitBinary — readable names, not magic ints. Each
+// arithmetic opMethod's jitting gate passes one of these; the int/float variant
+// of the actual LLVM instruction is picked inside jitEmitBinary from operand type.
+enum jitOp { jitAdd, jitSub, jitMul, jitSDiv };
+
 // Per-field JIT state, hung on the GroupItem node during emission (the Emitter.twk
 // JitData pattern). Transient: meaningful only while an action is being compiled.
 class JitData {

@@ -298,7 +298,9 @@ GroupItem   op,
                 if arg
                     if target {
                         if target.isLiteral jitSeedLiteral(target);
+                        else                jitSeedField(target);
                         if arg.isLiteral    jitSeedLiteral(arg);
+                        else                jitSeedField(arg);
                         result = op.operat(arg,target);
                         op = 0;
                         target = 0;
