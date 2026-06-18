@@ -388,6 +388,57 @@ GroupItem 	*target = 0;
 GroupItem 	*arg = 0;
 GroupItem 	*xl = 0;
 GroupItem 	*token = 0;
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		GroupItem 	*grup = 0;
+		GroupItem 	*jh = 0;
+		GroupItem 	*result = 0;
+		if ( xpList->groupBody->groupList->listLength == 1 )
+			{
+			arg = xpList->groupBody->groupList->firstInList;
+			if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
+				arg = arg->getGroup();
+			if ( arg->groupBody->flags.isLiteral )
+				::jitSeedLiteral(arg);
+			xpList->clear();
+			xpList->setGroup(arg);
+			return xpList;
+			}
+		while ( token = xpList->prior(token) )
+			{
+			grup = token;
+			if ( isGROUP(grup->groupBody->flags.data) && !isOperator(grup->groupBody->flags.instructType) )
+				while ( isGROUP(grup->groupBody->flags.data) )
+					grup = grup->getGroup();
+			if ( isOperator(grup->groupBody->flags.instructType) )
+				op = grup;
+			else {
+				if ( !arg )
+					arg = grup;
+				else
+				if ( op )
+					target = grup;
+				}
+			if ( op )
+				if ( arg )
+					if ( target )
+						{
+						if ( target->groupBody->flags.isLiteral )
+							::jitSeedLiteral(target);
+						if ( arg->groupBody->flags.isLiteral )
+							::jitSeedLiteral(arg);
+						jh = op->get("jit");
+						if ( jh )
+							result = jh->groupBody->gOp(arg,target);
+						op = 0;
+						target = 0;
+						arg = result;
+						}
+			}
+		xpList->clear();
+		xpList->setGroup(arg);
+		return xpList;
+		}
 	if ( GroupControl::groupController->groupRules->generating )
 		{
 		GroupItem 	*revisedList = new GroupItem("revisedList");
@@ -1597,10 +1648,14 @@ GroupItem 	*grup = 0;
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
-/* emitPlus  tok-native + emitter. Operand access (target.jitData.jitValue) and
-   the CreateAdd call are tok-native; only the builder grab is passthrough (the
-   one narrow case). Stores the result back into the target node's jit value. */
-extern "C" GroupItem *emitPlus(GroupItem *op, GroupItem *target, GroupItem *argument)
+/* emitPlus  the '+' JIT emitter. Signature is byte-identical to opPlus
+   (argument, target) so it slots straight into the gOp fnptr — bound onto the
+   operator's `jit` child via setOperat, dispatched by aCTionExpressioN's jitting
+   gate as jh.operat(argument, target). Operand access is tok-native off the
+   ORIGINAL wrappers (no copy → jitData survives); only the builder grab is
+   passthrough. Stores the SSA result on target's jit value and leaves it in
+   gJitResult for the compile driver's CreateRet. */
+extern "C" GroupItem *emitPlus(GroupItem *argument, GroupItem *target)
 {
 llvm::IRBuilder<> 	*b = 0;
 JitData 		*td = 0;
@@ -1615,6 +1670,7 @@ llvm::Value 			*sum = 0;
 	r = ad->jitValue;
 	sum = b->CreateAdd(l,r,"add");
 	td->setJitter(sum);
+	 gJitResult = sum; 
 	return target;
 }
 
@@ -2018,6 +2074,90 @@ extern "C" void jitInitOnce()
 	
 }
 
+/*****************************************************************************
+    jitMethod — binds an operator's JIT emitter. Same pattern as
+    interpretMethod (bytecode): creates a PERSISTENT `jit` child on the op and
+    binds the named C++ emitter as that child's method, so aCTionExpressioN's
+    jitting gate can dispatch it in place via op["jit"].gMethod(triple). An op
+    with no jitMethod simply has no `jit` child → the gate falls back rather
+    than emitting. jitMethod=emitPlus sits alongside operateMethod=opPlus
+    interpretMethod=runPlus — the third sibling lowering.
+*****************************************************************************/
+extern "C" GroupItem *jitMethod(GroupItem *input)
+{
+char 		*name = input->getText();
+GroupItem 	*jit = 0;
+	if ( input->groupBody->flags.fLAG )
+		if ( name )
+			{
+			GroupItem 	*grup = input->parent;
+			if ( grup )
+				{
+				jit = grup->addString("jit");
+				jit->setOperat(::dlsym(RTLD_SELF,name));
+				jit->groupBody->flags.instructType = 2;
+				}
+			else	::fprintf(stderr,"jitMethod: no parent to attach jit to\n");
+			}
+		else	::fprintf(stderr,"jitMethod: expected a handler name in text\n");
+	else	::fprintf(stderr,"jitMethod: should be invoked as a definition attribute\n");
+	return input->getGroup();
+}
+
+/* jitRunAction  the generic compile driver — the JIT analog of generateCode. Sets
+   up an i32() function shell + builder, raises the `jitting` gate, walks the action
+   body via processCode (which fires aCTionExpressioN's jitting branch per
+   expression, emitting IR straight into the builder), then caps with CreateRet of
+   the running result, ORC-compiles, looks up, and calls. Returns the native result.
+   Phase-1 scope: straight-line count arithmetic, no prologue unbox of real fields
+   yet (literals are folded as constants). */
+extern "C" int jitRunAction(GroupItem *action)
+{
+	
+	printf("=== jitRunAction: entering on %s ===\n", action->groupBody->tag);
+	fflush(stdout);
+	jitInitOnce();
+	llvm::orc::LLJIT *jit = (llvm::orc::LLJIT*)jitEngine();
+	if (!jit) { printf("=== JIT engine null ===\n"); fflush(stdout); return -1; }
+	
+	auto ctx = std::make_unique<llvm::LLVMContext>();
+	auto mod = std::make_unique<llvm::Module>("jitMod", *ctx);
+	llvm::IRBuilder<> B(*ctx);
+	
+	llvm::Type *i32 = llvm::Type::getInt32Ty(*ctx);
+	llvm::Function *fn = llvm::Function::Create(
+	llvm::FunctionType::get(i32, false),
+	llvm::Function::ExternalLinkage, "jitFn", mod.get());
+	B.SetInsertPoint(llvm::BasicBlock::Create(*ctx, "entry", fn));
+	
+	gJitBuilder = &B;
+	gJitResult  = nullptr;
+	
+	GroupRules *ruler = GroupControl::groupController->groupRules;
+	ruler->jitting = 1;
+	if (isCoded(action->groupBody->flags.actionType))
+	::processCode(action);
+	ruler->jitting = 0;
+	
+	if (!gJitResult) {
+	printf("=== jitRunAction: no result emitted (gate did not fire?) ===\n");
+	fflush(stdout); return -2; }
+	B.CreateRet(gJitResult);
+	
+	if (auto err = jit->addIRModule(
+	llvm::orc::ThreadSafeModule(std::move(mod), std::move(ctx)))) {
+	llvm::consumeError(std::move(err));
+	printf("=== JIT addIRModule failed ===\n"); fflush(stdout); return -3; }
+	auto sym = jit->lookup("jitFn");
+	if (!sym) { llvm::consumeError(sym.takeError());
+	printf("=== JIT lookup failed ===\n"); fflush(stdout); return -4; }
+	int (*fp)() = sym->toPtr<int(*)()>();
+	int r = fp();
+	printf("=== jitRunAction result = %d ===\n", r); fflush(stdout);
+	return r;
+	
+}
+
 /* Pipeline proof: hand-build the IR for an addTwo-shaped function
    ( i32 f(){ return 3 + 5; } ), JIT-compile it via the engine, call it, and
    return the result. Proves emit -> ORCv2 compile -> lookup -> native call.
@@ -2047,7 +2187,7 @@ extern "C" int jitRunAddTwo()
 	gx->jitData->setJitter(llvm::ConstantInt::get(i32, 3));
 	GroupItem *gy = new GroupItem("y"); gy->jitData = new JitData();
 	gy->jitData->setJitter(llvm::ConstantInt::get(i32, 5));
-	GroupItem *res = emitPlus(0, gx, gy);
+	GroupItem *res = emitPlus(gy, gx);
 	B.CreateRet(res->jitData->jitValue);
 	
 	if (auto err = jit->addIRModule(
@@ -2063,6 +2203,21 @@ extern "C" int jitRunAddTwo()
 	int r = fp();
 	printf("=== JIT addTwo result = %d ===\n", r); fflush(stdout);
 	return r;
+	
+}
+
+/* jitSeedLiteral  give a literal operand node a JitData carrying a ConstantInt of
+   its count value, so emitAdd has an SSA operand to read. Phase 1 = i32 counts;
+   number/string literals widen the type switch here later. */
+extern "C" GroupItem *jitSeedLiteral(GroupItem *token)
+{
+	
+	JitData *d = new JitData();
+	d->setJitter(llvm::ConstantInt::get(
+	llvm::Type::getInt32Ty(gJitBuilder->getContext()),
+	(long)token->getCount(), false));
+	token->jitData = d;
+	return token;
 	
 }
 
@@ -4048,33 +4203,21 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 }
 
 /***************************************************************************
-	Immediate method for the testing command — scratch verification harness.
-
-	Currently primes a fresh, list-typed bcLIST on the generator the way
-	generateCode does (Commands.rtn:167-171), so emitBC's `:generator bcLIST`
-	appends members instead of hitting opPlusEQ's copyData branch on a missing
-	list. `input` is the host field (mirrors generateCode's `field`); then runs
-	the action's body against the primed list. Invoke like generateCode:
-		testing(testBRZEmit);
+	Immediate method for the testing command — scratch verification harness,
+	rewritten per the current need (see CLAUDE.md). Currently drives the JIT
+	compile path: testing(<action>) runs jitRunAction on the action, which
+	raises the jitting gate, walks the body via processCode (emitting LLVM IR
+	through the operators' jit dispatch), then ORC-compiles and fires. Invoke:
+		testing(jitAdd);
+	(The earlier bcLIST-priming bytecode harness is in git history; restore it
+	here when bytecode-emit verification is the need again.)
 	NB: keep this body free of `//` comments — they bleed field-resolution into
 	the following externs (unWrap/writeTempFile). Doc goes here, in the block.
 ***************************************************************************/
 extern "C" GroupItem *testing(GroupItem *input)
 {
-GroupItem 	*generator = GroupControl::groupController->locate("generator");
-	jitRunAddTwo();
-	if ( !generator )
-		{
-		::fprintf(stderr,"testing: could not find generator\n");
-		return 0;
-		}
-GroupItem 	*bcLIST = new GroupItem("bcLIST");
-	bcLIST->groupBody->groupList = new GroupList();
-	bcLIST->groupBody->flags.noPrint = 1;
-	input->addAttribute(bcLIST);
-	bcLIST = generator->replace(bcLIST);
-	::runAction(0,input);
-	return generator->get("bcLIST");
+	::jitRunAction(input);
+	return input;
 }
 
 /***************************************************************************
@@ -4200,6 +4343,7 @@ GroupRules::GroupRules()
 	noSkipping = 0;
 	processingCode = 0;
 	showWarnings = 0;
+	jitting = 0;
 	blockSTAK = new Stak();
 	bufferSTAK = new Stak();
 	alphaSet = new PLGset("a-zA-Z");

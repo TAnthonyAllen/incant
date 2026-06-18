@@ -212,6 +212,33 @@ use input
     return group;
 }
 
+/*****************************************************************************
+    jitMethod — binds an operator's JIT emitter. Same pattern as
+    interpretMethod (bytecode): creates a PERSISTENT `jit` child on the op and
+    binds the named C++ emitter as that child's method, so aCTionExpressioN's
+    jitting gate can dispatch it in place via op["jit"].gMethod(triple). An op
+    with no jitMethod simply has no `jit` child → the gate falls back rather
+    than emitting. jitMethod=emitPlus sits alongside operateMethod=opPlus
+    interpretMethod=runPlus — the third sibling lowering.
+*****************************************************************************/
+extern GroupItem jitMethod(GroupItem input)
+{
+String      name = text;
+GroupItem   jit;
+use input
+    if input.fLAG
+        if name {
+            GroupItem   grup = parent;
+            if grup {
+                jit = addString("jit");
+                jit.setOperat(dlsym(RTLD_SELF,name));
+                jit.isOperator = true; }
+            else    cerr "jitMethod: no parent to attach jit to":; }
+        else    cerr "jitMethod: expected a handler name in text":;
+    else    cerr "jitMethod: should be invoked as a definition attribute":;
+    return group;
+}
+
 /*******************************************************************************
 	Load a registry (create it if necessary) from a string. It does not deal
     w/attributes, just loads any field of non-space characters.

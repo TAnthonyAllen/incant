@@ -277,6 +277,36 @@ GroupItem   op,
             arg,
             xl,
             token;
+    if jitting {
+        GroupItem   grup, jh, result;
+        if xpList.listLength == 1 {
+            arg = xpList.firstInList;
+            if arg.isGROUP && !arg.isArgument   arg = arg.group;
+            if arg.isLiteral    jitSeedLiteral(arg);
+            xpList.clear();
+            xpList.group = arg;
+            return xpList; }
+        while token = xpList.prior(token) {
+            grup = token;
+            if grup.isGROUP && !grup.isOperator
+                while grup.isGROUP  grup = grup.group;
+            if grup.isOperator  op = grup;
+            else {
+                if !arg arg = grup;
+                or op   target = grup; }
+            if op
+                if arg
+                    if target {
+                        if target.isLiteral jitSeedLiteral(target);
+                        if arg.isLiteral    jitSeedLiteral(arg);
+                        jh = op["jit"];
+                        if jh   result = jh.operat(arg,target);
+                        op = 0;
+                        target = 0;
+                        arg = result; }}
+        xpList.clear();
+        xpList.group = arg;
+        return xpList; }
     if generating {
         GroupItem revisedList = new("revisedList");
         GroupItem grup, store, tgt;

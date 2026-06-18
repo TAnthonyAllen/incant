@@ -119,7 +119,7 @@ define
     '++'    unary ruleMethod=opPlusPlus;
     '+*'    operateMethod=opCopyList;
     '+%'    operateMethod=opAddAttribute;
-    '+'     operateMethod=opPlus  interpretMethod=runPlus;
+    '+'     operateMethod=opPlus  interpretMethod=runPlus  jitMethod=emitPlus;
     '*='    operateMethod=opMultiplyEQ;
     '*'     operateMethod=opMultiply  interpretMethod=runMultiply;
     '@'     unary ruleMethod=opLastREF;

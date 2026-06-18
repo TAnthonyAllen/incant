@@ -244,6 +244,13 @@ define
     ***************************************************************************/
     testByteCode code={
         if righty <= 0; maximus = righty * 2; };
+    // Phase-JIT POP: jitAdd -> 8 through the jitting gate. Driven by
+    // jitRunAction(jitAdd) (jitEmitters.rtn), NOT generateCode: the `if jitting`
+    // branch in aCTionExpressioN seeds the two literals and dispatches '+' to
+    // emitPlus, the driver returns the native i32. The first proof that the
+    // generic dispatch reaches the tok-native emitter (vs the hand-built
+    // jitRunAddTwo scaffold, kept as a regression check).
+    jitAdd code={ 3 + 5; };
     // POP target: testPrint -> "hello world" via the bytecode print path.
     testPrint code={ print "hello" name:; };
     // testEmitBC retired 2026-06-04 (Brief 5 Fix 3): it called emitBC(bcMul),

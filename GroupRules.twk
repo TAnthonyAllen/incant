@@ -75,6 +75,7 @@ class GroupRules
             divertToRule
             endParse
             generating
+            jitting
             ignoreThis
             ignoreNoPrint
             ignoreNoRoom

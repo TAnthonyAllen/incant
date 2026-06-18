@@ -39,10 +39,14 @@ extern void* jitEngine()
     %-
 }
 
-/* emitPlus  tok-native + emitter. Operand access (target.jitData.jitValue) and
-   the CreateAdd call are tok-native; only the builder grab is passthrough (the
-   one narrow case). Stores the result back into the target node's jit value. */
-extern GroupItem emitPlus(GroupItem op,GroupItem target,GroupItem argument)
+/* emitPlus  the '+' JIT emitter. Signature is byte-identical to opPlus
+   (argument, target) so it slots straight into the gOp fnptr — bound onto the
+   operator's `jit` child via setOperat, dispatched by aCTionExpressioN's jitting
+   gate as jh.operat(argument, target). Operand access is tok-native off the
+   ORIGINAL wrappers (no copy → jitData survives); only the builder grab is
+   passthrough. Stores the SSA result on target's jit value and leaves it in
+   gJitResult for the compile driver's CreateRet. */
+extern GroupItem emitPlus(GroupItem argument,GroupItem target)
 {
 Builder b;
 JitData td;
@@ -57,7 +61,77 @@ Value   sum;
     r   = ad.jitValue;
     sum = b.CreateAdd(l,r,"add");
     td.setJitter(sum);
+    -% gJitResult = sum; %-
     return target;
+}
+
+/* jitSeedLiteral  give a literal operand node a JitData carrying a ConstantInt of
+   its count value, so emitAdd has an SSA operand to read. Phase 1 = i32 counts;
+   number/string literals widen the type switch here later. */
+extern GroupItem jitSeedLiteral(GroupItem token)
+{
+    -%
+    JitData *d = new JitData();
+    d->setJitter(llvm::ConstantInt::get(
+        llvm::Type::getInt32Ty(gJitBuilder->getContext()),
+        (long)token->getCount(), false));
+    token->jitData = d;
+    return token;
+    %-
+}
+
+/* jitRunAction  the generic compile driver — the JIT analog of generateCode. Sets
+   up an i32() function shell + builder, raises the `jitting` gate, walks the action
+   body via processCode (which fires aCTionExpressioN's jitting branch per
+   expression, emitting IR straight into the builder), then caps with CreateRet of
+   the running result, ORC-compiles, looks up, and calls. Returns the native result.
+   Phase-1 scope: straight-line count arithmetic, no prologue unbox of real fields
+   yet (literals are folded as constants). */
+extern int jitRunAction(GroupItem action)
+{
+    -%
+    printf("=== jitRunAction: entering on %s ===\n", action->groupBody->tag);
+    fflush(stdout);
+    jitInitOnce();
+    llvm::orc::LLJIT *jit = (llvm::orc::LLJIT*)jitEngine();
+    if (!jit) { printf("=== JIT engine null ===\n"); fflush(stdout); return -1; }
+
+    auto ctx = std::make_unique<llvm::LLVMContext>();
+    auto mod = std::make_unique<llvm::Module>("jitMod", *ctx);
+    llvm::IRBuilder<> B(*ctx);
+
+    llvm::Type *i32 = llvm::Type::getInt32Ty(*ctx);
+    llvm::Function *fn = llvm::Function::Create(
+        llvm::FunctionType::get(i32, false),
+        llvm::Function::ExternalLinkage, "jitFn", mod.get());
+    B.SetInsertPoint(llvm::BasicBlock::Create(*ctx, "entry", fn));
+
+    gJitBuilder = &B;
+    gJitResult  = nullptr;
+
+    GroupRules *ruler = GroupControl::groupController->groupRules;
+    ruler->jitting = 1;
+    if (isCoded(action->groupBody->flags.actionType))
+        ::processCode(action);
+    ruler->jitting = 0;
+
+    if (!gJitResult) {
+        printf("=== jitRunAction: no result emitted (gate did not fire?) ===\n");
+        fflush(stdout); return -2; }
+    B.CreateRet(gJitResult);
+
+    if (auto err = jit->addIRModule(
+            llvm::orc::ThreadSafeModule(std::move(mod), std::move(ctx)))) {
+        llvm::consumeError(std::move(err));
+        printf("=== JIT addIRModule failed ===\n"); fflush(stdout); return -3; }
+    auto sym = jit->lookup("jitFn");
+    if (!sym) { llvm::consumeError(sym.takeError());
+                printf("=== JIT lookup failed ===\n"); fflush(stdout); return -4; }
+    int (*fp)() = sym->toPtr<int(*)()>();
+    int r = fp();
+    printf("=== jitRunAction result = %d ===\n", r); fflush(stdout);
+    return r;
+    %-
 }
 
 /* Pipeline proof: hand-build the IR for an addTwo-shaped function
@@ -89,7 +163,7 @@ extern int jitRunAddTwo()
     gx->jitData->setJitter(llvm::ConstantInt::get(i32, 3));
     GroupItem *gy = new GroupItem("y"); gy->jitData = new JitData();
     gy->jitData->setJitter(llvm::ConstantInt::get(i32, 5));
-    GroupItem *res = emitPlus(0, gx, gy);
+    GroupItem *res = emitPlus(gy, gx);
     B.CreateRet(res->jitData->jitValue);
 
     if (auto err = jit->addIRModule(

@@ -21,6 +21,12 @@
 // TUs, header-defined so it never reaches GroupRules.h.
 inline llvm::IRBuilder<> *gJitBuilder = nullptr;
 
+// The SSA value the action body last produced. The jitting gate (aCTionExpressioN)
+// emits into gJitBuilder and leaves the running result here; the compile driver
+// (jitRunAction) reads it after the body walk to emit the function's CreateRet.
+// Single-result for the Phase-1 straight-line proof; widens to per-field rebox later.
+inline llvm::Value *gJitResult = nullptr;
+
 // Per-field JIT state, hung on the GroupItem node during emission (the Emitter.twk
 // JitData pattern). Transient: meaningful only while an action is being compiled.
 class JitData {

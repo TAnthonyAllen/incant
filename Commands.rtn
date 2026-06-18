@@ -515,30 +515,21 @@ GroupRules  ruler = groupRules;
 }
 
 /***************************************************************************
-	Immediate method for the testing command — scratch verification harness.
-
-	Currently primes a fresh, list-typed bcLIST on the generator the way
-	generateCode does (Commands.rtn:167-171), so emitBC's `:generator bcLIST`
-	appends members instead of hitting opPlusEQ's copyData branch on a missing
-	list. `input` is the host field (mirrors generateCode's `field`); then runs
-	the action's body against the primed list. Invoke like generateCode:
-		testing(testBRZEmit);
+	Immediate method for the testing command — scratch verification harness,
+	rewritten per the current need (see CLAUDE.md). Currently drives the JIT
+	compile path: testing(<action>) runs jitRunAction on the action, which
+	raises the jitting gate, walks the body via processCode (emitting LLVM IR
+	through the operators' jit dispatch), then ORC-compiles and fires. Invoke:
+		testing(jitAdd);
+	(The earlier bcLIST-priming bytecode harness is in git history; restore it
+	here when bytecode-emit verification is the need again.)
 	NB: keep this body free of `//` comments — they bleed field-resolution into
 	the following externs (unWrap/writeTempFile). Doc goes here, in the block.
 ***************************************************************************/
 extern GroupItem testing(GroupItem input)
 {
-GroupItem   generator   = locate("generator");
-    jitRunAddTwo();
-    if !generator { cerr "testing: could not find generator":; return null; }
-GroupItem   bcLIST      = new("bcLIST");
-use bcLIST
-    groupList   = new;
-    noPrint     = true;
-    input   +% bcLIST;
-    bcLIST  = generator.replace(bcLIST);
-    runAction(0,input);
-    return generator["bcLIST"];
+    jitRunAction(input);
+    return input;
 }
 
 /***************************************************************************

@@ -6,5 +6,5 @@ include(utilities);
 search reset stack Grokking;
 search Generating UnitTests bcOPs Utilities list;
 
-testing(testFor);
+testing(jitAdd);
 stop();
