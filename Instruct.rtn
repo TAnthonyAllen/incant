@@ -380,6 +380,16 @@ extern GroupItem opOR(GroupItem argument,GroupItem target)
 ***************************************************************************/
 extern GroupItem opPlus(GroupItem argument,GroupItem target)
 {
+    if jitting {
+        Builder b;
+        JitData td = target.jitData;
+        JitData ad = argument.jitData;
+        Value   sum;
+        -% b = gJitBuilder; %-
+        sum = b.CreateAdd(td.jitValue,ad.jitValue,"add");
+        td.setJitter(sum);
+        -% gJitResult = sum; %-
+        return target; }
     if data && (argument.isCOUNT || argument.isNUMBER) {
         if isCOUNT  tempField.count = gCount + argument.count;
         or isNUMBER tempField.number = gNumber + argument.number;

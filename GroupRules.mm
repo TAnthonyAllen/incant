@@ -391,7 +391,6 @@ GroupItem 	*token = 0;
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		GroupItem 	*grup = 0;
-		GroupItem 	*jh = 0;
 		GroupItem 	*result = 0;
 		if ( xpList->groupBody->groupList->listLength == 1 )
 			{
@@ -427,9 +426,7 @@ GroupItem 	*token = 0;
 							::jitSeedLiteral(target);
 						if ( arg->groupBody->flags.isLiteral )
 							::jitSeedLiteral(arg);
-						jh = op->get("jit");
-						if ( jh )
-							result = jh->groupBody->gOp(arg,target);
+						result = op->groupBody->gOp(arg,target);
 						op = 0;
 						target = 0;
 						arg = result;
@@ -3054,6 +3051,18 @@ extern "C" GroupItem *opOR(GroupItem *argument, GroupItem *target)
 ***************************************************************************/
 extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target)
 {
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		llvm::IRBuilder<> 	*b = 0;
+		JitData 		*td = target->jitData;
+		JitData 		*ad = argument->jitData;
+		llvm::Value 			*sum = 0;
+		 b = gJitBuilder; 
+		sum = b->CreateAdd(td->jitValue,ad->jitValue,"add");
+		td->setJitter(sum);
+		 gJitResult = sum; 
+		return target;
+		}
 	if ( target->groupBody->flags.data && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
 		{
 		if ( isCOUNT(target->groupBody->flags.data) )

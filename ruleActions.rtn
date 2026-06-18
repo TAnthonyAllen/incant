@@ -278,7 +278,7 @@ GroupItem   op,
             xl,
             token;
     if jitting {
-        GroupItem   grup, jh, result;
+        GroupItem   grup, result;
         if xpList.listLength == 1 {
             arg = xpList.firstInList;
             if arg.isGROUP && !arg.isArgument   arg = arg.group;
@@ -299,8 +299,7 @@ GroupItem   op,
                     if target {
                         if target.isLiteral jitSeedLiteral(target);
                         if arg.isLiteral    jitSeedLiteral(arg);
-                        jh = op["jit"];
-                        if jh   result = jh.operat(arg,target);
+                        result = op.operat(arg,target);
                         op = 0;
                         target = 0;
                         arg = result; }}
