@@ -1645,32 +1645,6 @@ GroupItem 	*grup = 0;
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
-/* emitPlus  the '+' JIT emitter. Signature is byte-identical to opPlus
-   (argument, target) so it slots straight into the gOp fnptr — bound onto the
-   operator's `jit` child via setOperat, dispatched by aCTionExpressioN's jitting
-   gate as jh.operat(argument, target). Operand access is tok-native off the
-   ORIGINAL wrappers (no copy → jitData survives); only the builder grab is
-   passthrough. Stores the SSA result on target's jit value and leaves it in
-   gJitResult for the compile driver's CreateRet. */
-extern "C" GroupItem *emitPlus(GroupItem *argument, GroupItem *target)
-{
-llvm::IRBuilder<> 	*b = 0;
-JitData 		*td = 0;
-JitData 		*ad = 0;
-llvm::Value 			*l = 0;
-llvm::Value 			*r = 0;
-llvm::Value 			*sum = 0;
-	 b = gJitBuilder; 
-	td = target->jitData;
-	ad = argument->jitData;
-	l = td->jitValue;
-	r = ad->jitValue;
-	sum = b->CreateAdd(l,r,"add");
-	td->setJitter(sum);
-	 gJitResult = sum; 
-	return target;
-}
-
 /***************************************************************************
 	The fAIL method expects to have the name of the fail method passed in as
     text of the FAIL attribute.
@@ -2071,36 +2045,6 @@ extern "C" void jitInitOnce()
 	
 }
 
-/*****************************************************************************
-    jitMethod — binds an operator's JIT emitter. Same pattern as
-    interpretMethod (bytecode): creates a PERSISTENT `jit` child on the op and
-    binds the named C++ emitter as that child's method, so aCTionExpressioN's
-    jitting gate can dispatch it in place via op["jit"].gMethod(triple). An op
-    with no jitMethod simply has no `jit` child → the gate falls back rather
-    than emitting. jitMethod=emitPlus sits alongside operateMethod=opPlus
-    interpretMethod=runPlus — the third sibling lowering.
-*****************************************************************************/
-extern "C" GroupItem *jitMethod(GroupItem *input)
-{
-char 		*name = input->getText();
-GroupItem 	*jit = 0;
-	if ( input->groupBody->flags.fLAG )
-		if ( name )
-			{
-			GroupItem 	*grup = input->parent;
-			if ( grup )
-				{
-				jit = grup->addString("jit");
-				jit->setOperat(::dlsym(RTLD_SELF,name));
-				jit->groupBody->flags.instructType = 2;
-				}
-			else	::fprintf(stderr,"jitMethod: no parent to attach jit to\n");
-			}
-		else	::fprintf(stderr,"jitMethod: expected a handler name in text\n");
-	else	::fprintf(stderr,"jitMethod: should be invoked as a definition attribute\n");
-	return input->getGroup();
-}
-
 /* jitRunAction  the generic compile driver — the JIT analog of generateCode. Sets
    up an i32() function shell + builder, raises the `jitting` gate, walks the action
    body via processCode (which fires aCTionExpressioN's jitting branch per
@@ -2177,15 +2121,10 @@ extern "C" int jitRunAddTwo()
 	llvm::Function::ExternalLinkage, "addTwo", mod.get());
 	B.SetInsertPoint(llvm::BasicBlock::Create(*ctx, "entry", fn));
 	
-	// Drive the add through the tok-native emitPlus: two operand nodes carrying
-	// constant jit values, emitPlus folds them, result lands on the target node.
-	gJitBuilder = &B;
-	GroupItem *gx = new GroupItem("x"); gx->jitData = new JitData();
-	gx->jitData->setJitter(llvm::ConstantInt::get(i32, 3));
-	GroupItem *gy = new GroupItem("y"); gy->jitData = new JitData();
-	gy->jitData->setJitter(llvm::ConstantInt::get(i32, 5));
-	GroupItem *res = emitPlus(gy, gx);
-	B.CreateRet(res->jitData->jitValue);
+	// Hand-built add: a low-level ORC smoke test, independent of the gate and
+	// the opMethod emitters. Proves emit -> compile -> lookup -> call in isolation.
+	B.CreateRet(B.CreateAdd(
+	llvm::ConstantInt::get(i32, 3), llvm::ConstantInt::get(i32, 5), "add"));
 	
 	if (auto err = jit->addIRModule(
 	llvm::orc::ThreadSafeModule(std::move(mod), std::move(ctx)))) {
@@ -2204,8 +2143,8 @@ extern "C" int jitRunAddTwo()
 }
 
 /* jitSeedLiteral  give a literal operand node a JitData carrying a ConstantInt of
-   its count value, so emitAdd has an SSA operand to read. Phase 1 = i32 counts;
-   number/string literals widen the type switch here later. */
+   its count value, so opPlus's jitting branch has an SSA operand to read. Phase 1
+   = i32 counts; number/string literals widen the type switch here later. */
 extern "C" GroupItem *jitSeedLiteral(GroupItem *token)
 {
 	

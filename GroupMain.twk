@@ -57,13 +57,6 @@ GroupItem   item;
     immediateACTION     = true;
     isMethod            = true;
     noPrint             = true;
-
-    item = new("jitMethod");
-    commands            += item;
-    method              = jitMethod;
-    immediateACTION     = true;
-    isMethod            = true;
-    noPrint             = true;
    /**************************************************************************
         and the registry command
     *************************************************************************/

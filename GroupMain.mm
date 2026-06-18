@@ -63,12 +63,6 @@ GroupItem 	*item = 0;
 	item->groupBody->flags.methodType = 1;
 	item->groupBody->flags.instructType = 1;
 	item->groupBody->flags.noPrint = 1;
-	item = new GroupItem("jitMethod");
-	commands->addMember(item);
-	item->setMethod(::jitMethod);
-	item->groupBody->flags.methodType = 1;
-	item->groupBody->flags.instructType = 1;
-	item->groupBody->flags.noPrint = 1;
 	/**************************************************************************
 	and the registry command
 	*************************************************************************/
