@@ -151,7 +151,7 @@ character set — same idea as a regular expression character class.
 any of the special symbols that act as modifier characters in incant syntax — the `?`, `+`,
 `*`, `@`, `^`, `}`, and others that you will see attached to rules throughout the bootstrap
 list. Most of the modifiers will be familiar to anyone using a parser like yacc. They are
-listed and defined below: (a full modifier reference appears in Appendix C.).
+listed and defined below.
 
 They don't do anything on their own. They exist so other rules can reference them.
 
@@ -348,7 +348,7 @@ reads and executes the startup sequence when incant launches.
 
 ## Modifiers
 
-Modifiers are single characters that appear after a rule name (or after its `=data`) in a definition. They change how the rule matches — how many times it must match, whether it consumes input, whether it labels its result, and so on. The modifier characters are drawn from `modifySet`:
+Modifiers are single characters that appear after a rule name (or after its `=data`) in a definition. Modifiers are only applied to rule attributes, on both sides of a rule attribute. For example, given an attribute defined as: field*=stuff+; The * says field is a collection of stuff and that collection may be empty (* sets matching minimum to 0). The + attached to stuff says stuff is a collection of one or more things. Modifiers change how matching works — how many times a match must happen, whether it consumes input, whether a rule labels its result, and so on. The modifier characters are drawn from `modifySet`:
 
 ```
 modifySet=[-~+?!%&|*@_<^{}$];
@@ -384,7 +384,7 @@ The `-` modifier deserves special mention because it appears constantly througho
 
 ## Rule Actions
 
-A rule matching its input does not, by itself, do anything. The match succeeds or fails — that is all. To make something happen when a rule matches, you attach a rule action: a piece of C++ code that fires the moment the match completes.
+A rule matching its input does not, by itself, do anything. The match succeeds or fails — that is all. To make something happen when a rule matches, you attach a rule action: a piece of C++ code (or an incant action written in incant, but that feature is not available at bootstrap time because there is no incant language to write that action in ... yet). The rule action fires the moment its match completes.
 
 Most bootstrap rules have no action. They match, they return what they matched, done. But a few rules need to do real work — work that cannot be expressed as pattern matching alone. Those rules have actions, and without them incant would not get off the ground.
 
@@ -418,9 +418,9 @@ DefinE    NewGroup Attributes? MemberS? endDefine-=[;>];
 
 When `DefinE` matches, it has recognized the shape of a field definition. But recognition alone does not create a field. `aCTionDefinE` fires after the match and does the real work — and there is quite a lot of it.
 
-**Registry wiring.** If there is a current registry when the definition is processed, the new field gets added to it automatically. You do not register things explicitly. Defining a field inside a registry context is registration. The act of definition and the act of registration are the same act.
+**Registry wiring.** If there is a current registry when the definition is processed, the new field gets added to it automatically. You do not register things explicitly. Defining a field inside a registry context is registration. The act of definition and the act of registration are the same act. And of course, in incant a registry is just a field (it does have it isREGISTRY flag set to ID it as a registry).
 
-**Attributes as immediate actions.** Most attributes get stored on the new field — they become its data. But some attributes are marked `noPrint` and carry an `immediateACTION` flag. Those do not get stored. They get *run*, right then, during the definition itself. A command can execute at define time rather than at call time. This is how things like `register()` and `initFORMs()` work when they appear as attributes in a definition block — they are not declarations, they are invocations wearing declaration syntax.
+**Attributes as immediate actions.** Most attributes get stored on the new field — they become its data. But some attributes are marked `noPrint` and carry an `immediateACTION` flag. Those do not get stored. They get *run*, right then, during the definition itself. A command can execute at define time rather than at call time. This is how fields like `register` and `initFORMs` work when they appear as attributes in a definition block — they are not declarations, they are invocations wearing declaration syntax.
 
 **Code attachment and lazy compilation.** If the definition includes a code block, incant does not compile it immediately. Instead it sets `isCoded` on the new field and parks the raw code string. The first time something invokes that field as an action, `processCode` fires and the code gets compiled then. The field is live and usable before its code is ever looked at.
 
@@ -444,4 +444,4 @@ CodE    "{" "}" parseAction;
 
 Later, when something actually invokes that field as an action, the stored string gets handed to the compiler. The work happens then, not at parse time.
 
-This is lazy evaluation baked into the bootstrap. It is how incant can parse code blocks it isn't yet equipped to run — and it is why you can write action bodies in incant syntax before the full language exists to interpret them.
+This is lazy evaluation baked into the bootstrap. It is how incant can parse code blocks it isn't yet equipped to run — and it is why you can write action bodies in incant syntax before the full language exists to process them.
