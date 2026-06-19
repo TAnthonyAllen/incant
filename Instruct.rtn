@@ -124,6 +124,9 @@ use argument
 ***************************************************************************/
 extern GroupItem opEQ(GroupItem argument,GroupItem target)
 {
+    if jitting {
+        -% return jitEmitCompare(argument, target, jitEQ); %-
+    }
     if !compareValues(target,argument)  return trueResult;
     return null;
 }
@@ -179,6 +182,9 @@ String strung = argument.text;
 ***************************************************************************/
 extern GroupItem opGE(GroupItem argument,GroupItem target)
 {
+    if jitting {
+        -% return jitEmitCompare(argument, target, jitGE); %-
+    }
     if compareValues(target,argument) >= 0  return trueResult;
     return null;
 }
@@ -188,6 +194,9 @@ extern GroupItem opGE(GroupItem argument,GroupItem target)
 ***************************************************************************/
 extern GroupItem opGT(GroupItem argument,GroupItem target)
 {
+    if jitting {
+        -% return jitEmitCompare(argument, target, jitGT); %-
+    }
     if compareValues(target,argument) > 0   return trueResult;
     return null;
 }
@@ -234,6 +243,9 @@ extern GroupItem opLastREF(GroupItem result)
 ***************************************************************************/
 extern GroupItem opLE(GroupItem argument,GroupItem target)
 {
+    if jitting {
+        -% return jitEmitCompare(argument, target, jitLE); %-
+    }
     if compareValues(target,argument) <= 0  return trueResult;
     return null;
 }
@@ -243,6 +255,9 @@ extern GroupItem opLE(GroupItem argument,GroupItem target)
 ***************************************************************************/
 extern GroupItem opLT(GroupItem argument,GroupItem target)
 {
+    if jitting {
+        -% return jitEmitCompare(argument, target, jitLT); %-
+    }
     if compareValues(target,argument) < 0  return trueResult;
     return null;
 }
@@ -369,6 +384,9 @@ extern GroupItem opNOT(GroupItem result)
 ***************************************************************************/
 extern GroupItem opNotEQ(GroupItem argument,GroupItem target)
 {
+    if jitting {
+        -% return jitEmitCompare(argument, target, jitNE); %-
+    }
     if compareValues(target,argument)  return trueResult;
     return null;
 }

@@ -2866,6 +2866,10 @@ GroupItem 	*product = 0;
 ***************************************************************************/
 extern "C" GroupItem *opEQ(GroupItem *argument, GroupItem *target)
 {
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		 return jitEmitCompare(argument, target, jitEQ); 
+		}
 	if ( !::compareValues(target,argument) )
 		return GroupControl::groupController->groupRules->trueResult;
 	return 0;
@@ -2890,6 +2894,10 @@ extern "C" GroupItem *opEnd(GroupItem *argument, GroupItem *target)
 ***************************************************************************/
 extern "C" GroupItem *opGE(GroupItem *argument, GroupItem *target)
 {
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		 return jitEmitCompare(argument, target, jitGE); 
+		}
 	if ( ::compareValues(target,argument) >= 0 )
 		return GroupControl::groupController->groupRules->trueResult;
 	return 0;
@@ -2900,6 +2908,10 @@ extern "C" GroupItem *opGE(GroupItem *argument, GroupItem *target)
 ***************************************************************************/
 extern "C" GroupItem *opGT(GroupItem *argument, GroupItem *target)
 {
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		 return jitEmitCompare(argument, target, jitGT); 
+		}
 	if ( ::compareValues(target,argument) > 0 )
 		return GroupControl::groupController->groupRules->trueResult;
 	return 0;
@@ -2983,6 +2995,10 @@ GroupItem 	*result = 0;
 ***************************************************************************/
 extern "C" GroupItem *opLE(GroupItem *argument, GroupItem *target)
 {
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		 return jitEmitCompare(argument, target, jitLE); 
+		}
 	if ( ::compareValues(target,argument) <= 0 )
 		return GroupControl::groupController->groupRules->trueResult;
 	return 0;
@@ -2993,6 +3009,10 @@ extern "C" GroupItem *opLE(GroupItem *argument, GroupItem *target)
 ***************************************************************************/
 extern "C" GroupItem *opLT(GroupItem *argument, GroupItem *target)
 {
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		 return jitEmitCompare(argument, target, jitLT); 
+		}
 	if ( ::compareValues(target,argument) < 0 )
 		return GroupControl::groupController->groupRules->trueResult;
 	return 0;
@@ -3182,6 +3202,10 @@ extern "C" GroupItem *opNOT(GroupItem *result)
 ***************************************************************************/
 extern "C" GroupItem *opNotEQ(GroupItem *argument, GroupItem *target)
 {
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		 return jitEmitCompare(argument, target, jitNE); 
+		}
 	if ( ::compareValues(target,argument) )
 		return GroupControl::groupController->groupRules->trueResult;
 	return 0;

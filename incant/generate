@@ -266,6 +266,14 @@ define
     jitSub code={ 8 - 3; };
     // Multiply POP: opMultiply jitting gate -> jitEmitBinary(jitMul) -> CreateMul. 3 * 5 = 15.
     jitMul code={ 3 * 5; };
+    // Compare POPs: each opMethod jitting gate -> jitEmitCompare -> CreateICmpS* ->
+    // i1, ZExt'd to i32 by the driver. Simple integer pairs; expected 0/1 obvious.
+    jitGT code={ 3 > 5; };      // 3 >  5 -> 0 (ICmpSGT)
+    jitLT code={ 3 < 5; };      // 3 <  5 -> 1 (ICmpSLT)
+    jitGE code={ 5 >= 5; };     // 5 >= 5 -> 1 (ICmpSGE)
+    jitLE code={ 7 <= 5; };     // 7 <= 5 -> 0 (ICmpSLE)
+    jitEQ code={ 3 == 3; };     // 3 == 3 -> 1 (ICmpEQ)
+    jitNE code={ 3 != 5; };     // 3 != 5 -> 1 (ICmpNE)
     // POP target: testPrint -> "hello world" via the bytecode print path.
     testPrint code={ print "hello" name:; };
     // testEmitBC retired 2026-06-04 (Brief 5 Fix 3): it called emitBC(bcMul),
