@@ -1,12 +1,13 @@
-# Incant — Status & Handoff (2026-06-18)
+# Incant — Status & Handoff (2026-06-19)
 *Written by Clod for a fresh Clay/Clod. Assumes no memory of today. Self-contained.*
 *(Prior handoff (2026-06-16, IncantForms conversion) is in git history — see Parked threads.)*
 
 ## Headline
-**Phase JIT, Phase 1 (straight-line arithmetic) is substantially proven and committed.**
-Today's roll: Plan B → Plan A → strip → typed arithmetic → real field unbox. Four POPs
-green in one pass; bytecode path untouched. The active thread to resume is **rolling the
-jitting gate onto the remaining opMethods.**
+**Phase JIT, Phase 1 straight-line lowering is COMPLETE across arithmetic, compare, and
+assign — 15 POPs green in one pass.** The jitting gate is rolled onto every straight-line
+opMethod (`+ - *`; `> < >= <= == !=`; `= += *=`); assign **writes through** to real
+GroupItem storage (readback-proven). Bytecode path untouched. The active thread to resume
+is **unary (`++`/`--`)**, then **Phase 2 (control flow)**. Full POP table in `jit.md` Status.
 
 ## Verify it still works (do this first on wake)
 ```
@@ -39,28 +40,24 @@ Proven POPs (fixtures in `incant/generate`, driven by `testing(<fixture>)` in
 `jitMix` 3+5.0→8 (count SIToFP-promoted→FAdd), `jitFieldAdd` righty+5→18 (jitSeedField
 unboxes the real field via CreateLoad of gCount).
 
-## IMMEDIATE NEXT — the rollout (this is where we pick up)
-Difficulty gradient, do in order:
-1. **opMinus, opMultiply (Instruct.rtn) — mechanical one-liners.** `jitEmitBinary` already
-   has the `jitSub`/`jitMul` cases. Each gate is just
-   `if jitting { return jitEmitBinary(argument, target, jitSub); }` (resp. `jitMul`). Add
-   `jitSub`/`jitMul` fixtures, prove. Near-zero risk; cashes in "one line per op."
-2. **divide/remainder — GLYPHS RESOLVED (2026-06-19).** Renamed cleanly:
-   `%`=`opRem`, `/`=`opDiv`, `/=`=`opDivEQ` (was `%`=`opDiv`, `/`=`opSlash`,
-   `/=`=`opSlashEQ`). `jitEmitBinary` carries `jitSDiv` for `/`; a `jitRem` case
-   awaits wiring `%`. See `jit-design.md` §1d.
-3. **Comparisons (`> < >= <= == !=`).** Do NOT fit `jitEmitBinary` — they yield an `i1`
-   and the result feeds a branch, not a store-back. **`jitEmitCompare` SKELETON DRAFTED
-   (2026-06-19)** in `jitEmitters.rtn` — `CreateICmp*`/`CreateFCmp*` matrix, `enum jitCmp`
-   in `jitContext.h`, plus the i1→i32 ZExt cap in `jitRunAction`. Not wired (no gate, no
-   fixtures). NB: promotion block is RETAINED (mixed `count < number` must SIToFP — LLVM
-   has no cross-type compare).
-4. **unary (`++`/`--` → `jitEmitUnary`), assign (`=`, its own shape).** `jitEmitAssign`
-   SKELETON DRAFTED (2026-06-19) — store-only, plain `=`. Both findings now resolved:
-   `jitSeedField` stashes the baked field address into `jitSlot` (field targets have a
-   store destination; literals correctly get none); compound `+=` is gate-level
-   composition (`jitEmitBinary` then store), store-only emitter by design. Remaining for
-   wiring: the opMethod gates + fixtures.
+## ROLLOUT — DONE (2026-06-19): arithmetic + compare + assign all WIRED & GREEN
+15 JIT POPs proven end-to-end (see `jit.md` Status for the full table). Next pickup is
+**unary** then Phase 2 (control flow). History below kept as the trail.
+1. **opMinus, opMultiply — WIRED.** `jitEmitBinary(jitSub/jitMul)`. Fixtures `jitSub`
+   (8-3→5), `jitMul` (3*5→15) green. (commit `05195da`)
+2. **divide/remainder — GLYPHS RESOLVED.** `%`=`opRem`, `/`=`opDiv`, `/=`=`opDivEQ`
+   (was `%`=`opDiv`, `/`=`opSlash`, `/=`=`opSlashEQ`). `jitEmitBinary` carries `jitSDiv`
+   for `/`; a `jitRem` case awaits wiring `%`. See `jit-design.md` §1d.
+3. **Comparisons (`> < >= <= == !=`) — WIRED.** Six `opMethod` gates → `jitEmitCompare`
+   (`CreateICmp*` matrix, `enum jitCmp`), i1 `ZExt`'d to i32. Fixtures green (0/1/1/0/1/1).
+   Promotion block RETAINED (mixed `count < number` must SIToFP — no cross-type compare).
+   (commit `736b25e`)
+4. **assign (`= += *=`) — WIRED.** `opAssign` → `jitEmitAssign` (pure store); `opPlusEQ`/
+   `opMultiplyEQ` compose `jitEmitBinary` then `jitEmitAssign(target,target)`. Store
+   **writes through** to the GroupItem — proven by reading `maximus` back (8 / 15 / 12).
+   `jitSeedField` now stashes the field address into `jitSlot`. (commit `d4964d4`)
+5. **NEXT: unary (`++`/`--` → `jitEmitUnary`)** — the last straight-line family, then
+   Phase 2 (control flow: branches/blocks) and Phase 3 (strings, runtime callbacks).
 
 ## Authority + watch-items
 - `docs/jit.md` "Status (2026-06-18)" section is the authoritative Phase-1 status.

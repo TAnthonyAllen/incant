@@ -169,7 +169,7 @@ A wrapper carries both: the inspectable GroupItem (with its attribute list as fr
 
 ---
 
-## Status (2026-06-18) — Phase 1 straight-line arithmetic
+## Status (2026-06-19) — Phase 1 arithmetic + compare + assign
 
 **Design chosen: Plan A — the jitting gate lives *inside* the opMethod.** `opPlus`
 grows an `if jitting { … }` emit branch above its interpret body; `aCTionExpressioN`'s
@@ -179,36 +179,59 @@ opMethod *is* the emitter. (Plan B — emitter on a `jit` child — is the aband
 alternative; it would have left N siblings to fold back in. See `docs/layout-recon.md`
 sibling discussion only for the parallel-lowerings framing.)
 
-**Proven end-to-end (POPs, all in one pass, via `jitRunAction`):**
+**Proven end-to-end — 15 POPs, all in one pass, via `jitRunAction`** (driver
+`incant/jitscratch`, fixtures `incant/generate`):
+
+*Arithmetic — `jitEmitBinary` (`enum jitOp`):*
 | POP | expression | result | path |
 |---|---|---|---|
 | `jitAdd` | `3 + 5` | 8 | `CreateAdd` (count / i32) |
 | `jitAddF` | `3.0 + 5.0` | 8 | `CreateFAdd` (number / double) |
 | `jitMix` | `3 + 5.0` | 8 | count `SIToFP`-promoted → `FAdd` (numeric promotion) |
 | `jitFieldAdd` | `righty + 5` | 18 | **field unbox** — `jitSeedField` bakes the stable GroupItem address, `CreateLoad`s `gCount` at run time |
+| `jitSub` | `8 - 3` | 5 | `CreateSub` |
+| `jitMul` | `3 * 5` | 15 | `CreateMul` |
 
-- **`jitEmitBinary`** (jitContext.h `enum jitOp`) is the shared binary-arith emitter —
-  one line per op; int/float variant and operand promotion centralized there. Header-clean
-  signature (`GroupItem,GroupItem,int`), LLVM in the passthrough body.
-- **`jitSeedLiteral`** types literals (i32 count / double number); **`jitSeedField`**
-  unboxes real field operands (load, not fold).
-- **Driver:** `i32()` function, one compile+run per call, **unique function name per run**
-  (the LLJIT engine is long-lived — reusing `jitFn` collides on the 2nd `addIRModule`).
-  Double results returned via `FPToSI`.
+*Compare — `jitEmitCompare` (`enum jitCmp`), i1 result `ZExt`'d to i32:*
+| POP | expression | result | path |
+|---|---|---|---|
+| `jitGT` | `3 > 5` | 0 | `CreateICmpSGT` |
+| `jitLT` | `3 < 5` | 1 | `CreateICmpSLT` |
+| `jitGE` | `5 >= 5` | 1 | `CreateICmpSGE` |
+| `jitLE` | `7 <= 5` | 0 | `CreateICmpSLE` |
+| `jitEQ` | `3 == 3` | 1 | `CreateICmpEQ` |
+| `jitNE` | `3 != 5` | 1 | `CreateICmpNE` |
+
+*Assign — `jitEmitAssign` (store-back **writes through** to the GroupItem; proven by reading the field back in interpreted incant after the run):*
+| POP | expression | result | readback |
+|---|---|---|---|
+| `jitAssign` | `maximus = 8` | 8 | `maximus` → 8 |
+| `jitPlusEQ` | `maximus += 5` (from 10) | 15 | `maximus` → 15 |
+| `jitMultEQ` | `maximus *= 3` (from 4) | 12 | `maximus` → 12 |
+
+- **Gates self-host the emitter dispatch (Plan A):** each opMethod (`opPlus`, `opMinus`,
+  `opMultiply`; `opGT`/`opLT`/`opGE`/`opLE`/`opEQ`/`opNotEQ`; `opAssign`,
+  `opPlusEQ`, `opMultiplyEQ`) carries `if jitting { … }`. Arithmetic → `jitEmitBinary`;
+  compare → `jitEmitCompare`; plain `=` → `jitEmitAssign`; compound `+=`/`*=` compose
+  `jitEmitBinary` then `jitEmitAssign(target,target)` to commit the binary result.
+- **`jitSeedField` now stashes `jitSlot`** (the baked field-storage address), giving the
+  assign store-back a destination — immediate writeback to the field's own storage.
+- **Driver:** `i32()` function, one compile+run per call, **unique function name per run**.
+  Double → `FPToSI`, i1 → `ZExt`, both to i32.
 - Bytecode path unaffected (`testByteCode` → 11).
 
 **Next proof points / deferred:**
-- **Rebox/return `GroupItem*` (the epilogue).** Field unbox proves the prologue's first
-  piece (operand *load*); writeback of a result *into* a field, and returning a real
-  `GroupItem*` per this doc's frame model, is not done. The driver still returns a native
-  `i32`.
-- **Slot-array calling convention** (this doc): current field unbox bakes a *stable*
+- **Return a real `GroupItem*` (full epilogue).** The assign store-through proves writeback
+  *into a field's storage*; returning a real `GroupItem*` per this doc's frame model (vs the
+  driver's native `i32`) is still not done.
+- **Slot-array calling convention** (this doc): current field unbox/store bakes a *stable*
   address. The slot ABI is the refinement for non-stable fields and recompile-on-edit.
 - **Cached-function refire.** The load-vs-fold distinction is invisible while compile+run
-  is one shot — it becomes observable (JIT stops looking like a constant folder) once a
-  compiled action is cached and re-fired after a field changes.
+  is one shot — observable once a compiled action is cached and re-fired after a field
+  changes. (The assign readback is a *partial* step here: it shows the store mutates real
+  memory, but compile+run is still one shot.)
 - **Chained-operand gate guard.** The gate assumes a non-literal operand is a real field,
   so `a + b + c` mis-routes the inner result to `jitSeedField`. Single-op POPs hide it.
   (Bear trap — CLAUDE.md.)
-- **Other op families:** `jitEmitCompare` (relational → `i1`), unary, assign. Then
-  Phase 2 (control flow) and Phase 3 (string ops, runtime callbacks).
+- **Unary (`++`/`--` → `jitEmitUnary`).** The last straight-line op family before Phase 2
+  (control flow) and Phase 3 (string ops, runtime callbacks).
