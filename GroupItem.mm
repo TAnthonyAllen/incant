@@ -674,16 +674,8 @@ PLGset 		*itemGuard = 0;
 char 		*junk = 0;
 int 		noMoreAttributes = 0;
 	setRuleStuff();
-int 		debugging = ruler->debugGuards || groupBody->flags.debugGuard;
 	if ( groupBody->flags.guarding )
 		goto returnGuard;
-	if ( debugging )
-		{
-		if ( parent )
-			::printf("Setting guard for %s in %s\n",groupBody->tag,parent->groupBody->tag);
-		else	::printf("Setting guard for %s\n",groupBody->tag);
-		junk = 0;
-		}
 	if ( groupBody->flags.isCondition )
 		{
 		groupBody->flags.guarding = 2;
@@ -793,14 +785,6 @@ endSetGuard:
 			}
 		}
 	else	groupBody->flags.guarding = 2;
-	if ( debugging )
-		{
-		if ( groupBody->flags.guarding )
-			if ( guarded(groupBody->flags.guarding) )
-				::printf("setGuard: %s\t\t%s",groupBody->tag,groupBody->guardSet->toString());
-			else	::printf("setGuard: %s is unguarded\n",groupBody->tag);
-		junk = 0;
-		}
 returnGuard:
 	return groupBody->guardSet;
 }
@@ -1227,16 +1211,6 @@ RuleStuff 	*ruleStuff = getStuff(pStuff);
 		{
 continueHere:
 		ruleStuff->sukcess = 0;
-		if ( ruler->debugAllRules || ruleStuff->rule->groupBody->flags.debugged )
-			{
-			if ( StringRoutines::debugIndent < 0 )
-				StringRoutines::debugIndent = 0;
-			::indent(StringRoutines::debugIndent,"  ",0);
-			::printf("Match %s on text %s\n",ruleStuff->ruleName,::getDebugText(ruler->atRuleMark,20));
-			if ( ::compare(groupBody->tag,"definitions") == 0 )
-				ruler->debugGuards = 1;
-			StringRoutines::debugIndent++;
-			}
 		if ( !ruleStuff->checkInput() )
 			goto matchFailed;
 		if ( ruleStuff->hasMacro )
@@ -1279,21 +1253,6 @@ matchSucceeded:
 		if ( ruleStuff->sukcess )
 			{
 			ruleStuff->kount++;
-			if ( ruler->debugAllRules || ruleStuff->rule->groupBody->flags.debugged )
-				{
-				StringRoutines::debugIndent--;
-				::indent(StringRoutines::debugIndent,"  ",0);
-				::printf("%s succeeded",ruleStuff->ruleName);
-				if ( ruleStuff->label )
-					{
-					::printf(" label: %s",ruleStuff->label->groupBody->tag);
-					if ( ruleStuff->label->groupBody->flags.data )
-						::printf("=%s",::getDebugText(ruleStuff->label->getText(),10));
-					}
-				else	::printf(" w/no label");
-				::printf(" at: %s\n",::getDebugText(ruler->atRuleMark,10));
-				ruleStuff->doNothing = 0;
-				}
 			/***************************************************************
 			Deal w/label and increment kount. GC will deal w/label leak
 			***************************************************************/
@@ -1328,25 +1287,6 @@ matchFailed:
 				goto continueHere;
 			}
 debugHere:
-		if ( ruler->debugAllRules || ruleStuff->rule->groupBody->flags.debugged )
-			{
-			StringRoutines::debugIndent--;
-			::indent(StringRoutines::debugIndent,"  ",0);
-			if ( ruleStuff->sukcess )
-				{
-				::printf("%s not failure",ruleStuff->ruleName);
-				if ( ruleStuff->label )
-					{
-					::printf(" label: %s",ruleStuff->label->groupBody->tag);
-					if ( ruleStuff->label->groupBody->flags.data )
-						::printf("=%s",ruleStuff->label->getText());
-					}
-				else	::printf(" w/no label");
-				::printf(" at: %s\n",::getDebugText(ruler->atRuleMark,10));
-				}
-			else	::printf("%s match failed\n",ruleStuff->ruleName);
-			ruleStuff->doNothing = 0;
-			}
 		if ( !ruleStuff->sukcess )
 			{
 			ruleStuff->failedAt = ruler->atRuleMark;
