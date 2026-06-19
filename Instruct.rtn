@@ -60,7 +60,7 @@ GroupItem action = currentMETHOD;
 /***************************************************************************
 	Rule action for the % integer div operator
 ***************************************************************************/
-extern GroupItem opDiv(GroupItem argument,GroupItem target)
+extern GroupItem opRem(GroupItem argument,GroupItem target)
 {
     if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER)
         tempField.count = count % argument.count;
@@ -524,7 +524,7 @@ extern GroupItem opSetGroup(GroupItem argument,GroupItem target)
 /***************************************************************************
 	Rule action for the / divide operator
 ***************************************************************************/
-extern GroupItem opSlash(GroupItem argument,GroupItem target)
+extern GroupItem opDiv(GroupItem argument,GroupItem target)
 {
     if argument.isCOUNT || argument.isNUMBER
         if isCOUNT  tempField.count = (int)lround(number / argument.number);
@@ -538,7 +538,7 @@ extern GroupItem opSlash(GroupItem argument,GroupItem target)
 /***************************************************************************
 	Rule action for the /= slash equal operator
 ***************************************************************************/
-extern GroupItem opSlashEQ(GroupItem argument,GroupItem target)
+extern GroupItem opDivEQ(GroupItem argument,GroupItem target)
 {
 GroupItem   result;
 use target
@@ -549,7 +549,7 @@ use target
         if !result  cerr "ERROR Operator /= failed on",tag,"and",argument.tag:; }
     or argument.isLIST
         while result = argument.prior(result)
-            opSlashEQ(result,target);
+            opDivEQ(result,target);
     return result;
 }
 

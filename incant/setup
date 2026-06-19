@@ -108,8 +108,8 @@ define
     ':-';   // pop not written yet
     ':+'    operateMethod=opReplaceMember;
     ':%'    operateMethod=opReplaceAttribute;
-    '/='    operateMethod=opSlashEQ;
-    '/'     operateMethod=opSlash;
+    '/='    operateMethod=opDivEQ;
+    '/'     operateMethod=opDiv;
     '.'     operateMethod=opDot;
     '-='    operateMethod=opMinusEQ;
     '--'    unary ruleMethod=opMinusMinus;
@@ -125,7 +125,7 @@ define
     '*'     operateMethod=opMultiply  interpretMethod=runMultiply;
     '@'     unary ruleMethod=opLastREF;
     '&';
-    '%'     operateMethod=opDiv;
+    '%'     operateMethod=opRem;
     '!='    operateMethod=opNotEQ  interpretMethod=runNotEQ;
     '!'     unary ruleMethod=opNOT;
     '+/';

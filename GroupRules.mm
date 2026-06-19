@@ -263,7 +263,6 @@ GroupItem 	*item = 0;
 		/***********************************************************************
 		Process Attributes.
 		***********************************************************************/
-		::printf("aCTionDefinE: %s %d\n",NewGroup->groupBody->tag,ruler->lastIndent);
 		if ( Attributes )
 			while ( item = Attributes->next(item) )
 				if ( item->groupBody->flags.noPrint && immediateACTION(item->groupBody->flags.methodType) )
@@ -1446,8 +1445,6 @@ extern "C" int closeFile(GroupItem *bufField)
 extern "C" GroupItem *copyOf(GroupItem *grup)
 {
 GroupItem 	*block = new GroupItem();
-	if ( ::compare(grup->groupBody->tag,"bcPushField") == 0 )
-		block->groupBody->flags.fLAG = 1;
 	*block->groupBody = *grup->groupBody;
 	if ( block->groupBody->flags.isVirtual )
 		block->groupBody->flags.isVirtual = 0;
@@ -2008,6 +2005,38 @@ GroupItem 	*interp = 0;
 	return input->getGroup();
 }
 
+/* jitEmitAssign  the store-back emitter — commits a value into a target field's
+   slot. Assign is a single store operation, so no jitOp selector. SKELETON — not
+   wired (no gate, no fixtures).
+
+   STORE DESTINATION (resolved): target->jitData->jitSlot is now populated by
+   jitSeedField (it stashes the baked field-storage address), so a field target
+   has a live CreateStore destination. A literal target has no slot, correctly —
+   it is not assignable.
+
+   STORE-ONLY BY DESIGN (resolved): jitEmitAssign does the plain `=` store and
+   nothing else. A compound assign (+= *= ...) is NOT a second branch here — it is
+   composed at the opMethod gate: jitEmitBinary(argument,target,<jitOp>) first,
+   which leaves the new value in target->jitData->jitValue (and gJitResult), then
+   this same store-back commits it. Keeping the emitter op-free is the deliberate
+   choice (vs. an op param + jitNone sentinel) — it reuses jitEmitBinary untouched
+   and keeps the binary/store responsibilities separate. */
+extern "C" GroupItem *jitEmitAssign(GroupItem *argument, GroupItem *target)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	// Plain `=`: pure store-back of the source operand's SSA value into the
+	// target's slot. No arithmetic.
+	b->CreateStore(argument->jitData->jitValue, target->jitData->jitSlot);
+	// Compound (+= *= ...) is NOT a second branch here — it is the composition
+	// done by the opMethod gate: jitEmitBinary(argument,target,<jitOp>) first,
+	// which writes the result into target->jitData->jitValue, then a store-back
+	// of THAT value. Left to the gate by design.
+	gJitResult = argument->jitData->jitValue;
+	return target;
+	
+}
+
 /* jitEmitBinary  the shared binary-arithmetic emitter. Each arithmetic opMethod's
    jitting gate is one line onto this — jitEmitBinary(argument, target, jitAdd) —
    so the boilerplate (operand load, result store, gJitResult stash, return) lives
@@ -2036,6 +2065,61 @@ extern "C" GroupItem *jitEmitBinary(GroupItem *argument, GroupItem *target, int 
 	case jitSub:  res = fp ? b->CreateFSub(l,r,"sub") : b->CreateSub(l,r,"sub");  break;
 	case jitMul:  res = fp ? b->CreateFMul(l,r,"mul") : b->CreateMul(l,r,"mul");  break;
 	case jitSDiv: res = fp ? b->CreateFDiv(l,r,"div") : b->CreateSDiv(l,r,"div"); break;
+	}
+	target->jitData->setJitter(res);
+	gJitResult = res;
+	return target;
+	
+}
+
+/* jitEmitCompare  the shared relational emitter — jitEmitBinary's sibling for the
+   six predicates (== != < <= > >=). Same header-clean signature, same operand-load
+   and gJitResult-stash boilerplate, and the SAME int/float promotion block:
+   a mixed count/number pair is unified first (CreateSIToFP) because LLVM has no
+   cross-type compare — promotion is retained here, not dropped (only the same-type
+   case skips it, as in jitEmitBinary). Two real differences from binary: the result
+   is an i1 (a boolean, not the operand type), and the instruction comes from the
+   ICmp (integer) / FCmp (double) predicate matrix rather than add/sub/mul/div.
+   EQ/NE are sign-agnostic; the ordered four take signed-int / ordered-float
+   predicates. `op` is a jitCmp (jitContext.h). NOTE: when this is wired into an
+   opMethod gate later, jitRunAction's return-cap needs an i1->i32 ZExt branch
+   (it currently only widens double->i32) and a groups.ext extern decl is required. */
+extern "C" GroupItem *jitEmitCompare(GroupItem *argument, GroupItem *target, int op)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	llvm::Value *l = target->jitData->jitValue;
+	llvm::Value *r = argument->jitData->jitValue;
+	// Identical promotion to jitEmitBinary: if either operand is double the
+	// compare is floating-point and the integer operand is SIToFP-promoted so
+	// both sides share a type. A same-type pair (both i32 or both double) skips
+	// this untouched. This block is NOT optional for compare — ICmp/FCmp require
+	// matched operand types, so a mixed count/number compare must unify here.
+	bool fp = l->getType()->isDoubleTy() || r->getType()->isDoubleTy();
+	if (fp) {
+	llvm::Type *d = llvm::Type::getDoubleTy(b->getContext());
+	if (l->getType() != d) l = b->CreateSIToFP(l, d, "promo");
+	if (r->getType() != d) r = b->CreateSIToFP(r, d, "promo");
+	}
+	llvm::Value *res = nullptr;
+	if (fp) {
+	switch (op) {
+	case jitEQ: res = b->CreateFCmpOEQ(l,r,"cmp"); break;
+	case jitNE: res = b->CreateFCmpONE(l,r,"cmp"); break;
+	case jitLT: res = b->CreateFCmpOLT(l,r,"cmp"); break;
+	case jitLE: res = b->CreateFCmpOLE(l,r,"cmp"); break;
+	case jitGT: res = b->CreateFCmpOGT(l,r,"cmp"); break;
+	case jitGE: res = b->CreateFCmpOGE(l,r,"cmp"); break;
+	}
+	} else {
+	switch (op) {
+	case jitEQ: res = b->CreateICmpEQ(l,r,"cmp");  break;
+	case jitNE: res = b->CreateICmpNE(l,r,"cmp");  break;
+	case jitLT: res = b->CreateICmpSLT(l,r,"cmp"); break;
+	case jitLE: res = b->CreateICmpSLE(l,r,"cmp"); break;
+	case jitGT: res = b->CreateICmpSGT(l,r,"cmp"); break;
+	case jitGE: res = b->CreateICmpSGE(l,r,"cmp"); break;
+	}
 	}
 	target->jitData->setJitter(res);
 	gJitResult = res;
@@ -2128,6 +2212,8 @@ extern "C" int jitRunAction(GroupItem *action)
 	fflush(stdout); return -2; }
 	if (gJitResult->getType()->isDoubleTy())
 	gJitResult = B.CreateFPToSI(gJitResult, i32, "ret");
+	else if (gJitResult->getType()->isIntegerTy(1))
+	gJitResult = B.CreateZExt(gJitResult, i32, "ret");   // i1 compare result -> i32
 	B.CreateRet(gJitResult);
 	
 	if (auto err = jit->addIRModule(
@@ -2194,7 +2280,11 @@ extern "C" int jitRunAddTwo()
    emits a CreateLoad of its gCount/gNumber, so the operand reads the LIVE field value
    at run time rather than a folded compile-time constant. The field's address is
    stable (BDWGC-managed, persists), so baking it is sound. (Slot-array calling
-   convention per jit.md is the later refinement; this proves the unbox mechanism.) */
+   convention per jit.md is the later refinement; this proves the unbox mechanism.)
+   Also stashes that baked address into jitData->jitSlot, so an assign store-back
+   (jitEmitAssign) has a destination — immediate writeback to the field's own
+   storage. Literals get no slot (jitSeedLiteral), which is correct: a literal
+   is not an assignable target. */
 extern "C" GroupItem *jitSeedField(GroupItem *token)
 {
 	
@@ -2207,12 +2297,14 @@ extern "C" GroupItem *jitSeedField(GroupItem *token)
 	llvm::ConstantInt::get(llvm::Type::getInt64Ty(ctx), (uint64_t)addr),
 	llvm::PointerType::getUnqual(ctx));
 	d->setJitter(b->CreateLoad(llvm::Type::getDoubleTy(ctx), p, "unbox"));
+	d->jitSlot = p;   // stash field-storage address as the store-back slot
 	} else {
 	void *addr = &(token->groupBody->gCount);
 	llvm::Value *p = b->CreateIntToPtr(
 	llvm::ConstantInt::get(llvm::Type::getInt64Ty(ctx), (uint64_t)addr),
 	llvm::PointerType::getUnqual(ctx));
 	d->setJitter(b->CreateLoad(llvm::Type::getInt32Ty(ctx), p, "unbox"));
+	d->jitSlot = p;   // stash field-storage address as the store-back slot
 	}
 	token->jitData = d;
 	return token;
@@ -2332,7 +2424,6 @@ char 		*name = 0;
 extern "C" GroupItem *loadInputFromFile(GroupItem *source)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	::printf("\t\t\tincluding %s\n",source->groupBody->tag);
 	if ( ::getFile(source) )
 		{
 		ruler->pushInput(source);
@@ -2601,15 +2692,46 @@ GroupItem 	*action = GroupControl::groupController->groupRules->currentMETHOD;
 }
 
 /***************************************************************************
-	Rule action for the % integer div operator
+	Rule action for the / divide operator
 ***************************************************************************/
 extern "C" GroupItem *opDiv(GroupItem *argument, GroupItem *target)
 {
-	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
-		GroupControl::groupController->groupRules->tempField->setCount(target->getCount() % argument->getCount());
+	if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
+		if ( isCOUNT(target->groupBody->flags.data) )
+			GroupControl::groupController->groupRules->tempField->setCount((int)::lround(target->getNumber() / argument->getNumber()));
+		else
+		if ( isNUMBER(target->groupBody->flags.data) )
+			GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() / argument->getNumber());
 	if ( !GroupControl::groupController->groupRules->tempField->groupBody->flags.data )
-		::fprintf(stderr,"ERROR integer div operator failed on %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
+		{
+		::fprintf(stderr,"ERROR Operator / not supported for %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
+		return 0;
+		}
 	return GroupControl::groupController->groupRules->tempField;
+}
+
+/***************************************************************************
+	Rule action for the /= slash equal operator
+***************************************************************************/
+extern "C" GroupItem *opDivEQ(GroupItem *argument, GroupItem *target)
+{
+GroupItem 	*result = 0;
+	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
+		{
+		if ( isCOUNT(target->groupBody->flags.data) )
+			target->setCount((int)::lround(target->getNumber() / argument->getNumber()));
+		else
+		if ( isNUMBER(target->groupBody->flags.data) )
+			target->setNumber(target->getNumber() / argument->getNumber());
+		result = target;
+		if ( !result )
+			::fprintf(stderr,"ERROR Operator /= failed on %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
+		}
+	else
+	if ( isLIST(argument->groupBody->flags.binType) )
+		while ( result = argument->prior(result) )
+			::opDivEQ(result,target);
+	return result;
 }
 
 /***************************************************************************
@@ -3203,6 +3325,18 @@ char 		*printText = buffer->string();
 }
 
 /***************************************************************************
+	Rule action for the % integer div operator
+***************************************************************************/
+extern "C" GroupItem *opRem(GroupItem *argument, GroupItem *target)
+{
+	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
+		GroupControl::groupController->groupRules->tempField->setCount(target->getCount() % argument->getCount());
+	if ( !GroupControl::groupController->groupRules->tempField->groupBody->flags.data )
+		::fprintf(stderr,"ERROR integer div operator failed on %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
+	return GroupControl::groupController->groupRules->tempField;
+}
+
+/***************************************************************************
 	Rule action for the :+ replace operator.
 ***************************************************************************/
 extern "C" GroupItem *opReplaceAttribute(GroupItem *argument, GroupItem *target)
@@ -3252,49 +3386,6 @@ extern "C" GroupItem *opSetGroup(GroupItem *argument, GroupItem *target)
 	if ( argument )
 		target->setGroup(argument);
 	return target;
-}
-
-/***************************************************************************
-	Rule action for the / divide operator
-***************************************************************************/
-extern "C" GroupItem *opSlash(GroupItem *argument, GroupItem *target)
-{
-	if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
-		if ( isCOUNT(target->groupBody->flags.data) )
-			GroupControl::groupController->groupRules->tempField->setCount((int)::lround(target->getNumber() / argument->getNumber()));
-		else
-		if ( isNUMBER(target->groupBody->flags.data) )
-			GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() / argument->getNumber());
-	if ( !GroupControl::groupController->groupRules->tempField->groupBody->flags.data )
-		{
-		::fprintf(stderr,"ERROR Operator / not supported for %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
-		return 0;
-		}
-	return GroupControl::groupController->groupRules->tempField;
-}
-
-/***************************************************************************
-	Rule action for the /= slash equal operator
-***************************************************************************/
-extern "C" GroupItem *opSlashEQ(GroupItem *argument, GroupItem *target)
-{
-GroupItem 	*result = 0;
-	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
-		{
-		if ( isCOUNT(target->groupBody->flags.data) )
-			target->setCount((int)::lround(target->getNumber() / argument->getNumber()));
-		else
-		if ( isNUMBER(target->groupBody->flags.data) )
-			target->setNumber(target->getNumber() / argument->getNumber());
-		result = target;
-		if ( !result )
-			::fprintf(stderr,"ERROR Operator /= failed on %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
-		}
-	else
-	if ( isLIST(argument->groupBody->flags.binType) )
-		while ( result = argument->prior(result) )
-			::opSlashEQ(result,target);
-	return result;
 }
 
 /***************************************************************************
@@ -3624,8 +3715,6 @@ char 		*name = item->groupBody->flags.data ? item->getText() : (char*)0;
 		registry. argument likely points to a copy
 		*******************************************************************/
 		ruler->currentRegistry = argument->groupBody->registry;
-		::printf("\t\t\t\tCurrent registry: %s\n",ruler->currentRegistry->groupBody->tag);
-		item = 0;
 		}
 	return ruler->trueResult;
 }
