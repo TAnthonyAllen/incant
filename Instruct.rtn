@@ -50,6 +50,9 @@ extern GroupItem opCopyList(GroupItem argument,GroupItem target)
 ***************************************************************************/
 extern GroupItem opDebug(GroupItem result)
 {
+GroupItem grup;
+GroupItem action = currentMETHOD;
+    if action   grup = action[result.tag];
     //print result.tag:;
     return result;
 }
@@ -401,10 +404,6 @@ extern GroupItem opPlus(GroupItem argument,GroupItem target)
 extern GroupItem opPlusEQ(GroupItem argument,GroupItem target)
 {
 GroupItem   grup;
-    if !compare(head(argument.tag,3),"DiR")
-        if target.isBUFFER  return applyTextDirective(argument,target);
-        else                return applyDirectives(argument,target);
-    // incant directive tags start with DiR
 use target
     if argument.isLIST
         while grup = argument.prior(grup)
@@ -476,18 +475,35 @@ String      printText   = string();
 }
 
 /***************************************************************************
-	Rule action for the :+ replace operator. DiR-prefix dispatch routes
-	directive arguments to replaceDirective (parallel to opPlusEQ's
-	dispatch to applyDirectives).
+	Rule action for the :+ replace operator.
 ***************************************************************************/
-extern GroupItem opReplace(GroupItem argument,GroupItem target)
+extern GroupItem opReplaceAttribute(GroupItem argument,GroupItem target)
 {
 GroupItem   grup;
-    if !compare(head(argument.tag,3),"DiR")
-        return replaceDirective(argument,target);
     if argument.isLIST
         while grup = argument.prior(grup)
-            opReplace(grup,target);
+            if grup.isMember {
+                grup.isAttribute = true;
+                target.replace(grup);
+                grup.isMember = true; }
+            else target.replace(grup);
+    else    target.replace(argument);
+    return target;
+}
+
+/***************************************************************************
+	Rule action for the :+ replace operator.
+***************************************************************************/
+extern GroupItem opReplaceMember(GroupItem argument,GroupItem target)
+{
+GroupItem   grup;
+    if argument.isLIST
+        while grup = argument.prior(grup)
+            if grup.isAttribute {
+                grup.isMember = true;
+                target.replace(grup);
+                grup.isAttribute = true; }
+            else target.replace(grup);
     else    target.replace(argument);
     return target;
 }
@@ -561,7 +577,7 @@ extern void flushBuffer(GroupItem bufField)
 }
 
 /*****************************************************************************
-    The argument passed in to getMarkLineAt must have source and fromThis attributes
+    The argument passed in to getMarkLineAt must have source and fromThis ƒ
     It returns the line wrapped in a GroupItem field using setToken (as a stream
     pointer into the buffer with a length). The field will only contain
     valid text as long as the buffer contains it in place. Note: getMarkLineAt

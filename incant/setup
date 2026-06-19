@@ -106,7 +106,8 @@ define
     ':='    operateMethod=opSetGroup;
     ':<';   // not used
     ':-';   // pop not written yet
-    ':+'    operateMethod=opReplace;
+    ':+'    operateMethod=opReplaceMember;
+    ':%'    operateMethod=opReplaceAttribute;
     '/='    operateMethod=opSlashEQ;
     '/'     operateMethod=opSlash;
     '.'     operateMethod=opDot;

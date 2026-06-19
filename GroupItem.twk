@@ -82,7 +82,7 @@ GroupItem addGroup(GroupItem group)
             altered         = true;
             set((int)*group.tag);
             binGuard        = characterSet;
-            set(group.tag);
+            setSimple(group.tag);
             if isIndexed    group.count = listLength; }
             }
 	return group;

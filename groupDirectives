@@ -23,7 +23,6 @@ aCTionDebuG embed.debugged ctive
 #;
 aCTionDefinE "if Attributes" before active
     cout "aCTionDefinE:",NewGroup.tag,lastIndent:;
-    if NewGroup.tag eq "DiRReplaceFoo" item = 0;
 #;
 aCTionElsE if ctive
     if blocking cout "unBlocked:", blocking:;
@@ -134,6 +133,9 @@ setCompiledMethod block
 addGroup starting ctive
     if tag eq "ruleLIST" && group.tag eq "argument" group.dotdot = false;
 #;
+addGroup altered ctive
+    if tag eq "UnaryOPS" altered = true;
+#;
 addGroup ending ctive
     if tag eq "Stuff" cout ``"addGroup: adding",group.tag,"to",tag:;
 #;
@@ -162,9 +164,9 @@ int debugging = debugGuards || debugGuard;
         if tag eq "first"   junk = 0; }
 *******************************************************************************/
 getGuard if before active
-int debugging = tag eq "Invoke";
+int debugging = debugGuards || debugGuard;
 #;
-getGuard "if isCondition" before ctive
+getGuard "if isCondition" before active
     if debugging {
         if parent cout "Setting guard for",tag,"in",parent.tag:;
         else cout "Setting guard for",tag:;
@@ -196,6 +198,7 @@ parse "if !checkInput" before active
         if debugIndent < 0 debugIndent = 0;
         indent("  ");
         cout "Match",ruleName,"on text",getDebugText(atRuleMark,20):;
+        if tag eq "definitions"   debugGuards = true;
         debugIndent++; }
 #;
 parse matchSucceeded ctive
@@ -256,7 +259,7 @@ updateContentFlags starting
     debugRuleNamed("IF");
 *******************************************************************************/
 #GroupMain
-bootstrapper "if getFile" before active
+bootstrapper pushInput active
     debugAllRules   = true;
 #;
 /*******************************************************************************

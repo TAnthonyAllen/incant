@@ -671,16 +671,15 @@ String      name;
         else    grup = listItem;
         if !lookin  lookin = grup;
         else {
-            name = grup.tag;
-            if isCOUNT  field = lookin[gCount];
-            else        field = lookin[name];
-            if field    name = field.tag;
-            grup = action[name];
+            name    = grup.tag;
+            field   = lookin[name];
+            grup    = action[name];
             if !grup {
                 grup = new(name);
                 grup.isLocal = true;
                 action  +% grup; }
-            if field    grup.group = field; }}
+            if field    grup.group = field;
+            else        grup.clear(); }}
 }
 
 /*******************************************************************************
@@ -897,12 +896,13 @@ extern GroupItem aCTionWhilE(GroupItem input)
 GroupItem   ExpressioN:,
             StatemenT:;
 GroupItem   result;
-    while ExpressioN.gMethod(ExpressioN) {
-        result = StatemenT.gMethod(StatemenT);
-        if isBranch {
-            if isContinue   continue;
-            or isReturn     return result;
-            break; }}
+    while ExpressioN.gMethod(ExpressioN)
+        if result = StatemenT.gMethod(StatemenT) {
+            if isBranch {
+                if isContinue   continue;
+                or isReturn     return result;
+                break; }}
+        else    break;
     if !result  result = falseResult;
     return result;
 }

@@ -80,11 +80,11 @@ define
                 print _grup.tag;
                 if grup.datA print ,"=" grup;
         if hasMembers;
-            print ">":+;
+            print ">",:+;
             for grup in argument; members
-                recurse++;
+                ++recurse;
                 toXML(grup);
-                recurse--;
+                --recurse;
                 if grup.next    print :;
         else    print "/>";
         if hasMembers;      print ,-"</" tag ">";
@@ -94,20 +94,22 @@ define
         fillDown deals with down=* framing. It expects the argument passed in
         to have only one member with a height and a full frame.
     ***************************************************************************/
+    newStuff bin;
     fillDown argument code={
-        print "About to fill down for" argument:;
+        print "About to fill down for" taG:;
         :argument height;
         pHeight = height;
         for grup in argument; members
             :grup height;
             pHeight -= height;
             i = pHeight / height;
-            print `"Adding" i grup.tag "members down to" argument.tag:;
+            print `"Adding" i "members down to:" argument.taG:;
             while i > 0;
-                i--;
-                argument +/ copy(grup);
-            print `"Setting down done":;
-            return;
+                --i;
+                newStuff += copyOf(grup);
+        for grup in newStuff; argument += grup;
+        print `"Setting down done":;
+        return;
         };
     /***************************************************************************
         fillAcross deals with across=* framing. It expects the argument passed in
@@ -116,19 +118,20 @@ define
         extended as needed.
     ***************************************************************************/
     fillAcross argument code={
-        print "About to fill across for" argument:;
+        print "About to fill across for" taG:;
         :argument width;
         pWidth  = width;
         for grup in argument; members
             :grup width;
             pWidth -= width;
             i = pWidth / width;
-            print `"Adding" i grup.tag "members across to" argument.tag:;
+            print `"Adding" i "members across to:" argument.taG:;
             while i > 0;
-                i--;
-                argument +/ copy(grup);
-            print `"Setting across done":;
-            return;
+                --i;
+                newStuff += copyOf(grup);
+        for grup in newStuff; argument += grup;
+        print `"Setting across done":;
+        return;
         };
     /***************************************************************************
          Set frames for members of the group passed in. It must have x y width
@@ -137,7 +140,7 @@ define
          Should modify to check for noRoom and bail if there aint none
     ***************************************************************************/
     setFrame argument code={
-        print "Setting frame for" argument:;
+        print "Setting frame for" taG:;
         :argument across down width height x y;
         sideRoom    = width;
         pWidth      = width;
@@ -156,45 +159,45 @@ define
                 if width.isPercent; width = width * sideRoom / 100;
                 sideRoom    -= width;
             or !across;     width = pWidth;
-            else            sideOut++   +/ grup;
+            else            ++sideOut   += grup;
             if height > 0;
                 if height.isPercent; height = height * headRoom / 100;
                 headRoom    -= height;
             or across;      height = pHeight;
-            else            upOut++     +/ grup;
-            grup +% width height;
+            else            ++upOut     += grup;
+            grup :% copyOf(width) copyOf(height);
         if upOut > 0;
             headRoom /= upOut;
             for grup in upOut;
                 height = headRoom;
-                scope grup: height;
+                grup +% height;
         if sideOut > 0;
             sideRoom /= sideOut;
             for grup in sideOut;
                 width = sideRoom;
-                scope grup: width;
+                grup +% width;
         headRoom    = 0;
         sideRoom    = 0;
     /***************************************************************************
              Set x and y in frame
     ***************************************************************************/
         for grup in argument; members
-            :grup~ x y width height;
+            :grup width height x y;
             if across;
                 if !y;
-                    y = pY;
+                    y = copyOf(pY);
                     grup +% y;
                 if !x;
-                    x = pX;
+                    x = copyOf(pX);
                     if sideRoom > 0;    x += sideRoom;
                     grup +% x;
                 sideRoom += width;
             else
                 if !y;
-                    y = pY;
+                    y = copyOf(pY);
                     grup +% y;
                 if !x;
-                    x = pX;
+                    x = copyOf(pX);
                     if headRoom > 0;    y += headRoom;
                     grup +% x;
                 headRoom += height;
@@ -216,7 +219,7 @@ define
             if numDBL <= 57;    numDBL -= 48;
             or numDBL <= 70;    numDBL -= 55;
             or numDBL <= 102;   numDBL -= 87;
-            target++;
+            ++target;
             if num; num *= 16;
             num += numDBL;
         target  = num;

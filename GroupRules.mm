@@ -263,6 +263,7 @@ GroupItem 	*item = 0;
 		/***********************************************************************
 		Process Attributes.
 		***********************************************************************/
+		::printf("aCTionDefinE: %s %d\n",NewGroup->groupBody->tag,ruler->lastIndent);
 		if ( Attributes )
 			while ( item = Attributes->next(item) )
 				if ( item->groupBody->flags.noPrint && immediateACTION(item->groupBody->flags.methodType) )
@@ -905,11 +906,7 @@ char 		*name = 0;
 			lookin = grup;
 		else {
 			name = grup->groupBody->tag;
-			if ( isCOUNT(grup->groupBody->flags.data) )
-				field = lookin->get(grup->groupBody->gCount);
-			else	field = lookin->get(name);
-			if ( field )
-				name = field->groupBody->tag;
+			field = lookin->get(name);
 			grup = action->get(name);
 			if ( !grup )
 				{
@@ -919,6 +916,7 @@ char 		*name = 0;
 				}
 			if ( field )
 				grup->setGroup(field);
+			else	grup->clear();
 			}
 		}
 }
@@ -1196,18 +1194,19 @@ GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
 GroupItem 	*StatemenT = input->getLabelGroup("StatemenT");
 GroupItem 	*result = 0;
 	while ( ExpressioN->groupBody->gMethod(ExpressioN) )
-		{
-		result = StatemenT->groupBody->gMethod(StatemenT);
-		if ( result->groupBody->flags.isBranch )
+		if ( result = StatemenT->groupBody->gMethod(StatemenT) )
 			{
-			if ( isContinue(result->groupBody->flags.isBranch) )
-				continue;
-			else
-			if ( isReturn(result->groupBody->flags.isBranch) )
-				return result;
-			break;
+			if ( result->groupBody->flags.isBranch )
+				{
+				if ( isContinue(result->groupBody->flags.isBranch) )
+					continue;
+				else
+				if ( isReturn(result->groupBody->flags.isBranch) )
+					return result;
+				break;
+				}
 			}
-		}
+		else	break;
 	if ( !result )
 		result = GroupControl::groupController->groupRules->falseResult;
 	return result;
@@ -1447,6 +1446,8 @@ extern "C" int closeFile(GroupItem *bufField)
 extern "C" GroupItem *copyOf(GroupItem *grup)
 {
 GroupItem 	*block = new GroupItem();
+	if ( ::compare(grup->groupBody->tag,"bcPushField") == 0 )
+		block->groupBody->flags.fLAG = 1;
 	*block->groupBody = *grup->groupBody;
 	if ( block->groupBody->flags.isVirtual )
 		block->groupBody->flags.isVirtual = 0;
@@ -1809,7 +1810,7 @@ Buffer 		*buffet = 0;
 }
 
 /*****************************************************************************
-    The argument passed in to getMarkLineAt must have source and fromThis attributes
+    The argument passed in to getMarkLineAt must have source and fromThis ƒ
     It returns the line wrapped in a GroupItem field using setToken (as a stream
     pointer into the buffer with a length). The field will only contain
     valid text as long as the buffer contains it in place. Note: getMarkLineAt
@@ -2331,6 +2332,7 @@ char 		*name = 0;
 extern "C" GroupItem *loadInputFromFile(GroupItem *source)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	::printf("\t\t\tincluding %s\n",source->groupBody->tag);
 	if ( ::getFile(source) )
 		{
 		ruler->pushInput(source);
@@ -2590,6 +2592,10 @@ extern "C" GroupItem *opCopyList(GroupItem *argument, GroupItem *target)
 ***************************************************************************/
 extern "C" GroupItem *opDebug(GroupItem *result)
 {
+GroupItem 	*grup = 0;
+GroupItem 	*action = GroupControl::groupController->groupRules->currentMETHOD;
+	if ( action )
+		grup = action->get(result->groupBody->tag);
 	//print result.tag:;
 	return result;
 }
@@ -3101,11 +3107,6 @@ extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target)
 extern "C" GroupItem *opPlusEQ(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*grup = 0;
-	if ( !::compare(::headToCount(argument->groupBody->tag,3),"DiR") )
-		if ( isBUFFER(target->groupBody->flags.data) )
-			return ::applyTextDirective(argument,target);
-		else	return ::applyDirectives(argument,target);
-	// incant directive tags start with DiR
 	if ( isLIST(argument->groupBody->flags.binType) )
 		while ( grup = argument->prior(grup) )
 			::opPlusEQ(grup,target);
@@ -3202,18 +3203,39 @@ char 		*printText = buffer->string();
 }
 
 /***************************************************************************
-	Rule action for the :+ replace operator. DiR-prefix dispatch routes
-	directive arguments to replaceDirective (parallel to opPlusEQ's
-	dispatch to applyDirectives).
+	Rule action for the :+ replace operator.
 ***************************************************************************/
-extern "C" GroupItem *opReplace(GroupItem *argument, GroupItem *target)
+extern "C" GroupItem *opReplaceAttribute(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*grup = 0;
-	if ( !::compare(::headToCount(argument->groupBody->tag,3),"DiR") )
-		return ::replaceDirective(argument,target);
 	if ( isLIST(argument->groupBody->flags.binType) )
 		while ( grup = argument->prior(grup) )
-			::opReplace(grup,target);
+			if ( isMember(grup->options.affiliation) )
+				{
+				grup->options.affiliation = 1;
+				target->replace(grup);
+				grup->options.affiliation = 2;
+				}
+			else	target->replace(grup);
+	else	target->replace(argument);
+	return target;
+}
+
+/***************************************************************************
+	Rule action for the :+ replace operator.
+***************************************************************************/
+extern "C" GroupItem *opReplaceMember(GroupItem *argument, GroupItem *target)
+{
+GroupItem 	*grup = 0;
+	if ( isLIST(argument->groupBody->flags.binType) )
+		while ( grup = argument->prior(grup) )
+			if ( isAttribute(grup->options.affiliation) )
+				{
+				grup->options.affiliation = 2;
+				target->replace(grup);
+				grup->options.affiliation = 1;
+				}
+			else	target->replace(grup);
 	else	target->replace(argument);
 	return target;
 }
@@ -3602,6 +3624,8 @@ char 		*name = item->groupBody->flags.data ? item->getText() : (char*)0;
 		registry. argument likely points to a copy
 		*******************************************************************/
 		ruler->currentRegistry = argument->groupBody->registry;
+		::printf("\t\t\t\tCurrent registry: %s\n",ruler->currentRegistry->groupBody->tag);
+		item = 0;
 		}
 	return ruler->trueResult;
 }
