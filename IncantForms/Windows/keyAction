@@ -1,26 +1,29 @@
-#registry dESCRIPTIONs asAttributes;
-<top="There is no action associated with this block but there is a key action associated with its parent."/>
-<bottom="This block has an action but it is not a key action. Question is: does its action fire in response to a key entry or is the entry passed up the line and handled by the parent, which has a key action"/>
-#registry GUI;
-<outer window x=400 y=400 width=360 height=400 fill=wall font=normal>
-    <intro height=50 pad fill=white rounded>
-        <heading="Inspector Example" pad=10 label align=center font=title border=off shadow/></intro>
-    <keyHolder pad rounded fill=paleGray jit=keyAction>
-        GroupItem   fill;
-        String      code;
-        code = item.keyCode();
-        switch(code)
-            {
-            case "a":
-            case "A":
-                cout "Saw alpha":;
-            case "e":
-            case "E":
-                cout "Saw ee":;
-            default:
-                cout "Saw default":;
-            }
-        if fill cout fill.text:;
-        <top rounded fill=radialGreen lighten/>
-        <bottom="Has dummy action" action=fire/></keyHolder>
-    <help height=40 describe="Click on heading for description of how this works." rounded font=normal pad fill=lightGreen/></outer>
+register(dESCRIPTIONs);
+# TODO: registry flags: asAttributes
+define
+top=(There is no action associated with this block but there is a key action associated with its parent.#);
+bottom=(This block has an action but it is not a key action. Question is: does its action fire in response to a key entry or is the entry passed up the line and handled by the parent, which has a key action#);
+register(GUI);
+define
+outer window x=400 y=400 width=360 height=400 fill=wall font=normal
+    intro height=50 pad fill=white rounded
+        heading="Inspector Example" pad=10 label align=center font=title border=off shadow;
+    keyHolder pad rounded fill=paleGray jit=keyAction
+        GroupItem   fill;  # TODO: review
+        String      code;  # TODO: review
+        code = item.keyCode();  # TODO: review
+        switch(code)  # TODO: review
+            {  # TODO: review
+            case "a":  # TODO: review
+            case "A":  # TODO: review
+                cout "Saw alpha":;  # TODO: review
+            case "e":  # TODO: review
+            case "E":  # TODO: review
+                cout "Saw ee":;  # TODO: review
+            default:  # TODO: review
+                cout "Saw default":;  # TODO: review
+            }  # TODO: review
+        if fill cout fill.text:;  # TODO: review
+        top rounded fill=radialGreen lighten;
+        bottom="Has dummy action" action=fire;
+    help height=40 describe="Click on heading for description of how this works." rounded font=normal pad fill=lightGreen;
