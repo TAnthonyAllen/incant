@@ -216,6 +216,35 @@ extern GroupItem jitEmitAssign(GroupItem argument,GroupItem target)
     %-
 }
 
+/* jitEmitUnary  the in-place increment/decrement emitter — the unary sibling of
+   jitEmitBinary. ++/-- read the operand, add or subtract a literal 1 (int or
+   float per the operand's LLVM type), and WRITE BACK to the operand's slot, since
+   ++/-- mutate in place (like a compound assign on a single operand). The operand
+   must already be seeded (jitSeedField) so jitData->jitValue holds the load and
+   jitData->jitSlot the store destination. `op` is a jitUnary (jitContext.h).
+   NOTE: not wired yet — the unary expression flows through aCTionTokenXP -> a uxp
+   node -> runOP, bypassing aCTionExpressioN's binary-shaped jitting gate, so no
+   gate currently reaches opPlusPlus/opMinusMinus under jitting (see report). */
+extern GroupItem jitEmitUnary(GroupItem target,int op)
+{
+    -%
+    llvm::IRBuilder<> *b = gJitBuilder;
+    llvm::Value *v = target->jitData->jitValue;
+    llvm::Value *res = nullptr;
+    if (v->getType()->isDoubleTy()) {
+        llvm::Value *one = llvm::ConstantFP::get(v->getType(), 1.0);
+        res = (op == jitDec) ? b->CreateFSub(v, one, "dec") : b->CreateFAdd(v, one, "inc");
+    } else {
+        llvm::Value *one = llvm::ConstantInt::get(v->getType(), 1);
+        res = (op == jitDec) ? b->CreateSub(v, one, "dec") : b->CreateAdd(v, one, "inc");
+    }
+    target->jitData->setJitter(res);
+    if (target->jitData->jitSlot)   b->CreateStore(res, target->jitData->jitSlot);
+    gJitResult = res;
+    return target;
+    %-
+}
+
 /* jitRunAction  the generic compile driver — the JIT analog of generateCode. Sets
    up an i32() function shell + builder, raises the `jitting` gate, walks the action
    body via processCode (which fires aCTionExpressioN's jitting branch per

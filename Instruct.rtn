@@ -322,6 +322,9 @@ use target
 ***************************************************************************/
 extern GroupItem opMinusMinus(GroupItem result)
 {
+    if jitting {
+        -% return jitEmitUnary(result, jitDec); %-
+    }
     if isCOUNT   gCount--;
     or isNUMBER  gNumber -= 1.0;
     or isSTRING || isTOKEN
@@ -465,6 +468,9 @@ use target
 ***************************************************************************/
 extern GroupItem opPlusPlus(GroupItem result)
 {
+    if jitting {
+        -% return jitEmitUnary(result, jitInc); %-
+    }
     if !data        count = 1;
     or isCOUNT      gCount++;
     or isNUMBER     gNumber++;

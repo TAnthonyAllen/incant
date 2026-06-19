@@ -139,6 +139,7 @@ extern "C" GroupItem *interpretMethod(GroupItem *input);
 extern "C" GroupItem *jitEmitAssign(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *jitEmitBinary(GroupItem *argument, GroupItem *target, int op);
 extern "C" GroupItem *jitEmitCompare(GroupItem *argument, GroupItem *target, int op);
+extern "C" GroupItem *jitEmitUnary(GroupItem *target, int op);
 extern "C" void *jitEngine();
 extern "C" void jitForceInclude();
 extern "C" void jitInitOnce();
