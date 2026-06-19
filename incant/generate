@@ -274,6 +274,14 @@ define
     jitLE code={ 7 <= 5; };     // 7 <= 5 -> 0 (ICmpSLE)
     jitEQ code={ 3 == 3; };     // 3 == 3 -> 1 (ICmpEQ)
     jitNE code={ 3 != 5; };     // 3 != 5 -> 1 (ICmpNE)
+    // Assign POPs: store-back writes THROUGH to the real GroupItem storage
+    // (jitSeedField baked maximus's field address into jitSlot). jitAssign is a
+    // pure store; the compound forms compose jitEmitBinary then the store-back
+    // (jitEmitAssign(target,target) commits the binary result). The store is
+    // proven by reading maximus back in jitscratch after the run.
+    jitAssign code={ maximus = 8; };    // store 8 -> maximus; returns 8
+    jitPlusEQ code={ maximus += 5; };   // maximus + 5 -> store-back; returns sum
+    jitMultEQ code={ maximus *= 3; };   // maximus * 3 -> store-back; returns product
     // POP target: testPrint -> "hello world" via the bytecode print path.
     testPrint code={ print "hello" name:; };
     // testEmitBC retired 2026-06-04 (Brief 5 Fix 3): it called emitBC(bcMul),

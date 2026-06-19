@@ -29,6 +29,9 @@ extern GroupItem opAND(GroupItem argument,GroupItem target)
 ***************************************************************************/
 extern GroupItem opAssign(GroupItem argument,GroupItem target)
 {
+    if jitting {
+        -% return jitEmitAssign(argument, target); %-
+    }
     if argument
         if argument.byRef   group = argument;
         else                target.setContent(argument);
@@ -358,6 +361,10 @@ extern GroupItem opMultiply(GroupItem argument,GroupItem target)
 extern GroupItem opMultiplyEQ(GroupItem argument,GroupItem target)
 {
 GroupItem   result;
+    if jitting {
+        -% jitEmitBinary(argument, target, jitMul);
+           return jitEmitAssign(target, target); %-
+    }
 use target
     if data && argument.data {
         if isCOUNT  gCount  *= argument.count;
@@ -428,6 +435,10 @@ extern GroupItem opPlus(GroupItem argument,GroupItem target)
 extern GroupItem opPlusEQ(GroupItem argument,GroupItem target)
 {
 GroupItem   grup;
+    if jitting {
+        -% jitEmitBinary(argument, target, jitAdd);
+           return jitEmitAssign(target, target); %-
+    }
 use target
     if argument.isLIST
         while grup = argument.prior(grup)

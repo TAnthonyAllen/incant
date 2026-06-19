@@ -2660,6 +2660,10 @@ GroupItem 	*grup = 0;
 ***************************************************************************/
 extern "C" GroupItem *opAssign(GroupItem *argument, GroupItem *target)
 {
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		 return jitEmitAssign(argument, target); 
+		}
 	if ( argument )
 		if ( argument->groupBody->flags.byRef )
 			target->setGroup(argument);
@@ -3169,6 +3173,11 @@ extern "C" GroupItem *opMultiply(GroupItem *argument, GroupItem *target)
 extern "C" GroupItem *opMultiplyEQ(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*result = 0;
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		 jitEmitBinary(argument, target, jitMul);
+		return jitEmitAssign(target, target); 
+		}
 	if ( target->groupBody->flags.data && argument->groupBody->flags.data )
 		{
 		if ( isCOUNT(target->groupBody->flags.data) )
@@ -3261,6 +3270,11 @@ extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target)
 extern "C" GroupItem *opPlusEQ(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*grup = 0;
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		 jitEmitBinary(argument, target, jitAdd);
+		return jitEmitAssign(target, target); 
+		}
 	if ( isLIST(argument->groupBody->flags.binType) )
 		while ( grup = argument->prior(grup) )
 			::opPlusEQ(grup,target);
