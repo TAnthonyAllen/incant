@@ -1,92 +1,102 @@
 # Incant — Status & Handoff (2026-06-19)
-*Written by Clod for a fresh Clay/Clod. Assumes no memory of today. Self-contained.*
-*(Prior handoff (2026-06-16, IncantForms conversion) is in git history — see Parked threads.)*
+*Written by Clay for a fresh Clay/Clod. Assumes no memory of today. Self-contained.*
 
 ## Headline
-**Phase JIT, Phase 1 straight-line lowering is COMPLETE across arithmetic, compare, and
-assign — 15 POPs green in one pass.** The jitting gate is rolled onto every straight-line
-opMethod (`+ - *`; `> < >= <= == !=`; `= += *=`); assign **writes through** to real
-GroupItem storage (readback-proven). Bytecode path untouched. The active thread to resume
-is **unary (`++`/`--`)**, then **Phase 2 (control flow)**. Full POP table in `jit.md` Status.
+**Phase JIT Phase 1 complete — 15 POPs green.** Arithmetic, compare, and assign
+emitters all proven. Unary skeleton in and committed, dispatch not yet wired. JSON
+parser autopsied — offline work in progress. IncantForms conversion complete. Font
+architecture designed and partially implemented.
 
 ## Verify it still works (do this first on wake)
 ```
-# build:
-cd <repo>/../TOK   # /Users/anthony/.../InProcess/TOK
-# (after editing .twk/.rtn:)  tok GroupRules.twk   [and tok GroupMain.twk if it changed]
+cd <repo>/../TOK
 xcodebuild -project TOK.xcodeproj -scheme Groups -configuration Debug build
-# run JIT POPs (expect 8, 8, 8, 18):
-~/bin/incant incant/jitscratch
-# bytecode regression (expect maximus = 11):
-~/bin/incant incant/oneTest
+~/bin/incant incant/jitscratch   # expect 15 POPs green
+~/bin/incant incant/oneTest      # expect maximus = 11
 ```
-`~/bin/incant` is the TOK-built `Groups` binary (symlink). Edit `.twk`/`.rtn`, run `tok`,
-then `xcodebuild` — Xcode does NOT auto-tok.
 
-## The design (locked, in place)
-**Plan A — the jitting gate lives INSIDE the opMethod.** `opPlus` (Instruct.rtn) has
-`if jitting { return jitEmitBinary(argument, target, jitAdd); }` above its interpret body.
-`aCTionExpressioN`'s jitting branch (ruleActions.rtn) dispatches the operator's own
-`operat` (no `jit` child) — it self-gates. At endgame the interpret body + gate strip out
-and the opMethod *is* the emitter. (Plan B — emitter on a `jit` child — was built then
-stripped; don't resurrect it.)
+---
 
-`jitEmitBinary` (jitEmitters.rtn; `enum jitOp` in jitContext.h) is the shared binary-arith
-emitter: one line per op, int/float variant + numeric promotion centralized. Header-clean
-signature (`GroupItem,GroupItem,int`), LLVM in the `-% %-` body.
+## Active threads
 
-Proven POPs (fixtures in `incant/generate`, driven by `testing(<fixture>)` in
-`incant/jitscratch`): `jitAdd` 3+5→8 (CreateAdd), `jitAddF` 3.0+5.0→8 (CreateFAdd),
-`jitMix` 3+5.0→8 (count SIToFP-promoted→FAdd), `jitFieldAdd` righty+5→18 (jitSeedField
-unboxes the real field via CreateLoad of gCount).
+### JIT — immediate next (top priority)
+**Unary dispatch wiring is the first order of business.** The skeleton
+(`jitEmitUnary`, `enum jitUnary`, gates on `opPlusPlus`/`opMinusMinus`) is committed
+and baseline-green. The dispatch is **not** wired — unary expressions flow through
+`aCTionTokenXP` → `uxp` node → `runOP`, bypassing `aCTionExpressioN`'s jitting branch
+entirely.
 
-## ROLLOUT — DONE (2026-06-19): arithmetic + compare + assign all WIRED & GREEN
-15 JIT POPs proven end-to-end (see `jit.md` Status for the full table). Next pickup is
-**unary** then Phase 2 (control flow). History below kept as the trail.
-1. **opMinus, opMultiply — WIRED.** `jitEmitBinary(jitSub/jitMul)`. Fixtures `jitSub`
-   (8-3→5), `jitMul` (3*5→15) green. (commit `05195da`)
-2. **divide/remainder — GLYPHS RESOLVED.** `%`=`opRem`, `/`=`opDiv`, `/=`=`opDivEQ`
-   (was `%`=`opDiv`, `/`=`opSlash`, `/=`=`opSlashEQ`). `jitEmitBinary` carries `jitSDiv`
-   for `/`; a `jitRem` case awaits wiring `%`. See `jit-design.md` §1d.
-3. **Comparisons (`> < >= <= == !=`) — WIRED.** Six `opMethod` gates → `jitEmitCompare`
-   (`CreateICmp*` matrix, `enum jitCmp`), i1 `ZExt`'d to i32. Fixtures green (0/1/1/0/1/1).
-   Promotion block RETAINED (mixed `count < number` must SIToFP — no cross-type compare).
-   (commit `736b25e`)
-4. **assign (`= += *=`) — WIRED.** `opAssign` → `jitEmitAssign` (pure store); `opPlusEQ`/
-   `opMultiplyEQ` compose `jitEmitBinary` then `jitEmitAssign(target,target)`. Store
-   **writes through** to the GroupItem — proven by reading `maximus` back (8 / 15 / 12).
-   `jitSeedField` now stashes the field address into `jitSlot`. (commit `d4964d4`)
-5. **NEXT: unary (`++`/`--` → `jitEmitUnary`)** — the last straight-line family, then
-   Phase 2 (control flow: branches/blocks) and Phase 3 (strings, runtime callbacks).
+Concrete plan:
+1. Instrument `aCTionExpressioN`'s jitting branch to see what `righty++` looks like
+   in `xpList`.
+2. Add unary case: unwrap `uxp`, extract op+operand, `jitSeedField` the operand,
+   invoke unary opMethod under jitting.
+3. Fixtures `jitInc` (`righty++` → 14) / `jitDec` (`righty--` → 12) + readback.
 
-## Authority + watch-items
-- `docs/jit.md` "Status (2026-06-18)" section is the authoritative Phase-1 status.
-- `docs/jit-design.md` (codegen design, Phase 1/2/3) and `docs/jit.md` (frame/calling
-  convention) are the design pair.
-- **CLAUDE.md bear trap #9:** the gate's `else jitSeedField` treats any non-literal operand
-  as a real field. Single-op POPs hide it; **chaining `a+b+c` mis-routes the inner result**
-  to jitSeedField. Guard on "operand already carries jitData" when chaining lands.
-- **Deferred (per jit.md Status):** rebox/return `GroupItem*` epilogue; slot-array calling
-  convention; cached-function refire (makes load-vs-fold observable — the next *real* proof
-  that JIT isn't a constant folder); the chaining guard.
+After unary is green → **Phase 2 probe** (control flow design). Five probe questions
+are documented in the parked JIT instructions — gIF/gFOR bytecode pattern, LLVM basic
+blocks, `gJitResult` as i1 input to `CreateCondBr`, `JitContext` wiring question, and
+the `tempField` chaining guard.
 
-## Commits today
-`cc2fd2d` Plan B → `a3498f4` Plan A → `e85c32d` strip → `a8a25ce` typed arithmetic + field
-unbox. First three are pushed to `main`; **`a8a25ce` is held LOCAL** pending Tony's "push".
+### JSON parser — Tony offline work
+Test fixtures: `incant/json1` (single case, edit to switch) and `incant/jsonTest`
+(full suite, run individually).
+
+Two independent bugs, both understood:
+- **Bug 1 — value extraction:** `setLabel` can't cleanly extract the string value
+  from the `JSONvalue` wrapper node. `JSONvalue.text` returns a pointer/number, not
+  the string. The value lives *inside* the wrapper — need to dig into `JSONvalue.group`
+  or find the right child node. `JSONtoken` holds the key; `JSONvalue` holds the value
+  but as a wrapped node, not a bare string.
+- **Bug 2 — attachment:** Even when `setLabel` returns a correctly built node, it never
+  lands in the enclosing `JSONlist`. The `JSONfield*` repetition doesn't collect
+  `code={ return … }` results into the parent. Likely needs either parent-clearing
+  before return or a fix in the collection mechanism.
+
+Fix ladder (do in order):
+1. **Rung 1:** get `{"a":"b"}` to produce a populated field with `a="b"`.
+2. **Rung 2:** accumulate two members `{"a":"b","c":"d"}`.
+3. **Rung 3:** nested object `{"a":{"b":"c"}}`.
+4. **Rung 4:** array value `{"a":["x","y"]}`.
+
+### IncantForms — conversion complete
+11 files converted by `convert_all.py`, 11 skipped (already hand-converted). Scripts
+in `XML/WorkingOn/`. One pending cleanup: the `#search` rule is in `convert_form.py`
+and the walker has been re-run. `#print` left as `# TODO` for manual review. Converted
+forms are uncommitted pending Tony's eyeball.
+
+### Fonts & colors — partially implemented
+- Font registry format consolidated onto `family=`/`size=`/`bold`/`italic` across
+  three files (committed).
+- `setFont` and `setColor` fixes in `Stylish.twk` — parked; `Stylish.twk` not in
+  active use yet (GUI-build only, not in the command-line `Groups` target).
+- Google Fonts API key in `~/data/support/incantConfig.json`.
+- `getURLintoBuffer` exists in the binary, needs a one-line `extern` decl in
+  `groups.ext` to be callable from incant.
+- Fetch/cache implementation is greenfield — design documented, not yet built.
+- **The JSON parser must be fixed before `loadGoogleFonts` can be implemented.**
+
+### GroupUI recon — parked, needs Tony guidance
+Tonto recon into `OLDtawkDoNotTouch/Groups/GUI/GroupUI` needed before drawRules
+conversion and GUI work can proceed. Tony needs to provide guidance on what to look
+for vs ignore — old class structure is mostly obsolete. Priority rising as JIT
+velocity increases.
+
+---
 
 ## Key files
-- `Instruct.rtn` — the opMethods (opPlus done; opMinus/opMultiply/opSlash next).
-- `jitEmitters.rtn` — jitEmitBinary, jitSeedLiteral, jitSeedField, jitRunAction (driver).
-- `jitContext.h` — `enum jitOp`, gJitBuilder/gJitResult globals, JitData (hand-written, not tok'd).
-- `ruleActions.rtn` — aCTionExpressioN jitting branch (the gate).
-- `incant/generate` — fixtures; `incant/jitscratch` — POP driver.
-- `Include/groups.ext` (OUTSIDE the repo) — jit extern decls; cross-TU handlers need a decl
-  here or tok emits the name-as-string-literal-fnptr → SIGBUS.
+- `Instruct.rtn` — opMethod gates (opPlus/Minus/Multiply done; opPlusPlus/opMinusMinus
+  gated but dispatch unwired).
+- `jitEmitters.rtn` — all emitters: `jitEmitBinary`, `jitEmitCompare`, `jitEmitAssign`,
+  `jitEmitUnary`.
+- `jitContext.h` — `enum jitOp`/`jitCmp`/`jitUnary`, `JitData`, globals, `JitContext`
+  (scaffolding).
+- `ruleActions.rtn` — `aCTionExpressioN` jitting branch (needs unary case).
+- `incant/jitscratch` — JIT POP driver.
+- `incant/json1` / `incant/jsonTest` — JSON parser test fixtures (uncommitted).
+- `XML/WorkingOn/convert_form.py` / `convert_all.py` — IncantForms conversion scripts.
 
-## Parked threads (NOT today's work)
-- **IncantForms conversion** — in-flight bulk XML→incant `define` rewrite; uncommitted edits
-  sit in the working tree (`git status`: `IncantForms/Windows/*`, `XML/WorkingOn/parser`).
-  Full detail in the prior wakeup (this file's 2026-06-16 version in git history).
-- **GUI redesign** — Layout recon done (`docs/layout-recon.md`, untracked/local by Tony's
-  call); incant→HTML-transpiler-bridge direction captured there + in project memory. Parked
-  behind JIT.
+## Parked
+- `IncantForms/Windows/*` converted forms — uncommitted, pending Tony eyeball.
+- drawRules conversion — gated on GroupUI recon.
+- GUI redesign / HTML transpiler — parked behind JIT.
