@@ -256,14 +256,19 @@ Add `jitMethod` to the Operators define. Initially just arithmetic:
 '='    assign operateMethod=opAssign jitMethod=emitAssign;
 ```
 
-**NOTE — divide/remainder glyphs TBD:** The Operators define shows `%` mapped
-to `opDiv`. This is either (a) incant's deliberate choice of `%` for divide
-(non-standard but valid — confirm with Tony), or (b) a misassignment. The
-standard `/` glyph for divide is absent from the Operators define entirely.
-Clod: before adding `jitMethod` to divide/remainder ops, confirm with Tony
-which glyphs are actually in use and what `opDiv` does. Do not assume `%` =
-remainder (it may be divide). Add the correct `jitMethod=emitDiv` /
-`jitMethod=emitRem` once the glyphs are confirmed.
+**RESOLVED (2026-06-19) — divide/remainder glyphs:** The old names were
+misleading and were renamed cleanly across the repo. The mapping is now:
+
+| glyph | method | meaning |
+|---|---|---|
+| `%`  | `opRem`   | remainder |
+| `/`  | `opDiv`   | divide |
+| `/=` | `opDivEQ` | divide-assign |
+
+(Previously `%`=`opDiv`, `/`=`opSlash`, `/=`=`opSlashEQ` — the `opDiv`-on-`%`
+inversion was the source of the confusion.) `jitEmitBinary` already carries the
+`jitSDiv` case for `/` (`opDiv`); a `jitRem` case would be added for `%`
+(`opRem`) when that op is wired.
 
 Each `emitX` is a C++ extern function with signature:
 ```cpp

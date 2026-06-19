@@ -32,6 +32,13 @@ inline llvm::Value *gJitResult = nullptr;
 // of the actual LLVM instruction is picked inside jitEmitBinary from operand type.
 enum jitOp { jitAdd, jitSub, jitMul, jitSDiv };
 
+// Compare-op selector for jitEmitCompare — the relational sibling of jitOp,
+// same style and same home. jitEQ/jitNE are sign-agnostic (ICmp EQ/NE, FCmp
+// OEQ/ONE); the ordered four resolve to signed-int (ICmp SLT/SLE/SGT/SGE) on
+// the integer path and ordered-float (FCmp OLT/OLE/OGT/OGE) on the double path.
+// The emitter yields an i1, distinct from jitOp's operand-typed result.
+enum jitCmp { jitEQ, jitNE, jitLT, jitLE, jitGT, jitGE };
+
 // Per-field JIT state, hung on the GroupItem node during emission (the Emitter.twk
 // JitData pattern). Transient: meaningful only while an action is being compiled.
 class JitData {

@@ -45,14 +45,22 @@ Difficulty gradient, do in order:
    has the `jitSub`/`jitMul` cases. Each gate is just
    `if jitting { return jitEmitBinary(argument, target, jitSub); }` (resp. `jitMul`). Add
    `jitSub`/`jitMul` fixtures, prove. Near-zero risk; cashes in "one line per op."
-2. **divide — ASK TONY the glyph first.** `jit-design.md` §1d: `opDiv` is on `%`, and `/`
-   (opSlash) is separate. Confirm which glyph is divide vs remainder before adding
-   `jitSDiv` to an opMethod.
+2. **divide/remainder — GLYPHS RESOLVED (2026-06-19).** Renamed cleanly:
+   `%`=`opRem`, `/`=`opDiv`, `/=`=`opDivEQ` (was `%`=`opDiv`, `/`=`opSlash`,
+   `/=`=`opSlashEQ`). `jitEmitBinary` carries `jitSDiv` for `/`; a `jitRem` case
+   awaits wiring `%`. See `jit-design.md` §1d.
 3. **Comparisons (`> < >= <= == !=`).** Do NOT fit `jitEmitBinary` — they yield an `i1`
-   and the result feeds a branch, not a store-back. Build a sibling `jitEmitCompare`
-   (CreateICmp*/CreateFCmp* matrix). **This is the today-vs-tomorrow cut point** — Tony
-   wanted to eyeball `jitEmitCompare`'s shape before deciding to push on or defer.
-4. **unary (`++`/`--` → `jitEmitUnary`), assign (`=`, its own shape).** Assess after 3.
+   and the result feeds a branch, not a store-back. **`jitEmitCompare` SKELETON DRAFTED
+   (2026-06-19)** in `jitEmitters.rtn` — `CreateICmp*`/`CreateFCmp*` matrix, `enum jitCmp`
+   in `jitContext.h`, plus the i1→i32 ZExt cap in `jitRunAction`. Not wired (no gate, no
+   fixtures). NB: promotion block is RETAINED (mixed `count < number` must SIToFP — LLVM
+   has no cross-type compare).
+4. **unary (`++`/`--` → `jitEmitUnary`), assign (`=`, its own shape).** `jitEmitAssign`
+   SKELETON DRAFTED (2026-06-19) — store-only, plain `=`. Both findings now resolved:
+   `jitSeedField` stashes the baked field address into `jitSlot` (field targets have a
+   store destination; literals correctly get none); compound `+=` is gate-level
+   composition (`jitEmitBinary` then store), store-only emitter by design. Remaining for
+   wiring: the opMethod gates + fixtures.
 
 ## Authority + watch-items
 - `docs/jit.md` "Status (2026-06-18)" section is the authoritative Phase-1 status.
