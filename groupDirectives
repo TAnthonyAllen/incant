@@ -21,7 +21,7 @@ aCTionDebuG subrule.debugged ctive
 aCTionDebuG embed.debugged ctive
     if embed.debugged print "Debugging",embed.tag:;
 #;
-aCTionDefinE "if Attributes" before active
+aCTionDefinE "if Attributes" before ctive
     cout "aCTionDefinE:",NewGroup.tag,lastIndent:;
 #;
 aCTionElsE if ctive
