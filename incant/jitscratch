@@ -10,4 +10,6 @@ testing(jitAdd);
 testing(jitAddF);
 testing(jitMix);
 testing(jitFieldAdd);
+testing(jitSub);
+testing(jitMul);
 stop();

@@ -3022,6 +3022,10 @@ extern "C" GroupItem *opMatch(GroupItem *argument, GroupItem *target)
 ***************************************************************************/
 extern "C" GroupItem *opMinus(GroupItem *argument, GroupItem *target)
 {
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		 return jitEmitBinary(argument, target, jitSub); 
+		}
 	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
 		{
 		if ( isCOUNT(target->groupBody->flags.data) )
@@ -3121,6 +3125,10 @@ extern "C" GroupItem *opMinusMinus(GroupItem *result)
 ***************************************************************************/
 extern "C" GroupItem *opMultiply(GroupItem *argument, GroupItem *target)
 {
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		 return jitEmitBinary(argument, target, jitMul); 
+		}
 	if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
 		if ( isCOUNT(target->groupBody->flags.data) )
 			GroupControl::groupController->groupRules->tempField->setCount(target->getCount() * argument->getCount());

@@ -261,6 +261,9 @@ extern GroupItem opMatch(GroupItem argument,GroupItem target)
 ***************************************************************************/
 extern GroupItem opMinus(GroupItem argument,GroupItem target)
 {
+    if jitting {
+        -% return jitEmitBinary(argument, target, jitSub); %-
+    }
     if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER) {
         if isCOUNT  tempField.count    = gCount - argument.count;
         or isNUMBER tempField.number   = gNumber - argument.number; }
@@ -322,6 +325,9 @@ extern GroupItem opMinusMinus(GroupItem result)
 ***************************************************************************/
 extern GroupItem opMultiply(GroupItem argument,GroupItem target)
 {
+    if jitting {
+        -% return jitEmitBinary(argument, target, jitMul); %-
+    }
     if argument.isCOUNT || argument.isNUMBER
         if isCOUNT  tempField.count = count * argument.count;
         or isNUMBER tempField.number = number * argument.number;

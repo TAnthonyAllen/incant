@@ -262,6 +262,10 @@ define
     // not a seeded literal. jitSeedField bakes its address and CreateLoads gCount at
     // run time. righty(13) + 5 = 18. The proof that makes the literal scaffold obsolete.
     jitFieldAdd code={ righty + 5; };
+    // Subtract POP: opMinus jitting gate -> jitEmitBinary(jitSub) -> CreateSub. 8 - 3 = 5.
+    jitSub code={ 8 - 3; };
+    // Multiply POP: opMultiply jitting gate -> jitEmitBinary(jitMul) -> CreateMul. 3 * 5 = 15.
+    jitMul code={ 3 * 5; };
     // POP target: testPrint -> "hello world" via the bytecode print path.
     testPrint code={ print "hello" name:; };
     // testEmitBC retired 2026-06-04 (Brief 5 Fix 3): it called emitBC(bcMul),
