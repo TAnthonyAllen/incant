@@ -115,13 +115,13 @@ In the pROPERTIEs registry, if a component has a attribute, it is the alias. Thi
     Mac fonts are stored in /Library/Fonts or /System/Library/Fonts
 *******************************************************************************/
 #registry fONTs base;
-<courierFont font="Courier New" fontSize=24 bold/>
-<titleFont font=Palatino fontSize=24 bold/>
-<headerFont font=Palatino fontSize=14 bold/>
-<normalFont font=Palatino fontSize=14/>
-<copperFont font=Copperplate fontSize=12/>
-<defaultFont normalFont/>
-<EBgaramondFont font="EB Garamond" fontSize=18 bold/>
+<courierFont family="Courier New" size=24 bold/>
+<titleFont family=Palatino size=24 bold/>
+<headerFont family=Palatino size=14 bold/>
+<normalFont family=Palatino size=14/>
+<copperFont family=Copperplate size=12/>
+<defaultFont family=Helvetica size=10/>
+<EBgaramondFont family="EB Garamond" size=18 bold/>
 <fontList/>
 <libraryFonts directory="/Library/Fonts" mask=~'[.]tt[cf]' into=fontList/>
 <systemFonts directory="/System/Library/Fonts" mask=~'[.]tt[cf]' into=fontList/>

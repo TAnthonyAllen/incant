@@ -79,13 +79,13 @@ Most registered attributes are added in the registerMethods method of Bwana. The
     Fonts
 *******************************************************************************/
 #registry fONTs base;
-<courierFont font='bold 24px "Courier New"'/>
-<titleFont font='bold 24.0px Palatino'/>
-<headerFont font='bold 14.0px Palatino'/>
-<normalFont font='14.0px Palatino'/>
-<copperFont font='12px Copperplate'/>
-<defaultFont font='10px Helvetica'/>
-<EBgaramondFont font="EB Garamond" fontSize=18 bold/>
+<courierFont family="Courier New" size=24 bold/>
+<titleFont family=Palatino size=24 bold/>
+<headerFont family=Palatino size=14 bold/>
+<normalFont family=Palatino size=14/>
+<copperFont family=Copperplate size=12/>
+<defaultFont family=Helvetica size=10/>
+<EBgaramondFont family="EB Garamond" size=18 bold/>
 #;
 
 #include /Users/anthony/data/Tawk/Groups/XML/Controls/templates.xml;

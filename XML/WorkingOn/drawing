@@ -155,13 +155,13 @@ define
         moreFonts directory="/System/Library/Fonts/Supplemental" fontFileMask;
         italic=1;
         smallCaps=128;
-        courierFont="Courier New" size=24.0 bold;
-        titleFont=Palatino size=24.0 bold;
-        headerFont=Palatino size=14.0 bold;
-        normalFont=Palatino size=14.0;
-        copperFont=Copperplate size=12.0;
-        defaultFont=Helvetica size=10.0;
-        EBgaramond="EB Garamond" size=18.0 bold;
+        courierFont family="Courier New" size=24 bold;
+        titleFont family=Palatino size=24 bold;
+        headerFont family=Palatino size=14 bold;
+        normalFont family=Palatino size=14;
+        copperFont family=Copperplate size=12;
+        defaultFont family=Helvetica size=10;
+        EBgaramondFont family="EB Garamond" size=18 bold;
     ;
 
 /*******************************************************************************

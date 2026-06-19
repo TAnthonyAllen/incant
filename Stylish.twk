@@ -70,6 +70,7 @@ unsigned int    red,
 Color       color;
 GroupItem   hexSet = properties["hexSet"];
 CharSet      set = characterSet;
+    if atPart && *atPart == '#'  atPart++;   // cOLOr registry stores #rrggbb; skip the '#'
 use stringBUFFER
     red = set.contains(atPart);
     if !red || strlen(atPart) != 6      cout "ERROR: expected a valid six character hex string not:" atPart:;
@@ -96,10 +97,11 @@ use stringBUFFER
 extern GroupItem setFont(GroupItem input)
 {
 GroupRules  ruler = groupRules;
-NSString    name = text;
-GroupItem   size:,
+GroupItem   family:,
+            size:,
             bold:,
             italic:;
+NSString    name = family.text;
 int         mask;
 Font        font = getFont(name,size.double);
 use input
