@@ -1,0 +1,37 @@
+# Memory management in incant
+
+## The problem every language has to solve
+
+Every time a program creates something — a string, a list, a data structure — it needs memory to store it. And when that thing is no longer needed, the memory should be reclaimed so it can be used for something else.
+
+In older languages like C, the programmer handles this manually: you ask for memory, you use it, you free it. This is fast and precise, but it's also a rich source of bugs. Free memory too early and you have a pointer to something that no longer exists — a crash waiting to happen. Forget to free it and you have a *memory leak* — the program slowly consumes more and more memory until it runs out or is restarted.
+
+Modern languages solve this differently. Most use *garbage collection*: the runtime tracks which objects are still reachable and periodically reclaims the ones that aren't. The programmer doesn't think about memory — the language takes care of it.
+
+## What incant uses
+
+incant uses the Boehm-Demers-Weiser garbage collector, known as BDWGC. It's a mature, well-tested library that has been in production use for decades, embedded in everything from GCC to Mono to game engines.
+
+BDWGC is a *conservative* collector. That means it doesn't require the program to tell it exactly where all the pointers are — instead, it scans memory and treats anything that *looks like* a pointer as one. If a value in memory could be a valid address of a live object, the collector assumes it is and keeps that object alive. This conservative approach trades a small amount of precision (a handful of objects might be kept alive slightly longer than strictly necessary) for a large amount of simplicity: BDWGC works with ordinary C++ code without requiring special pointer registration or annotation.
+
+## Why it matters for incant
+
+incant's core data structure — the GroupItem — is allocated and used constantly as programs run. Rules parse input, actions execute, expressions evaluate: all of this creates GroupItems, links them together, and eventually stops referring to them. Without a garbage collector, all of that would require careful manual management in the C++ kernel — a significant source of complexity and bugs.
+
+With BDWGC, GroupItems that are no longer reachable (no other live object holds a reference to them) are collected automatically. The incant runtime allocates freely and trusts the collector to clean up.
+
+## What this means in practice
+
+For someone writing incant programs, memory management is invisible — which is the point. You create fields, build lists, run actions, and don't think about memory.
+
+For the incant runtime and JIT, there's one detail worth understanding: BDWGC scans the stack and global memory for pointers. As long as a pointer to an object exists somewhere the scanner can reach, that object stays alive. The JIT relies on this: when compiled code bakes in the address of an incant object, the object stays alive because it remains rooted in the live incant object graph; while compiled code is executing, its baked addresses are also live in registers and on the stack, which the collector scans — so an object in use can't be collected mid-flight. (An object referenced *only* by a baked address in idle compiled code is not protected — it must be reachable some other way.)
+
+The choice of BDWGC reflects the pragmatic design philosophy running through incant: use proven, industrial-strength infrastructure for the hard problems (LLVM for JIT compilation, BDWGC for memory management) and focus incant's own engineering effort on what's unique to the language.
+
+## GUI work makes this especially visible
+
+Graphical interfaces are particularly demanding on memory management. Every user interaction — a button click, a menu opening, a list scrolling past, a form field updating — creates a small flurry of objects: layout structures, event records, temporary display values. Most of them are needed for a fraction of a second and then serve no further purpose.
+
+In a language without garbage collection, tracking and freeing all of those short-lived objects would be a significant burden — and getting it wrong would mean either crashes (freeing something too early) or the program slowly consuming more and more memory over a long session until it becomes sluggish or dies.
+
+With BDWGC, incant's GUI work simply creates what it needs. The collector runs periodically in the background, finds all the objects that are no longer reachable, and reclaims them. A long interactive session stays as lean as a short one. This isn't a nice-to-have in GUI work — it's what makes building GUIs in incant practical at all.

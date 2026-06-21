@@ -131,6 +131,8 @@ Actions are written in incant. Interpreted for now — the JIT will compile them
 
 The boundary between methods and actions is moving. As the JIT matures, more behavior can be expressed in incant rather than C++. The goal: shrink the C++ layer until incant defines and runs itself with minimal bootstrapping.
 
+Both of those hard problems — compilation and memory — incant hands to proven infrastructure. For how memory is managed (why you never free anything, and the collector that makes that safe), see **[Memory Management](MemoryManagement)**.
+
 ---
 
 ## Defer — When Timing Matters
