@@ -58,3 +58,6 @@ DerivedData/
 
 # Test alias dir — symlinks back to parent sources, not tracked
 Tests/
+
+# Personal working scratchpad — clipboard file, not source
+XML/WorkingOn/incant++
