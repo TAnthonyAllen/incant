@@ -169,7 +169,7 @@ A wrapper carries both: the inspectable GroupItem (with its attribute list as fr
 
 ---
 
-## Status (2026-06-20) — Phase 1 straight-line: arithmetic + compare + assign + unary (division parked)
+## Status (2026-06-22) — Phase 1 COMPLETE: arithmetic + compare + assign + unary + division
 
 **Design chosen: Plan A — the jitting gate lives *inside* the opMethod.** `opPlus`
 grows an `if jitting { … }` emit branch above its interpret body; `aCTionExpressioN`'s
@@ -179,7 +179,7 @@ opMethod *is* the emitter. (Plan B — emitter on a `jit` child — is the aband
 alternative; it would have left N siblings to fold back in. See `docs/layout-recon.md`
 sibling discussion only for the parallel-lowerings framing.)
 
-**Proven end-to-end — 15 POPs, all in one pass, via `jitRunAction`** (driver
+**Proven end-to-end — 24 POPs, all in one pass, via `jitRunAction`** (driver
 `incant/jitscratch`, fixtures `incant/generate`):
 
 *Arithmetic — `jitEmitBinary` (`enum jitOp`):*
@@ -191,6 +191,9 @@ sibling discussion only for the parallel-lowerings framing.)
 | `jitFieldAdd` | `righty + 5` | 18 | **field unbox** — `jitSeedField` bakes the stable GroupItem address, `CreateLoad`s `gCount` at run time |
 | `jitSub` | `8 - 3` | 5 | `CreateSub` |
 | `jitMul` | `3 * 5` | 15 | `CreateMul` |
+| `jitDiv` | `7 / 2` | 3 | `CreateSDiv` (signed, **truncates toward zero**) |
+| `jitDiv10` | `10 / 3` | 3 | `CreateSDiv` |
+| `jitDivNeg` | `righty(-7) / 2` | -3 | `CreateSDiv` — truncation, not floor's -4 (seeded `0 - 7`; no unary-minus literal) |
 
 *Compare — `jitEmitCompare` (`enum jitCmp`), i1 result `ZExt`'d to i32:*
 | POP | expression | result | path |
@@ -209,6 +212,7 @@ sibling discussion only for the parallel-lowerings framing.)
 | `jitPlusEQ` | `maximus += 5` (from 10) | 15 | `maximus` → 15 |
 | `jitMultEQ` | `maximus *= 3` (from 4) | 12 | `maximus` → 12 |
 | `jitMinusEQ` | `maximus -= 5` (from 30) | 25 | `maximus` → 25 |
+| `jitDivEQ` | `maximus /= 4` (from 30) | 7 | `maximus` → 7 (`jitSDiv` truncates) |
 
 *Unary — `jitEmitUnary` (`enum jitUnary`), in-place CreateAdd/Sub 1 with store-back (2026-06-20):*
 | POP | expression | result | readback |
@@ -242,9 +246,9 @@ so LLVM can't DCE a callee it can't see into. **This is the proof-of-concept for
 sourced from `op.method` instead of hardcoded `concatEQ`.
 
 - **Gates self-host the emitter dispatch (Plan A):** each opMethod (`opPlus`, `opMinus`,
-  `opMultiply`; `opGT`/`opLT`/`opGE`/`opLE`/`opEQ`/`opNotEQ`; `opAssign`,
-  `opPlusEQ`, `opMultiplyEQ`) carries `if jitting { … }`. Arithmetic → `jitEmitBinary`;
-  compare → `jitEmitCompare`; plain `=` → `jitEmitAssign`; compound `+=`/`*=` compose
+  `opMultiply`, `opDiv`; `opGT`/`opLT`/`opGE`/`opLE`/`opEQ`/`opNotEQ`; `opAssign`,
+  `opPlusEQ`, `opMultiplyEQ`, `opDivEQ`) carries `if jitting { … }`. Arithmetic → `jitEmitBinary`;
+  compare → `jitEmitCompare`; plain `=` → `jitEmitAssign`; compound `+=`/`*=`/`/=` compose
   `jitEmitBinary` then `jitEmitAssign(target,target)` to commit the binary result.
 - **`jitSeedField` now stashes `jitSlot`** (the baked field-storage address), giving the
   assign store-back a destination — immediate writeback to the field's own storage.
@@ -279,12 +283,31 @@ sourced from `op.method` instead of hardcoded `concatEQ`.
   general value-returning method calls don't, so one-arg is the durable shape. Container
   packing hits `addGroup`/`setGroup` parent-copy — `GroupItem.twk:73`/`:1242` — for any node
   with a parent, which is why the write-back case took two explicit pointers.)
-- **Division (`/` `/=`) — PARKED, semantics decision needed.** The last straight-line op.
-  Wiring is trivial (same gate pattern as `-=`), but interpret divides counts as
-  `(int)lround(number/argument.number)` — i.e. **rounds** (`7/2=4`) — while `jitEmitBinary`'s
-  `jitSDiv` path emits `CreateSDiv` which **truncates** (`7/2=3`). count÷count disagrees.
-  Faithful fix (recommended): count path does `SIToFP`→`FDiv`→`llvm.round`→`FPToSI` (~6 lines
-  in `jitEmitBinary`'s div case) to match `lround`. Alternative: accept C-style truncation.
-  `jitSDiv` exists in `enum jitOp` but is unused; `opDiv`/`opDivEQ` carry no gate yet.
-  Full tape in `wakeup.md`.
-- **Phase 2: control flow (IF/FOR).** The frontier after division — on Clay's design plate.
+- **Division (`/` `/=`) — DONE 2026-06-22.** The last straight-line op — see the division
+  rows in the arithmetic table and `jitDivEQ` in the assign table. `opDiv`/`opDivEQ` gate onto
+  `jitEmitBinary(jitSDiv)` (the established `-=` pattern); `jitSDiv`'s `CreateSDiv` was already
+  in the switch. **Semantics decision (settled): C-style signed truncation toward zero** —
+  `7/2=3`, `-7/2=-3` (not floor's -4). This *diverges by design* from interpret's
+  `(int)lround(...)` round-to-nearest (`7/2=4`); the round-intrinsic "faithful" alternative was
+  declined in favour of C semantics. Div-by-zero is **deferred (unguarded)**, matching
+  interpret's own unguarded path. Caveat surfaced: incant has **no unary-minus literal** (`-`
+  is binary `opMinus` only; `NumbeR` is `[0-9]+`), so `-7` silently drops the sign — the
+  negative POP seeds `righty = 0 - 7` and divides the field. This is the disambiguation bear
+  that gates the Phase 2 gIF POP (below).
+
+---
+
+## Phase 2 — control flow (gIF) — THE OPEN FRONTIER
+
+Phase 1 straight-line is complete. The next frontier is **gIF** (conditional control
+flow): the opMethod gates emit an i1 condition (already proven by `jitEmitCompare`) into an
+LLVM `CreateCondBr` across then/else basic blocks. gIF instructions are **drafted and ready
+to hand off**.
+
+**Blocker before the gIF POP can run end-to-end: the unary-minus grammar question.** A
+control-flow POP needs negative test values (`if x < 0`, decrementing loop bounds), and as
+the division work surfaced, incant cannot currently express a negative literal — `-7` parses
+as binary `opMinus` with no left operand and drops the sign. A **`UnaryMinus` grammar rule**
+(disambiguating prefix `-literal` / `-field` from binary subtraction) is the prerequisite.
+Once that disambiguation bear is cracked, the gIF POP can drive real negative-valued
+conditions and Phase 2 proceeds directly to control flow.
