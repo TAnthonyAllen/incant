@@ -266,6 +266,21 @@ define
     jitSub code={ 8 - 3; };
     // Multiply POP: opMultiply jitting gate -> jitEmitBinary(jitMul) -> CreateMul. 3 * 5 = 15.
     jitMul code={ 3 * 5; };
+    // Divide POPs: opDiv jitting gate -> jitEmitBinary(jitSDiv) -> CreateSDiv (signed,
+    // truncates TOWARD ZERO == C semantics, NOT interpret's lround). Two i32 operands ->
+    // no float promotion (fp flag false). 7/2 -> 3, 10/3 -> 3, -7/2 -> -3 (trunc, not -4).
+    // Div-by-zero is deferred (unguarded), matching interpret's own unguarded path.
+    // jitDivNeg proves truncation TOWARD ZERO on a negative dividend: -7/2 -> -3 (not
+    // floor's -4). No unary-minus literal exists, so the driver seeds righty = 0 - 7
+    // (interpret) and the gate divides that real field (jitSeedField, same path as
+    // jitFieldAdd) by 2.
+    jitDiv    code={ 7 / 2; };       // 7 / 2  -> 3
+    jitDiv10  code={ 10 / 3; };      // 10 / 3 -> 3
+    jitDivNeg code={ righty / 2; };  // righty(-7) / 2 -> -3 (truncation toward zero)
+    // /= compound POP: opDivEQ gate -> jitEmitBinary(jitSDiv) then jitEmitAssign
+    // store-back (same composition as *=). maximus(30) /= 4 -> 7 (trunc), written
+    // through to the real field (proven by readback in jitscratch).
+    jitDivEQ code={ maximus /= 4; };  // 30 / 4 -> 7 (truncation), stored back
     // Compare POPs: each opMethod jitting gate -> jitEmitCompare -> CreateICmpS* ->
     // i1, ZExt'd to i32 by the driver. Simple integer pairs; expected 0/1 obvious.
     jitGT code={ 3 > 5; };      // 3 >  5 -> 0 (ICmpSGT)

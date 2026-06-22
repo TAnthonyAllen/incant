@@ -66,6 +66,9 @@ String      junk;
 ***************************************************************************/
 extern GroupItem opDiv(GroupItem argument,GroupItem target)
 {
+    if jitting {
+        -% return jitEmitBinary(argument, target, jitSDiv); %-
+    }
     if argument.isCOUNT || argument.isNUMBER
         if isCOUNT  tempField.count = (int)lround(number / argument.number);
         or isNUMBER tempField.number = number / argument.number;
@@ -81,6 +84,10 @@ extern GroupItem opDiv(GroupItem argument,GroupItem target)
 extern GroupItem opDivEQ(GroupItem argument,GroupItem target)
 {
 GroupItem   result;
+    if jitting {
+        -% jitEmitBinary(argument, target, jitSDiv);
+           return jitEmitAssign(target, target); %-
+    }
 use target
     if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER) {
         if isCOUNT  count   = (int)lround(number / argument.number);

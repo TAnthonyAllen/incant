@@ -2692,6 +2692,10 @@ char 		*junk = 0;
 ***************************************************************************/
 extern "C" GroupItem *opDiv(GroupItem *argument, GroupItem *target)
 {
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		 return jitEmitBinary(argument, target, jitSDiv); 
+		}
 	if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
 		if ( isCOUNT(target->groupBody->flags.data) )
 			GroupControl::groupController->groupRules->tempField->setCount((int)::lround(target->getNumber() / argument->getNumber()));
@@ -2712,6 +2716,11 @@ extern "C" GroupItem *opDiv(GroupItem *argument, GroupItem *target)
 extern "C" GroupItem *opDivEQ(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*result = 0;
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		 jitEmitBinary(argument, target, jitSDiv);
+		return jitEmitAssign(target, target); 
+		}
 	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
 		{
 		if ( isCOUNT(target->groupBody->flags.data) )
