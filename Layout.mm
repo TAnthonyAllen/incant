@@ -3,9 +3,7 @@
 #import <stdio.h>
 #import <stdlib.h>
 #import "OCroutines.h"
-#import "StringRoutines.h"
 #import "GroupItem.h"
-#import "GroupBody.h"
 #import "Layout.h"
 
 @implementation Layout
@@ -31,62 +29,17 @@ double 	baseY = [self frame].size.height - point.y;
 
 - (void)keyUp:(NSEvent*)event
 {
-NSPoint 	point = [[self window] mouseLocationOutsideOfEventStream];
-int 		code = [event keyCode];
-int 		length = 0;
-GroupItem 	*group = 0;
-	group = base->blockContaining(point);
-	if ( group )
-		{
-		switch (code)
-			{
-			case 116:
-				// page up
-				::printf("Page up\n");
-			case 126:
-				// arrow up
-				length = 1;
-				break;
-			case 123:
-				// arrow left
-				code = 0;
-				length = 1;
-				break;
-			case 121:
-				// page down
-				::printf("Page down\n");
-			case 125:
-				// arrow down
-				length = -1;
-				break;
-			case 124:
-				// arrow right
-				code = 0;
-				length = -1;
-				break;
-			default:
-				return;
-			}
-		//scrollBlock(group,length,code);
-		}
-	else	::fprintf(stderr,"Layout keyUp: could not find containing block at%s\n",::toStringFromChar(point));
+	::printf("Layout keyUp\n");
 }
 
 - (void)mouseUp:(NSEvent*)event
 {
-NSPoint 	point = [self convertPoint:[event locationInWindow] fromView:nil];
-GroupItem 	*block = base->blockContaining(point);
-	if ( block )
-		::printf("mouseUp: interpret block??\n");
-	else	::printf("mouseUp: %s: Don't know who contains point %g %g\n",base->groupBody->tag,point.x,point.y);
+	::printf("Layout mouseUp\n");
 }
 
 - (void)rightMouseUp:(NSEvent*)event
 {
-NSPoint 	point = [self convertPoint:[event locationInWindow] fromView:nil];
-GroupItem 	*block = base->blockContaining(point);
-	if ( block )
-		::printf("right mouseUp: interpret block??\n");
+	::printf("Layout rightMouseUp\n");
 }
 
 - (void)scrollWheel:(NSEvent*)event
@@ -132,6 +85,3 @@ int 	length = 0;
 	::exit(0);
 }
 @end
-/*	Warning: the following methods were referenced but not declared
-	blockContaining(NSPoint)
-*/

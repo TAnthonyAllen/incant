@@ -84,45 +84,7 @@ double  baseY = frame.height - point.y;
 *******************************************************************************/
 void keyUp(Event event)
 {
-Point		point = cursorPoint;
-int			code = keyCode();
-int         length;
-GroupItem   group;
-    group = base.blockContaining(point);
-    if group
-        {
-        switch(code)
-            {
-            case 116:
-                // page up
-                cout "Page up":;
-            case 126:
-                // arrow up
-                length  = 1;
-                break;
-            case 123:
-                // arrow left
-                code    = 0;
-                length  = 1;
-                break;
-            case 121:
-                // page down
-                cout "Page down":;
-            case 125:
-                // arrow down
-                length  = -1;
-                break;
-            case 124:
-                // arrow right
-                code    = 0;
-                length  = -1;
-                break;
-            default:
-                return;
-            }
-        //scrollBlock(group,length,code);
-        }
-    else cerr "Layout keyUp: could not find containing block at" toString(point):;
+    cout "Layout keyUp":;
 }
 
 /*******************************************************************************
@@ -130,10 +92,7 @@ GroupItem   group;
 *******************************************************************************/
 void mouseUp(Event event)
 {
-Point		point = convertPoint(mouseAt(),nil);
-GroupItem   block = base.blockContaining(point);
-    if block    cout "mouseUp: interpret block??":;
-	else cout "mouseUp:",base.tag ": Don't know who contains point",x,y :;
+    cout "Layout mouseUp":;
 }
 
 /*******************************************************************************
@@ -141,9 +100,7 @@ GroupItem   block = base.blockContaining(point);
 *******************************************************************************/
 void rightMouseUp(Event event)
 {
-Point		point = convertPoint(mouseAt(),nil);
-GroupItem   block = base.blockContaining(point);
-    if block    cout "right mouseUp: interpret block??":;
+    cout "Layout rightMouseUp":;
 }
 
 /*******************************************************************************

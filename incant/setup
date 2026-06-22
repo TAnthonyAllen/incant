@@ -56,6 +56,7 @@ define
     reset immediateAction=resetField;
     runByteFn immediateAction=runByteFn;
     interpretBC immediateAction=interpretBC;
+    openWindow immediateAction=openWindow;
     setFile immediateAction=setFile;
     setMark immediateAction;
     setPointer immediateAction=opPointer noPrint;

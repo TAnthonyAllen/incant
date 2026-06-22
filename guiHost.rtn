@@ -1,0 +1,37 @@
+/***************************************************************************
+    GUI host — the minimal Apple shim. Keep Apple in its lane: open a window
+    and pump the event loop, nothing more. incant does layout/font/color above
+    this; Layout paints into the window below it.
+
+    openWindow (first-victory version): NSApplication + a bare titled NSWindow
+    + run loop. Closing the window terminates the app. Next brick: set the
+    window's contentView to a Layout (now linked into the build).
+***************************************************************************/
+extern GroupItem openWindow(GroupItem input)
+{
+    GC_set_no_dls(1);
+    -%
+    @autoreleasepool {
+        NSApplication *app = [NSApplication sharedApplication];
+        [app setActivationPolicy:NSApplicationActivationPolicyRegular];
+        NSRect content = NSMakeRect(0, 0, 480, 360);
+        NSWindow *win = [[NSWindow alloc]
+            initWithContentRect:content
+            styleMask:(NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable)
+            backing:NSBackingStoreBuffered
+            defer:NO];
+        [win setReleasedWhenClosed:NO];
+        [win setTitle:@"incant"];
+        [win center];
+        [win makeKeyAndOrderFront:nil];
+        [app activateIgnoringOtherApps:YES];
+        [[NSNotificationCenter defaultCenter]
+            addObserverForName:NSWindowWillCloseNotification
+            object:win queue:nil
+            usingBlock:^(NSNotification *note){ [NSApp terminate:nil]; }];
+        printf("incant window: created, entering run loop\n");
+        [app run];
+    }
+    %-
+    return input;
+}
