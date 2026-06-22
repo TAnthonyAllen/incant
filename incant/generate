@@ -282,6 +282,21 @@ define
     jitAssign code={ maximus = 8; };    // store 8 -> maximus; returns 8
     jitPlusEQ code={ maximus += 5; };   // maximus + 5 -> store-back; returns sum
     jitMultEQ code={ maximus *= 3; };   // maximus * 3 -> store-back; returns product
+    jitMinusEQ code={ maximus -= 5; };  // maximus - 5 -> store-back; returns difference
+    // += type-path POPs (opPlusEQ jitting switch on target.data). isCOUNT is jitPlusEQ
+    // above. isNUMBER: floaty(2.5) += 1.5 -> jitEmitBinary picks FAdd from the double
+    // operands -> jitEmitAssign store-back to &gNumber -> floaty=4.0. isSTRING: name
+    // ("world") += "!" -> jitEmitStringPlusEQ -> single CreateCall to concatEQ ->
+    // name="world!" (first call in the JIT layer). Both verified by readback in jitscratch.
+    jitPlusEQF code={ floaty += 1.5; };  // 2.5 + 1.5 -> store-back; floaty -> 4.0
+    jitStrEQ   code={ name += "!"; };     // "world" + "!" -> setText through; name -> "world!"
+    // Unary POPs: opPlusPlus/opMinusMinus jitting gate -> jitEmitUnary -> in-place
+    // CreateAdd/CreateSub of 1 with store-back to the operand's slot. righty=13 init;
+    // driver resets righty=13 before each. jitInc -> 14, jitDec -> 12 (readback proves
+    // the write-through). Unary flows through aCTionTokenXP's uxp wrap, fired eagerly
+    // by aCTionExpressioN's jitting branch (the uxp case).
+    jitInc code={ ++righty; };           // righty 13 -> 14 (prefix: unary ops precede operand)
+    jitDec code={ --righty; };           // righty 13 -> 12
     // POP target: testPrint -> "hello world" via the bytecode print path.
     testPrint code={ print "hello" name:; };
     // testEmitBC retired 2026-06-04 (Brief 5 Fix 3): it called emitBC(bcMul),

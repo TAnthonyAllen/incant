@@ -86,12 +86,12 @@ GroupItem   field = rule;
         cerr "checkInput: no input source":;
         goto checkFailed; }
     if *atRuleMark
-        if !noSkip && skipSet.contains(*atRuleMark)         atRuleMark = checkSkip(atRuleMark);
+        if !noSkip && skipSet.contains(*atRuleMark) atRuleMark = checkSkip(atRuleMark);
     /***************************************************************************
         Check for end of input
     ***************************************************************************/
     if *atRuleMark
-        if !noSkip && skipSet.contains(*atRuleMark)     atRuleMark = checkSkip(atRuleMark);
+        if !noSkip && skipSet.contains(*atRuleMark) atRuleMark = checkSkip(atRuleMark);
     if !*atRuleMark     goto checkFailed;
     /***************************************************************************
         Check the rule guard if there is one
@@ -114,12 +114,12 @@ GroupItem   field = rule;
         else {
             if isTarget
                 if parentStuff  label = parentStuff.label;
-                else            cerr "getStuff:",tag,"is target but no parent label provided":;
+                else            cerr "checkInput:",tag,"is target but no parent label provided":;
             or !label || !label.fLAG {
                 label           = new(tag);
                 label.isLabel   = true; }
             else label.fLAG     = false;
-            if !label.rStuff    label.rStuff = this; }
+            if !label.rStuff    label.setRStuff(this); }
 checkFailed:
     return sukcess;
 }

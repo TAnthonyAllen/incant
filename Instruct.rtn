@@ -35,7 +35,8 @@ extern GroupItem opAssign(GroupItem argument,GroupItem target)
     if argument
         if argument.byRef   group = argument;
         else                target.setContent(argument);
-    return target;
+    else    target.clearData();
+    return  target;
 }
 
 /***************************************************************************
@@ -53,22 +54,43 @@ extern GroupItem opCopyList(GroupItem argument,GroupItem target)
 ***************************************************************************/
 extern GroupItem opDebug(GroupItem result)
 {
-GroupItem grup;
-GroupItem action = currentMETHOD;
-    if action   grup = action[result.tag];
+GroupRules  ruler = groupRules;
+String      junk;
     //print result.tag:;
-    return result;
+    junk    = atRuleMark;
+    return  result;
 }
 
 /***************************************************************************
-	Rule action for the % integer div operator
+	Rule action for the / divide operator
 ***************************************************************************/
-extern GroupItem opRem(GroupItem argument,GroupItem target)
+extern GroupItem opDiv(GroupItem argument,GroupItem target)
 {
-    if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER)
-        tempField.count = count % argument.count;
-    if !tempField.data  cerr "ERROR integer div operator failed on",tag,"and",argument.tag:;
+    if argument.isCOUNT || argument.isNUMBER
+        if isCOUNT  tempField.count = (int)lround(number / argument.number);
+        or isNUMBER tempField.number = number / argument.number;
+    if !tempField.data {
+        cerr "ERROR Operator / not supported for",tag,"and",argument.tag:;
+        return null; }
     return tempField;
+}
+
+/***************************************************************************
+	Rule action for the /= slash equal operator
+***************************************************************************/
+extern GroupItem opDivEQ(GroupItem argument,GroupItem target)
+{
+GroupItem   result;
+use target
+    if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER) {
+        if isCOUNT  count   = (int)lround(number / argument.number);
+        or isNUMBER number  = number / argument.number;
+        result = target;
+        if !result  cerr "ERROR Operator /= failed on",tag,"and",argument.tag:; }
+    or argument.isLIST
+        while result = argument.prior(result)
+            opDivEQ(result,target);
+    return result;
 }
 
 /***************************************************************************
@@ -90,7 +112,6 @@ use argument
     if argument {
         if registry != groupFields  product = target[text];
         else {
-            while target && target.isGROUP && target.group    target = target.group;
             if !target  return 0;
             product = new(tag);
             switch(gCount) {
@@ -106,11 +127,13 @@ use argument
                 case 9:     if target.isLocal       product.count = 1;
                 case 10:    if target.isArgument    product.count = 1;
                 case 11:    if target.invoke        product.count = 1;
+                case 12:    if target.fLAG          product.count = 1;
                 case 17:    if target.isLiteral     product.count = 1;
                 case 19:    if target.isMethod      product.count = 1;
                 case 20:    if target.isOperator    product.count = 1;
                 case 24:    if target.isShortcut    product.count = 1;
-                case 28:    if target.noPrint       product.count = 1;
+                case 28:    if target.rStuff && target.noLabel  product.count = 1;
+                case 29:    if target.noPrint       product.count = 1;
                 case 401:   if !target.nextInParent    product = null; else product = target.nextInParent;
                 case 402:   if !target.priorInParent   product = null; else product = target.priorInParent;
                 case 403:   if !target.firstInList     product = null; else product = target.firstInList;
@@ -229,6 +252,7 @@ GroupItem   result;
            (side effect); we return argument so caller has the matched
            string for length-of-match computations (argument.count). */
         if argument.buffer.findInBuffer(target.text)    result = target; }
+    or target.groupList                     result = argument[target.tag];
     return result ;
 }
 
@@ -299,6 +323,10 @@ extern GroupItem opMinus(GroupItem argument,GroupItem target)
 extern GroupItem opMinusEQ(GroupItem argument,GroupItem target)
 {
 GroupItem   result;
+    if jitting {
+        -% jitEmitBinary(argument, target, jitSub);
+           return jitEmitAssign(target, target); %-
+    }
 use target
     if binType  result = remove(argument.tag);
     or data && argument.data {
@@ -439,9 +467,12 @@ extern GroupItem opPlusEQ(GroupItem argument,GroupItem target)
 {
 GroupItem   grup;
     if jitting {
-        -% jitEmitBinary(argument, target, jitAdd);
-           return jitEmitAssign(target, target); %-
-    }
+        if target.isSTRING || target.isTOKEN
+            return jitEmitStringPlusEQ(argument,target);
+        if target.isCOUNT || target.isNUMBER {
+            -% jitEmitBinary(argument, target, jitAdd);
+               return jitEmitAssign(target, target); %-
+            } }
 use target
     if argument.isLIST
         while grup = argument.prior(grup)
@@ -460,6 +491,7 @@ use target
                 case isSTAK:    gStak.push(argument);
                 default:        cerr "ERROR Operator += failed on",tag,"and",argument.tag:; }
         else    target.copyData(argument);
+    else   target += argument;
     return target;
 }
 
@@ -550,6 +582,17 @@ GroupItem   grup;
 }
 
 /***************************************************************************
+	Rule action for the % integer div operator
+***************************************************************************/
+extern GroupItem opRem(GroupItem argument,GroupItem target)
+{
+    if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER)
+        tempField.count = count % argument.count;
+    if !tempField.data  cerr "ERROR integer div operator failed on",tag,"and",argument.tag:;
+    return tempField;
+}
+
+/***************************************************************************
 	Rule action for the := set group operator. Stamps byRef on the argument so
 	setGroup stores it BY REFERENCE (no copy). byRef is left SET (sticky) on
 	purpose: a later `=` of the same field then also references, because opAssign
@@ -563,35 +606,12 @@ extern GroupItem opSetGroup(GroupItem argument,GroupItem target)
 }
 
 /***************************************************************************
-	Rule action for the / divide operator
+	Rule action for the <: set tag operator.
 ***************************************************************************/
-extern GroupItem opDiv(GroupItem argument,GroupItem target)
+extern GroupItem opSetTag(GroupItem argument,GroupItem target)
 {
-    if argument.isCOUNT || argument.isNUMBER
-        if isCOUNT  tempField.count = (int)lround(number / argument.number);
-        or isNUMBER tempField.number = number / argument.number;
-    if !tempField.data {
-        cerr "ERROR Operator / not supported for",tag,"and",argument.tag:;
-        return null; }
-    return tempField;
-}
-
-/***************************************************************************
-	Rule action for the /= slash equal operator
-***************************************************************************/
-extern GroupItem opDivEQ(GroupItem argument,GroupItem target)
-{
-GroupItem   result;
-use target
-    if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER) {
-        if isCOUNT  count   = (int)lround(number / argument.number);
-        or isNUMBER number  = number / argument.number;
-        result = target;
-        if !result  cerr "ERROR Operator /= failed on",tag,"and",argument.tag:; }
-    or argument.isLIST
-        while result = argument.prior(result)
-            opDivEQ(result,target);
-    return result;
+    if argument target.tag = argument.text;
+    return      target;
 }
 
 /***************************************************************************

@@ -1,3 +1,30 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+initFORMs();
+search Generating bcOPs list;
+
+register(KeyStrokes);
+define
+    controlA keyStroke=c-A jit code={ cout "Saw control A":; };
+    controlB keyStroke=c-B jit code={ cout "Saw control B":; };
+    ;
+register(FORMs);
+define
+    jitInclude="include /Users/anthony/Dropbox/data/InProcess/Include/UIjit.ext
+external GroupItem { overload initializer getGroup; }";
+    keyStroking window closable resize x=400 y=400 width=360 height=400 fill=saberBrown title="Key Stroke Test"
+        first height=70 pad=10 fill=white rounded
+            space;
+            heading="Keystroke Test" height=47.0 text align=center font=title border=off;
+        saber image="/Users/anthony/Pictures/Wallpaper/Saber.jpg" rounded=20.0 tip="Saber from Fate Stay Night";
+        body="This block handles key events" label font=normal pad=15 fill=paleGray rounded controlA controlB;
+    ;
+
+printDefinition(keyStroking);
+stop();
+
 How to have multiple keyboard driven methods associated with a block.
 
 In this example, the block is body and the methods are defined in controlA and controlB in the KeyStrokes registry. For it to work, you need noMerging set for the KeyStrokes registry.
@@ -19,16 +46,3 @@ The text of a keyStroke attribute gets parsed to define the match. The text has 
 	any key, which can be defined as a slash and a number (/019, for example. This is the
 		key stroke number not the letter number) or a letter such as Z or z. Note Z implies
 		a shift modifier so you do not need to specify the s modifier
-		
-#registry KeyStrokes noMerging search;
-<controlA keyStroke=c-A jit>cout "Saw control A":;</controlA>
-<controlB keyStroke=c-B jit>cout "Saw control B":;</controlB>
-#registry GUI;
-<jitInclude>include /Users/anthony/Dropbox/data/InProcess/Include/UIjit.ext
-external GroupItem { overload initializer getGroup; }</jitInclude>
-<keyStroking window closable resize x=400 y=400 width=360 height=400 fill=saberBrown title="Key Stroke Test">
-    <first height=70 pad=10 fill=white rounded>
-        <space/>
-        <heading="Keystroke Test" height=47.0 text align=center font=title border=off/></first>
-    <saber image="/Users/anthony/Pictures/Wallpaper/Saber.jpg" rounded=20.0 tip="Saber from Fate Stay Night"/>
-    <body="This block handles key events" label font=normal pad=15 fill=paleGray rounded controlA controlB;>

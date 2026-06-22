@@ -162,10 +162,11 @@ GroupItem::GroupItem(GroupItem *grup)
 	options.isCopy = 1;
 	if ( grup->rStuff )
 		{
-		rStuff = new RuleStuff(this);
+		RuleStuff 	*fresh = new RuleStuff(this);
+		setRStuff(fresh);
 		*rStuff = *grup->rStuff;
-		rStuff->rule = this;
-		rStuff->followed = rStuff->isOK = rStuff->sukcess = 0;
+		fresh->rule = this;
+		fresh->followed = fresh->isOK = fresh->sukcess = 0;
 		}
 }
 
@@ -676,6 +677,8 @@ int 		noMoreAttributes = 0;
 	setRuleStuff();
 	if ( groupBody->flags.guarding )
 		goto returnGuard;
+	if ( !isAttribute(options.affiliation) && !contents() )
+		goto returnGuard;
 	if ( groupBody->flags.isCondition )
 		{
 		groupBody->flags.guarding = 2;
@@ -743,6 +746,8 @@ int 		noMoreAttributes = 0;
 		if ( groupBody->flags.hasAttributes )
 			while ( item = nextAttribute(item) )
 				{
+				if ( noMoreAttributes )
+					break;
 				if ( item->groupBody->flags.noPrint )
 					continue;
 				itemGuard = item->getGuard();
@@ -759,14 +764,15 @@ int 		noMoreAttributes = 0;
 					groupBody->flags.guarding = 2;
 				if ( itemGuard )
 					groupBody->guardSet->set(itemGuard);
-				if ( unGuarded(groupBody->flags.guarding) || noMoreAttributes )
+				if ( unGuarded(groupBody->flags.guarding) )
 					break;
 				}
 		item = 0;
 		if ( groupBody->flags.hasMembers )
 			while ( item = nextMember(item) )
-				if ( itemGuard = item->getGuard() )
-					groupBody->guardSet->set(itemGuard);
+				if ( item->contents() )
+					if ( itemGuard = item->getGuard() )
+						groupBody->guardSet->set(itemGuard);
 		}
 	/***************************************************************************
 	Rule guard set built. Assess result and see if we need to keep it.
@@ -853,6 +859,22 @@ void *GroupItem::getPointer()
 	return 0;
 }
 
+/*******************************************************************************
+    getRStuff is the ensure-and-fetch reader. Warns if it had to create one so
+    we can ID a node that reached this path with no rStuff. Existence-check
+    reads (if !rStuff) stay raw elsewhere to avoid warn-spam.
+*******************************************************************************/
+RuleStuff *GroupItem::getRStuff()
+{
+	if ( !rStuff )
+		{
+		RuleStuff 	*fresh = new RuleStuff(this);
+		::fprintf(stderr,"getRStuff: %s no rStuff - creating\n",groupBody->tag);
+		setRStuff(fresh);
+		}
+	return rStuff;
+}
+
 PLGrgx *GroupItem::getRegex()
 {
 	if ( isREGEX(groupBody->flags.data) )
@@ -872,15 +894,12 @@ Stak *GroupItem::getStak()
 *******************************************************************************/
 RuleStuff *GroupItem::getStuff(RuleStuff *pStuff)
 {
-RuleStuff 	*stuff = 0;
-	if ( !rStuff )
-		rStuff = new RuleStuff(this);
-	if ( rStuff->rule != this || rStuff->inProcess )
+RuleStuff 	*stuff = getRStuff();
+	if ( stuff->rule != this || stuff->inProcess )
 		{
 		stuff = new RuleStuff(rStuff);
 		stuff->rule = this;
 		}
-	else	stuff = rStuff;
 	stuff->parentStuff = pStuff;
 	if ( !stuff->followed )
 		stuff->getWhatFollows();
@@ -1669,6 +1688,16 @@ void GroupItem::setPointer(void *v)
 		updateListeners();
 }
 
+/*******************************************************************************
+    setRStuff is the single writer of the rStuff field. Route every rStuff
+    assignment through here so the field has one observable chokepoint (set a
+    breakpoint/log here to trace where rStuff took a wrong turn). For now plain.
+*******************************************************************************/
+void GroupItem::setRStuff(RuleStuff *stuff)
+{
+	rStuff = stuff;
+}
+
 void GroupItem::setRegex(PLGrgx *v)
 {
 	groupBody->gRegex = v;
@@ -1693,11 +1722,15 @@ void GroupItem::setRuleStuff()
 			if ( !groupBody->registry || groupBody->registry == GroupControl::groupController->groupRules->keyWords )
 				groupBody->flags.isRule = 1;
 	if ( !rStuff )
-		rStuff = new RuleStuff(this);
+		{
+		RuleStuff 	*fresh = new RuleStuff(this);
+		setRStuff(fresh);
+		}
 	if ( rStuff->rule != this )
 		{
-		rStuff = new RuleStuff(rStuff);
-		rStuff->rule = this;
+		RuleStuff 	*clone = new RuleStuff(rStuff);
+		setRStuff(clone);
+		clone->rule = this;
 		}
 }
 
@@ -1895,3 +1928,6 @@ GroupItem 	*group = 0;
 		}
 	return result;
 }
+/*	Warning: the following methods were referenced but not declared
+	setRStuff(RuleStuff*)
+*/

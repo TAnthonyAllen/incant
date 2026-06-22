@@ -42,7 +42,8 @@ GroupItem(GroupItem grup)
     groupBody   = grup.groupBody;
     isCopy      = true;
     if grup.rStuff {
-        rStuff = new(this);
+        RuleStuff   fresh = new(this);
+        setRStuff(fresh);
         *rStuff = *grup.rStuff;
         rule    = this;
         followed = isOK = sukcess = false; }
@@ -478,6 +479,7 @@ String      junk;
 int         noMoreAttributes;
     setRuleStuff();
     if guarding     goto returnGuard;
+    if !isAttribute && !contents()  goto returnGuard;
     if isCondition {
         unGuarded = true;
         goto endSetGuard; }
@@ -526,7 +528,8 @@ use guardSet
     else {
         if hasAttributes
             while item = nextAttribute(item) {
-                if item.noPrint continue;
+                if noMoreAttributes     break;
+                if item.noPrint         continue;
                 itemGuard       = item.getGuard();
                 if item.isAttribute
                     if noMoreAttributes             continue;
@@ -534,11 +537,12 @@ use guardSet
                     or item.guarded && item.min     noMoreAttributes = true;
                 if item.unGuarded   unGuarded = true;
                 if itemGuard        guardSet += itemGuard;
-                if unGuarded || noMoreAttributes    break; }
+                if unGuarded    break; }
         item = 0;
         if hasMembers
             while item = nextMember(item)
-                if itemGuard = item.getGuard()  guardSet += itemGuard; }
+                if item.contents()
+                    if itemGuard = item.getGuard()  guardSet += itemGuard; }
     /***************************************************************************
         Rule guard set built. Assess result and see if we need to keep it.
     ***************************************************************************/
@@ -591,6 +595,20 @@ PLGrgx getRegex()
 	return 0;
 }
 
+/*******************************************************************************
+    getRStuff is the ensure-and-fetch reader. Warns if it had to create one so
+    we can ID a node that reached this path with no rStuff. Existence-check
+    reads (if !rStuff) stay raw elsewhere to avoid warn-spam.
+*******************************************************************************/
+RuleStuff getRStuff()
+{
+    if !rStuff {
+        RuleStuff   fresh = new(this);
+        cerr "getRStuff:",tag,"no rStuff - creating":;
+        setRStuff(fresh); }
+    return rStuff;
+}
+
 Stak getStak()
 {
 	if isSTAK return stak;
@@ -602,12 +620,10 @@ Stak getStak()
 *******************************************************************************/
 RuleStuff getStuff(RuleStuff pStuff)
 {
-RuleStuff   stuff;
-    if !rStuff  rStuff = new(this);
-    if rStuff.rule != this || rStuff.inProcess {
-        stuff   = new(rStuff);
-        rule    = this; }
-    else stuff  = rStuff;
+RuleStuff   stuff = getRStuff();
+    if stuff.rule != this || stuff.inProcess {
+        stuff       = new(rStuff);
+        stuff.rule  = this; }
     parentStuff = pStuff;
     if !followed    getWhatFollows();
     return stuff;
@@ -1272,6 +1288,16 @@ void setRegex(PLGrgx v)
     if hasListeners updateListeners();
 }
 
+/*******************************************************************************
+    setRStuff is the single writer of the rStuff field. Route every rStuff
+    assignment through here so the field has one observable chokepoint (set a
+    breakpoint/log here to trace where rStuff took a wrong turn). For now plain.
+*******************************************************************************/
+void setRStuff(RuleStuff stuff)
+{
+    rStuff = stuff;
+}
+
 void setStak(Stak s)
 {
     if s {
@@ -1303,9 +1329,12 @@ void setRuleStuff()
         if registry && registry.isRule              isRule = true;
         or parent && parent.isRule
             if !registry || registry == keyWords    isRule = true;
-    if !rStuff  rStuff = new(this);
+    if !rStuff {
+        RuleStuff   fresh = new(this);
+        setRStuff(fresh); }
     if rule != this {
-        rStuff  = new(rStuff);
+        RuleStuff   clone = new(rStuff);
+        setRStuff(clone);
         rule    = this; }
 }
 

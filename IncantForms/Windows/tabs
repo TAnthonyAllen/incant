@@ -41,13 +41,11 @@ define
         else print "generateCode failed":;
         };
     testFer code={ for grup in sumple; attributes  print `taG:; };
-    testWithAssign x code={
-        x = "hi";
-        print x:; };
     ;
 
-printDefinition(tabFORM);
+listRules(JSONblock);
 stop();
+printDefinition(tabFORM);
 testFer();
 testGenAction(testFer);
 generateAction(testFer);

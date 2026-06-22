@@ -82,6 +82,7 @@ define
     maximus=11;
     righty=13;
     counter=0;
+    floaty=2.5;
     name="world";
     styleTest merge lightGreen rounded;
     sumple="What if it is a long string." height=200 width=250 x=100 y=100 down=*

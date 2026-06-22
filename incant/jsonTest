@@ -3,6 +3,38 @@ include(unitTests);
 include(utilities);
 search reset stack Grokking UnitTests Utilities list;
 
-field = JSONlist('{"name": "main", @#This$% is not right}');
-dumpField(field);
+/*****************************************************************************
+	JSON grammar test fixture. testJSON runs a JSON string through JSONblock
+	and reports ok (field returned) or FAIL (null).
+*****************************************************************************/
+define
+    testJSON argument code={
+        clear(listed);
+        field = JSONblock(argument);
+        if field    print "  ok  :" argument:;
+        else        print "  FAIL:" argument:;
+        };
+    ;
+
+testJSON('{"a":[]}');
+testJSON('{"a":["x","y"]}');
+stop();
+
+print "=== baseline (must stay green) ===":;
+testJSON('{"a":"b"}');
+testJSON('{"a":"url://example.com/path#fragment"}');
+testJSON('{"a":"1.0","b":"hello"}');
+
+print "=== Bug B - arrays (currently fail) ===":;
+testJSON('{"a":[]}');
+testJSON('{"a":["x","y"]}');
+testJSON('{"a":[1,2,3]}');
+
+print "=== Bug A - nested objects (currently segfault) ===":;
+testJSON('{"a":{}}');
+testJSON('{"a":{"b":"c"}}');
+testJSON('{"a":{"b":"c","d":"e"}}');
+
+print "=== combined - real Google Fonts shape ===":;
+testJSON('{"family":"EB Garamond","variants":["regular","700"],"files":{"regular":"https://fonts.gstatic.com/foo.ttf","700":"https://fonts.gstatic.com/bar.ttf"}}');
 stop();

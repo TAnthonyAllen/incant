@@ -1,4 +1,5 @@
-/*****************************************************************************
-    Notions
-*****************************************************************************/
-As with modedOP would like a way to change the method associated with an op (but only if the op is modifiable?).
+/*******************************************************************************
+	Offline Status Report
+*******************************************************************************/
+Found the JSON issue that was messing up the build. It was a pushInput popInput problem caused by tok implied field referencing convenience. I added a: use sourceFILE line in popInput and problem solved. Easy to fix, not so easy to diagnose because the code looks good unless you compare the generated C++ to the tok that generates it. I tend to do that automatically based on my tok experience, but that is the reason I want to replace tok implied field referencing with the simpler approach we use in incant.
+Anyway, we can now build,POP, commit and get on with our work. Cleaned out all directives so tok and mm files should be in sync.

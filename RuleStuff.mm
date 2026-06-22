@@ -511,7 +511,7 @@ GroupItem 	*field = rule;
 			if ( isTarget )
 				if ( parentStuff )
 					label = parentStuff->label;
-				else	::fprintf(stderr,"getStuff: %s is target but no parent label provided\n",field->groupBody->tag);
+				else	::fprintf(stderr,"checkInput: %s is target but no parent label provided\n",field->groupBody->tag);
 			else
 			if ( !label || !label->groupBody->flags.fLAG )
 				{
@@ -520,7 +520,7 @@ GroupItem 	*field = rule;
 				}
 			else	label->groupBody->flags.fLAG = 0;
 			if ( !label->rStuff )
-				label->rStuff = this;
+				label->setRStuff(this);
 			}
 checkFailed:
 	return sukcess;
@@ -619,3 +619,6 @@ void RuleStuff::setTestMatch()
 			testMatch = ::testAction;
 		else	testMatch = ::testString;
 }
+/*	Warning: the following methods were referenced but not declared
+	setRStuff(RuleStuff*)
+*/

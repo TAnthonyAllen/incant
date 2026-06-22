@@ -169,7 +169,7 @@ A wrapper carries both: the inspectable GroupItem (with its attribute list as fr
 
 ---
 
-## Status (2026-06-19) — Phase 1 arithmetic + compare + assign
+## Status (2026-06-20) — Phase 1 straight-line: arithmetic + compare + assign + unary (division parked)
 
 **Design chosen: Plan A — the jitting gate lives *inside* the opMethod.** `opPlus`
 grows an `if jitting { … }` emit branch above its interpret body; `aCTionExpressioN`'s
@@ -208,6 +208,38 @@ sibling discussion only for the parallel-lowerings framing.)
 | `jitAssign` | `maximus = 8` | 8 | `maximus` → 8 |
 | `jitPlusEQ` | `maximus += 5` (from 10) | 15 | `maximus` → 15 |
 | `jitMultEQ` | `maximus *= 3` (from 4) | 12 | `maximus` → 12 |
+| `jitMinusEQ` | `maximus -= 5` (from 30) | 25 | `maximus` → 25 |
+
+*Unary — `jitEmitUnary` (`enum jitUnary`), in-place CreateAdd/Sub 1 with store-back (2026-06-20):*
+| POP | expression | result | readback |
+|---|---|---|---|
+| `jitInc` | `++righty` (from 13) | 14 | `righty` → 14 |
+| `jitDec` | `--righty` (from 13) | 12 | `righty` → 12 |
+
+Unary dispatches via `aCTionExpressioN`'s jitting branch detecting the `uxp` node
+(`aCTionTokenXP.handleUnary` builds it), seeding the operand, and firing `arg.method(arg)`
+→ `runOP` → the opMethod's own gate. **incant unary is PREFIX-only** (`++righty`); postfix
+doesn't parse as a unary op. Compound `-=` is the `+=`/`*=` pattern with `jitSub`.
+
+*String `+=` — `jitEmitStringPlusEQ`, the **FIRST `CreateCall` in the JIT layer** (2026-06-21):*
+| POP | expression | result | readback |
+|---|---|---|---|
+| `jitPlusEQF` | `floaty += 1.5` (from 2.5) | 4 | `floaty` → 4 (isNUMBER path, `FAdd`) |
+| `jitStrEQ` | `name += "!"` (from "world") | 0 (const cap) | `name` → `world!` |
+
+**`opPlusEQ` now switches on `target.data`:** `isCOUNT`/`isNUMBER` → `jitEmitBinary(jitAdd)` +
+`jitEmitAssign` (count vs number FAdd picked inside `jitEmitBinary` from operand type, so the
+two arms coincide); `isSTRING`/`isTOKEN` → `jitEmitStringPlusEQ`; anything else falls through
+to the interpreter. `jitEmitStringPlusEQ` bakes target's and argument's stable GroupItem
+addresses as constant ptrs and emits **one `CreateCall`** to `concatEQ` (callee baked by
+address) — `GroupItem(GroupItem,GroupItem)`. `concatEQ` does the member work as ordinary C++
+(`target->setText(::concat(2, target->getText(), argument->getText()))` — the interpreter's
+isSTRING `+=` body), so **no variadic IR, no member-function-pointer IR**. The driver's `i32()`
+can't `ret` a pointer, so `gJitResult` caps on a constant 0 and the `+=` side effect (setText
+through to the real field) is verified by readback. The call is left **untagged (not `readnone`)**
+so LLVM can't DCE a callee it can't see into. **This is the proof-of-concept for `jitEmitCall`**
+(method calls on the list): same bake-address + single-CreateCall mechanics, with the callee
+sourced from `op.method` instead of hardcoded `concatEQ`.
 
 - **Gates self-host the emitter dispatch (Plan A):** each opMethod (`opPlus`, `opMinus`,
   `opMultiply`; `opGT`/`opLT`/`opGE`/`opLE`/`opEQ`/`opNotEQ`; `opAssign`,
@@ -233,5 +265,26 @@ sibling discussion only for the parallel-lowerings framing.)
 - **Chained-operand gate guard.** The gate assumes a non-literal operand is a real field,
   so `a + b + c` mis-routes the inner result to `jitSeedField`. Single-op POPs hide it.
   (Bear trap — CLAUDE.md.)
-- **Unary (`++`/`--` → `jitEmitUnary`).** The last straight-line op family before Phase 2
-  (control flow) and Phase 3 (string ops, runtime callbacks).
+- **Unary (`++`/`--` → `jitEmitUnary`). DONE 2026-06-20** — see the unary table above.
+- **String `+=` / first `CreateCall` (`jitEmitStringPlusEQ` → `concatEQ`). DONE 2026-06-21** —
+  see the string-`+=` table above. The call-emit mechanics are now proven.
+- **`jitEmitCall` — method calls on the list (the generalization of the above). PARKED for
+  Clay+Tony design before Clod touches `runOP`.** The gate point is `runOP`'s
+  `or op.isMethod` branch (one surgical line: `if jitting return jitEmitCall(op, target)`);
+  `runOP` is otherwise kept JIT-unaware. The open design item is the **one-arg `concatenate`
+  primitive** — a pure, read-only, parts-walking extern (aCTionPrinT-style, one field in / one
+  field out) that fits incant's calling convention and is the clean model for `jitEmitCall`
+  across all method calls, not just string `+=`. (The two-arg `concatEQ` above was the
+  pragmatic write-back form for compound-assign, which needs `target` by identity; the
+  general value-returning method calls don't, so one-arg is the durable shape. Container
+  packing hits `addGroup`/`setGroup` parent-copy — `GroupItem.twk:73`/`:1242` — for any node
+  with a parent, which is why the write-back case took two explicit pointers.)
+- **Division (`/` `/=`) — PARKED, semantics decision needed.** The last straight-line op.
+  Wiring is trivial (same gate pattern as `-=`), but interpret divides counts as
+  `(int)lround(number/argument.number)` — i.e. **rounds** (`7/2=4`) — while `jitEmitBinary`'s
+  `jitSDiv` path emits `CreateSDiv` which **truncates** (`7/2=3`). count÷count disagrees.
+  Faithful fix (recommended): count path does `SIToFP`→`FDiv`→`llvm.round`→`FPToSI` (~6 lines
+  in `jitEmitBinary`'s div case) to match `lround`. Alternative: accept C-style truncation.
+  `jitSDiv` exists in `enum jitOp` but is unused; `opDiv`/`opDivEQ` carry no gate yet.
+  Full tape in `wakeup.md`.
+- **Phase 2: control flow (IF/FOR).** The frontier after division — on Clay's design plate.

@@ -245,6 +245,55 @@ extern GroupItem jitEmitUnary(GroupItem target,int op)
     %-
 }
 
+/* concatEQ  the runtime helper the string-+= JIT call lands on. All the member
+   work (getText/setText) and the variadic concat happen here as ordinary C++ —
+   this IS the interpreter's isSTRING += body (cf. GroupRules.mm string-concat
+   site). Two real GroupItem pointers in, target (mutated in place) out. Its
+   address is stable and directly addressable, so jitEmitStringPlusEQ can bake it
+   as a constant callee — no variadic IR, no member-function-pointer IR. (One-arg
+   parts-walking `concatenate` is the general primitive to follow; the += write-
+   back needs target by identity, which two explicit pointers give for free.) */
+extern GroupItem concatEQ(GroupItem target,GroupItem argument)
+{
+    -%
+    target->setText(::concat(2, target->getText(), argument->getText()));
+    return target;
+    %-
+}
+
+/* jitEmitStringPlusEQ  the FIRST CreateCall in the JIT layer, and the proof-of-
+   concept for jitEmitCall. Bakes target's and argument's stable GroupItem
+   addresses as constant ptrs (jitSeedField pattern), then emits a single call to
+   concatEQ (callee baked by address) — GroupItem(GroupItem,GroupItem). The +=
+   side effect (setText through to target's real storage) is the payload; the
+   i32() driver can't ret a pointer, so cap gJitResult with a constant 0 and verify
+   by reading target's text back in interpreted incant (the jitAssign readback
+   pattern). The call is left untagged (NOT readnone) so LLVM can't DCE a callee it
+   can't see into. */
+extern GroupItem jitEmitStringPlusEQ(GroupItem argument,GroupItem target)
+{
+    -%
+    llvm::IRBuilder<> *b = gJitBuilder;
+    llvm::LLVMContext &ctx = b->getContext();
+    llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+    llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+    llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+
+    llvm::Value *targetAddr = b->CreateIntToPtr(
+        llvm::ConstantInt::get(i64, (uint64_t)target), ptr);
+    llvm::Value *argAddr = b->CreateIntToPtr(
+        llvm::ConstantInt::get(i64, (uint64_t)argument), ptr);
+
+    llvm::FunctionType *fnTy = llvm::FunctionType::get(ptr, {ptr, ptr}, false);
+    llvm::Value *callee = b->CreateIntToPtr(
+        llvm::ConstantInt::get(i64, (uint64_t)&concatEQ), ptr);
+    b->CreateCall(fnTy, callee, {targetAddr, argAddr});
+
+    gJitResult = llvm::ConstantInt::get(i32, 0);
+    return target;
+    %-
+}
+
 /* jitRunAction  the generic compile driver — the JIT analog of generateCode. Sets
    up an i32() function shell + builder, raises the `jitting` gate, walks the action
    body via processCode (which fires aCTionExpressioN's jitting branch per

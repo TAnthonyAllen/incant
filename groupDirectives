@@ -3,8 +3,8 @@
 	Global
     if NewGroup.tag eq "Start" debugRuleNamed("RunRulE");
     if NewGroup.tag eq "gXpress" debugAllRules = true;
-    if NewGroup.tag eq "setHexColor" item = 0;
-    cout "aCTionDefinE:",NewGroup.tag:;
+    if NewGroup.tag eq "testJSON" item = 0;
+    cout "aCTionDefinE:",NewGroup.tag,lastIndent:;
     if NewGroup.tag eq "Start" {
         debugRuleNamed("Start");
         debugRuleNamed("StatemenT");
@@ -21,8 +21,9 @@ aCTionDebuG subrule.debugged ctive
 aCTionDebuG embed.debugged ctive
     if embed.debugged print "Debugging",embed.tag:;
 #;
-aCTionDefinE "if Attributes" before ctive
+aCTionDefinE "if Attributes" before active
     cout "aCTionDefinE:",NewGroup.tag,lastIndent:;
+    if NewGroup.tag eq "testJSON" item = 0;
 #;
 aCTionElsE if ctive
     if blocking cout "unBlocked:", blocking:;
@@ -31,7 +32,7 @@ aCTionExpressioN while before ctive
     if entries.listLength == 1   result = 0;
 #;
 aCTionNamE result before ctive
-    if arg eq "Looper"   result = 0;
+    if arg eq "JSONlist"   result = 0;
 #;
 aCTionRunRulE if within ctive
     if tag eq "define" debugAllRules = true;
@@ -42,7 +43,7 @@ aCTionSearch cout ctive
 aCTionXpress result before ctive
     print "Instructions for",action.tag: list:;
 #;
-copyOf starting active
+copyOf starting ctive
     if grup.tag eq "bcPushField"    fLAG = true;
 #;
 generateCode generating ctive
@@ -56,7 +57,7 @@ guard GroupItem ctive
 guard clearData ctive
     debugGuards = false;
 #;
-loadInputFromFile if before active
+loadInputFromFile if before ctive
      cout ```"including",tag:;
 #;
 /*******************************************************************************
@@ -64,6 +65,11 @@ loadInputFromFile if before active
 *******************************************************************************/
 opDebug return before ctive
     debugAllRules = true;
+#;
+opDot product ctive
+    if target.isGROUP
+    cout "The following line was removed from opDot()":
+        `"while target && target.isGROUP && target.group    target = target.group;":;
 #;
 opPrinter if
     target.dumpContents();
@@ -84,18 +90,16 @@ opPrinter printText before
         debugRuleNamed("Attributes");
         debugRuleNamed("MemberS"); }
 *******************************************************************************/
-processAction tempField ctive
-    if tag eq "gFOR" dumpContents(action);
+processAction code ctive
+    if tag eq "JSONarray"   dumpContents(code);
 #;
 processCode processingCode ctive
-    if tag eq "replaceAt" {
-        debugRuleNamed("StatemenT");
-        }
+    debugRuleNamed("StatemenT");
 #;
 processCode result ctive
     if tag eq "gFOR" dumpContents(action);
 #;
-rEGISTER currentRegistry active
+rEGISTER currentRegistry ctive
     cout ````"Current registry:",currentRegistry.tag:;
     item = 0;
 #;
@@ -183,7 +187,9 @@ getGuard returnGuard before active
         junk = 0; }
 #;
 getStuff if before ctive
-    if tag eq "NumbeR" stuff = 0;
+    if tag eq "JSONarray" stuff = 0;
+    if tag eq "JSONlist" stuff = 0;
+    if tag eq "JSONitem" stuff = 0;
 #;
 listenTo ending
 	cout "Adding to listener: " group.tag,group.text; if group.parent cout " of " group.parent.tag;
@@ -198,7 +204,6 @@ parse "if !checkInput" before active
         if debugIndent < 0 debugIndent = 0;
         indent("  ");
         cout "Match",ruleName,"on text",getDebugText(atRuleMark,20):;
-        if tag eq "definitions"   debugGuards = true;
         debugIndent++; }
 #;
 parse matchSucceeded ctive
@@ -297,6 +302,6 @@ getLabel if before ctive
 getLabel endLabel ctive
     if tag eq "DefinE"  doNothing = 0;
 #;
-getWhatFollows followed ctive
-    if tag eq "NumbeR"   doNothing = 0;
+getWhatFollows followed active
+    if tag eq "JSONitem"   doNothing = 0;
 #;

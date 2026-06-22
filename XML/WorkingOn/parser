@@ -1,51 +1,9 @@
-/*******************************************************************************
-	Offline Status Report
-*******************************************************************************/
-Got a late start and then dived into incant directives with nice results, however, I did not expect to have to make so many changes (listed below) to incant twk files. Have not done POP using unit tests or generate actions to ensure the changes do not mess something up. I did hammer on the changes I made pretty hard and they held up well. Most of the changes were minor, some subtle. I suggest we do the full monty POP and then commit everything.
-The directive stuff I worked on is in the incant tabs file that I have been using for offline work and testing. I wrote two short incant actions. One to replace text (which is an improvement on tok directives that cannot); and one to insert before or after a buffer line that contains a match on some match text you provide in the directive. That too is better than tok directive that can only match the beginning of a line. OTOH, tok directives are idempotent; incant directives are not, unless you work on a copy of the file you are applying directives to. Have not come up with a way to fix that.
-One advantage of the incant directives, not only can you insert large blocks of text, you can replace large blocks with other large blocks; nice if you want to replace a set of actions with a revised set of actions or some such.
-Our idea of using comments to match on is not going to work unless we change checkSkip(), which swallows anything that looks like a comment even if it is wrapped in quotes.
-I would like to move my directive stuff out of the tabs file and into the directives file where it belongs, along with some documenting text to explain how it all works. Fairly simple to use with a few subtleties worth explaining.
-
-Here is a summary of the changes I made. I did not rip out the C++ directive related methods associated with our previous directive work, but I think we can. No worries.
-methods changed in GroupMain.twk
-	bootstrapper changed to fix setupFILE setting
-	Fixed a hysterical booboo in Name rule defined in GroupMain that fixed
-		testWithAssign x code={
-        		x = "hi";
-        		print x:; };
-		The problem was NamE was swallowing x code as if it were “x code” because of a missing noSkip modifier in the nameSet attribute. corrected rule is now
-	NamE                first-=[a-zA-Z] nameSet-^* tokenize;
-		the ^ modifier was missing before
-method changed in GroupRules.twk
-    int pushInput(GroupItem source) to set RuleMark to the buffer start not current
-method changed in groups.twk
-    main changed to call loadInputFromFile instead of getFile since getFile no longer calls pushInput()
-methods changed in Commands.rtn
-	extern GroupItem getFile(GroupItem filing) to remove atLINE setting and pushInput
-		getFile was adding atLINE into files that are not actions. Should not happen. atLINE should be set in processCode as a noPrint attribute of an action.
-    extern GroupItem loadInputFromFile(GroupItem source) to adjust for change in getFile w/no pushInput
-methods changed in Instruct.rtn
-	extern GroupItem opMinusEQ(GroupItem argument,GroupItem target)
-	extern GroupItem opPlusEQ(GroupItem argument,GroupItem target)
-    extern GroupItem opIN(GroupItem argument,GroupItem target) to switch Buffer case references to target and argument
-    extern GroupItem setMark(GroupItem argument) revised and now accessible as an incant command
-    added extern GroupItem getMarkLineAt(GroupItem argument) to return line containing buffer mark
-methods changed a lot in Buffer.twk (in support) mostly cosmetic aside from
-    void appendString(String text,String format,int width)
-    void appendChar(char c,String format,int width)
-	added void shiftAtMark(int length)
-	POP required but I have been banging on it during directives development
-In incant files
-	grammar changed to correctly show NamE rule in top comment
-	utilities rearranged order of a couple of actions. No code changes
-	derivatives moved comment from top to bottom. No code changes
-
 
 /*******************************************************************************
 	This is my list of unit tests to be written. No need to add it into any md file.
 *******************************************************************************/
-    assert action a la groovy to be defined and tested.
+https://github.com/TAnthonyAllen/incant/wiki/What-Is-Incant
+   assert action a la groovy to be defined and tested.
     A field test to show how lastDEF works in a dot op expression; and in a FOR loop; and how to explicitly set the implied field source using the @field unaryOP.
         This may imply changing how fields are found. In aCTionNamE(): if locate does not find a field, and lastREF is set, it should look in lastREF for the field (it does not at this point). Also, lastREF is scoped within a for loop and gets reset to what it was when the for loop exits. Worth demonstrating that in the test.
     A buffer test showing how setMark and unMark interact;
@@ -57,19 +15,96 @@ In incant files
 /*******************************************************************************
 	Working On
 *******************************************************************************/
-If source is a buffer and a directiveField argument has three fields in its list: source fromBody toBody. fromBody and toBody are strings (use of doc text fields may be called for). Normal use would have fromBody match text in source: text to be matched could look like a C++ label: or a //comment,
-    or no reason the fromBody match could not be a block of text spanning multiple lines. The doc block feature used in grammarOnTheFly could be applied in fromBody for that purpose
-    Once a fromBody match is found, the fromBody text is replaced by the toBody text
-    Using source=getFile(filename); source text can be loaded from a file;
-    if fromBody IN source; is true and sets source mark as side effect (it does)
-    and source -= fromBody; deletes fromBody.count characters in source starting at mark
-    and source += text; inserts text at buffer mark
-    then BYU
-Note: fromBody IN source will start looking from source.mark if it is set, otherwise it starts looking from source.start. If you want to make sure source search starts from start, unMark(source); first.
-To do the needful then run replaceAt ah so: replaceAt(directiveField); and as the Kpop Demon Hunter girls sing: Thats how its done done done.
+  Fonts & Colors Recon (2026-06-19)
 
-Need to add insertDirective w/before atStart and atEnd options
-Need a lineContaining action or C++ extern method to return a field with text as the whole line containing the match; so fromBody could be specified as fromBody=lineContaining(matchText)
-A replace action directive is not needed for incant, adding a revised action copy in the current registry will effectively do that idempotently since the current registry is searched before the search list
-Replacing a field in a field list already handled by :+ opReplace()
-        
+  1. File map — built vs design-only
+
+  BUILT (real code, but tied to the local-font model):
+
+  ┌─────────────────┬────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │      File       │                                            What's there                                            │
+  ├─────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │                 │ The real style bridge. setColor (:63) hex→Color via rgbColor + sscanf %x; setFont (:96) reads      │
+  │ Stylish.twk     │ name/size/bold/italic → getFont + NSBoldFontMask/NSItalicFontMask; fONT/fONTname (:116/:156)       │
+  │                 │ locate+apply named fonts; uses colorRegister[…].                                                   │
+  ├─────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ Layout.twk /    │ NSFont *currentFont (Layout.h:20); layout consumes style.getFont (per layout-recon.md:107).        │
+  │ Layout.h        │                                                                                                    │
+  ├─────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ GUI/Bwana.mm    │ NSFontManager sharedFontManager (:1614) — Apple font manager.                                      │
+  ├─────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ GroupDraw.twk   │ drawing primitives referencing color.                                                              │
+  └─────────────────┴────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  DESIGN / STASH only:
+  - XML/Notions/fonting — labeled "just a code stash" (line 1). Local font scanner (systemFonts
+  directory="/System/Library/Fonts" load + .tt[cf] filter), hexToNumber/setHexColor (incant, print-based stubs), drawFONT
+  (cout stub). Not production.
+  - XML/NotGUI/fonts.xml — the system-font scanner registry def.
+  - Registries (data): #registry cOLOr base and #registry fONTs base in htmlTraits.xml, Controls/attributes.xml,
+  Controls/traits.xml (+ IncantForms mirrors).
+
+  2. Google Fonts fetch implementation — does it exist?
+
+  No. Zero code anywhere. No fetch/download/HTTP, no .ttf cache logic, no CTFontManagerRegisterFontsForURL. The only google
+  hit was a false positive (gcconfig.h). The current font system is the opposite model — a local /System/Library/Fonts
+  directory scan. So the Google Fonts fetch/cache and the one-call CTFontManagerRegisterFontsForURL Apple seam are 100%
+  greenfield.
+
+  3. Config / API-key file location
+
+  No existing config-file convention in the repo. The established outside-repo support location is ~/data/support/ — it
+  already holds Include/groups.ext, Frame, Maps, symlinked into the tree. That's the natural, git-safe home for a secret
+  Google Fonts API key (never enters the repo). In-repo gitignored alternatives exist (XML-Incant/, BeforeRefactor/, …) but a
+  secret belongs outside git. Recommendation: ~/data/support/ (e.g. a fontsAPI.key or small config file there). Greenfield
+  decision.
+
+  4. Form font-attribute conformance
+
+  The 11 converted forms contain only font references — font=normal|title|header and barewords
+  titleFont/headerFont/normalFont/copperFont. These name a style; they carry no inline family/size/bold/italic, so nothing in
+  the forms violates the agreed format — they're references, not definitions.
+
+  The format problem lives in the definitions, and there are four divergent variants in the tree, none matching the agreed
+  one:
+
+  ┌────────────────────────────┬────────────────────────────────────────────────────────────────────────┐
+  │           Source           │                                  Form                                  │
+  ├────────────────────────────┼────────────────────────────────────────────────────────────────────────┤
+  │ Controls/attributes.xml:82 │ <courierFont font='bold 24px "Courier New"'/> (CSS string)             │
+  ├────────────────────────────┼────────────────────────────────────────────────────────────────────────┤
+  │ htmlTraits.xml:118         │ <courierFont font="Courier New" fontSize=24 bold/> (font= + fontSize=) │
+  ├────────────────────────────┼────────────────────────────────────────────────────────────────────────┤
+  │ WorkingOn/drawing:158      │ courierFont="Courier New" size=24.0 bold (value=family, size=)         │
+  ├────────────────────────────┼────────────────────────────────────────────────────────────────────────┤
+  │ Agreed                     │ <courierFont family="Courier New" size=24 bold/> (family= + size=)     │
+  └────────────────────────────┴────────────────────────────────────────────────────────────────────────┘
+
+  And the code (setFont) reads name (field text) + size/bold/italic — matching none exactly (closest to WorkingOn/drawing,
+  but wants size not fontSize, and the family as the field value, not a family= attribute). Adopting the agreed family=
+  format requires updating setFont to read family and consolidating all definition files onto one format.
+
+  5. ParseXML color grammar vs cOLOr hex — convergence
+
+  - ParseXML lives in Aside/ (gitignored backup): Aside/BeforeSimple/ParseXML.{g,act,rtn,twk,mm,h},
+  Aside/WithJIT/ParseXML.{g,act,rtn}. Your updated color grammar is offline work — not in the active tree, so I can't diff it
+  directly.
+  - cOLOr registry hex format is consistent: <name=#rrggbb/> — 6 hex digits, # prefix (some carry extra gradient=/angle=,
+  e.g. radialGreen).
+  - One divergence to flag: setColor (Stylish.twk:63) validates strlen == 6 and sscanf %x — it expects 6 chars without #, but
+  the registry stores #ef2b2d (7 chars). So there's a #-stripping assumption between the registry value and setColor —
+  either the parser strips # upstream or it's a latent mismatch. When your updated ParseXML lands, confirm it emits a 6-char
+  hex (or that # is stripped before setColor).
+
+  Assessment — greenfield vs partially built
+
+  Roughly two-thirds greenfield, one-third partially-built-but-fragmented. Everything on the Google Fonts axis is greenfield:
+  there is no fetch, no .ttf cache, and no CTFontManagerRegisterFontsForURL registration seam — and the existing font
+  machinery is the local-directory-scanner model you're explicitly replacing, so it's discard-not-extend. Above that seam,
+  though, the style-application layer is genuinely partially built: Stylish.twk already turns hex into a Color and
+  name/size/bold/italic into an NSFont, the cOLOr hex registry is established and consumed, and decomposed font attributes
+  are already partially understood by setFont. The real non-greenfield work isn't writing that layer from scratch — it's
+  consolidation: four competing font-definition formats need to collapse onto the agreed family/size/bold/italic
+  decomposition, setFont needs to read family, and the color path needs the #-handling confirmed against your updated
+  ParseXML grammar. Net: build the fetch+registration plumbing fresh; refactor (don't rebuild) the style/registry layer onto
+  the agreed format.

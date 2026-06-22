@@ -1,26 +1,22 @@
-#registry GUI; // this is old plg syntax
-<simple window x=300 y=450 width=400 height=200 rounded>
-    <third pad=5 fill=wall across>
-        <wrap fill=white>
-            <one text pad=5 border=off register>This is a whole lot of text that I am using to test out text views, scrolling, and isn't it nice that the xcode text editor wraps lines and indents auto-magically. The base rule is you have to specify everything you want, nothing implied except styles are inherited.</wrap>
-        <two fill=red left=2/>
-        <three fill=white width=50.0% left=2>
-            <stuff text=one pad=5 border=off/></third>
-    <fourth rounded pad fill=lightGreen onLayout>
-        print "Ran the onLayout method":;</simple>
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+initFORMs();
+search Generating bcOPs list;
 
-The incant version in define format
-registry(GUI);
+register(FORMs);
 define
-simple window x=300 y=450 width=400 height=200 rounded
-    third pad=5 fill=wall across
-        wrap fill=white
-            one="This is a whole lot of text that I am using to test out text views, scrolling, and isn't it nice that the xcode text editor wraps lines and indents auto-magically. The base rule is you have to specify everything you want, nothing implied except styles are inherited." text pad=5 border=off register;
-        two fill=red left=2;
-        three fill=white width=50.0% left=2
-            stuff text=one pad=5 border=off;
-    fourth rounded pad fill=lightGreen onLayout; {
-        print "Ran the onLayout method":; };
-;
+    simple window x=300 y=450 width=400 height=200 rounded
+        third pad=5 fill=wall across
+            wrap fill=white
+                one="This is a whole lot of text that I am using to test out text views, scrolling, and isn't it nice that the xcode text editor wraps lines and indents auto-magically. The base rule is you have to specify everything you want, nothing implied except styles are inherited." text pad=5 border=off register;
+            two fill=red left=2;
+            three fill=white width=50.0% left=2
+                stuff text=one pad=5 border=off;
+        fourth rounded pad fill=lightGreen onLayout code={
+            print "Ran the onLayout method":; };
+    ;
 
-Note I may not have the right number of ending ; This is one area where I like the xml ending better. The bit </simple> closes out all blocks above it. Need multiple ;;; to do that in incant. Maybe we should steal the block ending approach from the old plg specification
+printDefinition(simple);
+stop();

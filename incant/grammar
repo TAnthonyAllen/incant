@@ -131,7 +131,7 @@ define
         BasicElse   else- followedBy StatemenT@ defer;
         ElseIf      or- ExpressioN SemI-? StatemenT ElsE? ruleMethod=aCTionIF defer;
     WardeD
-        DEBUG       "debug"- followedBy rules?=NamE+ SemI-;
+        DEBUG       "debug"- followedBy "GUARD"? rules?=NamE+ SemI-;
         DEF         "define"- followedBy define^;
         DO          do- followedBy StatemenT while- ExpressioN SemI- defer;
         IF          if- followedBy ExpressioN SemI-? StatemenT ElsE? defer;

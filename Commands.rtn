@@ -236,9 +236,11 @@ extern GroupItem guard(GroupItem item)
                     guardSet    = new(item.text);
                     guarded     = true;
                 default:        debugGuard = true; }}
-    else if item.isRule && item.guardSet {
-        item.guardSet   = 0;
-        item.guarding   = 0; }
+    else if item.isRule
+        if item.guardSet {
+            item.guardSet   = 0;
+            item.guarding   = 0; }
+        else    item.debugGuard = true;
     else cerr "ERROR guard should be used as an attribute when defining":;
     clearData();
     return item;
@@ -387,7 +389,9 @@ GroupItem   target  = parent;
                 or command eq "isList"  isLIST = true;
                 or command eq "isRule" {
                     isRule      = true;
-                    if !rStuff  rStuff = new(target); }
+                    if !rStuff {
+                        RuleStuff   fresh = new(target);
+                        target.setRStuff(fresh); }}
             case 'm':
                 if command eq "macro"   isMacro = true;
                 else    mergeOn         = true;
@@ -482,20 +486,6 @@ extern GroupItem setInternalType(GroupItem grup)
     if grup cerr "ERROR setInternalType: failed for",tag:;
     else    cerr "ERROR setInternalType: failed because no argument provided":;
     return null;
-}
-
-/***************************************************************************
-    setLabel sets the rule label to input.
-***************************************************************************/
-extern GroupItem setLabel(GroupItem input)
-{
-RuleStuff ruleStuff = rStuff;
-GroupItem   pLabel = parentStuff.label;
-GroupItem   JSONtoken:,
-            JSONvalue:;
-GroupItem   grup = new(JSONtoken.text);
-    text    = JSONvalue.text;
-    return grup;
 }
 
 /***************************************************************************

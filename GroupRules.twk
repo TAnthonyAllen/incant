@@ -229,11 +229,12 @@ String      atReplaceNewline;
 *******************************************************************************/
 void popInput()
 {
+use sourceFILE
     if inputSTAK
         {
         if inputDiverted && inputSTAK.length
             {
-            GroupItem   sourceFILE = inputSTAK.pop();
+            sourceFILE = inputSTAK.pop();
             if sourceFILE
                 {
                 GroupItem   atLINE:,

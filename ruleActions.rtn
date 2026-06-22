@@ -110,7 +110,7 @@ extern GroupItem aCTionDEBUG(GroupItem input)
 GroupItem   lastRule,
             rules:,
             subrule,
-            GUARD,
+            GUARD:,
             grup;
     if rules
         while grup = rules.next(grup) {
@@ -159,7 +159,9 @@ use NewGroup
             if registry != currentRegistry     NewGroup = currentRegistry += NewGroup;
             if currentRegistry.isRule {
                 if !binType     isRule = true;
-                if !rStuff      rStuff = new(NewGroup); }}
+                if !rStuff {
+                    RuleStuff   fresh = new(NewGroup);
+                    NewGroup.setRStuff(fresh); }}}
        /***********************************************************************
             Process Attributes.
         ***********************************************************************/
@@ -189,7 +191,7 @@ use item
                     if item.isLiteral {
                         grup = new(item.text);
                         if item.rStuff {
-                        grup.rStuff = item.rStuff;
+                        grup.setRStuff(item.rStuff);
                         grup.ruleName   = grup.tag; }}
                     else    grup = item;
                     grup    = NewGroup +% grup; }
@@ -221,7 +223,9 @@ use NewGroup
             while item = MemberS.next(item) {
                 GroupItem newMember = NewGroup += item;
                 if isRule && rStuff && (!data || data > 3)
-                    if max != 1 || min != 1 rStuff = new(newMember); }}
+                    if max != 1 || min != 1 {
+                        RuleStuff   fresh = new(newMember);
+                        newMember.setRStuff(fresh); }}}
         /***********************************************************************
             If NewGroup is a rule check to see if it has a rule method .
             Note: method is fired even if there is an incant action associated with
@@ -278,10 +282,19 @@ GroupItem   op,
             xl,
             token;
     if jitting {
-        GroupItem   grup, result;
+        GroupItem   grup, result, uoperand;
         if xpList.listLength == 1 {
             arg = xpList.firstInList;
             if arg.isGROUP && !arg.isArgument   arg = arg.group;
+            if arg.tag eq "uxp" {
+                uoperand = arg[2];
+                if uoperand.isGROUP   uoperand = uoperand.group;
+                jitSeedField(uoperand);
+                arg.invoke = true;
+                result = arg.method(arg);
+                xpList.clear();
+                xpList.group = result;
+                return xpList; }
             if arg.isLiteral    jitSeedLiteral(arg);
             xpList.clear();
             xpList.group = arg;
@@ -456,13 +469,16 @@ int         restrict;
         if restriction eq "attributes"  restrict = 1;
         or restriction eq "members"     restrict = 2; }
     LoopOn = ExpressioN;
-    while LoopOn.isGROUP    LoopOn = LoopOn.group;
-    LoopRestrict    = lastREF.group;
+    while LoopOn.isGROUP {
+        LoopOn = LoopOn.group;
+        if LoopOn.groupList     result = LoopOn; }
+    if !LoopOn.groupList && result  LoopOn = result;
+    LoopRestrict = lastREF.group;
     while grup = reversE ? LoopOn.prior(grup) : LoopOn.next(grup) {
         result = 0;
         Looper.group = grup;
         if restrict && grup.affiliation != restrict   continue;
-        if !LoopOn.byRef      lastREF.group = grup;
+        if !LoopOn.byRef        lastREF.group = grup;
         result = StatemenT.gMethod(StatemenT);
         if byRef    grup = result.priorInParent;
         if isBranch {
@@ -494,22 +510,30 @@ GroupItem   result = ExpressioN;
     return result;
 }
 
-/***************************************************************************
+/*******************************************************************************
     NamE rule action
-***************************************************************************/
+*******************************************************************************/
 extern GroupItem aCTionNamE(GroupItem input)
 {
 GroupRules  ruler = groupRules;
 GroupItem   action = currentMETHOD;
+GroupItem   grup;
 GroupItem   result;
 String      arg = input.text;
-    result = locateInMethod(arg);
-    if !result
-        if currentRegistry == opFields || alphaSet.contains(*arg) {
-            result = new(arg);
-            if processingCode {
-                result      = action +% result;
-                isLocal     = true; }}
+    result  = locateInMethod(arg);
+    grup    = new(arg);
+    if alphaSet.contains(*arg) && processingCode
+        if !result || (!isArgument && !isLocal)
+            if !(result && registry == opFields)
+                if result
+                    if action.isRule && isRule {
+                        result  = action +% grup;
+                        isLocal = true; }
+                    else    result = action +% result;
+                else {
+                    result  = action +% grup;
+                    isLocal = true; }
+    if !result  result = grup;
     input.group = result;
     return input;
 }

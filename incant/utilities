@@ -37,7 +37,7 @@ define
                 goodToGo = yh > py AND yh < pyh;
         if goodToGo print "OK to display" argument.tag; };
     /***************************************************************************
-        JSON rules invoked as JSONlist("json string or json file name");
+        JSON rules invoked as JSONblock("json string or json file name");
         
         Note: true and false are added as rule options to JSONtoken as
         quoted literals so they get picked up instead of the true=1 and false=0
@@ -51,12 +51,25 @@ define
         GrouP;
         NumbeR;
     JSONvalue isRule
-        JSONlist;
+        JSONblock;
         JSONarray;
         JSONtoken;
-    JSONfield isRule JSONtoken ":"- JSONvalue ","?- code={ return setLabel(JSONtoken); };
-    JSONarray isRule "["- values=JSONvalue+ "]"-;
-    JSONlist isRule fail "{"- JSONfield* "}"-;
+    JSONfield isRule JSONtoken ":"- JSONvalue ","?- code={
+        token <: JSONtoken; // sets token tag to JSONtoken text
+        token = JSONvalue;
+        return token;
+        };
+    JSONitem isRule JSONtoken@ ","?-;
+    JSONlist isRule JSONitem+;
+    JSONarray isRule "["- JSONlist? "]"- code={
+        **JSONlist;
+        if JSONlist;
+            for grup in JSONlist;
+                **grup;
+                grup <: grup;
+                **grup;
+        };
+    JSONblock isRule fail "{"- JSONfield* "}"-;
     /***************************************************************************
         flatten converts the hierarchy of its argument into a list in whatsIt.
         Just a test action for now.
@@ -67,6 +80,34 @@ define
             else
                 print "Adding" grup.tag:;
                 whatsIt += grup;
+        };
+    listed;
+    /***************************************************************************
+        listRules — print a rule and its components as tag=value. Note the use
+        of listed, which is explicitly not a local field used to control
+        recursing and hold off a mad recursing loop
+    ***************************************************************************/
+    listRules argument code={
+        listed  += argument;
+        length  = listLengtH;
+        if datA != 0;   print ~$taG "=" argument;
+        else            print ~$taG;
+        if length > 0;
+            print _length:;
+            for grup in argument;
+                length  = listLengtH;
+                if noPrinT; continue;
+                print +;
+                if !length;
+                    if datA != 0;   print ~$taG "=" argument:;
+                    else            print ~$taG:;
+                or  grup IN listed
+                    if datA != 0;   print ~$taG "=" argument:;
+                    else            print ~$taG:;
+                else
+                    listRules(grup);
+                print $-;
+        else    print :;
         };
     /***************************************************************************
         print out xml representation of the group passed in. Does not

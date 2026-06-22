@@ -161,7 +161,7 @@ extern "C" GroupItem *aCTionDEBUG(GroupItem *input)
 GroupItem 	*lastRule = 0;
 GroupItem 	*rules = input->getLabelGroup("rules");
 GroupItem 	*subrule = 0;
-GroupItem 	*GUARD = 0;
+GroupItem 	*GUARD = input->getLabelGroup("GUARD");
 GroupItem 	*grup = 0;
 	if ( rules )
 		while ( grup = rules->next(grup) )
@@ -257,7 +257,10 @@ GroupItem 	*item = 0;
 				if ( !NewGroup->groupBody->flags.binType )
 					NewGroup->groupBody->flags.isRule = 1;
 				if ( !NewGroup->rStuff )
-					NewGroup->rStuff = new RuleStuff(NewGroup);
+					{
+					RuleStuff 	*fresh = new RuleStuff(NewGroup);
+					NewGroup->setRStuff(fresh);
+					}
 				}
 			}
 		/***********************************************************************
@@ -297,7 +300,7 @@ GroupItem 	*item = 0;
 						grup = new GroupItem(item->getText());
 						if ( item->rStuff )
 							{
-							grup->rStuff = item->rStuff;
+							grup->setRStuff(item->rStuff);
 							grup->rStuff->ruleName = grup->groupBody->tag;
 							}
 						}
@@ -340,7 +343,10 @@ GroupItem 	*item = 0;
 				GroupItem 	*newMember = NewGroup->addMember(item);
 				if ( newMember->groupBody->flags.isRule && newMember->rStuff && (!newMember->groupBody->flags.data || newMember->groupBody->flags.data > 3) )
 					if ( newMember->rStuff->max != 1 || newMember->rStuff->min != 1 )
-						newMember->rStuff = new RuleStuff(newMember);
+						{
+						RuleStuff 	*fresh = new RuleStuff(newMember);
+						newMember->setRStuff(fresh);
+						}
 				}
 		}
 	/***********************************************************************
@@ -392,11 +398,24 @@ GroupItem 	*token = 0;
 		{
 		GroupItem 	*grup = 0;
 		GroupItem 	*result = 0;
+		GroupItem 	*uoperand = 0;
 		if ( xpList->groupBody->groupList->listLength == 1 )
 			{
 			arg = xpList->groupBody->groupList->firstInList;
 			if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
 				arg = arg->getGroup();
+			if ( ::compare(arg->groupBody->tag,"uxp") == 0 )
+				{
+				uoperand = arg->get(2);
+				if ( isGROUP(uoperand->groupBody->flags.data) )
+					uoperand = uoperand->getGroup();
+				::jitSeedField(uoperand);
+				arg->groupBody->flags.invoke = 1;
+				result = arg->groupBody->gMethod(arg);
+				xpList->clear();
+				xpList->setGroup(result);
+				return xpList;
+				}
 			if ( arg->groupBody->flags.isLiteral )
 				::jitSeedLiteral(arg);
 			xpList->clear();
@@ -620,7 +639,13 @@ int 		restrict = 0;
 		}
 	LoopOn = ExpressioN;
 	while ( isGROUP(LoopOn->groupBody->flags.data) )
+		{
 		LoopOn = LoopOn->getGroup();
+		if ( LoopOn->groupBody->groupList )
+			result = LoopOn;
+		}
+	if ( !LoopOn->groupBody->groupList && result )
+		LoopOn = result;
 	LoopRestrict = ruler->lastREF->getGroup();
 	while ( grup = reversE ? LoopOn->prior(grup) : LoopOn->next(grup) )
 		{
@@ -695,26 +720,34 @@ GroupItem 	*result = ExpressioN;
 	return result;
 }
 
-/***************************************************************************
+/*******************************************************************************
     NamE rule action
-***************************************************************************/
+*******************************************************************************/
 extern "C" GroupItem *aCTionNamE(GroupItem *input)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*action = ruler->currentMETHOD;
+GroupItem 	*grup = 0;
 GroupItem 	*result = 0;
 char 		*arg = input->getText();
 	result = GroupControl::groupController->locateInMethod(arg);
+	grup = new GroupItem(arg);
+	if ( ruler->alphaSet->contains(*arg) && ruler->processingCode )
+		if ( !result || (!result->groupBody->flags.isArgument && !result->groupBody->flags.isLocal) )
+			if ( !(result && result->groupBody->registry == ruler->opFields) )
+				if ( result )
+					if ( action->groupBody->flags.isRule && result->groupBody->flags.isRule )
+						{
+						result = action->addAttribute(grup);
+						result->groupBody->flags.isLocal = 1;
+						}
+					else	result = action->addAttribute(result);
+				else {
+					result = action->addAttribute(grup);
+					result->groupBody->flags.isLocal = 1;
+					}
 	if ( !result )
-		if ( ruler->currentRegistry == ruler->opFields || ruler->alphaSet->contains(*arg) )
-			{
-			result = new GroupItem(arg);
-			if ( ruler->processingCode )
-				{
-				result = action->addAttribute(result);
-				result->groupBody->flags.isLocal = 1;
-				}
-			}
+		result = grup;
 	input->setGroup(result);
 	return input;
 }
@@ -1293,88 +1326,6 @@ GroupItem 	*field = 0;
 	return field;
 }
 
-/***************************************************************************
-	Register one or more directives on a target action and splice each newly
-	registered one into the target's BlocK. opReplace-shaped: list-recurse via
-	prior(), single registration per directive. Idempotent: a directive already
-	in the target's DiRs list is not registered or spliced again, so a re-apply
-	or double-trigger cannot stack a second copy. The target's executed BlocK is
-	built once and cached, so a one-time splice persists across later runs.
-***************************************************************************/
-extern "C" GroupItem *applyDirectives(GroupItem *argument, GroupItem *target)
-{
-GroupItem 	*grup = 0;
-GroupItem 	*DiRs = 0;
-	if ( isLIST(argument->groupBody->flags.binType) )
-		while ( grup = argument->prior(grup) )
-			::applyDirectives(grup,target);
-	else {
-		DiRs = target->get("DiRs");
-		if ( !DiRs )
-			{
-			DiRs = target->addString("DiRs");
-			DiRs->groupBody->flags.noPrint = 1;
-			}
-		if ( !DiRs->get(argument->groupBody->tag) )
-			{
-			DiRs->addMember(argument);
-			::spliceDirectives(target,argument);
-			}
-		}
-	return target;
-}
-
-/***************************************************************************
-    Text-substrate directive orchestrator. Parallel to applyDirectives but
-    operates on a buffer-bearing target rather than an AST target. Walks
-    the buffer doing find-and-replace via the mark machinery: for each
-    occurrence of fromText in target's buffer, delete the matched chars
-    and insert toText in their place. Mark threads naturally through
-    opIN (sets it on match), += (insert at mark, advance), -= (delete
-    at mark, stay). Idempotent via the target's DiRs registry.
-***************************************************************************/
-extern "C" GroupItem *applyTextDirective(GroupItem *argument, GroupItem *target)
-{
-GroupItem 	*grup = 0;
-GroupItem 	*DiRs = 0;
-GroupItem 	*fromText = 0;
-GroupItem 	*toText = 0;
-Buffer 		*buf = 0;
-	if ( isLIST(argument->groupBody->flags.binType) )
-		while ( grup = argument->prior(grup) )
-			::applyTextDirective(grup,target);
-	else {
-		DiRs = target->get("DiRs");
-		if ( !DiRs )
-			{
-			DiRs = target->addString("DiRs");
-			DiRs->groupBody->flags.noPrint = 1;
-			}
-		if ( DiRs->get(argument->groupBody->tag) )
-			return target;
-		DiRs->addMember(argument);
-		fromText = argument->groupBody->groupList->firstInList;
-		if ( !fromText )
-			{
-			::fprintf(stderr,"Text directive needs 'from' as first child: %s\n",argument->groupBody->tag);
-			return target;
-			}
-		toText = fromText->nextInParent;
-		if ( !isBUFFER(target->groupBody->flags.data) )
-			return target;
-		buf = target->getBuffer();
-		buf->setMark();
-		while ( buf->findInBuffer(fromText->getText()) )
-			{
-			buf->deleteFromBuffer(fromText->getCount());
-			if ( toText )
-				buf->appendString(toText->getText(),0,0);
-			}
-		buf->unMark();
-		}
-	return target;
-}
-
 /*******************************************************************************
     Commands.rtn
     Home for extern methods backing the cOMMANDs base registry. Commands fire
@@ -1433,6 +1384,22 @@ extern "C" int closeFile(GroupItem *bufField)
 		return bufField->getBuffer()->closeFile();
 		}
 	return 0;
+}
+
+/* concatEQ  the runtime helper the string-+= JIT call lands on. All the member
+   work (getText/setText) and the variadic concat happen here as ordinary C++ —
+   this IS the interpreter's isSTRING += body (cf. GroupRules.mm string-concat
+   site). Two real GroupItem pointers in, target (mutated in place) out. Its
+   address is stable and directly addressable, so jitEmitStringPlusEQ can bake it
+   as a constant callee — no variadic IR, no member-function-pointer IR. (One-arg
+   parts-walking `concatenate` is the general primitive to follow; the += write-
+   back needs target by identity, which two explicit pointers give for free.) */
+extern "C" GroupItem *concatEQ(GroupItem *target, GroupItem *argument)
+{
+	
+	target->setText(::concat(2, target->getText(), argument->getText()));
+	return target;
+	
 }
 
 /***************************************************************************
@@ -1942,11 +1909,13 @@ extern "C" GroupItem *guard(GroupItem *item)
 				}
 		}
 	else
-	if ( item->groupBody->flags.isRule && item->groupBody->guardSet )
-		{
-		item->groupBody->guardSet = 0;
-		item->groupBody->flags.guarding = 0;
-		}
+	if ( item->groupBody->flags.isRule )
+		if ( item->groupBody->guardSet )
+			{
+			item->groupBody->guardSet = 0;
+			item->groupBody->flags.guarding = 0;
+			}
+		else	item->groupBody->flags.debugGuard = 1;
 	else	::fprintf(stderr,"ERROR guard should be used as an attribute when defining\n");
 	item->clearData();
 	return item;
@@ -2123,6 +2092,39 @@ extern "C" GroupItem *jitEmitCompare(GroupItem *argument, GroupItem *target, int
 	}
 	target->jitData->setJitter(res);
 	gJitResult = res;
+	return target;
+	
+}
+
+/* jitEmitStringPlusEQ  the FIRST CreateCall in the JIT layer, and the proof-of-
+   concept for jitEmitCall. Bakes target's and argument's stable GroupItem
+   addresses as constant ptrs (jitSeedField pattern), then emits a single call to
+   concatEQ (callee baked by address) — GroupItem(GroupItem,GroupItem). The +=
+   side effect (setText through to target's real storage) is the payload; the
+   i32() driver can't ret a pointer, so cap gJitResult with a constant 0 and verify
+   by reading target's text back in interpreted incant (the jitAssign readback
+   pattern). The call is left untagged (NOT readnone) so LLVM can't DCE a callee it
+   can't see into. */
+extern "C" GroupItem *jitEmitStringPlusEQ(GroupItem *argument, GroupItem *target)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	
+	llvm::Value *targetAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)target), ptr);
+	llvm::Value *argAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)argument), ptr);
+	
+	llvm::FunctionType *fnTy = llvm::FunctionType::get(ptr, {ptr, ptr}, false);
+	llvm::Value *callee = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)&concatEQ), ptr);
+	b->CreateCall(fnTy, callee, {targetAddr, argAddr});
+	
+	gJitResult = llvm::ConstantInt::get(i32, 0);
 	return target;
 	
 }
@@ -2563,45 +2565,6 @@ GroupItem 	*grup = new GroupItem(strung);
 	return grup;
 }
 
-/***************************************************************************
-	Match engine. Walks targetLines looking for the first member that
-	starts a span structurally equal to fromBlock's Lines. Returns that
-	anchor member, or null.
-***************************************************************************/
-extern "C" GroupItem *matchSpanInLines(GroupItem *targetLines, GroupItem *fromBlock)
-{
-GroupItem 	*fromBlocK = fromBlock->get("BlocK");
-GroupItem 	*fromLines = 0;
-GroupItem 	*firstFrom = 0;
-GroupItem 	*candidate = 0;
-GroupItem 	*tWalk = 0;
-GroupItem 	*fWalk = 0;
-	if ( !fromBlocK )
-		return 0;
-	fromLines = fromBlocK;
-	if ( !fromLines || !fromLines->groupBody->groupList )
-		return 0;
-	firstFrom = fromLines->groupBody->groupList->firstInList;
-	candidate = targetLines->groupBody->groupList->firstInList;
-	while ( candidate )
-		{
-		if ( ::statementMatches(candidate,firstFrom) )
-			{
-			tWalk = candidate->nextInParent;
-			fWalk = firstFrom->nextInParent;
-			while ( fWalk && tWalk && ::statementMatches(tWalk,fWalk) )
-				{
-				tWalk = tWalk->nextInParent;
-				fWalk = fWalk->nextInParent;
-				}
-			if ( !fWalk )
-				return candidate;
-			}
-		candidate = candidate->nextInParent;
-		}
-	return 0;
-}
-
 /*****************************************************************************
 	modify processes modifiers for field passed in updating the field RuleStuff
 *****************************************************************************/
@@ -2697,6 +2660,7 @@ extern "C" GroupItem *opAssign(GroupItem *argument, GroupItem *target)
 		if ( argument->groupBody->flags.byRef )
 			target->setGroup(argument);
 		else	target->setContent(argument);
+	else	target->clearData();
 	return target;
 }
 
@@ -2716,11 +2680,10 @@ extern "C" GroupItem *opCopyList(GroupItem *argument, GroupItem *target)
 ***************************************************************************/
 extern "C" GroupItem *opDebug(GroupItem *result)
 {
-GroupItem 	*grup = 0;
-GroupItem 	*action = GroupControl::groupController->groupRules->currentMETHOD;
-	if ( action )
-		grup = action->get(result->groupBody->tag);
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+char 		*junk = 0;
 	//print result.tag:;
+	junk = ruler->atRuleMark;
 	return result;
 }
 
@@ -2789,8 +2752,6 @@ GroupItem 	*product = 0;
 		if ( argument->groupBody->registry != ruler->groupFields )
 			product = target->get(argument->getText());
 		else {
-			while ( target && isGROUP(target->groupBody->flags.data) && target->getGroup() )
-				target = target->getGroup();
 			if ( !target )
 				return 0;
 			product = new GroupItem(argument->groupBody->tag);
@@ -2840,6 +2801,10 @@ GroupItem 	*product = 0;
 					if ( target->groupBody->flags.invoke )
 						product->setCount(1);
 					break;
+				case 12:
+					if ( target->groupBody->flags.fLAG )
+						product->setCount(1);
+					break;
 				case 17:
 					if ( target->groupBody->flags.isLiteral )
 						product->setCount(1);
@@ -2857,6 +2822,10 @@ GroupItem 	*product = 0;
 						product->setCount(1);
 					break;
 				case 28:
+					if ( target->rStuff && target->rStuff->noLabel )
+						product->setCount(1);
+					break;
+				case 29:
 					if ( target->groupBody->flags.noPrint )
 						product->setCount(1);
 					break;
@@ -3020,6 +2989,9 @@ GroupItem 	*result = 0;
 		if ( argument->getBuffer()->findInBuffer(target->getText()) )
 			result = target;
 		}
+	else
+	if ( target->groupBody->groupList )
+		result = argument->get(target->groupBody->tag);
 	return result;
 }
 
@@ -3105,6 +3077,11 @@ extern "C" GroupItem *opMinus(GroupItem *argument, GroupItem *target)
 extern "C" GroupItem *opMinusEQ(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*result = 0;
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		 jitEmitBinary(argument, target, jitSub);
+		return jitEmitAssign(target, target); 
+		}
 	if ( target->groupBody->flags.binType )
 		result = target->remove(argument->groupBody->tag);
 	else
@@ -3305,8 +3282,13 @@ extern "C" GroupItem *opPlusEQ(GroupItem *argument, GroupItem *target)
 GroupItem 	*grup = 0;
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
-		 jitEmitBinary(argument, target, jitAdd);
-		return jitEmitAssign(target, target); 
+		if ( isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data) )
+			return jitEmitStringPlusEQ(argument,target);
+		if ( isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data) )
+			{
+			 jitEmitBinary(argument, target, jitAdd);
+			return jitEmitAssign(target, target); 
+			}
 		}
 	if ( isLIST(argument->groupBody->flags.binType) )
 		while ( grup = argument->prior(grup) )
@@ -3341,6 +3323,7 @@ GroupItem 	*grup = 0;
 					::fprintf(stderr,"ERROR Operator += failed on %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
 				}
 		else	target->copyData(argument);
+	else	target->addMember(argument);
 	return target;
 }
 
@@ -3472,6 +3455,16 @@ extern "C" GroupItem *opSetGroup(GroupItem *argument, GroupItem *target)
 }
 
 /***************************************************************************
+	Rule action for the <: set tag operator.
+***************************************************************************/
+extern "C" GroupItem *opSetTag(GroupItem *argument, GroupItem *target)
+{
+	if ( argument )
+		target->groupBody->tag = argument->getText();
+	return target;
+}
+
+/***************************************************************************
 	operator method for the string rule.
 ***************************************************************************/
 extern "C" GroupItem *opString(GroupItem *target, Buffer *buffer)
@@ -3562,39 +3555,39 @@ GroupItem 	*result = 0;
 GroupItem 	*priorMETHOD = ruler->currentMETHOD;
 GroupItem 	*priorTempField = ruler->tempField;
 GroupItem 	*action = field;
-	ruler->currentMETHOD = action;
 	if ( action->groupBody->flags.isLabel )
 		action = ruleStuff->rule;
+	ruler->currentMETHOD = action;
+	if ( isCoded(action->groupBody->flags.actionType) && !::processCode(action) )
+		return 0;
 	/*************************************************************************
 	if action is a rule, update local fields from label contents.
 	*************************************************************************/
 	if ( action->groupBody->flags.isRule )
 		{
 		code = action->get("CodE");
-		while ( grup = label->nextAttribute(grup) )
-			if ( result = code->get(grup->groupBody->tag) )
+		while ( result = code->nextAttribute(result) )
+			{
+			if ( result->groupBody->flags.noPrint )
+				continue;
+			if ( grup = label->get(result->groupBody->tag) )
 				{
-				if ( grup->groupBody->groupList )
-					result->groupBody->groupList = grup->groupBody->groupList;
-				if ( grup->groupBody->flags.data )
-					result->copyData(grup);
+				result->setGroup(grup);
+				result->groupBody->flags.isLabel = 1;
 				}
-			else {
-				grup->groupBody->flags.isLocal = 1;
-				code->addAttribute(grup);
-				}
+			else	result->clear();
+			}
 		}
-	if ( isCoded(action->groupBody->flags.actionType) && !::processCode(field) )
-		return 0;
 	if ( result = action->get("BlocK") )
 		{
 		/*********************************************************************
-		The following clears local fields after action ends.
+		The following clears local fields before action runs (note isLabel
+		fields are not cleared; they were set above).
 		*********************************************************************/
 		if ( action->groupBody->flags.isRule )
 			action = code;
 		while ( grup = action->nextAttribute(grup) )
-			if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.isLabel )
+			if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.isLabel && !grup->groupBody->flags.noPrint && grup->groupBody != action->groupBody )
 				grup->clear();
 		if ( ruler->runningActions->get(field->groupBody->tag) )
 			field->groupBody->flags.recursive = 1;
@@ -3710,7 +3703,10 @@ GroupItem 	*target = item->parent;
 					{
 					target->groupBody->flags.isRule = 1;
 					if ( !target->rStuff )
-						target->rStuff = new RuleStuff(target);
+						{
+						RuleStuff 	*fresh = new RuleStuff(target);
+						target->setRStuff(fresh);
+						}
 					}
 				break;
 			case 'm':
@@ -3800,159 +3796,6 @@ char 		*name = item->groupBody->flags.data ? item->getText() : (char*)0;
 		ruler->currentRegistry = argument->groupBody->registry;
 		}
 	return ruler->trueResult;
-}
-
-/***************************************************************************
-	Detach the matched span from targetLines (proper bookkeeping via
-	GroupItem.remove), then splice toBlock's Lines members in at the
-	same position. toBlock may be null (delete case). Uses the parent=null
-	move idiom for the toLines side since toLines is abandoned after
-	the splice (cousin of spliceDirectives' move loop).
-***************************************************************************/
-extern "C" void replaceAtAnchor(GroupItem *targetLines, GroupItem *anchor, GroupItem *fromBlock, GroupItem *toBlock)
-{
-GroupItem 	*fromBlocK = fromBlock->get("BlocK");
-GroupItem 	*fromLines = 0;
-GroupItem 	*toBlocK = 0;
-GroupItem 	*toLines = 0;
-GroupItem 	*spanWalk = 0;
-GroupItem 	*adjacent = 0;
-GroupItem 	*priorAnchor = anchor->priorInParent;
-int 		spanLength = 0;
-int 		i = 0;
-	if ( !fromBlocK )
-		return;
-	fromLines = fromBlocK;
-	if ( !fromLines )
-		return;
-	spanLength = fromLines->groupBody->groupList->listLength;
-	spanWalk = anchor;
-	for ( i = 0; i < spanLength; i++ )
-		{
-		if ( !spanWalk )
-			break;
-		adjacent = spanWalk->nextInParent;
-		spanWalk->remove();
-		spanWalk = adjacent;
-		}
-	if ( toBlock )
-		{
-		toBlocK = toBlock->get("BlocK");
-		if ( toBlocK )
-			{
-			toLines = toBlocK;
-			if ( toLines && toLines->groupBody->groupList )
-				{
-				spanWalk = toLines->groupBody->groupList->lastInList;
-				while ( spanWalk )
-					{
-					adjacent = spanWalk->priorInParent;
-					spanWalk->parent = 0;
-					if ( priorAnchor )
-						priorAnchor->insertAfter(spanWalk);
-					else	targetLines->insertGroup(spanWalk);
-					spanWalk = adjacent;
-					}
-				}
-			}
-		}
-}
-
-/***************************************************************************
-	Replace-directive orchestrator. Parallel to applyDirectives but does
-	match-and-swap rather than splice-into-end. Idempotent via the target's
-	DiRs registry. Routes here from opReplace's DiR-prefix hook.
-***************************************************************************/
-extern "C" GroupItem *replaceDirective(GroupItem *argument, GroupItem *target)
-{
-GroupItem 	*grup = 0;
-GroupItem 	*DiRs = 0;
-GroupItem 	*fromAttr = 0;
-GroupItem 	*toAttr = 0;
-GroupItem 	*fromBlk = 0;
-GroupItem 	*toBlk = 0;
-GroupItem 	*anchor = 0;
-GroupItem 	*targetLines = 0;
-	if ( isLIST(argument->groupBody->flags.binType) )
-		while ( grup = argument->prior(grup) )
-			::replaceDirective(grup,target);
-	else {
-		DiRs = target->get("DiRs");
-		if ( !DiRs )
-			{
-			DiRs = target->addString("DiRs");
-			DiRs->groupBody->flags.noPrint = 1;
-			}
-		if ( DiRs->get(argument->groupBody->tag) )
-			return target;
-		DiRs->addMember(argument);
-		if ( !target->get("BlocK") )
-			::processCode(target);
-		/* Positional access (Tony 2026-05-28): directive's children are the
-		from-ref (first) and to-ref (second). No from=/to= labels.
-		Try .group first (parser-resolved reference); fall back to the
-		child itself in case the child IS the resolved field directly. */
-		fromAttr = argument->groupBody->groupList->firstInList;
-		if ( !fromAttr )
-			{
-			::fprintf(stderr,"Replace directive needs 'from' as first child: %s\n",argument->groupBody->tag);
-			return target;
-			}
-		fromBlk = fromAttr->getGroup();
-		if ( !fromBlk )
-			fromBlk = fromAttr;
-		if ( !fromBlk->get("BlocK") )
-			::processCode(fromBlk);
-		toAttr = fromAttr->nextInParent;
-		if ( toAttr )
-			{
-			toBlk = toAttr->getGroup();
-			if ( !toBlk )
-				toBlk = toAttr;
-			if ( !toBlk->get("BlocK") )
-				::processCode(toBlk);
-			}
-		targetLines = target->get("BlocK");
-		if ( !targetLines )
-			return target;
-		anchor = ::matchSpanInLines(targetLines,fromBlk);
-		if ( !anchor )
-			{
-			::fprintf(stderr,"Replace directive could not match 'from' in target: %s\n",target->groupBody->tag);
-			return target;
-			}
-		::replaceAtAnchor(targetLines,anchor,fromBlk,toBlk);
-		}
-	return target;
-}
-
-/***************************************************************************
-	Text-substrate substring replace. Uses containsString (returns char* to
-	match position, hand-edited in support/Frame/StringRoutines.C). Single-
-	occurrence; returns text unchanged if from not found. Transitional
-	helper for the incant text-directive hybrid prototype (2026-05-28);
-	will be retired when Buffer extern incant methods provide in-place
-	span surgery directly.
-***************************************************************************/
-extern "C" char *replaceUsingFind(char *text, char *fromTxt, char *toTxt)
-{
-char 	*position = ::containsString(text,fromTxt);
-int 	fromLen = 0;
-int 	toLen = 0;
-int 	prefixLen = 0;
-int 	suffixLen = 0;
-char 	*result = 0;
-	if ( !position )
-		return text;
-	fromLen = (int)::strlen(fromTxt);
-	toLen = (int)::strlen(toTxt);
-	prefixLen = (int)(position - text);
-	suffixLen = (int)::strlen(text) - prefixLen - fromLen;
-	result = (char*)::calloc((size_t)(prefixLen + toLen + suffixLen + 1),sizeof(char));
-	::strncpy(result,text,(size_t)prefixLen);
-	::strcpy(result + prefixLen,toTxt);
-	::strcpy(result + prefixLen + toLen,position + fromLen);
-	return result;
 }
 
 /*****************************************************************************
@@ -4127,13 +3970,16 @@ extern "C" GroupItem *runRule(GroupItem *field, GroupItem *rule)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*result = 0;
+int 		baseStak = 0;
+	if ( ruler->inputSTAK )
+		baseStak = ruler->inputSTAK->length;
 	if ( field && field->groupBody->flags.data )
 		{
 		ruler->divertToRule = 1;
 		ruler->pushInput(field);
 		}
 	result = rule->parse(0);
-	if ( field && field->groupBody->flags.data )
+	while ( field && field->groupBody->flags.data && ruler->inputSTAK && ruler->inputSTAK->length > baseStak )
 		ruler->popInput();
 	return result;
 }
@@ -4236,20 +4082,6 @@ extern "C" GroupItem *setInternalType(GroupItem *grup)
 	return 0;
 }
 
-/***************************************************************************
-    setLabel sets the rule label to input.
-***************************************************************************/
-extern "C" GroupItem *setLabel(GroupItem *input)
-{
-RuleStuff 	*ruleStuff = input->rStuff;
-GroupItem 	*pLabel = ruleStuff->parentStuff->label;
-GroupItem 	*JSONtoken = pLabel->getLabelGroup("JSONtoken");
-GroupItem 	*JSONvalue = pLabel->getLabelGroup("JSONvalue");
-GroupItem 	*grup = new GroupItem(JSONtoken->getText());
-	grup->setText(JSONvalue->getText());
-	return grup;
-}
-
 /*****************************************************************************
 	setLimits() checks field passed in for limits (min and max).
 *****************************************************************************/
@@ -4325,69 +4157,6 @@ char 		*name = 0;
 		}
 	else	::fprintf(stderr,"setRuleAction: could not set action target\n");
 	return item;
-}
-
-/***************************************************************************
-	Splice one directive's statements into a target action's BlocK. The
-	target's BlocK is built (processCode) if it does not exist yet, then the
-	directive's own BlocK is built and its statements (BlocK->Lines members)
-	are moved into the target's Lines: appended at the body bottom for
-	at=ending, or front-inserted at the body top otherwise (at=starting /
-	default, walked in reverse so original order leads the target's body).
-	Statements are moved, not copied: addGroup copies a node that still has a
-	parent and the copy loses instructType (aCTionBlocK then skips it), so each
-	statement is detached (parent = 0) before it is added.
-***************************************************************************/
-extern "C" void spliceDirectives(GroupItem *target, GroupItem *directive)
-{
-GroupItem 	*BlocK = target->get("BlocK");
-GroupItem 	*targetLines = 0;
-GroupItem 	*dBlocK = 0;
-GroupItem 	*dLines = 0;
-GroupItem 	*at = 0;
-GroupItem 	*stmt = 0;
-GroupItem 	*adjacent = 0;
-int 		ending = 0;
-	if ( !BlocK )
-		{
-		::processCode(target);
-		BlocK = target->get("BlocK");
-		}
-	if ( !BlocK )
-		return;
-	targetLines = BlocK;
-	if ( !targetLines )
-		return;
-	::processCode(directive);
-	dBlocK = directive->get("BlocK");
-	if ( !dBlocK )
-		return;
-	dLines = dBlocK;
-	if ( !dLines || !dLines->groupBody->groupList )
-		return;
-	at = directive->get("at");
-	ending = at && ::compare(at->getText(),"ending") == 0;
-	if ( ending )
-		{
-		stmt = dLines->groupBody->groupList->firstInList;
-		while ( stmt )
-			{
-			adjacent = stmt->nextInParent;
-			stmt->parent = 0;
-			targetLines->addMember(stmt);
-			stmt = adjacent;
-			}
-		}
-	else {
-		stmt = dLines->groupBody->groupList->lastInList;
-		while ( stmt )
-			{
-			adjacent = stmt->priorInParent;
-			stmt->parent = 0;
-			targetLines->insertGroup(stmt);
-			stmt = adjacent;
-			}
-		}
 }
 
 /***************************************************************************
@@ -4737,7 +4506,7 @@ void GroupRules::popInput()
 		{
 		if ( inputDiverted && inputSTAK->length )
 			{
-			GroupItem 	*sourceFILE = (GroupItem*)inputSTAK->pop();
+			sourceFILE = (GroupItem*)inputSTAK->pop();
 			if ( sourceFILE )
 				{
 				GroupItem 	*atLINE = sourceFILE->getLabelGroup("atLINE");
@@ -4805,5 +4574,5 @@ int 	result = 0;
 }
 /*	Warning: the following methods were referenced but not declared
 	read(int,char*,long)
-	insertAfter(GroupItem*)
+	setRStuff(RuleStuff*)
 */

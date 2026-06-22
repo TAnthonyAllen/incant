@@ -57,7 +57,6 @@ define
     runByteFn immediateAction=runByteFn;
     interpretBC immediateAction=interpretBC;
     setFile immediateAction=setFile;
-    setLabel immediateAction;
     setMark immediateAction;
     setPointer immediateAction=opPointer noPrint;
     sort immediateAction=processFlags noPrint;
@@ -99,7 +98,7 @@ define
 
     '<='    operateMethod=opLE  interpretMethod=runLE;
     '<<';
-    '<:';   // not used
+    '<:'    operateMethod=opSetTag;
     '<'     operateMethod=opLT  interpretMethod=runLT;
 
     ':>';
@@ -226,7 +225,7 @@ define
     isArgumenT=10;
     invokE=11;
     // The following flags should probably be made available via opDot()
-    flaG;
+    flaG=12;
     isConditioN;
     isFilE;
     isIndexeD;
@@ -242,7 +241,8 @@ define
     isVirtuaL;
     mergeON;
     negatE;
-    noPrinT=28;
+    noLabeL=28;
+    noPrinT=29;
     noSkiP;
     nexT=401;
     prioR=402;

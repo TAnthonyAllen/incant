@@ -1,0 +1,13 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+/*****************************************************************************
+	ONE JSON case at a time. Edit the single JSONlist line below. Add `debug;`
+	on the line above it when you want the parse trace for just this case.
+	printDefinition shows what result tree (if any) got built.
+*****************************************************************************/
+field = JSONlist('{"a":"b"}');
+printDefinition(field);
+stop();
