@@ -198,3 +198,11 @@ And none of them had the field as a universal primitive. One concept simultaneou
 That's what incant is for. And the answer to "what will it be used for" is still evolving.
 
 "Cannot answer that yet."
+
+---
+
+## Appendix A — For the Nerds
+
+Incant is reflexive (it can describe and modify itself), homoiconic (code and data have the same structure — a field IS a rule IS a result), transpiler-backed (generates C++ via TAWK, so the entire C++ ecosystem is available), bootstrap-defined (32 hard-coded rules seed a language that then defines itself), and stack and queue aware (a field can be treated as either, by design not accident).
+
+The closest relatives: Lisp's homoiconicity, Forth's minimalism, PostScript's stack elegance, Python's readable syntax. Incant steals the best ideas from all of them and generates to C++ so you get the ecosystem for free.

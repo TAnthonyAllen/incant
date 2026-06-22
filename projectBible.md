@@ -1,7 +1,7 @@
 # The PLG/TAWK/Incant Project Bible
 *A living document. Every sentence earns its place.*
 
-*Note: as of 2026-05-15, incant bytecode / JIT design material lives in `jit.md` (sibling to this bible), spun out to keep the bible's wake-up payload focused.*
+*Note: as of 2026-05-15, incant bytecode / JIT design material lives in `docs/jit.md`, spun out to keep the bible's wake-up payload focused.*
 
 ---
 
@@ -27,7 +27,7 @@ The design follows elegance; the classifications are just other nerds recognizin
 | Support | https://github.com/TAnthonyAllen/support | public ✅ |
 | TAWK | https://github.com/TAnthonyAllen/tawk | public ✅ |
 
-Each repo has `CLAUDE.md`, `TODO.md`, this bible, and `jit.md` mirrored.
+Each repo has `CLAUDE.md`, `TODO.md`, and this bible; Groups additionally carries the JIT design in `docs/jit.md`.
 
 ---
 
@@ -254,7 +254,7 @@ Incant has its own grammar, parsed by the incant runtime (not by plg). The gramm
 The incant grammar is in active evolution. Resurrection-readers should treat this section's specifics as "current state, not final state" and check HWF.md for sessions reshaping these rules. Known pending work includes:
 
 - **Indent-as-structure full implementation (HWF Session 4, Fork A)** — the Fork A grammar design is settled but Phase 1 (GroupMain.twk grammar polish + DEFINing flag promotion) and Phase 2 (GroupRules.twk checkSkip additions for defining state) have not been fully executed. Migration of existing incant code from structural `;;` / `;;;` to single-`;` plus indentation is a separate arc.
-- **Bootstrap definition rule changes** — upcoming work on documentation.md surfaces (a pending conversation, see TODO) is expected to drive changes to how definitions are bootstrapped.
+- **Bootstrap definition rule changes** — a pending conversation (see TODO) is expected to drive changes to how definitions are bootstrapped.
 - **Paren-alt decomposition for incant** — port of PLG's `( A | B )` decomposition machinery (BlockplgAct, recursive parent-prefix naming) to the incant grammar. Not urgent. Reference design is the PLG implementation.
 - **Parse error handling (HWF Session 6)** — no design yet. The current silent-failure behavior on bad input (see user-facing source rules above) is the trigger.
 
@@ -347,7 +347,7 @@ TAWK currently uses the legacy PLGparse API (kind=5/7 with void* casts, *TawkNow
 
 ## Incant Bytecode/JIT
 
-Incant bytecode/JIT design work has its own document — see `jit.md` (sibling to this bible). That document covers the bytecode-as-GroupItems design, the bcOPs registry, the interpret() function written in incant, and the gating hook in GroupRules.mm.
+Incant bytecode/JIT design work has its own document — see `docs/jit.md`. That document covers the bytecode-as-GroupItems design, the bcOPs registry, the interpret() function written in incant, and the gating hook in GroupRules.mm.
 
 **Status summary [updated 2026-05-15]**: Phases 0 (BDWGC) and 1 (generateCode repurposed) complete; bytecode work in progress as Phase Bytecode (see Priority Plan). Precondition for Clod-driven emitter work: incant unit-test suite passing clean.
 
@@ -493,9 +493,9 @@ See HWF.md for active session content. Bible carries the index so resurrection-r
 
 **Small-fix-first investigation discipline (2026-05-26 pinning)**: "The smallest fix that explains the symptom is more likely than the structural fix that would explain a family of symptoms." Phase Bytecode hit this three times in one 2026-05-26 session: per-action tempField didn't clear bleed (real mechanism was runOP unwrap), isPointer-via-unWrap didn't reach (real mechanism was runOP's inline unwrap), replace()-actual-swap didn't move Root 2 (real mechanism was concat-failing-on-Stak-text in dumpText). Each time the "obvious structural fix" was correct-shape but unneeded. Discipline: when a structural fix doesn't move the symptom, trust the bones over the design hypothesis — investigate the actual mechanism before committing to a broader fix. Cousin of bones-verification: that catches "did the fix land?"; this catches "is the fix for the right thing?" *(Folded from Parse's projectBible.md, 2026-06-10.)*
 
-**Resurrection-reader standard**: All .md files in this project (bible, HWF.md, TODO, CLAUDE.md, jit.md, etc.) must make sense to fresh-Claude reading them cold tomorrow with no memory of today. The .md files exist to make resurrection work — *Claude* reads them as the day's starting move, not Tony. That asymmetry shapes how the files are written: for Claude/Clod's resurrection, not for Tony's review. See HWF.md preamble for the full statement.
+**Resurrection-reader standard**: All .md files in this project (bible, HWF.md, TODO, CLAUDE.md, docs/jit.md, etc.) must make sense to fresh-Claude reading them cold tomorrow with no memory of today. The .md files exist to make resurrection work — *Claude* reads them as the day's starting move, not Tony. That asymmetry shapes how the files are written: for Claude/Clod's resurrection, not for Tony's review. See HWF.md preamble for the full statement.
 
-**.md file location convention (2026-05-19)**: All four repos (Parse, Tokf, Groups, support) carry the same layout. Resurrection-reader documents live at repo root — CLAUDE.md, projectBible.md, TODO.md, HWF.md — plus jit.md as a sibling design document consulted on demand. Graduated HWF session trims live in `HWFattic/` with runtogether-name convention (`sessionNtopicName.md` — e.g. `session9plgDebugAndActions.md`). All other work-related .md files (session plans, briefs, drafts, future design docs) live in `docs/`. Tokf, Groups, and support carry `docs/` directories seeded with `.gitkeep` placeholders awaiting content. The split: anything read as part of wake-up routine stays at root; anything work-related but not morning-routine goes into `docs/`; anything that's a graduated session record goes into `HWFattic/` with the runtogether name. Future graduation trims should use the runtogether convention from the start (Clay-side miss during Session 9's first graduation: drafted as `Session9.md`, renamed at commit time).
+**.md file location convention (2026-05-19)**: All four repos (Parse, Tokf, Groups, support) carry the same layout. Resurrection-reader documents live at repo root — CLAUDE.md, projectBible.md, TODO.md, HWF.md — plus the JIT design in `docs/jit.md` consulted on demand. Graduated HWF session trims live in `HWFattic/` with runtogether-name convention (`sessionNtopicName.md` — e.g. `session9plgDebugAndActions.md`). All other work-related .md files (session plans, briefs, drafts, future design docs) live in `docs/`. Tokf, Groups, and support carry `docs/` directories seeded with `.gitkeep` placeholders awaiting content. The split: anything read as part of wake-up routine stays at root; anything work-related but not morning-routine goes into `docs/`; anything that's a graduated session record goes into `HWFattic/` with the runtogether name. Future graduation trims should use the runtogether convention from the start (Clay-side miss during Session 9's first graduation: drafted as `Session9.md`, renamed at commit time).
 
 ---
 
@@ -513,7 +513,7 @@ See HWF.md for active session content. Bible carries the index so resurrection-r
 - Phase Bytecode major progress 2026-05-24 evening through 2026-05-25 morning. Five fixes (Tony offline): recursion handling in TokenXP, local field cleanup timing in processAction, aCTionStatemenT gText routing for statement-body dispatch, Operator-registry back-link, GC cleanup (four stray deletes removed). gXpress simplified end-to-end and tested on testByteCode in isolation.
 - Clod's 2026-05-25 verification run surfaced six tar babies: sequential state corruption between generateCode calls (Tar 1, active blocker), gXpress assignment operator-asymmetry (Tar 5), parse-time constant folding during generation (Tar 3), numeric-literal classification (Tar 4), stale header comment (Tar 6). Plus gXpress simplification cleanup (Operators[X] → bare 'X').
 - Morning 2026-05-25 architecture recon. Bible Architecture gains two entries: Name Resolution and Base Registries (six base registries, resolution order, single-quote convention for non-alpha lookups), and Attributes with Methods Two Patterns (setter-attribute vs persistent-attribute distinction, the noPrint+immediateACTION discriminator). Both surfaced from reading ruleActions.rtn and GroupActions.rtn directly.
-- Design note for bcOPs-fold-into-opFields drafted at Groups/docs/bcOPs-fold-design.md. Rationale: base-registry property makes bytecode markers bare-findable (anywhere in incant code, `bcCALL` resolves without qualification). Implementation deferred.
+- Design note for bcOPs-fold-into-opFields was drafted and later retired — superseded by the decision to keep `bcOPs` and `Operators` as separate registries (Architecture decision #2).
 - Mutual-recursion gap surfaced (A→B→A not detected by current recursive-flag mechanism) — flagged for future structural fix via Stak-based call-stack.
 - Tony status-report convention pinned in TODO standing practices (issues, design changes, follow-ups, files changed).
 
@@ -552,7 +552,7 @@ See HWF.md for active session content. Bible carries the index so resurrection-r
 - PLGmain split from PLGparse
 - Indent-as-structure (HWF Session 4) substantially landed for definitions and code blocks; Fork A implementation in progress
 - Incant POP runs to completion; test action fires end-to-end; full unit-test suite passes (2026-05-16)
-- Bytecode/JIT material moved out of bible to sibling jit.md
+- Bytecode/JIT material moved out of bible to `docs/jit.md`
 - Phase naming convention extended: Phase Generate Tawk, Phase Integrate, Phase Bytecode, Phase JIT
 - Bare-include framing officially retired; self-host status downgraded to honest "unknown until next attempt"
 - HWF Session 6 (parse error handling) queued; HWF Session 8 (JIT design) queued

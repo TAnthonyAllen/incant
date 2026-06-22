@@ -361,7 +361,7 @@ projectBible.md "Phase Generate Tawk".
   Latent: resurfaces for any by-ref fnptr field.
 - [ ] **incant-idioms.md v0** — substantial accumulation now. Draft when bytecode arc closes.
 - [ ] **Bytecode.mm rewrite into tok** — after Phase Bytecode current arc closes.
-- [ ] **bcOPs-fold-into-opFields** — deferred, design at `Groups/docs/bcOPs-fold-design.md`.
+- [x] **bcOPs-fold-into-opFields** — superseded by decision #2 (keep bcOPs separate); doc retired.
 - [ ] **Print bytecode plan document** — `Groups/docs/printGenerationPlan.md`.
 - [ ] **`=:` operator grammar-change design** — parked.
 - [ ] **Wiki weekly refinement.**

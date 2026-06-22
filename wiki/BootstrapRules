@@ -1,13 +1,13 @@
 # The Bootstrap Rules
 
-Every language has to start somewhere. Incant starts with 28 rules hard-coded in C++.
+Every language has to start somewhere. Incant starts with 32 rules hard-coded in C++.
 
 That's the bootstrap problem: you need a language to define a language. Incant solves it by
 hard-coding the smallest possible set of rules — just enough to define what a field is and
-how fields are written. Once those 28 rules exist, incant can read a setup file written in
+how fields are written. Once those 32 rules exist, incant can read a setup file written in
 its own syntax and define everything else from there.
 
-This page walks through those 28 rules: what each one does, and how they fit together into
+This page walks through those 32 rules: what each one does, and how they fit together into
 something that can define itself.
 
 ---
@@ -96,7 +96,7 @@ more complex rules, rules that may define a new programming language even.
 The field that started as a comma matcher ends up, several layers of definition
 later, as a distributed messaging primitive or a cloud-hosted AI.
 
-That's what it means for a language to define itself. The 28 rules are not clever.
+That's what it means for a language to define itself. The 32 rules are not clever.
 They are the minimum. Everything clever comes after.
 
 ---
