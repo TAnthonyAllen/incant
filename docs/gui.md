@@ -26,6 +26,38 @@ brick: hang `Layout` as the window's `contentView` and give `drawRect:` a color 
 
 ---
 
+## 🧱 BIGIFY in incant — 2026-06-23 (band-splitter done, painter pending)
+
+Reimplementing the old Bwana `bigify` (object pool + by-ref counter + `goto`) as pure
+incant — and it's *slicker*: the layout is two nested `while`s and a clamp. Status:
+
+**Build half — DONE & proven (committed `06e9c9b`).** `bigifyLayout` (`incant/utilities`)
+builds a `rows × columns` grid as a band-wrapper tree: clamp `selRow`/`selCol` (block
+state) → `bOR`/`bOC`, split each intersecting row into **left-strip `bigColumn`s / big cell
+/ right strip**, non-intersecting rows full-width. Each cell **merges** its template
+(`regularItem`/`bigItem`) and is **stamped** `row`/`col`. **Percent** sizes via `:.
+isPercenT`; stamps wrapped in `copyOf` (else `+%` aliases the reused local). Verified at a
+non-corner slot (4×3, big 2×2 @ (1,1)): correct three-band tree, per-cell stamps, heights
+25/50/25, widths 33/33/33 + strip 33 / big 67.
+
+**This session also landed the language primitives bigify needed** (see commits): the
+**revived merge subsystem** + two-sided opt-in contract + `:.`/`opSetFlag` (`290af9c`), and
+**`<-`/`opRebind`** — the clean slot-rebind that `:=` (byRef-sticky) and `=` (content-copy)
+couldn't express; it's the "rebind a local to a fresh node" semantics, already JIT-shaped
+(`1b31126`).
+
+**Painter — PENDING (the one bounded debug left).** `setFrame` integration (`layoutTree`
+recursive driver) is *out* of the commit. Two bugs: (1) `setFrame`'s **`fillAcross` fires on
+the pre-built rows** (they carry `across=1`) and duplicates cells ~17× — the `*`-fill path
+(`if across == "*"`) shouldn't run on already-populated blocks; suspect the `across` marker
+choice or a "skip fill if already filled" guard. (2) `x`/`y` come out empty after the fill
+mess — check the position pass once fill's untangled. Start from the green build tree.
+
+**Next after painter:** `seq` (covered-before reading-order stamp for source-fill);
+`reBigify` (selection → `selRow`/`selCol` + rebuild). Then bigify is done & dusted.
+
+---
+
 ## Current Status
 
 **GUI work is in preparation phase — recon complete, design starting.** The old GUI is
