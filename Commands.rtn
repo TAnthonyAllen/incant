@@ -367,7 +367,7 @@ extern GroupItem processFlags(GroupItem item)
 {
 GroupRules  ruler   = groupRules;
 String      command = tag;
-GroupItem   target  = parent;
+GroupItem   target  = item.fLAG ? item.parent : item;
     if item
         switch(*command) {
             case 'a':

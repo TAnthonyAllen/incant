@@ -267,6 +267,9 @@ GroupItem 	*item = 0;
 		/***********************************************************************
 		Process Attributes.
 		***********************************************************************/
+		::printf("aCTionDefinE: %s %d\n",NewGroup->groupBody->tag,ruler->lastIndent);
+		if ( ::compare(NewGroup->groupBody->tag,"testJSON") == 0 )
+			item = 0;
 		if ( Attributes )
 			while ( item = Attributes->next(item) )
 				if ( item->groupBody->flags.noPrint && immediateACTION(item->groupBody->flags.methodType) )
@@ -3451,6 +3454,39 @@ GroupItem 	*grup = 0;
 }
 
 /***************************************************************************
+	Rule action for the :. operator — the inverse of opDot. Where opDot reads
+    a groupField property off target, opSetFlag toggles the flag named by the
+    groupField argument ON the target. Explicit operands (target . argument)
+    sidestep the processFlags item.tag command-detection problem.
+        cellA :. mergeON    toggles mergeOn on cellA
+    Extend by adding the relevant gCount case (see groupFields in setup).
+***************************************************************************/
+extern "C" GroupItem *opSetFlag(GroupItem *argument, GroupItem *target)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*flag = argument;
+	if ( argument && argument->groupBody->registry != ruler->groupFields )
+		flag = ruler->groupFields->get(argument->groupBody->tag);
+	if ( flag && target )
+		switch (flag->groupBody->gCount)
+			{
+			case 25:
+				target->groupBody->flags.isVirtual = !target->groupBody->flags.isVirtual;
+				break;
+			case 26:
+				target->groupBody->flags.mergeOn = !target->groupBody->flags.mergeOn;
+				break;
+			case 29:
+				target->groupBody->flags.noPrint = !target->groupBody->flags.noPrint;
+				break;
+			default:
+				::fprintf(stderr,"opSetFlag: setting %s not supported yet\n",flag->groupBody->tag);
+			}
+	else	::fprintf(stderr,"opSetFlag: no group field for %s\n",argument->groupBody->tag);
+	return target;
+}
+
+/***************************************************************************
 	Rule action for the := set group operator. Stamps byRef on the argument so
 	setGroup stores it BY REFERENCE (no copy). byRef is left SET (sticky) on
 	purpose: a later `=` of the same field then also references, because opAssign
@@ -3704,7 +3740,7 @@ extern "C" GroupItem *processFlags(GroupItem *item)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*command = item->groupBody->tag;
-GroupItem 	*target = item->parent;
+GroupItem 	*target = item->groupBody->flags.fLAG ? item->parent : item;
 	if ( item )
 		switch (*command)
 			{

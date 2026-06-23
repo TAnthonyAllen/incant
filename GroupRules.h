@@ -190,6 +190,7 @@ extern "C" GroupItem *opPrint(GroupItem *target, Buffer *buffer);
 extern "C" GroupItem *opRem(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opReplaceAttribute(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opReplaceMember(GroupItem *argument, GroupItem *target);
+extern "C" GroupItem *opSetFlag(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opSetGroup(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opSetTag(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opString(GroupItem *target, Buffer *buffer);

@@ -111,6 +111,7 @@ define
     '/='    operateMethod=opDivEQ;
     '/'     operateMethod=opDiv;
     '.'     operateMethod=opDot;
+    ':.'    operateMethod=opSetFlag;
     '-='    operateMethod=opMinusEQ;
     '--'    unary ruleMethod=opMinusMinus;
 
@@ -240,7 +241,7 @@ define
     isRulE;
     isShortcuT=24;
     isVirtuaL;
-    mergeON;
+    mergeON=26;
     negatE;
     noLabeL=28;
     noPrinT=29;

@@ -188,6 +188,11 @@ GroupItem *GroupItem::addAttribute(GroupItem *grup)
 {
 	if ( !grup )
 		return 0;
+	if ( grup->groupBody->flags.mergeOn && groupBody->flags.mergeOn )
+		{
+		merge(grup);
+		return this;
+		}
 	grup = addGroup(grup);
 	grup->options.affiliation = 1;
 	groupBody->flags.hasAttributes = 1;

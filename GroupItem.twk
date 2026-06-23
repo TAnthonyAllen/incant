@@ -95,6 +95,7 @@ GroupItem addGroup(GroupItem group)
 GroupItem addAttribute(GroupItem grup)
 {
     if !grup            return null;
+    if grup.mergeOn && mergeOn { merge(grup); return this; }
     grup                = addGroup(grup);
     grup.isAttribute	= true;
     hasAttributes       = true;

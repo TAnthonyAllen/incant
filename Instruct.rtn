@@ -153,6 +153,31 @@ use argument
 }
 
 /***************************************************************************
+	Rule action for the :. operator — the inverse of opDot. Where opDot reads
+    a groupField property off target, opSetFlag toggles the flag named by the
+    groupField argument ON the target. Explicit operands (target . argument)
+    sidestep the processFlags item.tag command-detection problem.
+        cellA :. mergeON    toggles mergeOn on cellA
+    Extend by adding the relevant gCount case (see groupFields in setup).
+***************************************************************************/
+extern GroupItem opSetFlag(GroupItem argument,GroupItem target)
+{
+GroupRules  ruler = groupRules;
+GroupItem   flag  = argument;
+    if argument && argument.registry != groupFields
+        flag = groupFields[argument.tag];
+use flag
+    if flag && target
+        switch(gCount) {
+            case 25:    target.isVirtual = !target.isVirtual;
+            case 26:    target.mergeOn   = !target.mergeOn;
+            case 29:    target.noPrint   = !target.noPrint;
+            default:    cerr "opSetFlag: setting " tag " not supported yet":; }
+    else    cerr "opSetFlag: no group field for " argument.tag:;
+    return target;
+}
+
+/***************************************************************************
 	Rule action for the == operator
 ***************************************************************************/
 extern GroupItem opEQ(GroupItem argument,GroupItem target)
