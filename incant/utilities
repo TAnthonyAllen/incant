@@ -307,4 +307,37 @@ define
         search reset stack Grokking;
         search UnitTests Utilities list;
         changeDatA(); };
+    /***************************************************************************
+        bigifyLayout — build a rows x columns grid of cells as members of the
+        bigify block passed in. Templates (regularItem) ride in as fields of the
+        block and are scoped out. Each cell merges the template's attributes in
+        (two-sided merge: cell opts in via :. mergeON) and is stamped with its
+        row, col, and reading-order seq. setFrame paints the result.
+        v1: all-regular grid (no big band yet); percent/orientation in v2.
+    ***************************************************************************/
+    bigifyLayout argument code={
+        print "bigifyLayout building grid for" taG:;
+        :argument rows columns bigRows bigColumns regularItem;
+        seq = 0;
+        r = 0;
+        while r < rows;
+            rowName = string $"row" r;
+            rowBlock <- argument :+ new(rowName);
+            across = 1;
+            rowBlock +% across;
+            c = 0;
+            while c < columns;
+                cellName = string $"cell" seq;
+                cell <- rowBlock :+ new(cellName);
+                cell :. mergeON;
+                cell +% regularItem;
+                row = r;
+                cell +% row;
+                col = c;
+                cell +% col;
+                cell +% seq;
+                seq += 1;
+                c += 1;
+            r += 1;
+        };
     ;

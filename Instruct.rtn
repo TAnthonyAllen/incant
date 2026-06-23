@@ -172,6 +172,7 @@ use flag
             case 25:    target.isVirtual = !target.isVirtual;
             case 26:    target.mergeOn   = !target.mergeOn;
             case 29:    target.noPrint   = !target.noPrint;
+            case 31:    target.byRef     = !target.byRef;
             default:    cerr "opSetFlag: setting " tag " not supported yet":; }
     else    cerr "opSetFlag: no group field for " argument.tag:;
     return target;
@@ -601,16 +602,17 @@ GroupItem   grup;
 ***************************************************************************/
 extern GroupItem opReplaceMember(GroupItem argument,GroupItem target)
 {
-GroupItem   grup;
+GroupItem   grup,
+            added;
     if argument.isLIST
         while grup = argument.prior(grup)
             if grup.isAttribute {
                 grup.isMember = true;
-                target.replace(grup);
+                added = target.replace(grup);
                 grup.isAttribute = true; }
-            else target.replace(grup);
-    else    target.replace(argument);
-    return target;
+            else added = target.replace(grup);
+    else    added = target.replace(argument);
+    return added;
 }
 
 /***************************************************************************
@@ -634,6 +636,20 @@ extern GroupItem opRem(GroupItem argument,GroupItem target)
 extern GroupItem opSetGroup(GroupItem argument,GroupItem target)
 {
     if argument group = argument;
+    return      target;
+}
+
+/***************************************************************************
+	Rule action for the <- rebind operator — the clean slot rebind.
+    Sets the LHS local's group to the evaluated RHS node, with NO byRef
+    stamp (unlike :=) and no content copy (unlike =). This is exactly the
+    pointer-set aCTionScopeXP uses (local.group = node), wired to a runtime
+    RHS instead of a name lookup -- giving a fresh stampable handle each
+    loop pass:  cell <- argument :+ new(nm);
+***************************************************************************/
+extern GroupItem opRebind(GroupItem argument,GroupItem target)
+{
+    if argument target.group = argument;
     return      target;
 }
 

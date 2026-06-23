@@ -3404,6 +3404,21 @@ char 		*printText = buffer->string();
 }
 
 /***************************************************************************
+	Rule action for the <- rebind operator — the clean slot rebind.
+    Sets the LHS local's group to the evaluated RHS node, with NO byRef
+    stamp (unlike :=) and no content copy (unlike =). This is exactly the
+    pointer-set aCTionScopeXP uses (local.group = node), wired to a runtime
+    RHS instead of a name lookup -- giving a fresh stampable handle each
+    loop pass:  cell <- argument :+ new(nm);
+***************************************************************************/
+extern "C" GroupItem *opRebind(GroupItem *argument, GroupItem *target)
+{
+	if ( argument )
+		target->setGroup(argument);
+	return target;
+}
+
+/***************************************************************************
 	Rule action for the % integer div operator
 ***************************************************************************/
 extern "C" GroupItem *opRem(GroupItem *argument, GroupItem *target)
@@ -3440,17 +3455,18 @@ GroupItem 	*grup = 0;
 extern "C" GroupItem *opReplaceMember(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*grup = 0;
+GroupItem 	*added = 0;
 	if ( isLIST(argument->groupBody->flags.binType) )
 		while ( grup = argument->prior(grup) )
 			if ( isAttribute(grup->options.affiliation) )
 				{
 				grup->options.affiliation = 2;
-				target->replace(grup);
+				added = target->replace(grup);
 				grup->options.affiliation = 1;
 				}
-			else	target->replace(grup);
-	else	target->replace(argument);
-	return target;
+			else	added = target->replace(grup);
+	else	added = target->replace(argument);
+	return added;
 }
 
 /***************************************************************************
@@ -3478,6 +3494,9 @@ GroupItem 	*flag = argument;
 				break;
 			case 29:
 				target->groupBody->flags.noPrint = !target->groupBody->flags.noPrint;
+				break;
+			case 31:
+				target->groupBody->flags.byRef = !target->groupBody->flags.byRef;
 				break;
 			default:
 				::fprintf(stderr,"opSetFlag: setting %s not supported yet\n",flag->groupBody->tag);
@@ -4011,7 +4030,7 @@ GroupItem 	*result = 0;
 GroupItem 	*op = field->get(1);
 GroupItem 	*arg = field->get(3);
 GroupItem 	*target = field->get(2);
-	if ( isGROUP(target->groupBody->flags.data) && !target->groupBody->flags.isPointer )
+	if ( isGROUP(target->groupBody->flags.data) && !target->groupBody->flags.isPointer && !op->groupBody->flags.isAssign )
 		target = target->getGroup();
 	if ( arg && isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isPointer )
 		arg = arg->getGroup();

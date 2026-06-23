@@ -447,7 +447,7 @@ GroupItem   result,
             op      = field[1],
             arg     = field[3],
             target  = field[2];
-    if isGROUP && !isPointer                    target = group;
+    if isGROUP && !isPointer && !op.isAssign    target = group;
     if arg && arg.isGROUP && !arg.isPointer     arg = arg.group;
     if op.instructType && isMethod && invoke    target = method(target);
     if arg

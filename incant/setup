@@ -94,12 +94,13 @@ define
     '=]'    operateMethod=opEnd;
     '=/'    assign operateMethod=opGetMember;
     '=*'    unary ruleMethod=opPointer;
-    '=%'    assign operateMethod=opGetAttribute;
-    '='     assign operateMethod=opAssign;
+    '=%'    operateMethod=opGetAttribute;
+    '='     operateMethod=opAssign;
 
     '<='    operateMethod=opLE  interpretMethod=runLE;
     '<<';
     '<:'    operateMethod=opSetTag;
+    '<-'    assign operateMethod=opRebind;
     '<'     operateMethod=opLT  interpretMethod=runLT;
 
     ':>';
@@ -246,6 +247,7 @@ define
     noLabeL=28;
     noPrinT=29;
     noSkiP;
+    byReF=31;
     nexT=401;
     prioR=402;
     firsT=403;
