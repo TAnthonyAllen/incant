@@ -237,7 +237,7 @@ define
     isMacrO;
     isMethoD=19;
     isOperatoR=20;
-    isPercenT;
+    isPercenT=21;
     isPointeR;
     isRulE;
     isShortcuT=24;

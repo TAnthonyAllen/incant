@@ -3486,6 +3486,9 @@ GroupItem 	*flag = argument;
 	if ( flag && target )
 		switch (flag->groupBody->gCount)
 			{
+			case 21:
+				target->groupBody->flags.isPercent = !target->groupBody->flags.isPercent;
+				break;
 			case 25:
 				target->groupBody->flags.isVirtual = !target->groupBody->flags.isVirtual;
 				break;

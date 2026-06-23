@@ -169,6 +169,7 @@ GroupItem   flag  = argument;
 use flag
     if flag && target
         switch(gCount) {
+            case 21:    target.isPercent = !target.isPercent;
             case 25:    target.isVirtual = !target.isVirtual;
             case 26:    target.mergeOn   = !target.mergeOn;
             case 29:    target.noPrint   = !target.noPrint;

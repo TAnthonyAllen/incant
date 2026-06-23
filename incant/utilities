@@ -317,27 +317,102 @@ define
     ***************************************************************************/
     bigifyLayout argument code={
         print "bigifyLayout building grid for" taG:;
-        :argument rows columns bigRows bigColumns regularItem;
-        seq = 0;
+        :argument rows columns bigRows bigColumns regularItem bigItem selRow selCol;
+    /***************************************************************************
+        Clamp the big-slot origin so the bigRows x bigColumns rectangle fits.
+    ***************************************************************************/
+        maxRow = rows - bigRows;
+        maxCol = columns - bigColumns;
+        bOR = selRow;
+        if bOR < 0;        bOR = 0;
+        if bOR > maxRow;   bOR = maxRow;
+        bOC = selCol;
+        if bOC < 0;        bOC = 0;
+        if bOC > maxCol;   bOC = maxCol;
+        rowPct = 100 / rows;
+        colPct = 100 / columns;
+        bigRowSpan = 100 * bigRows;
+        bigHpct = bigRowSpan / rows;
+        bigColSpan = 100 * bigColumns;
+        bigWpct = bigColSpan / columns;
+    /***************************************************************************
+        Build bands top to bottom. A row inside [bOR, bOR+bigRows) becomes the
+        big band; every other row is a full-width regular row.
+    ***************************************************************************/
         r = 0;
         while r < rows;
-            rowName = string $"row" r;
-            rowBlock <- argument :+ new(rowName);
-            across = 1;
-            rowBlock +% across;
-            c = 0;
-            while c < columns;
-                cellName = string $"cell" seq;
-                cell <- rowBlock :+ new(cellName);
-                cell :. mergeON;
-                cell +% regularItem;
-                row = r;
-                cell +% row;
-                col = c;
-                cell +% col;
-                cell +% seq;
-                seq += 1;
-                c += 1;
-            r += 1;
+            if r == bOR;
+            /***************************************************************
+                The big band, bigRows tall: left-strip columns, the enlarged
+                cell, then right-strip columns, left to right.
+            ***************************************************************/
+                bandName = string $"band" r;
+                band <- argument :+ new(bandName);
+                across = 1;
+                band +% across;
+                height = bigHpct;
+                height :. isPercenT;
+                band +% copyOf(height);
+                c = 0;
+                while c < columns;
+                    if c == bOC;
+                        bigName = string $"big" r;
+                        big <- band :+ new(bigName);
+                        big :. mergeON;
+                        big +% bigItem;
+                        width = bigWpct;
+                        width :. isPercenT;
+                        big +% copyOf(width);
+                        row = bOR;
+                        big +% copyOf(row);
+                        col = bOC;
+                        big +% copyOf(col);
+                        c += bigColumns;
+                    else
+                        colName = string $"strip" c;
+                        column <- band :+ new(colName);
+                        width = colPct;
+                        width :. isPercenT;
+                        column +% copyOf(width);
+                        rr = 0;
+                        while rr < bigRows;
+                            cellRow = bOR + rr;
+                            cellName = string $"c" cellRow "x" c;
+                            cell <- column :+ new(cellName);
+                            cell :. mergeON;
+                            cell +% regularItem;
+                            row = cellRow;
+                            cell +% copyOf(row);
+                            col = c;
+                            cell +% copyOf(col);
+                            rr += 1;
+                        c += 1;
+                r += bigRows;
+            else
+            /***************************************************************
+                A full-width regular row.
+            ***************************************************************/
+                rowName = string $"row" r;
+                rowBlock <- argument :+ new(rowName);
+                across = 1;
+                rowBlock +% across;
+                height = rowPct;
+                height :. isPercenT;
+                rowBlock +% copyOf(height);
+                c = 0;
+                while c < columns;
+                    cellName = string $"c" r "x" c;
+                    cell <- rowBlock :+ new(cellName);
+                    cell :. mergeON;
+                    cell +% regularItem;
+                    width = colPct;
+                    width :. isPercenT;
+                    cell +% copyOf(width);
+                    row = r;
+                    cell +% copyOf(row);
+                    col = c;
+                    cell +% copyOf(col);
+                    c += 1;
+                r += 1;
         };
     ;
