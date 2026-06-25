@@ -292,4 +292,3 @@ include /Users/anthony/Dropbox/data/InProcess/Groups/Debug.rtn
 include /Users/anthony/Dropbox/data/InProcess/Groups/Instruct.rtn
 include /Users/anthony/Dropbox/data/InProcess/Groups/Generate.rtn
 include /Users/anthony/Dropbox/data/InProcess/Groups/jitEmitters.rtn
-include /Users/anthony/Dropbox/data/InProcess/Groups/guiHost.rtn

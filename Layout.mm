@@ -11,16 +11,16 @@
 
 - (void)drawRect:(NSRect)r
 {
-GroupItem 	*item = 0;
+GroupItem 	*grup = 0;
 NSRect 		f;
 	if ( !base )
 		return;
 	[NSBezierPath setDefaultLineWidth:0.0];
 	strokeColor = [NSColor blackColor];
 	[strokeColor set];
-	while ( item = base->walk(item) )
+	while ( grup = base->nextAttribute(grup) )
 		{
-		f = ::getFrame(item);
+		f = ::getFrame(grup);
 		f.origin.y = [self frame].size.height - f.origin.y - f.size.height;
 		[layoutPath appendBezierPathWithRect:f];
 		}
