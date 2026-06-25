@@ -23,6 +23,7 @@
 #include "PLGset.h"
 #include "PLGrgx.h"
 #include "PLGitem.h"
+#include "GroupDraw.h"
 
 /*****************************************************************************
     Compare attribute value of group1 to attribute value of group2. The results
@@ -113,6 +114,7 @@ int 	result = -1;
 				break;
 			case 4:
 			case 13:
+			case 14:
 				if ( isCOUNT(group2->groupBody->flags.data) || isNUMBER(group2->groupBody->flags.data) )
 					result = group1->getCount() - group2->getCount();
 				else	result = ::compare(group1->getText(),group2->getText());
@@ -323,6 +325,9 @@ void GroupItem::clearList()
 {
 	if ( !groupBody->groupList )
 		return;
+	if ( !groupBody->groupList->listLength )
+		groupBody->groupList = 0;
+	else
 	while ( groupBody->groupList )
 		pop();
 	groupBody->flags.hasAttributes = groupBody->flags.hasMembers = 0;

@@ -85,7 +85,7 @@ define
     floaty=2.5;
     name="world";
     styleTest merge lightGreen rounded;
-    sumple="What if it is a long string." height=200 width=250 x=100 y=100 down=*
+    sumple="What if it is a long string." height=200 width=250 x=100 y=100 down=* across=2
         crossing height=50;
     simple across styleTest height=212 width=250 x=100 y=100
         quinto width=150;

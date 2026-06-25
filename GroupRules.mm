@@ -24,6 +24,7 @@
 #include "GroupStak.h"
 #include "PLGset.h"
 #include "PLGrgx.h"
+#include "GroupDraw.h"
 #include "GroupRules.h"
 
 /*******************************************************************************
@@ -267,9 +268,6 @@ GroupItem 	*item = 0;
 		/***********************************************************************
 		Process Attributes.
 		***********************************************************************/
-		::printf("aCTionDefinE: %s %d\n",NewGroup->groupBody->tag,ruler->lastIndent);
-		if ( ::compare(NewGroup->groupBody->tag,"testJSON") == 0 )
-			item = 0;
 		if ( Attributes )
 			while ( item = Attributes->next(item) )
 				if ( item->groupBody->flags.noPrint && immediateACTION(item->groupBody->flags.methodType) )
@@ -951,7 +949,13 @@ char 		*name = 0;
 				action->addAttribute(grup);
 				}
 			if ( field )
+				{
+				if ( field->groupBody == grup->groupBody )
+					continue;
+				if ( isGROUP(listItem->groupBody->flags.data) )
+					listItem->setGroup(field);
 				grup->setGroup(field);
+				}
 			else	grup->clear();
 			}
 		}
@@ -3254,7 +3258,7 @@ extern "C" GroupItem *opOR(GroupItem *argument, GroupItem *target)
 		else
 		if ( argument && argument->groupBody->gCount )
 			return GroupControl::groupController->groupRules->trueResult;
-	return 0;
+	return GroupControl::groupController->groupRules->falseResult;
 }
 
 /***************************************************************************
@@ -3431,21 +3435,22 @@ extern "C" GroupItem *opRem(GroupItem *argument, GroupItem *target)
 }
 
 /***************************************************************************
-	Rule action for the :+ replace operator.
+	Rule action for the :% replace operator.
 ***************************************************************************/
 extern "C" GroupItem *opReplaceAttribute(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*grup = 0;
+GroupItem 	*added = 0;
 	if ( isLIST(argument->groupBody->flags.binType) )
 		while ( grup = argument->prior(grup) )
-			if ( isMember(grup->options.affiliation) )
-				{
-				grup->options.affiliation = 1;
-				target->replace(grup);
-				grup->options.affiliation = 2;
-				}
-			else	target->replace(grup);
-	else	target->replace(argument);
+			{
+			added = target->replace(grup);
+			added->options.affiliation = 1;
+			}
+	else {
+		added = target->replace(argument);
+		added->options.affiliation = 1;
+		}
 	return target;
 }
 
@@ -3458,15 +3463,15 @@ GroupItem 	*grup = 0;
 GroupItem 	*added = 0;
 	if ( isLIST(argument->groupBody->flags.binType) )
 		while ( grup = argument->prior(grup) )
-			if ( isAttribute(grup->options.affiliation) )
-				{
-				grup->options.affiliation = 2;
-				added = target->replace(grup);
-				grup->options.affiliation = 1;
-				}
-			else	added = target->replace(grup);
-	else	added = target->replace(argument);
-	return added;
+			{
+			added = target->replace(grup);
+			added->options.affiliation = 2;
+			}
+	else {
+		added = target->replace(argument);
+		added->options.affiliation = 2;
+		}
+	return target;
 }
 
 /***************************************************************************
@@ -4042,9 +4047,13 @@ GroupItem 	*target = field->get(2);
 	if ( arg )
 		if ( isMethod(arg->groupBody->flags.instructType) && arg->groupBody->flags.invoke )
 			arg = arg->groupBody->gMethod(arg);
-		else
-		if ( isLIST(arg->groupBody->flags.binType) )
-			arg = ::resolveList(arg);
+	/* resolveList(arg) deliberately disabled: it returned a COPY of a
+	list operand (losing tag/identity/byRef), which broke the list-
+	consuming operators (:+ <- merge) that walk argument.isLIST and
+	depend on the real node. Single-method args are still resolved
+	one line up. Re-enable only by resolving members in place, and
+	skip it for the list operators. */
+	//or arg.isLIST   arg = resolveList(arg);
 	if ( target && target->groupBody->flags.isVirtual )
 		target = ::copyOf(target);
 	if ( isOperator(op->groupBody->flags.instructType) )
@@ -4431,6 +4440,7 @@ GroupRules::GroupRules()
 	isPRINTING = 0;
 	isRELATIVE = 0;
 	isRigorous = 0;
+	membering = 0;
 	noSkipping = 0;
 	processingCode = 0;
 	showWarnings = 0;

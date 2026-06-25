@@ -4,13 +4,27 @@
 #import <stdlib.h>
 #import "OCroutines.h"
 #import "GroupItem.h"
+#import "GroupDraw.h"
 #import "Layout.h"
 
 @implementation Layout
 
 - (void)drawRect:(NSRect)r
 {
-	::printf("drawRect: not written yet\n");
+GroupItem 	*item = 0;
+NSRect 		f;
+	if ( !base )
+		return;
+	[NSBezierPath setDefaultLineWidth:0.0];
+	strokeColor = [NSColor blackColor];
+	[strokeColor set];
+	while ( item = base->walk(item) )
+		{
+		f = ::getFrame(item);
+		f.origin.y = [self frame].size.height - f.origin.y - f.size.height;
+		[layoutPath appendBezierPathWithRect:f];
+		}
+	[layoutPath stroke];
 }
 
 - (Layout*)init:(NSRect)f

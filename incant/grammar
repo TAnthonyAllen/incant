@@ -56,7 +56,7 @@ TraiT               NamE Modifier* Limit? TraiTdata?;
 Attributes=TraiT+;
 NewGroup            TraiT@;
 DefinE              NewGroup Attributes? MemberS endDefine-=[;>];
-define              DEFINing- definitions=DefinE+ DEFINing- ';'-;
+define              DEFINing-^ definitions=DefinE+ DEFINing- ';'-;
 RunRulE             NamE InvokE? ';'-?;
 InitiatE=RunRulE+;
 
@@ -115,6 +115,9 @@ define
         TokenXP;
         Operators;
     ExpressioN      Token+;
+    ScopeField
+        ANYtoken;
+        NumbeR;
     /*************************************************************************
         Format flags are
             #       forces a decimal
@@ -140,7 +143,7 @@ define
         PrinT       print followedBy PRINTing- stuff=PrintXP+  SemI- defer;
         Search      "search"- followedBy GrouP+ SemI-;
         BrancH      BrancheS ExpressioN? SemI- defer;
-        ScopeXP     ":"- scopeList=ANYtoken+ SemI- defer;
+        ScopeXP     ":"- scopeList=ScopeField+ SemI- defer;
     Xpress          ExpressioN SemI-;
     StatemenT
         SemI;

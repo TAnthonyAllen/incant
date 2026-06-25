@@ -73,6 +73,7 @@ struct
 	unsigned int isPRINTING:1;
 	unsigned int isRELATIVE:1;
 	unsigned int isRigorous:1;
+	unsigned int membering:1;
 	unsigned int noSkipping:1;
 	unsigned int processingCode:1;
 	unsigned int showWarnings:1;

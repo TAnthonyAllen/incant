@@ -1,4 +1,50 @@
+/*******************************************************************************
+	Offline Status Report
+*******************************************************************************/
+Worked on two things:
+    Getting Layout.twk and GroupDraw.twk to compile and link into TOK xcode. Have not linked in openWindow(). That is one thing I want to get done today.
+    Second: I worked on setFrame and it is much improved. Before, it handled across=* and down=* but did not handle across=2 or down=3; Handling both at once on the same field is still WIP, but it kinda works as shown in my test run in the IncantForms/Windows/tabs file. Also, I extended setFrame to recursively descend so calling setFrame on a form will now handle the full monty top to bottom. The unit test for setFrame in tabs works; I expect we should be able to run it on all the IncantForms, however, POP required. Applying it with bigify needs to be worked out
+        In my setFrame test in tabs: the following is the field I ran it on and the commands used to run it
+            matrix="What if it is a long string." height=200 width=400 x=100 y=100 down=4
+                crossing height=50 across=3
+                    cell;
+            setFrame(matrix);
+            printDefinition(matrix);
+        Here is the trace of what those commands spit out:
+            Setting frame for matrix
+            Setting frame for crossing
+            Setting frame for crossing
+            Setting frame for crossing
+            Setting frame for crossing
+            matrix=What if it is a long string. height=200 width=400 x=100 y=100 down=4
+                crossing height=50 across=3 width=400 y=100 x=100
+                    cell height width y=100 x=100
+                    cell height width y=100 x=233
+                    cell height width y=100 x=366
+                crossing height=50 across=3 width=400 y=150 x=100
+                    cell height width y=100 x=100
+                    cell height width y=100 x=100
+                    cell height width y=100 x=100
+                crossing height=50 across=3 width=400 y=200 x=100
+                    cell height width y=100 x=100
+                    cell height width y=100 x=100
+                    cell height width y=100 x=100
+                crossing height=50 across=3 width=400 y=250 x=100
+                    cell height width y=100 x=100
+                    cell height width y=100 x=100
+                    cell height width y=100 x=100
 
+    I would like to split work today over two sessions, before and after lunch sessions; timing of the after lunch session TBD. Things to cover in those two sessions:
+        One session GUI related:
+            Make xcode able to launch windows;
+            The JSON parser passed our POP tests but has not been applied in anger, lets try it on loading google fonts w/victory condition a one line command that gets it done;
+            Firm up our design wrt incant/Apple handoff. I want to consider using incant to pass Layout a field at a time, no walking involved in Layout aside from going thru attributes to be processed in the field incant passes in. The attributes will define what goes into the field frame to define, including:
+                What does it contain, text, image, path, cell? The oldGUI version of Layout.twk handles those, and that code needs to be ported and revised as needed to fit into our current Layout.twk so we can start testing in a window.
+                Attributes should  be used to set fonts borders and colors (methinks those attributes should have methods Layout can fire to do the needful). Those methods need be written and we need to nail down the font setting process from incant to layout.
+                Layout will need to use our getFrame() to cobble a frame out of the x y width and height attributes that setFrame sets.
+            One reason I want to try this design approach is it makes it easy to test how individual fields are displayed, and ideally, should enable us to modify a single frame in a running window from incant. incant is the driver, Layout be the vehicle being driven.
+            Push back welcome but I will be stubborn on this.
+        One session devoted to JIT: push to get Phase 2 done. We got the plan. Lets see if we can get thru it today.
 /*******************************************************************************
 	This is my list of unit tests to be written. No need to add it into any md file.
 *******************************************************************************/

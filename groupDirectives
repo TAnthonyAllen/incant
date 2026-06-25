@@ -5,8 +5,7 @@
     if NewGroup.tag eq "gXpress" debugAllRules = true;
     if NewGroup.tag eq "testJSON" item = 0;
     cout "aCTionDefinE:",NewGroup.tag,lastIndent:;
-    if NewGroup.tag eq "Start" {
-        debugRuleNamed("Start");
+    if NewGroup.tag eq "matrix" {
         debugRuleNamed("StatemenT");
         debugRuleNamed("Xpress");
         }
@@ -23,7 +22,6 @@ aCTionDebuG embed.debugged ctive
 #;
 aCTionDefinE "if Attributes" before active
     cout "aCTionDefinE:",NewGroup.tag,lastIndent:;
-    if NewGroup.tag eq "testJSON" item = 0;
 #;
 aCTionElsE if ctive
     if blocking cout "unBlocked:", blocking:;
@@ -32,7 +30,7 @@ aCTionExpressioN while before ctive
     if entries.listLength == 1   result = 0;
 #;
 aCTionNamE result before ctive
-    if arg eq "JSONlist"   result = 0;
+    if arg eq "setFrame"   result = 0;
 #;
 aCTionRunRulE if within ctive
     if tag eq "define" debugAllRules = true;

@@ -1,9 +1,8 @@
 Start();
 include(unitTests);
-include(generate);
 include(utilities);
+search list;
 initFORMs();
-search Generating bcOPs list;
 
 register(dESCRIPTIONs);
 define
@@ -25,30 +24,14 @@ define
                 secondCard="The second tab body" register bordered fill=blue;
                 thirdCard="The third tab body" register bordered fill=red;
             help describe=tabFORM bordered height=100 fill=lightGreen;
-    oldBC argument code={
-        argument +% opStack;
-        setPointer(result);
-        for grup in argument; members
-            clear(result);
-            result := runByteFn(grup);
-        };
-    testGenAction argument code={
-        print "Generating action for" taG:;
-        generated = generateCode(argument);
-        if generated;
-            print :"About to run oldBC":;
-            oldBC(generated);
-        else print "generateCode failed":;
-        };
-    testFer code={ for grup in sumple; attributes  print `taG:; };
+    matrix="What if it is a long string." height=200 width=400 x=100 y=100 down=4
+        crossing height=50 across=3
+            cell;
     ;
 
-listRules(JSONblock);
+setFrame(matrix);
+printDefinition(matrix);
 stop();
-printDefinition(tabFORM);
-testFer();
-testGenAction(testFer);
-generateAction(testFer);
 
     *****************************************************************************
 

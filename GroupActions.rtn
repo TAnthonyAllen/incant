@@ -452,7 +452,13 @@ GroupItem   result,
     if op.instructType && isMethod && invoke    target = method(target);
     if arg
         if arg.isMethod && arg.invoke           arg = arg.method(arg);
-        or arg.isLIST   arg = resolveList(arg);
+        /* resolveList(arg) deliberately disabled: it returned a COPY of a
+           list operand (losing tag/identity/byRef), which broke the list-
+           consuming operators (:+ <- merge) that walk argument.isLIST and
+           depend on the real node. Single-method args are still resolved
+           one line up. Re-enable only by resolving members in place, and
+           skip it for the list operators. */
+        //or arg.isLIST   arg = resolveList(arg);
     if target && target.isVirtual               target = copyOf(target);
     if op.isOperator    result = op.operat(arg,target);
     or op.isMethod      result = op.method(target);

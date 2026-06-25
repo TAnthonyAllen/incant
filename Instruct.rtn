@@ -153,33 +153,6 @@ use argument
 }
 
 /***************************************************************************
-	Rule action for the :. operator — the inverse of opDot. Where opDot reads
-    a groupField property off target, opSetFlag toggles the flag named by the
-    groupField argument ON the target. Explicit operands (target . argument)
-    sidestep the processFlags item.tag command-detection problem.
-        cellA :. mergeON    toggles mergeOn on cellA
-    Extend by adding the relevant gCount case (see groupFields in setup).
-***************************************************************************/
-extern GroupItem opSetFlag(GroupItem argument,GroupItem target)
-{
-GroupRules  ruler = groupRules;
-GroupItem   flag  = argument;
-    if argument && argument.registry != groupFields
-        flag = groupFields[argument.tag];
-use flag
-    if flag && target
-        switch(gCount) {
-            case 21:    target.isPercent = !target.isPercent;
-            case 25:    target.isVirtual = !target.isVirtual;
-            case 26:    target.mergeOn   = !target.mergeOn;
-            case 29:    target.noPrint   = !target.noPrint;
-            case 31:    target.byRef     = !target.byRef;
-            default:    cerr "opSetFlag: setting " tag " not supported yet":; }
-    else    cerr "opSetFlag: no group field for " argument.tag:;
-    return target;
-}
-
-/***************************************************************************
 	Rule action for the == operator
 ***************************************************************************/
 extern GroupItem opEQ(GroupItem argument,GroupItem target)
@@ -471,7 +444,7 @@ extern GroupItem opOR(GroupItem argument,GroupItem target)
     if target
         if gCount   return trueResult;
         or argument && argument.gCount  return trueResult;
-    return null;
+    return falseResult;
 }
 
 /***************************************************************************
@@ -582,38 +555,17 @@ String      printText   = string();
 }
 
 /***************************************************************************
-	Rule action for the :+ replace operator.
+	Rule action for the <- rebind operator — the clean slot rebind.
+    Sets the LHS local's group to the evaluated RHS node, with NO byRef
+    stamp (unlike :=) and no content copy (unlike =). This is exactly the
+    pointer-set aCTionScopeXP uses (local.group = node), wired to a runtime
+    RHS instead of a name lookup -- giving a fresh stampable handle each
+    loop pass:  cell <- argument :+ new(nm);
 ***************************************************************************/
-extern GroupItem opReplaceAttribute(GroupItem argument,GroupItem target)
+extern GroupItem opRebind(GroupItem argument,GroupItem target)
 {
-GroupItem   grup;
-    if argument.isLIST
-        while grup = argument.prior(grup)
-            if grup.isMember {
-                grup.isAttribute = true;
-                target.replace(grup);
-                grup.isMember = true; }
-            else target.replace(grup);
-    else    target.replace(argument);
-    return target;
-}
-
-/***************************************************************************
-	Rule action for the :+ replace operator.
-***************************************************************************/
-extern GroupItem opReplaceMember(GroupItem argument,GroupItem target)
-{
-GroupItem   grup,
-            added;
-    if argument.isLIST
-        while grup = argument.prior(grup)
-            if grup.isAttribute {
-                grup.isMember = true;
-                added = target.replace(grup);
-                grup.isAttribute = true; }
-            else added = target.replace(grup);
-    else    added = target.replace(argument);
-    return added;
+    if argument target.group = argument;
+    return      target;
 }
 
 /***************************************************************************
@@ -625,6 +577,40 @@ extern GroupItem opRem(GroupItem argument,GroupItem target)
         tempField.count = count % argument.count;
     if !tempField.data  cerr "ERROR integer div operator failed on",tag,"and",argument.tag:;
     return tempField;
+}
+
+/***************************************************************************
+	Rule action for the :% replace operator.
+***************************************************************************/
+extern GroupItem opReplaceAttribute(GroupItem argument,GroupItem target)
+{
+GroupItem   grup,
+            added;
+    if argument.isLIST
+        while grup = argument.prior(grup) {
+            added = target.replace(grup);
+            added.isAttribute = true; }
+    else {
+        added = target.replace(argument);
+        added.isAttribute = true; }
+    return target;
+}
+
+/***************************************************************************
+	Rule action for the :+ replace operator.
+***************************************************************************/
+extern GroupItem opReplaceMember(GroupItem argument,GroupItem target)
+{
+GroupItem   grup,
+            added;
+    if argument.isLIST
+        while grup = argument.prior(grup) {
+            added = target.replace(grup);
+            added.isMember = true; }
+    else {
+        added = target.replace(argument);
+        added.isMember = true; }
+    return target;
 }
 
 /***************************************************************************
@@ -641,17 +627,30 @@ extern GroupItem opSetGroup(GroupItem argument,GroupItem target)
 }
 
 /***************************************************************************
-	Rule action for the <- rebind operator — the clean slot rebind.
-    Sets the LHS local's group to the evaluated RHS node, with NO byRef
-    stamp (unlike :=) and no content copy (unlike =). This is exactly the
-    pointer-set aCTionScopeXP uses (local.group = node), wired to a runtime
-    RHS instead of a name lookup -- giving a fresh stampable handle each
-    loop pass:  cell <- argument :+ new(nm);
+	Rule action for the :. operator — the inverse of opDot. Where opDot reads
+    a groupField property off target, opSetFlag toggles the flag named by the
+    groupField argument ON the target. Explicit operands (target . argument)
+    sidestep the processFlags item.tag command-detection problem.
+        cellA :. mergeON    toggles mergeOn on cellA
+    Extend by adding the relevant gCount case (see groupFields in setup).
 ***************************************************************************/
-extern GroupItem opRebind(GroupItem argument,GroupItem target)
+extern GroupItem opSetFlag(GroupItem argument,GroupItem target)
 {
-    if argument target.group = argument;
-    return      target;
+GroupRules  ruler = groupRules;
+GroupItem   flag  = argument;
+    if argument && argument.registry != groupFields
+        flag = groupFields[argument.tag];
+use flag
+    if flag && target
+        switch(gCount) {
+            case 21:    target.isPercent = !target.isPercent;
+            case 25:    target.isVirtual = !target.isVirtual;
+            case 26:    target.mergeOn   = !target.mergeOn;
+            case 29:    target.noPrint   = !target.noPrint;
+            case 31:    target.byRef     = !target.byRef;
+            default:    cerr "opSetFlag: setting " tag " not supported yet":; }
+    else    cerr "opSetFlag: no group field for " argument.tag:;
+    return target;
 }
 
 /***************************************************************************

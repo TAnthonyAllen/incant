@@ -97,7 +97,6 @@ char 	*text = 0;
 	text = ::concat(5,::toString(f.origin),",",::toStringFromDouble(f.size.width),",",::toStringFromDouble(f.size.height));
 	return text;
 }
-GroupDraw *GroupDraw::drawer;
 
 /*******************************************************************************
 	Set up a window or pane
@@ -127,8 +126,8 @@ NSView 		*view = 0;
 		}
 	view = [window contentView];
 	windowFrame = [window frame];
-	layout = [[Layout alloc] init:framed];
-	layout->base = block;
+	//layout      = new(framed);
+	//layout.base = block;
 	framed.size.height += windowFrame.size.height - [view frame].size.height;
 	[window setFrame:framed display:0];
 	[window setContentView:layout];

@@ -52,11 +52,26 @@ Frame           framed = getFrame(field);
 *******************************************************************************/
 
 /*******************************************************************************
-	Draw
+	Draw — walk base depth-first (GroupItem.walk), stroke a rectangle outline
+    for each block/cell from its x/y/width/height (getFrame). One stroke()
+    paints the lot. Colors / fonts / images come later; rectangle borders only.
+    Nodes with no frame attributes yield a zero rect (invisible) and are safe.
 *******************************************************************************/
 void drawRect(Frame r)
 {
-    cout "drawRect: not written yet":;
+GroupItem   item;
+Frame       f;
+    if !base return;
+    setDefaultLineWidth(0.0);
+    strokeColor = blackColor;
+    strokeColor.set();
+    while item = base.walk(item)
+        {
+        f   = getFrame(item);
+        f.y = frame.height - f.y - f.height;
+        rectangle(f);
+        }
+    stroke();
 }
 
 Layout init(Frame f)

@@ -702,8 +702,11 @@ String      name;
                 grup = new(name);
                 grup.isLocal = true;
                 action  +% grup; }
-            if field    grup.group = field;
-            else        grup.clear(); }}
+            if field {
+                if field.groupBody == grup.groupBody    continue;
+                if listItem.isGROUP listItem.group = field;
+                grup.group = field; }
+            else    grup.clear(); }}
 }
 
 /*******************************************************************************

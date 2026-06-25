@@ -172,6 +172,8 @@ void clearData()
 void clearList()
 {
     if !groupList   return;
+    if !listLength  groupList = 0;
+    else
     while groupList pop();
     hasAttributes   = hasMembers = 0;
 }
@@ -1528,6 +1530,7 @@ use group1
                                 result = (int)(gNumber - group2.number);
             case isBUFFER:
             case isSTRING:
+            case isTOKEN:
                 if group2.isCOUNT || group2.isNUMBER
                                 result = count - group2.count;
                 else            result = compare(text,group2.text);
