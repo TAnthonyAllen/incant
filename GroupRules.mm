@@ -2267,6 +2267,27 @@ extern "C" int jitRunAction(GroupItem *action)
 	gJitResult = B.CreateZExt(gJitResult, i32, "ret");   // i1 compare result -> i32
 	B.CreateRet(gJitResult);
 	
+	// mem2reg: promote field-slot allocas to SSA registers and let LLVM insert
+	// phi nodes at merge points. A no-op on the current alloca-free straight-line
+	// IR (the 24-POP battery proves it non-destructive) — the foundation gIF's
+	// then/else `CreateStore`-to-slot strategy relies on, so the manual jitPhi
+	// machinery never has to come back.
+	{
+	llvm::PassBuilder PB;
+	llvm::LoopAnalysisManager LAM;
+	llvm::FunctionAnalysisManager FAM;
+	llvm::CGSCCAnalysisManager CGAM;
+	llvm::ModuleAnalysisManager MAM;
+	PB.registerModuleAnalyses(MAM);
+	PB.registerCGSCCAnalyses(CGAM);
+	PB.registerFunctionAnalyses(FAM);
+	PB.registerLoopAnalyses(LAM);
+	PB.crossRegisterProxies(LAM, FAM, CGAM, MAM);
+	llvm::FunctionPassManager FPM;
+	FPM.addPass(llvm::PromotePass());
+	FPM.run(*fn, FAM);
+	}
+	
 	if (auto err = jit->addIRModule(
 	llvm::orc::ThreadSafeModule(std::move(mod), std::move(ctx)))) {
 	llvm::consumeError(std::move(err));

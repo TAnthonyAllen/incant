@@ -13,6 +13,8 @@
 #include "llvm/IR/Value.h"
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/ExecutionEngine/Orc/LLJIT.h"
+#include "llvm/Passes/PassBuilder.h"
+#include "llvm/Transforms/Utils/Mem2Reg.h"
 #include <memory>
 
 // The builder the emitters write into. Set by the compile driver before walking
