@@ -11,6 +11,7 @@
 #include "GroupList.h"
 #include "GroupBody.h"
 #include "PLGset.h"
+#include "GroupDraw.h"
 #include "GroupControl.h"
 GroupControl *GroupControl::groupController;
 

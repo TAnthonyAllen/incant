@@ -8,6 +8,7 @@
 #include "GroupControl.h"
 #include "GroupList.h"
 #include "GroupBody.h"
+#include "GroupDraw.h"
 #include "Bytecode.h"
 
 // opGT / opMultiply / opAssign are declared via groupIncludes (included above).

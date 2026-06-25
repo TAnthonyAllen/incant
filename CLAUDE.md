@@ -371,6 +371,26 @@ Hard-won lessons. Each one has cost real debugging time.
    `gCount` address. Latent: only bites when chaining lands. Guard on "already carries
    `jitData`" (the emit result) before treating an operand as a field. (Phase JIT, 2026-06-18.)
 
+10. **Adding a GroupBody flag needs `groups.ext` sync AND `tokall` — miss either and it
+    fails *silently and catastrophically*.** A new boolean in `GroupBody.twk`'s `bools` block
+    is only half the job. Cross-file code (anything in the `GroupRules.twk` include chain —
+    `Commands.rtn`, `Instruct.rtn`, …) resolves `field.newFlag` against the **`external
+    GroupItem` block in `groups.ext`**, *not* the class. If the flag isn't added there too,
+    tok can't parse `field.newFlag`, and — single-pass, no lexer — that parse error
+    **cascades and wipes the ENTIRE extern block** from the regenerated `GroupRules.h` (0
+    externs instead of ~144), so `Bytecode.mm` etc. fail with "no member named `opEQ`…".
+    The tok output buries the cause in `FAIL Body3 …` lines. Second: a GroupBody change shifts
+    the bitfield, so **`tokall`** (regenerate every `.mm/.h`), not a single retok. Symptom of a
+    missed sync: `Expected a semi-colon` / `Expected } or statement` at an innocent-looking
+    line. (`markWindow`/`isWindow`, 2026-06-25.)
+
+11. **`groups.ext` lives OUTSIDE this repo** at `~/Dropbox/data/InProcess/Include/groups.ext`
+    (pulled in via `groupIncludes`). It is a real **build dependency** but is **not tracked in
+    the Groups git repo** — so edits to it (e.g. trap #10's flag/extern sync) won't appear in
+    `git status` or any commit here. Resurrection-reader: if a build fails on a missing field
+    or extern that "should be there," check this file. Note it explicitly whenever a change
+    touches it.
+
 ---
 
 ## The `testing` Command

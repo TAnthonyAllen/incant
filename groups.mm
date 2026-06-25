@@ -5,6 +5,7 @@
 #include "GroupItem.h"
 #include "GroupRules.h"
 #include "RuleStuff.h"
+#include "GroupDraw.h"
 #include "GroupMain.h"
 #include "groups.h"
 

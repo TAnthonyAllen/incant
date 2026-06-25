@@ -154,6 +154,7 @@ extern "C" GroupItem *loadInputFromFile(GroupItem *source);
 extern "C" void loadRegistryFromString(char *name, char *content);
 extern "C" GroupItem *makeDataType(GroupItem *target, GroupItem *argument);
 extern "C" GroupItem *makeNew(GroupItem *input);
+extern "C" GroupItem *markWindow(GroupItem *input);
 extern "C" void modify(GroupItem *field, char *modifier);
 extern "C" GroupItem *opAND(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opAddAttribute(GroupItem *argument, GroupItem *target);

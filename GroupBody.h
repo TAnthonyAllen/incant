@@ -46,6 +46,7 @@ struct bools
 	unsigned int isToggle:1;
 	unsigned int isUnary:1;
 	unsigned int isVirtual:1;
+	unsigned int isWindow:1;
 	unsigned int isXP:1;
 	unsigned int mergeOn:1;
 	unsigned int negate:1;

@@ -2572,6 +2572,22 @@ GroupItem 	*grup = new GroupItem(strung);
 	return grup;
 }
 
+/***************************************************************************
+	window attribute handler. A form field carries `window` as an attribute;
+    this fires at parent-define time (fLAG set) and marks the parent form
+    field as a window (isWindow). Define-then-show: it does NOT open the
+    window -- openWindow(form) is the separate explicit raise trigger,
+    called by name when the window should appear.
+***************************************************************************/
+extern "C" GroupItem *markWindow(GroupItem *input)
+{
+GroupItem 	*form = input->parent;
+	if ( input->groupBody->flags.fLAG )
+		form->groupBody->flags.isWindow = 1;
+	else	::fprintf(stderr,"window: should be invoked as an attribute when its parent is defined\n");
+	return GroupControl::groupController->groupRules->trueResult;
+}
+
 /*****************************************************************************
 	modify processes modifiers for field passed in updating the field RuleStuff
 *****************************************************************************/

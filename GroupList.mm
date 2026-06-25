@@ -7,6 +7,7 @@
 #include "GroupBody.h"
 #include "GroupStak.h"
 #include "PLGset.h"
+#include "GroupDraw.h"
 #include "GroupList.h"
 
 /*****************************************************************************

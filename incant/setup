@@ -44,6 +44,7 @@ define
     isList immediateAction=processFlags noPrint;
     isRule immediateAction=processFlags noPrint;
     listenTo immediateAction noPrint;
+    window immediateAction=markWindow noPrint;
     load immediateAction=loadDirectory noPrint;
     macro immediateAction=processFlags noPrint;
     merge immediateAction=processFlags noPrint;

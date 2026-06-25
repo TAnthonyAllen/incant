@@ -9,6 +9,7 @@
 #include "GroupBody.h"
 #include "RuleStuff.h"
 #include "PLGset.h"
+#include "GroupDraw.h"
 #include "GroupMain.h"
 
 /*******************************************************************************

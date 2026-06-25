@@ -73,6 +73,7 @@ boolean bools {
     isToggle
     isUnary
     isVirtual
+    isWindow
     isXP
     mergeOn
     negate

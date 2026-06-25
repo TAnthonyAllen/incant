@@ -275,6 +275,22 @@ GroupItem	grup,
 }
 
 /***************************************************************************
+	window attribute handler. A form field carries `window` as an attribute;
+    this fires at parent-define time (fLAG set) and marks the parent form
+    field as a window (isWindow). Define-then-show: it does NOT open the
+    window -- openWindow(form) is the separate explicit raise trigger,
+    called by name when the window should appear.
+***************************************************************************/
+extern GroupItem markWindow(GroupItem input)
+{
+GroupItem   form = input.parent;
+    if input.fLAG
+        form.isWindow = true;
+    else    cerr "window: should be invoked as an attribute when its parent is defined":;
+    return trueResult;
+}
+
+/***************************************************************************
 	The incant load command, a noPrint command designed used as an
     attribute invokes loadDirectory to read in a directory and for every file
     in the directory creates an entry in the input parent group.

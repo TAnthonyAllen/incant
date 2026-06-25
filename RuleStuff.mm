@@ -11,6 +11,7 @@
 #include "GroupBody.h"
 #include "RuleStuff.h"
 #include "PLGset.h"
+#include "GroupDraw.h"
 
 /*******************************************************************************
 	This sets the data of rule to the value of a previously processed label
