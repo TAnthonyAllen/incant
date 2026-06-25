@@ -39,9 +39,9 @@ enum jitOp { jitAdd, jitSub, jitMul, jitSDiv };
 // The emitter yields an i1, distinct from jitOp's operand-typed result.
 enum jitCmp { jitEQ, jitNE, jitLT, jitLE, jitGT, jitGE };
 
-// Unary-op selector for jitEmitUnary — ++/--. Read the operand, add/sub a
-// literal 1 (int or float per operand type), write back in place.
-enum jitUnary { jitInc, jitDec };
+// Unary-op selector for jitEmitUnary — ++/-- write back in place; jitNeg
+// (unary minus) is value-producing: negate the operand, NO store-back.
+enum jitUnary { jitInc, jitDec, jitNeg };
 
 // Per-field JIT state, hung on the GroupItem node during emission (the Emitter.twk
 // JitData pattern). Transient: meaningful only while an action is being compiled.

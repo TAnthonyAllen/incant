@@ -85,6 +85,7 @@ define
     GO;
     AND     operateMethod=opAND;
     modedOP operateMethod=setFileOp;
+    negate  unary ruleMethod=opUnaryMinus;
     '?';
     '>>';
     '>='    operateMethod=opGE  interpretMethod=runGE;
@@ -176,6 +177,7 @@ define
     stringBUFFER;
     UnaryOPS bin
         '--';
+        '-';
         '++';
         '@';
         '!';

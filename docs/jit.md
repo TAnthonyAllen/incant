@@ -214,11 +214,24 @@ sibling discussion only for the parallel-lowerings framing.)
 | `jitMinusEQ` | `maximus -= 5` (from 30) | 25 | `maximus` → 25 |
 | `jitDivEQ` | `maximus /= 4` (from 30) | 7 | `maximus` → 7 (`jitSDiv` truncates) |
 
-*Unary — `jitEmitUnary` (`enum jitUnary`), in-place CreateAdd/Sub 1 with store-back (2026-06-20):*
+*Unary — `jitEmitUnary` (`enum jitUnary`), in-place CreateAdd/Sub 1 with store-back (2026-06-20); unary minus added 2026-06-25:*
 | POP | expression | result | readback |
 |---|---|---|---|
 | `jitInc` | `++righty` (from 13) | 14 | `righty` → 14 |
 | `jitDec` | `--righty` (from 13) | 12 | `righty` → 12 |
+| `jitNeg` | `-righty` (from 13) | -13 | (none — value-producing) |
+
+**Unary minus (`jitNeg`, 2026-06-25) — the Phase 2 prerequisite, DONE.** `-righty` → `CreateNeg`
+(double: `CreateFNeg`); **value-producing, NO store-back** (the operand is not mutated, unlike
+`++`/`--`), so the negated SSA flows up as the result (`jitRunAction result = -13`). The grammar
+half: `-` added to the `UnaryOPS` bin, `TokenXP` became `UnaryOPS? ANYorNum^ InvokeArg?` —
+`ANYorNum` (`NumbeR | ANYtoken`) lets the operand be a literal *or* a field (`-7` *and* `-x`), and
+the `^` no-skip adjacency on the operand is the steal-guard: `-x`/`-7` (adjacent) form a unary,
+but spaced ` - ` (`a - b`, `20 - x`) fails adjacency and falls through to binary `opMinus`. The op
+half: a new `opUnaryMinus` (value-producing, `0 - operand` into `tempField`) reached via a named
+`negate` op in `Operators` (`unary ruleMethod=opUnaryMinus`) — `handleUnary` swaps the prefix `-`
+to `opFields["negate"]`, keeping the binary `-` slot (`opMinus`) completely isolated (no dual-
+dispatch). Proven interpret-side too: `-7`→-7, `-righty`→-13, `a - b`→0, `20 - x`→7.
 
 Unary dispatches via `aCTionExpressioN`'s jitting branch detecting the `uxp` node
 (`aCTionTokenXP.handleUnary` builds it), seeding the operand, and firing `arg.method(arg)`
@@ -304,10 +317,11 @@ flow): the opMethod gates emit an i1 condition (already proven by `jitEmitCompar
 LLVM `CreateCondBr` across then/else basic blocks. gIF instructions are **drafted and ready
 to hand off**.
 
-**Blocker before the gIF POP can run end-to-end: the unary-minus grammar question.** A
-control-flow POP needs negative test values (`if x < 0`, decrementing loop bounds), and as
-the division work surfaced, incant cannot currently express a negative literal — `-7` parses
-as binary `opMinus` with no left operand and drops the sign. A **`UnaryMinus` grammar rule**
-(disambiguating prefix `-literal` / `-field` from binary subtraction) is the prerequisite.
-Once that disambiguation bear is cracked, the gIF POP can drive real negative-valued
-conditions and Phase 2 proceeds directly to control flow.
+**Blocker CLEARED (2026-06-25): the unary-minus grammar question is resolved.** A control-flow
+POP needs negative test values (`if x < 0`, decrementing loop bounds), and incant could not
+express a negative literal — `-7` parsed as binary `opMinus` with no left operand and dropped
+the sign. That is now fixed: prefix `-` parses as unary (`-7` *and* `-x`) via the `ANYorNum^`
+operand slot + the `negate`→`opUnaryMinus` op, while spaced binary subtraction is preserved by
+the no-skip adjacency guard (see the `jitNeg` entry under Phase 1 status above for the full
+mechanism). With negative-valued conditions now expressible, **Phase 2 proceeds directly to the
+gIF POP / `CreateCondBr`** — the gIF instructions are drafted and ready to hand off.

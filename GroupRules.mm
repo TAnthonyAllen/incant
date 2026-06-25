@@ -1071,7 +1071,7 @@ GroupItem 	*arg = 0;
 GroupItem 	*op = 0;
 GroupItem 	*UnaryOPS = xpress->getLabelGroup("UnaryOPS");
 GroupItem 	*InvokeArg = xpress->get("InvokeArg");
-GroupItem 	*ANYtoken = xpress->get("ANYtoken");
+GroupItem 	*ANYtoken = xpress->get("ANYorNum");
 	if ( ruler->generating && !ruler->isPRINTING )
 		{
 		// Bare the simple field-ref operand for the generating path: mirror the
@@ -1147,6 +1147,11 @@ GroupItem 	*ANYtoken = xpress->get("ANYtoken");
 handleUnary:
 	if ( UnaryOPS )
 		{
+		// Prefix - routes to the named "negate" op (opUnaryMinus), keeping the
+		// binary - slot (opMinus) completely isolated. Other unaries resolve
+		// their method straight from their own Operators entry.
+		if ( ::compare(UnaryOPS->groupBody->tag,"-") == 0 )
+			UnaryOPS = ruler->opFields->get("negate");
 		op = new GroupItem("uxp");
 		op->addAttribute(UnaryOPS);
 		op->addAttribute(ANYtoken);
@@ -2151,6 +2156,14 @@ extern "C" GroupItem *jitEmitUnary(GroupItem *target, int op)
 	llvm::IRBuilder<> *b = gJitBuilder;
 	llvm::Value *v = target->jitData->jitValue;
 	llvm::Value *res = nullptr;
+	// Unary minus: value-producing (0 - operand). No store-back — the operand
+	// is not mutated; the negated SSA value flows up as the result.
+	if (op == jitNeg) {
+	res = v->getType()->isDoubleTy() ? b->CreateFNeg(v, "neg") : b->CreateNeg(v, "neg");
+	target->jitData->setJitter(res);
+	gJitResult = res;
+	return target;
+	}
 	if (v->getType()->isDoubleTy()) {
 	llvm::Value *one = llvm::ConstantFP::get(v->getType(), 1.0);
 	res = (op == jitDec) ? b->CreateFSub(v, one, "dec") : b->CreateFAdd(v, one, "inc");
@@ -3243,7 +3256,7 @@ GroupItem 	*result = 0;
 ***************************************************************************/
 extern "C" GroupItem *opNOT(GroupItem *result)
 {
-	if ( !(result->groupBody->flags.isInitialized && result->groupBody->flags.data && result->groupBody->gCount) )
+	if ( !result->contents() )
 		return GroupControl::groupController->groupRules->trueResult;
 	return 0;
 }
@@ -3562,6 +3575,31 @@ extern "C" GroupItem *opString(GroupItem *target, Buffer *buffer)
 	buffer->reset();
 	GroupControl::groupController->groupRules->bufferSTAK->push(buffer);
 	return target;
+}
+
+/***************************************************************************
+	Rule action for the prefix unary minus (negate). Value-producing like
+	opMinus, NOT in-place like opMinusMinus: 0 - operand into tempField; the
+	operand is left untouched. Routed here from handleUnary via the named
+	"negate" op (ruleMethod=opUnaryMinus), distinct from the binary - slot.
+***************************************************************************/
+extern "C" GroupItem *opUnaryMinus(GroupItem *result)
+{
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		 return jitEmitUnary(result, jitNeg); 
+		}
+	if ( isCOUNT(result->groupBody->flags.data) )
+		GroupControl::groupController->groupRules->tempField->setCount(0 - result->groupBody->gCount);
+	else
+	if ( isNUMBER(result->groupBody->flags.data) )
+		GroupControl::groupController->groupRules->tempField->setNumber((double)0 - result->groupBody->gNumber);
+	if ( !GroupControl::groupController->groupRules->tempField->groupBody->flags.data )
+		{
+		::fprintf(stderr,"ERROR Operator unary - failed on %s\n",result->groupBody->tag);
+		return 0;
+		}
+	return GroupControl::groupController->groupRules->tempField;
 }
 
 /*******************************************************************************

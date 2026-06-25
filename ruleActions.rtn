@@ -799,7 +799,7 @@ GroupItem   arg,
             op,
             UnaryOPS:,
             InvokeArg = xpress["InvokeArg"],
-            ANYtoken = xpress["ANYtoken"];
+            ANYtoken = xpress["ANYorNum"];
     if generating && !isPRINTING {
         // Bare the simple field-ref operand for the generating path: mirror the
         // non-generating normalization below (xpress.group = ANYtoken) so
@@ -853,6 +853,10 @@ GroupItem   arg,
         xpress.invoke = true; }
 handleUnary:
     if UnaryOPS {
+        // Prefix - routes to the named "negate" op (opUnaryMinus), keeping the
+        // binary - slot (opMinus) completely isolated. Other unaries resolve
+        // their method straight from their own Operators entry.
+        if UnaryOPS.tag eq "-"  UnaryOPS = opFields["negate"];
         op  = new("uxp");
         op  +% UnaryOPS;
         op  +% ANYtoken;

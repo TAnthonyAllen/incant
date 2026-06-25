@@ -325,6 +325,25 @@ extern GroupItem opMinus(GroupItem argument,GroupItem target)
 }
 
 /***************************************************************************
+	Rule action for the prefix unary minus (negate). Value-producing like
+	opMinus, NOT in-place like opMinusMinus: 0 - operand into tempField; the
+	operand is left untouched. Routed here from handleUnary via the named
+	"negate" op (ruleMethod=opUnaryMinus), distinct from the binary - slot.
+***************************************************************************/
+extern GroupItem opUnaryMinus(GroupItem result)
+{
+    if jitting {
+        -% return jitEmitUnary(result, jitNeg); %-
+    }
+    if isCOUNT   tempField.count  = 0 - gCount;
+    or isNUMBER  tempField.number = 0 - gNumber;
+    if !tempField.data {
+        cerr "ERROR Operator unary - failed on",tag:;
+        return null; }
+    return tempField;
+}
+
+/***************************************************************************
 	Rule action for the -= operator
 ***************************************************************************/
 extern GroupItem opMinusEQ(GroupItem argument,GroupItem target)
@@ -420,7 +439,7 @@ use target
 ***************************************************************************/
 extern GroupItem opNOT(GroupItem result)
 {
-    if !(isInitialized && data && gCount)   return trueResult;
+    if !contents()   return trueResult;
     return null;
 }
 

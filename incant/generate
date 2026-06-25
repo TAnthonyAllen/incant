@@ -312,6 +312,11 @@ define
     // by aCTionExpressioN's jitting branch (the uxp case).
     jitInc code={ ++righty; };           // righty 13 -> 14 (prefix: unary ops precede operand)
     jitDec code={ --righty; };           // righty 13 -> 12
+    // Unary minus POP: opUnaryMinus jitting gate -> jitEmitUnary(jitNeg) -> CreateNeg.
+    // Value-producing (NO store-back): -righty(13) -> -13 as the returned result, so
+    // it reads via the driver's return like jitSub, not a readback. Field operand
+    // (jitSeedField in the uxp jitting path); -literal would need jitSeedLiteral.
+    jitNeg code={ -righty; };            // negate righty 13 -> -13
     // POP target: testPrint -> "hello world" via the bytecode print path.
     testPrint code={ print "hello" name:; };
     // testEmitBC retired 2026-06-04 (Brief 5 Fix 3): it called emitBC(bcMul),

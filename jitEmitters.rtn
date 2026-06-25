@@ -231,6 +231,14 @@ extern GroupItem jitEmitUnary(GroupItem target,int op)
     llvm::IRBuilder<> *b = gJitBuilder;
     llvm::Value *v = target->jitData->jitValue;
     llvm::Value *res = nullptr;
+    // Unary minus: value-producing (0 - operand). No store-back — the operand
+    // is not mutated; the negated SSA value flows up as the result.
+    if (op == jitNeg) {
+        res = v->getType()->isDoubleTy() ? b->CreateFNeg(v, "neg") : b->CreateNeg(v, "neg");
+        target->jitData->setJitter(res);
+        gJitResult = res;
+        return target;
+    }
     if (v->getType()->isDoubleTy()) {
         llvm::Value *one = llvm::ConstantFP::get(v->getType(), 1.0);
         res = (op == jitDec) ? b->CreateFSub(v, one, "dec") : b->CreateFAdd(v, one, "inc");

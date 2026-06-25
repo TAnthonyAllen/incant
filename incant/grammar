@@ -107,7 +107,10 @@ define
         Braced      "["- ExpressioN "]"-;
         Parens      "("- ExpressioN? ")"-;
         UnaryXP;
-    TokenXP         UnaryOPS? ANYtoken InvokeArg?;
+    ANYorNum
+        NumbeR;
+        ANYtoken;
+    TokenXP         UnaryOPS? ANYorNum^ InvokeArg?;
     Token
         QuotE;
         NumbeR;

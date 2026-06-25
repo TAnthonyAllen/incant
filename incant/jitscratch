@@ -48,4 +48,6 @@ print "  jitInc readback: righty =" righty:;
 righty = 13;
 testing(jitDec);
 print "  jitDec readback: righty =" righty:;
+righty = 13;
+testing(jitNeg);
 stop();

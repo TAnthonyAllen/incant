@@ -197,6 +197,7 @@ extern "C" GroupItem *opSetFlag(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opSetGroup(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opSetTag(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opString(GroupItem *target, Buffer *buffer);
+extern "C" GroupItem *opUnaryMinus(GroupItem *result);
 extern "C" void printField(GroupItem *field, char *format, Buffer *buffer);
 extern "C" GroupItem *printToBuffer(GroupItem *bufferField);
 extern "C" GroupItem *processAction(GroupItem *field);
