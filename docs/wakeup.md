@@ -1,119 +1,113 @@
-# Incant — Status & Handoff (2026-06-25)
+# Incant — Status & Handoff (2026-06-25, PM: Phase 2 JIT)
 *Written by Clod for a fresh Clay/Clod tomorrow. Assumes no memory of today. Self-contained.*
 
-## Headline
-A big GUI day. The arc went from "a bare window opens" to **the field-at-a-time thesis proven
-end to end at the window envelope**: a form's own attributes now drive a real Cocoa window's
-**size and position**, a stable Layout paints into it, and the `window` attribute fires the
-window via clean define-then-show wiring. The platform is solid; **content dispatch
-(text/image/cell/path) is the next frontier** and is teed up for a Clay design conversation.
+## What this is
+**Phase 2 JIT = control flow (`gIF`).** Phase 1 (straight-line: arithmetic, compare, assign,
+unary, division, string `+=`) is complete — 25 POPs green. Today did the Phase 2 **prerequisites**
+and **chose the architecture**, but did *not* yet land a working `gIF`: (1) implemented **unary
+minus** (the negative-value prerequisite), (2) wired **mem2reg/PromotePass** (the SSA foundation
+control flow needs), (3) probed how to *drive* `gIF` emission, reversed two wrong turns, and
+decided on a **parallel, JIT-owned walk**. All committed/pushed to `main`; tree is green.
 
-All five commits below are **pushed to `main`** (`758bb5a..767d16c`).
+## The lens (hold these to reason about the JIT)
+- **Two independent lowerings of the same parsed tree.** Bytecode (`generateCode` → `generatE`
+  walk → `gIF`/`gXpress` handlers emit bytecode) and JIT (LLVM IR) are *parallel*, not a pipeline.
+  Keep them separate.
+- **How JIT runs today:** `testing(action)` → `jitRunAction` (`jitEmitters.rtn`) sets `jitting=1`,
+  calls `processCode` which **parses the action body and emits LLVM IR *during the parse*** —
+  each opMethod (`opPlus`/`opLT`/`opAssign`/…) has an `if jitting { … }` gate that emits straight
+  into `gJitBuilder`. Then it caps with `CreateRet(gJitResult)`, ORC-compiles, runs, returns the
+  native int. This **emit-during-parse** model is proven for straight-line and is the path we do
+  NOT touch.
+- **Why control flow is different:** an `if` is a **deferred** statement. Under JIT today it never
+  reaches a handler that could place its arms in basic blocks — so it can't get a `CreateCondBr`.
+  Control flow needs a **walk** (like the bytecode `generatE`), not emit-during-parse.
+- **PromotePass is wired** (`jitRunAction` runs `llvm::PromotePass` over the function before
+  `addIRModule`). So gIF arms just `CreateStore` to field-slot allocas and LLVM inserts the merge
+  phis — **never hand-write a phi**. (No-op on today's alloca-free straight-line IR; verified non-
+  destructive.)
 
-## Verify it still works (do this first)
+## Current state — commits on `main` (`33c07be..31c007a`)
+- `7f3367e` — **Unary minus** (`opUnaryMinus`): negative literals + field negate.
+- `cb1918c` — **mem2reg/PromotePass** into the JIT pass pipeline.
+- `13e322e` — gIF JIT recon brief (the design seed).
+- `31c007a` — gIF **drive findings + the parallel-JIT-walk decision** (`docs/gif-jit-recon.md`).
+
+## DONE — bones-confirmed (actual run output, not shape-read)
+- **Unary minus, both paths.** Interpret (`Tests/`-style probe): `-7`→**-7**, `-righty`→**-13**,
+  `righty - righty`→**0**, `20 - righty`→**7** (binary subtraction preserved). JIT: `jitNeg` POP →
+  `jitRunAction result = -13` (`CreateNeg`). Grammar: `-` in the `UnaryOPS` bin; `TokenXP
+  UnaryOPS? ANYorNum^ InvokeArg?` (`ANYorNum` = `NumbeR｜ANYtoken` so the operand can be literal
+  *or* field; the `^` no-skip adjacency on the operand is the steal-guard — spaced ` - ` falls to
+  binary `opMinus`). Op: named `negate unary ruleMethod=opUnaryMinus` in `Operators`; `handleUnary`
+  swaps prefix `-`→`opFields["negate"]`, binary `-` slot untouched.
+- **PromotePass non-destructive:** full 25-POP `jitscratch` battery green, `oneTest`→**26**,
+  `jsonTest`→ok.
+
+## OPEN — root-caused; the Phase 2 frontier
+**`gIF` has no JIT drive yet. Decision made: build a parallel JIT walk.** Root causes found
+(empirical, via a diagnostic `printf`, binary verified fresh):
+- `aCTionIF` is **NOT** on the JIT path — it never fires under `jitting`. (So a jitting gate in
+  `aCTionIF` is the wrong layer; that wrong turn was reversed.)
+- The deferred `IF`→`gIF` dispatch lives in **`runGenerated`** (`incant/generate:46`), driven only
+  by **`generateCode`**'s `generatE` walk. `jitRunAction` does `processCode`-only and never invokes
+  that walk — so control flow has no JIT dispatch.
+- **Decision (Tony + Clay + Fearless):** a **parallel, JIT-owned walk** — `jitGeneratE` /
+  `jitRunGenerated` modeled on `generatE`/`runGenerated` (`incant/generate:46,233`) but **LLVM-
+  native handlers from day one**. Bytecode pipeline stays pure (no dual-mode). `jitRunAction`
+  drives the JIT walk for deferred/control-flow nodes; straight-line stays emit-during-parse.
+  Full findings + the validated `jitEmitGIF` emitter sketch (three-block topology, runtime
+  `CreateCondBr`, both arms emitted) are in **`docs/gif-jit-recon.md`** (Session 2026-06-25 PM
+  section).
+
+## DEFERRED — not this arc; whose call
+- **GUI content dispatch** (text/image/cell/path off `Layout.drawRect`) — the other big active
+  thread. Platform is solid (window envelope + stable painting, see git `767d16c` era); content
+  handlers are **Clay's design conversation** (`docs/gui-brief.md`, `docs/font-recon.md`). Also
+  parked there: drop the diagnostic `printf` in `guiHost.mm`; `viewDidEndLiveResize` re-layout.
+- **gIF beyond the first POP:** else-arm, nesting, compound conditions (`a<0 and b>0` is the
+  chained-operand bear in `jit.md`). First POP is single-compare + one then-arm + no else.
+- **Full frame model / slot-array calling convention, return-real-GroupItem epilogue** (`jit.md`).
+
+## Run recipe (verify green before starting)
 ```
-~/bin/incant incant/oneTest      # bytecode battery -> "maximus = 26" (testByteCode 11, testIfElse 26)
-~/bin/incant incant/jsonTest     # -> "ok  : {"a":[]}" / "ok  : {"a":["x","y"]}"
-~/bin/incant incant/jitscratch   # JIT POPs -> green readbacks
-~/bin/incant Tests/windowTest    # opens a 300x520 window, upper-right, paints, closes clean
+~/bin/incant incant/oneTest     # bytecode battery -> "maximus = 26"
+~/bin/incant incant/jsonTest    # -> ok : {"a":[]} / ok : {"a":["x","y"]}
+~/bin/incant incant/jitscratch  # 25 JIT POPs: results + readbacks, incl. jitNeg -> -13
 ```
-`windowTest` blocks in the Cocoa run loop until you close the window (close -> terminate, exit 0).
-To run it non-interactively (CI / quick check), cap it:
-`script -q /dev/null perl -e 'alarm 5; exec("/Users/anthony/bin/incant","Tests/windowTest")'`
-(Boot noise `getRStuff:` / `aCTionDefinE:` is normal.)
+(Boot noise `getRStuff:` / `aCTionDefinE:` is normal. For a crash backtrace run under
+`script -q /dev/null …` — segfaults otherwise lose buffered stdout.)
 
----
+## To resume — next actions in order
+1. Read `runGenerated` + `generatE` (`incant/generate:46,233`) and `gBlocK` (`:55`) carefully —
+   understand the dispatch shape (`generator[node]` → handler).
+2. Build **`jitRunGenerated`** as a clean parallel — a JIT-owned dispatch (LLVM-native handlers),
+   **cloning** the pattern, not bending the original.
+3. Wire the **`gIF` handler first** (single compare, one then-arm, no else — prove `entry →
+   header → thenBB → endBB`) using the preserved `jitEmitGIF` emitter sketch in
+   `docs/gif-jit-recon.md`.
+4. Make `jitRunAction` invoke the JIT walk for deferred/control-flow nodes; leave straight-line on
+   emit-during-parse.
+5. Verify by running, not shape-reading: a `jitGIF code={ if righty < 0; maximus = 99; }` fixture
+   must branch at **runtime** (righty<0 → maximus=99; righty≥0 → maximus unchanged), and the 25
+   straight-line POPs must stay green.
 
-## TODAY'S COMMITS (all on `main`)
-- `5f74ab2` — **Back to green: rip out MEMBERing.** The working tree was red (oneTest +
-  jsonTest both failing) from an offline experiment: a `MEMBERing` flag copied into the
-  `MemberS` grammar rule (mirroring `DEFINing`) silently broke the member-list parse of *every*
-  define -> JSON alternation and bytecode-gen both died. Removed it entirely (grammar +
-  GroupMain bootstrap + the dead flag/`case 'M'`). Restored two innocent GroupItem edits
-  (clearList null-on-empty, isTOKEN compare case) reverted during bisection.
-- `2898b62` — **gui-brief.md** — Clay-facing GUI design brief (one page + drill-down index into
-  the 923-line gui.md) + the content-handler port recon (salvage the rendering cores, don't lift
-  the old tree-walking; subview-vs-direct-draw split; incant-owned cell recursion).
-- `4d40f56` — **Stable painting window.** Native `guiHost.mm` host (tok can't parse inline
-  `[bracket]` sends -> moved Apple out of tok). drawRect crash fixed: the recursive
-  `GroupItem.walk` scaffold descended into scalar attribute leaves (null `groupList`) and
-  SIGSEGV'd -> replaced with a flat read-only `nextAttribute` loop.
-- `39d71dd` — **window-attribute binding (markWindow).** A form's `window` attribute fires
-  `markWindow` at define time (marks `isWindow`, NO open) — define-then-show; explicit
-  `openWindow(form)` is the separate raise trigger. Modeled on `listenTo` (parent-targeting via
-  `fLAG`). **Required an out-of-repo groups.ext edit** (see Traps).
-- `767d16c` — **Window envelope from the form.** `openWindow` sizes+positions the window from
-  `getFrame(input)` (was hardcoded 480x360), with a y-flip (forms top-left, Cocoa bottom-left).
-  Plus the **GC root fix** that killed an intermittent wild-pointer crash (see below).
+For Clay: the design inputs are `docs/gif-jit-recon.md` (full), `docs/jit.md` (Phase 2 section),
+`docs/jit-design.md` (frame/SSA model). Source to have in hand: `incant/generate` (the walk +
+handlers), `jitEmitters.rtn` (`jitRunAction` + emitters).
 
-## The GUI platform as it stands
-- **Host** = `guiHost.mm` — a hand-written ObjC++ file, **compiled directly by the Groups Xcode
-  target, never through tok**. `extern "C" openWindow(GroupItem*)` dlsym-binds to the incant
-  command (`incant/setup: openWindow immediateAction=openWindow`). It creates the NSWindow,
-  hangs a `Layout` as contentView (`view->base = input`), runs the loop, terminates on close.
-- **Two independent `getFrame` levels** (the settled design): `openWindow` calls `getFrame(form)`
-  for the **window envelope** (size + screen position); `Layout.drawRect` calls `getFrame`
-  per-field for **content** position *within* the view. Each level reads the frame it needs —
-  Layout keeps its autonomy. Both read the same `setFrame`-populated x/y/width/height attributes.
-- **drawRect** currently does a flat read-only `nextAttribute` pass stroking rectangles — a
-  *stable platform*, not the destination. Real content dispatch hangs off it next.
-- **The binding**: `window immediateAction=markWindow noPrint` (setup). `markWindow`
-  (Commands.rtn) takes `input.parent`, guards `if input.fLAG`, sets `isWindow`. Define-then-show.
-
-## Hard-won traps banked (CLAUDE.md Bear Traps + memories)
-- **#10 — adding a GroupBody flag needs `groups.ext` sync AND `tokall`, or it fails silently and
-  catastrophically.** A new `bools` flag isn't enough: cross-file code resolves `field.newFlag`
-  against the `external GroupItem` block in **groups.ext**, not the class. Miss it and tok's
-  parse error (single-pass, no lexer) **cascades and wipes the entire extern block** from
-  GroupRules.h (0 vs ~144) -> Bytecode.mm fails on "no member `opEQ`". And a GroupBody change
-  shifts the bitfield -> **tokall**, not a single retok.
-- **#11 — `groups.ext` lives OUTSIDE this repo** at `~/Dropbox/data/InProcess/Include/groups.ext`
-  (via `groupIncludes`). Real build dependency, NOT git-tracked here. Edits to it never show in
-  `git status`/commits; a fresh checkout won't build until it carries them. **The markWindow
-  commit needs an out-of-repo groups.ext edit (isWindow field + markWindow extern) to build.**
-- **tok can't parse inline `[obj msg]` brackets** — throws `ERROR Inheritance` and drops the
-  whole function. Pure dot-syntax via OCframe wrappers, OR a hand-written `.mm` (what guiHost is).
-- **GC vs Cocoa**: `GC_set_no_dls(1)` is load-bearing (dodges AppKit's framework-load root-set
-  storm -> "Too many root sets" abort) but blinds BDWGC to incant's own data segment, so objects
-  reachable only through ObjC-allocated views get collected mid `[app run]`. Fix:
-  `GC_add_roots(&GroupControl::groupController, ...)` re-roots incant's whole graph (one root set).
-- **`nm`, not `strings`**, to check a symbol is compiled in (strings gave false negatives). Binary
-  mtime is unreliable; interpreted `incant/*` runs fresh regardless.
-- Build = `xcodebuild -project ../TOK/TOK.xcodeproj -scheme Groups -configuration Debug build`;
-  `~/bin/incant` symlinks to the DerivedData product. `.twk` -> `tok` first; `.rtn` and the
-  native `guiHost.mm` compile directly.
-
-## THREE LOOSE ENDS (next session)
-1. **Drop the diagnostic `printf`** in `guiHost.mm` (`getFrame(form) -> ...` line) — it served
-   its purpose proving size/position flow.
-2. **Resize** — `Layout.viewDidEndLiveResize` -> re-run layout. The next envelope feature;
-   `setFrame` + `getFrame` already provide the machinery.
-3. **Content dispatch** — the big one. drawRect's `nextAttribute` stub becomes real content
-   rendering: route each field to `displayText`/`displayImage`/`displayCell`/`displayPath`.
-   **This is Clay's design conversation** (see below).
-
-## FOR CLAY — content dispatch design context
-Two docs are the brief: **`docs/gui-brief.md`** (the design thesis + open questions + the
-content-handler port position) and **`docs/font-recon.md`** (font/color model archaeology).
-The decision to settle *before* code moves: **subview vs. direct-draw**, forced by content
-nature — text needs a live NSTextView subview (cursor/selection/editing state); image/path/cell
-are stateless direct-draws in drawRect. And **cell recursion is incant-owned** (incant hands
-Layout each child field; Layout never walks the tree). `displayText` (commented in `Layout.twk`)
-is the proven template and the lowest-risk first handler. Font/color: the model is *already
-proven* (old GUI `Stylish` + `convert()` + `getRGB` seam); the question is *where it lives* —
-how much lifts from C++ into incant (the `convert()` -> `realizeFont` leaf extern is the wedge).
-
-## Key files / test targets
-- `guiHost.mm` — the native Apple host (openWindow). NOT tok'd; Groups target compiles it.
-- `Layout.twk` — the contentView; `drawRect` (nextAttribute stub), `displayText` (commented template).
-- `GroupDraw.twk` — `getFrame` (reads x/y/width/height), `setWindow` (old dot-syntax builder, incomplete).
-- `Commands.rtn` — `markWindow` (the binding handler), `listenTo` (its model).
-- `incant/setup` — command registrations (`openWindow`, `window`=markWindow).
-- `incant/unitTests` — `winForm` (windowed fixture, 300x520 @ 700,100), `plainField`.
-- `Tests/windowTest` — the window smoke test (define winForm, openWindow(winForm)).
-- `docs/gui-brief.md`, `docs/font-recon.md` — Clay's design inputs. `docs/gui.md` — full recon (923 lines).
-
-## Parked threads (not today's work)
-JIT Phase 2 (control flow / IF-FOR) — `docs/jit.md`. Bigify setFrame fill-path (multi-row
-across+down) is still WIP in `incant/utilities`. JSON parser green; Google-Fonts two-step needs a
-`getURLintoBuffer` extern. None blocked by today's GUI work.
+## Gotchas (durable — will bite again)
+- **`ruleActions.rtn` / `Instruct.rtn` / `jitEmitters.rtn` are `include`d INTO `GroupRules.twk`**
+  (L290/292/294) and tok-processed into `GroupRules.mm`. Editing them needs **`tok GroupRules.twk`
+  THEN `xcodebuild`** — `xcodebuild` alone silently recompiles the stale `.mm` (symptom: your edit
+  isn't in `GroupRules.mm`; `grep` it to confirm). Cost real time today.
+- **`groups.ext` is the prototype home and lives OUTSIDE the repo**
+  (`~/Dropbox/data/InProcess/Include/groups.ext`). Any extern called from tok-parsed `.rtn` code
+  (outside `-% %-`) needs its prototype there for tok to parse the call. Not git-tracked here.
+- **`gMethod` is a function pointer on `groupBody`** — call it `x->groupBody->gMethod(x)` in raw
+  C++ (`-% %-` blocks, where tok does NOT translate `.gMethod`). It can be null — guard it.
+- **`nm`, not `strings`**, to check a symbol compiled in; binary mtime is unreliable; interpreted
+  `incant/*` runs fresh regardless. `~/bin/incant` symlinks to the DerivedData `Groups` product
+  (build the **Groups** scheme of `../TOK/TOK.xcodeproj`).
+- The pre-existing modifieds in `git status` (`GroupItem.mm`, `IncantForms/Windows/tabs`,
+  `incant/utilities`) are Tony's in-flight work — leave them alone; don't bundle into commits.
