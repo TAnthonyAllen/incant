@@ -103,3 +103,81 @@ guidance (`jit-design.md`, `docs/llvm-jit-recon.md`). What exists in code:
 - `jit-design.md:45,232` — alloca/PromotePass SSA model; frame prologue.
 - `llvm-jit-recon.md:111,212` — old manual-phi machinery (not ported) + control-flow reference.
 - `docs/jit.md` — Phase 2 section (blocker now cleared); `jitEmitCompare` i1 (proven).
+
+---
+
+# Session 2026-06-25 PM — gIF drive findings + DECISION: parallel JIT walk
+
+This session probed how to actually *drive* gIF emission and reversed two wrong turns.
+Recorded so the fresh session starts from the conclusion, not the dead ends.
+
+## What we learned (empirical, via `testing(jitGIF)` → `jitRunAction`)
+- **`aCTionIF` is NOT on the JIT path.** A diagnostic `printf` at its top never fired under
+  jitting (binary verified fresh). The deferred `IF` does not dispatch to `aCTionIF` in
+  generate/JIT mode — the parse labels the node and the *generator* handles it. So the
+  "Option A — gate in `aCTionIF`" idea was wrong; the single-arm test that seemed to confirm it
+  was a half-wired-state artifact.
+- **Deferred → `gIF` dispatch lives in `runGenerated`** (`incant/generate:46`), driven only by
+  **`generateCode`** → `runAction(BlocK, generatE)` → `gBlocK` → `runGenerated`. The **bytecode**
+  path. `jitRunAction` does **only `processCode`** (straight-line emit-during-parse) and never
+  reaches `runGenerated`/`gIF`. So control flow has no JIT dispatch today.
+- The `jitGIF` test's TRUE→99 / FALSE→"no result" was a `processCode`-parse artifact, **not** a
+  working branch (no `CreateCondBr`). Declared a red herring; not chased.
+
+## DECISION (Tony + Clay + Fearless): a PARALLEL, JIT-OWNED walk
+Do **not** dual-mode the bytecode generator. Build a parallel walk:
+- **`jitGeneratE` / `jitRunGenerated`** — modeled on `generatE`/`runGenerated`
+  (`incant/generate:46,233`) but JIT-owned, with **LLVM-native handlers from day one**. The
+  bytecode pipeline stays pure (no `if jitting` contamination, no inherited bytecode assumptions).
+- **`jitRunAction` drives the JIT walk** for deferred / control-flow nodes; **straight-line ops
+  stay on the emit-during-parse path** (the proven 25-POP path, untouched). The walk picks up the
+  deferred nodes `processCode` leaves on the table.
+- The bytecode work was the education: `jitRunGenerated` *clones the pattern* — don't bend the
+  original. `gIF`'s bytecode topology (bcBRZ/bcBR/label, §1 above) is the structural template;
+  the JIT handler emits BasicBlocks + `CreateCondBr` instead.
+
+## First step next session
+Read `runGenerated`/`generatE` carefully, understand the dispatch shape, then build
+`jitRunGenerated` as a clean parallel (JIT-owned dispatch table → LLVM-native handlers).
+`jitRunAction` invokes it for control-flow nodes. Then wire the `gIF` handler first (single
+compare, one then-arm, no else — prove `entry → header → thenBB → endBB`), using the emitter
+sketch below.
+
+## Reusable: the `jitEmitGIF` emitter sketch (validated shape, reverted from the tree)
+The LLVM emission is drive-independent — `jitRunGenerated`'s gIF handler can call this. It
+*compiled and ran*; only its *drive* (the `aCTionIF` gate) was wrong. PromotePass is already
+wired (`jitRunAction`), so field-slot stores in the arms become phis automatically. Three-block
+topology, both arms emitted unconditionally, runtime `CreateCondBr`:
+
+```c
+// extern GroupItem jitEmitGIF(GroupItem condition, GroupItem thenArm, GroupItem elseArm)
+llvm::IRBuilder<> *b = gJitBuilder;
+llvm::LLVMContext &ctx = b->getContext();
+llvm::Function *fn = b->GetInsertBlock()->getParent();
+// 1. condition into current (header) block -> i1 left in gJitResult; capture it now
+if (condition->groupBody->gMethod) condition->groupBody->gMethod(condition);
+llvm::Value *cond = gJitResult;
+if (cond && !cond->getType()->isIntegerTy(1))
+    cond = b->CreateICmpNE(cond, llvm::ConstantInt::get(cond->getType(),0), "ifcond");
+// 2. blocks (no else in first POP)
+llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(ctx, "then", fn);
+llvm::BasicBlock *endBB  = llvm::BasicBlock::Create(ctx, "ifend", fn);
+// 3. RUNTIME branch — both arms emitted regardless of emit-time condition value
+b->CreateCondBr(cond, thenBB, endBB);
+// 4. then-arm into thenBB; unconditional back-edge
+b->SetInsertPoint(thenBB);
+if (thenArm->groupBody->gMethod) thenArm->groupBody->gMethod(thenArm);
+b->CreateBr(endBB);
+// 5. continuation = endBB (pass-down model; nested gIF mints its own fresh endBB)
+b->SetInsertPoint(endBB);
+// 6. cap gJitResult with the header-dominating i1 so the driver's CreateRet is valid
+gJitResult = cond;
+```
+Key gotcha banked: `gMethod` is a function pointer on `groupBody` (`x->groupBody->gMethod(x)`),
+not a direct GroupItem member — matters inside raw-C++ `-% %-` blocks (tok doesn't translate there).
+
+## Tree state at handoff
+Exploratory code reverted to the committed green baseline (`13e322e`): unary minus + PromotePass
+in place, 25-POP battery + oneTest(26) + jsonTest green. `jitEmitGIF`, its `groups.ext` prototype,
+the `aCTionIF` gate, and the `jitGIF` fixture/driver were all reverted — preserved here for
+resurrection. Nothing gIF-specific is wired in the tree.
