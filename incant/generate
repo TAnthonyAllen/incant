@@ -317,6 +317,14 @@ define
     // it reads via the driver's return like jitSub, not a readback. Field operand
     // (jitSeedField in the uxp jitting path); -literal would need jitSeedLiteral.
     jitNeg code={ -righty; };            // negate righty 13 -> -13
+    // Phase-2 gIF POP: the generic control-flow path (jitEmitGIF + the JIT walk),
+    // driven through testing() -> jitRunAction -> jitWalkBlock. jitGIF runs with
+    // righty<0 (driver sets righty=-7): condition true -> then-arm stores maximus=99
+    // (readback). jitGIFb runs with righty>=0 (righty=13): condition false -> store
+    // skipped, maximus unchanged. Two fixtures, each generated once, dodge the
+    // generate sequential-state-corruption tar baby (don't re-run one action twice).
+    jitGIF  code={ if righty < 0; maximus = 99; };
+    jitGIFb code={ if righty < 0; maximus = 99; };
     // POP target: testPrint -> "hello world" via the bytecode print path.
     testPrint code={ print "hello" name:; };
     // testEmitBC retired 2026-06-04 (Brief 5 Fix 3): it called emitBC(bcMul),

@@ -1,0 +1,28 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+/* Phase-2 gIF driver. The walk (jitWalkBlock -> jitGeneratE -> jitRunGenerated
+   -> jitEmitGIF) + block topology + then-arm store are proven: the taken case
+   stores maximus=99. OPEN SEAM: the wrapped condition does not yet emit a
+   compare i1 (short-circuits aCTionExpressioN's listLength==1), so jitIfBegin
+   coerces the operand value !=0 and BOTH cases currently take the then arm.
+   When the condition-emission lands (compare design), not-taken stays 11. */
+
+righty = 0 - 7;
+maximus = 11;
+print "taken setup: righty =" righty " maximus =" maximus:;
+testing(jitGIF);
+print "taken result: maximus =" maximus " (then-arm store proven: 99)":;
+
+righty = 13;
+maximus = 11;
+print "not-taken setup: righty =" righty " maximus =" maximus:;
+testing(jitGIFb);
+print "not-taken result: maximus =" maximus " (target 11; open until condition emits)":;
+
+stop();

@@ -16,6 +16,7 @@
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Transforms/Utils/Mem2Reg.h"
 #include <memory>
+#include <vector>
 
 // The builder the emitters write into. Set by the compile driver before walking
 // an action body; grabbed by each emitter in a one-line -% %- (the only passthrough
@@ -28,6 +29,13 @@ inline llvm::IRBuilder<> *gJitBuilder = nullptr;
 // (jitRunAction) reads it after the body walk to emit the function's CreateRet.
 // Single-result for the Phase-1 straight-line proof; widens to per-field rebox later.
 inline llvm::Value *gJitResult = nullptr;
+
+// Stack of pending "endif" merge blocks for the gIF emitter. jitIfBegin pushes
+// the endif block (after emitting the CreateCondBr that splits to the then
+// block); jitIfEnd branches the finished then block to it and resumes insertion
+// there, popping. A stack (not a scalar) so nested ifs nest correctly. Header-
+// inline like gJitBuilder so it never reaches GroupRules.h.
+inline std::vector<llvm::BasicBlock*> gIfEndBlocks;
 
 // Binary-op selector for jitEmitBinary — readable names, not magic ints. Each
 // arithmetic opMethod's jitting gate passes one of these; the int/float variant

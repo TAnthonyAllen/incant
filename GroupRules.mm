@@ -2099,6 +2099,36 @@ extern "C" GroupItem *jitEmitCompare(GroupItem *argument, GroupItem *target, int
 	
 }
 
+/* jitEmitGIF  the gIF emitter, the aCTionIF mirror. Re-enters the condition's
+   gMethod (which, under jitting, should fire aCTionExpressioN's gate and leave
+   an i1 in gJitResult), splits to the then block via jitIfBegin, re-enters the
+   then arm's gMethod (a store-back to the target field's slot), then merges via
+   jitIfEnd. The walk + block topology + then-arm store are PROVEN (the taken
+   branch stores correctly). OPEN SEAM — condition emission: the if-ExpressioN is
+   wrapped (listLength 1), so the gMethod call short-circuits aCTionExpressioN's
+   jitting listLength==1 path BEFORE the compare emits (gJitResult ends up the
+   operand value, not the compare i1, so jitIfBegin's !=0 coercion makes both
+   branches "taken"). unWrap over-descends to a leaf and faults the gate. The
+   correct descent — feed the multi-token compare list through the jitting gate
+   so it emits an i1 — intersects the in-flight compare-operator design; resolve
+   there. Everything else here (jitIfBegin/jitIfEnd, the walk) is independent of
+   it. First POP target: single compare, one then
+   arm, no else (the else arm + nesting are the next increment; jitIfBegin/End
+   already stack for nesting). The condition i1 is the only seam to the in-flight
+   compare-operator design — everything here is provably correct regardless. */
+extern "C" GroupItem *jitEmitGIF(GroupItem *input)
+{
+GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
+GroupItem 	*StatemenT = input->getLabelGroup("StatemenT");
+	if ( isMethod(ExpressioN->groupBody->flags.instructType) )
+		ExpressioN->groupBody->gMethod(ExpressioN);
+	::jitIfBegin();
+	if ( isMethod(StatemenT->groupBody->flags.instructType) )
+		StatemenT->groupBody->gMethod(StatemenT);
+	::jitIfEnd();
+	return input;
+}
+
 /* jitEmitStringPlusEQ  the FIRST CreateCall in the JIT layer, and the proof-of-
    concept for jitEmitCall. Bakes target's and argument's stable GroupItem
    addresses as constant ptrs (jitSeedField pattern), then emits a single call to
@@ -2197,6 +2227,60 @@ llvm::IRBuilder<> 	*b = 0;
 	b = 0;
 }
 
+/* jitGeneratE  the JIT walk — the generatE/aCTionBlocK parallel. Walks the
+   BlocK's statement members in order, dispatching each through jitRunGenerated.
+   Only handles what emit-during-parse cannot (deferred control flow); straight-
+   line members fall through jitRunGenerated as no-ops. */
+extern "C" GroupItem *jitGeneratE(GroupItem *input)
+{
+GroupItem 	*grup = 0;
+	while ( grup = input->next(grup) )
+		::jitRunGenerated(grup);
+	return input;
+}
+
+/* jitIfBegin  the gIF condition-to-blocks seam. Reads the condition value the
+   just-emitted ExpressioN left in gJitResult (an i1 from jitEmitCompare — the
+   compare-operator design plugs in HERE, this only requires an i1), creates the
+   then + endif blocks in the current function, emits the CreateCondBr, sets the
+   builder to the then block, and stacks the endif for jitIfEnd. Defensive: a
+   non-i1 condition is coerced with CreateICmpNE 0 (so a value-shaped condition
+   still branches). The one LLVM-native half of the otherwise tok-native gIF. */
+extern "C" void jitIfBegin()
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Function *fn = b->GetInsertBlock()->getParent();
+	llvm::Value *cond = gJitResult;
+	if (!cond->getType()->isIntegerTy(1))
+	cond = b->CreateICmpNE(cond,
+	llvm::ConstantInt::get(cond->getType(), 0), "tobool");
+	llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(ctx, "then", fn);
+	llvm::BasicBlock *endBB  = llvm::BasicBlock::Create(ctx, "endif", fn);
+	b->CreateCondBr(cond, thenBB, endBB);
+	b->SetInsertPoint(thenBB);
+	gIfEndBlocks.push_back(endBB);
+	
+}
+
+/* jitIfEnd  closes the then arm: branch the finished then block to the stacked
+   endif merge block and resume insertion there (popping the stack). The store-
+   back the then arm emitted lands in the field's real slot, so when the branch
+   is taken at run time the mutation is observable; when not taken control flows
+   straight to endif. No phi: the gIF's only effect here is the slot store, and
+   PromotePass (jitRunAction) inserts any merge phis a value-producing if needs. */
+extern "C" void jitIfEnd()
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	llvm::BasicBlock *endBB = gIfEndBlocks.back();
+	gIfEndBlocks.pop_back();
+	b->CreateBr(endBB);
+	b->SetInsertPoint(endBB);
+	
+}
+
 extern "C" void jitInitOnce()
 {
 	
@@ -2247,6 +2331,11 @@ extern "C" int jitRunAction(GroupItem *action)
 	ruler->jitting = 1;
 	if (isCoded(action->groupBody->flags.actionType))
 	::processCode(action);
+	// Straight-line statements emitted during the processCode parse above (the
+	// op gates fire inline). Deferred control flow (if) does NOT emit during
+	// parse, so walk the cached BlocK and emit it now — still under jitting, so
+	// jitEmitGIF's re-entered gMethods hit the same gates.
+	jitWalkBlock(action);
 	ruler->jitting = 0;
 	
 	if (!gJitResult) {
@@ -2336,6 +2425,21 @@ extern "C" int jitRunAddTwo()
 	printf("=== JIT addTwo result = %d ===\n", r); fflush(stdout);
 	return r;
 	
+}
+
+/* jitRunGenerated  the JIT walk's dispatch — the runGenerated parallel. A node
+   carrying a StatemenT child is control flow (the if/while/for/do shape, per
+   aCTionIF's hoist); for now that means gIF, so route it to jitEmitGIF. A node
+   with no StatemenT child is a straight-line expression statement, already
+   emitted during the processCode parse by the op gates — nothing to do. (When
+   the second handler lands this becomes a jitGenerator[node] lookup; one kind
+   needs no registry yet.) */
+extern "C" GroupItem *jitRunGenerated(GroupItem *input)
+{
+GroupItem 	*StatemenT = input->getLabelGroup("StatemenT");
+	if ( StatemenT )
+		::jitEmitGIF(input);
+	return input;
 }
 
 /* jitRunIfTest  control-flow smoke test — the jitRunAddTwo analog for a branch,
@@ -2461,6 +2565,18 @@ extern "C" GroupItem *jitSeedLiteral(GroupItem *token)
 	token->jitData = d;
 	return token;
 	
+}
+
+/* jitWalkBlock  the C++-callable entry the compile driver uses: hoist the
+   action's cached BlocK and run the JIT walk over it. Tok-native so the BlocK
+   hoist is reliable; jitRunAction calls it from its passthrough body after
+   processCode has built the BlocK. */
+extern "C" GroupItem *jitWalkBlock(GroupItem *input)
+{
+GroupItem 	*BlocK = input->getLabelGroup("BlocK");
+	if ( BlocK )
+		::jitGeneratE(BlocK);
+	return input;
 }
 
 /*****************************************************************************
