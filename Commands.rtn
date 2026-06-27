@@ -528,6 +528,9 @@ GroupRules  ruler = groupRules;
 	raises the jitting gate, walks the body via processCode (emitting LLVM IR
 	through the operators' jit dispatch), then ORC-compiles and fires. Invoke:
 		testing(jitAdd);
+	A non-coded argument (a plain count field, not an action) routes instead to
+	jitRunIfTest — the control-flow branch smoke test — so testing(maximus)
+	drives the multi-block CondBr proof without disturbing the action POPs.
 	(The earlier bcLIST-priming bytecode harness is in git history; restore it
 	here when bytecode-emit verification is the need again.)
 	NB: keep this body free of `//` comments — they bleed field-resolution into
@@ -535,7 +538,9 @@ GroupRules  ruler = groupRules;
 ***************************************************************************/
 extern GroupItem testing(GroupItem input)
 {
-    jitRunAction(input);
+use input
+    if isCoded  jitRunAction(input);
+    else        jitRunIfTest(input);
     return input;
 }
 

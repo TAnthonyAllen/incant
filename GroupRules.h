@@ -145,6 +145,7 @@ extern "C" void jitForceInclude();
 extern "C" void jitInitOnce();
 extern "C" int jitRunAction(GroupItem *action);
 extern "C" int jitRunAddTwo();
+extern "C" int jitRunIfTest(GroupItem *fld);
 extern "C" GroupItem *jitSeedField(GroupItem *token);
 extern "C" GroupItem *jitSeedLiteral(GroupItem *token);
 extern "C" GroupItem *listenTo(GroupItem *input);

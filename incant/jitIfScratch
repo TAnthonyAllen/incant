@@ -1,0 +1,19 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+maximus = 0 - 7;
+print "before (neg): maximus =" maximus:;
+testing(maximus);
+print "after  (neg): maximus =" maximus:;
+
+maximus = 5;
+print "before (pos): maximus =" maximus:;
+testing(maximus);
+print "after  (pos): maximus =" maximus:;
+
+stop();

@@ -2338,6 +2338,76 @@ extern "C" int jitRunAddTwo()
 	
 }
 
+/* jitRunIfTest  control-flow smoke test — the jitRunAddTwo analog for a branch,
+   and the first multi-basic-block IR in the JIT layer. Hand-builds
+   i32 f(){ if (fld < 0) fld = 99; return fld; } against the field's baked gCount
+   slot (the jitSeedField address-bake): load the slot, CreateICmpSLT against 0,
+   CreateCondBr to then/end, CreateStore 99 in the then block, merge at end,
+   ret the reloaded slot. The store lands in the field's real storage, so the
+   mutation is observable by reading the field back in interpreted incant
+   (the jitAssign readback pattern). Proves CondBr both directions + a
+   store-to-field through a taken/untaken branch — independent of the JIT walk
+   driver and the in-flight compare-operator design (the icmp is hand-built).
+   Field assumed a count (i32 gCount); drive with testing(<count field>). */
+extern "C" int jitRunIfTest(GroupItem *fld)
+{
+	
+	printf("=== jitRunIfTest on %s ===\n", fld->groupBody->tag); fflush(stdout);
+	jitInitOnce();
+	llvm::orc::LLJIT *jit = (llvm::orc::LLJIT*)jitEngine();
+	if (!jit) { printf("=== JIT engine null ===\n"); fflush(stdout); return -1; }
+	
+	auto ctx = std::make_unique<llvm::LLVMContext>();
+	auto mod = std::make_unique<llvm::Module>("ifMod", *ctx);
+	llvm::IRBuilder<> B(*ctx);
+	llvm::Type *i32 = llvm::Type::getInt32Ty(*ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(*ctx);
+	
+	static int ifSeq = 0;
+	char fnName[32];
+	snprintf(fnName, sizeof(fnName), "ifFn%d", ifSeq++);
+	llvm::Function *fn = llvm::Function::Create(
+	llvm::FunctionType::get(i32, false),
+	llvm::Function::ExternalLinkage, fnName, mod.get());
+	B.SetInsertPoint(llvm::BasicBlock::Create(*ctx, "entry", fn));
+	
+	// Bake the field's gCount storage address as a stable pointer (jitSeedField
+	// pattern); load it, compare < 0 to drive the branch.
+	void *addr = &(fld->groupBody->gCount);
+	llvm::Value *slot = B.CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)addr),
+	llvm::PointerType::getUnqual(*ctx));
+	llvm::Value *v = B.CreateLoad(i32, slot, "load");
+	llvm::Value *cond = B.CreateICmpSLT(v, llvm::ConstantInt::get(i32, 0), "cond");
+	
+	// Three-block topology: entry -> (then | end). The then block stores 99 to
+	// the field slot and falls through to end; end reloads and returns.
+	llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(*ctx, "then", fn);
+	llvm::BasicBlock *endBB  = llvm::BasicBlock::Create(*ctx, "endif", fn);
+	B.CreateCondBr(cond, thenBB, endBB);
+	
+	B.SetInsertPoint(thenBB);
+	B.CreateStore(llvm::ConstantInt::get(i32, 99), slot);
+	B.CreateBr(endBB);
+	
+	B.SetInsertPoint(endBB);
+	llvm::Value *out = B.CreateLoad(i32, slot, "out");
+	B.CreateRet(out);
+	
+	if (auto err = jit->addIRModule(
+	llvm::orc::ThreadSafeModule(std::move(mod), std::move(ctx)))) {
+	llvm::consumeError(std::move(err));
+	printf("=== jitRunIfTest addIRModule failed ===\n"); fflush(stdout); return -2; }
+	auto sym = jit->lookup(fnName);
+	if (!sym) { llvm::consumeError(sym.takeError());
+	printf("=== jitRunIfTest lookup failed ===\n"); fflush(stdout); return -3; }
+	int (*fp)() = sym->toPtr<int(*)()>();
+	int r = fp();
+	printf("=== jitRunIfTest result = %d ===\n", r); fflush(stdout);
+	return r;
+	
+}
+
 /* jitSeedField  unbox a real count/number field operand — the past-constant-folding
    path. Bakes the field's stable GroupItem storage address as a constant pointer and
    emits a CreateLoad of its gCount/gNumber, so the operand reads the LIVE field value
@@ -4359,6 +4429,9 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	raises the jitting gate, walks the body via processCode (emitting LLVM IR
 	through the operators' jit dispatch), then ORC-compiles and fires. Invoke:
 		testing(jitAdd);
+	A non-coded argument (a plain count field, not an action) routes instead to
+	jitRunIfTest — the control-flow branch smoke test — so testing(maximus)
+	drives the multi-block CondBr proof without disturbing the action POPs.
 	(The earlier bcLIST-priming bytecode harness is in git history; restore it
 	here when bytecode-emit verification is the need again.)
 	NB: keep this body free of `//` comments — they bleed field-resolution into
@@ -4366,7 +4439,9 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 ***************************************************************************/
 extern "C" GroupItem *testing(GroupItem *input)
 {
-	::jitRunAction(input);
+	if ( isCoded(input->groupBody->flags.actionType) )
+		::jitRunAction(input);
+	else	::jitRunIfTest(input);
 	return input;
 }
 
