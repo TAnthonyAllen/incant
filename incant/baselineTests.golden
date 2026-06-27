@@ -9,8 +9,8 @@ outer-then, inner-then
 outer-or 
 		grup= three : 
 outer-else 
-lefty: 		got reset to 3 
-printTest: 	lefty should return itself. It returns 3 
+lefty: 		got reset to 46 
+printTest: 	lefty should return itself. It returns 46 
 simpleIF: 
 	anotherTest: max should be 48 + 3 		it is 51 and we done 
 testOR: 	I see nothing 
@@ -57,7 +57,7 @@ list tests the for statement:
 	nine 
 		we DONE 
 testGet: should set sumple width to 251. It is 251 
-sumple=What if it is a long string. height=200 width=251 x=100 y=100 down=*
+sumple=What if it is a long string. height=200 width=251 x=100 y=100 down=* across=2
 	crossing height=50; 
 simple across styleTest height=212 width=250 x=100 y=100
 	quinto width=150; 
@@ -69,7 +69,7 @@ sample x=300 y=450 width=400 height=200
 		wrap=This is a whole lot of text that I am using to test out text views, scrolling, and isn't it nice that the xcode text editor wraps lines and indents auto-magically. The base rule is you have to specify everything you want, nothing implied. fill=purple
 			one text pad=7 border; 
 		two fill=red left=2; 
-		three fill=white DatA=50% left=2
+		three fill=white width=50% left=2
 			stuff text pad=6; 
 	fourth rounded pad fill=lightGreen height=12; 
 	fifth; 

@@ -159,37 +159,21 @@ GroupItem 	*label = rule->rStuff->label;
 *******************************************************************************/
 extern "C" GroupItem *aCTionDEBUG(GroupItem *input)
 {
-GroupItem 	*lastRule = 0;
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*rules = input->getLabelGroup("rules");
-GroupItem 	*subrule = 0;
 GroupItem 	*GUARD = input->getLabelGroup("GUARD");
 GroupItem 	*grup = 0;
 	if ( rules )
 		while ( grup = rules->next(grup) )
 			{
-			if ( grup->groupBody->flags.isRule )
-				{
-				if ( GUARD )
-					grup->groupBody->flags.debugGuard = 1;
-				lastRule = grup;
-				grup->groupBody->flags.debugged = 1;
-				}
-			else
 			if ( ::compare(grup->getText(),"GUARD") == 0 )
 				{
-				GUARD = GroupControl::groupController->groupRules->trueResult;
+				GUARD = ruler->trueResult;
 				continue;
 				}
-			else
-			if ( lastRule && (subrule = lastRule->get(grup->groupBody->tag)) )
-				{
-				subrule->groupBody->flags.debugged = !subrule->groupBody->flags.debugged;
-				if ( GUARD )
-					subrule->groupBody->flags.debugGuard = !subrule->groupBody->flags.debugGuard;
-				}
-			else	::fprintf(stderr,"aCTionDebuG: %s is not a rule\n",grup->groupBody->tag);
+			grup->groupBody->flags.debugged = 1;
 			}
-	else	GroupControl::groupController->groupRules->debugAllRules = !GroupControl::groupController->groupRules->debugAllRules;
+	else	ruler->debugAllRules = !ruler->debugAllRules;
 	return input;
 }
 
@@ -1133,7 +1117,12 @@ GroupItem 	*ANYtoken = xpress->get("ANYorNum");
 		else {
 			if ( InvokeArg->groupBody->flags.fLAG )
 				op = ruler->opFields->get("=[");
-			else	op = ruler->falseResult;
+			else {
+				op = ruler->falseResult;
+				if ( ruler->processingCode )
+					if ( ANYtoken->groupBody == ruler->currentMETHOD->groupBody )
+						ruler->currentMETHOD->groupBody->flags.recursive = 1;
+				}
 			if ( isGROUP(InvokeArg->groupBody->flags.data) )
 				arg = InvokeArg->getGroup();
 			if ( !arg )
@@ -1261,8 +1250,9 @@ GroupItem 	*result = 0;
 *******************************************************************************/
 extern "C" GroupItem *aCTionXpress(GroupItem *input)
 {
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
-	if ( !GroupControl::groupController->groupRules->processingCode && ExpressioN->groupBody->gMethod )
+	if ( !ruler->processingCode && ExpressioN->groupBody->gMethod )
 		ExpressioN = ExpressioN->groupBody->gMethod(ExpressioN);
 	else
 	if ( ExpressioN )
@@ -1425,6 +1415,7 @@ extern "C" GroupItem *copyOf(GroupItem *grup)
 {
 GroupItem 	*block = new GroupItem();
 	*block->groupBody = *grup->groupBody;
+	block->groupBody->flags.isLocal = 0;
 	if ( block->groupBody->flags.isVirtual )
 		block->groupBody->flags.isVirtual = 0;
 	else
@@ -2738,9 +2729,8 @@ extern "C" GroupItem *opCopyList(GroupItem *argument, GroupItem *target)
 extern "C" GroupItem *opDebug(GroupItem *result)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-char 		*junk = 0;
-	//print result.tag:;
-	junk = ruler->atRuleMark;
+GroupItem 	*actionField = 0;
+	actionField = ruler->currentMETHOD->get(result->parent->groupBody->tag);
 	return result;
 }
 
@@ -2918,12 +2908,8 @@ GroupItem 	*product = 0;
 				default:
 					product->setText(::concat(3,"access to ",argument->groupBody->tag," not supported yet"));
 				}
-			if ( product )
-				if ( !product->groupBody->flags.isInitialized )
-					return 0;
-				else
-				if ( !product->parent )
-					product->parent = target;
+			if ( product && !product->parent )
+				product->parent = target;
 			}
 		}
 	return product;
@@ -2938,6 +2924,20 @@ extern "C" GroupItem *opEQ(GroupItem *argument, GroupItem *target)
 		{
 		 return jitEmitCompare(argument, target, jitEQ); 
 		}
+	if ( target && !target->groupBody->flags.data )
+		{
+		if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
+			if ( argument->groupBody->gCount == 0 )
+				return GroupControl::groupController->groupRules->trueResult;
+		}
+	else
+	if ( argument && !argument->groupBody->flags.data )
+		{
+		if ( isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data) )
+			if ( target->groupBody->gCount == 0 )
+				return GroupControl::groupController->groupRules->trueResult;
+		}
+	else
 	if ( !::compareValues(target,argument) )
 		return GroupControl::groupController->groupRules->trueResult;
 	return 0;
@@ -3291,6 +3291,20 @@ extern "C" GroupItem *opNotEQ(GroupItem *argument, GroupItem *target)
 		{
 		 return jitEmitCompare(argument, target, jitNE); 
 		}
+	if ( target && !target->groupBody->flags.data )
+		{
+		if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
+			if ( argument->groupBody->gCount != 0 )
+				return GroupControl::groupController->groupRules->trueResult;
+		}
+	else
+	if ( argument && !argument->groupBody->flags.data )
+		{
+		if ( isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data) )
+			if ( target->groupBody->gCount != 0 )
+				return GroupControl::groupController->groupRules->trueResult;
+		}
+	else
 	if ( ::compareValues(target,argument) )
 		return GroupControl::groupController->groupRules->trueResult;
 	return 0;
@@ -3345,7 +3359,6 @@ extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target)
 ***************************************************************************/
 extern "C" GroupItem *opPlusEQ(GroupItem *argument, GroupItem *target)
 {
-GroupItem 	*grup = 0;
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		if ( isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data) )
@@ -3357,10 +3370,9 @@ GroupItem 	*grup = 0;
 			}
 		}
 	if ( isLIST(argument->groupBody->flags.binType) )
-		while ( grup = argument->prior(grup) )
-			::opPlusEQ(grup,target);
+		argument->copyListTo(target);
 	else
-	if ( target->groupBody->flags.binType || target->groupBody->groupList )
+	if ( !target->groupBody->flags.isRule && !target->groupBody->flags.actionType && (target->groupBody->flags.binType || target->groupBody->groupList) )
 		target->addMember(argument);
 	else
 	if ( argument->groupBody->flags.data )
@@ -3533,13 +3545,12 @@ GroupItem 	*added = 0;
 ***************************************************************************/
 extern "C" GroupItem *opSetFlag(GroupItem *argument, GroupItem *target)
 {
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*flag = argument;
-	if ( argument && argument->groupBody->registry != ruler->groupFields )
-		flag = ruler->groupFields->get(argument->groupBody->tag);
-	if ( flag && target )
-		switch (flag->groupBody->gCount)
+	if ( argument && target )
+		switch (argument->groupBody->gCount)
 			{
+			case 12:
+				target->groupBody->flags.fLAG = !target->groupBody->flags.fLAG;
+				break;
 			case 21:
 				target->groupBody->flags.isPercent = !target->groupBody->flags.isPercent;
 				break;
@@ -3555,10 +3566,16 @@ GroupItem 	*flag = argument;
 			case 31:
 				target->groupBody->flags.byRef = !target->groupBody->flags.byRef;
 				break;
+			case 32:
+				target->groupBody->flags.binType = !isLIST(target->groupBody->flags.binType);
+				break;
+			case 33:
+				target->groupBody->flags.binType = !isBIN(target->groupBody->flags.binType);
+				break;
 			default:
-				::fprintf(stderr,"opSetFlag: setting %s not supported yet\n",flag->groupBody->tag);
+				::fprintf(stderr,"opSetFlag: setting %s not supported yet\n",target->groupBody->tag);
 			}
-	else	::fprintf(stderr,"opSetFlag: no group field for %s\n",argument->groupBody->tag);
+	else	::fprintf(stderr,"opSetFlag: missing operand\n");
 	return target;
 }
 
@@ -3736,16 +3753,8 @@ GroupItem 	*action = field;
 		while ( grup = action->nextAttribute(grup) )
 			if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.isLabel && !grup->groupBody->flags.noPrint && grup->groupBody != action->groupBody )
 				grup->clear();
-		if ( ruler->runningActions->get(field->groupBody->tag) )
-			field->groupBody->flags.recursive = 1;
-		ruler->runningActions->addMember(field);
-		if ( field->groupBody->flags.recursive )
-			::saveLocalFields(field);
 		if ( result = result->groupBody->gMethod(result) )
 			result->groupBody->flags.isBranch = 0;
-		if ( field->groupBody->flags.recursive )
-			::restoreLocalFields(field);
-		ruler->runningActions->pop();
 		}
 	ruler->currentMETHOD = priorMETHOD;
 	ruler->tempField = priorTempField;
@@ -3985,7 +3994,7 @@ GroupItem 	*grup = 0;
 		action->groupBody->flags.recursive = 0;
 	else
 	while ( grup = action->prior(grup) )
-		if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.noPrint )
+		if ( (grup->groupBody->flags.isArgument || grup->groupBody->flags.isLocal) && !grup->groupBody->flags.noPrint )
 			{
 			body = (GroupBody*)recurseSTAK->pop();
 			*grup->groupBody = *body;
@@ -4041,7 +4050,11 @@ GroupItem 	*ruleArg = 0;
 		else	ruleArg->setGroup(result = field);
 	else	result = field;
 	GroupControl::groupController->groupRules->lastREF->setGroup(result);
+	if ( field->groupBody->flags.recursive )
+		::saveLocalFields(field);
 	result = ::processAction(field);
+	if ( field->groupBody->flags.recursive )
+		::restoreLocalFields(field);
 	return result;
 }
 
@@ -4168,11 +4181,12 @@ GroupItem 	*grup = 0;
 		}
 	else	recurseSTAK = action->getStak();
 	while ( grup = action->next(grup) )
-		if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.noPrint )
+		if ( (grup->groupBody->flags.isArgument || grup->groupBody->flags.isLocal) && !grup->groupBody->flags.noPrint )
 			{
 			body = new GroupBody();
 			*body = *grup->groupBody;
-			grup->clear();
+			if ( !body->flags.isArgument )
+				grup->clear();
 			recurseSTAK->push(body);
 			}
 }
@@ -4363,8 +4377,8 @@ extern "C" GroupItem *tokenize(GroupItem *label)
 {
 RuleStuff 	*ruleStuff = label->rStuff;
 char 		*atEnd = GroupControl::groupController->groupRules->atRuleMark;
-int 		tokenLength = (int)(atEnd - ruleStuff->hereAt);
-	label->setToken(ruleStuff->hereAt,tokenLength);
+int 		tokenLength = (int)(atEnd - ruleStuff->parentStuff->hereAt);
+	label->setToken(ruleStuff->parentStuff->hereAt,tokenLength);
 	return label;
 }
 
@@ -4486,7 +4500,6 @@ GroupRules::GroupRules()
 	alphaSet = new PLGset("a-zA-Z");
 	nameSet = new PLGset("a-zA-Z0-9");
 	punctuateSet = new PLGset("]{}[();");
-	runningActions = new GroupItem("runningActions");
 	shortcutSet = new PLGset("-+~`$_:,");
 	spaceSet = new PLGset(" \n\r\t");
 	tempField = new GroupItem("tempField");
@@ -4726,5 +4739,4 @@ int 	result = 0;
 }
 /*	Warning: the following methods were referenced but not declared
 	read(int,char*,long)
-	setRStuff(RuleStuff*)
 */

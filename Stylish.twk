@@ -1,4 +1,4 @@
-include GUIincludes
+include /Users/anthony/Dropbox/data/InProcess/Groups/groupIncludes
 
 /*******************************************************************************
 	Defined as class but just a structure really to encapsulate style attributes

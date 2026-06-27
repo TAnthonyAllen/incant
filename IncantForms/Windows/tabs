@@ -2,7 +2,9 @@ Start();
 include(unitTests);
 include(utilities);
 search list;
-initFORMs();
+search reset stack Grokking;
+search UnitTests Utilities list;
+changeDatA();
 
 register(dESCRIPTIONs);
 define
@@ -25,13 +27,14 @@ define
                 thirdCard="The third tab body" register bordered fill=red;
             help describe=tabFORM bordered height=100 fill=lightGreen;
     matrix="What if it is a long string." height=200 width=400 x=100 y=100 down=4
-        crossing height=50 across=3
+        crossup height=50 across=2
             cell;
     ;
 
+testUnitTests();
+stop();
 setFrame(matrix);
 printDefinition(matrix);
-stop();
 
     *****************************************************************************
 

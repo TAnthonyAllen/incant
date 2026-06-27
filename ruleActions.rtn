@@ -107,25 +107,16 @@ GroupItem   lefty   = rule[1],
 *******************************************************************************/
 extern GroupItem aCTionDEBUG(GroupItem input)
 {
-GroupItem   lastRule,
-            rules:,
-            subrule,
+GroupRules  ruler = groupRules;
+GroupItem   rules:,
             GUARD:,
             grup;
     if rules
         while grup = rules.next(grup) {
-            if isRule {
-                if GUARD    debugGuard = true;
-                lastRule    = grup;
-                debugged    = true; }
-            or grup.text eq "GUARD" {
-                GUARD = trueResult;
+            if grup.text eq "GUARD" {
+                GUARD   = trueResult;
                 continue; }
-            or lastRule && (subrule = lastRule[tag]) {
-use subrule
-                debugged = !debugged;
-                if GUARD debugGuard =! debugGuard; }
-            else    cerr "aCTionDebuG: " tag " is not a rule":; }
+            debugged    = true; }
     else    debugAllRules = !debugAllRules;
     return input;
 }
@@ -844,7 +835,10 @@ GroupItem   arg,
                 xpress  +% arg; }}
         else {
             if InvokeArg.fLAG op = opFields["=["];
-            else    op = falseResult;
+            else {
+                op = falseResult;
+                if processingCode
+                    if ANYtoken.groupBody == currentMETHOD.groupBody    currentMETHOD.recursive = true; }
             if InvokeArg.isGROUP arg = InvokeArg.group;
             if !arg arg = InvokeArg;
             xpress  +% op;
@@ -943,6 +937,7 @@ GroupItem   result;
 *******************************************************************************/
 extern GroupItem aCTionXpress(GroupItem input)
 {
+GroupRules  ruler = groupRules;
 GroupItem   ExpressioN:;
     if !processingCode && method    ExpressioN = method(ExpressioN);
     or ExpressioN {

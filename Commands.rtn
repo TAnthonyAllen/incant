@@ -49,7 +49,8 @@ GroupItem newField = new(field);
 extern GroupItem copyOf(GroupItem grup)
 {
 GroupItem block = new;
-    *groupBody = *grup.groupBody;
+    *groupBody  = *grup.groupBody;
+    isLocal     = false;
     if isVirtual        isVirtual = false;
     or grup.groupList {
         block.groupList = new();

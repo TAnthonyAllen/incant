@@ -230,13 +230,14 @@ define
     isLocaL=9;
     isArgumenT=10;
     invokE=11;
-    // The following flags should probably be made available via opDot()
     flaG=12;
+    isBiN=33;
     isConditioN;
     isFilE;
     isIndexeD;
     isInitializeD;
     isLiteraL=17;
+    isLisT=32;
     isMacrO;
     isMethoD=19;
     isOperatoR=20;

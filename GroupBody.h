@@ -13,6 +13,7 @@ struct bools
 	unsigned int isLabel:1;
 	unsigned int noPrint:1;
 	unsigned int invoke:1;
+	unsigned int fLAG:1;
 	unsigned int data:5;
 	unsigned int actionType:2;
 	unsigned int binType:3;
@@ -27,7 +28,6 @@ struct bools
 	unsigned int debugged:1;
 	unsigned int debugGuard:1;
 	unsigned int deferred:1;
-	unsigned int fLAG:1;
 	unsigned int hasAttributes:1;
 	unsigned int hasListeners:1;
 	unsigned int hasMembers:1;

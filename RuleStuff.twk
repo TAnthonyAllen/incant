@@ -110,12 +110,9 @@ GroupItem   field = rule;
         Set the label
     ***************************************************************************/
     if sukcess
-        if noLabel      label = 0;
+        if noLabel || (isRule && hasMembers && !binType)    label = 0;
         else {
-            if isTarget
-                if parentStuff  label = parentStuff.label;
-                else            cerr "checkInput:",tag,"is target but no parent label provided":;
-            or !label || !label.fLAG {
+            if !label || !label.fLAG {
                 label           = new(tag);
                 label.isLabel   = true; }
             else label.fLAG     = false;
@@ -181,8 +178,7 @@ void setTestMatch()
     or isCondition          testMatch = testCondition;
     or parseACTION          testMatch = testAction;
     or !contents()
-        if isMethod         testMatch = testAction;
-        else                testMatch = testString;
+        if !isMethod        testMatch = testString;
 }
 }
 

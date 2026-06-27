@@ -930,16 +930,15 @@ continueHere:
             Run the matches that determine if this rule succeeds
         *******************************************************************/
         if testMatch || onGroup || hasAttributes {
-            if testMatch                                        sukcess = testMatch(this);
+            if testMatch                                            sukcess = testMatch(this);
             if !parseACTION {
                 if sukcess && onGroup && onGroup.parse(ruleStuff)   sukcess = true;
                 if sukcess && hasAttributes                         sukcess = testAttributes(ruleStuff); }}
-        else            sukcess = false;
+        or isRule && hasMembers                                     sukcess = testOptions(ruleStuff);
         if !sukcess     goto matchFailed;
         /*******************************************************************
             Success. Fire label method if there is one.
         *******************************************************************/
-matchSucceeded:
         ruleSTUFF   = ruleStuff;
         if isMethod && label
             if deferred {
@@ -953,18 +952,18 @@ matchSucceeded:
             /***************************************************************
                 Deal w/label and increment kount. GC will deal w/label leak
             ***************************************************************/
-            if label
-                if !isTarget && parentLabel
-                    if label.isGROUP && max > 1 {
-                        parentLabel +% label.group;
-                        label.clear();
-                        label.fLAG  = true; }
-                    else    parentLabel +% label; }
+            if label && pStuff
+                if isTarget {
+                    pStuff.label = label;
+                    label.tag = pStuff.ruleName; }
+                or label.isGROUP && max > 1 {
+                    pStuff.label +% label.group;
+                    label.clear();
+                    label.fLAG  = true; }
+                else    pStuff.label +% label; }
         else break; }
 matchFailed:
     if !sukcess {
-        if isRule && hasMembers && !guardFAIL
-            if sukcess = testOptions(ruleStuff)     goto matchSucceeded;
         if !sukcess && kount >= min sukcess = true;
         if !*atRuleMark && inputDiverted {
             while inputDiverted && !*atRuleMark {
@@ -1101,14 +1100,10 @@ GroupItem remove()
         if parent.listLength    parent.listLength--;
         if !parent.listLength   parent.clearList();
         else {
-            if priorInParent
-                if !nextInParent
-                    {
-                    parent.lastInList = priorInParent;
-                    priorInParent.nextInParent      = null;
-                    }
-                else  priorInParent.nextInParent    = nextInParent;
+            if priorInParent    priorInParent.nextInParent = nextInParent;
             else parent.firstInList = nextInParent;
+            if nextInParent     nextInParent.priorInParent = priorInParent;
+            else parent.lastInList  = priorInParent;
             nextInParent            = priorInParent = null;
             if isAttribute {
                 grup = parent.nextAttribute(grup);

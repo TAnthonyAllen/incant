@@ -506,14 +506,9 @@ GroupItem 	*field = rule;
 	Set the label
 	***************************************************************************/
 	if ( sukcess )
-		if ( noLabel )
+		if ( noLabel || (field->groupBody->flags.isRule && field->groupBody->flags.hasMembers && !field->groupBody->flags.binType) )
 			label = 0;
 		else {
-			if ( isTarget )
-				if ( parentStuff )
-					label = parentStuff->label;
-				else	::fprintf(stderr,"checkInput: %s is target but no parent label provided\n",field->groupBody->tag);
-			else
 			if ( !label || !label->groupBody->flags.fLAG )
 				{
 				label = new GroupItem(field->groupBody->tag);
@@ -616,10 +611,6 @@ void RuleStuff::setTestMatch()
 		testMatch = ::testAction;
 	else
 	if ( !rule->contents() )
-		if ( isMethod(rule->groupBody->flags.instructType) )
-			testMatch = ::testAction;
-		else	testMatch = ::testString;
+		if ( !isMethod(rule->groupBody->flags.instructType) )
+			testMatch = ::testString;
 }
-/*	Warning: the following methods were referenced but not declared
-	setRStuff(RuleStuff*)
-*/

@@ -20,7 +20,7 @@ aCTionDebuG subrule.debugged ctive
 aCTionDebuG embed.debugged ctive
     if embed.debugged print "Debugging",embed.tag:;
 #;
-aCTionDefinE "if Attributes" before active
+aCTionDefinE "if Attributes" before ctive
     cout "aCTionDefinE:",NewGroup.tag,lastIndent:;
 #;
 aCTionElsE if ctive
@@ -197,15 +197,15 @@ listenTo ending
 	parse debugging
         if tag eq "MemberS"   doNothing = false;
 *******************************************************************************/
+parse sukcess ctive
+    if tag eq "ANYorNum"  doNothing = false;
+#;
 parse "if !checkInput" before active
     if debugAllRules || rule.debugged {
         if debugIndent < 0 debugIndent = 0;
         indent("  ");
         cout "Match",ruleName,"on text",getDebugText(atRuleMark,20):;
         debugIndent++; }
-#;
-parse matchSucceeded ctive
-    if tag eq "StringXP"  doNothing = false;
 #;
 parse kount active
     if debugAllRules || rule.debugged {
@@ -219,7 +219,7 @@ parse kount active
         cout ,"at: " getDebugText(atRuleMark,10):;
         doNothing = false; }
 #;
-parse debugHere active
+parse matchFailed active
     if debugAllRules || rule.debugged {
         debugIndent--;
         indent("  ");
@@ -263,7 +263,7 @@ updateContentFlags starting
 *******************************************************************************/
 #GroupMain
 bootstrapper pushInput active
-    debugAllRules   = true;
+    debugGuards     = true;
 #;
 /*******************************************************************************
 	GroupRules
@@ -300,6 +300,6 @@ getLabel if before ctive
 getLabel endLabel ctive
     if tag eq "DefinE"  doNothing = 0;
 #;
-getWhatFollows followed active
-    if tag eq "JSONitem"   doNothing = 0;
+getWhatFollows followed ctive
+    if tag eq "define"   doNothing = 0;
 #;

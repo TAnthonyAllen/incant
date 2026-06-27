@@ -55,9 +55,8 @@ extern GroupItem opCopyList(GroupItem argument,GroupItem target)
 extern GroupItem opDebug(GroupItem result)
 {
 GroupRules  ruler = groupRules;
-String      junk;
-    //print result.tag:;
-    junk    = atRuleMark;
+GroupItem   actionField;
+    actionField = currentMETHOD[result.parent.tag];
     return  result;
 }
 
@@ -146,9 +145,7 @@ use argument
                 case 403:   if !target.firstInList     product = null; else product = target.firstInList;
                 case 404:   if !target.lastInList      product = null; else product = target.lastInList;
                 default:    product.text    = "access to " tag " not supported yet"; }
-            if product
-                if !product.isInitialized   return 0;
-                or !product.parent          product.parent = target; }}
+            if product && !product.parent   product.parent = target; }}
     return product;
 }
 
@@ -160,7 +157,13 @@ extern GroupItem opEQ(GroupItem argument,GroupItem target)
     if jitting {
         -% return jitEmitCompare(argument, target, jitEQ); %-
     }
-    if !compareValues(target,argument)  return trueResult;
+    if target && !data {
+        if argument.isCOUNT || argument.isNUMBER
+            if argument.gCount == 0     return trueResult; }
+    or argument && !argument.data {
+        if isCOUNT || isNUMBER
+            if gCount == 0              return trueResult; }
+    or !compareValues(target,argument)  return trueResult;
     return null;
 }
 
@@ -451,7 +454,13 @@ extern GroupItem opNotEQ(GroupItem argument,GroupItem target)
     if jitting {
         -% return jitEmitCompare(argument, target, jitNE); %-
     }
-    if compareValues(target,argument)  return trueResult;
+    if target && !data {
+        if argument.isCOUNT || argument.isNUMBER
+            if argument.gCount != 0     return trueResult; }
+    or argument && !argument.data {
+        if isCOUNT || isNUMBER
+            if gCount != 0              return trueResult; }
+    or compareValues(target,argument)   return trueResult;
     return null;
 }
 
@@ -491,7 +500,6 @@ extern GroupItem opPlus(GroupItem argument,GroupItem target)
 ***************************************************************************/
 extern GroupItem opPlusEQ(GroupItem argument,GroupItem target)
 {
-GroupItem   grup;
     if jitting {
         if target.isSTRING || target.isTOKEN
             return jitEmitStringPlusEQ(argument,target);
@@ -500,10 +508,8 @@ GroupItem   grup;
                return jitEmitAssign(target, target); %-
             } }
 use target
-    if argument.isLIST
-        while grup = argument.prior(grup)
-            opPlusEQ(grup,target);
-    or target.binType || target.groupList   target += argument;
+    if argument.isLIST  argument.copyListTo(target);
+    or !isRule && !actionType && (binType || groupList)   target += argument;
     or argument.data
         if data
             switch(data) {
@@ -655,20 +661,18 @@ extern GroupItem opSetGroup(GroupItem argument,GroupItem target)
 ***************************************************************************/
 extern GroupItem opSetFlag(GroupItem argument,GroupItem target)
 {
-GroupRules  ruler = groupRules;
-GroupItem   flag  = argument;
-    if argument && argument.registry != groupFields
-        flag = groupFields[argument.tag];
-use flag
-    if flag && target
-        switch(gCount) {
-            case 21:    target.isPercent = !target.isPercent;
-            case 25:    target.isVirtual = !target.isVirtual;
-            case 26:    target.mergeOn   = !target.mergeOn;
-            case 29:    target.noPrint   = !target.noPrint;
-            case 31:    target.byRef     = !target.byRef;
-            default:    cerr "opSetFlag: setting " tag " not supported yet":; }
-    else    cerr "opSetFlag: no group field for " argument.tag:;
+    if argument && target
+        switch(argument.gCount) {
+            case 12:    target.fLAG         = !target.fLAG;
+            case 21:    target.isPercent    = !target.isPercent;
+            case 25:    target.isVirtual    = !target.isVirtual;
+            case 26:    target.mergeOn      = !target.mergeOn;
+            case 29:    target.noPrint      = !target.noPrint;
+            case 31:    target.byRef        = !target.byRef;
+            case 32:    target.isLIST       = !target.isLIST;
+            case 33:    target.isBIN        = !target.isBIN;
+           default:    cerr "opSetFlag: setting " tag " not supported yet":; }
+    else    cerr "opSetFlag: missing operand":;
     return target;
 }
 

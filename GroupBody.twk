@@ -39,6 +39,7 @@ boolean bools {
     isLabel
     noPrint
     invoke
+    fLAG
     data:5[isANY isCHAR isSET isBUFFER isCOUNT isGROUP isITEM isMAP isNUMBER isOBJECT isREGEX isSTAK isSTRING isTOKEN]
     actionType:2[isAction isCoded]
     binType:3[isBIN isCLASS isLIST isREGISTRY]
@@ -54,7 +55,6 @@ boolean bools {
     debugged
     debugGuard
     deferred
-    fLAG
     hasAttributes
     hasListeners
     hasMembers

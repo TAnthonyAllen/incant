@@ -33,7 +33,6 @@ GroupItem *lastStatement;
 GroupItem *generator;
 GroupItem *printSPACE;
 GroupItem *ruleSkipSet;
-GroupItem *runningActions;
 GroupItem *searchList;
 GroupItem *setupFILE;
 GroupItem *sourceFILE;

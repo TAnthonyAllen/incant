@@ -141,7 +141,8 @@ define
         member (the member may have members); also the member should have its
         target (width or height) specified. If direction value is a number
         (like down=3) the argument can have more than one member, but all members
-        should have no target specified.
+        should have no target specified. Also, the argument passed in should
+        have no data (you can add data after setFrame finishes).
     ***************************************************************************/
     tARGET;
     dIRECTion;
@@ -149,14 +150,11 @@ define
     fillDownAcross argument code={
         direct  := argument.dIRECTion;
         target  := argument.tARGET;
-        //print "About to fill" target.taG "for" taG:;
         :argument target direct;
         pValue = target;
-        //print "Target is" target.taG target:;
         for grup in argument; members
             ++memberCount;
             :grup target;
-            //print grup.taG "Target is" target.taG target:;
             if target;      pValue -= target;
             else            print taG "must have a" target.taG "specified":;
         if direct == "*";
@@ -165,14 +163,19 @@ define
         else
             if direct > 0;
                 valueCount = direct - 1;
-        //if valueCount > 0;  print `"Adding" valueCount "members to:" argument.taG:;
         clear(newStuff);
+        for grup in argument; attributes
+            newStuff +% grup;
+        for grup in argument; members
+            grupCopy <- copyOf(grup);
+            newStuff += grupCopy;
         for grup in argument; members
             while valueCount > 0;
                 --valueCount;
-                newStuff += copyOf(grup);
+                grupCopy <- copyOf(grup);
+                newStuff += grupCopy;
+        clear(argument);
         argument += newStuff;
-        //print "fillDownAcross Done":;
         };
     /***************************************************************************
          Set frames for members of the group passed in. It must have x y width
@@ -210,26 +213,27 @@ define
                 width := copyOf(width);
                 grup :% width;
             else
-                ++sideOut   += grup;
+                sideOut     += grup;
+                ++sideOut;
             if height > 0;
                 if height.isPercent; height = height * headRoom / 100;
                 headRoom    -= height;
             or across;
                 height = pHeight;
-                height = copyOf(height);
-                grup :% height;
+                grup :% copyOf(height);
             else
-                ++upOut     += grup;
+                upOut       += grup;
+                ++upOut;
         if upOut > 0;
             headRoom /= upOut;
             for grup in upOut;
                 height = headRoom;
-                grup +% height;
+                grup +% copyOf(height);
         if sideOut > 0;
             sideRoom /= sideOut;
             for grup in sideOut;
                 width = sideRoom;
-                grup +% width;
+                grup +% copyOf(width);
         headRoom    = 0;
         sideRoom    = 0;
     /***************************************************************************
@@ -238,23 +242,17 @@ define
         for grup in argument; members
             :grup width height x y;
             if across;
-                if  y <= 0;
-                    y = pY;
-                    grup +% copyOf(y);
-                if x <= 0;
-                    x = pX;
-                    if sideRoom > 0;    x += sideRoom;
-                    grup +% copyOf(x);
-                sideRoom += width;
+                y = pY;
+                grup :% copyOf(y);
+                x = pX;
+                grup :% copyOf(x);
+                pX += width;
             else
-                if  y <= 0;
-                    y = pY;
-                    if headRoom > 0;    y += headRoom;
-                    grup +% copyOf(y);
-                if x <= 0;
-                    x = pX;
-                    grup +% copyOf(x);
-                headRoom += height;
+                y = pY;
+                grup :% copyOf(y);
+                pY += height;
+                x = pX;
+                grup :% copyOf(x);
         for grup in argument; members
             :grup across down;
             if across > 0 OR down > 0;

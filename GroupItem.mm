@@ -1259,13 +1259,14 @@ continueHere:
 					ruleStuff->sukcess = ::testAttributes(ruleStuff);
 				}
 			}
-		else	ruleStuff->sukcess = 0;
+		else
+		if ( groupBody->flags.isRule && groupBody->flags.hasMembers )
+			ruleStuff->sukcess = ::testOptions(ruleStuff);
 		if ( !ruleStuff->sukcess )
 			goto matchFailed;
 		/*******************************************************************
 		Success. Fire label method if there is one.
 		*******************************************************************/
-matchSucceeded:
 		ruler->ruleSTUFF = ruleStuff;
 		if ( isMethod(groupBody->flags.instructType) && ruleStuff->label )
 			if ( groupBody->flags.deferred )
@@ -1285,24 +1286,26 @@ matchSucceeded:
 			/***************************************************************
 			Deal w/label and increment kount. GC will deal w/label leak
 			***************************************************************/
-			if ( ruleStuff->label )
-				if ( !ruleStuff->isTarget && parentLabel )
-					if ( isGROUP(ruleStuff->label->groupBody->flags.data) && ruleStuff->max > 1 )
-						{
-						parentLabel->addAttribute(ruleStuff->label->getGroup());
-						ruleStuff->label->clear();
-						ruleStuff->label->groupBody->flags.fLAG = 1;
-						}
-					else	parentLabel->addAttribute(ruleStuff->label);
+			if ( ruleStuff->label && pStuff )
+				if ( ruleStuff->isTarget )
+					{
+					pStuff->label = ruleStuff->label;
+					ruleStuff->label->groupBody->tag = pStuff->ruleName;
+					}
+				else
+				if ( isGROUP(ruleStuff->label->groupBody->flags.data) && ruleStuff->max > 1 )
+					{
+					pStuff->label->addAttribute(ruleStuff->label->getGroup());
+					ruleStuff->label->clear();
+					ruleStuff->label->groupBody->flags.fLAG = 1;
+					}
+				else	pStuff->label->addAttribute(ruleStuff->label);
 			}
 		else	break;
 		}
 matchFailed:
 	if ( !ruleStuff->sukcess )
 		{
-		if ( groupBody->flags.isRule && groupBody->flags.hasMembers && !ruleStuff->guardFAIL )
-			if ( ruleStuff->sukcess = ::testOptions(ruleStuff) )
-				goto matchSucceeded;
 		if ( !ruleStuff->sukcess && ruleStuff->kount >= ruleStuff->min )
 			ruleStuff->sukcess = 1;
 		if ( !*ruler->atRuleMark && ruler->inputDiverted )
@@ -1474,13 +1477,11 @@ GroupItem *GroupItem::remove()
 			parent->clearList();
 		else {
 			if ( priorInParent )
-				if ( !nextInParent )
-					{
-					parent->groupBody->groupList->lastInList = priorInParent;
-					priorInParent->nextInParent = 0;
-					}
-				else	priorInParent->nextInParent = nextInParent;
+				priorInParent->nextInParent = nextInParent;
 			else	parent->groupBody->groupList->firstInList = nextInParent;
+			if ( nextInParent )
+				nextInParent->priorInParent = priorInParent;
+			else	parent->groupBody->groupList->lastInList = priorInParent;
 			nextInParent = priorInParent = 0;
 			if ( isAttribute(options.affiliation) )
 				{
@@ -1938,6 +1939,3 @@ GroupItem 	*group = 0;
 		}
 	return result;
 }
-/*	Warning: the following methods were referenced but not declared
-	setRStuff(RuleStuff*)
-*/

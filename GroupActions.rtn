@@ -297,12 +297,7 @@ GroupItem   label = field,
 use grup
         while grup = action.nextAttribute(grup)
             if isLocal && !isLabel && !noPrint && groupBody != action.groupBody clear();
-        if runningActions[field.tag]        field.recursive = true;
-        runningActions  += field;
-        if field.recursive      saveLocalFields(field);
-        if result = result.gMethod(result)  result.isBranch = 0;
-        if field.recursive      restoreLocalFields(field);
-        runningActions.pop(); }
+        if result = result.gMethod(result)  result.isBranch = 0; }
     currentMETHOD   = priorMETHOD;
     tempField       = priorTempField;
     return result;
@@ -370,7 +365,7 @@ GroupItem   grup;
     if !recurseSTAK.length  action.recursive = false;
     else
     while grup = action.prior(grup)
-        if grup.isLocal && !grup.noPrint {
+        if (grup.isArgument || grup.isLocal) && !grup.noPrint {
             body = recurseSTAK.pop();
             *groupBody = *body;
             body = 0;}
@@ -416,7 +411,9 @@ use field
         else        ruleArg.group = result = field;
     else    result = field;
     lastREF.group  = result;
+    if field.recursive      saveLocalFields(field);
     result  = processAction(field);
+    if field.recursive      restoreLocalFields(field);
     return  result;
 }
 
@@ -503,10 +500,10 @@ GroupItem   grup;
         action.stak = recurseSTAK; }
     else    recurseSTAK = action.stak;
     while grup = action.next(grup)
-        if grup.isLocal && !grup.noPrint {
+        if (grup.isArgument || grup.isLocal) && !grup.noPrint {
             body    = new;
             *body   = *grup.groupBody;
-            clear();
+            if !isArgument  clear();
             recurseSTAK += body; }
 }
 
@@ -583,8 +580,8 @@ extern GroupItem tokenize(GroupItem label)
 {
 RuleStuff   ruleStuff = rStuff;
 String      atEnd = atRuleMark;
-int tokenLength = (int)(atEnd - hereAt);
-    label.setToken(hereAt,tokenLength);
+int tokenLength = (int)(atEnd - parentStuff.hereAt);
+    label.setToken(parentStuff.hereAt,tokenLength);
     return label;
 }
 
