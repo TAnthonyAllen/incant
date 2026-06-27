@@ -1,120 +1,130 @@
-# Incant — Status & Handoff (2026-06-27: Phase 2 JIT — gIF scaffolding)
+# Incant — Status & Handoff (2026-06-27 PM: Phase 2 JIT — wrapped-condition root cause + unified-emit WIP parked)
 *Written by Clod for a fresh Clay/Clod tomorrow. Assumes no memory of today. Self-contained.*
 
 ## What this is
-**Phase 2 JIT = control flow (`gIF`).** Today the gIF **scaffolding** landed and is wired
-end-to-end — the JIT walk + LLVM block topology + then-arm store are **proven by running**.
-One seam is open: emitting the **condition compare** under jitting, which intersects the
-compare-operator design Tony + Clay are settling. Three clean commits, all pushed, tree green.
+**Phase 2 JIT = control flow (`gIF`).** Today's session: a deep dive root-caused why the gIF
+branch wasn't really branching, chose the **unified emit-on-walk model** (Fearless + Haps), built
+its scaffolding, hit one clean blocker, and **parked it on a branch** so `main` stays green.
+The blocker is a known design seam with an agreed fix (a runOP clone). Main is baseline green;
+WIP is on `jit-unified-emit-wip`.
 
-## The lens (hold these to reason about the JIT)
-- **Two independent lowerings of the same parsed tree.** Bytecode (`generateCode` → `generatE`
-  walk → `gIF`/`gXpress` emit bytecode) and JIT (LLVM IR) are *parallel*, not a pipeline.
-- **How straight-line JIT runs:** `testing(action)` → `jitRunAction` (`jitEmitters.rtn`) sets
-  `jitting=1`, calls `processCode` which **parses the body and emits LLVM IR *during the
-  parse*** — each opMethod (`opPlus`/`opLT`/`opAssign`/…) has an `if jitting { … }` gate that
-  emits straight into `gJitBuilder`. Caps with `CreateRet(gJitResult)`, ORC-compiles, runs.
-  This emit-during-parse model is proven (25 straight-line POPs) and is NOT touched.
-- **Why control flow is different:** an `if` is **deferred** — it never executes during the
-  parse, so it can't emit during parse. Control flow needs a **walk** over the cached BlocK
-  *after* processCode. That walk is what landed today.
-- **PromotePass is wired** (`jitRunAction` runs `llvm::PromotePass` before `addIRModule`) — so a
-  value-producing if's merge phis come from LLVM, never hand-written. (No-op on today's IR.)
+## CORRECTION to the prior handoff (important — the old wakeup was wrong)
+The previous wakeup claimed the gIF "then-arm store is **proven through the branch**" (taken→99).
+**That was a shape-read, not true.** Hard IR evidence (dumped this session, `jitGIF`, righty=-7):
+```llvm
+entry:
+  %unbox = load i32 ... (righty)
+  %cmp   = icmp slt i32 %unbox, 0      ; compare emits ✓
+  %unbox1 = load i32 ... (maximus)
+  store i32 99, ptr ... (maximus)      ; ✗ UNCONDITIONAL store, in the entry block
+  br i1 true, label %then, label %endif ; ✗ branches on constant true, not %cmp
+then: br label %endif                   ; ✗ then-block EMPTY
+endif: ret i32 99
+```
+So "taken→99" was just an **unconditional parse-time store**; the branch was dead (the compare
+emitted but `gJitResult` got overwritten by the assign before `jitIfBegin` read it). Root cause:
+the **emit-during-parse** model fundamentally conflicts with **deferred control flow** — an `if`'s
+condition + body emit inline into the entry block during the straight-line parse, ungated.
 
-## Current state — commits on `main` (newest last)
-- `33206bb` — **Kitchen clean**: Tony's offline ANYorNum parse + setFrame + new Stylish class +
-  `incant/baselineTests.golden` refresh. POP verified green before commit.
-- `2e5cff9` — **`jitRunIfTest`** control-flow branch smoke test (the `jitRunAddTwo` analog).
-- `99a8313` — **gIF walk + block-management scaffolding** (this session's main work).
+## The decision: unified emit-on-walk model (Fearless + Haps, 2026-06-27)
+Stop emitting during parse. Mirror the **bytecode generate route** (which already solves this):
+during parse, `aCTionExpressioN`'s `generating` branch builds a flat-RPN **`revisedList`** and
+emits nothing; *after* parse, a walk emits from the revisedLists, in block context. So both
+straight-line and control-flow share one path, and the then-arm store lands INSIDE the then-block.
+- bytecode side: `generatE` → `gIF`/`gXpress` walk the revisedList, emit bytecode ops.
+- JIT side (new): `jitWalkBlock` → `jitGeneratE`/`jitRunGenerated` → `jitEmitGIF` + **`jitXpress`**
+  (the gXpress analog) walk the revisedList, emit LLVM.
 
-## DONE — proven by actual run output (not shape-read)
-- **Multi-block branch + store-to-field-slot** (`jitRunIfTest`, the first multi-basic-block IR in
-  the JIT layer). Hand-builds `i32 f(){ if (fld<0) fld=99; return fld; }` against the field's
-  baked `gCount` slot. Verified: `maximus=-7 → 99` (then taken, field mutated), `maximus=5 → 5`
-  (not taken). Drive via `testing(<count field>)` — `testing()` now routes a **non-coded** arg
-  to `jitRunIfTest`, a coded action still to `jitRunAction` (25 POPs preserved).
-- **The gIF walk + block topology + then-arm store.** `jitWalkBlock → jitGeneratE →
-  jitRunGenerated → jitEmitGIF` dispatches correctly (confirmed via crash backtrace AND clean
-  run), and the then-arm `CreateStore` lands in the field slot through the branch:
-  `jitGifScratch` taken → `maximus=99`. The pieces:
-  - `jitIfBegin`/`jitIfEnd` (`jitEmitters.rtn`, LLVM-native): create then/endif blocks,
-    `CreateCondBr` on the condition i1 (`gJitResult`; coerces `!=0` defensively),
-    `SetInsertPoint(then)`; then `CreateBr(endif)` + resume at endif. Shared endif-block stack
-    `gIfEndBlocks` in `jitContext.h` (inline, nests for future nested ifs).
-  - `jitEmitGIF` (`jitEmitters.rtn`, tok-native, the `aCTionIF` mirror): re-enter condition
-    gMethod → `jitIfBegin` → re-enter then-arm gMethod (store-back) → `jitIfEnd`.
-  - `jitGeneratE`/`jitRunGenerated`/`jitWalkBlock` (`jitEmitters.rtn`): walk the cached BlocK,
-    dispatch a node carrying a `StatemenT` child (control flow) to `jitEmitGIF`; straight-line
-    members already emitted during parse → no-op.
-  - `jitRunAction` drives `jitWalkBlock(action)` after `processCode`, still under `jitting`.
-- **No regressions:** `jitscratch` 25/25 (`jitNeg → -13`), `oneTest → 26`, `jsonTest` ok.
+## What was built (on branch `jit-unified-emit-wip`, commit 28347a7)
+- **`jitXpress`** (jitEmitters.rtn): walks a statement's revisedList against an operand stack
+  (`stack.push`/`stack.pop` on a `new("jitStack")` — the bytecode opStack idiom), emits LLVM per
+  member: field→`jitSeedField`, literal→`jitSeedLiteral`, operator→`op.operat` (runOP's operator
+  branch → `jitEmitBinary`/`jitEmitCompare`), `bcStoreField`→`jitEmitAssign`, `uxp`→unary.
+  Iterates with `while child = argument.next(child)` (the safe iterator; `child` null going in).
+- **`jitEmitGIF`** rewritten to the `aCTionIF` idiom: colon-decls `ExpressioN:`/`StatemenT:`
+  (NOT `getLabelGroup` — the if-node, its body, AND the grammar rule are all tagged `StatemenT`,
+  so a tag-search collides and **hangs**); `unWrap` to the revisedList; `jitXpress(cond)` →
+  `jitIfBegin` → `jitXpress(then)` → `jitIfEnd`. Block topology reused unchanged.
+- **`jitRunGenerated`**: straight-line → `jitXpress(unWrap(input))`; control flow → `jitEmitGIF`.
+- **`ruleActions.rtn`**: the `jitting` inline-emit block **moved AFTER** the `generating` branch.
+- **`jitRunAction`**: raises `generating` alongside `jitting` so parse builds revisedLists and emits
+  nothing; the walk does all emission.
 
-## OPEN — the Phase-2 frontier (one seam, intersects compare design)
-**`jitEmitGIF`'s condition does not yet emit a compare `i1`.** Root-caused (empirical, 3 attempts,
-binary-verified):
-- The `if`-condition `ExpressioN` is **wrapped** (listLength 1). Re-entering its gMethod hits
-  `aCTionExpressioN`'s jitting **`listLength==1` short-circuit** (lines ~277-292, `ruleActions.rtn`)
-  which seeds the single operand and returns *before any compare emits*. So `gJitResult` ends up
-  the operand value (e.g. `righty`'s load), not the compare `i1` — and `jitIfBegin`'s `!=0`
-  coercion makes **both** branches "taken" (`jitGifScratch` not-taken wrongly → 99).
-- **`unWrap` over-descends**: it follows `.group` while `isGROUP`, landing on a leaf token (null
-  `groupList`). `aCTionExpressioN` dereferences `groupList->listLength` unconditionally → **fault**.
-  (The bytecode `gXpress` tolerates a leaf; the jitting gate does not.) Don't hand `aCTionExpressioN`
-  a leaf.
-- **The fix = the correct descent**: feed the **multi-token compare list** (`righty < 0`, listLength
-  3) through the jitting gate so it runs the while-loop → `jitEmitCompare` → `i1` into `gJitResult`.
-  That descent (and whether `aCTionExpressioN`'s `listLength==1` branch should *recurse* on a wrapped
-  sub-expression instead of seeding) is exactly the compare-emission shape Tony + Clay are settling.
-  **`jitIfBegin` already consumes whatever `i1` `gJitResult` holds — once the condition emits a real
-  compare, the branch gates correctly with ZERO change to the scaffolding.**
+## THE BLOCKER (and the agreed fix)
+**gIF hangs** in `jitXpress(condition)`. Traced concretely: the condition revisedList walks
+`righty → Token → Token → ∞`. The if-condition `righty < 0` is **wrapped (listLength 1)**, so
+`aCTionExpressioN`'s `listLength==1` path stuffs the *whole wrapped runOP-tree* into the
+revisedList instead of flattening it to clean RPN `[righty, 0, <]`. The wrapper's next-chain cycles
+through raw parse `Token`s, so `jitXpress` loops. (Also regressed in the WIP: `jitInc`/`jitDec`
+in-place store-back lost — `righty` stayed 13, baseline 12 — the unary path through the revisedList
+isn't at parity yet.)
+
+**This is general, not if-specific.** Any *nested* sub-expression produces the same wrapper:
+while-condition, for-iterable, parenthesized `(a+b)*c`, chained `a+b+c` (bear-trap #9). `if` is just
+where JIT hit it first. So the fix belongs at the `aCTionExpressioN` level.
+
+**Agreed fix — a runOP clone (Fearless brief):** Don't touch `aCTionExpressioN`'s structure. Write a
+short **runOP clone** (`jitBuildList` or similar) that does the same structural walk as `runOP`
+(GroupActions.rtn:441 — the universal invoker: unwrap groups, identify op/target/arg, handle
+virtuals) but, instead of firing opMethods, **accumulates a flat ordered RPN list**. The
+`listLength==1` path (likely the `generating` branch's — reconcile the exact call site against the
+code; the brief says "jitting gate", but under the unified model it's the generating branch that
+builds the revisedList, and fixing it there also retires the bytecode `gIF`'s `unWrap` paper-over)
+calls the clone, gets a well-formed list, hands it to `jitXpress`/`gXpress`. Same list shape both
+already consume. No monster growth in `aCTionExpressioN`, existing machinery untouched.
 
 ## To resume — next actions in order
-1. **Wire the condition emission** with the compare shape Tony + Clay land. The crux is the descent
-   from the wrapped `if`-ExpressioN to the multi-token compare list, run through the jitting gate.
-   Candidate approaches: (a) the right node access + descent inside `jitEmitGIF` (not `unWrap` —
-   it over-descends; not raw gMethod — it short-circuits); (b) make `aCTionExpressioN`'s jitting
-   `listLength==1` branch recurse into a wrapped sub-expression (touches the proven gate — guard the
-   25 POPs). **Verify by running:** `jitGifScratch` not-taken must become `maximus=11` (taken stays 99).
-2. **else-arm** (a second block + `CreateBr` past it), then **nesting** (the `gIfEndBlocks` stack
-   already supports it), then **compound conditions** (`a<0 and b>0` — the chained-operand bear in
-   `jit.md`).
-3. **Refactor** `jitRunGenerated`'s StatemenT-child test into a real `jitGenerator[node]` lookup
-   (the `generator[]` parallel) once a second handler (gWhile/gFor) lands — one kind needs no registry.
+1. **`git checkout jit-unified-emit-wip`** (the scaffolding is the foundation; build the clone on it).
+2. **Build the runOP clone** `jitBuildList` (model on `runOP`, GroupActions.rtn:441). Wire it into the
+   `listLength==1` path so a wrapped sub-expression flattens to RPN. **Verify by running:**
+   `jitGifScratch` not-taken must become `maximus=11` (taken stays 99 — but now *gated*: check the IR
+   shows `br i1 %cmp` and the store inside `then:`, not the entry block).
+3. **Fix the `jitInc`/`jitDec` regression** (unary store-back through the revisedList path).
+4. **Re-verify straight-line parity**: all `jitscratch` POPs match baseline values (not just
+   non-hang). Then else-arm, nesting, compound conditions.
+5. Only after green: fast-forward `main` (or PR the branch).
 
-## Run recipe (verify green before starting)
+## Run recipe (verify green before starting — these pass on `main` today)
 ```
 ~/bin/incant incant/oneTest        # -> "maximus = 26"
 ~/bin/incant incant/jsonTest       # -> ok : {"a":[]} / ok : {"a":["x","y"]}
-~/bin/incant incant/jitscratch     # 25 JIT POPs, incl. jitNeg -> -13
-~/bin/incant incant/jitIfScratch   # smoke: maximus=-7 -> 99 ; maximus=5 -> 5
-~/bin/incant incant/jitGifScratch  # gIF: taken -> 99 (proven); not-taken -> 99 (OPEN seam)
+~/bin/incant incant/jitscratch     # 25 JIT POPs; jitDec readback -> righty = 12 ; jitNeg -> -13
+~/bin/incant incant/jitIfScratch   # smoke (hand-built IR): maximus=-7 -> 99 ; maximus=5 -> 5
+~/bin/incant incant/jitGifScratch  # gIF: taken -> 99 (UNCONDITIONAL today, not a real branch)
 ```
-(Boot noise `getRStuff:` is normal. For a crash backtrace run under `script -q /dev/null …` —
-segfaults otherwise lose buffered stdout. The full Swift frames + source lines print.)
+(Boot noise `getRStuff:` is normal. Crash backtrace: run under `script -q /dev/null …`.)
 
-## Gotchas (durable — will bite again)
-- **`aCTionExpressioN` dereferences `groupList->listLength` unconditionally** — never hand it a leaf
-  (null list). `unWrap` over-descends to a leaf; the wrapped condition needs the multi-token list.
-- **`testing(<coded action>)` → `jitRunAction`; `testing(<non-coded field>)` → `jitRunIfTest`** (the
-  branch smoke test). Don't repurpose `testing()` without preserving both routes.
+## Build + debug mechanics (durable)
 - **`ruleActions.rtn` / `Instruct.rtn` / `jitEmitters.rtn` / `Commands.rtn` are `include`d INTO
-  `GroupRules.twk`** (L286-294) and tok-processed into `GroupRules.mm`. Editing them needs
-  **`tok GroupRules.twk` THEN `xcodebuild`** (Groups scheme of `../TOK/TOK.xcodeproj`) — `xcodebuild`
-  alone silently recompiles the stale `.mm`. Sanity-check `grep -c extern GroupRules.h` ≈ 152 (a
-  wipe to 0 means a parse error cascaded — usually a missing `groups.ext` proto, bear trap #10/#11).
-- **`groups.ext` is the prototype home and lives OUTSIDE the repo**
-  (`~/Dropbox/data/InProcess/Include/groups.ext`). A tok-native call from an *earlier*-included
-  file to a *later*-defined extern needs its proto there. Intra-file forward calls do NOT (today's
-  new jit externs all resolve in-file, so no `groups.ext` edits were needed this session).
-- **`gMethod` is a function pointer on `groupBody`** — in raw C++ (`-% %-`) call it
-  `x->groupBody->gMethod(x)`; tok does NOT translate `.gMethod` inside passthrough. It can be null.
-- **`nm`, not `strings`**, to confirm a symbol compiled in; binary mtime is unreliable; interpreted
-  `incant/*` runs fresh. `~/bin/incant` symlinks to the DerivedData `Groups` product.
+  `GroupRules.twk`** — edit them then **`tok GroupRules.twk` THEN `xcodebuild`** (Groups scheme of
+  `../TOK/TOK.xcodeproj`); xcodebuild alone recompiles the stale `.mm`. Sanity: `grep -c extern
+  GroupRules.h` ≈ 152 (a wipe to 0 = a parse error cascaded — bear trap #10/#11).
+- **No `%-` inside a passthrough `-% %-` string literal** — tok has no lexer, so `%-12s` reads as the
+  passthrough END marker, terminates the block early, and cascades to wipe the extern block (cost an
+  hour today). Use `%s`, not `%-12s`.
+- **`.isGROUP`/`.isOperator` are data-type macros, not printable bool members** — can't `cerr` them
+  directly (`no member named isGROUP in bools`); test with `if`. `.isLiteral`/`.isArgument` are real
+  bools. For a C++ structural dump: `node->groupBody->groupList->firstInList` + `nextInParent`
+  (DoubleLink-safe), and `node->getGroup()` for an isGROUP node whose content hangs off `.group`
+  (not the member list). Tag via `node->groupBody->tag`.
+- **`getLabelGroup` tag-collision hazard** — it searches by tag and the if-node + body + rule all
+  share the tag `StatemenT`; it hung. Use colon-decls (bind to a child, never self) — the `aCTionIF`
+  idiom. There are lighter locate alternatives than `getLabelGroup` generally.
+- **Safe iterator**: `while grup = next(grup)` with `grup` null going in (declared → tok zero-inits) —
+  see `aCTionBlocK` (ruleActions.rtn:17). It does NOT clobber under nesting. To steer iteration from
+  *within* the loop there's a separate idiom (go hunting if needed — jitXpress doesn't need it; it
+  never mutates the list it walks).
+- **`runOP` (GroupActions.rtn:441) is the universal invoker** — operator/method/rule/action dispatch
+  off `field[1]`(op)/`field[2]`(target)/`field[3]`(arg). The clone mirrors its walk but builds a list.
+
+## Gotchas (durable)
+- **`aCTionExpressioN` dereferences `groupList->listLength` unconditionally** — never hand it a leaf.
+- **The condition revisedList is malformed only because it's wrapped** — top-level statements arrive
+  flat. The clone makes the wrapped case produce the same flat shape.
 
 ## DEFERRED — not this arc; whose call
-- **GUI content dispatch** (text/image/cell/path off `Layout.drawRect`) — the other big active
-  thread. Platform is solid; content handlers are **Clay's design conversation**
+- **GUI content dispatch** (text/image/cell/path off `Layout.drawRect`) — Clay's design conversation
   (`docs/gui-brief.md`, `docs/font-recon.md`). Also parked: drop the `printf` in `guiHost.mm`;
   `viewDidEndLiveResize` re-layout.
-- **gIF beyond the condition seam:** else-arm, nesting, compound conditions, return-real-GroupItem
-  epilogue, slot-array calling convention (`jit.md`).
+- **gIF beyond the wrapped-condition fix:** else-arm, nesting, compound conditions, return-real-
+  GroupItem epilogue, slot-array calling convention (`jit.md`).
