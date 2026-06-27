@@ -379,69 +379,13 @@ GroupItem 	*target = 0;
 GroupItem 	*arg = 0;
 GroupItem 	*xl = 0;
 GroupItem 	*token = 0;
-	if ( GroupControl::groupController->groupRules->jitting )
-		{
-		GroupItem 	*grup = 0;
-		GroupItem 	*result = 0;
-		GroupItem 	*uoperand = 0;
-		if ( xpList->groupBody->groupList->listLength == 1 )
-			{
-			arg = xpList->groupBody->groupList->firstInList;
-			if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
-				arg = arg->getGroup();
-			if ( ::compare(arg->groupBody->tag,"uxp") == 0 )
-				{
-				uoperand = arg->get(2);
-				if ( isGROUP(uoperand->groupBody->flags.data) )
-					uoperand = uoperand->getGroup();
-				::jitSeedField(uoperand);
-				arg->groupBody->flags.invoke = 1;
-				result = arg->groupBody->gMethod(arg);
-				xpList->clear();
-				xpList->setGroup(result);
-				return xpList;
-				}
-			if ( arg->groupBody->flags.isLiteral )
-				::jitSeedLiteral(arg);
-			xpList->clear();
-			xpList->setGroup(arg);
-			return xpList;
-			}
-		while ( token = xpList->prior(token) )
-			{
-			grup = token;
-			if ( isGROUP(grup->groupBody->flags.data) && !isOperator(grup->groupBody->flags.instructType) )
-				while ( isGROUP(grup->groupBody->flags.data) )
-					grup = grup->getGroup();
-			if ( isOperator(grup->groupBody->flags.instructType) )
-				op = grup;
-			else {
-				if ( !arg )
-					arg = grup;
-				else
-				if ( op )
-					target = grup;
-				}
-			if ( op )
-				if ( arg )
-					if ( target )
-						{
-						if ( target->groupBody->flags.isLiteral )
-							::jitSeedLiteral(target);
-						else	::jitSeedField(target);
-						if ( arg->groupBody->flags.isLiteral )
-							::jitSeedLiteral(arg);
-						else	::jitSeedField(arg);
-						result = op->groupBody->gOp(arg,target);
-						op = 0;
-						target = 0;
-						arg = result;
-						}
-			}
-		xpList->clear();
-		xpList->setGroup(arg);
-		return xpList;
-		}
+	/* jitting gate moved AFTER the generating branch (2026-06-27, unified JIT
+	emit model): under jitting the `generating` branch below builds the
+	revisedList, and the JIT walk (jitWalkBlock -> jitXpress) emits LLVM from
+	it AFTER parse — so control flow's condition/body emit inside their blocks,
+	gated, instead of inline-during-parse and ungated. The old emit-during-parse
+	jitting block now lives past the generating return (dead while jitRunAction
+	sets generating=1 with jitting=1; kept as the jitting-only fallback). */
 	if ( GroupControl::groupController->groupRules->generating )
 		{
 		GroupItem 	*revisedList = new GroupItem("revisedList");
@@ -529,6 +473,73 @@ GroupItem 	*token = 0;
 		::dumpContents(revisedList);
 		xpList->clear();
 		xpList->setGroup(revisedList);
+		return xpList;
+		}
+	/* jitting (emit-during-parse) — moved here from before `generating` for the
+	unified JIT emit model. Dead while jitRunAction raises generating alongside
+	jitting (the generating branch above returns first, building the revisedList
+	the JIT walk emits). Retained as the jitting-only inline-emit fallback. */
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		GroupItem 	*grup = 0;
+		GroupItem 	*result = 0;
+		GroupItem 	*uoperand = 0;
+		if ( xpList->groupBody->groupList->listLength == 1 )
+			{
+			arg = xpList->groupBody->groupList->firstInList;
+			if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
+				arg = arg->getGroup();
+			if ( ::compare(arg->groupBody->tag,"uxp") == 0 )
+				{
+				uoperand = arg->get(2);
+				if ( isGROUP(uoperand->groupBody->flags.data) )
+					uoperand = uoperand->getGroup();
+				::jitSeedField(uoperand);
+				arg->groupBody->flags.invoke = 1;
+				result = arg->groupBody->gMethod(arg);
+				xpList->clear();
+				xpList->setGroup(result);
+				return xpList;
+				}
+			if ( arg->groupBody->flags.isLiteral )
+				::jitSeedLiteral(arg);
+			xpList->clear();
+			xpList->setGroup(arg);
+			return xpList;
+			}
+		while ( token = xpList->prior(token) )
+			{
+			grup = token;
+			if ( isGROUP(grup->groupBody->flags.data) && !isOperator(grup->groupBody->flags.instructType) )
+				while ( isGROUP(grup->groupBody->flags.data) )
+					grup = grup->getGroup();
+			if ( isOperator(grup->groupBody->flags.instructType) )
+				op = grup;
+			else {
+				if ( !arg )
+					arg = grup;
+				else
+				if ( op )
+					target = grup;
+				}
+			if ( op )
+				if ( arg )
+					if ( target )
+						{
+						if ( target->groupBody->flags.isLiteral )
+							::jitSeedLiteral(target);
+						else	::jitSeedField(target);
+						if ( arg->groupBody->flags.isLiteral )
+							::jitSeedLiteral(arg);
+						else	::jitSeedField(arg);
+						result = op->groupBody->gOp(arg,target);
+						op = 0;
+						target = 0;
+						arg = result;
+						}
+			}
+		xpList->clear();
+		xpList->setGroup(arg);
 		return xpList;
 		}
 	if ( xpList->groupBody->groupList->listLength == 1 )
@@ -2099,33 +2110,37 @@ extern "C" GroupItem *jitEmitCompare(GroupItem *argument, GroupItem *target, int
 	
 }
 
-/* jitEmitGIF  the gIF emitter, the aCTionIF mirror. Re-enters the condition's
-   gMethod (which, under jitting, should fire aCTionExpressioN's gate and leave
-   an i1 in gJitResult), splits to the then block via jitIfBegin, re-enters the
-   then arm's gMethod (a store-back to the target field's slot), then merges via
-   jitIfEnd. The walk + block topology + then-arm store are PROVEN (the taken
-   branch stores correctly). OPEN SEAM — condition emission: the if-ExpressioN is
-   wrapped (listLength 1), so the gMethod call short-circuits aCTionExpressioN's
-   jitting listLength==1 path BEFORE the compare emits (gJitResult ends up the
-   operand value, not the compare i1, so jitIfBegin's !=0 coercion makes both
-   branches "taken"). unWrap over-descends to a leaf and faults the gate. The
-   correct descent — feed the multi-token compare list through the jitting gate
-   so it emits an i1 — intersects the in-flight compare-operator design; resolve
-   there. Everything else here (jitIfBegin/jitIfEnd, the walk) is independent of
-   it. First POP target: single compare, one then
-   arm, no else (the else arm + nesting are the next increment; jitIfBegin/End
-   already stack for nesting). The condition i1 is the only seam to the in-flight
-   compare-operator design — everything here is provably correct regardless. */
+/* jitEmitGIF  the gIF emitter — the incant `gIF` mirror (incant/generate), JIT
+   flavor. Reaches the condition's revisedList by name + unWrap exactly as gIF
+   does, emits it with jitXpress (leaving the compare i1 in gJitResult), splits to
+   the then block via jitIfBegin, emits the then-arm's revisedList with jitXpress
+   (its store-back lands INSIDE the then block now, gated), then merges via
+   jitIfEnd. Block topology (jitIfBegin/jitIfEnd) reused unchanged. First POP:
+   single compare, one then arm, no else (else + nesting are the next increment;
+   the gIfEndBlocks stack already supports nesting). */
 extern "C" GroupItem *jitEmitGIF(GroupItem *input)
 {
 GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
 GroupItem 	*StatemenT = input->getLabelGroup("StatemenT");
-	if ( isMethod(ExpressioN->groupBody->flags.instructType) )
-		ExpressioN->groupBody->gMethod(ExpressioN);
+GroupItem 	*xp = 0;
+GroupItem 	*stXP = 0;
+	// Reach condition + body by colon-decl (binds to a CHILD, never self) — the
+	// aCTionIF idiom. getLabelGroup hangs here: the if-node, its body, AND the
+	// grammar rule are all tagged "StatemenT", so a tag-search collides.
+	::fprintf(stderr,"JMARK gIF entry\n");
+	xp = ::unWrap(ExpressioN);
+	::fprintf(stderr,"JMARK after unWrap cond, tag= %s\n",xp->groupBody->tag);
+	::jitXpress(xp);
+	::fprintf(stderr,"JMARK after jitXpress cond\n");
 	::jitIfBegin();
-	if ( isMethod(StatemenT->groupBody->flags.instructType) )
-		StatemenT->groupBody->gMethod(StatemenT);
+	::fprintf(stderr,"JMARK after jitIfBegin\n");
+	stXP = ::unWrap(StatemenT);
+	::fprintf(stderr,"JMARK after unWrap body, tag= %s\n",stXP->groupBody->tag);
+	if ( stXP )
+		::jitXpress(stXP);
+	::fprintf(stderr,"JMARK after jitXpress body\n");
 	::jitIfEnd();
+	::fprintf(stderr,"JMARK gIF done\n");
 	return input;
 }
 
@@ -2328,14 +2343,20 @@ extern "C" int jitRunAction(GroupItem *action)
 	gJitResult  = nullptr;
 	
 	GroupRules *ruler = GroupControl::groupController->groupRules;
+	// Unified JIT emit model: raise generating alongside jitting so the parse
+	// builds revisedLists (the generating branch of aCTionExpressioN) and emits
+	// NOTHING during parse. The JIT walk below does all emission from those
+	// revisedLists, so straight-line and control-flow share one emit-on-walk path.
 	ruler->jitting = 1;
+	ruler->generating = 1;
 	if (isCoded(action->groupBody->flags.actionType))
 	::processCode(action);
-	// Straight-line statements emitted during the processCode parse above (the
-	// op gates fire inline). Deferred control flow (if) does NOT emit during
-	// parse, so walk the cached BlocK and emit it now — still under jitting, so
-	// jitEmitGIF's re-entered gMethods hit the same gates.
+	fprintf(stderr, "JMARK after processCode\n"); fflush(stderr);
+	// Walk the cached BlocK and emit LLVM from each statement's revisedList:
+	// straight-line via jitXpress, control flow via jitEmitGIF (jitXpress inside
+	// its then/else blocks). Still under jitting, so op.operat fires the op gates.
 	jitWalkBlock(action);
+	ruler->generating = 0;
 	ruler->jitting = 0;
 	
 	if (!gJitResult) {
@@ -2429,16 +2450,21 @@ extern "C" int jitRunAddTwo()
 
 /* jitRunGenerated  the JIT walk's dispatch — the runGenerated parallel. A node
    carrying a StatemenT child is control flow (the if/while/for/do shape, per
-   aCTionIF's hoist); for now that means gIF, so route it to jitEmitGIF. A node
-   with no StatemenT child is a straight-line expression statement, already
-   emitted during the processCode parse by the op gates — nothing to do. (When
-   the second handler lands this becomes a jitGenerator[node] lookup; one kind
-   needs no registry yet.) */
+   aCTionIF's hoist); for now that means gIF, route it to jitEmitGIF. A node with
+   no StatemenT child is a straight-line expression statement: unWrap to its
+   revisedList and emit it with jitXpress (the unified emit-on-walk model — the op
+   gates no longer fire during parse; the generating branch built the revisedList
+   instead). */
 extern "C" GroupItem *jitRunGenerated(GroupItem *input)
 {
 GroupItem 	*StatemenT = input->getLabelGroup("StatemenT");
+GroupItem 	*xp = 0;
 	if ( StatemenT )
 		::jitEmitGIF(input);
+	else {
+		xp = ::unWrap(input);
+		::jitXpress(xp);
+		}
 	return input;
 }
 
@@ -2577,6 +2603,82 @@ GroupItem 	*BlocK = input->getLabelGroup("BlocK");
 	if ( BlocK )
 		::jitGeneratE(BlocK);
 	return input;
+}
+
+/* jitXpress  the JIT analog of gXpress (incant/generate). Walks a statement's
+   revisedList — the flat RPN aCTionExpressioN's `generating` branch builds during
+   parse — and emits LLVM per member against a compile-time operand stack:
+     - field        jitSeedField (load), push
+     - literal      jitSeedLiteral (constant), push
+     - operator     pop arg + target, dispatch via the op's own jitting gate
+                    (op.operat -> jitEmitBinary / jitEmitCompare -- runOP's
+                    operator branch), push the result
+     - bcStoreField pop the value, store it into the target field's slot
+                    (jitEmitAssign)  -- the RPN form of `=`
+     - uxp          a unary op node: seed its operand, dispatch (child.method ->
+                    runOP -> jitEmitUnary), push the result
+   This is the deferred, emit-on-walk counterpart to the retired emit-during-parse
+   path: gXpress emits stack-machine bytecode, jitXpress emits LLVM straight-line.
+   The final operand's SSA value is left in gJitResult by the emitters (the driver's
+   return cap reads it). */
+extern "C" GroupItem *jitXpress(GroupItem *argument)
+{
+GroupItem 	*stack = new GroupItem("jitStack");
+GroupItem 	*child = 0;
+GroupItem 	*arg = 0;
+GroupItem 	*target = 0;
+GroupItem 	*value = 0;
+GroupItem 	*dest = 0;
+GroupItem 	*uoperand = 0;
+GroupItem 	*result = 0;
+	// Safe iterator: while child = next(child), child null going in (declared,
+	// so tok zero-inits). jitXpress only reads each member and pushes/pops a
+	// SEPARATE stack node -- it never mutates `argument`, so no mid-loop steering.
+	while ( child = argument->next(child) )
+		{
+		::fprintf(stderr,"JMARK   xpress member tag= %s\n",child->groupBody->tag);
+		if ( isOperator(child->groupBody->flags.instructType) )
+			{
+			if ( ::compare(child->groupBody->tag,"=") != 0 )
+				{
+				arg = stack->pop();
+				target = stack->pop();
+				result = child->groupBody->gOp(arg,target);
+				stack->push(result);
+				}
+			}
+		else
+		if ( ::compare(child->groupBody->tag,"bcStoreField") == 0 )
+			{
+			value = stack->pop();
+			target = child->getAttribute("target");
+			dest = target->getGroup();
+			::jitSeedField(dest);
+			::jitEmitAssign(value,dest);
+			}
+		else
+		if ( ::compare(child->groupBody->tag,"uxp") == 0 )
+			{
+			uoperand = child->get(2);
+			if ( isGROUP(uoperand->groupBody->flags.data) )
+				uoperand = uoperand->getGroup();
+			::jitSeedField(uoperand);
+			child->groupBody->flags.invoke = 1;
+			result = child->groupBody->gMethod(child);
+			stack->push(result);
+			}
+		else
+		if ( child->groupBody->flags.isLiteral )
+			{
+			::jitSeedLiteral(child);
+			stack->push(child);
+			}
+		else {
+			::jitSeedField(child);
+			stack->push(child);
+			}
+		}
+	return argument;
 }
 
 /*****************************************************************************

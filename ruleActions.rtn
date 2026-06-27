@@ -272,46 +272,13 @@ GroupItem   op,
             arg,
             xl,
             token;
-    if jitting {
-        GroupItem   grup, result, uoperand;
-        if xpList.listLength == 1 {
-            arg = xpList.firstInList;
-            if arg.isGROUP && !arg.isArgument   arg = arg.group;
-            if arg.tag eq "uxp" {
-                uoperand = arg[2];
-                if uoperand.isGROUP   uoperand = uoperand.group;
-                jitSeedField(uoperand);
-                arg.invoke = true;
-                result = arg.method(arg);
-                xpList.clear();
-                xpList.group = result;
-                return xpList; }
-            if arg.isLiteral    jitSeedLiteral(arg);
-            xpList.clear();
-            xpList.group = arg;
-            return xpList; }
-        while token = xpList.prior(token) {
-            grup = token;
-            if grup.isGROUP && !grup.isOperator
-                while grup.isGROUP  grup = grup.group;
-            if grup.isOperator  op = grup;
-            else {
-                if !arg arg = grup;
-                or op   target = grup; }
-            if op
-                if arg
-                    if target {
-                        if target.isLiteral jitSeedLiteral(target);
-                        else                jitSeedField(target);
-                        if arg.isLiteral    jitSeedLiteral(arg);
-                        else                jitSeedField(arg);
-                        result = op.operat(arg,target);
-                        op = 0;
-                        target = 0;
-                        arg = result; }}
-        xpList.clear();
-        xpList.group = arg;
-        return xpList; }
+    /* jitting gate moved AFTER the generating branch (2026-06-27, unified JIT
+       emit model): under jitting the `generating` branch below builds the
+       revisedList, and the JIT walk (jitWalkBlock -> jitXpress) emits LLVM from
+       it AFTER parse — so control flow's condition/body emit inside their blocks,
+       gated, instead of inline-during-parse and ungated. The old emit-during-parse
+       jitting block now lives past the generating return (dead while jitRunAction
+       sets generating=1 with jitting=1; kept as the jitting-only fallback). */
     if generating {
         GroupItem revisedList = new("revisedList");
         GroupItem grup, store, tgt;
@@ -374,6 +341,50 @@ GroupItem   op,
         dumpContents(revisedList);
         xpList.clear();
         xpList.group = revisedList;
+        return xpList; }
+    /* jitting (emit-during-parse) — moved here from before `generating` for the
+       unified JIT emit model. Dead while jitRunAction raises generating alongside
+       jitting (the generating branch above returns first, building the revisedList
+       the JIT walk emits). Retained as the jitting-only inline-emit fallback. */
+    if jitting {
+        GroupItem   grup, result, uoperand;
+        if xpList.listLength == 1 {
+            arg = xpList.firstInList;
+            if arg.isGROUP && !arg.isArgument   arg = arg.group;
+            if arg.tag eq "uxp" {
+                uoperand = arg[2];
+                if uoperand.isGROUP   uoperand = uoperand.group;
+                jitSeedField(uoperand);
+                arg.invoke = true;
+                result = arg.method(arg);
+                xpList.clear();
+                xpList.group = result;
+                return xpList; }
+            if arg.isLiteral    jitSeedLiteral(arg);
+            xpList.clear();
+            xpList.group = arg;
+            return xpList; }
+        while token = xpList.prior(token) {
+            grup = token;
+            if grup.isGROUP && !grup.isOperator
+                while grup.isGROUP  grup = grup.group;
+            if grup.isOperator  op = grup;
+            else {
+                if !arg arg = grup;
+                or op   target = grup; }
+            if op
+                if arg
+                    if target {
+                        if target.isLiteral jitSeedLiteral(target);
+                        else                jitSeedField(target);
+                        if arg.isLiteral    jitSeedLiteral(arg);
+                        else                jitSeedField(arg);
+                        result = op.operat(arg,target);
+                        op = 0;
+                        target = 0;
+                        arg = result; }}
+        xpList.clear();
+        xpList.group = arg;
         return xpList; }
     if xpList.listLength == 1 {
         arg = xpList.firstInList;

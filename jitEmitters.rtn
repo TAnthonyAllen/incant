@@ -344,45 +344,99 @@ extern void jitIfEnd()
     %-
 }
 
-/* jitEmitGIF  the gIF emitter, the aCTionIF mirror. Re-enters the condition's
-   gMethod (which, under jitting, should fire aCTionExpressioN's gate and leave
-   an i1 in gJitResult), splits to the then block via jitIfBegin, re-enters the
-   then arm's gMethod (a store-back to the target field's slot), then merges via
-   jitIfEnd. The walk + block topology + then-arm store are PROVEN (the taken
-   branch stores correctly). OPEN SEAM — condition emission: the if-ExpressioN is
-   wrapped (listLength 1), so the gMethod call short-circuits aCTionExpressioN's
-   jitting listLength==1 path BEFORE the compare emits (gJitResult ends up the
-   operand value, not the compare i1, so jitIfBegin's !=0 coercion makes both
-   branches "taken"). unWrap over-descends to a leaf and faults the gate. The
-   correct descent — feed the multi-token compare list through the jitting gate
-   so it emits an i1 — intersects the in-flight compare-operator design; resolve
-   there. Everything else here (jitIfBegin/jitIfEnd, the walk) is independent of
-   it. First POP target: single compare, one then
-   arm, no else (the else arm + nesting are the next increment; jitIfBegin/End
-   already stack for nesting). The condition i1 is the only seam to the in-flight
-   compare-operator design — everything here is provably correct regardless. */
+/* jitXpress  the JIT analog of gXpress (incant/generate). Walks a statement's
+   revisedList — the flat RPN aCTionExpressioN's `generating` branch builds during
+   parse — and emits LLVM per member against a compile-time operand stack:
+     - field        jitSeedField (load), push
+     - literal      jitSeedLiteral (constant), push
+     - operator     pop arg + target, dispatch via the op's own jitting gate
+                    (op.operat -> jitEmitBinary / jitEmitCompare -- runOP's
+                    operator branch), push the result
+     - bcStoreField pop the value, store it into the target field's slot
+                    (jitEmitAssign)  -- the RPN form of `=`
+     - uxp          a unary op node: seed its operand, dispatch (child.method ->
+                    runOP -> jitEmitUnary), push the result
+   This is the deferred, emit-on-walk counterpart to the retired emit-during-parse
+   path: gXpress emits stack-machine bytecode, jitXpress emits LLVM straight-line.
+   The final operand's SSA value is left in gJitResult by the emitters (the driver's
+   return cap reads it). */
+extern GroupItem jitXpress(GroupItem argument)
+{
+GroupItem   stack = new("jitStack");
+GroupItem   child, arg, target, value, dest, uoperand, result;
+    // Safe iterator: while child = next(child), child null going in (declared,
+    // so tok zero-inits). jitXpress only reads each member and pushes/pops a
+    // SEPARATE stack node -- it never mutates `argument`, so no mid-loop steering.
+    while child = argument.next(child) {
+        if child.isOperator {
+            if child.tag ne "=" {
+                arg     = stack.pop();
+                target  = stack.pop();
+                result  = child.operat(arg,target);
+                stack.push(result); }}
+        or child.tag eq "bcStoreField" {
+            value   = stack.pop();
+            target  = child.getAttribute("target");
+            dest    = target.group;
+            jitSeedField(dest);
+            jitEmitAssign(value,dest); }
+        or child.tag eq "uxp" {
+            uoperand = child[2];
+            if uoperand.isGROUP  uoperand = uoperand.group;
+            jitSeedField(uoperand);
+            child.invoke = true;
+            result = child.method(child);
+            stack.push(result); }
+        or child.isLiteral {
+            jitSeedLiteral(child);
+            stack.push(child); }
+        else {
+            jitSeedField(child);
+            stack.push(child); }
+    }
+    return argument;
+}
+
+/* jitEmitGIF  the gIF emitter — the incant `gIF` mirror (incant/generate), JIT
+   flavor. Reaches the condition's revisedList by name + unWrap exactly as gIF
+   does, emits it with jitXpress (leaving the compare i1 in gJitResult), splits to
+   the then block via jitIfBegin, emits the then-arm's revisedList with jitXpress
+   (its store-back lands INSIDE the then block now, gated), then merges via
+   jitIfEnd. Block topology (jitIfBegin/jitIfEnd) reused unchanged. First POP:
+   single compare, one then arm, no else (else + nesting are the next increment;
+   the gIfEndBlocks stack already supports nesting). */
 extern GroupItem jitEmitGIF(GroupItem input)
 {
 GroupItem   ExpressioN:,
             StatemenT:;
-    if ExpressioN.isMethod  ExpressioN.gMethod(ExpressioN);
+GroupItem   xp, stXP;
+    // Reach condition + body by colon-decl (binds to a CHILD, never self) — the
+    // aCTionIF idiom. getLabelGroup hangs here: the if-node, its body, AND the
+    // grammar rule are all tagged "StatemenT", so a tag-search collides.
+    xp = unWrap(ExpressioN);
+    jitXpress(xp);
     jitIfBegin();
-    if StatemenT.isMethod   StatemenT.gMethod(StatemenT);
+    stXP = unWrap(StatemenT);
+    if stXP  jitXpress(stXP);
     jitIfEnd();
     return input;
 }
 
 /* jitRunGenerated  the JIT walk's dispatch — the runGenerated parallel. A node
    carrying a StatemenT child is control flow (the if/while/for/do shape, per
-   aCTionIF's hoist); for now that means gIF, so route it to jitEmitGIF. A node
-   with no StatemenT child is a straight-line expression statement, already
-   emitted during the processCode parse by the op gates — nothing to do. (When
-   the second handler lands this becomes a jitGenerator[node] lookup; one kind
-   needs no registry yet.) */
+   aCTionIF's hoist); for now that means gIF, route it to jitEmitGIF. A node with
+   no StatemenT child is a straight-line expression statement: unWrap to its
+   revisedList and emit it with jitXpress (the unified emit-on-walk model — the op
+   gates no longer fire during parse; the generating branch built the revisedList
+   instead). */
 extern GroupItem jitRunGenerated(GroupItem input)
 {
 GroupItem   StatemenT:;
+GroupItem   xp;
     if StatemenT    jitEmitGIF(input);
+    else {
+        xp = unWrap(input);
+        jitXpress(xp); }
     return input;
 }
 
@@ -444,14 +498,19 @@ extern int jitRunAction(GroupItem action)
     gJitResult  = nullptr;
 
     GroupRules *ruler = GroupControl::groupController->groupRules;
+    // Unified JIT emit model: raise generating alongside jitting so the parse
+    // builds revisedLists (the generating branch of aCTionExpressioN) and emits
+    // NOTHING during parse. The JIT walk below does all emission from those
+    // revisedLists, so straight-line and control-flow share one emit-on-walk path.
     ruler->jitting = 1;
+    ruler->generating = 1;
     if (isCoded(action->groupBody->flags.actionType))
         ::processCode(action);
-    // Straight-line statements emitted during the processCode parse above (the
-    // op gates fire inline). Deferred control flow (if) does NOT emit during
-    // parse, so walk the cached BlocK and emit it now — still under jitting, so
-    // jitEmitGIF's re-entered gMethods hit the same gates.
+    // Walk the cached BlocK and emit LLVM from each statement's revisedList:
+    // straight-line via jitXpress, control flow via jitEmitGIF (jitXpress inside
+    // its then/else blocks). Still under jitting, so op.operat fires the op gates.
     jitWalkBlock(action);
+    ruler->generating = 0;
     ruler->jitting = 0;
 
     if (!gJitResult) {
