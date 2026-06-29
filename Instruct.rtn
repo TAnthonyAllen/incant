@@ -357,7 +357,7 @@ GroupItem   result;
            return jitEmitAssign(target, target); %-
     }
 use target
-    if binType  result = remove(argument.tag);
+    if groupList  result = remove(argument.tag);
     or data && argument.data {
         result = target;
         switch(data) {

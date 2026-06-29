@@ -345,12 +345,17 @@ GroupRules  ruler = groupRules;
 }
 
 /*****************************************************************************
-	Command to make a new field w/tag set from input text
+	Command to make a new field w/tag set from input text. The GroupItem(String)
+	constructor seeds BOTH tag and text from the string; we clear the text so a
+	freshly-made field starts empty — the tag carries the name, the value does
+	not. (Without this, new("x") yields text "x", which rides along through <:
+	retags as a stale "=x" content artifact. Igor minion absorb, 2026-06-29.)
 *****************************************************************************/
 extern GroupItem makeNew(GroupItem input)
 {
 String  strung = text;
 GroupItem   grup = new(strung);
+    grup.text = 0;
     isInitialized = true;
     return grup;
 }
