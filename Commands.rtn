@@ -379,6 +379,12 @@ extern GroupItem printToBuffer(GroupItem bufferField)
     forget commands run at field definition). The item passed in as argument
     is used to figure out what flag to set/reset; the exception is the exit
     command that is not fire and forget; it is fire and exit.
+
+    BEAR COUNTRY: case 'v' (the `virtual` command) sets isVirtual. This is the
+    only sanctioned way a field becomes virtual, and it runs at field
+    definition. Do not virtualize a field outside a define. Virtual is a
+    define-time property; the forks that consume it (aCTionNamE, runOP) assume
+    nothing virtual was created elsewhere. See the wakeup bear-trap log.
 ***************************************************************************/
 extern GroupItem processFlags(GroupItem item)
 {

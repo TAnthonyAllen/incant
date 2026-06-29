@@ -437,6 +437,16 @@ GroupItem   result;
 /***************************************************************************
     runOP fires off a field that might be an action, a rule, a method,
     or an operator
+
+    BEAR COUNTRY: the `target.isVirtual -> copyOf(target)` line below is a
+    virtual fork that is INTENTIONALLY UNGATED — it is the safety net for
+    operating on a virtual prototype (e.g. the bytecode bcOPs: bcPushLit /
+    bcPushField are virtual) outside a defining context. Do NOT gate it on
+    `defining`: that removes the net and the bytecode emit path would mutate
+    the shared prototype instead of a fork. Huge blast radius; runs hot (do
+    not add a permanent `ruler` here — use a directive if you need one to
+    debug). Break only in emergency. See the wakeup bear-trap log and the
+    aCTionNamE companion note.
 ***************************************************************************/
 extern GroupItem runOP(GroupItem field)
 {

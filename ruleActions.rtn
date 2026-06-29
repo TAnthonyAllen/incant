@@ -504,6 +504,14 @@ GroupItem   result = ExpressioN;
 
 /*******************************************************************************
     NamE rule action
+
+    BEAR COUNTRY: the `defining && ... isVirtual -> copyOf` line below is a
+    virtual fork, and it is define-gated ON PURPOSE. Virtual forks are define-
+    time only. Without the `defining` gate, a READ of a virtual field (naming
+    it as an operand) would fork a fresh empty copy and you would silently read
+    0 / write to a copy nobody can find. If you are tempted to fork a virtual
+    here outside a defining context, you have a bug. See the jigcorpus virtual-
+    tag pattern and the wakeup bear-trap log.
 *******************************************************************************/
 extern GroupItem aCTionNamE(GroupItem input)
 {
