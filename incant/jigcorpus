@@ -1,0 +1,71 @@
+/*******************************************************************************
+                jigCorpus registry — JIT Igor minion corpus.
+
+    Pure data, no actions (the unitTests pattern). Included by `jiquery`, which
+    runs queries against it. NO Start()/stop() wrapper — this is a registry file,
+    not an execution file. CANONICAL: this is the source-of-truth JIT Igor corpus
+    (round-tripped a clean POP load 2026-06-29 — jiquery proved findRefuted →
+    gifBranchPoison). docs/minions/jit-igor.md is now the markdown render of this
+    file. See docs/minion-corpus-format.md.
+*******************************************************************************/
+register(jigCorpus);
+define
+    content virtual;
+    provenance virtual;
+    confidence virtual;
+    asOf virtual;
+    jitIgor
+        meta
+            task="JIT Phase 2 — control flow, gIF";
+            asOf="2026-06-29";
+            status="WIP parked on jit-unified-emit-wip; main green";
+        claims
+            gifNotBranching
+                content="gIF branch was not really branching — unconditional entry-block store";
+                provenance="IR dump, jitGIF, righty=-7, session 2026-06-27";
+                confidence="verified";
+                supersedes="gifBranchPoison";
+                asOf="2026-06-27";
+            gifBranchPoison
+                content="gIF taken→99 is proven through the branch";
+                provenance="shape-read, prior wakeup, no IR dump";
+                confidence="refuted";
+                asOf="2026-06-26";
+            unifiedEmitDecision
+                content="unified emit-on-walk model chosen — mirror bytecode generate route";
+                provenance="Fearless+Haps design decision, session 2026-06-27";
+                confidence="verified";
+                asOf="2026-06-27";
+            jitXpressBuilt
+                content="jitXpress built — walks revisedList against operand stack, emits LLVM per member";
+                provenance="commit 28347a7, branch jit-unified-emit-wip";
+                confidence="verified";
+                asOf="2026-06-27";
+            wrappedConditionBlocker
+                content="blocker: wrapped sub-expression produces malformed revisedList — jitXpress hangs";
+                provenance=(traced: righty<0 condition, listLength==1 path, raw Token cycle.
+                    The if-condition righty < 0 is wrapped (listLength 1), so aCTionExpressioN
+                    stuffs the whole wrapped runOP-tree into the revisedList instead of
+                    flattening to clean RPN [righty, 0, <]. The wrapper next-chain cycles
+                    through raw parse Tokens so jitXpress loops.#);
+                confidence="verified";
+                asOf="2026-06-27";
+            jitBuildListDesign
+                content="agreed fix: jitBuildList — runOP clone that accumulates flat RPN instead of firing opMethods";
+                provenance=(Fearless brief, session 2026-06-27. Model on runOP GroupActions.rtn:441.
+                    Wire into the listLength==1 path so a wrapped sub-expression flattens to RPN.
+                    Same list shape jitXpress and gXpress already consume. Not yet implemented.#);
+                confidence="inferred";
+                asOf="2026-06-27";
+        nextStep
+            action="build jitBuildList — model on runOP GroupActions.rtn:441";
+            test=(jitGifScratch not-taken must become maximus=11.
+                Taken stays 99 but now gated: IR must show br i1 %cmp
+                and store inside then: not the entry block.#);
+            blocker="none — branch checked out, scaffold in place";
+        bakeLog
+            entry
+                date="2026-06-29";
+                note="corpus created from wakeup.md; claims extracted and provenance-tagged";
+                by="Clay+Tony";
+    ;

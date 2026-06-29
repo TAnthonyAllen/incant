@@ -109,13 +109,14 @@ extern GroupItem aCTionDEBUG(GroupItem input)
 {
 GroupRules  ruler = groupRules;
 GroupItem   rules:,
-            GUARD:,
+            GUARD,
             grup;
     if rules
         while grup = rules.next(grup) {
             if grup.text eq "GUARD" {
                 GUARD   = trueResult;
                 continue; }
+            if GUARD    debugGuard = true;
             debugged    = true; }
     else    debugAllRules = !debugAllRules;
     return input;
@@ -512,6 +513,7 @@ GroupItem   grup;
 GroupItem   result;
 String      arg = input.text;
     result  = locateInMethod(arg);
+    if defining && result && result.isVirtual    result = copyOf(result);
     grup    = new(arg);
     if alphaSet.contains(*arg) && processingCode
         if !result || (!isArgument && !isLocal)

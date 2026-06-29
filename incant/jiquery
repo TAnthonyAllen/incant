@@ -1,0 +1,40 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+include(jigcorpus);
+
+search reset stack Grokking;
+search jigCorpus Generating UnitTests Utilities list;
+
+define
+    findRefuted argument code={
+        claimList = argument.claims;
+        for grup in claimList;
+            if grup.confidence == "refuted";
+                print "  REFUTED:" grup.taG:;
+                print `"   was:" grup.content:;
+        };
+    listClaims argument code={
+        claimList = argument.claims;
+        for grup in claimList;
+            print "  " grup.taG "=" grup.confidence:;
+        };
+    showNext argument code={
+        nextRef = argument.nextStep;
+        print "  action :" nextRef.action:;
+        print "  blocker:" nextRef.blocker:;
+        };
+    ;
+
+print "=== refuted claims (expect: gifBranchPoison) ===":;
+findRefuted(jitIgor);
+stop();
+
+print "=== all claims + confidence ===":;
+listClaims(jitIgor);
+stop();
+
+print "=== next step ===":;
+showNext(jitIgor);
+stop();
