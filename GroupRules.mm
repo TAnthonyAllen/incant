@@ -3259,7 +3259,7 @@ GroupItem 	*result = 0;
 			result = target;
 		}
 	else
-	if ( target->groupBody->groupList )
+	if ( argument->groupBody->groupList )
 		result = argument->get(target->groupBody->tag);
 	return result;
 }

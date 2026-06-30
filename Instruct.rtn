@@ -262,7 +262,7 @@ GroupItem   result;
            (side effect); we return argument so caller has the matched
            string for length-of-match computations (argument.count). */
         if argument.buffer.findInBuffer(target.text)    result = target; }
-    or target.groupList                     result = argument[target.tag];
+    or argument.groupList                   result = argument[target.tag];
     return result ;
 }
 

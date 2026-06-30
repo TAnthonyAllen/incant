@@ -72,12 +72,13 @@ if !target;                     // ... is then, in effect, `if !IN`
 ```
 
 Worked example: `tNotIn` in `incant/jidirect` (`nc = nc IN cg; if !nc;`). For the common
-*dedup* shape specifically, you don't even need this — flip to `if IN; else` (see the gap
-below). The two-line split is the general technique for when you genuinely need the negation.
+*dedup* shape specifically, you don't even need this — flip to `if cand IN cg; else` (see
+Dedup below). The two-line split is the general technique for when you genuinely need the
+negation.
 
 ---
 
-## Insert / remove (the proven half of absorb)
+## Insert / remove
 
 - **Insert:** `target += field` (addMember). Tag `field` via `<:` or `:= new("tag")`.
 - **Remove:** `target -= member` removes by `member.tag`. The member handle must keep its real
@@ -90,30 +91,40 @@ Both proven 2026-06-29/30 against `incant/jigcorpus`.
 
 ---
 
-## ⛔ STILL OPEN: dedup (`has`/`contains`)
+## Dedup — works (`if cand IN cg; else insert`)
 
-The one half of absorb that does **not** yet work. `if claims IN cand; else insert` parses and
-is the chosen flip (no `!IN` needed) — but `opIN` cannot express "does this group *contain* a
-member with this tag." Its group branch resolves `target.groupList → argument[target.tag]`,
-which keys off the wrong operand and fails when the candidate (`cand`) is a freshly-built empty
-group. So a dedup check against a constructed candidate returns *not-found* even when a
-same-tagged member exists, and **absorb double-inserts**.
+The closing half of absorb. Write the membership test in **natural order** — item on the left,
+container on the right — and flip with `else` (no `!IN` needed):
 
-Observed in `incant/jiabsorb`: run `absorbClaim` twice and #2 re-adds `absorbedClaim` instead
-of skipping — a second identical member appears. (Insert *persistence* is still proven by the
-same run: #2 sees #1's member, so #1's write landed on the live corpus.)
+```
+cg := argument.claims;          // distinct handle name — NOT `claims` (self-collision)
+cand := new("absorbedClaim");
+if cand IN cg;     print "skip";   // already present -> dedup
+else               cg += cand;     // absorb
+```
 
-**Why `IN` works in `tFind` but not in dedup:** `tFind` tests `gbp IN cg` where `gbp` is a
-live `:=` handle to an *actual* member — `IN` matches it by identity. Dedup tests a fresh
-`new("absorbedClaim")` — same tag, different object — and `IN` does not match by tag.
+Run `absorbClaim` twice: #1 absorbs, **#2 skips** (it finds the member #1 added), so `claims`
+keeps exactly one `absorbedClaim`. Proven 2026-06-30 against `incant/jigcorpus`.
 
-**Fix (needs Tony's syntax call + a one-line op):** a `has`/`contains` predicate —
-`group has member` → `group[member.tag]` truthy. Until it lands, any absorb that must not
-double-insert has to guard some other way. Tracked in memory `field-directive-absorb-idiom`
-and the fieldNav design thread.
+**What it took (the one-token `opIN` fix).** `opIN`'s list gate originally read
+`or target.groupList → argument[target.tag]` — it gated on the **candidate** (`target`, the
+left operand) having a list, but a freshly-built `cand` never carries one, so the lookup never
+ran and absorb double-inserted. The operand convention is the trap: `runOP` invokes operators
+as `op.operat(arg, target)` = **(right, left)**, so for `cand IN cg`, `target = cand` (item)
+and `argument = cg` (container). The container is always the right operand. The fix gates on
+the operand it actually indexes — the **container**:
+
+```
+or argument.groupList    result = argument[target.tag];     // Instruct.rtn — gate on the container
+```
+
+So `IN` now expresses "does this group contain a member with this tag" for any candidate,
+constructed or live. (Contrast the pre-fix `tFind` `gbp IN cg`, which only worked because the
+live member `gbp` happened to carry its own list and tripped the old candidate-side gate.) No
+new `has`/`contains` keyword was needed — the gap was a bug in `IN`, not a missing predicate.
 
 ---
 
 *POPs: `incant/jidirect` (raw operators: `:=` handle, `+=`, `-=`, `IN`, `!IN` split, `<:`),
-`incant/jiabsorb` (absorb insert+persist; demonstrates the open dedup gap). Run with the
+`incant/jiabsorb` (absorb working end to end: insert + persist + dedup). Run with the
 `incant/jigcorpus` corpus loaded (see `incant/setup` search list).*

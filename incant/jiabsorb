@@ -1,20 +1,21 @@
 Start();
 /*****************************************************************************
-    jiabsorb — absorb POP (operation #2 of the four).
-    Proves INSERT + PERSISTENCE; DEMONSTRATES the still-open dedup gap.
+    jiabsorb — absorb POP (operation #2 of the four). WORKING end to end:
+    insert + persistence + DEDUP.
 
     Live handle to a nested corpus group = `:= argument.member` on a
     live-passed root (the tInsert idiom Tony's debugger confirmed). With the
-    makeNew text-clear + := handle, a constructed claim lands clean.
+    makeNew text-clear + := handle, a constructed claim lands clean. Name the
+    handle distinctly (`cg`, NOT `claims` — a local named the same as the
+    member tag it aliases self-collides: "setGroup: cannot add a group claims
+    to itself").
 
-    absorbClaim: dedup via `if claims IN cand; else insert` (Tony's flip, no
-    !IN). Run twice -> #1 absorbs. #1's insert PERSISTS (proven: #2 sees the
-    member #1 added). BUT #2 does NOT skip — it re-adds absorbedClaim, so a
-    second identical member appears. That double-insert is the KNOWN open gap:
-    opIN can't express "group contains member" when `cand` is a freshly-built
-    empty group (it keys off the wrong operand). Fix awaits a `has`/`contains`
-    predicate. See docs/field-directive-idioms.md + memory field-directive-
-    absorb-idiom. Until then, absorb double-inserts.
+    absorbClaim: dedup via `if cand IN cg; else insert` — natural order, item
+    on the left, container on the right (no `!IN`). Run twice -> #1 absorbs,
+    #2 SKIPS (the member #1 added is found), so claims keeps ONE absorbedClaim.
+    This works because the opIN list gate was fixed to test the CONTAINER for a
+    list (`argument.groupList`), not the candidate (`target.groupList`) — the
+    candidate never carries its own list. See docs/field-directive-idioms.md.
 *****************************************************************************/
 include(utilities);
 include(jigcorpus);
@@ -24,17 +25,17 @@ search jigCorpus Utilities list;
 
 define
     showClaims argument code={
-        claims := argument.claims;
-        for grup in claims; print ``"    " grup.taG:;
+        cg := argument.claims;
+        for grup in cg; print ``"    " grup.taG:;
         };
 
     absorbClaim argument code={
-        claims := argument.claims;
+        cg     := argument.claims;
         cand   := new("absorbedClaim");
-        if claims IN cand;
+        if cand IN cg;
             print ``"  present — skip (dedup)":;
         else
-            claims += cand;
+            cg += cand;
             print ``"  absorbed":;
         };
     ;
