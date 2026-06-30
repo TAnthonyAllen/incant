@@ -1,0 +1,68 @@
+Start();
+/*****************************************************************************
+    jidirect — field-directive PROBE (scratch).
+
+    Not the directive actions yet — this exercises the raw member operators
+    (+= insert, -= remove, IN find) directly against the live jigcorpus
+    `claims` group, to get hard data on what works today vs. what needs the
+    opMinusEQ groupList change. Once the operators are confirmed, the
+    replaceField/insertField action copies wrap them.
+
+    Run:  Groups incant/jidirect
+*****************************************************************************/
+include(utilities);
+include(jigcorpus);
+
+search reset stack Grokking;
+search jigCorpus Utilities list;
+
+define
+    showTags argument code={
+        for grup in argument; print ``"    " grup.taG:; };
+
+    tInsert argument code={
+        print ``"=== tInsert (:= ref, += member) ===":;
+        cg := argument.claims;
+        print ``"  len before:" cg.listLengtH:;
+        // in the following line nc isLocal and uninitialized; opSetTag sets its tag to probeClaim BYU
+        nc <: "probeClaim";
+        cg += nc;
+        dumpField(cg);
+        print ``"  len after +=:" cg.listLengtH::;
+        };
+
+    tFind argument code={
+        print ``"=== tFind (IN find existing member) ===":;
+        cg := argument.claims;
+        gbp := cg.gifBranchPoison;
+        // below gbp isLocal w/gifBranchPoison in its group so gbp is like an alias for gifBranchPoison
+        if gbp IN cg;  print ``"  gbp IN cg: FOUND"::;
+        else           print ``"  gbp IN cg: NOT found"::;
+        };
+
+    tRemove argument code={
+        print ``"=== tRemove (-= member, removes via groupList gate 5bad124) ===":;
+        cg := argument.claims;
+        gbp := cg.gifBranchPoison;
+        print ``"  len before:" cg.listLengtH:;
+        cg -= gbp;
+        dumpField(cg);
+        print ``"  len after -=:" cg.listLengtH::;
+        };
+
+    tNotIn argument code={
+        print ``"=== tNotIn (!IN negated membership) ===":;
+        cg := argument.claims;
+        nc = new("absentClaim");
+        // the next 2 lines are a kludge that handles !IN that does not exist
+        nc = nc IN cg;
+        if !nc; print ``"  !IN: reports ABSENT (works)":;
+        else    print ``"  !IN: reports present / not working":;
+        };
+    ;
+
+tInsert(jitIgor);
+tFind(jitIgor);
+tRemove(jitIgor);
+tNotIn(jitIgor);
+stop();

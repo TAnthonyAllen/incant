@@ -1,0 +1,52 @@
+Start();
+/*****************************************************************************
+    jiabsorb — absorb POP (operation #2 of the four).
+    Proves INSERT + PERSISTENCE; DEMONSTRATES the still-open dedup gap.
+
+    Live handle to a nested corpus group = `:= argument.member` on a
+    live-passed root (the tInsert idiom Tony's debugger confirmed). With the
+    makeNew text-clear + := handle, a constructed claim lands clean.
+
+    absorbClaim: dedup via `if claims IN cand; else insert` (Tony's flip, no
+    !IN). Run twice -> #1 absorbs. #1's insert PERSISTS (proven: #2 sees the
+    member #1 added). BUT #2 does NOT skip — it re-adds absorbedClaim, so a
+    second identical member appears. That double-insert is the KNOWN open gap:
+    opIN can't express "group contains member" when `cand` is a freshly-built
+    empty group (it keys off the wrong operand). Fix awaits a `has`/`contains`
+    predicate. See docs/field-directive-idioms.md + memory field-directive-
+    absorb-idiom. Until then, absorb double-inserts.
+*****************************************************************************/
+include(utilities);
+include(jigcorpus);
+
+search reset stack Grokking;
+search jigCorpus Utilities list;
+
+define
+    showClaims argument code={
+        claims := argument.claims;
+        for grup in claims; print ``"    " grup.taG:;
+        };
+
+    absorbClaim argument code={
+        claims := argument.claims;
+        cand   := new("absorbedClaim");
+        if claims IN cand;
+            print ``"  present — skip (dedup)":;
+        else
+            claims += cand;
+            print ``"  absorbed":;
+        };
+    ;
+
+print ``"=== claims before ===":;
+showClaims(jitIgor);
+
+print ``"=== absorb #1 (expect: absorbed) ===":;
+absorbClaim(jitIgor);
+showClaims(jitIgor);
+
+print ``"=== absorb #2 (expect: dedup skip; claims unchanged) ===":;
+absorbClaim(jitIgor);
+showClaims(jitIgor);
+stop();
