@@ -376,13 +376,12 @@ GroupItem 	*item = 0;
 *******************************************************************************/
 extern "C" GroupItem *aCTionExpressioN(GroupItem *xpList)
 {
-	/* Thin dispatcher over three mode-handlers (split out 2026-06-30). jitting is
-	checked FIRST: jitRunAction raises generating AND jitting, and the JIT
-	lowering must build an OWNED revisedList (jitXP), not the by-reference one
-	generateXP builds (Clay's routing call (b) — keeps the generating-path
-	operand normalization firing while diverging only at list construction). */
-	if ( GroupControl::groupController->groupRules->jitting )
-		return jitXP(xpList);
+	/* Thin dispatcher over two mode-handlers (jitXP folded out 2026-06-30, JIT
+	unified-emit-on-walk pivot step 1): jitting now falls through to
+	interpretXP. jitRunAction still raises generating alongside jitting, so
+	generating is checked first — under jitting+generating, generateXP's
+	by-reference revisedList still wins; interpretXP only fires under plain
+	interpretation or, going forward, under jitting-without-generating. */
 	if ( GroupControl::groupController->groupRules->generating )
 		return generateXP(xpList);
 	return interpretXP(xpList);
@@ -1510,8 +1509,9 @@ GroupItem 	*fieldList = field->getAttribute("bcLIST");
     generateXP — the `generating` mode: build a flat-RPN revisedList from the
     parsed expression and emit nothing (the bytecode walk emits later). Members
     are added BY REFERENCE; gXpress launders them with copyOf at bytecode-emit
-    time. NB: jitXP is this function's twin with copyOf at each append — keep the
-    two in step until they're unified (FOLLOW-UP in wakeup.md).
+    time. (jitXP, its copyOf-on-append twin for the JIT lowering, was folded out
+    2026-06-30 — JIT now falls through to interpretXP per the unified
+    emit-on-walk pivot; see docs/jit-design.md.)
 *******************************************************************************/
 extern "C" GroupItem *generateXP(GroupItem *xpList)
 {
@@ -2565,97 +2565,6 @@ GroupItem 	*BlocK = input->getLabelGroup("BlocK");
 	if ( BlocK )
 		::jitGeneratE(BlocK);
 	return input;
-}
-
-/*******************************************************************************
-    jitXP — generateXP's twin for the JIT lowering. SAME op/target/arg state
-    machine; the ONE divergence is copyOf() on every operand/operator before it
-    enters the revisedList, so the list is built from OWNED, self-parented nodes
-    rather than by-reference shares of live fields / registry ops. jitXpress
-    walks this list with a plain member walk; a by-reference member sends that
-    walk looping back into the operand's home scope (the gIF condition hang,
-    2026-06-30). generateXP tolerates shares only because gXpress launders them
-    at bytecode-emit; the JIT walk has no such downstream step, so the list
-    itself must be sound. The store TARGET stays live (tgt.group = target) — it
-    is the store-back destination, not a walked member, and jitEmitAssign needs
-    the real field. (FOLLOW-UP wakeup.md: unify with generateXP once green.)
-*******************************************************************************/
-extern "C" GroupItem *jitXP(GroupItem *xpList)
-{
-GroupItem 	*op = 0;
-GroupItem 	*target = 0;
-GroupItem 	*arg = 0;
-GroupItem 	*xl = 0;
-GroupItem 	*token = 0;
-GroupItem 	*revisedList = new GroupItem("revisedList");
-GroupItem 	*grup = 0;
-GroupItem 	*store = 0;
-GroupItem 	*tgt = 0;
-	if ( xpList->groupBody->groupList->listLength == 1 )
-		{
-		arg = xpList->groupBody->groupList->firstInList;
-		if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
-			arg = arg->getGroup();
-		revisedList->addMember(::copyOf(arg));
-		}
-	else {
-		GroupItem 	*hasOp = 0;
-		GroupItem 	*tk = 0;
-		while ( tk = xpList->prior(tk) )
-			if ( isOperator(tk->groupBody->flags.instructType) )
-				hasOp = tk;
-		if ( !hasOp )
-			{
-			xpList->groupBody->flags.binType = 3;
-			xpList->groupBody->flags.reversePrint = 1;
-			return xpList;
-			}
-		while ( token = xpList->prior(token) )
-			{
-			grup = token;
-			if ( isGROUP(grup->groupBody->flags.data) && !isOperator(grup->groupBody->flags.instructType) )
-				while ( isGROUP(grup->groupBody->flags.data) )
-					grup = grup->getGroup();
-			if ( isOperator(grup->groupBody->flags.instructType) )
-				op = grup;
-			else {
-				if ( !arg )
-					arg = grup;
-				else
-				if ( op )
-					target = grup;
-				}
-			if ( op )
-				if ( target )
-					{
-					if ( ::compare(op->groupBody->tag,"=") == 0 )
-						{
-						if ( !arg->groupBody->gMethod )
-							revisedList->addMember(::copyOf(arg));
-						store = ::copyOf(GroupControl::groupController->groupRules->bcOPs->get("bcStoreField"));
-						tgt = new GroupItem("target");
-						tgt->setGroup(target);
-						store->addAttribute(tgt);
-						revisedList->addMember(store);
-						}
-					else {
-						revisedList->addMember(::copyOf(target));
-						if ( !arg->groupBody->gMethod )
-							revisedList->addMember(::copyOf(arg));
-						revisedList->addMember(::copyOf(op));
-						}
-					xl = new GroupItem("xl");
-					xl->setMethod(::runOP);
-					op = 0;
-					target = 0;
-					arg = xl;
-					}
-			}
-		}
-	::dumpContents(revisedList);
-	xpList->clear();
-	xpList->setGroup(revisedList);
-	return xpList;
 }
 
 /* jitXpress  the JIT analog of gXpress (incant/generate). Walks a statement's
