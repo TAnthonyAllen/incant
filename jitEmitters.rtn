@@ -363,11 +363,16 @@ extern void jitIfEnd()
 extern GroupItem jitXpress(GroupItem argument)
 {
 GroupItem   stack = new("jitStack");
-GroupItem   child, arg, target, value, dest, uoperand, result;
-    // Safe iterator: while child = next(child), child null going in (declared,
-    // so tok zero-inits). jitXpress only reads each member and pushes/pops a
-    // SEPARATE stack node -- it never mutates `argument`, so no mid-loop steering.
-    while child = argument.next(child) {
+GroupItem   child, next, arg, target, value, dest, uoperand, result;
+    // Walk the revisedList's members, capturing the NEXT pointer BEFORE running the
+    // body. The body's stack.push(child) re-parents the member — addMember rewrites
+    // child.nextInParent to point into the stack — so reading child.nextInParent
+    // AFTER the body would strand the walk (observed: righty, then Token forever once
+    // Token is pushed). This is the gXpress idiom (`nextChild = child.nexT` up front):
+    // the up-front capture is load-bearing, not incidental.
+    child = argument.firstInList;
+    while child {
+        next = child.nextInParent;
         if child.isOperator {
             if child.tag ne "=" {
                 arg     = stack.pop();
@@ -393,6 +398,7 @@ GroupItem   child, arg, target, value, dest, uoperand, result;
         else {
             jitSeedField(child);
             stack.push(child); }
+        child = next;
     }
     return argument;
 }

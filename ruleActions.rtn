@@ -268,125 +268,161 @@ GroupItem   StatemenT:,
 *******************************************************************************/
 extern GroupItem aCTionExpressioN(GroupItem xpList)
 {
-GroupItem   op,
-            target,
-            arg,
-            xl,
-            token;
-    /* jitting gate moved AFTER the generating branch (2026-06-27, unified JIT
-       emit model): under jitting the `generating` branch below builds the
-       revisedList, and the JIT walk (jitWalkBlock -> jitXpress) emits LLVM from
-       it AFTER parse — so control flow's condition/body emit inside their blocks,
-       gated, instead of inline-during-parse and ungated. The old emit-during-parse
-       jitting block now lives past the generating return (dead while jitRunAction
-       sets generating=1 with jitting=1; kept as the jitting-only fallback). */
-    if generating {
-        GroupItem revisedList = new("revisedList");
-        GroupItem grup, store, tgt;
-        if xpList.listLength == 1 {
-            arg = xpList.firstInList;
-            if arg.isGROUP && !arg.isArgument   arg = arg.group;
-            revisedList += arg; }
-        else {
-            /******************************************************************
-                Mirror the non-generating walk's op/target/arg identification
-                (right-to-left, precedence-correct via the same state machine),
-                but emit flat RPN instead of building the runOP tree: for each
-                completed instruction emit target, then arg (when a leaf), then
-                op; for '=' emit the value then a bcStoreField carrying target.
-            *******************************************************************/
-            // No-operator expression (a bare operand sequence, e.g. the print
-            // operands `"hello" name`): the RPN walk below only emits when it
-            // completes an op+target, so with no operator it produces an EMPTY
-            // revisedList and the clear() below would destroy the tokens. Detect
-            // that and leave xpList intact so aCTionPrinT/appendGroup can print
-            // the operands directly. (Operator expressions fall through to RPN.)
-            GroupItem   hasOp, tk;
-            while tk = xpList.prior(tk)
-                if tk.isOperator   hasOp = tk;
-            if !hasOp {
-                xpList.isLIST       = true;
-                xpList.reversePrint = true;
-                return xpList; }
-            while token = xpList.prior(token) {
-                grup = token;
-                // Operator-skip guard: never unwrap an operator. Operators carry
-                // their interpret=/operateMethod= as attributes (e.g. > has
-                // interpret=runGT), which is the dispatch handler gXpress/
-                // interpretBC need — unwrapping would dis-member the op.
-                if grup.isGROUP && !grup.isOperator
-                    while grup.isGROUP
-                        grup = grup.group;
-                if grup.isOperator   op = grup;
-                else {
-                    if !arg arg = grup;
-                    or op   target = grup; }
-                if op
-                    if target {
-                        if op.tag eq "=" {
-                            if !arg.method   revisedList += arg;
-                            store = copyOf(bcOPs["bcStoreField"]);
-                            tgt = new("target");
-                            tgt.group = target;
-                            store +% tgt;
-                            revisedList += store; }
-                        else {
-                            revisedList += target;
-                            if !arg.method   revisedList += arg;
-                            revisedList += op; }
-                        xl = new("xl");
-                        xl.method   = runOP;
-                        op = 0;
-                        target = 0;
-                        arg = xl; }}}
-        dumpContents(revisedList);
-        xpList.clear();
-        xpList.group = revisedList;
-        return xpList; }
-    /* jitting (emit-during-parse) — moved here from before `generating` for the
-       unified JIT emit model. Dead while jitRunAction raises generating alongside
-       jitting (the generating branch above returns first, building the revisedList
-       the JIT walk emits). Retained as the jitting-only inline-emit fallback. */
-    if jitting {
-        GroupItem   grup, result, uoperand;
-        if xpList.listLength == 1 {
-            arg = xpList.firstInList;
-            if arg.isGROUP && !arg.isArgument   arg = arg.group;
-            if arg.tag eq "uxp" {
-                uoperand = arg[2];
-                if uoperand.isGROUP   uoperand = uoperand.group;
-                jitSeedField(uoperand);
-                arg.invoke = true;
-                result = arg.method(arg);
-                xpList.clear();
-                xpList.group = result;
-                return xpList; }
-            if arg.isLiteral    jitSeedLiteral(arg);
-            xpList.clear();
-            xpList.group = arg;
+    /* Thin dispatcher over three mode-handlers (split out 2026-06-30). jitting is
+       checked FIRST: jitRunAction raises generating AND jitting, and the JIT
+       lowering must build an OWNED revisedList (jitXP), not the by-reference one
+       generateXP builds (Clay's routing call (b) — keeps the generating-path
+       operand normalization firing while diverging only at list construction). */
+    if jitting      return jitXP(xpList);
+    if generating   return generateXP(xpList);
+    return interpretXP(xpList);
+}
+
+/*******************************************************************************
+    generateXP — the `generating` mode: build a flat-RPN revisedList from the
+    parsed expression and emit nothing (the bytecode walk emits later). Members
+    are added BY REFERENCE; gXpress launders them with copyOf at bytecode-emit
+    time. NB: jitXP is this function's twin with copyOf at each append — keep the
+    two in step until they're unified (FOLLOW-UP in wakeup.md).
+*******************************************************************************/
+extern GroupItem generateXP(GroupItem xpList)
+{
+GroupItem   op, target, arg, xl, token;
+GroupItem   revisedList = new("revisedList");
+GroupItem   grup, store, tgt;
+    if xpList.listLength == 1 {
+        arg = xpList.firstInList;
+        if arg.isGROUP && !arg.isArgument   arg = arg.group;
+        revisedList += arg; }
+    else {
+        /******************************************************************
+            Mirror the non-generating walk's op/target/arg identification
+            (right-to-left, precedence-correct via the same state machine),
+            but emit flat RPN instead of building the runOP tree: for each
+            completed instruction emit target, then arg (when a leaf), then
+            op; for '=' emit the value then a bcStoreField carrying target.
+        *******************************************************************/
+        // No-operator expression (a bare operand sequence, e.g. the print
+        // operands `"hello" name`): the RPN walk below only emits when it
+        // completes an op+target, so with no operator it produces an EMPTY
+        // revisedList and the clear() below would destroy the tokens. Detect
+        // that and leave xpList intact so aCTionPrinT/appendGroup can print
+        // the operands directly. (Operator expressions fall through to RPN.)
+        GroupItem   hasOp, tk;
+        while tk = xpList.prior(tk)
+            if tk.isOperator   hasOp = tk;
+        if !hasOp {
+            xpList.isLIST       = true;
+            xpList.reversePrint = true;
             return xpList; }
         while token = xpList.prior(token) {
             grup = token;
+            // Operator-skip guard: never unwrap an operator. Operators carry
+            // their interpret=/operateMethod= as attributes (e.g. > has
+            // interpret=runGT), which is the dispatch handler gXpress/
+            // interpretBC need — unwrapping would dis-member the op.
             if grup.isGROUP && !grup.isOperator
-                while grup.isGROUP  grup = grup.group;
-            if grup.isOperator  op = grup;
+                while grup.isGROUP
+                    grup = grup.group;
+            if grup.isOperator   op = grup;
             else {
                 if !arg arg = grup;
                 or op   target = grup; }
             if op
-                if arg
-                    if target {
-                        if target.isLiteral jitSeedLiteral(target);
-                        else                jitSeedField(target);
-                        if arg.isLiteral    jitSeedLiteral(arg);
-                        else                jitSeedField(arg);
-                        result = op.operat(arg,target);
-                        op = 0;
-                        target = 0;
-                        arg = result; }}
-        xpList.clear();
-        xpList.group = arg;
-        return xpList; }
+                if target {
+                    if op.tag eq "=" {
+                        if !arg.method   revisedList += arg;
+                        store = copyOf(bcOPs["bcStoreField"]);
+                        tgt = new("target");
+                        tgt.group = target;
+                        store +% tgt;
+                        revisedList += store; }
+                    else {
+                        revisedList += target;
+                        if !arg.method   revisedList += arg;
+                        revisedList += op; }
+                    xl = new("xl");
+                    xl.method   = runOP;
+                    op = 0;
+                    target = 0;
+                    arg = xl; }}}
+    dumpContents(revisedList);
+    xpList.clear();
+    xpList.group = revisedList;
+    return xpList;
+}
+
+/*******************************************************************************
+    jitXP — generateXP's twin for the JIT lowering. SAME op/target/arg state
+    machine; the ONE divergence is copyOf() on every operand/operator before it
+    enters the revisedList, so the list is built from OWNED, self-parented nodes
+    rather than by-reference shares of live fields / registry ops. jitXpress
+    walks this list with a plain member walk; a by-reference member sends that
+    walk looping back into the operand's home scope (the gIF condition hang,
+    2026-06-30). generateXP tolerates shares only because gXpress launders them
+    at bytecode-emit; the JIT walk has no such downstream step, so the list
+    itself must be sound. The store TARGET stays live (tgt.group = target) — it
+    is the store-back destination, not a walked member, and jitEmitAssign needs
+    the real field. (FOLLOW-UP wakeup.md: unify with generateXP once green.)
+*******************************************************************************/
+extern GroupItem jitXP(GroupItem xpList)
+{
+GroupItem   op, target, arg, xl, token;
+GroupItem   revisedList = new("revisedList");
+GroupItem   grup, store, tgt;
+    if xpList.listLength == 1 {
+        arg = xpList.firstInList;
+        if arg.isGROUP && !arg.isArgument   arg = arg.group;
+        revisedList += copyOf(arg); }
+    else {
+        GroupItem   hasOp, tk;
+        while tk = xpList.prior(tk)
+            if tk.isOperator   hasOp = tk;
+        if !hasOp {
+            xpList.isLIST       = true;
+            xpList.reversePrint = true;
+            return xpList; }
+        while token = xpList.prior(token) {
+            grup = token;
+            if grup.isGROUP && !grup.isOperator
+                while grup.isGROUP
+                    grup = grup.group;
+            if grup.isOperator   op = grup;
+            else {
+                if !arg arg = grup;
+                or op   target = grup; }
+            if op
+                if target {
+                    if op.tag eq "=" {
+                        if !arg.method   revisedList += copyOf(arg);
+                        store = copyOf(bcOPs["bcStoreField"]);
+                        tgt = new("target");
+                        tgt.group = target;
+                        store +% tgt;
+                        revisedList += store; }
+                    else {
+                        revisedList += copyOf(target);
+                        if !arg.method   revisedList += copyOf(arg);
+                        revisedList += copyOf(op); }
+                    xl = new("xl");
+                    xl.method   = runOP;
+                    op = 0;
+                    target = 0;
+                    arg = xl; }}}
+    dumpContents(revisedList);
+    xpList.clear();
+    xpList.group = revisedList;
+    return xpList;
+}
+
+/*******************************************************************************
+    interpretXP — the interpret/run mode: build the left-associative runOP tree
+    the interpreter walks. (Split out of aCTionExpressioN 2026-06-30; was the
+    fallthrough below the generating/jitting branches.)
+*******************************************************************************/
+extern GroupItem interpretXP(GroupItem xpList)
+{
+GroupItem   op, target, arg, xl, token;
     if xpList.listLength == 1 {
         arg = xpList.firstInList;
         if arg.isGROUP && !arg.isArgument   arg = arg.group;

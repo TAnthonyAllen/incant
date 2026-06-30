@@ -376,230 +376,16 @@ GroupItem 	*item = 0;
 *******************************************************************************/
 extern "C" GroupItem *aCTionExpressioN(GroupItem *xpList)
 {
-GroupItem 	*op = 0;
-GroupItem 	*target = 0;
-GroupItem 	*arg = 0;
-GroupItem 	*xl = 0;
-GroupItem 	*token = 0;
-	/* jitting gate moved AFTER the generating branch (2026-06-27, unified JIT
-	emit model): under jitting the `generating` branch below builds the
-	revisedList, and the JIT walk (jitWalkBlock -> jitXpress) emits LLVM from
-	it AFTER parse — so control flow's condition/body emit inside their blocks,
-	gated, instead of inline-during-parse and ungated. The old emit-during-parse
-	jitting block now lives past the generating return (dead while jitRunAction
-	sets generating=1 with jitting=1; kept as the jitting-only fallback). */
-	if ( GroupControl::groupController->groupRules->generating )
-		{
-		GroupItem 	*revisedList = new GroupItem("revisedList");
-		GroupItem 	*grup = 0;
-		GroupItem 	*store = 0;
-		GroupItem 	*tgt = 0;
-		if ( xpList->groupBody->groupList->listLength == 1 )
-			{
-			arg = xpList->groupBody->groupList->firstInList;
-			if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
-				arg = arg->getGroup();
-			revisedList->addMember(arg);
-			}
-		else {
-			/******************************************************************
-			Mirror the non-generating walk's op/target/arg identification
-			(right-to-left, precedence-correct via the same state machine),
-			but emit flat RPN instead of building the runOP tree: for each
-			completed instruction emit target, then arg (when a leaf), then
-			op; for '=' emit the value then a bcStoreField carrying target.
-			*******************************************************************/
-			// No-operator expression (a bare operand sequence, e.g. the print
-			// operands `"hello" name`): the RPN walk below only emits when it
-			// completes an op+target, so with no operator it produces an EMPTY
-			// revisedList and the clear() below would destroy the tokens. Detect
-			// that and leave xpList intact so aCTionPrinT/appendGroup can print
-			// the operands directly. (Operator expressions fall through to RPN.)
-			GroupItem *hasOp = 0;
-			GroupItem *tk = 0;
-			while ( tk = xpList->prior(tk) )
-				if ( isOperator(tk->groupBody->flags.instructType) )
-					hasOp = tk;
-			if ( !hasOp )
-				{
-				xpList->groupBody->flags.binType = 3;
-				xpList->groupBody->flags.reversePrint = 1;
-				return xpList;
-				}
-			while ( token = xpList->prior(token) )
-				{
-				grup = token;
-				// Operator-skip guard: never unwrap an operator. Operators carry
-				// their interpret=/operateMethod= as attributes (e.g. > has
-				// interpret=runGT), which is the dispatch handler gXpress/
-				// interpretBC need — unwrapping would dis-member the op.
-				if ( isGROUP(grup->groupBody->flags.data) && !isOperator(grup->groupBody->flags.instructType) )
-					while ( isGROUP(grup->groupBody->flags.data) )
-						grup = grup->getGroup();
-				if ( isOperator(grup->groupBody->flags.instructType) )
-					op = grup;
-				else {
-					if ( !arg )
-						arg = grup;
-					else
-					if ( op )
-						target = grup;
-					}
-				if ( op )
-					if ( target )
-						{
-						if ( ::compare(op->groupBody->tag,"=") == 0 )
-							{
-							if ( !arg->groupBody->gMethod )
-								revisedList->addMember(arg);
-							store = ::copyOf(GroupControl::groupController->groupRules->bcOPs->get("bcStoreField"));
-							tgt = new GroupItem("target");
-							tgt->setGroup(target);
-							store->addAttribute(tgt);
-							revisedList->addMember(store);
-							}
-						else {
-							revisedList->addMember(target);
-							if ( !arg->groupBody->gMethod )
-								revisedList->addMember(arg);
-							revisedList->addMember(op);
-							}
-						xl = new GroupItem("xl");
-						xl->setMethod(::runOP);
-						op = 0;
-						target = 0;
-						arg = xl;
-						}
-				}
-			}
-		::dumpContents(revisedList);
-		xpList->clear();
-		xpList->setGroup(revisedList);
-		return xpList;
-		}
-	/* jitting (emit-during-parse) — moved here from before `generating` for the
-	unified JIT emit model. Dead while jitRunAction raises generating alongside
-	jitting (the generating branch above returns first, building the revisedList
-	the JIT walk emits). Retained as the jitting-only inline-emit fallback. */
+	/* Thin dispatcher over three mode-handlers (split out 2026-06-30). jitting is
+	checked FIRST: jitRunAction raises generating AND jitting, and the JIT
+	lowering must build an OWNED revisedList (jitXP), not the by-reference one
+	generateXP builds (Clay's routing call (b) — keeps the generating-path
+	operand normalization firing while diverging only at list construction). */
 	if ( GroupControl::groupController->groupRules->jitting )
-		{
-		GroupItem 	*grup = 0;
-		GroupItem 	*result = 0;
-		GroupItem 	*uoperand = 0;
-		if ( xpList->groupBody->groupList->listLength == 1 )
-			{
-			arg = xpList->groupBody->groupList->firstInList;
-			if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
-				arg = arg->getGroup();
-			if ( ::compare(arg->groupBody->tag,"uxp") == 0 )
-				{
-				uoperand = arg->get(2);
-				if ( isGROUP(uoperand->groupBody->flags.data) )
-					uoperand = uoperand->getGroup();
-				::jitSeedField(uoperand);
-				arg->groupBody->flags.invoke = 1;
-				result = arg->groupBody->gMethod(arg);
-				xpList->clear();
-				xpList->setGroup(result);
-				return xpList;
-				}
-			if ( arg->groupBody->flags.isLiteral )
-				::jitSeedLiteral(arg);
-			xpList->clear();
-			xpList->setGroup(arg);
-			return xpList;
-			}
-		while ( token = xpList->prior(token) )
-			{
-			grup = token;
-			if ( isGROUP(grup->groupBody->flags.data) && !isOperator(grup->groupBody->flags.instructType) )
-				while ( isGROUP(grup->groupBody->flags.data) )
-					grup = grup->getGroup();
-			if ( isOperator(grup->groupBody->flags.instructType) )
-				op = grup;
-			else {
-				if ( !arg )
-					arg = grup;
-				else
-				if ( op )
-					target = grup;
-				}
-			if ( op )
-				if ( arg )
-					if ( target )
-						{
-						if ( target->groupBody->flags.isLiteral )
-							::jitSeedLiteral(target);
-						else	::jitSeedField(target);
-						if ( arg->groupBody->flags.isLiteral )
-							::jitSeedLiteral(arg);
-						else	::jitSeedField(arg);
-						result = op->groupBody->gOp(arg,target);
-						op = 0;
-						target = 0;
-						arg = result;
-						}
-			}
-		xpList->clear();
-		xpList->setGroup(arg);
-		return xpList;
-		}
-	if ( xpList->groupBody->groupList->listLength == 1 )
-		{
-		arg = xpList->groupBody->groupList->firstInList;
-		if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
-			arg = arg->getGroup();
-		goto finishXP;
-		}
-	while ( token = xpList->prior(token) )
-		{
-		if ( token->groupBody->registry == GroupControl::groupController->groupRules->opFields )
-			op = token;
-		else {
-			if ( !arg )
-				arg = token;
-			else
-			if ( op )
-				{
-				target = token;
-				if ( xl )
-					xl = 0;
-				}
-			else {
-				if ( !xl )
-					{
-					xl = new GroupItem("xl");
-					xl->groupBody->flags.binType = 3;
-					}
-				if ( arg != xl )
-					xl->addMember(arg);
-				xl->addMember(token);
-				arg = xl;
-				}
-			}
-		if ( op )
-			if ( arg )
-				{
-				if ( arg->groupBody->flags.actionType || arg->groupBody->flags.instructType )
-					arg->groupBody->flags.invoke = 1;
-				if ( target )
-					{
-					xl = new GroupItem("xl");
-					xl->addMember(op);
-					xl->addMember(target);
-					xl->addMember(arg);
-					xl->setMethod(::runOP);
-					xl->groupBody->flags.invoke = 1;
-					op = 0;
-					target = 0;
-					arg = xl;
-					}
-				}
-		}
-finishXP:
-	xpList->clear();
-	xpList->setGroup(arg);
-	return xpList;
+		return jitXP(xpList);
+	if ( GroupControl::groupController->groupRules->generating )
+		return generateXP(xpList);
+	return interpretXP(xpList);
 }
 
 /*******************************************************************************
@@ -1720,6 +1506,108 @@ GroupItem 	*fieldList = field->getAttribute("bcLIST");
 	return fieldList;
 }
 
+/*******************************************************************************
+    generateXP — the `generating` mode: build a flat-RPN revisedList from the
+    parsed expression and emit nothing (the bytecode walk emits later). Members
+    are added BY REFERENCE; gXpress launders them with copyOf at bytecode-emit
+    time. NB: jitXP is this function's twin with copyOf at each append — keep the
+    two in step until they're unified (FOLLOW-UP in wakeup.md).
+*******************************************************************************/
+extern "C" GroupItem *generateXP(GroupItem *xpList)
+{
+GroupItem 	*op = 0;
+GroupItem 	*target = 0;
+GroupItem 	*arg = 0;
+GroupItem 	*xl = 0;
+GroupItem 	*token = 0;
+GroupItem 	*revisedList = new GroupItem("revisedList");
+GroupItem 	*grup = 0;
+GroupItem 	*store = 0;
+GroupItem 	*tgt = 0;
+	if ( xpList->groupBody->groupList->listLength == 1 )
+		{
+		arg = xpList->groupBody->groupList->firstInList;
+		if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
+			arg = arg->getGroup();
+		revisedList->addMember(arg);
+		}
+	else {
+		/******************************************************************
+		Mirror the non-generating walk's op/target/arg identification
+		(right-to-left, precedence-correct via the same state machine),
+		but emit flat RPN instead of building the runOP tree: for each
+		completed instruction emit target, then arg (when a leaf), then
+		op; for '=' emit the value then a bcStoreField carrying target.
+		*******************************************************************/
+		// No-operator expression (a bare operand sequence, e.g. the print
+		// operands `"hello" name`): the RPN walk below only emits when it
+		// completes an op+target, so with no operator it produces an EMPTY
+		// revisedList and the clear() below would destroy the tokens. Detect
+		// that and leave xpList intact so aCTionPrinT/appendGroup can print
+		// the operands directly. (Operator expressions fall through to RPN.)
+		GroupItem *hasOp = 0;
+		GroupItem *tk = 0;
+		while ( tk = xpList->prior(tk) )
+			if ( isOperator(tk->groupBody->flags.instructType) )
+				hasOp = tk;
+		if ( !hasOp )
+			{
+			xpList->groupBody->flags.binType = 3;
+			xpList->groupBody->flags.reversePrint = 1;
+			return xpList;
+			}
+		while ( token = xpList->prior(token) )
+			{
+			grup = token;
+			// Operator-skip guard: never unwrap an operator. Operators carry
+			// their interpret=/operateMethod= as attributes (e.g. > has
+			// interpret=runGT), which is the dispatch handler gXpress/
+			// interpretBC need — unwrapping would dis-member the op.
+			if ( isGROUP(grup->groupBody->flags.data) && !isOperator(grup->groupBody->flags.instructType) )
+				while ( isGROUP(grup->groupBody->flags.data) )
+					grup = grup->getGroup();
+			if ( isOperator(grup->groupBody->flags.instructType) )
+				op = grup;
+			else {
+				if ( !arg )
+					arg = grup;
+				else
+				if ( op )
+					target = grup;
+				}
+			if ( op )
+				if ( target )
+					{
+					if ( ::compare(op->groupBody->tag,"=") == 0 )
+						{
+						if ( !arg->groupBody->gMethod )
+							revisedList->addMember(arg);
+						store = ::copyOf(GroupControl::groupController->groupRules->bcOPs->get("bcStoreField"));
+						tgt = new GroupItem("target");
+						tgt->setGroup(target);
+						store->addAttribute(tgt);
+						revisedList->addMember(store);
+						}
+					else {
+						revisedList->addMember(target);
+						if ( !arg->groupBody->gMethod )
+							revisedList->addMember(arg);
+						revisedList->addMember(op);
+						}
+					xl = new GroupItem("xl");
+					xl->setMethod(::runOP);
+					op = 0;
+					target = 0;
+					arg = xl;
+					}
+			}
+		}
+	::dumpContents(revisedList);
+	xpList->clear();
+	xpList->setGroup(revisedList);
+	return xpList;
+}
+
 /***************************************************************************
 	Return a string from the stream passed in converting newLines to space
 ***************************************************************************/
@@ -1998,6 +1886,76 @@ GroupItem 	*interp = 0;
 		else	::fprintf(stderr,"interpretMethod: expected a handler name in text\n");
 	else	::fprintf(stderr,"interpretMethod: should be invoked as a definition attribute\n");
 	return input->getGroup();
+}
+
+/*******************************************************************************
+    interpretXP — the interpret/run mode: build the left-associative runOP tree
+    the interpreter walks. (Split out of aCTionExpressioN 2026-06-30; was the
+    fallthrough below the generating/jitting branches.)
+*******************************************************************************/
+extern "C" GroupItem *interpretXP(GroupItem *xpList)
+{
+GroupItem 	*op = 0;
+GroupItem 	*target = 0;
+GroupItem 	*arg = 0;
+GroupItem 	*xl = 0;
+GroupItem 	*token = 0;
+	if ( xpList->groupBody->groupList->listLength == 1 )
+		{
+		arg = xpList->groupBody->groupList->firstInList;
+		if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
+			arg = arg->getGroup();
+		goto finishXP;
+		}
+	while ( token = xpList->prior(token) )
+		{
+		if ( token->groupBody->registry == GroupControl::groupController->groupRules->opFields )
+			op = token;
+		else {
+			if ( !arg )
+				arg = token;
+			else
+			if ( op )
+				{
+				target = token;
+				if ( xl )
+					xl = 0;
+				}
+			else {
+				if ( !xl )
+					{
+					xl = new GroupItem("xl");
+					xl->groupBody->flags.binType = 3;
+					}
+				if ( arg != xl )
+					xl->addMember(arg);
+				xl->addMember(token);
+				arg = xl;
+				}
+			}
+		if ( op )
+			if ( arg )
+				{
+				if ( arg->groupBody->flags.actionType || arg->groupBody->flags.instructType )
+					arg->groupBody->flags.invoke = 1;
+				if ( target )
+					{
+					xl = new GroupItem("xl");
+					xl->addMember(op);
+					xl->addMember(target);
+					xl->addMember(arg);
+					xl->setMethod(::runOP);
+					xl->groupBody->flags.invoke = 1;
+					op = 0;
+					target = 0;
+					arg = xl;
+					}
+				}
+		}
+finishXP:
+	xpList->clear();
+	xpList->setGroup(arg);
+	return xpList;
 }
 
 /* jitEmitAssign  the store-back emitter — commits a value into a target field's
@@ -2609,6 +2567,97 @@ GroupItem 	*BlocK = input->getLabelGroup("BlocK");
 	return input;
 }
 
+/*******************************************************************************
+    jitXP — generateXP's twin for the JIT lowering. SAME op/target/arg state
+    machine; the ONE divergence is copyOf() on every operand/operator before it
+    enters the revisedList, so the list is built from OWNED, self-parented nodes
+    rather than by-reference shares of live fields / registry ops. jitXpress
+    walks this list with a plain member walk; a by-reference member sends that
+    walk looping back into the operand's home scope (the gIF condition hang,
+    2026-06-30). generateXP tolerates shares only because gXpress launders them
+    at bytecode-emit; the JIT walk has no such downstream step, so the list
+    itself must be sound. The store TARGET stays live (tgt.group = target) — it
+    is the store-back destination, not a walked member, and jitEmitAssign needs
+    the real field. (FOLLOW-UP wakeup.md: unify with generateXP once green.)
+*******************************************************************************/
+extern "C" GroupItem *jitXP(GroupItem *xpList)
+{
+GroupItem 	*op = 0;
+GroupItem 	*target = 0;
+GroupItem 	*arg = 0;
+GroupItem 	*xl = 0;
+GroupItem 	*token = 0;
+GroupItem 	*revisedList = new GroupItem("revisedList");
+GroupItem 	*grup = 0;
+GroupItem 	*store = 0;
+GroupItem 	*tgt = 0;
+	if ( xpList->groupBody->groupList->listLength == 1 )
+		{
+		arg = xpList->groupBody->groupList->firstInList;
+		if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
+			arg = arg->getGroup();
+		revisedList->addMember(::copyOf(arg));
+		}
+	else {
+		GroupItem 	*hasOp = 0;
+		GroupItem 	*tk = 0;
+		while ( tk = xpList->prior(tk) )
+			if ( isOperator(tk->groupBody->flags.instructType) )
+				hasOp = tk;
+		if ( !hasOp )
+			{
+			xpList->groupBody->flags.binType = 3;
+			xpList->groupBody->flags.reversePrint = 1;
+			return xpList;
+			}
+		while ( token = xpList->prior(token) )
+			{
+			grup = token;
+			if ( isGROUP(grup->groupBody->flags.data) && !isOperator(grup->groupBody->flags.instructType) )
+				while ( isGROUP(grup->groupBody->flags.data) )
+					grup = grup->getGroup();
+			if ( isOperator(grup->groupBody->flags.instructType) )
+				op = grup;
+			else {
+				if ( !arg )
+					arg = grup;
+				else
+				if ( op )
+					target = grup;
+				}
+			if ( op )
+				if ( target )
+					{
+					if ( ::compare(op->groupBody->tag,"=") == 0 )
+						{
+						if ( !arg->groupBody->gMethod )
+							revisedList->addMember(::copyOf(arg));
+						store = ::copyOf(GroupControl::groupController->groupRules->bcOPs->get("bcStoreField"));
+						tgt = new GroupItem("target");
+						tgt->setGroup(target);
+						store->addAttribute(tgt);
+						revisedList->addMember(store);
+						}
+					else {
+						revisedList->addMember(::copyOf(target));
+						if ( !arg->groupBody->gMethod )
+							revisedList->addMember(::copyOf(arg));
+						revisedList->addMember(::copyOf(op));
+						}
+					xl = new GroupItem("xl");
+					xl->setMethod(::runOP);
+					op = 0;
+					target = 0;
+					arg = xl;
+					}
+			}
+		}
+	::dumpContents(revisedList);
+	xpList->clear();
+	xpList->setGroup(revisedList);
+	return xpList;
+}
+
 /* jitXpress  the JIT analog of gXpress (incant/generate). Walks a statement's
    revisedList — the flat RPN aCTionExpressioN's `generating` branch builds during
    parse — and emits LLVM per member against a compile-time operand stack:
@@ -2629,17 +2678,23 @@ extern "C" GroupItem *jitXpress(GroupItem *argument)
 {
 GroupItem 	*stack = new GroupItem("jitStack");
 GroupItem 	*child = 0;
+GroupItem 	*next = 0;
 GroupItem 	*arg = 0;
 GroupItem 	*target = 0;
 GroupItem 	*value = 0;
 GroupItem 	*dest = 0;
 GroupItem 	*uoperand = 0;
 GroupItem 	*result = 0;
-	// Safe iterator: while child = next(child), child null going in (declared,
-	// so tok zero-inits). jitXpress only reads each member and pushes/pops a
-	// SEPARATE stack node -- it never mutates `argument`, so no mid-loop steering.
-	while ( child = argument->next(child) )
+	// Walk the revisedList's members, capturing the NEXT pointer BEFORE running the
+	// body. The body's stack.push(child) re-parents the member — addMember rewrites
+	// child.nextInParent to point into the stack — so reading child.nextInParent
+	// AFTER the body would strand the walk (observed: righty, then Token forever once
+	// Token is pushed). This is the gXpress idiom (`nextChild = child.nexT` up front):
+	// the up-front capture is load-bearing, not incidental.
+	child = argument->groupBody->groupList->firstInList;
+	while ( child )
 		{
+		next = child->nextInParent;
 		if ( isOperator(child->groupBody->flags.instructType) )
 			{
 			if ( ::compare(child->groupBody->tag,"=") != 0 )
@@ -2680,6 +2735,7 @@ GroupItem 	*result = 0;
 			::jitSeedField(child);
 			stack->push(child);
 			}
+		child = next;
 		}
 	return argument;
 }
