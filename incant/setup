@@ -166,7 +166,6 @@ define
     branchNum;
     currentPOINT;
     currentFRAME;
-    delimiter="#)";
     extern noPrint;
     fAIL noPrint;
     gUARD noPrint;
@@ -266,5 +265,6 @@ define
     unitTests File='incant/unitTests';
     generate File='incant/generate';
     bytecode File='incant/bytecode';
+    jigcorpus File='incant/jigcorpus';
     ;
 include(grammar);

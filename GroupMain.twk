@@ -105,6 +105,9 @@ GroupRules  ruler = groupRules;
     strap           = new("numberSet");
     characterSet    = new("0-9");
     grok            += strap;
+    strap           = new("delimiter");
+    text            = "#)";
+    properties      += strap;
     /*************************************************************************
         bootstrap rule definition rules.
     *************************************************************************/
@@ -219,13 +222,24 @@ GroupRules  ruler = groupRules;
     item            = strap += "{";
     item            = strap += "}";
 
+    strap           = grok += "DelimText";
+    strap           += "(";
+    guardSet        = new("(");
+    guarded         = true;
+    item            = strap += "dtext";
+    modify(item,"^");
+    item.group      = properties/delimiter;
+    item            = item.group;
+    modify(item,"}");
+
     strap           = grok += "DatA";
     item            = strap += grok/GrouP;
     item            = strap += grok/NumbeR;
     item            = strap += grok/CodE;
     item            = strap += grok/SetBrackets;
+    item            = strap += grok/DelimText;
     item            = new("NotA");
-    item.characterSet    = new("^ \t\r\n;(");
+    item.characterSet    = new("^ \t\r\n;");
     item            = strap += item;
     modify(item,"+");
 

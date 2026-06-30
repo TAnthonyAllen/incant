@@ -161,7 +161,7 @@ extern "C" GroupItem *aCTionDEBUG(GroupItem *input)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*rules = input->getLabelGroup("rules");
-GroupItem 	*GUARD = input->getLabelGroup("GUARD");
+GroupItem 	*GUARD = 0;
 GroupItem 	*grup = 0;
 	if ( rules )
 		while ( grup = rules->next(grup) )
@@ -171,6 +171,8 @@ GroupItem 	*grup = 0;
 				GUARD = ruler->trueResult;
 				continue;
 				}
+			if ( GUARD )
+				grup->groupBody->flags.debugGuard = 1;
 			grup->groupBody->flags.debugged = 1;
 			}
 	else	ruler->debugAllRules = !ruler->debugAllRules;
@@ -707,6 +709,14 @@ GroupItem 	*result = ExpressioN;
 
 /*******************************************************************************
     NamE rule action
+
+    BEAR COUNTRY: the `defining && ... isVirtual -> copyOf` line below is a
+    virtual fork, and it is define-gated ON PURPOSE. Virtual forks are define-
+    time only. Without the `defining` gate, a READ of a virtual field (naming
+    it as an operand) would fork a fresh empty copy and you would silently read
+    0 / write to a copy nobody can find. If you are tempted to fork a virtual
+    here outside a defining context, you have a bug. See the jigcorpus virtual-
+    tag pattern and the wakeup bear-trap log.
 *******************************************************************************/
 extern "C" GroupItem *aCTionNamE(GroupItem *input)
 {
@@ -716,6 +726,8 @@ GroupItem 	*grup = 0;
 GroupItem 	*result = 0;
 char 		*arg = input->getText();
 	result = GroupControl::groupController->locateInMethod(arg);
+	if ( ruler->defining && result && result->groupBody->flags.isVirtual )
+		result = ::copyOf(result);
 	grup = new GroupItem(arg);
 	if ( ruler->alphaSet->contains(*arg) && ruler->processingCode )
 		if ( !result || (!result->groupBody->flags.isArgument && !result->groupBody->flags.isLocal) )
@@ -2773,12 +2785,17 @@ char 		*fileName = 0;
 }
 
 /*****************************************************************************
-	Command to make a new field w/tag set from input text
+	Command to make a new field w/tag set from input text. The GroupItem(String)
+	constructor seeds BOTH tag and text from the string; we clear the text so a
+	freshly-made field starts empty — the tag carries the name, the value does
+	not. (Without this, new("x") yields text "x", which rides along through <:
+	retags as a stale "=x" content artifact. Igor minion absorb, 2026-06-29.)
 *****************************************************************************/
 extern "C" GroupItem *makeNew(GroupItem *input)
 {
 char 		*strung = input->getText();
 GroupItem 	*grup = new GroupItem(strung);
+	grup->setText((char*)0);
 	grup->groupBody->flags.isInitialized = 1;
 	return grup;
 }
@@ -3334,7 +3351,7 @@ GroupItem 	*result = 0;
 		 jitEmitBinary(argument, target, jitSub);
 		return jitEmitAssign(target, target); 
 		}
-	if ( target->groupBody->flags.binType )
+	if ( target->groupBody->groupList )
 		result = target->remove(argument->groupBody->tag);
 	else
 	if ( target->groupBody->flags.data && argument->groupBody->flags.data )
@@ -3993,6 +4010,12 @@ int 		processing = ruler->processingCode;
     forget commands run at field definition). The item passed in as argument
     is used to figure out what flag to set/reset; the exception is the exit
     command that is not fire and forget; it is fire and exit.
+
+    BEAR COUNTRY: case 'v' (the `virtual` command) sets isVirtual. This is the
+    only sanctioned way a field becomes virtual, and it runs at field
+    definition. Do not virtualize a field outside a define. Virtual is a
+    define-time property; the forks that consume it (aCTionNamE, runOP) assume
+    nothing virtual was created elsewhere. See the wakeup bear-trap log.
 ***************************************************************************/
 extern "C" GroupItem *processFlags(GroupItem *item)
 {
@@ -4266,6 +4289,16 @@ GroupItem 	*result = 0;
 /***************************************************************************
     runOP fires off a field that might be an action, a rule, a method,
     or an operator
+
+    BEAR COUNTRY: the `target.isVirtual -> copyOf(target)` line below is a
+    virtual fork that is INTENTIONALLY UNGATED — it is the safety net for
+    operating on a virtual prototype (e.g. the bytecode bcOPs: bcPushLit /
+    bcPushField are virtual) outside a defining context. Do NOT gate it on
+    `defining`: that removes the net and the bytecode emit path would mutate
+    the shared prototype instead of a fork. Huge blast radius; runs hot (do
+    not add a permanent `ruler` here — use a directive if you need one to
+    debug). Break only in emergency. See the wakeup bear-trap log and the
+    aCTionNamE companion note.
 ***************************************************************************/
 extern "C" GroupItem *runOP(GroupItem *field)
 {

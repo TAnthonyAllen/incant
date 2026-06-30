@@ -2,9 +2,6 @@ Start();
 include(unitTests);
 include(utilities);
 search list;
-search reset stack Grokking;
-search UnitTests Utilities list;
-changeDatA();
 
 register(dESCRIPTIONs);
 define

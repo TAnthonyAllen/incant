@@ -111,6 +111,9 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	strap = new GroupItem("numberSet");
 	strap->setCharacterSet(new PLGset("0-9"));
 	grok->addMember(strap);
+	strap = new GroupItem("delimiter");
+	strap->setText("#)");
+	ruler->properties->addMember(strap);
 	/*************************************************************************
 	bootstrap rule definition rules.
 	*************************************************************************/
@@ -213,13 +216,23 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	strap->groupBody->flags.isRule = 1;
 	item = strap->addString("{");
 	item = strap->addString("}");
+	strap = grok->addString("DelimText");
+	strap->addString("(");
+	strap->groupBody->guardSet = new PLGset("(");
+	strap->groupBody->flags.guarding = 1;
+	item = strap->addString("dtext");
+	::modify(item,"^");
+	item->setGroup(ruler->properties->getMember("delimiter"));
+	item = item->getGroup();
+	::modify(item,"}");
 	strap = grok->addString("DatA");
 	item = strap->addMember(grok->getMember("GrouP"));
 	item = strap->addMember(grok->getMember("NumbeR"));
 	item = strap->addMember(grok->getMember("CodE"));
 	item = strap->addMember(grok->getMember("SetBrackets"));
+	item = strap->addMember(grok->getMember("DelimText"));
 	item = new GroupItem("NotA");
-	item->setCharacterSet(new PLGset("^ \t\r\n;("));
+	item->setCharacterSet(new PLGset("^ \t\r\n;"));
 	item = strap->addMember(item);
 	::modify(item,"+");
 	strap = grok->addString("TraiTdata");
