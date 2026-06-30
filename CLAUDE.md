@@ -342,9 +342,17 @@ Hard-won lessons. Each one has cost real debugging time.
    on that same field also references instead of copying. Audit `:=` sites whose fields
    later get legitimately `=`-copied (see TODO audit note).
 
-4. **`//` comments in `.rtn` method bodies** — cascade field-resolution bleed into
-   following externs. Keep them out of method bodies entirely. Doc goes in the block
-   comment above the method.
+4. **`//` comments that interrupt an `if`-statement parse** — the narrow real trigger
+   (refined 2026-06-30, Tony). A `//` is **fine** in a block, inside a `-% … %-`
+   passthrough, or outside a method. The failure is positional: a `//` wedged **between
+   an `if`'s condition expression and its statement** breaks the parse and cascades
+   field-resolution bleed into following externs. So: don't reflexively strip every `//`
+   from a method body (that over-flags) — only avoid them mid-`if` (condition↔statement).
+   Near an `if`, prefer `/* */` or put the comment above the whole statement.
+   **Heuristic (Tony's rule of thumb): put `//` only where a *statement* is allowed.** tok
+   parses a `//` into a statement slot, so it's safe anywhere a statement is legal; the
+   `if` failure is precisely where tok expects the governed statement and the `//` gets
+   consumed as it, orphaning the real one.
 
 5. **`tok` drops `#include` lines and include guards on retok** — re-add manually.
 
