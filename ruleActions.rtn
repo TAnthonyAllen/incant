@@ -479,6 +479,9 @@ GroupItem   ExpressioN:,
             StatemenT:,
             ElsE:;
 GroupItem   result = ExpressioN;
+    if jitting {
+        -% return jitEmitGIF(input); %-
+    }
     if isMethod result = result.gMethod(result);
     else        result = ExpressioN;
     if result && isInitialized   result = StatemenT.gMethod(StatemenT);

@@ -490,6 +490,10 @@ GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
 GroupItem 	*StatemenT = input->getLabelGroup("StatemenT");
 GroupItem 	*ElsE = input->getLabelGroup("ElsE");
 GroupItem 	*result = ExpressioN;
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		 return jitEmitGIF(input); 
+		}
 	if ( isMethod(result->groupBody->flags.instructType) )
 		result = result->groupBody->gMethod(result);
 	else	result = ExpressioN;
@@ -2080,31 +2084,33 @@ extern "C" GroupItem *jitEmitCompare(GroupItem *argument, GroupItem *target, int
 	
 }
 
-/* jitEmitGIF  the gIF emitter — the incant `gIF` mirror (incant/generate), JIT
-   flavor. Reaches the condition's revisedList by name + unWrap exactly as gIF
-   does, emits it with jitXpress (leaving the compare i1 in gJitResult), splits to
-   the then block via jitIfBegin, emits the then-arm's revisedList with jitXpress
-   (its store-back lands INSIDE the then block now, gated), then merges via
-   jitIfEnd. Block topology (jitIfBegin/jitIfEnd) reused unchanged. First POP:
-   single compare, one then arm, no else (else + nesting are the next increment;
-   the gIfEndBlocks stack already supports nesting). */
+/* jitEmitGIF  the gIF emitter — now rides the INTERPRET walk (pivot, 2026-06-30).
+   Called from aCTionIF's jitting gate with the live if-node. It mirrors aCTionIF's
+   own condition-eval (`result = ExpressioN; if isMethod result.gMethod`), but
+   instead of branching at runtime it brackets the arm with jitIfBegin/jitIfEnd:
+     - the condition gMethod drives its runOP tree -> opLT/opEQ jitting gate ->
+       jitEmitCompare leaves the i1 in gJitResult;
+     - jitIfBegin reads gJitResult, emits the CreateCondBr, enters the then block;
+     - the then-arm gMethod drives ITS runOP tree -> opAssign gate -> jitEmitAssign
+       stores INSIDE the then block;
+     - jitIfEnd branches to endif and resumes there.
+   No flat list, no jitXpress, no operand stack — the runOP walk owns its traversal
+   and never re-parents live nodes (the structural cure for the by-reference stack
+   corruption the deferred path hit). First POP: single compare, one then arm, no
+   else (else + nesting are the next increment; gIfEndBlocks already nests). */
 extern "C" GroupItem *jitEmitGIF(GroupItem *input)
 {
 GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
 GroupItem 	*StatemenT = input->getLabelGroup("StatemenT");
-GroupItem 	*xp = 0;
-GroupItem 	*stXP = 0;
-	// Reach condition + body by colon-decl (binds to a CHILD, never self) — the
-	// aCTionIF idiom. getLabelGroup hangs here: the if-node, its body, AND the
-	// grammar rule are all tagged "StatemenT", so a tag-search collides.
-	xp = ::unWrap(ExpressioN);
-	::jitXpress(xp);
+GroupItem 	*result = ExpressioN;
+	if ( isMethod(result->groupBody->flags.instructType) )
+		result = result->groupBody->gMethod(result);
+	else	result = ExpressioN;
 	::jitIfBegin();
-	stXP = ::unWrap(StatemenT);
-	if ( stXP )
-		::jitXpress(stXP);
+	if ( StatemenT )
+		result = StatemenT->groupBody->gMethod(StatemenT);
 	::jitIfEnd();
-	return input;
+	return result;
 }
 
 /* jitEmitStringPlusEQ  the FIRST CreateCall in the JIT layer, and the proof-of-
@@ -2190,6 +2196,20 @@ extern "C" void *jitEngine()
 	
 }
 
+/* jitExecBlock  the JIT body driver (pivot, 2026-06-30) — replaces the deferred
+   jitWalkBlock walk. Hoists the action's parsed BlocK and runs its gMethod, which
+   EXECUTES the statement runOP trees under jitting so each opMethod gate emits LLVM
+   in place. Control flow lands through aCTionIF's jitting gate -> jitEmitGIF. The
+   BlocK hoist is tok-native so it's reliable; jitRunAction calls it after
+   processCode has built the BlocK. */
+extern "C" GroupItem *jitExecBlock(GroupItem *input)
+{
+GroupItem 	*BlocK = input->getLabelGroup("BlocK");
+	if ( BlocK )
+		BlocK->groupBody->gMethod(BlocK);
+	return input;
+}
+
 /***************************************************************************
     jitEmitters dot rtn  Phase JIT engine and emitters. Written tok native
     using the declarations in jitExterns; passthrough used only for the one
@@ -2203,18 +2223,6 @@ extern "C" void jitForceInclude()
 {
 llvm::IRBuilder<> 	*b = 0;
 	b = 0;
-}
-
-/* jitGeneratE  the JIT walk — the generatE/aCTionBlocK parallel. Walks the
-   BlocK's statement members in order, dispatching each through jitRunGenerated.
-   Only handles what emit-during-parse cannot (deferred control flow); straight-
-   line members fall through jitRunGenerated as no-ops. */
-extern "C" GroupItem *jitGeneratE(GroupItem *input)
-{
-GroupItem 	*grup = 0;
-	while ( grup = input->next(grup) )
-		::jitRunGenerated(grup);
-	return input;
 }
 
 /* jitIfBegin  the gIF condition-to-blocks seam. Reads the condition value the
@@ -2306,19 +2314,22 @@ extern "C" int jitRunAction(GroupItem *action)
 	gJitResult  = nullptr;
 	
 	GroupRules *ruler = GroupControl::groupController->groupRules;
-	// Unified JIT emit model: raise generating alongside jitting so the parse
-	// builds revisedLists (the generating branch of aCTionExpressioN) and emits
-	// NOTHING during parse. The JIT walk below does all emission from those
-	// revisedLists, so straight-line and control-flow share one emit-on-walk path.
+	// Unified JIT emit-on-walk (pivot, 2026-06-30): jitting ONLY — generating stays
+	// OFF so aCTionExpressioN's dispatcher routes to interpretXP (runOP trees), NOT
+	// generateXP (flat revisedLists). Parsing builds the runOP trees; EXECUTING the
+	// BlocK runs them, and each opMethod's jitting gate emits LLVM in place (the
+	// runOP seeding gate seeds leaves first). The interpret walk owns its traversal
+	// and never re-parents live nodes — the structural cure for the by-reference
+	// operand-stack corruption the deferred jitXpress path hit.
 	ruler->jitting = 1;
-	ruler->generating = 1;
+	ruler->generating = 0;
+	for (GroupItem *seeded : gJitSeeded) seeded->jitData = nullptr;
+	gJitSeeded.clear();
 	if (isCoded(action->groupBody->flags.actionType))
 	::processCode(action);
-	// Walk the cached BlocK and emit LLVM from each statement's revisedList:
-	// straight-line via jitXpress, control flow via jitEmitGIF (jitXpress inside
-	// its then/else blocks). Still under jitting, so op.operat fires the op gates.
-	jitWalkBlock(action);
-	ruler->generating = 0;
+	// Execute the parsed BlocK under jitting: runOP/op-gates emit straight-line IR;
+	// control flow lands via aCTionIF's jitting gate -> jitEmitGIF.
+	jitExecBlock(action);
 	ruler->jitting = 0;
 	
 	if (!gJitResult) {
@@ -2408,26 +2419,6 @@ extern "C" int jitRunAddTwo()
 	printf("=== JIT addTwo result = %d ===\n", r); fflush(stdout);
 	return r;
 	
-}
-
-/* jitRunGenerated  the JIT walk's dispatch — the runGenerated parallel. A node
-   carrying a StatemenT child is control flow (the if/while/for/do shape, per
-   aCTionIF's hoist); for now that means gIF, route it to jitEmitGIF. A node with
-   no StatemenT child is a straight-line expression statement: unWrap to its
-   revisedList and emit it with jitXpress (the unified emit-on-walk model — the op
-   gates no longer fire during parse; the generating branch built the revisedList
-   instead). */
-extern "C" GroupItem *jitRunGenerated(GroupItem *input)
-{
-GroupItem 	*StatemenT = input->getLabelGroup("StatemenT");
-GroupItem 	*xp = 0;
-	if ( StatemenT )
-		::jitEmitGIF(input);
-	else {
-		xp = ::unWrap(input);
-		::jitXpress(xp);
-		}
-	return input;
 }
 
 /* jitRunIfTest  control-flow smoke test — the jitRunAddTwo analog for a branch,
@@ -2532,6 +2523,7 @@ extern "C" GroupItem *jitSeedField(GroupItem *token)
 	d->jitSlot = p;   // stash field-storage address as the store-back slot
 	}
 	token->jitData = d;
+	gJitSeeded.push_back(token);
 	return token;
 	
 }
@@ -2551,102 +2543,9 @@ extern "C" GroupItem *jitSeedLiteral(GroupItem *token)
 	d->setJitter(llvm::ConstantInt::get(
 	llvm::Type::getInt32Ty(ctx), (long)token->getCount(), false));
 	token->jitData = d;
+	gJitSeeded.push_back(token);
 	return token;
 	
-}
-
-/* jitWalkBlock  the C++-callable entry the compile driver uses: hoist the
-   action's cached BlocK and run the JIT walk over it. Tok-native so the BlocK
-   hoist is reliable; jitRunAction calls it from its passthrough body after
-   processCode has built the BlocK. */
-extern "C" GroupItem *jitWalkBlock(GroupItem *input)
-{
-GroupItem 	*BlocK = input->getLabelGroup("BlocK");
-	if ( BlocK )
-		::jitGeneratE(BlocK);
-	return input;
-}
-
-/* jitXpress  the JIT analog of gXpress (incant/generate). Walks a statement's
-   revisedList — the flat RPN aCTionExpressioN's `generating` branch builds during
-   parse — and emits LLVM per member against a compile-time operand stack:
-     - field        jitSeedField (load), push
-     - literal      jitSeedLiteral (constant), push
-     - operator     pop arg + target, dispatch via the op's own jitting gate
-                    (op.operat -> jitEmitBinary / jitEmitCompare -- runOP's
-                    operator branch), push the result
-     - bcStoreField pop the value, store it into the target field's slot
-                    (jitEmitAssign)  -- the RPN form of `=`
-     - uxp          a unary op node: seed its operand, dispatch (child.method ->
-                    runOP -> jitEmitUnary), push the result
-   This is the deferred, emit-on-walk counterpart to the retired emit-during-parse
-   path: gXpress emits stack-machine bytecode, jitXpress emits LLVM straight-line.
-   The final operand's SSA value is left in gJitResult by the emitters (the driver's
-   return cap reads it). */
-extern "C" GroupItem *jitXpress(GroupItem *argument)
-{
-GroupItem 	*stack = new GroupItem("jitStack");
-GroupItem 	*child = 0;
-GroupItem 	*next = 0;
-GroupItem 	*arg = 0;
-GroupItem 	*target = 0;
-GroupItem 	*value = 0;
-GroupItem 	*dest = 0;
-GroupItem 	*uoperand = 0;
-GroupItem 	*result = 0;
-	// Walk the revisedList's members, capturing the NEXT pointer BEFORE running the
-	// body. The body's stack.push(child) re-parents the member — addMember rewrites
-	// child.nextInParent to point into the stack — so reading child.nextInParent
-	// AFTER the body would strand the walk (observed: righty, then Token forever once
-	// Token is pushed). This is the gXpress idiom (`nextChild = child.nexT` up front):
-	// the up-front capture is load-bearing, not incidental.
-	child = argument->groupBody->groupList->firstInList;
-	while ( child )
-		{
-		next = child->nextInParent;
-		if ( isOperator(child->groupBody->flags.instructType) )
-			{
-			if ( ::compare(child->groupBody->tag,"=") != 0 )
-				{
-				arg = stack->pop();
-				target = stack->pop();
-				result = child->groupBody->gOp(arg,target);
-				stack->push(result);
-				}
-			}
-		else
-		if ( ::compare(child->groupBody->tag,"bcStoreField") == 0 )
-			{
-			value = stack->pop();
-			target = child->getAttribute("target");
-			dest = target->getGroup();
-			::jitSeedField(dest);
-			::jitEmitAssign(value,dest);
-			}
-		else
-		if ( ::compare(child->groupBody->tag,"uxp") == 0 )
-			{
-			uoperand = child->get(2);
-			if ( isGROUP(uoperand->groupBody->flags.data) )
-				uoperand = uoperand->getGroup();
-			::jitSeedField(uoperand);
-			child->groupBody->flags.invoke = 1;
-			result = child->groupBody->gMethod(child);
-			stack->push(result);
-			}
-		else
-		if ( child->groupBody->flags.isLiteral )
-			{
-			::jitSeedLiteral(child);
-			stack->push(child);
-			}
-		else {
-			::jitSeedField(child);
-			stack->push(child);
-			}
-		child = next;
-		}
-	return argument;
 }
 
 /*****************************************************************************
@@ -4382,6 +4281,19 @@ GroupItem 	*target = field->get(2);
 	//or arg.isLIST   arg = resolveList(arg);
 	if ( target && target->groupBody->flags.isVirtual )
 		target = ::copyOf(target);
+	if ( GroupControl::groupController->groupRules->jitting && isOperator(op->groupBody->flags.instructType) )
+		{
+		
+		if (target && !target->jitData) {
+		if (target->groupBody->flags.isLiteral) jitSeedLiteral(target);
+		else                                    jitSeedField(target);
+		}
+		if (arg && !arg->jitData) {
+		if (arg->groupBody->flags.isLiteral)    jitSeedLiteral(arg);
+		else                                    jitSeedField(arg);
+		}
+		
+		}
 	if ( isOperator(op->groupBody->flags.instructType) )
 		result = op->groupBody->gOp(arg,target);
 	else

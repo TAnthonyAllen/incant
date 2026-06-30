@@ -37,6 +37,18 @@ inline llvm::Value *gJitResult = nullptr;
 // inline like gJitBuilder so it never reaches GroupRules.h.
 inline std::vector<llvm::BasicBlock*> gIfEndBlocks;
 
+// Nodes seeded with JitData during the current compile. JitData is transient (one
+// compile, into a per-run LLVMContext that jitRunAction destroys), but the field/
+// literal GroupItems that carry it persist (BDWGC). The runOP seeding gate skips a
+// node that already has jitData (bear-trap #9: never re-seed an inner op-result),
+// and that same guard would make a STALE jitData from a PRIOR run look "already
+// seeded" — so the driver must null these between runs, else run 2 reads a Value*
+// from run 1's freed context. Recorded by jitSeedField/jitSeedLiteral; reset at the
+// top of jitRunAction. (The old jitXpress re-seeded unconditionally, so it never
+// needed this; the #9 guard makes it necessary.)
+class GroupItem;
+inline std::vector<GroupItem*> gJitSeeded;
+
 // Binary-op selector for jitEmitBinary — readable names, not magic ints. Each
 // arithmetic opMethod's jitting gate passes one of these; the int/float variant
 // of the actual LLVM instruction is picked inside jitEmitBinary from operand type.

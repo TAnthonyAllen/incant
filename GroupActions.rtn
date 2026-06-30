@@ -467,6 +467,18 @@ GroupItem   result,
            skip it for the list operators. */
         //or arg.isLIST   arg = resolveList(arg);
     if target && target.isVirtual               target = copyOf(target);
+    if jitting && op.isOperator {
+        -%
+        if (target && !target->jitData) {
+            if (target->groupBody->flags.isLiteral) jitSeedLiteral(target);
+            else                                    jitSeedField(target);
+        }
+        if (arg && !arg->jitData) {
+            if (arg->groupBody->flags.isLiteral)    jitSeedLiteral(arg);
+            else                                    jitSeedField(arg);
+        }
+        %-
+    }
     if op.isOperator    result = op.operat(arg,target);
     or op.isMethod      result = op.method(target);
     or isRule           result = runRule(arg,target);
