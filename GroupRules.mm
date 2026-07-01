@@ -3126,6 +3126,20 @@ extern "C" GroupItem *opGE(GroupItem *argument, GroupItem *target)
 		{
 		 return jitEmitCompare(argument, target, jitGE); 
 		}
+	if ( target && !target->groupBody->flags.data )
+		{
+		if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
+			if ( argument->groupBody->gCount <= 0 )
+				return GroupControl::groupController->groupRules->trueResult;
+		}
+	else
+	if ( argument && !argument->groupBody->flags.data )
+		{
+		if ( isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data) )
+			if ( target->groupBody->gCount >= 0 )
+				return GroupControl::groupController->groupRules->trueResult;
+		}
+	else
 	if ( ::compareValues(target,argument) >= 0 )
 		return GroupControl::groupController->groupRules->trueResult;
 	return 0;
@@ -3140,6 +3154,20 @@ extern "C" GroupItem *opGT(GroupItem *argument, GroupItem *target)
 		{
 		 return jitEmitCompare(argument, target, jitGT); 
 		}
+	if ( target && !target->groupBody->flags.data )
+		{
+		if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
+			if ( argument->groupBody->gCount < 0 )
+				return GroupControl::groupController->groupRules->trueResult;
+		}
+	else
+	if ( argument && !argument->groupBody->flags.data )
+		{
+		if ( isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data) )
+			if ( target->groupBody->gCount > 0 )
+				return GroupControl::groupController->groupRules->trueResult;
+		}
+	else
 	if ( ::compareValues(target,argument) > 0 )
 		return GroupControl::groupController->groupRules->trueResult;
 	return 0;
@@ -3230,6 +3258,20 @@ extern "C" GroupItem *opLE(GroupItem *argument, GroupItem *target)
 		{
 		 return jitEmitCompare(argument, target, jitLE); 
 		}
+	if ( target && !target->groupBody->flags.data )
+		{
+		if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
+			if ( argument->groupBody->gCount >= 0 )
+				return GroupControl::groupController->groupRules->trueResult;
+		}
+	else
+	if ( argument && !argument->groupBody->flags.data )
+		{
+		if ( isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data) )
+			if ( target->groupBody->gCount <= 0 )
+				return GroupControl::groupController->groupRules->trueResult;
+		}
+	else
 	if ( ::compareValues(target,argument) <= 0 )
 		return GroupControl::groupController->groupRules->trueResult;
 	return 0;
@@ -3244,6 +3286,20 @@ extern "C" GroupItem *opLT(GroupItem *argument, GroupItem *target)
 		{
 		 return jitEmitCompare(argument, target, jitLT); 
 		}
+	if ( target && !target->groupBody->flags.data )
+		{
+		if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
+			if ( argument->groupBody->gCount > 0 )
+				return GroupControl::groupController->groupRules->trueResult;
+		}
+	else
+	if ( argument && !argument->groupBody->flags.data )
+		{
+		if ( isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data) )
+			if ( target->groupBody->gCount < 0 )
+				return GroupControl::groupController->groupRules->trueResult;
+		}
+	else
 	if ( ::compareValues(target,argument) < 0 )
 		return GroupControl::groupController->groupRules->trueResult;
 	return 0;

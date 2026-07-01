@@ -221,7 +221,13 @@ extern GroupItem opGE(GroupItem argument,GroupItem target)
     if jitting {
         -% return jitEmitCompare(argument, target, jitGE); %-
     }
-    if compareValues(target,argument) >= 0  return trueResult;
+    if target && !data {
+        if argument.isCOUNT || argument.isNUMBER
+            if argument.gCount <= 0     return trueResult; }
+    or argument && !argument.data {
+        if isCOUNT || isNUMBER
+            if gCount >= 0              return trueResult; }
+    or compareValues(target,argument) >= 0  return trueResult;
     return null;
 }
 
@@ -233,7 +239,13 @@ extern GroupItem opGT(GroupItem argument,GroupItem target)
     if jitting {
         -% return jitEmitCompare(argument, target, jitGT); %-
     }
-    if compareValues(target,argument) > 0   return trueResult;
+    if target && !data {
+        if argument.isCOUNT || argument.isNUMBER
+            if argument.gCount < 0      return trueResult; }
+    or argument && !argument.data {
+        if isCOUNT || isNUMBER
+            if gCount > 0               return trueResult; }
+    or compareValues(target,argument) > 0   return trueResult;
     return null;
 }
 
@@ -283,7 +295,13 @@ extern GroupItem opLE(GroupItem argument,GroupItem target)
     if jitting {
         -% return jitEmitCompare(argument, target, jitLE); %-
     }
-    if compareValues(target,argument) <= 0  return trueResult;
+    if target && !data {
+        if argument.isCOUNT || argument.isNUMBER
+            if argument.gCount >= 0     return trueResult; }
+    or argument && !argument.data {
+        if isCOUNT || isNUMBER
+            if gCount <= 0              return trueResult; }
+    or compareValues(target,argument) <= 0  return trueResult;
     return null;
 }
 
@@ -295,7 +313,13 @@ extern GroupItem opLT(GroupItem argument,GroupItem target)
     if jitting {
         -% return jitEmitCompare(argument, target, jitLT); %-
     }
-    if compareValues(target,argument) < 0  return trueResult;
+    if target && !data {
+        if argument.isCOUNT || argument.isNUMBER
+            if argument.gCount > 0      return trueResult; }
+    or argument && !argument.data {
+        if isCOUNT || isNUMBER
+            if gCount < 0               return trueResult; }
+    or compareValues(target,argument) < 0  return trueResult;
     return null;
 }
 
