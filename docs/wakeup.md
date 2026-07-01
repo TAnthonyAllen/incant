@@ -1,112 +1,102 @@
-# Incant — Status & Handoff (2026-06-30 LATE: Phase 2 JIT gIF — HANG FIXED; gIF-emit bugs are next)
+# Incant — Status & Handoff (2026-06-30 LATE: JIT PIVOT LANDED, webChannel unblocked)
 *Written by Clod for a fresh Clay/Clod. Assumes no memory of today. Self-contained.*
 
-## What this is
-**Phase 2 JIT = control flow (`gIF`).** This session, on `main`: landed field directives + the
-`opIN` dedup fix (`b411ffa`), kitchen-cleaning (`cfb2bcc`), design docs (`a4216a5`). On
-`jit-unified-emit-wip` (rebased byte-clean onto `main`, `git range-diff` verified `28347a7 =
-3cce6d8`): refactored `aCTionExpressioN` into a dispatcher + `generateXP`/`jitXP`/`interpretXP`, and
-**FIXED the long-standing `gIF` hang.** `jitGifScratch` now runs to completion (`exit=0`, was an
-infinite loop); **not-taken → maximus=11**. The IR then revealed the *actual* gIF-emit is still
-wrong — that's the **next task** (see "gIF-emit bugs"). `oneTest`→26 (bytecode unaffected by the
-split). Both branches clean/green.
+## What just happened
+**Phase 2 JIT is done for the gIF checkpoint.** The unified emit-on-walk pivot (Option A) landed
+and was independently verified. `jitGifScratch` now shows **real two-way runtime gating**
+(taken→`maximus=99`, not-taken→`maximus=11`) via a live `br i1 %cmp` — not the `br i1 false`
+false-green that held the webChannel pilot all day. **The webChannel hold is LIFTED.**
 
-## HANG FIXED — root cause + the cure
-Root cause (bones): **`stack.push(child)` re-parents the member.** Pushing a revisedList member onto
-`jitXpress`'s operand stack calls `addMember`, which **rewrites `child.nextInParent`** to point into
-the stack — so reading `child.nextInParent` AFTER the body strands the walk (observed: `righty`,
-then `Token` forever once Token is pushed). **Cure = the gXpress idiom:** capture
-`next = child.nextInParent` BEFORE the body, advance to `next` after. The up-front capture is
-load-bearing (gXpress does `nextChild = child.nexT` for exactly this).
+### Today's commits (branch `jit-unified-emit-wip`, on top of `095bcb1`)
+- `b1a63a4` — Step 1: collapse `aCTionExpressioN` dispatcher, delete `jitXP`
+- `5d4c987` — docs: webChannel recon pair (wiki toe-dip + Bot subsystem teardown)
+- `8948867` — docs: compare-op null-guard parity recon (assessment only)
+- `7850a9e` — **JIT Phase 2 pivot COMPLETE (Option A)** — ride `interpretXP`/`runOP`, delete `jitXpress` path
+- `25dfca3` — docs(CLAUDE): narrow bear-trap #4 to its real trigger (`//` mid-if-parse)
 
-Two earlier hypotheses were *steps*, both superseded — kept so they aren't re-attempted:
-- **"jitXpress iterator is the bug"** (next/nextMember/nextInParent) — symptom, not cause. Every
-  node-pointer walk looped because the body re-parented mid-walk, not because of the primitive.
-- **"by-reference members need flattening"** — drove the `aCTionExpressioN` split + `jitXP`'s
-  `copyOf`-at-append, which DOES produce clean owned "ducks in a row" (proven by an in-`jitXP`
-  link-walk: `righty→Token→<→END`). But the copy was **not** the cure — capture-next was. FOLLOW-UP:
-  try the walk against the by-ref list with **no `copyOf`** — if still green, `jitXP`'s copy
-  machinery can likely be dropped (pairs with the generateXP/jitXP unification below).
+## The architecture now (so you don't re-derive it)
+**JIT emits LLVM by RUNNING the interpret/runOP walk under a `jitting` gate** — no parallel
+flat-list reconstruction. The pieces:
+- **`jitRunAction`** (`jitEmitters.rtn`): raises `jitting=1`, keeps `generating=0`. So
+  `aCTionExpressioN`'s dispatcher (`if generating return generateXP; return interpretXP`) routes JIT
+  to **`interpretXP`** (runOP trees), NOT `generateXP` (flat revisedLists).
+- **`jitExecBlock`** (`jitEmitters.rtn`, replaced `jitWalkBlock`): runs the parsed BlocK's `gMethod`,
+  so the runOP trees execute under jitting and each opMethod's `jitting` gate emits IR in place.
+- **`aCTionIF`** (`ruleActions.rtn`): a `jitting` gate → `jitEmitGIF` (same shape as every opMethod
+  gate in `Instruct.rtn`).
+- **`jitEmitGIF`** (`jitEmitters.rtn`): reworked off `jitXpress` onto the interpret walk — condition
+  and arms reach `runOP` via `gMethod` (live GroupItem pointers), bracketed by
+  `jitIfBegin`/`jitIfEnd`.
+- **`runOP` leaf-seeding gate** (`GroupActions.rtn`, before `op.operat`): seeds leaf operands —
+  `jitSeedField` (live field, bakes `jitSlot`) or `jitSeedLiteral` (constant), guarded by
+  "already has `jitData`" = **bear-trap #9** (don't re-seed an inner op-result as a field).
+- **DELETED**: `jitXpress`, `jitRunGenerated`, `jitGeneratE` (zero call sites). This removes the
+  by-reference operand-stack re-parenting that produced `br i1 false`.
 
-## Landed this session (refactor + hang fix) — its own commit
-- `aCTionExpressioN` → thin dispatcher → `generateXP` / `jitXP` / `interpretXP`. Routing is **Clay's
-  (b)**: dispatcher checks `jitting` FIRST; `jitRunAction` still raises BOTH `jitting`+`generating`
-  (unchanged) — the divergence is only that `jitXP` `copyOf`s each operand at append. Names are
-  NOT `aCTionXxx` (reserved for grammar-rule entry points). `listLength==1` triplication left as-is.
-- `jitXpress`: the capture-next walk (the hang fix).
+### Load-bearing details — DO NOT lose
+- **`gJitResult`** threads LLVM `Value*`s between recursive jitting-gated opMethod calls. Each gate
+  stashes its result there; the parent `runOP` reads it as the next operand. The runOP seeding gate
+  writes NOTHING to `gJitResult` (it's strictly before `op.operat`); in `jitEmitGIF` the condition's
+  `gMethod` leaves the i1 in `gJitResult` and `jitIfBegin` reads it immediately (no statement
+  between). If clobbered, the whole thing fails **silently**.
+- **Per-run `jitData` reset** (`jitRunAction`, via `gJitSeeded` in `jitContext.h`): `jitData`
+  persists on BDWGC field nodes across runs, but its `Value*` dies with each run's LLVMContext.
+  Without the reset, run 2 reads a dangling `Value*`. This is why the seeding gate's `!jitData`
+  guard needs the reset to be correct.
+- **Why the pivot is structurally cleaner:** the interpret walk OWNS its traversal and never
+  re-parents live nodes — so the re-parent hang class (`addMember`/`push` rewriting `nextInParent`)
+  that produced both the `095bcb1` hang and the by-reference stack corruption is gone by
+  construction, not routed around.
 
-## gIF-emit bugs — THE NEXT TASK (IR now visible; the hang was masking these)
-IR of `jitGIF` (taken, righty=-7) after the hang fix:
-```
-entry: %unbox = load righty ; br i1 false, label %then, label %endif   (X) constant, not the compare
-then:  %unbox1 = load maximus ; br label %endif                        (X) loads but never stores 99
-endif: ret i32 0
-```
-1. **`br i1 false`** — `jitIfBegin` isn't wiring the condition's compare (`gJitResult` from `<`)
-   into the branch.
-2. **Missing store** — the then-arm loads `maximus` but emits no `store i32 99`
-   (`jitEmitAssign`/`bcStoreField` store not landing).
-**Likely ONE shared cause (Fearless):** the consumers (`jitIfBegin`, `jitEmitAssign`) may still read
-state from the OLD inline-emit model, not from where `jitXpress`'s post-fix walk now deposits it.
-**Check the DATA first** — is `gJitResult` set at the right point in the new walk before assuming
-`jitIfBegin` is wrong? Check whether fixing #1 surfaces/fixes #2 before treating them as two.
-Checkpoint to hit: `jitGifScratch` not-taken→11 **with `br i1 %cmp` and the store INSIDE `then:`**.
-Then: `jitInc`/`jitDec` regression, `jitscratch` parity, else-arm / nesting / compound conditions.
+## Verified checkpoint (independently rebuilt by Clod, not trusting the agent)
+- `<binary> incant/oneTest` → `maximus = 26` (bytecode path intact).
+- `<binary> incant/jitGifScratch` → exit 0; **taken (righty=−7) → `maximus=99`**, **not-taken
+  (righty=13) → `maximus=11`**. Same compiled IR, value-dependent result = real runtime gating (a
+  constant fold would give 11/11 or 99/99). IR: `%unbox = load righty` · `%cmp = icmp slt` ·
+  `br i1 %cmp` · `store i32 99` inside `then:`. extern count 155→152.
 
-## HELD: webChannel pilot
-Trigger was "not-taken=11 **with gating confirmed**." Numerically 11, but `br i1 false` ≠ gating —
-held until the emit bugs land. (Tonight is the case for why the trigger said "gating confirmed", not
-just "11": the number was right for unsound reasons.)
+## NEXT (Fearless's order: guards first, webChannel second)
+1. **Null-guard parity — opLT/opGT/opLE/opGE** (queued, low-risk, mechanical). Add opEQ-style
+   null-data guards to the four ordering ops in `Instruct.rtn` (opEQ/opNotEQ already have them).
+   Full spec + per-op flip table: `docs/compare-null-guard-recon.md` (committed) and the working
+   brief. Missing-guard bug is a **silent value-independent wrong answer** (falls into
+   `compareValues`' `result=-1` fallback), not a crash. Verify the both-null case actually returns
+   false rather than assuming. Not committed until Clay review.
+2. **webChannel pilot** — now unblocked. The Bot recon (`docs/bot-recon.md`) verdict: the old `Bot/`
+   subsystem is **Distributed Objects RPC** (NSConnection, Mach-port), NOT the socket skeleton it
+   was remembered as — wrong layer for a browser-facing channel. So **build a minimal socket
+   listener from scratch** (`setSocketOp`, analogous to `setFileOp`), per `docs/wiki-recon.md`. The
+   one reusable idea is `BotClient`'s text→GroupItem→return-result shape.
 
 ## Run recipe / reproduce
-- Binary = `~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups` (Tony's workspace path).
-- `<binary> incant/oneTest` → `maximus = 26` (bytecode, green).
-- `<binary> incant/jitGifScratch` → now **`exit=0`** (no hang); not-taken→`maximus=11`. To see the
-  emitted IR, add `fn->print(llvm::errs())` after `B.CreateRet` in `jitRunAction` (`jitEmitters.rtn`).
-- **No `timeout` on this shell.** If a future change re-introduces a hang: run in background + kill,
-  or cap a loop. `cout`/`dumpContents` are **block-buffered and lost on hang/SIGTERM**; for pre-hang
-  diagnostics use `cerr` (unbuffered) + redirect to a file (not a pipe — the pipe re-buffers).
+- Binary = `~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups`.
+- `<binary> incant/oneTest` → `maximus = 26`. `<binary> incant/jitGifScratch` → 99 (taken) / 11 (not-taken).
+- **No `timeout` on this shell.** If a change re-introduces a hang: background + kill, or cap a loop.
+  `cout`/`dumpContents` are block-buffered and lost on hang/SIGTERM; for pre-hang diagnostics use
+  `cerr`/`fprintf(stderr,…)` (unbuffered) + redirect to a file (not a pipe — the pipe re-buffers).
 
 ## Build + debug mechanics (durable)
 - **`tok GroupRules.twk` THEN build.** The `.rtn` files (`jitEmitters.rtn`, `ruleActions.rtn`,
   `Instruct.rtn`, `GroupActions.rtn`, `Commands.rtn`) are `include`d INTO `GroupRules.twk`.
-  Sanity: `grep -c extern GroupRules.h` ≈ **153** (a wipe to 0 = a parse error cascaded —
-  bear-traps #10/#11).
-- **Build path matters (footgun).** `xcodebuild -workspace ../InProcess.xcworkspace -scheme Groups`
-  lands in the **`InProcess-ezzmcllc…`** DerivedData (Tony's path). `xcodebuild -project
-  ../TOK/TOK.xcodeproj -scheme Groups` lands in a **different** path (`TOK-dunath…`). Build via the
-  **workspace** so runs hit the binary Tony's Xcode also produces. Confirm freshest by mtime.
-- **`aCTionExpressioN` (`ruleActions.rtn:269`)** has three mode-branches today: `generating`
-  (builds the revisedList, `if generating` returns first), the dead `jitting` inline-emit block,
-  and the interpret fallthrough (`finishXP`). `jitRunAction` (`jitEmitters.rtn`) currently raises
-  generating+jitting, so the **generating** branch builds the JIT's revisedList — this is exactly
-  what the refactor + routing change will repoint at `jitXP`.
+  Sanity: `grep -c extern GroupRules.h` ≈ **152** now (a wipe to 0 = a parse error cascaded —
+  bear-traps #10/#11; `groups.ext` lives OUTSIDE the repo at
+  `~/Dropbox/data/InProcess/Include/groups.ext`).
+- **Build via the WORKSPACE:** `xcodebuild -workspace ../InProcess.xcworkspace -scheme Groups` lands
+  in the `InProcess-ezzmcllc…` DerivedData (Tony's path). `-project ../TOK/TOK.xcodeproj` lands
+  elsewhere (`TOK-dunath…`). Confirm freshest by mtime.
+- **Passthrough idiom:** opMethod jitting gates wrap LLVM calls in `-% … %-` passthrough (the
+  `jitEmit*` signatures are header-clean; `llvm::` types live in the passthrough body).
+- **Note:** `jitRunAction` still has stdout diagnostics (`=== jitRunAction: entering/result ===`) —
+  pre-existing, harmless, could be cleaned later.
 
-## Bear-trap to add to CLAUDE.md (Clay flagged — pattern-worthy, 2nd of its class)
-**Node-pointer walks are not list walks.** `next()` has a shared cursor that operator dispatch can
-re-enter mid-walk; and `nextInParent`/`nextMember` on a **by-reference shared member** follow the
-member's HOME parent, not the list it was added to. A function that comments itself "safe because
-it doesn't mutate `argument`" accounts for neither. To iterate a list whose members may be shared,
-walk the list itself (index `argument[i]`, or the groupList DoubleLink `link->next`) — or, better,
-don't put shared members in the list (own them). First instance of this class: the `getLabelGroup`
-tag-collision hang (gIF work). This is the second.
-
-## FOLLOW-UP — once jitXP flatten is verified (not urgent, do NOT lose this)
-Once `jitXP`'s owned-copy flatten is verified (`jitGifScratch` not-taken→11, gated, committed),
-**unify `generateXP` and `jitXP` back into one builder.** Rationale: `jitXP`'s `copyOf()`-at-append
-proves owned-copy-at-construction is strictly safer at no real cost — at that point `generateXP`'s
-by-reference-share construction has no remaining justification (it was never a deliberate choice,
-just nothing forced the issue before JIT hit it). Unifying also lets `gXpress` retire its own
-copy-at-emit laundering, since the list it receives would already be owned — collapsing two
-laundering points into one, upstream of both consumers. **Sequencing:** after the `jitXP`/`jitXpress`
-fix is independently green and committed — NOT folded in now (same discipline as keeping the
-`aCTionExpressioN` split separate from the iterator fix). `jitGifScratch` + the existing suite are
-the regression test when this lands. (Pairs with the already-flagged "duplicate now, maybe unify
-later" items: the `generateXP`/`jitXP` twin state machines and the triplicated `listLength==1`.)
+## Bear-trap refinement landed today (fold into muscle memory)
+**#4 is narrower than it read:** `//` comments are FINE in a block, inside `-% … %-` passthrough, or
+outside a method. The parse failure is positional — a `//` wedged between an `if`'s condition and its
+statement (tok parses `//` into a statement slot → it gets consumed as the if's governed statement,
+orphaning the real one). **Rule of thumb: put `//` only where a statement is allowed.** (CLAUDE.md
+#4 updated, `25dfca3`.)
 
 ## DEFERRED — not this arc; whose call
 - **GUI content dispatch** (text/image/cell/path off `Layout.drawRect`) — Clay's design thread
   (`docs/gui-brief.md`, `docs/font-recon.md`).
-- **webChannel pilot** — the subagent/FrankenClod orchestration trial; trigger was the
-  `jitGifScratch` not-taken=11 checkpoint, NOT yet reached. Clay+Tony discussing the orchestration
-  model (subagent vs agent-teams) + the corpus-currency gate. Parked until the gIF fix lands.
+- **Clay design review** of the pivot (`7850a9e`) — WIP-branch commit, fully reviewable/revertable.
