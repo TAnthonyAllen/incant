@@ -55,14 +55,11 @@ flat-list reconstruction. The pieces:
   constant fold would give 11/11 or 99/99). IR: `%unbox = load righty` · `%cmp = icmp slt` ·
   `br i1 %cmp` · `store i32 99` inside `then:`. extern count 155→152.
 
-## NEXT (Fearless's order: guards first, webChannel second)
-1. **Null-guard parity — opLT/opGT/opLE/opGE** (queued, low-risk, mechanical). Add opEQ-style
-   null-data guards to the four ordering ops in `Instruct.rtn` (opEQ/opNotEQ already have them).
-   Full spec + per-op flip table: `docs/compare-null-guard-recon.md` (committed) and the working
-   brief. Missing-guard bug is a **silent value-independent wrong answer** (falls into
-   `compareValues`' `result=-1` fallback), not a crash. Verify the both-null case actually returns
-   false rather than assuming. Not committed until Clay review.
-2. **webChannel pilot** — now unblocked. The Bot recon (`docs/bot-recon.md`) verdict: the old `Bot/`
+## NEXT
+1. ✅ **DONE — Null-guard parity (opLT/opGT/opLE/opGE)** — `e6405fb`. opEQ-style guards added to the
+   four ordering ops in `Instruct.rtn`; both-null returns false (verified); flip directions match
+   `docs/compare-null-guard-recon.md`; extern 152, oneTest→26, no pivot regression.
+2. **webChannel pilot** — now unblocked, and the next WORK item. The Bot recon (`docs/bot-recon.md`) verdict: the old `Bot/`
    subsystem is **Distributed Objects RPC** (NSConnection, Mach-port), NOT the socket skeleton it
    was remembered as — wrong layer for a browser-facing channel. So **build a minimal socket
    listener from scratch** (`setSocketOp`, analogous to `setFileOp`), per `docs/wiki-recon.md`. The
