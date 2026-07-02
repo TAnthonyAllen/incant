@@ -92,9 +92,10 @@ extern Color getColor(String name)
 {
 Color       color;
 GroupItem   item = locate(name);
-    if item
+    if item {
         if !isOBJECT    setColor(item);
-    if !(color = item.object)   cerr "getColor: ERROR could not get color",name:;
+        if !(color = item.object)   cerr "getColor: ERROR could not get color",name:; }
+    else    cerr "getColor: ERROR could not find",name:;
     return color;
 }
 
@@ -141,27 +142,28 @@ extern void setColor(GroupItem field)
 String      atPart = text;
 GroupItem   hexSet = properties["hexSet"];
 PLGset      set = characterSet;
-unsigned int    red,
-                blue,
-                green;
+unsigned int    isValid,
+                red,
+                green,
+                blue;
 use stringBUFFER
 use field
-    red = set.contains(atPart);
-    if !red || strlen(atPart) != 6      cout "ERROR: expected a valid six character hex string not:" atPart:;
+    isValid = set.contains(atPart);
+    if !isValid || strlen(atPart) != 6      cout "ERROR: expected a valid six character hex string not:" atPart:;
     else {
         Color       color;
         stringBUFFER.reset();
         stringBUFFER    += atPart;
         atPart  = start + 4;
-        sscanf(atPart,"%x",&green);
+        sscanf(atPart,"%x",&blue);
         *atPart = 0;
         atPart  = start + 2;
-        sscanf(atPart,"%x",&blue);
+        sscanf(atPart,"%x",&green);
         *atPart = 0;
         atPart  = start;
         sscanf(atPart,"%x",&red);
         stringBUFFER.reset();
-        color = rgbColor((double)red,(double)blue,(double)green,1.0);
+        color = rgbColor((double)red,(double)green,(double)blue,1.0);
         object = color; }
 }
 

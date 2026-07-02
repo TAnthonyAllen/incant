@@ -71,7 +71,9 @@ GroupItem   align = base["align"];
 use style
     //cout "displayText:",tag :;
 	if object   editor = object;
-	else        object  = editor;
+	else {
+	            editor  = new(indented);
+	            object  = editor; }
     box = editor.textContainer;
     if align && align.gText
         switch(*align.gText) {
@@ -147,7 +149,7 @@ void viewDidEndLiveResize()
 	cout "View End resize":;
     setFrame(superview.frame);
     //base.updateFrame(frame);
-    drawRect(frame);
+    mustDisplay(true);
 }
 
 void windowWillClose(Notification notification)

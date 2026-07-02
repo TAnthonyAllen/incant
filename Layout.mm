@@ -68,7 +68,10 @@ GroupItem 			*align = base->get("align");
 	//cout "displayText:",tag :;
 	if ( align->getObject() )
 		editor = (NSTextView*)align->getObject();
-	else	align->setObject((NSObject*)editor);
+	else {
+		editor = [[NSTextView alloc] initWithFrame:indented];
+		align->setObject((NSObject*)editor);
+		}
 	box = [editor textContainer];
 	if ( align && align->groupBody->gText )
 		switch (*align->groupBody->gText)
@@ -134,7 +137,7 @@ double 	baseY = [self frame].size.height - point.y;
 	::printf("View End resize\n");
 	[self setFrame:[[self superview] frame]];
 	//base.updateFrame(frame);
-	[self drawRect:[self frame]];
+	[self setNeedsDisplay:1];
 }
 
 - (void)windowWillClose:(NSNotification*)notification

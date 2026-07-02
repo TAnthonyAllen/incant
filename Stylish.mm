@@ -67,10 +67,13 @@ extern "C" NSColor *getColor(char *name)
 NSColor 	*color = 0;
 GroupItem 	*item = GroupControl::groupController->locate(name);
 	if ( item )
+		{
 		if ( !isOBJECT(item->groupBody->flags.data) )
 			::setColor(item);
-	if ( !(color = (NSColor*)item->getObject()) )
-		::fprintf(stderr,"getColor: ERROR could not get color %s\n",name);
+		if ( !(color = (NSColor*)item->getObject()) )
+			::fprintf(stderr,"getColor: ERROR could not get color %s\n",name);
+		}
+	else	::fprintf(stderr,"getColor: ERROR could not find %s\n",name);
 	return color;
 }
 
@@ -187,26 +190,27 @@ extern "C" void setColor(GroupItem *field)
 char 			*atPart = field->getText();
 GroupItem 		*hexSet = GroupControl::groupController->groupRules->properties->get("hexSet");
 PLGset 			*set = hexSet->getCharacterSet();
+unsigned int 	isValid = 0;
 unsigned int 	red = 0;
-unsigned int 	blue = 0;
 unsigned int 	green = 0;
-	red = set->contains(atPart);
-	if ( !red || ::strlen(atPart) != 6 )
+unsigned int 	blue = 0;
+	isValid = set->contains(atPart);
+	if ( !isValid || ::strlen(atPart) != 6 )
 		::printf("ERROR: expected a valid six character hex string not:%s\n",atPart);
 	else {
 		NSColor 	*color = 0;
 		GroupControl::groupController->groupRules->stringBUFFER->reset();
 		GroupControl::groupController->groupRules->stringBUFFER->appendString(atPart,0,0);
 		atPart = GroupControl::groupController->groupRules->stringBUFFER->start + 4;
-		::sscanf(atPart,"%x",&green);
+		::sscanf(atPart,"%x",&blue);
 		*atPart = 0;
 		atPart = GroupControl::groupController->groupRules->stringBUFFER->start + 2;
-		::sscanf(atPart,"%x",&blue);
+		::sscanf(atPart,"%x",&green);
 		*atPart = 0;
 		atPart = GroupControl::groupController->groupRules->stringBUFFER->start;
 		::sscanf(atPart,"%x",&red);
 		GroupControl::groupController->groupRules->stringBUFFER->reset();
-		color = [NSColor colorWithCalibratedRed:(double)red green:(double)blue blue:(double)green alpha:1.0];
+		color = [NSColor colorWithCalibratedRed:(double)red green:(double)green blue:(double)blue alpha:1.0];
 		field->setObject((NSObject*)color);
 		}
 }
