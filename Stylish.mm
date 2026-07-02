@@ -71,8 +71,26 @@ extern "C" void dumpColorRGB(GroupItem *field)
 	if (c) {
 	CGFloat r = 0, g = 0, b = 0, a = 0;
 	[c getRed:&r green:&g blue:&b alpha:&a];
-	printf("dumpColorRGB %s: r=%.3f g=%.3f b=%.3f a=%.3f\n", field->getText(), r, g, b, a);
-	} else printf("dumpColorRGB %s: NULL\n", field->getText());
+	fprintf(stderr,"dumpColorRGB %s: r=%.3f g=%.3f b=%.3f a=%.3f\n", field->getText(), r, g, b, a);
+	} else fprintf(stderr,"dumpColorRGB %s: NULL\n", field->getText());
+	
+}
+
+/*******************************************************************************
+	Debug: setFont a field then print its resulting NSFont's displayName +
+    bold/italic traits. POP tool, not called from production paths.
+*******************************************************************************/
+extern "C" void dumpFontInfo(GroupItem *field)
+{
+	::setFont(field);
+	
+	NSFont *f = (NSFont*)field->getObject();
+	if (f) {
+	NSFontSymbolicTraits t = f.fontDescriptor.symbolicTraits;
+	fprintf(stderr,"dumpFontInfo %s: displayName='%s' size=%.1f bold=%d italic=%d\n",
+	field->resolvedTag(), [f.displayName UTF8String], f.pointSize,
+	(t & NSFontDescriptorTraitBold) != 0, (t & NSFontDescriptorTraitItalic) != 0);
+	} else fprintf(stderr,"dumpFontInfo %s: NULL\n", field->resolvedTag());
 	
 }
 
@@ -93,6 +111,25 @@ GroupItem 	*item = GroupControl::groupController->locate(name);
 		}
 	else	::fprintf(stderr,"getColor: ERROR could not find %s\n",name);
 	return color;
+}
+
+/*******************************************************************************
+	Lazy font lookup, symmetric to getColor: realize (setFont) on first miss,
+    return the boxed NSFont. field is expected to carry family/size/bold/
+    italic/smallCaps attributes (a fONTs registry entry).
+*******************************************************************************/
+extern "C" NSFont *getFont(GroupItem *field)
+{
+NSFont 	*font = 0;
+	if ( field )
+		{
+		if ( !isOBJECT(field->groupBody->flags.data) )
+			::setFont(field);
+		if ( !(font = (NSFont*)field->getObject()) )
+			::fprintf(stderr,"getFont: ERROR could not get font %s\n",field->groupBody->tag);
+		}
+	else	::fprintf(stderr,"getFont: ERROR null field\n");
+	return font;
 }
 
 /***************************************************************************
@@ -234,31 +271,50 @@ unsigned int 	blue = 0;
 }
 
 /***************************************************************************
-	Sets font object based on font attributes. May require revision after
-    font design session.
+	Sets font object based on font attributes, via NSFontDescriptor (family +
+    symbolic traits + feature settings) so bold/italic/smallCaps all realize
+    through one Apple mechanism. Fallback chain on failure: descriptor+family
+    -> fontWithName -> systemFontOfSize. Missing size attribute defaults to
+    12.0. Never leaves font null.
 ***************************************************************************/
 extern "C" void setFont(GroupItem *field)
 {
-GroupItem 		*family = field->get("family");
-GroupItem 		*size = field->get("size");
-GroupItem 		*bold = field->get("bold");
-GroupItem 		*italic = field->get("italic");
-NSString 		*name = [NSString stringWithCString:family->getText() encoding:NSASCIIStringEncoding];
-int 			mask = 0;
-unsigned int 	boldMask = 0;
-unsigned int 	italicMask = 0;
-NSFont 			*font = 0;
-	font = [NSFont fontWithName:name size:size->getNumber()];
-	if ( bold )
-		{
-		boldMask = bold->getCount();
-		mask &= boldMask;
-		}
-	if ( italic )
-		{
-		italicMask = italic->getCount();
-		mask &= italicMask;
-		}
+NSFont 	*font = 0;
+	
+	GroupItem       *familyField = field->get("family");
+	GroupItem       *sizeField = field->get("size");
+	GroupItem       *boldField = field->get("bold");
+	GroupItem       *italicField = field->get("italic");
+	GroupItem       *smallCapsField = field->get("smallCaps");
+	NSString        *name = familyField
+	? [NSString stringWithCString:familyField->getText() encoding:NSASCIIStringEncoding]
+	: @"Helvetica";
+	double          pointSize = sizeField ? sizeField->getNumber() : 12.0;
+	NSFontSymbolicTraits    traits = 0;
+	if ( boldField )    traits |= NSFontDescriptorTraitBold;
+	if ( italicField )  traits |= NSFontDescriptorTraitItalic;
+	NSDictionary    *attrs = @{ NSFontFamilyAttribute: name };
+	if ( smallCapsField )
+	{
+	NSDictionary    *feature = @{
+	NSFontFeatureTypeIdentifierKey: @(kLowerCaseType),
+	NSFontFeatureSelectorIdentifierKey: @(kLowerCaseSmallCapsSelector) };
+	attrs = @{ NSFontFamilyAttribute: name, NSFontFeatureSettingsAttribute: @[ feature ] };
+	}
+	NSFontDescriptor    *desc = [NSFontDescriptor fontDescriptorWithFontAttributes:attrs];
+	if ( traits )   desc = [desc fontDescriptorWithSymbolicTraits:traits];
+	font = [NSFont fontWithDescriptor:desc size:pointSize];
+	if ( !font )
+	{
+	::fprintf(stderr,"setFont: descriptor failed for family '%s', trying fontWithName\n",[name UTF8String]);
+	font = [NSFont fontWithName:name size:pointSize];
+	}
+	if ( !font )
+	{
+	::fprintf(stderr,"setFont: fontWithName failed for family '%s', falling back to systemFont\n",[name UTF8String]);
+	font = [NSFont systemFontOfSize:pointSize];
+	}
+	
 	::CFRetain((void*)font);
 	field->setObject((NSObject*)font);
 }
