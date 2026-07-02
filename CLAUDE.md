@@ -399,6 +399,54 @@ Hard-won lessons. Each one has cost real debugging time.
     or extern that "should be there," check this file. Note it explicitly whenever a change
     touches it.
 
+12. **`extern "C"` name collisions link-fail silently until `Ld`** — two unrelated `extern`s
+    with the same name in different `.twk` files compile clean individually (each file's own
+    `tok` pass has no visibility into the other) and only blow up at the final link step
+    (`duplicate symbol '_foo'`), by which point the error message gives no hint which two
+    *incant* files are the culprits (only the `.o` names). Hit twice in one pass (2026-07-02):
+    `blockContaining` defined in both `GroupDraw.twk` (old) and `Stylish.twk` (new rewrite);
+    `indent`/`indentWH` collided with the **unrelated** debug-print `indent()` in the shared
+    support `StringRoutines.C` (`extern "C"` strips C++ overload resolution, so signature
+    differences don't save you — only the name matters). Before adding a new `extern` with a
+    short/common name, `grep -rn "extern.*<name>(" --include=*.twk --include=*.h .` first
+    (repo-wide, including support/shared dirs) — a name that only conflicts with something one
+    parser pass can't see is the whole danger.
+
+13. **`-% … %-` passthrough drops incant-declared locals tok thinks are "unused."** A local
+    declared at the incant level (`Color c = getColor(name);`) that is only *referenced* inside
+    a following passthrough block gets pruned — tok can't see into passthrough, decides the
+    incant-level declaration (and its initializing call) is dead, and emits nothing for it,
+    leaving the passthrough body referencing an undeclared C++ identifier (`use of undeclared
+    identifier 'c'`). tok will warn `Declarations ignored because not used: N` when this
+    happens — treat that warning as load-bearing, not cosmetic. Fix: do the whole
+    computation *inside* the passthrough (call the C-linkage function directly, e.g.
+    `NSColor *c = ::getColor(name);`), using the raw Apple/C++ type (`NSColor*`, not the
+    incant typedef `Color` — passthrough is literal, unprocessed code, so incant's type
+    aliases don't resolve there either). A variable is only safe from pruning if something
+    *outside* the passthrough also references it (parameters are always safe; `hold((void*)font);
+    object = font;` after a passthrough that sets `font` is why `setFont` didn't need this fix).
+
+14. **`printf`/`cout` inside a passthrough is lost if the run ends via `stop()`.** Confirms and
+    generalizes the existing run-recipe note (stdout is block-buffered when not a tty; `stop()`
+    calls a hard `exit()` with no flush). Any debug/POP-tool extern that prints from inside
+    `-% %-` must use `fprintf(stderr, …)` (unbuffered), not `printf(…)` (stdout) — otherwise the
+    output silently vanishes and looks exactly like "the extern was never called" (cost real
+    debugging time chasing a phantom no-op on 2026-07-02's `dumpColorRGB`/`dumpFontInfo`).
+
+15. **Bare top-level incant script statements (`incant/oneTest`-style files) don't support
+    `identifier = new(...)` for a not-yet-existing identifier** — `RunRulE: expected a method
+    not <name>` — regardless of whether `<name>` collides with anything. Top-level bare
+    statements appear to require the LHS to already exist (assignment to a pre-declared field,
+    e.g. `righty = 13;` where `righty` comes from an included fixture) or to be a call to an
+    already-defined action/rule (`generateAction(testByteCode);`, `dumpFontInfo(titleFont);`
+    where `titleFont` — if it resolves at all — comes from elsewhere). The exact idiom for
+    constructing a fresh ad hoc GroupItem tree from a bare top-level script (as opposed to
+    inside a `.twk` method body, where `GroupItem x = new(...); x.attr = new(...);` works fine)
+    is **unresolved** — three attempts on 2026-07-02 (colors POP, fonts POP) failed to find it
+    without grinding. `incant/unitTests`'s predefined-action pattern (`testUnitTests()`-style)
+    is the likely right shape; not confirmed. Next agent who needs an ad hoc top-level POP:
+    check `incant/unitTests` for the idiom before improvising bare assignment statements.
+
 ---
 
 ## The `testing` Command
