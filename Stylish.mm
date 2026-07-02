@@ -59,6 +59,24 @@ double 	right = 0;
 }
 
 /*******************************************************************************
+	Debug: setColor a field then print its resulting RGB components (0.0-1.0),
+    to verify setColor's hex parse + scale. POP tool, not called from
+    production paths.
+*******************************************************************************/
+extern "C" void dumpColorRGB(GroupItem *field)
+{
+	::setColor(field);
+	
+	NSColor *c = (NSColor*)field->getObject();
+	if (c) {
+	CGFloat r = 0, g = 0, b = 0, a = 0;
+	[c getRed:&r green:&g blue:&b alpha:&a];
+	printf("dumpColorRGB %s: r=%.3f g=%.3f b=%.3f a=%.3f\n", field->getText(), r, g, b, a);
+	} else printf("dumpColorRGB %s: NULL\n", field->getText());
+	
+}
+
+/*******************************************************************************
     Look up the color in the cOLOr registry, set its color object if needed and
     return the color object.
 *******************************************************************************/
@@ -210,7 +228,7 @@ unsigned int 	blue = 0;
 		atPart = GroupControl::groupController->groupRules->stringBUFFER->start;
 		::sscanf(atPart,"%x",&red);
 		GroupControl::groupController->groupRules->stringBUFFER->reset();
-		color = [NSColor colorWithCalibratedRed:(double)red green:(double)green blue:(double)blue alpha:1.0];
+		color = [NSColor colorWithCalibratedRed:(double)red / 255.0 green:(double)green / 255.0 blue:(double)blue / 255.0 alpha:1.0];
 		field->setObject((NSObject*)color);
 		}
 }

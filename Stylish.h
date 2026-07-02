@@ -40,6 +40,7 @@ Stylish(char *name);
 };
 extern "C" GroupItem *blockContaining(GroupItem *base, NSPoint p);
 extern "C" int contains(GroupItem *field, NSPoint p);
+extern "C" void dumpColorRGB(GroupItem *field);
 extern "C" NSColor *getColor(char *name);
 extern "C" Stylish *getStyle(GroupItem *field);
 extern "C" NSRect indentFrame(NSRect f, double b);

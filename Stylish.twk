@@ -99,6 +99,24 @@ GroupItem   item = locate(name);
     return color;
 }
 
+/*******************************************************************************
+	Debug: setColor a field then print its resulting RGB components (0.0-1.0),
+    to verify setColor's hex parse + scale. POP tool, not called from
+    production paths.
+*******************************************************************************/
+extern void dumpColorRGB(GroupItem field)
+{
+    setColor(field);
+    -%
+    NSColor *c = (NSColor*)field->getObject();
+    if (c) {
+        CGFloat r = 0, g = 0, b = 0, a = 0;
+        [c getRed:&r green:&g blue:&b alpha:&a];
+        printf("dumpColorRGB %s: r=%.3f g=%.3f b=%.3f a=%.3f\n", field->getText(), r, g, b, a);
+    } else printf("dumpColorRGB %s: NULL\n", field->getText());
+    %-
+}
+
 /***************************************************************************
 	Return the style for the field passed in. If the field has no style
     attribute, it walks the parent hierarchy and returns the first style
@@ -163,7 +181,7 @@ use field
         atPart  = start;
         sscanf(atPart,"%x",&red);
         stringBUFFER.reset();
-        color = rgbColor((double)red,(double)green,(double)blue,1.0);
+        color = rgbColor((double)red / 255.0,(double)green / 255.0,(double)blue / 255.0,1.0);
         object = color; }
 }
 
