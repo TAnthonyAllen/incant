@@ -1,4 +1,4 @@
-# Incant — Status & Handoff (2026-07-02: kitchen clean, 5 recons landed, Tony on hibernation for ~1 month)
+# Incant — Status & Handoff (2026-07-02 SEALED: kitchen clean, 5 recons landed, Tony on hibernation for ~1 month)
 *Written by Clod for a fresh Clay/Clod with ZERO memory of today. Self-contained. Tony leaves for
 ~a month starting 2026-07-03 — assume nothing survives except this file, the commits, and the docs
 it points to. Read this fully before touching code.*
@@ -6,12 +6,20 @@ it points to. Read this fully before touching code.*
 ## What happened today (headline)
 Tony rewrote `Layout.twk`/`Stylish.twk` as a simplification pass, then a three-way exchange (Tony's
 offline status report → Clay's `guiDesign.md`/`jitFullmontyPlan.md`/`webchannelAttack.md` design docs
-→ Fearless marching orders) drove a full day of parallel execution: kitchen-clean, 3 real bug fixes,
-5 minion recon docs, and this refresh. **Nothing is fully "done" — everything below is a thread at a
-specific point, most with an explicit next step.** Read the per-thread status before assuming.
+→ Fearless marching orders → a ratified Layout/Stylish cleanup pass → this seal) drove a full day of
+parallel execution: kitchen-clean, 5 real bug fixes, 5 minion recon docs, a live Clay↔Clod walkie-talkie
+channel stood up and confirmed (`ipc/`, gitignored — see bottom), and this refresh. **Nothing is fully
+"done" — everything below is a thread at a specific point, most with an explicit next step.** Read the
+per-thread status before assuming. **NEXT-0 (the single most-actionable item, see NEXT section below):
+does a top-level-statement parse entry for arbitrary incant code already exist (analogous to
+`JSONblock`'s divert mechanism), or does `/eval` (webChannel) need its own small parser rule?** — recon
+this before webChannel Step 1 starts.
 
 ## Today's commits (branch `jit-unified-emit-wip`, on top of `c2aa18e`)
 ```
+a5c6be1  Layout/Stylish cleanup + seal: subbed gone, blockContaining simplified, align fix, groups.ext desync fixed
+4239e99  Amend bear-trap #15 with same-day follow-up (code={} confirmed, 2 new bugs found)
+e4a7e29  Hibernation refresh: wakeup.md full rewrite + 4 new bear traps (#12-15)
 b8e47a2  Preserve today's design docs + recon into the repo
 4532414  M2 steps 2-4: setFont on the NSFontDescriptor path, smallCaps, getFont
 1dc4f7c  M3: jsonTest Google-Fonts probe - array-of-objects chokes, plus a masking bug
@@ -20,7 +28,8 @@ b8e47a2  Preserve today's design docs + recon into the repo
 dae8ec9  Layout/Stylish simplification pass + dedup blockContaining/indent link collision
 ```
 All verified against the same baseline before each commit: full workspace build succeeds,
-`oneTest` → `maximus = 26`, `jitGifScratch` → taken=99/not-taken=11. No regressions across the day.
+`grep -c extern GroupRules.h` = 152, `oneTest` → `maximus = 26`, `jitGifScratch` → taken=99/
+not-taken=11. No regressions across the day. `a5c6be1` is the final sealed state.
 
 ## Doc map — READ THESE, don't re-derive
 Design docs (Clay, copied from `~/Downloads` into the repo today so they survive the month):
@@ -44,15 +53,42 @@ Recon docs (Clod/minions, written today):
 
 ## Thread-by-thread status
 
-### 1. Layout/Stylish kitchen-clean — GREEN, baseline for everything else
-Tony's rewrite + today's fixes are committed and build clean (`dae8ec9`, `0e091ac`). Fixed:
+### 1. Layout/Stylish kitchen-clean — GREEN, SEALED, baseline for everything else
+Tony's rewrite + today's fixes are committed and build clean (`dae8ec9`, `0e091ac`, `a5c6be1`). Fixed:
 duplicate-symbol link collisions (`blockContaining` in both `GroupDraw.twk`/`Stylish.twk` — kept
 Stylish's; `indent`/`indentWH` renamed to `indentFrame`/`indentFrameWH`, collided with shared support
-`StringRoutines.C`'s unrelated debug `indent()` at `extern "C"` linkage — see new bear-trap #12);
+`StringRoutines.C`'s unrelated debug `indent()` at `extern "C"` linkage — see bear-trap #12);
 `Stylish.mm` was stale vs `Stylish.twk` (setFont's old mask init) — retok fixed it; `getColor`
 null-guard; `displayText`'s never-constructed editor (was caching a permanent nil); `setColor`'s
 confusingly-swapped variable names (value was already correct, now the code reads correctly too);
 `viewDidEndLiveResize` now calls `mustDisplay(true)` instead of `drawRect(frame)` directly.
+
+**Final seal pass (`a5c6be1`, Fearless-ratified + Clay's seal-brief):**
+- `subbed` deleted from `Stylish` entirely (reconcile pass + non-null object slot makes it
+  redundant per Bear #1's resolution — see thread #2). `displayText`'s add-once guard now folds
+  `addSubview` into the construction `else` branch instead of reading a persisted flag (the
+  conservative flag-based version hit a **tok codegen bug** — a `boolean` local set in an if/else
+  and read after got mis-hoisted into the class's `@interface` ivar block, corrupting `Layout.h`;
+  fold-into-else avoids the cross-block read entirely).
+- `blockContaining` simplified: `selectable` gate removed (bare `break;`), dead `Stylish style;`/
+  `getStyle(item)` call removed. `selectable` stays declared on `Stylish` for the event layer.
+- **Real bug fixed**: `displayText`'s `object`/`editor` cache was binding to `align.object`, not
+  `base.object` — bare `object` resolves to the nearest in-scope GroupItem local (`align`,
+  declared just above it), not to `use base`'s target. Any field with no `align` attribute would
+  have null-deref crashed here. Now explicit `base.object` throughout. **Verified at the
+  generated-code level only** (confirmed `base->getObject()`/`setObject()` in `Layout.mm`) — NOT
+  via a live GUI POP (constructing a live `Layout`/`NSView` instance headlessly from a top-level
+  script proved non-trivial in the time available; stopped rather than grind, per standing
+  no-grinding discipline).
+- **Two more bugs found chasing a clean `tokall`**, both now bear-traps #16/#17 in `CLAUDE.md`:
+  (a) `groups.ext` (outside the repo) had a stale mirror of `Stylish`'s ivar list that tok merges
+  against rather than fully regenerating from `.twk` — fixed the mirror, then `tokall`; (b) that
+  `tokall` surfaced a real, dormant, pre-existing bug where `alignLeft` collides between the
+  global cross-project `OCframe` TAWK keyword table (aliases it to `NSLeftTextAlignment`) and the
+  shared `StringRoutines.C`'s genuine `alignLeft(text,length)` function (used by `Debug.rtn`) —
+  fixed via `-% %-` passthrough at the two `Layout.twk` call sites (real Apple constant names),
+  not by renaming either shared cross-project definition.
+
 **Not done**: `displayPath()`, event handling (design exists now — `guiDesign.md` §7 — not built),
 font handling was partially done today (see fonts thread). P1/P2/P3 tok-semantics questions (switch
 fallthrough, bare `x`/`y`/`selectable` resolution) all answered clean from generated code — **no bugs
@@ -181,7 +217,7 @@ bones than a fresh POP since it's the literal code that runs):
 - **P3** (bare `selectable` in `blockContaining()`): resolved correctly to `style->selectable` (the
   local `Stylish*` set two lines above). No `use style` needed.
 
-## New bear traps banked to CLAUDE.md (read there for full text — #12-15)
+## New bear traps banked to CLAUDE.md (read there for full text — #12-17)
 12. `extern "C"` name collisions between unrelated `.twk` files link-fail silently until `Ld`, with no
     hint which incant files collided. Grep before adding a short/common extern name.
 13. `-% … %-` passthrough drops incant-level locals only referenced inside the passthrough (tok's
@@ -190,8 +226,27 @@ bones than a fresh POP since it's the literal code that runs):
 14. `printf`/stdout inside a passthrough is lost if the run ends via `stop()` (block-buffered, no
     flush before `exit()`). POP-tool debug output must use `fprintf(stderr, …)`.
 15. Bare top-level incant scripts don't support `identifier = new(...)` for a fresh identifier
-    ("`RunRulE: expected a method not <name>`") — the correct ad hoc top-level construction idiom is
-    **unresolved**. Check `incant/unitTests`'s predefined-action pattern first.
+    ("`RunRulE: expected a method not <name>`"). **Follow-up same day, partially resolved:**
+    wrapping the construction in a registered `code={ }` action (`incant/unitTests`'s `testNew`
+    is the confirmed template) run under the full `oneTest`-style preamble eliminates that specific
+    parse rejection — but two-argument `new(tag,value)` still doesn't parse even inside `code={ }`
+    (use two-step: `x = new("tag"); x.text = value;`), and a field with a real attribute attached
+    still segfaults through `setFont`/`dumpFontInfo` while a zero-attribute field runs crash-free
+    but produces no output from an unbuffered `fprintf(stderr,...)` — likely two separate,
+    still-unresolved bugs. Also: colors' `setColor` `properties["hexSet"]` null-deref reproduces
+    even under the full preamble — that global's real init path is still unknown.
+16. tok's `.h` ivar list is additive against `groups.ext`'s external mirror (outside the repo) —
+    retok/`tokall` alone will NOT drop a member removed from the `.twk` class body; the external
+    mirror must be edited too. Generalizes bear-trap #10 beyond GroupBody flags to any class's ivar
+    list. Symptom: delete a field, retok, it's still in the header and still zero-inited in every
+    constructor.
+17. A short bare keyword can be silently claimed by TAWK's own Apple-symbol alias table
+    (`~/data/support/Include/OCframe`, global/cross-project), shadowing a same-named real function
+    elsewhere (e.g. `~/data/support/Frame/StringRoutines.C`'s `alignLeft`) — only surfacing when
+    both are live in the same `tokall` pass, and the resulting error (a real function called as if
+    it were an enum constant) gives no hint the actual cause is in an unrelated file. Don't rename
+    either shared/cross-project definition to fix — passthrough the narrow call site with the real,
+    long Apple constant name instead.
 
 ## Run recipe / reproduce
 - Binary = `~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups`.
@@ -216,6 +271,12 @@ bones than a fresh POP since it's the literal code that runs):
   clean. See new bear-traps #13/#14 for passthrough pitfalls hit today.
 
 ## NEXT — prioritized for whoever resumes (cold, no memory of today)
+0. **NEXT-0 (Clay's designation, highest priority next session): the parse-entry/diversion
+   convergence.** Does a top-level-statement parse entry for arbitrary incant code already exist
+   (analogous to `JSONblock`'s divert mechanism), or does webChannel's `/eval` need its own small
+   parser rule built from scratch? This gates webChannel Step 1 (thread #6) AND is closely related
+   to bear-trap #15's still-open top-level-construction-idiom question — likely worth investigating
+   together, may share a root cause/fix.
 1. **Read `docs/jit-coverage-recon.md`** if picking up JIT — Clay was blocked on it, it's landed, and
    it changes the loop-ladder plan (FOR isn't what was assumed).
 2. **Complete the colors + fonts live-render POPs** (bear-trap #15 blocks both) — likely quick once
@@ -245,3 +306,12 @@ bones than a fresh POP since it's the literal code that runs):
 - Switch, and any rule actions beyond IF/FOR/DO/WHILE — JIT's explicitly-deferred list
   (`jitFullmontyPlan.md` §1.5), unaffected by today's FOR finding.
 - webChannel steps 2+ (HTTP subset, /eval, /wiki) — blocked on Step 1's open question.
+
+## Clay↔Clod walkie-talkie — LIVE, parked, ready
+Stood up and round-trip-confirmed today: `ipc/clay-to-clod.md` (Clay writes, Clod clears) and
+`ipc/clod-to-clay.md` (Clod writes, Clay clears) — a two-file, one-way-owned scratch channel, gitignored
+(`.gitignore` has `ipc/`), so it never shows up in `git status` beyond that one line. Protocol is in each
+file's own header: SEQ number is the "did it change?" marker, STATUS is fresh/cleared, one-way ownership
+per file prevents clobbering. Both files are currently `cleared`/parked — nothing queued. First one back
+(Clay or Clod) can open it for design↔implementation without round-tripping through Tony. Read the file
+headers before using it if this is your first time touching it.
