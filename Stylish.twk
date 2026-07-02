@@ -21,7 +21,6 @@ boolean
         editable
         selected
         selectable
-        subbed
 		;
 
 Stylish(GroupItem item)
@@ -55,15 +54,12 @@ extern GroupItem blockContaining(GroupItem base,Point p)
 {
 GroupItem   item,
             grup;
-Stylish     style;
     if base {
         //if detail = base.other cout "blockContaining",base.tag,frame,"Point:",p.x,p.y:;
         while item = base.nextMember(item) {
-            style = getStyle(item);
             if item.contains(p)
                 if item.hasMembers || !item.noPrint
-                    if !selectable continue;
-                    else break; }
+                    break; }
         if item && item.hasMembers
             if grup = item.blockContaining(p)   return grup; }
     return item;
@@ -236,6 +232,10 @@ use field
                         : @"Helvetica";
     double          pointSize = sizeField ? sizeField->getNumber() : 12.0;
     NSFontSymbolicTraits    traits = 0;
+    // presence-based by design (Tony): field exists => trait on. Do NOT switch to a
+    // value-check (bold=0 means off) without first POPping how a bare flag (no value,
+    // e.g. plain "bold") reports .number/.count -- a bare flag has no data and would
+    // read as off, breaking the common "bold;" case.
     if ( boldField )    traits |= NSFontDescriptorTraitBold;
     if ( italicField )  traits |= NSFontDescriptorTraitItalic;
     NSDictionary    *attrs = @{ NSFontFamilyAttribute: name };

@@ -3,6 +3,58 @@
 (minion M5); everything else stands on the proven pivot (`7850a9e`) and wakeup.md.
 Self-contained; written to survive the month.*
 
+---
+## RATIFIED AMENDMENTS (2026-07-02, post-M5 — Tony-ratified; supersede the body where they conflict)
+*`docs/jit-coverage-recon.md` (M5) landed and filled §3's placeholder; two of its findings
+change this plan. Read this block first; the body below is otherwise intact.*
+
+**§3 coverage table — RESOLVED by `docs/jit-coverage-recon.md`.** 42 op-dispatch functions in
+`Instruct.rtn`: 18 already jitting-gated, 4 need mechanical gates (`opAND`/`opOR`/`opRem`/`opNOT`),
+20 need real modification (tree mutation, I/O, registry lookups). Sequence gates-only in bulk, then
+fp, then helper-call ops, per §3's own rule. Full table lives in the recon doc.
+
+**A. FOR is NOT a counting loop — defer it to jitBail, do not build it as ladder rung 4.**
+`aCTionFOR` is a GroupItem list/tree walk (`next()`/`prior()` over a member/attribute list, with
+byRef/lastREF bookkeeping), not init/cond/increment. §1.3's "FOR = WHILE plus init+latch" is void.
+Jitting it would mean emitting a helper-call loop back into interpreted `next()`/`prior()` each
+iteration — high complexity, ~zero payoff (tree-walk cost dominates). FOR becomes the poster child
+for jitBail (§2.1). Native-FOR-jit is revisited post-`testJits` ONLY if profiling ever demands it.
+
+**B. Ladder resequenced (supersedes §4):** 0 nesting-safety/stack check → 1 loop-mechanism POP
+(trip count driven through `jitSeedField`, NOT a literal — else mem2reg/unroll constant-folds it and
+the value-dependent check goes vacuous) → 2 WHILE → 3 DO → **4 jitBail / whole-action fallback
+(MOVED UP from rung 6)** → 5 FOR verified to *bail cleanly* (a bail POP, not a native-jit POP) →
+6 nesting → 7 bulk gate completion → 8 helper-call ops → 9 `testJits` full monty. jitBail moves
+early because it's what covers FOR and non-numeric-target ops; from rung 4 on, ANY incant runs
+correctly under jitRunAction whether jitted or not.
+
+**C. Null-guard is REFUTED, not just unverified — concrete must-fix, elevated from §2.3.**
+`jitEmitCompare` does raw ICmp/FCmp with zero null/data checks, and each compare op's gate returns
+before the interpreter's guard runs — so the e6405fb parity work (opEQ/GE/GT/LE/LT/NotEQ) is
+**structurally bypassed** while jitting; a jitted compare on null operands crashes or reads garbage.
+Fix: prepend a null/data-check block INSIDE `jitEmitCompare` mirroring e6405fb's both-null→false
+semantics, and add null-operand POP pairs for every compare op to `testJits` (these are now
+load-bearing, not optional). Does NOT block starting WHILE/DO — loop conditions run on non-null
+induction values — but it gates `testJits` victory.
+
+**D. Compound-assign/unary type gaps (M5 finding 3) — ONE guard, not seven.** `opMinusEQ`,
+`opDivEQ`, `opMultiplyEQ`, `opMinusMinus`, `opPlusPlus`, `opPlus`, `opMinus` fire their jit gate
+unconditionally assuming numeric (only `opPlusEQ` type-checks first). Fix in ONE place: make
+`jitEmitBinary`/`jitEmitUnary` bail (jitBail) on a non-numeric target `jitData` — DRY, composes
+with the early jitBail, don't replicate opPlusEQ's branch seven times. Latent today (fixtures are
+numeric-only) but real the moment a jitted region hits `someString -= x` / `someList += item`.
+
+**E. `switch` DROPPED from §1.5's deferred list.** No `aCTionSwitch` exists; the `switch(){}` in
+the class files is native TAWK compiling straight to C++ — host control flow, never in the
+interpret/jit system. Nothing to defer; remove it from the list entirely.
+
+**F. Loop continue/break/return (addendum to §1.0b).** WHILE and DO bodies already handle
+`isBranch`/`isContinue`/`isReturn`. `jitLoopBegin/Body/End` need explicit continue→br-latch and
+break→br-exit wiring; v1 decision: `isReturn` inside a jitted loop → jitBail (simplest correct);
+revisit function-exit-block via epilogue post-`testJits`.
+
+---
+
 ## Where we stand (don't re-derive)
 The unified emit-on-walk architecture is PROVEN: JIT emits LLVM by running the
 interpret/runOP walk under the `jitting` gate. Load-bearing pieces (wakeup.md

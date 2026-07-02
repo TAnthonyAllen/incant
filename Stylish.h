@@ -20,20 +20,14 @@ NSColor *fillColor;
 NSColor *strokeColor;
 NSColor *textColor;
 NSFont *font;
-GroupItem *shadowBlur;
-GroupItem *shadowOffset;
-GroupItem *shadowX;
-GroupItem *shadowY;
-GroupItem *shadowColor;
+GroupItem *shadowField;
 NSNumberFormatter *formatter;
 struct 
 	{
 	unsigned int editable:1;
 	unsigned int selected:1;
 	unsigned int selectable:1;
-	unsigned int subbed:1;
 	};
-GroupItem *shadowField;
 Stylish(GroupItem *item);
 Stylish(GroupItem *item, Stylish *source);
 Stylish(char *name);

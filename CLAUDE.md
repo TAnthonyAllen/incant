@@ -459,6 +459,41 @@ Hard-won lessons. Each one has cost real debugging time.
     from a *zero-attribute* field in a registered action to confirm the dispatch/print path
     first, before reintroducing attribute construction.
 
+16. **tok's `.h` ivar list is additive against `groups.ext`'s external mirror — retok/`tokall`
+    alone will NOT drop a member you removed from the `.twk` class body.** Removing a field from
+    a class in `.twk` and retok-ing (even a full `tokall`) leaves it sitting in the generated
+    `.h`/`.mm` forever, because tok cross-checks/merges against the class's `external ClassName {
+    }` mirror in `groups.ext` (outside the repo, bear-trap #11) — and that mirror doesn't update
+    itself. Symptom: you delete a field, retok, and it's still in the header (and still getting
+    zero-initialized in every constructor). Fix: edit `groups.ext`'s matching `external ClassName`
+    block to match, THEN `tokall`. Found 2026-07-02 removing `Stylish`'s `subbed` (plus 5
+    already-stale `shadowBlur`/`shadowOffset`/`shadowX`/`shadowY`/`shadowColor` ivars that had
+    drifted out of `Stylish.twk` at some earlier, unrecorded refactor and were still being
+    zero-inited in every `Stylish` constructor). Generalizes bear-trap #10 beyond
+    GroupBody-flag-and-extern-sync to any class's ivar list.
+
+17. **A short/common bare keyword can be silently claimed by TAWK's own Apple-symbol alias table,
+    shadowing a same-named real function elsewhere — only surfacing when both get compiled in the
+    same pass.** `~/data/support/Include/OCframe` (a global, cross-project TAWK keyword table,
+    shared with other TAWK-based projects) maps `alignLeft`/`alignCenter`/`alignRight` to
+    `NSLeftTextAlignment`/etc. Separately, `~/data/support/Frame/StringRoutines.C` (also shared,
+    cross-project) has a genuine `alignLeft(text, length)` string-padding function, used by
+    `Debug.rtn`. Both are legitimate, both are outside this repo, and tok's keyword resolution
+    doesn't scope the alias per-file — so the moment BOTH are live in the same `tokall` pass (as
+    happened 2026-07-02 once `Layout.twk` started using `alignLeft` as the Apple constant),
+    `Debug.rtn`'s real function call silently mis-generates as `NSLeftTextAlignment(tag,20)` — a
+    non-existent function call, caught only at the C++ compile step (`called object type
+    'NSTextAlignment' is not a function or function pointer`), with no hint that the actual cause
+    was in an unrelated file two directories away. **Do not rename either shared/cross-project
+    definition to fix this** — blast radius extends beyond this repo. Fix at the narrow call site
+    instead: wrap the colliding usage in `-% … %-` passthrough with the real, long Apple constant
+    name (`NSLeftTextAlignment`, not the short alias `alignLeft`) — this sidesteps the alias table
+    for that one call site without touching either shared definition. Before adding a *new* short
+    bare-keyword usage of an Apple constant alias anywhere, grep the target name across the repo
+    first (`grep -rn "<name>(" --include=*.twk --include=*.rtn .`) — the danger class is identical
+    to bear-trap #12 (extern "C" collisions) but one layer up, at the TAWK-keyword level instead
+    of the linker level, and harder to spot because it isn't `extern`-declared anywhere to grep for.
+
 ---
 
 ## The `testing` Command

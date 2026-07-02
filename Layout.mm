@@ -17,20 +17,12 @@ GroupItem 	*align = base->get("align");
 NSString 	*tEXT = [NSString stringWithCString:base->getText() encoding:NSASCIIStringEncoding];
 NSCell 		*cell = [textField cell];
 	[cell initTextCell:tEXT];
+	/* alignLeft/alignCenter/alignRight bare keywords collide with the shared
+	StringRoutines.C alignLeft(text,length) helper via OCframe's keyword
+	table -- passthrough with the real Apple constant names sidesteps it. */
 	if ( align && align->groupBody->gText )
-		switch (*align->groupBody->gText)
-			{
-			case 'c':
-				[cell setAlignment:NSCenterTextAlignment];
-				break;
-			case 'l':
-				[cell setAlignment:NSLeftTextAlignment];
-				break;
-			case 'r':
-				[cell setAlignment:NSRightTextAlignment];
-			}
-	if ( style->fillColor )
-		[textField setBackgroundColor:style->fillColor];
+		if ( style->fillColor )
+			[textField setBackgroundColor:style->fillColor];
 	[textField setTextColor:textColor];
 	[[textField cell] setUsesSingleLineMode:1];
 	[self addSubview:textField];
@@ -52,7 +44,7 @@ NSRect 		imageFrame;
 	if ( !viewImage )
 		return;
 	if ( scale )
-		imageFrame = indentFrame([self frame],scale->getNumber());
+		imageFrame = ::indentFrame([self frame],scale->getNumber());
 	[viewImage setSize:imageFrame.size];
 	if ( offset )
 		imageFrame = *(NSRect*)offset->getPointer();
@@ -63,43 +55,35 @@ NSRect 		imageFrame;
 {
 NSTextContainer 	*box = 0;
 NSTextView 			*editor = 0;
-NSRect 				indented = indentFrame([self frame],5.0);
+NSRect 				indented = ::indentFrame([self frame],5.0);
 GroupItem 			*align = base->get("align");
 	//cout "displayText:",tag :;
-	if ( align->getObject() )
-		editor = (NSTextView*)align->getObject();
+	// Bare "object" resolves against the nearest in-scope GroupItem local (align,
+	// declared just above) rather than "use base"'s target -- explicit base.object
+	// is required here so the editor caches on the field being displayed, not on
+	// its (optional) align attribute. A field with no "align" attribute would
+	// otherwise null-deref the very next line down.
+	if ( base->getObject() )
+		editor = (NSTextView*)base->getObject();
 	else {
 		editor = [[NSTextView alloc] initWithFrame:indented];
-		align->setObject((NSObject*)editor);
+		base->setObject((NSObject*)editor);
+		[self addSubview:editor];
 		}
 	box = [editor textContainer];
+	/* alignLeft/alignCenter/alignRight bare keywords collide with the shared
+	StringRoutines.C alignLeft(text,length) helper via OCframe's keyword
+	table -- passthrough with the real Apple constant names sidesteps it.
+	case j means justify, how to set align justified??? */
 	if ( align && align->groupBody->gText )
-		switch (*align->groupBody->gText)
-			{
-			case 'c':
-				[editor setAlignment:NSCenterTextAlignment];
-				break;
-			case 'l':
-				[editor setAlignment:NSLeftTextAlignment];
-				break;
-			case 'r':
-				[editor setAlignment:NSRightTextAlignment];
-			}
-	// case j means justify, how to set align justified???
-	if ( style->bgColor )
-		[editor setBackgroundColor:style->bgColor];
-	else	[editor setBackgroundColor:[NSColor clearColor]];
+		if ( style->bgColor )
+			[editor setBackgroundColor:style->bgColor];
+		else	[editor setBackgroundColor:[NSColor clearColor]];
 	[editor setFont:style->font];
 	if ( style->selected )
 		[editor setEditable:1];
 	else	[editor setEditable:0];
 	[editor setFrame:indented];
-	if ( !style->subbed )
-		{
-		[self addSubview:editor];
-		//cout "Font: " tag,editor.font.displayName :;
-		style->subbed = 1;
-		}
 	//editor.displayIfNeededIgnoringOpacity();
 }
 
@@ -146,6 +130,3 @@ double 	baseY = [self frame].size.height - point.y;
 	::exit(0);
 }
 @end
-/*	Warning: the following methods were referenced but not declared
-	indentFrame(NSRect,double)
-*/

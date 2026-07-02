@@ -23,11 +23,18 @@ use base
 use style
 Cell    cell = textField.cell;
     cell.init(tEXT);
+    /* alignLeft/alignCenter/alignRight bare keywords collide with the shared
+       StringRoutines.C alignLeft(text,length) helper via OCframe's keyword
+       table -- passthrough with the real Apple constant names sidesteps it. */
     if align && align.gText
-        switch(*align.gText) {
-            case 'c':   cell.setAlign(alignCenter);
-            case 'l':   cell.setAlign(alignLeft);
-            case 'r':   cell.setAlign(alignRight); }
+        -%
+        switch (*align->groupBody->gText)
+            {
+            case 'c':   [cell setAlignment:NSCenterTextAlignment]; break;
+            case 'l':   [cell setAlignment:NSLeftTextAlignment]; break;
+            case 'r':   [cell setAlignment:NSRightTextAlignment]; break;
+            }
+        %-
     if style.fillColor    textField.bgColor = fillColor;
     textField.color = textColor;
     textField.cell.setSingleLine(true);
@@ -70,27 +77,36 @@ use base
 GroupItem   align = base["align"];
 use style
     //cout "displayText:",tag :;
-	if object   editor = object;
+    // Bare "object" resolves against the nearest in-scope GroupItem local (align,
+    // declared just above) rather than "use base"'s target -- explicit base.object
+    // is required here so the editor caches on the field being displayed, not on
+    // its (optional) align attribute. A field with no "align" attribute would
+    // otherwise null-deref the very next line down.
+	if base.object   editor = base.object;
 	else {
 	            editor  = new(indented);
-	            object  = editor; }
+	            base.object  = editor;
+	            addSubview(editor); }
     box = editor.textContainer;
+    /* alignLeft/alignCenter/alignRight bare keywords collide with the shared
+       StringRoutines.C alignLeft(text,length) helper via OCframe's keyword
+       table -- passthrough with the real Apple constant names sidesteps it.
+       case j means justify, how to set align justified??? */
     if align && align.gText
-        switch(*align.gText) {
-            case 'c':   editor.align(alignCenter);
-            case 'l':   editor.align(alignLeft);
-            case 'r':   editor.align(alignRight); }
-        // case j means justify, how to set align justified???
+        -%
+        switch (*align->groupBody->gText)
+            {
+            case 'c':   [editor setAlignment:NSCenterTextAlignment]; break;
+            case 'l':   [editor setAlignment:NSLeftTextAlignment]; break;
+            case 'r':   [editor setAlignment:NSRightTextAlignment]; break;
+            }
+        %-
     if bgColor  editor.bgColor = bgColor;
     else        editor.bgColor = clearColor;
     editor.setFont(font);
     if selected         editor.setEditable(true);
     else                editor.setEditable(false);
     editor.setFrame(indented);
-    if !subbed {
-        addSubview(editor);
-        //cout "Font: " tag,editor.font.displayName :;
-        subbed  = true; }
     //editor.displayIfNeededIgnoringOpacity();
 }
 

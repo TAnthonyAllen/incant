@@ -4,6 +4,53 @@ docs/bot-recon.md verdict, docs/wiki-recon.md (verdicts as summarized in wakeup;
 items marked VERIFY should be cross-checked against the recon docs themselves).*
 *Self-contained; written to survive a month of hibernation.*
 
+---
+## RATIFIED AMENDMENTS (2026-07-02, post step-0 recon — Tony-ratified; supersede where they conflict)
+*`docs/webchannel-step0-recon.md` refuted three assumptions this plan leaned on, and Clay's review
+added three v1-correctness items. Read this block first; the plan body is otherwise intact.*
+
+**D2 correction — there is NO persistent runloop to "hook into."** `main()` (`groups.mm`) is
+CLI-only; a Cocoa runloop spins up only on demand via `openWindow()` (`guiHost.mm`) → `[app run]`.
+For the pilot use **CFSocket + `CFRunLoopRun()` directly** (no NSApplication assumed). This is also
+more correct across runloop modes, not just simpler — see the mode trap below.
+
+**D3/Step 1 correction — do NOT mirror `setFileOp`.** It's not a general callable extern; it's
+bound to a single global operator slot (`modedOP`, via `operateMethod=`), invoked with special
+binary-operator syntax. `setSocketOp` should instead mirror **`openWindow`'s plain-extern +
+`immediateAction=` registration** pattern. The `guiHost.mm` tok-bypass pattern (for CF/socket
+headers tok can't parse) is confirmed and has `openWindow` as a working precedent to copy.
+
+**D4 correction — the BotClient salvage is vapor.** `BotClient.run()` never parses text (hardcoded
+stub); the cited `parseString` helper lives only in gitignored `Aside/` legacy, not the live build.
+The real proven text→GroupItem mechanism is the **JSON parser's push/pop input-diversion path**
+(`docs/json.md`). Model `/eval` on that.
+
+**v1-correctness items to fold in EARLY (not Step-6 hardening):**
+- **`Connection: close` belongs in Step 2, not deferred.** Browsers keep-alive by default; a
+  held-open connection under one-request-per-pump reads as a hang at the very first browser POP.
+- **accept-drain per pump.** Browsers open several parallel connections per page (assets, favicon);
+  loop `accept()` until `EWOULDBLOCK` each pump, or the page stalls across ticks — the exact POP
+  you're judged on in Steps 2/5.
+- **Runloop-mode trap (elevate Step-0 from VERIFY to decision).** A default-mode NSTimer does NOT
+  fire during `NSEventTrackingRunLoopMode` — so a timer-based pump dies while the user drags/resizes
+  a window or a sheet is up (exactly what the parallel GUI work builds). Add the source/timer to
+  `NSRunLoopCommonModes`, or take the CFSocket path (preferred, per D2).
+
+**Forward note — `/eval` mutating the live tree.** `/eval` runs arbitrary incant on the tree-owning
+thread (quiescent by construction at v1, good) but a handler can delete a field Layout holds a
+pointer into. A reconcile/redraw after `/eval` may be needed; ties into guiDesign.md's reconcile
+pass. Bank now, address when the GUI reconcile lands.
+
+**THE CONVERGENCE (highest-leverage recon for next session).** Step 1's open question — does a
+top-level parse entry for arbitrary incant already exist (analogous to `JSONblock`'s divert), or does
+`/eval` need its own rule — is the **same knot** as bear-trap #15 (bare top-level `x = new(...)`
+fails; the colors/fonts live-render POPs are stuck on it) and sits beside the JSON array-of-objects
+fix. All three point at the JSON input-diversion mechanism (`docs/json.md`). One focused recon on
+the parse-entry/diversion path unblocks: the colors+fonts POPs, `/eval` (this Step 1), and the JSON
+fix. Do that recon FIRST next session; it's three threads off the rocks for one investigation.
+
+---
+
 ## Mission
 A browser can talk to a running incant process: send text, incant evaluates it
 against the live tree, browser gets the result. First cash-out: wiki pages served

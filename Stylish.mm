@@ -9,8 +9,8 @@
 #include "GroupControl.h"
 #include "GroupBody.h"
 #include "PLGset.h"
-#include "Stylish.h"
 #include "GroupDraw.h"
+#include "Stylish.h"
 
 /*******************************************************************************
 	Return the lowest descendent block that contains the point passed in.
@@ -20,18 +20,14 @@ extern "C" GroupItem *blockContaining(GroupItem *base, NSPoint p)
 {
 GroupItem 	*item = 0;
 GroupItem 	*grup = 0;
-Stylish 	*style = 0;
 	if ( base )
 		{
 		//if detail = base.other cout "blockContaining",base.tag,frame,"Point:",p.x,p.y:;
 		while ( item = base->nextMember(item) )
 			{
-			style = ::getStyle(item);
 			if ( ::contains(item,p) )
 				if ( item->groupBody->flags.hasMembers || !item->groupBody->flags.noPrint )
-					if ( !style->selectable )
-						continue;
-					else	break;
+					break;
 			}
 		if ( item && item->groupBody->flags.hasMembers )
 			if ( grup = ::blockContaining(item,p) )
@@ -291,6 +287,10 @@ NSFont 	*font = 0;
 	: @"Helvetica";
 	double          pointSize = sizeField ? sizeField->getNumber() : 12.0;
 	NSFontSymbolicTraits    traits = 0;
+	// presence-based by design (Tony): field exists => trait on. Do NOT switch to a
+	// value-check (bold=0 means off) without first POPping how a bare flag (no value,
+	// e.g. plain "bold") reports .number/.count -- a bare flag has no data and would
+	// read as off, breaking the common "bold;" case.
 	if ( boldField )    traits |= NSFontDescriptorTraitBold;
 	if ( italicField )  traits |= NSFontDescriptorTraitItalic;
 	NSDictionary    *attrs = @{ NSFontFamilyAttribute: name };
@@ -328,17 +328,11 @@ Stylish::Stylish(GroupItem *item)
 	bgColor = 0;
 	fillColor = 0;
 	font = 0;
-	shadowBlur = 0;
-	shadowOffset = 0;
-	shadowX = 0;
-	shadowY = 0;
-	shadowColor = 0;
+	shadowField = 0;
 	formatter = 0;
 	editable = 0;
 	selected = 0;
 	selectable = 0;
-	subbed = 0;
-	shadowField = 0;
 	strokeColor = [NSColor blackColor];
 	textColor = [NSColor blackColor];
 	styling = item->groupBody->tag;
@@ -360,17 +354,11 @@ Stylish::Stylish(char *name)
 	bgColor = 0;
 	fillColor = 0;
 	font = 0;
-	shadowBlur = 0;
-	shadowOffset = 0;
-	shadowX = 0;
-	shadowY = 0;
-	shadowColor = 0;
+	shadowField = 0;
 	formatter = 0;
 	editable = 0;
 	selected = 0;
 	selectable = 0;
-	subbed = 0;
-	shadowField = 0;
 	strokeColor = [NSColor blackColor];
 	textColor = [NSColor blackColor];
 	styling = name;
