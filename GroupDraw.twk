@@ -52,23 +52,9 @@ View        view;
 }
 
 /*******************************************************************************
-	Return the lowest descendent block that contains the point passed in.
-    Assumes the group passed in contains the point.
+	blockContaining now lives in Stylish.twk (2026-07-02 dedup — was defined
+    twice, causing a duplicate-symbol link error; Stylish's version is current).
 *******************************************************************************/
-extern GroupItem blockContaining(GroupItem grup,Point p)
-{
-GroupItem   item,group;
-    if grup && grup.containsPoint(p)
-        {
-        //cout "blockContaining",base.tag,frame,"Point:",p.x,p.y:;
-        while item = grup.nextMember(item)
-            if item.containsPoint(p) break;
-        if item && item.hasMembers
-            if group = item.blockContaining(p)
-                return group;
-        }
-    return item;
-}
 
 /*****************************************************************************
 	Check if point is in the frame defined here. Edges do not count.

@@ -5,46 +5,37 @@ include /Users/anthony/Dropbox/data/InProcess/Groups/groupIncludes
 *******************************************************************************/
 class Stylish
 {
-String          styling;
-Shadow          shadow;
+String      styling;
+Shadow      shadow;
+double      borderWidth,
+            radius,
+            transparency;
+Color       bgColor,
+            fillColor,
+            strokeColor,
+            textColor;
+Font        font;
+GroupItem   shadowField;
 NumberFormatter formatter;
-double			borderWidth,
-                radius,
-                transparency;
-GroupItem
-                blankItem,
-                commaItem,
-                createdBy,
-                filler,
-                fontItem,
-                formatItem,
-                selectFill,
-                selectStroke,
-                stroker,
-                texter,
-                zeroItem;
 boolean
-		align:3[center left right justify]
-		bottomBorder
-        fontModified
-		leftBorder
-		rightBorder
-		rounded
-		squared
-		topBorder
+        editable
+        selected
+        selectable
+        subbed
 		;
 
 Stylish(GroupItem item)
 {
-    texter      = colorRegister["black"];
+    strokeColor = blackColor;
+    textColor   = blackColor;
     styling     = item.tag;
-    createdBy   = item;
 	// This just zeros out everything
 }
 
 Stylish(String name)
 {
-    texter      = colorRegister["black"];
+    strokeColor = blackColor;
+    textColor   = blackColor;
 	styling     = name;
 }
 
@@ -53,28 +44,112 @@ Stylish(GroupItem item,Stylish source)
 #initNOT
 	*this       = *source;
     styling     = item.tag;
-    createdBy   = item;
 }
 }
-                                                                            
+
+/*******************************************************************************
+	Return the lowest descendent block that contains the point passed in.
+    Assumes the base passed in contains the point.
+*******************************************************************************/
+extern GroupItem blockContaining(GroupItem base,Point p)
+{
+GroupItem   item,
+            grup;
+Stylish     style;
+    if base {
+        //if detail = base.other cout "blockContaining",base.tag,frame,"Point:",p.x,p.y:;
+        while item = base.nextMember(item) {
+            style = getStyle(item);
+            if item.contains(p)
+                if item.hasMembers || !item.noPrint
+                    if !selectable continue;
+                    else break; }
+        if item && item.hasMembers
+            if grup = item.blockContaining(p)   return grup; }
+    return item;
+}
+
+/*****************************************************************************
+	Check if point is in the field frame
+*****************************************************************************/
+extern int contains(GroupItem field,Point p)
+{
+Frame   frame = getFrame(field);
+double	top, right;
+	//cout "Checking " wig.tag "\n";
+	if y > frame.y && x > frame.x {
+		top		= frame.y + frame.height;
+		right	= frame.x + frame.width;
+		return y <= top && x <= right; }
+	return false;
+}
+
+/*******************************************************************************
+    Look up the color in the cOLOr registry, set its color object if needed and
+    return the color object.
+*******************************************************************************/
+extern Color getColor(String name)
+{
+Color       color;
+GroupItem   item = locate(name);
+    if item
+        if !isOBJECT    setColor(item);
+    if !(color = item.object)   cerr "getColor: ERROR could not get color",name:;
+    return color;
+}
+
+/***************************************************************************
+	Return the style for the field passed in. If the field has no style
+    attribute, it walks the parent hierarchy and returns the first style
+    it finds.
+***************************************************************************/
+extern Stylish getStyle(GroupItem field)
+{
+GroupItem   style:,
+            grup = field;
+Stylish     styled;
+    if !style
+        while grup = parent
+            if style = grup["style"]    break;
+    if style    styled = style.pointer;
+    else        styled = makeStyleFor(field);
+    return  styled;
+}
+
+/*******************************************************************************
+	The indentFrame methods resize and reposition a frame. POP required to
+    make sure they do what is intended wrt frame position. Named indentFrame*
+    (not indent/indentWH) — those names collide at C linkage with the
+    unrelated debug-print indent() in the shared support StringRoutines.C.
+*******************************************************************************/
+extern Frame indentFrame(Frame f,double b)
+{
+	return rectangle(x + b,y + b, width - 2 * b,height - 2 * b);
+}
+
+extern Frame indentFrameWH(Frame f,double w,double h)
+{
+	return rectangle(x + w,y + h, width - 2 * w,height - 2 * h);
+}
+
 /***************************************************************************
 	Converts a color hex code into a color object
+    Note: cOLORs registry stores color hex as a string like "rrggbb"
 ***************************************************************************/
-extern GroupItem setColor(GroupItem input)
+extern void setColor(GroupItem field)
 {
-GroupRules  ruler = groupRules;
 String      atPart = text;
+GroupItem   hexSet = properties["hexSet"];
+PLGset      set = characterSet;
 unsigned int    red,
                 blue,
                 green;
-Color       color;
-GroupItem   hexSet = properties["hexSet"];
-CharSet      set = characterSet;
-    if atPart && *atPart == '#'  atPart++;   // cOLOr registry stores #rrggbb; skip the '#'
 use stringBUFFER
+use field
     red = set.contains(atPart);
     if !red || strlen(atPart) != 6      cout "ERROR: expected a valid six character hex string not:" atPart:;
     else {
+        Color       color;
         stringBUFFER.reset();
         stringBUFFER    += atPart;
         atPart  = start + 4;
@@ -88,193 +163,88 @@ use stringBUFFER
         stringBUFFER.reset();
         color = rgbColor((double)red,(double)blue,(double)green,1.0);
         object = color; }
-    return input;
 }
-                                                                            
-/***************************************************************************
-	Sets font object based on font attributes.
-***************************************************************************/
-extern GroupItem setFont(GroupItem input)
+
+/*******************************************************************************
+	Process shadow. This compiles but design required plus POP to make sure
+    shadow and shadowField are set right and in sync.
+*******************************************************************************/
+extern void sHADOW(GroupItem field)
 {
-GroupRules  ruler = groupRules;
-GroupItem   family:,
-            size:,
-            bold:,
-            italic:;
+Stylish shadowStyle = getStyle(field);
+    if !shadow
+        {
+        shadow = new;
+        hold((void*)shadow);
+        }
+    if shadowField {
+        GroupItem   shadowBlur = shadowField["blur"];
+        GroupItem   shadowColor = shadowField["color"];
+        GroupItem   xOffset = shadowField["x"];
+        GroupItem   yOffset = shadowField["y"];
+        shadowStyle = getStyle(shadowField);
+        if shadowBlur shadow.blur(shadowBlur.number);
+        else shadow.blur(3.0);
+        if shadowColor && shadowColor.isPointer {
+            Color coloric = shadowColor.pointer;
+            shadow.color(coloric); }
+        else shadow.color(black.alpha(0.3));
+        if xOffset && yOffset   shadow.offset(sized(xOffset.number,yOffset.number));
+        else shadow.offset(sized(2.0,-2.0));
+        }
+}
+
+/***************************************************************************
+	Sets font object based on font attributes. May require revision after
+    font design session.
+***************************************************************************/
+extern void setFont(GroupItem field)
+{
+GroupItem   family = field["family"],
+            size = field["size"],
+            bold = field["bold"],
+            italic = field["italic"];
 NSString    name = family.text;
 int         mask;
-Font        font = getFont(name,size.double);
-use input
-    if bold     mask &= NSBoldFontMask;
-    if italic   mask &= NSItalicFontMask;
+unsigned int    boldMask;
+unsigned int    italicMask;
+Font        font;
+use field
+    font = fontWithName(name,size.number);
+    if bold {
+        boldMask = bold.count;
+        mask &= boldMask; }
+    if italic {
+        italicMask = italic.count;
+        mask &= italicMask; }
     hold((void*)font);
     object  = font;
-    return input;
 }
 
 /*******************************************************************************
-	Process font attribute
+	Assign a style to the field passed in, which is expected to be a style
+    attribute. Looks up styles in sTYLEs registry that does not exist yet.
 *******************************************************************************/
-void fONT(GroupItem item)
+extern Stylish makeStyleFor(GroupItem field)
 {
-Details     detail = item.getDetail();
-GroupItem	element,namedFont,trait;
-String      name;
-Font        font;
-use item
-	if item.isPointer && style
-        if fontItem && !fontModified
-            return;           // Must have already processed this
-	if !style style = new(wig,getStyle());
-    if name = item.text
-        if namedFont = locate(name)
-            {
-            font = systemFontOfSize(0);
-            fontItem = namedFont;
-            setFont(font);
-            hold((void*)font);
-            namedFont.other = detail;
-            while namedFont.nextAttribute(element)
-                {
-                trait = properties[element.tag];
-                if !trait && element.registry
-                    trait = properties[element.registry.type];
-                if trait
-                    if trait.method trait.method(element);
-                    or element.isItem && trait["method"]
-                        if trait = properties[element.text] element.method = trait.method;
-                }
-            if fontModified font = getFont();
-            fontModified = false;
-            }
-        else cerr "font: could not locate",item:;
-    else cerr "font: no name specified":;
-	//cout "font: " wig.tag,font.displayName(),font.size():;
-}
-
-/*******************************************************************************
-	Process font name.
-*******************************************************************************/
-void fONTname(GroupItem item)
-{
-Details     detail  = item.getDetail();
-String      name    = item.text;
-Font        font,revisedFont;
-    if name
-        {
-        NSString    ocText = name;
-        if !style style = new(wig,getStyle());
-        if !fontItem
-            {
-            font = systemFontOfSize(0);
-            fontItem = new(name);
-            setFont(font);
-            }
-        else font = getFont();
-        if font
-            {
-            revisedFont = convert(font,ocText);
-            font    = revisedFont;
-            hold((void*)font);
-            fontModified = true;
-            setFont(font);
-            }
-        }
-    else cerr "fONTname: no name provided",item:;
-	//cout `"font name: " wig.tag,item.text,font.displayName(),font.size():;
-}
-
-/*******************************************************************************
-	Process font size.
-*******************************************************************************/
-void fONTsize(GroupItem item)
-{
-Details     detail = item.getDetail();
-double      amount = item.number;
-Font        font,revisedFont;
-    if amount == 0.0
-        {
-        cerr "fONTsize: no font size specified in",wig.getTagXML():;
-        return;
-        }
-	if !style style = new(wig,getStyle());
-	font = getFont();
-    if !font
-        cerr "fONTsize: no font found to set size of for",wig.getTagXML():;
-    else {
-        revisedFont = convert(font,amount);
-        font    = revisedFont;
-        hold((void*)font);
-        fontModified = true;
-        setFont(font);
-        //cout `"font size: " wig.tag,item.text,font.displayName(),font.size():;
-        }
-}
-
-/*******************************************************************************
-	Process font style (ie. bold, italic).
-*******************************************************************************/
-void fONTstyle(GroupItem item)
-{
-Details     detail = item.getDetail();
-int			mask = item.count;
-	if !style style = new(wig,getStyle());
-    if mask
-        {
-        Font font = getFont();
-        Font revisedFont;
-        if !font
-            {
-            font = systemFontOfSize(0);
-            if !fontItem fontItem = new("no name font");
-            setFont(font);
-            }
-        revisedFont = convert(font,mask);
-        font    = revisedFont;
-        hold((void*)font);
-        fontModified = true;
-        setFont(font);
-        }
-	//cout "style: " wig.tag,item.tag,font.displayName(),font.size():;
-}
-
-/*******************************************************************************
-	Assign the style named in the item passed in as the current style. If there
-	is no named style, create one.
-*******************************************************************************/
-GroupItem sTYLE(GroupItem item)
-{
-Details         detail  = item.getDetail();
-String          name    = item.text;
+String          name    = text;
 GroupItem       styles  = registries["sTYLEs"];
 GroupItem       styleItem;
-use style
-    if !styles
-        {
-        cerr "ERROR in " wig.tag ": could not find sTYLEs registry":;
-        return null;
-        }
-    if !name
-        {
-        cerr "ERROR in " wig.tag ": style attribute has to specify a name":;
-        return null;
-        }
-    if styleItem = styles[name]
-        {
-        if !styleItem.pointer
-            {
-            if style
-                style   = new(wig,style);
-            else style  = new(name);
-            styleItem.pointer = (void*)style;
-            }
-        else style = styleItem.pointer;
-        return null;
-        }
-	setStyle();
-    styling     = name;
-    styleItem   = new(name);
-    styleItem.pointer = (void*)style;
-    styles += styleItem;
-    return null;
+Stylish         style;
+    if !styles {
+        cerr "makeStyleFor",tag,"ERROR: could not find sTYLEs registry":;
+        return style;}
+    if !name {
+        cerr "makeStyleFor",tag,"ERROR: style attribute has to have text to specify a name":;
+        return style;}
+    if styleItem = styles[name]     style = styleItem.pointer;
+    else {
+        style = new(name);
+        styleItem   = new(name);
+        styleItem.pointer = style;
+        styles += styleItem; }
+    styleItem = new("style");
+    styleItem.pointer = style;
+    field +% styleItem;
+    return style;
 }

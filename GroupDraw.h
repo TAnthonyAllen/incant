@@ -12,7 +12,6 @@ GroupItem *drawRegistry;
 Layout *layout;
 void setWindow(GroupItem *block);
 };
-extern "C" GroupItem *blockContaining(GroupItem *grup, NSPoint p);
 extern "C" int containsPoint(GroupItem *grup, NSPoint p);
 extern "C" NSRect getFrame(GroupItem *item);
 extern "C" NSTextView *getTextView(GroupItem *field);

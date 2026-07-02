@@ -75,8 +75,8 @@ So a draw statement would look like:    draw something something;    Where somet
         Another note: the registry attributes makes a defined group a registry
         and adds it to the registries list
 *******************************************************************************/
+register(Drawing);
 define
-    Drawing registry;
         align;                  // must have a value: center left right, or letter c l or r
         border;
         clip;
@@ -139,29 +139,33 @@ define
         perforation stride=6 gap=12 depth=2 fill=perfColor border home line percent up=8 perfLeft=5 perfTop=5 up=depth right=10 down=2 perfRight=5 down=8 left=10 perfBottom=5;
     ;
 /*******************************************************************************
-    Colors, Fonts, and Drawing actions.
+    Colors
 *******************************************************************************/
+register(cOLORs);
 define
-    Colors registry;
-        red="ef2b2d";
-        lightBlue=ceffff;
-        lightGreen="afd378";
+    red="ef2b2d";
+    lightBlue="ceffff";
+    lightGreen="afd378";
     ;
+/*******************************************************************************
+    Fonts
+        Note: font field shape and content to be determined in a design session
+*******************************************************************************/
+register(fONTs);
 define
-    Fonts registry;
-        bold=2;
-        fontFileMask regex="[.]tt[cf]";
-        systemFonts directory="/System/Library/Fonts" fontFileMask load;
-        moreFonts directory="/System/Library/Fonts/Supplemental" fontFileMask;
-        italic=1;
-        smallCaps=128;
-        courierFont family="Courier New" size=24 bold;
-        titleFont family=Palatino size=24 bold;
-        headerFont family=Palatino size=14 bold;
-        normalFont family=Palatino size=14;
-        copperFont family=Copperplate size=12;
-        defaultFont family=Helvetica size=10;
-        EBgaramondFont family="EB Garamond" size=18 bold;
+    bold=1;
+    fontFileMask regex="[.]tt[cf]";
+    systemFonts directory="/System/Library/Fonts" fontFileMask load;
+    moreFonts directory="/System/Library/Fonts/Supplemental" fontFileMask;
+    italic=2;
+    smallCaps=128;
+    courierFont family="Courier New" size=24 bold;
+    titleFont family=Palatino size=24 bold;
+    headerFont family=Palatino size=14 bold;
+    normalFont family=Palatino size=14;
+    copperFont family=Copperplate size=12;
+    defaultFont family=Helvetica size=10;
+    EBgaramondFont family="EB Garamond" size=18 bold;
     ;
 
 /*******************************************************************************

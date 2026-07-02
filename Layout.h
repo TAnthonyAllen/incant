@@ -3,7 +3,9 @@ class GroupItem;
 @class NSBezierPath;
 @class NSColor;
 @class NSFont;
-@class NSEvent;
+@class NSTextFieldCell;
+@class NSTextField;
+class Stylish;
 @class NSNotification;
 /*******************************************************************************
 	Layout view
@@ -18,14 +20,16 @@ NSColor *strokeColor;
 NSColor *textColor;
 NSColor *wallColor;
 NSFont *currentFont;
+NSTextFieldCell *cell;
+NSTextField *textField;
+Stylish *style;
 }
+- (void)displayCell;
+- (void)displayImage;
+- (void)displayText;
 - (void)drawRect:(NSRect)r;
-- (Layout*)init:(NSRect)f;
+- (Layout*)init:(GroupItem*)field;
 - (NSPoint)invertY:(NSPoint)point;
-- (void)keyUp:(NSEvent*)event;
-- (void)mouseUp:(NSEvent*)event;
-- (void)rightMouseUp:(NSEvent*)event;
-- (void)scrollWheel:(NSEvent*)event;
 - (void)viewDidEndLiveResize;
 - (void)windowWillClose:(NSNotification*)notification;
 @end

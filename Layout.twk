@@ -7,49 +7,90 @@ class Layout extends View implements WindowDelegate
 {
 GroupItem       base,
                 selection;
+TextField       textField;
 Path            layoutPath;
-Color           strokeColor,
-                textColor,
-                wallColor;
-Font            currentFont;
+Stylish         style;
+Frame           frame;
+
+/*******************************************************************************
+	Display a cell.
+*******************************************************************************/
+void displayCell()
+{
+GroupItem   align = base["align"];
+NSString    tEXT = base.text;
+use base
+use style
+Cell    cell = textField.cell;
+    cell.init(tEXT);
+    if align && align.gText
+        switch(*align.gText) {
+            case 'c':   cell.setAlign(alignCenter);
+            case 'l':   cell.setAlign(alignLeft);
+            case 'r':   cell.setAlign(alignRight); }
+    if style.fillColor    textField.bgColor = fillColor;
+    textField.color = textColor;
+    textField.cell.setSingleLine(true);
+    addSubview(textField);
+    if editable
+        if selected {
+            window.makeFirstResponder(textField);
+            textField.displayIfNeededIgnoringOpacity(); }
+}
+
+/*******************************************************************************
+	Display an image (centered and cropped to fit the frame). Getting image
+    to fit happens in incant in the imageFit action TBD; it will set scale and
+    offset attributes in the image attribute.
+*******************************************************************************/
+void displayImage()
+{
+use base
+GroupItem   image = base["image"],
+            offset = base["offset"],
+            scale = base["scale"];
+Image		viewImage = image.object;
+Frame       imageFrame;
+	if !viewImage return;
+    if scale    imageFrame = indentFrame(frame,scale.number);
+    viewImage.setSize(size);
+    if offset   imageFrame = *(Frame)offset.pointer;
+    viewImage.drawIn(frame,imageFrame,sourceOver,1.0);
+}
 
 /*******************************************************************************
 	Display text
-void displayText(GroupItem field)
+*******************************************************************************/
+void displayText()
 {
-Box				box;
-TextView		editor;
-String			alignment;
-Frame           framed = getFrame(field);
-	if object
-		editor = object;
-	else {
-        editor  = getTextView(field);
-        object  = editor;
-        box = editor.textContainer;
-		box.trackHeight(true);
-		box.trackWidth(true);
-		if group = field["align"] alignment = group.text;
-		if alignment
-			if alignment == 'c'
-				editor.align(alignCenter);
-			or alignment == 'l'
-				editor.align(alignLeft);
-			or alignment == 'r'
-				editor.align(alignRight);
-        editor.bgColor = clearColor;
-        editor.setFont(style.getFont());
-        editor.setEditable(false);
-		}
-    editor.setFrame(framed);
-    if !subbed
-        {
+Box         box;
+TextView    editor;
+Frame       indented = indentFrame(frame,5.0);
+use base
+GroupItem   align = base["align"];
+use style
+    //cout "displayText:",tag :;
+	if object   editor = object;
+	else        object  = editor;
+    box = editor.textContainer;
+    if align && align.gText
+        switch(*align.gText) {
+            case 'c':   editor.align(alignCenter);
+            case 'l':   editor.align(alignLeft);
+            case 'r':   editor.align(alignRight); }
+        // case j means justify, how to set align justified???
+    if bgColor  editor.bgColor = bgColor;
+    else        editor.bgColor = clearColor;
+    editor.setFont(font);
+    if selected         editor.setEditable(true);
+    else                editor.setEditable(false);
+    editor.setFrame(indented);
+    if !subbed {
         addSubview(editor);
-        subbed  = true;
-        }
+        //cout "Font: " tag,editor.font.displayName :;
+        subbed  = true; }
     //editor.displayIfNeededIgnoringOpacity();
 }
-*******************************************************************************/
 
 /*******************************************************************************
 	Draw — flat, read-only pass over base's attributes. The old recursive
@@ -62,32 +103,28 @@ Frame           framed = getFrame(field);
 *******************************************************************************/
 void drawRect(Frame r)
 {
-GroupItem   grup;
 Frame       f;
     if !base return;
+    style   = getStyle(base);
     setDefaultLineWidth(0.0);
     strokeColor = blackColor;
     strokeColor.set();
-    while grup = base.nextAttribute(grup)
-        {
-        f   = getFrame(grup);
-        f.y = frame.height - f.y - f.height;
-        rectangle(f);
-        }
+    f   = getFrame(base);
+    f.y = frame.height - f.y - f.height;
+    rectangle(f);
     stroke();
 }
 
-Layout init(Frame f)
+/*******************************************************************************
+	init here takes a GroupItem argument. I assume that is allowed???
+*******************************************************************************/
+Layout init(GroupItem field)
 {
-    frame       = f;
+    base        = field;
     layoutPath  = bezierPath();
     return self;
 }
 
-/*******************************************************************************
-	Invert the y coordinate of the point passed in to correspond to top down
-    orientation and return revised point
-*******************************************************************************/
 Point invertY(Point point)
 {
 double  baseY = frame.height - point.y;
@@ -96,60 +133,14 @@ double  baseY = frame.height - point.y;
 }
 
 /*******************************************************************************
-	Handle key clicks
-        If selection does not have a key action
-        searches parent hierarchy for a block that does have a key action
+	Event handling will be passed to incant to deal with. How that happens
+    is a design decision to be made. Methinks when an event happens, Layout
+    calls an incant extern method passing it the event.
+    How the incant -> layout -> incant cha cha works is the crux of the design
+    decision. The events that incant has to handle are: keyUp mouseUp rightMouseUp
+    and scrollWheel. incant also needs a blockContaining method to figure out
+    which field gets the event.
 *******************************************************************************/
-void keyUp(Event event)
-{
-    cout "Layout keyUp":;
-}
-
-/*******************************************************************************
-	Handle mouse clicks
-*******************************************************************************/
-void mouseUp(Event event)
-{
-    cout "Layout mouseUp":;
-}
-
-/*******************************************************************************
-	Handle right mouse click
-*******************************************************************************/
-void rightMouseUp(Event event)
-{
-    cout "Layout rightMouseUp":;
-}
-
-/*******************************************************************************
-	Handle scroll wheel events
-*******************************************************************************/
-void scrollWheel(Event event)
-{
-double		delta;
-int			down,
-			length;
-    //paging  = false;
-	delta   = deltaY();
-	if delta < 0
-		{
-		down = true;
-		length = -delta;
-		}
-	else length = delta;
-	if !length length++;
-    if down length = -length;
-    // if direction is down, length is negative
-    /***************************************************************************
-        HPDL
-Point		point = convertPoint(mouseAt(),nil);
-GroupItem   block;
-    if selection
-        selection.scrollBlock(length,1);
-    or block = base.blockContaining(point)
-        block.scrollBlock(length,1);
-    ***************************************************************************/
-}
 
 void viewDidEndLiveResize()
 {

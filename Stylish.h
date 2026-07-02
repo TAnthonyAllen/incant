@@ -1,6 +1,8 @@
 @class NSShadow;
-@class NSNumberFormatter;
+@class NSColor;
+@class NSFont;
 class GroupItem;
+@class NSNumberFormatter;
 /*******************************************************************************
 	Defined as class but just a structure really to encapsulate style attributes
 *******************************************************************************/
@@ -10,38 +12,39 @@ class Stylish
 public:
 char *styling;
 NSShadow *shadow;
-NSNumberFormatter *formatter;
 double borderWidth;
 double radius;
 double transparency;
-GroupItem *blankItem;
-GroupItem *commaItem;
-GroupItem *createdBy;
-GroupItem *filler;
-GroupItem *fontItem;
-GroupItem *formatItem;
-GroupItem *selectFill;
-GroupItem *selectStroke;
-GroupItem *stroker;
-GroupItem *texter;
-GroupItem *zeroItem;
+NSColor *bgColor;
+NSColor *fillColor;
+NSColor *strokeColor;
+NSColor *textColor;
+NSFont *font;
+GroupItem *shadowBlur;
+GroupItem *shadowOffset;
+GroupItem *shadowX;
+GroupItem *shadowY;
+GroupItem *shadowColor;
+NSNumberFormatter *formatter;
 struct 
 	{
-	unsigned int align:3;
-	unsigned int bottomBorder:1;
-	unsigned int fontModified:1;
-	unsigned int leftBorder:1;
-	unsigned int rightBorder:1;
-	unsigned int rounded:1;
-	unsigned int squared:1;
-	unsigned int topBorder:1;
+	unsigned int editable:1;
+	unsigned int selected:1;
+	unsigned int selectable:1;
+	unsigned int subbed:1;
 	};
-#define center(button) (button == 1)
-#define left(button) (button == 2)
-#define right(button) (button == 3)
-#define justify(button) (button == 4)
+GroupItem *shadowField;
 Stylish(GroupItem *item);
 Stylish(GroupItem *item, Stylish *source);
 Stylish(char *name);
 };
-extern "C" GroupItem *setColor(GroupItem *input);
+extern "C" GroupItem *blockContaining(GroupItem *base, NSPoint p);
+extern "C" int contains(GroupItem *field, NSPoint p);
+extern "C" NSColor *getColor(char *name);
+extern "C" Stylish *getStyle(GroupItem *field);
+extern "C" NSRect indentFrame(NSRect f, double b);
+extern "C" NSRect indentFrameWH(NSRect f, double w, double h);
+extern "C" Stylish *makeStyleFor(GroupItem *field);
+extern "C" void sHADOW(GroupItem *field);
+extern "C" void setColor(GroupItem *field);
+extern "C" void setFont(GroupItem *field);

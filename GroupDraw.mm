@@ -6,29 +6,13 @@
 #include "GroupItem.h"
 #include "GroupBody.h"
 #include "Layout.h"
+#include "Stylish.h"
 #include "GroupDraw.h"
 
 /*******************************************************************************
-	Return the lowest descendent block that contains the point passed in.
-    Assumes the group passed in contains the point.
+	blockContaining now lives in Stylish.twk (2026-07-02 dedup — was defined
+    twice, causing a duplicate-symbol link error; Stylish's version is current).
 *******************************************************************************/
-extern "C" GroupItem *blockContaining(GroupItem *grup, NSPoint p)
-{
-GroupItem 	*item = 0;
-GroupItem 	*group = 0;
-	if ( grup && ::containsPoint(grup,p) )
-		{
-		//cout "blockContaining",base.tag,frame,"Point:",p.x,p.y:;
-		while ( item = grup->nextMember(item) )
-			if ( ::containsPoint(item,p) )
-				break;
-		if ( item && item->groupBody->flags.hasMembers )
-			if ( group = ::blockContaining(item,p) )
-				return group;
-		}
-	return item;
-}
-
 /*****************************************************************************
 	Check if point is in the frame defined here. Edges do not count.
 *****************************************************************************/
