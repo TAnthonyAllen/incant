@@ -25,16 +25,33 @@ testJSON('{"a":"b"}');
 testJSON('{"a":"url://example.com/path#fragment"}');
 testJSON('{"a":"1.0","b":"hello"}');
 
-print "=== Bug B - arrays (currently fail) ===":;
+print "=== arrays (2026-07-02: re-verified green, comment below was stale) ===":;
 testJSON('{"a":[]}');
 testJSON('{"a":["x","y"]}');
 testJSON('{"a":[1,2,3]}');
 
-print "=== Bug A - nested objects (currently segfault) ===":;
+print "=== nested objects (2026-07-02: re-verified green, comment below was stale) ===":;
 testJSON('{"a":{}}');
 testJSON('{"a":{"b":"c"}}');
 testJSON('{"a":{"b":"c","d":"e"}}');
 
-print "=== combined - real Google Fonts shape ===":;
+print "=== single Google Fonts item shape (files nested obj + variants array) ===":;
 testJSON('{"family":"EB Garamond","variants":["regular","700"],"files":{"regular":"https://fonts.gstatic.com/foo.ttf","700":"https://fonts.gstatic.com/bar.ttf"}}');
+
+/*****************************************************************************
+	2026-07-02 Google-fonts probe (M3, Fearless marching orders). The real
+	`webfonts/v1/webfonts` API response wraps many font entries in a top-level
+	"items" ARRAY OF OBJECTS: {"items":[{...},{...}]}. That shape currently
+	FAILS cleanly (no crash, no hang - JSONblock reports a clean parse
+	failure at the first array element). Root cause, from the grammar
+	(incant/utilities): JSONarray's elements are JSONitem -> JSONtoken@, and
+	JSONtoken's option list is only "false"/"true"/GrouP/NumbeR - it does NOT
+	include JSONblock. So an array can hold strings/numbers/bools but not
+	nested objects. A single flat font entry (the case just above, and every
+	other case in this file) parses fine; it's specifically array-of-objects
+	that chokes. Grammar fix (NOT done here - out of scope for this probe):
+	add JSONblock as a JSONtoken option so array elements can be objects.
+*****************************************************************************/
+print "=== full webfonts-list shape: items is an array of objects (KNOWN TO FAIL) ===":;
+testJSON('{"kind":"webfonts#webfontList","items":[{"family":"ABeeZee","variants":["regular","italic"],"subsets":["latin"],"version":"v22","files":{"regular":"http://fonts.gstatic.com/s/abeezee/v22/a.ttf","italic":"http://fonts.gstatic.com/s/abeezee/v22/b.ttf"},"category":"sans-serif"},{"family":"Roboto","variants":["regular","700"],"subsets":["latin","cyrillic"],"version":"v30","files":{"regular":"http://fonts.gstatic.com/s/roboto/v30/c.ttf","700":"http://fonts.gstatic.com/s/roboto/v30/d.ttf"},"category":"sans-serif"}]}');
 stop();
