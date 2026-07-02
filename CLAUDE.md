@@ -435,17 +435,29 @@ Hard-won lessons. Each one has cost real debugging time.
 
 15. **Bare top-level incant script statements (`incant/oneTest`-style files) don't support
     `identifier = new(...)` for a not-yet-existing identifier** — `RunRulE: expected a method
-    not <name>` — regardless of whether `<name>` collides with anything. Top-level bare
-    statements appear to require the LHS to already exist (assignment to a pre-declared field,
-    e.g. `righty = 13;` where `righty` comes from an included fixture) or to be a call to an
-    already-defined action/rule (`generateAction(testByteCode);`, `dumpFontInfo(titleFont);`
-    where `titleFont` — if it resolves at all — comes from elsewhere). The exact idiom for
-    constructing a fresh ad hoc GroupItem tree from a bare top-level script (as opposed to
-    inside a `.twk` method body, where `GroupItem x = new(...); x.attr = new(...);` works fine)
-    is **unresolved** — three attempts on 2026-07-02 (colors POP, fonts POP) failed to find it
-    without grinding. `incant/unitTests`'s predefined-action pattern (`testUnitTests()`-style)
-    is the likely right shape; not confirmed. Next agent who needs an ad hoc top-level POP:
-    check `incant/unitTests` for the idiom before improvising bare assignment statements.
+    not <name>` — regardless of whether `<name>` collides with anything. **CONFIRMED FIX (same
+    day, follow-up):** wrap the construction in a registered action's `code={ }` body instead of
+    a bare top-level statement — `register(Name); define myAction code={ x = new("x"); ... };
+    ; myAction();` (`incant/unitTests`'s `testNew argument code={ grup = new(argument); ... };`
+    is the confirmed template) — run under the FULL `oneTest`-style preamble
+    (`include(unitTests); include(generate); include(utilities); search reset stack Grokking;
+    search Generating UnitTests bcOPs Utilities list;`). This eliminates the parse rejection.
+    **But two more issues surfaced testing this (2026-07-02, unresolved):**
+    (a) two-argument `new(tag,value)` still doesn't parse even inside `code={ }`
+    (`ERROR processCode: <action> parse failed`) — use two-step construction instead
+    (`x = new("tag"); x.text = value;`), matching `testNew`'s single-arg shape exactly.
+    (b) with that fixed, a field with a real attribute attached (e.g. `boldFont.family = new(...)`
+    two-step) still segfaults when passed through `setFont`/`dumpFontInfo` — before any output —
+    while the exact same shape with ZERO attributes attached runs crash-free but ALSO produces
+    zero output from a `fprintf(stderr,...)` call that should be unbuffered (rules out bear-trap
+    #14's buffering explanation). Likely **two separate bugs**, not one: an attribute-construction-
+    then-dereference crash, and an independent silent-non-dispatch of either the action call or
+    the print. Separately, colors' `setColor` `properties["hexSet"]` null-deref (this trap's
+    original attempt 2) **still segfaults even under the full preamble** — that global doesn't
+    get populated by `include(unitTests/generate/utilities)` alone; the real init path is still
+    unknown. Next agent: don't re-derive the two-arg-`new()` or `code={ }` findings above: start
+    from a *zero-attribute* field in a registered action to confirm the dispatch/print path
+    first, before reintroducing attribute construction.
 
 ---
 
