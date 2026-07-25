@@ -11,6 +11,7 @@
 #include "GroupBody.h"
 #include "RuleStuff.h"
 #include "PLGset.h"
+#include "Stylish.h"
 #include "GroupDraw.h"
 
 /*******************************************************************************
@@ -564,7 +565,7 @@ GroupItem 	*grup = 0;
 		{
 		if ( (rule->groupBody->flags.data && rule->groupBody->flags.data < 4) || max == 1 )
 			isTarget = 1;
-		if ( !min && rule->parent->rStuff->min )
+		if ( !min && rule->parent->rStuff->min && rule->parent->allAttributesOptional() )
 			rule->parent->rStuff->min = 0;
 		}
 	if ( !testMatch )
@@ -614,3 +615,6 @@ void RuleStuff::setTestMatch()
 		if ( !isMethod(rule->groupBody->flags.instructType) )
 			testMatch = ::testString;
 }
+/*	Warning: the following methods were referenced but not declared
+	allAttributesOptional()
+*/

@@ -283,6 +283,24 @@ GroupItem 	*group = 0;
 	return group;
 }
 
+/***************************************************************************
+    True if every attribute of this group has min 0. getWhatFollows() only
+    zeroes a parent rule's min when ALL of its attributes are individually
+    optional -- one optional attribute among mandatory siblings must not
+    drag the parent's own min down to 0 (genParseSpec.md S7.1). An attribute
+    with no rStuff yet has not had a chance to relax its implicit default
+    min of 1 (RuleStuff(GroupItem) sets min=1), so treat "not yet known" as
+    mandatory, not as optional -- the safe default, same as an untouched min.
+***************************************************************************/
+int GroupItem::allAttributesOptional()
+{
+GroupItem 	*attr = 0;
+	while ( attr = nextAttribute(attr) )
+		if ( !attr->rStuff || attr->rStuff->min )
+			return 0;
+	return 1;
+}
+
 /*****************************************************************************
 	Append the group passed in to this one. Does not care if there is no
     parent (does not increment parent or listLength).

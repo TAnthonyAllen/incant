@@ -154,7 +154,7 @@ use rule
         if grup = followingMember() onFail = grup; }
     or isEmbedded {
         if (data && data < 4) || max == 1 isTarget = true;
-        if !min && parent.min   parent.min = 0; }
+        if !min && parent.min && parent.allAttributesOptional()   parent.min = 0; }
     if !testMatch   setTestMatch();
 }
 

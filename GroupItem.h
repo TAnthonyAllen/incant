@@ -39,6 +39,7 @@ GroupItem *addGroup(GroupItem *group);
 GroupItem *addMember(GroupItem *grup);
 void addRuleStuff();
 GroupItem *addString(char *n);
+int allAttributesOptional();
 void append(GroupItem *grup);
 void clear();
 void clearData();
