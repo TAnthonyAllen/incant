@@ -15,6 +15,286 @@
 #include "GroupDraw.h"
 
 /*******************************************************************************
+    True if ch is one of the characters in chars -- a guard test for baked
+    guard sets. PLGset stays the default for larger sets (banked, S5.2); this
+    covers the single/small-explicit-set cases in the JSONblock family.
+*******************************************************************************/
+extern "C" int inGuard(char *chars, char ch)
+{
+	while ( *chars )
+		if ( *chars == ch )
+			return 1;
+		else	chars++;
+	return 0;
+}
+
+/*******************************************************************************
+    Alternation exit. No label of its own (S2.4) -- the winning option has
+    already attached (rule-reference options attach via their own leaveRule
+    against the same `into`; literal options attach via litOption). Only
+    handles the rewind-on-failure half of Invariant R.
+*******************************************************************************/
+extern "C" int leaveAlt(char *from, int ok)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( ok )
+		return 1;
+	ruler->atRuleMark = from;
+	return 0;
+}
+
+/*******************************************************************************
+    Sequence exit -- Invariant R lives here and in leaveAlt, nowhere else.
+    On success: attach label into `into`'s list, return true. On failure:
+    rewind atRuleMark to `from`, return false (label is simply not attached;
+    GC reclaims it, same as parse()'s own comment on label leaks).
+*******************************************************************************/
+extern "C" int leaveRule(GroupItem *into, GroupItem *label, char *from, int ok)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( ok )
+		{
+		into->addAttribute(label);
+		return 1;
+		}
+	ruler->atRuleMark = from;
+	return 0;
+}
+
+/*******************************************************************************
+    genParse Step 1/2 prototype (docs/genParseSpec.md S3/S5): hand-written
+    support library + the seven JSONblock methods + entry wrapper. No tok
+    macros -- every primitive below is a real function, so &&/|| composition
+    works natively. (tok's #name(args)-...- macro facility segfaults or
+    silently drops statements once a macro call is anything but the sole
+    content of its function -- see CLAUDE.md bear traps.)
+*******************************************************************************/
+/*******************************************************************************
+    Match a literal string at atRuleMark (skip-set pass first). No label --
+    for "-"/noLabel attribute terms (JSONblock's "{"-/"}"-,  JSONfield's ":"-,
+    JSONitem's ","?-).
+*******************************************************************************/
+extern "C" int lit(char *str)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+char 		*atText = 0;
+char 		*matchStr = 0;
+	if ( ruler->skipSet->contains(*ruler->atRuleMark) )
+		ruler->atRuleMark = ruler->checkSkip(ruler->atRuleMark);
+	atText = ruler->atRuleMark;
+	matchStr = str;
+	while ( *matchStr )
+		if ( *atText == *matchStr )
+			{
+			atText++;
+			matchStr++;
+			}
+		else	return 0;
+	ruler->atRuleMark = atText;
+	return 1;
+}
+
+/*******************************************************************************
+    Match a literal string as an alternation MEMBER (JSONtoken's "false"/
+    "true"). A plain literal member is not noLabel, so on success this
+    creates a label tagged with the literal text and attaches it into `into`
+    directly -- leaveAlt is label-transparent by design, so literal options
+    must attach themselves (rule-reference options attach via their own
+    leaveRule against the same `into`).
+*******************************************************************************/
+extern "C" int litOption(GroupItem *into, char *str)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*fresh = 0;
+char 		*atText = 0;
+char 		*matchStr = 0;
+	if ( ruler->skipSet->contains(*ruler->atRuleMark) )
+		ruler->atRuleMark = ruler->checkSkip(ruler->atRuleMark);
+	atText = ruler->atRuleMark;
+	matchStr = str;
+	while ( *matchStr )
+		if ( *atText == *matchStr )
+			{
+			atText++;
+			matchStr++;
+			}
+		else	return 0;
+	ruler->atRuleMark = atText;
+	fresh = new GroupItem(str);
+	into->addAttribute(fresh);
+	return 1;
+}
+
+/*******************************************************************************
+    Generated per-term iteration helper for JSONblock's `JSONfield*` (min 0).
+    Same treatment S5.2 already gives character-level accumulators, extended
+    to group-reference iteration -- one small function per loop site rather
+    than a reusable macro (S2.5).
+*******************************************************************************/
+extern "C" int manyJSONblockFields(GroupItem *label)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+char 		*from = ruler->atRuleMark;
+int 		kount = 0;
+	while ( parseJSONfield(label) )
+		kount++;
+	if ( kount >= 0 )
+		return 1;
+	ruler->atRuleMark = from;
+	return 0;
+}
+
+/*******************************************************************************
+    Generated per-term iteration helper for JSONlist's `JSONitem+` (min 1).
+*******************************************************************************/
+extern "C" int manyJSONlistItems(GroupItem *label)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+char 		*from = ruler->atRuleMark;
+int 		kount = 0;
+	while ( parseJSONitem(label) )
+		kount++;
+	if ( kount >= 1 )
+		return 1;
+	ruler->atRuleMark = from;
+	return 0;
+}
+
+/*******************************************************************************
+    Bridge to the GENERIC driver for rules genParse hasn't converted yet
+    (GrouP, NumbeR -- pre-existing bootstrap rules, out of scope for this
+    prototype). Builds a throwaway RuleStuff whose .label IS `into`, so
+    parse()'s own attach logic (`pStuff.label +% label;`) appends directly
+    where a converted callee's leaveRule/leaveAlt would have. Generated
+    methods and the generic driver coexist rule by rule (S0) -- this is the
+    seam.
+*******************************************************************************/
+extern "C" int parseGeneric(GroupItem *into, char *ruleName)
+{
+GroupItem 	*rule = GroupControl::groupController->locate(ruleName);
+RuleStuff 	*bridge = new RuleStuff(rule);
+	bridge->label = into;
+	return rule->parse(bridge) != 0;
+}
+
+/*******************************************************************************
+    JSONarray isRule "["- JSONlist? "]"- code={
+        if JSONlist; for grup in JSONlist; grup <: grup; };
+*******************************************************************************/
+extern "C" int parseJSONarray(GroupItem *into)
+{
+GroupItem 	*label = new GroupItem("JSONarray");
+GroupItem 	*rule = GroupControl::groupController->locate("JSONarray");
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+char 		*from = ruler->atRuleMark;
+int 		ok = 0;
+	ok = ::lit("[") && (::parseJSONlist(label) || 1) && ::lit("]");
+	if ( ok )
+		label = rule->groupBody->gMethod(label);
+	return ::leaveRule(into,label,from,ok && label);
+}
+
+/*******************************************************************************
+    JSONblock isRule fail "{"- JSONfield* "}"-;
+*******************************************************************************/
+extern "C" int parseJSONblock(GroupItem *into)
+{
+GroupItem 	*label = new GroupItem("JSONblock");
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+char 		*from = ruler->atRuleMark;
+	return ::leaveRule(into,label,from,::lit("{") && ::manyJSONblockFields(label) && ::lit("}"));
+}
+
+/*******************************************************************************
+    JSONfield isRule JSONtoken ":"- JSONvalue ","?- code={
+        token <: JSONtoken; token = JSONvalue; return token; };
+*******************************************************************************/
+extern "C" int parseJSONfield(GroupItem *into)
+{
+GroupItem 	*label = new GroupItem("JSONfield");
+GroupItem 	*rule = GroupControl::groupController->locate("JSONfield");
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+char 		*from = ruler->atRuleMark;
+int 		ok = 0;
+	ok = parseJSONtoken(label) && ::lit(":") && parseJSONvalue(label) && (::lit(",") || 1);
+	if ( ok )
+		label = rule->groupBody->gMethod(label);
+	return ::leaveRule(into,label,from,ok && label);
+}
+
+/*******************************************************************************
+    JSONitem isRule JSONtoken@ ","?-;
+    @ (isTarget/promote): the child's label becomes JSONitem's own result,
+    retagged. No fresh label of its own and no leaveRule call -- JSONtoken's
+    own leaveAlt/leaveRule already rewinds on failure (Invariant R), so
+    promotion needs nothing extra on the failure path.
+*******************************************************************************/
+extern "C" int parseJSONitem(GroupItem *into)
+{
+	if ( !::parseJSONtoken(into) )
+		return 0;
+	into->groupBody->tag = "JSONitem";
+	::lit(",");
+	return 1;
+}
+
+/*******************************************************************************
+    JSONlist isRule JSONitem+;
+*******************************************************************************/
+extern "C" int parseJSONlist(GroupItem *into)
+{
+GroupItem 	*label = new GroupItem("JSONlist");
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+char 		*from = ruler->atRuleMark;
+	return ::leaveRule(into,label,from,::manyJSONlistItems(label));
+}
+
+/*******************************************************************************
+    JSONtoken isRule JSONblock; "false"; "true"; GrouP; NumbeR;
+*******************************************************************************/
+extern "C" int parseJSONtoken(GroupItem *into)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+char 		*from = ruler->atRuleMark;
+	return ::leaveAlt(from,(::inGuard("{",*ruler->atRuleMark) && ::parseJSONblock(into)) || ::litOption(into,"false") || ::litOption(into,"true") || parseGeneric(into,"GrouP") || parseGeneric(into,"NumbeR"));
+}
+
+/*******************************************************************************
+    JSONvalue isRule JSONblock; JSONarray; JSONtoken;
+*******************************************************************************/
+extern "C" int parseJSONvalue(GroupItem *into)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+char 		*from = ruler->atRuleMark;
+	return ::leaveAlt(from,(::inGuard("{",*ruler->atRuleMark) && ::parseJSONblock(into)) || (::inGuard("[",*ruler->atRuleMark) && parseJSONarray(into)) || parseJSONtoken(into));
+}
+
+/*******************************************************************************
+    Entry wrapper -- outside callers do field = runJSONblock(argument) and
+    expect a GroupItem (genParseSpec S5.3).
+
+    NOTE (Clod, 2026-07-25): S5.3's own worked example checks
+    `!result.hasMembers` here, but leaveRule attaches via `+%` == addAttribute
+    (confirmed from the generated code -- see bear-trap), which sets
+    hasAttributes, not hasMembers. `hasMembers` is never true for JSONblock's
+    own content, so that check always fired and silently discarded every
+    successful parse's real content in favour of the empty `trueResult`
+    sentinel -- found empirically via the tree-diff POP, not by inspection.
+    Checking hasAttributes instead is the fix; flagging in the spec too.
+*******************************************************************************/
+extern "C" GroupItem *runJSONblock(GroupItem *argument)
+{
+GroupItem 	*result = new GroupItem("JSONblock");
+	GroupControl::groupController->groupRules->pushInput(argument);
+	if ( !::parseJSONblock(result) )
+		result = 0;
+	else
+	if ( !result->groupBody->flags.hasAttributes )
+		result = GroupControl::groupController->groupRules->trueResult;
+	return result;
+}
+
+/*******************************************************************************
 	This sets the data of rule to the value of a previously processed label
     with the same name as rule
 *******************************************************************************/
