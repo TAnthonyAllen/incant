@@ -23,6 +23,7 @@
 #include "PLGset.h"
 #include "PLGrgx.h"
 #include "PLGitem.h"
+#include "Stylish.h"
 #include "GroupDraw.h"
 
 /*****************************************************************************
@@ -1253,8 +1254,8 @@ continueHere:
 				ruleStuff->sukcess = ruleStuff->testMatch(this);
 			if ( !parseACTION(groupBody->flags.methodType) )
 				{
-				if ( ruleStuff->sukcess && ruleStuff->onGroup && ruleStuff->onGroup->parse(ruleStuff) )
-					ruleStuff->sukcess = 1;
+				if ( ruleStuff->sukcess && ruleStuff->onGroup && !ruleStuff->onGroup->parse(ruleStuff) )
+					ruleStuff->sukcess = 0;
 				if ( ruleStuff->sukcess && groupBody->flags.hasAttributes )
 					ruleStuff->sukcess = ::testAttributes(ruleStuff);
 				}

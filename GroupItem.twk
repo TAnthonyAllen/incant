@@ -932,7 +932,7 @@ continueHere:
         if testMatch || onGroup || hasAttributes {
             if testMatch                                            sukcess = testMatch(this);
             if !parseACTION {
-                if sukcess && onGroup && onGroup.parse(ruleStuff)   sukcess = true;
+                if sukcess && onGroup && !onGroup.parse(ruleStuff)  sukcess = false;
                 if sukcess && hasAttributes                         sukcess = testAttributes(ruleStuff); }}
         or isRule && hasMembers                                     sukcess = testOptions(ruleStuff);
         if !sukcess     goto matchFailed;
