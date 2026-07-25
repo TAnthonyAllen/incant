@@ -494,6 +494,32 @@ Hard-won lessons. Each one has cost real debugging time.
     to bear-trap #12 (extern "C" collisions) but one layer up, at the TAWK-keyword level instead
     of the linker level, and harder to spot because it isn't `extern`-declared anywhere to grep for.
 
+18. **tok's `#name(args)-...-` macro facility only works when the invocation is the ENTIRE, SOLE
+    body of its containing function** — exactly `testMacro`'s only existing usage (`testAny`/
+    `testCharacter`/`testSet`, each just `use field \n testMacro(...);`). The moment a macro call
+    is one statement among several, it fails, and fails in two different ways depending on shape:
+    (a) nested in an expression (`return someMacro(x) && true;`, or even bare
+    `return someMacro(x);`) — **silently does not expand**, emitted verbatim as a literal call to a
+    function that doesn't exist, flagged only as "referenced but not declared" in a trailing
+    comment; fails at the C++ compile step, not at tok. (b) a bare statement that is NOT the
+    function's only statement (preceded or followed by other code) — **tok segfaults** (exit 139),
+    reproduced with both a GCC `({...})` block and plain ordinary tok syntax matching `testMacro`'s
+    own style, so it is not about `({...})` specifically. (c) **the most consequential**: two
+    macro calls in sequence in one function (an `enterX(...)` bare statement followed by
+    `return leaveX(...);`) does not crash, but silently drops the FIRST macro's statement entirely
+    (locals pruned, "Declarations ignored because not used: N" — the same warning bear-trap #13
+    uses for a different cause) while the SECOND remains an unresolved, unexpanded call. Neither
+    macro fires. Root cause per Clay (2026-07-25): not a tok bug so much as a category mismatch —
+    a macro expands to a block that declares locals and executes `return`; a statement can never be
+    a term in `A && B`. Candidates Tony was checking for a narrower rule (untested as of this
+    writing): missing terminating semicolon on the macro call, column-0/declaration-position vs
+    indented/statement-position, and whether `use field` needs to precede the call for bare-name
+    resolution inside the expansion to have anything to bind to. **Fix that actually worked**:
+    don't use tok macros for anything beyond `testMacro`'s existing shape. Write plain `extern`
+    functions instead — they're expressions by construction, so `&&`/`||` composition works
+    natively with zero substitution machinery, and multiple calls in one function are just
+    ordinary sequential statements. (genParse S3, 2026-07-25 — see `docs/genParseSpec.md`.)
+
 ---
 
 ## The `testing` Command
