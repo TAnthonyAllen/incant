@@ -19,6 +19,7 @@ int max;
 int min;
 RuleStuff *parentStuff;
 int (*testMatch)(GroupItem *);
+int (*parseMethod)(GroupItem *, GroupItem *);
 struct 
 	{
 	unsigned int banged:1;

@@ -65,9 +65,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
     genParse Step 1/2 prototype (docs/genParseSpec.md S3/S5): hand-written
     support library + the seven JSONblock methods + entry wrapper. No tok
     macros -- every primitive below is a real function, so &&/|| composition
-    works natively. (tok's #name(args)-...- macro facility segfaults or
-    silently drops statements once a macro call is anything but the sole
-    content of its function -- see CLAUDE.md bear traps.)
+    works natively.
 *******************************************************************************/
 /*******************************************************************************
     Match a literal string at atRuleMark (skip-set pass first). No label --
@@ -676,6 +674,7 @@ gotMatch:
 RuleStuff::RuleStuff(GroupItem *grup)
 {
 	testMatch = 0;
+	parseMethod = 0;
 	hereAt = 0;
 	failedAt = 0;
 	label = 0;
@@ -711,6 +710,7 @@ RuleStuff::RuleStuff(GroupItem *grup)
 RuleStuff::RuleStuff(RuleStuff *r)
 {
 	testMatch = 0;
+	parseMethod = 0;
 	ruleName = 0;
 	hereAt = 0;
 	failedAt = 0;

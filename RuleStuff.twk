@@ -19,6 +19,7 @@ int         kount,
             min;
 RuleStuff   parentStuff;
 int         &testMatch(GroupItem);
+int         &parseMethod(GroupItem, GroupItem);
 boolean
     banged
     doNothing
