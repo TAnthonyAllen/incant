@@ -29,8 +29,11 @@ OPEN:       §8  ! and % modifier semantics, `fail` recovery, skip placement,
             §7.5 does the JSON family reach GroupItem::parse() at all?
                 aCTionRunRulE result-discard + the Grokking-fold
                 decision. Instrumentation suspect, see the "26"   → Tony/Clod
-            §7.1 mechanism CONFIRMED from codegen; 0b fix code-correct
-                but not yet falsifiable against a live fixture     → Clod
+            §7.1 mechanism CONFIRMED from codegen; 0b fix FALSIFIED
+                2026-07-27 against a live fixture — present in the
+                tree, ineffective on JSONblock. Prime conjecture:
+                vacuous truth in allAttributesOptional(). Mechanism
+                unmeasured; instrumented print pending      → Clod
 ```
 
 *Clay, 2026-07-25. Written from Tony's return-from-hibernation design session. Source material
@@ -837,8 +840,47 @@ in `getWhatFollows`'s `isEmbedded` branch and the `isMember` branch is mutually 
 (`RuleStuff.mm:557-570`, if/else on `rule->options.affiliation`), so an attribute-only walk is
 correctly scoped. A sibling with unset rStuff is counted mandatory-unknown rather than optional —
 the conservative direction, but it can decline to zero a min that legitimately should be zeroed.
-Baseline byte-identical before and after; **the fix is code-correct but not yet falsified against a
-live fixture** (see §7.5).
+Baseline byte-identical before and after; ~~the fix is code-correct but not yet falsified against a
+live fixture~~ — **FALSIFIED 2026-07-27. 0b is in the tree (`8e3c118`) and does NOT do its job on
+JSONblock.**
+
+**The fixture** (Clay SEQ 20's inverted ordering — the discriminator the earlier attempt lacked).
+§7.1's own memoization story predicts a first-call FAIL under *both* hypotheses, so "malformed twice"
+spends the reading on the arming call. Invert it: a well-formed parse arms, a malformed one reads,
+nothing follows. One process — memoization is per-process, so two binary invocations are two fresh
+first-calls and both FAIL regardless.
+
+```
+testJSON('{"a":"b"}');   ->  ok  : {"a":"b"}      arming call succeeds
+testJSON('{');           ->  ok  : {              THE READING: non-null for malformed input
+```
+`FAIL` here would have meant 0b works. `ok` means it does not. Interleaved in that output, a
+`Rule JSONblock / Failed at:` report *fires* while the return is still rescued to non-null.
+
+**Scope of the claim — narrower than "the defect is still live".** Proved: JSONblock returns non-null
+for `'{'` on a second in-process call with 0b present. NOT proved: that `min` is still being zeroed.
+That is the presumed mechanism and it is unmeasured. Two worlds sit behind one observation —
+`min == 0` after arming (the gate isn't firing) versus `min` stays 1 (0b works and something *else*
+rescues the return, which would move three days of attribution). Instrumented print pending.
+
+**Prime conjecture — vacuous truth (confirmed available by inspection, not yet confirmed as the
+cause).** `GroupItem.twk:897 allAttributesOptional()` walks siblings and `return true`s on falling
+out of the loop. A universal over an empty set is true, so a walk that finds *no* attributes — or
+runs before the attribute list is linked — passes the gate vacuously and zeroes exactly as the
+ungated code did. The unset-sibling case IS guarded (`!attr.rStuff` → false); the no-siblings-found
+case is NOT, and the two fail in opposite directions. If the visited-count reads 0 or 1 for
+JSONblock (which has a `fail` prefix plus three terms), that is the bug, and the fix is a floor:
+refuse to zero unless the walk visited at least one attribute.
+
+**Also observed, unresolved:** a failing JSONblock runs off the end of its argument and consumes the
+enclosing script, terminating the run (`stop: ending input divert`). See the third restoration in
+§2.2's neighbourhood — the input stack, alongside R (the mark) and R′ (the tree). Generated code
+gets it structurally from §5.3's entry wrapper popping the diversion on *both* paths.
+
+**Consequence for jsonTest as an oracle:** its last case is annotated `KNOWN TO FAIL` and prints
+`ok`. When min-zeroing is genuinely fixed that case flips to a real failure, which under the
+input-eating above terminates the run — so jsonTest will appear to break at the moment the defect
+is fixed. It is already the last case, so nothing downstream is lost.
 
 ### 7.2 The group-reference success asymmetry — RESOLVED, fix specified
 
@@ -1122,9 +1164,13 @@ baseline check:
   hold unchanged — its effect is masked while §7.1 is live, which is exactly why it goes first.
   **Done, `7b84748`, baseline held.**
 - **0b.** Fix §7.1's propagation, gated on every attribute being individually optional.
-  **Implemented and code-correct; baseline byte-identical, but unfalsified** — the predicted
-  `ok`→`FAIL` flip could not occur (§7.5). The outstanding piece is the malformed-input probe in
-  §7.1: `testJSON('{');` twice in a row.
+  Implemented, committed `8e3c118`, baseline byte-identical — and **FALSIFIED 2026-07-27**. The
+  predicted `ok`→`FAIL` flip does not occur; JSONblock still returns non-null for `'{'`.
+  **Correction to the probe recorded here:** `testJSON('{');` *twice in a row* discriminates
+  nothing — §7.1's own memoization story predicts a first-call FAIL under both hypotheses, so both
+  calls are arming calls and the second never reads. The working fixture inverts the order —
+  well-formed to arm, malformed to read, nothing after — in ONE process, since memoization is
+  per-process. See §7.1 for the run and for the vacuous-truth conjecture on why 0b is inert.
 
 **Step 1 — hand-write the support library** (§3). No generator, and no tok macros (§7.6). Ordinary
 C++ functions: `lit`, `litTo`, `inGuard`, `leaveRule`, `leaveAlt`, plus the skip pass. This is where
