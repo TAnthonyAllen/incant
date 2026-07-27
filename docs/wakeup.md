@@ -1,187 +1,231 @@
-# Incant — Status & Handoff (2026-07-27: genParse SPINE IS LIVE — rungs 1-2 emit + POP green,
-# rung-1 runnable floor green with Invariant R proven. runScaf2 dispatch OPEN (invocation-blocker
-# class). JSON hand-parse bug STILL open. Rung 3 = the walk/emission seam split, next.)
+# Incant — Status & Handoff (2026-07-27 PM: genParseRuleAccess steps 1-3 LANDED and green.
+# runScaf2 CLOSED. JSON causes 3 → 1, and the survivor is LOCATED. Step 4 ENTERED, ruling
+# stated below, NOT yet landed — the tree may be mid-flight. Read §"STEP 4" FIRST if the
+# build is red.)
 *Written by Clod for a fresh Clay/Clod with ZERO memory of today. Self-contained. Read fully before
-touching code. Everything below `a855bdc` is on branch `jit-unified-emit-wip`; main is untouched.*
+touching code. Everything below `af6b873` is on branch `jit-unified-emit-wip`; main is untouched.*
 
-## Headline — genParse went from design to a running emitter today
-Yesterday's session ended mid-investigation on the hand-written JSON parse. Today pivoted to the
-GENERATOR: Clay green-lit a staged build ladder (`docs/genParseLadder.md`), and Clod built the
-genParse emitter spine from nothing to a **live, compiling, running** C++ command that emits parse
-methods and — for rung 1 — those emitted methods actually PARSE. Four commits landed (below). The
-one open blocker is a fresh instance of the invocation-blocker class (runScaf2 won't dispatch), and
-the older JSON hand-parse bug is still unresolved (deliberately deferred — see Thread 3).
+## READ THIS FIRST IF YOU ARE COLD — the one thing most expensive to lose
 
-## Today's commits (branch `jit-unified-emit-wip`)
+**Step 4's ruling (Clay SEQ 23), stated here because reconstructing it from the docs alone costs an
+afternoon:**
+
+> **The generated parse must return `GroupItem`, NOT `int`.** `GroupItem::parse()` has a **three-way
+> exit**: `0` on failure, **the label** on success-with-a-label, **`trueResult`** on
+> success-without-one (`GroupItem.twk`, the `if !sukcess && notifyFail` / `if sukcess && !label
+> label = trueResult` / `return label` tail, plus `if label label = 0` on the `debugHere` failure
+> path). **An `int` cannot carry three outcomes.** With an `int` fnptr the §1.3 fork can recover
+> success/failure but never the label, and its only route to the label would be reconstruction from
+> `into` — which is the exact thing genParseRuleAccess §1.1 exists to prevent, in its own words:
+> *no dereference chain to walk, no reconstruction from `into` and `label`.* With a `GroupItem`
+> return the fork is a **pure pass-through**: correct by inspection, not by argument.
+>
+> `leaveRule`/`leaveAlt` become the **sole implementers** of that three-way exit. **The emitted
+> expression text does not change** — they already receive everything they need. Only return types
+> change (theirs, the parse methods', and the fnptr member's).
+>
+> **This re-touches step 1's commit** (`527e971`) — the fnptr member's type is part of `RuleStuff`'s
+> layout, so it is a **layout change**: `groups.ext` sync + `tokall` + rebuild + baseline
+> re-verify, not an edit. That is expected, not drift. Pay it now; it only grows.
+>
+> **Scope cap — do NOT build all of `parse()`'s exit now.** Its attachment block has three branches:
+> `isTarget` (assign + retag to `pStuff.ruleName`), `isGROUP && max > 1` (the `+% label.group` /
+> `clear()` / `fLAG = true` recycling path), and the plain `else pStuff.label +% label`.
+> **Rungs 1-2 need only the plain branch.** The middle one is rung 6's — and it is precisely the
+> `fLAG` recycling the emitter was already ruled MUST NOT reproduce (Invariant R′). The `isTarget`
+> branch is rung-9-adjacent. Grow them with the ladder.
+
+Note the irony worth keeping: bear-trap #20 celebrated the fnptr member for turning a signature
+*convention* into a compiler-enforced *type*. It did exactly that — and enforced a shape the design
+had specified wrong. The type held the line on the error. That is the system working.
+
+## Today's commits (branch `jit-unified-emit-wip`, in order)
 ```
-dacee77  genParse rung-1 runnable floor: parseScaf runs, Invariant R holds
-7f10181  genParse ladder rungs 1-2: emitSequence spine (single + two-literal), POP-passing
-04f90e0  docs: import Clay design/companion docs from Downloads
-8ea2419  genParse S9 step 2 (cont): retag + ruleSTUFF fixes in RuleStuff; add genParseSpec
+a16b3b8  CLAUDE.md: #10 tokall correction; #19 regen-staleness; #20 multi-arg fnptr
+ac7383d  genParseSpec §7.5: ANSWERED YES and LOCATED — invocation layer, parse() exonerated
+a85f2de  genParse §1.1 step 3: rule-first across the support library (17 call sites)
+014f0f6  genParse §1.3 step 2: parse() forks on rStuff.parseMethod (+ Tony's runNotified)
+a8e3078  genParseSpec §7.1: 0b falsified as a CURE, vindicated as a FIX
+8751a7c  genParseSpec §7.1: attribution moves off min-zeroing
+4a3da10  genParseSpec §7.1/§9: 0b tested against a live fixture
+527e971  genParse §1.2 step 1: RuleStuff.parseMethod fnptr member + tokall
 ```
-(Prior session tip was `19d0b58`. `8ea2419` banked yesterday's uncommitted RuleStuff retag/ruleSTUFF
-fixes + the untracked genParseSpec.md — see Thread 3.)
+(Session tip on arrival was `af6b873`.)
 
-## What genParse IS now (the spine)
-`genParse.rtn` (NEW file, included into `GroupRules.twk`) — a C++ command, `genParse('RuleName')`,
-that locates a rule and emits a C++ parse method mirroring the hand-written RuleStuff.twk methods
-(genParseSpec §4). "C++ first, kant second" per Tony: the emitter is C++ now; a kant rewrite comes
-once the JIT can compile the emitted action in-memory (no file). Wired the proven `runJSONblock`
-way (groups.ext decl + include). POP = text-diff vs a hand-written target (`genLadder/rung12.target`).
+## SETTLED TODAY — none of this is contingent on step 4
 
-### Where we are on Clay's ladder (docs/genParseLadder.md, rungs 1-10)
-- **Rung 1** (single-literal seq, `Scaf isRule "x"-` → `lit("x")`): emit ✅ + POP ✅ + **runs** ✅.
-- **Rung 2** (two-literal seq, `Scaf2 isRule "{"- "}"-` → `lit("{") && lit("}")`): emit ✅ + POP ✅.
-  Runtime (runScaf2) is wired but BLOCKED — see Thread 1.
-- **Rung 3** = the WALK/EMISSION SEAM SPLIT (see "Rung 3" below). NOT started. This is the next move.
-- Rungs 4-8: text-emit, mechanical (group-ref, alternation, iteration, optional, guarded options),
-  with a runtime re-check after rung 4 (first cross-method call / forward-decl discipline).
-- Rungs 9 (transparent-callee retag → `promoteR`) and 10 (tail `code={}` action) are GATED — see NEXT.
-- JSON family is the TOP of the ladder, done LAST (Thread 3 explains why jsonTest can't be the oracle yet).
+### 1. genParseRuleAccess steps 1-3 are LANDED and verified by RUNNING
+The brief (`docs/genParseRuleAccess.md`, imported to the repo today) revises genParseSpec §4.2/§5
+and lands **before** rung 3's seam split. Its §3 order, with one correction Clod made and Clay
+ratified — **step 1.5 must precede step 1**, because you cannot fork `parse()` on a field that does
+not exist yet:
 
-### The rung-1 runnable floor (GREEN) — why it mattered
-Clay's insistence, and it paid off: text-diff proves genParse emits what a human wrote, but is BLIND
-to whether the emitted code compiles/links/binds/RUNS — the exact failure class that cost this project
-5 attempts (Step 1/2 invocation blocker). So rung 1's emission was hand-placed + compiled in, with a
-`runScaf` wrapper:
-```
-runScaf('x') -> PARSED           parseScaf consumes "x"
-runScaf('y') -> FAIL, mark UNMOVED   <- Invariant R (§2.2): a failing method leaves atRuleMark
-                                        exactly where it found it (leaveRule's rewind). Every
-                                        downstream alternation/optional depends on this.
-```
-On a 4-line method a failure is unambiguously plumbing, not emitter logic. That's the floor doing its
-job — trust propagates up from a runnable base, not a merely-readable one.
+- **Step 1** (`527e971`) — `int &parseMethod(GroupItem, GroupItem)` added to `RuleStuff`. Additive,
+  nothing reads it. Modelled on the existing `testMatch` fnptr one line above.
+- **Step 2** (`014f0f6`) — `parse()` forks on `rStuff.parseMethod`, placed **before any frame state
+  is set** so the generated path has nothing to unwind. No-op by construction.
+- **Step 3** (`a85f2de`) — rule-first across the support library, **17 call sites, 2 files**:
+  `lit` · `litOption` · `inGuard` · `leaveRule` · `leaveAlt`. Every parse method that lacked one
+  acquired `GroupItem rule = locate("X")`. That is what satisfies POP §4 — a rule live in every
+  frame, no dereference chain.
 
-### Rung 3 — the seam split, with Clay's TWO refinements (do this FIRST, before climbing)
-Honest current state: the walk and emission are INTERLEAVED — C++ syntax is baked into the traversal
-(`cerr "extern int parse" rule.tag ...`), so a kant rewrite is a rewrite, not an emitter swap —
-**genParseSpec §0 does not hold yet.** The fix is rung 3's first move. Clay's two refinements on how
-to draw the seam (banked here so they survive):
-1. **SEAM AT INTENT, NOT PUNCTUATION.** Don't emit `joinAnd`/`returnLine` (already assumes the target
-   HAS an AND operator + short-circuits). The walk says "conjunctive fold over these terms" / "optional
-   term, succeeds regardless"; the EMITTER decides C++ spells those `&&` and `((t)||1)`. **Litmus:**
-   could the emission layer target a BYTECODE emitter (no expression grammar) without touching the
-   walk? If not, the walk is still C++-shaped.
-2. **WALK RETURNS A VALUE, NOT A CALL SEQUENCE.** A classified structure (sequence; these terms, each
-   classified; this one's a transparent-callee group-ref → retag), consumed by emission as a SECOND
-   pass. Payoff beyond kant: it's what §6 instrumentation reads AND the only way §8's position-zero
-   cycle check can inspect the whole rule graph before emitting (an as-you-go emitter structurally
-   can't). This is what makes Step 4 ("point it at any rule") safe.
-3. **KEEP IT THIN.** 3 rungs is a weak basis for a general IR. Cover what rungs 1-8 need; grow with the
-   leaf classifier. Sketch the shape, don't design the taxonomy.
+**POP ledger — every line RUN, none shape-read:**
+| check | result |
+|---|---|
+| `oneTest` / `jsonTest` after **every** step | **BYTE-IDENTICAL** to the pre-change capture |
+| rungs 1-2 text POP vs `genLadder/rung12.target` | diff **empty** |
+| runnable floor | `runScaf('x')` PARSED · `runScaf('y')` FAIL, mark UNMOVED |
+| **rung 2 runtime (NEW)** | `runScaf2('{')` FAIL, **mark REWOUND** — Invariant R both directions |
+| `grep -c extern GroupRules.h` | **161**, held through six retoks (bear-trap #10's canary) |
+| `rung12.target` | regenerated **deliberately**; diff is exactly the 4 intended lines |
 
-## Thread-by-thread status
+Held back deliberately in step 3, and it is step 4's business: **the parse methods' own signatures
+stay `(into)`.** Migrating to §1.4's `(field, into)` needs a cross-method-call decision — a callee
+needs ITS OWN rule, not the caller's — which is `parseR`/`promoteR` territory.
+`manyJSONblockFields`/`manyJSONlistItems` untouched for the same reason: they are *emitted* helpers,
+so rung 6 owns their shape.
 
-### 1. runScaf2 won't dispatch — OPEN, a fresh invocation-blocker instance (STOPPED per discipline)
-Symptom: `runScaf2('x')` produces NOTHING — never entered, clean exit, no error. `runScaf` (identical
-pattern, same file) works. **Ruled out** (don't re-test these): missing symbol (`nm <binary> | grep
-runScaf2` shows `_runScaf2` live), wrong codegen (GroupRules.mm:4595 is structurally identical to
-runScaf at 4573), multi-entry registration block (single-entry `registry(cOMMANDs); define runScaf2
-immediateAction=runScaf2; ;` also fails), input braces (`runScaf2('x')` non-brace also fails).
-**Digit-in-name (`runScaf2` tokenizing as `runScaf`+`2`) is the leading UNCONFIRMED hypothesis** — the
-`runScafB` alias test was CONFOUNDED (no `runScafB` symbol exists for the `=value` bind to resolve, so
-its failure is independently explained and proves nothing about digits). **Cleanest next test (needs a
-rebuild):** rename the extern `runScaf2`→`runScafTwo` (no digit) in genParse.rtn + groups.ext, rebuild,
-register+call `runScafTwo('x')`. If it dispatches, digit-in-command-name is the bug (high-value
-bear-trap: incant command names can't carry trailing digits). Corpus-worthy either way (Clay). This
-does NOT block the ladder — rung 1's floor is green; runScaf2 is only needed for rung-2's rewind test.
+### 2. runScaf2 — CLOSED. It was regen staleness, and the digit theory was FALSE
+`runScaf2` dispatches. No change to its name, registration, or call site — an unrelated `groups.ext`
+sync plus a full `tokall` cleared it. **Strike the digit-in-name hypothesis on sight: incant command
+names CAN carry trailing digits.** It was one bad session from hardening into a rule that would have
+cost someone a pointless rename.
 
-### 2. genParse emitter spine — LIVE, rungs 1-2 done
-`genParse.rtn` holds: `emitTerm` (leaf → `lit`/`litTo`), `genParse` (emitSequence: frame + leaveRule +
-` && ` join over the attribute walk), plus the runtime-loop plumbing (`parseScaf`/`parseScaf2` =
-verbatim emissions, `runScaf`/`runScaf2` wrappers). Emission idioms NAILED and banked in the file
-header — read them before extending:
-- **JUXTAPOSITION concatenates with NO space** (`"parse" rule.tag` → `parseScaf`), like parse()'s
-  `label.text = "g" tag`. **Comma in `cerr` INSERTS a space** (`rule= Scaf`) — commas are diagnostics
-  ONLY, never emitted code.
-- **`char dq = 34;` for every emitted double-quote** — no quote literal in the source, so tok's quote
-  handling is never exercised. (Single-quoted strings inside a C++ extern's `cerr` parse the inner `:`
-  as an inheritance colon and cascade the WHOLE file into `ERROR Inheritance` — cost real time, banked.)
-- **`cerr` bodies are C++** (extern bodies): DOUBLE-quoted strings only.
-- Recon-first confirmed the shape empirically before trusting the emit: a bare literal lands as an
-  ATTRIBUTE with `data=0` (default/`testString`/literal row), NOT the rule's own data — `setTestMatch()`
-  (RuleStuff.twk:164) is the classifier the §4.2 leaf emitter mirrors case-for-case.
+This is the **fourth** instance of the class and the fourth to resolve as environment, **zero** as
+language. It should stop being called "the invocation blocker" and be called what it is: **regen
+staleness**. First diagnostic step, before any hypothesis: **sync `groups.ext`, full `tokall`,
+rebuild, re-test.** Four for four says the hypothesis phase is wasted motion. Written up as
+**bear-trap #19**.
 
-### 3. JSON hand-parse bug — STILL OPEN, deliberately deferred; jsonTest is NOT a clean oracle
-`parseJSONfield` still doesn't succeed on `"a":"b"` (`manyJSONblockFields` returns kount=0). Yesterday's
-retag fix + ruleSTUFF/rStuff fix are committed (`8ea2419`, RuleStuff.twk). This is WHY the JSON rules go
-LAST on the ladder: if emitted JSON methods failed jsonTest you couldn't tell "genParse emitted wrong"
-from "genParse faithfully reproduced the known-broken hand-written behavior" — two unknowns, one signal.
-**Tony's Xcode breakpoint in `parseJSONfield` (RuleStuff.twk:571) on `'{"a":"b"}'` is still the fastest
-way in.** The one observation that splits it (Clay SEQ 14): does `parseJSONtoken(label)` (line 581)
-return SUCCESS with a correctly-tagged child, or FALSE? false → token-level bug; success-but-field-fails
-→ field-level (retag or the act tail). That fork also decides rung 10 (see NEXT).
+Worth recording as process: the two-failure stop rule *worked*. The prior session stopped, declined
+to theorise further, and the environment sync cleared it with nobody spending a day.
 
-### 4. Walkie-talkie mechanism — RESOLVED (was a live question all session)
-Question: how did Clay's messages get into `ipc/clay-to-clod.md`? It "worked Friday," broke today
-(Tony relayed Clay's side via chat all session). Archaeology: CLAUDE.md + the ipc headers document the
-PROTOCOL (SEQ/states/one-way ownership) but are SILENT on the physical transport — and a Clay-side
-filesystem connector would leave zero repo trace (it's desktop-app client config). Checked the actual
-config: `~/Library/Application Support/Claude/claude_desktop_config.json` has **NO `mcpServers` block —
-no filesystem connector to re-enable**. But **Cowork IS enabled** (`coworkUserFilesPath:
-/Users/anthony/Claude`, cowork tasks/web-search on). Clay's read + the evidence: **Friday was very
-likely a Cowork session** (files native, nothing Google), not this desktop-chat surface. Wrinkle:
-Cowork's files path is `~/Claude`, not the Dropbox repo where `ipc/` lives — so if that's it, something
-bridged them. Actionable: no connector to toggle; check whether Friday was Cowork. Meanwhile Tony keeps
-relaying and Clod owns the ipc file writes. ipc SEQ: clod-to-clay SEQ 10 (fresh), clay-to-clod SEQ 14
-(delivered via chat, acted on).
+### 3. The JSON thread: three documented causes → two dead, one LOCATED
+- **Cause 1 (`setLabel` writing to the wrong RuleStuff) — DEAD.** The function was **deleted
+  entirely** on 2026-06-22 (`875b936`) and exists nowhere live. Its job — retag — was **taken over
+  by `<:`** in a rewritten JSONfield action, on the rule's own frame, which is Tony's validated
+  direction reached by rewrite rather than by the literal one-line fix. TODO.md still carries this
+  as an open cause; **annotate, do not strike** (Clay) — that entry is the only surviving
+  description of what the function was for.
+- **Cause 2 (§7.1 min-zeroing) — EXONERATED, and 0b is BOTH falsified and vindicated.** Instrumented
+  print inside the taken branch never fires: **`parent.min = 0` never executes**. So 0b is
+  **falsified as a CURE** for the JSON symptom and **vindicated as a FIX** for the defect — the
+  record needs both claims or it misleads. The gate correctly declines because `JSONblock`'s `"{"-`
+  and `"}"-` are mandatory. §7.1's "nearly every rule loses failure reporting" is a claim about the
+  **pre-0b tree**; post-0b scope is unmeasured.
+- **Cause 3 (§7.5 result-discard) — LOCATED.** The capped boundary test:
+  ```
+  DIAG runRule : JSONblock parse() -> NON-NULL    well-formed  — correct
+  DIAG runRule : JSONblock parse() -> NULL        malformed '{' — CORRECT FAILURE
+  ...and testJSON still prints   ok : {
+  ```
+  **`parse()` is honest and the caller sees non-null anyway.** The bug is entirely in the
+  **invocation layer**; `matchFailed`'s `kount >= min` is exonerated too (min 1, kount 0 — it cannot
+  fire). **Not fixed — locating it was the assignment.**
+  Narrowing for whoever picks it up: JSONblock reaches `runRule` via `GroupActions.rtn`'s
+  `or isRule result = runRule(arg,target)` dispatch, **not** through `aCTionRunRulE` — so the
+  discard at `ruleActions.rtn:666` (TODO cause 2) is **not** the one on this path. Neither `runRule`
+  nor `runOP` discards. The discard sits **above `runOP`, or in the script-level invocation**.
+  §7.5's own earlier reading ("no JSON-family rule reaches `parse()`") is **WRONG** — it shipped
+  with three self-issued caveats saying it might be a bad measurement, and it was. Marked superseded
+  in place rather than deleted.
 
-## Bear-traps / idioms banked today (fold into CLAUDE.md when convenient)
-- Single-quoted strings in a C++ extern's `cerr` → the inner `:` parses as an inheritance colon →
-  whole-file `ERROR Inheritance` cascade. Extern bodies are C++: double quotes only. Emit a `"` via
-  `char dq = 34;`.
-- Juxtaposition concatenates no-space; comma in cerr/print inserts a space.
-- **`incant/genScratch` (and any run-script) is RUNTIME DATA, not compiled** — registration/dispatch
-  hypotheses can be tested by editing the script and re-running, NO rebuild. Only extern
-  source/signature changes (genParse.rtn) need `tok GroupRules.twk` + build.
-- `include(<newfile>)` for a brand-new file in `incant/` did NOT resolve (looked in cwd); the
-  older `include(utilities)` works. Resolution mechanism not chased — inlining the scaffold into the
-  run-script sidesteps it.
-- bear-trap #18 (tok macro facility) is still banked on an UNCONFIRMED cause — Tony's sign-off owed
-  before it hardens into doctrine.
+**Consequence for the ladder: JSON stays LAST, and the argument is stronger than it was.** `jsonTest`
+is still not a clean oracle. Two extra hazards found today: a failing JSONblock **runs off the end of
+its argument and consumes the enclosing script**, terminating the run (this is a **third restoration
+axis** beside R (the mark) and R′ (the tree) — the **input stack**; generated code gets it
+structurally from §5.3's wrapper popping the diversion on *both* paths). And `jsonTest`'s last case
+is annotated `KNOWN TO FAIL` while printing `ok` — **when the invocation-layer bug is fixed it flips
+to a real failure, which terminates the run, so jsonTest will appear to break at the moment the bug
+is fixed.**
 
-## NEXT — prioritized for whoever resumes (cold)
-1. **Rung 3 = the walk/emission seam split FIRST** (Thread "Rung 3"), with Clay's two refinements
-   (intent-not-punctuation; walk-returns-a-value). Land it before climbing — mid-refactor is the
-   expensive place to stop. Keep the IR thin (cover rungs 1-8, grow with the classifier).
-2. **Climb rungs 4-8** text-diffed on scaffolds, with a runtime re-check after rung 4 (first group
-   ref = first cross-method call + forward-decl discipline).
-3. **Root-cause runScaf2** (Thread 1) when convenient — the clean rename-to-no-digit rebuild test.
-   Not blocking; needed for rung-2's Invariant-R rewind check.
-4. **GATED rungs, unblock when their gate clears:**
-   - Rung 9 (bare-ref-to-alternation → auto-`promoteR` or require explicit `@`?) — **Tony's ruling**
-     (genParseSpec §8-class open item). Until ruled, emit: retag whenever the callee is an alternation,
-     treat explicit `@` as forcing promote regardless.
-   - Rung 10 (tail `code={}` action) — gated on the **ruleSTUFF-layer fork** from Thread 3's Xcode
-     walk: if the fix lives in support-lib `act()`, rung 10 emits nothing new (target settled); if in
-     the emitted method body, rung 10's tail grows a line. Same fix, opposite consequence for genParse.
-5. **JSON hand-parse bug** (Thread 3) — Tony's Xcode gate; unblocks the top of the ladder.
-6. **JSON LAST**: once genParse emits the seven methods, drop them in place and run jsonTest as the
-   runtime POP — but only after Thread 3 makes jsonTest a clean oracle again.
-7. Deferred housekeeping (not blocking): `GroupRules.{h,mm}` are uncommitted (env drift makes them
-   non-pure-B — bear-trap #17 + Stylish.h auto-include); `groups.ext` (out-of-repo, bear-trap #11)
-   carries genParse/runScaf/runScaf2 decls with no commit trail. Tony's Group-A pre-vacation work
-   (Debug.rtn, Stylish, Layout, GroupItem runNotified, incant/utilities+jsonTest, TODO, guiDesign) is
-   still uncommitted — his call.
+## STEP 4 — ENTERED, NOT LANDED. The tree may be mid-flight.
+Ruling is at the top of this file. Sequence:
+1. Change the fnptr member to return `GroupItem`; `groups.ext` in lockstep; `tokall`; rebuild.
+2. `leaveRule`/`leaveAlt` return `GroupItem` (three-way exit); parse methods' return type follows.
+   `runJSONblock` in `Commands.rtn` consumes `parseJSONblock`'s result — it needs updating with them.
+3. §1.3's fork becomes a pure pass-through.
+4. Regenerate `genLadder/rung12.target` **deliberately** (the emitted signature line changes).
+5. Re-verify: baselines byte-identical, rungs 1-2 POP empty, runnable floor + Invariant R.
+
+**If you arrive cold and the build is red, this is the most likely place.** Bear-trap #10's full
+apparatus applies — a `groups.ext` mismatch silently wipes the whole extern block (canary:
+`grep -c extern GroupRules.h` must read **161**, not 0).
+
+## NEXT, after step 4
+1. **Rung 3 = the walk/emission seam split.** Walk and emission are still INTERLEAVED (C++ baked
+   into the traversal), so genParseSpec §0 does not hold yet. Clay's two refinements stand:
+   **seam at INTENT, not punctuation** (walk says "conjunctive fold"; the emitter decides C++
+   spells it `&&` — litmus: could emission target a bytecode emitter untouched?) and **the walk
+   RETURNS a classified value**, consumed by emission as a second pass. Keep the IR thin.
+   Write **Invariant R′** beside R in the spec while there.
+2. Climb rungs 4-8, runtime re-check after rung 4 (first cross-method call).
+3. **Rung 9 is TONY'S RULING and gates only rung 9** — bare reference to an alternation:
+   auto-`promoteR`, or require explicit `@`? One data point, weak and adjacent: JSONfield spells its
+   retag out explicitly with `<:`, so the system's disposition is "retag where it's wanted."
+4. **Rung 10 is UNGATED** (was gated on where the ruleSTUFF fix lived; grep dissolved the fork —
+   nothing reads `ruleSTUFF`). Tripwire: if §7.5's fix requires the emitted method to propagate
+   something it doesn't, rung 10 comes back.
+5. JSON LAST, and only once `jsonTest` is a clean oracle again.
+
+## Open, Tony's
+- **TODO.md cause-1 entry** — annotate as dead-since-`875b936`, don't strike. His file, currently
+  modified in his tree.
+- **Bear-trap #18's ATTRIBUTION** — the entry was split today into a confirmed OBSERVATION (the
+  macro facility wouldn't support genParse's shapes, so §3 was rewritten against plain externs —
+  doctrine, keep) and an OPEN attribution (four candidates, one of them Clay's own spec error). The
+  old causal headline is **falsified by shipping code**: `testSet` has a declaration before its
+  `testMacro(...)` call and works. Tony signs off on which candidate, if any.
+- **`GUI/Layout.twk` and `GUI/Stylish.twk`** share basenames with the top-level files he edits, and
+  `tokall` only ever sweeps top level. Two cheap determinants: which path the Xcode target
+  references, and the mtimes.
+- His Group-A work (Debug.rtn, Stylish, Layout, TODO, guiDesign, incant/utilities+jsonTest) is still
+  uncommitted. `GroupRules.{h,mm}` now carry regenerated output from his uncommitted `Debug.rtn` —
+  committed under his 2026-07-27 ruling ("commit GroupItem with my runNotified stuff and all
+  subsequent changes. They do not overlap ... yet"). Note the "yet".
+
+## `ruleSTUFF` is a WRITE-ONLY GLOBAL — Tony's ruling, 2026-07-27
+Full-tree sweep (including the extensionless `incant/` sources — a `*.twk`/`*.rtn` filter misses
+them) found **exactly one reader**: `GroupActions.rtn:269`, `RuleStuff ruleStuff = ruleSTUFF;` in
+`processAction` — and that local is **never referenced again**. `git blame` dates it to the
+**initial commit**, 2026-04-09: inert from birth. Tony: *"if you cannot find it being used then it
+is no use... I just did not do a complete job of cleaning it out."*
+Consequence: genParseRuleAccess §1.5 keeps `act(field, label)`'s **tail call** — its load-bearing
+half — and the `ruleSTUFF` line survives only as a **single line marked parity-with-`parse()`**,
+commented "zero live readers", removable once a rule's generated path is its only path. Leave
+`parse()`'s own write and the global's declaration alone; `parse()` is the parity anchor.
 
 ## Run recipe / reproduce
 - Binary: `~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups`.
 - Build: `cd ~/Library/CloudStorage/Dropbox/data/InProcess && xcodebuild -workspace
   InProcess.xcworkspace -scheme Groups -configuration Debug build`.
-- `.rtn` (incl. genParse.rtn, Commands.rtn) are `include`d into GroupRules.twk → edit one, then
-  `tok GroupRules.twk` (NOT a standalone retok), then build. Standalone class files (`RuleStuff.twk`,
-  `GroupItem.twk`, `Stylish.twk`…) → `tok <File>.twk` directly.
-- genParse ladder: `<binary> incant/genScratch` → emits parseScaf/parseScaf2, runs runScaf('x')/('y')
-  with Invariant-R report. POP: `sed -n '/extern int parseScaf(/,/^}/p;/extern int parseScaf2(/,/^}/p'`
-  of the output vs `genLadder/rung12.target` (diff = empty = PASS).
-- Baselines still green: `<binary> incant/oneTest` → `maximus = 11` then `26`; `<binary> incant/jsonTest`
-  → all `ok` (the GENERIC path; the hand-written parseJSON* path is Thread 3's open bug).
-- Sanity: `grep -c extern GroupRules.h` = **161** (155 pre-genParse + emitTerm/genParse/parseScaf/
-  runScaf/parseScaf2/runScaf2). No `timeout` on this shell — background+kill anything that might hang.
+- `.rtn` (genParse.rtn, Commands.rtn, GroupActions.rtn, ruleActions.rtn) are `include`d into
+  GroupRules.twk → edit one, then **`tok GroupRules.twk`** (NOT a standalone retok). Standalone
+  class files (`RuleStuff.twk`, `GroupItem.twk`…) → `tok <File>.twk` directly.
+- **`tokall` is a shell FUNCTION, not a script** — `for item in *.twk; do tok $item; done`. It
+  sweeps **only top-level `*.twk` in the cwd** (13 files) and misses **14 below top level**
+  (`GUI/`, `GUI/Stuff/`, `Tests/`). After any layout change, grep those generated files for the
+  class you shifted. For `parseMethod` it was zero hits — nothing owed. (bear-trap #10, corrected.)
+- **`groups.ext` lives OUTSIDE the repo** at `~/Dropbox/data/InProcess/Include/groups.ext`
+  (bear-trap #11). It now carries `parseMethod` **and** the five rule-first decls. **No commit trail
+  exists for any of it.**
+- genParse ladder: `<binary> incant/genScratch` → emits parseScaf/parseScaf2, runs
+  `runScaf('x')`/`('y')` and `runScaf2('{')` with the Invariant-R report. POP:
+  `sed -n '/extern int parseScaf(/,/^}/p;/extern int parseScaf2(/,/^}/p'` of the output vs
+  `genLadder/rung12.target` (empty diff = PASS).
+- Baselines: `<binary> incant/oneTest` → `maximus = 11` then `26` ×4; `<binary> incant/jsonTest` →
+  14 `ok`. **Capture these BEFORE changing anything and `diff` after** — "byte-identical" is the
+  acceptance test for every additive step, and it caught nothing today only because nothing broke.
+- The §7.1 fixture that actually discriminates (the "twice in a row" one does NOT — memoization
+  predicts a first-call FAIL under both hypotheses, so both calls arm and neither reads): **invert
+  it** — well-formed to arm, malformed to read, nothing after, ONE process.
+- No `timeout` on this shell — background + kill anything that might hang.
 
 ## Working relationship (unchanged)
-Tony (Haps) = architect/final authority. Clay (claude.ai) = design/reasoning; relayed via chat today.
-Clod (Claude Code) = execution/edits/build. Standing permission: change source freely, commit/push
-routine work at discretion. Clay↔Clod walkie-talkie: `ipc/*.md`, three states (fresh/working/cleared),
-`grep -H '^STATUS:' ipc/*.md` is Tony's window — see CLAUDE.md's walkie-talkie section + Thread 4.
+Tony (Haps) = architect/final authority. Clay (claude.ai) = design/reasoning. Clod (Claude Code) =
+execution/edits/build. Standing permission: change source freely, commit/push routine work at
+discretion.
+**Walkie-talkie transport is SETTLED (SEQ 15 §0): Clay has NO filesystem reach — read-only uploads
+only. CLAY DICTATES, CLOD TRANSCRIBES; Clod owns every `ipc/` write in both directions.** This is
+the mode, not a degraded mode — the "restore Clay-side writes" ask is retired. `ipc` state:
+clay-to-clod SEQ 24, clod-to-clay SEQ 14. `grep -H '^STATUS:' ipc/*.md` is Tony's window.

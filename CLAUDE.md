@@ -507,8 +507,14 @@ Hard-won lessons. Each one has cost real debugging time.
     to bear-trap #12 (extern "C" collisions) but one layer up, at the TAWK-keyword level instead
     of the linker level, and harder to spot because it isn't `extern`-declared anywhere to grep for.
 
-18. **tok's `#name(args)-...-` macro facility only works when the invocation is the ENTIRE, SOLE
-    body of its containing function** — exactly `testMacro`'s only existing usage (`testAny`/
+18. **OBSERVATION (confirmed, load-bearing): tok's `#name(args)-...-` macro facility would not
+    support the shapes genParse needed, so genParse §3 was rewritten against ordinary `extern`
+    functions — which is why that code looks the way it does. ATTRIBUTION (OPEN, see the end of
+    this entry): *why* it wouldn't is NOT settled, and the causal headline this entry used to
+    carry is falsified by shipping code.** Read the three failure modes below as reproduced
+    symptoms, which they are, and not as a mechanism, which they are not.
+    ~~only works when the invocation is the ENTIRE, SOLE
+    body of its containing function~~ — exactly `testMacro`'s only existing usage (`testAny`/
     `testCharacter`/`testSet`, each just `use field \n testMacro(...);`). The moment a macro call
     is one statement among several, it fails, and fails in two different ways depending on shape:
     (a) nested in an expression (`return someMacro(x) && true;`, or even bare
@@ -532,6 +538,27 @@ Hard-won lessons. Each one has cost real debugging time.
     functions instead — they're expressions by construction, so `&&`/`||` composition works
     natively with zero substitution machinery, and multiple calls in one function are just
     ordinary sequential statements. (genParse S3, 2026-07-25 — see `docs/genParseSpec.md`.)
+    **ATTRIBUTION — OPEN, and do not act on the strikethrough above (2026-07-27).** The
+    "sole body of its function" rule is **falsified by shipping code**: `testSet` in
+    `RuleStuff.twk` has a declaration (`PLGset set = characterSet;`) *before* its `testMacro(...)`
+    call and works, in the current build. So the real constraint is narrower than the symptoms
+    suggested, and four candidates remain, **one of which is Clay's own spec error**:
+    (a) **the terminating semicolon** — every working invocation is `testMacro(...);`; genParseSpec
+    §5.1 wrote `enterSeq(JSONblock)` with none, and an unterminatable construct would produce
+    exactly mode (c)'s dropped-statement signature; (b) **column-0 / declaration position** — all
+    three working invocations sit unindented, and if tok expands macros during declaration parsing
+    then "works at column 0, fails indented" explains modes (b) and (c) with no tok bug at all;
+    (c) **the `use field` prefix** — all three working sites have it, and `testMacro`'s body
+    references bare `isOK`/`max`/`min`/`label`/`hereAt` which only resolve through it, so stripping
+    it is a plausible route to a tok-side segfault; (d) **category mismatch** (Clay, 2026-07-25) —
+    a macro expands to a block that declares locals and executes `return`, and a statement can
+    never be a term in `A && B`; on this reading §3 was wrong on its own terms and tok is fine.
+    **Tony's sign-off is owed on which, if any** — he is the only one who knows what tok promises.
+    What is NOT in doubt and stands as doctrine regardless: **tok exiting 139 with no diagnostic is
+    a real defect**, and **the fix that worked was to stop using macros for anything beyond
+    `testMacro`'s existing shape.** Split out per bear-trap #19's corollary — reproduction proves
+    the SYMPTOM, never the CAUSE, and this entry was one bad session from hardening a wrong
+    mechanism into doctrine.
 
 19. **The "invocation blocker" is an ENVIRONMENT/STALENESS class, not a language class — suspect
     the build state before the language.** Signature: an `extern` registered as an incant command
@@ -547,9 +574,21 @@ Hard-won lessons. Each one has cost real debugging time.
     #10/#11/#16 — it is out of repo and merges rather than regenerates, so it goes stale silently);
     (2) full `tokall` (see #10's correction — and note it misses subdirectories); (3) rebuild; and
     only *then* start hypothesising about the language. The cheap mechanical sweep has beaten the
-    clever narrowing four times out of four. Corollary for the record: a hypothesis that survives
-    narrowing is not thereby confirmed — `runScaf2`'s digit theory was the last one standing and
-    still wrong, because the real cause was in a file the narrowing never looked at.
+    clever narrowing four times out of four.
+    **THE COROLLARY, AND IT IS BIGGER THAN THIS ENTRY — read it as a general rule, not a fact
+    about command dispatch: a hypothesis that survives narrowing is not thereby confirmed.
+    Narrowing is only valid INSIDE the space you are searching. When it fails, the usual defect is
+    a wrong SPACE, not a wrong candidate — the real cause sits in a file the narrowing never
+    looked at.** `runScaf2`'s digit theory was the last hypothesis standing and still wrong,
+    because the cause was in `groups.ext`, which is outside the repo and was never in the search.
+    The same shape ran four separate times on 2026-07-27 alone, each surviving careful reasoning
+    and dying on contact with a single grep: (1) `runScaf2` = digits, actually regen staleness;
+    (2) the `ruleSTUFF` clobber-window story, actually a `field.rStuff`-vs-`label.rStuff`
+    provenance difference — and `parse()` already set it post-descent, so the window never existed;
+    (3) `setLabel` deleted and its job orphaned, actually taken over by `<:` in a rewritten
+    JSONfield; (4) min-zeroing as the JSON cause, actually never executed at all. **Cost of the
+    check in every case: one grep. Cost of the reasoning: hours.** Grep first, theorize second —
+    and when a theory survives, ask what files were never in the search space before believing it.
 
 20. **tok's fnptr member syntax takes MULTIPLE arguments** — `int &name(TypeA, TypeB);` in a class
     body generates `int (*name)(TypeA *, TypeB *);`. Only the single-argument `testMatch`
