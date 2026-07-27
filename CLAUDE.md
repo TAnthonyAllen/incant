@@ -621,6 +621,29 @@ Hard-won lessons. Each one has cost real debugging time.
     idiom to copy — `if <fnptr>  result = <fnptr>(args)` at `GroupItem.twk:949-950` — and the one
     NOT to copy: `testMatch`'s lazy `if !testMatch setTestMatch()` self-initialisation.
 
+21. **Identical commit message does NOT mean identical commit. Compare TREES, not subjects.**
+    Two commits can carry the same subject line, the same body, the same author and intent, and
+    land different content — a rebase, an amend, a cherry-pick with drift, or a re-do after
+    feedback all produce exactly that. A commit message is evidence about *what someone was doing*,
+    not about *what landed*. Found 2026-07-27 one sentence away from an irreversible mistake:
+    `origin/jit-unified-emit-wip` carried `28347a7` "WIP: unified JIT emit-on-walk model…", and our
+    branch carried `3cce6d8` with a **byte-identical subject**. The natural read — twins, so
+    discarding the remote one is free — was about to justify a `git push --force`. The check that
+    killed it took ten seconds:
+    ```
+    git rev-parse <a>^{tree}  vs  git rev-parse <b>^{tree}     # definitive
+    git show <a> | git patch-id --stable                       # content identity
+    git diff --stat <a> <b>                                    # what actually differs
+    ```
+    Trees differed; `git diff HEAD 28347a7` showed real content in the remote commit absent from
+    HEAD (June-vintage `incant/utilities`, `groupDirectives`, `incant/grammar`, `ruleActions.rtn`,
+    `jitEmitters.rtn`). **The correct move when you cannot fully account for a tree is
+    `git merge -s ours <ref>`, not `--force`:** it records the discard as a deliberate decision,
+    keeps the commit permanently reachable, and turns the follow-up into an ordinary push. A force
+    destroys the last copy of something unaudited to save nothing. Generalises past git — see
+    bear-trap #19's corollary: a matching label is not a verified identity, and the asymmetry
+    between "cheap check" and "irreversible action" decides how much proof you need.
+
 ---
 
 ## The `testing` Command
