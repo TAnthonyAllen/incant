@@ -1,0 +1,12 @@
+extern int parseScaf(GroupItem into)
+{
+GroupItem   label = new("Scaf");
+String      from  = atRuleMark;
+    return leaveRule(into,label,from, lit("x") );
+}
+extern int parseScaf2(GroupItem into)
+{
+GroupItem   label = new("Scaf2");
+String      from  = atRuleMark;
+    return leaveRule(into,label,from, lit("{") && lit("}") );
+}

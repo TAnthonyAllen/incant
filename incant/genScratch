@@ -1,0 +1,20 @@
+Start();
+
+/*  Scaffold rules inlined (include-path resolution for a brand-new file in
+    incant/ is unreliable; inline sidesteps it). Simplest-first per Clay's
+    ladder.  */
+register(Ladder);
+define
+    Scaf isRule "x"-;
+    Scaf2 isRule "{"- "}"-;
+    ;
+search reset stack Grokking Ladder list;
+
+/*  genParse is a C++ command (genParse.rtn). Register it the proven way
+    (wakeup Thread 2): registry(cOMMANDs) + =value form.  */
+registry(cOMMANDs);
+define genParse immediateAction=genParse; ;
+
+genParse('Scaf');
+genParse('Scaf2');
+stop();

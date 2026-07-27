@@ -1,0 +1,66 @@
+/*******************************************************************************
+    genParse.rtn — the parse-method emitter (genParseSpec §4).
+
+    C++ prototype ("C++ first, kant second" — Tony 2026-07-27). genParse takes a
+    rule (by name) and emits a C++ parse method that mirrors the hand-written
+    RuleStuff.twk methods (§5.1). POP: text-diff the emission against the
+    hand-written target, climbing Clay's ladder (docs/genParseLadder.md) from a
+    synthetic single-literal scaffold up to the JSON rules.
+
+    Emission substrate for v0 is cerr, line by line (bear-trap #14: stderr, not
+    stdout — stop() does not flush). This is a C++ extern body, so all string
+    literals are DOUBLE-quoted; a double-quote in the emitted output is escaped
+    \" (single quotes here parse the inner ':' as an inheritance colon and
+    cascade the whole file into ERROR Inheritance — found 2026-07-27).
+*******************************************************************************/
+
+/*******************************************************************************
+    emitTerm — one sequence term (attribute) -> one leaf expression string.
+    Rungs 1-2 subset of §4.2: literal string terms (data 0), the default/
+    testString row. noLabel (the `-` modifier) -> lit("x"); labelled -> litTo.
+    Same-file helper, called only from genParse -> no groups.ext decl needed.
+*******************************************************************************/
+extern String emitTerm(GroupItem term)
+{
+RuleStuff   rs = term.rStuff;
+char        dq = 34;
+String      leaf;
+    if rs.noLabel   leaf = "lit(" dq term.tag dq ")";
+    else            leaf = "litTo(label," dq term.tag dq "," dq term.tag dq ")";
+    return leaf;
+}
+
+/*******************************************************************************
+    genParse — rungs 1-2: emitSequence for a sequence rule (attributes only,
+    no rule-data / onGroup term yet). Walks the attribute list, joins each
+    term's leaf with " && ", wraps in the leaveRule frame. Emits line by line.
+
+    Emission idioms nailed 2026-07-27 (from the v0 recon):
+      - JUXTAPOSITION concatenates with NO space (`"parse" rule.tag` -> parseScaf),
+        mirroring parse()'s `label.text = "g" tag`. Comma in cerr INSERTS a space,
+        so it is used only for the diagnostic prefix, never for emitted code.
+      - A double-quote in the output is a `char dq = 34;` juxtaposed in — no quote
+        literal in the source, so tok's quote handling is never exercised.
+*******************************************************************************/
+extern GroupItem genParse(GroupItem argument)
+{
+GroupItem   rule = locate(argument.text);
+GroupItem   term;
+String      terms;
+int         first = 1;
+char        dq = 34;
+    if !rule {
+        cerr "genParse: no rule named ",argument.text:;
+        return null; }
+    while term = rule.nextAttribute(term) {
+        if first    terms = emitTerm(term);
+        else        terms = terms " && " emitTerm(term);
+        first = 0; }
+    cerr "extern int parse" rule.tag "(GroupItem into)":;
+    cerr "{":;
+    cerr "GroupItem   label = new(" dq rule.tag dq ");":;
+    cerr "String      from  = atRuleMark;":;
+    cerr "    return leaveRule(into,label,from, " terms " );":;
+    cerr "}":;
+    return trueResult;
+}
