@@ -841,8 +841,29 @@ in `getWhatFollows`'s `isEmbedded` branch and the `isMember` branch is mutually 
 correctly scoped. A sibling with unset rStuff is counted mandatory-unknown rather than optional —
 the conservative direction, but it can decline to zero a min that legitimately should be zeroed.
 Baseline byte-identical before and after; ~~the fix is code-correct but not yet falsified against a
-live fixture~~ — **FALSIFIED 2026-07-27. 0b is in the tree (`8e3c118`) and does NOT do its job on
-JSONblock.**
+live fixture~~ — **tested 2026-07-27, and the result moves the attribution rather than confirming
+it. §7.1's mechanism is REAL but is NOT the cause of jsonTest's silent `ok`.**
+
+**Read this before the paragraphs below, which were written between the two measurements and
+overstate the first result.** Two measurements landed in sequence:
+
+1. *Behavioural (no instrumentation).* 0b is in the tree (`8e3c118`) and the predicted `ok`→`FAIL`
+   flip does NOT occur. That falsifies **the prediction**, not 0b itself.
+2. *Instrumented (`min`/visited-count prints at the zeroing site and in the gate).* **`parent.min = 0`
+   NEVER EXECUTES** — not during grammar definition, not during either parse. The print sits inside
+   the taken branch, so its absence is airtight: min is never zeroed, and min-zeroing therefore
+   cannot be what rescues JSONblock's return.
+
+So 0b is not "inert" or "failing to gate." Either its gate is correctly suppressing the zeroing — in
+which case 0b works and was simply never the cause — or the zeroing site is not reached for these
+rules at all. **Both leave `min` at 1 and both move the attribution off §7.1.** Splitting them needs
+one more print on the gate's false path; it is a refinement, not a blocker, and the headline does not
+depend on it.
+
+**What still needs an explanation:** JSONblock returns non-null for `'{'` with `min` never zeroed. The
+rescue is elsewhere — `kount >= min` at the `matchFailed` label is the next place to look, since it
+rescues on `kount >= min` and that holds trivially when a rule matched zero times and min is 1 only
+if kount reached 1. Unexamined as of this writing.
 
 **The fixture** (Clay SEQ 20's inverted ordering — the discriminator the earlier attempt lacked).
 §7.1's own memoization story predicts a first-call FAIL under *both* hypotheses, so "malformed twice"
