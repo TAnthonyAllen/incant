@@ -34,11 +34,11 @@ extern "C" int inGuard(GroupItem *field, char *chars, char ch)
     against the same `into`; literal options attach via litOption). Only
     handles the rewind-on-failure half of Invariant R.
 *******************************************************************************/
-extern "C" int leaveAlt(GroupItem *field, char *from, int ok)
+extern "C" GroupItem *leaveAlt(GroupItem *field, char *from, int ok)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( ok )
-		return 1;
+		return ruler->trueResult;
 	ruler->atRuleMark = from;
 	return 0;
 }
@@ -49,13 +49,13 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
     rewind atRuleMark to `from`, return false (label is simply not attached;
     GC reclaims it, same as parse()'s own comment on label leaks).
 *******************************************************************************/
-extern "C" int leaveRule(GroupItem *field, GroupItem *into, GroupItem *label, char *from, int ok)
+extern "C" GroupItem *leaveRule(GroupItem *field, GroupItem *into, GroupItem *label, char *from, int ok)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( ok )
 		{
 		into->addAttribute(label);
-		return 1;
+		return label;
 		}
 	ruler->atRuleMark = from;
 	return 0;
@@ -167,19 +167,19 @@ int 		kount = 0;
     methods and the generic driver coexist rule by rule (S0) -- this is the
     seam.
 *******************************************************************************/
-extern "C" int parseGeneric(GroupItem *into, char *ruleName)
+extern "C" GroupItem *parseGeneric(GroupItem *into, char *ruleName)
 {
 GroupItem 	*rule = GroupControl::groupController->locate(ruleName);
 RuleStuff 	*bridge = new RuleStuff(rule);
 	bridge->label = into;
-	return rule->parse(bridge) != 0;
+	return rule->parse(bridge);
 }
 
 /*******************************************************************************
     JSONarray isRule "["- JSONlist? "]"- code={
         if JSONlist; for grup in JSONlist; grup <: grup; };
 *******************************************************************************/
-extern "C" int parseJSONarray(GroupItem *into)
+extern "C" GroupItem *parseJSONarray(GroupItem *into)
 {
 GroupItem 	*label = new GroupItem("JSONarray");
 GroupItem 	*rule = GroupControl::groupController->locate("JSONarray");
@@ -204,7 +204,7 @@ int 		ok = 0;
 /*******************************************************************************
     JSONblock isRule fail "{"- JSONfield* "}"-;
 *******************************************************************************/
-extern "C" int parseJSONblock(GroupItem *into)
+extern "C" GroupItem *parseJSONblock(GroupItem *into)
 {
 GroupItem 	*label = new GroupItem("JSONblock");
 GroupItem 	*rule = GroupControl::groupController->locate("JSONblock");
@@ -233,7 +233,7 @@ int 		ok = 0;
     could find neither "JSONtoken" nor "JSONvalue", so it silently returned
     null and the whole field's content was discarded).
 *******************************************************************************/
-extern "C" int parseJSONfield(GroupItem *into)
+extern "C" GroupItem *parseJSONfield(GroupItem *into)
 {
 GroupItem 	*label = new GroupItem("JSONfield");
 GroupItem 	*rule = GroupControl::groupController->locate("JSONfield");
@@ -248,7 +248,7 @@ int 		ok = 0;
 		freshStuff = new RuleStuff(rule);
 		label->setRStuff(freshStuff);
 		}
-	ok = ::parseJSONtoken(label);
+	ok = ::parseJSONtoken(label) != 0;
 	if ( ok )
 		{
 		tokenChild = label->next(tokenChild);
@@ -277,20 +277,21 @@ int 		ok = 0;
     own leaveAlt/leaveRule already rewinds on failure (Invariant R), so
     promotion needs nothing extra on the failure path.
 *******************************************************************************/
-extern "C" int parseJSONitem(GroupItem *into)
+extern "C" GroupItem *parseJSONitem(GroupItem *into)
 {
 GroupItem 	*rule = GroupControl::groupController->locate("JSONitem");
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( !::parseJSONtoken(into) )
 		return 0;
 	into->groupBody->tag = "JSONitem";
 	::lit(rule,",");
-	return 1;
+	return ruler->trueResult;
 }
 
 /*******************************************************************************
     JSONlist isRule JSONitem+;
 *******************************************************************************/
-extern "C" int parseJSONlist(GroupItem *into)
+extern "C" GroupItem *parseJSONlist(GroupItem *into)
 {
 GroupItem 	*label = new GroupItem("JSONlist");
 GroupItem 	*rule = GroupControl::groupController->locate("JSONlist");
@@ -302,7 +303,7 @@ char 		*from = ruler->atRuleMark;
 /*******************************************************************************
     JSONtoken isRule JSONblock; "false"; "true"; GrouP; NumbeR;
 *******************************************************************************/
-extern "C" int parseJSONtoken(GroupItem *into)
+extern "C" GroupItem *parseJSONtoken(GroupItem *into)
 {
 GroupItem 	*rule = GroupControl::groupController->locate("JSONtoken");
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -313,7 +314,7 @@ char 		*from = ruler->atRuleMark;
 /*******************************************************************************
     JSONvalue isRule JSONblock; JSONarray; JSONtoken;
 *******************************************************************************/
-extern "C" int parseJSONvalue(GroupItem *into)
+extern "C" GroupItem *parseJSONvalue(GroupItem *into)
 {
 GroupItem 	*rule = GroupControl::groupController->locate("JSONvalue");
 GroupRules 	*ruler = GroupControl::groupController->groupRules;

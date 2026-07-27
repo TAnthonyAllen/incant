@@ -1,11 +1,11 @@
-extern int parseScaf(GroupItem into)
+extern GroupItem parseScaf(GroupItem into)
 {
 GroupItem   label = new("Scaf");
 GroupItem   rule  = locate("Scaf");
 String      from  = atRuleMark;
     return leaveRule(rule,into,label,from, lit(rule,"x") );
 }
-extern int parseScaf2(GroupItem into)
+extern GroupItem parseScaf2(GroupItem into)
 {
 GroupItem   label = new("Scaf2");
 GroupItem   rule  = locate("Scaf2");

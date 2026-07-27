@@ -19,7 +19,7 @@ int         kount,
             min;
 RuleStuff   parentStuff;
 int         &testMatch(GroupItem);
-int         &parseMethod(GroupItem, GroupItem);
+GroupItem   &parseMethod(GroupItem, GroupItem);
 boolean
     banged
     doNothing
@@ -483,14 +483,14 @@ extern int inGuard(GroupItem field, String chars, char ch)
     rewind atRuleMark to `from`, return false (label is simply not attached;
     GC reclaims it, same as parse()'s own comment on label leaks).
 *******************************************************************************/
-extern int leaveRule(GroupItem field, GroupItem into, GroupItem label, String from, int ok)
+extern GroupItem leaveRule(GroupItem field, GroupItem into, GroupItem label, String from, int ok)
 {
 GroupRules  ruler = groupRules;
     if ok {
         into +% label;
-        return true; }
+        return label; }
     atRuleMark = from;
-    return false;
+    return null;
 }
 
 /*******************************************************************************
@@ -499,12 +499,12 @@ GroupRules  ruler = groupRules;
     against the same `into`; literal options attach via litOption). Only
     handles the rewind-on-failure half of Invariant R.
 *******************************************************************************/
-extern int leaveAlt(GroupItem field, String from, int ok)
+extern GroupItem leaveAlt(GroupItem field, String from, int ok)
 {
 GroupRules  ruler = groupRules;
-    if ok   return true;
+    if ok   return trueResult;
     atRuleMark = from;
-    return false;
+    return null;
 }
 
 /*******************************************************************************
@@ -541,7 +541,7 @@ int         kount;
 /*******************************************************************************
     JSONblock isRule fail "{"- JSONfield* "}"-;
 *******************************************************************************/
-extern int parseJSONblock(GroupItem into)
+extern GroupItem parseJSONblock(GroupItem into)
 {
 GroupItem   label = new("JSONblock");
 GroupItem   rule  = locate("JSONblock");
@@ -570,7 +570,7 @@ int         ok;
     could find neither "JSONtoken" nor "JSONvalue", so it silently returned
     null and the whole field's content was discarded).
 *******************************************************************************/
-extern int parseJSONfield(GroupItem into)
+extern GroupItem parseJSONfield(GroupItem into)
 {
 GroupItem   label = new("JSONfield");
 GroupItem   rule  = locate("JSONfield");
@@ -580,7 +580,7 @@ RuleStuff   freshStuff;
 String      from  = atRuleMark;
 int         ok;
     if !label.rStuff   { freshStuff = new(rule); label.setRStuff(freshStuff); }
-    ok = parseJSONtoken(label);
+    ok = parseJSONtoken(label) != 0;
     if ok   { tokenChild = label.next(tokenChild); tokenChild.tag = "JSONtoken"; }
     ok = ok && lit(rule,":");
     ok = ok && parseJSONvalue(label);
@@ -593,7 +593,7 @@ int         ok;
 /*******************************************************************************
     JSONvalue isRule JSONblock; JSONarray; JSONtoken;
 *******************************************************************************/
-extern int parseJSONvalue(GroupItem into)
+extern GroupItem parseJSONvalue(GroupItem into)
 {
 GroupItem   rule = locate("JSONvalue");
 GroupRules  ruler = groupRules;
@@ -607,7 +607,7 @@ String      from = atRuleMark;
 /*******************************************************************************
     JSONtoken isRule JSONblock; "false"; "true"; GrouP; NumbeR;
 *******************************************************************************/
-extern int parseJSONtoken(GroupItem into)
+extern GroupItem parseJSONtoken(GroupItem into)
 {
 GroupItem   rule = locate("JSONtoken");
 GroupRules  ruler = groupRules;
@@ -629,12 +629,12 @@ String      from = atRuleMark;
     methods and the generic driver coexist rule by rule (S0) -- this is the
     seam.
 *******************************************************************************/
-extern int parseGeneric(GroupItem into, String ruleName)
+extern GroupItem parseGeneric(GroupItem into, String ruleName)
 {
 GroupItem   rule = locate(ruleName);
 RuleStuff   bridge = new(rule);
     bridge.label = into;
-    return rule.parse(bridge) != 0;
+    return rule.parse(bridge);
 }
 
 /*******************************************************************************
@@ -644,19 +644,20 @@ RuleStuff   bridge = new(rule);
     own leaveAlt/leaveRule already rewinds on failure (Invariant R), so
     promotion needs nothing extra on the failure path.
 *******************************************************************************/
-extern int parseJSONitem(GroupItem into)
+extern GroupItem parseJSONitem(GroupItem into)
 {
 GroupItem   rule = locate("JSONitem");
-    if !parseJSONtoken(into)   return false;
+GroupRules  ruler = groupRules;
+    if !parseJSONtoken(into)   return null;
     into.tag = "JSONitem";
     lit(rule,",");
-    return true;
+    return trueResult;
 }
 
 /*******************************************************************************
     JSONlist isRule JSONitem+;
 *******************************************************************************/
-extern int parseJSONlist(GroupItem into)
+extern GroupItem parseJSONlist(GroupItem into)
 {
 GroupItem   label = new("JSONlist");
 GroupItem   rule  = locate("JSONlist");
@@ -669,7 +670,7 @@ String      from  = atRuleMark;
     JSONarray isRule "["- JSONlist? "]"- code={
         if JSONlist; for grup in JSONlist; grup <: grup; };
 *******************************************************************************/
-extern int parseJSONarray(GroupItem into)
+extern GroupItem parseJSONarray(GroupItem into)
 {
 GroupItem   label = new("JSONarray");
 GroupItem   rule  = locate("JSONarray");

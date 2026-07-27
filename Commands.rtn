@@ -90,6 +90,31 @@ GroupItem   grup;
     return trueResult;
 }
 
+/***************************************************************************
+    Entry wrapper -- outside callers do field = runJSONblock(argument) and
+    expect a GroupItem (genParseSpec S5.3). Calls parseJSONblock (RuleStuff.twk)
+    as ordinary cross-file C++. Lives HERE, not in RuleStuff.twk, per Clay's
+    2026-07-25 structural hypothesis: incant-callable commands live in a .rtn
+    included into GroupRules.twk, not in a standalone class file.
+
+    NOTE (Clod, 2026-07-25): S5.3's own worked example checks
+    `!result.hasMembers` here, but leaveRule attaches via `+%` == addAttribute
+    (confirmed from the generated code), which sets hasAttributes, not
+    hasMembers. Checking hasAttributes instead is the fix.
+***************************************************************************/
+extern GroupItem runJSONblock(GroupItem argument)
+{
+GroupRules  ruler = groupRules;
+GroupItem   result = new("JSONblock");
+int         baseStak = 0;
+    if inputSTAK    baseStak = inputSTAK.length;
+    pushInput(argument);
+    if !parseJSONblock(result)   result = 0;
+    or !result.hasAttributes     result = trueResult;
+    while inputSTAK && inputSTAK.length > baseStak      popInput();
+    return result;
+}
+
 /*****************************************************************************
     This is the simplified generateCode command method that leaves dirty work
     to the incant actions in the incant generate file
@@ -249,28 +274,39 @@ extern GroupItem guard(GroupItem item)
 
 /*****************************************************************************
 	The input argument is expected to be a listenTo attribute that contains
-    a list of groups that will be listened to by listenTo's parent (the listener).
-    The listenTo attribute is noPrint and runs when its parent gets defined.
-    It runs thru its list of groups and adds its parent to the notifyList
-    of every group on that list.
-    The notifyList is an attribute of the group being listened to. If the
-    listened to group changes, it runs updateListeners(), which will notify
-    its listeners that something changed and time to do what needs done.
+    a group, the notifier, that will be listened to by listenTo's parent, the
+    listener. The listenTo attribute is noPrint and runs when its parent gets
+    defined. A field can have more than one listenTo attribute (listenTo is a
+    noPrint command so fire and forget; does not matter if its data changes
+    every time it gets processed in a field definition.
+    
+    Here listener gets added to the notifyList of the notifier; notifyList
+    is an attribute of notifier, the field being listened to. If notifier
+    changes, it runs updateListeners(), which runs listener.runNotified(notifier)
+    to deal with the notification.
+    
+    The GroupItem method runNotified looks for an onNotify attribute in
+    the listener. onNotify, if it exists, should contain in its text, the
+    name of a field. runNotified locates that field, and runs its method
+    passing in the notifier. If there is no onNotify attribute, or runNotified
+    cannot locate the field named in onNotify, it copies the notifier data
+    into the listener using setContent().
+    
+    Note: the listener does not remember the field or fields it listens to.
 *****************************************************************************/
 extern GroupItem listenTo(GroupItem input)
 {
 GroupItem   listener = input.parent;
-GroupItem	grup,
+GroupItem	grup = input.group,
             notifyList;
-    listener.hasListeners   = true;
-    if input.fLAG
-        while grup = input.nextAttribute(grup) {
-            notifyList = grup%notifyLIST;
-            if !notifyList {
-                notifyList      = new("notifyLIST");
-                noPrint         = true;
-                grup    +% notifyList; }
-            notifyList  +% listener; }
+    if grup && input.fLAG {
+        grup.hasListeners   = true;
+        notifyList = grup%notifyLIST;
+        if !notifyList {
+            notifyList      = new("notifyLIST");
+            noPrint         = true;
+            grup    +% notifyList; }
+        notifyList  +% listener; }
     else    cerr "listenTo: should be invoked as an attribute when its parent is defined":;
     return trueResult;
 }
@@ -549,9 +585,10 @@ GroupRules  ruler = groupRules;
 ***************************************************************************/
 extern GroupItem testing(GroupItem input)
 {
-use input
-    if isCoded  jitRunAction(input);
-    else        jitRunIfTest(input);
+GroupItem   testInput = new("x");
+    runScaf(testInput);
+    testInput.tag = "y";
+    runScaf(testInput);
     return input;
 }
 

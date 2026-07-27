@@ -288,6 +288,26 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 
 ## Testing
 
+> **A POP IS NOT PASSED UNLESS THE PROCESS EXITED 0.** "Expected strings present" is NOT "the run
+> succeeded" — a process can print every correct line, in the correct order, and then die. Check
+> `$?`, not just the output. Found 2026-07-27 the expensive way: the genParse ladder floor was
+> reported green for five hours on a `grep` for `Invariant R OK`, while `incant/genScratch` was
+> exiting **139 (SIGSEGV)** the whole time. The printed lines were real and correct; the run was
+> not. This is the instrument-level version of bear-trap #19's corollary — four times that day the
+> search space excluded the answer because of the *code* being looked at; this one excluded it
+> because of *how the looking was done*, which is why it survived four rounds of care.
+>
+> **Two corollaries, both load-bearing:**
+> - **A byte-identical diff is still trustworthy on a crashing run**, because a crash truncates
+>   output — a full matching capture cannot come from a process that died early. That is what kept
+>   `oneTest`/`jsonTest` valid as baselines while the ladder POPs were not. **Scope a discovered
+>   exit-status hole; do not discard the whole ledger over it.**
+> - **Check what the assertion actually covers, not just that it passed.** The floor's "Invariant R
+>   OK" was true — the *mark* rewound, exactly as claimed. It said nothing about the *input stack*,
+>   which was broken underneath it the entire time. R held; R-as-a-proxy-for-clean-failure did not.
+>   Same failure family as the exit-status hole: one is about the instrument, the other about what
+>   the instrument covers.
+
 ```
 testByteCode / testIfElse fixtures in incant/generate; init maximus=11, righty=13 (unitTests:82)
   testByteCode code={ if righty <= 0; maximus = righty * 2; };

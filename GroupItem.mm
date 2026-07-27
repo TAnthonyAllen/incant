@@ -1252,27 +1252,52 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = getStuff(pStuff);
 	if ( pStuff )
 		parentLabel = pStuff->label;
+	ruleStuff->kount = 0;
+	ruleStuff->isOK = 0;
+	ruleStuff->inProcess = 1;
 	/***********************************************************************
 	genParseRuleAccess S1.3 -- a generated parse supersedes the
-	interpretive walk. Placed before any frame state is set so there is
-	nothing to unwind on the generated path. NO-OP until something is
-	generated: no current path assigns parseMethod, so every rule takes
-	the old road and the baseline must be byte-identical.
+	interpretive walk.
+	
+	INSIDE the inProcess bracket, DELIBERATELY, and it does NOT return
+	early. Two reasons, both load-bearing:
+	1. inProcess must be SET, so getStuff() hands a nested call a fresh
+	clone. The JSON family is mutually recursive (JSONvalue ->
+	JSONblock -> JSONfield -> JSONvalue); without it a nested call
+	shares one frame with its parent. Placing the fork BEFORE this
+	line is safe against leaks and wrong about reentrancy.
+	2. inProcess must be CLEARED, and aCTionFailed/trueResult must still
+	run. So the fork sets sukcess and falls through to the ONE shared
+	exit rather than reimplementing it. The generated path then
+	matches the interpretive path because it RUNS the same exit, not
+	because the exit was copied carefully -- model-not-oracle applied
+	to the exit itself. In particular notifyFail survives onto the
+	generated path: a generated rule that could not report failure
+	would rebuild exactly the blindness that made jsonTest useless.
+	
+	leaveRule/leaveAlt own only the REWIND (Invariant R) and the
+	label-or-0 return. parse()'s tail keeps the trueResult substitution
+	and the aCTionFailed decision. One implementer each.
+	
+	NO-OP until something is generated: no current path assigns
+	parseMethod, so every rule takes the old road and the baseline must
+	be byte-identical.
 	Deliberately NOT lazily initialized (contrast testMatch's
 	`if !testMatch setTestMatch()` at RuleStuff.twk:159). Generation is
 	explicit and idempotent; an `if !parseMethod genParse(rule)` here
 	would turn first-parse into a generation event -- this phase, that
 	means emitting text and running a build, from inside a parse.
+	
+	RUNG-6 TRIPWIRE: the interpretive path does kount++ on success, which
+	feeds `kount >= min` and the iteration bound. The generated path does
+	not. Invisible at max 1 (rungs 1-2); rung 6 must address it.
 	***********************************************************************/
 	if ( ruleStuff->parseMethod )
 		{
-		if ( ruleStuff->parseMethod(this,parentLabel) )
-			return ruler->trueResult;
-		return 0;
+		ruleStuff->label = ruleStuff->parseMethod(this,parentLabel);
+		ruleStuff->sukcess = ruleStuff->label != 0;
+		goto generatedExit;
 		}
-	ruleStuff->kount = 0;
-	ruleStuff->isOK = 0;
-	ruleStuff->inProcess = 1;
 	while ( !ruleStuff->isOK && ruleStuff->kount < ruleStuff->max )
 		{
 continueHere:
@@ -1364,6 +1389,7 @@ debugHere:
 				ruleStuff->label = 0;
 			}
 		}
+generatedExit:
 	if ( !ruleStuff->sukcess && ruleStuff->notifyFail )
 		::aCTionFailed(ruleStuff->rule);
 	if ( ruleStuff->sukcess && !ruleStuff->label )
