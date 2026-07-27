@@ -1040,7 +1040,48 @@ method's stack locals. Nothing to allocate, nothing to reset between parses, not
 So `getStuff` is not debt to pay before genParse — it is scaffolding genParse retires. Leave it
 where it is.
 
-### 7.5 Does the JSON family reach `GroupItem::parse()` at all? — OPEN, instrumentation suspect
+### 7.5 Does the JSON family reach `GroupItem::parse()` at all? — **ANSWERED YES, AND LOCATED 2026-07-27**
+
+> **RESOLVED at the observation level; the earlier "no JSON rule reaches parse()" reading below was
+> the suspect measurement it warned it might be. It was wrong. Keep reading it as a lesson in why
+> §7.5 carried three self-issued caveats, not as a finding.**
+>
+> **The measurement** (Clay SEQ 22 §2's capped boundary test — instrument the BOUNDARY, not the
+> match; one test, then stop regardless of outcome). Two prints: what `parse()` returns for
+> JSONblock, and what the invocation layer hands back. Fixture = §7.1's inverted arm/read pair.
+>
+> ```
+> DIAG runRule  : JSONblock parse() -> NON-NULL     well-formed {"a":"b"} — correct
+> DIAG runRule  : JSONblock parse() -> NULL         malformed  '{'       — CORRECT FAILURE
+> ...and testJSON still prints   ok  : {
+> ```
+>
+> **So: the JSON family DOES reach `parse()`, `parse()` detects the failure correctly, returns NULL
+> correctly, and reports it correctly (`Rule JSONblock / Failed at:` fires in the same run). The
+> caller sees non-null anyway.** Honest inner layer, truthy outer layer — a result-discard
+> signature, at a different level of the stack from the match.
+>
+> **Consequences, all of them narrowing:**
+> - `matchFailed`'s `kount >= min` rescue is **exonerated** — with min at 1 and kount at 0 it cannot
+>   fire, and the boundary print shows the failure surviving `parse()` intact.
+> - §7.1 min-zeroing is **exonerated** (see §7.1 — `parent.min = 0` never executes).
+> - The bug is **entirely in the invocation layer.**
+>
+> **One refinement the trace gives free, recorded rather than chased:** JSONblock's `runRule` calls
+> are NOT followed by `aCTionRunRulE` discard lines, while every `define` call is. So JSONblock
+> reaches `runRule` via the `GroupActions.rtn:484` dispatch path (`or isRule result =
+> runRule(arg,target)`), **not** through `aCTionRunRulE` — which means the specific discard at
+> `ruleActions.rtn:666` (`rule = runRule(...); return input;`, TODO.md cause 2) is not the one on
+> this path. Same layer, different site. Next investigator starts at `GroupActions.rtn:484` and
+> follows `result` to whatever `JSONblock(argument)` actually returns to incant.
+>
+> **Not fixed. Locating it was the assignment; fixing it was explicitly not.**
+
+---
+
+*Superseded reading below — retained per the resurrection-reader standard.*
+
+### 7.5 (original) Does the JSON family reach `GroupItem::parse()` at all? — OPEN, instrumentation suspect
 
 *Found by Clod 2026-07-25 while trying to falsify 0b. This one deserves its own dated finding doc
 rather than a home here; recorded now because it changes §9.*
