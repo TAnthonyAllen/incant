@@ -854,11 +854,35 @@ overstate the first result.** Two measurements landed in sequence:
    the taken branch, so its absence is airtight: min is never zeroed, and min-zeroing therefore
    cannot be what rescues JSONblock's return.
 
-So 0b is not "inert" or "failing to gate." Either its gate is correctly suppressing the zeroing — in
-which case 0b works and was simply never the cause — or the zeroing site is not reached for these
-rules at all. **Both leave `min` at 1 and both move the attribution off §7.1.** Splitting them needs
-one more print on the gate's false path; it is a refinement, not a blocker, and the headline does not
-depend on it.
+So 0b is not "inert" or "failing to gate." **The two claims the record needs, because they are about
+the same commit and point opposite ways:**
+
+> **0b is FALSIFIED as a cure for the JSON symptom, and VINDICATED as a fix for the defect.**
+> §7.1's tag: mechanism real, fix working, not the cause of jsonTest's silent `ok`.
+
+Which of the two worlds obtains — gate correctly declines, versus site never reached — is settled by
+inspection of the rule itself:
+
+```
+JSONblock isRule fail "{"- JSONfield* "}"-;
+```
+
+`"{"-` and `"}"-` are **mandatory** (min 1; the `-` is noLabel, not optionality). So
+`allAttributesOptional()` reaches `if !attr.rStuff || attr.min` and returns **false** at the first
+literal. The gate declines, correctly, and `parent.min = 0` is correctly not executed.
+
+That also explains the instrumented silence in one stroke rather than two: the visited-count print
+was placed only on the return-*true* path, so a correctly-declining gate produces exactly the
+observed absence. Consistent negative evidence, not a missing print.
+
+Confidence: strong inference from the grammar plus consistent negatives; **one print on the gate's
+false path would confirm it directly** and is folded into the next build. Not treated as proven here.
+
+**Consequence for the Scope paragraph below.** §7.1's claim that nearly every rule in the language
+loses failure reporting is a claim about the **PRE-0b tree**. Post-0b, any rule with at least one
+mandatory attribute — which is most of them — correctly declines to zero. The Scope paragraph should
+be read as describing the defect 0b fixed, not the tree as it stands. Its real post-0b scope is
+unmeasured.
 
 **What still needs an explanation:** JSONblock returns non-null for `'{'` with `min` never zeroed. The
 rescue is elsewhere — `kount >= min` at the `matchFailed` label is the next place to look, since it
