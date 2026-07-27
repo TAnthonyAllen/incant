@@ -416,9 +416,7 @@ gotMatch:
     genParse Step 1/2 prototype (docs/genParseSpec.md S3/S5): hand-written
     support library + the seven JSONblock methods + entry wrapper. No tok
     macros -- every primitive below is a real function, so &&/|| composition
-    works natively. (tok's #name(args)-...- macro facility segfaults or
-    silently drops statements once a macro call is anything but the sole
-    content of its function -- see CLAUDE.md bear traps.)
+    works natively.
 *******************************************************************************/
 
 /*******************************************************************************
@@ -547,23 +545,46 @@ extern int parseJSONblock(GroupItem into)
 GroupItem   label = new("JSONblock");
 GroupRules  ruler = groupRules;
 String      from  = atRuleMark;
-    return leaveRule(into,label,from,
-                lit("{") && manyJSONblockFields(label) && lit("}") );
+int         ok;
+    ok = lit("{") && manyJSONblockFields(label) && lit("}");
+    return leaveRule(into,label,from,ok);
 }
 
 /*******************************************************************************
     JSONfield isRule JSONtoken ":"- JSONvalue ","?- code={
         token <: JSONtoken; token = JSONvalue; return token; };
+
+    RETAGGING NOTE (Clod, 2026-07-25): parseJSONtoken/parseJSONvalue attach
+    their result tagged by whatever their OWN winning internal path produced
+    (e.g. "GrouP", from JSONtoken's alternation resolving through GrouP's
+    label-transparent alternation down to QuotE) -- NOT retagged to the
+    ATTRIBUTE'S OWN NAME the way the generic parse() driver retags an
+    attribute term to its own tag via isTarget handling. The tail action
+    looks children up BY the attribute name ("JSONtoken"/"JSONvalue"), so
+    each sub(R)-style attach here must be retagged explicitly. This is a gap
+    in genParseSpec's sub(R) semantics generally (S2.1/S4.1 don't mention
+    retagging), not specific to JSONfield -- found empirically via this
+    exact bug (the action received two children both tagged "GrouP" and
+    could find neither "JSONtoken" nor "JSONvalue", so it silently returned
+    null and the whole field's content was discarded).
 *******************************************************************************/
 extern int parseJSONfield(GroupItem into)
 {
 GroupItem   label = new("JSONfield");
 GroupItem   rule  = locate("JSONfield");
+GroupItem   tokenChild, valueChild;
 GroupRules  ruler = groupRules;
+RuleStuff   freshStuff;
 String      from  = atRuleMark;
 int         ok;
-    ok = parseJSONtoken(label) && lit(":") && parseJSONvalue(label) && (lit(",") || true);
-    if ok   label = rule.method(label);
+    if !label.rStuff   { freshStuff = new(rule); label.setRStuff(freshStuff); }
+    ok = parseJSONtoken(label);
+    if ok   { tokenChild = label.next(tokenChild); tokenChild.tag = "JSONtoken"; }
+    ok = ok && lit(":");
+    ok = ok && parseJSONvalue(label);
+    if ok   { valueChild = label.next(tokenChild); valueChild.tag = "JSONvalue"; }
+    ok = ok && (lit(",") || true);
+    if ok   { ruleSTUFF = label.rStuff; label = rule.method(label); }
     return leaveRule(into,label,from, ok && label );
 }
 
@@ -647,31 +668,22 @@ extern int parseJSONarray(GroupItem into)
 GroupItem   label = new("JSONarray");
 GroupItem   rule  = locate("JSONarray");
 GroupRules  ruler = groupRules;
+RuleStuff   freshStuff;
 String      from  = atRuleMark;
 int         ok;
+    if !label.rStuff   { freshStuff = new(rule); label.setRStuff(freshStuff); }
     ok = lit("[") && (parseJSONlist(label) || true) && lit("]");
-    if ok   label = rule.method(label);
+    if ok   { ruleSTUFF = label.rStuff; label = rule.method(label); }
     return leaveRule(into,label,from, ok && label );
 }
 
 /*******************************************************************************
-    Entry wrapper -- outside callers do field = runJSONblock(argument) and
-    expect a GroupItem (genParseSpec S5.3).
-
-    NOTE (Clod, 2026-07-25): S5.3's own worked example checks
-    `!result.hasMembers` here, but leaveRule attaches via `+%` == addAttribute
-    (confirmed from the generated code -- see bear-trap), which sets
-    hasAttributes, not hasMembers. `hasMembers` is never true for JSONblock's
-    own content, so that check always fired and silently discarded every
-    successful parse's real content in favour of the empty `trueResult`
-    sentinel -- found empirically via the tree-diff POP, not by inspection.
-    Checking hasAttributes instead is the fix; flagging in the spec too.
+    runJSONblock (the incant-callable entry wrapper, genParseSpec S5.3) lives
+    in Commands.rtn, not here -- Clay's structural hypothesis (2026-07-25):
+    no incant-callable command has ever lived in a standalone class file like
+    RuleStuff.twk; every one lives in a .rtn included INTO GroupRules.twk, and
+    the extern-count evidence (152->154, not ~166, after adding ~14 externs
+    here) suggests the immediateAction binding mechanism only resolves names
+    against GroupRules' own extern space. parseJSONblock/etc. above stay here
+    and are called normally as ordinary cross-file C++ from Commands.rtn.
 *******************************************************************************/
-extern GroupItem runJSONblock(GroupItem argument)
-{
-GroupItem   result = new("JSONblock");
-    pushInput(argument);
-    if !parseJSONblock(result)   result = 0;
-    or !result.hasAttributes     result = trueResult;
-    return result;
-}

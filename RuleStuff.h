@@ -64,7 +64,6 @@ extern "C" int parseJSONitem(GroupItem *into);
 extern "C" int parseJSONlist(GroupItem *into);
 extern "C" int parseJSONtoken(GroupItem *into);
 extern "C" int parseJSONvalue(GroupItem *into);
-extern "C" GroupItem *runJSONblock(GroupItem *argument);
 extern "C" int setMacroValue(GroupItem *field);
 extern "C" int testAction(GroupItem *field);
 extern "C" int testAny(GroupItem *field);

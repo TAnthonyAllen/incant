@@ -136,7 +136,7 @@ extern "C" int manyJSONblockFields(GroupItem *label)
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*from = ruler->atRuleMark;
 int 		kount = 0;
-	while ( parseJSONfield(label) )
+	while ( ::parseJSONfield(label) )
 		kount++;
 	if ( kount >= 0 )
 		return 1;
@@ -152,7 +152,7 @@ extern "C" int manyJSONlistItems(GroupItem *label)
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*from = ruler->atRuleMark;
 int 		kount = 0;
-	while ( parseJSONitem(label) )
+	while ( ::parseJSONitem(label) )
 		kount++;
 	if ( kount >= 1 )
 		return 1;
@@ -186,11 +186,20 @@ extern "C" int parseJSONarray(GroupItem *into)
 GroupItem 	*label = new GroupItem("JSONarray");
 GroupItem 	*rule = GroupControl::groupController->locate("JSONarray");
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
+RuleStuff 	*freshStuff = 0;
 char 		*from = ruler->atRuleMark;
 int 		ok = 0;
+	if ( !label->rStuff )
+		{
+		freshStuff = new RuleStuff(rule);
+		label->setRStuff(freshStuff);
+		}
 	ok = ::lit("[") && (::parseJSONlist(label) || 1) && ::lit("]");
 	if ( ok )
+		{
+		ruler->ruleSTUFF = label->rStuff;
 		label = rule->groupBody->gMethod(label);
+		}
 	return ::leaveRule(into,label,from,ok && label);
 }
 
@@ -202,23 +211,63 @@ extern "C" int parseJSONblock(GroupItem *into)
 GroupItem 	*label = new GroupItem("JSONblock");
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*from = ruler->atRuleMark;
-	return ::leaveRule(into,label,from,::lit("{") && ::manyJSONblockFields(label) && ::lit("}"));
+int 		ok = 0;
+	ok = ::lit("{") && ::manyJSONblockFields(label) && ::lit("}");
+	return ::leaveRule(into,label,from,ok);
 }
 
 /*******************************************************************************
     JSONfield isRule JSONtoken ":"- JSONvalue ","?- code={
         token <: JSONtoken; token = JSONvalue; return token; };
+
+    RETAGGING NOTE (Clod, 2026-07-25): parseJSONtoken/parseJSONvalue attach
+    their result tagged by whatever their OWN winning internal path produced
+    (e.g. "GrouP", from JSONtoken's alternation resolving through GrouP's
+    label-transparent alternation down to QuotE) -- NOT retagged to the
+    ATTRIBUTE'S OWN NAME the way the generic parse() driver retags an
+    attribute term to its own tag via isTarget handling. The tail action
+    looks children up BY the attribute name ("JSONtoken"/"JSONvalue"), so
+    each sub(R)-style attach here must be retagged explicitly. This is a gap
+    in genParseSpec's sub(R) semantics generally (S2.1/S4.1 don't mention
+    retagging), not specific to JSONfield -- found empirically via this
+    exact bug (the action received two children both tagged "GrouP" and
+    could find neither "JSONtoken" nor "JSONvalue", so it silently returned
+    null and the whole field's content was discarded).
 *******************************************************************************/
 extern "C" int parseJSONfield(GroupItem *into)
 {
 GroupItem 	*label = new GroupItem("JSONfield");
 GroupItem 	*rule = GroupControl::groupController->locate("JSONfield");
+GroupItem 	*tokenChild = 0;
+GroupItem 	*valueChild = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
+RuleStuff 	*freshStuff = 0;
 char 		*from = ruler->atRuleMark;
 int 		ok = 0;
-	ok = parseJSONtoken(label) && ::lit(":") && parseJSONvalue(label) && (::lit(",") || 1);
+	if ( !label->rStuff )
+		{
+		freshStuff = new RuleStuff(rule);
+		label->setRStuff(freshStuff);
+		}
+	ok = ::parseJSONtoken(label);
 	if ( ok )
+		{
+		tokenChild = label->next(tokenChild);
+		tokenChild->groupBody->tag = "JSONtoken";
+		}
+	ok = ok && ::lit(":");
+	ok = ok && ::parseJSONvalue(label);
+	if ( ok )
+		{
+		valueChild = label->next(tokenChild);
+		valueChild->groupBody->tag = "JSONvalue";
+		}
+	ok = ok && (::lit(",") || 1);
+	if ( ok )
+		{
+		ruler->ruleSTUFF = label->rStuff;
 		label = rule->groupBody->gMethod(label);
+		}
 	return ::leaveRule(into,label,from,ok && label);
 }
 
@@ -256,7 +305,7 @@ extern "C" int parseJSONtoken(GroupItem *into)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*from = ruler->atRuleMark;
-	return ::leaveAlt(from,(::inGuard("{",*ruler->atRuleMark) && ::parseJSONblock(into)) || ::litOption(into,"false") || ::litOption(into,"true") || parseGeneric(into,"GrouP") || parseGeneric(into,"NumbeR"));
+	return ::leaveAlt(from,(::inGuard("{",*ruler->atRuleMark) && ::parseJSONblock(into)) || ::litOption(into,"false") || ::litOption(into,"true") || ::parseGeneric(into,"GrouP") || ::parseGeneric(into,"NumbeR"));
 }
 
 /*******************************************************************************
@@ -266,32 +315,7 @@ extern "C" int parseJSONvalue(GroupItem *into)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*from = ruler->atRuleMark;
-	return ::leaveAlt(from,(::inGuard("{",*ruler->atRuleMark) && ::parseJSONblock(into)) || (::inGuard("[",*ruler->atRuleMark) && parseJSONarray(into)) || parseJSONtoken(into));
-}
-
-/*******************************************************************************
-    Entry wrapper -- outside callers do field = runJSONblock(argument) and
-    expect a GroupItem (genParseSpec S5.3).
-
-    NOTE (Clod, 2026-07-25): S5.3's own worked example checks
-    `!result.hasMembers` here, but leaveRule attaches via `+%` == addAttribute
-    (confirmed from the generated code -- see bear-trap), which sets
-    hasAttributes, not hasMembers. `hasMembers` is never true for JSONblock's
-    own content, so that check always fired and silently discarded every
-    successful parse's real content in favour of the empty `trueResult`
-    sentinel -- found empirically via the tree-diff POP, not by inspection.
-    Checking hasAttributes instead is the fix; flagging in the spec too.
-*******************************************************************************/
-extern "C" GroupItem *runJSONblock(GroupItem *argument)
-{
-GroupItem 	*result = new GroupItem("JSONblock");
-	GroupControl::groupController->groupRules->pushInput(argument);
-	if ( !::parseJSONblock(result) )
-		result = 0;
-	else
-	if ( !result->groupBody->flags.hasAttributes )
-		result = GroupControl::groupController->groupRules->trueResult;
-	return result;
+	return ::leaveAlt(from,(::inGuard("{",*ruler->atRuleMark) && ::parseJSONblock(into)) || (::inGuard("[",*ruler->atRuleMark) && ::parseJSONarray(into)) || ::parseJSONtoken(into));
 }
 
 /*******************************************************************************
