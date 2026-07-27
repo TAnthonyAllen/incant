@@ -388,9 +388,22 @@ Hard-won lessons. Each one has cost real debugging time.
     **cascades and wipes the ENTIRE extern block** from the regenerated `GroupRules.h` (0
     externs instead of ~144), so `Bytecode.mm` etc. fail with "no member named `opEQ`…".
     The tok output buries the cause in `FAIL Body3 …` lines. Second: a GroupBody change shifts
-    the bitfield, so **`tokall`** (regenerate every `.mm/.h`), not a single retok. Symptom of a
+    the bitfield, so **`tokall`**, not a single retok. Symptom of a
     missed sync: `Expected a semi-colon` / `Expected } or statement` at an innocent-looking
     line. (`markWindow`/`isWindow`, 2026-06-25.)
+    **CORRECTION 2026-07-27 — `tokall` does NOT "regenerate every `.mm/.h`".** It is a shell
+    *function*, not a script, and its whole body is `for item in *.twk; do tok $item; done` —
+    so it sweeps **only top-level `*.twk` in the current directory** (13 files). There are
+    **14 more `.twk` below top level** it never touches: `GUI/*.twk` (11), `GUI/Stuff/*.twk` (2),
+    `Tests/testGenerate.twk`. Those carry checked-in `.mm/.h` generated against the *old* layout,
+    and a bitfield shift makes them stale in the silent way — compiles clean, links clean, wrong
+    at runtime. **The check after any layout change:** grep the unswept generated files for the
+    class you shifted (`grep -c "rStuff\|RuleStuff" GUI/*.mm GUI/Stuff/*.mm Tests/*.mm`). Zero
+    hits ⇒ documentation-only, nothing owed — which is what it was for the `RuleStuff.parseMethod`
+    add on 2026-07-27. Any hits ⇒ retok those before trusting the binary on those paths.
+    Same category as bear-trap #11: the build has more surface than the instructions describe.
+    Related, unresolved and Tony's: `GUI/Layout.twk` and `GUI/Stylish.twk` share basenames with
+    the top-level `Layout.twk`/`Stylish.twk`, and only the top-level pair is ever swept.
 
 11. **`groups.ext` lives OUTSIDE this repo** at `~/Dropbox/data/InProcess/Include/groups.ext`
     (pulled in via `groupIncludes`). It is a real **build dependency** but is **not tracked in
@@ -519,6 +532,35 @@ Hard-won lessons. Each one has cost real debugging time.
     functions instead — they're expressions by construction, so `&&`/`||` composition works
     natively with zero substitution machinery, and multiple calls in one function are just
     ordinary sequential statements. (genParse S3, 2026-07-25 — see `docs/genParseSpec.md`.)
+
+19. **The "invocation blocker" is an ENVIRONMENT/STALENESS class, not a language class — suspect
+    the build state before the language.** Signature: an `extern` registered as an incant command
+    produces *nothing at all* — never entered, clean exit, no error, no diagnostic. Four instances
+    to date (genParse Step 1, Step 2, `runScaf2`, and the runJSONblock-era one). **Every one has
+    resolved as build/regen state, none as an incant-language rule.** `runScaf2` (2026-07-27) is
+    the cautionary case: it was narrowed hard — `nm` showed `_runScaf2` live, codegen was
+    structurally identical to the working `runScaf`, single-entry `=value` registration, non-brace
+    input — and the surviving hypothesis was *"incant command names can't carry trailing digits."*
+    **That hypothesis is FALSE.** After a `groups.ext` sync and a full `tokall` for unrelated work,
+    `runScaf2` dispatched with no change to its name, registration, or call site. Digits are fine.
+    **So when a registered command won't dispatch, in order:** (1) re-sync `groups.ext` (bear-traps
+    #10/#11/#16 — it is out of repo and merges rather than regenerates, so it goes stale silently);
+    (2) full `tokall` (see #10's correction — and note it misses subdirectories); (3) rebuild; and
+    only *then* start hypothesising about the language. The cheap mechanical sweep has beaten the
+    clever narrowing four times out of four. Corollary for the record: a hypothesis that survives
+    narrowing is not thereby confirmed — `runScaf2`'s digit theory was the last one standing and
+    still wrong, because the real cause was in a file the narrowing never looked at.
+
+20. **tok's fnptr member syntax takes MULTIPLE arguments** — `int &name(TypeA, TypeB);` in a class
+    body generates `int (*name)(TypeA *, TypeB *);`. Only the single-argument `testMatch`
+    (`RuleStuff.twk:21`) existed as precedent, so this was untested until `parseMethod` on
+    2026-07-27. Not a trap — an idiom worth knowing, because it converts an interface *convention*
+    into a compiler-enforced *type*: a uniform generated-method signature stops being something
+    every call site must remember and becomes something the field declaration guarantees. Note the
+    corollary: widening such a signature later is a **layout change** (bear-trap #10's whole
+    apparatus — `groups.ext` sync plus `tokall`), not an edit. Same file also shows the dispatch
+    idiom to copy — `if <fnptr>  result = <fnptr>(args)` at `GroupItem.twk:949-950` — and the one
+    NOT to copy: `testMatch`'s lazy `if !testMatch setTestMatch()` self-initialisation.
 
 ---
 
