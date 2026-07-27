@@ -935,6 +935,21 @@ GroupItem   parentLabel;
 GroupRules  ruler       = groupRules;
 RuleStuff   ruleStuff   = getStuff(pStuff);
     if pStuff   parentLabel = pStuff.label;
+    /***********************************************************************
+        genParseRuleAccess S1.3 -- a generated parse supersedes the
+        interpretive walk. Placed before any frame state is set so there is
+        nothing to unwind on the generated path. NO-OP until something is
+        generated: no current path assigns parseMethod, so every rule takes
+        the old road and the baseline must be byte-identical.
+        Deliberately NOT lazily initialized (contrast testMatch's
+        `if !testMatch setTestMatch()` at RuleStuff.twk:159). Generation is
+        explicit and idempotent; an `if !parseMethod genParse(rule)` here
+        would turn first-parse into a generation event -- this phase, that
+        means emitting text and running a build, from inside a parse.
+    ***********************************************************************/
+    if ruleStuff.parseMethod {
+        if ruleStuff.parseMethod(this, parentLabel)     return trueResult;
+        return null; }
     kount       = 0;
     isOK        = false;
     inProcess   = true;
@@ -1164,6 +1179,19 @@ String resolvedTag()
 {
     if isAttribute && registry && registry%"loadByValue" return registry.tag;
     return tag;
+}
+
+/***************************************************************************
+    runNotified is called by updateListeners() to handle listener notifications.
+***************************************************************************/
+GroupItem runNotified(GroupItem notifier)
+{
+GroupItem onNotify = get("onNotify");
+GroupItem action;
+    if onNotify action = locate(onNotify.text);
+    if action   return action.method(notifier);
+    else        setContent(notifier);
+    return this;
 }
 
 /*****************************************************************************
@@ -1443,9 +1471,9 @@ void updateContentFlags()
 }
 
 /*****************************************************************************
-	Notify groups listening to this one.
+	Not used, was updateListeners, saved here just in case
 *****************************************************************************/
-void updateListeners()
+void updateDispatch()
 {
 GroupItem	item,listener;
     if !dispatchQ
@@ -1459,6 +1487,17 @@ GroupItem	item,listener;
     cout `tag,"finished dispatching listeners":;
 	dispatchQ.wait(forever);
     cout `tag,"finished updating listeners":;
+}
+
+/*****************************************************************************
+	Notify groups listening to this one.
+*****************************************************************************/
+void updateListeners()
+{
+GroupItem	grup,listener;
+	if listener = getAttribute("notifyLIST")
+		while grup = listener.next(grup)
+            runNotified(grup);
 }
 
 /***************************************************************************

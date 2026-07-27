@@ -1252,6 +1252,24 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = getStuff(pStuff);
 	if ( pStuff )
 		parentLabel = pStuff->label;
+	/***********************************************************************
+	genParseRuleAccess S1.3 -- a generated parse supersedes the
+	interpretive walk. Placed before any frame state is set so there is
+	nothing to unwind on the generated path. NO-OP until something is
+	generated: no current path assigns parseMethod, so every rule takes
+	the old road and the baseline must be byte-identical.
+	Deliberately NOT lazily initialized (contrast testMatch's
+	`if !testMatch setTestMatch()` at RuleStuff.twk:159). Generation is
+	explicit and idempotent; an `if !parseMethod genParse(rule)` here
+	would turn first-parse into a generation event -- this phase, that
+	means emitting text and running a build, from inside a parse.
+	***********************************************************************/
+	if ( ruleStuff->parseMethod )
+		{
+		if ( ruleStuff->parseMethod(this,parentLabel) )
+			return ruler->trueResult;
+		return 0;
+		}
 	ruleStuff->kount = 0;
 	ruleStuff->isOK = 0;
 	ruleStuff->inProcess = 1;
@@ -1558,6 +1576,21 @@ char *GroupItem::resolvedTag()
 	if ( isAttribute(options.affiliation) && groupBody->registry && groupBody->registry->getAttribute("loadByValue") )
 		return groupBody->registry->groupBody->tag;
 	return groupBody->tag;
+}
+
+/***************************************************************************
+    runNotified is called by updateListeners() to handle listener notifications.
+***************************************************************************/
+GroupItem *GroupItem::runNotified(GroupItem *notifier)
+{
+GroupItem 	*onNotify = get("onNotify");
+GroupItem 	*action = 0;
+	if ( onNotify )
+		action = GroupControl::groupController->locate(onNotify->getText());
+	if ( action )
+		return action->groupBody->gMethod(notifier);
+	else	setContent(notifier);
+	return this;
 }
 
 /*****************************************************************************
@@ -1889,9 +1922,9 @@ void GroupItem::updateContentFlags()
 }
 
 /*****************************************************************************
-	Notify groups listening to this one.
+	Not used, was updateListeners, saved here just in case
 *****************************************************************************/
-void GroupItem::updateListeners()
+void GroupItem::updateDispatch()
 {
 GroupItem 	*item = 0;
 GroupItem 	*listener = 0;
@@ -1906,6 +1939,18 @@ GroupItem 	*listener = 0;
 	::printf("\t%s finished dispatching listeners\n",groupBody->tag);
 	GroupControl::groupController->dispatchQ->wait(DISPATCH_TIME_FOREVER);
 	::printf("\t%s finished updating listeners\n",groupBody->tag);
+}
+
+/*****************************************************************************
+	Notify groups listening to this one.
+*****************************************************************************/
+void GroupItem::updateListeners()
+{
+GroupItem 	*grup = 0;
+GroupItem 	*listener = 0;
+	if ( listener = getAttribute("notifyLIST") )
+		while ( grup = listener->next(grup) )
+			runNotified(grup);
 }
 
 /***************************************************************************
