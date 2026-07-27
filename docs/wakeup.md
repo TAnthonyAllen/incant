@@ -1,7 +1,7 @@
 # Incant — Status & Handoff (2026-07-27 PM: genParseRuleAccess steps 1-3 LANDED and green.
-# runScaf2 CLOSED. JSON causes 3 → 1, and the survivor is LOCATED. Step 4 ENTERED, ruling
-# stated below, NOT yet landed — the tree may be mid-flight. Read §"STEP 4" FIRST if the
-# build is red.)
+# runScaf2 CLOSED. JSON causes 3 → 1, and the survivor is LOCATED. Step 4 LANDED (eedd0b7),
+# with a PRE-EXISTING entry-wrapper crash found and fixed along the way. TWO CORRECTIONS TO
+# THIS SEAL'S OWN LEDGER — read "POP LEDGER CORRECTION" before trusting the table.)
 *Written by Clod for a fresh Clay/Clod with ZERO memory of today. Self-contained. Read fully before
 touching code. Everything below `af6b873` is on branch `jit-unified-emit-wip`; main is untouched.*
 
@@ -69,7 +69,17 @@ not exist yet:
   acquired `GroupItem rule = locate("X")`. That is what satisfies POP §4 — a rule live in every
   frame, no dereference chain.
 
-**POP ledger — every line RUN, none shape-read:**
+### ⚠ POP LEDGER CORRECTION — read before trusting the table below
+The ladder rows were **green against a process exiting 139 (SIGSEGV)**. They were verified by
+grepping for expected strings, and **"run" never included checking the exit status.** Corrected:
+- **Baselines (`oneTest`/`jsonTest`) — VALID exactly as recorded.** Exit 0, byte-identical. A crash
+  truncates output, so a full matching capture cannot come from a process that died early. Scope
+  this hole; do NOT discard the ledger.
+- **Ladder rows — NOT valid as originally sealed.** They became true only at `eedd0b7`, which is
+  when `genScratch` first exited 0.
+Doctrine now in CLAUDE.md's Testing section: **a POP is not passed unless the process exited 0.**
+
+**POP ledger — every line RUN, and as of `eedd0b7` exit-status checked:**
 | check | result |
 |---|---|
 | `oneTest` / `jsonTest` after **every** step | **BYTE-IDENTICAL** to the pre-change capture |
@@ -139,7 +149,43 @@ is annotated `KNOWN TO FAIL` while printing `ok` — **when the invocation-layer
 to a real failure, which terminates the run, so jsonTest will appear to break at the moment the bug
 is fixed.**
 
-## STEP 4 — ENTERED, NOT LANDED. The tree may be mid-flight.
+## OPEN ITEM — DIVERSION BOUNDARY NOT RESPECTED DURING MATCH (new; no other write-up exists)
+A failing parse **reads past the end of its diverted buffer into the enclosing script text while
+matching.** Distinct layer from the wrapper defect fixed in `eedd0b7`: that one was what the
+wrapper does *after* the parse returns; this is the boundary the parse respects *while running*. A
+correct unwind cannot help a mark that already walked out of the buffer.
+
+**Reproducer** — `jsonTest`-style preamble, then:
+```
+testJSON('{');      <- malformed
+testJSON('{');      <- NEVER RUNS
+print "control";    <- NEVER RUNS
+```
+The tell is that the `Failed at:` window contains **the script's own source text**:
+```
+Rule JSONblock
+	Failed at:	('{');#print "=== control: well-formed,
+	on Line:	9
+FAIL: {
+```
+The process now exits **0** (crash fixed); the following statements are still swallowed.
+
+**Consequence: jsonTest is NOT half-restored.** It still cannot run multiple failing cases in one
+process, so §7.1's **inverted-ordering fixture stays REQUIRED** (well-formed to arm, malformed to
+read, nothing after). Third open item on the JSON thread, beside §7.5 and the oracle problem.
+
+## HOW TO WEIGHT A CLAY BRIEF (earned 2026-07-27)
+Five causal claims were checked against the tree in one day and **five failed**; every structural
+claim held. The split is not design-vs-tree, it is **structural vs causal**.
+- **Held — take these:** model-not-oracle · R-inner vs R-outer · one-implementer-each · the
+  restorations as a family · seam-at-intent-not-punctuation · the three-way exit.
+- **Failed — check these:** the ruleSTUFF clobber window · setLabel-orphaned · min-zeroing as the
+  JSON cause · `matchFailed` on the Scaf path · one-bug-two-symptoms / jsonTest half-restored.
+
+**Take the distinctions, check the attributions.** Cost of checking: one grep. Cost of not: hours,
+five times over. The rule applies to this seal too.
+
+## STEP 4 — LANDED (`eedd0b7`). Kept for the reasoning trail.
 Ruling is at the top of this file. Sequence:
 1. Change the fnptr member to return `GroupItem`; `groups.ext` in lockstep; `tokall`; rebuild.
 2. `leaveRule`/`leaveAlt` return `GroupItem` (three-way exit); parse methods' return type follows.
