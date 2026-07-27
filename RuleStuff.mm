@@ -19,7 +19,7 @@
     guard sets. PLGset stays the default for larger sets (banked, S5.2); this
     covers the single/small-explicit-set cases in the JSONblock family.
 *******************************************************************************/
-extern "C" int inGuard(char *chars, char ch)
+extern "C" int inGuard(GroupItem *field, char *chars, char ch)
 {
 	while ( *chars )
 		if ( *chars == ch )
@@ -34,7 +34,7 @@ extern "C" int inGuard(char *chars, char ch)
     against the same `into`; literal options attach via litOption). Only
     handles the rewind-on-failure half of Invariant R.
 *******************************************************************************/
-extern "C" int leaveAlt(char *from, int ok)
+extern "C" int leaveAlt(GroupItem *field, char *from, int ok)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( ok )
@@ -49,7 +49,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
     rewind atRuleMark to `from`, return false (label is simply not attached;
     GC reclaims it, same as parse()'s own comment on label leaks).
 *******************************************************************************/
-extern "C" int leaveRule(GroupItem *into, GroupItem *label, char *from, int ok)
+extern "C" int leaveRule(GroupItem *field, GroupItem *into, GroupItem *label, char *from, int ok)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( ok )
@@ -72,7 +72,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
     for "-"/noLabel attribute terms (JSONblock's "{"-/"}"-,  JSONfield's ":"-,
     JSONitem's ","?-).
 *******************************************************************************/
-extern "C" int lit(char *str)
+extern "C" int lit(GroupItem *field, char *str)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*atText = 0;
@@ -100,7 +100,7 @@ char 		*matchStr = 0;
     must attach themselves (rule-reference options attach via their own
     leaveRule against the same `into`).
 *******************************************************************************/
-extern "C" int litOption(GroupItem *into, char *str)
+extern "C" int litOption(GroupItem *field, GroupItem *into, char *str)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*fresh = 0;
@@ -192,13 +192,13 @@ int 		ok = 0;
 		freshStuff = new RuleStuff(rule);
 		label->setRStuff(freshStuff);
 		}
-	ok = ::lit("[") && (::parseJSONlist(label) || 1) && ::lit("]");
+	ok = ::lit(rule,"[") && (::parseJSONlist(label) || 1) && ::lit(rule,"]");
 	if ( ok )
 		{
 		ruler->ruleSTUFF = label->rStuff;
 		label = rule->groupBody->gMethod(label);
 		}
-	return ::leaveRule(into,label,from,ok && label);
+	return ::leaveRule(rule,into,label,from,ok && label);
 }
 
 /*******************************************************************************
@@ -207,11 +207,12 @@ int 		ok = 0;
 extern "C" int parseJSONblock(GroupItem *into)
 {
 GroupItem 	*label = new GroupItem("JSONblock");
+GroupItem 	*rule = GroupControl::groupController->locate("JSONblock");
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*from = ruler->atRuleMark;
 int 		ok = 0;
-	ok = ::lit("{") && ::manyJSONblockFields(label) && ::lit("}");
-	return ::leaveRule(into,label,from,ok);
+	ok = ::lit(rule,"{") && ::manyJSONblockFields(label) && ::lit(rule,"}");
+	return ::leaveRule(rule,into,label,from,ok);
 }
 
 /*******************************************************************************
@@ -253,20 +254,20 @@ int 		ok = 0;
 		tokenChild = label->next(tokenChild);
 		tokenChild->groupBody->tag = "JSONtoken";
 		}
-	ok = ok && ::lit(":");
+	ok = ok && ::lit(rule,":");
 	ok = ok && ::parseJSONvalue(label);
 	if ( ok )
 		{
 		valueChild = label->next(tokenChild);
 		valueChild->groupBody->tag = "JSONvalue";
 		}
-	ok = ok && (::lit(",") || 1);
+	ok = ok && (::lit(rule,",") || 1);
 	if ( ok )
 		{
 		ruler->ruleSTUFF = label->rStuff;
 		label = rule->groupBody->gMethod(label);
 		}
-	return ::leaveRule(into,label,from,ok && label);
+	return ::leaveRule(rule,into,label,from,ok && label);
 }
 
 /*******************************************************************************
@@ -278,10 +279,11 @@ int 		ok = 0;
 *******************************************************************************/
 extern "C" int parseJSONitem(GroupItem *into)
 {
+GroupItem 	*rule = GroupControl::groupController->locate("JSONitem");
 	if ( !::parseJSONtoken(into) )
 		return 0;
 	into->groupBody->tag = "JSONitem";
-	::lit(",");
+	::lit(rule,",");
 	return 1;
 }
 
@@ -291,9 +293,10 @@ extern "C" int parseJSONitem(GroupItem *into)
 extern "C" int parseJSONlist(GroupItem *into)
 {
 GroupItem 	*label = new GroupItem("JSONlist");
+GroupItem 	*rule = GroupControl::groupController->locate("JSONlist");
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*from = ruler->atRuleMark;
-	return ::leaveRule(into,label,from,::manyJSONlistItems(label));
+	return ::leaveRule(rule,into,label,from,::manyJSONlistItems(label));
 }
 
 /*******************************************************************************
@@ -301,9 +304,10 @@ char 		*from = ruler->atRuleMark;
 *******************************************************************************/
 extern "C" int parseJSONtoken(GroupItem *into)
 {
+GroupItem 	*rule = GroupControl::groupController->locate("JSONtoken");
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*from = ruler->atRuleMark;
-	return ::leaveAlt(from,(::inGuard("{",*ruler->atRuleMark) && ::parseJSONblock(into)) || ::litOption(into,"false") || ::litOption(into,"true") || ::parseGeneric(into,"GrouP") || ::parseGeneric(into,"NumbeR"));
+	return ::leaveAlt(rule,from,(::inGuard(rule,"{",*ruler->atRuleMark) && ::parseJSONblock(into)) || ::litOption(rule,into,"false") || ::litOption(rule,into,"true") || ::parseGeneric(into,"GrouP") || ::parseGeneric(into,"NumbeR"));
 }
 
 /*******************************************************************************
@@ -311,9 +315,10 @@ char 		*from = ruler->atRuleMark;
 *******************************************************************************/
 extern "C" int parseJSONvalue(GroupItem *into)
 {
+GroupItem 	*rule = GroupControl::groupController->locate("JSONvalue");
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*from = ruler->atRuleMark;
-	return ::leaveAlt(from,(::inGuard("{",*ruler->atRuleMark) && ::parseJSONblock(into)) || (::inGuard("[",*ruler->atRuleMark) && ::parseJSONarray(into)) || ::parseJSONtoken(into));
+	return ::leaveAlt(rule,from,(::inGuard(rule,"{",*ruler->atRuleMark) && ::parseJSONblock(into)) || (::inGuard(rule,"[",*ruler->atRuleMark) && ::parseJSONarray(into)) || ::parseJSONtoken(into));
 }
 
 /*******************************************************************************

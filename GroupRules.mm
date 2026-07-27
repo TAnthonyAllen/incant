@@ -23,6 +23,7 @@
 #include "GroupStak.h"
 #include "PLGset.h"
 #include "PLGrgx.h"
+#include "Stylish.h"
 #include "GroupDraw.h"
 #include "GroupRules.h"
 
@@ -1332,13 +1333,13 @@ int 	length = 0;
 	if ( debugStuff->groupBody->groupList )
 		length = debugStuff->groupBody->groupList->listLength;
 	/*
-	if isCoded          cout ,alignLeft("coded",10);
-	if isMethod || isOperator   cout ,alignLeft("has method",10);
-	if isRule           cout ,alignLeft("is rule",10);
-	if isAction         cout ,alignLeft("is action",10);
+	if isCoded          cout ,alignLEFT("coded",10);
+	if isMethod || isOperator   cout ,alignLEFT("has method",10);
+	if isRule           cout ,alignLEFT("is rule",10);
+	if isAction         cout ,alignLEFT("is action",10);
 	if registry         cout ,"registry:",registry.tag;
 	*/
-	::printf("%s",::alignLeft(debugStuff->groupBody->tag,20));
+	::printf("%s",::alignLEFT(debugStuff->groupBody->tag,20));
 	if ( debugStuff->groupBody->flags.isPointer )
 		tagText = "pointer";
 	if ( debugStuff->groupBody->flags.data )
@@ -1366,10 +1367,10 @@ int 	length = 0;
 		}
 	else	tagText = "no data";
 	if ( isAttribute(debugStuff->options.affiliation) )
-		::printf(" %s",::alignLeft("attribute",10));
+		::printf(" %s",::alignLEFT("attribute",10));
 	else
 	if ( isMember(debugStuff->options.affiliation) )
-		::printf(" %s",::alignLeft("member",10));
+		::printf(" %s",::alignLEFT("member",10));
 	if ( debugStuff->groupBody->flags.isLocal )
 		::printf(" is local");
 	if ( debugStuff->groupBody->flags.noPrint )
@@ -1404,6 +1405,24 @@ GroupItem 	*notifyLIST = grup->parent;
 		}
 }
 
+/*******************************************************************************
+	Debug: setColor a field then print its resulting RGB components (0.0-1.0),
+    to verify setColor's hex parse + scale. POP tool, not called from
+    production paths.
+*******************************************************************************/
+extern "C" void dumpColorRGB(GroupItem *field)
+{
+	::setColor(field);
+	
+	NSColor *c = (NSColor*)field->getObject();
+	if (c) {
+	CGFloat r = 0, g = 0, b = 0, a = 0;
+	[c getRed:&r green:&g blue:&b alpha:&a];
+	fprintf(stderr,"dumpColorRGB %s: r=%.3f g=%.3f b=%.3f a=%.3f\n", field->getText(), r, g, b, a);
+	} else fprintf(stderr,"dumpColorRGB %s: NULL\n", field->getText());
+	
+}
+
 /***************************************************************************
 	The incant dumpContents command runs this. It is used mostly for debugging.
     It lists out the componenst of the argument passed in.
@@ -1425,6 +1444,56 @@ GroupItem 	*grup = 0;
 		::dumpContents(stuff);
 		}
 	return GroupControl::groupController->groupRules->trueResult;
+}
+
+/*******************************************************************************
+	Debug: setFont a field then print its resulting NSFont's displayName +
+    bold/italic traits. POP tool, not called from production paths.
+*******************************************************************************/
+extern "C" void dumpFontInfo(GroupItem *field)
+{
+	::setFont(field);
+	
+	NSFont *f = (NSFont*)field->getObject();
+	if (f) {
+	NSFontSymbolicTraits t = f.fontDescriptor.symbolicTraits;
+	fprintf(stderr,"dumpFontInfo %s: displayName='%s' size=%.1f bold=%d italic=%d\n",
+	field->resolvedTag(), [f.displayName UTF8String], f.pointSize,
+	(t & NSFontDescriptorTraitBold) != 0, (t & NSFontDescriptorTraitItalic) != 0);
+	} else fprintf(stderr,"dumpFontInfo %s: NULL\n", field->resolvedTag());
+	
+}
+
+/*******************************************************************************
+    genParse.rtn — the parse-method emitter (genParseSpec §4).
+
+    C++ prototype ("C++ first, kant second" — Tony 2026-07-27). genParse takes a
+    rule (by name) and emits a C++ parse method that mirrors the hand-written
+    RuleStuff.twk methods (§5.1). POP: text-diff the emission against the
+    hand-written target, climbing Clay's ladder (docs/genParseLadder.md) from a
+    synthetic single-literal scaffold up to the JSON rules.
+
+    Emission substrate for v0 is cerr, line by line (bear-trap #14: stderr, not
+    stdout — stop() does not flush). This is a C++ extern body, so all string
+    literals are DOUBLE-quoted; a double-quote in the emitted output is escaped
+    \" (single quotes here parse the inner ':' as an inheritance colon and
+    cascade the whole file into ERROR Inheritance — found 2026-07-27).
+*******************************************************************************/
+/*******************************************************************************
+    emitTerm — one sequence term (attribute) -> one leaf expression string.
+    Rungs 1-2 subset of §4.2: literal string terms (data 0), the default/
+    testString row. noLabel (the `-` modifier) -> lit("x"); labelled -> litTo.
+    Same-file helper, called only from genParse -> no groups.ext decl needed.
+*******************************************************************************/
+extern "C" char *emitTerm(GroupItem *term)
+{
+RuleStuff 	*rs = term->rStuff;
+char 		dq = 34;
+char 		*leaf = 0;
+	if ( rs->noLabel )
+		leaf = ::concat(5,"lit(rule,",::toStringFromChar(dq),term->groupBody->tag,::toStringFromChar(dq),")");
+	else	leaf = ::concat(9,"litTo(rule,label,",::toStringFromChar(dq),term->groupBody->tag,::toStringFromChar(dq),",",::toStringFromChar(dq),term->groupBody->tag,::toStringFromChar(dq),")");
+	return leaf;
 }
 
 /***************************************************************************
@@ -1460,6 +1529,47 @@ extern "C" void flushBuffer(GroupItem *bufField)
 {
 	if ( isBUFFER(bufField->groupBody->flags.data) )
 		bufField->getBuffer()->flush();
+}
+
+/*******************************************************************************
+    genParse — rungs 1-2: emitSequence for a sequence rule (attributes only,
+    no rule-data / onGroup term yet). Walks the attribute list, joins each
+    term's leaf with " && ", wraps in the leaveRule frame. Emits line by line.
+
+    Emission idioms nailed 2026-07-27 (from the v0 recon):
+      - JUXTAPOSITION concatenates with NO space (`"parse" rule.tag` -> parseScaf),
+        mirroring parse()'s `label.text = "g" tag`. Comma in cerr INSERTS a space,
+        so it is used only for the diagnostic prefix, never for emitted code.
+      - A double-quote in the output is a `char dq = 34;` juxtaposed in — no quote
+        literal in the source, so tok's quote handling is never exercised.
+*******************************************************************************/
+extern "C" GroupItem *genParse(GroupItem *argument)
+{
+GroupItem 	*rule = GroupControl::groupController->locate(argument->getText());
+GroupItem 	*term = 0;
+char 		*terms = 0;
+int 		first = 1;
+char 		dq = 34;
+	if ( !rule )
+		{
+		::fprintf(stderr,"genParse: no rule named  %s\n",argument->getText());
+		return 0;
+		}
+	while ( term = rule->nextAttribute(term) )
+		{
+		if ( first )
+			terms = ::emitTerm(term);
+		else	terms = ::concat(3,terms," && ",::emitTerm(term));
+		first = 0;
+		}
+	::fprintf(stderr,"extern int parse%s(GroupItem into)\n",rule->groupBody->tag);
+	::fprintf(stderr,"{\n");
+	::fprintf(stderr,"GroupItem   label = new(%c%s%c);\n",dq,rule->groupBody->tag,dq);
+	::fprintf(stderr,"GroupItem   rule  = locate(%c%s%c);\n",dq,rule->groupBody->tag,dq);
+	::fprintf(stderr,"String      from  = atRuleMark;\n");
+	::fprintf(stderr,"    return leaveRule(rule,into,label,from, %s );\n",terms);
+	::fprintf(stderr,"}\n");
+	return GroupControl::groupController->groupRules->trueResult;
 }
 
 /*****************************************************************************
@@ -2550,32 +2660,43 @@ extern "C" GroupItem *jitSeedLiteral(GroupItem *token)
 
 /*****************************************************************************
 	The input argument is expected to be a listenTo attribute that contains
-    a list of groups that will be listened to by listenTo's parent (the listener).
-    The listenTo attribute is noPrint and runs when its parent gets defined.
-    It runs thru its list of groups and adds its parent to the notifyList
-    of every group on that list.
-    The notifyList is an attribute of the group being listened to. If the
-    listened to group changes, it runs updateListeners(), which will notify
-    its listeners that something changed and time to do what needs done.
+    a group, the notifier, that will be listened to by listenTo's parent, the
+    listener. The listenTo attribute is noPrint and runs when its parent gets
+    defined. A field can have more than one listenTo attribute (listenTo is a
+    noPrint command so fire and forget; does not matter if its data changes
+    every time it gets processed in a field definition.
+    
+    Here listener gets added to the notifyList of the notifier; notifyList
+    is an attribute of notifier, the field being listened to. If notifier
+    changes, it runs updateListeners(), which runs listener.runNotified(notifier)
+    to deal with the notification.
+    
+    The GroupItem method runNotified looks for an onNotify attribute in
+    the listener. onNotify, if it exists, should contain in its text, the
+    name of a field. runNotified locates that field, and runs its method
+    passing in the notifier. If there is no onNotify attribute, or runNotified
+    cannot locate the field named in onNotify, it copies the notifier data
+    into the listener using setContent().
+    
+    Note: the listener does not remember the field or fields it listens to.
 *****************************************************************************/
 extern "C" GroupItem *listenTo(GroupItem *input)
 {
 GroupItem 	*listener = input->parent;
-GroupItem 	*grup = 0;
+GroupItem 	*grup = input->getGroup();
 GroupItem 	*notifyList = 0;
-	listener->groupBody->flags.hasListeners = 1;
-	if ( input->groupBody->flags.fLAG )
-		while ( grup = input->nextAttribute(grup) )
+	if ( grup && input->groupBody->flags.fLAG )
+		{
+		grup->groupBody->flags.hasListeners = 1;
+		notifyList = grup->getAttribute("notifyLIST");
+		if ( !notifyList )
 			{
-			notifyList = grup->getAttribute("notifyLIST");
-			if ( !notifyList )
-				{
-				notifyList = new GroupItem("notifyLIST");
-				notifyList->groupBody->flags.noPrint = 1;
-				grup->addAttribute(notifyList);
-				}
-			notifyList->addAttribute(listener);
+			notifyList = new GroupItem("notifyLIST");
+			notifyList->groupBody->flags.noPrint = 1;
+			grup->addAttribute(notifyList);
 			}
+		notifyList->addAttribute(listener);
+		}
 	else	::fprintf(stderr,"listenTo: should be invoked as an attribute when its parent is defined\n");
 	return GroupControl::groupController->groupRules->trueResult;
 }
@@ -3857,6 +3978,36 @@ extern "C" GroupItem *opUnaryMinus(GroupItem *result)
 }
 
 /*******************************************************************************
+    RUNTIME LOOP (Clay 2026-07-27) — close the loop ONCE on rung 1's scaffold
+    before climbing. Text-diff proves genParse emits what a human wrote; it says
+    nothing about whether the emitted code compiles, links, binds, or RUNS (the
+    invocation-blocker failure class was invisible to any source comparison).
+    So: the rung-1 emission, hand-placed and compiled in, plus an incant-callable
+    wrapper, to watch "x" actually parse. On a 4-line method a failure is
+    unambiguously the plumbing, not the emitter logic.
+
+    parseScaf below is the VERBATIM output of genParse('Scaf'). It calls lit and
+    leaveRule from the RuleStuff support library (cross-file via groups.ext).
+*******************************************************************************/
+/*  === GENERATED by genParse('Scaf'), pasted verbatim (rung-1 emission) === */
+extern "C" int parseScaf(GroupItem *into)
+{
+GroupItem 	*label = new GroupItem("Scaf");
+GroupItem 	*rule = GroupControl::groupController->locate("Scaf");
+char 		*from = GroupControl::groupController->groupRules->atRuleMark;
+	return ::leaveRule(rule,into,label,from,::lit(rule,"x"));
+}
+
+/*  === GENERATED by genParse('Scaf2'), pasted verbatim (rung-2 emission) === */
+extern "C" int parseScaf2(GroupItem *into)
+{
+GroupItem 	*label = new GroupItem("Scaf2");
+GroupItem 	*rule = GroupControl::groupController->locate("Scaf2");
+char 		*from = GroupControl::groupController->groupRules->atRuleMark;
+	return ::leaveRule(rule,into,label,from,::lit(rule,"{") && ::lit(rule,"}"));
+}
+
+/*******************************************************************************
 	Print the field passed in to the buffer passed in
 *******************************************************************************/
 extern "C" void printField(GroupItem *field, char *format, Buffer *buffer)
@@ -4300,6 +4451,30 @@ GroupItem 	*result = 0;
 }
 
 /***************************************************************************
+    Entry wrapper -- outside callers do field = runJSONblock(argument) and
+    expect a GroupItem (genParseSpec S5.3). Calls parseJSONblock (RuleStuff.twk)
+    as ordinary cross-file C++. Lives HERE, not in RuleStuff.twk, per Clay's
+    2026-07-25 structural hypothesis: incant-callable commands live in a .rtn
+    included into GroupRules.twk, not in a standalone class file.
+
+    NOTE (Clod, 2026-07-25): S5.3's own worked example checks
+    `!result.hasMembers` here, but leaveRule attaches via `+%` == addAttribute
+    (confirmed from the generated code), which sets hasAttributes, not
+    hasMembers. Checking hasAttributes instead is the fix.
+***************************************************************************/
+extern "C" GroupItem *runJSONblock(GroupItem *argument)
+{
+GroupItem 	*result = new GroupItem("JSONblock");
+	GroupControl::groupController->groupRules->pushInput(argument);
+	if ( !::parseJSONblock(result) )
+		result = 0;
+	else
+	if ( !result->groupBody->flags.hasAttributes )
+		result = GroupControl::groupController->groupRules->trueResult;
+	return result;
+}
+
+/***************************************************************************
     runOP fires off a field that might be an action, a rule, a method,
     or an operator
 
@@ -4390,6 +4565,55 @@ int 		baseStak = 0;
 	result = rule->parse(0);
 	while ( field && field->groupBody->flags.data && ruler->inputSTAK && ruler->inputSTAK->length > baseStak )
 		ruler->popInput();
+	return result;
+}
+
+/*  Entry wrappers, mirror runJSONblock. Each captures the mark AFTER pushInput
+    and reports whether a FAILING parse left it unmoved — Invariant R (§2.2), the
+    leaveRule rewind every downstream alternation/optional depends on. Scaf2 on
+    "{" is the meaningful case: lit("{") advances, lit("}") fails, so the rewind
+    has real ground to give back (a single-lit fail never advanced).  */
+extern "C" GroupItem *runScaf(GroupItem *argument)
+{
+GroupItem 	*result = new GroupItem("Scaf");
+char 		*in = argument->getText();
+char 		*from = 0;
+int 		ok = 0;
+	GroupControl::groupController->groupRules->pushInput(argument);
+	from = GroupControl::groupController->groupRules->atRuleMark;
+	ok = ::parseScaf(result);
+	if ( !ok || !result->groupBody->flags.hasAttributes )
+		result = 0;
+	if ( ok )
+		::fprintf(stderr,"  Scaf  PARSED: %s\n",in);
+	else {
+		::fprintf(stderr,"  Scaf  FAIL  : %s\n",in);
+		if ( GroupControl::groupController->groupRules->atRuleMark == from )
+			::fprintf(stderr,"        Invariant R OK  (mark unmoved)\n");
+		else	::fprintf(stderr,"        Invariant R VIOLATED (mark moved)\n");
+		}
+	return result;
+}
+
+extern "C" GroupItem *runScaf2(GroupItem *argument)
+{
+GroupItem 	*result = new GroupItem("Scaf2");
+char 		*in = argument->getText();
+char 		*from = 0;
+int 		ok = 0;
+	GroupControl::groupController->groupRules->pushInput(argument);
+	from = GroupControl::groupController->groupRules->atRuleMark;
+	ok = ::parseScaf2(result);
+	if ( !ok || !result->groupBody->flags.hasAttributes )
+		result = 0;
+	if ( ok )
+		::fprintf(stderr,"  Scaf2 PARSED: %s\n",in);
+	else {
+		::fprintf(stderr,"  Scaf2 FAIL  : %s\n",in);
+		if ( GroupControl::groupController->groupRules->atRuleMark == from )
+			::fprintf(stderr,"        Invariant R OK  (mark rewound)\n");
+		else	::fprintf(stderr,"        Invariant R VIOLATED (mark left advanced)\n");
+		}
 	return result;
 }
 
@@ -4614,9 +4838,10 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 ***************************************************************************/
 extern "C" GroupItem *testing(GroupItem *input)
 {
-	if ( isCoded(input->groupBody->flags.actionType) )
-		::jitRunAction(input);
-	else	::jitRunIfTest(input);
+GroupItem 	*testInput = new GroupItem("x");
+	::runScaf(testInput);
+	testInput->groupBody->tag = "y";
+	::runScaf(testInput);
 	return input;
 }
 

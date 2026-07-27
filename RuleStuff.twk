@@ -425,7 +425,7 @@ gotMatch:
     for "-"/noLabel attribute terms (JSONblock's "{"-/"}"-,  JSONfield's ":"-,
     JSONitem's ","?-).
 *******************************************************************************/
-extern int lit(String str)
+extern int lit(GroupItem field, String str)
 {
 GroupRules  ruler = groupRules;
 String      atText, matchStr;
@@ -447,7 +447,7 @@ String      atText, matchStr;
     must attach themselves (rule-reference options attach via their own
     leaveRule against the same `into`).
 *******************************************************************************/
-extern int litOption(GroupItem into, String str)
+extern int litOption(GroupItem field, GroupItem into, String str)
 {
 GroupRules  ruler = groupRules;
 GroupItem   fresh;
@@ -469,7 +469,7 @@ String      atText, matchStr;
     guard sets. PLGset stays the default for larger sets (banked, S5.2); this
     covers the single/small-explicit-set cases in the JSONblock family.
 *******************************************************************************/
-extern int inGuard(String chars, char ch)
+extern int inGuard(GroupItem field, String chars, char ch)
 {
     while *chars
         if *chars == ch     return true;
@@ -483,7 +483,7 @@ extern int inGuard(String chars, char ch)
     rewind atRuleMark to `from`, return false (label is simply not attached;
     GC reclaims it, same as parse()'s own comment on label leaks).
 *******************************************************************************/
-extern int leaveRule(GroupItem into, GroupItem label, String from, int ok)
+extern int leaveRule(GroupItem field, GroupItem into, GroupItem label, String from, int ok)
 {
 GroupRules  ruler = groupRules;
     if ok {
@@ -499,7 +499,7 @@ GroupRules  ruler = groupRules;
     against the same `into`; literal options attach via litOption). Only
     handles the rewind-on-failure half of Invariant R.
 *******************************************************************************/
-extern int leaveAlt(String from, int ok)
+extern int leaveAlt(GroupItem field, String from, int ok)
 {
 GroupRules  ruler = groupRules;
     if ok   return true;
@@ -544,11 +544,12 @@ int         kount;
 extern int parseJSONblock(GroupItem into)
 {
 GroupItem   label = new("JSONblock");
+GroupItem   rule  = locate("JSONblock");
 GroupRules  ruler = groupRules;
 String      from  = atRuleMark;
 int         ok;
-    ok = lit("{") && manyJSONblockFields(label) && lit("}");
-    return leaveRule(into,label,from,ok);
+    ok = lit(rule,"{") && manyJSONblockFields(label) && lit(rule,"}");
+    return leaveRule(rule,into,label,from,ok);
 }
 
 /*******************************************************************************
@@ -581,12 +582,12 @@ int         ok;
     if !label.rStuff   { freshStuff = new(rule); label.setRStuff(freshStuff); }
     ok = parseJSONtoken(label);
     if ok   { tokenChild = label.next(tokenChild); tokenChild.tag = "JSONtoken"; }
-    ok = ok && lit(":");
+    ok = ok && lit(rule,":");
     ok = ok && parseJSONvalue(label);
     if ok   { valueChild = label.next(tokenChild); valueChild.tag = "JSONvalue"; }
-    ok = ok && (lit(",") || true);
+    ok = ok && (lit(rule,",") || true);
     if ok   { ruleSTUFF = label.rStuff; label = rule.method(label); }
-    return leaveRule(into,label,from, ok && label );
+    return leaveRule(rule,into,label,from, ok && label );
 }
 
 /*******************************************************************************
@@ -594,11 +595,12 @@ int         ok;
 *******************************************************************************/
 extern int parseJSONvalue(GroupItem into)
 {
+GroupItem   rule = locate("JSONvalue");
 GroupRules  ruler = groupRules;
 String      from = atRuleMark;
-    return leaveAlt(from,
-                (inGuard("{",*atRuleMark) && parseJSONblock(into))
-             || (inGuard("[",*atRuleMark) && parseJSONarray(into))
+    return leaveAlt(rule,from,
+                (inGuard(rule,"{",*atRuleMark) && parseJSONblock(into))
+             || (inGuard(rule,"[",*atRuleMark) && parseJSONarray(into))
              || parseJSONtoken(into) );
 }
 
@@ -607,12 +609,13 @@ String      from = atRuleMark;
 *******************************************************************************/
 extern int parseJSONtoken(GroupItem into)
 {
+GroupItem   rule = locate("JSONtoken");
 GroupRules  ruler = groupRules;
 String      from = atRuleMark;
-    return leaveAlt(from,
-                (inGuard("{",*atRuleMark) && parseJSONblock(into))
-             || litOption(into,"false")
-             || litOption(into,"true")
+    return leaveAlt(rule,from,
+                (inGuard(rule,"{",*atRuleMark) && parseJSONblock(into))
+             || litOption(rule,into,"false")
+             || litOption(rule,into,"true")
              || parseGeneric(into,"GrouP")
              || parseGeneric(into,"NumbeR") );
 }
@@ -643,9 +646,10 @@ RuleStuff   bridge = new(rule);
 *******************************************************************************/
 extern int parseJSONitem(GroupItem into)
 {
+GroupItem   rule = locate("JSONitem");
     if !parseJSONtoken(into)   return false;
     into.tag = "JSONitem";
-    lit(",");
+    lit(rule,",");
     return true;
 }
 
@@ -655,9 +659,10 @@ extern int parseJSONitem(GroupItem into)
 extern int parseJSONlist(GroupItem into)
 {
 GroupItem   label = new("JSONlist");
+GroupItem   rule  = locate("JSONlist");
 GroupRules  ruler = groupRules;
 String      from  = atRuleMark;
-    return leaveRule(into,label,from, manyJSONlistItems(label) );
+    return leaveRule(rule,into,label,from, manyJSONlistItems(label) );
 }
 
 /*******************************************************************************
@@ -673,9 +678,9 @@ RuleStuff   freshStuff;
 String      from  = atRuleMark;
 int         ok;
     if !label.rStuff   { freshStuff = new(rule); label.setRStuff(freshStuff); }
-    ok = lit("[") && (parseJSONlist(label) || true) && lit("]");
+    ok = lit(rule,"[") && (parseJSONlist(label) || true) && lit(rule,"]");
     if ok   { ruleSTUFF = label.rStuff; label = rule.method(label); }
-    return leaveRule(into,label,from, ok && label );
+    return leaveRule(rule,into,label,from, ok && label );
 }
 
 /*******************************************************************************
