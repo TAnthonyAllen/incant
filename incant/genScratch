@@ -2,7 +2,7 @@ Start();
 
 /*  Scaffold rules inlined (include-path resolution for a brand-new file in
     incant/ is unreliable; inline sidesteps it). Simplest-first per Clay's
-    ladder.  */
+    ladder (docs/genParseLadder.md).  */
 register(Ladder);
 define
     Scaf isRule "x"-;
@@ -10,11 +10,33 @@ define
     ;
 search reset stack Grokking Ladder list;
 
-/*  genParse is a C++ command (genParse.rtn). Register it the proven way
-    (wakeup Thread 2): registry(cOMMANDs) + =value form.  */
+/*  genParse (emitter) + runScaf/runScaf2 (runtime-loop wrappers) are C++
+    commands (genParse.rtn). Register the proven way: registry(cOMMANDs)+=value.
+    Called directly at top level, the same way genParse() is — registered
+    commands dispatch there.  */
 registry(cOMMANDs);
 define genParse immediateAction=genParse; ;
+registry(cOMMANDs);
+define runScaf immediateAction=runScaf; ;
+registry(cOMMANDs);
+define runScaf2 immediateAction=runScaf2; ;
 
+/*  --- rungs 1-2 TEXT-EMIT POP (diff vs genLadder/rung12.target) --- */
 genParse('Scaf');
 genParse('Scaf2');
+
+/*  --- rung-1 RUNNABLE FLOOR (GREEN) --- wrappers report outcome + Invariant R
+    (§2.2) on stderr. runScaf('x') parses; runScaf('y') fails with the mark
+    unmoved (leaveRule's rewind).  */
+runScaf('x');
+runScaf('y');
+
+/*  --- OPEN (2026-07-27): runScaf2 never dispatches. NOT input, NOT the digit
+    (unconfirmed), NOT multi-entry registration, NOT a missing symbol
+    (nm: _runScaf2 is live; codegen identical to runScaf). Same "never entered,
+    clean exit, no error" invocation-blocker class as Step 1/2. Left wired for
+    next-session root-cause. When it dispatches, runScaf2('{') is the meaningful
+    Invariant-R rewind test (advance past {, fail on missing }, rewind).  */
+runScaf2('{}');
+runScaf2('{');
 stop();
