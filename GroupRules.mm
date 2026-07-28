@@ -362,6 +362,20 @@ GroupItem 	*item = 0;
 				}
 			}
 		}
+	/***********************************************************************
+	THE DEFINITION IS COMPLETE HERE — attributes and members are both in —
+	so this is where a term's rStuff is materialised (Clay SEQ 27). Doing it
+	at the completion point rather than per-attribute is what avoids the
+	ordering hazard rung 7 hit with alternation binding: a definition
+	attribute fires WHEN PARSED, which for an alternation is before its
+	members exist.
+	
+	Almost always a no-op: `modify` has already materialised anything
+	carrying a modifier, and terms from incant source come back with rStuff
+	regardless. It is here so the INVARIANT holds at the define point rather
+	than holding by luck.
+	***********************************************************************/
+	::materialiseTerms(NewGroup);
 	input->clear();
 	NewGroup->groupBody->flags.isInitialized = 1;
 	if ( NewGroup->groupBody->registry && !NewGroup->parent )
@@ -3515,6 +3529,77 @@ GroupItem 	*form = input->parent;
 		form->groupBody->flags.isWindow = 1;
 	else	::fprintf(stderr,"window: should be invoked as an attribute when its parent is defined\n");
 	return GroupControl::groupController->groupRules->trueResult;
+}
+
+extern "C" int materialiseRegistry(GroupItem *registry)
+{
+GroupItem 	*rule = 0;
+int 		made = 0;
+	while ( rule = registry->next(rule) )
+		made += ::materialiseTerms(rule);
+	return made;
+}
+
+/*****************************************************************************
+    materialiseTerms — rStuff at DEFINE TIME, not lazily on first access
+    (Clay SEQ 27). By genParseSpec §7.4's taxonomy rStuff is SHAPE: one per
+    rule, knowable at definition. Lazy materialisation was a cache for something
+    that was never in doubt.
+
+    MEASURED FIRST, and it narrows the job considerably. Terms defined FROM
+    INCANT SOURCE already materialise at definition — `modify` calls
+    setRuleStuff, and even an unmodified term comes back with rStuff. The gap is
+    the BOOTSTRAPPER, which hand-builds rules in C++: GroupMain's `Limit` adds
+    "[" and "]" with no modify() call at all, and applies its `+`/`*` to
+    `item.group` (the shared counter rule) rather than to the min/max terms. So
+    those terms had no rStuff to hold anything.
+
+    That is also why `Limit`'s `']'-` looked like a term whose modifier had
+    nowhere to live: THE MODIFIER WAS NEVER APPLIED. incant/grammar:52 lists
+    `Limit '['- min=[0-9]+ max?=[0-9]+ ']'- noPrint;` — with the `-` — and the
+    bootstrapper adds "[" and "]" with no modify() call at all. A real
+    divergence between the documented grammar and the built one, and
+    materialisation is what makes it visible instead of unknown.
+
+    CodE is NOT such a case, and the distinction is worth keeping: incant/
+    grammar:42 lists `CodE "{" "}" parseAction;` with no modifiers, so its terms
+    planning as LITTO rather than LIT is the listing being followed, not
+    departed from.
+
+    USES setRuleStuff, WHICH ALSO SETS isRule — Tony's ruling, 2026-07-28:
+    setRuleStuff only ever applies to rules anyway, so the propagation is
+    correct rather than a side effect to be worked around. It is also what keeps
+    this to ONE implementer: `modify` already calls setRuleStuff on every
+    modified term, so a bootstrap term materialised here ends up in exactly the
+    same state as an incant-defined one instead of a near-miss of it.
+
+    Worth knowing why the isRule propagation matters, since it looks cosmetic: a
+    reference term SHARES the referenced rule's member list, so `isRule &&
+    hasMembers` on that term is precisely how parse() dispatches into a
+    referenced alternation (GroupItem.twk:1062), and how checkInput knows to
+    suppress its label (RuleStuff.twk:139). Terms defined from incant source
+    already get it via modify; this closes the gap for the hand-built ones.
+*****************************************************************************/
+extern "C" int materialiseTerms(GroupItem *rule)
+{
+GroupItem 	*term = 0;
+int 		i = 1;
+int 		made = 0;
+	if ( !rule->rStuff )
+		{
+		rule->setRuleStuff();
+		made++;
+		}
+	while ( term = rule->get(i) )
+		{
+		if ( !term->rStuff )
+			{
+			term->setRuleStuff();
+			made++;
+			}
+		i++;
+		}
+	return made;
 }
 
 /*****************************************************************************

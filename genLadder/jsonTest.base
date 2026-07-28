@@ -1,9 +1,3 @@
-getRStuff: InitiatE no rStuff - creating
-getRStuff: define no rStuff - creating
-getRStuff: definitions no rStuff - creating
-getRStuff: DatA no rStuff - creating
-getRStuff: DEFINing no rStuff - creating
-getRStuff: stuff no rStuff - creating
 Search list: Grokking UnitTests Utilities
 ok  : {"a":[]} 
 ok  : {"a":["x","y"]} 

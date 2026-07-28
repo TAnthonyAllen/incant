@@ -118,12 +118,20 @@ PLAN GrouP
     CALL QuotE
       at=2
 PLAN CodE
-  REFUSE rule CodE -- 2 unmaterialised terms
+  SEQ CodE
+    label=CodE
+    LITTO {
+      at=1
+      slot={
+    LITTO }
+      at=2
+      slot=}
 PLAN DatA
   REFUSE CodE -- parseAction (tail position only, §2.8)
   REFUSE rule DatA -- term CodE unclassified
 PLAN Limit
-  REFUSE rule Limit -- 3 unmaterialised terms
+  REFUSE min -- inline group / character data isGROUP (named future kind)
+  REFUSE rule Limit -- term min unclassified
 PLAN MemberS
   SEQ MemberS
     label=MemberS

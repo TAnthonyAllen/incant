@@ -234,6 +234,20 @@ use NewGroup
                 if gMethod {
                     isMethod   = true;
                     immediateACTION = true; }}}
+    /***********************************************************************
+        THE DEFINITION IS COMPLETE HERE — attributes and members are both in —
+        so this is where a term's rStuff is materialised (Clay SEQ 27). Doing it
+        at the completion point rather than per-attribute is what avoids the
+        ordering hazard rung 7 hit with alternation binding: a definition
+        attribute fires WHEN PARSED, which for an alternation is before its
+        members exist.
+
+        Almost always a no-op: `modify` has already materialised anything
+        carrying a modifier, and terms from incant source come back with rStuff
+        regardless. It is here so the INVARIANT holds at the define point rather
+        than holding by luck.
+    ***********************************************************************/
+        materialiseTerms(NewGroup);
     input.clear();
     isInitialized   = true;
     if NewGroup.registry && !NewGroup.parent    NewGroup.parent = currentRegistry;

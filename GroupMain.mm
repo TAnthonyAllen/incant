@@ -9,6 +9,7 @@
 #include "GroupBody.h"
 #include "RuleStuff.h"
 #include "PLGset.h"
+#include "Stylish.h"
 #include "GroupDraw.h"
 #include "GroupMain.h"
 
@@ -346,6 +347,15 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	::modify(item,"+");
 	item = grok->getMember("InitiatE");
 	item = 0;
+	/*************************************************************************
+	The hand-built bootstrap rules above never go through aCTionDefinE, so
+	they never get its define-time materialisation. Several of them add
+	terms with no modify() call at all (Limit's "[" and "]"), which is why
+	those terms had no rStuff and genParse refused them. One pass here, over
+	the rules built above, before setup is parsed -- rules defined IN setup
+	come through aCTionDefinE and are already covered.
+	*************************************************************************/
+	::materialiseRegistry(grok);
 	ruler->pushInput(::getFile(ruler->setupFILE));
 	if ( ruler->sourceFILE )
 		strap->parse(0);

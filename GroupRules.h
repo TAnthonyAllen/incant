@@ -176,6 +176,8 @@ extern "C" GroupItem *makeDataType(GroupItem *target, GroupItem *argument);
 extern "C" GroupItem *makeNew(GroupItem *input);
 extern "C" int manyScafC1(GroupItem *label, GroupItem *term);
 extern "C" GroupItem *markWindow(GroupItem *input);
+extern "C" int materialiseRegistry(GroupItem *registry);
+extern "C" int materialiseTerms(GroupItem *rule);
 extern "C" void modify(GroupItem *field, char *modifier);
 extern "C" GroupItem *opAND(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opAddAttribute(GroupItem *argument, GroupItem *target);

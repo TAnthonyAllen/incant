@@ -366,6 +366,15 @@ GroupRules  ruler = groupRules;
     item            = grok/InitiatE;
     item            = 0;
 
+    /*************************************************************************
+        The hand-built bootstrap rules above never go through aCTionDefinE, so
+        they never get its define-time materialisation. Several of them add
+        terms with no modify() call at all (Limit's "[" and "]"), which is why
+        those terms had no rStuff and genParse refused them. One pass here, over
+        the rules built above, before setup is parsed -- rules defined IN setup
+        come through aCTionDefinE and are already covered.
+    *************************************************************************/
+    materialiseRegistry(grok);
     pushInput(getFile(setupFILE));
     if sourceFILE   strap.parse(0);
     popInput();
