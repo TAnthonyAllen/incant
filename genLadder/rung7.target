@@ -1,0 +1,18 @@
+extern GroupItem parseScafALT(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+String      from  = atRuleMark;
+    return leaveAlt(rule,from, parseR(t1,into) || parseR(t2,into) );
+}
+extern GroupItem parseScafOUT(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("ScafOUT");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+GroupItem   t3 = rule[3];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, lit(t1,"(") && parseR(t2,label) && lit(t3,")") );
+}

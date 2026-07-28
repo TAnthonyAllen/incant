@@ -39,6 +39,20 @@ define
     ScafC isRule ScafA+ "c"- parseTerms=2 parseMethod=parseScafC;
     ScafE isRule "e"- ScafA? "f"- parseTerms=3 parseMethod=parseScafE;
     ScafF isRule "f"- ","?- "g"- parseTerms=3 parseMethod=parseScafF;
+    ScafI isRule "i"- parseTerms=1 parseMethod=parseScafI;
+    ScafALT isRule
+        ScafA;
+        ScafI;
+    ;
+
+/*  ScafALT is bound in a SECOND define block, deliberately. A definition
+    attribute fires WHEN IT IS PARSED, so parseMethod= on an alternation's own
+    line runs before its members exist and the §3 count guard sees 0 terms and
+    refuses — correctly. Sequence rules do not have this problem; their terms
+    are on the same line. Do not collapse these blocks.  */
+define
+    ScafALT parseTerms=2 parseMethod=parseScafALT;
+    ScafOUT isRule "("- ScafALT ")"- parseTerms=3 parseMethod=parseScafOUT;
     ;
 search reset stack Grokking Ladder list;
 
@@ -49,6 +63,7 @@ genParse('ScafA');
 genParse('ScafB');
 genParse('ScafC');
 genParse('ScafE');
+genParse('ScafI');
 genParse('ScafF');
 
 /*  --- RUNTIME LOOP, NO ENTRY WRAPPER (genParseShape §1.7) ---
@@ -100,4 +115,14 @@ ScafE('ex');
 ScafF('fg');
 ScafF('f,g');
 ScafF('fx');
+
+/*  --- RUNG 7: ALT emission. ScafALT is an alternation reached as a term of
+    ScafOUT. The text POP is rung7.target; the TREE acceptance test (§2.4) is
+    separate — sh genLadder/tree.sh — because an ALT that builds the wrong tree
+    still passes every WIN/FAIL check.  */
+ScafOUT('(a)');
+ScafOUT('(i)');
+ScafOUT('(x)');
+genParse('ScafALT');
+genParse('ScafOUT');
 stop();

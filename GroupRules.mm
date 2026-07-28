@@ -1734,7 +1734,7 @@ int 		i = 1;
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
-extern "C" char *emitLeaf(GroupItem *node, char *local)
+extern "C" char *emitLeaf(GroupItem *node, char *local, char *sink)
 {
 GroupItem 	*slot = 0;
 GroupItem 	*site = 0;
@@ -1750,7 +1750,7 @@ char 		*piece = 0;
 			::fprintf(stderr,"emitLeaf: OPT node has no wrapped term\n");
 			return 0;
 			}
-		piece = ::emitLeaf(inner,local);
+		piece = ::emitLeaf(inner,local,sink);
 		if ( !piece )
 			return 0;
 		leaf = ::concat(3,"(",piece," || 1)");
@@ -1759,11 +1759,11 @@ char 		*piece = 0;
 	if ( ::compare(node->groupBody->tag,"MANY") == 0 )
 		{
 		site = node->getAttribute("site");
-		leaf = ::concat(5,"many",site->getText(),"(label,",local,")");
+		leaf = ::concat(7,"many",site->getText(),"(",sink,",",local,")");
 		}
 	else
 	if ( ::compare(node->groupBody->tag,"CALL") == 0 )
-		leaf = ::concat(3,"parseR(",local,",label)");
+		leaf = ::concat(5,"parseR(",local,",",sink,")");
 	else
 	if ( ::compare(node->groupBody->tag,"LIT") == 0 )
 		leaf = ::concat(7,"lit(",local,",",::toStringFromChar(dq),node->getText(),::toStringFromChar(dq),")");
@@ -1771,7 +1771,9 @@ char 		*piece = 0;
 	if ( ::compare(node->groupBody->tag,"LITTO") == 0 )
 		{
 		slot = node->getAttribute("slot");
-		leaf = ::concat(11,"litTo(",local,",label,",::toStringFromChar(dq),node->getText(),::toStringFromChar(dq),",",::toStringFromChar(dq),slot->getText(),::toStringFromChar(dq),")");
+		if ( ::compare(sink,"into") == 0 )
+			leaf = ::concat(7,"litOption(",local,",into,",::toStringFromChar(dq),node->getText(),::toStringFromChar(dq),")");
+		else	leaf = ::concat(11,"litTo(",local,",label,",::toStringFromChar(dq),node->getText(),::toStringFromChar(dq),",",::toStringFromChar(dq),slot->getText(),::toStringFromChar(dq),")");
 		}
 	else {
 		::fprintf(stderr,"emitLeaf: no emission for plan kind %s\n",node->groupBody->tag);
@@ -1870,25 +1872,63 @@ char 		*terms = 0;
 char 		*local = 0;
 char 		*index = 0;
 char 		*piece = 0;
+char 		*sink = 0;
+char 		*joiner = 0;
+int 		isAlt = 0;
 int 		first = 1;
 int 		n = 0;
 char 		dq = 34;
+	if ( ::compare(plan->groupBody->tag,"ALT") == 0 )
+		isAlt = 1;
+	else
 	if ( ::compare(plan->groupBody->tag,"SEQ") != 0 )
 		{
-		::fprintf(stderr,"emitPlan: REFUSING %s -- fold %s has no emitter yet\n",tag,plan->groupBody->tag);
+		::fprintf(stderr,"emitPlan: REFUSING %s -- fold %s has no emitter\n",tag,plan->groupBody->tag);
 		return 0;
 		}
-	lab = plan->getAttribute("label");
+	/*  THE FOLD DECIDES THE SINK AND THE JOINER, and both are emitter-side
+	(§4): the walk already said SEQ or ALT, this only spells it.
+	
+	S2.4 — AN ALTERNATION BUILDS NO LABEL OF ITS OWN and passes `into`
+	straight through, so the winning option attaches to the ENCLOSING
+	rule's label. Getting this wrong yields the right LANGUAGE over the
+	WRONG TREE — an empty JSONvalue wrapping every value — which passes
+	every mark-and-win check and only surfaces when a code={} action reads
+	it. That is why rung 7's acceptance test is a TREE COMPARISON against
+	the interpretive path, not a WIN/FAIL run.
+	
+	So an ALT emits no `label` local, its options take `into`, and a
+	labelled literal option is spelled litOption (which attaches itself,
+	because leaveAlt is label-transparent by design) rather than litTo.
+	litOption's first parameter is already the term, matching the
+	term-first convention, and is unused exactly as lit's is — re-read
+	2026-07-28 before wiring it in.  */
+	if ( isAlt )
+		{
+		sink = "into";
+		joiner = " || ";
+		}
+	else {
+		sink = "label";
+		joiner = " && ";
+		lab = plan->getAttribute("label");
+		}
 	/*  FIRST PASS: validate every node, and emit the helpers §3.3 calls for.
 	This is what the two-pass shape exists for — a helper is discovered
 	mid-walk, and with text already going out you would have to buffer it or
 	emit it out of order. With a plan you simply walk it again.  */
 	while ( node = plan->nextMember(node) )
 		{
+		if ( isAlt )
+			if ( ::compare(node->groupBody->tag,"CALL") != 0 && ::compare(node->groupBody->tag,"LITTO") != 0 )
+				{
+				::fprintf(stderr,"emitPlan: REFUSING %s -- %s as an alternation option (no census shape)\n",tag,node->groupBody->tag);
+				return 0;
+				}
 		at = node->getAttribute("at");
 		index = at->getText();
 		local = ::concat(2,"t",index);
-		piece = ::emitLeaf(node,local);
+		piece = ::emitLeaf(node,local,sink);
 		if ( !piece )
 			{
 			::fprintf(stderr,"emitPlan: REFUSING %s -- unemittable plan node\n",tag);
@@ -1905,7 +1945,8 @@ char 		dq = 34;
 	::fprintf(stderr,"extern GroupItem parse%s(GroupItem rule)\n",tag);
 	::fprintf(stderr,"{\n");
 	::fprintf(stderr,"GroupItem   into  = rule.rStuff.parentLabel;\n");
-	::fprintf(stderr,"GroupItem   label = new(%c%s%c);\n",dq,lab->getText(),dq);
+	if ( !isAlt )
+		::fprintf(stderr,"GroupItem   label = new(%c%s%c);\n",dq,lab->getText(),dq);
 	node = 0;
 	while ( node = plan->nextMember(node) )
 		{
@@ -1913,14 +1954,16 @@ char 		dq = 34;
 		index = at->getText();
 		local = ::concat(2,"t",index);
 		::fprintf(stderr,"GroupItem   %s = rule[%s];\n",local,index);
-		piece = ::emitLeaf(node,local);
+		piece = ::emitLeaf(node,local,sink);
 		if ( first )
 			terms = piece;
-		else	terms = ::concat(3,terms," && ",piece);
+		else	terms = ::concat(3,terms,joiner,piece);
 		first = 0;
 		}
 	::fprintf(stderr,"String      from  = atRuleMark;\n");
-	::fprintf(stderr,"    return leaveRule(rule,into,label,from, %s );\n",terms);
+	if ( isAlt )
+		::fprintf(stderr,"    return leaveAlt(rule,from, %s );\n",terms);
+	else	::fprintf(stderr,"    return leaveRule(rule,into,label,from, %s );\n",terms);
 	::fprintf(stderr,"}\n");
 	::fprintf(stderr,"/*  bind:  %s parseTerms=%s parseMethod=parse%s;  */\n",tag,::toStringFromInt(n),tag);
 	return GroupControl::groupController->groupRules->trueResult;
@@ -4619,6 +4662,15 @@ char 		*from = GroupControl::groupController->groupRules->atRuleMark;
 	return ::leaveRule(rule,into,label,from,::lit(t1,"a"));
 }
 
+extern "C" GroupItem *parseScafALT(GroupItem *rule)
+{
+GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*t1 = rule->get(1);
+GroupItem 	*t2 = rule->get(2);
+char 		*from = GroupControl::groupController->groupRules->atRuleMark;
+	return ::leaveAlt(rule,from,::parseR(t1,into) || ::parseR(t2,into));
+}
+
 /*  === GENERATED by genParse('ScafB'), pasted verbatim (rung-4 caller) ===
     ScafB's first term is a REFERENCE to ScafA, so the leaf is parseR, not lit.
     This is the rung the whole ladder above 4 depends on: parseR hands the term
@@ -4672,6 +4724,33 @@ GroupItem 	*t2 = rule->get(2);
 GroupItem 	*t3 = rule->get(3);
 char 		*from = GroupControl::groupController->groupRules->atRuleMark;
 	return ::leaveRule(rule,into,label,from,::lit(t1,"f") && (::lit(t2,",") || 1) && ::lit(t3,"g"));
+}
+
+/*  === GENERATED by genParse, pasted verbatim (rung-7, ALT emission) ===
+    ScafALT  ScafA; ScafI;                    — the alternation
+    ScafOUT  isRule "("- ScafALT ")"-;        — reaches it as a term
+    Note what the ALT frame does NOT have: a `label` local. §2.4 — an
+    alternation builds no label of its own and passes `into` straight through,
+    so the winning option attaches to the ENCLOSING rule's label. ScafOUT hands
+    its own `label` down as that `into`.  */
+extern "C" GroupItem *parseScafI(GroupItem *rule)
+{
+GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*label = new GroupItem("ScafI");
+GroupItem 	*t1 = rule->get(1);
+char 		*from = GroupControl::groupController->groupRules->atRuleMark;
+	return ::leaveRule(rule,into,label,from,::lit(t1,"i"));
+}
+
+extern "C" GroupItem *parseScafOUT(GroupItem *rule)
+{
+GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*label = new GroupItem("ScafOUT");
+GroupItem 	*t1 = rule->get(1);
+GroupItem 	*t2 = rule->get(2);
+GroupItem 	*t3 = rule->get(3);
+char 		*from = GroupControl::groupController->groupRules->atRuleMark;
+	return ::leaveRule(rule,into,label,from,::lit(t1,"(") && ::parseR(t2,label) && ::lit(t3,")"));
 }
 
 /*******************************************************************************
@@ -5845,6 +5924,44 @@ char 		*name = 0;
 	return item;
 }
 
+/*******************************************************************************
+    showTree / treeOf — §2.4's acceptance test, and it has to be a TREE test.
+
+    An alternation builds no label and passes `into` through, so the winning
+    option attaches to the ENCLOSING rule's label. Get that wrong and you get
+    the right LANGUAGE over the WRONG TREE — an empty JSONvalue wrapping every
+    value. Every mark-and-win check still reads green, because the parse
+    accepted exactly the same strings; the damage only surfaces when a code={}
+    action goes looking for a child by name and finds a wrapper instead.
+
+    So the POP compares the TREE the generated method builds against the tree
+    the interpretive walk builds, on a PASSING case (§6.5-style). Run the
+    fixture with the parseMethod bindings in place and again with them stripped;
+    the two dumps must be identical.
+
+    nextGroup is stateless, so it is safe to recurse on (unlike the shared-entry
+    next()).
+*******************************************************************************/
+extern "C" int showTree(GroupItem *node, char *pad)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*kid = 0;
+char 		*deeper = 0;
+	if ( !node )
+		return 0;
+	if ( node == ruler->trueResult )
+		{
+		::fprintf(stderr,"%s(trueResult — matched, no tree)\n",pad);
+		return 1;
+		}
+	deeper = ::concat(2,pad,"  ");
+	::fprintf(stderr,"%s%s\n",pad,node->groupBody->tag);
+	if ( node->groupBody->flags.hasAttributes || node->groupBody->flags.hasMembers )
+		while ( kid = node->nextGroup(kid) )
+			::showTree(kid,deeper);
+	return 1;
+}
+
 /***************************************************************************
 	Statement equivalence test. v1: top-level GroupItem.matches (tag, data,
 	content equality at the root node). v2 candidate: recursive AST walk.
@@ -5916,6 +6033,30 @@ extern "C" GroupItem *traceParse(GroupItem *argument)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	ruler->parseTrace = 1;
+	return ruler->trueResult;
+}
+
+extern "C" GroupItem *treeOf(GroupItem *argument)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*rule = ::locateRule("ScafOUT");
+GroupItem 	*result = 0;
+int 		baseStak = 0;
+	if ( !rule )
+		{
+		::fprintf(stderr,"treeOf: no ScafOUT on the search list\n");
+		return 0;
+		}
+	if ( ruler->inputSTAK )
+		baseStak = ruler->inputSTAK->length;
+	ruler->pushInput(argument);
+	result = rule->parse(0);
+	while ( ruler->inputSTAK && ruler->inputSTAK->length > baseStak )
+		ruler->popInput();
+	::fprintf(stderr,"TREE %s\n",argument->getText());
+	if ( result )
+		::showTree(result,"    ");
+	else	::fprintf(stderr,"    (parse FAILED)\n");
 	return ruler->trueResult;
 }
 

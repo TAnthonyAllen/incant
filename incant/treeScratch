@@ -1,0 +1,38 @@
+Start();
+
+/*  RUNG 7 / §2.4 ACCEPTANCE TEST — a TREE comparison, not a mark-and-win run.
+    An alternation builds no label and passes `into` through, so the winning
+    option must attach to the ENCLOSING rule's label. Getting that wrong yields
+    the right language over the wrong tree, which every WIN/FAIL check passes.
+    Run:  sh genLadder/tree.sh
+
+    NOTE THE TWO define BLOCKS, and do not collapse them. A definition attribute
+    fires WHEN IT IS PARSED, so `parseMethod=` on an alternation's own line runs
+    BEFORE its members exist — the §3 count guard then sees 0 terms and refuses
+    to bind, correctly. A second define re-opens the rule once the members are
+    there. Sequence rules do not have this problem: their terms are on the same
+    line.  */
+registry(cOMMANDs);
+define parseMethod immediateAction=parseRuleMethod noPrint; ;
+registry(cOMMANDs);
+define parseTerms immediateAction=parseTermCount noPrint; ;
+registry(cOMMANDs);
+define treeOf immediateAction=treeOf; ;
+
+register(Ladder);
+define
+    ScafA isRule "a"- parseTerms=1 parseMethod=parseScafA;
+    ScafI isRule "i"- parseTerms=1 parseMethod=parseScafI;
+    ScafALT isRule
+        ScafA;
+        ScafI;
+    ;
+define
+    ScafALT parseTerms=2 parseMethod=parseScafALT;
+    ScafOUT isRule "("- ScafALT ")"- parseTerms=3 parseMethod=parseScafOUT;
+    ;
+search reset stack Grokking Ladder list;
+
+treeOf('(a)');
+treeOf('(i)');
+stop();

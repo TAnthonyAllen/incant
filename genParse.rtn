@@ -634,7 +634,7 @@ String      name;
     return 1;
 }
 
-extern String emitLeaf(GroupItem node, String local)
+extern String emitLeaf(GroupItem node, String local, String sink)
 {
 GroupItem   slot;
 GroupItem   site;
@@ -647,17 +647,20 @@ String      piece;
         if !inner {
             cerr "emitLeaf: OPT node has no wrapped term":;
             return null; }
-        piece = emitLeaf(inner,local);
+        piece = emitLeaf(inner,local,sink);
         if !piece   return null;
         leaf = "(" piece " || 1)"; }
     or node.tag eq "MANY" {
         site = node.getAttribute("site");
-        leaf = "many" site.text "(label," local ")"; }
-    or node.tag eq "CALL"       leaf = "parseR(" local ",label)";
+        leaf = "many" site.text "(" sink "," local ")"; }
+    or node.tag eq "CALL"       leaf = "parseR(" local "," sink ")";
     or node.tag eq "LIT"        leaf = "lit(" local "," dq node.text dq ")";
     or node.tag eq "LITTO" {
         slot = node.getAttribute("slot");
-        leaf = "litTo(" local ",label," dq node.text dq "," dq slot.text dq ")"; }
+        if sink eq "into"
+            leaf = "litOption(" local ",into," dq node.text dq ")";
+        else
+            leaf = "litTo(" local ",label," dq node.text dq "," dq slot.text dq ")"; }
     else {
         cerr "emitLeaf: no emission for plan kind " node.tag:;
         return null; }
@@ -685,22 +688,53 @@ String      terms;
 String      local;
 String      index;
 String      piece;
+String      sink;
+String      joiner;
+int         isAlt = 0;
 int         first = 1;
 int         n = 0;
 char        dq = 34;
-    if plan.tag ne "SEQ" {
-        cerr "emitPlan: REFUSING " tag " -- fold " plan.tag " has no emitter yet":;
+    if plan.tag eq "ALT"    isAlt = 1;
+    or plan.tag ne "SEQ" {
+        cerr "emitPlan: REFUSING " tag " -- fold " plan.tag " has no emitter":;
         return null; }
-    lab = plan.getAttribute("label");
+    /*  THE FOLD DECIDES THE SINK AND THE JOINER, and both are emitter-side
+        (§4): the walk already said SEQ or ALT, this only spells it.
+
+        S2.4 — AN ALTERNATION BUILDS NO LABEL OF ITS OWN and passes `into`
+        straight through, so the winning option attaches to the ENCLOSING
+        rule's label. Getting this wrong yields the right LANGUAGE over the
+        WRONG TREE — an empty JSONvalue wrapping every value — which passes
+        every mark-and-win check and only surfaces when a code={} action reads
+        it. That is why rung 7's acceptance test is a TREE COMPARISON against
+        the interpretive path, not a WIN/FAIL run.
+
+        So an ALT emits no `label` local, its options take `into`, and a
+        labelled literal option is spelled litOption (which attaches itself,
+        because leaveAlt is label-transparent by design) rather than litTo.
+        litOption's first parameter is already the term, matching the
+        term-first convention, and is unused exactly as lit's is — re-read
+        2026-07-28 before wiring it in.  */
+    if isAlt {
+        sink    = "into";
+        joiner  = " || "; }
+    else {
+        sink    = "label";
+        joiner  = " && ";
+        lab     = plan.getAttribute("label"); }
     /*  FIRST PASS: validate every node, and emit the helpers §3.3 calls for.
         This is what the two-pass shape exists for — a helper is discovered
         mid-walk, and with text already going out you would have to buffer it or
         emit it out of order. With a plan you simply walk it again.  */
     while node = plan.nextMember(node) {
+        if isAlt
+            if node.tag ne "CALL" && node.tag ne "LITTO" {
+                cerr "emitPlan: REFUSING " tag " -- " node.tag " as an alternation option (no census shape)":;
+                return null; }
         at      = node.getAttribute("at");
         index   = at.text;
         local   = "t" index;
-        piece   = emitLeaf(node,local);
+        piece   = emitLeaf(node,local,sink);
         if !piece {
             cerr "emitPlan: REFUSING " tag " -- unemittable plan node":;
             return null; }
@@ -712,19 +746,20 @@ char        dq = 34;
     cerr "extern GroupItem parse" tag "(GroupItem rule)":;
     cerr "{":;
     cerr "GroupItem   into  = rule.rStuff.parentLabel;":;
-    cerr "GroupItem   label = new(" dq lab.text dq ");":;
+    if !isAlt   cerr "GroupItem   label = new(" dq lab.text dq ");":;
     node = 0;
     while node = plan.nextMember(node) {
         at      = node.getAttribute("at");
         index   = at.text;
         local   = "t" index;
         cerr "GroupItem   " local " = rule[" index "];":;
-        piece   = emitLeaf(node,local);
+        piece   = emitLeaf(node,local,sink);
         if first    terms = piece;
-        else        terms = terms " && " piece;
+        else        terms = terms joiner piece;
         first = 0; }
     cerr "String      from  = atRuleMark;":;
-    cerr "    return leaveRule(rule,into,label,from, " terms " );":;
+    if isAlt    cerr "    return leaveAlt(rule,from, " terms " );":;
+    else        cerr "    return leaveRule(rule,into,label,from, " terms " );":;
     cerr "}":;
     cerr "/*  bind:  " tag " parseTerms=" toStringFromInt(n) " parseMethod=parse" tag ";  */":;
     return trueResult;
@@ -829,6 +864,95 @@ GroupItem   t2 = rule[2];
 GroupItem   t3 = rule[3];
 String      from  = atRuleMark;
     return leaveRule(rule,into,label,from, lit(t1,"f") && (lit(t2,",") || 1) && lit(t3,"g") );
+}
+
+/*  === GENERATED by genParse, pasted verbatim (rung-7, ALT emission) ===
+    ScafALT  ScafA; ScafI;                    — the alternation
+    ScafOUT  isRule "("- ScafALT ")"-;        — reaches it as a term
+    Note what the ALT frame does NOT have: a `label` local. §2.4 — an
+    alternation builds no label of its own and passes `into` straight through,
+    so the winning option attaches to the ENCLOSING rule's label. ScafOUT hands
+    its own `label` down as that `into`.  */
+extern GroupItem parseScafI(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("ScafI");
+GroupItem   t1 = rule[1];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, lit(t1,"i") );
+}
+
+extern GroupItem parseScafALT(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+String      from  = atRuleMark;
+    return leaveAlt(rule,from, parseR(t1,into) || parseR(t2,into) );
+}
+
+extern GroupItem parseScafOUT(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("ScafOUT");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+GroupItem   t3 = rule[3];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, lit(t1,"(") && parseR(t2,label) && lit(t3,")") );
+}
+
+/*******************************************************************************
+    showTree / treeOf — §2.4's acceptance test, and it has to be a TREE test.
+
+    An alternation builds no label and passes `into` through, so the winning
+    option attaches to the ENCLOSING rule's label. Get that wrong and you get
+    the right LANGUAGE over the WRONG TREE — an empty JSONvalue wrapping every
+    value. Every mark-and-win check still reads green, because the parse
+    accepted exactly the same strings; the damage only surfaces when a code={}
+    action goes looking for a child by name and finds a wrapper instead.
+
+    So the POP compares the TREE the generated method builds against the tree
+    the interpretive walk builds, on a PASSING case (§6.5-style). Run the
+    fixture with the parseMethod bindings in place and again with them stripped;
+    the two dumps must be identical.
+
+    nextGroup is stateless, so it is safe to recurse on (unlike the shared-entry
+    next()).
+*******************************************************************************/
+extern int showTree(GroupItem node, String pad)
+{
+GroupRules  ruler = groupRules;
+GroupItem   kid;
+String      deeper;
+    if !node    return 0;
+    if node == trueResult {
+        cerr pad "(trueResult — matched, no tree)":;
+        return 1; }
+    deeper = pad "  ";
+    cerr pad node.tag:;
+    if node.hasAttributes || node.hasMembers
+        while kid = node.nextGroup(kid)     showTree(kid,deeper);
+    return 1;
+}
+
+extern GroupItem treeOf(GroupItem argument)
+{
+GroupRules  ruler = groupRules;
+GroupItem   rule = locateRule("ScafOUT");
+GroupItem   result;
+int         baseStak = 0;
+    if !rule {
+        cerr "treeOf: no ScafOUT on the search list":;
+        return null; }
+    if inputSTAK    baseStak = inputSTAK.length;
+    pushInput(argument);
+    result = rule.parse(0);
+    while inputSTAK && inputSTAK.length > baseStak      popInput();
+    cerr "TREE " argument.text:;
+    if result   showTree(result,"    ");
+    else        cerr "    (parse FAILED)":;
+    return trueResult;
 }
 
 /*******************************************************************************
