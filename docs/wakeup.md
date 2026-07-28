@@ -1,8 +1,8 @@
 # Incant — Status & Handoff (2026-07-28: SHAPE (SEQ 25), RUNG 4, the SEAM (SEQ 26), and RUNG 5
-# (SEQ 27) and RUNG 6 (SEQ 28) all landed. The walk DECIDES into a plan of GroupItems, the emitter
-# WRITES from it, repetition emits a helper with Invariant R′ structural in it, and optionality is
-# in. THE WHOLE JSON FAMILY NOW PLANS EXCEPT JSONtoken. A 30-rule census fixture is the
-# classifier's POP and has caught THREE wrong-plan classes.
+# (SEQ 27), RUNG 6 (SEQ 28) and RUNG 7 (SEQ 29) all landed. The walk DECIDES into a plan of
+# GroupItems, the emitter WRITES from it, and SEQ/ALT/LIT/LITTO/CALL/MANY/OPT all emit. THE WHOLE
+# JSON FAMILY NOW PLANS. ⚠ RUNG 7's TREE POP FOUND A REAL PRE-EXISTING §2.4 GAP — read it before
+# trusting an alternation. `sh genLadder/pop.sh` is the one-command POP.
 # Everything RUN with exit status checked.)
 *Written by Clod for a fresh Clay/Clod with ZERO memory of today. Self-contained. Read fully before
 touching code. Everything is on branch `jit-unified-emit-wip`; main is untouched.*
@@ -52,6 +52,9 @@ af7e43d  genParseSpec §2.2a: Invariant R′, with its provenance checked
 f6c599a  RUNG 5 GREEN: MANY + Invariant R′ demonstrated
 502e7d0  wakeup.md reseal for rung 5
 0463d51  RUNG 6 GREEN: OPT, the inline ((term) || 1) form
+15712d1  wakeup.md reseal for rung 6
+0ae2923  isGROUP ordering: reference wins; inline group a named future kind
+3eb8398  RUNG 7: ALT emission — and §2.4's tree POP found a real gap
 ```
 (Session tip on arrival was `23d6888`.)
 
@@ -70,7 +73,10 @@ f6c599a  RUNG 5 GREEN: MANY + Invariant R′ demonstrated
 | `genLadder/rung4.target` | new |
 | `genLadder/census.target` | 30 rules, plan-level, stable across runs |
 | `genLadder/rung5.target` | repetition helper + method |
-| `genLadder/rung6.target` | new — optional reference + optional literal |
+| `genLadder/rung6.target` | optional reference + optional literal |
+| `genLadder/rung7.target` | new — alternation + its enclosing sequence |
+| `ScafOUT('(a)')`/`('(i)')`/`('(x)')` | WIN · WIN · **FAIL, mark REWOUND** |
+| census after ALT emission | **moved by ZERO lines** — nothing leaked across the seam |
 | `ScafE`/`ScafF` × 3 each | optional present · absent · **failing mandatory neighbour, mark REWOUND** |
 | `ScafC('ac')` · `('aaac')` | **WIN** · **WIN** (three passes) |
 | `ScafC('aax')` · `('c')` | **FAIL, mark REWOUND** (R across a generated LOOP) · **FAIL, mark unmoved** |
@@ -122,6 +128,81 @@ exit primitive inherits this obligation.
 
 
 
+
+
+## ⚠ RUNG 7 — ALT EMITS, BUT §2.4 IS OPEN. Read this before trusting an alternation.
+```
+extern GroupItem parseScafALT(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;      <- NO `label` local: §2.4, an ALT builds none
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+String      from  = atRuleMark;
+    return leaveAlt(rule,from, parseR(t1,into) || parseR(t2,into) );
+}
+```
+The fold decides the **sink** (`into` for ALT, `label` for SEQ) and the **joiner** (`||` vs `&&`),
+both emitter-side. `litOption` is the ALT spelling of a labelled literal — re-read 2026-07-28: its
+first parameter is **already** the term and unused exactly as `lit`'s is, so term-first was
+satisfied; only the reasoning needed checking.
+
+**The sharp POP held: the census moved by ZERO lines.** Emission changed no planning, so nothing
+leaked across the seam rung 3 closed.
+
+### THE TREE POP FAILED, and that is the result — not a regression
+```
+generated     ScafOUT -> ScafA        (winner keeps its OWN tag)
+interpretive  ScafOUT -> ScafALT      (winner RETAGGED to the ALT's name)
+```
+Cause, read off `parse()`: an alternation member is `isTarget`, and the attach block does
+`pStuff.label = label; label.tag = pStuff.ruleName`. **Right language, wrong tree** — every WIN/FAIL
+check passes on it, which is exactly why §2.4 was told to use a tree comparison.
+
+**Not new and not introduced here.** `RuleStuff.twk`'s RETAGGING NOTE (2026-07-25) records the same
+divergence, found when a tail action received two children both tagged `GrouP` and silently
+discarded the field. It was patched **by hand** in `parseJSONfield` and called *"a gap in
+genParseSpec's sub(R) semantics generally"*. The seam now makes it fixable in one place.
+
+**And the interpretive path is not self-consistent about it:** `isTarget` is set on only **11 of 16**
+measured alternation members — `JSONvalue`'s `JSONblock`/`JSONarray`, `JSONtoken`'s
+`JSONblock`/`NumbeR` and `DatA`'s `DelimText` do **not** have it. So it retags some winners and not
+others, *within the same rule*.
+
+**NOT GUESSED AT.** Which tag is correct — and whether `leaveAlt` should take `into` and retag — is
+a semantics decision for Tony/Clay. The divergence is recorded in `genLadder/tree.divergence`, and
+`sh genLadder/tree.sh` asserts it is **unchanged**: a fixture on an open item rather than a broken
+gate. Settle it and the fixture moves, and whoever moves it accounts for the move.
+
+### GUARDS — scoped, and the recommendation is SPLIT THEM OUT, well past rung 8
+`getGuard` is ~70 lines of recursive first-set computation: cycle detection (`guardInProcess`), a
+stop-at-first-mandatory-attribute rule tied to `min`, member union, set/data/registry special cases.
+Reproducing it at generate time is an **arc, not a rung**. Two concrete blockers beyond size, both
+read off the source:
+- `if isMember && parent.guardSet  parent.guardSet += guardSet` — **getGuard MUTATES ITS PARENT**
+- `setRuleStuff()` on entry — **it MATERIALISES rStuff**
+
+So calling it from the walk **re-introduces tree mutation during generation**, precisely what rung 3
+established the walk must not do, and it collides with the open rStuff-materialisation item too.
+Unguarded ordered `||` is correct and merely slower — the ALT above has no guards and passes — so
+guards are an **optimization**. §4.3's `_` already means "emit unguarded", so the plan has a place
+for the distinction whenever it lands.
+
+### Fixture note: an alternation must be bound in a SECOND define block
+A definition attribute fires **when it is parsed**, so `parseMethod=` on an alternation's own line
+runs *before its members exist*; the §3 count guard then sees 0 terms and refuses — correctly. A
+second `define` re-opens the rule. Sequence rules are unaffected (terms on the same line).
+**The count guard caught this itself.**
+
+## isGROUP ORDERING — reference wins; "inline group" is a named future kind
+Content-is-a-group and is-a-reference are **orthogonal**; two terms are both (`JSONtoken[5]`,
+`DatA[2]`, both `NumbeR`). `data` used to be tested first so the overlap refused — right while the
+precedence was unsettled. Settled now: **a term that names another rule is a call, whatever its
+content**. What is left over is `isGROUP` *without* a reference — a group inlined at the term rather
+than named — which is a **named future kind** and keeps refusing.
+
+`JSONtoken` planning was the last gap, so **the JSON family is complete: all seven rules plan**
+(14 of 30 census rules). `DatA` is *not* "likewise" — its refusal **moved** from `NumbeR` to `CodE`,
+which is both a reference and `parseACTION`, and parseACTION is tested before the reference test.
 
 ## RUNG 6 — OPT. The label question was settled from `parse()` BEFORE anything was emitted.
 ```
@@ -447,17 +528,17 @@ attempt count is right; only the ORDER reads oddly — a callee's HIT appears be
   argument position** (`f(x, pad "  ")` silently generated a THREE-argument call, caught only by
   the C++ compiler). Concat into a local first, always. Assignment position is fine.
 
-## NEXT — ordered off what the census says, not off the ladder's numbering
-1. **ALT emission.** `JSONvalue`, `JSONtoken`(once it plans) and `GrouP` PLAN as ALT but
-   `emitPlan` still refuses the fold — `leaveAlt`/`||`, and `litOption` as the ALT spelling of a
-   labelled literal. **Planning is not emitting**, and the gap is now the JSON family's blocker.
-2. **`isGROUP` as its own kind**, and with it the precedence question in open item 1 below —
-   `JSONtoken` is the last JSON rule that does not plan, and it refuses on exactly this.
-3. **Accumulators** — `data`-carrying repetition (`FloaT`/`PoweR`/`Modifier`/`NamE`), still refused.
+## NEXT
+1. **§2.4's retag question — it gates the JSON family end-to-end.** The whole family plans and
+   emits, but the trees diverge, and the hand-patched RETAGGING NOTE in `parseJSONfield` is the
+   same bug. Decide whether `leaveAlt` takes `into` and retags. Note the interpretive path is not
+   self-consistent, so "match the oracle" does not fully determine the answer.
+2. **Accumulators** — `data`-carrying repetition (`FloaT`/`PoweR`/`Modifier`/`NamE`), still refused.
    §2.5: star and plus mean something different for character-level terms than for references, and
    conflating them yields a parser that accepts correctly and BUILDS WRONGLY.
-4. Rungs 7-8. Standing tripwire: the interpretive path does `kount++` on success, the generated path
-   does not.
+3. **Inline group** — `isGROUP` without a reference, the named future kind.
+4. **Guards, as their own arc** — see the scoping above. Not a rung.
+5. Standing tripwire: the interpretive path does `kount++` on success, the generated path does not.
 4. **Rung 9 is TONY'S RULING and gates only rung 9** — bare reference to an alternation:
    auto-`promoteR`, or require explicit `@`?
 5. **§4.2 / §4.3 fixes, after shape**: make `lit`'s skip pass non-destructive (then `leaveAlt` drops
@@ -504,6 +585,15 @@ baseline and was not passing before in any meaningful sense — the old body nev
   `tokall` only ever sweeps top level.
 - His Group-A work (Debug.rtn, Stylish, Layout, TODO, guiDesign, incant/utilities+jsonTest) is still
   uncommitted.
+
+## THE POP IS ONE COMMAND NOW
+```
+sh genLadder/pop.sh     # every ladder target + census + both baselines, exit status checked
+sh genLadder/tree.sh    # §2.4 tree fixture — asserts the OPEN divergence is unchanged
+```
+`pop.sh` prints one line per check and the diff when something moves. Baselines live in
+`genLadder/` so it is self-contained. I hand-rolled these checks every rung and got the escaping
+wrong once; this exists so nobody does that again.
 
 ## Run recipe / reproduce
 - Binary: `~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups`.
