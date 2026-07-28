@@ -1253,11 +1253,109 @@ int 		i = 1;
 int 		n = 0;
 	while ( term = rule->get(i) )
 		{
-		if ( !term->groupBody->flags.noPrint && term->rStuff )
+		if ( !term->groupBody->flags.noPrint )
 			n++;
 		i++;
 		}
 	return n;
+}
+
+/*******************************************************************************
+    genParse.rtn — the parse-method emitter (genParseSpec §4).
+
+    C++ prototype ("C++ first, kant second" — Tony 2026-07-27). genParse takes a
+    rule (by name) and emits a C++ parse method that mirrors the hand-written
+    RuleStuff.twk methods (§5.1). POP: text-diff the emission against the
+    hand-written target, climbing Clay's ladder (docs/genParseLadder.md) from a
+    synthetic single-literal scaffold up to the JSON rules.
+
+    Emission substrate for v0 is cerr, line by line (bear-trap #14: stderr, not
+    stdout — stop() does not flush). This is a C++ extern body, so all string
+    literals are DOUBLE-quoted; a double-quote in the emitted output is escaped
+    \" (single quotes here parse the inner ':' as an inheritance colon and
+    cascade the whole file into ERROR Inheritance — found 2026-07-27).
+*******************************************************************************/
+/*******************************************************************************
+    dumpRuleTerms — MEASUREMENT TOOL, not part of the emitter. Kept because it
+    is what settled the questions below, and re-measuring is one run.
+
+    genParseShape §1.5 requires genParse to traverse with the SAME accessor the
+    emitted code reads with (rule[i]), because the two agree only if the list
+    holds exactly the terms in exactly that order. Whether a `fail` modifier or
+    a `code={}` tail occupies a slot is a question about the TREE, not about
+    the design — so it was measured, not reasoned about. Prints one line per
+    rule[i] entry, in order, so the printed order IS the index.
+
+    WHAT IT FOUND (2026-07-28, incant/termScratch):
+      1. rule[i] is source order, 1-based. `fail` (JSONblock) occupies NO slot.
+      2. A `code={}` tail DOES occupy slots, and FOUR of them, not one: CodE,
+         this, tempField — and, appearing only AFTER the rule has been parsed
+         once, the cached BlocK. So the tail of rule[] is not even stable
+         across a run. §1.5's hazard is real and bigger than "one extra entry".
+      3. ALL FOUR tail entries are noPrint; no real term is. So the classifier
+         is `noPrint`, which is not an invention — it is the same test the
+         interpretive walk already uses (testAttributes: `if noPrint continue`).
+         Model-not-oracle applied to classification itself: take the oracle's
+         own test rather than inventing a parallel one that can drift from it.
+      4. Sequence terms are isAttribute; alternation options are isMember.
+         One list, distinguished by affiliation.
+      5. A rule-reference term (JSONblock's JSONfield) is a DISTINCT NODE from
+         the registry rule of the same name — different parent — but the two
+         SHARE a child list (the term shows the BlocK the parse added to the
+         registry node). rStuff, however, is per-node: the term's own rStuff
+         has its own onGroup/testMatch/followed state. See parseR for why that
+         matters and what it leaves open.
+      6. No rule-reference term is isGROUP, and none has onGroup set, even
+         after a parse — getWhatFollows gates on isGROUP. §1.6's `t2.onGroup`
+         does not exist to be written to. See parseR.
+*******************************************************************************/
+extern "C" char *dataName(int d)
+{
+	if ( !d )
+		return "none";
+	else
+	if ( d == 1 )
+		return "isANY";
+	else
+	if ( d == 2 )
+		return "isCHAR";
+	else
+	if ( d == 3 )
+		return "isSET";
+	else
+	if ( d == 4 )
+		return "isBUFFER";
+	else
+	if ( d == 5 )
+		return "isCOUNT";
+	else
+	if ( d == 6 )
+		return "isGROUP";
+	else
+	if ( d == 7 )
+		return "isITEM";
+	else
+	if ( d == 8 )
+		return "isMAP";
+	else
+	if ( d == 9 )
+		return "isNUMBER";
+	else
+	if ( d == 10 )
+		return "isOBJECT";
+	else
+	if ( d == 11 )
+		return "isREGEX";
+	else
+	if ( d == 12 )
+		return "isSTAK";
+	else
+	if ( d == 13 )
+		return "isSTRING";
+	else
+	if ( d == 14 )
+		return "isTOKEN";
+	return "unknown";
 }
 
 /***************************************************************************
@@ -1484,136 +1582,75 @@ extern "C" void dumpFontInfo(GroupItem *field)
 	
 }
 
-/*******************************************************************************
-    genParse.rtn — the parse-method emitter (genParseSpec §4).
-
-    C++ prototype ("C++ first, kant second" — Tony 2026-07-27). genParse takes a
-    rule (by name) and emits a C++ parse method that mirrors the hand-written
-    RuleStuff.twk methods (§5.1). POP: text-diff the emission against the
-    hand-written target, climbing Clay's ladder (docs/genParseLadder.md) from a
-    synthetic single-literal scaffold up to the JSON rules.
-
-    Emission substrate for v0 is cerr, line by line (bear-trap #14: stderr, not
-    stdout — stop() does not flush). This is a C++ extern body, so all string
-    literals are DOUBLE-quoted; a double-quote in the emitted output is escaped
-    \" (single quotes here parse the inner ':' as an inheritance colon and
-    cascade the whole file into ERROR Inheritance — found 2026-07-27).
-*******************************************************************************/
-/*******************************************************************************
-    dumpRuleTerms — MEASUREMENT TOOL, not part of the emitter. Kept because it
-    is what settled the questions below, and re-measuring is one run.
-
-    genParseShape §1.5 requires genParse to traverse with the SAME accessor the
-    emitted code reads with (rule[i]), because the two agree only if the list
-    holds exactly the terms in exactly that order. Whether a `fail` modifier or
-    a `code={}` tail occupies a slot is a question about the TREE, not about
-    the design — so it was measured, not reasoned about. Prints one line per
-    rule[i] entry, in order, so the printed order IS the index.
-
-    WHAT IT FOUND (2026-07-28, incant/termScratch):
-      1. rule[i] is source order, 1-based. `fail` (JSONblock) occupies NO slot.
-      2. A `code={}` tail DOES occupy slots, and FOUR of them, not one: CodE,
-         this, tempField — and, appearing only AFTER the rule has been parsed
-         once, the cached BlocK. So the tail of rule[] is not even stable
-         across a run. §1.5's hazard is real and bigger than "one extra entry".
-      3. ALL FOUR tail entries are noPrint; no real term is. So the classifier
-         is `noPrint`, which is not an invention — it is the same test the
-         interpretive walk already uses (testAttributes: `if noPrint continue`).
-         Model-not-oracle applied to classification itself: take the oracle's
-         own test rather than inventing a parallel one that can drift from it.
-      4. Sequence terms are isAttribute; alternation options are isMember.
-         One list, distinguished by affiliation.
-      5. A rule-reference term (JSONblock's JSONfield) is a DISTINCT NODE from
-         the registry rule of the same name — different parent — but the two
-         SHARE a child list (the term shows the BlocK the parse added to the
-         registry node). rStuff, however, is per-node: the term's own rStuff
-         has its own onGroup/testMatch/followed state. See parseR for why that
-         matters and what it leaves open.
-      6. No rule-reference term is isGROUP, and none has onGroup set, even
-         after a parse — getWhatFollows gates on isGROUP. §1.6's `t2.onGroup`
-         does not exist to be written to. See parseR.
-*******************************************************************************/
 extern "C" GroupItem *dumpRuleTerms(GroupItem *argument)
 {
 GroupItem 	*rule = GroupControl::groupController->locate(argument->getText());
 GroupItem 	*term = 0;
-GroupItem 	*ref = 0;
-GroupItem 	*route = 0;
-GroupItem 	*defined = 0;
+GroupItem 	*definer = 0;
 RuleStuff 	*rs = 0;
+RuleStuff 	*ruleStuff = 0;
 int 		i = 1;
 	if ( !rule )
 		{
 		::fprintf(stderr,"dumpRuleTerms: no rule named  %s\n",argument->getText());
 		return 0;
 		}
-	::fprintf(stderr,"RULE %s\n",rule->groupBody->tag);
-	if ( rule->parent )
-		::fprintf(stderr,"    (parent %s)\n",rule->parent->groupBody->tag);
-	if ( !rule->parent )
-		::fprintf(stderr,"    (parent NONE)\n");
+	ruleStuff = rule->rStuff;
+	::fprintf(stderr,"RULE %s fold=%s\n",rule->groupBody->tag,foldOf(rule));
+	::fprintf(stderr,"     rule.data=%s\n",::dataName(rule->groupBody->flags.data));
+	if ( ruleStuff && ruleStuff->onGroup )
+		::fprintf(stderr,"     rule.onGroup=%s\n",ruleStuff->onGroup->groupBody->tag);
+	if ( !ruleStuff )
+		::fprintf(stderr,"     rule has NO rStuff\n");
+	else
+	if ( !ruleStuff->onGroup )
+		::fprintf(stderr,"     rule.onGroup=NONE\n");
 	while ( term = rule->get(i) )
 		{
-		ref = 0;
 		rs = term->rStuff;
-		if ( isGROUP(term->groupBody->flags.data) )
-			ref = term->getGroup();
-		::fprintf(stderr,"    term %s\n",term->groupBody->tag);
-		if ( isAttribute(term->options.affiliation) )
-			::fprintf(stderr,"        attribute\n");
-		if ( isMember(term->options.affiliation) )
-			::fprintf(stderr,"        member\n");
-		if ( ref )
-			::fprintf(stderr,"        refersTo %s\n",ref->groupBody->tag);
-		if ( rs )
-			{
-			if ( rs->noLabel )
-				::fprintf(stderr,"        noLabel\n");
-			if ( rs->isTarget )
-				::fprintf(stderr,"        isTarget\n");
-			if ( rs->onGroup )
-				::fprintf(stderr,"        onGroup %s\n",rs->onGroup->groupBody->tag);
-			if ( !rs->onGroup )
-				::fprintf(stderr,"        onGroup NONE\n");
-			if ( rs->testMatch )
-				::fprintf(stderr,"        testMatch SET\n");
-			if ( !rs->testMatch )
-				::fprintf(stderr,"        testMatch none\n");
-			if ( rs->followed )
-				::fprintf(stderr,"        followed\n");
-			}
-		if ( !rs )
-			::fprintf(stderr,"        no rStuff\n");
-		if ( term->groupBody->flags.isRule )
-			::fprintf(stderr,"        isRule\n");
-		if ( term->groupBody->flags.hasAttributes )
-			::fprintf(stderr,"        hasAttributes\n");
-		if ( term->groupBody->flags.hasMembers )
-			::fprintf(stderr,"        hasMembers\n");
-		if ( term->groupBody->flags.isLabel )
-			::fprintf(stderr,"        isLabel\n");
-		if ( term->parent )
-			::fprintf(stderr,"        parent %s\n",term->parent->groupBody->tag);
+		definer = term->definingRule();
+		::fprintf(stderr,"    [%s] %s\n",::toStringFromInt(i),term->groupBody->tag);
 		if ( term->groupBody->flags.noPrint )
-			::fprintf(stderr,"        noPrint\n");
-		route = term->get(1);
-		if ( route )
-			route = route->parent;
-		if ( !route )
-			::fprintf(stderr,"        ROUTE none (no children, or child has no parent)\n");
+			::fprintf(stderr,"         noPrint (SKIPPED by the walk)\n");
 		else {
-			::fprintf(stderr,"        ROUTE via child1.parent -> %s\n",route->groupBody->tag);
-			defined = GroupControl::groupController->locate(term->groupBody->tag);
-			if ( route == term )
-				::fprintf(stderr,"        ROUTE == the term itself\n");
-			if ( !defined )
-				::fprintf(stderr,"        (no rule of that name to compare)\n");
-			else
-			if ( route == defined )
-				::fprintf(stderr,"        ROUTE == DEFINING RULE, by POINTER\n");
-			else
-			if ( route != defined )
-				::fprintf(stderr,"        ROUTE != defining rule (pointer differs)\n");
+			::fprintf(stderr,"         ROW  %s\n",::row42(term));
+			if ( definer != term )
+				::fprintf(stderr,"         REFERENCE -> %s\n",definer->groupBody->tag);
+			::fprintf(stderr,"         data %s\n",::dataName(term->groupBody->flags.data));
+			if ( isAttribute(term->options.affiliation) )
+				::fprintf(stderr,"         attribute\n");
+			if ( isMember(term->options.affiliation) )
+				::fprintf(stderr,"         member\n");
+			if ( rs )
+				{
+				::fprintf(stderr,"         min %s max %s\n",::toStringFromInt(rs->min),::toStringFromInt(rs->max));
+				if ( rs->noLabel )
+					::fprintf(stderr,"         noLabel\n");
+				if ( rs->isTarget )
+					::fprintf(stderr,"         isTarget\n");
+				if ( rs->banged )
+					::fprintf(stderr,"         banged\n");
+				if ( rs->noAdvance )
+					::fprintf(stderr,"         noAdvance\n");
+				if ( rs->noSkip )
+					::fprintf(stderr,"         noSkip\n");
+				if ( rs->isOption )
+					::fprintf(stderr,"         isOption\n");
+				if ( rs->notifyFail )
+					::fprintf(stderr,"        notifyFail\n");
+				if ( rs->doNothing )
+					::fprintf(stderr,"         doNothing\n");
+				if ( rs->testMatch )
+					::fprintf(stderr,"         testMatch SET\n");
+				if ( !rs->testMatch )
+					::fprintf(stderr,"         testMatch none\n");
+				if ( rs->onGroup )
+					::fprintf(stderr,"         onGroup %s\n",rs->onGroup->groupBody->tag);
+				if ( !rs->onGroup )
+					::fprintf(stderr,"         onGroup NONE\n");
+				}
+			if ( !rs )
+				::fprintf(stderr,"         NO rStuff\n");
 			}
 		i++;
 		}
@@ -1691,6 +1728,16 @@ extern "C" void flushBuffer(GroupItem *bufField)
 }
 
 /*******************************************************************************
+    foldOf — genParseSpec §4.1's fold selection, as a reportable value.
+*******************************************************************************/
+extern "C" char *foldOf(GroupItem *rule)
+{
+	if ( rule->groupBody->flags.isRule && rule->groupBody->flags.hasMembers && !rule->groupBody->flags.binType )
+		return "ALT";
+	return "SEQ";
+}
+
+/*******************************************************************************
     genParse — rungs 1-2: emitSequence for a sequence rule. Emits the §2 frame
     line by line.
 
@@ -1730,16 +1777,20 @@ char 		dq = 34;
 		::fprintf(stderr,"genParse: no rule named  %s\n",argument->getText());
 		return 0;
 		}
+	if ( ::unresolvedTerms(rule) )
+		{
+		::fprintf(stderr,"genParse: REFUSING %s -- %s of %s terms have no rStuff yet\n",rule->groupBody->tag,::toStringFromInt(::unresolvedTerms(rule)),::toStringFromInt(::countRuleTerms(rule)));
+		::fprintf(stderr,"          emitting now would silently drop them (see unresolvedTerms)\n");
+		return 0;
+		}
 	::fprintf(stderr,"extern GroupItem parse%s(GroupItem rule)\n",rule->groupBody->tag);
 	::fprintf(stderr,"{\n");
 	::fprintf(stderr,"GroupItem   into  = rule.rStuff.parentLabel;\n");
 	::fprintf(stderr,"GroupItem   label = new(%c%s%c);\n",dq,rule->groupBody->tag,dq);
 	while ( term = rule->get(i) )
 		{
-		if ( term->groupBody->flags.noPrint || !term->rStuff )
+		if ( term->groupBody->flags.noPrint )
 			{
-			if ( !term->rStuff && !term->groupBody->flags.noPrint )
-				::fprintf(stderr,"genParse: skipping %s (no rStuff) in %s\n",term->groupBody->tag,rule->groupBody->tag);
 			}
 		else {
 			digit = ::toStringFromInt(i);
@@ -4679,6 +4730,48 @@ GroupItem 	*grup = 0;
 			}
 }
 
+/*******************************************************************************
+    row42 — which genParseSpec §4.2 row a term falls in, computed by mirroring
+    setTestMatch's cascade IN ITS OWN ORDER (upTo -> container -> data ->
+    isMacro -> isCondition -> parseACTION -> default). Order matters: `data`
+    is tested BEFORE isMacro in the real function, so a classifier that reads
+    the §4.2 table top-to-bottom would already disagree with the tree.
+*******************************************************************************/
+extern "C" char *row42(GroupItem *term)
+{
+RuleStuff 	*rs = term->rStuff;
+int 		d = term->groupBody->flags.data;
+	if ( !rs )
+		return "(no rStuff)";
+	if ( upTo(rs->overTo) )
+		return "upTo";
+	else
+	if ( upToOver(rs->overTo) )
+		return "upToOver";
+	else
+	if ( isBIN(term->groupBody->flags.binType) )
+		return "isBIN/isREGISTRY";
+	else
+	if ( isREGISTRY(term->groupBody->flags.binType) )
+		return "isBIN/isREGISTRY";
+	else
+	if ( d )
+		return ::dataName(d);
+	else
+	if ( term->groupBody->flags.isMacro )
+		return "isMacro";
+	else
+	if ( term->groupBody->flags.isCondition )
+		return "isCondition";
+	else
+	if ( parseACTION(term->groupBody->flags.methodType) )
+		return "parseACTION";
+	else
+	if ( !term->contents() )
+		return "default lit/litTo";
+	return "NO ROW MATCHES";
+}
+
 /*****************************************************************************
     Uses dsym to look for a matching method in internal symbols. Uses group
     text for the name to match.
@@ -5139,6 +5232,41 @@ GroupItem 	*grup = result;
 		while ( isGROUP(grup->groupBody->flags.data) )
 			grup = grup->getGroup();
 	return grup;
+}
+
+/*******************************************************************************
+    unresolvedTerms — how many REAL terms have no rStuff yet.
+
+    MEASURED 2026-07-28 (§1 census): rStuff is materialised LAZILY. The runtime
+    creates it on demand through getRStuff -- caught in the act, printing
+    "getRStuff: min no rStuff - creating" for one of the very terms this counts.
+    So a missing rStuff means NOT YET, not NOT A TERM, and it is nothing like
+    the noPrint code-tail entries it was briefly conflated with.
+
+    That conflation was a real defect: with `!rStuff` in the skip test,
+    genParse('CodE') emitted `leaveRule(rule,into,label,from, (null) )` -- a
+    rule reduced to nothing -- and recorded parseTerms=0, which the §3 guard
+    would have BOUND with a warning rather than refused. Rules outside the
+    ladder only; Scaf/Scaf2/ScafA/ScafB terms all carry rStuff.
+
+    Until the rung-3 walk decides how to classify an unmaterialised term (it
+    cannot read modifiers that are not there yet, and whether they are merely
+    absent or genuinely default is NOT yet established), genParse REFUSES
+    rather than emitting a method it knows is missing terms. A refusal is a
+    validity question about the rule, so it belongs walk-side either way.
+*******************************************************************************/
+extern "C" int unresolvedTerms(GroupItem *rule)
+{
+GroupItem 	*term = 0;
+int 		i = 1;
+int 		n = 0;
+	while ( term = rule->get(i) )
+		{
+		if ( !term->groupBody->flags.noPrint && !term->rStuff )
+			n++;
+		i++;
+		}
+	return n;
 }
 
 /***************************************************************************

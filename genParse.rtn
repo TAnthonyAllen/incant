@@ -48,56 +48,104 @@
          after a parse — getWhatFollows gates on isGROUP. §1.6's `t2.onGroup`
          does not exist to be written to. See parseR.
 *******************************************************************************/
+extern String dataName(int d)
+{
+    if !d           return "none";
+    or d == 1       return "isANY";
+    or d == 2       return "isCHAR";
+    or d == 3       return "isSET";
+    or d == 4       return "isBUFFER";
+    or d == 5       return "isCOUNT";
+    or d == 6       return "isGROUP";
+    or d == 7       return "isITEM";
+    or d == 8       return "isMAP";
+    or d == 9       return "isNUMBER";
+    or d == 10      return "isOBJECT";
+    or d == 11      return "isREGEX";
+    or d == 12      return "isSTAK";
+    or d == 13      return "isSTRING";
+    or d == 14      return "isTOKEN";
+    return "unknown";
+}
+
+/*******************************************************************************
+    row42 — which genParseSpec §4.2 row a term falls in, computed by mirroring
+    setTestMatch's cascade IN ITS OWN ORDER (upTo -> container -> data ->
+    isMacro -> isCondition -> parseACTION -> default). Order matters: `data`
+    is tested BEFORE isMacro in the real function, so a classifier that reads
+    the §4.2 table top-to-bottom would already disagree with the tree.
+*******************************************************************************/
+extern String row42(GroupItem term)
+{
+RuleStuff   rs = term.rStuff;
+int         d = term.data;
+    if !rs                          return "(no rStuff)";
+    if rs.upTo                      return "upTo";
+    or rs.upToOver                  return "upToOver";
+    or term.isBIN                   return "isBIN/isREGISTRY";
+    or term.isREGISTRY              return "isBIN/isREGISTRY";
+    or d                            return dataName(d);
+    or term.isMacro                 return "isMacro";
+    or term.isCondition             return "isCondition";
+    or term.parseACTION             return "parseACTION";
+    or !term.contents()             return "default lit/litTo";
+    return "NO ROW MATCHES";
+}
+
 extern GroupItem dumpRuleTerms(GroupItem argument)
 {
 GroupItem   rule = locate(argument.text);
 GroupItem   term;
-GroupItem   ref;
-GroupItem   route;
-GroupItem   defined;
+GroupItem   definer;
 RuleStuff   rs;
+RuleStuff   ruleStuff;
 int         i = 1;
     if !rule {
         cerr "dumpRuleTerms: no rule named ",argument.text:;
         return null; }
-    cerr "RULE " rule.tag:;
-    if rule.parent  cerr "    (parent " rule.parent.tag ")":;
-    if !rule.parent cerr "    (parent NONE)":;
+    ruleStuff = rule.rStuff;
+    cerr "RULE " rule.tag " fold=" foldOf(rule):;
+    cerr "     rule.data=" dataName(rule.data):;
+    if ruleStuff && ruleStuff.onGroup   cerr "     rule.onGroup=" ruleStuff.onGroup.tag:;
+    if !ruleStuff                       cerr "     rule has NO rStuff":;
+    or !ruleStuff.onGroup               cerr "     rule.onGroup=NONE":;
     while term = rule[i] {
-        ref = 0;
-        rs  = term.rStuff;
-        if term.isGROUP     ref = term.group;
-        cerr "    term " term.tag:;
-        if term.isAttribute cerr "        attribute":;
-        if term.isMember    cerr "        member":;
-        if ref              cerr "        refersTo " ref.tag:;
-        if rs {
-            if rs.noLabel   cerr "        noLabel":;
-            if rs.isTarget  cerr "        isTarget":;
-            if rs.onGroup   cerr "        onGroup " rs.onGroup.tag:;
-            if !rs.onGroup  cerr "        onGroup NONE":;
-            if rs.testMatch cerr "        testMatch SET":;
-            if !rs.testMatch cerr "        testMatch none":;
-            if rs.followed  cerr "        followed":; }
-        if !rs  cerr "        no rStuff":;
-        if term.isRule          cerr "        isRule":;
-        if term.hasAttributes   cerr "        hasAttributes":;
-        if term.hasMembers      cerr "        hasMembers":;
-        if term.isLabel         cerr "        isLabel":;
-        if term.parent          cerr "        parent " term.parent.tag:;
-        if term.noPrint         cerr "        noPrint":;
-        route = term[1];
-        if route    route = route.parent;
-        if !route   cerr "        ROUTE none (no children, or child has no parent)":;
+        rs      = term.rStuff;
+        definer = term.definingRule();
+        cerr "    [" toStringFromInt(i) "] " term.tag:;
+        if term.noPrint     cerr "         noPrint (SKIPPED by the walk)":;
         else {
-            cerr "        ROUTE via child1.parent -> " route.tag:;
-            defined = locate(term.tag);
-            if route == term        cerr "        ROUTE == the term itself":;
-            if !defined             cerr "        (no rule of that name to compare)":;
-            or route == defined     cerr "        ROUTE == DEFINING RULE, by POINTER":;
-            or route != defined     cerr "        ROUTE != defining rule (pointer differs)":; }
+            cerr "         ROW  " row42(term):;
+            if definer != term  cerr "         REFERENCE -> " definer.tag:;
+            cerr "         data " dataName(term.data):;
+            if term.isAttribute cerr "         attribute":;
+            if term.isMember    cerr "         member":;
+            if rs {
+                cerr "         min " toStringFromInt(rs.min) " max " toStringFromInt(rs.max):;
+                if rs.noLabel   cerr "         noLabel":;
+                if rs.isTarget  cerr "         isTarget":;
+                if rs.banged    cerr "         banged":;
+                if rs.noAdvance cerr "         noAdvance":;
+                if rs.noSkip    cerr "         noSkip":;
+                if rs.isOption  cerr "         isOption":;
+                if rs.notifyFail cerr "        notifyFail":;
+                if rs.doNothing cerr "         doNothing":;
+                if rs.testMatch cerr "         testMatch SET":;
+                if !rs.testMatch cerr "         testMatch none":;
+                if rs.onGroup   cerr "         onGroup " rs.onGroup.tag:;
+                if !rs.onGroup  cerr "         onGroup NONE":; }
+            if !rs  cerr "         NO rStuff":; }
         i++; }
     return trueResult;
+}
+
+/*******************************************************************************
+    foldOf — genParseSpec §4.1's fold selection, as a reportable value.
+*******************************************************************************/
+extern String foldOf(GroupItem rule)
+{
+    if rule.isRule && rule.hasMembers && !rule.binType   return "ALT";
+    return "SEQ";
 }
 
 /*******************************************************************************
@@ -112,7 +160,39 @@ GroupItem   term;
 int         i = 1;
 int         n = 0;
     while term = rule[i] {
-        if !term.noPrint && term.rStuff    n++;
+        if !term.noPrint    n++;
+        i++; }
+    return n;
+}
+
+/*******************************************************************************
+    unresolvedTerms — how many REAL terms have no rStuff yet.
+
+    MEASURED 2026-07-28 (§1 census): rStuff is materialised LAZILY. The runtime
+    creates it on demand through getRStuff -- caught in the act, printing
+    "getRStuff: min no rStuff - creating" for one of the very terms this counts.
+    So a missing rStuff means NOT YET, not NOT A TERM, and it is nothing like
+    the noPrint code-tail entries it was briefly conflated with.
+
+    That conflation was a real defect: with `!rStuff` in the skip test,
+    genParse('CodE') emitted `leaveRule(rule,into,label,from, (null) )` -- a
+    rule reduced to nothing -- and recorded parseTerms=0, which the §3 guard
+    would have BOUND with a warning rather than refused. Rules outside the
+    ladder only; Scaf/Scaf2/ScafA/ScafB terms all carry rStuff.
+
+    Until the rung-3 walk decides how to classify an unmaterialised term (it
+    cannot read modifiers that are not there yet, and whether they are merely
+    absent or genuinely default is NOT yet established), genParse REFUSES
+    rather than emitting a method it knows is missing terms. A refusal is a
+    validity question about the rule, so it belongs walk-side either way.
+*******************************************************************************/
+extern int unresolvedTerms(GroupItem rule)
+{
+GroupItem   term;
+int         i = 1;
+int         n = 0;
+    while term = rule[i] {
+        if !term.noPrint && !term.rStuff    n++;
         i++; }
     return n;
 }
@@ -187,14 +267,16 @@ char        dq = 34;
     if !rule {
         cerr "genParse: no rule named ",argument.text:;
         return null; }
+    if unresolvedTerms(rule) {
+        cerr "genParse: REFUSING " rule.tag " -- " toStringFromInt(unresolvedTerms(rule)) " of " toStringFromInt(countRuleTerms(rule)) " terms have no rStuff yet":;
+        cerr "          emitting now would silently drop them (see unresolvedTerms)":;
+        return null; }
     cerr "extern GroupItem parse" rule.tag "(GroupItem rule)":;
     cerr "{":;
     cerr "GroupItem   into  = rule.rStuff.parentLabel;":;
     cerr "GroupItem   label = new(" dq rule.tag dq ");":;
     while term = rule[i] {
-        if term.noPrint || !term.rStuff {
-            if !term.rStuff && !term.noPrint
-                cerr "genParse: skipping " term.tag " (no rStuff) in " rule.tag:; }
+        if term.noPrint { }
         else {
             digit   = toStringFromInt(i);
             local   = "t" digit;

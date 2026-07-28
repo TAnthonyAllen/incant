@@ -36,6 +36,11 @@ define
     ;
 testJSON('{"a":"b"}');
 
+/*  §4.2 CENSUS. The JSON family is the ladder's target; the bootstrap grammar
+    rules are the REAL language, and they are what exercise the rows the JSON
+    family never reaches (sets, upTo, macros, parseAction, noSkip, repetition).
+    A census restricted to the JSON family would report a much tidier table
+    than the tree actually holds.  */
 dumpRuleTerms('Scaf');
 dumpRuleTerms('Scaf2');
 dumpRuleTerms('JSONblock');
@@ -45,4 +50,22 @@ dumpRuleTerms('JSONtoken');
 dumpRuleTerms('JSONitem');
 dumpRuleTerms('JSONlist');
 dumpRuleTerms('JSONarray');
+dumpRuleTerms('NumbeR');
+dumpRuleTerms('FloaT');
+dumpRuleTerms('PoweR');
+dumpRuleTerms('QuotE');
+dumpRuleTerms('NamE');
+dumpRuleTerms('GrouP');
+dumpRuleTerms('CodE');
+dumpRuleTerms('DatA');
+dumpRuleTerms('Limit');
+dumpRuleTerms('MemberS');
+dumpRuleTerms('Modifier');
+dumpRuleTerms('TraiT');
+dumpRuleTerms('TraiTdata');
+dumpRuleTerms('Attributes');
+dumpRuleTerms('NewGroup');
+dumpRuleTerms('DefinE');
+dumpRuleTerms('debug');
+dumpRuleTerms('InvokE');
 stop();
