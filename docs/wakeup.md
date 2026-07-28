@@ -3,7 +3,7 @@
 # GroupItems, the emitter WRITES from it, and SEQ/ALT/LIT/LITTO/CALL/MANY/OPT all emit. THE WHOLE
 # JSON FAMILY NOW PLANS. ⚠ RUNG 7's TREE POP FOUND A REAL PRE-EXISTING §2.4 GAP — read it before
 # trusting an alternation. `sh genLadder/pop.sh` is the one-command POP.
-# Everything RUN with exit status checked.)
+# Everything RUN with exit status checked. CLEAN STOP — see "WHERE THIS STOPPED" below.)
 *Written by Clod for a fresh Clay/Clod with ZERO memory of today. Self-contained. Read fully before
 touching code. Everything is on branch `jit-unified-emit-wip`; main is untouched.*
 
@@ -132,6 +132,32 @@ exit primitive inherits this obligation.
 
 
 
+
+
+## WHERE THIS STOPPED (2026-07-28, end of day) — clean kitchen
+**Both POPs pass. Nothing in flight. Nothing half-applied.**
+```
+sh genLadder/pop.sh    -> POP PASSED   (7 rung targets + census + both baselines, exit 0 each)
+sh genLadder/tree.sh   -> fixture ok   (§2.4 divergence unchanged — it is OPEN, not broken)
+```
+Landed today: **rung 3** (the walk/emission seam, plan-as-GroupItem), **rung 4**
+(`definingRule()`, resolve-at-use-time binding), **rung 5** (MANY, Invariant R′), **rung 6** (OPT),
+**rung 7** (ALT emission), and **rStuff at define time** — six rungs and one structural change,
+every one with the baselines accounted for and exit 0.
+
+Fixtures that did not exist this morning: the **census** (30 rules, plan-level), **tree.divergence**,
+**pop.sh** as one command, and **rung4–rung7 targets**. Two of the three defects caught this week
+came from rules nobody was working on — that is the census earning its place, and the argument for
+growing it as rungs land rather than treating it as done.
+
+**Tony is reading the day's work offline.** Design changes are possible but not expected. **If any
+turn up, check them against the census** — it is the only artifact that speaks for the rules you are
+not looking at.
+
+**Uncommitted and NOT ours:** Tony's Group-A files (`Debug.rtn`, `Stylish.*`, `Layout.*`, `TODO.md`,
+`docs/guiDesign.md`, `CLAUDE.md`, `incant/utilities`, `incant/jsonTest`, and the `.mm` regenerated
+alongside them). Left exactly as found. **Do not run `tokall`** without checking with him first —
+it would regenerate `Layout.twk`/`Stylish.twk` over his uncommitted work.
 
 ## rStuff IS MATERIALISED AT DEFINE TIME — late materialisation fires ZERO times
 `getRStuff`'s `no rStuff - creating` warning fired **8 times in oneTest and 6 in jsonTest**. It now
@@ -580,9 +606,10 @@ attempt count is right; only the ORDER reads oddly — a callee's HIT appears be
   the C++ compiler). Concat into a local first, always. Assignment position is fine.
 
 ## NEXT — Clay's standing order (SEQ 27 §5), each waiting on the one before it
-0. **Recon owed before B can be briefed** — read-only, perturbs nothing: *what do rule actions
-   actually return, and how do they locate a child?* Tag-locating actions survive B; position-
-   locating ones may not. Likely a short grep that either finds nothing or finds the one that bites.
+0. **Recon owed before B can be briefed** — read-only, perturbs nothing. TWO greps:
+   *(a)* what do rule actions actually return, and how do they locate a child? Tag-locating actions
+   survive B; position-locating ones may not. *(b)* which bootstrap-built rules add terms with no
+   `modify()` call — i.e. confirm `Limit` is the only one, or find the others.
 1. **B — drop the automatic `isTarget` stamp on members.** Tony's ruling: `isTarget` becomes `@` and
    nothing else. `genLadder/tree.divergence` flips from asserting the divergence to asserting
    AGREEMENT — that flip is the acceptance test. Expect quiet fallout, not loud: a wrong result, not
