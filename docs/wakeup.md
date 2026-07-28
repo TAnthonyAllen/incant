@@ -1,7 +1,8 @@
 # Incant — Status & Handoff (2026-07-28: SHAPE (SEQ 25), RUNG 4, the SEAM (SEQ 26), and RUNG 5
-# (SEQ 27) all landed. The walk DECIDES into a plan of GroupItems, the emitter WRITES from it,
-# and repetition emits a helper per repeated term with Invariant R′ structural in it. A 30-rule
-# census fixture is the classifier's POP and has now caught THREE wrong-plan classes.
+# (SEQ 27) and RUNG 6 (SEQ 28) all landed. The walk DECIDES into a plan of GroupItems, the emitter
+# WRITES from it, repetition emits a helper with Invariant R′ structural in it, and optionality is
+# in. THE WHOLE JSON FAMILY NOW PLANS EXCEPT JSONtoken. A 30-rule census fixture is the
+# classifier's POP and has caught THREE wrong-plan classes.
 # Everything RUN with exit status checked.)
 *Written by Clod for a fresh Clay/Clod with ZERO memory of today. Self-contained. Read fully before
 touching code. Everything is on branch `jit-unified-emit-wip`; main is untouched.*
@@ -49,6 +50,8 @@ a21e8ed  wakeup.md reseal for rung 4
 4deaa6e  scope genParse's own lookup to rule registries (§1.3 second half)
 af7e43d  genParseSpec §2.2a: Invariant R′, with its provenance checked
 f6c599a  RUNG 5 GREEN: MANY + Invariant R′ demonstrated
+502e7d0  wakeup.md reseal for rung 5
+0463d51  RUNG 6 GREEN: OPT, the inline ((term) || 1) form
 ```
 (Session tip on arrival was `23d6888`.)
 
@@ -66,7 +69,9 @@ f6c599a  RUNG 5 GREEN: MANY + Invariant R′ demonstrated
 | `genLadder/rung12.target` | regenerated **deliberately** — every line of the frame moved |
 | `genLadder/rung4.target` | new |
 | `genLadder/census.target` | 30 rules, plan-level, stable across runs |
-| `genLadder/rung5.target` | new — repetition helper + method |
+| `genLadder/rung5.target` | repetition helper + method |
+| `genLadder/rung6.target` | new — optional reference + optional literal |
+| `ScafE`/`ScafF` × 3 each | optional present · absent · **failing mandatory neighbour, mark REWOUND** |
 | `ScafC('ac')` · `('aaac')` | **WIN** · **WIN** (three passes) |
 | `ScafC('aax')` · `('c')` | **FAIL, mark REWOUND** (R across a generated LOOP) · **FAIL, mark unmoved** |
 | emission after the seam vs before it | **IDENTICAL**, whole genScratch run |
@@ -116,6 +121,43 @@ one implementer down. **Without it `Scaf('x')` dereferences null on its FIRST su
 exit primitive inherits this obligation.
 
 
+
+
+## RUNG 6 — OPT. The label question was settled from `parse()` BEFORE anything was emitted.
+```
+ScafE isRule "e"- ScafA? "f"-;   ->  lit(t1,"e") && (parseR(t2,label) || 1) && lit(t3,"f")
+ScafF isRule "f"- ","?- "g"-;    ->  lit(t1,"f") && (lit(t2,",")       || 1) && lit(t3,"g")
+```
+**What the interpretive path does with a non-matching optional, read off the source:** it takes the
+min-0 rescue — `matchFailed` sets `sukcess = true` on `kount >= min` **before** `debugHere`, so
+`debugHere` is skipped (label not zeroed, mark not rewound) and `generatedExit` returns the label
+`checkInput` built. **But the attach lives inside the loop's success block** (`pStuff.label +%
+label`), which a non-match never reaches. **So nothing is attached** — and the inline form agrees
+exactly, because the callee's `leaveRule` attaches on success and not on failure. Non-match and
+match-with-nothing stay distinguishable in the tree (nothing vs an empty child), which is what the
+`code={}` actions read.
+
+One divergence, recorded rather than relied on, and **generated is the tighter**: the interpretive
+non-match skips the rewind and can leave the mark advanced by `checkInput`'s skip pass; the
+generated callee rewinds to its own `from`. Both re-skip before the next term, so it is not
+observable.
+
+### One rung, not two — measured
+Of the **12** optionals in the census, **4 are character-level** (`data` set) and already refuse
+*above* the min/max test, alongside the accumulators. So `?` on a character-level term **never
+reaches OPT by construction**, and §2.5's conflation warning cannot bite here. The other 8 are
+**6 references** and **2 noLabel literals** — exactly the two shapes OPT wraps. A *labelled* literal
+optional does not occur, so it refuses rather than being designed for.
+
+### The POP case that matters
+The optional sits **between two mandatory terms** deliberately. *An optional that swallows a
+following failure is optional-as-mandatory inverted*, and only a mandatory neighbour catches it:
+```
+ScafE('ef')  absent  -> ScafA FAIL (mark unmoved), ScafE WIN
+ScafE('eaf') present -> ScafA WIN,  ScafE WIN
+ScafE('ex')  absent  -> ScafE FAIL, mark REWOUND      <- NOT swallowed
+ScafF('fg') WIN · ScafF('f,g') WIN · ScafF('fx') FAIL, mark REWOUND
+```
 
 ## RUNG 5 — MANY. One kind, iteration only.
 ```
@@ -232,6 +274,12 @@ order. With a plan you walk it again.
 
 **ALT is now REFUSED, not emitted.** The old interleaved path would have written a `SEQ` frame with
 `&&` joins for an alternation — simply wrong, and invisible until there was an artifact to look at.
+
+## GROW THE CENSUS AS RUNGS LAND — it is not a finished artifact
+**Two of the three defects the ladder has caught came from rules nobody was working on, both via
+the census** (`debug`'s empty fold; the four rules planning optionals as mandatory). The ladder
+targets test the rung you are on; the census tests the rules you are not looking at. Add to it when
+a rung lands, and treat a census move as something to *account for*, never to regenerate green.
 
 ## THE CENSUS FIXTURE — the classifier's own POP
 `genLadder/census.target`, 29 rules, produced by `<binary> incant/censusScratch`. The ladder targets
@@ -399,16 +447,17 @@ attempt count is right; only the ORDER reads oddly — a callee's HIT appears be
   argument position** (`f(x, pad "  ")` silently generated a THREE-argument call, caught only by
   the C++ compiler). Concat into a local first, always. Assignment position is fine.
 
-## NEXT
-1. **Optionality — its own kind.** Four census rules refuse on it and it is the single biggest
-   blocker to the JSON family planning. It is also the shortest rung: the emitter shape already
-   exists in the hand-written models (`(lit(...) || true)`).
-2. **Accumulators** — `data`-carrying repetition (`FloaT`/`PoweR`/`Modifier`/`NamE`), still refused.
-   §2.5: star/plus mean something different for character-level terms than for references, and
+## NEXT — ordered off what the census says, not off the ladder's numbering
+1. **ALT emission.** `JSONvalue`, `JSONtoken`(once it plans) and `GrouP` PLAN as ALT but
+   `emitPlan` still refuses the fold — `leaveAlt`/`||`, and `litOption` as the ALT spelling of a
+   labelled literal. **Planning is not emitting**, and the gap is now the JSON family's blocker.
+2. **`isGROUP` as its own kind**, and with it the precedence question in open item 1 below —
+   `JSONtoken` is the last JSON rule that does not plan, and it refuses on exactly this.
+3. **Accumulators** — `data`-carrying repetition (`FloaT`/`PoweR`/`Modifier`/`NamE`), still refused.
+   §2.5: star and plus mean something different for character-level terms than for references, and
    conflating them yields a parser that accepts correctly and BUILDS WRONGLY.
-3. Rungs 6-8. Note the standing rung-6 tripwire: the interpretive path does `kount++` on success and
-   the generated path does not.
-4. `isGROUP` as its own kind, and with it the precedence question in open item 1 below.
+4. Rungs 7-8. Standing tripwire: the interpretive path does `kount++` on success, the generated path
+   does not.
 4. **Rung 9 is TONY'S RULING and gates only rung 9** — bare reference to an alternation:
    auto-`promoteR`, or require explicit `@`?
 5. **§4.2 / §4.3 fixes, after shape**: make `lit`'s skip pass non-destructive (then `leaveAlt` drops
