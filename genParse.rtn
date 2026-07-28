@@ -48,6 +48,64 @@
          after a parse — getWhatFollows gates on isGROUP. §1.6's `t2.onGroup`
          does not exist to be written to. See parseR.
 *******************************************************************************/
+/*******************************************************************************
+    locateRule — genParseShape §1.3's ruling, the half that had not landed.
+
+    Emitted text has carried no locate since the shape brief; THE EMITTER still
+    ran one, and a bare locate() resolves down the GENERAL search stack: search
+    registries first, then the base registries (pROPERTIEs, Operators, cOMMANDs,
+    fILEs, Keywords, GroupFields). Any rule sharing a name with a keyword or a
+    command was a silent mis-target.
+
+    MEASURED, and it corrects the guess in 41a3831's message: `debug` resolves
+    to a NOT-isRule node in the **Keywords** registry (incant/setup:196 defines
+    it as a bare keyword) -- not cOMMANDs as first supposed. The real grammar
+    rule is **DEBUG**, isRule, in Grokking, with four terms. So there is no
+    lowercase `debug` rule to find, and after this change genParse REFUSES it
+    rather than planning a term-less node.
+
+    That mis-target was only visible because the node happened to carry no terms
+    and produced an empty fold. A collision with a node that HAS terms would
+    have produced a plausible-looking plan instead, and nothing would have
+    complained.
+
+    Scope: the search list only, and only isRule hits. Base registries are not
+    rule registries.
+*******************************************************************************/
+extern GroupItem locateRule(String name)
+{
+GroupRules  ruler = groupRules;
+GroupItem   registri;
+GroupItem   hit;
+    while registri = searchList.next(registri) {
+        hit = registri[name];
+        if hit
+            if hit.isRule   return hit; }
+    return null;
+}
+
+/*******************************************************************************
+    ruleOrRefuse — locateRule, with a refusal that says what went wrong. If a
+    bare locate() would have found something, name it and name its registry:
+    "no rule of that name" and "that name is a keyword" are different problems
+    and the caller should not have to guess which.
+*******************************************************************************/
+extern GroupItem ruleOrRefuse(String name, String who)
+{
+GroupItem   rule = locateRule(name);
+GroupItem   stray;
+    if rule     return rule;
+    stray = locate(name);
+    if !stray {
+        cerr who ": no rule named " name:;
+        return null; }
+    if stray.registry
+        cerr who ": REFUSING " name " -- not a rule; locate finds a non-rule in registry " stray.registry.tag:;
+    else
+        cerr who ": REFUSING " name " -- not a rule (and it is in no registry)":;
+    return null;
+}
+
 extern String dataName(int d)
 {
     if !d           return "none";
@@ -105,6 +163,9 @@ int         i = 1;
         return null; }
     ruleStuff = rule.rStuff;
     cerr "RULE " rule.tag " fold=" foldOf(rule):;
+    if rule.isRule      cerr "     isRule":;
+    if !rule.isRule     cerr "     NOT isRule":;
+    if rule.registry    cerr "     registry " rule.registry.tag:;
     cerr "     rule.data=" dataName(rule.data):;
     if ruleStuff && ruleStuff.onGroup   cerr "     rule.onGroup=" ruleStuff.onGroup.tag:;
     if !ruleStuff                       cerr "     rule has NO rStuff":;
@@ -379,12 +440,11 @@ String      deeper;
 *******************************************************************************/
 extern GroupItem dumpRulePlans(GroupItem argument)
 {
-GroupItem   rule = locate(argument.text);
+GroupItem   rule;
 GroupItem   plan;
-    if !rule {
-        cerr "dumpRulePlans: no rule named ",argument.text:;
-        return null; }
-    cerr "PLAN " rule.tag:;
+    cerr "PLAN " argument.text:;
+    rule = ruleOrRefuse(argument.text,"  plan");
+    if !rule    return null;
     plan = planRule(rule);
     if plan     printPlan(plan,"  ");
     return trueResult;
@@ -495,11 +555,9 @@ char        dq = 34;
 *******************************************************************************/
 extern GroupItem genParse(GroupItem argument)
 {
-GroupItem   rule = locate(argument.text);
+GroupItem   rule = ruleOrRefuse(argument.text,"genParse");
 GroupItem   plan;
-    if !rule {
-        cerr "genParse: no rule named ",argument.text:;
-        return null; }
+    if !rule    return null;
     plan = planRule(rule);
     if !plan    return null;
     return emitPlan(plan);

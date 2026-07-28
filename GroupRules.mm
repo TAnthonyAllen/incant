@@ -1260,55 +1260,6 @@ int 		n = 0;
 	return n;
 }
 
-/*******************************************************************************
-    genParse.rtn — the parse-method emitter (genParseSpec §4).
-
-    C++ prototype ("C++ first, kant second" — Tony 2026-07-27). genParse takes a
-    rule (by name) and emits a C++ parse method that mirrors the hand-written
-    RuleStuff.twk methods (§5.1). POP: text-diff the emission against the
-    hand-written target, climbing Clay's ladder (docs/genParseLadder.md) from a
-    synthetic single-literal scaffold up to the JSON rules.
-
-    Emission substrate for v0 is cerr, line by line (bear-trap #14: stderr, not
-    stdout — stop() does not flush). This is a C++ extern body, so all string
-    literals are DOUBLE-quoted; a double-quote in the emitted output is escaped
-    \" (single quotes here parse the inner ':' as an inheritance colon and
-    cascade the whole file into ERROR Inheritance — found 2026-07-27).
-*******************************************************************************/
-/*******************************************************************************
-    dumpRuleTerms — MEASUREMENT TOOL, not part of the emitter. Kept because it
-    is what settled the questions below, and re-measuring is one run.
-
-    genParseShape §1.5 requires genParse to traverse with the SAME accessor the
-    emitted code reads with (rule[i]), because the two agree only if the list
-    holds exactly the terms in exactly that order. Whether a `fail` modifier or
-    a `code={}` tail occupies a slot is a question about the TREE, not about
-    the design — so it was measured, not reasoned about. Prints one line per
-    rule[i] entry, in order, so the printed order IS the index.
-
-    WHAT IT FOUND (2026-07-28, incant/termScratch):
-      1. rule[i] is source order, 1-based. `fail` (JSONblock) occupies NO slot.
-      2. A `code={}` tail DOES occupy slots, and FOUR of them, not one: CodE,
-         this, tempField — and, appearing only AFTER the rule has been parsed
-         once, the cached BlocK. So the tail of rule[] is not even stable
-         across a run. §1.5's hazard is real and bigger than "one extra entry".
-      3. ALL FOUR tail entries are noPrint; no real term is. So the classifier
-         is `noPrint`, which is not an invention — it is the same test the
-         interpretive walk already uses (testAttributes: `if noPrint continue`).
-         Model-not-oracle applied to classification itself: take the oracle's
-         own test rather than inventing a parallel one that can drift from it.
-      4. Sequence terms are isAttribute; alternation options are isMember.
-         One list, distinguished by affiliation.
-      5. A rule-reference term (JSONblock's JSONfield) is a DISTINCT NODE from
-         the registry rule of the same name — different parent — but the two
-         SHARE a child list (the term shows the BlocK the parse added to the
-         registry node). rStuff, however, is per-node: the term's own rStuff
-         has its own onGroup/testMatch/followed state. See parseR for why that
-         matters and what it leaves open.
-      6. No rule-reference term is isGROUP, and none has onGroup set, even
-         after a parse — getWhatFollows gates on isGROUP. §1.6's `t2.onGroup`
-         does not exist to be written to. See parseR.
-*******************************************************************************/
 extern "C" char *dataName(int d)
 {
 	if ( !d )
@@ -1592,14 +1543,12 @@ extern "C" void dumpFontInfo(GroupItem *field)
 *******************************************************************************/
 extern "C" GroupItem *dumpRulePlans(GroupItem *argument)
 {
-GroupItem 	*rule = GroupControl::groupController->locate(argument->getText());
+GroupItem 	*rule = 0;
 GroupItem 	*plan = 0;
+	::fprintf(stderr,"PLAN %s\n",argument->getText());
+	rule = ::ruleOrRefuse(argument->getText(),"  plan");
 	if ( !rule )
-		{
-		::fprintf(stderr,"dumpRulePlans: no rule named  %s\n",argument->getText());
 		return 0;
-		}
-	::fprintf(stderr,"PLAN %s\n",rule->groupBody->tag);
 	plan = ::planRule(rule);
 	if ( plan )
 		::printPlan(plan,"  ");
@@ -1621,6 +1570,12 @@ int 		i = 1;
 		}
 	ruleStuff = rule->rStuff;
 	::fprintf(stderr,"RULE %s fold=%s\n",rule->groupBody->tag,foldOf(rule));
+	if ( rule->groupBody->flags.isRule )
+		::fprintf(stderr,"     isRule\n");
+	if ( !rule->groupBody->flags.isRule )
+		::fprintf(stderr,"     NOT isRule\n");
+	if ( rule->groupBody->registry )
+		::fprintf(stderr,"     registry %s\n",rule->groupBody->registry->groupBody->tag);
 	::fprintf(stderr,"     rule.data=%s\n",::dataName(rule->groupBody->flags.data));
 	if ( ruleStuff && ruleStuff->onGroup )
 		::fprintf(stderr,"     rule.onGroup=%s\n",ruleStuff->onGroup->groupBody->tag);
@@ -1847,13 +1802,10 @@ extern "C" char *foldOf(GroupItem *rule)
 *******************************************************************************/
 extern "C" GroupItem *genParse(GroupItem *argument)
 {
-GroupItem 	*rule = GroupControl::groupController->locate(argument->getText());
+GroupItem 	*rule = ::ruleOrRefuse(argument->getText(),"genParse");
 GroupItem 	*plan = 0;
 	if ( !rule )
-		{
-		::fprintf(stderr,"genParse: no rule named  %s\n",argument->getText());
 		return 0;
-		}
 	plan = ::planRule(rule);
 	if ( !plan )
 		return 0;
@@ -3103,6 +3055,94 @@ PLGset 		*fieldSet = new PLGset("^ \n\r\t");
 			}
 		else	input++;
 		}
+}
+
+/*******************************************************************************
+    genParse.rtn — the parse-method emitter (genParseSpec §4).
+
+    C++ prototype ("C++ first, kant second" — Tony 2026-07-27). genParse takes a
+    rule (by name) and emits a C++ parse method that mirrors the hand-written
+    RuleStuff.twk methods (§5.1). POP: text-diff the emission against the
+    hand-written target, climbing Clay's ladder (docs/genParseLadder.md) from a
+    synthetic single-literal scaffold up to the JSON rules.
+
+    Emission substrate for v0 is cerr, line by line (bear-trap #14: stderr, not
+    stdout — stop() does not flush). This is a C++ extern body, so all string
+    literals are DOUBLE-quoted; a double-quote in the emitted output is escaped
+    \" (single quotes here parse the inner ':' as an inheritance colon and
+    cascade the whole file into ERROR Inheritance — found 2026-07-27).
+*******************************************************************************/
+/*******************************************************************************
+    dumpRuleTerms — MEASUREMENT TOOL, not part of the emitter. Kept because it
+    is what settled the questions below, and re-measuring is one run.
+
+    genParseShape §1.5 requires genParse to traverse with the SAME accessor the
+    emitted code reads with (rule[i]), because the two agree only if the list
+    holds exactly the terms in exactly that order. Whether a `fail` modifier or
+    a `code={}` tail occupies a slot is a question about the TREE, not about
+    the design — so it was measured, not reasoned about. Prints one line per
+    rule[i] entry, in order, so the printed order IS the index.
+
+    WHAT IT FOUND (2026-07-28, incant/termScratch):
+      1. rule[i] is source order, 1-based. `fail` (JSONblock) occupies NO slot.
+      2. A `code={}` tail DOES occupy slots, and FOUR of them, not one: CodE,
+         this, tempField — and, appearing only AFTER the rule has been parsed
+         once, the cached BlocK. So the tail of rule[] is not even stable
+         across a run. §1.5's hazard is real and bigger than "one extra entry".
+      3. ALL FOUR tail entries are noPrint; no real term is. So the classifier
+         is `noPrint`, which is not an invention — it is the same test the
+         interpretive walk already uses (testAttributes: `if noPrint continue`).
+         Model-not-oracle applied to classification itself: take the oracle's
+         own test rather than inventing a parallel one that can drift from it.
+      4. Sequence terms are isAttribute; alternation options are isMember.
+         One list, distinguished by affiliation.
+      5. A rule-reference term (JSONblock's JSONfield) is a DISTINCT NODE from
+         the registry rule of the same name — different parent — but the two
+         SHARE a child list (the term shows the BlocK the parse added to the
+         registry node). rStuff, however, is per-node: the term's own rStuff
+         has its own onGroup/testMatch/followed state. See parseR for why that
+         matters and what it leaves open.
+      6. No rule-reference term is isGROUP, and none has onGroup set, even
+         after a parse — getWhatFollows gates on isGROUP. §1.6's `t2.onGroup`
+         does not exist to be written to. See parseR.
+*******************************************************************************/
+/*******************************************************************************
+    locateRule — genParseShape §1.3's ruling, the half that had not landed.
+
+    Emitted text has carried no locate since the shape brief; THE EMITTER still
+    ran one, and a bare locate() resolves down the GENERAL search stack: search
+    registries first, then the base registries (pROPERTIEs, Operators, cOMMANDs,
+    fILEs, Keywords, GroupFields). Any rule sharing a name with a keyword or a
+    command was a silent mis-target.
+
+    MEASURED, and it corrects the guess in 41a3831's message: `debug` resolves
+    to a NOT-isRule node in the **Keywords** registry (incant/setup:196 defines
+    it as a bare keyword) -- not cOMMANDs as first supposed. The real grammar
+    rule is **DEBUG**, isRule, in Grokking, with four terms. So there is no
+    lowercase `debug` rule to find, and after this change genParse REFUSES it
+    rather than planning a term-less node.
+
+    That mis-target was only visible because the node happened to carry no terms
+    and produced an empty fold. A collision with a node that HAS terms would
+    have produced a plausible-looking plan instead, and nothing would have
+    complained.
+
+    Scope: the search list only, and only isRule hits. Base registries are not
+    rule registries.
+*******************************************************************************/
+extern "C" GroupItem *locateRule(char *name)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*registri = 0;
+GroupItem 	*hit = 0;
+	while ( registri = ruler->searchList->next(registri) )
+		{
+		hit = registri->get(name);
+		if ( hit )
+			if ( hit->groupBody->flags.isRule )
+				return hit;
+		}
+	return 0;
 }
 
 /***************************************************************************
@@ -5066,6 +5106,30 @@ char 	*name = input->getText();
 		else	::fprintf(stderr,"ruleMethod: expected a method name in ruleMethod text\n");
 	else	::fprintf(stderr,"ruleMethod: should be invoked as an attribute when its parent is defined\n");
 	return input->getGroup();
+}
+
+/*******************************************************************************
+    ruleOrRefuse — locateRule, with a refusal that says what went wrong. If a
+    bare locate() would have found something, name it and name its registry:
+    "no rule of that name" and "that name is a keyword" are different problems
+    and the caller should not have to guess which.
+*******************************************************************************/
+extern "C" GroupItem *ruleOrRefuse(char *name, char *who)
+{
+GroupItem 	*rule = ::locateRule(name);
+GroupItem 	*stray = 0;
+	if ( rule )
+		return rule;
+	stray = GroupControl::groupController->locate(name);
+	if ( !stray )
+		{
+		::fprintf(stderr,"%s: no rule named %s\n",who,name);
+		return 0;
+		}
+	if ( stray->groupBody->registry )
+		::fprintf(stderr,"%s: REFUSING %s -- not a rule; locate finds a non-rule in registry %s\n",who,name,stray->groupBody->registry->groupBody->tag);
+	else	::fprintf(stderr,"%s: REFUSING %s -- not a rule (and it is in no registry)\n",who,name);
+	return 0;
 }
 
 /*******************************************************************************

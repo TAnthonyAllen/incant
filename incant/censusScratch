@@ -58,5 +58,6 @@ dumpRulePlans('Attributes');
 dumpRulePlans('NewGroup');
 dumpRulePlans('DefinE');
 dumpRulePlans('debug');
+dumpRulePlans('DEBUG');
 dumpRulePlans('InvokE');
 stop();

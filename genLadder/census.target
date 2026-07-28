@@ -122,7 +122,10 @@ PLAN DefinE
   REFUSE NewGroup -- data isGROUP (rung 5)
   REFUSE rule DefinE -- term NewGroup unclassified
 PLAN debug
-  REFUSE rule debug -- no terms at all
+  plan: REFUSING debug -- not a rule; locate finds a non-rule in registry Keywords
+PLAN DEBUG
+  REFUSE followedBy -- data isSET (rung 5)
+  REFUSE rule DEBUG -- term followedBy unclassified
 PLAN InvokE
   SEQ InvokE
     label=InvokE
