@@ -1682,38 +1682,107 @@ int 		i = 1;
 }
 
 /*******************************************************************************
-    emitTerm — one sequence term -> one leaf expression string.
-    Rungs 1-2 subset of §4.2: literal string terms (data 0), the default/
-    testString row. noLabel (the `-` modifier) -> lit(); labelled -> litTo.
+    emitLeaf — one PLAN node -> one leaf expression string.
 
-    TERM-FIRST (§1.4): the leaf takes the frame's term LOCAL, not the rule —
-    `lit(t1,"{")`, never `lit(rule,"{")`. That restores the testSet(field)
-    convention (`field` means term, `rule` means rule) and gives every leaf
-    frame its own identity: under the old shape a breakpoint in lit during
-    parseJSONfield could not tell the ":" match from the ",", which is the
-    question a debugger frame usually needs answered.
+    Everything here is about the TARGET and nothing about the rule: which
+    support function spells a decision the walk already made, and how a literal
+    is quoted. The walk decided LIT vs LITTO ("does this attach a label"); this
+    decides that a LITTO inside a SEQ is spelled litTo. The same plan handed to
+    a kant emitter produces different text and the same decisions — which is the
+    whole reason the seam exists.
 
-    The local is named for its RAW rule[] index, so the local's name and its
-    subscript can never drift apart — the whole point of §1.5.
-    Same-file helper, called only from genParse -> no groups.ext decl needed.
-
-    NOTE, latent: the labelled branch emits litTo, which has no implementation
-    in the support library. Never fires for rungs 1-2 (Scaf/Scaf2 terms are all
-    noLabel). Rung 3+ business, flagged here rather than silently carried.
+    NOTE, latent: litTo has no implementation in the support library. Never
+    fires on the ladder (every Scaf/ScafA/ScafB term is noLabel). Flagged rather
+    than silently carried.
 *******************************************************************************/
-extern "C" char *emitTerm(GroupItem *term, char *local)
+extern "C" char *emitLeaf(GroupItem *node, char *local)
 {
-RuleStuff 	*rs = term->rStuff;
-GroupItem 	*definer = term->definingRule();
+GroupItem 	*slot = 0;
 char 		dq = 34;
 char 		*leaf = 0;
-	if ( definer != term )
+	if ( ::compare(node->groupBody->tag,"CALL") == 0 )
 		leaf = ::concat(3,"parseR(",local,",label)");
 	else
-	if ( rs->noLabel )
-		leaf = ::concat(7,"lit(",local,",",::toStringFromChar(dq),term->groupBody->tag,::toStringFromChar(dq),")");
-	else	leaf = ::concat(11,"litTo(",local,",label,",::toStringFromChar(dq),term->groupBody->tag,::toStringFromChar(dq),",",::toStringFromChar(dq),term->groupBody->tag,::toStringFromChar(dq),")");
+	if ( ::compare(node->groupBody->tag,"LIT") == 0 )
+		leaf = ::concat(7,"lit(",local,",",::toStringFromChar(dq),node->getText(),::toStringFromChar(dq),")");
+	else
+	if ( ::compare(node->groupBody->tag,"LITTO") == 0 )
+		{
+		slot = node->getAttribute("slot");
+		leaf = ::concat(11,"litTo(",local,",label,",::toStringFromChar(dq),node->getText(),::toStringFromChar(dq),",",::toStringFromChar(dq),slot->getText(),::toStringFromChar(dq),")");
+		}
+	else {
+		::fprintf(stderr,"emitLeaf: no emission for plan kind %s\n",node->groupBody->tag);
+		return 0;
+		}
 	return leaf;
+}
+
+/*******************************************************************************
+    emitPlan — a plan tree -> C++ text. The emitter side of the seam (§4): the
+    frame preamble, joining conjuncts with &&, quoting. It reads the plan and
+    NEVER the rule, which is the property that makes it replaceable.
+
+    ALT is REFUSED rather than emitted. The old interleaved path would have
+    written a SEQ frame with && joins for an alternation, which was simply
+    wrong; a plan makes the fold explicit, so the wrongness became visible the
+    moment there was something to look at. leaveAlt/|| emission arrives with the
+    alternation rung.
+*******************************************************************************/
+extern "C" GroupItem *emitPlan(GroupItem *plan)
+{
+GroupItem 	*node = 0;
+GroupItem 	*lab = 0;
+GroupItem 	*at = 0;
+char 		*tag = plan->getText();
+char 		*terms = 0;
+char 		*local = 0;
+char 		*index = 0;
+char 		*piece = 0;
+int 		first = 1;
+int 		n = 0;
+char 		dq = 34;
+	if ( ::compare(plan->groupBody->tag,"SEQ") != 0 )
+		{
+		::fprintf(stderr,"emitPlan: REFUSING %s -- fold %s has no emitter yet\n",tag,plan->groupBody->tag);
+		return 0;
+		}
+	lab = plan->getAttribute("label");
+	while ( node = plan->nextMember(node) )
+		{
+		at = node->getAttribute("at");
+		index = at->getText();
+		local = ::concat(2,"t",index);
+		piece = ::emitLeaf(node,local);
+		if ( !piece )
+			{
+			::fprintf(stderr,"emitPlan: REFUSING %s -- unemittable plan node\n",tag);
+			return 0;
+			}
+		n++;
+		}
+	::fprintf(stderr,"extern GroupItem parse%s(GroupItem rule)\n",tag);
+	::fprintf(stderr,"{\n");
+	::fprintf(stderr,"GroupItem   into  = rule.rStuff.parentLabel;\n");
+	::fprintf(stderr,"GroupItem   label = new(%c%s%c);\n",dq,lab->getText(),dq);
+	node = 0;
+	while ( node = plan->nextMember(node) )
+		{
+		at = node->getAttribute("at");
+		index = at->getText();
+		local = ::concat(2,"t",index);
+		::fprintf(stderr,"GroupItem   %s = rule[%s];\n",local,index);
+		piece = ::emitLeaf(node,local);
+		if ( first )
+			terms = piece;
+		else	terms = ::concat(3,terms," && ",piece);
+		first = 0;
+		}
+	::fprintf(stderr,"String      from  = atRuleMark;\n");
+	::fprintf(stderr,"    return leaveRule(rule,into,label,from, %s );\n",terms);
+	::fprintf(stderr,"}\n");
+	::fprintf(stderr,"/*  bind:  %s parseTerms=%s parseMethod=parse%s;  */\n",tag,::toStringFromInt(n),tag);
+	return GroupControl::groupController->groupRules->trueResult;
 }
 
 /***************************************************************************
@@ -1762,90 +1831,33 @@ extern "C" char *foldOf(GroupItem *rule)
 }
 
 /*******************************************************************************
-    genParse — rungs 1-2: emitSequence for a sequence rule. Emits the §2 frame
-    line by line.
+    genParse — two passes now, and that is the rung-3 result: planRule DECIDES,
+    emitPlan WRITES. Nothing between them knows about C++.
 
-    INDEXED TRAVERSAL (§1.5). The walk is `rule[i]`, the same accessor the
-    emitted code reads with — NOT nextAttribute. The two agree only if the list
-    holds exactly the terms in exactly that order, and it does not: a rule with
-    a code={} tail carries four extra entries (CodE, this, tempField, and a
-    BlocK that appears only after the first parse). Under nextAttribute every
-    one of those would shift every subsequent index silently, binding a term
-    local to the wrong term — and the currently-unused `field` parameter would
-    not even misbehave visibly on it. Same accessor makes the correspondence
-    hold by construction rather than by luck.
+    The walk is walked TWICE by emitPlan, once to validate and once to write.
+    That is deliberate and is one of the reasons the seam artifact is a plan and
+    not a visitor: §3.3's helper functions are discovered mid-walk, and with
+    text already going out you must buffer or emit out of order. With a plan you
+    just walk it again. It costs nothing at this size and it is the shape rung 5
+    needs.
 
-    The skip test is `noPrint`, which is what testAttributes itself skips on.
-    Measured, not invented: dumpRuleTerms shows all four tail entries noPrint
-    and no real term noPrint.
-
-    Emission idioms nailed 2026-07-27 (from the v0 recon):
-      - JUXTAPOSITION concatenates with NO space (`"parse" rule.tag` -> parseScaf),
-        mirroring parse()'s `label.text = "g" tag`. Comma in cerr INSERTS a space,
-        so it is used only for the diagnostic prefix, never for emitted code.
-      - A double-quote in the output is a `char dq = 34;` juxtaposed in — no quote
-        literal in the source, so tok's quote handling is never exercised.
+    Every refusal now lives in planRule, where it belongs — a refusal is a
+    validity question about the RULE, so it reads the same whichever emitter is
+    downstream (§4).
 *******************************************************************************/
 extern "C" GroupItem *genParse(GroupItem *argument)
 {
 GroupItem 	*rule = GroupControl::groupController->locate(argument->getText());
 GroupItem 	*plan = 0;
-GroupItem 	*term = 0;
-char 		*terms = 0;
-char 		*local = 0;
-char 		*digit = 0;
-int 		first = 1;
-int 		i = 1;
-char 		dq = 34;
 	if ( !rule )
 		{
 		::fprintf(stderr,"genParse: no rule named  %s\n",argument->getText());
 		return 0;
 		}
-	if ( !::countRuleTerms(rule) )
-		{
-		::fprintf(stderr,"genParse: REFUSING %s -- no terms at all (would emit an empty conjunction)\n",rule->groupBody->tag);
-		return 0;
-		}
-	if ( ::unresolvedTerms(rule) )
-		{
-		::fprintf(stderr,"genParse: REFUSING %s -- %s of %s terms have no rStuff yet\n",rule->groupBody->tag,::toStringFromInt(::unresolvedTerms(rule)),::toStringFromInt(::countRuleTerms(rule)));
-		::fprintf(stderr,"          emitting now would silently drop them (see unresolvedTerms)\n");
-		return 0;
-		}
-	/*  RUNG 3a: the walk runs and its plan is DISCARDED. Emission below is
-	untouched, so this step is a no-op BY CONSTRUCTION -- if a baseline or a
-	ladder target moves at 3a, the walk changed something it should not
-	have. 3b makes the emitter consume the plan and deletes the old path in
-	the same commit, not before.  */
 	plan = ::planRule(rule);
 	if ( !plan )
-		::fprintf(stderr,"genParse: (3a) walk refused %s -- emission below still from the old path\n",rule->groupBody->tag);
-	::fprintf(stderr,"extern GroupItem parse%s(GroupItem rule)\n",rule->groupBody->tag);
-	::fprintf(stderr,"{\n");
-	::fprintf(stderr,"GroupItem   into  = rule.rStuff.parentLabel;\n");
-	::fprintf(stderr,"GroupItem   label = new(%c%s%c);\n",dq,rule->groupBody->tag,dq);
-	while ( term = rule->get(i) )
-		{
-		if ( term->groupBody->flags.noPrint )
-			{
-			}
-		else {
-			digit = ::toStringFromInt(i);
-			local = ::concat(2,"t",digit);
-			::fprintf(stderr,"GroupItem   %s = rule[%s];\n",local,digit);
-			if ( first )
-				terms = ::emitTerm(term,local);
-			else	terms = ::concat(3,terms," && ",::emitTerm(term,local));
-			first = 0;
-			}
-		i++;
-		}
-	::fprintf(stderr,"String      from  = atRuleMark;\n");
-	::fprintf(stderr,"    return leaveRule(rule,into,label,from, %s );\n",terms);
-	::fprintf(stderr,"}\n");
-	::fprintf(stderr,"/*  bind:  %s parseTerms=%s parseMethod=parse%s;  */\n",rule->groupBody->tag,::toStringFromInt(::countRuleTerms(rule)),rule->groupBody->tag);
-	return GroupControl::groupController->groupRules->trueResult;
+		return 0;
+	return ::emitPlan(plan);
 }
 
 /***************************************************************************
