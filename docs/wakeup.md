@@ -1,7 +1,7 @@
-# Incant — Status & Handoff (2026-07-28: genParseShape (SEQ 25) LANDED WHOLE, RUNG 4 GREEN, and
-# RUNG 3 — THE WALK/EMISSION SEAM (SEQ 26) — CLOSED. The walk now DECIDES into a plan of
-# GroupItems and the emitter WRITES from it; nothing between them knows about C++. A 29-rule
-# census fixture gives the classifier its own POP, and it found a bug on its first run.
+# Incant — Status & Handoff (2026-07-28: SHAPE (SEQ 25), RUNG 4, the SEAM (SEQ 26), and RUNG 5
+# (SEQ 27) all landed. The walk DECIDES into a plan of GroupItems, the emitter WRITES from it,
+# and repetition emits a helper per repeated term with Invariant R′ structural in it. A 30-rule
+# census fixture is the classifier's POP and has now caught THREE wrong-plan classes.
 # Everything RUN with exit status checked.)
 *Written by Clod for a fresh Clay/Clod with ZERO memory of today. Self-contained. Read fully before
 touching code. Everything is on branch `jit-unified-emit-wip`; main is untouched.*
@@ -45,6 +45,10 @@ a21e8ed  wakeup.md reseal for rung 4
 30b7cd6  §1 census + FIX: `!rStuff` was never a classifier, and it dropped real terms
 41a3831  rung 3a: plan vocabulary + walk builds plans, emission untouched (no-op)
 835b5fc  rung 3b: emitter consumes the plan; old interleaved path deleted
+092f96c  wakeup.md reseal for rung 3 + import SEQ 26 seam brief
+4deaa6e  scope genParse's own lookup to rule registries (§1.3 second half)
+af7e43d  genParseSpec §2.2a: Invariant R′, with its provenance checked
+f6c599a  RUNG 5 GREEN: MANY + Invariant R′ demonstrated
 ```
 (Session tip on arrival was `23d6888`.)
 
@@ -61,7 +65,10 @@ a21e8ed  wakeup.md reseal for rung 4
 | `grep -c extern GroupRules.h` | **166** (was 161; every addition accounted for — canary intact) |
 | `genLadder/rung12.target` | regenerated **deliberately** — every line of the frame moved |
 | `genLadder/rung4.target` | new |
-| `genLadder/census.target` | new — 29 rules, plan-level, stable across runs |
+| `genLadder/census.target` | 30 rules, plan-level, stable across runs |
+| `genLadder/rung5.target` | new — repetition helper + method |
+| `ScafC('ac')` · `('aaac')` | **WIN** · **WIN** (three passes) |
+| `ScafC('aax')` · `('c')` | **FAIL, mark REWOUND** (R across a generated LOOP) · **FAIL, mark unmoved** |
 | emission after the seam vs before it | **IDENTICAL**, whole genScratch run |
 
 Note what the runtime rows now prove that they could not before: the wrapper is gone, so a green run
@@ -108,6 +115,77 @@ this (`parse()`'s attachment block is `if label && pStuff`); the guard is now al
 one implementer down. **Without it `Scaf('x')` dereferences null on its FIRST success.** Any future
 exit primitive inherits this obligation.
 
+
+
+## RUNG 5 — MANY. One kind, iteration only.
+```
+ScafC isRule ScafA+ "c"-;
+    extern int manyScafC1(GroupItem label, GroupItem term)
+    {
+    String      from = atRuleMark;          <- captured ONCE, at entry
+    int         kount;
+        while parseR(term,label)    kount++;
+        if kount >= 1   return true;        <- min baked
+        atRuleMark = from;
+        return false;
+    }
+    ... leaveRule(rule,into,label,from, manyScafC1(label,t1) && lit(t2,"c") );
+```
+The helper is emitted by **emitPlan's first pass** — which is what the two-pass shape was built
+for. **R′ is structural here, not promised:** `from` once at entry (mark clause); every pass goes
+through `parseR`→`parse()` and builds a fresh label, with no `fLAG` anywhere (label clause). **R and
+R′ compose** — a failing pass rewinds *itself* via the callee's `leaveRule`, so the helper only ever
+gives back the whole run.
+
+### ⚠ OPTIONAL IS NOW REFUSED, and that is the finding of the rung
+An optional term (min 0, max 1) was planning as a **plain conjunct** — so it would have emitted as
+**mandatory**: `lit(t4,",")` where the hand-written model wrote `(lit(rule,",") || true)`. Four
+census rules were affected (`JSONfield`, `JSONitem`, `JSONarray`, `InvokE`) — they were planning a
+parser that **accepts too little**. They refuse until optionality gets its own kind. One kind per
+rung.
+
+Measured min/max shapes: **40** terms plain (1,1) · **12** optional (0,1) · **4** star
+(0,unbounded) · **5** plus (1,unbounded). Unbounded sentinel is **268435457**.
+
+### ⚠ min ≥ 2 IS UNREACHABLE THROUGH THE GRAMMAR — pre-existing, and it is not just latent
+- `X[2]` → **rejected outright**: `ERROR Operator - failed on isRule and Token`
+- `X[2 9]` → parses, prints `nextGroup: ERROR max does not contain a list`, and **leaves min/max at
+  1/1** — the limit is **silently not applied**
+- `setLimits` itself reads correctly (`ruleStuff.min = minimum.count`), so the fault is **upstream
+  of it**
+
+genParseSpec §2.2 says R′'s mark clause is "latent until someone writes `X[2]`". It is stronger than
+that: you *cannot* write it. This is why the mark clause is demonstrated as a **controlled
+comparison** rather than as a ladder rule.
+
+### Invariant R′ DEMONSTRATED — a passing run proves neither clause
+```
+MARK,  input "a" against a term needing 2:
+  entry-saved (emitted) : matched 1 of 2 -- REWOUND to loop entry
+  per-pass  (parse())   : matched 1 of 2 -- rewound only to the FAILED PASS, input STRANDED
+LABEL, input "aa":
+  2 passes attached 2 FRESH labels          (a recycling loop would show one)
+```
+`demoRprime` in `genParse.rtn`. A first cut reported "STRANDED" on a **successful** run, because it
+compared the mark to loop entry without first asking whether a rewind was due. Fixed before landing
+— **a POP that reports a false signal is worse than no POP.**
+
+## genParse's OWN lookup is now scoped (§1.3's second half)
+Emitted text has carried no `locate` since the shape brief; **the emitter still ran one**, and a
+bare `locate()` resolves down the *general* search stack — search registries, then base registries
+(`pROPERTIEs`, `Operators`, `cOMMANDs`, `fILEs`, `Keywords`, `GroupFields`). Any rule sharing a name
+with a keyword or command was a **silent mis-target**.
+
+`locateRule` walks the search list and accepts **only `isRule` hits**. `ruleOrRefuse` names which
+problem it is — "no rule of that name" and "that name is a keyword, here is its registry" are
+different.
+
+**Correcting `41a3831`'s guess:** `debug` resolves to a **not-isRule node in Keywords**
+(`incant/setup:196` defines it as a bare keyword), *not* cOMMANDs. The real grammar rule is
+**`DEBUG`** — isRule, Grokking, four terms. So there is no lowercase `debug` rule and it now refuses,
+correctly. **Why it could not wait:** the mis-target was visible only because that node happened to
+carry no terms. A collision with a node that *has* terms would have produced a plausible-looking
+plan and nothing would have complained.
 
 ## RUNG 3 — THE SEAM IS CLOSED. Read this before touching genParse.
 `planRule` **decides**, `emitPlan` **writes**. The artifact between them is a **plan tree of
@@ -322,13 +400,15 @@ attempt count is right; only the ORDER reads oddly — a callee's HIT appears be
   the C++ compiler). Concat into a local first, always. Assignment position is fine.
 
 ## NEXT
-1. **Rung 5** — repetition. It is the next rung and the plan was shaped for it: `MANY` is the next
-   vocabulary kind, §3.3's helper functions are what the two-pass `emitPlan` exists for, and the
-   accumulator cases (`FloaT`/`PoweR`/`Modifier`, currently refused) land here. Note rung 6's
-   standing tripwire: the interpretive path does `kount++` on success and the generated path does
-   not — invisible at max 1, and rung 5/6 is where it stops being invisible.
-2. **Write Invariant R′ into the spec** — still owed from rung 3's brief, not done.
-3. Rungs 6-8.
+1. **Optionality — its own kind.** Four census rules refuse on it and it is the single biggest
+   blocker to the JSON family planning. It is also the shortest rung: the emitter shape already
+   exists in the hand-written models (`(lit(...) || true)`).
+2. **Accumulators** — `data`-carrying repetition (`FloaT`/`PoweR`/`Modifier`/`NamE`), still refused.
+   §2.5: star/plus mean something different for character-level terms than for references, and
+   conflating them yields a parser that accepts correctly and BUILDS WRONGLY.
+3. Rungs 6-8. Note the standing rung-6 tripwire: the interpretive path does `kount++` on success and
+   the generated path does not.
+4. `isGROUP` as its own kind, and with it the precedence question in open item 1 below.
 4. **Rung 9 is TONY'S RULING and gates only rung 9** — bare reference to an alternation:
    auto-`promoteR`, or require explicit `@`?
 5. **§4.2 / §4.3 fixes, after shape**: make `lit`'s skip pass non-destructive (then `leaveAlt` drops
