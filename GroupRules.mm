@@ -1582,6 +1582,30 @@ extern "C" void dumpFontInfo(GroupItem *field)
 	
 }
 
+/*******************************************************************************
+    dumpRulePlans — the CENSUS FIXTURE (Clay SEQ 26). The ladder targets cannot
+    test the classifier: Scaf/Scaf2/ScafA/ScafB exercise two kinds out of five
+    and never carry an unmaterialised term. This runs the walk over the whole
+    27-rule census and prints the plan or the refusal for every one, so the
+    classifier gets the POP it otherwise lacks. The assertion is at PLAN level,
+    so it is target-independent and survives the kant emitter unchanged.
+*******************************************************************************/
+extern "C" GroupItem *dumpRulePlans(GroupItem *argument)
+{
+GroupItem 	*rule = GroupControl::groupController->locate(argument->getText());
+GroupItem 	*plan = 0;
+	if ( !rule )
+		{
+		::fprintf(stderr,"dumpRulePlans: no rule named  %s\n",argument->getText());
+		return 0;
+		}
+	::fprintf(stderr,"PLAN %s\n",rule->groupBody->tag);
+	plan = ::planRule(rule);
+	if ( plan )
+		::printPlan(plan,"  ");
+	return GroupControl::groupController->groupRules->trueResult;
+}
+
 extern "C" GroupItem *dumpRuleTerms(GroupItem *argument)
 {
 GroupItem 	*rule = GroupControl::groupController->locate(argument->getText());
@@ -1765,6 +1789,7 @@ extern "C" char *foldOf(GroupItem *rule)
 extern "C" GroupItem *genParse(GroupItem *argument)
 {
 GroupItem 	*rule = GroupControl::groupController->locate(argument->getText());
+GroupItem 	*plan = 0;
 GroupItem 	*term = 0;
 char 		*terms = 0;
 char 		*local = 0;
@@ -1777,12 +1802,25 @@ char 		dq = 34;
 		::fprintf(stderr,"genParse: no rule named  %s\n",argument->getText());
 		return 0;
 		}
+	if ( !::countRuleTerms(rule) )
+		{
+		::fprintf(stderr,"genParse: REFUSING %s -- no terms at all (would emit an empty conjunction)\n",rule->groupBody->tag);
+		return 0;
+		}
 	if ( ::unresolvedTerms(rule) )
 		{
 		::fprintf(stderr,"genParse: REFUSING %s -- %s of %s terms have no rStuff yet\n",rule->groupBody->tag,::toStringFromInt(::unresolvedTerms(rule)),::toStringFromInt(::countRuleTerms(rule)));
 		::fprintf(stderr,"          emitting now would silently drop them (see unresolvedTerms)\n");
 		return 0;
 		}
+	/*  RUNG 3a: the walk runs and its plan is DISCARDED. Emission below is
+	untouched, so this step is a no-op BY CONSTRUCTION -- if a baseline or a
+	ladder target moves at 3a, the walk changed something it should not
+	have. 3b makes the emitter consume the plan and deletes the old path in
+	the same commit, not before.  */
+	plan = ::planRule(rule);
+	if ( !plan )
+		::fprintf(stderr,"genParse: (3a) walk refused %s -- emission below still from the old path\n",rule->groupBody->tag);
 	::fprintf(stderr,"extern GroupItem parse%s(GroupItem rule)\n",rule->groupBody->tag);
 	::fprintf(stderr,"{\n");
 	::fprintf(stderr,"GroupItem   into  = rule.rStuff.parentLabel;\n");
@@ -4363,6 +4401,193 @@ RuleStuff 	*stuff = 0;
 }
 
 /*******************************************************************************
+    planRule — the §4.1 fold, then one plan node per real term. NULL means the
+    whole rule is refused: a plan that is missing a term is worse than no plan.
+*******************************************************************************/
+extern "C" GroupItem *planRule(GroupItem *rule)
+{
+GroupItem 	*plan = 0;
+GroupItem 	*term = 0;
+GroupItem 	*node = 0;
+GroupItem 	*lab = 0;
+int 		i = 1;
+	if ( ::unresolvedTerms(rule) )
+		{
+		::fprintf(stderr,"  REFUSE rule %s -- %s unmaterialised terms\n",rule->groupBody->tag,::toStringFromInt(::unresolvedTerms(rule)));
+		return 0;
+		}
+	if ( rule->groupBody->flags.data )
+		{
+		::fprintf(stderr,"  REFUSE rule %s -- rule-level data %s (§4.1 rule-as-data, rung 5)\n",rule->groupBody->tag,::dataName(rule->groupBody->flags.data));
+		return 0;
+		}
+	if ( !::countRuleTerms(rule) )
+		{
+		::fprintf(stderr,"  REFUSE rule %s -- no terms at all\n",rule->groupBody->tag);
+		return 0;
+		}
+	if ( rule->groupBody->flags.isRule && rule->groupBody->flags.hasMembers && !rule->groupBody->flags.binType )
+		plan = new GroupItem("ALT");
+	else {
+		plan = new GroupItem("SEQ");
+		lab = new GroupItem("label");
+		lab->setText(rule->groupBody->tag);
+		plan->addAttribute(lab);
+		}
+	plan->setText(rule->groupBody->tag);
+	while ( term = rule->get(i) )
+		{
+		if ( !term->groupBody->flags.noPrint )
+			{
+			node = ::planTerm(term,i);
+			if ( !node )
+				{
+				::fprintf(stderr,"  REFUSE rule %s -- term %s unclassified\n",rule->groupBody->tag,term->groupBody->tag);
+				return 0;
+				}
+			plan->addMember(node);
+			}
+		i++;
+		}
+	return plan;
+}
+
+/*******************************************************************************
+    THE PLAN (rung 3, Clay SEQ 26 §2/§3) — the seam artifact.
+
+    The walk produces a plan tree of GroupItems: resolved decisions, baked
+    literals, NO TARGET SYNTAX ANYWHERE. Emitters consume it. It is the bytecode
+    move one level up — bytecode instructions are GroupItems, so is this, and
+    the structure costs nothing.
+
+    FIVE KINDS, and that is the WHOLE vocabulary for rungs 1, 2 and 4:
+
+        SEQ    rule tag, label, ordered conjuncts   (members, in order)
+        ALT    rule tag, ordered disjuncts, no label
+        LIT    literal text (noLabel)               + `at` = baked rule[] index
+        LITTO  literal text + slot                  + `at`
+        CALL   the term to parse through            + `at`
+
+    It grows ONE KIND AT A TIME as a rung demands it — MANY with rung 5, GUARD
+    with the alternation rung, ACT when actions land. If the vocabulary ever
+    comes back complete, it is too big: that is the tell that this rung has gone
+    wrong, because designing against grammar features not yet on the ladder is
+    exactly what the ladder exists to prevent.
+
+    WHY A PLAN AND NOT A VISITOR, in this tree specifically: a plan diff is
+    TARGET-INDEPENDENT (Scaf2's plan is identical whether the emitter writes C++
+    or kant, so a POP can assert the DECISION rather than the TEXT); generate-
+    time refusals belong here, validated once so every emitter inherits them;
+    and §3.3's helper functions are discovered mid-walk, which with text already
+    going out means buffering or emitting out of order, and with a plan means
+    walking it twice. The cost, stated so it is not a surprise: a bug can now
+    live in the walk, the plan, or the emitter. The mitigation is that a plan is
+    PRINTABLE and an intermediate visitor state is not.
+
+    Note LIT vs LITTO carries "does this attach a label", NOT which support
+    function spells it. A labelled literal is litTo inside a SEQ and litOption
+    inside an ALT — the plan already records the enclosing fold, so choosing the
+    spelling is emitter-side work about the target, per §4.
+*******************************************************************************/
+/*******************************************************************************
+    planTerm — one term -> one plan node, or NULL meaning REFUSED.
+
+    EVERY NODE COMES FROM A POSITIVE TEST, and an unclassified term is a
+    REFUSAL, never a default. This is the ruling the §1 census forced, and it is
+    the one place genParse must NOT copy setTestMatch: there, references are
+    classified by FALL-THROUGH — "no row matches" is the answer, and parse()
+    picks them up on the hasAttributes arm. That residual class must not be
+    inherited. If the walk treated "nothing matched" as CALL, every future term
+    kind that fails to match would become a silent bogus CALL — and since the
+    census says the unmatched group is the LARGEST one, that failure mode would
+    be both easy to write and hard to see.
+
+    definingRule() != term is what turns the residual into a positive property.
+    It is a POINTER test, not a name test, and it is the same instrument rung 4
+    already runs on.
+
+    ORDER IS DELIBERATE. data is tested BEFORE the reference test, so a term
+    that is BOTH content-is-a-group AND a reference REFUSES rather than silently
+    becoming a CALL. Two such terms exist (JSONtoken[5] and DatA[2], both
+    NumbeR). Their precedence is a NAMED OPEN ITEM, not an unnoticed one — no
+    ladder rule reaches it, and what it means semantically is not settled.
+*******************************************************************************/
+extern "C" GroupItem *planTerm(GroupItem *term, int index)
+{
+RuleStuff 	*rs = term->rStuff;
+GroupItem 	*definer = term->definingRule();
+GroupItem 	*node = 0;
+GroupItem 	*at = 0;
+GroupItem 	*slot = 0;
+int 		labelled = 0;
+	if ( !rs )
+		{
+		::fprintf(stderr,"  REFUSE %s -- unmaterialised, no rStuff yet\n",term->groupBody->tag);
+		return 0;
+		}
+	if ( term->groupBody->flags.data )
+		{
+		::fprintf(stderr,"  REFUSE %s -- data %s (rung 5)\n",term->groupBody->tag,::dataName(term->groupBody->flags.data));
+		return 0;
+		}
+	if ( upTo(rs->overTo) || upToOver(rs->overTo) )
+		{
+		::fprintf(stderr,"  REFUSE %s -- upTo/upToOver (not on the ladder yet)\n",term->groupBody->tag);
+		return 0;
+		}
+	if ( isBIN(term->groupBody->flags.binType) || isREGISTRY(term->groupBody->flags.binType) )
+		{
+		::fprintf(stderr,"  REFUSE %s -- container (not on the ladder yet)\n",term->groupBody->tag);
+		return 0;
+		}
+	if ( term->groupBody->flags.isMacro )
+		{
+		::fprintf(stderr,"  REFUSE %s -- macro (not on the ladder yet)\n",term->groupBody->tag);
+		return 0;
+		}
+	if ( term->groupBody->flags.isCondition )
+		{
+		::fprintf(stderr,"  REFUSE %s -- condition (not on the ladder yet)\n",term->groupBody->tag);
+		return 0;
+		}
+	if ( parseACTION(term->groupBody->flags.methodType) )
+		{
+		::fprintf(stderr,"  REFUSE %s -- parseAction (tail position only, §2.8)\n",term->groupBody->tag);
+		return 0;
+		}
+	if ( definer != term )
+		{
+		node = new GroupItem("CALL");
+		node->setText(definer->groupBody->tag);
+		}
+	else
+	if ( !term->contents() )
+		{
+		if ( rs->noLabel )
+			node = new GroupItem("LIT");
+		else {
+			node = new GroupItem("LITTO");
+			labelled = 1;
+			}
+		node->setText(term->groupBody->tag);
+		}
+	else {
+		::fprintf(stderr,"  REFUSE %s -- no positive classification\n",term->groupBody->tag);
+		return 0;
+		}
+	at = new GroupItem("at");
+	at->setText(::toStringFromInt(index));
+	node->addAttribute(at);
+	if ( labelled )
+		{
+		slot = new GroupItem("slot");
+		slot->setText(term->groupBody->tag);
+		node->addAttribute(slot);
+		}
+	return node;
+}
+
+/*******************************************************************************
 	Print the field passed in to the buffer passed in
 *******************************************************************************/
 extern "C" void printField(GroupItem *field, char *format, Buffer *buffer)
@@ -4400,6 +4625,33 @@ extern "C" void printField(GroupItem *field, char *format, Buffer *buffer)
 		}
 	if ( GroupControl::groupController->groupRules->useDefaultSpace )
 		buffer->appendChar(' ',0,0);
+}
+
+/*******************************************************************************
+    printPlan — the plan made visible. This is the mitigation for the plan's own
+    cost: a wrong plan is READABLE, an intermediate visitor state is not.
+*******************************************************************************/
+extern "C" int printPlan(GroupItem *plan, char *pad)
+{
+GroupItem 	*kid = 0;
+GroupItem 	*meta = 0;
+char 		*deeper = 0;
+	if ( !plan )
+		return 0;
+	deeper = ::concat(2,pad,"  ");
+	::fprintf(stderr,"%s%s %s\n",pad,plan->groupBody->tag,plan->getText());
+	meta = plan->getAttribute("label");
+	if ( meta )
+		::fprintf(stderr,"%s  label=%s\n",pad,meta->getText());
+	meta = plan->getAttribute("at");
+	if ( meta )
+		::fprintf(stderr,"%s  at=%s\n",pad,meta->getText());
+	meta = plan->getAttribute("slot");
+	if ( meta )
+		::fprintf(stderr,"%s  slot=%s\n",pad,meta->getText());
+	while ( kid = plan->nextMember(kid) )
+		::printPlan(kid,deeper);
+	return 1;
 }
 
 /***************************************************************************

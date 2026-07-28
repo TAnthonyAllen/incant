@@ -1,0 +1,62 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+registry(cOMMANDs);
+define dumpRulePlans immediateAction=dumpRulePlans; ;
+
+/*  CENSUS FIXTURE (Clay SEQ 26). 27 rules — the JSON family, the two ladder
+    scaffolds, and a spread of the REAL bootstrap grammar. The ladder targets
+    cannot test the classifier (Scaf/ScafA/ScafB reach two kinds of five and
+    never carry an unmaterialised term), so this is the classifier's own POP.
+    Every term must come back with the same plan node or the same refusal.
+    Diff against genLadder/census.target.  */
+register(Ladder);
+define
+    Scaf  isRule "x"-;
+    Scaf2 isRule "{"- "}"-;
+    ScafA isRule "a"-;
+    ScafB isRule ScafA "b"-;
+    ;
+search reset stack Grokking Ladder UnitTests Utilities list;
+
+/*  A real parse first: rStuff is materialised lazily, so the census must be
+    taken against a tree that has actually run, not a freshly-defined one.  */
+define
+    testJSON argument code={
+        clear(listed);
+        field = JSONblock(argument);
+        };
+    ;
+testJSON('{"a":"b"}');
+
+dumpRulePlans('Scaf');
+dumpRulePlans('Scaf2');
+dumpRulePlans('ScafA');
+dumpRulePlans('ScafB');
+dumpRulePlans('JSONblock');
+dumpRulePlans('JSONfield');
+dumpRulePlans('JSONvalue');
+dumpRulePlans('JSONtoken');
+dumpRulePlans('JSONitem');
+dumpRulePlans('JSONlist');
+dumpRulePlans('JSONarray');
+dumpRulePlans('NumbeR');
+dumpRulePlans('FloaT');
+dumpRulePlans('PoweR');
+dumpRulePlans('QuotE');
+dumpRulePlans('NamE');
+dumpRulePlans('GrouP');
+dumpRulePlans('CodE');
+dumpRulePlans('DatA');
+dumpRulePlans('Limit');
+dumpRulePlans('MemberS');
+dumpRulePlans('Modifier');
+dumpRulePlans('TraiT');
+dumpRulePlans('TraiTdata');
+dumpRulePlans('Attributes');
+dumpRulePlans('NewGroup');
+dumpRulePlans('DefinE');
+dumpRulePlans('debug');
+dumpRulePlans('InvokE');
+stop();

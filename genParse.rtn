@@ -198,6 +198,199 @@ int         n = 0;
 }
 
 /*******************************************************************************
+    THE PLAN (rung 3, Clay SEQ 26 §2/§3) — the seam artifact.
+
+    The walk produces a plan tree of GroupItems: resolved decisions, baked
+    literals, NO TARGET SYNTAX ANYWHERE. Emitters consume it. It is the bytecode
+    move one level up — bytecode instructions are GroupItems, so is this, and
+    the structure costs nothing.
+
+    FIVE KINDS, and that is the WHOLE vocabulary for rungs 1, 2 and 4:
+
+        SEQ    rule tag, label, ordered conjuncts   (members, in order)
+        ALT    rule tag, ordered disjuncts, no label
+        LIT    literal text (noLabel)               + `at` = baked rule[] index
+        LITTO  literal text + slot                  + `at`
+        CALL   the term to parse through            + `at`
+
+    It grows ONE KIND AT A TIME as a rung demands it — MANY with rung 5, GUARD
+    with the alternation rung, ACT when actions land. If the vocabulary ever
+    comes back complete, it is too big: that is the tell that this rung has gone
+    wrong, because designing against grammar features not yet on the ladder is
+    exactly what the ladder exists to prevent.
+
+    WHY A PLAN AND NOT A VISITOR, in this tree specifically: a plan diff is
+    TARGET-INDEPENDENT (Scaf2's plan is identical whether the emitter writes C++
+    or kant, so a POP can assert the DECISION rather than the TEXT); generate-
+    time refusals belong here, validated once so every emitter inherits them;
+    and §3.3's helper functions are discovered mid-walk, which with text already
+    going out means buffering or emitting out of order, and with a plan means
+    walking it twice. The cost, stated so it is not a surprise: a bug can now
+    live in the walk, the plan, or the emitter. The mitigation is that a plan is
+    PRINTABLE and an intermediate visitor state is not.
+
+    Note LIT vs LITTO carries "does this attach a label", NOT which support
+    function spells it. A labelled literal is litTo inside a SEQ and litOption
+    inside an ALT — the plan already records the enclosing fold, so choosing the
+    spelling is emitter-side work about the target, per §4.
+*******************************************************************************/
+
+/*******************************************************************************
+    planTerm — one term -> one plan node, or NULL meaning REFUSED.
+
+    EVERY NODE COMES FROM A POSITIVE TEST, and an unclassified term is a
+    REFUSAL, never a default. This is the ruling the §1 census forced, and it is
+    the one place genParse must NOT copy setTestMatch: there, references are
+    classified by FALL-THROUGH — "no row matches" is the answer, and parse()
+    picks them up on the hasAttributes arm. That residual class must not be
+    inherited. If the walk treated "nothing matched" as CALL, every future term
+    kind that fails to match would become a silent bogus CALL — and since the
+    census says the unmatched group is the LARGEST one, that failure mode would
+    be both easy to write and hard to see.
+
+    definingRule() != term is what turns the residual into a positive property.
+    It is a POINTER test, not a name test, and it is the same instrument rung 4
+    already runs on.
+
+    ORDER IS DELIBERATE. data is tested BEFORE the reference test, so a term
+    that is BOTH content-is-a-group AND a reference REFUSES rather than silently
+    becoming a CALL. Two such terms exist (JSONtoken[5] and DatA[2], both
+    NumbeR). Their precedence is a NAMED OPEN ITEM, not an unnoticed one — no
+    ladder rule reaches it, and what it means semantically is not settled.
+*******************************************************************************/
+extern GroupItem planTerm(GroupItem term, int index)
+{
+RuleStuff   rs = term.rStuff;
+GroupItem   definer = term.definingRule();
+GroupItem   node;
+GroupItem   at;
+GroupItem   slot;
+int         labelled = 0;
+    if !rs {
+        cerr "  REFUSE " term.tag " -- unmaterialised, no rStuff yet":;
+        return null; }
+    if term.data {
+        cerr "  REFUSE " term.tag " -- data " dataName(term.data) " (rung 5)":;
+        return null; }
+    if rs.upTo || rs.upToOver {
+        cerr "  REFUSE " term.tag " -- upTo/upToOver (not on the ladder yet)":;
+        return null; }
+    if term.isBIN || term.isREGISTRY {
+        cerr "  REFUSE " term.tag " -- container (not on the ladder yet)":;
+        return null; }
+    if term.isMacro {
+        cerr "  REFUSE " term.tag " -- macro (not on the ladder yet)":;
+        return null; }
+    if term.isCondition {
+        cerr "  REFUSE " term.tag " -- condition (not on the ladder yet)":;
+        return null; }
+    if term.parseACTION {
+        cerr "  REFUSE " term.tag " -- parseAction (tail position only, §2.8)":;
+        return null; }
+    if definer != term {
+        node        = new("CALL");
+        node.text   = definer.tag; }
+    or !term.contents() {
+        if rs.noLabel   node = new("LIT");
+        else {
+            node        = new("LITTO");
+            labelled    = 1; }
+        node.text = term.tag; }
+    else {
+        cerr "  REFUSE " term.tag " -- no positive classification":;
+        return null; }
+    at      = new("at");
+    at.text = toStringFromInt(index);
+    node +% at;
+    if labelled {
+        slot        = new("slot");
+        slot.text   = term.tag;
+        node +% slot; }
+    return node;
+}
+
+/*******************************************************************************
+    planRule — the §4.1 fold, then one plan node per real term. NULL means the
+    whole rule is refused: a plan that is missing a term is worse than no plan.
+*******************************************************************************/
+extern GroupItem planRule(GroupItem rule)
+{
+GroupItem   plan;
+GroupItem   term;
+GroupItem   node;
+GroupItem   lab;
+int         i = 1;
+    if unresolvedTerms(rule) {
+        cerr "  REFUSE rule " rule.tag " -- " toStringFromInt(unresolvedTerms(rule)) " unmaterialised terms":;
+        return null; }
+    if rule.data {
+        cerr "  REFUSE rule " rule.tag " -- rule-level data " dataName(rule.data) " (§4.1 rule-as-data, rung 5)":;
+        return null; }
+    if !countRuleTerms(rule) {
+        cerr "  REFUSE rule " rule.tag " -- no terms at all":;
+        return null; }
+    if rule.isRule && rule.hasMembers && !rule.binType  plan = new("ALT");
+    else {
+        plan        = new("SEQ");
+        lab         = new("label");
+        lab.text    = rule.tag;
+        plan +% lab; }
+    plan.text = rule.tag;
+    while term = rule[i] {
+        if !term.noPrint {
+            node = planTerm(term,i);
+            if !node {
+                cerr "  REFUSE rule " rule.tag " -- term " term.tag " unclassified":;
+                return null; }
+            plan += node; }
+        i++; }
+    return plan;
+}
+
+/*******************************************************************************
+    printPlan — the plan made visible. This is the mitigation for the plan's own
+    cost: a wrong plan is READABLE, an intermediate visitor state is not.
+*******************************************************************************/
+extern int printPlan(GroupItem plan, String pad)
+{
+GroupItem   kid;
+GroupItem   meta;
+String      deeper;
+    if !plan    return 0;
+    deeper = pad "  ";
+    cerr pad plan.tag " " plan.text:;
+    meta = plan.getAttribute("label");
+    if meta cerr pad "  label=" meta.text:;
+    meta = plan.getAttribute("at");
+    if meta cerr pad "  at=" meta.text:;
+    meta = plan.getAttribute("slot");
+    if meta cerr pad "  slot=" meta.text:;
+    while kid = plan.nextMember(kid)     printPlan(kid,deeper);
+    return 1;
+}
+
+/*******************************************************************************
+    dumpRulePlans — the CENSUS FIXTURE (Clay SEQ 26). The ladder targets cannot
+    test the classifier: Scaf/Scaf2/ScafA/ScafB exercise two kinds out of five
+    and never carry an unmaterialised term. This runs the walk over the whole
+    27-rule census and prints the plan or the refusal for every one, so the
+    classifier gets the POP it otherwise lacks. The assertion is at PLAN level,
+    so it is target-independent and survives the kant emitter unchanged.
+*******************************************************************************/
+extern GroupItem dumpRulePlans(GroupItem argument)
+{
+GroupItem   rule = locate(argument.text);
+GroupItem   plan;
+    if !rule {
+        cerr "dumpRulePlans: no rule named ",argument.text:;
+        return null; }
+    cerr "PLAN " rule.tag:;
+    plan = planRule(rule);
+    if plan     printPlan(plan,"  ");
+    return trueResult;
+}
+
+/*******************************************************************************
     emitTerm — one sequence term -> one leaf expression string.
     Rungs 1-2 subset of §4.2: literal string terms (data 0), the default/
     testString row. noLabel (the `-` modifier) -> lit(); labelled -> litTo.
@@ -257,6 +450,7 @@ String      leaf;
 extern GroupItem genParse(GroupItem argument)
 {
 GroupItem   rule = locate(argument.text);
+GroupItem   plan;
 GroupItem   term;
 String      terms;
 String      local;
@@ -267,10 +461,20 @@ char        dq = 34;
     if !rule {
         cerr "genParse: no rule named ",argument.text:;
         return null; }
+    if !countRuleTerms(rule) {
+        cerr "genParse: REFUSING " rule.tag " -- no terms at all (would emit an empty conjunction)":;
+        return null; }
     if unresolvedTerms(rule) {
         cerr "genParse: REFUSING " rule.tag " -- " toStringFromInt(unresolvedTerms(rule)) " of " toStringFromInt(countRuleTerms(rule)) " terms have no rStuff yet":;
         cerr "          emitting now would silently drop them (see unresolvedTerms)":;
         return null; }
+    /*  RUNG 3a: the walk runs and its plan is DISCARDED. Emission below is
+        untouched, so this step is a no-op BY CONSTRUCTION -- if a baseline or a
+        ladder target moves at 3a, the walk changed something it should not
+        have. 3b makes the emitter consume the plan and deletes the old path in
+        the same commit, not before.  */
+    plan = planRule(rule);
+    if !plan    cerr "genParse: (3a) walk refused " rule.tag " -- emission below still from the old path":;
     cerr "extern GroupItem parse" rule.tag "(GroupItem rule)":;
     cerr "{":;
     cerr "GroupItem   into  = rule.rStuff.parentLabel;":;
