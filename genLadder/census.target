@@ -57,8 +57,19 @@ PLAN JSONvalue
     CALL JSONtoken
       at=3
 PLAN JSONtoken
-  REFUSE NumbeR -- data isGROUP (rung 5)
-  REFUSE rule JSONtoken -- term NumbeR unclassified
+  ALT JSONtoken
+    CALL JSONblock
+      at=1
+    LITTO false
+      at=2
+      slot=false
+    LITTO true
+      at=3
+      slot=true
+    CALL GrouP
+      at=4
+    CALL NumbeR
+      at=5
 PLAN JSONitem
   SEQ JSONitem
     label=JSONitem
@@ -95,10 +106,10 @@ PLAN FloaT
 PLAN PoweR
   REFUSE rule PoweR -- rule-level data isSET (§4.1 rule-as-data, rung 5)
 PLAN QuotE
-  REFUSE tik -- data isSET (rung 5)
+  REFUSE tik -- inline group / character data isSET (named future kind)
   REFUSE rule QuotE -- term tik unclassified
 PLAN NamE
-  REFUSE first -- data isSET (rung 5)
+  REFUSE first -- inline group / character data isSET (named future kind)
   REFUSE rule NamE -- term first unclassified
 PLAN GrouP
   ALT GrouP
@@ -109,8 +120,8 @@ PLAN GrouP
 PLAN CodE
   REFUSE rule CodE -- 2 unmaterialised terms
 PLAN DatA
-  REFUSE NumbeR -- data isGROUP (rung 5)
-  REFUSE rule DatA -- term NumbeR unclassified
+  REFUSE CodE -- parseAction (tail position only, §2.8)
+  REFUSE rule DatA -- term CodE unclassified
 PLAN Limit
   REFUSE rule Limit -- 3 unmaterialised terms
 PLAN MemberS
@@ -127,22 +138,22 @@ PLAN MemberS
 PLAN Modifier
   REFUSE rule Modifier -- rule-level data isSET (§4.1 rule-as-data, rung 5)
 PLAN TraiT
-  REFUSE Modifier -- data isSET (rung 5)
+  REFUSE Modifier -- inline group / character data isSET (named future kind)
   REFUSE rule TraiT -- term Modifier unclassified
 PLAN TraiTdata
-  REFUSE Modifier -- data isSET (rung 5)
+  REFUSE Modifier -- inline group / character data isSET (named future kind)
   REFUSE rule TraiTdata -- term Modifier unclassified
 PLAN Attributes
   REFUSE rule Attributes -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
 PLAN NewGroup
   REFUSE rule NewGroup -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
 PLAN DefinE
-  REFUSE NewGroup -- data isGROUP (rung 5)
+  REFUSE NewGroup -- inline group / character data isGROUP (named future kind)
   REFUSE rule DefinE -- term NewGroup unclassified
 PLAN debug
   plan: REFUSING debug -- not a rule; locate finds a non-rule in registry Keywords
 PLAN DEBUG
-  REFUSE followedBy -- data isSET (rung 5)
+  REFUSE followedBy -- inline group / character data isSET (named future kind)
   REFUSE rule DEBUG -- term followedBy unclassified
 PLAN InvokE
   SEQ InvokE

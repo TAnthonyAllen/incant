@@ -4848,11 +4848,6 @@ int 		labelled = 0;
 		::fprintf(stderr,"  REFUSE %s -- unmaterialised, no rStuff yet\n",term->groupBody->tag);
 		return 0;
 		}
-	if ( term->groupBody->flags.data )
-		{
-		::fprintf(stderr,"  REFUSE %s -- data %s (rung 5)\n",term->groupBody->tag,::dataName(term->groupBody->flags.data));
-		return 0;
-		}
 	if ( upTo(rs->overTo) || upToOver(rs->overTo) )
 		{
 		::fprintf(stderr,"  REFUSE %s -- upTo/upToOver (not on the ladder yet)\n",term->groupBody->tag);
@@ -4878,10 +4873,33 @@ int 		labelled = 0;
 		::fprintf(stderr,"  REFUSE %s -- parseAction (tail position only, §2.8)\n",term->groupBody->tag);
 		return 0;
 		}
+	/*  THE REFERENCE TEST COMES BEFORE THE DATA TEST (Clay SEQ 29 item 1).
+	
+	Content-is-a-group and is-a-reference are ORTHOGONAL -- measured, two
+	terms are both (JSONtoken[5] and DatA[2], both NumbeR). Until now `data`
+	was tested first, so the overlap refused. That was the right call while
+	the precedence was unsettled: refusing a case nobody had reasoned about
+	beats guessing at it. It is settled now, and REFERENCE WINS -- a term
+	that names another rule is a call, whatever its content happens to be.
+	
+	What is left over is isGROUP WITHOUT a reference, which is a genuinely
+	different construct: a group inlined at the term rather than named. That
+	is a NAMED FUTURE KIND -- "inline group" -- and it keeps refusing. It is
+	not the same thing as a call and must not quietly become one.
+	
+	Note what this does NOT change: a term that is both a reference and
+	parseACTION still refuses above, on parseACTION. Only the data overlap
+	moved.  */
 	if ( definer != term )
 		{
 		node = new GroupItem("CALL");
 		node->setText(definer->groupBody->tag);
+		}
+	else
+	if ( term->groupBody->flags.data )
+		{
+		::fprintf(stderr,"  REFUSE %s -- inline group / character data %s (named future kind)\n",term->groupBody->tag,::dataName(term->groupBody->flags.data));
+		return 0;
 		}
 	else
 	if ( !term->contents() )

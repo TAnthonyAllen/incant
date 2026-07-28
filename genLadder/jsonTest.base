@@ -1,0 +1,27 @@
+getRStuff: InitiatE no rStuff - creating
+getRStuff: define no rStuff - creating
+getRStuff: definitions no rStuff - creating
+getRStuff: DatA no rStuff - creating
+getRStuff: DEFINing no rStuff - creating
+getRStuff: stuff no rStuff - creating
+Search list: Grokking UnitTests Utilities
+ok  : {"a":[]} 
+ok  : {"a":["x","y"]} 
+=== baseline (must stay green) === 
+ok  : {"a":"b"} 
+ok  : {"a":"url://example.com/path#fragment"} 
+ok  : {"a":"1.0","b":"hello"} 
+=== arrays (2026-07-02: re-verified green, comment below was stale) === 
+ok  : {"a":[]} 
+ok  : {"a":["x","y"]} 
+ok  : {"a":[1,2,3]} 
+=== nested objects (2026-07-02: re-verified green, comment below was stale) === 
+ok  : {"a":{}} 
+ok  : {"a":{"b":"c"}} 
+ok  : {"a":{"b":"c","d":"e"}} 
+=== single Google Fonts item shape (files nested obj + variants array) === 
+ok  : {"family":"EB Garamond","variants":["regular","700"],"files":{"regular":"https://fonts.gstatic.com/foo.ttf","700":"https://fonts.gstatic.com/bar.ttf"}} 
+=== full webfonts-list shape: items is an array of objects (KNOWN TO FAIL) === 
+ok  : {"kind":"webfonts#webfontList","items":[{"family":"ABeeZee","variants":["regular","italic"],"subsets":["latin"],"version":"v22","files":{"regular":"http://fonts.gstatic.com/s/abeezee/v22/a.ttf","italic":"http://fonts.gstatic.com/s/abeezee/v22/b.ttf"},"category":"sans-serif"},{"family":"Roboto","variants":["regular","700"],"subsets":["latin","cyrillic"],"version":"v30","files":{"regular":"http://fonts.gstatic.com/s/roboto/v30/c.ttf","700":"http://fonts.gstatic.com/s/roboto/v30/d.ttf"},"category":"sans-serif"}]} 
+
+stop: ending input divert
