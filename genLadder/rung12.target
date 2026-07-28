@@ -1,14 +1,17 @@
-extern GroupItem parseScaf(GroupItem into)
+extern GroupItem parseScaf(GroupItem rule)
 {
+GroupItem   into  = rule.rStuff.parentLabel;
 GroupItem   label = new("Scaf");
-GroupItem   rule  = locate("Scaf");
+GroupItem   t1 = rule[1];
 String      from  = atRuleMark;
-    return leaveRule(rule,into,label,from, lit(rule,"x") );
+    return leaveRule(rule,into,label,from, lit(t1,"x") );
 }
-extern GroupItem parseScaf2(GroupItem into)
+extern GroupItem parseScaf2(GroupItem rule)
 {
+GroupItem   into  = rule.rStuff.parentLabel;
 GroupItem   label = new("Scaf2");
-GroupItem   rule  = locate("Scaf2");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
 String      from  = atRuleMark;
-    return leaveRule(rule,into,label,from, lit(rule,"{") && lit(rule,"}") );
+    return leaveRule(rule,into,label,from, lit(t1,"{") && lit(t2,"}") );
 }

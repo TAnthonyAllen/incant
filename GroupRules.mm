@@ -1480,19 +1480,133 @@ extern "C" void dumpFontInfo(GroupItem *field)
     cascade the whole file into ERROR Inheritance — found 2026-07-27).
 *******************************************************************************/
 /*******************************************************************************
-    emitTerm — one sequence term (attribute) -> one leaf expression string.
-    Rungs 1-2 subset of §4.2: literal string terms (data 0), the default/
-    testString row. noLabel (the `-` modifier) -> lit("x"); labelled -> litTo.
-    Same-file helper, called only from genParse -> no groups.ext decl needed.
+    dumpRuleTerms — MEASUREMENT TOOL, not part of the emitter. Kept because it
+    is what settled the questions below, and re-measuring is one run.
+
+    genParseShape §1.5 requires genParse to traverse with the SAME accessor the
+    emitted code reads with (rule[i]), because the two agree only if the list
+    holds exactly the terms in exactly that order. Whether a `fail` modifier or
+    a `code={}` tail occupies a slot is a question about the TREE, not about
+    the design — so it was measured, not reasoned about. Prints one line per
+    rule[i] entry, in order, so the printed order IS the index.
+
+    WHAT IT FOUND (2026-07-28, incant/termScratch):
+      1. rule[i] is source order, 1-based. `fail` (JSONblock) occupies NO slot.
+      2. A `code={}` tail DOES occupy slots, and FOUR of them, not one: CodE,
+         this, tempField — and, appearing only AFTER the rule has been parsed
+         once, the cached BlocK. So the tail of rule[] is not even stable
+         across a run. §1.5's hazard is real and bigger than "one extra entry".
+      3. ALL FOUR tail entries are noPrint; no real term is. So the classifier
+         is `noPrint`, which is not an invention — it is the same test the
+         interpretive walk already uses (testAttributes: `if noPrint continue`).
+         Model-not-oracle applied to classification itself: take the oracle's
+         own test rather than inventing a parallel one that can drift from it.
+      4. Sequence terms are isAttribute; alternation options are isMember.
+         One list, distinguished by affiliation.
+      5. A rule-reference term (JSONblock's JSONfield) is a DISTINCT NODE from
+         the registry rule of the same name — different parent — but the two
+         SHARE a child list (the term shows the BlocK the parse added to the
+         registry node). rStuff, however, is per-node: the term's own rStuff
+         has its own onGroup/testMatch/followed state. See parseR for why that
+         matters and what it leaves open.
+      6. No rule-reference term is isGROUP, and none has onGroup set, even
+         after a parse — getWhatFollows gates on isGROUP. §1.6's `t2.onGroup`
+         does not exist to be written to. See parseR.
 *******************************************************************************/
-extern "C" char *emitTerm(GroupItem *term)
+extern "C" GroupItem *dumpRuleTerms(GroupItem *argument)
+{
+GroupItem 	*rule = GroupControl::groupController->locate(argument->getText());
+GroupItem 	*term = 0;
+GroupItem 	*ref = 0;
+RuleStuff 	*rs = 0;
+int 		i = 1;
+	if ( !rule )
+		{
+		::fprintf(stderr,"dumpRuleTerms: no rule named  %s\n",argument->getText());
+		return 0;
+		}
+	::fprintf(stderr,"RULE %s\n",rule->groupBody->tag);
+	if ( rule->parent )
+		::fprintf(stderr,"    (parent %s)\n",rule->parent->groupBody->tag);
+	if ( !rule->parent )
+		::fprintf(stderr,"    (parent NONE)\n");
+	while ( term = rule->get(i) )
+		{
+		ref = 0;
+		rs = term->rStuff;
+		if ( isGROUP(term->groupBody->flags.data) )
+			ref = term->getGroup();
+		::fprintf(stderr,"    term %s\n",term->groupBody->tag);
+		if ( isAttribute(term->options.affiliation) )
+			::fprintf(stderr,"        attribute\n");
+		if ( isMember(term->options.affiliation) )
+			::fprintf(stderr,"        member\n");
+		if ( ref )
+			::fprintf(stderr,"        refersTo %s\n",ref->groupBody->tag);
+		if ( rs )
+			{
+			if ( rs->noLabel )
+				::fprintf(stderr,"        noLabel\n");
+			if ( rs->isTarget )
+				::fprintf(stderr,"        isTarget\n");
+			if ( rs->onGroup )
+				::fprintf(stderr,"        onGroup %s\n",rs->onGroup->groupBody->tag);
+			if ( !rs->onGroup )
+				::fprintf(stderr,"        onGroup NONE\n");
+			if ( rs->testMatch )
+				::fprintf(stderr,"        testMatch SET\n");
+			if ( !rs->testMatch )
+				::fprintf(stderr,"        testMatch none\n");
+			if ( rs->followed )
+				::fprintf(stderr,"        followed\n");
+			}
+		if ( !rs )
+			::fprintf(stderr,"        no rStuff\n");
+		if ( term->groupBody->flags.isRule )
+			::fprintf(stderr,"        isRule\n");
+		if ( term->groupBody->flags.hasAttributes )
+			::fprintf(stderr,"        hasAttributes\n");
+		if ( term->groupBody->flags.hasMembers )
+			::fprintf(stderr,"        hasMembers\n");
+		if ( term->groupBody->flags.isLabel )
+			::fprintf(stderr,"        isLabel\n");
+		if ( term->parent )
+			::fprintf(stderr,"        parent %s\n",term->parent->groupBody->tag);
+		if ( term->groupBody->flags.noPrint )
+			::fprintf(stderr,"        noPrint\n");
+		i++;
+		}
+	return GroupControl::groupController->groupRules->trueResult;
+}
+
+/*******************************************************************************
+    emitTerm — one sequence term -> one leaf expression string.
+    Rungs 1-2 subset of §4.2: literal string terms (data 0), the default/
+    testString row. noLabel (the `-` modifier) -> lit(); labelled -> litTo.
+
+    TERM-FIRST (§1.4): the leaf takes the frame's term LOCAL, not the rule —
+    `lit(t1,"{")`, never `lit(rule,"{")`. That restores the testSet(field)
+    convention (`field` means term, `rule` means rule) and gives every leaf
+    frame its own identity: under the old shape a breakpoint in lit during
+    parseJSONfield could not tell the ":" match from the ",", which is the
+    question a debugger frame usually needs answered.
+
+    The local is named for its RAW rule[] index, so the local's name and its
+    subscript can never drift apart — the whole point of §1.5.
+    Same-file helper, called only from genParse -> no groups.ext decl needed.
+
+    NOTE, latent: the labelled branch emits litTo, which has no implementation
+    in the support library. Never fires for rungs 1-2 (Scaf/Scaf2 terms are all
+    noLabel). Rung 3+ business, flagged here rather than silently carried.
+*******************************************************************************/
+extern "C" char *emitTerm(GroupItem *term, char *local)
 {
 RuleStuff 	*rs = term->rStuff;
 char 		dq = 34;
 char 		*leaf = 0;
 	if ( rs->noLabel )
-		leaf = ::concat(5,"lit(rule,",::toStringFromChar(dq),term->groupBody->tag,::toStringFromChar(dq),")");
-	else	leaf = ::concat(9,"litTo(rule,label,",::toStringFromChar(dq),term->groupBody->tag,::toStringFromChar(dq),",",::toStringFromChar(dq),term->groupBody->tag,::toStringFromChar(dq),")");
+		leaf = ::concat(7,"lit(",local,",",::toStringFromChar(dq),term->groupBody->tag,::toStringFromChar(dq),")");
+	else	leaf = ::concat(11,"litTo(",local,",label,",::toStringFromChar(dq),term->groupBody->tag,::toStringFromChar(dq),",",::toStringFromChar(dq),term->groupBody->tag,::toStringFromChar(dq),")");
 	return leaf;
 }
 
@@ -1532,9 +1646,22 @@ extern "C" void flushBuffer(GroupItem *bufField)
 }
 
 /*******************************************************************************
-    genParse — rungs 1-2: emitSequence for a sequence rule (attributes only,
-    no rule-data / onGroup term yet). Walks the attribute list, joins each
-    term's leaf with " && ", wraps in the leaveRule frame. Emits line by line.
+    genParse — rungs 1-2: emitSequence for a sequence rule. Emits the §2 frame
+    line by line.
+
+    INDEXED TRAVERSAL (§1.5). The walk is `rule[i]`, the same accessor the
+    emitted code reads with — NOT nextAttribute. The two agree only if the list
+    holds exactly the terms in exactly that order, and it does not: a rule with
+    a code={} tail carries four extra entries (CodE, this, tempField, and a
+    BlocK that appears only after the first parse). Under nextAttribute every
+    one of those would shift every subsequent index silently, binding a term
+    local to the wrong term — and the currently-unused `field` parameter would
+    not even misbehave visibly on it. Same accessor makes the correspondence
+    hold by construction rather than by luck.
+
+    The skip test is `noPrint`, which is what testAttributes itself skips on.
+    Measured, not invented: dumpRuleTerms shows all four tail entries noPrint
+    and no real term noPrint.
 
     Emission idioms nailed 2026-07-27 (from the v0 recon):
       - JUXTAPOSITION concatenates with NO space (`"parse" rule.tag` -> parseScaf),
@@ -1548,30 +1675,55 @@ extern "C" GroupItem *genParse(GroupItem *argument)
 GroupItem 	*rule = GroupControl::groupController->locate(argument->getText());
 GroupItem 	*term = 0;
 char 		*terms = 0;
+char 		*local = 0;
+char 		*digit = 0;
 int 		first = 1;
+int 		i = 1;
 char 		dq = 34;
 	if ( !rule )
 		{
 		::fprintf(stderr,"genParse: no rule named  %s\n",argument->getText());
 		return 0;
 		}
-	while ( term = rule->nextAttribute(term) )
-		{
-		if ( first )
-			terms = ::emitTerm(term);
-		else	terms = ::concat(3,terms," && ",::emitTerm(term));
-		first = 0;
-		}
-	::fprintf(stderr,"extern GroupItem parse%s(GroupItem into)\n",rule->groupBody->tag);
+	::fprintf(stderr,"extern GroupItem parse%s(GroupItem rule)\n",rule->groupBody->tag);
 	::fprintf(stderr,"{\n");
+	::fprintf(stderr,"GroupItem   into  = rule.rStuff.parentLabel;\n");
 	::fprintf(stderr,"GroupItem   label = new(%c%s%c);\n",dq,rule->groupBody->tag,dq);
-	::fprintf(stderr,"GroupItem   rule  = locate(%c%s%c);\n",dq,rule->groupBody->tag,dq);
+	while ( term = rule->get(i) )
+		{
+		if ( term->groupBody->flags.noPrint || !term->rStuff )
+			{
+			if ( !term->rStuff && !term->groupBody->flags.noPrint )
+				::fprintf(stderr,"genParse: skipping %s (no rStuff) in %s\n",term->groupBody->tag,rule->groupBody->tag);
+			}
+		else {
+			digit = ::toStringFromInt(i);
+			local = ::concat(2,"t",digit);
+			::fprintf(stderr,"GroupItem   %s = rule[%s];\n",local,digit);
+			if ( first )
+				terms = ::emitTerm(term,local);
+			else	terms = ::concat(3,terms," && ",::emitTerm(term,local));
+			first = 0;
+			}
+		i++;
+		}
 	::fprintf(stderr,"String      from  = atRuleMark;\n");
 	::fprintf(stderr,"    return leaveRule(rule,into,label,from, %s );\n",terms);
 	::fprintf(stderr,"}\n");
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
+/***************************************************************************
+    runJSONblock (genParseSpec S5.3's entry wrapper) is RETIRED, genParseShape
+    S1.7. Generated code emits no entry wrapper: invocation is JSONblock(...)
+    through parse()'s fork, exactly as Start(). The wrapper called
+    parseJSONblock directly, so it could have passed with the binding wholly
+    unbuilt -- it exercised neither the fork, nor binding, nor dispatch, which
+    are the three things the runtime loop exists to test. Its one real service,
+    the Invariant R report, now lives in leaveRule (S1.8) where `from` and
+    atRuleMark are both in hand. Restore from git history if a direct-call
+    harness is ever wanted again; do not re-emit one.
+***************************************************************************/
 /*****************************************************************************
     This is the simplified generateCode command method that leaves dirty work
     to the incant actions in the incant generate file
@@ -3978,33 +4130,82 @@ extern "C" GroupItem *opUnaryMinus(GroupItem *result)
 }
 
 /*******************************************************************************
+    parseRuleMethod — genParseShape §4.1, the binding. What connects a compiled
+    parseScaf to Scaf.rStuff.parseMethod.
+
+    §4.1's candidate was the setRuleAction path in the `=value` form, and that
+    is what this is, modelled line for line on interpretMethod (GroupActions.rtn)
+    — the closest existing analogue, because it is the one command that binds a
+    dlsym'd symbol somewhere OTHER than the plain method slot. Registered in
+    cOMMANDs as `parseMethod`, used as a definition attribute:
+
+        Scaf isRule "x"- parseMethod=parseScaf;
+
+    exactly the shape the grammar already uses for ruleMethod= and
+    interpretMethod=. In the kant world this whole function is one ORC-compile
+    and a stored handle; here it is a dlsym.
+
+    getRStuff, not rStuff: a rule reached at definition time may not have been
+    parsed yet, and the fork reads the field off the rule's OWN stuff.
+*******************************************************************************/
+extern "C" GroupItem *parseRuleMethod(GroupItem *input)
+{
+char 		*name = input->getText();
+RuleStuff 	*stuff = 0;
+	if ( input->groupBody->flags.fLAG )
+		if ( name )
+			{
+			GroupItem 	*grup = input->parent;
+			if ( grup )
+				{
+				stuff = grup->getRStuff();
+				::setParseMethod(stuff,name);
+				}
+			else	::fprintf(stderr,"parseMethod: no rule to bind to\n");
+			}
+		else	::fprintf(stderr,"parseMethod: expected a method name in text\n");
+	else	::fprintf(stderr,"parseMethod: should be invoked as a definition attribute\n");
+	return input->getGroup();
+}
+
+/*******************************************************************************
     RUNTIME LOOP (Clay 2026-07-27) — close the loop ONCE on rung 1's scaffold
     before climbing. Text-diff proves genParse emits what a human wrote; it says
     nothing about whether the emitted code compiles, links, binds, or RUNS (the
     invocation-blocker failure class was invisible to any source comparison).
-    So: the rung-1 emission, hand-placed and compiled in, plus an incant-callable
-    wrapper, to watch "x" actually parse. On a 4-line method a failure is
-    unambiguously the plumbing, not the emitter logic.
 
-    parseScaf below is the VERBATIM output of genParse('Scaf'). It calls lit and
-    leaveRule from the RuleStuff support library (cross-file via groups.ext).
+    NO ENTRY WRAPPER (genParseShape §1.7). runScaf/runScaf2 are RETIRED. The
+    invocation is `Scaf('x')`, exactly as `Start()` — which exercises emission,
+    the fork, binding and dispatch. A bespoke wrapper exercised none of them: it
+    called parseScaf directly, so it could have passed with the binding wholly
+    unbuilt, which is precisely the blind spot the runtime loop exists to close.
+    What the wrappers WERE good for — the Invariant R report — moved into
+    leaveRule (§1.8), where `from` and atRuleMark are both in hand at the moment
+    the question is asked.
+
+    parseScaf/parseScaf2 below are the VERBATIM output of genParse. They call
+    lit and leaveRule from the RuleStuff support library (cross-file via
+    groups.ext).
 *******************************************************************************/
 /*  === GENERATED by genParse('Scaf'), pasted verbatim (rung-1 emission) === */
-extern "C" GroupItem *parseScaf(GroupItem *into)
+extern "C" GroupItem *parseScaf(GroupItem *rule)
 {
+GroupItem 	*into = rule->rStuff->parentLabel;
 GroupItem 	*label = new GroupItem("Scaf");
-GroupItem 	*rule = GroupControl::groupController->locate("Scaf");
+GroupItem 	*t1 = rule->get(1);
 char 		*from = GroupControl::groupController->groupRules->atRuleMark;
-	return ::leaveRule(rule,into,label,from,::lit(rule,"x"));
+	return ::leaveRule(rule,into,label,from,::lit(t1,"x"));
 }
 
 /*  === GENERATED by genParse('Scaf2'), pasted verbatim (rung-2 emission) === */
-extern "C" GroupItem *parseScaf2(GroupItem *into)
+extern "C" GroupItem *parseScaf2(GroupItem *rule)
 {
+GroupItem 	*into = rule->rStuff->parentLabel;
 GroupItem 	*label = new GroupItem("Scaf2");
-GroupItem 	*rule = GroupControl::groupController->locate("Scaf2");
+GroupItem 	*t1 = rule->get(1);
+GroupItem 	*t2 = rule->get(2);
 char 		*from = GroupControl::groupController->groupRules->atRuleMark;
-	return ::leaveRule(rule,into,label,from,::lit(rule,"{") && ::lit(rule,"}"));
+	return ::leaveRule(rule,into,label,from,::lit(t1,"{") && ::lit(t2,"}"));
 }
 
 /*******************************************************************************
@@ -4451,36 +4652,6 @@ GroupItem 	*result = 0;
 }
 
 /***************************************************************************
-    Entry wrapper -- outside callers do field = runJSONblock(argument) and
-    expect a GroupItem (genParseSpec S5.3). Calls parseJSONblock (RuleStuff.twk)
-    as ordinary cross-file C++. Lives HERE, not in RuleStuff.twk, per Clay's
-    2026-07-25 structural hypothesis: incant-callable commands live in a .rtn
-    included into GroupRules.twk, not in a standalone class file.
-
-    NOTE (Clod, 2026-07-25): S5.3's own worked example checks
-    `!result.hasMembers` here, but leaveRule attaches via `+%` == addAttribute
-    (confirmed from the generated code), which sets hasAttributes, not
-    hasMembers. Checking hasAttributes instead is the fix.
-***************************************************************************/
-extern "C" GroupItem *runJSONblock(GroupItem *argument)
-{
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*result = new GroupItem("JSONblock");
-int 		baseStak = 0;
-	if ( ruler->inputSTAK )
-		baseStak = ruler->inputSTAK->length;
-	ruler->pushInput(argument);
-	if ( !::parseJSONblock(result) )
-		result = 0;
-	else
-	if ( !result->groupBody->flags.hasAttributes )
-		result = ruler->trueResult;
-	while ( ruler->inputSTAK && ruler->inputSTAK->length > baseStak )
-		ruler->popInput();
-	return result;
-}
-
-/***************************************************************************
     runOP fires off a field that might be an action, a rule, a method,
     or an operator
 
@@ -4571,85 +4742,6 @@ int 		baseStak = 0;
 	result = rule->parse(0);
 	while ( field && field->groupBody->flags.data && ruler->inputSTAK && ruler->inputSTAK->length > baseStak )
 		ruler->popInput();
-	return result;
-}
-
-/*  Entry wrappers, mirror runJSONblock. Each captures the mark AFTER pushInput
-    and reports whether a FAILING parse left it unmoved — Invariant R (§2.2), the
-    leaveRule rewind every downstream alternation/optional depends on. Scaf2 on
-    "{" is the meaningful case: lit("{") advances, lit("}") fails, so the rewind
-    has real ground to give back (a single-lit fail never advanced).  */
-extern "C" GroupItem *runScaf(GroupItem *argument)
-{
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*result = new GroupItem("Scaf");
-char 		*in = argument->getText();
-char 		*from = 0;
-char 		*outerFrom = 0;
-int 		ok = 0;
-int 		rInner = 0;
-int 		rOuter = 0;
-int 		baseStak = 0;
-	outerFrom = ruler->atRuleMark;
-	if ( ruler->inputSTAK )
-		baseStak = ruler->inputSTAK->length;
-	ruler->pushInput(argument);
-	from = ruler->atRuleMark;
-	ok = ::parseScaf(result) != 0;
-	rInner = ruler->atRuleMark == from;
-	while ( ruler->inputSTAK && ruler->inputSTAK->length > baseStak )
-		ruler->popInput();
-	rOuter = ruler->atRuleMark == outerFrom;
-	if ( !ok || !result->groupBody->flags.hasAttributes )
-		result = 0;
-	if ( ok )
-		::fprintf(stderr,"  Scaf  PARSED: %s\n",in);
-	else {
-		::fprintf(stderr,"  Scaf  FAIL  : %s\n",in);
-		if ( rInner )
-			::fprintf(stderr,"        R-inner OK       (mark unmoved in diversion)\n");
-		else	::fprintf(stderr,"        R-inner VIOLATED (mark moved in diversion)\n");
-		}
-	if ( rOuter )
-		::fprintf(stderr,"        R-outer OK       (caller position restored)\n");
-	else	::fprintf(stderr,"        R-outer VIOLATED (caller position advanced)\n");
-	return result;
-}
-
-extern "C" GroupItem *runScaf2(GroupItem *argument)
-{
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*result = new GroupItem("Scaf2");
-char 		*in = argument->getText();
-char 		*from = 0;
-char 		*outerFrom = 0;
-int 		ok = 0;
-int 		rInner = 0;
-int 		rOuter = 0;
-int 		baseStak = 0;
-	outerFrom = ruler->atRuleMark;
-	if ( ruler->inputSTAK )
-		baseStak = ruler->inputSTAK->length;
-	ruler->pushInput(argument);
-	from = ruler->atRuleMark;
-	ok = ::parseScaf2(result) != 0;
-	rInner = ruler->atRuleMark == from;
-	while ( ruler->inputSTAK && ruler->inputSTAK->length > baseStak )
-		ruler->popInput();
-	rOuter = ruler->atRuleMark == outerFrom;
-	if ( !ok || !result->groupBody->flags.hasAttributes )
-		result = 0;
-	if ( ok )
-		::fprintf(stderr,"  Scaf2 PARSED: %s\n",in);
-	else {
-		::fprintf(stderr,"  Scaf2 FAIL  : %s\n",in);
-		if ( rInner )
-			::fprintf(stderr,"        R-inner OK       (mark rewound in diversion)\n");
-		else	::fprintf(stderr,"        R-inner VIOLATED (mark left advanced)\n");
-		}
-	if ( rOuter )
-		::fprintf(stderr,"        R-outer OK       (caller position restored)\n");
-	else	::fprintf(stderr,"        R-outer VIOLATED (caller position advanced)\n");
 	return result;
 }
 
@@ -4789,6 +4881,31 @@ int 		offset = markOffset->getCount();
 	return 0;
 }
 
+/*******************************************************************************
+    setParseMethod — dlsym a name into a RuleStuff's parseMethod slot.
+
+    Passthrough because tok has no syntax for casting a void* to a typed fnptr
+    member, and parseMethod is typed by construction (bear-trap #20). Body is
+    ENTIRELY passthrough and everything it touches arrives as a PARAMETER —
+    bear-trap #13: an incant-level local referenced only inside a passthrough
+    gets pruned as unused, taking its initializing call with it. Parameters are
+    never pruned, so the whole computation is pushed into the argument list.
+    stderr, not stdout, for the failure report (bear-trap #14).
+*******************************************************************************/
+extern "C" int setParseMethod(RuleStuff *stuff, char *name)
+{
+	
+	void    *address = ::dlsym(RTLD_DEFAULT,name);
+	if ( !address )
+	{
+	::fprintf(stderr,"setParseMethod: ERROR no method found %s\n",name);
+	return 0;
+	}
+	stuff->parseMethod = (GroupItem *(*)(GroupItem *))address;
+	return 1;
+	
+}
+
 /***************************************************************************
 	Link an action referenced by the block passed in and set its method type.
     If the block passed in is a method type attribute and names a rule in its
@@ -4874,11 +4991,10 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 ***************************************************************************/
 extern "C" GroupItem *testing(GroupItem *input)
 {
-GroupItem 	*testInput = new GroupItem("x");
-	::runScaf(testInput);
-	testInput->groupBody->tag = "y";
-	::runScaf(testInput);
-	return input;
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( isCoded(input->groupBody->flags.actionType) )
+		return ::jitRunAction(input) ? ruler->trueResult : 0;
+	return ::jitRunIfTest(input) ? ruler->trueResult : 0;
 }
 
 /***************************************************************************
@@ -4891,6 +5007,17 @@ char 		*atEnd = GroupControl::groupController->groupRules->atRuleMark;
 int 		tokenLength = (int)(atEnd - ruleStuff->parentStuff->hereAt);
 	label->setToken(ruleStuff->parentStuff->hereAt,tokenLength);
 	return label;
+}
+
+/*******************************************************************************
+    traceParse — the incant-side switch for §1.8's library instrumentation
+    (GroupRules.parseTrace). Off by default, so the baselines cannot move.
+*******************************************************************************/
+extern "C" GroupItem *traceParse(GroupItem *argument)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	ruler->parseTrace = 1;
+	return ruler->trueResult;
 }
 
 extern "C" void unMark(GroupItem *bufField)
@@ -5251,4 +5378,5 @@ int 	result = 0;
 }
 /*	Warning: the following methods were referenced but not declared
 	read(int,char*,long)
+	getRStuff()
 */

@@ -33,31 +33,85 @@ extern "C" int inGuard(GroupItem *field, char *chars, char ch)
     already attached (rule-reference options attach via their own leaveRule
     against the same `into`; literal options attach via litOption). Only
     handles the rewind-on-failure half of Invariant R.
+
+    S4.2 (knowingly conservative): `from` is kept because `lit` commits its
+    skip pass to atRuleMark BEFORE matching, so a failing lit returns false
+    with the mark advanced. Until that is made non-destructive, leaveAlt
+    cannot drop to (rule, ok).
 *******************************************************************************/
-extern "C" GroupItem *leaveAlt(GroupItem *field, char *from, int ok)
+extern "C" GroupItem *leaveAlt(GroupItem *rule, char *from, int ok)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
+char 		*at = ruler->atRuleMark;
+	if ( ruler->parseTrace )
+		::fprintf(stderr,"  HIT  %s\n",rule->groupBody->tag);
 	if ( ok )
+		{
+		if ( ruler->parseTrace )
+			::fprintf(stderr,"  WIN  %s\n",rule->groupBody->tag);
 		return ruler->trueResult;
+		}
 	ruler->atRuleMark = from;
+	if ( ruler->parseTrace )
+		{
+		::fprintf(stderr,"  FAIL %s\n",rule->groupBody->tag);
+		if ( at == from )
+			::fprintf(stderr,"       R OK   mark unmoved\n");
+		else	::fprintf(stderr,"       R OK   mark rewound\n");
+		}
 	return 0;
 }
 
 /*******************************************************************************
     Sequence exit -- Invariant R lives here and in leaveAlt, nowhere else.
-    On success: attach label into `into`'s list, return true. On failure:
-    rewind atRuleMark to `from`, return false (label is simply not attached;
+    On success: attach label into `into`'s list, return the label. On failure:
+    rewind atRuleMark to `from`, return null (label is simply not attached;
     GC reclaims it, same as parse()'s own comment on label leaks).
+
+    First parameter is the RULE, not a term (genParseShape S1.4: `field` means
+    term, `rule` means rule). It is what the S1.8 instrumentation reports
+    against.
+
+    NULL `into` IS LEGAL and must not be dereferenced (genParseShape S1.7).
+    Retiring the entry wrappers makes a generated rule reachable from a
+    top-level incant call, and runRule invokes `rule.parse(0)` with no parent
+    stuff -- so parentLabel, and therefore `into`, is null there. The
+    interpretive path has always guarded this: parse()'s attachment block is
+    `if label && pStuff`. This is the same guard, one implementer down. Without
+    it, `Scaf('x')` dereferences null on its FIRST success.
+
+    S1.8 instrumentation: HIT/WIN (S6.1) and Invariant R live HERE rather than
+    in emitted lines -- one implementation, every rule, and it survives the
+    kant handover. leaveRule holds `from` and atRuleMark at exactly the moment
+    the R question is asked, which is why the check belongs here and not in a
+    bespoke wrapper. R is a property of the FAILURE path, so `Scaf()` on its
+    own could never show it; this is what replaces runScaf's R-inner prints.
+    Note the rewind is unconditional, so R cannot be "violated" here -- what
+    the report carries is whether the rewind had ground to give back, which is
+    the thing runScaf actually measured. Gate: GroupRules.parseTrace.
 *******************************************************************************/
-extern "C" GroupItem *leaveRule(GroupItem *field, GroupItem *into, GroupItem *label, char *from, int ok)
+extern "C" GroupItem *leaveRule(GroupItem *rule, GroupItem *into, GroupItem *label, char *from, int ok)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
+char 		*at = ruler->atRuleMark;
+	if ( ruler->parseTrace )
+		::fprintf(stderr,"  HIT  %s\n",rule->groupBody->tag);
 	if ( ok )
 		{
-		into->addAttribute(label);
+		if ( into )
+			into->addAttribute(label);
+		if ( ruler->parseTrace )
+			::fprintf(stderr,"  WIN  %s\n",rule->groupBody->tag);
 		return label;
 		}
 	ruler->atRuleMark = from;
+	if ( ruler->parseTrace )
+		{
+		::fprintf(stderr,"  FAIL %s\n",rule->groupBody->tag);
+		if ( at == from )
+			::fprintf(stderr,"       R OK   mark unmoved\n");
+		else	::fprintf(stderr,"       R OK   mark rewound\n");
+		}
 	return 0;
 }
 
@@ -71,6 +125,12 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
     Match a literal string at atRuleMark (skip-set pass first). No label --
     for "-"/noLabel attribute terms (JSONblock's "{"-/"}"-,  JSONfield's ":"-,
     JSONitem's ","?-).
+
+    `field` is the TERM, not the rule (genParseShape S1.4) -- the same
+    convention testSet(field) already uses. Callers pass the frame's term local
+    (`lit(t1,"{")`), which is what gives every leaf frame its own identity: a
+    breakpoint in here during parseJSONfield can now tell the ":" match from
+    the "," one, which is the question a debugger frame usually needs answered.
 *******************************************************************************/
 extern "C" int lit(GroupItem *field, char *str)
 {
@@ -129,12 +189,12 @@ char 		*matchStr = 0;
     to group-reference iteration -- one small function per loop site rather
     than a reusable macro (S2.5).
 *******************************************************************************/
-extern "C" int manyJSONblockFields(GroupItem *label)
+extern "C" int manyJSONblockFields(GroupItem *label, GroupItem *term)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*from = ruler->atRuleMark;
 int 		kount = 0;
-	while ( ::parseJSONfield(label) )
+	while ( ::parseR(term,label) )
 		kount++;
 	if ( kount >= 0 )
 		return 1;
@@ -145,12 +205,12 @@ int 		kount = 0;
 /*******************************************************************************
     Generated per-term iteration helper for JSONlist's `JSONitem+` (min 1).
 *******************************************************************************/
-extern "C" int manyJSONlistItems(GroupItem *label)
+extern "C" int manyJSONlistItems(GroupItem *label, GroupItem *term)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*from = ruler->atRuleMark;
 int 		kount = 0;
-	while ( ::parseJSONitem(label) )
+	while ( ::parseR(term,label) )
 		kount++;
 	if ( kount >= 1 )
 		return 1;
@@ -179,10 +239,13 @@ RuleStuff 	*bridge = new RuleStuff(rule);
     JSONarray isRule "["- JSONlist? "]"- code={
         if JSONlist; for grup in JSONlist; grup <: grup; };
 *******************************************************************************/
-extern "C" GroupItem *parseJSONarray(GroupItem *into)
+extern "C" GroupItem *parseJSONarray(GroupItem *rule)
 {
+GroupItem 	*into = rule->rStuff->parentLabel;
 GroupItem 	*label = new GroupItem("JSONarray");
-GroupItem 	*rule = GroupControl::groupController->locate("JSONarray");
+GroupItem 	*t1 = rule->get(1);
+GroupItem 	*t2 = rule->get(2);
+GroupItem 	*t3 = rule->get(3);
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*freshStuff = 0;
 char 		*from = ruler->atRuleMark;
@@ -192,7 +255,7 @@ int 		ok = 0;
 		freshStuff = new RuleStuff(rule);
 		label->setRStuff(freshStuff);
 		}
-	ok = ::lit(rule,"[") && (::parseJSONlist(label) || 1) && ::lit(rule,"]");
+	ok = ::lit(t1,"[") && (::parseR(t2,label) || 1) && ::lit(t3,"]");
 	if ( ok )
 		{
 		ruler->ruleSTUFF = label->rStuff;
@@ -204,14 +267,17 @@ int 		ok = 0;
 /*******************************************************************************
     JSONblock isRule fail "{"- JSONfield* "}"-;
 *******************************************************************************/
-extern "C" GroupItem *parseJSONblock(GroupItem *into)
+extern "C" GroupItem *parseJSONblock(GroupItem *rule)
 {
+GroupItem 	*into = rule->rStuff->parentLabel;
 GroupItem 	*label = new GroupItem("JSONblock");
-GroupItem 	*rule = GroupControl::groupController->locate("JSONblock");
+GroupItem 	*t1 = rule->get(1);
+GroupItem 	*t2 = rule->get(2);
+GroupItem 	*t3 = rule->get(3);
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*from = ruler->atRuleMark;
 int 		ok = 0;
-	ok = ::lit(rule,"{") && ::manyJSONblockFields(label) && ::lit(rule,"}");
+	ok = ::lit(t1,"{") && ::manyJSONblockFields(label,t2) && ::lit(t3,"}");
 	return ::leaveRule(rule,into,label,from,ok);
 }
 
@@ -233,10 +299,14 @@ int 		ok = 0;
     could find neither "JSONtoken" nor "JSONvalue", so it silently returned
     null and the whole field's content was discarded).
 *******************************************************************************/
-extern "C" GroupItem *parseJSONfield(GroupItem *into)
+extern "C" GroupItem *parseJSONfield(GroupItem *rule)
 {
+GroupItem 	*into = rule->rStuff->parentLabel;
 GroupItem 	*label = new GroupItem("JSONfield");
-GroupItem 	*rule = GroupControl::groupController->locate("JSONfield");
+GroupItem 	*t1 = rule->get(1);
+GroupItem 	*t2 = rule->get(2);
+GroupItem 	*t3 = rule->get(3);
+GroupItem 	*t4 = rule->get(4);
 GroupItem 	*tokenChild = 0;
 GroupItem 	*valueChild = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -248,20 +318,20 @@ int 		ok = 0;
 		freshStuff = new RuleStuff(rule);
 		label->setRStuff(freshStuff);
 		}
-	ok = ::parseJSONtoken(label) != 0;
+	ok = ::parseR(t1,label) != 0;
 	if ( ok )
 		{
 		tokenChild = label->next(tokenChild);
 		tokenChild->groupBody->tag = "JSONtoken";
 		}
-	ok = ok && ::lit(rule,":");
-	ok = ok && ::parseJSONvalue(label);
+	ok = ok && ::lit(t2,":");
+	ok = ok && ::parseR(t3,label);
 	if ( ok )
 		{
 		valueChild = label->next(tokenChild);
 		valueChild->groupBody->tag = "JSONvalue";
 		}
-	ok = ok && (::lit(rule,",") || 1);
+	ok = ok && (::lit(t4,",") || 1);
 	if ( ok )
 		{
 		ruler->ruleSTUFF = label->rStuff;
@@ -277,49 +347,111 @@ int 		ok = 0;
     own leaveAlt/leaveRule already rewinds on failure (Invariant R), so
     promotion needs nothing extra on the failure path.
 *******************************************************************************/
-extern "C" GroupItem *parseJSONitem(GroupItem *into)
+extern "C" GroupItem *parseJSONitem(GroupItem *rule)
 {
-GroupItem 	*rule = GroupControl::groupController->locate("JSONitem");
+GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*t1 = rule->get(1);
+GroupItem 	*t2 = rule->get(2);
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	if ( !::parseJSONtoken(into) )
+	if ( !::parseR(t1,into) )
 		return 0;
 	into->groupBody->tag = "JSONitem";
-	::lit(rule,",");
+	::lit(t2,",");
 	return ruler->trueResult;
 }
 
 /*******************************************************************************
     JSONlist isRule JSONitem+;
 *******************************************************************************/
-extern "C" GroupItem *parseJSONlist(GroupItem *into)
+extern "C" GroupItem *parseJSONlist(GroupItem *rule)
 {
+GroupItem 	*into = rule->rStuff->parentLabel;
 GroupItem 	*label = new GroupItem("JSONlist");
-GroupItem 	*rule = GroupControl::groupController->locate("JSONlist");
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*from = ruler->atRuleMark;
-	return ::leaveRule(rule,into,label,from,::manyJSONlistItems(label));
+	return ::leaveRule(rule,into,label,from,::manyJSONlistItems(label,rule->get(1)));
 }
 
 /*******************************************************************************
     JSONtoken isRule JSONblock; "false"; "true"; GrouP; NumbeR;
 *******************************************************************************/
-extern "C" GroupItem *parseJSONtoken(GroupItem *into)
+extern "C" GroupItem *parseJSONtoken(GroupItem *rule)
 {
-GroupItem 	*rule = GroupControl::groupController->locate("JSONtoken");
+GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*t1 = rule->get(1);
+GroupItem 	*t2 = rule->get(2);
+GroupItem 	*t3 = rule->get(3);
+GroupItem 	*t4 = rule->get(4);
+GroupItem 	*t5 = rule->get(5);
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*from = ruler->atRuleMark;
-	return ::leaveAlt(rule,from,(::inGuard(rule,"{",*ruler->atRuleMark) && ::parseJSONblock(into)) || ::litOption(rule,into,"false") || ::litOption(rule,into,"true") || ::parseGeneric(into,"GrouP") || ::parseGeneric(into,"NumbeR"));
+	return ::leaveAlt(rule,from,(::inGuard(t1,"{",*ruler->atRuleMark) && ::parseR(t1,into)) || ::litOption(t2,into,"false") || ::litOption(t3,into,"true") || ::parseR(t4,into) || ::parseR(t5,into));
 }
 
 /*******************************************************************************
     JSONvalue isRule JSONblock; JSONarray; JSONtoken;
 *******************************************************************************/
-extern "C" GroupItem *parseJSONvalue(GroupItem *into)
+extern "C" GroupItem *parseJSONvalue(GroupItem *rule)
 {
-GroupItem 	*rule = GroupControl::groupController->locate("JSONvalue");
+GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*t1 = rule->get(1);
+GroupItem 	*t2 = rule->get(2);
+GroupItem 	*t3 = rule->get(3);
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*from = ruler->atRuleMark;
-	return ::leaveAlt(rule,from,(::inGuard(rule,"{",*ruler->atRuleMark) && ::parseJSONblock(into)) || (::inGuard(rule,"[",*ruler->atRuleMark) && ::parseJSONarray(into)) || ::parseJSONtoken(into));
+	return ::leaveAlt(rule,from,(::inGuard(t1,"{",*ruler->atRuleMark) && ::parseR(t1,into)) || (::inGuard(t2,"[",*ruler->atRuleMark) && ::parseR(t2,into)) || ::parseR(t3,into));
+}
+
+/*******************************************************************************
+    parseR (genParseShape S1.6) -- the set-then-call primitive for a term that
+    references another rule. Two jobs the emitted `&&` chain cannot do itself:
+
+    1. The `into` handover is an ASSIGNMENT, and an assignment is not a term
+       (S2.5's expression-vs-statement problem in a new place). Keeping it in
+       one primitive leaves emitted text a pure boolean expression.
+    2. It routes THROUGH parse(), not directly at a generated method, so the
+       fork decides. Generation is per-rule, so a generated rule can call an
+       interpretive one and vice versa: mixed mode is free, conversion is
+       order-independent, and the interpretive walk stays the oracle for
+       everything not yet converted. The cost is an indirect call opaque to
+       LLVM's inliner -- not a correctness cost, and reversible later inside
+       this one function, with no emitted file regenerated.
+
+    No name lookup (S1.3): the term IS the thing to parse. That is a
+    CORRECTION to S1.6's stated mechanism, made against the tree rather than
+    against the design -- see the measurement in genParse.rtn's dumpRuleTerms
+    header. S1.6 writes `t2.onGroup.parentLabel = label`, but NO rule-reference
+    term is isGROUP and none has onGroup set, before or after a parse
+    (getWhatFollows gates on isGROUP). There is no onGroup there to write to.
+    What a reference term actually is: a distinct node carrying isRule and
+    SHARING the referenced rule's child list. So it parses directly, which is
+    exactly what the interpretive walk does -- testAttributes calls
+    `grup.parse(stuff)` on the term itself, never on a dereferenced target.
+    Parity with the oracle, not a parallel mechanism that can drift from it.
+
+    The handover travels as the bridge stuff's label, exactly as parseGeneric
+    already does it: parse() derives parentLabel from it on the generated path
+    and attaches through `pStuff.label +% label` on the interpretive one. ONE
+    mechanism serves both halves of mixed mode, and it is why a null pStuff is
+    never handed down (which would silently orphan the callee's result).
+
+    OPEN, and it is Tony's/Clay's call, not a coding decision -- see the seal.
+    parseMethod lives on rStuff, and rStuff is PER NODE: the term has its own,
+    separate from the registry rule's. So binding a rule's parseMethod does NOT
+    reach the term nodes that reference it, and a converted rule would be used
+    when invoked BY NAME but not when referenced from another rule. Mixed mode
+    (S1.6's whole justification) needs an answer to that before rung 4, which
+    is the first cross-method call. It does not bite rungs 1-2: Scaf/Scaf2 have
+    no rule-reference terms.
+*******************************************************************************/
+extern "C" GroupItem *parseR(GroupItem *term, GroupItem *into)
+{
+RuleStuff 	*bridge = 0;
+	if ( !term )
+		return 0;
+	bridge = new RuleStuff(term);
+	bridge->label = into;
+	return term->parse(bridge);
 }
 
 /*******************************************************************************

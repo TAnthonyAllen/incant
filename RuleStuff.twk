@@ -439,6 +439,12 @@ gotMatch:
     Match a literal string at atRuleMark (skip-set pass first). No label --
     for "-"/noLabel attribute terms (JSONblock's "{"-/"}"-,  JSONfield's ":"-,
     JSONitem's ","?-).
+
+    `field` is the TERM, not the rule (genParseShape S1.4) -- the same
+    convention testSet(field) already uses. Callers pass the frame's term local
+    (`lit(t1,"{")`), which is what gives every leaf frame its own identity: a
+    breakpoint in here during parseJSONfield can now tell the ":" match from
+    the "," one, which is the question a debugger frame usually needs answered.
 *******************************************************************************/
 extern int lit(GroupItem field, String str)
 {
@@ -494,17 +500,46 @@ extern int inGuard(GroupItem field, String chars, char ch)
 
 /*******************************************************************************
     Sequence exit -- Invariant R lives here and in leaveAlt, nowhere else.
-    On success: attach label into `into`'s list, return true. On failure:
-    rewind atRuleMark to `from`, return false (label is simply not attached;
+    On success: attach label into `into`'s list, return the label. On failure:
+    rewind atRuleMark to `from`, return null (label is simply not attached;
     GC reclaims it, same as parse()'s own comment on label leaks).
+
+    First parameter is the RULE, not a term (genParseShape S1.4: `field` means
+    term, `rule` means rule). It is what the S1.8 instrumentation reports
+    against.
+
+    NULL `into` IS LEGAL and must not be dereferenced (genParseShape S1.7).
+    Retiring the entry wrappers makes a generated rule reachable from a
+    top-level incant call, and runRule invokes `rule.parse(0)` with no parent
+    stuff -- so parentLabel, and therefore `into`, is null there. The
+    interpretive path has always guarded this: parse()'s attachment block is
+    `if label && pStuff`. This is the same guard, one implementer down. Without
+    it, `Scaf('x')` dereferences null on its FIRST success.
+
+    S1.8 instrumentation: HIT/WIN (S6.1) and Invariant R live HERE rather than
+    in emitted lines -- one implementation, every rule, and it survives the
+    kant handover. leaveRule holds `from` and atRuleMark at exactly the moment
+    the R question is asked, which is why the check belongs here and not in a
+    bespoke wrapper. R is a property of the FAILURE path, so `Scaf()` on its
+    own could never show it; this is what replaces runScaf's R-inner prints.
+    Note the rewind is unconditional, so R cannot be "violated" here -- what
+    the report carries is whether the rewind had ground to give back, which is
+    the thing runScaf actually measured. Gate: GroupRules.parseTrace.
 *******************************************************************************/
-extern GroupItem leaveRule(GroupItem field, GroupItem into, GroupItem label, String from, int ok)
+extern GroupItem leaveRule(GroupItem rule, GroupItem into, GroupItem label, String from, int ok)
 {
 GroupRules  ruler = groupRules;
+String      at = atRuleMark;
+    if parseTrace   cerr "  HIT ",rule.tag:;
     if ok {
-        into +% label;
+        if into     into +% label;
+        if parseTrace   cerr "  WIN ",rule.tag:;
         return label; }
     atRuleMark = from;
+    if parseTrace {
+        cerr "  FAIL",rule.tag:;
+        if at == from   cerr "       R OK   mark unmoved":;
+        else            cerr "       R OK   mark rewound":; }
     return null;
 }
 
@@ -513,13 +548,77 @@ GroupRules  ruler = groupRules;
     already attached (rule-reference options attach via their own leaveRule
     against the same `into`; literal options attach via litOption). Only
     handles the rewind-on-failure half of Invariant R.
+
+    S4.2 (knowingly conservative): `from` is kept because `lit` commits its
+    skip pass to atRuleMark BEFORE matching, so a failing lit returns false
+    with the mark advanced. Until that is made non-destructive, leaveAlt
+    cannot drop to (rule, ok).
 *******************************************************************************/
-extern GroupItem leaveAlt(GroupItem field, String from, int ok)
+extern GroupItem leaveAlt(GroupItem rule, String from, int ok)
 {
 GroupRules  ruler = groupRules;
-    if ok   return trueResult;
+String      at = atRuleMark;
+    if parseTrace   cerr "  HIT ",rule.tag:;
+    if ok {
+        if parseTrace   cerr "  WIN ",rule.tag:;
+        return trueResult; }
     atRuleMark = from;
+    if parseTrace {
+        cerr "  FAIL",rule.tag:;
+        if at == from   cerr "       R OK   mark unmoved":;
+        else            cerr "       R OK   mark rewound":; }
     return null;
+}
+
+/*******************************************************************************
+    parseR (genParseShape S1.6) -- the set-then-call primitive for a term that
+    references another rule. Two jobs the emitted `&&` chain cannot do itself:
+
+    1. The `into` handover is an ASSIGNMENT, and an assignment is not a term
+       (S2.5's expression-vs-statement problem in a new place). Keeping it in
+       one primitive leaves emitted text a pure boolean expression.
+    2. It routes THROUGH parse(), not directly at a generated method, so the
+       fork decides. Generation is per-rule, so a generated rule can call an
+       interpretive one and vice versa: mixed mode is free, conversion is
+       order-independent, and the interpretive walk stays the oracle for
+       everything not yet converted. The cost is an indirect call opaque to
+       LLVM's inliner -- not a correctness cost, and reversible later inside
+       this one function, with no emitted file regenerated.
+
+    No name lookup (S1.3): the term IS the thing to parse. That is a
+    CORRECTION to S1.6's stated mechanism, made against the tree rather than
+    against the design -- see the measurement in genParse.rtn's dumpRuleTerms
+    header. S1.6 writes `t2.onGroup.parentLabel = label`, but NO rule-reference
+    term is isGROUP and none has onGroup set, before or after a parse
+    (getWhatFollows gates on isGROUP). There is no onGroup there to write to.
+    What a reference term actually is: a distinct node carrying isRule and
+    SHARING the referenced rule's child list. So it parses directly, which is
+    exactly what the interpretive walk does -- testAttributes calls
+    `grup.parse(stuff)` on the term itself, never on a dereferenced target.
+    Parity with the oracle, not a parallel mechanism that can drift from it.
+
+    The handover travels as the bridge stuff's label, exactly as parseGeneric
+    already does it: parse() derives parentLabel from it on the generated path
+    and attaches through `pStuff.label +% label` on the interpretive one. ONE
+    mechanism serves both halves of mixed mode, and it is why a null pStuff is
+    never handed down (which would silently orphan the callee's result).
+
+    OPEN, and it is Tony's/Clay's call, not a coding decision -- see the seal.
+    parseMethod lives on rStuff, and rStuff is PER NODE: the term has its own,
+    separate from the registry rule's. So binding a rule's parseMethod does NOT
+    reach the term nodes that reference it, and a converted rule would be used
+    when invoked BY NAME but not when referenced from another rule. Mixed mode
+    (S1.6's whole justification) needs an answer to that before rung 4, which
+    is the first cross-method call. It does not bite rungs 1-2: Scaf/Scaf2 have
+    no rule-reference terms.
+*******************************************************************************/
+extern GroupItem parseR(GroupItem term, GroupItem into)
+{
+RuleStuff   bridge;
+    if !term    return null;
+    bridge          = new(term);
+    bridge.label    = into;
+    return term.parse(bridge);
 }
 
 /*******************************************************************************
@@ -528,12 +627,12 @@ GroupRules  ruler = groupRules;
     to group-reference iteration -- one small function per loop site rather
     than a reusable macro (S2.5).
 *******************************************************************************/
-extern int manyJSONblockFields(GroupItem label)
+extern int manyJSONblockFields(GroupItem label, GroupItem term)
 {
 GroupRules  ruler = groupRules;
 String      from = atRuleMark;
 int         kount;
-    while parseJSONfield(label)     kount++;
+    while parseR(term,label)        kount++;
     if kount >= 0   return true;
     atRuleMark = from;
     return false;
@@ -542,12 +641,12 @@ int         kount;
 /*******************************************************************************
     Generated per-term iteration helper for JSONlist's `JSONitem+` (min 1).
 *******************************************************************************/
-extern int manyJSONlistItems(GroupItem label)
+extern int manyJSONlistItems(GroupItem label, GroupItem term)
 {
 GroupRules  ruler = groupRules;
 String      from = atRuleMark;
 int         kount;
-    while parseJSONitem(label)      kount++;
+    while parseR(term,label)        kount++;
     if kount >= 1   return true;
     atRuleMark = from;
     return false;
@@ -556,14 +655,17 @@ int         kount;
 /*******************************************************************************
     JSONblock isRule fail "{"- JSONfield* "}"-;
 *******************************************************************************/
-extern GroupItem parseJSONblock(GroupItem into)
+extern GroupItem parseJSONblock(GroupItem rule)
 {
+GroupItem   into  = rule.rStuff.parentLabel;
 GroupItem   label = new("JSONblock");
-GroupItem   rule  = locate("JSONblock");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+GroupItem   t3 = rule[3];
 GroupRules  ruler = groupRules;
 String      from  = atRuleMark;
 int         ok;
-    ok = lit(rule,"{") && manyJSONblockFields(label) && lit(rule,"}");
+    ok = lit(t1,"{") && manyJSONblockFields(label,t2) && lit(t3,"}");
     return leaveRule(rule,into,label,from,ok);
 }
 
@@ -585,22 +687,26 @@ int         ok;
     could find neither "JSONtoken" nor "JSONvalue", so it silently returned
     null and the whole field's content was discarded).
 *******************************************************************************/
-extern GroupItem parseJSONfield(GroupItem into)
+extern GroupItem parseJSONfield(GroupItem rule)
 {
+GroupItem   into  = rule.rStuff.parentLabel;
 GroupItem   label = new("JSONfield");
-GroupItem   rule  = locate("JSONfield");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+GroupItem   t3 = rule[3];
+GroupItem   t4 = rule[4];
 GroupItem   tokenChild, valueChild;
 GroupRules  ruler = groupRules;
 RuleStuff   freshStuff;
 String      from  = atRuleMark;
 int         ok;
     if !label.rStuff   { freshStuff = new(rule); label.setRStuff(freshStuff); }
-    ok = parseJSONtoken(label) != 0;
+    ok = parseR(t1,label) != 0;
     if ok   { tokenChild = label.next(tokenChild); tokenChild.tag = "JSONtoken"; }
-    ok = ok && lit(rule,":");
-    ok = ok && parseJSONvalue(label);
+    ok = ok && lit(t2,":");
+    ok = ok && parseR(t3,label);
     if ok   { valueChild = label.next(tokenChild); valueChild.tag = "JSONvalue"; }
-    ok = ok && (lit(rule,",") || true);
+    ok = ok && (lit(t4,",") || true);
     if ok   { ruleSTUFF = label.rStuff; label = rule.method(label); }
     return leaveRule(rule,into,label,from, ok && label );
 }
@@ -608,31 +714,39 @@ int         ok;
 /*******************************************************************************
     JSONvalue isRule JSONblock; JSONarray; JSONtoken;
 *******************************************************************************/
-extern GroupItem parseJSONvalue(GroupItem into)
+extern GroupItem parseJSONvalue(GroupItem rule)
 {
-GroupItem   rule = locate("JSONvalue");
+GroupItem   into = rule.rStuff.parentLabel;
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+GroupItem   t3 = rule[3];
 GroupRules  ruler = groupRules;
 String      from = atRuleMark;
     return leaveAlt(rule,from,
-                (inGuard(rule,"{",*atRuleMark) && parseJSONblock(into))
-             || (inGuard(rule,"[",*atRuleMark) && parseJSONarray(into))
-             || parseJSONtoken(into) );
+                (inGuard(t1,"{",*atRuleMark) && parseR(t1,into))
+             || (inGuard(t2,"[",*atRuleMark) && parseR(t2,into))
+             || parseR(t3,into) );
 }
 
 /*******************************************************************************
     JSONtoken isRule JSONblock; "false"; "true"; GrouP; NumbeR;
 *******************************************************************************/
-extern GroupItem parseJSONtoken(GroupItem into)
+extern GroupItem parseJSONtoken(GroupItem rule)
 {
-GroupItem   rule = locate("JSONtoken");
+GroupItem   into = rule.rStuff.parentLabel;
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+GroupItem   t3 = rule[3];
+GroupItem   t4 = rule[4];
+GroupItem   t5 = rule[5];
 GroupRules  ruler = groupRules;
 String      from = atRuleMark;
     return leaveAlt(rule,from,
-                (inGuard(rule,"{",*atRuleMark) && parseJSONblock(into))
-             || litOption(rule,into,"false")
-             || litOption(rule,into,"true")
-             || parseGeneric(into,"GrouP")
-             || parseGeneric(into,"NumbeR") );
+                (inGuard(t1,"{",*atRuleMark) && parseR(t1,into))
+             || litOption(t2,into,"false")
+             || litOption(t3,into,"true")
+             || parseR(t4,into)
+             || parseR(t5,into) );
 }
 
 /*******************************************************************************
@@ -659,42 +773,47 @@ RuleStuff   bridge = new(rule);
     own leaveAlt/leaveRule already rewinds on failure (Invariant R), so
     promotion needs nothing extra on the failure path.
 *******************************************************************************/
-extern GroupItem parseJSONitem(GroupItem into)
+extern GroupItem parseJSONitem(GroupItem rule)
 {
-GroupItem   rule = locate("JSONitem");
+GroupItem   into = rule.rStuff.parentLabel;
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
 GroupRules  ruler = groupRules;
-    if !parseJSONtoken(into)   return null;
+    if !parseR(t1,into)   return null;
     into.tag = "JSONitem";
-    lit(rule,",");
+    lit(t2,",");
     return trueResult;
 }
 
 /*******************************************************************************
     JSONlist isRule JSONitem+;
 *******************************************************************************/
-extern GroupItem parseJSONlist(GroupItem into)
+extern GroupItem parseJSONlist(GroupItem rule)
 {
+GroupItem   into  = rule.rStuff.parentLabel;
 GroupItem   label = new("JSONlist");
-GroupItem   rule  = locate("JSONlist");
 GroupRules  ruler = groupRules;
 String      from  = atRuleMark;
-    return leaveRule(rule,into,label,from, manyJSONlistItems(label) );
+    return leaveRule(rule,into,label,from, manyJSONlistItems(label,rule[1]) );
 }
 
 /*******************************************************************************
     JSONarray isRule "["- JSONlist? "]"- code={
         if JSONlist; for grup in JSONlist; grup <: grup; };
 *******************************************************************************/
-extern GroupItem parseJSONarray(GroupItem into)
+extern GroupItem parseJSONarray(GroupItem rule)
 {
+GroupItem   into  = rule.rStuff.parentLabel;
 GroupItem   label = new("JSONarray");
-GroupItem   rule  = locate("JSONarray");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+GroupItem   t3 = rule[3];
 GroupRules  ruler = groupRules;
 RuleStuff   freshStuff;
 String      from  = atRuleMark;
 int         ok;
     if !label.rStuff   { freshStuff = new(rule); label.setRStuff(freshStuff); }
-    ok = lit(rule,"[") && (parseJSONlist(label) || true) && lit(rule,"]");
+    ok = lit(t1,"[") && (parseR(t2,label) || true) && lit(t3,"]");
     if ok   { ruleSTUFF = label.rStuff; label = rule.method(label); }
     return leaveRule(rule,into,label,from, ok && label );
 }

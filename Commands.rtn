@@ -91,29 +91,16 @@ GroupItem   grup;
 }
 
 /***************************************************************************
-    Entry wrapper -- outside callers do field = runJSONblock(argument) and
-    expect a GroupItem (genParseSpec S5.3). Calls parseJSONblock (RuleStuff.twk)
-    as ordinary cross-file C++. Lives HERE, not in RuleStuff.twk, per Clay's
-    2026-07-25 structural hypothesis: incant-callable commands live in a .rtn
-    included into GroupRules.twk, not in a standalone class file.
-
-    NOTE (Clod, 2026-07-25): S5.3's own worked example checks
-    `!result.hasMembers` here, but leaveRule attaches via `+%` == addAttribute
-    (confirmed from the generated code), which sets hasAttributes, not
-    hasMembers. Checking hasAttributes instead is the fix.
+    runJSONblock (genParseSpec S5.3's entry wrapper) is RETIRED, genParseShape
+    S1.7. Generated code emits no entry wrapper: invocation is JSONblock(...)
+    through parse()'s fork, exactly as Start(). The wrapper called
+    parseJSONblock directly, so it could have passed with the binding wholly
+    unbuilt -- it exercised neither the fork, nor binding, nor dispatch, which
+    are the three things the runtime loop exists to test. Its one real service,
+    the Invariant R report, now lives in leaveRule (S1.8) where `from` and
+    atRuleMark are both in hand. Restore from git history if a direct-call
+    harness is ever wanted again; do not re-emit one.
 ***************************************************************************/
-extern GroupItem runJSONblock(GroupItem argument)
-{
-GroupRules  ruler = groupRules;
-GroupItem   result = new("JSONblock");
-int         baseStak = 0;
-    if inputSTAK    baseStak = inputSTAK.length;
-    pushInput(argument);
-    if !parseJSONblock(result)   result = 0;
-    or !result.hasAttributes     result = trueResult;
-    while inputSTAK && inputSTAK.length > baseStak      popInput();
-    return result;
-}
 
 /*****************************************************************************
     This is the simplified generateCode command method that leaves dirty work
@@ -585,11 +572,9 @@ GroupRules  ruler = groupRules;
 ***************************************************************************/
 extern GroupItem testing(GroupItem input)
 {
-GroupItem   testInput = new("x");
-    runScaf(testInput);
-    testInput.tag = "y";
-    runScaf(testInput);
-    return input;
+GroupRules  ruler = groupRules;
+    if input.isCoded    return jitRunAction(input) ? trueResult : null;
+    return jitRunIfTest(input) ? trueResult : null;
 }
 
 /***************************************************************************

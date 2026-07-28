@@ -1,0 +1,41 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+/*  MEASUREMENT ONLY (genParseShape S1.5). What does rule[i] actually hold —
+    does a `fail` modifier or a code={} tail occupy a slot? Read it off the
+    tree; do not reason about it.  */
+registry(cOMMANDs);
+define dumpRuleTerms immediateAction=dumpRuleTerms; ;
+
+register(Ladder);
+define
+    Scaf isRule "x"-;
+    Scaf2 isRule "{"- "}"-;
+    ;
+search reset stack Grokking Ladder UnitTests Utilities list;
+
+/*  Dump AFTER a real parse has run: rule-reference terms showed no isGROUP at
+    define time, and getWhatFollows (which populates rStuff.onGroup) gates on
+    isGROUP — so the question is what parseR would actually see at RUNTIME.  */
+define
+    testJSON argument code={
+        clear(listed);
+        field = JSONblock(argument);
+        if field    print "  ok  :" argument:;
+        else        print "  FAIL:" argument:;
+        };
+    ;
+testJSON('{"a":"b"}');
+
+dumpRuleTerms('Scaf');
+dumpRuleTerms('Scaf2');
+dumpRuleTerms('JSONblock');
+dumpRuleTerms('JSONfield');
+dumpRuleTerms('JSONvalue');
+dumpRuleTerms('JSONtoken');
+dumpRuleTerms('JSONitem');
+dumpRuleTerms('JSONlist');
+dumpRuleTerms('JSONarray');
+stop();

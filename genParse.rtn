@@ -15,25 +15,126 @@
 *******************************************************************************/
 
 /*******************************************************************************
-    emitTerm — one sequence term (attribute) -> one leaf expression string.
-    Rungs 1-2 subset of §4.2: literal string terms (data 0), the default/
-    testString row. noLabel (the `-` modifier) -> lit("x"); labelled -> litTo.
-    Same-file helper, called only from genParse -> no groups.ext decl needed.
+    dumpRuleTerms — MEASUREMENT TOOL, not part of the emitter. Kept because it
+    is what settled the questions below, and re-measuring is one run.
+
+    genParseShape §1.5 requires genParse to traverse with the SAME accessor the
+    emitted code reads with (rule[i]), because the two agree only if the list
+    holds exactly the terms in exactly that order. Whether a `fail` modifier or
+    a `code={}` tail occupies a slot is a question about the TREE, not about
+    the design — so it was measured, not reasoned about. Prints one line per
+    rule[i] entry, in order, so the printed order IS the index.
+
+    WHAT IT FOUND (2026-07-28, incant/termScratch):
+      1. rule[i] is source order, 1-based. `fail` (JSONblock) occupies NO slot.
+      2. A `code={}` tail DOES occupy slots, and FOUR of them, not one: CodE,
+         this, tempField — and, appearing only AFTER the rule has been parsed
+         once, the cached BlocK. So the tail of rule[] is not even stable
+         across a run. §1.5's hazard is real and bigger than "one extra entry".
+      3. ALL FOUR tail entries are noPrint; no real term is. So the classifier
+         is `noPrint`, which is not an invention — it is the same test the
+         interpretive walk already uses (testAttributes: `if noPrint continue`).
+         Model-not-oracle applied to classification itself: take the oracle's
+         own test rather than inventing a parallel one that can drift from it.
+      4. Sequence terms are isAttribute; alternation options are isMember.
+         One list, distinguished by affiliation.
+      5. A rule-reference term (JSONblock's JSONfield) is a DISTINCT NODE from
+         the registry rule of the same name — different parent — but the two
+         SHARE a child list (the term shows the BlocK the parse added to the
+         registry node). rStuff, however, is per-node: the term's own rStuff
+         has its own onGroup/testMatch/followed state. See parseR for why that
+         matters and what it leaves open.
+      6. No rule-reference term is isGROUP, and none has onGroup set, even
+         after a parse — getWhatFollows gates on isGROUP. §1.6's `t2.onGroup`
+         does not exist to be written to. See parseR.
 *******************************************************************************/
-extern String emitTerm(GroupItem term)
+extern GroupItem dumpRuleTerms(GroupItem argument)
+{
+GroupItem   rule = locate(argument.text);
+GroupItem   term;
+GroupItem   ref;
+RuleStuff   rs;
+int         i = 1;
+    if !rule {
+        cerr "dumpRuleTerms: no rule named ",argument.text:;
+        return null; }
+    cerr "RULE " rule.tag:;
+    if rule.parent  cerr "    (parent " rule.parent.tag ")":;
+    if !rule.parent cerr "    (parent NONE)":;
+    while term = rule[i] {
+        ref = 0;
+        rs  = term.rStuff;
+        if term.isGROUP     ref = term.group;
+        cerr "    term " term.tag:;
+        if term.isAttribute cerr "        attribute":;
+        if term.isMember    cerr "        member":;
+        if ref              cerr "        refersTo " ref.tag:;
+        if rs {
+            if rs.noLabel   cerr "        noLabel":;
+            if rs.isTarget  cerr "        isTarget":;
+            if rs.onGroup   cerr "        onGroup " rs.onGroup.tag:;
+            if !rs.onGroup  cerr "        onGroup NONE":;
+            if rs.testMatch cerr "        testMatch SET":;
+            if !rs.testMatch cerr "        testMatch none":;
+            if rs.followed  cerr "        followed":; }
+        if !rs  cerr "        no rStuff":;
+        if term.isRule          cerr "        isRule":;
+        if term.hasAttributes   cerr "        hasAttributes":;
+        if term.hasMembers      cerr "        hasMembers":;
+        if term.isLabel         cerr "        isLabel":;
+        if term.parent          cerr "        parent " term.parent.tag:;
+        if term.noPrint         cerr "        noPrint":;
+        i++; }
+    return trueResult;
+}
+
+/*******************************************************************************
+    emitTerm — one sequence term -> one leaf expression string.
+    Rungs 1-2 subset of §4.2: literal string terms (data 0), the default/
+    testString row. noLabel (the `-` modifier) -> lit(); labelled -> litTo.
+
+    TERM-FIRST (§1.4): the leaf takes the frame's term LOCAL, not the rule —
+    `lit(t1,"{")`, never `lit(rule,"{")`. That restores the testSet(field)
+    convention (`field` means term, `rule` means rule) and gives every leaf
+    frame its own identity: under the old shape a breakpoint in lit during
+    parseJSONfield could not tell the ":" match from the ",", which is the
+    question a debugger frame usually needs answered.
+
+    The local is named for its RAW rule[] index, so the local's name and its
+    subscript can never drift apart — the whole point of §1.5.
+    Same-file helper, called only from genParse -> no groups.ext decl needed.
+
+    NOTE, latent: the labelled branch emits litTo, which has no implementation
+    in the support library. Never fires for rungs 1-2 (Scaf/Scaf2 terms are all
+    noLabel). Rung 3+ business, flagged here rather than silently carried.
+*******************************************************************************/
+extern String emitTerm(GroupItem term, String local)
 {
 RuleStuff   rs = term.rStuff;
 char        dq = 34;
 String      leaf;
-    if rs.noLabel   leaf = "lit(rule," dq term.tag dq ")";
-    else            leaf = "litTo(rule,label," dq term.tag dq "," dq term.tag dq ")";
+    if rs.noLabel   leaf = "lit(" local "," dq term.tag dq ")";
+    else            leaf = "litTo(" local ",label," dq term.tag dq "," dq term.tag dq ")";
     return leaf;
 }
 
 /*******************************************************************************
-    genParse — rungs 1-2: emitSequence for a sequence rule (attributes only,
-    no rule-data / onGroup term yet). Walks the attribute list, joins each
-    term's leaf with " && ", wraps in the leaveRule frame. Emits line by line.
+    genParse — rungs 1-2: emitSequence for a sequence rule. Emits the §2 frame
+    line by line.
+
+    INDEXED TRAVERSAL (§1.5). The walk is `rule[i]`, the same accessor the
+    emitted code reads with — NOT nextAttribute. The two agree only if the list
+    holds exactly the terms in exactly that order, and it does not: a rule with
+    a code={} tail carries four extra entries (CodE, this, tempField, and a
+    BlocK that appears only after the first parse). Under nextAttribute every
+    one of those would shift every subsequent index silently, binding a term
+    local to the wrong term — and the currently-unused `field` parameter would
+    not even misbehave visibly on it. Same accessor makes the correspondence
+    hold by construction rather than by luck.
+
+    The skip test is `noPrint`, which is what testAttributes itself skips on.
+    Measured, not invented: dumpRuleTerms shows all four tail entries noPrint
+    and no real term noPrint.
 
     Emission idioms nailed 2026-07-27 (from the v0 recon):
       - JUXTAPOSITION concatenates with NO space (`"parse" rule.tag` -> parseScaf),
@@ -47,19 +148,30 @@ extern GroupItem genParse(GroupItem argument)
 GroupItem   rule = locate(argument.text);
 GroupItem   term;
 String      terms;
+String      local;
+String      digit;
 int         first = 1;
+int         i = 1;
 char        dq = 34;
     if !rule {
         cerr "genParse: no rule named ",argument.text:;
         return null; }
-    while term = rule.nextAttribute(term) {
-        if first    terms = emitTerm(term);
-        else        terms = terms " && " emitTerm(term);
-        first = 0; }
-    cerr "extern GroupItem parse" rule.tag "(GroupItem into)":;
+    cerr "extern GroupItem parse" rule.tag "(GroupItem rule)":;
     cerr "{":;
+    cerr "GroupItem   into  = rule.rStuff.parentLabel;":;
     cerr "GroupItem   label = new(" dq rule.tag dq ");":;
-    cerr "GroupItem   rule  = locate(" dq rule.tag dq ");":;
+    while term = rule[i] {
+        if term.noPrint || !term.rStuff {
+            if !term.rStuff && !term.noPrint
+                cerr "genParse: skipping " term.tag " (no rStuff) in " rule.tag:; }
+        else {
+            digit   = toStringFromInt(i);
+            local   = "t" digit;
+            cerr "GroupItem   " local " = rule[" digit "];":;
+            if first    terms = emitTerm(term,local);
+            else        terms = terms " && " emitTerm(term,local);
+            first = 0; }
+        i++; }
     cerr "String      from  = atRuleMark;":;
     cerr "    return leaveRule(rule,into,label,from, " terms " );":;
     cerr "}":;
@@ -71,93 +183,110 @@ char        dq = 34;
     before climbing. Text-diff proves genParse emits what a human wrote; it says
     nothing about whether the emitted code compiles, links, binds, or RUNS (the
     invocation-blocker failure class was invisible to any source comparison).
-    So: the rung-1 emission, hand-placed and compiled in, plus an incant-callable
-    wrapper, to watch "x" actually parse. On a 4-line method a failure is
-    unambiguously the plumbing, not the emitter logic.
 
-    parseScaf below is the VERBATIM output of genParse('Scaf'). It calls lit and
-    leaveRule from the RuleStuff support library (cross-file via groups.ext).
+    NO ENTRY WRAPPER (genParseShape §1.7). runScaf/runScaf2 are RETIRED. The
+    invocation is `Scaf('x')`, exactly as `Start()` — which exercises emission,
+    the fork, binding and dispatch. A bespoke wrapper exercised none of them: it
+    called parseScaf directly, so it could have passed with the binding wholly
+    unbuilt, which is precisely the blind spot the runtime loop exists to close.
+    What the wrappers WERE good for — the Invariant R report — moved into
+    leaveRule (§1.8), where `from` and atRuleMark are both in hand at the moment
+    the question is asked.
+
+    parseScaf/parseScaf2 below are the VERBATIM output of genParse. They call
+    lit and leaveRule from the RuleStuff support library (cross-file via
+    groups.ext).
 *******************************************************************************/
 
 /*  === GENERATED by genParse('Scaf'), pasted verbatim (rung-1 emission) === */
-extern GroupItem parseScaf(GroupItem into)
+extern GroupItem parseScaf(GroupItem rule)
 {
+GroupItem   into  = rule.rStuff.parentLabel;
 GroupItem   label = new("Scaf");
-GroupItem   rule  = locate("Scaf");
+GroupItem   t1 = rule[1];
 String      from  = atRuleMark;
-    return leaveRule(rule,into,label,from, lit(rule,"x") );
+    return leaveRule(rule,into,label,from, lit(t1,"x") );
 }
 
 /*  === GENERATED by genParse('Scaf2'), pasted verbatim (rung-2 emission) === */
-extern GroupItem parseScaf2(GroupItem into)
+extern GroupItem parseScaf2(GroupItem rule)
 {
+GroupItem   into  = rule.rStuff.parentLabel;
 GroupItem   label = new("Scaf2");
-GroupItem   rule  = locate("Scaf2");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
 String      from  = atRuleMark;
-    return leaveRule(rule,into,label,from, lit(rule,"{") && lit(rule,"}") );
+    return leaveRule(rule,into,label,from, lit(t1,"{") && lit(t2,"}") );
 }
 
-/*  Entry wrappers, mirror runJSONblock. Each captures the mark AFTER pushInput
-    and reports whether a FAILING parse left it unmoved — Invariant R (§2.2), the
-    leaveRule rewind every downstream alternation/optional depends on. Scaf2 on
-    "{" is the meaningful case: lit("{") advances, lit("}") fails, so the rewind
-    has real ground to give back (a single-lit fail never advanced).  */
-extern GroupItem runScaf(GroupItem argument)
+/*******************************************************************************
+    setParseMethod — dlsym a name into a RuleStuff's parseMethod slot.
+
+    Passthrough because tok has no syntax for casting a void* to a typed fnptr
+    member, and parseMethod is typed by construction (bear-trap #20). Body is
+    ENTIRELY passthrough and everything it touches arrives as a PARAMETER —
+    bear-trap #13: an incant-level local referenced only inside a passthrough
+    gets pruned as unused, taking its initializing call with it. Parameters are
+    never pruned, so the whole computation is pushed into the argument list.
+    stderr, not stdout, for the failure report (bear-trap #14).
+*******************************************************************************/
+extern int setParseMethod(RuleStuff stuff, String name)
 {
-GroupRules  ruler = groupRules;
-GroupItem   result = new("Scaf");
-String      in = argument.text;
-String      from;
-String      outerFrom;
-int         ok;
-int         rInner;
-int         rOuter;
-int         baseStak = 0;
-    outerFrom = atRuleMark;
-    if inputSTAK    baseStak = inputSTAK.length;
-    pushInput(argument);
-    from = atRuleMark;
-    ok = parseScaf(result) != 0;
-    rInner = atRuleMark == from;
-    while inputSTAK && inputSTAK.length > baseStak      popInput();
-    rOuter = atRuleMark == outerFrom;
-    if !ok || !result.hasAttributes     result = 0;
-    if ok   cerr "  Scaf  PARSED: " in:;
-    else {
-        cerr "  Scaf  FAIL  : " in:;
-        if rInner   cerr "        R-inner OK       (mark unmoved in diversion)":;
-        else        cerr "        R-inner VIOLATED (mark moved in diversion)":; }
-    if rOuter   cerr "        R-outer OK       (caller position restored)":;
-    else        cerr "        R-outer VIOLATED (caller position advanced)":;
-    return result;
+-%
+    void    *address = ::dlsym(RTLD_DEFAULT,name);
+    if ( !address )
+        {
+        ::fprintf(stderr,"setParseMethod: ERROR no method found %s\n",name);
+        return 0;
+        }
+    stuff->parseMethod = (GroupItem *(*)(GroupItem *))address;
+    return 1;
+%-
 }
 
-extern GroupItem runScaf2(GroupItem argument)
+/*******************************************************************************
+    parseRuleMethod — genParseShape §4.1, the binding. What connects a compiled
+    parseScaf to Scaf.rStuff.parseMethod.
+
+    §4.1's candidate was the setRuleAction path in the `=value` form, and that
+    is what this is, modelled line for line on interpretMethod (GroupActions.rtn)
+    — the closest existing analogue, because it is the one command that binds a
+    dlsym'd symbol somewhere OTHER than the plain method slot. Registered in
+    cOMMANDs as `parseMethod`, used as a definition attribute:
+
+        Scaf isRule "x"- parseMethod=parseScaf;
+
+    exactly the shape the grammar already uses for ruleMethod= and
+    interpretMethod=. In the kant world this whole function is one ORC-compile
+    and a stored handle; here it is a dlsym.
+
+    getRStuff, not rStuff: a rule reached at definition time may not have been
+    parsed yet, and the fork reads the field off the rule's OWN stuff.
+*******************************************************************************/
+extern GroupItem parseRuleMethod(GroupItem input)
+{
+String      name = text;
+RuleStuff   stuff;
+use input
+    if input.fLAG
+        if name {
+            GroupItem   grup = parent;
+            if grup {
+                stuff = grup.getRStuff();
+                setParseMethod(stuff,name); }
+            else    cerr "parseMethod: no rule to bind to":; }
+        else    cerr "parseMethod: expected a method name in text":;
+    else    cerr "parseMethod: should be invoked as a definition attribute":;
+    return group;
+}
+
+/*******************************************************************************
+    traceParse — the incant-side switch for §1.8's library instrumentation
+    (GroupRules.parseTrace). Off by default, so the baselines cannot move.
+*******************************************************************************/
+extern GroupItem traceParse(GroupItem argument)
 {
 GroupRules  ruler = groupRules;
-GroupItem   result = new("Scaf2");
-String      in = argument.text;
-String      from;
-String      outerFrom;
-int         ok;
-int         rInner;
-int         rOuter;
-int         baseStak = 0;
-    outerFrom = atRuleMark;
-    if inputSTAK    baseStak = inputSTAK.length;
-    pushInput(argument);
-    from = atRuleMark;
-    ok = parseScaf2(result) != 0;
-    rInner = atRuleMark == from;
-    while inputSTAK && inputSTAK.length > baseStak      popInput();
-    rOuter = atRuleMark == outerFrom;
-    if !ok || !result.hasAttributes     result = 0;
-    if ok   cerr "  Scaf2 PARSED: " in:;
-    else {
-        cerr "  Scaf2 FAIL  : " in:;
-        if rInner   cerr "        R-inner OK       (mark rewound in diversion)":;
-        else        cerr "        R-inner VIOLATED (mark left advanced)":; }
-    if rOuter   cerr "        R-outer OK       (caller position restored)":;
-    else        cerr "        R-outer VIOLATED (caller position advanced)":;
-    return result;
+    parseTrace = true;
+    return trueResult;
 }
