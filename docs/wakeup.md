@@ -55,6 +55,8 @@ f6c599a  RUNG 5 GREEN: MANY + Invariant R′ demonstrated
 15712d1  wakeup.md reseal for rung 6
 0ae2923  isGROUP ordering: reference wins; inline group a named future kind
 3eb8398  RUNG 7: ALT emission — and §2.4's tree POP found a real gap
+a5d541a  wakeup.md reseal for rung 7
+168195b  rStuff at define time: late materialisation now fires ZERO times
 ```
 (Session tip on arrival was `23d6888`.)
 
@@ -129,6 +131,55 @@ exit primitive inherits this obligation.
 
 
 
+
+
+## rStuff IS MATERIALISED AT DEFINE TIME — late materialisation fires ZERO times
+`getRStuff`'s `no rStuff - creating` warning fired **8 times in oneTest and 6 in jsonTest**. It now
+fires **zero times, in all four fixtures**. The warning stays in place as the instrument: **if it
+ever fires again, WHICH rule is the interesting part.**
+
+**Measured first, and it moved the target.** Terms defined *from incant source* already materialised
+at definition — `modify` calls `setRuleStuff`, and even an unmodified term comes back with rStuff.
+The real gap was **the bootstrapper**, which hand-builds rules in C++: `GroupMain`'s `Limit` adds
+`"["` and `"]"` with **no `modify()` call at all**, and applies its `+`/`*` to `item.group` (the
+shared `counter` rule) rather than to the `min`/`max` terms.
+
+Two call sites, both at a **completion point** rather than per-attribute — the ordering lesson rung 7
+paid for:
+- `aCTionDefinE`, just before `input.clear()`, where attributes *and* members are both in
+- the bootstrapper, over `grok`, before setup is parsed (setup's own rules go through `aCTionDefinE`)
+
+It materialises the **rule node as well as its terms**. Terms alone left exactly two late sites,
+`define` and `InitiatE`, both rule nodes — which is how that was found.
+
+**Uses `setRuleStuff`, per Tony's ruling: it only ever applies to rules anyway**, so the `isRule`
+propagation is correct rather than a side effect to work around, and it keeps this to one
+implementer. That propagation is **load-bearing, not cosmetic**: a reference term shares the
+referenced rule's member list, so `isRule && hasMembers` is precisely how `parse()` dispatches into
+a referenced alternation (`GroupItem.twk:1062`) and how `checkInput` suppresses its label
+(`RuleStuff.twk:139`).
+
+### The three deliberate moves
+| moved | to what |
+|---|---|
+| `oneTest.base` | the 8 `getRStuff` lines removed, **nothing else**. 11 then 26 ×4, exit 0 |
+| `jsonTest.base` | the 6 `getRStuff` lines removed, nothing else. 13 `ok`, exit 0 |
+| `census.target` | exactly two rules, both bootstrap-built (below) |
+
+- **`CodE`** — REFUSE (2 unmaterialised) → **plans**, as SEQ with two **LITTO** terms. LITTO and not
+  LIT is **correct**: `incant/grammar:42` lists `CodE "{" "}" parseAction;` with no modifiers.
+- **`Limit`** — REFUSE (3 unmaterialised) → refusal **moved** to `min` being isGROUP, the named
+  inline-group kind. It now refuses on honest, named grounds rather than on "cannot tell".
+
+### ⚠ FINDING: `Limit`'s `']'-` never had its modifier applied
+`incant/grammar:52` lists `Limit '['- min=[0-9]+ max?=[0-9]+ ']'- noPrint;` — with the `-`. The
+bootstrapper adds `"["` and `"]"` **bare**. A real divergence between the documented grammar and the
+built one, invisible until materialisation made it readable. **`CodE` is NOT such a case** — do not
+"fix" it to match a modifier its listing does not have.
+
+This also **closes open item 2 by dissolving it**: there is no longer a window in which a term is
+defined but unclassifiable, so the walk's unmaterialised-term refusal is now unreachable. Left in
+place deliberately — it is a guard, not dead code to mourn.
 
 ## ⚠ RUNG 7 — ALT EMITS, BUT §2.4 IS OPEN. Read this before trusting an alternation.
 ```
@@ -528,16 +579,23 @@ attempt count is right; only the ORDER reads oddly — a callee's HIT appears be
   argument position** (`f(x, pad "  ")` silently generated a THREE-argument call, caught only by
   the C++ compiler). Concat into a local first, always. Assignment position is fine.
 
-## NEXT
-1. **§2.4's retag question — it gates the JSON family end-to-end.** The whole family plans and
+## NEXT — Clay's standing order (SEQ 27 §5), each waiting on the one before it
+0. **Recon owed before B can be briefed** — read-only, perturbs nothing: *what do rule actions
+   actually return, and how do they locate a child?* Tag-locating actions survive B; position-
+   locating ones may not. Likely a short grep that either finds nothing or finds the one that bites.
+1. **B — drop the automatic `isTarget` stamp on members.** Tony's ruling: `isTarget` becomes `@` and
+   nothing else. `genLadder/tree.divergence` flips from asserting the divergence to asserting
+   AGREEMENT — that flip is the acceptance test. Expect quiet fallout, not loud: a wrong result, not
+   a failed parse. This is §2.4's retag question below, and it gates the JSON family end-to-end. The whole family plans and
    emits, but the trees diverge, and the hand-patched RETAGGING NOTE in `parseJSONfield` is the
    same bug. Decide whether `leaveAlt` takes `into` and retags. Note the interpretive path is not
    self-consistent, so "match the oracle" does not fully determine the answer.
 2. **Accumulators** — `data`-carrying repetition (`FloaT`/`PoweR`/`Modifier`/`NamE`), still refused.
    §2.5: star and plus mean something different for character-level terms than for references, and
    conflating them yields a parser that accepts correctly and BUILDS WRONGLY.
-3. **Inline group** — `isGROUP` without a reference, the named future kind.
-4. **Guards, as their own arc** — see the scoping above. Not a rung.
+3. **D — the guard arc**: genParse's own NON-mutating first set. Not a call into `getGuard` — see the
+   scoping above. An arc, not a rung.
+4. **Inline group** — `isGROUP` without a reference, the named future kind. `Limit` refuses on it.
 5. Standing tripwire: the interpretive path does `kount++` on success, the generated path does not.
 4. **Rung 9 is TONY'S RULING and gates only rung 9** — bare reference to an alternation:
    auto-`promoteR`, or require explicit `@`?
