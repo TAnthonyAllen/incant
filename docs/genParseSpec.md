@@ -167,6 +167,39 @@ the rescue always covers a partial run), so nothing in the current grammar hits 
 someone writes `X[2]`. **Generated loops save the mark once at loop entry** and are correct for
 all min/max. Trivial when emitting a loop; awkward in a general driver.
 
+### 2.2a Invariant R′ — repetition carries no state across passes
+
+> **Invariant R′.** Generated repetition carries no state across passes. The mark is saved **once
+> at loop entry**, not per iteration; each pass builds a **fresh label**, never recycled.
+
+R governs a rule that fails. R′ governs a rule that repeats. They are separate obligations and a
+loop must hold both.
+
+**Provenance — checked against the tree 2026-07-28, both clauses, because until then this had only
+ever been stated in a brief.**
+
+**The mark clause** is §2.2's deliberate divergence, restated as an invariant instead of an aside.
+`checkInput()` assigns `hereAt = atRuleMark` (`RuleStuff.twk:125`) and `parse()` calls it at the top
+of *every* iteration, while the failure rewind targets that same `hereAt`
+(`GroupItem.twk:1101`). So the rewind target moves with the loop: after N successful passes it
+points at the start of pass N, not at loop entry. A term with min ≥ 2 that matches once and then
+fails gets `kount >= min` false, so the rescue does not fire, and the rewind strands the first
+match's consumed input. Confirmed latent: no `[2` … `[9` limit appears anywhere in the live incant
+sources, and `?`/`*`/`+` are all min ≤ 1.
+
+**The label clause** is genParseRuleAccess §1.6's, and it is a two-part handshake — both halves are
+in the tree. The writer is `parse()`'s recycling path, `label.fLAG = true` after
+`pStuff.label +% label.group; label.clear()` (`GroupItem.twk:1087`), reached only when
+`label.isGROUP && max > 1`. The reader is `checkInput()`'s label block:
+`if !label || !label.fLAG { label = new(tag); … } else label.fLAG = false`
+(`RuleStuff.twk:141-144`) — i.e. *fill this one in place instead of minting a new one*. **Generated
+code has neither half**, which is why the clause is an obligation rather than a port: nothing stops
+an emitter from inventing its own recycling, and R′ says do not.
+
+Both clauses are properties of the emitted loop, so they land with the repetition rung rather than
+being provable in the abstract. Trivial when emitting a loop; awkward in a general driver — which is
+the same reason §2.2 gives for the mark.
+
 ### 2.3 The two body shapes
 
 ```
