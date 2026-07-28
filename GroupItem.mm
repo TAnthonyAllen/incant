@@ -1291,10 +1291,21 @@ RuleStuff 	*ruleStuff = getStuff(pStuff);
 	RUNG-6 TRIPWIRE: the interpretive path does kount++ on success, which
 	feeds `kount >= min` and the iteration bound. The generated path does
 	not. Invisible at max 1 (rungs 1-2); rung 6 must address it.
+	
+	genParseShape S1.1/S1.2 (2026-07-28): the fnptr takes ONE argument and
+	it is the rule -- kant methods take one argument, so the old
+	(rule, parentLabel) pair could never survive the kant handover. The
+	`into` travels through the named parentLabel field instead, and THIS
+	LINE IS ITS SINGLE WRITER. It is written on the rule's OWN rStuff, not
+	on ruleStuff, because ruleStuff may be a reentrancy clone the callee
+	cannot reach -- the callee only receives the rule. The callee lifts it
+	into a stack local at entry, before descending, so a nested invocation
+	overwriting it here cannot disturb an outer frame already under way.
 	***********************************************************************/
 	if ( ruleStuff->parseMethod )
 		{
-		ruleStuff->label = ruleStuff->parseMethod(this,parentLabel);
+		rStuff->parentLabel = parentLabel;
+		ruleStuff->label = ruleStuff->parseMethod(this);
 		ruleStuff->sukcess = ruleStuff->label != 0;
 		goto generatedExit;
 		}

@@ -84,6 +84,7 @@ class GroupRules
             isRELATIVE
             isRigorous
             noSkipping
+            parseTrace
             processingCode
             showWarnings
             useDefaultSpace

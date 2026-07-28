@@ -1,6 +1,20 @@
 class GroupItem;
 /*******************************************************************************
 	RuleStuff is used to stash data used by the parse
+
+    parentLabel (genParseShape S1.2) -- the `into` a generated parse method
+    attaches to, made direct and named. NOT new state: parse() already reached
+    the same value two hops away through parentStuff.label in its attachment
+    block. The single writer is parse()'s S1.3 fork, which writes it on the
+    callee's OWN rStuff immediately before calling; the callee lifts it into a
+    stack local at ENTRY, before descending, which is what closes the recursion
+    window (same reasoning as genParseRuleAccess S1.5's act()).
+
+    parseMethod (genParseShape S1.1) -- ONE argument, and it is the rule. kant
+    methods take one argument, so a two-argument parse method could never
+    survive the kant handover; `into` is derived from parentLabel instead of
+    passed. Widening or narrowing this signature is a LAYOUT change (bear-trap
+    #10: groups.ext sync + tokall + rebuild), not an edit.
 *******************************************************************************/
 
 class RuleStuff
@@ -12,6 +26,7 @@ char *failedAt;
 GroupItem *label;
 GroupItem *onFail;
 GroupItem *onGroup;
+GroupItem *parentLabel;
 GroupItem *sourceLine;
 GroupItem *rule;
 int kount;
@@ -19,7 +34,7 @@ int max;
 int min;
 RuleStuff *parentStuff;
 int (*testMatch)(GroupItem *);
-GroupItem *(*parseMethod)(GroupItem *, GroupItem *);
+GroupItem *(*parseMethod)(GroupItem *);
 struct 
 	{
 	unsigned int banged:1;

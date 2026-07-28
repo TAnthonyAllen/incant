@@ -686,6 +686,7 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	label = 0;
 	onFail = 0;
 	onGroup = 0;
+	parentLabel = 0;
 	sourceLine = 0;
 	kount = 0;
 	parentStuff = 0;
@@ -722,6 +723,7 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	failedAt = 0;
 	onFail = 0;
 	onGroup = 0;
+	parentLabel = 0;
 	sourceLine = 0;
 	rule = 0;
 	max = 0;

@@ -5003,6 +5003,7 @@ GroupRules::GroupRules()
 	isRigorous = 0;
 	membering = 0;
 	noSkipping = 0;
+	parseTrace = 0;
 	processingCode = 0;
 	showWarnings = 0;
 	jitting = 0;

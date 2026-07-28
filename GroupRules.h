@@ -74,6 +74,7 @@ struct
 	unsigned int isRigorous:1;
 	unsigned int membering:1;
 	unsigned int noSkipping:1;
+	unsigned int parseTrace:1;
 	unsigned int processingCode:1;
 	unsigned int showWarnings:1;
 	unsigned int useDefaultSpace:1;
