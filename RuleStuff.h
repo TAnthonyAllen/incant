@@ -10,6 +10,15 @@ class GroupItem;
     stack local at ENTRY, before descending, which is what closes the recursion
     window (same reasoning as genParseRuleAccess S1.5's act()).
 
+    termCount (Clay SEQ 26 S3) -- how many REAL terms genParse emitted indices
+    against, recorded by the parseTerms binding attribute and checked by the
+    parseMethod one before it installs anything. Every emitted rule[n] bets the
+    list only ever mutates BEHIND the real terms; the cached BlocK appearing
+    after a rule's first parse proves the list does mutate at runtime, and
+    nothing else enforces the bet. 0 means unrecorded, which binds with a
+    warning rather than refusing -- a silent trap would be worse than an
+    unguarded one.
+
     parseMethod (genParseShape S1.1) -- ONE argument, and it is the rule. kant
     methods take one argument, so a two-argument parse method could never
     survive the kant handover; `into` is derived from parentLabel instead of
@@ -32,6 +41,7 @@ GroupItem *rule;
 int kount;
 int max;
 int min;
+int termCount;
 RuleStuff *parentStuff;
 int (*testMatch)(GroupItem *);
 GroupItem *(*parseMethod)(GroupItem *);

@@ -17,6 +17,8 @@ define genParse immediateAction=genParse; ;
 registry(cOMMANDs);
 define parseMethod immediateAction=parseRuleMethod noPrint; ;
 registry(cOMMANDs);
+define parseTerms immediateAction=parseTermCount noPrint; ;
+registry(cOMMANDs);
 define traceParse immediateAction=traceParse; ;
 
 /*  Scaffold rules inlined (include-path resolution for a brand-new file in
@@ -28,14 +30,18 @@ define traceParse immediateAction=traceParse; ;
     lets parse()'s §1.3 fork find a generated method at all.  */
 register(Ladder);
 define
-    Scaf  isRule "x"- parseMethod=parseScaf;
-    Scaf2 isRule "{"- "}"- parseMethod=parseScaf2;
+    Scaf  isRule "x"- parseTerms=1 parseMethod=parseScaf;
+    Scaf2 isRule "{"- "}"- parseTerms=2 parseMethod=parseScaf2;
+    ScafA isRule "a"- parseTerms=1 parseMethod=parseScafA;
+    ScafB isRule ScafA "b"- parseTerms=2 parseMethod=parseScafB;
     ;
 search reset stack Grokking Ladder list;
 
 /*  --- rungs 1-2 TEXT-EMIT POP (diff vs genLadder/rung12.target) --- */
 genParse('Scaf');
 genParse('Scaf2');
+genParse('ScafA');
+genParse('ScafB');
 
 /*  --- RUNTIME LOOP, NO ENTRY WRAPPER (genParseShape §1.7) ---
     runScaf/runScaf2 are retired. Invocation is Scaf('x'), exactly as Start(),
@@ -51,4 +57,12 @@ Scaf('x');
 Scaf('y');
 Scaf2('{}');
 Scaf2('{');
+
+/*  --- RUNG 4: a generated rule reached from ANOTHER RULE'S REFERENCE TERM,
+    not by name. ScafB's first term is a reference to ScafA. Only if parse()
+    resolves parseMethod from the DEFINING rule does ScafA's generated method
+    run here -- a term node has its own rStuff and was never bound.
+    The tell in the trace is a HIT/WIN for ScafA nested inside ScafB's.  */
+ScafB('ab');
+ScafB('ax');
 stop();

@@ -1240,6 +1240,26 @@ GroupItem 	*block = new GroupItem();
 	return block;
 }
 
+/*******************************************************************************
+    countRuleTerms — how many REAL terms a rule has, by the same classifier the
+    emitter walks with. ONE implementer, deliberately: the emitter bakes indices
+    against this count and the binder re-checks it, and a check that used its
+    own private notion of "real term" would be worth nothing.
+*******************************************************************************/
+extern "C" int countRuleTerms(GroupItem *rule)
+{
+GroupItem 	*term = 0;
+int 		i = 1;
+int 		n = 0;
+	while ( term = rule->get(i) )
+		{
+		if ( !term->groupBody->flags.noPrint && term->rStuff )
+			n++;
+		i++;
+		}
+	return n;
+}
+
 /***************************************************************************
 	Returns a string version of data
 ***************************************************************************/
@@ -1518,6 +1538,8 @@ extern "C" GroupItem *dumpRuleTerms(GroupItem *argument)
 GroupItem 	*rule = GroupControl::groupController->locate(argument->getText());
 GroupItem 	*term = 0;
 GroupItem 	*ref = 0;
+GroupItem 	*route = 0;
+GroupItem 	*defined = 0;
 RuleStuff 	*rs = 0;
 int 		i = 1;
 	if ( !rule )
@@ -1574,6 +1596,25 @@ int 		i = 1;
 			::fprintf(stderr,"        parent %s\n",term->parent->groupBody->tag);
 		if ( term->groupBody->flags.noPrint )
 			::fprintf(stderr,"        noPrint\n");
+		route = term->get(1);
+		if ( route )
+			route = route->parent;
+		if ( !route )
+			::fprintf(stderr,"        ROUTE none (no children, or child has no parent)\n");
+		else {
+			::fprintf(stderr,"        ROUTE via child1.parent -> %s\n",route->groupBody->tag);
+			defined = GroupControl::groupController->locate(term->groupBody->tag);
+			if ( route == term )
+				::fprintf(stderr,"        ROUTE == the term itself\n");
+			if ( !defined )
+				::fprintf(stderr,"        (no rule of that name to compare)\n");
+			else
+			if ( route == defined )
+				::fprintf(stderr,"        ROUTE == DEFINING RULE, by POINTER\n");
+			else
+			if ( route != defined )
+				::fprintf(stderr,"        ROUTE != defining rule (pointer differs)\n");
+			}
 		i++;
 		}
 	return GroupControl::groupController->groupRules->trueResult;
@@ -1602,8 +1643,12 @@ int 		i = 1;
 extern "C" char *emitTerm(GroupItem *term, char *local)
 {
 RuleStuff 	*rs = term->rStuff;
+GroupItem 	*definer = term->definingRule();
 char 		dq = 34;
 char 		*leaf = 0;
+	if ( definer != term )
+		leaf = ::concat(3,"parseR(",local,",label)");
+	else
 	if ( rs->noLabel )
 		leaf = ::concat(7,"lit(",local,",",::toStringFromChar(dq),term->groupBody->tag,::toStringFromChar(dq),")");
 	else	leaf = ::concat(11,"litTo(",local,",label,",::toStringFromChar(dq),term->groupBody->tag,::toStringFromChar(dq),",",::toStringFromChar(dq),term->groupBody->tag,::toStringFromChar(dq),")");
@@ -1710,6 +1755,7 @@ char 		dq = 34;
 	::fprintf(stderr,"String      from  = atRuleMark;\n");
 	::fprintf(stderr,"    return leaveRule(rule,into,label,from, %s );\n",terms);
 	::fprintf(stderr,"}\n");
+	::fprintf(stderr,"/*  bind:  %s parseTerms=%s parseMethod=parse%s;  */\n",rule->groupBody->tag,::toStringFromInt(::countRuleTerms(rule)),rule->groupBody->tag);
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
@@ -4129,29 +4175,11 @@ extern "C" GroupItem *opUnaryMinus(GroupItem *result)
 	return GroupControl::groupController->groupRules->tempField;
 }
 
-/*******************************************************************************
-    parseRuleMethod — genParseShape §4.1, the binding. What connects a compiled
-    parseScaf to Scaf.rStuff.parseMethod.
-
-    §4.1's candidate was the setRuleAction path in the `=value` form, and that
-    is what this is, modelled line for line on interpretMethod (GroupActions.rtn)
-    — the closest existing analogue, because it is the one command that binds a
-    dlsym'd symbol somewhere OTHER than the plain method slot. Registered in
-    cOMMANDs as `parseMethod`, used as a definition attribute:
-
-        Scaf isRule "x"- parseMethod=parseScaf;
-
-    exactly the shape the grammar already uses for ruleMethod= and
-    interpretMethod=. In the kant world this whole function is one ORC-compile
-    and a stored handle; here it is a dlsym.
-
-    getRStuff, not rStuff: a rule reached at definition time may not have been
-    parsed yet, and the fork reads the field off the rule's OWN stuff.
-*******************************************************************************/
 extern "C" GroupItem *parseRuleMethod(GroupItem *input)
 {
 char 		*name = input->getText();
 RuleStuff 	*stuff = 0;
+int 		live = 0;
 	if ( input->groupBody->flags.fLAG )
 		if ( name )
 			{
@@ -4159,6 +4187,16 @@ RuleStuff 	*stuff = 0;
 			if ( grup )
 				{
 				stuff = grup->getRStuff();
+				live = ::countRuleTerms(grup);
+				if ( !stuff->termCount )
+					::fprintf(stderr,"parseMethod: WARNING binding %s to %s with no parseTerms -- indices unguarded\n",name,grup->groupBody->tag);
+				else
+				if ( stuff->termCount != live )
+					{
+					::fprintf(stderr,"parseMethod: REFUSING to bind %s to %s\n",name,grup->groupBody->tag);
+					::fprintf(stderr,"             emitted against %s terms, rule now has %s\n",::toStringFromInt(stuff->termCount),::toStringFromInt(live));
+					return grup->getGroup();
+					}
 				::setParseMethod(stuff,name);
 				}
 			else	::fprintf(stderr,"parseMethod: no rule to bind to\n");
@@ -4206,6 +4244,71 @@ GroupItem 	*t1 = rule->get(1);
 GroupItem 	*t2 = rule->get(2);
 char 		*from = GroupControl::groupController->groupRules->atRuleMark;
 	return ::leaveRule(rule,into,label,from,::lit(t1,"{") && ::lit(t2,"}"));
+}
+
+/*  === GENERATED by genParse('ScafA'), pasted verbatim (rung-4 callee) === */
+extern "C" GroupItem *parseScafA(GroupItem *rule)
+{
+GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*label = new GroupItem("ScafA");
+GroupItem 	*t1 = rule->get(1);
+char 		*from = GroupControl::groupController->groupRules->atRuleMark;
+	return ::leaveRule(rule,into,label,from,::lit(t1,"a"));
+}
+
+/*  === GENERATED by genParse('ScafB'), pasted verbatim (rung-4 caller) ===
+    ScafB's first term is a REFERENCE to ScafA, so the leaf is parseR, not lit.
+    This is the rung the whole ladder above 4 depends on: parseR hands the term
+    to parse(), parse() resolves parseMethod from the DEFINING rule, and
+    parseScafA runs -- reached through a reference term that was never bound
+    and has its own rStuff.  */
+extern "C" GroupItem *parseScafB(GroupItem *rule)
+{
+GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*label = new GroupItem("ScafB");
+GroupItem 	*t1 = rule->get(1);
+GroupItem 	*t2 = rule->get(2);
+char 		*from = GroupControl::groupController->groupRules->atRuleMark;
+	return ::leaveRule(rule,into,label,from,::parseR(t1,label) && ::lit(t2,"b"));
+}
+
+/*******************************************************************************
+    parseRuleMethod — genParseShape §4.1, the binding. What connects a compiled
+    parseScaf to Scaf.rStuff.parseMethod.
+
+    §4.1's candidate was the setRuleAction path in the `=value` form, and that
+    is what this is, modelled line for line on interpretMethod (GroupActions.rtn)
+    — the closest existing analogue, because it is the one command that binds a
+    dlsym'd symbol somewhere OTHER than the plain method slot. Registered in
+    cOMMANDs as `parseMethod`, used as a definition attribute:
+
+        Scaf isRule "x"- parseMethod=parseScaf;
+
+    exactly the shape the grammar already uses for ruleMethod= and
+    interpretMethod=. In the kant world this whole function is one ORC-compile
+    and a stored handle; here it is a dlsym.
+
+    getRStuff, not rStuff: a rule reached at definition time may not have been
+    parsed yet, and the fork reads the field off the rule's OWN stuff.
+*******************************************************************************/
+extern "C" GroupItem *parseTermCount(GroupItem *input)
+{
+char 		*name = input->getText();
+RuleStuff 	*stuff = 0;
+	if ( input->groupBody->flags.fLAG )
+		if ( name )
+			{
+			GroupItem 	*grup = input->parent;
+			if ( grup )
+				{
+				stuff = grup->getRStuff();
+				stuff->termCount = ::atoi(name);
+				}
+			else	::fprintf(stderr,"parseTerms: no rule to record against\n");
+			}
+		else	::fprintf(stderr,"parseTerms: expected a count in text\n");
+	else	::fprintf(stderr,"parseTerms: should be invoked as a definition attribute\n");
+	return input->getGroup();
 }
 
 /*******************************************************************************

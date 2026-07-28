@@ -72,12 +72,14 @@ char 		*at = ruler->atRuleMark;
     term, `rule` means rule). It is what the S1.8 instrumentation reports
     against.
 
-    NULL `into` IS LEGAL and must not be dereferenced (genParseShape S1.7).
-    Retiring the entry wrappers makes a generated rule reachable from a
-    top-level incant call, and runRule invokes `rule.parse(0)` with no parent
-    stuff -- so parentLabel, and therefore `into`, is null there. The
-    interpretive path has always guarded this: parse()'s attachment block is
-    `if label && pStuff`. This is the same guard, one implementer down. Without
+    NULL `into` IS LEGAL and RETURNS THE LABEL -- settled, Clay SEQ 26 S4. The
+    parse succeeded, the tree exists, there is simply no parent to attach it
+    to; this is the sequence analogue of leaveAlt's success exit. Retiring the
+    entry wrappers (S1.7) is what makes it reachable: a generated rule can now
+    be called from top-level incant, and runRule invokes `rule.parse(0)` with
+    no parent stuff, so parentLabel -- and therefore `into` -- is null. The
+    interpretive path has always guarded this (parse()'s attachment block is
+    `if label && pStuff`); this is the same guard one implementer down. Without
     it, `Scaf('x')` dereferences null on its FIRST success.
 
     S1.8 instrumentation: HIT/WIN (S6.1) and Invariant R live HERE rather than
@@ -821,6 +823,7 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	parentLabel = 0;
 	sourceLine = 0;
 	kount = 0;
+	termCount = 0;
 	parentStuff = 0;
 	banged = 0;
 	doNothing = 0;
@@ -860,6 +863,7 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	rule = 0;
 	max = 0;
 	min = 0;
+	termCount = 0;
 	banged = 0;
 	doNothing = 0;
 	followed = 0;

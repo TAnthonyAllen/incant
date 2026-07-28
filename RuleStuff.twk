@@ -12,6 +12,15 @@ include groupIncludes
     stack local at ENTRY, before descending, which is what closes the recursion
     window (same reasoning as genParseRuleAccess S1.5's act()).
 
+    termCount (Clay SEQ 26 S3) -- how many REAL terms genParse emitted indices
+    against, recorded by the parseTerms binding attribute and checked by the
+    parseMethod one before it installs anything. Every emitted rule[n] bets the
+    list only ever mutates BEHIND the real terms; the cached BlocK appearing
+    after a rule's first parse proves the list does mutate at runtime, and
+    nothing else enforces the bet. 0 means unrecorded, which binds with a
+    warning rather than refusing -- a silent trap would be worse than an
+    unguarded one.
+
     parseMethod (genParseShape S1.1) -- ONE argument, and it is the rule. kant
     methods take one argument, so a two-argument parse method could never
     survive the kant handover; `into` is derived from parentLabel instead of
@@ -31,7 +40,8 @@ GroupItem   label,
             rule;
 int         kount,
             max,
-            min;
+            min,
+            termCount;
 RuleStuff   parentStuff;
 int         &testMatch(GroupItem);
 GroupItem   &parseMethod(GroupItem);
@@ -508,12 +518,14 @@ extern int inGuard(GroupItem field, String chars, char ch)
     term, `rule` means rule). It is what the S1.8 instrumentation reports
     against.
 
-    NULL `into` IS LEGAL and must not be dereferenced (genParseShape S1.7).
-    Retiring the entry wrappers makes a generated rule reachable from a
-    top-level incant call, and runRule invokes `rule.parse(0)` with no parent
-    stuff -- so parentLabel, and therefore `into`, is null there. The
-    interpretive path has always guarded this: parse()'s attachment block is
-    `if label && pStuff`. This is the same guard, one implementer down. Without
+    NULL `into` IS LEGAL and RETURNS THE LABEL -- settled, Clay SEQ 26 S4. The
+    parse succeeded, the tree exists, there is simply no parent to attach it
+    to; this is the sequence analogue of leaveAlt's success exit. Retiring the
+    entry wrappers (S1.7) is what makes it reachable: a generated rule can now
+    be called from top-level incant, and runRule invokes `rule.parse(0)` with
+    no parent stuff, so parentLabel -- and therefore `into` -- is null. The
+    interpretive path has always guarded this (parse()'s attachment block is
+    `if label && pStuff`); this is the same guard one implementer down. Without
     it, `Scaf('x')` dereferences null on its FIRST success.
 
     S1.8 instrumentation: HIT/WIN (S6.1) and Invariant R live HERE rather than

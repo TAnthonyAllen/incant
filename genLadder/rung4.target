@@ -1,0 +1,17 @@
+extern GroupItem parseScafA(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("ScafA");
+GroupItem   t1 = rule[1];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, lit(t1,"a") );
+}
+extern GroupItem parseScafB(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("ScafB");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, parseR(t1,label) && lit(t2,"b") );
+}

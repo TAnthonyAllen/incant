@@ -440,6 +440,38 @@ GroupItem 	*stuff = 0;
 	return stuff;
 }
 
+/***************************************************************************
+    definingRule -- the node a rule-reference term refers to, reached WITHOUT
+    a name lookup. Clay SEQ 26 S1; measured, not reasoned (incant/termScratch).
+
+    A reference term is a distinct node that SHARES the defining rule's child
+    list. The children are parented to the definer, so the first child's parent
+    IS the definer, by pointer. Verified on JSONblock->JSONfield,
+    JSONfield->JSONtoken and JSONfield->JSONvalue: pointer-identical to what
+    locate() returns for the same name.
+
+    The test discriminates, which is why it can be trusted unguarded: a node
+    that OWNS its children (a defining rule, and also CodE/BlocK) routes back
+    to ITSELF, and a leaf term has no children at all. Both fall through to
+    `return this`, so the only nodes that resolve elsewhere are the ones that
+    genuinely reference something else.
+
+    This is what makes rung 4 possible. parseMethod is SHAPE -- one answer,
+    always the same -- so resolving it here means binding a rule once reaches
+    every reference to it, including references created LATER. No registry
+    sweep (which would miss late references) and no locate (S1.3 forbids it).
+***************************************************************************/
+GroupItem *GroupItem::definingRule()
+{
+GroupItem 	*first = get(1);
+GroupItem 	*owner = 0;
+	if ( first )
+		owner = first->parent;
+	if ( owner && owner != this )
+		return owner;
+	return this;
+}
+
 /*****************************************************************************
 	Run a group method in the dispatch Q
 *****************************************************************************/
@@ -1248,7 +1280,9 @@ GroupItem *GroupItem::nextMember(GroupItem *current)
 GroupItem *GroupItem::parse(RuleStuff *pStuff)
 {
 GroupItem 	*parentLabel = 0;
+GroupItem 	*definer = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
+RuleStuff 	*defStuff = 0;
 RuleStuff 	*ruleStuff = getStuff(pStuff);
 	if ( pStuff )
 		parentLabel = pStuff->label;
@@ -1301,11 +1335,35 @@ RuleStuff 	*ruleStuff = getStuff(pStuff);
 	cannot reach -- the callee only receives the rule. The callee lifts it
 	into a stack local at entry, before descending, so a nested invocation
 	overwriting it here cannot disturb an outer frame already under way.
+	
+	RUNG 4, and the split is the whole point (Clay SEQ 26 S1/S2). The two
+	fields go to DIFFERENT nodes, deliberately:
+	
+	parseMethod is SHAPE. One answer, always the same for a given rule,
+	so it is read from the DEFINING rule (definingRule(), a pointer walk,
+	no name lookup). That is what lets a generated rule be reached
+	through another rule's reference term and not only by name -- bind
+	once, and every reference sees it, including references created after
+	the binding.
+	
+	parentLabel is FRAME. It varies per invocation and is what carries
+	the variation. It stays on `this` -- the node actually being parsed.
+	Routing it to the defining rule instead would make every reference to
+	a recursive rule write the SAME slot, which is correct-looking right
+	up until the recursion is live. A field that looks like it belongs
+	with the rule because it is usually the same is exactly the dangerous
+	case.
+	
+	`this` is what gets passed, not the definer: the two share a child
+	list, so rule[n] reads the same terms from either, while
+	rule.rStuff.parentLabel has to be this invocation's.
 	***********************************************************************/
-	if ( ruleStuff->parseMethod )
+	definer = definingRule();
+	defStuff = definer->rStuff;
+	if ( defStuff && defStuff->parseMethod )
 		{
 		rStuff->parentLabel = parentLabel;
-		ruleStuff->label = ruleStuff->parseMethod(this);
+		ruleStuff->label = defStuff->parseMethod(this);
 		ruleStuff->sukcess = ruleStuff->label != 0;
 		goto generatedExit;
 		}

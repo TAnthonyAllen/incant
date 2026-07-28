@@ -9,9 +9,16 @@ search reset stack Grokking UnitTests Utilities list;
 registry(cOMMANDs);
 define dumpRuleTerms immediateAction=dumpRuleTerms; ;
 
+registry(cOMMANDs);
+define parseMethod immediateAction=parseRuleMethod noPrint; ;
+
+/*  Scaf is defined WITH its binding attribute, to answer a second question:
+    does a noPrint definition attribute PERSIST in the rule's own list? If it
+    does, a sibling attribute is a usable place to carry the emitted term count
+    (Clay SEQ 26 §3) with no layout change.  */
 register(Ladder);
 define
-    Scaf isRule "x"-;
+    Scaf isRule "x"- parseMethod=parseScaf;
     Scaf2 isRule "{"- "}"-;
     ;
 search reset stack Grokking Ladder UnitTests Utilities list;
