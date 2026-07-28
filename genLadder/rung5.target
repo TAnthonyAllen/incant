@@ -1,0 +1,19 @@
+extern int manyScafC1(GroupItem label, GroupItem term)
+{
+GroupRules  ruler = groupRules;
+String      from = atRuleMark;
+int         kount;
+    while parseR(term,label)    kount++;
+    if kount >= 1   return true;
+    atRuleMark = from;
+    return false;
+}
+extern GroupItem parseScafC(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("ScafC");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, manyScafC1(label,t1) && lit(t2,"c") );
+}

@@ -20,6 +20,8 @@ registry(cOMMANDs);
 define parseTerms immediateAction=parseTermCount noPrint; ;
 registry(cOMMANDs);
 define traceParse immediateAction=traceParse; ;
+registry(cOMMANDs);
+define demoRprime immediateAction=demoRprime; ;
 
 /*  Scaffold rules inlined (include-path resolution for a brand-new file in
     incant/ is unreliable; inline sidesteps it). Simplest-first per Clay's
@@ -34,6 +36,7 @@ define
     Scaf2 isRule "{"- "}"- parseTerms=2 parseMethod=parseScaf2;
     ScafA isRule "a"- parseTerms=1 parseMethod=parseScafA;
     ScafB isRule ScafA "b"- parseTerms=2 parseMethod=parseScafB;
+    ScafC isRule ScafA+ "c"- parseTerms=2 parseMethod=parseScafC;
     ;
 search reset stack Grokking Ladder list;
 
@@ -42,6 +45,7 @@ genParse('Scaf');
 genParse('Scaf2');
 genParse('ScafA');
 genParse('ScafB');
+genParse('ScafC');
 
 /*  --- RUNTIME LOOP, NO ENTRY WRAPPER (genParseShape §1.7) ---
     runScaf/runScaf2 are retired. Invocation is Scaf('x'), exactly as Start(),
@@ -65,4 +69,20 @@ Scaf2('{');
     The tell in the trace is a HIT/WIN for ScafA nested inside ScafB's.  */
 ScafB('ab');
 ScafB('ax');
+
+/*  --- RUNG 5: repetition. ScafC is ScafA+ "c"-, so the emitted body is
+    manyScafC1(label,t1) && lit(t2,"c") with the helper emitted alongside it.
+    'aaac' exercises three passes; 'aax' fails the trailing literal after two
+    successful passes, so leaveRule has to give back everything the loop
+    consumed -- R across a generated LOOP, not just a generated call.  */
+ScafC('ac');
+ScafC('aaac');
+ScafC('aax');
+ScafC('c');
+
+/*  --- INVARIANT R′, both clauses, side by side. See demoRprime: min >= 2 is
+    unreachable through the grammar today, so the mark clause is shown as a
+    controlled comparison of the two loop shapes rather than as a rule.  */
+demoRprime('a');
+demoRprime('aa');
 stop();

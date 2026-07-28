@@ -1453,6 +1453,104 @@ int 	length = 0;
 		::printf("\n");
 }
 
+/*******************************************************************************
+    demoRprime — INVARIANT R′, DEMONSTRATED, both clauses.
+
+    A POP that only shows a passing run proves neither clause: at min <= 1 the
+    rewind branch is never reached, and a recycled label and a fresh one look
+    identical from outside. So this runs the two loop shapes side by side on the
+    same input and reports the difference.
+
+    WHY IT IS A CONTROLLED COMPARISON AND NOT A GENERATED RULE: the mark clause
+    is only observable at min >= 2, and MIN >= 2 IS CURRENTLY UNREACHABLE
+    THROUGH THE GRAMMAR. Measured 2026-07-28: `X[2]` is rejected outright
+    (ERROR Operator - failed on isRule and Token) and `X[2 9]` parses, prints
+    "nextGroup: ERROR max does not contain a list", and leaves min/max at 1/1 --
+    the limit is SILENTLY NOT APPLIED. setLimits itself reads correctly, so the
+    fault is upstream of it. That makes genParseSpec §2.2's "latent until
+    someone writes X[2]" true in a stronger sense than it states.
+
+    MARK CLAUSE. Input "a" against a term needing 2. The entry-saved loop (the
+    emitted shape) gives back the whole run. The per-pass loop (parse()'s shape,
+    where checkInput reassigns hereAt every iteration) rewinds to the start of
+    the FAILED attempt, which is already past the match -- so the first match's
+    input stays consumed. That is the defect §2.2 records, made visible.
+
+    LABEL CLAUSE. Input "aa". Each pass goes through parse() and builds a fresh
+    label, so two passes attach TWO children. A recycling loop -- parse()'s
+    `isGROUP && max > 1` path, which clears the label and hands it back via the
+    fLAG handshake -- would show one.
+*******************************************************************************/
+extern "C" GroupItem *demoRprime(GroupItem *argument)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*rule = ::locateRule("ScafC");
+GroupItem 	*term = 0;
+GroupItem 	*label = 0;
+char 		*entry = 0;
+char 		*perPass = 0;
+int 		baseStak = 0;
+int 		kount = 0;
+int 		kids = 0;
+int 		going = 1;
+	if ( !rule )
+		{
+		::fprintf(stderr,"demoRprime: no ScafC on the search list\n");
+		return 0;
+		}
+	term = rule->get(1);
+	if ( ruler->inputSTAK )
+		baseStak = ruler->inputSTAK->length;
+	ruler->pushInput(argument);
+	entry = ruler->atRuleMark;
+	label = new GroupItem("demoEntry");
+	while ( ::parseR(term,label) )
+		kount++;
+	if ( kount >= 2 )
+		::fprintf(stderr,"  R-prime MARK  entry-saved (emitted) : matched %s of 2 -- SUCCEEDED, no rewind due\n",::toStringFromInt(kount));
+	else {
+		ruler->atRuleMark = entry;
+		if ( ruler->atRuleMark == entry )
+			::fprintf(stderr,"  R-prime MARK  entry-saved (emitted) : matched %s of 2 -- REWOUND to loop entry\n",::toStringFromInt(kount));
+		else	::fprintf(stderr,"  R-prime MARK  entry-saved (emitted) : matched %s of 2 -- input STRANDED\n",::toStringFromInt(kount));
+		}
+	while ( ruler->inputSTAK && ruler->inputSTAK->length > baseStak )
+		ruler->popInput();
+	kount = 0;
+	ruler->pushInput(argument);
+	entry = ruler->atRuleMark;
+	perPass = entry;
+	label = new GroupItem("demoPerPass");
+	while ( going )
+		{
+		perPass = ruler->atRuleMark;
+		going = ::parseR(term,label) != 0;
+		if ( going )
+			kount++;
+		}
+	if ( kount >= 2 )
+		::fprintf(stderr,"  R-prime MARK  per-pass  (parse()) : matched %s of 2 -- SUCCEEDED, no rewind due\n",::toStringFromInt(kount));
+	else {
+		ruler->atRuleMark = perPass;
+		if ( ruler->atRuleMark == entry )
+			::fprintf(stderr,"  R-prime MARK  per-pass  (parse()) : matched %s of 2 -- REWOUND to loop entry\n",::toStringFromInt(kount));
+		else	::fprintf(stderr,"  R-prime MARK  per-pass  (parse()) : matched %s of 2 -- rewound only to the FAILED PASS, input STRANDED\n",::toStringFromInt(kount));
+		}
+	while ( ruler->inputSTAK && ruler->inputSTAK->length > baseStak )
+		ruler->popInput();
+	kount = 0;
+	ruler->pushInput(argument);
+	label = new GroupItem("demoLabels");
+	while ( ::parseR(term,label) )
+		kount++;
+	while ( label->get(kids + 1) )
+		kids++;
+	::fprintf(stderr,"  R-prime LABEL entry-saved (emitted) : %s passes attached %s fresh label(s)\n",::toStringFromInt(kount),::toStringFromInt(kids));
+	while ( ruler->inputSTAK && ruler->inputSTAK->length > baseStak )
+		ruler->popInput();
+	return ruler->trueResult;
+}
+
 /*****************************************************************************
 	The dispatcher is designed to take a group argument disguised as a void*
     The group argument is on the listener notifyLIST. The notifier is the
@@ -1636,25 +1734,18 @@ int 		i = 1;
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
-/*******************************************************************************
-    emitLeaf — one PLAN node -> one leaf expression string.
-
-    Everything here is about the TARGET and nothing about the rule: which
-    support function spells a decision the walk already made, and how a literal
-    is quoted. The walk decided LIT vs LITTO ("does this attach a label"); this
-    decides that a LITTO inside a SEQ is spelled litTo. The same plan handed to
-    a kant emitter produces different text and the same decisions — which is the
-    whole reason the seam exists.
-
-    NOTE, latent: litTo has no implementation in the support library. Never
-    fires on the ladder (every Scaf/ScafA/ScafB term is noLabel). Flagged rather
-    than silently carried.
-*******************************************************************************/
 extern "C" char *emitLeaf(GroupItem *node, char *local)
 {
 GroupItem 	*slot = 0;
+GroupItem 	*site = 0;
 char 		dq = 34;
 char 		*leaf = 0;
+	if ( ::compare(node->groupBody->tag,"MANY") == 0 )
+		{
+		site = node->getAttribute("site");
+		leaf = ::concat(5,"many",site->getText(),"(label,",local,")");
+		}
+	else
 	if ( ::compare(node->groupBody->tag,"CALL") == 0 )
 		leaf = ::concat(3,"parseR(",local,",label)");
 	else
@@ -1671,6 +1762,75 @@ char 		*leaf = 0;
 		return 0;
 		}
 	return leaf;
+}
+
+/*******************************************************************************
+    emitLeaf — one PLAN node -> one leaf expression string.
+
+    Everything here is about the TARGET and nothing about the rule: which
+    support function spells a decision the walk already made, and how a literal
+    is quoted. The walk decided LIT vs LITTO ("does this attach a label"); this
+    decides that a LITTO inside a SEQ is spelled litTo. The same plan handed to
+    a kant emitter produces different text and the same decisions — which is the
+    whole reason the seam exists.
+
+    NOTE, latent: litTo has no implementation in the support library. Never
+    fires on the ladder (every Scaf/ScafA/ScafB term is noLabel). Flagged rather
+    than silently carried.
+*******************************************************************************/
+/*******************************************************************************
+    emitMany — the repetition helper, one per repeated term (§3.3).
+
+    THIS IS WHERE INVARIANT R′ LIVES, and both clauses are properties of the
+    emitted loop rather than promises made about it:
+
+      MARK  — `from` is captured ONCE, at helper entry, and the rewind on a
+              short run goes back to THERE. The interpretive path cannot do
+              this: checkInput() reassigns hereAt at the top of every iteration
+              (RuleStuff.twk:125) and the rewind targets hereAt
+              (GroupItem.twk:1101), so after N passes it points at the start of
+              pass N. A min >= 2 term that matches once then fails strands the
+              first match. The generated loop is correct for every min/max.
+
+      LABEL — each pass calls parseR, which goes through parse() and builds a
+              FRESH label. Nothing here reads or writes fLAG, so parse()'s
+              `isGROUP && max > 1` recycling handshake (writer GroupItem.twk:1087,
+              reader RuleStuff.twk:141-144) is simply absent. R′ says do not
+              invent one.
+
+    A failing pass rewinds ITSELF (Invariant R in the callee's leaveRule), so
+    the helper never has to unwind a partial pass — it only has to give back
+    the whole run when the count is short. R and R′ compose; neither duplicates
+    the other.
+
+    min is baked as a literal. max is NOT bounded, matching the hand-written
+    manyJSONblockFields/manyJSONlistItems: every repeated term in the census is
+    unbounded (sentinel 268435457), so a bound would be dead code emitted at
+    every site. Revisit when a finite max first appears — the plan carries what
+    is needed.
+*******************************************************************************/
+extern "C" int emitMany(GroupItem *node)
+{
+GroupItem 	*site = node->getAttribute("site");
+GroupItem 	*low = node->getAttribute("min");
+char 		*name = 0;
+	if ( !site || !low )
+		{
+		::fprintf(stderr,"emitMany: MANY node has no site/min\n");
+		return 0;
+		}
+	name = ::concat(2,"many",site->getText());
+	::fprintf(stderr,"extern int %s(GroupItem label, GroupItem term)\n",name);
+	::fprintf(stderr,"{\n");
+	::fprintf(stderr,"GroupRules  ruler = groupRules;\n");
+	::fprintf(stderr,"String      from = atRuleMark;\n");
+	::fprintf(stderr,"int         kount;\n");
+	::fprintf(stderr,"    while parseR(term,label)    kount++;\n");
+	::fprintf(stderr,"    if kount >= %s   return true;\n",low->getText());
+	::fprintf(stderr,"    atRuleMark = from;\n");
+	::fprintf(stderr,"    return false;\n");
+	::fprintf(stderr,"}\n");
+	return 1;
 }
 
 /*******************************************************************************
@@ -1703,6 +1863,10 @@ char 		dq = 34;
 		return 0;
 		}
 	lab = plan->getAttribute("label");
+	/*  FIRST PASS: validate every node, and emit the helpers §3.3 calls for.
+	This is what the two-pass shape exists for — a helper is discovered
+	mid-walk, and with text already going out you would have to buffer it or
+	emit it out of order. With a plan you simply walk it again.  */
 	while ( node = plan->nextMember(node) )
 		{
 		at = node->getAttribute("at");
@@ -1714,6 +1878,12 @@ char 		dq = 34;
 			::fprintf(stderr,"emitPlan: REFUSING %s -- unemittable plan node\n",tag);
 			return 0;
 			}
+		if ( ::compare(node->groupBody->tag,"MANY") == 0 )
+			if ( !::emitMany(node) )
+				{
+				::fprintf(stderr,"emitPlan: REFUSING %s -- unemittable repetition helper\n",tag);
+				return 0;
+				}
 		n++;
 		}
 	::fprintf(stderr,"extern GroupItem parse%s(GroupItem rule)\n",tag);
@@ -3217,6 +3387,44 @@ GroupItem 	*grup = new GroupItem(strung);
 	return grup;
 }
 
+/*******************************************************************************
+    RUNTIME LOOP (Clay 2026-07-27) — close the loop ONCE on rung 1's scaffold
+    before climbing. Text-diff proves genParse emits what a human wrote; it says
+    nothing about whether the emitted code compiles, links, binds, or RUNS (the
+    invocation-blocker failure class was invisible to any source comparison).
+
+    NO ENTRY WRAPPER (genParseShape §1.7). runScaf/runScaf2 are RETIRED. The
+    invocation is `Scaf('x')`, exactly as `Start()` — which exercises emission,
+    the fork, binding and dispatch. A bespoke wrapper exercised none of them: it
+    called parseScaf directly, so it could have passed with the binding wholly
+    unbuilt, which is precisely the blind spot the runtime loop exists to close.
+    What the wrappers WERE good for — the Invariant R report — moved into
+    leaveRule (§1.8), where `from` and atRuleMark are both in hand at the moment
+    the question is asked.
+
+    parseScaf/parseScaf2 below are the VERBATIM output of genParse. They call
+    lit and leaveRule from the RuleStuff support library (cross-file via
+    groups.ext).
+*******************************************************************************/
+/*  === GENERATED by genParse('ScafC'), pasted verbatim (rung-5 emission) ===
+    ScafC isRule ScafA+ "c"-;  — one helper per repeated term, min baked in,
+    the term arriving as the frame's term local. Invariant R′ is structural
+    here: `from` is captured ONCE at helper entry (mark clause), and each pass
+    goes through parseR -> parse() and builds a fresh label, with no fLAG
+    anywhere (label clause).  */
+extern "C" int manyScafC1(GroupItem *label, GroupItem *term)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+char 		*from = ruler->atRuleMark;
+int 		kount = 0;
+	while ( ::parseR(term,label) )
+		kount++;
+	if ( kount >= 1 )
+		return 1;
+	ruler->atRuleMark = from;
+	return 0;
+}
+
 /***************************************************************************
 	window attribute handler. A form field carries `window` as an attribute;
     this fires at parent-define time (fLAG set) and marks the parent form
@@ -4347,25 +4555,6 @@ int 		live = 0;
 	return input->getGroup();
 }
 
-/*******************************************************************************
-    RUNTIME LOOP (Clay 2026-07-27) — close the loop ONCE on rung 1's scaffold
-    before climbing. Text-diff proves genParse emits what a human wrote; it says
-    nothing about whether the emitted code compiles, links, binds, or RUNS (the
-    invocation-blocker failure class was invisible to any source comparison).
-
-    NO ENTRY WRAPPER (genParseShape §1.7). runScaf/runScaf2 are RETIRED. The
-    invocation is `Scaf('x')`, exactly as `Start()` — which exercises emission,
-    the fork, binding and dispatch. A bespoke wrapper exercised none of them: it
-    called parseScaf directly, so it could have passed with the binding wholly
-    unbuilt, which is precisely the blind spot the runtime loop exists to close.
-    What the wrappers WERE good for — the Invariant R report — moved into
-    leaveRule (§1.8), where `from` and atRuleMark are both in hand at the moment
-    the question is asked.
-
-    parseScaf/parseScaf2 below are the VERBATIM output of genParse. They call
-    lit and leaveRule from the RuleStuff support library (cross-file via
-    groups.ext).
-*******************************************************************************/
 /*  === GENERATED by genParse('Scaf'), pasted verbatim (rung-1 emission) === */
 extern "C" GroupItem *parseScaf(GroupItem *rule)
 {
@@ -4411,6 +4600,16 @@ GroupItem 	*t1 = rule->get(1);
 GroupItem 	*t2 = rule->get(2);
 char 		*from = GroupControl::groupController->groupRules->atRuleMark;
 	return ::leaveRule(rule,into,label,from,::parseR(t1,label) && ::lit(t2,"b"));
+}
+
+extern "C" GroupItem *parseScafC(GroupItem *rule)
+{
+GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*label = new GroupItem("ScafC");
+GroupItem 	*t1 = rule->get(1);
+GroupItem 	*t2 = rule->get(2);
+char 		*from = GroupControl::groupController->groupRules->atRuleMark;
+	return ::leaveRule(rule,into,label,from,::manyScafC1(label,t1) && ::lit(t2,"c"));
 }
 
 /*******************************************************************************
@@ -4462,6 +4661,7 @@ GroupItem 	*plan = 0;
 GroupItem 	*term = 0;
 GroupItem 	*node = 0;
 GroupItem 	*lab = 0;
+GroupItem 	*site = 0;
 int 		i = 1;
 	if ( ::unresolvedTerms(rule) )
 		{
@@ -4496,6 +4696,12 @@ int 		i = 1;
 				{
 				::fprintf(stderr,"  REFUSE rule %s -- term %s unclassified\n",rule->groupBody->tag,term->groupBody->tag);
 				return 0;
+				}
+			if ( ::compare(node->groupBody->tag,"MANY") == 0 )
+				{
+				site = new GroupItem("site");
+				site->setText(::concat(2,rule->groupBody->tag,::toStringFromInt(i)));
+				node->addAttribute(site);
 				}
 			plan->addMember(node);
 			}
@@ -4571,6 +4777,8 @@ GroupItem 	*definer = term->definingRule();
 GroupItem 	*node = 0;
 GroupItem 	*at = 0;
 GroupItem 	*slot = 0;
+GroupItem 	*many = 0;
+GroupItem 	*low = 0;
 int 		labelled = 0;
 	if ( !rs )
 		{
@@ -4636,7 +4844,44 @@ int 		labelled = 0;
 		slot->setText(term->groupBody->tag);
 		node->addAttribute(slot);
 		}
-	return node;
+	/*  REPETITION (rung 5). Measured min/max shapes across the census: 40 terms
+	are plain (1,1); 12 are optional (0,1); 4 are `*` (0,unbounded); 5 are
+	`+` (1,unbounded). The unbounded sentinel is 268435457.
+	
+	OPTIONAL IS REFUSED, and that is a correction, not a gap. Until now an
+	optional term planned as a PLAIN CONJUNCT, so it would have emitted as
+	MANDATORY -- `lit(t4,",")` where the hand-written model wrote
+	`(lit(rule,",") || true)`. A parser that accepts too little is exactly
+	the silent-wrongness this rung is supposed to stop producing, so it
+	refuses until optionality gets its own kind. One kind per rung.
+	
+	MANY WRAPS A CALL AND ONLY A CALL. §2.5 is explicit that star and plus
+	mean different things for character-level terms than for references, and
+	conflating them yields a parser that accepts correctly and builds
+	wrongly. Accumulators already refused above on `data`; a repeated
+	LITERAL refuses here.  */
+	if ( rs->min == 1 && rs->max == 1 )
+		return node;
+	if ( rs->max > 1 )
+		{
+		if ( ::compare(node->groupBody->tag,"CALL") != 0 )
+			{
+			::fprintf(stderr,"  REFUSE %s -- repetition of a non-reference term (rung 5 is iteration only)\n",term->groupBody->tag);
+			return 0;
+			}
+		many = new GroupItem("MANY");
+		many->setText(node->getText());
+		low = new GroupItem("min");
+		low->setText(::toStringFromInt(rs->min));
+		many->addAttribute(low);
+		at = new GroupItem("at");
+		at->setText(::toStringFromInt(index));
+		many->addAttribute(at);
+		many->addMember(node);
+		return many;
+		}
+	::fprintf(stderr,"  REFUSE %s -- optional (min %s max %s) has no kind yet\n",term->groupBody->tag,::toStringFromInt(rs->min),::toStringFromInt(rs->max));
+	return 0;
 }
 
 /*******************************************************************************
@@ -4701,6 +4946,12 @@ char 		*deeper = 0;
 	meta = plan->getAttribute("slot");
 	if ( meta )
 		::fprintf(stderr,"%s  slot=%s\n",pad,meta->getText());
+	meta = plan->getAttribute("min");
+	if ( meta )
+		::fprintf(stderr,"%s  min=%s\n",pad,meta->getText());
+	meta = plan->getAttribute("site");
+	if ( meta )
+		::fprintf(stderr,"%s  site=%s\n",pad,meta->getText());
 	while ( kid = plan->nextMember(kid) )
 		::printPlan(kid,deeper);
 	return 1;

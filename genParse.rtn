@@ -326,6 +326,8 @@ GroupItem   definer = term.definingRule();
 GroupItem   node;
 GroupItem   at;
 GroupItem   slot;
+GroupItem   many;
+GroupItem   low;
 int         labelled = 0;
     if !rs {
         cerr "  REFUSE " term.tag " -- unmaterialised, no rStuff yet":;
@@ -367,7 +369,39 @@ int         labelled = 0;
         slot        = new("slot");
         slot.text   = term.tag;
         node +% slot; }
-    return node;
+    /*  REPETITION (rung 5). Measured min/max shapes across the census: 40 terms
+        are plain (1,1); 12 are optional (0,1); 4 are `*` (0,unbounded); 5 are
+        `+` (1,unbounded). The unbounded sentinel is 268435457.
+
+        OPTIONAL IS REFUSED, and that is a correction, not a gap. Until now an
+        optional term planned as a PLAIN CONJUNCT, so it would have emitted as
+        MANDATORY -- `lit(t4,",")` where the hand-written model wrote
+        `(lit(rule,",") || true)`. A parser that accepts too little is exactly
+        the silent-wrongness this rung is supposed to stop producing, so it
+        refuses until optionality gets its own kind. One kind per rung.
+
+        MANY WRAPS A CALL AND ONLY A CALL. §2.5 is explicit that star and plus
+        mean different things for character-level terms than for references, and
+        conflating them yields a parser that accepts correctly and builds
+        wrongly. Accumulators already refused above on `data`; a repeated
+        LITERAL refuses here.  */
+    if rs.min == 1 && rs.max == 1   return node;
+    if rs.max > 1 {
+        if node.tag ne "CALL" {
+            cerr "  REFUSE " term.tag " -- repetition of a non-reference term (rung 5 is iteration only)":;
+            return null; }
+        many        = new("MANY");
+        many.text   = node.text;
+        low         = new("min");
+        low.text    = toStringFromInt(rs.min);
+        many +% low;
+        at          = new("at");
+        at.text     = toStringFromInt(index);
+        many +% at;
+        many += node;
+        return many; }
+    cerr "  REFUSE " term.tag " -- optional (min " toStringFromInt(rs.min) " max " toStringFromInt(rs.max) ") has no kind yet":;
+    return null;
 }
 
 /*******************************************************************************
@@ -380,6 +414,7 @@ GroupItem   plan;
 GroupItem   term;
 GroupItem   node;
 GroupItem   lab;
+GroupItem   site;
 int         i = 1;
     if unresolvedTerms(rule) {
         cerr "  REFUSE rule " rule.tag " -- " toStringFromInt(unresolvedTerms(rule)) " unmaterialised terms":;
@@ -403,6 +438,10 @@ int         i = 1;
             if !node {
                 cerr "  REFUSE rule " rule.tag " -- term " term.tag " unclassified":;
                 return null; }
+            if node.tag eq "MANY" {
+                site        = new("site");
+                site.text   = rule.tag toStringFromInt(i);
+                node +% site; }
             plan += node; }
         i++; }
     return plan;
@@ -426,6 +465,10 @@ String      deeper;
     if meta cerr pad "  at=" meta.text:;
     meta = plan.getAttribute("slot");
     if meta cerr pad "  slot=" meta.text:;
+    meta = plan.getAttribute("min");
+    if meta cerr pad "  min=" meta.text:;
+    meta = plan.getAttribute("site");
+    if meta cerr pad "  site=" meta.text:;
     while kid = plan.nextMember(kid)     printPlan(kid,deeper);
     return 1;
 }
@@ -464,12 +507,69 @@ GroupItem   plan;
     fires on the ladder (every Scaf/ScafA/ScafB term is noLabel). Flagged rather
     than silently carried.
 *******************************************************************************/
+/*******************************************************************************
+    emitMany — the repetition helper, one per repeated term (§3.3).
+
+    THIS IS WHERE INVARIANT R′ LIVES, and both clauses are properties of the
+    emitted loop rather than promises made about it:
+
+      MARK  — `from` is captured ONCE, at helper entry, and the rewind on a
+              short run goes back to THERE. The interpretive path cannot do
+              this: checkInput() reassigns hereAt at the top of every iteration
+              (RuleStuff.twk:125) and the rewind targets hereAt
+              (GroupItem.twk:1101), so after N passes it points at the start of
+              pass N. A min >= 2 term that matches once then fails strands the
+              first match. The generated loop is correct for every min/max.
+
+      LABEL — each pass calls parseR, which goes through parse() and builds a
+              FRESH label. Nothing here reads or writes fLAG, so parse()'s
+              `isGROUP && max > 1` recycling handshake (writer GroupItem.twk:1087,
+              reader RuleStuff.twk:141-144) is simply absent. R′ says do not
+              invent one.
+
+    A failing pass rewinds ITSELF (Invariant R in the callee's leaveRule), so
+    the helper never has to unwind a partial pass — it only has to give back
+    the whole run when the count is short. R and R′ compose; neither duplicates
+    the other.
+
+    min is baked as a literal. max is NOT bounded, matching the hand-written
+    manyJSONblockFields/manyJSONlistItems: every repeated term in the census is
+    unbounded (sentinel 268435457), so a bound would be dead code emitted at
+    every site. Revisit when a finite max first appears — the plan carries what
+    is needed.
+*******************************************************************************/
+extern int emitMany(GroupItem node)
+{
+GroupItem   site = node.getAttribute("site");
+GroupItem   low  = node.getAttribute("min");
+String      name;
+    if !site || !low {
+        cerr "emitMany: MANY node has no site/min":;
+        return 0; }
+    name = "many" site.text;
+    cerr "extern int " name "(GroupItem label, GroupItem term)":;
+    cerr "{":;
+    cerr "GroupRules  ruler = groupRules;":;
+    cerr "String      from = atRuleMark;":;
+    cerr "int         kount;":;
+    cerr "    while parseR(term,label)    kount++;":;
+    cerr "    if kount >= " low.text "   return true;":;
+    cerr "    atRuleMark = from;":;
+    cerr "    return false;":;
+    cerr "}":;
+    return 1;
+}
+
 extern String emitLeaf(GroupItem node, String local)
 {
 GroupItem   slot;
+GroupItem   site;
 char        dq = 34;
 String      leaf;
-    if node.tag eq "CALL"       leaf = "parseR(" local ",label)";
+    if node.tag eq "MANY" {
+        site = node.getAttribute("site");
+        leaf = "many" site.text "(label," local ")"; }
+    or node.tag eq "CALL"       leaf = "parseR(" local ",label)";
     or node.tag eq "LIT"        leaf = "lit(" local "," dq node.text dq ")";
     or node.tag eq "LITTO" {
         slot = node.getAttribute("slot");
@@ -508,6 +608,10 @@ char        dq = 34;
         cerr "emitPlan: REFUSING " tag " -- fold " plan.tag " has no emitter yet":;
         return null; }
     lab = plan.getAttribute("label");
+    /*  FIRST PASS: validate every node, and emit the helpers §3.3 calls for.
+        This is what the two-pass shape exists for — a helper is discovered
+        mid-walk, and with text already going out you would have to buffer it or
+        emit it out of order. With a plan you simply walk it again.  */
     while node = plan.nextMember(node) {
         at      = node.getAttribute("at");
         index   = at.text;
@@ -516,6 +620,10 @@ char        dq = 34;
         if !piece {
             cerr "emitPlan: REFUSING " tag " -- unemittable plan node":;
             return null; }
+        if node.tag eq "MANY"
+            if !emitMany(node) {
+                cerr "emitPlan: REFUSING " tag " -- unemittable repetition helper":;
+                return null; }
         n++; }
     cerr "extern GroupItem parse" tag "(GroupItem rule)":;
     cerr "{":;
@@ -582,6 +690,122 @@ GroupItem   plan;
     lit and leaveRule from the RuleStuff support library (cross-file via
     groups.ext).
 *******************************************************************************/
+
+/*  === GENERATED by genParse('ScafC'), pasted verbatim (rung-5 emission) ===
+    ScafC isRule ScafA+ "c"-;  — one helper per repeated term, min baked in,
+    the term arriving as the frame's term local. Invariant R′ is structural
+    here: `from` is captured ONCE at helper entry (mark clause), and each pass
+    goes through parseR -> parse() and builds a fresh label, with no fLAG
+    anywhere (label clause).  */
+extern int manyScafC1(GroupItem label, GroupItem term)
+{
+GroupRules  ruler = groupRules;
+String      from = atRuleMark;
+int         kount;
+    while parseR(term,label)    kount++;
+    if kount >= 1   return true;
+    atRuleMark = from;
+    return false;
+}
+
+extern GroupItem parseScafC(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("ScafC");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, manyScafC1(label,t1) && lit(t2,"c") );
+}
+
+/*******************************************************************************
+    demoRprime — INVARIANT R′, DEMONSTRATED, both clauses.
+
+    A POP that only shows a passing run proves neither clause: at min <= 1 the
+    rewind branch is never reached, and a recycled label and a fresh one look
+    identical from outside. So this runs the two loop shapes side by side on the
+    same input and reports the difference.
+
+    WHY IT IS A CONTROLLED COMPARISON AND NOT A GENERATED RULE: the mark clause
+    is only observable at min >= 2, and MIN >= 2 IS CURRENTLY UNREACHABLE
+    THROUGH THE GRAMMAR. Measured 2026-07-28: `X[2]` is rejected outright
+    (ERROR Operator - failed on isRule and Token) and `X[2 9]` parses, prints
+    "nextGroup: ERROR max does not contain a list", and leaves min/max at 1/1 --
+    the limit is SILENTLY NOT APPLIED. setLimits itself reads correctly, so the
+    fault is upstream of it. That makes genParseSpec §2.2's "latent until
+    someone writes X[2]" true in a stronger sense than it states.
+
+    MARK CLAUSE. Input "a" against a term needing 2. The entry-saved loop (the
+    emitted shape) gives back the whole run. The per-pass loop (parse()'s shape,
+    where checkInput reassigns hereAt every iteration) rewinds to the start of
+    the FAILED attempt, which is already past the match -- so the first match's
+    input stays consumed. That is the defect §2.2 records, made visible.
+
+    LABEL CLAUSE. Input "aa". Each pass goes through parse() and builds a fresh
+    label, so two passes attach TWO children. A recycling loop -- parse()'s
+    `isGROUP && max > 1` path, which clears the label and hands it back via the
+    fLAG handshake -- would show one.
+*******************************************************************************/
+extern GroupItem demoRprime(GroupItem argument)
+{
+GroupRules  ruler = groupRules;
+GroupItem   rule = locateRule("ScafC");
+GroupItem   term;
+GroupItem   label;
+String      entry;
+String      perPass;
+int         baseStak = 0;
+int         kount = 0;
+int         kids = 0;
+int         going = 1;
+    if !rule {
+        cerr "demoRprime: no ScafC on the search list":;
+        return null; }
+    term = rule[1];
+    if inputSTAK    baseStak = inputSTAK.length;
+
+    pushInput(argument);
+    entry   = atRuleMark;
+    label   = new("demoEntry");
+    while parseR(term,label)    kount++;
+    if kount >= 2
+        cerr "  R-prime MARK  entry-saved (emitted) : matched " toStringFromInt(kount) " of 2 -- SUCCEEDED, no rewind due":;
+    else {
+        atRuleMark = entry;
+        if atRuleMark == entry
+            cerr "  R-prime MARK  entry-saved (emitted) : matched " toStringFromInt(kount) " of 2 -- REWOUND to loop entry":;
+        else
+            cerr "  R-prime MARK  entry-saved (emitted) : matched " toStringFromInt(kount) " of 2 -- input STRANDED":; }
+    while inputSTAK && inputSTAK.length > baseStak      popInput();
+
+    kount = 0;
+    pushInput(argument);
+    entry   = atRuleMark;
+    perPass = entry;
+    label   = new("demoPerPass");
+    while going {
+        perPass = atRuleMark;
+        going   = parseR(term,label) != 0;
+        if going    kount++; }
+    if kount >= 2
+        cerr "  R-prime MARK  per-pass  (parse()) : matched " toStringFromInt(kount) " of 2 -- SUCCEEDED, no rewind due":;
+    else {
+        atRuleMark = perPass;
+        if atRuleMark == entry
+            cerr "  R-prime MARK  per-pass  (parse()) : matched " toStringFromInt(kount) " of 2 -- REWOUND to loop entry":;
+        else
+            cerr "  R-prime MARK  per-pass  (parse()) : matched " toStringFromInt(kount) " of 2 -- rewound only to the FAILED PASS, input STRANDED":; }
+    while inputSTAK && inputSTAK.length > baseStak      popInput();
+
+    kount = 0;
+    pushInput(argument);
+    label = new("demoLabels");
+    while parseR(term,label)    kount++;
+    while label[kids + 1]       kids++;
+    cerr "  R-prime LABEL entry-saved (emitted) : " toStringFromInt(kount) " passes attached " toStringFromInt(kids) " fresh label(s)":;
+    while inputSTAK && inputSTAK.length > baseStak      popInput();
+    return trueResult;
+}
 
 /*  === GENERATED by genParse('Scaf'), pasted verbatim (rung-1 emission) === */
 extern GroupItem parseScaf(GroupItem rule)
