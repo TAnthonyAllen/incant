@@ -225,6 +225,8 @@ extern "C" GroupItem *parseScaf2(GroupItem *rule);
 extern "C" GroupItem *parseScafA(GroupItem *rule);
 extern "C" GroupItem *parseScafB(GroupItem *rule);
 extern "C" GroupItem *parseScafC(GroupItem *rule);
+extern "C" GroupItem *parseScafE(GroupItem *rule);
+extern "C" GroupItem *parseScafF(GroupItem *rule);
 extern "C" GroupItem *parseTermCount(GroupItem *input);
 extern "C" GroupItem *planRule(GroupItem *rule);
 extern "C" GroupItem *planTerm(GroupItem *term, int index);

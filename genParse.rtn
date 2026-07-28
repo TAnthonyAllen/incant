@@ -12,6 +12,23 @@
     literals are DOUBLE-quoted; a double-quote in the emitted output is escaped
     \" (single quotes here parse the inner ':' as an inheritance colon and
     cascade the whole file into ERROR Inheritance — found 2026-07-27).
+
+    TRAPS THAT BITE THIS FILE SPECIFICALLY. All three cost a build cycle.
+
+    1. A COMMENT CANNOT CONTAIN A STAR FOLLOWED BY A SLASH, and the modifier
+       fold is the next thing anyone will document here — its comments will
+       want to quote the repetition modifiers by name. tok has no lexer, so the
+       terminator is matched wherever it appears: writing the two of them as a
+       pair inside a block comment CLOSES THE COMMENT EARLY and the rest of the
+       prose is parsed as code, taking the following extern with it. Spell them
+       out as "star" and "plus". (Cost one build, 2026-07-28.)
+    2. JUXTAPOSED CONCAT DOES NOT WORK IN ARGUMENT POSITION. `f(a, b " ")`
+       reads as THREE arguments and is caught only by the C++ compiler. In
+       return position it is loud (FAIL Block / ERROR Inheritance, taking the
+       extern with it); here it is silent. Concat into a local first, always.
+       Assignment position is fine.
+    3. A METHOD CALL CANNOT APPEAR IN AN `if` CONDITION —
+       `if term.definingRule() != term` fails to parse. Assign it to a local.
 *******************************************************************************/
 
 /*******************************************************************************
@@ -328,6 +345,7 @@ GroupItem   at;
 GroupItem   slot;
 GroupItem   many;
 GroupItem   low;
+GroupItem   opt;
 int         labelled = 0;
     if !rs {
         cerr "  REFUSE " term.tag " -- unmaterialised, no rStuff yet":;
@@ -386,6 +404,45 @@ int         labelled = 0;
         wrongly. Accumulators already refused above on `data`; a repeated
         LITERAL refuses here.  */
     if rs.min == 1 && rs.max == 1   return node;
+    /*  OPTIONAL (rung 6), the inline form: ((term) || 1).
+
+        THE LABEL QUESTION, SETTLED FROM parse() BEFORE EMITTING ANYTHING.
+        A non-matching optional takes the min-0 rescue: matchFailed sets
+        `sukcess = true` on `kount >= min` BEFORE the debugHere block, so
+        debugHere is skipped -- the label is not zeroed and the mark is not
+        rewound -- and control reaches generatedExit, which returns the label
+        checkInput built. But the ATTACH lives in the loop-s success block
+        (`pStuff.label +% label`), which a non-match never reaches. So the
+        interpretive path ATTACHES NOTHING for a non-matching optional, and the
+        inline form agrees exactly: on failure the callee-s leaveRule attaches
+        nothing, on success it attaches. Non-match and match-with-nothing stay
+        distinguishable in the tree -- nothing vs an empty child -- which is
+        what the code={} actions read.
+
+        One divergence, and generated is the tighter of the two: the
+        interpretive non-match skips the rewind, so it can leave the mark
+        advanced by checkInput-s skip pass, while the generated callee rewinds
+        to its own `from`. Both then re-skip before the next term, so it is not
+        observable -- recorded rather than relied on.
+
+        MEASURED SHAPES, all 12 optionals in the census: 4 are character-level
+        (data set) and already refuse above on `data`, alongside the
+        accumulators -- so the S2.5 conflation cannot occur here BY
+        CONSTRUCTION, and this is one rung rather than two. 6 are references
+        and 2 are noLabel literals; those are the two shapes OPT wraps. A
+        LABELLED literal optional does not occur, so it refuses rather than
+        being designed for.  */
+    if rs.min == 0 && rs.max == 1 {
+        if node.tag eq "LITTO" {
+            cerr "  REFUSE " term.tag " -- optional labelled literal (no census shape, not designed for)":;
+            return null; }
+        opt         = new("OPT");
+        opt.text    = node.text;
+        at          = new("at");
+        at.text     = toStringFromInt(index);
+        opt +% at;
+        opt += node;
+        return opt; }
     if rs.max > 1 {
         if node.tag ne "CALL" {
             cerr "  REFUSE " term.tag " -- repetition of a non-reference term (rung 5 is iteration only)":;
@@ -400,7 +457,7 @@ int         labelled = 0;
         many +% at;
         many += node;
         return many; }
-    cerr "  REFUSE " term.tag " -- optional (min " toStringFromInt(rs.min) " max " toStringFromInt(rs.max) ") has no kind yet":;
+    cerr "  REFUSE " term.tag " -- repetition shape min " toStringFromInt(rs.min) " max " toStringFromInt(rs.max) " has no kind":;
     return null;
 }
 
@@ -564,9 +621,19 @@ extern String emitLeaf(GroupItem node, String local)
 {
 GroupItem   slot;
 GroupItem   site;
+GroupItem   inner;
 char        dq = 34;
 String      leaf;
-    if node.tag eq "MANY" {
+String      piece;
+    if node.tag eq "OPT" {
+        inner = node.nextMember(inner);
+        if !inner {
+            cerr "emitLeaf: OPT node has no wrapped term":;
+            return null; }
+        piece = emitLeaf(inner,local);
+        if !piece   return null;
+        leaf = "(" piece " || 1)"; }
+    or node.tag eq "MANY" {
         site = node.getAttribute("site");
         leaf = "many" site.text "(label," local ")"; }
     or node.tag eq "CALL"       leaf = "parseR(" local ",label)";
@@ -716,6 +783,35 @@ GroupItem   t1 = rule[1];
 GroupItem   t2 = rule[2];
 String      from  = atRuleMark;
     return leaveRule(rule,into,label,from, manyScafC1(label,t1) && lit(t2,"c") );
+}
+
+/*  === GENERATED by genParse('ScafE'/'ScafF'), pasted verbatim (rung-6) ===
+    ScafE isRule "e"- ScafA? "f"-;   — optional REFERENCE
+    ScafF isRule "f"- ","?- "g"-;    — optional noLabel LITERAL
+    The two shapes the census actually contains. The optional sits between two
+    MANDATORY terms deliberately: an optional that swallows a following failure
+    is the same defect as optional-as-mandatory, inverted, and only a mandatory
+    neighbour can catch it.  */
+extern GroupItem parseScafE(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("ScafE");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+GroupItem   t3 = rule[3];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, lit(t1,"e") && (parseR(t2,label) || 1) && lit(t3,"f") );
+}
+
+extern GroupItem parseScafF(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("ScafF");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+GroupItem   t3 = rule[3];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, lit(t1,"f") && (lit(t2,",") || 1) && lit(t3,"g") );
 }
 
 /*******************************************************************************

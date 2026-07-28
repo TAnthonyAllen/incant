@@ -36,8 +36,18 @@ PLAN JSONblock
     LIT }
       at=3
 PLAN JSONfield
-  REFUSE , -- optional (min 0 max 1) has no kind yet
-  REFUSE rule JSONfield -- term , unclassified
+  SEQ JSONfield
+    label=JSONfield
+    CALL JSONtoken
+      at=1
+    LIT :
+      at=2
+    CALL JSONvalue
+      at=3
+    OPT ,
+      at=4
+      LIT ,
+        at=4
 PLAN JSONvalue
   ALT JSONvalue
     CALL JSONblock
@@ -50,8 +60,14 @@ PLAN JSONtoken
   REFUSE NumbeR -- data isGROUP (rung 5)
   REFUSE rule JSONtoken -- term NumbeR unclassified
 PLAN JSONitem
-  REFUSE , -- optional (min 0 max 1) has no kind yet
-  REFUSE rule JSONitem -- term , unclassified
+  SEQ JSONitem
+    label=JSONitem
+    CALL JSONtoken
+      at=1
+    OPT ,
+      at=2
+      LIT ,
+        at=2
 PLAN JSONlist
   SEQ JSONlist
     label=JSONlist
@@ -62,8 +78,16 @@ PLAN JSONlist
       CALL JSONitem
         at=1
 PLAN JSONarray
-  REFUSE JSONlist -- optional (min 0 max 1) has no kind yet
-  REFUSE rule JSONarray -- term JSONlist unclassified
+  SEQ JSONarray
+    label=JSONarray
+    LIT [
+      at=1
+    OPT JSONlist
+      at=2
+      CALL JSONlist
+        at=2
+    LIT ]
+      at=3
 PLAN NumbeR
   REFUSE rule NumbeR -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
 PLAN FloaT
@@ -121,5 +145,13 @@ PLAN DEBUG
   REFUSE followedBy -- data isSET (rung 5)
   REFUSE rule DEBUG -- term followedBy unclassified
 PLAN InvokE
-  REFUSE GrouP -- optional (min 0 max 1) has no kind yet
-  REFUSE rule InvokE -- term GrouP unclassified
+  SEQ InvokE
+    label=InvokE
+    LIT (
+      at=1
+    OPT GrouP
+      at=2
+      CALL GrouP
+        at=2
+    LIT )
+      at=3

@@ -1264,6 +1264,27 @@ None of these block §9 step 1.
 | position-zero cycles | a generate-time cycle check. JSON is safe (`JSONblock` consumes `{` before descending) but a general genParse needs the check |
 | §7.2 asymmetry | **resolved and landed** — `7b84748` |
 | §7.1 min-zeroing | **fix landed (0b), unfalsified.** Needs the malformed-input probe in §7.1 |
+| **`Limit` is broken upstream of `setLimits`** | see below — and note it makes §2.2a's mark clause **unreachable through the grammar**, not merely latent |
+
+### 8.1 The `Limit` defect — measured 2026-07-28
+
+`Limit '['- min=[0-9]+ max?=[0-9]+ ']'-` does not deliver a limit to the rule, in two distinct
+ways, neither of them in `setLimits` itself:
+
+- **`X[2]` is rejected outright** — `ERROR Operator - failed on isRule and Token`. The grammar says
+  `max?` is optional, so a single-value limit should parse.
+- **`X[2 9]` parses and is silently ignored** — it prints `nextGroup: ERROR max does not contain a
+  list` (non-fatal, the run continues) and the term's `min`/`max` are left at **1/1**.
+
+`setLimits` reads correctly (`ruleStuff.min = minimum.count; if maximum ruleStuff.max =
+maximum.count;`), so the fault is in its **caller or in the `Limit` rule's own parse**, upstream of
+it. Nobody has looked at it.
+
+**Consequence for §2.2a.** The mark clause of Invariant R′ is only observable at `min >= 2`, and
+`min >= 2` cannot currently be written. §2.2's wording — "latent until someone writes `X[2]`" —
+understates it: writing `X[2]` does not work. Until this is fixed, R′'s mark clause can only be
+demonstrated by controlled comparison (`demoRprime`, `genParse.rtn`), never by a ladder rule.
+
 | §7.5 JSON route | re-verify the instrumentation first (three reasons to distrust it), then the `checkInput` chokepoint probe |
 | §7.6 tok macros | **routed around** — §3 uses no macros. Which candidate actually breaks expansion is now a tok question |
 | grammar file drift | `TraiT NamE Modifier* Limit? TraiTdata?;` should read `NamE@` per `aCTionTraiT`'s comment, which is reality. `TraiTlist` appears in that comment but not the grammar and does not exist — drop it from the comment |
