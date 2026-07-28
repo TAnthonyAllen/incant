@@ -1,7 +1,8 @@
-# Incant — Status & Handoff (2026-07-28: genParseShape (Clay SEQ 25) LANDED WHOLE — all eight
-# implementation steps. The rungs 1-2 POP now runs with NO ENTRY WRAPPER, through the fork, and
-# §4.1's binding question is ANSWERED. Two corrections made against the tree, one new OPEN item
-# that gates rung 4. Everything RUN with exit status checked.)
+# Incant — Status & Handoff (2026-07-28: genParseShape (Clay SEQ 25) LANDED WHOLE, then RUNG 4
+# (SEQ 26) GREEN — a generated rule reached through another rule's REFERENCE TERM, not only by
+# name. Mixed mode works. The rungs 1-2 POP runs with NO ENTRY WRAPPER. §4.1's binding question is
+# ANSWERED and the emitted indices now have a guard that has been made to fire.
+# Everything RUN with exit status checked.)
 *Written by Clod for a fresh Clay/Clod with ZERO memory of today. Self-contained. Read fully before
 touching code. Everything is on branch `jit-unified-emit-wip`; main is untouched.*
 
@@ -38,6 +39,8 @@ arriving from a direction nobody predicted, and it is what the first run crashed
 ```
 da698e8  genParseShape steps 1-2: RuleStuff.parentLabel + one-argument parseMethod fnptr
 e261e5d  genParseShape steps 3-7: term-first library, parseR, indexed emit, binding, POP
+5c71db4  wakeup.md reseal + import Clay's SEQ 25 brief
+ec34f59  RUNG 4 GREEN: a generated rule reached through another rule's reference term
 ```
 (Session tip on arrival was `23d6888`.)
 
@@ -48,9 +51,12 @@ e261e5d  genParseShape steps 3-7: term-first library, parseR, indexed emit, bind
 | `genScratch` | **exit 0** — emission plus all four runtime cases |
 | `Scaf('x')` · `Scaf('y')` | **WIN** · **FAIL, mark UNMOVED** |
 | `Scaf2('{}')` · `Scaf2('{')` | **WIN** · **FAIL, mark REWOUND** — Invariant R both directions |
-| emitted text vs the compiled-in `parseScaf`/`parseScaf2` | **byte-for-byte identical** |
-| `grep -c extern GroupRules.h` | **162** (161 + `dumpRuleTerms`; bear-trap #10 canary intact) |
+| `ScafB('ab')` · `ScafB('ax')` | **WIN through a reference term** · **FAIL, mark REWOUND across a nested generated call** |
+| binder count guard, deliberately mismatched | **REFUSED**, and ScafA degraded to the interpretive walk |
+| emitted text vs the compiled-in methods | **byte-for-byte identical** (rungs 1-2 and rung 4) |
+| `grep -c extern GroupRules.h` | **166** (was 161; every addition accounted for — canary intact) |
 | `genLadder/rung12.target` | regenerated **deliberately** — every line of the frame moved |
+| `genLadder/rung4.target` | new |
 
 Note what the runtime rows now prove that they could not before: the wrapper is gone, so a green run
 means **emission + the fork + binding + dispatch** all work. The old wrapper called `parseScaf`
@@ -96,17 +102,76 @@ this (`parse()`'s attachment block is `if label && pStuff`); the guard is now al
 one implementer down. **Without it `Scaf('x')` dereferences null on its FIRST success.** Any future
 exit primitive inherits this obligation.
 
-## OPEN — AND IT GATES RUNG 4. Tony's/Clay's call, not a coding decision.
-**`parseMethod` lives on `rStuff`, and `rStuff` is PER NODE.** A reference term has its own,
-separate from the registry rule's (finding 5). So **binding a rule's `parseMethod` does not reach
-the terms that reference it**: a converted rule is used when invoked **by name** but **not when
-referenced from another rule** — which is exactly the case mixed mode exists for, and mixed mode is
-§1.6's whole justification for routing through the fork.
+## RUNG 4 — SOLVED. The route exists, and it is a pointer walk.
+The question that gated it: `parseMethod` lives on `rStuff`, `rStuff` is PER NODE, so a reference
+term has its own and was never bound. Binding a rule therefore looked like it could not reach the
+terms that reference it — which is exactly what mixed mode needs.
 
-Does not bite rungs 1-2 (Scaf/Scaf2 have no reference terms). It bites at **rung 4, the first
-cross-method call.** Candidate directions, none chosen: have `parseR` resolve to the registry node
-(costs a name lookup, which §1.3 forbids); propagate the binding to reference terms at bind time;
-or make `parseMethod` a property of the shared list rather than of `rStuff`.
+**Measured, not reasoned (the same `termScratch` method):** a reference term shares the defining
+rule's child list, and **the children are parented to the DEFINER** — so `term[1].parent` **IS the
+defining rule, by pointer.** Verified against what `locate()` returns for the same name on
+`JSONblock→JSONfield`, `JSONfield→JSONtoken`, `JSONfield→JSONvalue`.
+
+`GroupItem.definingRule()` is that walk. **It needs no guard because the test discriminates:** a
+node that OWNS its children (a defining rule, and also `CodE`/`BlocK`) routes back to ITSELF, and a
+leaf term has no children at all — both fall through to `return this`. Only genuine references
+resolve elsewhere.
+
+**The ruling: resolve at USE time.** `parse()`'s fork reads `parseMethod` from `definingRule()`, so
+binding a rule once reaches every reference to it **including references created later**. No
+registry sweep (would miss late references), no `locate` (§1.3 forbids it).
+
+### The shape/frame split, and why the two fields go to DIFFERENT nodes
+- **`parseMethod` is SHAPE** — one answer, always the same for a rule → read from the **definer**.
+- **`parentLabel` is FRAME** — it varies per invocation and is the field that carries the variation
+  → stays on **`this`**, the node actually being parsed. Routing it to the definer would make every
+  reference to a recursive rule write the **same slot**, which is correct-looking right up until the
+  recursion is live.
+
+**The general tell, worth more than this instance: a field that looks like it belongs with the rule
+because it is usually the same is exactly the dangerous case.** (Clay corrected his own near-miss on
+this twice in one session, on Tony's lesson.)
+
+`this` is what gets passed to the generated method, not the definer — the two share a child list so
+`rule[n]` reads the same terms from either, while `rule.rStuff.parentLabel` must be this
+invocation's.
+
+## THE COUNT GUARD — and it has been made to fire
+Every emitted `rule[n]` bets the list only ever mutates BEHIND the real terms. The cached `BlocK`
+appearing after a rule's first parse proves the list *does* mutate at runtime, and nothing enforced
+the bet. Now: `RuleStuff.termCount`, recorded by a **`parseTerms=N`** binding attribute, checked by
+**`parseMethod=`** before it installs anything.
+
+`countRuleTerms` is the **ONE implementer** of "real term" — the emitter bakes indices with it and
+the binder re-checks with it. A check using its own private notion of the classifier would be worth
+nothing.
+
+**Negative test, RUN:**
+```
+parseMethod: REFUSING to bind parseScafA to ScafA
+             emitted against 9 terms, rule now has 1
+```
+and note the behaviour on refusal: ScafA fell back to the **interpretive walk** while ScafB still
+ran generated and still WON. **A refused binding degrades to the oracle rather than breaking** —
+mixed mode doing exactly its job. Reproduce with:
+`sed 's/ScafA isRule "a"- parseTerms=1/ScafA isRule "a"- parseTerms=9/' incant/genScratch > /tmp/g && <binary> /tmp/g`
+
+`termCount` 0 means unrecorded, which **binds with a warning** rather than refusing — a silent trap
+would be worse than an unguarded one.
+
+## RUNG-4 POP (all RUN, exit 0)
+```
+ScafA isRule "a"-;                  ScafB isRule ScafA "b"-;      both generated, both bound
+emitted:  return leaveRule(rule,into,label,from, parseR(t1,label) && lit(t2,"b") );
+ScafB('ab')  ->  HIT/WIN ScafA nested inside HIT/WIN ScafB
+                 ScafA's GENERATED method ran, reached through a reference term
+ScafB('ax')  ->  ScafA WINs, lit "b" fails, FAIL ScafB with mark REWOUND
+                 Invariant R across a NESTED generated call
+emitted text == compiled-in source, byte-for-byte   (genLadder/rung4.target, new)
+```
+Reading the trace: `HIT` prints at the top of **leaveRule**, which is the rule's EXIT (§1.8 moved
+instrumentation into the library, so there is no entry hook). One HIT per invocation, so §6.1's
+attempt count is right; only the ORDER reads oddly — a callee's HIT appears before its caller's.
 
 ## Also landed, worth not re-deriving
 - **§1.8 instrumentation is in the library, gated.** HIT/WIN and Invariant R live in
@@ -122,17 +187,26 @@ or make `parseMethod` a property of the shared list rather than of `rStuff`.
   no syntax for it. Its body is entirely passthrough and everything arrives as a **parameter**
   (bear-trap #13: an incant-level local referenced only inside a passthrough is pruned as unused).
 - **Latent, flagged not carried:** `emitTerm`'s labelled branch emits `litTo`, which has **no
-  implementation** in the support library. Never fires for rungs 1-2 (all terms `noLabel`). Rung 3+.
+  implementation** in the support library. Never fires for rungs 1-2/4 (all terms `noLabel`).
+- **`emitTerm` now classifies**: a term whose `definingRule()` differs from itself emits
+  `parseR(tN,label)`; literals still emit `lit`/`litTo`.
+- **A `noPrint` definition attribute does NOT persist in the rule's list** — "fire and forget" is
+  literal. Measured: `Scaf isRule "x"- parseMethod=parseScaf;` leaves `Scaf` with exactly one entry.
+  That is why the term count needed a real field and could not ride on a sibling attribute.
+- **tok note:** `if <cond> return <juxtaposed concat>;` does not parse — `FAIL Block` /
+  `ERROR Inheritance`, and it takes the whole extern with it. Assign to a local and return that, or
+  use the `or`/`else` chain, which is what the shipping code does.
 
 ## NEXT
+0. **Rung 3 is now the only thing between here and rung 5+** (rung 4 landed ahead of it, because
+   SEQ 26 targeted it directly). The seam split is unchanged in scope.
 1. **Rung 3 = the walk/emission seam split.** Walk and emission are still INTERLEAVED, so
    genParseSpec §0 does not hold yet. Clay's two refinements stand: **seam at INTENT, not
    punctuation** (litmus: could emission target a bytecode emitter untouched?) and the walk
    **RETURNS a classified value**, consumed by emission as a second pass. Write **Invariant R′**
    beside R in the spec while there. `dumpRuleTerms`'s classification is the natural seed for the
    walk's classifier.
-2. **Resolve the per-node `rStuff` binding question BEFORE rung 4.**
-3. Rungs 4-8, runtime re-check after rung 4.
+2. Rungs 5-8. Rung 4's cross-method call is proven; the runtime re-check it was gating is DONE.
 4. **Rung 9 is TONY'S RULING and gates only rung 9** — bare reference to an alternation:
    auto-`promoteR`, or require explicit `@`?
 5. **§4.2 / §4.3 fixes, after shape**: make `lit`'s skip pass non-destructive (then `leaveAlt` drops
@@ -194,8 +268,9 @@ baseline and was not passing before in any meaningful sense — the old body nev
 - **`groups.ext` lives OUTSIDE the repo** at `~/Dropbox/data/InProcess/Include/groups.ext`
   (bear-trap #11). It now carries `parentLabel`, the one-arg `parseMethod`, `parseTrace`, `parseR`,
   `parseRuleMethod`, `traceParse`, `dumpRuleTerms`, the renamed `leaveRule`/`leaveAlt` params and
-  the one-arg JSON parse decls — and `runScaf`/`runScaf2`/`runJSONblock` removed. **No commit trail
-  exists for any of it.**
+  the one-arg JSON parse decls — and `runScaf`/`runScaf2`/`runJSONblock` removed. Rung 4 added
+  `termCount`, `definingRule`, `countRuleTerms`, `parseTermCount`, `parseScafA`/`parseScafB`.
+  **No commit trail exists for any of it.**
 - genParse ladder: `<binary> incant/genScratch` → emits parseScaf/parseScaf2, then runs
   `Scaf('x')`/`('y')`/`Scaf2('{}')`/`('{')` with the leaveRule R report. POP:
   `sed -n '/^extern GroupItem parseScaf(/,/^}/p;/^extern GroupItem parseScaf2(/,/^}/p'` of the
@@ -213,6 +288,10 @@ through-the-fork). The two that needed correcting were both **claims about what 
 (`t2.onGroup`, `rule.parentLabel`) — same family as the five that failed on 07-27.
 **Take the distinctions, check the attributions.** Cost of checking: one measurement run.
 
+## PARKED by Clay (SEQ 26), neither blocks the ladder
+`jitEmitUnary`←`opPlusPlus` (see the finding above), and the LLVM-IR-for-inlining question raised by
+routing `parseR` through the fork. Both are JIT-ladder work.
+
 ## Working relationship (unchanged)
 Tony (Haps) = architect/final authority. Clay (claude.ai) = design/reasoning. Clod (Claude Code) =
 execution/edits/build. Standing permission: change source freely, commit/push routine work at
@@ -220,4 +299,5 @@ discretion.
 **Walkie-talkie transport is SETTLED: Clay has NO filesystem reach — read-only uploads only. CLAY
 DICTATES, CLOD TRANSCRIBES; Clod owns every `ipc/` write in both directions.** SEQ 25
 (genParseShape) arrived as a file in `~/Downloads`, imported to `docs/genParseShape.md`.
+SEQ 26 (rung 4) arrived in chat.
 `grep -H '^STATUS:' ipc/*.md` is Tony's window.
