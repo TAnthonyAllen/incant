@@ -534,7 +534,6 @@ GroupItem 	*attributes = input->getLabelGroup("attributes");
 GroupItem 	*members = input->getLabelGroup("members");
 GroupItem 	*field = input->get(1);
 GroupItem 	*target = input->get(2);
-GroupItem 	*source = new GroupItem("source");
 	/*  STOP AT A HANDLE. Same lesson as runOP's isIterator exemption: on a
 	SECOND `iterate` against an already-positioned iterator, field.isGROUP is
 	true because the cursor is set, so an ungated unwrap walks straight
@@ -544,11 +543,7 @@ GroupItem 	*source = new GroupItem("source");
 	target is deliberately NOT gated -- there we want the value.  */
 	while ( isGROUP(field->groupBody->flags.data) && !field->groupBody->flags.isIterator )
 		field = field->getGroup();
-	while ( isGROUP(target->groupBody->flags.data) )
-		target = target->getGroup();
-	field->groupBody->flags.isIterator = 1;
-	source->setGroup(target);
-	field->addAttribute(source);
+	::iterBind(field,target);
 	if ( attributes )
 		field->groupBody->flags.iterateOnAttributes = 1;
 	if ( members )
@@ -2850,6 +2845,43 @@ GroupItem 	*next = 0;
 }
 
 /***************************************************************************
+    iterBind -- THE ONE IMPLEMENTER of "point this iterator at that container
+    and rewind it". Both `iterate grup on X` (aCTionIterate) and `grup := X`
+    (opSetGroup) route here, so the two spellings cannot drift apart.
+
+    IT RESETS POSITION UNCONDITIONALLY -- SEQ 31: `:=` is the iterator's ONLY
+    reset, and it resets whether or not there was a value. The corpus claim that
+    goes with it: to re-walk the SAME source you rebind to it, so
+    `grup := argument;` READS LIKE A NO-OP AND IS NOT ONE.
+
+    It REUSES an existing `source` child rather than adding another, which is
+    what makes `iterate` idempotent as TODO.md requires -- "iterate makes it one
+    if it isn't, rebinds the source if it already is. Safe to repeat, safe in a
+    loop." The previous code new'd a source every time, so a second iterate on
+    the same field stacked a second attribute and getAttribute kept finding the
+    first.
+
+    The container is unwrapped HERE; the ITERATOR is not (see aCTionIterate's
+    handle gate). ANYtoken wraps multiple levels, hence the loop.
+***************************************************************************/
+extern "C" GroupItem *iterBind(GroupItem *iter, GroupItem *container)
+{
+GroupItem 	*source = iter->getAttribute("source");
+	while ( isGROUP(container->groupBody->flags.data) )
+		container = container->groupBody->gGroup;
+	if ( !source )
+		{
+		source = new GroupItem("source");
+		iter->addAttribute(source);
+		}
+	source->setGroup(container);
+	iter->groupBody->flags.isIterator = 1;
+	iter->groupBody->gGroup = 0;
+	iter->groupBody->flags.data = 0;
+	return iter;
+}
+
+/***************************************************************************
     iterFilterOK -- does this node pass the iterator's affiliation filter?
     ONE implementer, so forward and backward cannot drift apart.
 ***************************************************************************/
@@ -4941,6 +4973,14 @@ extern "C" GroupItem *opSetFlag(GroupItem *argument, GroupItem *target)
 ***************************************************************************/
 extern "C" GroupItem *opSetGroup(GroupItem *argument, GroupItem *target)
 {
+	/*  := ON AN ITERATOR IS ITS ONLY RESET, and it resets position
+	UNCONDITIONALLY (SEQ 31). This arrives un-unwrapped because runOP exempts
+	isIterator from the target deref -- without that exemption := would
+	rebind the CURRENT ENTRY and leave the cursor untouched, failing
+	silently, which is why that gate was put on the operand rather than on
+	++/--.  */
+	if ( target->groupBody->flags.isIterator )
+		return ::iterBind(target,argument);
 	if ( argument )
 		target->setGroup(argument);
 	return target;

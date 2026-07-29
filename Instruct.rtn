@@ -410,6 +410,40 @@ extern int iterFilterOK(GroupItem iter, GroupItem node)
 }
 
 /***************************************************************************
+    iterBind -- THE ONE IMPLEMENTER of "point this iterator at that container
+    and rewind it". Both `iterate grup on X` (aCTionIterate) and `grup := X`
+    (opSetGroup) route here, so the two spellings cannot drift apart.
+
+    IT RESETS POSITION UNCONDITIONALLY -- SEQ 31: `:=` is the iterator's ONLY
+    reset, and it resets whether or not there was a value. The corpus claim that
+    goes with it: to re-walk the SAME source you rebind to it, so
+    `grup := argument;` READS LIKE A NO-OP AND IS NOT ONE.
+
+    It REUSES an existing `source` child rather than adding another, which is
+    what makes `iterate` idempotent as TODO.md requires -- "iterate makes it one
+    if it isn't, rebinds the source if it already is. Safe to repeat, safe in a
+    loop." The previous code new'd a source every time, so a second iterate on
+    the same field stacked a second attribute and getAttribute kept finding the
+    first.
+
+    The container is unwrapped HERE; the ITERATOR is not (see aCTionIterate's
+    handle gate). ANYtoken wraps multiple levels, hence the loop.
+***************************************************************************/
+extern GroupItem iterBind(GroupItem iter, GroupItem container)
+{
+GroupItem   source = iter.getAttribute("source");
+    while container.isGROUP     container = container.gGroup;
+    if !source {
+        source = new("source");
+        iter +% source; }
+    source.group    = container;
+    iter.isIterator = true;
+    iter.gGroup     = 0;
+    iter.isGROUP    = false;
+    return iter;
+}
+
+/***************************************************************************
     iterAdvance -- the cursor step behind ++ and -- on an iterate field.
 
     CURSOR, NOT QUEUE: neither direction mutates the source. Position lives in
@@ -756,6 +790,13 @@ GroupItem   grup,
 ***************************************************************************/
 extern GroupItem opSetGroup(GroupItem argument,GroupItem target)
 {
+    /*  := ON AN ITERATOR IS ITS ONLY RESET, and it resets position
+        UNCONDITIONALLY (SEQ 31). This arrives un-unwrapped because runOP exempts
+        isIterator from the target deref -- without that exemption := would
+        rebind the CURRENT ENTRY and leave the cursor untouched, failing
+        silently, which is why that gate was put on the operand rather than on
+        ++/--.  */
+    if target.isIterator    return iterBind(target,argument);
     if argument group = argument;
     return      target;
 }

@@ -1,0 +1,75 @@
+/*****************************************************************************
+    T3 -- REWIND, and := as the only reset. SEQ 31's ruled semantics, run.
+
+    FRESH AND EXHAUSTED ARE THE SAME STATE, deliberately (Tony): run a loop to
+    exhaustion and the next ++ starts over, so a loop that breaks early RESUMES.
+    emitPlan's two passes depend on it. Was REASONED; this makes it RUN.
+
+    Expected:
+      twice      P1 a b c   then  P2 a b c        second loop rewinds
+      rebind     R1 a b c   then  R2 x y          := points it at a new source
+      resetSame  S  a b c                         := on the SAME source rewinds
+                 -- one ++ is taken first, so without a reset S would start at b.
+                 That is the corpus claim: `grup := argument;` READS LIKE A
+                 NO-OP AND IS NOT ONE.
+      reIterate  I  x y                           a SECOND iterate rebinds and
+                 rewinds -- idempotent, and the direct proof of the handle gate.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(IterTest);
+define
+    triple  a b c;
+    pair    x y;
+
+    twice argument code={
+        iterate grup on argument;
+        while ++grup
+            print "P1 " taG grup:;
+        while ++grup
+            print "P2 " taG grup:;
+        };
+
+    rebind argument code={
+        iterate grup on argument;
+        while ++grup
+            print "R1 " taG grup:;
+        grup := pair;
+        while ++grup
+            print "R2 " taG grup:;
+        };
+
+    resetSame argument code={
+        iterate grup on argument;
+        ++grup;
+        grup := argument;
+        while ++grup
+            print "S " taG grup:;
+        };
+    /*  reIterate is the direct proof of aCTionIterate's `&& !field.isIterator`
+        handle gate, which T3's other three cases do NOT reach -- they route
+        through opSetGroup. Here a SECOND `iterate` lands on an already-
+        positioned iterator. Without the gate the unwrap walks THROUGH the
+        handle and stamps the current entry instead; with it, and with iterBind
+        reusing the existing source rather than stacking another, `iterate`
+        is idempotent as TODO.md requires.  */
+    reIterate argument code={
+        iterate grup on argument;
+        ++grup;
+        iterate grup on pair;
+        while ++grup
+            print "I " taG grup:;
+        };
+    ;
+
+twice(triple);
+rebind(triple);
+resetSame(triple);
+reIterate(triple);
+stop();
