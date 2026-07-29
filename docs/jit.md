@@ -1,5 +1,60 @@
 # Incant JIT Design
 *Authored 2026-06-10. Replaces any prior jit.md. This is the design.*
+*Section 0 added 2026-07-29 — Tony's plan, previously undocumented anywhere.*
+
+---
+
+## 0. THE JIT REPLACES THE INTERPRETER. Read this before any other JIT decision.
+
+**Tony's plan is that the JIT BECOMES the interpreter.** It is not an
+accelerator running beside an interpreter that stays. There is one execution
+path, and in the end it is the compiled one.
+
+This was written down on 2026-07-29 because it was **nowhere** — not here, not
+in `jit-design.md`, not in `wakeup.md`. A reader with no memory of the design
+conversations derives "accelerator" from the code (a `jitting` gate beside an
+interpretive path reads exactly like one) and then misreads every JIT decision
+downstream. Clay did precisely that on the morning of 07-29 and argued for
+repairing the interpreter's frame handling on the strength of it.
+
+**What it explains that "accelerator" does not:**
+- Why `jitXP`/`jitXpress` were retired and the **unified emit-on-walk** cut was
+  built instead of a second, parallel emitter.
+- Why the whole class of *"will the jitted and interpreted paths diverge?"*
+  worries is **retired**: there is only ever one path to diverge from.
+
+### Consequence 1 — locals-as-frames lands ONCE, in the JIT
+`saveLocalFields` gets **DELETED, not repaired**. Everything in this document —
+frame schema, per-call slot array — is the replacement, and it lands in the JIT
+and nowhere else. Do not spend effort making the interpreter's activation record
+correct; it is a component with a scheduled death.
+
+Corollary for the iterator (built 2026-07-29): under frames it becomes **two
+stack slots, source and current** — no handle in the heap, and no `isIterator`
+gate anywhere, because there is no heap node to accidentally unwrap. Tony's own
+usage already reads as pointer semantics, so **nothing about the language design
+changes**; only the implementation does. The interpreter's per-frame
+`saveLocalFields` fix of 07-29 is therefore a **bridge**, deliberately, and its
+fixtures (`iterT1`/`iterT3` in `pop.sh`) outlive it as language-level POPs.
+
+### Consequence 2 — the OPEN RULING, and it wants settling BEFORE the emitter grows
+**During the crossover, what happens to a construct the JIT cannot emit yet?**
+
+Falling back to the interpreter *is* the divergence — reappearing as a
+**schedule** artifact rather than a design one, which is worse because nobody
+wrote it down as a decision. The answer that made mixed mode safe in genParse is
+the candidate here too: **a refused binding DEGRADES TO THE ORACLE LOUDLY** (see
+`wakeup.md`'s count-guard row — `parseMethod` refuses, says so, and the rule
+falls back to the interpretive walk). Same question, same shape, and **it is
+Tony's to rule on.**
+
+### Why textual IR gets MORE important under replacement, not less
+A JIT that **is** the interpreter must cover the **whole language**, and
+diff-against-golden is the only QA discipline that scales to that surface. A
+`.ll` file is a byte-exact target exactly as `genLadder/rung4.target` is — it
+gives the JIT a **census**, which it has never had. And a **text** emitter can be
+kant; an `IRBuilder` one never can. Textual IR is a separate arc and is not
+scheduled here; this paragraph exists so nobody re-derives it as optional.
 
 ---
 

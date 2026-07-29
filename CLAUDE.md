@@ -171,6 +171,13 @@ The old C++-source emit path is being **abandoned**, not preserved. The new
 target is **bytecode as canonical IR**, represented as GroupItems so incant
 code can construct and walk it.
 
+**THE JIT REPLACES THE INTERPRETER (Tony's plan, written down 2026-07-29).** It is not an
+accelerator running beside an interpreter that stays — the JIT *becomes* the interpreter, one
+execution path. Read `docs/jit.md` §0 before any JIT decision: it carries the two consequences
+(locals-as-frames lands ONCE in the JIT, so `saveLocalFields` gets **deleted** rather than
+repaired; the iterator becomes two stack slots) and one open ruling for Tony (what happens to a
+construct the JIT cannot emit yet — falling back to the interpreter *is* divergence).
+
 **Phase JIT does NOT go through bytecode (2026-06-17 decision).** Bytecode and
 JIT are *parallel, independent lowerings* of the same cached BlocK — not a
 pipeline. LLVM IR comes straight from the ops/BlocK (the incant ops emit IR

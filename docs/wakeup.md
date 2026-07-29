@@ -1,3 +1,8 @@
+# ⚠ UPDATED 2026-07-29 — read the 07-29 section FIRST (it is directly below this header block).
+# THE JIT REPLACES THE INTERPRETER, and 07-29 was the ITERATOR + Minion-A-harness day. The
+# genParse ladder narrative that follows is 07-28 vintage and still accurate; it is just no
+# longer the whole story.
+#
 # Incant — Status & Handoff (2026-07-28: SHAPE (SEQ 25), RUNG 4, the SEAM (SEQ 26), and RUNG 5
 # (SEQ 27), RUNG 6 (SEQ 28) and RUNG 7 (SEQ 29) all landed. The walk DECIDES into a plan of
 # GroupItems, the emitter WRITES from it, and SEQ/ALT/LIT/LITTO/CALL/MANY/OPT all emit. THE WHOLE
@@ -36,7 +41,70 @@ The `noPrint` is not decoration. Without it the binding attribute lands in the r
 list** as a bogus second term, and the emitter writes a term local for it. That is §1.5's hazard
 arriving from a direction nobody predicted, and it is what the first run crashed on.
 
-## Today's commits (branch `jit-unified-emit-wip`, in order)
+## ⚠ 2026-07-29 — THE JIT REPLACES THE INTERPRETER (and everything below is 07-28)
+**Tony's plan is that the JIT BECOMES the interpreter — not an accelerator beside one.** One
+execution path, and in the end it is the compiled one. This was undocumented anywhere until
+07-29; a cold reader derives "accelerator" from the `jitting` gate in the source and then
+misreads every JIT decision downstream (Clay did exactly that on 07-29 and argued for repairing
+the interpreter's frames on the strength of it). **The statement, its two consequences and its one
+open ruling now live in `docs/jit.md` §0 — read that before touching JIT work.** Headlines:
+- **`saveLocalFields` gets DELETED, not repaired.** Locals-as-frames lands ONCE, in the JIT. The
+  07-29 per-frame fix below is a deliberate **bridge**; its fixtures outlive it.
+- The iterator becomes **two stack slots** (source, current) — no heap handle, no `isIterator`
+  gate. Tony's usage already reads as pointer semantics, so no language design changes.
+- **OPEN, Tony's:** during crossover, what happens to a construct the JIT cannot emit yet?
+  Falling back to the interpreter *is* divergence, arriving as a schedule artifact. Candidate
+  answer (the one that made mixed mode safe): **degrade to the oracle LOUDLY.**
+- The whole class of *"will jitted and interpreted paths diverge?"* worries is **retired** —
+  there is only ever one path.
+
+### 2026-07-29's other work, in commits (details in each commit message, not repeated here)
+```
+77750cd  B0: claim format + tok-claim sweep
+aabf7c7  Minion A harness: spawn rule, frozen brief, empty corpus, ledger
+a4b72bb  Minion A harness: SEQ 30d rulings -- deferred baseline, claim-surface closer, abort
+1bf80a0  Tony's Group-A work (GUI, Debug.rtn, docs, JSON fixtures)
+552d60c  Tony's runtime work: rStuff-at-define rework + the iterator source (PRE-TOK)
+3a8611f  Iterator Stages 1+2: flags tok'd, Iterate rule live, aCTionIterate compiles
+60b237a  GroupMain: setRuleStuff on Limit's min and max -- POP back to GREEN
+8a4e94a  auditRegistry: the verifier, presence-based -- found 3 more on first run
+61b2487  B0: claims name their verifier
+90f6366  audit: user-driven command, both directions, populations split and PINNED
+6bd1928  Stage 3 WIP: ++/-- dispatch to iterAdvance -- reached, correct operand, then HANGS
+015e9e8  incant/iterScratch: the iterator hang fixture
+23df1b0  Iterator WORKS: runOP must not unwrap a handle. FWD a,b,c / BCK c,b,a
+6abfd86  T1 PASSES: PER-FRAME. Cause was saveLocalFields
+2401b61  T1 DEEP: coexisting cursors, exact order
+80e5873  T1m: recursion coverage is DIRECT-ONLY. Mutual recursion loses locals
+6bd642b  := is the iterator's only reset. T3 x4 GREEN. Sweep came back EMPTY
+cc8eba6  Iterators FINISHED: runaway tripwire, the gate PROVEN, T1/T3 in pop.sh
+```
+**THE ONE BUG WORTH NOT RE-DERIVING:** `saveLocalFields` copied the locals struct *including the
+list pointer* and then cleared the shared object in place, so **no local carrying a list survived
+recursion — since the initial commit.** Iterators were merely the first thing to notice.
+Coverage is **DIRECT-ONLY**: `field.recursive` is inferred by identity against `currentMETHOD`
+(`ruleActions.rtn`), so in `A → B → A` neither action names itself, neither gets flagged, and
+locals are lost. `incant/iterT1m` is that hole, committed as a **pinned wrong answer** in
+`pop.sh`. The sweep for live victims came back **EMPTY** — the bug was latent.
+
+**`pop.sh` now has 19 checks** including `iterT1`/`iterT3`/`iterT1m`. The four old baselines came
+back byte-identical across the `saveLocalFields` fix, because nothing in them reaches a recursive
+action with a list-carrying local — **baseline parity was not evidence the fix was safe.**
+
+**genParse's recursion shape, measured 07-29 (it decides Minion A's step 3, not today's work):**
+`emitPlan` does **not** recurse at all — a flat two-pass walk that calls `emitLeaf`/`emitMany`.
+`emitLeaf` **already self-recurses**, directly, for `OPT`'s wrapped term. `planRule → planTerm` is
+one level; `planTerm` never calls `planRule`. All are C++ externs today, so recursion is free
+stack frames — the coverage question bites only once they are **converted to kant**, and the
+recursion that exists is the **direct** kind, which is covered. **A nesting rung must route
+recursion through `emitPlan` itself, never `emitPlan → emitLeaf → emitPlan`** — that shape is
+mutual, and mutual is the uncovered one.
+
+⚠ **NAMING:** the spec (`genParseSpec.md` §4.2) and Clay's briefs say **`emitTerm`**. The live
+function is **`emitLeaf`** (`genParse.rtn`) — renamed at the rung-3 seam. There is no `emitTerm`
+in the source. Minion A round 1's target is `emitLeaf`.
+
+## 2026-07-28's commits (branch `jit-unified-emit-wip`, in order)
 ```
 da698e8  genParseShape steps 1-2: RuleStuff.parentLabel + one-argument parseMethod fnptr
 e261e5d  genParseShape steps 3-7: term-first library, parseR, indexed emit, binding, POP

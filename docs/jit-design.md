@@ -15,6 +15,12 @@ model are fully specified in `jit.md` — read that first. This document does no
 repeat what `jit.md` says; it extends it with the LLVM machinery and incant
 wiring.
 
+**Read `jit.md` §0 first of all: THE JIT REPLACES THE INTERPRETER.** It is not an
+accelerator running beside a surviving interpreter — it becomes the one execution
+path. That section (added 2026-07-29) carries the two consequences and one open
+ruling; without it, the `jitting` gate in the source reads as an accelerator and
+every decision below is misread accordingly.
+
 Reference archaeology: `OLDtawkDoNotTouch/Tokf/Emitter.twk` (2017 tok LLVM
 emitter) and `OLDtawkDoNotTouch/Include/UIjit.ext` (2017 runtime surface).
 Do not port these — treat them as a lookup table for `IRBuilder` call shapes
