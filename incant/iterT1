@@ -1,23 +1,23 @@
 /*****************************************************************************
-    T1 -- SAME ACTION, RECURSING. SEQ 31's decisive test.
+    T1 -- SAME ACTION, RECURSING, WITH CURSORS THAT GENUINELY COEXIST.
 
-    emitPlan's shape exactly, and it decides whether iterators reach genParse:
-    every interesting walk there is recursive.
+    STRENGTHENED 2026-07-29 to answer a fair doubt. The first version walked a
+    FLAT list, so every inner frame bottomed out immediately and its loop never
+    ran -- two live cursors never existed at once, which is precisely the case a
+    shared implementation could pass by accident.
 
-    Self-terminating by construction -- a, b and c carry no list, so the inner
-    walk's iterate hits the no-list guard and the loop never runs.
+    This one nests. trunk holds leafA and leafB; each leaf holds two entries. So
+    while walk(leafA) is running its OWN loop to completion, trunk's cursor must
+    sit untouched and then resume at leafB. That is emitPlan's shape.
 
-    NOTE THE SHAPE: the loop body is a SINGLE statement and the print happens at
-    ENTRY. That is not style -- aCTionCodE's box scan finds the first `{` and
-    then scans to the FIRST `}` with NO NESTING COUNT, so a `{ }` block inside a
-    code={} body truncates the box at the inner brace. Nested blocks are not
-    available here.
+    Still self-terminating: i, j, k, l carry no list, so the third level bottoms
+    out on the no-list guard. No counter needed -- though iterAdvance now has a
+    loud runaway abort regardless (EXCEEDED at 100000 advances).
 
-    PER-FRAME  -> at triple, at a, at b, at c   (4 lines, terminates)
-                  Each frame gets its own cursor. Iterators reach emitPlan.
-    SHARED     -> anything else. The inner iterate disturbs the outer cursor, so
-                  the walk is short, repeating, or spins. Iterators do NOT reach
-                  genParse and minion A's step 3 goes back to hand-rolled walks.
+    PER-FRAME expects EXACTLY, and in this order:
+        at trunk / at leafA / at i / at j / at leafB / at k / at l      = 7
+    Any sharing breaks the ORDER, not just the count: trunk resuming at leafB
+    after a completed nested walk is the whole assertion.
 *****************************************************************************/
 Start();
 include(unitTests);
@@ -29,7 +29,9 @@ search Generating UnitTests bcOPs Utilities list;
 
 register(IterTest);
 define
-    triple  a b c;
+    leafA   i j;
+    leafB   k l;
+    trunk   leafA leafB;
 
     walk argument code={
         print "at " taG argument:;
@@ -39,5 +41,5 @@ define
         };
     ;
 
-walk(triple);
+walk(trunk);
 stop();
