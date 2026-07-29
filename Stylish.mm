@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <Foundation/Foundation.h>
 #include "OCroutines.h"
+#include "StringRoutines.h"
 #include "GroupItem.h"
-#include "Buffer.h"
 #include "GroupRules.h"
 #include "GroupControl.h"
 #include "GroupBody.h"
@@ -52,42 +52,6 @@ double 	right = 0;
 		return p.y <= top && p.x <= right;
 		}
 	return 0;
-}
-
-/*******************************************************************************
-	Debug: setColor a field then print its resulting RGB components (0.0-1.0),
-    to verify setColor's hex parse + scale. POP tool, not called from
-    production paths.
-*******************************************************************************/
-extern "C" void dumpColorRGB(GroupItem *field)
-{
-	::setColor(field);
-	
-	NSColor *c = (NSColor*)field->getObject();
-	if (c) {
-	CGFloat r = 0, g = 0, b = 0, a = 0;
-	[c getRed:&r green:&g blue:&b alpha:&a];
-	fprintf(stderr,"dumpColorRGB %s: r=%.3f g=%.3f b=%.3f a=%.3f\n", field->getText(), r, g, b, a);
-	} else fprintf(stderr,"dumpColorRGB %s: NULL\n", field->getText());
-	
-}
-
-/*******************************************************************************
-	Debug: setFont a field then print its resulting NSFont's displayName +
-    bold/italic traits. POP tool, not called from production paths.
-*******************************************************************************/
-extern "C" void dumpFontInfo(GroupItem *field)
-{
-	::setFont(field);
-	
-	NSFont *f = (NSFont*)field->getObject();
-	if (f) {
-	NSFontSymbolicTraits t = f.fontDescriptor.symbolicTraits;
-	fprintf(stderr,"dumpFontInfo %s: displayName='%s' size=%.1f bold=%d italic=%d\n",
-	field->resolvedTag(), [f.displayName UTF8String], f.pointSize,
-	(t & NSFontDescriptorTraitBold) != 0, (t & NSFontDescriptorTraitItalic) != 0);
-	} else fprintf(stderr,"dumpFontInfo %s: NULL\n", field->resolvedTag());
-	
 }
 
 /*******************************************************************************
@@ -238,29 +202,24 @@ Stylish 	*shadowStyle = ::getStyle(field);
 ***************************************************************************/
 extern "C" void setColor(GroupItem *field)
 {
-char 			*atPart = field->getText();
+char 			*atText = field->getText();
+char 			*atPart = 0;
 GroupItem 		*hexSet = GroupControl::groupController->groupRules->properties->get("hexSet");
 PLGset 			*set = hexSet->getCharacterSet();
 unsigned int 	isValid = 0;
 unsigned int 	red = 0;
 unsigned int 	green = 0;
 unsigned int 	blue = 0;
-	isValid = set->contains(atPart);
-	if ( !isValid || ::strlen(atPart) != 6 )
-		::printf("ERROR: expected a valid six character hex string not:%s\n",atPart);
+	isValid = set->contains(atText);
+	if ( !isValid || ::strlen(atText) != 6 )
+		::printf("ERROR: expected a six character hex string not:%s\n",atText);
 	else {
 		NSColor 	*color = 0;
-		GroupControl::groupController->groupRules->stringBUFFER->reset();
-		GroupControl::groupController->groupRules->stringBUFFER->appendString(atPart,0,0);
-		atPart = GroupControl::groupController->groupRules->stringBUFFER->start + 4;
+		atPart = atText + 4;
 		::sscanf(atPart,"%x",&blue);
-		*atPart = 0;
-		atPart = GroupControl::groupController->groupRules->stringBUFFER->start + 2;
-		::sscanf(atPart,"%x",&green);
-		*atPart = 0;
-		atPart = GroupControl::groupController->groupRules->stringBUFFER->start;
-		::sscanf(atPart,"%x",&red);
-		GroupControl::groupController->groupRules->stringBUFFER->reset();
+		atPart = atText + 2;
+		::sscanf(::truncateString(atPart,2),"%x",&green);
+		::sscanf(::truncateString(atText,2),"%x",&red);
 		color = [NSColor colorWithCalibratedRed:(double)red / 255.0 green:(double)green / 255.0 blue:(double)blue / 255.0 alpha:1.0];
 		field->setObject((NSObject*)color);
 		}
@@ -328,11 +287,17 @@ Stylish::Stylish(GroupItem *item)
 	bgColor = 0;
 	fillColor = 0;
 	font = 0;
-	shadowField = 0;
+	shadowBlur = 0;
+	shadowOffset = 0;
+	shadowX = 0;
+	shadowY = 0;
+	shadowColor = 0;
 	formatter = 0;
 	editable = 0;
 	selected = 0;
 	selectable = 0;
+	subbed = 0;
+	shadowField = 0;
 	strokeColor = [NSColor blackColor];
 	textColor = [NSColor blackColor];
 	styling = item->groupBody->tag;
@@ -354,11 +319,17 @@ Stylish::Stylish(char *name)
 	bgColor = 0;
 	fillColor = 0;
 	font = 0;
-	shadowField = 0;
+	shadowBlur = 0;
+	shadowOffset = 0;
+	shadowX = 0;
+	shadowY = 0;
+	shadowColor = 0;
 	formatter = 0;
 	editable = 0;
 	selected = 0;
 	selectable = 0;
+	subbed = 0;
+	shadowField = 0;
 	strokeColor = [NSColor blackColor];
 	textColor = [NSColor blackColor];
 	styling = name;

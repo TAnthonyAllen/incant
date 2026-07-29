@@ -16,6 +16,66 @@
 
 ---
 
+## Iterator — design CLOSED 2026-07-25, ready to build
+
+*Tony + Clay, 2026-07-25. Design is done; this is an implementation task, not a design one.
+Not urgent, but it is the eighth instance of a pattern the codebase keeps hand-rolling.*
+
+**The idea.** `iterate grup on someSourceField;` turns `grup` into an iterator bound to a source.
+`++grup` yields the next field, `--grup` the prior. Motivation: `grup` is the name Tony reaches for
+constantly as a local in actions, and within a single action it may be retied to different sources.
+
+**Decisions taken:**
+- **A rule, not a definition.** Tony floated moving it to definition; his own rationale rules that
+  out — retying to different sources within one action is inherently runtime and repeated.
+- **Idempotent and self-declaring.** No separate "declare grup an iterator" step. `iterate` makes
+  it one if it isn't, rebinds the source if it already is. Safe to repeat, safe in a loop.
+- **Source in a `source` attribute; position in `group`.** Position in `group` means bare `grup`
+  derefs to the current field through `opDot`'s existing deref-loop (case 401-404, `&& target.group`
+  stop) — the common operation stays on the cheap path. The other way round makes *reading* `grup`
+  the expensive path, and reading is what you do most.
+- **Blank on creation.** First `++` sets first entry, first `--` sets last. Iterating to null is
+  expected; at null, `--` resets to last. Free property nobody aimed at: **the iterator
+  self-resets** — after `while ++grup` exhausts, `grup` is blank again, so a second `while ++grup`
+  starts over. No reset call, no stale-position bug. The alternative (distinct before-begin and
+  after-end states) would have needed an explicit reset and a way to get it wrong.
+- **Bind the source with `<-` / `opRebind`, NOT `:=`.** `:=` stamps `byRef`, and per the standing
+  audit item `byRef` is never cleared — so any field ever passed to `:=` aliases on `=` forever.
+  `opRebind` was added for exactly this (clean local rebinding, no byRef stamp, no content copy).
+  The primitive is already in the build.
+- **Own opMethods: `opIterNext` / `opIterPrior`.** Tony's first instinct was to dispatch in
+  `aCTionTokenXP` at parse time, which is unsound: `iterate` is a *runtime* statement and an action
+  body is parsed once, interpreted many times, so no parse-time scope analysis can know whether
+  `grup` is bound — and least of all when it is retied mid-action. Bind at runtime in the existing
+  dispatch instead. **The payoff is on the JIT side:** `jit-coverage-recon.md` finding 3 says
+  `opPlusPlus`/`opMinusMinus` fire their jit gate assuming a numeric target, which is latently
+  false. Give iteration its own opMethods and `opPlusPlus` becomes *genuinely* numeric-only — the
+  assumption becomes true by construction and a latent correctness gap closes without adding a gate.
+  Same move as `<-`/`opRebind`: when an operator is doing two semantically different jobs, give the
+  second one its own name.
+
+**Still open (both single cases, neither structural):**
+- What `++` does on a field that is not a bound iterator. Recommend: evaluate null (consistent with
+  `while ++grup` terminating on anything empty) rather than error — but decide it, don't inherit it.
+- Removing the node the iterator is sitting on. Position is by *node*, not by index, so mutation
+  elsewhere in the list is harmless; this is the one bad case.
+
+**Separate and larger, not part of this:** the bare-command form `iterate grup on someSourceField;`
+without parens is a change to rule-invocation grammar, not to the iterator. Own conversation.
+
+**Why it earns its place** (stronger than the JIT argument): the codebase hand-rolls this walk
+everywhere — `followingMember`, `setMacroValue`, `testAttributes`, `testOptions`, `testUpTo`
+(`RuleStuff.twk`), `aCTionFOR` (`ruleActions.rtn`), `for grup in argument` (`incant/utilities`),
+Clod's new `allAttributesOptional` helper, and the `many…` helpers genParse is about to emit
+(`genParseSpec.md` §3.3). The loop variable is called `grup` in nearly all of them.
+
+**Banked, not now:** if `++` dispatch ever profiles hot, rebind the node's `gOp` to the specialized
+method on first execution — an inline cache. `gOp` is already pass-by-reference across all 29
+operator methods and the bytecode work already binds `interpret` children per node, so the
+machinery exists. Needs invalidation discipline if an operand changes kind; earn it with a profile.
+
+---
+
 ## Phase Bytecode — current state (2026-06-06)
 
 **🎯🎉 POP LANDED — `testByteCode` → `maximus = 26`.** The bytecode interpreter

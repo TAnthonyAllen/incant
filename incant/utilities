@@ -46,6 +46,7 @@ define
         numbers 1 and 0 and not the names true and false.
     ***************************************************************************/
     JSONtoken isRule
+        JSONblock;
         "false";
         "true";
         GrouP;
@@ -62,12 +63,9 @@ define
     JSONitem isRule JSONtoken@ ","?-;
     JSONlist isRule JSONitem+;
     JSONarray isRule "["- JSONlist? "]"- code={
-        **JSONlist;
         if JSONlist;
             for grup in JSONlist;
-                **grup;
                 grup <: grup;
-                **grup;
         };
     JSONblock isRule fail "{"- JSONfield* "}"-;
     /***************************************************************************

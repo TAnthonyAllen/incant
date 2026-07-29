@@ -18,7 +18,6 @@ define
 
 testJSON('{"a":[]}');
 testJSON('{"a":["x","y"]}');
-stop();
 
 print "=== baseline (must stay green) ===":;
 testJSON('{"a":"b"}');

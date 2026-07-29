@@ -22,7 +22,6 @@ aCTionDebuG embed.debugged ctive
 #;
 aCTionDefinE "if Attributes" before active
     cout "aCTionDefinE:",NewGroup.tag,lastIndent:;
-    if NewGroup.tag eq "gifNotBranching" item = 0;
 #;
 aCTionElsE if ctive
     if blocking cout "unBlocked:", blocking:;

@@ -77,66 +77,65 @@ So a draw statement would look like:    draw something something;    Where somet
 *******************************************************************************/
 register(Drawing);
 define
-        align;                  // must have a value: center left right, or letter c l or r
-        border;
-        clip;
-        closePath;
-        down;
-        endPath;
-        fill;                   // can take a color value
-        height;
-        home;
-        invert;
-        left;
-        line;
-        move;
-        oval;
-        percent;
-        radius;
-        rectangle;
-        relative;
-        right;
-        rounded;
-        rotate;
-        save;
-        scale;
-        shift;
-        stroke;                 // can take a color value
-        up;
-        width;
-        write;                  // can take a color value
-        x;
-        y;
-        /***********************************************************************
-            Drawing rules
-        ***********************************************************************/
-        Point   toX=NumbeR toY=NumbeR isRule; {
-            scope currentFRAME~ x y width height;
-            if isPERCENT != 0;
-                toX *= width / 100;
-                if toY;     toY *= height / 100;
-            if isRELATIVE != 0;
-                x += toX;
-                if toY;     y += toY;
-            else
-                x = toX;
-                if toY;     y = toY;
-            scope currentPOINT: x y;
-            scope currentFRAME: x y;
-            }
-        arc     from=Point to=Point radius=NumbeR isRule;
-        curve   target=Point control1=Point control2=Point isRule;
-    /***************************************************************************
-        Drawing templates
-    ***************************************************************************/
-        stride;
-        gap;
-        depth;
-        perfRight down=gap left=depth down=stride right=depth;
-        perfLeft right=depth up=stride left=depth up=gap;
-        perfTop up=depth right=gap down=depth right=stride;
-        perfBottom up=depth left=stride down=depth left=gap;
-        perforation stride=6 gap=12 depth=2 fill=perfColor border home line percent up=8 perfLeft=5 perfTop=5 up=depth right=10 down=2 perfRight=5 down=8 left=10 perfBottom=5;
+    align;                  // must have a value: center left right, or letter c l or r
+    border;
+    clip;
+    closePath;
+    down;
+    endPath;
+    fill;                   // can take a color value
+    height;
+    home;
+    invert;
+    left;
+    line;
+    move;
+    oval;
+    percent;
+    radius;
+    rectangle;
+    relative;
+    right;
+    rounded;
+    rotate;
+    save;
+    scale;
+    shift;
+    stroke;                 // can take a color value
+    up;
+    width;
+    write;                  // can take a color value
+    x;
+    y;
+    /***********************************************************************
+        Drawing rules
+    ***********************************************************************/
+    Point   toX=NumbeR toY=NumbeR isRule code={
+        scope currentFRAME~ x y width height;
+        if isPERCENT != 0;
+            toX *= width / 100;
+            if toY;     toY *= height / 100;
+        if isRELATIVE != 0;
+            x += toX;
+            if toY;     y += toY;
+        else
+            x = toX;
+            if toY;     y = toY;
+        scope currentPOINT: x y;
+        scope currentFRAME: x y; };
+    arc     from=Point to=Point radius=NumbeR isRule;
+    curve   target=Point control1=Point control2=Point isRule;
+/***************************************************************************
+    Drawing templates
+***************************************************************************/
+    stride;
+    gap;
+    depth;
+    perfRight down=gap left=depth down=stride right=depth;
+    perfLeft right=depth up=stride left=depth up=gap;
+    perfTop up=depth right=gap down=depth right=stride;
+    perfBottom up=depth left=stride down=depth left=gap;
+    perforation stride=6 gap=12 depth=2 fill=perfColor border home line percent up=8 perfLeft=5 perfTop=5 up=depth right=10 down=2 perfRight=5 down=8 left=10 perfBottom=5;
     ;
 /*******************************************************************************
     Colors
@@ -170,7 +169,7 @@ define
 
 /*******************************************************************************
 	What to do wrt drawing
-*******************************************************************************/
+    
 Add currentFrame colors and font to Layout
 Write code to update those from current field
 Thinking we keep the old GUI methods in Layout for display (w/modifications as needed): displayCell() displayImage() displayPath() and displayText()
@@ -191,3 +190,4 @@ Drawing instruction format
             The complication here is a drawing command like left=3 looks a lot like a repeat=5
             Also, need to convert left to its drawing OP (use a drawing OP attribute as the instruction?)
     probably need to rethink the little drawing language (and make it easier to follow)
+*******************************************************************************/

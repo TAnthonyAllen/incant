@@ -1,7 +1,9 @@
 Start();
 include(unitTests);
 include(utilities);
-search list;
+include(drawing);
+search reset stack Grokking;
+search UnitTests Utilities cOLORs fONTs list;
 
 register(dESCRIPTIONs);
 define
@@ -26,12 +28,26 @@ define
     matrix="What if it is a long string." height=200 width=400 x=100 y=100 down=4
         crossup height=50 across=2
             cell;
+    lightBlue="ceffff";
+    jsonResult;
+    jsonTestField=({"kind":"webfonts#webfontList","items":[{"family":"ABeeZee","variants":["regular","italic"],"subsets":["latin"],"version":"v22","files":{"regular":"http://fonts.gstatic.com/s/abeezee/v22/a.ttf","italic":"http://fonts.gstatic.com/s/abeezee/v22/b.ttf"},"category":"sans-serif"},{"family":"Roboto","variants":["regular","700"],"subsets":["latin","cyrillic"],"version":"v30","files":{"regular":"http://fonts.gstatic.com/s/roboto/v30/c.ttf","700":"http://fonts.gstatic.com/s/roboto/v30/d.ttf"},"category":"sans-serif"}]}#);
+    dataNames isANY isCHAR isSET isBUFFER isCOUNT isGROUP isITEM isMAP isNUMBER isOBJECT isREGEX isSTAK isSTRING isTOKEN;
+    tester argument code={
+        name = dataNames[datA];
+        if name != 0;
+            print "data name for" taG name:;
+        else print "data name for" taG "none":;};
     ;
 
-testUnitTests();
+tester(jsonResult);
+tester(lightBlue);
 stop();
+debug JSONblock;
+jsonResult = JSONblock(jsonTestField);
+listRules(jsonResult);
 setFrame(matrix);
 printDefinition(matrix);
+testing(headerFont);
 
     *****************************************************************************
 

@@ -1,4 +1,26 @@
 # GUI Design Brief — Layout/Stylish Review, Fonts, Colors, Event & Display Cha-Cha
+
+```
+KIND:       spec
+STATUS:     live — but §6(b)'s subview text model is SUPERSEDED by §10
+DATE:       2026-07-02
+REVISED:    2026-07-25 — §10 added (Display object, Tony's bitmap decision).
+                        §10 supersedes §6(b)'s NSTextView/NSTextField subview
+                        model for text. §1's bear #1 resolved (option A) and
+                        landed in a5c6be1.
+ANSWERS:    How do Layout/Stylish resolve styles, fonts and colours, how does
+            the draw cycle work, and what surface does kant see for drawing?
+READ-WITH:  wakeup.md          thread status for everything below
+            setWindow-plan.md  window/panel recon; §10 draws into what it opens
+            font-recon.md      the Apple-side font material behind §5
+SUPERSEDES: nothing wholesale. §10 supersedes §6(b) in part — see §10.
+OPEN:       §10 text editing — RESOLVED 2026-07-25: NSTextView overlay while
+                editing (plan A); editing over the Display surface is plan B.
+                Risk to watch is overlay/bitmap layout match.
+            §10 displayPath() — paths and curves deliberately undesigned
+            §2 resolveStyle — designed, never built
+```
+
 *Clay, 2026-07-02. Reviewed: revised Layout.twk, Stylish.twk (Tony's 06-30 rewrite).*
 *Self-contained. Written to survive a month of hibernation. Companion to wakeup.md.*
 
@@ -149,6 +171,8 @@ right-aligned. POP a one-off switch in a scratch file to pin tok's semantics;
 add breaks if needed. (Same pattern in displayCell and displayText.)
 Re the `// case j justify` comment: NSText has `alignJustified`
 (NSTextAlignmentJustified) — it exists; add it when aligns get POPped.
+
+Tony note: in tok if a switch has NO breaks specified, a break is added after each case in the C++ switch statement that tok generates.
 
 **4.4 `displayText` first-run null (BUG):**
 ```
@@ -343,3 +367,162 @@ setWindow / window-recon   → independent recon, parallel, unblocked NOW
 Everything above the line is startable today in parallel. The single design
 decision needed from Tony before minions touch Stylish: **bear #1, option A
 (split state) or B (per-field copies). Clay recommends A.**
+
+---
+
+## 10. DISPLAY OBJECT — the bitmap surface (added 2026-07-25)
+
+**Tony's decision, 2026-07-25:** kant draws forms into a bitmap; Apple's view
+displays that bitmap. No drawing, text handling, path work, font or colour
+handling in Apple-side code. Motivation is **control, not portability** — but
+nothing is to be done that makes portability harder later.
+
+### 10.1 What this supersedes
+
+**§6(b)'s text model.** That section has text and cells drawing themselves as
+NSTextView/NSTextField **subviews**, with the reconcile pass owning every
+`addSubview` / `removeFromSuperview` / `makeFirstResponder`. Under §10 there are
+no content subviews: text is rendered into the bitmap like everything else.
+
+Most of §6 survives and gets *simpler*: the dirty signal, whole-window-redraw
+v1 policy, the recursion guard, and the trigger wiring all stand. What goes away
+is the reconcile pass's subview bookkeeping — no mark-and-sweep, no rebuild-on-
+structural-change, no first-responder juggling.
+
+**The cost, and it is real: editing.** NSTextView was giving caret, selection,
+key handling and IME for free. Drawing text into a bitmap gives all of that back
+to us. **Tony's decision, 2026-07-25: take the overlay route as plan A.**
+
+- **PLAN A (chosen).** Keep exactly one NSTextView overlay, created only while a
+  field is being edited, destroyed on commit, with the committed text blitted
+  back into the bitmap. Far less work, and it preserves the decision's intent —
+  Apple does no *layout* and no *rendering* of our content, it hosts one editor
+  widget briefly. Note this is the ONLY surviving use of §6(b)'s subview
+  machinery, and it is one widget with an explicit lifetime rather than a
+  reconcile pass that owns a tree of them.
+- **PLAN B (fallback, not now).** Implement caret, selection and key handling
+  directly over the Display surface. Only worth it if the overlay proves
+  unworkable — e.g. if matching the overlay's text layout to the bitmap's
+  rendering pixel-for-pixel turns out to be the hard part, which is the risk to
+  watch: the overlay must appear in the same place, at the same size, in the
+  same font as what the bitmap will show after commit, or the field visibly
+  jumps when editing starts and ends.
+
+### 10.2 The one structural decision: metrics do NOT belong on Display
+
+Layout must measure text before it can place it, and must place things before it
+knows how big the bitmap needs to be. If `widthOf(text)` is a Display method you
+need a Display to compute the size of the Display.
+
+So the surface splits in two:
+
+- **Font owns metrics** — pure functions of font + string, no bitmap required:
+  `widthOf`, `lineHeight`, `ascent`, `descent`, `breakAt(text,width)`.
+- **Display owns drawing** — side effects on pixels, nothing else.
+
+Layout calls the first repeatedly, decides a geometry, *then* creates a Display
+and calls the second. Same reconcile-then-draw phase separation §6 already wants.
+
+### 10.3 Coordinates: top-left, y-down, always
+
+CoreGraphics is origin-bottom-left, y-up. Layout and text both think top-left,
+y-down — the y-flip already had to be hand-fixed once during the GUI session.
+
+**Display exposes top-left, y-down.** The CG implementation flips internally and
+the convention never leaks. Kills a recurring bug source and removes a
+translation layer if the backend is ever swapped.
+
+### 10.4 The surface — about fifteen calls
+
+```
+state    setFont(font)  setColor(color)  setLineWidth(n)
+draw     fillRect(x,y,w,h)   strokeRect(x,y,w,h)   drawLine(x1,y1,x2,y2)
+         drawText(text,x,y)  drawInto(display,x,y)
+clip     pushClip(x,y,w,h)   popClip()
+life     display(w,h)   clear()   width()   height()
+metrics  (on Font) widthOf(text)  lineHeight()  ascent()  descent()
+                   breakAt(text,w)
+```
+
+`drawText` takes **top-left, not baseline** — the implementation subtracts
+ascent. Baseline is a typesetting concept and layout should not have to know it.
+
+Small enough to reimplement on a different substrate in a week, which is the
+point.
+
+### 10.5 The portability boundary is one grep
+
+What must never appear in kant code: `CGContextRef`, `CGImageRef`, `NSFont`,
+`NSColor`, `CTLineRef`. Kant sees numbers, strings, and opaque handles it never
+dereferences — a font ID, a display ID. If an Apple type name shows up on the
+kant side the boundary has leaked, and you find out with a grep rather than a
+rewrite. That satisfies "don't make portability harder" without doing any
+portability work now.
+
+### 10.6 The implementation floor is smaller than it looks
+
+A `CGBitmapContext` **is** a bitmap. Draw into it with CoreGraphics, hand the
+CGImage to the view; the Apple-side code becomes a blit. All drawing/text/font/
+colour work lives behind §10.4's surface.
+
+For text, CoreText's `CTLine` gives metrics and drawing from the same object —
+create a line from an attributed string, ask typographic bounds for
+width/ascent/descent, draw it. That covers the first cut of **both halves** of
+the surface. Rects, lines and clipping are direct CG calls. No font-file
+parsing, no glyph rasterization, no shaping.
+
+And it is exactly where a later swap would land: `Font` reimplemented over
+FreeType for metrics, `drawText` over a scanline rasterizer (AGG, Blend2D, or
+`stb_truetype` for a simpler cut). Nothing above the boundary changes. **Do not
+write a rasterizer now** — text rendering done properly is glyph rasterization,
+hinting, shaping, kerning and line breaking, and that is a multi-year project.
+
+**Where metrics come from, and the one landmine (checked 2026-07-25).** The
+Google Fonts Developer API (`webfonts/v1`) returns metadata only — family,
+variants, subsets, version, files, category, menu. **No metrics.** That is the
+same `webfonts#webfontList` shape already in `incant/jsonTest`. Metrics come from
+the font file itself, and CoreText reads them: once `registerFontFile` lands
+(§5.3-5.4), `CTFont` gives ascent/descent/leading/advances directly. The API
+delivers; the platform measures. (For bulk metrics without loading fonts — a
+picker preview, say — khempenius/font-fallbacks-dataset publishes a
+`font-metadata.csv` with ascent/descent/line-gap/UPM/glyph-widths for the whole
+library. Not on the critical path.)
+
+**THE LANDMINE, and it is a portability one.** A font carries TWO sets of
+vertical metrics. Per Google's own metrics guide, **hhea is what macOS reads**,
+while Windows reads the OS/2 Typo values when `Use_Typo_Metrics` is enabled.
+They are *supposed* to be identical and usually are, with exceptions where the
+primary script is not Latin/Greek/Cyrillic. So CoreText silently picks one, and
+every line height in every form gets calibrated against that choice. If FreeType
+ever replaces CoreText, **read the same table deliberately** — otherwise every
+layout shifts and the cause is invisible. Cheap to know now, baffling later.
+
+### 10.7 `print form to X` — one walk, three back ends
+
+```
+print form;              -> text        (what printDefinition does now)
+print form to buffer;    -> RTF / HTML
+print form to display;   -> pixels
+```
+
+Same traversal of the form, different emitter — structurally the same idea as
+genParse (walk a structure, emit through a swappable back end). The payoff:
+**the text emitter is the debugging tool for the display emitter.** When the
+bitmap looks wrong, print the same form to text and diff it. Build them as one
+walk and the diagnostic is free.
+
+Independent motivation, from a direction nobody planned: genParse's §6.5 harness
+(`genParseSpec.md`) needs to diff two parse trees, and the text form of a form is
+exactly the thing you diff. `incant/json1` is already that harness in prototype.
+
+### 10.8 Deliberately not designed yet
+
+- **Paths and curves.** `displayPath()` is a known gap and it is the expensive one.
+- **Sub-display compositing and dirty-region caching.** Natural given the field
+  model — each block could own a Display and only re-render dirty subtrees — but
+  it is an optimization and wants real forms to justify its shape.
+- **Scrolling.**
+- **Text editing** (§10.1) — the one that needs a decision rather than deferral.
+
+All of these bolt on above §10.4's surface without disturbing it, which is the
+test of whether stopping here is safe.

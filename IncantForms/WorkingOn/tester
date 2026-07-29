@@ -1,0 +1,22 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+search UnitTests Utilities list;
+
+register(FORMs);
+define
+    lightBlue="ceffff";
+    jsonResult;
+    dataNames isANY isCHAR isSET isBUFFER isCOUNT isGROUP isITEM isMAP isNUMBER isOBJECT isREGEX isSTAK isSTRING isTOKEN;
+    tester argument code={
+        name = dataNames[datA];
+        if name != 0;
+            print "data name for" taG name:;
+        else print "data name for" taG "none":;};
+    ;
+
+tester(jsonResult);
+tester(lightBlue);
+stop();
+

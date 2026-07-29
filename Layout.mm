@@ -17,12 +17,18 @@ GroupItem 	*align = base->get("align");
 NSString 	*tEXT = [NSString stringWithCString:base->getText() encoding:NSASCIIStringEncoding];
 NSCell 		*cell = [textField cell];
 	[cell initTextCell:tEXT];
-	/* alignLeft/alignCenter/alignRight bare keywords collide with the shared
-	StringRoutines.C alignLeft(text,length) helper via OCframe's keyword
-	table -- passthrough with the real Apple constant names sidesteps it. */
+	// align name collision fixed by changing StringRoutines.twk
 	if ( align && align->groupBody->gText )
-		if ( style->fillColor )
-			[textField setBackgroundColor:style->fillColor];
+		if ( *align->groupBody->gText == 'c' )
+			[[textField cell] setAlignment:NSCenterTextAlignment];
+		else
+		if ( *align->groupBody->gText == 'l' )
+			[[textField cell] setAlignment:NSLeftTextAlignment];
+		else
+		if ( *align->groupBody->gText == 'r' )
+			[[textField cell] setAlignment:NSRightTextAlignment];
+	if ( style->fillColor )
+		[textField setBackgroundColor:style->fillColor];
 	[textField setTextColor:textColor];
 	[[textField cell] setUsesSingleLineMode:1];
 	[self addSubview:textField];
@@ -57,12 +63,6 @@ NSTextContainer 	*box = 0;
 NSTextView 			*editor = 0;
 NSRect 				indented = ::indentFrame([self frame],5.0);
 GroupItem 			*align = base->get("align");
-	//cout "displayText:",tag :;
-	// Bare "object" resolves against the nearest in-scope GroupItem local (align,
-	// declared just above) rather than "use base"'s target -- explicit base.object
-	// is required here so the editor caches on the field being displayed, not on
-	// its (optional) align attribute. A field with no "align" attribute would
-	// otherwise null-deref the very next line down.
 	if ( base->getObject() )
 		editor = (NSTextView*)base->getObject();
 	else {
@@ -71,14 +71,19 @@ GroupItem 			*align = base->get("align");
 		[self addSubview:editor];
 		}
 	box = [editor textContainer];
-	/* alignLeft/alignCenter/alignRight bare keywords collide with the shared
-	StringRoutines.C alignLeft(text,length) helper via OCframe's keyword
-	table -- passthrough with the real Apple constant names sidesteps it.
-	case j means justify, how to set align justified??? */
+	//case j means justify, how to set align justified???
 	if ( align && align->groupBody->gText )
-		if ( style->bgColor )
-			[editor setBackgroundColor:style->bgColor];
-		else	[editor setBackgroundColor:[NSColor clearColor]];
+		if ( *align->groupBody->gText == 'c' )
+			[editor setAlignment:NSCenterTextAlignment];
+		else
+		if ( *align->groupBody->gText == 'l' )
+			[editor setAlignment:NSLeftTextAlignment];
+		else
+		if ( *align->groupBody->gText == 'r' )
+			[editor setAlignment:NSRightTextAlignment];
+	if ( style->bgColor )
+		[editor setBackgroundColor:style->bgColor];
+	else	[editor setBackgroundColor:[NSColor clearColor]];
 	[editor setFont:style->font];
 	if ( style->selected )
 		[editor setEditable:1];

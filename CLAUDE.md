@@ -54,8 +54,27 @@ Groups/
 `~/data/support/`. The InProcess paths are symlinks that keep existing
 `.twk` `include` directives working unchanged.
 
-**Backup directories** (`Aside/`, `BackupIncant/`, `BeforeRefactor/`, `BeforeSave/`)
-are gitignored. Incant repo IS the backup; no separate copies needed.
+**Backup directories** (`Aside/`, `BackupIncant/`, `BeforeRefactor/`) are gitignored
+archaeology. Don't make new ones — the Incant repo IS the backup.
+
+**`BeforeSave/` is the exception and is NOT dead.** (Corrected 2026-07-27 — this
+section previously lumped it in with the above, which understates it.) It holds a
+snapshot of every `.twk` and `.rtn`, and it is **Tony's live working tool**: he
+refreshes it *once there is a clean kitchen*, then diffs his offline code changes
+against it in **FileMerge** — and keeps it as a safety net "in case I pooch
+something." So its contents are always the **last clean-kitchen state**, not an
+arbitrary old copy.
+
+Why Clod should care: it is a legitimate audit path for *"what did this file look
+like before the current round of work"* — particularly for generated files and
+out-of-repo dependencies where git history alone can't answer (bear-traps #11/#16).
+Two consequences worth knowing:
+- **Its usefulness is dated.** As of 2026-07-27 it held **end-of-June** state, which
+  is exactly why the `-s ours` merge of `28347a7` cites it as the way to close that
+  merge's deliberately-unaudited gap. **A refresh closes that particular path** — so
+  an audit against an old commit is cheaper *before* the next refresh than after.
+- **Never refresh or delete it, and never propose it as redundant with git.** The
+  refresh is Tony's call and is tied to his offline-work cycle, not to ours.
 
 ---
 

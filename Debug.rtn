@@ -20,13 +20,13 @@ String  type;
 int     length;
     if groupList    length = listLength;
     /*
-    if isCoded          cout ,alignLeft("coded",10);
-    if isMethod || isOperator   cout ,alignLeft("has method",10);
-    if isRule           cout ,alignLeft("is rule",10);
-    if isAction         cout ,alignLeft("is action",10);
+    if isCoded          cout ,alignLEFT("coded",10);
+    if isMethod || isOperator   cout ,alignLEFT("has method",10);
+    if isRule           cout ,alignLEFT("is rule",10);
+    if isAction         cout ,alignLEFT("is action",10);
     if registry         cout ,"registry:",registry.tag;
     */
-    cout alignLeft(tag,20);
+    cout alignLEFT(tag,20);
     if isPointer        tagText = "pointer";
     if data {
         switch(data) {
@@ -38,14 +38,50 @@ int     length;
         if !noPrint         tagText = tag "="  text type;
         else                tagText = tag " " type; }
     else            tagText = "no data";
-    if isAttribute      cout ,alignLeft("attribute",10);
-    or isMember         cout ,alignLeft("member",10);
+    if isAttribute      cout ,alignLEFT("attribute",10);
+    or isMember         cout ,alignLEFT("member",10);
     if isLocal          cout ,"is local";
     if noPrint          cout ,"noPrint";
     if length           cout ,"length",length;
     if isGROUP && gGroup    cout ,gGroup.tag;
     cout `tagText;
     if flag cout :;
+}
+
+/*******************************************************************************
+	Debug: setColor a field then print its resulting RGB components (0.0-1.0),
+    to verify setColor's hex parse + scale. POP tool, not called from
+    production paths.
+*******************************************************************************/
+extern void dumpColorRGB(GroupItem field)
+{
+    setColor(field);
+    -%
+    NSColor *c = (NSColor*)field->getObject();
+    if (c) {
+        CGFloat r = 0, g = 0, b = 0, a = 0;
+        [c getRed:&r green:&g blue:&b alpha:&a];
+        fprintf(stderr,"dumpColorRGB %s: r=%.3f g=%.3f b=%.3f a=%.3f\n", field->getText(), r, g, b, a);
+    } else fprintf(stderr,"dumpColorRGB %s: NULL\n", field->getText());
+    %-
+}
+
+/*******************************************************************************
+	Debug: setFont a field then print its resulting NSFont's displayName +
+    bold/italic traits. POP tool, not called from production paths.
+*******************************************************************************/
+extern void dumpFontInfo(GroupItem field)
+{
+    setFont(field);
+    -%
+    NSFont *f = (NSFont*)field->getObject();
+    if (f) {
+        NSFontSymbolicTraits t = f.fontDescriptor.symbolicTraits;
+        fprintf(stderr,"dumpFontInfo %s: displayName='%s' size=%.1f bold=%d italic=%d\n",
+            field->resolvedTag(), [f.displayName UTF8String], f.pointSize,
+            (t & NSFontDescriptorTraitBold) != 0, (t & NSFontDescriptorTraitItalic) != 0);
+    } else fprintf(stderr,"dumpFontInfo %s: NULL\n", field->resolvedTag());
+    %-
 }
 
 /***************************************************************************
