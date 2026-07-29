@@ -1,0 +1,51 @@
+/*****************************************************************************
+    T1m -- MUTUAL RECURSION. The coverage question behind T1.
+
+    field.recursive is INFERRED, not marked (aCTionTokenXP, ruleActions.rtn:882):
+        if processingCode
+            if ANYtoken.groupBody == currentMETHOD.groupBody
+                currentMETHOD.recursive = true;
+    That is identity against currentMETHOD -- DIRECT self-reference only. In
+    A -> B -> A neither action names itself, so NEITHER gets flagged, so
+    saveLocalFields never runs and re-entering walkA clobbers its live locals.
+
+    Same tree and same expected trace as T1, only routed through two actions:
+        A trunk / B leafA / A i / A j / B leafB / A k / A l      = 7
+    walkA(trunk) is still live when walkA(i) runs, so this re-enters walkA
+    exactly as T1 re-enters walk -- but without the flag.
+
+    7 in that order -> the inference covers mutual recursion after all.
+    Anything else   -> per-frame is real but its COVERAGE is direct-only, and
+                       every mutually recursive walk silently loses locals.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(IterTest);
+define
+    leafA   i j;
+    leafB   k l;
+    trunk   leafA leafB;
+
+    walkA argument code={
+        print "A " taG argument:;
+        iterate grup on argument;
+        while ++grup
+            walkB(grup);
+        };
+
+    walkB argument code={
+        print "B " taG argument:;
+        iterate grup on argument;
+        while ++grup
+            walkA(grup);
+        };
+    ;
+
+walkA(trunk);
+stop();

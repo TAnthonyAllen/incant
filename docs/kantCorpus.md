@@ -91,6 +91,65 @@ code (`t1 = rule[1]`) reads the **term list** — which is what the baked indice
 and `RuleStuff.termCount`'s count guard exist for. So genParse has **two index
 spaces in one subsystem, and the count guard protects only one of them.**
 
+### CLAIM KANT-4 — GroupBody's value slots are ONE UNION: a counter overwrites a pointer
+```
+statement:   gCount, gGroup, gNumber, gText/gPointer, gBuffer, gCharacter,
+             gCharacterSet, gItem, gMap, gObject, gRegex and gStak all share
+             storage in GroupBody. Writing any one DESTROYS whatever another was
+             holding. A node cannot carry a counter AND a group reference.
+confidence:  RUN
+provenance:  GroupBody.h:107-130, three unions. Paid for: a runaway-abort counter
+             stored in `iter.gCount` overwrote the iterator's cursor, which lives
+             in gGroup -- nextGroup then dereferenced a garbage pointer and the
+             process died at EXIT=139 with no output (stdout buffered away by the
+             crash). The guard destroyed the state it existed to protect.
+asOf:        2026-07-29
+scope:       A GroupBody fact, NOT an iterator one. Any new per-node counter,
+             flagword or scratch value is unsafe on a node already using another
+             slot of the same union. Booleans are fine -- `flags` is a separate
+             bitfield, outside the unions.
+```
+**How it was caught, which is the transferable part:** the crash arrived immediately
+after a new nested fixture, and the obvious story — that the fixture's *reference
+terms* were at fault — fitted the backtrace exactly and was wrong. What killed it
+was **re-running a control that had passed before**: a plain two-entry leaf, no
+references anywhere, crashed identically. A passing case re-run beats reasoning
+about the new structure.
+
+### CLAIM KANT-5 — recursion saves locals, but ONLY for DIRECT self-reference
+```
+statement:   An action's locals are saved/restored across recursion only when
+             `field.recursive` is set, and that flag is INFERRED at parse time by
+             a test for DIRECT self-reference. Mutual recursion (A->B->A) sets it
+             on neither action, so no save happens and re-entry clobbers the live
+             frame's locals.
+confidence:  RUN
+provenance:  Inference site aCTionTokenXP, ruleActions.rtn:882 --
+                 if processingCode
+                     if ANYtoken.groupBody == currentMETHOD.groupBody
+                         currentMETHOD.recursive = true;
+             an identity test against currentMETHOD. Consumed in runAction
+             (GroupActions.rtn) as `if field.recursive saveLocalFields(field)`.
+             POPs: incant/iterT1 direct recursion over a nested tree -> 7 visits
+             in exact order, PASSES. incant/iterT1m, the SAME tree and the same
+             expected trace routed through two mutually recursive actions -> 4,
+             FAILS: the outer walk never resumes after the nested subtree.
+asOf:        2026-07-29
+scope:       Per-frame locals are a PROPERTY for direct recursion and a CHECKLIST
+             for mutual recursion. Says nothing about depth -- direct recursion
+             nests correctly to at least three levels with cursors coexisting.
+```
+**The predicate is the bug, not the mechanism.** Save/restore works; it is asked the
+wrong question. "Does this action's body syntactically name itself?" is a parse-time
+approximation of "am I re-entering a frame that is still live?", which is a *runtime*
+property. A dynamic re-entrancy test would cover every recursion shape and need no
+inference at all.
+
+**And the underlying save/restore bug was latent for the same reason:** it only bites
+a local carrying a LIST, and iterators are the first locals to keep state in a child.
+Worth knowing whether any existing recursive action holds list-carrying locals — it
+would have been silently losing attributes.
+
 ### CLAIM KANT-2 — `:=` is incant, and does not parse in tok
 ```
 statement:   `:=` (opSetGroup) is an INCANT operator. It has no meaning in tok
