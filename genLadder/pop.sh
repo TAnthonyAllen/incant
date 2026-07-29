@@ -33,6 +33,21 @@ fi
 grep -v "^getRStuff" "$T/cen" | sed -n '/^PLAN /,$p' | grep -vE "^Search list:|^stop:|^$" > "$T/cenp"
 diffcheck "census.target" genLadder/census.target "$T/cenp"
 
+#  rStuff audit -- PRESENCE-based, and that is the whole point of it.
+#  The instrument this replaces was getRStuff's "no rStuff - creating" cerr, and
+#  grepping for that returned zero in TWO indistinguishable cases: nothing fired
+#  late, and the cerr had been deleted. The second became true on 2026-07-29.
+#  So this asserts the audit line IS THERE with a zero count. A check that
+#  requires something to be present cannot pass by being removed -- delete
+#  auditRegistry and this goes RED, which is exactly what the old one could not do.
+if grep -q "^AUDIT Grokking: 0 terms missing rStuff$" "$T/one"; then
+    echo "  ok    rStuff audit (present, 0 missing)"
+else
+    echo "  FAIL  rStuff audit -- line absent or non-zero:"
+    grep "^AUDIT" "$T/one" | sed 's/^/          /' || echo "          (no AUDIT line at all -- is auditRegistry still called?)"
+    fail=1
+fi
+
 diffcheck "oneTest baseline"  genLadder/oneTest.base  "$T/one"
 diffcheck "jsonTest baseline" genLadder/jsonTest.base "$T/jsn"
 

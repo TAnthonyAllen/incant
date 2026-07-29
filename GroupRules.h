@@ -116,6 +116,8 @@ extern "C" GroupItem *aCTionTraiTdata(GroupItem *input);
 extern "C" GroupItem *aCTionWhilE(GroupItem *input);
 extern "C" GroupItem *aCTionXpress(GroupItem *input);
 extern "C" GroupItem *appendGroup(GroupItem *input, GroupItem *FormaT, Buffer *buffer);
+extern "C" int auditRegistry(GroupItem *registry);
+extern "C" int auditTerms(GroupItem *rule);
 extern "C" GroupItem *cLEAR(GroupItem *input);
 extern "C" GroupItem *cOPY(GroupItem *field);
 extern "C" int closeFile(GroupItem *bufField);

@@ -130,6 +130,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	strap->setRuleStuff();
 	strap = grok->addMember(strap);
 	item = strap->addAttribute(new GroupItem("["));
+	item->setRuleStuff();
 	item = new GroupItem("min");
 	item = strap->addAttribute(item);
 	item->setRuleStuff();
@@ -180,6 +181,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	item = new GroupItem("tik");
 	item->setCharacterSet(new PLGset("'\""));
 	item = strap->addAttribute(item);
+	item->setRuleStuff();
 	item = new GroupItem("quoteBody");
 	item = strap->addAttribute(item);
 	::modify(item,"}");
@@ -339,6 +341,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	item->setRuleStuff();
 	item = new GroupItem("definitions");
 	item = strap->addAttribute(item);
+	item->setRuleStuff();
 	item->setGroup(stuff);
 	item = item->groupBody->gGroup;
 	::modify(item,"+");
@@ -389,7 +392,15 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	I commented out the following because all rules created in the bootstrap
 	now have setRuleStuff() run on them so rStuff is set
 	materialiseRegistry(grok);
+	
+	auditRegistry below is what replaces it: the SAME walk over the SAME
+	ground, with the repairing stripped out. It fixes nothing -- it reports
+	what is missing and prints its count unconditionally, so pop.sh can
+	assert the line is THERE. The instrument it replaces (getRStuff's
+	"no rStuff - creating" cerr) was absence-based, and an absence-based
+	check passes just as well when the check itself has been deleted.
 	*************************************************************************/
+	::auditRegistry(grok);
 	ruler->pushInput(::getFile(ruler->setupFILE));
 	if ( ruler->sourceFILE )
 		strap->parse(0);

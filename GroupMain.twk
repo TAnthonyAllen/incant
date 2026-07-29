@@ -124,6 +124,7 @@ GroupRules  ruler = groupRules;
     setRuleStuff();
     strap           = grok += strap;
     item            = strap +% new("[");
+    item.setRuleStuff();
     item            = new("min");
     item            = strap +% item;
     item.setRuleStuff();
@@ -179,6 +180,7 @@ GroupRules  ruler = groupRules;
     item            = new("tik");
     item.characterSet    = new("'\"");
     item            = strap +% item;
+    item.setRuleStuff();
     item            = new("quoteBody");
     item            = strap +% item;
     modify(item,"}");
@@ -354,6 +356,7 @@ GroupRules  ruler = groupRules;
     item.setRuleStuff();
     item            = new("definitions");
     item            = strap +% item;
+    item.setRuleStuff();
     item.group      = stuff;
     item            = item.gGroup;
     modify(item,"+");
@@ -408,7 +411,15 @@ GroupRules  ruler = groupRules;
         I commented out the following because all rules created in the bootstrap
         now have setRuleStuff() run on them so rStuff is set
         materialiseRegistry(grok);
+
+        auditRegistry below is what replaces it: the SAME walk over the SAME
+        ground, with the repairing stripped out. It fixes nothing -- it reports
+        what is missing and prints its count unconditionally, so pop.sh can
+        assert the line is THERE. The instrument it replaces (getRStuff's
+        "no rStuff - creating" cerr) was absence-based, and an absence-based
+        check passes just as well when the check itself has been deleted.
     *************************************************************************/
+    auditRegistry(grok);
     pushInput(getFile(setupFILE));
     if sourceFILE   strap.parse(0);
     popInput();

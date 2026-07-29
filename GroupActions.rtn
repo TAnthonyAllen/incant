@@ -271,6 +271,48 @@ int         made = 0;
 }
 
 /*****************************************************************************
+    auditTerms / auditRegistry -- materialiseTerms' walk with the OPPOSITE
+    intent. It repairs nothing; it reports what is missing.
+
+    Tony's ruling (2026-07-29): rStuff is set at DEFINITION time across the
+    board, and the runtime setting goes away. materialiseRegistry is a backup
+    plan, not the mechanism. This is what is left when the repairing is stripped
+    out -- the verification, without the silent fixing-up behind the code's back.
+
+    WHY IT PRINTS EVEN WHEN CLEAN, and this is the whole point. The instrument
+    it replaces was getRStuff's "no rStuff - creating" cerr, and grepping for
+    that returns zero in TWO indistinguishable cases: nothing fired late, and
+    the cerr was deleted. The second became true on 2026-07-29. An absence-based
+    check passes by being removed; a presence-based one cannot. So the summary
+    line is unconditional and pop.sh asserts it is THERE, not that a warning is
+    absent.
+*****************************************************************************/
+extern int auditTerms(GroupItem rule)
+{
+GroupItem   term;
+int         i = 1;
+int         missing = 0;
+    if !rule.rStuff {
+        cerr "AUDIT " rule.tag " -- rule has NO rStuff":;
+        missing++; }
+    while term = rule[i] {
+        if !term.rStuff {
+            cerr "AUDIT " rule.tag " term [" toStringFromInt(i) "] " term.tag " -- NO rStuff":;
+            missing++; }
+        i++; }
+    return missing;
+}
+
+extern int auditRegistry(GroupItem registry)
+{
+GroupItem   rule;
+int         missing = 0;
+    while rule = registry.next(rule)    missing += auditTerms(rule);
+    cerr "AUDIT " registry.tag ": " toStringFromInt(missing) " terms missing rStuff":;
+    return missing;
+}
+
+/*****************************************************************************
 	modify processes modifiers for field passed in updating the field RuleStuff
 *****************************************************************************/
 extern void modify(GroupItem field,String modifier)

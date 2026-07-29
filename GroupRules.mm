@@ -1177,6 +1177,55 @@ GroupItem 	*field = 0;
 	return field;
 }
 
+extern "C" int auditRegistry(GroupItem *registry)
+{
+GroupItem 	*rule = 0;
+int 		missing = 0;
+	while ( rule = registry->next(rule) )
+		missing += ::auditTerms(rule);
+	::fprintf(stderr,"AUDIT %s: %s terms missing rStuff\n",registry->groupBody->tag,::toStringFromInt(missing));
+	return missing;
+}
+
+/*****************************************************************************
+    auditTerms / auditRegistry -- materialiseTerms' walk with the OPPOSITE
+    intent. It repairs nothing; it reports what is missing.
+
+    Tony's ruling (2026-07-29): rStuff is set at DEFINITION time across the
+    board, and the runtime setting goes away. materialiseRegistry is a backup
+    plan, not the mechanism. This is what is left when the repairing is stripped
+    out -- the verification, without the silent fixing-up behind the code's back.
+
+    WHY IT PRINTS EVEN WHEN CLEAN, and this is the whole point. The instrument
+    it replaces was getRStuff's "no rStuff - creating" cerr, and grepping for
+    that returns zero in TWO indistinguishable cases: nothing fired late, and
+    the cerr was deleted. The second became true on 2026-07-29. An absence-based
+    check passes by being removed; a presence-based one cannot. So the summary
+    line is unconditional and pop.sh asserts it is THERE, not that a warning is
+    absent.
+*****************************************************************************/
+extern "C" int auditTerms(GroupItem *rule)
+{
+GroupItem 	*term = 0;
+int 		i = 1;
+int 		missing = 0;
+	if ( !rule->rStuff )
+		{
+		::fprintf(stderr,"AUDIT %s -- rule has NO rStuff\n",rule->groupBody->tag);
+		missing++;
+		}
+	while ( term = rule->get(i) )
+		{
+		if ( !term->rStuff )
+			{
+			::fprintf(stderr,"AUDIT %s term [%s] %s -- NO rStuff\n",rule->groupBody->tag,::toStringFromInt(i),term->groupBody->tag);
+			missing++;
+			}
+		i++;
+		}
+	return missing;
+}
+
 /*******************************************************************************
     Commands.rtn
     Home for extern methods backing the cOMMANDs base registry. Commands fire
