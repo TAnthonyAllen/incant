@@ -535,9 +535,9 @@ GroupItem 	*members = input->getLabelGroup("members");
 GroupItem 	*field = input->get(1);
 GroupItem 	*target = input->get(2);
 GroupItem 	*source = new GroupItem("source");
-	if ( isGROUP(field->groupBody->flags.data) )
+	while ( isGROUP(field->groupBody->flags.data) )
 		field = field->getGroup();
-	if ( isGROUP(target->groupBody->flags.data) )
+	while ( isGROUP(target->groupBody->flags.data) )
 		target = target->getGroup();
 	field->groupBody->flags.isIterator = 1;
 	source->setGroup(target);
@@ -6016,6 +6016,22 @@ GroupItem 	*result = 0;
     not add a permanent `ruler` here — use a directive if you need one to
     debug). Break only in emergency. See the wakeup bear-trap log and the
     aCTionNamE companion note.
+
+    THE isIterator EXEMPTION on the target unwrap (2026-07-29, Tony at the Xcode
+    seat). An iterator is a HANDLE, and runOP must not dereference a handle --
+    the same reason isPointer is already in that test, which is why this is one
+    more term there rather than a special case for ++/--.
+    The bug it fixes: pass 1 of `while ++grup` worked because a fresh iterator
+    has no position, so isGROUP was false and opPlusPlus received the iterator.
+    On pass 2 the cursor is set, isGROUP is true, runOP unwrapped to the CURRENT
+    ENTRY, and opPlusPlus got a node with no isIterator flag -- so ++ fell
+    through to the numeric path and the loop never terminated.
+    Gating on the OPERAND rather than on ++/-- also covers `:=`, which is the
+    iterator's only reset: unwrap first and := rebinds the current entry while
+    the cursor sits untouched, which fails silently.
+    The `arg` unwrap one line below is deliberately NOT exempted, and the split
+    is the useful part: an iterator in TARGET position stays the handle, in
+    ARGUMENT position it derefs to the current entry.
 ***************************************************************************/
 extern "C" GroupItem *runOP(GroupItem *field)
 {
@@ -6023,7 +6039,7 @@ GroupItem 	*result = 0;
 GroupItem 	*op = field->get(1);
 GroupItem 	*arg = field->get(3);
 GroupItem 	*target = field->get(2);
-	if ( isGROUP(target->groupBody->flags.data) && !target->groupBody->flags.isPointer && !op->groupBody->flags.isAssign )
+	if ( isGROUP(target->groupBody->flags.data) && !target->groupBody->flags.isPointer && !target->groupBody->flags.isIterator && !op->groupBody->flags.isAssign )
 		target = target->getGroup();
 	if ( arg && isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isPointer )
 		arg = arg->getGroup();

@@ -424,8 +424,8 @@ GroupItem   attributes:,
 GroupItem   field = input[1];
 GroupItem   target = input[2];
 GroupItem   source = new("source");
-    if field.isGROUP    field  = field.group;
-    if target.isGROUP   target = target.group;
+    while field.isGROUP    field  = field.group;
+    while target.isGROUP   target = target.group;
     field.isIterator = true;
     source.group = target;
     field   +% source;
