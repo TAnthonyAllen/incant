@@ -36,6 +36,7 @@ struct bools
 	unsigned int isCondition:1;
 	unsigned int isIndexed:1;
 	unsigned int isInitialized:1;
+	unsigned int isIterator:1;
 	unsigned int isLiteral:1;
 	unsigned int isLocal:1;
 	unsigned int isMacro:1;
@@ -48,6 +49,8 @@ struct bools
 	unsigned int isVirtual:1;
 	unsigned int isWindow:1;
 	unsigned int isXP:1;
+	unsigned int iterateOnAttributes:1;
+	unsigned int iterateOnMembers:1;
 	unsigned int mergeOn:1;
 	unsigned int negate:1;
 	unsigned int recursive:1;

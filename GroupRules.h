@@ -98,6 +98,7 @@ extern "C" GroupItem *aCTionExpressioN(GroupItem *xpList);
 extern "C" GroupItem *aCTionFOR(GroupItem *input);
 extern "C" GroupItem *aCTionFailed(GroupItem *input);
 extern "C" GroupItem *aCTionIF(GroupItem *input);
+extern "C" GroupItem *aCTionIterate(GroupItem *input);
 extern "C" GroupItem *aCTionNamE(GroupItem *input);
 extern "C" GroupItem *aCTionNumbeR(GroupItem *input);
 extern "C" GroupItem *aCTionParens(GroupItem *input);

@@ -525,6 +525,26 @@ GroupItem 	*result = ExpressioN;
 }
 
 /*******************************************************************************
+	The rule action for the Iterate rule
+         Iterate     ANYtoken "on"- ANYtoken attributes? members?;
+*******************************************************************************/
+extern "C" GroupItem *aCTionIterate(GroupItem *input)
+{
+GroupItem 	*attributes = input->getLabelGroup("attributes");
+GroupItem 	*members = input->getLabelGroup("members");
+GroupItem 	*field = input->get(1);
+GroupItem 	*source = new GroupItem("source");
+	field->groupBody->flags.isIterator = 1;
+	source->setGroup(input->get(2));
+	field->addAttribute(source);
+	if ( attributes )
+		field->groupBody->flags.iterateOnAttributes = 1;
+	if ( members )
+		field->groupBody->flags.iterateOnMembers = 1;
+	return field;
+}
+
+/*******************************************************************************
     NamE rule action
 
     BEAR COUNTRY: the `defining && ... isVirtual -> copyOf` line below is a

@@ -424,7 +424,7 @@ GroupItem   attributes:,
 GroupItem   field = input[1];
 GroupItem   source = new("source");
     field.isIterator = true;
-    source  := input[2];
+    source.group = input[2];
     field   +% source;
     if attributes   field.iterateOnAttributes = true;
     if members      field.iterateOnMembers = true;
