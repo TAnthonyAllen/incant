@@ -422,9 +422,12 @@ extern GroupItem aCTionIterate(GroupItem input)
 GroupItem   attributes:,
             members:;
 GroupItem   field = input[1];
+GroupItem   target = input[2];
 GroupItem   source = new("source");
+    if field.isGROUP    field  = field.group;
+    if target.isGROUP   target = target.group;
     field.isIterator = true;
-    source.group = input[2];
+    source.group = target;
     field   +% source;
     if attributes   field.iterateOnAttributes = true;
     if members      field.iterateOnMembers = true;

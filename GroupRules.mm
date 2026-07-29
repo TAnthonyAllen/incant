@@ -533,9 +533,14 @@ extern "C" GroupItem *aCTionIterate(GroupItem *input)
 GroupItem 	*attributes = input->getLabelGroup("attributes");
 GroupItem 	*members = input->getLabelGroup("members");
 GroupItem 	*field = input->get(1);
+GroupItem 	*target = input->get(2);
 GroupItem 	*source = new GroupItem("source");
+	if ( isGROUP(field->groupBody->flags.data) )
+		field = field->getGroup();
+	if ( isGROUP(target->groupBody->flags.data) )
+		target = target->getGroup();
 	field->groupBody->flags.isIterator = 1;
-	source->setGroup(input->get(2));
+	source->setGroup(target);
 	field->addAttribute(source);
 	if ( attributes )
 		field->groupBody->flags.iterateOnAttributes = 1;
@@ -2754,6 +2759,93 @@ finishXP:
 	return xpList;
 }
 
+/***************************************************************************
+    iterAdvance -- the cursor step behind ++ and -- on an iterate field.
+
+    CURSOR, NOT QUEUE: neither direction mutates the source. Position lives in
+    the iterator's own group slot; the source container hangs off it as a
+    `source` attribute (aCTionIterate builds both).
+
+    EMPTINESS IS THE UNWRAP TEST, and it is one state test doing two jobs, so
+    there is no separate `fresh` flag: a position present means the iterator is
+    unwrapped and we step from it; a position absent means fresh-OR-exhausted
+    and we start from the end. next(null) already returns the first entry and
+    prior(null) already returns the last, so FRESH AND EXHAUSTED BEING THE SAME
+    STATE falls out of the existing accessors rather than being arranged.
+    Consequence, deliberate (Tony): run a loop to exhaustion and the next ++
+    rewinds to the start, so a loop that breaks early RESUMES.
+
+    THE FILTER FLAGS ARE APPLIED HERE, INSIDE THE ADVANCE, because next() is
+    unfiltered -- a flag stamped and not consumed is a flag ignored, which is
+    the quiet skip the walk's own doctrine forbids. Forward uses the oracle's
+    own nextAttribute/nextMember. Backward has NO filtered accessor to borrow
+    (prior() has no variants), so it steps and skips explicitly rather than
+    dropping the filter on the floor.
+
+    READS ARE QUALIFIED throughout -- iter.gGroup, source.gGroup, never a bare
+    `group`. The iterator carries `source` as a child, so a bare read is
+    ambiguous about which node it means (corpus CLAIM KANT-1).
+***************************************************************************/
+extern "C" GroupItem *iterAdvance(GroupItem *iter, int forward)
+{
+GroupItem 	*source = iter->getAttribute("source");
+GroupItem 	*container = 0;
+GroupItem 	*position = 0;
+GroupItem 	*next = 0;
+	if ( !source )
+		{
+		::fprintf(stderr,"iterate: ++/-- on %s which has no source -- was `iterate` run on it?\n",iter->groupBody->tag);
+		return 0;
+		}
+	container = source->groupBody->gGroup;
+	if ( !container )
+		{
+		::fprintf(stderr,"iterate: %s source is empty\n",iter->groupBody->tag);
+		return 0;
+		}
+	/*  Deref HERE, at advance time, not at bind time. `iterate grup on argument`
+	binds to the argument NODE, and what that node points at is only known at
+	runtime -- bind early, deref late.  */
+	if ( isGROUP(container->groupBody->flags.data) )
+		container = container->groupBody->gGroup;
+	if ( !container->groupBody->groupList->listLength )
+		{
+		::fprintf(stderr,"iterate: %s source %s contains no list\n",iter->groupBody->tag,container->groupBody->tag);
+		return 0;
+		}
+	position = iter->groupBody->gGroup;
+	if ( forward )
+		if ( iter->groupBody->flags.iterateOnAttributes )
+			next = container->nextAttribute(position);
+		else
+		if ( iter->groupBody->flags.iterateOnMembers )
+			next = container->nextMember(position);
+		else	next = container->next(position);
+	else {
+		next = container->prior(position);
+		while ( next && !::iterFilterOK(iter,next) )
+			next = container->prior(next);
+		}
+	iter->groupBody->gGroup = next;
+	if ( next )
+		iter->groupBody->flags.data = 6;
+	else	iter->groupBody->flags.data = 0;
+	return next;
+}
+
+/***************************************************************************
+    iterFilterOK -- does this node pass the iterator's affiliation filter?
+    ONE implementer, so forward and backward cannot drift apart.
+***************************************************************************/
+extern "C" int iterFilterOK(GroupItem *iter, GroupItem *node)
+{
+	if ( iter->groupBody->flags.iterateOnAttributes )
+		return isAttribute(node->options.affiliation);
+	if ( iter->groupBody->flags.iterateOnMembers )
+		return isMember(node->options.affiliation);
+	return 1;
+}
+
 /* jitEmitAssign  the store-back emitter — commits a value into a target field's
    slot. Assign is a single store operation, so no jitOp selector. SKELETON — not
    wired (no gate, no fixtures).
@@ -4420,6 +4512,12 @@ GroupItem 	*result = 0;
 ***************************************************************************/
 extern "C" GroupItem *opMinusMinus(GroupItem *result)
 {
+	if ( result->groupBody->flags.isIterator )
+		{
+		if ( GroupControl::groupController->groupRules->jitting )
+			::fprintf(stderr,"ERROR -- on an iterator is not JIT-supported yet: %s\n",result->groupBody->tag);
+		return ::iterAdvance(result,0);
+		}
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		 return jitEmitUnary(result, jitDec); 
@@ -4643,6 +4741,12 @@ extern "C" GroupItem *opPlusEQ(GroupItem *argument, GroupItem *target)
 ***************************************************************************/
 extern "C" GroupItem *opPlusPlus(GroupItem *result)
 {
+	if ( result->groupBody->flags.isIterator )
+		{
+		if ( GroupControl::groupController->groupRules->jitting )
+			::fprintf(stderr,"ERROR ++ on an iterator is not JIT-supported yet: %s\n",result->groupBody->tag);
+		return ::iterAdvance(result,1);
+		}
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		 return jitEmitUnary(result, jitInc); 

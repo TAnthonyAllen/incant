@@ -155,6 +155,8 @@ extern "C" GroupItem *guard(GroupItem *item);
 extern "C" GroupItem *interpretBC(GroupItem *argument);
 extern "C" GroupItem *interpretMethod(GroupItem *input);
 extern "C" GroupItem *interpretXP(GroupItem *xpList);
+extern "C" GroupItem *iterAdvance(GroupItem *iter, int forward);
+extern "C" int iterFilterOK(GroupItem *iter, GroupItem *node);
 extern "C" GroupItem *jitEmitAssign(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *jitEmitBinary(GroupItem *argument, GroupItem *target, int op);
 extern "C" GroupItem *jitEmitCompare(GroupItem *argument, GroupItem *target, int op);
