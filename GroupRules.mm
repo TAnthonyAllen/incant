@@ -535,7 +535,14 @@ GroupItem 	*members = input->getLabelGroup("members");
 GroupItem 	*field = input->get(1);
 GroupItem 	*target = input->get(2);
 GroupItem 	*source = new GroupItem("source");
-	while ( isGROUP(field->groupBody->flags.data) )
+	/*  STOP AT A HANDLE. Same lesson as runOP's isIterator exemption: on a
+	SECOND `iterate` against an already-positioned iterator, field.isGROUP is
+	true because the cursor is set, so an ungated unwrap walks straight
+	THROUGH the iterator to the entry it is pointing at -- and stamps that
+	instead. The original iterator is left without a source, which is what
+	T1 reported: "++/-- on grup which has no source".
+	target is deliberately NOT gated -- there we want the value.  */
+	while ( isGROUP(field->groupBody->flags.data) && !field->groupBody->flags.isIterator )
 		field = field->getGroup();
 	while ( isGROUP(target->groupBody->flags.data) )
 		target = target->getGroup();
@@ -2808,6 +2815,15 @@ GroupItem 	*next = 0;
 	runtime -- bind early, deref late.  */
 	if ( isGROUP(container->groupBody->flags.data) )
 		container = container->groupBody->gGroup;
+	/*  groupList FIRST, then listLength. A node with no list at all has a NULL
+	groupList, and reading .listLength off it is a segfault, not a zero --
+	which is how T1 died at EXIT=139 with no output, stdout buffered away by
+	the crash (bear-trap #14).  */
+	if ( !container->groupBody->groupList )
+		{
+		::fprintf(stderr,"iterate: %s source %s has no list\n",iter->groupBody->tag,container->groupBody->tag);
+		return 0;
+		}
 	if ( !container->groupBody->groupList->listLength )
 		{
 		::fprintf(stderr,"iterate: %s source %s contains no list\n",iter->groupBody->tag,container->groupBody->tag);
@@ -6150,8 +6166,24 @@ GroupItem 	*grup = 0;
 			{
 			body = new GroupBody();
 			*body = *grup->groupBody;
-			if ( !body->flags.isArgument )
-				grup->clear();
+			/*  DO NOT clear() HERE. `*body = *grup.groupBody` copies the body
+			STRUCT, and that includes the groupList POINTER -- so body and
+			grup point at the SAME list object. clear() calls clearList(),
+			which pops that shared object EMPTY IN PLACE, gutting the copy we
+			just saved. Restore then hands back a body whose list is empty.
+			The intent here is only "give the new frame a blank local", so
+			blank grup's OWN slots and leave the list object alone; the saved
+			body keeps it and restore puts the pointer back.
+			Found 2026-07-29 via the iterator, whose cursor state lives in a
+			`source` CHILD -- but this is general: no local carrying a list
+			could survive recursion. Iterators were just the first to notice.  */
+			if ( !grup->groupBody->flags.isArgument )
+				{
+				grup->clearData();
+				grup->groupBody->groupList = 0;
+				grup->groupBody->flags.hasAttributes = 0;
+				grup->groupBody->flags.hasMembers = 0;
+				}
 			recurseSTAK->push(body);
 			}
 }

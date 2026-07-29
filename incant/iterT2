@@ -1,0 +1,36 @@
+/*****************************************************************************
+    T2 -- TWO DIFFERENT ACTIONS, one calling the other, BOTH naming grup.
+    T1 tests recursion; T2 tests whether the NAME is per-instance or effectively
+    global. Run together they separate three candidates:
+        cursor survives both      -> per-frame, iterators reach genParse
+        T1 fails, T2 survives     -> recursion-specific
+        both fail                 -> the local itself does not survive a call
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(IterTest);
+define
+    triple  a b c;
+    pair    x y;
+
+    inner argument code={
+        iterate grup on argument;
+        while ++grup
+            print "  inner " taG grup:;
+        };
+
+    outer argument code={
+        iterate grup on argument;
+        while ++grup
+            inner(pair);
+        };
+    ;
+
+outer(triple);
+stop();

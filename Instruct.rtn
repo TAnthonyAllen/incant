@@ -453,6 +453,13 @@ GroupItem   next;
         binds to the argument NODE, and what that node points at is only known at
         runtime -- bind early, deref late.  */
     if container.isGROUP    container = container.gGroup;
+    /*  groupList FIRST, then listLength. A node with no list at all has a NULL
+        groupList, and reading .listLength off it is a segfault, not a zero --
+        which is how T1 died at EXIT=139 with no output, stdout buffered away by
+        the crash (bear-trap #14).  */
+    if !container.groupList {
+        cerr "iterate:",iter.tag,"source",container.tag,"has no list":;
+        return null; }
     if !container.listLength {
         cerr "iterate:",iter.tag,"source",container.tag,"contains no list":;
         return null; }

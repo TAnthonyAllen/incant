@@ -424,7 +424,14 @@ GroupItem   attributes:,
 GroupItem   field = input[1];
 GroupItem   target = input[2];
 GroupItem   source = new("source");
-    while field.isGROUP    field  = field.group;
+    /*  STOP AT A HANDLE. Same lesson as runOP's isIterator exemption: on a
+        SECOND `iterate` against an already-positioned iterator, field.isGROUP is
+        true because the cursor is set, so an ungated unwrap walks straight
+        THROUGH the iterator to the entry it is pointing at -- and stamps that
+        instead. The original iterator is left without a source, which is what
+        T1 reported: "++/-- on grup which has no source".
+        target is deliberately NOT gated -- there we want the value.  */
+    while field.isGROUP && !field.isIterator    field  = field.group;
     while target.isGROUP   target = target.group;
     field.isIterator = true;
     source.group = target;

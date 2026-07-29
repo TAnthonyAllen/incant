@@ -1,0 +1,43 @@
+/*****************************************************************************
+    T1 -- SAME ACTION, RECURSING. SEQ 31's decisive test.
+
+    emitPlan's shape exactly, and it decides whether iterators reach genParse:
+    every interesting walk there is recursive.
+
+    Self-terminating by construction -- a, b and c carry no list, so the inner
+    walk's iterate hits the no-list guard and the loop never runs.
+
+    NOTE THE SHAPE: the loop body is a SINGLE statement and the print happens at
+    ENTRY. That is not style -- aCTionCodE's box scan finds the first `{` and
+    then scans to the FIRST `}` with NO NESTING COUNT, so a `{ }` block inside a
+    code={} body truncates the box at the inner brace. Nested blocks are not
+    available here.
+
+    PER-FRAME  -> at triple, at a, at b, at c   (4 lines, terminates)
+                  Each frame gets its own cursor. Iterators reach emitPlan.
+    SHARED     -> anything else. The inner iterate disturbs the outer cursor, so
+                  the walk is short, repeating, or spins. Iterators do NOT reach
+                  genParse and minion A's step 3 goes back to hand-rolled walks.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(IterTest);
+define
+    triple  a b c;
+
+    walk argument code={
+        print "at " taG argument:;
+        iterate grup on argument;
+        while ++grup
+            walk(grup);
+        };
+    ;
+
+walk(triple);
+stop();

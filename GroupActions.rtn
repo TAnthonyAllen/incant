@@ -697,7 +697,22 @@ GroupItem   grup;
         if (grup.isArgument || grup.isLocal) && !grup.noPrint {
             body    = new;
             *body   = *grup.groupBody;
-            if !isArgument  clear();
+            /*  DO NOT clear() HERE. `*body = *grup.groupBody` copies the body
+                STRUCT, and that includes the groupList POINTER -- so body and
+                grup point at the SAME list object. clear() calls clearList(),
+                which pops that shared object EMPTY IN PLACE, gutting the copy we
+                just saved. Restore then hands back a body whose list is empty.
+                The intent here is only "give the new frame a blank local", so
+                blank grup's OWN slots and leave the list object alone; the saved
+                body keeps it and restore puts the pointer back.
+                Found 2026-07-29 via the iterator, whose cursor state lives in a
+                `source` CHILD -- but this is general: no local carrying a list
+                could survive recursion. Iterators were just the first to notice.  */
+            if !grup.isArgument {
+                grup.clearData();
+                grup.groupList      = 0;
+                grup.hasAttributes  = 0;
+                grup.hasMembers     = 0; }
             recurseSTAK += body; }
 }
 
