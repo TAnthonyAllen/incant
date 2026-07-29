@@ -1,0 +1,57 @@
+/*****************************************************************************
+    iterScratch -- the iterator POP fixture. Stage 3, SEQ 31.
+
+    STATUS 2026-07-29: walkFwd HANGS. Everything up to the advance is proven
+    correct by probe:
+        aCTionIterate fires at RUNTIME (it needed `defer` in incant/grammar)
+        it stamps the right node:      field= grup   target= argument
+        ++ reaches opPlusPlus with:    tag= grup  isIterator= 1  isLocal= 1
+        the isIterator branch IS taken, so iterAdvance IS entered
+    ...and then nothing. A trace placed immediately before iterAdvance's
+    next()/prior() call never prints, and none of its three early-return
+    diagnostics print either. So it hangs in the FIRST FOUR LINES:
+        source    = iter.getAttribute("source");
+        container = source.gGroup;
+        if container.isGROUP  container = container.gGroup;
+        if !container.listLength ...
+
+    LEADING SUSPECT, unconfirmed -- the <- vs := distinction from TODO.md:42.
+    aCTionIterate binds the source with `source.group = target`, which is
+    setGroup, and setGroup does NOT bind for a non-local, non-label target. It
+    takes the embed path instead:
+        gGroup = new(g);  gGroup.parent = this;  gGroup.isEmbedded = true;
+    i.e. an embedded COPY parented back into the iterator that is walking it.
+    A parent chain that runs back through the node being traversed is the shape
+    that hangs a walk.
+
+    RUN IT:   <binary> incant/iterScratch
+    It will hang -- kill it. walkBack is never reached.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(IterTest);
+define
+    triple  a b c;
+
+    walkFwd argument code={
+        iterate grup on argument;
+        while ++grup
+            print "FWD " taG grup:;
+        };
+
+    walkBack argument code={
+        iterate grup on argument;
+        while --grup
+            print "BCK " taG grup:;
+        };
+    ;
+
+walkFwd(triple);
+walkBack(triple);
+stop();
