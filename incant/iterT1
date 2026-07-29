@@ -11,8 +11,12 @@
     sit untouched and then resume at leafB. That is emitPlan's shape.
 
     Still self-terminating: i, j, k, l carry no list, so the third level bottoms
-    out on the no-list guard. No counter needed -- though iterAdvance now has a
-    loud runaway abort regardless (EXCEEDED at 100000 advances).
+    out on the no-list guard. No counter needed here -- but iterAdvance now has a
+    runaway tripwire regardless (`iterSpins`, Instruct.rtn): 100000 advances with
+    no intervening rebind prints a line naming the iterator and EXITS 3. It lives
+    in a C++ static, never a node slot -- the first cut used `iter.gCount`, which
+    shares a GroupBody union with the cursor in gGroup and so destroyed the state
+    it existed to protect (corpus CLAIM KANT-4, EXIT=139).
 
     PER-FRAME expects EXACTLY, and in this order:
         at trunk / at leafA / at i / at j / at leafB / at k / at l      = 7

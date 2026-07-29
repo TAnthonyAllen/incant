@@ -410,6 +410,47 @@ extern int iterFilterOK(GroupItem iter, GroupItem node)
 }
 
 /***************************************************************************
+    iterSpins -- THE RUNAWAY TRIPWIRE. It lives in a C++ static because it
+    CANNOT live on the node: corpus CLAIM KANT-4 -- gCount and gGroup share one
+    GroupBody union, so the first cut's `iter.gCount` counter overwrote the very
+    cursor it existed to protect, and the process died at EXIT=139 with stdout
+    buffered away. A STATIC NEEDS NO NODE STORAGE AT ALL.
+
+    A spin counter was never a language feature. It is a tripwire that converts
+    a HANG -- undiagnosable, and it stops a POP dead -- into a nonzero exit with
+    a line naming the iterator.
+
+    WHAT IT BOUNDS: advances SINCE THE LAST BIND, because `iterBind` resets it
+    and `iterBind` is the one implementer of every reset (`iterate` and `:=`
+    both route there). Every terminating walk keeps that under its own list
+    length, and every recursive frame re-arms it by running its own `iterate`.
+    A process-lifetime cap would be a landmine on a long run; this is not one.
+
+    IT EXITS NONZERO ON PURPOSE, and that is the correction of a real mistake:
+    the first cut printed and returned, and a printed TERMINATED was read as the
+    guard firing when the process had in fact died at 139. EXIT STATUS IS THE
+    CHECK (CLAUDE.md Testing). stderr, not stdout -- a hard exit loses a
+    block-buffered stdout (bear-trap #14).
+
+    Body is entirely passthrough: tok has no syntax for a static, and `iter`
+    arrives as a PARAMETER so nothing here can be pruned (bear-trap #13).
+***************************************************************************/
+extern int iterSpins(GroupItem iter, int reset)
+{
+    -%
+    static long     spins = 0;
+
+    if ( reset )                    { spins = 0;  return 0; }
+    if ( ++spins <= 100000 )        return 0;
+    ::fprintf(stderr,"iterate: RUNAWAY on %s -- %ld advances with no rebind. ABORTING.\n",
+              iter->groupBody->tag,spins);
+    ::fflush(stderr);
+    ::exit(3);
+    return 1;
+    %-
+}
+
+/***************************************************************************
     iterBind -- THE ONE IMPLEMENTER of "point this iterator at that container
     and rewind it". Both `iterate grup on X` (aCTionIterate) and `grup := X`
     (opSetGroup) route here, so the two spellings cannot drift apart.
@@ -440,6 +481,7 @@ GroupItem   source = iter.getAttribute("source");
     iter.isIterator = true;
     iter.gGroup     = 0;
     iter.isGROUP    = false;
+    iterSpins(iter,1);
     return iter;
 }
 
@@ -497,6 +539,10 @@ GroupItem   next;
     if !container.listLength {
         cerr "iterate:",iter.tag,"source",container.tag,"contains no list":;
         return null; }
+    /*  The tripwire goes HERE, past the guards, so it counts real advances and
+        not the terminating no-list returns. iterSpins never comes back on a
+        trip -- it exits 3.  */
+    iterSpins(iter,0);
     position = iter.gGroup;
     if forward
         if iter.iterateOnAttributes     next = container.nextAttribute(position);

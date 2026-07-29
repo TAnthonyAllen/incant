@@ -65,6 +65,44 @@ else
     fail=1
 fi
 
+#  ITERATOR FIXTURES -- and they are in HERE, not in scratch, for one reason:
+#  T1 is the ONLY thing standing between saveLocalFields and a silent
+#  regression. saveLocalFields copied the locals struct including the list
+#  POINTER and then cleared the shared object in place, so NO LOCAL CARRYING A
+#  LIST survived recursion -- since the initial commit. The four baselines above
+#  came back byte-identical across that fix, because nothing in them reaches a
+#  recursive action with a list-carrying local. So BASELINE PARITY IS NOT
+#  EVIDENCE THE FIX IS SAFE, and only these fixtures are.
+#
+#  stdout and stderr are captured SEPARATELY. T1's assertion is ORDER, and the
+#  no-list diagnostics go to stderr unbuffered while the trace is buffered, so a
+#  2>&1 capture interleaves them by flush timing rather than by event order.
+iterrun () {                    # iterrun <fixture> <target> <label>
+    $B "incant/$1" > "$T/$1.o" 2> "$T/$1.e"; ec=$?
+    check "$3 exit 0" 0 $ec
+    grep -vE "^Search list:|^stop:|^$" "$T/$1.o" > "$T/$1.f"
+    diffcheck "$3" "$2" "$T/$1.f"
+}
+
+#  T1 -- SAME ACTION RECURSING, with cursors that genuinely coexist. trunk's
+#  cursor must sit untouched while walk(leafA) runs its own loop to completion
+#  and then RESUME at leafB. Any sharing breaks the ORDER, not just the count.
+iterrun iterT1 genLadder/iterT1.target "iterT1 (per-frame locals, deep)"
+
+#  T3 -- rewind, and := as the only reset. Fresh and exhausted are the same
+#  state deliberately, and emitPlan's two passes depend on it. `resetSame` is
+#  the case with teeth: `grup := argument;` READS LIKE A NO-OP AND IS NOT ONE.
+iterrun iterT3 genLadder/iterT3.target "iterT3 (rewind, := reset)"
+
+#  T1m -- PINNED DIVERGENCE, not a passing test. Same shape as tree.divergence:
+#  a fixture on an OPEN item. field.recursive is INFERRED by identity against
+#  currentMETHOD, so it covers DIRECT self-reference only; in A -> B -> A
+#  neither action names itself, neither gets flagged, and locals are lost. The
+#  target below is therefore the WRONG ANSWER (4 lines, not 7), asserted
+#  UNCHANGED. Fix the inference and this goes RED -- account for the move, and
+#  the 7-line trace T1m's own header documents is what it should become.
+iterrun iterT1m genLadder/iterT1m.divergence "iterT1m (mutual recursion: KNOWN WRONG, pinned)"
+
 diffcheck "oneTest baseline"  genLadder/oneTest.base  "$T/one"
 diffcheck "jsonTest baseline" genLadder/jsonTest.base "$T/jsn"
 

@@ -537,9 +537,26 @@ GroupItem 	*target = input->get(2);
 	/*  STOP AT A HANDLE. Same lesson as runOP's isIterator exemption: on a
 	SECOND `iterate` against an already-positioned iterator, field.isGROUP is
 	true because the cursor is set, so an ungated unwrap walks straight
-	THROUGH the iterator to the entry it is pointing at -- and stamps that
-	instead. The original iterator is left without a source, which is what
-	T1 reported: "++/-- on grup which has no source".
+	THROUGH the iterator to the entry it is pointing at -- and rebinds THAT
+	node instead.
+	
+	MEASURED, by deleting the gate and re-running T3 (2026-07-29). It is
+	load-bearing: `reIterate` printed `I b  I c` instead of `I x  I y`. Read
+	that trace -- the second `iterate` had NO EFFECT ON grup AT ALL. grup
+	stayed pointed at `triple`, still positioned where the single ++ left it,
+	so the following loop simply carried on from b; and the entry `a` was
+	quietly turned into an iterator over `pair` that nothing ever reads.
+	
+	SO THE SYMPTOM IS A SILENT WRONG ANSWER, not a diagnostic. An earlier
+	version of this comment predicted "++/-- on grup which has no source" --
+	that was T1's symptom under a different bug, and it is NOT what happens
+	here. There is no loud failure to wait for: the loop runs, the count is
+	plausible, the contents are wrong.
+	
+	T3's `reIterate` is the ONLY coverage: T1 and iterScratch are byte-
+	identical with the gate gone (they never re-iterate a live iterator), so
+	removing this fixture is removing the gate's whole proof.
+	
 	target is deliberately NOT gated -- there we want the value.  */
 	while ( isGROUP(field->groupBody->flags.data) && !field->groupBody->flags.isIterator )
 		field = field->getGroup();
@@ -2824,6 +2841,10 @@ GroupItem 	*next = 0;
 		::fprintf(stderr,"iterate: %s source %s contains no list\n",iter->groupBody->tag,container->groupBody->tag);
 		return 0;
 		}
+	/*  The tripwire goes HERE, past the guards, so it counts real advances and
+	not the terminating no-list returns. iterSpins never comes back on a
+	trip -- it exits 3.  */
+	::iterSpins(iter,0);
 	position = iter->groupBody->gGroup;
 	if ( forward )
 		if ( iter->groupBody->flags.iterateOnAttributes )
@@ -2878,6 +2899,7 @@ GroupItem 	*source = iter->getAttribute("source");
 	iter->groupBody->flags.isIterator = 1;
 	iter->groupBody->gGroup = 0;
 	iter->groupBody->flags.data = 0;
+	::iterSpins(iter,1);
 	return iter;
 }
 
@@ -2892,6 +2914,47 @@ extern "C" int iterFilterOK(GroupItem *iter, GroupItem *node)
 	if ( iter->groupBody->flags.iterateOnMembers )
 		return isMember(node->options.affiliation);
 	return 1;
+}
+
+/***************************************************************************
+    iterSpins -- THE RUNAWAY TRIPWIRE. It lives in a C++ static because it
+    CANNOT live on the node: corpus CLAIM KANT-4 -- gCount and gGroup share one
+    GroupBody union, so the first cut's `iter.gCount` counter overwrote the very
+    cursor it existed to protect, and the process died at EXIT=139 with stdout
+    buffered away. A STATIC NEEDS NO NODE STORAGE AT ALL.
+
+    A spin counter was never a language feature. It is a tripwire that converts
+    a HANG -- undiagnosable, and it stops a POP dead -- into a nonzero exit with
+    a line naming the iterator.
+
+    WHAT IT BOUNDS: advances SINCE THE LAST BIND, because `iterBind` resets it
+    and `iterBind` is the one implementer of every reset (`iterate` and `:=`
+    both route there). Every terminating walk keeps that under its own list
+    length, and every recursive frame re-arms it by running its own `iterate`.
+    A process-lifetime cap would be a landmine on a long run; this is not one.
+
+    IT EXITS NONZERO ON PURPOSE, and that is the correction of a real mistake:
+    the first cut printed and returned, and a printed TERMINATED was read as the
+    guard firing when the process had in fact died at 139. EXIT STATUS IS THE
+    CHECK (CLAUDE.md Testing). stderr, not stdout -- a hard exit loses a
+    block-buffered stdout (bear-trap #14).
+
+    Body is entirely passthrough: tok has no syntax for a static, and `iter`
+    arrives as a PARAMETER so nothing here can be pruned (bear-trap #13).
+***************************************************************************/
+extern "C" int iterSpins(GroupItem *iter, int reset)
+{
+	
+	static long     spins = 0;
+	
+	if ( reset )                    { spins = 0;  return 0; }
+	if ( ++spins <= 100000 )        return 0;
+	::fprintf(stderr,"iterate: RUNAWAY on %s -- %ld advances with no rebind. ABORTING.\n",
+	iter->groupBody->tag,spins);
+	::fflush(stderr);
+	::exit(3);
+	return 1;
+	
 }
 
 /* jitEmitAssign  the store-back emitter — commits a value into a target field's

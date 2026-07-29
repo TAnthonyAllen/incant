@@ -426,9 +426,26 @@ GroupItem   target = input[2];
     /*  STOP AT A HANDLE. Same lesson as runOP's isIterator exemption: on a
         SECOND `iterate` against an already-positioned iterator, field.isGROUP is
         true because the cursor is set, so an ungated unwrap walks straight
-        THROUGH the iterator to the entry it is pointing at -- and stamps that
-        instead. The original iterator is left without a source, which is what
-        T1 reported: "++/-- on grup which has no source".
+        THROUGH the iterator to the entry it is pointing at -- and rebinds THAT
+        node instead.
+
+        MEASURED, by deleting the gate and re-running T3 (2026-07-29). It is
+        load-bearing: `reIterate` printed `I b  I c` instead of `I x  I y`. Read
+        that trace -- the second `iterate` had NO EFFECT ON grup AT ALL. grup
+        stayed pointed at `triple`, still positioned where the single ++ left it,
+        so the following loop simply carried on from b; and the entry `a` was
+        quietly turned into an iterator over `pair` that nothing ever reads.
+
+        SO THE SYMPTOM IS A SILENT WRONG ANSWER, not a diagnostic. An earlier
+        version of this comment predicted "++/-- on grup which has no source" --
+        that was T1's symptom under a different bug, and it is NOT what happens
+        here. There is no loud failure to wait for: the loop runs, the count is
+        plausible, the contents are wrong.
+
+        T3's `reIterate` is the ONLY coverage: T1 and iterScratch are byte-
+        identical with the gate gone (they never re-iterate a live iterator), so
+        removing this fixture is removing the gate's whole proof.
+
         target is deliberately NOT gated -- there we want the value.  */
     while field.isGROUP && !field.isIterator    field  = field.group;
     iterBind(field,target);
