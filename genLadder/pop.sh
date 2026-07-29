@@ -33,18 +33,35 @@ fi
 grep -v "^getRStuff" "$T/cen" | sed -n '/^PLAN /,$p' | grep -vE "^Search list:|^stop:|^$" > "$T/cenp"
 diffcheck "census.target" genLadder/census.target "$T/cenp"
 
-#  rStuff audit -- PRESENCE-based, and that is the whole point of it.
-#  The instrument this replaces was getRStuff's "no rStuff - creating" cerr, and
-#  grepping for that returned zero in TWO indistinguishable cases: nothing fired
-#  late, and the cerr had been deleted. The second became true on 2026-07-29.
-#  So this asserts the audit line IS THERE with a zero count. A check that
-#  requires something to be present cannot pass by being removed -- delete
-#  auditRegistry and this goes RED, which is exactly what the old one could not do.
-if grep -q "^AUDIT Grokking: 0 terms missing rStuff$" "$T/one"; then
-    echo "  ok    rStuff audit (present, 0 missing)"
+#  rStuff audit -- PRESENCE-based, and count-PINNED on the tree.divergence pattern.
+#
+#  PRESENCE: the instrument this replaces was getRStuff's "no rStuff - creating"
+#  cerr, and grepping for that returned zero both when nothing fired late AND
+#  when the cerr had been deleted. An absence-based check passes by being
+#  removed; this one cannot -- delete the audit and the line vanishes and it
+#  goes RED.
+#
+#  PINNED, NOT ZERO: three known populations are OPEN, not broken, so this
+#  asserts they are UNCHANGED -- a fixture on an open item, exactly as
+#  tree.sh does for the S2.4 retag divergence. Settle one and the number moves,
+#  and whoever moves it accounts for the move.
+#      6 missing rules  -- 5 Keywords entries + SearchList/Grokking. Marked
+#                          isRule but they are keywords and a registry, so the
+#                          likely defect is the isRule mark, not the absent rStuff.
+#     13 missing terms  -- 3 CodE tails, 3 alternation reference terms, 7 ordinary.
+#      4 loose          -- pROPERTIEs/UnaryOPS and /delimiter, each seen twice.
+#                          rStuff on a node that is neither a rule nor a rule's
+#                          term. NO constructor change: no failing case in hand,
+#                          whole-tree blast radius, and aCTionDefinE's
+#                          `if !isRule rStuff = 0;` is MASKING it -- known-masked,
+#                          not accepted.
+AUDITLINE="AUDIT all registries: 6 missing rules, 13 missing terms, 4 loose"
+if grep -qF "$AUDITLINE" "$T/one"; then
+    echo "  ok    rStuff audit (present, populations unchanged)"
 else
-    echo "  FAIL  rStuff audit -- line absent or non-zero:"
-    grep "^AUDIT" "$T/one" | sed 's/^/          /' || echo "          (no AUDIT line at all -- is auditRegistry still called?)"
+    echo "  FAIL  rStuff audit -- line absent or populations MOVED:"
+    grep "^AUDIT all registries" "$T/one" | sed 's/^/          actual:   /' || echo "          (no AUDIT summary at all -- is audit() still called from oneTest?)"
+    echo "          expected: $AUDITLINE"
     fail=1
 fi
 

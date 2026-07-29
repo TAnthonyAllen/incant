@@ -1177,16 +1177,6 @@ GroupItem 	*field = 0;
 	return field;
 }
 
-extern "C" int auditRegistry(GroupItem *registry)
-{
-GroupItem 	*rule = 0;
-int 		missing = 0;
-	while ( rule = registry->next(rule) )
-		missing += ::auditTerms(rule);
-	::fprintf(stderr,"AUDIT %s: %s terms missing rStuff\n",registry->groupBody->tag,::toStringFromInt(missing));
-	return missing;
-}
-
 /*****************************************************************************
     auditTerms / auditRegistry -- materialiseTerms' walk with the OPPOSITE
     intent. It repairs nothing; it reports what is missing.
@@ -1196,6 +1186,31 @@ int 		missing = 0;
     plan, not the mechanism. This is what is left when the repairing is stripped
     out -- the verification, without the silent fixing-up behind the code's back.
 
+    THE INVARIANT IT CHECKS, and it is a BICONDITIONAL: isRule IFF has rStuff.
+
+    Direction 1 SPLITS, for the same reason direction 2 did -- splitting spurious
+    took the answer from "20, act on it" to "4, and 16 you must not touch", and
+    there was never a reason to think the missing were one population either:
+      MISSRULE -- a RULE itself carrying no rStuff.
+      MISSTERM -- a term OF a rule carrying none.
+    Direction 2, auditSpurious -- rStuff on something that is NOT a rule, and it
+    splits into TWO POPULATIONS that must not be added together:
+      TERM  -- a term OF a rule. genParse REQUIRES these to carry rStuff; that is
+               what "unmaterialised term" means, and Limit's min/max were given
+               rStuff deliberately on 2026-07-29 to turn the census green. Counted
+               and printed, but NOT totalled -- stripping these would regress the
+               census immediately.
+      LOOSE -- rStuff on a node that is neither a rule nor a rule's term. THIS is
+               the population Tony described. Only these are totalled. Tony,
+    2026-07-29: non-rules pick rStuff up off whatever rule matched them (the
+    `--` entry in Operators carrying QuotE's), because GroupItem's copy
+    constructor copies rStuff whenever the source has it and never asks whether
+    the target is a rule. His `if !isRule rStuff = 0;` in aCTionDefinE corrects
+    the symptom downstream; the cause is the constructor. That is Tony's
+    `if !isRule rStuff = 0;` read as an assertion rather than an action, which is
+    why the walk skips non-rules instead of flagging them -- a non-rule with no
+    rStuff is CORRECT, not missing.
+
     WHY IT PRINTS EVEN WHEN CLEAN, and this is the whole point. The instrument
     it replaces was getRStuff's "no rStuff - creating" cerr, and grepping for
     that returns zero in TWO indistinguishable cases: nothing fired late, and
@@ -1204,25 +1219,39 @@ int 		missing = 0;
     line is unconditional and pop.sh asserts it is THERE, not that a warning is
     absent.
 *****************************************************************************/
-extern "C" int auditTerms(GroupItem *rule)
+extern "C" int auditMissingRules(GroupItem *registry)
 {
-GroupItem 	*term = 0;
-int 		i = 1;
+GroupItem 	*entry = 0;
 int 		missing = 0;
-	if ( !rule->rStuff )
-		{
-		::fprintf(stderr,"AUDIT %s -- rule has NO rStuff\n",rule->groupBody->tag);
-		missing++;
-		}
-	while ( term = rule->get(i) )
-		{
-		if ( !term->rStuff )
+	while ( entry = registry->next(entry) )
+		if ( entry->groupBody->flags.isRule && !entry->rStuff )
 			{
-			::fprintf(stderr,"AUDIT %s term [%s] %s -- NO rStuff\n",rule->groupBody->tag,::toStringFromInt(i),term->groupBody->tag);
+			::fprintf(stderr,"AUDIT MISSRULE %s/%s -- isRule, no rStuff\n",registry->groupBody->tag,entry->groupBody->tag);
 			missing++;
 			}
-		i++;
-		}
+	return missing;
+}
+
+extern "C" int auditMissingTerms(GroupItem *registry)
+{
+GroupItem 	*entry = 0;
+GroupItem 	*term = 0;
+int 		i = 0;
+int 		missing = 0;
+	while ( entry = registry->next(entry) )
+		if ( entry->groupBody->flags.isRule )
+			{
+			i = 1;
+			while ( term = entry->get(i) )
+				{
+				if ( term->groupBody->flags.isRule && !term->rStuff )
+					{
+					::fprintf(stderr,"AUDIT MISSTERM %s [%s] %s -- isRule term, no rStuff\n",entry->groupBody->tag,::toStringFromInt(i),term->groupBody->tag);
+					missing++;
+					}
+				i++;
+				}
+			}
 	return missing;
 }
 
@@ -1241,6 +1270,94 @@ int 		missing = 0;
     added to the definition; it is fire and forget. Commands without a noPrint
     attribute are intended to be run on the command line.
 *******************************************************************************/
+/***************************************************************************
+    The incant `audit` command invokes this. It reports every isRule node that
+    is missing rStuff, and prints an UNCONDITIONAL summary line.
+
+        audit();            every registry on `registries`
+        audit(Grokking);    one named registry
+
+    EMPTY PARENS ARRIVE AS AN InvokeArg NODE, not as null -- measured, not
+    assumed: `audit()` reported the wrapper's own tag before this was handled.
+    That is the test for "no argument given".
+
+    Run it AFTER the definitions are in place -- the point of it is to check
+    the whole board, not the bootstrap slice. (Tony, 2026-07-29: GroupMain was
+    the wrong home precisely because it runs before setup is parsed.)
+
+    The summary prints even when clean BY DESIGN. The instrument this replaces
+    was getRStuff's "no rStuff - creating" cerr, and grepping for that returned
+    zero both when nothing fired late AND when the cerr had been deleted. An
+    absence-based check passes by being removed; a presence-based one cannot.
+
+    NAMED auditRStuff, NOT audit: macOS declares a system audit(2), and extern "C"
+    strips overload resolution so only the NAME matters -- `extern "C" GroupItem
+    *audit(GroupItem*)` collides with `int audit(const char*, u_int)` and the
+    build dies with "conflicting types for 'audit'". Bear-trap #12, one layer out
+    from the in-repo case. The incant-facing command is still spelled `audit`;
+    the `=value` registration form is exactly what bridges the two names.
+***************************************************************************/
+extern "C" GroupItem *auditRStuff(GroupItem *argument)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*registry = 0;
+GroupItem 	*target = 0;
+int 		missRules = 0;
+int 		missTerms = 0;
+int 		loose = 0;
+	target = argument;
+	if ( isGROUP(target->groupBody->flags.data) )
+		target = target->getGroup();
+	if ( ::compare(target->groupBody->tag,"InvokeArg") == 0 )
+		target = 0;
+	if ( target )
+		{
+		missRules = ::auditMissingRules(target);
+		missTerms = ::auditMissingTerms(target);
+		loose = ::auditSpurious(target);
+		::fprintf(stderr,"AUDIT %s: %s missing rules, %s missing terms, %s loose\n",target->groupBody->tag,::toStringFromInt(missRules),::toStringFromInt(missTerms),::toStringFromInt(loose));
+		}
+	else {
+		while ( registry = ruler->registries->next(registry) )
+			{
+			missRules += ::auditMissingRules(registry);
+			missTerms += ::auditMissingTerms(registry);
+			loose += ::auditSpurious(registry);
+			}
+		::fprintf(stderr,"AUDIT all registries: %s missing rules, %s missing terms, %s loose\n",::toStringFromInt(missRules),::toStringFromInt(missTerms),::toStringFromInt(loose));
+		}
+	return argument;
+}
+
+extern "C" int auditSpurious(GroupItem *registry)
+{
+GroupItem 	*entry = 0;
+GroupItem 	*term = 0;
+int 		i = 0;
+int 		spurious = 0;
+	while ( entry = registry->next(entry) )
+		{
+		if ( !entry->groupBody->flags.isRule && entry->rStuff )
+			{
+			::fprintf(stderr,"AUDIT LOOSE    %s/%s -- not a rule, not a rule term, has rStuff\n",registry->groupBody->tag,entry->groupBody->tag);
+			spurious++;
+			}
+		i = 1;
+		while ( term = entry->get(i) )
+			{
+			if ( !term->groupBody->flags.isRule && term->rStuff )
+				if ( entry->groupBody->flags.isRule )
+					::fprintf(stderr,"AUDIT TERM     %s [%s] %s -- rule TERM, not isRule, has rStuff\n",entry->groupBody->tag,::toStringFromInt(i),term->groupBody->tag);
+				else {
+					::fprintf(stderr,"AUDIT LOOSE    %s [%s] %s -- not a rule, not a rule term, has rStuff\n",entry->groupBody->tag,::toStringFromInt(i),term->groupBody->tag);
+					spurious++;
+					}
+			i++;
+			}
+		}
+	return spurious;
+}
+
 /***************************************************************************
 	The incant clear command invokes this. It clears its argument.
     If data is a buffer, it is reset. If data is a stak, it is cleared.

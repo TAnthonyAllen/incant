@@ -1,4 +1,43 @@
-AUDIT Grokking: 0 terms missing rStuff
+AUDIT LOOSE    pROPERTIEs [9] UnaryOPS -- not a rule, not a rule term, has rStuff
+AUDIT LOOSE    pROPERTIEs [14] delimiter -- not a rule, not a rule term, has rStuff
+AUDIT MISSTERM FormaT [1] flags -- isRule term, no rStuff
+AUDIT MISSTERM FormaT [4] formatTYPE -- isRule term, no rStuff
+AUDIT MISSTERM Precision [1] precision -- isRule term, no rStuff
+AUDIT MISSTERM PrinT [4] stuff -- isRule term, no rStuff
+AUDIT MISSTERM ScopeXP [2] scopeList -- isRule term, no rStuff
+AUDIT MISSTERM StringXP [4] stuff -- isRule term, no rStuff
+AUDIT TERM     BlocK [3] } -- rule TERM, not isRule, has rStuff
+AUDIT TERM     Braced [3] ] -- rule TERM, not isRule, has rStuff
+AUDIT TERM     Iterate [3] on -- rule TERM, not isRule, has rStuff
+AUDIT TERM     Limit [2] min -- rule TERM, not isRule, has rStuff
+AUDIT TERM     Limit [3] max -- rule TERM, not isRule, has rStuff
+AUDIT TERM     Limit [4] ] -- rule TERM, not isRule, has rStuff
+AUDIT TERM     Token [5] Operators -- rule TERM, not isRule, has rStuff
+AUDIT TERM     TokenXP [1] UnaryOPS -- rule TERM, not isRule, has rStuff
+AUDIT TERM     UnaryXP [1] UnaryOPS -- rule TERM, not isRule, has rStuff
+AUDIT MISSRULE Keywords/break -- isRule, no rStuff
+AUDIT MISSRULE Keywords/continue -- isRule, no rStuff
+AUDIT MISSRULE Keywords/print -- isRule, no rStuff
+AUDIT MISSRULE Keywords/return -- isRule, no rStuff
+AUDIT MISSRULE Keywords/string -- isRule, no rStuff
+AUDIT MISSRULE SearchList/Grokking -- isRule, no rStuff
+AUDIT MISSTERM list [1] entries -- isRule term, no rStuff
+AUDIT MISSTERM list [3] CodE -- isRule term, no rStuff
+AUDIT MISSTERM JSONarray [4] CodE -- isRule term, no rStuff
+AUDIT MISSTERM JSONfield [5] CodE -- isRule term, no rStuff
+AUDIT MISSTERM JSONtoken [1] JSONblock -- isRule term, no rStuff
+AUDIT MISSTERM JSONvalue [1] JSONblock -- isRule term, no rStuff
+AUDIT MISSTERM JSONvalue [2] JSONarray -- isRule term, no rStuff
+AUDIT TERM     JSONarray [1] [ -- rule TERM, not isRule, has rStuff
+AUDIT TERM     JSONarray [3] ] -- rule TERM, not isRule, has rStuff
+AUDIT TERM     JSONblock [1] { -- rule TERM, not isRule, has rStuff
+AUDIT TERM     JSONblock [3] } -- rule TERM, not isRule, has rStuff
+AUDIT TERM     JSONfield [2] : -- rule TERM, not isRule, has rStuff
+AUDIT TERM     JSONfield [4] , -- rule TERM, not isRule, has rStuff
+AUDIT TERM     JSONitem [2] , -- rule TERM, not isRule, has rStuff
+AUDIT LOOSE    pROPERTIEs/UnaryOPS -- not a rule, not a rule term, has rStuff
+AUDIT LOOSE    pROPERTIEs/delimiter -- not a rule, not a rule term, has rStuff
+AUDIT all registries: 6 missing rules, 13 missing terms, 4 loose
 Search list: Grokking Generating UnitTests bcOPs Utilities
 Generating action for tag 
 revisedList          length 3	no data

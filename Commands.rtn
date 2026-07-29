@@ -16,6 +16,58 @@
 *******************************************************************************/
 
 /***************************************************************************
+    The incant `audit` command invokes this. It reports every isRule node that
+    is missing rStuff, and prints an UNCONDITIONAL summary line.
+
+        audit();            every registry on `registries`
+        audit(Grokking);    one named registry
+
+    EMPTY PARENS ARRIVE AS AN InvokeArg NODE, not as null -- measured, not
+    assumed: `audit()` reported the wrapper's own tag before this was handled.
+    That is the test for "no argument given".
+
+    Run it AFTER the definitions are in place -- the point of it is to check
+    the whole board, not the bootstrap slice. (Tony, 2026-07-29: GroupMain was
+    the wrong home precisely because it runs before setup is parsed.)
+
+    The summary prints even when clean BY DESIGN. The instrument this replaces
+    was getRStuff's "no rStuff - creating" cerr, and grepping for that returned
+    zero both when nothing fired late AND when the cerr had been deleted. An
+    absence-based check passes by being removed; a presence-based one cannot.
+
+    NAMED auditRStuff, NOT audit: macOS declares a system audit(2), and extern "C"
+    strips overload resolution so only the NAME matters -- `extern "C" GroupItem
+    *audit(GroupItem*)` collides with `int audit(const char*, u_int)` and the
+    build dies with "conflicting types for 'audit'". Bear-trap #12, one layer out
+    from the in-repo case. The incant-facing command is still spelled `audit`;
+    the `=value` registration form is exactly what bridges the two names.
+***************************************************************************/
+extern GroupItem auditRStuff(GroupItem argument)
+{
+GroupRules  ruler = groupRules;
+GroupItem   registry;
+GroupItem   target;
+int         missRules = 0;
+int         missTerms = 0;
+int         loose = 0;
+    target = argument;
+    if target.isGROUP               target = target.group;
+    if target.tag eq "InvokeArg"    target = 0;
+    if target {
+        missRules = auditMissingRules(target);
+        missTerms = auditMissingTerms(target);
+        loose     = auditSpurious(target);
+        cerr "AUDIT " target.tag ": " toStringFromInt(missRules) " missing rules, " toStringFromInt(missTerms) " missing terms, " toStringFromInt(loose) " loose":; }
+    else {
+        while registry = registries.next(registry) {
+            missRules += auditMissingRules(registry);
+            missTerms += auditMissingTerms(registry);
+            loose     += auditSpurious(registry); }
+        cerr "AUDIT all registries: " toStringFromInt(missRules) " missing rules, " toStringFromInt(missTerms) " missing terms, " toStringFromInt(loose) " loose":; }
+    return argument;
+}
+
+/***************************************************************************
 	The incant clear command invokes this. It clears its argument.
     If data is a buffer, it is reset. If data is a stak, it is cleared.
     Otherwise input is cleared wiping data and list.

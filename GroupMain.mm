@@ -393,14 +393,13 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	now have setRuleStuff() run on them so rStuff is set
 	materialiseRegistry(grok);
 	
-	auditRegistry below is what replaces it: the SAME walk over the SAME
-	ground, with the repairing stripped out. It fixes nothing -- it reports
-	what is missing and prints its count unconditionally, so pop.sh can
-	assert the line is THERE. The instrument it replaces (getRStuff's
-	"no rStuff - creating" cerr) was absence-based, and an absence-based
-	check passes just as well when the check itself has been deleted.
+	What replaces it is the `audit` COMMAND (Commands.rtn), and it is
+	deliberately NOT called from here. Tony, 2026-07-29: this point is
+	BEFORE setup is parsed, so an audit here sees only the hand-built
+	bootstrap slice and is blind to every rule defined in incant source --
+	which is most of the board the invariant is about. It runs from
+	incant/oneTest instead, after the definitions are all in place.
 	*************************************************************************/
-	::auditRegistry(grok);
 	ruler->pushInput(::getFile(ruler->setupFILE));
 	if ( ruler->sourceFILE )
 		strap->parse(0);

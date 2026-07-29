@@ -18,6 +18,7 @@ define
     include=loadInputFromFile immediateAction;
     virtual immediateAction=processFlags noPrint;
     assign immediateAction=processFlags noPrint;
+    audit immediateAction=auditRStuff;
     bin immediateAction=processFlags noPrint;
     bitmap immediateAction=setInternalType noPrint;
     BLOCKing immediateAction=processFlags guard;

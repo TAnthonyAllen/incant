@@ -64,6 +64,33 @@ Two instances now, one in generated code and one in hand-written bootstrap.
 > than on what it appears to say.** When you attach a node and then want to act on
 > it, act on it *before* anything else is bound — or qualify the read explicitly.
 
+### CLAIM KANT-3 — TWO INDEX SPACES: a rule action indexes the LABEL, the audit indexes the TERM LIST
+```
+statement:   Positional access inside a RULE ACTION (`input[1]`, `input[2]`)
+             indexes the LABEL the parse built -- NOT the rule's term list. A
+             `-` (noLabel) term produces no label, so it HOLDS A SLOT in the term
+             list and is ABSENT from the action's view. The two are different
+             structures with different numbering, and both are correct.
+confidence:  RUN
+provenance:  Tony's ruling, 2026-07-29, and both halves are observed:
+               term list   `audit` walks it -- Limit[2] is `min`, with the
+                           bracket literals occupying [1] and [4].
+               label       aCTionIterate reads `field = input[1]`,
+                           `source = input[2]` and is CORRECT, because
+                           incant/grammar:156 writes
+                             Iterate "iterate"- ANYtoken "on"- ANYtoken ...
+                           BOTH literals dashed. The dashes are what MAKE the
+                           indices right; without them the field lands at [2].
+asOf:        2026-07-29
+scope:       Applies to positional access. wakeup.md's "rule[i] is source order,
+             1-based" is about the TERM LIST and MISLEADS anyone applying it
+             inside an action.
+```
+**Note for genParse, and it is a live hazard rather than a curiosity:** emitted
+code (`t1 = rule[1]`) reads the **term list** — which is what the baked indices
+and `RuleStuff.termCount`'s count guard exist for. So genParse has **two index
+spaces in one subsystem, and the count guard protects only one of them.**
+
 ### CLAIM KANT-2 — `:=` is incant, and does not parse in tok
 ```
 statement:   `:=` (opSetGroup) is an INCANT operator. It has no meaning in tok
