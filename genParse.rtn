@@ -1075,6 +1075,10 @@ String      from  = atRuleMark;
     gets pruned as unused, taking its initializing call with it. Parameters are
     never pruned, so the whole computation is pushed into the argument list.
     stderr, not stdout, for the failure report (bear-trap #14).
+    
+    The above comment on tok passthru is incorrect. Most of the code between -%
+    and %- below can be replaced with one tok line; no need to qualify parseMethod:
+        parseMethod = dlsym(RTLD_SELF,name);
 *******************************************************************************/
 extern int setParseMethod(RuleStuff stuff, String name)
 {

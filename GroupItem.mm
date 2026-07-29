@@ -165,11 +165,10 @@ GroupItem::GroupItem(GroupItem *grup)
 	options.isCopy = 1;
 	if ( grup->rStuff )
 		{
-		RuleStuff 	*fresh = new RuleStuff(this);
-		setRStuff(fresh);
+		rStuff = new RuleStuff(this);
 		*rStuff = *grup->rStuff;
-		fresh->rule = this;
-		fresh->followed = fresh->isOK = fresh->sukcess = 0;
+		rStuff->rule = this;
+		rStuff->followed = rStuff->isOK = rStuff->sukcess = 0;
 		}
 }
 
@@ -588,7 +587,7 @@ GroupItem *GroupItem::get(int offset)
 {
 GroupItem 	*entry = 0;
 int 		i = 0;
-	if ( groupBody->groupList )
+	if ( offset && groupBody->groupList )
 		{
 		if ( groupBody->groupList->stakked )
 			return groupBody->groupList->stakked->getFromStak(offset);
@@ -930,7 +929,6 @@ RuleStuff *GroupItem::getRStuff()
 	if ( !rStuff )
 		{
 		RuleStuff 	*fresh = new RuleStuff(this);
-		::fprintf(stderr,"getRStuff: %s no rStuff - creating\n",groupBody->tag);
 		setRStuff(fresh);
 		}
 	return rStuff;
@@ -1880,15 +1878,12 @@ void GroupItem::setRuleStuff()
 			if ( !groupBody->registry || groupBody->registry == GroupControl::groupController->groupRules->keyWords )
 				groupBody->flags.isRule = 1;
 	if ( !rStuff )
-		{
-		RuleStuff 	*fresh = new RuleStuff(this);
-		setRStuff(fresh);
-		}
+		setRStuff(new RuleStuff(this));
+	else
 	if ( rStuff->rule != this )
 		{
-		RuleStuff 	*clone = new RuleStuff(rStuff);
-		setRStuff(clone);
-		clone->rule = this;
+		setRStuff(new RuleStuff(rStuff));
+		rStuff->rule = this;
 		}
 }
 

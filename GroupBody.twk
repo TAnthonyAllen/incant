@@ -63,6 +63,7 @@ boolean bools {
     isCondition
     isIndexed
     isInitialized
+    isIterator
     isLiteral
     isLocal
     isMacro
@@ -75,6 +76,8 @@ boolean bools {
     isVirtual
     isWindow
     isXP
+    iterateOnAttributes
+    iterateOnMembers
     mergeOn
     negate
     recursive

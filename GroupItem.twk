@@ -42,8 +42,7 @@ GroupItem(GroupItem grup)
     groupBody   = grup.groupBody;
     isCopy      = true;
     if grup.rStuff {
-        RuleStuff   fresh = new(this);
-        setRStuff(fresh);
+        rStuff  = new(this);
         *rStuff = *grup.rStuff;
         rule    = this;
         followed = isOK = sukcess = false; }
@@ -336,7 +335,7 @@ GroupItem get(int offset)
 {
 GroupItem   entry;
 int         i;
-    if groupList {
+    if offset && groupList {
         if stakked      return getFromStak(offset);
         or --offset <= listLength {
             entry = firstInList;
@@ -607,7 +606,6 @@ RuleStuff getRStuff()
 {
     if !rStuff {
         RuleStuff   fresh = new(this);
-        cerr "getRStuff:",tag,"no rStuff - creating":;
         setRStuff(fresh); }
     return rStuff;
 }
@@ -1466,12 +1464,9 @@ void setRuleStuff()
         if registry && registry.isRule              isRule = true;
         or parent && parent.isRule
             if !registry || registry == keyWords    isRule = true;
-    if !rStuff {
-        RuleStuff   fresh = new(this);
-        setRStuff(fresh); }
-    if rule != this {
-        RuleStuff   clone = new(rStuff);
-        setRStuff(clone);
+    if !rStuff  rStuff = new(this);
+    or rule != this {
+        rStuff  = new(rStuff);
         rule    = this; }
 }
 

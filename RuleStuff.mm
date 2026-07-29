@@ -964,7 +964,7 @@ GroupItem 	*field = rule;
 				label->groupBody->flags.isLabel = 1;
 				}
 			else	label->groupBody->flags.fLAG = 0;
-			if ( !label->rStuff )
+			if ( !label->rStuff || ::compare(ruleName,field->groupBody->tag) != 0 )
 				label->setRStuff(this);
 			}
 checkFailed:

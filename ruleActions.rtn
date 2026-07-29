@@ -139,8 +139,7 @@ use NewGroup
     if isLiteral {
         tag    = text;
         text   = 0; }
-    if NewGroup
-        {
+    if NewGroup {
         /***********************************************************************
             If currentRegistry and NewGroup is not a registry, add it to the current registry.
         ***********************************************************************/
@@ -151,9 +150,8 @@ use NewGroup
             if registry != currentRegistry     NewGroup = currentRegistry += NewGroup;
             if currentRegistry.isRule {
                 if !binType     isRule = true;
-                if !rStuff {
-                    RuleStuff   fresh = new(NewGroup);
-                    NewGroup.setRStuff(fresh); }}}
+                if !rStuff      rStuff = new(NewGroup); }}}
+        if !isRule  rStuff = 0;
        /***********************************************************************
             Process Attributes.
         ***********************************************************************/
@@ -182,8 +180,8 @@ use item
                     if NewGroup.isRule && !item.binType    item.isRule = true;
                     if item.isLiteral {
                         grup = new(item.text);
-                        if item.rStuff {
-                        grup.setRStuff(item.rStuff);
+                        if item.isRule && item.rStuff {
+                        grup.rStuff     = new(item.rStuff);
                         grup.ruleName   = grup.tag; }}
                     else    grup = item;
                     grup    = NewGroup +% grup; }
@@ -217,7 +215,7 @@ use NewGroup
                 if isRule && rStuff && (!data || data > 3)
                     if max != 1 || min != 1 {
                         RuleStuff   fresh = new(newMember);
-                        newMember.setRStuff(fresh); }}}
+                        newMember.setRStuff(fresh); }}
         /***********************************************************************
             If NewGroup is a rule check to see if it has a rule method .
             Note: method is fired even if there is an incant action associated with
@@ -246,8 +244,11 @@ use NewGroup
         carrying a modifier, and terms from incant source come back with rStuff
         regardless. It is here so the INVARIANT holds at the define point rather
         than holding by luck.
-    ***********************************************************************/
+        
+        Note I commented this out because rStuff should be there already if
+        the NewGroup is a rule and zero if it is not
         materialiseTerms(NewGroup);
+    ***********************************************************************/
     input.clear();
     isInitialized   = true;
     if NewGroup.registry && !NewGroup.parent    NewGroup.parent = currentRegistry;
@@ -410,6 +411,24 @@ finishXP:
     xpList.clear();
     xpList.group = arg;
     return xpList;
+}
+
+/*******************************************************************************
+	The rule action for the Iterate rule
+         Iterate     ANYtoken "on"- ANYtoken attributes? members?;
+*******************************************************************************/
+extern GroupItem aCTionIterate(GroupItem input)
+{
+GroupItem   attributes:,
+            members:;
+GroupItem   field = input[1];
+GroupItem   source = new("source");
+    field.isIterator = true;
+    source  := input[2];
+    field   +% source;
+    if attributes   field.iterateOnAttributes = true;
+    if members      field.iterateOnMembers = true;
+    return  field;
 }
 
 /*******************************************************************************

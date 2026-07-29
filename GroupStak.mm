@@ -6,6 +6,7 @@
 #include "GroupItem.h"
 #include "GroupList.h"
 #include "GroupBody.h"
+#include "Stylish.h"
 #include "GroupDraw.h"
 #include "GroupStak.h"
 

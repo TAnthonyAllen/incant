@@ -12,6 +12,7 @@
 #include "PLGset.h"
 #include "PLGrgx.h"
 #include "PLGitem.h"
+#include "Stylish.h"
 #include "GroupDraw.h"
 #include "GroupBody.h"
 

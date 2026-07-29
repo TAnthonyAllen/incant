@@ -1,4 +1,33 @@
 /*****************************************************************************
-    Notions
+    Offline Status
 *****************************************************************************/
-As with modedOP would like a way to change the method associated with an op (but only if the op is modifiable?).
+I added isIterator as a boolean in GroupBody. Did not tok GroupBody because doing so means tokking everything; so leaving that to Clod.
+
+The iterator rule I added to grammar
+    Iterate "iterate" ANYtoken "on"- ANYtoken attributes? members?;
+
+The rule action I added to ruleActions.rtn (also not yet tokked in):
+
+extern GroupItem aCTionIterate(GroupItem input)
+{
+GroupItem   attributes:,
+            members:;
+GroupItem   field = input[1];
+GroupItem   source = new("source");
+    field.isIterator = true;
+    source  := input[2];
+    field   +% source;
+}
+
+The remaining issue is how will iterators be used. Assuming grup is an iterator field defined by the Iterate rule: ++grup iterates FIFO and --grup iterates LIFO. We change the opMethods to handle iterators, or if that is a worry, we can divert ++ and -- to tailored opMethods in TokenXP. That will not be hard but may not be necessary.
+I was also thinking grup := newSource; would be a convenient way to change the source for an existing iterator, albeit it will require an iterate gate in th := method;
+
+    iterate grup on argument;
+    while ++grup
+        // first time thru the grup local field contains the first entry in argument
+        // and grup is unwrapped so it works like a pointer to isGROUP
+        print taG grup:;    // will print the first entry tag and its content as text
+    // here grup is empty
+    grup := someOtherSource;
+    rinse and repeat;
+        

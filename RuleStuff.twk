@@ -142,7 +142,7 @@ GroupItem   field = rule;
                 label           = new(tag);
                 label.isLabel   = true; }
             else label.fLAG     = false;
-            if !label.rStuff    label.setRStuff(this); }
+            if !label.rStuff || ruleName ne tag label.setRStuff(this); }
 checkFailed:
     return sukcess;
 }

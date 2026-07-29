@@ -440,9 +440,7 @@ GroupItem   target  = item.fLAG ? item.parent : item;
                 or command eq "isList"  isLIST = true;
                 or command eq "isRule" {
                     isRule      = true;
-                    if !rStuff {
-                        RuleStuff   fresh = new(target);
-                        target.setRStuff(fresh); }}
+                    if !rStuff  rStuff = new(target); }
             case 'm':
                 if command eq "macro"   isMacro = true;
                 else    mergeOn         = true;

@@ -245,98 +245,97 @@ GroupItem 	*item = 0;
 				if ( !NewGroup->groupBody->flags.binType )
 					NewGroup->groupBody->flags.isRule = 1;
 				if ( !NewGroup->rStuff )
-					{
-					RuleStuff 	*fresh = new RuleStuff(NewGroup);
-					NewGroup->setRStuff(fresh);
-					}
+					NewGroup->setRStuff(new RuleStuff(NewGroup));
 				}
 			}
-		/***********************************************************************
-		Process Attributes.
-		***********************************************************************/
-		if ( Attributes )
-			while ( item = Attributes->next(item) )
-				if ( item->groupBody->flags.noPrint && immediateACTION(item->groupBody->flags.methodType) )
-					{
-					/*******************************************************
-					if item gets run but is not added to the new group.
-					fLAG set so method can verify it is called from a
-					definition (some commands can be run as define
-					attributes or from the command line).
-					*******************************************************/
-					item->parent = NewGroup;
-					item->groupBody->flags.fLAG = 1;
-					item->groupBody->gMethod(item);
-					item->groupBody->flags.fLAG = 0;
-					}
-				else {
-					if ( ::compare(item->groupBody->tag,"code") == 0 )
-						{
-						CodE = item;
-						CodE->groupBody->tag = "CodE";
-						CodE->groupBody->flags.noPrint = 1;
-						}
-					if ( ::compare(item->groupBody->tag,"argument") == 0 )
-						item->groupBody->flags.isArgument = 1;
-					if ( NewGroup->groupBody->flags.isMacro )
-						item->groupBody->flags.noPrint = 1;
-					item->groupBody->flags.isInitialized = 1;
-					if ( NewGroup->groupBody->flags.isRule && !item->groupBody->flags.binType )
-						item->groupBody->flags.isRule = 1;
-					if ( item->groupBody->flags.isLiteral )
-						{
-						grup = new GroupItem(item->getText());
-						if ( item->rStuff )
-							{
-							grup->setRStuff(item->rStuff);
-							grup->rStuff->ruleName = grup->groupBody->tag;
-							}
-						}
-					else	grup = item;
-					grup = NewGroup->addAttribute(grup);
-					}
-		/***********************************************************************
-		If there is code NewGroup is flagged as coded. The code gets processed
-		by processCode() the first time NewGroup is included in an expression.
-		***********************************************************************/
-		if ( CodE )
-			{
-			grup = NewGroup->addString("this");
-			grup->groupBody->flags.isLocal = 1;
-			grup->groupBody->flags.noPrint = 1;
-			grup->setGroup(NewGroup);
-			grup = NewGroup->addString("tempField");
-			grup->groupBody->flags.isLocal = 1;
-			grup->groupBody->flags.noPrint = 1;
-			if ( NewGroup->groupBody->flags.isMacro )
+		}
+	if ( !NewGroup->groupBody->flags.isRule )
+		NewGroup->setRStuff((RuleStuff*)0);
+	/***********************************************************************
+	Process Attributes.
+	***********************************************************************/
+	if ( Attributes )
+		while ( item = Attributes->next(item) )
+			if ( item->groupBody->flags.noPrint && immediateACTION(item->groupBody->flags.methodType) )
 				{
-				CodE->groupBody->gText++;
-				CodE->groupBody->gCount -= 2;
-				NewGroup->setText(CodE->getText());
+				/*******************************************************
+				if item gets run but is not added to the new group.
+				fLAG set so method can verify it is called from a
+				definition (some commands can be run as define
+				attributes or from the command line).
+				*******************************************************/
+				item->parent = NewGroup;
+				item->groupBody->flags.fLAG = 1;
+				item->groupBody->gMethod(item);
+				item->groupBody->flags.fLAG = 0;
 				}
 			else {
-				NewGroup->groupBody->flags.actionType = 2;
-				CodE->parent = 0;
-				}
-			}
-		else
-		if ( NewGroup->groupBody->flags.isMacro )
-			::fprintf(stderr,"ERROR: A macro definition must have code specified as its body\n");
-		/***********************************************************************
-		Process Members.
-		***********************************************************************/
-		if ( MemberS )
-			while ( item = MemberS->next(item) )
-				{
-				GroupItem 	*newMember = NewGroup->addMember(item);
-				if ( newMember->groupBody->flags.isRule && newMember->rStuff && (!newMember->groupBody->flags.data || newMember->groupBody->flags.data > 3) )
-					if ( newMember->rStuff->max != 1 || newMember->rStuff->min != 1 )
+				if ( ::compare(item->groupBody->tag,"code") == 0 )
+					{
+					CodE = item;
+					CodE->groupBody->tag = "CodE";
+					CodE->groupBody->flags.noPrint = 1;
+					}
+				if ( ::compare(item->groupBody->tag,"argument") == 0 )
+					item->groupBody->flags.isArgument = 1;
+				if ( NewGroup->groupBody->flags.isMacro )
+					item->groupBody->flags.noPrint = 1;
+				item->groupBody->flags.isInitialized = 1;
+				if ( NewGroup->groupBody->flags.isRule && !item->groupBody->flags.binType )
+					item->groupBody->flags.isRule = 1;
+				if ( item->groupBody->flags.isLiteral )
+					{
+					grup = new GroupItem(item->getText());
+					if ( item->groupBody->flags.isRule && item->rStuff )
 						{
-						RuleStuff 	*fresh = new RuleStuff(newMember);
-						newMember->setRStuff(fresh);
+						grup->setRStuff(new RuleStuff(item->rStuff));
+						grup->rStuff->ruleName = grup->groupBody->tag;
 						}
+					}
+				else	grup = item;
+				grup = NewGroup->addAttribute(grup);
 				}
+	/***********************************************************************
+	If there is code NewGroup is flagged as coded. The code gets processed
+	by processCode() the first time NewGroup is included in an expression.
+	***********************************************************************/
+	if ( CodE )
+		{
+		grup = NewGroup->addString("this");
+		grup->groupBody->flags.isLocal = 1;
+		grup->groupBody->flags.noPrint = 1;
+		grup->setGroup(NewGroup);
+		grup = NewGroup->addString("tempField");
+		grup->groupBody->flags.isLocal = 1;
+		grup->groupBody->flags.noPrint = 1;
+		if ( NewGroup->groupBody->flags.isMacro )
+			{
+			CodE->groupBody->gText++;
+			CodE->groupBody->gCount -= 2;
+			NewGroup->setText(CodE->getText());
+			}
+		else {
+			NewGroup->groupBody->flags.actionType = 2;
+			CodE->parent = 0;
+			}
 		}
+	else
+	if ( NewGroup->groupBody->flags.isMacro )
+		::fprintf(stderr,"ERROR: A macro definition must have code specified as its body\n");
+	/***********************************************************************
+	Process Members.
+	***********************************************************************/
+	if ( MemberS )
+		while ( item = MemberS->next(item) )
+			{
+			GroupItem 	*newMember = NewGroup->addMember(item);
+			if ( newMember->groupBody->flags.isRule && newMember->rStuff && (!newMember->groupBody->flags.data || newMember->groupBody->flags.data > 3) )
+				if ( newMember->rStuff->max != 1 || newMember->rStuff->min != 1 )
+					{
+					RuleStuff 	*fresh = new RuleStuff(newMember);
+					newMember->setRStuff(fresh);
+					}
+			}
 	/***********************************************************************
 	If NewGroup is a rule check to see if it has a rule method .
 	Note: method is fired even if there is an incant action associated with
@@ -374,8 +373,11 @@ GroupItem 	*item = 0;
 	carrying a modifier, and terms from incant source come back with rStuff
 	regardless. It is here so the INVARIANT holds at the define point rather
 	than holding by luck.
+	
+	Note I commented this out because rStuff should be there already if
+	the NewGroup is a rule and zero if it is not
+	materialiseTerms(NewGroup);
 	***********************************************************************/
-	::materialiseTerms(NewGroup);
 	input->clear();
 	NewGroup->groupBody->flags.isInitialized = 1;
 	if ( NewGroup->groupBody->registry && !NewGroup->parent )
@@ -5430,10 +5432,7 @@ GroupItem 	*target = item->groupBody->flags.fLAG ? item->parent : item;
 					{
 					target->groupBody->flags.isRule = 1;
 					if ( !target->rStuff )
-						{
-						RuleStuff 	*fresh = new RuleStuff(target);
-						target->setRStuff(fresh);
-						}
+						target->setRStuff(new RuleStuff(target));
 					}
 				break;
 			case 'm':
@@ -5954,6 +5953,10 @@ int 		offset = markOffset->getCount();
     gets pruned as unused, taking its initializing call with it. Parameters are
     never pruned, so the whole computation is pushed into the argument list.
     stderr, not stdout, for the failure report (bear-trap #14).
+    
+    The above comment on tok passthru is incorrect. Most of the code between -%
+    and %- below can be replaced with one tok line; no need to qualify parseMethod:
+        parseMethod = dlsym(RTLD_SELF,name);
 *******************************************************************************/
 extern "C" int setParseMethod(RuleStuff *stuff, char *name)
 {

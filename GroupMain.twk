@@ -97,27 +97,33 @@ GroupRules  ruler = groupRules;
         bootstrap character sets. Do these need to be in Grokking?
     *************************************************************************/
     strap           = new("counter");
+    setRuleStuff();
     characterSet    = new("0-9");
     item            = grok += strap;
     strap           = new("nameSet");
+    setRuleStuff();
     characterSet    = nameSet;
     grok            += strap;
     strap           = new("numberSet");
+    setRuleStuff();
     characterSet    = new("0-9");
     grok            += strap;
     strap           = new("delimiter");
+    setRuleStuff();
     text            = "#)";
     properties      += strap;
     /*************************************************************************
         bootstrap rule definition rules.
     *************************************************************************/
     strap           = new("Modifier");
+    setRuleStuff();
     strap           = grok += strap;
     characterSet    = new("-~+?!%&|*@_<^{}$");
 
     strap           = new("Limit");
+    setRuleStuff();
     strap           = grok += strap;
-    strap           +% new("[");
+    item            = strap +% new("[");
     item            = new("min");
     item            = strap +% item;
     item.group      = grok/counter;
@@ -129,6 +135,7 @@ GroupRules  ruler = groupRules;
     item            = item.group;
     modify(item,"*");
     item            = new("]");
+    item.setRuleStuff();
     item            = strap +% item;
 
     strap           = new("tokenize");
@@ -139,9 +146,10 @@ GroupRules  ruler = groupRules;
 
     strap           = grok += new("Any");
     isANY           = true;
-    isRule          = true;
+    setRuleStuff();
     
     strap           = grok += "PoweR";
+    setRuleStuff();
     characterSet    = new("eE");
     item            = new("sign");
     item.characterSet    = new("-+");
@@ -153,6 +161,7 @@ GroupRules  ruler = groupRules;
     modify(item,"+");
 
     strap           = grok += "FloaT";
+    setRuleStuff();
     character       = '.';
     item            = new("decimals");
     item.characterSet    = new("0-9");
@@ -163,6 +172,7 @@ GroupRules  ruler = groupRules;
     modify(item,"?");
 
     strap           = grok += "QuotE";
+    setRuleStuff();
     method          = aCTionQuotE;
     item            = new("tik");
     item.characterSet    = new("'\"");
@@ -177,6 +187,7 @@ GroupRules  ruler = groupRules;
     modify(item,"$");
 
     strap           = grok += "NamE";
+    setRuleStuff();
     method          = aCTionNamE;
     item            = new("first");
     item.characterSet    = new("a-zA-Z");
@@ -189,6 +200,7 @@ GroupRules  ruler = groupRules;
     strap           +% item;
     
     strap           = grok += "NumbeR";
+    setRuleStuff();
     item            = grok["numberSet"];
     group           = item;
     item            = gGroup;
@@ -202,11 +214,13 @@ GroupRules  ruler = groupRules;
     strap           +% item;
 
     strap           = grok += "GrouP";
+    setRuleStuff();
     dStuff          = strap;
     item            = strap += grok/NamE;
     item            = strap += grok/QuotE;
 
     strap           = grok += "SetBrackets";
+    setRuleStuff();
     method          = aCTionSetBrackets;
     item            = strap += "[";
     modify(item,"-");
@@ -214,16 +228,21 @@ GroupRules  ruler = groupRules;
     modify(item,"}");
 
     strap           = grok += new("CodE");
+    setRuleStuff();
     method          = aCTionCodE;
     guardSet        = new("{");
     guarded         = true;
     parseACTION     = true;
     isRule          = true;
     item            = strap += "{";
+    item.setRuleStuff();
     item            = strap += "}";
+    item.setRuleStuff();
 
     strap           = grok += "DelimText";
-    strap           += "(";
+    setRuleStuff();
+    item            = strap += "(";
+    item.setRuleStuff();
     guardSet        = new("(");
     guarded         = true;
     item            = strap += "dtext";
@@ -233,6 +252,7 @@ GroupRules  ruler = groupRules;
     modify(item,"}");
 
     strap           = grok += "DatA";
+    setRuleStuff();
     item            = strap += grok/GrouP;
     item            = strap += grok/NumbeR;
     item            = strap += grok/CodE;
@@ -244,6 +264,7 @@ GroupRules  ruler = groupRules;
     modify(item,"+");
 
     strap           = grok += "TraiTdata";
+    setRuleStuff();
     method          = aCTionTraiTdata;
     immediateACTION = true;
     item            = strap += "=";
@@ -261,13 +282,16 @@ GroupRules  ruler = groupRules;
         DefinE stub to be added to a little further down
     *************************************************************************/
     stuff           = grok += "DefinE";
+    stuff.setRuleStuff();
     stuff.method    = aCTionDefinE;
 
     strap           = grok += "DEFINing";
+    setRuleStuff();
     method          = processFlags;
     unGuarded       = true;
 
     strap           = grok += "TraiT";
+    setRuleStuff();
     method          = aCTionTraiT;
     immediateACTION = true;
     item            = grok/GrouP;
@@ -283,14 +307,17 @@ GroupRules  ruler = groupRules;
     modify(item,"?");
 
     strap           = grok += "NewGroup";
+    setRuleStuff();
     group           = grok/TraiT;
 
     strap           = grok += "Attributes";
+    setRuleStuff();
     group           = grok/TraiT;
     item            = gGroup;
     modify(item,"+");
 
     strap           = grok += "MemberS";
+    setRuleStuff();
     item            = strap += ":";
     modify(item,"-");
     item            = strap +% stuff;
@@ -319,10 +346,10 @@ GroupRules  ruler = groupRules;
         The define command (stuff is DefinE at this point).
     *************************************************************************/
     strap           = grok += "define";
-    isRule          = true;
+    setRuleStuff();
     item            = grok/DEFINing;
     item            = strap +% item;
-    //modify(item,"-^");
+    item.setRuleStuff();
     item            = new("definitions");
     item            = strap +% item;
     item.group      = stuff;
@@ -330,12 +357,13 @@ GroupRules  ruler = groupRules;
     modify(item,"+");
     item            = grok/DEFINing;
     item            = strap +% item;
-    //modify(item,"-");
+    item.setRuleStuff();
     item            = new(";");
     item            = strap +% item;
     modify(item,"-");
 
     strap           = grok += "InvokE";
+    setRuleStuff();
     item            = new("(");
     item            = strap +% item;
     modify(item,"-");
@@ -347,6 +375,7 @@ GroupRules  ruler = groupRules;
     modify(item,"-");
 
     strap           = grok += "RunRulE";
+    setRuleStuff();
     method          = aCTionRunRulE;
     immediateACTION = true;
     item            = grok/NamE;
@@ -359,7 +388,7 @@ GroupRules  ruler = groupRules;
     modify(item,"-?");
 
     strap           = grok += "InitiatE";
-    isRule = true;
+    setRuleStuff();
     group           = grok/RunRulE;
     item            = gGroup;
     modify(item,"+");
@@ -373,8 +402,11 @@ GroupRules  ruler = groupRules;
         those terms had no rStuff and genParse refused them. One pass here, over
         the rules built above, before setup is parsed -- rules defined IN setup
         come through aCTionDefinE and are already covered.
+
+        I commented out the following because all rules created in the bootstrap
+        now have setRuleStuff() run on them so rStuff is set
+        materialiseRegistry(grok);
     *************************************************************************/
-    materialiseRegistry(grok);
     pushInput(getFile(setupFILE));
     if sourceFILE   strap.parse(0);
     popInput();
