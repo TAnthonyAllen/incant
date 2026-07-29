@@ -81,6 +81,36 @@ without stating what it costs the measurement.**
 There is no fall to measure from nothing. Its corrections will be high, and that is the
 instrument zeroing.
 
+### Round 1's ordering — RULED (SEQ 30d): the decision is DEFERRED, not pre-made
+Round 1 is both the corpus format's second acceptance test **and** the baseline, so a
+format failure would break a series containing exactly one round. Ruled: **neither**
+"shakedown round" nor "format rides on whatever round 1 produces."
+
+> **Fire as-is. Do not enter round 1's number in the ledger until the format holds.**
+
+| outcome | cost |
+|---|---|
+| format held | enter the number — the cheap option, free |
+| format bent | revise, spawn 1′, baseline is 1′ — the expensive option, paid only because it was needed |
+
+**The method survives either way** — it toks, it hits its target, it is converted. Only
+the *datum* is discarded, and only on the round least able to produce a good one.
+Decide on evidence, not in advance.
+
+**Two conditions, or the deferral leaks:**
+
+1. **The threshold is set NOW, not after seeing it.** "The format bent" is not binary, so:
+   > **A format change that would alter what an EARLIER round would have written breaks
+   > the series. One that would not, does not.**
+
+   An added optional field no prior claim needed is **not** a break. Census discipline —
+   account for what moved — applied to the format itself.
+
+2. **The deferral is invisible to the round.** Not to the agent (already amnesiac, frozen
+   brief) — **to foreman.** A gate held one notch looser because *"it's a shakedown
+   anyway"* is exactly how a baseline gets contaminated.
+   > **Gate identically. Decide afterward.**
+
 ---
 
 ## 3. PRE-REGISTERED — what round 1's number means, decided BEFORE it runs
@@ -99,13 +129,40 @@ Three candidates, and they are discriminable — check in this order:
 | **(b) method too easy** | does the method exercise any construct with no prior claim? If every construct it touched was already trivial, there was nothing to be corrected **about** | re-pick the method; not diagnostic |
 | **(c) thin method / low ambition** | *Clod's addition.* A fresh agent told "the critique is the deliverable" has a standing incentive to write **less**. Few corrections then means small surface, not absorption | see mitigation below |
 
-**(c) is the most likely one in practice and it is already mitigated:** the round is not
-green until the method **reproduces its rung target byte-for-byte**. The target pins
-ambition — the agent cannot shrink the surface without failing the gate. If (c) ever
-fires anyway, the defect is a target that under-specifies, and that is foreman's.
+**(c) is the most likely one in practice, and it was only HALF mitigated** (SEQ 30d).
+The byte-exact target pins **method** surface — the agent cannot shrink the code without
+failing the gate. **Nothing pins CLAIM surface.** An agent can reproduce its target
+perfectly and write **one thin claim where three were owed**; round N+1 then has less to
+fail against and **survival looks better**. There is no target to diff a claim against.
+
+**The closer, and the data is already in hand — log CORRECTIONS separately from CLAIMS:**
+
+> **Every correction produces a claim, or an explicit decision not to.**
+> **Corrections persistently exceeding claims means claims are under-written.**
+
+Visible per round instead of at round 4. The residual — a correction that was *never
+raised* because nobody noticed the omission — is not covered by this and is not covered
+by anything; it is the same family as the §7 named gap.
 
 **The instrument only works if the baseline is genuinely expensive.** A cheap round 1 is
 a reason to stop and look, never a reason to proceed pleased.
+
+---
+
+## 3a. THE ABORT CONDITION — Clay's, recorded in his name
+
+*A metric with no attached decision is expense in the costume of rigour. §3 pre-registers
+what a LOW number means; nothing stated what happens if the number **never falls**. Set
+before round 1 so it is not a judgment call under sunk cost.*
+
+> **If round 4 shows no improvement over baseline and no leak is found, the corpus
+> hypothesis is FALSIFIED for this task.**
+
+**The abort puts Clay's premise on the line, not the minion's competence.** Tony called
+the corpus a fringe benefit; Clay called it the main event and overrode him, and that
+reframing has driven every turn since without being re-tested. If the abort fires, the
+finding is that **Clay was wrong about which artifact mattered** — and the converted
+methods, which survive regardless, were the deliverable all along.
 
 ---
 
@@ -127,7 +184,27 @@ necessary, not less — a fresh agent has no memory of the earlier methods, so i
 likely to break one. **The instrument is needed precisely because the spawn rule is in
 force.**
 
-Run by **foreman**, after the agent reports green, before anything reaches Tony.
+Run by **foreman**, **before the spawn as well as after**. Project doctrine already —
+*capture BEFORE changing anything and diff after* — and without the pre-run a break that
+was already there gets charged to the new round, invalidating a round for someone else's
+damage.
+
+### ⚠ It is NOT a census, and the gap it leaves is the one that matters (SEQ 30d)
+Clay named it "A's census" and then withdrew the name, correctly:
+
+| instrument | catches |
+|---|---|
+| genParse's census | **erosion of judgment** in rules nobody is looking at |
+| A's regression surface | **breakage** in methods already converted |
+
+> **Nothing catches C++-shaped kant in a method nobody is re-reading.**
+
+That is precisely the erosion named as least carryable — it looks like progress, and a
+converted method that still hits its target byte-for-byte is *green while being wrong in
+the only way that matters to a corpus about idiom*.
+
+**Recorded, not built for.** One kind per rung, and A has no methods to erode across yet.
+**Revisit after round 3.**
 
 ---
 

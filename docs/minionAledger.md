@@ -15,12 +15,30 @@ candidates, pre-registered before any round ran).
 
 A **brief revision breaks the series.** Correction counts do not compare across a break.
 
-| round | method | corrections | claims drafted | claims defeated | regression | series |
-|---|---|---|---|---|---|---|
-| — | *none yet* | — | — | — | — | — |
+| round | method | corrections | claims drafted | corr. with NO claim | claims defeated | regression | series |
+|---|---|---|---|---|---|---|---|
+| — | *none yet* | — | — | — | — | — | — |
 
 **Corrections** = distinct critique points Tony or foreman raised. Each one cites the
 claim ID it defeats, or `NEW`.
+
+**Corrections and claims are logged SEPARATELY, and that is the (c) closer** (harness §3,
+SEQ 30d). The byte-exact target pins method surface; **nothing pins claim surface**, so an
+agent can hit its target perfectly and write one thin claim where three were owed —
+after which round N+1 has less to fail against and survival *looks* better.
+
+> **Every correction produces a claim, or an explicit decision not to** (recorded in the
+> round note, with the reason). **Corrections persistently exceeding claims means claims
+> are under-written** — visible per round instead of at round 4.
+
+**Round 1's number is entered only once the format holds** (harness §3, deferred ruling).
+A format change that would alter **what an earlier round would have written** breaks the
+series; one that would not, does not. Gate round 1 **identically** to every other round —
+a gate held looser because "it's a shakedown anyway" is how a baseline gets contaminated.
+
+**ABORT (Clay's, in his name):** if **round 4 shows no improvement over baseline and no
+leak is found, the corpus hypothesis is falsified for this task.** Set before round 1 so
+it is not a judgment call under sunk cost.
 
 **Claims defeated** is the instrument, not the count. Reading (harness §2):
 
