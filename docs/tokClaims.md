@@ -153,6 +153,12 @@ unusable and no claim needing a field the format lacks.
 `confidence` earned its place once, on **TOK-4**: RUN with a stale `asOf` is a different
 and more useful statement than either RUN or ASSUMED alone.
 
+**⚠ THESE CLAIMS NOW OWE A `verifier:` FIELD** (`docs/mdReorgB0.md` §2, added
+2026-07-29). A RUN claim whose verifier has been deleted is not RUN anymore --
+not false, no longer provable. TOK-1/2/3/5 stand on `scratchpad/popB0.twk`, which
+is reproduced in this file precisely so the verifier cannot vanish with the
+scratchpad. **TOK-4 has no live verifier** and its `asOf` is 2026-07-02.
+
 **Adjacency is not provenance, demonstrated:** TOK-1's false justification sits in a
 doc-comment whose *other* two sentences (bear-trap #13, bear-trap #14 stderr) are both
 sound. One paragraph, three claims, one false.

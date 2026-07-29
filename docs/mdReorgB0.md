@@ -70,6 +70,46 @@ cover, it is not ready to be written down.
 | **REASONED** | argued, never checked | **do not act — check first** |
 | **ASSUMED** | inherited from a brief, or a guess | treat as an open item |
 
+### ⚠ A CLAIM NAMES ITS VERIFIER — and deleting a verifier DEMOTES the claim
+*Added 2026-07-29, Clay's ruling, on the first instance of it. This is a sixth
+field in practice, and it earned its place the same day the scale shipped.*
+
+```
+verifier:    the thing that would go red — command, fixture, or assertion
+```
+
+> **A RUN claim whose verifier has been deleted is not RUN anymore.** Not false —
+> *no longer provable*. Deleting a verifier demotes every claim standing on it,
+> and the demotion is the point: `asOf` says when it was true, `verifier` says
+> whether anyone would still notice if it stopped being true.
+
+**The first instance, and it is exact.** *"rStuff is materialised at define time;
+late materialisation fires ZERO times"* was **RUN** as of `168195b`, verified by
+`getRStuff`'s `no rStuff - creating` cerr. That cerr was removed on 2026-07-29.
+Grepping the fixtures for it now returns zero **in two indistinguishable cases** —
+nothing fired late, and the instrument is gone. The second was true. The claim
+had quietly stopped being checkable while continuing to read as green.
+
+**The general rule this yields, which is bigger than the field:**
+
+> **An ABSENCE-based check passes just as well when the check itself has been
+> deleted. A PRESENCE-based one cannot.**
+
+So a verifier should assert *something is there*, not that a warning is missing.
+That is why `auditRegistry` prints its count unconditionally and `pop.sh` asserts
+the line is present with a zero count — delete the auditor and the POP goes red,
+which is precisely what the cerr could never do. Restoring the cerr would have
+been the weaker fix: it only fires on the path that goes wrong, so it still
+cannot tell you the instrument is alive.
+
+**Third instance of one shape in a single day** — and the shape is now named:
+*fresh vs exhausted* in the iterator, *thin method vs absorption* in the minion-A
+harness (§3(c)), and *nothing fired late vs the instrument is gone* here. **Two
+states that look identical from outside, with the benign one masking the other.**
+When a check can pass for two reasons, say which one you are seeing.
+
+---
+
 Two consequences, and they are the reason for the scale rather than a freeform one:
 
 - **REASONED and ASSUMED are the challenge queue.** `absorb`/`challenge` finally has a finite,
