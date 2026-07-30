@@ -1,0 +1,87 @@
+Start();
+search reset Grokking list;
+register(SinkGraft);
+
+/*****************************************************************************
+    sinkGraft -- grammar minion round 1, 2026-07-30.
+
+    Adds `cout` to incant's surface WITHOUT touching a single shared file.
+    Nothing here edits incant/grammar, incant/setup or any .twk/.rtn; the new
+    statement keyword is defined in this file and grafted into the live
+    WardeD rule at runtime, exactly the way incant/grammarOnTheFly grafts
+    DelimText into DatA.
+
+    Tony's ruling (kantCorpus CLAIM KANT-13): ONE print mechanism, several
+    destinations. PrintXP+ is fixed; the keyword selects only the sink. So
+    CoutXP is PrinT term-for-term, with one substitution: the keyword.
+
+    Why the keyword field is named pCout and not cout
+    -------------------------------------------------
+    aCTionPrinT picks its sink with ONE character. ruleActions.rtn:665 reads
+        if command.tag == 'p'   return opPrint(input,buffer);
+        else                    return opString(command,buffer);
+    and GroupRules.mm:709 shows what that compiles to:
+        if ( *command->groupBody->tag == 'p' )
+    -- a first-character test on the tag of the rule's FIRST LABEL. A keyword
+    field literally named `cout` starts with 'c', so it would silently take
+    the opString branch and build a value instead of printing. Naming the
+    field pCout and giving it the surface text "cout" (the loopOnAttributes=
+    "attributes" shape, incant/grammar:135) puts a 'p' where the fork looks
+    while the user still types `cout`.
+
+    That is a HACK and it is deliberately visible: it is the evidence that
+    sink selection is a first-character test on a field NAME. See
+    docs/grammarCorpus.md, CLAIM GRAM-2.
+
+    Why the ruleMethod is attached in a SECOND define
+    ------------------------------------------------
+    A bare reference to a method-bearing field in an expression INVOKES it.
+    With `ruleMethod=aCTionPrinT` on the rule at definition time,
+    `WardeD += CoutXP;` calls aCTionPrinT and adds its numeric result to
+    WardeD instead of adding the rule. Defining the rule plain, grafting it,
+    then re-opening the name to attach the method sidesteps that entirely.
+    See docs/grammarCorpus.md, CLAIM GRAM-1.
+*****************************************************************************/
+
+define
+    CoutXP isRule pCout="cout" followedBy PRINTing- stuff=PrintXP+ SemI-;
+    CerrXP isRule cerr="cerr"  followedBy PRINTing- stuff=PrintXP+ SemI-;
+    ;
+
+WardeD += CoutXP;
+WardeD += CerrXP;
+
+define
+    CoutXP ruleMethod=aCTionPrinT defer;
+    CerrXP ruleMethod=aCTionPrinT defer;
+    ;
+guard(WardeD);
+
+print ``"G1 grafted CoutXP + CerrXP into WardeD":;
+
+/*****************************************************************************
+    THE ORACLE. `print` is the fixture for `cout` -- same PrintXP, same
+    expected bytes. The two blocks below are character-identical apart from
+    the keyword; genLadder-style extraction and cmp does the comparing.
+*****************************************************************************/
+print ``"--ORACLE-print--":;
+print "alpha" 1 2 3:;
+print $"tight" _ "spaced":;
+print ``"backtick literal" "then plain":;
+print "num" 42 " end":;
+print ,+"bunched shortcut reaches +":;
+print "trailing colon newline":;
+print ``"--ORACLE-cout--":;
+cout "alpha" 1 2 3:;
+cout $"tight" _ "spaced":;
+cout ``"backtick literal" "then plain":;
+cout "num" 42 " end":;
+cout ,+"bunched shortcut reaches +":;
+cout "trailing colon newline":;
+print ``"--ORACLE-end--":;
+
+print ``"--CERR-begin--":;
+cerr "this line asked for stderr":;
+print ``"--CERR-end--":;
+
+stop();

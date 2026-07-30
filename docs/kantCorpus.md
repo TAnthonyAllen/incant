@@ -419,6 +419,25 @@ scope:       Load-bearing beyond diagnostics: genParse's EMITTED TEXT all goes
              stderr and stdout SEPARATELY on purpose. A kant emitPlan cannot put
              its output where the ladder targets read it without either a new
              stderr primitive or moving the capture.
+UPDATE:      2026-07-30 — QUALIFIED, and the scope above named TWO options where
+             there are THREE. The grammar minion found the third and foreman
+             verified it (`incant/sinkStderr`, exit 0):
+                 printTO(errBuf);  ...print...;  printTO(null);
+                 errBuf modedOP "/dev/stderr";   closeFile(errBuf);
+             → the buffered lines came out ON FD 2, IN ORDER, while lines
+             outside the divert stayed on stdout. **STDERR IS REACHABLE FROM
+             INCANT TODAY WITH NO C++ CHANGE.** See grammarCorpus CLAIM GRAM-6.
+             The claim's HEADLINE still stands — there is no per-statement
+             stderr sink, and `cerr` as a keyword remains correctly REFUSED
+             (GRAM-4: `opPrint` is a two-arm if with no third branch).
+             ⚠ WHAT IS NOT SETTLED, and it is the whole question for a kant
+             emitter: ORDERING ACROSS THE FLUSH. A buffer flushes when it is
+             closed, so a kant `printPlan` that buffers its body would emit
+             AFTER a C++ caller's already-written header line, scrambling
+             `census.target` even though each side is internally ordered.
+             Flushing per invocation is the obvious fix and is UNTESTED.
+             So: the round-2 hold is now SOFT (a route exists) rather than HARD
+             (no route exists), and the remaining work is real.
 ```
 
 ---
@@ -667,6 +686,88 @@ scope:       ⚠ DO NOT act on this as "581 suspect sites" — that is the readi
              should also settle whether the language wants ONE false sentinel;
              the standing ruling is DO NOT standardise on one until something
              reachable needs it.
+```
+
+### CLAIM KANT-21 — `string` CONSTRUCTS FRESH before assigning, which is why aliased read-and-assign survives
+```
+statement:   `leaf = string ... piece ...;` where `piece` and `leaf` are THE SAME
+             NODE does not self-destruct. `string` builds its result complete
+             before the assignment touches the target, so reading an operand that
+             aliases the destination is safe.
+confidence:  RUN as to the OUTCOME; REASONED as to the MECHANISM. Graded split on
+             purpose — what was observed is that the aliased case is green, not
+             that `string` allocates first. Do not upgrade without reading
+             aCTionPrinT/opString.
+provenance:  The shipped spellLeaf's OPT arm, live at depth 1 every time
+             `spell.target` is produced:
+                 piece = this(wrapped);
+                 leaf  = string $"(" piece _ "|| 1)";
+             `this(...)` gives SHARED locals (KANT-7), so the inner frame's
+             `leaf` IS the outer frame's `leaf` — and `piece` is assigned that
+             very node. The second line therefore READS `piece` while ASSIGNING
+             `leaf`, with both naming one slot. `spell.target` is byte-identical
+             and exit 0, and has been across every run since round 1.
+asOf:        2026-07-30
+scope:       ⚠ THIS WAS LOAD-BEARING AND UNRECORDED FOR A FULL ROUND. Round 1
+             answered it by accident — the arm works — and nobody wrote it down,
+             so it was rediscovered from the other end while reasoning about
+             whether the aliasing hazard fires at depth 1. It does fire; it is
+             simply survivable.
+             The dependency is REAL but should become UNINTERESTING: under the
+             carrier discipline (KANT-22) the accumulator stops being a local, so
+             nothing aliases and this stops mattering. Recorded because "we do not
+             depend on this any more" is only sayable once someone has said what
+             the dependency WAS.
+```
+
+### CLAIM KANT-22 — ⚠ KANT HAS NO STATEFUL RECURSION. Both routes are barred, for different reasons. USE A CARRIER NODE.
+```
+statement:   TODAY, no kant action can hold a value in a LOCAL across its own
+             recursive call. There are exactly two ways to recurse and both fail:
+
+               route              state across the recursive call
+               ---------------    ----------------------------------------
+               named self-call    DOES NOT COMPILE            (KANT-6, 139)
+               this(...)          compiles, LOCALS SHARED —
+                                  the inner frame overwrites the outer's
+                                                              (KANT-7)
+
+             THE IDIOM THAT WORKS, and it is doctrine, not a workaround:
+             ⇒ ANYTHING THAT MUST SURVIVE A RECURSIVE CALL LIVES ON A CARRIER
+               NODE, NEVER IN A LOCAL. The caller mints a node, passes it down,
+               the callee stamps onto it.
+             A carrier is not a local, so SHARING cannot reach it; it is not in
+             the action's field list, so a RESTORE cannot reach it either
+             (KANT-8). ONE mechanism, correct under BOTH regimes — and it is the
+             same shape KANT-B1's refusal wants (mint empty, stamp nothing to
+             refuse, empty is unambiguous).
+confidence:  RUN for both bars (KANT-6 re-tested 2026-07-30, EXIT=139; KANT-7
+             measured round 1). REASONED for the carrier discipline — it follows
+             from both, and it is NOT yet exercised in shipped code.
+provenance:  KANT-6 + KANT-7, read together. Neither is new; the CONJUNCTION is,
+             and it was missed for a full round because each was filed as a fact
+             about spellLeaf rather than about the language.
+asOf:        2026-07-30
+scope:       ⚠ THIS IS NOT A `spellLeaf` PROBLEM AND THAT IS THE WHOLE POINT.
+             It bars `emitPlan` — which accumulates text across a walk and reads
+             its accumulator after each recursive call, i.e. exactly the barred
+             shape — so it bars STEP 3 OF THE MINION ARC, which nobody knew when
+             the arc was planned.
+             UNDER THE CARRIER DISCIPLINE, emitPlan IS WRITABLE IN KANT TODAY:
+             under `this()`, with shared locals, with no KANT-6 fix, because the
+             accumulator is a carrier field and nothing that matters sits in a
+             local across the call.
+             THREE EXITS, and this is the ruling wanted from Tony:
+               1. fix the define-time self-name bar (KANT-6)
+               2. make `this()` per-frame (KANT-7)
+               3. adopt the carrier discipline as the language's recursion idiom
+             Exit 3 costs nothing, works today, and needs no runtime change.
+             ⚠ AND NOTE WHAT A GREEN FIXTURE HERE WOULD AND WOULD NOT PROVE:
+             under `this()` KANT-8 never fires, so a carrier landed now is
+             UNEXERCISED AGAINST KANT-8 and green does NOT certify it against
+             that hazard. It IS exercised against the aliasing hazard, which
+             fires at depth 1 under sharing (KANT-21). Label any such fixture
+             loudly or the next reader takes green for coverage.
 ```
 
 ---

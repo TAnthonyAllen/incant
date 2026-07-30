@@ -1,0 +1,72 @@
+Start();
+search reset Grokking list;
+register(SinkGraft);
+
+/*****************************************************************************
+    sinkProbe -- grammar minion round 1, 2026-07-30.
+    The evidence fixture behind docs/grammarCorpus.md CLAIM GRAM-1.
+
+    A bare reference to a METHOD-BEARING field in an expression INVOKES the
+    method. So `WardeD += S6;` where S6 carries ruleMethod=aCTionPrinT does
+    not graft S6 -- it calls aCTionPrinT and adds the numeric result. The
+    graft fails SILENTLY: exit 0, no diagnostic on the graft itself, and the
+    only tell is that WardeD's member count did not move.
+
+    Three sections below:
+      PART 1  S6 exists and is structurally identical to S5, so the define
+              did NOT fail -- the += did. This MUST run first: dumpContents
+              takes its argument in expression position too, and once S6 has
+              been invoked once, dumpContents(S6) dumps trueResult instead of
+              the rule. That order-dependence is itself unexplained and is
+              recorded as unexplained in GRAM-1's scope -- do not build on it.
+      PART 2  additive bisect S1..S7 -- S1..S5 graft, S6/S7 do not, and the
+              one feature that separates them is ruleMethod=.
+      PART 3  the fix: graft the rule plain, THEN re-open the name to attach
+              the method. This is what incant/sinkGraft ships.
+
+    Expected, all on one exit-0 run:
+      PART 1  S6 and S5 both dump 5 attributes, identical.
+      PART 2  WardeD grows from 10 to 15 (S1..S5 only) and picks up
+              `WardeD=2 int` -- two invocations, each returning trueResult,
+              added arithmetically instead of structurally.
+      PART 3  WardeD grows to 16 with S8 at the tail.
+    stderr carries one `nextGroup: ERROR stuff does not contain a list` per
+    invocation -- aCTionPrinT running against an empty stuff. That is the
+    corroboration that the method really was called.
+*****************************************************************************/
+
+define
+    S1 isRule pCout="cout";
+    S2 isRule pCout="cout" followedBy;
+    S3 isRule pCout="cout" followedBy PRINTing-;
+    S4 isRule pCout="cout" followedBy PRINTing- stuff=PrintXP+;
+    S5 isRule pCout="cout" followedBy PRINTing- stuff=PrintXP+ SemI-;
+    S6 isRule pCout="cout" followedBy PRINTing- stuff=PrintXP+ SemI- ruleMethod=aCTionPrinT;
+    S7 isRule pCout="cout" followedBy PRINTing- stuff=PrintXP+ SemI- ruleMethod=aCTionPrinT defer;
+    ;
+
+print ``"=== PART 1  S6 exists -- the define worked ===":;
+dumpContents(S6);
+dumpContents(S5);
+
+print ``"=== PART 2  bisect: which feature blocks the graft? ===":;
+WardeD += S1;
+WardeD += S2;
+WardeD += S3;
+WardeD += S4;
+WardeD += S5;
+WardeD += S6;
+WardeD += S7;
+dumpContents(WardeD);
+
+print ``"=== PART 3  the fix: graft plain, then attach the method ===":;
+define
+    S8 isRule pCout="cout" followedBy PRINTing- stuff=PrintXP+ SemI-;
+    ;
+WardeD += S8;
+define
+    S8 ruleMethod=aCTionPrinT defer;
+    ;
+dumpContents(WardeD);
+
+stop();

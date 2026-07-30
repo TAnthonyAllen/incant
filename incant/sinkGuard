@@ -1,0 +1,25 @@
+Start();
+search reset Grokking list;
+register(SinkGuard);
+
+/*****************************************************************************
+    sinkGuard -- grammar minion round 1, 2026-07-30.
+    Is guard(WardeD) load-bearing for a WardeD graft, the way guard(DatA) is
+    for a DatA graft (docs/grammarOnTheFly-findings.md)? This file is
+    incant/sinkGraft with the guard() call REMOVED and nothing else changed.
+    If `cout` still prints, the guard reset is NOT needed here.
+*****************************************************************************/
+
+define
+    CoutXP isRule pCout="cout" followedBy PRINTing- stuff=PrintXP+ SemI-;
+    ;
+WardeD += CoutXP;
+define
+    CoutXP ruleMethod=aCTionPrinT defer;
+    ;
+
+print ``"--NOGUARD-begin--":;
+cout "cout without guard(WardeD)":;
+print ``"--NOGUARD-end--":;
+
+stop();

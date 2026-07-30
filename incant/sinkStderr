@@ -1,0 +1,34 @@
+Start();
+search reset Grokking list;
+register(SinkErr);
+
+/*****************************************************************************
+    sinkStderr -- grammar minion round 1, 2026-07-30.
+
+    Question: is stderr reachable from incant AT ALL without a C++ change?
+    kantCorpus CLAIM KANT-12 says incant print reaches stdout or a diverted
+    buffer and nothing else. This probes the one loophole that does not need
+    a new primitive: divert print into a buffer, point that buffer at the
+    file /dev/stderr with modedOP (docs/grammarOnTheFly-findings.md), and
+    flush. If bytes come out on fd 2, stderr is reachable by workaround; if
+    not, KANT-12 stands with no loophole and `cerr` needs a real sink.
+*****************************************************************************/
+
+define
+    errBuf buffer;
+    ;
+
+print ``"S1 stdout before":;
+
+printTO(errBuf);
+print ``"S2a THIS LINE ASKED FOR STDERR":;
+print ``"S2b second line, ordering check":;
+print ``"S2c third line, ordering check":;
+printTO(null);
+
+errBuf modedOP "/dev/stderr";
+closeFile(errBuf);
+
+print ``"S3 stdout after":;
+
+stop();
