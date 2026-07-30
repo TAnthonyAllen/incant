@@ -743,9 +743,24 @@ use target
         risk SEQ 35 named (something already accumulating a list into a cleared
         target) is empirically nil IN-TREE. Scope of that absence is exactly the
         17 fixtures named; it is not a claim about all possible incant programs.  */
+    /*  APPEND IF THE TARGET HAS DATA, ASSIGN IF IT DOES NOT (Tony's ruling,
+        2026-07-30). `+=` means append, and routing a list through opString --
+        which does `target.text = toString()`, an ASSIGNMENT -- silently made
+        the list case REPLACE while the scalar case appended. Pre-loading the
+        target's own content into the buffer first restores append, using the
+        same machinery rather than a second path.
+
+        ⚠ AND THE GUARD IS `data`, NOT "is the text non-empty", FOR A REASON
+        THAT WILL BITE ANYONE WHO SIMPLIFIES IT: **a field with no data returns
+        its TAG from .text.** So reading target.text unguarded would pre-load
+        the field's own NAME into the buffer and concatenate onto that --
+        `empty += "a" "b"` would yield "empty a b". `if data` is what keeps the
+        assign case genuinely empty. Same fact as CLAIM KANT-10, arriving from
+        the write side instead of the print side.  */
     if argument.isLIST && (!data || isSTRING || isTOKEN) {
         Buffer  concatBuf = bufferSTAK.pop();
         if !concatBuf   concatBuf = new("concat buffer");
+        if data     appendGroup(target,0,concatBuf);
         appendGroup(argument,0,concatBuf);
         return opString(target,concatBuf); }
     or argument.isLIST  argument.copyListTo(target);
