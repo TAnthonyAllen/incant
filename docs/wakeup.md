@@ -789,6 +789,26 @@ through-the-fork). The two that needed correcting were both **claims about what 
 `jitEmitUnary`←`opPlusPlus` (see the finding above), and the LLVM-IR-for-inlining question raised by
 routing `parseR` through the fork. Both are JIT-ladder work.
 
+## THE WALKIE-TALKIE HAS ITS OWN DOC NOW — `docs/walkieTalkie.md`
+One pointer, by that file's own instruction: its content stays there, not here. It is Clay's
+2026-07-29 rulings on the Clay↔Clod channel, in the B0 claim format. **Read it before writing
+anything into `ipc/`.** The three that bite hardest:
+- **WT-11 — NO SILENT OVERWRITE.** A write carries the whole file, prior history included.
+  Downloading or rewriting atop a file *replaces* it, and an unread turn vanishes with nothing
+  saying so. **Broken once already, by Clod, on 2026-07-29** — `clod-to-clay.md`'s SEQ 17 was
+  still `fresh` when SEQ 18 went over it (erratum + reconstruction are in that file's header
+  and foot). The rule binds both directions.
+- **WT-9 — direct write is proven, so route deliberately:** a brief Clod will act on gets
+  dictated and transcribed, because *the transcription step was a second close reader*;
+  reference docs get downloaded straight in.
+- **WT-10 / WT-13 — the channel is ASYMMETRIC.** Clod polls `ipc/clay-to-clod.md` for an
+  on-disk change; Clay cannot poll anything and reads only when Tony prompts him.
+
+**Open and assigned to Clod in that file's PLAN step 1** (untouched, and it wants Tony's nod
+first because it puts repo files into a sync path): expose `ipc/` to Clay read-only via the
+Drive connector. Step 2 says **measure before building** — if removing the paste step only
+saves typing, MCP is not worth a build.
+
 ## Working relationship (unchanged)
 Tony (Haps) = architect/final authority. Clay (claude.ai) = design/reasoning. Clod (Claude Code) =
 execution/edits/build. Standing permission: change source freely, commit/push routine work at
