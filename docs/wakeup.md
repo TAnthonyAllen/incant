@@ -79,6 +79,42 @@ a4b72bb  Minion A harness: SEQ 30d rulings -- deferred baseline, claim-surface c
 6bd642b  := is the iterator's only reset. T3 x4 GREEN. Sweep came back EMPTY
 cc8eba6  Iterators FINISHED: runaway tripwire, the gate PROVEN, T1/T3 in pop.sh
 ```
+### ⚠ TWO LIVE OPEN ITEMS FROM 07-29, and the first is a BUG in a hot-path function
+1. **`runAction` empties a returned local when `recursive` is set** (corpus `CLAIM KANT-8`).
+   `restoreLocalFields` runs **after** `processAction` and before the return, so an action that
+   returns one of its own locals hands the caller that local **reverted to its pre-call state**.
+   Measured three ways: return a **local** → emptied; return the **argument** → survives (that
+   is the idiom until it is fixed); **mint a node into a local** → emptied. So it is about *which
+   slot the returned pointer is*, not node identity — and `restoreLocalFields` is not itself
+   wrong, restoring the caller's frame is its job; the defect is that `result` points into the
+   frame being restored. **Same function whose `saveLocalFields` was fixed the same morning** —
+   a second, independent hole in the same frame machinery. `emitPlan` recurses and must return
+   text, so Minion A's step 3 inherits it. **THE FIX IS TONY'S** — both candidates touch the
+   interpreter's hot path. Repro: two identical action bodies differing only by an *unreached*
+   self-mention.
+2. **A kant action cannot return NULL across `runAction`** (`BLOCKED KANT-B1`, IDIOM-GAP, five
+   attempts with output pasted). Live consequence: the kant `spellLeaf` is *loud* on an unknown
+   kind but does not *refuse*, so `emitPlan` would take junk text as a spelling. Suggested first
+   move, untried: return the argument with a flag stamped via `:.` and test the flag C++-side.
+
+### MINION A ROUND 1 IS IN, AND GREEN — `emitLeaf` is kant
+`incant/genEmit` holds it (registry `Spellers`, action `spellLeaf`). `emitLeaf` **forks**: with a
+`spellLeaf` registered it runs, without one the C++ body runs unchanged — so absent the kant file
+every target still holds. **A registered speller's answer is authoritative INCLUDING NULL**, on
+purpose: a fallback would let a kant defect silently produce the right text.
+- `genLadder/spell.target` is its oracle — **the C++ `emitLeaf`'s own answer**, captured before
+  anything moved: 5 plan kinds × both sinks. It reaches **`LITTO`**, which no ladder rung does,
+  so `litTo`/`litOption` are gated only there. **`emitLeaf`'s own refusal arm is NOT covered** —
+  the walk refuses anything the emitter would, so no plan node of an unknown kind ever exists.
+- `spellMode` + `pop.sh`'s **speller pin** answer "which implementation produced this", because
+  the fork is silent and the target is green either way. **Pinned at `kant`** — if it ever reads
+  `c++` again the kant speller stopped being found.
+- **The pick's decoupling argument was half wrong, worth knowing:** `emitLeaf` was chosen partly
+  as "a table, not a walk — needs no iterator." True of the table, **false of the round** — `OPT`
+  wraps a term and reaching it took `iterate inner on argument members`.
+- Ledger `docs/minionAledger.md` (round 1's number entered; format held). Leak check is now
+  mechanical: `sh docs/minions/roundTrace.sh <transcript>`, **read its WRITE SURFACE first**.
+
 **THE ONE BUG WORTH NOT RE-DERIVING:** `saveLocalFields` copied the locals struct *including the
 list pointer* and then cleared the shared object in place, so **no local carrying a list survived
 recursion — since the initial commit.** Iterators were merely the first thing to notice.
@@ -87,9 +123,24 @@ Coverage is **DIRECT-ONLY**: `field.recursive` is inferred by identity against `
 locals are lost. `incant/iterT1m` is that hole, committed as a **pinned wrong answer** in
 `pop.sh`. The sweep for live victims came back **EMPTY** — the bug was latent.
 
-**`pop.sh` now has 19 checks** including `iterT1`/`iterT3`/`iterT1m`. The four old baselines came
-back byte-identical across the `saveLocalFields` fix, because nothing in them reaches a recursive
-action with a list-carrying local — **baseline parity was not evidence the fix was safe.**
+**`pop.sh` now has 22 checks** including `iterT1`/`iterT3`/`iterT1m`, `spell.target` and the
+speller pin. The four old baselines came back byte-identical across the `saveLocalFields` fix,
+because nothing in them reaches a recursive action with a list-carrying local — **baseline parity
+was not evidence the fix was safe.**
+
+### CLEAN STOP, 2026-07-29 — nothing in flight, nothing half-applied
+```
+sh genLadder/pop.sh    -> POP PASSED, 22 checks, exit 0
+sh genLadder/tree.sh   -> exit 0 (§2.4 divergence unchanged — OPEN, not broken)
+```
+Working tree clean; everything on `jit-unified-emit-wip`. **Tony is reading round 1's kant code
+offline** (`incant/genEmit`, ~30 lines) and rules on style — the ledger's correction count for
+round 1 is marked PROVISIONAL until he does.
+
+**`groups.ext` moved today and has NO COMMIT TRAIL** (bear-trap #11, it lives outside the repo).
+Added: `iterSpins`, `dumpSpellings`, `locateSpeller`, `spellMode`, `spellKant` — plus a real fix,
+`emitLeaf` was declared there with **two** parameters against a three-parameter definition, stale
+since the `sink` argument was added. Extern canary 198 → 203, every addition accounted for.
 
 **genParse's recursion shape, measured 07-29 (it decides Minion A's step 3, not today's work):**
 `emitPlan` does **not** recurse at all — a flat two-pass walk that calls `emitLeaf`/`emitMany`.
