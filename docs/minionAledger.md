@@ -72,7 +72,59 @@ is wrong and moves, and whoever moves it accounts for the move).
 anything that reads as a leak. Leaks first — a suspected leak invalidates the round's
 number before anything else is worth discussing.*
 
-*(empty — A has not fired)*
+### ROUND 1 — PRE-SPAWN (foreman, 2026-07-29). Written BEFORE the round ran.
+
+**Method: `emitLeaf`.** Tony's ruling (SEQ 33) names *"`emitTerm`'s kind→spelling
+dispatch"*. **There is no `emitTerm` in the source** — it is `emitLeaf`
+(`genParse.rtn`), renamed at the rung-3 seam; `emitTerm` survives only in
+`genParseSpec` §4.2 and in `wakeup.md`'s history. Same method, corrected name.
+
+**Target: `genLadder/spell.target`** (new), via `incant/spellScratch` +
+`dumpSpellings`. It did not exist; authoring it is foreman work per harness §4.
+Six plan kinds and the refusal path, both sinks on every node.
+
+**Three things recorded now so they are not interpreted after the fact:**
+
+1. **The gate has a named hole.** `litTo(t1,label,"{","{")` carries the literal
+   and the slot as the *same string*, so a rewrite that swapped those two
+   positions would pass. It is a property of `planTerm` (a literal term's slot IS
+   its text) and **every** LITTO in the census is like it, so there is no rule to
+   add that would close it.
+2. **"A green stub reads as coverage" was real, and is closed.** `emitLeaf`'s
+   fork is silent, so `spell.target` is green whether kant ran or not.
+   `spellMode` prints which implementation is live and `pop.sh` pins it at `c++`.
+   **Flipping that pin to `kant` is round 1's acceptance test.**
+3. **Per-round parameterization vs Leak 2.** The spawn carried the *interface* the
+   kant action must satisfy (registry `Spellers`, action `spellLeaf`, one
+   argument = the plan node, `sink` as an attribute, return the spelling). That
+   is target definition, not learning carried forward, and **the frozen brief was
+   not touched.** Logged here rather than left implicit.
+
+**One verification note was given to the round, deliberately, and it is not a
+kant idiom:** *exit 0 with no output at all is a swallowed run, not a pass.*
+Foreman hit it while proving the bridge — a malformed block in an included file
+produced exit 0 and an empty capture. The brief's doctrine ("a POP is not passed
+unless the process exited 0") **does not cover that case**, so withholding it
+risks the round reporting a false pass, which corrupts a baseline worse than the
+note does.
+
+**Foreman hit two failures while proving the bridge and wrote NEITHER into the
+corpus. They are deliberately not described here either** — this file sits in a
+tree the round is allowed to read while orienting, so naming the mechanisms would
+be the same leak one file further out. Seeding is what the harness exists to
+prevent; if they are real hazards the round will meet them and claim them, and
+*that* is the datum.
+
+⚠ **Residual, and it is honest to name it:** the commit that landed the gate
+describes both failures in its message. Git history is not one of the round's
+three inputs, but neither is it sealed — a round that goes looking could find it.
+Recorded as a known, narrow exposure rather than claimed as airtight.
+
+**The bridge was proven before the spawn**, not handed over on faith: a throwaway
+kant speller returned both a node and an assembled string through the fork, and a
+deliberately wrong one made the gate go red on both the target and the pin.
+
+*(round 1's result follows below when it lands)*
 
 ---
 
@@ -84,3 +136,8 @@ number before anything else is worth discussing.*
 - [ ] previous rounds' targets currently green (run the regression surface *before* spawning,
       so a pre-existing break is not attributed to the new round)
 - [ ] foreman holds the build; agent has not been asked to `xcodebuild` or `tokall`
+
+**Round 1's run of that list, 2026-07-29 (all five):** fresh spawn, no inherited context ·
+brief unchanged, zero revisions · corpus + `incant/genEmit` are the only writable surfaces ·
+`sh genLadder/pop.sh` → **POP PASSED, 22 checks, exit 0, run immediately before the spawn** ·
+build and `groups.ext` held by foreman, and the agent is told to stop and ask rather than build.
