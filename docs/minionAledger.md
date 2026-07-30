@@ -124,7 +124,44 @@ Recorded as a known, narrow exposure rather than claimed as airtight.
 kant speller returned both a node and an assembled string through the fork, and a
 deliberately wrong one made the gate go red on both the target and the pin.
 
-*(round 1's result follows below when it lands)*
+### NEW INSTRUMENT — THE ROUND TRACE. Clay's ask, and it closes the harness's biggest hole.
+
+`sh docs/minions/roundTrace.sh <agent-transcript.jsonl>` → a ledger-ready block.
+Added mid-round-1 on Clay's suggestion after Tony noticed the round's status lines
+going past unrecorded.
+
+**It is not for the narrative.** Harness §1 makes the leak check the *first* thing
+that matters — *did the agent see anything outside {corpus, brief, target}?* — and
+§2's entire instrument depends on that answer, because **a leaked round's number is
+uninterpretable whichever way it comes back.** Until this script there was **no way
+to answer it.** Foreman watched a scroll go past and would then have reconstructed
+from the round's own report — *which is the round reporting on its own compliance.*
+That is the same defect as grading a claim by the agent that wrote it, one level up.
+
+Three sections, and the first two are the point:
+
+| section | answers |
+|---|---|
+| **INPUT SURFACE** | every path the round opened — via `Read` **and** via the file arguments of `Bash`, because `cat X` reads X exactly as `Read` does and a check that counted only `Read` would be trivially evadable |
+| **WRITE SURFACE** | Leak 3 — the corpus and the method, nothing else. This is the one that must come back SHORT. |
+| **ACTION TRACE** | the shape of the round, in order. Context, not evidence. |
+
+Mechanical on purpose — the same argument `pop.sh` earns its place on. Hand-rolling
+a check per round is how the escaping goes wrong once and nobody notices.
+
+⚠ **Honest exposure, named not claimed away:** the script lives in the repo, and the
+repo is background a round may read. A round that reads it learns it is being
+traced — an observer effect on the very compliance being measured. It carries no
+round-learning, so it is not a Leak-3 laundering path, but it is not sealed either.
+Same category as the git-history residual above.
+
+**Retrofit note:** round 1's trace is captured *because the transcript survived*.
+Nothing before it has one, and the standing checks list gains a line so no later
+round is graded on foreman's memory of a scroll.
+
+*(round 1's result and its full trace follow below when it lands — a partial trace
+is deliberately NOT pasted here, because a record that looks complete and is not is
+the failure this file spends most of its length guarding against)*
 
 ---
 
