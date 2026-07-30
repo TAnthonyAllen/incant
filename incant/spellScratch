@@ -1,0 +1,101 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+/*****************************************************************************
+    spellScratch -- emitLeaf's OWN fixture, and it exists because emitLeaf is
+    about to be rewritten in kant and there was nothing to diff the rewrite
+    against.
+
+    THE ORACLE IS THE FUNCTION BEING REPLACED. Captured while the C++ emitLeaf
+    is still the only implementation, `genLadder/spell.target` is a byte-exact
+    statement of what every plan kind spells under every sink. Same discipline
+    as rung4.target holding emitted text against the compiled-in method.
+
+    WHY THE LADDER TARGETS ARE NOT ENOUGH ON THEIR OWN -- they do gate emitLeaf,
+    because it writes every term spelling inside them, but only for the kinds the
+    ladder reaches. Nothing in the ladder is a LABELLED literal (every Scaf term
+    is noLabel), so LITTO is reached by no rung and BOTH of its spellings, litTo
+    and litOption, were UNGATED. `CodE` plans as a SEQ of two LITTO terms, so the
+    real grammar covers the kind the scaffolds cannot.
+
+    THE ROWS, and each one is here for a named kind rather than for coverage's
+    own sake:
+        Scaf     LIT                     the plain literal
+        Scaf2    LIT LIT                 two of them, indices baked 1 and 2
+        ScafB    CALL LIT                a reference term
+        ScafC    MANY LIT                the repetition helper's call site
+        ScafE    LIT OPT(CALL) LIT       OPT wrapping a reference -- emitLeaf's
+                                         one SELF-RECURSIVE branch
+        ScafF    LIT OPT(LIT) LIT        OPT wrapping a literal
+        CodE     LITTO LITTO             litTo and litOption, the ungated pair
+        ScafALT  CALL CALL               an ALT fold, whose sink is `into`
+        Limit    (refusal)               a REFUSED rule -- the loud-refusal path
+                                         is behaviour too, and it is the one a
+                                         rewrite is most likely to quietly drop
+
+    Both sinks are printed for EVERY node even where the fold could never ask
+    for one. LITTO is the only kind whose text differs between them; printing
+    both everywhere costs two lines and means the target moves if that ever
+    stops being true.
+
+    ⚠ ONE HOLE, NAMED RATHER THAN PAPERED OVER: in `litTo(t1,label,"{","{")` the
+    literal and the slot are the SAME STRING, so this target cannot tell those
+    two positions apart -- a rewrite that swapped them would pass. That is not
+    an accident of the fixture, it is a property of planTerm: a literal term's
+    slot IS its text. Every LITTO in the whole census is like this (`CodE`'s two,
+    and JSONtoken's `false`/`true`). So there is no rule to add that would close
+    it; closing it needs a labelled literal whose tag differs from its text, and
+    the grammar has none. Recorded so nobody reads this row as stronger than it is.
+
+    RUN:   <binary> incant/spellScratch
+    POP:   part of `sh genLadder/pop.sh`
+*****************************************************************************/
+registry(cOMMANDs);
+define dumpSpellings immediateAction=dumpSpellings; ;
+registry(cOMMANDs);
+define spellMode immediateAction=spellMode; ;
+
+/*  The kant emitter. A stub until it holds a `spellLeaf`, at which point
+    emitLeaf's fork routes here instead of running its own body -- and
+    spellMode's line below is what says which of the two actually ran, since
+    both produce the same target and a silent fork cannot be told apart.
+
+    THE fILEs ENTRY IS NOT OPTIONAL. `include(name)` resolves through the fILEs
+    registry, not through the filesystem: an unregistered name is passed to
+    getFile verbatim and looked up relative to the CURRENT DIRECTORY, which
+    fails with "could not open file: genEmit" and exits 2. Registered here rather
+    than in incant/setup deliberately -- this is the fixture's dependency, not
+    the language's.  */
+registry(fILEs);
+define genEmit File='incant/genEmit'; ;
+include(genEmit);
+
+register(Ladder);
+define
+    Scaf  isRule "x"-;
+    Scaf2 isRule "{"- "}"-;
+    ScafA isRule "a"-;
+    ScafB isRule ScafA "b"-;
+    ScafC isRule ScafA+ "c"-;
+    ScafE isRule "e"- ScafA? "f"-;
+    ScafF isRule "f"- ","?- "g"-;
+    ScafI isRule "i"-;
+    ScafALT isRule
+        ScafA;
+        ScafI;
+    ;
+search reset stack Grokking Spellers Ladder UnitTests Utilities list;
+
+spellMode('');
+dumpSpellings('Scaf');
+dumpSpellings('Scaf2');
+dumpSpellings('ScafB');
+dumpSpellings('ScafC');
+dumpSpellings('ScafE');
+dumpSpellings('ScafF');
+dumpSpellings('ScafALT');
+dumpSpellings('CodE');
+dumpSpellings('Limit');
+stop();

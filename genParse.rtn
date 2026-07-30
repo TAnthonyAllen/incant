@@ -568,6 +568,57 @@ GroupItem   plan;
 }
 
 /*******************************************************************************
+    dumpSpellings — emitLeaf's OWN fixture, and it exists because emitLeaf was
+    about to be replaced with nothing to diff the replacement against.
+
+    THE ORACLE IS THE FUNCTION BEING REPLACED. That is the whole design: this
+    prints, for a named rule, the spelling emitLeaf produces for every plan node
+    it planned, under BOTH sinks. Capture it while the C++ emitLeaf is still the
+    only implementation and it becomes a byte-exact target the kant emitLeaf must
+    reproduce — the same discipline as `rung4.target` holding the emitted text
+    against the compiled-in method.
+
+    WHY NOT JUST USE THE RUNG TARGETS: emitLeaf writes every term spelling
+    inside them, so they DO gate it — but only for the kinds the ladder reaches.
+    LITTO is reached by no ladder rule (every Scaf term is noLabel), so both of
+    its spellings, `litTo` and `litOption`, were UNGATED. `CodE` plans as a SEQ
+    of two LITTO terms, so driving this off the census rules instead of the
+    ladder covers the kind the ladder cannot.
+
+    BOTH SINKS ON EVERY NODE, deliberately, even where the fold could never ask
+    for one: `into` is the ALT sink and `label` the SEQ sink, and LITTO is the
+    ONLY kind whose text differs between them. Printing both on every node costs
+    two lines and means the target moves if that ever stops being true.
+*******************************************************************************/
+extern GroupItem dumpSpellings(GroupItem argument)
+{
+GroupItem   rule;
+GroupItem   plan;
+GroupItem   node;
+GroupItem   at;
+String      local;
+String      piece;
+    cerr "SPELL " argument.text:;
+    rule = ruleOrRefuse(argument.text,"  spell");
+    if !rule    return null;
+    plan = planRule(rule);
+    if !plan {
+        cerr "  no plan":;
+        return null; }
+    cerr "  fold " plan.tag:;
+    while node = plan.nextMember(node) {
+        at      = node.getAttribute("at");
+        local   = "t" at.text;
+        piece   = emitLeaf(node,local,"label");
+        if !piece   piece = "REFUSED";
+        cerr "  " node.tag " sink=label " piece:;
+        piece   = emitLeaf(node,local,"into");
+        if !piece   piece = "REFUSED";
+        cerr "  " node.tag " sink=into  " piece:; }
+    return trueResult;
+}
+
+/*******************************************************************************
     emitLeaf — one PLAN node -> one leaf expression string.
 
     Everything here is about the TARGET and nothing about the rule: which
@@ -634,14 +685,97 @@ String      name;
     return 1;
 }
 
+/*******************************************************************************
+    locateSpeller — is there a KANT emitLeaf on the search list?
+
+    SCOPED ON PURPOSE, and it is §1.3's lesson applied one more time: a bare
+    locate() resolves down the general search stack (pROPERTIEs, Operators,
+    cOMMANDs, Keywords, GroupFields), so anything sharing the name would be a
+    silent mis-target. Only a registry literally named `Spellers` can supply the
+    action, and only under the name `spellLeaf`.
+*******************************************************************************/
+extern GroupItem locateSpeller()
+{
+GroupRules  ruler = groupRules;
+GroupItem   registri;
+GroupItem   hit;
+    while registri = searchList.next(registri)
+        if registri.tag eq "Spellers" {
+            hit = registri["spellLeaf"];
+            if hit  return hit; }
+    return null;
+}
+
+/*******************************************************************************
+    spellKant — call the kant emitLeaf and hand back its text.
+
+    ONE ARGUMENT, because a kant action takes one: the plan node. `local` is not
+    passed at all — the kant side derives it from the node's own `at` attribute,
+    which every node carries INCLUDING an OPT's wrapped inner node (planTerm
+    builds `at` before the OPT wrap and both end up with the same index). `sink`
+    is the one thing genuinely external to the node — it is the fold's decision —
+    so it rides as an attribute.
+
+    THE `sink` ATTRIBUTE IS REUSED, NOT STACKED, exactly as iterBind reuses its
+    `source` child: a second call must retarget the first attribute rather than
+    add another, or getAttribute keeps answering with the stale one. `sink` is
+    not among the attributes printPlan prints, so the census cannot move under it.
+*******************************************************************************/
+/*******************************************************************************
+    spellMode — WHICH implementation is live. One line, and it is the whole
+    answer to "a green stub reads as coverage".
+
+    emitLeaf's fork is silent by design: absent a kant speller it is the function
+    it always was, so every target stays green — which means a round that never
+    registered its action would ALSO be green, and the POP could not tell the
+    difference. This prints the answer, `pop.sh` pins it, and the pin is the
+    acceptance test: it says `c++` until the kant emitLeaf lands and `kant`
+    afterwards, and whoever flips it accounts for the flip. Same shape as
+    tree.divergence flipping from asserting a divergence to asserting agreement.
+
+    Called BEFORE the first `SPELL` line on purpose — spell.target starts at
+    `SPELL`, so the mode line is asserted separately and cannot move the target.
+*******************************************************************************/
+extern GroupItem spellMode(GroupItem argument)
+{
+    if locateSpeller()  cerr "SPELLER kant":;
+    else                cerr "SPELLER c++":;
+    return trueResult;
+}
+
+extern String spellKant(GroupItem speller, GroupItem node, String sink)
+{
+GroupItem   slot;
+GroupItem   result;
+    slot = node.getAttribute("sink");
+    if !slot {
+        slot = new("sink");
+        node +% slot; }
+    slot.text = sink;
+    result = runAction(node,speller);
+    if !result  return null;
+    return result.text;
+}
+
 extern String emitLeaf(GroupItem node, String local, String sink)
 {
+GroupItem   speller = locateSpeller();
 GroupItem   slot;
 GroupItem   site;
 GroupItem   inner;
 char        dq = 34;
 String      leaf;
 String      piece;
+    /*  IF A KANT SPELLER IS REGISTERED, ITS ANSWER IS AUTHORITATIVE — INCLUDING
+        NULL. Falling back to the C++ body on a null would mean a kant refusal
+        (or a kant bug) silently produced the right text, and the whole point of
+        the handover is that a kant defect must be VISIBLE. So the lookup decides
+        which implementation runs, and the result never does.
+
+        Absent a speller this is byte-for-byte the function it always was, which
+        is why every existing target still holds. Same shape as parseMethod's
+        fork: bind if it is there, run the oracle if it is not.  */
+    if speller  return spellKant(speller,node,sink);
     if node.tag eq "OPT" {
         inner = node.nextMember(inner);
         if !inner {

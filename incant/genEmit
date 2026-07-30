@@ -1,0 +1,35 @@
+/*****************************************************************************
+    genEmit -- genParse's emitter side, IN KANT.
+
+    This is where converted methods land. It is a STUB: the registry exists and
+    holds nothing, so `locateSpeller` finds no `spellLeaf` and the C++ emitLeaf
+    runs. Every target is green in that state, which is exactly the hazard
+    `spellMode` exists to expose -- `sh genLadder/pop.sh` asserts WHICH
+    implementation is live, so an empty stub cannot read as coverage.
+
+    THE INTERFACE, which is the C++ fork's side of the seam (genParse.rtn,
+    `locateSpeller`/`spellKant`):
+
+        registry            Spellers      -- and only a registry of that name
+        action              spellLeaf     -- and only under that name
+        argument            the PLAN NODE  (tag is the kind: LIT LITTO CALL
+                                            MANY OPT)
+        argument.sink       an attribute, "label" or "into" -- the FOLD's
+                            decision, so it is the one thing genuinely external
+                            to the node
+        returns             a field whose content is the spelling
+
+    `local` is NOT passed. It derives from the node's own `at` attribute, which
+    every node carries INCLUDING an OPT's wrapped inner node -- planTerm builds
+    `at` before the OPT wrap, so both end up with the same index.
+
+    WHEN A SPELLER IS REGISTERED ITS ANSWER IS AUTHORITATIVE, INCLUDING NULL.
+    There is no fallback on a null result: falling back would mean a kant bug
+    silently produced the right text, and the handover is only worth anything if
+    a kant defect is VISIBLE.
+
+    THE ORACLE IS `genLadder/spell.target`, captured from the C++ emitLeaf while
+    it was still the only implementation. All six plan kinds and the refusal
+    path, both sinks on every node.
+*****************************************************************************/
+registry(Spellers);

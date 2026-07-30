@@ -33,6 +33,43 @@ fi
 grep -v "^getRStuff" "$T/cen" | sed -n '/^PLAN /,$p' | grep -vE "^Search list:|^stop:|^$" > "$T/cenp"
 diffcheck "census.target" genLadder/census.target "$T/cenp"
 
+#  emitLeaf's OWN target -- THE ORACLE IS THE FUNCTION BEING REPLACED. Captured
+#  while the C++ emitLeaf was still the only implementation, so a kant rewrite
+#  has something byte-exact to answer to (Minion A round 1).
+#
+#  The rung targets above DO gate emitLeaf -- it writes every term spelling
+#  inside them -- but only for the kinds the LADDER reaches, and nothing in the
+#  ladder is a labelled literal. LITTO was therefore ungated in BOTH spellings,
+#  litTo and litOption. This drives off `CodE` as well as the scaffolds, prints
+#  both sinks on every node, and includes `Limit` for the REFUSAL path, which is
+#  behaviour too and the part a rewrite is likeliest to quietly drop.
+#
+#  stderr ONLY, not 2>&1: emitted text goes to stderr unbuffered while the
+#  "Search list:" lines are buffered stdout, so a combined capture appends them
+#  wherever the exit flush lands rather than where they happened.
+$B incant/spellScratch > "$T/spo" 2> "$T/spe";  check "spellScratch runs" 0 $?
+sed -n '/^SPELL /,$p' "$T/spe" > "$T/sp"
+diffcheck "spell.target (emitLeaf, all 6 kinds + refusal)" genLadder/spell.target "$T/sp"
+
+#  WHICH IMPLEMENTATION PRODUCED IT -- and this line is the whole answer to "a
+#  green stub reads as coverage". emitLeaf's fork is silent: with no kant speller
+#  registered it is the function it always was, so spell.target is green EITHER
+#  WAY and the diff above cannot tell them apart. A Minion A round that never
+#  registered its action would read exactly like one that did.
+#
+#  PINNED, and the pin IS the acceptance test: flip `c++` to `kant` when the kant
+#  emitLeaf lands, and whoever flips it accounts for the flip. Same shape as
+#  tree.divergence flipping from asserting a divergence to asserting agreement.
+SPELLER="SPELLER c++"
+if grep -qF "$SPELLER" "$T/spe"; then
+    echo "  ok    speller is c++ (pinned -- flip to kant when the kant emitLeaf lands)"
+else
+    echo "  FAIL  speller pin MOVED:"
+    grep "^SPELLER" "$T/spe" | sed 's/^/          actual:   /' || echo "          (no SPELLER line -- is spellMode still called from spellScratch?)"
+    echo "          expected: $SPELLER"
+    fail=1
+fi
+
 #  rStuff audit -- PRESENCE-based, and count-PINNED on the tree.divergence pattern.
 #
 #  PRESENCE: the instrument this replaces was getRStuff's "no rStuff - creating"
