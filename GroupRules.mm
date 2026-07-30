@@ -4265,6 +4265,24 @@ GroupItem 	*result = 0;
     expression like: field, IWC field can be a group field or the
     name (in field.tag) of a component of target that may or may not exist.
     Note: local fields are ignored
+
+    CASES 403/404 -- THE GUARD USED TO DEREFERENCE THE POINTER IT WAS GUARDING.
+    `!target.firstInList` reads as a null check and generates
+    `!target->groupBody->groupList->firstInList`, so a node carrying NO LIST
+    segfaulted on exactly the case the guard existed to handle (found 2026-07-30,
+    exit 139, crash frame 0 here; corpus CLAIM KANT-18). 401/402 were never
+    affected -- nextInParent/priorInParent are direct fields with no intermediate.
+    The `target.groupList &&` prefix is the same idiom case 5 already uses eight
+    lines up; this makes 403/404 agree with it.
+
+    CASE 405 (firstMembeR) -- AFFILIATION-FILTERED FIRST. `.firsT` is plain
+    firstInList and does NOT filter (CLAIM KANT-17): attributes and members share
+    ONE list, so on any node built attribute-first `.firsT` returns the
+    ATTRIBUTE. genParse's OPT plan node is exactly that shape (`opt +% at;` then
+    `opt += node;`), so a walk wanting the wrapped term had no accessor for it and
+    had to carry an iterator. nextMember(0) returns the first member, or null when
+    there is none -- and the groupList guard is needed here too, because
+    nextMember reaches nextGroup, which cerrs on a node with no list.
 ***************************************************************************/
 extern "C" GroupItem *opDot(GroupItem *argument, GroupItem *target)
 {
@@ -4370,14 +4388,19 @@ GroupItem 	*product = 0;
 					else	product = target->priorInParent;
 					break;
 				case 403:
-					if ( !target->groupBody->groupList->firstInList )
+					if ( !target->groupBody->groupList || !target->groupBody->groupList->firstInList )
 						product = 0;
 					else	product = target->groupBody->groupList->firstInList;
 					break;
 				case 404:
-					if ( !target->groupBody->groupList->lastInList )
+					if ( !target->groupBody->groupList || !target->groupBody->groupList->lastInList )
 						product = 0;
 					else	product = target->groupBody->groupList->lastInList;
+					break;
+				case 405:
+					if ( !target->groupBody->groupList )
+						product = 0;
+					else	product = target->nextMember(0);
 					break;
 				default:
 					product->setText(::concat(3,"access to ",argument->groupBody->tag," not supported yet"));

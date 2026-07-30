@@ -256,6 +256,7 @@ define
     prioR=402;
     firsT=403;
     lasT=404;
+    firstMembeR=405;
     ;
 registry(fILEs);
 define

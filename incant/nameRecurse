@@ -114,10 +114,27 @@ define
         if ++a;
             print "FIRSTANY=" a:;
         };
+
+    fixProbe argument code={
+        shape = new("shape");
+        atx   = new("atx");
+        shape +% atx;
+        kidx  = new("kidx");
+        shape += kidx;
+        mem  := shape.firstMembeR;
+        print "NEWFIRSTMEMBER=" mem:;
+        leaf  = new("leaf");
+        edge := leaf.firsT;
+        print "LEAFFIRST-SURVIVED=" edge:;
+        emt  := leaf.firstMembeR;
+        print "LEAFFIRSTMEMBER-SURVIVED=" emt:;
+        };
     ;
 
 print "=== Q1  named self-call: per-frame or shared? ===":;
 probe(outer);
 print "=== Q2  .firsT affiliation on an attribute-then-member shape ===":;
 shapeProbe(outer);
+print "=== G2  the 403/404 guard fix and the new .firstMembeR ===":;
+fixProbe(outer);
 stop();

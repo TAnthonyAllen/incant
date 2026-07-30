@@ -399,6 +399,254 @@ scope:       Load-bearing beyond diagnostics: genParse's EMITTED TEXT all goes
 
 ---
 
+## ROUND 2's INTAKE — KANT-13 … KANT-20, written 2026-07-30, BEFORE round 2 fired
+
+**Count these as ORIENTATION, not absorption.** They were drafted by foreman and by
+Tony, not by a round, so scoring them as round 2's absorption would make the ledger's
+instrument read noise — the same error the ROUND 1 table above exists to prevent.
+
+**Origins differ and the difference matters:**
+
+| claims | origin | grade it by |
+|---|---|---|
+| **KANT-13 … KANT-15** | **Tony's design rulings** on print/sink/keyword semantics | his authority — they are decisions, not measurements |
+| **KANT-16** | **a correction pointed at the REVIEWERS**, not at round 1 | read it before trusting a brief |
+| **KANT-17 … KANT-19** | foreman's step-0 runs, 2026-07-30 | RUN provenance, exit 0 captured |
+| **KANT-20** | a grep, with the inference deliberately NOT drawn | it is an open item wearing a claim's clothes |
+
+*Clay's brief said "nine claims" and listed six, two of which were already among
+foreman's three — the true distinct count is EIGHT. Written as eight rather than padded
+to nine: inventing a claim to reach a number is exactly what this format exists to stop.*
+
+### CLAIM KANT-13 — ONE print mechanism, FOUR destinations; the keyword selects only the SINK
+```
+statement:   `print`, `string`, and the coming `cout`/`cerr` are ONE mechanism.
+             `PrintXP+` is FIXED and identical under all of them. The keyword
+             selects only WHERE the text lands — stdout, stderr, or a value.
+             Spacing, shortcuts, formats and parsing DO NOT VARY BY SINK.
+confidence:  RULING (Tony, 2026-07-30) — corroborated READ
+provenance:  Tony's ruling, dictated in chat. Corroborated in the grammar:
+                 incant/grammar:147  PrinT     print  followedBy PRINTing- stuff=PrintXP+ SemI- defer;
+                 incant/grammar:118  StringXP  string followedBy PRINTing- stuff=PrintXP+ ruleMethod=aCTionPrinT defer;
+             — same `stuff=PrintXP+`, same action. ruleActions.rtn:624
+             `aCTionPrinT` forks ONLY at the tail:
+                 if command.tag == 'p'  return opPrint(input,buffer);
+                 else                   return opString(command,buffer);
+             One walk, one buffer, two exits. That fork is the whole difference.
+asOf:        2026-07-30
+scope:       This is why adding cout/cerr is SMALL. The language is not gaining a
+             feature; it is gaining two sinks. Anything that makes a sink differ
+             in SPACING or PARSING is out of spec, not an enhancement.
+             Corollary for the oracle: `print` IS the fixture for `cout`. Route
+             both to a captured stream, feed identical PrintXP, demand identical
+             bytes — the same trick spell.target plays on emitLeaf.
+```
+
+### CLAIM KANT-14 — `,` is INERT alone and exists to BUNCH; `,+` reaches shortcut `+`
+```
+statement:   The shortcut set is `-+~`$_:,` (ONE character class, bunchable).
+             `,` does nothing on its own. It exists so shortcuts can be BUNCHED,
+             which is how you reach a shortcut whose character also has an
+             operator reading: `,+` is shortcut `+`, where bare `+` would read as
+             addition. The operator/shortcut collision is therefore ALREADY
+             RESOLVED in the grammar — user-side and per-site.
+confidence:  RULING (Tony, 2026-07-30) — corroborated READ
+provenance:  Tony's ruling. Set definition, two places, identical:
+                 incant/grammar:92   ShortcuT=[-+~`$_:,]+;      <- note the trailing `+`: bunchable
+                 GroupRules.twk:103  shortcutSet = new("-+~`$_:,");
+             `ShortcuT` is an alternative of `PrintXP` (incant/grammar:103-105),
+             so it is legal anywhere a print term is.
+asOf:        2026-07-30
+scope:       DO NOT invent disambiguating syntax for the operator/shortcut
+             overlap — it is solved. Whether BARE `+` should read as shortcut or
+             operator is a separate, existing, Tony-owned question and is
+             untouched by this. Says nothing about bunching ORDER or about
+             whether every pair bunches; only `,+` was ruled on.
+```
+
+### CLAIM KANT-15 — an OMITTED keyword must not change semantics; a DIFFERENT keyword may
+```
+statement:   DESIGN PRINCIPLE, not a fact about the tree. If a user OMITS a
+             keyword they chose nothing, so nothing may change underneath them —
+             the omitted form must mean exactly what the spelled form meant. If a
+             user types a DIFFERENT keyword they made a choice, so the two may
+             legitimately differ. `string` omitted must behave as `string`;
+             `cout` versus `print` may differ, because the user typed it.
+confidence:  RULING (Tony, 2026-07-30)
+provenance:  Tony's ruling, dictated in chat 2026-07-30, in the discussion that
+             collapsed SEQ 31's step 1 from a feature to two sinks.
+asOf:        2026-07-30
+scope:       ⚠ THIS IS THE LEAST RECOVERABLE CLAIM IN THE FILE. A minion reading
+             source can rediscover every other claim here eventually; it cannot
+             rediscover a principle that exists only in Tony's head. It is also
+             load-bearing on work already briefed: it is precisely why bundling
+             `$`-removal with `string`-removal was wrong — `$` is a MODE the user
+             typed, `string` is a keyword they would be omitting, and the two are
+             on opposite sides of this line. Apply it BEFORE agreeing to a brief
+             that removes a keyword, not after the bytes move.
+```
+
+### CLAIM KANT-16 — round 1's `iterate … on argument MEMBERS` was CORRECT; the reviewers were wrong
+```
+statement:   Round 1 wrote the OPT descent as `iterate inner on argument members`
+             — affiliation-FILTERED. Review proposed replacing it with
+             `inner := argument.firsT;` as a simplification. THE REVIEW WAS
+             WRONG: `.firsT` does not filter (KANT-17), and on an OPT plan node
+             it returns the `at` ATTRIBUTE instead of the wrapped term. The
+             starved-corpus round had the filtering RIGHT and paid a cursor for
+             it.
+confidence:  RUN (the measurement is KANT-17's)
+provenance:  Round 1's shipped `incant/genEmit`; SEQ 31 step 3's proposed
+             replacement; foreman's Q2 run 2026-07-30 (incant/nameRecurse).
+             Caught BEFORE round 2 was briefed, not after it shipped.
+asOf:        2026-07-30
+scope:       ⚠ READ THIS BEFORE TRUSTING A BRIEF. The standing rule for weighting
+             a design brief is "take the STRUCTURAL distinctions, CHECK the
+             claims about what is in the TREE" — this is one more instance, and
+             the reviewer flagged his own tree-claim record as zero for five the
+             same day. A brief's simplification is a HYPOTHESIS about the tree
+             until it is measured. Cost of measuring: one run. Ledger this under
+             adversarial absorption with the correction pointed AT THE REVIEWERS,
+             not at round 1.
+```
+
+### CLAIM KANT-17 — `.firsT` does NOT filter by affiliation; it is plain `firstInList`
+```
+statement:   `.firsT` returns `firstInList` with NO affiliation filter — it is
+             exactly an UNFILTERED `iterate`, not a member-filtered one.
+             Attributes and members share ONE list distinguished by affiliation,
+             so on any node built attribute-first `.firsT` returns the ATTRIBUTE.
+             ⚠ SUPERSEDED IN PART, SAME DAY: there is now a member-filtered
+             accessor, `.firstMembeR` (case 405) — see the UPDATE below. The
+             claim about `.firsT` ITSELF still stands unchanged.
+confidence:  RUN
+provenance:  incant/nameRecurse `shapeProbe`, exit 0, 2026-07-30. Built the exact
+             OPT shape (`shape +% atx;` then `shape += kidx;`) and asked three
+             ways:
+                 GOT=         atx     <- .firsT
+                 FIRSTMEMBER= kidx    <- iterate ... on shape members
+                 FIRSTANY=    atx     <- iterate ... on shape (unfiltered)
+             Mechanism READ at Instruct.rtn:145, case 403 -> target.firstInList.
+             Why it bites OPT specifically: genParse.rtn:456 builds an OPT as
+             `opt = new("OPT"); opt +% at; opt += node;` — the `at` attribute
+             goes on FIRST, the wrapped term is a MEMBER and goes on SECOND.
+asOf:        2026-07-30
+scope:       Measured on a hand-built two-child node and on the OPT construction
+             read from source. Says nothing about `.lasT`'s affiliation
+             behaviour (not probed) — only about its crash behaviour, KANT-18.
+UPDATE:      2026-07-30, LATER THE SAME DAY — `.firstMembeR` (case 405) now
+             exists and IS affiliation-filtered. Instruct.rtn case 405 =
+             `target.nextMember(0)` behind a groupList guard; incant/setup
+             declares `firstMembeR=405`. RUN on the same OPT shape:
+                 NEWFIRSTMEMBER= kidx      <- the MEMBER, as wanted
+             So the descent a walk wants is `x.firstMembeR`, NOT `x.firsT`.
+             ⚠ AND NOTE WHY THIS UPDATE IS HERE RATHER THAN A NEW CLAIM: the
+             original text asserted "there is NO member-filtered first accessor",
+             which foreman then made FALSE by adding one, one hour later. A claim
+             that goes stale because its own reader changed the tree is the
+             format's central failure mode. Edited in place, same day, before any
+             round could read it.
+```
+
+### CLAIM KANT-18 — `.firsT`/`.lasT` SEGFAULT on any leaf: the guard derefs the pointer it guards
+```
+statement:   `.firsT` (case 403) and `.lasT` (case 404) crash with SIGSEGV on any
+             node carrying no list. The null guard is written correctly in incant
+             but generates a dereference of the very pointer it is testing.
+             `.nexT`/`.prioR` (401/402) are SAFE — they read a direct field with
+             no intermediate pointer.
+confidence:  RUN
+provenance:  First cut of incant/nameRecurse descended via `.firsT` and died
+             EXIT=139 on the third level (the leaf). Crash frame 0 under
+             `script -q /dev/null`: opDot, GroupRules.mm:4373.
+             Source, Instruct.rtn:145 — reads as guarded:
+                 case 403: if !target.firstInList  product = null;
+                           else product = target.firstInList;
+             Generated, GroupRules.mm:4373:
+                 if ( !target->groupBody->groupList->firstInList )
+             — `groupList` is dereferenced IN ORDER TO TEST it. A leaf has
+             groupList == 0, so the guard crashes on exactly the case it exists
+             to handle. Contrast 401/402: `!target->nextInParent`, no
+             intermediate.
+asOf:        2026-07-30
+scope:       NOT a tok bug — the incant source says `target.firstInList` and the
+             intermediate is implicit, so tok generated what it was asked for.
+             PRE-EXISTING, surfaced not caused.
+STATUS:      ⚠ FIXED 2026-07-30, same day, by foreman — this claim is kept as the
+             REASONING TRAIL, not as a live hazard. Instruct.rtn cases 403/404 now
+             read `if !target.groupList || !target.firstInList` (the same idiom
+             case 5 already used eight lines up), and C++ `||` short-circuits, so
+             the intermediate is never dereferenced when it is null. RUN, exit 0
+             where it was 139:
+                 LEAFFIRST-SURVIVED= edge       <- null, printed as its own tag
+                                                   per KANT-10; previously SIGSEGV
+             `.lasT` was fixed identically but is NOT separately covered by a
+             fixture — 404 was corrected by symmetry with 403, which is a
+             REASONED fix on an unexercised path. Whoever first uses `.lasT` on a
+             leaf gets to promote that to RUN.
+```
+
+### CLAIM KANT-19 — a BARE NAMED self-call DOES trip `recursive`; `this(...)` does not
+```
+statement:   A bare named self-call inside a registered action DOES set
+             `field.recursive`, so save/restore runs and locals ARE per-frame.
+             `this(...)` does NOT (KANT-7). The two spellings therefore have
+             DIFFERENT frame semantics, and swapping one for the other silently
+             changes whether a local survives a call.
+confidence:  RUN
+provenance:  incant/nameRecurse `probe`, exit 0, 2026-07-30. Assigns a scalar
+             local, recurses BY NAME, reads its OWN local AFTER the call — the
+             read KANT-7 forbids under `this()`:
+                 ENTER L-outer / ENTER L-inner / ENTER L-deep
+                 AFTER L-deep  / AFTER L-inner / AFTER L-outer
+             Each AFTER pairs with its OWN ENTER. Under shared slots every AFTER
+             would read L-deep. Corroborating: incant/iterT1 self-calls by name
+             and passes per-frame. Mechanism READ: GroupActions.rtn:570/572 gate
+             save/restore on `field.recursive`; the inference itself is a
+             syntactic identity check against currentMETHOD (ruleActions.rtn).
+asOf:        2026-07-30
+scope:       COMPLETES the KANT-5/6/7/8 knot — read all five together.
+             CONSEQUENCE, and it is why this was run: replacing `this(...)` with
+             a named self-call ARMS KANT-8. The locals become per-frame, so a
+             returned LOCAL comes back emptied. The two changes are ONE MOVE —
+             the named call arms the hazard, the carrier disarms it, and landing
+             them apart leaves a knowingly-broken intermediate state.
+             Coverage caveat inherited from KANT-5: this is DIRECT recursion.
+             Mutual recursion (A→B→A) still gets NO per-frame locals, because
+             neither action names itself (pinned wrong answer: incant/iterT1m).
+```
+
+### CLAIM KANT-20 — `0` vs `falseResult` is inconsistent, and the "latent bugs" inference does NOT follow
+```
+statement:   The asymmetry is real and large: `return trueResult` 47 sites,
+             `return falseResult` only 4, against 322 `return 0` and 259
+             `return null`. So the idiomatic YES is a real node and the
+             idiomatic NO is a raw null. BUT the proposed inference — that
+             KANT-B1 makes some of those raw nulls latent bugs — DOES NOT FOLLOW
+             AS STATED, and is recorded here UNDRAWN on purpose.
+confidence:  READ (the counts are RUN; the inference is explicitly NOT drawn)
+provenance:  Counts by grep over *.rtn/*.twk, 2026-07-30. Definitions:
+             GroupControl.twk:152/155 — trueResult and falseResult are real
+             GroupItem nodes in `properties`, tagged "true"/"false".
+             THE SCOPING CORRECTION: KANT-B1 is about a KANT action's return
+             crossing `runAction`. These 581 sites are C++ externs returning to
+             C++ CALLERS, which is a different boundary and is unaffected — the
+             C++ `emitLeaf` returns NULL to refuse and that works fine today.
+             The genuinely suspect set is only the INTERSECTION: C++ externs
+             registered as incant actions/commands whose null result is then
+             consumed by incant. That intersection has NOT been sized.
+asOf:        2026-07-30
+scope:       ⚠ DO NOT act on this as "581 suspect sites" — that is the reading
+             this entry exists to prevent. It is an OPEN ITEM wearing a claim's
+             clothes: the counts are solid, the boundary distinction is solid,
+             and the work of sizing the intersection is UNDONE. Whoever sizes it
+             should also settle whether the language wants ONE false sentinel;
+             the standing ruling is DO NOT standardise on one until something
+             reachable needs it.
+```
+
+---
+
 ## BLOCKED
 
 ### BLOCKED KANT-B1 — a kant action cannot return NULL across `runAction`
