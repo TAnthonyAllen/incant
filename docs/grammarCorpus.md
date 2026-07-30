@@ -437,3 +437,393 @@ impossible if the bytes move.
   output. Bear-trap #19's corollary earned its keep twice this round (GRAM-1).
 - **`docs/grammarOnTheFly-findings.md`** — the graft mechanism this round reused. GRAM-5
   extends its reach; nothing in it was contradicted.
+
+---
+
+## ROUND 2 — 2026-07-30. Task: the POP for the print-family C++ change (BEFORE the change)
+
+**Verdict, up front:** the fixture is built, it runs, it goes red for the right reasons, and
+**the load-bearing row is RED today and cannot be made green by anything in the sandbox** —
+which is the round's most useful single fact, because it means the row was never covered and
+round 1's green `cout` did not cover it.
+
+| | verdict | one-line evidence |
+|---|---|---|
+| **stable half** (`print`, `string`) | **GREEN, byte-exact, 2 targets** | `incant/printFamily`; must stay green through the change — it is the regression net |
+| **moving half** (`cout`, `cerr`, omitted `string`) | **RED on purpose, pinned** | `incant/printFamilyNew`; targets are `.divergence` files, `iterT1m` shape |
+| **`cout` under an ARMED diversion** | **WRONG TODAY, and unfixable in the sandbox** | grafted `cout` IS `print`, so the diversion swallows it — GRAM-10 |
+| **native-vs-graft transition** | **SOLVED, and the fixture needs no edit to survive it** | an earlier `WardeD` alternative wins, so a tail graft goes inert — GRAM-11 |
+
+**Files this round produced, all new, none shared. `genLadder/pop.sh` was NOT touched.**
+
+| file | what it is |
+|---|---|
+| `incant/printFamily` | stable half — `print`/`string` × diversion × `$` × `_`. No graft. |
+| `incant/printFamilyNew` | moving half — `cout`/`cerr` × same matrix, + omitted `string`. Pinned wrong. |
+| `genLadder/printFamily.target` | stdout, byte-exact, green now and after |
+| `genLadder/printFamily.captured` | stderr — the diverted buffer, flushed |
+| `genLadder/printFamilyNew.divergence` | stdout, **wrong answer, pinned** |
+| `genLadder/printFamilyNew.err.divergence` | stderr, **wrong answer, pinned** |
+| `genLadder/printPop.sh` | the runner. `sh genLadder/printPop.sh` → 9 checks, exit 0. |
+
+**Regression net, before and after, all byte-identical:**
+
+```
+$BINARY incant/oneTest    EXIT=0   diff vs baseline: identical
+$BINARY incant/jsonTest   EXIT=0   diff vs baseline: identical
+sh genLadder/pop.sh       EXIT=0   diff vs baseline: identical  (22 ok, POP PASSED)
+sh genLadder/printPop.sh  EXIT=0   9 ok   (new)
+```
+
+**The POP was negative-controlled three ways, because a check that cannot go red is worth
+nothing.** (1) perturbing the stable target → RED, exit 1. (2) deleting the `PN-C-A-*` rows
+from the stderr divergence — *which is exactly the diff Tony's change will produce* → RED,
+exit 1, and the diff printed is the acceptance criterion in bytes. (3) injecting a truncating
+row → the sentinel check RED **while `printFamily runs` still reported `ok`**. That third one
+is CLAUDE.md's "exited 0 is not passed" doctrine demonstrated live inside the instrument.
+
+---
+
+### ⚠ TWO THINGS THIS CORPUS SHOULD HAVE CARRIED AND DID NOT
+
+Per the brief: needing something the corpus should have had **is the finding**. Both are the
+GRAM-2 propagation pattern again — *a true RUN claim whose most consequential reading was
+never taken* — and neither is round 1 being careless. Round 1 had the evidence on screen.
+
+1. **GRAM-2's provenance quotes `RunRulE: expected a method not cout` and uses it only as a
+   discriminator** between a mis-sink and a parse failure. That is correct and it is not the
+   dangerous half. The dangerous half is that this diagnostic **abandons the rest of the file
+   and still exits 0** (GRAM-8). Round 1 printed the line, reasoned about it correctly for its
+   own purpose, and did not ask what it does to everything downstream of it.
+
+2. **GRAM-3 proves `cout` byte-identical to `print` — and every byte of that oracle was
+   captured with the diversion UNARMED.** The claim is true. The reading a reader takes from it
+   — "so `cout` works" — is false, because byte-identity-with-`print` is *precisely the defect*
+   for the one row that justifies `cout` existing at all (KANT-23). A stronger claim would have
+   been *weaker-sounding*: "cout is print, and that is the problem." The oracle's own success
+   concealed the gap.
+
+**The general form, and it is the round's most transferable output:** when a claim's evidence
+is an *equality*, ask what the equality would look like if the thing were broken. Here, broken
+and correct produce the same bytes under the only condition anyone tested.
+
+---
+
+### CLAIM GRAM-8 — an incant parse failure ABANDONS THE REST OF THE FILE and STILL EXITS 0
+```
+statement:   A statement whose keyword does not match any rule emits
+             `RunRulE: expected a method not <tok>` on stderr and TERMINATES
+             THE RUN AT THAT POINT. Every statement after it is silently not
+             executed. THE PROCESS EXITS 0. There is no `stop: ending input
+             divert` line, and buffered stdout written before the failure is
+             still flushed -- so the capture looks like a complete, correct,
+             successful run that happens to be short.
+confidence:  RUN
+provenance:  Two runs, 2026-07-30. (a) A three-line file
+                 print "P1a"; / cout "P1b"; / print "P1c";
+             with `cout` UNGRAFTED: stdout carried P1a only, P1c absent, no
+             `stop:` line, stderr carried exactly the one RunRulE line,
+             EXIT=0. (b) The negative control on this round's own POP: a
+             truncating row injected into incant/printFamily before its
+             sentinel produced `ok  printFamily runs` (exit 0) alongside
+             `FAIL printFamily sentinel`. Same run, both true.
+asOf:        2026-07-30
+scope:       THIS IS THE REASON BOTH ROUND-2 FIXTURES END IN A NAMED SENTINEL
+             LINE, and any fixture that uses a keyword which might not parse
+             needs one. A byte-exact diff DOES catch the truncation, but it
+             blames the first missing row rather than the row that stopped
+             parsing, which sends the reader to the wrong place.
+             Instrument-level instance of CLAUDE.md's Testing doctrine, and
+             the same family as the genScratch/SIGSEGV case -- except this one
+             is worse, because 139 is at least visible and this is a literal 0.
+             ⚠ CONSEQUENCE FOR ANY FUTURE ROUND WRITING A FIXTURE IN THE
+             LANGUAGE AS SPECIFIED RATHER THAN AS IMPLEMENTED: you cannot.
+             One not-yet-existing keyword deletes everything below it. That is
+             why round 2's matrix is SPLIT rather than written once against
+             Tony's four-keyword table.
+             Untested: whether every parse failure behaves this way, or only
+             an unmatched leading keyword. Only the RunRulE shape was run.
+```
+
+### CLAIM GRAM-9 — a buffer flushed to `/dev/stdout` lands at the TOP of the capture; flush to `/dev/stderr`
+```
+statement:   GRAM-6's `buf modedOP "/dev/stdout"; closeFile(buf);` route works
+             but SCRAMBLES ORDER catastrophically: the flush is an unbuffered
+             write while incant `print` goes through block-buffered tok `cout`,
+             so the ENTIRE flushed buffer appears BEFORE every line that
+             logically preceded it -- including lines printed before the
+             diversion was ever armed. /dev/stderr does not have this problem
+             because both paths are unbuffered, so stderr carries true event
+             order.
+confidence:  RUN
+provenance:  One run, 2026-07-30. Six markers P4-1..P4-6; P4-2/P4-3 diverted
+             into a buffer, flushed to /dev/stdout between P4-4 and P4-5.
+             Captured stdout began:
+                 P4-2 into buffer / P4-3 into buffer / Search list: Grokking
+                 / P4-1 stdout before / ... / P4-4 ... / P4-5 ... / P4-6
+             -- the flush ahead of even the `Search list:` banner. EXIT=0.
+             Contrast: the same shape flushed to /dev/stderr, captured
+             separately, is in order (incant/printFamily, this round, and
+             incant/sinkStderr, round 1).
+asOf:        2026-07-30
+scope:       SETTLES HALF OF kantCorpus KANT-12's UPDATE, which recorded
+             "ORDERING ACROSS THE FLUSH" as not settled and named
+             flush-per-invocation as the obvious untested fix. For
+             /dev/stdout it is now settled and it is WRONG -- not subtly
+             mistimed, inverted. For /dev/stderr, with the two streams
+             captured SEPARATELY, order holds.
+             ⚠ SAYS NOTHING ABOUT KANT-12's ACTUAL QUESTION, which is
+             ordering between a kant emitter's buffered output and a C++
+             caller's already-written stderr line. Both on fd 2 is a
+             DIFFERENT configuration from the one measured here and the
+             flush-at-close hazard is still live there.
+             Also unmeasured: flush-per-invocation, still the obvious fix.
+             Spelling note, cost a minute: the command is `printTO` (capital
+             TO), incant/setup:53. `printTo` appears in briefs and prose and
+             is not the surface spelling.
+```
+
+### CLAIM GRAM-10 — ⚠ THE LOAD-BEARING ROW: grafted `cout` IS DIVERTIBLE, so the sandbox CANNOT demonstrate the case that justifies the change
+```
+statement:   With a `printTO` diversion armed, round 1's grafted `cout` goes
+             INTO THE BUFFER, exactly like `print`, and reaches no terminal.
+             This is not a defect in the graft -- it is the graft working. The
+             graft routes to aCTionPrinT, whose 'p' arm is opPrint, whose FIRST
+             ACT is `if toBUFFER`. Grafted `cout` is `print` wearing a
+             different keyword, and DIVERTIBILITY IS EXACTLY THE PROPERTY
+             `cout` MUST NOT HAVE (kantCorpus KANT-23). Therefore NO runtime
+             graft, however written, can make this row green: reaching the
+             stdout arm past the diversion check is a change to opPrint's body,
+             which is Instruct.rtn and out of sandbox by construction.
+confidence:  RUN
+provenance:  Two runs, 2026-07-30. Probe: graft CoutXP exactly per GRAM-3,
+             then
+                 print "P2-1"; cout "P2-2";        (unarmed -- BOTH visible)
+                 printTO(capBuf);
+                 print "P2-3"; cout "P2-4";        (armed -- NEITHER visible)
+                 printTO(null); print "P2-5";      (visible again)
+             EXIT=0, sentinel reached. P2-4 is the row. Restated in the
+             shipped fixture: incant/printFamilyNew section 3, whose stderr
+             flush (genLadder/printFamilyNew.err.divergence) reads
+                 PN-P-A-def ...    <- print, CORRECTLY captured
+                 PN-C-A-def ...    <- cout, WRONGLY captured
+                 PN-C-A-dol...     <- cout, WRONGLY captured
+                 PN-C-A-und ...    <- cout, WRONGLY captured
+             Mechanism READ and unambiguous: Instruct.rtn:775-787, opPrint --
+                 if toBUFFER  toBUFFER += printText;
+                 else         cout printText;
+             with toBUFFER set by printToBuffer (Commands.rtn:444).
+asOf:        2026-07-30
+scope:       ⚠ THIS QUALIFIES GRAM-3 AND IS THE MOST IMPORTANT THING IN THIS
+             CORPUS FOR ANYONE READING IT AS "cout IS DONE". GRAM-3 is RUN and
+             true -- its six-shape oracle really is byte-identical. But every
+             byte of it was captured with the diversion UNARMED, and under an
+             armed diversion the two keywords must DIFFER. So the oracle that
+             proved the graft correct is measuring the one condition under
+             which correct and broken are indistinguishable.
+             THE ACCEPTANCE TEST for Tony's change is exactly this row moving:
+             the three PN-C-A-* lines must leave the stderr flush and appear on
+             STDOUT between the ARMING and RELEASED markers, while PN-P-A-def
+             stays in the flush ALONE. Both halves must move together -- if
+             only the cout half moves, the diversion gate was widened rather
+             than bypassed, and `print` stopped being divertible too.
+             Says nothing about `cerr` under a diversion; that row is pinned in
+             the same file but is silent today for the unrelated GRAM-2 reason
+             (mis-sink to opString), so it is not evidence about divertibility.
+```
+
+### CLAIM GRAM-11 — an EARLIER `WardeD` alternative WINS, so a tail graft goes inert when the native rule lands
+```
+statement:   `WardeD += <rule>` appends at the TAIL, and when two WardeD
+             alternatives match the same keyword THE EARLIER ONE WINS. A rule
+             grafted at runtime is therefore SHADOWED by any rule already in
+             WardeD -- including every rule defined in incant/grammar.
+             CONSEQUENCE, and it is the answer to the native-vs-graft
+             transition: once `cout`/`cerr` are native they sit inside WardeD
+             ahead of any graft, THE NATIVE RULES ANSWER, and a leftover graft
+             is inert dead weight rather than a collision or a shadow.
+confidence:  RUN
+provenance:  One run, 2026-07-30, discriminating by SINK rather than by text.
+             Graft CoutA with label `pCout` (tag 'p' -> opPrint -> VISIBLE).
+             Then graft CoutB, same keyword "cout", label `cout` (tag 'c' ->
+             opString -> SILENT, per GRAM-2). Both in WardeD, CoutB later.
+             `cout "P3-5";` printed VISIBLY => CoutA, the EARLIER rule, won.
+             Same run also re-confirmed GRAM-2's negative: `cerr` with a 'c'
+             label emitted nothing on either stream. EXIT=0, sentinel reached.
+asOf:        2026-07-30
+scope:       ⚠ THE INERTNESS IS ABOUT MATCHING, NOT ABOUT DEFINING. A graft
+             whose RULE NAME collides with the native rule's is a different and
+             worse problem: `define CoutXP ...` would RE-OPEN the native rule
+             rather than create a new one, and could clobber its ruleMethod.
+             That is why incant/printFamilyNew names its rules `PfCoutGraft`
+             and `PfCerrGraft`. Anyone grafting a rule that may later go native
+             must pick a name the native one will not take.
+             Settles round 1's OPEN ITEM 5 ("tail-of-WardeD ordering:
+             untested whether a keyword that is a prefix of an existing one is
+             shadowed") for the EXACT-DUPLICATE case. The PREFIX case -- a
+             grafted keyword that is a prefix of an existing one -- is still
+             untested; only identical keywords were run.
+             Untested: whether the same precedence holds for `StatemenT` or
+             `DatA` (round 1's OPEN ITEM 4 is still open).
+```
+
+### CLAIM GRAM-12 — the OMITTED `string` form is not the spelled form today: one term differs, two terms is GARBAGE, shortcuts do not parse
+```
+statement:   kantCorpus KANT-13's table closes the family at four and
+             parenthesises `string (and its omitted form)`; KANT-15 rules that
+             an omitted keyword MUST NOT change semantics. MEASURED, today it
+             is neither of those things:
+               ONE term    `x = "a";`            -> "a"      (spelled gives
+                                                  "a " -- a TRAILING SPACE the
+                                                  omitted form lacks)
+               TWO terms   `x = "a" "b";`        -> GARBAGE. Not mis-spaced,
+                                                  not truncated: the token
+                                                  `xlInSet` plus a newline,
+                                                  and `xlInSet` appears
+                                                  NOWHERE in the tree. An
+                                                  uninitialised read.
+               SHORTCUTS   `x = $"a" _ "b";`     -> DOES NOT PARSE. RunRulE,
+                                                  and it abandons the rest of
+                                                  the file at exit 0 (GRAM-8).
+             The omitted form is not a print-family form at all today; it is
+             plain assignment, which happens to work for one token.
+confidence:  RUN
+provenance:  Two runs, 2026-07-30, EXIT=0. Controls in the SAME run:
+                 o3 = string "alpha";        -> "alpha "   CORRECT
+                 o4 = string "alpha" "beta"; -> "alpha beta " CORRECT
+                 o1 = "alpha";               -> "alpha"    no trailing space
+                 o2 = "alpha" "beta";        -> "xlInSet\n"
+             so the spelled path is healthy in the same process that produces
+             the garbage. `grep -rn xlInSet` over the repo: ZERO hits.
+             Pinned in genLadder/printFamilyNew.divergence, section 6.
+asOf:        2026-07-30
+scope:       ⚠ REPORTED AS A FINDING, NOT FIXED -- it is a C++-level defect on
+             a path nobody asked this round to touch, and the fix is out of
+             sandbox. But it is load-bearing on Tony's design: KANT-15 is the
+             LEAST RECOVERABLE claim in the kant corpus and this is the first
+             MEASUREMENT against it, and the measurement disagrees. If the
+             omitted form is to be a real member of the closed family, this is
+             work, not documentation.
+             The two-term garbage is the part to take seriously: an
+             uninitialised read is a live bug independent of the print family
+             and could equally be reached from elsewhere. NOT NARROWED --
+             which shape of expression triggers it, and whether three terms
+             behave like two, were not run.
+             The shortcut row is deliberately ABSENT from the fixture: it
+             truncates, and a truncating row before a sentinel deletes the
+             sentinel. It lives here instead.
+```
+
+### CLAIM GRAM-13 — `print` and `cout` are BYTE-IDENTICAL across the spacing modes, and this must survive the change
+```
+statement:   Fed character-identical PrintXP, `print` and `cout` emit
+             character-identical bytes in all three spacing modes (default,
+             `$`, `$` with `_`). ONE mechanism, the keyword selecting only the
+             sink -- kantCorpus KANT-13, confirmed by run rather than by read.
+confidence:  RUN
+provenance:  genLadder/printPop.sh's last check, 2026-07-30: the `PF-P-U-*`
+             rows from incant/printFamily and the `PN-C-U-*` rows from
+             incant/printFamilyNew, row-name normalised away, `diff` clean --
+                 ROW-def 1 2 3 / ROW-doljoined / ROW-und spaced
+             Independently corroborates round 1's GRAM-3 oracle (six shapes,
+             same result) with a different set of shapes and a different file.
+asOf:        2026-07-30
+scope:       ⚠ IT IS A CHECK THAT SPANS THE CHANGE, WHICH IS WHY IT IS WORTH
+             HAVING: today the `cout` side is a runtime graft, afterwards it is
+             the native rule, and the bytes must not move either time. If it
+             ever differs, a PER-DESTINATION SPACING DEFAULT has crept in --
+             the exact thing KANT-13's COMPLETED block records Tony CUTTING
+             from the design, and the first crack "one mechanism" would show.
+             It is the only check in the print POP that is meaningful on BOTH
+             sides of the transition; every other check is either stable-only
+             or pinned-wrong.
+             Covers three spacing modes, not the shortcut family -- GRAM-3's
+             oracle covers backticks, `,+` and the `:` newline, and the two
+             claims should be read together rather than either alone.
+```
+
+### CLAIM GRAM-14 — classify a task by WHAT IT MUST TOUCH, not by what it RESEMBLES
+```
+statement:   The rule that mis-classified round 1 was "parallels an existing
+             rule => sandbox-safe". It put `cout` and `cerr` in the same row
+             because they look identical in the grammar -- same PrintXP, same
+             action, one keyword apart -- and they are NOT in the same row:
+             `cout` is a new SPELLING of an existing behaviour, `cerr` is a new
+             BEHAVIOUR. The corrected rule: ask WHAT ARM OF WHAT FORK THE
+             OUTPUT HAS TO LEAVE BY, and check that arm EXISTS, before
+             accepting. Surface resemblance predicts the PARSE side and says
+             nothing about the ACTION side, and the action side is where the
+             sandbox boundary runs.
+confidence:  REASONED
+provenance:  Round 1's own misprediction, and it cost real work. Applied
+             forward this round it is CHEAP AND IT PAID: `cout` under an armed
+             diversion looks like row 1 (it is `print` with a different
+             keyword) and is actually row 3, because the arm it must leave by
+             is the `else` of `if toBUFFER` inside opPrint -- reachable only by
+             editing Instruct.rtn. ONE GREP of opPrint's body answers it. That
+             is GRAM-10, and finding it BEFORE building rather than after is
+             the difference between a fixture and a wasted round.
+asOf:        2026-07-30
+scope:       REASONED, NOT RUN, and it is a heuristic about process rather than
+             a fact about the tree -- do not treat it as evidence for anything.
+             One corroborating instance and one avoided failure is thin.
+             It is bear-trap #19's corollary aimed at INTAKE rather than at
+             debugging: there, a hypothesis survives narrowing because the
+             search space was wrong; here, a task looks safe because the
+             classification looked at the grammar and the boundary was in the
+             .rtn. Both are "you searched the wrong file", moved one step
+             earlier.
+```
+
+---
+
+## ROUND 2 — DESIGN DECISION, WRITTEN DOWN BECAUSE THE BRIEF ASKED FOR IT
+
+**How the fixture survives `cout` going from graft to native — and why it is SPLIT IN TWO.**
+
+The obvious single-file design fails, and it fails for a measured reason rather than an
+aesthetic one. A fixture written against the language *as specified* cannot run today at all:
+the first `cout` truncates it and takes the whole matrix with it, at exit 0 (GRAM-8). A
+fixture written against the language *as implemented* needs the graft, and the graft is
+`print` — so it can never exercise the one row that justifies the change (GRAM-10).
+
+So the matrix is split by **whether a row is expected to move**:
+
+- **`incant/printFamily` — the rows that must NOT move.** `print` and `string` only. No graft,
+  no keyword that does not exist, therefore no before-state and no after-state. **The half
+  that most needs to survive survives by not participating.** It is a pure regression net
+  around the fork being widened: if broadening sink selection disturbs `print`'s diversion,
+  `string`'s value path, or any spacing mode, this goes red and names the row.
+- **`incant/printFamilyNew` — the rows that MUST move.** `cout`, `cerr`, omitted `string`.
+  Targets are `.divergence` files on the `iterT1m` / `tree.divergence` pattern: today's wrong
+  answer, asserted UNCHANGED, with each section header stating in bytes what it must become.
+  It carries the graft **solely as a parse-enabler** so the file reaches its sentinel — never
+  as the thing under test.
+
+**And the transition needs no edit to either file**, because GRAM-11 measured that an earlier
+`WardeD` alternative wins: when the native rules land they shadow the graft, the native
+implementation answers, and the divergence files flip *because the implementation changed*.
+The graft should still be **deleted in the flipping commit** — it is inert, not
+harmless-forever, and it names `pCout`, which GRAM-2's DEMOTED block says must not survive the
+fix or be designed around.
+
+**What would have to be true for one file to work:** either (a) incant grows a way to ask
+whether a keyword parses without dying — a conditional graft — or (b) a parse failure stops
+being fatal-and-silent (GRAM-8). Neither exists, and (b) is the more valuable of the two well
+beyond this fixture.
+
+---
+
+## OPEN ITEMS ADDED BY ROUND 2
+
+7. **The `xlInSet` uninitialised read** (GRAM-12). A live bug, not narrowed, reachable from a
+   two-term bare assignment. Nobody has asked whether it is reachable from elsewhere.
+8. **`cerr` under a diversion is pinned but not evidenced** (GRAM-10 scope). It is silent today
+   for the GRAM-2 mis-sink reason, so the fixture pins it without proving anything about
+   divertibility. Only the change itself can settle it.
+9. **Flush-per-invocation** (GRAM-9). Still the obvious fix for KANT-12's real ordering
+   question and still unmeasured. GRAM-9 settled only the /dev/stdout half.
+10. **The PREFIX case of `WardeD` precedence** (GRAM-11). Exact duplicates are settled; a
+    grafted keyword that is a PREFIX of an existing one is not.
+11. **Whether every incant parse failure truncates** (GRAM-8), or only an unmatched leading
+    keyword. Only the `RunRulE` shape was run.

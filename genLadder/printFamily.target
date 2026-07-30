@@ -1,0 +1,15 @@
+PF ==== 1. print / UNARMED ==== 
+PF-P-U-def 1 2 3 
+PF-P-U-doljoined
+PF-P-U-und spaced
+PF ==== 2. string / UNARMED ==== 
+[ PF-S-U-def 1 2 3  ] 
+[ PF-S-U-doljoined ] 
+[ PF-S-U-und spaced ] 
+PF ==== 3. ARMING DIVERSION ==== 
+printToBuffer: diverting print output to divBuf
+printToBuffer: stopping print to buffer (buffer not reset)
+PF ==== 4. DIVERSION RELEASED ==== 
+[ PF-S-A-und spaced ] 
+PF-P-R-def 1 2 3 
+PF SENTINEL -- run reached the end; if this line is absent the run TRUNCATED 

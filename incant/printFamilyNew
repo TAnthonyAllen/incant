@@ -1,0 +1,203 @@
+/*****************************************************************************
+    printFamilyNew -- THE MOVING HALF of the print-family POP.
+    Grammar minion round 2, 2026-07-30.
+
+    ############################################################
+    ##  THIS FIXTURE IS RED ON PURPOSE. IT IS NOT BROKEN.     ##
+    ##  ITS TARGETS ARE `.divergence` FILES, NOT `.target`    ##
+    ##  FILES, AND THEY RECORD THE **WRONG** ANSWER, PINNED.  ##
+    ############################################################
+
+    Same shape as genLadder/iterT1m.divergence and genLadder/tree.divergence:
+    a fixture on an OPEN item, asserting that today's wrong answer is
+    UNCHANGED. It goes RED when Tony's C++ change lands, and THAT IS THE
+    ACCEPTANCE TEST. Whoever moves it accounts for the move -- and the header
+    of each section below says, row by row, what the new answer must be.
+
+    The green half is `incant/printFamily`: `print` and `string` only, no
+    graft, byte-exact, and it must stay green THROUGH the change. Read that
+    file's header for why the fixture is split in two.
+
+    WHAT THE CHANGE IS
+    ------------------
+    kantCorpus CLAIM KANT-13 (COMPLETED by Tony 2026-07-30) closes the print
+    family at four keywords over one PrintXP mechanism:
+
+        keyword                    destination   divertible
+        print                      stdout        YES (printTO)
+        cout                       stdout        no
+        cerr                       stderr        no
+        string (and omitted form)  a value       n/a
+
+    ONE spacing default across all four; `$` is the only mode that changes
+    it; `_` is the explicit space. No per-destination spacing defaults.
+
+    THE LOAD-BEARING ROW, AND IT IS SECTION 3
+    -----------------------------------------
+    kantCorpus CLAIM KANT-23: DIVERSION BELONGS TO `print` ALONE, and that is
+    the ENTIRE REASON `cout` EXISTS. With a `printTO` diversion armed,
+    `print` goes to the buffer and `cout` MUST STILL REACH THE TERMINAL.
+    From source `cout` reads as a redundant second spelling of `print`; only
+    that rationale makes it load-bearing. Section 3 is the only row in the
+    project that tests it, and today it is WRONG -- see CLAIM GRAM-10.
+
+    THE GRAFT, AND WHY IT IS SCAFFOLDING AND NOT THE THING UNDER TEST
+    -----------------------------------------------------------------
+    `cout` and `cerr` do not exist natively yet. Round 1 (CLAIM GRAM-3) found
+    they can be grafted into the live WardeD at runtime with no shared file
+    touched. The graft is here for ONE reason: WITHOUT IT THIS FILE DOES NOT
+    RUN. An unmatched keyword abandons the rest of the file and still exits 0
+    (CLAIM GRAM-8), so an ungrafted `cout` on line 1 of the matrix deletes
+    every row after it, silently, at exit 0.
+
+    ⚠ THE GRAFTED `cout` IS `print` WEARING A DIFFERENT KEYWORD. It reaches
+    the same opPrint and is therefore DIVERTIBLE, which is exactly the
+    property `cout` must NOT have. So the graft can never make section 3
+    green, and it is not trying to. It makes sections 1-2 show the exact
+    bytes native `cout` must produce, and it makes section 3 show, in one
+    line, the thing that is wrong.
+
+    `cerr` is NOT scaffolded to stdout, and that asymmetry is deliberate:
+    scaffolding cout to stdout points at cout's REAL destination, whereas
+    scaffolding cerr to stdout would be a lie about where the bytes go. Its
+    label tag starts with 'c', so it mis-sinks to opString and the text is
+    silently discarded (CLAIM GRAM-2). Silence is the honest pin: there is no
+    stderr sink, and the bytes are lost.
+
+    WHAT HAPPENS TO THE GRAFT WHEN NATIVE `cout` LANDS -- MEASURED
+    --------------------------------------------------------------
+    It becomes INERT, and this file does not need editing to survive the
+    transition. A runtime graft lands at the TAIL of WardeD, and an EARLIER
+    WardeD alternative WINS the match (CLAIM GRAM-11, run). A native rule
+    defined in incant/grammar sits inside WardeD ahead of any tail graft, so
+    once `cout`/`cerr` are native THE NATIVE RULES ANSWER and the graft is
+    shadowed dead weight. The divergence files therefore flip because the
+    IMPLEMENTATION changed, not because the fixture was rewritten.
+
+    The rule names below are `Pf...Graft`, not `CoutXP`/`CerrXP`, so that a
+    native rule cannot be silently RE-OPENED and clobbered by these defines.
+
+    ⚠ WHEN YOU FLIP THIS FIXTURE GREEN, DELETE THE GRAFT BLOCK (down to the
+    guard) IN THE SAME COMMIT. It is inert, not harmless-forever: it names
+    `pCout`, and CLAIM GRAM-2's DEMOTED block is explicit that the `'p'`
+    first-character hack dies with the fix and must not be preserved or
+    designed around.
+
+    TARGETS
+        genLadder/printFamilyNew.divergence      stdout  -- WRONG, pinned
+        genLadder/printFamilyNew.err.divergence  stderr  -- WRONG, pinned
+*****************************************************************************/
+Start();
+search reset Grokking list;
+register(PrintFamilyNew);
+
+/*  ---- SCAFFOLDING GRAFT. DELETE WHEN cout/cerr GO NATIVE. ----
+    Two defines, not one: a bare reference to a method-bearing field INVOKES
+    it, so `WardeD += PfCoutGraft;` with ruleMethod already attached calls
+    aCTionPrinT and adds a number instead of grafting the rule. Define plain,
+    graft, then re-open to attach the method. CLAIM GRAM-1.                 */
+define
+    PfCoutGraft isRule pCout="cout"     followedBy PRINTing- stuff=PrintXP+ SemI-;
+    PfCerrGraft isRule cerrGraft="cerr" followedBy PRINTing- stuff=PrintXP+ SemI-;
+    ;
+WardeD += PfCoutGraft;
+WardeD += PfCerrGraft;
+define
+    PfCoutGraft ruleMethod=aCTionPrinT defer;
+    PfCerrGraft ruleMethod=aCTionPrinT defer;
+    ;
+guard(WardeD);
+/*  ---- END SCAFFOLDING GRAFT ----                                         */
+
+define
+    divBuf buffer;
+    n1; n2; n3; n4;
+    ;
+
+print "PN ==== 1. cout / UNARMED ====":;
+/*  RIGHT TODAY, and must stay right. These three are what native `cout`
+    must produce byte for byte -- compare them against printFamily.target's
+    PF-P-U-* rows, which are `print` with identical PrintXP.                */
+cout "PN-C-U-def" 1 2 3:;
+cout $"PN-C-U-dol" "joined":;
+cout $"PN-C-U-und" _ "spaced":;
+
+print "PN ==== 2. cerr / UNARMED ====":;
+/*  WRONG TODAY: all three produce NOTHING, on either stream. The rule
+    matches and consumes its text, then mis-sinks to opString and the value
+    is discarded (CLAIM GRAM-2, CLAIM GRAM-4).
+    MUST BECOME: three lines on stderr, byte-identical to the PN-C-U-* trio
+    above but for the row name -- ONE spacing default across all four
+    keywords (KANT-13). They belong in printFamilyNew.err.divergence, at
+    THIS point in the run, ahead of the section-5 flush.                    */
+cerr "PN-E-U-def" 1 2 3:;
+cerr $"PN-E-U-dol" "joined":;
+cerr $"PN-E-U-und" _ "spaced":;
+
+print "PN ==== 3. ARMING DIVERSION -- THE LOAD-BEARING SECTION ====":;
+printTO(divBuf);
+
+/*  the control: `print` under an armed diversion goes to the buffer. This is
+    correct today and stays correct -- it is KANT-23's other half.          */
+print "PN-P-A-def" 1 2 3:;
+
+/*  ############# THE LOAD-BEARING ROW #############
+    WRONG TODAY: these three go INTO divBuf and reach nothing. They show up
+    in printFamilyNew.err.divergence at the section-5 flush, mixed in with
+    the diverted `print` line above them -- which is the defect, stated in
+    bytes: grafted `cout` is divertible, and `cout` must not be.
+    MUST BECOME: these three on STDOUT, HERE, between the "ARMING" and
+    "RELEASED" markers, and ABSENT from the flush. `print` above them must
+    still be in the flush. Both halves have to move together; if only one
+    does, the diversion gate was widened rather than bypassed.
+    ############################################### */
+cout "PN-C-A-def" 1 2 3:;
+cout $"PN-C-A-dol" "joined":;
+cout $"PN-C-A-und" _ "spaced":;
+
+/*  WRONG TODAY: nothing, as in section 2.
+    MUST BECOME: three lines on stderr HERE, in statement order. `cerr` is
+    not divertible either (KANT-23) -- an armed diversion must not capture
+    them, so they must NOT appear in the section-5 flush.                   */
+cerr "PN-E-A-def" 1 2 3:;
+cerr $"PN-E-A-dol" "joined":;
+cerr $"PN-E-A-und" _ "spaced":;
+
+printTO(null);
+print "PN ==== 4. DIVERSION RELEASED ====":;
+
+print "PN ==== 5. FLUSHING THE DIVERSION BUFFER TO fd 2 ====":;
+/*  Everything the diversion actually swallowed comes out on stderr here.
+    TODAY that is PN-P-A-def plus all three PN-C-A-* rows.
+    AFTER it must be PN-P-A-def ALONE.                                      */
+divBuf modedOP "/dev/stderr";
+closeFile(divBuf);
+
+print "PN ==== 6. string, OMITTED FORM ====":;
+/*  KANT-13's table closes the family at four and parenthesises `string (and
+    its omitted form)`; KANT-15 rules that an OMITTED keyword must not change
+    semantics, because the user who omitted it chose nothing.
+    MEASURED TODAY, and it is neither -- see CLAIM GRAM-12:
+      n1/n2  spelled `string`, one term and two terms  -- CORRECT
+      n3     omitted, ONE term   -- value right, but a TRAILING SPACE that
+                                    the spelled form has. Already a semantic
+                                    difference under KANT-15.
+      n4     omitted, TWO terms  -- GARBAGE. Not a truncated or mis-spaced
+                                    answer: an uninitialised read. The token
+                                    it prints appears NOWHERE in the tree.
+    MUST BECOME: n3 == n1 and n4 == n2, byte for byte.
+    NOT INCLUDED, and deliberately: the omitted form with a shortcut
+    (`n = $"a" _ "b";`) does not parse and ABANDONS THE REST OF THE FILE at
+    exit 0 (CLAIM GRAM-8). Putting it here would silently delete the
+    sentinel. It is recorded in CLAIM GRAM-12 instead.                      */
+n1 = string "PN-O-one";
+print "spelled-1 [" n1 "]":;
+n2 = string "PN-O" "two";
+print "spelled-2 [" n2 "]":;
+n3 = "PN-O-one";
+print "omitted-1 [" n3 "]":;
+n4 = "PN-O" "two";
+print "omitted-2 [" n4 "]":;
+
+print "PN SENTINEL -- run reached the end; if this line is absent the run TRUNCATED":;
+stop();

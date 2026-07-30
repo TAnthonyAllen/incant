@@ -1,0 +1,17 @@
+PN ==== 1. cout / UNARMED ==== 
+PN-C-U-def 1 2 3 
+PN-C-U-doljoined
+PN-C-U-und spaced
+PN ==== 2. cerr / UNARMED ==== 
+PN ==== 3. ARMING DIVERSION -- THE LOAD-BEARING SECTION ==== 
+printToBuffer: diverting print output to divBuf
+printToBuffer: stopping print to buffer (buffer not reset)
+PN ==== 4. DIVERSION RELEASED ==== 
+PN ==== 5. FLUSHING THE DIVERSION BUFFER TO fd 2 ==== 
+PN ==== 6. string, OMITTED FORM ==== 
+spelled-1 [ PN-O-one  ] 
+spelled-2 [ PN-O two  ] 
+omitted-1 [ PN-O-one ] 
+omitted-2 [ xlInSet
+ ] 
+PN SENTINEL -- run reached the end; if this line is absent the run TRUNCATED 

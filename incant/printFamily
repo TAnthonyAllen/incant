@@ -1,0 +1,121 @@
+/*****************************************************************************
+    printFamily -- THE STABLE HALF of the print-family POP.
+    Grammar minion round 2, 2026-07-30.
+
+    WHAT THIS FILE IS FOR
+    ---------------------
+    Tony is about to change the print sink fork in C++: widen the sink
+    selection, route `cout` past the diversion check, add an `opCerr`
+    (kantCorpus CLAIM KANT-13 as COMPLETED, and CLAIM KANT-23). That change
+    has no POP. This file is half of it.
+
+    THIS HALF CONTAINS NO `cout` AND NO `cerr`, ON PURPOSE. It exercises only
+    the two keywords that ALREADY EXIST -- `print` and `string` -- across the
+    whole spacing and diversion matrix. Every row in it is GREEN TODAY and
+    MUST STILL BE GREEN AFTER TONY'S CHANGE.
+
+    That is the entire design idea, and it is the answer to "how does a
+    fixture survive an implementation change": THE HALF THAT MOST NEEDS TO
+    SURVIVE SURVIVES BY NOT PARTICIPATING. Nothing here grafts anything,
+    nothing here names a keyword that does not exist yet, so nothing here has
+    a before-state and an after-state. It is a pure regression net around the
+    fork being widened -- if broadening the sink selection disturbs `print` or
+    `string` in any way (spacing, shortcuts, diversion, the value path), the
+    byte-exact diff catches it and names the row.
+
+    The moving rows -- `cout`, `cerr`, and the omitted `string` form -- live
+    in the SIBLING file `incant/printFamilyNew`, whose target is a
+    `.divergence` because it is a PINNED WRONG ANSWER. Do not merge the two.
+
+    ORACLE: existing behaviour, byte-exact. Same trick genLadder/spell.target
+    plays on emitLeaf -- the current implementation is the fixture for the
+    next one.
+
+        genLadder/printFamily.target     stdout, byte-exact
+        genLadder/printFamily.captured   stderr, byte-exact (the diverted
+                                         buffer, flushed at the end)
+
+    WHY TWO STREAMS AND NOT ONE
+    ---------------------------
+    A diverted `print` produces NOTHING on stdout, so the armed rows would be
+    an absence-only assertion, and pop.sh's own rStuff comment is right that
+    an absence check passes by being deleted. Flushing the buffer turns them
+    into a PRESENCE assertion: the bytes have to show up, in order, in
+    printFamily.captured.
+
+    The flush goes to /dev/stderr and NOT /dev/stdout, and that is MEASURED,
+    not stylistic. A buffer flushed to /dev/stdout is an unbuffered write
+    while `print` goes through block-buffered tok `cout`, so the whole flush
+    lands at the TOP of the capture, before every line that logically
+    preceded it. Sharpens kantCorpus KANT-12's UPDATE, which recorded
+    ordering-across-the-flush as unsettled: for /dev/stdout it is settled and
+    it is wrong. See grammarCorpus CLAIM GRAM-9.
+
+    THE SENTINEL IS LOAD-BEARING -- READ THIS BEFORE ADDING A ROW
+    -------------------------------------------------------------
+    An incant parse failure ABANDONS THE REST OF THE FILE AND STILL EXITS 0
+    (CLAIM GRAM-8). A row that stops parsing does not fail loudly; it silently
+    deletes every row after it while the harness reports exit 0. That is
+    CLAUDE.md's "exited 0 is not passed" hazard in its purest form.
+    So: the last statement before stop() is a SENTINEL, and it is the reason
+    this file may be trusted at all. If the sentinel is missing from
+    printFamily.target, the run TRUNCATED -- do not chase the row that
+    diffed, find the row that stopped parsing.
+*****************************************************************************/
+Start();
+search reset Grokking list;
+register(PrintFamily);
+
+define
+    divBuf buffer;
+    vDef; vDollar; vUnder; vArmed;
+    ;
+
+print "PF ==== 1. print / UNARMED ====":;
+
+/*  keyword print x diversion UNARMED x spacing {default, $, $ with _}  */
+print "PF-P-U-def" 1 2 3:;
+print $"PF-P-U-dol" "joined":;
+print $"PF-P-U-und" _ "spaced":;
+
+print "PF ==== 2. string / UNARMED ====":;
+
+/*  keyword string x diversion UNARMED x spacing {default, $, $ with _}
+    `string` builds a VALUE, so the value is printed back to make it
+    observable. The print that reveals it is deliberately plain.           */
+vDef = string "PF-S-U-def" 1 2 3;
+print "[" vDef "]":;
+vDollar = string $"PF-S-U-dol" "joined";
+print "[" vDollar "]":;
+vUnder = string $"PF-S-U-und" _ "spaced";
+print "[" vUnder "]":;
+
+print "PF ==== 3. ARMING DIVERSION ====":;
+printTO(divBuf);
+
+/*  keyword print x diversion ARMED x spacing {default, $, $ with _}
+    These three MUST NOT appear on stdout. They must appear, in this order,
+    in printFamily.captured. That is KANT-23: diversion belongs to print.   */
+print "PF-P-A-def" 1 2 3:;
+print $"PF-P-A-dol" "joined":;
+print $"PF-P-A-und" _ "spaced":;
+
+/*  keyword string x diversion ARMED.
+    `string` has no stream, so a diversion must not touch it. The value is
+    built here, INSIDE the armed window, and read back OUTSIDE it.          */
+vArmed = string $"PF-S-A-und" _ "spaced";
+
+printTO(null);
+print "PF ==== 4. DIVERSION RELEASED ====":;
+print "[" vArmed "]":;
+
+/*  the release must be complete -- this one is on stdout again  */
+print "PF-P-R-def" 1 2 3:;
+
+/*  Flush the captured buffer to fd 2. Everything above that was diverted
+    lands in printFamily.captured, in order, HERE.                          */
+divBuf modedOP "/dev/stderr";
+closeFile(divBuf);
+
+print "PF SENTINEL -- run reached the end; if this line is absent the run TRUNCATED":;
+stop();

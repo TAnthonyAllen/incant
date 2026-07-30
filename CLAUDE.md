@@ -333,6 +333,27 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 >   which was broken underneath it the entire time. R held; R-as-a-proxy-for-clean-failure did not.
 >   Same failure family as the exit-status hole: one is about the instrument, the other about what
 >   the instrument covers.
+>
+> **⚠ THIRD COROLLARY, and it inverts the rule above: EXIT 0 IS NECESSARY BUT NOT SUFFICIENT.
+> AN INCANT PARSE FAILURE ABANDONS THE REST OF THE FILE AND STILL EXITS 0.** Found 2026-07-30
+> (grammar minion round 2, `CLAIM GRAM-8`; reproduced independently by foreman). A statement that
+> fails to parse prints `RunRulE: expected a method not <x>` on **stderr**, silently drops **every
+> statement after it**, emits **no `stop:` line**, flushes the output it already had, and returns
+> **0**. So the run is indistinguishable from a short, complete, successful one — and every
+> assertion that ran before the bad line still passes.
+>
+> **This is worse than the SIGSEGV case above, because 139 is at least visible.** A truncated
+> fixture reports green on the rows it reached and simply *does not have* the rows it didn't.
+>
+> **THE MITIGATION IS A SENTINEL, and every fixture should carry one:** print a known marker as
+> the LAST statement of the file and assert its presence *before* reading any other result. Absent
+> sentinel ⇒ the run truncated ⇒ every other "ok" in that run is uninterpretable, not merely
+> incomplete. `genLadder/printPop.sh` implements this (`sentinel` helper, checked first and by
+> name); it caught an injected truncating row while the run's own `... runs` check still said `ok`.
+>
+> **And the same file documents the shell-level twin: `${PIPESTATUS[0]}` is silently empty in
+> `zsh`** and reports every run as passing. Take `$?` directly from the binary, never through a
+> pipe. That one bit two separate agents on this project in a single day.
 
 ```
 testByteCode / testIfElse fixtures in incant/generate; init maximus=11, righty=13 (unitTests:82)
