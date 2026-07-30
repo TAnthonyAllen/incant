@@ -448,6 +448,34 @@ extern int jitRunAction(GroupItem action)
         gJitResult = B.CreateZExt(gJitResult, i32, "ret");   // i1 compare result -> i32
     B.CreateRet(gJitResult);
 
+    // ------------------------------------------------------------------
+    // THE VERIFIER. Added 2026-07-30. Until now NOTHING in the live tree
+    // called verifyFunction or verifyModule -- the only occurrences were in
+    // docs and in the archived XML/LLVM/codeGenerator. The consequence was
+    // measured, not supposed: INVALID IR COMPILED AND RETURNED GARBAGE.
+    // testIfElse on a false condition returned 83623936 and EXITED 0, with
+    // no diagnostic on any stream, because jitEmitGIF has no else arm and
+    // nothing ever asked LLVM whether the result was well-formed.
+    //
+    // Placed BEFORE mem2reg deliberately, for two reasons: it catches the
+    // EMITTER's own output rather than the optimiser's view of it, and it
+    // avoids running a transform pass over IR already known to be broken.
+    //
+    // REFUSES rather than warning. Loud refusal over quiet default, the same
+    // rule the genParse walk follows -- running a function LLVM has just
+    // called invalid is how the garbage return above happened. -5 is distinct
+    // from the existing -1..-4 so a caller can tell "IR was invalid" from
+    // "the engine failed".
+    // verifyFunction returns TRUE when the function is BROKEN.
+    if (llvm::verifyFunction(*fn, &llvm::errs())) {
+        fprintf(stderr,
+            "=== jitRunAction: INVALID IR for %s -- REFUSING to run it ===\n",
+            fnName);
+        fflush(stderr);
+        gJitBuilder = nullptr;
+        gJitResult  = nullptr;
+        return -5; }
+
     // mem2reg: promote field-slot allocas to SSA registers and let LLVM insert
     // phi nodes at merge points. A no-op on the current alloca-free straight-line
     // IR (the 24-POP battery proves it non-destructive) — the foundation gIF's
@@ -468,6 +496,33 @@ extern int jitRunAction(GroupItem action)
         FPM.addPass(llvm::PromotePass());
         FPM.run(*fn, FAM);
     }
+
+    // ------------------------------------------------------------------
+    // THE MODULE DUMP. The other half of the instrument, and the half that
+    // actually produces bones. The verifier above answers "is this IR
+    // well-formed"; it does NOT answer "is this IR the program I meant".
+    // Measured 2026-07-30: the verifier is SILENT on jitGifScratch and
+    // jitIfScratch, both exit 0 -- because a branch with a missing else arm
+    // is perfectly VALID IR that computes the wrong thing. Validity and
+    // correctness are different questions and only the dump reaches the
+    // second one.
+    //
+    // docs/jit.md S0 argues textual IR gives the JIT "a census, which it has
+    // never had". This is that census: until now there was no way to see the
+    // emitted IR at all, so every claim about what the emitters produce was
+    // read off the emitter source rather than off its output.
+    //
+    // OFF BY DEFAULT, and gated on an ENVIRONMENT VARIABLE rather than a
+    // GroupBody flag ON PURPOSE -- a new flag would shift the bitfield and
+    // drag in bear-trap #10's whole apparatus (groups.ext sync + tokall) for
+    // a debug switch. An env var costs nothing, touches no layout, and cannot
+    // move a baseline. Dumped AFTER mem2reg so what is printed is what runs.
+    //     INCANT_JIT_DUMP=1 <binary> incant/<fixture> 2>&1
+    if (::getenv("INCANT_JIT_DUMP")) {
+        llvm::errs() << "=== IR " << fnName << " (post-mem2reg) ===\n";
+        mod->print(llvm::errs(), nullptr);
+        llvm::errs() << "=== end IR " << fnName << " ===\n";
+        llvm::errs().flush(); }
 
     if (auto err = jit->addIRModule(
             llvm::orc::ThreadSafeModule(std::move(mod), std::move(ctx)))) {
