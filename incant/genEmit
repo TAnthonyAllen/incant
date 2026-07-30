@@ -72,12 +72,23 @@
        assigns it -- planTerm cannot nest an OPT inside an OPT. Do not add a
        post-call read without re-checking that.
 
-    3. THE ITERATOR IS A HANDLE; `wrapped <- inner` IS WHAT DEREFERENCES IT.
-       `inner.taG` answers "inner", not "CALL" -- runOP exempts an iterator in
-       TARGET position from the unwrap, so `inner :% sink` would hang the sink
-       attribute on the ITERATOR. In ARGUMENT position it does deref, which is
-       what `<-` exploits: `wrapped` ends up pointing at the real plan node, and
-       `wrapped :% sink` then lands on the node.
+    3. THE ITERATOR IS GONE FROM THIS BODY (2026-07-30) -- `wrapped :=
+       argument.firstMembeR;` replaces the whole three-line iterate/++/`<-`
+       dance. Byte-identical target, exit 0.
+
+       ⚠ ROUND 1 WAS RIGHT AND THE REVIEW WAS WRONG, and this is the useful
+       part. Review proposed `argument.firsT` as the simplification.
+       `.firsT` DOES NOT FILTER BY AFFILIATION (CLAIM KANT-17) -- it is plain
+       firstInList, and an OPT node is built `opt +% at;` THEN `opt += node;`,
+       so `.firsT` returns the `at` ATTRIBUTE, not the wrapped term. Round 1's
+       `iterate ... on argument MEMBERS` had the filtering right. The correct
+       simplification needed a member-filtered accessor that did not exist;
+       `.firstMembeR` (case 405) was added for this, and the same change fixed a
+       segfault in `.firsT`/`.lasT` on any leaf (CLAIM KANT-18).
+
+       The iterator claim itself still stands and is still worth reading --
+       CLAIM KANT-9, an iterator is a HANDLE and only ARGUMENT position derefs
+       it. It is simply no longer exercised HERE.
 
     KNOWN DIVERGENCES FROM THE C++, both on the refusal path, which no target
     covers -- recorded, not papered over (BLOCKED KANT-B1/B2):
@@ -97,14 +108,10 @@ define
         local = string $"t" at;
         kind = argument.taG;
         if kind == "OPT";
-            iterate inner on argument members;
-            if ++inner;
-                wrapped <- inner;
-                wrapped :% sink;
-                piece = this(wrapped);
-                leaf = string $"(" piece _ "|| 1)";
-            else
-                print "emitLeaf: OPT node has no wrapped term":;
+            wrapped := argument.firstMembeR;
+            wrapped :% sink;
+            piece = this(wrapped);
+            leaf = string $"(" piece _ "|| 1)";
         or kind == "MANY";
             leaf = string $"many" site "(" sink "," local ")";
         or kind == "CALL";

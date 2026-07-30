@@ -207,7 +207,31 @@ provenance:  incant/genEmit's spellLeaf, driven by `incant/spellScratch`
              returns null, and the call then dispatches on an empty node.
              `this` escapes it by being isLocal (ruleActions.rtn:193-195,
              `grup = NewGroup += "this"; grup.group = NewGroup;`).
-asOf:        2026-07-29
+asOf:        2026-07-30 — RE-TESTED AND IT HOLDS
+retest:      2026-07-30, foreman, on a tree changed in three relevant ways since
+             the original (rStuff-at-define, the iterator work, and the 403/404
+             fix). Swapped `this(wrapped)` -> `spellLeaf(wrapped)` in the shipped
+             body and ran incant/spellScratch:
+                 GroupItem add: Tried to add spellLeaf to itself
+                 EXIT=139, spell.target truncated
+             Identical signature to round 1's. NOT STALE — the mechanism is
+             insensitive to everything that moved. Reverted immediately; the
+             restored body is exit 0 and byte-identical.
+             ⚠ CONSEQUENCE, and it BLOCKS BRIEFED WORK: SEQ 32's step 4 ("this()
+             out, minted slot in") CANNOT PROCEED. It assumed removing `this()`
+             was possible and would arm KANT-8; it is not possible at this seam.
+             And under `this()` KANT-7 says locals are shared, so KANT-8 never
+             fires — meaning the minted carrier would pass here whether or not it
+             works, which is exactly the "green stub reads as coverage" failure
+             the speller pin exists to prevent. Step 4's stated value —
+             validating the workaround against a byte-exact oracle before
+             emitPlan needs it — is NOT obtainable this way.
+             THE ONE UNTRIED ROUTE, and it is this claim's own scope note: a
+             WARM-UP call (`spellLeaf(spellWarm);` as an ordinary incant
+             statement) made the self-name spelling compile clean. That would
+             give a real named self-call with real per-frame locals, which is
+             what step 4 wants. Untried in anger, and it trades one workaround
+             for another — Tony's/Clay's call, not foreman's.
 scope:       The DISCRIMINATOR IS NOT SETTLED and do not assume this is a
              universal ban on self-naming: `walk` in incant/iterT1 self-names
              and works (7 visits, correct order, POP-green), and so do
