@@ -49,7 +49,16 @@ diffcheck "census.target" genLadder/census.target "$T/cenp"
 #  wherever the exit flush lands rather than where they happened.
 $B incant/spellScratch > "$T/spo" 2> "$T/spe";  check "spellScratch runs" 0 $?
 sed -n '/^SPELL /,$p' "$T/spe" > "$T/sp"
-diffcheck "spell.target (emitLeaf, all 6 kinds + refusal)" genLadder/spell.target "$T/sp"
+#  ⚠ LABEL CORRECTED 2026-07-29, and the correction is foreman's own. This line
+#  used to read "all 6 kinds + refusal". BOTH HALVES OVERSTATED IT:
+#    - there are FIVE plan kinds, not six (LIT LITTO CALL MANY OPT)
+#    - `Limit`'s rows are the WALK's refusal (planTerm/planRule) plus
+#      dumpSpellings' own "no plan". emitLeaf's OWN refusal branch -- the
+#      "no emission for plan kind" arm -- is NEVER REACHED by this target,
+#      because a node the walk refuses never becomes a plan node to spell.
+#  So an emitter that dropped its refusal arm entirely would pass here. Minion A
+#  round 1 flagged it about its own conversion; the label was mine.
+diffcheck "spell.target (emitLeaf: 5 kinds x 2 sinks; emitter's own refusal NOT covered)" genLadder/spell.target "$T/sp"
 
 #  WHICH IMPLEMENTATION PRODUCED IT -- and this line is the whole answer to "a
 #  green stub reads as coverage". emitLeaf's fork is silent: with no kant speller
@@ -60,9 +69,14 @@ diffcheck "spell.target (emitLeaf, all 6 kinds + refusal)" genLadder/spell.targe
 #  PINNED, and the pin IS the acceptance test: flip `c++` to `kant` when the kant
 #  emitLeaf lands, and whoever flips it accounts for the flip. Same shape as
 #  tree.divergence flipping from asserting a divergence to asserting agreement.
-SPELLER="SPELLER c++"
+#  FLIPPED c++ -> kant, 2026-07-29, Minion A round 1. This was the acceptance
+#  test and it passed: spell.target stayed byte-identical while the implementation
+#  producing it changed language. The pin now guards the other direction -- if it
+#  ever reads c++ again, the kant speller stopped being found and the C++ body is
+#  quietly answering for it.
+SPELLER="SPELLER kant"
 if grep -qF "$SPELLER" "$T/spe"; then
-    echo "  ok    speller is c++ (pinned -- flip to kant when the kant emitLeaf lands)"
+    echo "  ok    speller is kant (flipped by round 1 -- c++ here again means the kant one is not being found)"
 else
     echo "  FAIL  speller pin MOVED:"
     grep "^SPELLER" "$T/spe" | sed 's/^/          actual:   /' || echo "          (no SPELLER line -- is spellMode still called from spellScratch?)"

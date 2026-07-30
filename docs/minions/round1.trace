@@ -1,0 +1,612 @@
+#### ROUND TRACE -- `a5f899019809a873d.output`
+
+```
+entries      275
+first        2026-07-30T00:17:12.368Z
+last         2026-07-30T00:53:01.947Z
+```
+
+**INPUT SURFACE — every path the round opened.** Harness §1: inputs are the corpus,
+the brief, and the rung target. Anything else here is background-orientation at best
+and a leak at worst; it is foreman's call, made against this list rather than against
+the round's own account of itself.
+
+```
+Commands.rtn
+docs/kantCorpus.md
+docs/minionAbrief.md
+genLadder/jsonTest.base
+genLadder/oneTest.base
+genLadder/pop.sh
+genLadder/spell.target
+genParse.rtn
+GroupActions.rtn
+GroupControl.twk
+GroupItem.h
+GroupItem.twk
+GroupMain.twk
+GroupRules.mm
+GroupRules.twk
+incant/directives
+incant/genEmit
+incant/generate
+incant/grammar
+incant/iterT1
+incant/oneTest
+incant/setup
+incant/spellScratch
+incant/unitTests
+incant/utilities
+Instruct.rtn
+Operate.rtn
+ruleActions.rtn
+```
+
+**WRITE SURFACE — Leak 3 says the corpus and the method, nothing else.**
+
+```
+1 Edit  /Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/docs/kantCorpus.md
+1 Edit  /Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/incant/genEmit
+1 Write  /Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/incant/genEmit
+```
+
+**ACTION TRACE**, in order. Truncated to 150 columns; the point is the shape of the
+round, not a replayable log.
+
+```
+say   I'll start by reading my brief and corpus.
+Read  /Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/docs/minionAbrief.md
+Read  /Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/docs/kantCorpus.md
+say   Now let me look at my method, the landing file, and the target.
+Bash  ls genLadder/ && echo "---GENEMIT---" && cat incant/genEmit && echo "---TARGET---" && cat genLadder/spell.target
+Bash  grep -n "emitLeaf\|locateSpeller\|spellLeaf\|Spellers" -r . --include=*.rtn --include=*.twk --include=*.sh --include=incant/* 2>/dev/null | head
+Read  /Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/genParse.rtn
+Bash  cat genLadder/pop.sh; echo "=== SPELLSCRATCH ==="; cat incant/spellScratch
+Bash  ls incant/ && wc -l incant/*
+Read  /Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/incant/utilities
+Bash  grep -n "operateMethod\|Operators" incant/setup | head -80
+Bash  sed -n '330,540p' genParse.rtn
+Bash  grep -n "string\|cerr\|stderr" incant/setup | head -40; echo "=== keywords ==="; grep -rn "'\$'\|shortcut" incant/setup | head -20
+Bash  sed -n '150,271p' incant/setup
+Bash  grep -n "string\|StrinG\|Shortcut\|'\\$'" incant/grammar | head -40
+Read  /Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/incant/grammar
+Bash  grep -rn "ShortcuT\|shortcut\|isShortcuT" --include=*.rtn --include=*.twk . | head -30
+Bash  sed -n '795,880p' ruleActions.rtn; echo "=== unitTests 1-60 ==="; sed -n '1,80p' incant/unitTests
+Bash  grep -n "string " incant/* | head -40
+Bash  grep -n "extern GroupItem opGet\b" -A 30 Commands.rtn Operate.rtn *.rtn 2>/dev/null | head -60
+Bash  grep -n "^GroupItem get(int\|GroupItem get(int\|get(int index\|GroupItem \*get(int" GroupItem.twk GroupItem.h | head
+Bash  sed -n '325,360p' GroupItem.twk; echo "=== nextMember/firstInList ==="; grep -n "firstMember\|GroupItem nextMember\|GroupItem firstInList" Group
+Bash  grep -n "extern GroupItem runAction" -A 40 GroupActions.rtn | head -60
+Bash  B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups && ls -la $B && $B incant/spellScratc
+Bash  sh genLadder/pop.sh; echo "EXIT=$?"
+Bash  grep -n "extern GroupItem register\b" -A 20 Commands.rtn | head -30; echo ===; grep -n "extern GroupItem registry\b" -A 20 Commands.rtn | head -
+Bash  grep -n "GroupItem register(\|GroupItem registry(" -A 18 Commands.rtn | head -50
+Bash  grep -rn " register(\| registry(" --include=*.rtn --include=*.twk . | grep -i "extern\|GroupItem reg" | head
+Bash  grep -rn "registry\b" --include=*.rtn . | grep -n "extern" | head -20; echo "---"; grep -rn "^extern.*regist" --include=*.rtn --include=*.twk . 
+Bash  grep -rn "getRegistry\|setRegistry\|\"register\"\|newRegistry" Commands.rtn | head -20
+Bash  sed -n '520,570p' Commands.rtn
+Bash  grep -n "GroupItem opEQ" -A 25 Instruct.rtn | head -40
+Bash  grep -nw "at\|slot\|site\|kind\|leaf\|piece\|local\|sink" incant/setup incant/grammar incant/unitTests incant/utilities | head -20
+Bash  grep -rn "bootCommands\|bootProperties\|bootKeywords" --include=*.rtn --include=*.twk . | head
+Bash  sed -n '20,90p' GroupMain.twk
+Read  /Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/incant/generate
+Read  /Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/incant/iterT1
+Bash  grep -n "ifTest\|testOR\|return null\|return this" -A 20 incant/unitTests | sed -n '1,120p'
+Bash  grep -n "return " incant/generate incant/unitTests incant/utilities incant/directives | head -30
+Bash  grep -rn "printTO" --include=*.rtn --include=*.twk . | head -10; echo "---"; grep -rn "GroupItem printTO" -A 20 Commands.rtn | head -30
+Bash  grep -n "GroupItem opPrint" -A 45 Instruct.rtn | head -60
+Bash  sed -n '796,830p' Instruct.rtn
+Bash  grep -n "GroupItem replace(" -A 25 GroupItem.twk | head -35
+Bash  grep -n "GroupItem addAttribute(" -A 20 GroupItem.twk | head -28; echo "--- addGroup ---"; grep -n "GroupItem addGroup(" -A 30 GroupItem.twk | h
+say   Now I'll write the kant `spellLeaf`.
+Read  /Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/incant/genEmit
+Edit  /Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/incant/genEmit
+Bash  B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups && $B incant/spellScratch > /tmp/sp.o
+Bash  python3 - <<'EOF'
+import re,io
+p='incant/genEmit'
+s=open(p).read()
+i=s.index('registry(Spellers);')
+head=s[:i]
+body='''registry(Spellers);
+define
+    spellLeaf argument code={
+        leaf = "hello";
+        return leaf;
+        };
+    ;
+'''
+open(p,'w').write(head+body)
+EOF
+B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups; $B incant/spellScratch > /tmp/sp.o 2>/tmp/
+Bash  cat > /tmp/setbody.py <<'PYEOF'
+import sys
+p='/Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/incant/genEmit'
+s=open(p).read()
+i=s.index('registry(Spellers);')
+open(p,'w').write(s[:i]+open(sys.argv[1]).read())
+PYEOF
+cat > /tmp/b2 <<'EOF'
+registry(Spellers);
+define
+    spellLeaf argument code={
+        :argument at sink slot site;
+        local = string $"t" at;
+        return local;
+        };
+    ;
+EOF
+python3 /tmp/setbody.py /tmp/b2
+B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups; $B incant/spellScratch > /tmp/sp.o 2>/tmp/
+Bash  sed -n '25,50p' /tmp/sp.e
+Bash  cat > /tmp/b3 <<'EOF'
+registry(Spellers);
+define
+    spellLeaf argument code={
+        :argument at sink slot site;
+        local = string $"t" at;
+        kind = argument.taG;
+        leaf = string $kind ":" local ":" sink ":" slot ":" site;
+        return leaf;
+        };
+    ;
+EOF
+python3 /tmp/setbody.py /tmp/b3
+B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups; $B incant/spellScratch > /tmp/sp.o 2>/tmp/
+Bash  cat > /tmp/b4 <<'EOF'
+registry(Spellers);
+define
+    spellLeaf argument code={
+        :argument at sink slot site;
+        local = string $"t" at;
+        kind = argument.taG;
+        leaf = string $kind "[" argument "]";
+        return leaf;
+        };
+    ;
+EOF
+python3 /tmp/setbody.py /tmp/b4
+B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups; $B incant/spellScratch > /tmp/sp.o 2>/tmp/
+Bash  cat > /tmp/b5 <<'EOF'
+registry(Spellers);
+define
+    spellLeaf argument code={
+        :argument at sink slot site;
+        local = string $"t" at;
+        kind = argument.taG;
+        leaf = string $"lit(" local "," '"' argument '"' ")";
+        return leaf;
+        };
+    ;
+EOF
+python3 /tmp/setbody.py /tmp/b5
+B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups; $B incant/spellScratch > /tmp/sp.o 2>/tmp/
+Bash  cat > /tmp/b6 <<'EOF'
+registry(Spellers);
+define
+    spellLeaf argument code={
+        :argument at sink slot site;
+        local = string $"t" at;
+        kind = argument.taG;
+        if kind == "MANY";
+            leaf = string $"many" site "(" sink "," local ")";
+        or kind == "CALL";
+            leaf = string $"parseR(" local "," sink ")";
+        or kind == "LIT";
+            leaf = string $"lit(" local "," '"' argument '"' ")";
+        or kind == "LITTO";
+            if sink == "into";
+                leaf = string $"litOption(" local ",into," '"' argument '"' ")";
+            else
+                leaf = string $"litTo(" local ",label," '"' argument '"' "," '"' slot '"' ")";
+        else
+            leaf = string $"OTHER:" kind;
+        return leaf;
+        };
+    ;
+EOF
+python3 /tmp/setbody.py /tmp/b6
+B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups; $B incant/spellScratch > /tmp/sp.o 2>/tmp/
+Bash  cat > /tmp/b7 <<'EOF'
+registry(Spellers);
+define
+    spellLeaf argument code={
+        :argument at sink slot site;
+        local = string $"t" at;
+        kind = argument.taG;
+        if kind == "OPT";
+            iterate inner on argument members;
+            if ++inner;
+                leaf = string $"OPT[" inner.taG "]";
+            else
+                leaf = "NOINNER";
+        or kind == "MANY";
+            leaf = string $"many" site "(" sink "," local ")";
+        or kind == "CALL";
+            leaf = string $"parseR(" local "," sink ")";
+        or kind == "LIT";
+            leaf = string $"lit(" local "," '"' argument '"' ")";
+        or kind == "LITTO";
+            if sink == "into";
+                leaf = string $"litOption(" local ",into," '"' argument '"' ")";
+            else
+                leaf = string $"litTo(" local ",label," '"' argument '"' "," '"' slot '"' ")";
+        else
+            leaf = string $"OTHER:" kind;
+        return leaf;
+        };
+    ;
+EOF
+python3 /tmp/setbody.py /tmp/b7
+B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups; $B incant/spellScratch > /tmp/sp.o 2>/tmp/
+Bash  grep -n "iterAdvance\|aCTionIterate\|iterBind\|iterSpins" -B2 -A 45 Instruct.rtn | head -130
+Bash  sed -n '540,600p' Instruct.rtn; echo "=== aCTionIterate ==="; grep -n "aCTionIterate" -A 40 ruleActions.rtn | head -60
+Bash  grep -n "GroupItem opAddAttribute" -A 20 Instruct.rtn; echo "=== runOP ==="; sed -n '593,680p' GroupActions.rtn
+Bash  cat > /tmp/b8 <<'EOF'
+registry(Spellers);
+define
+    spellLeaf argument code={
+        :argument at sink slot site;
+        local = string $"t" at;
+        kind = argument.taG;
+        if kind == "OPT";
+            iterate inner on argument members;
+            if ++inner;
+                wrapped <- inner;
+                wrapped :% sink;
+                piece = spellLeaf(wrapped);
+                leaf = string $"(" piece " || 1)";
+            else
+                leaf = "NOINNER";
+        or kind == "MANY";
+            leaf = string $"many" site "(" sink "," local ")";
+        or kind == "CALL";
+            leaf = string $"parseR(" local "," sink ")";
+        or kind == "LIT";
+            leaf = string $"lit(" local "," '"' argument '"' ")";
+        or kind == "LITTO";
+            if sink == "into";
+                leaf = string $"litOption(" local ",into," '"' argument '"' ")";
+            else
+                leaf = string $"litTo(" local ",label," '"' argument '"' "," '"' slot '"' ")";
+        else
+            leaf = string $"OTHER:" kind;
+        return leaf;
+        };
+    ;
+EOF
+python3 /tmp/setbody.py /tmp/b8
+B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups; $B incant/spellScratch > /tmp/sp.o 2>/tmp/
+Bash  grep -n "printDefinition" -A 40 incant/unitTests | sed -n '1,60p'
+Bash  B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups
+run () { python3 /tmp/setbody.py $1; $B incant/spellScratch > /tmp/sp.o 2>/tmp/sp.e; echo "$1 EXIT=$?"; grep -c "Tried to add" /tmp/sp.e; grep -n "OPT
+sed 's/                piece = spellLeaf(wrapped);/                spellLeaf(wrapped);/; s/leaf = string \$"(" piece " || 1)";/leaf = "BARECALL";/' /t
+grep -n "spellLeaf(wrapped)\|BARECALL" /tmp/b9
+run /tmp/b9
+Bash  B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups
+cat > /tmp/c1 <<'EOF'
+registry(Spellers);
+define
+    spellLeaf argument code={
+        kind = argument.taG;
+        if kind == "NEVER";
+            spellLeaf(argument);
+        leaf = "hello";
+        return leaf;
+        };
+    ;
+EOF
+python3 /tmp/setbody.py /tmp/c1; $B incant/spellScratch > /tmp/sp.o 2>/tmp/sp.e; echo "EXIT=$?"; head -8 /tmp/sp.e
+Bash  B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups
+cat > /tmp/c2 <<'EOF'
+register(Spellers);
+define
+    spellLeaf argument code={
+        kind = argument.taG;
+        if kind == "NEVER";
+            spellLeaf(argument);
+        leaf = "hello";
+        return leaf;
+        };
+    ;
+EOF
+python3 /tmp/setbody.py /tmp/c2; $B incant/spellScratch > /tmp/sp.o 2>/tmp/sp.e; echo "EXIT=$?"; head -10 /tmp/sp.e
+Bash  B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups
+cat > /tmp/c3 <<'EOF'
+register(Spellers);
+define
+    spellLeaf argument code={
+        kind = argument.taG;
+        if kind == "NEVER";
+            spellLeaf(argument);
+        leaf = "hello";
+        return leaf;
+        };
+    ;
+spellLeaf(righty);
+EOF
+python3 /tmp/setbody.py /tmp/c3; $B incant/spellScratch > /tmp/sp.o 2>/tmp/sp.e; echo "EXIT=$?"; head -10 /tmp/sp.e
+Bash  cat > /tmp/setbody.py <<'PYEOF'
+import sys,re
+p='/Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/incant/genEmit'
+s=open(p).read()
+m=re.search(r'^regist(ry|er)\(Spellers\);',s,re.M)
+open(p,'w').write(s[:m.start()]+open(sys.argv[1]).read())
+PYEOF
+B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups
+python3 /tmp/setbody.py /tmp/c3; $B incant/spellScratch > /tmp/sp.o 2>/tmp/sp.e; echo "EXIT=$?"; head -10 /tmp/sp.e
+Bash  grep -n "processCode" -A 40 GroupActions.rtn | head -60
+Bash  grep -n "aCTionNamE" -A 80 ruleActions.rtn | head -100
+Bash  grep -n "GroupItem locateInMethod" -A 30 *.rtn *.twk | head -40; echo "=== locate ==="; grep -n "GroupItem locate(" -A 40 GroupRules.twk | head 
+Bash  grep -c "Tried to add" genLadder/oneTest.base genLadder/jsonTest.base 2>/dev/null; grep -n "Tried to add" genLadder/*.base genLadder/*.target 2>
+Bash  grep -rn "isCoded" --include=*.rtn --include=*.twk . | head -20
+Bash  grep -n "printDefinition\|search\|include" incant/oneTest | head -20; echo "=== base tail ==="; tail -35 genLadder/oneTest.base
+Bash  grep -n "sumple\|quinto\|sexto" genLadder/oneTest.base | head -20
+Bash  sed -n '55,68p' incant/oneTest
+Bash  grep -rn "GroupItem locate(String" -A 40 GroupControl.twk | head -50
+Bash  grep -n "aCTionNamE" GroupRules.mm | head; 
+Bash  sed -n '570,625p' GroupRules.mm
+Bash  sed -n '180,245p' ruleActions.rtn
+Bash  B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups
+cat > /tmp/d1 <<'EOF'
+registry(Spellers);
+define
+    spellLeaf argument code={
+        :argument at sink slot site;
+        local = string $"t" at;
+        kind = argument.taG;
+        if kind == "OPT";
+            iterate inner on argument members;
+            if ++inner;
+                wrapped <- inner;
+                wrapped :% sink;
+                piece = this(wrapped);
+                leaf = string $"(" piece " || 1)";
+            else
+                leaf = "NOINNER";
+        or kind == "MANY";
+            leaf = string $"many" site "(" sink "," local ")";
+        or kind == "CALL";
+            leaf = string $"parseR(" local "," sink ")";
+        or kind == "LIT";
+            leaf = string $"lit(" local "," '"' argument '"' ")";
+        or kind == "LITTO";
+            if sink == "into";
+                leaf = string $"litOption(" local ",into," '"' argument '"' ")";
+            else
+                leaf = string $"litTo(" local ",label," '"' argument '"' "," '"' slot '"' ")";
+        else
+            leaf = string $"OTHER:" kind;
+        return leaf;
+        };
+    ;
+EOF
+python3 /tmp/setbody.py /tmp/d1; $B incant/spellScratch > /tmp/sp.o 2>/tmp/sp.e; echo "EXIT=$?"; sed -n '/^SPELL /,$p' /tmp/sp.e > /tmp/sp.t; diff gen
+Bash  grep -n "processFlags" -A 60 Commands.rtn | head -80
+Bash  grep -rn "useDefaultSpace" --include=*.rtn --include=*.twk . | head -20
+Bash  sed -n '1,80p' GroupActions.rtn; echo "=== 400-425 ==="; sed -n '400,425p' GroupActions.rtn
+Bash  B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups
+sed 's|leaf = string \$"(" piece " || 1)";|leaf = string $"(" piece _ "|| 1)";|' /tmp/d1 > /tmp/d2
+grep -n 'piece' /tmp/d2
+Bash  B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups
+python3 - <<'EOF'
+s=open('/tmp/d1').read()
+s=s.replace('leaf = string $"(" piece " || 1)";','leaf = string $"(" piece _ "|| 1)";')
+open('/tmp/d2','w').write(s)
+EOF
+grep -n 'piece _' /tmp/d2
+python3 /tmp/setbody.py /tmp/d2; $B incant/spellScratch > /tmp/sp.o 2>/tmp/sp.e; echo "EXIT=$?"; sed -n '/^SPELL /,$p' /tmp/sp.e > /tmp/sp.t; diff gen
+Bash  B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups
+python3 - <<'EOF'
+s=open('/tmp/d2').read()
+s=s.replace('leaf = string $"(" piece _ "|| 1)";','leaf = string $"(" piece _ "|| 1) k=" kind;')
+open('/tmp/d3','w').write(s)
+EOF
+python3 /tmp/setbody.py /tmp/d3; $B incant/spellScratch > /tmp/sp.o 2>/tmp/sp.e; echo "EXIT=$?"; grep -n "OPT sink" /tmp/sp.e | head -4
+Bash  B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups
+python3 - <<'EOF'
+s=open('/tmp/d2').read()
+s=s.replace('piece = this(wrapped);','piece = spellLeaf(wrapped);')
+s=s.replace('leaf = string $"(" piece _ "|| 1)";','leaf = string $"(" piece _ "|| 1) k=" kind;')
+s=s.replace('    spellLeaf argument code={','    spellWarm;\n    spellLeaf argument code={')
+s=s.rstrip('\n')+'\nspellLeaf(spellWarm);\n'
+open('/tmp/e1','w').write(s)
+EOF
+cat /tmp/e1
+python3 /tmp/setbody.py /tmp/e1; $B incant/spellScratch > /tmp/sp.o 2>/tmp/sp.e; echo "EXIT=$?"; grep -n "OPT sink\|Tried to add" /tmp/sp.e | head -6
+Bash  B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups
+python3 - <<'EOF'
+s=open('/tmp/e1').read()
+s=s.replace('                piece = spellLeaf(wrapped);\n                leaf = string $"(" piece _ "|| 1) k=" kind;',
+            '                print "OPTBRANCH entered":;\n                piece = spellLeaf(wrapped);\n                print "OPTBRANCH back piece=" p
+open('/tmp/e2','w').write(s)
+EOF
+python3 /tmp/setbody.py /tmp/e2; $B incant/spellScratch > /tmp/sp.o 2>/tmp/sp.e; echo "EXIT=$?"; grep -n "OPT sink" /tmp/sp.e|head -4; grep -n "OPTBRA
+Bash  sed -n '/^SPELL /,$p' /tmp/sp.e | head -20
+Bash  B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups
+python3 - <<'EOF'
+s=open('/tmp/e1').read()
+s=s.replace('spellLeaf(spellWarm);','search Spellers list;\nspellLeaf(spellWarm);')
+open('/tmp/e3','w').write(s)
+EOF
+tail -3 /tmp/e3
+python3 /tmp/setbody.py /tmp/e3; $B incant/spellScratch > /tmp/sp.o 2>/tmp/sp.e; echo "EXIT=$?"; grep -n "Tried to add" /tmp/sp.e | head -3; sed -n '/
+Bash  B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups
+cat > /tmp/f1 <<'EOF'
+registry(Spellers);
+define
+    spellLeaf argument code={
+        :argument at sink slot site;
+        local = string $"t" at;
+        kind = argument.taG;
+        if kind == "OPT";
+            iterate inner on argument members;
+            if ++inner;
+                wrapped <- inner;
+                wrapped :% sink;
+                piece = this(wrapped);
+                leaf = string $"(" piece _ "|| 1)";
+            else
+                print "emitLeaf: OPT node has no wrapped term":;
+                return;
+        or kind == "MANY";
+            leaf = string $"many" site "(" sink "," local ")";
+        or kind == "CALL";
+            leaf = string $"parseR(" local "," sink ")";
+        or kind == "LITX";
+            leaf = string $"lit(" local "," '"' argument '"' ")";
+        or kind == "LITTO";
+            if sink == "into";
+                leaf = string $"litOption(" local ",into," '"' argument '"' ")";
+            else
+                leaf = string $"litTo(" local ",label," '"' argument '"' "," '"' slot '"' ")";
+        else
+            print "emitLeaf: no emission for plan kind" kind:;
+            return;
+        return leaf;
+        };
+    ;
+EOF
+python3 /tmp/setbody.py /tmp/f1; $B incant/spellScratch > /tmp/sp.o 2>/tmp/sp.e; echo "EXIT=$?"; sed -n '/^SPELL /,$p' /tmp/sp.e | head -6; echo "-- s
+Bash  B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups
+for v in "return null;" "return leaf;" ; do
+python3 - "$v" <<'EOF'
+import sys
+s=open('/tmp/f1').read()
+s=s.replace('            print "emitLeaf: no emission for plan kind" kind:;\n            return;','            print "emitLeaf: no emission for plan k
+open('/tmp/f2','w').write(s)
+EOF
+python3 /tmp/setbody.py /tmp/f2; $B incant/spellScratch > /tmp/sp.o 2>/tmp/sp.e; echo "=== [$v] EXIT=$?"; sed -n '/^SPELL /,$p' /tmp/sp.e | sed -n '3,
+done
+Bash  B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups
+for v in 'clear(leaf);
+            return leaf;' 'leaf = "";
+            return leaf;' ; do
+python3 - "$v" <<'EOF'
+import sys
+s=open('/tmp/f1').read()
+s=s.replace('            print "emitLeaf: no emission for plan kind" kind:;\n            return;','            print "emitLeaf: no emission for plan k
+open('/tmp/f2','w').write(s)
+EOF
+python3 /tmp/setbody.py /tmp/f2; $B incant/spellScratch > /tmp/sp.o 2>/tmp/sp.e; echo "=== [$v] EXIT=$?"; sed -n '/^SPELL /,$p' /tmp/sp.e | sed -n '3,
+done
+say   Now the final version with the header documenting what I found.
+Write  /Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/incant/genEmit
+Read  /Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/incant/genEmit
+Bash  cat > /tmp/final_genEmit <<'XEOF'
+/*****************************************************************************
+    genEmit -- genParse's emitter side, IN KANT.
+
+    This is where converted methods land. `emitLeaf` is the first one: register a
+    `spellLeaf` here and the C++ `emitLeaf` (genParse.rtn) routes to it instead
+    of running its own body; register nothing and the C++ body runs unchanged.
+
+    THE INTERFACE, which is the C++ fork's side of the seam (genParse.rtn,
+    `locateSpeller`/`spellKant`):
+
+        registry            Spellers      -- and only a registry of that name
+        action              spellLeaf     -- and only under that name
+        argument            the PLAN NODE  (tag is the kind: LIT LITTO CALL
+                                            MANY OPT)
+        argument.sink       an attribute, "label" or "into" -- the FOLD's
+                            decision, so it is the one thing genuinely external
+                            to the node
+        returns             a field whose content is the spelling
+
+    `local` is NOT passed. It derives from the node's own `at` attribute, which
+    every node carries INCLUDING an OPT's wrapped inner node -- planTerm builds
+    `at` before the OPT wrap, so both end up with the same index.
+
+    WHEN A SPELLER IS REGISTERED ITS ANSWER IS AUTHORITATIVE, INCLUDING NULL.
+    There is no fallback on a null result: falling back would mean a kant bug
+    silently produced the right text, and the handover is only worth anything if
+    a kant defect is VISIBLE.
+
+    THE ORACLE IS `genLadder/spell.target`, captured from the C++ emitLeaf while
+    it was still the only implementation. All six plan kinds and the refusal
+    path, both sinks on every node.
+
+    -------------------------------------------------------------------------
+    THREE THINGS ABOUT THIS BODY THAT ARE NOT OPTIONAL. Each cost a run to find
+    and each is written up in docs/kantCorpus.md (CLAIM KANT-6/7/8/9).
+
+    1. RECURSION IS SPELLED `this(...)`, NOT `spellLeaf(...)`. The self-name
+       spelling that walk/printDefinition/toXML use does NOT work through this
+       seam: the first invocation dies with
+
+           GroupItem add: Tried to add spellLeaf to itself      EXIT=139
+
+       aCTionNamE resolves the bare name to the action and then adds it to
+       itself. `this` is the local every coded field gets at define time
+       (ruleActions.rtn, NewGroup += "this"), is flagged isLocal, and so takes
+       none of that path.
+
+    2. NOTHING MAY READ A LOCAL AFTER THE RECURSIVE CALL except the call's own
+       result. `this(...)` does not trip the field.recursive inference (that test
+       is a syntactic identity check against currentMETHOD), so locals are NOT
+       per-frame here: probing `kind` after the call read CALL/LIT, the INNER
+       frame's value, not OPT. `piece` is safe only because the inner frame never
+       assigns it -- planTerm cannot nest an OPT inside an OPT. Do not add a
+       post-call read without re-checking that.
+
+    3. THE ITERATOR IS A HANDLE; `wrapped <- inner` IS WHAT DEREFERENCES IT.
+       `inner.taG` answers "inner", not "CALL" -- runOP exempts an iterator in
+       TARGET position from the unwrap, so `inner :% sink` would hang the sink
+       attribute on the ITERATOR. In ARGUMENT position it does deref, which is
+       what `<-` exploits: `wrapped` ends up pointing at the real plan node, and
+       `wrapped :% sink` then lands on the node.
+
+    KNOWN DIVERGENCES FROM THE C++, both on the refusal path, which no target
+    covers -- recorded, not papered over (BLOCKED KANT-B1/B2):
+      - the C++ diagnostics go to stderr (cerr); incant `print` reaches stdout
+        or a buffer and there is no stderr spelling, so these lines land on the
+        other stream.
+      - the C++ returns NULL to refuse. No kant spelling produces a null across
+        runAction: `return;` yields "return", `return null;` yields "0",
+        `return <unset local>;` yields the local's tag, `leaf = "";` yields
+        "quoteBody". So a kant refusal is LOUD but not REFUSING -- emitPlan would
+        take the junk text as a spelling.
+*****************************************************************************/
+registry(Spellers);
+define
+    spellLeaf argument code={
+        :argument at sink slot site;
+        local = string $"t" at;
+        kind = argument.taG;
+        if kind == "OPT";
+            iterate inner on argument members;
+            if ++inner;
+                wrapped <- inner;
+                wrapped :% sink;
+                piece = this(wrapped);
+                leaf = string $"(" piece _ "|| 1)";
+            else
+                print "emitLeaf: OPT node has no wrapped term":;
+        or kind == "MANY";
+            leaf = string $"many" site "(" sink "," local ")";
+        or kind == "CALL";
+            leaf = string $"parseR(" local "," sink ")";
+        or kind == "LIT";
+            leaf = string $"lit(" local "," '"' argument '"' ")";
+        or kind == "LITTO";
+            if sink == "into";
+                leaf = string $"litOption(" local ",into," '"' argument '"' ")";
+            else
+                leaf = string $"litTo(" local ",label," '"' argument '"' "," '"' slot '"' ")";
+        else
+            print "emitLeaf: no emission for plan kind" kind:;
+        return leaf;
+        };
+    ;
+XEOF
+cp /tmp/final_genEmit incant/genEmit
+B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups
+$B incant/spellScratch > /tmp/sp.o 2>/tmp/sp.e; echo "EXIT=$?"; sed -n '/^SPELL /,$p' /tmp/sp.e > /tmp/sp.t; diff genLadder/spell.target /tmp/sp.t && 
+Bash  grep -in "error\|warning\|fail" /tmp/sp.e /tmp/sp.o | head; echo "=== POP ==="; sh genLadder/pop.sh; echo "EXIT=$?"
+say   Target green, pin correctly red. Now writing the claim records into the corpus.
+Read  /Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/docs/kantCorpus.md
+Edit  /Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups/docs/kantCorpus.md
+Bash  sh genLadder/pop.sh 2>&1 | tail -14; echo "=== git status ==="; git status --short
+Bash  sed -n '/^registry(Spellers);/,$p' incant/genEmit
+say   Round complete. Report:  ## 1. The kant `spellLeaf` — target is GREEN  Landed in `/Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Gro
+```

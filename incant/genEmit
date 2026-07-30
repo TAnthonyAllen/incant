@@ -1,11 +1,9 @@
 /*****************************************************************************
     genEmit -- genParse's emitter side, IN KANT.
 
-    This is where converted methods land. It is a STUB: the registry exists and
-    holds nothing, so `locateSpeller` finds no `spellLeaf` and the C++ emitLeaf
-    runs. Every target is green in that state, which is exactly the hazard
-    `spellMode` exists to expose -- `sh genLadder/pop.sh` asserts WHICH
-    implementation is live, so an empty stub cannot read as coverage.
+    This is where converted methods land. `emitLeaf` is the first one: register a
+    `spellLeaf` here and the C++ `emitLeaf` (genParse.rtn) routes to it instead
+    of running its own body; register nothing and the C++ body runs unchanged.
 
     THE INTERFACE, which is the C++ fork's side of the seam (genParse.rtn,
     `locateSpeller`/`spellKant`):
@@ -19,6 +17,25 @@
                             to the node
         returns             a field whose content is the spelling
 
+    ⚠ AND THAT RETURN LINE HAS A TRAP IN IT, found by round 1 reading it against
+    the runtime. "A field whose content is the spelling" silently assumes that
+    field is a LOCAL -- and a local is exactly what gets emptied on the way out
+    if the action is `recursive`, because runAction calls restoreLocalFields
+    AFTER processAction and before returning (corpus CLAIM KANT-8, and it is a
+    live bug in runAction, not a kant rule). Measured, three ways:
+
+        return a LOCAL                      -> EMPTIED
+        return the ARGUMENT                 -> survives      <- the idiom
+        mint a node, hold it in a local     -> EMPTIED
+
+    So it is about which SLOT the returned pointer is, not about node identity.
+    A recursive value-returning kant action carries its result out through the
+    ARGUMENT until runAction is fixed, and fixing it is Tony's call.
+
+    The shipped spellLeaf sidesteps this by recursing with `this(...)`, which
+    does NOT set `recursive` (CLAIM KANT-7) -- so its locals are not per-frame
+    either. KANT-6/7/8 are one knot and must be read together.
+
     `local` is NOT passed. It derives from the node's own `at` attribute, which
     every node carries INCLUDING an OPT's wrapped inner node -- planTerm builds
     `at` before the OPT wrap, so both end up with the same index.
@@ -31,5 +48,76 @@
     THE ORACLE IS `genLadder/spell.target`, captured from the C++ emitLeaf while
     it was still the only implementation. All six plan kinds and the refusal
     path, both sinks on every node.
+
+    -------------------------------------------------------------------------
+    THREE THINGS ABOUT THIS BODY THAT ARE NOT OPTIONAL. Each cost a run to find
+    and each is written up in docs/kantCorpus.md (CLAIM KANT-6/7/8/9).
+
+    1. RECURSION IS SPELLED `this(...)`, NOT `spellLeaf(...)`. The self-name
+       spelling that walk/printDefinition/toXML use does NOT work through this
+       seam: the first invocation dies with
+
+           GroupItem add: Tried to add spellLeaf to itself      EXIT=139
+
+       aCTionNamE resolves the bare name to the action and then adds it to
+       itself. `this` is the local every coded field gets at define time
+       (ruleActions.rtn, NewGroup += "this"), is flagged isLocal, and so takes
+       none of that path.
+
+    2. NOTHING MAY READ A LOCAL AFTER THE RECURSIVE CALL except the call's own
+       result. `this(...)` does not trip the field.recursive inference (that test
+       is a syntactic identity check against currentMETHOD), so locals are NOT
+       per-frame here: probing `kind` after the call read CALL/LIT, the INNER
+       frame's value, not OPT. `piece` is safe only because the inner frame never
+       assigns it -- planTerm cannot nest an OPT inside an OPT. Do not add a
+       post-call read without re-checking that.
+
+    3. THE ITERATOR IS A HANDLE; `wrapped <- inner` IS WHAT DEREFERENCES IT.
+       `inner.taG` answers "inner", not "CALL" -- runOP exempts an iterator in
+       TARGET position from the unwrap, so `inner :% sink` would hang the sink
+       attribute on the ITERATOR. In ARGUMENT position it does deref, which is
+       what `<-` exploits: `wrapped` ends up pointing at the real plan node, and
+       `wrapped :% sink` then lands on the node.
+
+    KNOWN DIVERGENCES FROM THE C++, both on the refusal path, which no target
+    covers -- recorded, not papered over (BLOCKED KANT-B1/B2):
+      - the C++ diagnostics go to stderr (cerr); incant `print` reaches stdout
+        or a buffer and there is no stderr spelling, so these lines land on the
+        other stream.
+      - the C++ returns NULL to refuse. No kant spelling produces a null across
+        runAction: `return;` yields "return", `return null;` yields "0",
+        `return <unset local>;` yields the local's tag, `leaf = "";` yields
+        "quoteBody". So a kant refusal is LOUD but not REFUSING -- emitPlan would
+        take the junk text as a spelling.
 *****************************************************************************/
 registry(Spellers);
+define
+    spellLeaf argument code={
+        :argument at sink slot site;
+        local = string $"t" at;
+        kind = argument.taG;
+        if kind == "OPT";
+            iterate inner on argument members;
+            if ++inner;
+                wrapped <- inner;
+                wrapped :% sink;
+                piece = this(wrapped);
+                leaf = string $"(" piece _ "|| 1)";
+            else
+                print "emitLeaf: OPT node has no wrapped term":;
+        or kind == "MANY";
+            leaf = string $"many" site "(" sink "," local ")";
+        or kind == "CALL";
+            leaf = string $"parseR(" local "," sink ")";
+        or kind == "LIT";
+            leaf = string $"lit(" local "," '"' argument '"' ")";
+        or kind == "LITTO";
+            if sink == "into";
+                leaf = string $"litOption(" local ",into," '"' argument '"' ")";
+            else
+                leaf = string $"litTo(" local ",label," '"' argument '"' "," '"' slot '"' ")";
+        else
+            print "emitLeaf: no emission for plan kind" kind:;
+        return leaf;
+        };
+    ;

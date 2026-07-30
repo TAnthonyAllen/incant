@@ -50,6 +50,22 @@ absorbing while the filesystem does the work. **The confound laundered through d
 Foreman's own notes, the ledger, and the log are exempt **only because they are not read
 by the loop** — enforced by Leak 1's input list, not by good intentions.
 
+### ⚠ AND THAT EXEMPTION WAS UNVERIFIABLE UNTIL ROUND 1 — `roundTrace.sh`
+*"Enforced by Leak 1's input list, not by good intentions"* named the mechanism and
+supplied no instrument. There was no way to answer the leak question except to ask the
+round, **which is the round reporting on its own compliance** — the same defect as
+grading a claim by the agent that wrote it, one level up.
+
+> **`sh docs/minions/roundTrace.sh <agent-transcript.jsonl>` — run it EVERY round, and
+> read its WRITE SURFACE before reading anything the round says.**
+
+It reports every path opened (via `Read` **and** via the file arguments of `Bash` lines,
+because `cat X` reads X exactly as `Read` does), every path written, and the action trace.
+Round 1's: **write surface clean** — corpus + method, nothing else — and an input surface
+of **31 paths**, all brief-permitted background, none of them this file or the ledger. So
+the exemption held in practice on its first measured round. Added on Clay's suggestion
+after Tony noticed a round's status lines going past unrecorded.
+
 ---
 
 ## 2. THE METRIC — claim survival, not corrections-per-method

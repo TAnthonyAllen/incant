@@ -17,7 +17,18 @@ A **brief revision breaks the series.** Correction counts do not compare across 
 
 | round | method | corrections | claims drafted | corr. with NO claim | claims defeated | regression | series |
 |---|---|---|---|---|---|---|---|
-| — | *none yet* | — | — | — | — | — | — |
+| **1** | `emitLeaf` | **2** (both foreman, both vs KANT-8) — *provisional, Tony has not reviewed* | **8** (KANT-6…12 + KANT-B1) | **0** | n/a — baseline | **green** | 1 |
+
+**Round 1's number IS entered, because the format HELD.** Eight records fit the
+claim/BLOCKED fields with **no field added, none repurposed, and no wording
+changed**. The pre-registered threshold was *"a format change that would alter
+what an earlier round would have written breaks the series"* — no change was
+needed at all, so nothing breaks and the series starts at 1. That was the cheap
+outcome and it is the one that happened.
+
+⚠ **The correction count is PROVISIONAL. Tony rules on style and has not reviewed.**
+Banking `2` before that review would be exactly the contamination the deferral
+exists to prevent, in the other direction.
 
 **Corrections** = distinct critique points Tony or foreman raised. Each one cites the
 claim ID it defeats, or `NEW`.
@@ -82,6 +93,12 @@ dispatch"*. **There is no `emitTerm` in the source** — it is `emitLeaf`
 **Target: `genLadder/spell.target`** (new), via `incant/spellScratch` +
 `dumpSpellings`. It did not exist; authoring it is foreman work per harness §4.
 Six plan kinds and the refusal path, both sinks on every node.
+> ⚠ **That last sentence was WRONG when written, and it is left standing with this
+> correction beside it rather than edited away — a pre-spawn note that gets tidied
+> after the fact is not a pre-spawn note.** There are **five** kinds, and the
+> refusal in the target is the **walk's** (`planTerm`/`planRule`), not the
+> emitter's — `emitLeaf`'s own refusal arm is never reached, because the walk
+> refuses anything the emitter would. Round 1 caught it. See the result note below.
 
 **Three things recorded now so they are not interpreted after the fact:**
 
@@ -159,9 +176,110 @@ Same category as the git-history residual above.
 Nothing before it has one, and the standing checks list gains a line so no later
 round is graded on foreman's memory of a scroll.
 
-*(round 1's result and its full trace follow below when it lands — a partial trace
-is deliberately NOT pasted here, because a record that looks complete and is not is
-the failure this file spends most of its length guarding against)*
+### ROUND 1 — RESULT. Target green, pin flipped, and it found a live bug.
+
+**Gate, run by foreman and not taken on the round's word** (harness §5, all five):
+
+| gate item | result |
+|---|---|
+| toks clean | **n/a and correctly so** — `incant/genEmit` is incant source read at runtime. No `tok`, no build. The round asked for neither. |
+| reproduces its target byte-for-byte | **yes.** `spell.target` unmoved while the implementation producing it changed language. |
+| regression surface green | **yes.** All 7 rung targets, census, rStuff audit, all 3 iterator fixtures, both baselines. `sh genLadder/tree.sh` exit 0 too. |
+| checked against claims on the books | yes — and it *extended* two of the seeded ones rather than colliding with them |
+| exit status checked | yes. `pop.sh` exit 0 after the pin flip; `spellScratch` exit 0 with full output. |
+
+**THE ACCEPTANCE TEST PASSED:** the speller pin read `SPELLER kant`, so the POP
+went red on exactly the one line that was *supposed* to. Pin flipped `c++`→`kant`;
+it now guards the other direction — reading `c++` again means the kant speller
+stopped being found and the C++ body is quietly answering for it.
+
+**LEAK CHECK — the first thing that matters, and now answered mechanically** from
+`docs/minions/round1.trace` rather than from the round's account of itself:
+
+```
+WRITE SURFACE   docs/kantCorpus.md   +   incant/genEmit        <- and nothing else
+INPUT SURFACE   31 paths
+```
+**Leak 3 held exactly.** The input surface is 31 paths — every one background the
+brief explicitly permits (*"background you may read to orient"*), and none of them
+`minionAHarness.md`, `minionAledger.md` or `minions/`, so the exemption held **in
+practice** and not only on paper. The 31 is itself a datum: harness §6 priced
+re-orientation as the cost of the measurement, and this is the first actual figure.
+
+**⚠ IT USED THE ITERATOR, which the pick was made to avoid.** Clay chose `emitLeaf`
+partly because *"emitTerm NEEDS NO ITERATOR — it is a table, not a walk"*, decoupling
+round 1 from the iterator docket. True of the table; **false of the round.** `OPT`
+wraps a term, and reaching it took `iterate inner on argument members` — so the
+iterator work finished the same morning was load-bearing for round 1 after all, and
+KANT-9 is a claim about iterator semantics. The decoupling argument was right about
+the schedule and wrong about the dependency; the schedule survived because the
+iterator happened to be done first.
+
+#### WHAT ROUND 1 FOUND, ranked by what it costs to not know
+
+1. **KANT-8 is a LIVE LATENT BUG in `runAction`, not a kant idiom.** With
+   `field.recursive` set, `restoreLocalFields` runs *after* `processAction` and
+   before the return, so an action returning one of its own locals hands back that
+   local **reverted to its pre-call state**. Confirmed independently by foreman on
+   a fixture with no `spellLeaf`, no C++ seam and no warm-up — two identical bodies
+   differing only by an **unreached** self-mention. **It is the same function whose
+   `saveLocalFields` was fixed hours earlier**, and it is a second, independent
+   hole in the same frame machinery. *The fix is Tony's* — both obvious candidates
+   touch the interpreter's hot path.
+2. **KANT-B1: a kant action cannot return NULL across `runAction`** (IDIOM-GAP,
+   grepped first, five attempts with output pasted). **The consequence is live:**
+   the shipped `spellLeaf` is *loud* on an unknown kind but does not *refuse*, so
+   `emitPlan` would take junk text as a spelling. **No target covers it** — see the
+   `pop.sh` label correction below, which is the same hole from the other side.
+3. **KANT-6/7 together:** recursion is `this(...)`, and `this(...)` does **not** set
+   `recursive`, so it does not get per-frame locals. They must be read as a pair —
+   the fix for one is the price of the other.
+
+#### CORRECTIONS — 2, both foreman's, both against KANT-8, both produced claim text
+
+1. **Provenance could not isolate the mechanism.** The round's evidence had to dodge
+   the KANT-6 crash with a warm-up call, so it could not separate *"restore empties
+   the result"* from *"the recursive call misbehaved."* Foreman re-ran with the
+   recursive call **never taken**. Separated. → claim strengthened.
+2. **The scope named the decisive probe and did not run it** (*"not verified whether
+   returning the ARGUMENT dodges it"*). That probe decides whether kant recursion is
+   *usable at all*, so leaving it unrun left the claim true and unactionable. Run:
+   returning the **argument survives**, returning a local is emptied, and **minting a
+   fresh node does NOT dodge it** — so it is about which *slot* the returned pointer
+   is, not about node identity. → claim extended, and A's step 3 now has an idiom.
+
+**Every correction produced claim text; corrections (2) do not exceed claims (8).**
+So harness §3's (c) — thin claims — does not fire, and the low count is not the
+under-writing signal. §3's other two: **(a) no leak** (write surface clean), **(b) not
+too easy** (a segfault, a latent runtime bug, and a genuine BLOCKED). Foreman's
+reading: the baseline is honest. **But it is provisional until Tony reviews.**
+
+#### TWO CORRECTIONS THAT WENT THE OTHER WAY — the round corrected FOREMAN
+
+1. **The brief-slot text.** It said *"returns a field whose content is the spelling"* —
+   true, but it silently assumes that field is a **local**, which is exactly what
+   KANT-8 empties. The stated interface and the runtime were in tension and the
+   round said so. Fixed in `incant/genEmit`'s contract.
+2. **`pop.sh`'s own label** said *"all 6 kinds + refusal."* **Both halves overstated
+   it:** there are **five** kinds, and `Limit`'s rows are the **walk's** refusal
+   (`planTerm`/`planRule`) plus `dumpSpellings`' own "no plan" — **`emitLeaf`'s own
+   refusal arm is never reached by the target.** An emitter that dropped its refusal
+   branch entirely would pass. Label corrected; the gap is now stated, not implied.
+
+*These are worth more than the two corrections above.* A round that reads its
+foreman's fixture closely enough to catch an overstated label is a round whose
+compliance claims are worth something.
+
+#### STILL OPEN OUT OF ROUND 1
+
+- **`runAction`'s restore-after-return** (KANT-8) — Tony's call, and it blocks a
+  value-returning recursive kant action, which is what `emitPlan` will be.
+- **Refusal across the seam** (KANT-B1) — the round's suggested first move is to
+  return the argument with a flag stamped via `:.` and have the C++ side test the
+  flag rather than the pointer. Untried.
+- **`emitLeaf`'s own refusal arm is untargeted.** Cheapest close: a plan node of a
+  kind the emitter does not know, which needs a synthetic node, since the walk
+  refuses anything the emitter would.
 
 ---
 
@@ -173,6 +291,10 @@ the failure this file spends most of its length guarding against)*
 - [ ] previous rounds' targets currently green (run the regression surface *before* spawning,
       so a pre-existing break is not attributed to the new round)
 - [ ] foreman holds the build; agent has not been asked to `xcodebuild` or `tokall`
+- [ ] **AFTER the round: `sh docs/minions/roundTrace.sh <transcript>`, and read its WRITE
+      SURFACE before reading anything the round says.** Added after round 1. Until it
+      existed the leak question could only be answered by asking the round, which is the
+      round reporting on its own compliance.
 
 **Round 1's run of that list, 2026-07-29 (all five):** fresh spawn, no inherited context ·
 brief unchanged, zero revisions · corpus + `incant/genEmit` are the only writable surfaces ·
