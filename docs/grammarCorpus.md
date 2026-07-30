@@ -164,7 +164,46 @@ scope:       Explains why the existing pair works: PrinT's first term is the
              agrees with it -- but it encodes the choice in a field NAME rather
              than in anything the language can see, which is why a third sink
              cannot be added without touching the fork.
+DEMOTED:     2026-07-30, Tony (SEQ 33). ⚠ THE FACTS ABOVE ALL STAND AND ARE
+             RUN. What is withdrawn is an inference that WAS NOT IN THIS CLAIM
+             AND WAS ADDED IN RELAY BY FOREMAN: "Tony's KANT-13 ruling is right
+             in design but NOT EXPRESSIBLE in the implementation."
+             THAT IS FALSE. `command.tag == 'p'` is simply an ABBREVIATION for
+             `command.tag eq "print"` that got away with one character because
+             two arms was all it ever had to discriminate. Widen the test to
+             name the keyword and the constraint evaporates entirely. VERIFIED
+             by foreman against source, 2026-07-30: `eq` string comparison is
+             available and already used twice in the SAME FILE
+             (ruleActions.rtn:349 `op.tag eq "="`, :907 `UnaryOPS.tag eq "-"`).
+             ⇒ CONSEQUENCE FOR ANYONE ACTING ON THIS: do NOT write a mitigating
+             comment warning that a print keyword must begin with 'p', and do
+             NOT preserve `pCout`'s name as load-bearing. REMOVE THE FRAGILITY.
+             pCout's load-bearing-ness dies with the fix, and a comment
+             documenting a hazard that is being deleted is worse than nothing --
+             it teaches the next reader to design around something gone.
 ```
+
+> ### ⚠ THE PROPAGATION, LOGGED — three readers, one unchecked tree claim
+>
+> Worth more than the correction itself, and it is the day's pattern one level up.
+>
+> | who | what they did | what they did not do |
+> |---|---|---|
+> | the minion | read `opPrint`'s two arms correctly, inferred a structural bar | — |
+> | foreman | verified the *reading*, then carried the inference further to "not expressible" | never re-derived the `'p'` test's **meaning** from source |
+> | Clay | checked the inference against the reading | never checked the reading against the tree |
+>
+> **Nobody re-derived the test from source. Everybody re-derived it from the previous
+> reader.** It took Tony opening the file. This is worse than an ordinary bad tree claim,
+> because each of the three had grounds to believe someone else had checked — verification
+> was *performed at every step* and still never touched the tree at the one point that
+> mattered.
+>
+> **The tell, and it generalises:** when a claim passes through readers, ask what each one
+> actually re-derived. "I verified X" and "I verified someone's reading of X" are different
+> acts and read identically in a report. Related to bear-trap #19's corollary but distinct:
+> there the search space was wrong; here the *chain* was intact and the *ground* was never
+> touched.
 **PROPOSAL, ROW 2, NOT BUILT — for Tony.** The fork wants to be a lookup, not a character
 test. The shape that costs least and changes no existing behaviour: give the print-family
 rules a `sink=` attribute (`sink=stdout` / `sink=stderr` / `sink=value`), have aCTionPrinT

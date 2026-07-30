@@ -477,6 +477,22 @@ provenance:  Tony's ruling, dictated in chat. Corroborated in the grammar:
                  else                   return opString(command,buffer);
              One walk, one buffer, two exits. That fork is the whole difference.
 asOf:        2026-07-30
+COMPLETED:   2026-07-30, Tony (SEQ 33) — THE FAMILY IS NOW CLOSED AT FOUR:
+
+               keyword                    destination   divertible
+               print                      stdout        YES (printTo)
+               cout                       stdout        no
+               cerr                       stderr        no
+               string (and omitted form)  a value       n/a
+
+             ONE spacing default across all four. `$` is the ONLY mode that ever
+             changes it. `_` is the explicit space. There are NO per-destination
+             spacing defaults — a `cout`-specific default was drafted for this
+             corpus and Tony's cut removed it before it landed.
+             ⚠ AND THE CLAIM CAME OUT OF THAT STRONGER, WHICH IS THE POINT: a
+             per-sink spacing default would have been the first crack in
+             "the keyword selects only the sink", written INTO the corpus by the
+             people holding the ruling. One mechanism survived contact.
 scope:       This is why adding cout/cerr is SMALL. The language is not gaining a
              feature; it is gaining two sinks. Anything that makes a sink differ
              in SPACING or PARSING is out of spec, not an enhancement.
@@ -768,6 +784,42 @@ scope:       ⚠ THIS IS NOT A `spellLeaf` PROBLEM AND THAT IS THE WHOLE POINT.
              that hazard. It IS exercised against the aliasing hazard, which
              fires at depth 1 under sharing (KANT-21). Label any such fixture
              loudly or the next reader takes green for coverage.
+```
+
+### CLAIM KANT-23 — DIVERSION BELONGS TO `print` ALONE, and that is the entire reason `cout` exists
+```
+statement:   `printTo` diversion is a property of `print` and of nothing else.
+             `cout` and `cerr` are NOT divertible, by design and not by omission.
+             So when a diversion is armed, `cout` STILL REACHES THE TERMINAL —
+             which is the whole reason the keyword exists. Cake, and eating it.
+             `cerr` is not divertible either: a user who wants to capture
+             diagnostics prints them into a buffer DELIBERATELY. That is data
+             they built, not an error channel intercepted — and the capability
+             was never missing.
+confidence:  RULING (Tony, 2026-07-30, SEQ 33)
+provenance:  Tony's ruling. Mechanism located and VERIFIED in source by foreman:
+             the diversion gate is a single `if toBUFFER` INSIDE `opPrint`
+             (Instruct.rtn:775-787) —
+                 if toBUFFER  toBUFFER += printText;
+                 else         cout printText;
+             — with `toBUFFER` set by `printToBuffer` (Commands.rtn:444). So
+             "route cout past the diversion check to the stdout arm" names a
+             place that actually exists. Note also that `opPrint` ALREADY uses
+             tok-level `cout` and `cerr`, so the output primitives are present
+             and a third sink does not need one invented.
+asOf:        2026-07-30
+scope:       ⚠ THIS IS THE CLAIM MOST WORTH HAVING WRITTEN DOWN, and the reason
+             is a general one: **from source, the existence of `cout` reads as
+             arbitrary — a redundant second spelling of `print`. From the
+             rationale it is obvious and load-bearing.** A reader who finds
+             `cout` in the tree and not this claim will eventually "simplify" it
+             away, because nothing in the code says why a second stdout keyword
+             is not duplication. That gap — obvious-given-why, arbitrary-given-
+             what — is exactly what a corpus is for, and it is the same class as
+             KANT-15 (a design principle recoverable from nobody's reading of
+             the source).
+             Says nothing about whether a FUTURE sink should be divertible; the
+             ruling covers these four.
 ```
 
 ---
