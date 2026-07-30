@@ -281,6 +281,116 @@ compliance claims are worth something.
   kind the emitter does not know, which needs a synthetic node, since the walk
   refuses anything the emitter would.
 
+### ROUND 2 — PRE-SPAWN (foreman, 2026-07-30). Written BEFORE the round ran, and BEFORE the spawn is scheduled.
+
+**THE ROUND IS HELD. It is not blocked on a decision — it is blocked on a
+DEPENDENCY that was discovered while picking the target, and the honest place to
+record that is here, before a target is chosen under time pressure.**
+
+#### Why the target changed at all, and why the SERIES DOES NOT BREAK
+
+Clay's SEQ 32 (G5) asked round 2 to re-run on **the same target**, `emitLeaf`, as a
+controlled comparison of the corpus itself — starved (round 1) vs fed (round 2).
+Foreman's objection, accepted by Clay:
+
+> **G5 is a REVISION, not a conversion, and the frozen brief's one variable is
+> `<METHOD>` in the sentence "Convert `<METHOD>` from C++ to kant."** Round 2 on
+> `emitLeaf` would be told to convert something already converted. And the
+> comparison would not be controlled anyway: a controlled comparison needs the same
+> TASK and the same TARGET, and this has the same target with a *different task* —
+> plus round 2 would be reading code round 1 wrote, so it is not amnesia-clean
+> either.
+
+Resolution: **G5's revision is foreman's, by hand. Round 2 fires on a genuinely
+unconverted method with the brief UNTOUCHED.** Changing `<METHOD>` is *exactly what
+the brief's one variable is for*, so **the series continues at 1** — no revision is
+logged, because none is needed.
+
+**What round 2 now measures is weaker, and naming it is the point:** not
+same-target starved-vs-fed, but **corpus-fed vs corpus-starved on DIFFERENT
+methods**. Difficulty is therefore a confound, and it must be pre-registered rather
+than argued about afterwards.
+
+#### ⚠ THE DEPENDENCY NOBODY PREDICTED — every remaining emitter is gated on `cerr`
+
+Measured across `genParse.rtn`, 2026-07-30 (`lines` = extern body, `cerr` = count of
+`cerr` statements in it):
+
+| extern | lines | cerr | kant-viable today? |
+|---|---|---|---|
+| `foldOf` | 5 | 0 | ✅ |
+| `countRuleTerms` | 10 | 0 | ✅ |
+| `unresolvedTerms` | 10 | 0 | ✅ |
+| `row42` | 16 | 0 | ✅ |
+| `dataName` | 19 | 0 | ✅ |
+| `printPlan` | 21 | 6 | ❌ |
+| `emitMany` | 21 | 11 | ❌ |
+| `planRule` | 38 | 4 | ❌ |
+| `emitPlan` | 86 | 14 | ❌ |
+| `planTerm` | 141 | 11 | ❌ |
+
+**`kant` HAS NO STDERR (CLAIM KANT-12).** `print` reaches stdout or a buffer, never
+stderr. And every remaining emitter/walker in genParse writes its **PRODUCT** — not
+merely its diagnostics — via `cerr`. The byte-exact targets those methods are graded
+against (`census.target`, `rung5.target`) are **captured from stderr**. So a kant
+version of any of them cannot reproduce its own target, at all, for a reason that has
+nothing to do with the round's competence.
+
+**This is also the real reason `emitLeaf` was convertible and looked easy.** It is
+the one emitter that *returns a String* rather than printing its product; its two
+`cerr` lines are the refusal arms only — which is precisely where round 1's kant
+version is KNOWN to diverge (BLOCKED KANT-B2), and precisely what `spell.target`
+does not cover. The pick that "needed no iterator" also happened to be the only pick
+that needed no stderr. Neither property was noticed when it was made.
+
+> **CONSEQUENCE: Minion A round 2 has no emitter-shaped target until the grammar
+> minion delivers `cerr` (SEQ 32, G3).** That is a hard cross-minion dependency,
+> discovered rather than designed, and it is the first one in this project.
+
+#### THE PRE-REGISTERED CALL — made now, before the grammar outcome is known
+
+**PREFERRED, and the round is HELD for it: `emitMany`.**
+- leaf-level ✅ · byte-exact oracle ✅ (`genLadder/rung5.target`, already pinned in
+  `pop.sh`) · **table-shaped ❌** — and that ❌ is pre-registered as a KNOWN
+  MISMATCH, not discovered later.
+- **DIFFICULTY: emitMany is STRICTLY SIMPLER than emitLeaf.** 21 lines vs 43; two
+  attribute reads, one refusal guard, then eleven straight emission lines. **No
+  dispatch table, no recursion, no `sink`, no second parameter.** `emitLeaf` has six
+  kinds, self-recursion for `OPT`, and three parameters.
+- **So if round 2 scores better, an easier target is a live alternative explanation,
+  and it is written down HERE, before the round, so it cannot be argued away after.**
+  A better score on `emitMany` is *consistent with* the corpus hypothesis and is
+  *not evidence for it*.
+
+**FALLBACK if `cerr` does not land: `row42`** (16 lines, pure classifier, returns a
+String, no stderr). Closer to emitLeaf in SHAPE — it is a genuine classification
+table — but further in SIZE, and **it has no oracle in `pop.sh`**, so foreman would
+have to author one first (harness §4, as `spell.target` was authored for round 1).
+The difficulty confound is *worse* here, not better: every cerr-free candidate is
+smaller than `emitLeaf`.
+
+**REJECTED: `printPlan`.** Best shape match on paper — five parallel attribute
+probes, direct self-recursion (the exact shape CLAIM KANT-19 just measured), and the
+strongest oracle in the tree (`census.target`, plan-level, explicitly designed to
+"survive the kant emitter unchanged"). Rejected on the cerr gate alone, and it is
+the first target to reconsider once `cerr` exists. It would also be the first round
+to need the **multi-argument idiom** (it takes `plan` AND `pad`), which is NOT in the
+corpus — a genuine gap, and a good one, but one difficulty variable at a time.
+
+#### FOREMAN OWES BEFORE ANY SPAWN — the fork, and it is not a parameter change
+
+Round 1's seam is **`emitLeaf`-specific**: `locateSpeller()` looks for the action
+`spellLeaf` in a registry literally named `Spellers`, and `spellKant(speller,node,sink)`
+carries `emitLeaf`'s exact signature. `emitMany` returns `int` and takes one argument,
+so **a second fork is real C++ work plus a rebuild** — foreman's, before the spawn,
+exactly as round 1's fork was proven before its spawn. Logged now so it is not
+discovered on spawn day and rushed.
+
+**Per round 1's precedent, the spawn may carry the INTERFACE** (registry, action
+name, argument shape, return) as target definition without touching the frozen
+brief — that is not learning carried forward, and it was logged rather than left
+implicit last time too.
+
 ---
 
 ## STANDING CHECKS BEFORE EACH SPAWN
