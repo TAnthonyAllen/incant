@@ -1,0 +1,89 @@
+/*****************************************************************************
+    concatT -- the fixture for 35a: implicit concatenation through `+=`.
+
+    SEQ 35 amended. `field += this that and the other` concatenates instead of
+    copying a list. The arm sits ABOVE opPlusEQ's isLIST->copyListTo
+    short-circuit and routes through appendGroup + opString, inheriting
+    appendGroup's own list traversal rather than rebuilding one.
+
+    SENTINEL AT THE FOOT, and it is load-bearing: an incant parse failure
+    abandons the rest of the file AND EXITS 0 (CLAUDE.md testing doctrine,
+    third corollary), so a truncated run would otherwise read as a short
+    successful one. This fixture's FIRST draft died exactly that way.
+
+    ⚠ THREE FINDINGS THIS FIXTURE ENCODES. Read them before changing the arm.
+
+    1. NO PRINT SHORTCUT PARSES IN `+=` ARGUMENT POSITION. `$`, `_` and `,+`
+       ALL fail to parse there (`ERROR processCode: <action> parse failed`).
+       CAUSE, per Tony: **ExpressioN does not deal with shortcuts -- PrintXP
+       handles those.** The right-hand side of `+=` is an ExpressioN, and the
+       shortcut vocabulary lives one grammar rule away. A known design boundary,
+       not an accident, and Tony's read is that it is not a big deal.
+       BUT NOTE THE CONSEQUENCE FOR THIS FEATURE: `+=` concatenation is
+       DEFAULT-SPACING-ONLY. There is no way to write the no-space form that
+       `string $"t" at` uses throughout genEmit, so the omitted form is not a
+       drop-in replacement for the spelled one wherever `$` is in play.
+       The brief's "$ is free -- useDefaultSpace is state outside the call,
+       toggled inside appendGroup, nothing to set up" is exactly right about the
+       MECHANISM and says nothing about REACHABILITY. That is the round-2 lesson
+       generalised: a mechanism verified in the machinery is not thereby
+       reachable from the surface, and only the surface was untested.
+
+    2. A STRING TARGET WITH CONTENT IS *REPLACED*, NOT APPENDED, and that is
+       inconsistent with `+=` itself:
+           pre = "start"; pre += "x";        ->  [ startx ]     APPENDS
+           pre = "start"; pre += "a" "b";    ->  [ a b  ]       REPLACES
+       Cause: opString does `target.text = toString()` -- assignment. The
+       one-token narrowing is to drop `|| isSTRING || isTOKEN` from the arm's
+       condition, leaving `!data`, which matches the brief's own sentence
+       "empty is precisely no data". NOT DONE UNILATERALLY -- the condition was
+       written deliberately and the alternative (pre-loading the buffer with
+       the target's existing text) changes spacing semantics between the two
+       paths. Tony's/Clay's ruling.
+
+    3. CONCATENATION LEAVES A TRAILING SPACE under default spacing --
+       `x += "a" "b"` yields `a b ` (note the trailing blank), which is why the
+       expected lines below show two spaces before the closing bracket.
+
+    NOT COVERED, deliberately: `x = "a" "b"` is 35b's path, not this one, and it
+    currently yields `xlInSet` -- an uninitialised read. Confirmed here to sit on
+    `=` and NOT on `+=`, which is what the amended brief predicted.
+
+    ⚠ AND ONE TRAP THIS FIXTURE FELL INTO ITSELF, worth the line: row 2 was
+    first written with the local named `one` and printed `[ one ]` -- the field's
+    own TAG, i.e. unset (CLAIM KANT-10). The identical statement worked in
+    isolation. `one` COLLIDES with an existing name, so the assignment went
+    somewhere else entirely and the failure was SILENT. Renaming to `solo` fixed
+    it with no other change. Same family as the `debug` scar: a name collision
+    with a node that happens to carry no visible contents produces a
+    plausible-looking result and nothing complains. GREP A LOCAL'S NAME BEFORE
+    USING IT IN A FIXTURE, even a throwaway one.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(utilities);
+
+search reset stack Grokking UnitTests Utilities list;
+
+register(ConcatTest);
+define
+    runConcat code={
+        empty += "a" "b" "c";
+        print "1 fresh target      [" empty "]":;
+        solo += "a";
+        print "2 single value      [" solo "]":;
+        pre = "start";
+        pre += "x";
+        print "3 string + scalar   [" pre "]":;
+        two = "start";
+        two += "a" "b";
+        print "4 string + LIST     [" two "]":;
+        num = 5;
+        num += 1 2;
+        print "5 numeric target    [" num "]":;
+        };
+    ;
+
+runConcat();
+print "CT SENTINEL":;
+stop();
