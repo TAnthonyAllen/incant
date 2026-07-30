@@ -1,0 +1,123 @@
+/*****************************************************************************
+    nameRecurse -- SEQ 31 step 0. TWO questions, one run, both GREEN (exit 0).
+
+    ---------------------------------------------------------------------
+    Q1. DOES A NAMED SELF-CALL TRIP THE `recursive` INFERENCE?  -> YES.
+    ---------------------------------------------------------------------
+    The one thing source cannot answer. saveLocalFields/restoreLocalFields are
+    readable (GroupActions.rtn:687/516) and so is runAction's
+    `if field.recursive` gate (:570/572) -- what is NOT readable is whether a
+    bare named self-call sets `recursive`, because the inference is a syntactic
+    identity check against currentMETHOD (ruleActions.rtn) and `this(...)`
+    demonstrably does NOT trip it (corpus CLAIM KANT-7).
+
+    `probe` assigns a scalar local, recurses BY NAME, then reads its own local
+    AFTER the call -- the read genEmit's note 2 forbids under `this()`.
+
+        PER-FRAME (recursive IS set):  each AFTER reads its OWN frame's mark.
+        SHARED    (NOT set):           every AFTER reads L-deep, the innermost.
+
+    MEASURED: ENTER outer/inner/deep then AFTER deep/inner/outer, each AFTER
+    pairing with its own ENTER. PER-FRAME. So removing `this()` from spellLeaf
+    ARMS KANT-8 exactly as SEQ 31 step 4 predicts -- the save/restore machinery
+    really does run, and a returned LOCAL really will come back emptied.
+
+    iterT1 already self-called by name and passed per-frame; this narrows the
+    result to a plain scalar local and makes it explicit rather than inferred
+    from a fixture that was measuring iterator cursors.
+
+    ---------------------------------------------------------------------
+    Q2. `.firsT` DOES NOT FILTER BY AFFILIATION -- so SEQ 31 step 3's
+        `inner := argument.firsT;` IS WRONG ON AN OPT PLAN NODE.
+    ---------------------------------------------------------------------
+    planTerm builds an OPT as (genParse.rtn:456):
+
+        opt = new("OPT");   opt +% at;   opt += node;
+
+    -- the `at` ATTRIBUTE first, the wrapped term as a MEMBER second.
+    Attributes and members share ONE list distinguished by affiliation
+    (termScratch finding 4). The iterator being replaced says `on argument
+    MEMBERS`; `.firsT` is plain `firstInList` (Instruct.rtn:145).
+
+    MEASURED on a deliberately-built same-shape node:
+
+        GOT=          atx     <- .firsT
+        FIRSTMEMBER=  kidx    <- iterate ... on shape members
+        FIRSTANY=     atx     <- iterate ... on shape (unfiltered)
+
+    `.firsT` == unfiltered iterate. On an OPT node it returns the `at`
+    attribute, not the wrapped term. A member-filtered accessor is needed, or
+    the descent stays an iterator.
+
+    ---------------------------------------------------------------------
+    BONUS DEFECT, PRE-EXISTING, SURFACED NOT CAUSED -- `.firsT`/`.lasT`
+    SEGFAULT ON ANY LEAF NODE.
+    ---------------------------------------------------------------------
+    NOT exercised by this fixture (it would crash the run); recorded here
+    because it was found by the first cut, which descended via `.firsT` and
+    died at 139 on the third level. Crash frame 0 is opDot, GroupRules.mm:4373.
+
+    Instruct.rtn:145 reads as guarded:
+
+        case 403:   if !target.firstInList  product = null;
+                    else product = target.firstInList;
+
+    but tok generates the guard as
+
+        if ( !target->groupBody->groupList->firstInList )
+
+    -- which dereferences `groupList` IN ORDER TO TEST IT. A node with no list
+    has groupList == 0, so the guard segfaults on precisely the case it exists
+    to handle. Cases 401/402 (`.nexT`/`.prioR`) are safe: they generate
+    `!target->nextInParent`, a direct field with no intermediate pointer. Only
+    403/404 (`.firsT`/`.lasT`) go through groupBody->groupList.
+
+    Reproduce: any `x.firsT` where x carries no list. It is a null-guard that
+    dereferences the pointer it is guarding, so it is not a tok bug -- the
+    incant source says `target.firstInList` and the intermediate is implicit.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(FrameTest);
+define
+    deep;
+    inner   deep;
+    outer   inner;
+
+    probe argument code={
+        mark = string "L-" taG argument;
+        print "  ENTER " mark:;
+        iterate kid on argument;
+        if ++kid;
+            probe(kid);
+        print "  AFTER " mark:;
+        };
+
+    shapeProbe argument code={
+        shape = new("shape");
+        atx   = new("atx");
+        shape +% atx;
+        kidx  = new("kidx");
+        shape += kidx;
+        got  := shape.firsT;
+        print "GOT=" got:;
+        iterate m on shape members;
+        if ++m;
+            print "FIRSTMEMBER=" m:;
+        iterate a on shape;
+        if ++a;
+            print "FIRSTANY=" a:;
+        };
+    ;
+
+print "=== Q1  named self-call: per-frame or shared? ===":;
+probe(outer);
+print "=== Q2  .firsT affiliation on an attribute-then-member shape ===":;
+shapeProbe(outer);
+stop();
