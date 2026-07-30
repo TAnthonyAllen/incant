@@ -1,3 +1,202 @@
+# ⚠⚠ UPDATED 2026-07-30 — READ THE 07-30 SECTION FIRST. It is directly below this line.
+# Everything from `# ⚠ UPDATED 2026-07-29` down is 07-29 vintage and still accurate; it is
+# just no longer the top of the story. CLEAN STOP, tree clean, both POPs green.
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 2026-07-30 — TWO MINIONS RAN, THE JIT GOT ITS FIRST INSTRUMENTS, AND
+#              "EXIT 0" STOPPED MEANING SUCCESS
+# ═══════════════════════════════════════════════════════════════════════════
+
+## THE ONE THING MOST EXPENSIVE TO LOSE, if you read nothing else
+
+**AN INCANT PARSE FAILURE ABANDONS THE REST OF THE FILE AND STILL EXITS 0.** No `stop:`
+line, prior output still flushed, every assertion before the bad line still passing. It is
+indistinguishable from a short, complete, successful run — and it is **worse than the
+SIGSEGV case**, because 139 is at least visible.
+
+```
+A: before the bad line     <- printed
+x = $"a" _ "b";            <- RunRulE: expected a method not x   (stderr)
+B: AFTER the bad line      <- NEVER PRINTED
+EXIT=0, no stop: line
+```
+
+**Mitigation, and every new fixture must carry it: a SENTINEL** — a known marker as the
+file's last statement, asserted FIRST and by name. Absent sentinel ⇒ the run truncated ⇒
+every other "ok" in it is *uninterpretable*, not merely incomplete. `genLadder/printPop.sh`
+implements it and negative-controls it. Written into `CLAUDE.md`'s testing doctrine as a
+third corollary.
+
+**Its shell-level twin: `${PIPESTATUS[0]}` is silently EMPTY in zsh** (bash spelling; zsh
+uses `$pipestatus`) and reports every run as passing. Take `$?` directly from the binary,
+never through a pipe. **It bit three separate agents in one day**, including this one.
+
+## WHERE WORK STOPPED, AND WHY — 35b is PARKED ON A DESIGN DECISION, not on effort
+
+**Tony took it offline on 2026-07-30.** *"The issue here is shortcuts, I want them in; now
+have to figure out how best to make that happen."* **Do not start 35b until that lands.**
+
+The blocker, measured: **no print shortcut parses in an `ExpressioN` position.** `$`, `_`
+and `,+` all fail (`ERROR processCode: <action> parse failed`). Cause, per Tony:
+**ExpressioN does not deal with shortcuts — PrintXP does**, and the right-hand side of an
+assignment is an ExpressioN. A design boundary, not an accident.
+
+Why that blocks 35b specifically: its briefed oracle is "the 24 `string` call sites,
+byte-identical under the omitted form." **There are 30, and 25 of them carry a shortcut**
+(overwhelmingly `$` — `local = string $"t" at;`, `cellName = string $"c" r "x" c;`). Those
+25 **cannot be written in the omitted form at all**, so the oracle as briefed covers 5
+sites, and the 5 least representative ones.
+
+**Three questions are open and were put to Tony** (see `ipc/clay-to-clod.md`, foot):
+1. **BLOCKING** — is 35b's oracle the ~5 shortcut-free sites; or should the omitted form
+   reach shortcuts (which routes `=`'s RHS through PrintXP — much bigger than "add list
+   handling"); or is the oracle a *fixture* mirroring the shapes rather than converting
+   live sites?
+2. Does `=` want the same append/assign rule `+=` got, or does `=` always assign? *(Do not
+   infer it — the amendment's own root cause was reading `=` and `+=` as one operation with
+   a modifier.)*
+3. `=` with a list on a non-string target: leave it (today it yields `xlInSet`, an
+   **uninitialised read** — broken, not merely absent) or make it a loud refusal?
+
+## 35a IS DONE AND IN THE PRODUCT
+
+`field += this that and the other` concatenates. The arm sits above `opPlusEQ`'s
+`isLIST → copyListTo` short-circuit and routes through `appendGroup` + `opString` — **one
+call, not a loop**, because appendGroup already walks a list and an expression list answers
+`isLIST`. Fixture `incant/concatT`.
+
+- **Oracle answered empirically: there are NO `+=`-with-a-list call sites in the tree.**
+  Instrumented the copyListTo arm and ran 17 named fixtures — **zero hits**. That arm is
+  dead in-tree; there was no behaviour to preserve. Absence scoped to those 17 by name.
+- **Append if the target has data, assign if it does not** (Tony's ruling). The guard is
+  `data`, **not** "text is non-empty" — **a field with no data returns its TAG from
+  `.text`**, so an unguarded pre-load would concatenate onto the field's own name.
+- Trailing space under default spacing is **the user's to deal with** (Tony). A shortcut
+  that backs up over one is a noted maybe, not scheduled.
+
+## THE RULING TONY OWES, AND IT IS BIGGER THAN THE ITEM THAT SURFACED IT
+
+**`CLAIM KANT-22` — KANT HAS NO STATEFUL RECURSION.** Both routes barred, different reasons:
+
+| route | state across the recursive call |
+|---|---|
+| named self-call | **does not compile** (KANT-6, exit 139, re-tested 07-30 and it holds) |
+| `this(...)` | compiles, **locals SHARED** — inner overwrites outer's (KANT-7) |
+
+Neither claim is new. **The conjunction is**, and it was missed for a whole round because
+each was filed as a fact about `spellLeaf` rather than about the language. **It bars
+`emitPlan`** — which accumulates text across a walk and reads its accumulator after each
+recursive call — so it **bars step 3 of the minion arc**, which nobody knew when the arc was
+planned.
+
+**Three exits: fix the self-name bar; make `this()` per-frame; or adopt the CARRIER
+DISCIPLINE** — *anything that must survive a recursive call lives on a carrier node, never
+in a local*. Sharing can't reach a carrier and neither can a restore. **Exit 3 costs
+nothing, works today, needs no runtime change**, and under it `emitPlan` is writable in kant
+right now. The warm-up workaround was considered and **rejected** by Clay: it manufactures a
+configuration nothing in the product will be in.
+
+## THE JIT HAS INSTRUMENTS FOR THE FIRST TIME
+
+Nothing in the live tree had ever called `verifyFunction`, and no IR had ever been dumped.
+
+- **The verifier REFUSES** (`-5`), placed *before* mem2reg so it catches the emitter's own
+  output. **It is SILENT on the gIF fixtures** — and that is the finding: a branch with a
+  missing merge is *valid* IR that computes the wrong thing. Validity and correctness are
+  different questions.
+- **`INCANT_JIT_DUMP=1` dumps the module.** Env var, not a GroupBody flag, so no bitfield
+  shift and no `tokall`. **This is what produced bones:**
+
+```
+endif:                        ; preds = %then, %entry
+  ret i32 99                  ; ⚠ A CONSTANT — taken and not-taken IR are IDENTICAL
+```
+
+  The **store is properly conditional** (`maximus` correctly stays 11 on the not-taken
+  path); the **return value is not merged**. So the defect is precisely a missing
+  return-value merge. ⚠ **This CORRECTS the record** — the stored note "IR: unconditional
+  store + `br i1 true`" describes the OLD state; unified emit-on-walk fixed the branch.
+  Second finding read off the dump: **field slots are `inttoptr` absolute addresses, not
+  allocas, so mem2reg has nothing to promote** — the "mem2reg is the foundation" comment
+  does not hold for baked field addresses.
+- **`jitDegrade` lifted** — §0's "degrade to the oracle LOUDLY", which existed exactly once
+  and was **inside `if result.isIterator`, a gate §0 schedules for deletion**. It carries a
+  counter, which is the point: ~53 silent fallbacks become countable. ⚠ **It has NO
+  behavioural coverage** — its two call sites are unreachable by any fixture, blocked by an
+  open question (see below). `incant/jitDegradeT` is committed reaching its sentinel and
+  **not** its target, and says so in its own header.
+
+## TWO MINIONS RAN. Both held their sandbox; leak-checked mechanically, not on trust.
+
+**Grammar minion (new, its own corpus `docs/grammarCorpus.md`, no frozen brief).**
+- Round 1: `cout` **built** via runtime graft; `cerr` **REFUSED** with evidence (`opPrint`
+  is a two-arm if). The refusal was the better half and was accepted as success.
+- Round 2: the **print-family POP** (`sh genLadder/printPop.sh`, 9 checks, exit 0, its own
+  script — it correctly refused to touch `pop.sh`). `cerr` rows **pinned RED on purpose**,
+  `iterT1m`-style; they flip when the C++ lands.
+- ⚠ **It corrected its own predecessor**: GRAM-3's byte-identical oracle was captured
+  **entirely with the diversion unarmed** — the one condition under which correct and broken
+  are indistinguishable. **`cout` under an armed diversion goes into the buffer.**
+
+**Minion A round 2 is HELD**, and not on judgement: **every remaining emitter in genParse
+writes its PRODUCT via `cerr`** (`emitMany` 11, `printPlan` 6, `emitPlan` 14, `planTerm` 11)
+and **kant has no stderr**. Targets are captured from stderr, so a kant version cannot
+reproduce its own target. `emitLeaf` was convertible only because it *returns* a String.
+Pre-registration is in `docs/minionAledger.md`, difficulty confound named **before** the
+round. Softened but not cleared by GRAM-6 (below).
+
+## DOCTRINE ADDED TODAY — all of it paid for the same day
+
+- **`CLAUDE.md`** — the exit-0 third corollary + sentinel discipline (above).
+- **An ABSENCE claim must name where it looked.** `CLAIM KANT-17` said no member-filtered
+  accessor existed; foreman added one an hour later, falsifying the corpus.
+- **OPEN is a third shape** beside CLAIM and BLOCKED. `KANT-20`'s own scope had to call
+  itself "an open item wearing a claim's clothes."
+- **AN ORACLE IS ONLY EVIDENCE OVER THE CONDITIONS IT WAS CAPTURED UNDER.** A fixture that
+  does not vary the discriminating condition is **silent, not green**. Three of today's
+  failures are instances: GRAM-3 never armed the diversion; `spell.target` never crosses a
+  renamed sink; the four baselines never reached a recursive action with a list-carrying
+  local.
+- **A status table is a claim with an `asOf` nobody wrote down.** `jit.md`'s Phase-1 unary
+  rows say DONE; all three exit 139. **Left standing with the contradiction beside them** —
+  they were TRUE when written and were falsified by the 06-30 pivot that folded out `jitXP`.
+- **THE PROPAGATION FAILURE, logged in `grammarCorpus.md`:** the minion read `opPrint`
+  correctly; foreman verified the *reading* and carried the *inference* further; Clay checked
+  the inference against the reading. **Nobody re-derived the `'p'` test from source.** It
+  took Tony opening the file. *"I verified X" and "I verified someone's reading of X" are
+  different acts and read identically in a report.*
+
+## OPEN, and whose
+
+**Tony's:** the KANT-22 stateful-recursion ruling (three exits) · the shortcuts-in-
+ExpressioN design (parked, offline, gates 35b) · the JIT seam ruling — whether the JIT gets
+rung 3's walk-decides/emitter-writes shape, which is what turns ~53 undeclared fallbacks
+into a countable artifact · the `sink=` proposal (GRAM-P1) replacing the `'p'` character
+test · whether `=` gets append/assign · the upload bundle (`docs/jit.md`,
+`docs/jit-recon-2026-07-30.md`, TODO's JIT sections).
+
+**Clod's, unblocked:** the `isCoded` question — a `define` in an **included** file yields a
+coded field, the identical define in a **top-level script file** does not (`jitAdd` works,
+`walkBag` does not). Plausibly bear-trap #15's family, **not established**. It is what
+blocks coverage for `jitDegrade`.
+
+**Still open from before, untouched:** everything in the 07-29 and 07-28 sections below.
+
+## RUN RECIPE — what is new today
+```
+sh genLadder/pop.sh                      # 22 checks, exit 0 (unchanged)
+sh genLadder/printPop.sh                 # 9 checks, exit 0, moving half pinned WRONG
+INCANT_JIT_DUMP=1 <binary> incant/jitGifScratch 2>&1     # the IR, first time visible
+<binary> incant/concatT                  # 35a, 5 rows + sentinel
+<binary> incant/nameRecurse              # per-frame locals + .firsT affiliation + 403/404
+<binary> incant/jitDegradeT              # ⚠ reaches its sentinel, NOT its target
+```
+New this day: `.firstMembeR` (opDot case 405) · `.firsT`/`.lasT` no longer segfault on a
+leaf · `jitDegrade` · the verifier · the dump. **`groups.ext` was NOT touched today.**
+Extern canary **203 → 204** (jitDegrade), the one addition accounted for.
+
+# ═══════════════════════════════════════════════════════════════════════════
+
 # ⚠ UPDATED 2026-07-29 — read the 07-29 section FIRST (it is directly below this header block).
 # THE JIT REPLACES THE INTERPRETER, and 07-29 was the ITERATOR + Minion-A-harness day. The
 # genParse ladder narrative that follows is 07-28 vintage and still accurate; it is just no
