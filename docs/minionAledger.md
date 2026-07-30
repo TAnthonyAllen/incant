@@ -75,6 +75,28 @@ A round-1 corpus-format failure is the anticipated legitimate case
 (`docs/mdReorgB0.md` §6 — proof by use; if a real claim won't fit the fields, the format
 is wrong and moves, and whoever moves it accounts for the move).
 
+### FORMAT CHANGES — logged separately from brief revisions, and assessed against the series
+
+| when | what changed | would it have altered an earlier round's output? | series |
+|---|---|---|---|
+| 2026-07-30 | **absence claims must name their search** (paths, pattern, scope) | **No.** None of round 1's eight records is an absence claim. | **intact** |
+| 2026-07-30 | **OPEN added as a third shape** beside CLAIM and BLOCKED | **No.** Round 1's records are genuine claims plus one genuine BLOCKED; none is an open item in claim's clothes. | **intact** |
+
+Both are `docs/minion-corpus-format.md`, and both are **proof-by-use** exactly as §6
+anticipated — each was forced by a real entry that would not sit honestly in the existing
+fields, not proposed in the abstract:
+
+- **absence** — `CLAIM KANT-17` asserted flatly that no member-filtered first accessor
+  existed. Foreman added one an hour later, falsifying the corpus. Caught only because the
+  same person held both ends; a round writing it and a later round reading it would not
+  have caught it at all.
+- **OPEN** — `KANT-20`'s own scope line had to warn that it was *"an open item wearing a
+  claim's clothes."* When an entry has to describe its own shape as wrong, the shape is
+  missing.
+
+**Assessed BEFORE the change landed, not after** — the assessment is worthless in the other
+order, because by then the answer is known to be convenient.
+
 ---
 
 ## ROUND NOTES

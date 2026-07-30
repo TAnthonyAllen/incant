@@ -23,6 +23,17 @@ on a neighbour's — adjacency is not provenance.
 glance. REASONED and ASSUMED are the challenge queue — a finite, named worklist rather
 than a re-read of everything.
 
+**THREE SHAPES, not two** (added 2026-07-30, `docs/minion-corpus-format.md`): **CLAIM** is
+knowledge, **BLOCKED** is a road that does not go through and the evidence why, **OPEN** is
+*work* — a real question with what is established, what is not, and what it would cost to
+settle. The tell that you want OPEN: **the entry's most useful sentence describes something
+nobody has done yet.** `OPEN KANT-20` is the worked example and is what caused the shape.
+
+**An ABSENCE claim must name where it looked** — the paths, the pattern, the scope. A claim
+that something does not exist is only as good as the search that failed to find it, and it
+rots silently, because the world only has to gain the thing. `CLAIM KANT-17` was made false
+within the hour by its own author for exactly this reason.
+
 ---
 
 ## CLAIMS
@@ -675,7 +686,13 @@ scope:       COMPLETES the KANT-5/6/7/8 knot — read all five together.
              neither action names itself (pinned wrong answer: incant/iterT1m).
 ```
 
-### CLAIM KANT-20 — `0` vs `falseResult` is inconsistent, and the "latent bugs" inference does NOT follow
+### OPEN KANT-20 — `0` vs `falseResult` is inconsistent, and the "latent bugs" inference does NOT follow
+> **RESHAPED 2026-07-30 from CLAIM to OPEN**, and it is the entry that caused the shape to
+> exist. Its own scope line already had to warn that it was *"an open item wearing a claim's
+> clothes"*; `docs/minion-corpus-format.md` now carries OPEN as a first-class shape, so the
+> warning becomes the label. **ID deliberately unchanged** — it is cited elsewhere, and
+> renumbering to tidy a shape change would break the trail the format exists to keep.
+> **What it blocks:** nothing today. **What it would cost to settle:** one grep, sized below.
 ```
 statement:   The asymmetry is real and large: `return trueResult` 47 sites,
              `return falseResult` only 4, against 322 `return 0` and 259
@@ -820,6 +837,37 @@ scope:       ⚠ THIS IS THE CLAIM MOST WORTH HAVING WRITTEN DOWN, and the reaso
              the source).
              Says nothing about whether a FUTURE sink should be divertible; the
              ruling covers these four.
+```
+
+### CLAIM KANT-24 — ENVIRONMENT: `${PIPESTATUS[0]}` is silently EMPTY in zsh and reports every run as passing
+```
+statement:   This project's shell is zsh, which spells the pipe-status array
+             `$pipestatus` (lowercase, 1-indexed). `${PIPESTATUS[0]}` is a BASH
+             spelling: in zsh it expands to NOTHING, so
+                 cmd | filter; echo "EXIT=${PIPESTATUS[0]}"
+             prints `EXIT=` and any test against it reads as SUCCESS. Every run
+             checked this way reports passing, including runs that segfaulted.
+             ⇒ TAKE `$?` DIRECTLY FROM THE BINARY, NEVER THROUGH A PIPE:
+                 $BINARY incant/fixture > out 2> err;  echo "EXIT=$?"
+confidence:  RUN
+provenance:  Bit THREE times on 2026-07-30, in three different hands, each
+             independently: foreman's first nameRecurse run (reported no exit
+             status at all), the JIT recon scout (caught itself mid-round and
+             re-ran everything with $? before drawing a conclusion), and the
+             grammar minion's POP script, whose header now documents it.
+asOf:        2026-07-30
+scope:       ⚠ THIS IS AN ENVIRONMENT CLAIM, NOT A KANT CLAIM, and it is in this
+             corpus because THE CORPUS IS WHAT ROUNDS READ. It says nothing
+             about incant; it is about the instrument every round uses to decide
+             whether incant worked.
+             It belongs to the same family as CLAUDE.md's exit-status doctrine
+             and the parse-failure trap: **the ways this project has been fooled
+             are overwhelmingly about the measuring, not the measured.** Three
+             separate instrument failures surfaced in one day — this, the
+             parse-failure-exits-0 trap, and a status table falsified a month
+             ago by a refactor nobody re-ran. When something reads green, ask
+             what the green was produced BY before asking what it says.
+             Says nothing about bash, where the spelling is correct.
 ```
 
 ---

@@ -60,6 +60,62 @@ contradicting IR dump would have flipped it to `refuted`, not silently overwritt
 
 ---
 
+## Two rules added 2026-07-30, both paid for the same day
+
+**SERIES ASSESSMENT, because a format change can break the measurement** (`minionAHarness.md`
+§3: *a format change that would alter what an earlier round would have written breaks the
+series; one that would not, does not*). **Neither rule below breaks it.** Round 1's eight
+records were genuine claims plus one genuine BLOCKED — none was an absence claim, and none
+was an open item in claim's clothes. So an earlier round's output would be **unchanged**
+under these rules, and the series continues. Assessed before adding, not after.
+
+### RULE 1 — AN ABSENCE CLAIM MUST NAME WHERE IT LOOKED
+
+A claim that something **does not exist** is only as good as the search that failed to find
+it, and unlike a positive claim it **rots silently** — the world only has to gain the thing.
+So an absence claim carries **the search that grounds it**: the paths, the pattern, and the
+scope.
+
+> ✗ "there is no member-filtered first accessor"
+> ✓ "no member-filtered first accessor: `grep -rn 'firstMember' --include=*.rtn --include=*.twk .`
+>    over the repo returns nothing, 2026-07-30"
+
+**Paid for the same day it was written.** `CLAIM KANT-17` asserted flatly that no
+member-filtered first accessor existed. Foreman added one an hour later, making the corpus
+false — and it was caught only because the same person happened to be holding both. Had a
+round written it and a later round read it, nothing would have caught it at all.
+
+**And the sharper case, which is why this is a rule and not a style note:** an absence claim
+whose search space was wrong is *indistinguishable* from one that is true (bear-trap #19's
+corollary — narrowing is only valid inside the space you searched). Naming the search is what
+lets the next reader re-run it instead of re-trusting it.
+
+### RULE 2 — AN OPEN ITEM IS ITS OWN SHAPE. IT IS NOT A CLAIM WITH HEDGES.
+
+Three shapes now, not two:
+
+| shape | means | a reader should |
+|---|---|---|
+| **CLAIM** | this is so, at this confidence | act on it per the confidence table |
+| **BLOCKED** | I tried, it cannot be done this way, here is the evidence | do not retry blind; read the evidence first |
+| **OPEN** | a real question, with what is known and what is *not yet done* | **this is work, not knowledge** |
+
+**The failure this prevents is specific and already happened.** `CLAIM KANT-20` had to
+describe itself, in its own scope line, as *"an OPEN ITEM WEARING A CLAIM'S CLOTHES"* — its
+counts were solid, its inference was deliberately undrawn, and the work of sizing the real
+suspect set was simply **undone**. Written as a CLAIM it reads as knowledge and invites
+action; the only thing stopping that was a warning stapled inside it.
+
+> **The tell that you want OPEN and not CLAIM: the entry's most useful sentence describes
+> something nobody has done yet.** A claim says what is true. An open item says what is
+> missing, what it would cost, and what it blocks.
+
+An OPEN carries: the question · what IS established (with provenance) · what is NOT ·
+what it blocks · what it would cost to settle. It graduates to a CLAIM when someone does
+the work — and **the graduation is the point**: a corpus with a growing OPEN list is
+healthy, one where opens are quietly rewritten as claims is rotting in the way the
+confidence table cannot show.
+
 ## The four operations (how agents act on a corpus)
 
 These are the verbs from vision.md, defined against this format:

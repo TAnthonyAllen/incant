@@ -276,6 +276,38 @@ sibling discussion only for the parallel-lowerings framing.)
 | `jitDec` | `--righty` (from 13) | 12 | `righty` → 12 |
 | `jitNeg` | `-righty` (from 13) | -13 | (none — value-producing) |
 
+> ### ⚠ THOSE THREE ROWS CONTRADICT THE TREE AS OF 2026-07-30. ALL THREE EXIT 139.
+>
+> **Left standing, with the contradiction recorded beside them, rather than corrected** —
+> the reconciliation is worth more than the correction, and editing the rows away would
+> destroy the evidence that produces it.
+>
+> **Measured 2026-07-30:** `jitInc`, `jitDec` and `jitNeg` all segfault at the *identical*
+> frame — `jitEmitUnary` dereferencing a null `jitData`, because no operand was ever seeded.
+> One cause, three symptoms.
+>
+> **THE ROWS WERE TRUE WHEN WRITTEN (2026-06-20/25) AND WERE BROKEN LATER BY SOMETHING
+> ELSE.** `runOP`'s JIT seeding gate is `if jitting && op.isOperator` (`GroupActions.rtn`),
+> but every unary operator is registered `ruleMethod=` — **isMethod, not isOperator**
+> (`incant/setup:89,120,125,131,135`) — so dispatch takes `runOP`'s *other* arm and the
+> operand is never seeded. That is a **regression from the 2026-06-30 pivot** which folded
+> out `jitXP`, the file that held the old seeding branch.
+>
+> **So this is not "the table lied."** It is a passing table that a later refactor silently
+> falsified, in a file nobody re-ran, with the gap already documented **at the crash site**
+> (`jitEmitters.rtn:227-229` — "not wired yet") while this table two documents away still
+> said DONE. The two statements have coexisted for a month.
+>
+> **The lesson is the one this project keeps paying for and it is about dates, not
+> correctness:** a status table is a claim with an `asOf` that nobody wrote down. Every row
+> above is a *measurement from a specific build*, and none of them re-runs itself. Treat a
+> DONE table as `MEASURED`, respect its date, and re-run before building on it —
+> `docs/kantCorpus.md`'s confidence vocabulary exists for exactly this and this table
+> predates it.
+>
+> Do **not** mark these rows fixed until a run shows it. Full analysis:
+> `docs/jit-recon-2026-07-30.md` §J0.
+
 **Unary minus (`jitNeg`, 2026-06-25) — the Phase 2 prerequisite, DONE.** `-righty` → `CreateNeg`
 (double: `CreateFNeg`); **value-producing, NO store-back** (the operand is not mutated, unlike
 `++`/`--`), so the negated SSA flows up as the result (`jitRunAction result = -13`). The grammar
