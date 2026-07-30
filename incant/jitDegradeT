@@ -1,0 +1,77 @@
+/*****************************************************************************
+    jitDegradeT -- the fixture for the LOUD-degrade crossover primitive.
+
+    jitDegrade is the ONLY worked example of docs/jit.md S0's crossover policy
+    ("degrade to the oracle LOUDLY"), and until this file it had no test -- the
+    two call sites are reached only when a jitted walk meets an ITERATOR, and no
+    fixture drove that combination. An instrument with no test is exactly the
+    "a green stub reads as coverage" failure the speller pin exists to catch.
+
+    `testing(<coded action>)` routes to jitRunAction, which sets jitting=1 and
+    executes the action's BlocK. `++` on an iterator then reaches opPlusPlus's
+    isIterator arm under jitting, which is the degrade site.
+
+    EXPECTED: one "=== JIT DEGRADE #n ..." line per advance, ON STDERR, naming
+    the construct and the node -- AND the loop still produces the right answer,
+    because degrade means run-it-interpreted, not refuse.
+
+    ⚠⚠ THIS FIXTURE DOES NOT CURRENTLY REACH THE DEGRADE SITE, AND IT IS
+    COMMITTED IN THAT STATE ON PURPOSE. Read this before "fixing" it.
+
+    RESULT AS OF 2026-07-30: exit 0, sentinel present (so nothing truncated --
+    see the parse-failure trap in CLAUDE.md), the interpreted walk correct, and
+    ZERO degrade lines. `testing(walkBag)` routes to `jitRunIfTest`, not
+    `jitRunAction`:
+
+        extern GroupItem testing(GroupItem input)      (Commands.rtn)
+            if input.isCoded    return jitRunAction(input) ...
+            return jitRunIfTest(input) ...
+
+    So `walkBag` does not arrive `isCoded`. The mechanism is NOT broken --
+    `incant/jitscratch` reaches `jitRunAction` 22 times in the same build. The
+    difference is WHERE THE ACTION IS DEFINED: `jitAdd` and friends live in
+    `incant/generate`, an INCLUDED file, and arrive coded; `walkBag` is defined
+    in this scratch file's own `define` block and does not. Same shape
+    otherwise (`name code={ ... };`, no argument -- the argument form was tried
+    first and behaves the same).
+
+    ⇒ THE OPEN QUESTION, and it is not this fixture's job to answer: why does a
+      `define` in an included file yield an isCoded field when the identical
+      define in a top-level script file does not? Plausibly the same family as
+      bear-trap #15 (bare top-level script statements behave differently from
+      the same code inside a registered action), but NOT established.
+
+    ⇒ CONSEQUENCE WORTH STATING PLAINLY: `jitDegrade`'s two call sites are
+      currently UNREACHABLE BY ANY FIXTURE IN THE TREE. The crossover policy's
+      only worked example has no behavioural test -- which is precisely why it
+      was about to be deleted with its host without anyone noticing. The lift
+      preserved the pattern; it did NOT give it coverage, and claiming
+      otherwise would be the "a green stub reads as coverage" failure.
+
+    TO FINISH THIS: get a coded action carrying an iterator into `jitRunAction`
+    -- either by resolving the isCoded difference above, or by defining the
+    fixture action in an included file the way `incant/generate` does.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(utilities);
+
+search reset stack Grokking UnitTests Utilities list;
+
+register(DegradeTest);
+define
+    bag  alpha beta gamma;
+
+    walkBag code={
+        iterate cur on bag;
+        while ++cur
+            print "  visited " taG cur:;
+        };
+    ;
+
+print "=== interpreted (no jitting): expect NO degrade lines ===":;
+walkBag();
+print "=== jitted via testing(): expect DEGRADE lines on stderr ===":;
+testing(walkBag);
+print "DT SENTINEL":;
+stop();

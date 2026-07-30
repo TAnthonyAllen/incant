@@ -3027,6 +3027,66 @@ extern "C" int iterSpins(GroupItem *iter, int reset)
 	
 }
 
+/***************************************************************************
+    jitDegrade -- THE CROSSOVER PRIMITIVE, lifted 2026-07-30.
+
+    docs/jit.md S0 carries an OPEN RULING of Tony's: during crossover, what
+    happens to a construct the JIT cannot emit yet? Falling back to the
+    interpreter IS divergence, arriving as a schedule artifact. The candidate
+    answer that made mixed mode safe is DEGRADE TO THE ORACLE LOUDLY.
+
+    That answer was already IMPLEMENTED, exactly once, by whoever did the
+    2026-07-29 iterator work -- opPlusPlus and opMinusMinus each announce on
+    stderr before handing an iterator back to iterAdvance. It was the only
+    instance in the tree and it had no name.
+
+    ⚠ AND IT WAS ABOUT TO BE DELETED WITHOUT BEING NOTICED. Both instances sit
+    inside `if result.isIterator`, and S0 schedules exactly that gate for
+    removal -- the iterator becomes two stack slots, "no handle in the heap,
+    and no isIterator" (docs/jit.md:33). So the JIT's only worked example of
+    its own crossover policy would have vanished with its host, and the policy
+    would have gone back to being a paragraph in a design doc. Lifted here
+    FIRST, so the pattern outlives the code that happened to carry it.
+
+    THE COUNTER IS THE POINT, not decoration. The 2026-07-30 recon found ~53
+    places where an ungated construct silently runs interpreted at emit time
+    (jitExecBlock walks the BlocK, so anything without a jitting gate simply
+    EXECUTES). Silent fallback is what makes S0's ruling unanswerable: you
+    cannot rule on a boundary nobody has enumerated. Every call to this turns
+    one of those into a COUNTABLE ARTIFACT -- which is the same move the
+    genParse walk made when it replaced quiet skips with named refusals.
+
+    It lives in a C++ static rather than a node slot, for the reason CLAIM
+    KANT-4 records: GroupBody's value slots are one union, and a counter
+    parked in gCount destroys whatever pointer shares it. iterSpins
+    (Instruct.rtn:457) is the existing precedent.
+
+    fprintf(stderr) and not print: bear-trap #14 -- stdout is block-buffered
+    and a run ending via stop() loses it, so a degrade notice would silently
+    vanish exactly when a crash made it most valuable.
+
+    DEGRADE, NOT REFUSE. It announces and returns; the caller then does the
+    interpreted thing. That is deliberate and is the whole difference from
+    jitRunAction's verifier, which REFUSES (-5) because invalid IR must never
+    run. An unemittable construct is not an error -- it is unfinished work,
+    and the run should still produce the right answer by the slow path.
+***************************************************************************/
+extern "C" int jitDegrade(char *what, GroupItem *node)
+{
+	if ( !GroupControl::groupController->groupRules->jitting )
+		return 0;
+	
+	static int degradeCount = 0;
+	++degradeCount;
+	::fprintf(stderr,
+	"=== JIT DEGRADE #%d: %s -- not JIT-supported yet, running INTERPRETED: %s ===\n",
+	degradeCount, what ? what : "(unnamed construct)",
+	node ? node->groupBody->tag : "(no node)");
+	::fflush(stderr);
+	return degradeCount;
+	
+}
+
 /* jitEmitAssign  the store-back emitter — commits a value into a target field's
    slot. Assign is a single store operation, so no jitOp selector. SKELETON — not
    wired (no gate, no fixtures).
@@ -4797,8 +4857,7 @@ extern "C" GroupItem *opMinusMinus(GroupItem *result)
 {
 	if ( result->groupBody->flags.isIterator )
 		{
-		if ( GroupControl::groupController->groupRules->jitting )
-			::fprintf(stderr,"ERROR -- on an iterator is not JIT-supported yet: %s\n",result->groupBody->tag);
+		jitDegrade("-- on an iterator",result);
 		return ::iterAdvance(result,0);
 		}
 	if ( GroupControl::groupController->groupRules->jitting )
@@ -5026,8 +5085,7 @@ extern "C" GroupItem *opPlusPlus(GroupItem *result)
 {
 	if ( result->groupBody->flags.isIterator )
 		{
-		if ( GroupControl::groupController->groupRules->jitting )
-			::fprintf(stderr,"ERROR ++ on an iterator is not JIT-supported yet: %s\n",result->groupBody->tag);
+		jitDegrade("++ on an iterator",result);
 		return ::iterAdvance(result,1);
 		}
 	if ( GroupControl::groupController->groupRules->jitting )

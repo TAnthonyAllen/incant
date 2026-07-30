@@ -582,7 +582,7 @@ GroupItem   next;
 extern GroupItem opMinusMinus(GroupItem result)
 {
     if result.isIterator {
-        if jitting  cerr "ERROR -- on an iterator is not JIT-supported yet:",result.tag:;
+        jitDegrade("-- on an iterator",result);
         return iterAdvance(result,0); }
     if jitting {
         -% return jitEmitUnary(result, jitDec); %-
@@ -738,7 +738,7 @@ use target
 extern GroupItem opPlusPlus(GroupItem result)
 {
     if result.isIterator {
-        if jitting  cerr "ERROR ++ on an iterator is not JIT-supported yet:",result.tag:;
+        jitDegrade("++ on an iterator",result);
         return iterAdvance(result,1); }
     if jitting {
         -% return jitEmitUnary(result, jitInc); %-
