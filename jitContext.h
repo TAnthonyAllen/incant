@@ -52,6 +52,32 @@ inline std::vector<llvm::BasicBlock*> gIfEndBlocks;
 // came to be missing in the first place.
 inline std::vector<llvm::BasicBlock*> gIfElseBlocks;
 
+// THE RESULT SLOT (2026-07-31, Tony's ruling). An i32 alloca in the function's
+// entry block holding the action's value. Every statement stores to it; the cap
+// loads it and rets. gJitResult-as-last-value retires.
+//
+// WHY A SLOT AND NOT A PHI: the ruling is that the compiled action returns what
+// the interpreted action returns, and the interpreted rule is "the value of the
+// LAST EXECUTED STATEMENT" -- so on a two-armed if the answer differs per path
+// and has to be merged. RESULTS ARE MEMORY, exactly as fields are: each arm
+// STORES and the exit LOADS, and the merge is the memory location. No phi is
+// written, and unlike the field slots this one IS an alloca, so mem2reg can
+// promote it and insert the phi itself if it wants to.
+//
+// ⚠ It is the FIRST alloca this emitter has ever produced. The standing note
+// that "mem2reg has nothing to promote" was true of field slots (baked absolute
+// addresses) and is no longer true of the function as a whole.
+inline llvm::Value *gJitResultSlot;
+
+// Did ANY statement commit a value this run? Set by jitStoreResult, reset by
+// jitRunAction. This replaces the old "is gJitResult non-null at the end" test,
+// which the result slot falsified: a bracketing emitter (gIF, and later the
+// loops) COMMITS its arms and then clears gJitResult on purpose, so a null
+// in-flight value at the end became the NORMAL case for any action ending in
+// control flow -- and the old guard read it as "the gate never fired" and
+// bailed before emitting the return.
+inline bool gJitEmitted;
+
 // Nodes seeded with JitData during the current compile. JitData is transient (one
 // compile, into a per-run LLVMContext that jitRunAction destroys), but the field/
 // literal GroupItems that carry it persist (BDWGC). The runOP seeding gate skips a

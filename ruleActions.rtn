@@ -53,6 +53,15 @@ GroupItem   grup,
         prior = result;
         if grup.isMethod    result = grup.gMethod(grup);
         else                result = grup;
+        /*  THE RESULT SLOT (Tony's ruling, 2026-07-31). Under jitting, every
+            statement commits the value it just emitted. That is not a
+            convenience: the interpreted rule is "an action's value is the LAST
+            EXECUTED STATEMENT'S", so a store-on-`return` emitter would return
+            garbage from every action that simply ends. Storing per statement is
+            what makes the compiled answer match the interpreted one.  */
+        if jitting {
+            -% jitStoreResult(); %-
+        }
         if result && result.isBranch {
             if prior && result.isBranch == 3 && result.registry == keyWords {
                 result = prior;

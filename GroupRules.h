@@ -180,6 +180,7 @@ extern "C" int jitRunAddTwo();
 extern "C" int jitRunIfTest(GroupItem *fld);
 extern "C" GroupItem *jitSeedField(GroupItem *token);
 extern "C" GroupItem *jitSeedLiteral(GroupItem *token);
+extern "C" void jitStoreResult();
 extern "C" GroupItem *listenTo(GroupItem *input);
 extern "C" GroupItem *loadDirectory(GroupItem *input);
 extern "C" GroupItem *loadInputFromFile(GroupItem *source);

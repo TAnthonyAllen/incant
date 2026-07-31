@@ -177,6 +177,45 @@ define
                 provenance="incant/loopBranchT row 1: baseline yielded the string 'break' with the trailing `return bqSum;` never running; after the fix it yields 3";
                 confidence="verified";
                 asOf="2026-07-31";
+            resultSlotLanded
+                content="THE RESULT SLOT IS IN, and the returned value is now
+                    PATH-CORRECT. An i32 alloca in the entry block; every
+                    statement stores to it; the exit loads it. THE MERGE IS THE
+                    MEMORY LOCATION -- each arm stores inside its own block and
+                    the exit load reads whichever ran, which is the same
+                    reasoning that makes field stores need no merge, applied to
+                    results.
+                    ⚠ FIRST ALLOCA THIS EMITTER HAS EVER PRODUCED, so mem2reg
+                    finally had something to promote -- and it inserted the phi
+                    ITSELF (phi i32 [ %mul, %then ], [ 7, %else ]). The
+                    never-write-a-phi design worked for the first time rather
+                    than merely being asserted.
+                    TWO COSTS, both found by DUMPING rather than reasoning:
+                    (1) A BRACKETING EMITTER MUST LEAVE NOTHING IN FLIGHT.
+                        jitEmitGIF commits both arms then clears gJitResult;
+                        without it the enclosing walk re-committed the stale
+                        else-value in the merge block and every path returned 7.
+                        A RULE FOR EVERY BRACKETING EMITTER, not a gIF quirk --
+                        the loop emitters will need the same line.
+                    (2) `if (!gJitResult)` as the did-anything-emit test was
+                        FALSIFIED by that clear: an action ending in control flow
+                        legitimately has nothing in flight, and the guard bailed
+                        BEFORE emitting the return, silently un-jitting every
+                        if/else. Replaced with an explicit gJitEmitted flag.";
+                provenance="INCANT_JIT_DUMP=2 (new pre-mem2reg mode) and =1 on incant/jitElseT, 2026-07-31; jitPop.sh green both directions; full POP suite and 34-fixture sweep clean";
+                confidence="verified";
+                asOf="2026-07-31";
+            preMem2regDumpAdded
+                content="INCANT_JIT_DUMP=2 dumps the EMITTER'S OWN OUTPUT, before
+                    mem2reg. The post-pass dump alone cannot answer 'did the
+                    emitter emit this, or did the optimiser produce it' -- which
+                    is exactly the question a result slot or a phi raises. The
+                    double-store clobber above was INVISIBLE in the post-pass
+                    dump because folding hid it, and visible immediately in the
+                    pre-pass one. =1 keeps the old behaviour.";
+                provenance="added and used to diagnose the clobber, 2026-07-31";
+                confidence="verified";
+                asOf="2026-07-31";
             unaryPopsCrash
                 content="All three unary JIT POPs -- jitInc, jitDec, jitNeg --
                     exit 139 (SIGSEGV) inside jitEmitUnary dereferencing a null

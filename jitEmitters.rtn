@@ -363,6 +363,35 @@ extern GroupItem jitEmitStringPlusEQ(GroupItem argument,GroupItem target)
     %-
 }
 
+/* jitStoreResult  commit the value just emitted into THE RESULT SLOT.
+   Tony's ruling 2026-07-31: the compiled action returns what the interpreted
+   action returns, and the interpreted rule is "the value of the LAST EXECUTED
+   STATEMENT". So every statement stores here, and the cap loads.
+
+   THE MERGE IS THE MEMORY LOCATION. On a two-armed if the answer differs per
+   path; each arm calls this INSIDE its own block, so the store is what merges
+   them and the exit load reads whichever ran. No phi is written -- the same
+   reasoning that makes field stores need no merge, applied to results.
+
+   Coerces to i32 the way the old cap did (double -> FPToSI, i1 -> ZExt), so the
+   slot has one type and the function signature is unchanged. A null gJitResult
+   is a no-op rather than an error: a statement that emitted nothing simply does
+   not move the result, which is exactly the interpreted behaviour. */
+extern void jitStoreResult()
+{
+    -%
+    if (!gJitResultSlot || !gJitResult) return;
+    llvm::IRBuilder<> *b = gJitBuilder;
+    llvm::Type *i32 = llvm::Type::getInt32Ty(b->getContext());
+    llvm::Value *v = gJitResult;
+    if (v->getType()->isDoubleTy())            v = b->CreateFPToSI(v, i32, "res");
+    else if (v->getType()->isIntegerTy(1))     v = b->CreateZExt(v, i32, "res");
+    else if (v->getType() != i32)              return;
+    b->CreateStore(v, gJitResultSlot);
+    gJitEmitted = true;
+    %-
+}
+
 /* jitIfBegin  the gIF condition-to-blocks seam. Reads the condition value the
    just-emitted ExpressioN left in gJitResult (an i1 from jitEmitCompare — the
    compare-operator design plugs in HERE, this only requires an i1), creates the
@@ -461,9 +490,27 @@ GroupItem   result = ExpressioN;
     else        result = ExpressioN;
     jitIfBegin();
     if StatemenT    result = StatemenT.gMethod(StatemenT);
+    /*  Commit the then-arm's value INSIDE thenBB, and the else-arm's INSIDE
+        elseBB. This is the merge: the exit block's load reads whichever arm
+        ran. Must sit BEFORE jitIfElse/jitIfEnd, which move the insert point. */
+    jitStoreResult();
     jitIfElse();
     if ElsE         result = ElsE.gMethod(ElsE);
+    jitStoreResult();
     jitIfEnd();
+    /*  ⚠ NOTHING IS LEFT IN FLIGHT. Both arms have already committed their own
+        value to the result slot INSIDE their own block -- that is the merge.
+        gJitResult still holds the else-arm's value, and the enclosing walk
+        would commit it AGAIN in the merge block, clobbering the merge and
+        making every path return the last arm EMITTED rather than the one that
+        RAN. Measured: the endif block carried two extra `store i32 7` and the
+        function returned 7 on both paths.
+        Clearing it makes the enclosing jitStoreResult() calls no-ops, which is
+        the honest statement: a control-flow statement's value is already
+        committed, so there is no loose value for anyone else to commit.
+        THIS IS A RULE FOR EVERY BRACKETING EMITTER, not a gIF quirk -- the loop
+        emitters will need the same line.  */
+    -% gJitResult = nullptr; %-
     return result;
 }
 
@@ -513,6 +560,11 @@ extern int jitRunAction(GroupItem action)
 
     gJitBuilder = &B;
     gJitResult  = nullptr;
+    // THE RESULT SLOT. Initialised to 0 so an action that emits nothing still
+    // returns a defined value rather than whatever was last in flight.
+    gJitEmitted = false;
+    gJitResultSlot = B.CreateAlloca(i32, nullptr, "result");
+    B.CreateStore(llvm::ConstantInt::get(i32, 0), gJitResultSlot);
 
     GroupRules *ruler = GroupControl::groupController->groupRules;
     // Unified JIT emit-on-walk (pivot, 2026-06-30): jitting ONLY — generating stays
@@ -533,14 +585,23 @@ extern int jitRunAction(GroupItem action)
     jitExecBlock(action);
     ruler->jitting = 0;
 
-    if (!gJitResult) {
+    //  "DID ANYTHING EMIT" is now gJitEmitted, NOT a non-null gJitResult. The
+    //  result slot falsified the old test: a bracketing emitter commits its
+    //  arms and then deliberately clears gJitResult, so an action ending in
+    //  control flow legitimately has nothing in flight -- and the old guard
+    //  read that as "the gate never fired" and bailed before emitting the ret,
+    //  which silently un-jitted every if/else. Measured the moment the clear
+    //  landed.
+    if (!gJitEmitted) {
         printf("=== jitRunAction: no result emitted (gate did not fire?) ===\n");
         fflush(stdout); return -2; }
-    if (gJitResult->getType()->isDoubleTy())
-        gJitResult = B.CreateFPToSI(gJitResult, i32, "ret");
-    else if (gJitResult->getType()->isIntegerTy(1))
-        gJitResult = B.CreateZExt(gJitResult, i32, "ret");   // i1 compare result -> i32
-    B.CreateRet(gJitResult);
+    // THE CAP IS NOW A LOAD OF THE RESULT SLOT, not the last value in flight.
+    // The old form retted whatever gJitResult happened to hold after the walk,
+    // which on a two-armed if was the last ARM EMITTED regardless of which one
+    // RAN -- and in every fixture dumped it was a CONSTANT. Storing per
+    // statement and loading here is what makes the returned value path-correct.
+    jitStoreResult();
+    B.CreateRet(B.CreateLoad(i32, gJitResultSlot, "retval"));
 
     // ------------------------------------------------------------------
     // THE VERIFIER. Added 2026-07-30. Until now NOTHING in the live tree
@@ -561,6 +622,18 @@ extern int jitRunAction(GroupItem action)
     // from the existing -1..-4 so a caller can tell "IR was invalid" from
     // "the engine failed".
     // verifyFunction returns TRUE when the function is BROKEN.
+    //  PRE-OPTIMISATION DUMP, added 2026-07-31 and it is the more useful of the
+    //  two. INCANT_JIT_DUMP=2 shows the EMITTER'S OWN OUTPUT, before mem2reg has
+    //  promoted or folded anything. The post-mem2reg dump alone cannot answer
+    //  "did the emitter emit this, or did the optimiser produce it" -- and that
+    //  is exactly the question a result-slot or a phi raises. =1 keeps the old
+    //  post-pass behaviour; =2 gives both.
+    if (::getenv("INCANT_JIT_DUMP") && ::atoi(::getenv("INCANT_JIT_DUMP")) >= 2) {
+        llvm::errs() << "=== IR " << fnName << " (PRE-mem2reg, emitter output) ===\n";
+        mod->print(llvm::errs(), nullptr);
+        llvm::errs() << "=== end PRE IR " << fnName << " ===\n";
+        llvm::errs().flush(); }
+
     if (llvm::verifyFunction(*fn, &llvm::errs())) {
         fprintf(stderr,
             "=== jitRunAction: INVALID IR for %s -- REFUSING to run it ===\n",
@@ -568,6 +641,7 @@ extern int jitRunAction(GroupItem action)
         fflush(stderr);
         gJitBuilder = nullptr;
         gJitResult  = nullptr;
+        gJitResultSlot = nullptr;
         return -5; }
 
     // mem2reg: promote field-slot allocas to SSA registers and let LLVM insert

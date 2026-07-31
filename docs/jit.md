@@ -40,6 +40,31 @@ changes**; only the implementation does. The interpreter's per-frame `saveLocalF
 `pop.sh`) outlive it as language-level POPs. **Deleting the function must not delete the
 fixtures.**
 
+### Consequence 3 — A CLASS OF DEFECT THAT IS RETIRED AT CROSSOVER, NOT FIXED
+*Added 2026-07-31. This is a register of things NOT to spend effort repairing, and it now has
+two members — both found in the same week, which is why it is worth naming as a class.*
+
+An interpreter defect belongs here when the compiled form **cannot express it**, so the JIT
+does not fix it — the JIT makes it impossible.
+
+| member | the defect | why the compiled form retires it |
+|---|---|---|
+| **`saveLocalFields`** (§0 Consequence 1) | locals are attributes on a shared action node, so recursion works by convention | under frames, each call owns a slot array. There is no shared list to stomp |
+| **VALUE/SIGNAL CONFLATION** (new) | a statement's **value** and its **branch signal** (`isBranch`) ride the *same GroupItem*, so anything that changes the value drops the signal | **in IR a branch and a stored value are separate by construction.** A `br` carries no value; a `store` carries no control flow. There is nothing to conflate |
+
+**The second member is the structural root of BOTH branch defects ruled on 2026-07-31** — the
+bare-return tag leak and the break over-propagation. **One design decision, two expressions**,
+which is why fixing them separately in the interpreter needed care in three loop handlers plus
+the block, and why the emitter's half of each was *free*: bare return is branch-to-exit with no
+store, `break` is branch-to-exit, and neither has a signal to consume.
+
+⚠ **What this register is FOR, and the discipline it encodes:** when a defect is in this class,
+the interpreter fix is a **bridge** and should be scoped like one — correct, minimal, and
+covered by fixtures that **outlive the code they were written against**. `incant/retProbe` and
+`incant/loopBranchT` are language-level POPs: they describe what incant *means*, not how this
+interpreter happens to work, so they survive into the compiled world unchanged. Do not
+generalise a bridge fix, and do not skip its fixture.
+
 ### Consequence 2 — THE OPEN RULING, and it is Tony's
 **During the crossover, what happens to a construct the JIT cannot emit yet?**
 
@@ -260,6 +285,45 @@ else:   store i32 7, ptr inttoptr (…)        ; maximus — same address
         br label %endif
 endif:  ret i32 7                            ; ⚠ still a constant — see §3.4
 ```
+
+### 3.2a THE RESULT SLOT — ✅ landed 2026-07-31, and the return value is now path-correct
+`jitRunAction` used to cap with `CreateRet(gJitResult)` — whatever the walk emitted **last**,
+which on a two-armed if was the last arm *emitted* regardless of which one *ran*, and was a
+constant in every fixture dumped. Now: an `i32` **alloca** in the entry block, every statement
+stores to it, the exit **loads** it.
+
+**The merge is the memory location.** Each arm stores inside its own block; the exit load reads
+whichever ran. That is the same reasoning that makes field stores need no merge, applied to
+results — and it is why no phi is written by hand:
+
+```
+PRE-mem2reg  (what the emitter wrote)     POST-mem2reg  (what LLVM made of it)
+  then:  store i32 %mul, ptr %result        endif:
+  else:  store i32 7,    ptr %result          %result.0 = phi i32 [ %mul, %then ], [ 7, %else ]
+  endif: %retval = load i32, ptr %result      ret i32 %result.0
+         ret i32 %retval
+```
+
+⚠ **This is the FIRST alloca this emitter has ever produced, so `PromotePass` finally has
+something to promote** — and it inserted the phi itself, which is the "never write a phi"
+design working for the first time rather than merely being asserted. §3.4's note that mem2reg
+had nothing to do remains true of *field* slots (baked absolute addresses) and is no longer
+true of the function as a whole.
+
+**Two things it cost, both found by dumping rather than reasoning:**
+- **A bracketing emitter must leave NOTHING in flight.** `jitEmitGIF` commits both arms and
+  then clears `gJitResult`; without that the enclosing walk re-committed the stale else-value
+  in the merge block and every path returned 7. Visible as two extra `store i32 7` in `endif`.
+  **This is a rule for every bracketing emitter, not a gIF quirk — the loop emitters need it.**
+- **`if (!gJitResult)` as the "did anything emit" test was falsified** by that clear: an action
+  ending in control flow legitimately has nothing in flight, and the old guard read it as "the
+  gate never fired" and bailed *before emitting the return*, silently un-jitting every if/else.
+  Replaced with an explicit `gJitEmitted` flag set by the store.
+
+⚠ **`INCANT_JIT_DUMP=2` is new and is the more useful mode:** it dumps the **emitter's own
+output, before mem2reg**. The post-pass dump alone cannot answer *"did the emitter emit this,
+or did the optimiser produce it"* — which is exactly the question a slot or a phi raises, and
+the clobber above was invisible in the post-pass dump because folding hid it.
 
 POP: `sh genLadder/jitPop.sh`, fixtures `incant/jitElseT` (the POP) and `incant/jitThenT`
 (the regression net). ⚠ **Two files and not one, because a second `testing()` on the same
