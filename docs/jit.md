@@ -143,6 +143,28 @@ countable ones.
 unreachable by any fixture, blocked by an open question. `incant/jitDegradeT` is committed
 reaching its sentinel and **not** its target, and says so in its own header.
 
+### 1.3a ⚠ LOAD-VS-FOLD IS NO LONGER UNOBSERVABLE — status change, 2026-07-31
+This document has carried *"the load-vs-fold distinction is invisible while compile+run is one
+shot — observable once a compiled action is cached and re-fired after a field changes"* as a
+deferred item since Phase 1. **It is now measured.**
+
+`jitLadder` rung J1 compiles once and fires **twice**, with the input changed *after* emission
+and **no recompilation**: `jaIn=10 → 15`, then `jaIn=30 → 35`. The answer tracked the input, so
+the field was **loaded at run time** rather than folded at compile time. Degrade count zero.
+
+**This is the first certified run-time computation in the project's history** — the first time
+anything here has shown that an action, jitted end to end, returns the intended value *from
+compiled code* rather than from an emit-time side effect. Everything before it was an operator
+POP through a scratch driver, or a topology check.
+
+⚠ **AND THE SCAFFOLD COULD NOT EXPRESS IT UNTIL J1 ASKED.** Every pre-J1 fixture **discarded the
+compiled function after one call** — `jitRunAction` looked the symbol up, called it once, and
+dropped the pointer. Single-fire was not a choice anyone made; it was **the only shape the
+scaffold could express**, which is why the distinction stayed deferred for a month rather than
+being hard. The ladder's criteria exposed it in the first hour: `gJitLastFn` caches the pointer
+and `jitRefire` fires it again. **A criterion that cannot be met by the current scaffold is a
+finding about the scaffold**, not a reason to weaken the criterion.
+
 ### 1.4 What actually runs — measured
 *asOf 2026-07-30. Exit status taken directly from `$?` on the binary, never through a pipe.*
 

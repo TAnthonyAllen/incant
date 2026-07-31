@@ -401,6 +401,28 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 > that was never checked, a harness with three exits, an assertion that covered the wrong
 > thing. **When a result surprises you, doubt the instrument before the code.**
 >
+> **RULE H4 — ASSERT PRESENCE-WITH-VALUE, NEVER ABSENCE-OF-MESSAGE.** Adopted 2026-07-31.
+> Generalises H2's sentinel logic from *completeness* to **every asserted quantity**: if a check
+> can pass because a line is missing, it will eventually pass because someone deleted the code
+> that emitted the line. Print the quantity unconditionally and compare its value.
+>
+> The worked example is the JIT degrade counter. `jitDegrade` writes to stderr when a construct
+> falls through to emit-time interpretation, so the tempting check is *"assert that message does
+> not appear"* — which goes green the day the message is removed. Instead `jitRunAction` prints
+> `=== jitDegrade count = N ===` on **every** run, and the ladder asserts `N == 0`. Same fact,
+> but a deletion now breaks the check instead of satisfying it.
+>
+> **FLEET AUDIT, 2026-07-31, and its scope is named because an absence claim is only as good as
+> its search:** every assertion in `genLadder/pop.sh`, `printPop.sh`, `tree.sh`, `jitPop.sh` and
+> `jitLadder/ladder.sh` was read. **No conversions owed.** The `grep -v` occurrences are output
+> *filters* before a comparison, not assertions; the `-s`/`!= 0` tests are exit-status checks or
+> anti-vacuity guards. Two were already H4-shaped for the right reasons and are the models to
+> copy: `pop.sh`'s rStuff `AUDITLINE` (its own comment argues the point — *"an absence-based
+> check passes by being removed; this one cannot"*), and `printPop.sh`'s
+> `if [ ! -s "$T/o.print" ]`, which exists so its cross-keyword oracle cannot pass by comparing
+> two empty files. **A vacuity guard is H4's other half:** an assertion that compares nothing to
+> nothing is an absence check wearing a diff's clothes.
+>
 > ⚠ **ONE CHANNEL, ONE MEANING.** A second family, distinct from the causal-claim asymmetry
 > below and now with two measured members. When one channel is made to carry two meanings, a
 > change to either meaning silently corrupts the other:

@@ -81,6 +81,38 @@ rung () {
     else echo "  FAIL  $label degrade count = '$dg', want 0 -- a construct fell through"; fail=1; fi
 }
 
+#  ============================================================================
+#  THE RUNG PLAN. Each rung is the previous PLUS ONE construct.
+#
+#    J1  assign + arithmetic                          <- GREEN
+#    J2  + if/else, both arms          (the else-arm fix gets a permanent home)
+#    J3  + while                       (testWhilE's honest retest, in the ladder)
+#    J4  + do                          (body-runs-once-when-false asserted)
+#    J5  + multi-statement operand reuse  (O5/the clobber question gets a
+#                                          FIXTURE instead of an inference)
+#    ... string +=, compare chains, bare return, break/continue in loops --
+#        each ratified ruling eventually earns a rung pinning it in COMPILED form
+#
+#    JR  RECURSION -- Tony's named refinement of the POP goal, 2026-07-31.
+#        ⚠ AND IT IS THE RUNG THAT FORCES THE FRAME PHASE, which is why it is
+#        listed here rather than left to the design docs.
+#        J1..J5 all run on BAKED ABSOLUTE ADDRESSES: a field's slot is its own
+#        storage, one address per field, and a write goes straight through.
+#        That model CANNOT express recursion -- a recursive call's locals would
+#        all alias the SAME address, so the inner call would overwrite the
+#        outer's. Tony's worry, in his words, is "handling recursion by making
+#        use of undeclared slots or however", and the sharp form of it is:
+#        INCANT HAS NO DECLARATIONS, so where does a recursive frame's storage
+#        come from? The answer is the frame model (docs/jitDesign.md Part III):
+#        the action's FIELD LIST is the frame schema -- closed at parse time,
+#        which is what makes per-call slot arrays possible without the
+#        programmer declaring anything.
+#        So the ladder WILL hit a wall, the wall has a name, and JR is where the
+#        baked-address phase ends and the frame phase has to begin. Do not
+#        schedule JR as "one more rung": it is a phase boundary wearing a rung's
+#        clothes, and it should be planned as one.
+#  ============================================================================
+
 echo "-- J1  assign + arithmetic + tail value"
 rung jitJ1 "J1 SENTINEL" "J1" 15 35
 

@@ -399,6 +399,29 @@ attribute list, so recursion works by convention rather than by structure. The J
 them: the definition keeps its attribute list as the authoritative schema; each call allocates a
 fresh slot array from it. C++ stack discipline applied to incant's no-declarations model.
 
+## ⚠ RECURSION IS THE FORCING CASE, and it is Tony's named refinement of the POP goal
+*Recorded 2026-07-31, at Tony's request. Not scheduled — but named, because it decides when
+this Part stops being deferred.*
+
+**Tony's worry, in his words: "handling recursion by making use of undeclared slots or however."**
+The sharp form is that **incant has no declarations**, so where does a recursive frame's storage
+come from?
+
+**This Part is the answer, and the ladder is what will force it.** Rungs J1–J5 all run on
+**baked absolute addresses** — a field's slot *is* its own storage, one address per field.
+That model **cannot express recursion**: a recursive call's locals would all alias the same
+address and the inner call would overwrite the outer's. There is no patch for that; it is what
+the model *is*.
+
+So the answer to "undeclared slots" is the schema below: **the action's field list is the frame
+schema**, closed at parse time, which is exactly what makes per-call slot arrays possible
+*without the programmer declaring anything*. The declarations incant does not have are replaced
+by a field list it already builds.
+
+⚠ **Therefore rung JR (recursion) is a PHASE BOUNDARY WEARING A RUNG'S CLOTHES.** Every other
+rung adds a construct to a working model; JR changes the model. Plan it as the start of the
+frame phase, not as one more step on the ladder.
+
 ## Schema closure, and the precondition it rests on
 
 Every field an action references is added to its field list at parse time, so the field list is
