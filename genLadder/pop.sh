@@ -44,6 +44,18 @@ $B incant/jsonTest > "$T/jsn" 2>&1;      check "jsonTest runs"    0 $?
 #  only the exit code is asserted here. Promote to a diffcheck if that contract
 #  ever stabilises.
 $B incant/baselineTests > "$T/base" 2>&1; check "baselineTests runs (smoke, exit code only)" 0 $?
+#  ⚠ AND ITS COMPLETENESS IS ASSERTED SEPARATELY, per standing harness rule H2.
+#  Exit-code-only is exactly the shape a truncated run passes: an incant parse
+#  failure abandons the rest of the file and still exits 0. baselineTests has no
+#  sentinel of its own (its output is testUnitTests', not ours to stamp), so the
+#  completeness marker is the LAST LINE OF ITS GOLDEN -- which only appears if
+#  the run reached the end. This is a presence check on one line, not the golden
+#  diff that ruling 3 deliberately declined.
+if [ -s "$T/base" ] && tail -1 incant/baselineTests.golden | grep -qFf - "$T/base"; then
+    echo "  ok    baselineTests reached its end (completeness, not content)"
+else
+    echo "  FAIL  baselineTests TRUNCATED -- exited 0 without reaching its last line"; fail=1
+fi
 
 extract () { sed -n "/^extern [A-Za-z]* $1(/,/^}/p;/^extern [A-Za-z]* $2(/,/^}/p" "$T/gen"; }
 

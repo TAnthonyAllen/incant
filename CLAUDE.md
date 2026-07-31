@@ -356,6 +356,42 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 > **And the same file documents the shell-level twin: `${PIPESTATUS[0]}` is silently empty in
 > `zsh`** and reports every run as passing. Take `$?` directly from the binary, never through a
 > pipe. That one bit two separate agents on this project in a single day.
+>
+> ---
+>
+> ## STANDING HARNESS RULES — a harness is an instrument, and an instrument that lies is
+> ## worse than no instrument. Two rules, both paid for on 2026-07-31.
+>
+> **RULE H1 — A HARNESS ECHOES THE BINARY IT IS TESTING.** Path, size, mtime, as its first
+> output. All three POP scripts had hardcoded an absolute DerivedData path belonging to a
+> project **that no longer exists in the tree**, and had gone stale. A stale binary against
+> current sources does not fail as a diff — the first symptom was a **HANG**, which reads as
+> an infinite loop in whatever you last touched. Echoing the binary turns that into a diff in
+> the log. `genLadder/pop.sh` implements it; prefer `${INCANT:-$HOME/bin/incant}` over any
+> absolute path, because the symlink is what Tony's own builds follow.
+>
+> **RULE H2 — EVERY HARNESS ASSERTS ITS OWN COMPLETENESS.** An end sentinel that can only
+> fire if the FINAL section ran, checked first and by name.
+>
+> This generalises the fixture sentinel above from *fixtures* to *the things that check
+> fixtures*, and it is not hypothetical: **`incant/jiquery` had three `stop()` calls, so only
+> its first section ever ran.** `stop()` exits the process — sections 2 and 3 were dead code
+> that looked live, and the file reported a clean **exit 0 while answering one question out of
+> three**. It sat that way for a month and hid a second defect underneath it (the corpus was
+> holding no data — `docs/knownErrors.md` KE-1), because the section that would have shown the
+> empty values was one of the two that never ran.
+>
+> **The rule is stronger than "put a sentinel at the end", and this is the part worth
+> keeping:** the sentinel must be **unreachable except through the last section**. A marker
+> that a truncated run can still print asserts nothing. In a shell POP the natural form is a
+> final summary line plus a real exit status; in an incant harness it is a `print` immediately
+> before the single `stop()` — **single**, because a second `stop()` anywhere above it silently
+> deletes everything between.
+>
+> **And the generalisation behind both rules:** the instrument-level failures on this project
+> now outnumber the code-level ones — a stale binary, a `$?` through a pipe, a sentinel that
+> was never checked, a harness with three exits, an assertion that covered the wrong thing.
+> **When a result surprises you, doubt the instrument before the code.**
 
 ```
 testByteCode / testIfElse fixtures in incant/generate; init maximus=11, righty=13 (unitTests:82)

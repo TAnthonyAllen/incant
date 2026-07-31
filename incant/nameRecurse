@@ -137,4 +137,10 @@ print "=== Q2  .firsT affiliation on an attribute-then-member shape ===":;
 shapeProbe(outer);
 print "=== G2  the 403/404 guard fix and the new .firstMembeR ===":;
 fixProbe(outer);
+
+/*  Sentinel, added 2026-07-31 under standing harness rule H2 (CLAUDE.md
+    Testing). This file had none: an incant parse failure abandons the rest of
+    the file and still exits 0, so a truncated run of these three probes was
+    indistinguishable from a short successful one.  */
+print "NR SENTINEL -- run reached the end":;
 stop();
