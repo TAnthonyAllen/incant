@@ -276,6 +276,56 @@ define
                 provenance="sh jitLadder/ladder.sh rung J3, exit 0, all checks including back-edge and block topology; INCANT_JIT_DUMP=2 for the IR; 2026-07-31";
                 confidence="verified";
                 asOf="2026-07-31";
+            clobberAttributedNotBiting
+                content="jitDataClobber TESTED DIRECTLY AT LAST, and it does not
+                    bite. Rung J5 is the first rung whose purpose is ATTRIBUTION
+                    rather than coverage: a multi-statement loop body reusing one
+                    field in several roles, with the condition comparing a field
+                    the body also writes.
+                      while jeN > 0; jeSum = jeSum + jeN; jeN = jeN - 1;
+                      fire 1  jeN=4 -> jeSum=10   fire 2  jeN=5 -> jeSum=15
+                      no abort, no verifier refusal, oracle agrees, degrade 0
+                    THE READING, from DUMP=2: jeN is loaded FOUR SEPARATE TIMES
+                    in one iteration -- once in cond and three times in the body,
+                    ONE PER USE. So the stored SSA value is never what a later
+                    use reads, and the clobber CANNOT BE OBSERVED.
+                    ⚠ WHAT THIS DOES AND DOES NOT SETTLE. The overwrite still
+                    exists in source. What is now measured is that operand reuse
+                    across statements in a loop body does NOT expose it, because
+                    re-seeding happens per use. THE MECHANISM BY WHICH re-seeding
+                    happens per use is NOT established by this dump -- bear-trap
+                    #9 says the seeding gate SKIPS a node that already has
+                    jitData, and four loads means it did not skip. That gap is
+                    named rather than papered over.
+                    An inference that survived a month is replaced by a reading.";
+                provenance="incant/jitJ5 via sh jitLadder/ladder.sh, exit 0; INCANT_JIT_DUMP=2 for the load count, 2026-07-31";
+                searched="the emitted IR of jitJ5 only. NOT searched: why the seeding gate re-seeds per use when bear-trap #9 describes it as skipping an already-seeded node";
+                confidence="verified";
+                asOf="2026-07-31";
+            doBodyNotBlockWrapped
+                content="MEASURED ASYMMETRY: a WHILE body is committed to the
+                    result slot by aCTionBlocK; a DO body is NOT.
+                      while body -> one `store ... ptr %result`
+                      do    body -> zero
+                    Found by removing jitEmitWHILE's explicit commit on the
+                    strength of J5's evidence (its two-statement body emitted
+                    THREE stores for two statements -- one per statement plus a
+                    duplicate), then removing jitEmitDO's on the same reasoning.
+                    THE WHILE REMOVAL WAS RIGHT AND THE DO REMOVAL WAS WRONG: J4
+                    immediately emitted NO RESULT AT ALL ('no result emitted --
+                    gate did not fire?'). So there is now exactly ONE committer
+                    in each case: aCTionBlocK for a while body, an explicit
+                    jitStoreResult for a do body.
+                    ⚠ WHY the do body is not block-wrapped where the while body
+                    is has NOT been established. The measurement stands, the
+                    mechanism is open.
+                    THE RUNG CAUGHT IT ON THE SAME RUN THAT INTRODUCED IT, which
+                    is the ladder paying for itself: a plausible generalisation
+                    from one construct to its sibling was wrong, and the sibling
+                    had a fixture.";
+                provenance="DUMP=2 store counts on jitJ3 vs jitJ4, and J4 going red the moment the commit was removed, 2026-07-31";
+                confidence="verified";
+                asOf="2026-07-31";
             unaryPopsCrash
                 content="All three unary JIT POPs -- jitInc, jitDec, jitNeg --
                     exit 139 (SIGSEGV) inside jitEmitUnary dereferencing a null

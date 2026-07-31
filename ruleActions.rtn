@@ -310,6 +310,9 @@ extern GroupItem aCTionDO(GroupItem input)
 GroupItem   StatemenT:,
             ExpressioN:,
             result;
+    if jitting {
+        -% return jitEmitDO(input); %-
+    }
     do {
         result = StatemenT.gMethod(StatemenT);
         if isBranch {

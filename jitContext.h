@@ -69,6 +69,10 @@ inline std::vector<llvm::BasicBlock*> gIfElseBlocks;
 inline std::vector<llvm::BasicBlock*> gLoopCondBlocks;
 inline std::vector<llvm::BasicBlock*> gLoopExitBlocks;
 
+// The loop BODY block, needed only by `do` -- a while's back edge targets cond,
+// a do's targets body. Pushed/popped in lockstep with the other two.
+inline std::vector<llvm::BasicBlock*> gLoopBodyBlocks;
+
 // THE RESULT SLOT (2026-07-31, Tony's ruling). An i32 alloca in the function's
 // entry block holding the action's value. Every statement stores to it; the cap
 // loads it and rets. gJitResult-as-last-value retires.

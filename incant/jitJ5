@@ -1,0 +1,80 @@
+/*****************************************************************************
+    jitJ5 -- RUNG 5 OF THE jitLadder. 2026-07-31.
+    J4 + a MULTI-STATEMENT BODY WITH OPERAND REUSE.
+
+    ⚠ THIS RUNG'S PURPOSE IS ATTRIBUTION, NOT COVERAGE. It is the first one
+    written to settle a question rather than to extend the surface.
+
+    THE QUESTION: `jitDataClobber` -- jitEmitBinary and jitEmitCompare both end
+    by writing the RESULT back onto the TARGET operand's stored SSA value, so a
+    node compared once holds an i1 afterward and compared again would be
+    `icmp i1, i32`. It has been INFERRED for a month. Rung J3 removed its only
+    alleged symptom (testWhilE's ICmp abort, whose real cause was the ungated
+    loop executing at emit time), leaving the mechanism UNIMPLICATED: it exists
+    in source, acquitted of that symptom, never tested directly.
+
+    THIS IS THE DIRECT TEST. The body reuses ONE FIELD in several roles across
+    several statements, and the condition compares a field the body also writes:
+
+        while jeN > 0;
+            jeSum = jeSum + jeN;      <- jeN read as an operand
+            jeN   = jeN - 1;          <- jeN read AND written, same statement
+
+    jeN is compared (cond), read twice and written once (body), every iteration.
+    If a node can hold only one SSA value and the compare's i1 clobbers it, this
+    is where it shows -- as an abort, a verifier refusal, or a wrong sum.
+
+        fire 1   jeN = 4  ->  jeSum = 10   (4+3+2+1)
+        fire 2   jeN = 5  ->  jeSum = 15   (5+4+3+2+1), NO RECOMPILE
+
+    DIAGNOSTIC VALUES, per rung style:
+        10 / 15   correct
+         0 / 0    the body never ran
+         4 / 5    the loop ran once
+        any abort or verifier refusal IS the clobber, and DUMP=2 attributes it
+
+    ⚠ WHICHEVER WAY IT GOES, AN INFERENCE THAT SURVIVED A MONTH IS REPLACED BY A
+    READING. Green means the clobber does not bite operand reuse and its scope
+    shrinks to whatever is left. Red means it finally has a fixture that can
+    attribute it, with DUMP=2 to name the instruction.
+
+    SENTINEL AT THE FOOT (standing harness rule H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitLadder5);
+define
+    jeN;
+    jeSum;
+    jitJ5 code={
+        while jeN > 0;
+            jeSum = jeSum + jeN;
+            jeN = jeN - 1;
+        };
+    ;
+
+jeN   = 4;
+jeSum = 0;
+print "J5 fire 1 setup : jeN =" jeN " jeSum =" jeSum:;
+testing(jitJ5);
+print "J5 fire 1 result: jeSum =" jeSum " (want 10 = 4+3+2+1)":;
+
+jeN   = 5;
+jeSum = 0;
+print "J5 fire 2 setup : jeN =" jeN " jeSum =" jeSum " (recompile: NONE)":;
+jitRefire();
+print "J5 fire 2 result: jeSum =" jeSum " (want 15 = 5+4+3+2+1; 0 = body never ran)":;
+
+jeN   = 4;
+jeSum = 0;
+jitJ5();
+print "J5 interpreted  : jeSum =" jeSum " (the oracle -- want 10)":;
+
+print "J5 SENTINEL -- run reached the end":;
+stop();

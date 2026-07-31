@@ -238,6 +238,10 @@ extern "C" GroupItem *aCTionDO(GroupItem *input)
 GroupItem 	*StatemenT = input->getLabelGroup("StatemenT");
 GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
 GroupItem 	*result = 0;
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		 return jitEmitDO(input); 
+		}
 	do	{
 		result = StatemenT->groupBody->gMethod(StatemenT);
 		if ( result->groupBody->flags.isBranch )
@@ -3197,6 +3201,61 @@ extern "C" int jitDegrade(char *what, GroupItem *node)
 	
 }
 
+/* jitDoBegin / jitDoCond / jitDoEnd  the `do` bracket -- a while with the branch
+   MOVED, which is the whole difference and the whole point.
+
+     while:  entry -> cond -> (body -> cond)*        condition FIRST
+     do:     entry -> body -> cond -> (body ...)     BODY FIRST
+
+   So a do's body runs ONCE EVEN WHEN THE CONDITION STARTS FALSE, and that edge
+   is what rung J4 asserts. The topology difference is one branch target: a
+   while's back edge goes to `cond`, a do's goes to `body`. */
+extern "C" void jitDoBegin()
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Function *fn = b->GetInsertBlock()->getParent();
+	llvm::BasicBlock *bodyBB = llvm::BasicBlock::Create(ctx, "dobody", fn);
+	llvm::BasicBlock *condBB = llvm::BasicBlock::Create(ctx, "docond", fn);
+	llvm::BasicBlock *exitBB = llvm::BasicBlock::Create(ctx, "doexit", fn);
+	b->CreateBr(bodyBB);            // straight into the body: that is `do`
+	b->SetInsertPoint(bodyBB);
+	gLoopBodyBlocks.push_back(bodyBB);
+	gLoopCondBlocks.push_back(condBB);
+	gLoopExitBlocks.push_back(exitBB);
+	
+}
+
+extern "C" void jitDoCond()
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	llvm::BasicBlock *condBB = gLoopCondBlocks.back();
+	b->CreateBr(condBB);
+	b->SetInsertPoint(condBB);
+	
+}
+
+extern "C" void jitDoEnd()
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	llvm::Value *cond = gJitResult;
+	llvm::BasicBlock *bodyBB = gLoopBodyBlocks.back();
+	llvm::BasicBlock *exitBB = gLoopExitBlocks.back();
+	gLoopBodyBlocks.pop_back();
+	gLoopCondBlocks.pop_back();
+	gLoopExitBlocks.pop_back();
+	if (!cond) { b->CreateBr(exitBB); b->SetInsertPoint(exitBB); return; }
+	if (!cond->getType()->isIntegerTy(1))
+	cond = b->CreateICmpNE(cond,
+	llvm::ConstantInt::get(cond->getType(), 0), "tobool");
+	b->CreateCondBr(cond, bodyBB, exitBB);   // <-- back edge targets BODY
+	b->SetInsertPoint(exitBB);
+	
+}
+
 /* jitEmitAssign  the store-back emitter — commits a value into a target field's
    slot. Assign is a single store operation, so no jitOp selector. SKELETON — not
    wired (no gate, no fixtures).
@@ -3317,6 +3376,46 @@ extern "C" GroupItem *jitEmitCompare(GroupItem *argument, GroupItem *target, int
 	gJitResult = res;
 	return target;
 	
+}
+
+/* jitEmitDO  the do-while emitter (rung J4). Body first, condition second.
+
+   ⚠ E1 AUDIT: clears gJitResult before returning, as every bracketing emitter
+   must -- the body commits its own value to the result slot, so leaving one in
+   flight would let the enclosing walk re-commit it in the exit block.
+
+   ⚠ AND THE STORE MUST HAPPEN BEFORE jitDoCond MOVES THE INSERT POINT, or the
+   body's value is committed into the CONDITION block, where it executes on
+   every test rather than every iteration of the body. Same class of ordering
+   trap as jitLoopBegin's. */
+extern "C" GroupItem *jitEmitDO(GroupItem *input)
+{
+GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
+GroupItem 	*StatemenT = input->getLabelGroup("StatemenT");
+GroupItem 	*result = 0;
+	::jitDoBegin();
+	if ( StatemenT )
+		result = StatemenT->groupBody->gMethod(StatemenT);
+	/*  ⚠ THE EXPLICIT COMMIT IS REQUIRED HERE AND MUST NOT BE REMOVED, and the
+	asymmetry with jitEmitWHILE is MEASURED, not assumed:
+	
+	while body -> aCTionBlocK commits it (one `store ... ptr %result`)
+	do    body -> NOTHING commits it (zero stores)
+	
+	Removing this line on the strength of the while evidence made J4 emit
+	NO result at all -- "no result emitted (gate did not fire?)" -- and the
+	rung caught it immediately. So there is exactly ONE committer in each
+	case: aCTionBlocK for a while body, this line for a do body.
+	WHY the do body is not block-wrapped where the while body is has NOT
+	been established -- the measurement stands, the mechanism is open.  */
+	::jitStoreResult();
+	::jitDoCond();
+	result = ExpressioN;
+	if ( isMethod(result->groupBody->flags.instructType) )
+		result = result->groupBody->gMethod(result);
+	::jitDoEnd();
+	 gJitResult = nullptr; 
+	return result;
 }
 
 /* jitEmitGIF  the gIF emitter — now rides the INTERPRET walk (pivot, 2026-06-30).
@@ -3468,7 +3567,13 @@ GroupItem 	*result = 0;
 	::jitLoopBody();
 	if ( StatemenT )
 		result = StatemenT->groupBody->gMethod(StatemenT);
-	::jitStoreResult();
+	/*  NO jitStoreResult() HERE, and that is a correction rather than an
+	omission. aCTionBlocK already commits EVERY statement under jitting, and
+	a loop body is always block-wrapped -- measured on rung J5, whose
+	two-statement body emitted THREE stores to the result slot: one per
+	statement plus this one, duplicating the last. One committer per value
+	(the one-channel family's cousin: two writers, one location, benign only
+	while they agree).  */
 	::jitLoopEnd();
 	 gJitResult = nullptr; 
 	return result;

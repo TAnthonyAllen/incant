@@ -1,0 +1,62 @@
+/*****************************************************************************
+    jitJ4 -- RUNG 4 OF THE jitLadder. 2026-07-31.   J3 + do.
+
+    THE CLAIM THIS RUNG ADDS: the body runs ONCE EVEN WHEN THE CONDITION STARTS
+    FALSE. That is the do/while contract and it is the ONLY thing distinguishing
+    `do` from `while` -- so a rung that did not test it would be re-testing J3.
+
+        do jdIn = jdIn - 2; while jdIn > 0;
+
+        fire 1   jdIn = 10  ->   0   (5 iterations, same as a while would give)
+        fire 2   jdIn = 0   ->  -2   (condition FALSE at entry; body ran ONCE)
+
+    ⚠ FIRE 2 IS THE RUNG. Its value is diagnostic on its own, per rung style:
+         -2   correct -- do semantics, body ran once
+          0   WHILE SEMANTICS -- the body was skipped, the branch was not moved
+         -4   the body ran twice on a condition that was false at entry
+
+    Fire 1 is the regression net: it proves the loop still iterates properly and
+    that moving the branch did not break the ordinary case.
+
+    THE TOPOLOGY DIFFERENCE, which is one branch target:
+        while:  entry -> cond -> (body -> cond)*      condition FIRST
+        do:     entry -> body -> cond -> (body ...)   BODY FIRST
+
+    SENTINEL AT THE FOOT (standing harness rule H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitLadder4);
+define
+    jdIn;
+    jitJ4 code={
+        do jdIn = jdIn - 2;
+        while jdIn > 0;
+        };
+    ;
+
+jdIn = 10;
+print "J4 fire 1 setup : jdIn =" jdIn:;
+testing(jitJ4);
+print "J4 fire 1 result: jdIn =" jdIn " (want 0)":;
+
+/*  ⚠ NO RECOMPILE. And the input is chosen so the CONDITION IS FALSE AT ENTRY.  */
+jdIn = 0;
+print "J4 fire 2 setup : jdIn =" jdIn " (condition false at entry; recompile: NONE)":;
+jitRefire();
+print "J4 fire 2 result: jdIn =" jdIn " (want -2; 0 = body SKIPPED = while semantics)":;
+
+/*  ⚠ ORACLE LAST -- calling the action interpreted first consumes its isCoded
+    state and testing() silently routes to jitRunIfTest.  */
+jdIn = 10;
+jitJ4();
+print "J4 interpreted  : jdIn =" jdIn " (the oracle -- want 0)":;
+
+print "J4 SENTINEL -- run reached the end":;
+stop();

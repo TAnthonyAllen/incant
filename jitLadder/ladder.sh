@@ -119,8 +119,8 @@ rung () {
 #    J3  + while                                    <- GREEN  (testWhilE's
 #        honest retest; trip-count-dependent, back edge asserted)
 #    J4  + do                          (body-runs-once-when-false asserted)
-#    J5  + multi-statement operand reuse  (O5/the clobber question gets a
-#                                          FIXTURE instead of an inference)
+#    J5  + multi-statement operand reuse            <- GREEN  (an ATTRIBUTION
+#        rung: the clobber tested DIRECTLY and found not to bite)
 #    ... string +=, compare chains, bare return, break/continue in loops --
 #        each ratified ruling eventually earns a rung pinning it in COMPILED form
 #
@@ -216,8 +216,35 @@ else
     echo "  FAIL  J3 NO BACK EDGE -- emitted a guarded block, not a loop"; fail=1
 fi
 
+echo "-- J4  + do -- the body runs ONCE when the condition starts FALSE"
+#  The ONLY thing distinguishing `do` from `while`, so a rung not testing it
+#  would be re-testing J3. Fire 2's input makes the condition false at ENTRY:
+#     -2  correct (do semantics, body ran once)
+#      0  WHILE SEMANTICS -- the body was skipped, the branch was not moved
+#  The topology difference is ONE BRANCH TARGET: a while's back edge goes to
+#  cond, a do's goes to BODY -- which is what the CondBr check below asserts.
+rung jitJ4 "J4 SENTINEL" "J4" 0 -2
+irshape jitJ4 "J4" entry dobody docond doexit
+if grep -q "label %dobody, label %doexit" "$T/jitJ4.ir"; then
+    echo "  ok    J4 back edge targets BODY (do semantics, not while)"
+else
+    echo "  FAIL  J4 back edge does not target dobody -- this is a while, not a do"; fail=1
+fi
+
+echo "-- J5  + multi-statement body with OPERAND REUSE -- an ATTRIBUTION rung"
+#  ⚠ THE FIRST RUNG WHOSE PURPOSE IS ATTRIBUTION RATHER THAN COVERAGE. It is the
+#  direct test of jitDataClobber, INFERRED for a month and left UNIMPLICATED by
+#  J3 (which removed its only alleged symptom without ever testing it).
+#  jeN is compared in cond, read twice and written once in the body, every
+#  iteration. If a node can hold only one SSA value and the compare's i1
+#  clobbers it, this is where it shows.
+#  IT DOES NOT. And the reading, from DUMP=2: jeN is loaded FOUR SEPARATE TIMES
+#  in one iteration -- once per USE -- so the stored SSA value is never what a
+#  later use reads, and the clobber cannot be observed.
+rung jitJ5 "J5 SENTINEL" "J5" 10 15
+
 echo ""
-if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3)"
+if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"
 exit $fail
