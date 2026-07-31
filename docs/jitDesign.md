@@ -559,6 +559,71 @@ so, currently, is the alloca.
 
 ---
 
+# DEBUGGABILITY — THREE TIERS AND ONE DEADLINE
+
+**Two problems, deliberately separated:** debugging the **emitter** (is the IR right?) and
+debugging **jitted code** (the IR is valid and the answer is wrong). **Every defect found to
+date has been the first kind** — which is why the instrument set below is text-shaped, and why
+it has been enough so far.
+
+## Tier 0 — exists, and is the current set
+`INCANT_JIT_DUMP=1` (post-pass) · **`=2` (pre-pass — the attribution instrument)** ·
+`llvm::verifyFunction` · the degrade counter (H4, presence-with-value) · the **jitLadder** with
+fire-twice and negative controls.
+
+**This set found, all by reading text:** the missing merge, the constant return, the E1
+double-store, and the re-seeded loads.
+
+## Tier 1 — cheap, and scheduled: build it with the table arc
+- **FIELD-NAMED SSA VALUES.** The fresh-name primitive takes a hint: emit `%jaIn.2`, not `%7`.
+  **A dump that reads as incant is self-documenting; a numbered dump is archaeology.**
+- **PER-STATEMENT PROVENANCE COMMENTS** — `; stmt N: <source>` ahead of each statement's
+  instructions. **Not decoration:** LLVM's IR parser reports template errors **by text line**,
+  so provenance comments are how a parse error finds *the table row that emitted it*. They need
+  only exist in the buffer the parser reads.
+- **`jitTrace` — THE PRINT THAT SURVIVES JITTING, and it is the priority item.**
+  ⚠ `opPrint` is **ungated**, so under `jitting=1` a print in the body fires at **emit time**
+  (§2.2, measured). **Print-debugging a jitted action therefore reports compile-time state
+  once instead of run-time state per fire — it appears to work and it lies.** `jitTrace` is an
+  *emitted runtime call* — the fallback column's machinery pointed at diagnosis — that fires at
+  run time, per fire, carrying field values out. Under **method-valued cells** (O2 addendum)
+  trace emission becomes **table data**: toggled per-op/per-type with no recompile and no
+  `tokall`. **The fallback column and `jitTrace` are the same plumbing**, so it lands when the
+  call path lands.
+
+## Tier 2 — HPDL, parked until a bug demands it
+`!dbg` metadata → DWARF → ORC/GDB-JIT registration → real stepping in `lldb`. Attaches
+identically to text IR (metadata is just more text). **No bug to date has needed it.** Parked,
+named.
+
+## ⚠ THE DEADLINE — THE ORACLE DIES AT CROSSOVER
+The interpreter is the **differential oracle**: same action, same inputs, both paths, diff. It
+is **the most powerful debugging instrument the JIT will ever have, and §0 sentences it to
+death.**
+
+**A wrong jitted answer localises by bisection only while the interpreted path exists.** After
+crossover, truth comes only from fixtures written *in advance*.
+
+**Which is why every ladder rung from J2 forward records its INTERPRETED result as a captured
+fact beside its asserted value** — the ladder accumulates the oracle's testimony while the
+oracle can still testify. Implemented: each rung prints an `interpreted` line and the harness
+checks it against fire 1.
+
+⚠ **And capturing it has an ORDERING CONSTRAINT that is not obvious** — see the note in
+`jitLadder/ladder.sh`: the oracle call must come **after** the jitted fires, because calling an
+action interpreted first consumes its `isCoded` state and `testing()` then silently routes to
+`jitRunIfTest` (a hand-built smoke scaffold) instead of `jitRunAction`. Found the first time a
+rung tried to capture the oracle, 2026-07-31.
+
+## Tier 1's honest gap, stated rather than discovered later
+`jitTrace` is gated behind **call emission**, which does not exist — the same prerequisite J-R
+named. **So the loop rungs J3/J4 arrive before the print-replacement does.** That gap is
+survivable: loops are counter arithmetic and `DUMP=2` covers them. But **the
+difficult-action debugging story starts when the call path lands**, which is one more reason
+that path sits early in the post-loop order.
+
+---
+
 # PART V — DEFERRED, AND NAMED SO IT DOES NOT CREEP
 
 - **`modedOP.boundTo` interaction with jitted dispatch** — pending that design pass.

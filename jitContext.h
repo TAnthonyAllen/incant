@@ -52,6 +52,23 @@ inline std::vector<llvm::BasicBlock*> gIfEndBlocks;
 // came to be missing in the first place.
 inline std::vector<llvm::BasicBlock*> gIfElseBlocks;
 
+// LOOP BLOCK TOPOLOGY (2026-07-31, rung J3). The loop analog of gIfElseBlocks
+// /gIfEndBlocks, pushed and popped in lockstep so nested loops nest.
+//
+//   preheader -> br cond
+//   cond:  <condition sub-walk emits HERE>  ; br i1 %c, body, exit
+//   body:  <body sub-walk emits HERE>       ; br cond      <-- back edge
+//   exit:  (emission continues here)
+//
+// ⚠ THE CONDITION IS EMITTED INSIDE `cond`, WHICH IS WHY jitLoopBegin RUNS
+// BEFORE THE CONDITION WALK -- the opposite order from gIF, where the condition
+// is emitted into the CURRENT block and jitIfBegin then splits. A loop's
+// condition must re-execute every iteration, so it has to live in a block the
+// back edge returns to. Get this backwards and the condition is evaluated once,
+// before the loop, and the loop is infinite or never runs.
+inline std::vector<llvm::BasicBlock*> gLoopCondBlocks;
+inline std::vector<llvm::BasicBlock*> gLoopExitBlocks;
+
 // THE RESULT SLOT (2026-07-31, Tony's ruling). An i32 alloca in the function's
 // entry block holding the action's value. Every statement stores to it; the cap
 // loads it and rets. gJitResult-as-last-value retires.

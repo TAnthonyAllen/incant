@@ -168,6 +168,7 @@ extern "C" GroupItem *jitEmitCompare(GroupItem *argument, GroupItem *target, int
 extern "C" GroupItem *jitEmitGIF(GroupItem *input);
 extern "C" GroupItem *jitEmitStringPlusEQ(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *jitEmitUnary(GroupItem *target, int op);
+extern "C" GroupItem *jitEmitWHILE(GroupItem *input);
 extern "C" void *jitEngine();
 extern "C" GroupItem *jitExecBlock(GroupItem *input);
 extern "C" void jitForceInclude();
@@ -175,6 +176,9 @@ extern "C" void jitIfBegin();
 extern "C" void jitIfElse();
 extern "C" void jitIfEnd();
 extern "C" void jitInitOnce();
+extern "C" void jitLoopBegin();
+extern "C" void jitLoopBody();
+extern "C" void jitLoopEnd();
 extern "C" GroupItem *jitRefire(GroupItem *input);
 extern "C" int jitRunAction(GroupItem *action);
 extern "C" int jitRunAddTwo();

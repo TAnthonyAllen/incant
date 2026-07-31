@@ -35,6 +35,18 @@
 #  the POSITIVE -- language surface the JIT provably owns, end to end, at run
 #  time. Burn-down on one side, ladder on the other.
 #
+#  RUNG STYLE, adopted 2026-07-31:
+#    - EACH RUNG NAMES ITS CLAIM, and the claims are not interchangeable:
+#         J1  the OPERANDS are read at run time
+#         J2  the BRANCH is decided at run time
+#         J3  the loop RUNS THE RIGHT NUMBER OF TIMES at run time
+#      A rung that cannot say what it newly proves is a rung that adds coverage
+#      without adding confidence.
+#    - CHOOSE EXPECTED VALUES SO THE WRONG ANSWERS ARE DIAGNOSTIC. J2's are the
+#      model: 20/7 correct, 20/20 the condition was folded, 20/0 the pre-fix
+#      else-arm bug. The rung does not merely fail -- IT NAMES ITS FAILURE MODE
+#      FROM THE VALUE ALONE, before anyone opens a dump.
+#
 #  Standing harness rules apply (CLAUDE.md Testing): H1 the binary is echoed;
 #  H2 each rung's sentinel is checked FIRST and by name; H3 values are asserted,
 #  never a golden IR diff -- field slots are baked ABSOLUTE ADDRESSES, so an IR
@@ -85,6 +97,17 @@ rung () {
     fi
     if [ "$dg" = "0" ]; then echo "  ok    $label degrade count 0 (no silent emit-time fallback)"
     else echo "  FAIL  $label degrade count = '$dg', want 0 -- a construct fell through"; fail=1; fi
+    #  THE ORACLE'S TESTIMONY, captured while it can still testify. Not an
+    #  assertion against a target -- a CAPTURED FACT recorded beside the
+    #  asserted value, because section 0 sentences the interpreter to death and
+    #  after crossover a wrong jitted answer can no longer be localised by
+    #  differential bisection. Truth will come only from fixtures written in
+    #  advance, so the ladder banks the oracle's answers now.
+    #  It IS checked against fire 1 -- same action, same input, both paths.
+    or=$(sed -n "s/.*interpreted  *: [a-zA-Z]* = \\([0-9-][0-9]*\\).*/\\1/p" "$T/$f" | head -1)
+    if [ -z "$or" ]; then echo "  FAIL  $label oracle not recorded -- the rung must capture it"; fail=1
+    elif [ "$or" = "$w1" ]; then echo "  ok    $label oracle agrees with fire 1 = $or  (interpreted == jitted)"
+    else echo "  FAIL  $label ORACLE DISAGREES: interpreted $or vs jitted $w1"; fail=1; fi
 }
 
 #  ============================================================================
@@ -93,7 +116,8 @@ rung () {
 #    J1  assign + arithmetic                          <- GREEN
 #    J2  + if/else, both arms                       <- GREEN  (the else-arm
 #        fix's permanent home; the two fires take DIFFERENT ARMS)
-#    J3  + while                       (testWhilE's honest retest, in the ladder)
+#    J3  + while                                    <- GREEN  (testWhilE's
+#        honest retest; trip-count-dependent, back edge asserted)
 #    J4  + do                          (body-runs-once-when-false asserted)
 #    J5  + multi-statement operand reuse  (O5/the clobber question gets a
 #                                          FIXTURE instead of an inference)
@@ -175,8 +199,25 @@ else
     echo "  FAIL  J2 no two-way CondBr in emitter output -- branch not gated"; fail=1
 fi
 
+echo "-- J3  + while -- THE HONEST RETEST of testWhilE's ICmp abort"
+#  testWhilE died at 134 (SIGABRT, ICmp operand type mismatch) from 2026-07-30,
+#  and the recorded cause -- jitEmitCompare clobbering the target's SSA value --
+#  was INFERRED and later WEAKENED when the IR showed re-seeding.
+#  IT DOES NOT RECUR, and the reason is simpler than the clobber: aCTionWhilE
+#  had NO jitting gate, so under jitting the loop EXECUTED at emit time and
+#  walked its condition REPEATEDLY. With a gate the condition is emitted ONCE,
+#  into `cond`, and the loop runs at RUN time. Trip-count-dependent by
+#  construction: the two inputs land on DIFFERENT values.
+rung jitJ3 "J3 SENTINEL" "J3" 0 -1
+irshape jitJ3 "J3" entry cond body loopexit
+if grep -q "^  br label %cond" "$T/jitJ3.ir"; then
+    echo "  ok    J3 back edge present (body branches to cond -- it is a LOOP)"
+else
+    echo "  FAIL  J3 NO BACK EDGE -- emitted a guarded block, not a loop"; fail=1
+fi
+
 echo ""
-if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2)"
+if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"
 exit $fail

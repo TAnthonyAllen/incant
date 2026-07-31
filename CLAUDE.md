@@ -424,6 +424,31 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 > two empty files. **A vacuity guard is H4's other half:** an assertion that compares nothing to
 > nothing is an absence check wearing a diff's clothes.
 >
+> ⚠ **PREFER A STRUCTURE THAT MAKES THE FAILURE UNCONSTRUCTABLE OVER A DISCIPLINE THAT AVOIDS
+> IT.** A new family, adopted 2026-07-31 with three members found in one week. **Disciplines get
+> audited; structures do not need to be.**
+>
+> | the failure | the discipline that avoided it | the structure that makes it unbuildable |
+> |---|---|---|
+> | value/signal conflation | care, in three loop handlers plus the block | **in IR a `br` carries no value and a `store` carries no control flow** — nothing to conflate |
+> | a bracketing emitter leaving a stale value in flight | remember to clear it | **E1**: the emitter that commits *owns* the clearing, so an enclosing walk has nothing to re-commit |
+> | sequential-state corruption from a second `testing()` on one action | split the fixture into two files and warn | **one `testing()`, then `jitRefire()` forever** — a rung cannot call it twice, so the corruption is not avoided, it is **unconstructable in rung shape** |
+>
+> The third is the instructive one because **nobody set out to fix it.** The refire scaffold was
+> built for the run-time proof; it dissolved a tar baby that had already produced one phantom
+> regression and forced a two-file split. **When a fix and a shape are both available, the shape
+> is worth more than the difference in effort suggests** — because the discipline has to be
+> re-applied by everyone who touches the area afterwards, and the shape does not.
+>
+> **RETIREMENT BY MAPPING** — the standing form when a fixture or harness retires into another:
+> **list every assertion and where it now lives, in the commit, checkable line by line.** Do not
+> assert equivalence. Silent coverage loss hides in exactly the gap between "these overlap" and
+> "here are the eight things it asserted and here is each one's new home." Worked example:
+> `jitPop.sh`/`jitElseT`/`jitThenT` retiring into ladder rung J2 (eight carried, two
+> strengthened). And **historical provenance stands** — a provenance naming a since-deleted
+> fixture records *what was run*, so rewriting it falsifies the record; add a retirement note and
+> repoint only present-tense and forward-looking references.
+>
 > ⚠ **ONE CHANNEL, ONE MEANING.** A second family, distinct from the causal-claim asymmetry
 > below and now with two measured members. When one channel is made to carry two meanings, a
 > change to either meaning silently corrupts the other:

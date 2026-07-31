@@ -1,0 +1,68 @@
+/*****************************************************************************
+    jitJ3 -- RUNG 3 OF THE jitLadder. 2026-07-31.   J2 + while.
+
+    THE HONEST RETEST. `testWhilE` has died at 134 (SIGABRT, "Both operands to
+    ICmp instruction are not of the same type") since 2026-07-30, and the
+    recorded cause -- jitEmitCompare clobbering the target's stored SSA value --
+    was INFERRED and later WEAKENED when the IR showed re-seeding. This rung
+    settles it on clean ground rather than by argument.
+
+    WHY THE ABORT SHOULD NOT RECUR, stated so the run can refute it: aCTionWhilE
+    had NO jitting gate, so under jitting the loop EXECUTED at emit time and
+    walked its condition REPEATEDLY -- re-emitting a compare against a node whose
+    jitData already held the previous i1. With a gate the condition is emitted
+    exactly ONCE, into the `cond` block, and the loop runs at RUN time.
+
+    Body is a single statement on purpose: J3 adds ONE construct (`while`), and
+    a multi-statement body is J5's operand-reuse question.
+
+        while jcIn > 0;  jcIn = jcIn - 2;
+
+        fire 1   jcIn = 10  ->  0    (5 iterations)
+        fire 2   jcIn = 7   -> -1    (4 iterations, NO RECOMPILE)
+
+    TRIP-COUNT-DEPENDENT BY CONSTRUCTION: the two inputs land on DIFFERENT
+    values, so the answer proves the loop ran the right number of times. If it
+    never ran: 10 and 7 unchanged. If it ran once: 8 and 5.
+
+    SENTINEL AT THE FOOT (standing harness rule H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitLadder3);
+define
+    jcIn;
+    jitJ3 code={
+        while jcIn > 0;
+            jcIn = jcIn - 2;
+        };
+    ;
+
+/*  THE ORACLE'S TESTIMONY, captured while the interpreter can still give it.
+    Same action, same input, interpreted -- recorded beside the asserted value.  */
+jcIn = 10;
+print "J3 fire 1 setup : jcIn =" jcIn:;
+testing(jitJ3);
+print "J3 fire 1 result: jcIn =" jcIn " (want 0)":;
+
+jcIn = 7;
+print "J3 fire 2 setup : jcIn =" jcIn " (recompile: NONE)":;
+jitRefire();
+print "J3 fire 2 result: jcIn =" jcIn " (want -1; 7 = loop never ran; 5 = ran once)":;
+
+/*  ⚠ THE ORACLE IS CAPTURED LAST, AND THAT ORDER IS LOAD-BEARING -- see the
+    header note. Calling the action interpreted BEFORE testing() consumes its
+    isCoded state, and testing() then silently routes to jitRunIfTest (the
+    hand-built smoke scaffold) instead of jitRunAction. Measured 2026-07-31.  */
+jcIn = 10;
+jitJ3();
+print "J3 interpreted  : jcIn =" jcIn " (the oracle, input 10 -- want 0)":;
+
+print "J3 SENTINEL -- run reached the end":;
+stop();

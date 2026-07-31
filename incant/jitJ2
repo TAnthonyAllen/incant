@@ -78,5 +78,16 @@ print "J2 fire 2 setup : jbIn =" jbIn " (expect ELSE arm; recompile: NONE)":;
 jitRefire();
 print "J2 fire 2 result: jbOut =" jbOut " (want 7; 20 = condition FOLDED; 0 = else arm never stored)":;
 
+/*  ⚠ THE ORACLE'S TESTIMONY, captured LAST and that order is LOAD-BEARING.
+    The interpreter is the differential oracle and section 0 sentences it to
+    death, so every rung records what it said while it can still say it.
+    BUT: calling the action interpreted BEFORE testing() consumes its isCoded
+    state, and testing() then silently routes to jitRunIfTest -- the hand-built
+    smoke scaffold -- instead of jitRunAction. Measured on J3, 2026-07-31.  */
+jbIn = 10;
+jbOut = 0;
+jitJ2();
+print "J2 interpreted  : jbOut =" jbOut " (the oracle -- want 20)":;
+
 print "J2 SENTINEL -- run reached the end":;
 stop();

@@ -1064,6 +1064,9 @@ extern GroupItem aCTionWhilE(GroupItem input)
 GroupItem   ExpressioN:,
             StatemenT:;
 GroupItem   result;
+    if jitting {
+        -% return jitEmitWHILE(input); %-
+    }
     while ExpressioN.gMethod(ExpressioN)
         if result = StatemenT.gMethod(StatemenT) {
             if isBranch {

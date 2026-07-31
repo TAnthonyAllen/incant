@@ -369,7 +369,29 @@ process and reported a regression that did not exist. **The refire scaffold diss
 constraint**: a rung calls `testing()` once and `jitRefire()` thereafter, so the corruption is
 structurally unreachable. Machinery built for the run-time proof paid a second dividend.
 
-### 3.3 The `jitData` single-value clobber — INFERRED, blocks everything past Phase 1
+### 3.3 The `jitData` single-value clobber — ⚠ THE ABORT IS GONE, and NOT because of this
+**Status 2026-07-31, after rung J3: `testWhilE`'s ICmp abort does not recur, and the clobber was
+never implicated.**
+
+`aCTionWhilE` had **no jitting gate**, so under `jitting=1` the loop **executed at emit time**
+and walked its condition **repeatedly** — re-emitting a compare against a node whose `jitData`
+already held the previous `i1`. With a gate (`jitEmitWHILE`, rung J3) the condition is emitted
+**exactly once**, into the `cond` block, and the loop runs at run time. J3 is green: 10→0,
+7→−1, no recompile, degrade 0, and the emitted IR is a textbook loop with the load **inside**
+`cond`.
+
+**So the cause was the ungated loop, not the clobber** — which makes this the *sixth* causal
+claim in this domain to fail, and it failed in the useful direction: the inferred mechanism was
+never confirmed, and the symptom disappeared under an unrelated, structural fix.
+
+⚠ **The clobber itself is NOT refuted — it is UNIMPLICATED.** The overwrite exists in source;
+what is gone is its only alleged consequence. It keeps a dedicated fixture at ladder rung J5
+(multi-statement operand reuse), where it can be attributed rather than inferred. **Do not
+promote it to refuted without a run that looks for it directly.**
+
+The original reasoning, kept because it is what J5 will test:
+
+#### The original claim (INFERRED, now unimplicated)
 `testWhilE` and `testDo` both abort (134) on *"Both operands to ICmp instruction are not of the
 same type!"*. Likely mechanism: `jitEmitBinary` and `jitEmitCompare` both end
 `target->jitData->setJitter(res)` — **overwriting the target operand's stored SSA value with

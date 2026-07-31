@@ -465,6 +465,103 @@ extern void jitIfEnd()
     %-
 }
 
+/* jitLoopBegin  open a loop: create cond/body/exit, branch into cond, and set
+   the insert point THERE so the condition sub-walk emits inside it.
+
+   ⚠ ORDER IS THE OPPOSITE OF gIF AND IT MATTERS. jitIfBegin is called AFTER the
+   condition has been emitted into the current block, because an if evaluates
+   its condition once. A loop's condition must re-execute on every iteration, so
+   it has to live in a block the back edge returns to -- which means the block
+   must exist and be current BEFORE the condition walk runs. Get it backwards
+   and the condition is evaluated once, ahead of the loop: infinite, or never
+   entered. */
+extern void jitLoopBegin()
+{
+    -%
+    llvm::IRBuilder<> *b = gJitBuilder;
+    llvm::LLVMContext &ctx = b->getContext();
+    llvm::Function *fn = b->GetInsertBlock()->getParent();
+    llvm::BasicBlock *condBB = llvm::BasicBlock::Create(ctx, "cond", fn);
+    llvm::BasicBlock *exitBB = llvm::BasicBlock::Create(ctx, "loopexit", fn);
+    b->CreateBr(condBB);            // preheader falls into cond
+    b->SetInsertPoint(condBB);
+    gLoopCondBlocks.push_back(condBB);
+    gLoopExitBlocks.push_back(exitBB);
+    %-
+}
+
+/* jitLoopBody  close the condition and open the body. Reads the i1 the
+   condition sub-walk left in gJitResult, emits the CondBr to body/exit, and
+   sets the insert point to body.
+
+   ⚠ THE gJitResult READ MUST BE IMMEDIATE -- no emission may sit between the
+   condition walk and this call. gJitResult is a single-slot channel and a
+   clobber does not announce itself. Same rule jitIfBegin obeys. */
+extern void jitLoopBody()
+{
+    -%
+    llvm::IRBuilder<> *b = gJitBuilder;
+    llvm::LLVMContext &ctx = b->getContext();
+    llvm::Function *fn = b->GetInsertBlock()->getParent();
+    llvm::Value *cond = gJitResult;
+    if (!cond) return;
+    if (!cond->getType()->isIntegerTy(1))
+        cond = b->CreateICmpNE(cond,
+            llvm::ConstantInt::get(cond->getType(), 0), "tobool");
+    llvm::BasicBlock *bodyBB = llvm::BasicBlock::Create(ctx, "body", fn);
+    b->CreateCondBr(cond, bodyBB, gLoopExitBlocks.back());
+    b->SetInsertPoint(bodyBB);
+    %-
+}
+
+/* jitLoopEnd  close the body with the BACK EDGE and resume at exit, popping
+   both stacks. The back edge is what makes it a loop rather than a one-shot
+   guarded block, and it is the whole difference from jitIfEnd. */
+extern void jitLoopEnd()
+{
+    -%
+    llvm::IRBuilder<> *b = gJitBuilder;
+    llvm::BasicBlock *condBB = gLoopCondBlocks.back();
+    llvm::BasicBlock *exitBB = gLoopExitBlocks.back();
+    gLoopCondBlocks.pop_back();
+    gLoopExitBlocks.pop_back();
+    b->CreateBr(condBB);            // <-- the back edge
+    b->SetInsertPoint(exitBB);
+    %-
+}
+
+/* jitEmitWHILE  the while emitter (rung J3). Mirrors jitEmitGIF's shape: gate
+   in aCTionWhilE, bracket the sub-walks, let the runOP walk own its traversal.
+
+   ⚠ E1 AUDIT (docs/jitDesign.md): A BRACKETING EMITTER LEAVES NOTHING IN
+   FLIGHT. The body commits its own value to the result slot, so gJitResult is
+   cleared before returning -- otherwise the enclosing walk commits the stale
+   body value AGAIN, in the exit block, which is exactly the clobber that made
+   every gIF path return the last arm emitted. This is E1's first audit customer
+   and it obeys it by construction rather than by luck.
+
+   ⚠ THE CONDITION IS WALKED ONCE, into `cond`, and that is the honest retest of
+   the old ICmp abort: testWhilE used to die at 134 because aCTionWhilE had NO
+   gate, so under jitting the loop EXECUTED at emit time and walked its
+   condition repeatedly -- re-emitting a compare against a node whose jitData
+   already held the previous i1. With a gate the condition is emitted exactly
+   once and the loop runs at RUN time, which is what the ladder measures. */
+extern GroupItem jitEmitWHILE(GroupItem input)
+{
+GroupItem   ExpressioN:,
+            StatemenT:;
+GroupItem   result;
+    jitLoopBegin();
+    result = ExpressioN;
+    if isMethod result = result.gMethod(result);
+    jitLoopBody();
+    if StatemenT    result = StatemenT.gMethod(StatemenT);
+    jitStoreResult();
+    jitLoopEnd();
+    -% gJitResult = nullptr; %-
+    return result;
+}
+
 /* jitEmitGIF  the gIF emitter — now rides the INTERPRET walk (pivot, 2026-06-30).
    Called from aCTionIF's jitting gate with the live if-node. It mirrors aCTionIF's
    own condition-eval (`result = ExpressioN; if isMethod result.gMethod`), but

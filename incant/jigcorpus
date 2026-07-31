@@ -52,6 +52,7 @@ define
     blocks virtual;
     cost virtual;
     partial virtual;
+    unimplicated virtual;
     established virtual;
     missing virtual;
     /*  ⚠ EVERY ATTRIBUTE NAME A QUERY READS MUST BE DECLARED HERE. An
@@ -242,6 +243,39 @@ define
                 provenance="sh jitLadder/ladder.sh, exit 0, both criteria NEGATIVE-CONTROLLED (a wrong fire-2 expectation and a wrong sentinel each go red with the right message), 2026-07-31";
                 confidence="verified";
                 asOf="2026-07-31";
+            loopEmitterLandedJ3
+                content="THE LOOP EMITTER EXISTS AND RUNG J3 IS GREEN, and with
+                    it the oldest unexplained red on the board is gone.
+                      while jcIn > 0; jcIn = jcIn - 2;
+                      fire 1  jcIn=10 ->  0   (5 iterations)
+                      fire 2  jcIn=7  -> -1   (4 iterations, NO RECOMPILE)
+                      oracle (interpreted) agrees; degrade count 0
+                    Emitted IR is a textbook loop -- entry/cond/body/loopexit,
+                    back edge present, and THE LOAD IS INSIDE cond so it
+                    re-executes each iteration.
+                    ⚠ testWhilE's ICmp ABORT (134) DOES NOT RECUR, AND THE
+                    CLOBBER WAS NEVER IMPLICATED. aCTionWhilE had NO jitting
+                    gate, so under jitting the loop EXECUTED AT EMIT TIME and
+                    walked its condition repeatedly -- re-emitting a compare
+                    against a node whose jitData already held the previous i1.
+                    With a gate the condition is emitted ONCE. So the cause was
+                    the ungated loop, not jitDataClobber -- the SIXTH causal
+                    claim in this domain to fail, and it failed in the useful
+                    direction: the inferred mechanism was never confirmed and
+                    the symptom vanished under an unrelated structural fix.
+                    E1 AUDIT PASSED BY CONSTRUCTION: jitEmitWHILE clears
+                    gJitResult after the body commits, as E1 requires of every
+                    bracketing emitter. It was E1's first audit customer.
+                    ⚠ ONE BENIGN REDUNDANCY RECORDED, not fixed: the body emits
+                    TWO identical stores to the result slot -- one from
+                    aCTionBlocK's per-statement commit, one from jitEmitWHILE's
+                    explicit one. Harmless today because they store the same
+                    value in the same block; worth knowing because two
+                    committers for one value is precisely the shape that becomes
+                    a bug the moment they can differ.";
+                provenance="sh jitLadder/ladder.sh rung J3, exit 0, all checks including back-edge and block topology; INCANT_JIT_DUMP=2 for the IR; 2026-07-31";
+                confidence="verified";
+                asOf="2026-07-31";
             unaryPopsCrash
                 content="All three unary JIT POPs -- jitInc, jitDec, jitNeg --
                     exit 139 (SIGSEGV) inside jitEmitUnary dereferencing a null
@@ -425,7 +459,8 @@ define
                     obstacle, not an excuse: settling this needs the dump moved
                     earlier or emitted incrementally.";
                 confidence="inferred";
-                asOf="2026-07-30";
+                asOf="2026-07-31";
+                unimplicated="⚠ RUNG J3 REMOVED ITS ONLY ALLEGED CONSEQUENCE, 2026-07-31. The ICmp abort is GONE, and not because of this: aCTionWhilE had no jitting gate, so the loop EXECUTED at emit time and walked its condition repeatedly. With a gate the condition is emitted ONCE and the abort does not recur. The overwrite still EXISTS in source; what is gone is the symptom it was blamed for. NOT REFUTED -- UNIMPLICATED. It keeps a dedicated fixture at rung J5 (multi-statement operand reuse) where it can be ATTRIBUTED rather than inferred. Do not promote it to refuted without a run that looks for it directly.";
             gateCensus
                 content="THE CROSSOVER BOUNDARY, ENUMERATED -- this is what the
                     open crossover ruling is ABOUT, and it did not exist in
