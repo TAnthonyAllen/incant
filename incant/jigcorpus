@@ -114,6 +114,28 @@ define
                 confidence="verified";
                 asOf="2026-07-31";
         /*  ---- verified: a run was observed ---------------------------- */
+            actionReturnsLastStatement
+                content="AN INTERPRETED ACTION'S VALUE IS THE VALUE OF THE LAST
+                    STATEMENT EXECUTED. No implicit null, no implicit argument,
+                    no falseResult default. `return` is not 'produce a value' --
+                    it is 'STOP HERE', and the value is still whatever the last
+                    executed statement evaluated to. A group-valued result is
+                    dereferenced on the way out; isBranch is cleared at the
+                    action boundary so it cannot leak into the caller's loop.
+                    Measured:
+                      tail assignment  -> 41   (last statement wins)
+                      tail print       -> 1    (opPrint yields trueResult)
+                      return zqv       -> 43
+                      BARE return      -> 'return'  (see openBareReturnSemantics)
+                      return + dead code after -> 45, later statement DID NOT RUN
+                    ⚠ CONSEQUENCE FOR THE EMITTER, and it is bigger than 'store
+                    on return': EVERY statement's value must reach the result
+                    slot, not only the ones written `return`. A store-on-return
+                    emitter would return garbage from every action that simply
+                    ends.";
+                provenance="incant/retProbe, one run, exit 0 with sentinel, 2026-07-31. Chain read first and cited: runAction GroupActions.rtn:572,574 -> processAction :447,457,460 -> aCTionBlocK ruleActions.rtn:21-26";
+                confidence="verified";
+                asOf="2026-07-31";
             unaryPopsCrash
                 content="All three unary JIT POPs -- jitInc, jitDec, jitNeg --
                     exit 139 (SIGSEGV) inside jitEmitUnary dereferencing a null
@@ -461,17 +483,20 @@ define
                 confidence="verified";
                 asOf="2026-07-30";
         openItems
-            openReturnValueSource
-                content="WHAT IS AN INCANT ACTION'S COMPILED RETURN VALUE?
-                    This is what O4 NARROWED TO once the IR was actually read.
-                    The alloca-vs-baked-address framing was the wrong question:
-                    fields are MEMORY, so they need no phis, and the alloca +
-                    mem2reg apparatus describes the FUTURE frame model (locals
-                    and recursion) rather than a contradicted present one.";
-                established="fields are correct on both paths of an if/else with no phi anywhere (gifElseArmFixed, fieldsAreMemoryNoPhiNeeded); the function's RETURN is capped from gJitResult and is a constant in every fixture dumped (returnValueHasNoSource)";
-                missing="a decision on what the compiled function returns. Under baked addresses the fix is a designated result slot -- store to it, load-and-ret at the end, still memory, still no phi. Under frames it is the epilogue. Both are cheap; neither can be CHOSEN without the ruling.";
-                blocks="any use of a jitted action's return value, and therefore any jitted action that is called rather than run for side effects";
-                cost="a ruling plus a small emitter change. The measurement that was blocking it is DONE.";
+            openBareReturnSemantics
+                content="A BARE `return;` YIELDS THE STRING 'return', and the
+                    return-value ruling inherits it. aCTionBrancH falls back to
+                    the BrancheS node itself when there is no expression, and a
+                    node with no data returns its own TAG (CLAIM KANT-10), so
+                    the interpreted answer is junk text.
+                    The ruling is 'the compiled action returns what the
+                    interpreted action returns' -- which obliges the compiled
+                    form to REPRODUCE THE JUNK unless an explicit exception is
+                    taken.";
+                established="measured, incant/retProbe 2026-07-31: bare return -> 'return'; explicit return zqv -> 43; tail assignment -> 41; tail print -> 1 (trueResult); early return -> later statements do NOT run";
+                missing="a decision on whether the compiled form reproduces the wart or the ruling takes an exception. NOT for the emitter to normalise on its own -- silently returning null or 0 would be the exact divergence section 0 exists to prevent, arriving as an implementation convenience. Related: BLOCKED KANT-B1, a kant action cannot return NULL across runAction at all.";
+                blocks="nothing today -- the result-slot mechanism can be built and this decided at the edge";
+                cost="a ruling. The measurement is done.";
                 asOf="2026-07-31";
             openJitDataModel
                 content="Can one jitData per GroupItem survive Phase 2, or does

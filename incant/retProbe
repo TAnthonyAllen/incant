@@ -1,0 +1,79 @@
+/*****************************************************************************
+    retProbe -- WHAT DOES AN INTERPRETED ACTION RETURN? 2026-07-31.
+
+    THE BONES ITEM behind the return-value ruling: the compiled action must
+    return what the INTERPRETED action returns -- one semantics, not two -- so
+    the emitter has to mirror a rule nobody had written down. This file reads it
+    off the source AND runs it, because a source read grades `inferred` in this
+    project and only a run grades `verified`.
+
+    THE CHAIN, cited so it can be re-checked rather than re-trusted:
+
+      runAction        GroupActions.rtn:572   result = processAction(field);
+                                       :574   return result;
+      processAction    GroupActions.rtn:447   if result = action["BlocK"] {
+                                       :457     if result = result.gMethod(result)
+                                                    result.isBranch = 0; }
+                                       :460   return result;
+      aCTionBlocK      ruleActions.rtn:21-26  while grup = input.next(grup) {
+                                                  if grup.isMethod result = grup.gMethod(grup);
+                                                  else             result = grup;
+                                                  if result && isBranch break; }
+                                              if result && isGROUP result = gGroup;
+                                              return result;
+
+    SO THE RULE, read off that chain:
+      1. An action's value is THE VALUE OF THE LAST STATEMENT EXECUTED. There is
+         no implicit null, no implicit argument, no falseResult default.
+      2. `return`/`break`/`continue` set isBranch, which BREAKS the statement
+         loop early -- so an explicit return is just "stop here", and the value
+         is still the last statement's value.
+      3. A group-valued result is DEREFERENCED (`result = gGroup`) on the way
+         out of the block.
+      4. isBranch is CLEARED at the action boundary (processAction:457), so a
+         return's branch flag does not leak into the caller's statement loop.
+
+    WHY THAT MATTERS FOR THE EMITTER: under the result-slot mechanism, EVERY
+    statement's value would have to reach the slot, not just the ones written
+    `return` -- because rule 1 says the last statement wins whether or not it
+    said so. That is a materially different emitter from "store on return".
+
+    SENTINEL AT THE FOOT (standing harness rule H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(utilities);
+
+search reset stack Grokking UnitTests Utilities list;
+
+register(RetProbe);
+define
+    zqv;
+
+    /*  last statement is an ASSIGNMENT -- rule 1 says its value is the result */
+    tailAssign code={ zqv = 41; };
+
+    /*  last statement is a PRINT -- what does a print statement evaluate to?  */
+    tailPrint code={ zqv = 42; print "    (tailPrint printed)":; };
+
+    /*  explicit return of a value -- the control                              */
+    tailExplicit code={ zqv = 43; return zqv; };
+
+    /*  BARE return, no expression -- aCTionBrancH falls back to the BrancheS
+        node itself when there is no ExpressioN                                */
+    tailBare code={ zqv = 44; return; };
+
+    /*  an early return with statements AFTER it: proves isBranch really does
+        break the loop rather than merely marking the value                     */
+    tailEarly code={ zqv = 45; return zqv; zqv = 999; };
+    ;
+
+print "1 tail is an assignment  ->[" tailAssign() "]  (want 41 if last-statement-wins)":;
+print "2 tail is a print        ->[" tailPrint() "]":;
+print "3 explicit return value  ->[" tailExplicit() "]  (want 43)":;
+print "4 bare return            ->[" tailBare() "]":;
+print "5 early return, code after ->[" tailEarly() "]  (want 45; 999 = the break failed)":;
+print "  zqv after row 5        ->[" zqv "]  (want 45; 999 = statements after return RAN)":;
+
+print "RP SENTINEL -- run reached the end":;
+stop();

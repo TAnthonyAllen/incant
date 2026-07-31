@@ -72,12 +72,13 @@ All in `jitEmitters.rtn` (included at `GroupRules.twk:293`, generated into `Grou
 | 3 | `jitEmitAssign(arg,target)` | plain `=` store into `jitSlot` | byRef (`:=`) — the gate fires *before* opAssign's byRef check; a literal target is silently a null store destination |
 | 4 | `jitEmitUnary(target,op)` | `++ --` (in-place, store-back), prefix `-` (value-producing) | **unreachable without a null deref — §3.1**; `!` (opNOT) not routed here at all |
 | 5 | `jitEmitStringPlusEQ(arg,target)` | string/token `+=` via one `CreateCall` to `concatEQ` | anything else string-shaped; it is the **only** `CreateCall` in the layer |
-| 6 | `jitEmitGIF(input)` | `if <cond> <then>` — condition, `CreateCondBr`, then-arm, merge | **the `else` arm — structurally absent (§3.2)** |
+| 6 | `jitEmitGIF(input)` | `if/else` — condition, `CreateCondBr`, **both arms**, merge. Else arm landed 2026-07-31 (§3.2) | nesting (untested); the **return value** (§3.4) |
 
 Supporting cast: `jitSeedLiteral` (literal → `ConstantInt`/`ConstantFP`, no `jitSlot`, correctly
 — a literal is not assignable) · `jitSeedField` (bakes the field's *stable* `gCount`/`gNumber`
-address, `CreateLoad`s it, stashes the address as `jitSlot`) · `jitIfBegin`/`jitIfEnd` (block
-topology; `gIfEndBlocks` is a stack, so nesting is *structurally provided for*) ·
+address, `CreateLoad`s it, stashes the address as `jitSlot`) · `jitIfBegin`/`jitIfElse`/`jitIfEnd` (block
+topology — always three blocks; `gIfEndBlocks`/`gIfElseBlocks` are stacks popped in
+lockstep, so nesting is *structurally provided for*) ·
 `jitExecBlock` (**runs the action's `BlocK` through the interpret walk** — §2.2 hangs off this)
 · `jitRunAction` (the driver) · `concatEQ` (the runtime helper string-`+=` lands on) ·
 `jitRunIfTest`/`jitRunAddTwo` (**hand-built scaffolds, NOT emit-path code** — they are the two
@@ -117,8 +118,9 @@ reaching its sentinel and **not** its target, and says so in its own header.
 | `incant/oneTest` | 0 | bytecode path, unaffected by all JIT work |
 | `testing(testWhilE)` / `(testDo)` | **134** | LLVM assert: ICmp operand type mismatch |
 | `testing(testGXLeaf)` | **139** | two sequential `if`s in one body |
-| `testing(testIfElse)`, righty=13 | 0 | `maximus = 26` — **correct by luck**, then-arm only |
-| `testing(testIfElse)`, righty=-7 | 0 | `maximus = 11`, returns `83623936` — **WRONG, exit 0** |
+| `incant/jitThenT` (righty=13) | 0 | `maximus = 26` ✅ — *was* correct by luck; now the regression net |
+| `incant/jitElseT` (righty=-7) | 0 | `maximus = 7` ✅ — **was 11 + garbage at exit 0**, fixed 2026-07-31 |
+| `sh genLadder/jitPop.sh` | 0 | values both directions + four-block IR shape |
 | `testing(testPrint)` | 0 | printed `hello world` **at emit time** |
 
 ---
@@ -238,7 +240,8 @@ statement was never visited by anything. Neither emitted nor interpreted; it van
 | `righty = 13` | `maximus = 26` | 26 — **correct by luck** | **26** ✅ |
 | `righty = -7` | `maximus = 7` | **11**, returns 83623936, **exit 0** | **7** ✅ |
 
-**The fix is one topology, not a branch on `hasElse`.** `jitIfBegin` now always creates three
+**The fix is one topology, not a branch on `hasElse` — ⚠ RATIFIED 2026-07-31 on principle:
+branching on `hasElse` would rebuild the divergence.** `jitIfBegin` now always creates three
 blocks (then/else/endif) and branches the condition to then/else; the new `jitIfElse` closes
 the then arm and opens the else; `jitIfEnd` closes whichever arm is current. With no `else` in
 the source the block is simply left empty and branches straight to endif — valid IR, one

@@ -388,10 +388,30 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 > before the single `stop()` — **single**, because a second `stop()` anywhere above it silently
 > deletes everything between.
 >
-> **And the generalisation behind both rules:** the instrument-level failures on this project
-> now outnumber the code-level ones — a stale binary, a `$?` through a pipe, a sentinel that
-> was never checked, a harness with three exits, an assertion that covered the wrong thing.
-> **When a result surprises you, doubt the instrument before the code.**
+> **RULE H3 — AN ASSERTION THAT MOVES FOR CORRECTNESS-UNRELATED REASONS IS NOISE.** Ratified
+> 2026-07-31 as instrument doctrine, from `genLadder/jitPop.sh`'s decision to carry **no
+> `.target` file**: the JIT's field slots are baked **absolute addresses**, so a byte-exact IR
+> diff would move on every run for reasons that say nothing about whether the JIT is right. It
+> asserts the **block topology** and the **values** instead. A target that cries wolf gets
+> regenerated green, and a target that is regenerated green is not a target — so the choice is
+> not "assert less", it is **assert the thing that only moves when the answer moves.**
+>
+> **And the generalisation behind all three rules:** the instrument-level failures on this
+> project now outnumber the code-level ones — a stale binary, a `$?` through a pipe, a sentinel
+> that was never checked, a harness with three exits, an assertion that covered the wrong
+> thing. **When a result surprises you, doubt the instrument before the code.**
+>
+> ⚠ **AND A MEASURED PROPERTY OF THIS SYSTEM, not a run of bad luck: STRUCTURAL claims here
+> hold, CAUSAL claims here fail.** The causal-claim ledger in the JIT domain stands at **five
+> failures**, the latest being "the return is a dominance violation" — falsified by a dump
+> showing a *constant*, which dominates everything. Over the same period the structural
+> rulings (unified emit-on-walk, the seam, single-topology if/else, phases-not-alternatives)
+> have all held. **The asymmetry is now measured across two independent reasoners**, so treat
+> it as a property of the system rather than a comment on anyone's care: in this codebase, a
+> mechanism you can *point at* is usually right, and a mechanism you *inferred from a symptom*
+> is roughly a coin flip until it is run. Grade accordingly — and note that withdrawing a
+> prediction whose premise was removed counts as part of the same discipline, not as an
+> admission.
 
 ```
 testByteCode / testIfElse fixtures in incant/generate; init maximus=11, righty=13 (unitTests:82)

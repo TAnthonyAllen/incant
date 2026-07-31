@@ -247,13 +247,59 @@ The frame model is not dropped and must not be: §0 Consequence 1 says locals-as
 locals would all alias one address. So the frame model is **deferred, not superseded**, and
 mem2reg arrives with it.
 
-**WHAT IS ACTUALLY OPEN, and it is narrower than O4 was written as: the RETURN VALUE HAS NO
-DEFINED SOURCE.** `jitRunAction` caps with whatever `gJitResult` last held — a constant, in
-every fixture measured. Field stores are right; the function's answer is not. Under baked
-addresses the fix is a designated result slot (store to it, load-and-ret at the end — memory
-again, still no phi); under frames it is the epilogue. **Both are cheap. Neither can be
-chosen without saying what an incant action's compiled return value IS**, which is the
-genuinely open question and is Tony's.
+**⚠ RATIFIED 2026-07-31 (Clay, amending the same day's earlier ratification; Tony's green
+carries). The phrasing to keep is PHASED, NOT (a)-vs-(b).** Baked absolute addresses are
+**correct and current** for fields. `alloca` + `PromotePass` + never-write-a-phi **rescopes**
+to the frame model, where baked addresses cannot work.
+
+### The return value — ⚠ RULED 2026-07-31, no longer open
+
+**THE COMPILED ACTION RETURNS WHAT THE INTERPRETED ACTION RETURNS. One semantics, not two.**
+
+**Mechanism: a RESULT SLOT — results are memory too**, exactly as fields are, so this needs no
+phi either and composes with the current phase rather than waiting on frames:
+
+- every `return` → **store to the result slot, then branch to an exit block**
+- `jitRunAction`'s cap → **load the slot, `ret`**
+- **`gJitResult`-as-last-value retires.**
+
+#### What the interpreter actually returns — MEASURED, not assumed
+*`incant/retProbe`, one run, exit 0, 2026-07-31. Read off the source first and then run,
+because a source read grades `inferred` in this project and only a run grades `verified`.*
+
+The chain is `runAction` (`GroupActions.rtn:572,574`) → `processAction` (`:447,457,460`) →
+`aCTionBlocK` (`ruleActions.rtn:21-26`).
+
+| body ends with | returns | |
+|---|---|---|
+| an assignment `zqv = 41;` | **41** | the last statement's value |
+| a `print` | **1** | `opPrint` yields `trueResult` |
+| `return zqv;` | **43** | |
+| **a BARE `return;`** | **the string `"return"`** | ⚠ see below |
+| `return zqv;` with code after it | **45**, and the later statement **did not run** | `isBranch` breaks the loop |
+
+**So the rule is: AN ACTION'S VALUE IS THE VALUE OF THE LAST STATEMENT EXECUTED.** There is no
+implicit null, no implicit argument, no `falseResult` default. `return` is not "produce a
+value" — it is **"stop here"**, and the value is still whatever the last executed statement
+evaluated to. A group-valued result is dereferenced (`result = gGroup`) on the way out, and
+`isBranch` is cleared at the action boundary so it cannot leak into the caller's loop.
+
+⚠ **CONSEQUENCE FOR THE EMITTER, and it is bigger than "store on return": EVERY statement's
+value must reach the result slot, not only the ones written `return`.** A store-on-return
+emitter would return garbage from every action that simply ends. That is a materially
+different shape and it follows directly from the measured rule.
+
+#### ⚠ ONE WART THE RULING INHERITS, and it needs a decision rather than a silent fix
+**A bare `return;` yields the string `"return"`.** `aCTionBrancH` falls back to the
+`BrancheS` node itself when there is no expression, and a node with no data returns its own
+**tag** (`CLAIM KANT-10`). So the interpreted answer is junk text.
+
+"Return what the interpreter returns" therefore obliges the compiled form to **reproduce the
+junk** — unless the ruling takes an explicit exception. This is **not** for the emitter to
+normalise on its own initiative: silently returning null or 0 instead would be exactly the
+divergence §0 exists to prevent, arriving as an implementation convenience. Related and
+already recorded: `BLOCKED KANT-B1` — a kant action cannot return NULL across `runAction` at
+all. **Tony's or Clay's call; flagged, not taken.**
 
 ⚠ **One thing NOT to conclude from this:** that the JIT is nearly right because gIF is. The
 gIF path is the one construct with a working emitter. §2's census is unmoved — 24 ungated
@@ -265,6 +311,24 @@ Seeding attaches one SSA value to a *node*, and emitters write results back onto
 That is coherent for a single straight-line expression and **structurally cannot work for
 operand reuse** — a node holds exactly one SSA value at a time (`jit.md` §3.3). Loops and
 multi-statement bodies both fail today, with different symptoms and one plausible shared cause.
+
+⚠ **WEAKENED 2026-07-31, and the evidence runs AGAINST the clobber being the live cause.**
+The dumped IR of `jitElseT` loads `righty` **twice** from the same baked address — once in
+`entry` for the compare and again in `then` — which means the node was **re-seeded**, not
+reused with a clobbered value. If re-seeding happens per use, the clobber cannot bite the way
+the claim says and the loop abort has another cause. Source-confirmed that the overwrite
+*exists* (`jitEmitCompare` and `jitEmitBinary` both end `setJitter(res)`); its *consequence* is
+unproven. **Mechanism real, causation not established.**
+
+⚠ **A PREDICTION WAS WITHDRAWN PRE-TEST, and that is worth as much as a refutation.** Clay's
+"O5 dissolves under (a)" was orphaned by the O4 rescope — under phases there is no (a) for it
+to dissolve under — and was withdrawn **before** any test could have settled it. Withdrawing a
+prediction that lost its premise is the cheap half of the same discipline that makes the
+causal-claim ledger useful.
+
+**The next instrument step is named:** move the IR dump **ahead of the LLVM assert**. The
+assert fires *during* emission, so the current dump placement can never produce the IR that
+would settle this — an obstacle, not an excuse.
 
 The question is whether emission needs a **value stack or a per-use SSA mapping** instead of
 per-node storage. This is an architecture question, not a bug, and it blocks everything past
@@ -285,11 +349,30 @@ column meets something with a loop around it.
 
 ---
 
-# PART III — THE FRAME MODEL (designed, not built)
+# PART III — THE FRAME MODEL (designed, not built — and it is a LATER PHASE)
 
 *This is a calling-convention design, not a codegen design. It is the replacement §0
 Consequence 1 refers to when it says `saveLocalFields` is deleted rather than repaired. **None
-of it is implemented** — see O4, which may change it.*
+of it is implemented.***
+
+> ### ⚠ PHASE SCOPE — read this before applying anything below to today's emitter
+> **O4 is ratified as PHASED, not as a choice between two models.** Everything in this Part
+> belongs to the **frame phase**, which exists for **locals and recursion** — the one thing
+> baked addresses genuinely cannot do, because a recursive action's locals would all alias a
+> single address.
+>
+> **What is CURRENT, and is correct:** fields and globals live at **baked absolute addresses**,
+> and a write is an **immediate store-through** to the field's own storage. That is what the
+> emitter does today and what the measured IR shows working on both arms of an if/else.
+>
+> **What is DEFERRED to this phase:** `alloca` slots, the unbox prologue, `PromotePass`, and
+> — specifically — **the epilogue write-back semantics below, including the deferred-globals
+> divergence.** None of that describes today's behaviour, and reading it as though it did is
+> what let "mem2reg is the foundation" sit in this document for a month while the emitter
+> emitted no allocas at all.
+>
+> **The result slot is the exception that does NOT wait**, because results are memory too —
+> see O4's return-value ruling. It composes with the current phase.
 
 ## The problem it solves
 
@@ -332,8 +415,10 @@ entirely on native values.
 action's result is reboxed and the function returns a `GroupItem*`, not a raw native value. The
 C++ boundary signature stays `GroupItem* (*)(GroupItem* slotArray, GroupItem* argument)`.
 
-⚠ **Globals are written back at the EPILOGUE, not immediately** — a semantic divergence from
-the interpreter with two consequences: a global updated mid-action is invisible to other incant
+⚠ **Globals are written back at the EPILOGUE, not immediately** — ⚠ **FRAME PHASE ONLY; this
+is NOT what happens today.** Today a global write is an immediate store-through to the field's
+own address, with no divergence at all. The deferred-writeback divergence below arrives *with*
+the frame model and is a cost of it, not a description of the current emitter: a global updated mid-action is invisible to other incant
 code until the action returns, and **on abnormal exit the epilogue may not run and global
 updates are lost.**
 
