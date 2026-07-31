@@ -590,16 +590,23 @@ define
                 asOf="2026-07-30";
         openItems
             openRecursionSlots
-                content="RECURSION: where does a recursive frame's storage come
-                    from, given that incant has NO DECLARATIONS? Tony's named
-                    refinement of the JIT POP goal, 2026-07-31, in his words
-                    'handling recursion by making use of undeclared slots or
-                    however'. Not scheduled -- named, because it decides when the
-                    frame model stops being deferred.";
-                established="ladder rungs J1-J5 run on BAKED ABSOLUTE ADDRESSES -- a field's slot IS its own storage, one address per field. That model CANNOT express recursion: a recursive call's locals would all alias the same address and the inner call would overwrite the outer's. There is no patch; it is what the model is. The frame model's answer is that the ACTION'S FIELD LIST is the frame schema, closed at parse time, which is what makes per-call slot arrays possible without the programmer declaring anything -- the declarations incant does not have are replaced by a field list it already builds";
-                missing="the frame phase itself: allocas, the unbox prologue, the rebox epilogue, per-call slot arrays. None of it is implemented";
+                content="RUNG J-R -- RECURSION, and it is THE FRAME MODEL'S
+                    DEFINITION OF DONE the way J1 was the result slot's. Tony's
+                    named refinement of the JIT POP goal, 2026-07-31. Recorded
+                    now, built later.
+                    THE RUNG: a recursive action, factorial-shaped -- one local,
+                    one argument, a self-call, a base case -- compiled ONCE and
+                    fired at TWO DEPTHS, correct at both.
+                    ⚠ TWO DEPTHS IS THE DISCRIMINATOR, the same trick as J1's two
+                    fires: DEPTH-1 PASSES ON ALIASED SLOTS, DEPTH-N CANNOT. A
+                    rung running only the base case would go green on exactly the
+                    machinery it exists to test.
+                    His question in its sharp form: incant has NO DECLARATIONS,
+                    so where does a recursive frame's storage come from?";
+                established="rungs J1-J5 run on BAKED ABSOLUTE ADDRESSES -- a field's slot IS its own storage, one address per field -- so a recursive action's locals would ALL ALIAS ONE LOCATION, every depth sharing the same slots, each recursion clobbering its caller. That is not a bug in the model, it is the boundary the phased O4 ruling drew ON PURPOSE. SCHEMA CLOSURE is the stated answer to the undeclared-slot worry, by construction: every field an action references is enumerated into the frame schema at parse time, so a field appearing at RUNTIME that the schema never saw has nowhere to land and must fail LOUDLY (degrade doctrine), NEVER silently alias";
+                missing="the frame phase itself -- allocas, unbox prologue, rebox epilogue, per-call slot arrays -- and, named honestly, THERE IS NO jitEmitCall AT ALL. Its seam is the same isMethod branch the unary seed bug lives on. A SELF-CALL IS A CALL, so J-R's own ladder is: call emission -> frames -> recursion as proof";
                 blocks="every recursive action, and therefore a large part of the language surface the JIT must own before it can REPLACE the interpreter rather than accelerate part of it";
-                cost="⚠ NOT ONE MORE RUNG. Rung JR is a PHASE BOUNDARY WEARING A RUNG'S CLOTHES -- every other rung adds a construct to a working model, JR CHANGES the model. Plan it as the start of the frame phase.";
+                cost="⚠ NOT ONE MORE RUNG -- a PHASE BOUNDARY WEARING A RUNG'S CLOTHES. Every other rung adds a construct to a working model; J-R CHANGES the model. Sequenced AFTER the loop rungs, because frames build on the calling convention and loops do not need it. WHAT GOES GREEN WITH IT: recursion, the frame model, CLAIM KANT-8's whole class (returning a local from a recursive action emptied it via restoreLocalFields -- the interpreter failing at exactly this), and section 0 Consequence 1's death warrant on saveLocalFields. One fixture, four things, because they were always one piece of work seen from four sides";
                 asOf="2026-07-31";
             openJitDataModel
                 content="Can one jitData per GroupItem survive Phase 2, or does

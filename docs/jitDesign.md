@@ -418,9 +418,25 @@ schema**, closed at parse time, which is exactly what makes per-call slot arrays
 *without the programmer declaring anything*. The declarations incant does not have are replaced
 by a field list it already builds.
 
-⚠ **Therefore rung JR (recursion) is a PHASE BOUNDARY WEARING A RUNG'S CLOTHES.** Every other
-rung adds a construct to a working model; JR changes the model. Plan it as the start of the
+⚠ **Therefore rung J-R (recursion) is a PHASE BOUNDARY WEARING A RUNG'S CLOTHES.** Every other
+rung adds a construct to a working model; J-R changes the model. Plan it as the start of the
 frame phase, not as one more step on the ladder.
+
+> ### **J-R IS THIS PART'S DEFINITION OF DONE**, the way J1 was the result slot's.
+> A recursive action — one local, one argument, a self-call, a base case — compiled once and
+> **fired at two depths, correct at both**. Two depths is the discriminator: **depth-1 passes on
+> aliased slots, depth-N cannot.** Sequenced after the loop rungs (frames build on the calling
+> convention; loops do not need it).
+>
+> ⚠ **Named prerequisite: there is no `jitEmitCall`** (`jit.md` §1), and its seam is the same
+> `isMethod` branch the unary seed bug lives on. **A self-call is a call**, so J-R's own ladder
+> is **call emission → frames → recursion as proof.**
+>
+> **And it closes more than itself.** When J-R goes green it certifies recursion, certifies this
+> Part, closes `CLAIM KANT-8`'s whole class — returning a local from a recursive action emptied
+> it via `restoreLocalFields`, which is the interpreter failing at *exactly this* — and executes
+> §0 Consequence 1's death warrant on `saveLocalFields`. One fixture, four things, because they
+> were always one piece of work seen from four sides.
 
 ## Schema closure, and the precondition it rests on
 

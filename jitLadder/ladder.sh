@@ -93,24 +93,49 @@ rung () {
 #    ... string +=, compare chains, bare return, break/continue in loops --
 #        each ratified ruling eventually earns a rung pinning it in COMPILED form
 #
-#    JR  RECURSION -- Tony's named refinement of the POP goal, 2026-07-31.
-#        ⚠ AND IT IS THE RUNG THAT FORCES THE FRAME PHASE, which is why it is
-#        listed here rather than left to the design docs.
-#        J1..J5 all run on BAKED ABSOLUTE ADDRESSES: a field's slot is its own
-#        storage, one address per field, and a write goes straight through.
-#        That model CANNOT express recursion -- a recursive call's locals would
-#        all alias the SAME address, so the inner call would overwrite the
-#        outer's. Tony's worry, in his words, is "handling recursion by making
-#        use of undeclared slots or however", and the sharp form of it is:
-#        INCANT HAS NO DECLARATIONS, so where does a recursive frame's storage
-#        come from? The answer is the frame model (docs/jitDesign.md Part III):
-#        the action's FIELD LIST is the frame schema -- closed at parse time,
-#        which is what makes per-call slot arrays possible without the
-#        programmer declaring anything.
-#        So the ladder WILL hit a wall, the wall has a name, and JR is where the
-#        baked-address phase ends and the frame phase has to begin. Do not
-#        schedule JR as "one more rung": it is a phase boundary wearing a rung's
-#        clothes, and it should be planned as one.
+#    J-R RECURSION -- THE FRAME MODEL'S DEFINITION OF DONE, the way J1 was the
+#        result slot's. Tony's named refinement of the POP goal, 2026-07-31.
+#        Recorded now, built later.
+#
+#        THE RUNG: a recursive action, factorial-shaped -- one local, one
+#        argument, a self-call, a base case -- compiled ONCE and fired at TWO
+#        DEPTHS, correct at both.
+#
+#        ⚠ TWO DEPTHS IS THE DISCRIMINATOR, and it is the same trick as J1's
+#        two fires. DEPTH-1 PASSES ON ALIASED SLOTS; DEPTH-N CANNOT. A rung that
+#        only ran the base case would go green on exactly the machinery it
+#        exists to test, which is how a fixture certifies nothing while looking
+#        certain.
+#
+#        WHY IT CANNOT BE BUILT ON THE CURRENT MODEL: J1..J5 run on BAKED
+#        ABSOLUTE ADDRESSES -- a field's slot IS its own storage, one address
+#        per field. A recursive action's locals would therefore ALL ALIAS ONE
+#        LOCATION, every call depth sharing the same slots, each recursion
+#        clobbering its caller. That is not a bug in the model; it is the
+#        boundary the phased O4 ruling drew ON PURPOSE.
+#
+#        SEQUENCED AFTER THE LOOP RUNGS: frames build on the calling convention;
+#        loops do not need it.
+#
+#        ⚠ NAMED PREREQUISITE, honestly: THERE IS NO jitEmitCall (docs/jit.md
+#        S1), and the seam is the same isMethod branch the unary seed bug lives
+#        on. A SELF-CALL IS A CALL. So J-R's own ladder is:
+#              call emission  ->  frames  ->  recursion as proof.
+#
+#        THE UNDECLARED-SLOT WORRY IS ANSWERED BY SCHEMA CLOSURE, by
+#        construction: every field an action references is enumerated into the
+#        frame schema at parse time, so a field appearing at RUNTIME that the
+#        schema never saw HAS NOWHERE TO LAND -- and must fail LOUDLY (degrade
+#        doctrine), NEVER silently alias into someone else's slot. Aliasing is
+#        the failure mode this whole rung exists to make impossible.
+#
+#        WHAT GOES GREEN WITH IT, and it is why this is one fixture rather than
+#        four: J-R certifies recursion, certifies the FRAME MODEL, closes
+#        CLAIM KANT-8's whole class (returning a local from a recursive action
+#        emptied it via restoreLocalFields -- the interpreter failing at exactly
+#        this), and executes S0 Consequence 1's death warrant on saveLocalFields
+#        (DELETED, not repaired). Tony's worry list and the architecture's
+#        to-do list turn out to be the same list.
 #  ============================================================================
 
 echo "-- J1  assign + arithmetic + tail value"
