@@ -108,6 +108,10 @@ The skeleton is above; what is open is every cell it does not fill.
   the fallback column with a richer helper set is open. Premise 2's ranking has no defined
   answer for "widen an `isCOUNT` to meet an `isSTRING`" — string `+` count is *pointer
   advance*, not promotion, so it may be the one operator that escapes premise 2.
+  ⚠ **A THIRD OPTION EXISTS since 2026-07-31 and this item is not to be settled without it:**
+  under the O2 addendum's **method-valued cells**, both of these could live in the **scalar
+  table** as method cells rather than being pushed to the fallback column. Recorded, not
+  resolved — it gets decided when the table arc opens.
 - **The fallback column's shape.** Premise 3 fixes *that* non-scalars emit a call into the
   existing opMethod; it does not fix the **signature** that call uses. Two precedents exist and
   they disagree: the shipped `concatEQ(target, argument)` is a two-pointer write-back form, and
@@ -127,6 +131,48 @@ fresh names; and whether a template can carry more than one instruction or wheth
 multi-instruction sequences are by definition `jitEmit`'s business. That last one is the seam
 between the table and the buttress, so it is really the same question as O3.
 
+### O2 addendum — METHOD-VALUED CELLS (Tony's idea, vetted; recorded 2026-07-31)
+
+*Recorded now, built later. No implementation, no fixtures, no schedule change — this
+addendum does not touch the O4 arc.*
+
+**A kant attribute can carry a method, so a table cell is not restricted to template text.**
+The lookup may yield either:
+
+| cell kind | what happens |
+|---|---|
+| **TEXT** | a template with slots — substitute and append. **The default.** |
+| **METHOD** | an executable cell — it fires, and emits through the *same* C++ primitives the text path uses (fresh-name, append, emit-call) |
+
+The second is the interesting one because it does **not** widen the C++ surface: a method cell
+reaches for the same primitives, so the buttress does not grow to accommodate it.
+
+**Three consequences, settled at record time:**
+
+1. **The O3 boundary TIGHTENS.** The buttress owns the emission **primitives** and **block
+   topology**; anything expressible as a *sequence of emissions* may live in kant as a method
+   cell. That is a strict improvement in self-hosting posture over O3's current
+   "buttress owns every multi-instruction sequence" — a rule that hands C++ everything merely
+   because it is more than one instruction.
+
+2. **DISCIPLINE: TEXT UNLESS TEXT CAN'T.** Method cells are the **escape hatch, not the
+   default.** A table that drifts toward all-method **becomes a program**, and loses exactly
+   what made a table worth having: inspectability, diffability, and the golden-IR guard.
+
+3. **INSTRUMENT CONSEQUENCE, and it is a design-time one** — *doubt the instrument before the
+   code* (CLAUDE.md Testing). The golden-IR POP validates TEXT cells by parsing their output.
+   **Method cells escape that guard entirely** unless the POP grows a **fixture-firing mode**:
+   fire each method cell against fixture operands and validate the emitted IR. **Both modes
+   are deliverables of the table arc**, not of this addendum — but the guard must be designed
+   knowing half the table can slip past it, because a table whose method cells are unchecked
+   is a table with a silent half.
+
+**Bears on O1 — noted, NOT resolved.** `isSTRING`/`isTOKEN`, and the string-plus-count
+pointer-advance case that escapes premise 2's promotion rule, **could live in the scalar table
+as method cells** rather than being pushed into the fallback column with a richer helper set.
+That is a genuine third option O1 did not have. **It gets decided when the table arc opens,
+not here** — recording it now only so the choice is on the table when O1 is settled.
+
 ## O3 — the exact `jitEmit` ownership boundary
 
 Premise 3 lists what `jitEmit` owns — SSA name counting, slot substitution, buffer plumbing,
@@ -142,6 +188,18 @@ somewhere between, and the cases that decide it are compare-with-promotion, comp
 **A useful discipline while the boundary is unsettled:** anything that needs to *know a block
 structure* is the buttress; anything that is one instruction with substituted operands is the
 table.
+
+⚠ **TIGHTENED 2026-07-31 by the O2 addendum, and the change is in the middle term.** The
+sentence above leaves "more than one instruction" ambiguous, and premise 3's "sequences that
+do not template cleanly" hands those to C++ by default. With **method-valued cells** the rule
+sharpens to:
+
+> **the buttress owns the emission PRIMITIVES and BLOCK TOPOLOGY. Anything expressible as a
+> SEQUENCE OF EMISSIONS may live in kant as a method cell.**
+
+So multi-instruction no longer implies buttress — only *block-structural* does. Read O2's
+addendum before applying the discipline above; it is the more current statement of the same
+boundary, and it moves work **toward** kant rather than away from it.
 
 ## O4 — added by consolidation: the mem2reg contradiction, and it is the sharpest open item
 
