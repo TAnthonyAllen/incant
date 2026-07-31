@@ -172,6 +172,7 @@ extern "C" void *jitEngine();
 extern "C" GroupItem *jitExecBlock(GroupItem *input);
 extern "C" void jitForceInclude();
 extern "C" void jitIfBegin();
+extern "C" void jitIfElse();
 extern "C" void jitIfEnd();
 extern "C" void jitInitOnce();
 extern "C" int jitRunAction(GroupItem *action);

@@ -159,10 +159,47 @@ and "PromotePass places all phi nodes" (which is what makes a missing merge impo
 `jit.md` §3.4 records that the gIF return value is **not** merged — and a missing merge is
 exactly what an unpromoted, non-alloca slot model would produce.
 
-**This is not a decision to make casually and it is not made here.** It is either (a) the frame
-model lands and field access moves to real allocas with prologue/epilogue boxing, or (b) the
-baked-address model stays and the design drops its mem2reg dependency and owns its merges
-explicitly. **Flagged to Clay; Tony's and Clay's call.**
+### ⚠ RESOLVED 2026-07-31 BY MEASUREMENT — and (a) vs (b) was the wrong question
+
+The IR was read properly rather than argued about, and it collapses the choice:
+
+**FIELDS DO NOT NEED PHIS, BECAUSE FIELDS ARE MEMORY.** A slot is a baked absolute address;
+a read is `CreateLoad` from it and a write is `CreateStore` to it. Two stores to the same
+address on two paths need **no merge at all** — that is what memory *is*. The four-block
+if/else emitted for `jitElseT` is correct on both paths with not a phi in sight, and the
+verifier is silent because the IR is genuinely valid.
+
+So the design's mem2reg dependency is not *broken*; it is **unnecessary for the thing it was
+written about**. `jitEmitters.rtn`'s own comment already says PromotePass is "a no-op on the
+current alloca-free shape" — the code knew, and only the design did not.
+
+**(a) and (b) are therefore NOT alternatives — they are PHASES, and the doc's error was
+stating the future mechanism as the current one:**
+
+| | baked addresses (today) | frame model (later) |
+|---|---|---|
+| what it covers | fields and globals | **locals and recursion** |
+| correctness | correct, no phis needed | correct |
+| cost | a load/store per access | native values in registers |
+| needs mem2reg | **no** | **yes** — that is where allocas appear |
+
+The frame model is not dropped and must not be: §0 Consequence 1 says locals-as-frames lands
+**once, in the JIT**, and `saveLocalFields` is deleted rather than repaired. That is about
+**recursion and per-call frames**, which baked addresses cannot do — a recursive action's
+locals would all alias one address. So the frame model is **deferred, not superseded**, and
+mem2reg arrives with it.
+
+**WHAT IS ACTUALLY OPEN, and it is narrower than O4 was written as: the RETURN VALUE HAS NO
+DEFINED SOURCE.** `jitRunAction` caps with whatever `gJitResult` last held — a constant, in
+every fixture measured. Field stores are right; the function's answer is not. Under baked
+addresses the fix is a designated result slot (store to it, load-and-ret at the end — memory
+again, still no phi); under frames it is the epilogue. **Both are cheap. Neither can be
+chosen without saying what an incant action's compiled return value IS**, which is the
+genuinely open question and is Tony's.
+
+⚠ **One thing NOT to conclude from this:** that the JIT is nearly right because gIF is. The
+gIF path is the one construct with a working emitter. §2's census is unmoved — 24 ungated
+operators and 29 ungated statement handlers still execute interpreted at emit time.
 
 ## O5 — added by consolidation: does the one-`jitData`-per-GroupItem model survive Phase 2?
 

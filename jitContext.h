@@ -38,6 +38,20 @@ inline llvm::Value *gJitResult = nullptr;
 // inline like gJitBuilder so it never reaches GroupRules.h.
 inline std::vector<llvm::BasicBlock*> gIfEndBlocks;
 
+// Stack of pending "else" blocks, parallel to gIfEndBlocks and pushed/popped in
+// lockstep with it (2026-07-31, the else arm). jitIfBegin now ALWAYS creates
+// three blocks -- then, else, endif -- and branches the condition to then/else.
+// jitIfElse closes the then arm and resumes in the else block; jitIfEnd closes
+// whichever arm is current and resumes at endif.
+//
+// ALWAYS three, even when the source has no `else`, and that is deliberate: an
+// if-without-else then emits an EMPTY else block that branches straight to
+// endif. That is valid IR, it costs one branch that LLVM folds, and it means
+// there is exactly ONE block topology instead of two -- so the no-else case
+// cannot drift away from the with-else case, which is precisely how the else arm
+// came to be missing in the first place.
+inline std::vector<llvm::BasicBlock*> gIfElseBlocks;
+
 // Nodes seeded with JitData during the current compile. JitData is transient (one
 // compile, into a per-run LLVMContext that jitRunAction destroys), but the field/
 // literal GroupItems that carry it persist (BDWGC). The runOP seeding gate skips a

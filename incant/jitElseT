@@ -1,0 +1,64 @@
+/*****************************************************************************
+    jitElseT -- the POP for jitEmitGIF's ELSE ARM, added 2026-07-31.
+    Its sibling is incant/jitThenT. READ THE ONE-TESTING-PER-FILE NOTE BELOW
+    BEFORE MERGING THEM BACK TOGETHER, because that is exactly what this
+    fixture's first draft did and it produced a convincing false red.
+
+    WHAT IT IS FOR. Until 2026-07-31 `jitEmitGIF` declared only `ExpressioN:`
+    and `StatemenT:` -- no `ElsE:` -- while `aCTionIF` declared all three. So a
+    jitted if/else NEVER VISITED its else statement: not emitted, not
+    interpreted, it vanished. A false condition then left the target untouched
+    and returned garbage, AT EXIT 0, with no diagnostic of any kind.
+
+    That was the only WRONG ANSWER AT EXIT 0 in the JIT, and a wrong answer with
+    a clean exit outranks every crash on the list -- a crash is at least visible.
+
+        testIfElse code={ if righty > 0; maximus = righty * 2; else maximus = 7; }
+
+    THIS FILE RUNS THE FALSE CONDITION, which is the informative direction:
+
+        righty = -7  ->  maximus = 7     ELSE arm reached
+                         maximus = 11    the OLD BUG (neither arm ran)
+                         maximus = 26    would mean the wrong arm ran
+
+    Init is maximus = 11, so the fixture tells all three outcomes apart rather
+    than merely passing or failing.
+
+    ⚠ THE TAKEN CASE IS IN jitThenT AND IS NOT EVIDENCE ON ITS OWN. It was
+    ALREADY GREEN before the else arm existed, because it exercises only the arm
+    that was emitted -- it was CORRECT BY LUCK. A fixture running only the taken
+    case would have reported success against a defect that made the other half
+    return garbage.
+
+    ⚠⚠ ONE `testing()` PER FILE, AND THIS FIXTURE PAID FOR THAT RULE TWICE.
+    A SECOND generate on the same action in the same run hits the documented
+    sequential-state-corruption tar baby (CLAUDE.md Testing). The first draft of
+    this file ran both directions in one process and reported the then arm as
+    11 -- a REGRESSION THAT DID NOT EXIST. Re-run alone, the same case gives 26.
+    So the split into two files is a correctness requirement, not tidiness, and
+    a merged version will produce a red that looks exactly like a real one.
+
+    IR, cheaply:
+        INCANT_JIT_DUMP=1 <binary> incant/jitElseT 2>&1
+    Expect FOUR blocks -- entry, then, else, endif -- with the condition
+    branching to then/else and both arms storing to the same baked field
+    address before branching to endif.
+
+    SENTINEL AT THE FOOT (standing harness rule H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+righty  = 0 - 7;
+maximus = 11;
+print "else-arm setup : righty =" righty " maximus =" maximus:;
+testing(testIfElse);
+print "else-arm result: maximus =" maximus " (want 7; 11 = the old bug; 26 = wrong arm)":;
+
+print "JE SENTINEL -- run reached the end":;
+stop();

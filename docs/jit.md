@@ -228,17 +228,40 @@ a month.
 fix is local and testable by three existing POPs. It does **not** move the frontier — treat it
 as *unblocking fixture capture*, not as progress.
 
-### 3.2 `jitEmitGIF` has no else arm — WRONG ANSWER AT EXIT 0
-`jitEmitGIF` declares only `ExpressioN:` and `StatemenT:` — **no `ElsE:`** — while `aCTionIF`
-declares all three. *Re-verified in the tree 2026-07-31: still no `ElsE:`.*
+### 3.2 `jitEmitGIF` had no else arm — ✅ **FIXED 2026-07-31**
+**Was** the only *wrong answer at exit 0* in the JIT: `jitEmitGIF` declared only
+`ExpressioN:` and `StatemenT:` — no `ElsE:` — while `aCTionIF` declared all three, so the else
+statement was never visited by anything. Neither emitted nor interpreted; it vanished.
 
-| setup | correct | JIT produced | exit |
+| setup | correct | before | after |
 |---|---|---|---|
-| `righty = 13` | `maximus = 26` | `maximus = 26` | 0 |
-| `righty = -7` | **`maximus = 7`** | **`maximus = 11`**, returns **83623936** | **0** |
+| `righty = 13` | `maximus = 26` | 26 — **correct by luck** | **26** ✅ |
+| `righty = -7` | `maximus = 7` | **11**, returns 83623936, **exit 0** | **7** ✅ |
 
-The taken case is **correct by luck** — it exercises only the arm that is emitted. **A wrong
-answer with a clean exit status outranks every crash on this list.**
+**The fix is one topology, not a branch on `hasElse`.** `jitIfBegin` now always creates three
+blocks (then/else/endif) and branches the condition to then/else; the new `jitIfElse` closes
+the then arm and opens the else; `jitIfEnd` closes whichever arm is current. With no `else` in
+the source the block is simply left empty and branches straight to endif — valid IR, one
+branch LLVM folds. **Deliberate: the missing arm was never a hard bug, it was a SECOND
+TOPOLOGY nobody exercised, and branching on `hasElse` would recreate the two paths that
+diverged.**
+
+Emitted IR, `righty = -7`:
+```
+entry:  %cmp = icmp sgt i32 %unbox, 0
+        br i1 %cmp, label %then, label %else
+then:   %mul = mul i32 %unbox1, 2
+        store i32 %mul, ptr inttoptr (…)     ; maximus
+        br label %endif
+else:   store i32 7, ptr inttoptr (…)        ; maximus — same address
+        br label %endif
+endif:  ret i32 7                            ; ⚠ still a constant — see §3.4
+```
+
+POP: `sh genLadder/jitPop.sh`, fixtures `incant/jitElseT` (the POP) and `incant/jitThenT`
+(the regression net). ⚠ **Two files and not one, because a second `testing()` on the same
+action in one run hits the sequential-state-corruption tar baby** — the first draft ran both
+directions in one process and reported a regression that did not exist.
 
 ### 3.3 The `jitData` single-value clobber — INFERRED, blocks everything past Phase 1
 `testWhilE` and `testDo` both abort (134) on *"Both operands to ICmp instruction are not of the
@@ -267,10 +290,20 @@ endif:                        ; preds = %then, %entry
 - **The store IS properly conditional** — `maximus` correctly stays 11 on the not-taken path.
   ⚠ **This corrects the stored claim "IR: unconditional store + `br i1 true`"**, which
   described the pre-pivot state. Unified emit-on-walk fixed the branch.
-- **The return value is not merged.** The defect is precisely a missing return-value merge, and
-  it is what produces the garbage in §3.2. `jitRunAction` caps with `CreateRet(gJitResult)`,
-  and `gJitResult` is an SSA value defined *inside the then block* — a dominance violation that
-  compiled and ran because nothing verified it.
+- **The return value is not merged.** `jitRunAction` caps with `CreateRet(gJitResult)`, and
+  `gJitResult` is a plain C++ global holding one `llvm::Value*` — so the return is *whatever
+  the walk emitted last*, regardless of which path runs.
+
+  ⚠ **CORRECTION, 2026-07-31 — the recorded explanation was WRONG and this is the fifth
+  causal claim in this domain to fail.** The record said `gJitResult` is "an SSA value defined
+  inside the then block — a dominance violation that compiled and ran because nothing verified
+  it." **It is not a dominance violation.** The dumps show `ret i32 99` and `ret i32 7` — a
+  **constant**, which dominates everything, which is why the IR is valid and why the verifier
+  is correctly silent. The defect is that the return has **no defined source**, not that its
+  source is unreachable. Same symptom, different mechanism, and the difference matters: a
+  dominance violation is fixed by moving a definition, a missing source is fixed by *deciding
+  what an action returns* — which is a frame-model question (§`jitDesign.md` O4), not an SSA
+  one.
 - **Field slots are `inttoptr` absolute addresses, not `alloca`s, so mem2reg has nothing to
   promote.** ⚠ **The "mem2reg is the foundation" position does not hold for baked field
   addresses.** See `jitDesign.md` — this is the sharpest open contradiction in the design.

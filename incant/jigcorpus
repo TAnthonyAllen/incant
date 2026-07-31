@@ -51,6 +51,7 @@ define
     searched virtual;
     blocks virtual;
     cost virtual;
+    partial virtual;
     established virtual;
     missing virtual;
     /*  ⚠ EVERY ATTRIBUTE NAME A QUERY READS MUST BE DECLARED HERE. An
@@ -132,14 +133,76 @@ define
                 provenance="probe run testing(testPrint), 2026-07-30";
                 confidence="verified";
                 asOf="2026-07-30";
+            gifElseArmFixed
+                content="jitEmitGIF's ELSE ARM now emits. testIfElse with
+                    righty=-7 gives maximus=7 (was 11 with a garbage return, at
+                    exit 0); righty=13 still gives 26. Emitted IR is four blocks
+                    -- entry, then, else, endif -- with the condition branching
+                    to then/else and BOTH arms storing to the same baked field
+                    address before branching to endif.
+                    THE FIX IS ONE TOPOLOGY, NOT A BRANCH ON hasElse:
+                    jitIfBegin always creates three blocks and a new jitIfElse
+                    opens the else arm; with no else in the source the block is
+                    left empty and branches to endif. The missing arm was never
+                    a hard bug, it was a SECOND TOPOLOGY nobody exercised, and
+                    branching on hasElse would recreate the two paths that
+                    diverged.
+                    ⚠ The taken direction is NOT evidence on its own -- it was
+                    green BEFORE the fix, exercising only the arm that was
+                    emitted. Correct by luck.";
+                provenance="incant/jitElseT and incant/jitThenT, both exit 0 with sentinels, plus the dumped IR, 2026-07-31. POP: sh genLadder/jitPop.sh";
+                supersedes="gifNoElseWrongAnswer";
+                confidence="verified";
+                asOf="2026-07-31";
             gifNoElseWrongAnswer
-                content="jitEmitGIF has no else arm, and the consequence is a
-                    WRONG ANSWER AT EXIT 0 -- which outranks every crash in this
-                    corpus. testIfElse with righty=-7 left maximus=11 where 7 was
-                    correct and returned garbage 83623936, exit 0, no diagnostic.
-                    With righty=13 the same fixture returns the correct 26:
-                    CORRECT BY LUCK, exercising only the arm that is emitted.";
-                provenance="two probe runs 2026-07-30, plus source re-verified in the tree 2026-07-31 (still no ElsE: declared)";
+                content="WAS: jitEmitGIF has no else arm, so a false condition
+                    left the target untouched and returned garbage at exit 0 --
+                    the only wrong-answer-at-exit-0 in the JIT. FIXED
+                    2026-07-31, superseded by gifElseArmFixed. Kept as trail
+                    because the SHAPE recurs: the defect was not a crash and not
+                    a wrong computation, it was a construct that was never
+                    VISITED, and nothing in the run said so.";
+                provenance="fixed 2026-07-31; see gifElseArmFixed";
+                confidence="refuted";
+                asOf="2026-07-31";
+            returnValueHasNoSource
+                content="THE RETURN VALUE OF A JITTED FUNCTION HAS NO DEFINED
+                    SOURCE. jitRunAction caps with CreateRet(gJitResult), and
+                    gJitResult is a plain C++ global holding one llvm Value --
+                    so the return is whatever the walk emitted LAST, regardless
+                    of which path runs. Measured as a CONSTANT in every fixture
+                    dumped: ret i32 99, then ret i32 7.
+                    ⚠ THIS CORRECTS THE RECORD, and it is the FIFTH causal claim
+                    in this domain to fail. The stored explanation was 'an SSA
+                    value defined inside the then block -- a dominance
+                    violation'. It is NOT a dominance violation: a constant
+                    dominates everything, which is exactly why the IR is valid
+                    and the verifier is correctly silent. Same symptom,
+                    different mechanism, and the difference decides the fix -- a
+                    dominance violation is fixed by moving a definition, a
+                    missing source is fixed by DECIDING WHAT AN ACTION RETURNS.";
+                provenance="INCANT_JIT_DUMP=1 on incant/jitGifScratch and incant/jitElseT, 2026-07-30 and 2026-07-31";
+                confidence="verified";
+                asOf="2026-07-31";
+            fieldsAreMemoryNoPhiNeeded
+                content="FIELDS DO NOT NEED PHIS BECAUSE FIELDS ARE MEMORY. A
+                    slot is a baked absolute address (inttoptr); a read is a
+                    load from it, a write a store to it. Two stores to the same
+                    address on two paths need NO MERGE -- that is what memory
+                    is. The four-block if/else is correct on both paths with no
+                    phi anywhere.
+                    CONSEQUENCE FOR THE DESIGN: the alloca + PromotePass +
+                    never-write-a-phi position is not BROKEN, it is unnecessary
+                    for the thing it was written about. It describes the FUTURE
+                    frame model -- which is about LOCALS AND RECURSION, where
+                    baked addresses genuinely cannot work because a recursive
+                    action's locals would all alias one address. So allocas and
+                    mem2reg arrive WITH the frame model; they are a later phase,
+                    not a contradicted decision. jitEmitters.rtn's own comment
+                    already said PromotePass is a no-op on this shape: the code
+                    knew and only the design did not.";
+                provenance="dumped IR 2026-07-31 (no alloca in any emitted function) plus jitEmitters.rtn's mem2reg comment";
+                searched="the whole of jitEmitters.rtn for CreateAlloca -- the only two occurrences are in a comment. The dumped IR of three separate functions contains no alloca.";
                 confidence="verified";
                 asOf="2026-07-31";
             loopsAndMultiStatementFail
@@ -215,6 +278,24 @@ define
                     and that run has NOT been done.";
                 provenance="source plus the abort message, 2026-07-30";
                 searched="jitEmitters.rtn and Instruct.rtn ONLY. The space outside those two files was never searched.";
+                partial="⚠ PARTIALLY CHECKED 2026-07-31, AND THE CHECK CUTS BOTH WAYS.
+                    CONFIRMED at source: jitEmitCompare and jitEmitBinary DO both
+                    end with target jitData setJitter(res), so the overwrite the
+                    claim describes is really there.
+                    BUT COMPLICATED by the dumped IR of jitElseT: righty is
+                    loaded TWICE from the same baked address -- once in entry for
+                    the compare and again in the then block -- which means the
+                    node was RE-SEEDED rather than reused with a clobbered value.
+                    If re-seeding happens per use, the clobber cannot bite the
+                    way the claim says, and the loop abort has another cause.
+                    So the mechanism EXISTS and its CONSEQUENCE is unproven, which
+                    is exactly the shape this domain keeps getting wrong. STILL
+                    INFERRED. The instrumented test would be an IR dump of a
+                    second compare on the same field -- and the current dump
+                    placement cannot produce one, because the LLVM assert fires
+                    DURING emission, before the dump is reached. That is a real
+                    obstacle, not an excuse: settling this needs the dump moved
+                    earlier or emitted incrementally.";
                 confidence="inferred";
                 asOf="2026-07-30";
             gateCensus
@@ -380,15 +461,17 @@ define
                 confidence="verified";
                 asOf="2026-07-30";
         openItems
-            openMem2reg
-                content="Does the emission model use allocas or baked addresses?
-                    THE DESIGN SAYS alloca/load/store plus PromotePass and NEVER
-                    WRITE A PHI. THE IR SAYS field slots are inttoptr absolute
-                    addresses, so mem2reg has nothing to promote.";
-                established="jitSeedField bakes the field's stable gCount address as jitSlot; the IR dump shows inttoptr; the gIF return value is not merged, which is what an unpromoted slot model produces";
-                missing="a decision. Either the frame model lands and field access moves to real allocas with prologue/epilogue boxing, or the baked-address model stays and the design drops its mem2reg dependency and owns its merges explicitly";
-                blocks="the whole frame model, and the never-write-a-phi position that makes a missing merge supposedly impossible";
-                cost="a design ruling, not a measurement. Tony's and Clay's.";
+            openReturnValueSource
+                content="WHAT IS AN INCANT ACTION'S COMPILED RETURN VALUE?
+                    This is what O4 NARROWED TO once the IR was actually read.
+                    The alloca-vs-baked-address framing was the wrong question:
+                    fields are MEMORY, so they need no phis, and the alloca +
+                    mem2reg apparatus describes the FUTURE frame model (locals
+                    and recursion) rather than a contradicted present one.";
+                established="fields are correct on both paths of an if/else with no phi anywhere (gifElseArmFixed, fieldsAreMemoryNoPhiNeeded); the function's RETURN is capped from gJitResult and is a constant in every fixture dumped (returnValueHasNoSource)";
+                missing="a decision on what the compiled function returns. Under baked addresses the fix is a designated result slot -- store to it, load-and-ret at the end, still memory, still no phi. Under frames it is the epilogue. Both are cheap; neither can be CHOSEN without the ruling.";
+                blocks="any use of a jitted action's return value, and therefore any jitted action that is called rather than run for side effects";
+                cost="a ruling plus a small emitter change. The measurement that was blocking it is DONE.";
                 asOf="2026-07-31";
             openJitDataModel
                 content="Can one jitData per GroupItem survive Phase 2, or does
@@ -442,15 +525,24 @@ define
             this corpus therefore carries a member.  */
         nextStep
             plan
-                plannedAction="Settle openMem2reg FIRST -- it is upstream of the frame model
-                    and of the never-write-a-phi position, and the missing
-                    return-value merge is already its symptom. THEN jitEmitGIF's else
-                    arm, because a wrong answer at exit 0 outranks every crash on
-                    this list.";
-                plannedTest="jitEmitGIF else arm: testIfElse with righty=-7 must give
-                    maximus=7, not 11, and must not return garbage. Both directions
-                    required -- righty=13 giving 26 is CORRECT BY LUCK and proves
-                    nothing on its own.";
+                plannedAction="DONE 2026-07-31: the gIF else arm (gifElseArmFixed)
+                    and the O4 measurement that narrowed it to
+                    openReturnValueSource. NEXT, and in this order:
+                    1. openReturnValueSource -- it needs Tony's ruling, not more
+                       measurement, and it is the last thing standing between
+                       gIF and a jitted action whose ANSWER can be used.
+                    2. openJitDataModel -- one INCANT_JIT_DUMP=1 run on
+                       testWhilE would show the invalid icmp in the text and
+                       settle jitDataClobber's inferred cause immediately. It
+                       has still not been done and it is the cheapest open item
+                       on the list.
+                    3. the unary seed gap -- cheap, three POPs prove it, MOVES
+                       NO FRONTIER. See notProgress.";
+                plannedTest="For the else arm, DONE: sh genLadder/jitPop.sh --
+                    jitElseT (righty=-7 -> maximus=7) and jitThenT (righty=13 ->
+                    maximus=26), two files because one testing() per run, plus
+                    a four-block IR shape check. Both directions required: the
+                    taken row was green BEFORE the fix and proves nothing alone.";
                 blocker="none for either; both are unblocked work";
                 notProgress="The unary seed gap is cheap and three POPs prove it, but
                     it moves NO frontier -- loops abort on a different bug,

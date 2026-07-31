@@ -381,25 +381,57 @@ extern void jitIfBegin()
         cond = b->CreateICmpNE(cond,
             llvm::ConstantInt::get(cond->getType(), 0), "tobool");
     llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(ctx, "then", fn);
+    llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(ctx, "else", fn);
     llvm::BasicBlock *endBB  = llvm::BasicBlock::Create(ctx, "endif", fn);
-    b->CreateCondBr(cond, thenBB, endBB);
+    b->CreateCondBr(cond, thenBB, elseBB);
     b->SetInsertPoint(thenBB);
+    gIfElseBlocks.push_back(elseBB);
     gIfEndBlocks.push_back(endBB);
     %-
 }
 
-/* jitIfEnd  closes the then arm: branch the finished then block to the stacked
-   endif merge block and resume insertion there (popping the stack). The store-
-   back the then arm emitted lands in the field's real slot, so when the branch
-   is taken at run time the mutation is observable; when not taken control flows
-   straight to endif. No phi: the gIF's only effect here is the slot store, and
-   PromotePass (jitRunAction) inserts any merge phis a value-producing if needs. */
+/* jitIfElse  closes the THEN arm and opens the ELSE arm (2026-07-31). Branches
+   the finished then block to the stacked endif, then resumes insertion in the
+   stacked else block. Called UNCONDITIONALLY by jitEmitGIF, whether or not the
+   source has an `else` -- with no else the block is simply left empty and
+   jitIfEnd branches it to endif.
+
+   WHY UNCONDITIONALLY: the missing else arm was not a hard bug, it was a SECOND
+   TOPOLOGY that nobody exercised. jitEmitGIF declared only ExpressioN and
+   StatemenT, so the else statement was never visited by anything -- neither
+   emitted nor interpreted, it simply vanished, and a false condition then left
+   the variable untouched and returned garbage AT EXIT 0. One topology, always
+   three blocks, is the structural fix; the alternative (branch on hasElse)
+   recreates the two paths that diverged. */
+extern void jitIfElse()
+{
+    -%
+    llvm::IRBuilder<> *b = gJitBuilder;
+    llvm::BasicBlock *endBB  = gIfEndBlocks.back();
+    llvm::BasicBlock *elseBB = gIfElseBlocks.back();
+    b->CreateBr(endBB);
+    b->SetInsertPoint(elseBB);
+    %-
+}
+
+/* jitIfEnd  closes the ELSE arm (2026-07-31; it used to close the then arm,
+   before jitIfElse existed) and resumes at the endif merge block, popping BOTH
+   stacks in lockstep.
+
+   NO PHI IS NEEDED FOR FIELD STORES, and the old comment here got the reason
+   wrong -- it credited PromotePass. There are NO ALLOCAS in this emitter: a
+   field slot is a BAKED ABSOLUTE ADDRESS (inttoptr), so fields live in MEMORY
+   and two stores to the same address on two paths need no merge at all. mem2reg
+   is a documented no-op on this shape. What genuinely has no merge is the
+   RETURN VALUE, which is capped from gJitResult -- a scalar C++ global -- and
+   that is a separate defect from anything phi-shaped. */
 extern void jitIfEnd()
 {
     -%
     llvm::IRBuilder<> *b = gJitBuilder;
     llvm::BasicBlock *endBB = gIfEndBlocks.back();
     gIfEndBlocks.pop_back();
+    gIfElseBlocks.pop_back();
     b->CreateBr(endBB);
     b->SetInsertPoint(endBB);
     %-
@@ -422,12 +454,15 @@ extern void jitIfEnd()
 extern GroupItem jitEmitGIF(GroupItem input)
 {
 GroupItem   ExpressioN:,
-            StatemenT:;
+            StatemenT:,
+            ElsE:;
 GroupItem   result = ExpressioN;
     if isMethod result = result.gMethod(result);
     else        result = ExpressioN;
     jitIfBegin();
     if StatemenT    result = StatemenT.gMethod(StatemenT);
+    jitIfElse();
+    if ElsE         result = ElsE.gMethod(ElsE);
     jitIfEnd();
     return result;
 }
