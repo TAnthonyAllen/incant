@@ -34,6 +34,13 @@
         RULE 1.
       - An OPEN is not a claim with hedges (RULE 2). Opens live in `openItems`
         and say what they BLOCK and what settling would COST.
+      - ⚠ NEW GRADE 2026-07-31: `acquitted-unexplained`, and it is DELIBERATELY
+        DISTINCT FROM `refuted`. It means: the predicted symptom DOES NOT OCCUR
+        under the prosecution's best case, measured -- but the mechanism that
+        PROTECTS us is unestablished. Safe by measurement, not by understanding.
+        A refuted claim is dead and needs no guard; an acquitted-unexplained one
+        keeps a FIXTURE STANDING GUARD, because the day the protecting mechanism
+        changes, the acquittal expires and nothing else would notice.
 
     THE ACCEPTANCE TEST this corpus must pass: an agent asked "does the JIT gIF
     branch work?" must NOT answer "yes, taken->99". It must say that was a
@@ -508,9 +515,9 @@ define
                     DURING emission, before the dump is reached. That is a real
                     obstacle, not an excuse: settling this needs the dump moved
                     earlier or emitted incrementally.";
-                confidence="inferred";
+                confidence="acquitted-unexplained";
                 asOf="2026-07-31";
-                unimplicated="⚠ RUNG J3 REMOVED ITS ONLY ALLEGED CONSEQUENCE, 2026-07-31. The ICmp abort is GONE, and not because of this: aCTionWhilE had no jitting gate, so the loop EXECUTED at emit time and walked its condition repeatedly. With a gate the condition is emitted ONCE and the abort does not recur. The overwrite still EXISTS in source; what is gone is the symptom it was blamed for. NOT REFUTED -- UNIMPLICATED. It keeps a dedicated fixture at rung J5 (multi-statement operand reuse) where it can be ATTRIBUTED rather than inferred. Do not promote it to refuted without a run that looks for it directly.";
+                unimplicated="⚠ ACQUITTED-UNEXPLAINED as of rung J5, 2026-07-31. THE PROSECUTION GOT ITS BEST CASE AND THE SYMPTOM DID NOT OCCUR: J5 reuses one field across statements in a loop body with the condition comparing a field the body writes -- the exact shape predicted to break -- and it is green, no abort, no verifier refusal. The reading (DUMP=2): the field is loaded FOUR TIMES in one iteration, ONE PER USE, so the stored SSA value is never what a later use reads. ⚠ BUT THE PROTECTING MECHANISM IS UNESTABLISHED AND CONTRADICTS bear-trap #9, which describes the seeding gate as SKIPPING an already-seeded node -- four loads means it did not skip. SAFE BY MEASUREMENT, NOT BY UNDERSTANDING, which is why this is not `refuted` and why incant/jitJ5 STANDS GUARD: the day re-seeding changes, the acquittal expires and nothing else would notice. Earlier history: RUNG J3 REMOVED ITS ONLY ALLEGED CONSEQUENCE, 2026-07-31. The ICmp abort is GONE, and not because of this: aCTionWhilE had no jitting gate, so the loop EXECUTED at emit time and walked its condition repeatedly. With a gate the condition is emitted ONCE and the abort does not recur. The overwrite still EXISTS in source; what is gone is the symptom it was blamed for. NOT REFUTED -- UNIMPLICATED. It keeps a dedicated fixture at rung J5 (multi-statement operand reuse) where it can be ATTRIBUTED rather than inferred. Do not promote it to refuted without a run that looks for it directly.";
             gateCensus
                 content="THE CROSSOVER BOUNDARY, ENUMERATED -- this is what the
                     open crossover ruling is ABOUT, and it did not exist in
@@ -692,6 +699,28 @@ define
                 missing="the frame phase itself -- allocas, unbox prologue, rebox epilogue, per-call slot arrays -- and, named honestly, THERE IS NO jitEmitCall AT ALL. Its seam is the same isMethod branch the unary seed bug lives on. A SELF-CALL IS A CALL, so J-R's own ladder is: call emission -> frames -> recursion as proof";
                 blocks="every recursive action, and therefore a large part of the language surface the JIT must own before it can REPLACE the interpreter rather than accelerate part of it";
                 cost="⚠ NOT ONE MORE RUNG -- a PHASE BOUNDARY WEARING A RUNG'S CLOTHES. Every other rung adds a construct to a working model; J-R CHANGES the model. Sequenced AFTER the loop rungs, because frames build on the calling convention and loops do not need it. WHAT GOES GREEN WITH IT: recursion, the frame model, CLAIM KANT-8's whole class (returning a local from a recursive action emptied it via restoreLocalFields -- the interpreter failing at exactly this), and section 0 Consequence 1's death warrant on saveLocalFields. One fixture, four things, because they were always one piece of work seen from four sides";
+                asOf="2026-07-31";
+            openWalkStructureReads
+                content="TWO QUESTIONS THAT ARE PROBABLY ONE SITTING, paired
+                    deliberately because both are reads of the WALK'S STRUCTURE
+                    rather than of the emitter:
+                    (a) WHY DOES SEEDING HAPPEN PER USE? bear-trap #9 describes
+                        runOP's gate as SKIPPING a node that already has
+                        jitData, but J5's IR shows the same field loaded FOUR
+                        TIMES in one iteration, once per use. Something clears
+                        or bypasses jitData between uses and nobody has read
+                        what. This is the mechanism behind jitDataClobber's
+                        acquittal -- the acquittal is safe by MEASUREMENT and
+                        would become safe by UNDERSTANDING if this were read.
+                    (b) WHY IS A DO BODY NOT BLOCK-WRAPPED WHERE A WHILE BODY
+                        IS? Measured: a while body is committed to the result
+                        slot by aCTionBlocK (one store), a do body by nobody
+                        (zero stores). The emitters now differ accordingly, with
+                        a note at the site.";
+                established="both behaviours are measured from emitted IR and from a rung going red the moment the wrong generalisation was made";
+                missing="a read of the walk: what clears jitData between uses, and how DO's StatemenT differs from WhilE's in the parsed tree";
+                blocks="NOTHING. Neither is correctness risk -- both are mechanism curiosity with fixtures standing guard. Named so they are not mistaken for open defects";
+                cost="one sitting with the source, probably both at once. Cheap, and it would convert an acquittal-by-measurement into an acquittal-by-understanding";
                 asOf="2026-07-31";
             openJitDataModel
                 content="Can one jitData per GroupItem survive Phase 2, or does

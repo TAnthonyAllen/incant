@@ -47,6 +47,17 @@
 #      else-arm bug. The rung does not merely fail -- IT NAMES ITS FAILURE MODE
 #      FROM THE VALUE ALONE, before anyone opens a dump.
 #
+#  ⚠ THE LADDER'S PROOF-OF-THESIS, and it happened inside one session:
+#  J5's dump showed a REDUNDANT COMMITTER (three stores to the result slot for a
+#  two-statement body), so the explicit commit was removed from jitEmitWHILE --
+#  correctly -- and, ON THE SAME REASONING, from its sibling jitEmitDO. That was
+#  WRONG: a do body is committed by nobody, so J4 immediately emitted no result
+#  at all. The sibling had a fixture and it went red in the same commit that
+#  introduced the defect.
+#  A ONE-RUNG LADDER WOULD HAVE SHIPPED IT.
+#  That is the argument for rungs over one accreting action, stated as an event
+#  rather than a principle.
+#
 #  Standing harness rules apply (CLAUDE.md Testing): H1 the binary is echoed;
 #  H2 each rung's sentinel is checked FIRST and by name; H3 values are asserted,
 #  never a golden IR diff -- field slots are baked ABSOLUTE ADDRESSES, so an IR

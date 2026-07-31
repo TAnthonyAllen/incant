@@ -391,7 +391,22 @@ promote it to refuted without a run that looks for it directly.**
 
 The original reasoning, kept because it is what J5 will test:
 
-#### The original claim (INFERRED, now unimplicated)
+#### ⚠ VERDICT 2026-07-31: ACQUITTED-UNEXPLAINED (ladder rung J5)
+**The prosecution got its best case and the symptom did not occur.** J5 reuses one field
+across statements in a loop body, with the condition comparing a field the body writes — the
+exact shape this claim predicts will break. Green: 4→10, 5→15, no abort, no verifier refusal.
+
+**The reading** (`DUMP=2`): the field is loaded **four times in one iteration, once per use**,
+so the stored SSA value is never what a later use reads.
+
+⚠ **`acquitted-unexplained` is a distinct grade from `refuted`, deliberately.** The protecting
+mechanism — per-use re-seeding — is **unestablished, and contradicts bear-trap #9**, which
+describes the seeding gate as *skipping* an already-seeded node. Four loads means it did not
+skip. **Safe by measurement, not by understanding.** So `incant/jitJ5` **stands guard**: the day
+re-seeding changes, the acquittal expires and nothing else would notice. A refuted claim needs
+no guard; this one does.
+
+#### The original claim (INFERRED, now acquitted-unexplained)
 `testWhilE` and `testDo` both abort (134) on *"Both operands to ICmp instruction are not of the
 same type!"*. Likely mechanism: `jitEmitBinary` and `jitEmitCompare` both end
 `target->jitData->setJitter(res)` — **overwriting the target operand's stored SSA value with

@@ -61,6 +61,17 @@ define
                 print `"    searched:" grup.searched:;
         };
 
+    /*  ACQUITTED-UNEXPLAINED: safe by measurement, not by understanding. Served
+        as "does not occur", NEVER as "is not a problem" -- and always with the
+        fixture that guards it, because the acquittal expires silently if the
+        protecting mechanism changes.  */
+    acquitted argument code={
+        claimList = argument.claims;
+        for grup in claimList;
+            if grup.confidence == "acquitted-unexplained";
+                print "  ACQUIT " grup.taG "-- symptom does not occur; MECHANISM UNKNOWN, fixture guards it":;
+        };
+
     /*  MUST NOT be served as true.  */
     mustRefuse argument code={
         claimList = argument.claims;
@@ -136,6 +147,10 @@ servableAsFact(jitIgor);
 print :;
 print "=== 2. HEDGE THESE  (inferred -- read or counted, NEVER run) ===":;
 hedged(jitIgor);
+
+print :;
+print "=== 2b. ACQUITTED-UNEXPLAINED (safe by measurement, not by understanding) ===":;
+acquitted(jitIgor);
 
 print :;
 print "=== 3. MUST NOT BE SERVED AS TRUE ===":;
