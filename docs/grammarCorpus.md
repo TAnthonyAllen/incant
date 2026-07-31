@@ -827,3 +827,74 @@ beyond this fixture.
     grafted keyword that is a PREFIX of an existing one is not.
 11. **Whether every incant parse failure truncates** (GRAM-8), or only an unmatched leading
     keyword. Only the `RunRulE` shape was run.
+
+---
+
+## ROUND 3 INTAKE — 2026-07-31, from the `#` string-expression change (foreman, not a round)
+
+*Two claims and one proposal, landed while replacing the `string` keyword. Recorded here
+rather than in a round's section because no grammar-minion round ran — this is intake.*
+
+### CLAIM GRAM-13 — `,` COULD NOT BE THE STRING-EXPRESSION OPENER, and the reason is the shortcut set
+```
+statement:   `,` is ALREADY a member of the print shortcut character set --
+             `ShortcuT=[-+~`$_:,]+` (incant/grammar:92) -- and the `+` means
+             adjacent shortcut characters MERGE INTO ONE TOKEN. So `,` in a
+             print had two readings once StringXP opened on it, and the
+             collision was not theoretical: `print "it is", maximus + 3,
+             "done":;` -- LIVE at incant/unitTests:113 -- produced a garbage
+             operand and SEGFAULTED. `#` is NOT in the shortcut set, so it
+             cannot be absorbed into a merged run and has exactly one reading
+             in Token position.
+confidence:  RUN
+provenance:  incant/commaProbe (since folded into incant/hashProbe), 2026-07-31.
+             Row A (`,` between two literals) survived; row B (`,` then
+             arithmetic) gave `ERROR Operator + failed on maximus and xl` then
+             SIGSEGV. Crash chain: appendGroup <- aCTionStringXP <- printField
+             <- appendGroup <- aCTionPrinT -- a nested StringXP inside a print
+             whose operand evaluated NULL, handed to an appendGroup with no
+             null guard.
+scope:       The crash is reachable only via incant/baselineTests, which is in
+             NO pop script -- all three POPs stayed green while it crashed.
+             That coverage hole is now a smoke check in pop.sh.
+```
+
+### CLAIM GRAM-14 — the FormaT rule DOES NOT FIRE (Fearless, parked HPDL)
+```
+statement:   FormaT (`FormaT="#" flags=[-# 0+']* ... tokenize;`,
+             incant/grammar:102) does not bind. `print x #5d` prints `11 5 d`
+             -- the format spec passes through as ORDINARY PRINT ITEMS.
+confidence:  MEASURED -- and measured as a CONTROLLED COMPARISON, which is the
+             load-bearing part: the same row was run under the `,` grammar and
+             under the `#` grammar and printed `11 5 d` UNDER BOTH. So this is
+             PRE-EXISTING and is NOT a consequence of `#` becoming the StringXP
+             opener.
+provenance:  incant/fmtProbe, run under both grammars, 2026-07-31.
+history:     worked previously; unused recently; BREAK POINT UNKNOWN.
+note:        ⚠ WHEN FIXED, THE LEAD CHARACTER SHOULD BE `%`, NOT `#`. `#` is now
+             owned by the StringXP gate, and `%` carries printf symmetry.
+status:      PARKED, HPDL. Tony's.
+consequence: this is the one real cost of choosing `#`. It shadows FormaT's
+             opener -- but it shadows something that does not currently work,
+             so the cost is to the FUTURE fix, not to today. Whoever repairs
+             FormaT cannot use `#` while StringXP owns it, which is why the
+             `%` note above is part of the claim rather than a suggestion.
+```
+
+### PROPOSAL GRAM-P1 — STATUS CHANGED, and it is now the ONLY candidate
+`GRAM-P1` proposed replacing the `'p'` first-character sink test with a `sink=` attribute.
+**THE `'p'` TEST NO LONGER EXISTS.** `aCTionPrinT`'s two-arm dispatch was removed on
+2026-07-31 when `string` moved out to its own rule with its own action, so aCTionPrinT ends
+`return opPrint(input,buffer);` unconditionally. Consequences:
+- `cerr` stopped being routed to opString-and-discarded and now **prints on stdout** —
+  still wrong, wrong in a smaller way. `printFamilyNew`'s divergence files were re-pinned,
+  exactly six lines, all `cerr`.
+- **`sink=` is no longer an improvement on a hack; it is the only thing that can tell the
+  three stream keywords apart.** That raises its priority and does not change its design.
+- **Clay approved it 2026-07-31.** ⚠ Not built: the define-time half is cheap
+  (`sink immediateAction=setSink noPrint;`, the same load-bearing `noPrint` `parseMethod=`
+  needed), but the RUN-time half is open — `aCTionPrinT` receives the parsed INSTANCE, and
+  `definingRule()` cannot reach the rule from one (it walks to the first child's parent, and
+  an instance OWNS its children, so it routes back to itself). Two candidates, one a
+  RuleStuff layout change, one a name lookup that reproduces GRAM-2's defect a layer up.
+  Parked in `ipc/clod-to-clay.md` SEQ 36 pending a measurement probe.
