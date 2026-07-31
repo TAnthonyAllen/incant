@@ -221,6 +221,13 @@ exactly what an unpromoted, non-alloca slot model would produce.
 
 The IR was read properly rather than argued about, and it collapses the choice:
 
+> ### THE PRINCIPLE, stated because it is the reasoning and not just the outcome:
+> # **THE MERGE IS THE MEMORY LOCATION.**
+> Two paths that write the same address need no merge instruction — the address
+> *is* the merge. That one sentence covers both halves of O4: fields (baked
+> absolute addresses) and results (the result slot), and it is why neither
+> needed a phi written by hand.
+
 **FIELDS DO NOT NEED PHIS, BECAUSE FIELDS ARE MEMORY.** A slot is a baked absolute address;
 a read is `CreateLoad` from it and a write is `CreateStore` to it. Two stores to the same
 address on two paths need **no merge at all** — that is what memory *is*. The four-block
@@ -240,6 +247,17 @@ stating the future mechanism as the current one:**
 | correctness | correct, no phis needed | correct |
 | cost | a load/store per access | native values in registers |
 | needs mem2reg | **no** | **yes** — that is where allocas appear |
+
+⚠ **AND `never write a phi` IS NOW MEASURED-WORKING, not merely asserted.** The result slot is
+the **first alloca this emitter has ever produced**, so `PromotePass` finally had something to
+promote — and it inserted the phi itself:
+```
+emitter wrote:   then: store %mul, ptr %result    LLVM produced:
+                 else: store 7,    ptr %result      %result.0 = phi i32 [ %mul, %then ], [ 7, %else ]
+                 endif: %retval = load ptr %result  ret i32 %result.0
+```
+The position was carried for a month against an emitter that emitted no allocas at all. It is
+now demonstrated on the one construct that needed it.
 
 The frame model is not dropped and must not be: §0 Consequence 1 says locals-as-frames lands
 **once, in the JIT**, and `saveLocalFields` is deleted rather than repaired. That is about
@@ -317,6 +335,27 @@ and **the code after the loop was unreachable** — measured, `incant/loopBranch
 **The emitter's half is again free:** `break` → `br` to the loop's exit block, already in the
 loop design (Part IV). There is no signal to consume because there is no signal — the branch
 *is* the control flow.
+
+---
+
+## THE EMITTER RULES (E-series) — audited like the H-series, and for the same reason
+
+*A standing series for rules the emitter must obey, kept here rather than in a commit message
+because each one is a trap the next emitter will walk into. Audit new emitters against them.*
+
+### E1 — A BRACKETING EMITTER LEAVES NOTHING IN FLIGHT
+**Adopted 2026-07-31, paid for the same day.** An emitter that brackets sub-walks (an `if`, and
+every loop to come) **commits its own arms and then clears `gJitResult`.**
+
+`jitEmitGIF` commits both arms to the result slot *inside their own blocks* — that is the merge
+— and then clears. Without the clear, the **enclosing** walk sees a stale in-flight value and
+commits it **again in the merge block**, clobbering the merge so every path returns the last arm
+*emitted* rather than the one that *ran*. Measured: two extra `store i32 7` in `endif`, and both
+paths returning 7.
+
+**The rule is not "clear a variable", it is a statement about ownership:** a control-flow
+statement's value is *already committed*, so there is no loose value for anyone else to commit.
+**The loop emitters are E1's first audit customers** — they bracket exactly as `gIF` does.
 
 ---
 

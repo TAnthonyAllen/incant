@@ -175,6 +175,7 @@ extern "C" void jitIfBegin();
 extern "C" void jitIfElse();
 extern "C" void jitIfEnd();
 extern "C" void jitInitOnce();
+extern "C" GroupItem *jitRefire(GroupItem *input);
 extern "C" int jitRunAction(GroupItem *action);
 extern "C" int jitRunAddTwo();
 extern "C" int jitRunIfTest(GroupItem *fld);

@@ -401,6 +401,20 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 > that was never checked, a harness with three exits, an assertion that covered the wrong
 > thing. **When a result surprises you, doubt the instrument before the code.**
 >
+> ⚠ **ONE CHANNEL, ONE MEANING.** A second family, distinct from the causal-claim asymmetry
+> below and now with two measured members. When one channel is made to carry two meanings, a
+> change to either meaning silently corrupts the other:
+> - **`isBranch` on the returned node** carried a statement's **value** *and* its **branch
+>   signal**, so changing the value dropped the signal — the structural root of both branch
+>   defects ruled on 2026-07-31.
+> - **`gJitResult` non-null** meant *"the value in flight"* **and** *"something was emitted"*.
+>   The moment a bracketing emitter legitimately cleared it, the second meaning inverted and the
+>   driver bailed before emitting a return, silently un-jitting every `if/else`.
+>
+> **The cure is a second channel, not a cleverer test:** `gJitEmitted` in the emitter, and in IR
+> the separation is free — a `br` carries no value and a `store` carries no control flow. When
+> you find yourself reading a field for something other than what it holds, that is this bug.
+>
 > ⚠ **AND A MEASURED PROPERTY OF THIS SYSTEM, not a run of bad luck: STRUCTURAL claims here
 > hold, CAUSAL claims here fail.** The causal-claim ledger in the JIT domain stands at **five
 > failures**, the latest being "the return is a dominance violation" — falsified by a dump

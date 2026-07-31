@@ -1,0 +1,80 @@
+/*****************************************************************************
+    jitJ1 -- RUNG 1 OF THE jitLadder. 2026-07-31.
+
+        assign + arithmetic + tail return, fired at TWO inputs.
+
+    THE LADDER'S PURPOSE, in one sentence: nothing in this tree has ever
+    asserted that an ACTION, jitted end to end, RETURNS THE INTENDED VALUE.
+    `jitPop.sh` asserts the if/else block topology; the Phase-1 tables assert
+    individual operators through a scratch driver. The spine -- build an action,
+    fire it, get the right answer -- was missing, and J1 is it.
+
+    Each rung is the previous rung plus ONE construct, so a red NAMES the
+    construct instead of handing you a haystack. That is the genLadder lesson
+    applied to the JIT, which is the one subsystem that never had it.
+
+    ============================================================================
+    ⚠⚠ THE MANDATORY CRITERION, AND IT IS NOT "THE ANSWER IS RIGHT"
+
+    A right answer does not prove the COMPILED CODE produced it.
+
+    Under jitting the interpreter executes the action body FOR REAL at emit time
+    (docs/jit.md S2.2 -- a jitted `print` printed `hello world` DURING
+    compilation). So an end-to-end POP can go green because the INTERPRETER did
+    the work while compiling, with the compiled function returning a baked
+    constant. Right answer, wrong universe, exit 0 the whole way.
+
+    So every rung COMPILES ONCE AND FIRES TWICE, with the input changed AFTER
+    emission:
+
+        jaIn = 10;  testing(jitJ1);   -> jaOut must be 15
+        jaIn = 30;  jitRefire();      -> jaOut must be 35   <-- THE PROOF
+
+    Row 2 recompiles NOTHING. If its answer tracks the new input, the
+    computation happened at RUN TIME in compiled code -- there is no other
+    explanation. If jaOut stays 15, the emitter FOLDED the input at compile time
+    and row 1 was theatre. This is the load-vs-fold distinction jit.md has
+    listed as unobservable since Phase 1; jitRefire is what makes it observable.
+
+    SECOND CRITERION: `jitDegrade count = 0`. J1 claims full coverage of its own
+    constructs, so nothing in it may silently fall through to emit-time
+    interpretation. The degrade counter stops being only a crossover burn-down
+    and becomes a per-rung assertion.
+    ============================================================================
+
+    SENTINEL AT THE FOOT (standing harness rule H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitLadder);
+define
+    jaIn;
+    jaOut;
+    /*  The whole rung: one assign, one arithmetic op, value left in a field.
+        Deliberately the smallest thing that still needs the FULL scaffold --
+        seed a field operand, emit the add, store back, cap the function, hand
+        it to ORC, look the symbol up, and call it.  */
+    jitJ1 code={ jaOut = jaIn + 5; };
+    ;
+
+jaIn  = 10;
+jaOut = 0;
+print "J1 fire 1 setup : jaIn =" jaIn:;
+testing(jitJ1);
+print "J1 fire 1 result: jaOut =" jaOut " (want 15)":;
+
+/*  ⚠ NO RECOMPILE BELOW THIS LINE. Only the input changes.  */
+jaIn  = 30;
+jaOut = 0;
+print "J1 fire 2 setup : jaIn =" jaIn " (recompile: NONE)":;
+jitRefire();
+print "J1 fire 2 result: jaOut =" jaOut " (want 35; 15 = FOLDED at compile time; 0 = never fired)":;
+
+print "J1 SENTINEL -- run reached the end":;
+stop();

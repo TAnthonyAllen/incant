@@ -216,6 +216,32 @@ define
                 provenance="added and used to diagnose the clobber, 2026-07-31";
                 confidence="verified";
                 asOf="2026-07-31";
+            jitLadderJ1Green
+                content="THE jitLADDER EXISTS AND J1 IS GREEN -- the first time
+                    anything in this tree has asserted that an ACTION, jitted end
+                    to end, RETURNS THE INTENDED VALUE. jitPop.sh asserts the
+                    if/else block topology; the Phase-1 tables assert individual
+                    operators through a scratch driver. The spine -- build an
+                    action, fire it, get the right answer -- was missing.
+                    J1 = assign + arithmetic (jaOut = jaIn + 5).
+                      fire 1  jaIn=10 -> jaOut=15
+                      fire 2  jaIn=30 -> jaOut=35   NO RECOMPILE
+                      jitDegrade count = 0
+                    ⚠ FIRE 2 IS THE ONLY ROW THAT PROVES ANYTHING. A right answer
+                    does not show the COMPILED code produced it: under jitting
+                    the interpreter runs the body for real at emit time, so a
+                    naive end-to-end POP can go green on an emit-time side effect
+                    with the compiled function returning a baked constant --
+                    right answer, wrong universe, exit 0 throughout. Changing the
+                    input AFTER emission and firing again with no recompile is
+                    what distinguishes them, and the answer tracked the input.
+                    That is the LOAD-VS-FOLD distinction jit.md listed as
+                    unobservable since Phase 1; jitRefire makes it observable.
+                    Each rung is the previous plus ONE construct, so a red NAMES
+                    the construct instead of handing you a haystack.";
+                provenance="sh jitLadder/ladder.sh, exit 0, both criteria NEGATIVE-CONTROLLED (a wrong fire-2 expectation and a wrong sentinel each go red with the right message), 2026-07-31";
+                confidence="verified";
+                asOf="2026-07-31";
             unaryPopsCrash
                 content="All three unary JIT POPs -- jitInc, jitDec, jitNeg --
                     exit 139 (SIGSEGV) inside jitEmitUnary dereferencing a null

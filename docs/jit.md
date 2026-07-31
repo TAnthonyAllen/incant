@@ -119,9 +119,20 @@ Nothing in the live tree had ever called `verifyFunction`, and no IR had ever be
 - **`llvm::verifyFunction`** (`jitEmitters.rtn:529`) — placed *before* mem2reg, so it catches
   the emitter's own output rather than the optimiser's. It returns **true when the function is
   broken**, which is the API's own inversion and is easy to get backwards.
-- **`INCANT_JIT_DUMP=1`** (`jitEmitters.rtn:580`) dumps the module. An **environment variable,
-  not a GroupBody flag** — deliberately, so it costs no bitfield shift and no `tokall`
-  (bear-trap #10).
+- **`INCANT_JIT_DUMP`** dumps the module. An **environment variable, not a GroupBody flag** —
+  deliberately, so it costs no bitfield shift and no `tokall` (bear-trap #10). **Two modes, and
+  `=2` is the one to reach for:**
+
+  | mode | dumps | answers |
+  |---|---|---|
+  | `=1` | post-mem2reg | what will actually run |
+  | **`=2`** | **PRE-mem2reg — the emitter's own output** | ***did the emitter emit this, or did the optimiser produce it?*** |
+
+  ⚠ **`=2` is ratified as THE ATTRIBUTION INSTRUMENT and is the default for ladder debugging.**
+  The post-pass dump cannot separate emitter from optimiser, and that is the *first* question
+  any emitter failure raises. It is not hypothetical: the result-slot clobber — two stray
+  `store i32 7` in the merge block — was **invisible** at `=1` because folding hid it, and
+  obvious at `=2`.
 
 ### 1.3 `jitDegrade` — the crossover primitive
 `jitEmitters.rtn:61`, lifted 2026-07-30 from the one place the pattern already existed

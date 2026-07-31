@@ -78,6 +78,23 @@ inline llvm::Value *gJitResultSlot;
 // bailed before emitting the return.
 inline bool gJitEmitted;
 
+// THE COMPILED FUNCTION, kept so it can be FIRED AGAIN without recompiling
+// (2026-07-31, the jitLadder). Every rung must compile ONCE and fire TWICE at
+// different inputs, because a right answer is not proof the COMPILED code
+// produced it: under jitting the interpreter executes the body for real at emit
+// time, so a naive end-to-end POP can go green on an emit-time side effect with
+// the compiled function returning a baked constant -- right answer, wrong
+// universe, exit 0 throughout. If the second fire tracks an input changed AFTER
+// emission, the computation happened at RUN time. Nothing else proves it.
+inline int (*gJitLastFn)() = nullptr;
+
+// Degrade count as a readable global rather than a function-local static, so a
+// rung can ASSERT it. Zero is the claim "this rung's constructs are all covered
+// -- nothing silently fell through to emit-time interpretation". Still a C++
+// static and not a node slot, for CLAIM KANT-4's reason: GroupBody's value slots
+// are one union and a counter parked in gCount destroys whatever shares it.
+inline int gJitDegradeCount = 0;
+
 // Nodes seeded with JitData during the current compile. JitData is transient (one
 // compile, into a per-run LLVMContext that jitRunAction destroys), but the field/
 // literal GroupItems that carry it persist (BDWGC). The runOP seeding gate skips a

@@ -3183,14 +3183,13 @@ extern "C" int jitDegrade(char *what, GroupItem *node)
 	if ( !GroupControl::groupController->groupRules->jitting )
 		return 0;
 	
-	static int degradeCount = 0;
-	++degradeCount;
+	++gJitDegradeCount;
 	::fprintf(stderr,
 	"=== JIT DEGRADE #%d: %s -- not JIT-supported yet, running INTERPRETED: %s ===\n",
-	degradeCount, what ? what : "(unnamed construct)",
+	gJitDegradeCount, what ? what : "(unnamed construct)",
 	node ? node->groupBody->tag : "(no node)");
 	::fflush(stderr);
-	return degradeCount;
+	return gJitDegradeCount;
 	
 }
 
@@ -3565,6 +3564,37 @@ extern "C" void jitInitOnce()
 	
 }
 
+/* jitRefire  FIRE THE LAST COMPILED FUNCTION AGAIN, without recompiling.
+   The jitLadder's proof-of-run-time-computation, and the reason every rung
+   compiles once and fires twice.
+
+   THE THREAT IT ANSWERS: under jitting the interpreter executes the action body
+   for real at emit time (docs/jit.md S2.2 -- a jitted `print` printed during
+   compilation). So an end-to-end POP that compiles, fires, and sees the right
+   answer proves NOTHING on its own: the interpreter may have done the work
+   while compiling, with the compiled function returning a baked constant. Right
+   answer, wrong universe, exit 0 throughout.
+   Change an input AFTER emission and fire again: if the answer tracks the new
+   input, the computation is happening at RUN time in compiled code. That is the
+   load-vs-fold distinction jit.md has listed as unobservable since Phase 1,
+   and this is what makes it observable.
+
+   Returns trueResult on a fire, null if nothing has been compiled yet -- LOUD,
+   because a silent no-op here would make a rung green for the wrong reason. */
+extern "C" GroupItem *jitRefire(GroupItem *input)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	
+	if (!gJitLastFn) {
+	printf("=== jitRefire: NOTHING COMPILED YET (call testing() first) ===\n");
+	fflush(stdout);
+	return 0; }
+	int r = gJitLastFn();
+	printf("=== jitRefire result = %d ===\n", r); fflush(stdout);
+	
+	return ruler->trueResult;
+}
+
 /* jitRunAction  the generic compile driver — the JIT analog of generateCode. Sets
    up an i32() function shell + builder, raises the `jitting` gate, walks the action
    body via processCode (which fires aCTionExpressioN's jitting branch per
@@ -3738,8 +3768,13 @@ extern "C" int jitRunAction(GroupItem *action)
 	if (!sym) { llvm::consumeError(sym.takeError());
 	printf("=== JIT lookup failed ===\n"); fflush(stdout); return -4; }
 	int (*fp)() = sym->toPtr<int(*)()>();
+	gJitLastFn = fp;          // keep it: the ladder fires it again, uncompiled
 	int r = fp();
 	printf("=== jitRunAction result = %d ===\n", r); fflush(stdout);
+	//  Reported UNCONDITIONALLY and with its value, so a rung can assert it.
+	//  A presence-with-value line cannot pass by being deleted, which an
+	//  absence check on the degrade message could.
+	printf("=== jitDegrade count = %d ===\n", gJitDegradeCount); fflush(stdout);
 	gJitBuilder = nullptr;   // don't leave it dangling at this run's destroyed stack B
 	gJitResult  = nullptr;
 	return r;

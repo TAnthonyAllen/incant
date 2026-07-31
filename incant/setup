@@ -67,6 +67,7 @@ define
     stop=stopParsingInput immediateAction;
     system immediateAction=runSystem;
     testing immediateAction;
+    jitRefire immediateAction=jitRefire;
     unary immediateAction=processFlags noPrint;
     unWrap immediateAction;
     writeTempFile immediateAction;
