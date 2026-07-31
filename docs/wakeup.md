@@ -1,4 +1,117 @@
-# ⚠⚠ UPDATED 2026-07-30 — READ THE 07-30 SECTION FIRST. It is directly below this line.
+# ⚠⚠ UPDATED 2026-07-31 — READ THE 07-31 SECTION FIRST. It is directly below this line.
+# Everything from `# ⚠⚠ UPDATED 2026-07-30` down is older vintage and still broadly accurate;
+# it is just no longer the top of the story. CLEAN STOP, tree clean, five POPs green.
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 2026-07-31 — THE STRING EXPRESSION MOVED TO `#`, TWO LANGUAGE RULINGS LANDED,
+#              AND THE JIT GREW A LADDER THAT CERTIFIES ITS OWN CLAIMS
+# ═══════════════════════════════════════════════════════════════════════════
+
+## IF YOU READ NOTHING ELSE
+
+**`#` is the string-expression opener.** `x = #"a" "b";` replaces the old `string` keyword.
+It was tried as `,` first and that had to be abandoned: `,` is already in the shortcut set
+(`ShortcuT=[-+~`$_:,]+`, `incant/grammar:92`) whose `+` MERGES adjacent shortcut characters, so
+a `,` inside a print had two readings — and `print "it is", maximus + 3, "done":;`, live in
+`unitTests`, SEGFAULTED. `#` is not in that set. Record: `incant/hashProbe`.
+
+**`$` is now a PERSISTENT TOGGLE.** `useDefaultSpace = true` was removed from `opPrint`/
+`opString`. `processAction` resets it before each action runs, so it cannot leak *into* one, but
+it survives across statements *within* one and a nested call resets it. **The safe idiom is
+BALANCED `$ … $`** — off at the start of a statement, on at the end. `incant/printFamily` is
+the worked example; `incant/stringT` row 4 pins the persistence itself.
+
+## WHAT IS RUNNABLE — five POPs, all green, all exit 0
+```
+sh genLadder/pop.sh        30 checks   genParse ladder + baselines + branch semantics
+sh genLadder/printPop.sh                print family (moving half still pinned WRONG)
+sh genLadder/tree.sh                    §2.4 divergence unchanged (OPEN, not broken)
+sh jitLadder/ladder.sh     47 checks    THE JIT LADDER, rungs J1..J7
+<binary> incant/jiquery                 the JIT minion corpus, queried
+```
+⚠ **`pop.sh` echoes the binary it is testing as its first two lines.** All three genLadder POPs
+used to hardcode a DerivedData path from a project that no longer exists; a stale binary does
+not fail as a diff, it HANGS. They now use `${INCANT:-$HOME/bin/incant}`.
+
+## THE JIT LADDER — the month's main artifact
+`jitLadder/ladder.sh`. **Nothing in this tree had ever asserted that an ACTION, jitted end to
+end, RETURNS THE INTENDED VALUE.** Each rung is the previous plus ONE construct, so a red NAMES
+the construct.
+
+| rung | adds | the claim it proves |
+|---|---|---|
+| J1 | assign + arithmetic | the OPERANDS are read at run time |
+| J2 | if/else | the BRANCH is decided at run time |
+| J3 | while | the loop RUNS THE RIGHT NUMBER OF TIMES |
+| J4 | do | the body runs ONCE when the condition starts FALSE |
+| J5 | multi-statement operand reuse | **attribution, not coverage** — the clobber's trial |
+| J6 | an emitted call (`jitTrace`) | a call is EMITTED and runs PER FIRE |
+| J7 | fallback column on a real opMethod | emit a call, GET A VALUE BACK, layout-free |
+
+**EVERY RUNG COMPILES ONCE AND FIRES TWICE**, input changed *after* emission. A right answer
+does not prove compiled code produced it — under jitting the interpreter executes the body for
+real at emit time, so a naive POP goes green on an emit-time side effect. Fire 2 recompiles
+NOTHING; if its answer tracks the input, the computation happened at RUN TIME.
+⚠ **INJECTIVITY: the two ANSWERS must differ, not just the inputs.** J1–J6 satisfied this by
+luck; J7 (`17 % 3` and `20 % 3` are both 2) is where it surfaced.
+Every rung also asserts **degrade count 0** and records the **interpreted oracle** beside its
+value — §0 sentences the interpreter, so the ladder banks its testimony while it can.
+
+## THE FRAME MODEL IS NEXT, AND IT IS TEED UP
+**Recon done, nothing built.** `docs/jitDesign.md` Part III.
+
+⚠ **THE FRAME SCHEMA ALREADY EXISTS IN THE TREE** — `(isArgument || isLocal) && !noPrint`,
+walked forward by `saveLocalFields` (`GroupActions.rtn:697`) and backward by
+`restoreLocalFields` (`:524`). The JIT **inherits** it rather than inventing one.
+⚠ **THE FUNCTION §0 SENTENCED TO DEATH IS THE ONE THAT DOCUMENTS WHAT TO BUILD.** Read it
+before deleting it; do not delete until the replacement is green. **Inherit the schema, NOT the
+bug** — `CLAIM KANT-8` lives in the same machinery.
+
+**Increment 1:** schema walk at emit → one alloca per local → prologue in → locals via alloca
+while **globals keep baked addresses and immediate store-through** → epilogue out.
+⚠ **IT IS NOT INDEPENDENTLY PROVABLE.** Without recursion, allocas-for-locals is
+behaviour-neutral. A rung can assert STRUCTURE plus a value regression net, and **must label
+itself not-the-proof**. **J-R is the proof** — factorial-shaped, fired at TWO DEPTHS, because
+depth-1 passes on aliased slots and depth-N cannot.
+
+## LANGUAGE RULINGS IMPLEMENTED (Tony's, 2026-07-31)
+- **A bare `return;` yields the PRIOR statement's value.** An action's value is the value of the
+  LAST EXECUTED STATEMENT; `return` means *stop*. It used to yield the string `"return"` —
+  KANT-10 leaking through `aCTionBrancH`. Fixture `incant/retProbe`.
+- **`break` is CONSUMED by the innermost loop** and propagates nothing, so statements after the
+  loop run. It used to make post-loop code unreachable. Fixture `incant/loopBranchT`.
+- ⚠ Both share a structural root — **the VALUE and the BRANCH SIGNAL ride the same node** — and
+  both are retired at crossover rather than fixed, because in IR a `br` carries no value.
+
+## RULES ADOPTED THIS MONTH (CLAUDE.md Testing)
+**H1** a harness echoes its binary · **H2** every harness asserts its own completeness with a
+sentinel unreachable except through the final section · **H3** assert what only moves when the
+answer moves · **H4** presence-with-value, never absence-of-message (fleet-audited, no
+conversions owed) · **E1** a bracketing emitter leaves nothing in flight · **one channel, one
+meaning** · **prefer a structure that makes the failure unconstructable** · **retirement by
+mapping** · **in a demolition arc the recon is how you learn what the condemned code knows**.
+
+## OPEN, and whose
+**Tony's:** the crossover ruling (degrade loudly?) · `sink=`'s run-time half (the define-time
+half is cheap; `definingRule()` cannot reach a rule from a parsed instance — `ipc/clod-to-clay.md`
+SEQ 36) · `knownErrors.md` KE-1/KE-2 · FormaT does not fire, and when fixed its lead character
+should be `%` not `#`.
+**Mechanism curiosity, blocks nothing:** why seeding happens per use against bear-trap #9, and
+why a `do` body is not block-wrapped where a `while` body is (`openWalkStructureReads`).
+
+## ⚠ THE INSTRUMENT THAT CHANGES HOW YOU DEBUG
+```
+INCANT_JIT_DUMP=2 <binary> incant/<fixture> 2>&1
+```
+**Mode 2 is PRE-mem2reg — the EMITTER'S OWN output.** Mode 1 cannot tell you whether the emitter
+emitted something or the optimiser produced it, which is the first question any emitter failure
+raises. The result-slot clobber was invisible at `=1` because folding hid it.
+And **`jitTrace(field)` is the print that survives jitting** — `print` fires at EMIT time under
+jitting and reports compile-time state once: **it appears to work and it lies.**
+
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ⚠⚠ UPDATED 2026-07-30 — the 07-30 section follows.
 # Everything from `# ⚠ UPDATED 2026-07-29` down is 07-29 vintage and still accurate; it is
 # just no longer the top of the story. CLEAN STOP, tree clean, both POPs green.
 

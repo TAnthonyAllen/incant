@@ -424,6 +424,23 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 > two empty files. **A vacuity guard is H4's other half:** an assertion that compares nothing to
 > nothing is an absence check wearing a diff's clothes.
 >
+> ⚠ **IN A DEMOLITION ARC, THE RECON IS HOW YOU LEARN WHAT THE CONDEMNED CODE KNOWS.**
+> Adopted 2026-07-31. When a component is scheduled for deletion and its replacement designed,
+> **read it before deleting it** — not for sentiment, but because the condemned code is often
+> the only written specification of the thing you are about to rebuild.
+>
+> The worked example: `saveLocalFields` was sentenced by `docs/jit.md` §0 ("DELETED, not
+> repaired") a full two days before anyone read it closely enough to notice that **its walk is
+> the only written statement of which fields constitute a frame** —
+> `(isArgument || isLocal) && !noPrint`, forward to save and backward to restore. **The sentence
+> predated the discovery that the code was the spec.** Deleting first would have thrown away the
+> definition and left the replacement to guess at it.
+>
+> **Two rules follow.** *Inherit the schema, not the bug* — the same machinery carries
+> `CLAIM KANT-8`, so take the enumeration and leave the save/restore discipline behind. And
+> *do not delete until the replacement is green*, because until then the condemned code is still
+> the reference.
+>
 > ⚠ **PREFER A STRUCTURE THAT MAKES THE FAILURE UNCONSTRUCTABLE OVER A DISCIPLINE THAT AVOIDS
 > IT.** A new family, adopted 2026-07-31 with three members found in one week. **Disciplines get
 > audited; structures do not need to be.**
