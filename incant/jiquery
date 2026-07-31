@@ -1,3 +1,37 @@
+/*****************************************************************************
+    jiquery -- the JIT Igor minion's query harness. Runs against incant/jigcorpus.
+
+        <binary> incant/jiquery
+
+    ⚠ FIXED 2026-07-31: THE OLD VERSION HAD THREE `stop();` CALLS AND ONLY THE
+    FIRST SECTION EVER RAN. stop() exits the process, so sections 2 and 3 were
+    dead code that looked live -- the file reported a clean exit 0 while
+    answering one question out of three. That is the failure class the sentinel
+    discipline exists for, arriving inside the instrument itself. There is now
+    ONE stop(), at the foot, after the sentinel.
+
+    WHAT THIS HARNESS IS FOR, and it is not "print the corpus":
+
+    THE ACCEPTANCE TEST (docs/minion-corpus-format.md). A corpus earns its keep
+    only if an agent loaded with it CANNOT confidently serve a falsehood. So the
+    query surface must:
+        1. serve `verified` claims as fact,
+        2. hedge `inferred` claims as not-yet-run,
+        3. REFUSE to repeat `refuted`/`stale-suspect` claims as true, naming
+           them as superseded or false instead.
+
+    The corpus's own worst case is the gIF branch, which has been read as
+    working, then as broken, then as working-with-a-different-defect. An agent
+    that answers "the JIT gIF branch works, taken->99" has FAILED the format.
+    The correct answer is both halves: that reading was a shape-read and is
+    refuted; the branch IS now genuinely gated per an IR dump; the RETURN VALUE
+    is not merged, and that is the live defect.
+
+    SENTINEL AT THE FOOT. An incant parse failure abandons the rest of the file
+    and still exits 0 (CLAUDE.md testing doctrine, third corollary). Absent
+    sentinel => the run truncated => every answer above it is uninterpretable,
+    not merely incomplete.
+*****************************************************************************/
 Start();
 include(unitTests);
 include(generate);
@@ -8,33 +42,117 @@ search reset stack Grokking;
 search jigCorpus Generating UnitTests Utilities list;
 
 define
-    findRefuted argument code={
+    /*  Servable as fact -- a run was observed.  */
+    servableAsFact argument code={
+        claimList = argument.claims;
+        for grup in claimList;
+            if grup.confidence == "verified";
+                print "  FACT   " grup.taG:;
+        };
+
+    /*  Hedge these: reasoned, read or counted -- never run. The challenge
+        queue. `searched` is printed with each one because an inferred claim is
+        only as good as the space it searched.  */
+    hedged argument code={
+        claimList = argument.claims;
+        for grup in claimList;
+            if grup.confidence == "inferred";
+                print "  HEDGE  " grup.taG:;
+                print `"    searched:" grup.searched:;
+        };
+
+    /*  MUST NOT be served as true.  */
+    mustRefuse argument code={
         claimList = argument.claims;
         for grup in claimList;
             if grup.confidence == "refuted";
-                print "  REFUTED:" grup.taG:;
-                print `"   was:" grup.content:;
+                print "  REFUSE refuted      " grup.taG:;
+            or grup.confidence == "stale-suspect";
+                print "  REFUSE stale-suspect" grup.taG:;
         };
-    listClaims argument code={
-        claimList = argument.claims;
-        for grup in claimList;
-            print "  " grup.taG "=" grup.confidence:;
+
+    /*  Open items are WORK, not knowledge (corpus-format RULE 2).  */
+    listOpen argument code={
+        openList = argument.openItems;
+        for grup in openList;
+            print "  OPEN   " grup.taG:;
+            print `"    blocks:" grup.blocks:;
+            print `"    cost  :" grup.cost:;
         };
+
+    listBlocked argument code={
+        blockList = argument.blocked;
+        for grup in blockList;
+            print "  BLOCKED" grup.taG:;
+        };
+
+    /*  ⚠ ITERATES rather than reading `nextRef.action` directly, and that is
+        not style. `x = argument.nextStep;` is a CONTENT COPY (`=` is
+        setContent), and reading a named attribute back off the copy yields 0 --
+        measured 2026-07-31. The same shape works for claims/openItems because
+        those are ITERATED, never dot-read through a copy. Use the iterating
+        form for any sub-record.  */
     showNext argument code={
-        nextRef = argument.nextStep;
-        print "  action :" nextRef.action:;
-        print "  blocker:" nextRef.blocker:;
+        stepList = argument.nextStep;
+        for grup in stepList;
+            print "  action      :" grup.plannedAction:;
+            print "  test        :" grup.plannedTest:;
+            print "  blocker     :" grup.blocker:;
+            print "  NOT progress:" grup.notProgress:;
+        };
+
+    /*  ⚠ SECTION 0 EXISTS BECAUSE THE CORPUS SILENTLY LOST ITS OWN CONTENT AND
+        NOTHING NOTICED FOR A MONTH. Values written as `name=(text#)` -- the
+        delimited-literal form -- parse cleanly and produce an attribute WITH NO
+        DATA, and a field with no data returns its own TAG from .text. So
+        `content` read back as the literal string "content", the corpus looked
+        populated, and every claim it held was empty. Measured 2026-07-31 under
+        BOTH the old and the new grammar, so it is pre-existing and not a
+        consequence of the `#` change.
+
+        The tell is exactly that: a value that equals its own field name. This
+        check walks every claim and reports any whose content did not survive.
+        A corpus that cannot hold its claims is worse than no corpus, because it
+        reads as knowledge.  */
+    contentCheck argument code={
+        claimList = argument.claims;
+        bad = 0;
+        for grup in claimList;
+            if grup.content == grup.taG;
+                print "  ⚠ DATALESS:" grup.taG "-- content equals its own tag":;
+                bad += 1;
+        if bad > 0;  print "  CONTENT CHECK FAILED --" bad "claim(s) hold no data":;
+        else     print "  content check ok -- every claim carries data":;
         };
     ;
 
-print "=== refuted claims (expect: gifBranchPoison) ===":;
-findRefuted(jitIgor);
-stop();
+print "=== 0. CORPUS SELF-CHECK ===":;
+contentCheck(jitIgor);
 
-print "=== all claims + confidence ===":;
-listClaims(jitIgor);
-stop();
+print :;
+print "=== 1. SERVABLE AS FACT  (verified -- a run was observed) ===":;
+servableAsFact(jitIgor);
 
-print "=== next step ===":;
+print :;
+print "=== 2. HEDGE THESE  (inferred -- read or counted, NEVER run) ===":;
+hedged(jitIgor);
+
+print :;
+print "=== 3. MUST NOT BE SERVED AS TRUE ===":;
+mustRefuse(jitIgor);
+
+print :;
+print "=== 4. OPEN -- this is work, not knowledge ===":;
+listOpen(jitIgor);
+
+print :;
+print "=== 5. BLOCKED ===":;
+listBlocked(jitIgor);
+
+print :;
+print "=== 6. NEXT STEP ===":;
 showNext(jitIgor);
+
+print :;
+print "JQ SENTINEL -- run reached the end":;
 stop();

@@ -3,10 +3,43 @@
 
     Pure data, no actions (the unitTests pattern). Included by `jiquery`, which
     runs queries against it. NO Start()/stop() wrapper — this is a registry file,
-    not an execution file. CANONICAL: this is the source-of-truth JIT Igor corpus
-    (round-tripped a clean POP load 2026-06-29 — jiquery proved findRefuted →
-    gifBranchPoison). docs/minions/jit-igor.md is now the markdown render of this
-    file. See docs/minion-corpus-format.md.
+    not an execution file. CANONICAL: this is the source-of-truth JIT Igor corpus.
+    See docs/minion-corpus-format.md.
+
+    ============================================================================
+    RE-BAKED 2026-07-31 from the CONSOLIDATED docs (docs/jit.md = what is true,
+    docs/jitDesign.md = settled premises + open work), NOT from the eight files
+    they replaced. Previous bake was 2026-06-29 and every one of its six claims
+    needed regrading — four demoted, one refuted, one kept. That ratio is the
+    argument for re-baking rather than appending.
+    ============================================================================
+
+    ⚠ ADVERSARIAL ABSORPTION IS THE HOUSE RULE HERE, AND IT IS NOT GENERIC
+    CAUTION. This domain is where causal claims went FIVE FOR FIVE WRONG. So:
+
+      - A RUN grades `verified`. A SOURCE READ grades `inferred`, however
+        mechanical, however often repeated. The census below is a total
+        enumeration confirmed twice and it is STILL `inferred`, because the
+        format's rule is bones-not-shape and a grep is not bones. That is
+        deliberately conservative and it is the point.
+      - REPRODUCTION PROVES THE SYMPTOM, NEVER THE CAUSE (bear-trap #18). Where
+        a symptom is `verified` and its explanation is not, they are SPLIT INTO
+        TWO CLAIMS — see unaryPopsCrash / unarySeedCause. A reader acting on the
+        symptom is safe; a reader acting on the cause is on notice.
+      - A HYPOTHESIS THAT SURVIVES NARROWING IS NOT THEREBY CONFIRMED
+        (bear-trap #19's corollary). Every `inferred` claim below names the
+        space that was searched, so the next reader can re-run the search
+        instead of re-trusting the conclusion.
+      - AN ABSENCE CLAIM NAMES WHERE IT LOOKED (`searched`), per corpus-format
+        RULE 1.
+      - An OPEN is not a claim with hedges (RULE 2). Opens live in `openItems`
+        and say what they BLOCK and what settling would COST.
+
+    THE ACCEPTANCE TEST this corpus must pass: an agent asked "does the JIT gIF
+    branch work?" must NOT answer "yes, taken->99". It must say that was a
+    shape-read, since refuted, and that the branch IS now genuinely gated per an
+    IR dump while the RETURN VALUE is not merged. Both halves, or the format
+    failed.
 *******************************************************************************/
 register(jigCorpus);
 define
@@ -14,58 +47,402 @@ define
     provenance virtual;
     confidence virtual;
     asOf virtual;
+    supersedes virtual;
+    searched virtual;
+    blocks virtual;
+    cost virtual;
+    established virtual;
+    missing virtual;
+    /*  ⚠ EVERY ATTRIBUTE NAME A QUERY READS MUST BE DECLARED HERE. An
+        undeclared name parses fine, stores fine, and reads back as 0 -- so the
+        corpus looks populated and the query returns nothing, with exit 0 and no
+        diagnostic. Measured 2026-07-31: `content`/`confidence` were declared and
+        read correctly while `action`/`test`/`blocker` were not declared and read
+        as 0, in the same file, in the same run. That is the whole difference.
+        Add the name here BEFORE using it, or the claim is write-only.  */
+    plannedAction virtual;
+    plannedTest virtual;
+    blocker virtual;
+    notProgress virtual;
+    task virtual;
+    status virtual;
+    premise virtual;
+    sources virtual;
+    note virtual;
+    by virtual;
     jitIgor
         meta
-            task="JIT Phase 2 — control flow, gIF";
-            asOf="2026-06-29";
-            status="WIP parked on jit-unified-emit-wip; main green";
+            task="JIT — crossover boundary, emission model, and the op x type table";
+            asOf="2026-07-31";
+            status="WIP on jit-unified-emit-wip; bytecode path green and unaffected";
+            premise="THE JIT REPLACES THE INTERPRETER. Not an accelerator beside
+                an interpreter that stays. One execution path, and in the end it
+                is the compiled one. A reader who has not absorbed this derives
+                'accelerator' from the source and misreads every JIT decision
+                downstream; that has happened to two separate reasoners. See
+                docs/jit.md section 0.";
+            sources="docs/jit.md, docs/jitDesign.md (both consolidated 2026-07-31)";
         claims
-            gifNotBranching
-                content="gIF branch was not really branching — unconditional entry-block store";
-                provenance="IR dump, jitGIF, righty=-7, session 2026-06-27";
+        /*  ---- verified: a run was observed ---------------------------- */
+            unaryPopsCrash
+                content="All three unary JIT POPs -- jitInc, jitDec, jitNeg --
+                    exit 139 (SIGSEGV) inside jitEmitUnary dereferencing a null
+                    target jitData. Each in its own process, each on the same
+                    frame. This is the SYMPTOM only; the explanation is a
+                    separate claim, deliberately.";
+                provenance="three separate runs, crash frames via script -q /dev/null, 2026-07-30";
                 confidence="verified";
-                supersedes="gifBranchPoison";
-                asOf="2026-06-27";
+                asOf="2026-07-30";
+            jitIsInterpreterToday
+                content="Under jitting=1 the interpreter executes the action body
+                    FOR REAL. jitExecBlock runs the parsed BlocK gMethod, i.e.
+                    the ordinary interpret walk, so any construct without a
+                    jitting gate performs its full side effects at emit time.
+                    Proven by testing(testPrint) printing hello world DURING
+                    compilation, with no result emitted, exit 0.";
+                provenance="probe run testing(testPrint), 2026-07-30";
+                confidence="verified";
+                asOf="2026-07-30";
+            gifNoElseWrongAnswer
+                content="jitEmitGIF has no else arm, and the consequence is a
+                    WRONG ANSWER AT EXIT 0 -- which outranks every crash in this
+                    corpus. testIfElse with righty=-7 left maximus=11 where 7 was
+                    correct and returned garbage 83623936, exit 0, no diagnostic.
+                    With righty=13 the same fixture returns the correct 26:
+                    CORRECT BY LUCK, exercising only the arm that is emitted.";
+                provenance="two probe runs 2026-07-30, plus source re-verified in the tree 2026-07-31 (still no ElsE: declared)";
+                confidence="verified";
+                asOf="2026-07-31";
+            loopsAndMultiStatementFail
+                content="testWhilE and testDo both exit 134 (SIGABRT) on the LLVM
+                    assertion that both operands to ICmp are not the same type.
+                    testGXLeaf -- two SEQUENTIAL ifs in one body, not nested --
+                    exits 139. So loops and multi-statement bodies both fail
+                    today, and nesting has never been reached.";
+                provenance="three probe runs, 2026-07-30";
+                confidence="verified";
+                asOf="2026-07-30";
+            irDumpFirstEver
+                content="The first IR ever dumped from this tree. THREE findings.
+                    ONE: the store IS properly conditional -- maximus correctly
+                    stays 11 on the not-taken path. TWO: the RETURN VALUE is not
+                    merged -- endif rets a CONSTANT, so taken and not-taken IR
+                    are identical, and that is precisely the defect. THREE: field
+                    slots are inttoptr ABSOLUTE ADDRESSES, not allocas, so
+                    mem2reg has nothing to promote.";
+                provenance="INCANT_JIT_DUMP=1 on incant/jitGifScratch, 2026-07-30";
+                confidence="verified";
+                asOf="2026-07-30";
+            verifierIsSilentOnGif
+                content="The verifier REFUSES broken IR (it returns TRUE when the
+                    function is broken -- an easy inversion to get backwards) and
+                    is placed BEFORE mem2reg so it catches the emitter's own
+                    output. It is SILENT on the gIF fixtures, and that silence is
+                    the finding: a branch with a missing merge is VALID IR that
+                    computes the wrong thing. Validity and correctness are
+                    different questions and only one of them has an instrument.";
+                provenance="verifyFunction at jitEmitters.rtn:529, run against the gIF fixtures 2026-07-30";
+                confidence="verified";
+                asOf="2026-07-30";
+            instrumentsLanded
+                content="The JIT has instruments for the first time: verifyFunction,
+                    an INCANT_JIT_DUMP=1 module dump (an ENV VAR, not a GroupBody
+                    flag, so no bitfield shift and no tokall), and jitDegrade --
+                    the crossover primitive, carrying a COUNTER so silent
+                    fallbacks become countable.";
+                provenance="jitEmitters.rtn:61,529,580 re-verified in the tree 2026-07-31; the dump was produced";
+                confidence="verified";
+                asOf="2026-07-31";
+        /*  ---- inferred: read, counted or reasoned -- NOT run ----------- */
+            unarySeedCause
+                content="EXPLANATION for unaryPopsCrash, and it is NOT verified:
+                    runOP's seed gate reads 'if jitting && op.isOperator', but
+                    every unary operator is registered ruleMethod= -- isMethod,
+                    not isOperator -- so dispatch takes runOP's isMethod arm and
+                    no operand is ever seeded. THREE independent confirmations:
+                    the crash frame lands on the isMethod branch not the
+                    isOperator one; the registrations say ruleMethod=; all three
+                    POPs die identically. ⚠ STILL INFERRED, because THE FIX WAS
+                    NEVER APPLIED. Reproduction proves the symptom, never the
+                    cause. It graduates to verified the moment someone seeds the
+                    isMethod branch and the three POPs go green.";
+                provenance="crash frame + incant/setup:89,99,120,122,125,131,135 + three runs, 2026-07-30";
+                searched="runOP's dispatch in GroupActions.rtn and the operator registrations in incant/setup. NOT searched: anything outside those two.";
+                confidence="inferred";
+                asOf="2026-07-30";
+            jitDataClobber
+                content="CANDIDATE mechanism for loopsAndMultiStatementFail:
+                    jitEmitBinary and jitEmitCompare both end by writing the
+                    RESULT back onto the TARGET operand's stored SSA value. A
+                    field compared once then holds an i1; compared again it is
+                    icmp i1 against i32. Structural rather than incidental --
+                    jitData hangs off the GroupItem so a node holds exactly one
+                    SSA value at a time. Fine for one-shot straight-line
+                    expressions, fatal for ANY operand reuse.
+                    ⚠ THIS READS CONVINCINGLY, WHICH IS EXACTLY WHEN TO DISTRUST
+                    IT. Its own author recorded that the causal chain was never
+                    instrumented. The IR dump now exists and would settle it in
+                    one run -- the invalid icmp would be visible in the text --
+                    and that run has NOT been done.";
+                provenance="source plus the abort message, 2026-07-30";
+                searched="jitEmitters.rtn and Instruct.rtn ONLY. The space outside those two files was never searched.";
+                confidence="inferred";
+                asOf="2026-07-30";
+            gateCensus
+                content="THE CROSSOVER BOUNDARY, ENUMERATED -- this is what the
+                    open crossover ruling is ABOUT, and it did not exist in
+                    enumerated form before 2026-07-30. Instruct.rtn has 42
+                    op-dispatch functions: 18 carry a jitting gate, 24 do not.
+                    ruleActions.rtn has 30 aCTion handlers: EXACTLY ONE
+                    (aCTionIF) carries a gate. So roughly 53 sites are silent
+                    interpreter fallbacks nobody declared.
+                    Graded inferred, not verified, because a source enumeration
+                    is a READ -- the format's rule is bones-not-shape and a grep
+                    is not bones, however mechanical and however often repeated.
+                    ⚠ LINE NUMBERS MOVE: the iterator work shifted Instruct.rtn
+                    once and the 07-31 print work shifted it again. Re-grep
+                    rather than trusting a cited line.";
+                provenance="independent source enumeration twice, 2026-07-02 and 2026-07-30, agreeing on every classification";
+                searched="Instruct.rtn op-dispatch functions and ruleActions.rtn aCTion handlers, whole-file enumeration both times.";
+                confidence="inferred";
+                asOf="2026-07-30";
+            dataNamesIndexAligned
+                content="dataNames is INDEX-ALIGNED with the datA enum, 1-based,
+                    all fourteen entries: isANY 1, isCHAR 2, isSET 3, isBUFFER 4,
+                    isCOUNT 5, isGROUP 6, isITEM 7, isMAP 8, isNUMBER 9,
+                    isOBJECT 10, isREGEX 11, isSTAK 12, isSTRING 13, isTOKEN 14.
+                    This is what makes 'type at emit time comes from
+                    dataNames[datA]' a LOOKUP rather than a mapping, and it is
+                    the foundation the op x type table rests on.
+                    ⚠ Do NOT confuse this with the binType family: isBIN is also
+                    1 and isLIST is also 3, in a DIFFERENT flag family.";
+                provenance="IncantForms/WorkingOn/tester:17 compared against GroupBody.h:60-74, 2026-07-31";
+                searched="the dataNames list and the is<TYPE>(button) defines. Total enumeration of both, all fourteen matched.";
+                confidence="inferred";
+                asOf="2026-07-31";
+            unaryRegressionFromPivot
+                content="The unary crash is a REGRESSION introduced by the
+                    2026-06-30 unified-emit-on-walk pivot. jitXP held the uxp
+                    seeding branch that made unary work; it was folded out then
+                    and its seeding job moved to runOP's new gate, which was
+                    written for the binary/isOperator shape only. It went
+                    unnoticed because testing() was hijacked to the since-retired
+                    runScaf in that window, so jitscratch did not reach
+                    jitRunAction at all. NO BISECT WAS RUN -- this is date
+                    ordering plus fold-out comments.";
+                provenance="fold-out comments plus date ordering, 2026-07-30";
+                searched="ruleActions.rtn fold-out sites and the commit dates. No bisect.";
+                confidence="inferred";
+                asOf="2026-07-30";
+            actionForIsTreeWalk
+                content="aCTionFOR is a GroupItem TREE-WALK, not a counting loop
+                    -- it walks next/prior over a member or attribute list,
+                    optionally reversed, optionally restricted. The list being
+                    walked is not statically known without walking the parse
+                    tree. Under 'accelerator' the obvious answer was to bail the
+                    whole action; under the replaces-the-interpreter premise that
+                    IS the divergence, so the question becomes whether the JIT
+                    can emit a loop that walks a GroupItem list.";
+                provenance="reading ruleActions.rtn, 2026-07-02, re-confirmed by the 07-30 recon";
+                searched="aCTionFOR's body in ruleActions.rtn, both times. NOT searched: whether any incant code in the tree actually FORs over something a JIT could bound statically.";
+                confidence="inferred";
+                asOf="2026-07-30";
+            coldReaderGap
+                content="The SOURCE implies 'accelerator' at every altitude:
+                    jitting is a one-bit mode flag beside generating; 18 gates
+                    each sit directly above a fully intact interpreted body in
+                    the same function; a gate is raised and lowered around a
+                    region; and the sole entry point is named 'testing'. The
+                    replaces-the-interpreter ruling appears in exactly two
+                    places, both docs, and at ZERO of the 20 gate sites. That gap
+                    has bitten twice. The cheap in-character fix -- one comment
+                    line where jitting is DECLARED, since that is what every gate
+                    resolves against -- is NOT YET APPLIED.";
+                provenance="source survey 2026-07-30; the two bites are documented";
+                searched="the jitting declaration in GroupRules.twk, all 18 gate sites in Instruct.rtn, the aCTionIF gate, jitRunAction, and the testing() entry point. The claim that the ruling appears in only two places is an ABSENCE claim over docs/ and the source, grep-based.";
+                confidence="inferred";
+                asOf="2026-07-30";
+        /*  ---- refuted and stale-suspect: the trail, kept on purpose ---- */
             gifBranchPoison
                 content="gIF taken→99 is proven through the branch";
                 provenance="shape-read, prior wakeup, no IR dump";
                 confidence="refuted";
                 asOf="2026-06-26";
-            unifiedEmitDecision
-                content="unified emit-on-walk model chosen — mirror bytecode generate route";
-                provenance="Fearless+Haps design decision, session 2026-06-27";
-                confidence="verified";
-                asOf="2026-06-27";
+            gifNotBranching
+                content="WAS: 'gIF branch was not really branching -- unconditional
+                    entry-block store', graded verified on 2026-06-27 from an IR
+                    dump. NOW REFUTED AS A STATEMENT ABOUT TODAY'S TREE: the
+                    2026-07-30 dump shows the store IS properly conditional and
+                    maximus correctly stays 11 on the not-taken path. The unified
+                    emit-on-walk pivot fixed the branch. It was TRUE when written
+                    and the pivot falsified it.
+                    ⚠ Kept rather than deleted, and this is the instructive pair:
+                    the SAME fixture was read as working (refuted), then as
+                    broken (verified), then as working-with-a-different-defect.
+                    The defect that remains is the missing RETURN VALUE merge --
+                    see irDumpFirstEver -- not the branch.";
+                provenance="superseded by irDumpFirstEver, 2026-07-30";
+                supersedes="gifBranchPoison";
+                confidence="refuted";
+                asOf="2026-07-30";
+            phase1UnaryDone
+                content="WAS: jitInc 14, jitDec 12, jitNeg -13, recorded DONE in
+                    the Phase-1 status table. REFUTED as a statement about
+                    today's tree -- all three exit 139. The rows were TRUE when
+                    written (2026-06-20/25) and were falsified by a later
+                    refactor in a file nobody re-ran, while a source comment AT
+                    THE CRASH SITE said 'not wired yet'. The two statements
+                    coexisted for a month.
+                    THE LESSON IS ABOUT DATES, NOT CORRECTNESS: a status table is
+                    a claim with an asOf that nobody wrote down.";
+                provenance="three runs exit 139, 2026-07-30, against a table dated 2026-06-22";
+                confidence="refuted";
+                asOf="2026-07-30";
             jitXpressBuilt
-                content="jitXpress built — walks revisedList against operand stack, emits LLVM per member";
-                provenance="commit 28347a7, branch jit-unified-emit-wip";
-                confidence="verified";
-                asOf="2026-06-27";
+                content="WAS: 'jitXpress built -- walks revisedList against
+                    operand stack, emits LLVM per member', verified 2026-06-27.
+                    STALE-SUSPECT: jitXP/jitXpress were FOLDED OUT on 2026-06-30
+                    in the unified-emit-on-walk pivot. The claim describes a file
+                    that no longer exists.";
+                provenance="superseded by the 2026-06-30 pivot";
+                confidence="stale-suspect";
+                asOf="2026-07-31";
             wrappedConditionBlocker
-                content="blocker: wrapped sub-expression produces malformed revisedList — jitXpress hangs";
-                provenance=(traced: righty<0 condition, listLength==1 path, raw Token cycle.
-                    The if-condition righty < 0 is wrapped (listLength 1), so aCTionExpressioN
-                    stuffs the whole wrapped runOP-tree into the revisedList instead of
-                    flattening to clean RPN [righty, 0, <]. The wrapper next-chain cycles
-                    through raw parse Tokens so jitXpress loops.#);
-                confidence="verified";
-                asOf="2026-06-27";
+                content="WAS: 'blocker: wrapped sub-expression produces malformed
+                    revisedList -- jitXpress hangs', verified 2026-06-27.
+                    STALE-SUSPECT for the same reason as jitXpressBuilt: it is a
+                    claim about jitXpress, which was folded out. Whether the
+                    underlying wrapped-sub-expression problem still exists in the
+                    unified walk is UNKNOWN and nobody has looked.";
+                provenance="superseded by the 2026-06-30 pivot; the underlying question was never re-asked";
+                confidence="stale-suspect";
+                asOf="2026-07-31";
             jitBuildListDesign
-                content="agreed fix: jitBuildList — runOP clone that accumulates flat RPN instead of firing opMethods";
-                provenance=(Fearless brief, session 2026-06-27. Model on runOP GroupActions.rtn:441.
-                    Wire into the listLength==1 path so a wrapped sub-expression flattens to RPN.
-                    Same list shape jitXpress and gXpress already consume. Not yet implemented.#);
-                confidence="inferred";
-                asOf="2026-06-27";
+                content="WAS: 'agreed fix: jitBuildList -- a runOP clone that
+                    accumulates flat RPN instead of firing opMethods', inferred
+                    2026-06-27. STALE-SUSPECT: never implemented, and the pivot
+                    took a different route entirely (emission rides the runOP
+                    walk, no flat list, no operand stack). Kept because the
+                    problem it was aimed at may recur.";
+                provenance="never implemented; superseded by the 2026-06-30 pivot";
+                confidence="stale-suspect";
+                asOf="2026-07-31";
+            unifiedEmitDecision
+                content="Unified emit-on-walk is the chosen model: the JIT emits
+                    LLVM by running the interpret/runOP walk under the jitting
+                    gate. No flat list, no jitXpress, no operand stack -- the
+                    runOP walk owns its traversal and never re-parents live
+                    nodes. This is the one 2026-06-27 claim that survived the
+                    re-bake unchanged.";
+                provenance="design decision 2026-06-27, and the pivot that implemented it 2026-06-30";
+                confidence="verified";
+                asOf="2026-07-31";
+        blocked
+            jitDegradeUncovered
+                content="jitDegrade -- the crossover primitive, the whole point of
+                    which is to make ~53 silent fallbacks countable -- has NO
+                    BEHAVIOURAL COVERAGE. Its two call sites are unreachable by
+                    any fixture. incant/jitDegradeT is committed reaching its
+                    SENTINEL and NOT its target, and says so in its own header.
+                    Blocked on an open question about why a define in an included
+                    file yields a coded field while the identical define in a
+                    top-level script file does not.";
+                provenance="incant/jitDegradeT, committed 2026-07-30, reaching sentinel not target";
+                confidence="verified";
+                asOf="2026-07-30";
+        openItems
+            openMem2reg
+                content="Does the emission model use allocas or baked addresses?
+                    THE DESIGN SAYS alloca/load/store plus PromotePass and NEVER
+                    WRITE A PHI. THE IR SAYS field slots are inttoptr absolute
+                    addresses, so mem2reg has nothing to promote.";
+                established="jitSeedField bakes the field's stable gCount address as jitSlot; the IR dump shows inttoptr; the gIF return value is not merged, which is what an unpromoted slot model produces";
+                missing="a decision. Either the frame model lands and field access moves to real allocas with prologue/epilogue boxing, or the baked-address model stays and the design drops its mem2reg dependency and owns its merges explicitly";
+                blocks="the whole frame model, and the never-write-a-phi position that makes a missing merge supposedly impossible";
+                cost="a design ruling, not a measurement. Tony's and Clay's.";
+                asOf="2026-07-31";
+            openJitDataModel
+                content="Can one jitData per GroupItem survive Phase 2, or does
+                    emission need a value stack / per-use SSA mapping?";
+                established="a node holds exactly one SSA value at a time, structurally; loops and multi-statement bodies both fail today";
+                missing="whether the clobber is actually the cause -- see jitDataClobber, which is inferred and whose search space was two files";
+                blocks="loops, multi-statement bodies -- i.e. everything past Phase 1";
+                cost="one run with INCANT_JIT_DUMP=1 would show the invalid icmp in the text and settle the inferred half immediately. It has not been done.";
+                asOf="2026-07-31";
+            openCrossoverRuling
+                content="What happens to a construct the JIT cannot emit yet?
+                    Falling back to the interpreter IS the divergence, arriving
+                    as a schedule artifact rather than a decision.";
+                established="the boundary is now enumerated (gateCensus); the primitive exists (jitDegrade); and the mechanism is already decided by the table premise -- a per-op emitted CALL into the existing opMethod, NOT a whole-action bail";
+                missing="Tony's ruling on whether an un-emittable construct refuses loudly, degrades loudly, or aborts the compile";
+                blocks="every emitter that grows past the current 18+1 gates; and every day it stays open the silent-fallback count grows";
+                cost="a ruling. It was unrulable before the boundary existed; it is rulable now.";
+                asOf="2026-07-31";
+            openFallbackSignature
+                content="What signature does the fallback column's runtime call
+                    use? Two precedents exist in the tree and they DISAGREE.";
+                established="concatEQ(target,argument) ships as a two-pointer write-back form, because compound-assign needs target by identity; the durable shape argued for the general case is a ONE-argument value-returning primitive matching incant's own calling convention";
+                missing="a pick. Every non-scalar op inherits whichever is chosen.";
+                blocks="the entire fallback column of the op x type table";
+                cost="a decision plus one primitive. Cheap now, expensive after N ops are written against the wrong one.";
+                asOf="2026-07-31";
+            openTemplateSlots
+                content="What does a slot look like inside an IR template, and
+                    where exactly is the boundary between the kant table and the
+                    C++ jitEmit buttress?";
+                established="control flow is plainly the buttress (jitEmitGIF is three basic blocks, a CondBr, two sub-walks and a merge -- nothing about that is a text template); plain binary arithmetic is plainly the table";
+                missing="the delimiter and escape rule; positional versus named slots; how a template requests n fresh SSA names; whether a template may carry more than one instruction. The deciding cases are compare-with-promotion, compound assign, and the fallback call.";
+                blocks="writing the table at all";
+                cost="design. A working discipline while it is unsettled: anything that must KNOW A BLOCK STRUCTURE is the buttress; anything that is one instruction with substituted operands is the table.";
+                asOf="2026-07-31";
+            openIsCHAR
+                content="isCHAR (datA 2) is a scalar with no emitter, no POP, and
+                    no stated LLVM type -- the only scalar row in the type table
+                    with nothing behind it.";
+                established="it is index 2 in dataNames and it is scalar";
+                missing="everything else";
+                blocks="completeness of the scalar half of the type table";
+                cost="small, but nobody has asked whether incant code actually uses isCHAR fields in arithmetic";
+                asOf="2026-07-31";
+        /*  ⚠ nextStep's fields hang off a MEMBER (`plan`), not off nextStep
+            itself, and that is required rather than tidy. Attributes hung
+            directly on a sub-record are NOT reachable from a query -- measured
+            2026-07-31, with both `=` and `:=`, both giving nothing. What works
+            is the shape claims/openItems already use: ITERATE the member list,
+            then read attributes off the iterated member. Every sub-record in
+            this corpus therefore carries a member.  */
         nextStep
-            action="build jitBuildList — model on runOP GroupActions.rtn:441";
-            test=(jitGifScratch not-taken must become maximus=11.
-                Taken stays 99 but now gated: IR must show br i1 %cmp
-                and store inside then: not the entry block.#);
-            blocker="none — branch checked out, scaffold in place";
+            plan
+                plannedAction="Settle openMem2reg FIRST -- it is upstream of the frame model
+                    and of the never-write-a-phi position, and the missing
+                    return-value merge is already its symptom. THEN jitEmitGIF's else
+                    arm, because a wrong answer at exit 0 outranks every crash on
+                    this list.";
+                plannedTest="jitEmitGIF else arm: testIfElse with righty=-7 must give
+                    maximus=7, not 11, and must not return garbage. Both directions
+                    required -- righty=13 giving 26 is CORRECT BY LUCK and proves
+                    nothing on its own.";
+                blocker="none for either; both are unblocked work";
+                notProgress="The unary seed gap is cheap and three POPs prove it, but
+                    it moves NO frontier -- loops abort on a different bug,
+                    multi-statement bodies segfault, and if/else returns wrong
+                    answers. Schedule it as unblocking fixture capture, not as
+                    progress.";
         bakeLog
             entry
                 date="2026-06-29";
                 note="corpus created from wakeup.md; claims extracted and provenance-tagged";
                 by="Clay+Tony";
+            entry
+                date="2026-07-31";
+                note="RE-BAKE from the consolidated docs/jit.md and
+                    docs/jitDesign.md. All six prior claims regraded: 1 kept
+                    (unifiedEmitDecision), 1 already refuted and kept as trail
+                    (gifBranchPoison), 1 refuted fresh (gifNotBranching -- the
+                    07-30 IR dump reversed it), 3 demoted to stale-suspect
+                    (jitXpressBuilt, wrappedConditionBlocker, jitBuildListDesign
+                    -- all three are claims about jitXP, which was folded out).
+                    Added: 7 verified, 6 inferred, 1 blocked, 6 open items.
+                    Symptom and cause SPLIT wherever the cause was not run.";
+                by="Clod";
     ;
