@@ -17,7 +17,7 @@ READ-WITH:  rstuff-chokepoint.md   RuleStuff lifecycle + getStuff codegen.
                                    (2nd-invocation spin) may share §7.1's root.
             json.md                Input diversion, push/pop, the isRule
                                    semantic. Bears on §5.3 and §7.3.
-            jit-coverage-recon.md  aCTionFOR is a tree walk, not a counting
+            docs/jitDesign.md O6   aCTionFOR is a tree walk, not a counting
                                    loop. Bears on the jit target in §9.
             CLAUDE.md #12–#17      tok codegen hazards. Any build step.
 SUPERSEDES: nothing. Replaces the 2026-07-25 design conversation, which is
@@ -1333,7 +1333,7 @@ and JSON exercises almost none of them.
 **Step 5 — instrumentation** (§6), once there is something to compare.
 
 Deliberately not in this list: the jit target. genParse emitting kant instead of C++ is a change
-of emission, not of design, and it waits on the JIT ladder in `jitFullmontyPlan.md`. It is also the
+of emission, not of design, and it waits on the JIT ladder in `docs/jitDesign.md` Part VI. It is also the
 best argument for that ladder — a generated parse is a real workload rather than a synthetic POP.
 
 ---

@@ -183,8 +183,10 @@ JIT are *parallel, independent lowerings* of the same cached BlocK — not a
 pipeline. LLVM IR comes straight from the ops/BlocK (the incant ops emit IR
 directly via a `jitting` gate), **not** from `bcLIST`. The prior "LLVM IR
 generated from bytecode" plan is superseded. Full rationale:
-`docs/llvm-jit-recon.md` (ADDENDUM section) and the `jit-design.md` /
-`jit.md` design pair.
+`docs/jitDesign.md` Part IV. **All JIT documentation consolidated 2026-07-31
+into exactly two files: `docs/jit.md` (what is true today, every claim dated)
+and `docs/jitDesign.md` (settled premises + open work). Six older JIT docs were
+deleted in that pass; they are in git history if a reasoning trail is wanted.**
 
 ### Pipeline
 

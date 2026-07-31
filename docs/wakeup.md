@@ -173,7 +173,7 @@ ExpressioN design (parked, offline, gates 35b) · the JIT seam ruling — whethe
 rung 3's walk-decides/emitter-writes shape, which is what turns ~53 undeclared fallbacks
 into a countable artifact · the `sink=` proposal (GRAM-P1) replacing the `'p'` character
 test · whether `=` gets append/assign · the upload bundle (`docs/jit.md`,
-`docs/jit-recon-2026-07-30.md`, TODO's JIT sections).
+`docs/jitDesign.md`, TODO's JIT sections).
 
 **Clod's, unblocked:** the `isCoded` question — a `define` in an **included** file yields a
 coded field, the identical define in a **top-level script file** does not (`jitAdd` works,

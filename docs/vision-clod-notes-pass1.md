@@ -52,7 +52,7 @@ Optional, if the doc wants more reach:
 Lines 58–61: "The four-phase plan — BDWGC integration, generateCode, bytecode emitter, LLVM backend …
 Each phase unlocks the next." Per CLAUDE.md / the bible, **JIT does NOT go through bytecode** — bytecode
 and JIT are *parallel, independent lowerings* of the same cached BlocK; LLVM IR comes straight from the
-ops/BlocK, not from `bcLIST` (2026-06-17 decision; `docs/llvm-jit-recon.md` ADDENDUM). So "bytecode
+ops/BlocK, not from `bcLIST` (2026-06-17 decision; `docs/jitDesign.md` Part IV). So "bytecode
 emitter → LLVM backend" as a linear unlock is slightly off. Suggest: "Phase 1 done; Phase 2 (control
 flow, gIF) is the current arc; bytecode and JIT are parallel lowerings of the same IR." Keeps the
 "each phase unlocks the next" spirit without implying LLVM is generated from bytecode.

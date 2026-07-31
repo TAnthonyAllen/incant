@@ -1,7 +1,7 @@
 // jitContext.h — Phase JIT codegen state (LLVM 22). Hand-written C++ — NOT tok-processed.
 // JitData mirrors OLDtawkDoNotTouch/Tokf/JitData.h (the proven pattern): a global
 // struct with fully-qualified llvm:: pointer fields + get/set methods. See
-// docs/jit-design.md (codegen) and docs/jit.md (frame/calling convention).
+// docs/jitDesign.md (codegen) and docs/jit.md (frame/calling convention).
 #ifndef JITCONTEXT_H
 #define JITCONTEXT_H
 

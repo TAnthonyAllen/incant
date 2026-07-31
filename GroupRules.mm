@@ -2429,7 +2429,7 @@ GroupItem 	*fieldList = field->getAttribute("bcLIST");
     are added BY REFERENCE; gXpress launders them with copyOf at bytecode-emit
     time. (jitXP, its copyOf-on-append twin for the JIT lowering, was folded out
     2026-06-30 — JIT now falls through to interpretXP per the unified
-    emit-on-walk pivot; see docs/jit-design.md.)
+    emit-on-walk pivot; see docs/jitDesign.md.)
 *******************************************************************************/
 extern "C" GroupItem *generateXP(GroupItem *xpList)
 {

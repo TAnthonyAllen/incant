@@ -47,7 +47,7 @@ constantly as a local in actions, and within a single action it may be retied to
   `aCTionTokenXP` at parse time, which is unsound: `iterate` is a *runtime* statement and an action
   body is parsed once, interpreted many times, so no parse-time scope analysis can know whether
   `grup` is bound — and least of all when it is retied mid-action. Bind at runtime in the existing
-  dispatch instead. **The payoff is on the JIT side:** `jit-coverage-recon.md` finding 3 says
+  dispatch instead. **The payoff is on the JIT side:** `docs/jit.md` S3.5 says
   `opPlusPlus`/`opMinusMinus` fire their jit gate assuming a numeric target, which is latently
   false. Give iteration its own opMethods and `opPlusPlus` becomes *genuinely* numeric-only — the
   assumption becomes true by construction and a latent correctness gap closes without adding a gate.

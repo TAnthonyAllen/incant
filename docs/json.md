@@ -91,7 +91,7 @@ parse of a non-empty array crashed. Two faces:
 **`isRule` ⇒ match against a fresh copy, not the live definition.** A non-`isRule` rule
 shares identity with its definition, so code that mutates a match (`clear`, repetition
 append) reaches back and corrupts the grammar. This is the same **"no in-place
-modification"** invariant `jit-design.md` leans on for schema-closure.
+modification"** invariant `jitDesign.md` leans on for schema-closure.
 
 **Fixes applied (now live in `incant/utilities`):** `JSONitem isRule …` added; the
 `clear(grup)` line removed from `JSONarray`. Sequential parses are clean (`Tests/jsonFull`

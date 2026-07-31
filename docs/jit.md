@@ -1,414 +1,411 @@
-# Incant JIT Design
-*Authored 2026-06-10. Replaces any prior jit.md. This is the design.*
-*Section 0 added 2026-07-29 — Tony's plan, previously undocumented anywhere.*
+# Incant JIT — WHAT IS TRUE TODAY
+
+*Consolidated 2026-07-31 from eight separate JIT documents. This file holds **current truth**:
+what exists, what runs, what is measured-broken, and the facts a decision can stand on.
+**Design that is not yet built lives in `docs/jitDesign.md`** — do not add plans here.*
+
+**Every factual claim in this file carries an `asOf`.** That is not decoration, it is the
+lesson this document was reorganised around — see §7.
 
 ---
 
-## 0. THE JIT REPLACES THE INTERPRETER. Read this before any other JIT decision.
+## §0 — THE JIT REPLACES THE INTERPRETER. Read this before any other JIT decision.
 
-**Tony's plan is that the JIT BECOMES the interpreter.** It is not an
-accelerator running beside an interpreter that stays. There is one execution
-path, and in the end it is the compiled one.
+**Tony's plan is that the JIT BECOMES the interpreter.** It is not an accelerator running
+beside an interpreter that stays. There is one execution path, and in the end it is the
+compiled one.
 
-This was written down on 2026-07-29 because it was **nowhere** — not here, not
-in `jit-design.md`, not in `wakeup.md`. A reader with no memory of the design
-conversations derives "accelerator" from the code (a `jitting` gate beside an
-interpretive path reads exactly like one) and then misreads every JIT decision
-downstream. Clay did precisely that on the morning of 07-29 and argued for
-repairing the interpreter's frame handling on the strength of it.
+This was written down on 2026-07-29 because it was **nowhere**. A reader with no memory of the
+design conversations derives "accelerator" from the code — a `jitting` gate beside an
+interpretive path reads exactly like one — and then misreads every JIT decision downstream.
+That has now happened twice to two different reasoners (§4.2).
 
 **What it explains that "accelerator" does not:**
-- Why `jitXP`/`jitXpress` were retired and the **unified emit-on-walk** cut was
-  built instead of a second, parallel emitter.
-- Why the whole class of *"will the jitted and interpreted paths diverge?"*
-  worries is **retired**: there is only ever one path to diverge from.
+- Why `jitXP`/`jitXpress` were retired and the **unified emit-on-walk** cut was built instead
+  of a second, parallel emitter.
+- Why the whole class of *"will the jitted and interpreted paths diverge?"* worries is
+  **retired**: there is only ever one path to diverge from.
 
 ### Consequence 1 — locals-as-frames lands ONCE, in the JIT
-`saveLocalFields` gets **DELETED, not repaired**. Everything in this document —
-frame schema, per-call slot array — is the replacement, and it lands in the JIT
-and nowhere else. Do not spend effort making the interpreter's activation record
-correct; it is a component with a scheduled death.
+`saveLocalFields` gets **DELETED, not repaired.** The frame schema and per-call slot array
+(now in `jitDesign.md`) are the replacement, and they land in the JIT and nowhere else. Do not
+spend effort making the interpreter's activation record correct; it is a component with a
+scheduled death.
 
-Corollary for the iterator (built 2026-07-29): under frames it becomes **two
-stack slots, source and current** — no handle in the heap, and no `isIterator`
-gate anywhere, because there is no heap node to accidentally unwrap. Tony's own
-usage already reads as pointer semantics, so **nothing about the language design
-changes**; only the implementation does. The interpreter's per-frame
-`saveLocalFields` fix of 07-29 is therefore a **bridge**, deliberately, and its
-fixtures (`iterT1`/`iterT3` in `pop.sh`) outlive it as language-level POPs.
+Corollary for the iterator: under frames it becomes **two stack slots, source and current** —
+no heap handle, no `isIterator` gate, because there is no heap node to accidentally unwrap.
+Tony's own usage already reads as pointer semantics, so **nothing about the language design
+changes**; only the implementation does. The interpreter's per-frame `saveLocalFields` fix of
+2026-07-29 is therefore a **bridge**, deliberately, and its fixtures (`iterT1`/`iterT3` in
+`pop.sh`) outlive it as language-level POPs. **Deleting the function must not delete the
+fixtures.**
 
-### Consequence 2 — the OPEN RULING, and it wants settling BEFORE the emitter grows
+### Consequence 2 — THE OPEN RULING, and it is Tony's
 **During the crossover, what happens to a construct the JIT cannot emit yet?**
 
-Falling back to the interpreter *is* the divergence — reappearing as a
-**schedule** artifact rather than a design one, which is worse because nobody
-wrote it down as a decision. The answer that made mixed mode safe in genParse is
-the candidate here too: **a refused binding DEGRADES TO THE ORACLE LOUDLY** (see
-`wakeup.md`'s count-guard row — `parseMethod` refuses, says so, and the rule
-falls back to the interpretive walk). Same question, same shape, and **it is
-Tony's to rule on.**
+Falling back to the interpreter *is* the divergence — reappearing as a **schedule** artifact
+rather than a design one, which is worse because nobody wrote it down as a decision.
+
+**It was unrulable until 2026-07-30 because nobody had enumerated the boundary. §2 is that
+enumeration, so it is rulable now**, and every day it stays open the silent-fallback count
+grows. The candidate answer — **degrade to the oracle LOUDLY** — already exists in the tree
+(§2.3) and has since been lifted into a reusable primitive (§1.3).
 
 ### Why textual IR gets MORE important under replacement, not less
-A JIT that **is** the interpreter must cover the **whole language**, and
-diff-against-golden is the only QA discipline that scales to that surface. A
-`.ll` file is a byte-exact target exactly as `genLadder/rung4.target` is — it
-gives the JIT a **census**, which it has never had. And a **text** emitter can be
-kant; an `IRBuilder` one never can. Textual IR is a separate arc and is not
-scheduled here; this paragraph exists so nobody re-derives it as optional.
+A JIT that **is** the interpreter must cover the **whole language**, and diff-against-golden is
+the only QA discipline that scales to that surface. A `.ll` file is a byte-exact target exactly
+as `genLadder/rung4.target` is — it gives the JIT a **census**, which it did not have until
+2026-07-30. And a **text** emitter can be kant; an `IRBuilder` one never can.
 
 ---
 
-## What This Design Is
+## §1 — WHAT EXISTS AND RUNS
 
-This is a calling-convention and frame-model design, not a codegen-backend design. It defines incant's activation record — the per-call frame, its slot ABI, and the prologue/epilogue around every call. LLVM lowering (Phase JIT proper) is the first consumer of this model, but the slot discipline defined here is backend-agnostic; any compiled target inherits it. Getting the frame model right is the prerequisite, independent of how machine code is ultimately emitted.
+### 1.1 The emit layer — six emitters and their support
+All in `jitEmitters.rtn` (included at `GroupRules.twk:293`, generated into `GroupRules.mm`).
+*asOf 2026-07-30, re-verified 2026-07-31.*
 
----
-
-## The Problem JIT Solves
-
-Incant actions currently carry their local fields as named attributes on the action's GroupItem. This conflates two things that should be separate:
-
-- **The frame schema** — the set of fields an action uses, their names, their roles. Known at parse time. Belongs to the action definition.
-- **The live frame** — the actual values in those fields during a specific call. Belongs to one invocation. Must be per-call for recursion to work.
-
-The interpreter conflates these because each call operates on the same action GroupItem and its attribute list. Recursion works only by convention, not by structure. The JIT separates them: the action definition retains its attribute list as the authoritative frame schema; each call allocates a fresh slot array from that schema. This is the C++ stack discipline applied to incant's no-declarations model.
-
----
-
-## The Action Method Signature
-
-Incant actions conform to a standard method signature: one field argument in, one field return. This is invariant and the JIT does not change it. The argument pointer is a separate handle in the call frame, distinct from the local slot array.
-
----
-
-## The Frame Schema
-
-Every field an action references in its code — locals, globals it uses, argument-derived values it pulls in explicitly — is added to the action's field list at parse time. The field list is therefore the complete and closed universe of everything the action touches. No field can appear at runtime that was not enumerated at parse time.
-
-This is true already in the interpreter. The JIT inherits it.
-
-**Precondition — schema-closure depends on no in-place action modification.** The field universe closes only because actions are not modified in place. The field list is fixed at parse time; nothing — directives, runtime construction, reflection — adds a field to a *live* action afterward. The slot-index scheme depends on this directly: every field reference compiles to a static index, so a field appearing at runtime that the schema never enumerated would have no slot to land in. This is the current discipline and it holds today. If in-place action modification is ever wanted, this is the first assumption that must be revisited — schema-closure is a load-bearing dependency, not an incidental property. Cross that bridge when we reach it.
-
-The frame schema is the action's field list. Its shape is fully determined at parse time. The JIT compiler walks the field list once, assigns each field a stable slot index, and every field reference in the generated code becomes an index into that array.
-
----
-
-## The Call Frame
-
-At JIT call time, before the action body runs, a fresh slot array is allocated — one slot per entry in the frame schema, in field list order. The setup prologue walks the field list and copies each GroupItem pointer into its assigned slot.
-
-The argument pointer lives separately as a dedicated handle. It is not a slot in the array.
-
-The slot array is the per-call live frame. It is ephemeral. When the call returns, the slot array goes away.
-
-**This is the primary addition that JIT generation requires beyond bytecode generation.** Bytecode generation already walks the action, resolves field references, and emits operations. The JIT layer does the same walk producing different output, plus this prologue/epilogue around every call.
-
----
-
-## What Each Slot Holds
-
-**Slots are native-typed, not GroupItem pointers.** The conservative alternative — slots as GroupItem*, body calling opPlus/etc. via CreateCall — is not worth building: it gives frame discipline but no real performance win over the interpreter. Native typing is Phase 1.
-
-Each slot holds the field's native LLVM value, typed at emit time:
-- `isCOUNT` fields → `i32` slot (from `int gCount` in GroupItem's data union)
-- `isNUMBER` fields → `double` slot
-- `isSTRING`/`isTOKEN` fields → `ptr` slot (Phase 3; Phase 1/2 fall back for string fields)
-
-Fields with unjittable types (group, op, item, etc.) cause the whole action to
-fall back to the interpreter — the monomorphic gate (see `jit-design.md`).
-
-**Type stamping at define time is required for jit-eligible actions.** The gate
-walks the field list and reads the type tag directly — no inference pass. For
-an action to be jittable, every field must have its type stamped at define time
-(e.g. `count x, y, result;`). This is a dialect constraint on jit-eligible
-actions, not on the language at large.
-
-### Prologue: unboxing into native slots
-
-At function entry (emitted IR), for each field in the schema:
-1. Load the GroupItem* from the incoming C++ slot array argument.
-2. Read the native value from the GroupItem's typed data member
-   (`gCount`/`gNumber`/`gText` at the appropriate offset).
-3. Store into the field's `alloca` slot.
-
-This unboxing is the prologue's work. After it runs, the function body operates
-entirely on native values in LLVM allocas — no GroupItem indirection during
-arithmetic.
-
-### Epilogue: reboxing back to GroupItem
-
-At function exit, for each field:
-1. Load the final native value from its `alloca` slot.
-2. Store it back to the GroupItem's typed data member.
-
-For the return value: the action's result is reboxed into the result field's
-GroupItem, and that GroupItem* is what the function returns — not the raw
-native value. The function signature remains `GroupItem* (*)(GroupItem* slotArray,
-GroupItem* argument)` at the C++ boundary.
-
-### Locals vs. globals under the native model
-
-**Locals** — the alloca slot is the authoritative value for the duration of the
-call. Epilogue rebox writes back to the local GroupItem (which goes away on
-return). No issue.
-
-**Globals** — the alloca slot holds the unboxed copy of the global's value.
-Writes during the action update the alloca, not the shared GroupBody.
-**Global writeback is deferred to the epilogue, not immediate.**
-
-This is a semantic divergence from the interpreter, where writing a global's
-slot writes through to the shared GroupBody immediately. Two consequences:
-
-1. A global updated mid-action is not visible to other incant code until the
-   action returns and the epilogue reboxes. Phase 1 and 2 are safe (no
-   concurrent access, no callbacks reading globals mid-action). Phase 3
-   (callbacks into the runtime) must treat this carefully — a callee reading a
-   global that the jitted caller has updated will see the pre-call value.
-2. On abnormal exit (error, longjmp), the epilogue may not run and global
-   updates are lost. Document this as a known limitation for Phase 1.
-
----
-
-## Assign Semantics Under JIT
-
-With native-typed alloca slots, assignment semantics become unambiguous:
-
-- `A = B` where both are locals: native value copy. A's slot gets B's native
-  value (i32, double, or ptr). Fully static, no tag-lookup at runtime.
-- `A = B` where B is an argument attribute: unbox B's value from the argument
-  GroupItem into A's slot at the point of assignment.
-- `:=` (byRef): store a pointer-to-slot in the local slot rather than a value.
-  Slots have stable addresses for the lifetime of the call frame (BDWGC heap).
-
-The tag-aliasing ambiguity that complicates `A = B` in the interpreter
-disappears because A and B are now distinct indexed slots.
-
-**Method-bound fields are gated out.** Fields with `gMethod`/`gOp` type are not
-in the jittable set — the gate rejects any action containing them. Within a
-jitted body, method-dispatch hazards cannot arise.
-
----
-
-## Recursion
-
-Each call allocates a fresh slot array. Recursive calls do not stomp each other because each invocation owns its array. The frame schema (action attribute list) is shared across all calls as a read-only definition; only the live slot arrays are per-call. This mirrors C++ method call semantics exactly, without any declarations required from the programmer.
-
----
-
-## Relationship to Bytecode Generation
-
-Bytecode generation does the foundational intellectual work: walking the action, resolving field references into the action's field list, emitting operations in the correct order. The JIT translation of the action body is largely a remapping of what bytecode generation already produces — field references by tag become field references by slot index; the semantic content is the same.
-
-The novel work in JIT generation is the call frame setup and teardown. Everything else is mechanical translation of the bytecode layer.
-
-Natural implementation order:
-1. Frame setup and teardown as a standalone piece — verify with a trivial action.
-2. Body translation layered on top — slot-indexed remapping of bytecode operations.
-
----
-
-## Action as Homoiconic Object
-
-The action's attribute list (the frame schema) remains an attribute of the action GroupItem. The action is still a first-class incant object that can be inspected, passed, and stored. The JIT'd code object is an opaque implementation detail attached to the action — not something incant code manipulates directly, at least in this design iteration.
-
-A wrapper carries both: the inspectable GroupItem (with its attribute list as frame schema) and a pointer to the compiled entry point. This wrapper is what gets stored or passed when an action is treated as data. It is also the deliberate seam where an invalidate-and-recompile story would attach if a JIT'd action's structure is ever edited at runtime (see Open Questions) — the seam is intentional, not an oversight.
-
----
-
-## Open Questions
-
-- **Slot allocation: stack vs heap — decided by byRef escape.** Stack is natural and mirrors C++; deep recursion may argue for heap. But this is not a free choice — it is *determined* by whether a `:=` pointer-to-slot can escape its frame. If `A := B` can store a pointer-to-slot into a global, or return it, that reference outlives the call and stack allocation dangles on frame pop. So the real question is "can byRef escape a frame?" — answer that and allocation follows. (These were two separate open items in the draft; they are one question.) Working lean: heap-allocate from BDWGC and let Boehm keep escaped slots alive; stack then becomes the optimization earned by a later non-escape analysis, applied only to provably-non-escaping frames.
-- **Recompile on structural edit.** The compiled entry point is opaque and assumes the action's structure is fixed (see the schema-closure precondition above). If incant ever rewrites a JIT'd action in place, its compiled code goes stale. The action wrapper — carrying both the inspectable GroupItem and the entry-point pointer — is the deliberate seam where an invalidate-and-recompile story would attach. Deferred, and coupled to the same "no in-place modification" discipline that schema-closure rests on.
-- **Type inference for optimization.** The conservative JIT emits code that still does runtime type checks through the GroupItem pointer indirection — semantically identical to the interpreter, just with stack-frame discipline. A specialization pass that locks in types for hot paths and emits tighter machine code is a follow-on optimization, not a prerequisite.
-- **`modedOP.boundTo`** interaction with JIT'd dispatch. Deferred pending that design pass.
-
----
-
-## Status (2026-06-22) — Phase 1 COMPLETE: arithmetic + compare + assign + unary + division
-
-**Design chosen: Plan A — the jitting gate lives *inside* the opMethod.** `opPlus`
-grows an `if jitting { … }` emit branch above its interpret body; `aCTionExpressioN`'s
-jitting branch dispatches the operator's own `operat` (no `jit` child), which
-self-gates. At endgame the interpret body and the gate strip out mechanically and the
-opMethod *is* the emitter. (Plan B — emitter on a `jit` child — is the abandoned
-alternative; it would have left N siblings to fold back in. See `docs/layout-recon.md`
-sibling discussion only for the parallel-lowerings framing.)
-
-**Proven end-to-end — 24 POPs, all in one pass, via `jitRunAction`** (driver
-`incant/jitscratch`, fixtures `incant/generate`):
-
-*Arithmetic — `jitEmitBinary` (`enum jitOp`):*
-| POP | expression | result | path |
+| # | function | covers | does NOT cover |
 |---|---|---|---|
-| `jitAdd` | `3 + 5` | 8 | `CreateAdd` (count / i32) |
-| `jitAddF` | `3.0 + 5.0` | 8 | `CreateFAdd` (number / double) |
-| `jitMix` | `3 + 5.0` | 8 | count `SIToFP`-promoted → `FAdd` (numeric promotion) |
-| `jitFieldAdd` | `righty + 5` | 18 | **field unbox** — `jitSeedField` bakes the stable GroupItem address, `CreateLoad`s `gCount` at run time |
-| `jitSub` | `8 - 3` | 5 | `CreateSub` |
-| `jitMul` | `3 * 5` | 15 | `CreateMul` |
-| `jitDiv` | `7 / 2` | 3 | `CreateSDiv` (signed, **truncates toward zero**) |
-| `jitDiv10` | `10 / 3` | 3 | `CreateSDiv` |
-| `jitDivNeg` | `righty(-7) / 2` | -3 | `CreateSDiv` — truncation, not floor's -4 (seeded `0 - 7`; no unary-minus literal) |
+| 1 | `jitEmitBinary(arg,target,op)` | `+ - * /` on count/number, with SIToFP promotion | `%` (no `jitSRem`/`jitFRem` case); string `+`; **clobbers target's `jitValue`** |
+| 2 | `jitEmitCompare(arg,target,op)` | `== != < <= > >=`, ICmp/FCmp, i1 result | **zero null/no-data guards**; same `jitValue` clobber |
+| 3 | `jitEmitAssign(arg,target)` | plain `=` store into `jitSlot` | byRef (`:=`) — the gate fires *before* opAssign's byRef check; a literal target is silently a null store destination |
+| 4 | `jitEmitUnary(target,op)` | `++ --` (in-place, store-back), prefix `-` (value-producing) | **unreachable without a null deref — §3.1**; `!` (opNOT) not routed here at all |
+| 5 | `jitEmitStringPlusEQ(arg,target)` | string/token `+=` via one `CreateCall` to `concatEQ` | anything else string-shaped; it is the **only** `CreateCall` in the layer |
+| 6 | `jitEmitGIF(input)` | `if <cond> <then>` — condition, `CreateCondBr`, then-arm, merge | **the `else` arm — structurally absent (§3.2)** |
 
-*Compare — `jitEmitCompare` (`enum jitCmp`), i1 result `ZExt`'d to i32:*
-| POP | expression | result | path |
-|---|---|---|---|
-| `jitGT` | `3 > 5` | 0 | `CreateICmpSGT` |
-| `jitLT` | `3 < 5` | 1 | `CreateICmpSLT` |
-| `jitGE` | `5 >= 5` | 1 | `CreateICmpSGE` |
-| `jitLE` | `7 <= 5` | 0 | `CreateICmpSLE` |
-| `jitEQ` | `3 == 3` | 1 | `CreateICmpEQ` |
-| `jitNE` | `3 != 5` | 1 | `CreateICmpNE` |
+Supporting cast: `jitSeedLiteral` (literal → `ConstantInt`/`ConstantFP`, no `jitSlot`, correctly
+— a literal is not assignable) · `jitSeedField` (bakes the field's *stable* `gCount`/`gNumber`
+address, `CreateLoad`s it, stashes the address as `jitSlot`) · `jitIfBegin`/`jitIfEnd` (block
+topology; `gIfEndBlocks` is a stack, so nesting is *structurally provided for*) ·
+`jitExecBlock` (**runs the action's `BlocK` through the interpret walk** — §2.2 hangs off this)
+· `jitRunAction` (the driver) · `concatEQ` (the runtime helper string-`+=` lands on) ·
+`jitRunIfTest`/`jitRunAddTwo` (**hand-built scaffolds, NOT emit-path code** — they are the two
+green things in `jitIfScratch`, and anyone reading "JIT smoke tests pass" should know they
+bypass the emitters entirely) · `jitInitOnce`/`jitEngine` (one-time LLVM + ORCv2 setup).
 
-*Assign — `jitEmitAssign` (store-back **writes through** to the GroupItem; proven by reading the field back in interpreted incant after the run):*
-| POP | expression | result | readback |
-|---|---|---|---|
-| `jitAssign` | `maximus = 8` | 8 | `maximus` → 8 |
-| `jitPlusEQ` | `maximus += 5` (from 10) | 15 | `maximus` → 15 |
-| `jitMultEQ` | `maximus *= 3` (from 4) | 12 | `maximus` → 12 |
-| `jitMinusEQ` | `maximus -= 5` (from 30) | 25 | `maximus` → 25 |
-| `jitDivEQ` | `maximus /= 4` (from 30) | 7 | `maximus` → 7 (`jitSDiv` truncates) |
+**There is no `jitEmitCall`.** The gate point would be `runOP`'s `or op.isMethod` branch —
+*the same branch §3.1's bug lives on.* Anyone fixing §3.1 is standing on the `jitEmitCall` seam.
 
-*Unary — `jitEmitUnary` (`enum jitUnary`), in-place CreateAdd/Sub 1 with store-back (2026-06-20); unary minus added 2026-06-25:*
-| POP | expression | result | readback |
-|---|---|---|---|
-| `jitInc` | `++righty` (from 13) | 14 | `righty` → 14 |
-| `jitDec` | `--righty` (from 13) | 12 | `righty` → 12 |
-| `jitNeg` | `-righty` (from 13) | -13 | (none — value-producing) |
+### 1.2 The instruments — new on 2026-07-30, and the JIT had none before
+Nothing in the live tree had ever called `verifyFunction`, and no IR had ever been dumped.
 
-> ### ⚠ THOSE THREE ROWS CONTRADICT THE TREE AS OF 2026-07-30. ALL THREE EXIT 139.
->
-> **Left standing, with the contradiction recorded beside them, rather than corrected** —
-> the reconciliation is worth more than the correction, and editing the rows away would
-> destroy the evidence that produces it.
->
-> **Measured 2026-07-30:** `jitInc`, `jitDec` and `jitNeg` all segfault at the *identical*
-> frame — `jitEmitUnary` dereferencing a null `jitData`, because no operand was ever seeded.
-> One cause, three symptoms.
->
-> **THE ROWS WERE TRUE WHEN WRITTEN (2026-06-20/25) AND WERE BROKEN LATER BY SOMETHING
-> ELSE.** `runOP`'s JIT seeding gate is `if jitting && op.isOperator` (`GroupActions.rtn`),
-> but every unary operator is registered `ruleMethod=` — **isMethod, not isOperator**
-> (`incant/setup:89,120,125,131,135`) — so dispatch takes `runOP`'s *other* arm and the
-> operand is never seeded. That is a **regression from the 2026-06-30 pivot** which folded
-> out `jitXP`, the file that held the old seeding branch.
->
-> **So this is not "the table lied."** It is a passing table that a later refactor silently
-> falsified, in a file nobody re-ran, with the gap already documented **at the crash site**
-> (`jitEmitters.rtn:227-229` — "not wired yet") while this table two documents away still
-> said DONE. The two statements have coexisted for a month.
->
-> **The lesson is the one this project keeps paying for and it is about dates, not
-> correctness:** a status table is a claim with an `asOf` that nobody wrote down. Every row
-> above is a *measurement from a specific build*, and none of them re-runs itself. Treat a
-> DONE table as `MEASURED`, respect its date, and re-run before building on it —
-> `docs/kantCorpus.md`'s confidence vocabulary exists for exactly this and this table
-> predates it.
->
-> Do **not** mark these rows fixed until a run shows it. Full analysis:
-> `docs/jit-recon-2026-07-30.md` §J0.
+- **`llvm::verifyFunction`** (`jitEmitters.rtn:529`) — placed *before* mem2reg, so it catches
+  the emitter's own output rather than the optimiser's. It returns **true when the function is
+  broken**, which is the API's own inversion and is easy to get backwards.
+- **`INCANT_JIT_DUMP=1`** (`jitEmitters.rtn:580`) dumps the module. An **environment variable,
+  not a GroupBody flag** — deliberately, so it costs no bitfield shift and no `tokall`
+  (bear-trap #10).
 
-**Unary minus (`jitNeg`, 2026-06-25) — the Phase 2 prerequisite, DONE.** `-righty` → `CreateNeg`
-(double: `CreateFNeg`); **value-producing, NO store-back** (the operand is not mutated, unlike
-`++`/`--`), so the negated SSA flows up as the result (`jitRunAction result = -13`). The grammar
-half: `-` added to the `UnaryOPS` bin, `TokenXP` became `UnaryOPS? ANYorNum^ InvokeArg?` —
-`ANYorNum` (`NumbeR | ANYtoken`) lets the operand be a literal *or* a field (`-7` *and* `-x`), and
-the `^` no-skip adjacency on the operand is the steal-guard: `-x`/`-7` (adjacent) form a unary,
-but spaced ` - ` (`a - b`, `20 - x`) fails adjacency and falls through to binary `opMinus`. The op
-half: a new `opUnaryMinus` (value-producing, `0 - operand` into `tempField`) reached via a named
-`negate` op in `Operators` (`unary ruleMethod=opUnaryMinus`) — `handleUnary` swaps the prefix `-`
-to `opFields["negate"]`, keeping the binary `-` slot (`opMinus`) completely isolated (no dual-
-dispatch). Proven interpret-side too: `-7`→-7, `-righty`→-13, `a - b`→0, `20 - x`→7.
+### 1.3 `jitDegrade` — the crossover primitive
+`jitEmitters.rtn:61`, lifted 2026-07-30 from the one place the pattern already existed
+(§2.3). It carries a **counter**, which is the point: it turns ~53 silent fallbacks into
+countable ones.
 
-Unary dispatches via `aCTionExpressioN`'s jitting branch detecting the `uxp` node
-(`aCTionTokenXP.handleUnary` builds it), seeding the operand, and firing `arg.method(arg)`
-→ `runOP` → the opMethod's own gate. **incant unary is PREFIX-only** (`++righty`); postfix
-doesn't parse as a unary op. Compound `-=` is the `+=`/`*=` pattern with `jitSub`.
+⚠ **It has NO behavioural coverage.** Its two call sites (`Instruct.rtn:585`, `:747`) are
+unreachable by any fixture, blocked by an open question. `incant/jitDegradeT` is committed
+reaching its sentinel and **not** its target, and says so in its own header.
 
-*String `+=` — `jitEmitStringPlusEQ`, the **FIRST `CreateCall` in the JIT layer** (2026-06-21):*
-| POP | expression | result | readback |
-|---|---|---|---|
-| `jitPlusEQF` | `floaty += 1.5` (from 2.5) | 4 | `floaty` → 4 (isNUMBER path, `FAdd`) |
-| `jitStrEQ` | `name += "!"` (from "world") | 0 (const cap) | `name` → `world!` |
+### 1.4 What actually runs — measured
+*asOf 2026-07-30. Exit status taken directly from `$?` on the binary, never through a pipe.*
 
-**`opPlusEQ` now switches on `target.data`:** `isCOUNT`/`isNUMBER` → `jitEmitBinary(jitAdd)` +
-`jitEmitAssign` (count vs number FAdd picked inside `jitEmitBinary` from operand type, so the
-two arms coincide); `isSTRING`/`isTOKEN` → `jitEmitStringPlusEQ`; anything else falls through
-to the interpreter. `jitEmitStringPlusEQ` bakes target's and argument's stable GroupItem
-addresses as constant ptrs and emits **one `CreateCall`** to `concatEQ` (callee baked by
-address) — `GroupItem(GroupItem,GroupItem)`. `concatEQ` does the member work as ordinary C++
-(`target->setText(::concat(2, target->getText(), argument->getText()))` — the interpreter's
-isSTRING `+=` body), so **no variadic IR, no member-function-pointer IR**. The driver's `i32()`
-can't `ret` a pointer, so `gJitResult` caps on a constant 0 and the `+=` side effect (setText
-through to the real field) is verified by readback. The call is left **untagged (not `readnone`)**
-so LLVM can't DCE a callee it can't see into. **This is the proof-of-concept for `jitEmitCall`**
-(method calls on the list): same bake-address + single-CreateCall mechanics, with the callee
-sourced from `op.method` instead of hardcoded `concatEQ`.
-
-- **Gates self-host the emitter dispatch (Plan A):** each opMethod (`opPlus`, `opMinus`,
-  `opMultiply`, `opDiv`; `opGT`/`opLT`/`opGE`/`opLE`/`opEQ`/`opNotEQ`; `opAssign`,
-  `opPlusEQ`, `opMultiplyEQ`, `opDivEQ`) carries `if jitting { … }`. Arithmetic → `jitEmitBinary`;
-  compare → `jitEmitCompare`; plain `=` → `jitEmitAssign`; compound `+=`/`*=`/`/=` compose
-  `jitEmitBinary` then `jitEmitAssign(target,target)` to commit the binary result.
-- **`jitSeedField` now stashes `jitSlot`** (the baked field-storage address), giving the
-  assign store-back a destination — immediate writeback to the field's own storage.
-- **Driver:** `i32()` function, one compile+run per call, **unique function name per run**.
-  Double → `FPToSI`, i1 → `ZExt`, both to i32.
-- Bytecode path unaffected (`testByteCode` → 11).
-
-**Next proof points / deferred:**
-- **Return a real `GroupItem*` (full epilogue).** The assign store-through proves writeback
-  *into a field's storage*; returning a real `GroupItem*` per this doc's frame model (vs the
-  driver's native `i32`) is still not done.
-- **Slot-array calling convention** (this doc): current field unbox/store bakes a *stable*
-  address. The slot ABI is the refinement for non-stable fields and recompile-on-edit.
-- **Cached-function refire.** The load-vs-fold distinction is invisible while compile+run
-  is one shot — observable once a compiled action is cached and re-fired after a field
-  changes. (The assign readback is a *partial* step here: it shows the store mutates real
-  memory, but compile+run is still one shot.)
-- **Chained-operand gate guard.** The gate assumes a non-literal operand is a real field,
-  so `a + b + c` mis-routes the inner result to `jitSeedField`. Single-op POPs hide it.
-  (Bear trap — CLAUDE.md.)
-- **Unary (`++`/`--` → `jitEmitUnary`). DONE 2026-06-20** — see the unary table above.
-- **String `+=` / first `CreateCall` (`jitEmitStringPlusEQ` → `concatEQ`). DONE 2026-06-21** —
-  see the string-`+=` table above. The call-emit mechanics are now proven.
-- **`jitEmitCall` — method calls on the list (the generalization of the above). PARKED for
-  Clay+Tony design before Clod touches `runOP`.** The gate point is `runOP`'s
-  `or op.isMethod` branch (one surgical line: `if jitting return jitEmitCall(op, target)`);
-  `runOP` is otherwise kept JIT-unaware. The open design item is the **one-arg `concatenate`
-  primitive** — a pure, read-only, parts-walking extern (aCTionPrinT-style, one field in / one
-  field out) that fits incant's calling convention and is the clean model for `jitEmitCall`
-  across all method calls, not just string `+=`. (The two-arg `concatEQ` above was the
-  pragmatic write-back form for compound-assign, which needs `target` by identity; the
-  general value-returning method calls don't, so one-arg is the durable shape. Container
-  packing hits `addGroup`/`setGroup` parent-copy — `GroupItem.twk:73`/`:1242` — for any node
-  with a parent, which is why the write-back case took two explicit pointers.)
-- **Division (`/` `/=`) — DONE 2026-06-22.** The last straight-line op — see the division
-  rows in the arithmetic table and `jitDivEQ` in the assign table. `opDiv`/`opDivEQ` gate onto
-  `jitEmitBinary(jitSDiv)` (the established `-=` pattern); `jitSDiv`'s `CreateSDiv` was already
-  in the switch. **Semantics decision (settled): C-style signed truncation toward zero** —
-  `7/2=3`, `-7/2=-3` (not floor's -4). This *diverges by design* from interpret's
-  `(int)lround(...)` round-to-nearest (`7/2=4`); the round-intrinsic "faithful" alternative was
-  declined in favour of C semantics. Div-by-zero is **deferred (unguarded)**, matching
-  interpret's own unguarded path. Caveat surfaced: incant has **no unary-minus literal** (`-`
-  is binary `opMinus` only; `NumbeR` is `[0-9]+`), so `-7` silently drops the sign — the
-  negative POP seeds `righty = 0 - 7` and divides the field. This is the disambiguation bear
-  that gates the Phase 2 gIF POP (below).
+| run | exit | outcome |
+|---|---|---|
+| `incant/jitscratch` | **139** | 22 POPs green through `jitStrEQ`, then dies on `jitInc` |
+| `incant/jitIfScratch` | 0 | hand-built IR smoke: -7→99, 5→5 — **scaffolds, not emitters** |
+| `incant/jitGifScratch` | 0 | `jitGIF` taken→99, `jitGIFb` not-taken→11 |
+| `incant/oneTest` | 0 | bytecode path, unaffected by all JIT work |
+| `testing(testWhilE)` / `(testDo)` | **134** | LLVM assert: ICmp operand type mismatch |
+| `testing(testGXLeaf)` | **139** | two sequential `if`s in one body |
+| `testing(testIfElse)`, righty=13 | 0 | `maximus = 26` — **correct by luck**, then-arm only |
+| `testing(testIfElse)`, righty=-7 | 0 | `maximus = 11`, returns `83623936` — **WRONG, exit 0** |
+| `testing(testPrint)` | 0 | printed `hello world` **at emit time** |
 
 ---
 
-## Phase 2 — control flow (gIF) — THE OPEN FRONTIER
+## §2 — THE CROSSOVER BOUNDARY, ENUMERATED
 
-Phase 1 straight-line is complete. The next frontier is **gIF** (conditional control
-flow): the opMethod gates emit an i1 condition (already proven by `jitEmitCompare`) into an
-LLVM `CreateCondBr` across then/else basic blocks. gIF instructions are **drafted and ready
-to hand off**.
+This is what §0's open ruling is *about*, and it did not exist in enumerated form before
+2026-07-30.
 
-**Blocker CLEARED (2026-06-25): the unary-minus grammar question is resolved.** A control-flow
-POP needs negative test values (`if x < 0`, decrementing loop bounds), and incant could not
-express a negative literal — `-7` parsed as binary `opMinus` with no left operand and dropped
-the sign. That is now fixed: prefix `-` parses as unary (`-7` *and* `-x`) via the `ANYorNum^`
-operand slot + the `negate`→`opUnaryMinus` op, while spaced binary subtraction is preserved by
-the no-skip adjacency guard (see the `jitNeg` entry under Phase 1 status above for the full
-mechanism). With negative-valued conditions now expressible, **Phase 2 proceeds directly to the
-gIF POP / `CreateCondBr`** — the gIF instructions are drafted and ready to hand off.
+### 2.1 The census
+*asOf 2026-07-30. Classifications independently confirmed twice (2026-07-02 and 2026-07-30).*
+
+**Operators — `Instruct.rtn`, 42 op-dispatch functions: 18 gated, 24 not.**
+
+*Gated (18):* `opAssign` · `opDiv` · `opDivEQ` · `opEQ` · `opGE` · `opGT` · `opLE` · `opLT` ·
+`opMinus` · `opUnaryMinus` · `opMinusEQ` · `opMinusMinus` · `opMultiply` · `opMultiplyEQ` ·
+`opNotEQ` · `opPlus` · `opPlusEQ` · `opPlusPlus`.
+
+*Not gated (24):* `opAddAttribute` · `opAND` · `opCopyList` · `opDebug` · `opDot` · `opEnd` ·
+`opGet` · `opGetAttribute` · `opGetMember` · `opIN` · `opLastREF` · `opMatch` · `opNOT` ·
+`opOR` · `opPointer` · `opPrint` · `opRebind` · `opRem` · `opReplaceAttribute` ·
+`opReplaceMember` · `opSetGroup` · `opSetFlag` · `opSetTag` · `opString`.
+
+**Statement handlers — `ruleActions.rtn`, 30 `aCTion*` functions: exactly 1 gated.**
+Only `aCTionIF` carries `if jitting { return jitEmitGIF(input); }`. Ungated and therefore
+interpreted-at-emit-time: `aCTionDO` · `aCTionFOR` · `aCTionWhilE` · `aCTionPrinT` ·
+`aCTionIterate` · `aCTionRunRulE` · `aCTionSearch` · `aCTionDefinE` · `aCTionBrancH` ·
+`aCTionBlocK` · `aCTionStatemenT` · `aCTionExpressioN` · plus 17 parser/token-plumbing
+handlers (`aCTionANYtoken`, `aCTionBraced`, `aCTionCheckFor`, `aCTionCodE`, `aCTionDEBUG`,
+`aCTionFailed`, `aCTionNamE`, `aCTionNumbeR`, `aCTionParens`, `aCTionQuotE`, `aCTionScopeXP`,
+`aCTionSetBrackets`, `aCTionShortcuT`, `aCTionTokenXP`, `aCTionTraiT`, `aCTionTraiTdata`,
+`aCTionXpress`). *Several of that last group are parser plumbing rather than executable
+constructs, and that distinction matters for the ruling.*
+
+⚠ **Line numbers move.** The iterator work shifted `Instruct.rtn` (`opEQ` 155→174, `opPlusPlus`
+557→738) and the 2026-07-31 print work shifted it again. **Re-grep rather than trusting a
+cited line.**
+
+### 2.2 Today the jitted path IS the interpreter, running for real
+**Verdict: the question "is the interpreter reachable from a jitted path" understates it.**
+*Confidence: run result, not a reading. asOf 2026-07-30.*
+
+`jitRunAction` raises `jitting=1`, then calls `jitExecBlock`, whose entire body is:
+```
+extern GroupItem jitExecBlock(GroupItem input)
+{
+GroupItem   BlocK:;
+    if BlocK    BlocK.gMethod(BlocK);
+    return input;
+}
+```
+That is the *interpreter's own* `aCTionBlocK` walk. Every statement executes. A gated op
+returns early after emitting IR; an **ungated op or statement handler does its real work, with
+real side effects, at emit time.** Proven by `testing(testPrint)` printing `hello world`
+during compilation.
+
+So under `jitting=1`: all 24 ungated operators **mutate the live GroupItem tree while
+"compiling"** (`opPrint`, `opString`, `opSetGroup`, `opSetTag`, `opAddAttribute`,
+`opReplaceMember`). All 29 ungated statement handlers execute. `runOP`'s three non-operator
+arms mean **a call from inside a jitted body runs the callee interpreted, entirely.**
+`opPlusEQ`'s gate type-checks and then **falls through to the interpreted body silently** for
+`isLIST`/buffer/`isSTAK` — the one op that type-checks *and* the one that silently degrades.
+
+### 2.3 The one LOUD refusal that already existed
+`Instruct.rtn` `opPlusPlus`/`opMinusMinus`, written during the 2026-07-29 iterator work:
+```
+if result.isIterator {
+    if jitting  cerr "ERROR ++ on an iterator is not JIT-supported yet:",result.tag:;
+    return iterAdvance(result,1); }
+```
+**This is §0's candidate answer — "degrade to the oracle LOUDLY" — arrived at independently
+and implemented once.** The other ~52 degradation sites say nothing. It has since been lifted
+into `jitDegrade` (§1.3).
+
+⚠ **Irony worth recording:** those two arms are also scheduled for deletion (§0 Consequence 1
+removes the iterator handle entirely). The pattern was lifted out first, which is why
+`jitDegrade` exists as a free-standing primitive.
+
+---
+
+## §3 — WHAT IS MEASURED-BROKEN
+
+*All asOf 2026-07-30 unless noted. Each has independent confirmation; the causes differ.*
+
+### 3.1 The unary seed gap — one cause, three crashes, VERIFIED
+All three unary POPs (`jitInc`, `jitDec`, `jitNeg`) die SIGSEGV in `jitEmitUnary` on a null
+`target->jitData`. Cause: `runOP`'s seed gate reads `if jitting && op.isOperator`, but **every
+unary operator is registered `ruleMethod=` — isMethod, not isOperator** (`incant/setup:89, 99,
+120, 122, 125, 131, 135`) — so dispatch takes `runOP`'s `op.isMethod` arm and no operand is
+ever seeded.
+
+Three independent confirmations: the crash frame lands on the isMethod branch, not the
+isOperator one; the registrations say `ruleMethod=`; all three POPs die identically in separate
+processes.
+
+**It is a regression, dated (inferred, no bisect).** `jitXP` held `aCTionExpressioN`'s `uxp`
+seeding branch and **was folded out on 2026-06-30** in the unified-emit pivot. Its seeding job
+moved to `runOP`'s new gate, which was written for the binary/isOperator shape only. It went
+unnoticed because `testing()` was hijacked to the since-retired `runScaf` in that window, so
+`jitscratch` did not reach `jitRunAction` at all.
+
+**The gap was already documented at the crash site** (`jitEmitters.rtn:227-229`: *"not wired
+yet"*) while §5's Phase-1 table two documents away said DONE. The two statements coexisted for
+a month.
+
+**Scope, honestly: an afternoon to stop the crash, an arc to make the JIT trustworthy.** The
+fix is local and testable by three existing POPs. It does **not** move the frontier — treat it
+as *unblocking fixture capture*, not as progress.
+
+### 3.2 `jitEmitGIF` has no else arm — WRONG ANSWER AT EXIT 0
+`jitEmitGIF` declares only `ExpressioN:` and `StatemenT:` — **no `ElsE:`** — while `aCTionIF`
+declares all three. *Re-verified in the tree 2026-07-31: still no `ElsE:`.*
+
+| setup | correct | JIT produced | exit |
+|---|---|---|---|
+| `righty = 13` | `maximus = 26` | `maximus = 26` | 0 |
+| `righty = -7` | **`maximus = 7`** | **`maximus = 11`**, returns **83623936** | **0** |
+
+The taken case is **correct by luck** — it exercises only the arm that is emitted. **A wrong
+answer with a clean exit status outranks every crash on this list.**
+
+### 3.3 The `jitData` single-value clobber — INFERRED, blocks everything past Phase 1
+`testWhilE` and `testDo` both abort (134) on *"Both operands to ICmp instruction are not of the
+same type!"*. Likely mechanism: `jitEmitBinary` and `jitEmitCompare` both end
+`target->jitData->setJitter(res)` — **overwriting the target operand's stored SSA value with
+the result**. A field compared once holds an **i1** afterward; compared again it is
+`icmp i1, i32`.
+
+**Structural, not incidental:** `jitData` hangs off the GroupItem, so a node can hold exactly
+one SSA value at a time. Fine for one-shot straight-line expressions; fatal for **any** operand
+reuse — which is loops *and* multi-statement bodies.
+
+⚠ **This is `inferred` and it reads convincingly, which per bear-trap #19's corollary is
+exactly when to distrust it.** The search space was `jitEmitters.rtn` and `Instruct.rtn` only.
+An IR dump answers it immediately — the invalid `icmp` is visible in the text — and the dump
+now exists (§1.2), so this is cheap to settle and has not been settled.
+
+### 3.4 What the IR dump showed — and it CORRECTS the record
+*asOf 2026-07-30, the first IR ever dumped from this tree.*
+
+```
+endif:                        ; preds = %then, %entry
+  ret i32 99                  ; ⚠ A CONSTANT — taken and not-taken IR are IDENTICAL
+```
+
+- **The store IS properly conditional** — `maximus` correctly stays 11 on the not-taken path.
+  ⚠ **This corrects the stored claim "IR: unconditional store + `br i1 true`"**, which
+  described the pre-pivot state. Unified emit-on-walk fixed the branch.
+- **The return value is not merged.** The defect is precisely a missing return-value merge, and
+  it is what produces the garbage in §3.2. `jitRunAction` caps with `CreateRet(gJitResult)`,
+  and `gJitResult` is an SSA value defined *inside the then block* — a dominance violation that
+  compiled and ran because nothing verified it.
+- **Field slots are `inttoptr` absolute addresses, not `alloca`s, so mem2reg has nothing to
+  promote.** ⚠ **The "mem2reg is the foundation" position does not hold for baked field
+  addresses.** See `jitDesign.md` — this is the sharpest open contradiction in the design.
+- **The verifier is SILENT on the gIF fixtures**, and that is itself the finding: *a branch with
+  a missing merge is valid IR that computes the wrong thing.* **Validity and correctness are
+  different questions**, and only one of them now has an instrument.
+
+### 3.5 Known gaps that are not crashes
+- **Compare ops have no null/no-data guards, and the interpreter's are structurally bypassed**
+  — each gate `return`s before the guard block below it. A jitted compare on null operands
+  crashes or reads garbage rather than returning false. *asOf 2026-07-02, re-confirmed
+  2026-07-30.*
+- **Seven ops fire their gate assuming a numeric target.** `opPlusEQ` is the ONE that
+  type-checks first; `opMinusEQ`, `opDivEQ`, `opMultiplyEQ`, `opMinusMinus`, `opPlusPlus`,
+  `opPlus`, `opMinus` do not. Latent while fixtures are numeric-only; real the moment a jitted
+  region hits `someString -= x`.
+- **`opAssign` with a byRef (`:=`) argument** — the gate returns before opAssign's own byRef
+  branch. Never exercised; unknown whether it mis-stores.
+- **`jitEmitGIF` nesting** — `gIfEndBlocks` is a stack so it is *provided for*, but
+  `testGXLeaf` (two *sequential* `if`s) segfaults before nesting can be reached.
+- **Everything downstream of the first failure in a body.** Failures are crashes and aborts, so
+  later constructs are never reached — **absence of a report is not evidence of health.**
+
+---
+
+## §4 — THE DOCUMENTATION STATE (it is part of the truth)
+
+### 4.1 `aCTionFOR` is a tree-walk, not a counting loop
+*Verified 2026-07-02 by reading `ruleActions.rtn`.* It walks `next()`/`prior()` over a
+GroupItem member/attribute list, optionally reversed, optionally restricted — **not**
+init/cond/increment. The list being walked is not statically known without walking the parse
+tree.
+
+Under "accelerator" the obvious answer was "defer it to a whole-action bail." **Under §0 that
+answer is the divergence §0 names**, and the question becomes *"the JIT must be able to walk a
+GroupItem list"* — a much larger claim. Unresolved; see `jitDesign.md`.
+
+### 4.2 The cold-reader gap — the source says "accelerator" at every altitude
+*Confidence: high; this is a checkable documentation-state question.*
+
+A reader who has not read §0 encounters: `jitting` as a **one-bit mode flag** in `GroupRules`
+beside `generating` and `debugGuards` (a mode you can be in reads as a mode you can be out of);
+18 gates each sitting **directly above a fully intact interpreted body** in the same function
+("fast path above, real path below"); a gate **raised and lowered around a region** in
+`jitRunAction`; and a sole entry point named **`testing`**.
+
+§0's ruling appears in exactly **two** places, both docs, and at **zero** of the 20 gate sites.
+**That gap has now bitten twice** — once on 2026-07-29 (a reasoner argued for repairing the
+interpreter's frame handling, work §0 says explicitly not to do) and once earlier in a doc that
+recommended whole-action bail as the *design answer*.
+
+The cheap in-character fix, **not yet applied**: one comment line where `jitting` is declared
+(`GroupRules.twk:77`), since that is the definition every gate resolves against.
+
+### 4.3 Stale comment, load-bearing
+`ruleActions.rtn:286-291` states *"jitRunAction still raises generating alongside jitting, so
+generating is checked first."* **`jitRunAction` sets `generating = 0`.** The comment describes
+the pre-pivot world and will mislead the next reader about which XP handler the JIT uses. (It
+is `interpretXP`.)
+
+---
+
+## §5 — TOOLCHAIN AND BUILD FACTS
+
+**LLVM 22.1.7**, arm64, `/opt/homebrew/opt/llvm`. Link `-lLLVM-22` (one monolithic shared lib).
+`gnu++17` + `libc++`. Proven by a standalone LLJIT smoke test. *asOf 2026-06-17, still the
+linked version 2026-07-31 (`-lLLVM-22` in the Groups link line).*
+
+API shapes correct for this version: ORCv2 `LLJITBuilder().create()` /
+`addIRModule(ThreadSafeModule(...))` / `lookup()` / `sym->getAddress().toPtr<FnType>()`; own an
+`LLVMContext` per action, no `getGlobalContext()`; **opaque pointers** —
+`PointerType::getUnqual(Ctx)`, and the type argument on `CreateLoad`/`CreateCall` is
+**mandatory**; new `PassManager` + `PassBuilder`, mem2reg = `PromotePass`.
+
+### 5.1 Phase 1 straight-line — the POP table, and READ §7 BEFORE TRUSTING IT
+*asOf 2026-06-22 for the arithmetic/compare/assign rows; **the three unary rows are FALSIFIED
+as of 2026-07-30** — see §3.1.*
+
+Arithmetic (`jitEmitBinary`): `3+5`→8 · `3.0+5.0`→8 · `3+5.0`→8 (SIToFP promotion) ·
+`righty+5`→18 (field unbox) · `8-3`→5 · `3*5`→15 · `7/2`→3 · `10/3`→3 · `-7/2`→-3.
+Compare (`jitEmitCompare`, i1 ZExt'd to i32): all six operators correct.
+Assign (`jitEmitAssign`, store-back writes through to the GroupItem, verified by readback):
+`= 8`→8 · `+= 5`→15 · `*= 3`→12 · `-= 5`→25 · `/= 4`→7.
+String `+=` (`jitEmitStringPlusEQ`, the **first and only `CreateCall`**): `name += "!"` →
+`world!` by readback.
+**Unary — `jitInc` 14, `jitDec` 12, `jitNeg` -13: ⚠ ALL THREE NOW EXIT 139 (§3.1).**
+
+**Division semantics are settled: C-style signed truncation toward zero** (`7/2=3`,
+`-7/2=-3`), which **diverges by design** from the interpreter's round-to-nearest (`7/2=4`).
+Div-by-zero is deferred/unguarded, matching the interpreter's own unguarded path.
+
+---
+
+## §6 — TOK CONSTRAINTS ON JIT CODE (they cost a day each)
+
+These are the ones specific to writing emitters; the general set is in `CLAUDE.md`.
+
+- **No `llvm::` types in tok-extern signatures.** tok emits a prototype into `GroupRules.h`,
+  which only forward-declares classes and drops includes on regen → `undeclared identifier
+  'llvm'`. Emitters take/return plain types (`GroupItem*`/`int`) and carry `llvm::Value` in
+  `JitData`.
+- **Top-level `-% … %-` passthrough is DROPPED** — it only emits *inside a method body*. LLVM
+  C++ cannot be poured into a `.rtn` as one passthrough block.
+- **`external IRBuilder` dummy is required** beside `external IRBuilder<>` for the template.
+- **`/* … */` comment interiors are not inert** — tok has no lexer, so `-% %-` markers and
+  *declared* type-names inside a comment get parsed as code (`ERROR Inheritance`, mislocated
+  onto the next file's comment). Keep passthrough markers and known type-names out of comments.
+- **`JitData` is hung on the node, not held in a C++ side table.** The side-table design was
+  tried and fought tok two ways. See `jitDesign.md` — the design doc was never updated to
+  match, and that contradiction is live.
+
+---
+
+## §7 — THE DOCTRINE THIS FILE IS ORGANISED AROUND
+
+**A STATUS TABLE IS A CLAIM WITH AN `asOf` THAT NOBODY WROTE DOWN.**
+
+§5.1's three unary rows said DONE for a month while the source comment at the crash site said
+"not wired yet" and the binary exited 139. **The rows were TRUE when written** and were
+falsified later by a refactor in a file nobody re-ran. They are kept, with the contradiction
+recorded beside them, rather than corrected — the reconciliation is worth more than the
+correction, and editing them away would destroy the evidence that produces it.
+
+Three rules follow, and they are why every section above carries a date:
+
+1. **Treat a DONE table as `MEASURED`, respect its date, and re-run before building on it.**
+2. **An outcome that looks right is not proof.** `jitGifScratch`'s taken→99 / not-taken→11 is
+   *suggestive* that the branch is genuinely gated. It was declined as proven until an IR dump
+   existed, because the 2026-06-27 disaster was exactly an outcome that looked right.
+3. **Exit 0 is necessary and not sufficient** — §3.2 is a wrong answer at exit 0, and it is the
+   worst thing on this list precisely because nothing complains.
+
+---
+
+*Consolidated 2026-07-31. Superseded and deleted in the same commit: `jit-recon-2026-07-30.md`,
+`jit-coverage-recon.md`, `llvm-jit-recon.md`, `jitFullmontyPlan.md`, `gif-jit-recon.md`,
+`jit-phase1-walk.md`. Their reasoning trails are in git; their conclusions are here and in
+`jitDesign.md`.*
