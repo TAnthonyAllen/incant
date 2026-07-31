@@ -420,6 +420,33 @@ define
                 provenance="adopted with jitUnboxCount at rung J7, 2026-07-31";
                 confidence="verified";
                 asOf="2026-07-31";
+            callResultsCompose
+                content="THE ARC'S KEY PROPERTY, and the reason the fallback
+                    column is A COLUMN AND NOT A SPECIAL CASE: an emitted call
+                    STAMPS THE RESULT NODE'S jitData, so a call result flows into
+                    the enclosing walk exactly like any other value. The
+                    assignment downstream of `jgOut = jgIn % 3` reads the call's
+                    unboxed i32 with no knowledge that a call produced it.
+                    Without this the fallback would be a terminus -- you could
+                    call an opMethod but not USE the answer -- and every
+                    non-scalar op would need bespoke plumbing at its use sites.";
+                provenance="incant/jitJ7: the store consumes %remVal, which is the unbox of the call result, 2026-07-31";
+                confidence="verified";
+                asOf="2026-07-31";
+            jRPrerequisiteCleared
+                content="J-R'S NAMED PREREQUISITE IS FORMALLY CLEARED: a
+                    self-call is a call, and calls emit (J6 the mechanism, J7 a
+                    real opMethod with its return unboxed and composed).
+                    THE FRAME MODEL MOVES FROM designed-not-built TO
+                    next-buildable, and the path to it is clear of prerequisites
+                    for the first time since section 0 sentenced saveLocalFields.
+                    Standing order: frame model -> J-R -> saveLocalFields'
+                    execution date. Statement-coverage rungs (string +=, compare
+                    chains, bare return, break/continue in compiled form) queue
+                    behind unless Tony reorders.";
+                provenance="rungs J6 and J7 green, sh jitLadder/ladder.sh, 2026-07-31";
+                confidence="verified";
+                asOf="2026-07-31";
             unaryPopsCrash
                 content="All three unary JIT POPs -- jitInc, jitDec, jitNeg --
                     exit 139 (SIGSEGV) inside jitEmitUnary dereferencing a null

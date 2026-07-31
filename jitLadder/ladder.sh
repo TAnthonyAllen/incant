@@ -42,6 +42,14 @@
 #         J3  the loop RUNS THE RIGHT NUMBER OF TIMES at run time
 #      A rung that cannot say what it newly proves is a rung that adds coverage
 #      without adding confidence.
+#    - ⚠ INJECTIVITY: IT IS NOT ENOUGH FOR THE TWO INPUTS TO DIFFER -- THE TWO
+#      ANSWERS MUST DIFFER. Choose inputs the operation cannot collapse. 17 % 3
+#      and 20 % 3 are BOTH 2, so that pair would pass on a folded constant and
+#      prove nothing.
+#      ⚠ RUNGS J1-J6 SATISFIED THIS BY LUCK, not by design -- their operations
+#      happened to be injective over the inputs used. The fire-twice criterion
+#      carried this assumption silently from the day it was written; J7 is where
+#      it surfaced, and it is now explicit.
 #    - CHOOSE EXPECTED VALUES SO THE WRONG ANSWERS ARE DIAGNOSTIC. J2's are the
 #      model: 20/7 correct, 20/20 the condition was folded, 20/0 the pre-fix
 #      else-arm bug. The rung does not merely fail -- IT NAMES ITS FAILURE MODE
