@@ -333,6 +333,49 @@ define
                 provenance="DUMP=2 store counts on jitJ3 vs jitJ4, and J4 going red the moment the commit was removed, 2026-07-31";
                 confidence="verified";
                 asOf="2026-07-31";
+            emittedCallLandedJ6
+                content="THE FIRST EMITTED CALL THAT IS NOT THE LONELY concatEQ.
+                    jitEmitTrace bakes a field's address and jitTraceRT's
+                    address as constants and emits ONE CreateCall; the IR reads
+                      call ptr inttoptr(...)(ptr inttoptr(...))
+                    -- one pointer in, pointer out.
+                    ⚠ THE SIGNATURE WAS VERIFIED AGAINST THE TREE, NOT ADOPTED
+                    FROM THE DESIGN. runOP's dispatch is
+                      result = op->groupBody->gMethod(target)
+                    -- ONE ARGUMENT, VALUE-RETURNING, GroupItem*(GroupItem*).
+                    The fallback-signature ruling and the ground AGREE, so every
+                    non-scalar op's emitted call can wear this shape.
+                    ⚠ NO STRUCT OFFSETS ARE BAKED INTO IR, deliberately.
+                    Reaching a value from a returned pointer would need GEP
+                    arithmetic over GroupItem -> groupBody -> gCount, and BAKED
+                    OFFSETS BREAK SILENTLY ON ANY GroupBody LAYOUT CHANGE --
+                    bear-trap #10's blast radius arriving in emitted code where
+                    no compiler would catch it. A helper call is
+                    layout-independent: the C++ side recomputes offsets every
+                    build. Pay one call, keep the layout free.
+                    jitTrace is the incant-facing gate: under jitting it EMITS,
+                    interpreted it traces directly -- the same shape every
+                    opMethod gate has.";
+                provenance="incant/jitJ6 via sh jitLadder/ladder.sh, exit 0; INCANT_JIT_DUMP=2 shows the call; 2026-07-31";
+                confidence="verified";
+                asOf="2026-07-31";
+            traceSurvivesJitting
+                content="THE PRINT THAT SURVIVES JITTING WORKS, and the trace is
+                    its own evidence -- an assertion no previous rung could make.
+                      fire 1  jfIn=4  -> === JIT TRACE: jfIn = 4 ===
+                      fire 2  jfIn=11 -> === JIT TRACE: jfIn = 11 ===  NO RECOMPILE
+                      plus one more from the interpreted oracle call
+                    `print` CANNOT do this job: opPrint is UNGATED, so a print
+                    inside a jitted body fires at EMIT time -- it reports
+                    COMPILE-TIME state ONCE and looks like it worked. IT APPEARS
+                    TO WORK AND IT LIES. A trace appearing TWICE WITH DIFFERENT
+                    VALUES can only have been called from compiled code on each
+                    fire, so the trace count and the value pair are together a
+                    complete proof: one trace would mean emit-time execution,
+                    two identical traces would mean a folded argument.";
+                provenance="incant/jitJ6, stderr captured, 2026-07-31; the ladder asserts both the pair (4 then 11) and the count (3)";
+                confidence="verified";
+                asOf="2026-07-31";
             unaryPopsCrash
                 content="All three unary JIT POPs -- jitInc, jitDec, jitNeg --
                     exit 139 (SIGSEGV) inside jitEmitUnary dereferencing a null
@@ -740,8 +783,17 @@ define
                 cost="a ruling. It was unrulable before the boundary existed; it is rulable now.";
                 asOf="2026-07-31";
             openFallbackSignature
-                content="What signature does the fallback column's runtime call
-                    use? Two precedents exist in the tree and they DISAGREE.";
+                content="⚠ RULED AND NOW VERIFIED IN IR, 2026-07-31 -- kept as an
+                    entry only because the COMPOUND-ASSIGN exception still needs
+                    writing down when those ops are converted.
+                    THE RULING: one-argument value-returning is the general
+                    convention; the compound-assign family keeps the two-pointer
+                    write-back form (it needs target by identity);
+                    signature-kind becomes a table column.
+                    THE GROUND AGREES, checked rather than assumed: runOP
+                    dispatches `op->groupBody->gMethod(target)` -- one argument,
+                    value-returning -- and rung J6's emitted call wears exactly
+                    that shape in IR.";
                 established="concatEQ(target,argument) ships as a two-pointer write-back form, because compound-assign needs target by identity; the durable shape argued for the general case is a ONE-argument value-returning primitive matching incant's own calling convention";
                 missing="a pick. Every non-scalar op inherits whichever is chosen.";
                 blocks="the entire fallback column of the op x type table";

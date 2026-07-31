@@ -1,0 +1,67 @@
+/*****************************************************************************
+    jitJ6 -- RUNG 6 OF THE jitLadder. 2026-07-31.   J5 + AN EMITTED CALL.
+
+    ⚠ THE FIRST EMITTED CALL IN THIS LAYER THAT IS NOT THE LONELY concatEQ, and
+    the mechanism under FOUR separate threads: the fallback column (every
+    non-scalar type's path), jitTrace (the debugging story), J-R (recursion, and
+    behind it the frame model), and the runtime surface that makes the whole
+    language reachable from compiled code. One arc, four doors.
+
+    THE CLAIM THIS RUNG ADDS: a call is EMITTED INTO the function and RUNS AT
+    RUN TIME, once per fire -- not executed during compilation.
+
+    ⚠ AND THE TRACE ITSELF IS THE EVIDENCE, which is why this rung asserts
+    something no previous rung could. `print` cannot do this job: opPrint is
+    UNGATED, so a print inside a jitted body fires at EMIT time (jit.md S2.2,
+    measured) -- it reports COMPILE-TIME state ONCE and looks like it worked.
+    A trace that appears TWICE, with DIFFERENT VALUES, can only have been called
+    from compiled code on each fire.
+
+        fire 1   jfIn = 4   ->  trace prints 4,  jfOut = 8
+        fire 2   jfIn = 11  ->  trace prints 11, jfOut = 22   NO RECOMPILE
+
+    DIAGNOSTIC, per rung style:
+        two traces, 4 then 11   correct -- emitted, run at run time, per fire
+        ONE trace                the call ran at EMIT time (the print disease)
+        two traces, both 4       the argument was folded, not loaded per fire
+        no trace at all          nothing was emitted
+
+    SENTINEL AT THE FOOT (standing harness rule H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitLadder6);
+define
+    jfIn;
+    jfOut;
+    jitJ6 code={
+        jitTrace(jfIn);
+        jfOut = jfIn * 2;
+        };
+    ;
+
+jfIn  = 4;
+jfOut = 0;
+print "J6 fire 1 setup : jfIn =" jfIn:;
+testing(jitJ6);
+print "J6 fire 1 result: jfOut =" jfOut " (want 8)":;
+
+jfIn  = 11;
+jfOut = 0;
+print "J6 fire 2 setup : jfIn =" jfIn " (recompile: NONE)":;
+jitRefire();
+print "J6 fire 2 result: jfOut =" jfOut " (want 22)":;
+
+jfIn  = 4;
+jfOut = 0;
+jitJ6();
+print "J6 interpreted  : jfOut =" jfOut " (the oracle -- want 8)":;
+
+print "J6 SENTINEL -- run reached the end":;
+stop();

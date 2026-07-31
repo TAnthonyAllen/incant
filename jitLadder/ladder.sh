@@ -132,6 +132,8 @@ rung () {
 #    J4  + do                          (body-runs-once-when-false asserted)
 #    J5  + multi-statement operand reuse            <- GREEN  (an ATTRIBUTION
 #        rung: the clobber tested DIRECTLY and found not to bite)
+#    J6  + an EMITTED CALL (jitTrace)              <- GREEN  (the first that
+#        is not concatEQ; the print that survives jitting)
 #    ... string +=, compare chains, bare return, break/continue in loops --
 #        each ratified ruling eventually earns a rung pinning it in COMPILED form
 #
@@ -254,8 +256,38 @@ echo "-- J5  + multi-statement body with OPERAND REUSE -- an ATTRIBUTION rung"
 #  later use reads, and the clobber cannot be observed.
 rung jitJ5 "J5 SENTINEL" "J5" 10 15
 
+echo "-- J6  + AN EMITTED CALL -- and the trace is its own evidence"
+#  ⚠ THE FIRST EMITTED CALL THAT IS NOT THE LONELY concatEQ, and the mechanism
+#  under four threads: the fallback column, jitTrace, J-R, the runtime surface.
+#  `print` CANNOT do this job -- opPrint is UNGATED, so a print in a jitted body
+#  fires at EMIT time and reports compile-time state ONCE, looking like it
+#  worked. A trace appearing TWICE WITH DIFFERENT VALUES can only have been
+#  called from compiled code on each fire.
+rung jitJ6 "J6 SENTINEL" "J6" 8 22
+#  Two jitted traces (one per fire) plus one from the interpreted oracle.
+tr1=$(grep "JIT TRACE" "$T/jitJ6" | sed -n '1s/.*= \([0-9-][0-9]*\).*/\1/p')
+tr2=$(grep "JIT TRACE" "$T/jitJ6" | sed -n '2s/.*= \([0-9-][0-9]*\).*/\1/p')
+trn=$(grep -c "JIT TRACE" "$T/jitJ6")
+if [ "$tr1" = "4" ] && [ "$tr2" = "11" ]; then
+    echo "  ok    J6 trace fired PER FIRE with the live value ($tr1 then $tr2)"
+elif [ "$tr1" = "$tr2" ]; then
+    echo "  FAIL  J6 both traces read '$tr1' -- the argument was FOLDED, not loaded per fire"; fail=1
+else
+    echo "  FAIL  J6 traces read '$tr1'/'$tr2', want 4/11"; fail=1
+fi
+if [ "$trn" = "3" ]; then echo "  ok    J6 trace count 3 (2 jitted + 1 interpreted oracle)"
+elif [ "$trn" = "1" ]; then
+    echo "  FAIL  J6 ONE trace -- the call ran at EMIT time (the print disease)"; fail=1
+else echo "  FAIL  J6 trace count '$trn', want 3"; fail=1; fi
+if grep -q "call ptr inttoptr" "$T/jitJ6.ir" 2>/dev/null || \
+   INCANT_JIT_DUMP=2 $B incant/jitJ6 2>&1 | grep -q "call ptr inttoptr"; then
+    echo "  ok    J6 a CreateCall is in the emitted IR (ptr in, ptr out)"
+else
+    echo "  FAIL  J6 no emitted call in the IR"; fail=1
+fi
+
 echo ""
-if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5)"
+if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"
 exit $fail

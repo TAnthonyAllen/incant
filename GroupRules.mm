@@ -3502,6 +3502,46 @@ extern "C" GroupItem *jitEmitStringPlusEQ(GroupItem *argument, GroupItem *target
 	
 }
 
+/* jitEmitTrace  THE EMITTER HALF -- and the FIRST EMITTED CALL in this layer
+   that is not the lonely concatEQ.
+
+   Bakes the field's stable GroupItem address and jitTraceRT's address as
+   constants, then emits ONE CreateCall of GroupItem*(GroupItem*).
+
+   ⚠ THE SIGNATURE IS THE FALLBACK-COLUMN CONVENTION, and it was VERIFIED
+   AGAINST THE TREE rather than adopted from the design: runOP's dispatch is
+   `result = op->groupBody->gMethod(target)` -- ONE ARGUMENT, VALUE-RETURNING,
+   GroupItem*(GroupItem*). The ruling and the ground agree, so every non-scalar
+   op's emitted call can wear this shape.
+
+   ⚠ NO STRUCT OFFSETS ARE BAKED INTO THE IR, deliberately. Reaching a field's
+   value from a returned pointer would need GEP arithmetic over GroupItem ->
+   groupBody -> gCount, and BAKED OFFSETS BREAK SILENTLY ON ANY GroupBody LAYOUT
+   CHANGE -- bear-trap #10's blast radius, arriving in emitted code where no
+   compiler would catch it. A helper call is layout-independent: the C++ side
+   recomputes the offsets every build. Pay one call, keep the layout free.
+
+   The call is left UNTAGGED (not readnone) so LLVM cannot DCE a callee it
+   cannot see into -- the concatEQ lesson. */
+extern "C" void jitEmitTrace(GroupItem *field)
+{
+	
+	if (!gJitBuilder || !field) return;
+	llvm::IRBuilder<> *b = gJitBuilder;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	
+	llvm::Value *fieldAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)field), ptr, "traceArg");
+	llvm::Value *callee = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitTraceRT), ptr, "traceFn");
+	llvm::FunctionType *fnTy = llvm::FunctionType::get(ptr, {ptr}, false);
+	b->CreateCall(fnTy, callee, {fieldAddr});
+	gJitEmitted = true;
+	
+}
+
 /* jitEmitUnary  the in-place increment/decrement emitter — the unary sibling of
    jitEmitBinary. ++/-- read the operand, add or subtract a literal 1 (int or
    float per the operand's LLVM type), and WRITE BACK to the operand's slot, since
@@ -4185,6 +4225,46 @@ extern "C" void jitStoreResult()
 	else if (v->getType() != i32)              return;
 	b->CreateStore(v, gJitResultSlot);
 	gJitEmitted = true;
+	
+}
+
+/* jitTrace  the incant-facing command. THE GATE IS THE POINT: under jitting it
+   EMITS a call; interpreted it traces directly. Same shape as every opMethod's
+   gate, and the reason it is the print that survives jitting --
+
+   ⚠ opPrint is UNGATED, so a `print` inside a jitted body fires at EMIT time
+   (jit.md S2.2, measured). Print-debugging a jitted action therefore reports
+   COMPILE-TIME state ONCE instead of run-time state PER FIRE: it appears to
+   work and it lies. jitTrace reports per fire because the call is emitted into
+   the function rather than executed during compilation. */
+extern "C" GroupItem *jitTrace(GroupItem *field)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( ruler->jitting )
+		{
+		 jitEmitTrace(field); 
+		return field;
+		}
+	 jitTraceRT(field); 
+	return field;
+}
+
+/* jitTraceRT  THE RUNTIME HALF OF jitTrace -- the print that survives jitting.
+   Plain C++, stable address, one field in. Called from EMITTED CODE at RUN time,
+   once per fire, so it reports the value the compiled function is actually
+   working with.
+
+   fprintf(stderr) and not print: bear-trap #14 -- stdout is block-buffered and a
+   run ending via stop() loses it, so a trace would vanish exactly when a crash
+   made it most valuable. */
+extern "C" GroupItem *jitTraceRT(GroupItem *field)
+{
+	
+	::fprintf(stderr, "=== JIT TRACE: %s = %d ===\n",
+	field ? field->groupBody->tag : "(null)",
+	field ? field->groupBody->gCount : 0);
+	::fflush(stderr);
+	return field;
 	
 }
 

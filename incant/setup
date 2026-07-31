@@ -68,6 +68,7 @@ define
     system immediateAction=runSystem;
     testing immediateAction;
     jitRefire immediateAction=jitRefire;
+    jitTrace immediateAction=jitTrace;
     unary immediateAction=processFlags noPrint;
     unWrap immediateAction;
     writeTempFile immediateAction;
