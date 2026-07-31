@@ -438,6 +438,53 @@ frame phase, not as one more step on the ladder.
 > §0 Consequence 1's death warrant on `saveLocalFields`. One fixture, four things, because they
 > were always one piece of work seen from four sides.
 
+## ⚠ RECON, 2026-07-31: THE FRAME SCHEMA ALREADY EXISTS IN THE TREE
+
+*Read before building any of this. It de-risks the arc substantially and it was not obvious
+from the design side.*
+
+**The enumeration this Part calls "the frame schema" is already implemented, in production, for
+a different purpose.** It is one predicate over the action's own field list:
+
+```
+    while grup = action.next(grup)                     GroupActions.rtn:697  (save)
+        if (grup.isArgument || grup.isLocal) && !grup.noPrint { … }
+
+    while grup = action.prior(grup)                    GroupActions.rtn:524  (restore)
+        if (grup.isArgument || grup.isLocal) && !grup.noPrint { … }
+```
+
+Forward to save, backward to restore, the **same membership test both ways**. That *is* schema
+closure, and it has been carrying recursion in the interpreter all along.
+
+**Three consequences, and the first is the useful one:**
+
+1. **The JIT does not have to invent the schema — it inherits a predicate that has been in
+   production.** Model-not-oracle, exactly as genParse's walk took `noPrint` as its classifier
+   rather than inventing a parallel test: take the enumeration the interpreter already agrees
+   with, so the two cannot drift.
+2. ⚠ **THE FUNCTION §0 SENTENCED TO DEATH IS THE ONE THAT DOCUMENTS WHAT TO BUILD.**
+   `saveLocalFields` is both the thing being deleted and the specification of its replacement.
+   **Read it before deleting it**, and do not delete it until the JIT's version is green — its
+   walk is the only written statement of which fields constitute a frame.
+3. **The interpreter's `recurseSTAK` push/pop is a manual, heap-allocated version of what
+   allocas do for free.** That is the whole delta: same schema, same discipline, different
+   storage — which is why §0 could sentence the function without redesigning the semantics.
+
+### The first increment, and what it can and cannot prove
+1. Walk the schema at emit time; emit one **`alloca` per local** in the entry block.
+2. **Prologue** — load each local's current value into its alloca.
+3. `jitSeedField` uses the alloca as `jitSlot` **for locals**; globals keep their baked address
+   and immediate store-through (the phase scope above).
+4. **Epilogue** — store each local back before the `ret`.
+
+⚠ **STATED PLAINLY BECAUSE IT AFFECTS HOW THE RUNG IS READ: increment 1 is NOT independently
+provable.** Without recursion, allocas-for-locals is **behaviour-neutral** — the same answers
+come out. What a rung can assert is *structural* (allocas present in the IR, no baked address
+for a local) plus *unchanged values* as a regression net. **The proof is J-R**, because
+per-call storage only becomes observable when two calls are live at once. Do not let a green
+structural rung read as "the frame model works."
+
 ## Schema closure, and the precondition it rests on
 
 Every field an action references is added to its field list at parse time, so the field list is

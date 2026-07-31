@@ -447,6 +447,35 @@ define
                 provenance="rungs J6 and J7 green, sh jitLadder/ladder.sh, 2026-07-31";
                 confidence="verified";
                 asOf="2026-07-31";
+            frameSchemaAlreadyExists
+                content="⚠ THE FRAME SCHEMA IS ALREADY IMPLEMENTED IN THE TREE,
+                    in production, for a different purpose. One predicate over
+                    the action's own field list:
+                      (grup.isArgument || grup.isLocal) && !grup.noPrint
+                    walked FORWARD by saveLocalFields (GroupActions.rtn:697) and
+                    BACKWARD by restoreLocalFields (:524) -- the SAME membership
+                    test both ways. That IS schema closure, and it has been
+                    carrying recursion in the interpreter all along.
+                    CONSEQUENCE 1: the JIT does not invent the schema, it
+                    INHERITS a predicate already in production -- model-not-
+                    oracle, the same move genParse made taking noPrint as its
+                    classifier instead of a parallel test, so the two cannot
+                    drift.
+                    ⚠ CONSEQUENCE 2: THE FUNCTION SECTION 0 SENTENCED TO DEATH IS
+                    THE ONE THAT DOCUMENTS WHAT TO BUILD. saveLocalFields is both
+                    the thing being deleted and the specification of its
+                    replacement. READ IT BEFORE DELETING IT, and do not delete it
+                    until the JIT's version is green -- its walk is the only
+                    written statement of which fields constitute a frame.
+                    CONSEQUENCE 3: the interpreter's recurseSTAK push/pop is a
+                    MANUAL, HEAP-ALLOCATED version of what allocas do for free.
+                    Same schema, same discipline, different storage -- which is
+                    why section 0 could sentence the function without redesigning
+                    the semantics.";
+                provenance="read of GroupActions.rtn saveLocalFields/restoreLocalFields, 2026-07-31";
+                searched="GroupActions.rtn, ruleActions.rtn and Instruct.rtn for isLocal; the two schema walks are the only enumerations of frame membership found";
+                confidence="inferred";
+                asOf="2026-07-31";
             unaryPopsCrash
                 content="All three unary JIT POPs -- jitInc, jitDec, jitNeg --
                     exit 139 (SIGSEGV) inside jitEmitUnary dereferencing a null
