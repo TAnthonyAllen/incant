@@ -1,0 +1,102 @@
+/*****************************************************************************
+    hashProbe -- WHY THE STRING-EXPRESSION OPENER IS `#` AND NOT `,`.
+    2026-07-31. This file is the decision record; the rows below are the POP
+    that made the decision.
+
+    THE SHORT VERSION
+    -----------------
+    `,` was tried first and had to be abandoned. `,` IS ALREADY A MEMBER OF
+    THE SHORTCUT CHARACTER SET:
+
+        incant/grammar:92    ShortcuT=[-+~`$_:,]+;
+
+    -- and the `+` means adjacent shortcut characters MERGE INTO ONE TOKEN.
+    So a `,` inside a print had two readings, and the collision was not
+    theoretical: it SEGFAULTED the interpreter on a shape that is live in
+    incant/unitTests today.
+
+        print "it is", maximus + 3, "and we done":;      unitTests:113
+
+    Measured: a `,` between two plain literals was fine, but a `,` followed
+    by an ARITHMETIC EXPRESSION died --
+        ERROR Operator + failed on maximus and xl        <- garbage operand
+        Bad pointer dereference at 0x0                   <- SIGSEGV
+    The crash frame is appendGroup <- aCTionStringXP <- printField <-
+    appendGroup <- aCTionPrinT: a nested StringXP inside a print, whose
+    operand evaluated to NULL, handed to an appendGroup that does not guard.
+    Only incant/baselineTests reaches it, and baselineTests is in no POP
+    script -- which is why all three POPs were green while it crashed.
+
+    WHY `#` IS SAFE WHERE `,` WAS NOT, and it is one sentence:
+    **`#` IS NOT IN THE SHORTCUT SET**, so it cannot be absorbed into a
+    merged shortcut run, and a `#` in Token position has exactly one reading.
+
+    THE FOUR ROWS, ALL RUN
+    ----------------------
+      1  `#` at expression start fires StringXP          -> [ aa bb  ]
+      2  `#$"..."` adjacency resolves                    -> [ ccdd ]
+      3  bare `#` in no string context ERRORS, loudly    -> RunRulE, on stderr
+      4  FormaT -- THE ONE REAL COST, see below
+      5  the shape that killed `,`                       -> [ it is 14 done ]
+
+    ⚠ ROW 4 IS THE COST OF THIS DECISION AND IT IS WRITTEN DOWN ON PURPOSE.
+    `#` is ALREADY the FormaT introducer:
+
+        incant/grammar:102   FormaT="#"  flags=[-# 0+']* ... tokenize;
+        incant/grammar:91    CheckFor="#";
+
+    and FormaT lives inside PrintXP (`PrintField ExpressioN FormaT?`) -- the
+    SAME position StringXP opens in. So StringXP now shadows FormaT's opener.
+
+    MEASURED BEFORE COMMITTING, as a CONTROLLED COMPARISON rather than an
+    argument: the same `print x #5d` row was run under the `,` grammar and
+    under the `#` grammar, and it printed `11 5 d` UNDER BOTH. FormaT is
+    ALREADY not binding in that position -- so `#` shadows something that
+    does not currently work, and costs nothing today.
+
+    WHAT IT DOES COST IS THE FUTURE: whoever repairs FormaT cannot use `#` to
+    do it while StringXP owns the character. That is Tony's to know, and it
+    is the one thing about this decision that is not free.
+*****************************************************************************/
+Start();
+search reset Grokking list;
+register(HashProbe);
+
+define
+    hmax=11;
+
+    /*  1 -- plain string expression, default spacing  */
+    hOne code={ h1 = #"aa" "bb"; print "1 plain     [" h1 "]":; };
+
+    /*  2 -- ADJACENCY: opener immediately followed by the `$` shortcut with
+        no space between them. This is the row that `,` could not have
+        passed, because `,$` would have merged into a single ShortcuT token. */
+    hTwo code={ h2 = #$"cc" "dd"$; print "2 adjacency [" h2 "]":; };
+
+    /*  4 -- FormaT. `#5d` after an expression. Prints `11 5 d`, and printed
+        `11 5 d` under the `,` grammar too -- pre-existing, not caused here. */
+    hFour code={ print "4 format    [" hmax #5d "]":; };
+
+    /*  5 -- the row that killed `,`: a comma shortcut, then arithmetic, in
+        a print. Under `#` the comma is a plain shortcut again and the
+        arithmetic evaluates: hmax + 3 = 14.                                */
+    hFive code={ print "5 comma+expr[" "it is", hmax + 3, "done" "]":; };
+    ;
+
+hOne();
+print "-- 1 survived":;
+hTwo();
+print "-- 2 survived":;
+hFour();
+print "-- 4 survived":;
+hFive();
+print "-- 5 survived":;
+
+/*  3 -- a bare `#` in no string context at all. MUST error, not silently
+    gate. It is LAST because it abandons the rest of the file (GRAM-8), so
+    the sentinel below is EXPECTED TO BE ABSENT -- this file's sentinel is
+    inverted, and that is the row's whole point.                            */
+print "3 bare hash follows -- expect RunRulE on stderr, and NO sentinel":;
+hBare = # ;
+print "HP SENTINEL -- if you see this, the bare # did NOT error":;
+stop();

@@ -23,7 +23,7 @@
 #
 #  ⚠ $? IS TAKEN DIRECTLY, NEVER THROUGH A PIPE. ${PIPESTATUS[0]} is silently
 #  empty in zsh and reports every run as passing.
-B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups
+B=${INCANT:-$HOME/bin/incant}          # Tony's canonical symlink -- see note at foot
 T=${TMPDIR:-/tmp}/printpop.$$
 mkdir -p "$T"
 fail=0
@@ -81,6 +81,26 @@ strip "$T/pn.o" > "$T/pn.f"
 #  captured by a diversion, and it is the whole defect (KANT-23). After the
 #  change PN-P-A-def must be ALONE in the flush and the PN-C-A-* rows must
 #  appear on STDOUT between the ARMING and RELEASED markers.
+#
+#  ⚠ BOTH FILES RE-PINNED 2026-07-31, AND THE MOVE IS ACCOUNTED FOR TO THE
+#  LINE. Exactly SIX lines arrived and ZERO left:
+#      stdout  +PN-E-U-def / -dol / -und      (section 2, cerr unarmed)
+#      stderr  +PN-E-A-def / -dol / -und      (section 3, cerr armed, in flush)
+#  Every other byte is unchanged -- the cout rows, the diversion behaviour and
+#  all of section 6 are exactly as pinned on 07-30.
+#  CAUSE: aCTionPrinT's `if command.tag == 'p'` two-arm dispatch is GONE. The
+#  `string` keyword moved out to its own rule (StringXP, the `#` form) with
+#  its own action aCTionStringXP, so aCTionPrinT no longer has a decision to
+#  make and ends `return opPrint(input,buffer);` unconditionally. The grafted
+#  `cerr` therefore stopped being routed to opString-and-discarded, and now
+#  prints -- on stdout, which is still wrong, but wrong in a smaller way.
+#  ⚠ CONSEQUENCE FOR GRAM-P1: that proposal was to REPLACE the `'p'` character
+#  test with a `sink=` attribute. THE TEST NO LONGER EXISTS. There is now NO
+#  discriminator in aCTionPrinT at all, so `sink=` (or an equivalent) is not
+#  an improvement on the status quo any more -- it is the only thing that can
+#  tell the three stream keywords apart. That raises its priority; it does not
+#  change its design. TONY'S CALL, and it was not made as part of the 07-31
+#  string-expression change -- this is a side effect of it.
 diffcheck "printFamilyNew.divergence (stdout: KNOWN WRONG, pinned)" \
           genLadder/printFamilyNew.divergence "$T/pn.f"
 diffcheck "printFamilyNew.err.divergence (stderr: KNOWN WRONG, pinned -- cout IS being diverted)" \

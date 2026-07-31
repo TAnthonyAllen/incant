@@ -1,33 +1,67 @@
 /*****************************************************************************
     Offline Status
 *****************************************************************************/
-I added isIterator as a boolean in GroupBody. Did not tok GroupBody because doing so means tokking everything; so leaving that to Clod.
-
-The iterator rule I added to grammar
-    Iterate "iterate" ANYtoken "on"- ANYtoken attributes? members?;
-
-The rule action I added to ruleActions.rtn (also not yet tokked in):
-
-extern GroupItem aCTionIterate(GroupItem input)
+As I considered how to handle string expressions w/o a string keyword, I rejected the idea of using opMethods like = or += to trigger string concatenation. My reason for the rejection is I do not want to give up shortcuts and I want to keep print and string expressions identical. To do that I figured I would have to use the PrintXP rule. That led me to an interesting grammar change. The new StringXP rule looks like:
+        StringXP    ","- stuff=PrintXP+ defer;
+The comma replaces the string keyword and it allows rule guards to skip over StringXP; the , is a shortcut that does nothing, and more relevant, it is not an allowable Token. Instead of sharing the print action, I wrote the following StringXP action. It duplicates much of the print action, but no biggie it is short, and no if statement needed to figure out what print method to invoke.
+/*******************************************************************************
+	Immediate method for the StringXP rule.
+        StringXP    ","- stuff=PrintXP+ defer;
+*******************************************************************************/
+extern GroupItem aCTionStringXP(GroupItem input)
 {
-GroupItem   attributes:,
-            members:;
-GroupItem   field = input[1];
-GroupItem   source = new("source");
-    field.isIterator = true;
-    source  := input[2];
-    field   +% source;
+GroupRules  ruler   = groupRules;
+GroupItem   stuff:;
+GroupItem   grup;
+Buffer      buffer = bufferSTAK.pop();
+    if !buffer      buffer = new("print buffer");
+    while grup = stuff.nextAttribute(grup) {
+        if noPrint  continue;
+        GroupItem   FormaT:,
+                    result,
+                    ExpressioN:;
+        if ExpressioN {
+            if isMethod result = method(ExpressioN);
+            else        result = ExpressioN;
+            appendGroup(result,FormaT,buffer); }
+        else            appendGroup(grup,FormaT,buffer); }
+    stuff.clear();
+    return opString(stuff,buffer);
 }
 
-The remaining issue is how will iterators be used. Assuming grup is an iterator field defined by the Iterate rule: ++grup iterates FIFO and --grup iterates LIFO. We change the opMethods to handle iterators, or if that is a worry, we can divert ++ and -- to tailored opMethods in TokenXP. That will not be hard but may not be necessary.
-I was also thinking grup := newSource; would be a convenient way to change the source for an existing iterator, albeit it will require an iterate gate in th := method;
+Also I removed the useDefaultSpace = true; statements from opPrint and opString so now $ is a toggle that persists. It means the user has to be aware, and may have to turn it on after turning it off, but that can happen at the end of the print statement or at the beginning of the next print statement; Also, useDefaultSpace = true; is run by processAction before the action runs so it gets set back to default on every action invocation. It pays immediate benefits in spellLeaf that looks like the following after incorporating the changes. Note the second $ that toggles useDefaultSpace true happens on a print statement that only needs the $ to reset the toggle status. The reformatting is only here, and done because I am anal about how I want my code to look; the code the minion produced is still in genEmit.
 
-    iterate grup on argument;
-    while ++grup
-        // first time thru the grup local field contains the first entry in argument
-        // and grup is unwrapped so it works like a pointer to isGROUP
-        print taG grup:;    // will print the first entry tag and its content as text
-    // here grup is empty
-    grup := someOtherSource;
-    rinse and repeat;
-        
+    spellLeaf argument code={
+        :argument at sink slot site;
+        local   = string $"t" at;
+        kind    = argument.taG;
+        if kind == "OPT";
+            wrapped := argument.firstMembeR;
+            wrapped :% sink;
+            piece = this(wrapped);
+            leaf = ,"(" piece _ "|| 1)";
+        or kind == "MANY";      leaf = ,"many" site "(" sink "," local ")";
+        or kind == "CALL";      leaf = ,"parseR(" local "," sink ")";
+        or kind == "LIT";       leaf = ,"lit(" local "," '"' argument '"' ")";
+        or kind == "LITTO";
+            if sink == "into";  leaf = ,"litOption(" local ",into," '"' argument '"' ")";
+            else                leaf = ,"litTo(" local ",label," '"' argument '"' "," '"' slot '"' ")";
+        else    print $"emitLeaf: no emission for plan kind" kind:;
+        return leaf;
+        };
+
+The downside of all the above: existing code that makes use of the old string keyfield had to change (done that).
+
+/*****************************************************************************
+    Code files changed
+*****************************************************************************/
+GroupActions.rtn
+ruleActons.rtn
+Instruct.rtn
+
+The above is done; the following is work to be done. I am switching over to fable 5 because I want a deep dive here. Before we begin on it, lets get a clean kitchen.
+/*****************************************************************************
+    JIT design
+*****************************************************************************/
+Methinks it worth a design pass to assess how best to switch to emitting LLVM IR when jitting. Emitting now happens in opMethods but then needs to take type into consideration. That is, emitting an expression requires operator and type; that looks like a 2D table to me, or in kant maybe an operator field w/type attributes; and each has the IR text needed so that a jitEmit extern method has what it needs to spit out a complete IR statement to wherever we are accumulating them.
+As part of design pass I suggest a recon thru all the jit related md files and consolidate into jit.md and jitDesign.md

@@ -115,7 +115,7 @@ define
     Token
         QuotE;
         NumbeR;
-        StringXP    string followedBy PRINTing- stuff=PrintXP+ ruleMethod=aCTionPrinT defer;
+        StringXP    "#"- stuff=PrintXP+ defer;
         TokenXP;
         Operators;
     ExpressioN      Token+;
@@ -144,7 +144,7 @@ define
         IF          if- followedBy ExpressioN SemI-? StatemenT ElsE? defer;
         FOR         for- followedBy Looper in- reversE?="<-" ExpressioN SemI- LoopRestrict? StatemenT defer;
         WhilE       while- followedBy ExpressioN SemI-? StatemenT defer;
-        PrinT       print followedBy PRINTing- stuff=PrintXP+  SemI- defer;
+        PrinT       print- followedBy PRINTing- stuff=PrintXP+  SemI- defer;
         Search      "search"- followedBy GrouP+ SemI-;
         BrancH      BrancheS ExpressioN? SemI- defer;
         ScopeXP     ":"- scopeList=ScopeField+ SemI- defer;

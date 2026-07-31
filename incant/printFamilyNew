@@ -119,20 +119,31 @@ print "PN ==== 1. cout / UNARMED ====":;
     must produce byte for byte -- compare them against printFamily.target's
     PF-P-U-* rows, which are `print` with identical PrintXP.                */
 cout "PN-C-U-def" 1 2 3:;
-cout $"PN-C-U-dol" "joined":;
-cout $"PN-C-U-und" _ "spaced":;
+cout $"PN-C-U-dol" "joined"$:;
+cout $"PN-C-U-und" _ "spaced"$:;
 
 print "PN ==== 2. cerr / UNARMED ====":;
-/*  WRONG TODAY: all three produce NOTHING, on either stream. The rule
-    matches and consumes its text, then mis-sinks to opString and the value
-    is discarded (CLAIM GRAM-2, CLAIM GRAM-4).
-    MUST BECOME: three lines on stderr, byte-identical to the PN-C-U-* trio
-    above but for the row name -- ONE spacing default across all four
+/*  ⚠ WRONG TODAY, BUT WRONG IN A NEW WAY SINCE 2026-07-31 -- RE-PINNED.
+    WAS: all three produced NOTHING, on either stream. The rule matched and
+    consumed its text, then mis-sank to opString and the value was discarded
+    (CLAIM GRAM-2, CLAIM GRAM-4).
+    IS NOW: all three print ON STDOUT, indistinguishable from `cout`.
+    CAUSE, and it is not a regression -- it is a consequence of a change made
+    for other reasons: aCTionPrinT's two-arm dispatch
+        if command.tag == 'p'  return opPrint(...); else return opString(...);
+    is GONE. `string` moved out to its own rule (StringXP, the `#` form) with
+    its own action, so aCTionPrinT no longer needs to decide, and it now ends
+    `return opPrint(input,buffer);` unconditionally. THE DISCRIMINATOR THAT
+    GRAM-P1 PROPOSED REPLACING NO LONGER EXISTS TO BE REPLACED. So cerr is no
+    longer *discarded*; it is merely on the *wrong stream*, which is a
+    strictly smaller defect and a different one.
+    MUST STILL BECOME: three lines on stderr, byte-identical to the PN-C-U-*
+    trio above but for the row name -- ONE spacing default across all four
     keywords (KANT-13). They belong in printFamilyNew.err.divergence, at
     THIS point in the run, ahead of the section-5 flush.                    */
 cerr "PN-E-U-def" 1 2 3:;
-cerr $"PN-E-U-dol" "joined":;
-cerr $"PN-E-U-und" _ "spaced":;
+cerr $"PN-E-U-dol" "joined"$:;
+cerr $"PN-E-U-und" _ "spaced"$:;
 
 print "PN ==== 3. ARMING DIVERSION -- THE LOAD-BEARING SECTION ====":;
 printTO(divBuf);
@@ -152,16 +163,16 @@ print "PN-P-A-def" 1 2 3:;
     does, the diversion gate was widened rather than bypassed.
     ############################################### */
 cout "PN-C-A-def" 1 2 3:;
-cout $"PN-C-A-dol" "joined":;
-cout $"PN-C-A-und" _ "spaced":;
+cout $"PN-C-A-dol" "joined"$:;
+cout $"PN-C-A-und" _ "spaced"$:;
 
 /*  WRONG TODAY: nothing, as in section 2.
     MUST BECOME: three lines on stderr HERE, in statement order. `cerr` is
     not divertible either (KANT-23) -- an armed diversion must not capture
     them, so they must NOT appear in the section-5 flush.                   */
 cerr "PN-E-A-def" 1 2 3:;
-cerr $"PN-E-A-dol" "joined":;
-cerr $"PN-E-A-und" _ "spaced":;
+cerr $"PN-E-A-dol" "joined"$:;
+cerr $"PN-E-A-und" _ "spaced"$:;
 
 printTO(null);
 print "PN ==== 4. DIVERSION RELEASED ====":;
@@ -190,9 +201,9 @@ print "PN ==== 6. string, OMITTED FORM ====":;
     (`n = $"a" _ "b";`) does not parse and ABANDONS THE REST OF THE FILE at
     exit 0 (CLAIM GRAM-8). Putting it here would silently delete the
     sentinel. It is recorded in CLAIM GRAM-12 instead.                      */
-n1 = string "PN-O-one";
+n1 = #"PN-O-one";
 print "spelled-1 [" n1 "]":;
-n2 = string "PN-O" "two";
+n2 = #"PN-O" "two";
 print "spelled-2 [" n2 "]":;
 n3 = "PN-O-one";
 print "omitted-1 [" n3 "]":;

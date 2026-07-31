@@ -1,3 +1,44 @@
+/*****************************************************************************
+    baselineTests -- runs the whole of testUnitTests against
+    incant/baselineTests.golden.
+
+    ⚠ IT IS NOT IN ANY POP SCRIPT, AND THAT COST A REAL REGRESSION ON
+    2026-07-31. It is the ONLY fixture that reaches testUnitTests, so the
+    entire unitTests surface -- printDefinition, stringTest, xpTest, the
+    definition-printing path -- is covered by this file and nothing else.
+    When `,` was briefly the StringXP opener, `print "it is", x + 3, "done"`
+    SEGFAULTED, and all three POP scripts stayed green while it did, because
+    none of them run this file. Worth wiring into pop.sh; not done here
+    because its golden moves whenever a unitTests fixture's text moves, and
+    that is a different maintenance contract from the ladder targets.
+
+    GOLDEN MOVED 2026-07-31, and the move is accounted for to the line:
+
+    1. THE printDefinition BLOCK (the `simple`/`sample`/`styleTest` dumps)
+       came back BYTE-IDENTICAL after the `$` placement was fixed, and that
+       identity is what PROVED the fix rather than merely suggesting it.
+       `useDefaultSpace = true` was removed from opPrint/opString, so `$` is
+       now a toggle that PERSISTS -- and printDefinition is `recurse`, so
+       every recursive call resets the toggle (processAction sets it true
+       before an action body runs). A toggle set once at the top of the
+       action therefore cannot survive the walk. Each print that wants tight
+       spacing now carries its OWN balanced `$ ... $`. Symptom before the fix:
+       `crossing  height = 50 ;` where the golden says `crossing height=50;`.
+
+    2. TWO LINES MOVED AND STAYED MOVED, both from ONE edit of Tony's, and he
+       has signed them off ("I changed whatsIt, no worries there"):
+           whatsIt = string 'is what I am talking about':;     <- was
+           whatsIt = #"is what" 'I am talking about';          <- is
+       The old form baked a NEWLINE INTO THE VALUE -- that trailing `:` is
+       the newline shortcut, inside the string expression, so whatsIt's own
+       text ended in "\n". The new form has no `:` and two items instead of
+       one, so it loses the baked newline and gains a default-spacing
+       trailing space. Consequences, and they are the whole of the remaining
+       move: the `This is what...` line gains one trailing space, and
+       `stringTest:` / `xpTest:` MERGE ONTO ONE LINE, because stringTest's
+       own print has no trailing `:` and had been relying on whatsIt's baked
+       one to end its line.
+*****************************************************************************/
 Start();
 include(unitTests);
 include(generate);

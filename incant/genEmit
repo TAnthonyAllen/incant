@@ -105,26 +105,26 @@ registry(Spellers);
 define
     spellLeaf argument code={
         :argument at sink slot site;
-        local = string $"t" at;
+        local = #$"t" at;
         kind = argument.taG;
         if kind == "OPT";
             wrapped := argument.firstMembeR;
             wrapped :% sink;
             piece = this(wrapped);
-            leaf = string $"(" piece _ "|| 1)";
+            leaf = #"(" piece _ "|| 1)";
         or kind == "MANY";
-            leaf = string $"many" site "(" sink "," local ")";
+            leaf = #"many" site "(" sink "," local ")";
         or kind == "CALL";
-            leaf = string $"parseR(" local "," sink ")";
+            leaf = #"parseR(" local "," sink ")";
         or kind == "LIT";
-            leaf = string $"lit(" local "," '"' argument '"' ")";
+            leaf = #"lit(" local "," '"' argument '"' ")";
         or kind == "LITTO";
             if sink == "into";
-                leaf = string $"litOption(" local ",into," '"' argument '"' ")";
+                leaf = #"litOption(" local ",into," '"' argument '"' ")";
             else
-                leaf = string $"litTo(" local ",label," '"' argument '"' "," '"' slot '"' ")";
+                leaf = #"litTo(" local ",label," '"' argument '"' "," '"' slot '"' ")";
         else
-            print "emitLeaf: no emission for plan kind" kind:;
+            print $"emitLeaf: no emission for plan kind" kind:;
         return leaf;
         };
     ;

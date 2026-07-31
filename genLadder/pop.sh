@@ -2,7 +2,7 @@
 #  genParse ladder POP. Run from the Groups directory:  sh genLadder/pop.sh
 #  Every line RUN, and EXIT STATUS CHECKED -- a POP is not passed unless the
 #  process exited 0 (CLAUDE.md Testing). Prints one line per check.
-B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups
+B=${INCANT:-$HOME/bin/incant}          # Tony's canonical symlink -- see note at foot
 T=${TMPDIR:-/tmp}/genpop.$$
 mkdir -p "$T"
 fail=0
@@ -96,9 +96,19 @@ fi
 #  asserts they are UNCHANGED -- a fixture on an open item, exactly as
 #  tree.sh does for the S2.4 retag divergence. Settle one and the number moves,
 #  and whoever moves it accounts for the move.
-#      6 missing rules  -- 5 Keywords entries + SearchList/Grokking. Marked
+#      4 missing rules  -- 3 Keywords entries + SearchList/Grokking. Marked
 #                          isRule but they are keywords and a registry, so the
 #                          likely defect is the isRule mark, not the absent rStuff.
+#                          MOVED 2026-07-31, 6 -> 4, and BOTH removals are
+#                          accounted for by the StringXP grammar change:
+#                          `Keywords/string` -- `string` is no longer a term of
+#                          any rule at all (`,` replaced it), so nothing marks it
+#                          isRule; and `Keywords/print` -- PrinT's `print` term
+#                          gained a noLabel `-`. Two entries LEFT the population
+#                          and none arrived, which is the direction the pin
+#                          wants. ⚠ The `print-` half is a SIDE EFFECT of a
+#                          change made for other reasons; it was not aimed at
+#                          this audit and Tony has not ruled on it.
 #     13 missing terms  -- 3 CodE tails, 3 alternation reference terms, 7 ordinary.
 #      4 loose          -- pROPERTIEs/UnaryOPS and /delimiter, each seen twice.
 #                          rStuff on a node that is neither a rule nor a rule's
@@ -106,7 +116,7 @@ fi
 #                          whole-tree blast radius, and aCTionDefinE's
 #                          `if !isRule rStuff = 0;` is MASKING it -- known-masked,
 #                          not accepted.
-AUDITLINE="AUDIT all registries: 6 missing rules, 13 missing terms, 4 loose"
+AUDITLINE="AUDIT all registries: 4 missing rules, 13 missing terms, 4 loose"
 if grep -qF "$AUDITLINE" "$T/one"; then
     echo "  ok    rStuff audit (present, populations unchanged)"
 else

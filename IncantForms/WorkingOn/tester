@@ -4,6 +4,12 @@ include(utilities);
 search reset stack Grokking;
 search UnitTests Utilities list;
 
+whatsIt = ,`"just some string and a shortcut";
+print whatsIt:;
+stop();
+tester(jsonResult);
+tester(lightBlue);
+
 register(FORMs);
 define
     lightBlue="ceffff";
@@ -15,8 +21,3 @@ define
             print "data name for" taG name:;
         else print "data name for" taG "none":;};
     ;
-
-tester(jsonResult);
-tester(lightBlue);
-stop();
-

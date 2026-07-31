@@ -1,5 +1,5 @@
 Search list: Grokking Generating UnitTests bcOPs Utilities
-		This is what I am talking about 
+		This is what I am talking about  
 accessTest:  simple 	Saw across in simple 
 anotherTest: max should be 11 + 3 		it is 14 and we done 
 ifTest: 
@@ -22,9 +22,7 @@ testIndentBlock:
 		Two 
 	Three 
 Four 
-stringTest: 	59 added 2 to righty is what I am talking about 
-xpTest: 	HooHaa 4 5 Gomer is a goober is what I am talking about 
- 
+stringTest: 	59 added 2 to righty is what I am talking about  xpTest: 	HooHaa 4 5 Gomer is a goober is what I am talking about  
 list tests the for statement: 
 	righty 
 	3.1 

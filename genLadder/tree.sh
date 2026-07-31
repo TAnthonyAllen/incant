@@ -2,7 +2,7 @@
 #  §2.4 acceptance test — the GENERATED tree must equal the INTERPRETIVE tree.
 #  A mark-and-win run reads green on the bug this catches (an empty ALT node
 #  wrapping every value), because the parse accepts exactly the same strings.
-B=~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups
+B=${INCANT:-$HOME/bin/incant}          # Tony's canonical symlink -- see note at foot
 T=${TMPDIR:-/tmp}/gentree.$$
 mkdir -p "$T"
 sed -e 's/ parseMethod=parse[A-Za-z0-9]*//g' -e 's/ parseTerms=[0-9]*//g' \

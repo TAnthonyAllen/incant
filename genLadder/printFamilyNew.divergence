@@ -3,6 +3,9 @@ PN-C-U-def 1 2 3
 PN-C-U-doljoined
 PN-C-U-und spaced
 PN ==== 2. cerr / UNARMED ==== 
+PN-E-U-def 1 2 3 
+PN-E-U-doljoined
+PN-E-U-und spaced
 PN ==== 3. ARMING DIVERSION -- THE LOAD-BEARING SECTION ==== 
 printToBuffer: diverting print output to divBuf
 printToBuffer: stopping print to buffer (buffer not reset)

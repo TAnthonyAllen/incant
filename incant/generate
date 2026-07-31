@@ -67,10 +67,10 @@ define
             xp  = unWrap(xp);
             // Mint top + exit labels (`:=` keeps the bcLabelN tag, bear-trap #1).
             ++labelIndex;
-            labelName = string $"bcLabel" labelIndex;
+            labelName = #$"bcLabel" labelIndex$;
             topLabel := new(labelName);
             ++labelIndex;
-            labelName = string $"bcLabel" labelIndex;
+            labelName = #$"bcLabel" labelIndex$;
             exitLabel := new(labelName);
             // Loop top: body runs first (do-while executes it at least once).
             emitBC(topLabel);
@@ -97,10 +97,10 @@ define
             st       := argument["StatemenT"];
             // Mint top + exit labels (`:=` keeps the bcLabelN tag, bear-trap #1).
             ++labelIndex;
-            labelName = string $"bcLabel" labelIndex;
+            labelName = #$"bcLabel" labelIndex$;
             topLabel := new(labelName);
             ++labelIndex;
-            labelName = string $"bcLabel" labelIndex;
+            labelName = #$"bcLabel" labelIndex$;
             exitLabel := new(labelName);
             // Loop top: bcForNext advances + pushes 1/0; bcBRZ exits when 0.
             emitBC(topLabel);
@@ -129,7 +129,7 @@ define
             // ifs in one action don't collide on getFromList(label.tag). `:=`
             // keeps the bcLabelN tag (a plain `=` would re-tag it to "endLabel").
             ++labelIndex;
-            labelName = string $"bcLabel" labelIndex;
+            labelName = #$"bcLabel" labelIndex$;
             endLabel := new(labelName);
             dumpContents(xp);
             gXpress(xp);
@@ -139,7 +139,7 @@ define
             // never needed).
             if el.listLengtH;
                 ++labelIndex;
-                labelName = string $"bcLabel" labelIndex;
+                labelName = #$"bcLabel" labelIndex$;
                 elseLabel := new(labelName);
                 emitBC(copyOf(bcBRZ) +% elseLabel);
             else
@@ -179,10 +179,10 @@ define
             // Mint top + exit labels. `:=` keeps the bcLabelN tag (a plain `=`
             // would re-tag it -- bear-trap #1).
             ++labelIndex;
-            labelName = string $"bcLabel" labelIndex;
+            labelName = #$"bcLabel" labelIndex$;
             topLabel := new(labelName);
             ++labelIndex;
-            labelName = string $"bcLabel" labelIndex;
+            labelName = #$"bcLabel" labelIndex$;
             exitLabel := new(labelName);
             // Loop top: condition check, branch past the body when false.
             emitBC(topLabel);

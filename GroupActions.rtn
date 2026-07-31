@@ -453,6 +453,7 @@ GroupItem   label = field,
 use grup
         while grup = action.nextAttribute(grup)
             if isLocal && !isLabel && !noPrint && groupBody != action.groupBody clear();
+        useDefaultSpace = true;
         if result = result.gMethod(result)  result.isBranch = 0; }
     currentMETHOD   = priorMETHOD;
     tempField       = priorTempField;

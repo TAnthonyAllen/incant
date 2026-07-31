@@ -91,7 +91,7 @@ define
     outer   inner;
 
     probe argument code={
-        mark = string "L-" taG argument;
+        mark = #"L-" taG argument;
         print "  ENTER " mark:;
         iterate kid on argument;
         if ++kid;

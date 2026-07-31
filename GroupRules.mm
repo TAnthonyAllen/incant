@@ -655,7 +655,6 @@ extern "C" GroupItem *aCTionPrinT(GroupItem *input)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*stuff = input->getLabelGroup("stuff");
-GroupItem 	*command = input->groupBody->groupList->firstInList;
 GroupItem 	*grup = 0;
 	/***********************************************************************
 	Generating branch — currently UNUSED on the bytecode print path
@@ -706,9 +705,7 @@ Buffer 		*buffer = (Buffer*)ruler->bufferSTAK->pop();
 			}
 		else	::appendGroup(grup,FormaT,buffer);
 		}
-	if ( *command->groupBody->tag == 'p' )
-		return ::opPrint(input,buffer);
-	else	return ::opString(command,buffer);
+	return ::opPrint(input,buffer);
 }
 
 /***************************************************************************
@@ -916,6 +913,37 @@ GroupItem 	*sourceFile = new GroupItem("sourceFile");
 		if ( ::compare(input->groupBody->gText,"gFOR") == 0 )
 			ruleStuff->doNothing = 0;
 	return input;
+}
+
+/*******************************************************************************
+	Immediate method for the StringXP rule.
+        StringXP    ","- stuff=PrintXP+ defer;
+*******************************************************************************/
+extern "C" GroupItem *aCTionStringXP(GroupItem *input)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*stuff = input->getLabelGroup("stuff");
+GroupItem 	*grup = 0;
+Buffer 		*buffer = (Buffer*)ruler->bufferSTAK->pop();
+	if ( !buffer )
+		buffer = new Buffer("print buffer");
+	while ( grup = stuff->nextAttribute(grup) )
+		{
+		if ( grup->groupBody->flags.noPrint )
+			continue;
+		GroupItem *FormaT = grup->getLabelGroup("FormaT");
+		GroupItem *result = 0;
+		GroupItem *ExpressioN = grup->getLabelGroup("ExpressioN");
+		if ( ExpressioN )
+			{
+			if ( isMethod(ExpressioN->groupBody->flags.instructType) )
+				result = ExpressioN->groupBody->gMethod(ExpressioN);
+			else	result = ExpressioN;
+			::appendGroup(result,FormaT,buffer);
+			}
+		else	::appendGroup(grup,FormaT,buffer);
+		}
+	return ::opString(stuff,buffer);
 }
 
 /*******************************************************************************
@@ -5042,50 +5070,6 @@ extern "C" GroupItem *opPlusEQ(GroupItem *argument, GroupItem *target)
 			return jitEmitAssign(target, target); 
 			}
 		}
-	/*  IMPLICIT CONCATENATION, 35a (SEQ 35 amended, 2026-07-30).
-	
-	`field += this that and the other` -- an expression LIST arriving at an
-	empty or string target is CONCATENATED rather than copied as a list.
-	
-	ONE CALL, NOT A LOOP, and that is the whole point: appendGroup already
-	walks a list (`if field.isLIST` -> printField per member, GroupActions
-	.rtn) and an expression list answers isLIST. The traversal is inherited,
-	not rebuilt. `$` needs no setup either -- useDefaultSpace is state
-	OUTSIDE the call, toggled by appendGroup's own shortcut switch. Format
-	is null because a bare ExpressioN list has no syntax to carry one.
-	
-	"EMPTY" IS PRECISELY "NO DATA" -- the state clear(field) leaves a field
-	in, and the state a fresh local is already in. A ZERO NUMBER HAS DATA
-	and does not qualify, which is what keeps `total += a b c` on a numeric
-	target out of the string path STRUCTURALLY rather than by care.
-	
-	IT MUST SIT ABOVE THE isLIST SHORT-CIRCUIT or lists never reach it --
-	the copyListTo arm below would swallow every one.
-	
-	⚠ MEASURED BEFORE WRITING THIS, and it is why the arm is safe to add:
-	the copyListTo arm below FIRES ZERO TIMES across every fixture in the
-	tree. Probed by instrumenting it and running oneTest, jsonTest,
-	genScratch, censusScratch, spellScratch, termScratch, iterT1, iterT3,
-	printFamily, printFamilyNew, unitTests, utilities, directives,
-	delimTest, json1, treeScratch and nameRecurse -- 17 fixtures, ZERO hits.
-	So there is no existing `+=`-with-a-list behaviour to preserve, and the
-	risk SEQ 35 named (something already accumulating a list into a cleared
-	target) is empirically nil IN-TREE. Scope of that absence is exactly the
-	17 fixtures named; it is not a claim about all possible incant programs.  */
-	/*  APPEND IF THE TARGET HAS DATA, ASSIGN IF IT DOES NOT (Tony's ruling,
-	2026-07-30). `+=` means append, and routing a list through opString --
-	which does `target.text = toString()`, an ASSIGNMENT -- silently made
-	the list case REPLACE while the scalar case appended. Pre-loading the
-	target's own content into the buffer first restores append, using the
-	same machinery rather than a second path.
-	
-	⚠ AND THE GUARD IS `data`, NOT "is the text non-empty", FOR A REASON
-	THAT WILL BITE ANYONE WHO SIMPLIFIES IT: **a field with no data returns
-	its TAG from .text.** So reading target.text unguarded would pre-load
-	the field's own NAME into the buffer and concatenate onto that --
-	`empty += "a" "b"` would yield "empty a b". `if data` is what keeps the
-	assign case genuinely empty. Same fact as CLAIM KANT-10, arriving from
-	the write side instead of the print side.  */
 	if ( isLIST(argument->groupBody->flags.binType) && (!target->groupBody->flags.data || isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data)) )
 		{
 		Buffer 	*concatBuf = (Buffer*)GroupControl::groupController->groupRules->bufferSTAK->pop();
@@ -5096,7 +5080,6 @@ extern "C" GroupItem *opPlusEQ(GroupItem *argument, GroupItem *target)
 		::appendGroup(argument,0,concatBuf);
 		return ::opString(target,concatBuf);
 		}
-	else
 	if ( isLIST(argument->groupBody->flags.binType) )
 		argument->copyListTo(target);
 	else
@@ -5189,13 +5172,11 @@ extern "C" GroupItem *opPrint(GroupItem *target, Buffer *buffer)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*printText = buffer->string();
-	ruler->useDefaultSpace = 1;
 	if ( printText )
 		if ( ruler->toBUFFER )
 			ruler->toBUFFER->appendString(printText,0,0);
 		else	::printf("%s",printText);
 	else	::fprintf(stderr,"print: recieved no print text\n");
-	ruler->useDefaultSpace = 1;
 	buffer->reset();
 	ruler->bufferSTAK->push(buffer);
 	return ruler->trueResult;
@@ -5350,7 +5331,6 @@ extern "C" GroupItem *opSetTag(GroupItem *argument, GroupItem *target)
 extern "C" GroupItem *opString(GroupItem *target, Buffer *buffer)
 {
 	target->setText(buffer->toString());
-	GroupControl::groupController->groupRules->useDefaultSpace = 1;
 	buffer->reset();
 	GroupControl::groupController->groupRules->bufferSTAK->push(buffer);
 	return target;
@@ -6014,6 +5994,7 @@ GroupItem 	*action = field;
 		while ( grup = action->nextAttribute(grup) )
 			if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.isLabel && !grup->groupBody->flags.noPrint && grup->groupBody != action->groupBody )
 				grup->clear();
+		ruler->useDefaultSpace = 1;
 		if ( result = result->groupBody->gMethod(result) )
 			result->groupBody->flags.isBranch = 0;
 		}

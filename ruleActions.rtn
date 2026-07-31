@@ -625,7 +625,6 @@ extern GroupItem aCTionPrinT(GroupItem input)
 {
 GroupRules  ruler   = groupRules;
 GroupItem   stuff:;
-GroupItem   command = input.firstInList;
 GroupItem   grup;
     /***********************************************************************
         Generating branch — currently UNUSED on the bytecode print path
@@ -662,8 +661,7 @@ Buffer      buffer = bufferSTAK.pop();
             else        result = ExpressioN;
             appendGroup(result,FormaT,buffer); }
         else            appendGroup(grup,FormaT,buffer); }
-    if command.tag == 'p'   return opPrint(input,buffer);
-    else                    return opString(command,buffer);
+    return opPrint(input,buffer);
 }
 
 /***************************************************************************
@@ -832,6 +830,30 @@ use input
             input   +% xpStatement; }
         or gText eq "gFOR" doNothing = 0;
     return input;
+}
+
+/*******************************************************************************
+	Immediate method for the StringXP rule.
+        StringXP    ","- stuff=PrintXP+ defer;
+*******************************************************************************/
+extern GroupItem aCTionStringXP(GroupItem input)
+{
+GroupRules  ruler   = groupRules;
+GroupItem   stuff:;
+GroupItem   grup;
+Buffer      buffer = bufferSTAK.pop();
+    if !buffer      buffer = new("print buffer");
+    while grup = stuff.nextAttribute(grup) {
+        if noPrint  continue;
+        GroupItem   FormaT:,
+                    result,
+                    ExpressioN:;
+        if ExpressioN {
+            if isMethod result = method(ExpressioN);
+            else        result = ExpressioN;
+            appendGroup(result,FormaT,buffer); }
+        else            appendGroup(grup,FormaT,buffer); }
+    return opString(stuff,buffer);
 }
 
 /*******************************************************************************

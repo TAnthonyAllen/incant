@@ -263,7 +263,7 @@ define
     quoteIfNeeded argument code={
         if nameSet IN argument;
             this = argument;
-        else    this = string $'"' argument '"'; };
+        else    this = #$'"' argument '"'$; };
     /***************************************************************************
         Convert the hex string in the target passed in to a floating point number
     ***************************************************************************/
@@ -347,7 +347,7 @@ define
                 The big band, bigRows tall: left-strip columns, the enlarged
                 cell, then right-strip columns, left to right.
             ***************************************************************/
-                bandName = string $"band" r;
+                bandName = #$"band" r;
                 band <- argument :+ new(bandName);
                 across = 1;
                 band +% across;
@@ -357,7 +357,7 @@ define
                 c = 0;
                 while c < columns;
                     if c == bOC;
-                        bigName = string $"big" r;
+                        bigName = #"big" r;
                         big <- band :+ new(bigName);
                         big :. mergeON;
                         big +% bigItem;
@@ -370,7 +370,7 @@ define
                         big +% copyOf(col);
                         c += bigColumns;
                     else
-                        colName = string $"strip" c;
+                        colName = #"strip" c;
                         column <- band :+ new(colName);
                         width = colPct;
                         width :. isPercenT;
@@ -378,7 +378,7 @@ define
                         rr = 0;
                         while rr < bigRows;
                             cellRow = bOR + rr;
-                            cellName = string $"c" cellRow "x" c;
+                            cellName = #"c" cellRow "x" c;
                             cell <- column :+ new(cellName);
                             cell :. mergeON;
                             cell +% regularItem;
@@ -393,7 +393,7 @@ define
             /***************************************************************
                 A full-width regular row.
             ***************************************************************/
-                rowName = string $"row" r;
+                rowName = #"row" r;
                 rowBlock <- argument :+ new(rowName);
                 across = 1;
                 rowBlock +% across;
@@ -402,7 +402,7 @@ define
                 rowBlock +% copyOf(height);
                 c = 0;
                 while c < columns;
-                    cellName = string $"c" r "x" c;
+                    cellName = #"c" r "x" c$;
                     cell <- rowBlock :+ new(cellName);
                     cell :. mergeON;
                     cell +% regularItem;

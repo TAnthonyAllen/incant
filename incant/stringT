@@ -1,0 +1,70 @@
+/*****************************************************************************
+    stringT -- the fixture for the `#` string expression (StringXP), 2026-07-31.
+
+        StringXP    "#"- stuff=PrintXP+ defer;
+
+    `#` replaces the old `string` keyword, so a string expression is written
+    with the SAME vocabulary as print, shortcuts included, and ExpressioN
+    needs no shortcut vocabulary of its own. It was tried as `,` first and
+    that collided with the shortcut set -- incant/hashProbe is that record.
+
+    WHAT THIS FIXTURE IS FOR, and it is not "does `#` work once":
+
+    ⚠ IT MUST WORK ON THE SECOND EXECUTION OF THE SAME STATEMENT. An action
+    body is parsed once into a cached BlocK and then re-executed (see
+    project memory: "Executed BlocK is built once and cached"). So a StringXP
+    node is a REUSED node, and anything the action does to that node's own
+    term list is permanent. Rows 1 and 2 below are the same source line reached
+    twice; row 2 is the one that carries the information.
+
+    THE `$` TOGGLE IS PERSISTENT NOW. `useDefaultSpace = true` was removed from
+    opPrint and opString, so `$` toggles and STAYS toggled; processAction sets
+    it back to true before each action runs, so it cannot leak INTO an action,
+    but it does survive across statements WITHIN one, and a nested action call
+    resets it. Rows 3 and 4 pin both halves of that.
+
+    SENTINEL AT THE FOOT, and it is load-bearing: an incant parse failure
+    abandons the rest of the file AND EXITS 0 (CLAUDE.md testing doctrine,
+    third corollary). Absent sentinel => the run truncated => every "ok" above
+    it is uninterpretable, not merely incomplete.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(utilities);
+
+search reset stack Grokking UnitTests Utilities list;
+
+register(StringTest);
+define
+    /*  One `#` statement, reached twice. Balanced `$...$`: toggle spacing off
+        for the join, toggle it back on, so the statement does not depend on
+        what ran before it.  */
+    mintOne argument code={
+        pikkle = #$"bcLabel" argument$;
+        print "  mint [" pikkle "]":;
+        };
+
+    /*  Persistence WITHIN an action: the first `$` turns spacing off and the
+        second statement inherits it, with no `$` of its own.  */
+    spanner code={
+        first  = #$"aa" "bb";
+        second = #"cc" "dd";
+        print "  toggle held [" first "][" second "]":;
+        };
+
+    runStringT code={
+        print "1 first execution":;
+        mintOne(1);
+        print "2 SECOND execution of the same statement":;
+        mintOne(2);
+        print "3 default spacing":;
+        plain = #"xx" "yy";
+        print "  joined [" plain "]":;
+        print "4 toggle persists within one action":;
+        spanner();
+        };
+    ;
+
+runStringT();
+print "ST SENTINEL":;
+stop();

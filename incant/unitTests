@@ -147,7 +147,7 @@ define
     lefty=3 code={ lefty += 43; print "lefty:"``"got reset to" lefty:; return lefty; };
     printTest code={ print "printTest:"`"lefty should return itself. It returns" lefty():; };
     simpleIF code={ print "simpleIF:":`; if righty; maximus = righty + 35; else maximus = 12; anotherTest(); };
-    stringTest code={ print "stringTest:"`what = righty + 2, "added 2 to righty" $whatsIt; };
+    stringTest code={ print "stringTest:"`what = righty + 2, "added 2 to righty" whatsIt; };
     testOR code={ print "testOR:"`; if !righty OR feeling; print Saw righty feeling:; else print "I see nothing":; };
     testARG argument code={ print "testARG: Argument is:" argument:; };
     testForC argument second=56 third="WTF?" code={
@@ -215,13 +215,13 @@ define
         debugging. incant does not have a debugger like xcode ... yet.
     ***************************************************************************/
     printDefinition argument recurse code={
-        if datA != 0;  print ~$taG "=" argument;
-        else    print ~$taG;
+        if datA != 0;  print ~$taG "=" argument$;
+        else    print ~$taG$;
         if hasAttributeS;
             for grup in argument; attributes
                 if datA != 0;
-                    print $_taG "=" grup;
-                else    print $_taG;
+                    print $_taG "=" grup$;
+                else    print $_taG$;
         if hasMemberS;
             print :;
             for grup in argument; members
@@ -237,8 +237,8 @@ define
         Moved here from oneTest so the test harness just invokes testUnitTests().
     ***************************************************************************/
     testUnitTests code={
-        whatsIt = string 'is what I am talking about':;
-        print ``This $whatsIt;
+        whatsIt = #"is what" 'I am talking about';
+        print ``This whatsIt:;
         accessTest(simple);
         anotherTest();
         ifTest();

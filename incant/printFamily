@@ -73,21 +73,40 @@ define
 
 print "PF ==== 1. print / UNARMED ====":;
 
-/*  keyword print x diversion UNARMED x spacing {default, $, $ with _}  */
+/*  keyword print x diversion UNARMED x spacing {default, $, $ with _}
+
+    ⚠ EVERY `$` HERE IS BALANCED -- one to turn default spacing OFF, one at
+    the end of the same statement to turn it back ON -- and that is REQUIRED
+    since 2026-07-31, not decoration. `useDefaultSpace = true` was removed
+    from opPrint/opString, so `$` is a TOGGLE THAT PERSISTS. processAction
+    resets it before each action runs, so it cannot leak into one, but these
+    rows are TOP-LEVEL statements with no action between them: an unbalanced
+    `$` on the "dol" row would leave spacing off, and the `$` on the "und"
+    row would then turn it back ON and that row would silently stop testing
+    what it is named for. The persistence itself is pinned separately, by
+    incant/stringT row 4 -- keep the two fixtures doing different jobs.    */
 print "PF-P-U-def" 1 2 3:;
-print $"PF-P-U-dol" "joined":;
-print $"PF-P-U-und" _ "spaced":;
+print $"PF-P-U-dol" "joined"$:;
+print $"PF-P-U-und" _ "spaced"$:;
 
 print "PF ==== 2. string / UNARMED ====":;
 
-/*  keyword string x diversion UNARMED x spacing {default, $, $ with _}
-    `string` builds a VALUE, so the value is printed back to make it
-    observable. The print that reveals it is deliberately plain.           */
-vDef = string "PF-S-U-def" 1 2 3;
+/*  keyword `#` (the string expression) x diversion UNARMED x spacing
+    {default, $, $ with _}
+    A `#` expression builds a VALUE, so the value is printed back to make it
+    observable. The print that reveals it is deliberately plain.
+
+    ⚠ `#` REPLACED THE `string` KEYWORD on 2026-07-31 (Tony, offline).
+    The grammar is `StringXP "#"- stuff=PrintXP+ defer;`. It was tried as
+    `,` first and that COLLIDED with the shortcut set -- see incant/hashProbe
+    for the crash and the controlled comparison that settled it. The point of the change is that a string expression and a print
+    now share ONE vocabulary, shortcuts included, instead of ExpressioN
+    needing a shortcut vocabulary of its own.                              */
+vDef = #"PF-S-U-def" 1 2 3;
 print "[" vDef "]":;
-vDollar = string $"PF-S-U-dol" "joined";
+vDollar = #$"PF-S-U-dol" "joined"$;
 print "[" vDollar "]":;
-vUnder = string $"PF-S-U-und" _ "spaced";
+vUnder = #$"PF-S-U-und" _ "spaced"$;
 print "[" vUnder "]":;
 
 print "PF ==== 3. ARMING DIVERSION ====":;
@@ -97,13 +116,13 @@ printTO(divBuf);
     These three MUST NOT appear on stdout. They must appear, in this order,
     in printFamily.captured. That is KANT-23: diversion belongs to print.   */
 print "PF-P-A-def" 1 2 3:;
-print $"PF-P-A-dol" "joined":;
-print $"PF-P-A-und" _ "spaced":;
+print $"PF-P-A-dol" "joined"$:;
+print $"PF-P-A-und" _ "spaced"$:;
 
-/*  keyword string x diversion ARMED.
-    `string` has no stream, so a diversion must not touch it. The value is
-    built here, INSIDE the armed window, and read back OUTSIDE it.          */
-vArmed = string $"PF-S-A-und" _ "spaced";
+/*  keyword `#` x diversion ARMED.
+    A `#` expression has no stream, so a diversion must not touch it. The
+    value is built here, INSIDE the armed window, and read back OUTSIDE it. */
+vArmed = #$"PF-S-A-und" _ "spaced"$;
 
 printTO(null);
 print "PF ==== 4. DIVERSION RELEASED ====":;
