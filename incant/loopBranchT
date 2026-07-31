@@ -1,0 +1,84 @@
+/*****************************************************************************
+    loopBranchT -- bare `break` / `continue` / `return` INSIDE LOOPS.
+    Written 2026-07-31 as the regression net for the bare-return fix, and it
+    covers ground nothing else in the tree did.
+
+    WHY IT EXISTS. The bare-return ruling says an action's value is the value of
+    the last executed statement, and the obvious implementation -- have the
+    block hand back the PRIOR statement's value instead of the branch keyword
+    node -- would have silently broken `break` and `continue`.
+
+    THE MEASUREMENT THAT SHOWED IT: the VALUE and the BRANCH SIGNAL ride the
+    SAME NODE. aCTionBrancH stamps isBranch (1=break, 2=continue, 3=return) on
+    the node it returns, and FOUR loop handlers read that flag back off the
+    body's returned value --
+        aCTionWhilE  ruleActions.rtn  ~line 1002
+        aCTionDO                      ~line  270
+        aCTionFOR                     ~line  517
+        (and the block's own `if result && isBranch break;`)
+    -- so substituting a different node for the value drops the signal with it,
+    and every loop silently runs to completion instead of breaking.
+
+    NOTHING IN THE TREE COVERED THAT. This file is the baseline: capture it
+    BEFORE the fix, keep it green AFTER.
+
+    SENTINEL AT THE FOOT (standing harness rule H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(utilities);
+
+search reset stack Grokking UnitTests Utilities list;
+
+register(LoopBranch);
+define
+    bqLoop;
+    bqSum;
+
+    /*  bare break: sum 0+1+2 then stop at 3 -> 3  */
+    bareBreak code={
+        bqSum = 0;
+        bqLoop = 0;
+        while bqLoop < 9;
+            if bqLoop > 2;
+                break;
+            bqSum += bqLoop;
+            ++bqLoop;
+        return bqSum;
+        };
+
+    /*  bare continue: bqLoop increments FIRST, so it takes 1,2,3,4,5 and skips
+        3 -- sum = 1+2+4+5 = 12. (An earlier draft of this comment said 8. That
+        was MY arithmetic, not the language's; the measured 12 is correct and
+        `continue` works. Recorded because a fixture with a wrong expectation is
+        worse than no fixture -- it manufactures a defect.)  */
+    bareCont code={
+        bqSum = 0;
+        bqLoop = 0;
+        while bqLoop < 5;
+            ++bqLoop;
+            if bqLoop == 3;
+                continue;
+            bqSum += bqLoop;
+        return bqSum;
+        };
+
+    /*  bare return OUT of a loop: must stop the loop AND the action  */
+    bareRet code={
+        bqSum = 0;
+        bqLoop = 0;
+        while bqLoop < 9;
+            bqSum += bqLoop;
+            ++bqLoop;
+            if bqLoop > 2;
+                return;
+        };
+    ;
+
+print "1 bare break in while    ->[" bareBreak() "]  (want 3)":;
+print "2 bare continue in while ->[" bareCont() "]  (want 12)":;
+bareRet();
+print "3 bare return out of loop -> bqLoop =[" bqLoop "]  bqSum =[" bqSum "]  (want 3 / 3)":;
+
+print "LB SENTINEL -- run reached the end":;
+stop();

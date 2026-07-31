@@ -44,17 +44,56 @@ GroupItem 	*token = 0;
 /*******************************************************************************
 	The BlocK rule action.
 *******************************************************************************/
+/*******************************************************************************
+    A BARE `return;` YIELDS THE PRIOR STATEMENT'S VALUE, not the keyword's tag.
+    Tony's ratification, 2026-07-31: bare return means STOP, and an action's
+    value is the value of the last executed statement. The old "return" string
+    was CLAIM KANT-10 leaking -- aCTionBrancH falls back to the BrancheS keyword
+    node when there is no expression, and a node with no data returns its own
+    TAG. It was never a semantics.
+
+    WHY THE FIX IS HERE AND NOT ONLY IN aCTionBrancH: the VALUE and the BRANCH
+    SIGNAL ride the SAME NODE. aCTionBrancH stamps isBranch (1 break, 2
+    continue, 3 return) on whatever it returns, and FOUR loop handlers read that
+    flag back off the body's returned value (aCTionWhilE, aCTionDO, aCTionFOR,
+    and this loop). Substituting a different node for the value would drop the
+    signal with it and silently kill `break` and `continue` in every loop --
+    measured, and nothing in the tree covered it before incant/loopBranchT.
+    So the substitution re-stamps isBranch on the value it hands back.
+
+    SCOPED TO isBranch == 3 (RETURN) AND TO A KEYWORD NODE, deliberately:
+      - only a BARE branch returns the keyword node itself, so testing the
+        registry is what distinguishes `return;` from `return someField;`
+      - break/continue are handled at the LOOP boundary instead, not here.
+        Ratified separately 2026-07-31: a break is CONSUMED by the innermost
+        loop and propagates nothing. See the matching note in aCTionDO, and
+        incant/loopBranchT for the fixture that covers all three.
+    A bare return always reaches processAction, which clears isBranch at the
+    action boundary, so the re-stamp cannot leak past the action.
+
+    DEGENERATE CASE, left as-is and noted: an action whose FIRST statement is a
+    bare return has no prior value, so it still yields the keyword node.
+*******************************************************************************/
 extern "C" GroupItem *aCTionBlocK(GroupItem *input)
 {
 GroupItem 	*grup = 0;
 GroupItem 	*result = 0;
+GroupItem 	*prior = 0;
 	while ( grup = input->next(grup) )
 		{
+		prior = result;
 		if ( isMethod(grup->groupBody->flags.instructType) )
 			result = grup->groupBody->gMethod(grup);
 		else	result = grup;
 		if ( result && result->groupBody->flags.isBranch )
+			{
+			if ( prior && result->groupBody->flags.isBranch == 3 && result->groupBody->registry == GroupControl::groupController->groupRules->keyWords )
+				{
+				result = prior;
+				result->groupBody->flags.isBranch = 3;
+				}
 			break;
+			}
 		}
 	if ( result && isGROUP(result->groupBody->flags.data) )
 		result = result->groupBody->gGroup;
@@ -198,6 +237,18 @@ GroupItem 	*result = 0;
 			else
 			if ( isReturn(result->groupBody->flags.isBranch) )
 				return result;
+			/*  BREAK IS CONSUMED HERE, ratified 2026-07-31. A break terminates
+			the INNERMOST loop and propagates NOTHING -- statements after
+			the loop run. Clearing isBranch is what makes that true: the
+			flag and the value ride the same node, so leaving it set made
+			the enclosing aCTionBlocK break too, and the code after the loop
+			became unreachable (measured, incant/loopBranchT row 1).
+			Dropping a bare break's keyword node as the VALUE kills the
+			matching CLAIM KANT-10 leak -- the loop's value fell through to
+			`if !result result = falseResult;` below.  */
+			result->groupBody->flags.isBranch = 0;
+			if ( result->groupBody->registry == GroupControl::groupController->groupRules->keyWords )
+				result = 0;
 			break;
 			}
 		}
@@ -465,6 +516,18 @@ int 		restrict = 0;
 			else
 			if ( isReturn(result->groupBody->flags.isBranch) )
 				return result;
+			/*  BREAK IS CONSUMED HERE, ratified 2026-07-31. A break terminates
+			the INNERMOST loop and propagates NOTHING -- statements after
+			the loop run. Clearing isBranch is what makes that true: the
+			flag and the value ride the same node, so leaving it set made
+			the enclosing aCTionBlocK break too, and the code after the loop
+			became unreachable (measured, incant/loopBranchT row 1).
+			Dropping a bare break's keyword node as the VALUE kills the
+			matching CLAIM KANT-10 leak -- the loop's value fell through to
+			`if !result result = falseResult;` below.  */
+			result->groupBody->flags.isBranch = 0;
+			if ( result->groupBody->registry == ruler->keyWords )
+				result = 0;
 			break;
 			}
 		}
@@ -1137,6 +1200,12 @@ GroupItem 	*result = 0;
 				else
 				if ( isReturn(result->groupBody->flags.isBranch) )
 					return result;
+				/*  BREAK IS CONSUMED HERE -- see aCTionDO's copy of this block
+				for the full note. Ratified 2026-07-31: break terminates the
+				innermost loop and propagates nothing.  */
+				result->groupBody->flags.isBranch = 0;
+				if ( result->groupBody->registry == GroupControl::groupController->groupRules->keyWords )
+					result = 0;
 				break;
 				}
 			}

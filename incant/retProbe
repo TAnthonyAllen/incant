@@ -32,6 +32,9 @@
          out of the block.
       4. isBranch is CLEARED at the action boundary (processAction:457), so a
          return's branch flag does not leak into the caller's statement loop.
+      5. A BARE return yields the PRIOR statement's value (ratified 2026-07-31).
+         Rules 1 and 5 are the same rule: a branch statement that carries no
+         value cannot BE the value, so the last valued statement stands.
 
     WHY THAT MATTERS FOR THE EMITTER: under the result-slot mechanism, EVERY
     statement's value would have to reach the slot, not just the ones written
@@ -59,8 +62,14 @@ define
     /*  explicit return of a value -- the control                              */
     tailExplicit code={ zqv = 43; return zqv; };
 
-    /*  BARE return, no expression -- aCTionBrancH falls back to the BrancheS
-        node itself when there is no ExpressioN                                */
+    /*  BARE return -- RATIFIED BY TONY 2026-07-31: bare return means STOP, and
+        the action's value is the LAST EXECUTED STATEMENT'S. So this yields 44,
+        the assignment's value.
+        It used to yield the STRING "return": aCTionBrancH falls back to the
+        BrancheS keyword node when there is no expression, and a node with no
+        data returns its own TAG (CLAIM KANT-10). A leak, never a semantics.
+        Fixed in aCTionBlocK -- see its header for why it could not live in
+        aCTionBrancH alone.                                                    */
     tailBare code={ zqv = 44; return; };
 
     /*  an early return with statements AFTER it: proves isBranch really does
@@ -71,7 +80,7 @@ define
 print "1 tail is an assignment  ->[" tailAssign() "]  (want 41 if last-statement-wins)":;
 print "2 tail is a print        ->[" tailPrint() "]":;
 print "3 explicit return value  ->[" tailExplicit() "]  (want 43)":;
-print "4 bare return            ->[" tailBare() "]":;
+print "4 bare return            ->[" tailBare() "]  (want 44 = prior statement)":;
 print "5 early return, code after ->[" tailEarly() "]  (want 45; 999 = the break failed)":;
 print "  zqv after row 5        ->[" zqv "]  (want 45; 999 = statements after return RAN)":;
 

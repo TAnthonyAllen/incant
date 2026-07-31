@@ -136,6 +136,47 @@ define
                 provenance="incant/retProbe, one run, exit 0 with sentinel, 2026-07-31. Chain read first and cited: runAction GroupActions.rtn:572,574 -> processAction :447,457,460 -> aCTionBlocK ruleActions.rtn:21-26";
                 confidence="verified";
                 asOf="2026-07-31";
+            bareReturnAndBreakRuled
+                content="TWO BRANCH SEMANTICS RATIFIED BY TONY AND FIXED, 2026-07-31.
+                    BARE RETURN: means STOP; the action's value is the LAST
+                    EXECUTED STATEMENT'S. It used to yield the STRING 'return'
+                    -- CLAIM KANT-10 leaking through aCTionBrancH, never a
+                    semantics. Now yields the prior statement's value.
+                    BREAK: is CONSUMED by the innermost loop and propagates
+                    NOTHING, so statements after the loop RUN. Before the fix a
+                    while returned the break-node with isBranch still set, the
+                    enclosing block broke on it too, and THE CODE AFTER THE LOOP
+                    WAS UNREACHABLE.
+                    ⚠ THE FIX COULD NOT LIVE IN aCTionBrancH ALONE, and this is
+                    the part that matters for the emitter: THE VALUE AND THE
+                    BRANCH SIGNAL RIDE THE SAME NODE. aCTionBrancH stamps
+                    isBranch on whatever it returns and four loop handlers read
+                    that flag back off the body's returned value, so
+                    substituting a different node for the value drops the signal
+                    with it. The compiled form does NOT inherit this: a branch
+                    and a stored value are separate things in IR. Both emitter
+                    halves are therefore FREE -- bare return is branch-to-exit
+                    with no store, break is br-to-exit.";
+                provenance="incant/retProbe and incant/loopBranchT, both exit 0 with sentinels, both wired into pop.sh with VALUE assertions that were negative-controlled; full POP suite and a 34-fixture sweep clean afterwards, 2026-07-31";
+                confidence="verified";
+                asOf="2026-07-31";
+            breakOverPropagationFixed
+                content="RULED then FIXED same day. Recorded separately from the
+                    ratification because of HOW it was found: it was NOT the
+                    task. It surfaced in the regression fixture written to
+                    protect the bare-return fix -- loopBranchT existed because
+                    the value/signal conflation meant a naive return fix would
+                    silently kill break and continue, and writing the net to
+                    prove that DIDN'T happen is what exposed a defect that had
+                    made post-loop code unreachable for an unknown length of
+                    time.
+                    THE TRANSFERABLE PART: a regression net written against a
+                    hazard you reasoned about can find a defect you did not.
+                    Nothing in the tree covered break or continue at all before
+                    this fixture.";
+                provenance="incant/loopBranchT row 1: baseline yielded the string 'break' with the trailing `return bqSum;` never running; after the fix it yields 3";
+                confidence="verified";
+                asOf="2026-07-31";
             unaryPopsCrash
                 content="All three unary JIT POPs -- jitInc, jitDec, jitNeg --
                     exit 139 (SIGSEGV) inside jitEmitUnary dereferencing a null
@@ -483,21 +524,6 @@ define
                 confidence="verified";
                 asOf="2026-07-30";
         openItems
-            openBareReturnSemantics
-                content="A BARE `return;` YIELDS THE STRING 'return', and the
-                    return-value ruling inherits it. aCTionBrancH falls back to
-                    the BrancheS node itself when there is no expression, and a
-                    node with no data returns its own TAG (CLAIM KANT-10), so
-                    the interpreted answer is junk text.
-                    The ruling is 'the compiled action returns what the
-                    interpreted action returns' -- which obliges the compiled
-                    form to REPRODUCE THE JUNK unless an explicit exception is
-                    taken.";
-                established="measured, incant/retProbe 2026-07-31: bare return -> 'return'; explicit return zqv -> 43; tail assignment -> 41; tail print -> 1 (trueResult); early return -> later statements do NOT run";
-                missing="a decision on whether the compiled form reproduces the wart or the ruling takes an exception. NOT for the emitter to normalise on its own -- silently returning null or 0 would be the exact divergence section 0 exists to prevent, arriving as an implementation convenience. Related: BLOCKED KANT-B1, a kant action cannot return NULL across runAction at all.";
-                blocks="nothing today -- the result-slot mechanism can be built and this decided at the edge";
-                cost="a ruling. The measurement is done.";
-                asOf="2026-07-31";
             openJitDataModel
                 content="Can one jitData per GroupItem survive Phase 2, or does
                     emission need a value stack / per-use SSA mapping?";

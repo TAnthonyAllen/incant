@@ -201,6 +201,37 @@ iterrun iterT3 genLadder/iterT3.target "iterT3 (rewind, := reset)"
 #  the 7-line trace T1m's own header documents is what it should become.
 iterrun iterT1m genLadder/iterT1m.divergence "iterT1m (mutual recursion: KNOWN WRONG, pinned)"
 
+#  BRANCH SEMANTICS -- language-level POPs, here for the same reason iterT1 is:
+#  they are the only cover for rules that were RATIFIED on 2026-07-31 and had no
+#  fixture at all before that day.
+#    retProbe     an action's value is the LAST EXECUTED STATEMENT'S; a bare
+#                 `return;` means STOP and yields the prior statement's value
+#                 (it used to yield the STRING "return" -- a KANT-10 leak).
+#    loopBranchT  a `break` is CONSUMED by the innermost loop and propagates
+#                 nothing, so statements AFTER the loop run. Before the fix a
+#                 while returned the break-node and the enclosing block broke on
+#                 it too, making the code after the loop unreachable.
+#  ⚠ VALUES ARE ASSERTED, NOT A GOLDEN DIFF (rule H3): these fixtures print
+#  their own expectations, so a diff would move whenever a comment moved.
+branchrun () {                  # branchrun <fixture> <sentinel> <name>
+    $B "incant/$1" > "$T/$1" 2>&1
+    if [ $? != 0 ]; then echo "  FAIL  $3 (nonzero exit)"; fail=1; return; fi
+    if ! grep -qF "$2" "$T/$1"; then
+        echo "  FAIL  $3 -- TRUNCATED at exit 0; every line in it is uninterpretable"; fail=1; return; fi
+    echo "  ok    $3"
+}
+valcheck () {                   # valcheck <file> <pattern> <want> <name>
+    got=$(sed -n "s/.*$2//p" "$T/$1" | sed 's/[^0-9-].*//' | head -1)
+    if [ "$got" = "$3" ]; then echo "  ok    $4"
+    else echo "  FAIL  $4 (got '$got', want $3)"; fail=1; fi
+}
+branchrun retProbe "RP SENTINEL" "retProbe runs (branch/return semantics)"
+valcheck retProbe "4 bare return  *->\\[ " 44 "bare return yields the PRIOR statement's value (44)"
+valcheck retProbe "3 explicit return value  *->\\[ " 43 "explicit return still yields its expression (43)"
+branchrun loopBranchT "LB SENTINEL" "loopBranchT runs (break/continue in loops)"
+valcheck loopBranchT "1 bare break in while  *->\\[ " 3 "break is CONSUMED by the loop; code after it runs (3)"
+valcheck loopBranchT "2 bare continue in while *->\\[ " 12 "continue still skips correctly (12)"
+
 diffcheck "oneTest baseline"  genLadder/oneTest.base  "$T/one"
 diffcheck "jsonTest baseline" genLadder/jsonTest.base "$T/jsn"
 

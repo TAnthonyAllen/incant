@@ -289,63 +289,34 @@ value must reach the result slot, not only the ones written `return`.** A store-
 emitter would return garbage from every action that simply ends. That is a materially
 different shape and it follows directly from the measured rule.
 
-#### ⚠ ONE WART THE RULING INHERITS, and it needs a decision rather than a silent fix
-**A bare `return;` yields the string `"return"`.** `aCTionBrancH` falls back to the
-`BrancheS` node itself when there is no expression, and a node with no data returns its own
-**tag** (`CLAIM KANT-10`). So the interpreted answer is junk text.
+#### ✅ THE BARE-RETURN WART IS CLOSED — ratified and fixed 2026-07-31
 
-"Return what the interpreter returns" therefore obliges the compiled form to **reproduce the
-junk** — unless the ruling takes an explicit exception. This is **not** for the emitter to
-normalise on its own initiative: silently returning null or 0 instead would be exactly the
-divergence §0 exists to prevent, arriving as an implementation convenience. Related and
-already recorded: `BLOCKED KANT-B1` — a kant action cannot return NULL across `runAction` at
-all. **Tony's or Clay's call; flagged, not taken.**
+**A bare `return;` now yields the PRIOR statement's value.** Tony's ruling: bare return means
+**stop**, and the action's value is the last executed statement's — the `"return"` string was
+`CLAIM KANT-10` leaking through `aCTionBrancH`, never a semantics.
 
-⚠ **One thing NOT to conclude from this:** that the JIT is nearly right because gIF is. The
-gIF path is the one construct with a working emitter. §2's census is unmoved — 24 ungated
-operators and 29 ungated statement handlers still execute interpreted at emit time.
+**Two sites, and the emitter's half is free.** Under the result-slot mechanism a bare return
+is simply *branch to exit, no store* — the slot already holds the last statement's value, so
+nothing special is needed. The interpreter took the fix.
 
-## O5 — added by consolidation: does the one-`jitData`-per-GroupItem model survive Phase 2?
+⚠ **The fix could NOT live in `aCTionBrancH` alone, and the reason is worth carrying into the
+emitter design: the VALUE and the BRANCH SIGNAL ride the same node.** `aCTionBrancH` stamps
+`isBranch` on whatever it returns, and four loop handlers read that flag back off the body's
+returned value. Substituting a different node for the value drops the signal with it. The
+compiled form does not inherit this: a branch and a stored value are separate things in IR,
+which is one small place where the emitter is *cleaner* than the interpreter rather than
+merely equivalent.
 
-Seeding attaches one SSA value to a *node*, and emitters write results back onto operand nodes.
-That is coherent for a single straight-line expression and **structurally cannot work for
-operand reuse** — a node holds exactly one SSA value at a time (`jit.md` §3.3). Loops and
-multi-statement bodies both fail today, with different symptoms and one plausible shared cause.
+#### ✅ AND `break` IS CONSUMED AT THE LOOP BOUNDARY — ratified and fixed 2026-07-31
 
-⚠ **WEAKENED 2026-07-31, and the evidence runs AGAINST the clobber being the live cause.**
-The dumped IR of `jitElseT` loads `righty` **twice** from the same baked address — once in
-`entry` for the compare and again in `then` — which means the node was **re-seeded**, not
-reused with a clobbered value. If re-seeding happens per use, the clobber cannot bite the way
-the claim says and the loop abort has another cause. Source-confirmed that the overwrite
-*exists* (`jitEmitCompare` and `jitEmitBinary` both end `setJitter(res)`); its *consequence* is
-unproven. **Mechanism real, causation not established.**
+Same family, found by the fixture written to protect the return fix. **A `break` terminates
+the innermost loop and propagates nothing; statements after the loop run.** Before the fix a
+`while` returned the break-node with `isBranch` still set, the enclosing block broke on it too,
+and **the code after the loop was unreachable** — measured, `incant/loopBranchT` row 1.
 
-⚠ **A PREDICTION WAS WITHDRAWN PRE-TEST, and that is worth as much as a refutation.** Clay's
-"O5 dissolves under (a)" was orphaned by the O4 rescope — under phases there is no (a) for it
-to dissolve under — and was withdrawn **before** any test could have settled it. Withdrawing a
-prediction that lost its premise is the cheap half of the same discipline that makes the
-causal-claim ledger useful.
-
-**The next instrument step is named:** move the IR dump **ahead of the LLVM assert**. The
-assert fires *during* emission, so the current dump placement can never produce the IR that
-would settle this — an obstacle, not an excuse.
-
-The question is whether emission needs a **value stack or a per-use SSA mapping** instead of
-per-node storage. This is an architecture question, not a bug, and it blocks everything past
-Phase 1. Note it is the same family as the chained-operand bear trap (`a + b + c`), which
-suggests the problem was visible earlier in a narrower form.
-
-## O6 — `aCTionFOR`, and it got harder under §0
-
-`aCTionFOR` is a **GroupItem tree-walk, not a counting loop**. Under "accelerator" the answer
-was obvious: defer it, bail the action. **Under §0 that answer is the divergence §0 names**, and
-under premise 3 whole-action bail is superseded anyway. So the question becomes *"can the JIT
-emit a loop that walks a GroupItem list?"* — which, given premise 3's fallback column, probably
-means a loop whose body calls back into interpreted `next()`/`prior()` each iteration.
-
-That is expressible. Whether it is *worth* emitting — the tree-walk cost dominates the
-arithmetic — is a separate question, and it is the first place where premise 3's fallback
-column meets something with a loop around it.
+**The emitter's half is again free:** `break` → `br` to the loop's exit block, already in the
+loop design (Part IV). There is no signal to consume because there is no signal — the branch
+*is* the control flow.
 
 ---
 
