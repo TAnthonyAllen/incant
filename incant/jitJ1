@@ -5,9 +5,9 @@
 
     THE LADDER'S PURPOSE, in one sentence: nothing in this tree has ever
     asserted that an ACTION, jitted end to end, RETURNS THE INTENDED VALUE.
-    `jitPop.sh` asserts the if/else block topology; the Phase-1 tables assert
-    individual operators through a scratch driver. The spine -- build an action,
-    fire it, get the right answer -- was missing, and J1 is it.
+    The retired `jitPop.sh` asserted the if/else block topology; the Phase-1
+    tables assert individual operators through a scratch driver. The spine --
+    build an action, fire it, get the right answer -- was missing, and J1 is it.
 
     Each rung is the previous rung plus ONE construct, so a red NAMES the
     construct instead of handing you a haystack. That is the genLadder lesson

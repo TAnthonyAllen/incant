@@ -231,7 +231,7 @@ The IR was read properly rather than argued about, and it collapses the choice:
 **FIELDS DO NOT NEED PHIS, BECAUSE FIELDS ARE MEMORY.** A slot is a baked absolute address;
 a read is `CreateLoad` from it and a write is `CreateStore` to it. Two stores to the same
 address on two paths need **no merge at all** — that is what memory *is*. The four-block
-if/else emitted for `jitElseT` is correct on both paths with not a phi in sight, and the
+if/else emitted for the J2 rung is correct on both paths with not a phi in sight, and the
 verifier is silent because the IR is genuinely valid.
 
 So the design's mem2reg dependency is not *broken*; it is **unnecessary for the thing it was

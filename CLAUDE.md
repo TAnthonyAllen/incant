@@ -389,7 +389,7 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 > deletes everything between.
 >
 > **RULE H3 — AN ASSERTION THAT MOVES FOR CORRECTNESS-UNRELATED REASONS IS NOISE.** Ratified
-> 2026-07-31 as instrument doctrine, from `genLadder/jitPop.sh`'s decision to carry **no
+> 2026-07-31 as instrument doctrine, from the JIT harness's decision to carry **no
 > `.target` file**: the JIT's field slots are baked **absolute addresses**, so a byte-exact IR
 > diff would move on every run for reasons that say nothing about whether the JIT is right. It
 > asserts the **block topology** and the **values** instead. A target that cries wolf gets
@@ -413,8 +413,9 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 > but a deletion now breaks the check instead of satisfying it.
 >
 > **FLEET AUDIT, 2026-07-31, and its scope is named because an absence claim is only as good as
-> its search:** every assertion in `genLadder/pop.sh`, `printPop.sh`, `tree.sh`, `jitPop.sh` and
-> `jitLadder/ladder.sh` was read. **No conversions owed.** The `grep -v` occurrences are output
+> its search:** every assertion in `genLadder/pop.sh`, `printPop.sh`, `tree.sh` and
+> `jitLadder/ladder.sh` was read (`jitPop.sh` was audited too and has since retired into the
+> ladder). **No conversions owed.** The `grep -v` occurrences are output
 > *filters* before a comparison, not assertions; the `-s`/`!= 0` tests are exit-status checks or
 > anti-vacuity guards. Two were already H4-shaped for the right reasons and are the models to
 > copy: `pop.sh`'s rStuff `AUDITLINE` (its own comment argues the point — *"an absence-based

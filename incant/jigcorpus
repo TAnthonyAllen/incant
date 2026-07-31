@@ -202,7 +202,7 @@ define
                         legitimately has nothing in flight, and the guard bailed
                         BEFORE emitting the return, silently un-jitting every
                         if/else. Replaced with an explicit gJitEmitted flag.";
-                provenance="INCANT_JIT_DUMP=2 (new pre-mem2reg mode) and =1 on incant/jitElseT, 2026-07-31; jitPop.sh green both directions; full POP suite and 34-fixture sweep clean";
+                provenance="INCANT_JIT_DUMP=2 (new pre-mem2reg mode) and =1 on the gIF fixture, 2026-07-31; jitLadder J2 green both arms; full POP suite and 34-fixture sweep clean";
                 confidence="verified";
                 asOf="2026-07-31";
             preMem2regDumpAdded
@@ -219,7 +219,7 @@ define
             jitLadderJ1Green
                 content="THE jitLADDER EXISTS AND J1 IS GREEN -- the first time
                     anything in this tree has asserted that an ACTION, jitted end
-                    to end, RETURNS THE INTENDED VALUE. jitPop.sh asserts the
+                    to end, RETURNS THE INTENDED VALUE. The retired jitPop.sh asserted the
                     if/else block topology; the Phase-1 tables assert individual
                     operators through a scratch driver. The spine -- build an
                     action, fire it, get the right answer -- was missing.
@@ -278,7 +278,7 @@ define
                     ⚠ The taken direction is NOT evidence on its own -- it was
                     green BEFORE the fix, exercising only the arm that was
                     emitted. Correct by luck.";
-                provenance="incant/jitElseT and incant/jitThenT, both exit 0 with sentinels, plus the dumped IR, 2026-07-31. POP: sh genLadder/jitPop.sh";
+                provenance="incant/jitElseT and incant/jitThenT, both exit 0 with sentinels, plus the dumped IR, 2026-07-31. POP was sh genLadder/jitPop.sh. ⚠ ALL THREE ARE NOW RETIRED into jitLadder rung J2, which carries every one of their assertions and two of them more strongly -- the provenance is kept naming them because it records WHAT WAS RUN, and rewriting it would falsify the record";
                 supersedes="gifNoElseWrongAnswer";
                 confidence="verified";
                 asOf="2026-07-31";
@@ -673,11 +673,14 @@ define
                        on the list.
                     3. the unary seed gap -- cheap, three POPs prove it, MOVES
                        NO FRONTIER. See notProgress.";
-                plannedTest="For the else arm, DONE: sh genLadder/jitPop.sh --
-                    jitElseT (righty=-7 -> maximus=7) and jitThenT (righty=13 ->
-                    maximus=26), two files because one testing() per run, plus
-                    a four-block IR shape check. Both directions required: the
-                    taken row was green BEFORE the fix and proves nothing alone.";
+                plannedTest="For the else arm, DONE and since SUPERSEDED:
+                    sh jitLadder/ladder.sh rung J2. The original jitElseT/jitThenT
+                    pair and genLadder/jitPop.sh are RETIRED into it -- all eight
+                    of their assertions are carried by J2, two MORE STRONGLY,
+                    because J2 proves both arms from ONE COMPILED FUNCTION at run
+                    time rather than from two separate compilations. Both
+                    directions still required: the taken row was green BEFORE the
+                    fix and proves nothing alone.";
                 blocker="none for either; both are unblocked work";
                 notProgress="The unary seed gap is cheap and three POPs prove it, but
                     it moves NO frontier -- loops abort on a different bug,

@@ -176,9 +176,9 @@ finding about the scaffold**, not a reason to weaken the criterion.
 | `incant/oneTest` | 0 | bytecode path, unaffected by all JIT work |
 | `testing(testWhilE)` / `(testDo)` | **134** | LLVM assert: ICmp operand type mismatch |
 | `testing(testGXLeaf)` | **139** | two sequential `if`s in one body |
-| `incant/jitThenT` (righty=13) | 0 | `maximus = 26` ✅ — *was* correct by luck; now the regression net |
-| `incant/jitElseT` (righty=-7) | 0 | `maximus = 7` ✅ — **was 11 + garbage at exit 0**, fixed 2026-07-31 |
-| `sh genLadder/jitPop.sh` | 0 | values both directions + four-block IR shape |
+| `sh jitLadder/ladder.sh` | 0 | **J1 and J2 green** — an action jitted end to end, fired twice, correct both times |
+| `incant/jitJ1` | 0 | `jaIn` 10→15, then **30→35 with no recompile** |
+| `incant/jitJ2` | 0 | `jbIn` 10→20 (then arm), then **-7→7 (else arm), no recompile** |
 | `testing(testPrint)` | 0 | printed `hello world` **at emit time** |
 
 ---
@@ -358,10 +358,16 @@ output, before mem2reg**. The post-pass dump alone cannot answer *"did the emitt
 or did the optimiser produce it"* — which is exactly the question a slot or a phi raises, and
 the clobber above was invisible in the post-pass dump because folding hid it.
 
-POP: `sh genLadder/jitPop.sh`, fixtures `incant/jitElseT` (the POP) and `incant/jitThenT`
-(the regression net). ⚠ **Two files and not one, because a second `testing()` on the same
-action in one run hits the sequential-state-corruption tar baby** — the first draft ran both
-directions in one process and reported a regression that did not exist.
+POP: **`sh jitLadder/ladder.sh` rung J2**, fixture `incant/jitJ2`. It supersedes the original
+`jitElseT`/`jitThenT` pair and `genLadder/jitPop.sh`, which are retired — every one of their
+eight assertions is carried by J2, two of them **more strongly**: the arms are now proven from
+**one compiled function at run time** rather than from two separate compilations.
+
+⚠ **The old pair needed two files** because a second `testing()` on the same action in one run
+hits the sequential-state-corruption tar baby — the first draft ran both directions in one
+process and reported a regression that did not exist. **The refire scaffold dissolved that
+constraint**: a rung calls `testing()` once and `jitRefire()` thereafter, so the corruption is
+structurally unreachable. Machinery built for the run-time proof paid a second dividend.
 
 ### 3.3 The `jitData` single-value clobber — INFERRED, blocks everything past Phase 1
 `testWhilE` and `testDo` both abort (134) on *"Both operands to ICmp instruction are not of the

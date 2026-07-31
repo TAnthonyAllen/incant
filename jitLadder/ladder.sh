@@ -41,6 +41,12 @@
 #  diff would move every run for reasons unrelated to correctness.
 #  ⚠ $? is taken directly from the binary, never through a pipe.
 #
+#  ⚠ A DIVIDEND OF THE REFIRE SCAFFOLD, worth knowing before you split a rung in
+#  two: a rung uses ONE testing() plus jitRefire, so it never calls testing()
+#  twice on the same action -- which STRUCTURALLY avoids the sequential-state
+#  corruption that forced the old jitElseT/jitThenT pair into separate files. The
+#  scaffold built for the run-time proof also dissolved that constraint.
+#
 #  Debugging a rung: INCANT_JIT_DUMP=2 <binary> incant/<rung>  -- mode 2 is the
 #  ATTRIBUTION instrument, showing the EMITTER'S OWN output before mem2reg. The
 #  post-pass dump cannot tell you whether the emitter emitted something or the
@@ -85,7 +91,8 @@ rung () {
 #  THE RUNG PLAN. Each rung is the previous PLUS ONE construct.
 #
 #    J1  assign + arithmetic                          <- GREEN
-#    J2  + if/else, both arms          (the else-arm fix gets a permanent home)
+#    J2  + if/else, both arms                       <- GREEN  (the else-arm
+#        fix's permanent home; the two fires take DIFFERENT ARMS)
 #    J3  + while                       (testWhilE's honest retest, in the ladder)
 #    J4  + do                          (body-runs-once-when-false asserted)
 #    J5  + multi-statement operand reuse  (O5/the clobber question gets a
@@ -138,11 +145,38 @@ rung () {
 #        to-do list turn out to be the same list.
 #  ============================================================================
 
+#  irshape <fixture> <label> <block>...  -- assert the emitter produced these
+#  basic blocks. NOT an IR diff (H3): field slots are baked ABSOLUTE ADDRESSES,
+#  so a byte-exact target would move every run for reasons unrelated to
+#  correctness. Uses DUMP=2 -- the EMITTER'S own output -- because the question
+#  is what the emitter built, not what the optimiser left.
+irshape () {
+    f=$1; label=$2; shift 2
+    INCANT_JIT_DUMP=2 $B "incant/$f" > "$T/$f.ir" 2>&1
+    for blk in "$@"; do
+        if grep -q "^$blk:" "$T/$f.ir"; then echo "  ok    $label block $blk:"
+        else echo "  FAIL  $label block $blk: MISSING from emitter output"; fail=1; fi
+    done
+}
+
 echo "-- J1  assign + arithmetic + tail value"
 rung jitJ1 "J1 SENTINEL" "J1" 15 35
 
+echo "-- J2  + if/else -- the two fires take DIFFERENT ARMS"
+#  Stronger than J1's criterion. J1's two fires proved the OPERANDS were read at
+#  run time; J2's prove the BRANCH is decided at run time. One compiled function,
+#  two paths, nothing between the fires but an assignment to the input -- a
+#  folded condition would send both fires down the same arm.
+rung jitJ2 "J2 SENTINEL" "J2" 20 7
+irshape jitJ2 "J2" entry then else endif
+if grep -q "br i1 %cmp, label %then, label %else" "$T/jitJ2.ir"; then
+    echo "  ok    J2 condition branches to then/else (a real two-way branch)"
+else
+    echo "  FAIL  J2 no two-way CondBr in emitter output -- branch not gated"; fail=1
+fi
+
 echo ""
-if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1)"
+if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"
 exit $fail

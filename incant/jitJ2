@@ -1,0 +1,82 @@
+/*****************************************************************************
+    jitJ2 -- RUNG 2 OF THE jitLadder. 2026-07-31.
+
+        J1 + if/else. Both arms, from ONE compiled function, at run time.
+
+    J1 proved an action compiles, fires, and computes at run time. J2 adds
+    exactly one construct: a two-armed conditional. The else arm -- structurally
+    absent until 2026-07-31, and the only wrong-answer-at-exit-0 the JIT has ever
+    had -- gets its permanent home here.
+
+    ============================================================================
+    ⚠ THE TWO FIRES TAKE DIFFERENT ARMS, AND THAT IS STRONGER THAN J1's CRITERION
+
+    J1's two fires proved the *operands* were read at run time. J2's two fires
+    prove the *branch* is decided at run time, which is a different claim and the
+    one this rung exists for:
+
+        fire 1   jaIn = 10   ->   jaOut = 20     THEN arm
+        fire 2   jaIn = -7   ->   jaOut = 7      ELSE arm, NO RECOMPILE
+
+    ONE compiled function, two paths. Nothing between the fires but an
+    assignment to jaIn. If both answers are right, the `br i1` was evaluated on
+    each call with the live field value -- the condition cannot have been folded,
+    because a folded condition would send both fires down the same arm.
+
+    ⚠ AND NOTE WHAT A ONE-ARM RUNG WOULD HAVE PROVED: nothing. The taken case
+    was green for a month while the else arm did not exist at all -- correct by
+    luck, exercising only the arm that was emitted. That is the same trap the
+    two-depth criterion guards against at J-R: A RUNG THAT RUNS ONLY THE EASY
+    PATH GOES GREEN ON EXACTLY THE MACHINERY IT EXISTS TO TEST.
+
+    THE VALUES DISCRIMINATE THREE WAYS, deliberately:
+        20 / 7   both arms, correct
+        20 / 20  the condition was folded; fire 2 took the wrong arm
+        20 / 0   the else arm never stored -- the pre-fix bug
+    ============================================================================
+
+    SECOND CRITERION: `jitDegrade count = 0` -- no construct in this rung may
+    silently fall through to emit-time interpretation.
+
+    SENTINEL AT THE FOOT (standing harness rule H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitLadder2);
+define
+    jbIn;
+    jbOut;
+    /*  J1's assign+arithmetic, now under a two-armed conditional. The else arm
+        is a plain literal store so the two arms are visibly different shapes as
+        well as different values -- a then-arm that happened to compute the same
+        thing as the else would weaken the discriminator.  */
+    jitJ2 code={
+        if jbIn > 0;
+            jbOut = jbIn * 2;
+        else
+            jbOut = 7;
+        };
+    ;
+
+jbIn  = 10;
+jbOut = 0;
+print "J2 fire 1 setup : jbIn =" jbIn " (expect THEN arm)":;
+testing(jitJ2);
+print "J2 fire 1 result: jbOut =" jbOut " (want 20)":;
+
+/*  ⚠ NO RECOMPILE BELOW THIS LINE. Only the input changes -- and it changes the
+    ARM, not just the operand.  */
+jbIn  = 0 - 7;
+jbOut = 0;
+print "J2 fire 2 setup : jbIn =" jbIn " (expect ELSE arm; recompile: NONE)":;
+jitRefire();
+print "J2 fire 2 result: jbOut =" jbOut " (want 7; 20 = condition FOLDED; 0 = else arm never stored)":;
+
+print "J2 SENTINEL -- run reached the end":;
+stop();
