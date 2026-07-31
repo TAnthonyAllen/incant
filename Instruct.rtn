@@ -810,6 +810,14 @@ extern GroupItem opRebind(GroupItem argument,GroupItem target)
 ***************************************************************************/
 extern GroupItem opRem(GroupItem argument,GroupItem target)
 {
+GroupRules  ruler = groupRules;
+    /*  THE FALLBACK COLUMN'S FIRST REAL CUSTOMER. Rather than reimplementing
+        remainder in IR, emit a CALL to this very function and unbox its result
+        -- the shape every non-scalar op will use. The gate returns before the
+        interpreted body, exactly like the arithmetic gates.  */
+    if jitting {
+        -% return jitEmitRem(argument, target, ruler->tempField); %-
+    }
     if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER)
         tempField.count = count % argument.count;
     if !tempField.data  cerr "ERROR integer div operator failed on",tag,"and",argument.tag:;

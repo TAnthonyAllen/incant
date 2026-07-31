@@ -134,6 +134,8 @@ rung () {
 #        rung: the clobber tested DIRECTLY and found not to bite)
 #    J6  + an EMITTED CALL (jitTrace)              <- GREEN  (the first that
 #        is not concatEQ; the print that survives jitting)
+#    J7  + the FALLBACK COLUMN on a real opMethod  <- GREEN  (emit a call,
+#        get a value back, layout-free both legs)
 #    ... string +=, compare chains, bare return, break/continue in loops --
 #        each ratified ruling eventually earns a rung pinning it in COMPILED form
 #
@@ -286,8 +288,25 @@ else
     echo "  FAIL  J6 no emitted call in the IR"; fail=1
 fi
 
+echo "-- J7  + THE FALLBACK COLUMN meeting a REAL opMethod"
+#  J6 called a purpose-built helper; J7 calls an EXISTING OPERATOR (opRem, one
+#  of the 24 ungated ops) and UNBOXES ITS RETURN VALUE back into emitted code.
+#  That is the complete calling story: emit a call, get a value back, LAYOUT-FREE
+#  ON BOTH LEGS.
+#  ⚠ THE INPUTS ARE CHOSEN SO THE ANSWERS DIFFER, not merely the inputs: 17 % 3
+#  and 20 % 3 are BOTH 2, so that pair would pass with a folded constant. 19
+#  lands on a different remainder. Added to rung style -- earlier rungs got this
+#  for free because their operations were injective over the inputs used.
+rung jitJ7 "J7 SENTINEL" "J7" 2 1
+INCANT_JIT_DUMP=2 $B incant/jitJ7 > "$T/jitJ7.ir" 2>&1
+if grep -q "call ptr inttoptr" "$T/jitJ7.ir" && grep -q "call i32 inttoptr" "$T/jitJ7.ir"; then
+    echo "  ok    J7 BOTH legs emitted (call ptr -> opMethod, call i32 -> unbox)"
+else
+    echo "  FAIL  J7 the two-leg calling story is not in the IR"; fail=1
+fi
+
 echo ""
-if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6)"
+if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"
 exit $fail

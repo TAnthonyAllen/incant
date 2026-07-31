@@ -170,6 +170,7 @@ extern "C" GroupItem *jitEmitBinary(GroupItem *argument, GroupItem *target, int 
 extern "C" GroupItem *jitEmitCompare(GroupItem *argument, GroupItem *target, int op);
 extern "C" GroupItem *jitEmitDO(GroupItem *input);
 extern "C" GroupItem *jitEmitGIF(GroupItem *input);
+extern "C" GroupItem *jitEmitRem(GroupItem *argument, GroupItem *target, GroupItem *resultNode);
 extern "C" GroupItem *jitEmitStringPlusEQ(GroupItem *argument, GroupItem *target);
 extern "C" void jitEmitTrace(GroupItem *field);
 extern "C" GroupItem *jitEmitUnary(GroupItem *target, int op);
@@ -193,6 +194,7 @@ extern "C" GroupItem *jitSeedLiteral(GroupItem *token);
 extern "C" void jitStoreResult();
 extern "C" GroupItem *jitTrace(GroupItem *field);
 extern "C" GroupItem *jitTraceRT(GroupItem *field);
+extern "C" int jitUnboxCount(GroupItem *node);
 extern "C" GroupItem *listenTo(GroupItem *input);
 extern "C" GroupItem *loadDirectory(GroupItem *input);
 extern "C" GroupItem *loadInputFromFile(GroupItem *source);

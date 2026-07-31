@@ -376,6 +376,50 @@ define
                 provenance="incant/jitJ6, stderr captured, 2026-07-31; the ladder asserts both the pair (4 then 11) and the count (3)";
                 confidence="verified";
                 asOf="2026-07-31";
+            fallbackColumnRealOpMethod
+                content="THE FALLBACK COLUMN MET A REAL opMethod, and the JIT
+                    now has its COMPLETE CALLING STORY: emit a call, get a value
+                    back, LAYOUT-FREE ON BOTH LEGS. Rung J7 gates opRem -- one of
+                    the 24 ungated ops -- to emit a call to ITSELF and unbox the
+                    result:
+                      %remRes = call ptr inttoptr(opRem)(ptr arg, ptr target)
+                      %remVal = call i32 inttoptr(jitUnboxCount)(ptr %remRes)
+                                store i32 %remVal, ...
+                    The unboxed value COMPOSES DOWNSTREAM -- the enclosing
+                    assignment reads it as it would any operand -- because the
+                    emitter stamps the result node's jitData.
+                      fire 1  jgIn=17 -> jgOut=2   fire 2  jgIn=19 -> jgOut=1
+                    ⚠ THE ARITY REFINES WHAT J6 ESTABLISHED, and this is a
+                    correction rather than an addition. runOP has TWO calling
+                    conventions:
+                      op.isOperator -> operat(arg,target)  TWO-arg
+                      op.isMethod   -> method(target)      ONE-arg
+                    `%` is registered operateMethod=opRem, so it is an OPERATOR
+                    and takes the TWO-arg form. J6's claim that 'the ground
+                    agrees, one-argument' was true OF THE isMethod ARM ONLY. The
+                    fallback column is mostly binary operators, so it is mostly
+                    TWO-arg -- which is exactly what the ruling's SIGNATURE-KIND
+                    TABLE COLUMN is for, and that column now has a concrete
+                    meaning: WHICH ARM, WHICH ARITY.";
+                provenance="incant/jitJ7 via sh jitLadder/ladder.sh, exit 0; INCANT_JIT_DUMP=2 shows both calls; the arity read off incant/setup:135 and runOP's two arms, 2026-07-31";
+                confidence="verified";
+                asOf="2026-07-31";
+            noBakedOffsets
+                content="STANDING PRINCIPLE, adopted 2026-07-31: IR KNOWS
+                    ADDRESSES AND CALLS; LAYOUT BELONGS TO C++. A value is never
+                    reached from a returned pointer by GEP arithmetic over
+                    GroupItem -> groupBody -> gCount; it is reached by a CALL to
+                    a helper the C++ compiler recompiles with the struct.
+                    THE RATIONALE OF RECORD: baked offsets are bear-trap #10's
+                    blast radius arriving IN EMITTED CODE. A GroupBody layout
+                    change would leave the IR reading the wrong bytes, at RUN
+                    TIME, with NO COMPILER TO CATCH IT -- the failure is a wrong
+                    number, not a build error.
+                    Cost: one call per unbox. ANY FUTURE GEP-FOR-SPEED PROPOSAL
+                    ARGUES AGAINST THIS PRINCIPLE IN WRITING.";
+                provenance="adopted with jitUnboxCount at rung J7, 2026-07-31";
+                confidence="verified";
+                asOf="2026-07-31";
             unaryPopsCrash
                 content="All three unary JIT POPs -- jitInc, jitDec, jitNeg --
                     exit 139 (SIGSEGV) inside jitEmitUnary dereferencing a null

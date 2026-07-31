@@ -1,0 +1,72 @@
+/*****************************************************************************
+    jitJ7 -- RUNG 7 OF THE jitLadder. 2026-07-31.
+    J6 + THE FALLBACK COLUMN MEETING A REAL opMethod.
+
+    J6 emitted a call to a purpose-built helper. J7 emits a call to an EXISTING
+    OPERATOR -- opRem, one of the 24 ungated ops -- and UNBOXES ITS RETURN VALUE
+    back into the emitted code. That is the complete calling story:
+    EMIT A CALL, GET A VALUE BACK, LAYOUT-FREE ON BOTH LEGS.
+
+        jgOut = jgIn % 3;
+
+        fire 1   jgIn = 17  ->  jgOut = 2
+        fire 2   jgIn = 19  ->  jgOut = 1      NO RECOMPILE
+
+    ⚠ THE INPUTS ARE CHOSEN SO THE ANSWERS DIFFER, and remainder is the first
+    construct where that takes care. 17 % 3 and 20 % 3 are BOTH 2 -- a two-fire
+    rung on that pair would pass with a folded constant and prove nothing. 19
+    lands on a different remainder, so (2, 1) can only come from arithmetic
+    performed at run time on the live field.
+    THE GENERAL RULE THIS ADDS TO RUNG STYLE: it is not enough for the two
+    inputs to differ; THE TWO ANSWERS MUST DIFFER. Every earlier rung got that
+    for free because its operation was injective over the inputs used.
+
+    ⚠ AND THE ARITY REFINES J6. runOP has TWO calling conventions:
+        op.isOperator ->  operat(arg,target)   TWO-arg   <- `%` is this
+        op.isMethod   ->  method(target)       ONE-arg   <- J6's trace was this
+    `'%' operateMethod=opRem` makes it an operator. J6's "the ground agrees,
+    one-argument" was true OF THE isMethod ARM ONLY. The fallback column is
+    mostly binary operators, so it is mostly two-arg -- which is what the
+    ruling's SIGNATURE-KIND TABLE COLUMN is for.
+
+    BOTH LEGS ARE LAYOUT-FREE: the call hands back a GroupItem*, and
+    jitUnboxCount -- a helper CALL, never GEP arithmetic -- turns it into an
+    i32. Baked struct offsets would break silently on any GroupBody layout
+    change, in emitted code, with no compiler to catch it.
+
+    SENTINEL AT THE FOOT (standing harness rule H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitLadder7);
+define
+    jgIn;
+    jgOut;
+    jitJ7 code={ jgOut = jgIn % 3; };
+    ;
+
+jgIn  = 17;
+jgOut = 0;
+print "J7 fire 1 setup : jgIn =" jgIn:;
+testing(jitJ7);
+print "J7 fire 1 result: jgOut =" jgOut " (want 2)":;
+
+jgIn  = 19;
+jgOut = 0;
+print "J7 fire 2 setup : jgIn =" jgIn " (recompile: NONE)":;
+jitRefire();
+print "J7 fire 2 result: jgOut =" jgOut " (want 1; 2 = FOLDED at compile time)":;
+
+jgIn  = 17;
+jgOut = 0;
+jitJ7();
+print "J7 interpreted  : jgOut =" jgOut " (the oracle -- want 2)":;
+
+print "J7 SENTINEL -- run reached the end":;
+stop();

@@ -3469,6 +3469,64 @@ GroupItem 	*result = ExpressioN;
 	return result;
 }
 
+/* jitEmitRem  THE FALLBACK COLUMN MEETING A REAL opMethod -- the first emitted
+   call to an existing operator rather than to a purpose-built helper.
+
+   TWO CALLS, and both legs are layout-free:
+     1. call opRem(argument, target)  ->  GroupItem*
+     2. call jitUnboxCount(that)      ->  i32
+
+   ⚠ THE ARITY IS TWO, AND THAT REFINES WHAT J6 ESTABLISHED. runOP has TWO
+   calling conventions, not one:
+       op.isOperator  ->  op.operat(arg,target)   TWO-arg   <- this one
+       op.isMethod    ->  op.method(target)       ONE-arg   <- J6's
+   `%` is registered `operateMethod=opRem`, so it is an OPERATOR and takes the
+   two-arg form. J6's "the ground agrees, one-argument" was true OF THE isMethod
+   ARM ONLY. The bulk of the fallback column is binary operators, so it is
+   mostly two-arg -- which is precisely what the ruling's SIGNATURE-KIND TABLE
+   COLUMN is for, and the column now has a concrete meaning: which arm, which
+   arity.
+
+   THE RESULT NODE IS SEEDED so the value composes downstream: an operator's
+   result lands in tempField, and stamping its jitData lets the enclosing
+   assignment read it exactly as it reads any other operand.
+
+   The callee is the ONE hardcoded part; a table-driven callee is the
+   generalisation and is the table arc's job, not this rung's. */
+extern "C" GroupItem *jitEmitRem(GroupItem *argument, GroupItem *target, GroupItem *resultNode)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	
+	llvm::Value *argAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)argument), ptr, "remArg");
+	llvm::Value *tgtAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)target), ptr, "remTgt");
+	llvm::Value *callee = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&opRem), ptr, "remFn");
+	llvm::FunctionType *opTy = llvm::FunctionType::get(ptr, {ptr, ptr}, false);
+	llvm::Value *res = b->CreateCall(opTy, callee, {argAddr, tgtAddr}, "remRes");
+	
+	llvm::Value *unboxFn = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitUnboxCount), ptr, "unboxFn");
+	llvm::FunctionType *unboxTy = llvm::FunctionType::get(i32, {ptr}, false);
+	llvm::Value *val = b->CreateCall(unboxTy, unboxFn, {res}, "remVal");
+	
+	if (resultNode) {
+	if (!resultNode->jitData) resultNode->jitData = new JitData();
+	resultNode->jitData->setJitter(val);
+	gJitSeeded.push_back(resultNode);
+	}
+	gJitResult = val;
+	gJitEmitted = true;
+	return resultNode;
+	
+}
+
 /* jitEmitStringPlusEQ  the FIRST CreateCall in the JIT layer, and the proof-of-
    concept for jitEmitCall. Bakes target's and argument's stable GroupItem
    addresses as constant ptrs (jitSeedField pattern), then emits a single call to
@@ -4265,6 +4323,25 @@ extern "C" GroupItem *jitTraceRT(GroupItem *field)
 	field ? field->groupBody->gCount : 0);
 	::fflush(stderr);
 	return field;
+	
+}
+
+/* jitUnboxCount  THE RETURN-VALUE UNBOX, and the second leg of the calling
+   story. An emitted call hands back a GroupItem* -- this turns it into the i32
+   the emitted code works in.
+
+   ⚠ IT IS A CALL AND NOT GEP ARITHMETIC, ON PRINCIPLE (adopted 2026-07-31).
+   Reaching gCount from a returned pointer in IR would mean baking the offsets
+   of GroupItem -> groupBody -> gCount as constants. BAKED OFFSETS BREAK
+   SILENTLY ON ANY GroupBody LAYOUT CHANGE -- bear-trap #10's blast radius,
+   arriving in EMITTED CODE where no compiler catches it and the failure is a
+   wrong number at run time. This helper is recompiled with the struct every
+   build, so layout stays C++'s business and IR knows only addresses and calls.
+   Any future GEP-for-speed proposal argues against this in writing. */
+extern "C" int jitUnboxCount(GroupItem *node)
+{
+	
+	return node ? node->groupBody->gCount : 0;
 	
 }
 
@@ -5714,11 +5791,20 @@ extern "C" GroupItem *opRebind(GroupItem *argument, GroupItem *target)
 ***************************************************************************/
 extern "C" GroupItem *opRem(GroupItem *argument, GroupItem *target)
 {
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	/*  THE FALLBACK COLUMN'S FIRST REAL CUSTOMER. Rather than reimplementing
+	remainder in IR, emit a CALL to this very function and unbox its result
+	-- the shape every non-scalar op will use. The gate returns before the
+	interpreted body, exactly like the arithmetic gates.  */
+	if ( ruler->jitting )
+		{
+		 return jitEmitRem(argument, target, ruler->tempField); 
+		}
 	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
-		GroupControl::groupController->groupRules->tempField->setCount(target->getCount() % argument->getCount());
-	if ( !GroupControl::groupController->groupRules->tempField->groupBody->flags.data )
+		ruler->tempField->setCount(target->getCount() % argument->getCount());
+	if ( !ruler->tempField->groupBody->flags.data )
 		::fprintf(stderr,"ERROR integer div operator failed on %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
-	return GroupControl::groupController->groupRules->tempField;
+	return ruler->tempField;
 }
 
 /***************************************************************************
