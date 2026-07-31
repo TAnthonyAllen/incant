@@ -2,10 +2,25 @@
 #  genParse ladder POP. Run from the Groups directory:  sh genLadder/pop.sh
 #  Every line RUN, and EXIT STATUS CHECKED -- a POP is not passed unless the
 #  process exited 0 (CLAUDE.md Testing). Prints one line per check.
-B=${INCANT:-$HOME/bin/incant}          # Tony's canonical symlink -- see note at foot
+#  ⚠ THE BINARY IS IDENTIFIED ON THE FIRST LINE OF OUTPUT, AND THAT IS NOT
+#  DECORATION. Until 2026-07-31 this script hardcoded an absolute DerivedData
+#  path belonging to a project that NO LONGER EXISTS IN THE TREE
+#  (`InProcess-*`; the tree has TOK, plg and wbView). It had gone stale, and a
+#  stale binary against current incant sources does not fail as a diff -- the
+#  first symptom was a HANG, which reads as an infinite loop in whatever you
+#  last touched. Printing the resolved path, the mtime and the size makes a
+#  stale-binary run a DIFF IN THE LOG rather than a mystery, which is the same
+#  move as the sentinel: convert a silent failure into a visible one.
+B=${INCANT:-$HOME/bin/incant}          # Tony's canonical symlink
 T=${TMPDIR:-/tmp}/genpop.$$
 mkdir -p "$T"
 fail=0
+
+if [ ! -x "$B" ]; then
+    echo "  FAIL  binary not executable: $B"; exit 1
+fi
+echo "  bin   $B"
+echo "  bin   $(ls -lL "$B" | awk '{print $5" bytes  "$6" "$7" "$8}')"
 
 check () {                      # check <name> <expected-exit> <actual-exit>
     if [ "$2" = "$3" ]; then echo "  ok    $1"; else echo "  FAIL  $1 (exit $3)"; fail=1; fi
@@ -19,6 +34,16 @@ $B incant/genScratch > "$T/gen" 2>&1;    check "genScratch runs"  0 $?
 $B incant/censusScratch > "$T/cen" 2>&1; check "censusScratch runs" 0 $?
 $B incant/oneTest > "$T/one" 2>&1;       check "oneTest runs"     0 $?
 $B incant/jsonTest > "$T/jsn" 2>&1;      check "jsonTest runs"    0 $?
+
+#  SMOKE CHECK ONLY -- EXIT CODE, NO GOLDEN DIFF (Clay's ruling, 2026-07-31).
+#  incant/baselineTests is the ONLY fixture that reaches testUnitTests, so the
+#  whole unitTests surface -- printDefinition, stringTest, xpTest -- hangs off
+#  it, and it was in NO pop script. On 2026-07-31 it SEGFAULTED while all three
+#  POPs stayed green. Its golden moves whenever a unitTests fixture's text
+#  moves, which is a different maintenance contract from the ladder targets, so
+#  only the exit code is asserted here. Promote to a diffcheck if that contract
+#  ever stabilises.
+$B incant/baselineTests > "$T/base" 2>&1; check "baselineTests runs (smoke, exit code only)" 0 $?
 
 extract () { sed -n "/^extern [A-Za-z]* $1(/,/^}/p;/^extern [A-Za-z]* $2(/,/^}/p" "$T/gen"; }
 

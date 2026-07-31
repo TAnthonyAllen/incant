@@ -691,6 +691,27 @@ Hard-won lessons. Each one has cost real debugging time.
     bear-trap #19's corollary: a matching label is not a verified identity, and the asymmetry
     between "cheap check" and "irreversible action" decides how much proof you need.
 
+22. **AN ACTION MUST NEVER DESTRUCTIVELY MUTATE ITS OWN PARSE-TREE NODES. Action bodies are
+    parsed ONCE into a cached BlocK and then RE-EXECUTED — so anything an action does to the
+    nodes it was parsed from is PERMANENT, and it is the SECOND execution that pays.** The
+    action reads correctly the first time and returns something empty, wrong, or null every
+    time after; nothing in between is visible. Found 2026-07-31 in a two-day-old
+    `aCTionStringXP`, whose last two lines were `stuff.clear();` then
+    `return opString(stuff,buffer);` — the clear emptied the very attribute list
+    (`stuff=PrintXP+`) that the *next* execution of that same statement had to walk. It read
+    as sound code: clear the target, then write into it. It is not, because the target and
+    the source were the same node.
+    **The tell is a fixture that passes once.** `oneTest` showed exactly ONE symptom — `gIF`'s
+    second label came out empty — because `gIF`'s first label mint is the only statement in
+    the whole run reached twice. One occurrence looked like a one-off; it was the entire class.
+    **So the coverage rule that follows is the useful half: any fixture for a statement-level
+    feature must reach the SAME STATEMENT TWICE**, and `incant/stringT` row 2 exists for
+    nothing else. A fixture that exercises a feature once cannot see this defect at all.
+    Related but distinct from bear-trap #2 (`setContent` drops methods) and from
+    `saveLocalFields`' list-pointer bug (2026-07-29): those are about what a COPY loses, this
+    is about what an ACTION destroys in place. Same family as project memory's "Executed BlocK
+    is built once and cached" — that note records the mechanism; this records what it costs.
+
 ---
 
 ## The `testing` Command
