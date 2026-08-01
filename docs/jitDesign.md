@@ -551,6 +551,87 @@ numeric-*assuming* — they are **list-blind**, and would emit one binary op aga
 node. T1's forked-leaf shape is what removes this by construction, and it is the concrete case
 that makes T1 worth the rework.
 
+## T6 — THE GENERATION ASSESSMENT (2026-08-01). Answer: **PER-FAMILY, not per-population**
+
+*The table arc's actual deliverable. Assessment only — Tony rules on the go. Every number below
+is counted from the tree, not estimated.*
+
+### ⚠ THE MEASUREMENT THAT DECIDES IT, AND IT DISQUALIFIES THE WORKED EXAMPLE
+
+**34 ops carry an `operateMethod`. Exactly TWO have a `switch(data)` dispatch tree:
+`opPlusEQ` and `opMinusEQ`.**
+
+T1's shape is *"the opMethod keeps the type-pair dispatch tree ONCE; each leaf forks
+do-vs-emit."* **That shape presupposes a dispatch tree 32 of 34 ops do not have.**
+
+**So `opPlusEQ` is not representative — it is the outlier.** 55 lines and 11 jit gates against a
+population whose median op is 14. It was the right probe (it is where the fallback column, the
+string exception and the degrade arms all actually live) and it is the *wrong* thing to
+generalise from. Reading "generate the op population's forked dispatch from the table" off it
+would be generalising from the least typical member.
+
+### THE POPULATION, AS IT ACTUALLY DIVIDES
+
+| family | n | shape | verdict |
+|---|---|---|---|
+| **comparison** — `opEQ opNotEQ opGE opGT opLE opLT` | 6 | **ALL 14 lines, ALL identical** but for a `jitCmp` selector and two C++ comparison operators | ✅ **GENERATE** |
+| **arithmetic binary** — `opPlus opMinus opMultiply opDiv` | 4 | 21-25 lines, promotion shape now shared | **SHELLS** |
+| **compound assign** — `opPlusEQ opMinusEQ opMultiplyEQ opDivEQ` | 4 | 19-55 lines, only two have a switch | **SHELLS** |
+| **structural** — `opDot opAddAttribute opReplaceMember opSetFlag opIN opRebind` … | ~20 | **no jit gate at all**, each idiosyncratic | ❌ **DON'T** |
+
+### ✅ GENERATE — the comparison family, and it is the whole recommendation
+
+Six ops, character-identical apart from **three slots**: the `jitCmp` selector, and two comparison
+operators in the null-guard arms. That is a template, not a family resemblance.
+
+**And it is the highest-value target for a reason beyond uniformity.** `jit.md` §3.5 records that
+*"compare ops have no null/no-data guards, and the interpreter's are structurally bypassed — each
+gate `return`s before the guard block below it."* Look at `opGE`: the `if jitting` gate returns on
+line 3, and the null-guard arms that give `null >= 0` its meaning sit **below** it, unreachable
+under jitting. **Generating these from a template with the fork per-leaf removes that gap by
+construction**, for all six at once, rather than fixing it six times.
+
+**Mechanism proposed:** the table holds one row per comparison op — selector plus the two operator
+spellings — and stamps the 14-line body. **Oracle:** the six current bodies are their own target.
+Generate, diff against the shipped text, and require byte-identity before switching over —
+`genLadder`'s own retirement-by-mapping shape. That oracle exists today and dies at code-free
+(O5), so **this is cheap now and expensive later**, which is an argument for taking it soon.
+
+### SHELLS — arithmetic and compound assign (8 ops)
+
+Uniform enough to share a convention, **not** uniform enough to stamp: each carries real per-op
+content (`opPlus`'s string-advance arm, `opPlusEQ`'s 35a concat, `opMinusEQ`'s `remove` arm).
+Generation would either lose those or need per-op escape hatches, at which point it is a shell
+with extra steps.
+
+**What the table buys them anyway, and it is not nothing:** the table becomes **the source of
+truth for which leaves exist and which have emitters** — which is what makes *exhaustive*
+checkable rather than promised. Today "every arm degrades or emits" is a property I verified by
+reading `opPlusEQ` once. With a table it is a property something can *assert*.
+
+### ❌ DON'T — the ~20 structural ops
+
+No dispatch tree, no scalar leaves, no type pairs, nothing a table can say. Forcing them into the
+shape would be **transcription, which Ruling 2 explicitly rejects in favour of re-expression.**
+They degrade or they are simply not jitted, and either is honest.
+
+### WHAT IT COSTS TO HAND-SPREAD INSTEAD, since that is the live alternative
+
+**15 ops still carry the top-gate shape T1 condemns** (counted: one `if jitting` at function head,
+above the type logic). Converting one is what `opPlusEQ` cost: move the gate into the leaves, add
+one degrade line per uncovered arm. Call it 15 small mechanical edits with the fleet as the net.
+
+**That is genuinely cheap, and it is why the recommendation is narrow.** Generation earns its
+keep on the comparison six — where the template is exact *and* it closes a recorded defect. Over
+the other 28 it would cost more than the edits it replaces.
+
+⚠ **EXHAUSTIVENESS TRAVELS AS CONVENTION, NOT AS COURTESY** — per the brief, and this is the part
+that must hold whichever way Tony rules. Whatever gets stamped or hand-written, **every arm emits
+or degrades loudly**, and each converted op wants the **two rung kinds**: one asserting
+`degrade == 0` on a covered construct, one asserting a degrade **fires** on an uncovered one
+(`jitJP` / `jitJPd` are the pair). **The inversion is the control** — without a rung that expects
+a non-zero count, every zero elsewhere is unfalsifiable.
+
 ## T4 — LOCATE IS PROHIBITED, NOT PROVIDED (Tony, relayed SEQ 38; ruled here 2026-08-01)
 
 **Action execution never calls `locate`. All fields, local and global, are resolved and baked at
