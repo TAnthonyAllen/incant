@@ -50,8 +50,31 @@ Affected, declared in `incant/setup` with no case: `isRulE`, `isBiN`, `isMacrO`,
 
 ⚠ **THE CONTROL SAYS THE FIX IS SMALL, and this is the part that stops it being alarming.**
 An *existing* case works correctly in **both** directions — `notARule.noPrinT` → false,
-`hushed.noPrinT` → true (case 29). So the machinery is sound and the missing cases are one line
-each on case 29's model. This is accessor debt, not a design fault.
+`hushed.noPrinT` → true (case 29). The machinery is sound. This is accessor debt, not a design
+fault.
+
+⚠⚠ **CORRECTION 2026-08-01, SAME DAY, AND IT WAS THIS PAGE THAT WAS WRONG.** The line above
+originally read *"the missing cases are one line each on case 29's model."* **That is
+incomplete, and building it proved so.** Adding `case 23: if target.isRule product.count = 1;`
+alone changed NOTHING — `isRulE` stayed inert. **THERE ARE TWO CAUSES, NOT ONE:**
+
+| cause | which fields | cost |
+|---|---|---|
+| **UNNUMBERED in `incant/setup`** — no index, so `gCount` is 0 and `switch(gCount)` hits `default` | `isConditioN` `isFilE` `isIndexeD` `isInitializeD` `isMacrO` `isPointeR` `isRulE` `isVirtuaL` `negatE` `noSkiP` | **TWO lines** — a number in `setup` *and* the `opDot` case |
+| **numbered but no case** | `isPercenT`=21 `mergeON`=26 `byReF`=31 `isLisT`=32 `isBiN`=33 | one line |
+
+`isRulE` was in the first group. Fixed as `isRulE=23` in `incant/setup` plus `case 23` in
+`opDot`. **Both directions now correct:** `NamE.isRulE` → `1`, true branch; `notARule.isRulE` →
+no data, false branch. Baselines byte-identical, fleet unchanged.
+
+⚠ **AND A WITHDRAWN INFERENCE, recorded because it nearly became a finding.** Reading `setup`,
+the unnumbered entries looked like they *auto-incremented* from the last explicit value — which
+lines up suspiciously well (`isPointeR`=22, `isRulE`=23, then `isShortcuT`=24 explicit; four such
+runs agree). That reading also implied `isMacrO` would collide with `isBiN` at 33, which I was
+one step from reporting as a defect. **It is dead: unnumbered means ZERO, not next.** The
+arithmetic agreeing four times was coincidence — the explicit values simply happen to be
+consecutive. A textbook causal claim that survived narrowing and was still wrong, killed by one
+build.
 
 ⚠ **A PROBE BUG WAS CAUGHT HERE AND IS WORTH THE LINE.** The first control run reported case 29
 false for a `noPrint` field, which reads as "case 29 is broken". It was the probe: `hushed

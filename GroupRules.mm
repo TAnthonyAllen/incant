@@ -5238,6 +5238,10 @@ GroupItem 	*product = 0;
 					if ( isOperator(target->groupBody->flags.instructType) )
 						product->setCount(1);
 					break;
+				case 23:
+					if ( target->groupBody->flags.isRule )
+						product->setCount(1);
+					break;
 				case 24:
 					if ( target->groupBody->flags.isShortcut )
 						product->setCount(1);

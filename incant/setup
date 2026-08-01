@@ -244,7 +244,7 @@ define
     isOperatoR=20;
     isPercenT=21;
     isPointeR;
-    isRulE;
+    isRulE=23;
     isShortcuT=24;
     isVirtuaL;
     mergeON=26;

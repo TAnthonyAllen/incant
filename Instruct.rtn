@@ -155,6 +155,7 @@ use argument
                 case 17:    if target.isLiteral     product.count = 1;
                 case 19:    if target.isMethod      product.count = 1;
                 case 20:    if target.isOperator    product.count = 1;
+                case 23:    if target.isRule        product.count = 1;
                 case 24:    if target.isShortcut    product.count = 1;
                 case 28:    if target.rStuff && target.noLabel  product.count = 1;
                 case 29:    if target.noPrint       product.count = 1;

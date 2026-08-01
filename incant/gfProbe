@@ -1,0 +1,20 @@
+Start();
+search reset stack Grokking;
+search GroupFields list;
+register(GfProbe);
+define
+    showGF code={
+        print "isBiN        =" isBiN:;
+        print "isConditioN  =" isConditioN:;
+        print "isMacrO      =" isMacrO:;
+        print "isPointeR    =" isPointeR:;
+        print "isRulE       =" isRulE:;
+        print "isShortcuT   =" isShortcuT:;
+        print "isVirtuaL    =" isVirtuaL:;
+        print "negatE       =" negatE:;
+        print "noSkiP       =" noSkiP:;
+        };
+    ;
+showGF();
+print "GF SENTINEL":;
+stop();
