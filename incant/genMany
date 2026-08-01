@@ -1,0 +1,127 @@
+/*****************************************************************************
+    genMany -- genParse's REPETITION HELPER emitter, IN KANT (minionA round 2).
+
+    This is the kant side of `emitMany` (genParse.rtn:666): one MANY plan node
+    -> the `many<Site>` helper function, written to stderr.
+
+    ⚠ A SEPARATE FILE FROM `incant/genEmit`, DELIBERATELY. genEmit is round 1's
+    artifact and `genLadder/spell.target` plus the `SPELLER kant` pin are
+    asserted against it. An incant parse failure ABANDONS THE REST OF ITS FILE
+    AND STILL EXITS 0 (CLAUDE.md testing, third corollary; corpus CLAIM
+    KANT-24), so a bad edit in a round-2 action appended to genEmit would take
+    round 1's `spellLeaf` down with it SILENTLY and the POP would report the
+    loss as a spell.target diff rather than as a syntax error. Two files, two
+    fates.
+
+    ⚠ AND A SEPARATE REGISTRY (`Maniers`) FOR THE SAME REASON, ONE LEVEL UP.
+    Sharing round 1's `Spellers` would have been tidier and is WRONG: whichever
+    fixture puts `Spellers` on its search list turns on the kant `spellLeaf`
+    TOO, so `genScratch` could not adopt a kant emitMany without simultaneously
+    switching every rung's leaf spelling to kant in the same commit. Two
+    registries means two independent switches and two independent pins --
+    `SPELLER kant` stays a statement about emitLeaf alone.
+
+    -------------------------------------------------------------------------
+    THE INTERFACE -- the C++ fork's side of the seam. It does not exist yet;
+    `docs/minionAledger.md` records it as owed, and the exact diff is in this
+    round's report. Absent it, this file is INERT: registering an action nobody
+    looks up changes nothing, which is why landing it before the fork is safe.
+
+        registry            Maniers       -- and only a registry of that name
+        action              spellMany     -- and only under that name
+        argument            the MANY PLAN NODE, carrying attributes
+                              site   the helper's name suffix (rule tag + index)
+                              min    the minimum repetition count, as text
+        returns             a field whose TEXT is "1" on success, "0" on refusal
+
+    WHY A TEXT ANSWER AND NOT A NULL. The C++ emitMany returns int and refuses
+    with 0, and emitPlan tests that. A kant action cannot hand a NULL back
+    across runAction (BLOCKED KANT-B1, five spellings tried, all non-null), so
+    the refusal has to ride in the VALUE rather than in the pointer. "1"/"0" is
+    chosen over a stamped flag because `:.` did not set one here (see this
+    round's report -- opSetFlag fell to its `not supported yet` default for
+    `flaG`, `isPercenT` and `noPrinT` alike), and because getText() falls back
+    to the TAG on an unset node (GroupItem.twk:676), so "returns nothing" is
+    never distinguishable from "returns a name". An explicit two-valued answer
+    is the only one of those three that cannot be produced by accident.
+
+    -------------------------------------------------------------------------
+    FIVE THINGS ABOUT THIS BODY THAT ARE NOT OPTIONAL. Each cost a run to find
+    and each is written up in docs/kantCorpus.md.
+
+    1. `closeBrace="}"` IS AN ATTRIBUTE OF THE ACTION BECAUSE A `}` CANNOT
+       APPEAR ANYWHERE INSIDE A `code={ }` BODY -- not even inside a quoted
+       string. aCTionCodE (ruleActions.rtn:122-140) captures the body by
+       scanning for the FIRST `}` after the opening `{`, with no nesting count
+       and no quote awareness. So `cerr "}":;` inside an action silently ends
+       the block early, the define fails, and the file truncates at exit 0.
+       A trait on the DEFINE line is outside the CodE scan and parses as an
+       ordinary QuotE, so the byte gets in that way. `{` is unaffected -- only
+       the first `{` is the opener.
+
+    2. `$` TOGGLES AND IS STICKY FOR THE WHOLE ACTION BODY, not for one
+       statement. useDefaultSpace is reset to true once per processAction
+       (GroupActions.rtn:456) and appends a space AFTER EVERY FIELD
+       (GroupActions.rtn:415). One `$` on the first cerr of a path turns it off
+       for every statement after it; a second `$` anywhere below would turn it
+       back ON and put a trailing space on every emitted line. Exactly one `$`
+       executes per path here, and that is load-bearing, not tidiness.
+
+    3. A QUOTED LITERAL'S LEADING WHITESPACE IS STRIPPED, so the emitted
+       indentation is made of `_` shortcuts. `____` is four spaces, `___` three
+       -- one bunched ShortcuT token (grammar:92, `[-+~`$_:,]+`). Interior and
+       trailing spaces inside a literal survive untouched, which is why
+       `"GroupRules  ruler = groupRules;"` and `"if kount >= "` are written
+       plainly.
+
+    4. `if !site || !min;` DOES NOT PARSE. `'|'` is registered in incant/setup
+       with no operateMethod, so there is no boolean-or; the guard is two
+       separate `if`s. Both arms print the same diagnostic the C++ prints, which
+       is what the C++ does too -- one message for either missing attribute.
+
+    5. AN `if` AND ITS STATEMENT MUST NOT SHARE A LINE. `if !site;` then an
+       indented body parses; `if !site    cerr ...:;` on one line fails the
+       whole body. Same shape as spellLeaf's `if kind == "OPT";`.
+
+    Not a hazard here but worth naming: this action's last statement is
+    `return answer;`, NOT a nested block, so CLAIM KANT-24's dedent rule for a
+    closing `};` does not bite. It would if the emission were ever rewritten as
+    a loop.
+
+    -------------------------------------------------------------------------
+    THE ORACLE IS `genLadder/rung5.target` LINES 1-10 -- the `manyScafC1`
+    helper, captured from the C++ emitMany while it was the only
+    implementation. `incant/manyScratch` reproduces it byte-for-byte from a
+    hand-built MANY node and also drives both refusal arms.
+
+    KNOWN GAP, stated rather than papered over: until the C++ fork lands, this
+    has NEVER RUN THROUGH `runAction`. What is proven is the EMISSION and the
+    ATTRIBUTE READS; what is unproven is the seam -- the same distinction round
+    1's `SPELLER kant` pin exists to make, and a `MANIER kant` pin is owed with
+    the fork for exactly that reason.
+*****************************************************************************/
+registry(Maniers);
+define
+    spellMany argument closeBrace="}" code={
+        :argument site min;
+        answer = "0";
+        if !site;
+            cerr $"emitMany: MANY node has no site/min":;
+            return answer;
+        if !min;
+            cerr $"emitMany: MANY node has no site/min":;
+            return answer;
+        cerr $"extern int many" site "(GroupItem label, GroupItem term)":;
+        cerr "{":;
+        cerr "GroupRules  ruler = groupRules;":;
+        cerr "String      from = atRuleMark;":;
+        cerr "int         kount;":;
+        cerr ____"while parseR(term,label)    kount++;":;
+        cerr ____"if kount >= " min ___"return true;":;
+        cerr ____"atRuleMark = from;":;
+        cerr ____"return false;":;
+        cerr closeBrace:;
+        answer = "1";
+        return answer;
+        };
+    ;

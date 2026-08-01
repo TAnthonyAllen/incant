@@ -886,7 +886,13 @@ scope:       ⚠ THIS IS AN ENVIRONMENT CLAIM, NOT A KANT CLAIM, and it is in th
 
 ---
 
-### CLAIM KANT-24 — a closing `}` is INDENTATION-SENSITIVE, and its failure is disguised
+### CLAIM KANT-33 — a closing `}` is INDENTATION-SENSITIVE, and its failure is disguised
+*⚠ RENUMBERED 2026-08-01, same day it was filed. It was briefly `KANT-24`, which was ALREADY
+TAKEN by the zsh `${PIPESTATUS[0]}` claim above. minionA caught the collision mid-round and
+declined to renumber on its own grounds that "an ID is a citation trail" — correct, and the
+reason the elder keeps the number. Cited as KANT-24 in one commit message (`f811d8a`) and in one
+message to the round; those references are left as written, because rewriting a provenance
+falsifies the record of what was actually said.*
 ```
 statement:   `}` / `};` are POSITION-sensitive to the parser (checkSkip), not
              free-form. The case that bites: when an action's LAST body
@@ -1020,6 +1026,290 @@ audit recommends against would be the wrong artifact twice over.
 
 ---
 
+## ROUND 2's CLAIMS — KANT-26 … KANT-32 + KANT-B3, drafted 2026-08-01
+
+*Method: `emitMany` (`genParse.rtn:666`) → `incant/genMany`'s `spellMany`; oracle
+`genLadder/rung5.target` lines 1-10; fixture `incant/manyScratch`. Count these as
+**absorption**.*
+
+> ⚠ **ID COLLISION, flagged by round 2 rather than fixed by it.** There are **two**
+> entries numbered `KANT-24` above — the zsh `${PIPESTATUS[0]}` environment claim and
+> the closing-`}` indentation claim. Both are real and both are cited elsewhere.
+> Renumbering is foreman's call, since a citation trail is exactly what an ID is for.
+> Round 2 started at **KANT-26** because 25 was taken while it ran, and touched neither.
+
+**Every one of these was found by a failing run, and five of the seven are about
+writing TEXT rather than about the language's semantics. That is the round's
+headline.** `emitMany` is 21 lines with no recursion, no iterator and two attribute
+reads — the ledger pre-registered it as *"strictly simpler than emitLeaf"* — and yet
+**every obstacle it hit was in the print/quote/parse layer, and none was in the layer
+the corpus was carrying.** KANT-6…KANT-22 are a fine map of recursion and frames, and
+not one of them fired. A corpus that carries only semantics will not shorten the next
+emitter conversion; the next one needs KANT-26/27/29 on page one.
+
+### CLAIM KANT-26 — a `}` CANNOT APPEAR ANYWHERE INSIDE A `code={ }` BODY, not even inside a quoted string
+```
+statement:   The CodE capture scans for the FIRST `}` after the opening `{`,
+             with NO nesting count and NO quote awareness. So any `}` byte in an
+             action body -- including one inside "..." or '...' -- ends the
+             block early. The define then fails, the rest of the FILE is
+             abandoned, and the process still EXITS 0. `{` is unaffected: only
+             the first `{` is taken as the opener.
+             => THE IDIOM: put the byte on the DEFINE LINE as a trait, outside
+                the CodE scan, and reference it by name from the body:
+                    spellMany argument closeBrace="}" code={
+                        ...
+                        cerr closeBrace:;
+                        };
+confidence:  RUN
+provenance:  Bisected 2026-08-01 with a per-line fixture. Every line of the
+             emitMany body parsed EXCEPT the one emitting `}`, and all four
+             quoting spellings failed identically:
+                 cerr "}":;      -> ERROR processCode: probe parse failed
+                 cerr "x}y":;    -> ERROR processCode: probe parse failed
+                 cerr $"}":;     -> ERROR processCode: probe parse failed
+                 cerr '}':;      -> ERROR processCode: probe parse failed
+                 cerr "{":;      -> OK, prints {
+             The SAME statement at TOP LEVEL (not inside code={}) works:
+                 cerr "TOP }brace in a top-level statement":;   -> prints, exit 0
+             Mechanism READ at ruleActions.rtn:122-140, aCTionCodE:
+                 while *atInput && *atInput != *left   atInput++;   /* the { */
+                 beginBox = atInput; atInput++;
+                 while *atInput && *atInput != *right  atInput++;   /* FIRST } */
+             The trait workaround RUN in incant/genMany + incant/manyScratch:
+             exit 0, sentinel present, rung5.target lines 1-10 byte-identical.
+asOf:        2026-08-01
+scope:       Covers `code={ }` bodies specifically -- the CodE rule
+             (grammar:42, `CodE "{" "}" parseAction`). Says nothing about `}`
+             inside a `-% %-` passthrough, and the workaround shows it parses
+             fine in a DatA value on a define line. Does NOT establish whether a
+             body may contain a NESTED `{ }` block at all: the naive scan says
+             no, and no incant action in the tree uses one (indentation does
+             that job), but that was not separately probed.
+             ⚠ THE TELL IS THE SENTINEL, NOT THE MESSAGE.
+             `ERROR processCode: <name> parse failed` names the action, never
+             the line, and everything after the define is silently gone at
+             exit 0.
+```
+**Why this is bigger than one method.** `emitMany` is the first kant conversion whose
+*product* is C++ source, and C++ source is made of braces. Every remaining genParse
+emitter that closes a function inherits it — `emitPlan` closes two. The trait carries
+one byte per name; an emitter needing several wants several traits, or one node built
+at top level where the byte is legal.
+
+### CLAIM KANT-27 — `$` IS A STICKY GLOBAL: reset at ACTION ENTRY, and NOT restored when a nested call returns
+```
+statement:   `$` toggles `useDefaultSpace`, which is ONE GLOBAL -- not per
+             statement and not per print. It is set true once per
+             processAction, immediately before the action's BlocK runs, and is
+             never restored afterwards. Two consequences, and both bite:
+               (a) WITHIN a body, one `$` turns spacing off for EVERY statement
+                   below it; a second `$` anywhere below turns it back ON.
+               (b) ACROSS a call, whatever a callee leaves is what the caller
+                   has when it resumes -- so a `$` written AFTER a call toggles
+                   from the CALLEE's state, not from the default.
+confidence:  RUN
+provenance:  (a) Six-row fixture, one `cerr` per row, `$` on rows 1/3/5, read
+             with `cat -et`:
+                 A (default)  A|    four leading|<SP>     spacing ON
+                 B ($)        B|    four leading|         OFF
+                 C ($)        C| trailing | x|<SP>        back ON
+                 D (none)     D| y|<SP>                   still ON
+                 E ($)        E|z|                        OFF
+                 F (none)     F|    still default?|       still OFF
+             (b) incant/manyScratch, FIRST CUT: `runAll` called spellMany three
+             times and THEN wrote `cerr $"MANY ANSWERS full=" full ...`. It
+             printed `full= 1 bare= 0 half= 0 ` -- spacing ON -- because
+             spellMany had already turned it off and the `$` toggled it back.
+             The identical line moved into a fresh one-statement action `say`
+             (fresh processAction -> flag true -> `$` -> off) printed
+             `MANY ANSWER=1` / `=0` / `=0`. Both runs exit 0, sentinel present.
+             Mechanism READ: GroupActions.rtn:456 `useDefaultSpace = true;`
+             inside processAction's `if result = action["BlocK"]` arm;
+             GroupActions.rtn:415 `if useDefaultSpace append(' ');` at the tail
+             of printField; the toggle itself GroupActions.rtn:34.
+asOf:        2026-08-01
+scope:       ⚠ THIS IS WHY AN EMITTER MUST TOGGLE EXACTLY ONCE PER PATH. In
+             `spellMany` each refusal arm and the success arm carries one `$`
+             and each returns, so exactly one executes. A `$` on a second line
+             would put a TRAILING space on every emitted line and the byte-exact
+             target would move -- the space is appended AFTER a field, so the
+             damage is trailing, which a diff shows and an eye does not.
+             ⚠ AND IT MAKES SPACING OBSERVABLE STATE SHARED BETWEEN ACTIONS.
+             No fixture in the tree asserts what the flag is on entry to a
+             C++-invoked action. `spellMany` does not depend on it (its `$` is
+             the first thing on every path) and nothing else should either.
+             Measured on `cerr` only; one mechanism per KANT-13, but `print`
+             and `string` were not re-run.
+```
+
+### CLAIM KANT-28 — a quoted literal's LEADING whitespace is STRIPPED in ANY spacing mode; interior and trailing survive
+```
+statement:   A quoted literal loses whatever whitespace it STARTS with. This is
+             NOT a `$`-mode effect -- it happens with spacing on and with
+             spacing off. Interior runs of spaces and TRAILING spaces are kept
+             exactly. So emitted INDENTATION cannot be written as `"    text"`;
+             it is written with `_` shortcuts, and they BUNCH:
+                 cerr ____"while parseR(term,label)    kount++;":;
+             gives exactly `    while parseR(term,label)    kount++;`
+confidence:  RUN
+provenance:  incant/manyScratch and its bisection fixtures, 2026-08-01, exit 0,
+             read with `cat -et`:
+                 $"[" "    while parseR(term,label)    kount++;" "]"
+                     -> [ while parseR(term,label)    kount++; ]
+                     FOUR leading spaces gone, FOUR interior ones kept
+                 $"[" _ "   three after underscore" "]"     (spacing OFF)
+                     -> [ three after underscore]
+                     three leading gone; the one space is the `_`, not them
+                 $"[    leading spaces first]"  -> [    leading spaces first]
+                     the same characters INTERIOR to a literal: untouched
+             `"if kount >= "` keeps its TRAILING space in the shipped emitter,
+             and `___"return true;"` supplies the three that literal's own
+             leading run would have lost -- `    if kount >= 1   return true;`
+             is byte-identical to rung5.target line 7.
+             Bunching READ at grammar:92, `ShortcuT=[-+~`$_:,]+` -- the trailing
+             `+` is what makes `____` ONE token of four spaces.
+asOf:        2026-08-01
+scope:       ⚠ SUPERSEDES THE MECHANISM IN CLAIM KANT-11, NOT ITS ADVICE.
+             KANT-11 read the same symptom as "`string $` no-space mode eats a
+             literal's LEADING space". The MODE IS IRRELEVANT: it is eaten
+             either way, and KANT-11's single observation happened to be under
+             `$`. Its fix (`_` puts one back) is correct and is the fix here.
+             Measured on `cerr`. Says nothing about TABS, and nothing about
+             WHERE the stripping happens (QuotE parse vs a checkSkip before it)
+             -- only that it is not the spacing mode.
+```
+
+### CLAIM KANT-29 — there is NO boolean OR: `'|'` is registered with no operateMethod, and `if a || b;` fails the WHOLE body
+```
+statement:   `||` is not a kant operator. incant/setup:85 registers `'|';` with
+             NO operateMethod (contrast `'+' operateMethod=opPlus`), so
+             `if !site || !min;` does not parse and takes the entire action body
+             down with it. A two-clause refusal guard is written as two separate
+             `if`s, each with its own arm.
+confidence:  RUN
+provenance:  Bisection fixture, 2026-08-01, every row exit 0:
+                 if !site || !min;        -> ERROR processCode: probe parse failed
+                     cerr $"refuse":;
+                 if !site;                -> OK; refuses only the node lacking it
+                     cerr $"refuse":;
+             and the shipped two-guard form in incant/genMany, RUN over three
+             nodes: site+min -> "1", neither -> "0", site only -> "0".
+             Registration READ at incant/setup:85 (`'|';`) and :135 (`'&';`),
+             both bare.
+asOf:        2026-08-01
+scope:       Covers `||` in an `if` condition inside a code body. Says NOTHING
+             about `&&`: `'&'` is registered the same bare way and is therefore
+             suspect, but it was NOT probed -- do not read this as covering it.
+             Says nothing about single `|` anywhere.
+             ⚠ NOTE WHAT THE TWO-GUARD FORM COSTS: the C++ prints ONE
+             diagnostic for either missing attribute, so the kant version
+             repeats that line in both arms to keep the text identical. Two
+             arms, one message -- do not "tidy" it into one arm with a
+             different message.
+```
+
+### CLAIM KANT-30 — an `if` and its governed statement MUST NOT SHARE A LINE
+```
+statement:   `if <cond>    <statement>;` on ONE line does not parse and fails
+             the whole action body. The condition ends the line (with or without
+             a `;`) and the governed statement is INDENTED on the next. This is
+             the form every working action in the tree uses.
+confidence:  RUN
+provenance:  Bisection fixture, 2026-08-01, exit 0 on every row -- the failures
+             visible ONLY as `ERROR processCode: probe parse failed`:
+                 if !site    cerr $"no site":;                  -> FAIL
+                 if !site    cerr $"no site":;                  -> FAIL
+                 else        cerr $"got site":;
+                 if !site;                                      -> OK
+                     cerr $"no site":;
+             Corroborating shipped code: incant/genEmit's spellLeaf is
+             `if kind == "OPT";` with an indented arm; incant/genMany's two
+             guards are the same shape.
+asOf:        2026-08-01
+scope:       ⚠ RELATED TO CLAIM KANT-24 (closing `}`) AND NOT THE SAME RULE.
+             KANT-24 is about where a CLOSING `};` sits relative to a nested
+             block; this is about where the GOVERNED STATEMENT sits relative to
+             its `if`. Both are checkSkip indentation effects, both fail as "the
+             action did not run", and the SENTINEL is the discriminator for
+             each.
+             Probed for `if` and `if/else`. Says nothing about `while`, `for` or
+             `iterate`, none of which this round exercised.
+```
+
+### CLAIM KANT-31 — `if !x` DOES distinguish an ABSENT attribute from a present one after a `:scope` hoist
+```
+statement:   `:node a b;` creates a local per name whether or not the attribute
+             exists, and an absent one PRINTS as its own tag (KANT-10). But the
+             two states ARE distinguishable by TRUTH: `if !a` fires when the
+             attribute was absent and does not fire when it was present. A
+             refusal guard on a missing attribute is written the obvious way and
+             works.
+confidence:  RUN
+provenance:  incant/manyScratch, exit 0, sentinel present, 2026-08-01. Three
+             MANY nodes through the same `:argument site min;` hoist:
+                 site + min   -> emitted the helper, answer "1"
+                 neither      -> "emitMany: MANY node has no site/min", "0"
+                 site only    -> "emitMany: MANY node has no site/min", "0"
+             The `half` row is the one with teeth: `!site` must be FALSE and
+             `!min` TRUE in the SAME call, so a guard that merely detected
+             "something is missing" could not produce it.
+             Mechanism READ at ruleActions.rtn, aCTionScopeXP: the local is
+             minted either way and on a miss is `grup.clear()`-ed, so the NODE
+             is real and the DATA is what differs.
+asOf:        2026-08-01
+scope:       ⚠ CLOSES THE OPEN QUESTION IN CLAIM KANT-10's SCOPE, which said
+             "Not established whether `if slot` distinguishes the two states --
+             it was not needed and was not tested, so do not assume it does."
+             It does. KANT-10's own statement -- that the two are
+             indistinguishable in PRINTED OUTPUT -- is untouched and still true;
+             only the truth test is now known.
+             Measured on attributes hoisted by `:scope` onto a freshly minted
+             node. Says nothing about a local that was assigned and then
+             cleared, nor about `if x` where x holds a numeric 0.
+```
+
+### CLAIM KANT-32 — a kant refusal crosses the seam as a TWO-VALUED TEXT answer, because `getText()` falls back to the TAG
+```
+statement:   An unset node is NOT textually empty across the seam:
+             GroupItem::getText() ends `or tag junkText = tag;`, so a node
+             carrying no data answers with its own TAG. That is why every
+             KANT-B1 attempt came back as plausible text rather than as nothing,
+             and it means "returned nothing" can NEVER be told from "returned a
+             name". The workable refusal is therefore an EXPLICIT two-valued
+             answer the action assigns on both paths -- text "1" for yes, "0"
+             for no -- which a C++ caller tests with `result.text eq "1"`.
+confidence:  RUN as to the kant half; REASONED as to the C++ half. Split
+             DELIBERATELY: the values coming out of `runAction` were measured;
+             the fork that would consume them DOES NOT EXIST YET and was not
+             run.
+provenance:  incant/manyScratch, exit 0: `MANY ANSWER=1` / `=0` / `=0` for
+             site+min / neither / site-only, read back through an ordinary
+             incant call (`full = caseFull();` -> `return spellMany(many);`).
+             getText's fallback READ at GroupItem.twk:676 (`or tag junkText =
+             tag;`). Corroborates KANT-B1's five attempts from the other end:
+             `return;` -> "return", `return null;` -> "0",
+             `return <unset local>;` -> the local's tag. None is absence; all
+             are text.
+asOf:        2026-08-01
+scope:       ⚠ `return null;` YIELDS TEXT "0", WHICH COLLIDES WITH THIS IDIOM,
+             and it is named here on purpose. A future refusal spelled
+             `return null;` produces the same "0" this claim uses for a
+             deliberate NO. Harmless while "0" means refuse; a trap the day
+             someone wants "0" to be a real value. If the language ever
+             standardises one false sentinel (OPEN KANT-20) this idiom should
+             move to it.
+             ⚠ AND IT DOES NOT COVER A BROKEN ACTION. When `spellMany`'s body
+             failed to parse, the caller's `got = spellMany(x)` came back as the
+             CALLER's own local tag (`RESULT=[got]`) -- indistinguishable from a
+             refusal. A C++ fork cannot tell a refusing kant action from a
+             syntactically dead one, which is a second reason the seam needs a
+             MANIER pin (round 1's `SPELLER kant` shape) and not just a value
+             test.
+```
+
+---
+
 ## BLOCKED
 
 ### BLOCKED KANT-B1 — a kant action cannot return NULL across `runAction`
@@ -1067,6 +1357,57 @@ rather than merely proving one exists.
 
 A false gap is **self-sealing** — the workaround works, nobody returns, and the belief is
 documented as fact. That is the risk here, not the reverse.
+
+> ⚠ **ROUND 2 RAN THE ROUTE THIS ENTRY NAMED, AND IT DID NOT WORK.** See
+> `BLOCKED KANT-B3` below. The refusal that DOES work is a two-valued text answer —
+> `CLAIM KANT-32`. The paragraph above is left standing because it is what was believed
+> when it was written; the correction sits beside it rather than replacing it.
+
+### BLOCKED KANT-B3 — `:.` (opSetFlag) sets NO flag from a code body; every groupField tried fell to `not supported yet`
+```
+wanted:      KANT-B1's own named next move: return the ARGUMENT with a boolean
+             stamped on it via `:.`, and have the C++ side test the flag instead
+             of the pointer. This is the refusal signal `emitMany` needs, since
+             its C++ contract is an int and emitPlan tests it.
+source:      genParse.rtn:671-673
+                 if !site || !low {
+                     cerr "emitMany: MANY node has no site/min":;
+                     return 0; }
+             consumed at genParse.rtn:876 (`if !emitMany(node) { ... return null; }`).
+attempts:    Three groupFields, one fixture, exit 0 on every run
+             (2026-08-01, incant scratch, a freshly minted node `full`):
+                 full :. isPercenT;   -> opSetFlag: setting full not supported yet
+                 full :. noPrinT;     -> opSetFlag: setting full not supported yet
+                 full :. flaG;        -> opSetFlag: setting full not supported yet
+             and the read-back after each was unchanged:
+                 full.flaG      -> flaG            (unset, printed as its tag)
+                 full.noPrinT   -> noPrinT         (unset)
+                 full.isPercenT -> access to isPercenT not supported yet
+             The message comes from opSetFlag's `default:` arm
+             (Instruct.rtn:1026), so `argument.gCount` was NOT 12/21/29 --
+             i.e. the operand did not arrive as the GroupFields entry. The
+             SAME names resolve correctly through `.` in the same fixture:
+             `full.taG` -> full, `full.datA` -> 13, `full.isLocaL` -> 1,
+             `full.firstMembeR` -> 0. So the entries are reachable and carry
+             their gCount; something about the `:.` operand binding is
+             different, and I did not isolate it.
+category:    IDIOM-GAP
+```
+**Grepped before filing, per the brief, and the grep is why this is IDIOM-GAP.**
+`:.` has exactly **eight** executable call sites in the tree, **all in
+`incant/utilities`** (lines 355, 362, 365, 376, 383, 401, 407, 410 — `isPercenT` and
+`mergeON`; a ninth mention at :315 is prose). Plus its registration at
+`incant/setup:121` and its implementation at `Instruct.rtn:1014`.
+Searched: `grep -rn ":\." incant/ *.rtn *.twk`. **So a working counterexample may
+exist and I could not run it** — those sites are in layout code that no fixture in
+`genLadder/pop.sh` reaches, so "utilities uses it" is not evidence that it works
+today. Whoever picks this up should drive one of those eight lines first: if they
+work, the difference between them and my probe *is* the idiom, and it is cheaper to
+find that way than by reading `opSetFlag`.
+
+**What round 2 did instead:** `CLAIM KANT-32` — an explicit two-valued TEXT answer.
+It needed no new mechanism, it is measured, and it survives `getText()`'s tag
+fallback, which is the thing that defeats every "return nothing" spelling.
 
 ---
 

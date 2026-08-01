@@ -1,0 +1,102 @@
+Start();
+include(unitTests);
+search reset stack Grokking;
+search UnitTests list;
+
+/*****************************************************************************
+    manyScratch -- the fixture for the KANT `emitMany` (incant/genMany).
+
+    WHY IT DOES NOT GO THROUGH genParse. The C++ fork in emitMany does not
+    exist yet (it is foreman's, and round 2's report carries the exact diff),
+    so `genParse('ScafC')` still runs the C++ body. This fixture therefore
+    drives `spellMany` DIRECTLY, from a hand-built MANY plan node whose two
+    attributes are shaped exactly as planRule builds them
+    (genParse.rtn:469-471 `min`, genParse.rtn:516-518 `site`).
+
+    ⚠ SO IT PROVES THE EMISSION AND NOT THE SEAM, and that distinction is the
+    honest half of this round. `genLadder/rung5.target` is still produced by
+    the C++ emitMany today. When the fork lands, rung5 becomes the seam's own
+    oracle and this fixture keeps covering the two REFUSAL arms, which no rung
+    reaches.
+
+    THE ORACLE: stderr lines 1-10 must equal `genLadder/rung5.target` lines
+    1-10 -- the `manyScafC1` helper -- BYTE FOR BYTE. The helper is emitted
+    FIRST, before anything else reaches stderr, so the extraction is a plain
+    head and cannot drift.
+
+        $B incant/manyScratch > out 2> err;  echo "EXIT=$?"
+        sed -n '1,10p' genLadder/rung5.target > want
+        sed -n '1,10p' err > got
+        diff want got
+
+    ⚠ TAKE `$?` DIRECTLY FROM THE BINARY, NEVER THROUGH A PIPE -- this project's
+    shell is zsh and `${PIPESTATUS[0]}` expands to NOTHING there, so every run
+    reads as passing (corpus CLAIM KANT-24/PIPESTATUS).
+
+    THE ROWS:
+        full   site + min      the rung-5 helper, byte-exact, answer "1"
+        bare   neither         refusal, answer "0"
+        half   site only       refusal, answer "0" -- the arm a single
+                               combined guard would have hidden
+
+    EACH CASE GETS ITS OWN ACTION so that each has its OWN `site`/`min`
+    locals. `+%` attaches the local NODE itself, and the attribute lookup is by
+    TAG, so the locals have to be named `site` and `min`; three actions is how
+    three independent ones are had.
+
+    SENTINEL AT THE FOOT, checked first and by name. An incant parse failure
+    abandons the rest of the file and STILL EXITS 0, so a truncated run is
+    otherwise indistinguishable from a short successful one.
+
+    RUN:   <binary> incant/manyScratch
+*****************************************************************************/
+registry(fILEs);
+define genMany File='incant/genMany'; ;
+include(genMany);
+search reset stack Grokking;
+search Maniers UnitTests list;
+
+register(ManyScratch);
+define
+    caseFull code={
+        site = "ScafC1";
+        min  = "1";
+        many = new("MANY");
+        many +% site;
+        many +% min;
+        return spellMany(many);
+        };
+    caseBare code={
+        many = new("MANY");
+        return spellMany(many);
+        };
+    caseHalf code={
+        site = "ScafC1";
+        many = new("MANY");
+        many +% site;
+        return spellMany(many);
+        };
+    /*  ⚠ `say` IS A SEPARATE ACTION AND THAT IS NOT STYLE. `$` toggles a
+        GLOBAL (useDefaultSpace) that is reset to true at ACTION ENTRY and NOT
+        on return, so after runAll has called spellMany the flag is whatever
+        spellMany left -- and a `$` in runAll would then turn spacing ON,
+        printing `full= 1` instead of `full=1`. Entering a fresh action resets
+        it, so the assertion's own spelling stops depending on what it just
+        called. Presence-with-value, per standing rule H4: the answer is
+        printed unconditionally and its VALUE compared, never its absence.  */
+    say argument code={
+        cerr $"MANY ANSWER=" argument:;
+        };
+    runAll code={
+        full = caseFull();
+        bare = caseBare();
+        half = caseHalf();
+        say(full);
+        say(bare);
+        say(half);
+        };
+    ;
+
+runAll();
+print "MS SENTINEL":;
+stop();
