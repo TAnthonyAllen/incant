@@ -399,6 +399,23 @@ else
     echo "        'degrade count = 0' in this file is unfalsifiable again"; fail=1
 fi
 
+#  JPl -- A DIFFERENT ARM, and the reason it is a separate check. JPd covers a
+#  leaf INSIDE the switch; JPl covers one of the arms ABOVE it (the 35a
+#  list-concat). Those were silent until the exhaustiveness pass: they have no
+#  emitter and under jitting they EXECUTE AT EMIT TIME, so the side effect
+#  happens once at compile time while the compiled code does nothing.
+#  ⚠ A PARTIAL GUARANTEE IS NOT ONE. With any arm left silent, "no degrade fired"
+#  means "covered OR silently fell through" -- exactly the ambiguity T1 removes.
+#  Two checks because two arm KINDS; one passing would not imply the other.
+$B incant/jitJPl > "$T/jpl" 2>&1
+check "JPl runs" 0 $?
+sentinel "JPl sentinel (no truncation)" "$T/jpl" "JPL SENTINEL"
+if grep -q "JIT DEGRADE #1: += list-concat into a string target" "$T/jpl"; then
+    echo "  ok    JPl the arms ABOVE the switch degrade too (coverage is exhaustive)"; green=$((green+1))
+else
+    echo "  FAIL  JPl an above-the-switch arm fell through SILENTLY"; fail=1
+fi
+
 echo "-- J-R  RECURSION. THE FRAME MODEL'S DEFINITION OF DONE."
 #  ⚠ THIS IS THE PROOF jitJF SAID IT WAS NOT. Increment 1 could only assert
 #  structure, because without recursion allocas-for-locals is behaviour-neutral.

@@ -1,0 +1,15 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+register(JitLadder);
+define
+    jplOut;
+    jitJPl code={ jplOut += "a" "b" "c"; };
+    ;
+print "JPL jitting a list-concat += (no emitter -- must DEGRADE):":;
+testing(jitJPl);
+print "JPL SENTINEL":;
+stop();

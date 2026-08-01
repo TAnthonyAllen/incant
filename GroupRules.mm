@@ -6146,18 +6146,30 @@ extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target)
     the counter can now be moved by a construct, so the assertion means something
     again.
 
-    STILL OUTSIDE THE TREE and named rather than silently left: the three arms
-    ABOVE the switch (the 35a list-concat, copyListTo, and the `binType ||
-    groupList` append). They are list/structure shaped, they have no emitter, and
-    under jitting they would EXECUTE AT EMIT TIME. The old top gate hid that by
-    returning before them for scalar targets; it did not fix it. Covering them is
-    the fallback column's own work, not this probe's.
+    ⚠ THE DEGRADE IS NOW EXHAUSTIVE, and that is what turns it into a guarantee.
+    The first cut covered only the switch's leaves and left the three arms ABOVE
+    it (35a list-concat, copyListTo, the `binType || groupList` append) plus the
+    two tail arms silent. They are list/structure shaped, have no emitter, and
+    under jitting would EXECUTE AT EMIT TIME -- the side effect happening once at
+    compile time while the compiled code does nothing, which is the "it appears
+    to work and it lies" failure. The old top gate HID that by returning before
+    them for scalar targets; it never fixed it.
+    EVERY arm of this function now either EMITS or DEGRADES LOUDLY. A partial
+    guarantee is not one: with any arm left silent, "no degrade fired" would mean
+    "covered OR silently fell through", which is precisely the ambiguity T1 was
+    written to remove.
+    ⚠ NOTE WHAT A DEGRADE ON A SIDE-EFFECTING ARM ACTUALLY BUYS. It does not make
+    emit-time execution correct -- it makes it COUNTED. That is S0's crossover
+    policy exactly: degrade to the oracle LOUDLY. The divergence is still
+    divergence; it is no longer invisible.
 ***************************************************************************/
 extern "C" GroupItem *opPlusEQ(GroupItem *argument, GroupItem *target)
 {
 	if ( isLIST(argument->groupBody->flags.binType) && (!target->groupBody->flags.data || isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data)) )
 		{
-		Buffer 	*concatBuf = (Buffer*)GroupControl::groupController->groupRules->bufferSTAK->pop();
+		if ( GroupControl::groupController->groupRules->jitting )
+			jitDegrade("+= list-concat into a string target",target);
+		Buffer *concatBuf = (Buffer*)GroupControl::groupController->groupRules->bufferSTAK->pop();
 		if ( !concatBuf )
 			concatBuf = new Buffer("concat buffer");
 		if ( target->groupBody->flags.data )
@@ -6166,10 +6178,18 @@ extern "C" GroupItem *opPlusEQ(GroupItem *argument, GroupItem *target)
 		return ::opString(target,concatBuf);
 		}
 	if ( isLIST(argument->groupBody->flags.binType) )
+		{
+		if ( GroupControl::groupController->groupRules->jitting )
+			jitDegrade("+= copyListTo a list argument",target);
 		argument->copyListTo(target);
+		}
 	else
 	if ( !target->groupBody->flags.isRule && !target->groupBody->flags.actionType && (target->groupBody->flags.binType || target->groupBody->groupList) )
+		{
+		if ( GroupControl::groupController->groupRules->jitting )
+			jitDegrade("+= structural append (binType/groupList)",target);
 		target->addMember(argument);
+		}
 	else
 	if ( argument->groupBody->flags.data )
 		if ( target->groupBody->flags.data )
@@ -6215,8 +6235,16 @@ extern "C" GroupItem *opPlusEQ(GroupItem *argument, GroupItem *target)
 						jitDegrade("+= on an unhandled datA",target);
 					else	::fprintf(stderr,"ERROR Operator += failed on %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
 				}
-		else	target->copyData(argument);
-	else	target->addMember(argument);
+		else {
+			if ( GroupControl::groupController->groupRules->jitting )
+				jitDegrade("+= into a target with no datA",target);
+			target->copyData(argument);
+			}
+	else {
+		if ( GroupControl::groupController->groupRules->jitting )
+			jitDegrade("+= with a dataless argument",target);
+		target->addMember(argument);
+		}
 	return target;
 }
 
@@ -8440,7 +8468,5 @@ int 	result = 0;
 /*	Warning: the following methods were referenced but not declared
 	read(int,char*,long)
 	floor(double)
-	jitDegrade(char*,GroupItem*)
-	jitDegrade(char*,GroupItem*)
 	getRStuff()
 */
