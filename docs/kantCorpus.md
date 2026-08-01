@@ -886,6 +886,50 @@ scope:       ⚠ THIS IS AN ENVIRONMENT CLAIM, NOT A KANT CLAIM, and it is in th
 
 ---
 
+### CLAIM KANT-24 — a closing `}` is INDENTATION-SENSITIVE, and its failure is disguised
+```
+statement:   `}` / `};` are POSITION-sensitive to the parser (checkSkip), not
+             free-form. The case that bites: when an action's LAST body
+             statement is itself a nested block -- a `while`, an `if`, an
+             `iterate` loop -- the action's closing `};` must DEDENT onto its
+             own line, after the nested block has closed. Closing on the same
+             line, or at the nested block's indentation, breaks the parse.
+
+                 WRONG                          RIGHT
+                 myAct code={                   myAct code={
+                     iterate g on argument;         iterate g on argument;
+                     while ++g;                     while ++g;
+                         print g:; };                   print g:;
+                                                    };
+
+confidence:  Tony, volunteered 2026-08-01 as a known property of the parser.
+             READ at the corpus level -- not independently re-derived here.
+provenance:  Tony direct, mid-round, unprompted. He raised it precisely because
+             "it is not obvious and could take minionA multiple cycles to
+             stumble over."
+asOf:        2026-08-01
+scope:       ⚠ THE SYMPTOM IS DISGUISED, AND THAT IS THE EXPENSIVE HALF. An
+             incant parse failure ABANDONS THE REST OF THE FILE AND STILL EXITS
+             0 (CLAUDE.md testing doctrine, third corollary) -- no `stop:` line,
+             prior output flushed, every assertion before the bad line still
+             passing. So a brace-indentation error does NOT announce itself as a
+             brace problem; it reads as "my action did not run" or "it ran
+             short", and the search goes to the logic.
+             THE DISCRIMINATOR IS THE SENTINEL: reached it ⇒ not this; absent ⇒
+             suspect the closing brace BEFORE the logic.
+             Related but distinct from bear-trap #4 (a `//` between an `if`'s
+             condition and its statement) and from the `-% %-` cases: those are
+             about what occupies a statement slot, this is about WHERE a
+             terminator sits.
+```
+**Why this is in the corpus and not in the brief.** The spawn rule is explicit --
+anything learned goes in the corpus or it goes nowhere, because a patched brief
+carries the learning and the corpus looks like it is absorbing while the brief does
+the work. This is a standing property of the tree rather than a round's finding, so
+it belongs to every round equally.
+
+---
+
 ## BLOCKED
 
 ### BLOCKED KANT-B1 — a kant action cannot return NULL across `runAction`
