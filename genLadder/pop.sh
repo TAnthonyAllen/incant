@@ -22,12 +22,41 @@ fi
 echo "  bin   $B"
 echo "  bin   $(ls -lL "$B" | awk '{print $5" bytes  "$6" "$7" "$8}')"
 
+green=0
+parked=0
+
 check () {                      # check <name> <expected-exit> <actual-exit>
-    if [ "$2" = "$3" ]; then echo "  ok    $1"; else echo "  FAIL  $1 (exit $3)"; fail=1; fi
+    if [ "$2" = "$3" ]; then echo "  ok    $1"; green=$((green+1))
+    else echo "  FAIL  $1 (exit $3)"; fail=1; fi
 }
 diffcheck () {                  # diffcheck <name> <target> <actual>
-    if diff "$2" "$3" > "$T/d" 2>&1; then echo "  ok    $1"
+    if diff "$2" "$3" > "$T/d" 2>&1; then echo "  ok    $1"; green=$((green+1))
     else echo "  FAIL  $1"; sed 's/^/          /' "$T/d"; fail=1; fi
+}
+
+#  PARKED CHECKS -- Tony's reclassification, 2026-08-01. A parked check RUNS and
+#  REPORTS exactly like any other; the only difference is that its failure does
+#  not fail the suite, because the answer it would be measured against has not
+#  been chosen yet.
+#
+#  ⚠ IT IS NOT A SKIP, AND THE DIFFERENCE IS THE WHOLE DESIGN. A skipped check
+#  passes by being absent, which is standing rule H4's failure mode exactly. A
+#  parked check still executes the fixture, still prints its real state, and --
+#  the part that matters -- GOES LOUD IF IT STARTS PASSING. A pin that silently
+#  begins to hold is how a parked item becomes a forgotten item.
+parkcheck () {                  # parkcheck <name> <expected-exit> <actual-exit>
+    if [ "$2" = "$3" ]; then echo "  ok    $1"; green=$((green+1))
+    else echo "  park  $1 (exit $3)  -- old-design pin, semantics parked with Tony"
+         parked=$((parked+1)); fi
+}
+parkdiff () {                   # parkdiff <name> <target> <actual>
+    if diff "$2" "$3" > "$T/d" 2>&1; then
+        echo "  WOKE  $1 -- A PARKED PIN NOW PASSES."
+        echo "        Tony's offline iterator work may have landed. Re-pin it against the"
+        echo "        semantics he chose and take it off the parked list; do not leave it here."
+        green=$((green+1))
+    else echo "  park  $1  -- old-design pin, semantics parked with Tony"
+         parked=$((parked+1)); fi
 }
 
 $B incant/genScratch > "$T/gen" 2>&1;    check "genScratch runs"  0 $?
@@ -52,7 +81,7 @@ $B incant/baselineTests > "$T/base" 2>&1; check "baselineTests runs (smoke, exit
 #  the run reached the end. This is a presence check on one line, not the golden
 #  diff that ruling 3 deliberately declined.
 if [ -s "$T/base" ] && tail -1 incant/baselineTests.golden | grep -qFf - "$T/base"; then
-    echo "  ok    baselineTests reached its end (completeness, not content)"
+    echo "  ok    baselineTests reached its end (completeness, not content)"; green=$((green+1))
 else
     echo "  FAIL  baselineTests TRUNCATED -- exited 0 without reaching its last line"; fail=1
 fi
@@ -113,7 +142,7 @@ diffcheck "spell.target (emitLeaf: 5 kinds x 2 sinks; emitter's own refusal NOT 
 #  quietly answering for it.
 SPELLER="SPELLER kant"
 if grep -qF "$SPELLER" "$T/spe"; then
-    echo "  ok    speller is kant (flipped by round 1 -- c++ here again means the kant one is not being found)"
+    echo "  ok    speller is kant (flipped by round 1 -- c++ here again means the kant one is not being found)"; green=$((green+1))
 else
     echo "  FAIL  speller pin MOVED:"
     grep "^SPELLER" "$T/spe" | sed 's/^/          actual:   /' || echo "          (no SPELLER line -- is spellMode still called from spellScratch?)"
@@ -162,7 +191,7 @@ fi
 #                          not accepted.
 AUDITLINE="AUDIT all registries: 4 missing rules, 15 missing terms, 4 loose"
 if grep -qF "$AUDITLINE" "$T/one"; then
-    echo "  ok    rStuff audit (present, populations unchanged)"
+    echo "  ok    rStuff audit (present, populations unchanged)"; green=$((green+1))
 else
     echo "  FAIL  rStuff audit -- line absent or populations MOVED:"
     grep "^AUDIT all registries" "$T/one" | sed 's/^/          actual:   /' || echo "          (no AUDIT summary at all -- is audit() still called from oneTest?)"
@@ -182,11 +211,27 @@ fi
 #  stdout and stderr are captured SEPARATELY. T1's assertion is ORDER, and the
 #  no-list diagnostics go to stderr unbuffered while the trace is buffered, so a
 #  2>&1 capture interleaves them by flush timing rather than by event order.
-iterrun () {                    # iterrun <fixture> <target> <label>
+#  ⚠⚠ RECLASSIFIED 2026-08-01 (Tony): THESE THREE FIXTURES ARE WIP-BY-DESIGN,
+#  NOT DEBT. Tony reworked the iterator offline -- ++/-- now carry an isIterator
+#  gate, an iterator inherits its source's groupList, and exhaustion returns null.
+#  These targets were pinned against the OLD design, so they measure a question
+#  whose answer has not been chosen yet. The open halves (:= / <- source change,
+#  attribute/member restrictions, post-exhaustion restart, leaf-source semantics)
+#  are all parked with Tony as part of his offline work.
+#
+#  SO NOTHING ABOUT THEM IS OWED BY ANYONE. They re-pin when that work lands, as
+#  part of it, against semantics Tony chose -- not before, and not by whoever
+#  happens to run the POP next. A prior SEQ proposing a no-list guard on ++/--
+#  was WITHDRAWN for exactly this reason: it presumed a leaf-source ruling that
+#  is his to make.
+#
+#  GREEN-BUT-FOR-PARKED IS THIS FLEET'S CLEAN STATE, and the summary line says so
+#  in both numbers so neither can be read alone.
+iterrun () {                    # iterrun <fixture> <target> <label>  -- PARKED
     $B "incant/$1" > "$T/$1.o" 2> "$T/$1.e"; ec=$?
-    check "$3 exit 0" 0 $ec
+    parkcheck "$3 exit 0" 0 $ec
     grep -vE "^Search list:|^stop:|^$" "$T/$1.o" > "$T/$1.f"
-    diffcheck "$3" "$2" "$T/$1.f"
+    parkdiff "$3" "$2" "$T/$1.f"
 }
 
 #  T1 -- SAME ACTION RECURSING, with cursors that genuinely coexist. trunk's
@@ -225,11 +270,11 @@ branchrun () {                  # branchrun <fixture> <sentinel> <name>
     if [ $? != 0 ]; then echo "  FAIL  $3 (nonzero exit)"; fail=1; return; fi
     if ! grep -qF "$2" "$T/$1"; then
         echo "  FAIL  $3 -- TRUNCATED at exit 0; every line in it is uninterpretable"; fail=1; return; fi
-    echo "  ok    $3"
+    echo "  ok    $3"; green=$((green+1))
 }
 valcheck () {                   # valcheck <file> <pattern> <want> <name>
     got=$(sed -n "s/.*$2//p" "$T/$1" | sed 's/[^0-9-].*//' | head -1)
-    if [ "$got" = "$3" ]; then echo "  ok    $4"
+    if [ "$got" = "$3" ]; then echo "  ok    $4"; green=$((green+1))
     else echo "  FAIL  $4 (got '$got', want $3)"; fail=1; fi
 }
 branchrun retProbe "RP SENTINEL" "retProbe runs (branch/return semantics)"
@@ -243,6 +288,11 @@ diffcheck "oneTest baseline"  genLadder/oneTest.base  "$T/one"
 diffcheck "jsonTest baseline" genLadder/jsonTest.base "$T/jsn"
 
 echo ""
-if [ $fail = 0 ]; then echo "POP PASSED"; else echo "POP FAILED"; fi
+if [ $fail = 0 ]; then echo "POP PASSED -- $green green / $parked parked-WIP"
+else echo "POP FAILED -- $green green / $parked parked-WIP"; fi
+if [ $parked != 0 ]; then
+    echo "              parked = iterator fixtures pinned to the OLD design;"
+    echo "              semantics are Tony's offline work and nothing is owed until it lands."
+fi
 rm -rf "$T"
 exit $fail

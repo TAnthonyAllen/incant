@@ -126,9 +126,20 @@ replaces the registry-naming refusal, and **move `census.target`**.
 agent a convention change, an unmeasured hazard, and a moving oracle at once is three variables
 where the harness allows one.
 
-**Two things the dissolve destroys; rule on them rather than discover them:** the discriminating
-refusal (*"REFUSING X — not a rule; locate finds a non-rule in registry Keywords"*, which caught
-a real mis-target), and the `census.target` lines that carry it.
+**Two things the dissolve destroys — ✅ BOTH RULED 2026-08-01 (Tony):**
+
+> **The dissolve TAKES the discriminating refusal. No successor.** The mis-target it guarded
+> (*"REFUSING X — not a rule; locate finds a non-rule in registry Keywords"*) is
+> **unconstructable at a name-in-hand site** — you cannot hand a bare rule name to something and
+> have it turn out to be a Keywords entry, because the name *is* the node. The guard existed to
+> defend a string-to-node conversion that will no longer happen. Residual paranoia is the
+> `isRule` test where wanted — **and that test is now honest**, as of the same day.
+>
+> **`census.target` moves with the dissolve**, as part of it, accounted for by whoever does it.
+
+That closes the last open question on this disposition. What remains before it can be scheduled
+is unchanged and is measurement, not judgement: `aCTionNamE`'s bare-name behaviour inside
+`code={}` (the `addGroup`-copy hazard).
 
 ---
 
