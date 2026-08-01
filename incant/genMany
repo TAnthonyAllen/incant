@@ -120,16 +120,35 @@ define
         if !min;
             cerr $"emitMany: MANY node has no site/min":;
             return answer;
-        cerr $"extern int many" site "(GroupItem label, GroupItem term)":;
-        cerr "{":;
-        cerr "GroupRules  ruler = groupRules;":;
-        cerr "String      from = atRuleMark;":;
-        cerr "int         kount;":;
-        cerr ____"while parseR(term,label)    kount++;":;
-        cerr ____"if kount >= " min ___"return true;":;
-        cerr ____"atRuleMark = from;":;
-        cerr ____"return false;":;
-        cerr closeBrace:;
+        /*  ⚠ ONE STATEMENT, NOT TEN -- Tony's instruction, and it holds.
+            A double-quoted literal SPANS NEWLINES inside an action body:
+            newlines emit verbatim, every continuation line KEEPS ITS OWN
+            INDENTATION, and fields interpolate mid-string. Only the literal's
+            own FIRST leading whitespace run is stripped (KANT-28), which is why
+            eight of the nine underscore shortcuts below became unnecessary --
+            the surviving one follows the `min` interpolation, because a resumed
+            literal is a NEW literal and gets stripped in its turn.
+            THE POINT IS NOT THE LINE COUNT: the emitter now LOOKS LIKE THE C++
+            IT EMITS, which is the thing worth having.
+
+            ⚠⚠ AND KANT-26 EXTENDS TO COMMENTS -- LEARNED HERE, THE HARD WAY.
+            The first version of THIS comment contained a close-brace character,
+            written to explain that a close-brace ends the CodE capture early.
+            It ended the CodE capture early. The whole action vanished, the
+            fixture emitted nothing, and rung5 went red. aCTionCodE scans for
+            the first close-brace with no quote awareness and NO COMMENT
+            AWARENESS EITHER. Do not write that character in here, in any form,
+            including while describing it.  */
+        cerr $"extern int many" site "(GroupItem label, GroupItem term)
+{
+GroupRules  ruler = groupRules;
+String      from = atRuleMark;
+int         kount;
+    while parseR(term,label)    kount++;
+    if kount >= " min ___"return true;
+    atRuleMark = from;
+    return false;
+" closeBrace:;
         answer = "1";
         return answer;
         };

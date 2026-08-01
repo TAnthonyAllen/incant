@@ -1,0 +1,199 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+/*****************************************************************************
+    countScratch -- the fixture for the KANT `countRuleTerms` (incant/genCount).
+
+    WHY IT DOES NOT GO THROUGH genParse. The C++ fork in countRuleTerms does
+    not exist yet (it is foreman's; round 3's report carries the exact diff),
+    so `genParse('ScafC')` still runs the C++ body. This fixture therefore
+    drives `countTerms` DIRECTLY, on real rule nodes.
+
+    ⚠ THE ORACLE IS THE C++ ITSELF, COMPUTED IN THE SAME RUN, AND THAT IS THE
+    WHOLE DESIGN. `dumpRuleTerms` (genParse.rtn:170) prints one `[i] tag` line
+    per list entry and a `noPrint (SKIPPED by the walk)` line for each entry
+    the C++ walk skips -- so
+
+        expected = (count of "[i] " lines) - (count of "SKIPPED" lines)
+
+    IS the C++ `countRuleTerms` answer, derived rather than transcribed. No
+    `.target` file, nothing to regenerate green, and a change to EITHER
+    implementation breaks the check (standing rule H3). The kant answer is
+    printed as `KOUNT <tag>=<n>` where n is the count PLUS ONE -- so a run in
+    which the bias silently disappeared fails every row rather than passing.
+
+    THE CROSS-CHECK, run from the Groups directory. It asserts the ROW COUNT
+    as well as the values, so a census that silently lost rules cannot pass by
+    comparing fewer things (standing rule H4's other half -- an anti-vacuity
+    guard, because a check that compares nothing to nothing is an absence check
+    wearing a diff's clothes):
+
+        B=${INCANT:-$HOME/bin/incant}
+        $B incant/countScratch > /tmp/cs.out 2> /tmp/cs.err;  echo "EXIT=$?"
+        grep -q 'CS SENTINEL' /tmp/cs.out || echo "TRUNCATED"
+        awk '/^RULE /{r=$2;t[r]=0;s[r]=0;n++}
+             /^    \[/{t[r]++}
+             /noPrint \(SKIPPED/{s[r]++}
+             /nextGroup: ERROR/{leaf++}
+             /^KOUNT /{split($2,a,"=");k[a[1]]=a[2]}
+             END{bad=0
+                 for(r in t){ok=((r in k)&&(t[r]-s[r]==k[r]-1))
+                     printf "%-12s cpp=%d kant=%s %s\n",
+                       r,t[r]-s[r],(r in k)?k[r]-1:"NONE",ok?"ok":"MISMATCH"
+                     if(!ok)bad++}
+                 printf "ROWS=%d MISMATCHES=%d LEAFWALKS=%d\n",n,bad,leaf+0
+                 if(n!=23||bad||leaf)print "CROSS-CHECK FAILED"}' /tmp/cs.err
+
+    ⚠ `LEAFWALKS` IS NOT DECORATION AND IT IS PRINTED UNCONDITIONALLY. MEASURED:
+    deleting `if argument.listLengtH;` from `incant/genCount` leaves ROWS=23
+    MISMATCHES=0 and exit 0 -- the COUNT is unaffected, because a list-less rule
+    counts 0 either way. What changes is one `nextGroup: ERROR Modifier does not
+    contain a list` line on STDERR, which is where genParse writes its EMITTED
+    TEXT. So the guard's whole job is invisible to a count comparison, and the
+    check has to name the quantity: LEAFWALKS is the number of list-less walks
+    the run performed, printed every time and asserted == 0. Written this way
+    round rather than as "assert the message is absent" per standing rule H4 --
+    an absence check goes green the day the message is removed. Same shape as
+    the JIT degrade counter.
+
+    ⚠ FOUR RULES ARE DELIBERATELY ABSENT FROM THE CENSUS, and the reason is a
+    FIXTURE limitation rather than a counter one -- it is named here so nobody
+    reads the gap as coverage. This fixture hands `countTerms` a rule by BARE
+    NAME, and two things can happen to a bare name that cannot happen to the
+    node a C++ caller already holds:
+
+        NumbeR, Attributes, NewGroup   carry `rule.data=isGROUP`, so the name
+                                       DEREFERENCES to gGroup -- `NumbeR`
+                                       arrives as `numberSet`, and both
+                                       `Attributes` and `NewGroup` arrive as
+                                       `TraiT`. MEASURED: `KOUNT numberSet=1`
+                                       and `KOUNT TraiT=5` twice over.
+        CodE                           is SHADOWED -- JSONfield's noPrint
+                                       code-tail contains a leaf named `CodE`,
+                                       and the bare name finds that instead of
+                                       the grammar rule (kant said 0 terms, the
+                                       C++ rule has 2).
+
+    The C++ `countRuleTerms` takes a NODE from `planRule`/`parseRuleMethod`,
+    which never goes through name resolution, so the seam is unaffected. These
+    four are excluded because the FIXTURE cannot address them, not because the
+    counter cannot count them.
+
+    ⚠ TAKE `$?` DIRECTLY FROM THE BINARY, NEVER THROUGH A PIPE -- this
+    project's shell is zsh and `${PIPESTATUS[0]}` expands to NOTHING there, so
+    every run reads as passing (CLAIM KANT-24/PIPESTATUS).
+
+    ⚠ THE JSON PARSE ON LINE `testJSON(...)` IS LOAD-BEARING AND MUST STAY
+    FIRST. Parts of a rule's list are materialised LAZILY: before any parse has
+    run, JSONfield has SEVEN entries and after one it has EIGHT (the extra is
+    the action body's `BlocK`). Both implementations agree either way -- the
+    late arrival is noPrint, so the REAL count is 4 before and after -- but a
+    census taken on a never-parsed tree exercises fewer noPrint entries than
+    the ladder actually meets, which is the same reason termScratch and
+    censusScratch both parse first.
+
+    THE ROWS: 23 of the census termScratch/censusScratch use, which is the only
+    set that reaches the noPrint tail at all -- only JSONfield (4) and JSONarray
+    (3) carry noPrint entries, and a census restricted to the Scaf ladder would
+    never discriminate `if !term.noPrinT` from `if 1`. `Modifier` is the row
+    that covers the OTHER edge: it has no list at all, so it is the only
+    exercise of the `if argument.listLengtH;` guard, and without it a removed
+    guard would still read green everywhere.
+
+    SENTINEL AT THE FOOT, checked first and by name. An incant parse failure
+    abandons the rest of the file and STILL EXITS 0, so a truncated run is
+    otherwise indistinguishable from a short successful one.
+
+    RUN:   <binary> incant/countScratch
+*****************************************************************************/
+registry(cOMMANDs);
+define dumpRuleTerms immediateAction=dumpRuleTerms; ;
+
+registry(fILEs);
+define genCount File='incant/genCount'; ;
+include(genCount);
+
+register(Ladder);
+define
+    Scaf  isRule "x"-;
+    Scaf2 isRule "{"- "}"-;
+    ScafA isRule "a"-;
+    ScafB isRule ScafA "b"-;
+    ;
+search reset stack Grokking Counters Ladder UnitTests Utilities list;
+
+define
+    testJSON argument code={
+        clear(listed);
+        field = JSONblock(argument);
+        };
+    /*  ⚠ ONE ACTION PER PRINTED ROW, and `$` is the reason. It toggles ONE
+        GLOBAL that is reset to true at ACTION ENTRY and NOT restored on return
+        (CLAIM KANT-27), so entering `report` afresh is what makes the row's own
+        spelling independent of whatever `countTerms` last left behind.
+        Presence-with-value, per standing rule H4: the count is printed
+        unconditionally and its VALUE compared, never its absence.  */
+    report argument code={
+        n = countTerms(argument);
+        cerr $"KOUNT " argument.taG "=" n:;
+        };
+    census code={
+        report(Scaf);
+        report(Scaf2);
+        report(ScafA);
+        report(ScafB);
+        report(JSONblock);
+        report(JSONfield);
+        report(JSONvalue);
+        report(JSONtoken);
+        report(JSONitem);
+        report(JSONlist);
+        report(JSONarray);
+        report(FloaT);
+        report(PoweR);
+        report(QuotE);
+        report(NamE);
+        report(GrouP);
+        report(DatA);
+        report(Limit);
+        report(MemberS);
+        report(Modifier);
+        report(TraiT);
+        report(TraiTdata);
+        report(DefinE);
+        };
+    ;
+
+testJSON('{"a":[1,2]}');
+
+/*  THE C++ SIDE OF THE ORACLE, taken FIRST so a crash in the kant half cannot
+    truncate the expected values out of the same capture.  */
+dumpRuleTerms('Scaf');
+dumpRuleTerms('Scaf2');
+dumpRuleTerms('ScafA');
+dumpRuleTerms('ScafB');
+dumpRuleTerms('JSONblock');
+dumpRuleTerms('JSONfield');
+dumpRuleTerms('JSONvalue');
+dumpRuleTerms('JSONtoken');
+dumpRuleTerms('JSONitem');
+dumpRuleTerms('JSONlist');
+dumpRuleTerms('JSONarray');
+dumpRuleTerms('FloaT');
+dumpRuleTerms('PoweR');
+dumpRuleTerms('QuotE');
+dumpRuleTerms('NamE');
+dumpRuleTerms('GrouP');
+dumpRuleTerms('DatA');
+dumpRuleTerms('Limit');
+dumpRuleTerms('MemberS');
+dumpRuleTerms('Modifier');
+dumpRuleTerms('TraiT');
+dumpRuleTerms('TraiTdata');
+dumpRuleTerms('DefinE');
+
+census();
+print "CS SENTINEL":;
+stop();

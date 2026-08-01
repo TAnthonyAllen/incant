@@ -1388,6 +1388,34 @@ a day and has already paid for itself.
 
 ---
 
+### CLAIM KANT-40 — KANT-26 EXTENDS TO COMMENTS: a close-brace in a `/* */` inside an action body ends the capture
+```
+statement:   aCTionCodE scans for the first close-brace with NO quote awareness
+             (KANT-26) and NO COMMENT AWARENESS EITHER. A close-brace character
+             written inside a /* */ comment in an action body ends the CodE
+             capture at that point. The action vanishes, the file emits nothing
+             from there on, and the run still exits 0.
+confidence:  RUN, and the provenance is embarrassing enough to be memorable
+provenance:  2026-08-01. The foreman wrote a comment in incant/genMany EXPLAINING
+             that a close-brace ends the CodE capture early. The comment
+             contained the character. It ended the CodE capture early. The whole
+             spellMany action vanished, incant/manyScratch emitted ZERO lines,
+             and genLadder/pop.sh went to `FAIL rung5.target / POP FAILED --
+             21 green`. Removing the character from the prose -- changing
+             nothing else -- restored manyScratch.target to BYTE-IDENTICAL and
+             pop.sh to PASSED.
+asOf:        2026-08-01
+scope:       Extends CLAIM KANT-26 from quoted strings to comments; the
+             mechanism is identical and is stated there. The practical rule is
+             stronger than "escape it": DO NOT WRITE THAT CHARACTER INSIDE AN
+             ACTION BODY IN ANY FORM, INCLUDING WHILE DESCRIBING IT. Refer to it
+             in words.
+             ⚠ THE SYMPTOM IS KANT-33's, NOT A BRACE ERROR'S: exit 0, no
+             diagnostic naming braces, and the file simply produces less than it
+             should. The discriminator is the same -- absent sentinel, or in this
+             case a fixture that emitted nothing at all.
+```
+
 ## BLOCKED
 
 ### BLOCKED KANT-B1 — a kant action cannot return NULL across `runAction`

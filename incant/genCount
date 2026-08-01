@@ -1,0 +1,111 @@
+/*****************************************************************************
+    genCount -- genParse's REAL-TERM COUNTER, IN KANT (minionA round 3).
+
+    This is the kant side of `countRuleTerms` (genParse.rtn:235): one rule ->
+    how many of its list entries are REAL terms, i.e. not noPrint.
+
+    ⚠ A SEPARATE FILE AND A SEPARATE REGISTRY (`Counters`), for the two reasons
+    rounds 1 and 2 paid for. An incant parse failure ABANDONS THE REST OF ITS
+    FILE AND STILL EXITS 0 (CLAUDE.md testing, third corollary), so a bad edit
+    in a round-3 action appended to `incant/genMany` would take round 2's
+    `spellMany` down SILENTLY and the POP would report the loss as a
+    rung5.target diff rather than as a syntax error. And sharing round 2's
+    `Maniers` would mean any fixture putting it on its search list turns on the
+    kant emitMany TOO -- so a fixture could not adopt a kant countRuleTerms
+    without adopting a kant emitMany in the same commit. Three files, three
+    registries, three independent switches, three independent pins.
+
+    -------------------------------------------------------------------------
+    THE INTERFACE -- the C++ fork's side of the seam. It does not exist yet;
+    this round's report carries the exact diff. Absent it this file is INERT:
+    registering an action nobody looks up changes nothing, which is why landing
+    it before the fork is safe.
+
+        registry            Counters      -- and only a registry of that name
+        action              countTerms    -- and only under that name
+        argument            the RULE NODE (not its name -- a kant action must
+                              not locate, and the C++ callers already hold the
+                              node)
+        returns             a field whose TEXT is the count PLUS ONE
+
+    ⚠ WHY BIASED BY ONE, AND IT IS NOT CLEVERNESS. `countRuleTerms` answers an
+    UNBOUNDED integer whose ZERO IS MEANINGFUL: `planRule` refuses a rule when
+    the count is 0 ("no terms at all"), and `parseRuleMethod` compares the count
+    against a baked `parseTerms=`. Round 2 established (CLAIM KANT-32) that a
+    kant answer crosses `runAction` as TEXT and that a kant action which failed
+    to parse comes back as the CALLER's own local tag -- which `atoi` reads as
+    0. So an unbiased count cannot distinguish "this rule genuinely has no
+    terms" from "the kant side is dead", and the dead case would arrive
+    disguised as a legitimate refusal, pointing the reader at the grammar
+    instead of at this file.
+
+    Biasing makes 0 UNREACHABLE from a valid answer, so 0 means exactly one
+    thing: no usable kant answer. That keeps round 2's vocabulary rather than
+    inventing a second one -- there, "1" is yes and "0" is no; here, N+1 is the
+    answer and "0" is still no. ONE reserved value across both seams.
+
+    The bias is spelled `kount = 1;` rather than `kount += 1;` at the end,
+    because an initialiser cannot be reached-around by an early return and a
+    tail adjustment can.
+
+    -------------------------------------------------------------------------
+    FOUR THINGS ABOUT THIS BODY THAT ARE NOT OPTIONAL.
+
+    1. `for term in argument;` IS THE RIGHT WALK, AND ITS ABSENCE OF A FILTER
+       IS THE POINT. The C++ walks `rule[i]`, which is GroupItem::get(offset)
+       (GroupItem.mm:586) -- a plain positional walk of the WHOLE list, in list
+       order, with no affiliation filter. A bare `for` is `LoopOn.next(grup)`
+       (aCTionFOR, ruleActions.rtn:528) with no LoopRestrict, which is the same
+       unfiltered walk. `for ... members` or `... attributes` would silently
+       count a different set: JSONfield's real terms are ATTRIBUTES, so a
+       members filter answers 0 on every rule the ladder cares about.
+
+       MEASURED against the C++'s own dump on JSONfield, after a real parse:
+       8 list entries, 4 of them noPrint, real count 4 -- the same 8/4 the kant
+       walk sees. See incant/countScratch, which cross-checks every row of a
+       27-rule census in the SAME RUN.
+
+    2. `if argument.listLengtH;` IS A REQUIRED GUARD, NOT A TIDINESS. A leaf has
+       no groupList, and `for` on one reaches nextGroup's
+           nextGroup: ERROR <tag> does not contain a list
+       on STDERR -- which is where genParse writes its EMITTED TEXT, so the
+       noise would land inside a ladder target. The C++ `get()` returns 0
+       silently in that case, so the guard is what makes the two agree.
+       (`listLengtH` is case 5 and is null-guarded, unlike `.firsT`/`.lasT` --
+       CLAIM KANT-18.)
+
+    3. `if !term.noPrinT;` ON ITS OWN LINE, ARM INDENTED. An `if` and its
+       governed statement must not share a line (CLAIM KANT-30), and the flag's
+       kant spelling is `noPrinT` (incant/setup:29 -> GroupFields 29), not the
+       tok spelling `noPrint`. An unset flag prints as its own tag (KANT-10) but
+       IS falsy to `if !` (KANT-31), which is exactly what this test needs.
+
+    4. THE LAST BODY STATEMENT IS `return kount;`, NOT THE `for` BLOCK, so the
+       closing `};` sits at the define's own indentation. A `};` closing on a
+       nested block's line breaks the parse (CLAIM KANT-33) and the symptom is
+       a missing sentinel, never a brace message.
+
+    -------------------------------------------------------------------------
+    THE ORACLE is incant/countScratch: it runs `dumpRuleTerms` (the C++'s own
+    per-term dump) and `countTerms` over the SAME 27-rule census in the SAME
+    run, so the expected value is DERIVED FROM THE C++ IMPLEMENTATION rather
+    than transcribed from it. There is no `.target` file to go stale, and a
+    change to either implementation breaks the check -- standing rule H3's
+    "assert the thing that only moves when the answer moves".
+
+    KNOWN GAP, stated rather than papered over: until the C++ fork lands this
+    has NEVER RUN THROUGH `runAction`. What is proven is the COUNT; what is
+    unproven is the SEAM -- and a `COUNTER kant` pin is owed with the fork for
+    exactly the reason round 1's `SPELLER kant` pin exists.
+*****************************************************************************/
+registry(Counters);
+define
+    countTerms argument code={
+        kount = 1;
+        if argument.listLengtH;
+            for term in argument;
+                if !term.noPrinT;
+                    ++kount;
+        return kount;
+        };
+    ;

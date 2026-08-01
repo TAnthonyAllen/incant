@@ -1,0 +1,36 @@
+Start();
+include(unitTests);
+search reset stack Grokking UnitTests list;
+register(LessProbe);
+define
+    spellManyLess argument closeBrace="}" code={
+        :argument site min;
+        answer = "0";
+        if !site || !min;
+            cerr $"emitMany: MANY node has no site/min":;
+            return answer;
+        cerr $"extern int many" site "(GroupItem label, GroupItem term)
+{
+GroupRules  ruler = groupRules;
+String      from = atRuleMark;
+int         kount;
+    while parseR(term,label)    kount++;
+    if kount >= " min ___"return true;
+    atRuleMark = from;
+    return false;
+" closeBrace:;
+        answer = "1";
+        return answer;
+        };
+    caseFull code={
+        site = "ScafC1";
+        min  = "1";
+        many = new("MANY");
+        many +% site;
+        many +% min;
+        return spellManyLess(many);
+        };
+    ;
+caseFull();
+print "LP SENTINEL":;
+stop();

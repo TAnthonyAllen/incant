@@ -34,6 +34,24 @@ diffcheck () {                  # diffcheck <name> <target> <actual>
     else echo "  FAIL  $1"; sed 's/^/          /' "$T/d"; fail=1; fi
 }
 
+sentinel () {                   # sentinel <name> <file> <text>
+    #  ⚠ THIS HELPER WAS MISSING UNTIL 2026-08-01 AND THE CALL SITE AT THE
+    #  manyScratch CHECK SILENTLY EVAPORATED. It was copied from printPop.sh
+    #  along with the idiom but the DEFINITION was not, so every run printed
+    #  `pop.sh: line N: sentinel: command not found` and CARRIED ON: the check
+    #  did not increment green, did not set fail, and the suite still reported
+    #  PASSED. It neither passed nor failed -- it ceased to exist.
+    #  THIS IS STANDING RULE H2's OWN FAILURE MODE INSIDE THE HARNESS THAT
+    #  ENFORCES H2 -- a sentinel that is never checked -- and it is the second
+    #  instance on this project after incant/jiquery's three stop() calls.
+    #  Found by minionA round 3, which was told not to fix it because the brief
+    #  pinned the count. It was right to report rather than repair.
+    if grep -qF "$3" "$2"; then echo "  ok    $1"; green=$((green+1))
+    else echo "  FAIL  $1 -- THE RUN TRUNCATED. A row stopped parsing and every"
+         echo "        row after it was silently dropped, at exit 0. Find the row"
+         echo "        that stopped parsing, not the row that diffed."; fail=1; fi
+}
+
 #  PARKED CHECKS -- Tony's reclassification, 2026-08-01. A parked check RUNS and
 #  REPORTS exactly like any other; the only difference is that its failure does
 #  not fail the suite, because the answer it would be measured against has not
