@@ -760,17 +760,44 @@ extern GroupItem opPlus(GroupItem argument,GroupItem target)
 }
 
 /***************************************************************************
-	Rule action for the += operator
+	Rule action for the += operator.
+
+    ⚠⚠ THE TABLE-ARC PROBE (T1, 2026-08-01): SHARED DISPATCH, FORKED LEAVES.
+    This op is the worked example for the whole table arc, so the shape matters
+    more than the op does.
+
+    WHAT CHANGED: the `if jitting` gate USED TO SIT AT THE TOP OF THE FUNCTION
+    and re-decide isSTRING/isTOKEN/isCOUNT/isNUMBER -- the very question the
+    switch below already answers from the carried `datA`. Two decisions, one
+    fact, and they can disagree. That disagreement is not hypothetical: it is
+    exactly why jit.md S3.5 can list SEVEN ops whose gate fires assuming a
+    numeric target, and why the same list called the compound family
+    "list-blind" -- the top gate never saw the list arms above the switch.
+
+    NOW: ONE dispatch tree, and each LEAF forks do-vs-emit. A forked leaf cannot
+    disagree with itself, because there is only one place the type is read.
+
+    THE THREE LEAF KINDS, per T1:
+      scalar  count/number  -> emit (jitEmitBinary + store-back)
+              string/token  -> emit (jitEmitStringPlusEQ, the ruled two-arg
+                               exception and the layer's only CreateCall)
+      fallback / uncovered  -> DEGRADE LOUDLY. Buffer, Stak and the default arm
+                               call jitDegrade and then RUN THE INTERPRETED BODY.
+    ⚠ THE DEGRADE ARMS ARE THE POINT, not decoration. jitDegrade had ZERO call
+    sites after the iterator rework, so every ladder rung's `degrade count = 0`
+    was VACUOUS -- true, but unable to move. These are its first real citizens:
+    the counter can now be moved by a construct, so the assertion means something
+    again.
+
+    STILL OUTSIDE THE TREE and named rather than silently left: the three arms
+    ABOVE the switch (the 35a list-concat, copyListTo, and the `binType ||
+    groupList` append). They are list/structure shaped, they have no emitter, and
+    under jitting they would EXECUTE AT EMIT TIME. The old top gate hid that by
+    returning before them for scalar targets; it did not fix it. Covering them is
+    the fallback column's own work, not this probe's.
 ***************************************************************************/
 extern GroupItem opPlusEQ(GroupItem argument,GroupItem target)
 {
-    if jitting {
-        if target.isSTRING || target.isTOKEN
-            return jitEmitStringPlusEQ(argument,target);
-        if target.isCOUNT || target.isNUMBER {
-            -% jitEmitBinary(argument, target, jitAdd);
-               return jitEmitAssign(target, target); %-
-            } }
 use target
     if argument.isLIST && (!data || isSTRING || isTOKEN) {
         Buffer  concatBuf = bufferSTAK.pop();
@@ -783,16 +810,34 @@ use target
     or argument.data
         if data
             switch(data) {
-                case isCOUNT:   tempField.number = number + argument.number;
-                                gCount  = tempField.count;
-                case isNUMBER:  gNumber += argument.number;
+                case isCOUNT:
+                    if jitting {
+                        -% jitEmitBinary(argument, target, jitAdd);
+                           return jitEmitAssign(target, target); %-
+                        }
+                    tempField.number = number + argument.number;
+                    gCount  = tempField.count;
+                case isNUMBER:
+                    if jitting {
+                        -% jitEmitBinary(argument, target, jitAdd);
+                           return jitEmitAssign(target, target); %-
+                        }
+                    gNumber += argument.number;
                 case isSTRING:
-                case isTOKEN:   text    += argument.text;
-                case isBUFFER:  buffer  += argument.text;
+                case isTOKEN:
+                    if jitting  return jitEmitStringPlusEQ(argument,target);
+                    text    += argument.text;
+                case isBUFFER:
+                    if jitting  jitDegrade("+= on a Buffer target",target);
+                    buffer  += argument.text;
                     // if buffer mark is set, argument is inserted into buffer at mark
                     // otherwise it is appended at end of buffer. mark is left as is
-                case isSTAK:    gStak.push(argument);
-                default:        cerr "ERROR Operator += failed on",tag,"and",argument.tag:; }
+                case isSTAK:
+                    if jitting  jitDegrade("+= on a Stak target",target);
+                    gStak.push(argument);
+                default:
+                    if jitting  jitDegrade("+= on an unhandled datA",target);
+                    else cerr "ERROR Operator += failed on",tag,"and",argument.tag:; }
         else    target.copyData(argument);
     else   target += argument;
     return target;

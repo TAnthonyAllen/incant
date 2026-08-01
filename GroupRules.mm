@@ -6117,20 +6117,44 @@ extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target)
 }
 
 /***************************************************************************
-	Rule action for the += operator
+	Rule action for the += operator.
+
+    ⚠⚠ THE TABLE-ARC PROBE (T1, 2026-08-01): SHARED DISPATCH, FORKED LEAVES.
+    This op is the worked example for the whole table arc, so the shape matters
+    more than the op does.
+
+    WHAT CHANGED: the `if jitting` gate USED TO SIT AT THE TOP OF THE FUNCTION
+    and re-decide isSTRING/isTOKEN/isCOUNT/isNUMBER -- the very question the
+    switch below already answers from the carried `datA`. Two decisions, one
+    fact, and they can disagree. That disagreement is not hypothetical: it is
+    exactly why jit.md S3.5 can list SEVEN ops whose gate fires assuming a
+    numeric target, and why the same list called the compound family
+    "list-blind" -- the top gate never saw the list arms above the switch.
+
+    NOW: ONE dispatch tree, and each LEAF forks do-vs-emit. A forked leaf cannot
+    disagree with itself, because there is only one place the type is read.
+
+    THE THREE LEAF KINDS, per T1:
+      scalar  count/number  -> emit (jitEmitBinary + store-back)
+              string/token  -> emit (jitEmitStringPlusEQ, the ruled two-arg
+                               exception and the layer's only CreateCall)
+      fallback / uncovered  -> DEGRADE LOUDLY. Buffer, Stak and the default arm
+                               call jitDegrade and then RUN THE INTERPRETED BODY.
+    ⚠ THE DEGRADE ARMS ARE THE POINT, not decoration. jitDegrade had ZERO call
+    sites after the iterator rework, so every ladder rung's `degrade count = 0`
+    was VACUOUS -- true, but unable to move. These are its first real citizens:
+    the counter can now be moved by a construct, so the assertion means something
+    again.
+
+    STILL OUTSIDE THE TREE and named rather than silently left: the three arms
+    ABOVE the switch (the 35a list-concat, copyListTo, and the `binType ||
+    groupList` append). They are list/structure shaped, they have no emitter, and
+    under jitting they would EXECUTE AT EMIT TIME. The old top gate hid that by
+    returning before them for scalar targets; it did not fix it. Covering them is
+    the fallback column's own work, not this probe's.
 ***************************************************************************/
 extern "C" GroupItem *opPlusEQ(GroupItem *argument, GroupItem *target)
 {
-	if ( GroupControl::groupController->groupRules->jitting )
-		{
-		if ( isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data) )
-			return jitEmitStringPlusEQ(argument,target);
-		if ( isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data) )
-			{
-			 jitEmitBinary(argument, target, jitAdd);
-			return jitEmitAssign(target, target); 
-			}
-		}
 	if ( isLIST(argument->groupBody->flags.binType) && (!target->groupBody->flags.data || isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data)) )
 		{
 		Buffer 	*concatBuf = (Buffer*)GroupControl::groupController->groupRules->bufferSTAK->pop();
@@ -6152,26 +6176,44 @@ extern "C" GroupItem *opPlusEQ(GroupItem *argument, GroupItem *target)
 			switch (target->groupBody->flags.data)
 				{
 				case 5:
+					if ( GroupControl::groupController->groupRules->jitting )
+						{
+						 jitEmitBinary(argument, target, jitAdd);
+						return jitEmitAssign(target, target); 
+						}
 					GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() + argument->getNumber());
 					target->groupBody->gCount = GroupControl::groupController->groupRules->tempField->getCount();
 					break;
 				case 9:
+					if ( GroupControl::groupController->groupRules->jitting )
+						{
+						 jitEmitBinary(argument, target, jitAdd);
+						return jitEmitAssign(target, target); 
+						}
 					target->groupBody->gNumber += argument->getNumber();
 					break;
 				case 13:
 				case 14:
+					if ( GroupControl::groupController->groupRules->jitting )
+						return jitEmitStringPlusEQ(argument,target);
 					target->setText(::concat(2,target->getText(),argument->getText()));
 					break;
 				case 4:
+					if ( GroupControl::groupController->groupRules->jitting )
+						jitDegrade("+= on a Buffer target",target);
 					target->getBuffer()->appendString(argument->getText(),0,0);
 					// if buffer mark is set, argument is inserted into buffer at mark
 					// otherwise it is appended at end of buffer. mark is left as is
 					break;
 				case 12:
+					if ( GroupControl::groupController->groupRules->jitting )
+						jitDegrade("+= on a Stak target",target);
 					target->groupBody->gStak->push(argument);
 					break;
 				default:
-					::fprintf(stderr,"ERROR Operator += failed on %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
+					if ( GroupControl::groupController->groupRules->jitting )
+						jitDegrade("+= on an unhandled datA",target);
+					else	::fprintf(stderr,"ERROR Operator += failed on %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
 				}
 		else	target->copyData(argument);
 	else	target->addMember(argument);
@@ -8398,5 +8440,7 @@ int 	result = 0;
 /*	Warning: the following methods were referenced but not declared
 	read(int,char*,long)
 	floor(double)
+	jitDegrade(char*,GroupItem*)
+	jitDegrade(char*,GroupItem*)
 	getRStuff()
 */

@@ -1,0 +1,36 @@
+/*****************************************************************************
+    jitJPd -- THE DEGRADE CITIZEN. The rung that expects a NON-ZERO count.
+
+    jitDegrade is docs/jit.md S0's crossover policy made concrete: an uncovered
+    construct falls to the interpreted body and the fall is COUNTED. After the
+    iterator rework it had ZERO call sites, so every ladder rung's
+    `degrade count = 0` was VACUOUS -- a true assertion that nothing could move.
+
+    T1's forked leaves gave it its first real citizens. A Buffer target has no
+    emitter, so `+=` on one reaches a degrade arm, the interpreted body runs, and
+    THE COUNTER MOVES.
+
+    ⚠ THIS FIXTURE ASSERTS A NON-ZERO COUNT ON PURPOSE, inverting every other
+    rung. That inversion is the whole point: it is what proves the other rungs'
+    zeros are load-bearing rather than decorative. If this ever reports 0, the
+    degrade arms stopped firing and every `degrade count = 0` in the fleet went
+    back to being unfalsifiable.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitLadder);
+define
+    jpBuf buffer;
+    jitJPd code={ jpBuf += "x"; };
+    ;
+
+print "JPD jitting a Buffer += (no emitter -- must DEGRADE):":;
+testing(jitJPd);
+print "JPD SENTINEL":;
+stop();

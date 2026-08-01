@@ -373,6 +373,32 @@ else
     echo "  FAIL  JF a global was framed -- increment 1 must not touch globals"; fail=1
 fi
 
+echo "-- JP  THE TABLE-ARC PROBE: shared dispatch, FORKED LEAVES (T1)"
+#  opPlusEQ's `if jitting` gate used to sit at the TOP of the function and
+#  re-decide the type question its own switch already answers from carried datA.
+#  Two decisions, one fact, and they can disagree -- which is precisely why
+#  jit.md S3.5 lists seven ops assuming a numeric target. Now ONE dispatch tree
+#  with each LEAF forking do-vs-emit: a forked leaf cannot disagree with itself.
+rung jitJP "JP SENTINEL" "JP" 105 125
+
+echo "-- JPd THE DEGRADE CITIZEN -- the rung that expects a NON-ZERO count"
+#  ⚠⚠ THIS RUNG INVERTS EVERY OTHER ONE, AND THAT IS ITS WHOLE VALUE.
+#  jitDegrade had ZERO call sites after the iterator rework, so every
+#  `degrade count = 0` above was VACUOUS -- true, but nothing could move it.
+#  T1's forked leaves gave it real citizens: a Buffer target has no emitter, so
+#  `+=` on one degrades LOUDLY and runs interpreted. Asserting that it DOES fire
+#  is what makes the zeros elsewhere load-bearing rather than decorative.
+#  H4-shaped: this is presence-with-value, not absence-of-message.
+$B incant/jitJPd > "$T/jpd" 2>&1
+check "JPd runs" 0 $?
+sentinel "JPd sentinel (no truncation)" "$T/jpd" "JPD SENTINEL"
+if grep -q "JIT DEGRADE #1: += on a Buffer target" "$T/jpd"; then
+    echo "  ok    JPd degrade FIRED and was counted (the zeros above are falsifiable)"; green=$((green+1))
+else
+    echo "  FAIL  JPd no degrade -- the arms stopped firing, and every"
+    echo "        'degrade count = 0' in this file is unfalsifiable again"; fail=1
+fi
+
 echo "-- J-R  RECURSION. THE FRAME MODEL'S DEFINITION OF DONE."
 #  ⚠ THIS IS THE PROOF jitJF SAID IT WAS NOT. Increment 1 could only assert
 #  structure, because without recursion allocas-for-locals is behaviour-neutral.
@@ -404,7 +430,7 @@ else
 fi
 
 echo ""
-if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF + J-R THE PROOF)"
+if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd + J-R THE PROOF)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"
 exit $fail

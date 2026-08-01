@@ -1,0 +1,55 @@
+/*****************************************************************************
+    jitJP -- THE TABLE-ARC PROBE's rung. T1: shared dispatch, forked leaves.
+
+    TWO CLAIMS, and the second is the one that could not be made before today.
+
+    1. THE SCALAR LEAF STILL EMITS. `+=` on a count target compiles and runs at
+       run time -- fire twice, no recompile, answers differ.
+
+    2. ⚠ THE FALLBACK LEAF DEGRADES *LOUDLY*, AND THE COUNTER MOVES. jitDegrade
+       had ZERO call sites after the iterator rework, so every rung's
+       `degrade count = 0` was VACUOUS -- true, but nothing could move it. A
+       Buffer target now reaches a real degrade arm. THIS RUNG DELIBERATELY
+       EXPECTS A NON-ZERO COUNT, which is the opposite of every other rung and
+       is exactly why it proves the assertion is live rather than decorative.
+
+    ⚠ IT IS NOT A REGRESSION THAT THIS RUNG DEGRADES. A degrade is the DESIGNED
+    behaviour for an uncovered leaf -- the interpreted body runs and the fall is
+    counted. Silent fall-through is what T1 makes unconstructable; a counted one
+    is the product.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitLadder);
+define
+    jpIn;
+    jpOut;
+    jpBuf buffer;
+    jitJP  code={ jpOut = 0; jpOut += jpIn; jpOut += 100; };
+    jitJPd code={ jpBuf += "x"; };
+    ;
+
+jpIn  = 5;
+jpOut = 0;
+print "JP fire 1 setup : jpIn =" jpIn:;
+testing(jitJP);
+print "JP fire 1 result: jpOut =" jpOut " (want 105)":;
+
+jpIn  = 25;
+jpOut = 0;
+print "JP fire 2 setup : jpIn =" jpIn " (recompile: NONE)":;
+jitRefire();
+print "JP fire 2 result: jpOut =" jpOut " (want 125)":;
+
+jpIn  = 5;
+jpOut = 0;
+jitJP();
+print "JP interpreted  : jpOut =" jpOut " (the oracle -- want 105)":;
+print "JP SENTINEL":;
+stop();
