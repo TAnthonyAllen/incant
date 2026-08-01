@@ -754,6 +754,20 @@ scope:       ⚠ THIS WAS LOAD-BEARING AND UNRECORDED FOR A FULL ROUND. Round 1
 ```
 
 ### CLAIM KANT-22 — ⚠ KANT HAS NO STATEFUL RECURSION. Both routes are barred, for different reasons. USE A CARRIER NODE.
+> ⚠⚠ **SCOPE DEFEATED 2026-08-01 — THE CLAIM NAMES THE WRONG METHOD.** Its scope says it bars
+> `emitPlan`, *"which accumulates text across a walk and reads its accumulator after each recursive
+> call."* **`emitPlan` HAS NO RECURSIVE CALL** — it is two flat `while node = plan.nextMember(node)`
+> loops (`genParse.rtn:863-893`; `docs/wakeup.md:458` says so outright). Self-call counts taken
+> independently by minionA and by the foreman agree: `emitPlan` **0**, `printPlan` **1**.
+> `terms = terms joiner piece` accumulates across a LOOP, which nothing in KANT-5/6/7/8/22 touches.
+>
+> **The claim is RIGHT ABOUT THE LANGUAGE and WRONG ABOUT THE METHOD.** The barred shape is real
+> and it lives in **`printPlan`** — `deeper` and `kid` are locals read *after* a genuine self-call
+> returns — which KANT-22 never mentions. So the carrier discipline is **not owed by `emitPlan`**,
+> and building it there would be speculative design.
+>
+> Same family as KANT-16, and the same lesson: take the structural distinction, then CHECK THE
+> CLAIM ABOUT THE TREE. The language half stands unchanged. See `docs/genParseArcMap.md`.
 ```
 statement:   TODAY, no kant action can hold a value in a LOCAL across its own
              recursive call. There are exactly two ways to recurse and both fail:

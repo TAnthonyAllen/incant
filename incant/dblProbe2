@@ -1,0 +1,10 @@
+Start();
+search reset stack Grokking;
+debug NumbeR FloaT;
+register(DblProbe2);
+define
+    runD code={ print + 3.5:; };
+    ;
+runD();
+print "DP2 SENTINEL":;
+stop();

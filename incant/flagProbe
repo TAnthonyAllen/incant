@@ -1,0 +1,45 @@
+/*****************************************************************************
+    flagProbe -- settles minionA's INFERENCE I (2026-08-01).
+
+    minionA found, structurally, that isRulE/isBIN/isMacrO/isConditioN and ~10
+    other GroupFields flags are DECLARED in incant/setup but have NO case in
+    opDot's switch, so they fall to
+        default:  product.text = "access to " tag " not supported yet";
+    It INFERRED, without running, that `if x.isRulE` is therefore always TRUE
+    (a non-empty string is truthy) and correctly refused to present that as a
+    finding. It matters because Tony's Ruling 2 licenses exactly one residual
+    check -- "residual paranoia is one isRule test" -- and if that test cannot
+    be written, the licensed fallback does not exist.
+
+    Row 1 is a real rule, row 2 is not. If both print the same, the test is
+    inert and the inference is confirmed.
+*****************************************************************************/
+Start();
+include(unitTests);
+search reset stack Grokking;
+search UnitTests list;
+register(FlagProbe);
+define
+    notARule = 7;
+    hushed noPrint;
+    checkIt argument code={
+        print + `taG argument "  .isRulE ->[" argument.isRulE "]":;
+        if argument.isRulE;     print + "    if .isRulE  TOOK THE TRUE BRANCH":;
+        else                    print + "    if .isRulE  took the false branch":;
+        };
+    runFlag code={
+        print "1 a REAL rule (NamE, from Grokking):";
+        checkIt(NamE);
+        print "2 NOT a rule (a count field):";
+        checkIt(notARule);
+        print "3 CONTROL: noPrinT, which DOES have an opDot case (29):";
+        print + "notARule.noPrinT ->[" notARule.noPrinT "] (prints the TAG -- no data)":;
+        if notARule.noPrinT;    print + "    if .noPrinT TOOK THE TRUE BRANCH  (case 29 is ALSO inert)":;
+        else                    print + "    if .noPrinT took the false branch (case 29 WORKS)":;
+        if hushed.noPrinT;      print + "    if hushed.noPrinT TRUE  (case 29 reports correctly)":;
+        else                    print + "    if hushed.noPrinT FALSE (case 29 or the probe is wrong)":;
+        };
+    ;
+runFlag();
+print "FP SENTINEL":;
+stop();
