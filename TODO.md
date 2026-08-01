@@ -16,6 +16,81 @@
 
 ---
 
+## Iterator — REWORKED OFFLINE 2026-08-01, WIP. Read this block before the 07-25 design below.
+
+*Tony reworked the mechanism offline on 2026-08-01 and it is uncommitted WIP. His own POP —
+`IncantForms/WorkingOn/tester` — is **GREEN, exit 0, empty stderr** (verified by Clod against a
+freshly rebuilt binary, 2026-08-01 11:02). Forward and backward walks are correct and nested
+iterators coexist across recursion. **Do not promote `tester` into `pop.sh`** — semantics are
+still in flight.*
+
+**What changed.** The `iterWhatever()` layer is bypassed, not deleted:
+- `aCTionIterate` (`ruleActions.rtn`) no longer calls `iterBind`. It sets `isIterator` and
+  **assigns the source's `groupList` pointer onto the iterator** — they now *share* one list
+  object, so no `source` attribute lookup is needed to advance.
+- The step lives in `opPlusPlus`/`opMinusMinus` (`Instruct.rtn`), in an `isIterator` gate at the
+  top. Empty ⇒ take `firstInList`/`lastInList`; positioned ⇒ `nextInParent`/`priorInParent`.
+  `lastREF.group` is set as a side effect. **Exhausted ⇒ the opMethod returns 0 (null)**, which
+  is what terminates `while ++grup`.
+- `iterAdvance` has **zero live callers**. `iterFilterOK` and `iterSpins` are reachable only
+  from it, so **the runaway tripwire is disarmed** (`iterSpins(iter,1)` in `iterBind` is also
+  commented out). `iterBind` still has exactly **one** live caller — `Instruct.rtn:884`,
+  `opSetGroup`'s `if target.isIterator return iterBind(target,argument)` — which is precisely
+  the `:=` half Tony has not yet reworked.
+- `GroupItem.twk::setGroup` now tolerates a null argument (clears `gGroup` and `data`), which is
+  what lets `result.setGroup(iterator)` express exhaustion.
+
+**Measured consequences, reported not fixed (Clod, 2026-08-01):**
+1. **`pop.sh` is RED — 25 ok / 5 FAIL, and every failure is an iterator fixture.** Everything
+   else in the fleet is green: `printPop.sh` 9/9, `tree.sh` exit 0, `jitLadder/ladder.sh` 47/47,
+   `oneTest` and `jsonTest` **byte-identical** to their baselines.
+2. **`iterT1` and `iterT1m` SIGSEGV (exit 139), no output.** Crash frame is `opPlusPlus` at
+   `GroupRules.mm:5708`, `result->groupBody->groupList->firstInList` — a **null `groupList`
+   deref**. `aCTionIterate` sets `isIterator = true` *unconditionally* but only copies the list
+   under `if iterator && source && groupList`, so a leaf source yields a flagged iterator with no
+   list. `iterAdvance`'s two explicit no-list guards used to catch exactly this and were removed
+   with it. `iterT1`'s own header says it "bottoms out on the no-list guard" — that guard is gone.
+   Tony's `tester` does not hit it because `listRules` guards with `if length > 0;` at the call
+   site.
+3. **`iterT3` diffs, and the mechanism is the shared list.** Two movements: the printed tag is now
+   the *entry's* (`a`, `b`, `c`) where it used to be the *handle's* (`triple`) — consistent with
+   the new deref-through design; and spurious `source pair` / `source triple` rows appear. Cause:
+   `iterBind` (still live on `:=`) does `iter +% source`, and since the iterator's `groupList` IS
+   the container's list object, that append lands **in the source container's own list**. This is
+   the `:=` half meeting the shared-list decision.
+4. **`jitDegrade` now has ZERO call sites.** Its only two were the `jitDegrade("++ on an
+   iterator")` / `("-- on an iterator")` lines this rework replaced. The ladder's `degrade count
+   = 0` checks therefore still pass but are now **vacuous** — H4's presence-with-value shape is
+   intact, but there is no longer any construct that can move the number.
+
+**Build obligations — CHECKED AND SETTLED.** `ruleActions.rtn` and `Instruct.rtn` are both
+`include`d by `GroupRules.twk` (`:289`, `:291`), so `tok GroupRules.twk` covers both; `GroupItem.twk`
+needs its own `tok`. **Tony already ran both** — the generated `.mm` match the sources. **No new
+GroupBody flag**: `isIterator`, `iterateOnAttributes`, `iterateOnMembers`, `nextInParent`,
+`priorInParent`, `firstInList`, `lastInList` are all already declared in `groups.ext`
+(`:34-35, 99, 112-113, 193-194`), `GroupBody.twk` is unmodified, and `GroupRules.h` is
+byte-unchanged from HEAD — so **no `groups.ext` sync and no `tokall` are owed.**
+
+**Open halves, all Tony's:**
+- **`:=` / `<-` source-change semantics.** Unchanged so far; still routes to `iterBind`, which is
+  where finding 3 comes from.
+- **Attribute/member restrictions.** `iterateOnAttributes`/`iterateOnMembers` are set by
+  `aCTionIterate` and read by nobody on the new path (the comment says so). Tony has a solution
+  in mind.
+- **Post-exhaustion restart.** The 07-25 design below banks self-reset as a free property; the new
+  code clears the cursor on exhaustion, which appears to preserve it, but nothing asserts it.
+- **Jittability.** Clay's standing recommendation is **non-jittable — gate before emit**, pending
+  the crossover ruling. Note this now interacts with `jit.md` §3.5's "seven ops fire their gate
+  assuming a numeric target", which lists `opPlusPlus`/`opMinusMinus`: the `isIterator` gate now
+  sits *above* the `jitting` gate, so an iterator never reaches the numeric emit path — but that
+  is a property of statement order, not a declared rule.
+
+*The 07-25 design below is retained as written. It is the reference for intent; where the new code
+diverges (notably "Own opMethods: `opIterNext`/`opIterPrior`" — not taken, the gate lives inside
+`opPlusPlus`/`opMinusMinus` instead), the code is what shipped.*
+
+---
+
 ## Iterator — design CLOSED 2026-07-25, ready to build
 
 *Tony + Clay, 2026-07-25. Design is done; this is an implementation task, not a design one.

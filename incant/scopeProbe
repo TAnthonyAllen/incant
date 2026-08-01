@@ -1,0 +1,75 @@
+/*****************************************************************************
+    scopeProbe -- CONTAINMENT MEASUREMENT for the define-time name-search
+    escape (Clay relay, "define-time name search escapes scope", 2026-08-01).
+
+    RECON ONLY. No fix. Nothing here mutates shared state: every name this file
+    introduces was grepped unique first, every registry is minted here, and the
+    writes it demonstrates land in this process only.
+
+    THE REPORTED FINDING, restated so this file stands alone: defining
+        testForC argument second=56 third="WTF?"          (incant/unitTests:153)
+    writes 56 and "WTF?" into `sample`'s OWN `second` and `third`
+    (incant/unitTests:96-104) instead of minting fresh attributes on testForC.
+
+    ⚠ ATTRIBUTION IS SINGLE-VARIABLE, and it is not measured here -- it is
+    measured by A/B against `incant/scopeUnits`, a copy of unitTests differing
+    in EXACTLY ONE LINE (testForC's two attributes removed). Run both and walk
+    sample:
+        with    testForC argument second=56 third="WTF?"  ->  second 56 / third WTF?
+        without                                            ->  second second / third third
+    That is the whole attribution. See docs/nameScopeRecon.md for the driver.
+
+    WHAT *THIS* FILE MEASURES -- how far the escape reaches, which is the
+    question that decides whether a fence can contain it:
+
+      row 1  is the colliding name reachable as a BARE name at all?
+             (i.e. is it on locate()'s walk, or only a member of sample?)
+      row 2  a DIFFERENT registry AND a DIFFERENT file -- still leaks?
+      row 3  a PLAIN GROUP definition, no `argument`, no `code={}` --
+             is this specific to action-attribute syntax?
+
+    Row 2 is the discriminating one. locate() walks currentRegistry FIRST and
+    then every registry on the searchList in order, so if the escape follows the
+    search list then a registry fence alone cannot contain it -- which is the
+    difference between "scope the definition" and "scope the lookup".
+
+    SENTINEL AT THE FOOT (CLAUDE.md third corollary). This file's first draft
+    died exactly the way that corollary describes: a stray bare top-level
+    statement (bear-trap #15) truncated the run, and it still exited 0. The
+    missing sentinel is what said so.
+*****************************************************************************/
+Start();
+include(unitTests);
+
+search reset stack Grokking;
+search UnitTests list;
+
+register(ScopeC);
+define
+    actQQ argument fourth=77 code={ };
+    ;
+
+register(ScopeD);
+define
+    hostQ fifth=88;
+    ;
+
+register(ScopeProbe);
+define
+    walkSample code={
+        iterate spIter on sample;
+        while ++spIter;
+            print + `taG spIter:;
+        };
+    ;
+
+print "1 is the colliding name on locate()'s walk? (bare-name reach)";
+print + "bare second =" second:;
+print + "bare fourth =" fourth:;
+print + "bare fifth  =" fifth:;
+print "2+3 sample's list AFTER two foreign definitions:";
+print + "  actQQ argument fourth=77   -- other registry, other file, an ACTION";
+print + "  hostQ fifth=88             -- other registry, other file, a PLAIN GROUP";
+walkSample();
+print "SP SENTINEL":;
+stop();

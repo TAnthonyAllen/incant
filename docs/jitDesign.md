@@ -359,6 +359,180 @@ statement's value is *already committed*, so there is no loose value for anyone 
 
 ---
 
+# THE TABLE ARC — rulings, 2026-08-01
+
+*Design session Tony + Clay closed 2026-07-31 late; relayed and recorded by Clod 2026-08-01.
+**The frame model remains the main line** — this arc opens when schedule allows, priority
+Tony's. Recorded now because a ruling written down before the first tempted implementer costs
+nothing and a ruling written down after costs an argument.*
+
+## T1 — SHARED DISPATCH, FORKED LEAVES (ruled 2026-07-31)
+
+**The opMethod keeps its type-pair dispatch tree ONCE. Each leaf forks do-vs-emit.**
+
+Not two parallel trees, and not a `jitting` gate at the top of the function — which is what
+every op does today and is exactly why `jit.md` §3.5 can list seven ops whose gate fires
+assuming a numeric target. A top-of-function gate has to re-decide the type question the
+dispatch tree below it already answers, so the two answers can disagree; a forked leaf cannot
+disagree with itself.
+
+Leaf kinds, ruled:
+- **Scalar leaves → templates** from the table (O1/O2).
+- **Stak / Buffer / structure leaves → fallback calls**, on the J7 machinery — the first
+  emitted `CreateCall` into a real opMethod that gets a value back, proven 2026-07-31.
+- **Uncovered leaves → DEGRADE LOUDLY** (`jitDegrade`, §1.3 of `jit.md`). ⚠ **Silent
+  fall-through is to be structurally gone, not merely discouraged** — this is the *"prefer a
+  structure that makes the failure unconstructable"* family, and it is the reason the counter
+  exists.
+
+⚠ **`jitDegrade` currently has ZERO call sites** (measured 2026-08-01 — its only two were the
+`"++/-- on an iterator"` lines the iterator rework replaced). The ladder's `degrade count = 0`
+checks therefore still pass but are **vacuous**. The probe is what makes them mean something
+again; until then, do not read a green degrade row as coverage.
+
+**Probe coverage, as briefed:** count · number · promote · string-concat (the ruled two-arg
+exception) · Stak · Buffer · SET.
+
+## T2 — NO HAND-WRITTEN COPIES: GENERATION OR SHELLS ONLY (ruled 2026-07-31)
+
+A dispatch tree that exists in two hand-maintained copies drifts, and the drift is invisible at
+every call site. So: **the table is the source of truth, the dispatch tree is a generated
+artifact — both the do side and the emit side.** Where generation is not yet available, a
+hand-written *shell* that delegates is acceptable; a hand-written *copy* is not.
+
+This is genParse's move pointed at `Instruct.rtn`, and the deliverable of the promotion is the
+**ASSESSMENT** — can it, should it, what is missing — **not adoption.**
+
+⚠ **T2 acquired direct evidence on 2026-08-01, and it is stronger than the argument that
+motivated it.** See T3: three of the seven family members disagree about a property the family
+is supposed to share, purely through hand-ordered arms. Generation does not *fix* that defect
+class, it makes it **unconstructable**.
+
+## T3 — THE ARGUMENT-LIST FAMILY: hypothesis GROUNDED, and it is NOT exact
+
+**The hypothesis as briefed:** the seven list-taking ops (`:+` `+%` `:%` `/=` `-=` `*=` `+=`)
+ARE the two-pointer write-back family; if exact, list-taking and target-mutating are one
+property, and per-element iterate-and-fire is fold-left by construction.
+
+**Ground check run rather than asserted** — `incant/familyT`, exit 0, sentinel present,
+2026-08-01. Verdict: **half exact, and the inexact half is the interesting half.**
+
+| claim | verdict |
+|---|---|
+| all seven take argument lists | ✅ exact |
+| all seven mutate `target` by identity and return it | ✅ exact |
+| all seven iterate the list internally | ❌ **six of seven.** `+=` does not |
+| per-element fold order is source order | ✅ **MEASURED** — `+%` over three distinct tags folds `P Q R`, not `R Q P` |
+| the per-element arm is reachable in every iterating member | ❌ **`-=` and `*=` cannot reach theirs** |
+
+**On the order half — it could only be settled by running.** Every iterating member walks with
+`argument.prior(...)`, which is a *backward* list walk; whether that yields source order is a
+fact about how `aCTionExpressioN` builds the list, not about the walker. Reading `prior` and
+concluding "reversed" is the causal-claim shape that fails in this codebase; measuring it is the
+structural one that holds. **Fold-left is confirmed, so emission order is the right convention.**
+
+**⚠ THE RUNG-DESIGN NOTE, APPLIED RATHER THAN QUOTED — and it inverted the briefed choice.**
+The brief asks for a non-commutative op with distinct values, naming `-=` and `/=`. But **`-=`
+and `/=` over a LIST are order-BLIND**: `100-1-2-3` is 94 in any order and `1000/2/5` is
+`1000/5/2`. They are non-commutative as *binary* ops and order-blind as *folds*, so they would
+have gone green on a reversed walk — a happy set in disguise. **`+%` is the order-injective
+instrument**: three distinct tags land in a list whose read-back order *is* the fold order.
+*Injectivity has to be checked against the fold, not against the operator.*
+
+**⚠ AND A PRE-EXISTING DEFECT, found by the ground check, NOT introduced by it.** Measured:
+
+```
+numA = 100; numA -= 7;        ->  93     scalar path, correct
+numB = 100; numB -= 1 2 3;    ->  100    SILENT NO-OP     (expected 94)
+numC = 100; numC *= 2 3;      ->  0      SILENT WRONG     (expected 600)
+numD = 100; numD /= 2 5;      ->  10     correct
+```
+
+⚠ **THE CAUSE IS OPEN, and a first attempt at one was withdrawn the same hour — recorded
+because the withdrawal is the useful part.** The obvious story reads straight off the source:
+`-=` and `*=` test their scalar arm as `data && argument.data` without checking the argument is
+a *scalar*, so a list node would satisfy `argument.data`, the switch would run with the list
+node as operand (`argument.count` == 0), and the `or argument.isLIST` per-element arm below
+would be unreachable. It fits both numbers exactly, and `/=` — the correct one — is also the
+only one that guards on the ARGUMENT's type (`argument.isCOUNT || argument.isNUMBER`). Tidy, and
+probably still the answer.
+
+**But `incant/tableProbe` went looking for that story's load-bearing premise and found the
+opposite: a node carrying a list reports `datA = 0`** — no data — for both a define-block group
+and one built with `+%`. If an expression-list node behaves the same, `argument.data` is false
+and that arm is not the one that ran. Two unmeasured ways out: an `aCTionExpressioN`-built list
+node may differ from a define-built one, or the zero comes from elsewhere.
+
+**Filed as: behaviour MEASURED, cause OPEN.** This is the measured asymmetry from `CLAUDE.md`
+behaving exactly as advertised — the structural claim (three of seven disagree) held; the causal
+claim (which arm ran) did not survive its own check. Settling it needs instrumentation on the
+expression-list node, not more source reading.
+
+**NOT REPAIRED.** Pre-existing, Tony's call, and the probe's whole point is to decide whether
+these get fixed by hand or deleted by generation. **Note that the assessment does not depend on
+the cause** — three of seven disagreeing is the argument for T2 whichever arm is at fault.
+
+## T5 — PREMISE 3's FOUNDATION RUNS, and two things it turned up
+
+`dataNames[datA]` — premise 3's "type at emit time is a CARRIED FACT" — **had never been
+executed.** It appears in exactly two places in the tree (`IncantForms/Windows/tabs:36`,
+`IncantForms/WorkingOn/tester:57`) and in **both it sits below a `stop()`**: Tony's own prototype
+of the table's index lookup was dead code that looked live, which is standing rule H2's exact
+pathology and the reason H2 exists.
+
+**It works.** `incant/tableProbe`, exit 0, sentinel present, 2026-08-01: `isCOUNT` → 5 →
+`isCOUNT`, `isSTRING` → 13 → `isSTRING`. Index alignment confirmed *live*, not just by
+enumeration. Premise 3's foundation is sound and the arc can be scheduled on it.
+
+⚠ **Finding 1 — A FLOAT LITERAL DOES NOT PRODUCE AN `isNUMBER` FIELD.** `probeNumber = 3.5`
+comes back `datA = 5` (isCOUNT) and prints `3`; `localNum2 = 7.25` prints `7`. **Not a
+define-block artifact** — an assignment inside an action body does the same. **Consequence for
+the probe: the `number` leaf in the briefed coverage list (count · number · promote ·
+string-concat · Stak · Buffer · SET) is NOT REACHABLE FROM A LITERAL,** so the probe's fixture
+needs another route to an `isNUMBER` field or that leaf ships uncovered — and "uncovered" under
+T1 means it must degrade loudly rather than pass quietly. **Promotion is the leaf directly
+downstream of this**, so it is not a corner case for this arc, it is on the critical path.
+
+⚠ **Finding 2 — `datA = 0` has no entry.** `dataNames` is 1-based (`isANY` at 1), so a field
+with no data indexes nothing and the lookup yields empty. Correct and harmless, but it means
+**"no data" must be an explicit leaf in the dispatch tree**, not a fall-through — otherwise it
+lands wherever an empty lookup happens to land. Same finding is what put T3's cause back in
+doubt.
+
+**Consequence for the emit side, and it sharpens `jit.md` §3.5.** All three compound-arithmetic
+ops put `if jitting { jitEmitBinary(...); return jitEmitAssign(target,target); }` at the **top
+of the function**, above every type and list test. So under jitting they are not merely
+numeric-*assuming* — they are **list-blind**, and would emit one binary op against the list
+node. T1's forked-leaf shape is what removes this by construction, and it is the concrete case
+that makes T1 worth the rework.
+
+## T4 — LOCATE IS PROHIBITED, NOT PROVIDED (Tony, relayed SEQ 38; ruled here 2026-08-01)
+
+**Action execution never calls `locate`. All fields, local and global, are resolved and baked at
+PARSE time.** `locate`'s legitimate callers are kant-unaware C++ hosts — never actions.
+
+The allow-list criterion, which replaces `locate`'s appearance in PART IV's runtime-surface
+list:
+
+> **OPERATIONS ON RESOLVED THINGS — yes. RESOLUTION OF NAMES — never.**
+
+**A `locate` call in emitted IR is a defect by definition**, not a performance question and not
+a matter of taste. See PART IV, where the correction is applied.
+
+**The invariant is INHERITED, not imposed.** Everything already built obeys it without having
+been written to: baked field addresses (`jitSeedField`), the closed frame schema, baked opMethod
+pointers (`jitEmitRem`, `jitEmitTrace`). Nothing in the emitted IR resolves a name. This names a
+rule the design was already following so that no future convenience can unknow it.
+
+**Standing guard, cheap and permanent:** the irshape/golden-IR layer asserts that **no call to
+`locate` appears in any rung's emitted IR** — a never-assertion beside the existing presence
+assertions. ⚠ **A never-assertion is absence-shaped, which is what H4 warns about** (an absence
+check passes by being deleted). H4's escape is the vacuity guard: **pair it with a presence
+assertion that proves the dump was captured** — the rungs already assert block names — so "no
+locate" cannot pass because there was no IR to look at. Written any other way it is theatre.
+
+---
+
 # PART III — THE FRAME MODEL (designed, not built — and it is a LATER PHASE)
 
 *This is a calling-convention design, not a codegen design. It is the replacement §0
@@ -579,12 +753,21 @@ it now wants a function-exit block reached via the epilogue.
 
 ## The runtime surface (the later arc)
 
-Jitted code that calls back into the runtime — `locate`, registry lookup, GroupItem methods,
-print, string ops — needs ORC symbol resolution via `absoluteSymbols`. Use `extern "C"`
-wrappers for anything name-mangled so ORC symbol names are predictable. There is a 2017
-precedent for the allow-list (`OLDtawkDoNotTouch/Include/UIjit.ext`) which is GUI-vintage and
-partly stale but answers the shape of the question: *what host functions may jitted code call,
-and with what types?*
+Jitted code that calls back into the runtime — GroupItem methods, print, string ops — needs ORC
+symbol resolution via `absoluteSymbols`. Use `extern "C"` wrappers for anything name-mangled so
+ORC symbol names are predictable. There is a 2017 precedent for the allow-list
+(`OLDtawkDoNotTouch/Include/UIjit.ext`) which is GUI-vintage and partly stale but answers the
+shape of the question: *what host functions may jitted code call, and with what types?*
+
+⚠ **CORRECTED 2026-08-01 per ruling T4. `locate` and registry lookup were listed here and that
+was exactly backwards** — they are the two things jitted code may **never** call. The allow-list
+criterion is not an enumeration to be extended case by case, it is a test:
+
+> **OPERATIONS ON RESOLVED THINGS — yes. RESOLUTION OF NAMES — never.**
+
+A `locate` in emitted IR is a defect by definition. See T4 in THE TABLE ARC for the full ruling,
+its inheritance argument, and the never-assertion (with its mandatory vacuity guard) that keeps
+the smell from arriving silently.
 
 **This is where premise 3's fallback column actually lands**, so O1's signature question and
 this arc are the same piece of work approached from two ends.

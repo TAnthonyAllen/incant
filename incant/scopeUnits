@@ -1,0 +1,278 @@
+/*****************************************************************************
+    scopeUnits -- the A/B ORACLE for the define-time name-search escape.
+
+    A copy of incant/unitTests differing in EXACTLY ONE LINE (:153):
+        unitTests   testForC argument second=56 third="WTF?" code={
+        scopeUnits  testForC argument code={
+    Nothing else is changed; `diff incant/unitTests incant/scopeUnits` must
+    show that one hunk and no other.
+
+    It exists so the attribution is single-variable. Walk sample under each:
+        unitTests   ->  second 56      third WTF?
+        scopeUnits  ->  second second  third third
+    Driver and full recon: docs/nameScopeRecon.md.
+
+    RECON ARTEFACT, 2026-08-01. If unitTests moves, regenerate this rather than
+    hand-patching it, or the one-line guarantee stops being true.
+*****************************************************************************/
+/*******************************************************************************
+                UnitTests registry — incant unit test suite.
+
+    Organization: one Data block (shared test fixtures), one Actions block
+    (one action per language feature under test), one runner (testUnitTests).
+    Each action is self-contained and can be run standalone or via the runner.
+    Actions NOT called by testUnitTests are marked unverified — legacy-POP sweep
+    pending (see TODO). callMyself is known broken (infinite recursion).
+
+    --------------------------------------------------------------------------
+    Incant diverges from C++ in ways that bite new readers. The list below is
+    the concentrated version; the actions that follow demonstrate each one.
+
+    or vs else if
+        incant uses 'or' where C++ uses 'else if'. The chain is not bracketed —
+        indentation and keywords define the structure. See ifTest.
+
+    ! binds tight to its operand. See the testOR action in the Actions section.
+
+    Unary operators precede their operand
+        ++grup is the only form. grup++ parses but does not increment — no
+        postfix form exists. See testUnary.
+
+    A field can hold a value AND run code on use
+        lefty=3 code={...} sets an initial value; the code block fires when
+        lefty is referenced. Unlike C++, data and behavior coexist on one field.
+        See lefty and printTest.
+
+    string uses print syntax but returns a value
+        string captures print-style output into a field rather than emitting it.
+        Same shortcuts, same concatenation rules. See stringTest vs printTest.
+
+    Arguments can be expressions
+        testARG(righty += 22) passes the result of an expression as an argument,
+        not just a field reference. The expression evaluates at call time.
+        See testARG.
+
+    : as the first field in a statement binds names from the field that follows
+        into local scope. ':argument width height' makes width and height from
+        argument available by name in the local scope. No C++ equivalent.
+        See testScope.
+
+    & is a field modifier, not a type declaration
+        argument& dereferences a pointer-arithmetic result. & follows the field
+        name as a modifier rather than preceding a type. See testPointer.
+
+    --------------------------------------------------------------------------
+    POP table — expected output for each verified action (2026-06-02 baseline).
+    Unverified actions omitted; see TODO legacy-POP sweep.
+
+    accessTest(simple)      "Saw across in simple"
+    anotherTest()           "anotherTest: max should be 11 + 3  it is 14 and we done"
+    ifTest()                "one" → "outer-then, inner-then"
+                            "two" → "outer-or"
+                            "three" → "outer-else"
+    printTest()             "printTest: lefty should return itself. It returns 46"
+    simpleIF()              maximus = righty+35 = 48; anotherTest prints
+                            "max should be 48 + 3  it is 51 and we done"
+    testOR()                "testOR:  I see nothing"
+    testARG(hasGroup)       "Argument is: hasGroup"
+    testARG(righty += 22)   "Argument is: 35" then "57" on second call
+    testIndentBlock()       One/Two indented, Three/Four dedenting
+    stringTest()            "stringTest:  59 added 2 to righty is what I am talking about"
+    xpTest()                "xpTest:  HooHaa 4 5 Gomer is a goober is what I am talking about"
+    list(...)               each token printed on its own line
+    testInterpret()         sequential output from each statement type, ending "we DONE"
+    testGet()               "testGet: should set sumple width to 251. It is 251"
+    lefty (via printTest)   "lefty: got reset to 46"
+    printDefinition()       prints out its argument in incant field definition format
+                            and tests recursion
+
+    --------------------------------------------------------------------------
+    Known broken: callMyself — infinite recursion. righty++ does not persist
+    across the self-recursive call so righty==13 never goes false. See TODO
+    reentrancy arc.
+*******************************************************************************/
+register(UnitTests);
+define
+    /***************************************************************************
+        Data
+    ***************************************************************************/
+    maximus=11;
+    righty=13;
+    counter=0;
+    floaty=2.5;
+    name="world";
+    styleTest merge lightGreen rounded;
+    sumple="What if it is a long string." height=200 width=250 x=100 y=100 down=* across=2
+        crossing height=50;
+    plainField height=200 width=250 x=100 y=100;
+    winForm window closable resize height=520 width=300 x=700 y=100;
+    simple across styleTest height=212 width=250 x=100 y=100
+        quinto width=150;
+        sexto height=12;
+        fifth;
+    sample x=300 y=450 width=400 height=200
+        second;
+        third pad=5 fill=wall across
+            wrap="This is a whole lot of text that I am using to test out text views, scrolling, and isn't it nice that the xcode text editor wraps lines and indents auto-magically. The base rule is you have to specify everything you want, nothing implied." fill=purple
+                one text pad=7 border;
+            two fill=red left=2;
+            three fill=white width=50% left=2
+                stuff text=one pad=6;
+        fourth rounded pad fill=lightGreen height=12;
+        fifth;
+    aGroup one two three;
+    hasGroup=simple;
+
+    /***************************************************************************
+        Actions
+    ***************************************************************************/
+    accessTest argument code={ print "accessTest: " taG; if argument.across; print `"Saw across in" taG:; else print `"No across in" taG:; };
+    anotherTest code={ print "anotherTest: max should be" maximus " + 3"``"it is", maximus + 3, "and we done":; };
+    callMyself argument code={
+        print ~"callMyself: First time:" argument righty,:+;
+        if righty == 13;
+            righty++;
+            callMyself(aGroup);
+        print ~"Second time:" argument righty,:-;
+        };
+    commaStuff="44,two,  forty three,six,6.7,ninety one";
+    delimitRecord isRule countField}=1 skip-}=3 numberField}=1.0 stringField};
+    feeling='having a few doubts ends here';
+    formatTest code={ print "formatTest:" `is "Formatted"%12s maybe:; };
+    ifTest code={
+        print "ifTest:":;
+        for grup in aGroup;
+            print ``"grup=" grup.taG ":":;
+            if grup.taG == "one";
+                if righty == 13;
+                    print "  outer-then, inner-then":;
+                or righty == 99;
+                    print "  outer-then, inner-or":;
+                else
+                    print "  outer-then, inner-else":;
+            or grup.taG == "two";
+                print "  outer-or":;
+            else
+                print "  outer-else":;
+        };
+    invokeTest code={ print "invokeTest:"` clear(aGroup); anotherTest(); print Invoked:; };
+    jsonFile file="/Users/anthony/Dropbox/data/InProcess/Groups/Tests/test.json";
+    layout code={ gruber = 23; print "layout:"`"Here is" parent.taG and gruber:; };
+    list isRule entries=ANYstring+ SemI?- code={
+        print "list tests the for statement:":;
+        for sumGrup in entries; print `sumGrup:; };
+    lefty=3 code={ lefty += 43; print "lefty:"``"got reset to" lefty:; return lefty; };
+    printTest code={ print "printTest:"`"lefty should return itself. It returns" lefty():; };
+    simpleIF code={ print "simpleIF:":`; if righty; maximus = righty + 35; else maximus = 12; anotherTest(); };
+    stringTest code={ print "stringTest:"`what = righty + 2, "added 2 to righty" whatsIt; };
+    testOR code={ print "testOR:"`; if !righty OR feeling; print Saw righty feeling:; else print "I see nothing":; };
+    testARG argument code={ print "testARG: Argument is:" argument:; };
+    testForC argument code={
+        print "testForC:"`"Components of" argument with second third:;
+        for grup in argument; attributes
+            print `grup += righty:; };
+    testGet code={ sumple[width] = 251; print "testGet: should set sumple width to 251. It is", sumple.width:; };
+    testIndentBlock code={
+        print "testIndentBlock:":;
+        if righty;
+            print ~++One:;
+            print ~Two:;
+        print ~-Three:;
+        print ~-Four:; };
+    testNegate code={ print "testNegate: does not matter if the ! comes before or after"`; if !whatever; print "No result":; else print "Negate failed":; };
+    testNew argument code={ grup = new(argument); grup++; return grup; };
+    testPointer lineIn code={
+        print "testPointer:"`;
+        argument = lineIn + 4;
+        if argument& > lineIn; print "Yes it is":; else print "No it aint":; };
+    testList code={
+        print `"Processing testList action that runs list rule":;
+        list("righty 3.1 seven eight nine;"); };
+    testScope argument code={
+            :argument width height;
+            print taG width height:;
+            :simple width height quinto@;
+            print taG width height:; };
+    testUnary code={
+        print "testUnary:":;
+        if ++grup; print ``"++grup is" grup:;
+        if grup++; print ``"now grup++ is still" grup "Unary operators must preceed their argument":; };
+    testInterpret code={
+        print "testInterpret":`"dot test:", maximus.taG:;
+        maximus = 11;
+        if maximus; print `"Processed IF:", maximus += 4:;
+        else
+            print `"or else":;
+            maximus = 11;
+        print `"Process do:":;
+        do
+            maximus += 2;
+            print  ``Saw maximus:;
+        while maximus < 20;
+        print `"Process while:":;
+        while maximus <= 27;
+            maximus += 3;
+            print ``Saw maximus:;
+        print `"Process for loop:":;
+        for grup in styleTest;
+            print ``Saw grup.taG:;
+        //print `"Process method call in print: New righty =" testNew(righty) "Old righty =" righty:;
+        grup = 0;
+        testUnary();
+        testList();
+        print ``"we DONE":;
+        };
+    whatsIt;
+    xpTest HooHaa result=3 message="Gomer is a goober" code={ print "xpTest:" `HooHaa, ++result, ++result, message whatsIt:; };
+
+    /***************************************************************************
+        print out incant definition for the group passed in. Note: the **argument;
+        line is a debugging entry that enables you to stop the code parse and
+        examine the value of argument by putting a break in opDebug() while
+        debugging. incant does not have a debugger like xcode ... yet.
+    ***************************************************************************/
+    printDefinition argument recurse code={
+        if datA != 0;  print ~$taG "=" argument$;
+        else    print ~$taG$;
+        if hasAttributeS;
+            for grup in argument; attributes
+                if datA != 0;
+                    print $_taG "=" grup$;
+                else    print $_taG$;
+        if hasMemberS;
+            print :;
+            for grup in argument; members
+                print +;
+                printDefinition(grup);
+                print ,-;
+        else
+            print ";":;
+        };
+
+    /***************************************************************************
+        Unit test runner — calls every verified action in sequence.
+        Moved here from oneTest so the test harness just invokes testUnitTests().
+    ***************************************************************************/
+    testUnitTests code={
+        whatsIt = #"is what" 'I am talking about';
+        print ``This whatsIt:;
+        accessTest(simple);
+        anotherTest();
+        ifTest();
+        printTest();
+        simpleIF();
+        testOR();
+        testARG(hasGroup);
+        testARG(righty += 22);
+        testARG(righty += 22);
+        testIndentBlock();
+        stringTest();
+        xpTest();
+        list("righty 3.1 seven eight nine;");
+        testInterpret();
+        testGet();
+        printDefinition(sumple);
+        printDefinition(simple);
+        printDefinition(sample);
+        };
+    ;

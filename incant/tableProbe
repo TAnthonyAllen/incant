@@ -1,0 +1,63 @@
+/*****************************************************************************
+    tableProbe -- does premise 3's FOUNDATION actually run?
+
+    docs/jitDesign.md premise 3 says: "Type at emit time comes from
+    dataNames[datA] -- a CARRIED FACT, not an inference. No type inference pass,
+    ever. The field already knows what it is."
+
+    That sentence has never been executed. `dataNames[datA]` appears in exactly
+    two places in the tree -- IncantForms/Windows/tabs:36 and
+    IncantForms/WorkingOn/tester:57 -- and in BOTH it sits BELOW a `stop()`.
+    Tony's own prototype of the table's index lookup is dead code that looks
+    live: standing rule H2's exact pathology, and the reason H2 exists.
+
+    So before any table arc work is scheduled on premise 3, this asks the one
+    question the premise assumes the answer to: CAN INCANT INDEX A DEFINED LIST
+    BY A FIELD'S OWN datA AND GET THE TYPE NAME BACK?
+
+    Rows deliberately span the scalar/non-scalar boundary the fallback column
+    is drawn on, because a lookup that works for isCOUNT and silently fails for
+    isSTAK would send the arc off with the wrong foundation.
+
+    SENTINEL AT THE FOOT (CLAUDE.md third corollary).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(utilities);
+
+search reset stack Grokking UnitTests Utilities list;
+
+register(TableProbe);
+define
+    dataNames isANY isCHAR isSET isBUFFER isCOUNT isGROUP isITEM isMAP isNUMBER isOBJECT isREGEX isSTAK isSTRING isTOKEN;
+    probeCount  = 42;
+    probeNumber = 3.5;
+    probeString = "words";
+    probeEmpty;
+    nameOf argument code={
+        slot = argument.datA;
+        found = dataNames[slot];
+        if found != 0;  print + `taG argument "datA=" slot "->" found:;
+        else            print + `taG argument "datA=" slot "-> NO ENTRY":;
+        };
+    runProbe code={
+        print "premise 3 foundation -- dataNames[datA]:";
+        nameOf(probeCount);
+        nameOf(probeNumber);
+        nameOf(probeString);
+        nameOf(probeEmpty);
+        nameOf(dataNames);
+        print "is the float a DEFINE-block artifact? assign inside an action:";
+        localNum = 3.5;
+        nameOf(localNum);
+        localNum2 = 7.25;
+        print + "localNum2 prints as" localNum2:;
+        print "does a node with a LIST carry datA? (T3's open half):";
+        listy +% probeCount probeString;
+        nameOf(listy);
+        };
+    ;
+
+runProbe();
+print "TP SENTINEL":;
+stop();

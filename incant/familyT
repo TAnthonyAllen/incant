@@ -1,0 +1,134 @@
+/*****************************************************************************
+    familyT -- THE GROUND CHECK for the argument-list family (Clay's relay,
+    "table arc opening moves", 2026-08-01).
+
+    THE HYPOTHESIS UNDER TEST, as briefed: the seven list-taking ops ARE the
+    two-pointer write-back family, and if that is exact then per-element
+    iterate-and-fire is fold-left BY CONSTRUCTION -- each call mutates target,
+    the next call sees it, and order is preserved by emission order.
+
+    THIS FIXTURE ANSWERS THE HALF THAT SOURCE-READING CANNOT: the ORDER. Every
+    one of the six iterating ops walks with `argument.prior(...)`, which is a
+    BACKWARD list walk. Whether that yields SOURCE order depends entirely on
+    how aCTionExpressioN builds the expression list -- a fact about the builder,
+    not about the walker. Reading `prior` and concluding "reversed" is exactly
+    the causal-claim shape CLAUDE.md says fails here; reading it and MEASURING
+    is the structural one that holds.
+
+    ⚠ WHY `+%` AND NOT `-=` OR `/=`, and this is the rung-design note applied
+    rather than quoted. The brief asks for a case where per-element and one-shot
+    COULD differ -- a happy set proves nothing. But `-=` and `/=` OVER A LIST
+    ARE ORDER-INDEPENDENT ARITHMETIC: 100-1-2-3 is 94 in any order, and 1000/2/5
+    is 1000/5/2. They are non-commutative as BINARY ops and order-BLIND as
+    FOLDS, so they cannot discriminate and would have gone green on a reversed
+    walk. `+%` is order-INJECTIVE: three distinct tags land in a list whose
+    read-back order IS the fold order, so `P Q R` and `R Q P` are different
+    answers, not a lucky match.
+
+    ⚠⚠ MEASURED RESULT, 2026-08-01, and THE FAMILY IS NOT UNIFORM. The brief
+    asked for a ground check rather than an assertion; this is why. Three
+    different shapes among the seven:
+
+      ORDER (row 1)          `+%` folds in SOURCE order -- P Q R, not R Q P.
+                             So `argument.prior(...)` walking "backward" over
+                             the list yields source order, because that is how
+                             aCTionExpressioN builds it. FOLD-LEFT CONFIRMED,
+                             and it could only be confirmed by running.
+
+      `+=` DOES NOT ITERATE  (row 3, and row 2's numE). The op the probe is
+                             aimed at is the one member with no per-element
+                             arm at all: its isLIST arms are whole-list -- the
+                             35a string-concat arm (one appendGroup call, which
+                             does its own traversal) and the copyListTo bulk
+                             arm. "One glance, any of the seven" would have
+                             reported the family uniform, because six of seven
+                             do iterate and `+=` is the seventh.
+
+      `-=` AND `*=` ARE      (row 2) -- a PRE-EXISTING defect, not something
+      SILENTLY WRONG         this work introduced:
+                                 100 -= 1 2 3  -> 100   SILENT NO-OP  (want 94)
+                                 100 *= 2 3    -> 0     SILENT WRONG  (want 600)
+                                 100 /= 2 5    -> 10    correct
+                                 100 -= 7      -> 93    scalar, correct
+                             That much is MEASURED and it is the part to carry.
+
+    ⚠ THE MECHANISM IS **NOT** ESTABLISHED, AND A FIRST ATTEMPT AT ONE WAS
+    WITHDRAWN THE SAME HOUR. The obvious story reads straight off the source:
+    `-=` and `*=` test their scalar arm as `data && argument.data` without
+    checking the argument is a SCALAR, so a list node would satisfy
+    `argument.data`, the switch would run with the list node as operand
+    (`argument.count` == 0), and the `or argument.isLIST` per-element arm below
+    would be unreachable. It fits both numbers exactly, and `/=` -- the one that
+    is correct -- is also the one that guards on the ARGUMENT's type
+    (`argument.isCOUNT || argument.isNUMBER`). Tidy, and probably still the
+    answer.
+
+    BUT `incant/tableProbe` went looking for its load-bearing premise and found
+    the opposite: **a node carrying a list reports `datA = 0`**, i.e. NO data --
+    both a define-block group (`dataNames`) and one built with `+%` (`listy`).
+    If an expression-list node behaves the same way, `argument.data` is FALSE
+    and the arm cannot be the one that ran. Two ways out, neither measured: an
+    aCTionExpressioN-built list node may differ from a define-built one, or the
+    zero may come from somewhere else entirely.
+
+    SO IT IS FILED AS: behaviour measured, cause OPEN. This is CLAUDE.md's
+    measured asymmetry doing exactly what it says -- the structural claim (three
+    of seven disagree) held; the causal claim (which arm ran) did not survive
+    its own check. Confirming it needs instrumentation on the expression-list
+    node, not more source reading.
+
+    ⚠ THIS IS THE ARGUMENT FOR THE PROMOTION, not against it. Three of seven
+    members disagree about a property the family is supposed to share, and the
+    disagreement is invisible at every call site. A dispatch tree GENERATED from
+    a table cannot have two members order their arms differently by hand -- the
+    defect class stops being possible rather than being fixed.
+
+    NOT FIXED HERE. Reported, not repaired: `-=`/`*=` arm ordering is Tony's
+    call, it is pre-existing, and the probe's whole point is to decide whether
+    these get repaired by hand or deleted by generation.
+
+    SENTINEL AT THE FOOT (CLAUDE.md third corollary): an incant parse failure
+    abandons the rest of the file and still exits 0.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(utilities);
+
+search reset stack Grokking UnitTests Utilities list;
+
+register(FamilyTest);
+define
+    elemP = 11;
+    elemQ = 22;
+    elemR = 33;
+    holdR;
+    runFam code={
+        holdR +% elemP elemQ elemR;
+        print "1 +% fold order:";
+        iterate walkR on holdR;
+        while ++walkR;
+            print + `taG walkR:;
+        print "2 the arithmetic-compound ops over a list:";
+        numA = 100;
+        numA -= 7;
+        print + "numA scalar -=7   " numA:;
+        numB = 100;
+        numB -= 1 2 3;
+        print + "numB list  -=1 2 3" numB:;
+        numC = 100;
+        numC *= 2 3;
+        print + "numC list  *=2 3  " numC:;
+        numD = 100;
+        numD /= 2 5;
+        print + "numD list  /=2 5  " numD:;
+        numE += 1 2 3;
+        print + "numE FRESH -- no data, list +=" numE:;
+        print "3 += over a list on a FRESH target (the non-iterating arm):";
+        freshA += "p" "q" "r";
+        print + "freshA = [" freshA "]":;
+        };
+    ;
+
+runFam();
+print "FT SENTINEL":;
+stop();
