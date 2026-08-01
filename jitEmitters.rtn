@@ -133,6 +133,24 @@ extern GroupItem jitSeedField(GroupItem token)
     llvm::IRBuilder<> *b = gJitBuilder;
     llvm::LLVMContext &ctx = b->getContext();
     JitData *d = new JitData();
+    // ---- FRAME FIRST (Increment 1). If this field's STORAGE is in the current
+    // frame, its operand is the alloca, not a baked address. Keyed on the home
+    // address because node identity does not survive to here: each occurrence of
+    // a local in the body is its own GroupItem (measured), so `token` is never
+    // the node the prologue walked. Globals fall through and bake, unchanged.
+    {
+        GroupBody *tb = token->groupBody;
+        void *home = isNUMBER(tb->flags.data) ? (void*)&(tb->gNumber) : (void*)&(tb->gCount);
+        JitFrameSlot *f = jitFrameFind(home);
+        if (f) {
+            d->jitSlot = f->slot;
+            d->jitType = f->ty;
+            d->setJitter(b->CreateLoad(f->ty, f->slot, "frame"));
+            token->jitData = d;
+            gJitSeeded.push_back(token);
+            return token;
+        }
+    }
     if (isNUMBER(token->groupBody->flags.data)) {
         void *addr = &(token->groupBody->gNumber);
         llvm::Value *p = b->CreateIntToPtr(
@@ -928,8 +946,67 @@ extern int jitRunAction(GroupItem action)
     ruler->generating = 0;
     for (GroupItem *seeded : gJitSeeded) seeded->jitData = nullptr;
     gJitSeeded.clear();
+    gJitFrame.clear();
     if (isCoded(action->groupBody->flags.actionType))
         ::processCode(action);
+
+    // ⚠ THE PROLOGUE RUNS *AFTER* processCode AND THAT PLACEMENT IS LOAD-BEARING.
+    // It was written above the parse first, and the frame came out EMPTY: a local
+    // is BORN BY BEING PARSED -- aCTionNamE's processingCode branch is what stamps
+    // isLocal and adds the field to the action -- so before processCode the
+    // action's field list does not yet contain them. The rung caught it (correct
+    // values, zero allocas), which is precisely the job a structure assertion has
+    // that a value net does not.
+    // ================= FRAME PROLOGUE (Increment 1, 2026-08-01) =================
+    // THE SCHEMA IS INHERITED, NOT INVENTED. `(isArgument || isLocal) && !noPrint`
+    // is verbatim the predicate saveLocalFields walks forward and
+    // restoreLocalFields walks backward (GroupActions.rtn). Taking the
+    // interpreter's own enumeration is model-not-oracle: the two cannot drift,
+    // and the alternative -- a parallel test that means the same thing today --
+    // is how they would.
+    //
+    // WHAT THIS REPLACES: recurseSTAK's manual heap push/pop of whole GroupBodys.
+    // Same schema, same discipline, different storage -- which is why the death
+    // warrant on saveLocalFields could be written without redesigning semantics.
+    // ⚠ INHERIT THE SCHEMA, NOT THE BUG: saveLocalFields also copied the groupList
+    // POINTER and then cleared the shared object in place, so no local carrying a
+    // list survived recursion (CLAIM KANT-8's neighbour). Nothing here copies a
+    // body at all, so that whole failure mode is unconstructable rather than
+    // avoided.
+    //
+    // THE PROLOGUE IS THE SEED. runOP's gate only seeds a node with no jitData
+    // (bear-trap #9 -- never re-seed an inner op-result), so pre-seeding a local
+    // here means jitSeedField NEVER sees it and never bakes it an absolute
+    // address. That is the whole mechanism: one `if` in a gate that already
+    // existed, rather than a new branch inside jitSeedField.
+    //
+    // GLOBALS ARE UNTOUCHED and keep baked addresses with immediate store-through
+    // (Part III's phase scope). Only locals move, and a local is invisible outside
+    // the action, so deferring ITS writeback to the epilogue is not observable --
+    // which is exactly why this increment is behaviour-neutral and cannot certify
+    // itself.
+    {
+        GroupItem *fld = 0;
+        while ((fld = action->next(fld))) {
+            GroupBody *fb = fld->groupBody;
+            if (!(fb->flags.isLocal || fb->flags.isArgument)) continue;
+            if (fb->flags.noPrint) continue;
+            if (fld->jitData) continue;          // already seeded this compile
+            llvm::Type *ty;
+            void       *addr;
+            if (isNUMBER(fb->flags.data)) { ty = llvm::Type::getDoubleTy(*ctx); addr = &(fb->gNumber); }
+            else                          { ty = llvm::Type::getInt32Ty(*ctx);  addr = &(fb->gCount);  }
+            if (jitFrameFind(addr)) continue;    // one slot per field, not per node
+            llvm::Value *slot = B.CreateAlloca(ty, nullptr, fb->tag);
+            llvm::Value *home = B.CreateIntToPtr(
+                llvm::ConstantInt::get(llvm::Type::getInt64Ty(*ctx), (uint64_t)addr),
+                llvm::PointerType::getUnqual(*ctx));
+            B.CreateStore(B.CreateLoad(ty, home, "prolog"), slot);
+            JitFrameSlot fs; fs.home = addr; fs.slot = slot; fs.ty = ty;
+            gJitFrame.push_back(fs);
+        }
+    }
+    // =========================== end frame prologue ===========================
     // Execute the parsed BlocK under jitting: runOP/op-gates emit straight-line IR;
     // control flow lands via aCTionIF's jitting gate -> jitEmitGIF.
     jitExecBlock(action);
@@ -951,6 +1028,22 @@ extern int jitRunAction(GroupItem action)
     // RAN -- and in every fixture dumped it was a CONSTANT. Storing per
     // statement and loading here is what makes the returned value path-correct.
     jitStoreResult();
+
+    // ================= FRAME EPILOGUE (Increment 1, 2026-08-01) =================
+    // Store each frame slot back to the field's own storage, so the interpreter
+    // and every later run see the action's effect. Walk order is the prologue's;
+    // restoreLocalFields walks BACKWARD because it pops a stack, and this does
+    // not -- each slot has its own address, so there is no ordering to honour.
+    // That asymmetry is the point: the stack discipline was the bug surface, and
+    // it is gone rather than reimplemented.
+    for (JitFrameSlot &f : gJitFrame) {
+        llvm::Value *home = B.CreateIntToPtr(
+            llvm::ConstantInt::get(llvm::Type::getInt64Ty(*ctx), (uint64_t)f.home),
+            llvm::PointerType::getUnqual(*ctx));
+        B.CreateStore(B.CreateLoad(f.ty, f.slot, "epilog"), home);
+    }
+    // =========================== end frame epilogue ===========================
+
     B.CreateRet(B.CreateLoad(i32, gJitResultSlot, "retval"));
 
     // ------------------------------------------------------------------

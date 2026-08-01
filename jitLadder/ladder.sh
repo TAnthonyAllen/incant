@@ -313,8 +313,52 @@ else
     echo "  FAIL  J7 the two-leg calling story is not in the IR"; fail=1
 fi
 
+echo "-- JF  THE FRAME MODEL, INCREMENT 1 -- STRUCTURE ONLY, NOT THE PROOF"
+#  ⚠⚠ THIS RUNG DOES NOT CERTIFY THE FRAME MODEL AND MUST NOT BE READ AS DOING
+#  SO. Without recursion, allocas-for-locals is BEHAVIOUR-NEUTRAL -- one
+#  activation's alloca and one field's storage hold the same value at every
+#  observable point, so the answers are identical either way. THE PROOF IS J-R:
+#  factorial-shaped, fired at TWO DEPTHS, because depth-1 passes on aliased slots
+#  and depth-N cannot. Until J-R exists, this rung asserts STRUCTURE plus the
+#  value-regression net above.
+#
+#  ⚠ AND IT EXISTS BECAUSE THE NET COULD NOT SEE THE CHANGE. Every rung J1..J7
+#  uses fields declared in a DEFINE BLOCK -- registry globals, not action locals
+#  -- and Part III says globals KEEP their baked addresses. So the prologue
+#  correctly did nothing for them, the ladder stayed 47/47 green across the whole
+#  increment, and a structure claim read off that would have been VACUOUS.
+#  Measured by dumping J1's IR: no frame alloca, both operands still inttoptr.
+rung jitJF "JF SENTINEL" "JF" 115 135
+INCANT_JIT_DUMP=2 $B incant/jitJF > "$T/jitJF.ir" 2>&1
+#  THE DISCRIMINATOR IS BOTH HALVES IN ONE FUNCTION, and each half alone is
+#  satisfiable by a wrong emitter: "an alloca exists" passes if the prologue
+#  framed EVERYTHING; "a baked address exists" passes if it framed NOTHING.
+if grep -q "%jfTmp = alloca i32" "$T/jitJF.ir"; then
+    echo "  ok    JF local jfTmp got a FRAME SLOT (alloca)"
+else
+    echo "  FAIL  JF the local has no alloca -- the prologue did not fire"; fail=1
+fi
+if grep -q "store i32 %prolog, ptr %jfTmp" "$T/jitJF.ir"    && grep -q "%epilog = load i32, ptr %jfTmp" "$T/jitJF.ir"; then
+    echo "  ok    JF prologue IN and epilogue OUT both emitted"
+else
+    echo "  FAIL  JF prologue/epilogue missing -- the frame is not carried"; fail=1
+fi
+if grep -q "store i32 %add, ptr %jfTmp" "$T/jitJF.ir"; then
+    echo "  ok    JF the local's WRITE lands in the frame slot, not a baked address"
+else
+    echo "  FAIL  JF a local write still targets baked storage"; fail=1
+fi
+#  THE OTHER HALF: globals must be UNCHANGED. jfOut is declared in the define
+#  block, so it is a registry global and Part III's phase scope says it keeps an
+#  immediate store-through to its own address.
+if grep -qE "store i32 %add2, ptr inttoptr" "$T/jitJF.ir"; then
+    echo "  ok    JF global jfOut KEPT its baked address + immediate store-through"
+else
+    echo "  FAIL  JF a global was framed -- increment 1 must not touch globals"; fail=1
+fi
+
 echo ""
-if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7)"
+if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 + JF structure-only)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"
 exit $fail

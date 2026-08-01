@@ -1,0 +1,79 @@
+/*****************************************************************************
+    jitJF -- THE STRUCTURE RUNG for Increment 1 (frame model), 2026-08-01.
+
+    ⚠⚠ THIS RUNG IS NOT THE PROOF, AND IT SAYS SO IN ITS OWN HEADER.
+    Without recursion, allocas-for-locals is BEHAVIOUR-NEUTRAL: one activation's
+    alloca and one field's storage hold the same value at every observable
+    point, so the answers are identical either way. A green value here certifies
+    NOTHING about the frame model. What it asserts is STRUCTURE plus a
+    regression net. THE PROOF IS J-R -- factorial-shaped, fired at TWO depths,
+    because depth-1 passes on aliased slots and depth-N cannot.
+
+    ⚠ WHY THIS FIXTURE HAD TO EXIST AT ALL, and it is the finding of the
+    increment: EVERY EXISTING LADDER RUNG USES GLOBALS. jitJ1's `jaIn`/`jaOut`
+    are declared in the define block, so they are registry fields, not action
+    locals -- and Part III says globals KEEP their baked addresses. So the
+    prologue correctly did nothing for J1..J7, the ladder stayed 47/47 green,
+    and a structure claim read off that would have been VACUOUS. Measured by
+    dumping J1's IR after the build: no frame alloca, both operands still
+    `inttoptr`. The rung exists because the net could not see the change.
+
+    THE DISCRIMINATOR IS ONE FUNCTION CONTAINING BOTH KINDS:
+        jfTmp   -- never declared anywhere; born by assignment INSIDE code={},
+                   so aCTionNamE makes it isLocal. MUST get an alloca.
+        jfOut   -- declared in the define block, therefore a global.
+                   MUST keep its baked inttoptr address and immediate store.
+    Asserting only "an alloca exists" would pass if the prologue framed
+    everything; asserting only "a baked address exists" would pass if it framed
+    nothing. Both, in one function, is what pins the schema.
+
+    SENTINEL AT THE FOOT (CLAUDE.md third corollary).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitLadder);
+define
+    jfIn;
+    jfOut;
+    jitJF code={ jfTmp = jfIn + 5; jfOut = jfTmp + 100; };
+    ;
+
+jfIn  = 10;
+jfOut = 0;
+print "JF fire 1 setup : jfIn =" jfIn:;
+testing(jitJF);
+print "JF fire 1 result: jfOut =" jfOut " (want 115)":;
+
+/*  ⚠ NO RECOMPILE BELOW THIS LINE. Only the input changes. Fire-twice is what
+    separates "compiled code computed it" from "the interpreter did it at emit
+    time and the answer happened to be right".  */
+jfIn  = 30;
+jfOut = 0;
+print "JF fire 2 setup : jfIn =" jfIn " (recompile: NONE)":;
+jitRefire();
+print "JF fire 2 result: jfOut =" jfOut " (want 135)":;
+/*  ⚠ THE ORACLE'S TESTIMONY, captured LAST and that order is LOAD-BEARING.
+    The interpreter is the differential oracle and section 0 sentences it to
+    death, so every rung records what it said while it can still say it.
+    BUT: calling the action interpreted BEFORE testing() consumes its isCoded
+    state, and testing() then silently routes to jitRunIfTest -- the hand-built
+    smoke scaffold -- instead of jitRunAction. Measured on J3, 2026-07-31.
+
+    FOR THIS RUNG THE ORACLE CARRIES EXTRA WEIGHT, because the interpreted path
+    is the one that still uses saveLocalFields/restoreLocalFields -- the machinery
+    this increment begins to replace. Interpreted and jitted agreeing here is the
+    schema agreeing with itself across both implementations, which is the whole
+    point of INHERITING the predicate rather than inventing a parallel one.  */
+jfIn  = 10;
+jfOut = 0;
+jitJF();
+print "JF interpreted  : jfOut =" jfOut " (the oracle -- want 115)":;
+
+print "JF SENTINEL":;
+stop();

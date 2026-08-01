@@ -128,6 +128,51 @@ inline int gJitDegradeCount = 0;
 class GroupItem;
 inline std::vector<GroupItem*> gJitSeeded;
 
+// THE FRAME (Increment 1, 2026-08-01). The action's own field list IS the frame
+// schema -- (isArgument || isLocal) && !noPrint -- which is not a new invention:
+// it is the exact predicate saveLocalFields/restoreLocalFields have walked in the
+// interpreter since the beginning (GroupActions.rtn). INHERIT THE SCHEMA, NOT THE
+// BUG: the enumeration is taken, the save/restore discipline is not.
+//
+// Holds the nodes given a frame alloca by this compile's prologue, in walk order,
+// so the epilogue can store them back. A subset of gJitSeeded -- every frame local
+// is seeded (the prologue IS its seed), but literals and globals are not framed.
+// Cleared at the top of jitRunAction alongside gJitSeeded.
+//
+// ⚠ INCREMENT 1 IS NOT INDEPENDENTLY PROVABLE, and the rung says so itself.
+// Without recursion, allocas-for-locals is BEHAVIOUR-NEUTRAL -- the same answers
+// come out, because one activation's alloca and one field's storage hold the same
+// value at every observable point. What a structure rung can assert is that the
+// allocas EXIST and that no local kept a baked address, plus a value-regression
+// net. THE PROOF IS J-R: per-call storage only becomes observable when two calls
+// are live at once, and depth-1 passes on aliased slots where depth-N cannot.
+// ⚠ KEYED ON THE FIELD'S STORAGE ADDRESS, NOT ON THE NODE, AND THAT IS THE
+// FINDING OF INCREMENT 1. The first cut keyed on GroupItem* and pre-seeded each
+// framed node's jitData. It framed nothing: MEASURED with a node-identity trace,
+// the action's field-list entry for a local is a DIFFERENT NODE from the ones the
+// runOP tree references, and each OCCURRENCE in the body is its own node again --
+// `jfTmp` framed at 0x10243e080, then baked twice at 0x102452540 and 0x102453780.
+// All three resolve to the same storage, which is exactly why the baked-address
+// model never had to care about node identity.
+//
+// So the frame cannot be keyed on identity the emitter does not preserve. It is
+// keyed on `home` -- the address of the field's gCount/gNumber -- which is the
+// one thing every occurrence agrees on.
+struct JitFrameSlot {
+    void        *home;   // &gCount or &gNumber -- the identity that survives
+    llvm::Value *slot;   // the alloca
+    llvm::Type  *ty;
+};
+inline std::vector<JitFrameSlot> gJitFrame;
+
+// Look a field's storage up in the current frame. Returns null when the field is
+// a GLOBAL, which is the common case and the correct one -- globals keep baked
+// addresses and immediate store-through (Part III's phase scope).
+inline JitFrameSlot *jitFrameFind(void *home) {
+    for (JitFrameSlot &f : gJitFrame) if (f.home == home) return &f;
+    return nullptr;
+}
+
 // Binary-op selector for jitEmitBinary — readable names, not magic ints. Each
 // arithmetic opMethod's jitting gate passes one of these; the int/float variant
 // of the actual LLVM instruction is picked inside jitEmitBinary from operand type.
