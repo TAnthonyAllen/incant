@@ -930,6 +930,96 @@ it belongs to every round equally.
 
 ---
 
+### CLAIM KANT-25 — the minionA round-2 crash cost NOTHING, and the reason matters more than the crash
+```
+statement:   minionA round 2 died on a server-side 500 at the exact moment it
+             was about to write its deliverable ("Now I'll write the
+             deliverable"). MEASURED LOSS: ZERO BYTES AND ZERO SYNTHESIS.
+             THE TRANSCRIPT IS THE PERSISTENCE LAYER, and resume reads it. The
+             round was resumed from transcript with full context; recovery was
+             ONE message.
+confidence:  RUN (the timeline is from file mtimes and commit times, not memory)
+provenance:  17:29:43  foreman commit; `git status` shows NO untracked files
+                       -> nothing of the minion's was on disk at crash time
+             ~17:30    round resumed from transcript
+             17:31:56  incant/genMany written      <- POST-resume
+             17:35:02  incant/manyScratch written  <- POST-resume
+             Both artifacts are the RESUMED round's, not crash residue. The
+             foreman's first instinct was that they were survivors; the mtimes
+             say otherwise, which is why they were checked.
+asOf:        2026-08-01
+scope:       Scoped to a crash where the agent REMAINS RESUMABLE IN-SESSION.
+             It says nothing about a lost session or an expired transcript,
+             which are different and rarer events.
+```
+**⚠ THE AUDIT DEFEATS ITS OWN FRAMING, AND BOTH BRANCHES OF IT.** The question was
+posed as "did minionA absorb-as-it-went or batch for the end?", with the fallback
+"if absorb-as-you-go was already the doctrine and this minion batched, the fix is
+enforcement, not invention."
+
+**Neither branch holds. THE BRIEF MANDATED BATCHING** — item 4 of the deliverable
+reads *"A B0-format claim … returned as your final text."* The minion did exactly
+what it was told. There was no doctrine to enforce and no minion to correct; if
+there is a gap it belongs to the foreman who wrote the brief.
+
+### ⚠ AND THE PROPOSED CURE COLLIDES WITH THE SPAWN RULE — this is the finding
+
+The standing prior was **report-incrementally**: the finish-up report as a running
+file, appended per finding, so *"about to write the report"* is never a state that
+exists. It is cheap and the reasoning is sound. **But it creates a NEW WRITE
+SURFACE, and the spawn rule forbids exactly that:**
+
+> *"THE TREE — during A, THE CORPUS IS THE ONLY SURFACE THE LOOP MAY WRITE TO.
+> Write a round-learning into any doc that is not the corpus and round N+1 picks
+> it up anyway; the corpus looks like it is absorbing while the filesystem does
+> the work. THE CONFOUND LAUNDERED THROUGH DISK."*
+
+A running report file is a doc that is not the corpus. Adopted naively it
+reintroduces the precise confound the spawn rule was written to close — and it
+would do so invisibly, because the file would look like bookkeeping rather than
+like a channel.
+
+**It is adoptable only if the file is ROUND-SCOPED and provably never read by a
+later round**, which is a discipline that must itself be audited — and disciplines
+get audited, structures do not.
+
+### THE PRICED CANDIDATES, and the recommendation is to buy almost nothing
+
+| discipline | overhead | verdict |
+|---|---|---|
+| **claim-on-finding, to the CORPUS** | ~0 — the same B0 block, written at discovery instead of at the end | ⚠ **but it bypasses gating**: the spawn rule says *the agent drafts, the foreman gates*. A direct corpus write is an ungated write |
+| **report-incrementally, new file** | ~0 in minutes | **REJECT as specified** — new write surface, spawn-rule collision above |
+| **checkpoint-on-milestone** | real: a bake step per method/claim | not justified by a measured loss of zero |
+| **journaling / transcript persistence / session replay** | large | rejected by construction — Tony's constraint, and the audit gives them nothing to insure against |
+
+**RECOMMENDATION: change nothing structural, and fix the brief instead.** The
+measured loss was zero because resume already works. The one honest improvement is
+a **brief** change, not a doctrine change: item 4 should ask for claims **as they
+are found**, delivered into the round's own message stream rather than held for a
+final synthesis. That costs nothing, adds no surface, and leaves gating intact,
+because the foreman still promotes into the corpus.
+
+⚠ **NOTE THE BRIEF-REVISION COST HONESTLY:** the spawn rule says a brief revision
+*"is logged with a reason and IT BREAKS THE SERIES — comparisons restart from
+there."* Round 2 is already the last round of the difficulty-cadence measurement
+(ended by choice at the cerr reorder, instrument considered proven), so the series
+cost here is nil. **It would not have been nil a week ago, and that is the reason
+to say it out loud rather than let a free-looking edit set a precedent.**
+
+### WT-11 does NOT extend, and `minionfire.md` does not exist
+`CLAIM WT-11` is *"no silent overwrite — a write carries the whole file including
+prior history."* That is a **concurrent-writer** hazard on a shared channel: two
+writers, one file, one silently replacing the other. **This crash is a
+loss-of-unwritten-work hazard: one writer, no file at all.** Different failure,
+different cure; WT-11 addresses overwrite and has nothing to say here.
+
+`docs/minionfire.md` **does not exist in the tree** (checked). The harness doctrine
+lives in `docs/minionAHarness.md`, and that is where any line would go. Flagged
+rather than created, because inventing a file to hold a recommendation that this
+audit recommends against would be the wrong artifact twice over.
+
+---
+
 ## BLOCKED
 
 ### BLOCKED KANT-B1 — a kant action cannot return NULL across `runAction`
