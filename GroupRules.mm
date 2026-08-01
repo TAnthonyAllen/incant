@@ -740,8 +740,41 @@ extern "C" GroupItem *aCTionNumbeR(GroupItem *input)
 char 	*arg = input->getText();
 	if ( arg )
 		{
-		GroupItem 	*FloaT = input->getLabelGroup("FloaT");
-		if ( FloaT )
+		/*  KANT'S NUMERIC TOWER IS count AND double. NO FLOATS, EVER (Tony,
+		2026-08-01). A float-like literal IS a double literal and must
+		survive as one -- so a decimal point mints isNUMBER here, at the
+		literal's birth, and nothing rounds it.
+		
+		⚠ THIS TESTS THE TEXT, NOT THE `FloaT` LABEL, AND THAT IS THE FIX.
+		The old code read `GroupItem FloaT:;` and branched on it. MEASURED
+		2026-08-01 with a trace in this function: for input `3.5` the label
+		is ABSENT while the token text is exactly "3.5" -- NumbeR matched
+		the decimal fine, but `tokenize` on NumbeR flattens the match into a
+		single token and the FloaT child label does not survive for this
+		action to see. So the branch was ALWAYS taking atoi, and every
+		double literal in the language silently truncated at birth:
+		3.5 -> 3      0.25 -> 0      1.5e2 -> 1      3.5 + 1 -> 4
+		No rounding, no diagnostic. The text, however, is intact and
+		complete -- including the exponent -- so it is the reliable
+		classifier and atof consumes it directly.
+		
+		Exponent-only forms (`1e5`) are NOT reachable to begin with: FloaT
+		requires a leading '.', so NumbeR matches just "1" and "e5" tokenizes
+		separately. A '.' test therefore covers everything that can reach
+		here, and `1.5e2` works because FloaT spells '.' decimals PoweR?.
+		
+		Written as an explicit scan rather than a libc call: the surrounding
+		code is plain tok, and a bare short C name here is precisely the
+		collision class of bear-traps #12 and #17.  */
+		char *scan = arg;
+		int sawDecimal = 0;
+		while ( *scan )
+			{
+			if ( *scan == '.' )
+				sawDecimal = 1;
+			scan++;
+			}
+		if ( sawDecimal )
 			input->setNumber(::atof(arg));
 		else	input->setCount(::atoi(arg));
 		input->groupBody->flags.isLiteral = 1;

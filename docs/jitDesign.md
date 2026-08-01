@@ -484,14 +484,29 @@ pathology and the reason H2 exists.
 `isCOUNT`, `isSTRING` → 13 → `isSTRING`. Index alignment confirmed *live*, not just by
 enumeration. Premise 3's foundation is sound and the arc can be scheduled on it.
 
-⚠ **Finding 1 — A FLOAT LITERAL DOES NOT PRODUCE AN `isNUMBER` FIELD.** `probeNumber = 3.5`
-comes back `datA = 5` (isCOUNT) and prints `3`; `localNum2 = 7.25` prints `7`. **Not a
-define-block artifact** — an assignment inside an action body does the same. **Consequence for
-the probe: the `number` leaf in the briefed coverage list (count · number · promote ·
-string-concat · Stak · Buffer · SET) is NOT REACHABLE FROM A LITERAL,** so the probe's fixture
-needs another route to an `isNUMBER` field or that leaf ships uncovered — and "uncovered" under
-T1 means it must degrade loudly rather than pass quietly. **Promotion is the leaf directly
-downstream of this**, so it is not a corner case for this arc, it is on the critical path.
+⚠ **Finding 1 — A FLOAT LITERAL DID NOT PRODUCE AN `isNUMBER` FIELD. ✅ FIXED 2026-08-01.**
+`probeNumber = 3.5` came back `datA = 5` (isCOUNT) and printed `3`; `localNum2 = 7.25` printed
+`7`. Not a define-block artifact — an assignment inside an action body did the same.
+
+**Tony ruled it a defect the same day: KANT'S NUMERIC TOWER IS `count` AND `double`, NO FLOATS
+EVER, and a float-like literal IS a double literal that must survive as one.** Silent truncation
+at the literal's birth, with no rounding, is not a representation choice.
+
+**Cause, MEASURED with a trace in `aCTionNumbeR` rather than reasoned:** the action branched on
+a `GroupItem FloaT:;` label, and for input `3.5` that label is **absent** while the token text is
+exactly `"3.5"`. `NumbeR` matched the decimal correctly; `tokenize` on `NumbeR` flattens the
+match into one token and the `FloaT` child label does not survive for the action to test. So the
+branch always took `atoi`. The fix classifies on the **text** — a decimal point mints
+`isNUMBER` — which is reliable because the text is intact including the exponent.
+
+Now: `3.5` → `3.5` · `0.25` → `0.25` · `1.5e2` → `150` · the field reads `datA = 9` (isNUMBER) ·
+`3.5 + 1 = 4.5`. `oneTest`/`jsonTest` byte-identical. **The `number` leaf is reachable from a
+literal, so the probe no longer needs a non-literal workaround.**
+
+⚠ **STILL OPEN AND ADJACENT, NOT FIXED HERE:** `10 / 4` yields `3` and stays `isCOUNT`. That is
+count-÷-count, and whether it should promote is **premise 2's promotion question**, not the
+literal defect — a different ruling, and Tony's. Flagged because the probe's `promote` leaf sits
+directly on it.
 
 ⚠ **Finding 2 — `datA = 0` has no entry.** `dataNames` is 1-based (`isANY` at 1), so a field
 with no data indexes nothing and the lookup yields empty. Correct and harmless, but it means
