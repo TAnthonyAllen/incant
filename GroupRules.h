@@ -174,6 +174,7 @@ extern "C" GroupItem *jitEmitCompare(GroupItem *argument, GroupItem *target, int
 extern "C" GroupItem *jitEmitDO(GroupItem *input);
 extern "C" GroupItem *jitEmitGIF(GroupItem *input);
 extern "C" GroupItem *jitEmitRem(GroupItem *argument, GroupItem *target, GroupItem *resultNode);
+extern "C" int jitEmitSelfCall(GroupItem *action);
 extern "C" GroupItem *jitEmitStringPlusEQ(GroupItem *argument, GroupItem *target);
 extern "C" void jitEmitTrace(GroupItem *field);
 extern "C" GroupItem *jitEmitUnary(GroupItem *target, int op);

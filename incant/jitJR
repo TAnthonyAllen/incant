@@ -1,0 +1,35 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+register(JitLadder);
+define
+    jrN;
+    jrAcc;
+    jrFact code={
+        if jrN > 1;
+            jrAcc = jrAcc * jrN;
+            jrN = jrN - 1;
+            jrFact();
+        };
+    ;
+jrN = 3; jrAcc = 1;
+print "JR fire 1 setup : jrN =" jrN:;
+testing(jrFact);
+print "JR fire 1 result: jrAcc =" jrAcc " (want 6)":;
+
+/*  ⚠ NO RECOMPILE. Depth changes 3 -> 4, so fire 2 proves the RECURSION runs at
+    run time and is not a folded constant. 6 and 24 differ, which is the
+    injectivity rule: a pair that happened to agree would prove nothing.  */
+jrN = 4; jrAcc = 1;
+print "JR fire 2 setup : jrN =" jrN " (recompile: NONE)":;
+jitRefire();
+print "JR fire 2 result: jrAcc =" jrAcc " (want 24)":;
+
+jrN = 3; jrAcc = 1;
+jrFact();
+print "JR interpreted  : jrAcc =" jrAcc " (the oracle -- want 6)":;
+print "JR SENTINEL":;
+stop();

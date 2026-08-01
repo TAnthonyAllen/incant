@@ -3624,6 +3624,46 @@ extern "C" GroupItem *jitEmitRem(GroupItem *argument, GroupItem *target, GroupIt
 	
 }
 
+/* jitEmitSelfCall  THE RECURSIVE CALL, emitted rather than inlined.
+
+   Returns 1 when it emitted (the callee IS the action being compiled), 0 when it
+   did not -- and 0 is the common, correct answer: an ordinary call still inlines,
+   which is measured to work (incant/jitJC).
+
+   ⚠ THIS IS WHERE INLINING STOPS BEING A VALID STRATEGY. Emit-on-walk inlines a
+   callee by re-executing its BlocK into the current builder. For a self-call that
+   re-walks nodes which ALREADY carry jitData from the enclosing pass, and
+   jitEmitCompare has by then written its i1 result into the condition target's
+   jitValue -- so the second pass compares an i1 against an i32 and LLVM asserts
+   (measured 2026-08-01, trace in jitEmitCompare). Terminating is not the only
+   problem; the cached SSA state is.
+
+   SIGNATURE NOTE: the function under construction is i32(), so this emits a
+   no-argument self-call. That is enough to prove CALL EMISSION and is NOT enough
+   to prove frames -- with globals the recursion accumulates through shared baked
+   storage, which is a loop wearing recursion's clothes. Per-activation locals
+   need the argument-passing signature, which is the next increment. */
+extern "C" int jitEmitSelfCall(GroupItem *action)
+{
+	
+	// ⚠ COMPARED ON groupBody, NOT ON THE NODE POINTER, AND THAT IS THE SAME
+	// FINDING AS INCREMENT 1's: STORAGE IS IDENTITY, NODES ARE OCCURRENCES. The
+	// first cut tested `action != gJitCurrentAction` and never matched --
+	// measured, `callee=jrFact current=jrFact match=0`. The jrFact node
+	// referenced INSIDE the body is a different GroupItem from the one
+	// jitRunAction was handed, exactly as each occurrence of a local is its own
+	// node. Second instance of this in one day; cross-filed to the name-scope
+	// pack, which is where node-identity/copy behaviour accumulates.
+	if (!gJitCurrentAction || !gJitCurrentFn) return 0;
+	if (action->groupBody != gJitCurrentAction->groupBody) return 0;
+	llvm::IRBuilder<> *b = gJitBuilder;
+	llvm::Value *v = b->CreateCall(gJitCurrentFn, {}, "selfcall");
+	gJitResult  = v;
+	gJitEmitted = true;
+	return 1;
+	
+}
+
 /* jitEmitStringPlusEQ  the FIRST CreateCall in the JIT layer, and the proof-of-
    concept for jitEmitCall. Bakes target's and argument's stable GroupItem
    addresses as constant ptrs (jitSeedField pattern), then emits a single call to
@@ -4030,6 +4070,8 @@ extern "C" int jitRunAction(GroupItem *action)
 	B.SetInsertPoint(llvm::BasicBlock::Create(*ctx, "entry", fn));
 	
 	gJitBuilder = &B;
+	gJitCurrentAction = action;      // so a self-call emits a CALL, not an inline
+	gJitCurrentFn     = fn;
 	gJitResult  = nullptr;
 	// THE RESULT SLOT. Initialised to 0 so an action that emits nothing still
 	// returns a defined value rather than whatever was last in flight.
@@ -7228,6 +7270,18 @@ GroupItem 	*ruleArg = 0;
 	if ( isCoded(field->groupBody->flags.actionType) )
 		if ( !::processCode(field) )
 			return 0;
+	/*  THE SELF-CALL SEAM. Under jitting an ordinary call INLINES -- emit-on-walk
+	re-executes the callee's BlocK into the current builder, which is measured
+	to work and produces correct run-time answers with no `call` in the IR
+	(incant/jitJC). A SELF-call cannot inline: the re-walk reuses nodes that
+	already carry jitData from the enclosing pass, and the condition target's
+	jitValue is by then an i1 (jitEmitCompare's result), so the second pass
+	asserts inside LLVM. jitEmitSelfCall answers 0 for every other callee, so
+	this gate changes nothing about ordinary calls.  */
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		 if (::jitEmitSelfCall(field)) return field; 
+		}
 	if ( ruleArg = field->get("argument") )
 		if ( argument )
 			ruleArg->setGroup(result = argument);

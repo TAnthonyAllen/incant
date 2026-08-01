@@ -380,6 +380,46 @@ extern GroupItem jitEmitStringPlusEQ(GroupItem argument,GroupItem target)
     %-
 }
 
+/* jitEmitSelfCall  THE RECURSIVE CALL, emitted rather than inlined.
+
+   Returns 1 when it emitted (the callee IS the action being compiled), 0 when it
+   did not -- and 0 is the common, correct answer: an ordinary call still inlines,
+   which is measured to work (incant/jitJC).
+
+   ⚠ THIS IS WHERE INLINING STOPS BEING A VALID STRATEGY. Emit-on-walk inlines a
+   callee by re-executing its BlocK into the current builder. For a self-call that
+   re-walks nodes which ALREADY carry jitData from the enclosing pass, and
+   jitEmitCompare has by then written its i1 result into the condition target's
+   jitValue -- so the second pass compares an i1 against an i32 and LLVM asserts
+   (measured 2026-08-01, trace in jitEmitCompare). Terminating is not the only
+   problem; the cached SSA state is.
+
+   SIGNATURE NOTE: the function under construction is i32(), so this emits a
+   no-argument self-call. That is enough to prove CALL EMISSION and is NOT enough
+   to prove frames -- with globals the recursion accumulates through shared baked
+   storage, which is a loop wearing recursion's clothes. Per-activation locals
+   need the argument-passing signature, which is the next increment. */
+extern int jitEmitSelfCall(GroupItem action)
+{
+    -%
+    // ⚠ COMPARED ON groupBody, NOT ON THE NODE POINTER, AND THAT IS THE SAME
+    // FINDING AS INCREMENT 1's: STORAGE IS IDENTITY, NODES ARE OCCURRENCES. The
+    // first cut tested `action != gJitCurrentAction` and never matched --
+    // measured, `callee=jrFact current=jrFact match=0`. The jrFact node
+    // referenced INSIDE the body is a different GroupItem from the one
+    // jitRunAction was handed, exactly as each occurrence of a local is its own
+    // node. Second instance of this in one day; cross-filed to the name-scope
+    // pack, which is where node-identity/copy behaviour accumulates.
+    if (!gJitCurrentAction || !gJitCurrentFn) return 0;
+    if (action->groupBody != gJitCurrentAction->groupBody) return 0;
+    llvm::IRBuilder<> *b = gJitBuilder;
+    llvm::Value *v = b->CreateCall(gJitCurrentFn, {}, "selfcall");
+    gJitResult  = v;
+    gJitEmitted = true;
+    return 1;
+    %-
+}
+
 /* jitStoreResult  commit the value just emitted into THE RESULT SLOT.
    Tony's ruling 2026-07-31: the compiled action returns what the interpreted
    action returns, and the interpreted rule is "the value of the LAST EXECUTED
@@ -942,6 +982,8 @@ extern int jitRunAction(GroupItem action)
     B.SetInsertPoint(llvm::BasicBlock::Create(*ctx, "entry", fn));
 
     gJitBuilder = &B;
+    gJitCurrentAction = action;      // so a self-call emits a CALL, not an inline
+    gJitCurrentFn     = fn;
     gJitResult  = nullptr;
     // THE RESULT SLOT. Initialised to 0 so an action that emits nothing still
     // returns a defined value rather than whatever was last in flight.

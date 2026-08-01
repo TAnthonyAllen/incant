@@ -1,0 +1,41 @@
+/*  J-R DISCRIMINATOR: a LOCAL that must survive the recursive call.
+    jrLoc is read AFTER jrLocal() returns, so it must be per-activation.
+      per-activation slots : jrAcc = 3 + 2 = 5
+      aliased slots        : the inner call clobbers jrLoc, giving 2 + 2 = 4
+    Depth-1 cannot tell these apart; depth-2 can. That is the whole test.  */
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+register(JitLadder);
+define
+    jrN;
+    jrAcc;
+    jrLocal code={
+        if jrN > 1;
+            jrLoc = jrN;
+            jrN = jrN - 1;
+            jrLocal();
+            jrAcc = jrAcc + jrLoc;
+        };
+    ;
+jrN = 3; jrAcc = 0;
+print "JRL jitted first:":;
+testing(jrLocal);
+print "JRL fire 1 result: jrAcc =" jrAcc " (per-activation=5, aliased=4)":;
+/*  ⚠ NO RECOMPILE, AND A DEEPER STACK. depth 3 -> 4 means 3+2 -> 4+3+2, i.e.
+    5 -> 9. THIS IS THE PHASE BOUNDARY'S OWN TEST: depth-1 passes on aliased
+    slots, depth-N cannot, and a second depth with a DIFFERENT answer is what
+    separates per-activation storage from a lucky single frame.  */
+jrN = 4; jrAcc = 0;
+print "JRL fire 2 setup: jrN = 4 (recompile: NONE)":;
+jitRefire();
+print "JRL fire 2 result: jrAcc =" jrAcc " (per-activation=9, aliased=6)":;
+
+jrN = 3; jrAcc = 0;
+jrLocal();
+print "JRL interpreted : jrAcc =" jrAcc " (the oracle -- want 5)":;
+print "JRL SENTINEL":;
+stop();

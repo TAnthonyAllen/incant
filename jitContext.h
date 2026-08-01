@@ -165,6 +165,21 @@ struct JitFrameSlot {
 };
 inline std::vector<JitFrameSlot> gJitFrame;
 
+// THE FUNCTION AND ACTION CURRENTLY BEING COMPILED. Needed so a SELF-CALL can be
+// emitted as a real `call` instead of being inlined by emit-on-walk.
+// ⚠ WHY A CALL IS MANDATORY HERE AND OPTIONAL EVERYWHERE ELSE: a non-recursive
+// call INLINES correctly today (measured, incant/jitJC -- fire 2 tracks the
+// input and there is no `call` in the IR). A SELF-call cannot, and not merely
+// because it would not terminate: the re-walk reuses nodes that already carry
+// jitData from the enclosing pass, and jitEmitCompare has written its i1 RESULT
+// into the target node's jitValue. Measured -- the second pass sees
+// `jrN type=[i1]` against a literal i32 and LLVM asserts. That is one channel
+// carrying two meanings (the field's value and the last op's result), and the
+// cure is a second channel, not a cleverer test: emit a CALL and stop re-walking.
+class GroupItem;
+inline GroupItem       *gJitCurrentAction = nullptr;
+inline llvm::Function  *gJitCurrentFn     = nullptr;
+
 // Look a field's storage up in the current frame. Returns null when the field is
 // a GLOBAL, which is the common case and the correct one -- globals keep baked
 // addresses and immediate store-through (Part III's phase scope).

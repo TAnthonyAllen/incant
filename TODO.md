@@ -8,6 +8,18 @@
 
 ## 🌅 Pre-Session Tasks (Tonto recon / morning design — no build risk)
 
+- [ ] **WIKI-OWED, and Tony wants it crowed about: AUTO-INLINING AS A HEADLINE FEATURE.** Ruled
+  2026-08-01 — inlining is kant's calling convention for non-recursive jitted calls, *by
+  construction*: emit-on-walk re-executes a callee's BlocK into the caller's builder, so the call
+  boundary never exists to be removed. Measured (`incant/jitJC`): correct run-time answers, zero
+  `call` instructions. **The honest headline is that the sentence has no asterisk** — "the
+  compiler inlines everything free of charge because of how emission works" — and kant's only
+  qualifier is *"except recursion, which gets real frames,"* which is the other half of a
+  complete design rather than a caveat. Full statement and its three consequences:
+  `docs/jitDesign.md` Part III. Surface this at the next wiki revision alongside the other
+  dividends the homoiconic bet paid that nobody ordered — iterators nearly free, inlining
+  actually free, genParse-without-code waiting at the end of the same logic.
+
 - [ ] **incant setup command reference** — document the commands registered at startup: what each does, calling convention, where it lives. Wiki candidate. Clay's task. **Now more urgent:** `setMark` and `getMarkLineAt` added 2026-06-15 and need entries.
 - [x] **`modedOP.taG` recon** — done. See `docs/modedOP-taG-recon.md`. Bottom line: `.taG` is the parser match key, not a free slot. Alias must live in a sub-attribute (`modedOP.boundTo`), set via `interpret`-child pattern. Runtime rebinding must route through `operateMethod/setOperat` — `=` won't rebind `gOp` (poochifier). Three tar babies documented.
 - [ ] **`modedOP.boundTo` alias design** — morning Clay+Tony design pass. Read `docs/modedOP-taG-recon.md` first. Three open questions: is `gText` free on operators; which "alias" we mean (second-name vs current-binding-label); incant syntax for setting `boundTo` at rebind time. Output: a spec for Clod to implement.

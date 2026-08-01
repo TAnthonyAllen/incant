@@ -550,6 +550,35 @@ locate" cannot pass because there was no IR to look at. Written any other way it
 
 # PART III — THE FRAME MODEL (designed, not built — and it is a LATER PHASE)
 
+## ✅ RULED 2026-08-01 (Tony) — INLINING IS KANT'S CALLING CONVENTION
+
+**By design, not accident. Emit-on-walk inlines by construction — the architecture IS the
+inliner.** Two arms, and they are stated together because either alone misreads the design:
+
+| call | emission |
+|---|---|
+| **non-recursive** | **INLINED** into the caller's function. No `call` instruction at all — `runAction → processAction` re-executes the callee's BlocK into the *current* builder, so its ops emit in place |
+| **recursive** | a **real call** via `jitEmitSelfCall`, with its own frame |
+
+*Measured before it was ruled: `incant/jitJC` fires twice with no recompile and the answer tracks
+the input (21 → 61) while the IR contains no `call` whatsoever.*
+
+**Three consequences, each worth its sentence:**
+- **Zero call overhead on the jitted path.** Not "cheap" — absent.
+- **mem2reg optimises ACROSS dissolved call boundaries**, because after inlining there is no
+  boundary left to optimise across.
+- **Small composed actions are therefore the FAST idiom, not merely the preferred one.** ⚠ The
+  conversion arc should know this: it is about to mint exactly that population, and the style it
+  was already going to choose for readability turns out to be the performant one too.
+
+⚠ **The recursive arm is not a caveat, it is the other half.** Inlining a self-call cannot work,
+and not only because it would not terminate: the re-walk reuses nodes already carrying `jitData`
+from the enclosing pass, and `jitEmitCompare` has by then written its **i1 result** into the
+condition target's `jitValue` — so the second pass compares i1 against i32 and LLVM asserts.
+Measured with a trace, 2026-08-01. One channel carrying two meanings again; the cure is a second
+channel — emit a call and stop re-walking.
+
+
 *This is a calling-convention design, not a codegen design. It is the replacement §0
 Consequence 1 refers to when it says `saveLocalFields` is deleted rather than repaired. **None
 of it is implemented.***

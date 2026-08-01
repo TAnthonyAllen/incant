@@ -373,8 +373,38 @@ else
     echo "  FAIL  JF a global was framed -- increment 1 must not touch globals"; fail=1
 fi
 
+echo "-- J-R  RECURSION. THE FRAME MODEL'S DEFINITION OF DONE."
+#  ⚠ THIS IS THE PROOF jitJF SAID IT WAS NOT. Increment 1 could only assert
+#  structure, because without recursion allocas-for-locals is behaviour-neutral.
+#  Per-call storage becomes observable only when two activations are live at once.
+#
+#  JR -- factorial through an EMITTED SELF-CALL. Non-recursive calls inline (ruled:
+#  inlining is the calling convention); a self-call cannot, so this is the arm that
+#  needs a real `call`. Fire 2 changes the DEPTH, 3 -> 4, and 6 vs 24 are different
+#  answers, not merely different inputs.
+rung jitJR "JR SENTINEL" "JR" 6 24
+INCANT_JIT_DUMP=2 $B incant/jitJR > "$T/jitJR.ir" 2>&1
+if grep -q "call i32 @jitFn" "$T/jitJR.ir"; then
+    echo "  ok    JR the recursive call is EMITTED (not inlined)"
+else
+    echo "  FAIL  JR no self-call in the IR -- it inlined, or did not emit"; fail=1
+fi
+
+#  ⚠⚠ JRL IS THE DISCRIMINATOR, and it is the whole phase boundary in one number.
+#  jrLoc is a LOCAL read AFTER the recursive call returns, so it must be
+#  per-activation. depth 3: per-activation 5, aliased 4. depth 4: 9 vs 6.
+#  DEPTH-1 PASSES ON ALIASED SLOTS AND DEPTH-N CANNOT -- that is why both depths
+#  are asserted and why the two answers must differ.
+rung jitJRL "JRL SENTINEL" "JRL" 5 9
+INCANT_JIT_DUMP=2 $B incant/jitJRL > "$T/jitJRL.ir" 2>&1
+if grep -q "%jrLoc = alloca" "$T/jitJRL.ir"; then
+    echo "  ok    JRL the surviving local has a FRAME SLOT (per-activation storage)"
+else
+    echo "  FAIL  JRL no alloca for the local -- it is not framed"; fail=1
+fi
+
 echo ""
-if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE + JF structure-only)"
+if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF + J-R THE PROOF)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"
 exit $fail
