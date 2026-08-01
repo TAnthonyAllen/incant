@@ -70,40 +70,83 @@ echo "-- MOVING HALF: cout + cerr. RED ON PURPOSE. TARGETS ARE .divergence FILES
 $B incant/printFamilyNew > "$T/pn.o" 2> "$T/pn.e"; check "printFamilyNew runs" 0 $?
 sentinel "printFamilyNew sentinel (no truncation)" "$T/pn.o" "PN SENTINEL"
 strip "$T/pn.o" > "$T/pn.f"
-#  PINNED WRONG ANSWERS, same shape as iterT1m.divergence and tree.divergence:
-#  a fixture on an OPEN item, asserting today's wrong answer is UNCHANGED.
-#  These two go RED when Tony's change lands, and THAT IS THE ACCEPTANCE TEST.
-#  incant/printFamilyNew's section headers say, row by row, what each must
-#  become. WHOEVER MOVES THEM ACCOUNTS FOR THE MOVE.
+#  ⚠⚠ BOTH ACCEPTANCE TESTS HAVE NOW FIRED -- 2026-08-01. These files were
+#  pinned-wrong-answer fixtures on an OPEN item (same shape as iterT1m.divergence
+#  and tree.divergence). The item is CLOSED for the sink half. Read the two
+#  paragraphs below before assuming anything here is still divergent.
 #
-#  The single most important byte in either file: on stderr, the three
-#  PN-C-A-* rows sit in the flush alongside PN-P-A-def. That is `cout` being
-#  captured by a diversion, and it is the whole defect (KANT-23). After the
-#  change PN-P-A-def must be ALONE in the flush and the PN-C-A-* rows must
-#  appear on STDOUT between the ARMING and RELEASED markers.
+#  THE SINGLE MOST IMPORTANT BYTE, and it has moved the right way. It used to
+#  read: "on stderr, the three PN-C-A-* rows sit in the flush alongside
+#  PN-P-A-def -- that is `cout` being captured by a diversion, and it is the
+#  whole defect (KANT-23). After the change PN-P-A-def must be ALONE in the
+#  flush and the PN-C-A-* rows must appear on STDOUT between the ARMING and
+#  RELEASED markers."  ✅ CHECKED, BOTH HALVES:
+#      stderr line 7 is PN-P-A-def and the file ENDS there -- alone in the flush
+#      stdout lines 8-10 are PN-C-A-def/dol/und, between ARMING (6-7) and
+#      RELEASED (12)
+#  Both halves moved together, which is what the fixture demanded: "if only one
+#  does, the diversion gate was widened rather than bypassed." It was bypassed --
+#  opCout never consults toBUFFER, so there is no gate left to widen.
 #
-#  ⚠ BOTH FILES RE-PINNED 2026-07-31, AND THE MOVE IS ACCOUNTED FOR TO THE
-#  LINE. Exactly SIX lines arrived and ZERO left:
-#      stdout  +PN-E-U-def / -dol / -und      (section 2, cerr unarmed)
-#      stderr  +PN-E-A-def / -dol / -und      (section 3, cerr armed, in flush)
-#  Every other byte is unchanged -- the cout rows, the diversion behaviour and
-#  all of section 6 are exactly as pinned on 07-30.
-#  CAUSE: aCTionPrinT's `if command.tag == 'p'` two-arm dispatch is GONE. The
-#  `string` keyword moved out to its own rule (StringXP, the `#` form) with
-#  its own action aCTionStringXP, so aCTionPrinT no longer has a decision to
-#  make and ends `return opPrint(input,buffer);` unconditionally. The grafted
-#  `cerr` therefore stopped being routed to opString-and-discarded, and now
-#  prints -- on stdout, which is still wrong, but wrong in a smaller way.
-#  ⚠ CONSEQUENCE FOR GRAM-P1: that proposal was to REPLACE the `'p'` character
-#  test with a `sink=` attribute. THE TEST NO LONGER EXISTS. There is now NO
-#  discriminator in aCTionPrinT at all, so `sink=` (or an equivalent) is not
-#  an improvement on the status quo any more -- it is the only thing that can
-#  tell the three stream keywords apart. That raises its priority; it does not
-#  change its design. TONY'S CALL, and it was not made as part of the 07-31
-#  string-expression change -- this is a side effect of it.
-diffcheck "printFamilyNew.divergence (stdout: KNOWN WRONG, pinned)" \
+#  ⚠⚠ RE-PINNED 2026-08-01 -- THE cerr HALF HAS LANDED AND ITS ACCEPTANCE TEST
+#  PASSED. `cerr` is now a NATIVE statement keyword (rule CerR in incant/grammar,
+#  action aCTionCerR in ruleActions.rtn, sink opCerr in Instruct.rtn). It was
+#  built because it was blocking minionA round 2: genParse's remaining emitters
+#  write their PRODUCT via cerr and kant had no stderr, so a kant version could
+#  not reproduce its own target. Grammar-minion round 1 refused to build it in
+#  its sandbox and named the exact edit (CLAIM GRAM-4); this is that edit.
+#
+#  THE MOVE, ACCOUNTED FOR TO THE LINE. Three lines left stdout, six arrived on
+#  stderr, and the six are the same three plus a relocation:
+#      stdout  -PN-E-U-def / -dol / -und     section 2 rows LEFT stdout
+#      stderr  +PN-E-U-def / -dol / -und     ...and arrived here, at the TOP,
+#                                            ahead of the section-5 flush
+#      stderr  ~PN-E-A-def / -dol / -und     section 3 rows RELOCATED: they were
+#                                            INSIDE the flush, they are now
+#                                            BEFORE it
+#  Both halves are what incant/printFamilyNew's own section headers demanded:
+#  section 2 "MUST STILL BECOME: three lines on stderr, byte-identical to the
+#  PN-C-U-* trio above but for the row name", and section 3 "MUST BECOME: three
+#  lines on stderr HERE, in statement order ... they must NOT appear in the
+#  section-5 flush". Checked both: the E-U trio is byte-identical to the C-U
+#  trio modulo the row name, and the E-A trio sits at stderr lines 4-6 while the
+#  flush is lines 7-10.
+#
+#  THE cout HALF LANDED IN THE SAME PASS, and it is why KANT-23 is closed.
+#  `cout` is now native too (rule CouT, action aCTionCouT, sink opCout) and it
+#  exists for a reason beyond symmetry (Tony): `print` is DIVERTIBLE, and the
+#  moment you have diverted it you invariably need to reach the terminal anyway.
+#  So the three keywords are three DIFFERENT things, not three spellings:
+#      print   divertible      -> buffer if armed, else stdout
+#      cout    NOT divertible  -> always stdout
+#      cerr    NOT divertible  -> always stderr
+#  Neither opCout nor opCerr consults toBUFFER, and in both cases THE MISSING
+#  TEST IS THE FEATURE. Adding it back to opCout restores KANT-23 exactly;
+#  adding it to opCerr makes a diagnostic vanish into a capture buffer, which is
+#  the opposite of a diagnostic. incant/sinkT is the fixture that pins all three
+#  under an ARMED diversion -- the only condition that can tell them apart.
+#
+#  ⚠ DEAD SCAFFOLDING, LEFT DELIBERATELY, FLAGGED SO IT IS NOT MISREAD:
+#  incant/printFamilyNew still grafts PfCerrGraft, whose own header says "DELETE
+#  WHEN cout/cerr GO NATIVE". Native CerR now wins and the graft is inert. It is
+#  kept only so this fixture is not churned twice -- delete it together with
+#  PfCoutGraft when KANT-23 lands. Until then, know that removing native CerR
+#  would silently hand `cerr` back to the graft.
+#
+#  ⚠ GRAM-P1 IS UNCHANGED BY THIS AND STILL TONY'S. The `'p'` character test is
+#  gone (the `#`/StringXP split removed it), so there is still NO discriminator
+#  inside aCTionPrinT. `cerr` did not need one because it is a SIBLING RULE with
+#  its own action -- which is exactly why it could be built without preempting
+#  the sink= design. `cout` is the case that still wants a discriminator.
+#  ⚠ WHAT THESE FILES STILL PIN, now that the sink half is correct: SECTION 6.
+#  `omitted-2 [ xlInSet` on stdout is an UNINITIALISED READ -- it is 35b (`=`
+#  with a list on a non-string target), a different open item entirely, and it
+#  is the only knowingly-wrong byte left in either file. The `.divergence` names
+#  are kept for that reason and because renaming them would churn the ledger;
+#  they are no longer divergent ABOUT SINKS.
+diffcheck "printFamilyNew.divergence (stdout: sinks CORRECT; sec.6 xlInSet still 35b)" \
           genLadder/printFamilyNew.divergence "$T/pn.f"
-diffcheck "printFamilyNew.err.divergence (stderr: KNOWN WRONG, pinned -- cout IS being diverted)" \
+diffcheck "printFamilyNew.err.divergence (stderr: cerr native, flush holds print ALONE)" \
           genLadder/printFamilyNew.err.divergence "$T/pn.e"
 
 echo "-- CROSS-KEYWORD ORACLE: one mechanism, KANT-13."

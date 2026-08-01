@@ -145,6 +145,8 @@ define
         FOR         for- followedBy Looper in- reversE?="<-" ExpressioN SemI- LoopRestrict? StatemenT defer;
         WhilE       while- followedBy ExpressioN SemI-? StatemenT defer;
         PrinT       print- followedBy PRINTing- stuff=PrintXP+  SemI- defer;
+        CerR        cerr- followedBy PRINTing- stuff=PrintXP+  SemI- defer;
+        CouT        cout- followedBy PRINTing- stuff=PrintXP+  SemI- defer;
         Search      "search"- followedBy GrouP+ SemI-;
         BrancH      BrancheS ExpressioN? SemI- defer;
         ScopeXP     ":"- scopeList=ScopeField+ SemI- defer;

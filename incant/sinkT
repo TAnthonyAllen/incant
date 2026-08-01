@@ -1,0 +1,39 @@
+/*****************************************************************************
+    sinkT -- the three-sink fixture: print / cout / cerr (2026-08-01).
+
+    THE ORACLE IS THE STREAM SPLIT UNDER A DIVERSION, which is the only
+    condition that tells the three apart:
+        print  DIVERTIBLE      -> buffer when armed, else stdout
+        cout   NOT divertible  -> always stdout
+        cerr   NOT divertible  -> always stderr
+    A fixture that never armed printTO would pass with all three wired to
+    stdout -- that is CLAUDE.md's "an oracle is only evidence over the
+    conditions it was captured under", so every row here runs ARMED.
+
+    SENTINEL AT THE FOOT (CLAUDE.md third corollary).
+*****************************************************************************/
+Start();
+include(unitTests);
+search reset stack Grokking;
+search UnitTests list;
+register(SinkTest);
+define
+    divBuf buffer;
+    runSinks code={
+        cout "S-UNARMED-cout":;
+        cerr "S-UNARMED-cerr":;
+        print "S-UNARMED-print":;
+        printTO(divBuf);
+        print "S-ARMED-print  (must be CAPTURED, not on stdout)":;
+        cout  "S-ARMED-cout   (must be on STDOUT anyway)":;
+        cerr  "S-ARMED-cerr   (must be on STDERR anyway)":;
+        printTO(null);
+        print "S-RELEASED-print":;
+        };
+    ;
+runSinks();
+print "S ==== FLUSHING divBuf TO fd 2 ====":;
+divBuf modedOP "/dev/stderr";
+closeFile(divBuf);
+print "S SENTINEL":;
+stop();

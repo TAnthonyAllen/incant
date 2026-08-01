@@ -252,6 +252,24 @@ scope:       ⚠ THE KEYWORD FIELD IS NAMED `pCout`, NOT `cout`, AND THAT IS NOT
 ```
 
 ### CLAIM GRAM-4 — `cerr` as a per-statement sink is REFUSED: there is no stderr branch to select
+> ⚠⚠ **SUPERSEDED 2026-08-01 — THE REFUSAL WAS CORRECT AND HAS BEEN ACTED ON. `cerr` IS NOW
+> NATIVE, AND SO IS `cout`.** Do not re-derive this refusal; the thing it said did not exist
+> now exists. Rule `CerR`/`CouT` (`incant/grammar`), actions `aCTionCerR`/`aCTionCouT`
+> (`ruleActions.rtn`), sinks `opCerr`/`opCout` (`Instruct.rtn`).
+>
+> **The claim is left standing verbatim below because it was RIGHT, and right in the way that
+> mattered:** it refused to edit shared files from inside a sandbox and instead named the exact
+> edit — two files, eleven lines, one `if` that needed a third arm. The foreman made that edit,
+> and the refusal is what made it a ten-minute job. This is the model for a minion refusal.
+>
+> **One correction to its reasoning, found while acting on it:** the fix was NOT a third arm in
+> `opPrint`. It is a SIBLING rule with its own action and its own sink op — Tony's own
+> `aCTionStringXP` precedent. That matters because it means `sink=`/GRAM-P1 was never a
+> prerequisite: a sibling needs no discriminator. GRAM-P1 remains open and remains Tony's, but
+> it is no longer blocking anything.
+>
+> Fixtures: `incant/sinkT` (all three sinks under an ARMED diversion — the only condition that
+> tells them apart), `incant/cerrT`, and `genLadder/printPop.sh`, now 9/9 green.
 ```
 statement:   REFUSAL, and it is the round's correct output for this half.
              `cerr` cannot be added in the sandbox, because the thing it needs

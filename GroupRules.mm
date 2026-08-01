@@ -151,6 +151,33 @@ GroupItem 	*arg = ExpressioN;
 }
 
 /*******************************************************************************
+	Immediate method for the CerR rule -- THE STDERR SINK, added 2026-08-01.
+        CerR        cerr- followedBy PRINTing- stuff=PrintXP+ SemI- defer;
+
+    Term-for-term identical to PrinT with one substitution, the keyword; and
+    this body is aCTionPrinT's operand loop with one substitution, the closing
+    call. That is Tony's ruling KANT-13 in force -- ONE print mechanism, several
+    destinations: PrintXP+ is fixed and only the sink varies.
+
+    ⚠ NO `generating` BRANCH, and that is a real difference from aCTionPrinT
+    rather than an omission. aCTionPrinT's generating arm is documented there as
+    "currently UNUSED on the bytecode print path" and kept as the future home
+    for operand compilation. A diagnostic sink has no bytecode story yet, so
+    inventing one here would be building a branch nothing can reach and nothing
+    can test. When `cerr` needs to be emitted, it inherits that arm from the
+    print work rather than having grown a speculative copy of it.
+*******************************************************************************/
+extern "C" GroupItem *aCTionCerR(GroupItem *input)
+{
+GroupItem 	*stuff = input->getLabelGroup("stuff");
+Buffer 		*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTAK->pop();
+	if ( !buffer )
+		buffer = new Buffer("cerr buffer");
+	appendPrintXP(stuff,buffer);
+	return ::opCerr(input,buffer);
+}
+
+/*******************************************************************************
     CheckFor is a debugging tool. It matches its text and returns null
     if it matches so it fails even if it succeeds.
     It should be entered as a rule attribute like: CheckFor?="some text".
@@ -201,6 +228,39 @@ GroupItem 	*label = rule->rStuff->label;
 		}
 	else	::fprintf(stderr,"CodE action did not find left and right attributes in %s\n",rule->groupBody->tag);
 	return label;
+}
+
+/*******************************************************************************
+	Immediate method for the CouT rule -- THE EXPLICIT STDOUT SINK, 2026-08-01.
+        CouT        cout- followedBy PRINTing- stuff=PrintXP+ SemI- defer;
+
+    WHY IT EXISTS, and it is not symmetry for its own sake (Tony): `print` is
+    DIVERTIBLE -- printTO() sends it to a buffer -- and the moment you have
+    diverted it you invariably need a way to reach the terminal anyway. `cout`
+    is that way. So the three keywords are not three names for one thing:
+
+        print   divertible      -> buffer if armed, else stdout
+        cout    NOT divertible  -> always stdout
+        cerr    NOT divertible  -> always stderr
+
+    That is the KANT-13 shape exactly: one mechanism (PrintXP+, one spacing
+    default, one appendPrintXP walk), the keyword selecting only the sink.
+
+    ⚠ THIS CLOSES KANT-23. The pinned defect was that a grafted `cout` WAS
+    being captured by an armed diversion -- genLadder/printPop.sh calls that
+    "the single most important byte in either file". A native CouT routed
+    through opCout, which never consults toBUFFER, cannot be captured. The
+    printFamilyNew divergence targets move accordingly and the move is
+    accounted for in printPop.sh.
+*******************************************************************************/
+extern "C" GroupItem *aCTionCouT(GroupItem *input)
+{
+GroupItem 	*stuff = input->getLabelGroup("stuff");
+Buffer 		*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTAK->pop();
+	if ( !buffer )
+		buffer = new Buffer("cout buffer");
+	appendPrintXP(stuff,buffer);
+	return ::opCout(input,buffer);
 }
 
 /*******************************************************************************
@@ -609,40 +669,22 @@ extern "C" GroupItem *aCTionIterate(GroupItem *input)
 {
 GroupItem 	*attributes = input->getLabelGroup("attributes");
 GroupItem 	*members = input->getLabelGroup("members");
-GroupItem 	*field = input->get(1);
-GroupItem 	*target = input->get(2);
-	/*  STOP AT A HANDLE. Same lesson as runOP's isIterator exemption: on a
-	SECOND `iterate` against an already-positioned iterator, field.isGROUP is
-	true because the cursor is set, so an ungated unwrap walks straight
-	THROUGH the iterator to the entry it is pointing at -- and rebinds THAT
-	node instead.
-	
-	MEASURED, by deleting the gate and re-running T3 (2026-07-29). It is
-	load-bearing: `reIterate` printed `I b  I c` instead of `I x  I y`. Read
-	that trace -- the second `iterate` had NO EFFECT ON grup AT ALL. grup
-	stayed pointed at `triple`, still positioned where the single ++ left it,
-	so the following loop simply carried on from b; and the entry `a` was
-	quietly turned into an iterator over `pair` that nothing ever reads.
-	
-	SO THE SYMPTOM IS A SILENT WRONG ANSWER, not a diagnostic. An earlier
-	version of this comment predicted "++/-- on grup which has no source" --
-	that was T1's symptom under a different bug, and it is NOT what happens
-	here. There is no loud failure to wait for: the loop runs, the count is
-	plausible, the contents are wrong.
-	
-	T3's `reIterate` is the ONLY coverage: T1 and iterScratch are byte-
-	identical with the gate gone (they never re-iterate a live iterator), so
-	removing this fixture is removing the gate's whole proof.
-	
-	target is deliberately NOT gated -- there we want the value.  */
-	while ( isGROUP(field->groupBody->flags.data) && !field->groupBody->flags.isIterator )
-		field = field->getGroup();
-	::iterBind(field,target);
+GroupItem 	*iterator = input->get(1);
+GroupItem 	*source = input->get(2);
+	while ( isGROUP(iterator->groupBody->flags.data) )
+		iterator = iterator->getGroup();
+	while ( isGROUP(source->groupBody->flags.data) )
+		source = source->getGroup();
+	iterator->groupBody->flags.isIterator = 1;
+	// here iterator gets a copy of the source groupList
+	if ( iterator && source && source->groupBody->groupList )
+		iterator->groupBody->groupList = source->groupBody->groupList;
+	// attributes and members flagged here but not used yet
 	if ( attributes )
-		field->groupBody->flags.iterateOnAttributes = 1;
+		iterator->groupBody->flags.iterateOnAttributes = 1;
 	if ( members )
-		field->groupBody->flags.iterateOnMembers = 1;
-	return field;
+		iterator->groupBody->flags.iterateOnMembers = 1;
+	return iterator;
 }
 
 /*******************************************************************************
@@ -766,22 +808,7 @@ Buffer 		*buffer = (Buffer*)ruler->bufferSTAK->pop();
 	if ( !buffer )
 		buffer = new Buffer("print buffer");
 	ruler->isPRINTING = 0;
-	while ( grup = stuff->nextAttribute(grup) )
-		{
-		if ( grup->groupBody->flags.noPrint )
-			continue;
-		GroupItem *FormaT = grup->getLabelGroup("FormaT");
-		GroupItem *result = 0;
-		GroupItem *ExpressioN = grup->getLabelGroup("ExpressioN");
-		if ( ExpressioN )
-			{
-			if ( isMethod(ExpressioN->groupBody->flags.instructType) )
-				result = ExpressioN->groupBody->gMethod(ExpressioN);
-			else	result = ExpressioN;
-			::appendGroup(result,FormaT,buffer);
-			}
-		else	::appendGroup(grup,FormaT,buffer);
-		}
+	appendPrintXP(stuff,buffer);
 	return ::opPrint(input,buffer);
 }
 
@@ -992,34 +1019,13 @@ GroupItem 	*sourceFile = new GroupItem("sourceFile");
 	return input;
 }
 
-/*******************************************************************************
-	Immediate method for the StringXP rule.
-        StringXP    ","- stuff=PrintXP+ defer;
-*******************************************************************************/
 extern "C" GroupItem *aCTionStringXP(GroupItem *input)
 {
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*stuff = input->getLabelGroup("stuff");
-GroupItem 	*grup = 0;
-Buffer 		*buffer = (Buffer*)ruler->bufferSTAK->pop();
+Buffer 		*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTAK->pop();
 	if ( !buffer )
 		buffer = new Buffer("print buffer");
-	while ( grup = stuff->nextAttribute(grup) )
-		{
-		if ( grup->groupBody->flags.noPrint )
-			continue;
-		GroupItem *FormaT = grup->getLabelGroup("FormaT");
-		GroupItem *result = 0;
-		GroupItem *ExpressioN = grup->getLabelGroup("ExpressioN");
-		if ( ExpressioN )
-			{
-			if ( isMethod(ExpressioN->groupBody->flags.instructType) )
-				result = ExpressioN->groupBody->gMethod(ExpressioN);
-			else	result = ExpressioN;
-			::appendGroup(result,FormaT,buffer);
-			}
-		else	::appendGroup(grup,FormaT,buffer);
-		}
+	::appendPrintXP(stuff,buffer);
 	return ::opString(stuff,buffer);
 }
 
@@ -1203,12 +1209,16 @@ extern "C" GroupItem *aCTionWhilE(GroupItem *input)
 {
 GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
 GroupItem 	*StatemenT = input->getLabelGroup("StatemenT");
+GroupItem 	*looper = 0;
 GroupItem 	*result = 0;
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		 return jitEmitWHILE(input); 
 		}
-	while ( ExpressioN->groupBody->gMethod(ExpressioN) )
+	while ( looper = ExpressioN->groupBody->gMethod(ExpressioN) )
+		{
+		if ( looper->groupBody->flags.isIterator )
+			looper = looper->getGroup();
 		if ( result = StatemenT->groupBody->gMethod(StatemenT) )
 			{
 			if ( result->groupBody->flags.isBranch )
@@ -1228,6 +1238,7 @@ GroupItem 	*result = 0;
 				}
 			}
 		else	break;
+		}
 	if ( !result )
 		result = GroupControl::groupController->groupRules->falseResult;
 	return result;
@@ -1314,6 +1325,52 @@ GroupItem 	*field = 0;
 			buffer->tabRight(ruler->inDENT->groupBody->gCount);
 		}
 	return field;
+}
+
+/*******************************************************************************
+	Immediate method for the StringXP rule.
+        StringXP    ","- stuff=PrintXP+ defer;
+*******************************************************************************/
+/*******************************************************************************
+	appendPrintXP -- THE ONE PrintXP WALK. Added 2026-08-01 (Tony's call) when
+    the arrival of `cerr` and `cout` made it the FOURTH copy of the same loop.
+
+    Callers: aCTionPrinT, aCTionStringXP, aCTionCerR, aCTionCouT. They now
+    differ only in their TAIL -- which sink op they close with -- which is
+    Tony's ruling KANT-13 made structural instead of merely observed: ONE print
+    mechanism, several destinations. A per-destination spacing or formatting
+    default is no longer something you could introduce by accident; there is one
+    body and four call sites.
+
+    ⚠ WHAT DELIBERATELY DID NOT MOVE IN HERE, because hoisting it would have
+    been a silent behaviour change rather than a refactor:
+      - `isPRINTING = false;`  aCTionPrinT sets it, aCTionStringXP does not.
+        That asymmetry is PRE-EXISTING and load-bearing (see the isPRINTING note
+        on aCTionTokenXP's guard); hoisting it would have started clearing a
+        generating-path flag on the string path. It stays in the callers.
+      - aCTionPrinT's `generating` branch, which is a whole separate arm above
+        this loop and has no equivalent on the other three.
+      - the closing sink call, obviously -- that IS the difference.
+*******************************************************************************/
+extern "C" void appendPrintXP(GroupItem *stuff, Buffer *buffer)
+{
+GroupItem 	*grup = 0;
+	while ( grup = stuff->nextAttribute(grup) )
+		{
+		if ( grup->groupBody->flags.noPrint )
+			continue;
+		GroupItem *FormaT = grup->getLabelGroup("FormaT");
+		GroupItem *result = 0;
+		GroupItem *ExpressioN = grup->getLabelGroup("ExpressioN");
+		if ( ExpressioN )
+			{
+			if ( isMethod(ExpressioN->groupBody->flags.instructType) )
+				result = ExpressioN->groupBody->gMethod(ExpressioN);
+			else	result = ExpressioN;
+			::appendGroup(result,FormaT,buffer);
+			}
+		else	::appendGroup(grup,FormaT,buffer);
+		}
 }
 
 /*****************************************************************************
@@ -3012,20 +3069,6 @@ GroupItem 	*next = 0;
 	runtime -- bind early, deref late.  */
 	if ( isGROUP(container->groupBody->flags.data) )
 		container = container->groupBody->gGroup;
-	/*  groupList FIRST, then listLength. A node with no list at all has a NULL
-	groupList, and reading .listLength off it is a segfault, not a zero --
-	which is how T1 died at EXIT=139 with no output, stdout buffered away by
-	the crash (bear-trap #14).  */
-	if ( !container->groupBody->groupList )
-		{
-		::fprintf(stderr,"iterate: %s source %s has no list\n",iter->groupBody->tag,container->groupBody->tag);
-		return 0;
-		}
-	if ( !container->groupBody->groupList->listLength )
-		{
-		::fprintf(stderr,"iterate: %s source %s contains no list\n",iter->groupBody->tag,container->groupBody->tag);
-		return 0;
-		}
 	/*  The tripwire goes HERE, past the guards, so it counts real advances and
 	not the terminating no-list returns. iterSpins never comes back on a
 	trip -- it exits 3.  */
@@ -3037,16 +3080,18 @@ GroupItem 	*next = 0;
 		else
 		if ( iter->groupBody->flags.iterateOnMembers )
 			next = container->nextMember(position);
-		else	next = container->next(position);
+		else
+		if ( position )
+			next = position->nextInParent;
+		else	next = container->groupBody->groupList->firstInList;
 	else {
-		next = container->prior(position);
+		if ( position )
+			next = position->priorInParent;
+		else	next = container->groupBody->groupList->lastInList;
 		while ( next && !::iterFilterOK(iter,next) )
-			next = container->prior(next);
+			next = position->priorInParent;
 		}
-	iter->groupBody->gGroup = next;
-	if ( next )
-		iter->groupBody->flags.data = 6;
-	else	iter->groupBody->flags.data = 0;
+	iter->setGroup(next);
 	return next;
 }
 
@@ -3080,11 +3125,15 @@ GroupItem 	*source = iter->getAttribute("source");
 		source = new GroupItem("source");
 		iter->addAttribute(source);
 		}
-	source->setGroup(container);
-	iter->groupBody->flags.isIterator = 1;
-	iter->groupBody->gGroup = 0;
-	iter->groupBody->flags.data = 0;
-	::iterSpins(iter,1);
+	if ( container->groupBody->groupList )
+		{
+		source->setGroup(container);
+		iter->groupBody->flags.isIterator = 1;
+		iter->groupBody->gGroup = 0;
+		iter->groupBody->flags.data = 0;
+		}
+	else	::fprintf(stderr,"iterBind: iterate source has no list\n");
+	//iterSpins(iter,1);
 	return iter;
 }
 
@@ -4919,6 +4968,41 @@ extern "C" GroupItem *opAssign(GroupItem *argument, GroupItem *target)
 }
 
 /***************************************************************************
+	operator method for the cerr rule -- THE STDERR SINK, added 2026-08-01.
+
+    opPrint above is a TWO-arm choice (diverted buffer, else stdout) and there
+    was no third arm to select; that absence is what grammar-minion round 1
+    refused on with evidence (docs/grammarCorpus.md CLAIM GRAM-4), and it is
+    what held minionA round 2 -- genParse's emitters write their PRODUCT via
+    cerr, so a kant version could not reproduce its own target.
+
+    ⚠ DELIBERATELY A SIBLING, NOT A THIRD ARM IN opPrint. Two reasons:
+      1. It follows Tony's own precedent. aCTionStringXP was split out of the
+         print action rather than folded into it -- "it duplicates much of the
+         print action, but no biggie it is short, and no if statement needed to
+         figure out what print method to invoke."
+      2. It does NOT preempt `sink=`. Selecting a sink per statement is an OPEN
+         design item Tony owns (GRAM-P1, the replacement for the first-character
+         test). A sibling rule needs no selector at all, so it leaves that
+         decision exactly where it was.
+
+    NOTE the toBUFFER asymmetry, and it is intentional: cerr does NOT honour the
+    print diversion. `printTO` exists to capture program output; a diagnostic
+    that silently vanished into a capture buffer would be the opposite of what a
+    diagnostic is for. If that turns out to be wrong it is a one-line change.
+***************************************************************************/
+extern "C" GroupItem *opCerr(GroupItem *target, Buffer *buffer)
+{
+char 	*printText = buffer->string();
+	if ( printText )
+		::fprintf(stderr,"%s",printText);
+	else	::fprintf(stderr,"cerr: recieved no print text\n");
+	buffer->reset();
+	GroupControl::groupController->groupRules->bufferSTAK->push(buffer);
+	return GroupControl::groupController->groupRules->trueResult;
+}
+
+/***************************************************************************
 	Rule action for the +* copy list operator
 ***************************************************************************/
 extern "C" GroupItem *opCopyList(GroupItem *argument, GroupItem *target)
@@ -4927,6 +5011,30 @@ extern "C" GroupItem *opCopyList(GroupItem *argument, GroupItem *target)
 		argument->copyListTo(target);
 	else	::fprintf(stderr,"ERROR Operator +* failed because missing list for %s\n",argument->groupBody->tag);
 	return target;
+}
+
+/***************************************************************************
+	operator method for the cout rule -- THE EXPLICIT STDOUT SINK, 2026-08-01.
+
+    opPrint above consults toBUFFER and so is DIVERTIBLE. This one does not,
+    and that is its entire reason for existing (Tony): once you have diverted
+    `print` with printTO(), you invariably need to reach the terminal anyway,
+    and there was no way to. `cout` is that way.
+
+    ⚠ THE MISSING toBUFFER TEST IS THE FEATURE, NOT AN OVERSIGHT, and it is
+    the line that closes KANT-23 -- the pinned defect where a grafted `cout`
+    was swallowed by an armed diversion. Do not "fix" this by adding the
+    toBUFFER arm back; that would restore the defect exactly.
+***************************************************************************/
+extern "C" GroupItem *opCout(GroupItem *target, Buffer *buffer)
+{
+char 	*printText = buffer->string();
+	if ( printText )
+		::printf("%s",printText);
+	else	::fprintf(stderr,"cout: recieved no print text\n");
+	buffer->reset();
+	GroupControl::groupController->groupRules->bufferSTAK->push(buffer);
+	return GroupControl::groupController->groupRules->trueResult;
 }
 
 /***************************************************************************
@@ -5474,8 +5582,19 @@ extern "C" GroupItem *opMinusMinus(GroupItem *result)
 {
 	if ( result->groupBody->flags.isIterator )
 		{
-		jitDegrade("-- on an iterator",result);
-		return ::iterAdvance(result,0);
+		//note: because result is an iterator it is not unwrapped in runOP()
+		GroupItem *iterator = 0;
+		if ( !result->groupBody->flags.data )
+			iterator = result->groupBody->groupList->lastInList;
+		else {
+			iterator = result->getGroup();
+			iterator = iterator->priorInParent;
+			}
+		GroupControl::groupController->groupRules->lastREF->setGroup(iterator);
+		result->setGroup(iterator);
+		if ( !iterator )
+			result = 0;
+		return result;
 		}
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
@@ -5712,8 +5831,19 @@ extern "C" GroupItem *opPlusPlus(GroupItem *result)
 {
 	if ( result->groupBody->flags.isIterator )
 		{
-		jitDegrade("++ on an iterator",result);
-		return ::iterAdvance(result,1);
+		//note: because result is an iterator it is not unwrapped in runOP()
+		GroupItem *iterator = 0;
+		if ( !result->groupBody->flags.data )
+			iterator = result->groupBody->groupList->firstInList;
+		else {
+			iterator = result->getGroup();
+			iterator = iterator->nextInParent;
+			}
+		GroupControl::groupController->groupRules->lastREF->setGroup(iterator);
+		result->setGroup(iterator);
+		if ( !iterator )
+			result = 0;
+		return result;
 		}
 	if ( GroupControl::groupController->groupRules->jitting )
 		{

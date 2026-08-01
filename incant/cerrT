@@ -1,0 +1,34 @@
+/*****************************************************************************
+    cerrT -- the fixture for the `cerr` statement keyword (2026-08-01).
+
+    THE BLOCKER IT CLEARS: genParse's remaining emitters write their PRODUCT via
+    cerr and kant had no stderr, so a kant version could not reproduce its own
+    target. That is what held minionA round 2. Grammar-minion round 1 refused to
+    build it inside its sandbox and named the exact edit (CLAIM GRAM-4); this is
+    that edit, made by the foreman, who is allowed to touch shared files.
+
+    THE ORACLE IS THE STREAM SPLIT, not the text. A fixture that only checked
+    the text would pass with cerr wired to stdout -- which is precisely the
+    defect worth catching. So every row is asserted by running the binary TWICE,
+    once with 2>/dev/null and once with 1>/dev/null, and checking that each line
+    appears on exactly one stream.
+
+    SENTINEL AT THE FOOT (CLAUDE.md third corollary).
+*****************************************************************************/
+Start();
+include(unitTests);
+search reset stack Grokking;
+search UnitTests list;
+register(CerrTest);
+define
+    runCerr code={
+        print "OUT-1 plain print":;
+        cerr  "ERR-1 plain cerr":;
+        cerr  "ERR-2 with a value" righty:;
+        cerr  #"ERR-3 through a string expression":;
+        print "OUT-2 print still works after cerr":;
+        };
+    ;
+runCerr();
+print "CT2 SENTINEL":;
+stop();

@@ -496,11 +496,13 @@ GroupItem   source = iter.getAttribute("source");
     if !source {
         source = new("source");
         iter +% source; }
-    source.group    = container;
-    iter.isIterator = true;
-    iter.gGroup     = 0;
-    iter.isGROUP    = false;
-    iterSpins(iter,1);
+    if container.groupList {
+        source.group    = container;
+        iter.isIterator = true;
+        iter.gGroup     = 0;
+        iter.isGROUP    = false; }
+    else cerr "iterBind: iterate source has no list":;
+    //iterSpins(iter,1);
     return iter;
 }
 
@@ -548,16 +550,6 @@ GroupItem   next;
         binds to the argument NODE, and what that node points at is only known at
         runtime -- bind early, deref late.  */
     if container.isGROUP    container = container.gGroup;
-    /*  groupList FIRST, then listLength. A node with no list at all has a NULL
-        groupList, and reading .listLength off it is a segfault, not a zero --
-        which is how T1 died at EXIT=139 with no output, stdout buffered away by
-        the crash (bear-trap #14).  */
-    if !container.groupList {
-        cerr "iterate:",iter.tag,"source",container.tag,"has no list":;
-        return null; }
-    if !container.listLength {
-        cerr "iterate:",iter.tag,"source",container.tag,"contains no list":;
-        return null; }
     /*  The tripwire goes HERE, past the guards, so it counts real advances and
         not the terminating no-list returns. iterSpins never comes back on a
         trip -- it exits 3.  */
@@ -566,13 +558,13 @@ GroupItem   next;
     if forward
         if iter.iterateOnAttributes     next = container.nextAttribute(position);
         or iter.iterateOnMembers        next = container.nextMember(position);
-        else                            next = container.next(position);
+        or position                     next = position.nextInParent;
+        else                            next = container.firstInList;
     else {
-        next = container.prior(position);
-        while next && !iterFilterOK(iter,next)   next = container.prior(next); }
-    iter.gGroup = next;
-    if next     iter.isGROUP = true;
-    else        iter.isGROUP = false;
+        if position     next = position.priorInParent;
+        else            next = container.lastInList;
+        while next && !iterFilterOK(iter,next)   next = position.priorInParent; }
+    iter.group  = next;
     return next;
 }
 
@@ -581,9 +573,17 @@ GroupItem   next;
 ***************************************************************************/
 extern GroupItem opMinusMinus(GroupItem result)
 {
-    if result.isIterator {
-        jitDegrade("-- on an iterator",result);
-        return iterAdvance(result,0); }
+    if isIterator {
+        //note: because result is an iterator it is not unwrapped in runOP()
+        GroupItem iterator;
+        if !result.data     iterator = result.lastInList;
+        else {
+            iterator    = result.group;
+            iterator    = priorInParent; }
+        lastREF.group   = iterator;
+        result.group    = iterator;
+        if !iterator    result = 0;
+        return result; }
     if jitting {
         -% return jitEmitUnary(result, jitDec); %-
     }
@@ -743,9 +743,17 @@ use target
 ***************************************************************************/
 extern GroupItem opPlusPlus(GroupItem result)
 {
-    if result.isIterator {
-        jitDegrade("++ on an iterator",result);
-        return iterAdvance(result,1); }
+    if isIterator {
+        //note: because result is an iterator it is not unwrapped in runOP()
+        GroupItem iterator;
+        if !result.data     iterator = result.firstInList;
+        else {
+            iterator    = result.group;
+            iterator    = nextInParent; }
+        lastREF.group   = iterator;
+        result.group    = iterator;
+        if !iterator    result = 0;
+        return result; }
     if jitting {
         -% return jitEmitUnary(result, jitInc); %-
     }
@@ -786,6 +794,63 @@ String      printText   = string();
         if toBUFFER toBUFFER += printText;
         else        cout printText;
     else cerr "print: recieved no print text":;
+    reset();
+    bufferSTAK  += buffer;
+    return trueResult;
+}
+
+/***************************************************************************
+	operator method for the cerr rule -- THE STDERR SINK, added 2026-08-01.
+
+    opPrint above is a TWO-arm choice (diverted buffer, else stdout) and there
+    was no third arm to select; that absence is what grammar-minion round 1
+    refused on with evidence (docs/grammarCorpus.md CLAIM GRAM-4), and it is
+    what held minionA round 2 -- genParse's emitters write their PRODUCT via
+    cerr, so a kant version could not reproduce its own target.
+
+    ⚠ DELIBERATELY A SIBLING, NOT A THIRD ARM IN opPrint. Two reasons:
+      1. It follows Tony's own precedent. aCTionStringXP was split out of the
+         print action rather than folded into it -- "it duplicates much of the
+         print action, but no biggie it is short, and no if statement needed to
+         figure out what print method to invoke."
+      2. It does NOT preempt `sink=`. Selecting a sink per statement is an OPEN
+         design item Tony owns (GRAM-P1, the replacement for the first-character
+         test). A sibling rule needs no selector at all, so it leaves that
+         decision exactly where it was.
+
+    NOTE the toBUFFER asymmetry, and it is intentional: cerr does NOT honour the
+    print diversion. `printTO` exists to capture program output; a diagnostic
+    that silently vanished into a capture buffer would be the opposite of what a
+    diagnostic is for. If that turns out to be wrong it is a one-line change.
+***************************************************************************/
+extern GroupItem opCerr(GroupItem target,Buffer buffer)
+{
+String      printText   = string();
+    if printText    cerr printText;
+    else            cerr "cerr: recieved no print text":;
+    reset();
+    bufferSTAK  += buffer;
+    return trueResult;
+}
+
+/***************************************************************************
+	operator method for the cout rule -- THE EXPLICIT STDOUT SINK, 2026-08-01.
+
+    opPrint above consults toBUFFER and so is DIVERTIBLE. This one does not,
+    and that is its entire reason for existing (Tony): once you have diverted
+    `print` with printTO(), you invariably need to reach the terminal anyway,
+    and there was no way to. `cout` is that way.
+
+    ⚠ THE MISSING toBUFFER TEST IS THE FEATURE, NOT AN OVERSIGHT, and it is
+    the line that closes KANT-23 -- the pinned defect where a grafted `cout`
+    was swallowed by an armed diversion. Do not "fix" this by adding the
+    toBUFFER arm back; that would restore the defect exactly.
+***************************************************************************/
+extern GroupItem opCout(GroupItem target,Buffer buffer)
+{
+String      printText   = string();
+    if printText    cout printText;
+    else            cerr "cout: recieved no print text":;
     reset();
     bufferSTAK  += buffer;
     return trueResult;

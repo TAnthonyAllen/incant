@@ -1,5 +1,7 @@
 AUDIT LOOSE    pROPERTIEs [9] UnaryOPS -- not a rule, not a rule term, has rStuff
 AUDIT LOOSE    pROPERTIEs [14] delimiter -- not a rule, not a rule term, has rStuff
+AUDIT MISSTERM CerR [4] stuff -- isRule term, no rStuff
+AUDIT MISSTERM CouT [4] stuff -- isRule term, no rStuff
 AUDIT MISSTERM FormaT [1] flags -- isRule term, no rStuff
 AUDIT MISSTERM FormaT [4] formatTYPE -- isRule term, no rStuff
 AUDIT MISSTERM Precision [1] precision -- isRule term, no rStuff
@@ -35,7 +37,7 @@ AUDIT TERM     JSONfield [4] , -- rule TERM, not isRule, has rStuff
 AUDIT TERM     JSONitem [2] , -- rule TERM, not isRule, has rStuff
 AUDIT LOOSE    pROPERTIEs/UnaryOPS -- not a rule, not a rule term, has rStuff
 AUDIT LOOSE    pROPERTIEs/delimiter -- not a rule, not a rule term, has rStuff
-AUDIT all registries: 4 missing rules, 13 missing terms, 4 loose
+AUDIT all registries: 4 missing rules, 15 missing terms, 4 loose
 Search list: Grokking Generating UnitTests bcOPs Utilities
 Generating action for tag 
 revisedList          length 3	no data

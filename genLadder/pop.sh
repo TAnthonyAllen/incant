@@ -146,14 +146,21 @@ fi
 #                          wants. ⚠ The `print-` half is a SIDE EFFECT of a
 #                          change made for other reasons; it was not aimed at
 #                          this audit and Tony has not ruled on it.
-#     13 missing terms  -- 3 CodE tails, 3 alternation reference terms, 7 ordinary.
+#     15 missing terms  -- 3 CodE tails, 3 alternation reference terms, 9 ordinary.
+#                          ⚠ 13 -> 15 on 2026-08-01, and the two are ACCOUNTED FOR:
+#                          `CerR [4] stuff` and `CouT [4] stuff`, the two new stream
+#                          keyword rules. They are term-for-term copies of PrinT, and
+#                          `PrinT [4] stuff` WAS ALREADY IN THIS LIST -- so they inherit
+#                          a pre-existing gap rather than opening a new one. Any FUTURE
+#                          rule of the `stuff=PrintXP+` shape will add one more; that is
+#                          the gap to close, not the count to keep bumping.
 #      4 loose          -- pROPERTIEs/UnaryOPS and /delimiter, each seen twice.
 #                          rStuff on a node that is neither a rule nor a rule's
 #                          term. NO constructor change: no failing case in hand,
 #                          whole-tree blast radius, and aCTionDefinE's
 #                          `if !isRule rStuff = 0;` is MASKING it -- known-masked,
 #                          not accepted.
-AUDITLINE="AUDIT all registries: 4 missing rules, 13 missing terms, 4 loose"
+AUDITLINE="AUDIT all registries: 4 missing rules, 15 missing terms, 4 loose"
 if grep -qF "$AUDITLINE" "$T/one"; then
     echo "  ok    rStuff audit (present, populations unchanged)"
 else

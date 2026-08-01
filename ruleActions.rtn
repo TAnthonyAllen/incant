@@ -473,47 +473,6 @@ finishXP:
 }
 
 /*******************************************************************************
-	The rule action for the Iterate rule
-         Iterate     ANYtoken "on"- ANYtoken attributes? members?;
-*******************************************************************************/
-extern GroupItem aCTionIterate(GroupItem input)
-{
-GroupItem   attributes:,
-            members:;
-GroupItem   field = input[1];
-GroupItem   target = input[2];
-    /*  STOP AT A HANDLE. Same lesson as runOP's isIterator exemption: on a
-        SECOND `iterate` against an already-positioned iterator, field.isGROUP is
-        true because the cursor is set, so an ungated unwrap walks straight
-        THROUGH the iterator to the entry it is pointing at -- and rebinds THAT
-        node instead.
-
-        MEASURED, by deleting the gate and re-running T3 (2026-07-29). It is
-        load-bearing: `reIterate` printed `I b  I c` instead of `I x  I y`. Read
-        that trace -- the second `iterate` had NO EFFECT ON grup AT ALL. grup
-        stayed pointed at `triple`, still positioned where the single ++ left it,
-        so the following loop simply carried on from b; and the entry `a` was
-        quietly turned into an iterator over `pair` that nothing ever reads.
-
-        SO THE SYMPTOM IS A SILENT WRONG ANSWER, not a diagnostic. An earlier
-        version of this comment predicted "++/-- on grup which has no source" --
-        that was T1's symptom under a different bug, and it is NOT what happens
-        here. There is no loud failure to wait for: the loop runs, the count is
-        plausible, the contents are wrong.
-
-        T3's `reIterate` is the ONLY coverage: T1 and iterScratch are byte-
-        identical with the gate gone (they never re-iterate a live iterator), so
-        removing this fixture is removing the gate's whole proof.
-
-        target is deliberately NOT gated -- there we want the value.  */
-    while field.isGROUP && !field.isIterator    field  = field.group;
-    iterBind(field,target);
-    if attributes   field.iterateOnAttributes = true;
-    if members      field.iterateOnMembers = true;
-    return  field;
-}
-
-/*******************************************************************************
 	If the parse gets here it failed.
 *******************************************************************************/
 extern GroupItem aCTionFailed(GroupItem input)
@@ -614,6 +573,27 @@ GroupItem   result = ExpressioN;
     or ElsE     result = ElsE.gMethod(ElsE);
     if !result  result = falseResult;
     return result;
+}
+
+/*******************************************************************************
+	The rule action for the Iterate rule
+         Iterate     ANYtoken "on"- ANYtoken attributes? members?;
+*******************************************************************************/
+extern GroupItem aCTionIterate(GroupItem input)
+{
+GroupItem   attributes:,
+            members:;
+GroupItem   iterator = input[1];
+GroupItem   source = input[2];
+    while iterator.isGROUP  iterator = iterator.group;
+    while isGROUP           source = group;
+    iterator.isIterator     = true;
+    // here iterator gets a copy of the source groupList
+    if iterator && source && groupList  iterator.groupList = groupList;
+    // attributes and members flagged here but not used yet
+    if attributes   iterator.iterateOnAttributes = true;
+    if members      iterator.iterateOnMembers = true;
+    return  iterator;
 }
 
 /*******************************************************************************
@@ -721,17 +701,66 @@ GroupItem   grup;
 Buffer      buffer = bufferSTAK.pop();
     if !buffer      buffer = new("print buffer");
     isPRINTING      = false;
-    while grup = stuff.nextAttribute(grup) {
-        if noPrint  continue;
-        GroupItem   FormaT:,
-                    result,
-                    ExpressioN:;
-        if ExpressioN {
-            if isMethod result = method(ExpressioN);
-            else        result = ExpressioN;
-            appendGroup(result,FormaT,buffer); }
-        else            appendGroup(grup,FormaT,buffer); }
+    appendPrintXP(stuff,buffer);
     return opPrint(input,buffer);
+}
+
+/*******************************************************************************
+	Immediate method for the CerR rule -- THE STDERR SINK, added 2026-08-01.
+        CerR        cerr- followedBy PRINTing- stuff=PrintXP+ SemI- defer;
+
+    Term-for-term identical to PrinT with one substitution, the keyword; and
+    this body is aCTionPrinT's operand loop with one substitution, the closing
+    call. That is Tony's ruling KANT-13 in force -- ONE print mechanism, several
+    destinations: PrintXP+ is fixed and only the sink varies.
+
+    ⚠ NO `generating` BRANCH, and that is a real difference from aCTionPrinT
+    rather than an omission. aCTionPrinT's generating arm is documented there as
+    "currently UNUSED on the bytecode print path" and kept as the future home
+    for operand compilation. A diagnostic sink has no bytecode story yet, so
+    inventing one here would be building a branch nothing can reach and nothing
+    can test. When `cerr` needs to be emitted, it inherits that arm from the
+    print work rather than having grown a speculative copy of it.
+*******************************************************************************/
+extern GroupItem aCTionCerR(GroupItem input)
+{
+GroupItem   stuff:;
+Buffer      buffer = bufferSTAK.pop();
+    if !buffer      buffer = new("cerr buffer");
+    appendPrintXP(stuff,buffer);
+    return opCerr(input,buffer);
+}
+
+/*******************************************************************************
+	Immediate method for the CouT rule -- THE EXPLICIT STDOUT SINK, 2026-08-01.
+        CouT        cout- followedBy PRINTing- stuff=PrintXP+ SemI- defer;
+
+    WHY IT EXISTS, and it is not symmetry for its own sake (Tony): `print` is
+    DIVERTIBLE -- printTO() sends it to a buffer -- and the moment you have
+    diverted it you invariably need a way to reach the terminal anyway. `cout`
+    is that way. So the three keywords are not three names for one thing:
+
+        print   divertible      -> buffer if armed, else stdout
+        cout    NOT divertible  -> always stdout
+        cerr    NOT divertible  -> always stderr
+
+    That is the KANT-13 shape exactly: one mechanism (PrintXP+, one spacing
+    default, one appendPrintXP walk), the keyword selecting only the sink.
+
+    ⚠ THIS CLOSES KANT-23. The pinned defect was that a grafted `cout` WAS
+    being captured by an armed diversion -- genLadder/printPop.sh calls that
+    "the single most important byte in either file". A native CouT routed
+    through opCout, which never consults toBUFFER, cannot be captured. The
+    printFamilyNew divergence targets move accordingly and the move is
+    accounted for in printPop.sh.
+*******************************************************************************/
+extern GroupItem aCTionCouT(GroupItem input)
+{
+GroupItem   stuff:;
+Buffer      buffer = bufferSTAK.pop();
+    if !buffer      buffer = new("cout buffer");
+    appendPrintXP(stuff,buffer);
+    return opCout(input,buffer);
 }
 
 /***************************************************************************
@@ -906,13 +935,30 @@ use input
 	Immediate method for the StringXP rule.
         StringXP    ","- stuff=PrintXP+ defer;
 *******************************************************************************/
-extern GroupItem aCTionStringXP(GroupItem input)
+/*******************************************************************************
+	appendPrintXP -- THE ONE PrintXP WALK. Added 2026-08-01 (Tony's call) when
+    the arrival of `cerr` and `cout` made it the FOURTH copy of the same loop.
+
+    Callers: aCTionPrinT, aCTionStringXP, aCTionCerR, aCTionCouT. They now
+    differ only in their TAIL -- which sink op they close with -- which is
+    Tony's ruling KANT-13 made structural instead of merely observed: ONE print
+    mechanism, several destinations. A per-destination spacing or formatting
+    default is no longer something you could introduce by accident; there is one
+    body and four call sites.
+
+    ⚠ WHAT DELIBERATELY DID NOT MOVE IN HERE, because hoisting it would have
+    been a silent behaviour change rather than a refactor:
+      - `isPRINTING = false;`  aCTionPrinT sets it, aCTionStringXP does not.
+        That asymmetry is PRE-EXISTING and load-bearing (see the isPRINTING note
+        on aCTionTokenXP's guard); hoisting it would have started clearing a
+        generating-path flag on the string path. It stays in the callers.
+      - aCTionPrinT's `generating` branch, which is a whole separate arm above
+        this loop and has no equivalent on the other three.
+      - the closing sink call, obviously -- that IS the difference.
+*******************************************************************************/
+extern void appendPrintXP(GroupItem stuff, Buffer buffer)
 {
-GroupRules  ruler   = groupRules;
-GroupItem   stuff:;
 GroupItem   grup;
-Buffer      buffer = bufferSTAK.pop();
-    if !buffer      buffer = new("print buffer");
     while grup = stuff.nextAttribute(grup) {
         if noPrint  continue;
         GroupItem   FormaT:,
@@ -923,6 +969,14 @@ Buffer      buffer = bufferSTAK.pop();
             else        result = ExpressioN;
             appendGroup(result,FormaT,buffer); }
         else            appendGroup(grup,FormaT,buffer); }
+}
+
+extern GroupItem aCTionStringXP(GroupItem input)
+{
+GroupItem   stuff:;
+Buffer      buffer = bufferSTAK.pop();
+    if !buffer      buffer = new("print buffer");
+    appendPrintXP(stuff,buffer);
     return opString(stuff,buffer);
 }
 
@@ -1066,11 +1120,13 @@ extern GroupItem aCTionWhilE(GroupItem input)
 {
 GroupItem   ExpressioN:,
             StatemenT:;
-GroupItem   result;
+GroupItem   looper,
+            result;
     if jitting {
         -% return jitEmitWHILE(input); %-
     }
-    while ExpressioN.gMethod(ExpressioN)
+    while looper = ExpressioN.gMethod(ExpressioN) {
+        if looper.isIterator    looper = looper.group;
         if result = StatemenT.gMethod(StatemenT) {
             if isBranch {
                 if isContinue   continue;
@@ -1081,7 +1137,7 @@ GroupItem   result;
                 result.isBranch = 0;
                 if result.registry == keyWords  result = 0;
                 break; }}
-        else    break;
+        else    break; }
     if !result  result = falseResult;
     return result;
 }

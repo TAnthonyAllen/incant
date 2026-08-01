@@ -448,7 +448,16 @@ projectBible.md "Phase Generate Tawk".
 
 ## Pending (not current arc)
 
-- [ ] **Sticky `isPRINTING` root-cause fix (Option B)** — `isPRINTING` is set true at
+- [ ] **Sticky `isPRINTING` root-cause fix (Option B)** — ⚠ **RE-MEASURED 2026-08-01: it is
+  NOT dead code.** It has exactly ONE read in the whole tree — `aCTionTokenXP`
+  (`ruleActions.rtn`, `if generating && !isPRINTING`) — and this entry already records that
+  that guard *alone* protects the print thunk, the other having been removed 2026-06-14.
+  So scrubbing the flag would change bytecode generation. Writes: `Commands.rtn` `case 'P'`
+  (the grammar's `PRINTing` flag), cleared in `aCTionPrinT` and at init. **The new sink
+  actions `aCTionCerR`/`aCTionCouT` deliberately do NOT touch it** — they have no
+  `generating` arm, so they have no business clearing a generating-path flag, and
+  `aCTionStringXP` already established that asymmetry. Original entry follows.
+  `isPRINTING` is set true at
   `Commands.rtn:398` (`case 'P'`) and only reset in `aCTionPrinT`'s non-generating loop
   (`ruleActions.rtn:554`), so on a print-less generate it stays true and bled into condition
   generation. Today's fix (2026-06-14) removed the `&& !isPRINTING` guard from
