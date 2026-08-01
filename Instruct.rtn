@@ -378,8 +378,16 @@ extern GroupItem opMinus(GroupItem argument,GroupItem target)
         -% return jitEmitBinary(argument, target, jitSub); %-
     }
     if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER) {
-        if isCOUNT  tempField.count    = gCount - argument.count;
-        or isNUMBER tempField.number   = gNumber - argument.number; }
+        /*  BINARY FAMILY PROMOTES (Tony, 2026-08-01, greenlight after Word 2).
+            `.count` on a double operand narrowed it AT ENTRY, so 0 - 2.5 gave
+            -3 as a COUNT before anything else ran. ⚠ THE FIX IS PROMOTION, NOT
+            THE COMPOUND FAMILY'S NARROW-AT-RESULT: a binary op has NO COUNT SLOT
+            to narrow into -- its result is a fresh temp -- so the ruling's POP
+            (`0 - 2.5 -> -2.5 TYPED DOUBLE`) is asking for premise 2's
+            promotion-first rule applied in the interpreter. Count OP count stays
+            a count, so nothing that was already integral moves.  */
+        if isNUMBER || argument.isNUMBER    tempField.number = number - argument.number;
+        else                                tempField.count  = gCount - argument.count; }
     or (isSTRING || isTOKEN) && argument.count > 0
         if gCount > argument.count  tempField.text = headToCount(text,gCount - argument.count);
     if !tempField.data {
@@ -645,9 +653,17 @@ extern GroupItem opMultiply(GroupItem argument,GroupItem target)
     if jitting {
         -% return jitEmitBinary(argument, target, jitMul); %-
     }
+    /*  BINARY FAMILY PROMOTES (Tony, 2026-08-01, greenlight after Word 2).
+        `.count` on a double operand narrowed it AT ENTRY, so 0 - 2.5 gave
+        -3 as a COUNT before anything else ran. ⚠ THE FIX IS PROMOTION, NOT
+        THE COMPOUND FAMILY'S NARROW-AT-RESULT: a binary op has NO COUNT SLOT
+        to narrow into -- its result is a fresh temp -- so the ruling's POP
+        (`0 - 2.5 -> -2.5 TYPED DOUBLE`) is asking for premise 2's
+        promotion-first rule applied in the interpreter. Count OP count stays
+        a count, so nothing that was already integral moves.  */
     if argument.isCOUNT || argument.isNUMBER
-        if isCOUNT  tempField.count = count * argument.count;
-        or isNUMBER tempField.number = number * argument.number;
+        if isNUMBER || argument.isNUMBER    tempField.number = number * argument.number;
+        or isCOUNT                          tempField.count  = count * argument.count;
     if !tempField.data {
         cerr "ERROR Operator * failed on",tag,"and",argument.tag:;
         return null; }
@@ -724,8 +740,16 @@ extern GroupItem opPlus(GroupItem argument,GroupItem target)
         -% return jitEmitBinary(argument, target, jitAdd); %-
     }
     if data && (argument.isCOUNT || argument.isNUMBER) {
-        if isCOUNT  tempField.count = gCount + argument.count;
-        or isNUMBER tempField.number = gNumber + argument.number;
+        /*  BINARY FAMILY PROMOTES (Tony, 2026-08-01, greenlight after Word 2).
+            `.count` on a double operand narrowed it AT ENTRY, so 0 - 2.5 gave
+            -3 as a COUNT before anything else ran. ⚠ THE FIX IS PROMOTION, NOT
+            THE COMPOUND FAMILY'S NARROW-AT-RESULT: a binary op has NO COUNT SLOT
+            to narrow into -- its result is a fresh temp -- so the ruling's POP
+            (`0 - 2.5 -> -2.5 TYPED DOUBLE`) is asking for premise 2's
+            promotion-first rule applied in the interpreter. Count OP count stays
+            a count, so nothing that was already integral moves.  */
+        if isNUMBER || argument.isNUMBER    tempField.number = number + argument.number;
+        or isCOUNT                          tempField.count  = gCount + argument.count;
         or isSTRING || isTOKEN
             if gCount > argument.count  tempField.text = gText + argument.count;
             else    cerr "ERROR Operator + tried to advance string past length of",tag:; }

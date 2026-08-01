@@ -201,6 +201,36 @@ So multi-instruction no longer implies buttress — only *block-structural* does
 addendum before applying the discipline above; it is the more current statement of the same
 boundary, and it moves work **toward** kant rather than away from it.
 
+## O5 — THE ORACLE CROSSOVER (filed 2026-08-01; sibling to the interpreter crossover)
+
+**Byte-comparison of emitted source DIES AT CODE-FREE, by construction.** Every rung target in
+`genLadder` compares generated C++ text against a pinned file. When `genParse` emits IR directly
+there is no source to compare, and the whole oracle goes with it.
+
+**DIRECTIONALLY RULED (Tony, 2026-08-01): BEHAVIOUR AS PRIMARY.** The oracle becomes **parse
+results** — the census's 30 rules as the seed corpus, parse outcomes compared. The **IR dump is a
+debugging instrument, not an oracle.**
+
+**Why the hard lean is right beyond taste, and it is the argument worth keeping:** of the three
+candidates, behaviour is the only one that tests *what genParse is for*.
+
+| candidate | what it actually tests |
+|---|---|
+| source comparison | **transcription fidelity** — that the emitter still writes the same text |
+| IR comparison | **emitter stability against an optimiser that is allowed to change** |
+| **parse results** | **grammar in, correct parse out — the actual contract** |
+
+And it is the oracle that survives *every* future transition rather than just this one: if
+genParse's internals are rewritten a third time in 2027, the census still only asks *"do the 30
+rules parse right."* **Instruments that outlive their implementations are the ones worth
+building**, and the census fixture has already shown that character — twice this week it caught
+defects in rules nobody was working on.
+
+⚠ **THIS IS DIRECTION, NOT FINAL DESIGN.** The full proposal is owed when the arc approaches
+crossover, **alongside the interpreter-crossover ruling, both before §0 executes.** A
+**transitional both-worlds rung** — source *and* IR from one plan, asserting agreement — remains
+available as a bridge if the design wants one.
+
 ## O4 — added by consolidation: the mem2reg contradiction, and it is the sharpest open item
 
 **The design says SSA comes from alloca/load/store plus `PromotePass`, and never write a phi.

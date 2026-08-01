@@ -5749,11 +5749,17 @@ extern "C" GroupItem *opMinus(GroupItem *argument, GroupItem *target)
 		}
 	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
 		{
-		if ( isCOUNT(target->groupBody->flags.data) )
-			GroupControl::groupController->groupRules->tempField->setCount(target->groupBody->gCount - argument->getCount());
-		else
-		if ( isNUMBER(target->groupBody->flags.data) )
-			GroupControl::groupController->groupRules->tempField->setNumber(target->groupBody->gNumber - argument->getNumber());
+		/*  BINARY FAMILY PROMOTES (Tony, 2026-08-01, greenlight after Word 2).
+		`.count` on a double operand narrowed it AT ENTRY, so 0 - 2.5 gave
+		-3 as a COUNT before anything else ran. ⚠ THE FIX IS PROMOTION, NOT
+		THE COMPOUND FAMILY'S NARROW-AT-RESULT: a binary op has NO COUNT SLOT
+		to narrow into -- its result is a fresh temp -- so the ruling's POP
+		(`0 - 2.5 -> -2.5 TYPED DOUBLE`) is asking for premise 2's
+		promotion-first rule applied in the interpreter. Count OP count stays
+		a count, so nothing that was already integral moves.  */
+		if ( isNUMBER(target->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
+			GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() - argument->getNumber());
+		else	GroupControl::groupController->groupRules->tempField->setCount(target->groupBody->gCount - argument->getCount());
 		}
 	else
 	if ( (isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data)) && argument->getCount() > 0 )
@@ -5892,12 +5898,20 @@ extern "C" GroupItem *opMultiply(GroupItem *argument, GroupItem *target)
 		{
 		 return jitEmitBinary(argument, target, jitMul); 
 		}
+	/*  BINARY FAMILY PROMOTES (Tony, 2026-08-01, greenlight after Word 2).
+	`.count` on a double operand narrowed it AT ENTRY, so 0 - 2.5 gave
+	-3 as a COUNT before anything else ran. ⚠ THE FIX IS PROMOTION, NOT
+	THE COMPOUND FAMILY'S NARROW-AT-RESULT: a binary op has NO COUNT SLOT
+	to narrow into -- its result is a fresh temp -- so the ruling's POP
+	(`0 - 2.5 -> -2.5 TYPED DOUBLE`) is asking for premise 2's
+	promotion-first rule applied in the interpreter. Count OP count stays
+	a count, so nothing that was already integral moves.  */
 	if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
+		if ( isNUMBER(target->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
+			GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() * argument->getNumber());
+		else
 		if ( isCOUNT(target->groupBody->flags.data) )
 			GroupControl::groupController->groupRules->tempField->setCount(target->getCount() * argument->getCount());
-		else
-		if ( isNUMBER(target->groupBody->flags.data) )
-			GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() * argument->getNumber());
 	if ( !GroupControl::groupController->groupRules->tempField->groupBody->flags.data )
 		{
 		::fprintf(stderr,"ERROR Operator * failed on %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
@@ -6001,11 +6015,19 @@ extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target)
 		}
 	if ( target->groupBody->flags.data && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
 		{
+		/*  BINARY FAMILY PROMOTES (Tony, 2026-08-01, greenlight after Word 2).
+		`.count` on a double operand narrowed it AT ENTRY, so 0 - 2.5 gave
+		-3 as a COUNT before anything else ran. ⚠ THE FIX IS PROMOTION, NOT
+		THE COMPOUND FAMILY'S NARROW-AT-RESULT: a binary op has NO COUNT SLOT
+		to narrow into -- its result is a fresh temp -- so the ruling's POP
+		(`0 - 2.5 -> -2.5 TYPED DOUBLE`) is asking for premise 2's
+		promotion-first rule applied in the interpreter. Count OP count stays
+		a count, so nothing that was already integral moves.  */
+		if ( isNUMBER(target->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
+			GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() + argument->getNumber());
+		else
 		if ( isCOUNT(target->groupBody->flags.data) )
 			GroupControl::groupController->groupRules->tempField->setCount(target->groupBody->gCount + argument->getCount());
-		else
-		if ( isNUMBER(target->groupBody->flags.data) )
-			GroupControl::groupController->groupRules->tempField->setNumber(target->groupBody->gNumber + argument->getNumber());
 		else
 		if ( isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data) )
 			if ( target->groupBody->gCount > argument->getCount() )
