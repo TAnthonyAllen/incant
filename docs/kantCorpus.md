@@ -1180,6 +1180,28 @@ scope:       ⚠ SUPERSEDES THE MECHANISM IN CLAIM KANT-11, NOT ITS ADVICE.
              -- only that it is not the spacing mode.
 ```
 
+### CLAIM KANT-29 — ⚠ HEADLINE OVERTURNED, MECHANISM STANDS: `||` was unregistered, but boolean OR EXISTED
+> ⚠⚠ **CORRECTED 2026-08-01. THE MECHANISM THIS CLAIM IDENTIFIED IS EXACTLY RIGHT AND ITS
+> HEADLINE IS WRONG.** `'|'` *is* registered bare with no `operateMethod` — measured, `incant/setup:85`
+> — and `if a || b;` *did* fail the whole body. Round 2 hit a real wall and read it correctly.
+>
+> **But "there is NO boolean OR" is false.** `OR` — the WORD — was fully wired the whole time:
+> `OR operateMethod=opOR` (`incant/setup:87`), `opOR` in `Instruct.rtn`, and `testOR` exercising it
+> inside the `unitTests` baseline. Measured all three directions: `true OR false` → TRUE,
+> `false OR false` → false, `false OR true` → TRUE.
+>
+> **So the gap was the SYMBOL SPELLING, not the operator.** Filling it was a one-line
+> REGISTRATION against the existing method, not an implementation: `'||' operateMethod=opOR;`,
+> spelled as a two-character entry rather than relying on `'|'` doubling because the Operators
+> header states the matcher returns the LONGEST match.
+>
+> **THE LESSON IS ABOUT CLAIM SCOPE, and it is the claim-survival instrument working.** A wall
+> was hit, the mechanism under it was read correctly, and the generalisation reached one level too
+> far — from *"this spelling is unwired"* to *"the language lacks the concept."* The cheap check
+> that would have caught it is the one the corpus already prescribes for absence claims: **grep the
+> tree for a working counterexample before claiming a limitation.** `testOR` was in the baseline.
+> Original claim retained verbatim below; nothing in its evidence was wrong.
+
 ### CLAIM KANT-29 — there is NO boolean OR: `'|'` is registered with no operateMethod, and `if a || b;` fails the WHOLE body
 ```
 statement:   `||` is not a kant operator. incant/setup:85 registers `'|';` with
@@ -1307,6 +1329,62 @@ scope:       ⚠ `return null;` YIELDS TEXT "0", WHICH COLLIDES WITH THIS IDIOM,
              MANIER pin (round 1's `SPELLER kant` shape) and not just a value
              test.
 ```
+
+---
+
+### CLAIM KANT-34 — `||` EVALUATES BOTH ARMS. No short-circuit, and it is pinned as chosen
+```
+statement:   `a || b` evaluates BOTH operands. A side effect on the right arm
+             fires even when the left arm is already true. Same for `&&`.
+confidence:  RUN
+provenance:  incant/orProbe row 3 -- `if oTrue || loudZero();` where loudZero
+             prints and returns 0. Output:
+                 [RIGHT ARM EVALUATED]
+                 true || loudZero() -> TRUE
+asOf:        2026-08-01
+scope:       ⚠ STRUCTURAL, NOT AN OVERSIGHT. An operateMethod receives operands
+             the runtime has ALREADY evaluated, so there is no point at which
+             opOR could decline to evaluate the right arm -- short-circuit is
+             not something the current operator machinery can express. opAND has
+             the identical shape and the identical behaviour, so the two agree.
+             Tony ruled in advance that evaluate-both is acceptable for a truth
+             test provided it is stated: it is stated here. Do not write `||`
+             expecting a guard against an expensive or unsafe right arm.
+```
+
+### CLAIM KANT-35 — ⚠ `!a || !b` IS NOT EQUIVALENT TO SEQUENTIAL `!a` / `!b` GUARDS on ABSENT attributes
+```
+statement:   A disjunction of negations DOES NOT catch an absent attribute that
+             sequential negation guards DO catch. `if !a || !b;` sees "both
+             present" where `if !a; or !b;` correctly fires.
+confidence:  RUN, and reduced to a minimal case
+provenance:  incant/orProbe row 4, two nodes through one action after a :scope
+             hoist --
+               hasBoth (both present):  seq "neither -- both present"
+                                        ||  "disjunction saw BOTH PRESENT"   agree
+               hasOnly (beta1 ABSENT):  seq "!beta1 caught it"
+                                        ||  "disjunction saw BOTH PRESENT"   DISAGREE
+             Found the expensive way first: collapsing spellMany's twin guards
+             into `if !site || !min;` let a site-but-no-min node EMIT instead of
+             refusing, moving manyScratch.target by ten lines. Reverted.
+asOf:        2026-08-01
+scope:       Consistent with KANT-34's mechanism -- opOR receives ALREADY
+             EVALUATED operands and tests gCount, and an absent attribute's
+             negation does not arrive as a gCount opOR reads as true. So this is
+             not a second defect; it is KANT-34's consequence at the one place
+             it bites hardest.
+             ⚠ CONSEQUENCE FOR CONVERSIONS: a multi-attribute presence check
+             MUST stay as sequential guards. It reads more verbose and it is not
+             a style choice -- the tidy form is wrong. incant/genMany carries
+             this warning at the site so the guards are not "cleaned up" later.
+             DOES NOT COVER: `a || b` on plain truth values, which is sound in
+             all three directions (KANT-29's correction).
+```
+**Why this is filed the hour `||` landed.** `||` was filled *because* round 2's twin guards were
+the demand specimen. The first thing done with it was to collapse those guards — and that was
+wrong. **The feature was correct, the first use of it was not**, and the fixture caught it
+immediately because `manyScratch.target` pins the refusal arm. That target existed for less than
+a day and has already paid for itself.
 
 ---
 

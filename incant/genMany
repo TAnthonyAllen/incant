@@ -105,6 +105,15 @@ define
     spellMany argument closeBrace="}" code={
         :argument site min;
         answer = "0";
+        /*  ⚠ TWIN GUARDS, DELIBERATELY -- `!a || !b` IS NOT EQUIVALENT HERE.
+            Tried and REVERTED 2026-08-01, the same hour `||` was filled: the
+            collapsed form let a site-but-no-min node EMIT instead of refusing,
+            and manyScratch.target moved by ten lines. `||` is sound on plain
+            truth values (measured, incant/orProbe, all three directions) but
+            does not compose with `!` on an ABSENT attribute the way sequential
+            guards do -- opOR receives already-evaluated operands and tests
+            gCount, and an absent attribute's negation does not arrive as one.
+            See the corpus. Do not "tidy" these back into a disjunction.  */
         if !site;
             cerr $"emitMany: MANY node has no site/min":;
             return answer;

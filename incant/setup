@@ -83,6 +83,19 @@ registry(Operators);
 define
     '~='    operateMethod=opMatch;
     '|';
+    /*  THE `||` SYMBOL, filled 2026-08-01 (Tony's word). Demand was demonstrated
+        by minionA round 2, which hit this and wrote twin sequential guards in
+        `spellMany` instead of one disjunction.
+        ⚠ THIS IS A REGISTRATION, NOT AN IMPLEMENTATION. Boolean OR already
+        existed and was already sound -- `OR operateMethod=opOR` two lines below,
+        with opOR in Instruct.rtn and `testOR` exercising it in the unitTests
+        baseline. What was missing was only the SYMBOL spelling: `'|'` above is
+        registered BARE, with no operateMethod, so `||` matched an inert operator
+        and failed the body. `'||'` is registered explicitly rather than relying
+        on `'|'` doubling, because the Operators header states the matcher
+        returns the LONGEST match -- so the two-character entry wins cleanly and
+        `'|'` keeps whatever future single-char meaning it is being held for.  */
+    '||'    operateMethod=opOR;
     '^';
     OR      operateMethod=opOR;
     IN      operateMethod=opIN;

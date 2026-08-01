@@ -1,0 +1,47 @@
+Start();
+include(unitTests);
+search reset stack Grokking;
+search UnitTests list;
+register(OrProbe);
+define
+    oTrue = 1;
+    oFalse = 0;
+    loudZero code={ print + "    [RIGHT ARM EVALUATED]":; return oFalse; };
+    hasBoth  alpha1="a" beta1="b";
+    hasOnly  alpha1="a";
+    probeIt argument code={
+        :argument alpha1 beta1;
+        if !alpha1;             print + "  seq: !alpha1 caught it":;
+        or !beta1;              print + "  seq: !beta1 caught it":;
+        else                    print + "  seq: neither -- both present":;
+        if !alpha1 || !beta1;   print + "  ||  : disjunction caught it":;
+        else                    print + "  ||  : disjunction saw BOTH PRESENT":;
+        };
+    runOr code={
+        print "1 the WORD form, OR:":;
+        if oTrue OR oFalse;    print + "true  OR false -> TRUE":;
+        else                   print + "true  OR false -> false":;
+        if oFalse OR oFalse;   print + "false OR false -> TRUE":;
+        else                   print + "false OR false -> false":;
+        if oFalse OR oTrue;    print + "false OR true  -> TRUE":;
+        else                   print + "false OR true  -> false":;
+        print "2 the SYMBOL form, || (the fill):":;
+        if oTrue || oFalse;    print + "true  || false -> TRUE":;
+        else                   print + "true  || false -> false":;
+        if oFalse || oFalse;   print + "false || false -> TRUE":;
+        else                   print + "false || false -> false":;
+        if oFalse || oTrue;    print + "false || true  -> TRUE":;
+        else                   print + "false || true  -> false":;
+        print "3 SHORT-CIRCUIT? left arm TRUE, right arm has a side effect:":;
+        if oTrue || loudZero();   print + "true || loudZero() -> TRUE":;
+        else                      print + "true || loudZero() -> false":;
+        print "4 !a || !b vs sequential guards, on an ABSENT attribute:":;
+        print + "hasBoth (alpha1 + beta1 both present):":;
+        probeIt(hasBoth);
+        print + "hasOnly (beta1 ABSENT -- the discriminating case):":;
+        probeIt(hasOnly);
+        };
+    ;
+runOr();
+print "OP SENTINEL":;
+stop();
