@@ -120,6 +120,7 @@ extern "C" GroupItem *aCTionWhilE(GroupItem *input);
 extern "C" GroupItem *aCTionXpress(GroupItem *input);
 extern "C" GroupItem *appendGroup(GroupItem *input, GroupItem *FormaT, Buffer *buffer);
 extern "C" void appendPrintXP(GroupItem *stuff, Buffer *buffer);
+extern "C" GroupItem *arrondir(GroupItem *field);
 extern "C" int auditMissingRules(GroupItem *registry);
 extern "C" int auditMissingTerms(GroupItem *registry);
 extern "C" GroupItem *auditRStuff(GroupItem *argument);

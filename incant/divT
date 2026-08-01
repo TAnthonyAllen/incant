@@ -41,6 +41,18 @@ define
         m1 = 10; m1 = m1 / 4; m1 = m1 + 1;  nameOf(m1);
         print "4 /= narrows into a count slot (half-up):";
         q1 = 10; q1 /= 4;   nameOf(q1);
+        print "5 clause 2 -- EXPLICIT arrondir(x), half-up, all three cases:";
+        r1 = 2.5;  r1 = arrondir(r1);   nameOf(r1);
+        r2 = 2.4;  r2 = arrondir(r2);   nameOf(r2);
+        /*  ⚠ THE NEGATIVE HALF IS BUILT BY DIVISION, NOT SUBTRACTION, AND THAT
+            IS A FINDING NOT A STYLE CHOICE. `r3 = 0 - 2.5` does NOT yield -2.5:
+            binary `-` narrows its OPERAND at entry exactly as the compound
+            family used to, so it produces -3 as a COUNT before arrondir is even
+            called. Word 2 moved the narrowing point for the COMPOUND-ASSIGN
+            family; THE BINARY FAMILY STILL HAS THE OLD SHAPE. Reported, not
+            fixed -- Tony's ruling named the compound family. Division promotes
+            (word 1) so it is the reliable way to mint a genuine -2.5 today.  */
+        r3 = -5;   r3 = r3 / 2;    r3 = arrondir(r3);   nameOf(r3);
         };
     ;
 runDiv();

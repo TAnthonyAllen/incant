@@ -422,7 +422,23 @@ use target
     or data && argument.data {
         result = target;
         switch(data) {
-            case isCOUNT:   gCount  -= argument.count;
+            /*  WORD 2 (Tony, 2026-08-01): COMPUTE IN DOUBLES, NARROW AT THE
+                RESULT. The narrowing point moves off OPERAND-ENTRY and onto
+                RESULT-COMMIT for the whole compound-assign family. It used to
+                read `gCount -= argument.count`, and `.count` on a double
+                operand narrowed it BEFORE the arithmetic -- so 0 -= 2.5 went
+                0 - 3 = -3 where the ruling wants 0 - 2.5 = -2.5 -> -2.
+                ⚠ ROUTED THROUGH tempField.count ON PURPOSE, so the half-up rule
+                keeps ONE IMPLEMENTER: getCount. Writing floor(x+0.5) inline
+                here would make a second copy that can drift from the first, and
+                this family exists precisely because two copies of one rule
+                disagreed. Same shape in opPlusEQ and opMultiplyEQ; opDivEQ
+                already computed in doubles.
+                `+=` CANNOT DISCRIMINATE the two readings (0 + 2.5 gives 3 under
+                both), so only a subtraction with a fractional operand shows the
+                difference -- incant/divT's c4 row is that test.  */
+            case isCOUNT:   tempField.number = number - argument.number;
+                            gCount  = tempField.count;
             case isNUMBER:  gNumber -= argument.number;
             case isBUFFER:  buffer  -= argument.count;
             case isSTRING:
@@ -650,7 +666,8 @@ GroupItem   result;
     }
 use target
     if data && argument.data {
-        if isCOUNT  gCount  *= argument.count;
+        if isCOUNT  {   tempField.number = number * argument.number;
+                        gCount  = tempField.count; }
         or isNUMBER gNumber *= argument.number;
         result  = target;
         if !result  cerr "ERROR Operator += failed on",tag,"and",argument.tag:; }
@@ -742,7 +759,8 @@ use target
     or argument.data
         if data
             switch(data) {
-                case isCOUNT:   gCount  += argument.count;
+                case isCOUNT:   tempField.number = number + argument.number;
+                                gCount  = tempField.count;
                 case isNUMBER:  gNumber += argument.number;
                 case isSTRING:
                 case isTOKEN:   text    += argument.text;

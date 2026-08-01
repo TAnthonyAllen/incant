@@ -1405,6 +1405,48 @@ GroupItem 	*grup = 0;
 		}
 }
 
+/******************************************************************************
+    This incant command method reads the field passed in as a file spec and
+    loads the field buffer (creating it if necessary) with text read in from
+    the file. Returns the loaded field.
+******************************************************************************/
+/***************************************************************************
+    arrondir -- EXPLICIT CONVERSION TO A COUNT (Tony's ruling, 2026-08-01,
+    clause 2 / word 3). For when the user wants control instead of relying on
+    implicit narrowing.
+
+    ⚠ NAMED IN FRENCH ON PURPOSE, AND IT PAYS TWICE (Tony). `round` is libc
+    <math.h>, and extern "C" strips overload resolution, so an extern named
+    `round` is bear-trap #12 -- clean per file, `duplicate symbol` at Ld, no hint
+    which incant file caused it. The first cut dodged that with a differently
+    named extern plus the `=method` binding form (bear-trap #7). BORROWING A WORD
+    FROM ANOTHER LANGUAGE INSTEAD REMOVES BOTH: the name is free at the C level,
+    so the extern carries it directly and the indirection disappears. Cheaper
+    than inventing a name, and it reads.
+
+    HALF-UP, the same rule and the same spelling as everywhere else: >= .5 goes
+    up, < .5 goes down, so -2.5 gives -2. ⚠ THAT DISTINCTION IS NOW LOAD-BEARING
+    rather than academic -- under Word 2 the compound-assign family computes in
+    doubles and narrows the RESULT, so negative halves actually reach a rounding
+    decision. lround() would round half AWAY FROM ZERO and disagree here.
+
+    ⚠ ROUTED THROUGH .count (getCount) DELIBERATELY, exactly as the compound
+    arms are, so the half-up rule keeps ONE IMPLEMENTER. An inline floor(x+0.5)
+    here would be a second copy of a rule whose whole history is copies
+    disagreeing.
+
+***************************************************************************/
+extern "C" GroupItem *arrondir(GroupItem *field)
+{
+	if ( !field )
+		{
+		::fprintf(stderr,"arrondir: no argument provided\n");
+		return 0;
+		}
+	GroupControl::groupController->groupRules->tempField->setCount(field->getCount());
+	return GroupControl::groupController->groupRules->tempField;
+}
+
 /*****************************************************************************
     auditTerms / auditRegistry -- materialiseTerms' walk with the OPPOSITE
     intent. It repairs nothing; it reports what is missing.
@@ -2726,11 +2768,6 @@ int 	advance = 0;
 	return debugText;
 }
 
-/******************************************************************************
-    This incant command method reads the field passed in as a file spec and
-    loads the field buffer (creating it if necessary) with text read in from
-    the file. Returns the loaded field.
-******************************************************************************/
 extern "C" GroupItem *getFile(GroupItem *filing)
 {
 GroupItem 	*File = filing->getLabelGroup("File");
@@ -5749,8 +5786,25 @@ GroupItem 	*result = 0;
 		result = target;
 		switch (target->groupBody->flags.data)
 			{
+				/*  WORD 2 (Tony, 2026-08-01): COMPUTE IN DOUBLES, NARROW AT THE
+				RESULT. The narrowing point moves off OPERAND-ENTRY and onto
+				RESULT-COMMIT for the whole compound-assign family. It used to
+				read `gCount -= argument.count`, and `.count` on a double
+				operand narrowed it BEFORE the arithmetic -- so 0 -= 2.5 went
+				0 - 3 = -3 where the ruling wants 0 - 2.5 = -2.5 -> -2.
+				⚠ ROUTED THROUGH tempField.count ON PURPOSE, so the half-up rule
+				keeps ONE IMPLEMENTER: getCount. Writing floor(x+0.5) inline
+				here would make a second copy that can drift from the first, and
+				this family exists precisely because two copies of one rule
+				disagreed. Same shape in opPlusEQ and opMultiplyEQ; opDivEQ
+				already computed in doubles.
+				`+=` CANNOT DISCRIMINATE the two readings (0 + 2.5 gives 3 under
+				both), so only a subtraction with a fractional operand shows the
+				difference -- incant/divT's c4 row is that test.  */
+				break;
 			case 5:
-				target->groupBody->gCount -= argument->getCount();
+				GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() - argument->getNumber());
+				target->groupBody->gCount = GroupControl::groupController->groupRules->tempField->getCount();
 				break;
 			case 9:
 				target->groupBody->gNumber -= argument->getNumber();
@@ -5866,7 +5920,10 @@ GroupItem 	*result = 0;
 	if ( target->groupBody->flags.data && argument->groupBody->flags.data )
 		{
 		if ( isCOUNT(target->groupBody->flags.data) )
-			target->groupBody->gCount *= argument->getCount();
+			{
+			GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() * argument->getNumber());
+			target->groupBody->gCount = GroupControl::groupController->groupRules->tempField->getCount();
+			}
 		else
 		if ( isNUMBER(target->groupBody->flags.data) )
 			target->groupBody->gNumber *= argument->getNumber();
@@ -5999,7 +6056,8 @@ extern "C" GroupItem *opPlusEQ(GroupItem *argument, GroupItem *target)
 			switch (target->groupBody->flags.data)
 				{
 				case 5:
-					target->groupBody->gCount += argument->getCount();
+					GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() + argument->getNumber());
+					target->groupBody->gCount = GroupControl::groupController->groupRules->tempField->getCount();
 					break;
 				case 9:
 					target->groupBody->gNumber += argument->getNumber();

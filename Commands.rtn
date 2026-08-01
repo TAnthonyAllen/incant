@@ -198,6 +198,41 @@ GroupItem   fieldList   = field.getAttribute("bcLIST");
     loads the field buffer (creating it if necessary) with text read in from
     the file. Returns the loaded field.
 ******************************************************************************/
+/***************************************************************************
+    arrondir -- EXPLICIT CONVERSION TO A COUNT (Tony's ruling, 2026-08-01,
+    clause 2 / word 3). For when the user wants control instead of relying on
+    implicit narrowing.
+
+    ⚠ NAMED IN FRENCH ON PURPOSE, AND IT PAYS TWICE (Tony). `round` is libc
+    <math.h>, and extern "C" strips overload resolution, so an extern named
+    `round` is bear-trap #12 -- clean per file, `duplicate symbol` at Ld, no hint
+    which incant file caused it. The first cut dodged that with a differently
+    named extern plus the `=method` binding form (bear-trap #7). BORROWING A WORD
+    FROM ANOTHER LANGUAGE INSTEAD REMOVES BOTH: the name is free at the C level,
+    so the extern carries it directly and the indirection disappears. Cheaper
+    than inventing a name, and it reads.
+
+    HALF-UP, the same rule and the same spelling as everywhere else: >= .5 goes
+    up, < .5 goes down, so -2.5 gives -2. ⚠ THAT DISTINCTION IS NOW LOAD-BEARING
+    rather than academic -- under Word 2 the compound-assign family computes in
+    doubles and narrows the RESULT, so negative halves actually reach a rounding
+    decision. lround() would round half AWAY FROM ZERO and disagree here.
+
+    ⚠ ROUTED THROUGH .count (getCount) DELIBERATELY, exactly as the compound
+    arms are, so the half-up rule keeps ONE IMPLEMENTER. An inline floor(x+0.5)
+    here would be a second copy of a rule whose whole history is copies
+    disagreeing.
+
+***************************************************************************/
+extern GroupItem arrondir(GroupItem field)
+{
+    if !field {
+        cerr "arrondir: no argument provided":;
+        return null; }
+    tempField.count = field.count;
+    return tempField;
+}
+
 extern GroupItem getFile(GroupItem filing)
 {
 GroupItem   File:;

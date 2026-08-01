@@ -25,6 +25,7 @@ define
     buffer immediateAction=setInternalType noPrint;
     class immediateAction=rEGISTER noPrint;
     clear immediateAction=cLEAR;
+    arrondir immediateAction=arrondir;
     closeFile immediateAction;
     condition immediateAction=processFlags noPrint;
     copy immediateAction=cOPY;
