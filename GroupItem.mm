@@ -676,8 +676,18 @@ int GroupItem::getCount()
 		{
 		if ( isCOUNT(groupBody->flags.data) || isTOKEN(groupBody->flags.data) || isCHAR(groupBody->flags.data) || isSTRING(groupBody->flags.data) )
 			return groupBody->gCount;
+		/*  IMPLICIT NARROWING ROUNDS HALF-UP, UNIFORMLY (Tony's ruling,
+		2026-08-01, clause 3). This is THE site: every `.count` read of a
+		double reaches here, so one line makes the rule uniform rather than
+		per-operator. It used to be `(int)number`, a C truncating cast, which
+		is neither of the two behaviours a user could reasonably expect.
+		floor(x + 0.5) is round-half-UP as ruled -- >= .5 goes up, < .5 goes
+		down -- and it is deliberately NOT lround(), which rounds half AWAY
+		FROM ZERO and so sends -2.5 to -3 where this ruling sends it to -2.
+		No error arm, no context-dependent behaviour, no guard rails: one
+		rule, and a user who divides then indexes owns the result. */
 		if ( isNUMBER(groupBody->flags.data) )
-			return (int)groupBody->gNumber;
+			return (int)floor(groupBody->gNumber + 0.5);
 		if ( isBUFFER(groupBody->flags.data) )
 			return groupBody->gBuffer->length();
 		if ( isGROUP(groupBody->flags.data) )
@@ -1757,12 +1767,17 @@ void GroupItem::setCount(int i)
 
 void GroupItem::setGroup(GroupItem *g)
 {
-	if ( groupBody == g->groupBody )
+	if ( !g )
 		{
-		::fprintf(stderr,"setGroup: cannot add a group %s to itself\n",groupBody->tag);
-		return;
+		groupBody->gGroup = 0;
+		groupBody->flags.data = 0;
 		}
-	if ( g )
+	else {
+		if ( groupBody == g->groupBody )
+			{
+			::fprintf(stderr,"setGroup: cannot add a group %s to itself\n",groupBody->tag);
+			return;
+			}
 		if ( groupBody->flags.isLocal || groupBody->flags.isLabel || g->groupBody->flags.byRef )
 			groupBody->gGroup = g;
 		else {
@@ -1772,10 +1787,11 @@ void GroupItem::setGroup(GroupItem *g)
 			groupBody->gGroup->parent = this;
 			groupBody->gGroup->options.affiliation = 3;
 			}
-	groupBody->flags.isInitialized = 1;
-	groupBody->flags.data = 6;
-	if ( groupBody->flags.hasListeners )
-		updateListeners();
+		groupBody->flags.isInitialized = 1;
+		groupBody->flags.data = 6;
+		if ( groupBody->flags.hasListeners )
+			updateListeners();
+		}
 }
 
 void GroupItem::setItem(PLGitem *i)
@@ -2093,3 +2109,6 @@ GroupItem 	*group = 0;
 		}
 	return result;
 }
+/*	Warning: the following methods were referenced but not declared
+	floor(double)
+*/

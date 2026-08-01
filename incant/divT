@@ -1,0 +1,48 @@
+/*****************************************************************************
+    divT -- the numeric tower's DIVISION AND NARROWING (Tony, 2026-08-01).
+      clause 1  `/` PROMOTES: 10/4 -> 2.5, typed double. Division means
+                division; the operator never changes mathematical meaning by
+                operand type. Always a double, INCLUDING the exact case --
+                proposed here because premise 1 (datA stability) forbids a
+                result type that depends on runtime values.
+      clause 3  implicit narrowing rounds HALF-UP, uniformly. >= .5 up, < .5
+                down. Not lround: half-up sends -2.5 to -2, away-from-zero
+                sends it to -3.
+    SENTINEL AT THE FOOT.
+*****************************************************************************/
+Start();
+include(unitTests);
+search reset stack Grokking;
+search UnitTests list;
+register(DivTest);
+define
+    dataNames isANY isCHAR isSET isBUFFER isCOUNT isGROUP isITEM isMAP isNUMBER isOBJECT isREGEX isSTAK isSTRING isTOKEN;
+    nameOf argument code={ print + `taG argument "=" argument " datA->" dataNames[argument.datA]:; };
+    runDiv code={
+        print "1 clause 1 -- / promotes:";
+        d1 = 10; d1 = d1 / 4;   nameOf(d1);
+        d2 = 8;  d2 = d2 / 4;   nameOf(d2);
+        d3 = 7;  d3 = d3 / 2;   nameOf(d3);
+        print "2 clause 3 -- narrowing rounds HALF-UP, both sides of .5:";
+        c1 = 0; c1 += 2.5;  nameOf(c1);
+        c2 = 0; c2 += 2.4;  nameOf(c2);
+        c3 = 0; c3 += 2.6;  nameOf(c3);
+        /*  ⚠ THIS ROW IS THE RULING'S ONE AMBIGUITY, PINNED AT TODAY'S ANSWER
+            RATHER THAN SMOOTHED. -3, and half-up on the RESULT would say -2.
+            Both readings are "narrow half-up"; they differ on WHERE the
+            narrowing point is. Today the OPERAND narrows first (2.5 -> 3 via
+            getCount) and then 0 - 3 = -3. Narrowing the RESULT instead would
+            compute 0 - 2.5 = -2.5 -> -2.
+            `+=` cannot tell them apart (0 + 2.5 -> 3 either way), so ONLY a
+            subtraction with a fractional operand discriminates -- which is why
+            this row exists. Tony's call; the rows above are unaffected. */
+        c4 = 0; c4 -= 2.5;  nameOf(c4);
+        print "3 mixed arithmetic still carries fractions:";
+        m1 = 10; m1 = m1 / 4; m1 = m1 + 1;  nameOf(m1);
+        print "4 /= narrows into a count slot (half-up):";
+        q1 = 10; q1 /= 4;   nameOf(q1);
+        };
+    ;
+runDiv();
+print "DT SENTINEL":;
+stop();

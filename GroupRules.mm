@@ -1,7 +1,6 @@
 #include <Cocoa/Cocoa.h>
 #include <dirent.h>
 #include <dlfcn.h>
-#include <math.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -5240,12 +5239,21 @@ extern "C" GroupItem *opDiv(GroupItem *argument, GroupItem *target)
 		{
 		 return jitEmitBinary(argument, target, jitSDiv); 
 		}
+	/*  `/` PROMOTES (Tony's ruling, 2026-08-01, clause 1). DIVISION MEANS
+	DIVISION -- the same operator never silently changes mathematical
+	meaning by operand type, so count-over-count yielding a fraction gives a
+	DOUBLE: 10 / 4 is 2.5, not 3 and not 2. The old arm was wrong twice,
+	truncating AND count-typing.
+	⚠ ALWAYS A DOUBLE, INCLUDING THE EXACT CASE (8 / 4). Tony left the
+	exact-result behaviour open; this is the proposal and its reason is the
+	JIT rather than taste. Premise 1 is the datA-stability contract: a
+	field's datA is fixed for the lifetime of jitted code that observed it.
+	Making the RESULT TYPE depend on whether the division happens to come out
+	even makes it depend on runtime VALUES, so the emitter could not know it
+	at emit time and the table arc's promote leaf would have no static
+	answer. One arm is also the cheapest thing in the file. */
 	if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
-		if ( isCOUNT(target->groupBody->flags.data) )
-			GroupControl::groupController->groupRules->tempField->setCount((int)::lround(target->getNumber() / argument->getNumber()));
-		else
-		if ( isNUMBER(target->groupBody->flags.data) )
-			GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() / argument->getNumber());
+		GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() / argument->getNumber());
 	if ( !GroupControl::groupController->groupRules->tempField->groupBody->flags.data )
 		{
 		::fprintf(stderr,"ERROR Operator / not supported for %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
@@ -5267,8 +5275,13 @@ GroupItem 	*result = 0;
 		}
 	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
 		{
+		/*  `/=` divides as `/` does (clause 1) and then NARROWS into whatever
+		slot the target already is (clause 3). A count target therefore
+		rounds half-up rather than truncating; a double target keeps the
+		fraction. Written through the same floor(x+0.5) as getCount so the
+		two cannot drift. */
 		if ( isCOUNT(target->groupBody->flags.data) )
-			target->setCount((int)::lround(target->getNumber() / argument->getNumber()));
+			target->setCount((int)floor((target->getNumber() / argument->getNumber()) + 0.5));
 		else
 		if ( isNUMBER(target->groupBody->flags.data) )
 			target->setNumber(target->getNumber() / argument->getNumber());
@@ -8230,5 +8243,6 @@ int 	result = 0;
 }
 /*	Warning: the following methods were referenced but not declared
 	read(int,char*,long)
+	floor(double)
 	getRStuff()
 */

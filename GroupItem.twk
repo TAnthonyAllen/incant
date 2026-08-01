@@ -445,7 +445,17 @@ int getCount()
     if data
         {
         if isCOUNT || isTOKEN || isCHAR || isSTRING return count;
-        if isNUMBER     return (int)number;
+        /*  IMPLICIT NARROWING ROUNDS HALF-UP, UNIFORMLY (Tony's ruling,
+            2026-08-01, clause 3). This is THE site: every `.count` read of a
+            double reaches here, so one line makes the rule uniform rather than
+            per-operator. It used to be `(int)number`, a C truncating cast, which
+            is neither of the two behaviours a user could reasonably expect.
+            floor(x + 0.5) is round-half-UP as ruled -- >= .5 goes up, < .5 goes
+            down -- and it is deliberately NOT lround(), which rounds half AWAY
+            FROM ZERO and so sends -2.5 to -3 where this ruling sends it to -2.
+            No error arm, no context-dependent behaviour, no guard rails: one
+            rule, and a user who divides then indexes owns the result. */
+        if isNUMBER     return (int)floor(number + 0.5);
         if isBUFFER     return buffer.length();
         if isGROUP      return group.getCount();
         }
@@ -1341,19 +1351,22 @@ void setCount(int i)
 
 void setGroup(GroupItem g)
 {
-    if groupBody == g.groupBody {
-        cerr "setGroup: cannot add a group",tag,"to itself":;
-        return; }
-    if g
+    if !g {
+        gGroup  = 0;
+        data    = 0; }
+    else {
+        if groupBody == g.groupBody {
+            cerr "setGroup: cannot add a group",tag,"to itself":;
+            return; }
         if isLocal || isLabel || g.byRef   gGroup = g;
         else {
             if !g.parent    gGroup = g;
             else            gGroup = new(g);
             gGroup.parent       = this;
             gGroup.isEmbedded   = true; }
-    isInitialized   = true;
-    isGROUP         = true;
-    if hasListeners updateListeners();
+        isInitialized   = true;
+        isGROUP         = true;
+        if hasListeners updateListeners(); }
 }
 
 void setItem(PLGitem i)

@@ -68,9 +68,21 @@ extern GroupItem opDiv(GroupItem argument,GroupItem target)
     if jitting {
         -% return jitEmitBinary(argument, target, jitSDiv); %-
     }
+    /*  `/` PROMOTES (Tony's ruling, 2026-08-01, clause 1). DIVISION MEANS
+        DIVISION -- the same operator never silently changes mathematical
+        meaning by operand type, so count-over-count yielding a fraction gives a
+        DOUBLE: 10 / 4 is 2.5, not 3 and not 2. The old arm was wrong twice,
+        truncating AND count-typing.
+        ⚠ ALWAYS A DOUBLE, INCLUDING THE EXACT CASE (8 / 4). Tony left the
+        exact-result behaviour open; this is the proposal and its reason is the
+        JIT rather than taste. Premise 1 is the datA-stability contract: a
+        field's datA is fixed for the lifetime of jitted code that observed it.
+        Making the RESULT TYPE depend on whether the division happens to come out
+        even makes it depend on runtime VALUES, so the emitter could not know it
+        at emit time and the table arc's promote leaf would have no static
+        answer. One arm is also the cheapest thing in the file. */
     if argument.isCOUNT || argument.isNUMBER
-        if isCOUNT  tempField.count = (int)lround(number / argument.number);
-        or isNUMBER tempField.number = number / argument.number;
+        tempField.number = number / argument.number;
     if !tempField.data {
         cerr "ERROR Operator / not supported for",tag,"and",argument.tag:;
         return null; }
@@ -89,7 +101,12 @@ GroupItem   result;
     }
 use target
     if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER) {
-        if isCOUNT  count   = (int)lround(number / argument.number);
+        /*  `/=` divides as `/` does (clause 1) and then NARROWS into whatever
+            slot the target already is (clause 3). A count target therefore
+            rounds half-up rather than truncating; a double target keeps the
+            fraction. Written through the same floor(x+0.5) as getCount so the
+            two cannot drift. */
+        if isCOUNT  count   = (int)floor((number / argument.number) + 0.5);
         or isNUMBER number  = number / argument.number;
         result = target;
         if !result  cerr "ERROR Operator /= failed on",tag,"and",argument.tag:; }
