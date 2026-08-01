@@ -150,6 +150,32 @@ else
     fail=1
 fi
 
+#  THE MANIER PIN -- emitMany's fork, exactly as SPELLER pins emitLeaf's, and for
+#  the same reason: THE FORK IS SILENT BY DESIGN. Absent a kant emitMany the C++
+#  body runs and every target still holds, so a round that never registered its
+#  action would be JUST AS GREEN as one that did. This line is what tells them
+#  apart. Pinned at `kant` -- if it ever reads `c++` again the kant emitMany
+#  stopped being found and the C++ body is quietly answering for it.
+MANIER="MANIER kant"
+if grep -qF "$MANIER" "$T/gen"; then
+    echo "  ok    emitMany is kant (round 2 -- c++ here again means the kant one is not found)"; green=$((green+1))
+else
+    echo "  FAIL  manier pin MOVED:"
+    grep "^MANIER" "$T/gen" | sed 's/^/          actual:   /' || echo "          (no MANIER line -- is manyMode still called from genScratch?)"
+    echo "          expected: $MANIER"
+    fail=1
+fi
+
+#  manyScratch -- THE REFUSAL ARM, which no ladder rung reaches. rung5 exercises
+#  the SUCCESS path only; the two no-site/no-min refusals and the site-but-no-min
+#  case exist nowhere else. minionA flagged this as owed and it is cheap.
+#  ⚠ SITE-BUT-NO-MIN IS THE ROW THAT EARNS IT: a single combined guard could not
+#  produce it, so it is what says the two guards are genuinely separate.
+$B incant/manyScratch > "$T/ms.o" 2> "$T/ms.e"; check "manyScratch runs" 0 $?
+sentinel "manyScratch sentinel (no truncation)" "$T/ms.o" "MS SENTINEL"
+diffcheck "manyScratch.target (kant emitMany: emission + both refusals)" \
+          genLadder/manyScratch.target "$T/ms.e"
+
 #  rStuff audit -- PRESENCE-based, and count-PINNED on the tree.divergence pattern.
 #
 #  PRESENCE: the instrument this replaces was getRStuff's "no rStuff - creating"

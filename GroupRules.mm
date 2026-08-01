@@ -2324,56 +2324,18 @@ char 		*piece = 0;
 	return leaf;
 }
 
-/*******************************************************************************
-    emitLeaf — one PLAN node -> one leaf expression string.
-
-    Everything here is about the TARGET and nothing about the rule: which
-    support function spells a decision the walk already made, and how a literal
-    is quoted. The walk decided LIT vs LITTO ("does this attach a label"); this
-    decides that a LITTO inside a SEQ is spelled litTo. The same plan handed to
-    a kant emitter produces different text and the same decisions — which is the
-    whole reason the seam exists.
-
-    NOTE, latent: litTo has no implementation in the support library. Never
-    fires on the ladder (every Scaf/ScafA/ScafB term is noLabel). Flagged rather
-    than silently carried.
-*******************************************************************************/
-/*******************************************************************************
-    emitMany — the repetition helper, one per repeated term (§3.3).
-
-    THIS IS WHERE INVARIANT R′ LIVES, and both clauses are properties of the
-    emitted loop rather than promises made about it:
-
-      MARK  — `from` is captured ONCE, at helper entry, and the rewind on a
-              short run goes back to THERE. The interpretive path cannot do
-              this: checkInput() reassigns hereAt at the top of every iteration
-              (RuleStuff.twk:125) and the rewind targets hereAt
-              (GroupItem.twk:1101), so after N passes it points at the start of
-              pass N. A min >= 2 term that matches once then fails strands the
-              first match. The generated loop is correct for every min/max.
-
-      LABEL — each pass calls parseR, which goes through parse() and builds a
-              FRESH label. Nothing here reads or writes fLAG, so parse()'s
-              `isGROUP && max > 1` recycling handshake (writer GroupItem.twk:1087,
-              reader RuleStuff.twk:141-144) is simply absent. R′ says do not
-              invent one.
-
-    A failing pass rewinds ITSELF (Invariant R in the callee's leaveRule), so
-    the helper never has to unwind a partial pass — it only has to give back
-    the whole run when the count is short. R and R′ compose; neither duplicates
-    the other.
-
-    min is baked as a literal. max is NOT bounded, matching the hand-written
-    manyJSONblockFields/manyJSONlistItems: every repeated term in the census is
-    unbounded (sentinel 268435457), so a bound would be dead code emitted at
-    every site. Revisit when a finite max first appears — the plan carries what
-    is needed.
-*******************************************************************************/
 extern "C" int emitMany(GroupItem *node)
 {
+GroupItem 	*manier = ::locateManier();
 GroupItem 	*site = node->getAttribute("site");
 GroupItem 	*low = node->getAttribute("min");
 char 		*name = 0;
+	/*  THE FORK. Absent a kant emitMany this is the function it always was, so
+	every existing target holds with or without incant/genMany present —
+	which is emitLeaf's proven shape and the reason the C++ body is not
+	deleted during a conversion round.  */
+	if ( manier )
+		return ::manyKant(manier,node);
 	if ( !site || !low )
 		{
 		::fprintf(stderr,"emitMany: MANY node has no site/min\n");
@@ -4762,6 +4724,76 @@ PLGset 		*fieldSet = new PLGset("^ \n\r\t");
 }
 
 /*******************************************************************************
+    emitLeaf — one PLAN node -> one leaf expression string.
+
+    Everything here is about the TARGET and nothing about the rule: which
+    support function spells a decision the walk already made, and how a literal
+    is quoted. The walk decided LIT vs LITTO ("does this attach a label"); this
+    decides that a LITTO inside a SEQ is spelled litTo. The same plan handed to
+    a kant emitter produces different text and the same decisions — which is the
+    whole reason the seam exists.
+
+    NOTE, latent: litTo has no implementation in the support library. Never
+    fires on the ladder (every Scaf/ScafA/ScafB term is noLabel). Flagged rather
+    than silently carried.
+*******************************************************************************/
+/*******************************************************************************
+    emitMany — the repetition helper, one per repeated term (§3.3).
+
+    THIS IS WHERE INVARIANT R′ LIVES, and both clauses are properties of the
+    emitted loop rather than promises made about it:
+
+      MARK  — `from` is captured ONCE, at helper entry, and the rewind on a
+              short run goes back to THERE. The interpretive path cannot do
+              this: checkInput() reassigns hereAt at the top of every iteration
+              (RuleStuff.twk:125) and the rewind targets hereAt
+              (GroupItem.twk:1101), so after N passes it points at the start of
+              pass N. A min >= 2 term that matches once then fails strands the
+              first match. The generated loop is correct for every min/max.
+
+      LABEL — each pass calls parseR, which goes through parse() and builds a
+              FRESH label. Nothing here reads or writes fLAG, so parse()'s
+              `isGROUP && max > 1` recycling handshake (writer GroupItem.twk:1087,
+              reader RuleStuff.twk:141-144) is simply absent. R′ says do not
+              invent one.
+
+    A failing pass rewinds ITSELF (Invariant R in the callee's leaveRule), so
+    the helper never has to unwind a partial pass — it only has to give back
+    the whole run when the count is short. R and R′ compose; neither duplicates
+    the other.
+
+    min is baked as a literal. max is NOT bounded, matching the hand-written
+    manyJSONblockFields/manyJSONlistItems: every repeated term in the census is
+    unbounded (sentinel 268435457), so a bound would be dead code emitted at
+    every site. Revisit when a finite max first appears — the plan carries what
+    is needed.
+*******************************************************************************/
+/*******************************************************************************
+    locateManier — is there a KANT emitMany on the search list?
+
+    Mirrors locateSpeller exactly, one registry over. ⚠ THE SEPARATE REGISTRY IS
+    THE POINT and it was minionA's call, improving on the foreman's note. Sharing
+    `Spellers` would mean any fixture putting it on its search list turns on the
+    kant spellLeaf TOO — so genScratch could not adopt a kant emitMany without
+    switching every rung's leaf spelling in the same commit. Two registries, two
+    independent switches, two independent pins.
+*******************************************************************************/
+extern "C" GroupItem *locateManier()
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*registri = 0;
+GroupItem 	*hit = 0;
+	while ( registri = ruler->searchList->next(registri) )
+		if ( ::compare(registri->groupBody->tag,"Maniers") == 0 )
+			{
+			hit = registri->get("spellMany");
+			if ( hit )
+				return hit;
+			}
+	return 0;
+}
+
+/*******************************************************************************
     genParse.rtn — the parse-method emitter (genParseSpec §4).
 
     C++ prototype ("C++ first, kant second" — Tony 2026-07-27). genParse takes a
@@ -4960,6 +4992,48 @@ GroupItem 	*grup = new GroupItem(strung);
 	grup->setText((char*)0);
 	grup->groupBody->flags.isInitialized = 1;
 	return grup;
+}
+
+/*******************************************************************************
+    manyKant — call the kant emitMany and read its answer.
+
+    ⚠ THE ANSWER IS TEXT, NOT A POINTER, AND THAT IS FORCED (CLAIM KANT-32). A
+    kant action cannot return NULL across runAction (KANT-B1), and getText()
+    falls back to the node's TAG when there is no data — so "empty" and "named"
+    are indistinguishable and a null-test would read a refusal as a success.
+    Testing for the literal "1" instead makes ANYTHING ELSE a refusal, including
+    a kant body that failed to parse. That is the safe direction: a broken kant
+    emitter degrades to the C++ one rather than silently emitting nothing.
+
+    NOTHING RIDES IN ON THE NODE, unlike spellKant's `sink`. The MANY node already
+    carries `site` and `min`, so no attribute is stamped — which also means the
+    census cannot move underneath this.
+*******************************************************************************/
+extern "C" int manyKant(GroupItem *manier, GroupItem *node)
+{
+GroupItem 	*result = ::runAction(node,manier);
+	if ( !result )
+		return 0;
+	if ( ::compare(result->getText(),"1") == 0 )
+		return 1;
+	return 0;
+}
+
+/*******************************************************************************
+    manyMode — WHICH implementation is live, and it is the acceptance test.
+
+    Same argument as spellMode one registry over: emitMany's fork is SILENT by
+    design, so a round that never registered its action would be just as green as
+    one that did, and the POP could not tell them apart. This prints the answer
+    and pop.sh pins it. It reads `c++` until the kant emitMany is on the search
+    list and `kant` afterwards; whoever flips it accounts for the flip.
+*******************************************************************************/
+extern "C" GroupItem *manyMode(GroupItem *argument)
+{
+	if ( ::locateManier() )
+		::fprintf(stderr,"MANIER kant\n");
+	else	::fprintf(stderr,"MANIER c++\n");
+	return GroupControl::groupController->groupRules->trueResult;
 }
 
 /*******************************************************************************

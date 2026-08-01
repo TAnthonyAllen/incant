@@ -663,11 +663,78 @@ String      piece;
     every site. Revisit when a finite max first appears — the plan carries what
     is needed.
 *******************************************************************************/
+/*******************************************************************************
+    locateManier — is there a KANT emitMany on the search list?
+
+    Mirrors locateSpeller exactly, one registry over. ⚠ THE SEPARATE REGISTRY IS
+    THE POINT and it was minionA's call, improving on the foreman's note. Sharing
+    `Spellers` would mean any fixture putting it on its search list turns on the
+    kant spellLeaf TOO — so genScratch could not adopt a kant emitMany without
+    switching every rung's leaf spelling in the same commit. Two registries, two
+    independent switches, two independent pins.
+*******************************************************************************/
+extern GroupItem locateManier()
+{
+GroupRules  ruler = groupRules;
+GroupItem   registri;
+GroupItem   hit;
+    while registri = searchList.next(registri)
+        if registri.tag eq "Maniers" {
+            hit = registri["spellMany"];
+            if hit  return hit; }
+    return null;
+}
+
+/*******************************************************************************
+    manyKant — call the kant emitMany and read its answer.
+
+    ⚠ THE ANSWER IS TEXT, NOT A POINTER, AND THAT IS FORCED (CLAIM KANT-32). A
+    kant action cannot return NULL across runAction (KANT-B1), and getText()
+    falls back to the node's TAG when there is no data — so "empty" and "named"
+    are indistinguishable and a null-test would read a refusal as a success.
+    Testing for the literal "1" instead makes ANYTHING ELSE a refusal, including
+    a kant body that failed to parse. That is the safe direction: a broken kant
+    emitter degrades to the C++ one rather than silently emitting nothing.
+
+    NOTHING RIDES IN ON THE NODE, unlike spellKant's `sink`. The MANY node already
+    carries `site` and `min`, so no attribute is stamped — which also means the
+    census cannot move underneath this.
+*******************************************************************************/
+extern int manyKant(GroupItem manier, GroupItem node)
+{
+GroupItem   result = runAction(node,manier);
+    if !result              return 0;
+    if result.text eq "1"   return 1;
+    return 0;
+}
+
+/*******************************************************************************
+    manyMode — WHICH implementation is live, and it is the acceptance test.
+
+    Same argument as spellMode one registry over: emitMany's fork is SILENT by
+    design, so a round that never registered its action would be just as green as
+    one that did, and the POP could not tell them apart. This prints the answer
+    and pop.sh pins it. It reads `c++` until the kant emitMany is on the search
+    list and `kant` afterwards; whoever flips it accounts for the flip.
+*******************************************************************************/
+extern GroupItem manyMode(GroupItem argument)
+{
+    if locateManier()   cerr "MANIER kant":;
+    else                cerr "MANIER c++":;
+    return trueResult;
+}
+
 extern int emitMany(GroupItem node)
 {
+GroupItem   manier = locateManier();
 GroupItem   site = node.getAttribute("site");
 GroupItem   low  = node.getAttribute("min");
 String      name;
+    /*  THE FORK. Absent a kant emitMany this is the function it always was, so
+        every existing target holds with or without incant/genMany present —
+        which is emitLeaf's proven shape and the reason the C++ body is not
+        deleted during a conversion round.  */
+    if manier   return manyKant(manier,node);
     if !site || !low {
         cerr "emitMany: MANY node has no site/min":;
         return 0; }

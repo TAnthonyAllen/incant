@@ -1,0 +1,15 @@
+extern int manyScafC1(GroupItem label, GroupItem term)
+{
+GroupRules  ruler = groupRules;
+String      from = atRuleMark;
+int         kount;
+    while parseR(term,label)    kount++;
+    if kount >= 1   return true;
+    atRuleMark = from;
+    return false;
+}
+emitMany: MANY node has no site/min
+emitMany: MANY node has no site/min
+MANY ANSWER=1
+MANY ANSWER=0
+MANY ANSWER=0

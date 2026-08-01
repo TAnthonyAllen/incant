@@ -22,6 +22,26 @@ registry(cOMMANDs);
 define traceParse immediateAction=traceParse; ;
 registry(cOMMANDs);
 define demoRprime immediateAction=demoRprime; ;
+registry(cOMMANDs);
+define manyMode immediateAction=manyMode; ;
+
+/*  THE KANT emitMany (minionA round 2). emitMany's fork routes here instead of
+    running its own body once `spellMany` is on the search list, and manyMode's
+    line below is what says which of the two actually ran -- both produce the
+    same bytes, so a silent fork cannot be told apart.
+
+    THE fILEs ENTRY IS NOT OPTIONAL: `include(name)` resolves through the fILEs
+    registry, not the filesystem, and an unregistered name is looked up relative
+    to the current directory and exits 2. Registered here rather than in
+    incant/setup deliberately -- this is the fixture's dependency, not the
+    language's.
+
+    ⚠ REGISTRY `Maniers`, NOT `Spellers`, and that separation is load-bearing:
+    sharing one registry would mean this file could not adopt a kant emitMany
+    without switching every rung's LEAF spelling to kant in the same commit.  */
+registry(fILEs);
+define genMany File='incant/genMany'; ;
+include(genMany);
 
 /*  Scaffold rules inlined (include-path resolution for a brand-new file in
     incant/ is unreliable; inline sidesteps it). Simplest-first per Clay's
@@ -54,7 +74,12 @@ define
     ScafALT parseTerms=2 parseMethod=parseScafALT;
     ScafOUT isRule "("- ScafALT ")"- parseTerms=3 parseMethod=parseScafOUT;
     ;
-search reset stack Grokking Ladder list;
+search reset stack Grokking Maniers Ladder list;
+
+/*  Called BEFORE the first genParse on purpose: rung12.target starts at the
+    first emitted line, so the mode line is asserted separately and cannot move
+    the target.  */
+manyMode('');
 
 /*  --- rungs 1-2 TEXT-EMIT POP (diff vs genLadder/rung12.target) --- */
 genParse('Scaf');
