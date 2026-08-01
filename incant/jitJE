@@ -1,0 +1,54 @@
+/*****************************************************************************
+    jitJE -- `if` WITH NO ELSE ARM. The shape no rung had.
+
+    J2 covers if/else. NOTHING covered a bare `if cond; body;`, and that gap hid
+    a dominance violation for as long as the emitter has existed: jitIfElse moves
+    the insert point into elseBB while gJitResult still holds THE THEN ARM'S
+    value, so with no else to overwrite it the commit landed a then-block value
+    inside the else block --
+        else:  store i32 %sub, ptr %result      ; %sub is defined in `then`
+    llvm::verifyFunction refused the function outright, so this was never a wrong
+    ANSWER; it was a REFUSAL TO RUN. Found 2026-08-01 while probing recursion.
+
+    ⚠ THE INJECTIVITY HERE IS ABOUT THE BRANCH, not just the value. Fire 1 takes
+    the then arm, fire 2 must NOT -- and the two answers must differ, or a
+    constant would satisfy both. jeIn 5 -> then runs -> jeOut 50; jeIn 0 -> then
+    skipped -> jeOut keeps the value the statement BEFORE the if put there (7),
+    which is also the assertion that an absent else contributes NO value rather
+    than a zero or a stale one.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitLadder);
+define
+    jeIn;
+    jeOut;
+    jitJE code={ jeOut = 7; if jeIn > 1; jeOut = jeIn * 10; };
+    ;
+
+jeIn  = 5;
+jeOut = 0;
+print "JE fire 1 setup : jeIn =" jeIn:;
+testing(jitJE);
+print "JE fire 1 result: jeOut =" jeOut " (want 50 -- then arm taken)":;
+
+/*  ⚠ NO RECOMPILE. The condition flips, so fire 2 proves the BRANCH is decided
+    at run time and that the absent else leaves the slot alone.  */
+jeIn  = 0;
+jeOut = 0;
+print "JE fire 2 setup : jeIn =" jeIn " (recompile: NONE)":;
+jitRefire();
+print "JE fire 2 result: jeOut =" jeOut " (want 7 -- then arm SKIPPED)":;
+
+jeIn  = 5;
+jeOut = 0;
+jitJE();
+print "JE interpreted  : jeOut =" jeOut " (the oracle -- want 50)":;
+print "JE SENTINEL":;
+stop();

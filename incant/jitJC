@@ -1,0 +1,42 @@
+/*****************************************************************************
+    jitJC -- MEASUREMENT ONLY (2026-08-01). What does a jitted action calling
+    another kant action do TODAY, before jitEmitCall exists?
+
+    jit.md S1 says there is no jitEmitCall and names its seam as runOP's
+    isMethod/actionType branch. This asks the tree rather than the doc: fire
+    twice with the input changed and see whether the answer tracks it.
+
+        answer tracks input  -> the call runs at RUN TIME (something emits)
+        answer frozen        -> the callee ran ONCE at EMIT time and the
+                                compiled code carries a folded constant
+                                ("it appears to work and it lies")
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitLadder);
+define
+    jcIn;
+    jcOut;
+    jcTwice code={ jcOut = jcIn + jcIn; };
+    jitJC code={ jcTwice(); jcOut = jcOut + 1; };
+    ;
+
+jcIn  = 10;
+jcOut = 0;
+print "JC fire 1 setup : jcIn =" jcIn:;
+testing(jitJC);
+print "JC fire 1 result: jcOut =" jcOut " (want 21)":;
+
+jcIn  = 30;
+jcOut = 0;
+print "JC fire 2 setup : jcIn =" jcIn " (recompile: NONE)":;
+jitRefire();
+print "JC fire 2 result: jcOut =" jcOut " (want 61 if the call is REAL)":;
+print "JC SENTINEL":;
+stop();

@@ -3531,6 +3531,21 @@ GroupItem 	*result = ExpressioN;
 	ran. Must sit BEFORE jitIfElse/jitIfEnd, which move the insert point. */
 	::jitStoreResult();
 	::jitIfElse();
+	/*  ⚠ E1, ONE LEVEL DOWN, AND AN ABSENT ELSE IS WHY. jitIfElse has just moved
+	the insert point into elseBB, but gJitResult still holds THE THEN ARM'S
+	value -- so when there is no ElsE to overwrite it, the jitStoreResult
+	below commits a then-block value INSIDE the else block. That is a
+	dominance violation, and llvm::verifyFunction refuses the function:
+	else:  store i32 %sub, ptr %result     ; %sub is defined in `then`
+	Measured 2026-08-01 on a bare `if cond; body;` with no else -- a shape NO
+	LADDER RUNG HAD, because J2 uses if/else. Clearing here makes the store
+	below a no-op when the else arm emits nothing (jitStoreResult returns
+	early on a null gJitResult), which is the honest statement: an absent
+	else contributes NO value, so the slot correctly keeps whatever the
+	statement before the `if` put there.
+	Same rule as the clear at the foot of this function, applied per-arm
+	rather than per-statement: THE EMITTER THAT COMMITS OWNS THE CLEARING. */
+	 gJitResult = nullptr; 
 	if ( ElsE )
 		result = ElsE->groupBody->gMethod(ElsE);
 	::jitStoreResult();

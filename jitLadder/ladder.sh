@@ -313,6 +313,22 @@ else
     echo "  FAIL  J7 the two-leg calling story is not in the IR"; fail=1
 fi
 
+echo "-- JE  `if` WITH NO ELSE ARM -- the shape no rung had"
+#  J2 covers if/else. NOTHING covered a bare `if cond; body;`, and that gap hid a
+#  dominance violation for as long as the emitter has existed: with no else arm to
+#  overwrite it, gJitResult still held the THEN arm's value when the commit fired
+#  inside elseBB. verifyFunction REFUSED the function, so it was never a wrong
+#  answer -- it was a refusal to run, which is why no value target ever saw it.
+#  Fire 2 FLIPS THE CONDITION, so it proves the branch is decided at run time AND
+#  that an absent else leaves the result slot alone (7, not 0 and not 50).
+rung jitJE "JE SENTINEL" "JE" 50 7
+INCANT_JIT_DUMP=2 $B incant/jitJE > "$T/jitJE.ir" 2>&1
+if grep -qE "INVALID IR|does not dominate" "$T/jitJE.ir"; then
+    echo "  FAIL  JE emitted invalid IR (the absent-else dominance bug is back)"; fail=1
+else
+    echo "  ok    JE absent-else emits VALID IR (verifier silent)"
+fi
+
 echo "-- JF  THE FRAME MODEL, INCREMENT 1 -- STRUCTURE ONLY, NOT THE PROOF"
 #  ⚠⚠ THIS RUNG DOES NOT CERTIFY THE FRAME MODEL AND MUST NOT BE READ AS DOING
 #  SO. Without recursion, allocas-for-locals is BEHAVIOUR-NEUTRAL -- one
@@ -358,7 +374,7 @@ else
 fi
 
 echo ""
-if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 + JF structure-only)"
+if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE + JF structure-only)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"
 exit $fail
