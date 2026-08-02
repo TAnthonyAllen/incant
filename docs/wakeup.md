@@ -1,6 +1,186 @@
-# ⚠⚠ UPDATED 2026-08-01 — READ THE 08-01 SECTION FIRST. It is directly below this line.
-# Everything from `# ⚠⚠ UPDATED 2026-07-31` down is older vintage and still broadly accurate;
-# it is just no longer the top of the story. CLEAN STOP, fleet green, 22 commits.
+# ⚠⚠ UPDATED 2026-08-02 — READ THE 08-02 SECTION FIRST. It is directly below this line.
+# Everything from `# ⚠⚠ UPDATED 2026-08-01` down is older vintage and still broadly accurate;
+# it is just no longer the top of the story. CLEAN STOP, 8 commits, fleet 32 green / 1 parked.
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 2026-08-02 — THE DAY THE FLEET STARTED TELLING THE TRUTH. FOUR DEFECTS FIXED,
+#              ONE ENTIRE ARC BUILT AND THEN DELETED, AND THE INSTRUMENTS WON
+# ═══════════════════════════════════════════════════════════════════════════
+
+## IF YOU READ NOTHING ELSE — five things, in the order they will bite you
+
+**1. `tok sourceFile directivesFile` — THE DIRECTIVES FILE IS AN ARGUMENT.** A bare
+`tok GroupRules.twk` applies **ZERO** directives and says nothing about it: no warning, exit 0,
+and the injected code simply is not in the output. So a retok **silently strips every directive**
+unless the file is named on the command line. This cost a full bisect — the directives vanished,
+reverting `groupDirectives` did not bring them back, and the edit looked guilty because the edit
+was the only thing in the search space. **It was never the variable; the INVOCATION was.**
+
+**2. NAME IT BEFORE YOU USE IT.** A reference term resolves by *sharing the definer's child
+list*, so a name that does not exist yet mints an empty stub that **never becomes a reference**.
+Forward-declare then flesh out:
+```
+    JSONblock isRule;      <- two lines, and they retired an entire arc
+    JSONarray isRule;
+```
+Symptoms when you get it wrong are TWO and they look unrelated: genParse plans `LITTO` where it
+should plan `CALL`, and the *first* parse fails while a later identical one succeeds.
+
+**3. ⚠ AN INCANT ACCESSOR IS NOT A tok ACCESSOR, and the failure is displaced by three files.**
+`listLengtH` is incant; in a `.rtn` it produced bear-trap #10's exact signature — `Expected } or
+statement` / `FAIL Body3` / `Expected a semi-colon` — which **cascaded and wiped GroupRules.h's
+extern block to ZERO**, surfacing as `no member named 'opEQ'` in `Bytecode.mm`. tok exited 139.
+Use `groupList` / `contents()`. **The extern canary (`grep -c '^extern' GroupRules.h`) is what
+caught it** — check it after every retok.
+
+**4. A HANG IS USUALLY NOT A HANG.** Two separate impostors met today: the **Swift backtracer's
+interactive prompt** (`Press space to interact… (30s)`) makes a SIGSEGV look like an infinite
+loop — `SWIFT_BACKTRACE=enable=no` turns it back into an honest 139; and **copying a binary over
+the signed one gets it SIGKILLed** (137) by macOS, which reads as a timeout. Re-`codesign
+--force --sign -` after any swap.
+
+**5. rStuff IS BEAR COUNTRY (Tony, and he is right).** `parse()`'s first act is
+`getStuff(pStuff)`. Anything wired in beside it crashes in ways that do not name themselves —
+null `groupBody` in `addGroup`, via `parse → testAttributes → parse`, with **zero bytes of
+output**. If a change touches rStuff, expect the failure to arrive somewhere else entirely.
+
+## WHAT IS RUNNABLE — five POPs
+```
+sh genLadder/pop.sh          32 green / 1 parked   genParse ladder + baselines + iterators
+sh genLadder/printPop.sh      9 checks, exit 0     print family, fully green
+sh genLadder/tree.sh          exit 0               §2.4 divergence unchanged (OPEN, not broken)
+sh genLadder/containerPop.sh 11 checks, exit 0     NEW — testContainer + Buffer::shorten
+sh jitLadder/ladder.sh       76 checks, exit 0     J1..J7, JE, JF, JP, JPd + J-R
+```
+⚠ **`pop.sh` reports FAILED on 2 reds that are DELIBERATELY UNPINNED** — see "TWO REDS" below.
+Everything else is green. The parked count is down from 4 to 1.
+
+## THE FOUR FIXES
+
+**`testContainer` — LONGEST-ENTRY MATCH.** The greedy scan over the container's *character set*
+is an UPPER BOUND, never the answer: set membership can say "this character could belong to some
+entry", never "is this prefix an entry", because a set has no notion of where an entry ends. Any
+container holding both a symbol and a word poisons the symbol with the word's letters. `Operators`
+holds `negate` and `modedOP`, so `n e g a t m o d` are all in its set and **`9 -grup` scanned
+`-g`** — an entry of nothing — taking the enclosing statement's parse with it, silently, at exit 0.
+Now the buffer backs off one character at a time (`Buffer::shorten`, new, mark-unaware on purpose)
+until it IS an entry or is empty. **Same disease class as the ShortcuT `+`-merge that sank `,`:
+set-based character grouping making token decisions. Two specimens; the class has a name if a
+third surfaces.**
+
+**Forward references — and the fix is grammar, not machinery.** See item 2 above. jsonTest went
+11 ok / 2 FAIL → **13 ok / 0 FAIL**, and its baseline is byte-identical again.
+
+**Iterator refusal — announced once, poisoned, and the advance is the only reader.** A refused
+`iterate` returned 0 *before* setting `isIterator`, so `while ++grup` missed `opPlusPlus`'s
+iterator arm and fell through to the **DATA** arm — `if !data count = 1;` returns the node, which
+is truthy, **so the loop could never end**. Now `aCTionIterate` announces once at the door and
+sets `fLAG`; `++`/`--` gate on it before any advance work; the `while` is untouched.
+**THE RESET LIVES ON `aCTionIterate`'s SUCCESS PATH** and nowhere else — the poison means "the
+LAST iterate on this node was refused", so a fresh successful iterate is exactly what clears it,
+and re-running the Iterate rule is now the only way to change a source. `iterT1m` went from HANG
+to exit 0. Uses the existing `fLAG`, so **no layout change** — no `groups.ext`, no `tokall`.
+
+**Diagnostic trace off stdout.** Three POP targets were broken by an *instrument*:
+`printFamily.target` diffed `0a1,288` and `printFamilyNew.divergence` `0a1,292` — lines
+**prepended**, zero content divergence. Cause: directive hooks tracing with `cout`, which is never
+divertible. All 47 sinks in `groupDirectives` are `cerr` now (not just the 3 live ones — the other
+44 are landmines for whoever flips a `ctive` to `active`), and the `.mm` are retok'd without
+directives at Tony's word.
+
+## ⚠ THE ARC THAT WAS BUILT AND THEN DELETED, and why that is a good outcome
+
+A whole deferred-repair mechanism — `finalizeRegistry`, `finalizeRegistries`, `finalizeIfDirty`,
+`registriesDirty`, `markRegistriesDirty`, a dirty flag, a `currentDefine` gate, two reader entries
+— was built, made to work on the census half, and then **deleted in favour of two lines of
+grammar**. Trail: `3957233 / 713d45f / 8bb989e`, superseded by `c8d38f6`.
+
+**Read this before rebuilding any of it.** The arc was not wasted: it produced the measurement
+that made the two-line fix findable (`incant/termScratch` showing three sibling options of ONE
+alternation split by nothing but declaration order). But **the deletion was licensed by a probe,
+not by optimism** — the census was re-run with the sweep disabled and still read `CALL`, because
+*"the fix works"* and *"the old machinery is redundant"* are different claims and only the second
+justifies a deletion.
+
+**Three hypotheses died in that arc, each on one measurement, and the pattern is the lesson:**
+- *"identity — the readers see different nodes"* → pointer probes: **same GroupItem, same
+  GroupBody, both readers.** Killed.
+- *"the write does not stick"* → probe right after the assignment: `kids=1`. **It stuck.** Killed.
+- *"the hook site is wrong, find a better one"* → true but unfixable, because **input lifetime and
+  define lifetime are independent**. popInput was too late (only the 10 base registries exist at
+  include-pop); pushInput crashed. That is the same fact from both ends.
+
+## TWO REDS LEFT, BOTH DELIBERATELY UNPINNED — pinning either would freeze a real defect
+- **`census.target`** — the diff is now ONLY Tony's `MemberS ':'- MEMBERs- Mlist=DefinE+;`
+  rewrite, but **genParse now REFUSES to plan MemberS**. The grammar change is deliberate; the
+  planner losing a rule is a capability regression. **Those two want separating before either is
+  pinned.** Tony's signature.
+- **`oneTest baseline`** — the audit movement plus **`generateCode failed`: the whole bytecode
+  emit is gone.** `generatE` (`incant/generate:233`) sits one indent deep — a MEMBER — and is
+  reached by bare lookup, which the new members gate no longer serves. **That is the bare-lookup
+  sweep's first fix, not a re-pin.**
+
+## NEXT, in order
+1. **The bare-lookup sweep**, gXpress first. Grep the tree for every site that locates a
+   member-depth name by bare lookup and fix the population in ONE pass — the gate's blast radius
+   becomes a counted list instead of a series of ambushes. `oneTest baseline` goes green with it.
+2. **The census signature** (or the separation above).
+3. **`checkSkip` capture — LOWER-LEVEL SCAN, NOT A CALLBACK** (Tony's ruling). One skip/consume
+   primitive that understands quoted strings and comments, with BOTH `checkSkip` and `aCTionCodE`
+   routing through it. A callback bolted onto `checkSkip` leaves `aCTionCodE` to grow its own
+   quote-awareness later — two implementations in one subsystem. **This retires `CLAIM KANT-40`
+   by construction**: an action containing a comment containing `}` survives capture and runs.
+   C++ now, kant at self-hosting.
+4. **Timed green pass → per-block POPCAP budgets** at measured-time × margin. The 90s default is a
+   courtesy allowance, not a target.
+
+## TONY'S OFFLINE WORK THAT LANDED TODAY (his words, kept because they explain the fleet)
+- **Iterators finished.** They filter on attributes or members, triggered by whether the iterator
+  `isAttribute` or `isMember`. **Resetting an iterator is REMOVED from `:=`** — to change a source,
+  run the Iterate rule again. All the unused `iterWhatever` methods were removed rather than
+  updated for changes not worth making.
+- **The attribute-pollution fix**: `aCTionDefinE` did not gate on member processing.
+  `aCTionNewGroup()` sets `currentDefine`; `processFlags()` gets a `MEMBERs` toggle from the
+  `MemberS` rule setting an `addingMembers` flag that `aCTionDefinE` gates on. So
+  `MemberS ':'- MEMBERs- Mlist=DefinE+;`. **Note the consequence, and it is load-bearing: if
+  `currentRegistry.isRule` members get added to it; if not they are NOT added to the
+  currentRegistry and so are not found by `locate()`.** That is what `generateCode failed` is
+  downstream of.
+- Still open, his: mutual recursion loses locals (`iterT1m` pins the wrong answer at 14 lines
+  where 7 is correct) · `iterT3`, the last parked fixture.
+
+## DOCTRINE ADDED TODAY
+**RULE H5 — A FIXTURE MUST NOT BE ABLE TO DELETE THE REST OF THE SUITE.** `iterT1m` began to hang,
+so `pop.sh` never reached its summary, its exit status, or the eleven checks below the iterator
+block. Those checks did not fail and did not pass — **they ceased to exist**, and the operator
+sees a terminal that is merely quiet. Worse than the missing-sentinel case, because there is no
+output to be suspicious of. **And the fixture that did it was a PARKED one**: parking bounds a
+VERDICT, and it never contemplated a fixture bounding nothing at all by never returning. So every
+fixture runs under a wall-clock cap, and **a timeout fails the suite even when parked** — a hang
+is not a wrong answer, it is the absence of a run, and nobody parked that.
+
+**A PARKED PIN THAT STARTS PASSING MUST GRADUATE.** `WOKE` fired twice today and both fixtures
+came off the list. Parking means *"the answer has not been chosen"*; once it is chosen the item is
+either a full check (`iterT1`, whose original target held byte for byte) or a deliberately pinned
+known defect (`iterT1m`, the `tree.divergence` pattern) — **never still parked**. A pin that
+silently begins to hold is how a parked item becomes a forgotten one.
+
+**A RE-PIN NEEDS A SENTENCE, NOT A GREEN DIFF.** Both of today's "probably fine, just re-pin it"
+candidates came back **regression** on one grep each. The audit's `15 → 12` was signed only once
+the three vanished terms were *named* (`JSONtoken[1] JSONblock`, `JSONvalue[1] JSONblock`,
+`JSONvalue[2] JSONarray`) and explained. **Without that discipline both breakages would have been
+frozen into the baselines as truth.**
+
+**PRIOR ART BEATS SPECULATION.** The forward-reference fix was two lines that a worn path already
+sanctioned, reached after a day of armchair analysis about fill-in-place and cycle depth. Tony's
+call — *"act like it won't until it do"* — was right, and the experiment answered in under a
+minute. **When a question is measurement-shaped, measuring is cheaper than deciding it is safe to
+measure.**
+
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ⚠⚠ UPDATED 2026-08-01 — the 08-01 section follows. Older vintage from here down,
+# still broadly accurate, just no longer the top of the story.
 
 # ═══════════════════════════════════════════════════════════════════════════
 # 2026-08-01 — THE LONGEST DAY IN THE RECORD. J-R WENT GREEN, THE CONVERSION

@@ -424,6 +424,38 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 > two empty files. **A vacuity guard is H4's other half:** an assertion that compares nothing to
 > nothing is an absence check wearing a diff's clothes.
 >
+> **RULE H5 — A FIXTURE MUST NOT BE ABLE TO DELETE THE REST OF THE SUITE.** Adopted
+> 2026-08-02. `incant/iterT1m` began to HANG rather than return, so `pop.sh` never reached its
+> summary line, its exit status, or the eleven checks below the iterator block. Those checks did
+> not fail and did not pass — **they ceased to exist**, and the operator sees a terminal that is
+> merely quiet. That is worse than the missing-`sentinel` case above, because there is no output
+> at all to be suspicious of.
+>
+> ⚠ **AND THE FIXTURE THAT DID IT WAS A PARKED ONE.** Parking was built so a fixture whose answer
+> is not yet chosen cannot fail the suite, and it does that perfectly. It never contemplated a
+> parked fixture taking the suite hostage by never returning. The containment was real but one
+> dimension short: **it bounded the VERDICT and not the RUN.** So every fixture runs under a
+> wall-clock cap (`POPCAP`, default 90s), and **a timeout fails the suite even when parked** — a
+> hang is not a wrong answer, it is the absence of a run, and nobody parked that. `timeout(1)` is
+> not on macOS; `pop.sh` uses sleep-and-kill and maps 137 to 124. A timeout is reported by name
+> and NEVER as a diff, because a killed process yields truncated output and a truncation diff
+> names the wrong row.
+>
+> **RULE H6 — A PARKED PIN THAT STARTS PASSING MUST GRADUATE.** Adopted 2026-08-02, after `WOKE`
+> fired twice in one day. Parking means *"the answer this would be measured against has not been
+> chosen"*. Once it is chosen the item becomes either a full check (`iterT1`, whose original
+> target held byte for byte under the new semantics) or a deliberately pinned known defect
+> (`iterT1m`, the `tree.divergence` pattern) — **never still parked**. A pin that silently begins
+> to hold is how a parked item becomes a forgotten one, which is the failure the `WOKE` alarm
+> exists to prevent; leaving it parked after the alarm defeats the alarm.
+>
+> **A RE-PIN NEEDS A SENTENCE, NOT A GREEN DIFF.** Adopted 2026-08-02, and it paid its bill the
+> day it was written: BOTH of that day's "probably fine, just re-pin it" candidates came back
+> **regression** on one grep each. A target that moved is a claim that the world changed, and the
+> claim needs a cause. The audit's `15 → 12` was signed only once the three vanished terms were
+> *named* and explained. Without the discipline, two live breakages would have been frozen into
+> the baselines as truth.
+>
 > ⚠ **IN A DEMOLITION ARC, THE RECON IS HOW YOU LEARN WHAT THE CONDEMNED CODE KNOWS.**
 > Adopted 2026-07-31. When a component is scheduled for deletion and its replacement designed,
 > **read it before deleting it** — not for sentiment, but because the condemned code is often
@@ -827,6 +859,30 @@ Hard-won lessons. Each one has cost real debugging time.
     destroys the last copy of something unaudited to save nothing. Generalises past git — see
     bear-trap #19's corollary: a matching label is not a verified identity, and the asymmetry
     between "cheap check" and "irreversible action" decides how much proof you need.
+
+23. **`tok sourceFile directivesFile` — THE DIRECTIVES FILE IS AN ARGUMENT, and a bare `tok
+    File.twk` SILENTLY APPLIES ZERO DIRECTIVES.** No warning, exit 0, and the injected code simply
+    is not in the generated `.mm`. So any retok **strips every directive** unless the file is named
+    on the command line — `tok GroupRules.twk groupDirectives`. Found 2026-08-02 the expensive way:
+    the directives vanished after a retok, reverting `groupDirectives` did NOT bring them back, and
+    the edit looked guilty because the edit was the only thing that had changed *in the space being
+    searched*. Bear-trap #19's corollary exactly, except the file the narrowing never looked at was
+    the **command line**. Symptom to recognise: generated code that used to contain directive-
+    injected statements now contains none, with a clean tok exit. (Related: `tokall` is a shell
+    function whose body is `for item in *.twk; do tok $item; done` — see #10's correction — so it
+    passes no directives file either.)
+
+24. **AN INCANT ACCESSOR IS NOT A tok ACCESSOR, and the failure surfaces three files away.**
+    Writing `field.listLengtH` (the incant spelling) in a `.rtn` produces bear-trap #10's exact
+    signature — `Expected } or statement` / `FAIL Body3 at: …` / `Expected a semi-colon` — which
+    **cascades and wipes the ENTIRE extern block from the regenerated `GroupRules.h`** (0 externs),
+    so the build fails in `Bytecode.mm` with `no member named 'opEQ'` and nothing points at the
+    real line. tok exits **139**. In tok source use `groupList` (the raw field, which is what
+    `nextGroup` itself tests) or `contents()`. Generalises #10 from *GroupBody-flag/extern sync* to
+    **any tok-vs-incant accessor confusion in a `.rtn`**, and the detector is the same either way:
+    **`grep -c '^extern' GroupRules.h` after every retok.** A sudden drop to 0 is this. Same family
+    as the three-languages-share-the-tree note — before editing, confirm which language the line is.
+    (2026-08-02.)
 
 22. **AN ACTION MUST NEVER DESTRUCTIVELY MUTATE ITS OWN PARSE-TREE NODES. Action bodies are
     parsed ONCE into a cached BlocK and then RE-EXECUTED — so anything an action does to the
