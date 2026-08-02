@@ -85,6 +85,7 @@ GroupItem *GroupMain::bootstrapper()
 GroupItem 	*dStuff = 0;
 GroupItem 	*item = 0;
 GroupItem 	*stuff = 0;
+GroupItem 	*member = 0;
 GroupItem 	*strap = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	bootCommands(ruler->commands);
@@ -93,6 +94,11 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	ruler->ruleSkipSet->setCharacterSet(ruler->skipSet);
 	ruler->properties->addMember(ruler->ruleSkipSet);
 	ruler->currentRegistry = grok;
+	member = new GroupItem("MEMBERs");
+	member->setMethod(::processFlags);
+	member->groupBody->flags.methodType = 2;
+	member->groupBody->flags.instructType = 1;
+	member->groupBody->flags.guarding = 2;
 	/**************************************************************************
 	Define the setupFILE declared in GroupRules. It gets loaded at the
 	end of this bootstrapper method.
@@ -300,6 +306,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	item = strap->addAttribute(item);
 	::modify(item,"?");
 	strap = grok->addString("NewGroup");
+	strap->setMethod(::aCTionNewGroup);
+	strap->groupBody->flags.methodType = 1;
 	strap->setRuleStuff();
 	strap->setGroup(grok->getMember("TraiT"));
 	strap = grok->addString("Attributes");
@@ -310,6 +318,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	strap = grok->addString("MemberS");
 	strap->setRuleStuff();
 	item = strap->addString(":");
+	::modify(item,"-");
+	item = strap->addAttribute(member);
 	::modify(item,"-");
 	item = strap->addAttribute(stuff);
 	::modify(item,"+");

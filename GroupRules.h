@@ -12,6 +12,7 @@ class GroupRules
 public:
 char *atRuleMark;
 RuleStuff *ruleSTUFF;
+GroupItem *currentDefine;
 GroupItem *currentMETHOD;
 GroupItem *currentRegistry;
 GroupItem *debugJunk;
@@ -102,6 +103,7 @@ extern "C" GroupItem *aCTionFailed(GroupItem *input);
 extern "C" GroupItem *aCTionIF(GroupItem *input);
 extern "C" GroupItem *aCTionIterate(GroupItem *input);
 extern "C" GroupItem *aCTionNamE(GroupItem *input);
+extern "C" GroupItem *aCTionNewGroup(GroupItem *field);
 extern "C" GroupItem *aCTionNumbeR(GroupItem *input);
 extern "C" GroupItem *aCTionParens(GroupItem *input);
 extern "C" GroupItem *aCTionPrinT(GroupItem *input);
@@ -161,10 +163,6 @@ extern "C" GroupItem *guard(GroupItem *item);
 extern "C" GroupItem *interpretBC(GroupItem *argument);
 extern "C" GroupItem *interpretMethod(GroupItem *input);
 extern "C" GroupItem *interpretXP(GroupItem *xpList);
-extern "C" GroupItem *iterAdvance(GroupItem *iter, int forward);
-extern "C" GroupItem *iterBind(GroupItem *iter, GroupItem *container);
-extern "C" int iterFilterOK(GroupItem *iter, GroupItem *node);
-extern "C" int iterSpins(GroupItem *iter, int reset);
 extern "C" int jitDegrade(char *what, GroupItem *node);
 extern "C" void jitDoBegin();
 extern "C" void jitDoCond();

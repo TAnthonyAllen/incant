@@ -23,6 +23,7 @@ struct bools
 	unsigned int isBranch:2;
 	unsigned int isSorted:2;
 	unsigned int methodType:2;
+	unsigned int addingMembers:1;
 	unsigned int altered:1;
 	unsigned int byRef:1;
 	unsigned int debugged:1;
@@ -49,8 +50,6 @@ struct bools
 	unsigned int isVirtual:1;
 	unsigned int isWindow:1;
 	unsigned int isXP:1;
-	unsigned int iterateOnAttributes:1;
-	unsigned int iterateOnMembers:1;
 	unsigned int mergeOn:1;
 	unsigned int negate:1;
 	unsigned int recursive:1;
