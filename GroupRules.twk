@@ -258,7 +258,7 @@ use sourceFILE
             parse in progress. All the real work lands at include-end.  */
         if !inputSTAK.length {
             inputDiverted = false;
-            finalizeRegistries(); }
+            finalizeIfDirty(); }
         }
     else    inputDiverted = false;
     return;

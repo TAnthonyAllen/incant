@@ -192,10 +192,13 @@ use NewGroup
             affiliation = 0;
             parent      = null; }
         if currentRegistry {
-            if registry != currentRegistry     NewGroup = currentRegistry += NewGroup;
             if currentRegistry.isRule {
+                NewGroup = currentRegistry += NewGroup;
                 if !binType     isRule = true;
-                if !rStuff      rStuff = new(NewGroup); }}}
+                if !rStuff      rStuff = new(NewGroup); }
+            or registry != currentRegistry
+                if currentDefine == NewGroup ||  !currentDefine || !currentDefine.addingMembers
+                    NewGroup = currentRegistry += NewGroup; }}
         if !isRule  rStuff = 0;
        /***********************************************************************
             Process Attributes.
@@ -294,9 +297,16 @@ use NewGroup
         the NewGroup is a rule and zero if it is not
         materialiseTerms(NewGroup);
     ***********************************************************************/
-    input.clear();
+    input.clearList();
+    /*  Any define can mint an unresolved forward reference, so any define
+        marks the world dirty. The sweep itself runs at the next reader entry
+        (finalizeIfDirty), not here -- warming after every single define would
+        be correct and quadratic.  */
+    markRegistriesDirty();
     isInitialized   = true;
-    if NewGroup.registry && !NewGroup.parent    NewGroup.parent = currentRegistry;
+    if registry && !parent  parent = currentRegistry;
+    if addingMembers        addingMembers = false;
+    if currentDefine && currentDefine.groupBody == NewGroup.groupBody    currentDefine = null;
     input.group     = NewGroup;
     return input;
 }
@@ -587,12 +597,16 @@ GroupItem   iterator = input[1];
 GroupItem   source = input[2];
     while iterator.isGROUP  iterator = iterator.group;
     while isGROUP           source = group;
-    iterator.isIterator     = true;
     // here iterator gets a copy of the source groupList
     if iterator && source && groupList  iterator.groupList = groupList;
-    // attributes and members flagged here but not used yet
-    if attributes   iterator.iterateOnAttributes = true;
-    if members      iterator.iterateOnMembers = true;
+    else {
+        cerr "aCTionIterate: source " tag " has no list":;
+        return 0; }
+    // attributes and members filter overloaded on iterator affiliation
+    if attributes   iterator.isAttribute = true;
+    or members      iterator.isMember = true;
+    else            iterator.affiliation = 0;
+    iterator.isIterator     = true;
     return  iterator;
 }
 
@@ -631,6 +645,18 @@ String      arg = input.text;
     if !result  result = grup;
     input.group = result;
     return input;
+}
+
+/*******************************************************************************
+	The NewGroup action just sets the currentDefine field in GroupRules so
+    that the MEMBERs case in processFlags can find it to set its addingMembers flag
+*******************************************************************************/
+extern GroupItem aCTionNewGroup(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+GroupItem   grup = group;
+    if !currentRegistry.isRule && !currentDefine    currentDefine = grup;
+    return field;
 }
 
 /*******************************************************************************
@@ -962,10 +988,6 @@ use input
 }
 
 /*******************************************************************************
-	Immediate method for the StringXP rule.
-        StringXP    ","- stuff=PrintXP+ defer;
-*******************************************************************************/
-/*******************************************************************************
 	appendPrintXP -- THE ONE PrintXP WALK. Added 2026-08-01 (Tony's call) when
     the arrival of `cerr` and `cout` made it the FOURTH copy of the same loop.
 
@@ -1001,6 +1023,10 @@ GroupItem   grup;
         else            appendGroup(grup,FormaT,buffer); }
 }
 
+/*******************************************************************************
+	Immediate method for the StringXP rule.
+        StringXP    ","- stuff=PrintXP+ defer;
+*******************************************************************************/
 extern GroupItem aCTionStringXP(GroupItem input)
 {
 GroupItem   stuff:;

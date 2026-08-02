@@ -506,6 +506,11 @@ GroupItem 	*item = 0;
 	materialiseTerms(NewGroup);
 	***********************************************************************/
 	input->clearList();
+	/*  Any define can mint an unresolved forward reference, so any define
+	marks the world dirty. The sweep itself runs at the next reader entry
+	(finalizeIfDirty), not here -- warming after every single define would
+	be correct and quadratic.  */
+	::markRegistriesDirty();
 	NewGroup->groupBody->flags.isInitialized = 1;
 	if ( NewGroup->groupBody->registry && !NewGroup->parent )
 		NewGroup->parent = ruler->currentRegistry;
@@ -2522,6 +2527,16 @@ char 	*name = input->getText();
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
+extern "C" int finalizeIfDirty()
+{
+int 	warmed = 0;
+	if ( !::registriesDirty(-1) )
+		return 0;
+	::registriesDirty(0);
+	warmed = finalizeRegistries();
+	return warmed;
+}
+
 /*****************************************************************************
     finalizeRegistries -- the sweep over every registry. Cheap after the first
     pass because finalizeRegistry is idempotent, so calling it at more close
@@ -2531,8 +2546,17 @@ extern "C" int finalizeRegistries()
 {
 GroupItem 	*registry = 0;
 int 		warmed = 0;
+	/*  ⚠ THE PHASE CAN FIRE MID-BOOTSTRAP, because pushInput is a reader entry
+	and the bootstrapper diverts input while the registries are still being
+	built. A registry with no list yet is not an error here, it is simply
+	not ready -- walking one produces `nextGroup: ERROR <tag> does not
+	contain a list` and then a segfault. Guarded at BOTH levels: the
+	registry list itself and each registry.  */
+	if ( !GroupControl::groupController->groupRules->registries || !GroupControl::groupController->groupRules->registries->groupBody->groupList )
+		return 0;
 	while ( registry = GroupControl::groupController->groupRules->registries->next(registry) )
-		warmed += ::finalizeRegistry(registry);
+		if ( registry->groupBody->groupList )
+			warmed += ::finalizeRegistry(registry);
 	return warmed;
 }
 
@@ -2599,7 +2623,7 @@ int 		i = 0;
 int 		warmed = 0;
 	while ( entry = registry->next(entry) )
 		{
-		if ( !entry->groupBody->flags.isRule )
+		if ( !entry->groupBody->flags.isRule || !entry->groupBody->groupList )
 			continue;
 		i = 1;
 		while ( term = entry->get(i) )
@@ -5031,6 +5055,11 @@ int 		kount = 0;
 	return 0;
 }
 
+extern "C" void markRegistriesDirty()
+{
+	::registriesDirty(1);
+}
+
 /***************************************************************************
 	window attribute handler. A form field carries `window` as an attribute;
     this fires at parent-define time (fLAG set) and marks the parent form
@@ -6668,6 +6697,12 @@ RuleStuff 	*stuff = 0;
 extern "C" GroupItem *planRule(GroupItem *rule)
 {
 GroupItem 	*plan = 0;
+	/*  READER ENTRY. The census classifies without ever parsing, so it cannot
+	inherit warming from a parse -- it has to trigger the phase itself or
+	it reports on an unwarmed world, which is exactly the lie that ruled
+	out lazy retry-at-parse. Flagged, so this costs one test after the
+	first call.  */
+	::finalizeIfDirty();
 GroupItem 	*term = 0;
 GroupItem 	*node = 0;
 GroupItem 	*lab = 0;
@@ -7309,6 +7344,41 @@ char 		*name = item->groupBody->flags.data ? item->getText() : (char*)0;
 		ruler->currentRegistry = argument->groupBody->registry;
 		}
 	return ruler->trueResult;
+}
+
+/*****************************************************************************
+    markRegistriesDirty / finalizeIfDirty -- the PHASE, and the flag is what
+    makes it a phase rather than a retry.
+
+    ⚠ THE FIRST HOOK WAS RIGHT IN MECHANISM AND WRONG IN TIME, and the
+    measurement is worth keeping because the wrong diagnosis was expensive:
+    hooked at popInput-when-the-divert-stack-empties, the sweep warmed the
+    correct terms and the write STUCK (probed: `tbody now=<definer body>
+    kids=1` immediately after assignment), yet nothing moved. Pointer probes at
+    both readers then showed the census and the sweep reading the SAME
+    GroupItem and the SAME GroupBody -- identity was never the problem. The
+    census simply ran FIRST. At include-pop only the 10 base registries exist;
+    the user registries arrive later, so the one sweep that could warm anything
+    fired after the reader that needed it.
+
+    So the close signal cannot come from the INPUT stack -- a registry's
+    lifetime is not a file's lifetime. It comes from the DEFINES: any define
+    can mint an unresolved forward reference, so any define marks the world
+    dirty, and the phase runs at the next reader entry. The flag is what keeps
+    this a single global phase and not per-reference lazy retry: one sweep
+    clears everything, so a reader never sees a partially warmed world and the
+    census cannot lie by simply never parsing.
+
+    The flag is a FUNCTION-LOCAL static behind one accessor, not a GroupRules
+    field (which would be a bitfield layout change, bear-trap #10, for one bit
+    of scheduling state) and not a file-scope global (which retok clobbers,
+    bear-trap #6). registriesDirty(-1) reads, registriesDirty(0|1) writes.
+*****************************************************************************/
+extern "C" int registriesDirty(int set)
+{
+	 static int dirty = 1;
+	if (set >= 0) dirty = set;
+	return dirty; 
 }
 
 /*****************************************************************************
@@ -8389,7 +8459,7 @@ void GroupRules::popInput()
 		if ( !inputSTAK->length )
 			{
 			inputDiverted = 0;
-			finalizeRegistries();
+			finalizeIfDirty();
 			}
 		}
 	else	inputDiverted = 0;

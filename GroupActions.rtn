@@ -402,7 +402,7 @@ GroupItem   definer;
 int         i;
 int         warmed = 0;
     while entry = registry.next(entry) {
-        if !entry.isRule    continue;
+        if !entry.isRule || !entry.groupList    continue;
         i = 1;
         while term = entry[i] {
             /*  An unresolved reference is a term that names a rule and owns
@@ -420,6 +420,55 @@ int         warmed = 0;
 }
 
 /*****************************************************************************
+    markRegistriesDirty / finalizeIfDirty -- the PHASE, and the flag is what
+    makes it a phase rather than a retry.
+
+    ⚠ THE FIRST HOOK WAS RIGHT IN MECHANISM AND WRONG IN TIME, and the
+    measurement is worth keeping because the wrong diagnosis was expensive:
+    hooked at popInput-when-the-divert-stack-empties, the sweep warmed the
+    correct terms and the write STUCK (probed: `tbody now=<definer body>
+    kids=1` immediately after assignment), yet nothing moved. Pointer probes at
+    both readers then showed the census and the sweep reading the SAME
+    GroupItem and the SAME GroupBody -- identity was never the problem. The
+    census simply ran FIRST. At include-pop only the 10 base registries exist;
+    the user registries arrive later, so the one sweep that could warm anything
+    fired after the reader that needed it.
+
+    So the close signal cannot come from the INPUT stack -- a registry's
+    lifetime is not a file's lifetime. It comes from the DEFINES: any define
+    can mint an unresolved forward reference, so any define marks the world
+    dirty, and the phase runs at the next reader entry. The flag is what keeps
+    this a single global phase and not per-reference lazy retry: one sweep
+    clears everything, so a reader never sees a partially warmed world and the
+    census cannot lie by simply never parsing.
+
+    The flag is a FUNCTION-LOCAL static behind one accessor, not a GroupRules
+    field (which would be a bitfield layout change, bear-trap #10, for one bit
+    of scheduling state) and not a file-scope global (which retok clobbers,
+    bear-trap #6). registriesDirty(-1) reads, registriesDirty(0|1) writes.
+*****************************************************************************/
+extern int registriesDirty(int set)
+{
+    -% static int dirty = 1;
+       if (set >= 0) dirty = set;
+       return dirty; %-
+}
+
+extern void markRegistriesDirty()
+{
+    registriesDirty(1);
+}
+
+extern int finalizeIfDirty()
+{
+int     warmed = 0;
+    if !registriesDirty(-1)     return 0;
+    registriesDirty(0);
+    warmed = finalizeRegistries();
+    return warmed;
+}
+
+/*****************************************************************************
     finalizeRegistries -- the sweep over every registry. Cheap after the first
     pass because finalizeRegistry is idempotent, so calling it at more close
     points than strictly necessary costs a walk and never a wrong answer.
@@ -428,8 +477,16 @@ extern int finalizeRegistries()
 {
 GroupItem   registry;
 int         warmed = 0;
+    /*  ⚠ THE PHASE CAN FIRE MID-BOOTSTRAP, because pushInput is a reader entry
+        and the bootstrapper diverts input while the registries are still being
+        built. A registry with no list yet is not an error here, it is simply
+        not ready -- walking one produces `nextGroup: ERROR <tag> does not
+        contain a list` and then a segfault. Guarded at BOTH levels: the
+        registry list itself and each registry.  */
+    if !registries || !registries.groupList   return 0;
     while registry = registries.next(registry)
-        warmed += finalizeRegistry(registry);
+        if registry.groupList
+            warmed += finalizeRegistry(registry);
     return warmed;
 }
 

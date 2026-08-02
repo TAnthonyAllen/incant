@@ -485,6 +485,12 @@ int         labelled = 0;
 extern GroupItem planRule(GroupItem rule)
 {
 GroupItem   plan;
+    /*  READER ENTRY. The census classifies without ever parsing, so it cannot
+        inherit warming from a parse -- it has to trigger the phase itself or
+        it reports on an unwarmed world, which is exactly the lie that ruled
+        out lazy retry-at-parse. Flagged, so this costs one test after the
+        first call.  */
+    finalizeIfDirty();
 GroupItem   term;
 GroupItem   node;
 GroupItem   lab;
