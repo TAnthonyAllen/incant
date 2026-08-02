@@ -506,11 +506,6 @@ GroupItem 	*item = 0;
 	materialiseTerms(NewGroup);
 	***********************************************************************/
 	input->clearList();
-	/*  Any define can mint an unresolved forward reference, so any define
-	marks the world dirty. The sweep itself runs at the next reader entry
-	(finalizeIfDirty), not here -- warming after every single define would
-	be correct and quadratic.  */
-	::markRegistriesDirty();
 	NewGroup->groupBody->flags.isInitialized = 1;
 	if ( NewGroup->groupBody->registry && !NewGroup->parent )
 		NewGroup->parent = ruler->currentRegistry;
@@ -2525,151 +2520,6 @@ char 	*name = input->getText();
 		else	::fprintf(stderr,"FAIL: no fail method argument provided\n");
 	else	::fprintf(stderr,"FAIL: should be a rule attribute\n");
 	return GroupControl::groupController->groupRules->trueResult;
-}
-
-extern "C" int finalizeIfDirty()
-{
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-int 		warmed = 0;
-	if ( !::registriesDirty(-1) )
-		return 0;
-	/*  ⚠ THE GUARD IS A CONDITION, NOT A LOCATION (Tony's ruling, 2026-08-02),
-	and it is what makes the crash UNCONSTRUCTABLE rather than avoided. A
-	sweep that runs while a define is still open relinks a stub that is
-	mid-fill: SIGSEGV in addGroup via parse -> testAttributes -> parse,
-	with zero bytes of output. Hunting for a hook site that cannot fire
-	mid-define is hopeless, because input lifetime and define lifetime are
-	INDEPENDENT -- the same fact that made the popInput hook too late, seen
-	from the other end.
-	
-	THREE BITS, because currentDefine alone is NOT enough: the bootstrapper
-	builds its rules in C++ and never goes through aCTionDefinE, so
-	currentDefine is null in exactly the window that crashes. `defining`
-	and `processingCode` are the parser's own state and cover it.
-	
-	⚠ AND IT DOES NOT CLEAR THE FLAG WHEN IT DEFERS -- clearing on a
-	deferral would turn "not yet" into "never", which is a silent skip
-	wearing a guard's clothes.  */
-	if ( ruler->currentDefine )
-		return 0;
-	if ( ruler->defining )
-		return 0;
-	if ( ruler->processingCode )
-		return 0;
-	::registriesDirty(0);
-	warmed = ::finalizeRegistries();
-	return warmed;
-}
-
-/*****************************************************************************
-    finalizeRegistries -- the sweep over every registry. Cheap after the first
-    pass because finalizeRegistry is idempotent, so calling it at more close
-    points than strictly necessary costs a walk and never a wrong answer.
-*****************************************************************************/
-extern "C" int finalizeRegistries()
-{
-GroupItem 	*registry = 0;
-int 		warmed = 0;
-	/*  ⚠ THE PHASE CAN FIRE MID-BOOTSTRAP, because pushInput is a reader entry
-	and the bootstrapper diverts input while the registries are still being
-	built. A registry with no list yet is not an error here, it is simply
-	not ready -- walking one produces `nextGroup: ERROR <tag> does not
-	contain a list` and then a segfault. Guarded at BOTH levels: the
-	registry list itself and each registry.  */
-	if ( !GroupControl::groupController->groupRules->registries || !GroupControl::groupController->groupRules->registries->groupBody->groupList )
-		return 0;
-	while ( registry = GroupControl::groupController->groupRules->registries->next(registry) )
-		if ( registry->groupBody->groupList )
-			warmed += ::finalizeRegistry(registry);
-	return warmed;
-}
-
-/*****************************************************************************
-    finalizeRegistry -- SECOND-PHASE REFERENCE RESOLUTION (Tony's design ruling,
-    2026-08-02). Defines register names as they load; THIS warms every rule
-    reference once the registry has finished loading, before anything
-    classifies or parses it.
-
-    THE PRINCIPLE, and it is bigger than this function: DECLARATION ORDER MUST
-    NOT BE LOAD-BEARING IN A GRAMMAR. Mutual recursion is the normal case --
-    JSON cannot be written without JSONvalue referencing rules declared below
-    it -- so a resolution that only works backwards is not a limitation, it is
-    a defect. The general form: define-time computation may not depend on
-    anything that has not finished loading; work that needs the whole registry
-    runs at registry close.
-
-    WHAT WAS MEASURED (incant/termScratch, and it is the cleanest specimen this
-    tree has produced). Three sibling options of ONE alternation, JSONvalue,
-    distinguished by nothing but where their definitions sit in the file:
-
-        [1] JSONblock   ROW default lit/litTo      <- declared BELOW, unresolved
-        [2] JSONarray   ROW default lit/litTo      <- declared BELOW, unresolved
-        [3] JSONtoken   REFERENCE -> JSONtoken     <- declared ABOVE, resolved
-
-    Two symptoms, one cause. Statically, genParse classified [1] and [2] as
-    LITTO instead of CALL, because definingRule() resolves a reference by the
-    term SHARING the definer's child list and an unwarmed forward reference has
-    no children -- get(1) is null, so it routes back to itself. At run time
-    jsonTest's first two rows FAILED on arrays. The proof that the steady state
-    is reachable and only the TIMING is wrong: jsonTest runs the identical
-    strings twice, and rows 28-29 come back ok. Same input, same run, opposite
-    verdict.
-
-    WHY WARM-AT-CLOSE RATHER THAN RETRY-AT-PARSE: a lazy retry would fix
-    jsonTest and leave the census lying, because the census never parses
-    anything. Warming at close makes the census, the first parse and the
-    hundredth see the same world -- and a first-use-only bug is then not
-    avoided but UNCONSTRUCTABLE, since there is no unwarmed state left to use
-    first.
-
-    THE REPAIR IS THE COPY CONSTRUCTOR'S, BY POINTER. GroupItem(GroupItem) is
-    `groupBody = grup.groupBody` -- a reference term is a BODY ALIAS. Every
-    field that must NOT be shared lives on GroupItem itself and is untouched
-    here: parent, nextInParent, priorInParent, affiliation and rStuff. That is
-    exactly why addGroup can do `new(group)` and then set isMember on the copy
-    without corrupting the definer, and it is what makes this safe.
-
-    IDEMPOTENT BY CONSTRUCTION, which is what lets it run at every close: a
-    warmed term HAS children, so it fails the get(1) guard and is skipped
-    forever after. Re-opening a registry to extend it therefore costs one
-    no-op sweep, not a re-link.
-
-    ⚠ IT REPORTS ITS COUNT AND NEVER ITS SILENCE (rule H4). The count is
-    returned and printed by the caller unconditionally, so "nothing needed
-    warming" and "the sweep was deleted" are different observations.
-*****************************************************************************/
-extern "C" int finalizeRegistry(GroupItem *registry)
-{
-GroupItem 	*entry = 0;
-GroupItem 	*term = 0;
-GroupItem 	*definer = 0;
-int 		i = 0;
-int 		warmed = 0;
-	while ( entry = registry->next(entry) )
-		{
-		if ( !entry->groupBody->flags.isRule || !entry->groupBody->groupList )
-			continue;
-		i = 1;
-		while ( term = entry->get(i) )
-			{
-			/*  An unresolved reference is a term that names a rule and owns
-			nothing: no children (so definingRule() routes back to itself)
-			and no data of its own (a literal or character term is not a
-			reference and must not be relinked).  */
-			if ( term->groupBody->flags.isRule && !term->get(1) && !term->groupBody->flags.data )
-				{
-				definer = registry->getFromList(term->groupBody->tag);
-				if ( definer && definer != term && definer->groupBody->flags.isRule && definer->get(1) )
-					{
-					term->groupBody = definer->groupBody;
-					term->options.isCopy = 1;
-					warmed++;
-					}
-				}
-			i++;
-			}
-		}
-	return warmed;
 }
 
 /***************************************************************************
@@ -5079,11 +4929,6 @@ int 		kount = 0;
 	return 0;
 }
 
-extern "C" void markRegistriesDirty()
-{
-	::registriesDirty(1);
-}
-
 /***************************************************************************
 	window attribute handler. A form field carries `window` as an attribute;
     this fires at parent-define time (fLAG set) and marks the parent form
@@ -6721,12 +6566,6 @@ RuleStuff 	*stuff = 0;
 extern "C" GroupItem *planRule(GroupItem *rule)
 {
 GroupItem 	*plan = 0;
-	/*  READER ENTRY. The census classifies without ever parsing, so it cannot
-	inherit warming from a parse -- it has to trigger the phase itself or
-	it reports on an unwarmed world, which is exactly the lie that ruled
-	out lazy retry-at-parse. Flagged, so this costs one test after the
-	first call.  */
-	::finalizeIfDirty();
 GroupItem 	*term = 0;
 GroupItem 	*node = 0;
 GroupItem 	*lab = 0;
@@ -7368,41 +7207,6 @@ char 		*name = item->groupBody->flags.data ? item->getText() : (char*)0;
 		ruler->currentRegistry = argument->groupBody->registry;
 		}
 	return ruler->trueResult;
-}
-
-/*****************************************************************************
-    markRegistriesDirty / finalizeIfDirty -- the PHASE, and the flag is what
-    makes it a phase rather than a retry.
-
-    ⚠ THE FIRST HOOK WAS RIGHT IN MECHANISM AND WRONG IN TIME, and the
-    measurement is worth keeping because the wrong diagnosis was expensive:
-    hooked at popInput-when-the-divert-stack-empties, the sweep warmed the
-    correct terms and the write STUCK (probed: `tbody now=<definer body>
-    kids=1` immediately after assignment), yet nothing moved. Pointer probes at
-    both readers then showed the census and the sweep reading the SAME
-    GroupItem and the SAME GroupBody -- identity was never the problem. The
-    census simply ran FIRST. At include-pop only the 10 base registries exist;
-    the user registries arrive later, so the one sweep that could warm anything
-    fired after the reader that needed it.
-
-    So the close signal cannot come from the INPUT stack -- a registry's
-    lifetime is not a file's lifetime. It comes from the DEFINES: any define
-    can mint an unresolved forward reference, so any define marks the world
-    dirty, and the phase runs at the next reader entry. The flag is what keeps
-    this a single global phase and not per-reference lazy retry: one sweep
-    clears everything, so a reader never sees a partially warmed world and the
-    census cannot lie by simply never parsing.
-
-    The flag is a FUNCTION-LOCAL static behind one accessor, not a GroupRules
-    field (which would be a bitfield layout change, bear-trap #10, for one bit
-    of scheduling state) and not a file-scope global (which retok clobbers,
-    bear-trap #6). registriesDirty(-1) reads, registriesDirty(0|1) writes.
-*****************************************************************************/
-extern "C" int registriesDirty(int set)
-{
-	 static int dirty = 0;
-	if (set >= 0) dirty = set;
-	return dirty; 
 }
 
 /*****************************************************************************

@@ -298,11 +298,6 @@ use NewGroup
         materialiseTerms(NewGroup);
     ***********************************************************************/
     input.clearList();
-    /*  Any define can mint an unresolved forward reference, so any define
-        marks the world dirty. The sweep itself runs at the next reader entry
-        (finalizeIfDirty), not here -- warming after every single define would
-        be correct and quadratic.  */
-    markRegistriesDirty();
     isInitialized   = true;
     if registry && !parent  parent = currentRegistry;
     if addingMembers        addingMembers = false;

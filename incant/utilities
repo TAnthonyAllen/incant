@@ -45,6 +45,14 @@ define
         incant purposes but look strange on print out since they print as
         numbers 1 and 0 and not the names true and false.
     ***************************************************************************/
+    /*  FORWARD DECLARATIONS (2026-08-02). JSONtoken and JSONvalue reference
+        JSONblock and JSONarray, which are defined BELOW them -- and a reference
+        term resolves by sharing the definer's child list, so a name that does
+        not exist yet mints an empty stub that never becomes a reference.
+        Naming them first, then fleshing them out below, is the trodden path.  */
+    JSONblock isRule;
+    JSONarray isRule;
+
     JSONtoken isRule
         JSONblock;
         "false";
