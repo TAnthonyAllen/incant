@@ -292,7 +292,14 @@ diffcheck "manyScratch.target (kant emitMany: emission + both refusals)" \
 #                          whole-tree blast radius, and aCTionDefinE's
 #                          `if !isRule rStuff = 0;` is MASKING it -- known-masked,
 #                          not accepted.
-AUDITLINE="AUDIT all registries: 4 missing rules, 15 missing terms, 4 loose"
+#  RE-PINNED 15 -> 12 (2026-08-02), and the three that vanished are named
+#  because a moved number with no sentence is just a number: JSONtoken[1]
+#  JSONblock, JSONvalue[1] JSONblock and JSONvalue[2] JSONarray. All three were
+#  `isRule term, no rStuff` -- forward references that had minted empty stubs.
+#  Naming JSONblock and JSONarray before JSONtoken/JSONvalue reference them
+#  turned all three into real references, which is why they are no longer
+#  missing. Explanation plus measurement, not just a green diff.
+AUDITLINE="AUDIT all registries: 4 missing rules, 12 missing terms, 4 loose"
 if grep -qF "$AUDITLINE" "$T/one"; then
     echo "  ok    rStuff audit (present, populations unchanged)"; green=$((green+1))
 else
@@ -340,7 +347,18 @@ iterrun () {                    # iterrun <fixture> <target> <label>  -- PARKED
 #  T1 -- SAME ACTION RECURSING, with cursors that genuinely coexist. trunk's
 #  cursor must sit untouched while walk(leafA) runs its own loop to completion
 #  and then RESUME at leafB. Any sharing breaks the ORDER, not just the count.
-iterrun iterT1 genLadder/iterT1.target "iterT1 (per-frame locals, deep)"
+#  ⚠ iterT1 IS NO LONGER PARKED (2026-08-02). It fired WOKE -- the parked-pin
+#  alarm -- once Tony's iterator work landed, and its ORIGINAL target matches
+#  byte for byte under the new semantics. That is the alarm doing exactly what
+#  it was built for, so the pin graduates to a full check rather than sitting in
+#  the parked list being quietly right. A parked item that starts passing and is
+#  left parked is how a parked item becomes a forgotten one.
+iterrunLIVE () {                # iterrunLIVE <fixture> <target> <label>  -- NOT parked
+    run2 "$1" "$T/$1.o" "$T/$1.e"; check "$3 exit 0" 0 $?
+    grep -vE "^Search list:|^stop:|^$" "$T/$1.o" > "$T/$1.f"
+    diffcheck "$3" "$2" "$T/$1.f"
+}
+iterrunLIVE iterT1 genLadder/iterT1.target "iterT1 (per-frame locals, deep)"
 
 #  T3 -- rewind, and := as the only reset. Fresh and exhausted are the same
 #  state deliberately, and emitPlan's two passes depend on it. `resetSame` is
@@ -354,7 +372,29 @@ iterrun iterT3 genLadder/iterT3.target "iterT3 (rewind, := reset)"
 #  target below is therefore the WRONG ANSWER (4 lines, not 7), asserted
 #  UNCHANGED. Fix the inference and this goes RED -- account for the move, and
 #  the 7-line trace T1m's own header documents is what it should become.
-iterrun iterT1m genLadder/iterT1m.divergence "iterT1m (mutual recursion: KNOWN WRONG, pinned)"
+#  ⚠ ALSO NO LONGER PARKED (2026-08-02), and for a different reason from iterT1.
+#  Parking means "the answer this would be measured against has not been chosen
+#  yet". Tony has now chosen it: a refused source is announced once and
+#  poisoned. So the REFUSAL half is settled and pinned exactly. What remains
+#  wrong -- mutual recursion losing locals, so the walk is 14 lines where 7 is
+#  correct -- is a KNOWN DEFECT deliberately pinned, which is a diffcheck with a
+#  comment (the tree.divergence pattern), not a parked item. Fix the recursion
+#  and this goes RED naming itself, which is the point.
+iterrunLIVE iterT1m genLadder/iterT1m.divergence "iterT1m (mutual recursion: KNOWN WRONG, pinned)"
+#  ⚠ THE REFUSAL IS ASSERTED BY COUNT, NOT BY ABSENCE OF A HANG (rule H4).
+#  Before 2026-08-02 this fixture did not fail -- it HUNG, at 1,475,745 refusals,
+#  because a refused `iterate` returned before setting isIterator, so `while
+#  ++grup` missed opPlusPlus's iterator arm and fell through to the DATA arm,
+#  which returns a truthy node forever. A refused source is now announced once
+#  and POISONED, and the advance is the poison's only reader.
+#  Seven refusals, one per leaf visit. Asserting the NUMBER rather than "it
+#  finished" means the check breaks if the announcement is deleted, if the
+#  poison stops taking, OR if mutual recursion silently starts working -- the
+#  same WOKE property the parked diff above carries, on the other half of the
+#  fixture's meaning.
+n=$(grep -c "aCTionIterate: source" "$T/iterT1m.e")
+if [ "$n" = 7 ]; then echo "  ok    iterT1m announces its refusal 7 times (once per leaf)"; green=$((green+1))
+else echo "  FAIL  iterT1m refusal count is $n, want 7 -- the poison or the announcement moved"; fail=1; fi
 
 #  BRANCH SEMANTICS -- language-level POPs, here for the same reason iterT1 is:
 #  they are the only cover for rules that were RATIFIED on 2026-07-31 and had no

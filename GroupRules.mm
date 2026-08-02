@@ -683,8 +683,33 @@ GroupItem 	*source = input->get(2);
 		source = source->getGroup();
 	// here iterator gets a copy of the source groupList
 	if ( iterator && source && source->groupBody->groupList )
+		{
 		iterator->groupBody->groupList = source->groupBody->groupList;
+		/*  THE RESET, and this is the only place it can live. The poison means
+		"the LAST iterate on this node was refused", so a fresh, successful
+		iterate is exactly what un-poisons it -- and under Tony's 2026-08-02
+		iterator design re-running the Iterate rule is the ONLY way to change
+		an iterator's source, so nothing can become live again behind this
+		line's back. Clearing anywhere else (at the advance, at action exit)
+		would either un-poison a still-refused iterator or leave a live one
+		poisoned.  */
+		iterator->groupBody->flags.fLAG = 0;
+		}
 	else {
+		/*  A REFUSED SOURCE IS ANNOUNCED ONCE AND POISONED (Tony's ruling,
+		2026-08-02). Announced HERE, at the door, not per advance -- the
+		advance is silent and merely refuses to move.
+		Without this, a refused iterate returned 0 BEFORE setting
+		isIterator, so `while ++grup` missed opPlusPlus's iterator arm
+		entirely and fell through to the DATA arm: `if !data count = 1;`
+		returns the node, which is truthy, so the loop never ends.
+		Measured on iterT1m before the fix: 1,475,745 refusals, each with a
+		DISTINCT source pointer and the iterator alternating leafA/leafB --
+		so it is genuine mutual recursion re-entering, not a retry loop
+		inside the rule machinery. That distinction was checked first
+		because the two want opposite fixes.  */
+		if ( iterator )
+			iterator->groupBody->flags.fLAG = 1;
 		::fprintf(stderr,"aCTionIterate: source %s has no list\n",source->groupBody->tag);
 		return 0;
 		}
@@ -5769,6 +5794,12 @@ GroupItem 	*result = 0;
 ***************************************************************************/
 extern "C" GroupItem *opMinusMinus(GroupItem *result)
 {
+	/*  POISONED ITERATOR (Tony's ruling, 2026-08-02). Its only reader is here.
+	The refusal was already announced once at the Iterate; this is silent
+	and simply does not move, so the enclosing `while` exits on the false
+	it already trusts -- the loop needed no change at all.  */
+	if ( result->groupBody->flags.fLAG )
+		return 0;
 	if ( result->groupBody->flags.isIterator )
 		{
 		/*******************************************************************
@@ -6112,6 +6143,12 @@ extern "C" GroupItem *opPlusEQ(GroupItem *argument, GroupItem *target)
 ***************************************************************************/
 extern "C" GroupItem *opPlusPlus(GroupItem *result)
 {
+	/*  POISONED ITERATOR (Tony's ruling, 2026-08-02). Its only reader is here.
+	The refusal was already announced once at the Iterate; this is silent
+	and simply does not move, so the enclosing `while` exits on the false
+	it already trusts -- the loop needed no change at all.  */
+	if ( result->groupBody->flags.fLAG )
+		return 0;
 	if ( result->groupBody->flags.isIterator )
 		{
 		//note: because result is an iterator it is not unwrapped in runOP()

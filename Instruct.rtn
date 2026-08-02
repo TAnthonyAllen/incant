@@ -460,163 +460,21 @@ use target
 }
 
 /***************************************************************************
-    iterFilterOK -- does this node pass the iterator's affiliation filter?
-    ONE implementer, so forward and backward cannot drift apart.
-***************************************************************************/
-extern int iterFilterOK(GroupItem iter, GroupItem node)
-{
-    if iter.iterateOnAttributes     return node.isAttribute;
-    if iter.iterateOnMembers        return node.isMember;
-    return 1;
-}
-
-/***************************************************************************
-    iterSpins -- THE RUNAWAY TRIPWIRE. It lives in a C++ static because it
-    CANNOT live on the node: corpus CLAIM KANT-4 -- gCount and gGroup share one
-    GroupBody union, so the first cut's `iter.gCount` counter overwrote the very
-    cursor it existed to protect, and the process died at EXIT=139 with stdout
-    buffered away. A STATIC NEEDS NO NODE STORAGE AT ALL.
-
-    A spin counter was never a language feature. It is a tripwire that converts
-    a HANG -- undiagnosable, and it stops a POP dead -- into a nonzero exit with
-    a line naming the iterator.
-
-    WHAT IT BOUNDS: advances SINCE THE LAST BIND, because `iterBind` resets it
-    and `iterBind` is the one implementer of every reset (`iterate` and `:=`
-    both route there). Every terminating walk keeps that under its own list
-    length, and every recursive frame re-arms it by running its own `iterate`.
-    A process-lifetime cap would be a landmine on a long run; this is not one.
-
-    IT EXITS NONZERO ON PURPOSE, and that is the correction of a real mistake:
-    the first cut printed and returned, and a printed TERMINATED was read as the
-    guard firing when the process had in fact died at 139. EXIT STATUS IS THE
-    CHECK (CLAUDE.md Testing). stderr, not stdout -- a hard exit loses a
-    block-buffered stdout (bear-trap #14).
-
-    Body is entirely passthrough: tok has no syntax for a static, and `iter`
-    arrives as a PARAMETER so nothing here can be pruned (bear-trap #13).
-***************************************************************************/
-extern int iterSpins(GroupItem iter, int reset)
-{
-    -%
-    static long     spins = 0;
-
-    if ( reset )                    { spins = 0;  return 0; }
-    if ( ++spins <= 100000 )        return 0;
-    ::fprintf(stderr,"iterate: RUNAWAY on %s -- %ld advances with no rebind. ABORTING.\n",
-              iter->groupBody->tag,spins);
-    ::fflush(stderr);
-    ::exit(3);
-    return 1;
-    %-
-}
-
-/***************************************************************************
-    iterBind -- THE ONE IMPLEMENTER of "point this iterator at that container
-    and rewind it". Both `iterate grup on X` (aCTionIterate) and `grup := X`
-    (opSetGroup) route here, so the two spellings cannot drift apart.
-
-    IT RESETS POSITION UNCONDITIONALLY -- SEQ 31: `:=` is the iterator's ONLY
-    reset, and it resets whether or not there was a value. The corpus claim that
-    goes with it: to re-walk the SAME source you rebind to it, so
-    `grup := argument;` READS LIKE A NO-OP AND IS NOT ONE.
-
-    It REUSES an existing `source` child rather than adding another, which is
-    what makes `iterate` idempotent as TODO.md requires -- "iterate makes it one
-    if it isn't, rebinds the source if it already is. Safe to repeat, safe in a
-    loop." The previous code new'd a source every time, so a second iterate on
-    the same field stacked a second attribute and getAttribute kept finding the
-    first.
-
-    The container is unwrapped HERE; the ITERATOR is not (see aCTionIterate's
-    handle gate). ANYtoken wraps multiple levels, hence the loop.
-***************************************************************************/
-extern GroupItem iterBind(GroupItem iter, GroupItem container)
-{
-GroupItem   source = iter.getAttribute("source");
-    while container.isGROUP     container = container.gGroup;
-    if !source {
-        source = new("source");
-        iter +% source; }
-    if container.groupList {
-        source.group    = container;
-        iter.isIterator = true;
-        iter.gGroup     = 0;
-        iter.isGROUP    = false; }
-    else cerr "iterBind: iterate source has no list":;
-    //iterSpins(iter,1);
-    return iter;
-}
-
-/***************************************************************************
-    iterAdvance -- the cursor step behind ++ and -- on an iterate field.
-
-    CURSOR, NOT QUEUE: neither direction mutates the source. Position lives in
-    the iterator's own group slot; the source container hangs off it as a
-    `source` attribute (aCTionIterate builds both).
-
-    EMPTINESS IS THE UNWRAP TEST, and it is one state test doing two jobs, so
-    there is no separate `fresh` flag: a position present means the iterator is
-    unwrapped and we step from it; a position absent means fresh-OR-exhausted
-    and we start from the end. next(null) already returns the first entry and
-    prior(null) already returns the last, so FRESH AND EXHAUSTED BEING THE SAME
-    STATE falls out of the existing accessors rather than being arranged.
-    Consequence, deliberate (Tony): run a loop to exhaustion and the next ++
-    rewinds to the start, so a loop that breaks early RESUMES.
-
-    THE FILTER FLAGS ARE APPLIED HERE, INSIDE THE ADVANCE, because next() is
-    unfiltered -- a flag stamped and not consumed is a flag ignored, which is
-    the quiet skip the walk's own doctrine forbids. Forward uses the oracle's
-    own nextAttribute/nextMember. Backward has NO filtered accessor to borrow
-    (prior() has no variants), so it steps and skips explicitly rather than
-    dropping the filter on the floor.
-
-    READS ARE QUALIFIED throughout -- iter.gGroup, source.gGroup, never a bare
-    `group`. The iterator carries `source` as a child, so a bare read is
-    ambiguous about which node it means (corpus CLAIM KANT-1).
-***************************************************************************/
-extern GroupItem iterAdvance(GroupItem iter, int forward)
-{
-GroupItem   source = iter.getAttribute("source");
-GroupItem   container;
-GroupItem   position;
-GroupItem   next;
-    if !source {
-        cerr "iterate: ++/-- on",iter.tag,"which has no source -- was `iterate` run on it?":;
-        return null; }
-    container = source.gGroup;
-    if !container {
-        cerr "iterate:",iter.tag,"source is empty":;
-        return null; }
-    /*  Deref HERE, at advance time, not at bind time. `iterate grup on argument`
-        binds to the argument NODE, and what that node points at is only known at
-        runtime -- bind early, deref late.  */
-    if container.isGROUP    container = container.gGroup;
-    /*  The tripwire goes HERE, past the guards, so it counts real advances and
-        not the terminating no-list returns. iterSpins never comes back on a
-        trip -- it exits 3.  */
-    iterSpins(iter,0);
-    position = iter.gGroup;
-    if forward
-        if iter.iterateOnAttributes     next = container.nextAttribute(position);
-        or iter.iterateOnMembers        next = container.nextMember(position);
-        or position                     next = position.nextInParent;
-        else                            next = container.firstInList;
-    else {
-        if position     next = position.priorInParent;
-        else            next = container.lastInList;
-        while next && !iterFilterOK(iter,next)   next = position.priorInParent; }
-    iter.group  = next;
-    return next;
-}
-
-/***************************************************************************
 	Rule action for -- operator
 ***************************************************************************/
 extern GroupItem opMinusMinus(GroupItem result)
 {
+    /*  POISONED ITERATOR (Tony's ruling, 2026-08-02). Its only reader is here.
+        The refusal was already announced once at the Iterate; this is silent
+        and simply does not move, so the enclosing `while` exits on the false
+        it already trusts -- the loop needed no change at all.  */
+    if result.fLAG      return 0;
     if isIterator {
-        //note: because result is an iterator it is not unwrapped in runOP()
+        /*******************************************************************
+            note: because result is an iterator it is not unwrapped in runOP()
+            also -- does not differentiate between members and attributes
+            because GroupItem does not offer priorMember() or priorAttribute().
+        *******************************************************************/
         GroupItem iterator;
         if !result.data     iterator = result.lastInList;
         else {
@@ -867,13 +725,18 @@ use target
 ***************************************************************************/
 extern GroupItem opPlusPlus(GroupItem result)
 {
+    /*  POISONED ITERATOR (Tony's ruling, 2026-08-02). Its only reader is here.
+        The refusal was already announced once at the Iterate; this is silent
+        and simply does not move, so the enclosing `while` exits on the false
+        it already trusts -- the loop needed no change at all.  */
+    if result.fLAG      return 0;
     if isIterator {
         //note: because result is an iterator it is not unwrapped in runOP()
-        GroupItem iterator;
-        if !result.data     iterator = result.firstInList;
-        else {
-            iterator    = result.group;
-            iterator    = nextInParent; }
+        GroupItem iterator = group;
+        if result.isAttribute   iterator = result.nextAttribute(iterator);
+        or result.isMember      iterator = result.nextMember(iterator);
+        or !iterator    iterator = result.firstInList;
+        else            iterator = nextInParent;
         lastREF.group   = iterator;
         result.group    = iterator;
         if !iterator    result = 0;
@@ -1056,13 +919,6 @@ GroupItem   grup,
 ***************************************************************************/
 extern GroupItem opSetGroup(GroupItem argument,GroupItem target)
 {
-    /*  := ON AN ITERATOR IS ITS ONLY RESET, and it resets position
-        UNCONDITIONALLY (SEQ 31). This arrives un-unwrapped because runOP exempts
-        isIterator from the target deref -- without that exemption := would
-        rebind the CURRENT ENTRY and leave the cursor untouched, failing
-        silently, which is why that gate was put on the operand rather than on
-        ++/--.  */
-    if target.isIterator    return iterBind(target,argument);
     if argument group = argument;
     return      target;
 }

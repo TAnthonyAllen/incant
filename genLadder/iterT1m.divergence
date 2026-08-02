@@ -1,4 +1,14 @@
 A  trunk trunk 
 B  leafA leafA 
 A  i i 
+B  leafB leafB 
 A  j j 
+B  leafA leafA 
+A  j j 
+B  leafB leafB 
+B  leafA leafA 
+B  leafB leafB 
+A  k k 
+A  l l 
+A  k k 
+A  l l 

@@ -593,8 +593,31 @@ GroupItem   source = input[2];
     while iterator.isGROUP  iterator = iterator.group;
     while isGROUP           source = group;
     // here iterator gets a copy of the source groupList
-    if iterator && source && groupList  iterator.groupList = groupList;
+    if iterator && source && groupList {
+        iterator.groupList  = groupList;
+        /*  THE RESET, and this is the only place it can live. The poison means
+            "the LAST iterate on this node was refused", so a fresh, successful
+            iterate is exactly what un-poisons it -- and under Tony's 2026-08-02
+            iterator design re-running the Iterate rule is the ONLY way to change
+            an iterator's source, so nothing can become live again behind this
+            line's back. Clearing anywhere else (at the advance, at action exit)
+            would either un-poison a still-refused iterator or leave a live one
+            poisoned.  */
+        iterator.fLAG       = false; }
     else {
+        /*  A REFUSED SOURCE IS ANNOUNCED ONCE AND POISONED (Tony's ruling,
+            2026-08-02). Announced HERE, at the door, not per advance -- the
+            advance is silent and merely refuses to move.
+            Without this, a refused iterate returned 0 BEFORE setting
+            isIterator, so `while ++grup` missed opPlusPlus's iterator arm
+            entirely and fell through to the DATA arm: `if !data count = 1;`
+            returns the node, which is truthy, so the loop never ends.
+            Measured on iterT1m before the fix: 1,475,745 refusals, each with a
+            DISTINCT source pointer and the iterator alternating leafA/leafB --
+            so it is genuine mutual recursion re-entering, not a retry loop
+            inside the rule machinery. That distinction was checked first
+            because the two want opposite fixes.  */
+        if iterator     iterator.fLAG = true;
         cerr "aCTionIterate: source " tag " has no list":;
         return 0; }
     // attributes and members filter overloaded on iterator affiliation
