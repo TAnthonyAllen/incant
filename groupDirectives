@@ -2,9 +2,9 @@
 /*******************************************************************************
 	Global
     if NewGroup.tag eq "Start" debugRuleNamed("RunRulE");
-    if NewGroup.tag eq "gUARD" debugAllRules = true;
+    if NewGroup.tag eq "CheckFor" debugAllRules = true;
     if NewGroup.tag eq "testJSON" item = 0;
-    cout "aCTionDefinE:",NewGroup.tag,lastIndent:;
+    cerr "aCTionDefinE:",NewGroup.tag,lastIndent:;
     if NewGroup.tag eq "matrix" {
         debugRuleNamed("StatemenT");
         debugRuleNamed("Xpress");
@@ -21,16 +21,17 @@ aCTionDebuG embed.debugged ctive
     if embed.debugged print "Debugging",embed.tag:;
 #;
 aCTionDefinE "if Attributes" before active
-    cout "aCTionDefinE:",NewGroup.tag,lastIndent:;
+    cerr "aCTionDefinE:",NewGroup.tag,lastIndent:;
+    if NewGroup.tag eq "sample" item = 0;
 #;
 aCTionElsE if ctive
-    if blocking cout "unBlocked:", blocking:;
+    if blocking cerr "unBlocked:", blocking:;
 #;
 aCTionExpressioN while before ctive
     if entries.listLength == 1   result = 0;
 #;
-aCTionNamE result before ctive
-    if arg eq "setFrame"   result = 0;
+aCTionNamE result before active
+    if arg eq "sample"   result = 0;
 #;
 aCTionRunRulE if within ctive
     if tag eq "define" debugAllRules = true;
@@ -56,7 +57,7 @@ guard clearData ctive
     debugGuards = false;
 #;
 loadInputFromFile if before active
-     cout ```"including",tag:;
+     cerr ```"including",tag:;
 #;
 /*******************************************************************************
     if tag eq "MemberS"   doNothing = false;
@@ -66,7 +67,7 @@ opDebug return before ctive
 #;
 opDot product ctive
     if target.isGROUP
-    cout "The following line was removed from opDot()":
+    cerr "The following line was removed from opDot()":
         `"while target && target.isGROUP && target.group    target = target.group;":;
 #;
 opPrinter if
@@ -76,7 +77,7 @@ opPrinter printText before
     printLIST.dumpContents();
 #;
 /*******************************************************************************
-    if !inputDiverted   cout "Rules parsed " rulesParsed,"Rules avoided " rulesAvoided:;
+    if !inputDiverted   cerr "Rules parsed " rulesParsed,"Rules avoided " rulesAvoided:;
         if tag eq "listOK"   trueResult.fLAG = false;
     if guardOK && (debugAllRules || debugRule)
     if tag eq "list"   debugged = true;
@@ -98,7 +99,7 @@ processCode result ctive
     if tag eq "gFOR" dumpContents(action);
 #;
 rEGISTER currentRegistry active
-    cout ````"Current registry:",currentRegistry.tag:;
+    cerr ````"Current registry:",currentRegistry.tag:;
     item = 0;
 #;
 runDefer processingCode ctive
@@ -115,21 +116,21 @@ runRule if ctive
     if tag eq "list" debugRuleNamed("list");
 #;
 restoreLocalFields starting ctive
-    cout "restoreLocalFields for:",action.tag " on stak:",recurseSTAK.length:;
+    cerr "restoreLocalFields for:",action.tag " on stak:",recurseSTAK.length:;
 #;
 saveLocalFields ending ctive
-    cout "saveLocalFields for:",action.tag " on stak:",recurseSTAK.length:;
+    cerr "saveLocalFields for:",action.tag " on stak:",recurseSTAK.length:;
 #;
 scopeXP return before ctive
     currentMETHOD.dumpContents();
 #;
 setCompiledMethod block
-    cout "setCompiledMethod: set method",name,"for",block.tag:;
+    cerr "setCompiledMethod: set method",name,"for",block.tag:;
 #;
 
 /*******************************************************************************
 	GroupItem
-    if group.tag eq "Drawing" cout ``"addGroup: adding",group.tag,"to",tag:;
+    if group.tag eq "Drawing" cerr ``"addGroup: adding",group.tag,"to",tag:;
 *******************************************************************************/
 #GroupItem
 addGroup starting ctive
@@ -139,25 +140,25 @@ addGroup altered ctive
     if tag eq "UnaryOPS" altered = true;
 #;
 addGroup ending ctive
-    if tag eq "Stuff" cout ``"addGroup: adding",group.tag,"to",tag:;
+    if tag eq "Stuff" cerr ``"addGroup: adding",group.tag,"to",tag:;
 #;
 addToGuard if before
-    if parent && parent.debugGuard cout "addToGuard: add to",guardSet,"from",block.tag:;
+    if parent && parent.debugGuard cerr "addToGuard: add to",guardSet,"from",block.tag:;
 #;
 addToGuard "if blockGuard" within
-    if debugGuard cout "addToGuard: add to",guardSet,"from",blockGuard:;
+    if debugGuard cerr "addToGuard: add to",guardSet,"from",blockGuard:;
 #;
 addToGuard "if isCHAR" within
-    if debugGuard cout "addToGuard: adding character",character,"to",guardSet.name,"from",block.tag:;
+    if debugGuard cerr "addToGuard: adding character",character,"to",guardSet.name,"from",block.tag:;
 #;
 addToGuard "or isSTRING" within
-    if debugGuard cout "addToGuard: adding string","to",guardSet.name,"from",block.getTagXML():;
+    if debugGuard cerr "addToGuard: adding string","to",guardSet.name,"from",block.getTagXML():;
 #;
 addToGuard "or isITEM" within
-    if debugGuard cout "addToGuard: adding item",item,"to",guardSet.name,"from",block.tag:;
+    if debugGuard cerr "addToGuard: adding item",item,"to",guardSet.name,"from",block.tag:;
 #;
 addToGuard "or isSET" within
-    if debugGuard cout "addToGuard: adding set","to",guardSet.name,"from",block.tag:characterSet:;
+    if debugGuard cerr "addToGuard: adding set","to",guardSet.name,"from",block.tag:characterSet:;
 #;
 /*******************************************************************************
 	Guarding
@@ -170,8 +171,8 @@ int debugging = debugGuards || debugGuard;
 #;
 getGuard "if isCondition" before active
     if debugging {
-        if parent cout "Setting guard for",tag,"in",parent.tag:;
-        else cout "Setting guard for",tag:;
+        if parent cerr "Setting guard for",tag,"in",parent.tag:;
+        else cerr "Setting guard for",tag:;
         junk = 0; }
 #;
 getGuard endSetGuard ctive
@@ -180,8 +181,8 @@ getGuard endSetGuard ctive
 getGuard returnGuard before active
     if debugging {
         if guarding
-            if guarded  cout "setGuard:",tag``guardSet;
-            else        cout "setGuard:",tag,"is unguarded":;
+            if guarded  cerr "setGuard:",tag``guardSet;
+            else        cerr "setGuard:",tag,"is unguarded":;
         junk = 0; }
 #;
 getStuff if before ctive
@@ -190,57 +191,58 @@ getStuff if before ctive
     if tag eq "JSONitem" stuff = 0;
 #;
 listenTo ending
-	cout "Adding to listener: " group.tag,group.text; if group.parent cout " of " group.parent.tag;
-    cout `": " tag,text; if parent cout " of " parent.tag; cout :;
+	cerr "Adding to listener: " group.tag,group.text; if group.parent cerr " of " group.parent.tag;
+    cerr `": " tag,text; if parent cerr " of " parent.tag; cerr :;
 #;
 /*******************************************************************************
 	parse debugging
-        if tag eq "MemberS"   doNothing = false;
+        if tag eq "DEBUG"   doNothing = false;
 *******************************************************************************/
-parse sukcess ctive
-    if tag eq "ANYorNum"  doNothing = false;
-#;
 parse "if !checkInput" before active
     if debugAllRules || rule.debugged {
         if debugIndent < 0 debugIndent = 0;
         indent("  ");
-        cout "Match",ruleName,"on text",getDebugText(atRuleMark,20):;
+        cerr "Match",ruleName,"on text",getDebugText(atRuleMark,20):;
         debugIndent++; }
+#;
+parse ruleSTUFF ctive
+    if tag eq "DEBUG"  doNothing = false;
 #;
 parse kount active
     if debugAllRules || rule.debugged {
         debugIndent--;
         indent("  ");
-        cout ruleName,"succeeded";
+        cerr ruleName,"succeeded";
         if label {
-            cout ,"label:",label.tag;
-            if label.data   cout "=" getDebugText(label.text,10); }
-        else    cout " w/no label";
-        cout ,"at: " getDebugText(atRuleMark,10):;
+            cerr ,"label:",label.tag;
+            if label.data   cerr "=" getDebugText(label.text,10); }
+        else    cerr " w/no label";
+        cerr ,"at: " getDebugText(atRuleMark,10):;
         doNothing = false; }
 #;
-parse matchFailed active
+parse matchFailed ctive
+    // need to figure out where this goes
     if debugAllRules || rule.debugged {
         debugIndent--;
         indent("  ");
         if sukcess {
-            cout ruleName,"not failure";
+            cerr ruleName,"not failure";
             if label {
-                cout ,"label:",label.tag;
-                if label.data   cout "=" label.text; }
-            else    cout " w/no label";
-            cout ,"at: " getDebugText(atRuleMark,10):; }
-        else    cout ruleName,"match failed":;
+                cerr ,"label:",label.tag;
+                if label.data   cerr "=" label.text; }
+            else    cerr " w/no label";
+            cerr ,"at: " getDebugText(atRuleMark,10):; }
+        else    cerr ruleName,"match failed":;
     doNothing = false; }
 #;
 push if before ctive
-    if tag eq "Stuff" cout ``"push: adding",grup.tag,"to",tag:;
+    if tag eq "Stuff" cerr ``"push: adding",grup.tag,"to",tag:;
 #;
 push finishAdd ctive
     if tag eq "Stuff" dumpContents(this);
 #;
 printToBuffer printItem
-    cout ``"printToBuffer before processing:",bufferName,printEntry,i:;
+    cerr ``"printToBuffer before processing:",bufferName,printEntry,i:;
     printEntry.dumpContents();
 #;
 remove if before ctive
@@ -272,22 +274,22 @@ bootstrapper popInput active
 #GroupRules
 checkSkip stacked before ctive
     if defining || blocking
-        cout ``"Starting indent at",defining,blocking,indenting,getDebugText(atContent,20):;
+        cerr ``"Starting indent at",defining,blocking,indenting,getDebugText(atContent,20):;
 #;
 checkSkip "if stacked" before ctive
     if defining || blocking
-        cout ``"Ending indent at",defining,blocking,indenting,getDebugText(atContent,20):;
+        cerr ``"Ending indent at",defining,blocking,indenting,getDebugText(atContent,20):;
 #;
 pushInput sourceFILE before ctive
-    cout ``"Pushing input from:",source.tag:;
+    cerr ``"Pushing input from:",source.tag:;
 #;
 popInput return before ctive
-    if sourceFILE   cout ``"popInput: popping off",sourceFILE.tag:;
-    cout ```"Popped input back to",getDebugText(atRuleMark,20):;
+    if sourceFILE   cerr ``"popInput: popping off",sourceFILE.tag:;
+    cerr ```"Popped input back to",getDebugText(atRuleMark,20):;
 #;
 /*******************************************************************************
 	RuleStuff
-    if tag eq "CodE" cout :``"getWhatFollows:",tag;
+    if tag eq "CodE" cerr :``"getWhatFollows:",tag;
     if tag eq "NamE"    completed = 0;
 *******************************************************************************/
 #RuleStuff

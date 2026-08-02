@@ -362,15 +362,18 @@ GroupItem 	*item = 0;
 			}
 		if ( ruler->currentRegistry )
 			{
-			if ( NewGroup->groupBody->registry != ruler->currentRegistry )
-				NewGroup = ruler->currentRegistry->addMember(NewGroup);
 			if ( ruler->currentRegistry->groupBody->flags.isRule )
 				{
+				NewGroup = ruler->currentRegistry->addMember(NewGroup);
 				if ( !NewGroup->groupBody->flags.binType )
 					NewGroup->groupBody->flags.isRule = 1;
 				if ( !NewGroup->rStuff )
 					NewGroup->setRStuff(new RuleStuff(NewGroup));
 				}
+			else
+			if ( NewGroup->groupBody->registry != ruler->currentRegistry )
+				if ( ruler->currentDefine == NewGroup || !ruler->currentDefine || !ruler->currentDefine->groupBody->flags.addingMembers )
+					NewGroup = ruler->currentRegistry->addMember(NewGroup);
 			}
 		}
 	if ( !NewGroup->groupBody->flags.isRule )
@@ -502,10 +505,14 @@ GroupItem 	*item = 0;
 	the NewGroup is a rule and zero if it is not
 	materialiseTerms(NewGroup);
 	***********************************************************************/
-	input->clear();
+	input->clearList();
 	NewGroup->groupBody->flags.isInitialized = 1;
 	if ( NewGroup->groupBody->registry && !NewGroup->parent )
 		NewGroup->parent = ruler->currentRegistry;
+	if ( NewGroup->groupBody->flags.addingMembers )
+		NewGroup->groupBody->flags.addingMembers = 0;
+	if ( ruler->currentDefine && ruler->currentDefine->groupBody == NewGroup->groupBody )
+		ruler->currentDefine = 0;
 	input->setGroup(NewGroup);
 	return input;
 }
@@ -674,15 +681,21 @@ GroupItem 	*source = input->get(2);
 		iterator = iterator->getGroup();
 	while ( isGROUP(source->groupBody->flags.data) )
 		source = source->getGroup();
-	iterator->groupBody->flags.isIterator = 1;
 	// here iterator gets a copy of the source groupList
 	if ( iterator && source && source->groupBody->groupList )
 		iterator->groupBody->groupList = source->groupBody->groupList;
-	// attributes and members flagged here but not used yet
+	else {
+		::fprintf(stderr,"aCTionIterate: source %s has no list\n",source->groupBody->tag);
+		return 0;
+		}
+	// attributes and members filter overloaded on iterator affiliation
 	if ( attributes )
-		iterator->groupBody->flags.iterateOnAttributes = 1;
+		iterator->options.affiliation = 1;
+	else
 	if ( members )
-		iterator->groupBody->flags.iterateOnMembers = 1;
+		iterator->options.affiliation = 2;
+	else	iterator->options.affiliation = 0;
+	iterator->groupBody->flags.isIterator = 1;
 	return iterator;
 }
 
@@ -726,6 +739,19 @@ char 		*arg = input->getText();
 		result = grup;
 	input->setGroup(result);
 	return input;
+}
+
+/*******************************************************************************
+	The NewGroup action just sets the currentDefine field in GroupRules so
+    that the MEMBERs case in processFlags can find it to set its addingMembers flag
+*******************************************************************************/
+extern "C" GroupItem *aCTionNewGroup(GroupItem *field)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*grup = field->getGroup();
+	if ( !ruler->currentRegistry->groupBody->flags.isRule && !ruler->currentDefine )
+		ruler->currentDefine = grup;
+	return field;
 }
 
 /*******************************************************************************
@@ -1051,6 +1077,10 @@ GroupItem 	*sourceFile = new GroupItem("sourceFile");
 	return input;
 }
 
+/*******************************************************************************
+	Immediate method for the StringXP rule.
+        StringXP    ","- stuff=PrintXP+ defer;
+*******************************************************************************/
 extern "C" GroupItem *aCTionStringXP(GroupItem *input)
 {
 GroupItem 	*stuff = input->getLabelGroup("stuff");
@@ -1359,10 +1389,6 @@ GroupItem 	*field = 0;
 	return field;
 }
 
-/*******************************************************************************
-	Immediate method for the StringXP rule.
-        StringXP    ","- stuff=PrintXP+ defer;
-*******************************************************************************/
 /*******************************************************************************
 	appendPrintXP -- THE ONE PrintXP WALK. Added 2026-08-01 (Tony's call) when
     the arrival of `cerr` and `cout` made it the FOURTH copy of the same loop.
@@ -3049,177 +3075,6 @@ finishXP:
 	xpList->clear();
 	xpList->setGroup(arg);
 	return xpList;
-}
-
-/***************************************************************************
-    iterAdvance -- the cursor step behind ++ and -- on an iterate field.
-
-    CURSOR, NOT QUEUE: neither direction mutates the source. Position lives in
-    the iterator's own group slot; the source container hangs off it as a
-    `source` attribute (aCTionIterate builds both).
-
-    EMPTINESS IS THE UNWRAP TEST, and it is one state test doing two jobs, so
-    there is no separate `fresh` flag: a position present means the iterator is
-    unwrapped and we step from it; a position absent means fresh-OR-exhausted
-    and we start from the end. next(null) already returns the first entry and
-    prior(null) already returns the last, so FRESH AND EXHAUSTED BEING THE SAME
-    STATE falls out of the existing accessors rather than being arranged.
-    Consequence, deliberate (Tony): run a loop to exhaustion and the next ++
-    rewinds to the start, so a loop that breaks early RESUMES.
-
-    THE FILTER FLAGS ARE APPLIED HERE, INSIDE THE ADVANCE, because next() is
-    unfiltered -- a flag stamped and not consumed is a flag ignored, which is
-    the quiet skip the walk's own doctrine forbids. Forward uses the oracle's
-    own nextAttribute/nextMember. Backward has NO filtered accessor to borrow
-    (prior() has no variants), so it steps and skips explicitly rather than
-    dropping the filter on the floor.
-
-    READS ARE QUALIFIED throughout -- iter.gGroup, source.gGroup, never a bare
-    `group`. The iterator carries `source` as a child, so a bare read is
-    ambiguous about which node it means (corpus CLAIM KANT-1).
-***************************************************************************/
-extern "C" GroupItem *iterAdvance(GroupItem *iter, int forward)
-{
-GroupItem 	*source = iter->getAttribute("source");
-GroupItem 	*container = 0;
-GroupItem 	*position = 0;
-GroupItem 	*next = 0;
-	if ( !source )
-		{
-		::fprintf(stderr,"iterate: ++/-- on %s which has no source -- was `iterate` run on it?\n",iter->groupBody->tag);
-		return 0;
-		}
-	container = source->groupBody->gGroup;
-	if ( !container )
-		{
-		::fprintf(stderr,"iterate: %s source is empty\n",iter->groupBody->tag);
-		return 0;
-		}
-	/*  Deref HERE, at advance time, not at bind time. `iterate grup on argument`
-	binds to the argument NODE, and what that node points at is only known at
-	runtime -- bind early, deref late.  */
-	if ( isGROUP(container->groupBody->flags.data) )
-		container = container->groupBody->gGroup;
-	/*  The tripwire goes HERE, past the guards, so it counts real advances and
-	not the terminating no-list returns. iterSpins never comes back on a
-	trip -- it exits 3.  */
-	::iterSpins(iter,0);
-	position = iter->groupBody->gGroup;
-	if ( forward )
-		if ( iter->groupBody->flags.iterateOnAttributes )
-			next = container->nextAttribute(position);
-		else
-		if ( iter->groupBody->flags.iterateOnMembers )
-			next = container->nextMember(position);
-		else
-		if ( position )
-			next = position->nextInParent;
-		else	next = container->groupBody->groupList->firstInList;
-	else {
-		if ( position )
-			next = position->priorInParent;
-		else	next = container->groupBody->groupList->lastInList;
-		while ( next && !::iterFilterOK(iter,next) )
-			next = position->priorInParent;
-		}
-	iter->setGroup(next);
-	return next;
-}
-
-/***************************************************************************
-    iterBind -- THE ONE IMPLEMENTER of "point this iterator at that container
-    and rewind it". Both `iterate grup on X` (aCTionIterate) and `grup := X`
-    (opSetGroup) route here, so the two spellings cannot drift apart.
-
-    IT RESETS POSITION UNCONDITIONALLY -- SEQ 31: `:=` is the iterator's ONLY
-    reset, and it resets whether or not there was a value. The corpus claim that
-    goes with it: to re-walk the SAME source you rebind to it, so
-    `grup := argument;` READS LIKE A NO-OP AND IS NOT ONE.
-
-    It REUSES an existing `source` child rather than adding another, which is
-    what makes `iterate` idempotent as TODO.md requires -- "iterate makes it one
-    if it isn't, rebinds the source if it already is. Safe to repeat, safe in a
-    loop." The previous code new'd a source every time, so a second iterate on
-    the same field stacked a second attribute and getAttribute kept finding the
-    first.
-
-    The container is unwrapped HERE; the ITERATOR is not (see aCTionIterate's
-    handle gate). ANYtoken wraps multiple levels, hence the loop.
-***************************************************************************/
-extern "C" GroupItem *iterBind(GroupItem *iter, GroupItem *container)
-{
-GroupItem 	*source = iter->getAttribute("source");
-	while ( isGROUP(container->groupBody->flags.data) )
-		container = container->groupBody->gGroup;
-	if ( !source )
-		{
-		source = new GroupItem("source");
-		iter->addAttribute(source);
-		}
-	if ( container->groupBody->groupList )
-		{
-		source->setGroup(container);
-		iter->groupBody->flags.isIterator = 1;
-		iter->groupBody->gGroup = 0;
-		iter->groupBody->flags.data = 0;
-		}
-	else	::fprintf(stderr,"iterBind: iterate source has no list\n");
-	//iterSpins(iter,1);
-	return iter;
-}
-
-/***************************************************************************
-    iterFilterOK -- does this node pass the iterator's affiliation filter?
-    ONE implementer, so forward and backward cannot drift apart.
-***************************************************************************/
-extern "C" int iterFilterOK(GroupItem *iter, GroupItem *node)
-{
-	if ( iter->groupBody->flags.iterateOnAttributes )
-		return isAttribute(node->options.affiliation);
-	if ( iter->groupBody->flags.iterateOnMembers )
-		return isMember(node->options.affiliation);
-	return 1;
-}
-
-/***************************************************************************
-    iterSpins -- THE RUNAWAY TRIPWIRE. It lives in a C++ static because it
-    CANNOT live on the node: corpus CLAIM KANT-4 -- gCount and gGroup share one
-    GroupBody union, so the first cut's `iter.gCount` counter overwrote the very
-    cursor it existed to protect, and the process died at EXIT=139 with stdout
-    buffered away. A STATIC NEEDS NO NODE STORAGE AT ALL.
-
-    A spin counter was never a language feature. It is a tripwire that converts
-    a HANG -- undiagnosable, and it stops a POP dead -- into a nonzero exit with
-    a line naming the iterator.
-
-    WHAT IT BOUNDS: advances SINCE THE LAST BIND, because `iterBind` resets it
-    and `iterBind` is the one implementer of every reset (`iterate` and `:=`
-    both route there). Every terminating walk keeps that under its own list
-    length, and every recursive frame re-arms it by running its own `iterate`.
-    A process-lifetime cap would be a landmine on a long run; this is not one.
-
-    IT EXITS NONZERO ON PURPOSE, and that is the correction of a real mistake:
-    the first cut printed and returned, and a printed TERMINATED was read as the
-    guard firing when the process had in fact died at 139. EXIT STATUS IS THE
-    CHECK (CLAUDE.md Testing). stderr, not stdout -- a hard exit loses a
-    block-buffered stdout (bear-trap #14).
-
-    Body is entirely passthrough: tok has no syntax for a static, and `iter`
-    arrives as a PARAMETER so nothing here can be pruned (bear-trap #13).
-***************************************************************************/
-extern "C" int iterSpins(GroupItem *iter, int reset)
-{
-	
-	static long     spins = 0;
-	
-	if ( reset )                    { spins = 0;  return 0; }
-	if ( ++spins <= 100000 )        return 0;
-	::fprintf(stderr,"iterate: RUNAWAY on %s -- %ld advances with no rebind. ABORTING.\n",
-	iter->groupBody->tag,spins);
-	::fflush(stderr);
-	::exit(3);
-	return 1;
-	
 }
 
 /***************************************************************************
@@ -5916,7 +5771,11 @@ extern "C" GroupItem *opMinusMinus(GroupItem *result)
 {
 	if ( result->groupBody->flags.isIterator )
 		{
-		//note: because result is an iterator it is not unwrapped in runOP()
+		/*******************************************************************
+		note: because result is an iterator it is not unwrapped in runOP()
+		also -- does not differentiate between members and attributes
+		because GroupItem does not offer priorMember() or priorAttribute().
+		*******************************************************************/
 		GroupItem *iterator = 0;
 		if ( !result->groupBody->flags.data )
 			iterator = result->groupBody->groupList->lastInList;
@@ -6256,13 +6115,16 @@ extern "C" GroupItem *opPlusPlus(GroupItem *result)
 	if ( result->groupBody->flags.isIterator )
 		{
 		//note: because result is an iterator it is not unwrapped in runOP()
-		GroupItem *iterator = 0;
-		if ( !result->groupBody->flags.data )
+		GroupItem *iterator = result->getGroup();
+		if ( isAttribute(result->options.affiliation) )
+			iterator = result->nextAttribute(iterator);
+		else
+		if ( isMember(result->options.affiliation) )
+			iterator = result->nextMember(iterator);
+		else
+		if ( !iterator )
 			iterator = result->groupBody->groupList->firstInList;
-		else {
-			iterator = result->getGroup();
-			iterator = iterator->nextInParent;
-			}
+		else	iterator = iterator->nextInParent;
 		GroupControl::groupController->groupRules->lastREF->setGroup(iterator);
 		result->setGroup(iterator);
 		if ( !iterator )
@@ -6454,14 +6316,6 @@ extern "C" GroupItem *opSetFlag(GroupItem *argument, GroupItem *target)
 ***************************************************************************/
 extern "C" GroupItem *opSetGroup(GroupItem *argument, GroupItem *target)
 {
-	/*  := ON AN ITERATOR IS ITS ONLY RESET, and it resets position
-	UNCONDITIONALLY (SEQ 31). This arrives un-unwrapped because runOP exempts
-	isIterator from the target deref -- without that exemption := would
-	rebind the CURRENT ENTRY and leave the cursor untouched, failing
-	silently, which is why that gate was put on the operand rather than on
-	++/--.  */
-	if ( target->groupBody->flags.isIterator )
-		return ::iterBind(target,argument);
 	if ( argument )
 		target->setGroup(argument);
 	return target;
@@ -7266,6 +7120,10 @@ GroupItem 	*target = item->groupBody->flags.fLAG ? item->parent : item;
 				if ( ::compare(command,"macro") == 0 )
 					target->groupBody->flags.isMacro = 1;
 				else	target->groupBody->flags.mergeOn = 1;
+				break;
+			case 'M':
+				if ( !ruler->currentRegistry->groupBody->flags.isRule && ruler->currentDefine )
+					ruler->currentDefine->groupBody->flags.addingMembers = 1;
 				break;
 			case 'n':
 				target->groupBody->flags.noPrint = 1;
@@ -8167,6 +8025,7 @@ GroupRules::GroupRules()
 {
 	atRuleMark = 0;
 	ruleSTUFF = 0;
+	currentDefine = 0;
 	currentMETHOD = 0;
 	currentRegistry = 0;
 	debugJunk = 0;

@@ -343,11 +343,7 @@ void GroupItem::clearList()
 {
 	if ( !groupBody->groupList )
 		return;
-	if ( !groupBody->groupList->listLength )
-		groupBody->groupList = 0;
-	else
-	while ( groupBody->groupList )
-		pop();
+	groupBody->groupList = 0;
 	groupBody->flags.hasAttributes = groupBody->flags.hasMembers = 0;
 }
 
