@@ -592,6 +592,24 @@ RuleStuff 	*ruleStuff = field->rStuff;
 
 /*******************************************************************************
     Registry and Container test looks for an entry that matches the input stream.
+
+    LONGEST-ENTRY MATCH (Tony's finding and ruling, 2026-08-02). The greedy
+    character scan is an UPPER BOUND, not the answer. Character-set membership
+    can only say "this character could belong to SOME entry"; it can never say
+    "this prefix IS an entry", because a set has no notion of where an entry
+    ends. So the scan runs to the end of the run, and then the buffer is backed
+    off one character at a time until it either IS an entry or is empty. The
+    longest prefix that is an actual entry wins.
+
+    THE PRESENTING BUG: `--grup;` against Operators. `negate` and `modedOP` are
+    word-spelled entries, so their letters are in the container's character set
+    -- `g` among them. The scan therefore built `--g`, which is an entry of
+    nothing, and the whole match failed. It is a design flaw and not an edge
+    case: any container holding both a symbol and a word can produce it.
+    Backing off finds `--` and advances 2, which is the answer.
+
+    Same disease class as the ShortcuT `+`-merge that sank `,` as the string
+    opener (2026-07-31): set-based character grouping making token decisions.
 *******************************************************************************/
 extern "C" int testContainer(GroupItem *field)
 {
@@ -610,7 +628,8 @@ Buffer 		*buffer = ruler->stringBUFFER;
 			atInput++;
 			}
 		else	break;
-	if ( advance = buffer->length() )
+	while ( advance = buffer->length() )
+		{
 		if ( grup = field->get(buffer->string()) )
 			{
 			if ( !ruleStuff->noAdvance )
@@ -619,6 +638,8 @@ Buffer 		*buffer = ruler->stringBUFFER;
 				ruleStuff->label->setGroup(grup);
 			return 1;
 			}
+		buffer->shorten(1);
+		}
 	return 0;
 }
 

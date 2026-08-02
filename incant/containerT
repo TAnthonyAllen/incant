@@ -1,0 +1,88 @@
+/*****************************************************************************
+    containerT -- LONGEST-ENTRY MATCH in testContainer. 2026-08-02.
+
+    THE DEFECT (Tony's finding): testContainer built its token with a greedy
+    scan over the container's CHARACTER SET, then looked the whole thing up
+    once. Character-set membership answers "could this character belong to some
+    entry" -- it can never answer "is this prefix an entry", because a set has
+    no notion of where an entry ends. So any container holding both a symbol
+    and a word poisons the symbol with the word's letters.
+
+    Operators is such a container: `negate` and `modedOP` are word-spelled, so
+    n e g a t m o d are all in its set. `9 -grup` therefore scanned `-g`, which
+    is an entry of nothing, and the whole match failed -- taking the enclosing
+    statement's parse with it, silently, at exit 0.
+
+    THE FIX: the greedy scan is an UPPER BOUND. Back the buffer off one
+    character at a time until it IS an entry or is empty. Longest wins.
+
+    ⚠ WHY THE ROWS LOOK LIKE THIS -- the discriminator is a LETTER, not an
+    operator. Every row is a matched PAIR: the same operator applied to `grup`
+    (whose leading g IS in the Operators set) and to `brup` (whose leading b is
+    NOT). Before the fix the two halves disagreed; after it they agree. A row
+    that only used one name would be silent, not green.
+
+    MEASURED, both directions, on the pre-fix and post-fix binaries:
+        row   pre-fix   post-fix
+        A     0         5          --grup   (refused -> parses)
+        B     5         5          --brup   (control: never refused)
+        C     0         4          9 -grup  (refused -> correct answer)
+        D     4         4          9 -brup  (control)
+        E     0         9          zed ==grup (refused -> `==` beats `=`)
+    A's value is NOT pinned at 4: `--` on a non-iterator is Tony's open
+    iterator semantics. What IS pinned is A == B -- the g/b asymmetry is what
+    this fixture is about, and it is gone.
+
+    SENTINEL AT THE FOOT (standing harness rule H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(utilities);
+
+search reset stack Grokking UnitTests Utilities list;
+
+register(ContainerT);
+define
+    grup;
+    brup;
+    zed;
+
+    /*  the presenting bug and its control: a two-character entry whose
+        following character is / is not in the container's set               */
+    decGrup  code={ grup = 5; --grup; return grup; };
+    decBrup  code={ brup = 5; --brup; return brup; };
+
+    /*  a ONE-character entry, which is where a set-poisoned scan hurts most  */
+    subGrup  code={ grup = 5; zed = 9; zed = zed -grup; return zed; };
+    subBrup  code={ brup = 5; zed = 9; zed = zed -brup; return zed; };
+
+    /*  LONGEST WINS, from a real container: `=` and `==` are both Operators
+        entries and `==g` backs off to `==`, never to `=`. If it backed off to
+        `=` this would be an ASSIGNMENT and zed would come back 5.            */
+    eqGrup   code={ grup = 5; zed = 9; zed ==grup; return zed; };
+    eqBrup   code={ brup = 5; zed = 9; zed ==brup; return zed; };
+
+    /*  THE BACK-OFF ITERATES MORE THAN ONCE: `&&g` is 3 characters, `&&` is
+        not an entry, `&` is. So this only parses if the loop runs 3 -> 2 -> 1
+        rather than trying a single shorter length.                           */
+    ampGrup  code={ grup = 5; zed = 9; zed = zed &&grup; return zed; };
+
+    /*  NO ENTRY AT ANY LENGTH: `~` appears only inside `~=`, so `~~g` backs
+        off through 3, 2, 1 and empties. The contract is a CLEAN false with the
+        mark unmoved -- observable here as a contained refusal: this action is
+        rejected, the run does not crash or hang, and every row after it is
+        unaffected. (What is asserted is containment, not the mark itself.)    */
+    tilGrup  code={ grup = 5; zed = 9; zed = zed ~~grup; return zed; };
+    ;
+
+print "A --grup       ->[" decGrup() "]   (pin: A == B, not a literal value)":;
+print "B --brup       ->[" decBrup() "]   (the control)":;
+print "C 9 -grup      ->[" subGrup() "]   want 4":;
+print "D 9 -brup      ->[" subBrup() "]   want 4":;
+print "E zed ==grup   ->[" eqGrup() "]   want 9  (5 means `=` won: shortest, not longest)":;
+print "F zed ==brup   ->[" eqBrup() "]   want 9   (the control)":;
+print "G zed &&grup   ->[" ampGrup() "]   parses only if the back-off iterates":;
+print "H zed ~~grup   ->[" tilGrup() "]   refused on purpose -- no entry at any length":;
+
+print "CT SENTINEL -- run reached the end":;
+stop();
