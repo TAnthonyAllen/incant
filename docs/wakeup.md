@@ -1,6 +1,115 @@
-# ⚠⚠ UPDATED 2026-07-31 — READ THE 07-31 SECTION FIRST. It is directly below this line.
-# Everything from `# ⚠⚠ UPDATED 2026-07-30` down is older vintage and still broadly accurate;
-# it is just no longer the top of the story. CLEAN STOP, tree clean, five POPs green.
+# ⚠⚠ UPDATED 2026-08-01 — READ THE 08-01 SECTION FIRST. It is directly below this line.
+# Everything from `# ⚠⚠ UPDATED 2026-07-31` down is older vintage and still broadly accurate;
+# it is just no longer the top of the story. CLEAN STOP, fleet green, 22 commits.
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 2026-08-01 — THE LONGEST DAY IN THE RECORD. J-R WENT GREEN, THE CONVERSION
+#              ARC OPENED AND RAN TWICE, AND THE NUMERIC TOWER GOT ITS RULINGS
+# ═══════════════════════════════════════════════════════════════════════════
+
+## IF YOU READ NOTHING ELSE — five things, in the order they will bite you
+
+**1. `cerr` AND `cout` ARE NATIVE STATEMENT KEYWORDS.** Three sinks, three different things:
+`print` is DIVERTIBLE (buffer if armed, else stdout); `cout` is NOT (always stdout); `cerr` is
+NOT (always stderr). Neither `opCout` nor `opCerr` consults `toBUFFER`, and **in both cases the
+missing test IS the feature** — adding it back to `opCout` restores KANT-23 exactly. Fixture
+`incant/sinkT` pins all three under an ARMED diversion, the only condition that tells them apart.
+
+**2. THE JIT NOW DOES RECURSION, ON REAL FRAMES.** `J-R` is green — factorial through an
+**emitted self-call**, fired at two depths (6→24), plus `jitJRL` where a LOCAL read *after* the
+recursive call returns proves per-activation storage (5→9; aliased slots would give 4→6).
+**Depth-1 passes on aliased slots and depth-N cannot**, which is why both depths are asserted.
+
+**3. ⚠ INLINING IS THE CALLING CONVENTION, BY CONSTRUCTION.** A non-recursive jitted call is
+INLINED — emit-on-walk re-executes the callee's BlocK into the caller's builder, so there is no
+`call` instruction at all. Only a SELF-call gets a real call, because inlining one cannot work.
+Zero call overhead, mem2reg optimises across dissolved boundaries, and **small composed actions
+are the FAST idiom** — which the conversion arc should know, since it is minting that population.
+
+**4. THE CONVERSION ARC IS OPEN AND HAS RUN TWICE.** Order ratified:
+`emitMany` → `countRuleTerms` → `printPlan` → `emitPlan` → `unresolvedTerms` → `planRule` →
+`planTerm`. **Conversion 1 is CLOSED** (kant `emitMany` answers through the seam, `rung5.target`
+byte-identical, `MANIER kant` pinned). **Conversion 2's kant is written and NOT wired** — see
+OPEN below, it is blocked on a real ordering problem.
+
+**5. ⚠ A CLOSE-BRACE CANNOT APPEAR ANYWHERE IN AN ACTION BODY — INCLUDING IN A COMMENT.**
+`aCTionCodE` scans for the first one with no quote awareness and no comment awareness.
+`CLAIM KANT-40` was earned by writing a comment *explaining* this, which contained the character,
+which ended the capture. The whole action vanished at exit 0. **Do not write it in any form,
+including while describing it.** Emitters carry `closeBrace="}"` as a define-line trait instead.
+
+## WHAT IS RUNNABLE — four POPs, all exit 0
+```
+sh genLadder/pop.sh        29 green / 5 parked-WIP   genParse ladder + baselines + conversions
+sh genLadder/printPop.sh    9 checks                 print family, now fully green
+sh genLadder/tree.sh                                 §2.4 divergence unchanged (OPEN, not broken)
+sh jitLadder/ladder.sh     76 checks                 J1..J7, JE, JF, JP, JPd + J-R
+```
+⚠ **"5 parked-WIP" IS THE CLEAN STATE, NOT DEBT.** The five iterator fixtures are pinned to an
+OLD design; Tony reworked iterators offline and their semantics are his. They re-pin when his
+work lands, as part of it. **A `WOKE` alarm fires loudly if one starts passing** — negative-
+controlled, so it is known to work.
+
+## THE LANGUAGE MOVED — rulings implemented today
+- **`/` PROMOTES.** `10/4` → `2.5` typed double. **Always** a double, including `8/4` — because
+  premise 1's datA-stability contract forbids a result type that depends on runtime values.
+- **Narrowing rounds HALF-UP, uniformly**, in ONE place: `getCount`'s `isNUMBER` arm. Not
+  `lround`, which rounds half away from zero and disagrees on negatives.
+- **Compound assign computes in doubles and narrows the RESULT**; the **binary family PROMOTES**.
+- **`arrondir(x)`** is explicit rounding. ⚠ Named in French deliberately: `round` is libc and an
+  `extern "C"` clash is bear-trap #12. **Borrowing a word from another language beat inventing
+  one** — it removed both the collision and the `=method` indirection.
+- **`||` is registered** (`'||' operateMethod=opOR`). ⚠ **It EVALUATES BOTH ARMS** — structural,
+  an operateMethod receives already-evaluated operands. And **`!a || !b` IS NOT `if !a; or !b;`**
+  on absent attributes (KANT-35) — multi-attribute presence checks MUST stay sequential.
+- **`isRulE` has its opDot case.** ⚠ The fix was TWO lines, not one: unnumbered GroupFields
+  entries get no index at all, so they hit the `default` arm. Ten more are in that state.
+
+## ⚠ OPEN, AND WHOSE
+
+**Blocking conversion 2 (foreman's, needs one measurement):** `parseRuleMethod` calls
+`countRuleTerms` at **DEFINE** time, but `genScratch`'s `search … list;` runs AFTER the define
+block — so a `locateCounter` fork would find nothing at define time and **the binder would run
+C++ while `planRule` ran kant**. Two implementations in one subsystem, which that method's own
+header forbids. Fixture ordering is the remedy. **Do not land the fork before settling it.**
+
+**Tony's:** the T6 generation assessment (below) · the iterator semantics · the name-scope
+pollution fix (`docs/nameScopeRecon.md`) · the `ruleOrRefuse` convention change.
+
+**Foreman's, parked demand-driven:** the `}`-scan and quoted-whitespace gaps. Neither blocks
+anything; they jump the queue with a specimen attached.
+
+## T6 — THE GENERATION ASSESSMENT, awaiting Tony's go (`docs/jitDesign.md`)
+**34 ops carry an `operateMethod`; exactly TWO have a `switch(data)` dispatch tree.** So
+`opPlusEQ` — the probe — is the OUTLIER, not the exemplar. Answer is **per-family**: GENERATE the
+comparison six (character-identical but for three slots, and generation closes §3.5's bypassed
+null-guards by construction); SHELLS for arithmetic + compound assign; DON'T for the ~20
+structural ops. **15 ops still carry the top-gate shape T1 condemns**, ~1 mechanical edit each.
+
+## INSTRUMENT LESSONS PAID FOR TODAY — all three were the harness lying
+- ⚠ **`pop.sh` called `sentinel` without defining it.** Copied the idiom, not the helper. Every
+  run printed `command not found` and CARRIED ON — the check did not pass, did not fail, **it
+  ceased to exist**. H2's own failure mode inside the harness that enforces H2, and the second
+  instance after `jiquery`. Found by minionA, which deliberately did NOT fix it because the brief
+  pinned the count.
+- ⚠ **A negative control needs its own negative control.** Renaming a sentinel to
+  `MS SENTINEL-BROKEN` still passed — `grep -F` matched it as a SUBSTRING.
+- ⚠ **A number written without measuring it is a lie in the ledger.** One commit says
+  "jitLadder 78/78"; the real count was 76.
+
+## THE MINION HARNESS — two rounds, both strong
+Round 2 (`emitMany`) and round 3 (`countRuleTerms`) both held the carve-out exactly: kant only,
+no `tok`, no `xcodebuild`, no `groups.ext`. **Round 3 hit no obstacle a corpus claim should have
+prevented** — the corpus worked as an instrument. Its own headline: **a double-quoted literal
+SPANS NEWLINES**, so ten `cerr` statements became one and the emitter now looks like the C++ it
+emits. That was Tony's instruction and it held.
+⚠ **A crash autopsy (KANT-25) found the loss from a mid-round 500 was ZERO** — the transcript is
+the persistence layer and resume reads it. **Do not build preservation machinery against it**; the
+cure proposed at the time collided with the spawn rule's only-write-to-the-corpus clause.
+
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ⚠⚠ UPDATED 2026-07-31 — the 07-31 section follows.
 
 # ═══════════════════════════════════════════════════════════════════════════
 # 2026-07-31 — THE STRING EXPRESSION MOVED TO `#`, TWO LANGUAGE RULINGS LANDED,
