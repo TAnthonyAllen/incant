@@ -77,10 +77,69 @@ parkdiff () {                   # parkdiff <name> <target> <actual>
          parked=$((parked+1)); fi
 }
 
-$B incant/genScratch > "$T/gen" 2>&1;    check "genScratch runs"  0 $?
-$B incant/censusScratch > "$T/cen" 2>&1; check "censusScratch runs" 0 $?
-$B incant/oneTest > "$T/one" 2>&1;       check "oneTest runs"     0 $?
-$B incant/jsonTest > "$T/jsn" 2>&1;      check "jsonTest runs"    0 $?
+#  ============================================================================
+#  RULE H5 -- A FIXTURE MUST NOT BE ABLE TO DELETE THE REST OF THE SUITE.
+#  Adopted 2026-08-02, paid for the same day.
+#
+#  `incant/iterT1m` began to HANG rather than return, so pop.sh never reached
+#  its own summary line, its own exit status, or the eleven checks below the
+#  iterator block. Those checks did not fail and did not pass -- like the
+#  missing `sentinel` helper above, THEY CEASED TO EXIST, and the operator sees
+#  a terminal that is merely quiet. Worse than the sentinel case, because there
+#  is no output at all to be suspicious of.
+#
+#  ⚠ AND THE FIXTURE THAT DID IT WAS A **PARKED** ONE. The parked mechanism was
+#  built so that a fixture whose answer is not yet chosen cannot fail the suite
+#  -- and it does that job perfectly. It never contemplated a parked fixture
+#  taking the suite hostage by never returning at all. So the containment was
+#  real but one dimension short: it bounded the VERDICT and not the RUN.
+#
+#  Every fixture now runs under a wall-clock cap. A timeout is reported as its
+#  own kind of failure, LOUDLY and by name -- never as a diff, because a killed
+#  process yields truncated output and a truncation diff names the wrong row.
+#  `timeout(1)` is not on macOS, hence the sleep-and-kill; 137 is the SIGKILL
+#  that produces, and it is mapped to 124 so it reads like GNU timeout's.
+#  Override the cap with POPCAP=<seconds> when a slow machine needs room.
+#  ============================================================================
+#  ⚠ TWO RUNNERS, AND THE SPLIT IS LOAD-BEARING, NOT STYLE. `run1` merges the
+#  streams IN THE CHILD (`2>&1`) exactly as the old call sites did, so ordering
+#  by flush is preserved byte for byte; capturing them apart and concatenating
+#  afterwards would reorder every merged baseline. `run2` keeps them apart,
+#  which is what iterT1's ORDER assertion needs.
+POPCAP=${POPCAP:-90}
+_cap () {                       # _cap <fixture> -- caller has already redirected
+    _p=$!
+    #  The watchdog is launched inside a brace group whose stderr is discarded,
+    #  because reaping it makes the shell announce `Terminated: 15` on EVERY
+    #  fixture -- 9 lines of job-control noise per run, in a log whose whole job
+    #  is to be diffed. Same reasoning as the FAIL text: an instrument that adds
+    #  its own chatter to the evidence is an instrument that will be misread.
+    { ( sleep "$POPCAP"; kill -9 $_p 2>/dev/null ) >/dev/null 2>&1 & } 2>/dev/null
+    _w=$!
+    wait $_p; _ec=$?
+    { kill $_w 2>/dev/null; wait $_w 2>/dev/null; } 2>/dev/null
+    if [ $_ec = 137 ]; then
+        echo "  FAIL  $1 TIMED OUT after ${POPCAP}s -- KILLED, not failed."
+        echo "        Its capture is TRUNCATED, so every diff below it would name"
+        echo "        the wrong row. Fix the hang before reading anything else."
+        #  ⚠ A TIMEOUT FAILS THE SUITE EVEN ON A **PARKED** FIXTURE, and that is
+        #  the point of H5 rather than an oversight in it. Parking suspends a
+        #  VERDICT -- "the answer this would be measured against has not been
+        #  chosen" -- and a hang is not a wrong answer, it is the absence of a
+        #  run. Nobody parked that. Letting parkcheck absorb a 124 would restore
+        #  exactly the silence H5 exists to remove, one layer further in.
+        fail=1
+        return 124
+    fi
+    return $_ec
+}
+run1 () { $B "incant/$1" > "$2" 2>&1      & _cap "$1"; }   # merged
+run2 () { $B "incant/$1" > "$2" 2> "$3"   & _cap "$1"; }   # split
+
+run1 genScratch "$T/gen";    check "genScratch runs"  0 $?
+run1 censusScratch "$T/cen"; check "censusScratch runs" 0 $?
+run1 oneTest "$T/one";       check "oneTest runs"     0 $?
+run1 jsonTest "$T/jsn";      check "jsonTest runs"    0 $?
 
 #  SMOKE CHECK ONLY -- EXIT CODE, NO GOLDEN DIFF (Clay's ruling, 2026-07-31).
 #  incant/baselineTests is the ONLY fixture that reaches testUnitTests, so the
@@ -90,7 +149,7 @@ $B incant/jsonTest > "$T/jsn" 2>&1;      check "jsonTest runs"    0 $?
 #  moves, which is a different maintenance contract from the ladder targets, so
 #  only the exit code is asserted here. Promote to a diffcheck if that contract
 #  ever stabilises.
-$B incant/baselineTests > "$T/base" 2>&1; check "baselineTests runs (smoke, exit code only)" 0 $?
+run1 baselineTests "$T/base"; check "baselineTests runs (smoke, exit code only)" 0 $?
 #  ⚠ AND ITS COMPLETENESS IS ASSERTED SEPARATELY, per standing harness rule H2.
 #  Exit-code-only is exactly the shape a truncated run passes: an incant parse
 #  failure abandons the rest of the file and still exits 0. baselineTests has no
@@ -131,7 +190,7 @@ diffcheck "census.target" genLadder/census.target "$T/cenp"
 #  stderr ONLY, not 2>&1: emitted text goes to stderr unbuffered while the
 #  "Search list:" lines are buffered stdout, so a combined capture appends them
 #  wherever the exit flush lands rather than where they happened.
-$B incant/spellScratch > "$T/spo" 2> "$T/spe";  check "spellScratch runs" 0 $?
+run2 spellScratch "$T/spo" "$T/spe";  check "spellScratch runs" 0 $?
 sed -n '/^SPELL /,$p' "$T/spe" > "$T/sp"
 #  ⚠ LABEL CORRECTED 2026-07-29, and the correction is foreman's own. This line
 #  used to read "all 6 kinds + refusal". BOTH HALVES OVERSTATED IT:
@@ -189,7 +248,7 @@ fi
 #  case exist nowhere else. minionA flagged this as owed and it is cheap.
 #  ⚠ SITE-BUT-NO-MIN IS THE ROW THAT EARNS IT: a single combined guard could not
 #  produce it, so it is what says the two guards are genuinely separate.
-$B incant/manyScratch > "$T/ms.o" 2> "$T/ms.e"; check "manyScratch runs" 0 $?
+run2 manyScratch "$T/ms.o" "$T/ms.e"; check "manyScratch runs" 0 $?
 sentinel "manyScratch sentinel (no truncation)" "$T/ms.o" "MS SENTINEL"
 diffcheck "manyScratch.target (kant emitMany: emission + both refusals)" \
           genLadder/manyScratch.target "$T/ms.e"
@@ -272,7 +331,7 @@ fi
 #  GREEN-BUT-FOR-PARKED IS THIS FLEET'S CLEAN STATE, and the summary line says so
 #  in both numbers so neither can be read alone.
 iterrun () {                    # iterrun <fixture> <target> <label>  -- PARKED
-    $B "incant/$1" > "$T/$1.o" 2> "$T/$1.e"; ec=$?
+    run2 "$1" "$T/$1.o" "$T/$1.e"; ec=$?
     parkcheck "$3 exit 0" 0 $ec
     grep -vE "^Search list:|^stop:|^$" "$T/$1.o" > "$T/$1.f"
     parkdiff "$3" "$2" "$T/$1.f"
@@ -310,7 +369,7 @@ iterrun iterT1m genLadder/iterT1m.divergence "iterT1m (mutual recursion: KNOWN W
 #  ⚠ VALUES ARE ASSERTED, NOT A GOLDEN DIFF (rule H3): these fixtures print
 #  their own expectations, so a diff would move whenever a comment moved.
 branchrun () {                  # branchrun <fixture> <sentinel> <name>
-    $B "incant/$1" > "$T/$1" 2>&1
+    run1 "$1" "$T/$1"
     if [ $? != 0 ]; then echo "  FAIL  $3 (nonzero exit)"; fail=1; return; fi
     if ! grep -qF "$2" "$T/$1"; then
         echo "  FAIL  $3 -- TRUNCATED at exit 0; every line in it is uninterpretable"; fail=1; return; fi
