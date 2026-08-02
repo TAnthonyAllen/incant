@@ -171,9 +171,7 @@ void clearData()
 void clearList()
 {
     if !groupList   return;
-    if !listLength  groupList = 0;
-    else
-    while groupList pop();
+    groupList       = 0;
     hasAttributes   = hasMembers = 0;
 }
 

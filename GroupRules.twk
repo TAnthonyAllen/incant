@@ -246,19 +246,7 @@ use sourceFILE
                 }
             }
         //cout "popInput:",head(atRuleMark,10):;
-        /*  REGISTRY CLOSE (Tony's design ruling, 2026-08-02). An included file
-            has fully finished loading exactly when the divert stack empties, so
-            this is where second-phase reference resolution runs: every rule
-            reference is warmed BEFORE anything classifies or parses it, which
-            is what stops declaration order being load-bearing in a grammar.
-            See finalizeRegistry (GroupActions.rtn) for the measurement and the
-            mechanism. It is idempotent -- a warmed term has children and is
-            skipped -- so the later firings of this hook, once parsing is under
-            way, are no-op walks and cannot relink anything out from under a
-            parse in progress. All the real work lands at include-end.  */
-        if !inputSTAK.length {
-            inputDiverted = false;
-            finalizeIfDirty(); }
+        if !inputSTAK.length   inputDiverted = false;
         }
     else    inputDiverted = false;
     return;

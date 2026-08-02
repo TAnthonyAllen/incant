@@ -2529,11 +2529,35 @@ char 	*name = input->getText();
 
 extern "C" int finalizeIfDirty()
 {
-int 	warmed = 0;
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+int 		warmed = 0;
 	if ( !::registriesDirty(-1) )
 		return 0;
+	/*  ⚠ THE GUARD IS A CONDITION, NOT A LOCATION (Tony's ruling, 2026-08-02),
+	and it is what makes the crash UNCONSTRUCTABLE rather than avoided. A
+	sweep that runs while a define is still open relinks a stub that is
+	mid-fill: SIGSEGV in addGroup via parse -> testAttributes -> parse,
+	with zero bytes of output. Hunting for a hook site that cannot fire
+	mid-define is hopeless, because input lifetime and define lifetime are
+	INDEPENDENT -- the same fact that made the popInput hook too late, seen
+	from the other end.
+	
+	THREE BITS, because currentDefine alone is NOT enough: the bootstrapper
+	builds its rules in C++ and never goes through aCTionDefinE, so
+	currentDefine is null in exactly the window that crashes. `defining`
+	and `processingCode` are the parser's own state and cover it.
+	
+	⚠ AND IT DOES NOT CLEAR THE FLAG WHEN IT DEFERS -- clearing on a
+	deferral would turn "not yet" into "never", which is a silent skip
+	wearing a guard's clothes.  */
+	if ( ruler->currentDefine )
+		return 0;
+	if ( ruler->defining )
+		return 0;
+	if ( ruler->processingCode )
+		return 0;
 	::registriesDirty(0);
-	warmed = finalizeRegistries();
+	warmed = ::finalizeRegistries();
 	return warmed;
 }
 
@@ -7376,7 +7400,7 @@ char 		*name = item->groupBody->flags.data ? item->getText() : (char*)0;
 *****************************************************************************/
 extern "C" int registriesDirty(int set)
 {
-	 static int dirty = 1;
+	 static int dirty = 0;
 	if (set >= 0) dirty = set;
 	return dirty; 
 }
@@ -8446,21 +8470,8 @@ void GroupRules::popInput()
 				}
 			}
 		//cout "popInput:",head(atRuleMark,10):;
-		/*  REGISTRY CLOSE (Tony's design ruling, 2026-08-02). An included file
-		has fully finished loading exactly when the divert stack empties, so
-		this is where second-phase reference resolution runs: every rule
-		reference is warmed BEFORE anything classifies or parses it, which
-		is what stops declaration order being load-bearing in a grammar.
-		See finalizeRegistry (GroupActions.rtn) for the measurement and the
-		mechanism. It is idempotent -- a warmed term has children and is
-		skipped -- so the later firings of this hook, once parsing is under
-		way, are no-op walks and cannot relink anything out from under a
-		parse in progress. All the real work lands at include-end.  */
 		if ( !inputSTAK->length )
-			{
 			inputDiverted = 0;
-			finalizeIfDirty();
-			}
 		}
 	else	inputDiverted = 0;
 	return;

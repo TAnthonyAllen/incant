@@ -449,7 +449,7 @@ int         warmed = 0;
 *****************************************************************************/
 extern int registriesDirty(int set)
 {
-    -% static int dirty = 1;
+    -% static int dirty = 0;
        if (set >= 0) dirty = set;
        return dirty; %-
 }
@@ -461,8 +461,29 @@ extern void markRegistriesDirty()
 
 extern int finalizeIfDirty()
 {
-int     warmed = 0;
+GroupRules  ruler = groupRules;
+int         warmed = 0;
     if !registriesDirty(-1)     return 0;
+    /*  ⚠ THE GUARD IS A CONDITION, NOT A LOCATION (Tony's ruling, 2026-08-02),
+        and it is what makes the crash UNCONSTRUCTABLE rather than avoided. A
+        sweep that runs while a define is still open relinks a stub that is
+        mid-fill: SIGSEGV in addGroup via parse -> testAttributes -> parse,
+        with zero bytes of output. Hunting for a hook site that cannot fire
+        mid-define is hopeless, because input lifetime and define lifetime are
+        INDEPENDENT -- the same fact that made the popInput hook too late, seen
+        from the other end.
+
+        THREE BITS, because currentDefine alone is NOT enough: the bootstrapper
+        builds its rules in C++ and never goes through aCTionDefinE, so
+        currentDefine is null in exactly the window that crashes. `defining`
+        and `processingCode` are the parser's own state and cover it.
+
+        ⚠ AND IT DOES NOT CLEAR THE FLAG WHEN IT DEFERS -- clearing on a
+        deferral would turn "not yet" into "never", which is a silent skip
+        wearing a guard's clothes.  */
+    if ruler.currentDefine      return 0;
+    if ruler.defining           return 0;
+    if ruler.processingCode     return 0;
     registriesDirty(0);
     warmed = finalizeRegistries();
     return warmed;
