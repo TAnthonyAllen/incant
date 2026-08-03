@@ -1,0 +1,63 @@
+/*****************************************************************************
+    vantage2x2 -- THE DISCRIMINATOR MEASUREMENT. 2026-08-03, Clay's brief.
+
+    Three candidate homes for the discriminator that makes a member-depth name
+    dark to bare lookup: the ENTRY (a flag the addingMembers path stamps), the
+    REGISTRY (how it got on the search list), or the VANTAGE (where the lookup
+    is issued from). This separates them.
+
+    2x2: two names x two vantages.
+      CELL A  regDark  from OUTSIDE (an action in an unrelated registry)
+      CELL B  regDark  from INSIDE  (a sibling member of its own parent)
+      CELL C  gXpress  from OUTSIDE          <- run in vantage2x2gx
+      CELL D  gXpress  from INSIDE           <- run in vantage2x2gx
+
+    READING IT:
+      darkness follows VANTAGE (A lit/B dark, or A dark/B dark + C lit)
+          -> the law is about where you stand; the gate was never the mechanism
+      darkness follows NAME (regDark lit both, gXpress dark both)
+          -> the discriminator is ON THE ENTRY; next probe is a flag-word diff
+      any other split -> compound discriminator, and that is still one run's tuition
+
+    SENTINEL AT THE FOOT (H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+register(RegSubject);
+define
+    holder
+        regDark code={ print "regDark body ran":; };
+        insideProbe argument code={
+            d := regDark;
+            if d;
+                print "CELL B  regDark from INSIDE  a sibling member body: FOUND":;
+            else
+                print "CELL B  regDark from INSIDE  a sibling member body: DARK":;
+            };
+    ;
+
+register(Vantage);
+define
+    outsideProbe code={
+        d := regDark;
+        if d;
+            print "CELL A  regDark from OUTSIDE (unrelated registry)   : FOUND":;
+        else
+            print "CELL A  regDark from OUTSIDE (unrelated registry)   : DARK":;
+        ip := holder["insideProbe"];
+        if ip;
+            ip(0);
+        else
+            print "CELL B  UNREACHABLE -- holder[insideProbe] not found":;
+        };
+    ;
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities RegSubject list;
+
+outsideProbe();
+print "VANTAGE SENTINEL -- run reached the end":;
+stop();
