@@ -115,6 +115,15 @@ should mirror.
 - Every fixture under a wall-clock cap (**RULE H5**).
 - Best-practice review of support code is **observations into the corpus, not drive-by edits** —
   fixes get proposed, signed, then made.
+- ⚠ **A CENSUS CLAIM THAT RESTS ON A PROBE REPORTS THE PROBE, NOT JUST THE CONCLUSION**
+  *(amended 2026-08-03, Tony's signature, verbatim)*. **A readable command in the corpus is
+  falsifiable where a confident sentence is just prose.**
+
+  *Why it was signed the day it was proposed: on 2026-08-03 four confident claims died on
+  measurements, and **three of the four came from instruments rather than from code** — a `.taG`
+  existence test that is always truthy, an exit status taken through a pipe, a grep pattern that
+  did not match the fixture's own output. A minion doing mechanical recon **is nothing but
+  instruments**. NO GRINDING covers going slowly; this covers going fast and wrong.*
 - ⚠ **NO GRINDING** *(amended 2026-08-03)*. On encountering trouble — ambiguity, a surprising
   measurement, a file that resists the census format, **anything that would tempt an extended solo
   struggle** — **pause and ask for direction**. *A paused minion costs a relay turn; a grinding

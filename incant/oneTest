@@ -28,6 +28,30 @@ righty = 13;
 generateAction(testDo);
 counter = 0;
 generateAction(testFor);
+/*****************************************************************************
+    ⚠ THE OPERATIVE stop() IS THE ONE DIRECTLY BELOW. TONY'S RULING, 2026-08-03:
+    ONE STOP. Everything under it is kept just-in-case and is AT RISK OF BEING
+    TRIMMED WITH NO REGRETS.
+
+    The file is named for how it is used -- one test, changed as we go. The
+    standing downside is that the changers have been reluctant to clean up as
+    they go, so scratch accumulates below the stop.
+
+    ⚠ WHY THIS NOTE EXISTS RATHER THAN A CLEANUP: there are SIX stop() calls in
+    this file and the run ends at this one. The 32 lines below -- including
+    testUnitTests() and the GUI-utilities section -- HAVE NEVER EXECUTED under
+    the current baseline, so genLadder/oneTest.base certifies the five
+    generateAction rows above and NOTHING BELOW. Verified by marker: "hello
+    world", "dumpBC for", "testGXLeaf", "Unit Tests" and "printDefinition" all
+    appear ZERO times in a full run.
+
+    ⚠ THE TRAP, and it is why the note sits HERE: moving or deleting this stop
+    to run more does NOT run more -- it hands control to the NEXT stop a few
+    lines down, which truncates again, silently, at exit 0. That is RULE H2's
+    own worked example (incant/jiquery had three stops and answered one question
+    out of three for a month). If you extend the live section, delete the stops
+    below it as you go -- do not simply move this one.
+*****************************************************************************/
 stop();
 /*****************************************************************************
 	Bytecode print generation — POP target: testPrint -> "hello world"
