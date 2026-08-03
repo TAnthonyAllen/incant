@@ -124,8 +124,31 @@ remaining 9-line diff is **only** the already-signed audit movement (the three n
 `JSONtoken[1] JSONblock`, `JSONvalue[1] JSONblock`, `JSONvalue[2] JSONarray` plus the `pROPERTIEs`
 index shift). **The re-pin is its own act and was deliberately not taken today.**
 
+## ✅ RULED 2026-08-03 (Tony) — TWO PRINT FORMS FROM ONE WALK
+**display** — today's behaviour, `noPrint` attributes elide, the default **for eyes**.
+**fidelity** — **`noPrint` attributes SURVIVE**; the archive persists this and the round-trip oracle
+runs against it.
+
+**The law line:** *a form meant to be **re-read as definition** must be **fidelity**; a form meant
+for **eyes** may elide.*
+
+**Why it was forced:** the archive persists entities **through the print form**, and **re-reading a
+printed definition is defining.** A `noPrint` `register` that vanished at print **never fires on
+re-read — a lit member comes back dark.** Byte-identical storage, different citizen. It also closes
+a real oracle blind spot by construction: `register` is consumed silently and does not echo in
+`printDefinition`, so a round-trip POP is blind to it — but **the archive prints what survives,
+because fidelity is *defined as* what survives.**
+
+⚠ **PREREQUISITE, TONY'S:** `aCTionDefinE` **deletes a `noPrint` attribute that has a method, after
+running that method.** Fidelity print needs those attributes still present, so **that behaviour must
+change before the fidelity form can round-trip.** Named now so it is not discovered at build time.
+Nothing builds today; the flag is parked at the site (`docs/supportMinion.md` TASK 2).
+
 ## NEXT
-1. **Minions.** Two charters are shelf-ready: `docs/supportMinion.md` (recon → Buffer compress +
+0. **Fire order is ruled: FORMS BEFORE SEARCH** — the forms corpus carries **43 measured
+   `register`-as-attribute uses**, so search's question 3 inherits a real population instead of a
+   hypothetical. Forms fires once support's census legs settle and the channel is judged clear.
+1. **Minions.** Three charters are shelf-ready (`docs/formsMinion.md` added): `docs/supportMinion.md` (recon → Buffer compress +
    registry → Display; TASK 0 is a verbatim floor-snapshot commit; NO GRINDING) and
    `docs/searchMinion.md` (the first **design** minion — five questions of search law, deliverable is
    a proposal with no oracle, judged at Tony's gauntlet). **Stagger the firing** so two minions'

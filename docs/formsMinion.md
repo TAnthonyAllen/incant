@@ -16,6 +16,11 @@ Shelf-ready; fires on **Tony's word with Clod-slack**, per the standing stagger 
 while support's census is in its active legs** unless Clod judges the channel clear. Channel files
 `ipc/forms-to-clod.md` / `ipc/clod-to-forms.md` per the naming convention.
 
+✅ **FIRE ORDER: FORMS BEFORE SEARCH** *(ruled 2026-08-03, Tony's word, on Clod's M2 argument)*.
+The forms corpus carries **43 measured `register`-as-attribute uses**, so firing forms first means
+`searchMinion` question 3 (*what may declare visibility*) inherits **a real population instead of a
+hypothetical**. Stagger discipline unchanged.
+
 ## FOUNDATION
 
 **`docs/forms.md` is the seed.** The minion's first deliverable includes **converting it into its
@@ -24,6 +29,24 @@ own foundation document** — current content preserved, restructured as the min
 census work.
 
 ## TASK 1 — FORMS RECON
+
+**CENSUS BOUNDARY** *(amended 2026-08-03, Tony's word, answering margin M1)*. `IncantForms/` holds
+84 files and they are three different kinds of thing. They are **not** all forms:
+
+| kind | count | disposition |
+|---|---|---|
+| **incant-syntax** | **22** | ✅ **THE CENSUS.** These are the forms. |
+| XML-syntax | 33 | counted as a **conversion-backlog claim**, linked to `docs/forms.md` as the conversion spec. **Not categorized.** |
+| prose / design notes | 29 | **named as not-forms.** Not censused, not catalogued. |
+
+⚠ **THE CENSUS INSTRUMENT IS `stop()`-AWARE** *(amended 2026-08-03, answering margin M3)*. **Only
+content ABOVE a `stop()` is live.** Below-`stop()` content is recorded as **prose-about-attributes**
+and is **never catalogued as use** — `forms.md` §4 makes trailing prose after `stop()` a deliberate
+convention, so this is not a defect to report but a boundary to respect. An attribute appearing only
+below a `stop()` is prose about an attribute, not an attribute in use.
+
+*Bookkeeping: this is the **second specimen of the stop-boundary class** — `oneTest` accidental
+(2026-08-03), forms deliberate. **A third names the class**, per the two-specimen rule.*
 
 Get familiar with every form. Census each: **name, where defined, what it renders or does, and a
 proposed categorization.** The categorizing attributes themselves are **to be proposed, not

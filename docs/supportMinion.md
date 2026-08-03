@@ -92,6 +92,35 @@ byte-identical.
 **Format choice surfaces to Tony before implementation** — it is a wire-format decision with a
 future web channel behind it.
 
+⚠ **THE REGISTRY PRINT ACTION MUST PRINT THE *FIDELITY* FORM, NOT THE DISPLAY FORM**
+*(ruled 2026-08-03, Tony; recorded here so the flag is waiting at the site when the action gets
+built — nothing builds today).*
+
+**Two print forms come off one walk:**
+
+| form | behaviour | for |
+|---|---|---|
+| **display** | today's behaviour, unchanged — `noPrint` attributes elide | **eyes** (less clutter); the default |
+| **fidelity** | **`noPrint` attributes SURVIVE** | **the archive**, and the round-trip oracle |
+
+**The law line:** *a form meant to be **re-read as definition** must be **fidelity**; a form meant
+for **eyes** may elide.*
+
+**Why this task specifically owns it:** the archive **persists entities through the print form**,
+and **re-reading a printed definition is defining**. So a `noPrint` `register` that vanished at print
+**never fires on re-read, and a lit member comes back dark** — byte-identical storage, different
+citizen. The registry round-trip POP (write → read → every buffer byte-identical) would pass while
+silently changing what the restored tree *means*.
+
+✅ **This also closes the `printDefinition` oracle blind spot by construction** (`docs/formsMinion.md`
+margin M2 — `register` is consumed silently and does not echo, so a round-trip POP is blind to it):
+**the archive prints what survives, because fidelity is *defined as* what survives.**
+
+⚠ **KNOWN PREREQUISITE, Tony's, not this minion's:** `aCTionDefinE` currently **deletes a `noPrint`
+attribute that has a method, after running that method**. Fidelity print needs those attributes to
+still be there, so that behaviour has to change before the fidelity form can round-trip. **Named
+here so it is not discovered at build time; the change itself is a runtime edit and is Tony's.**
+
 **OUT OF SCOPE: encryption.** HPDL, coupled to key management, waits for a channel that makes
 it real.
 
