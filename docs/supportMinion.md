@@ -3,13 +3,15 @@
 **STATUS: CHARTER, NOT A TASK.** This minion does not exist yet and must not be spawned
 until the fire condition below is met and Tony says the word.
 
-> **AMENDED 2026-08-03** (Clay, **awaiting Tony's countersign**) — four amendments applied inline
+> **AMENDED 2026-08-03** (Clay, **countersigned Tony** — "if word from me needed, consider word
+> given") — amendments applied inline
 > and marked *(amended)*, answering margin notes M1–M4: fire-condition clause **(c)**, the census
 > boundary, the `jigcorpus` naming correction, and the NON-GOALS rewritten in WANTED form. Applied
 > to the body rather than appended so the charter stays **one** authoritative document — a frozen
 > brief must not require its reader to mentally apply a diff.
 
-*Dictated by Clay 2026-08-03, countersigned Tony. Transcribed by Clod per WT-9 (a brief Clod
+*Dictated by Clay 2026-08-03, countersigned Tony. Second amendment round (TASK 0, NO GRINDING)
+landed 2026-08-03 with Tony's word given. Transcribed by Clod per WT-9 (a brief Clod
 will act on gets dictated and transcribed, because the transcription step is a second close
 reader). The charter body below is Clay's text. Clod's reader-notes are quarantined in the
 TRANSCRIPTION MARGIN at the foot — they are **not** part of the charter and carry no
@@ -23,13 +25,25 @@ authority.*
 
 This minion does not fire until:
 
-**(a)** the `jitEmitUnary` ← `opPlusPlus` crash is fixed and the jitLadder is green over it,
-**(b)** the bare-lookup sweep has closed `oneTest baseline`, and
-**(c)** *(amended)* **the support repo tree is clean** — a census `asOf` a dirty tree is not
-reproducible. Landing the 37 dirty files (`StringRoutines` and `OCframe` among them) is **Tony's**,
-sequenced before fire.
+**(a)** the `jitEmitUnary` ← `opPlusPlus` crash is fixed and the jitLadder is green over it — ✅
+**MET 2026-08-03** (commit `ffb4812`; ladder 83 checks, exit 0), and
+**(b)** the bare-lookup sweep has closed `oneTest baseline`.
+
+*(Clause (c), "the support repo tree is clean", is **superseded** — it became **TASK 0** below, which
+is stronger: a snapshot commit makes the floor reproducible whether or not the tree was tidy first.)*
 
 **Tony's word fires it.** Until then this file is a charter, not a task.
+
+## TASK 0 — SNAPSHOT THE FLOOR *(amended 2026-08-03)*
+
+**First act on firing: commit the support tree verbatim as a floor snapshot.** The commit message
+marks the content **unreviewed**; **no edits are permitted in the same commit**. **All census
+provenance keys to that commit.**
+
+*Why this replaces "land the dirty files first": an `asOf` against an uncommitted tree is an `asOf`
+against nothing reproducible, and the recon would launder uncommitted work into "the floor" with
+provenance that looks clean. A verbatim snapshot fixes the reference point without requiring anyone
+to tidy 37 files first — and without pretending they were reviewed.*
 
 ## PREMISE
 
@@ -101,6 +115,10 @@ should mirror.
 - Every fixture under a wall-clock cap (**RULE H5**).
 - Best-practice review of support code is **observations into the corpus, not drive-by edits** —
   fixes get proposed, signed, then made.
+- ⚠ **NO GRINDING** *(amended 2026-08-03)*. On encountering trouble — ambiguity, a surprising
+  measurement, a file that resists the census format, **anything that would tempt an extended solo
+  struggle** — **pause and ask for direction**. *A paused minion costs a relay turn; a grinding
+  minion costs its sandbox's credibility.* **Questions are the cheap path.**
 
 ## NON-GOALS
 
