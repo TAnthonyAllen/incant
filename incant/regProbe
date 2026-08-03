@@ -1,0 +1,97 @@
+/*****************************************************************************
+    regProbe -- THE POP FOR THE DORMANT `register` ATTRIBUTE. 2026-08-03.
+
+    ⚠ DORMANT PRIOR ART GETS A FIXTURE BEFORE IT GETS LOAD. `register` predates
+    the members gate, addingMembers, currentDefine and this year's registry
+    work. It was heavily used long ago and dormant since, so "it used to work"
+    is a claim about a different language than the one running today.
+
+    THE MECHANISM, read from Commands.rtn rEGISTER: as a noPrint definition
+    attribute it takes item.parent as the argument, then
+
+        if name  registri = registries[name];      <- attribute carries data
+        else     registri = currentRegistry;
+        registri += argument;
+
+    ============================================================================
+    ⚠⚠ THE TOPOLOGY IS LOAD-BEARING, AND THE FIRST DRAFT OF THIS FIXTURE GOT IT
+    WRONG. Recorded, because the correction is the finding.
+
+    Draft 1 defined the subject and the probing action IN THE SAME REGISTRY.
+    Check B then reported that an UNREGISTERED member was findable by bare
+    name -- which reads exactly like "the members gate has drifted and Tony's
+    pollution fix is compromised", the one finding this brief says outranks
+    everything and means tools down.
+
+    IT WAS THE FIXTURE. A same-registry lookup does not go through the search
+    list at all, so it could never have shown the gate working. The real case
+    is CROSS-REGISTRY: gXpress lives in `Generating`, and the caller that went
+    dark reaches it through the search list. Re-measured against the real
+    specimen (incant/sweepProbe) before raising any alarm: gXpress is STILL
+    dark, so the gate is intact.
+
+    So the subject lives in RegSubject (a registry ON the search list) and the
+    prober lives in RegProbe. That is the topology the sweep actually cares
+    about, and the only one under which B can mean what it claims.
+
+    THE LESSON, and it is the one this project keeps paying for: an alarm is a
+    causal claim, and a causal claim gets checked against the real specimen
+    BEFORE it is raised. One command separated "the gate drifted" from "my
+    fixture is shaped wrong."
+    ============================================================================
+
+    THREE CHECKS, and CHECK B IS THE LOAD-BEARING ONE.
+
+      A  a member-depth entry WITH `register`  -> bare locate() FINDS it
+      B  the same entry WITHOUT `register`     -> bare locate() STAYS DARK
+      C  both stay reachable through the parent that owns them
+
+    ⚠ If A passes and B ALSO finds its entry -- under THIS topology -- then the
+    gate really has drifted: tools down, report to Tony and Clay, do not
+    proceed to Step 3.
+
+    SENTINEL AT THE FOOT (standing harness rule H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+/*  The SUBJECT registry -- mirrors `Generating`, which is where the members
+    that went dark actually live.  */
+register(RegSubject);
+define
+    holder
+        regDark code={ print "regDark body ran":; };
+        regLit register code={ print "regLit body ran":; };
+    ;
+
+/*  The PROBER registry -- a DIFFERENT one, so every lookup below is forced
+    through the search list exactly as the real callers are.  */
+register(RegProbe);
+define
+    probeReg code={
+        a := regLit;
+        if a.taG;
+            print "A ok    regLit FOUND by bare name, tag =" a.taG:;
+        else
+            print "A FAIL  regLit NOT found by bare name -- register did not publish it":;
+        b := regDark;
+        if b.taG;
+            print "B FAIL  regDark FOUND by bare name -- ⚠ THE GATE HAS DRIFTED, TOOLS DOWN":;
+        else
+            print "B ok    regDark stays dark (the gate still gates)":;
+        c := holder["regDark"];
+        if c.taG;
+            print "C ok    holder[regDark] still reachable through its parent":;
+        else
+            print "C FAIL  holder[regDark] lost -- register/gate disturbed ownership":;
+        };
+    ;
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities RegSubject list;
+
+probeReg();
+print "REGPROBE SENTINEL -- run reached the end":;
+stop();

@@ -1,0 +1,28 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(AffProbe);
+define
+    holder
+        hDark code={ print "x":; };
+    probeAff code={
+        g := generator["gXpress"];
+        if g.isMembeR;
+            print "generator/gXpress  isMember":;
+        else
+            print "generator/gXpress  NOT isMember":;
+        h := holder["hDark"];
+        if h.isMembeR;
+            print "holder/hDark       isMember":;
+        else
+            print "holder/hDark       NOT isMember":;
+        };
+    ;
+probeAff();
+print "AFF SENTINEL":;
+stop();

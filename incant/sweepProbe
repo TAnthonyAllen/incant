@@ -1,0 +1,31 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(SweepProbe);
+define
+    probe code={
+        g := generator;
+        if g.listLengtH;
+            print "A: generator FOUND by bare name, members =" g.listLengtH:;
+        else
+            print "A: generator NOT FOUND by bare name":;
+        h := generator["gXpress"];
+        if h;
+            print "B: generator[gXpress] FOUND, tag =" h.taG:;
+        else
+            print "B: generator[gXpress] NOT FOUND":;
+        x := gXpress;
+        if x;
+            print "C: gXpress by BARE name FOUND, tag =" x.taG:;
+        else
+            print "C: gXpress by BARE name NOT FOUND":;
+        };
+    ;
+probe();
+print "SWEEP SENTINEL -- run reached the end":;
+stop();

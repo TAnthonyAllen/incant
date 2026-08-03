@@ -59,6 +59,9 @@ define
                 runGenerated(grup);
             };
         gDO argument code={
+            /*  sibling hoist -- members are not bare-locatable (2026-08-03) */
+            emit := generator["emitBC"];
+            gxp := generator["gXpress"];
             // do-while: same ops as gWhilE, body-before-condition. Grammar
             // `DO StatemenT while- ExpressioN` puts the body (StatemenT) at
             // [1] and the condition as the named ExpressioN (unWrap as gIF).
@@ -73,18 +76,21 @@ define
             labelName = #$"bcLabel" labelIndex$;
             exitLabel := new(labelName);
             // Loop top: body runs first (do-while executes it at least once).
-            emitBC(topLabel);
+            emit(topLabel);
             stXP := st["revisedList"];
-            if stXP.listLengtH;  gXpress(stXP);
+            if stXP.listLengtH;  gxp(stXP);
             else    runGenerated(st);
             // Condition, then branch: bcBRZ exits on false; fall through to
             // bcBR back-edge on true.
-            gXpress(xp);
-            emitBC(copyOf(bcBRZ) +% exitLabel);
-            emitBC(copyOf(bcBR) +% topLabel);
-            emitBC(exitLabel);
+            gxp(xp);
+            emit(copyOf(bcBRZ) +% exitLabel);
+            emit(copyOf(bcBR) +% topLabel);
+            emit(exitLabel);
             };
         gFOR argument code={
+            /*  sibling hoist -- members are not bare-locatable (2026-08-03) */
+            emit := generator["emitBC"];
+            gxp := generator["gXpress"];
             // for-loop on the gWhilE skeleton. The new bcForNext op carries the
             // loop var, the iterable, and (optional) restrict; runForNext owns
             // the descent + advance + affiliation filter + self-clean. No pre-
@@ -103,23 +109,33 @@ define
             labelName = #$"bcLabel" labelIndex$;
             exitLabel := new(labelName);
             // Loop top: bcForNext advances + pushes 1/0; bcBRZ exits when 0.
-            emitBC(topLabel);
+            emit(topLabel);
             op := copyOf(bcOPs["bcForNext"]);
             op +% looper;
             op +% xp;
             if restrict.taG;   op +% restrict;
-            emitBC(op);
-            emitBC(copyOf(bcBRZ) +% exitLabel);
+            emit(op);
+            emit(copyOf(bcBRZ) +% exitLabel);
             // Body: descend to its revisedList like gWhilE's body.
             stXP := st["revisedList"];
-            if stXP.listLengtH;  gXpress(stXP);
+            if stXP.listLengtH;  gxp(stXP);
             else    runGenerated(st);
             // Back edge: jump to the top to advance the cursor again.
-            emitBC(copyOf(bcBR) +% topLabel);
-            emitBC(exitLabel);
+            emit(copyOf(bcBR) +% topLabel);
+            emit(exitLabel);
             };
         gIF argument code={
             print `"gIF: tag=" argument.taG "text=" argument.texT:;
+            /*  SIBLING HOIST (2026-08-03). gXpress and emitBC are MEMBERS of
+                generator, and since the members gate landed a member is no
+                longer added to the currentRegistry -- so a BARE call by the
+                sibling's own name
+                resolves to nothing and SILENTLY DOES NOTHING. Reach siblings
+                through the table that owns them, which is what runGenerated
+                already does (`action := generator[argument]`). Hoisted once
+                per body rather than per call site.  */
+            gxp := generator["gXpress"];
+            emit := generator["emitBC"];
             dumpContents(argument);
             xp  := argument["ExpressioN"];
             xp  = unWrap(xp);
@@ -132,7 +148,7 @@ define
             labelName = #$"bcLabel" labelIndex$;
             endLabel := new(labelName);
             dumpContents(xp);
-            gXpress(xp);
+            gxp(xp);
             // bcBRZ jumps to elseLabel when there is an else, else endLabel. Emit
             // the label directly — no shared dst variable (:= binds/aliases, so
             // reusing one dst clobbered the earlier label; the indirection was
@@ -141,36 +157,41 @@ define
                 ++labelIndex;
                 labelName = #$"bcLabel" labelIndex$;
                 elseLabel := new(labelName);
-                emitBC(copyOf(bcBRZ) +% elseLabel);
+                emit(copyOf(bcBRZ) +% elseLabel);
             else
-                emitBC(copyOf(bcBRZ) +% endLabel);
+                emit(copyOf(bcBRZ) +% endLabel);
             // then-branch: descend to the generated revisedList (st is a non-isGROUP
             // StatemenT whose expression hangs off as an attribute, so unWrap can't
             // reach it) and emit directly, same as the condition; fall back to
             // runGenerated for compound (block/nested) then-branches.
             stXP := st["revisedList"];
-            if stXP.listLengtH;  gXpress(stXP);
+            if stXP.listLengtH;  gxp(stXP);
             else    runGenerated(st);
             if el.listLengtH;
-                emitBC(copyOf(bcBR) +% endLabel);
-                emitBC(elseLabel);
+                emit(copyOf(bcBR) +% endLabel);
+                emit(elseLabel);
                 // else-branch: same revisedList descent the then-branch needs.
                 elXP := el["revisedList"];
-                if elXP.listLengtH;  gXpress(elXP);
+                if elXP.listLengtH;  gxp(elXP);
                 else    runGenerated(el);
-            emitBC(endLabel);
+            emit(endLabel);
             print `"End of gIF":;
             };
         gPrinT argument code={
+            /*  sibling hoist -- members are not bare-locatable (2026-08-03) */
+            emit := generator["emitBC"];
             // Passthrough: emit one bcPrint carrying the print statement at [2].
             // runPrint fires aCTionPrinT on it at interpret time (reliable C++
             // accessors reach the operands incant accessors can't); operand
             // order is preserved by the reversePrint flag appendGroup reads.
             op = copyOf(bcOPs["bcPrint"]);
             op +% argument;
-            emitBC(op);
+            emit(op);
             };
         gWhilE argument code={
+            /*  sibling hoist -- members are not bare-locatable (2026-08-03) */
+            emit := generator["emitBC"];
+            gxp := generator["gXpress"];
             // Condition: access by name + unWrap, exactly as gIF does (a bare
             // argument[1] hands gXpress the wrapping ExpressioN, not the expr).
             xp  := argument["ExpressioN"];
@@ -185,32 +206,34 @@ define
             labelName = #$"bcLabel" labelIndex$;
             exitLabel := new(labelName);
             // Loop top: condition check, branch past the body when false.
-            emitBC(topLabel);
-            gXpress(xp);
-            emitBC(copyOf(bcBRZ) +% exitLabel);
+            emit(topLabel);
+            gxp(xp);
+            emit(copyOf(bcBRZ) +% exitLabel);
             // Body: descend to its revisedList like gIF's then-branch;
             // runGenerated handles compound (block/nested) bodies.
             stXP := st["revisedList"];
-            if stXP.listLengtH;  gXpress(stXP);
+            if stXP.listLengtH;  gxp(stXP);
             else    runGenerated(st);
             // Back edge: jump to the top to re-check the condition.
-            emitBC(copyOf(bcBR) +% topLabel);
-            emitBC(exitLabel);
+            emit(copyOf(bcBR) +% topLabel);
+            emit(exitLabel);
             };
         gXpress argument code={
+            /*  sibling hoist -- members are not bare-locatable (2026-08-03) */
+            emit := generator["emitBC"];
             tmp = argument;
             print "Entering gXpress":;
             for child in tmp; members
                 nextChild = child.nexT;
                 if child.isOperatoR;
-                    if child.taG != "=";        emitBC(child);
-                or child.registrY == "bcOPs";   emitBC(child);
-                or child.isLiteraL;             emitBC(bcPushLit=child);
+                    if child.taG != "=";        emit(child);
+                or child.registrY == "bcOPs";   emit(child);
+                or child.isLiteraL;             emit(bcPushLit=child);
                 // Field ref: carry the field by reference (+% shares its
                 // GroupBody) instead of folding its value via `=`, so the
                 // push reads the LIVE field each pass -- mirrors how bcBRZ
                 // carries its label and bcStoreField its target.
-                else                            emitBC(copyOf(bcPushField) +% child);
+                else                            emit(copyOf(bcPushField) +% child);
             };
         emitBC argument code={
             :generator bcLIST;

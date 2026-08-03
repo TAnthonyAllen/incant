@@ -1,0 +1,30 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+register(RegSubject);
+define
+    holder
+        regDark code={ print "x":; };
+    ;
+register(RegEnum);
+define
+    enumIt code={
+        g := Generating["gXpress"];
+        if g.taG;
+            print "Generating HOLDS gXpress   <- it IS in the registry":;
+        else
+            print "Generating lacks gXpress   <- NOT in the registry":;
+        h := RegSubject["regDark"];
+        if h.taG;
+            print "RegSubject HOLDS regDark   <- it IS in the registry":;
+        else
+            print "RegSubject lacks regDark   <- NOT in the registry":;
+        };
+    ;
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities RegSubject list;
+enumIt();
+print "ENUM SENTINEL":;
+stop();
