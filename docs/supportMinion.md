@@ -123,10 +123,21 @@ silently changing what the restored tree *means*.
 margin M2 — `register` is consumed silently and does not echo, so a round-trip POP is blind to it):
 **the archive prints what survives, because fidelity is *defined as* what survives.**
 
-⚠ **KNOWN PREREQUISITE, Tony's, not this minion's:** `aCTionDefinE` currently **deletes a `noPrint`
-attribute that has a method, after running that method**. Fidelity print needs those attributes to
-still be there, so that behaviour has to change before the fidelity form can round-trip. **Named
-here so it is not discovered at build time; the change itself is a runtime edit and is Tony's.**
+⚠ **KNOWN PREREQUISITE, Tony's, not this minion's** *(⚠ CORRECTED 2026-08-03 by the round-2
+minion, and the correction changes what the fix is)*: `aCTionDefinE` does **NOT delete** a `noPrint`
+attribute that has a method — **it never ATTACHES it in the first place.** `ruleActions.rtn:207`:
+
+```
+if noPrint && immediateACTION {
+    /*  "if item gets run but is not added to the new group."  <- the source says it outright  */
+    parent = NewGroup;  fLAG = true;  method(item);  fLAG = false; }
+else { ...the branch that would attach it... }
+```
+
+The method runs and control **falls past the `else`**. So **"stop deleting" and "start attaching"
+are different edits**, and only the second one exists to be made. Fidelity print needs those
+attributes present, so this must change before the fidelity form can round-trip. **Named here so it
+is not discovered at build time; the change is a runtime edit and is Tony's.**
 
 **OUT OF SCOPE: encryption.** HPDL, coupled to key management, waits for a channel that makes
 it real.

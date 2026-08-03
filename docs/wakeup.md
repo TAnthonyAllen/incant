@@ -139,9 +139,13 @@ a real oracle blind spot by construction: `register` is consumed silently and do
 `printDefinition`, so a round-trip POP is blind to it — but **the archive prints what survives,
 because fidelity is *defined as* what survives.**
 
-⚠ **PREREQUISITE, TONY'S:** `aCTionDefinE` **deletes a `noPrint` attribute that has a method, after
-running that method.** Fidelity print needs those attributes still present, so **that behaviour must
-change before the fidelity form can round-trip.** Named now so it is not discovered at build time.
+⚠ **PREREQUISITE, TONY'S** *(⚠ corrected 2026-08-03 — the first wording was wrong in a way that
+changes the fix)*: `aCTionDefinE` does **NOT delete** a `noPrint` attribute that has a method — **it
+never ATTACHES it.** `ruleActions.rtn:207` runs the method inside `if noPrint && immediateACTION`
+and falls past the `else` that would attach it; the source comment says so outright (*"item gets run
+but is not added to the new group"*). **"Stop deleting" and "start attaching" are different edits**,
+and only the second exists. Fidelity print needs those attributes present, so this must change
+before the fidelity form can round-trip. Named now so it is not discovered at build time.
 Nothing builds today; the flag is parked at the site (`docs/supportMinion.md` TASK 2).
 
 ## NEXT
