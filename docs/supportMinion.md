@@ -27,7 +27,13 @@ This minion does not fire until:
 
 **(a)** the `jitEmitUnary` ← `opPlusPlus` crash is fixed and the jitLadder is green over it — ✅
 **MET 2026-08-03** (commit `ffb4812`; ladder 83 checks, exit 0), and
-**(b)** the bare-lookup sweep has closed `oneTest baseline`.
+**(b)** the bare-lookup sweep has closed `oneTest baseline` — ✅ **MET 2026-08-03** (`generateCode
+failed` 5 → 0; `maximus = 11` then `26 ×4`).
+
+✅ **FIRED 2026-08-03. TASK 0 and TASK 1 complete and accepted** (floor snapshot `690dc59`; corpus
+`b9aae1a`, 22 claims + 5 opens; leak check passed). **TASK 2 AUTHORIZED 2026-08-03 by Tony**, with
+the `Buffer.rvsd` ambiguity ruled away first so the Buffer base is unambiguous: *what is in the tree
+is the truth.*
 
 *(Clause (c), "the support repo tree is clean", is **superseded** — it became **TASK 0** below, which
 is stronger: a snapshot commit makes the floor reproducible whether or not the tree was tidy first.)*
@@ -60,9 +66,10 @@ have zero callers.
 Output is a corpus file in the standard claim format (provenance, confidence, `asOf`) — *(amended)*
 **a sibling corpus to the JIT's, with its own querier — not loaded into `jigcorpus`.**
 
-**Census unit** *(amended)*: the **21 `Frame/*.twk`** plus **`BaseEntry.C` and `Stack.C` as C-only
-entries** (the `Stack.C` / `Stak.twk` near-collision recorded as its own claim — a future misgrep
-waiting to happen, and the corpus is where such things get named). **`SimpleList.twk` is in**, its
+**Census unit** *(amended)*: the **21 `Frame/*.twk`** plus **`BaseEntry.C`** as a C-only entry.
+*(`Stack.C` was in this list and is **deleted as of 2026-08-03** — Tony ruled it a spent temporary;
+`Stack.C`/`Stack.h` and its four `pbxproj` Sources entries are gone, so the `Stack.C`/`Stak.twk`
+near-collision this list was warning about no longer exists. `CLAIM SUP-8` keeps the trail.)* **`SimpleList.twk` is in**, its
 zero-caller status a **pre-registered hypothesis that still owes its grep** — a candidate excused
 from measurement is exactly how a breakage gets frozen in as truth. **`BeforeRefactor/` is out of
 the census proper**, in as **one claim** recording that it exists, is not gitignored, and awaits
@@ -144,6 +151,16 @@ should mirror.
 - Every fixture under a wall-clock cap (**RULE H5**).
 - Best-practice review of support code is **observations into the corpus, not drive-by edits** —
   fixes get proposed, signed, then made.
+- ⚠ **NO SUSPICIOUS TEMPORARIES LEFT AMBIENT** *(standing discipline, all charters — Tony's
+  ruling 2026-08-03)*. **Delete when spent · manifest when kept · attic when uncertain.**
+
+  *Earned the day it was written: `Frame/BeforeRefactor/` (24 files mirroring the entire census
+  unit, silently doubling every grep), `Frame/Buffer.rvsd` (an unreviewed alternate of the file
+  TASK 2 was about to build on) and `Frame/Stack.C` (a dead class one letter from a live one, and
+  still in a Sources build phase). None was a secret; each was a temporary nobody had swept.
+  ⚠ **The three dispositions are not interchangeable** — attic-ing something ruled **spent**
+  overstates its status, and deleting something merely **uncertain** destroys evidence. Say which
+  of the three a file is, then act.*
 - ⚠ **A CENSUS CLAIM THAT RESTS ON A PROBE REPORTS THE PROBE, NOT JUST THE CONCLUSION**
   *(amended 2026-08-03, Tony's signature, verbatim)*. **A readable command in the corpus is
   falsifiable where a confident sentence is just prose.**

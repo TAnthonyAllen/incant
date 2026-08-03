@@ -60,6 +60,17 @@ carrying provenance and `asOf` · fork-then-fallback · little steps for little 
 Tony's offline section). *(⚠ See margin note M1 — that account has since been corrected by
 measurement, and the corrected specimen is the one to reason from.)*
 
+- ⚠ **NO SUSPICIOUS TEMPORARIES LEFT AMBIENT** *(standing discipline, all charters — Tony's
+  ruling 2026-08-03)*. **Delete when spent · manifest when kept · attic when uncertain.**
+
+  *Earned the day it was written: `Frame/BeforeRefactor/` (24 files mirroring the entire census
+  unit, silently doubling every grep), `Frame/Buffer.rvsd` (an unreviewed alternate of the file
+  TASK 2 was about to build on) and `Frame/Stack.C` (a dead class one letter from a live one, and
+  still in a Sources build phase). None was a secret; each was a temporary nobody had swept.
+  ⚠ **The three dispositions are not interchangeable** — attic-ing something ruled **spent**
+  overstates its status, and deleting something merely **uncertain** destroys evidence. Say which
+  of the three a file is, then act.*
+
 ## THE BRUSHSTROKE
 
 **Here is your canvas, brush, and palette; paint something interesting.**

@@ -78,6 +78,16 @@ license to build**.
 ## STANDING DOCTRINE, INHERITED IN FULL
 
 - **No grinding** — pause and ask via channel.
+- ⚠ **NO SUSPICIOUS TEMPORARIES LEFT AMBIENT** *(standing discipline, all charters — Tony's
+  ruling 2026-08-03)*. **Delete when spent · manifest when kept · attic when uncertain.**
+
+  *Earned the day it was written: `Frame/BeforeRefactor/` (24 files mirroring the entire census
+  unit, silently doubling every grep), `Frame/Buffer.rvsd` (an unreviewed alternate of the file
+  TASK 2 was about to build on) and `Frame/Stack.C` (a dead class one letter from a live one, and
+  still in a Sources build phase). None was a secret; each was a temporary nobody had swept.
+  ⚠ **The three dispositions are not interchangeable** — attic-ing something ruled **spent**
+  overstates its status, and deleting something merely **uncertain** destroys evidence. Say which
+  of the three a file is, then act.*
 - **Instrument provenance** — a claim resting on a probe reports the probe.
 - **Sandbox per the support pattern:** reads Groups, writes only its own workspace plus its channel
   file; **leak-checked before acceptance**.
