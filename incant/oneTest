@@ -35,23 +35,19 @@ stop();
 	pass rather than after testByteCode's many print/dump calls.
 *****************************************************************************/
 generateCode(testPrint);
-dumpBC(testPrint.bcLIST);
 dumpContents(testPrint);
 generateAction(testPrint);
 stop();
 
 generateCode(testByteCode);
-dumpBC(testByteCode.bcLIST);
 dumpContents(testByteCode);
 generateAction(testByteCode);
 stop();
 
 generateCode(testGXLeaf);
 print testGXLeaf.bcLIST:;
-dumpBC(testGXLeaf.bcLIST);
 
 generateCode(testIfElse);
-dumpBC(testIfElse.bcLIST);
 stop();
 
 /*****************************************************************************

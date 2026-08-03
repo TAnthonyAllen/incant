@@ -1,6 +1,143 @@
-# ⚠⚠ UPDATED 2026-08-02 — READ THE 08-02 SECTION FIRST. It is directly below this line.
-# Everything from `# ⚠⚠ UPDATED 2026-08-01` down is older vintage and still broadly accurate;
-# it is just no longer the top of the story. CLEAN STOP, 8 commits, fleet 32 green / 1 parked.
+# ⚠⚠ UPDATED 2026-08-03 — READ THE 08-03 SECTION FIRST. It is directly below this line.
+# Everything from `# ⚠⚠ UPDATED 2026-08-02` down is older vintage and still broadly accurate;
+# it is just no longer the top of the story. CLEAN STOP, fleet green, JIT v0.1 DECLARED.
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 2026-08-03 — THE JIT'S LAST KNOWN CRASH DIED AT ITS CAUSE, THE SWEEP LANDED,
+#              AND FOUR CONFIDENT CLAIMS DIED ON MEASUREMENTS
+# ═══════════════════════════════════════════════════════════════════════════
+
+## ✅ CLAIM JIT-0.1 — DECLARED, and written as a claim rather than a banner
+
+**The JIT compiles the certified instruction families with interpreter parity, certified by
+`jitLadder/ladder.sh` (83 checks, exit 0), asOf this reseal.** Families: assign · arithmetic ·
+compare · **unary (`++ --`, new today)** · if/else · while · do · multi-statement operand reuse ·
+an emitted call · the fallback column · **recursion on real frames**. Every rung compiles ONCE and
+fires TWICE with the input changed after emission, so the answers are proven to come from compiled
+code; every rung asserts **degrade count 0** and records the interpreted oracle beside its value.
+
+⚠ **EXCLUDED, AND NAMED ON THE FACE OF THE CLAIM — this list IS v0.2's contents:**
+- **Iterator semantics divergence.** A jitted action containing an iterator walk visits **0** leaves
+  where the interpreter visits **2**. Pinned in `incant/jitJUi`; **measured pre-existing** (both the
+  old and new seed gates give 0/2), and it waits on Tony's `iterT3`/trunk-arity ruling. **It is an
+  interpreter question wearing a JIT fixture.**
+- **IR persistence** — designed, unbuilt, next arc.
+- **Inlining** — parked question, blocks nothing.
+
+**The honest form of the parity statement, and it is stronger than a clean banner:** we do **not**
+claim the engines agree everywhere. We claim **they agree everywhere certified, and the one known
+disagreement is pinned and owned.**
+
+## THE FIX — the unary crash died at its cause, not under a bandage
+`jitInc`/`jitDec`/`jitNeg` had exited 139 inside `jitEmitUnary` since the 06-30 unified-emit pivot.
+`runOP`'s seed gate read `if jitting && op.isOperator`, but unary operators are registered
+`unary ruleMethod=` — **isUnary and isMethod, NOT isOperator** — so dispatch took the `isMethod` arm
+and **no operand was ever seeded**. `jitEmitUnary` derefs `target->jitData` unconditionally, so the
+miss was a SIGSEGV rather than a wrong answer.
+
+```
+    if jitting && (op.isOperator || op.isUnary)
+```
+**`isUnary` is the precise gate** — widening to `isMethod` would seed an operand for every rule
+method in the language. **No layout change** (`isUnary` was already in `.twk`, `.h` and
+`groups.ext`). Now 14 / 12 / -13, degrade 0, pinned by **ladder rung JU** (+7 checks, 76 → 83).
+
+**What made it VERIFIED rather than inferred** — the corpus had graded the cause `inferred` for four
+days and wrote its own graduation criterion. A **debugger probe** closed it:
+`gJitSeeded.size() == 0` at the crash, with `gJitBuilder`/`gJitCurrentFn`/`gJitResultSlot` **all
+non-null**. That last line **refuted the rival hypothesis by measurement** — "the emit context is not
+set up on the newly-live `jitRunAction` path" predicts a null builder — so the shared-prologue design
+question it would have raised never arose.
+
+## THE SWEEP — and the disease was nastier than the one we thought we had
+`oneTest`: 5 × `generateCode failed` → **0**; `maximus = 11` then **26 ×4**.
+
+⚠ **`generatE` WAS NEVER THE DARK NAME.** C++ reaches it via `generator["generatE"]`, a **parent
+index**. The names that went dark were **`gXpress` and `emitBC`, called by bare name from INSIDE
+SIBLING MEMBER BODIES** — so the dispatched action ran and **its innards quietly did nothing**,
+at exit 0. Repaired by hoisting the sibling once per body through the table that owns it (31 sites).
+
+## ⚠ THE REGISTER LAW, STATED AS MADE
+**`register` as a `noPrint` definition attribute publishes an otherwise-dark member into a registry**
+— `currentRegistry` by default, `registries[name]` when the attribute carries data. Dormant prior
+art, POP'd before being trusted (`incant/regProbe`, three legs): the registered entry is
+bare-findable, **the unregistered sibling stays dark**, and both stay reachable through their parent.
+**First production use today: `emitBC`**, with a negative control confirming `gXpress` stayed dark.
+
+**And the rule it operates on, measured four ways:** a member is on its **parent's** list and **not**
+on the registry's (`Generating` 49 entries with `generator` among them and no `gXpress`; `generator`
+10 with `gXpress` among them). **`incant/vantage2x2`: two names × two vantages, ALL FOUR CELLS
+DARK** — not the vantage, not the entry. **The members gate IS the mechanism**, and it is complete.
+
+## ⚠⚠ FOUR CONFIDENT CLAIMS DIED ON MEASUREMENTS TODAY — the tally, because the pattern is the point
+1. **`generatE` is the dark name** (wakeup 08-02 + briefs, carried as settled fact) — died on one
+   grep. **A parent index was working the whole time.**
+2. **"The gate has drifted, tools down"** — my own alarm, from leg B of the register POP. Died on
+   re-measuring the real specimen. **Interrogating the failing measurement before escalating is what
+   produced everything below it.**
+3. **"Registry membership is not the discriminator"** — my overturn claim. **Wrong**, and so was the
+   self-correction I offered after it. Both were inference; walking the lists settled it.
+4. **Vantage as the discriminator** (Clay's lead suspect, offered at the usual odds) — died on the
+   2×2. All four cells dark.
+
+⚠ **AND THE INSTRUMENT THAT CAUSED #2 AND #3, worth more than any of them:
+NEVER TEST EXISTENCE WITH `if x.taG;`.** A GroupField accessor returns a **fresh temporary field of
+property text**, so it is **truthy whether or not the lookup found anything**. Use `if x;`. This is
+in project memory already and was used wrongly anyway; it survived two fixture rewrites and produced
+a false tools-down alarm that would have sent Tony hunting corrupted lists — **his least favourite
+quarry, and there was nothing there.**
+
+**The standing asymmetry held again:** structural claims survived, causal claims died 4-for-4.
+
+## ERRATA AGAINST THIS FILE'S OWN EARLIER SECTIONS
+- **"`groups.ext` changes have NO COMMIT TRAIL"** (said three times below) — **false.** It is
+  **tracked in the support repo** (`~/data/support`, its own git, 5 commits naming the file).
+  Bear-trap #11's practical warning stands — *this* repo's history will not save you — but the
+  **distrust-the-audits corollary was overdrawn.**
+- **The `generatE` diagnosis** in the 08-02 section — superseded by the sweep above.
+
+## ⚠ A LATENT FINDING NOBODY WAS LOOKING FOR — `oneTest` RUNS ONE SECTION OF SIX
+`incant/oneTest` has **six `stop()` calls** and terminates at the **first**, on line 31. **32 lines
+below it never execute** — including `testUnitTests()` and the GUI-utilities section. Verified by
+marker: `hello world`, `dumpBC for`, `testGXLeaf`, `Unit Tests`, `printDefinition` all appear
+**zero** times in a full run.
+
+**This is `jiquery`'s disease (RULE H2's own worked example) sitting in the project's PRIMARY
+BASELINE**, and it means `oneTest.base` certifies only the five `generateAction` rows. **Whether the
+later sections are deliberately parked or a debug `stop()` was left in is Tony's call** — reported,
+not touched. It also corrects today's own census: the four `dumpBC` calls were **`stop()`-dead, not
+bare-lookup-dead** (deleted today per Tony's ruling; the baseline did not move, byte-identical).
+
+## WHAT IS RUNNABLE
+```
+sh jitLadder/ladder.sh       83 checks, exit 0   J1..J7, JE, JF, JP, JPd, JU + J-R
+sh genLadder/pop.sh          32 green / 1 parked  (2 documented reds, see below)
+sh genLadder/printPop.sh      9 checks, exit 0
+sh genLadder/containerPop.sh 11 checks, exit 0
+sh genLadder/tree.sh                     exit 0
+<binary> incant/oneTest      exit 0, ZERO `generateCode failed`, 11 then 26 x4
+```
+⚠ **`pop.sh`'s two reds are still deliberately unpinned.** `census.target` (genParse refuses to plan
+`MemberS` — a capability regression tangled with a deliberate grammar change; **they want separating
+before either is pinned**) and `oneTest baseline` — **whose bytecode-emit half is now FIXED**; its
+remaining 9-line diff is **only** the already-signed audit movement (the three named terms
+`JSONtoken[1] JSONblock`, `JSONvalue[1] JSONblock`, `JSONvalue[2] JSONarray` plus the `pROPERTIEs`
+index shift). **The re-pin is its own act and was deliberately not taken today.**
+
+## NEXT
+1. **Minions.** Two charters are shelf-ready: `docs/supportMinion.md` (recon → Buffer compress +
+   registry → Display; TASK 0 is a verbatim floor-snapshot commit; NO GRINDING) and
+   `docs/searchMinion.md` (the first **design** minion — five questions of search law, deliverable is
+   a proposal with no oracle, judged at Tony's gauntlet). **Stagger the firing** so two minions'
+   pause-and-ask traffic does not interleave in one relay channel.
+2. **The disposition sorting** — `docs/bareLookupCensus.md`, 39 sites. Unblocked now that
+   *"register it"* has a known meaning.
+3. **The census signature** / separating the `MemberS` regression from the grammar change.
+4. **`checkSkip` capture** — lower-level scan, not a callback (Tony's ruling).
+
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ⚠⚠ UPDATED 2026-08-02 — the 08-02 section follows. Older vintage from here down.
 
 # ═══════════════════════════════════════════════════════════════════════════
 # 2026-08-02 — THE DAY THE FLEET STARTED TELLING THE TRUTH. FOUR DEFECTS FIXED,

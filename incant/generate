@@ -235,7 +235,7 @@ define
                 // carries its label and bcStoreField its target.
                 else                            emit(copyOf(bcPushField) +% child);
             };
-        emitBC argument code={
+        emitBC register argument code={
             :generator bcLIST;
             bcLIST += argument;
             print `"emit tag=" argument.taG "content=" argument:;

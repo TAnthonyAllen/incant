@@ -613,6 +613,36 @@ define
                 provenance="jitEmitters.rtn:61,529,580 re-verified in the tree 2026-07-31; the dump was produced";
                 confidence="verified";
                 asOf="2026-07-31";
+            jitVersion01
+                content="✅ CLAIM JIT-0.1, declared 2026-08-03. The JIT COMPILES
+                    THE CERTIFIED INSTRUCTION FAMILIES WITH INTERPRETER PARITY,
+                    certified by jitLadder/ladder.sh at 83 checks exit 0.
+                    Families: assign, arithmetic, compare, unary (++/--, added
+                    today), if/else, while, do, multi-statement operand reuse, an
+                    emitted call, the fallback column, and recursion on real
+                    frames. Every rung compiles ONCE and fires TWICE with the
+                    input changed after emission, so the answers are proven to
+                    come from compiled code rather than from the interpreter
+                    running the body at emit time; every rung asserts degrade
+                    count 0 and records the interpreted oracle beside its value.
+                    ⚠ EXCLUSIONS ARE PART OF THE CLAIM, and this list is what
+                    v0.2 contains: (1) ITERATOR SEMANTICS DIVERGENCE -- a jitted
+                    action containing an iterator walk visits 0 leaves where the
+                    interpreter visits 2, pinned in incant/jitJUi, measured
+                    PRE-EXISTING (both the old and new seed gates give 0/2), and
+                    waiting on Tony's iterT3/trunk-arity ruling; it is an
+                    interpreter question wearing a JIT fixture. (2) IR
+                    PERSISTENCE -- designed, unbuilt. (3) INLINING -- parked,
+                    blocks nothing.
+                    ⚠ THE PARITY STATEMENT IS DELIBERATELY NARROW: this does NOT
+                    claim the engines agree everywhere. It claims THEY AGREE
+                    EVERYWHERE CERTIFIED AND THE ONE KNOWN DISAGREEMENT IS PINNED
+                    AND OWNED. That is the stronger statement, because an
+                    unscoped claim rots and this one names where to look when it
+                    does.";
+                provenance="jitLadder/ladder.sh 83 checks exit 0 + incant/jitscratch exit 0 (14/12/-13) + INCANT_JIT_DUMP=2 IR inspection, all run 2026-08-03";
+                confidence="verified";
+                asOf="2026-08-03";
             unarySeedCause
                 content="⚠ GRADUATED inferred -> verified 2026-08-03, ON THE
                     CRITERION IT WROTE FOR ITSELF ('it graduates the moment

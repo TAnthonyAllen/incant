@@ -104,46 +104,61 @@ authority, flagged for signature.
 looseness is the species test and tightening it would run the experiment on a different animal.
 Both notes below are about the **specimen's accuracy**, not about the minion's latitude.*
 
-## M1 — ⚠ THE REQUIRED READING IS WRONG ON ITS CENTRAL FACT, corrected by measurement today
+## M1 — THE RULE IN THE REQUIRED READING IS CORRECT. ONLY ITS SPECIMEN IS WRONG.
 
-This is the note that matters, because the `generatE` incident is named three times in the charter
-and is the proposal's worked example for question 3.
+*⚠ Narrowed 2026-08-03 after the 2×2 read out. An earlier draft of this note said the required
+reading was "wrong on its central fact" and implied the **rule** was wrong too. **It is not.** That
+draft rested on an instrument error of mine, and the correction is recorded here rather than
+quietly edited, because the charter's worked example depends on which half was wrong.*
 
-**Wakeup 08-02 says:** *"`generatE` (`incant/generate:233`) sits one indent deep — a MEMBER — and
-is reached by bare lookup, which the new members gate no longer serves."*
+**The rule stands as the wakeup states it:** a member-depth name is not reachable by bare lookup.
+Measured four ways, and the last is decisive:
 
-**Measured 2026-08-03, and it does not hold.** `generateCode` finds `generatE` perfectly well —
-`generateCode: running on testByteCode` fires and `End of generatE` prints. It finds it because it
-uses `generator["generatE"]`, a **parent index**, not a bare lookup.
+```
+incant/listWalk    Generating's own list  49 entries, `generator` among them, NO gXpress
+                   generator's own list   10 entries, gXpress among them
+                   -> a member is on its PARENT's list, not the REGISTRY's
+incant/vantage2x2  two names x two vantages -- ALL FOUR CELLS DARK
+                   -> not the vantage, not the entry. The members gate IS the mechanism.
+```
 
-**The names that actually went dark were `gXpress` and `emitBC`** — called **by bare name from
+**What IS wrong is the specimen.** Wakeup 08-02 names `generatE` as the dark name. It is not:
+`generateCode` reaches it via `generator["generatE"]`, a **parent index**, and always did —
+`generateCode: running on testByteCode` fires and `End of generatE` prints.
+
+**The names that actually went dark were `gXpress` and `emitBC`**, called **by bare name from
 inside sibling member bodies** (`gIF` calling `gXpress(xp)`). The dispatched action ran; its
-internal sibling calls resolved to nothing and **did nothing, silently, at exit 0**.
+internal sibling calls resolved to nothing and **did nothing, silently, at exit 0.**
 
-Probe (`incant/sweepProbe`, committed as the artifact):
-```
-A: generator          FOUND by bare name (10 members)   <- attribute depth
-B: generator[gXpress] FOUND                             <- parent index
-C: gXpress            NOT FOUND by bare name            <- member depth
-```
+**Why the minion needs the corrected specimen:** the two versions send question 3 at different
+targets. The wakeup's version asks *"why can't a caller reach a member it names?"* The real case is
+sharper — **a member cannot reach its own SIBLING by bare name, while the table owning them both is
+reachable from anywhere.** A law written against the first would not obviously cover the second,
+and the minion cannot ask.
 
-**Why this matters to the minion and not just to the record:** a law for question 3 derived from
-the wakeup's version would be answering *"why can't a caller reach a member it names directly?"*
-The real question is narrower and more interesting: **a member cannot reach its own SIBLING by
-bare name, while the table that owns them both is reachable.** Those imply different laws. The
-minion cannot ask, so the specimen must be right before it fires.
+**Measurement floor for question 3:** `incant/sweepProbe` (attribute-lit / member-dark, three
+checks) and `incant/vantage2x2` (the four cells).
 
-**`incant/sweepProbe` is the measurement floor for question 3** — it is the only artifact in the
-tree that pins the attribute-reachable / member-dark rule, and it is three checks long.
+⚠ **And one instrument warning the minion should carry, because it cost a false alarm here:**
+**never test existence with `if x.taG;`.** A GroupField accessor returns a *fresh temporary field of
+property text*, so it is truthy whether or not the lookup found anything. Use `if x;`. That artifact
+produced a "the members gate has drifted" alarm that survived two fixture rewrites before the real
+specimen killed it.
 
-## M2 — Question 3 will have a moving floor; date it
+## M2 — Question 3's floor moved while the charter sat; here is where it landed
 
-The bare-lookup sweep and the **register pivot** are live work as of this writing. If `register`
-holds (POP pending), **visibility becomes a per-name declaration rather than an accident of
-depth** — which is question 3's answer arriving from the implementation side while the charter
-sits on the shelf.
+The **register pivot is settled and is now product**, not pending as this note first said.
 
-Not an argument to change the charter: a law is still owed, and a mechanism that *can* declare
-visibility does not say *what may* declare it or *what happens when two do*. But the minion should
-be handed the **then-current** state of `register` at fire time rather than this document's, and
-the charter's own `asOf` discipline is the reason to say so here.
+- `incant/regProbe` — three legs green: an entry carrying `register` is bare-findable; its
+  unregistered sibling **stays dark**; both stay reachable through their parent.
+- **First production use, 2026-08-03:** `emitBC` carries `register`, with a negative control
+  confirming `gXpress` stayed dark — so the mechanism publishes exactly one name at a time.
+
+**So visibility can now be a per-name declaration rather than an accident of depth.** That is
+question 3's answer arriving from the implementation side.
+
+**It does not retire the question — it sharpens it.** A mechanism that *can* declare visibility says
+nothing about **what may** declare it, **what happens when two registries both claim a name**, or
+whether *"declared public"* should be a property the grammar recognises at all. If anything the
+charter's question 3 is now the more urgent one, because the tree has started acquiring public
+member names and there is no law saying which ones deserve to be.
