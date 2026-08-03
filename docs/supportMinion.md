@@ -1,0 +1,201 @@
+# Support Minion — Charter
+
+**STATUS: CHARTER, NOT A TASK.** This minion does not exist yet and must not be spawned
+until the fire condition below is met and Tony says the word.
+
+*Dictated by Clay 2026-08-03, countersigned Tony. Transcribed by Clod per WT-9 (a brief Clod
+will act on gets dictated and transcribed, because the transcription step is a second close
+reader). The charter body below is Clay's text. Clod's reader-notes are quarantined in the
+TRANSCRIPTION MARGIN at the foot — they are **not** part of the charter and carry no
+authority.*
+
+---
+
+# SUPPORT MINION CHARTER — 2026-08-03, Clay, countersigned Tony
+
+## FIRE CONDITION
+
+This minion does not fire until:
+
+**(a)** the `jitEmitUnary` ← `opPlusPlus` crash is fixed and the jitLadder is green over it, and
+**(b)** the bare-lookup sweep has closed `oneTest baseline`.
+
+**Tony's word fires it.** Until then this file is a charter, not a task.
+
+## PREMISE
+
+The support files predate most of the current discipline. They are about to grow (Buffer
+registry, Display) and nobody holds a measured picture of what is in them or what still calls
+them. **Build on a measured floor, not a remembered one.**
+
+## TASK 1 — RECON, and the recon is the whole first life
+
+Full census of the support files. Per file: what it contains, where each entry point is used —
+**grep-counted with the command recorded as provenance, never recalled** — and which entries
+have zero callers.
+
+Output is a corpus file in the standard claim format (provenance, confidence, `asOf`), loadable
+via `jigcorpus`.
+
+**Deliverables:**
+- a dead / park-aside **candidate** list — candidates only, **parking is Tony's signature**
+- an answer to the open question *should any of kant migrate into the support domain* — the
+  recon **informs** this, it does not decide it
+
+**No source edits during recon.** Zero-caller claims are grep results, **not deletion
+licenses**; the arc-that-was-deleted taught us *"unused"* and *"safe to remove"* are different
+claims.
+
+## TASK 2 — BUFFER: COMPRESS + REGISTRY
+
+**Scope:** compress/decompress as a **self-inverse pair** on Buffer, POP'd in isolation
+(compress→decompress→byte-identical · empty buffer · large buffer).
+
+Then the registry: `getFile()` into a buffer field, fields collected in a registry list, a print
+action rendering the registry in a format that reads back in.
+
+**The load-bearing POP is the round trip:** write registry → read registry → every buffer
+byte-identical.
+
+**Format choice surfaces to Tony before implementation** — it is a wire-format decision with a
+future web channel behind it.
+
+**OUT OF SCOPE: encryption.** HPDL, coupled to key management, waits for a channel that makes
+it real.
+
+⚠ **Bear note:** Buffer sits in the tokenizer's blast path (`shorten` feeds `testContainer`).
+Additions are **new methods only**, and any layout change pays the `groups.ext` + `tokall` toll
+in full.
+
+## TASK 3 — DISPLAY
+
+Per `docs/guiDesign.md` (CGBitmapContext, kant draws into bitmap, Apple blits).
+
+**Explicitly design-as-we-go with Tony; the charter grants no license to run ahead of the
+conversation.** Follows Task 2 because the registry work will have warmed Buffer idioms Display
+should mirror.
+
+## STANDING DISCIPLINE
+
+- Sandbox held and **leak-checked mechanically**, as the two prior minions did.
+- Baselines captured before anything changes, diffed after.
+- All instrumentation to `cerr`, **never stdout**.
+- Every fixture under a wall-clock cap (**RULE H5**).
+- Best-practice review of support code is **observations into the corpus, not drive-by edits** —
+  fixes get proposed, signed, then made.
+
+## NON-GOALS
+
+- **No md-structure work** (separate design, likely a genParse customer).
+- **No kant-file-system** beyond the registry round trip.
+- **No virtual-OS anything.**
+
+## CLAY'S FLAG TO TONY — OPEN, needs Tony's word
+
+Task 1's corpus needs a **name for the support-file set** — *"support files"* has meant slightly
+different things across months. If Tony names the exact file list (or the directory that defines
+it), the census boundary is **pinned by him rather than inferred by the minion**.
+
+*(Clod has measured a candidate boundary for Tony to sign or amend — see the margin below. The
+measurement is an aid to the signature, not the signature.)*
+
+---
+
+# TRANSCRIPTION MARGIN — Clod, 2026-08-03
+
+*Not part of the charter. Three notes, in the order they would bite.*
+
+## M1 — The census boundary, measured so Tony can pin it in one word
+
+Provenance — run 2026-08-03 against `~/data/support` @ `5030148` (working tree **dirty**, see M2):
+
+```
+ls Frame | sed 's/.*\.//' | sort | uniq -c | sort -rn
+ls Frame/*.twk Frame/*.rtn Include KeyTable Maps
+for f in Frame/*.C;   do b=$(basename "$f" .C);   [ -f "Frame/$b.twk" ] || echo "$b.C"; done
+for f in Frame/*.twk; do b=$(basename "$f" .twk); { [ -f "Frame/$b.C" ] || [ -f "Frame/$b.mm" ]; } || echo "$b.twk"; done
+```
+
+`~/data/support` is **its own git repo** (own `CLAUDE.md`, own `TODO.md`, branch `main`).
+Four content directories:
+
+| dir | contents |
+|---|---|
+| `Frame/` | 21 `.twk` · 19 `.C` · 22 `.h` · 3 `.rtn` · 3 `.mm` + `frameIncludes`, `devDirectives`, `BeforeRefactor/` |
+| `Include/` | 13 manifests/externs — incl. **`groups.ext`** |
+| `KeyTable/` | `KeyMap` · `KeyTable` · `KeyTableItem` (3 classes) |
+| `Maps/` | `BitMAP` · `Segment` · `perfect.c` · `maps` |
+
+**The 21 `Frame/*.twk` are the natural census unit** — they are the source-of-truth set, and
+each has its generated `.C`/`.h` beside it:
+
+> BaseHash · Bot · **Buffer** · CharSet · DispatchQ · DoubleLink · DoubleLinkList · Hasher ·
+> HashLink · HashList · OCroutines · PLGset · SearchItem · SearchNode · SearchTree · SimpleList ·
+> Stak · StringRoutines · Tape · TapeSegment · URLservice
+
+**Three edge cases the boundary has to rule on explicitly** — each is a different question, and
+a boundary that doesn't name them leaves the minion to guess:
+
+1. **`BaseEntry.C` and `Stack.C` have no `.twk`.** Hand-written, no source of truth. In or out?
+   (Note `Stack.C` vs `Stak.twk` — two different things, one letter apart.)
+2. **`SimpleList.twk` has no generated `.C`/`.mm`.** Either never built or built elsewhere —
+   a zero-caller candidate before the census even starts.
+3. **`Frame/BeforeRefactor/`** — 5 `.twk` and currently **modified in the working tree**. Is it
+   archaeology (out, like `Aside/`) or live (in)? It is not gitignored, which is the argument
+   for asking rather than assuming.
+
+Also for the ruling: `Include/` holds `groups.ext`, whose blast radius is the *Groups* build.
+Censusing it is useful; **editing** it is the `tokall` toll (bear-trap #10). Worth stating which.
+
+## M2 — The support repo is 37 files dirty right now
+
+`StringRoutines.{C,h,twk}` · `PLGset.{C,twk}` · `OCroutines.{twk,mm}` · `CharSet.twk` ·
+`Include/{OCframe,frame,globals,GUIexternals,groups.ext}` · 5 files under `BeforeRefactor/` ·
+and **four deletions** (`Include/BOT.ext`, `Include/IOSframe`, `Include/UIjit.ext`).
+
+A minion whose first act is "measure the floor" would measure **uncommitted work** and bake it
+into the corpus as the baseline. Two of the files it most needs to read (`StringRoutines`,
+`OCframe`) are the exact pair behind bear-trap #17. **Whether this lands before the minion fires
+is Tony's call** — but the charter's own "build on a measured floor" is the argument for it
+landing first, since an `asOf` against a dirty tree is an `asOf` against nothing reproducible.
+
+## M3 — Naming: `jigcorpus` is a corpus, not a loader
+
+The charter says the output is *"loadable via `jigcorpus`"*. Measured: `incant/jigcorpus` is the
+**JIT minion's corpus data**; `incant/jiquery` is the **query harness** that reads it. So the
+support corpus would be a **sibling of `jigcorpus` with its own querier**, not something loaded
+by it.
+
+Almost certainly what was meant — flagged only because this project has been bitten by exactly
+this shape before (`emitTerm` vs the live `emitLeaf`, wakeup 07-29), and a minion working from a
+frozen brief cannot ask.
+
+## M4 — The NON-GOALS are parks, and by the standard adopted the same day two of them are
+## written in the wrong voice
+
+Clay's ruling of 2026-08-03: *a park carries Tony's intent, not just Clay's sequencing —* **WANTED**
+*rather than deferred, because a park in one voice says "later, maybe" and a countersigned one says
+"later, certainly."* The three NON-GOALS above are the first items written after it, so they are its
+first test:
+
+| NON-GOAL | voice it is in |
+|---|---|
+| no md-structure work | **WANTED-shaped already** — it names a destination (*"likely a genParse customer"*), so a later reader knows where it is going |
+| no kant-file-system beyond the round trip | **sequencing only** — says where it stops, not what it is stopping short *of* |
+| no virtual-OS anything | **sequencing only**, and this is the one that matters — Tony's own framing was *"do not want to make too much of that, but maybe that is where the little steps for little feet is leading"* |
+
+The third is the live case: **the charter's flat refusal is stricter than Tony's own words.** He
+parked it *with* a direction; the transcription kept the park and dropped the direction. That is
+exactly the difference the WANTED/deferred distinction was invented to prevent — and it happened in
+the same document, on the same day, which is the argument for the distinction rather than against it.
+
+**Not amended here** — the charter body is Clay's text and countersigned, so a rewrite is his and
+Tony's, not the transcriber's. Flagged so the countersignature can be made deliberate. One sentence
+in each of the two rows fixes it.
+
+## Not a flag, just noted
+
+**Fire condition (a)'s crash is on record with a backtrace** — `jitEmitUnary` (`GroupRules.mm:2424`)
+← `opPlusPlus` ← `runOP`/`aCTionBlocK`/`jitExecBlock`/`jitRunAction`/`testing`, reproduced via
+`incant/jitscratch`. Wakeup 07-28 records it as parked by Clay. Nothing owed here; it just means
+(a) starts from a stack frame rather than from a search.
