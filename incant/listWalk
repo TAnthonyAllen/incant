@@ -1,0 +1,24 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+register(ListWalk);
+define
+    walkIt code={
+        print "=== Generating's OWN list ===":;
+        if Generating.listLengtH;
+            for g in Generating;
+                print "  " g.taG:;
+        print "=== generator's OWN list ===":;
+        h := Generating["generator"];
+        if h.listLengtH;
+            for k in h;
+                print "  " k.taG:;
+        };
+    ;
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+walkIt();
+print "WALK SENTINEL":;
+stop();

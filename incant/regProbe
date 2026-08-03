@@ -72,17 +72,17 @@ register(RegProbe);
 define
     probeReg code={
         a := regLit;
-        if a.taG;
+        if a;
             print "A ok    regLit FOUND by bare name, tag =" a.taG:;
         else
             print "A FAIL  regLit NOT found by bare name -- register did not publish it":;
         b := regDark;
-        if b.taG;
+        if b;
             print "B FAIL  regDark FOUND by bare name -- ⚠ THE GATE HAS DRIFTED, TOOLS DOWN":;
         else
             print "B ok    regDark stays dark (the gate still gates)":;
         c := holder["regDark"];
-        if c.taG;
+        if c;
             print "C ok    holder[regDark] still reachable through its parent":;
         else
             print "C FAIL  holder[regDark] lost -- register/gate disturbed ownership":;

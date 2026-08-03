@@ -12,12 +12,12 @@ register(RegEnum);
 define
     enumIt code={
         g := Generating["gXpress"];
-        if g.taG;
+        if g;
             print "Generating HOLDS gXpress   <- it IS in the registry":;
         else
             print "Generating lacks gXpress   <- NOT in the registry":;
         h := RegSubject["regDark"];
-        if h.taG;
+        if h;
             print "RegSubject HOLDS regDark   <- it IS in the registry":;
         else
             print "RegSubject lacks regDark   <- NOT in the registry":;
