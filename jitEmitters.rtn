@@ -306,6 +306,15 @@ extern GroupItem jitEmitAssign(GroupItem argument,GroupItem target)
 extern GroupItem jitEmitUnary(GroupItem target,int op)
 {
     -%
+    // The operand MUST arrive seeded (runOP's gate). If it does not, degrade
+    // LOUDLY and countably rather than dereferencing null -- gJitDegradeCount
+    // is asserted 0 by every jitLadder rung, so this cannot pass silently. A
+    // quiet null-check returning target would be worse than the crash it
+    // replaces: exit 0 with wrong IR. See GroupActions.rtn's seed gate.
+    if (!target || !target->jitData) {
+        jitDegrade("unary operand reached jitEmitUnary unseeded", target);
+        return target;
+    }
     llvm::IRBuilder<> *b = gJitBuilder;
     llvm::Value *v = target->jitData->jitValue;
     llvm::Value *res = nullptr;

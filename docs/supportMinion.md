@@ -3,6 +3,12 @@
 **STATUS: CHARTER, NOT A TASK.** This minion does not exist yet and must not be spawned
 until the fire condition below is met and Tony says the word.
 
+> **AMENDED 2026-08-03** (Clay, **awaiting Tony's countersign**) — four amendments applied inline
+> and marked *(amended)*, answering margin notes M1–M4: fire-condition clause **(c)**, the census
+> boundary, the `jigcorpus` naming correction, and the NON-GOALS rewritten in WANTED form. Applied
+> to the body rather than appended so the charter stays **one** authoritative document — a frozen
+> brief must not require its reader to mentally apply a diff.
+
 *Dictated by Clay 2026-08-03, countersigned Tony. Transcribed by Clod per WT-9 (a brief Clod
 will act on gets dictated and transcribed, because the transcription step is a second close
 reader). The charter body below is Clay's text. Clod's reader-notes are quarantined in the
@@ -17,8 +23,11 @@ authority.*
 
 This minion does not fire until:
 
-**(a)** the `jitEmitUnary` ← `opPlusPlus` crash is fixed and the jitLadder is green over it, and
-**(b)** the bare-lookup sweep has closed `oneTest baseline`.
+**(a)** the `jitEmitUnary` ← `opPlusPlus` crash is fixed and the jitLadder is green over it,
+**(b)** the bare-lookup sweep has closed `oneTest baseline`, and
+**(c)** *(amended)* **the support repo tree is clean** — a census `asOf` a dirty tree is not
+reproducible. Landing the 37 dirty files (`StringRoutines` and `OCframe` among them) is **Tony's**,
+sequenced before fire.
 
 **Tony's word fires it.** Until then this file is a charter, not a task.
 
@@ -34,8 +43,17 @@ Full census of the support files. Per file: what it contains, where each entry p
 **grep-counted with the command recorded as provenance, never recalled** — and which entries
 have zero callers.
 
-Output is a corpus file in the standard claim format (provenance, confidence, `asOf`), loadable
-via `jigcorpus`.
+Output is a corpus file in the standard claim format (provenance, confidence, `asOf`) — *(amended)*
+**a sibling corpus to the JIT's, with its own querier — not loaded into `jigcorpus`.**
+
+**Census unit** *(amended)*: the **21 `Frame/*.twk`** plus **`BaseEntry.C` and `Stack.C` as C-only
+entries** (the `Stack.C` / `Stak.twk` near-collision recorded as its own claim — a future misgrep
+waiting to happen, and the corpus is where such things get named). **`SimpleList.twk` is in**, its
+zero-caller status a **pre-registered hypothesis that still owes its grep** — a candidate excused
+from measurement is exactly how a breakage gets frozen in as truth. **`BeforeRefactor/` is out of
+the census proper**, in as **one claim** recording that it exists, is not gitignored, and awaits
+Tony's word on whether it is archaeology like `Aside/` — the minion **records the ambiguity rather
+than resolving it**.
 
 **Deliverables:**
 - a dead / park-aside **candidate** list — candidates only, **parking is Tony's signature**
@@ -86,9 +104,15 @@ should mirror.
 
 ## NON-GOALS
 
-- **No md-structure work** (separate design, likely a genParse customer).
-- **No kant-file-system** beyond the registry round trip.
-- **No virtual-OS anything.**
+*(amended — rewritten in WANTED-not-deferred form; see M4)*
+
+- **No md-structure work here — WANTED elsewhere:** it is a genParse-customer design with its own
+  future brief.
+- **No kant-file-system beyond the registry round trip — sequencing:** the round trip is the step
+  that makes the next step visible.
+- **No virtual-OS tasking — but the direction stands as Tony framed it:** *"maybe that is where the
+  little steps for little feet is leading."* **Direction, not destination**; no brief until the
+  steps make one real.
 
 ## CLAY'S FLAG TO TONY — OPEN, needs Tony's word
 

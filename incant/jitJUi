@@ -1,0 +1,117 @@
+/*****************************************************************************
+    jitJUi -- THE ITERATOR-ARM PIN for rung JU. 2026-08-03.
+
+    ⚠ THIS FIXTURE EXISTS TO PIN A GATE ORDERING, NOT TO TEST ITERATORS.
+
+    opPlusPlus and opMinusMinus each test the iterator arm BEFORE the jitting
+    gate:
+
+        if result.fLAG      return 0;          <- poisoned iterator
+        if isIterator { ... return result; }   <- THE ITERATOR ARM
+        if jitting  { jitEmitUnary(...) }      <- the emit gate
+
+    So an iterator node under ++ never reaches jitEmitUnary: it falls through
+    to interpretation. That ordering is Tony's signed ruling of 2026-08-03 and
+    it is SEQUENCING, not feasibility -- the arm is expected to be jittable and
+    is WANTED jitted later. The gate sits where moving it INTO the iterator arm
+    is a move rather than a rebuild.
+
+    ⚠ WHY A FIXTURE AND NOT A COMMENT: nothing enforced that ordering. A future
+    refactor that hoists the jitting gate above the iterator arm -- an entirely
+    reasonable-looking tidy -- would route iterator nodes into jitEmitUnary,
+    where they would be seeded as data fields and increment an ADDRESS. This
+    fixture makes that refactor go red.
+
+    ⚠ AND IT PINS A SECOND THING, introduced the same day. Fixing the unary
+    crash widened runOP's seed gate to
+
+        if jitting && (op.isOperator || op.isUnary)
+
+    which means an iterator operand under ++ is now SEEDED IN runOP, upstream,
+    before opPlusPlus gets the chance to take its iterator arm. That seeding is
+    new, and it is exactly the kind of upstream side effect that is invisible
+    until something depends on it. This fixture is the thing that depends on it.
+
+    ============================================================================
+    ⚠ WHAT IT ASSERTS -- A PINNED KNOWN DIVERGENCE, and the first draft of this
+    fixture asserted the WRONG THING. Recorded because the correction is the
+    finding.
+
+    It was written to assert `jitted == interpreted`, on the reasoning that
+    iterator semantics are parked with Tony so a fixed count would be pinning an
+    answer this arc has no standing to choose. That premise was fine. The
+    ASSERTION was not, because it assumed the two agreed today. They do not:
+
+        JUi jitted      : juiCount = 0
+        JUi interpreted : juiCount = 2
+
+    ⚠ AND THE DIVERGENCE IS PRE-EXISTING -- MEASURED, NOT ASSUMED. The obvious
+    suspect was this arc: widening runOP's seed gate to include isUnary means an
+    iterator operand under ++ is now seeded upstream, which is exactly the kind
+    of change that would produce this. So the gate was REVERTED to isOperator-
+    only, retok'd, rebuilt, and re-run:
+
+        pre-fix  gate (isOperator)            jitted 0 / interpreted 2
+        post-fix gate (isOperator||isUnary)   jitted 0 / interpreted 2
+
+    Identical. The unary fix did not cause it, and a jitted iterator walk
+    visiting nothing is a defect that predates this arc. Not chased -- iterator
+    semantics are Tony's, and `2` for a three-member trunk is in that same
+    parked territory.
+
+    So the fixture pins BOTH OBSERVED VALUES as a known divergence, the
+    `tree.divergence` / `iterT1m` pattern: a deliberately pinned wrong answer,
+    never a park (RULE H6 -- a pin whose answer has not been chosen is a park,
+    and a park that silently starts holding is how it becomes forgotten).
+
+    It still does its primary job. If a refactor hoists the jitting gate above
+    the iterator arm, the iterator node reaches jitEmitUnary, is seeded as a
+    data field, and increments an ADDRESS -- the numbers move or the run dies,
+    and either way this goes red.
+
+    ⚠ WHEN THE ITERATOR ARM IS JITTED (it is WANTED, per Tony's 2026-08-03
+    ruling -- sequencing, not feasibility), THIS FIXTURE MUST BE RE-PINNED, and
+    a re-pin needs a SENTENCE naming what changed, not a green diff.
+    ============================================================================
+
+    SENTINEL AT THE FOOT (standing harness rule H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitLadder);
+define
+    juiA;
+    juiB;
+    juiC;
+    juiTrunk    juiA juiB juiC;
+    juiCount;
+    /*  Single level, NO recursion -- recursion through a jitted action is
+        J-R's subject and would confound this pin with that one. The ++ here
+        is on `g`, an ITERATOR, and the ++ on juiCount is on a DATA node, so
+        one action exercises both arms of opPlusPlus in the same run.  */
+    jitJUi code={
+        juiCount = 0;
+        iterate g on juiTrunk;
+        while ++g
+            ++juiCount;
+        };
+    ;
+
+juiCount = 0;
+testing(jitJUi);
+print "JUi jitted      : juiCount =" juiCount:;
+
+/*  The oracle, captured LAST -- calling the action interpreted BEFORE
+    testing() consumes its isCoded state (measured on J3, 2026-07-31).  */
+juiCount = 0;
+jitJUi();
+print "JUi interpreted : juiCount =" juiCount:;
+
+print "JUi SENTINEL -- run reached the end":;
+stop();

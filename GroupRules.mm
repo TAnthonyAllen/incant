@@ -3627,6 +3627,15 @@ extern "C" void jitEmitTrace(GroupItem *field)
 extern "C" GroupItem *jitEmitUnary(GroupItem *target, int op)
 {
 	
+	// The operand MUST arrive seeded (runOP's gate). If it does not, degrade
+	// LOUDLY and countably rather than dereferencing null -- gJitDegradeCount
+	// is asserted 0 by every jitLadder rung, so this cannot pass silently. A
+	// quiet null-check returning target would be worse than the crash it
+	// replaces: exit 0 with wrong IR. See GroupActions.rtn's seed gate.
+	if (!target || !target->jitData) {
+	jitDegrade("unary operand reached jitEmitUnary unseeded", target);
+	return target;
+	}
 	llvm::IRBuilder<> *b = gJitBuilder;
 	llvm::Value *v = target->jitData->jitValue;
 	llvm::Value *res = nullptr;
@@ -7501,7 +7510,17 @@ GroupItem 	*target = field->get(2);
 	//or arg.isLIST   arg = resolveList(arg);
 	if ( target && target->groupBody->flags.isVirtual )
 		target = ::copyOf(target);
-	if ( GroupControl::groupController->groupRules->jitting && isOperator(op->groupBody->flags.instructType) )
+	/*  The seed gate must cover BOTH dispatch arms below, not just the
+	isOperator one. Unary operators are registered `unary ruleMethod=`
+	(incant/setup:104-150) -- isUnary and isMethod, NOT isOperator -- so
+	they reach `or op.isMethod` at the foot of this method. Gating seeding
+	on isOperator alone left every unary operand unseeded, and jitEmitUnary
+	dereferences target->jitData unconditionally: SIGSEGV, not a wrong
+	answer. Measured 2026-08-03: gJitSeeded.size()==0 at the crash, with
+	gJitBuilder/gJitCurrentFn/gJitResultSlot all live -- so the emit context
+	was fine and it was only ever the seeding. isUnary is the precise gate:
+	widening to isMethod would seed an operand for every rule method.  */
+	if ( GroupControl::groupController->groupRules->jitting && (isOperator(op->groupBody->flags.instructType) || op->groupBody->flags.isUnary) )
 		{
 		
 		if (target && !target->jitData) {

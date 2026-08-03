@@ -446,8 +446,62 @@ else
     echo "  FAIL  JRL no alloca for the local -- it is not framed"; fail=1
 fi
 
+#  ============================================================================
+#  JU -- THE UNARY FAMILY (++ and --), in place on data nodes. 2026-08-03.
+#
+#  Until today this rung could not exist: all three unary POPs exited 139 inside
+#  jitEmitUnary on a null target->jitData. runOP's seed gate read
+#  `if jitting && op.isOperator`, but unary operators are registered
+#  `unary ruleMethod=` -- isUnary and isMethod, NOT isOperator -- so dispatch
+#  took the isMethod arm and no operand was ever seeded. The gate now reads
+#  `(op.isOperator || op.isUnary)`; isUnary is the precise gate, where widening
+#  to isMethod would seed an operand for every rule method in the language.
+#
+#  11/31 from `juOut = juIn; ++juOut; ++juOut; --juOut;` -- two increments and
+#  one decrement so that ++ and -- cannot BOTH fail and still land right.
+#  10/30 = both no-oped · 12/32 = `--` no-oped · 9/29 = `++` no-oped.
+rung jitJU "JU SENTINEL" "JU" 11 31
+INCANT_JIT_DUMP=2 $B incant/jitJU > "$T/jitJU.ir" 2>&1
+if grep -q "add i32" "$T/jitJU.ir" && grep -q "sub i32" "$T/jitJU.ir"; then
+    echo "  ok    JU ++ and -- are both EMITTED (add i32 / sub i32 in the IR)"
+else
+    echo "  FAIL  JU the unary ops are not in the IR -- emitted nothing, or degraded"; fail=1
+fi
+
+#  ⚠ JUi -- THE ITERATOR-ARM PIN. A PINNED KNOWN DIVERGENCE, NOT A GREEN CHECK.
+#
+#  opPlusPlus tests its iterator arm BEFORE the jitting gate, so an iterator
+#  node under ++ falls through to interpretation and never reaches
+#  jitEmitUnary. That ordering is Tony's signed ruling (sequencing, not
+#  feasibility -- the arm is WANTED jitted later). NOTHING ENFORCED IT: a
+#  refactor hoisting the jitting gate above the iterator arm would seed an
+#  iterator as a data field and increment an ADDRESS.
+#
+#  ⚠ The values are pinned WRONG on purpose (the tree.divergence / iterT1m
+#  pattern). A jitted iterator walk visits 0 where the interpreter visits 2.
+#  MEASURED PRE-EXISTING, not caused by the unary fix: the gate was reverted to
+#  isOperator-only, retok'd, rebuilt and re-run, and both gates give 0/2.
+#  Iterator semantics are Tony's, and `2` for a three-member trunk is in that
+#  same parked territory -- so this records the state rather than judging it.
+#  RE-PIN WHEN THE ITERATOR ARM IS JITTED, with a sentence, not a green diff.
+$B incant/jitJUi > "$T/jitJUi" 2>&1
+juie=$?
+if [ $juie != 0 ]; then echo "  FAIL  JUi -- nonzero exit ($juie)"; fail=1
+elif ! grep -qF "JUi SENTINEL" "$T/jitJUi"; then
+    echo "  FAIL  JUi -- TRUNCATED at exit 0; nothing in this run is interpretable"; fail=1
+else
+    jj=$(sed -n 's/.*JUi jitted  *: juiCount = \([0-9-][0-9]*\).*/\1/p' "$T/jitJUi" | head -1)
+    ji=$(sed -n 's/.*JUi interpreted *: juiCount = \([0-9-][0-9]*\).*/\1/p' "$T/jitJUi" | head -1)
+    #  H4: both quantities are printed and COMPARED BY VALUE. Neither check can
+    #  pass by a line going missing -- an empty capture fails the numeric test.
+    if [ "$jj" = "0" ]; then echo "  ok    JUi jitted = 0   (PINNED WRONG -- iterator arm not jitted, Tony's)"
+    else echo "  FAIL  JUi jitted = '$jj', pinned 0 -- WOKE: the iterator arm changed, re-pin with a sentence"; fail=1; fi
+    if [ "$ji" = "2" ]; then echo "  ok    JUi interpreted = 2  (the interpretive arm still taken)"
+    else echo "  FAIL  JUi interpreted = '$ji', pinned 2 -- the iterator walk itself moved"; fail=1; fi
+fi
+
 echo ""
-if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd + J-R THE PROOF)"
+if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU + J-R THE PROOF)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"
 exit $fail

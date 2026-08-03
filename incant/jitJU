@@ -1,0 +1,100 @@
+/*****************************************************************************
+    jitJU -- RUNG JU OF THE jitLadder. 2026-08-03.
+
+        + THE UNARY OPERATORS (++ and --), in-place on data nodes.
+
+    Each rung is the previous plus ONE construct. JU adds the unary family,
+    which until today could not be jitted at all: all three unary POPs
+    (jitInc/jitDec/jitNeg) exited 139 inside jitEmitUnary on a null
+    target->jitData, and had done since the 2026-06-30 unified-emit pivot
+    folded out jitXP and moved seeding to runOP's gate.
+
+    ⚠ THE CAUSE, MEASURED 2026-08-03 (it was `inferred` in the corpus for four
+    days, and the corpus said so): runOP's seed gate read
+
+        if jitting && op.isOperator
+
+    but every unary operator is registered `unary ruleMethod=` (incant/setup)
+    -- isUnary and isMethod, NOT isOperator -- so dispatch took runOP's
+    `or op.isMethod` arm and NO OPERAND WAS EVER SEEDED. jitEmitUnary
+    dereferences target->jitData unconditionally, so the miss was a SIGSEGV
+    rather than a wrong answer.
+
+    Probe at the crash frame, which is what turned inferred into verified:
+        target            = 0x...f00   (a healthy field, getText() == "13")
+        target->jitData   = nil        <- the deref, fault address 0x8
+        gJitSeeded.size() = 0          <- ZERO operands seeded, the quantity
+        gJitBuilder / gJitCurrentFn / gJitResultSlot  all non-null
+    The last line is what eliminated the rival hypothesis. The emit context was
+    fully set up; it was ONLY the seeding. The gate now reads
+
+        if jitting && (op.isOperator || op.isUnary)
+
+    isUnary is the precise gate. Widening to isMethod would have seeded an
+    operand for every rule method in the language.
+
+    ============================================================================
+    WHY THE VALUES ARE 11 AND 31, and why the wrong answers are diagnostic
+    (the ladder's own rule: a rung must NAME its failure mode from the value):
+
+        juOut = juIn;  ++juOut;  ++juOut;  --juOut;     net +1
+
+        11 / 31   correct
+        10 / 30   BOTH unary ops no-oped (the pre-fix emit path, had it not crashed)
+        12 / 32   `--` no-oped, `++` worked
+         9 / 29   `++` no-oped, `--` worked
+    Two increments and one decrement, rather than one of each, exactly so that
+    ++ and -- cannot both fail and still land on the right answer.
+
+    ⚠ INJECTIVITY (the J7 lesson): fire 1 and fire 2 must differ as ANSWERS,
+    not merely as inputs. 11 != 31.
+    ============================================================================
+
+    SENTINEL AT THE FOOT (standing harness rule H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitLadder);
+define
+    juIn;
+    juOut;
+    /*  The rung: an assign to establish the operand, then the unary family
+        applied in place. ++ and -- both write back to the operand's slot, so
+        this also exercises jitEmitUnary's store-back leg, not just its
+        arithmetic.  */
+    jitJU code={ juOut = juIn; ++juOut; ++juOut; --juOut; };
+    ;
+
+juIn  = 10;
+juOut = 0;
+print "JU fire 1 setup : juIn =" juIn:;
+testing(jitJU);
+print "JU fire 1 result: juOut =" juOut " (want 11)":;
+
+/*  ⚠ NO RECOMPILE BELOW THIS LINE. Only the input changes. If fire 2 returns
+    11 the operand was FOLDED at compile time and fire 1 proved nothing --
+    which is the specific risk here, because under jitting the interpreter runs
+    the body for real at emit time and ++ MUTATES IN PLACE.  */
+juIn  = 30;
+juOut = 0;
+print "JU fire 2 setup : juIn =" juIn " (recompile: NONE)":;
+jitRefire();
+print "JU fire 2 result: juOut =" juOut " (want 31; 11 = FOLDED; 0 = never fired)":;
+
+/*  ⚠ THE ORACLE'S TESTIMONY, captured LAST and that order is LOAD-BEARING --
+    calling the action interpreted BEFORE testing() consumes its isCoded state
+    and testing() then silently routes to jitRunIfTest instead of
+    jitRunAction (measured on J3, 2026-07-31).  */
+juIn  = 10;
+juOut = 0;
+jitJU();
+print "JU interpreted  : juOut =" juOut " (the oracle -- want 11)":;
+
+print "JU SENTINEL -- run reached the end":;
+stop();

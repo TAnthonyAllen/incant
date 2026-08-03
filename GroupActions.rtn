@@ -651,7 +651,17 @@ GroupItem   result,
            skip it for the list operators. */
         //or arg.isLIST   arg = resolveList(arg);
     if target && target.isVirtual               target = copyOf(target);
-    if jitting && op.isOperator {
+    /*  The seed gate must cover BOTH dispatch arms below, not just the
+        isOperator one. Unary operators are registered `unary ruleMethod=`
+        (incant/setup:104-150) -- isUnary and isMethod, NOT isOperator -- so
+        they reach `or op.isMethod` at the foot of this method. Gating seeding
+        on isOperator alone left every unary operand unseeded, and jitEmitUnary
+        dereferences target->jitData unconditionally: SIGSEGV, not a wrong
+        answer. Measured 2026-08-03: gJitSeeded.size()==0 at the crash, with
+        gJitBuilder/gJitCurrentFn/gJitResultSlot all live -- so the emit context
+        was fine and it was only ever the seeding. isUnary is the precise gate:
+        widening to isMethod would seed an operand for every rule method.  */
+    if jitting && (op.isOperator || op.isUnary) {
         -%
         if (target && !target->jitData) {
             if (target->groupBody->flags.isLiteral) jitSeedLiteral(target);

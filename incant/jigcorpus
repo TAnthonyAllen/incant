@@ -477,14 +477,20 @@ define
                 confidence="inferred";
                 asOf="2026-07-31";
             unaryPopsCrash
-                content="All three unary JIT POPs -- jitInc, jitDec, jitNeg --
-                    exit 139 (SIGSEGV) inside jitEmitUnary dereferencing a null
-                    target jitData. Each in its own process, each on the same
-                    frame. This is the SYMPTOM only; the explanation is a
-                    separate claim, deliberately.";
-                provenance="three separate runs, crash frames via script -q /dev/null, 2026-07-30";
+                content="✅ FIXED 2026-08-03 -- kept as the trail, because the
+                    split between this and unarySeedCause is the format's worked
+                    example of symptom-vs-cause and deleting it would delete the
+                    example. WAS: all three unary JIT POPs -- jitInc, jitDec,
+                    jitNeg -- exit 139 (SIGSEGV) inside jitEmitUnary
+                    dereferencing a null target jitData. Each in its own process,
+                    each on the same frame. This was the SYMPTOM only; the
+                    explanation was a separate claim, deliberately -- and that
+                    claim (unarySeedCause) has now graduated to verified by
+                    having its fix applied. NOW: 14 / 12 / -13, exit 0, degrade
+                    count 0, pinned by jitLadder rung JU.";
+                provenance="three separate runs, crash frames via script -q /dev/null, 2026-07-30; fix + green runs 2026-08-03";
                 confidence="verified";
-                asOf="2026-07-30";
+                asOf="2026-08-03";
             jitIsInterpreterToday
                 content="Under jitting=1 the interpreter executes the action body
                     FOR REAL. jitExecBlock runs the parsed BlocK gMethod, i.e.
@@ -607,23 +613,38 @@ define
                 provenance="jitEmitters.rtn:61,529,580 re-verified in the tree 2026-07-31; the dump was produced";
                 confidence="verified";
                 asOf="2026-07-31";
-        /*  ---- inferred: read, counted or reasoned -- NOT run ----------- */
             unarySeedCause
-                content="EXPLANATION for unaryPopsCrash, and it is NOT verified:
-                    runOP's seed gate reads 'if jitting && op.isOperator', but
-                    every unary operator is registered ruleMethod= -- isMethod,
-                    not isOperator -- so dispatch takes runOP's isMethod arm and
-                    no operand is ever seeded. THREE independent confirmations:
-                    the crash frame lands on the isMethod branch not the
-                    isOperator one; the registrations say ruleMethod=; all three
-                    POPs die identically. ⚠ STILL INFERRED, because THE FIX WAS
-                    NEVER APPLIED. Reproduction proves the symptom, never the
-                    cause. It graduates to verified the moment someone seeds the
-                    isMethod branch and the three POPs go green.";
-                provenance="crash frame + incant/setup:89,99,120,122,125,131,135 + three runs, 2026-07-30";
-                searched="runOP's dispatch in GroupActions.rtn and the operator registrations in incant/setup. NOT searched: anything outside those two.";
-                confidence="inferred";
-                asOf="2026-07-30";
+                content="⚠ GRADUATED inferred -> verified 2026-08-03, ON THE
+                    CRITERION IT WROTE FOR ITSELF ('it graduates the moment
+                    someone seeds the isMethod branch and the three POPs go
+                    green'). EXPLANATION for unaryPopsCrash: runOP's seed gate
+                    read 'if jitting && op.isOperator', but every unary operator
+                    is registered 'unary ruleMethod=' -- isUnary and isMethod,
+                    NOT isOperator -- so dispatch took runOP's isMethod arm and
+                    no operand was ever seeded. jitEmitUnary dereferences
+                    target->jitData unconditionally, so the miss was a SIGSEGV
+                    rather than a wrong answer.
+                    WHAT MADE IT VERIFIED, in two independent ways. (1) A DEBUGGER
+                    PROBE at the crash frame, which is the bones the source read
+                    could not supply: target = a healthy field (getText()=='13'),
+                    target->jitData = nil, fault address 0x8, and
+                    gJitSeeded.size() == 0 -- ZERO operands seeded, the quantity
+                    rather than the inference. (2) THE FIX APPLIED: the gate now
+                    reads (op.isOperator || op.isUnary) and jitInc/jitDec/jitNeg
+                    return 14/12/-13 at exit 0, degrade count 0, with add/sub and
+                    store-back visible in the mode-2 IR dump.
+                    ⚠ THE RIVAL HYPOTHESIS WAS ELIMINATED BY MEASUREMENT, not by
+                    argument: 'the emit context is not set up on the jitRunAction
+                    path' predicts a null builder. gJitBuilder, gJitCurrentFn and
+                    gJitResultSlot were ALL non-null at the crash. The context was
+                    fine; it was only ever the seeding.
+                    isUnary is the precise gate -- widening to isMethod would seed
+                    an operand for every rule method in the language.";
+                provenance="lldb probe at the crash frame + fix applied + incant/jitscratch and jitLadder rung JU run green, 2026-08-03; original crash frame + registrations, 2026-07-30";
+                searched="runOP's dispatch in GroupActions.rtn, the operator registrations in incant/setup, processFlags' 'u' case in Commands.rtn (which is what makes `unary` set isUnary), and the four jit context globals in jitContext.h.";
+                confidence="verified";
+                asOf="2026-08-03";
+        /*  ---- inferred: read, counted or reasoned -- NOT run ----------- */
             jitDataClobber
                 content="CANDIDATE mechanism for loopsAndMultiStatementFail:
                     jitEmitBinary and jitEmitCompare both end by writing the

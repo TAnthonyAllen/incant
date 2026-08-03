@@ -95,7 +95,7 @@ All in `jitEmitters.rtn` (included at `GroupRules.twk:293`, generated into `Grou
 | 1 | `jitEmitBinary(arg,target,op)` | `+ - * /` on count/number, with SIToFP promotion | `%` (no `jitSRem`/`jitFRem` case); string `+`; **clobbers target's `jitValue`** |
 | 2 | `jitEmitCompare(arg,target,op)` | `== != < <= > >=`, ICmp/FCmp, i1 result | **zero null/no-data guards**; same `jitValue` clobber |
 | 3 | `jitEmitAssign(arg,target)` | plain `=` store into `jitSlot` | byRef (`:=`) — the gate fires *before* opAssign's byRef check; a literal target is silently a null store destination |
-| 4 | `jitEmitUnary(target,op)` | `++ --` (in-place, store-back), prefix `-` (value-producing) | **unreachable without a null deref — §3.1**; `!` (opNOT) not routed here at all |
+| 4 | `jitEmitUnary(target,op)` | `++ --` (in-place, store-back), prefix `-` (value-producing) — ✅ **reachable and green since 2026-08-03 (§3.1)**, pinned by ladder rung JU | an **iterator** operand (falls to the interpretive arm by design, pinned by `jitJUi`); `!` (opNOT) not routed here at all |
 | 5 | `jitEmitStringPlusEQ(arg,target)` | string/token `+=` via one `CreateCall` to `concatEQ` | anything else string-shaped; it is the **only** `CreateCall` in the layer |
 | 6 | `jitEmitGIF(input)` | `if/else` — condition, `CreateCondBr`, **both arms**, merge. Else arm landed 2026-07-31 (§3.2) | nesting (untested); the **return value** (§3.4) |
 
@@ -111,7 +111,11 @@ green things in `jitIfScratch`, and anyone reading "JIT smoke tests pass" should
 bypass the emitters entirely) · `jitInitOnce`/`jitEngine` (one-time LLVM + ORCv2 setup).
 
 **There is no `jitEmitCall`.** The gate point would be `runOP`'s `or op.isMethod` branch —
-*the same branch §3.1's bug lives on.* Anyone fixing §3.1 is standing on the `jitEmitCall` seam.
+*the same branch §3.1's bug lived on.* ⚠ **Still true after §3.1's fix, and worth knowing before
+building `jitEmitCall`:** the fix did **not** move unary dispatch off the `isMethod` arm. It
+widened the *seed gate* above it to `(op.isOperator || op.isUnary)`, so unary ops still dispatch
+as methods — they just arrive seeded now. Anyone building `jitEmitCall` is still standing on that
+seam, and now has a worked example of gating it precisely rather than by widening to `isMethod`.
 
 ### 1.2 The instruments — new on 2026-07-30, and the JIT had none before
 Nothing in the live tree had ever called `verifyFunction`, and no IR had ever been dumped.
@@ -188,6 +192,20 @@ finding about the scaffold**, not a reason to weaken the criterion.
 This is what §0's open ruling is *about*, and it did not exist in enumerated form before
 2026-07-30.
 
+### 2.0 WANTED — parked crossover items, in Tony's-intent form
+
+*A park written in the sequencer's voice alone says "later, maybe"; one carrying Tony's
+countersignature says "later, certainly." These are the second kind. **A WANTED item is not a
+known limitation** — nothing below is believed unjittable, and each names what would make it
+real.*
+
+| item | status | what is known | what pins it today |
+|---|---|---|---|
+| **the iterator arm of `++`/`--`** | **WANTED**, sequenced behind the unary arc (Tony, 2026-08-03) | **Nothing known unjittable in the arm.** `opPlusPlus`/`opMinusMinus` test `isIterator` *before* the jitting gate, so an iterator operand falls to interpretation. Gate placement is deliberate: moving it *into* the iterator arm later is a **move, not a rebuild**. | `incant/jitJUi` — pins the ordering so a refactor cannot silently re-route iterators into the emit path, and pins a **pre-existing** jitted-vs-interpreted divergence (0 vs 2) measured *not* to be caused by the unary fix |
+
+**⚠ When a WANTED item lands, its pin must be RE-PINNED WITH A SENTENCE, not a green diff.** A
+target that moved is a claim that the world changed, and the claim needs a cause.
+
 ### 2.1 The census
 *asOf 2026-07-30. Classifications independently confirmed twice (2026-07-02 and 2026-07-30).*
 
@@ -263,16 +281,70 @@ removes the iterator handle entirely). The pattern was lifted out first, which i
 
 *All asOf 2026-07-30 unless noted. Each has independent confirmation; the causes differ.*
 
-### 3.1 The unary seed gap — one cause, three crashes, VERIFIED
-All three unary POPs (`jitInc`, `jitDec`, `jitNeg`) die SIGSEGV in `jitEmitUnary` on a null
-`target->jitData`. Cause: `runOP`'s seed gate reads `if jitting && op.isOperator`, but **every
-unary operator is registered `ruleMethod=` — isMethod, not isOperator** (`incant/setup:89, 99,
-120, 122, 125, 131, 135`) — so dispatch takes `runOP`'s `op.isMethod` arm and no operand is
-ever seeded.
+### 3.1 The unary seed gap — one cause, three crashes — ✅ **FIXED 2026-08-03**
+**Was:** all three unary POPs (`jitInc`, `jitDec`, `jitNeg`) died SIGSEGV in `jitEmitUnary` on a
+null `target->jitData`. Cause: `runOP`'s seed gate read `if jitting && op.isOperator`, but **every
+unary operator is registered `unary ruleMethod=` — isUnary and isMethod, NOT isOperator**
+(`incant/setup:104, 114, 135, 137, 140, 146, 150`) — so dispatch took `runOP`'s `op.isMethod` arm
+and no operand was ever seeded.
 
-Three independent confirmations: the crash frame lands on the isMethod branch, not the
-isOperator one; the registrations say `ruleMethod=`; all three POPs die identically in separate
-processes.
+**The fix is one condition, at the level the fact lives** (`GroupActions.rtn`):
+
+```
+    if jitting && (op.isOperator || op.isUnary)
+```
+
+**`isUnary` is the precise gate.** Widening to `isMethod` would seed an operand for every rule
+method in the language; `unary` is a `processFlags` command (`Commands.rtn`, `case 'u'`) that
+sets exactly this flag, so the registration already carries the distinction. **No layout change** —
+`isUnary` was already in `GroupBody.twk`, the generated `.h` **and** `groups.ext`.
+
+A loud guard was added at `jitEmitUnary`'s head as defence in depth: an unseeded operand now calls
+`jitDegrade` and returns instead of dereferencing null. **It fails loudly and countably rather
+than quietly** — every jitLadder rung asserts degrade count 0, so it cannot pass silently, and a
+quiet null-check returning `target` would have been worse than the crash it replaced (exit 0 with
+wrong IR).
+
+**Now:** `jitInc` 14 · `jitDec` 12 · `jitNeg` -13, exit 0, degrade count 0, with `add i32` /
+`sub i32` and store-back visible in the mode-2 dump. Pinned by **jitLadder rung JU** (fires twice
+with the input changed after emission, so the values are proven to come from compiled code).
+
+**⚠ WHAT MADE IT VERIFIED RATHER THAN INFERRED, and it is the transferable part.** This entry sat
+`verified` for the *symptom* and `inferred` for the *cause* for four days, correctly — the corpus
+split it into two claims on purpose (`unaryPopsCrash` / `unarySeedCause`) and wrote its own
+graduation criterion. What closed it was a **debugger probe**, not more reading:
+
+```
+target            = a healthy field (getText() == "13")
+target->jitData   = nil                      <- the deref, fault address 0x8
+gJitSeeded.size() = 0                        <- ZERO operands seeded, the QUANTITY
+gJitBuilder / gJitCurrentFn / gJitResultSlot = all non-null
+```
+
+**The last line is the one that mattered.** The rival hypothesis — *"the emit context is not set
+up on the `jitRunAction` path, which is newly live"* — predicts a null builder, and it was
+**refuted by measurement rather than by argument**. Had it held, the fix would have been a shared
+prologue for a second entry into emit-land; it did not, so no such design question arises.
+
+**⚠ WANTED, not deferred: jitting the iterator arm of `++`/`--`.** `opPlusPlus`/`opMinusMinus`
+test their iterator arm *before* the jitting gate, so an iterator operand falls through to
+interpretation. That ordering is **Tony's signed ruling of 2026-08-03 and it is sequencing, not
+feasibility** — nothing is known unjittable in that arm, it is simply behind this arc. The gate
+sits where moving it *into* the iterator arm later is a move rather than a rebuild, and
+`incant/jitJUi` pins the ordering so a refactor cannot silently re-route iterators into the emit
+path before their jitting is actually built.
+
+**⚠ A SEPARATE, PRE-EXISTING DEFECT SURFACED BY THAT PIN — report, not chased.** A jitted action
+containing an iterator walk visits **0** leaves where the interpreter visits **2**. Measured
+*not* to be caused by this arc: the seed gate was reverted to `isOperator`-only, retok'd, rebuilt
+and re-run, and **both gates give 0/2**. Iterator semantics are Tony's (`iterT3` is parked for the
+same reason), and `2` for a three-member trunk is in that same territory. `jitJUi` pins both
+numbers as a **known divergence** (the `tree.divergence`/`iterT1m` pattern), so the state cannot
+drift unnoticed while the question waits.
+
+Three independent confirmations of the original diagnosis: the crash frame landed on the isMethod
+branch, not the isOperator one; the registrations say `ruleMethod=`; all three POPs died
+identically in separate processes.
 
 **It is a regression, dated (inferred, no bisect).** `jitXP` held `aCTionExpressioN`'s `uxp`
 seeding branch and **was folded out on 2026-06-30** in the unified-emit pivot. Its seeding job
@@ -522,8 +594,8 @@ API shapes correct for this version: ORCv2 `LLJITBuilder().create()` /
 **mandatory**; new `PassManager` + `PassBuilder`, mem2reg = `PromotePass`.
 
 ### 5.1 Phase 1 straight-line — the POP table, and READ §7 BEFORE TRUSTING IT
-*asOf 2026-06-22 for the arithmetic/compare/assign rows; **the three unary rows are FALSIFIED
-as of 2026-07-30** — see §3.1.*
+*asOf 2026-06-22 for the arithmetic/compare/assign rows; the three unary rows were FALSIFIED on
+2026-07-30 and are **✅ RESTORED as of 2026-08-03** — see §3.1.*
 
 Arithmetic (`jitEmitBinary`): `3+5`→8 · `3.0+5.0`→8 · `3+5.0`→8 (SIToFP promotion) ·
 `righty+5`→18 (field unbox) · `8-3`→5 · `3*5`→15 · `7/2`→3 · `10/3`→3 · `-7/2`→-3.
@@ -532,7 +604,10 @@ Assign (`jitEmitAssign`, store-back writes through to the GroupItem, verified by
 `= 8`→8 · `+= 5`→15 · `*= 3`→12 · `-= 5`→25 · `/= 4`→7.
 String `+=` (`jitEmitStringPlusEQ`, the **first and only `CreateCall`**): `name += "!"` →
 `world!` by readback.
-**Unary — `jitInc` 14, `jitDec` 12, `jitNeg` -13: ⚠ ALL THREE NOW EXIT 139 (§3.1).**
+**Unary — `jitInc` 14, `jitDec` 12, `jitNeg` -13: ✅ ALL THREE GREEN AGAIN as of 2026-08-03**
+(§3.1 fixed). Re-measured at exit 0 with degrade count 0, and now pinned in COMPILED form by
+jitLadder rung **JU** — the POP table asserts the values, the rung asserts they came from
+compiled code (fire twice, input changed after emission).
 
 **Division semantics are settled: C-style signed truncation toward zero** (`7/2=3`,
 `-7/2=-3`), which **diverges by design** from the interpreter's round-to-nearest (`7/2=4`).
