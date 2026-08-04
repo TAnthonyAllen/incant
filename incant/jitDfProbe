@@ -1,0 +1,131 @@
+/*****************************************************************************
+    jitDfProbe -- CAN displayForm BE JITTED?  ⚠ ANSWER TODAY: NO, AND IT HANGS.
+
+    ⚠⚠ DO NOT WIRE THIS INTO ANY HARNESS. IT DOES NOT RETURN.
+    RULE H5 exists because a fixture that never returns deletes every check
+    below it and leaves the operator looking at a quiet terminal. This file is
+    run BY HAND, deliberately, with a bound. It is kept because it is the
+    reproduction, not because it is a test.
+
+    STATUS 2026-08-04: the convergence rung is RED, and the red NAMES ITS
+    CONSTRUCTS -- which is the whole argument for a ladder. Tony moved this
+    fixture up on the grounds that the iterator fix and certified recursion had
+    dissolved its blockers. They had; these are DIFFERENT blockers, and they are
+    coverage gaps rather than defects in what already works.
+
+    ⚠ THE MEASUREMENT, read off `INCANT_JIT_DUMP` post-mem2reg (the emitted IR is
+    reproduced at the foot of this comment). FOUR findings, all structural --
+    each one is a thing you can point at in the dump, not an inference from a
+    symptom:
+
+    1. THE `iterate` STATEMENT EMITS NOTHING. aCTionIterate has NO jitting gate
+       -- verified by grep, not by absence in the dump: in ruleActions.rtn only
+       aCTionBlocK, aCTionDO, aCTionIF and aCTionWhilE carry `if jitting`.
+       So the iterator is set up ONCE, AT EMIT TIME, and the compiled function
+       inherits whatever state that left behind. The `++` advance IS emitted
+       (jitEmitIterStep, landed earlier today), so the loop calls opPlusPlus on a
+       BAKED node address that was never initialised for this run. Setup and
+       advance are now split across two times, which is the shape of the hang.
+
+    2. THE LOOP BODY IS ALMOST EMPTY. displayForm's body prints, tests two
+       flags, recurses, and runs a SECOND iterate. In the IR the body block
+       loads one value and branches. No print, no call, no second loop. The
+       recursive `displayForm(grup)` emitted no call at all.
+
+    3. THE BODY'S `if` READS THE WRONG OPERAND -- and this one is visible on its
+       face:
+           body:  %tobool8 = icmp ne i32 %iterCond, 0
+       `%iterCond` is the LOOP'S OWN LIVENESS VALUE. The source line is
+       `if noPrinT; continue;`, so the test should read the attribute's noPrint
+       flag and instead reads whether the iterator advanced. One channel, two
+       meanings -- the family this project has already paid for twice.
+
+    4. `continue` HAS NO EMITTER. There is no jitEmitContinue anywhere in the
+       tree. In this dump `then9` and `else10` both fall to `endif11`, which
+       branches to `cond` -- so continue APPEARS to work, by accident of
+       topology, because the fall-through target happens to be the back edge.
+       That is worse than a missing feature: it is a construct that will look
+       correct until the block structure changes underneath it.
+
+    NOT YET REACHED, because 1-4 stop it first: whether an argument survives an
+    emitted self-call. Every ladder rung to date passes state through globals,
+    and jitEmitCall emits `CreateCall(gJitCurrentFn, {})` -- NULLARY. displayForm
+    takes an argument and recurses on it, so this is a real open question and it
+    is UNMEASURED. Do not assume it works because J-R is green; J-R's jrFact
+    takes no argument.
+
+    ⚠ KANT-8 IS EXCLUDED BY CONSTRUCTION here, as Tony specified: displayForm
+    prints and discards, so no local is read across the recursive call. A red
+    here is not a KANT-8 sighting.
+
+    ⚠ ORDERING HAZARD, MEASURED ON THE WAY IN AND WORTH THE LINE: call the
+    action INTERPRETED FIRST and it CONSUMES its isCoded state, after which
+    testing() misses its jitRunAction arm entirely. Observed as a silent
+    fall-through to jitRunIfTest -- a different function answering a different
+    question, reporting `result = 0`, at exit 0. Jitted first, oracle last.
+
+    THE EMITTED IR, kept verbatim so the four findings can be checked rather
+    than believed:
+
+        entry:   ... icmp sgt %unbox4, 0 ; br i1 %cmp, label %then, label %else
+        then:    br label %cond
+        cond:    %iterNext = call ptr <opPlusPlus>(ptr <baked grup>)
+                 %iterLive = icmp ne i64 %0, 0
+                 %iterCond = zext i1 %iterLive to i32
+                 br i1 %tobool, label %body, label %loopexit
+        body:    %unbox7 = load ...
+                 %tobool8 = icmp ne i32 %iterCond, 0      <- finding 3
+                 br i1 %tobool8, label %then9, label %else10
+        then9:   br label %endif11                        <- finding 4
+        else10:  br label %endif11
+        endif11: br label %cond
+        loopexit: br label %endif
+        endif:   ret i32 %result.0
+
+    Two loops in the source, ONE in the IR. Four printing statements in the
+    source, none in the IR.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitDf);
+define
+    dfLeaf      leafOne leafTwo;
+    dfRoot      alpha beta
+        dfMid   delta
+            dfInner zeta;
+        dfBare;
+    displayForm argument code={
+        length  = listLengtH;
+        print ~taG:;
+        if length > 0;
+            iterate grup on argument attributes;
+            while ++grup;
+                if noPrinT; continue;
+                if isMethoD;    print ~`taG "has method":;
+                else            print ~`taG "does not have method":;
+            iterate grup on argument members;
+            while ++grup;
+                print +;
+                displayForm(grup);
+                print $-;
+        };
+    dfDrive code={
+        displayForm(dfRoot);
+        };
+    ;
+
+/*  ⚠ JITTED FIRST, ORACLE LAST -- see the ordering hazard in the header.  */
+print "== JITTED ==":;
+testing(dfDrive);
+
+print "== INTERPRETED (the oracle) ==":;
+dfDrive();
+
+print "jitDfProbe SENTINEL -- run reached the end":;
+stop();

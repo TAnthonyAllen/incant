@@ -1,0 +1,59 @@
+Search list: Grokking Generating UnitTests bcOPs Utilities
+== JITTED == 
+=== jitRunAction: entering on dfDrive ===
+=== IR jitFn0 (post-mem2reg) ===
+; ModuleID = 'jitMod'
+source_filename = "jitMod"
+
+define i32 @jitFn0() {
+entry:
+  %unbox = load i32, ptr inttoptr (i64 4373806640 to ptr), align 4
+  %unbox1 = load i32, ptr inttoptr (i64 4374667184 to ptr), align 4
+  %unbox2 = load i32, ptr inttoptr (i64 4374708144 to ptr), align 4
+  store i32 %unbox2, ptr inttoptr (i64 4374667184 to ptr), align 4
+  %unbox3 = load i32, ptr inttoptr (i64 4373795120 to ptr), align 4
+  %unbox4 = load i32, ptr inttoptr (i64 4374667184 to ptr), align 4
+  %cmp = icmp sgt i32 %unbox4, 0
+  br i1 %cmp, label %then, label %else
+
+then:                                             ; preds = %entry
+  %res = zext i1 %cmp to i32
+  %res5 = zext i1 %cmp to i32
+  br label %cond
+
+else:                                             ; preds = %entry
+  br label %endif
+
+endif:                                            ; preds = %else, %loopexit
+  %result.0 = phi i32 [ %result.1, %loopexit ], [ %unbox2, %else ]
+  ret i32 %result.0
+
+cond:                                             ; preds = %endif11, %then
+  %result.1 = phi i32 [ %res5, %then ], [ %result.2, %endif11 ]
+  %unbox6 = load i32, ptr inttoptr (i64 4374672432 to ptr), align 4
+  %iterNext = call ptr inttoptr (i64 4370853616 to ptr)(ptr inttoptr (i64 4374678144 to ptr))
+  %0 = ptrtoint ptr %iterNext to i64
+  %iterLive = icmp ne i64 %0, 0
+  %iterCond = zext i1 %iterLive to i32
+  %tobool = icmp ne i32 %iterCond, 0
+  br i1 %tobool, label %body, label %loopexit
+
+loopexit:                                         ; preds = %cond
+  br label %endif
+
+body:                                             ; preds = %cond
+  %unbox7 = load i32, ptr inttoptr (i64 4373838128 to ptr), align 4
+  %tobool8 = icmp ne i32 %iterCond, 0
+  br i1 %tobool8, label %then9, label %else10
+
+then9:                                            ; preds = %body
+  br label %endif11
+
+else10:                                           ; preds = %body
+  br label %endif11
+
+endif11:                                          ; preds = %else10, %then9
+  %result.2 = phi i32 [ %iterCond, %then9 ], [ %result.1, %else10 ]
+  br label %cond
+}
+=== end IR jitFn0 ===
