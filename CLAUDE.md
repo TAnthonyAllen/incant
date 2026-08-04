@@ -401,6 +401,38 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 > that was never checked, a harness with three exits, an assertion that covered the wrong
 > thing. **When a result surprises you, doubt the instrument before the code.**
 >
+> ⚠ **AND ITS OTHER HALF, ratified 2026-08-05 and paid for the same day: DOUBT THE INSTRUMENT WHEN
+> THE RESULT DOESN'T SURPRISE YOU EITHER. AN UNSURPRISING GREEN IS THE ONE NOBODY AUDITS.** Every
+> failure in the ledger above was found because something looked wrong. This one was found by
+> accident, while wiring an unrelated rung: `jitLadder/ladder.sh` **called `check` and `sentinel`
+> at JPd and JPl and never defined them.** Every run printed `ladder.sh: line 393: check: command
+> not found` to stderr and carried on. Those four checks did not pass and did not fail — **they
+> ceased to exist** — so for four days JPd and JPl had no exit-status check and no truncation
+> guard, and since output printed before a crash is real, **a crashing `jitJPd` would have reported
+> green.** Inside the harness that certifies JIT-0.1.
+>
+> **THE HEADLINE COUNT WAS THE CAMOUFLAGE, and that is the sentence to keep.** "103 ok, exit 0"
+> *reads* as an audit; it is a **tally of the checks that RAN**. **A check that evaporates is
+> invisible in a count of checks** — the number goes down by four and nothing says so, because
+> nobody knows what the number should have been. A green banner is therefore not evidence about
+> the checks that are missing from it.
+>
+> **Third instance of one named class — COPY THE IDIOM, LOSE THE HELPER** (`incant/jiquery`'s three
+> `stop()`s, `pop.sh`'s missing `sentinel`, now the JIT ladder), and `pop.sh`'s own helper carries a
+> comment recording the previous occurrence. **The structural fix is that a harness certifies
+> ITSELF before it certifies anything else**: an end-of-file assertion that fails if the run reaches
+> the foot with **zero green checks recorded**, which a vanished helper set cannot satisfy. That is
+> H2 turned on the harness rather than on the fixture, and it is the form to copy.
+>
+> **Two corollaries ratified with it, both the anti-vacuity instinct applied one level up:**
+> - **ASSERT DEPTH BY NAME, because identical-but-shallow passes a diff.** Rung JC diffs the jitted
+>   walk against the interpreted walk and would go green on two walks that both stopped at depth 1
+>   — **a walk that stops early agrees with itself.** So it also greps for `zeta`, the depth-3 leaf.
+> - **A CONSTANT THE DEFAULT COULD ALSO PRODUCE ASSERTS NOTHING.** Rung JV's rows A and B both want
+>   `0`, which a result slot that merely defaults to zero yields too; they cannot distinguish
+>   *convention carried* from *nothing written*. Row C wants **4**, so it fails unless the slot
+>   holds a real computed value. **Pair every zero-expecting row with a non-zero sibling.**
+>
 > **RULE H4 — ASSERT PRESENCE-WITH-VALUE, NEVER ABSENCE-OF-MESSAGE.** Adopted 2026-07-31.
 > Generalises H2's sentinel logic from *completeness* to **every asserted quantity**: if a check
 > can pass because a line is missing, it will eventually pass because someone deleted the code
