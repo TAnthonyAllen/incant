@@ -196,6 +196,21 @@ extern "C" GroupItem *aCTionCerR(GroupItem *input)
 {
 GroupItem 	*stuff = input->getLabelGroup("stuff");
 Buffer 		*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTAK->pop();
+	/*  DEGRADE-BY-DEFAULT (Tony's ruling via Clay, 2026-08-05). BODY-REACHABLE
+	CONTENT with no emitter, so under jitting it would otherwise EXECUTE AT
+	EMIT TIME -- once, silently, in the wrong era. It now announces itself
+	through the counter the ladder already asserts at zero, then FALLS
+	THROUGH and runs interpreted, so behaviour is unchanged and the gap is
+	COUNTED rather than invisible.
+	docs/gateCensus.md: one of the five. The WALK MACHINERY (aCTionExpressioN
+	et al.) is deliberately NOT in this set -- degrading the emit walk would
+	stop the compiler rather than surface a bug.
+	⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK. Placed by a heuristic the
+	first time, it landed INSIDE two multi-line declaration lists and wiped
+	GroupRules.h's extern block to ZERO (bear-trap #24's signature, canary
+	239 -> 0). Declarations here span lines and end on a bare `;`.  */
+	if ( GroupControl::groupController->groupRules->jitting )
+		jitDegrade("cerr under jit -- no emitter, sink fires at emit time",input);
 	if ( !buffer )
 		buffer = new Buffer("cerr buffer");
 	appendPrintXP(stuff,buffer);
@@ -282,6 +297,21 @@ extern "C" GroupItem *aCTionCouT(GroupItem *input)
 {
 GroupItem 	*stuff = input->getLabelGroup("stuff");
 Buffer 		*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTAK->pop();
+	/*  DEGRADE-BY-DEFAULT (Tony's ruling via Clay, 2026-08-05). BODY-REACHABLE
+	CONTENT with no emitter, so under jitting it would otherwise EXECUTE AT
+	EMIT TIME -- once, silently, in the wrong era. It now announces itself
+	through the counter the ladder already asserts at zero, then FALLS
+	THROUGH and runs interpreted, so behaviour is unchanged and the gap is
+	COUNTED rather than invisible.
+	docs/gateCensus.md: one of the five. The WALK MACHINERY (aCTionExpressioN
+	et al.) is deliberately NOT in this set -- degrading the emit walk would
+	stop the compiler rather than surface a bug.
+	⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK. Placed by a heuristic the
+	first time, it landed INSIDE two multi-line declaration lists and wiped
+	GroupRules.h's extern block to ZERO (bear-trap #24's signature, canary
+	239 -> 0). Declarations here span lines and end on a bare `;`.  */
+	if ( GroupControl::groupController->groupRules->jitting )
+		jitDegrade("cout under jit -- no emitter, sink fires at emit time",input);
 	if ( !buffer )
 		buffer = new Buffer("cout buffer");
 	appendPrintXP(stuff,buffer);
@@ -582,6 +612,21 @@ GroupItem 	*StatemenT = input->getLabelGroup("StatemenT");
 GroupItem 	*grup = 0;
 GroupItem 	*result = 0;
 int 		restrict = 0;
+	/*  DEGRADE-BY-DEFAULT (Tony's ruling via Clay, 2026-08-05). BODY-REACHABLE
+	CONTENT with no emitter, so under jitting it would otherwise EXECUTE AT
+	EMIT TIME -- once, silently, in the wrong era. It now announces itself
+	through the counter the ladder already asserts at zero, then FALLS
+	THROUGH and runs interpreted, so behaviour is unchanged and the gap is
+	COUNTED rather than invisible.
+	docs/gateCensus.md: one of the five. The WALK MACHINERY (aCTionExpressioN
+	et al.) is deliberately NOT in this set -- degrading the emit walk would
+	stop the compiler rather than surface a bug.
+	⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK. Placed by a heuristic the
+	first time, it landed INSIDE two multi-line declaration lists and wiped
+	GroupRules.h's extern block to ZERO (bear-trap #24's signature, canary
+	239 -> 0). Declarations here span lines and end on a bare `;`.  */
+	if ( ruler->jitting )
+		jitDegrade("FOR under jit -- no emitter (iterate's disease, different keyword)",input);
 	if ( isGROUP(Looper->groupBody->flags.data) )
 		Looper = Looper->getGroup();
 	Looper->clear();
@@ -953,6 +998,7 @@ GroupItem 	*grup = 0;
 		::jitPrintOpen(input);
 		while ( grup = stuff->nextAttribute(grup) )
 			{
+			::jitPrintProbe(grup,0);
 			if ( grup->groupBody->flags.noPrint )
 				continue;
 			GroupItem *FormaT = grup->getLabelGroup("FormaT");
@@ -960,15 +1006,20 @@ GroupItem 	*grup = 0;
 			GroupItem *ExpressioN = grup->getLabelGroup("ExpressioN");
 			if ( ExpressioN )
 				{
+				::jitPrintProbe(ExpressioN,1);
 				/*  EMIT THE EXPRESSION through the existing emitters -- they
 				leave the SSA value in gJitResult, which jitPrintItem picks
 				up. No expression emitter is written or duplicated here.  */
 				if ( isMethod(ExpressioN->groupBody->flags.instructType) )
 					result = ExpressioN->groupBody->gMethod(ExpressioN);
 				else	result = ExpressioN;
+				::jitPrintProbe(result,2);
 				::jitPrintItem(grup,FormaT,1);
 				}
-			else	::jitPrintItem(grup,FormaT,0);
+			else {
+				::jitPrintProbe(grup,3);
+				::jitPrintItem(grup,FormaT,0);
+				}
 			}
 		::jitPrintClose(input);
 		return input;
@@ -1096,6 +1147,21 @@ GroupItem 	*searchLIST = GroupControl::groupController->groupRules->searchList;
 GroupItem 	*base = 0;
 GroupItem 	*grup = 0;
 int 		setStakked = 0;
+	/*  DEGRADE-BY-DEFAULT (Tony's ruling via Clay, 2026-08-05). BODY-REACHABLE
+	CONTENT with no emitter, so under jitting it would otherwise EXECUTE AT
+	EMIT TIME -- once, silently, in the wrong era. It now announces itself
+	through the counter the ladder already asserts at zero, then FALLS
+	THROUGH and runs interpreted, so behaviour is unchanged and the gap is
+	COUNTED rather than invisible.
+	docs/gateCensus.md: one of the five. The WALK MACHINERY (aCTionExpressioN
+	et al.) is deliberately NOT in this set -- degrading the emit walk would
+	stop the compiler rather than surface a bug.
+	⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK. Placed by a heuristic the
+	first time, it landed INSIDE two multi-line declaration lists and wiped
+	GroupRules.h's extern block to ZERO (bear-trap #24's signature, canary
+	239 -> 0). Declarations here span lines and end on a bare `;`.  */
+	if ( GroupControl::groupController->groupRules->jitting )
+		jitDegrade("search under jit -- no emitter, mutates the search stack at emit time",input);
 	while ( grup = input->next(grup) )
 		if ( ::compare(grup->groupBody->tag,"reset") == 0 )
 			searchLIST->clearList();
@@ -1196,6 +1262,21 @@ extern "C" GroupItem *aCTionStringXP(GroupItem *input)
 {
 GroupItem 	*stuff = input->getLabelGroup("stuff");
 Buffer 		*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTAK->pop();
+	/*  DEGRADE-BY-DEFAULT (Tony's ruling via Clay, 2026-08-05). BODY-REACHABLE
+	CONTENT with no emitter, so under jitting it would otherwise EXECUTE AT
+	EMIT TIME -- once, silently, in the wrong era. It now announces itself
+	through the counter the ladder already asserts at zero, then FALLS
+	THROUGH and runs interpreted, so behaviour is unchanged and the gap is
+	COUNTED rather than invisible.
+	docs/gateCensus.md: one of the five. The WALK MACHINERY (aCTionExpressioN
+	et al.) is deliberately NOT in this set -- degrading the emit walk would
+	stop the compiler rather than surface a bug.
+	⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK. Placed by a heuristic the
+	first time, it landed INSIDE two multi-line declaration lists and wiped
+	GroupRules.h's extern block to ZERO (bear-trap #24's signature, canary
+	239 -> 0). Declarations here span lines and end on a bare `;`.  */
+	if ( GroupControl::groupController->groupRules->jitting )
+		jitDegrade("string expression under jit -- no emitter, builds at emit time",input);
 	if ( !buffer )
 		buffer = new Buffer("print buffer");
 	::appendPrintXP(stuff,buffer);
@@ -4413,6 +4494,24 @@ extern "C" void jitPrintItem(GroupItem *token, GroupItem *FormaT, int hasValue)
 	
 }
 
+extern "C" void jitPrintOpen(GroupItem *input)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	if (!b) return;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	llvm::Value *inAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)input), ptr, "printStmt");
+	llvm::Value *callee = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitPrintBegin), ptr, "printBeginFn");
+	llvm::FunctionType *ty = llvm::FunctionType::get(ptr, {ptr}, false);
+	gJitPrintBuf = b->CreateCall(ty, callee, {inAddr}, "printBuf");
+	gJitEmitted  = true;
+	
+}
+
 /* jitPrintOpen / jitPrintItem / jitPrintClose  THE THREE EMITTED CALLS of a
    jitted print. Work item 3, Tony's ruling via Clay, 2026-08-04.
 
@@ -4445,21 +4544,47 @@ extern "C" void jitPrintItem(GroupItem *token, GroupItem *FormaT, int hasValue)
    whose TEXT is the shortcut; their address is baked and appendGroupValue passes
    them through untouched. No format or indent decision is baked at emit time --
    they happen at run time, in the chain, exactly as interpreted. */
-extern "C" void jitPrintOpen(GroupItem *input)
+/* jitPrintProbe  COMPILE-TIME DIAGNOSTIC for the jitted print walk. R3, Clay,
+   2026-08-05: one aimed measurement before the third swing.
+
+   ⚠ COMPILE-TIME LOGGING IS EXEMPT FROM THE EFFECT-FREE-EMIT LAW, and the
+   distinction is worth stating because it looks like a violation: that law
+   governs THE EMITTED PROGRAM, not the compiler's own mouth. This never appears
+   in the IR. It is off unless INCANT_PRINT_PROBE is set.
+
+   THE QUESTION IT AIMS AT. Two symptoms -- appendGroupValue handed a constant
+   i32 0, and TWO parts walked where the statement reads as three -- are
+   consistent with ONE cause: the emit walk's part-classification diverging from
+   appendPrintXP's enumeration. So it reports, per part: WHAT THE WALK SAW
+   (before any filter), how it CLASSIFIED it, and whether gJitResult moved
+   across the expression emit.
+
+   phase 0  a part, as the walk first sees it, BEFORE the noPrint filter
+   phase 1  about to emit an expression   (gJitResult before)
+   phase 2  expression emitted            (gJitResult after)
+   phase 3  classified as a token (no expression)
+
+   ⚠ NO LEFT-JUSTIFY FORMAT IN THIS printf, and the first draft of this very
+   function re-tripped that trap -- canary 238 to 235, hours after the same trap
+   was documented two functions up. Plain %s. */
+extern "C" void jitPrintProbe(GroupItem *node, int phase)
 {
 	
-	llvm::IRBuilder<> *b = gJitBuilder;
-	if (!b) return;
-	llvm::LLVMContext &ctx = b->getContext();
-	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
-	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
-	llvm::Value *inAddr = b->CreateIntToPtr(
-	llvm::ConstantInt::get(i64, (uint64_t)(void*)input), ptr, "printStmt");
-	llvm::Value *callee = b->CreateIntToPtr(
-	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitPrintBegin), ptr, "printBeginFn");
-	llvm::FunctionType *ty = llvm::FunctionType::get(ptr, {ptr}, false);
-	gJitPrintBuf = b->CreateCall(ty, callee, {inAddr}, "printBuf");
-	gJitEmitted  = true;
+	if (!::getenv("INCANT_PRINT_PROBE")) return;
+	const char *tag  = (node && node->groupBody) ? node->groupBody->tag : "(null)";
+	const char *txt  = node ? node->getText() : 0;
+	const char *what = "part seen";
+	if (phase == 1) what = "expr: about to emit";
+	if (phase == 2) what = "expr: emitted";
+	if (phase == 3) what = "token (no expression)";
+	::fprintf(stderr,
+	"  PRINTPROBE p%d [%s] tag=%s text=[%s] noPrint=%d shortcut=%d literal=%d gJitResult=%s\n",
+	phase, what, tag ? tag : "(untagged)", txt ? txt : "",
+	(node && node->groupBody->flags.noPrint) ? 1 : 0,
+	(node && node->groupBody->flags.isShortcut) ? 1 : 0,
+	(node && node->groupBody->flags.isLiteral) ? 1 : 0,
+	gJitResult ? "SET" : "null");
+	::fflush(stderr);
 	
 }
 

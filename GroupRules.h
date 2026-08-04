@@ -197,6 +197,7 @@ extern "C" Buffer *jitPrintBegin(GroupItem *input);
 extern "C" void jitPrintClose(GroupItem *input);
 extern "C" void jitPrintItem(GroupItem *token, GroupItem *FormaT, int hasValue);
 extern "C" void jitPrintOpen(GroupItem *input);
+extern "C" void jitPrintProbe(GroupItem *node, int phase);
 extern "C" GroupItem *jitRefire(GroupItem *input);
 extern "C" int jitRunAction(GroupItem *action);
 extern "C" int jitRunAddTwo();

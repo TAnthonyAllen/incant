@@ -43,9 +43,25 @@ echo "  bin   $(ls -lL "$B" | awk '{print $5" bytes  "$6" "$7" "$8}')"
 #  SUPPORT repo -- so `git status` here will never show it and a Groups-only
 #  check would report a clean kitchen over an uncommitted layout change.
 #  ===========================================================================
+#  THIRD LEG, 2026-08-05: PUSHED. Clean kitchen = fleet green + trees quiet +
+#  PUSHED. Committed-but-unpushed history is the uncommitted pile one level up,
+#  and it reached 118 before anyone counted it -- the same way the working-tree
+#  pile reached 109. Dropbox rewrote a tracked file mid-session on 2026-08-04, so
+#  "it is safe on disk" is not a property this tree has.
+#  ⚠ NO FETCH HERE, DELIBERATELY. The count is against the last-known remote ref,
+#  so a POP never blocks on the network and never fails because GitHub is slow.
+#  It reads stale-low, never stale-high -- it can under-report being ahead, never
+#  over-report -- so it cannot manufacture a false alarm, only miss one, which is
+#  the right direction for a line that is printed and not gated.
 gdirt=$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
 sdirt=$(git -C "$HOME/data/support" status --porcelain 2>/dev/null | wc -l | tr -d ' ')
-echo "  tree  Groups: $gdirt uncommitted   support: $sdirt uncommitted"
+gahead=$(git rev-list --count @{u}..HEAD 2>/dev/null || echo "?")
+sahead=$(git -C "$HOME/data/support" rev-list --count @{u}..HEAD 2>/dev/null || echo "?")
+echo "  tree  Groups: $gdirt uncommitted, $gahead unpushed   support: $sdirt uncommitted, $sahead unpushed"
+if [ "$gahead" != "0" ] || [ "$sahead" != "0" ]; then
+    echo "        ^ UNPUSHED history. Not a failure -- but clean kitchen has three"
+    echo "          legs now, and this is the third."
+fi
 if [ "$gdirt" != "0" ] || [ "$sdirt" != "0" ]; then
     git status --porcelain 2>/dev/null | sed 's/^/          Groups   /'
     git -C "$HOME/data/support" status --porcelain 2>/dev/null | sed 's/^/          support  /'

@@ -543,6 +543,20 @@ GroupItem   Looper  = input["Looper"],
             grup,
             result;
 int         restrict;
+    /*  DEGRADE-BY-DEFAULT (Tony's ruling via Clay, 2026-08-05). BODY-REACHABLE
+        CONTENT with no emitter, so under jitting it would otherwise EXECUTE AT
+        EMIT TIME -- once, silently, in the wrong era. It now announces itself
+        through the counter the ladder already asserts at zero, then FALLS
+        THROUGH and runs interpreted, so behaviour is unchanged and the gap is
+        COUNTED rather than invisible.
+        docs/gateCensus.md: one of the five. The WALK MACHINERY (aCTionExpressioN
+        et al.) is deliberately NOT in this set -- degrading the emit walk would
+        stop the compiler rather than surface a bug.
+        ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK. Placed by a heuristic the
+        first time, it landed INSIDE two multi-line declaration lists and wiped
+        GroupRules.h's extern block to ZERO (bear-trap #24's signature, canary
+        239 -> 0). Declarations here span lines and end on a bare `;`.  */
+    if jitting  jitDegrade("FOR under jit -- no emitter (iterate's disease, different keyword)", input);
     if Looper.isGROUP       Looper = Looper.group;
     Looper.clear();
     if LoopRestrict {
@@ -836,18 +850,23 @@ GroupItem   grup;
         jitPrintOpen(input);
         while grup = stuff.nextAttribute(grup) {
             use grup
+            jitPrintProbe(grup,0);
             if noPrint  continue;
             GroupItem   FormaT:,
                         result,
                         ExpressioN:;
             if ExpressioN {
+                jitPrintProbe(ExpressioN,1);
                 /*  EMIT THE EXPRESSION through the existing emitters -- they
                     leave the SSA value in gJitResult, which jitPrintItem picks
                     up. No expression emitter is written or duplicated here.  */
                 if isMethod result = method(ExpressioN);
                 else        result = ExpressioN;
+                jitPrintProbe(result,2);
                 jitPrintItem(grup,FormaT,1); }
-            else    jitPrintItem(grup,FormaT,0); }
+            else {
+                jitPrintProbe(grup,3);
+                jitPrintItem(grup,FormaT,0); }}
         jitPrintClose(input);
         return input; }
 Buffer      buffer = bufferSTAK.pop();
@@ -878,6 +897,20 @@ extern GroupItem aCTionCerR(GroupItem input)
 {
 GroupItem   stuff:;
 Buffer      buffer = bufferSTAK.pop();
+    /*  DEGRADE-BY-DEFAULT (Tony's ruling via Clay, 2026-08-05). BODY-REACHABLE
+        CONTENT with no emitter, so under jitting it would otherwise EXECUTE AT
+        EMIT TIME -- once, silently, in the wrong era. It now announces itself
+        through the counter the ladder already asserts at zero, then FALLS
+        THROUGH and runs interpreted, so behaviour is unchanged and the gap is
+        COUNTED rather than invisible.
+        docs/gateCensus.md: one of the five. The WALK MACHINERY (aCTionExpressioN
+        et al.) is deliberately NOT in this set -- degrading the emit walk would
+        stop the compiler rather than surface a bug.
+        ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK. Placed by a heuristic the
+        first time, it landed INSIDE two multi-line declaration lists and wiped
+        GroupRules.h's extern block to ZERO (bear-trap #24's signature, canary
+        239 -> 0). Declarations here span lines and end on a bare `;`.  */
+    if jitting  jitDegrade("cerr under jit -- no emitter, sink fires at emit time", input);
     if !buffer      buffer = new("cerr buffer");
     appendPrintXP(stuff,buffer);
     return opCerr(input,buffer);
@@ -910,6 +943,20 @@ extern GroupItem aCTionCouT(GroupItem input)
 {
 GroupItem   stuff:;
 Buffer      buffer = bufferSTAK.pop();
+    /*  DEGRADE-BY-DEFAULT (Tony's ruling via Clay, 2026-08-05). BODY-REACHABLE
+        CONTENT with no emitter, so under jitting it would otherwise EXECUTE AT
+        EMIT TIME -- once, silently, in the wrong era. It now announces itself
+        through the counter the ladder already asserts at zero, then FALLS
+        THROUGH and runs interpreted, so behaviour is unchanged and the gap is
+        COUNTED rather than invisible.
+        docs/gateCensus.md: one of the five. The WALK MACHINERY (aCTionExpressioN
+        et al.) is deliberately NOT in this set -- degrading the emit walk would
+        stop the compiler rather than surface a bug.
+        ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK. Placed by a heuristic the
+        first time, it landed INSIDE two multi-line declaration lists and wiped
+        GroupRules.h's extern block to ZERO (bear-trap #24's signature, canary
+        239 -> 0). Declarations here span lines and end on a bare `;`.  */
+    if jitting  jitDegrade("cout under jit -- no emitter, sink fires at emit time", input);
     if !buffer      buffer = new("cout buffer");
     appendPrintXP(stuff,buffer);
     return opCout(input,buffer);
@@ -1012,6 +1059,20 @@ GroupItem   searchLIST = searchList;
 GroupItem   base,
             grup;
 int         setStakked;
+    /*  DEGRADE-BY-DEFAULT (Tony's ruling via Clay, 2026-08-05). BODY-REACHABLE
+        CONTENT with no emitter, so under jitting it would otherwise EXECUTE AT
+        EMIT TIME -- once, silently, in the wrong era. It now announces itself
+        through the counter the ladder already asserts at zero, then FALLS
+        THROUGH and runs interpreted, so behaviour is unchanged and the gap is
+        COUNTED rather than invisible.
+        docs/gateCensus.md: one of the five. The WALK MACHINERY (aCTionExpressioN
+        et al.) is deliberately NOT in this set -- degrading the emit walk would
+        stop the compiler rather than surface a bug.
+        ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK. Placed by a heuristic the
+        first time, it landed INSIDE two multi-line declaration lists and wiped
+        GroupRules.h's extern block to ZERO (bear-trap #24's signature, canary
+        239 -> 0). Declarations here span lines and end on a bare `;`.  */
+    if jitting  jitDegrade("search under jit -- no emitter, mutates the search stack at emit time", input);
     while grup = input.next(grup)
         if tag eq "reset"  searchLIST.clearList();
         or tag eq "list"
@@ -1127,6 +1188,20 @@ extern GroupItem aCTionStringXP(GroupItem input)
 {
 GroupItem   stuff:;
 Buffer      buffer = bufferSTAK.pop();
+    /*  DEGRADE-BY-DEFAULT (Tony's ruling via Clay, 2026-08-05). BODY-REACHABLE
+        CONTENT with no emitter, so under jitting it would otherwise EXECUTE AT
+        EMIT TIME -- once, silently, in the wrong era. It now announces itself
+        through the counter the ladder already asserts at zero, then FALLS
+        THROUGH and runs interpreted, so behaviour is unchanged and the gap is
+        COUNTED rather than invisible.
+        docs/gateCensus.md: one of the five. The WALK MACHINERY (aCTionExpressioN
+        et al.) is deliberately NOT in this set -- degrading the emit walk would
+        stop the compiler rather than surface a bug.
+        ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK. Placed by a heuristic the
+        first time, it landed INSIDE two multi-line declaration lists and wiped
+        GroupRules.h's extern block to ZERO (bear-trap #24's signature, canary
+        239 -> 0). Declarations here span lines and end on a bare `;`.  */
+    if jitting  jitDegrade("string expression under jit -- no emitter, builds at emit time", input);
     if !buffer      buffer = new("print buffer");
     appendPrintXP(stuff,buffer);
     return opString(stuff,buffer);

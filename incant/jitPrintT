@@ -60,6 +60,14 @@ define
     pAct code={
         print "P value =" pVal:;
         };
+    /*  THE DISCRIMINATOR, added 2026-08-05 after the R3 printout: a print whose
+        expression is a BARE NUMERIC FIELD, no literal, no concatenation. If this
+        one carries its value and the concatenating one does not, the plumbing is
+        right and the gap is the STRING EXPRESSION -- which is phase scope, not a
+        print bug. If neither carries a value, the plumbing is wrong.  */
+    pBare code={
+        print pVal;
+        };
     ;
 
 pVal = 7;
@@ -68,6 +76,13 @@ testing(pAct);
 
 pVal = 9;
 print "-- FIRE 2 (no recompile; must print again, with 9) --":;
+jitRefire();
+
+print "-- BARE NUMERIC EXPRESSION (the discriminator) --":;
+pVal = 41;
+testing(pBare);
+pVal = 58;
+print "-- bare, fire 2 (want 58) --":;
 jitRefire();
 
 print "JP2 SENTINEL -- run reached the end":;

@@ -999,6 +999,50 @@ extern int jitEmitContinue()
    whose TEXT is the shortcut; their address is baked and appendGroupValue passes
    them through untouched. No format or indent decision is baked at emit time --
    they happen at run time, in the chain, exactly as interpreted. */
+/* jitPrintProbe  COMPILE-TIME DIAGNOSTIC for the jitted print walk. R3, Clay,
+   2026-08-05: one aimed measurement before the third swing.
+
+   ⚠ COMPILE-TIME LOGGING IS EXEMPT FROM THE EFFECT-FREE-EMIT LAW, and the
+   distinction is worth stating because it looks like a violation: that law
+   governs THE EMITTED PROGRAM, not the compiler's own mouth. This never appears
+   in the IR. It is off unless INCANT_PRINT_PROBE is set.
+
+   THE QUESTION IT AIMS AT. Two symptoms -- appendGroupValue handed a constant
+   i32 0, and TWO parts walked where the statement reads as three -- are
+   consistent with ONE cause: the emit walk's part-classification diverging from
+   appendPrintXP's enumeration. So it reports, per part: WHAT THE WALK SAW
+   (before any filter), how it CLASSIFIED it, and whether gJitResult moved
+   across the expression emit.
+
+   phase 0  a part, as the walk first sees it, BEFORE the noPrint filter
+   phase 1  about to emit an expression   (gJitResult before)
+   phase 2  expression emitted            (gJitResult after)
+   phase 3  classified as a token (no expression)
+
+   ⚠ NO LEFT-JUSTIFY FORMAT IN THIS printf, and the first draft of this very
+   function re-tripped that trap -- canary 238 to 235, hours after the same trap
+   was documented two functions up. Plain %s. */
+extern void jitPrintProbe(GroupItem node,int phase)
+{
+    -%
+    if (!::getenv("INCANT_PRINT_PROBE")) return;
+    const char *tag  = (node && node->groupBody) ? node->groupBody->tag : "(null)";
+    const char *txt  = node ? node->getText() : 0;
+    const char *what = "part seen";
+    if (phase == 1) what = "expr: about to emit";
+    if (phase == 2) what = "expr: emitted";
+    if (phase == 3) what = "token (no expression)";
+    ::fprintf(stderr,
+        "  PRINTPROBE p%d [%s] tag=%s text=[%s] noPrint=%d shortcut=%d literal=%d gJitResult=%s\n",
+        phase, what, tag ? tag : "(untagged)", txt ? txt : "",
+        (node && node->groupBody->flags.noPrint) ? 1 : 0,
+        (node && node->groupBody->flags.isShortcut) ? 1 : 0,
+        (node && node->groupBody->flags.isLiteral) ? 1 : 0,
+        gJitResult ? "SET" : "null");
+    ::fflush(stderr);
+    %-
+}
+
 extern void jitPrintOpen(GroupItem input)
 {
     -%

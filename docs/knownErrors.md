@@ -106,7 +106,23 @@ other silent leaves the composition intact.
 ---
 
 # KE-3 — REMOVING `case 'M'` FROM processFlags KILLS THE MEMBERs GATE
-## PARKED WORRY, filed 2026-08-04 at Tony's invitation. **Rules: Tony.**
+## ✅ CLOSED 2026-08-05 — RULED: **KEEP**. The restore stands.
+
+**Tony's ruling, via Clay:** the diff was a **stale Dropbox base**, not one third of an
+intended removal. The reasoning is the one this entry asked for and it cuts the other way from
+the "unfinished removal" reading below: **a deliberate removal leaves footprints** — across the
+grammar term, the bootstrap, the gate and the comment — and Tony's edit touched **none of
+them**, while the removal silently kills his own 2026-08-02 attribute-pollution fix.
+`addingMembers` and its whole footprint stay live. `census.target`'s separation remains Tony's
+and is unchanged by this.
+
+**Kept in full below** rather than deleted, because the measurement is the reason the ruling
+could be made quickly, and because the alternative reading was live enough to be worth
+recording as considered-and-rejected.
+
+---
+
+## The original filing — PARKED WORRY, 2026-08-04, at Tony's invitation.
 
 **The ask, and why it is parked rather than done.** Tony's word, 2026-08-04:
 *"wrt M case; pretty sure it was intentional and did not break anything. You can restore it
