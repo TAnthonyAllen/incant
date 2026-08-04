@@ -1,0 +1,91 @@
+/*****************************************************************************
+    jitFalseT -- VALUE PARITY ON AN EMPTY LOOP OR BRANCH. 2026-08-05.
+
+    THE CANDIDATE, noted during the early-return census and measured here rather
+    than argued. All three of aCTionDO, aCTionIF and aCTionWhilE end with the
+    same line:
+
+        if !result  result = falseResult;
+
+    falseResult is a pROPERTIEs node -- isCOUNT, noPrint, value 0 -- so
+    INTERPRETED, a loop that never runs and a branch that takes no arm both
+    yield 0 rather than null. Under jitting all three functions return at their
+    `if jitting` gate, ABOVE that line, into jitEmitWHILE / jitEmitDO /
+    jitEmitGIF. Whether those emitters reproduce the convention is a question
+    nobody has asked, and it is VALUE parity, not shared state -- a different
+    class from the frame bracket that closed on the same day.
+
+    WHY IT IS WORTH A FIXTURE BEFORE genParse CONVERSIONS: every rule the
+    planner emits is conditionals and loops, and an action whose last statement
+    is a branch that took no arm is an ordinary shape, not a corner. If the two
+    engines disagree about what that action is WORTH, the disagreement is silent
+    -- it is a value, not a crash, and degrade count stays 0.
+
+    THREE ROWS, each an action whose LAST statement is the construct under test,
+    so the action's value IS the construct's value:
+        A  a while whose condition is false at entry -- body never runs
+        B  an if whose condition is false, with NO else arm
+        C  a do whose body runs once and yields nothing further
+
+    ⚠ JITTED FIRST, ORACLE LAST. Calling the action interpreted first consumes
+    its isCoded state and testing() then silently routes to jitRunIfTest -- a
+    different function answering a different question, at exit 0.
+
+    SENTINEL AT THE FOOT (standing harness rule H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitFalse);
+define
+    fvIn;
+    fvOut;
+    fvA code={
+        while fvIn > 100;
+            fvIn = fvIn - 1;
+        };
+    fvB code={
+        if fvIn > 100;
+            fvIn = fvIn - 1;
+        };
+    fvC code={
+        do
+            fvIn = fvIn - 1;
+        while fvIn > 100;
+        };
+    ;
+
+print "== A: while, condition FALSE at entry (body never runs) ==":;
+fvIn = 5;
+testing(fvA);
+
+print "== B: if, condition FALSE, no else arm ==":;
+fvIn = 5;
+testing(fvB);
+
+print "== C: do, body runs once, condition FALSE after ==":;
+fvIn = 5;
+testing(fvC);
+
+/*  THE ORACLE, captured LAST for the ordering reason in the header. The
+    action's RETURN VALUE is what is under test, so it is assigned and printed
+    -- not the field the body touched.  */
+fvIn = 5;
+fvOut = fvA();
+print "A interpreted value =" fvOut " (falseResult is 0)":;
+
+fvIn = 5;
+fvOut = fvB();
+print "B interpreted value =" fvOut " (falseResult is 0)":;
+
+fvIn = 5;
+fvOut = fvC();
+print "C interpreted value =" fvOut:;
+
+print "jitFalseT SENTINEL -- run reached the end":;
+stop();

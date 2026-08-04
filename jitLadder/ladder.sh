@@ -86,6 +86,34 @@ B=${INCANT:-$HOME/bin/incant}
 T=${TMPDIR:-/tmp}/jitladder.$$
 mkdir -p "$T"
 fail=0
+green=0
+
+#  ⚠⚠ THESE TWO HELPERS WERE CALLED AND NEVER DEFINED, 2026-08-01 -> 2026-08-05.
+#  THIRD INSTANCE OF THIS DISEASE ON THIS PROJECT, and the first INSIDE the JIT
+#  ladder: incant/jiquery's three stop() calls, then pop.sh's missing sentinel,
+#  now this. The call sites at JPd and JPl (below) printed
+#      jitLadder/ladder.sh: line 393: check: command not found
+#  on EVERY run, to stderr, and the ladder CARRIED ON. Those four checks did not
+#  pass and did not fail -- THEY CEASED TO EXIST. So for four days JPd and JPl
+#  had NO exit-status check and NO truncation guard: each rested on a single
+#  grep for its degrade message, and output printed before a crash is real, so a
+#  CRASHING jitJPd would have reported green.
+#  ⚠ THE LADDER'S OWN HEADLINE COUNT WAS THE CAMOUFLAGE. "103 ok, exit 0" reads
+#  as an audit; it is a tally of the checks that RAN. A check that evaporates is
+#  invisible in a count of checks -- which is why H2 says assert completeness by
+#  NAME, and why the CLAUDE.md line "when a result surprises you, doubt the
+#  instrument before the code" has to extend to results that DON'T surprise you.
+check () {                      # check <name> <expected-exit> <actual-exit>
+    if [ "$2" = "$3" ]; then echo "  ok    $1"; green=$((green+1))
+    else echo "  FAIL  $1 (exit $3)"; fail=1; fi
+}
+
+sentinel () {                   # sentinel <name> <file> <text>
+    if grep -qF "$3" "$2"; then echo "  ok    $1"; green=$((green+1))
+    else echo "  FAIL  $1 -- THE RUN TRUNCATED. A row stopped parsing and every"
+         echo "        row after it was silently dropped, at exit 0. Find the row"
+         echo "        that stopped parsing, not the row that diffed."; fail=1; fi
+}
 
 if [ ! -x "$B" ]; then echo "  FAIL  binary not executable: $B"; exit 1; fi
 echo "  bin   $B"
@@ -744,7 +772,111 @@ else
 fi
 
 echo ""
-if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv + J-R THE PROOF)"
+echo "-- JV VALUE PARITY on an EMPTY loop or branch."
+#  aCTionDO / aCTionIF / aCTionWhilE all end `if !result result = falseResult;`
+#  -- falseResult being a pROPERTIEs node, isCOUNT, value 0 -- and all three
+#  return at their `if jitting` gate ABOVE that line. So whether the emitters
+#  reproduce the convention was an open candidate, raised by the early-return
+#  census and settled here by measurement: THEY DO.
+#  Not shared state; VALUE parity. Cheap insurance taken before the genParse
+#  conversions lean on conditionals wholesale, since every planned rule is
+#  branches and loops and an action ending in an untaken arm is ordinary.
+#  ⚠ ROW C IS THE ANTI-VACUITY LEG. A and B both want 0, which a result slot
+#  that merely DEFAULTS to zero would also produce -- they cannot distinguish
+#  "the convention was carried" from "nothing was written". C wants 4, so it
+#  fails unless the slot holds a REAL computed value. Two zeros alone would be
+#  an absence check wearing a value's clothes.
+$B incant/jitFalseT > "$T/jv" 2>&1
+check "JV runs" 0 $?
+sentinel "JV sentinel (no truncation)" "$T/jv" "jitFalseT SENTINEL"
+jva=$(sed -n 's/.*jitRunAction result = \([0-9-][0-9]*\).*/\1/p' "$T/jv" | sed -n 1p)
+jvb=$(sed -n 's/.*jitRunAction result = \([0-9-][0-9]*\).*/\1/p' "$T/jv" | sed -n 2p)
+jvc=$(sed -n 's/.*jitRunAction result = \([0-9-][0-9]*\).*/\1/p' "$T/jv" | sed -n 3p)
+ova=$(sed -n 's/^A interpreted value = \([0-9-][0-9]*\).*/\1/p' "$T/jv" | head -1)
+ovb=$(sed -n 's/^B interpreted value = \([0-9-][0-9]*\).*/\1/p' "$T/jv" | head -1)
+ovc=$(sed -n 's/^C interpreted value = \([0-9-][0-9]*\).*/\1/p' "$T/jv" | head -1)
+jvd=$(sed -n 's/.*jitDegrade count = \([0-9-][0-9]*\).*/\1/p' "$T/jv" | tail -1)
+if [ -z "$jva" ] || [ -z "$ova" ]; then
+    echo "  FAIL  JV VACUITY GUARD: a value was not captured at all (jitted='$jva' oracle='$ova')"; fail=1
+else
+    for row in "A:$jva:$ova:0" "B:$jvb:$ovb:0" "C:$jvc:$ovc:4"; do
+        r=${row%%:*}; rest=${row#*:}; j=${rest%%:*}; rest=${rest#*:}; o=${rest%%:*}; w=${rest##*:}
+        if [ "$j" = "$w" ] && [ "$o" = "$w" ]; then
+            echo "  ok    JV $r jitted $j == oracle $o == $w"; green=$((green+1))
+        else
+            echo "  FAIL  JV $r jitted='$j' oracle='$o' want $w -- the engines disagree"
+            echo "        about what an empty construct is WORTH. Silent by nature:"
+            echo "        it is a value, not a crash, and degrade stays 0."; fail=1
+        fi
+    done
+fi
+if [ "$jvd" = "0" ]; then echo "  ok    JV degrade count 0"; green=$((green+1))
+else echo "  FAIL  JV degrade count = '$jvd', want 0"; fail=1; fi
+
+echo ""
+echo "-- JC CONVERGENCE. THE JITTED WALK MATCHES THE ORACLE AT EVERY DEPTH."
+#  ⚠ THE ONE CONSTRUCT NO OTHER RUNG TOUCHES: RECURSION OVER A SHARED ITERATOR
+#  LOCAL. Every rung above passes per-activation state through SCALARS, and a
+#  jitted scalar local is an ALLOCA in the compiled function -- per-activation
+#  for free. That is why J-R and JRL were green while displayForm was wrong:
+#  node-resident state (an iterator's CURSOR) lives in a baked GroupItem shared
+#  by every activation, and had no mechanism at all until the frame bracket.
+#
+#  ⚠ H3: THIS RUNG ASSERTS A DIFF AGAINST THE ORACLE, NOT A GOLDEN FILE. There
+#  is no .target: the two halves are produced by the SAME RUN, so the assertion
+#  moves only when the two ENGINES disagree -- never for a reason unrelated to
+#  correctness. It cannot be regenerated green.
+#
+#  ⚠ H7 NEGATIVE CONTROL, MEASURED 2026-08-05 rather than asserted. With the
+#  frame bracket removed, this rung goes RED and the wrongness is legible:
+#      bracket ABSENT:  dfRoot alpha beta dfMid [dfBare] dfInner     6 lines
+#      bracket PRESENT: dfRoot alpha beta dfMid delta dfInner zeta dfBare  8
+#  `dfBare` is dfRoot's MEMBER surfacing INSIDE dfMid -- the outer members
+#  iterator's cursor, clobbered by the inner activation. Degrade count was 0 in
+#  BOTH runs, so the wrong answer was SILENT. That is the rung's whole argument.
+#
+#  ⚠ VACUITY GUARD, H4's other half: both halves must be NON-EMPTY before they
+#  are compared, or a run that emitted nothing at all would diff clean and pass.
+$B incant/jitDfProbe > "$T/jc" 2>&1
+check "JC runs" 0 $?
+sentinel "JC sentinel (no truncation)" "$T/jc" "jitDfProbe SENTINEL"
+awk '/^== JITTED ==/{f=1;next} /^=== jitRunAction result/{f=0} f&&!/^=== jitRunAction: entering/' "$T/jc" > "$T/jc.jit"
+awk '/^== INTERPRETED/{f=1;next} /SENTINEL/{f=0} f' "$T/jc" > "$T/jc.int"
+jcd=$(sed -n 's/.*jitDegrade count = \([0-9-][0-9]*\).*/\1/p' "$T/jc" | head -1)
+if [ ! -s "$T/jc.jit" ] || [ ! -s "$T/jc.int" ]; then
+    echo "  FAIL  JC VACUITY GUARD: a half is EMPTY -- the walk emitted nothing."
+    echo "        A clean diff of two empty captures is an absence check wearing"
+    echo "        a diff's clothes. Nothing about this run is interpretable."; fail=1
+elif diff "$T/jc.jit" "$T/jc.int" > /dev/null; then
+    echo "  ok    JC jitted walk BYTE-IDENTICAL to the oracle ($(wc -l < "$T/jc.jit" | tr -d ' ') lines, both halves)"; green=$((green+1))
+else
+    echo "  FAIL  JC THE ENGINES DISAGREE -- the jitted walk diverged from the oracle:"
+    diff "$T/jc.jit" "$T/jc.int" | sed 's/^/        /'
+    echo "        A member surfacing under the WRONG parent means an iterator"
+    echo "        cursor is shared across activations: check the frame bracket"
+    echo "        in jitEmitSelfCall (save/call/restore) before anything else."; fail=1
+fi
+#  DEPTH IS ASSERTED BY NAME, because identical-and-shallow would pass the diff.
+#  zeta is the depth-3 leaf; a walk that stopped at depth 1 agrees with itself.
+if grep -qF "zeta" "$T/jc.jit"; then
+    echo "  ok    JC reached DEPTH 3 (zeta present -- identical-but-shallow cannot pass)"; green=$((green+1))
+else
+    echo "  FAIL  JC never reached depth 3: the halves may agree while both stop early"; fail=1
+fi
+if [ "$jcd" = "0" ]; then echo "  ok    JC degrade count 0 (the walk compiled; nothing fell through)"; green=$((green+1))
+else echo "  FAIL  JC degrade count = '$jcd', want 0"; fail=1; fi
+
+echo ""
+#  ⚠ H2 -- THE LADDER ASSERTS ITS OWN COMPLETENESS, and it must be unreachable
+#  except through the LAST rung. Added 2026-08-05 with the check/sentinel
+#  repair: for four days this file called two helpers it never defined, and the
+#  only symptom was `command not found` on stderr amid a PASSED banner.
+if [ "$green" -lt 1 ]; then
+    echo "jitLADDER FAILED -- END MARKER REACHED WITH NO GREEN CHECKS RECORDED;"
+    echo "                   the helpers are missing again or the rungs evaporated."
+    fail=1
+fi
+if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv JV JC + J-R THE PROOF)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"
 exit $fail

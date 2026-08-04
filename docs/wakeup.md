@@ -179,6 +179,14 @@ and the injected code simply is not in the output. So a retok **silently strips 
 unless the file is named on the command line. This cost a full bisect — the directives vanished,
 reverting `groupDirectives` did not bring them back, and the edit looked guilty because the edit
 was the only thing in the search space. **It was never the variable; the INVOCATION was.**
+⚠ **BUT THE DEFAULT IS BARE — cross-annotated 2026-08-05, because this item and the 08-02
+"diagnostic trace off stdout" fix below point OPPOSITE WAYS and the fork has now cost a rebuild in
+each direction.** `groupDirectives` carries ~10 `active` hooks, so naming it injects live `cerr`
+trace into ordinary runs. Use `tok GroupRules.twk` **bare** for any build whose output a POP,
+baseline or measurement will be read from, and for anything committed; name the directives file
+**only** for ephemeral instrumentation, and then neither measure a POP on that binary nor commit
+its `.mm`. Full discriminator table: `CLAUDE.md` bear-trap #23. **A trap explaining how to turn
+something ON is not a ruling that it should be on.**
 
 **2. NAME IT BEFORE YOU USE IT.** A reference term resolves by *sharing the definer's child
 list*, so a name that does not exist yet mints an empty stub that **never becomes a reference**.

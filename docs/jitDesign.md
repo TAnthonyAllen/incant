@@ -832,6 +832,34 @@ is the first assumption that must be revisited.
 `GroupItem*` with the body calling opPlus via `CreateCall` — gives frame discipline but no real
 win over the interpreter, and is not worth building.
 
+⚠ **RULED 2026-08-05 (Tony) — THE CONSEQUENCE OF THIS DECISION HAS A NAME AND A PARITY-ERA
+ANSWER; THE REDESIGN QUESTION IS PARKED BEHIND A NAMED GATE.** Native-typed slots mean **a node
+has no representable slot** (`JitFrameSlot` is keyed on `&gCount`/`&gNumber`, `jitContext.h`).
+Scalar locals are therefore per-activation *for free* — they are `alloca`s in the compiled
+function, which is why rungs J-R and JRL went green with no frame machinery at all. **Node-resident
+state is the other class and had no mechanism at all**: an iterator's cursor lives in a baked
+GroupItem shared by every activation, so a jitted recursive walk clobbered its own caller's cursor.
+Measured on `displayForm`, silent, with degrade count 0 — see rung **JC**.
+
+**The parity-era shape is the FRAME BRACKET:** `jitSaveFrameRT`/`jitRestoreFrameRT` lift
+`runAction`'s own `saveLocalFields`/`restoreLocalFields` lines verbatim, gate included, and
+`jitEmitSelfCall` brackets the emitted call in `runAction`'s order — bind, save, call, restore.
+
+⚠ **AND THIS RESOLVES THE APPARENT CONFLICT WITH §0, which is worth stating because it looked
+like one.** §0 sentences **the interpreter as ENGINE**, not every C++ function the interpreter
+used. The op primitives, the print chain and the GC hooks all survive crossover *because emitted
+code calls them* — that has been the shared-implementation bargain from the start.
+`saveLocalFields` simply joins that category: today the interpreter's frame bracket, now the
+**runtime's** frame bracket with two callers. The dependency is not a contradiction of §0; **it is
+how §0's survivors get chosen.**
+
+**THE NATIVE-FRAME QUESTION IS PARKED, WITH ITS GATE NAMED: revisit jointly with this section
+after the KANT-8 hunt reports.** That hunt is about to characterise exactly what per-activation
+state the current frame discipline loses, and **redesigning frame mechanics before that
+characterisation would be designing against an undiagnosed disease.** If the hunt's fix wants a
+different frame model, the bracket's **two named call sites** are precisely where it plugs in —
+nothing built for parity obstructs that day.
+
 *Prologue:* for each field, load the `GroupItem*` from the incoming slot array, read the native
 value from its typed data member, store into the field's `alloca`. After that the body operates
 entirely on native values.

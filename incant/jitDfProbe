@@ -28,16 +28,29 @@
     with no bracket at all.
 
     ⚠ NO LONGER A HANG, and the H5 warning above it is withdrawn. It returns.
-    It is still run BY HAND with a bound until Tony rules on the shape (see
-    below), and it is a LADDER RUNG CANDIDATE, deliberately not yet wired.
+    IT IS NOW LADDER RUNG JC -- wired 2026-08-05, with its H7 negative control
+    recorded there: bracket removed, the rung goes RED at 6 lines against the
+    oracle's 8, with `dfBare` surfacing inside dfMid and degrade count 0 in BOTH
+    runs. The wrong answer was silent, which is the rung's whole argument.
 
-    ⚠ THE OPEN RULING IS TONY'S, AND A GREEN RUN HERE DOES NOT SETTLE IT.
-    The bracket makes emitted code DEPEND on saveLocalFields, which docs/jit.md
-    §0 sentences to be DELETED rather than depended on. This was built as a
-    MEASUREMENT of the mechanism, not as a choice of architecture. It also
-    inherits whatever those two functions do, KANT-8 included -- which is the
-    doctrine, not a flaw: bug-for-bug parity is the requirement, and displayForm
-    prints and discards, so it can be fully green with KANT-8 still open.
+    ✅ RULED 2026-08-05 (Tony) -- THE BRACKET STANDS AS THE PARITY-ERA SHAPE.
+    It looked like a conflict with docs/jit.md §0 and is not: §0 sentences THE
+    INTERPRETER AS ENGINE, not every C++ function it used. The op primitives,
+    the print chain and the GC hooks all survive crossover because emitted code
+    calls them -- the shared-implementation bargain. saveLocalFields joins that
+    category: the interpreter's frame bracket becomes the RUNTIME's frame
+    bracket with two callers. The dependency is how §0's survivors get chosen.
+    The native-frame question is PARKED behind a named gate -- revisit with
+    docs/jitDesign.md "Slots, prologue, epilogue" AFTER the KANT-8 hunt reports,
+    because that hunt characterises what per-activation state the current
+    discipline loses and redesigning first would be designing against an
+    undiagnosed disease.
+
+    ⚠ IT INHERITS WHATEVER THOSE TWO FUNCTIONS DO, KANT-8 INCLUDED -- doctrine,
+    not flaw: bug-for-bug parity is the requirement. displayForm prints and
+    discards, so this is fully green with KANT-8 still open, and KANT-8 stays
+    its own quarry with iterT1m as its pinned symptom -- cleanly separated from
+    the JIT question rather than conflated with it.
 
     ===================== 08-04 RECORD BELOW, AS WRITTEN =====================
 

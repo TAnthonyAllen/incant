@@ -949,6 +949,23 @@ Hard-won lessons. Each one has cost real debugging time.
     injected statements now contains none, with a clean tok exit. (Related: `tokall` is a shell
     function whose body is `for item in *.twk; do tok $item; done` — see #10's correction — so it
     passes no directives file either.)
+    ⚠ **CROSS-ANNOTATION, 2026-08-05 — THIS ENTRY AND THE 08-02 RULING POINT OPPOSITE WAYS, AND
+    THE FORK HAS NOW COST TWO REBUILDS (one in each direction).** This trap says *name the
+    directives file or lose your directives*; `docs/wakeup.md`'s 08-02 section says *the `.mm` are
+    retok'd **without** directives at Tony's word*. **Both are true, and they answer different
+    questions.** Read the discriminator before you type the command:
+    | you want | the invocation | what you get |
+    |---|---|---|
+    | a **normal build** — the committed `.mm`, anything a POP or a baseline will be measured against | `tok GroupRules.twk` | clean codegen, no trace |
+    | **ephemeral instrumentation** — you are hunting, and you want the hooks | `tok GroupRules.twk groupDirectives` | an **instrumented binary** |
+    **The default is BARE.** `groupDirectives` currently carries ~10 `active` hooks (e.g. line 23
+    on `aCTionDefinE`), so passing it injects live `cerr` trace into ordinary runs. A binary built
+    that way must **not** be used to measure a POP and its `.mm` must **not** be committed —
+    that is precisely the 08-02 defect where an *instrument* broke three POP targets by prepending
+    ~290 lines of trace with zero content divergence. Paid for again on 2026-08-05: a retok that
+    correctly applied bear-trap #23 flooded a JIT measurement, and the run had to be discarded and
+    rebuilt bare. **A trap that tells you how to turn something ON is not a ruling that it should
+    be on.**
 
 24. **AN INCANT ACCESSOR IS NOT A tok ACCESSOR, and the failure surfaces three files away.**
     Writing `field.listLengtH` (the incant spelling) in a `.rtn` produces bear-trap #10's exact
