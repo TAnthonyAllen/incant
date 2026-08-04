@@ -867,6 +867,106 @@ extern GroupItem jitEmitIterStep(GroupItem result)
     %-
 }
 
+/* jitEmitIterate  THE ITERATOR SETUP, EMITTED. Work item 1 of the convergence
+   rung, 2026-08-04.
+
+   THE GAP IT CLOSES: aCTionIterate had NO jitting gate, so `iterate g on x` was
+   performed ONCE, AT EMIT TIME, and the compiled function inherited whatever
+   state that left behind -- while the `++` advance WAS emitted. Setup and
+   advance living at two different times is the shape of the displayForm hang:
+   the second fire began on a spent iterator because nothing re-established it.
+
+   ⚠ THE CALL IS TO aCTionIterate ITSELF, the same model-not-oracle move as
+   jitEmitIterStep's call to opPlusPlus. Iterator semantics are Tony's and they
+   are already written down once; emitting a re-implementation would make two
+   copies of a thing he has changed twice this month.
+
+   ⚠ THIS GATE EMITS AND THEN FALLS THROUGH -- it does NOT return, and that is
+   the one place this differs from every other jitting gate in the tree. The
+   emit-time walk still needs the iterator ESTABLISHED, because the enclosing
+   `while ++grup` must take opPlusPlus's iterator arm to reach jitEmitIterStep
+   at all; gate-and-return would leave the node un-flagged and the advance would
+   emit against the DATA arm instead.
+   ⚠ AND IT DOES NOT BREAK THE EFFECT-FREE-EMIT LAW, which is worth stating
+   rather than assuming, since "it is only a little effect" is how that law
+   erodes. The law is about OBSERVABLE effects -- output, and mutation of user
+   data. aCTionIterate's effect is confined to the ITERATOR NODE's own list
+   pointer and poison flag: compile scaffolding, invisible to the program's
+   result. The emitted call re-establishes it at run time, so RUN-TIME BEHAVIOUR
+   DOES NOT DEPEND ON THE EMIT-TIME STATE -- which is the property the law
+   actually protects.
+
+   NOTHING IS LEFT IN FLIGHT (E1). An iterate statement has no value anyone
+   reads; the loop's condition is the ++, not this. Setting gJitResult here
+   would hand aCTionBlocK a POINTER to commit into an i32 result slot. */
+extern void jitEmitIterate(GroupItem input)
+{
+    -%
+    llvm::IRBuilder<> *b = gJitBuilder;
+    if (!b) return;
+    llvm::LLVMContext &ctx = b->getContext();
+    llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+    llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+
+    llvm::Value *inAddr = b->CreateIntToPtr(
+        llvm::ConstantInt::get(i64, (uint64_t)(void*)input), ptr, "iterStmt");
+    llvm::Value *callee = b->CreateIntToPtr(
+        llvm::ConstantInt::get(i64, (uint64_t)(void*)&aCTionIterate), ptr, "iterSetFn");
+    llvm::FunctionType *ty = llvm::FunctionType::get(ptr, {ptr}, false);
+    b->CreateCall(ty, callee, {inAddr}, "iterSetup");
+
+    gJitEmitted = true;
+    gJitResult  = nullptr;
+    %-
+}
+
+/* jitEmitContinue  `continue`, EMITTED. Work item 2 of the convergence rung.
+
+   THE GAP IT CLOSES: there was no continue emitter at all. In the displayForm
+   dump `continue` APPEARED to work -- both arms of the enclosing if fell
+   through to a block that branched to `cond`, which happens to be the back edge
+   -- and that is worse than a missing feature. A construct that is correct by
+   accident of topology stays correct exactly until the block structure moves,
+   and then fails somewhere else entirely.
+
+   THE TARGET IS THE LOOP'S CONDITION BLOCK, which the loop emitters already
+   maintain as a stack (gLoopCondBlocks), so nested loops get the INNERMOST one
+   for free -- the same rule the interpreter follows, where break and continue
+   are consumed by the innermost loop.
+
+   ⚠ A `do` LOOP'S CONTINUE GOES TO ITS COND TOO, not to its body. That matches
+   the interpreter: a do re-tests before repeating. The two loop shapes differ in
+   where they ENTER, not in where a continue lands, and gLoopCondBlocks holds the
+   right block for both.
+
+   ⚠ THE UNREACHABLE BLOCK IS DELIBERATE. LLVM requires a terminator per block
+   and forbids code after one, so after the branch the builder is parked in a
+   fresh block that nothing branches to. It is dead by construction and the
+   optimiser drops it; emitting the following statements into the block we just
+   terminated would be INVALID IR, which the verifier would refuse -- correctly.
+
+   Returns 0 when there is no enclosing loop, so a stray continue cannot silently
+   emit a branch to whatever happens to be on the stack. */
+extern int jitEmitContinue()
+{
+    -%
+    llvm::IRBuilder<> *b = gJitBuilder;
+    if (!b) return 0;
+    if (gLoopCondBlocks.empty()) {
+        ::fprintf(stderr, "=== jitEmitContinue: no enclosing loop -- REFUSING ===\n");
+        ::fflush(stderr);
+        return 0; }
+    llvm::LLVMContext &ctx = b->getContext();
+    llvm::Function *fn = b->GetInsertBlock()->getParent();
+    b->CreateBr(gLoopCondBlocks.back());
+    llvm::BasicBlock *dead = llvm::BasicBlock::Create(ctx, "afterContinue", fn);
+    b->SetInsertPoint(dead);
+    gJitEmitted = true;
+    gJitResult  = nullptr;
+    return 1;
+    %-
+}
+
 /* jitTraceRT  THE RUNTIME HALF OF jitTrace -- the print that survives jitting.
    Plain C++, stable address, one field in. Called from EMITTED CODE at RUN time,
    once per fire, so it reports the value the compiled function is actually

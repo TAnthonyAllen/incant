@@ -1,0 +1,90 @@
+/*****************************************************************************
+    jitIterTwice -- TWO SEQUENTIAL RE-TARGETED ITERATES ON ONE VARIABLE.
+
+    ⚠ THIS FIXTURE EXISTS BECAUSE AN EARLIER ONE DID NOT DISCRIMINATE, and that
+    failure is worth more than the fixture. The first attempt fired one jitted
+    iterate three times and asserted 3/3/3 -- which passed IDENTICALLY with the
+    new emitted setup and with it removed, because an exhausted iterator
+    restarts from firstInList, so a second fire walks the same list again
+    whether or not anything re-established it. Green, and evidence of nothing.
+    "An oracle is only evidence over the conditions it was captured under."
+
+    THE DISCRIMINATING SHAPE IS displayForm's OWN: ONE variable, TWO iterates,
+    RE-TARGETED between them --
+
+        iterate g on trunk attributes;  while ++g  countA++;
+        iterate g on trunk members;     while ++g  countB++;
+
+    At EMIT time both setups run, in order, so `g` ends bound to the MEMBER
+    list. If the setup is not emitted, the compiled function starts BOTH loops
+    against whatever binding emit time left behind -- the members -- so the
+    first loop counts members instead of attributes. If the setup IS emitted,
+    each loop re-establishes its own source at run time and the two counts
+    differ correctly.
+
+    ⚠ THE TWO COUNTS MUST DIFFER, which is the injectivity rule applied to a
+    construct: a trunk with equal numbers of attributes and members would give
+    the same pair under both behaviours and prove nothing. Two attributes,
+    three members.
+
+    MEASURED, AND THIS IS THE RUNG'S EVIDENCE -- two points, not one:
+        gate REMOVED, rebuilt:  jitted attrs=3 members=3   oracle 2/3   WRONG
+        gate PRESENT, rebuilt:  jitted attrs=2 members=3   oracle 2/3   right
+    The wrong answer was SILENT: degrade count 0 in both runs. So nothing except
+    a value assertion over a discriminating shape would have caught it.
+
+    THE THIRD LOOP COVERS `continue`, which had no emitter at all until today.
+    itMemTwo is noPrint, so the loop visits three members and counts two -- the
+    same `if noPrinT; continue;` line displayForm uses. A continue that emitted
+    nothing would count three.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitIterTwice);
+define
+    itAttrOne;
+    itAttrTwo;
+    itTrunk     itAttrOne itAttrTwo
+        itMemOne;
+        itMemTwo noPrint;
+        itMemThree;
+    itCountA;
+    itCountB;
+    itCountC;
+    itWalk code={
+        itCountA = 0;
+        itCountB = 0;
+        iterate g on itTrunk attributes;
+        while ++g
+            ++itCountA;
+        iterate g on itTrunk members;
+        while ++g
+            ++itCountB;
+        itCountC = 0;
+        iterate g on itTrunk members;
+        while ++g;
+            if noPrinT; continue;
+            ++itCountC;
+        };
+    ;
+
+itCountA = 0; itCountB = 0; itCountC = 0;
+testing(itWalk);
+print "IT fire 1 : attrs =" itCountA " members =" itCountB " kept =" itCountC " (want 2 3 2)":;
+
+itCountA = 0; itCountB = 0; itCountC = 0;
+jitRefire();
+print "IT fire 2 : attrs =" itCountA " members =" itCountB " kept =" itCountC " (want 2 3 2)":;
+
+itCountA = 0; itCountB = 0; itCountC = 0;
+itWalk();
+print "IT interpreted : attrs =" itCountA " members =" itCountB " kept =" itCountC " (oracle -- want 2 3 2)":;
+
+print "IT SENTINEL -- run reached the end":;
+stop();

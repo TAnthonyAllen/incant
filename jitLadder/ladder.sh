@@ -615,8 +615,80 @@ else
     else echo "  FAIL  JA coresidence: CodE=$jacode BlocK=$jablock, want 1 and 1"; fail=1; fi
 fi
 
+#  ---------------------------------------------------------------------------
+#  JI -- SEQUENTIAL RE-TARGETED ITERATES, and the iterator SETUP at run time.
+#
+#  WHAT IT NEWLY PROVES: the `iterate` STATEMENT is emitted, so each loop
+#  re-establishes its own source at RUN time. Every rung above proves the JIT
+#  can compile an expression or a control structure; this one proves a
+#  STATEMENT WITH A BINDING EFFECT happens at the right TIME.
+#
+#  ⚠ ITS FIRST FIXTURE DID NOT DISCRIMINATE, and that is why this one looks the
+#  way it does. The first attempt fired ONE jitted iterate three times and
+#  asserted 3/3/3 -- which passed IDENTICALLY with the emitted setup and with it
+#  removed, because an exhausted iterator restarts from firstInList so a second
+#  fire walks the same list again either way. Green, and evidence of nothing.
+#  The discriminating shape is displayForm's own: ONE variable, TWO iterates,
+#  RE-TARGETED between them, with DIFFERENT counts on the two sides.
+#
+#  THE TWO-POINT MEASUREMENT that licenses this rung (2026-08-04):
+#      gate REMOVED, rebuilt:  jitted attrs=3 members=3   oracle 2/3   WRONG
+#      gate PRESENT, rebuilt:  jitted attrs=2 members=3   oracle 2/3   right
+#  The wrong answer was SILENT -- degrade count 0 in both runs -- so nothing
+#  except a value assertion over a discriminating shape would have caught it.
+#
+#  ⚠ THE `kept` ROW IS PINNED WRONG ON PURPOSE (the tree.divergence / iterT1m
+#  pattern), and it is the convergence rung's remaining blocker in miniature.
+#  The third loop is displayForm's own `if noPrinT; continue;`. jitEmitContinue
+#  emits the CORRECT branch -- the IR shows `then: br label %cond` -- but the
+#  CONDITION FEEDING IT IS WRONG: a bare flag read has no emitter, so the `if`
+#  reuses the last value in flight, which is the iterator's liveness:
+#      body:  %tobool = icmp ne i32 %iterCond, 0     <- reads ITERATOR LIVENESS
+#  and the statement after the if is not emitted at all. So `continue` is BUILT
+#  and UNCERTIFIED: nothing here proves it, and this pin says so rather than
+#  letting a green row imply it.
+#  RE-PIN WHEN FLAG READS EMIT, with a sentence, not a green diff.
+echo "-- JI  SEQUENTIAL RE-TARGETED ITERATES. THE SETUP HAPPENS AT RUN TIME."
+$B incant/jitIterTwice > "$T/jitIterTwice" 2>&1
+jie=$?
+if [ $jie != 0 ]; then echo "  FAIL  JI -- nonzero exit ($jie)"; fail=1
+elif ! grep -qF "IT SENTINEL" "$T/jitIterTwice"; then
+    echo "  FAIL  JI -- TRUNCATED at exit 0; nothing in this run is interpretable"; fail=1
+else
+    a1=$(sed -n 's/.*IT fire 1 : attrs = \([0-9-][0-9]*\).*/\1/p' "$T/jitIterTwice" | head -1)
+    b1=$(sed -n 's/.*IT fire 1 : attrs = [0-9-]*  *members = \([0-9-][0-9]*\).*/\1/p' "$T/jitIterTwice" | head -1)
+    a2=$(sed -n 's/.*IT fire 2 : attrs = \([0-9-][0-9]*\).*/\1/p' "$T/jitIterTwice" | head -1)
+    b2=$(sed -n 's/.*IT fire 2 : attrs = [0-9-]*  *members = \([0-9-][0-9]*\).*/\1/p' "$T/jitIterTwice" | head -1)
+    kj=$(sed -n 's/.*IT fire 1 : .*kept = \([0-9-][0-9]*\).*/\1/p' "$T/jitIterTwice" | head -1)
+    ki=$(sed -n 's/.*IT interpreted : .*kept = \([0-9-][0-9]*\).*/\1/p' "$T/jitIterTwice" | head -1)
+    oa=$(sed -n 's/.*IT interpreted : attrs = \([0-9-][0-9]*\).*/\1/p' "$T/jitIterTwice" | head -1)
+    ob=$(sed -n 's/.*IT interpreted : attrs = [0-9-]*  *members = \([0-9-][0-9]*\).*/\1/p' "$T/jitIterTwice" | head -1)
+    jid=$(sed -n 's/.*jitDegrade count = \([0-9-][0-9]*\).*/\1/p' "$T/jitIterTwice" | tail -1)
+    jic=$(sed -n 's/.*jitCompile count = \([0-9-][0-9]*\).*/\1/p' "$T/jitIterTwice" | tail -1)
+
+    if [ "$a1" = "2" ] && [ "$b1" = "3" ]; then
+        echo "  ok    JI fire 1 : attrs 2, members 3  (the two iterates target DIFFERENTLY)"
+    else echo "  FAIL  JI fire 1 attrs='$a1' members='$b1', want 2 and 3."
+         echo "        attrs=3 means BOTH loops ran against the binding emit time left"
+         echo "        behind -- i.e. the iterate setup is not being emitted."; fail=1; fi
+    if [ "$a2" = "2" ] && [ "$b2" = "3" ]; then
+        echo "  ok    JI fire 2 : attrs 2, members 3  <- RUN-TIME PROOF (no recompile)"
+    else echo "  FAIL  JI fire 2 attrs='$a2' members='$b2', want 2 and 3"; fail=1; fi
+    if [ "$oa" = "2" ] && [ "$ob" = "3" ]; then
+        echo "  ok    JI oracle agrees: interpreted attrs 2, members 3"
+    else echo "  FAIL  JI ORACLE DISAGREES: interpreted '$oa'/'$ob', jitted 2/3"; fail=1; fi
+    if [ "$jic" = "1" ]; then echo "  ok    JI compile count 1 across both fires"
+    else echo "  FAIL  JI compile count = '$jic', want 1"; fail=1; fi
+    if [ "$jid" = "0" ]; then echo "  ok    JI degrade count 0 (no silent emit-time fallback)"
+    else echo "  FAIL  JI degrade count = '$jid', want 0"; fail=1; fi
+    if [ "$kj" = "0" ]; then echo "  ok    JI kept jitted = 0   (PINNED WRONG -- bare flag reads do not emit)"
+    else echo "  FAIL  JI kept jitted = '$kj', pinned 0 -- WOKE: flag reads may now emit, re-pin with a sentence"; fail=1; fi
+    if [ "$ki" = "2" ]; then echo "  ok    JI kept interpreted = 2  (continue is CONSUMED correctly, interpreted)"
+    else echo "  FAIL  JI kept interpreted = '$ki', pinned 2 -- the interpreted continue moved"; fail=1; fi
+fi
+
 echo ""
-if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA + J-R THE PROOF)"
+if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI + J-R THE PROOF)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"
 exit $fail

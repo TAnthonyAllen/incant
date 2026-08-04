@@ -146,6 +146,32 @@ GroupItem 	*arg = ExpressioN;
 		case 'r':
 			arg->groupBody->flags.isBranch = 3;
 		}
+	/*  BRANCHES UNDER JITTING. `continue` emits a branch to the innermost
+	loop's condition block; break and return DEGRADE LOUDLY rather than
+	emitting nothing.
+	
+	⚠ THE DEGRADE ARM IS THE POINT, not politeness. In the displayForm dump
+	`continue` appeared to work because both arms of the enclosing if fell
+	through to a block that branched to `cond` -- which happened to be the
+	back edge. A construct correct by accident of topology stays correct
+	exactly until the block structure moves. break and return are in that
+	same state RIGHT NOW, so they are COUNTED here instead of being left to
+	look fine; a jitDegrade count the ladder already asserts at zero turns
+	them from invisible into a red the moment a fixture reaches one.
+	
+	⚠ THE TAG IS READ DIRECTLY rather than testing the flags set two lines
+	above. Those assignments are bare, so which node they land on is a
+	bare-name-resolution question (the last mentioned field is BrancheS, not
+	arg, and the header comment says the stamp is meant for what is
+	returned). That discrepancy is NOT this edit's business -- reading
+	*BrancheS.tag mirrors the switch exactly and settles nothing either way.  */
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		
+		if (*BrancheS->groupBody->tag == 'c')    jitEmitContinue();
+		else    jitDegrade("break/return under jit -- no emitter yet", input);
+		
+		}
 	return arg;
 }
 
@@ -677,6 +703,18 @@ GroupItem 	*attributes = input->getLabelGroup("attributes");
 GroupItem 	*members = input->getLabelGroup("members");
 GroupItem 	*iterator = input->get(1);
 GroupItem 	*source = input->get(2);
+	/*  ⚠ EMIT, THEN FALL THROUGH -- the only gate in the tree that does not
+	return, and deliberately so. The emit-time walk still needs the iterator
+	ESTABLISHED, because the enclosing `while ++grup` must take opPlusPlus's
+	iterator arm to reach jitEmitIterStep; gate-and-return would leave the
+	node un-flagged and the advance would emit against the DATA arm.
+	The emitted call re-establishes the iterator at RUN time, which is the
+	gap that made displayForm hang: the advance was emitted and the setup
+	was not, so the two lived at different times.  */
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		 jitEmitIterate(input); 
+		}
 	while ( isGROUP(iterator->groupBody->flags.data) )
 		iterator = iterator->getGroup();
 	while ( isGROUP(source->groupBody->flags.data) )
@@ -3338,6 +3376,53 @@ extern "C" GroupItem *jitEmitCompare(GroupItem *argument, GroupItem *target, int
 	
 }
 
+/* jitEmitContinue  `continue`, EMITTED. Work item 2 of the convergence rung.
+
+   THE GAP IT CLOSES: there was no continue emitter at all. In the displayForm
+   dump `continue` APPEARED to work -- both arms of the enclosing if fell
+   through to a block that branched to `cond`, which happens to be the back edge
+   -- and that is worse than a missing feature. A construct that is correct by
+   accident of topology stays correct exactly until the block structure moves,
+   and then fails somewhere else entirely.
+
+   THE TARGET IS THE LOOP'S CONDITION BLOCK, which the loop emitters already
+   maintain as a stack (gLoopCondBlocks), so nested loops get the INNERMOST one
+   for free -- the same rule the interpreter follows, where break and continue
+   are consumed by the innermost loop.
+
+   ⚠ A `do` LOOP'S CONTINUE GOES TO ITS COND TOO, not to its body. That matches
+   the interpreter: a do re-tests before repeating. The two loop shapes differ in
+   where they ENTER, not in where a continue lands, and gLoopCondBlocks holds the
+   right block for both.
+
+   ⚠ THE UNREACHABLE BLOCK IS DELIBERATE. LLVM requires a terminator per block
+   and forbids code after one, so after the branch the builder is parked in a
+   fresh block that nothing branches to. It is dead by construction and the
+   optimiser drops it; emitting the following statements into the block we just
+   terminated would be INVALID IR, which the verifier would refuse -- correctly.
+
+   Returns 0 when there is no enclosing loop, so a stray continue cannot silently
+   emit a branch to whatever happens to be on the stack. */
+extern "C" int jitEmitContinue()
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	if (!b) return 0;
+	if (gLoopCondBlocks.empty()) {
+	::fprintf(stderr, "=== jitEmitContinue: no enclosing loop -- REFUSING ===\n");
+	::fflush(stderr);
+	return 0; }
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Function *fn = b->GetInsertBlock()->getParent();
+	b->CreateBr(gLoopCondBlocks.back());
+	llvm::BasicBlock *dead = llvm::BasicBlock::Create(ctx, "afterContinue", fn);
+	b->SetInsertPoint(dead);
+	gJitEmitted = true;
+	gJitResult  = nullptr;
+	return 1;
+	
+}
+
 /* jitEmitDO  the do-while emitter (rung J4). Body first, condition second.
 
    ⚠ E1 AUDIT: clears gJitResult before returning, as every bracketing emitter
@@ -3503,6 +3588,59 @@ extern "C" GroupItem *jitEmitIterStep(GroupItem *result)
 	gJitResult  = val;
 	gJitEmitted = true;
 	return result;
+	
+}
+
+/* jitEmitIterate  THE ITERATOR SETUP, EMITTED. Work item 1 of the convergence
+   rung, 2026-08-04.
+
+   THE GAP IT CLOSES: aCTionIterate had NO jitting gate, so `iterate g on x` was
+   performed ONCE, AT EMIT TIME, and the compiled function inherited whatever
+   state that left behind -- while the `++` advance WAS emitted. Setup and
+   advance living at two different times is the shape of the displayForm hang:
+   the second fire began on a spent iterator because nothing re-established it.
+
+   ⚠ THE CALL IS TO aCTionIterate ITSELF, the same model-not-oracle move as
+   jitEmitIterStep's call to opPlusPlus. Iterator semantics are Tony's and they
+   are already written down once; emitting a re-implementation would make two
+   copies of a thing he has changed twice this month.
+
+   ⚠ THIS GATE EMITS AND THEN FALLS THROUGH -- it does NOT return, and that is
+   the one place this differs from every other jitting gate in the tree. The
+   emit-time walk still needs the iterator ESTABLISHED, because the enclosing
+   `while ++grup` must take opPlusPlus's iterator arm to reach jitEmitIterStep
+   at all; gate-and-return would leave the node un-flagged and the advance would
+   emit against the DATA arm instead.
+   ⚠ AND IT DOES NOT BREAK THE EFFECT-FREE-EMIT LAW, which is worth stating
+   rather than assuming, since "it is only a little effect" is how that law
+   erodes. The law is about OBSERVABLE effects -- output, and mutation of user
+   data. aCTionIterate's effect is confined to the ITERATOR NODE's own list
+   pointer and poison flag: compile scaffolding, invisible to the program's
+   result. The emitted call re-establishes it at run time, so RUN-TIME BEHAVIOUR
+   DOES NOT DEPEND ON THE EMIT-TIME STATE -- which is the property the law
+   actually protects.
+
+   NOTHING IS LEFT IN FLIGHT (E1). An iterate statement has no value anyone
+   reads; the loop's condition is the ++, not this. Setting gJitResult here
+   would hand aCTionBlocK a POINTER to commit into an i32 result slot. */
+extern "C" void jitEmitIterate(GroupItem *input)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	if (!b) return;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	
+	llvm::Value *inAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)input), ptr, "iterStmt");
+	llvm::Value *callee = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&aCTionIterate), ptr, "iterSetFn");
+	llvm::FunctionType *ty = llvm::FunctionType::get(ptr, {ptr}, false);
+	b->CreateCall(ty, callee, {inAddr}, "iterSetup");
+	
+	gJitEmitted = true;
+	gJitResult  = nullptr;
 	
 }
 

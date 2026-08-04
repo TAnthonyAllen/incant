@@ -98,6 +98,31 @@ GroupItem   arg = ExpressioN;
         case 'b':   isBreak     = true;
         case 'c':   isContinue  = true;
         case 'r':   isReturn    = true; }
+    /*  BRANCHES UNDER JITTING. `continue` emits a branch to the innermost
+        loop's condition block; break and return DEGRADE LOUDLY rather than
+        emitting nothing.
+
+        ⚠ THE DEGRADE ARM IS THE POINT, not politeness. In the displayForm dump
+        `continue` appeared to work because both arms of the enclosing if fell
+        through to a block that branched to `cond` -- which happened to be the
+        back edge. A construct correct by accident of topology stays correct
+        exactly until the block structure moves. break and return are in that
+        same state RIGHT NOW, so they are COUNTED here instead of being left to
+        look fine; a jitDegrade count the ladder already asserts at zero turns
+        them from invisible into a red the moment a fixture reaches one.
+
+        ⚠ THE TAG IS READ DIRECTLY rather than testing the flags set two lines
+        above. Those assignments are bare, so which node they land on is a
+        bare-name-resolution question (the last mentioned field is BrancheS, not
+        arg, and the header comment says the stamp is meant for what is
+        returned). That discrepancy is NOT this edit's business -- reading
+        *BrancheS.tag mirrors the switch exactly and settles nothing either way.  */
+    if jitting {
+        -%
+        if (*BrancheS->groupBody->tag == 'c')    jitEmitContinue();
+        else    jitDegrade("break/return under jit -- no emitter yet", input);
+        %-
+    }
     return arg;
 }
 
@@ -590,6 +615,17 @@ GroupItem   attributes:,
             members:;
 GroupItem   iterator = input[1];
 GroupItem   source = input[2];
+    /*  ⚠ EMIT, THEN FALL THROUGH -- the only gate in the tree that does not
+        return, and deliberately so. The emit-time walk still needs the iterator
+        ESTABLISHED, because the enclosing `while ++grup` must take opPlusPlus's
+        iterator arm to reach jitEmitIterStep; gate-and-return would leave the
+        node un-flagged and the advance would emit against the DATA arm.
+        The emitted call re-establishes the iterator at RUN time, which is the
+        gap that made displayForm hang: the advance was emitted and the setup
+        was not, so the two lived at different times.  */
+    if jitting {
+        -% jitEmitIterate(input); %-
+    }
     while iterator.isGROUP  iterator = iterator.group;
     while isGROUP           source = group;
     // here iterator gets a copy of the source groupList
