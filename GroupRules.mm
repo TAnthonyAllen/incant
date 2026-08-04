@@ -1028,24 +1028,32 @@ GroupItem 	*grup = 0;
 				{
 				::jitPrintArm();
 				::jitPrintProbe(ExpressioN,1);
-				/*  EMIT THE EXPRESSION through the existing emitters -- they
-				leave the SSA value in gJitResult, which jitPrintItem picks
-				up. No expression emitter is written or duplicated here.  */
-				if ( isMethod(ExpressioN->groupBody->flags.instructType) )
-					result = ExpressioN->groupBody->gMethod(ExpressioN);
+				/*  A MULTI-PART OPERAND is classified per part by constancy --
+				see jitPrintList. Mentioning ExpressioN here also keeps the
+				bare `isMethod` below bound to it (last-mentioned wins), which
+				is the hazard this walk already paid for once.  */
+				if ( isLIST(ExpressioN->groupBody->flags.binType) )
+					::jitPrintList(ExpressioN,FormaT);
 				else {
-					/*  ⚠ A BARE OPERAND. appendPrintXP's `else` branch makes NO
-					CALL -- interpreted that is fine, because appendGroup
-					then reads the field's own storage. Jitted, reading the
-					field's own storage is exactly what we cannot do, and
-					nothing had ever emitted a value here. This is the
-					missing primitive, and it is why a jitted print carried
-					a constant 0. (R3's printout, 2026-08-05.)  */
-					result = ExpressioN;
-					::jitEmitBareRead(ExpressioN);
+					/*  EMIT THE EXPRESSION through the existing emitters -- they
+					leave the SSA value in gJitResult, which jitPrintItem picks
+					up. No expression emitter is written or duplicated here.  */
+					if ( isMethod(ExpressioN->groupBody->flags.instructType) )
+						result = ExpressioN->groupBody->gMethod(ExpressioN);
+					else {
+						/*  ⚠ A BARE OPERAND. appendPrintXP's `else` branch makes NO
+						CALL -- interpreted that is fine, because appendGroup
+						then reads the field's own storage. Jitted, reading the
+						field's own storage is exactly what we cannot do, and
+						nothing had ever emitted a value here. This is the
+						missing primitive, and it is why a jitted print carried
+						a constant 0. (R3's printout, 2026-08-05.)  */
+						result = ExpressioN;
+						::jitEmitBareRead(ExpressioN);
+						}
+					::jitPrintProbe(result,2);
+					::jitPrintItem(grup,FormaT,1);
 					}
-				::jitPrintProbe(result,2);
-				::jitPrintItem(grup,FormaT,1);
 				}
 			else {
 				::jitPrintProbe(grup,3);
@@ -3572,6 +3580,19 @@ extern "C" int jitEmitBareRead(GroupItem *token)
 	
 	llvm::IRBuilder<> *b = gJitBuilder;
 	if (!b || !token) return 0;
+	//  ⚠ REFUSE ANYTHING THAT IS NOT A SCALAR READ, and this guard is not
+	//  defensive padding -- its absence is what printed 75102656. Handed a LIST
+	//  node (a multi-part expression), the primitive below dutifully emitted a
+	//  load of that node's gCount, which is not a number anybody wrote. Garbage,
+	//  degrade count 0, and it looked like data.
+	//  A scalar read is a node whose VALUE lives in its own storage. A list's
+	//  does not: its value is its parts, and classifying those is the caller's
+	//  job (jitPrintList does it for print items).
+	//  Refuse loudly -- the counter is asserted at zero by every rung, so a
+	//  refusal is a red and a wrong constant is nothing.
+	if (token->groupBody->groupList) {
+	jitDegrade("bare read of a LIST -- parts must be classified by the caller", token);
+	return 0; }
 	//  Already seeded this compile? Then the value is in hand -- and re-seeding
 	//  is bear-trap #9 (never re-seed an inner op-result).
 	if (!token->jitData)    jitSeedField(token);
@@ -4714,6 +4735,52 @@ extern "C" void jitPrintItem(GroupItem *token, GroupItem *FormaT, int hasValue)
 	
 }
 
+/* jitPrintList  A MULTI-PART PRINT OPERAND, CLASSIFIED BY CONSTANCY.
+   Tony's ruling via Clay, 2026-08-05, and the ruling is what makes the hard half
+   evaporate.
+
+   A print item's ExpressioN can be a LIST -- `print "P value =" pVal:;` carries
+   ONE item whose expression holds two parts. Measured:
+       part 0  tag=pVal   text=[7]           literal=0   COMPUTED
+       part 1  tag=Token  text=[P value =]   literal=1   CONSTANT
+   One of each, which is why the constancy split closes this case with no new
+   evaluation machinery.
+
+   ⚠ A CONSTANT NEEDS NO EVALUATION AND CANNOT CATCH THE STALE-FRAME DISEASE.
+   That disease is why the value entry exists: a local's live value sits in a
+   frame slot until the epilogue, so handing the chain a field POINTER reads
+   storage nothing has written. A string literal is IMMUTABLE -- baked at emit
+   time, identical at every fire -- so the pointer is safe, and the part goes
+   through appendGroup's existing entry exactly as the interpreted walk sends it.
+   The chain's shape rules; nothing new is added to it.
+
+   ⚠ WALKED WITH prior(), NOT next(), and that is appendGroup's own order rather
+   than a preference: its non-reversePrint arm walks `prior`, because the list is
+   built in reverse. Measured here too -- pVal is part 0 and the literal is part
+   1, while the source reads literal-then-value.
+
+   COMPUTED STRINGS STAY BEHIND THE COUNTER. A part that is neither a constant
+   nor a scalar read is out of the current phase scope (appendGroupValue takes an
+   i32), so it degrades rather than emitting a wrong kind -- counted, not silent,
+   per the refusal discipline that has already paid twice today. */
+extern "C" void jitPrintList(GroupItem *ExpressioN, GroupItem *FormaT)
+{
+	
+	if (!gJitBuilder || !ExpressioN) return;
+	GroupItem *part = 0;
+	while ((part = ExpressioN->prior(part))) {
+	GroupBody *pb = part->groupBody;
+	if (pb->flags.isLiteral || isSTRING(pb->flags.data) || isTOKEN(pb->flags.data)) {
+	//  CONSTANT: hand the chain the baked node. No evaluation, no value.
+	jitPrintItem(part, FormaT, 0);
+	continue; }
+	//  COMPUTED: materialize it, then route through the value entry.
+	jitPrintArm();
+	if (jitEmitBareRead(part))  jitPrintItem(part, FormaT, 1);
+	else jitDegrade("print operand part: not a constant and not a scalar read", part); }
+	
+}
+
 extern "C" void jitPrintOpen(GroupItem *input)
 {
 	
@@ -4772,6 +4839,22 @@ extern "C" void jitPrintProbe(GroupItem *node, int phase)
 	(node && node->groupBody->flags.isShortcut) ? 1 : 0,
 	(node && node->groupBody->flags.isLiteral) ? 1 : 0,
 	gJitResult ? "SET" : "null");
+	//  When the node carries a LIST, enumerate it. The per-item classification
+	//  ruled for print (constant operand vs computed operand) has to happen at
+	//  whatever granularity the parts actually live at, and a PrintXP item's
+	//  ExpressioN can be a multi-part expression list -- so the granularity is a
+	//  measurement, not an assumption.
+	if (node && node->groupBody && node->groupBody->groupList) {
+	GroupItem *kid = 0;
+	int n = 0;
+	while ((kid = node->next(kid))) {
+	GroupBody *kb = kid->groupBody;
+	const char *kt = kid->getText();
+	::fprintf(stderr,
+	"      part %d: tag=%s text=[%s] literal=%d shortcut=%d data=%d isMethod=%d\n",
+	n++, kb->tag ? kb->tag : "(untagged)", kt ? kt : "",
+	kb->flags.isLiteral ? 1 : 0, kb->flags.isShortcut ? 1 : 0,
+	(int)kb->flags.data, isMethod(kb->flags.instructType) ? 1 : 0); } }
 	::fflush(stderr);
 	
 }

@@ -693,8 +693,58 @@ else
     else echo "  FAIL  JI kept interpreted = '$ki', pinned 2 -- the interpreted continue moved"; fail=1; fi
 fi
 
+#  ---------------------------------------------------------------------------
+#  JPv -- THE JITTED PRINT CARRIES REAL VALUES.
+#
+#  WHAT IT NEWLY PROVES, and it is an EFFECT rather than a return value -- the
+#  first rung whose subject is something the compiled function DOES rather than
+#  what it hands back: a print emitted by the JIT fires at RUN time, once per
+#  fire, with values read at run time.
+#
+#  THE THREE WORLDS IT SEPARATES, which is why both the line COUNT and the
+#  VALUES are asserted:
+#      emit-time print    ONE line, and nothing on the refire
+#      run-time, folded   TWO lines, both the same
+#      run-time, correct  TWO lines that track the input        <- the claim
+#
+#  TWO SHAPES, because they exercise different halves of the seam:
+#    pAct   `print "P value =" pVal:;`  a MULTI-PART operand -- one constant
+#           part and one computed part, classified by constancy (jitPrintList).
+#           The constant goes to appendGroup's existing entry (immutable, so the
+#           stale-frame disease cannot apply); the computed part is materialized
+#           and goes through appendGroupValue.
+#    pBare  `print pVal;`               a BARE operand -- the primitive alone.
+#
+#  ⚠ THE HISTORY IS THE REASON THE VALUES ARE ASSERTED AND NOT JUST THE COUNT.
+#  This fixture printed `0` before the bare-read primitive existed, and 75102656
+#  after -- a stale read wearing the shape of data, at degrade 0 both times. A
+#  count-only check would have been green for the whole of that.
+echo "-- JPv PRINT VALUES. THE JITTED PRINT FIRES AT RUN TIME, WITH REAL VALUES."
+$B incant/jitPrintT > "$T/jitPrintT" 2>&1
+jpe=$?
+if [ $jpe != 0 ]; then echo "  FAIL  JPv -- nonzero exit ($jpe)"; fail=1
+elif ! grep -qF "JP2 SENTINEL" "$T/jitPrintT"; then
+    echo "  FAIL  JPv -- TRUNCATED at exit 0; nothing in this run is interpretable"; fail=1
+else
+    n7=$(grep -c "^P value = 7 *$" "$T/jitPrintT")
+    n9=$(grep -c "^P value = 9 *$" "$T/jitPrintT")
+    n41=$(grep -c "^41 " "$T/jitPrintT")
+    n58=$(grep -c "^58 " "$T/jitPrintT")
+    jpd=$(sed -n 's/.*jitDegrade count = \([0-9-][0-9]*\).*/\1/p' "$T/jitPrintT" | tail -1)
+    if [ "$n7" = "1" ] && [ "$n9" = "1" ]; then
+        echo "  ok    JPv multi-part: 'P value = 7' then 'P value = 9'  <- RUN-TIME PROOF"
+    else echo "  FAIL  JPv multi-part: saw $n7 x '= 7' and $n9 x '= 9', want 1 and 1."
+         echo "        Two identical lines = the operand was FOLDED at compile time."
+         echo "        One line only = the print fired at EMIT time and not at run time."; fail=1; fi
+    if [ "$n41" = "1" ] && [ "$n58" = "1" ]; then
+        echo "  ok    JPv bare operand: 41 then 58 (the primitive alone)"
+    else echo "  FAIL  JPv bare operand: saw $n41 x 41 and $n58 x 58, want 1 and 1"; fail=1; fi
+    if [ "$jpd" = "0" ]; then echo "  ok    JPv degrade count 0 (nothing fell through, nothing refused)"
+    else echo "  FAIL  JPv degrade count = '$jpd', want 0"; fail=1; fi
+fi
+
 echo ""
-if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI + J-R THE PROOF)"
+if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv + J-R THE PROOF)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"
 exit $fail

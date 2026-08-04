@@ -877,6 +877,12 @@ GroupItem   grup;
             if ExpressioN {
                 jitPrintArm();
                 jitPrintProbe(ExpressioN,1);
+                /*  A MULTI-PART OPERAND is classified per part by constancy --
+                    see jitPrintList. Mentioning ExpressioN here also keeps the
+                    bare `isMethod` below bound to it (last-mentioned wins), which
+                    is the hazard this walk already paid for once.  */
+                if ExpressioN.isLIST    jitPrintList(ExpressioN,FormaT);
+                else {
                 /*  EMIT THE EXPRESSION through the existing emitters -- they
                     leave the SSA value in gJitResult, which jitPrintItem picks
                     up. No expression emitter is written or duplicated here.  */
@@ -892,7 +898,7 @@ GroupItem   grup;
                     result = ExpressioN;
                     jitEmitBareRead(ExpressioN); }
                 jitPrintProbe(result,2);
-                jitPrintItem(grup,FormaT,1); }
+                jitPrintItem(grup,FormaT,1); }}
             else {
                 jitPrintProbe(grup,3);
                 jitPrintItem(grup,FormaT,0); }}
