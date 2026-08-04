@@ -102,3 +102,54 @@ That is the same family as `CLAUDE.md`'s testing doctrine — *exit 0 is necessa
 sufficient* — arriving one layer down, in the data rather than in the run. **A ruling on
 either should probably consider both**, because a fix that makes one loud and leaves the
 other silent leaves the composition intact.
+
+---
+
+# KE-3 — REMOVING `case 'M'` FROM processFlags KILLS THE MEMBERs GATE
+## PARKED WORRY, filed 2026-08-04 at Tony's invitation. **Rules: Tony.**
+
+**The ask, and why it is parked rather than done.** Tony's word, 2026-08-04:
+*"wrt M case; pretty sure it was intentional and did not break anything. You can restore it
+to as I had it. Park a worry if you have one."* I have one, it is measured rather than
+suspected, and it contradicts the "did not break anything" half — so the removal is **held
+pending his ruling** and the tree is left green. One word settles it either way; the cost of
+guessing wrong is a silently dead gate, which is the expensive direction.
+
+**THE MACHINERY IS FULLY WIRED AND `case 'M'` IS ITS ONLY CONSUMER.** Every other piece is
+present in the tree today:
+
+| piece | where | role |
+|---|---|---|
+| `MemberS ':'- MEMBERs- Mlist=DefinE+;` | `incant/grammar:53` | fires the MEMBERs term |
+| `member = new("MEMBERs"); member.method = processFlags;` | `GroupMain.twk:90-94` | routes it |
+| `case 'M': … currentDefine.addingMembers = true;` | `Commands.rtn:535` | **the only writer** |
+| `… \|\| !currentDefine.addingMembers` | `ruleActions.rtn:225` | `aCTionDefinE` gates on it |
+| `if addingMembers  addingMembers = false;` | `ruleActions.rtn:328` | clears it |
+| `addingMembers` | `GroupBody.twk:53` | the flag itself |
+
+`ruleActions.rtn:707` says it outright in a comment: *"that the MEMBERs case in processFlags
+can find it to set its addingMembers flag"*.
+
+**TWO CONSEQUENCES, and the second is the one that matters.**
+1. **LOUD:** every `MEMBERs` token reaches processFlags' default arm, so a run prints
+   `processFlag: invalid argument MEMBERs` — **23 times**, prepended to four baselines
+   (`displayForm`, `jsonTest`, `manyScratch`, `printPop`). Measured: those four went red on
+   the removal and green again on restore, which is what attributes the damage rather than
+   the file's mtime.
+2. **SILENT, and this is the worry:** with no writer, `addingMembers` is **never set**, so
+   `aCTionDefinE`'s gate always takes the not-adding-members path — and **the
+   attribute-pollution fix Tony landed on 2026-08-02 stops working**. Nothing prints. Nothing
+   fails. It is the exact composition KE-1 and KE-2 are filed under: a structure that reads as
+   working while doing nothing.
+
+**WHAT WOULD MAKE THE REMOVAL COHERENT**, and it is a real possibility rather than a rhetorical
+one: if the reshuffle also intended to drop `MEMBERs-` from the `MemberS` rule and the
+`GroupMain` bootstrap, then removing the case is one third of a landed change and the other two
+thirds are still in the tree. That reading fits the evidence better than "it broke nothing",
+and it is Tony's to confirm — he was working the MemberS rule and the name-escape issue at the
+time. **If so the fix is to finish the removal, not to re-add the case.**
+
+**Related, and unresolved from before this:** `pop.sh`'s `census.target` red is *already* about
+this rule — genParse refuses to plan `MemberS` since the `MEMBERs-` term was added. So the
+grammar half of this question is open on two fronts at once, which is an argument for settling
+them together.
