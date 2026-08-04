@@ -4206,10 +4206,32 @@ extern "C" int jitEmitSelfCall(GroupItem *argument, GroupItem *action)
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitBindArgRT), ptr, "bindFn");
 	llvm::FunctionType *bindTy = llvm::FunctionType::get(ptr, {ptr, ptr}, false);
 	b->CreateCall(bindTy, bindFn, {argAddr, fldAddr}, "bindArg"); }
+	//  ⚠ THE FRAME BRACKET, in runAction's OWN ORDER: bind (:672-674), save
+	//  (:677), body (:685), restore (:689). The gate returns above the last
+	//  three, so without this an emitted self-call runs unbracketed and any
+	//  NODE-RESIDENT local -- an iterator's cursor above all -- is shared with
+	//  the caller. Scalars are per-activation for free because they are allocas
+	//  in this function; nodes are baked and shared, which is the whole defect.
+	//  ⚠ MEASUREMENT, NOT ARCHITECTURE: this depends on saveLocalFields, which
+	//  §0 sentences to deletion. Tony rules on whether the shape stays.
+	{
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	llvm::FunctionType *frameTy =
+	llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), {ptr}, false);
+	llvm::Value *calleeAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)action), ptr, "frameCallee");
+	llvm::Value *saveFn = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitSaveFrameRT), ptr, "saveFn");
+	b->CreateCall(frameTy, saveFn, {calleeAddr});
 	llvm::Value *v = b->CreateCall(gJitCurrentFn, {}, "selfcall");
+	llvm::Value *restoreFn = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitRestoreFrameRT), ptr, "restoreFn");
+	b->CreateCall(frameTy, restoreFn, {calleeAddr});
 	gJitResult  = v;
 	gJitEmitted = true;
-	return 1;
+	return 1; }
 	
 }
 
@@ -5051,6 +5073,12 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return ruler->trueResult;
 }
 
+extern "C" void jitRestoreFrameRT(GroupItem *field)
+{
+	if ( field->groupBody->flags.recursive )
+		::restoreLocalFields(field);
+}
+
 /* jitRunAction  the generic compile driver — the JIT analog of generateCode. Sets
    up an i32() function shell + builder, raises the `jitting` gate, walks the action
    body via processCode (which fires aCTionExpressioN's jitting branch per
@@ -5447,6 +5475,38 @@ extern "C" int jitRunIfTest(GroupItem *fld)
 	printf("=== jitRunIfTest result = %d ===\n", r); fflush(stdout);
 	return r;
 	
+}
+
+/*******************************************************************************
+    jitSaveFrameRT / jitRestoreFrameRT -- THE FRAME BRACKET, AT RUN TIME.
+
+    ⚠ MEASUREMENT, NOT ARCHITECTURE. This is the experiment that asks whether the
+    depth->=2 displayForm divergence is the missing frame bracket. It INVERTS
+    docs/jit.md §0, which sentences saveLocalFields to be DELETED rather than
+    depended on, so it is Tony's ruling whether this shape stays. Do not read a
+    green run here as the architecture having been chosen.
+
+    THE GAP, and it is the SAME SEAM jitBindArgRT closed one increment earlier:
+    runAction's jitting gate returns at :670, ABOVE its own
+    `if field.recursive saveLocalFields(field)` at :677 and the matching restore
+    at :689. So an emitted self-call runs with NO frame bracket at all.
+
+    WHY THAT IS INVISIBLE UNTIL displayForm: the JIT's scalar locals live in
+    ALLOCAS inside gJitCurrentFn, and allocas are per-activation for free -- which
+    is why J-R and jitJRL are green with no bracket. Node-resident state is the
+    other class: an ITERATOR's cursor lives in a baked GroupItem shared by every
+    activation, so a recursive call walks the caller's cursor. saveLocalFields'
+    own comment names exactly this case -- "no local carrying a list could survive
+    recursion. Iterators were just the first to notice."
+
+    ⚠ THE `field.recursive` GATE IS CARRIED, NOT REIMPLEMENTED, so the emitted
+    path cannot drift from the interpreted one. The flag is set at PARSE time by
+    identity (ruleActions.rtn:1310), so it is already live on the callee node.
+*******************************************************************************/
+extern "C" void jitSaveFrameRT(GroupItem *field)
+{
+	if ( field->groupBody->flags.recursive )
+		::saveLocalFields(field);
 }
 
 /* jitSeedField  unbox a real count/number field operand — the past-constant-folding

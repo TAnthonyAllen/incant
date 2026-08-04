@@ -1,11 +1,45 @@
 /*****************************************************************************
-    jitDfProbe -- CAN displayForm BE JITTED?  ⚠ ANSWER TODAY: NO, AND IT HANGS.
+    jitDfProbe -- CAN displayForm BE JITTED?  ANSWER 2026-08-05: YES, AND THE
+    JITTED WALK IS BYTE-IDENTICAL TO THE ORACLE AT EVERY DEPTH.
 
-    ⚠⚠ DO NOT WIRE THIS INTO ANY HARNESS. IT DOES NOT RETURN.
-    RULE H5 exists because a fixture that never returns deletes every check
-    below it and leaves the operator looking at a quiet terminal. This file is
-    run BY HAND, deliberately, with a bound. It is kept because it is the
-    reproduction, not because it is a test.
+    STATUS 2026-08-05 -- THE CURRENT TRUTH. Everything below this block is the
+    08-04 record and is kept as provenance, NOT as present tense.
+        exit 0 · degrade count 0 · jitCompile 1 · jitted half diffs clean
+        against the interpreted half (8 lines each, vacuity-guarded).
+    Findings 1-4 below were all closed on 08-04. The residual depth->=2
+    divergence closed on 08-05 with THE FRAME BRACKET: runAction's jitting gate
+    returns at :670, ABOVE its own `if field.recursive saveLocalFields(field)`
+    (:677) and the matching restore (:689), so an emitted self-call ran with no
+    frame bracket. jitSaveFrameRT/jitRestoreFrameRT lift those two lines
+    verbatim -- gate included -- and jitEmitSelfCall brackets the call in
+    runAction's own order: bind, save, call, restore.
+
+    ⚠ THE MIS-ATTRIBUTION IS PART OF THE RECORD. This was handed off as "the
+    argument resolves against the OUTER node -- KANT-8's family". It was not.
+    jitBindArgRT had already fixed the argument; the printout said so and nobody
+    read it -- the inner activation printed `dfBare`, which is dfRoot's MEMBER
+    and exactly where the OUTER members iterator was standing. A stale argument
+    would have re-printed alpha/beta. The defect was the ITERATOR CURSOR, a
+    NODE-RESIDENT local shared across activations, which is the case
+    saveLocalFields' own comment already named: "no local carrying a list could
+    survive recursion. Iterators were just the first to notice."
+    Scalars never showed it because they are ALLOCAS in the compiled function
+    and so are per-activation for free -- which is why J-R and jitJRL were green
+    with no bracket at all.
+
+    ⚠ NO LONGER A HANG, and the H5 warning above it is withdrawn. It returns.
+    It is still run BY HAND with a bound until Tony rules on the shape (see
+    below), and it is a LADDER RUNG CANDIDATE, deliberately not yet wired.
+
+    ⚠ THE OPEN RULING IS TONY'S, AND A GREEN RUN HERE DOES NOT SETTLE IT.
+    The bracket makes emitted code DEPEND on saveLocalFields, which docs/jit.md
+    §0 sentences to be DELETED rather than depended on. This was built as a
+    MEASUREMENT of the mechanism, not as a choice of architecture. It also
+    inherits whatever those two functions do, KANT-8 included -- which is the
+    doctrine, not a flaw: bug-for-bug parity is the requirement, and displayForm
+    prints and discards, so it can be fully green with KANT-8 still open.
+
+    ===================== 08-04 RECORD BELOW, AS WRITTEN =====================
 
     STATUS 2026-08-04: the convergence rung is RED, and the red NAMES ITS
     CONSTRUCTS -- which is the whole argument for a ladder. Tony moved this

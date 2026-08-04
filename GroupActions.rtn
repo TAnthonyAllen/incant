@@ -649,6 +649,42 @@ GroupItem   arg = argument,
 }
 
 /*******************************************************************************
+    jitSaveFrameRT / jitRestoreFrameRT -- THE FRAME BRACKET, AT RUN TIME.
+
+    ⚠ MEASUREMENT, NOT ARCHITECTURE. This is the experiment that asks whether the
+    depth->=2 displayForm divergence is the missing frame bracket. It INVERTS
+    docs/jit.md §0, which sentences saveLocalFields to be DELETED rather than
+    depended on, so it is Tony's ruling whether this shape stays. Do not read a
+    green run here as the architecture having been chosen.
+
+    THE GAP, and it is the SAME SEAM jitBindArgRT closed one increment earlier:
+    runAction's jitting gate returns at :670, ABOVE its own
+    `if field.recursive saveLocalFields(field)` at :677 and the matching restore
+    at :689. So an emitted self-call runs with NO frame bracket at all.
+
+    WHY THAT IS INVISIBLE UNTIL displayForm: the JIT's scalar locals live in
+    ALLOCAS inside gJitCurrentFn, and allocas are per-activation for free -- which
+    is why J-R and jitJRL are green with no bracket. Node-resident state is the
+    other class: an ITERATOR's cursor lives in a baked GroupItem shared by every
+    activation, so a recursive call walks the caller's cursor. saveLocalFields'
+    own comment names exactly this case -- "no local carrying a list could survive
+    recursion. Iterators were just the first to notice."
+
+    ⚠ THE `field.recursive` GATE IS CARRIED, NOT REIMPLEMENTED, so the emitted
+    path cannot drift from the interpreted one. The flag is set at PARSE time by
+    identity (ruleActions.rtn:1310), so it is already live on the callee node.
+*******************************************************************************/
+extern void jitSaveFrameRT(GroupItem field)
+{
+    if field.recursive      saveLocalFields(field);
+}
+
+extern void jitRestoreFrameRT(GroupItem field)
+{
+    if field.recursive      restoreLocalFields(field);
+}
+
+/*******************************************************************************
 	Run an action that may need code processing.
 *******************************************************************************/
 extern GroupItem runAction(GroupItem argument,GroupItem field)
