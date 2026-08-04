@@ -3357,6 +3357,38 @@ finishXP:
 	return xpList;
 }
 
+/*******************************************************************************
+    jitBindArgRT -- BIND A CALL'S ARGUMENT, AT RUN TIME. 2026-08-05.
+
+    THE GAP: runAction's jitting gate returns on a self-call BEFORE the two lines
+    below it that bind the argument, so an emitted self-call bound NOTHING. The
+    callee's `argument` field kept whatever emit time left in it, and every fire
+    at every depth saw the same node. Recursion with an argument -- displayForm's
+    whole shape -- could not work.
+
+    ⚠ THESE ARE runAction's OWN BINDING LINES, lifted verbatim rather than
+    reimplemented, so the emitted call binds exactly as the interpreted call
+    does and the two cannot drift. Same shared-implementation move as
+    jitEmitIterStep's call to opPlusPlus and opDot's call to itself.
+
+    ⚠ THE UNWRAP IS NOT OPTIONAL. The caller's operand may be an ITERATOR or a
+    group node -- `displayForm(grup)` passes exactly that -- and what the callee
+    must receive is the node it currently POINTS AT, which is a run-time fact.
+    Baking the operand's emit-time target would pin the recursion to whatever
+    node the compile happened to see. `if arg.isGROUP && !arg.isArgument
+    arg = arg.group;` is the tree's existing unwrap idiom (ruleActions.rtn:419).
+*******************************************************************************/
+extern "C" GroupItem *jitBindArgRT(GroupItem *argument, GroupItem *field)
+{
+GroupItem 	*arg = argument;
+GroupItem 	*ruleArg = 0;
+	if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
+		arg = arg->getGroup();
+	if ( ruleArg = field->get("argument") )
+		ruleArg->setGroup(arg);
+	return arg;
+}
+
 /***************************************************************************
     jitDegrade -- THE CROSSOVER PRIMITIVE, lifted 2026-07-30.
 
@@ -4110,7 +4142,7 @@ extern "C" GroupItem *jitEmitRem(GroupItem *argument, GroupItem *target, GroupIt
    to prove frames -- with globals the recursion accumulates through shared baked
    storage, which is a loop wearing recursion's clothes. Per-activation locals
    need the argument-passing signature, which is the next increment. */
-extern "C" int jitEmitSelfCall(GroupItem *action)
+extern "C" int jitEmitSelfCall(GroupItem *argument, GroupItem *action)
 {
 	
 	// ⚠ COMPARED ON groupBody, NOT ON THE NODE POINTER, AND THAT IS THE SAME
@@ -4124,6 +4156,32 @@ extern "C" int jitEmitSelfCall(GroupItem *action)
 	if (!gJitCurrentAction || !gJitCurrentFn) return 0;
 	if (action->groupBody != gJitCurrentAction->groupBody) return 0;
 	llvm::IRBuilder<> *b = gJitBuilder;
+	//  ⚠ BIND THE ARGUMENT FIRST, AT RUN TIME. runAction's gate returns here,
+	//  ABOVE its own binding lines, so without this the emitted self-call bound
+	//  nothing and every depth saw whatever node emit time left behind --
+	//  recursion with an argument could not work at all.
+	//  The callee and the caller's OPERAND are baked; what is NOT baked is which
+	//  node the operand points at, because for an iterator that changes per
+	//  iteration. jitBindArgRT does the unwrap and the bind at run time, using
+	//  runAction's own lines, so the emitted call binds exactly as the
+	//  interpreted call does.
+	//  The CALL STAYS NULLARY: the argument travels through the callee's
+	//  `argument` field, which is where the callee's body already looks for it.
+	//  Adding a real parameter would change the compiled signature -- and
+	//  rStuff.jitMethod with it, a layout change -- while the body would still
+	//  read the field, so the parameter would carry nothing anyone reads.
+	if (argument) {
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	llvm::Value *argAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)argument), ptr, "callArg");
+	llvm::Value *fldAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)action), ptr, "callee");
+	llvm::Value *bindFn = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitBindArgRT), ptr, "bindFn");
+	llvm::FunctionType *bindTy = llvm::FunctionType::get(ptr, {ptr, ptr}, false);
+	b->CreateCall(bindTy, bindFn, {argAddr, fldAddr}, "bindArg"); }
 	llvm::Value *v = b->CreateCall(gJitCurrentFn, {}, "selfcall");
 	gJitResult  = v;
 	gJitEmitted = true;
@@ -8524,7 +8582,7 @@ GroupItem 	*ruleArg = 0;
 	this gate changes nothing about ordinary calls.  */
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
-		 if (::jitEmitSelfCall(field)) return field; 
+		 if (::jitEmitSelfCall(argument, field)) return field; 
 		}
 	if ( ruleArg = field->get("argument") )
 		if ( argument )

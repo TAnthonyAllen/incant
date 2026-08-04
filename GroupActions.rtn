@@ -619,6 +619,36 @@ use input
 }
 
 /*******************************************************************************
+    jitBindArgRT -- BIND A CALL'S ARGUMENT, AT RUN TIME. 2026-08-05.
+
+    THE GAP: runAction's jitting gate returns on a self-call BEFORE the two lines
+    below it that bind the argument, so an emitted self-call bound NOTHING. The
+    callee's `argument` field kept whatever emit time left in it, and every fire
+    at every depth saw the same node. Recursion with an argument -- displayForm's
+    whole shape -- could not work.
+
+    ⚠ THESE ARE runAction's OWN BINDING LINES, lifted verbatim rather than
+    reimplemented, so the emitted call binds exactly as the interpreted call
+    does and the two cannot drift. Same shared-implementation move as
+    jitEmitIterStep's call to opPlusPlus and opDot's call to itself.
+
+    ⚠ THE UNWRAP IS NOT OPTIONAL. The caller's operand may be an ITERATOR or a
+    group node -- `displayForm(grup)` passes exactly that -- and what the callee
+    must receive is the node it currently POINTS AT, which is a run-time fact.
+    Baking the operand's emit-time target would pin the recursion to whatever
+    node the compile happened to see. `if arg.isGROUP && !arg.isArgument
+    arg = arg.group;` is the tree's existing unwrap idiom (ruleActions.rtn:419).
+*******************************************************************************/
+extern GroupItem jitBindArgRT(GroupItem argument,GroupItem field)
+{
+GroupItem   arg = argument,
+            ruleArg;
+    if arg.isGROUP && !arg.isArgument   arg = arg.group;
+    if ruleArg = field["argument"]      ruleArg.group = arg;
+    return arg;
+}
+
+/*******************************************************************************
 	Run an action that may need code processing.
 *******************************************************************************/
 extern GroupItem runAction(GroupItem argument,GroupItem field)
@@ -637,7 +667,7 @@ use field
         asserts inside LLVM. jitEmitSelfCall answers 0 for every other callee, so
         this gate changes nothing about ordinary calls.  */
     if jitting {
-        -% if (::jitEmitSelfCall(field)) return field; %-
+        -% if (::jitEmitSelfCall(argument, field)) return field; %-
     }
     if ruleArg = field["argument"]
         if argument ruleArg.group = result = argument;

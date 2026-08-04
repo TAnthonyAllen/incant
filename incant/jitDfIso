@@ -1,0 +1,42 @@
+/*  Isolation probe, 2026-08-05: which compare in displayForm's shape trips
+    LLVM's "Both operands to ICmp are not of the same type"?
+
+    RESULT: NEITHER OF THESE. Both actions compile and fire clean, degrade 0.
+    So the mismatch is NOT the accessor-to-local assign and NOT a plain local
+    compared against a literal -- two candidates ruled out at no rebuild cost.
+    It lives deeper in displayForm's loop, where opDot's i32 meets whatever the
+    iterate/print path leaves in flight. Kept as the record of what was excluded,
+    so the next pass starts from a smaller space.
+
+    ⚠ SECOND, UNRELATED OBSERVATION, recorded not chased: `isoLen` prints as its
+    own TAG after the jitted assign, which is what a field with no data does. So
+    the jitted assign-from-accessor may not be landing a value even though it
+    emits and exits clean. Not this probe's question; noted so it is not
+    rediscovered as a surprise.  */
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+register(JitDfIso);
+define
+    isoLeaf     one two;
+    isoLen;
+    isoA code={
+        isoLen = listLengtH;
+        };
+    isoB code={
+        isoLen = 0;
+        if isoLen > 0;
+            isoLen = 5;
+        };
+    ;
+print "-- A: assign from listLengtH (accessor -> local) --":;
+testing(isoA);
+print "  A survived, isoLen =" isoLen:;
+print "-- B: compare a plain local against a literal --":;
+testing(isoB);
+print "  B survived, isoLen =" isoLen:;
+print "ISO SENTINEL":;
+stop();
