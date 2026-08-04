@@ -424,6 +424,51 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 > two empty files. **A vacuity guard is H4's other half:** an assertion that compares nothing to
 > nothing is an absence check wearing a diff's clothes.
 >
+> **RULE H7 — A RUNG CERTIFIES ONLY WHAT FAILS WHEN THE MECHANISM IS REMOVED.** Adopted
+> 2026-08-04, and it is the day's best finding because the fixture that taught it was GREEN.
+>
+> A new fixture for the jitted iterator asserted 3/3/3 across three fires and passed. It also
+> passed **with the gate it was written to certify removed** — because an exhausted iterator
+> restarts from `firstInList`, so a second fire walks the same list either way. Green, and
+> evidence of nothing. Nobody would have looked: it tested the right feature, produced the
+> right number, and asserted it with a value rather than an absence, so it satisfied H4 and
+> every other rule on this list.
+>
+> **The instrument already existed** — `incant/regProbe` ran a negative control (the
+> unregistered sibling stays dark) — and this promotes it from a good habit to a rule:
+> **where feasible, a new rung records its negative control**: the gate-removed,
+> emitter-removed, flag-removed run that goes RED. The worked example is the replacement
+> fixture — two sequential re-targeted iterates with DIFFERENT counts on the two sides:
+> ```
+> gate REMOVED, rebuilt:  jitted attrs=3 members=3   oracle 2/3   WRONG
+> gate PRESENT, rebuilt:  jitted attrs=2 members=3   oracle 2/3   right
+> ```
+> and the wrong answer was **silent** — degrade count 0 in both runs.
+>
+> **Its other half, and the same doctrine seen from the opposite side:** where a construct is
+> built but not certified, PIN IT RED ON PURPOSE rather than letting an accident of topology
+> imply coverage. `continue` emits the correct branch, but the condition feeding it is wrong,
+> so the rung pins its outcome wrong and says why. **A green row is a claim; do not make one
+> the mechanism cannot cash.**
+>
+> **RULE H8 — THE RECONCILIATION LAW.** Tony, 2026-08-05. **After any offline work session,
+> the next joint session OPENS with reconciliation**: `git status` on both repos, Tony walks
+> every dirty hunk, and each one gets a verdict — **commit** (the revised square), **revert**
+> (back to square), or **named-WIP with an owner**. **No work stacks on an unreconciled tree.**
+>
+> **Clause two, the quarantine rule: a surprise diff — dirt that neither Clod nor the session's
+> log explains — gets STASHED, never overwritten.** Restoration from HEAD may proceed for fleet
+> health, but the stash preserves the intent until Tony adjudicates. **Three-day-old surprises
+> are a protocol failure, not a mystery.**
+>
+> ⚠ This law was written the day it was needed and one hour after it would have helped:
+> `Commands.rtn` was found reverted to an older blob mid-session and was restored from HEAD
+> **without a stash**. It happened to be lossless — the working copy was byte-identical to a
+> committed blob, which is provable and was proved — but that was luck, not process. The
+> byte-identity check (`git cat-file -p <blob>` against the old commit's version) is the cheap
+> way to show a discard cost nothing; it is bear-trap #21's compare-trees-not-labels rule run
+> in the other direction.
+>
 > **RULE H5 — A FIXTURE MUST NOT BE ABLE TO DELETE THE REST OF THE SUITE.** Adopted
 > 2026-08-02. `incant/iterT1m` began to HANG rather than return, so `pop.sh` never reached its
 > summary line, its exit status, or the eleven checks below the iterator block. Those checks did
