@@ -101,6 +101,26 @@ GroupItem 	*prior = 0;
 				result = prior;
 				result->groupBody->flags.isBranch = 3;
 				}
+			/*  ⚠ UNDER JITTING THE WALK MUST NOT STOP. Measured 2026-08-05.
+			This break is INTERPRETER CONTROL FLOW, and under jitting it was
+			terminating THE COMPILER'S WALK: a `continue` inside a loop body
+			set isBranch, this break fired, and EVERY STATEMENT AFTER IT IN
+			THE BLOCK WAS NEVER EMITTED. Visible in the IR as an `endif`
+			block holding nothing but its back edge, with the increment that
+			should follow simply absent -- and silent, degrade count 0.
+			
+			The two eras want opposite things from the same flag. At RUN time
+			a branch means stop executing this block. At EMIT time the
+			statements after a branch are REACHABLE -- they run whenever the
+			branch is not taken -- so they must all be emitted. The branch
+			itself is already expressed in the IR by jitEmitContinue's
+			terminator; the emitter does not need, and must not take, the
+			interpreter's shortcut.
+			
+			Same family as everything else found today: emit-time execution
+			doing something that belongs only to run time.  */
+			if ( GroupControl::groupController->groupRules->jitting )
+				continue;
 			break;
 			}
 		}
@@ -3734,8 +3754,12 @@ GroupItem 	*result = 0;
 	::jitStoreResult();
 	::jitDoCond();
 	result = ExpressioN;
+	/*  BARE CONDITION OPERAND -- see the note in jitEmitGIF. `if isMethod` is
+	false for a bare read, so without this the condition emits nothing and
+	the loop branches on whatever was last in flight.  */
 	if ( isMethod(result->groupBody->flags.instructType) )
 		result = result->groupBody->gMethod(result);
+	else	::jitEmitBareRead(ExpressioN);
 	::jitDoEnd();
 	 gJitResult = nullptr; 
 	return result;
@@ -3813,9 +3837,23 @@ GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
 GroupItem 	*StatemenT = input->getLabelGroup("StatemenT");
 GroupItem 	*ElsE = input->getLabelGroup("ElsE");
 GroupItem 	*result = ExpressioN;
+	/*  ⚠ A BARE CONDITION OPERAND MUST BE MATERIALIZED. `if isMethod` is false
+	for a bare read -- a field, or a GroupField accessor like noPrinT -- so
+	this else branch made NO CALL and the condition emitted nothing. The
+	enclosing compare then branched on whatever was last in flight, which is
+	finding #3 exactly: `if noPrinT` reading the iterator's liveness. The
+	condition was never wrong; it was reading a value nobody had produced.
+	THE CONDITION IS ONE OF THREE VALUE-CONSUMING POSITIONS with this hole
+	(if / while / do) and they take the identical fix. The principle, Clay's:
+	EVERY POSITION THAT CONSUMES A VALUE INVOKES THE PRIMITIVE WHEN ITS
+	OPERAND IS BARE. Assignment RHS needs nothing -- opAssign is an operator,
+	so runOP's seed gate already covers it.  */
 	if ( isMethod(result->groupBody->flags.instructType) )
 		result = result->groupBody->gMethod(result);
-	else	result = ExpressioN;
+	else {
+		result = ExpressioN;
+		::jitEmitBareRead(ExpressioN);
+		}
 	::jitIfBegin();
 	if ( StatemenT )
 		result = StatemenT->groupBody->gMethod(StatemenT);
@@ -4214,8 +4252,12 @@ GroupItem 	*StatemenT = input->getLabelGroup("StatemenT");
 GroupItem 	*result = 0;
 	::jitLoopBegin();
 	result = ExpressioN;
+	/*  BARE CONDITION OPERAND -- see the note in jitEmitGIF. `if isMethod` is
+	false for a bare read, so without this the condition emits nothing and
+	the loop branches on whatever was last in flight.  */
 	if ( isMethod(result->groupBody->flags.instructType) )
 		result = result->groupBody->gMethod(result);
+	else	::jitEmitBareRead(ExpressioN);
 	::jitLoopBody();
 	if ( StatemenT )
 		result = StatemenT->groupBody->gMethod(StatemenT);

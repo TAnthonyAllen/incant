@@ -66,6 +66,25 @@ GroupItem   grup,
             if prior && result.isBranch == 3 && result.registry == keyWords {
                 result = prior;
                 result.isBranch = 3; }
+            /*  ⚠ UNDER JITTING THE WALK MUST NOT STOP. Measured 2026-08-05.
+                This break is INTERPRETER CONTROL FLOW, and under jitting it was
+                terminating THE COMPILER'S WALK: a `continue` inside a loop body
+                set isBranch, this break fired, and EVERY STATEMENT AFTER IT IN
+                THE BLOCK WAS NEVER EMITTED. Visible in the IR as an `endif`
+                block holding nothing but its back edge, with the increment that
+                should follow simply absent -- and silent, degrade count 0.
+
+                The two eras want opposite things from the same flag. At RUN time
+                a branch means stop executing this block. At EMIT time the
+                statements after a branch are REACHABLE -- they run whenever the
+                branch is not taken -- so they must all be emitted. The branch
+                itself is already expressed in the IR by jitEmitContinue's
+                terminator; the emitter does not need, and must not take, the
+                interpreter's shortcut.
+
+                Same family as everything else found today: emit-time execution
+                doing something that belongs only to run time.  */
+            if jitting  continue;
             break; }}
     if result && result.isGROUP  result = result.gGroup;
     return result;

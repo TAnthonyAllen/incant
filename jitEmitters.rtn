@@ -620,7 +620,11 @@ GroupItem   ExpressioN:,
 GroupItem   result;
     jitLoopBegin();
     result = ExpressioN;
+    /*  BARE CONDITION OPERAND -- see the note in jitEmitGIF. `if isMethod` is
+        false for a bare read, so without this the condition emits nothing and
+        the loop branches on whatever was last in flight.  */
     if isMethod result = result.gMethod(result);
+    else        jitEmitBareRead(ExpressioN);
     jitLoopBody();
     if StatemenT    result = StatemenT.gMethod(StatemenT);
     /*  NO jitStoreResult() HERE, and that is a correction rather than an
@@ -722,7 +726,11 @@ GroupItem   result;
     jitStoreResult();
     jitDoCond();
     result = ExpressioN;
+    /*  BARE CONDITION OPERAND -- see the note in jitEmitGIF. `if isMethod` is
+        false for a bare read, so without this the condition emits nothing and
+        the loop branches on whatever was last in flight.  */
     if isMethod result = result.gMethod(result);
+    else        jitEmitBareRead(ExpressioN);
     jitDoEnd();
     -% gJitResult = nullptr; %-
     return result;
@@ -1360,8 +1368,21 @@ GroupItem   ExpressioN:,
             StatemenT:,
             ElsE:;
 GroupItem   result = ExpressioN;
+    /*  ⚠ A BARE CONDITION OPERAND MUST BE MATERIALIZED. `if isMethod` is false
+        for a bare read -- a field, or a GroupField accessor like noPrinT -- so
+        this else branch made NO CALL and the condition emitted nothing. The
+        enclosing compare then branched on whatever was last in flight, which is
+        finding #3 exactly: `if noPrinT` reading the iterator's liveness. The
+        condition was never wrong; it was reading a value nobody had produced.
+        THE CONDITION IS ONE OF THREE VALUE-CONSUMING POSITIONS with this hole
+        (if / while / do) and they take the identical fix. The principle, Clay's:
+        EVERY POSITION THAT CONSUMES A VALUE INVOKES THE PRIMITIVE WHEN ITS
+        OPERAND IS BARE. Assignment RHS needs nothing -- opAssign is an operator,
+        so runOP's seed gate already covers it.  */
     if isMethod result = result.gMethod(result);
-    else        result = ExpressioN;
+    else {
+        result = ExpressioN;
+        jitEmitBareRead(ExpressioN); }
     jitIfBegin();
     if StatemenT    result = StatemenT.gMethod(StatemenT);
     /*  Commit the then-arm's value INSIDE thenBB, and the else-arm's INSIDE

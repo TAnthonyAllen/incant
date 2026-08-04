@@ -637,17 +637,23 @@ fi
 #  The wrong answer was SILENT -- degrade count 0 in both runs -- so nothing
 #  except a value assertion over a discriminating shape would have caught it.
 #
-#  ⚠ THE `kept` ROW IS PINNED WRONG ON PURPOSE (the tree.divergence / iterT1m
-#  pattern), and it is the convergence rung's remaining blocker in miniature.
-#  The third loop is displayForm's own `if noPrinT; continue;`. jitEmitContinue
-#  emits the CORRECT branch -- the IR shows `then: br label %cond` -- but the
-#  CONDITION FEEDING IT IS WRONG: a bare flag read has no emitter, so the `if`
-#  reuses the last value in flight, which is the iterator's liveness:
-#      body:  %tobool = icmp ne i32 %iterCond, 0     <- reads ITERATOR LIVENESS
-#  and the statement after the if is not emitted at all. So `continue` is BUILT
-#  and UNCERTIFIED: nothing here proves it, and this pin says so rather than
-#  letting a green row imply it.
-#  RE-PIN WHEN FLAG READS EMIT, with a sentence, not a green diff.
+#  ⚠ THE `kept` ROW GRADUATED 2026-08-05, 0 -> 2, AND HERE IS THE SENTENCE.
+#  It was pinned WRONG on purpose while `continue` was built-but-uncertified.
+#  The third loop is displayForm's own `if noPrinT; continue;`, and it took TWO
+#  fixes, each visible in the IR before and after:
+#    1. THE CONDITION WAS READING NOTHING. A bare flag read had no emitter, so
+#       the `if` reused the last value in flight -- the iterator's liveness:
+#           body:  %tobool = icmp ne i32 %iterCond, 0
+#       opDot's new gate emits the accessor call instead:
+#           %dotRes = call opDot(...) ; %dotVal = call jitUnboxCount(%dotRes)
+#           %tobool = icmp ne i32 %dotVal, 0
+#    2. THE STATEMENT AFTER THE `if` WAS NEVER EMITTED. aCTionBlocK breaks its
+#       walk on isBranch -- interpreter control flow, which under jitting was
+#       terminating THE COMPILER'S WALK. At run time a branch means stop; at
+#       EMIT time the statements after it are REACHABLE and must all be emitted.
+#       The branch is already in the IR as jitEmitContinue's terminator.
+#  So this row now certifies `continue` AND the bare-flag read, at parity with
+#  the interpreter, on both fires, at degrade 0.
 echo "-- JI  SEQUENTIAL RE-TARGETED ITERATES. THE SETUP HAPPENS AT RUN TIME."
 $B incant/jitIterTwice > "$T/jitIterTwice" 2>&1
 jie=$?
@@ -681,8 +687,8 @@ else
     else echo "  FAIL  JI compile count = '$jic', want 1"; fail=1; fi
     if [ "$jid" = "0" ]; then echo "  ok    JI degrade count 0 (no silent emit-time fallback)"
     else echo "  FAIL  JI degrade count = '$jid', want 0"; fail=1; fi
-    if [ "$kj" = "0" ]; then echo "  ok    JI kept jitted = 0   (PINNED WRONG -- bare flag reads do not emit)"
-    else echo "  FAIL  JI kept jitted = '$kj', pinned 0 -- WOKE: flag reads may now emit, re-pin with a sentence"; fail=1; fi
+    if [ "$kj" = "2" ]; then echo "  ok    JI kept jitted = 2   (continue + bare flag read, PARITY)"
+    else echo "  FAIL  JI kept jitted = '$kj', want 2 -- continue or the bare flag read regressed"; fail=1; fi
     if [ "$ki" = "2" ]; then echo "  ok    JI kept interpreted = 2  (continue is CONSUMED correctly, interpreted)"
     else echo "  FAIL  JI kept interpreted = '$ki', pinned 2 -- the interpreted continue moved"; fail=1; fi
 fi

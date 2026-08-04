@@ -424,6 +424,39 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 > two empty files. **A vacuity guard is H4's other half:** an assertion that compares nothing to
 > nothing is an absence check wearing a diff's clothes.
 >
+> ⚠ **ONE CHANNEL, ONE MEANING — PROMOTED TO DOCTRINE 2026-08-05, on its fourth
+> and fifth measured members.** It has now named the day's bug twice in one day,
+> which is the bar. The full ledger:
+>
+> | the channel | meaning A | meaning B smuggled in | what it cost |
+> |---|---|---|---|
+> | `isBranch` on the returned node | the statement's VALUE | its BRANCH SIGNAL | both 07-31 branch defects |
+> | `gJitResult` non-null | the value in flight | "something was emitted" | silently un-jitted every if/else |
+> | `gJitResult` per print item | the value in flight | **the value THIS item produced** | printed `0`, then `80329152` |
+> | `isBranch` read by `aCTionBlocK` | stop EXECUTING this block | stop **EMITTING** this block | every statement after a `continue` vanished from the IR |
+>
+> **The last two are the promotion, and the fourth is the sharpest yet** because
+> the two meanings belong to *different eras* rather than different facts: at RUN
+> time a branch means stop; at EMIT time the statements after it are REACHABLE
+> and must all be emitted. One flag, one reader, two eras.
+>
+> ⚠ **AND THE THIRD ROW IS WHY THIS IS URGENT RATHER THAN TIDY: A CONFLATED
+> CHANNEL GETS MORE DANGEROUS AS THE SYSTEM GETS BETTER.** While nothing emitted,
+> a stale `gJitResult` was always null and the bug printed `0` — wrong, but
+> stable and obviously wrong. The moment real values started flowing, the same
+> code printed `80329152`: a stale read **wearing the shape of data**, with
+> degrade count 0 the whole way. **The fix that improves the system is what arms
+> the latent bug.** So a conflated channel is not debt you can pay later at the
+> same price.
+>
+> **The cure is always a second channel, never a cleverer test** — `gJitEmitted`
+> beside `gJitResult`, `jitPrintArm` clearing per item so "this item emitted
+> nothing" becomes answerable, `if jitting continue;` so the emit walk does not
+> inherit the interpreter's stop. And once the fact is answerable, **refuse
+> rather than substitute**: `jitPrintItem` now calls `jitDegrade` on a null
+> instead of passing a constant, because the degrade counter is asserted at zero
+> by every rung and a substituted constant is asserted by nothing.
+>
 > **RULE H7 — A RUNG CERTIFIES ONLY WHAT FAILS WHEN THE MECHANISM IS REMOVED.** Adopted
 > 2026-08-04, and it is the day's best finding because the fixture that taught it was GREEN.
 >
