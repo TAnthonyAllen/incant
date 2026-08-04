@@ -1,0 +1,95 @@
+/*****************************************************************************
+    inlineSelfT -- AN INLINED CALLEE'S SELF-CALL RE-ENTERS THE WHOLE ENCLOSING
+    FUNCTION, REPLAYING THE DRIVER'S PREAMBLE ON EVERY RECURSION. 2026-08-05.
+
+    ⚠ PRE-EXISTING, NOT INTRODUCED BY THE FRAME BRACKET. Verified the expensive
+    but honest way: the offending source files were reverted to b7a01c1, the
+    tree REBUILT, and the crashing variant still exited 139. This is not a
+    regression from today's work.
+
+    ⚠ CONFIRMED BY IR, NOT INFERRED FROM A SYMPTOM -- which matters here because
+    TWO attempts to confirm it behaviourally were confounded and one of them
+    LOOKED like a refutation. `INCANT_JIT_DUMP=2` on the safe variant:
+
+        define i32 @jitFn0() {
+        entry:
+          store i32 0, ptr <rbOut>          <- THE DRIVER'S OWN FIRST STATEMENT
+          store i32 42, ptr <rbLoc>         <- the INLINED callee's body starts
+          ...
+        then:
+          %bindArg   = call <jitBindArgRT>(...)
+          call <jitSaveFrameRT>(<callee>)
+          %selfcall  = call i32 @jitFn0()   <- RE-ENTERS AT `entry`
+          call <jitRestoreFrameRT>(<callee>)
+
+    @jitFn0 is the function built for the DRIVER -- it is the only function in
+    the module -- so `call @jitFn0()` replays every statement the driver ran
+    before the call. Emit-on-walk inlines an ordinary callee into the caller's
+    builder, so a self-call inside that inlined body has no separate function to
+    target; jitEmitSelfCall emits CreateCall(gJitCurrentFn) and gJitCurrentFn is
+    the DRIVER's.
+
+    THE DISCRIMINATING EXPERIMENT, one variable moved:
+        guard reset INSIDE the driver   -> the reset replays forever  -> 139
+        guard reset OUTSIDE the driver  -> nothing harmful replays    -> exit 0
+    Only the location of one statement changed. That pair is the proof, and the
+    safe half is what this fixture runs.
+
+    ⚠⚠ AND THE PART THAT MAKES THIS URGENT RATHER THAN TIDY: displayForm IS
+    CORRECT BY ACCIDENT OF TOPOLOGY. dfDrive's body is exactly one statement --
+    the call itself -- so re-entering the whole function happens to be
+    equivalent to re-entering the callee's body. Rung JC is green for a reason
+    that is true of its driver rather than of the mechanism. THE SAME CLASS AS
+    `continue` APPEARING TO WORK because both arms fell through to the back
+    edge, and it will bite the moment a driver has a preamble -- which is the
+    NORMAL case, and precisely the shape genParse's emitted rules will have.
+
+    ⚠ THE CRASHING VARIANT IS NOT RUN HERE, BY RULE H5: a fixture that dies
+    takes every check below it with it. To reproduce it by hand, move
+    `rbDepth = 1;` from the top level INTO rbDrive as its first statement and
+    run with a bound. Expect 139, no degrade message, and no output after
+    `jitRunAction: entering`.
+
+    NOT IN SCOPE, observed and NOT chased (recorded so it is not lost): a
+    `print` placed in the driver ABOVE the inlined call produced NO output in
+    the jitted half while the oracle printed it once. That is its own question.
+
+    SENTINEL AT THE FOOT (standing harness rule H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(InlineSelf);
+define
+    rbDepth;
+    rbArg;
+    rbOut;
+    rb argument code={
+        rbLoc = 42;
+        if rbDepth > 0;
+            rbDepth = rbDepth - 1;
+            rb(argument);
+        rbOut = rbLoc;
+        };
+    /*  THE PREAMBLE IS DELIBERATELY HARMLESS. `rbOut = 0;` replays on every
+        recursion and costs nothing; the crashing variant differs only in that
+        its replayed statement is the loop guard's reset.  */
+    rbDrive code={
+        rbOut = 0;
+        rbOut = rb(rbArg);
+        };
+    ;
+
+rbArg  = 7;
+rbDepth = 1;
+
+print "== jitted: inlined callee recursing, HARMLESS driver preamble ==":;
+testing(rbDrive);
+
+print "inlineSelfT SENTINEL -- run reached the end":;
+stop();

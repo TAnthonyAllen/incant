@@ -1,0 +1,150 @@
+/*****************************************************************************
+    kant8T -- CHARACTERISING WHAT THE FRAME DISCIPLINE LOSES. 2026-08-05.
+
+    ⚠ THIS FIXTURE CHARACTERISES, IT DOES NOT FIX. CLAIM KANT-8's repair is
+    TONY'S -- both candidate fixes touch the interpreter's hot path. The job
+    here is to establish, by measurement, exactly WHICH returns survive a
+    recursive action and which do not, so that a frame-model decision is taken
+    against a diagnosed disease rather than an inferred one.
+
+    THE MECHANISM, read off GroupActions.rtn and not inferred:
+        if field.recursive      saveLocalFields(field);
+        result  = processAction(field);
+        if field.recursive      restoreLocalFields(field);
+        return  result;
+    saveLocalFields copies each (isArgument || isLocal) && !noPrint body onto a
+    stack and BLANKS it -- except an argument, which it saves WITHOUT blanking.
+    restoreLocalFields pops each body back with `*groupBody = *body`, an IN-PLACE
+    overwrite of the node's contents. So a returned node is a POINTER whose
+    CONTENTS are reverted underneath the caller. That is the whole disease.
+
+    FOUR ROWS, each isolating ONE variable:
+
+      K1  recursive, returns a LOCAL      -- KANT-8 as claimed. The baseline.
+      K2  recursive, returns its ARGUMENT -- ⚠ THE NAMED OPEN PROBE, unresolved
+          since 2026-07-29: the corpus says "Not verified whether returning the
+          ARGUMENT instead of a local dodges it; that is the obvious next
+          probe." saveLocalFields does NOT blank an argument, but restore still
+          pops a body back over it, so the answer is not readable from the
+          blanking asymmetry alone.
+      K3  NON-recursive, returns a local  -- ⚠ THE CONTROL, and the row that
+          makes K1 mean anything. Without it, "returning a local is broken"
+          cannot be told from "`recursive` is the discriminator". K3's body must
+          not name itself, or the parse-time inference arms it.
+      K4  recursive, returns a local, RECURSIVE BRANCH NEVER TAKEN -- asks
+          whether the tax is paid on EVERY call or only on calls that actually
+          recurse. `recursive` is a STATIC flag set at parse time by identity,
+          so the prediction is that K4 breaks identically to K1 with no
+          recursion occurring at all. If so, the cost is not "recursion is
+          expensive" but "naming yourself anywhere in your body is".
+
+    ⚠ K1 vs K3 IS THE ANTI-VACUITY PAIR. Both rows returning a bare tag would be
+    consistent with "return is broken generally", which would say nothing about
+    frames. K3 must come back with a REAL VALUE for K1's emptiness to indict the
+    save/restore bracket specifically.
+
+    SENTINEL AT THE FOOT (standing harness rule H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(Kant8);
+define
+    k1depth;
+    k2depth;
+    k4depth;
+    kOut;
+    kArg;
+
+    k1 argument code={
+        k1loc = 42;
+        if k1depth > 0;
+            k1depth = k1depth - 1;
+            k1(argument);
+        return k1loc;
+        };
+
+    k2 argument code={
+        if k2depth > 0;
+            k2depth = k2depth - 1;
+            k2(argument);
+        return argument;
+        };
+
+    k3 code={
+        k3loc = 42;
+        return k3loc;
+        };
+
+    k4 argument code={
+        k4loc = 42;
+        if k4depth > 0;
+            k4depth = k4depth - 1;
+            k4(argument);
+        return k4loc;
+        };
+
+    /*  DRIVERS, so the jitted legs can run. testing() binds no argument, and
+        these rows are about actions that TAKE one -- so each driver is nullary
+        and makes the real call itself, exactly as dfDrive does for displayForm.
+        Under jitting an ordinary call INLINES, so k1's body is emitted into the
+        driver and its self-call is recognised through gJitInlining -- which is
+        the path the frame bracket added, so this is a real parity test of it.  */
+    k1Drive code={
+        k1depth = 1;
+        kOut = k1(kArg);
+        };
+    k2Drive code={
+        k2depth = 1;
+        kOut = k2(kArg);
+        };
+    ;
+
+kArg = 7;
+
+/*  ⚠⚠ THE JITTED PARITY LEGS ARE DELIBERATELY NOT RUN HERE, AND THE REASON IS
+    A FINDING RATHER THAN A LIMITATION. They were written, run, and REMOVED:
+
+      1. `return` UNDER JIT HAS NO EMITTER. It calls jitDegrade
+         ("break/return under jit -- no emitter yet"). Since KANT-8 is a claim
+         ABOUT WHAT A RETURN HANDS BACK, its jitted parity is not merely
+         unanswered -- IT IS NOT YET ASKABLE. Every green rung on the ladder
+         asserts a FIELD's value after the action, never a returned one, and
+         this is why.
+      2. Driving them CRASHED at 139, and the cause is a SEPARATE pre-existing
+         defect that has nothing to do with return -- see incant/inlineSelfT,
+         which isolates it. Running them here would put a SIGSEGV inside a
+         fixture whose job is to characterise something else, and rule H5 exists
+         because a fixture that dies takes every check below it with it.
+
+    So this file stays INTERPRETED-ONLY and exits 0. The parity question is
+    parked behind a named gate: it becomes askable when `return` gets an
+    emitter.  */
+print "== PARITY: jitted legs -- SEE HEADER, deliberately not run ==":;
+
+print "== K3 CONTROL: NON-recursive action returning a local ==":;
+kOut = k3();
+print "K3 returned =" kOut " (want 42; if this is not 42 the fixture is void)":;
+
+print "== K1 BASELINE: recursive action returning a local, one nested call ==":;
+k1depth = 1;
+kOut = k1(kArg);
+print "K1 returned =" kOut " (want 42; KANT-8 predicts NOT 42)":;
+
+print "== K4: recursive action, recursive branch NEVER TAKEN ==":;
+k4depth = 0;
+kOut = k4(kArg);
+print "K4 returned =" kOut " (want 42; is the tax paid without recursing?)":;
+
+print "== K2 OPEN PROBE: recursive action returning its ARGUMENT ==":;
+k2depth = 1;
+kOut = k2(kArg);
+print "K2 returned =" kOut " (kArg is 7; does an argument dodge the restore?)":;
+
+print "kant8T SENTINEL -- run reached the end":;
+stop();
