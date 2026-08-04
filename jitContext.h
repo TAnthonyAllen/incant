@@ -16,8 +16,10 @@
 #include "llvm/ExecutionEngine/Orc/LLJIT.h"
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Transforms/Utils/Mem2Reg.h"
+#include "llvm/Support/raw_ostream.h"
 #include <memory>
 #include <vector>
+#include <string>
 
 // The builder the emitters write into. Set by the compile driver before walking
 // an action body; grabbed by each emitter in a one-line -% %- (the only passthrough
@@ -115,6 +117,25 @@ inline int (*gJitLastFn)() = nullptr;
 // static and not a node slot, for CLAIM KANT-4's reason: GroupBody's value slots
 // are one union and a counter parked in gCount destroys whatever shares it.
 inline int gJitDegradeCount = 0;
+
+// THE COMPILE COUNTER (Clay SEQ 27 v2, 2026-08-04). Compile-on-first-fire is the
+// ruling, so "did the second fire recompile?" is the POP's central question and
+// it needs an instrument rather than an inference. Incremented ONCE per
+// jitRunAction compile and printed with its VALUE on every fire (H4:
+// presence-with-value, never absence-of-message). A check that asserted "no
+// second compile happened" by the absence of a message would go green the day
+// the message was deleted; asserting `count == 1` across two fires cannot.
+inline int gJitCompileCount = 0;
+
+// THE EMITTED IR, captured as TEXT for the `JiT` attribute. Captured in
+// jitRunAction immediately BEFORE addIRModule, and that placement is forced, not
+// stylistic: addIRModule std::move()s the module and the context into the JIT, so
+// after that line there is no module left to print. Post-mem2reg, matching the
+// INCANT_JIT_DUMP=1 dump, because what is recorded should be what RUNS.
+// ⚠ RECORD, NOT DISPATCH. Nothing reconstructs a function pointer from this
+// string. It exists for persistence and inspection, and Clay SEQ 27 v2 rules that
+// boundary explicitly: dispatch is only ever through rStuff.jitMethod.
+inline std::string gJitLastIR;
 
 // Nodes seeded with JitData during the current compile. JitData is transient (one
 // compile, into a per-run LLVMContext that jitRunAction destroys), but the field/

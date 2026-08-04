@@ -513,8 +513,97 @@ else
     else echo "  FAIL  JUi interpreted = '$ji', pinned 3 -- the iterator walk itself moved"; fail=1; fi
 fi
 
+#  ---------------------------------------------------------------------------
+#  JA -- THE ATTRIBUTE-METHOD RUNG. Clay SEQ 27 v2, 2026-08-04.
+#
+#  WHAT IT NEWLY PROVES, and it is a LIFECYCLE claim rather than a construct
+#  claim -- the first rung on this ladder that is: a field's method COMPILES
+#  ONCE, ON FIRST FIRE; the compiled function is stashed in a slot on the
+#  field's own shape struct (rStuff.jitMethod); the emitted IR is stashed in a
+#  `JiT` attribute beside CodE and BlocK; and every later fire DISPATCHES
+#  THROUGH THE SLOT. Every rung above proves the JIT can compile a construct.
+#  This one proves the compiled artifact PERSISTS ON THE FIELD and is reused.
+#
+#  THE CENTRAL QUANTITY IS THE COMPILE COUNT, and it is asserted at exactly 1
+#  across THREE fires. Presence-with-value (H4): jitCompile is printed with its
+#  number on every fire, so this cannot pass because a "compiling" line went
+#  missing -- which is precisely how an absence-shaped version of this check
+#  would eventually go green.
+#
+#  Criterion (a) is met by fires 2 and 3: applyScale is moved from 1 to 2 AFTER
+#  emission and layoutTotal goes 25 -> 75 -> 125. A folded constant repeats 25.
+#  INJECTIVITY holds -- all three answers differ.
+#  Criterion (b): degrade 0 is asserted on EVERY fire, not just the compiling
+#  one; the slot path prints it too, so the assertion has a line to read.
+#
+#  It also pins R2's method contract (idempotent check-bake-apply): bgSpec is
+#  moved 5 -> 9 after the bake, and bgBaked must NOT follow it. That makes a
+#  re-bake visible as a wrong value rather than merely absent.
+#
+#  ⚠ NO ITERATOR IN THIS FIXTURE, deliberately -- see rung JUi. Until the jitted
+#  iterator walk is fixed, an iterator here would make a wrong count ambiguous
+#  between this claim and that one.
+echo "-- JA  ATTRIBUTE METHOD. COMPILE ONCE, DISPATCH THROUGH THE SLOT FOREVER."
+$B incant/jitAttrPop > "$T/jitAttrPop" 2>&1
+jae=$?
+if [ $jae != 0 ]; then echo "  FAIL  JA -- nonzero exit ($jae)"; fail=1
+elif ! grep -qF "AP SENTINEL" "$T/jitAttrPop"; then
+    echo "  FAIL  JA -- TRUNCATED at exit 0; nothing in this run is interpretable"; fail=1
+else
+    ja1=$(sed -n 's/.*AP fire 1 : layoutTotal = \([0-9-][0-9]*\).*/\1/p' "$T/jitAttrPop" | head -1)
+    ja2=$(sed -n 's/.*AP fire 2 : layoutTotal = \([0-9-][0-9]*\).*/\1/p' "$T/jitAttrPop" | head -1)
+    ja3=$(sed -n 's/.*AP fire 3 : layoutTotal = \([0-9-][0-9]*\).*/\1/p' "$T/jitAttrPop" | head -1)
+    jab=$(sed -n 's/.*AP fire 2 : bgBaked = \([0-9-][0-9]*\).*/\1/p' "$T/jitAttrPop" | head -1)
+    jas=$(sed -n 's/.*AP fire 2 : bgSpec = \([0-9-][0-9]*\).*/\1/p' "$T/jitAttrPop" | head -1)
+    #  THE COMPILE COUNT: take the LAST one printed. It is printed on every fire,
+    #  so the last line is the count after all three -- which is the quantity the
+    #  claim is about. Taking the first would read only the compiling fire and
+    #  would pass no matter what fires 2 and 3 did.
+    jac=$(sed -n 's/.*jitCompile count = \([0-9-][0-9]*\).*/\1/p' "$T/jitAttrPop" | tail -1)
+    #  Degrade: take the MAXIMUM seen, so one bad fire cannot hide behind a good
+    #  last line. The counter is monotonic, so the last value IS the maximum --
+    #  taking it by tail is correct and says so.
+    jad=$(sed -n 's/.*jitDegrade count = \([0-9-][0-9]*\).*/\1/p' "$T/jitAttrPop" | tail -1)
+    #  ⚠ ANCHORED TO THE EMITTED LINE, not to the phrase. The first cut grepped
+    #  "THROUGH THE SLOT" and counted 3 for 2 dispatches, because the FIXTURE'S
+    #  OWN BANNER contains the phrase. A check that can match prose is asserting
+    #  on the commentary rather than on the mechanism -- it would also have gone
+    #  green if the banner stayed and the dispatch stopped.
+    jaslots=$(grep -c "=== jitFieldMethod: bgColor THROUGH THE SLOT" "$T/jitAttrPop")
+    jafirst=$(grep -c "=== jitFieldMethod: bgColor FIRST FIRE" "$T/jitAttrPop")
+    jajit=$(sed -n 's/.*  JiT  noPrint=1  \([0-9][0-9]*\) bytes.*/\1/p' "$T/jitAttrPop" | head -1)
+    jacode=$(grep -c "  CodE  noPrint=1" "$T/jitAttrPop")
+    jablock=$(grep -c "  BlocK  noPrint=1" "$T/jitAttrPop")
+
+    if [ "$jac" = "1" ]; then echo "  ok    JA compile count = 1 across THREE fires  <- THE CLAIM"
+    else echo "  FAIL  JA compile count = '$jac', want 1 -- the slot is not being taken"; fail=1; fi
+    if [ "$jafirst" = "1" ]; then echo "  ok    JA exactly ONE 'FIRST FIRE' (compile happened once)"
+    else echo "  FAIL  JA 'FIRST FIRE' seen $jafirst times, want 1"; fail=1; fi
+    if [ "$jaslots" = "2" ]; then echo "  ok    JA fires 2 and 3 both dispatched THROUGH THE SLOT"
+    else echo "  FAIL  JA slot dispatches = $jaslots, want 2"; fail=1; fi
+    if [ "$ja1" = "25" ]; then echo "  ok    JA fire 1 : layoutTotal = 25"
+    else echo "  FAIL  JA fire 1 layoutTotal = '$ja1', want 25"; fail=1; fi
+    if [ "$ja2" = "75" ]; then echo "  ok    JA fire 2 : layoutTotal = 75  <- RUN-TIME PROOF (applyScale moved after emission)"
+    else echo "  FAIL  JA fire 2 layoutTotal = '$ja2', want 75 -- operands folded at compile time?"; fail=1; fi
+    if [ "$ja3" = "125" ]; then echo "  ok    JA fire 3 : layoutTotal = 125 (the slot is a path, not a one-off)"
+    else echo "  FAIL  JA fire 3 layoutTotal = '$ja3', want 125"; fail=1; fi
+    if [ "$jas" = "9" ] && [ "$jab" = "25" ]; then
+        echo "  ok    JA bake is IDEMPOTENT: bgSpec moved 5->9, bgBaked stayed 25 (R2 contract)"
+    else echo "  FAIL  JA idempotence: bgSpec='$jas' (want 9) bgBaked='$jab' (want 25) -- it re-baked"; fail=1; fi
+    if [ "$jad" = "0" ]; then echo "  ok    JA degrade count 0 on every fire (no silent emit-time fallback)"
+    else echo "  FAIL  JA degrade count = '$jad', want 0"; fail=1; fi
+    #  CORESIDENCE, and the vacuity guard is the byte count: "JiT is present" can
+    #  pass on an empty artifact, "JiT holds N bytes with N > 0" cannot.
+    if [ -n "$jajit" ] && [ "$jajit" -gt 0 ] 2>/dev/null; then
+        echo "  ok    JA JiT attribute present and NON-EMPTY ($jajit bytes of IR)"
+    else echo "  FAIL  JA JiT attribute missing or empty (read '$jajit')"; fail=1; fi
+    if [ "$jacode" = "1" ] && [ "$jablock" = "1" ]; then
+        echo "  ok    JA CodE + BlocK + JiT all CORESIDENT on the one node"
+    else echo "  FAIL  JA coresidence: CodE=$jacode BlocK=$jablock, want 1 and 1"; fail=1; fi
+fi
+
 echo ""
-if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU + J-R THE PROOF)"
+if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA + J-R THE PROOF)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"
 exit $fail

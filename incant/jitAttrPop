@@ -1,0 +1,115 @@
+/*****************************************************************************
+    jitAttrPop -- THE ATTRIBUTE-METHOD POP.  Clay SEQ 27 v2, 2026-08-04.
+
+    THE CLAIM UNDER TEST, in one sentence: a field's method compiles ONCE, on
+    first fire; the compiled function is stashed in a slot on the field's own
+    shape struct; the emitted IR is stashed in a `JiT` attribute beside CodE and
+    BlocK; and every later fire dispatches THROUGH THE SLOT without recompiling.
+
+    THE FIXTURE IS bgColor-SHAPED, per ruling R2 (colors/fonts convert at first
+    application, baked onto the spec-carrying attribute; the method contract is
+    idempotent check-bake-apply).  It is deliberately NOT a real color:
+      - `properties["hexSet"]` is not populated by include(unitTests/generate/
+        utilities) alone and setColor segfaults on it (bear-trap #15), so a real
+        color would test the color machinery's init path and not this claim;
+      - the POP's subject is the METHOD LIFECYCLE, and a numeric spec exercises
+        check-bake-apply with every step observable as a value.
+    So the SHAPE is R2's and the DATA is arithmetic.  Named here so nobody reads
+    this as a color POP that mysteriously avoids colors.
+
+    ⚠ NO ITERATOR IN THIS FIXTURE, ON PURPOSE.  The jitted iterator walk visits 0
+    where the interpreter visits every child (jitLadder rung JUi).  Tony ruled
+    2026-08-04 that the interpreter is right and the JIT is the defect; until that
+    fix lands, an iterator here would make any wrong count ambiguous between
+    THIS claim and that one.
+
+    WHAT EACH ASSERTION IS FOR
+      1. COMPILE COUNT == 1 ACROSS BOTH FIRES.  The whole ruling in one number.
+         Printed with its value on every fire (H4) rather than inferred from the
+         absence of a second "compiling" line -- an absence check goes green the
+         day the line is deleted.
+      2. layoutTotal 17 then 51.  THE RUN-TIME PROOF.  applyScale is changed
+         AFTER the compile, so a compiled function that had folded its operands
+         would repeat fire 1's answer.  17 -> 51 can only come from loading
+         applyScale at run time.  (jit.md S2.2: under jitting the interpreter
+         executes the body for real at emit time, so a right answer on fire 1
+         proves nothing by itself.)
+      3. bgBaked stays 17 while bgSpec becomes 9.  IDEMPOTENCE, R2's contract.
+         The convert step is gated on "not yet baked", so the second fire must
+         apply without re-converting -- and bgSpec is moved out from under it to
+         make a re-bake VISIBLE rather than merely absent.
+      4. DEGRADE 0 on every fire.  Nothing fell through to emit-time
+         interpretation.
+      5. CORESIDENCE.  spec text + CodE + BlocK + JiT all on the one node after
+         the first fire.  This is what "stash the IR beside CodE and BlocK"
+         means, checked rather than asserted.
+
+    ONE stop(), AT THE END, REACHABLE ONLY THROUGH THE LAST SECTION (rule H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitAttr);
+define
+    bgSpec=5;
+    bgBaked=0;
+    applyScale=1;
+    layoutTotal=0;
+    /*  THE ATTRIBUTE WITH A METHOD.  Its own text is the DESIGN SPEC and the
+        method never touches it -- R2 keeps the spec and puts the converted
+        object beside it, so a spec that survived the bake is part of the claim,
+        not decoration.  */
+    bgColor="lightGreen" code={
+        if bgBaked == 0;
+            bgBaked = bgSpec * 3 + 2;
+        layoutTotal = layoutTotal + bgBaked * applyScale;
+        };
+    ;
+
+print "-- BEFORE ANY FIRE --":;
+print "  bgColor spec text =" bgColor:;
+print "  bgBaked =" bgBaked "layoutTotal =" layoutTotal:;
+
+print "-- FIRE 1: first fire, must COMPILE --":;
+jitFieldMethod(bgColor);
+print "AP fire 1 : layoutTotal =" layoutTotal:;
+print "AP fire 1 : bgBaked =" bgBaked:;
+
+/*  MOVE BOTH INPUTS, AFTER EMISSION.  applyScale drives assertion 2 (the answer
+    must track it), bgSpec drives assertion 3 (the answer must NOT track it,
+    because the bake already happened).  Two inputs moved in opposite-meaning
+    directions in one step: a compiled function that re-read everything and a
+    compiled function that folded everything both fail, and they fail
+    differently.  */
+applyScale = 2;
+bgSpec = 9;
+
+print "-- FIRE 2: must go THROUGH THE SLOT, no recompile --":;
+jitFieldMethod(bgColor);
+print "AP fire 2 : layoutTotal =" layoutTotal:;
+print "AP fire 2 : bgBaked =" bgBaked:;
+print "AP fire 2 : bgSpec =" bgSpec:;
+
+print "-- FIRE 3: the slot again, to show it is a path and not a one-off --":;
+jitFieldMethod(bgColor);
+print "AP fire 3 : layoutTotal =" layoutTotal:;
+
+/*  CORESIDENCE.  listRules is the DISPLAY form and display ELIDES noPrint
+    (2026-08-03 ruling), and CodE / BlocK / JiT are all noPrint -- so the display
+    walk shows a fully jitted field as though nothing were attached to it. Both
+    walks run here deliberately: the display one to show that it cannot see the
+    artifacts, the record probe to show they are there.  */
+print "-- CORESIDENCE (display form -- noPrint elided, artifacts invisible) --":;
+print "  bgColor spec text =" bgColor:;
+listRules(bgColor);
+
+print "-- CORESIDENCE (record probe -- every attribute, with its size) --":;
+jitShowRecord(bgColor);
+
+print "AP SENTINEL -- run reached the end":;
+stop();

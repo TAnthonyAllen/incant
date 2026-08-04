@@ -24,6 +24,29 @@ class GroupItem;
     survive the kant handover; `into` is derived from parentLabel instead of
     passed. Widening or narrowing this signature is a LAYOUT change (bear-trap
     #10: groups.ext sync + tokall + rebuild), not an edit.
+
+    jitMethod (Clay SEQ 27 v2, 2026-08-04) -- THE COMPILED BODY OF A FIELD'S
+    METHOD, and it is parseMethod's shape transplanted rather than a new idea.
+    Same three properties, for the same reasons:
+      - it rides the SHAPE struct, not the GroupBody, so adding it costs one
+        pointer on the nodes that carry rule shape and nothing on the rest;
+      - DISPATCH IS ONLY EVER THROUGH THE POINTER. The `JiT` attribute beside
+        CodE and BlocK is the compiled artifact's RECORD -- persistence and
+        inspection. Nothing reconstructs this pointer from it;
+      - nothing reaches it by name. SEQ 38 stands: locate is prohibited, not
+        provided. The one named dispatch site receives the field as its first
+        parameter and walks pointers from there.
+    ⚠ NULLARY ON PURPOSE, and it is the one place this diverges from
+    parseMethod's signature: jitRunAction emits `i32 ()`. Fields are reached
+    through BAKED ADDRESSES in the emitted IR, never through an argument, so
+    there is nothing for a parameter to carry. Adding one later is a LAYOUT
+    change, exactly as it is above.
+    ⚠ AND IT IS LAZY WHERE parseMethod IS DELIBERATELY NOT. parse()'s comment
+    forbids `if !parseMethod genParse(rule)` because generation there means
+    emitting text and running a BUILD from inside a parse. JIT compilation is
+    in-process and costs a compile, so compile-on-first-fire is the ruling
+    (Clay SEQ 27 v2). The prohibition and this divergence are about two
+    different costs, not two readings of one rule.
 *******************************************************************************/
 
 class RuleStuff
@@ -45,6 +68,7 @@ int termCount;
 RuleStuff *parentStuff;
 int (*testMatch)(GroupItem *);
 GroupItem *(*parseMethod)(GroupItem *);
+int (*jitMethod)();
 struct 
 	{
 	unsigned int banged:1;

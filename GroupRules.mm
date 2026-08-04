@@ -3728,6 +3728,145 @@ GroupItem 	*BlocK = input->getLabelGroup("BlocK");
 	return input;
 }
 
+/* jitFieldMethod  THE ONE NAMED SITE THAT OWNS SET-THEN-CALL for a field's
+   compiled method. Clay SEQ 27 v2, 2026-08-04, and it is parseMethod's shape
+   transplanted from rules to fields -- deliberately, so there is one pattern in
+   the tree and not two.
+
+   THE CONTRACT, in the order the code reads:
+     1. slot set   -> CALL THROUGH THE POINTER. That is the whole dispatch. No
+                      name lookup, no reconstruction from the `JiT` record, no
+                      consultation of CodE or BlocK.
+     2. slot empty -> compile (jitRunAction), then STASH BOTH: the function
+                      pointer into rStuff.jitMethod, the emitted IR text into a
+                      `JiT` attribute beside CodE and BlocK.
+     3. compile refused -> leave the slot EMPTY and say so. A refusal must not
+                      install a pointer, and it must not be silent; a field that
+                      quietly stopped being jitted would read as a field that was
+                      never jittable.
+
+   ⚠ SEQ 38 HOLDS BY CONSTRUCTION, AND THIS IS THE PLACE IT WOULD HAVE BROKEN.
+   locate is PROHIBITED, NOT PROVIDED: action execution resolves no names. The
+   field arrives as the FIRST PARAMETER and everything else is a pointer walk
+   from it -- rStuff off the node, the `JiT` attribute off its own list. Nothing
+   here asks the registry for anything, and if a later change to this function
+   seems to need locate, that change is misdesigned rather than blocked.
+
+   ⚠⚠ THE SLOT IS READ AND WRITTEN ON definingRule(), NOT ON THE NODE THAT
+   ARRIVES, AND THAT IS THE WHOLE MECHANISM RATHER THAN A DETAIL. Measured
+   2026-08-04, because the first cut got it wrong and recompiled on every fire:
+
+       call 1   field=0x1031ccf80   body=0x1031c6380
+       call 2   field=0x1031df5c0   body=0x1031c6380
+       call 3   field=0x1031ed9c0   body=0x1031c6380
+       definer  0x100eaa3c0 on ALL THREE
+
+   EVERY CALL SITE HANDS A FRESH GroupItem WRAPPER over the one shared
+   GroupBody -- incant's field semantics, not a bug: a field is pointer-shaped
+   storage with value-content semantics, so a reference is its own node. Storing
+   the pointer on the arriving node therefore stores it on a temporary that is
+   discarded the moment the statement ends. The store STUCK (readback confirmed
+   it); it was simply written somewhere nothing would ever look again.
+
+   definingRule() is a POINTER WALK to the node that OWNS the children, and
+   parse() uses it for exactly this problem in exactly this way -- its comment
+   says bind once and every reference sees it, "including references created
+   LATER", with "no locate (S1.3 forbids it)". So the half that makes the shape
+   work is the RESOLUTION, not the slot; transplanting the slot without the walk
+   produces code that looks right and compiles forever. SEQ 38 is satisfied by
+   the same fact: a pointer walk resolves no names.
+
+   ⚠ WHY THE SLOT'S HOME IS MATERIALISED HERE AND NOT AT DEFINE TIME. aCTionDefinE
+   ZEROES rStuff for a non-rule (`if !isRule rStuff = 0;`, ruleActions.rtn), so an
+   ordinary attribute reaches this point with no shape struct at all -- the design
+   as ruled says "the slot rides the attribute's stuff", and the attribute has
+   none. Rather than change what a define does to every field in the language, the
+   slot's owner mints its own home on the one path that needs it, using the same
+   two lines aCTionDefinE already uses for member terms (`RuleStuff fresh =
+   new(newMember); newMember.setRStuff(fresh);`). Cost is one struct per jitted
+   field, paid on first fire, and the define-time invariant is untouched.
+
+   ⚠ THE `JiT` ATTRIBUTE IS A RECORD AND NOT A CACHE. It is written after a
+   successful compile and read by nobody in this function. Reconstructing a
+   callable from it would mean re-entering LLVM to parse text we already hold a
+   pointer to -- slower, and it would give the same fact two homes, which is the
+   one-channel-one-meaning failure this project has now paid for twice.
+
+   Returns trueResult when the method ran (either path), null when the compile
+   was refused. */
+extern "C" GroupItem *jitFieldMethod(GroupItem *field)
+{
+	
+	GroupRules *ruler   = GroupControl::groupController->groupRules;
+	//  THE CANONICAL NODE. Everything below reads and writes THIS, never the
+	//  arriving wrapper -- see the definingRule() block in the header.
+	GroupItem  *definer = field->definingRule();
+	RuleStuff  *stuff   = definer->rStuff;
+	char       *name    = definer->groupBody->tag;
+	
+	if (::getenv("INCANT_SLOT_PROBE"))
+	fprintf(stderr,
+	"=== SLOTPROBE %s: field=%p definer=%p body=%p rStuff=%p jitMethod=%p ===\n",
+	name, (void*)field, (void*)definer, (void*)definer->groupBody,
+	(void*)stuff, stuff ? (void*)stuff->jitMethod : (void*)0);
+	
+	/*  PATH 1 -- THE SLOT. This is the only dispatch in the function. */
+	if (stuff && stuff->jitMethod) {
+	int r = stuff->jitMethod();
+	printf("=== jitFieldMethod: %s THROUGH THE SLOT, result = %d ===\n", name, r);
+	//  Both counters on EVERY fire, with their values. The slot path cannot
+	//  raise the degrade count (it re-enters no emitter), and printing it
+	//  anyway is the point: H4 wants the quantity compared, not its message
+	//  absent. A rung asserting "degrade 0 on every fire" must have a line
+	//  to read on every fire, or it is asserting over the compile fire only
+	//  and quietly saying nothing about the others.
+	printf("=== jitDegrade count = %d ===\n", gJitDegradeCount);
+	printf("=== jitCompile count = %d ===\n", gJitCompileCount);
+	fflush(stdout);
+	return ruler->trueResult; }
+	
+	/*  PATH 2 -- FIRST FIRE. Compile-on-first-fire is the ruling (Clay SEQ 27
+	v2), consistent with R2's convert-at-first-application: the artifact is
+	made where it is first needed, not at definition. */
+	printf("=== jitFieldMethod: %s FIRST FIRE -- compiling ===\n", name);
+	fflush(stdout);
+	int r = jitRunAction(definer);
+	if (r < 0) {
+	printf("=== jitFieldMethod: %s COMPILE REFUSED (%d) -- slot left empty ===\n",
+	name, r);
+	fflush(stdout);
+	return 0; }
+	
+	if (!stuff) {
+	stuff = new RuleStuff(definer);
+	definer->setRStuff(stuff); }
+	stuff->jitMethod = gJitLastFn;
+	if (::getenv("INCANT_SLOT_PROBE"))
+	fprintf(stderr,
+	"=== SLOTPROBE %s STORED: rStuff=%p jitMethod=%p  readback rStuff=%p jitMethod=%p ===\n",
+	name, (void*)stuff, (void*)stuff->jitMethod,
+	(void*)definer->rStuff,
+	definer->rStuff ? (void*)definer->rStuff->jitMethod : (void*)0);
+	
+	/*  THE RECORD. strdup'd, not aliased: gJitLastIR is overwritten by the next
+	compile of ANY field, so handing the node a pointer into it would make
+	every field's record silently become the last one compiled. */
+	GroupItem *jt = definer->get("JiT");
+	if (!jt) {
+	jt = new GroupItem("JiT");
+	jt->groupBody->flags.noPrint = 1;
+	jt->setText(::strdup(gJitLastIR.c_str()));
+	definer->addAttribute(jt); }
+	else    jt->setText(::strdup(gJitLastIR.c_str()));
+	
+	printf("=== jitFieldMethod: %s COMPILED, result = %d, slot set, JiT %zu bytes ===\n",
+	name, r, gJitLastIR.size());
+	printf("=== jitCompile count = %d ===\n", gJitCompileCount);
+	fflush(stdout);
+	return ruler->trueResult;
+	
+}
+
 /***************************************************************************
     jitEmitters dot rtn  Phase JIT engine and emitters. Written tok native
     using the declarations in jitExterns; passthrough used only for the one
@@ -4167,6 +4306,25 @@ extern "C" int jitRunAction(GroupItem *action)
 	llvm::errs() << "=== end IR " << fnName << " ===\n";
 	llvm::errs().flush(); }
 	
+	// CAPTURE THE IR AS TEXT, and this line CANNOT move below addIRModule --
+	// that call std::move()s both the module and the context into the JIT, so
+	// after it there is nothing left to print. Post-mem2reg on purpose: the
+	// record should be what RUNS, not what the emitter first wrote (=2 is the
+	// dump for the emitter's own output, and it is a different question).
+	// Read by jitFieldMethod, which hangs it on the field's `JiT` attribute
+	// beside CodE and BlocK.
+	{
+	std::string             irText;
+	llvm::raw_string_ostream irOut(irText);
+	mod->print(irOut, nullptr);
+	irOut.flush();
+	gJitLastIR = irText;
+	}
+	//  ONE COMPILE HAPPENED. Counted here rather than at entry so a run that
+	//  refuses (-1..-5) does not inflate the count -- the POP asserts exactly
+	//  one compile across two fires, and a refusal is not a compile.
+	gJitCompileCount++;
+	
 	if (auto err = jit->addIRModule(
 	llvm::orc::ThreadSafeModule(std::move(mod), std::move(ctx)))) {
 	llvm::consumeError(std::move(err));
@@ -4182,6 +4340,9 @@ extern "C" int jitRunAction(GroupItem *action)
 	//  A presence-with-value line cannot pass by being deleted, which an
 	//  absence check on the degrade message could.
 	printf("=== jitDegrade count = %d ===\n", gJitDegradeCount); fflush(stdout);
+	//  Same H4 discipline as the degrade line above, and the POP's central
+	//  quantity: compile-on-first-fire means the SECOND fire must not move this.
+	printf("=== jitCompile count = %d ===\n", gJitCompileCount); fflush(stdout);
 	gJitBuilder = nullptr;   // don't leave it dangling at this run's destroyed stack B
 	gJitResult  = nullptr;
 	return r;
@@ -4373,6 +4534,69 @@ extern "C" GroupItem *jitSeedLiteral(GroupItem *token)
 	token->jitData = d;
 	gJitSeeded.push_back(token);
 	return token;
+	
+}
+
+/* jitShowRecord  READ-ONLY. Print what is CORESIDENT on a field's canonical
+   node -- every attribute by name, with its size, INCLUDING the noPrint ones.
+
+   WHY IT HAS TO EXIST AT ALL, and it is a consequence of a ruling rather than a
+   gap: the 2026-08-03 print ruling gives two forms from one walk, and `display`
+   -- today's behaviour and what listRules does -- ELIDES noPrint attributes.
+   CodE, BlocK and JiT are all noPrint, so the display walk shows a jitted field
+   as though nothing were attached to it. The `fidelity` form is the one that
+   would show them and it is blocked on Tony's aCTionDefinE prerequisite (it
+   never ATTACHES a noPrint attribute that has a method, so "stop deleting" is
+   not the edit -- "start attaching" is).
+   So this is NOT a second print family. It is one probe, for one claim: that
+   the spec text, the source, the parsed block and the compiled artifact are all
+   on the same node at the same time. When fidelity print lands it subsumes this
+   and this should go.
+
+   BEAR TRAP, MEASURED 2026-08-04 AND WITH A NEGATIVE CONTROL. A printf
+   left-justify format -- percent, hyphen, width, s -- ANYWHERE INSIDE a
+   passthrough block breaks the tok pass: extern canary 230 -> 226, ERROR
+   FieldBody 0 -> 76, surfacing three files away as `use of undeclared
+   identifier` inside genParse.rtn's dataName, which is merely the next extern
+   downstream of this file. Reproduced FOUR times: in the printf mid-file, in
+   the printf with this function moved to end-of-file (so it is not ordering),
+   and twice more from a C-style comment placed INSIDE the passthrough.
+   THE CONTROL: the identical characters in a tok-level comment OUTSIDE the
+   passthrough are harmless -- canary stayed 228. So the boundary is the
+   passthrough, not the file.
+   MECHANISM IS TONY'S, recorded rather than derived: a print argument is an
+   EXPRESSION, and when the expression is fired the sequence is fair game. My
+   own first reading -- that tok scans for two literal characters because it has
+   no lexer -- is WRONG and is named here only so nobody re-derives it.
+
+   PRESENCE-WITH-VALUE THROUGHOUT (H4): each line carries the attribute's own
+   byte count, so "JiT is there" and "JiT is there and holds 1111 bytes of IR"
+   are different assertions and only the second can fail by the artifact going
+   empty. Reports the total so a check cannot pass over an empty walk. */
+extern "C" GroupItem *jitShowRecord(GroupItem *field)
+{
+	
+	GroupRules *ruler   = GroupControl::groupController->groupRules;
+	GroupItem  *definer = field->definingRule();
+	GroupItem  *att     = 0;
+	int         kount   = 0;
+	
+	printf("=== RECORD for %s ===\n", definer->groupBody->tag);
+	while ((att = definer->nextAttribute(att))) {
+	char *t = att->groupBody->tag;
+	char *x = att->getText();
+	/*  PLAIN %s HERE, AND NO LEFT-JUSTIFY FORMAT -- see this function's
+	header for the measurement. Do not write the percent-then-hyphen
+	sequence anywhere inside this passthrough, INCLUDING IN A COMMENT
+	LIKE THIS ONE, which is why this note spells it out in words.  */
+	printf("  %s  noPrint=%d  %zu bytes\n",
+	t ? t : "(untagged)",
+	att->groupBody->flags.noPrint ? 1 : 0,
+	x ? ::strlen(x) : (size_t)0);
+	kount++; }
+	printf("=== RECORD %s: %d attributes ===\n", definer->groupBody->tag, kount);
+	fflush(stdout);
+	return ruler->trueResult;
 	
 }
 
