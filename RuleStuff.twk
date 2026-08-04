@@ -43,6 +43,24 @@ include groupIncludes
     through BAKED ADDRESSES in the emitted IR, never through an argument, so
     there is nothing for a parameter to carry. Adding one later is a LAYOUT
     change, exactly as it is above.
+    ⚠ THE NAMED SEAM, recorded 2026-08-05 so it arrives as a plan and not a
+    surprise: THIS SLOT'S NULLARY SIGNATURE HOLDS ONLY WHILE THE CALLER IS
+    EMITTED CODE. Two calling routes exist and they want different things:
+      - A SELF-CALL INSIDE JITTED CODE takes the FIELD ROUTE (ruled 2026-08-05).
+        The callee's body reads its argument through the `argument` field, which
+        is where every reference in it already looks, so jitBindArgRT binds the
+        field at run time and the call stays nullary. A real parameter here would
+        carry something nobody reads.
+      - POINTER-SLOT DISPATCH FROM C++ takes a REAL PARAMETER, and it is forced.
+        When a generated parse method is jitted, its caller is not emitted code
+        reading a field -- it is parse() forking on rStuff.parseMethod and calling
+        through a one-argument function-pointer signature that C++ owns. The
+        caller cannot be taught the field route, so the compiled function must
+        present the parameter.
+    That second case is decided the day the first generated method is jitted, and
+    widening this signature then is a LAYOUT change exactly as above. Named seam,
+    not debt.
+
     ⚠ AND IT IS LAZY WHERE parseMethod IS DELIBERATELY NOT. parse()'s comment
     forbids `if !parseMethod genParse(rule)` because generation there means
     emitting text and running a BUILD from inside a parse. JIT compilation is

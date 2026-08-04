@@ -675,7 +675,17 @@ use field
     else    result = field;
     lastREF.group  = result;
     if field.recursive      saveLocalFields(field);
+    /*  BRACKET THE INLINE. Under jitting this call is being INLINED -- the
+        BlocK below re-executes into the caller's builder -- so for the duration
+        the action being walked is `field`, and a recursive call inside it must
+        be recognised as such. See gJitInlining.  */
+    if jitting {
+        -% jitInlinePush(field); %-
+    }
     result  = processAction(field);
+    if jitting {
+        -% jitInlinePop(); %-
+    }
     if field.recursive      restoreLocalFields(field);
     return  result;
 }

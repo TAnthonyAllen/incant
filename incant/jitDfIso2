@@ -1,0 +1,40 @@
+/*  Isolation probe 2, 2026-08-05: is the ICmp type mismatch in the PRINT path or
+    in the iterate/compare walk? displayForm's exact loop shape, PRINTS REMOVED.
+    If this emits clean, the mismatch is the print path; if it asserts, it is the
+    walk.  */
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+register(JitDfIso2);
+define
+    d2Leaf      leafOne leafTwo;
+    d2Root      alpha beta
+        d2Mid   delta;
+    d2Count;
+    d2Walk argument code={
+        length = listLengtH;
+        if length > 0;
+            iterate grup on argument attributes;
+            while ++grup;
+                if noPrinT; continue;
+                ++d2Count;
+            iterate grup on argument members;
+            while ++grup;
+                d2Walk(grup);
+        };
+    d2Drive code={
+        d2Count = 0;
+        d2Walk(d2Root);
+        };
+    ;
+print "-- walk with NO prints, recursion included --":;
+testing(d2Drive);
+print "  jitted d2Count =" d2Count:;
+d2Count = 0;
+d2Drive();
+print "  interpreted d2Count =" d2Count:;
+print "ISO2 SENTINEL":;
+stop();

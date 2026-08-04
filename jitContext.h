@@ -208,6 +208,26 @@ inline std::vector<JitFrameSlot> gJitFrame;
 // carrying two meanings (the field's value and the last op's result), and the
 // cure is a second channel, not a cleverer test: emit a CALL and stop re-walking.
 class GroupItem;
+// THE INLINE STACK (2026-08-05). gJitCurrentAction names the action the COMPILED
+// FUNCTION was built for; this names the actions currently being INLINED INTO it.
+// The distinction is the whole point: a non-recursive call inlines (emit-on-walk
+// re-executes the callee's BlocK into the caller's builder), so while that is
+// happening the "current action" for self-detection purposes is the CALLEE, not
+// the function's own action.
+// ⚠ WITHOUT IT, RECURSION INSIDE AN INLINED CALLEE IS NOT RECOGNISED AS
+// RECURSION. It is compared against the wrong action, fails the self-test, and
+// INLINES AGAIN -- over nodes that already carry jitData from the enclosing
+// pass. jitEmitSelfCall's own header predicted the consequence before anyone hit
+// it: "the condition target's jitValue is by then an i1 (jitEmitCompare's
+// result), so the second pass asserts inside LLVM."
+// Measured 2026-08-05, identical body both ways: fired DIRECTLY (so the guard
+// matches) it compiles clean; driven through a one-line wrapper it dies on
+// "Both operands to ICmp instruction are not of the same type".
+// Keyed on GroupBody, not the node -- storage is identity, nodes are
+// occurrences, the same finding Increment 1 and jitEmitSelfCall both record.
+class GroupBody;
+inline std::vector<GroupBody*> gJitInlining;
+
 inline GroupItem       *gJitCurrentAction = nullptr;
 inline llvm::Function  *gJitCurrentFn     = nullptr;
 

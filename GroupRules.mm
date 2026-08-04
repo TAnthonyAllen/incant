@@ -4153,8 +4153,20 @@ extern "C" int jitEmitSelfCall(GroupItem *argument, GroupItem *action)
 	// jitRunAction was handed, exactly as each occurrence of a local is its own
 	// node. Second instance of this in one day; cross-filed to the name-scope
 	// pack, which is where node-identity/copy behaviour accumulates.
-	if (!gJitCurrentAction || !gJitCurrentFn) return 0;
-	if (action->groupBody != gJitCurrentAction->groupBody) return 0;
+	if (!gJitCurrentFn) return 0;
+	//  A SELF-CALL IS A CALL TO ANY ACTION CURRENTLY ON THE WALK, not only to
+	//  the one the function was built for. An inlined callee that calls itself
+	//  is recursion just as much as the outermost action calling itself, and
+	//  treating it as an ordinary call inlines it AGAIN over nodes that already
+	//  carry jitData -- see gJitInlining's note.
+	{
+	bool self = gJitCurrentAction &&
+	action->groupBody == gJitCurrentAction->groupBody;
+	if (!self)
+	for (GroupBody *b : gJitInlining)
+	if (b == action->groupBody) { self = true; break; }
+	if (!self) return 0;
+	}
 	llvm::IRBuilder<> *b = gJitBuilder;
 	//  ⚠ BIND THE ARGUMENT FIRST, AT RUN TIME. runAction's gate returns here,
 	//  ABOVE its own binding lines, so without this the emitted self-call bound
@@ -4617,6 +4629,18 @@ extern "C" void jitInitOnce()
 	llvm::InitializeNativeTargetAsmParser();
 	done = true;
 	
+}
+
+extern "C" void jitInlinePop()
+{
+	 if (!gJitInlining.empty()) gJitInlining.pop_back(); 
+}
+
+/* jitInlinePush / jitInlinePop  bracket an INLINED callee so a recursive call
+   inside it is recognised as recursion. See gJitInlining in jitContext.h. */
+extern "C" void jitInlinePush(GroupItem *action)
+{
+	 if (action) gJitInlining.push_back(action->groupBody); 
 }
 
 /* jitLoopBegin  open a loop: create cond/body/exit, branch into cond, and set
@@ -8592,7 +8616,19 @@ GroupItem 	*ruleArg = 0;
 	GroupControl::groupController->groupRules->lastREF->setGroup(result);
 	if ( field->groupBody->flags.recursive )
 		::saveLocalFields(field);
+	/*  BRACKET THE INLINE. Under jitting this call is being INLINED -- the
+	BlocK below re-executes into the caller's builder -- so for the duration
+	the action being walked is `field`, and a recursive call inside it must
+	be recognised as such. See gJitInlining.  */
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		 jitInlinePush(field); 
+		}
 	result = ::processAction(field);
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		 jitInlinePop(); 
+		}
 	if ( field->groupBody->flags.recursive )
 		::restoreLocalFields(field);
 	return result;

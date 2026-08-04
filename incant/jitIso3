@@ -1,0 +1,31 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+register(JitIso3);
+define
+    i3Root      alpha
+        i3Mid   delta;
+    i3Count;
+    i3Act argument code={
+        length = listLengtH;
+        if length > 0;
+            iterate grup on argument members;
+            while ++grup;
+                i3Act(grup);
+        };
+    ;
+/*  THE DISCRIMINATOR: fire i3Act DIRECTLY, so gJitCurrentAction IS i3Act and the
+    inner call is recognised as a SELF-call. Under the theory this is clean,
+    while driving the identical body through a wrapper asserts -- because through
+    a wrapper the inner call is compared against the WRAPPER's action, fails the
+    self-test, and INLINES AGAIN over a node that already carries an i1.  */
+i3Count = 0;
+i3Act.argument = i3Root;
+print "-- fired DIRECTLY (self-call guard should match) --":;
+testing(i3Act);
+print "  survived":;
+print "ISO3 SENTINEL":;
+stop();
