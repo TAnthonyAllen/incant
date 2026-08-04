@@ -1,5 +1,70 @@
 
 /*******************************************************************************
+    appendGroupValue -- THE VALUE ENTRY ON appendGroup. Tony's ruling via Clay,
+    2026-08-04.
+
+    WHY IT EXISTS. Print's chain is opPrint -> appendGroup -> printField, and
+    appendGroup takes a GroupItem. The JIT's values are i32 SSA registers, and a
+    LOCAL's live value sits in a frame slot until the epilogue writes it back --
+    so handing appendGroup a field POINTER mid-function would read storage the
+    epilogue has not written yet. That is a silent wrong answer, the worst class,
+    and it is why the jitted path cannot simply reuse the pointer entry.
+
+    THE ALTERNATIVE WAS REJECTED ON COST: spilling live values to their frame
+    slots before every print turns each print into a SYNC BARRIER and requires
+    the JIT to enumerate liveness -- heavier machinery, bought to keep one
+    function signature pristine.
+
+    ⚠ NOTHING IS DUPLICATED, WHICH IS THE POINT OF PUTTING IT HERE. This does not
+    reimplement shortcut handling, formats or indent -- it routes INTO
+    appendGroup's own switch. A shortcut token is passed straight through
+    untouched; a value is stamped on a carrier node and handed to the same call
+    every interpreted print uses. So `~ $ _ : + - ` ,` and FormaT stay
+    single-sourced in the chain, and a change to shortcut semantics reaches the
+    jitted path for free.
+
+    A FRESH CARRIER PER CALL, not a static one. BDWGC makes it cheap, and a
+    shared carrier would be a second name for a value in flight -- the
+    one-channel-one-meaning failure this project has already paid for twice.
+
+    ⚠ IT TAKES NO TOKEN, AND THAT IS A CORRECTION WORTH KEEPING. The first cut
+    took the item node too and chose between "pass the node" and "stamp the
+    value" by testing isShortcut -- which is the WRONG DISCRIMINATOR and printed
+    `0` where a literal belonged, because a literal string is not a shortcut and
+    fell into the value path. appendPrintXP keys off EXPRESSION PRESENCE, not
+    shortcut-ness: an item with an ExpressioN contributes a computed value, and
+    everything else -- literals AND shortcuts -- contributes ITSELF. So the
+    caller makes that choice exactly as the interpreted walk does, and this entry
+    is only ever reached with a real value in hand.
+
+    PHASE SCOPE: i32 counts, matching what the emitters produce today. A double
+    or string entry is the same shape with a different setter and wants a rung
+    before it is written.
+*******************************************************************************/
+extern GroupItem appendGroupValue(int value,GroupItem FormaT,Buffer buffer)
+{
+GroupItem   carrier = new("jitPrintValue");
+    carrier.setCount(value);
+    return appendGroup(carrier,FormaT,buffer);
+}
+
+/*******************************************************************************
+    jitPrintBegin -- the chain's OPENING bracket, reached from emitted code.
+    aCTionPrinT's own three lines, lifted verbatim so the jitted path acquires
+    its buffer exactly as the interpreted path does. The closing bracket is
+    opPrint itself, which the emitter calls directly -- there is no jitPrintEnd,
+    because inventing one would put a second sink beside the real one.
+*******************************************************************************/
+extern Buffer jitPrintBegin(GroupItem input)
+{
+GroupRules  ruler   = groupRules;
+Buffer      buffer  = bufferSTAK.pop();
+    if !buffer      buffer = new("print buffer");
+    ruler.isPRINTING = false;
+    return buffer;
+}
+
+/*******************************************************************************
 	Print the field passed in to the buffer passed in
 *******************************************************************************/
 extern GroupItem appendGroup(GroupItem input,GroupItem FormaT,Buffer buffer)

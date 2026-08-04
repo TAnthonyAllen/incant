@@ -137,6 +137,16 @@ inline int gJitCompileCount = 0;
 // boundary explicitly: dispatch is only ever through rStuff.jitMethod.
 inline std::string gJitLastIR;
 
+// THE PRINT BUFFER IN FLIGHT (2026-08-04). jitEmitPrint brackets a print
+// statement: one emitted call to jitPrintBegin acquires the buffer, one emitted
+// call per item appends into it, one emitted call to opPrint sinks it. The
+// buffer is an SSA value produced by the first call and consumed by the rest, so
+// it has to survive between the emitter's own statements -- exactly the job
+// gJitBuilder and the block stacks already do. A C++ local could not, because
+// the walk between them is tok code, not one passthrough block.
+// Cleared by jitEmitPrint on the way out (E1: nothing left in flight).
+inline llvm::Value *gJitPrintBuf = nullptr;
+
 // Nodes seeded with JitData during the current compile. JitData is transient (one
 // compile, into a per-run LLVMContext that jitRunAction destroys), but the field/
 // literal GroupItems that carry it persist (BDWGC). The runOP seeding gate skips a

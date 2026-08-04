@@ -1,0 +1,74 @@
+/*****************************************************************************
+    jitPrintT -- DOES A JITTED PRINT FIRE AT RUN TIME?
+
+    Work item 3's proof. Until 2026-08-04 a jitted print fired AT COMPILE TIME:
+    once, reporting compile-time state. That is worse than not printing, because
+    it appears to work -- and it breaks the effect-free-emit law the ladder's
+    whole compile-once-fire-twice argument already assumed.
+
+    THE DISCRIMINATOR IS THE PAIR OF FIRES, and it separates three worlds:
+      emit-time print   -> ONE line, value 7, and NOTHING on the refire
+      run-time, folded  -> TWO lines, both 7
+      run-time, correct -> TWO lines, 7 then 9        <- the claim
+
+    So the count of lines and their values answer different questions and both
+    are asserted. The value moves AFTER emission, which is the same run-time
+    proof every other rung makes, aimed at an effect instead of at a return.
+
+    ⚠⚠ STATUS 2026-08-04: THE LAW IS SATISFIED, THE CONTENT IS NOT. Read this
+    before assuming the fixture is broken or that print is done.
+
+    WHAT IS CERTIFIED -- the print now fires ONCE PER FIRE, at RUN time. Two
+    lines for two fires, where the old behaviour produced ONE, at compile time,
+    and nothing on the refire. That is the effect-free-emit law's actual
+    requirement and it holds. The bracket emits correctly too; the IR reads
+
+        %printBuf  = call jitPrintBegin(stmt)
+        %printVal  = call appendGroupValue(i32 0, null, %printBuf)
+        %printTok  = call appendGroup(<token>, null, %printBuf)
+        %printSink = call opPrint(stmt, %printBuf)
+
+    WHAT IS NOT -- the per-item VALUES. Two defects, both visible above:
+      1. `%printVal` is handed a CONSTANT i32 0, not an SSA value: gJitResult is
+         null when jitPrintItem runs, so the expression emitters did not leave a
+         value for that item. Printing `0` is that constant, faithfully.
+      2. TWO items were walked where the statement has three parts. The item
+         count does not match a plain reading of `print "P value =" pVal:;`, so
+         the PrintXP shape is not what the walk assumes -- and that is a question
+         about the shape, to be measured, not guessed at.
+
+    ⚠ NOT WIRED INTO THE LADDER, deliberately. A green row here would claim the
+    values work. The fixture is committed as the reproduction and the record.
+
+    ⚠ THE SHORTCUT AND THE LITERAL ARE IN THE STATEMENT ON PURPOSE. `print "P
+    value =" pVal:;` carries a literal, an expression and the `:` newline
+    shortcut, so it exercises all three arms of the seam -- appendGroupValue
+    passing a token through untouched, stamping a value on a carrier, and the
+    chain's own shortcut switch -- rather than only the arm that is new.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitPrintT);
+define
+    pVal;
+    pAct code={
+        print "P value =" pVal:;
+        };
+    ;
+
+pVal = 7;
+print "-- FIRE 1 (compiles; the line below must come from RUN time) --":;
+testing(pAct);
+
+pVal = 9;
+print "-- FIRE 2 (no recompile; must print again, with 9) --":;
+jitRefire();
+
+print "JP2 SENTINEL -- run reached the end":;
+stop();

@@ -925,6 +925,54 @@ GroupItem 	*grup = 0;
 		input->setGroup(revisedList);
 		return input;
 		}
+	/*  JITTED PRINT (work item 3, Tony's ruling via Clay, 2026-08-04). Under
+	jitting a print USED TO FIRE AT COMPILE TIME -- once, reporting
+	compile-time state -- which is worse than not printing at all because it
+	appears to work. The emit-time walk must be EFFECT-FREE; the ladder's
+	compile-once-fire-twice proof already assumed it was.
+	
+	THE WALK BELOW IS appendPrintXP's, TERM FOR TERM, with the append
+	replaced by an emitted call. It is duplicated here and nowhere else
+	because the two differ in exactly one line -- appendPrintXP appends NOW,
+	this emits a call that appends LATER -- and the thing that must not be
+	duplicated is what appendGroup owns: shortcut semantics, formats, indent.
+	Those stay in the chain; appendGroupValue routes into them.  */
+	/*  ⚠ THE THREE EMITTERS ARE CALLED AT tok LEVEL, NOT FROM PASSTHROUGH, and
+	that is load-bearing twice over. Written as passthrough first, it hit
+	BOTH documented hazards at once: `FormaT` is declared here but was
+	referenced only inside the passthrough, so tok pruned it as unused
+	(bear-trap #13) and the generated call named an undeclared identifier.
+	A tok-level call is a tok-level USE, so nothing is pruned.
+	⚠ AND THE DECLARATION ORDER BELOW MATCHES appendPrintXP's EXACTLY --
+	FormaT, result, ExpressioN. Reordered to put result last, tok bound the
+	bare `isMethod` to `result` instead of to `ExpressioN` (last-mentioned
+	wins) and generated a read of an unassigned pointer. Copying the walk
+	means copying its declaration order.  */
+	if ( ruler->jitting )
+		{
+		::jitPrintOpen(input);
+		while ( grup = stuff->nextAttribute(grup) )
+			{
+			if ( grup->groupBody->flags.noPrint )
+				continue;
+			GroupItem *FormaT = grup->getLabelGroup("FormaT");
+			GroupItem *result = 0;
+			GroupItem *ExpressioN = grup->getLabelGroup("ExpressioN");
+			if ( ExpressioN )
+				{
+				/*  EMIT THE EXPRESSION through the existing emitters -- they
+				leave the SSA value in gJitResult, which jitPrintItem picks
+				up. No expression emitter is written or duplicated here.  */
+				if ( isMethod(ExpressioN->groupBody->flags.instructType) )
+					result = ExpressioN->groupBody->gMethod(ExpressioN);
+				else	result = ExpressioN;
+				::jitPrintItem(grup,FormaT,1);
+				}
+			else	::jitPrintItem(grup,FormaT,0);
+			}
+		::jitPrintClose(input);
+		return input;
+		}
 Buffer 		*buffer = (Buffer*)ruler->bufferSTAK->pop();
 	if ( !buffer )
 		buffer = new Buffer("print buffer");
@@ -1450,6 +1498,55 @@ GroupItem 	*field = 0;
 			buffer->tabRight(ruler->inDENT->groupBody->gCount);
 		}
 	return field;
+}
+
+/*******************************************************************************
+    appendGroupValue -- THE VALUE ENTRY ON appendGroup. Tony's ruling via Clay,
+    2026-08-04.
+
+    WHY IT EXISTS. Print's chain is opPrint -> appendGroup -> printField, and
+    appendGroup takes a GroupItem. The JIT's values are i32 SSA registers, and a
+    LOCAL's live value sits in a frame slot until the epilogue writes it back --
+    so handing appendGroup a field POINTER mid-function would read storage the
+    epilogue has not written yet. That is a silent wrong answer, the worst class,
+    and it is why the jitted path cannot simply reuse the pointer entry.
+
+    THE ALTERNATIVE WAS REJECTED ON COST: spilling live values to their frame
+    slots before every print turns each print into a SYNC BARRIER and requires
+    the JIT to enumerate liveness -- heavier machinery, bought to keep one
+    function signature pristine.
+
+    ⚠ NOTHING IS DUPLICATED, WHICH IS THE POINT OF PUTTING IT HERE. This does not
+    reimplement shortcut handling, formats or indent -- it routes INTO
+    appendGroup's own switch. A shortcut token is passed straight through
+    untouched; a value is stamped on a carrier node and handed to the same call
+    every interpreted print uses. So `~ $ _ : + - ` ,` and FormaT stay
+    single-sourced in the chain, and a change to shortcut semantics reaches the
+    jitted path for free.
+
+    A FRESH CARRIER PER CALL, not a static one. BDWGC makes it cheap, and a
+    shared carrier would be a second name for a value in flight -- the
+    one-channel-one-meaning failure this project has already paid for twice.
+
+    ⚠ IT TAKES NO TOKEN, AND THAT IS A CORRECTION WORTH KEEPING. The first cut
+    took the item node too and chose between "pass the node" and "stamp the
+    value" by testing isShortcut -- which is the WRONG DISCRIMINATOR and printed
+    `0` where a literal belonged, because a literal string is not a shortcut and
+    fell into the value path. appendPrintXP keys off EXPRESSION PRESENCE, not
+    shortcut-ness: an item with an ExpressioN contributes a computed value, and
+    everything else -- literals AND shortcuts -- contributes ITSELF. So the
+    caller makes that choice exactly as the interpreted walk does, and this entry
+    is only ever reached with a real value in hand.
+
+    PHASE SCOPE: i32 counts, matching what the emitters produce today. A double
+    or string entry is the same shape with a different setter and wants a rung
+    before it is written.
+*******************************************************************************/
+extern "C" GroupItem *appendGroupValue(int value, GroupItem *FormaT, Buffer *buffer)
+{
+GroupItem 	*carrier = new GroupItem("jitPrintValue");
+	carrier->setCount(value);
+	return ::appendGroup(carrier,FormaT,buffer);
 }
 
 /*******************************************************************************
@@ -4230,6 +4327,139 @@ extern "C" void jitLoopEnd()
 	gLoopExitBlocks.pop_back();
 	b->CreateBr(condBB);            // <-- the back edge
 	b->SetInsertPoint(exitBB);
+	
+}
+
+/*******************************************************************************
+    jitPrintBegin -- the chain's OPENING bracket, reached from emitted code.
+    aCTionPrinT's own three lines, lifted verbatim so the jitted path acquires
+    its buffer exactly as the interpreted path does. The closing bracket is
+    opPrint itself, which the emitter calls directly -- there is no jitPrintEnd,
+    because inventing one would put a second sink beside the real one.
+*******************************************************************************/
+extern "C" Buffer *jitPrintBegin(GroupItem *input)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+Buffer 		*buffer = (Buffer*)ruler->bufferSTAK->pop();
+	if ( !buffer )
+		buffer = new Buffer("print buffer");
+	ruler->isPRINTING = 0;
+	return buffer;
+}
+
+/* The sink. opPrint ITSELF -- there is no jitPrintEnd, because inventing one
+   would put a second sink beside the real one and the whole point of entering at
+   the seam is that the chain below it stays single-sourced. */
+extern "C" void jitPrintClose(GroupItem *input)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	if (!b || !gJitPrintBuf) return;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	llvm::Value *inAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)input), ptr, "printStmtEnd");
+	llvm::Value *callee = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&opPrint), ptr, "printSinkFn");
+	llvm::FunctionType *ty = llvm::FunctionType::get(ptr, {ptr, ptr}, false);
+	b->CreateCall(ty, callee, {inAddr, gJitPrintBuf}, "printSink");
+	/*  E1: NOTHING LEFT IN FLIGHT. The buffer belonged to this statement and the
+	sink has consumed it; leaving it set would let a later print append into
+	a buffer that has already been flushed.  */
+	gJitPrintBuf = nullptr;
+	gJitResult   = nullptr;
+	gJitEmitted  = true;
+	
+}
+
+/* One item. `value` is the SSA register the expression emitters just produced;
+   when the item carries no expression it is a literal or a shortcut and the
+   carried value is unused, so a zero immediate is passed and the token's own
+   text does the work. */
+extern "C" void jitPrintItem(GroupItem *token, GroupItem *FormaT, int hasValue)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	if (!b || !gJitPrintBuf) return;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	
+	llvm::Value *fmtAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)FormaT), ptr, "printFmt");
+	
+	if (hasValue) {
+	//  AN EXPRESSION ITEM: the emitters just left its SSA value in
+	//  gJitResult. Route it through the VALUE entry.
+	llvm::Value *val = gJitResult ? gJitResult : (llvm::Value*)llvm::ConstantInt::get(i32, 0);
+	llvm::Value *callee = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&appendGroupValue), ptr, "printValFn");
+	llvm::FunctionType *ty = llvm::FunctionType::get(ptr, {i32, ptr, ptr}, false);
+	b->CreateCall(ty, callee, {val, fmtAddr, gJitPrintBuf}, "printVal"); }
+	else {
+	//  A LITERAL OR A SHORTCUT: it contributes ITSELF, so the node goes
+	//  straight to appendGroup -- the same call the interpreted walk makes,
+	//  with the same node. Nothing about shortcuts or literals is decided
+	//  here; the chain's own switch reads the characters.
+	llvm::Value *tokAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)token), ptr, "printTok");
+	llvm::Value *callee = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&appendGroup), ptr, "printTokFn");
+	llvm::FunctionType *ty = llvm::FunctionType::get(ptr, {ptr, ptr, ptr}, false);
+	b->CreateCall(ty, callee, {tokAddr, fmtAddr, gJitPrintBuf}, "printTok"); }
+	gJitEmitted = true;
+	
+}
+
+/* jitPrintOpen / jitPrintItem / jitPrintClose  THE THREE EMITTED CALLS of a
+   jitted print. Work item 3, Tony's ruling via Clay, 2026-08-04.
+
+   THE LAW THIS SERVES: the emit-time walk must be EFFECT-FREE. Until now a
+   jitted print fired AT COMPILE TIME -- once, reporting compile-time state --
+   which is worse than not printing, because it appears to work. The
+   compile-once-fire-twice proof the whole ladder rests on already assumed the
+   emit walk had no effects; this makes that true for print.
+
+   THE SEAM IS appendGroup, READ RATHER THAN ASSUMED (2026-08-04):
+       aCTionPrinT -> appendPrintXP  walks the PrintXP attributes and EVALUATES
+                                     (result = method(ExpressioN))
+                   -> appendGroup    RECEIVES EVALUATED VALUES  <- the seam
+                        - printField for real fields
+                        - the shortcut switch for ~ $ _ : + - ` , and indent
+                   -> opPrint        the sink
+   appendGroup does NOT evaluate its own input, so the seam is where the ruling
+   put it: below evaluate, above shortcut/format handling.
+
+   ⚠ THE ITEM CALL GOES TO THE VALUE ENTRY, NOT THE POINTER ENTRY, and that is
+   forced rather than stylistic: a LOCAL's live value sits in a frame slot until
+   the epilogue, so passing appendGroup a field pointer mid-function reads
+   storage nothing has written yet -- silent wrong answer. appendGroupValue takes
+   the evaluated i32 and stamps it on a carrier, routing into appendGroup's own
+   switch so shortcuts, formats and indent stay single-sourced in the chain.
+   The rejected alternative -- spill live values before every print -- makes each
+   print a sync barrier and needs liveness enumeration.
+
+   ⚠ SHORTCUT TOKENS TRAVEL AS IMMEDIATES. `print +` and `print $-` are nodes
+   whose TEXT is the shortcut; their address is baked and appendGroupValue passes
+   them through untouched. No format or indent decision is baked at emit time --
+   they happen at run time, in the chain, exactly as interpreted. */
+extern "C" void jitPrintOpen(GroupItem *input)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	if (!b) return;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	llvm::Value *inAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)input), ptr, "printStmt");
+	llvm::Value *callee = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitPrintBegin), ptr, "printBeginFn");
+	llvm::FunctionType *ty = llvm::FunctionType::get(ptr, {ptr}, false);
+	gJitPrintBuf = b->CreateCall(ty, callee, {inAddr}, "printBuf");
+	gJitEmitted  = true;
 	
 }
 

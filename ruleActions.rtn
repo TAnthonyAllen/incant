@@ -809,6 +809,47 @@ GroupItem   grup;
             revisedList += result; }
         input.group = revisedList;
         return input; }
+    /*  JITTED PRINT (work item 3, Tony's ruling via Clay, 2026-08-04). Under
+        jitting a print USED TO FIRE AT COMPILE TIME -- once, reporting
+        compile-time state -- which is worse than not printing at all because it
+        appears to work. The emit-time walk must be EFFECT-FREE; the ladder's
+        compile-once-fire-twice proof already assumed it was.
+
+        THE WALK BELOW IS appendPrintXP's, TERM FOR TERM, with the append
+        replaced by an emitted call. It is duplicated here and nowhere else
+        because the two differ in exactly one line -- appendPrintXP appends NOW,
+        this emits a call that appends LATER -- and the thing that must not be
+        duplicated is what appendGroup owns: shortcut semantics, formats, indent.
+        Those stay in the chain; appendGroupValue routes into them.  */
+    /*  ⚠ THE THREE EMITTERS ARE CALLED AT tok LEVEL, NOT FROM PASSTHROUGH, and
+        that is load-bearing twice over. Written as passthrough first, it hit
+        BOTH documented hazards at once: `FormaT` is declared here but was
+        referenced only inside the passthrough, so tok pruned it as unused
+        (bear-trap #13) and the generated call named an undeclared identifier.
+        A tok-level call is a tok-level USE, so nothing is pruned.
+        ⚠ AND THE DECLARATION ORDER BELOW MATCHES appendPrintXP's EXACTLY --
+        FormaT, result, ExpressioN. Reordered to put result last, tok bound the
+        bare `isMethod` to `result` instead of to `ExpressioN` (last-mentioned
+        wins) and generated a read of an unassigned pointer. Copying the walk
+        means copying its declaration order.  */
+    if jitting {
+        jitPrintOpen(input);
+        while grup = stuff.nextAttribute(grup) {
+            use grup
+            if noPrint  continue;
+            GroupItem   FormaT:,
+                        result,
+                        ExpressioN:;
+            if ExpressioN {
+                /*  EMIT THE EXPRESSION through the existing emitters -- they
+                    leave the SSA value in gJitResult, which jitPrintItem picks
+                    up. No expression emitter is written or duplicated here.  */
+                if isMethod result = method(ExpressioN);
+                else        result = ExpressioN;
+                jitPrintItem(grup,FormaT,1); }
+            else    jitPrintItem(grup,FormaT,0); }
+        jitPrintClose(input);
+        return input; }
 Buffer      buffer = bufferSTAK.pop();
     if !buffer      buffer = new("print buffer");
     isPRINTING      = false;
