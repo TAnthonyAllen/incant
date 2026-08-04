@@ -477,13 +477,26 @@ fi
 #  refactor hoisting the jitting gate above the iterator arm would seed an
 #  iterator as a data field and increment an ADDRESS.
 #
-#  ⚠ The values are pinned WRONG on purpose (the tree.divergence / iterT1m
-#  pattern). A jitted iterator walk visits 0 where the interpreter visits 2.
-#  MEASURED PRE-EXISTING, not caused by the unary fix: the gate was reverted to
-#  isOperator-only, retok'd, rebuilt and re-run, and both gates give 0/2.
-#  Iterator semantics are Tony's, and `2` for a three-member trunk is in that
-#  same parked territory -- so this records the state rather than judging it.
+#  ⚠ The JITTED value is pinned WRONG on purpose (the tree.divergence / iterT1m
+#  pattern). A jitted iterator walk visits 0 where the interpreter visits every
+#  child. MEASURED PRE-EXISTING, not caused by the unary fix: the gate was
+#  reverted to isOperator-only, retok'd, rebuilt and re-run, and both gates give
+#  jitted 0.
 #  RE-PIN WHEN THE ITERATOR ARM IS JITTED, with a sentence, not a green diff.
+#
+#  ⚠ RE-PIN 2026-08-04, interpreted 2 -> 3, AND HERE IS THE SENTENCE.
+#  The old pin was pinning a LEAF-DROPPING WALK. Tony's iterator rework landed
+#  offline (aCTionIterate now sets hasAttributes/hasMembers instead of
+#  overloading the iterator's own affiliation; opPlusPlus reads the same two
+#  flags), and the interpreted count over jitJUi's three-child trunk moved 2 -> 3.
+#  NOT signed on the diff -- signed on `incant/juiProbe`, which NAMES the leaves
+#  instead of counting them: an unqualified iterate over a 3-child trunk now
+#  visits jpA, jpB and jpC, each reporting isAttribute 1; the attributes-
+#  qualified walk visits the same 3 and the members-qualified walk visits 0.
+#  So 3 is every declared child, by name, and the old 2 was one short. The rung's
+#  own prior comment had already flagged `2` for a three-member trunk as suspect.
+#  ⚠ TONY'S TO OVERRULE: the interpreter half of this divergence is his (iterT3 /
+#  trunk arity). This records the corrected measurement, it does not close that.
 $B incant/jitJUi > "$T/jitJUi" 2>&1
 juie=$?
 if [ $juie != 0 ]; then echo "  FAIL  JUi -- nonzero exit ($juie)"; fail=1
@@ -496,8 +509,8 @@ else
     #  pass by a line going missing -- an empty capture fails the numeric test.
     if [ "$jj" = "0" ]; then echo "  ok    JUi jitted = 0   (PINNED WRONG -- iterator arm not jitted, Tony's)"
     else echo "  FAIL  JUi jitted = '$jj', pinned 0 -- WOKE: the iterator arm changed, re-pin with a sentence"; fail=1; fi
-    if [ "$ji" = "2" ]; then echo "  ok    JUi interpreted = 2  (the interpretive arm still taken)"
-    else echo "  FAIL  JUi interpreted = '$ji', pinned 2 -- the iterator walk itself moved"; fail=1; fi
+    if [ "$ji" = "3" ]; then echo "  ok    JUi interpreted = 3  (interpretive arm taken; every child visited)"
+    else echo "  FAIL  JUi interpreted = '$ji', pinned 3 -- the iterator walk itself moved"; fail=1; fi
 fi
 
 echo ""

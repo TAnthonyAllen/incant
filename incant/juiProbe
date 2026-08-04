@@ -1,0 +1,64 @@
+/*****************************************************************************
+    juiProbe -- WHICH leaves does an unqualified `iterate` visit?
+
+    Written 2026-08-04 to put a sentence behind the jitLadder JUi red.
+    jitLadder rung JUi pins `JUi interpreted = 2` over a trunk of THREE
+    children; after Tony's iterator rework (aCTionIterate now sets
+    hasAttributes/hasMembers instead of overloading affiliation) the same
+    walk reports 3. This probe NAMES the leaves rather than counting them,
+    so the move can be signed or refused on evidence.
+
+    Reads only. Nothing here is a check; the ladder owns the verdict.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JuiProbe);
+define
+    jpA;
+    jpB;
+    jpC;
+    jpTrunk     jpA jpB jpC;
+    jpCount;
+    jpWalk code={
+        jpCount = 0;
+        iterate g on jpTrunk;
+        while ++g
+            ++jpCount;
+            print "  visited:" `taG g "isAttribute" g.isAttributE "isMember" g.isMembeR:;
+        };
+    jpWalkAttrs code={
+        jpCount = 0;
+        iterate g on jpTrunk attributes;
+        while ++g
+            ++jpCount;
+            print "  attr visited:" `taG g:;
+        };
+    jpWalkMembers code={
+        jpCount = 0;
+        iterate g on jpTrunk members;
+        while ++g
+            ++jpCount;
+            print "  member visited:" `taG g:;
+        };
+    ;
+
+print "-- unqualified iterate over jpTrunk (3 children declared) --":;
+jpWalk();
+print "unqualified count =" jpCount:;
+
+print "-- attributes-qualified --":;
+jpWalkAttrs();
+print "attributes count =" jpCount:;
+
+print "-- members-qualified --":;
+jpWalkMembers();
+print "members count =" jpCount:;
+
+print "juiProbe SENTINEL -- run reached the end":;
+stop();
