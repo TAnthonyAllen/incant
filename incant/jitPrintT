@@ -15,8 +15,34 @@
     are asserted. The value moves AFTER emission, which is the same run-time
     proof every other rung makes, aimed at an effect instead of at a return.
 
-    ⚠⚠ STATUS 2026-08-04: THE LAW IS SATISFIED, THE CONTENT IS NOT. Read this
-    before assuming the fixture is broken or that print is done.
+    ⚠⚠ STATUS 2026-08-05: THE BARE-READ PRIMITIVE WORKS; A MULTI-PART EXPRESSION
+    IN A PRINT DOES NOT. Read this before assuming the fixture is broken.
+
+        pBare  `print pVal;`               fire 1 = 41, fire 2 = 58   ✅ CORRECT
+        pAct   `print "P value =" pVal:;`  garbage on both fires      ✗ OPEN
+
+    pBare is the win and it is a real one: a bare operand now MATERIALIZES, and
+    the value tracks an input changed AFTER emission, so it is computed at run
+    time. That is the first jitted print to carry a correct value.
+
+    pAct is a separate, named gap and NOT the same bug. Its PrintXP item carries a
+    multi-part expression list (`xl`), which emits SOMETHING -- the degrade
+    counter stays 0, so the refusal in jitPrintItem does not fire -- but the
+    something is not the count appendGroupValue expects. appendGroupValue's phase
+    scope is i32 counts; a string entry is named there as future work. The
+    refusal catches "emitted nothing" and does NOT catch "emitted the wrong
+    kind", which is the next thing to fix and is written here so it is not
+    rediscovered.
+
+    ⚠ THE GARBAGE GOT WORSE AS THE EMITTERS GOT BETTER, and that is the lesson
+    worth keeping: before the primitive existed this printed 0 -- wrong, but
+    stable. Once real values flowed it printed 80329152, a STALE read wearing the
+    shape of data. jitPrintArm now clears the in-flight value per item so a null
+    means "this item emitted nothing" rather than "nobody ever emitted", which is
+    what lets jitPrintItem refuse instead of substitute. The remaining garbage is
+    past that guard, not through a hole in it.
+
+    ⚠ HISTORICAL, 2026-08-04: THE LAW IS SATISFIED, THE CONTENT WAS NOT.
 
     WHAT IS CERTIFIED -- the print now fires ONCE PER FIRE, at RUN time. Two
     lines for two fires, where the old behaviour produced ONE, at compile time,

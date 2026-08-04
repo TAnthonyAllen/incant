@@ -1006,13 +1006,24 @@ GroupItem 	*grup = 0;
 			GroupItem *ExpressioN = grup->getLabelGroup("ExpressioN");
 			if ( ExpressioN )
 				{
+				::jitPrintArm();
 				::jitPrintProbe(ExpressioN,1);
 				/*  EMIT THE EXPRESSION through the existing emitters -- they
 				leave the SSA value in gJitResult, which jitPrintItem picks
 				up. No expression emitter is written or duplicated here.  */
 				if ( isMethod(ExpressioN->groupBody->flags.instructType) )
 					result = ExpressioN->groupBody->gMethod(ExpressioN);
-				else	result = ExpressioN;
+				else {
+					/*  ⚠ A BARE OPERAND. appendPrintXP's `else` branch makes NO
+					CALL -- interpreted that is fine, because appendGroup
+					then reads the field's own storage. Jitted, reading the
+					field's own storage is exactly what we cannot do, and
+					nothing had ever emitted a value here. This is the
+					missing primitive, and it is why a jitted print carried
+					a constant 0. (R3's printout, 2026-08-05.)  */
+					result = ExpressioN;
+					::jitEmitBareRead(ExpressioN);
+					}
 				::jitPrintProbe(result,2);
 				::jitPrintItem(grup,FormaT,1);
 				}
@@ -3464,6 +3475,95 @@ extern "C" GroupItem *jitEmitAssign(GroupItem *argument, GroupItem *target)
 	
 }
 
+/* jitPrintOpen / jitPrintItem / jitPrintClose  THE THREE EMITTED CALLS of a
+   jitted print. Work item 3, Tony's ruling via Clay, 2026-08-04.
+
+   THE LAW THIS SERVES: the emit-time walk must be EFFECT-FREE. Until now a
+   jitted print fired AT COMPILE TIME -- once, reporting compile-time state --
+   which is worse than not printing, because it appears to work. The
+   compile-once-fire-twice proof the whole ladder rests on already assumed the
+   emit walk had no effects; this makes that true for print.
+
+   THE SEAM IS appendGroup, READ RATHER THAN ASSUMED (2026-08-04):
+       aCTionPrinT -> appendPrintXP  walks the PrintXP attributes and EVALUATES
+                                     (result = method(ExpressioN))
+                   -> appendGroup    RECEIVES EVALUATED VALUES  <- the seam
+                        - printField for real fields
+                        - the shortcut switch for ~ $ _ : + - ` , and indent
+                   -> opPrint        the sink
+   appendGroup does NOT evaluate its own input, so the seam is where the ruling
+   put it: below evaluate, above shortcut/format handling.
+
+   ⚠ THE ITEM CALL GOES TO THE VALUE ENTRY, NOT THE POINTER ENTRY, and that is
+   forced rather than stylistic: a LOCAL's live value sits in a frame slot until
+   the epilogue, so passing appendGroup a field pointer mid-function reads
+   storage nothing has written yet -- silent wrong answer. appendGroupValue takes
+   the evaluated i32 and stamps it on a carrier, routing into appendGroup's own
+   switch so shortcuts, formats and indent stay single-sourced in the chain.
+   The rejected alternative -- spill live values before every print -- makes each
+   print a sync barrier and needs liveness enumeration.
+
+   ⚠ SHORTCUT TOKENS TRAVEL AS IMMEDIATES. `print +` and `print $-` are nodes
+   whose TEXT is the shortcut; their address is baked and appendGroupValue passes
+   them through untouched. No format or indent decision is baked at emit time --
+   they happen at run time, in the chain, exactly as interpreted. */
+/* jitEmitBareRead  THE MISSING PRIMITIVE. Tony's ruling via Clay, 2026-08-05.
+
+   ⚠ WHAT IT IS, AND WHY IT WENT MISSING FOR SO LONG: the JIT has never had to
+   MATERIALIZE A BARE READ. Every certified rung to date reached its operands
+   through an operator or a method, and runOP's seed gate seeded them on the way
+   past -- so an operand was always already a value by the time anyone wanted
+   one. displayForm is the first fixture whose statements simply LOOK AT THINGS,
+   and it is the convergence rung, which is exactly the rung that should find
+   this.
+
+   IT CLOSES THREE THINGS AT ONCE, all one hole seen from three sides:
+     - print values      (appendPrintXP's `else result = ExpressioN` makes no
+                          call, so nothing was ever emitted for a bare operand)
+     - the bare-flag-read item
+     - finding #3, `if noPrinT` reading %iterCond -- the same hole from the
+       CONDITION side, reusing whatever value was last in flight
+
+   THE FORK IS EMIT-TIME KNOWLEDGE, SO IT COSTS NOTHING AT RUN TIME, and both
+   arms already exist inside jitSeedField -- this does not reimplement them:
+     arm 1  A JIT-TRACKED LOCAL. Its storage is a frame alloca, so the read is
+            a load OF THE ALLOCA, which mem2reg promotes to the SSA value the
+            function already holds. ⚠ Emitting a load of the FIELD'S OWN memory
+            here would read the stale frame slot -- the epilogue has not written
+            it yet -- which is the exact disease the print value entry exists to
+            dodge, and it would be silently wrong.
+     arm 2  ANYTHING ELSE -- a persistent field. A run-time load through the
+            baked address, unchanged from how globals have always been read.
+   jitSeedField keys the choice on the HOME ADDRESS rather than node identity,
+   because each occurrence of a local in a body is its own GroupItem, so the
+   token here is never the node the prologue walked.
+
+   ⚠ A THIRD CATEGORY EXISTS AND IS NOT HANDLED HERE, deliberately: an accessor
+   whose resolution is a run-time pointer-walk (`noPrinT` on the iterator's
+   CURRENT node -- which node that is depends on the iteration). That is not a
+   read of any fixed storage, so no load can express it. It goes through opDot's
+   own gate instead, as a CALL to the accessor, so read semantics cannot drift.
+   If a FOURTH category turns up while building on this, that is a report, not
+   an improvisation.
+
+   Returns 0 and emits nothing if there is no builder. */
+extern "C" int jitEmitBareRead(GroupItem *token)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	if (!b || !token) return 0;
+	//  Already seeded this compile? Then the value is in hand -- and re-seeding
+	//  is bear-trap #9 (never re-seed an inner op-result).
+	if (!token->jitData)    jitSeedField(token);
+	if (!token->jitData)    return 0;
+	llvm::Value *v = token->jitData->getJitter();
+	if (!v) return 0;
+	gJitResult  = v;
+	gJitEmitted = true;
+	return 1;
+	
+}
+
 /* jitEmitBinary  the shared binary-arithmetic emitter. Each arithmetic opMethod's
    jitting gate is one line onto this — jitEmitBinary(argument, target, jitAdd) —
    so the boilerplate (operand load, result store, gJitResult stash, return) lives
@@ -3639,6 +3739,58 @@ GroupItem 	*result = 0;
 	::jitDoEnd();
 	 gJitResult = nullptr; 
 	return result;
+}
+
+/* jitEmitDot  THE ACCESSOR ARM -- the third category above, and it closes the
+   whole GroupField accessor family in ONE gate rather than one emitter per
+   accessor. `.` is registered `operateMethod=opDot`, so it is a two-argument
+   operator and this is jitEmitRem's shape exactly:
+
+       1. call opDot(argument, target)  ->  GroupItem*
+       2. call jitUnboxCount(that)      ->  i32
+
+   ⚠ THE CALL IS TO opDot ITSELF -- shared implementation, the same move as
+   jitEmitIterStep's call to opPlusPlus and jitEmitIterate's call to
+   aCTionIterate. opDot resolves ~40 numbered cases including the ones this is
+   really for (noPrint 29, isAttribute 34, isMember 35), and reimplementing that
+   switch in IR would be a second copy of a table that has grown twice this
+   month. Read semantics cannot drift because there is only one reader.
+
+   ⚠ AND IT IS WHY finding #3 LOOKED LIKE A CONDITION BUG: with no emitter here,
+   `if noPrinT` emitted nothing and the enclosing `if` branched on whatever was
+   last in flight -- the iterator's liveness. The condition was never wrong; it
+   was reading a value nobody had produced. */
+extern "C" GroupItem *jitEmitDot(GroupItem *argument, GroupItem *target, GroupItem *resultNode)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	
+	llvm::Value *argAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)argument), ptr, "dotArg");
+	llvm::Value *tgtAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)target), ptr, "dotTgt");
+	llvm::Value *callee = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&opDot), ptr, "dotFn");
+	llvm::FunctionType *opTy = llvm::FunctionType::get(ptr, {ptr, ptr}, false);
+	llvm::Value *res = b->CreateCall(opTy, callee, {argAddr, tgtAddr}, "dotRes");
+	
+	llvm::Value *unboxFn = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitUnboxCount), ptr, "dotUnboxFn");
+	llvm::FunctionType *unboxTy = llvm::FunctionType::get(i32, {ptr}, false);
+	llvm::Value *val = b->CreateCall(unboxTy, unboxFn, {res}, "dotVal");
+	
+	if (resultNode) {
+	if (!resultNode->jitData) resultNode->jitData = new JitData();
+	resultNode->jitData->setJitter(val);
+	gJitSeeded.push_back(resultNode); }
+	gJitResult  = val;
+	gJitEmitted = true;
+	return resultNode;
+	
 }
 
 /* jitEmitGIF  the gIF emitter — now rides the INTERPRET walk (pivot, 2026-06-30).
@@ -4411,6 +4563,23 @@ extern "C" void jitLoopEnd()
 	
 }
 
+/* jitPrintArm  CLEAR THE IN-FLIGHT VALUE before an item's expression emits.
+
+   ⚠ WITHOUT THIS, AN ITEM THAT EMITS NOTHING INHERITS THE PREVIOUS ITEM'S VALUE.
+   Measured 2026-08-05, and it got WORSE as the emitters got better: before the
+   bare-read primitive existed, gJitResult was null for everything and a
+   non-emitting item printed 0 -- wrong, but stable. Once real values started
+   flowing, the same item printed 80329152: whatever was last in flight. A stale
+   read is worse than a zero because it looks like data.
+   That is the one-channel-one-meaning family again -- gJitResult means "the
+   value in flight", and "the value THIS item produced" is a different fact.
+   Clearing per item is what makes the second question answerable, and it is why
+   jitPrintItem can now REFUSE rather than substitute. */
+extern "C" void jitPrintArm()
+{
+	 gJitResult = nullptr; 
+}
+
 /*******************************************************************************
     jitPrintBegin -- the chain's OPENING bracket, reached from emitted code.
     aCTionPrinT's own three lines, lifted verbatim so the jitted path acquires
@@ -4473,8 +4642,17 @@ extern "C" void jitPrintItem(GroupItem *token, GroupItem *FormaT, int hasValue)
 	
 	if (hasValue) {
 	//  AN EXPRESSION ITEM: the emitters just left its SSA value in
-	//  gJitResult. Route it through the VALUE entry.
-	llvm::Value *val = gJitResult ? gJitResult : (llvm::Value*)llvm::ConstantInt::get(i32, 0);
+	//  gJitResult -- which jitPrintArm cleared beforehand, so a null here
+	//  means THIS item emitted nothing rather than that nobody ever did.
+	//  ⚠ REFUSE, DO NOT SUBSTITUTE. Passing a constant here is how a print
+	//  of an un-emittable expression came out as 0 and then, once real
+	//  values were flowing, as 80329152 -- a stale read wearing the shape of
+	//  data. The degrade counter is asserted at zero by every rung, so this
+	//  turns an invisible wrong answer into a red.
+	if (!gJitResult) {
+	jitDegrade("print operand: expression emitted no value", token);
+	return; }
+	llvm::Value *val = gJitResult;
 	llvm::Value *callee = b->CreateIntToPtr(
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)&appendGroupValue), ptr, "printValFn");
 	llvm::FunctionType *ty = llvm::FunctionType::get(ptr, {i32, ptr, ptr}, false);
@@ -4512,38 +4690,6 @@ extern "C" void jitPrintOpen(GroupItem *input)
 	
 }
 
-/* jitPrintOpen / jitPrintItem / jitPrintClose  THE THREE EMITTED CALLS of a
-   jitted print. Work item 3, Tony's ruling via Clay, 2026-08-04.
-
-   THE LAW THIS SERVES: the emit-time walk must be EFFECT-FREE. Until now a
-   jitted print fired AT COMPILE TIME -- once, reporting compile-time state --
-   which is worse than not printing, because it appears to work. The
-   compile-once-fire-twice proof the whole ladder rests on already assumed the
-   emit walk had no effects; this makes that true for print.
-
-   THE SEAM IS appendGroup, READ RATHER THAN ASSUMED (2026-08-04):
-       aCTionPrinT -> appendPrintXP  walks the PrintXP attributes and EVALUATES
-                                     (result = method(ExpressioN))
-                   -> appendGroup    RECEIVES EVALUATED VALUES  <- the seam
-                        - printField for real fields
-                        - the shortcut switch for ~ $ _ : + - ` , and indent
-                   -> opPrint        the sink
-   appendGroup does NOT evaluate its own input, so the seam is where the ruling
-   put it: below evaluate, above shortcut/format handling.
-
-   ⚠ THE ITEM CALL GOES TO THE VALUE ENTRY, NOT THE POINTER ENTRY, and that is
-   forced rather than stylistic: a LOCAL's live value sits in a frame slot until
-   the epilogue, so passing appendGroup a field pointer mid-function reads
-   storage nothing has written yet -- silent wrong answer. appendGroupValue takes
-   the evaluated i32 and stamps it on a carrier, routing into appendGroup's own
-   switch so shortcuts, formats and indent stay single-sourced in the chain.
-   The rejected alternative -- spill live values before every print -- makes each
-   print a sync barrier and needs liveness enumeration.
-
-   ⚠ SHORTCUT TOKENS TRAVEL AS IMMEDIATES. `print +` and `print $-` are nodes
-   whose TEXT is the shortcut; their address is baked and appendGroupValue passes
-   them through untouched. No format or indent decision is baked at emit time --
-   they happen at run time, in the chain, exactly as interpreted. */
 /* jitPrintProbe  COMPILE-TIME DIAGNOSTIC for the jitted print walk. R3, Clay,
    2026-08-05: one aimed measurement before the third swing.
 
@@ -6103,6 +6249,20 @@ extern "C" GroupItem *opDot(GroupItem *argument, GroupItem *target)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*product = 0;
+	/*  THE ACCESSOR GATE (Tony's ruling via Clay, 2026-08-05). Emit a CALL to
+	this very function and unbox its result -- jitEmitRem's shape, and the
+	same shared-implementation move as jitEmitIterStep and jitEmitIterate.
+	ONE gate closes the whole GroupField accessor family; opDot resolves ~40
+	numbered cases and reimplementing that switch in IR would be a second
+	copy of a table that has grown twice this month.
+	⚠ THIS IS WHY finding #3 LOOKED LIKE A CONDITION BUG. With no emitter
+	here, `if noPrinT` emitted nothing and the enclosing `if` branched on
+	whatever was last in flight -- the iterator's liveness. The condition was
+	never wrong; it was reading a value nobody had produced.  */
+	if ( ruler->jitting )
+		{
+		 return jitEmitDot(argument, target, ruler->tempField); 
+		}
 	if ( !argument )
 		if ( ruler->lastREF )
 			{

@@ -856,12 +856,22 @@ GroupItem   grup;
                         result,
                         ExpressioN:;
             if ExpressioN {
+                jitPrintArm();
                 jitPrintProbe(ExpressioN,1);
                 /*  EMIT THE EXPRESSION through the existing emitters -- they
                     leave the SSA value in gJitResult, which jitPrintItem picks
                     up. No expression emitter is written or duplicated here.  */
                 if isMethod result = method(ExpressioN);
-                else        result = ExpressioN;
+                else {
+                    /*  ⚠ A BARE OPERAND. appendPrintXP's `else` branch makes NO
+                        CALL -- interpreted that is fine, because appendGroup
+                        then reads the field's own storage. Jitted, reading the
+                        field's own storage is exactly what we cannot do, and
+                        nothing had ever emitted a value here. This is the
+                        missing primitive, and it is why a jitted print carried
+                        a constant 0. (R3's printout, 2026-08-05.)  */
+                    result = ExpressioN;
+                    jitEmitBareRead(ExpressioN); }
                 jitPrintProbe(result,2);
                 jitPrintItem(grup,FormaT,1); }
             else {

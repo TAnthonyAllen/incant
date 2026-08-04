@@ -144,6 +144,19 @@ extern GroupItem opDot(GroupItem argument,GroupItem target)
 {
 GroupRules  ruler = groupRules;
 GroupItem   product;
+    /*  THE ACCESSOR GATE (Tony's ruling via Clay, 2026-08-05). Emit a CALL to
+        this very function and unbox its result -- jitEmitRem's shape, and the
+        same shared-implementation move as jitEmitIterStep and jitEmitIterate.
+        ONE gate closes the whole GroupField accessor family; opDot resolves ~40
+        numbered cases and reimplementing that switch in IR would be a second
+        copy of a table that has grown twice this month.
+        ⚠ THIS IS WHY finding #3 LOOKED LIKE A CONDITION BUG. With no emitter
+        here, `if noPrinT` emitted nothing and the enclosing `if` branched on
+        whatever was last in flight -- the iterator's liveness. The condition was
+        never wrong; it was reading a value nobody had produced.  */
+    if jitting {
+        -% return jitEmitDot(argument, target, ruler->tempField); %-
+    }
 use argument
     if !argument
         if lastREF {
