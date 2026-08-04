@@ -1052,7 +1052,15 @@ GroupItem 	*grup = 0;
 						::jitEmitBareRead(ExpressioN);
 						}
 					::jitPrintProbe(result,2);
-					::jitPrintItem(grup,FormaT,1);
+					/*  SAME NODE-ENTRY RULE AS jitPrintList's method arm: when the
+					emitted op produced a GroupItem, hand the chain the NODE and
+					let it format by the node's real datA at run time. The
+					emitter cannot type the result -- opDot's gate returns before
+					its interpreted body -- and guessing prints `taG` as a
+					number. jitPrintNode clears the channel it consumes.  */
+					if ( ::jitNodeInFlight() )
+						::jitPrintNode(FormaT);
+					else	::jitPrintItem(grup,FormaT,1);
 					}
 				}
 			else {
@@ -3859,6 +3867,10 @@ extern "C" GroupItem *jitEmitDot(GroupItem *argument, GroupItem *target, GroupIt
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitUnboxCount), ptr, "dotUnboxFn");
 	llvm::FunctionType *unboxTy = llvm::FunctionType::get(i32, {ptr}, false);
 	llvm::Value *val = b->CreateCall(unboxTy, unboxFn, {res}, "dotVal");
+	//  PUBLISH THE NODE TOO. A consumer that wants a COUNT reads gJitResult; one
+	//  that wants the GroupItem -- the print path, which must not guess a type --
+	//  reads gJitResultNode. Two facts, two channels.
+	gJitResultNode = res;
 	
 	if (resultNode) {
 	if (!resultNode->jitData) resultNode->jitData = new JitData();
@@ -4708,6 +4720,13 @@ extern "C" void jitLoopEnd()
 	
 }
 
+/* jitNodeInFlight  is there a GroupItem result waiting? The tok-level test for
+   the node channel, so the print walk can ask without a passthrough. */
+extern "C" int jitNodeInFlight()
+{
+	 return gJitResultNode ? 1 : 0; 
+}
+
 /* jitPrintArm  CLEAR THE IN-FLIGHT VALUE before an item's expression emits.
 
    ⚠ WITHOUT THIS, AN ITEM THAT EMITS NOTHING INHERITS THE PREVIOUS ITEM'S VALUE.
@@ -4856,10 +4875,70 @@ extern "C" void jitPrintList(GroupItem *ExpressioN, GroupItem *FormaT)
 	//  CONSTANT: hand the chain the baked node. No evaluation, no value.
 	jitPrintItem(part, FormaT, 0);
 	continue; }
-	//  COMPUTED: materialize it, then route through the value entry.
+	//  ⚠ A PART MAY BE A COMPUTED SUB-EXPRESSION, not a bare read. `print
+	//  ~`taG "has method":;` carries one constant part and one part that is
+	//  itself a dot expression (isMethod). Handing that to the bare-read
+	//  primitive is a category error -- it is a LIST, so the primitive
+	//  correctly refused and the tag never printed. DISPATCH ITS METHOD,
+	//  exactly as appendPrintXP's own `if isMethod` arm does one level up;
+	//  the op gates emit and leave the value in gJitResult.
+	if (isMethod(pb->flags.instructType)) {
+	jitPrintArm();
+	if (pb->gMethod)    pb->gMethod(part);
+	if (!gJitResult) {
+	jitDegrade("print operand part: method emitted no value", part);
+	continue; }
+	//  ⚠ COMPUTED STRINGS ARE OUT OF PHASE SCOPE AND MUST DEGRADE, NOT
+	//  PRINT A NUMBER. opDot unboxes its result as a COUNT, which is
+	//  right for noPrinT/isMethoD and wrong for taG -- a string-valued
+	//  accessor. Without this the tag printed as `6`: silently wrong,
+	//  degrade 0, the exact class this project has paid for all week.
+	//  The kind is read off the emit-time result, which is legitimate
+	//  because datA is stable for the lifetime of jitted code that
+	//  observed it (premise 1) -- a type, not a value.
+	//  ⚠ HAND THE CHAIN THE NODE, NOT A NUMBER, AND DO NOT TYPE IT
+	//  HERE. gJitResultNode carries the GroupItem the emitted op
+	//  produced; appendGroup formats it by its REAL datA at run time,
+	//  which is the only place that fact exists. The first cut tried to
+	//  classify at emit time by reading tempField -- and could not,
+	//  because opDot's gate returns before its interpreted body, so
+	//  tempField is never populated and the accessor's own datA
+	//  describes the accessor rather than its result. `taG` printed as
+	//  `6` for exactly that reason.
+	//  The pointer is safe here where it is not safe for a field: this
+	//  node is FRESHLY COMPUTED by the emitted call, not a field whose
+	//  live value sits in an unflushed frame slot.
+	if (gJitResultNode) { jitPrintNode(FormaT); continue; }
+	jitPrintItem(part, FormaT, 1);
+	continue; }
+	//  COMPUTED SCALAR: materialize it, then route through the value entry.
 	jitPrintArm();
 	if (jitEmitBareRead(part))  jitPrintItem(part, FormaT, 1);
 	else jitDegrade("print operand part: not a constant and not a scalar read", part); }
+	
+}
+
+/* jitPrintNode  APPEND THE NODE THE LAST EMITTED OP PRODUCED. The pointer entry
+   of the print seam, used where the value's TYPE is a run-time fact the emitter
+   cannot know -- a GroupField accessor being the case that forced it. Calls
+   appendGroup directly, so formatting, shortcuts and datA dispatch all stay in
+   the chain exactly as the interpreted walk leaves them. */
+extern "C" void jitPrintNode(GroupItem *FormaT)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	if (!b || !gJitPrintBuf || !gJitResultNode) return;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	llvm::Value *fmtAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)FormaT), ptr, "nodeFmt");
+	llvm::Value *callee = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&appendGroup), ptr, "nodeFn");
+	llvm::FunctionType *ty = llvm::FunctionType::get(ptr, {ptr, ptr, ptr}, false);
+	b->CreateCall(ty, callee, {gJitResultNode, fmtAddr, gJitPrintBuf}, "printNode");
+	gJitResultNode = nullptr;
+	gJitEmitted = true;
 	
 }
 

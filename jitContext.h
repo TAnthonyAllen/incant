@@ -147,6 +147,24 @@ inline std::string gJitLastIR;
 // Cleared by jitEmitPrint on the way out (E1: nothing left in flight).
 inline llvm::Value *gJitPrintBuf = nullptr;
 
+// THE RESULT NODE IN FLIGHT (2026-08-05). A SECOND CHANNEL, on purpose, and the
+// reason is one-channel-one-meaning rather than convenience: gJitResult means
+// "the i32 value in flight", and "the GroupItem the last emitted op produced" is
+// a DIFFERENT FACT. Conflating them is how a string accessor printed as a number.
+//
+// WHY IT EXISTS. opDot unboxes its result to a count, which is right for
+// noPrinT/isMethoD and wrong for taG -- and the emitter CANNOT KNOW WHICH:
+// the gate returns before opDot's interpreted body, so nothing populates
+// tempField at emit time, and the accessor node's own datA describes the
+// accessor, not its result. The type is a RUN-TIME fact.
+// So the print path does not try to type it. It takes the NODE and hands it to
+// appendGroup's existing pointer entry, which formats by the node's real datA at
+// run time -- the same call the interpreted walk makes.
+// ⚠ AND THE STALE-FRAME DISEASE CANNOT APPLY HERE, which is what makes the
+// pointer safe in this one case: this node is FRESHLY COMPUTED by the emitted
+// call, not a field whose live value is sitting in an unflushed frame slot.
+inline llvm::Value *gJitResultNode = nullptr;
+
 // Nodes seeded with JitData during the current compile. JitData is transient (one
 // compile, into a per-run LLVMContext that jitRunAction destroys), but the field/
 // literal GroupItems that carry it persist (BDWGC). The runOP seeding gate skips a
@@ -225,6 +243,16 @@ class GroupItem;
 // "Both operands to ICmp instruction are not of the same type".
 // Keyed on GroupBody, not the node -- storage is identity, nodes are
 // occurrences, the same finding Increment 1 and jitEmitSelfCall both record.
+//
+// ⚠ IT IS A STACK MATCHED BY "ANY OF THEM", AND THAT MUST NOT BE "SIMPLIFIED"
+// TO A SINGLE SLOT. Matching any entry makes MUTUAL recursion correct by
+// construction as well as self-recursion: A -> B -> A resolves as a self-call at
+// the third frame because A is still on the stack. A one-slot version would see
+// only B, misclassify the call to A as ordinary, and inline it again -- the same
+// defect this exists to fix, wearing a longer cycle.
+// That property is not incidental: genParse's grammar rules reference each other
+// constantly, so mutual recursion is the NORMAL case on the road ahead, and this
+// fix bought more than the bug cost. Keep the stack.
 class GroupBody;
 inline std::vector<GroupBody*> gJitInlining;
 

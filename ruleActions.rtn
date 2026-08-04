@@ -898,7 +898,14 @@ GroupItem   grup;
                     result = ExpressioN;
                     jitEmitBareRead(ExpressioN); }
                 jitPrintProbe(result,2);
-                jitPrintItem(grup,FormaT,1); }}
+                /*  SAME NODE-ENTRY RULE AS jitPrintList's method arm: when the
+                    emitted op produced a GroupItem, hand the chain the NODE and
+                    let it format by the node's real datA at run time. The
+                    emitter cannot type the result -- opDot's gate returns before
+                    its interpreted body -- and guessing prints `taG` as a
+                    number. jitPrintNode clears the channel it consumes.  */
+                if jitNodeInFlight()    jitPrintNode(FormaT);
+                else                    jitPrintItem(grup,FormaT,1); }}
             else {
                 jitPrintProbe(grup,3);
                 jitPrintItem(grup,FormaT,0); }}
