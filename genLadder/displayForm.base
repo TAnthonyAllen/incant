@@ -1,0 +1,24 @@
+Search list: Grokking Generating UnitTests bcOPs Utilities
+== CASE 1: a leaf -- attributes, no members == 
+dfLeaf 
+	leafOne does not have method 
+	leafTwo does not have method 
+== CASE 2: a coded node -- noPrint attributes must be skipped == 
+dfCoded 
+	codedAttr does not have method 
+== CASE 3: nesting, depth 2, with a coded member and a bare member == 
+dfRoot 
+	alpha does not have method 
+	beta does not have method 
+	gamma does not have method 
+	dfMid 
+		delta does not have method 
+		epsilon does not have method 
+		dfInner 
+			zeta does not have method 
+	dfCoded2 
+		codedTwo does not have method 
+	dfBare 
+displayFormT SENTINEL -- run reached the end
+
+stop: ending input divert

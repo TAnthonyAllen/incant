@@ -458,6 +458,26 @@ branchrun loopBranchT "LB SENTINEL" "loopBranchT runs (break/continue in loops)"
 valcheck loopBranchT "1 bare break in while  *->\\[ " 3 "break is CONSUMED by the loop; code after it runs (3)"
 valcheck loopBranchT "2 bare continue in while *->\\[ " 12 "continue still skips correctly (12)"
 
+#  ---------------------------------------------------------------------------
+#  displayForm -- THE INTERPRETER PIN. Step 0 of the displayForm arc (Tony +
+#  Clay addendum, 2026-08-04). Tony's own tests in IncantForms/WorkingOn/tester
+#  pass and are happy-path by design; this pins the same action against a tree
+#  carrying nesting to depth 2, a noPrint attribute, and a leaf with attributes
+#  and no members.
+#  ⚠ WHAT IT ASSERTS IS "THIS IS WHAT IT DOES TODAY", NOT "THIS IS RIGHT".
+#  Tony's standing rule: no error-hunting on working code -- pin it, run it,
+#  deal with what the diff turns up when it turns up. The output WAS reviewed
+#  once before capture (noPrint attributes correctly skipped, indentation
+#  correct at both depths, a bare member printing its tag and nothing else).
+#  ⚠ THE ACTION IS A VERBATIM COPY of the one in tester, so this baseline is
+#  stale the moment that one changes -- and the diff is the notification.
+#  Later designation, not yet in force: displayForm is the convergence fixture
+#  for the JIT arc, certifying the assembled stack once the attribute-method
+#  POP, the iterator fix and the KANT-8 hunt have landed individually.
+run1 displayFormT "$T/dsp";  check "displayFormT runs" 0 $?
+sentinel "displayFormT sentinel" "$T/dsp" "displayFormT SENTINEL"
+diffcheck "displayForm baseline (interpreter pin)" genLadder/displayForm.base "$T/dsp"
+
 diffcheck "oneTest baseline"  genLadder/oneTest.base  "$T/one"
 diffcheck "jsonTest baseline" genLadder/jsonTest.base "$T/jsn"
 

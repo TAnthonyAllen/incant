@@ -1,0 +1,91 @@
+/*****************************************************************************
+    displayFormT -- THE INTERPRETER POP FOR displayForm.  Step 0, Tony + Clay
+    addendum 2026-08-04.
+
+    PURPOSE, and the scope is deliberately narrow: pin what displayForm PRINTS,
+    under the interpreter, against a tree that exercises more than the happy
+    path. Tony's own tests in IncantForms/WorkingOn/tester pass and are
+    happy-path by design; this is the exhaustiveness half.
+
+    ⚠ STANDING RULE, TONY'S: NO ERROR-HUNTING ON WORKING CODE. Whatever this
+    prints, once correctly reviewed, IS the baseline. Nothing here is hardened
+    speculatively, nothing is "fixed" on the way past, and no assertion claims
+    the output is right in any sense beyond "this is what it does today".
+
+    ⚠ THE ACTION IS COPIED VERBATIM from IncantForms/WorkingOn/tester. It is not
+    tidied, not reformatted and not improved -- a baseline captured over an
+    edited copy would pin the edit, not the code. If displayForm changes there,
+    this copy is stale and the diff is the notification.
+
+    THE TREE COVERS THE THREE CASES THE ADDENDUM NAMES:
+      1. NESTING              dfRoot -> dfMid -> dfLeaf, members within members,
+                              so the recursion and the indent push/pop are both
+                              exercised at depth 2.
+      2. A noPrint ATTRIBUTE  dfCoded carries code={}, and aCTionDefinE attaches
+                              CodE / this / tempField as noPrint attributes. That
+                              is the honest way to get one -- they arise from the
+                              language rather than from a flag set to make a test
+                              pass -- and it puts displayForm's `if noPrinT;
+                              continue;` under real load.
+      3. A LEAF WITH ATTRIBUTES AND NO MEMBERS
+                              dfLeaf has two attributes and nothing indented
+                              under it, so the members iterate runs over an
+                              empty list immediately after the attributes
+                              iterate has run over a full one.
+
+    WHAT THIS DOES NOT CERTIFY, named so the rung is not over-read:
+      - unqualified iterate            -- that is incant/juiProbe's job
+      - KANT-8 / recursion locals      -- needs a return-a-local fixture;
+                                          displayForm prints and discards
+      - anything about the JIT         -- this is pure interpreter
+
+    ONE stop(), AT THE END, reachable only through the last section (rule H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(FormT);
+define
+    /*  THE TREE. Attributes are the bare names on the definition line; members
+        are the indented definitions beneath it.  */
+    dfLeaf      leafOne leafTwo;
+    dfCoded     codedAttr code={ counter = counter + 1; };
+    dfRoot      alpha beta gamma
+        dfMid   delta epsilon
+            dfInner zeta;
+        dfCoded2 codedTwo code={ counter = counter + 2; };
+        dfBare;
+    /*  displayForm, COPIED VERBATIM from IncantForms/WorkingOn/tester.  */
+    displayForm argument code={
+        length  = listLengtH;
+        print ~taG:;
+        if length > 0;
+            iterate grup on argument attributes;
+            while ++grup;
+                if noPrinT; continue;
+                if isMethoD;    print ~`taG "has method":;
+                else            print ~`taG "does not have method":;
+            iterate grup on argument members;
+            while ++grup;
+                print +;
+                displayForm(grup);
+                print $-;
+        };
+    ;
+
+print "== CASE 1: a leaf -- attributes, no members ==":;
+displayForm(dfLeaf);
+
+print "== CASE 2: a coded node -- noPrint attributes must be skipped ==":;
+displayForm(dfCoded);
+
+print "== CASE 3: nesting, depth 2, with a coded member and a bare member ==":;
+displayForm(dfRoot);
+
+print "displayFormT SENTINEL -- run reached the end":;
+stop();
