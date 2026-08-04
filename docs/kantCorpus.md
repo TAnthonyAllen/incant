@@ -309,6 +309,42 @@ scope:       Bites any recursive kant action that returns a local, which is the
              why this survived. Not verified whether returning the ARGUMENT
              instead of a local dodges it; that is the obvious next probe.
 ```
+**⚠ THE OPEN PROBE IS ANSWERED, AND THE SCOPE LINE ABOVE IS UNDERSTATED (2026-08-05,
+`incant/kant8T`, four rows, interpreted, exit 0).** The `asOf` block is left exactly as written
+because it was true when written; both corrections are recorded here rather than by editing it.
+
+| row | | returned |
+|---|---|---|
+| **K3** | NON-recursive, returns a local | **42** — the control; without it "returning a local is broken" cannot be told from "`recursive` is the discriminator" |
+| **K1** | recursive, returns a local | **`k1loc`** — KANT-8 reproduced |
+| **K4** | recursive, **recursive branch NEVER TAKEN** | **`k4loc`** |
+| **K2** | recursive, returns its **ARGUMENT** | **7** |
+
+**1. RETURNING THE ARGUMENT DODGES IT.** The probe this claim itself called "the obvious next
+probe" is answered: **yes.** And it is structurally readable rather than inferred —
+`saveLocalFields` saves an argument **without blanking it** (`if !grup.isArgument`), and
+`runAction` **binds at `:672-674` BEFORE saving at `:677`**, so the argument is saved *as bound*
+and restored *as bound*. **CONSEQUENCE: `CLAIM KANT-22`'s CARRIER DISCIPLINE — *anything that must
+survive a recursive call lives on a carrier node* — is now MEASURED rather than proposed. An
+argument IS such a carrier, today, with no runtime change and no interpreter edit.**
+
+**2. THE SCOPE IS WIDER THAN "RECURSIVE ACTIONS".** `field.recursive` is a **STATIC** flag set at
+parse time by identity (`ruleActions.rtn:1310`), so the save/restore bracket runs on **every**
+call. K4 **never took its recursive branch** and came back emptied identically. So the claim bites
+**any action that MENTIONS ITS OWN NAME, on every invocation** — recursion or not. The cost is not
+"recursion is expensive", it is "naming yourself anywhere in your body is".
+
+**3. K1 RETURNS THE BARE TAG, NOT A ZERO** — a field with no data returns its tag from `.text`, so
+the local is genuinely **emptied**, not reset to a value.
+
+⚠ **THE JITTED HALF IS NOT ASKABLE YET, which is itself a finding.** Parity legs were written, run
+and removed: **`return` under jit has NO EMITTER** (it calls `jitDegrade`), so a claim *about what
+a return hands back* has no jitted form to compare. Every green rung on `jitLadder` asserts a
+**FIELD's** value after the action and never a **returned** one — this is why. Parked behind a
+named gate: it becomes askable when `return` gets an emitter. (Driving those legs also hit a
+separate pre-existing defect, `incant/inlineSelfT` — an inlined callee's self-call re-enters the
+whole enclosing function — so rule H5 kept the SIGSEGV out of a fixture characterising something
+else.)
 **FOREMAN ADDITION (2026-07-29), and it does not count as round-1 absorption.**
 *Independently confirmed on a fixture with no `spellLeaf`, no C++ seam and no
 warm-up call — two actions with IDENTICAL bodies, one carrying an UNREACHED
