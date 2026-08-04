@@ -3444,6 +3444,68 @@ GroupItem 	*result = ExpressioN;
 	return result;
 }
 
+/* jitEmitIterStep  THE JITTED ITERATOR ADVANCE. Tony's ruling, 2026-08-04:
+   an unqualified iterate over a group visits EVERY DECLARED CHILD; the
+   interpreter's measured behaviour is the intended semantics and THE JIT'S
+   0-VISIT WALK IS THE DEFECT.
+
+   THE DEFECT, precisely: opPlusPlus tests `isIterator` BEFORE its jitting gate,
+   so an iterator under ++ took the interpreted arm and EMITTED NOTHING. The walk
+   therefore happened once, at EMIT time, and the compiled function contained no
+   loop at all -- hence 0 visits at run time against the interpreter's 3.
+
+   ⚠ THE EMITTED CALL IS TO opPlusPlus ITSELF, AND THAT IS THE DESIGN, NOT A
+   SHORTCUT. The obvious alternative -- re-implement the advance in a runtime
+   helper -- would put the iterator semantics in TWO places, and this project has
+   a name for what happens next. Model-not-oracle: the compiled code calls the
+   interpreter's own arm, so the two CANNOT drift, and Tony's ruling ("the
+   interpreter is right") is satisfied by construction rather than by a careful
+   copy. It also sidesteps a real hazard -- that arm resolves several bare names
+   (group, nextInParent, firstInList, lastREF) against opPlusPlus's own context,
+   and re-hosting them elsewhere is precisely where a silent divergence would
+   live.
+
+   SAFE AT RUN TIME because jitRunAction lowers `jitting` to 0 after the walk, so
+   the call re-enters opPlusPlus with the gate DOWN and takes the interpreted
+   iterator arm -- which is the one whose answer we want.
+
+   TWO LEGS, jitEmitRem's shape with a one-arg callee (runOP's isMethod arity):
+     1. call opPlusPlus(result)  ->  GroupItem*   (advances, or null when spent)
+     2. null-test that pointer   ->  i32 0/1      (the while's condition)
+   The i32 is what the loop branches on, so the LOOP ITSELF now runs at run time
+   and visits what the interpreter visits.
+
+   Layout-free: baked addresses only, no new flag, no groups.ext, no tokall. */
+extern "C" GroupItem *jitEmitIterStep(GroupItem *result)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	
+	llvm::Value *resAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)result), ptr, "iterNode");
+	llvm::Value *callee = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&opPlusPlus), ptr, "iterFn");
+	llvm::FunctionType *stepTy = llvm::FunctionType::get(ptr, {ptr}, false);
+	llvm::Value *nxt = b->CreateCall(stepTy, callee, {resAddr}, "iterNext");
+	
+	//  THE CONDITION. opPlusPlus returns the iterator node while it is advancing
+	//  and NULL when the list is spent, so the loop test is a null test -- the
+	//  same fact the interpreted `while ++g` reads, expressed as IR.
+	llvm::Value *live = b->CreateICmpNE(
+	b->CreatePtrToInt(nxt, i64),
+	llvm::ConstantInt::get(i64, 0), "iterLive");
+	llvm::Value *val = b->CreateZExt(live, i32, "iterCond");
+	
+	gJitResult  = val;
+	gJitEmitted = true;
+	return result;
+	
+}
+
 /* jitEmitRem  THE FALLBACK COLUMN MEETING A REAL opMethod -- the first emitted
    call to an existing operator rather than to a purpose-built helper.
 
@@ -6392,6 +6454,21 @@ extern "C" GroupItem *opPlusPlus(GroupItem *result)
 		return 0;
 	if ( result->groupBody->flags.isIterator )
 		{
+		/*  ⚠ THE JITTING GATE IS INSIDE THE ITERATOR ARM, NOT BELOW IT, AND THE
+		PLACEMENT IS THE FIX. Tony's ruling 2026-08-04: an unqualified
+		iterate visits EVERY DECLARED CHILD, the interpreter is right, and
+		the JIT's 0-visit walk is the defect.
+		The old order tested isIterator FIRST and returned, so an iterator
+		under ++ never reached the jitting gate below -- it took the
+		interpreted arm and EMITTED NOTHING, which is why the compiled
+		function contained no loop and visited 0 where the interpreter
+		visited 3. The arm below is untouched and remains the definition of
+		correct; jitEmitIterStep emits a CALL TO THIS FUNCTION so the two
+		cannot drift.  */
+		if ( GroupControl::groupController->groupRules->jitting )
+			{
+			 return jitEmitIterStep(result); 
+			}
 		//note: because result is an iterator it is not unwrapped in runOP()
 		GroupItem *iterator = result->getGroup();
 		if ( result->groupBody->flags.hasAttributes )

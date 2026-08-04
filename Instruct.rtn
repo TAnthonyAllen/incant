@@ -733,6 +733,20 @@ extern GroupItem opPlusPlus(GroupItem result)
         it already trusts -- the loop needed no change at all.  */
     if result.fLAG      return 0;
     if isIterator {
+        /*  ⚠ THE JITTING GATE IS INSIDE THE ITERATOR ARM, NOT BELOW IT, AND THE
+            PLACEMENT IS THE FIX. Tony's ruling 2026-08-04: an unqualified
+            iterate visits EVERY DECLARED CHILD, the interpreter is right, and
+            the JIT's 0-visit walk is the defect.
+            The old order tested isIterator FIRST and returned, so an iterator
+            under ++ never reached the jitting gate below -- it took the
+            interpreted arm and EMITTED NOTHING, which is why the compiled
+            function contained no loop and visited 0 where the interpreter
+            visited 3. The arm below is untouched and remains the definition of
+            correct; jitEmitIterStep emits a CALL TO THIS FUNCTION so the two
+            cannot drift.  */
+        if jitting {
+            -% return jitEmitIterStep(result); %-
+        }
         //note: because result is an iterator it is not unwrapped in runOP()
         GroupItem iterator = group;
         if result.hasAttributes iterator = result.nextAttribute(iterator);

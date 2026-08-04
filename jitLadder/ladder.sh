@@ -468,35 +468,48 @@ else
     echo "  FAIL  JU the unary ops are not in the IR -- emitted nothing, or degraded"; fail=1
 fi
 
-#  ⚠ JUi -- THE ITERATOR-ARM PIN. A PINNED KNOWN DIVERGENCE, NOT A GREEN CHECK.
+#  JUi -- THE ITERATOR RUNG. ⚠ NO LONGER A PINNED DIVERGENCE: as of 2026-08-04
+#  THIS IS A PARITY CHECK, and it is the one that closed the last named
+#  exclusion on the JIT v0.1 claim.
 #
-#  opPlusPlus tests its iterator arm BEFORE the jitting gate, so an iterator
-#  node under ++ falls through to interpretation and never reaches
-#  jitEmitUnary. That ordering is Tony's signed ruling (sequencing, not
-#  feasibility -- the arm is WANTED jitted later). NOTHING ENFORCED IT: a
-#  refactor hoisting the jitting gate above the iterator arm would seed an
-#  iterator as a data field and increment an ADDRESS.
+#  WHAT IT PROVES: a jitted iterator walk visits THE SAME CHILDREN the
+#  interpreter visits. Both halves are asserted at 3 over a three-child trunk,
+#  and they are asserted SEPARATELY rather than as "jitted == interpreted" --
+#  an equality check goes green when BOTH engines break the same way, which is
+#  not an unlikely failure here since the emitted code calls the interpreter's
+#  own arm. Two independent numbers against a value chosen by ruling.
 #
-#  ⚠ The JITTED value is pinned WRONG on purpose (the tree.divergence / iterT1m
-#  pattern). A jitted iterator walk visits 0 where the interpreter visits every
-#  child. MEASURED PRE-EXISTING, not caused by the unary fix: the gate was
-#  reverted to isOperator-only, retok'd, rebuilt and re-run, and both gates give
-#  jitted 0.
-#  RE-PIN WHEN THE ITERATOR ARM IS JITTED, with a sentence, not a green diff.
+#  THE HISTORY, kept because the shape of the defect is instructive: opPlusPlus
+#  tested `isIterator` BEFORE its jitting gate, so an iterator under ++ returned
+#  from the interpreted arm and NEVER REACHED THE GATE. It emitted nothing, the
+#  walk happened once at EMIT time, and the compiled function contained no loop
+#  -- 0 visits at run time against the interpreter's 3. Tony ruled 2026-08-04
+#  that the interpreter is right and the JIT is the defect; the gate moved
+#  INSIDE the iterator arm and the emitted code now calls opPlusPlus itself, so
+#  the two cannot drift.
 #
-#  ⚠ RE-PIN 2026-08-04, interpreted 2 -> 3, AND HERE IS THE SENTENCE.
-#  The old pin was pinning a LEAF-DROPPING WALK. Tony's iterator rework landed
-#  offline (aCTionIterate now sets hasAttributes/hasMembers instead of
-#  overloading the iterator's own affiliation; opPlusPlus reads the same two
-#  flags), and the interpreted count over jitJUi's three-child trunk moved 2 -> 3.
-#  NOT signed on the diff -- signed on `incant/juiProbe`, which NAMES the leaves
-#  instead of counting them: an unqualified iterate over a 3-child trunk now
-#  visits jpA, jpB and jpC, each reporting isAttribute 1; the attributes-
-#  qualified walk visits the same 3 and the members-qualified walk visits 0.
-#  So 3 is every declared child, by name, and the old 2 was one short. The rung's
-#  own prior comment had already flagged `2` for a three-member trunk as suspect.
-#  ⚠ TONY'S TO OVERRULE: the interpreter half of this divergence is his (iterT3 /
-#  trunk arity). This records the corrected measurement, it does not close that.
+#  ⚠ BOTH HALVES RE-PINNED 2026-08-04, AND HERE ARE THE TWO SENTENCES.
+#
+#  interpreted 2 -> 3. The old pin was pinning a LEAF-DROPPING WALK. Tony's
+#  iterator rework landed offline (aCTionIterate sets hasAttributes/hasMembers
+#  instead of overloading the iterator's own affiliation; opPlusPlus reads the
+#  same two flags). NOT signed on the diff -- signed on `incant/juiProbe`, which
+#  NAMES the leaves instead of counting them: an unqualified iterate over a
+#  3-child trunk visits jpA, jpB and jpC, each reporting isAttribute 1; the
+#  attributes-qualified walk visits the same 3 and the members-qualified walk
+#  visits 0. So 3 is every declared child, by name, and the old 2 was one short.
+#  The rung's own prior comment had already flagged `2` for a three-member trunk
+#  as suspect.
+#
+#  jitted 0 -> 3. Tony's ruling: the interpreter's measured behaviour IS the
+#  intended semantics, so the JIT was the defect and was fixed rather than
+#  pinned. The gate moved inside opPlusPlus's iterator arm; jitEmitIterStep
+#  emits a call to opPlusPlus and branches on a null test of what it returns, so
+#  the LOOP runs at run time. Verified: jitted 3, interpreted 3, same run.
+#
+#  ⚠ WITH THIS THE JIT PARITY CLAIM CARRIES NO ITERATOR ASTERISK. The excluded
+#  list on CLAIM JIT-0.1 loses its first entry; IR persistence and inlining
+#  remain.
 $B incant/jitJUi > "$T/jitJUi" 2>&1
 juie=$?
 if [ $juie != 0 ]; then echo "  FAIL  JUi -- nonzero exit ($juie)"; fail=1
@@ -507,8 +520,8 @@ else
     ji=$(sed -n 's/.*JUi interpreted *: juiCount = \([0-9-][0-9]*\).*/\1/p' "$T/jitJUi" | head -1)
     #  H4: both quantities are printed and COMPARED BY VALUE. Neither check can
     #  pass by a line going missing -- an empty capture fails the numeric test.
-    if [ "$jj" = "0" ]; then echo "  ok    JUi jitted = 0   (PINNED WRONG -- iterator arm not jitted, Tony's)"
-    else echo "  FAIL  JUi jitted = '$jj', pinned 0 -- WOKE: the iterator arm changed, re-pin with a sentence"; fail=1; fi
+    if [ "$jj" = "3" ]; then echo "  ok    JUi jitted = 3       (the jitted walk visits every child)"
+    else echo "  FAIL  JUi jitted = '$jj', want 3 -- the jitted iterator regressed"; fail=1; fi
     if [ "$ji" = "3" ]; then echo "  ok    JUi interpreted = 3  (interpretive arm taken; every child visited)"
     else echo "  FAIL  JUi interpreted = '$ji', pinned 3 -- the iterator walk itself moved"; fail=1; fi
 fi
