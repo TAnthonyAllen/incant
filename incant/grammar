@@ -50,7 +50,7 @@ DatA
 debug               "ALL"? "GUARD"? rules=NamE* ';'-;
 InvokE              '('- NamE? ')'-;
 Limit               '['- min=[0-9]+ max?=[0-9]+ ']'- noPrint;
-MemberS             ':'- Mlist=DefinE+;
+MemberS             ':'- MEMBERs- Mlist=DefinE+;
 Modifier=[-~+?!%&|*@_<^{}$] noPrint;
 TraiTdata           '='- DatA Modifier* Limit?;
 TraiT               NamE Modifier* Limit? TraiTdata?;
@@ -88,7 +88,6 @@ define
         incant grammar rules
     *************************************************************************/
     HeX             zero-="0" x-=[xX] value-=[0-9a-fA-F]+ tokenize;
-    CheckFor="#";
     ShortcuT=[-+~`$_:,]+;
     ANYtoken=NamE;
     ANYstring=[^ \n\r\t;]+;
@@ -157,9 +156,8 @@ define
         WardeD;
         Iterate     "iterate"- ANYtoken "on"- ANYtoken attributes? members? defer;
         Xpress;
-        CheckFor;
+    Start=StatemenT+;;
     /*************************************************************************
         Start is the incant entry point.
         Note its ending:    first ; ends Start second ; ends define command
     *************************************************************************/
-    Start=StatemenT+;;

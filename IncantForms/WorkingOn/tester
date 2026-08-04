@@ -1,17 +1,46 @@
 Start();
 include(unitTests);
-include(utilities);
 search reset stack Grokking;
-search UnitTests Utilities list;
-
-whatsIt = ,`"just some string and a shortcut";
-print whatsIt:;
-stop();
-tester(jsonResult);
-tester(lightBlue);
+search UnitTests list;
 
 register(FORMs);
 define
+    /***************************************************************************
+        displayForm — walk a form, fire off its attributes if they have methods.
+        Assumes the form has gone thru setFrame.
+    ***************************************************************************/
+    displayForm argument code={
+        length  = listLengtH;
+        print ~taG:;
+        if length > 0;
+            iterate grup on argument attributes;
+            while ++grup;
+                if noPrinT; continue;
+                if isMethoD;    print ~`taG "has method":;
+                else            print ~`taG "does not have method":;
+            iterate grup on argument members;
+            while ++grup;
+                print +;
+                displayForm(grup);
+                print $-;
+        };
+    iteratorTest argument code={
+        print "iteratorTest":;
+        iterate grup on argument attributes;
+        while ++grup;
+            print `taG grup:;
+        };
+    ;
+
+displayForm(sample);
+stop();
+
+print "listRules:";
+listRules(sample);
+whatsIt = ,`"just some string and a shortcut";
+print whatsIt:;
+tester(jsonResult);
+tester(lightBlue);
     lightBlue="ceffff";
     jsonResult;
     dataNames isANY isCHAR isSET isBUFFER isCOUNT isGROUP isITEM isMAP isNUMBER isOBJECT isREGEX isSTAK isSTRING isTOKEN;
@@ -20,4 +49,3 @@ define
         if name != 0;
             print "data name for" taG name:;
         else print "data name for" taG "none":;};
-    ;

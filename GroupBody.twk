@@ -50,6 +50,7 @@ boolean bools {
     isSorted:2[sortAscending sortDescending]
     methodType:2[immediateACTION parseACTION]
 
+    addingMembers
     altered
     byRef
     debugged
@@ -76,8 +77,6 @@ boolean bools {
     isVirtual
     isWindow
     isXP
-    iterateOnAttributes
-    iterateOnMembers
     mergeOn
     negate
     recursive

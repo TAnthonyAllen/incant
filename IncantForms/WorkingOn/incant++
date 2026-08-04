@@ -1,67 +1,20 @@
 /*****************************************************************************
     Offline Status
 *****************************************************************************/
-As I considered how to handle string expressions w/o a string keyword, I rejected the idea of using opMethods like = or += to trigger string concatenation. My reason for the rejection is I do not want to give up shortcuts and I want to keep print and string expressions identical. To do that I figured I would have to use the PrintXP rule. That led me to an interesting grammar change. The new StringXP rule looks like:
-        StringXP    ","- stuff=PrintXP+ defer;
-The comma replaces the string keyword and it allows rule guards to skip over StringXP; the , is a shortcut that does nothing, and more relevant, it is not an allowable Token. Instead of sharing the print action, I wrote the following StringXP action. It duplicates much of the print action, but no biggie it is short, and no if statement needed to figure out what print method to invoke.
-/*******************************************************************************
-	Immediate method for the StringXP rule.
-        StringXP    ","- stuff=PrintXP+ defer;
-*******************************************************************************/
-extern GroupItem aCTionStringXP(GroupItem input)
-{
-GroupRules  ruler   = groupRules;
-GroupItem   stuff:;
-GroupItem   grup;
-Buffer      buffer = bufferSTAK.pop();
-    if !buffer      buffer = new("print buffer");
-    while grup = stuff.nextAttribute(grup) {
-        if noPrint  continue;
-        GroupItem   FormaT:,
-                    result,
-                    ExpressioN:;
-        if ExpressioN {
-            if isMethod result = method(ExpressioN);
-            else        result = ExpressioN;
-            appendGroup(result,FormaT,buffer); }
-        else            appendGroup(grup,FormaT,buffer); }
-    stuff.clear();
-    return opString(stuff,buffer);
-}
+One thing the support minion did not do. Buffer got compress and decompress methods added; neither were added into frame, the tok externals file that covers all the support files. I did not expect to get two bespoke methods instead of accessing some off the shelf lossless compression methods. Not a problem, just unexpected.
+Responding to Clod wrt forms minion stuff. I wrote a displayForm action that walks a form and prints out what it sees wrt attributes and whether they have methods (at this point none do). The walk works but on reflection it does not handle the case where an attribute can have attributes; may not be a problem if we merge attributes on definition. Before turning displayForm over to the forms minion, we need to follow up our gui design discussion. First design question: wrt fonts and colors, we need to decide when they get converted from a design spec into their respective objects to be ready to be applied via an attribute method. For example, a color can be specified as bgColor=lightGreen where lightGreen is a color defined in the Colors registry or as bgColor=#aa34cf. When displayForm walks, it bumps into bgColor, which needs a method to process itself, if not already processed; and then apply it into the ongoing layout. Same for fonts, convert when and apply.
+All the drawing commands defined in IncantForms/WorkingOn/drawing need to have methods; now they have none. I suggest a design/recon pass to ID the calls those methods make. Then extend the design to cover how it all works: displayForm -> walk -> attribute method does what to where; POP would be define one attribute with method -> jit method -> stash jit method in field.method -> stash jit IR in "JiT" attribute alongside CodE and BlocK; make sure we can go thru the process to run the attribute method more than once. This last bit is just POP on our JIT work. Lets do that first; further work on drawing can be parked until we get thru our stack of pending tasks.
+Looking back thru my notes made while I was on vacay in Europe, they included a grammar extension to support the embedded repeat feature in some drawing commands as in (this is the curent definition that I propose to change):
 
-Also I removed the useDefaultSpace = true; statements from opPrint and opString so now $ is a toggle that persists. It means the user has to be aware, and may have to turn it on after turning it off, but that can happen at the end of the print statement or at the beginning of the next print statement; Also, useDefaultSpace = true; is run by processAction before the action runs so it gets set back to default on every action invocation. It pays immediate benefits in spellLeaf that looks like the following after incorporating the changes. Note the second $ that toggles useDefaultSpace true happens on a print statement that only needs the $ to reset the toggle status. The reformatting is only here, and done because I am anal about how I want my code to look; the code the minion produced is still in genEmit.
+The following are components of a perforated border. The stride gap and depth blocks below are default settings that can be overridden in a parent of the block containing the perforation attribute
+<stride=6/>
+<gap=12/>
+<depth=2/>
+<perfRight> d gap l depth d stride r depth;</perfRight>
+<perfLeft>r depth u stride l depth u gap;</perfLeft>
+<perfTop>u depth r gap d depth r stride;</perfTop>
+<perfBottom>u depth l stride d depth l gap;</perfBottom>
+The perforation block draws the perforation.
+<perforation drawPath fill=$perfColor border selectable=no>%@ 0 u~ 8 perfLeft 5 perfTop 5 u depth r 10 d 2 perfRight 5 d 8 l 10 perfBottom 5;</perforation>
 
-    spellLeaf argument code={
-        :argument at sink slot site;
-        local   = string $"t" at;
-        kind    = argument.taG;
-        if kind == "OPT";
-            wrapped := argument.firstMembeR;
-            wrapped :% sink;
-            piece = this(wrapped);
-            leaf = ,"(" piece _ "|| 1)";
-        or kind == "MANY";      leaf = ,"many" site "(" sink "," local ")";
-        or kind == "CALL";      leaf = ,"parseR(" local "," sink ")";
-        or kind == "LIT";       leaf = ,"lit(" local "," '"' argument '"' ")";
-        or kind == "LITTO";
-            if sink == "into";  leaf = ,"litOption(" local ",into," '"' argument '"' ")";
-            else                leaf = ,"litTo(" local ",label," '"' argument '"' "," '"' slot '"' ")";
-        else    print $"emitLeaf: no emission for plan kind" kind:;
-        return leaf;
-        };
-
-The downside of all the above: existing code that makes use of the old string keyfield had to change (done that).
-
-/*****************************************************************************
-    Code files changed
-*****************************************************************************/
-GroupActions.rtn
-ruleActons.rtn
-Instruct.rtn
-
-The above is done; the following is work to be done. I am switching over to fable 5 because I want a deep dive here. Before we begin on it, lets get a clean kitchen.
-/*****************************************************************************
-    JIT design
-*****************************************************************************/
-Methinks it worth a design pass to assess how best to switch to emitting LLVM IR when jitting. Emitting now happens in opMethods but then needs to take type into consideration. That is, emitting an expression requires operator and type; that looks like a 2D table to me, or in kant maybe an operator field w/type attributes; and each has the IR text needed so that a jitEmit extern method has what it needs to spit out a complete IR statement to wherever we are accumulating them.
-As part of design pass I suggest a recon thru all the jit related md files and consolidate into jit.md and jitDesign.md
+So perfLeft 5 above means repeat perfLeft 5 times. I propose to extend kant grammar to allow repeat to be set via a modifier (add r as a modifier), in which case perfLeft=5r would set perfLeft count to 5 and turn on an isRepeat flag. When displayForm hits perfLeft, the isRepeat flag says process all perfLeft components (all attributes in this case) then repeat 5 times. 

@@ -55,7 +55,6 @@ define
     quoted  immediateAction;
     regex immediateAction=setInternalType noPrint;
     register immediateAction=rEGISTER noPrint;
-    registry immediateAction=rEGISTER noPrint;
     reset immediateAction=resetField;
     runByteFn immediateAction=runByteFn;
     interpretBC immediateAction=interpretBC;
@@ -246,6 +245,7 @@ define
     isArgumenT=10;
     invokE=11;
     flaG=12;
+    isAttributE=34;
     isBiN=33;
     isConditioN;
     isFilE;
@@ -254,6 +254,7 @@ define
     isLiteraL=17;
     isLisT=32;
     isMacrO;
+    isMembeR=35;
     isMethoD=19;
     isOperatoR=20;
     isPercenT=21;

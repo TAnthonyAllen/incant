@@ -531,6 +531,8 @@ GroupItem   target  = item.fLAG ? item.parent : item;
             case 'm':
                 if command eq "macro"   isMacro = true;
                 else    mergeOn         = true;
+            case 'M':   if !currentRegistry.isRule && currentDefine
+                            currentDefine.addingMembers = true;
             case 'n':   noPrint         = true;
             case 'P':   isPRINTING      = true;
             case 's':

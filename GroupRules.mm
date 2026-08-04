@@ -713,13 +713,13 @@ GroupItem 	*source = input->get(2);
 		::fprintf(stderr,"aCTionIterate: source %s has no list\n",source->groupBody->tag);
 		return 0;
 		}
-	// attributes and members filter overloaded on iterator affiliation
+	// attributes and members filter overloaded on hasAttributes and hasMembers
 	if ( attributes )
-		iterator->options.affiliation = 1;
-	else
+		iterator->groupBody->flags.hasAttributes = 1;
+	else	iterator->groupBody->flags.hasAttributes = 0;
 	if ( members )
-		iterator->options.affiliation = 2;
-	else	iterator->options.affiliation = 0;
+		iterator->groupBody->flags.hasMembers = 1;
+	else	iterator->groupBody->flags.hasMembers = 0;
 	iterator->groupBody->flags.isIterator = 1;
 	return iterator;
 }
@@ -5417,6 +5417,14 @@ GroupItem 	*product = 0;
 					if ( target->groupBody->flags.noPrint )
 						product->setCount(1);
 					break;
+				case 34:
+					if ( isAttribute(target->options.affiliation) )
+						product->setCount(1);
+					break;
+				case 35:
+					if ( isMember(target->options.affiliation) )
+						product->setCount(1);
+					break;
 				case 401:
 					if ( !target->nextInParent )
 						product = 0;
@@ -6162,10 +6170,10 @@ extern "C" GroupItem *opPlusPlus(GroupItem *result)
 		{
 		//note: because result is an iterator it is not unwrapped in runOP()
 		GroupItem *iterator = result->getGroup();
-		if ( isAttribute(result->options.affiliation) )
+		if ( result->groupBody->flags.hasAttributes )
 			iterator = result->nextAttribute(iterator);
 		else
-		if ( isMember(result->options.affiliation) )
+		if ( result->groupBody->flags.hasMembers )
 			iterator = result->nextMember(iterator);
 		else
 		if ( !iterator )

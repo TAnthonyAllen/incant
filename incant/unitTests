@@ -103,7 +103,7 @@ define
                 stuff text=one pad=6;
         fourth rounded pad fill=lightGreen height=12;
         fifth;
-    aGroup one two three;
+    aGroup one two=2 three;
     hasGroup=simple;
 
     /***************************************************************************

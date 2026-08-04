@@ -176,6 +176,8 @@ use argument
                 case 24:    if target.isShortcut    product.count = 1;
                 case 28:    if target.rStuff && target.noLabel  product.count = 1;
                 case 29:    if target.noPrint       product.count = 1;
+                case 34:    if target.isAttribute   product.count = 1;
+                case 35:    if target.isMember      product.count = 1;
                 case 401:   if !target.nextInParent    product = null; else product = target.nextInParent;
                 case 402:   if !target.priorInParent   product = null; else product = target.priorInParent;
                 case 403:   if !target.groupList || !target.firstInList  product = null; else product = target.firstInList;
@@ -733,8 +735,8 @@ extern GroupItem opPlusPlus(GroupItem result)
     if isIterator {
         //note: because result is an iterator it is not unwrapped in runOP()
         GroupItem iterator = group;
-        if result.isAttribute   iterator = result.nextAttribute(iterator);
-        or result.isMember      iterator = result.nextMember(iterator);
+        if result.hasAttributes iterator = result.nextAttribute(iterator);
+        or result.hasMembers    iterator = result.nextMember(iterator);
         or !iterator    iterator = result.firstInList;
         else            iterator = nextInParent;
         lastREF.group   = iterator;

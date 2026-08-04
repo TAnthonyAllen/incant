@@ -76,7 +76,8 @@ GroupItem bootstrapper()
 {
 GroupItem   dStuff;
 GroupItem   item;
-GroupItem   stuff;
+GroupItem   stuff,
+            member;
 GroupItem   strap;
 GroupRules  ruler = groupRules;
 
@@ -86,6 +87,11 @@ GroupRules  ruler = groupRules;
     ruleSkipSet.characterSet = skipSet;
     properties          += ruleSkipSet;
     currentRegistry     = grok;
+    member = new("MEMBERs");
+    member.method       = processFlags;
+    member.parseACTION  = true;
+    member.isMethod     = true;
+    member.unGuarded    = true;
    /**************************************************************************
         Define the setupFILE declared in GroupRules. It gets loaded at the
         end of this bootstrapper method.
@@ -311,6 +317,8 @@ GroupRules  ruler = groupRules;
     modify(item,"?");
 
     strap           = grok += "NewGroup";
+    method          = aCTionNewGroup;
+    immediateACTION = true;
     setRuleStuff();
     group           = grok/TraiT;
 
@@ -323,6 +331,8 @@ GroupRules  ruler = groupRules;
     strap           = grok += "MemberS";
     setRuleStuff();
     item            = strap += ":";
+    modify(item,"-");
+    item            = strap +% member;
     modify(item,"-");
     item            = strap +% stuff;
     modify(item,"+");

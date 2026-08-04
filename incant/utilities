@@ -89,7 +89,7 @@ define
         };
     listed;
     /***************************************************************************
-        listRules — print a rule and its components as tag=value. Note the use
+        listRules — print a field and its components as tag=value. Note the use
         of listed, which is explicitly not a local field used to control
         recursing and hold off a mad recursing loop
     ***************************************************************************/
@@ -100,15 +100,13 @@ define
         else            print ~$taG;
         if length > 0;
             print _length:;
-            for grup in argument;
+            iterate grup on argument;
+            while ++grup;
                 length  = listLengtH;
                 if noPrinT; continue;
                 print +;
-                if !length;
-                    if datA != 0;   print ~$taG "=" argument:;
-                    else            print ~$taG:;
-                or  grup IN listed
-                    if datA != 0;   print ~$taG "=" argument:;
+                if !length OR grup IN listed;
+                    if datA != 0;   print ~$taG "=" grup:;
                     else            print ~$taG:;
                 else
                     listRules(grup);
