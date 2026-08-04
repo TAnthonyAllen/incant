@@ -89,3 +89,55 @@ as a list of names**, not inferred from the presence of `if jitting`. Two reason
 **Recommended shape:** machinery methods carry a one-line marker naming them as walk machinery;
 everything else degrades by default. The marker is what makes the census cheap to re-run and
 impossible to get wrong twice.
+
+---
+
+# THE RUN-TIME-FLAG CENSUS — 2026-08-05
+
+**The question, Clay's:** after `aCTionBlocK`'s `isBranch` break turned out to be a run-time flag
+steering the emit walk, are there others? *"The signature is the same shape as
+`if isMethod … else <no call>` was for the bare-read family: a walk decision keyed on a flag that
+only means something during execution."*
+
+**It is the effect-free-emit law's MIRROR IMAGE.** That law stops the walk causing run-time
+effects. This class is a run-time flag steering the walk — the same boundary violated from the
+other side, and worth naming as such because a reader who has internalised one will not
+automatically look for the other.
+
+## The sweep
+
+Every flag-guarded `return` / `break` / `continue` inside the emit-reachable walk — the
+jitting-gated actions plus `jitEmitters.rtn`:
+
+| site | flag | verdict |
+|---|---|---|
+| `aCTionBlocK` `if result.isBranch … break` | `isBranch` | **MEMBER 5** — fixed 2026-08-05, `if jitting continue;` |
+| `opPlusPlus` `if result.fLAG return 0;` | `fLAG` (iterator poison) | ⚠ **MEMBER 6 — FOUND BY THIS CENSUS.** See below. |
+| `aCTionWhilE` / `aCTionDO` `if isContinue / or isReturn` | branch signal | **SAFE** — both sit BELOW their jitting gate, which returns first. Not emit-reachable. |
+| `aCTionFOR` same pair, plus `if restrict && …  continue` | branch signal | **NAMED, not fixed.** Emit-reachable ONLY through the degrade fall-through, which is by design and now COUNTED. It is the known price of degrade-with-fall-through, not a hole. |
+| `aCTionPrinT` `if noPrint continue;` | `noPrint` on a PrintXP item | **SAFE and correct.** A static property of the parse node — whether that item prints at all — not execution state. Mirrors `appendPrintXP` exactly. |
+| `aCTionExpressioN` `if generating return generateXP(…)` | `generating` | **SAFE.** A MODE flag, and `jitRunAction` sets it to 0 deliberately. |
+| `aCTionStatemenT` `if method return method(statement);` | `method` | **SAFE.** Dispatch, not a stop. |
+| `jitEmitters.rtn:63` `if !jitting return 0;` | `jitting` | **SAFE.** Mode guard. |
+
+## ⚠ MEMBER 6, and it was in code written the same morning
+
+`opPlusPlus` opened with `if result.fLAG return 0;` — **above** the jitting gate. `fLAG` means
+*"the LAST iterate on this node was refused"*, which is a fact about **execution**. Read at
+**emit** time, a poisoned node would produce a compiled loop containing **no advance instruction
+at all** — silent, permanent, baked into the function for every later fire.
+
+**It did not bite, and the reason is precisely the danger:** `aCTionIterate` clears `fLAG` on its
+success path, and that happened to run first. **Correct by accident of ordering** — the same
+shape as `continue` appearing to work because its fall-through target happened to be the back
+edge. Moved below the gate, so the poison is now evaluated at RUN time inside the emitted call to
+`opPlusPlus` itself, which re-enters with `jitting` down and reaches the line properly.
+
+## THE CLASS IS NOT DECLARED EMPTY — it is declared SWEPT, with its scope named
+
+Eight sites examined, two members, one fixed today and one already fixed, four safe with reasons,
+one named-and-deliberate. **The scope of this absence claim:** flag-guarded early exits in the
+jitting-gated actions and `jitEmitters.rtn`. It does NOT cover the op-methods' own gates, nor
+anything reached through the degrade fall-through, where run-time control flow runs at emit time
+**by design** and is counted rather than prevented. A seventh member would most likely live
+there, and the counter is what would surface it.

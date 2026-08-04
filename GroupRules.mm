@@ -6792,12 +6792,6 @@ GroupItem 	*result = 0;
 ***************************************************************************/
 extern "C" GroupItem *opMinusMinus(GroupItem *result)
 {
-	/*  POISONED ITERATOR (Tony's ruling, 2026-08-02). Its only reader is here.
-	The refusal was already announced once at the Iterate; this is silent
-	and simply does not move, so the enclosing `while` exits on the false
-	it already trusts -- the loop needed no change at all.  */
-	if ( result->groupBody->flags.fLAG )
-		return 0;
 	if ( result->groupBody->flags.isIterator )
 		{
 		/*******************************************************************
@@ -7164,6 +7158,28 @@ extern "C" GroupItem *opPlusPlus(GroupItem *result)
 			{
 			 return jitEmitIterStep(result); 
 			}
+		/*  POISONED ITERATOR (Tony's ruling, 2026-08-02). Its only reader is
+		here. The refusal was already announced once at the Iterate; this is
+		silent and simply does not move, so the enclosing `while` exits on
+		the false it already trusts -- the loop needed no change at all.
+		
+		⚠ MOVED BELOW THE JITTING GATE, 2026-08-05, by the run-time-flag
+		census. It used to sit ABOVE it, at the top of the function, where it
+		was a RUN-TIME FLAG STEERING THE EMIT WALK -- the sixth member of the
+		one-channel-one-meaning family and the same class as aCTionBlocK's
+		isBranch break. `fLAG` means "the LAST iterate on this node was
+		refused", which is a fact about execution; read at EMIT time, a
+		poisoned node would have produced a compiled loop containing NO
+		ADVANCE INSTRUCTION AT ALL -- silent, permanent, baked into the
+		function.
+		It did not bite, and the reason is the danger: aCTionIterate clears
+		fLAG on its success path, which happened to run first. Correct by
+		accident of ordering, which is exactly what the census was for.
+		Below the gate, the poison is evaluated at RUN time inside the
+		emitted call to this very function -- which re-enters with jitting
+		down and reaches this line properly.  */
+		if ( result->groupBody->flags.fLAG )
+			return 0;
 		//note: because result is an iterator it is not unwrapped in runOP()
 		GroupItem *iterator = result->getGroup();
 		if ( result->groupBody->flags.hasAttributes )
