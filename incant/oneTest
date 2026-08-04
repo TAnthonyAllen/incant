@@ -37,20 +37,34 @@ generateAction(testFor);
     standing downside is that the changers have been reluctant to clean up as
     they go, so scratch accumulates below the stop.
 
-    ⚠ WHY THIS NOTE EXISTS RATHER THAN A CLEANUP: there are SIX stop() calls in
-    this file and the run ends at this one. The 32 lines below -- including
-    testUnitTests() and the GUI-utilities section -- HAVE NEVER EXECUTED under
-    the current baseline, so genLadder/oneTest.base certifies the five
-    generateAction rows above and NOTHING BELOW. Verified by marker: "hello
-    world", "dumpBC for", "testGXLeaf", "Unit Tests" and "printDefinition" all
-    appear ZERO times in a full run.
+    ⚠ WHAT THE BASELINE CERTIFIES, AND IT IS THE WHOLE OF IT:
+    genLadder/oneTest.base certifies THE FIVE generateAction ROWS ABOVE AND
+    NOTHING BELOW THIS LINE. Nothing under this stop has ever executed under it.
+    Verified by marker: "hello world", "dumpBC for", "testGXLeaf", "Unit Tests"
+    and "printDefinition" all appear ZERO times in a full run.
 
-    ⚠ THE TRAP, and it is why the note sits HERE: moving or deleting this stop
-    to run more does NOT run more -- it hands control to the NEXT stop a few
-    lines down, which truncates again, silently, at exit 0. That is RULE H2's
-    own worked example (incant/jiquery had three stops and answered one question
-    out of three for a month). If you extend the live section, delete the stops
-    below it as you go -- do not simply move this one.
+    ⚠ THE FIVE OTHER stop() CALLS ARE GONE, deleted 2026-08-04 under Tony's
+    ruling, and the code they were stopping on is KEPT. The general law:
+
+        A SCRATCH OR TEST FILE HAS AT MOST ONE stop() -- THE LIVE BOUNDARY.
+        Content below it is explicitly parked WIP with a decision owed at
+        completion. Multiple stops are always a smell: each one below the first
+        is dead code wearing a seatbelt.
+
+    Deleting them changes NOTHING about what runs -- this stop is still the
+    boundary -- and it removes the trap that made the old shape dangerous:
+    moving or deleting the boundary to run more did NOT run more, it handed
+    control to the next stop a few lines down, which truncated again, silently,
+    at exit 0. That is RULE H2's own worked example (incant/jiquery had three
+    stops and answered one question out of three for a month). Now, extending
+    the live section runs everything you uncover, which is what a reader
+    reasonably expects.
+
+    ⚠ PARKED-BELOW-THE-STOP IS A LEGITIMATE STATE ONLY WHILE THE WORK IS
+    GENUINELY IN PROCESS. When it completes, a decision is owed: clean it out,
+    or promote it somewhere permanent. It does not get to live down there
+    forever. Five sections are parked below; the inventory is in the commit that
+    carried this edit and the keep-or-clean call is Tony's.
 *****************************************************************************/
 stop();
 /*****************************************************************************
@@ -61,28 +75,23 @@ stop();
 generateCode(testPrint);
 dumpContents(testPrint);
 generateAction(testPrint);
-stop();
 
 generateCode(testByteCode);
 dumpContents(testByteCode);
 generateAction(testByteCode);
-stop();
 
 generateCode(testGXLeaf);
 print testGXLeaf.bcLIST:;
 
 generateCode(testIfElse);
-stop();
 
 /*****************************************************************************
 	Unit Tests
 *****************************************************************************/
 testUnitTests();
-stop();
 
 /*****************************************************************************
 	GUI utilities Tests
 *****************************************************************************/
 setFrame(sumple);
 printDefinition(sumple);
-stop();

@@ -22,6 +22,37 @@ fi
 echo "  bin   $B"
 echo "  bin   $(ls -lL "$B" | awk '{print $5" bytes  "$6" "$7" "$8}')"
 
+#  ===========================================================================
+#  THE KITCHEN LAW, 2026-08-04. Clean kitchen is not declared while anything
+#  working sits uncommitted -- "clean" means the fleet is green AND git status
+#  is quiet, in BOTH repos, Groups and support. Work-in-progress that is
+#  deliberately unfinished may ride uncommitted while it is the live task; the
+#  moment it becomes SUBSTRATE -- a pin moves on it, a baseline is captured over
+#  it, anything else builds on top -- it commits first.
+#
+#  ⚠ PRINT, DO NOT GATE, and the choice is deliberate. Gating on a clean tree
+#  would fail this POP during legitimate mid-task work, which trains people to
+#  bypass the check -- the same erosion as leaving a signed diff red. VISIBILITY
+#  IS THE ENFORCEMENT; the law supplies the judgement about when visible dirt is
+#  acceptable (live task) versus overdue (substrate). So this block can never
+#  set fail, and it prints a count with its value rather than staying silent
+#  when clean (H4) -- "trees clean" is an assertion, silence is not.
+#
+#  BOTH REPOS, because groups.ext is the standing counterexample: it is a real
+#  build dependency, it lives outside this repo, and it is tracked in the
+#  SUPPORT repo -- so `git status` here will never show it and a Groups-only
+#  check would report a clean kitchen over an uncommitted layout change.
+#  ===========================================================================
+gdirt=$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+sdirt=$(git -C "$HOME/data/support" status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+echo "  tree  Groups: $gdirt uncommitted   support: $sdirt uncommitted"
+if [ "$gdirt" != "0" ] || [ "$sdirt" != "0" ]; then
+    git status --porcelain 2>/dev/null | sed 's/^/          Groups   /'
+    git -C "$HOME/data/support" status --porcelain 2>/dev/null | sed 's/^/          support  /'
+    echo "        ^ NOT a failure. Live-task WIP is legitimate; substrate is not."
+    echo "          A wakeup reseal or session close over this either names it or is false."
+fi
+
 green=0
 parked=0
 
