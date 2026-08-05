@@ -1,160 +1,188 @@
-# ⚠⚠ UPDATED 2026-08-05 — READ THE 08-05 SECTION FIRST. It is directly below this line.
+# ⚠⚠ SEALED 2026-08-05 (end of arc) — READ THIS SECTION FIRST.
 # Everything from `# ⚠⚠ UPDATED 2026-08-03` down is older vintage and still broadly accurate;
-# it is just no longer the top of the story. CLEAN STOP, fleet green, displayForm JITS.
+# it is just no longer the top of the story. CLEAN KITCHEN. KANT-8 CLOSED BY DISPOSITION.
 
 # ═══════════════════════════════════════════════════════════════════════════
-# 2026-08-05 — displayForm JITS AT EVERY DEPTH, THE LADDER WAS FOUND LYING,
-#              AND THE KANT-8 HUNT TURNED UP A BIGGER DEFECT BESIDE IT
+# 2026-08-05 — THE INLINED SELF-CALL DIED AT ITS CAUSE, `return` GOT AN EMITTER,
+#              AND KANT-8 WAS CHARACTERISED THEN DISPOSITIONED
 # ═══════════════════════════════════════════════════════════════════════════
 
-## IF YOU READ NOTHING ELSE — four things, in the order they will bite you
+## ✅ RULED 2026-08-05 (Tony) — **KANT-8 IS CLOSED BY DISPOSITION**, verbatim
+- **jitted side correct** (F3, ledger row one)
+- **characterisation complete** (K1–K6d, deterministic)
+- **interpreter repair PARKED pending the frame model**, and **strengthened by K6**: patching
+  `saveLocalFields` would not touch the mutual-recursion gap; **only per-activation state kills
+  both diseases**
+- **carrier discipline NARROWED by measurement** — valid for **direct** self-recursion (K2),
+  **invalid for mutual** (K6c); correct KANT-22's guidance wherever written
+- **frame-model gate SATISFIED**, its opening fixture named: **K6a's shape, jitted** — does the
+  runtime bracket inherit the gap for **node-resident** state?
 
-**1. THE JIT LADDER HAD FOUR CHECKS THAT DID NOT EXIST, FOR FOUR DAYS, INSIDE A GREEN BANNER.**
-`check` and `sentinel` were CALLED at rungs JPd and JPl and never DEFINED in `ladder.sh`. Every
-run printed `ladder.sh: line 393: check: command not found` to stderr and CARRIED ON. Those four
-did not pass and did not fail — **they ceased to exist**, so JPd and JPl had no exit-status check
-and no truncation guard, and **a crashing `jitJPd` would have reported green.**
-⚠ **THE HEADLINE COUNT WAS THE CAMOUFLAGE.** *"103 ok, exit 0"* reads as an audit; it is a **tally
-of the checks that RAN**, and a check that evaporates is invisible in a count of checks. Third
-instance of **COPY THE IDIOM, LOSE THE HELPER** (jiquery's three `stop()`s, `pop.sh`'s sentinel,
-now this). **Found by accident while wiring an unrelated rung** — which is the doctrine added
-today: *doubt the instrument when the result DOESN'T surprise you either; an unsurprising green is
-the one nobody audits.* Ladder now asserts its own completeness at the foot. **103 → 118 ok.**
+⚠ **STALE-CLAIM CORRECTION, riding this seal.** The 08-05 morning line *"an argument is a working
+carrier across a recursive call TODAY"* **narrows to DIRECT self-recursion.** K6c measured the
+opposite for mutual recursion: with no bracket running at all, the outer activation simply keeps
+the **inner's** binding. Same field, opposite outcomes, different mechanisms.
 
-**2. `sh genLadder/harnessCensus.sh` IS NEW AND IT AUDITS THE HARNESSES.** Static (a helper in an
-untaken branch never fires, so "no `command not found` in the log" is not a clean bill), and it
-**negative-controls itself every run** — leg 0 strips the real ladder's helpers and FAILS if the
-census does not flag it. Result: **no fourth member; 6 harnesses and 98 fixtures clean.**
-⚠ **Its own first draft reported a FALSE GREEN** — `zsh` does not word-split unquoted parameters,
-so `for f in $H` got the whole list as one filename and every harness "passed". Use `${=VAR}` in
-zsh, or iterate with `while IFS= read -r`.
+## THE TWO THINGS THAT WERE "READ THIS FIRST" THIS MORNING ARE BOTH FIXED
+The morning section listed the inlined-self-call defect and the missing `return` emitter as the
+hazards to know. **Both landed today.** What follows replaces them; do not go looking for the old
+warnings.
 
-**3. AN INLINED CALLEE'S SELF-CALL RE-ENTERS THE WHOLE ENCLOSING FUNCTION.** Emit-on-walk inlines
-an ordinary callee into the caller's builder, so a self-call inside that inlined body has no
-separate function to target: `jitEmitSelfCall` emits `CreateCall(gJitCurrentFn)` and that is the
-**DRIVER's** function. Confirmed on the IR (`%selfcall = call i32 @jitFn0()`, `@jitFn0` being the
-driver's and the only function in the module, its entry block opening with the driver's own store).
-**So the driver's preamble replays on every recursion.** One statement decides it: a guard reset
-INSIDE the driver → replays forever → **139**; the same reset OUTSIDE → exit 0.
-⚠⚠ **THEREFORE `displayForm` IS CORRECT BY ACCIDENT OF TOPOLOGY — `dfDrive`'s body is exactly ONE
-statement, so re-entering the function equals re-entering the callee. RUNG JC IS GREEN FOR A REASON
-TRUE OF ITS DRIVER, NOT OF THE MECHANISM.** Same class as `continue` appearing to work because both
-arms fell to the back edge. **It bites the moment a driver has a preamble — the normal case, and
-precisely genParse's emitted shape.** `incant/inlineSelfT`. **Pre-existing, verified by reverting
-to `b7a01c1` and REBUILDING — not from the frame bracket that landed the same day.**
+## ✅ ITEM 1 — THE SELF-CALL TARGETS THE CALLEE'S OWN FUNCTION (option **(b)**, Tony's ruling)
+`jitEmitSelfCall` said `CreateCall(gJitCurrentFn)` unconditionally. That was the defect: emit-on-walk
+**inlines** an ordinary callee into the caller's builder, so a self-call inside that inlined body had
+no separate function to name and got the **enclosing** one — re-entering the driver's entry block and
+**replaying its whole preamble on every recursion**.
 
-**4. `return` UNDER JIT HAS NO EMITTER.** It calls `jitDegrade`. Every green rung asserts a
-**FIELD's** value after the action, never a **returned** one, and this is why. Consequence:
-**KANT-8's jitted parity is not merely unanswered, it is NOT YET ASKABLE.**
+⚠ **THE PREDICATE COULD NOT FIRE EARLY ENOUGH, AND THAT IS THE WHOLE SHAPE OF THE FIX.** The correct
+test — *an inlined callee is calling itself* — is only answerable **at the inner self-call**, by which
+time the enclosing function is half-built. So the earlier moment is **manufactured**: walk, discover,
+**erase the partial**, build what was discovered, walk again. The second walk's outer call sites find
+the callee **in the map** and emit a real call. **The map IS the predicate**; the inline-stack test
+populates it at discovery, so **A→B→A composes through it**.
 
-## ✅ displayForm JITS — THE CONVERGENCE FIXTURE CONVERGED
-Byte-identical to the oracle at every depth, degrade 0, `jitCompile` 1, exit 0. **The shape
-genParse writes is now a shape the JIT provably speaks.**
+| step | what |
+|---|---|
+| **S1** | `jitBuildFunction` extracted — shell, entry, result slot, prologue, walk, epilogue, ret, verify, mem2reg. **Byte-identical everywhere.** A lift, not a migration; `JitContext` annotated and NOT adopted |
+| **S2** | names derive from **action identity** — `jit_sfDrive`, `jit_sf` — not a per-process counter, because the persistence arc looks a stashed function up **by name**. Collision-free-per-compile is now **checked** (`-9`), not guaranteed |
+| **S3** | build-on-discovery with restart. R1 flush is **one mechanism, two call sites**; R2's bound is **checked before the work** (`-7` loud, never a spin) |
+| **S4** | **entry by name**, not by position — with one function those were the same string and nothing could tell a right answer from a lucky one |
+| **S5** | rung **JS**, 11 checks, the 139 shape made runnable |
 
-**THE FIX WAS THE FRAME BRACKET, and it is the SAME SEAM `jitBindArgRT` closed one increment
-earlier:** `runAction`'s jitting gate returns at `:670`, **ABOVE** its own
-`if field.recursive saveLocalFields(field)` (`:677`) and the matching restore (`:689`), so an
-emitted self-call ran with **no frame bracket at all**. `jitSaveFrameRT`/`jitRestoreFrameRT` lift
-those two lines **verbatim, gate included**, and `jitEmitSelfCall` brackets in `runAction`'s own
-order — **bind, save, call, restore**. Fifth shared-implementation lift; the shape is 5-for-5.
+**Measured on the IR** — `jit_displayForm` calls **itself**, the driver calls **it**, and the discarded
+partial is **erased**. ⚠ **H7 negative control: the pre-S3 binary exits 139 after 173,400 lines of the
+driver's preamble replaying.**
 
-⚠ **THE HANDOFF DIAGNOSIS WAS WRONG AND THE PRINTOUT HAD ALREADY SAID SO.** It was carried as
-*"the argument resolves against the OUTER node — KANT-8's family"*. `jitBindArgRT` had already
-fixed the argument. The inner activation printed **`dfBare`** — dfRoot's MEMBER, exactly where the
-OUTER members iterator stood — and a stale argument would have re-printed alpha/beta. **The defect
-was the ITERATOR CURSOR: a node-resident local shared across activations**, the case
-`saveLocalFields`' own comment already named (*"no local carrying a list could survive recursion.
-Iterators were just the first to notice"*). **Structural claims held; a causal one died again.**
+⚠ **RULE H5 REACHED THE JIT LADDER.** It had **never** had a wall-clock cap; `genLadder/pop.sh` has
+had one since 08-02. It did not matter until a rung whose regression mode is **infinite recursion**.
+`runcap` (JITCAP, default 90s) reports a timeout **by name, never as a diff**.
 
-**WHY SCALARS NEVER SHOWED IT, and this is the useful half:** jitted scalar locals are **allocas**
-in the compiled function, so they are per-activation **for free** — which is why J-R and JRL were
-green with no frame machinery. **Node-resident state was the other class and had no mechanism.**
+## ✅ ITEM 2 — `return` IS EMITTED. **RETURNED VALUES ARE NOW ASSERTABLE.**
+Every green rung before today asserted a **field** after the action, never a **returned** one, for one
+reason: `return` called `jitDegrade`. **Rung JRt is that question finally being put.** Ladder **129 → 150**.
 
-## ✅ RULED 2026-08-05 (Tony) — THE BRACKET STANDS, AND §0 IS NOT CONTRADICTED
-**§0 sentences the interpreter AS ENGINE, not every C++ function it used.** The op primitives, the
-print chain and the GC hooks all survive crossover *because emitted code calls them* — the
-shared-implementation bargain. **`saveLocalFields` joins that category**: the interpreter's frame
-bracket becomes the **runtime's** frame bracket with two callers. **The dependency is not a
-contradiction of §0 — it is how §0's survivors get chosen.**
-**THE NATIVE-FRAME QUESTION IS PARKED WITH ITS GATE NAMED:** revisit jointly with
-`docs/jitDesign.md` "Slots, prologue, epilogue" **after the KANT-8 hunt reports**, because
-redesigning frame mechanics before the characterisation is designing against an undiagnosed
-disease. The bracket's **two named call sites** are where a new model plugs in.
-⚠ It **inherits** whatever those functions do, KANT-8 included — **doctrine, not flaw:
-bug-for-bug parity is the requirement.** displayForm prints and discards, so it is fully green
-with KANT-8 still open.
+| | shape | fire 1 / 2 | oracle |
+|---|---|---|---|
+| **F1** | returned scalar, non-recursive | 21 / 27 | 21 ✅ |
+| **F2** | **factorial(5)=120 through real recursion** | 120 / 720 | 120 ✅ |
+| **F3** | KANT-8's shape, jitted | **42 / 45** | the **tag** `k8loc` — ⚠ **INTENDED DIVERGENCE, asserted by name** |
+| **F4** | mid-block return + tail | 111 / 222 | tail 0 / 999 |
+
+**The edges, as reported:**
+- **E1 — real, and already solved in the tree.** `jitEmitContinue`'s unreachable-continuation idiom,
+  lifted verbatim. It matters **more** for return, because `aCTionBlocK`'s `if jitting continue;`
+  keeps the emit walk going past the branch.
+- **E2 — real, cheap, deferred with sanction.** `gJitInlining` non-empty ⟺ inside an inlined callee.
+  Refused, degraded **by name**, pinned.
+- **E3 — NOT real. Correct by construction.** A bare `return;` yields the prior statement's value, and
+  the slot **already holds** exactly that. **No bareness test exists anywhere in the emitter.**
+- **E4 — held.** Degrade 0 on all four fixtures.
+- ⚠ **A FIFTH EDGE, FOUND ON CONTACT:** a bare field read as the **returned expression** emitted
+  nothing — `return ftAcc;` returned **0**, silently, at degrade 0. `jitEmitters` already states the
+  rule (*"every position that consumes a value invokes the primitive when its operand is bare"*);
+  return was absent from that list **only because it did not exist when the list was written.**
+
+⚠ **THE EPILOGUE BECAME A BLOCK.** It used to be a run of stores emitted into whatever block the walk
+ended in — correct for exactly one shape, falling off the end. Now **every exit branches there** and
+the frame writeback and the ret exist **once**.
+
+⚠ **ONE ORDERING BUG WORTH THE LINE:** the epilogue block was created beside the entry block, where it
+*reads* like it belongs, and was silently nulled two lines later by `jitFlushTransient`. **A
+per-function global must be set AFTER the thing that clears per-function globals.**
+
+## ⚠ BEAR-TRAP #25 — TWO ORACLE TRAPS, BOTH PAID FOR TODAY
+1. **`testing()` routes by `isCoded`, and an interpreted run consumes it.** An oracle placed **above**
+   the jitted half silently measures `jitRunIfTest` instead, at exit 0. **Fixture order is
+   load-bearing: jitted FIRST, oracle LAST.** Tell: `=== jitRunIfTest on <action> ===`.
+2. ⚠ **AND ITS SHARPER SIBLING: A POST-JIT INTERPRETED CALL IS NOT A CLEAN ORACLE FOR A *RETURNED*
+   VALUE.** The identical call gives **120 standalone and 5 below the jitted fires**. It hid this long
+   because reading a **field** in the same position is correct — only **returned** values diverge, and
+   those were not assertable until today. **The fix is a separate PROCESS, not a separate statement**
+   (`jitJRt2o`, `jitJRt3o`).
 
 ## THE KANT-8 CHARACTERISATION — `incant/kant8T`, interpreted, exit 0
-| row | | returned |
+| row | shape | returned |
 |---|---|---|
-| **K3** | NON-recursive, returns a local | **42** — the control, and what makes the rest mean anything |
-| **K1** | recursive, returns a local | **`k1loc`** — KANT-8 reproduced |
-| **K4** | recursive, **branch never taken** | **`k4loc`** — ⚠ NEW |
-| **K2** | recursive, returns its **ARGUMENT** | **7** — ⚠ NEW |
+| **K3** | NON-recursive, returns a local | **42** — the control |
+| **K1** | recursive, returns a local | **`k1loc`** |
+| **K4** | recursive, branch **never taken** | **`k4loc`** |
+| **K2** | recursive, returns its **ARGUMENT** | **7** |
+| **K5** ×2 | K1's shape, **first and second** invocation | **`k5loc` both — no history dependence** |
+| **K6a** | A→B→A, **iterator cursor carried across** | **2** (3 = protected) |
+| **K6b** | control, local written **after** the B call | **3** — clean |
+| **K6c** | A→B→A, **argument** read after the B call | **`k6small`** (its own is `k6big`) |
+| **K6d** | re-iterate one cursor, **no recursion** | **3** — the iterator is innocent |
 
-K1 returns the bare **TAG**, not a zero — a field with no data returns its tag from `.text`, so the
-local is genuinely **emptied**.
+**K5's answer is NO, and the why is STRUCTURAL rather than inferred** — which matters, because a
+causal claim in this domain is a coin flip until it is run and this one can be **read**.
+`saveLocalFields` pushes one body per matching field (`GroupActions.rtn:859-879`);
+`restoreLocalFields` pops exactly as many (`:589-593`). So the stack is empty at a restore **iff the
+save pushed nothing** — i.e. the action has no matching fields, in which case the bracket had nothing
+to blank anyway. **`:587`'s clear is reachable ONLY where clearing it changes nothing.**
 
-⚠ **K2 ANSWERS THE CORPUS'S OWN NAMED OPEN PROBE** (open since 2026-07-29): **the argument
-DODGES it.** Structurally readable — `saveLocalFields` skips blanking an argument, and `runAction`
-**binds at `:672-674` BEFORE saving at `:677`**, so it is saved as-bound and restored as-bound.
-**KANT-22's CARRIER DISCIPLINE IS THEREFORE MEASURED RATHER THAN PROPOSED: an argument is a working
-carrier across a recursive call TODAY, with no runtime change.**
+⚠ **THIS NARROWS A WARNING ISSUED EARLIER THE SAME DAY.** The S3 probe reported *"recursive is cleared
+at run time, so compile results could depend on invocation history"*, and that was one of two reasons
+option (c) was rejected. **The clause is TRUE but INERT** for any action carrying a local or an
+argument. **The ruling is unaffected** — (c)'s other reason was that `recursive` misses A→B→A
+entirely, and **K6a/K6c now MEASURE that gap rather than predicting it.**
 
-⚠ **K4 SHARPENS THE SCOPE.** `recursive` is a **static** flag set at parse time by identity, so the
-bracket runs on **every** call — K4 never took its recursive branch and was emptied identically.
-The corpus's *"bites any recursive action that returns a local"* understates it: **it bites any
-action that MENTIONS ITS OWN NAME, on every invocation, recursion or not.**
+⚠ **K6c IS THE SHARPEST CONSEQUENCE: the argument is trampled in mutual recursion — the exact opposite
+of K2.** In direct recursion `runAction` binds **before** `saveLocalFields` runs, so the argument is
+saved as-bound and restored as-bound. In mutual recursion **there is no bracket at all**, so the outer
+keeps the inner's binding.
+
+⚠⚠ **AND A WITNESS NEARLY INVERTED A DIAGNOSIS. PRINTING A GROUP NODE PRINTS ITS ATTRIBUTE COUNT.**
+K6c's first form did `return argument;` and printed **3** — `k6big`'s attribute count, a legal-looking
+number **in the same range as the answer**, so it did not announce itself as the wrong quantity. Read
+as *"the argument is intact"*, it pointed the blame at the iterator. `argument.taG` says `k6small`.
+**K6d survives as the elimination that mistake forced**, and a control that eliminates is worth keeping
+even when the hypothesis it was built for dies.
+
+## ⚠ THE PRINT-LENGTH DEFECT — found, measured, and NOT this arc's
+A jitted `print` of a **bare string literal** emits the string's **LENGTH**: `"AB"`→2,
+`"PREAMBLEPREAMBLE"`→16, **degrade count 0 throughout, so it is silent.** The **pre-S1 binary produces
+the identical 2/16**, so it is pre-existing and independent — no self-call, no recursion, no inlining.
+It is the 08-05 "recorded, not chased" print oddity **with a sharper signature than the one recorded**:
+silence was the earlier symptom, *a number wearing the shape of data* is the current one. Pinned in
+`incant/jitSelfFn`'s header. **Wanted before KR's print-dependent rungs, not before anything else.**
+
+## ERRATUM AGAINST THIS FILE'S 08-03 SECTION
+**The `oneTest` six-`stop()` finding is RESOLVED** (Tony, this session): **one `stop()`, the full body
+runs.** The 08-03 line *"oneTest runs one section of six"* no longer describes the tree.
 
 ## WHAT IS RUNNABLE
 ```
-sh jitLadder/ladder.sh        118 checks, exit 0   J1..J7 JE JF JP JPd JU JA JI JPv JV JC + J-R
-sh genLadder/harnessCensus.sh   NEW, exit 0        the harnesses audit each other
+sh jitLadder/ladder.sh        150 checks, exit 0   J1..J7 JE JF JP JPd JU JA JI JPv JV JC JS JRt + J-R
 sh genLadder/pop.sh            33 green / 1 parked  (the SAME 3 owned reds, byte-identical)
 sh genLadder/printPop.sh        9 checks, exit 0
 sh genLadder/containerPop.sh   11 checks, exit 0
 sh genLadder/tree.sh                    exit 0
-<binary> incant/jitDfProbe     exit 0, jitted == oracle at every depth
-<binary> incant/kant8T         exit 0, the four K rows
-<binary> incant/inlineSelfT    exit 0 (its CRASHING half is a by-hand recipe, NOT run — H5)
+sh genLadder/harnessCensus.sh           exit 0      6 harnesses, 105 fixtures, all clean
+<binary> incant/oneTest        exit 0, 11 then 26 x4
+<binary> incant/jsonTest       exit 0
+<binary> incant/kant8T         exit 0, the ten K rows
 ```
-**Two new rungs.** **JC** — convergence: byte-diffs the jitted walk against the interpreted walk
-**from the same run**, so it is H3 by construction (no `.target`; it moves only when the ENGINES
-disagree and cannot be regenerated green). Vacuity-guarded, **depth asserted BY NAME (`zeta`)
-because identical-but-shallow passes a diff — a walk that stops early agrees with itself**, and
-H7 negative-controlled on real captures (bracket absent → 6 lines with `dfBare` inside dfMid,
-degrade 0 in BOTH runs; the wrong answer was SILENT). **JV** — value parity on an empty loop or
-branch: the `falseResult` convention IS carried by the emitters (0/0/4). ⚠ **Row C wants 4 because
-two zeros cannot distinguish *convention carried* from *nothing written*.**
 
-## ⚠ THE DOCTRINE FORK THAT COST A REBUILD IN EACH DIRECTION — now cross-annotated
-Bear-trap #23 says **name the directives file**; the 08-02 ruling says these `.mm` are retok'd
-**without** directives. **Both true, different questions.** `groupDirectives` carries ~10 `active`
-hooks, so naming it injects live `cerr` trace into ordinary runs — which flooded a JIT measurement
-today and forced a rebuild. **THE DEFAULT IS BARE**: `tok GroupRules.twk` for anything a POP,
-baseline or commit will read; name the file **only** for ephemeral instrumentation, and then
-neither measure a POP on that binary nor commit its `.mm`. Discriminator table in `CLAUDE.md` #23.
-**A trap explaining how to turn something ON is not a ruling that it should be on.**
+## DOCS LANDED TODAY
+- `docs/method.md`, `docs/workOnAleash.md`, `docs/grammarMinion.md` — Tony's, written offline
+  this session.
+- `docs/jitDesign.md` gains **"IR PERSISTENCE — THE PREMISE"** (Tony's outline ruling): three-state
+  dispatch with **no stored flag**, **DEFINING IS INVALIDATING** at the `aCTionDefinE` chokepoint,
+  **no fingerprint by design**, fidelity form, and option (b) named as the arc's floor. Its
+  name-stability clause is the one part already in scope, and **S2 landed it**.
 
-## THE EARLY-RETURN CENSUS — closed, and the discriminator is the keeper
-16 `if jitting` gates. `aCTionDO`/`aCTionIF`/`aCTionWhilE` return above **pure computation** the
-emitter replaces; `aCTionIterate` deliberately does not return and says so. **`runAction` was the
-ONLY gate skipping SHARED-TREE-STATE bookkeeping**, and both halves are now lifted. **The family is
-CLOSED, and the discriminator worth keeping is STATE MUTATION vs COMPUTATION, not early-return.**
+## QUEUE
+**Main line CLEAR.** Next fire: **the grammarMinion opening probe — P-G1 and P-G2**
+(`docs/grammarMinion.md`), on Tony's word. Read-and-report, no builds, no installs. **P-G2's answer is
+the campaign's founding number**: the true rule population against the census's 30.
 
-## OPEN, and whose — THREE FOR TONY, all named today
-1. **The inlined-self-call defect** (item 3 above) — **fix before the genParse conversions?** It
-   will bite them directly, and rung JC's green currently rests on a one-statement driver.
-2. **Does `return` get an emitter?** It is what unblocks KANT-8's jitted parity.
-3. **KANT-8's own repair** — still hot-path, still Tony's. ⚠ **But K2 means the CARRIER DISCIPLINE
-   is available as a workaround TODAY without touching the interpreter.**
+**Still open and whose:** consequence 3 of ipc SEQ 38 (a standing never-assertion that `locate` never
+appears in emitted IR — consequences 1 and 2 are discharged) · the print-length defect · `pop.sh`'s
+three owned reds (`census.target`, `iterT1m` pinned, `oneTest baseline`) · E2, a return inside an
+inlined body.
 
-**Not chased, recorded so it is not lost:** a `print` in a driver ABOVE an inlined call produced no
-output in the jitted half while the oracle printed it once.
-
-**Housekeeping:** the only dirty file is `IncantForms/WorkingOn/incant++` — **Tony's own working
-document, declared safe to ignore; it changes randomly and does NOT need reporting at kitchen
-checks.**
+**Housekeeping:** `IncantForms/WorkingOn/incant++` is **Tony's own working document, safe to ignore;
+it changes randomly and does NOT need reporting at kitchen checks.**
 
 # ═══════════════════════════════════════════════════════════════════════════
 

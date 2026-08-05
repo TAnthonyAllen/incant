@@ -328,6 +328,25 @@ and restored *as bound*. **CONSEQUENCE: `CLAIM KANT-22`'s CARRIER DISCIPLINE —
 survive a recursive call lives on a carrier node* — is now MEASURED rather than proposed. An
 argument IS such a carrier, today, with no runtime change and no interpreter edit.**
 
+> ⚠⚠ **NARROWED BY MEASUREMENT, 2026-08-05 — THE CARRIER IS VALID FOR *DIRECT* SELF-RECURSION
+> ONLY, AND FAILS FOR MUTUAL.** `kant8T` row **K6c**: in an A→B→A shape the outer activation's
+> `argument` reads back as the **inner's** binding (`k6small` where its own was `k6big`).
+>
+> **And the two rows are opposites for different mechanisms, which is the part to keep.** K2 works
+> *because the bracket runs and is generous*: `runAction` binds at `:708-711` **before**
+> `saveLocalFields` at `:713`, so the argument is saved as-bound and restored as-bound. K6c fails
+> *because the bracket never runs at all*: `recursive` is set only on **direct self-mention**
+> (`ruleActions.rtn:1310`), so in A→B→A neither A nor B trips it — no save, no restore, no
+> protection. The carrier is not "safe" in general; **it is safe exactly where something is
+> restoring it.**
+>
+> **Practical consequence for anyone applying this discipline:** an accumulator parked on an
+> argument survives `A → A`, and is **silently trampled** by `A → B → A`. Since genParse's grammar
+> rules reference each other constantly, mutual recursion is the **normal** case on that road —
+> so the carrier discipline is not a general workaround there, and the real fix stays the frame
+> model (per-activation state kills both diseases; patching `saveLocalFields` kills neither the
+> mutual gap nor this one).
+
 **2. THE SCOPE IS WIDER THAN "RECURSIVE ACTIONS".** `field.recursive` is a **STATIC** flag set at
 parse time by identity (`ruleActions.rtn:1310`), so the save/restore bracket runs on **every**
 call. K4 **never took its recursive branch** and came back emptied identically. So the claim bites
