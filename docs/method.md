@@ -35,9 +35,9 @@ Full protocol in `docs/walkieTalkie.md`; read it before writing anything into `i
 ## 4. Measurement doctrine
 
 - **Bones over shape-reading:** if you haven't run it, it's not DONE. Reading code and predicting its behavior is design work; only execution certifies.
-- **POP** — proof of practice: a small executable test that demonstrates the thing, captured as a baseline *before* changing anything and diffed after. Committing rides on POPs.
+- **POP** — proof of pudding: a small executable test that demonstrates the thing, captured as a baseline *before* changing anything and diffed after. Committing rides on POPs.
 - **Baselines are byte-diffed**, not eyeballed. The current fleet at any moment is enumerated in `wakeup.md` under WHAT IS RUNNABLE.
-- **Measure before building** (WT rule, general doctrine): if a proposed mechanism only saves typing, it isn't worth a build.
+- **Measure before building** (WT rule, general doctrine): if a proposed mechanism only saves typing, it isn't worth a build. umm, saving typing via good grammar is an underlying motive for kant.
 - **Prior art beats speculation:** before designing, grep for the worn path that already solves it.
 
 ## 5. The instrument doctrine — tests that prove they can fail
@@ -72,7 +72,7 @@ Every rule above traces to a named incident with provenance — the four evapora
 
 ## 9. Vocabulary
 
-POP (proof of practice) · BYU (Bob Yo Uncle — done) · WSS (we shall see) · HWF (hands waving furiously — the unproductive design spiral, to be exited) · HPDL (highly desirable, park for later) · kitchen check (tree/status sweep) · vintage (a dated wakeup section) · fleet (the full set of runnable checks) · bones (execution evidence, vs shape — reading) · ledger (the enumerated intended-divergence table) · gate (a named precondition that must fire before a parked item unparks).
+POP (proof of pudding) · BYU (Bob Yo Uncle — done) · WSS (we shall see) · HWF (hands waving furiously — the unproductive design spiral, to be exited) · HPDL (hard part do later) · kitchen check (tree/status sweep) · vintage (a dated wakeup section) · fleet (the full set of runnable checks) · bones (execution evidence, vs shape — reading) · ledger (the enumerated intended-divergence table) · gate (a named precondition that must fire before a parked item unparks).
 
 ## 10. What is actually unusual here
 

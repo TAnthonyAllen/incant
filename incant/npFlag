@@ -1,0 +1,32 @@
+/*  R-1 CLOSING MEASUREMENT -- is `noPrint` on a rule a FLAG SET ON THE RULE
+    ITSELF? Read-only.
+    ⚠ POSITIVE CONTROL FIRST. A first draft asked only Limit/Modifier/BlocK/GrouP
+    and got "clear" four times -- which is indistinguishable from an accessor
+    that never reports SET. `npLit noPrint;` is a locally defined field that
+    carries noPrint in this very file: if IT reads clear, the instrument is inert
+    and nothing below it means anything.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(NpFlag);
+define
+    npLit noPrint;
+    npPlain;
+    npShow argument code={
+        if noPrinT;  print "  noPrinT SET   on" ~taG:;
+        else         print "  noPrinT clear on" ~taG:;
+        return 0;
+        };
+    ;
+print "== CONTROLS ==":;
+npShow(npLit);
+npShow(npPlain);
+print "== THE TWO ASTERISKED RULES ==":;
+npShow(Limit);
+npShow(Modifier);
+print "== TWO RULES WITH NO noPrint IN SOURCE ==":;
+npShow(BlocK);
+npShow(GrouP);
+print "NPFLAG SENTINEL":;
+stop();

@@ -61,14 +61,24 @@ GAP #2  rule-level data isANY / isCOUNT / isCHAR (§4.1, rung 5)               [
 GAP #5  upTo/upToOver (not on the ladder yet)                                 [1]
         SetBrackets
 --------------------------------------------------------------------------------
-⚠ ASTERISKED ROWS — INCOMPLETE BY CONSTRUCTION (R-1, measured 2026-08-05)
+ASTERISKED ROWS — IDENTIFIED AND CLOSED (Tony, 2026-08-05; was "incomplete by construction")
   Limit    (incant/grammar:52)   carries `noPrint` in SOURCE
   Modifier (incant/grammar:54)   carries `noPrint` in SOURCE
-  A noPrint attribute with an immediate action is RUN AT DEFINE AND NEVER
-  ATTACHED, so it exists in source and not in the tree — and this walk reads the
-  tree. Measured: Limit's four attributes are `[ min max ]`, all plain; Modifier
-  has zero attributes. Their classification cannot account for whatever the
-  noPrint did.
+  RULED: canonical define-time firing, the isRulE family. incant/setup:7-11 states
+  the mechanism in the vocabulary's own words — "noPrint attributes are fire and
+  forget. They change the group being defined but are not added as a group
+  attribute once forgotten. For example, the isRule command/attribute makes the
+  group it appears in a rule, then it disappears." So these two rows are not
+  mysteries and not gaps: they are the ordinary define-time flag-setting idiom,
+  the same one isRule/virtual/assign/condition/defer all use.
+  ⚠ ONE OBSERVATION CARRIED, NOT CHASED (rider: source-read, no chase): the
+  firing leaves no observable trace on the rule — Limit's four attributes are
+  `[ min max ]`, all plain; Modifier has none; and the rule's own noPrinT flag
+  reads CLEAR on both, while the identical syntax on a plain field (`npLit
+  noPrint;`) sets it. The instrument is proven rather than assumed — incant/npFlag
+  carries a positive control beside a negative, because a first draft asked only
+  the four rules, got "clear" four times, and could not tell that from an accessor
+  that never reports SET. Where the firing lands is not established here.
   The other class is EMPTY: across all 78 rules, zero ATTACHED noPrint
   attributes — no fidelity-prerequisite customers among the rules.
 --------------------------------------------------------------------------------
