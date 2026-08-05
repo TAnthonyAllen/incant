@@ -3397,6 +3397,259 @@ GroupItem 	*ruleArg = 0;
 	return arg;
 }
 
+/* jitBuildFunction  ONE FUNCTION, START TO FINISH. (S1 extraction, 2026-08-05,
+   Tony's ruling "own function, sequential build".)
+
+   THE SPLIT, and it is exactly the brief's list: this routine owns the function
+   shell, the entry block, the result-slot alloca, the frame prologue, the body
+   walk, the frame epilogue, the ret, the verifier and mem2reg. jitRunAction owns
+   everything MODULE-scoped either side of it -- the engine, the LLVMContext, the
+   Module, the IR text capture, the compile count, addIRModule, lookup and the
+   call.
+
+   ⚠ THIS IS A LIFT, NOT A MIGRATION, AND THE DISTINCTION IS THE BRIEF'S. The
+   sixteen file-scope globals stay exactly where they are; JitContext is NOT
+   adopted (see its note in jitContext.h). Sequential build never re-enters this
+   routine, so nothing here needs save/restore -- and if a later change makes it
+   re-enter, THAT is the moment the context object is owed, not before.
+
+   WHY IT TAKES A GroupItem AND RETURNS AN int: a tok-extern signature carrying an
+   llvm type poisons the generated header. So the two things it cannot name --
+   the context and the module -- arrive through gJitCtx/gJitModule, and the two
+   things it produces leave through gJitBuiltFn/gJitBuiltName.
+
+   Returns 0 on success, and the SAME negative codes jitRunAction has always
+   returned for the failures that now live in here -- -2 (nothing emitted, the
+   gate never fired) and -5 (the verifier refused the IR) -- kept identical so no
+   caller and no rung has to learn a new number. -6 is new and means it was called
+   with no context/module set up, which only a mis-sequenced caller can produce. */
+extern "C" int jitBuildFunction(GroupItem *action)
+{
+	
+	if (!gJitCtx || !gJitModule) {
+	printf("=== jitBuildFunction: no context/module -- jitRunAction owns those ===\n");
+	fflush(stdout); return -6; }
+	llvm::LLVMContext &C = *gJitCtx;
+	//  THE BUILDER IS THIS ROUTINE'S OWN LOCAL, and gJitBuilder points at it for
+	//  the duration. That is the same lifetime the stack-local in jitRunAction
+	//  used to have -- one function's build -- which is why the extraction does
+	//  not change when it dies. jitRunAction still nulls gJitBuilder on the way
+	//  out so it never dangles at a destroyed frame.
+	llvm::IRBuilder<> B(C);
+	
+	llvm::Type *i32 = llvm::Type::getInt32Ty(C);
+	//  Unique name per FUNCTION MINTED, not per compile: the LLJIT engine is
+	//  long-lived, so reusing a name collides on the next addIRModule (duplicate
+	//  symbol in the JITDylib) -- and S3 mints more than one function per compile,
+	//  which would collide inside a single module as well. The counter lives here
+	//  rather than in jitRunAction for exactly that reason (S2).
+	static int jitFnSeq = 0;
+	char fnName[32];
+	snprintf(fnName, sizeof(fnName), "jitFn%d", jitFnSeq++);
+	llvm::Function *fn = llvm::Function::Create(
+	llvm::FunctionType::get(i32, false),
+	llvm::Function::ExternalLinkage, fnName, gJitModule);
+	B.SetInsertPoint(llvm::BasicBlock::Create(C, "entry", fn));
+	
+	gJitBuilder = &B;
+	gJitCurrentAction = action;      // so a self-call emits a CALL, not an inline
+	gJitCurrentFn     = fn;
+	//  WHAT THIS BUILD PRODUCED, carried by name as well as by pointer. S4 looks
+	//  the driver up BY NAME; "the last function created" is correct only while
+	//  there is one, which is the accident this whole arc exists to remove.
+	gJitBuiltFn       = fn;
+	gJitBuiltName     = fnName;
+	gJitResult  = nullptr;
+	// THE RESULT SLOT. Initialised to 0 so an action that emits nothing still
+	// returns a defined value rather than whatever was last in flight.
+	gJitEmitted = false;
+	gJitResultSlot = B.CreateAlloca(i32, nullptr, "result");
+	B.CreateStore(llvm::ConstantInt::get(i32, 0), gJitResultSlot);
+	
+	GroupRules *ruler = GroupControl::groupController->groupRules;
+	// Unified JIT emit-on-walk (pivot, 2026-06-30): jitting ONLY — generating stays
+	// OFF so aCTionExpressioN's dispatcher routes to interpretXP (runOP trees), NOT
+	// generateXP (flat revisedLists). Parsing builds the runOP trees; EXECUTING the
+	// BlocK runs them, and each opMethod's jitting gate emits LLVM in place (the
+	// runOP seeding gate seeds leaves first). The interpret walk owns its traversal
+	// and never re-parents live nodes — the structural cure for the by-reference
+	// operand-stack corruption the deferred jitXpress path hit.
+	ruler->jitting = 1;
+	ruler->generating = 0;
+	for (GroupItem *seeded : gJitSeeded) seeded->jitData = nullptr;
+	gJitSeeded.clear();
+	gJitFrame.clear();
+	if (isCoded(action->groupBody->flags.actionType))
+	::processCode(action);
+	
+	// ⚠ THE PROLOGUE RUNS *AFTER* processCode AND THAT PLACEMENT IS LOAD-BEARING.
+	// It was written above the parse first, and the frame came out EMPTY: a local
+	// is BORN BY BEING PARSED -- aCTionNamE's processingCode branch is what stamps
+	// isLocal and adds the field to the action -- so before processCode the
+	// action's field list does not yet contain them. The rung caught it (correct
+	// values, zero allocas), which is precisely the job a structure assertion has
+	// that a value net does not.
+	// ================= FRAME PROLOGUE (Increment 1, 2026-08-01) =================
+	// THE SCHEMA IS INHERITED, NOT INVENTED. `(isArgument || isLocal) && !noPrint`
+	// is verbatim the predicate saveLocalFields walks forward and
+	// restoreLocalFields walks backward (GroupActions.rtn). Taking the
+	// interpreter's own enumeration is model-not-oracle: the two cannot drift,
+	// and the alternative -- a parallel test that means the same thing today --
+	// is how they would.
+	//
+	// WHAT THIS REPLACES: recurseSTAK's manual heap push/pop of whole GroupBodys.
+	// Same schema, same discipline, different storage -- which is why the death
+	// warrant on saveLocalFields could be written without redesigning semantics.
+	// ⚠ INHERIT THE SCHEMA, NOT THE BUG: saveLocalFields also copied the groupList
+	// POINTER and then cleared the shared object in place, so no local carrying a
+	// list survived recursion (CLAIM KANT-8's neighbour). Nothing here copies a
+	// body at all, so that whole failure mode is unconstructable rather than
+	// avoided.
+	//
+	// THE PROLOGUE IS THE SEED. runOP's gate only seeds a node with no jitData
+	// (bear-trap #9 -- never re-seed an inner op-result), so pre-seeding a local
+	// here means jitSeedField NEVER sees it and never bakes it an absolute
+	// address. That is the whole mechanism: one `if` in a gate that already
+	// existed, rather than a new branch inside jitSeedField.
+	//
+	// GLOBALS ARE UNTOUCHED and keep baked addresses with immediate store-through
+	// (Part III's phase scope). Only locals move, and a local is invisible outside
+	// the action, so deferring ITS writeback to the epilogue is not observable --
+	// which is exactly why this increment is behaviour-neutral and cannot certify
+	// itself.
+	{
+	GroupItem *fld = 0;
+	while ((fld = action->next(fld))) {
+	GroupBody *fb = fld->groupBody;
+	if (!(fb->flags.isLocal || fb->flags.isArgument)) continue;
+	if (fb->flags.noPrint) continue;
+	if (fld->jitData) continue;          // already seeded this compile
+	llvm::Type *ty;
+	void       *addr;
+	if (isNUMBER(fb->flags.data)) { ty = llvm::Type::getDoubleTy(C); addr = &(fb->gNumber); }
+	else                          { ty = llvm::Type::getInt32Ty(C);  addr = &(fb->gCount);  }
+	if (jitFrameFind(addr)) continue;    // one slot per field, not per node
+	llvm::Value *slot = B.CreateAlloca(ty, nullptr, fb->tag);
+	llvm::Value *home = B.CreateIntToPtr(
+	llvm::ConstantInt::get(llvm::Type::getInt64Ty(C), (uint64_t)addr),
+	llvm::PointerType::getUnqual(C));
+	B.CreateStore(B.CreateLoad(ty, home, "prolog"), slot);
+	JitFrameSlot fs; fs.home = addr; fs.slot = slot; fs.ty = ty;
+	gJitFrame.push_back(fs);
+	}
+	}
+	// =========================== end frame prologue ===========================
+	// Execute the parsed BlocK under jitting: runOP/op-gates emit straight-line IR;
+	// control flow lands via aCTionIF's jitting gate -> jitEmitGIF.
+	jitExecBlock(action);
+	ruler->jitting = 0;
+	
+	//  "DID ANYTHING EMIT" is now gJitEmitted, NOT a non-null gJitResult. The
+	//  result slot falsified the old test: a bracketing emitter commits its
+	//  arms and then deliberately clears gJitResult, so an action ending in
+	//  control flow legitimately has nothing in flight -- and the old guard
+	//  read that as "the gate never fired" and bailed before emitting the ret,
+	//  which silently un-jitted every if/else. Measured the moment the clear
+	//  landed.
+	if (!gJitEmitted) {
+	printf("=== jitRunAction: no result emitted (gate did not fire?) ===\n");
+	fflush(stdout); return -2; }
+	// THE CAP IS NOW A LOAD OF THE RESULT SLOT, not the last value in flight.
+	// The old form retted whatever gJitResult happened to hold after the walk,
+	// which on a two-armed if was the last ARM EMITTED regardless of which one
+	// RAN -- and in every fixture dumped it was a CONSTANT. Storing per
+	// statement and loading here is what makes the returned value path-correct.
+	jitStoreResult();
+	
+	// ================= FRAME EPILOGUE (Increment 1, 2026-08-01) =================
+	// Store each frame slot back to the field's own storage, so the interpreter
+	// and every later run see the action's effect. Walk order is the prologue's;
+	// restoreLocalFields walks BACKWARD because it pops a stack, and this does
+	// not -- each slot has its own address, so there is no ordering to honour.
+	// That asymmetry is the point: the stack discipline was the bug surface, and
+	// it is gone rather than reimplemented.
+	for (JitFrameSlot &f : gJitFrame) {
+	llvm::Value *home = B.CreateIntToPtr(
+	llvm::ConstantInt::get(llvm::Type::getInt64Ty(C), (uint64_t)f.home),
+	llvm::PointerType::getUnqual(C));
+	B.CreateStore(B.CreateLoad(f.ty, f.slot, "epilog"), home);
+	}
+	// =========================== end frame epilogue ===========================
+	
+	B.CreateRet(B.CreateLoad(i32, gJitResultSlot, "retval"));
+	
+	// ------------------------------------------------------------------
+	// THE VERIFIER. Added 2026-07-30. Until now NOTHING in the live tree
+	// called verifyFunction or verifyModule -- the only occurrences were in
+	// docs and in the archived XML/LLVM/codeGenerator. The consequence was
+	// measured, not supposed: INVALID IR COMPILED AND RETURNED GARBAGE.
+	// testIfElse on a false condition returned 83623936 and EXITED 0, with
+	// no diagnostic on any stream, because jitEmitGIF has no else arm and
+	// nothing ever asked LLVM whether the result was well-formed.
+	//
+	// Placed BEFORE mem2reg deliberately, for two reasons: it catches the
+	// EMITTER's own output rather than the optimiser's view of it, and it
+	// avoids running a transform pass over IR already known to be broken.
+	//
+	// REFUSES rather than warning. Loud refusal over quiet default, the same
+	// rule the genParse walk follows -- running a function LLVM has just
+	// called invalid is how the garbage return above happened. -5 is distinct
+	// from the existing -1..-4 so a caller can tell "IR was invalid" from
+	// "the engine failed".
+	// verifyFunction returns TRUE when the function is BROKEN.
+	//  PRE-OPTIMISATION DUMP, added 2026-07-31 and it is the more useful of the
+	//  two. INCANT_JIT_DUMP=2 shows the EMITTER'S OWN OUTPUT, before mem2reg has
+	//  promoted or folded anything. The post-mem2reg dump alone cannot answer
+	//  "did the emitter emit this, or did the optimiser produce it" -- and that
+	//  is exactly the question a result-slot or a phi raises. =1 keeps the old
+	//  post-pass behaviour; =2 gives both.
+	if (::getenv("INCANT_JIT_DUMP") && ::atoi(::getenv("INCANT_JIT_DUMP")) >= 2) {
+	llvm::errs() << "=== IR " << fnName << " (PRE-mem2reg, emitter output) ===\n";
+	gJitModule->print(llvm::errs(), nullptr);
+	llvm::errs() << "=== end PRE IR " << fnName << " ===\n";
+	llvm::errs().flush(); }
+	
+	//  THE MESSAGE STILL SAYS jitRunAction ON PURPOSE. It is the string every POP
+	//  and every ladder rung greps for, and the extraction is required to be
+	//  INVISIBLE -- renaming it would make an S1 that changed nothing look like an
+	//  S1 that changed something, which is the one outcome the step's POP cannot
+	//  tell apart from a real regression.
+	if (llvm::verifyFunction(*fn, &llvm::errs())) {
+	fprintf(stderr,
+	"=== jitRunAction: INVALID IR for %s -- REFUSING to run it ===\n",
+	fnName);
+	fflush(stderr);
+	gJitBuilder = nullptr;
+	gJitResult  = nullptr;
+	gJitResultSlot = nullptr;
+	return -5; }
+	
+	// mem2reg: promote field-slot allocas to SSA registers and let LLVM insert
+	// phi nodes at merge points. A no-op on the current alloca-free straight-line
+	// IR (the 24-POP battery proves it non-destructive) — the foundation gIF's
+	// then/else `CreateStore`-to-slot strategy relies on, so the manual jitPhi
+	// machinery never has to come back.
+	{
+	llvm::PassBuilder PB;
+	llvm::LoopAnalysisManager LAM;
+	llvm::FunctionAnalysisManager FAM;
+	llvm::CGSCCAnalysisManager CGAM;
+	llvm::ModuleAnalysisManager MAM;
+	PB.registerModuleAnalyses(MAM);
+	PB.registerCGSCCAnalyses(CGAM);
+	PB.registerFunctionAnalyses(FAM);
+	PB.registerLoopAnalyses(LAM);
+	PB.crossRegisterProxies(LAM, FAM, CGAM, MAM);
+	llvm::FunctionPassManager FPM;
+	FPM.addPass(llvm::PromotePass());
+	FPM.run(*fn, FAM);
+	}
+	//  ONE FUNCTION IS BUILT. gJitBuiltFn/gJitBuiltName carry it out; the caller
+	//  owns the module from here.
+	return 0;
+	
+}
+
 /***************************************************************************
     jitDegrade -- THE CROSSOVER PRIMITIVE, lifted 2026-07-30.
 
@@ -5079,13 +5332,16 @@ extern "C" void jitRestoreFrameRT(GroupItem *field)
 		::restoreLocalFields(field);
 }
 
-/* jitRunAction  the generic compile driver — the JIT analog of generateCode. Sets
-   up an i32() function shell + builder, raises the `jitting` gate, walks the action
-   body via processCode (which fires aCTionExpressioN's jitting branch per
-   expression, emitting IR straight into the builder), then caps with CreateRet of
-   the running result, ORC-compiles, looks up, and calls. Returns the native result.
-   Phase-1 scope: straight-line count arithmetic, no prologue unbox of real fields
-   yet (literals are folded as constants). */
+/* jitRunAction  the generic compile driver — the JIT analog of generateCode. Owns
+   the ENGINE, the LLVMContext and the Module; jitBuildFunction above owns each
+   function inside them. Builds the driver's function, captures the module IR,
+   ORC-compiles, looks the driver up BY NAME, and calls it. Returns the native
+   result.
+
+   ⚠ THE SPLIT IS S1 AND IT IS DELIBERATELY BEHAVIOUR-NEUTRAL. Nothing here does
+   anything it did not do on 2026-08-05 before the extraction, in a different
+   order or otherwise -- which is why its POP is "every baseline byte-identical"
+   and why anything that moves is a defect rather than an improvement. */
 extern "C" int jitRunAction(GroupItem *action)
 {
 	
@@ -5097,202 +5353,23 @@ extern "C" int jitRunAction(GroupItem *action)
 	
 	auto ctx = std::make_unique<llvm::LLVMContext>();
 	auto mod = std::make_unique<llvm::Module>("jitMod", *ctx);
-	llvm::IRBuilder<> B(*ctx);
+	gJitCtx    = ctx.get();
+	gJitModule = mod.get();
 	
-	llvm::Type *i32 = llvm::Type::getInt32Ty(*ctx);
-	// Unique name per run: the LLJIT engine is long-lived, so reusing "jitFn"
-	// collides on the second addIRModule (duplicate symbol in the JITDylib).
-	static int jitFnSeq = 0;
-	char fnName[32];
-	snprintf(fnName, sizeof(fnName), "jitFn%d", jitFnSeq++);
-	llvm::Function *fn = llvm::Function::Create(
-	llvm::FunctionType::get(i32, false),
-	llvm::Function::ExternalLinkage, fnName, mod.get());
-	B.SetInsertPoint(llvm::BasicBlock::Create(*ctx, "entry", fn));
-	
-	gJitBuilder = &B;
-	gJitCurrentAction = action;      // so a self-call emits a CALL, not an inline
-	gJitCurrentFn     = fn;
-	gJitResult  = nullptr;
-	// THE RESULT SLOT. Initialised to 0 so an action that emits nothing still
-	// returns a defined value rather than whatever was last in flight.
-	gJitEmitted = false;
-	gJitResultSlot = B.CreateAlloca(i32, nullptr, "result");
-	B.CreateStore(llvm::ConstantInt::get(i32, 0), gJitResultSlot);
-	
-	GroupRules *ruler = GroupControl::groupController->groupRules;
-	// Unified JIT emit-on-walk (pivot, 2026-06-30): jitting ONLY — generating stays
-	// OFF so aCTionExpressioN's dispatcher routes to interpretXP (runOP trees), NOT
-	// generateXP (flat revisedLists). Parsing builds the runOP trees; EXECUTING the
-	// BlocK runs them, and each opMethod's jitting gate emits LLVM in place (the
-	// runOP seeding gate seeds leaves first). The interpret walk owns its traversal
-	// and never re-parents live nodes — the structural cure for the by-reference
-	// operand-stack corruption the deferred jitXpress path hit.
-	ruler->jitting = 1;
-	ruler->generating = 0;
-	for (GroupItem *seeded : gJitSeeded) seeded->jitData = nullptr;
-	gJitSeeded.clear();
-	gJitFrame.clear();
-	if (isCoded(action->groupBody->flags.actionType))
-	::processCode(action);
-	
-	// ⚠ THE PROLOGUE RUNS *AFTER* processCode AND THAT PLACEMENT IS LOAD-BEARING.
-	// It was written above the parse first, and the frame came out EMPTY: a local
-	// is BORN BY BEING PARSED -- aCTionNamE's processingCode branch is what stamps
-	// isLocal and adds the field to the action -- so before processCode the
-	// action's field list does not yet contain them. The rung caught it (correct
-	// values, zero allocas), which is precisely the job a structure assertion has
-	// that a value net does not.
-	// ================= FRAME PROLOGUE (Increment 1, 2026-08-01) =================
-	// THE SCHEMA IS INHERITED, NOT INVENTED. `(isArgument || isLocal) && !noPrint`
-	// is verbatim the predicate saveLocalFields walks forward and
-	// restoreLocalFields walks backward (GroupActions.rtn). Taking the
-	// interpreter's own enumeration is model-not-oracle: the two cannot drift,
-	// and the alternative -- a parallel test that means the same thing today --
-	// is how they would.
-	//
-	// WHAT THIS REPLACES: recurseSTAK's manual heap push/pop of whole GroupBodys.
-	// Same schema, same discipline, different storage -- which is why the death
-	// warrant on saveLocalFields could be written without redesigning semantics.
-	// ⚠ INHERIT THE SCHEMA, NOT THE BUG: saveLocalFields also copied the groupList
-	// POINTER and then cleared the shared object in place, so no local carrying a
-	// list survived recursion (CLAIM KANT-8's neighbour). Nothing here copies a
-	// body at all, so that whole failure mode is unconstructable rather than
-	// avoided.
-	//
-	// THE PROLOGUE IS THE SEED. runOP's gate only seeds a node with no jitData
-	// (bear-trap #9 -- never re-seed an inner op-result), so pre-seeding a local
-	// here means jitSeedField NEVER sees it and never bakes it an absolute
-	// address. That is the whole mechanism: one `if` in a gate that already
-	// existed, rather than a new branch inside jitSeedField.
-	//
-	// GLOBALS ARE UNTOUCHED and keep baked addresses with immediate store-through
-	// (Part III's phase scope). Only locals move, and a local is invisible outside
-	// the action, so deferring ITS writeback to the epilogue is not observable --
-	// which is exactly why this increment is behaviour-neutral and cannot certify
-	// itself.
-	{
-	GroupItem *fld = 0;
-	while ((fld = action->next(fld))) {
-	GroupBody *fb = fld->groupBody;
-	if (!(fb->flags.isLocal || fb->flags.isArgument)) continue;
-	if (fb->flags.noPrint) continue;
-	if (fld->jitData) continue;          // already seeded this compile
-	llvm::Type *ty;
-	void       *addr;
-	if (isNUMBER(fb->flags.data)) { ty = llvm::Type::getDoubleTy(*ctx); addr = &(fb->gNumber); }
-	else                          { ty = llvm::Type::getInt32Ty(*ctx);  addr = &(fb->gCount);  }
-	if (jitFrameFind(addr)) continue;    // one slot per field, not per node
-	llvm::Value *slot = B.CreateAlloca(ty, nullptr, fb->tag);
-	llvm::Value *home = B.CreateIntToPtr(
-	llvm::ConstantInt::get(llvm::Type::getInt64Ty(*ctx), (uint64_t)addr),
-	llvm::PointerType::getUnqual(*ctx));
-	B.CreateStore(B.CreateLoad(ty, home, "prolog"), slot);
-	JitFrameSlot fs; fs.home = addr; fs.slot = slot; fs.ty = ty;
-	gJitFrame.push_back(fs);
-	}
-	}
-	// =========================== end frame prologue ===========================
-	// Execute the parsed BlocK under jitting: runOP/op-gates emit straight-line IR;
-	// control flow lands via aCTionIF's jitting gate -> jitEmitGIF.
-	jitExecBlock(action);
-	ruler->jitting = 0;
-	
-	//  "DID ANYTHING EMIT" is now gJitEmitted, NOT a non-null gJitResult. The
-	//  result slot falsified the old test: a bracketing emitter commits its
-	//  arms and then deliberately clears gJitResult, so an action ending in
-	//  control flow legitimately has nothing in flight -- and the old guard
-	//  read that as "the gate never fired" and bailed before emitting the ret,
-	//  which silently un-jitted every if/else. Measured the moment the clear
-	//  landed.
-	if (!gJitEmitted) {
-	printf("=== jitRunAction: no result emitted (gate did not fire?) ===\n");
-	fflush(stdout); return -2; }
-	// THE CAP IS NOW A LOAD OF THE RESULT SLOT, not the last value in flight.
-	// The old form retted whatever gJitResult happened to hold after the walk,
-	// which on a two-armed if was the last ARM EMITTED regardless of which one
-	// RAN -- and in every fixture dumped it was a CONSTANT. Storing per
-	// statement and loading here is what makes the returned value path-correct.
-	jitStoreResult();
-	
-	// ================= FRAME EPILOGUE (Increment 1, 2026-08-01) =================
-	// Store each frame slot back to the field's own storage, so the interpreter
-	// and every later run see the action's effect. Walk order is the prologue's;
-	// restoreLocalFields walks BACKWARD because it pops a stack, and this does
-	// not -- each slot has its own address, so there is no ordering to honour.
-	// That asymmetry is the point: the stack discipline was the bug surface, and
-	// it is gone rather than reimplemented.
-	for (JitFrameSlot &f : gJitFrame) {
-	llvm::Value *home = B.CreateIntToPtr(
-	llvm::ConstantInt::get(llvm::Type::getInt64Ty(*ctx), (uint64_t)f.home),
-	llvm::PointerType::getUnqual(*ctx));
-	B.CreateStore(B.CreateLoad(f.ty, f.slot, "epilog"), home);
-	}
-	// =========================== end frame epilogue ===========================
-	
-	B.CreateRet(B.CreateLoad(i32, gJitResultSlot, "retval"));
-	
-	// ------------------------------------------------------------------
-	// THE VERIFIER. Added 2026-07-30. Until now NOTHING in the live tree
-	// called verifyFunction or verifyModule -- the only occurrences were in
-	// docs and in the archived XML/LLVM/codeGenerator. The consequence was
-	// measured, not supposed: INVALID IR COMPILED AND RETURNED GARBAGE.
-	// testIfElse on a false condition returned 83623936 and EXITED 0, with
-	// no diagnostic on any stream, because jitEmitGIF has no else arm and
-	// nothing ever asked LLVM whether the result was well-formed.
-	//
-	// Placed BEFORE mem2reg deliberately, for two reasons: it catches the
-	// EMITTER's own output rather than the optimiser's view of it, and it
-	// avoids running a transform pass over IR already known to be broken.
-	//
-	// REFUSES rather than warning. Loud refusal over quiet default, the same
-	// rule the genParse walk follows -- running a function LLVM has just
-	// called invalid is how the garbage return above happened. -5 is distinct
-	// from the existing -1..-4 so a caller can tell "IR was invalid" from
-	// "the engine failed".
-	// verifyFunction returns TRUE when the function is BROKEN.
-	//  PRE-OPTIMISATION DUMP, added 2026-07-31 and it is the more useful of the
-	//  two. INCANT_JIT_DUMP=2 shows the EMITTER'S OWN OUTPUT, before mem2reg has
-	//  promoted or folded anything. The post-mem2reg dump alone cannot answer
-	//  "did the emitter emit this, or did the optimiser produce it" -- and that
-	//  is exactly the question a result-slot or a phi raises. =1 keeps the old
-	//  post-pass behaviour; =2 gives both.
-	if (::getenv("INCANT_JIT_DUMP") && ::atoi(::getenv("INCANT_JIT_DUMP")) >= 2) {
-	llvm::errs() << "=== IR " << fnName << " (PRE-mem2reg, emitter output) ===\n";
-	mod->print(llvm::errs(), nullptr);
-	llvm::errs() << "=== end PRE IR " << fnName << " ===\n";
-	llvm::errs().flush(); }
-	
-	if (llvm::verifyFunction(*fn, &llvm::errs())) {
-	fprintf(stderr,
-	"=== jitRunAction: INVALID IR for %s -- REFUSING to run it ===\n",
-	fnName);
-	fflush(stderr);
-	gJitBuilder = nullptr;
-	gJitResult  = nullptr;
-	gJitResultSlot = nullptr;
-	return -5; }
-	
-	// mem2reg: promote field-slot allocas to SSA registers and let LLVM insert
-	// phi nodes at merge points. A no-op on the current alloca-free straight-line
-	// IR (the 24-POP battery proves it non-destructive) — the foundation gIF's
-	// then/else `CreateStore`-to-slot strategy relies on, so the manual jitPhi
-	// machinery never has to come back.
-	{
-	llvm::PassBuilder PB;
-	llvm::LoopAnalysisManager LAM;
-	llvm::FunctionAnalysisManager FAM;
-	llvm::CGSCCAnalysisManager CGAM;
-	llvm::ModuleAnalysisManager MAM;
-	PB.registerModuleAnalyses(MAM);
-	PB.registerCGSCCAnalyses(CGAM);
-	PB.registerFunctionAnalyses(FAM);
-	PB.registerLoopAnalyses(LAM);
-	PB.crossRegisterProxies(LAM, FAM, CGAM, MAM);
-	llvm::FunctionPassManager FPM;
-	FPM.addPass(llvm::PromotePass());
-	FPM.run(*fn, FAM);
-	}
+	//  THE DRIVER'S FUNCTION. S3 will build callee functions before this line;
+	//  the driver is still the LAST one built and, from S4, the one looked up by
+	//  the name recorded here rather than by being last.
+	int built = jitBuildFunction(action);
+	if (built < 0) {
+	gJitCtx = nullptr; gJitModule = nullptr;
+	gJitBuilder = nullptr; gJitResult = nullptr;
+	return built; }
+	//  ⚠ THE DRIVER'S NAME IS TAKEN BY COPY, HERE, AND NOT READ BACK LATER.
+	//  gJitBuiltName is overwritten by the NEXT jitBuildFunction call, and from
+	//  S3 there will be one. Copying at the moment of truth is what makes the
+	//  lookup below "the driver" rather than "whatever was built last".
+	std::string     driverName = gJitBuiltName;
+	const char     *fnName = driverName.c_str();
 	
 	// ------------------------------------------------------------------
 	// THE MODULE DUMP. The other half of the instrument, and the half that
@@ -5343,7 +5420,13 @@ extern "C" int jitRunAction(GroupItem *action)
 	if (auto err = jit->addIRModule(
 	llvm::orc::ThreadSafeModule(std::move(mod), std::move(ctx)))) {
 	llvm::consumeError(std::move(err));
+	gJitCtx = nullptr; gJitModule = nullptr;
 	printf("=== JIT addIRModule failed ===\n"); fflush(stdout); return -3; }
+	//  BOTH ARE DEAD THE INSTANT THE MOVE ABOVE COMPLETES -- the JIT owns them
+	//  now. Nulling is not tidiness: a stale gJitModule is a pointer into a
+	//  freed module, and jitBuildFunction's own no-context guard would happily
+	//  wave it through.
+	gJitCtx = nullptr; gJitModule = nullptr;
 	auto sym = jit->lookup(fnName);
 	if (!sym) { llvm::consumeError(sym.takeError());
 	printf("=== JIT lookup failed ===\n"); fflush(stdout); return -4; }

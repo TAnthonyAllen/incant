@@ -259,6 +259,31 @@ inline std::vector<GroupBody*> gJitInlining;
 inline GroupItem       *gJitCurrentAction = nullptr;
 inline llvm::Function  *gJitCurrentFn     = nullptr;
 
+// ================= THE S1 EXTRACTION'S SEAM (2026-08-05) =====================
+// jitBuildFunction builds ONE function start to finish -- shell, entry block,
+// result slot, prologue, body walk, epilogue, ret, verify, mem2reg -- and
+// jitRunAction owns everything module-scoped either side of it (the engine, the
+// context, the module, the IR capture, addIRModule, lookup, call).
+//
+// ⚠ WHY THESE THREE ARE GLOBALS AND NOT PARAMETERS, WHICH LOOKS LIKE THE WRONG
+// CHOICE UNTIL YOU TRY IT: jitBuildFunction is a tok extern, and a tok-extern
+// signature carrying an llvm type POISONS THE GENERATED HEADER -- the same
+// constraint JitContext's own comment records, and the reason jitEngine() hands
+// back a void*. So the routine takes `GroupItem action` and returns `int`, and
+// the two llvm objects it cannot name in its signature travel here.
+// The brief's rule was "parameters over globals only where the extraction forces
+// it". This is where it forces it.
+inline llvm::LLVMContext *gJitCtx    = nullptr;   // owned by jitRunAction
+inline llvm::Module      *gJitModule = nullptr;   // owned by jitRunAction
+
+// THE FUNCTION jitBuildFunction JUST FINISHED, and the name it was given.
+// ⚠ THE NAME IS CARRIED, NOT RECONSTRUCTED, because S4's whole point is that the
+// driver is looked up BY NAME rather than by being the last one created. With one
+// function those are the same string; with two they are not, and "correct by
+// position" is exactly the accident rung JC is currently green on.
+inline llvm::Function    *gJitBuiltFn = nullptr;
+inline std::string        gJitBuiltName;
+
 // Look a field's storage up in the current frame. Returns null when the field is
 // a GLOBAL, which is the common case and the correct one -- globals keep baked
 // addresses and immediate store-through (Part III's phase scope).
@@ -298,6 +323,14 @@ public:
 // Per-action emission context. C++-internal — never appears in a tok-extern
 // signature (that would poison the generated header). Reached from emitters via a
 // file-static current-context pointer, not passed as a parameter.
+//
+// ⚠ RESERVED FOR THE FRAME-MODEL ARC; DO NOT ADOPT PIECEMEAL. Declared and used
+// by NOTHING as of 2026-08-05 (verified by grep: two hits, both in this file).
+// The sixteen file-scope globals above are the live mechanism, and the S1
+// extraction below deliberately did NOT migrate them -- a lift, not a migration,
+// because a half-migrated context is two mechanisms for one fact, which is the
+// one-channel-one-meaning failure this project has now paid for four times.
+// Adopt it whole, in the frame-model arc, or leave it alone.
 class JitContext {
 public:
     llvm::LLVMContext &ctx;

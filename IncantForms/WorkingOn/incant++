@@ -17,4 +17,4 @@ The following are components of a perforated border. The stride gap and depth bl
 The perforation block draws the perforation.
 <perforation drawPath fill=$perfColor border selectable=no>%@ 0 u~ 8 perfLeft 5 perfTop 5 u depth r 10 d 2 perfRight 5 d 8 l 10 perfBottom 5;</perforation>
 
-So perfLeft 5 above means repeat perfLeft 5 times. I propose to extend kant grammar to allow repeat to be set via a modifier (add r as a modifier), in which case perfLeft=5r would set perfLeft count to 5 and turn on an isRepeat flag. When displayForm hits perfLeft, the isRepeat flag says process all perfLeft components (all attributes in this case) then repeat 5 times. 
+So perfLeft 5 above means repeat perfLeft 5 times. I propose to extend kant grammar to allow repeat to be set via a modifier (add r as a modifier), in which case perfLeft=5r would set perfLeft count to 5 and turn on an isRepeat flag. When displayForm hits perfLeft, the isRepeat flag says process all perfLeft components (all attributes in this case) then repeat 5 times.
