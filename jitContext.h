@@ -284,6 +284,56 @@ inline llvm::Module      *gJitModule = nullptr;   // owned by jitRunAction
 inline llvm::Function    *gJitBuiltFn = nullptr;
 inline std::string        gJitBuiltName;
 
+// ============ THE CALLEE MAP (S3, build-on-discovery, 2026-08-05) ============
+// ⚠ THIS MAP IS THE PREDICATE, and that is the ruling rather than an
+// implementation detail. At every emit site the question is "IS THERE A Function*
+// FOR THIS CALLEE'S groupBody" -- not "is the recursive flag set", which misses
+// A->B->A and is cleared at run time by GroupActions.rtn:587, and not "is it on
+// the inline stack", which is only answerable at the INNER self-call, by which
+// time the enclosing function is half-built and there is no "before the driver"
+// left to build anything in front of.
+//
+// The map is populated BY the inline-stack test, at discovery. So the correct
+// predicate still does the finding; the map is what makes its answer available
+// EARLY, at the outer call, where a decision can still be acted on.
+//
+// KEYED ON GroupBody, like every other identity in this file: storage is
+// identity, nodes are occurrences. The GroupItem is carried alongside because
+// jitBuildFunction needs a node to walk, not because it identifies anything.
+// ⚠ NOTE NEITHER POINTER IS DEREFERENCED HERE -- both classes are only
+// forward-declared in this header, and the find below is a pointer compare. Keep
+// it that way; a deref would drag GroupItem.h into every JIT translation unit.
+//
+// CLEARED PER COMPILE by jitRunAction: an llvm::Function belongs to the Module,
+// and the Module is moved into the JIT and destroyed at the end of every compile.
+// A surviving entry would be a pointer into a dead module wearing the shape of a
+// cache hit.
+struct JitFnSlot { GroupBody *body; GroupItem *action; llvm::Function *fn; };
+inline std::vector<JitFnSlot> gJitFnMap;
+
+inline llvm::Function *jitFnMapFind(GroupBody *b) {
+    for (JitFnSlot &s : gJitFnMap) if (s.body == b) return s.fn;
+    return nullptr;
+}
+
+// DISCOVERED, NOT YET BUILT. An inlined callee found calling itself; the enclosing
+// function is about to be discarded and this is what the rebuild must build first.
+struct JitPending { GroupBody *body; GroupItem *action; };
+inline std::vector<JitPending> gJitNeedOwnFn;
+
+inline bool jitPendingHas(GroupBody *b) {
+    for (JitPending &p : gJitNeedOwnFn) if (p.body == b) return true;
+    return false;
+}
+
+// SET BY DISCOVERY, READ BY THE BUILD LOOP. The function currently under
+// construction is now known to be wrong and must be erased rather than finished
+// into the module -- so this is not an error channel, it is "start over knowing
+// one more thing". A SECOND CHANNEL on purpose: "a discovery happened" is a
+// different fact from "the build failed", and jitBuildFunction's return code
+// already carries the second one.
+inline bool gJitRestartNeeded = false;
+
 // Look a field's storage up in the current frame. Returns null when the field is
 // a GLOBAL, which is the common case and the correct one -- globals keep baked
 // addresses and immediate store-through (Part III's phase scope).

@@ -3476,9 +3476,14 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	// operand-stack corruption the deferred jitXpress path hit.
 	ruler->jitting = 1;
 	ruler->generating = 0;
-	for (GroupItem *seeded : gJitSeeded) seeded->jitData = nullptr;
-	gJitSeeded.clear();
-	gJitFrame.clear();
+	//  R1's ONE MECHANISM, first of its two call sites. Between functions the
+	//  obligation is identical to the one gJitSeeded's header states between
+	//  compiles -- an llvm::Value is valid only inside the function that defined
+	//  it -- and S3 mints more than one function per compile, so "between
+	//  compiles" stopped being a fine enough grain the day the map landed.
+	
+	::jitFlushTransient();
+	
 	if (isCoded(action->groupBody->flags.actionType))
 	::processCode(action);
 	
@@ -3706,6 +3711,32 @@ extern "C" int jitDegrade(char *what, GroupItem *node)
 	node ? node->groupBody->tag : "(no node)");
 	::fflush(stderr);
 	return gJitDegradeCount;
+	
+}
+
+/* jitDiscardPartial  ERASE THE FUNCTION UNDER CONSTRUCTION AND FLUSH BEHIND IT.
+   (S3 rider R1.) The build just discovered that a callee it was inlining needs
+   its own function, so what is in the module is wrong by construction. Erase it
+   -- do not leave it to be overwritten, because an abandoned function still
+   verifies, still compiles, and still exports a symbol.
+
+   Operates on gJitBuiltFn rather than taking a parameter, for the same reason
+   jitBuildFunction returns an int: an llvm type in a tok-extern signature
+   poisons the generated header. */
+extern "C" void jitDiscardPartial()
+{
+	
+	if (gJitBuiltFn) gJitBuiltFn->eraseFromParent();
+	gJitBuiltFn = nullptr;
+	gJitBuiltName.clear();
+	
+	::jitFlushTransient();
+	
+	//  These two point INTO the function just erased (or at its dead stack
+	//  builder), so nulling them is not tidiness either.
+	gJitBuilder    = nullptr;
+	gJitResultSlot = nullptr;
+	gJitEmitted    = false;
 	
 }
 
@@ -4424,13 +4455,72 @@ extern "C" int jitEmitSelfCall(GroupItem *argument, GroupItem *action)
 	//  is recursion just as much as the outermost action calling itself, and
 	//  treating it as an ordinary call inlines it AGAIN over nodes that already
 	//  carry jitData -- see gJitInlining's note.
+	//
+	//  ⚠⚠ WHAT THIS CALL TARGETS IS NOW A DECISION, NOT A CONSTANT (S3, ruled
+	//  by Tony 2026-08-05). It used to be gJitCurrentFn unconditionally, and
+	//  THAT WAS THE DEFECT: emit-on-walk inlines an ordinary callee into the
+	//  CALLER's builder, so a self-call inside that inlined body had no separate
+	//  function to name and got the ENCLOSING one -- re-entering the driver's
+	//  entry block and replaying its whole preamble on every recursion
+	//  (incant/inlineSelfT; measured on the IR, `%selfcall = call i32 @jitFn0()`
+	//  where @jitFn0 is the DRIVER's).
+	//  displayForm survived it only because dfDrive's body is exactly ONE
+	//  statement, so re-entering the function happened to equal re-entering the
+	//  callee. Rung JC was green for a reason true of its driver, not of the
+	//  mechanism.
+	llvm::Function *target = nullptr;
 	{
+	//  1. THE MAP IS THE PREDICATE. If this callee already has its own
+	//     function, call it -- no inlining, no self-test needed, and this
+	//     is the arm that fires on the REBUILD and for every A->B->A leg.
+	target = jitFnMapFind(action->groupBody);
+	
 	bool self = gJitCurrentAction &&
 	action->groupBody == gJitCurrentAction->groupBody;
+	bool inlined = false;
 	if (!self)
 	for (GroupBody *b : gJitInlining)
-	if (b == action->groupBody) { self = true; break; }
-	if (!self) return 0;
+	if (b == action->groupBody) { inlined = true; break; }
+	
+	//  2. NOT IN THE MAP AND NOT ON THE WALK: an ordinary call. INLINE, and
+	//     that is still the calling convention (ruled 2026-08-01).
+	if (!target && !self && !inlined) return 0;
+	
+	//  3. NOT IN THE MAP, BUT IT IS THE ACTION THIS VERY FUNCTION IS BEING
+	//     BUILT FOR. gJitCurrentFn is then genuinely the right target -- it
+	//     is this action's own function. This is J-R's arm and it is
+	//     unchanged; it is also how a callee built as its own function
+	//     resolves its OWN recursion, which is why building a callee needs
+	//     no pre-registration in the map.
+	if (!target && self) target = gJitCurrentFn;
+	
+	//  4. NOT IN THE MAP, AND SELF ONLY BECAUSE IT IS BEING INLINED. THIS IS
+	//     THE DISCOVERY, and it is the first moment in the whole walk that
+	//     the fact exists. The enclosing function is now known to be wrong,
+	//     so record the callee and ask for a restart; the build loop erases
+	//     what has been emitted so far and builds this callee first.
+	//     ⚠ IT STILL EMITS, and deliberately: the function must reach its
+	//     ret and verify so the loop gets control back cleanly. gJitCurrentFn
+	//     is the OLD, WRONG target -- which does not matter, because
+	//     jitDiscardPartial erases this function before anything runs it.
+	//     Emitting a placeholder instead would be a second shape to be right
+	//     about for no gain.
+	if (!target) {
+	if (!jitPendingHas(action->groupBody)) {
+	JitPending p; p.body = action->groupBody; p.action = action;
+	gJitNeedOwnFn.push_back(p);
+	//  ⚠ STDOUT, AND THE SAME `=== jit<Name>: ... ===` SHAPE AS
+	//  EVERY OTHER COMPILE-TIME REPORT IN THIS FILE. One channel,
+	//  one meaning, one convention: these three S3 lines are compile
+	//  NARRATION, not walk output, and rung JC's filter is written
+	//  against exactly that prefix. Splitting them across stdout and
+	//  stderr would make a byte-diff instrument's contents depend on
+	//  whether the harness merged the streams.
+	printf("=== jitEmitSelfCall: DISCOVERED %s needs its own function ===\n",
+	action->groupBody->tag);
+	fflush(stdout); }
+	gJitRestartNeeded = true;
+	target = gJitCurrentFn; }
 	}
 	llvm::IRBuilder<> *b = gJitBuilder;
 	//  ⚠ BIND THE ARGUMENT FIRST, AT RUN TIME. runAction's gate returns here,
@@ -4459,9 +4549,13 @@ extern "C" int jitEmitSelfCall(GroupItem *argument, GroupItem *action)
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitBindArgRT), ptr, "bindFn");
 	llvm::FunctionType *bindTy = llvm::FunctionType::get(ptr, {ptr, ptr}, false);
 	b->CreateCall(bindTy, bindFn, {argAddr, fldAddr}, "bindArg"); }
-	//  ⚠ THE FRAME BRACKET, in runAction's OWN ORDER: bind (:672-674), save
-	//  (:677), body (:685), restore (:689). The gate returns above the last
-	//  three, so without this an emitted self-call runs unbracketed and any
+	//  ⚠ THE FRAME BRACKET, in runAction's OWN ORDER: bind, save, body, restore.
+	//  (GroupActions.rtn -- the gate at :705-707, bind :708-711, save :713, body
+	//  :721, restore :725 as of 2026-08-05. The earlier :670/:677/:685/:689 in
+	//  this comment were b7a01c1 line numbers and went stale when jitSaveFrameRT
+	//  was inserted above runAction; corrected as S3's ride-along.)
+	//  The gate returns above the last three, so without this an emitted
+	//  self-call runs unbracketed and any
 	//  NODE-RESIDENT local -- an iterator's cursor above all -- is shared with
 	//  the caller. Scalars are per-activation for free because they are allocas
 	//  in this function; nodes are baked and shared, which is the whole defect.
@@ -4478,7 +4572,9 @@ extern "C" int jitEmitSelfCall(GroupItem *argument, GroupItem *action)
 	llvm::Value *saveFn = b->CreateIntToPtr(
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitSaveFrameRT), ptr, "saveFn");
 	b->CreateCall(frameTy, saveFn, {calleeAddr});
-	llvm::Value *v = b->CreateCall(gJitCurrentFn, {}, "selfcall");
+	//  ⚠ `target`, NOT gJitCurrentFn. See the four-arm decision above -- the
+	//  whole of S3 is the difference between those two expressions.
+	llvm::Value *v = b->CreateCall(target, {}, "selfcall");
 	llvm::Value *restoreFn = b->CreateIntToPtr(
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitRestoreFrameRT), ptr, "restoreFn");
 	b->CreateCall(frameTy, restoreFn, {calleeAddr});
@@ -4814,6 +4910,46 @@ extern "C" GroupItem *jitFieldMethod(GroupItem *field)
 	printf("=== jitCompile count = %d ===\n", gJitCompileCount);
 	fflush(stdout);
 	return ruler->trueResult;
+	
+}
+
+/* jitFlushTransient  THE TRANSIENT-STATE FLUSH, ONE MECHANISM, TWO CALL SITES.
+   (S3 rider R1, Tony 2026-08-05.)
+
+   Everything an emitted function leaves lying about that is scoped to THAT
+   function and must not be visible while building the next one: the jitData
+   hung on nodes, the frame slots, the values in flight, the block stacks, the
+   inline stack.
+
+   ⚠ WHY IT IS A FUNCTION AND NOT TWO COPIES OF FIVE LINES. It runs between
+   FUNCTIONS (jitBuildFunction's own head) and on DISCARD (jitDiscardPartial),
+   and those two had every chance to drift apart -- an llvm::Value is valid only
+   inside the function that defines it, so a rebuild reading a stale jitData is
+   the SSA-staleness class jitEmitSelfCall's header already measured: "the second
+   pass compares an i1 against an i32 and LLVM asserts". A discard leaves exactly
+   that debris, and an ERASED function makes it worse than stale -- it is a
+   pointer into freed IR.
+
+   gJitSeeded's own header states the obligation between COMPILES; this applies
+   the identical rule between FUNCTIONS, which is the only thing S3 changed about
+   it. It does NOT touch gJitBuilder or gJitResultSlot: jitBuildFunction sets
+   those for itself immediately after calling this, and the discard path nulls
+   them separately because there the function they point into is gone. */
+extern "C" void jitFlushTransient()
+{
+	
+	for (GroupItem *seeded : gJitSeeded) seeded->jitData = nullptr;
+	gJitSeeded.clear();
+	gJitFrame.clear();
+	gJitResult     = nullptr;
+	gJitResultNode = nullptr;
+	gJitPrintBuf   = nullptr;
+	gIfEndBlocks.clear();
+	gIfElseBlocks.clear();
+	gLoopCondBlocks.clear();
+	gLoopExitBlocks.clear();
+	gLoopBodyBlocks.clear();
+	gJitInlining.clear();
 	
 }
 
@@ -5356,19 +5492,103 @@ extern "C" int jitRunAction(GroupItem *action)
 	gJitCtx    = ctx.get();
 	gJitModule = mod.get();
 	
-	//  THE DRIVER'S FUNCTION. S3 will build callee functions before this line;
-	//  the driver is still the LAST one built and, from S4, the one looked up by
-	//  the name recorded here rather than by being last.
-	int built = jitBuildFunction(action);
+	// ============ THE BUILD LOOP (S3, build-on-discovery with restart) ========
+	//  ⚠ WHY A LOOP AND NOT A PRE-PASS. The correct predicate -- "an inlined
+	//  callee is calling itself" -- is only answerable AT the inner self-call,
+	//  by which time the enclosing function is half-built. There is no earlier
+	//  moment to consult, so the earlier moment is MANUFACTURED: walk, discover,
+	//  throw the partial away, build what was discovered, walk again. The second
+	//  walk's outer call sites find the callee IN THE MAP and emit a real call.
+	//  A static pre-pass was rejected (Tony, 2026-08-05) because it invents a
+	//  second traversal inside a system whose entire model is emit-on-walk.
+	//
+	//  ⚠ SEQUENTIAL, NOT NESTED, AND THAT IS CHECKABLE FROM OUTSIDE: every
+	//  jitBuildFunction call below returns before the next begins, so the sixteen
+	//  globals are never re-entered and need no save/restore. gJitCompileCount is
+	//  NOT touched in here -- it stays one-per-compile below -- which is why the
+	//  ladder's JA/JI "compile count = 1" rungs remain the discriminator between
+	//  a sequenced implementation and a nested one.
+	gJitFnMap.clear();
+	gJitNeedOwnFn.clear();
+	int  restarts = 0;
+	int  built    = 0;
+	for (;;) {
+	//  R2's BOUND, CHECKED BEFORE THE WORK RATHER THAN AFTER. Each restart
+	//  is caused by at least one NOVEL callee entering gJitNeedOwnFn, which
+	//  never shrinks -- so restarts can never exceed its size. A violation
+	//  means the monotone growth argument is false, and it is reported as a
+	//  RED (-7) rather than allowed to spin: a hang is not a wrong answer,
+	//  it is the absence of a run, and nobody parked that (rule H5).
+	if (restarts > (int)gJitNeedOwnFn.size()) {
+	fprintf(stderr,
+	"=== jitRunAction: RESTART BOUND BROKEN -- %d restarts, %zu pending ===\n",
+	restarts, gJitNeedOwnFn.size());
+	fflush(stderr);
+	gJitCtx = nullptr; gJitModule = nullptr;
+	gJitBuilder = nullptr; gJitResult = nullptr;
+	return -7; }
+	
+	//  1. BUILD EVERY DISCOVERED CALLEE THAT HAS NO FUNCTION YET, each one
+	//     start to finish. A callee build can itself discover a further
+	//     novel callee (its own inlined callee self-calling), so it gets the
+	//     same discard-and-restart treatment as the driver.
+	bool restarted = false;
+	for (size_t i = 0; i < gJitNeedOwnFn.size(); i++) {
+	GroupBody *pb = gJitNeedOwnFn[i].body;
+	GroupItem *pa = gJitNeedOwnFn[i].action;
+	if (jitFnMapFind(pb)) continue;
+	gJitRestartNeeded = false;
+	int cr = jitBuildFunction(pa);
+	if (gJitRestartNeeded) { jitDiscardPartial(); restarted = true; break; }
+	if (cr < 0) {
+	gJitCtx = nullptr; gJitModule = nullptr;
+	gJitBuilder = nullptr; gJitResult = nullptr;
+	return cr; }
+	JitFnSlot s; s.body = pb; s.action = pa; s.fn = gJitBuiltFn;
+	gJitFnMap.push_back(s);
+	printf("=== jitRunAction: callee %s built as %s ===\n",
+	pb->tag, gJitBuiltName.c_str());
+	fflush(stdout); }
+	if (restarted) { restarts++; continue; }
+	
+	//  2. THE DRIVER, ALWAYS LAST, so its name is the one gJitBuiltName
+	//     carries out of the loop and S4's lookup uses.
+	gJitRestartNeeded = false;
+	built = jitBuildFunction(action);
+	if (gJitRestartNeeded) { jitDiscardPartial(); restarts++; continue; }
+	break; }
+	if (restarts)
+	printf("=== jitRunAction: %d restart(s), %zu callee function(s) ===\n",
+	restarts, gJitFnMap.size()), fflush(stdout);
+	// ========================= end the build loop =============================
 	if (built < 0) {
 	gJitCtx = nullptr; gJitModule = nullptr;
 	gJitBuilder = nullptr; gJitResult = nullptr;
 	return built; }
 	//  ⚠ THE DRIVER'S NAME IS TAKEN BY COPY, HERE, AND NOT READ BACK LATER.
 	//  gJitBuiltName is overwritten by the NEXT jitBuildFunction call, and from
-	//  S3 there will be one. Copying at the moment of truth is what makes the
+	//  S3 there ARE more. Copying at the moment of truth is what makes the
 	//  lookup below "the driver" rather than "whatever was built last".
+	//
+	//  ⚠⚠ S4 -- ENTRY BY NAME, AND THE POINT IS THAT IT IS NO LONGER THE SAME
+	//  THING AS ENTRY BY POSITION. Before S3 the module held exactly one
+	//  function, so "look up the last one built" and "look up the driver" were
+	//  the same string and nothing could tell a right answer from a lucky one.
+	//  That is the identical shape as rung JC being green because its driver
+	//  happens to be one statement long -- correct-by-accident-of-topology --
+	//  and the cure is the same: make the mechanism name what it means.
+	//  The loop above builds the driver LAST precisely so this copy is its name;
+	//  if that order ever changes, this line must change with it and not merely
+	//  keep working.
 	std::string     driverName = gJitBuiltName;
+	if (driverName.empty()) {
+	//  H4: assert the quantity, do not assume it. An empty name would make
+	//  the lookup below fail with -4 and read as an engine problem.
+	fprintf(stderr, "=== jitRunAction: NO DRIVER NAME RECORDED ===\n");
+	fflush(stderr);
+	gJitCtx = nullptr; gJitModule = nullptr;
+	gJitBuilder = nullptr; gJitResult = nullptr;
+	return -8; }
 	const char     *fnName = driverName.c_str();
 	
 	// ------------------------------------------------------------------
@@ -5426,7 +5646,14 @@ extern "C" int jitRunAction(GroupItem *action)
 	//  now. Nulling is not tidiness: a stale gJitModule is a pointer into a
 	//  freed module, and jitBuildFunction's own no-context guard would happily
 	//  wave it through.
+	//  ⚠ AND SO IS EVERY Function* IN THE CALLEE MAP, for the same reason: a
+	//  function belongs to its module. A surviving entry is a pointer into dead
+	//  IR wearing the shape of a cache hit, and the map IS the predicate -- a
+	//  false hit there would emit a call to a function that no longer exists.
 	gJitCtx = nullptr; gJitModule = nullptr;
+	gJitFnMap.clear();
+	gJitNeedOwnFn.clear();
+	gJitBuiltFn = nullptr;
 	auto sym = jit->lookup(fnName);
 	if (!sym) { llvm::consumeError(sym.takeError());
 	printf("=== JIT lookup failed ===\n"); fflush(stdout); return -4; }
@@ -5570,9 +5797,12 @@ extern "C" int jitRunIfTest(GroupItem *fld)
     green run here as the architecture having been chosen.
 
     THE GAP, and it is the SAME SEAM jitBindArgRT closed one increment earlier:
-    runAction's jitting gate returns at :670, ABOVE its own
-    `if field.recursive saveLocalFields(field)` at :677 and the matching restore
-    at :689. So an emitted self-call runs with NO frame bracket at all.
+    runAction's jitting gate returns at :705-707, ABOVE its own
+    `if field.recursive saveLocalFields(field)` at :713 and the matching restore
+    at :725. So an emitted self-call runs with NO frame bracket at all.
+    (Those three were written as :670/:677/:689 -- b7a01c1 line numbers, stale
+    the moment this very comment block was inserted above runAction and shifted
+    it down ~36 lines. Corrected 2026-08-05 as S3's ride-along.)
 
     WHY THAT IS INVISIBLE UNTIL displayForm: the JIT's scalar locals live in
     ALLOCAS inside gJitCurrentFn, and allocas are per-activation for free -- which

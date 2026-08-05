@@ -1,0 +1,115 @@
+/*****************************************************************************
+    jitSelfFn -- THE SHAPE THAT EXITED 139. A DRIVER WITH A PREAMBLE ABOVE A
+    SELF-CALLING CALLEE, ITS GUARD RESET INSIDE THE DRIVER. 2026-08-05.
+
+    ⚠ THIS IS incant/inlineSelfT's CRASHING HALF, PROMOTED FROM A BY-HAND
+    RECIPE TO A RUNNABLE FIXTURE. inlineSelfT could only carry it as prose --
+    rule H5, a fixture that dies takes every check below it with it -- and the
+    reason it could not run was the defect S3 removes.
+
+    THE DEFECT IT PINS. Emit-on-walk INLINES an ordinary callee into the
+    caller's builder, so before S3 a self-call inside that inlined body had no
+    separate function to name and got the ENCLOSING one:
+
+        %selfcall = call i32 @jitFn0()      <- @jitFn0 IS THE DRIVER
+
+    which re-enters the driver's ENTRY BLOCK and replays its whole preamble on
+    every recursion. With the preamble harmless that is invisible; with the
+    preamble holding the loop guard's reset, the guard is restored on every
+    recursion and the recursion never ends. Exit 139, no degrade message, and
+    no output after `jitRunAction: entering`.
+
+    ⚠ WHY inlineSelfT's OWN GREEN HALF COULD NOT SEE IT, AND WHY displayForm
+    COULD NOT EITHER: dfDrive's body is exactly ONE statement, so re-entering
+    the whole function happened to equal re-entering the callee. Rung JC was
+    green for a reason true of ITS DRIVER rather than of the mechanism -- the
+    same class as `continue` appearing to work because both arms fell to the
+    back edge. A driver with a preamble is the NORMAL case, and precisely the
+    shape genParse's emitted rules will have.
+
+    WHAT IS ASSERTED HERE, and none of it is an absence check (rule H4):
+
+      rbCount  = 4   the number of ACTIVATIONS. Non-zero on purpose: a result
+                     slot that merely defaults to zero cannot produce it, and a
+                     preamble that replayed its `rbDepth = 3` would never stop
+                     counting at all.
+      rbOut    = 3   the OUTERMOST activation's local, read AFTER the recursive
+                     call returns. Per-activation storage gives 3; aliased slots
+                     give 0, because the innermost activation would have written
+                     the shared slot last. Same discrimination J-R and jitJRL
+                     use, one level further out.
+      PREAMBLE = 1   printed ONCE. This is the other half of the defect and it
+                     was the oddity recorded-but-not-chased on 2026-08-05: a
+                     print in a driver ABOVE an inlined call produced NO output
+                     in the jitted half while the oracle printed it once. Under
+                     the replay it is 0 or N, never 1, so ONE is the only value
+                     that distinguishes a driver preamble that ran exactly as
+                     written from either failure.
+
+    ⚠ H7 NEGATIVE CONTROL -- THE PRE-S3 BINARY IS THE KNOWN-DEFECTIVE SPECIMEN.
+    This fixture is not a claim that would hold whatever the mechanism did: run
+    it on a binary built before S3 and it does not merely disagree, it never
+    returns. That is why the ladder runs it under a wall-clock cap and reports a
+    timeout BY NAME rather than as a diff -- a killed process yields truncated
+    output, and a truncation diff names the wrong row.
+
+    ⚠ AND THE IR CARRIES THE SIGNATURE DIRECTLY (rider R3), which is stronger
+    than the values because it names the mechanism rather than its consequence:
+    NO function may contain a call to ITSELF unless it is the callee's own
+    function. Before S3 the driver's function called itself; after S3 the driver
+    calls the CALLEE's function and only the callee calls itself.
+
+    ONE testing(), THEN jitRefire() FOREVER -- a second testing() on one action
+    is the sequential-state-corruption tar baby, and the rung shape makes that
+    unconstructable rather than merely avoided.
+
+    SENTINEL AT THE FOOT, and exactly ONE stop() in this file (rule H2): a
+    second stop() anywhere above it silently deletes everything between.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(SelfFn);
+define
+    sfDepth;
+    sfArg;
+    sfOut;
+    sfCount;
+    /*  THE CALLEE. It mentions its own name, so an inlined copy of it calling
+        itself is the discovery S3's map is populated by.  */
+    sf argument code={
+        sfLoc = sfDepth;
+        if sfDepth > 0;
+            sfDepth = sfDepth - 1;
+            sf(argument);
+        sfCount = sfCount + 1;
+        sfOut = sfLoc;
+        };
+    /*  ⚠ THE DRIVER'S PREAMBLE IS THE WHOLE FIXTURE. Two statements above the
+        call, and the first of them is the loop guard's reset -- the exact
+        placement inlineSelfT identified as the discriminating variable:
+            guard reset OUTSIDE the driver -> nothing harmful replays -> exit 0
+            guard reset INSIDE  the driver -> the reset replays forever -> 139
+        Only the location of one statement differed there. Here it is inside.  */
+    sfDrive code={
+        sfDepth = 3;
+        print "PREAMBLE":;
+        sfOut = sf(sfArg);
+        };
+    ;
+
+sfArg   = 7;
+sfCount = 0;
+
+print "== jitted: driver WITH a preamble above a self-calling callee ==":;
+testing(sfDrive);
+
+print "SF jitted : count = " sfCount " out = " sfOut:;
+
+print "jitSelfFn SENTINEL -- run reached the end":;
+stop();

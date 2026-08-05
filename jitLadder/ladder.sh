@@ -840,7 +840,16 @@ echo "-- JC CONVERGENCE. THE JITTED WALK MATCHES THE ORACLE AT EVERY DEPTH."
 $B incant/jitDfProbe > "$T/jc" 2>&1
 check "JC runs" 0 $?
 sentinel "JC sentinel (no truncation)" "$T/jc" "jitDfProbe SENTINEL"
-awk '/^== JITTED ==/{f=1;next} /^=== jitRunAction result/{f=0} f&&!/^=== jitRunAction: entering/' "$T/jc" > "$T/jc.jit"
+#  ⚠ THE FILTER DROPS COMPILE NARRATION, NOT OUTPUT, AND THE CONVENTION IS THE
+#  WHOLE OF ITS LICENCE. Every compile-time report the JIT driver emits has the
+#  shape `=== jit<Name>: ... ===`; the WALK prints tree content and never does.
+#  Widened 2026-08-05 from the single `jitRunAction: entering` to the family,
+#  because S3 added three more (DISCOVERED / callee built / restart count) and
+#  naming them one at a time is how a filter silently stops covering the next one.
+#  ⚠ THE VACUITY GUARD BELOW IS WHAT MAKES A WIDER FILTER SAFE: if this ever ate
+#  the walk itself, the half is EMPTY and the rung FAILS rather than diffing two
+#  blanks clean. That is the anti-vacuity instinct doing real work, not decoration.
+awk '/^== JITTED ==/{f=1;next} /^=== jitRunAction result/{f=0} f&&!/^=== jit[A-Za-z]*:/' "$T/jc" > "$T/jc.jit"
 awk '/^== INTERPRETED/{f=1;next} /SENTINEL/{f=0} f' "$T/jc" > "$T/jc.int"
 jcd=$(sed -n 's/.*jitDegrade count = \([0-9-][0-9]*\).*/\1/p' "$T/jc" | head -1)
 if [ ! -s "$T/jc.jit" ] || [ ! -s "$T/jc.int" ]; then

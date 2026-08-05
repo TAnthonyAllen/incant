@@ -658,9 +658,12 @@ GroupItem   arg = argument,
     green run here as the architecture having been chosen.
 
     THE GAP, and it is the SAME SEAM jitBindArgRT closed one increment earlier:
-    runAction's jitting gate returns at :670, ABOVE its own
-    `if field.recursive saveLocalFields(field)` at :677 and the matching restore
-    at :689. So an emitted self-call runs with NO frame bracket at all.
+    runAction's jitting gate returns at :705-707, ABOVE its own
+    `if field.recursive saveLocalFields(field)` at :713 and the matching restore
+    at :725. So an emitted self-call runs with NO frame bracket at all.
+    (Those three were written as :670/:677/:689 -- b7a01c1 line numbers, stale
+    the moment this very comment block was inserted above runAction and shifted
+    it down ~36 lines. Corrected 2026-08-05 as S3's ride-along.)
 
     WHY THAT IS INVISIBLE UNTIL displayForm: the JIT's scalar locals live in
     ALLOCAS inside gJitCurrentFn, and allocas are per-activation for free -- which
