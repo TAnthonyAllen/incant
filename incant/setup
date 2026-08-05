@@ -45,6 +45,19 @@ define
     index immediateAction=processFlags noPrint;
     isList immediateAction=processFlags noPrint;
     isRule immediateAction=processFlags noPrint;
+    /*  THE INSTALL VOCABULARY, promoted from incant/genScratch 2026-08-05 by
+        Tony's ruling, and it joins the isRule family deliberately: these are
+        define-time fire-and-forget commands and they must be commands WHERE THE
+        GRAMMAR IS READ, not only inside the fixture that tests them.
+        ⚠ WHAT IT COST TO LEARN: registered only in genScratch, a
+        `parseMethod=parseBraced` written into incant/grammar was not a command,
+        so it was never fired and consumed -- it was parsed as an ORDINARY TERM.
+        Braced went from 3 terms to 5 against a generated method indexing
+        rule[1..3], and oneTest died at SIGSEGV. Every Scaf* rule is defined
+        inside genScratch itself, so the install route had only ever been
+        exercised in the one file that defines the words it needs. */
+    parseMethod immediateAction=parseRuleMethod noPrint;
+    parseTerms immediateAction=parseTermCount noPrint;
     listenTo immediateAction noPrint;
     window immediateAction=markWindow noPrint;
     load immediateAction=loadDirectory noPrint;

@@ -241,3 +241,59 @@ affects every incantation, so it is **Tony's ruling, not the minion's**.
 first time). Which install: `Braced`. Why byte-different: two spurious terms and a SIGSEGV, cause
 above. The install was **reverted**, the tree rebuilt, and `pop.sh` and `oneTest` confirmed
 **byte-identical to the pre-install capture**. The metric stays at **0/78 installed** — honestly.
+
+## GM-12 — THE FRONT DOOR IS OPEN: THE INSTALL VOCABULARY IS REGISTERED IN `incant/setup`
+**asOf 2026-08-05 · confidence: MEASURED · RULED by Tony · provenance: `incant/setup:59-60`,
+`GroupActions.rtn` `auditUnconsumed`, `Commands.rtn` audit line**
+
+`parseMethod` and `parseTerms` are now registered as commands in `incant/setup`, beside `isRule` and
+the rest of the define-time fire-and-forget family — **where the grammar is read**, not only inside
+the fixture that tests them (GM-11). Registration alone moves **no baseline**: `incant/setup` is
+runtime data, and the fleet was byte-identical before any install.
+
+**Verified consumed:** with the vocabulary live, installing `parseTerms=3 parseMethod=parseBraced`
+on `incant/grammar:107` yields **`0 unconsumed`** and no `MISSTERM Braced` lines. The attributes fire
+and disappear, exactly as `isRule` does.
+
+**THE CONSUMED-CHECK IS NOW PART OF THE AUDIT FAMILY** (Tony's rider). `auditUnconsumed` reports any
+`parseMethod`/`parseTerms` found sitting in a rule's **term list** — proof it was never a command in
+that context. It is **its own check and not folded into MISSTERM**, because MISSTERM says *"isRule
+term, no rStuff"*, which reads as a materialisation problem and points at `rStuff` — bear country,
+and the wrong country.
+**H7 control: the 2026-08-05 Braced specimen is real and dated** (GM-11's SIGSEGV run). The count is
+printed **unconditionally with its value** in the audit line — `… 4 loose, 0 unconsumed` — and
+asserted by `genLadder/pop.sh`'s `AUDITLINE`, so deleting the emitter breaks the check rather than
+satisfying it (rule H4).
+
+## GM-13 — ⚠ RULE ONE, `Braced`: INSTALLS AND CONSUMES CLEANLY, BUT **VERIFIES RED**. PARKED.
+**asOf 2026-08-05 · confidence: MEASURED, isolated · provenance: `incant/grammar:107`,
+`docs/emitted/braced-red-specimen.txt` (253 lines), generated method in
+`docs/emitted/phaseB-twelve-emitted.txt`**
+
+With the vocabulary registered, `Braced` installs correctly — `0 unconsumed`, no spurious terms,
+`oneTest` **exit 0**, `jsonTest` exit 0, ladder 150, `pop.sh` 33 green / 1 parked. **The install
+mechanism is not the problem any more.**
+
+**But the fleet is not byte-identical, so the generated method diverges from the interpretive rule on
+real input.** Isolated with a clean before/after on the grammar line alone (two builds, nothing else
+changed): installing `parseBraced` **deletes ~30 lines of bytecode-generation output from
+`oneTest`** — the entire `gIF` / `gXpress` emit trace for `testByteCode`:
+```
+    runGenerated:  action is: gIF
+    ExpressioN  attribute  length 3 revisedList …
+    Entering gXpress   /  emit tag= bcPushField … bcBRZ …
+```
+⚠ **AND THE DIVERGENCE NAMES THE PARSE BY CONSTRUCTION.** Both fork arms run the same rule actions
+through `ruleActions.rtn` (GM-6), so this cannot be an action difference. That is the oracle's
+isolation property paying for itself on its first use.
+
+**LEAD, at the usual odds, UNMEASURED and NOT HARDENED:** the emitted method attaches the parsed
+`ExpressioN` via `parseR(t2, label)`, while `aCTionBraced` (`ruleActions.rtn`) reads a named
+attribute — `GroupItem ExpressioN:;` then `input.group = ExpressioN`. If the generated attachment
+differs in name or shape, the action finds nothing and the enclosing expression collapses silently.
+**This is a causal-shaped claim in a codebase where those fail roughly half the time. It is a place
+to look first, not a diagnosis.**
+
+**DISPOSITION: PARKED, per the brief — a red parks the rule with its specimen and the campaign takes
+the next rule.** `Braced` is reverted; the generated method is **not** left in the tree as dead code,
+and the emitted text is banked in `docs/emitted/`. **Metric stays 0/78 installed.**

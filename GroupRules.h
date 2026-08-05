@@ -128,6 +128,7 @@ extern "C" int auditMissingRules(GroupItem *registry);
 extern "C" int auditMissingTerms(GroupItem *registry);
 extern "C" GroupItem *auditRStuff(GroupItem *argument);
 extern "C" int auditSpurious(GroupItem *registry);
+extern "C" int auditUnconsumed(GroupItem *registry);
 extern "C" GroupItem *cLEAR(GroupItem *input);
 extern "C" GroupItem *cOPY(GroupItem *field);
 extern "C" int closeFile(GroupItem *bufField);

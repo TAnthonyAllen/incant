@@ -1917,6 +1917,7 @@ GroupItem 	*target = 0;
 int 		missRules = 0;
 int 		missTerms = 0;
 int 		loose = 0;
+int 		unconsumed = 0;
 	target = argument;
 	if ( isGROUP(target->groupBody->flags.data) )
 		target = target->getGroup();
@@ -1927,7 +1928,8 @@ int 		loose = 0;
 		missRules = ::auditMissingRules(target);
 		missTerms = ::auditMissingTerms(target);
 		loose = ::auditSpurious(target);
-		::fprintf(stderr,"AUDIT %s: %s missing rules, %s missing terms, %s loose\n",target->groupBody->tag,::toStringFromInt(missRules),::toStringFromInt(missTerms),::toStringFromInt(loose));
+		unconsumed += auditUnconsumed(target);
+		::fprintf(stderr,"AUDIT %s: %s missing rules, %s missing terms, %s loose, %s unconsumed\n",target->groupBody->tag,::toStringFromInt(missRules),::toStringFromInt(missTerms),::toStringFromInt(loose),::toStringFromInt(unconsumed));
 		}
 	else {
 		while ( registry = ruler->registries->next(registry) )
@@ -1935,8 +1937,12 @@ int 		loose = 0;
 			missRules += ::auditMissingRules(registry);
 			missTerms += ::auditMissingTerms(registry);
 			loose += ::auditSpurious(registry);
+			unconsumed += auditUnconsumed(registry);
 			}
-		::fprintf(stderr,"AUDIT all registries: %s missing rules, %s missing terms, %s loose\n",::toStringFromInt(missRules),::toStringFromInt(missTerms),::toStringFromInt(loose));
+		/*  ⚠ REPORTED UNCONDITIONALLY AND WITH ITS VALUE (rule H4). An absence
+		check on the UNCONSUMED lines would go green the day the emitter is
+		deleted; a count that is always printed and asserted at zero cannot.  */
+		::fprintf(stderr,"AUDIT all registries: %s missing rules, %s missing terms, %s loose, %s unconsumed\n",::toStringFromInt(missRules),::toStringFromInt(missTerms),::toStringFromInt(loose),::toStringFromInt(unconsumed));
 		}
 	return argument;
 }
@@ -1968,6 +1974,61 @@ int 		spurious = 0;
 			}
 		}
 	return spurious;
+}
+
+/*******************************************************************************
+    auditUnconsumed -- THE CONSUMED-CHECK. Tony's rider, 2026-08-05.
+
+    AN INSTALL ATTRIBUTE THAT FIRED LEAVES NO TERM BEHIND. `parseMethod=` and
+    `parseTerms=` are define-time fire-and-forget commands of the isRule family:
+    they change the group being defined and are then FORGOTTEN, never added as
+    attributes (incant/setup:7-11 states the contract). So finding one sitting in
+    a rule's TERM LIST is proof it was never a command in that context -- it was
+    read as ordinary grammar.
+
+    ⚠ WHY IT IS ITS OWN CHECK AND NOT LEFT TO MISSTERM. The generic missing-rStuff
+    check DID fire on the specimen below, but it says "isRule term, no rStuff",
+    which reads as a materialisation problem and points at rStuff -- bear country,
+    and the wrong country. Two spurious terms in a rule the generator indexes by
+    position is a DIFFERENT DISEASE with a different cure, and a check that names
+    it saves the next reader the hunt.
+
+    ⚠ H7 NEGATIVE CONTROL -- THE SPECIMEN IS REAL AND DATED. Installing
+    `parseTerms=3 parseMethod=parseBraced` on incant/grammar:107 while the
+    vocabulary was registered ONLY in incant/genScratch produced exactly this:
+        AUDIT MISSTERM Braced [4] parseTerms  -- isRule term, no rStuff
+        AUDIT MISSTERM Braced [5] parseMethod -- isRule term, no rStuff
+        Braced 3 terms -> 5, against a method indexing rule[1..3]
+        oneTest: Segmentation fault: 11
+    That run is the control this check would have caught by NAME. The cure was to
+    register both commands in incant/setup, where the grammar is read; this check
+    is what makes a regression of that cure loud instead of silent.
+
+    ⚠ PRESENCE-WITH-VALUE, NOT ABSENCE-OF-MESSAGE (rule H4): the caller prints the
+    COUNT unconditionally and asserts it is zero, so deleting the emitter breaks
+    the check rather than satisfying it.
+*******************************************************************************/
+extern "C" int auditUnconsumed(GroupItem *registry)
+{
+GroupItem 	*entry = 0;
+GroupItem 	*term = 0;
+int 		i = 0;
+int 		found = 0;
+	while ( entry = registry->next(entry) )
+		if ( entry->groupBody->flags.isRule )
+			{
+			i = 1;
+			while ( term = entry->get(i) )
+				{
+				if ( ::compare(term->groupBody->tag,"parseMethod") == 0 || ::compare(term->groupBody->tag,"parseTerms") == 0 )
+					{
+					::fprintf(stderr,"AUDIT UNCONSUMED %s [%s] %s -- install attribute survived as a TERM; it was not a command where this grammar was read\n",entry->groupBody->tag,::toStringFromInt(i),term->groupBody->tag);
+					found++;
+					}
+				i++;
+				}
+			}
+	return found;
 }
 
 /***************************************************************************

@@ -50,6 +50,7 @@ GroupItem   target;
 int         missRules = 0;
 int         missTerms = 0;
 int         loose = 0;
+int         unconsumed = 0;
     target = argument;
     if target.isGROUP               target = target.group;
     if target.tag eq "InvokeArg"    target = 0;
@@ -57,13 +58,18 @@ int         loose = 0;
         missRules = auditMissingRules(target);
         missTerms = auditMissingTerms(target);
         loose     = auditSpurious(target);
-        cerr "AUDIT " target.tag ": " toStringFromInt(missRules) " missing rules, " toStringFromInt(missTerms) " missing terms, " toStringFromInt(loose) " loose":; }
+        unconsumed += auditUnconsumed(target);
+        cerr "AUDIT " target.tag ": " toStringFromInt(missRules) " missing rules, " toStringFromInt(missTerms) " missing terms, " toStringFromInt(loose) " loose, " toStringFromInt(unconsumed) " unconsumed":; }
     else {
         while registry = registries.next(registry) {
             missRules += auditMissingRules(registry);
             missTerms += auditMissingTerms(registry);
-            loose     += auditSpurious(registry); }
-        cerr "AUDIT all registries: " toStringFromInt(missRules) " missing rules, " toStringFromInt(missTerms) " missing terms, " toStringFromInt(loose) " loose":; }
+            loose     += auditSpurious(registry);
+            unconsumed += auditUnconsumed(registry); }
+        /*  ⚠ REPORTED UNCONDITIONALLY AND WITH ITS VALUE (rule H4). An absence
+            check on the UNCONSUMED lines would go green the day the emitter is
+            deleted; a count that is always printed and asserted at zero cannot.  */
+        cerr "AUDIT all registries: " toStringFromInt(missRules) " missing rules, " toStringFromInt(missTerms) " missing terms, " toStringFromInt(loose) " loose, " toStringFromInt(unconsumed) " unconsumed":; }
     return argument;
 }
 

@@ -346,7 +346,7 @@ diffcheck "manyScratch.target (kant emitMany: emission + both refusals)" \
 #  Naming JSONblock and JSONarray before JSONtoken/JSONvalue reference them
 #  turned all three into real references, which is why they are no longer
 #  missing. Explanation plus measurement, not just a green diff.
-AUDITLINE="AUDIT all registries: 4 missing rules, 12 missing terms, 4 loose"
+AUDITLINE="AUDIT all registries: 4 missing rules, 12 missing terms, 4 loose, 0 unconsumed"
 if grep -qF "$AUDITLINE" "$T/one"; then
     echo "  ok    rStuff audit (present, populations unchanged)"; green=$((green+1))
 else
