@@ -89,6 +89,119 @@ define
         return k4loc;
         };
 
+    /*  ===================== K5 (2026-08-05) ==========================
+        INVOCATION-HISTORY DEPENDENCE. k5 is k1's body character for character,
+        under its own name so that "call 1" is a genuine FIRST invocation --
+        k1 has already been called by the K1 row above, and the whole question
+        is whether the FIRST call differs from the SECOND.
+        Basis: restoreLocalFields clears `recursive` on the outermost restore
+        when the stack came back empty (GroupActions.rtn:587), so call 2 may
+        skip the bracket entirely and return the local intact.  */
+    k5depth;
+    k5 argument code={
+        k5loc = 42;
+        if k5depth > 0;
+            k5depth = k5depth - 1;
+            k5(argument);
+        return k5loc;
+        };
+
+    /*  ===================== K6 (2026-08-05) ==========================
+        MUTUAL RECURSION -- THE UNPROTECTED SIBLING. `recursive` is set only on
+        DIRECT self-mention (ruleActions.rtn:1310), so in A -> B -> A NEITHER A
+        NOR B trips the bracket: no save, no restore, no protection at all.
+        The carried thing is an ITERATOR CURSOR mid-walk, which is the proven
+        node-resident specimen class (it is what displayForm's divergence was).
+
+        ⚠ THE TWO NODES HAVE DIFFERENT ATTRIBUTE COUNTS ON PURPOSE. With one
+        node both the protected and the trampled reading produce 3 and the row
+        would discriminate nothing. Big has 3, small has 1:
+            protected  outer walks its OWN cursor over big      -> 3
+            trampled   inner re-points the SHARED cursor at small,
+                       exhausts it, outer resumes on it          -> 1  */
+    k6big       aa bb cc;
+    k6small     xx;
+    k6depth;
+    k6A argument code={
+        iterate k6cur on argument attributes;
+        k6seen = 0;
+        while ++k6cur;
+            k6seen = k6seen + 1;
+            if k6depth > 0;
+                k6depth = k6depth - 1;
+                k6B(k6small);
+        return k6seen;
+        };
+    k6B argument code={
+        k6A(argument);
+        return 0;
+        };
+
+    /*  K6b -- THE CONTROL. Identical A -> B -> A shape, but the local is
+        written entirely AFTER the B call returns and is never carried across
+        it. Clean here proves K6a's failure is THE CARRY, not the shape.  */
+    /*  ⚠ THE CONTROL ITERATES k6big BY NAME, NOT `argument`, AND THE FIRST CUT
+        DID NOT -- which is how a SECOND trample was found. Written with
+        `argument`, this control returned 1 instead of 3, because the inner
+        activation had rebound the action's `argument` field to k6small and, with
+        no bracket running, the OUTER resumed reading the inner's binding. That
+        is a real result and it gets its own row (K6c) rather than being quietly
+        designed out; here it would confound the iterator question with an
+        argument question, and a control that fails for a second reason controls
+        nothing.  */
+    k6depth2;
+    k6Actl argument code={
+        if k6depth2 > 0;
+            k6depth2 = k6depth2 - 1;
+            k6Bctl(k6small);
+        iterate k6cur2 on k6big attributes;
+        k6seen2 = 0;
+        while ++k6cur2;
+            k6seen2 = k6seen2 + 1;
+        return k6seen2;
+        };
+
+    /*  K6c -- THE ARGUMENT TRAMPLE, ISOLATED. No iterator at all: the outer
+        simply reads its OWN argument's tag after the B call returns.
+        ⚠ CONTRAST WITH K2, WHICH IS THE POINT. In DIRECT recursion an argument
+        DODGES the emptying, because runAction binds before saveLocalFields runs
+        so it is saved as-bound and restored as-bound. In MUTUAL recursion there
+        is no bracket at all, so the argument is not restored -- it simply keeps
+        the inner activation's binding. Same field, opposite outcomes, different
+        mechanisms.  */
+    k6depth3;
+    k6Aarg argument code={
+        if k6depth3 > 0;
+            k6depth3 = k6depth3 - 1;
+            k6Barg(k6small);
+        return argument.taG;
+        };
+    k6Barg argument code={
+        k6Aarg(argument);
+        return 0;
+        };
+
+    /*  K6d -- THE RE-ITERATE, ISOLATED. No recursion, no mutual anything: one
+        action, one cursor local, iterated twice on two different nodes. If the
+        second walk counts 1 rather than 3, the cursor did not re-point and the
+        whole K6b-first-draft result belongs to the iterator rather than to any
+        frame question.  */
+    k6Re argument code={
+        iterate k6cur3 on k6small attributes;
+        k6seen3 = 0;
+        while ++k6cur3;
+            k6seen3 = k6seen3 + 1;
+        iterate k6cur3 on k6big attributes;
+        k6seen3 = 0;
+        while ++k6cur3;
+            k6seen3 = k6seen3 + 1;
+        return k6seen3;
+        };
+    k6Bctl argument code={
+        k6Actl(argument);
+        return 0;
+        };
+
     /*  DRIVERS, so the jitted legs can run. testing() binds no argument, and
         these rows are about actions that TAKE one -- so each driver is nullary
         and makes the real call itself, exactly as dfDrive does for displayForm.
@@ -145,6 +258,84 @@ print "== K2 OPEN PROBE: recursive action returning its ARGUMENT ==":;
 k2depth = 1;
 kOut = k2(kArg);
 print "K2 returned =" kOut " (kArg is 7; does an argument dodge the restore?)":;
+
+print "== K5: INVOCATION-HISTORY DEPENDENCE -- K1's shape, called TWICE ==":;
+/*  ⚠ THE FLAG ITSELF CANNOT BE PRINTED FROM HERE, AND THAT IS A REPORTED
+    CONSTRAINT RATHER THAN AN OMISSION. `recursive` is NOT in the GroupFields
+    registry (incant/setup:236-276 lists 30-odd flags; recursivE is not among
+    them), so there is no incant spelling for it -- and incant/flagProbe already
+    established that a GroupFields name with no opDot case falls to
+    `product.text = "access to ... not supported yet"`, a NON-EMPTY STRING that
+    is TRUTHY either way. So an undeclared name would not merely fail, it would
+    read as permanently set. Adding one is an interpreter-side edit and out of
+    this brief's scope.
+    ROUTED AROUND: the RETURNS are the flag's observable. The bracket's only
+    effect on this shape is whether the local survives, so 42 means the bracket
+    did not run and the tag means it did. Two calls, two readings.  */
+k5depth = 1;
+kOut = k5(kArg);
+print "K5 call 1 returned =" kOut " (42 = bracket did NOT run; tag = it did)":;
+k5depth = 1;
+kOut = k5(kArg);
+print "K5 call 2 returned =" kOut " (does invocation HISTORY change the answer?)":;
+
+/*  ⚠ K5's ANSWER IS "NO", AND THE WHY IS STRUCTURAL RATHER THAN INFERRED --
+    which matters, because a causal claim in this domain is a coin flip until it
+    is run and this one can be READ instead.
+    saveLocalFields pushes ONE saved body per field matching
+    `(isArgument || isLocal) && !noPrint` (GroupActions.rtn:859-879);
+    restoreLocalFields pops exactly as many, walking the same predicate backward
+    (:589-593). So the stack is empty on entry to a restore IF AND ONLY IF the
+    save pushed nothing -- i.e. the action has NO matching fields, in which case
+    the bracket had nothing to blank in the first place.
+    THEREFORE line 587's `if !recurseSTAK.length action.recursive = false;` IS
+    REACHABLE ONLY FOR ACTIONS WHERE CLEARING IT CHANGES NOTHING. For any action
+    the bracket actually affects, `recursive` is never cleared -- which is
+    exactly what these two rows measure, and it makes the flag effectively
+    static in practice even though it is written at run time.
+    ⚠ THIS NARROWS A WARNING I ISSUED EARLIER THIS DAY. The S3 probe reported
+    "recursive is cleared at run time, so compile results could depend on
+    invocation history", and that was used as one of two reasons to reject
+    option (c). The clause is TRUE but INERT for any action with a local or an
+    argument. The ruling is unaffected -- (c)'s other reason was that `recursive`
+    misses A->B->A entirely, and K6a/K6c below MEASURE that gap rather than
+    predicting it -- but the record should carry the narrower claim.  */
+
+print "== K6a: MUTUAL RECURSION A->B->A, node-resident local CARRIED across ==":;
+k6depth = 1;
+kOut = k6A(k6big);
+print "K6a outer returned =" kOut " (3 = its own cursor; 1 = trampled by the inner)":;
+
+print "== K6b CONTROL: same A->B->A, local written AFTER the B call ==":;
+k6depth2 = 1;
+kOut = k6Actl(k6big);
+print "K6b outer returned =" kOut " (want 3; proves the SHAPE is not the fault)":;
+
+print "== K6c: MUTUAL RECURSION -- the ARGUMENT, read after the B call ==":;
+k6depth3 = 1;
+kOut = k6Aarg(k6big);
+print "K6c outer returned =" kOut " (k6big = its own; k6small = the inner's)":;
+
+/*  ⚠⚠ K6d IS THE ELIMINATION ROW, AND IT EXISTS BECAUSE A BAD WITNESS NEARLY
+    INVERTED A DIAGNOSIS. K6b's first draft iterated `argument` and returned 1
+    instead of 3; the attribution was "the inner activation trampled the
+    argument". K6c was then written to check that -- and in its FIRST form it
+    did `return argument;`, which printed 3, i.e. k6big's ATTRIBUTE COUNT rather
+    than its identity. Read as "the argument is intact", that inverted the
+    diagnosis and pointed at the iterator instead.
+    ⚠ PRINTING A GROUP NODE PRINTS ITS ATTRIBUTE COUNT. It is a legal-looking
+    number in the same range as the answer, so it does not announce itself as
+    the wrong quantity. `return argument.taG;` is the honest witness and it says
+    k6small -- the argument IS trampled, the original reading was right, and the
+    thing that was briefly wrong was the instrument.
+    K6d survives as the ELIMINATION it forced: a second `iterate` on the same
+    cursor, two different nodes, one straight-line action, no recursion of any
+    kind. It counts 3, so the re-iterate re-points correctly and the iterator is
+    NOT a suspect in any row above. A control that eliminates is worth keeping
+    even when the hypothesis it was built for dies.  */
+print "== K6d: RE-ITERATE THE SAME CURSOR ON A DIFFERENT NODE, no recursion ==":;
+kOut = k6Re(k6big);
+print "K6d second walk counted =" kOut " (want 3; 1 = the re-iterate did NOT re-point)":;
 
 print "kant8T SENTINEL -- run reached the end":;
 stop();
