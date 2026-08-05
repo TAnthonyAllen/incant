@@ -1,0 +1,47 @@
+/*  P-G2 PROBE -- the true rule population, AUDITABLE. Read-only: no installs,
+    no builds, no dispatch movement, no grammar edits.
+
+    ⚠ ONE WALK, BOTH BRANCHES PRINTED. A first draft used a second action to
+    list the rules after a first had counted them, and the second walk came back
+    EMPTY -- a cursor question across two actions over the same node, which is
+    exactly the node-resident-state family kant8T's K6a measures. Not chased:
+    printing the verdict inside the single walk answers the same question and
+    cannot be wrong for that reason.
+
+    ⚠ NO BRACED BLOCK IN THE BODY, AND THAT IS CLAIM KANT-40 NOT STYLE. A first
+    draft wrote `if isRulE { ... }` and the run printed
+    `RunRulE: expected a method not countThem`, dropped everything after it, and
+    STILL EXITED 0 -- aCTionCodE scans for the FIRST close brace with no block
+    awareness, so the inner `}` ended the capture. The sentinel is what caught
+    it: absent sentinel, uninterpretable run. Two separate `if` tests instead.
+
+    ⚠ VACUITY GUARD: the NON-rules are printed by name too. If isRulE were inert
+    (a GroupFields entry with no opDot case falls back to a truthy string --
+    incant/flagProbe), every member would read as a rule and the non-rule list
+    would be EMPTY. A non-empty non-rule list is the proof the test discriminates.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(RuleCount);
+define
+    rcAll;
+    rcRules;
+    countThem argument code={
+        rcAll = 0;
+        rcRules = 0;
+        iterate rcCur on argument members;
+        while ++rcCur;
+            rcAll = rcAll + 1;
+            if isRulE;  rcRules = rcRules + 1;
+            if isRulE;  print "  rule    " ~taG:;
+            else        print "  NOTRULE " ~taG:;
+        return rcAll;
+        };
+    ;
+rcAll = 0; rcRules = 0;
+print "== GROKKING ==":;
+countThem(Grokking);
+print "RC Grokking: members =" rcAll " rules =" rcRules:;
+print "RULECOUNT SENTINEL":;
+stop();
