@@ -1017,6 +1017,104 @@ else
 fi
 
 echo ""
+echo "-- JRt RETURN. THE FIRST RUNG THAT ASSERTS WHAT AN ACTION HANDS BACK."
+#  ⚠⚠ EVERY RUNG ABOVE THIS ONE ASSERTS A **FIELD** AFTER THE ACTION, NEVER A
+#  **RETURNED** VALUE, AND THERE WAS ONE REASON: `return` called jitDegrade. So
+#  "what did the compiled action hand back" had never been asked of any
+#  construct, and CLAIM KANT-8's jitted parity was not merely unanswered, it was
+#  NOT ASKABLE. Item 2 (Tony, 2026-08-05) built the emitter; this rung is the
+#  question finally being put.
+#
+#  ⚠ THE WITNESS IS THE HARNESS'S OWN LINE, NOT A print IN THE FIXTURE.
+#  jitRunAction and jitRefire print the returned value from C++ printf, so it
+#  never passes through the incant print path -- which matters because a jitted
+#  print of a bare string literal currently emits the string's LENGTH instead of
+#  its text (pre-existing, measured, pinned in incant/jitSelfFn's header, degrade
+#  count 0 throughout). An oracle that can be silently wrong is not an oracle.
+retrung () {                    # retrung <file> <sentinel> <label> <want1> <want2>
+    f=$1; sent=$2; label=$3; w1=$4; w2=$5
+    runcap "$label runs" "$f" "$T/$f"
+    if [ $? != 0 ]; then echo "  FAIL  $label -- nonzero exit"; fail=1; return; fi
+    if ! grep -qF "$sent" "$T/$f"; then
+        echo "  FAIL  $label -- TRUNCATED at exit 0; nothing in this run is interpretable"
+        fail=1; return; fi
+    r1=$(sed -n 's/.*jitRunAction result = \([0-9-][0-9]*\).*/\1/p' "$T/$f" | head -1)
+    r2=$(sed -n 's/.*jitRefire result = \([0-9-][0-9]*\).*/\1/p' "$T/$f" | head -1)
+    dg=$(sed -n 's/.*jitDegrade count = \([0-9]*\).*/\1/p' "$T/$f" | tail -1)
+    [ "$r1" = "$w1" ] && { echo "  ok    $label RETURNED $w1 on fire 1"; green=$((green+1)); } \
+                      || { echo "  FAIL  $label fire 1 returned '$r1', want $w1"; fail=1; }
+    if [ "$r2" = "$w2" ]; then
+        echo "  ok    $label RETURNED $w2 on fire 2  <- RUN-TIME PROOF (no recompile)"; green=$((green+1))
+    else
+        echo "  FAIL  $label fire 2 returned '$r2', want $w2"
+        echo "        If it equals fire 1 the value was FOLDED at compile time and"
+        echo "        fire 1 proved nothing. If empty, the refire never happened."
+        fail=1
+    fi
+    #  E4: INSIDE A SELF-TEST-PASSING CALLEE A RETURN MUST NOT DEGRADE. This is
+    #  the no-degrade-in-family posture made real at its first site.
+    if [ "$dg" = "0" ]; then echo "  ok    $label degrade count 0 (the return EMITTED; nothing fell through)"; green=$((green+1))
+    else echo "  FAIL  $label degrade count = '$dg', want 0 -- a return fell through"; fail=1; fi
+}
+
+#  F1 -- the base case. A returned scalar from a NON-recursive action.
+retrung jitJRt1 "JRt1 SENTINEL" "JRt1" 21 27
+o1=$(sed -n 's/.*JRt1 interpreted  *: rtOut = *\([0-9-][0-9]*\).*/\1/p' "$T/jitJRt1" | head -1)
+if [ "$o1" = "21" ]; then echo "  ok    JRt1 oracle agrees: interpreted returned 21 == jitted"; green=$((green+1))
+else echo "  FAIL  JRt1 ORACLE DISAGREES: interpreted '$o1' vs jitted 21"; fail=1; fi
+
+#  F2 -- factorial(5) = 120 through REAL RECURSION, carried out through the
+#  return value rather than read off a field afterwards. KR-1's first row.
+retrung jitJRt2 "JRt2 SENTINEL" "JRt2" 120 720
+#  ⚠ THE ORACLE IS A SEPARATE PROCESS, AND THAT IS A FINDING. The identical
+#  interpreted call placed BELOW the jitted fires returns 5 -- ftAcc's value at
+#  the outermost activation before it recursed, the save/restore signature --
+#  while standalone it returns 120. So a post-jit interpreted call is NOT a clean
+#  oracle for a RETURNED value, whatever it is for a field (jitJR reads its
+#  accumulator as a field in the same position and is correct, which is why
+#  nothing had caught this). Interpreter-side, out of item 2's scope, reported.
+runcap "JRt2 oracle runs" jitJRt2o "$T/jitJRt2o"
+check "JRt2 oracle runs" 0 $?
+sentinel "JRt2 oracle sentinel" "$T/jitJRt2o" "JRt2o SENTINEL"
+o2=$(sed -n 's/.*JRt2o interpreted : ftOut = *\([0-9-][0-9]*\).*/\1/p' "$T/jitJRt2o" | head -1)
+if [ "$o2" = "120" ]; then echo "  ok    JRt2 oracle (own process) agrees: interpreted 120 == jitted"; green=$((green+1))
+else echo "  FAIL  JRt2 ORACLE DISAGREES: interpreted '$o2' vs jitted 120"; fail=1; fi
+
+#  F3 -- CLAIM KANT-8's shape. ⚠⚠ AN INTENDED DIVERGENCE, RULED, NOT A DEFECT.
+#  KR-3's first inverted row: the jitted column is asserted at 42/45, and the
+#  interpreted column is asserted to be the bare TAG. Both by name.
+retrung jitJRt3 "JRt3 SENTINEL" "JRt3" 42 45
+runcap "JRt3 interpreted column runs" jitJRt3o "$T/jitJRt3o"
+check "JRt3 interpreted column runs" 0 $?
+sentinel "JRt3 interpreted column sentinel" "$T/jitJRt3o" "JRt3o SENTINEL"
+#  ⚠ ASSERTED, NOT MERELY NOTED. A divergence nobody measures is
+#  indistinguishable from one that has quietly closed -- and if KANT-8 is ever
+#  repaired, THIS row is what says so loudly instead of the repair landing
+#  unnoticed. Presence-with-value on both sides (H4).
+if grep -q "JRt3o interpreted : k8out = k8loc" "$T/jitJRt3o"; then
+    echo "  ok    JRt3 INTENDED DIVERGENCE holds: interpreted returns the TAG k8loc, jitted returns 42"; green=$((green+1))
+elif grep -q "JRt3o interpreted : k8out = 42" "$T/jitJRt3o"; then
+    echo "  FAIL  JRt3 THE DIVERGENCE HAS CLOSED -- the interpreter now returns 42."
+    echo "        That is not a regression, it is NEWS: KANT-8 may have been"
+    echo "        repaired. Update the KR-3 ledger row and this check together."; fail=1
+else
+    echo "  FAIL  JRt3 interpreted column is neither the tag nor 42 -- unreadable"; fail=1
+fi
+
+#  F4 -- E1's mid-block return, with statements after it. Both fires take the
+#  OPPOSITE arm, and mbTail is the second channel: a returned value alone cannot
+#  distinguish "the tail was skipped" from "the tail ran and was discarded".
+retrung jitJRt4 "JRt4 SENTINEL" "JRt4" 111 222
+t1=$(sed -n 's/.*JRt4 fire 1 tail  : mbTail = *\([0-9-][0-9]*\).*/\1/p' "$T/jitJRt4" | head -1)
+t2=$(sed -n 's/.*JRt4 fire 2 tail  : mbTail = *\([0-9-][0-9]*\).*/\1/p' "$T/jitJRt4" | head -1)
+if [ "$t1" = "0" ]; then echo "  ok    JRt4 fire 1 tail NOT executed (mbTail = 0, the early return was taken)"; green=$((green+1))
+else echo "  FAIL  JRt4 fire 1 mbTail = '$t1', want 0 -- the tail ran past a taken return"; fail=1; fi
+if [ "$t2" = "999" ]; then echo "  ok    JRt4 fire 2 tail DID execute (mbTail = 999, the return was not taken)"; green=$((green+1))
+else echo "  FAIL  JRt4 fire 2 mbTail = '$t2', want 999 -- the statements after the"
+     echo "        return were never EMITTED. aCTionBlocK's 'if jitting continue'"
+     echo "        is what keeps the emit walk going past a branch."; fail=1; fi
+
+echo ""
 #  ⚠ H2 -- THE LADDER ASSERTS ITS OWN COMPLETENESS, and it must be unreachable
 #  except through the LAST rung. Added 2026-08-05 with the check/sentinel
 #  repair: for four days this file called two helpers it never defined, and the
@@ -1026,7 +1124,7 @@ if [ "$green" -lt 1 ]; then
     echo "                   the helpers are missing again or the rungs evaporated."
     fail=1
 fi
-if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv JV JC JS + J-R THE PROOF)"
+if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv JV JC JS JRt + J-R THE PROOF)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"
 exit $fail

@@ -1,0 +1,89 @@
+/*****************************************************************************
+    jitJRt2 -- F2. factorial(5) = 120, RETURNED, THROUGH REAL RECURSION.
+    2026-08-05.
+
+    ⚠ KR-1's FIRST ROW, LANDING EARLY AS THIS BRIEF'S PROOF. The answer is
+    computed by NEITHER ENGINE in the sense that matters: 120 is not sitting in a
+    field anywhere for the harness to read afterwards. It is carried out of five
+    nested activations THROUGH THE RETURN VALUE, which is the construct item 2
+    built and which did not exist this morning.
+
+    WHAT MAKES IT A PROOF RATHER THAN AN ARITHMETIC CHECK, in layers:
+      - ftLoc is a LOCAL read AFTER the recursive call returns, so a per-
+        activation slot is required; aliased slots give a wrong product.
+      - the recursive call's VALUE is consumed (`ftSub = ft(argument)`), so the
+        emitted call must hand back a real i32 -- before item 2 it handed back
+        whatever the unemitted return left behind.
+      - `ft` mentions its own name, so it passes the self-test and S3 gives it
+        its OWN function. The return therefore has an honest function boundary to
+        return through, which is exactly the ground (b) prepared.
+
+    COMPILE ONCE, FIRE TWICE: 5! = 120 and 6! = 720. Different answers, not
+    merely different inputs.
+
+    ⚠ WITNESS IS THE HARNESS LINE, not a print in this file -- see jitJRt1's
+    header for why (the print-length defect makes a printed literal an
+    unreliable witness at degrade count 0).
+
+    ⚠ ORACLE LAST. An interpreted run consumes isCoded and would reroute the
+    jitted half to jitRunIfTest.
+
+    HELD OUT ON PURPOSE (Tony): this asserts factorial through the DRIVER's
+    return only. Certifying the callee's own returned value across each
+    recursion boundary is covered implicitly -- the driver's answer is wrong if
+    it is not -- and a direct assertion would need harness reach into the callee
+    that does not exist yet.
+
+    SENTINEL AT THE FOOT, exactly ONE stop() (rule H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+register(JitLadder);
+define
+    ftN;
+    ftAcc;
+    ftOut;
+    /*  ⚠ THE BODY IS jitJR's, PROVEN, PLUS ONE LINE -- `return ftAcc;`. That is
+        deliberate isolation: jitJR already certifies that this recursion RUNS
+        correctly under the JIT (it asserts ftAcc as a FIELD afterwards), so the
+        only thing this fixture adds is whether the answer can COME OUT THROUGH
+        THE RETURN. A red here is the return emitter, not the recursion.
+        ftAcc is a GLOBAL on purpose, so KANT-8 -- which blanks LOCALS across a
+        recursive call -- cannot reach it. Returning a local from a recursive
+        action is a different question and jitJRt3 owns it.  */
+    ft code={
+        if ftN > 1;
+            ftAcc = ftAcc * ftN;
+            ftN = ftN - 1;
+            ft();
+        return ftAcc;
+        };
+    ;
+ftN = 5; ftAcc = 1;
+print "JRt2 fire 1 setup : ftN =" ftN:;
+testing(ft);
+
+ftN = 6; ftAcc = 1;
+print "JRt2 fire 2 setup : ftN =" ftN " (recompile: NONE)":;
+jitRefire();
+
+/*  ⚠⚠ THE ORACLE IS NOT IN THIS FILE, AND THAT IS A FINDING RATHER THAN A
+    CONVENIENCE. An interpreted run placed after the jitted fires returned 5,
+    not 120 -- while THE IDENTICAL BODY RUN STANDALONE RETURNS 120 (measured
+    2026-08-05, both ways). So a post-jit interpreted call is NOT A CLEAN ORACLE
+    for a RETURNED value, whatever it is for a field: jitJR reads its
+    accumulator as a FIELD in the same position and is correct, which is why
+    nothing had noticed.
+    5 is ftAcc's value at the OUTERMOST activation before it recursed -- the
+    save/restore signature -- so the shape is KANT-8's family reaching a global
+    it should not, and `recursive` is CLEARED AT RUN TIME by
+    restoreLocalFields (GroupActions.rtn:587), which makes whether the bracket
+    ran depend on invocation history. INTERPRETER-SIDE, EXPLICITLY OUT OF THIS
+    BRIEF'S SCOPE, and reported rather than chased.
+    The oracle therefore lives in incant/jitJRt2o, which never jits.  */
+print "JRt2 SENTINEL":;
+stop();

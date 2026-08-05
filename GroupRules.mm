@@ -185,11 +185,39 @@ GroupItem 	*arg = ExpressioN;
 	arg, and the header comment says the stamp is meant for what is
 	returned). That discrepancy is NOT this edit's business -- reading
 	*BrancheS.tag mirrors the switch exactly and settles nothing either way.  */
+	/*  ⚠ RETURN IS EMITTED NOW (item 2, Tony 2026-08-05). The degrade arm below
+	shrank from "break and return" to "break, and the ONE return case that is
+	still unbuilt". jitEmitReturn answers 0 for a return inside an INLINED
+	body -- E2, deferred with sanction -- and that is the only path that
+	still counts, so the message says which case it was rather than leaving
+	a reader to infer it from a construct name that is otherwise covered.  */
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		
-		if (*BrancheS->groupBody->tag == 'c')    jitEmitContinue();
-		else    jitDegrade("break/return under jit -- no emitter yet", input);
+		if (*BrancheS->groupBody->tag == 'c')       jitEmitContinue();
+		else if (*BrancheS->groupBody->tag == 'r') {
+		//  ⚠ A RETURN IS A POSITION THAT CONSUMES A VALUE, and jitEmitters'
+		//  own standing rule (the note above jitEmitBareRead's callers) is
+		//  that EVERY such position invokes the primitive when its operand
+		//  is BARE. `return` was not on that list only because it did not
+		//  exist when the list was written.
+		//  Without this, `return someField;` emits NOTHING -- `if isMethod`
+		//  is false for a bare read -- so jitStoreResult finds a null
+		//  gJitResult, stores nothing, and the action returns whatever the
+		//  PRIOR statement left in the slot. Measured 2026-08-05:
+		//  `return ftAcc;` off a base case returned 0, silently, at degrade
+		//  count 0. Exactly the shape gIF and both loops already carry.
+		if (ExpressioN && !isMethod(ExpressioN->groupBody->flags.instructType))
+		::jitEmitBareRead(ExpressioN);
+		int rr = ::jitEmitReturn();
+		if (rr == 0)
+		jitDegrade("return INSIDE AN INLINED CALLEE -- E2, unbuilt: it "
+		"would branch to the enclosing function's epilogue",
+		input);
+		else if (rr < 0)
+		jitDegrade("return REFUSED -- no builder or no epilogue block. "
+		"This is a mis-sequenced caller, NOT E2", input); }
+		else    jitDegrade("break under jit -- no emitter yet", input);
 		
 		}
 	return arg;
@@ -3524,6 +3552,17 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	
 	::jitFlushTransient();
 	
+	//  ⚠ THE EPILOGUE BLOCK IS CREATED **AFTER** THE FLUSH, AND THAT ORDER IS
+	//  THE WHOLE OF ITS CORRECTNESS. Created above with the entry block -- where
+	//  it reads like it belongs -- it was silently nulled two lines later by the
+	//  flush that clears it between functions, and every `return` in the run then
+	//  refused for want of a block that had been built and thrown away.
+	//  A per-function global must be set after the thing that clears
+	//  per-function globals, not beside the thing it is conceptually part of.
+	//  THE EPILOGUE IS PARENTED LATER, at the foot, so it lists after the body
+	//  blocks in a dump. Every exit -- falling off the end, or any `return` --
+	//  branches here, so the frame writeback and the ret exist exactly once.
+	gJitEpilogueBB = llvm::BasicBlock::Create(C, "epilogue");
 	if (isCoded(action->groupBody->flags.actionType))
 	::processCode(action);
 	
@@ -3605,6 +3644,22 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	// RAN -- and in every fixture dumped it was a CONSTANT. Storing per
 	// statement and loading here is what makes the returned value path-correct.
 	jitStoreResult();
+	
+	//  ============ FALL-THROUGH JOINS THE RETURNS (item 2, 2026-08-05) ========
+	//  jitStoreResult above committed the last statement's value INTO THE
+	//  CURRENT BLOCK, which is right: falling off the end of an action yields
+	//  the last executed statement's value. Now that path becomes one exit among
+	//  several -- it branches to the epilogue exactly as a `return` does.
+	//
+	//  ⚠ THE TERMINATOR TEST IS NOT DEFENSIVE, IT IS THE NORMAL CASE. An action
+	//  whose last statement is a `return` leaves the builder parked in
+	//  jitEmitReturn's unreachable continuation block, which has no terminator
+	//  and needs this branch; an action that ends inside emitted control flow may
+	//  already be terminated. Both are ordinary.
+	if (!B.GetInsertBlock()->getTerminator())
+	B.CreateBr(gJitEpilogueBB);
+	gJitEpilogueBB->insertInto(fn);
+	B.SetInsertPoint(gJitEpilogueBB);
 	
 	// ================= FRAME EPILOGUE (Increment 1, 2026-08-01) =================
 	// Store each frame slot back to the field's own storage, so the interpreter
@@ -4459,6 +4514,89 @@ extern "C" GroupItem *jitEmitRem(GroupItem *argument, GroupItem *target, GroupIt
 	
 }
 
+/* jitEmitReturn  `return`, EMITTED. Item 2, Tony's ruling 2026-08-05.
+
+   THE GAP IT CLOSES: return called jitDegrade. That is why EVERY green rung in
+   the ladder asserts a FIELD's value after the action and never a RETURNED one,
+   and why CLAIM KANT-8's jitted parity was not merely unanswered but NOT YET
+   ASKABLE. This makes it askable.
+
+   ⚠ E3 -- A BARE `return;` IS CORRECT BY CONSTRUCTION AND NOT BY A SPECIAL CASE,
+   which is the nicest thing about this emitter. The interpreter's convention
+   (Tony, 2026-07-31, and the header on aCTionBlocK states it): a bare return
+   yields THE PRIOR STATEMENT'S VALUE, because an action's value is the value of
+   the last executed statement and `return` only means STOP. Under jitting every
+   statement has already called jitStoreResult, so THE SLOT ALREADY HOLDS exactly
+   that value -- and jitStoreResult returns early on a null gJitResult. So a bare
+   return stores nothing, keeps the prior value, and matches the ruling with no
+   test for bareness anywhere in this function. `return expr;` differs only in
+   that gJitResult is non-null when we arrive.
+
+   ⚠ E1 -- THE UNREACHABLE CONTINUATION BLOCK IS jitEmitContinue's IDIOM, LIFTED
+   RATHER THAN REINVENTED (its header argues the case in full). LLVM requires one
+   terminator per block and forbids code after it, so after the branch the
+   builder parks in a fresh block nothing branches to. It is dead by construction
+   and the optimiser drops it. This matters more for return than for continue,
+   because aCTionBlocK's `if jitting continue;` means the walk KEEPS EMITTING the
+   statements after a return -- correctly, since at emit time they are reachable
+   text even when at run time they are not.
+
+   ⚠⚠ E2 -- A RETURN INSIDE AN INLINED BODY IS REFUSED, LOUDLY, AND THIS ARC
+   DEFERS IT WITH TONY'S SANCTION. An ordinary (non-self-test) callee still
+   INLINES into the enclosing function, so its `return` must terminate the
+   INLINED REGION and not the enclosing function -- branching to gJitEpilogueBB
+   there would return from the caller, which is a wrong answer wearing valid IR.
+   Distinguishing the two IS cheap: gJitInlining is non-empty exactly while a
+   callee is being inlined, and empty while jitBuildFunction walks the function's
+   own action (it calls processCode/jitExecBlock directly, not through
+   runAction). So this returns 0, the caller degrades by name, and the degrade
+   counter -- which every rung asserts at zero -- turns the gap from invisible
+   into a red the moment a fixture reaches it. Pinned as ladder row JRt-E2.
+
+   ⚠ THREE RETURN VALUES, NOT TWO, AND THAT IS ONE-CHANNEL-ONE-MEANING APPLIED
+   BEFORE IT COST ANYTHING. The first cut returned 0 for BOTH "E2, an inlined
+   callee, deferred with sanction" and "refused, something is wrong" -- and the
+   first run mis-reported an ordering bug of mine as E2, in a degrade message
+   naming a construct that was not the cause. A reader would have gone looking
+   for an inlined callee that was not there.
+       1  emitted
+       0  E2 -- inside an inlined body, unbuilt this arc, degrade by name
+      -1  REFUSED -- no builder or no epilogue block, i.e. a mis-sequenced caller
+   The caller degrades differently for 0 and -1, so the message names the case
+   rather than the construct. */
+extern "C" int jitEmitReturn()
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	if (!b) return -1;
+	if (!gJitEpilogueBB) {
+	::fprintf(stderr, "=== jitEmitReturn: no epilogue block -- REFUSING ===\n");
+	::fflush(stderr);
+	return -1; }
+	//  E2. Not an error -- an unbuilt case, counted rather than guessed at.
+	if (!gJitInlining.empty()) return 0;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Function *fn = b->GetInsertBlock()->getParent();
+	
+	/*  COMMIT THE RETURNED VALUE THE SAME WAY EVERY OTHER STATEMENT COMMITS
+	ITS OWN -- shared implementation, so a return cannot drift from the
+	block walk's idea of what a value is (the double and i1 coercions live
+	in one place). A no-op for a bare return, which is E3 above.  */
+	::jitStoreResult();
+	
+	b->CreateBr(gJitEpilogueBB);
+	llvm::BasicBlock *dead = llvm::BasicBlock::Create(ctx, "afterReturn", fn);
+	b->SetInsertPoint(dead);
+	gJitEmitted = true;
+	/*  THE EMITTER THAT COMMITS OWNS THE CLEARING (rule E1 of the bracketing
+	emitters). aCTionBlocK calls jitStoreResult again right after this
+	statement returns, and that call must be a no-op -- it would otherwise
+	emit a store into the dead block above.  */
+	gJitResult  = nullptr;
+	return 1;
+	
+}
+
 /* jitEmitSelfCall  THE RECURSIVE CALL, emitted rather than inlined.
 
    Returns 1 when it emitted (the callee IS the action being compiled), 0 when it
@@ -4990,6 +5128,12 @@ extern "C" void jitFlushTransient()
 	gLoopExitBlocks.clear();
 	gLoopBodyBlocks.clear();
 	gJitInlining.clear();
+	//  ⚠ THE EPILOGUE BLOCK BELONGS TO THE FUNCTION THAT IS BEING ABANDONED, so
+	//  it is transient in exactly the sense this flush exists for. On a DISCARD
+	//  it is a pointer into a block whose function was just erased -- worse than
+	//  stale -- and on the boundary between two functions it would let the
+	//  second one's returns branch into the first one's exit.
+	gJitEpilogueBB = nullptr;
 	
 }
 

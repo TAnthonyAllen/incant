@@ -1,0 +1,62 @@
+/*****************************************************************************
+    jitJRt3 -- F3. CLAIM KANT-8's SHAPE, JITTED. AN INTENDED DIVERGENCE, BORN
+    AS A FIXTURE. 2026-08-05.
+
+    ⚠⚠ THIS ROW IS EXPECTED TO DISAGREE WITH THE INTERPRETER, BY DESIGN. It is
+    KR-3's first inverted row. Tony's ruling, item 2, 2026-08-05: the returned
+    value arrives intact under the JIT, and there is NO PARITY OBLIGATION to the
+    interpreter's KANT-8 behaviour -- an intended divergence is a LEDGER ROW,
+    not a defect. Do not "fix" this fixture to agree.
+
+    THE SHAPE IS incant/kant8T's K1: recursive, returns a LOCAL.
+        interpreted   returns the bare TAG `k8loc` -- the local is EMPTIED by
+                      saveLocalFields, and a field with no data returns its tag
+                      from .text, so the local is genuinely blanked rather than
+                      zeroed (kant8T, measured 2026-08-05)
+        jitted        returns 42 -- a jitted scalar local is an ALLOCA in the
+                      compiled function, so it is per-activation FOR FREE. The
+                      JIT does not inherit the bug because it does not inherit
+                      the mechanism.
+
+    ⚠ AND K4 SHARPENS WHY THIS IS NOT A NARROW CASE: `recursive` is a STATIC
+    flag set at parse time by identity, so the interpreter's bracket runs on
+    EVERY call of an action that merely MENTIONS ITS OWN NAME -- recursion taken
+    or not. The interpreted column here is the normal case, not a corner.
+
+    ⚠ THE RETURNED LOCAL IS INPUT-DEPENDENT ON PURPOSE. k8loc = k8n + 40, so
+    fire 1 (k8n=2) returns 42 and fire 2 (k8n=5) returns 45. A constant 42 on
+    both fires would satisfy the brief's number and prove nothing about WHEN it
+    was computed; two different answers are the injectivity rule.
+
+    GATED, NOT BLOCKING: KANT-8's own repair and the frame-model ruling remain
+    behind kant8T's K5/K6 extension. This fixture asserts the JIT's column only.
+
+    SENTINEL AT THE FOOT, exactly ONE stop() (rule H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+register(JitLadder);
+define
+    k8n;
+    k8 code={
+        k8loc = k8n + 40;
+        if k8n > 0;
+            k8n = k8n - 1;
+            k8();
+        return k8loc;
+        };
+    ;
+k8n = 2;
+print "JRt3 fire 1 setup : k8n =" k8n:;
+testing(k8);
+
+k8n = 5;
+print "JRt3 fire 2 setup : k8n =" k8n " (recompile: NONE)":;
+jitRefire();
+
+print "JRt3 SENTINEL":;
+stop();

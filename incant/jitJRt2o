@@ -1,0 +1,46 @@
+/*****************************************************************************
+    jitJRt2o -- F2's ORACLE, IN ITS OWN PROCESS, BECAUSE A POST-JIT INTERPRETED
+    RUN IS NOT A CLEAN ORACLE FOR A RETURNED VALUE. 2026-08-05.
+
+    THE BODY IS jitJRt2's, CHARACTER FOR CHARACTER. Nothing here calls testing()
+    or jitRefire(), so the interpreter is the only engine that runs and the 120
+    it produces is uncontaminated.
+
+    ⚠ WHY THIS FILE EXISTS AT ALL, and it is worth knowing before someone
+    "simplifies" it back into jitJRt2: the same interpreted call placed BELOW the
+    jitted fires returns 5 -- ftAcc's value at the outermost activation before it
+    recursed, which is the save/restore signature. Measured both ways the same
+    day. jitJR does the same thing and is correct, because it reads its
+    accumulator as a FIELD; the divergence only appears for a RETURNED value,
+    which is why nothing had caught it before item 2 made returned values
+    assertable at all. `recursive` is cleared at run time by restoreLocalFields
+    (GroupActions.rtn:587), so whether the frame bracket ran depends on
+    invocation history -- interpreter-side, out of item 2's scope, reported.
+
+    SENTINEL AT THE FOOT, exactly ONE stop() (rule H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+register(JitLadder);
+define
+    ftN;
+    ftAcc;
+    ftOut;
+    ft code={
+        if ftN > 1;
+            ftAcc = ftAcc * ftN;
+            ftN = ftN - 1;
+            ft();
+        return ftAcc;
+        };
+    ;
+ftN = 5; ftAcc = 1;
+ftOut = 0;
+ftOut = ft();
+print "JRt2o interpreted : ftOut =" ftOut " (the oracle -- want 120)":;
+print "JRt2o SENTINEL":;
+stop();

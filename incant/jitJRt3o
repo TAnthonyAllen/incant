@@ -1,0 +1,41 @@
+/*****************************************************************************
+    jitJRt3o -- F3's INTERPRETED COLUMN, IN ITS OWN PROCESS. 2026-08-05.
+
+    ⚠ THIS FILE EXISTS TO RECORD A DIVERGENCE, NOT TO CHECK AGREEMENT. Same body
+    as jitJRt3, interpreted only. It returns the bare TAG `k8loc` because
+    CLAIM KANT-8 empties a local across a recursive call -- and that is the
+    INTENDED, RULED divergence from the jitted column's 42.
+
+    Its own process for jitJRt2o's reason: a post-jit interpreted call is not a
+    clean oracle for a RETURNED value.
+
+    ⚠ THE LADDER ASSERTS THIS COLUMN BY NAME rather than merely noting it. A
+    divergence nobody measures is indistinguishable from a divergence that has
+    quietly closed -- and if KANT-8 is ever repaired, THIS row is what says so,
+    loudly, instead of the repair landing unnoticed.
+
+    SENTINEL AT THE FOOT, exactly ONE stop() (rule H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+register(JitLadder);
+define
+    k8n;
+    k8out;
+    k8 code={
+        k8loc = k8n + 40;
+        if k8n > 0;
+            k8n = k8n - 1;
+            k8();
+        return k8loc;
+        };
+    ;
+k8n = 2;
+k8out = k8();
+print "JRt3o interpreted : k8out =" k8out " (KANT-8: expect the TAG k8loc, not 42)":;
+print "JRt3o SENTINEL":;
+stop();

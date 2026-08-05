@@ -1,0 +1,70 @@
+/*****************************************************************************
+    jitJRt4 -- F4. A MID-BLOCK RETURN, WITH STATEMENTS AFTER IT. 2026-08-05.
+
+    ⚠ E1, AND IT IS THE EDGE MOST LIKELY TO PRODUCE VALID-BUT-WRONG IR. A return
+    above the body's end TERMINATES the current block, and LLVM forbids code
+    after a terminator -- so the walk that keeps going has to emit somewhere
+    legal. jitEmitReturn parks the builder in a fresh unreachable block
+    (`afterReturn`), which is jitEmitContinue's existing idiom lifted rather than
+    reinvented; the optimiser drops it.
+
+    ⚠ AND THE WALK **MUST** KEEP GOING, which is the counter-intuitive half.
+    aCTionBlocK carries `if jitting continue;` because at EMIT time the
+    statements after a branch are REACHABLE TEXT -- they run whenever the branch
+    is not taken -- even though at RUN time the branch means stop. One flag, two
+    eras. If that were not there, `mbTail = 999` and the second return would
+    simply not exist in the IR and fire 2 would be wrong.
+
+    WHAT IS ASSERTED, and both fires exercise the OPPOSITE arm:
+      fire 1  mbIn = 7  -> the early return is TAKEN.     returns 111,
+              and mbTail stays 0 -- THE TAIL DID NOT EXECUTE.
+      fire 2  mbIn = 3  -> the early return is NOT taken. returns 222,
+              and mbTail is 999 -- the tail DID execute.
+    111 and 222 are different answers, not merely different inputs. And mbTail
+    is the second channel: a returned value alone cannot distinguish "the tail
+    was skipped" from "the tail ran and its value was discarded".
+
+    ⚠ mbTail IS INITIALISED IN THE BODY, not left to a default. A row expecting
+    0 that a never-written field would also produce asserts nothing; setting it
+    to 0 at the top of the body makes 0 a value the action WROTE.
+
+    SENTINEL AT THE FOOT, exactly ONE stop() (rule H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+register(JitLadder);
+define
+    mbIn;
+    mbTail;
+    mbF code={
+        mbTail = 0;
+        if mbIn > 5;
+            return 111;
+        mbTail = 999;
+        return 222;
+        };
+    ;
+/*  ⚠ mbTail IS GIVEN A DATA TYPE HERE, AND IT HAS TO BE. A field that has never
+    been assigned has no datA type, so it prints as its own TAG -- and the jitted
+    store writes its baked/frame slot without stamping one, so the row reads
+    `mbTail` instead of a number and says nothing either way. -1 rather than 0,
+    so neither expected value (0 for fire 1, 999 for fire 2) can be produced by
+    the initialisation itself. Same trap as incant/jitSelfFn's sfOut.  */
+mbTail = -1;
+
+mbIn = 7;
+print "JRt4 fire 1 setup : mbIn =" mbIn " (early return TAKEN)":;
+testing(mbF);
+print "JRt4 fire 1 tail  : mbTail =" mbTail " (want 0 -- the tail did NOT run)":;
+
+mbIn = 3;
+print "JRt4 fire 2 setup : mbIn =" mbIn " (early return NOT taken, recompile: NONE)":;
+jitRefire();
+print "JRt4 fire 2 tail  : mbTail =" mbTail " (want 999 -- the tail DID run)":;
+
+print "JRt4 SENTINEL":;
+stop();

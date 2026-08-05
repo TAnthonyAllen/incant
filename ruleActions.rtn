@@ -136,10 +136,38 @@ GroupItem   arg = ExpressioN;
         arg, and the header comment says the stamp is meant for what is
         returned). That discrepancy is NOT this edit's business -- reading
         *BrancheS.tag mirrors the switch exactly and settles nothing either way.  */
+    /*  ⚠ RETURN IS EMITTED NOW (item 2, Tony 2026-08-05). The degrade arm below
+        shrank from "break and return" to "break, and the ONE return case that is
+        still unbuilt". jitEmitReturn answers 0 for a return inside an INLINED
+        body -- E2, deferred with sanction -- and that is the only path that
+        still counts, so the message says which case it was rather than leaving
+        a reader to infer it from a construct name that is otherwise covered.  */
     if jitting {
         -%
-        if (*BrancheS->groupBody->tag == 'c')    jitEmitContinue();
-        else    jitDegrade("break/return under jit -- no emitter yet", input);
+        if (*BrancheS->groupBody->tag == 'c')       jitEmitContinue();
+        else if (*BrancheS->groupBody->tag == 'r') {
+            //  ⚠ A RETURN IS A POSITION THAT CONSUMES A VALUE, and jitEmitters'
+            //  own standing rule (the note above jitEmitBareRead's callers) is
+            //  that EVERY such position invokes the primitive when its operand
+            //  is BARE. `return` was not on that list only because it did not
+            //  exist when the list was written.
+            //  Without this, `return someField;` emits NOTHING -- `if isMethod`
+            //  is false for a bare read -- so jitStoreResult finds a null
+            //  gJitResult, stores nothing, and the action returns whatever the
+            //  PRIOR statement left in the slot. Measured 2026-08-05:
+            //  `return ftAcc;` off a base case returned 0, silently, at degrade
+            //  count 0. Exactly the shape gIF and both loops already carry.
+            if (ExpressioN && !isMethod(ExpressioN->groupBody->flags.instructType))
+                ::jitEmitBareRead(ExpressioN);
+            int rr = ::jitEmitReturn();
+            if (rr == 0)
+                jitDegrade("return INSIDE AN INLINED CALLEE -- E2, unbuilt: it "
+                           "would branch to the enclosing function's epilogue",
+                           input);
+            else if (rr < 0)
+                jitDegrade("return REFUSED -- no builder or no epilogue block. "
+                           "This is a mis-sequenced caller, NOT E2", input); }
+        else    jitDegrade("break under jit -- no emitter yet", input);
         %-
     }
     return arg;

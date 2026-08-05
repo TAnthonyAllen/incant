@@ -1,0 +1,61 @@
+/*****************************************************************************
+    jitJRt1 -- F1. A RETURNED SCALAR FROM A NON-RECURSIVE ACTION. 2026-08-05.
+
+    THE BASE CASE OF THE RETURN EMITTER, and the first fixture in this tree that
+    asserts through A RETURNED VALUE rather than through a field left behind.
+    Every green rung before item 2 asserted a FIELD after the action, because
+    `return` called jitDegrade -- so "what did the compiled action HAND BACK" had
+    never been asked of any construct.
+
+    ⚠ THE WITNESS IS THE HARNESS'S OWN LINE, NOT A print IN THIS FILE, and that
+    is deliberate rather than convenient. jitRunAction and jitRefire print
+        === jitRunAction result = N ===
+        === jitRefire result = N ===
+    from C++ printf, so the returned value reaches the log WITHOUT passing
+    through the incant print path -- which matters because a jitted print of a
+    bare string literal currently emits the string's LENGTH instead of its text
+    (measured, pre-existing, pinned in incant/jitSelfFn's header, degrade count 0
+    throughout). A witness that can be silently wrong is not a witness.
+
+    COMPILE ONCE, FIRE TWICE, INPUT CHANGED BETWEEN. 7*3 = 21 and 9*3 = 27 are
+    DIFFERENT ANSWERS, not merely different inputs -- the injectivity rule, since
+    a pair that happened to agree would prove nothing about when the arithmetic
+    happened.
+
+    ⚠ THE INTERPRETED ORACLE RUNS LAST AND MUST. `testing()` routes to
+    jitRunAction only `if input.isCoded` (Commands.rtn:663) and an interpreted
+    run CONSUMES that -- so an oracle placed above the jitted half silently
+    reroutes the measurement to jitRunIfTest and the fixture measures the wrong
+    engine at exit 0. Found the expensive way, 2026-08-05.
+
+    SENTINEL AT THE FOOT, exactly ONE stop() (rule H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+register(JitLadder);
+define
+    rtIn;
+    rtOut;
+    rtF code={
+        rtLoc = rtIn * 3;
+        return rtLoc;
+        };
+    ;
+rtIn = 7;
+print "JRt1 fire 1 setup : rtIn =" rtIn:;
+testing(rtF);
+
+rtIn = 9;
+print "JRt1 fire 2 setup : rtIn =" rtIn " (recompile: NONE)":;
+jitRefire();
+
+rtIn  = 7;
+rtOut = 0;
+rtOut = rtF();
+print "JRt1 interpreted  : rtOut =" rtOut " (the oracle -- want 21)":;
+print "JRt1 SENTINEL":;
+stop();

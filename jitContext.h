@@ -326,6 +326,27 @@ inline bool jitPendingHas(GroupBody *b) {
     return false;
 }
 
+// ============ THE EPILOGUE BLOCK (item 2, the return emitter, 2026-08-05) ====
+// ⚠ THE EPILOGUE USED NOT TO BE A BLOCK AT ALL. It was a run of stores emitted
+// into whatever block the body walk happened to end in, followed by CreateRet --
+// which is correct for exactly one control-flow shape: fall off the end. A
+// `return` has to LEAVE from somewhere else, and it cannot duplicate the frame
+// writeback at every exit without the two copies drifting. So the epilogue
+// becomes a real block that every exit BRANCHES to, and the frame writeback and
+// the ret live there once.
+//
+// ⚠ ONE NEW GLOBAL, AND THE BRIEF SAID NONE -- FLAGGED RATHER THAN SMUGGLED.
+// Making the epilogue reachable from a return needs the emitter to name it, and
+// the only two ways are this pointer or a lookup by block name. The pointer wins
+// on the project's own grounds: it is exactly parallel to gJitResultSlot and
+// gJitCurrentFn, which are already per-function globals set by jitBuildFunction
+// and cleared between functions, whereas a stringly-typed lookup can silently
+// find nothing and would be a second mechanism for the same fact.
+//
+// Created WITHOUT a parent so it can be appended AFTER every body block, which
+// costs nothing and makes the dumps read in execution order.
+inline llvm::BasicBlock *gJitEpilogueBB = nullptr;
+
 // SET BY DISCOVERY, READ BY THE BUILD LOOP. The function currently under
 // construction is now known to be wrong and must be erased rather than finished
 // into the module -- so this is not an error channel, it is "start over knowing

@@ -182,6 +182,7 @@ extern "C" GroupItem *jitEmitGIF(GroupItem *input);
 extern "C" GroupItem *jitEmitIterStep(GroupItem *result);
 extern "C" void jitEmitIterate(GroupItem *input);
 extern "C" GroupItem *jitEmitRem(GroupItem *argument, GroupItem *target, GroupItem *resultNode);
+extern "C" int jitEmitReturn();
 extern "C" int jitEmitSelfCall(GroupItem *argument, GroupItem *action);
 extern "C" GroupItem *jitEmitStringPlusEQ(GroupItem *argument, GroupItem *target);
 extern "C" void jitEmitTrace(GroupItem *field);

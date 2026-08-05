@@ -999,6 +999,27 @@ Hard-won lessons. Each one has cost real debugging time.
     rebuilt bare. **A trap that tells you how to turn something ON is not a ruling that it should
     be on.**
 
+25. **`testing()` ROUTES BY `isCoded`, AND AN INTERPRETED RUN CONSUMES IT — SO AN ORACLE PLACED
+    ABOVE THE JITTED HALF SILENTLY MEASURES THE WRONG ENGINE, AT EXIT 0.** `testing()` calls
+    `jitRunAction` only `if input.isCoded` and otherwise falls to `jitRunIfTest`, the control-flow
+    smoke test (`Commands.rtn:663-664`). Running the action interpreted first clears that, so a
+    fixture written in the natural order — *record the oracle, then jit it* — compiles nothing,
+    asserts nothing about the JIT, and **prints a plausible number the whole way**. Symptom to
+    recognise: `=== jitRunIfTest on <action> ===` where you expected
+    `=== jitRunAction: entering on <action> ===`. **Fixture order is therefore load-bearing: the
+    jitted half FIRST, the oracle last** — which is what `incant/jitJR` already does, for reasons
+    its header never states. (2026-08-05.)
+    ⚠ **AND ITS SHARPER SIBLING, found the same day: A POST-JIT INTERPRETED CALL IS NOT A CLEAN
+    ORACLE FOR A *RETURNED* VALUE.** Putting the oracle last fixes the routing but not this. The
+    identical interpreted call returns **120 standalone and 5 below the jitted fires** — the
+    outermost activation's pre-call value, which is the save/restore signature — because
+    `recursive` is **cleared at run time** by `restoreLocalFields` (`GroupActions.rtn:587`), so
+    whether the frame bracket runs depends on **invocation history**. It went unnoticed for as long
+    as it did because reading a **FIELD** in the same position is correct (`incant/jitJR` does
+    exactly that and is right); only a **returned** value diverges, and returned values were not
+    assertable until the return emitter landed. **The fix is a separate process, not a separate
+    statement** — `incant/jitJRt2o` and `incant/jitJRt3o` exist for nothing else.
+
 24. **AN INCANT ACCESSOR IS NOT A tok ACCESSOR, and the failure surfaces three files away.**
     Writing `field.listLengtH` (the incant spelling) in a `.rtn` produces bear-trap #10's exact
     signature — `Expected } or statement` / `FAIL Body3 at: …` / `Expected a semi-colon` — which
