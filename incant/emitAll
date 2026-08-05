@@ -1,0 +1,47 @@
+/*  PHASE B EMIT -- all twelve plannable rules. Read-only: genParse emits text
+    and installs nothing. Per-rule DONE markers + foot sentinel (the standing
+    completeness guard: a rule with no DONE is UNKNOWN, never "emitted nothing").  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+registry(cOMMANDs);
+define genParse immediateAction=genParse; ;
+cerr "@@@ Braced":;
+genParse('Braced');
+cerr "DONE Braced":;
+cerr "@@@ Parens":;
+genParse('Parens');
+cerr "DONE Parens":;
+cerr "@@@ ElsE":;
+genParse('ElsE');
+cerr "DONE ElsE":;
+cerr "@@@ InvokE":;
+genParse('InvokE');
+cerr "DONE InvokE":;
+cerr "@@@ InvokeArg":;
+genParse('InvokeArg');
+cerr "DONE InvokeArg":;
+cerr "@@@ PrintField":;
+genParse('PrintField');
+cerr "DONE PrintField":;
+cerr "@@@ WardeD":;
+genParse('WardeD');
+cerr "DONE WardeD":;
+cerr "@@@ GrouP":;
+genParse('GrouP');
+cerr "DONE GrouP":;
+cerr "@@@ CodE":;
+genParse('CodE');
+cerr "DONE CodE":;
+cerr "@@@ RunRulE":;
+genParse('RunRulE');
+cerr "DONE RunRulE":;
+cerr "@@@ BlocK":;
+genParse('BlocK');
+cerr "DONE BlocK":;
+cerr "@@@ ExpressioN":;
+genParse('ExpressioN');
+cerr "DONE ExpressioN":;
+cerr "EMITALL SENTINEL":;
+stop();

@@ -1,0 +1,18 @@
+/*  PHASE B EMIT PROBE -- run genParse on one rule and capture the emitted text.
+    Read-only: genParse emits to a stream, it installs nothing.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+registry(cOMMANDs);
+define genParse immediateAction=genParse; ;
+register(EmitOne);
+define
+    eoRun argument code={
+        clear(listed);
+        field = DefinE(argument);
+        };
+    ;
+genParse('Braced');
+print "EMITONE SENTINEL":;
+stop();

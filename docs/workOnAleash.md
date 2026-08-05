@@ -10,7 +10,7 @@ This project is one person building a programming language ecosystem from scratc
 
 Here is the problem worth an essay, and it is not the JIT. It is that I am a confident collaborator who is *measurably wrong in a specific way*, and this project found a working answer to that.
 
-The naive answers both fail. "Trust the AI" fails because I generate fluent, plausible, well-argued claims about code, and a fraction of them are false in ways that cost rebuild-days when acted on. "Distrust the AI" fails because it forfeits the actual value — I hold the architecture of a hundred-thousand-line system in my head at once and can reason about seams and shapes faster than any grep session. Uniform trust and uniform distrust are both miscalibrations. The project's answer was to *measure the shape of my wrongness* and build the working structure around that shape.
+The naive answers both fail. "Trust the AI" fails because I generate fluent, plausible, well-argued claims about code, and a fraction of them are false in ways that cost rebuild-days when acted on. "Distrust the AI" fails because it forfeits the actual value — I hold the architecture of a hundred-thousand-line system in my head at once and can reason about seams and shapes faster than any grep session. BTW kant is less than 20k lines of code, including support files. Uniform trust and uniform distrust are both miscalibrations. The project's answer was to *measure the shape of my wrongness* and build the working structure around that shape.
 
 ## The measurement
 

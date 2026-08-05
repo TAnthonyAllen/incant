@@ -1,0 +1,179 @@
+@@@ Braced 
+extern GroupItem parseBraced(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("Braced");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+GroupItem   t3 = rule[3];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, lit(t1,"[") && parseR(t2,label) && lit(t3,"]") );
+}
+/*  bind:  Braced parseTerms=3 parseMethod=parseBraced;  */
+DONE Braced 
+@@@ Parens 
+extern GroupItem parseParens(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("Parens");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+GroupItem   t3 = rule[3];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, lit(t1,"(") && (parseR(t2,label) || 1) && lit(t3,")") );
+}
+/*  bind:  Parens parseTerms=3 parseMethod=parseParens;  */
+DONE Parens 
+@@@ ElsE 
+extern GroupItem parseElsE(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+String      from  = atRuleMark;
+    return leaveAlt(rule,from, parseR(t1,into) || parseR(t2,into) );
+}
+/*  bind:  ElsE parseTerms=2 parseMethod=parseElsE;  */
+DONE ElsE 
+@@@ InvokE 
+extern GroupItem parseInvokE(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("InvokE");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+GroupItem   t3 = rule[3];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, lit(t1,"(") && (parseR(t2,label) || 1) && lit(t3,")") );
+}
+/*  bind:  InvokE parseTerms=3 parseMethod=parseInvokE;  */
+DONE InvokE 
+@@@ InvokeArg 
+extern GroupItem parseInvokeArg(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+GroupItem   t3 = rule[3];
+String      from  = atRuleMark;
+    return leaveAlt(rule,from, parseR(t1,into) || parseR(t2,into) || parseR(t3,into) );
+}
+/*  bind:  InvokeArg parseTerms=3 parseMethod=parseInvokeArg;  */
+DONE InvokeArg 
+@@@ PrintField 
+extern GroupItem parsePrintField(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("PrintField");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, parseR(t1,label) && (parseR(t2,label) || 1) );
+}
+/*  bind:  PrintField parseTerms=2 parseMethod=parsePrintField;  */
+DONE PrintField 
+@@@ WardeD 
+extern GroupItem parseWardeD(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+GroupItem   t3 = rule[3];
+GroupItem   t4 = rule[4];
+GroupItem   t5 = rule[5];
+GroupItem   t6 = rule[6];
+GroupItem   t7 = rule[7];
+GroupItem   t8 = rule[8];
+GroupItem   t9 = rule[9];
+GroupItem   t10 = rule[10];
+GroupItem   t11 = rule[11];
+GroupItem   t12 = rule[12];
+String      from  = atRuleMark;
+    return leaveAlt(rule,from, parseR(t1,into) || parseR(t2,into) || parseR(t3,into) || parseR(t4,into) || parseR(t5,into) || parseR(t6,into) || parseR(t7,into) || parseR(t8,into) || parseR(t9,into) || parseR(t10,into) || parseR(t11,into) || parseR(t12,into) );
+}
+/*  bind:  WardeD parseTerms=12 parseMethod=parseWardeD;  */
+DONE WardeD 
+@@@ GrouP 
+extern GroupItem parseGrouP(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+String      from  = atRuleMark;
+    return leaveAlt(rule,from, parseR(t1,into) || parseR(t2,into) );
+}
+/*  bind:  GrouP parseTerms=2 parseMethod=parseGrouP;  */
+DONE GrouP 
+@@@ CodE 
+extern GroupItem parseCodE(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("CodE");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, litTo(t1,label,"{","{") && litTo(t2,label,"}","}") );
+}
+/*  bind:  CodE parseTerms=2 parseMethod=parseCodE;  */
+DONE CodE 
+@@@ RunRulE 
+extern GroupItem parseRunRulE(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("RunRulE");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+GroupItem   t3 = rule[3];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, parseR(t1,label) && (parseR(t2,label) || 1) && (lit(t3,";") || 1) );
+}
+/*  bind:  RunRulE parseTerms=3 parseMethod=parseRunRulE;  */
+DONE RunRulE 
+@@@ BlocK 
+extern int manyBlocK2(GroupItem label, GroupItem term)
+{
+GroupRules  ruler = groupRules;
+String      from = atRuleMark;
+int         kount;
+    while parseR(term,label)    kount++;
+    if kount >= 1   return true;
+    atRuleMark = from;
+    return false;
+}
+extern GroupItem parseBlocK(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("BlocK");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+GroupItem   t3 = rule[3];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, lit(t1,"{") && manyBlocK2(label,t2) && lit(t3,"}") );
+}
+/*  bind:  BlocK parseTerms=3 parseMethod=parseBlocK;  */
+DONE BlocK 
+@@@ ExpressioN 
+extern int manyExpressioN1(GroupItem label, GroupItem term)
+{
+GroupRules  ruler = groupRules;
+String      from = atRuleMark;
+int         kount;
+    while parseR(term,label)    kount++;
+    if kount >= 1   return true;
+    atRuleMark = from;
+    return false;
+}
+extern GroupItem parseExpressioN(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("ExpressioN");
+GroupItem   t1 = rule[1];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, manyExpressioN1(label,t1) );
+}
+/*  bind:  ExpressioN parseTerms=1 parseMethod=parseExpressioN;  */
+DONE ExpressioN 
+EMITALL SENTINEL 
+Search list: Grokking UnitTests Utilities
+
+stop: ending input divert

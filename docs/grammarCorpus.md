@@ -167,3 +167,77 @@ branches into a single walk answers the same question and cannot fail that way.
 an iterator cursor trampled across activations, K6d eliminates the re-iterate as a suspect. **Recorded
 as evidence for the frame arc**, whose opening fixture is K6a's shape jitted — *does the runtime frame
 bracket inherit the gap for node-resident state?* — not as a defect for this campaign to fix.
+
+## GM-9 — WHERE `noPrint`'s DEFINE-TIME FIRING LANDS ON A RULE IS UNESTABLISHED
+**asOf 2026-08-05 · confidence: OBSERVED (the discrepancy), UNMEASURED (the cause) · owner: parked,
+chased by nobody until it blocks something or Tony fires it · provenance: `incant/grammar:52` and
+`:54`, `incant/setup:7-11`, specimen instrument `incant/npFlag`**
+
+The cOMMANDs vocabulary says a `noPrint` command *"changes the group being defined"*
+(`incant/setup:7-11`). On a plain field the identical syntax does exactly that: `npLit noPrint;`
+reads with its `noPrinT` flag **SET**. On a **rule** it does not appear to: `Limit`
+(`incant/grammar:52`) shows four attributes — `[ min max ]` — **all plain**, `Modifier`
+(`incant/grammar:54`) shows **none**, and **both rules' own `noPrinT` flags read CLEAR**.
+
+**The instrument is not in doubt.** `incant/npFlag` carries both controls — `npLit` (SET) and
+`npPlain` (clear) — precisely because a first draft asked only the rules, got "clear" four times, and
+could not have distinguished that from an accessor that never reports SET.
+
+**LEAD, offered at the usual odds and UNMEASURED (Clay's):** a `processFlags`-family routing
+difference when the target is rule-shaped.
+
+⚠ **THIS IS A CAUSAL-SHAPED CLAIM IN A CODEBASE WHERE THOSE FAIL ROUGHLY HALF THE TIME AND
+STRUCTURAL ONES HOLD.** Treat it as a place to look first, not as a diagnosis. The disposition of
+`Limit` and `Modifier` does **not** depend on it: Tony has ruled both as canonical define-time firing
+of the `isRulE` family, identified and closed. This row exists so the discrepancy is not rediscovered
+from scratch by whoever next trips over it.
+
+## GM-10 — ALL TWELVE PLANNABLE RULES EMIT CLEANLY
+**asOf 2026-08-05 · confidence: MEASURED · provenance: `incant/emitAll`,
+`docs/emitted/phaseB-twelve-emitted.txt`**
+
+`genParse` produces a complete, compilable method plus its own bind line for **all twelve** rules in
+the PLAN column — Braced · Parens · ElsE · InvokE · InvokeArg · PrintField · WardeD · GrouP · CodE ·
+RunRulE · BlocK · ExpressioN. Twelve `DONE` markers and the foot sentinel (the standing completeness
+guard), exit 0. Term counts range 1 (`ExpressioN`) to 12 (`WardeD`).
+
+Emission is **read-only**: `genParse` writes text and installs nothing. **Emission is therefore not
+the campaign's bottleneck — installation is** (see GM-11).
+
+## GM-11 — ⚠ THE INSTALL VOCABULARY IS FIXTURE-LOCAL, SO THE FRONT DOOR IS SHUT FOR REAL GRAMMAR RULES
+**asOf 2026-08-05 · confidence: MEASURED, and the specimen is a SIGSEGV · provenance:
+`incant/genScratch:18` and `:20`; `incant/setup` (absence); `incant/grammar:107`**
+
+`parseMethod` and `parseTerms` are registered as commands **only in the test fixture**:
+```
+    incant/genScratch:18   define parseMethod immediateAction=parseRuleMethod noPrint; ;
+    incant/genScratch:20   define parseTerms  immediateAction=parseTermCount  noPrint; ;
+```
+They appear **nowhere in `incant/setup`**. So in any ordinary run — `oneTest`, `jsonTest`, the whole
+fleet — those names are **not commands**, and a `parseMethod=` written into `incant/grammar` is not
+fired and consumed at define time. **It is parsed as an ordinary TERM of the rule.**
+
+**MEASURED, installing `Braced` (`incant/grammar:107`) with
+`parseTerms=3 parseMethod=parseBraced`:**
+```
+    AUDIT MISSTERM Braced [4] parseTerms  -- isRule term, no rStuff
+    AUDIT MISSTERM Braced [5] parseMethod -- isRule term, no rStuff
+    AUDIT all registries: 4 missing rules, 14 missing terms, 4 loose   (was 12)
+    oneTest: Segmentation fault: 11  (exit 139)
+```
+The rule gained **two spurious terms**, 3 → 5, against a generated method that indexes `rule[1..3]`
+and a `parseTerms=3` that never took effect.
+
+⚠ **WHY THE SCAFFOLDS NEVER SHOWED THIS:** every `Scaf*` rule is defined **inside
+`incant/genScratch` itself** (`:55-62`), where the vocabulary is registered. The install route has
+only ever been exercised in the one file that defines the words it needs.
+
+**CONSEQUENCE FOR THE CAMPAIGN:** Phase B cannot install into shipped grammar until
+`parseMethod`/`parseTerms` are registered where every run can see them. That is a change to
+`incant/setup` — the front door's vocabulary, not `rStuff` internals and not the fork — and it
+affects every incantation, so it is **Tony's ruling, not the minion's**.
+
+⚠ **THE BASELINE MOVED AND WAS EXPLAINED, NOT RE-BLESSED** (the brief's standing rule, live for the
+first time). Which install: `Braced`. Why byte-different: two spurious terms and a SIGSEGV, cause
+above. The install was **reverted**, the tree rebuilt, and `pop.sh` and `oneTest` confirmed
+**byte-identical to the pre-install capture**. The metric stays at **0/78 installed** — honestly.
