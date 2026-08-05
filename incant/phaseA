@@ -1,0 +1,191 @@
+/*  PHASE A CLASSIFICATION WALK -- all 78 Grokking rules, read-only.
+    No emission, no installs, no dispatch movement: dumpRulePlans is
+    ruleOrRefuse + planRule + printPlan (genParse.rtn:558-566), all cerr.
+
+    ⚠ A1 -- THE COMPLETENESS GUARD, AND IT IS THE POINT OF THE FILE'S SHAPE.
+    CLAIM KANT-40 kills a parse SILENTLY at exit 0: one bad construct and every
+    statement after it is dropped with no diagnostic. That is a silent-death
+    class inside the very act this file performs 78 times, so a missing plan
+    would read as A REFUSAL when it is actually A RUN THAT STOPPED.
+    Every rule therefore carries its own completion marker, emitted AFTER its
+    dump on the SAME STREAM (cerr, so ordering is by flush and not by luck):
+        PLAN <name>      ... from dumpRulePlans
+        DONE <name>      ... from here, only if the walk reached this line
+    A rule with a PLAN and no DONE is UNKNOWN -- walk incomplete -- and must
+    never be scored as a refusal. The foot sentinel says the whole walk ran.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+registry(cOMMANDs);
+define dumpRulePlans immediateAction=dumpRulePlans; ;
+
+/*  A real parse first: rStuff is materialised lazily, so the walk must be taken
+    against a tree that has actually run (the census fixture's own note).  */
+register(PhaseA);
+define
+    paRun argument code={
+        clear(listed);
+        field = DefinE(argument);
+        };
+    ;
+
+dumpRulePlans('Any');
+cerr "DONE Any":;
+dumpRulePlans('ANYorNum');
+cerr "DONE ANYorNum":;
+dumpRulePlans('ANYstring');
+cerr "DONE ANYstring":;
+dumpRulePlans('ANYtoken');
+cerr "DONE ANYtoken":;
+dumpRulePlans('Attributes');
+cerr "DONE Attributes":;
+dumpRulePlans('BasicElse');
+cerr "DONE BasicElse":;
+dumpRulePlans('BlocK');
+cerr "DONE BlocK":;
+dumpRulePlans('Braced');
+cerr "DONE Braced":;
+dumpRulePlans('BrancH');
+cerr "DONE BrancH":;
+dumpRulePlans('BrancheS');
+cerr "DONE BrancheS":;
+dumpRulePlans('break');
+cerr "DONE break":;
+dumpRulePlans('CerR');
+cerr "DONE CerR":;
+dumpRulePlans('CodE');
+cerr "DONE CodE":;
+dumpRulePlans('continue');
+cerr "DONE continue":;
+dumpRulePlans('counter');
+cerr "DONE counter":;
+dumpRulePlans('CouT');
+cerr "DONE CouT":;
+dumpRulePlans('DatA');
+cerr "DONE DatA":;
+dumpRulePlans('DEBUG');
+cerr "DONE DEBUG":;
+dumpRulePlans('DEF');
+cerr "DONE DEF":;
+dumpRulePlans('define');
+cerr "DONE define":;
+dumpRulePlans('DefinE');
+cerr "DONE DefinE":;
+dumpRulePlans('DEFINing');
+cerr "DONE DEFINing":;
+dumpRulePlans('DelimText');
+cerr "DONE DelimText":;
+dumpRulePlans('DO');
+cerr "DONE DO":;
+dumpRulePlans('ElsE');
+cerr "DONE ElsE":;
+dumpRulePlans('ElseIf');
+cerr "DONE ElseIf":;
+dumpRulePlans('ExpressioN');
+cerr "DONE ExpressioN":;
+dumpRulePlans('FloaT');
+cerr "DONE FloaT":;
+dumpRulePlans('followedBy');
+cerr "DONE followedBy":;
+dumpRulePlans('FOR');
+cerr "DONE FOR":;
+dumpRulePlans('FormaT');
+cerr "DONE FormaT":;
+dumpRulePlans('GrouP');
+cerr "DONE GrouP":;
+dumpRulePlans('HeX');
+cerr "DONE HeX":;
+dumpRulePlans('IF');
+cerr "DONE IF":;
+dumpRulePlans('InitiatE');
+cerr "DONE InitiatE":;
+dumpRulePlans('InvokE');
+cerr "DONE InvokE":;
+dumpRulePlans('InvokeArg');
+cerr "DONE InvokeArg":;
+dumpRulePlans('Iterate');
+cerr "DONE Iterate":;
+dumpRulePlans('Limit');
+cerr "DONE Limit":;
+dumpRulePlans('Looper');
+cerr "DONE Looper":;
+dumpRulePlans('loopOnAttributes');
+cerr "DONE loopOnAttributes":;
+dumpRulePlans('loopOnMembers');
+cerr "DONE loopOnMembers":;
+dumpRulePlans('LoopRestrict');
+cerr "DONE LoopRestrict":;
+dumpRulePlans('MemberS');
+cerr "DONE MemberS":;
+dumpRulePlans('Modifier');
+cerr "DONE Modifier":;
+dumpRulePlans('NamE');
+cerr "DONE NamE":;
+dumpRulePlans('nameSet');
+cerr "DONE nameSet":;
+dumpRulePlans('NewGroup');
+cerr "DONE NewGroup":;
+dumpRulePlans('NumbeR');
+cerr "DONE NumbeR":;
+dumpRulePlans('numberSet');
+cerr "DONE numberSet":;
+dumpRulePlans('Parens');
+cerr "DONE Parens":;
+dumpRulePlans('PoweR');
+cerr "DONE PoweR":;
+dumpRulePlans('Precision');
+cerr "DONE Precision":;
+dumpRulePlans('PrinT');
+cerr "DONE PrinT":;
+dumpRulePlans('PrintField');
+cerr "DONE PrintField":;
+dumpRulePlans('PRINTing');
+cerr "DONE PRINTing":;
+dumpRulePlans('PrintXP');
+cerr "DONE PrintXP":;
+dumpRulePlans('QuotE');
+cerr "DONE QuotE":;
+dumpRulePlans('return');
+cerr "DONE return":;
+dumpRulePlans('RunRulE');
+cerr "DONE RunRulE":;
+dumpRulePlans('ScopeField');
+cerr "DONE ScopeField":;
+dumpRulePlans('ScopeXP');
+cerr "DONE ScopeXP":;
+dumpRulePlans('Search');
+cerr "DONE Search":;
+dumpRulePlans('SemI');
+cerr "DONE SemI":;
+dumpRulePlans('SetBrackets');
+cerr "DONE SetBrackets":;
+dumpRulePlans('ShortcuT');
+cerr "DONE ShortcuT":;
+dumpRulePlans('Start');
+cerr "DONE Start":;
+dumpRulePlans('StatemenT');
+cerr "DONE StatemenT":;
+dumpRulePlans('StringXP');
+cerr "DONE StringXP":;
+dumpRulePlans('Token');
+cerr "DONE Token":;
+dumpRulePlans('tokenize');
+cerr "DONE tokenize":;
+dumpRulePlans('TokenXP');
+cerr "DONE TokenXP":;
+dumpRulePlans('TraiT');
+cerr "DONE TraiT":;
+dumpRulePlans('TraiTdata');
+cerr "DONE TraiTdata":;
+dumpRulePlans('UnaryXP');
+cerr "DONE UnaryXP":;
+dumpRulePlans('WardeD');
+cerr "DONE WardeD":;
+dumpRulePlans('WhilE');
+cerr "DONE WhilE":;
+dumpRulePlans('Xpress');
+cerr "DONE Xpress":;
+
+cerr "PHASEA SENTINEL -- walk reached the end":;
+stop();

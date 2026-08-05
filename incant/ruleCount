@@ -38,10 +38,24 @@ define
             else        print "  NOTRULE " ~taG:;
         return rcAll;
         };
+    countAttrs argument code={
+        rcAll = 0;
+        rcRules = 0;
+        iterate rcCur3 on argument attributes;
+        while ++rcCur3;
+            rcAll = rcAll + 1;
+            if isRulE;  rcRules = rcRules + 1;
+            if isRulE;  print "  attrRule " ~taG:;
+            else        print "  attrNOT  " ~taG:;
+        return rcAll;
+        };
     ;
 rcAll = 0; rcRules = 0;
-print "== GROKKING ==":;
+print "== GROKKING MEMBERS ==":;
 countThem(Grokking);
-print "RC Grokking: members =" rcAll " rules =" rcRules:;
+print "RC Grokking MEMBERS =" rcAll " rules =" rcRules:;
+print "== GROKKING ATTRIBUTES ==":;
+countAttrs(Grokking);
+print "RC Grokking ATTRIBUTES =" rcAll " rules =" rcRules:;
 print "RULECOUNT SENTINEL":;
 stop();

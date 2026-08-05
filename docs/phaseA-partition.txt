@@ -1,0 +1,377 @@
+PLAN Any
+  REFUSE rule Any -- rule-level data isANY (§4.1 rule-as-data, rung 5)
+DONE Any 
+PLAN ANYorNum
+  REFUSE ANYtoken -- inline group / character data isGROUP (named future kind)
+  REFUSE rule ANYorNum -- term ANYtoken unclassified
+DONE ANYorNum 
+PLAN ANYstring
+  REFUSE rule ANYstring -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+DONE ANYstring 
+PLAN ANYtoken
+  REFUSE rule ANYtoken -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+DONE ANYtoken 
+PLAN Attributes
+  REFUSE rule Attributes -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+DONE Attributes 
+PLAN BasicElse
+  REFUSE followedBy -- inline group / character data isSET (named future kind)
+  REFUSE rule BasicElse -- term followedBy unclassified
+DONE BasicElse 
+PLAN BlocK
+  SEQ BlocK
+    label=BlocK
+    LIT {
+      at=1
+    MANY StatemenT
+      at=2
+      min=1
+      site=BlocK2
+      CALL StatemenT
+        at=2
+    LIT }
+      at=3
+DONE BlocK 
+PLAN Braced
+  SEQ Braced
+    label=Braced
+    LIT [
+      at=1
+    CALL ExpressioN
+      at=2
+    LIT ]
+      at=3
+DONE Braced 
+PLAN BrancH
+  REFUSE BrancheS -- container (not on the ladder yet)
+  REFUSE rule BrancH -- term BrancheS unclassified
+DONE BrancH 
+PLAN BrancheS
+  REFUSE rule BrancheS -- rule-level data isSET (§4.1 rule-as-data, rung 5)
+DONE BrancheS 
+PLAN break
+  REFUSE rule break -- no terms at all
+DONE break 
+PLAN CerR
+  REFUSE followedBy -- inline group / character data isSET (named future kind)
+  REFUSE rule CerR -- term followedBy unclassified
+DONE CerR 
+PLAN CodE
+  SEQ CodE
+    label=CodE
+    LITTO {
+      at=1
+      slot={
+    LITTO }
+      at=2
+      slot=}
+DONE CodE 
+PLAN continue
+  REFUSE rule continue -- no terms at all
+DONE continue 
+PLAN counter
+  REFUSE rule counter -- rule-level data isCOUNT (§4.1 rule-as-data, rung 5)
+DONE counter 
+PLAN CouT
+  REFUSE rule CouT -- 1 unmaterialised terms
+DONE CouT 
+PLAN DatA
+  REFUSE CodE -- parseAction (tail position only, §2.8)
+  REFUSE rule DatA -- term CodE unclassified
+DONE DatA 
+PLAN DEBUG
+  REFUSE followedBy -- inline group / character data isSET (named future kind)
+  REFUSE rule DEBUG -- term followedBy unclassified
+DONE DEBUG 
+PLAN DEF
+  REFUSE followedBy -- inline group / character data isSET (named future kind)
+  REFUSE rule DEF -- term followedBy unclassified
+DONE DEF 
+PLAN define
+  REFUSE definitions -- inline group / character data isGROUP (named future kind)
+  REFUSE rule define -- term definitions unclassified
+DONE define 
+PLAN DefinE
+  REFUSE NewGroup -- inline group / character data isGROUP (named future kind)
+  REFUSE rule DefinE -- term NewGroup unclassified
+DONE DefinE 
+PLAN DEFINing
+  REFUSE rule DEFINing -- no terms at all
+DONE DEFINing 
+PLAN DelimText
+  REFUSE dtext -- inline group / character data isGROUP (named future kind)
+  REFUSE rule DelimText -- term dtext unclassified
+DONE DelimText 
+PLAN DO
+  REFUSE followedBy -- inline group / character data isSET (named future kind)
+  REFUSE rule DO -- term followedBy unclassified
+DONE DO 
+PLAN ElsE
+  ALT ElsE
+    CALL BasicElse
+      at=1
+    CALL ElseIf
+      at=2
+DONE ElsE 
+PLAN ElseIf
+  REFUSE SemI -- inline group / character data isSTRING (named future kind)
+  REFUSE rule ElseIf -- term SemI unclassified
+DONE ElseIf 
+PLAN ExpressioN
+  SEQ ExpressioN
+    label=ExpressioN
+    MANY Token
+      at=1
+      min=1
+      site=ExpressioN1
+      CALL Token
+        at=1
+DONE ExpressioN 
+PLAN FloaT
+  REFUSE rule FloaT -- rule-level data isCHAR (§4.1 rule-as-data, rung 5)
+DONE FloaT 
+PLAN followedBy
+  REFUSE rule followedBy -- rule-level data isSET (§4.1 rule-as-data, rung 5)
+DONE followedBy 
+PLAN FOR
+  REFUSE followedBy -- inline group / character data isSET (named future kind)
+  REFUSE rule FOR -- term followedBy unclassified
+DONE FOR 
+PLAN FormaT
+  REFUSE rule FormaT -- 1 unmaterialised terms
+DONE FormaT 
+PLAN GrouP
+  ALT GrouP
+    CALL NamE
+      at=1
+    CALL QuotE
+      at=2
+DONE GrouP 
+PLAN HeX
+  REFUSE zero -- inline group / character data isSTRING (named future kind)
+  REFUSE rule HeX -- term zero unclassified
+DONE HeX 
+PLAN IF
+  REFUSE followedBy -- inline group / character data isSET (named future kind)
+  REFUSE rule IF -- term followedBy unclassified
+DONE IF 
+PLAN InitiatE
+  REFUSE rule InitiatE -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+DONE InitiatE 
+PLAN InvokE
+  SEQ InvokE
+    label=InvokE
+    LIT (
+      at=1
+    OPT GrouP
+      at=2
+      CALL GrouP
+        at=2
+    LIT )
+      at=3
+DONE InvokE 
+PLAN InvokeArg
+  ALT InvokeArg
+    CALL Braced
+      at=1
+    CALL Parens
+      at=2
+    CALL UnaryXP
+      at=3
+DONE InvokeArg 
+PLAN Iterate
+  REFUSE ANYtoken -- inline group / character data isGROUP (named future kind)
+  REFUSE rule Iterate -- term ANYtoken unclassified
+DONE Iterate 
+PLAN Limit
+  REFUSE min -- inline group / character data isGROUP (named future kind)
+  REFUSE rule Limit -- term min unclassified
+DONE Limit 
+PLAN Looper
+  REFUSE rule Looper -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+DONE Looper 
+PLAN loopOnAttributes
+  REFUSE rule loopOnAttributes -- rule-level data isSTRING (§4.1 rule-as-data, rung 5)
+DONE loopOnAttributes 
+PLAN loopOnMembers
+  REFUSE rule loopOnMembers -- rule-level data isSTRING (§4.1 rule-as-data, rung 5)
+DONE loopOnMembers 
+PLAN LoopRestrict
+  REFUSE loopOnAttributes -- inline group / character data isSTRING (named future kind)
+  REFUSE rule LoopRestrict -- term loopOnAttributes unclassified
+DONE LoopRestrict 
+PLAN MemberS
+  REFUSE MEMBERs -- parseAction (tail position only, §2.8)
+  REFUSE rule MemberS -- term MEMBERs unclassified
+DONE MemberS 
+PLAN Modifier
+  REFUSE rule Modifier -- rule-level data isSET (§4.1 rule-as-data, rung 5)
+DONE Modifier 
+PLAN NamE
+  REFUSE first -- inline group / character data isSET (named future kind)
+  REFUSE rule NamE -- term first unclassified
+DONE NamE 
+PLAN nameSet
+  REFUSE rule nameSet -- rule-level data isSET (§4.1 rule-as-data, rung 5)
+DONE nameSet 
+PLAN NewGroup
+  REFUSE rule NewGroup -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+DONE NewGroup 
+PLAN NumbeR
+  REFUSE rule NumbeR -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+DONE NumbeR 
+PLAN numberSet
+  REFUSE rule numberSet -- rule-level data isSET (§4.1 rule-as-data, rung 5)
+DONE numberSet 
+PLAN Parens
+  SEQ Parens
+    label=Parens
+    LIT (
+      at=1
+    OPT ExpressioN
+      at=2
+      CALL ExpressioN
+        at=2
+    LIT )
+      at=3
+DONE Parens 
+PLAN PoweR
+  REFUSE rule PoweR -- rule-level data isSET (§4.1 rule-as-data, rung 5)
+DONE PoweR 
+PLAN Precision
+  REFUSE rule Precision -- 1 unmaterialised terms
+DONE Precision 
+PLAN PrinT
+  REFUSE rule PrinT -- 1 unmaterialised terms
+DONE PrinT 
+PLAN PrintField
+  SEQ PrintField
+    label=PrintField
+    CALL ExpressioN
+      at=1
+    OPT FormaT
+      at=2
+      CALL FormaT
+        at=2
+DONE PrintField 
+PLAN PRINTing
+  REFUSE rule PRINTing -- no terms at all
+DONE PRINTing 
+PLAN PrintXP
+  REFUSE ShortcuT -- inline group / character data isGROUP (named future kind)
+  REFUSE rule PrintXP -- term ShortcuT unclassified
+DONE PrintXP 
+PLAN QuotE
+  REFUSE tik -- inline group / character data isSET (named future kind)
+  REFUSE rule QuotE -- term tik unclassified
+DONE QuotE 
+PLAN return
+  REFUSE rule return -- no terms at all
+DONE return 
+PLAN RunRulE
+  SEQ RunRulE
+    label=RunRulE
+    CALL NamE
+      at=1
+    OPT InvokE
+      at=2
+      CALL InvokE
+        at=2
+    OPT ;
+      at=3
+      LIT ;
+        at=3
+DONE RunRulE 
+PLAN ScopeField
+  REFUSE ANYtoken -- inline group / character data isGROUP (named future kind)
+  REFUSE rule ScopeField -- term ANYtoken unclassified
+DONE ScopeField 
+PLAN ScopeXP
+  REFUSE rule ScopeXP -- 1 unmaterialised terms
+DONE ScopeXP 
+PLAN Search
+  REFUSE followedBy -- inline group / character data isSET (named future kind)
+  REFUSE rule Search -- term followedBy unclassified
+DONE Search 
+PLAN SemI
+  REFUSE rule SemI -- rule-level data isSTRING (§4.1 rule-as-data, rung 5)
+DONE SemI 
+PLAN SetBrackets
+  REFUSE ] -- upTo/upToOver (not on the ladder yet)
+  REFUSE rule SetBrackets -- term ] unclassified
+DONE SetBrackets 
+PLAN ShortcuT
+  REFUSE rule ShortcuT -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+DONE ShortcuT 
+PLAN Start
+  REFUSE rule Start -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+DONE Start 
+PLAN StatemenT
+  REFUSE SemI -- inline group / character data isSTRING (named future kind)
+  REFUSE rule StatemenT -- term SemI unclassified
+DONE StatemenT 
+PLAN StringXP
+  REFUSE rule StringXP -- 1 unmaterialised terms
+DONE StringXP 
+PLAN Token
+  REFUSE Operators -- container (not on the ladder yet)
+  REFUSE rule Token -- term Operators unclassified
+DONE Token 
+PLAN tokenize
+  REFUSE rule tokenize -- no terms at all
+DONE tokenize 
+PLAN TokenXP
+  REFUSE UnaryOPS -- container (not on the ladder yet)
+  REFUSE rule TokenXP -- term UnaryOPS unclassified
+DONE TokenXP 
+PLAN TraiT
+  REFUSE Modifier -- inline group / character data isSET (named future kind)
+  REFUSE rule TraiT -- term Modifier unclassified
+DONE TraiT 
+PLAN TraiTdata
+  REFUSE Modifier -- inline group / character data isSET (named future kind)
+  REFUSE rule TraiTdata -- term Modifier unclassified
+DONE TraiTdata 
+PLAN UnaryXP
+  REFUSE UnaryOPS -- container (not on the ladder yet)
+  REFUSE rule UnaryXP -- term UnaryOPS unclassified
+DONE UnaryXP 
+PLAN WardeD
+  ALT WardeD
+    CALL DEBUG
+      at=1
+    CALL DEF
+      at=2
+    CALL DO
+      at=3
+    CALL IF
+      at=4
+    CALL FOR
+      at=5
+    CALL WhilE
+      at=6
+    CALL PrinT
+      at=7
+    CALL CerR
+      at=8
+    CALL CouT
+      at=9
+    CALL Search
+      at=10
+    CALL BrancH
+      at=11
+    CALL ScopeXP
+      at=12
+DONE WardeD 
+PLAN WhilE
+  REFUSE followedBy -- inline group / character data isSET (named future kind)
+  REFUSE rule WhilE -- term followedBy unclassified
+DONE WhilE 
+PLAN Xpress
+  REFUSE SemI -- inline group / character data isSTRING (named future kind)
+  REFUSE rule Xpress -- term SemI unclassified
+DONE Xpress 
+PHASEA SENTINEL -- walk reached the end 
+Search list: Grokking UnitTests Utilities
+
+stop: ending input divert
