@@ -1,0 +1,21 @@
+/*  BRACED MINIMAL INPUT -- the localizer's first specimen. Gate OPEN.
+    `x[1]` is the smallest thing that reaches Braced: "["- ExpressioN "]"-.
+    Minimal-input-first is the standing red-response (flood control), so this
+    runs one Braced parse and stops.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+registry(cOMMANDs);
+define traceParse immediateAction=traceParse; ;
+register(BracedMin);
+define
+    bmArr  one two three;
+    bmRun code={
+        bmOut = bmArr[1];
+        };
+    ;
+traceParse();
+bmRun();
+print "BRACEDMIN SENTINEL":;
+stop();

@@ -1,0 +1,10 @@
+  lit " [ " at term  [
+  parseR term= ExpressioN  into= Braced
+  parseR term= ExpressioN  -> attached as  ExpressioN  under  Braced
+  lit " ] " at term  ]
+  HIT  Braced
+  WIN  Braced
+Search list: Grokking UnitTests Utilities
+BRACEDMIN SENTINEL 
+
+stop: ending input divert

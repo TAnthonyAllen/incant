@@ -1,188 +1,82 @@
-# ⚠⚠ SEALED 2026-08-05 (end of arc) — READ THIS SECTION FIRST.
-# Everything from `# ⚠⚠ UPDATED 2026-08-03` down is older vintage and still broadly accurate;
-# it is just no longer the top of the story. CLEAN KITCHEN. KANT-8 CLOSED BY DISPOSITION.
+# ⚠⚠ SEALED 2026-08-05 (FINAL VINTAGE) — READ THIS SECTION FIRST.
+# Everything from `# ⚠⚠ UPDATED 2026-08-03` down is older vintage, still broadly accurate,
+# just no longer the top of the story. KANT-8 BURIED. THE GRAMMAR CAMPAIGN IS AT ITS REAL QUESTION.
 
 # ═══════════════════════════════════════════════════════════════════════════
-# 2026-08-05 — THE INLINED SELF-CALL DIED AT ITS CAUSE, `return` GOT AN EMITTER,
-#              AND KANT-8 WAS CHARACTERISED THEN DISPOSITIONED
+# 2026-08-05 — KANT-8 CLOSED, `return` EMITTED, AND THE GRAMMAR CAMPAIGN OPENED
+#              ON MEASURED GROUND
 # ═══════════════════════════════════════════════════════════════════════════
 
-## ✅ RULED 2026-08-05 (Tony) — **KANT-8 IS CLOSED BY DISPOSITION**, verbatim
-- **jitted side correct** (F3, ledger row one)
-- **characterisation complete** (K1–K6d, deterministic)
+## ✅ RULED (Tony) — **KANT-8 IS CLOSED BY DISPOSITION**
+- **jitted side correct** (JRt F3, ledger row one) · **characterisation complete** (K1–K6d, deterministic)
 - **interpreter repair PARKED pending the frame model**, and **strengthened by K6**: patching
-  `saveLocalFields` would not touch the mutual-recursion gap; **only per-activation state kills
-  both diseases**
+  `saveLocalFields` would not touch the mutual-recursion gap; **only per-activation state kills both**
 - **carrier discipline NARROWED by measurement** — valid for **direct** self-recursion (K2),
-  **invalid for mutual** (K6c); correct KANT-22's guidance wherever written
-- **frame-model gate SATISFIED**, its opening fixture named: **K6a's shape, jitted** — does the
-  runtime bracket inherit the gap for **node-resident** state?
+  **invalid for mutual** (K6c)
+- **frame-model gate SATISFIED**, opening fixture named: **K6a's shape, jitted**
 
-⚠ **STALE-CLAIM CORRECTION, riding this seal.** The 08-05 morning line *"an argument is a working
-carrier across a recursive call TODAY"* **narrows to DIRECT self-recursion.** K6c measured the
-opposite for mutual recursion: with no bracket running at all, the outer activation simply keeps
-the **inner's** binding. Same field, opposite outcomes, different mechanisms.
+## ✅ ITEM 1 — the inlined self-call died at its cause (option **(b)**, build-on-discovery)
+`jitEmitSelfCall` said `CreateCall(gJitCurrentFn)` unconditionally; a self-call inside an **inlined**
+body got the **enclosing** function and replayed the driver's preamble every recursion. **The map is
+the predicate**, populated by the inline-stack test at discovery. S1 extraction byte-identical · S2
+names from action identity (`jit_<tag>`) · S3 restart bounded and checked · S4 entry by name · S5 rung
+**JS**. H7: the pre-S3 binary exits **139 after 173,400 replays**. **Rule H5 reached the JIT ladder** —
+it had never had a wall-clock cap.
 
-## THE TWO THINGS THAT WERE "READ THIS FIRST" THIS MORNING ARE BOTH FIXED
-The morning section listed the inlined-self-call defect and the missing `return` emitter as the
-hazards to know. **Both landed today.** What follows replaces them; do not go looking for the old
-warnings.
+## ✅ ITEM 2 — `return` IS EMITTED. **Ladder 129 → 150.**
+Rung **JRt**: returned scalar 21/27 · **factorial(5)=120 through real recursion** · KANT-8's shape
+jitted **42/45 with the interpreted tag asserted as an intended divergence** · mid-block return
+111/222 with tail 0/999. **E3 was not real — a bare `return;` is correct by construction.** A fifth
+edge the brief did not name: **a bare field read as the returned expression emitted nothing.**
+**Bear-trap #25** records both oracle traps (`isCoded` routing; post-jit interpreted calls are not
+clean oracles for *returned* values).
 
-## ✅ ITEM 1 — THE SELF-CALL TARGETS THE CALLEE'S OWN FUNCTION (option **(b)**, Tony's ruling)
-`jitEmitSelfCall` said `CreateCall(gJitCurrentFn)` unconditionally. That was the defect: emit-on-walk
-**inlines** an ordinary callee into the caller's builder, so a self-call inside that inlined body had
-no separate function to name and got the **enclosing** one — re-entering the driver's entry block and
-**replaying its whole preamble on every recursion**.
+## THE GRAMMAR CAMPAIGN — opened, and at its real question
+- **Population 78**, not 60 — Grokking's **60 rule members + 18 rule attributes**. ⚠ A one-axis walk
+  reports 60 **and looks right**; `GrouP`/`NamE` were the tell.
+- **Partition 12 PLAN / 66 REFUSE / 0 UNKNOWN**, guard-controlled, with a **role axis**
+  (6 declaration-flag, 72 parsing). **`docs/phaseA-partition.txt` is corpus.**
+- **`popScratch`** (was `censusScratch`) — a **sample**, never a census; `debug` is a **deliberate
+  negative control**.
+- **Gap #6** (flag-setting as a plannable term kind, any position) chartered to the **main line**.
+- **Corpus stood up** — `docs/grammarCorpus.md`, **GM-1…GM-16**, stage-1 durability in force:
+  every claim written for a reader with **no session context**.
+- **Install vocabulary registered in `incant/setup`** (`parseMethod`, `parseTerms`) with the
+  **consumed-check standing** in the audit family; H7 control is today's Braced SIGSEGV.
+- **Rule one `Braced`: installs clean, verifies RED, parked** with a 253-line specimen.
 
-⚠ **THE PREDICATE COULD NOT FIRE EARLY ENOUGH, AND THAT IS THE WHOLE SHAPE OF THE FIX.** The correct
-test — *an inlined callee is calling itself* — is only answerable **at the inner self-call**, by which
-time the enclosing function is half-built. So the earlier moment is **manufactured**: walk, discover,
-**erase the partial**, build what was discovered, walk again. The second walk's outer call sites find
-the callee **in the map** and emit a real call. **The map IS the predicate**; the inline-stack test
-populates it at discovery, so **A→B→A composes through it**.
+## ⚠⚠ THE DAY'S LAST FINDING — **THE GENERATED ARM DOES NOT FIRE THE RULE ACTION**
+The FU-2′ localizer worked on first use **and falsified the lead it was built to test**: `parseR`
+attaches `ExpressioN` under the label, correctly named. **The fork point is elsewhere and now has
+file:line** — `parse()`'s generated arm ends `goto generatedExit` (`GroupItem.twk:1050-1054`), and
+`generatedExit` (`:1109-1113`) skips **`:1073-1079`, *"Success. Fire label method if there is one."***
 
-| step | what |
-|---|---|
-| **S1** | `jitBuildFunction` extracted — shell, entry, result slot, prologue, walk, epilogue, ret, verify, mem2reg. **Byte-identical everywhere.** A lift, not a migration; `JitContext` annotated and NOT adopted |
-| **S2** | names derive from **action identity** — `jit_sfDrive`, `jit_sf` — not a per-process counter, because the persistence arc looks a stashed function up **by name**. Collision-free-per-compile is now **checked** (`-9`), not guaranteed |
-| **S3** | build-on-discovery with restart. R1 flush is **one mechanism, two call sites**; R2's bound is **checked before the work** (`-7` loud, never a spin) |
-| **S4** | **entry by name**, not by position — with one function those were the same string and nothing could tell a right answer from a lucky one |
-| **S5** | rung **JS**, 11 checks, the 139 shape made runnable |
-
-**Measured on the IR** — `jit_displayForm` calls **itself**, the driver calls **it**, and the discarded
-partial is **erased**. ⚠ **H7 negative control: the pre-S3 binary exits 139 after 173,400 lines of the
-driver's preamble replaying.**
-
-⚠ **RULE H5 REACHED THE JIT LADDER.** It had **never** had a wall-clock cap; `genLadder/pop.sh` has
-had one since 08-02. It did not matter until a rung whose regression mode is **infinite recursion**.
-`runcap` (JITCAP, default 90s) reports a timeout **by name, never as a diff**.
-
-## ✅ ITEM 2 — `return` IS EMITTED. **RETURNED VALUES ARE NOW ASSERTABLE.**
-Every green rung before today asserted a **field** after the action, never a **returned** one, for one
-reason: `return` called `jitDegrade`. **Rung JRt is that question finally being put.** Ladder **129 → 150**.
-
-| | shape | fire 1 / 2 | oracle |
-|---|---|---|---|
-| **F1** | returned scalar, non-recursive | 21 / 27 | 21 ✅ |
-| **F2** | **factorial(5)=120 through real recursion** | 120 / 720 | 120 ✅ |
-| **F3** | KANT-8's shape, jitted | **42 / 45** | the **tag** `k8loc` — ⚠ **INTENDED DIVERGENCE, asserted by name** |
-| **F4** | mid-block return + tail | 111 / 222 | tail 0 / 999 |
-
-**The edges, as reported:**
-- **E1 — real, and already solved in the tree.** `jitEmitContinue`'s unreachable-continuation idiom,
-  lifted verbatim. It matters **more** for return, because `aCTionBlocK`'s `if jitting continue;`
-  keeps the emit walk going past the branch.
-- **E2 — real, cheap, deferred with sanction.** `gJitInlining` non-empty ⟺ inside an inlined callee.
-  Refused, degraded **by name**, pinned.
-- **E3 — NOT real. Correct by construction.** A bare `return;` yields the prior statement's value, and
-  the slot **already holds** exactly that. **No bareness test exists anywhere in the emitter.**
-- **E4 — held.** Degrade 0 on all four fixtures.
-- ⚠ **A FIFTH EDGE, FOUND ON CONTACT:** a bare field read as the **returned expression** emitted
-  nothing — `return ftAcc;` returned **0**, silently, at degrade 0. `jitEmitters` already states the
-  rule (*"every position that consumes a value invokes the primitive when its operand is bare"*);
-  return was absent from that list **only because it did not exist when the list was written.**
-
-⚠ **THE EPILOGUE BECAME A BLOCK.** It used to be a run of stores emitted into whatever block the walk
-ended in — correct for exactly one shape, falling off the end. Now **every exit branches there** and
-the frame writeback and the ret exist **once**.
-
-⚠ **ONE ORDERING BUG WORTH THE LINE:** the epilogue block was created beside the entry block, where it
-*reads* like it belongs, and was silently nulled two lines later by `jitFlushTransient`. **A
-per-function global must be set AFTER the thing that clears per-function globals.**
-
-## ⚠ BEAR-TRAP #25 — TWO ORACLE TRAPS, BOTH PAID FOR TODAY
-1. **`testing()` routes by `isCoded`, and an interpreted run consumes it.** An oracle placed **above**
-   the jitted half silently measures `jitRunIfTest` instead, at exit 0. **Fixture order is
-   load-bearing: jitted FIRST, oracle LAST.** Tell: `=== jitRunIfTest on <action> ===`.
-2. ⚠ **AND ITS SHARPER SIBLING: A POST-JIT INTERPRETED CALL IS NOT A CLEAN ORACLE FOR A *RETURNED*
-   VALUE.** The identical call gives **120 standalone and 5 below the jitted fires**. It hid this long
-   because reading a **field** in the same position is correct — only **returned** values diverge, and
-   those were not assertable until today. **The fix is a separate PROCESS, not a separate statement**
-   (`jitJRt2o`, `jitJRt3o`).
-
-## THE KANT-8 CHARACTERISATION — `incant/kant8T`, interpreted, exit 0
-| row | shape | returned |
-|---|---|---|
-| **K3** | NON-recursive, returns a local | **42** — the control |
-| **K1** | recursive, returns a local | **`k1loc`** |
-| **K4** | recursive, branch **never taken** | **`k4loc`** |
-| **K2** | recursive, returns its **ARGUMENT** | **7** |
-| **K5** ×2 | K1's shape, **first and second** invocation | **`k5loc` both — no history dependence** |
-| **K6a** | A→B→A, **iterator cursor carried across** | **2** (3 = protected) |
-| **K6b** | control, local written **after** the B call | **3** — clean |
-| **K6c** | A→B→A, **argument** read after the B call | **`k6small`** (its own is `k6big`) |
-| **K6d** | re-iterate one cursor, **no recursion** | **3** — the iterator is innocent |
-
-**K5's answer is NO, and the why is STRUCTURAL rather than inferred** — which matters, because a
-causal claim in this domain is a coin flip until it is run and this one can be **read**.
-`saveLocalFields` pushes one body per matching field (`GroupActions.rtn:859-879`);
-`restoreLocalFields` pops exactly as many (`:589-593`). So the stack is empty at a restore **iff the
-save pushed nothing** — i.e. the action has no matching fields, in which case the bracket had nothing
-to blank anyway. **`:587`'s clear is reachable ONLY where clearing it changes nothing.**
-
-⚠ **THIS NARROWS A WARNING ISSUED EARLIER THE SAME DAY.** The S3 probe reported *"recursive is cleared
-at run time, so compile results could depend on invocation history"*, and that was one of two reasons
-option (c) was rejected. **The clause is TRUE but INERT** for any action carrying a local or an
-argument. **The ruling is unaffected** — (c)'s other reason was that `recursive` misses A→B→A
-entirely, and **K6a/K6c now MEASURE that gap rather than predicting it.**
-
-⚠ **K6c IS THE SHARPEST CONSEQUENCE: the argument is trampled in mutual recursion — the exact opposite
-of K2.** In direct recursion `runAction` binds **before** `saveLocalFields` runs, so the argument is
-saved as-bound and restored as-bound. In mutual recursion **there is no bracket at all**, so the outer
-keeps the inner's binding.
-
-⚠⚠ **AND A WITNESS NEARLY INVERTED A DIAGNOSIS. PRINTING A GROUP NODE PRINTS ITS ATTRIBUTE COUNT.**
-K6c's first form did `return argument;` and printed **3** — `k6big`'s attribute count, a legal-looking
-number **in the same range as the answer**, so it did not announce itself as the wrong quantity. Read
-as *"the argument is intact"*, it pointed the blame at the iterator. `argument.taG` says `k6small`.
-**K6d survives as the elimination that mistake forced**, and a control that eliminates is worth keeping
-even when the hypothesis it was built for dies.
-
-## ⚠ THE PRINT-LENGTH DEFECT — found, measured, and NOT this arc's
-A jitted `print` of a **bare string literal** emits the string's **LENGTH**: `"AB"`→2,
-`"PREAMBLEPREAMBLE"`→16, **degrade count 0 throughout, so it is silent.** The **pre-S1 binary produces
-the identical 2/16**, so it is pre-existing and independent — no self-call, no recursion, no inlining.
-It is the 08-05 "recorded, not chased" print oddity **with a sharper signature than the one recorded**:
-silence was the earlier symptom, *a number wearing the shape of data* is the current one. Pinned in
-`incant/jitSelfFn`'s header. **Wanted before KR's print-dependent rungs, not before anything else.**
-
-## ERRATUM AGAINST THIS FILE'S 08-03 SECTION
-**The `oneTest` six-`stop()` finding is RESOLVED** (Tony, this session): **one `stop()`, the full body
-runs.** The 08-03 line *"oneTest runs one section of six"* no longer describes the tree.
+**So Braced's red is an ACTION-LAYER divergence, not a parse divergence — the exact thing GM-6 rules
+must not exist.** GM-6's isolation property is **true of the design and false of the code today**,
+which the very first red exposed. **The ruling stands; it is now a work item with a named site rather
+than an assumed invariant — and that is why it was worth writing down before it was needed.**
+**No fix taken:** `Parens` runs first; two specimens make the pattern systemic and the fix lands
+**once at the right level**.
 
 ## WHAT IS RUNNABLE
 ```
-sh jitLadder/ladder.sh        150 checks, exit 0   J1..J7 JE JF JP JPd JU JA JI JPv JV JC JS JRt + J-R
-sh genLadder/pop.sh            33 green / 1 parked  (the SAME 3 owned reds, byte-identical)
-sh genLadder/printPop.sh        9 checks, exit 0
-sh genLadder/containerPop.sh   11 checks, exit 0
-sh genLadder/tree.sh                    exit 0
-sh genLadder/harnessCensus.sh           exit 0      6 harnesses, 105 fixtures, all clean
+sh jitLadder/ladder.sh        150 checks, exit 0   … JC JS JRt + J-R
+sh genLadder/pop.sh            33 green / 1 parked  (the SAME 3 owned reds)
+sh genLadder/printPop.sh        9 · containerPop 11 · tree · harnessCensus (6 harnesses, 112 fixtures)
 <binary> incant/oneTest        exit 0, 11 then 26 x4
-<binary> incant/jsonTest       exit 0
-<binary> incant/kant8T         exit 0, the ten K rows
+<binary> incant/jsonTest · incant/kant8T · incant/phaseA · incant/emitAll      exit 0
 ```
-
-## DOCS LANDED TODAY
-- `docs/method.md`, `docs/workOnAleash.md`, `docs/grammarMinion.md` — Tony's, written offline
-  this session.
-- `docs/jitDesign.md` gains **"IR PERSISTENCE — THE PREMISE"** (Tony's outline ruling): three-state
-  dispatch with **no stored flag**, **DEFINING IS INVALIDATING** at the `aCTionDefinE` chokepoint,
-  **no fingerprint by design**, fidelity form, and option (b) named as the arc's floor. Its
-  name-stability clause is the one part already in scope, and **S2 landed it**.
+**Metric: 0/78 installed** — honest, and blocked by **rule behaviour**, not by the door.
 
 ## QUEUE
-**Main line CLEAR.** Next fire: **the grammarMinion opening probe — P-G1 and P-G2**
-(`docs/grammarMinion.md`), on Tony's word. Read-and-report, no builds, no installs. **P-G2's answer is
-the campaign's founding number**: the true rule population against the census's 30.
+**Next fire: `Parens`** (designed discriminator — same three-term shape, different action), preceded
+by **FU-1** (answered: `parseTerms` is a **guard only**, define-time, GM-12a) and **FU-2′** (built:
+`parseTrace` extended to `parseR`/`lit`, gated, **fleet byte-identical with the gate closed**).
+**Gap #6 brief on Clay's shelf.** **Frame arc gated open**, opening fixture named (K6a's shape, jitted).
+**Still open:** ipc SEQ 38 consequence 3 (the `locate` never-assertion) · the print-length defect ·
+`pop.sh`'s three owned reds.
 
-**Still open and whose:** consequence 3 of ipc SEQ 38 (a standing never-assertion that `locate` never
-appears in emitted IR — consequences 1 and 2 are discharged) · the print-length defect · `pop.sh`'s
-three owned reds (`census.target`, `iterT1m` pinned, `oneTest baseline`) · E2, a return inside an
-inlined body.
-
-**Housekeeping:** `IncantForms/WorkingOn/incant++` is **Tony's own working document, safe to ignore;
-it changes randomly and does NOT need reporting at kitchen checks.**
+**Housekeeping:** `IncantForms/WorkingOn/incant++` is Tony's own working document, safe to ignore.
 
 # ═══════════════════════════════════════════════════════════════════════════
 

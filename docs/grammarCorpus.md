@@ -297,3 +297,81 @@ to look first, not a diagnosis.**
 **DISPOSITION: PARKED, per the brief — a red parks the rule with its specimen and the campaign takes
 the next rule.** `Braced` is reverted; the generated method is **not** left in the tree as dead code,
 and the emitted text is banked in `docs/emitted/`. **Metric stays 0/78 installed.**
+
+## GM-12a — `parseTerms` IS A GUARD, NOT OPERATIONAL (FU-1)
+**asOf 2026-08-05 · confidence: MEASURED (source read) · provenance: `genParse.rtn:1345-1358`
+(setter), `:1360-1382` (reader), `RuleStuff.h:13-18`**
+
+`parseTermCount` records `stuff.termCount = atoi(name)` and does nothing else. `parseRuleMethod`
+reads it **once, at bind time**: computes `live = countRuleTerms(grup)`, then
+- `!stuff.termCount` → **WARNING**, *"binding … with no parseTerms — indices unguarded"*, installs anyway
+- `stuff.termCount != live` → **REFUSES to bind** and returns without installing
+
+**Nothing else reads it.** The emitted method indexes `rule[1..n]` with literal integers; the count
+does **not** feed the parse. `RuleStuff.h:13-18` states the bet it guards: *"Every emitted rule[n]
+bets the list only ever mutates BEHIND the real terms; the cached BlocK appearing after a rule's
+first parse proves the list does mutate at runtime, and nothing else enforces the bet."*
+
+**So a guard exists and it is a good one — but it is a DEFINE-TIME guard.** If a rule's term list
+drifts **after** the bind, nothing re-checks. Whether a run-time equivalent is wanted is **Tony's
+ruling**.
+
+⚠ **AND THE GUARD COULD NOT DEFEND AGAINST ITS OWN PREREQUISITE.** In GM-11's failure `parseMethod`
+was not a command at all, so `parseRuleMethod` never ran and the guard never fired. **That is
+precisely why the consumed-check belongs in the audit family** rather than relying on this one: a
+guard reached through the mechanism it guards cannot catch that mechanism being absent.
+
+## GM-14 — A FULL-MONTY VERIFY IS A DETECTOR, NOT A LOCALIZER
+**asOf 2026-08-05 · confidence: RULED (Tony) · provenance: this campaign's rule one**
+
+`oneTest`'s corpus diff is **the verdict**: it says *divergence / no divergence*, and it is the
+oracle. It does **not** say where. `parseTrace` narration is the **standard red-response**: gated,
+default off, instrumenting the support layer once so every generated method self-narrates for free.
+**Every future red arrives with its fork point named, not merely its symptom banked.**
+
+## GM-15 — FULL-MONTY COVERAGE HONESTY
+**asOf 2026-08-05 · confidence: RULED (Tony)**
+
+**"Diff empty" means "no divergence in the corpus's usage of the rule" — nothing more.** A sparsely
+used rule verifies sparsely. **The campaign claims exactly that and no more**, and a green row is a
+claim about coverage the corpus actually exercises.
+
+## GM-16 — ⚠⚠ THE GENERATED ARM DOES NOT FIRE THE RULE ACTION. GM-6 IS DESIGN INTENT, NOT AN IMPLEMENTED FACT.
+**asOf 2026-08-05 · confidence: MEASURED, located by the FU-2′ localizer on its first use ·
+provenance: `GroupItem.twk:1050-1054` (the fork), `:1073-1079` (the action site), `:1109-1113`
+(`generatedExit`) · specimen `docs/emitted/braced-exhibit-narration.txt`**
+
+**The localizer worked, and it falsified the lead it was built to test.** With `parseBraced`
+installed and `parseTrace` open, the minimal input `bmArr[1]` narrates:
+```
+    lit " [ "  at term  [
+    parseR term= ExpressioN  into= Braced
+    parseR term= ExpressioN  -> attached as  ExpressioN  under  Braced
+    lit " ] "  at term  ]
+    HIT  Braced
+    WIN  Braced
+```
+**`parseR` attaches `ExpressioN` under the label, correctly named.** GM-13's lead — *"the generated
+attachment differs in name or shape, so `aCTionBraced` finds nothing"* — is **dead**. The attachment
+is right.
+
+**THE ACTUAL FORK POINT, with file:line.** `parse()`'s generated arm (`:1050-1054`) ends
+`goto generatedExit`, and `generatedExit` (`:1109-1113`) does only `aCTionFailed` on failure, the
+`trueResult` substitution, and `return label`. **The rule action fires at `:1073-1079` — inside the
+match loop, under the comment *"Success. Fire label method if there is one."* — and the `goto` jumps
+clean over it.**
+
+⚠ **SO BRACED'S RED IS NOT A PARSE DIVERGENCE AT ALL. IT IS AN ACTION-LAYER DIVERGENCE — THE EXACT
+THING GM-6 RULES MUST NOT EXIST.** `aCTionBraced` (`input.clear(); input.group = ExpressioN;
+input.fLAG = true;`) never runs on the generated path, so the enclosing expression collapses and
+~30 lines of downstream bytecode-generation output vanish.
+
+⚠ **AND GM-6's ISOLATION PROPERTY IS THEREFORE NOT YET EARNED.** GM-6 says a verify diff *cannot* be
+an action difference because both arms run the same actions. **That is true of the design and false
+of the code today** — which the very first red exposed. The ruling stands as a ruling; what changed
+is that it is now a **work item with a named site** rather than an assumed invariant. **This is why
+GM-6 was worth writing down as a ruling before it was needed.**
+
+**NO FIX TAKEN, per the brief.** `Parens` runs first; if it reds the same way, two specimens make the
+pattern systemic and the fix lands **once at the right level** — the generated exit — instead of once
+per rule.

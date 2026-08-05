@@ -139,6 +139,8 @@ extern "C" int lit(GroupItem *field, char *str)
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*atText = 0;
 char 		*matchStr = 0;
+	if ( ruler->parseTrace )
+		::fprintf(stderr,"  lit \" %s \" at term  %s\n",str,field->groupBody->tag);
 	if ( ruler->skipSet->contains(*ruler->atRuleMark) )
 		ruler->atRuleMark = ruler->checkSkip(ruler->atRuleMark);
 	atText = ruler->atRuleMark;
@@ -448,12 +450,41 @@ char 		*from = ruler->atRuleMark;
 *******************************************************************************/
 extern "C" GroupItem *parseR(GroupItem *term, GroupItem *into)
 {
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*bridge = 0;
+GroupItem 	*got = 0;
 	if ( !term )
 		return 0;
+	/*  FU-2', 2026-08-05 -- THE LOCALIZER, BUILT ONCE IN THE SUPPORT LAYER.
+	Instrumenting parseR rather than the emitted methods means every
+	generated method self-narrates FOR FREE and rules 13-78 inherit it
+	unwritten. A full-monty verify is a DETECTOR (corpus GM-14); this is
+	the localizer that names the fork point.
+	
+	⚠ GATED ON THE EXISTING parseTrace, not on a new flag: leaveRule above
+	already uses it, so this joins the standing debug idiom instead of
+	minting a second switch. Default OFF, and the fleet is asserted
+	byte-identical with the gate closed -- a gate that leaks is not a gate.
+	
+	⚠ IDENTITY-PRINTING ONLY -- taG and shape facts, NEVER a bare node.
+	Printing a group prints its ATTRIBUTE COUNT, which is a legal-looking
+	number in the same range as an answer and does not announce itself as
+	the wrong quantity. That near-miss is kant8T's K6c, and it nearly
+	inverted a diagnosis; this is that lesson written into an instrument.  */
+	if ( ruler->parseTrace )
+		{
+		::fprintf(stderr,"  parseR term= %s  into= %s\n",term->groupBody->tag,into->groupBody->tag);
+		}
 	bridge = new RuleStuff(term);
 	bridge->label = into;
-	return term->parse(bridge);
+	got = term->parse(bridge);
+	if ( ruler->parseTrace )
+		{
+		if ( got )
+			::fprintf(stderr,"  parseR term= %s  -> attached as  %s  under  %s\n",term->groupBody->tag,got->groupBody->tag,into->groupBody->tag);
+		else	::fprintf(stderr,"  parseR term= %s  -> NULL (no attachment)\n",term->groupBody->tag);
+		}
+	return got;
 }
 
 /*******************************************************************************

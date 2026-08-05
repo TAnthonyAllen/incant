@@ -521,6 +521,7 @@ extern int lit(GroupItem field, String str)
 {
 GroupRules  ruler = groupRules;
 String      atText, matchStr;
+    if parseTrace   cerr "  lit \"",str,"\" at term ",field.tag:;
     if skipSet.contains(*atRuleMark)   atRuleMark = checkSkip(atRuleMark);
     atText      = atRuleMark;
     matchStr    = str;
@@ -687,11 +688,35 @@ String      at = atRuleMark;
 *******************************************************************************/
 extern GroupItem parseR(GroupItem term, GroupItem into)
 {
+GroupRules  ruler = groupRules;
 RuleStuff   bridge;
+GroupItem   got;
     if !term    return null;
+    /*  FU-2', 2026-08-05 -- THE LOCALIZER, BUILT ONCE IN THE SUPPORT LAYER.
+        Instrumenting parseR rather than the emitted methods means every
+        generated method self-narrates FOR FREE and rules 13-78 inherit it
+        unwritten. A full-monty verify is a DETECTOR (corpus GM-14); this is
+        the localizer that names the fork point.
+
+        ⚠ GATED ON THE EXISTING parseTrace, not on a new flag: leaveRule above
+        already uses it, so this joins the standing debug idiom instead of
+        minting a second switch. Default OFF, and the fleet is asserted
+        byte-identical with the gate closed -- a gate that leaks is not a gate.
+
+        ⚠ IDENTITY-PRINTING ONLY -- taG and shape facts, NEVER a bare node.
+        Printing a group prints its ATTRIBUTE COUNT, which is a legal-looking
+        number in the same range as an answer and does not announce itself as
+        the wrong quantity. That near-miss is kant8T's K6c, and it nearly
+        inverted a diagnosis; this is that lesson written into an instrument.  */
+    if parseTrace {
+        cerr "  parseR term=",term.tag," into=",into.tag:; }
     bridge          = new(term);
     bridge.label    = into;
-    return term.parse(bridge);
+    got = term.parse(bridge);
+    if parseTrace {
+        if got  cerr "  parseR term=",term.tag," -> attached as ",got.tag," under ",into.tag:;
+        else    cerr "  parseR term=",term.tag," -> NULL (no attachment)":; }
+    return got;
 }
 
 /*******************************************************************************
