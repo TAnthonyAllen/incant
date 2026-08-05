@@ -3421,8 +3421,10 @@ GroupItem 	*ruleArg = 0;
    Returns 0 on success, and the SAME negative codes jitRunAction has always
    returned for the failures that now live in here -- -2 (nothing emitted, the
    gate never fired) and -5 (the verifier refused the IR) -- kept identical so no
-   caller and no rung has to learn a new number. -6 is new and means it was called
-   with no context/module set up, which only a mis-sequenced caller can produce. */
+   caller and no rung has to learn a new number. -6 means it was called with no
+   context/module set up, which only a mis-sequenced caller can produce; -9 means
+   two functions in one module wanted the same name, which the build loop's erase
+   discipline should make unreachable. */
 extern "C" int jitBuildFunction(GroupItem *action)
 {
 	
@@ -3438,14 +3440,52 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	llvm::IRBuilder<> B(C);
 	
 	llvm::Type *i32 = llvm::Type::getInt32Ty(C);
-	//  Unique name per FUNCTION MINTED, not per compile: the LLJIT engine is
-	//  long-lived, so reusing a name collides on the next addIRModule (duplicate
-	//  symbol in the JITDylib) -- and S3 mints more than one function per compile,
-	//  which would collide inside a single module as well. The counter lives here
-	//  rather than in jitRunAction for exactly that reason (S2).
-	static int jitFnSeq = 0;
-	char fnName[32];
-	snprintf(fnName, sizeof(fnName), "jitFn%d", jitFnSeq++);
+	//  ⚠⚠ S2 (AMENDED, Tony 2026-08-05): THE NAME DERIVES FROM ACTION IDENTITY,
+	//  NOT FROM A PER-PROCESS COUNTER. It used to be `jitFn%d` off a static
+	//  jitFnSeq, and that was fine for exactly as long as a compiled function
+	//  died with the process.
+	//
+	//  WHY IT CANNOT STAY A COUNTER. The IR-persistence arc stashes a compiled
+	//  function beside its definition and REHYDRATES it in a later incantation by
+	//  LOOKING IT UP BY NAME. A counter-derived name is a fact about the ORDER
+	//  THINGS HAPPENED TO BE COMPILED IN THIS PROCESS -- change a fixture, add a
+	//  rung, compile two actions in the other order, and `jitFn1` names something
+	//  else. A stashed name that means a different function next time is not a
+	//  key, it is a collision waiting for a quiet afternoon.
+	//  The action's tag is the same in every incarnation, which is the whole
+	//  property the stash needs. See docs/jitDesign.md, "IR persistence -- the
+	//  premise", name-stability clause.
+	//
+	//  SANITISED because an LLVM identifier is not an incant one. Anything
+	//  outside [A-Za-z0-9_] becomes '_'; the `jit_` prefix keeps emitted names in
+	//  one namespace and out of the way of the runtime symbols the IR already
+	//  calls into by address.
+	char fnName[128];
+	{
+	const char *tag = action->groupBody->tag;
+	if (!tag || !*tag) tag = "anon";
+	size_t n = 0;
+	fnName[n++] = 'j'; fnName[n++] = 'i'; fnName[n++] = 't'; fnName[n++] = '_';
+	for (const char *p = tag; *p && n < sizeof(fnName) - 1; p++)
+	fnName[n++] = ((*p >= 'A' && *p <= 'Z') || (*p >= 'a' && *p <= 'z') ||
+	(*p >= '0' && *p <= '9') || *p == '_') ? *p : '_';
+	fnName[n] = 0;
+	}
+	//  ⚠ COLLISION-FREE PER COMPILE IS STILL REQUIRED and is now CHECKED rather
+	//  than guaranteed by a counter. Two functions in one module must not share a
+	//  name, and with identity-derived names that can only happen if one action's
+	//  function is built twice in a compile -- which the build loop does not do
+	//  (a discarded partial is ERASED, freeing its name, before the rebuild).
+	//  So this is a LOUD REFUSAL for a condition that should be unreachable,
+	//  which is the right shape for exactly that: if it ever fires, the build
+	//  loop has stopped erasing and a silent LLVM auto-rename would have hidden
+	//  it behind a name nobody looks up.
+	if (gJitModule->getFunction(fnName)) {
+	fprintf(stderr,
+	"=== jitBuildFunction: NAME COLLISION on %s -- a function for this "
+	"action already exists in this module ===\n", fnName);
+	fflush(stderr);
+	return -9; }
 	llvm::Function *fn = llvm::Function::Create(
 	llvm::FunctionType::get(i32, false),
 	llvm::Function::ExternalLinkage, fnName, gJitModule);

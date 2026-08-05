@@ -115,6 +115,39 @@ sentinel () {                   # sentinel <name> <file> <text>
          echo "        that stopped parsing, not the row that diffed."; fail=1; fi
 }
 
+#  ⚠⚠ RULE H5 REACHES THIS LADDER, 2026-08-05. genLadder/pop.sh has run every
+#  fixture under a wall-clock cap since 2026-08-02; THIS FILE NEVER DID, and it
+#  did not matter until rung JS -- whose regression mode is INFINITE RECURSION.
+#  A fixture that never returns does not fail: it takes the summary line, the
+#  exit status, and every check below it, and those checks do not pass and do not
+#  fail, THEY CEASE TO EXIST. That is worse than a red, because the operator sees
+#  a terminal that is merely quiet.
+#
+#  A TIMEOUT IS REPORTED BY NAME AND NEVER AS A DIFF: a killed process yields
+#  truncated output, and a truncation diff names the wrong row. `timeout(1)` is
+#  not on macOS, hence sleep-and-kill; 137 is the SIGKILL that produces. The
+#  watchdog is reaped inside a brace group with stderr discarded, or the shell
+#  announces `Terminated: 15` on every capped fixture -- an instrument that adds
+#  its own chatter to the evidence is an instrument that will be misread.
+JITCAP=${JITCAP:-90}
+runcap () {                     # runcap <label> <fixture> <outfile> [env-prefix]
+    if [ -n "$4" ]; then env "$4" $B "incant/$2" > "$3" 2>&1 & else $B "incant/$2" > "$3" 2>&1 & fi
+    _p=$!
+    { ( sleep "$JITCAP"; kill -9 $_p 2>/dev/null ) >/dev/null 2>&1 & } 2>/dev/null
+    _w=$!
+    wait $_p; _ec=$?
+    { kill $_w 2>/dev/null; wait $_w 2>/dev/null; } 2>/dev/null
+    if [ $_ec = 137 ]; then
+        echo "  FAIL  $1 TIMED OUT after ${JITCAP}s -- KILLED, not failed."
+        echo "        Its capture is TRUNCATED, so every assertion below it would"
+        echo "        name the wrong row. For JS specifically, a hang IS the"
+        echo "        pre-S3 defect: the driver's preamble is replaying."
+        fail=1
+        return 124
+    fi
+    return $_ec
+}
+
 if [ ! -x "$B" ]; then echo "  FAIL  binary not executable: $B"; exit 1; fi
 echo "  bin   $B"
 echo "  bin   $(ls -lL "$B" | awk '{print $5" bytes  "$6" "$7" "$8}')"
@@ -455,7 +488,7 @@ echo "-- J-R  RECURSION. THE FRAME MODEL'S DEFINITION OF DONE."
 #  answers, not merely different inputs.
 rung jitJR "JR SENTINEL" "JR" 6 24
 INCANT_JIT_DUMP=2 $B incant/jitJR > "$T/jitJR.ir" 2>&1
-if grep -q "call i32 @jitFn" "$T/jitJR.ir"; then
+if grep -q "call i32 @jit_" "$T/jitJR.ir"; then
     echo "  ok    JR the recursive call is EMITTED (not inlined)"
 else
     echo "  FAIL  JR no self-call in the IR -- it inlined, or did not emit"; fail=1
@@ -876,6 +909,114 @@ if [ "$jcd" = "0" ]; then echo "  ok    JC degrade count 0 (the walk compiled; n
 else echo "  FAIL  JC degrade count = '$jcd', want 0"; fail=1; fi
 
 echo ""
+echo "-- JS  THE SHAPE THAT EXITED 139. A DRIVER WITH A PREAMBLE, ABOVE A"
+echo "       SELF-CALLING CALLEE, ITS GUARD RESET INSIDE THE DRIVER."
+#  ⚠ THE RUNG JC COULD NOT BE. JC's driver, dfDrive, is exactly ONE statement,
+#  so re-entering the whole function happened to equal re-entering the callee --
+#  JC was green for a reason true of ITS DRIVER rather than of the mechanism,
+#  the same class as `continue` appearing to work because both arms fell to the
+#  back edge. This rung's driver has a THREE-statement preamble, which is the
+#  normal case and precisely the shape genParse's emitted rules will have.
+#
+#  ⚠ H7 NEGATIVE CONTROL, AND IT IS A HANG RATHER THAN A RED. On a pre-S3 binary
+#  the driver's `sfDepth = 3` replays on every recursion, the guard is restored,
+#  and the recursion never ends -- measured as exit 139 by inlineSelfT, which
+#  could only carry this shape as PROSE for exactly that reason. Hence the cap
+#  above; a timeout here is not a flaky machine, it is the defect returning.
+runcap "JS runs" jitSelfFn "$T/js"
+check "JS runs" 0 $?
+sentinel "JS sentinel (no truncation)" "$T/js" "jitSelfFn SENTINEL"
+
+jsp=$(sed -n 's/.*SF jitted : pre = *\([0-9-][0-9]*\).*/\1/p' "$T/js" | head -1)
+jsc=$(sed -n 's/.*SF jitted : .*count = *\([0-9-][0-9]*\).*/\1/p' "$T/js" | head -1)
+jso=$(sed -n 's/.*SF jitted : .*out = *\([0-9-][0-9]*\).*/\1/p' "$T/js" | head -1)
+jsd=$(sed -n 's/.*jitDegrade count = \([0-9-][0-9]*\).*/\1/p' "$T/js" | tail -1)
+jscc=$(sed -n 's/.*jitCompile count = \([0-9-][0-9]*\).*/\1/p' "$T/js" | tail -1)
+
+#  ⚠ THE LOAD-BEARING ROW, and it is the defect stated as a number. Under the
+#  replay the driver's preamble re-executes per recursion, so this reads 4 -- or
+#  the run never returns and the cap above catches it. ONE is the only value a
+#  driver whose preamble ran as written can produce.
+if [ "$jsp" = "1" ]; then
+    echo "  ok    JS the driver's preamble ran EXACTLY ONCE (pre = 1)  <- THE CLAIM"; green=$((green+1))
+else echo "  FAIL  JS pre = '$jsp', want 1. The driver's preamble is REPLAYING:"
+     echo "        an inlined callee's self-call is targeting the ENCLOSING"
+     echo "        function instead of the callee's own. Check jitEmitSelfCall's"
+     echo "        four-arm decision and gJitFnMap before anything else."; fail=1; fi
+
+#  ⚠ THE NON-ZERO SIBLING. A `1` that a default could also produce asserts
+#  nothing; 4 activations cannot come from a slot that merely defaults.
+if [ "$jsc" = "4" ]; then
+    echo "  ok    JS 4 activations (the recursion actually ran to depth 3)"; green=$((green+1))
+else echo "  FAIL  JS count = '$jsc', want 4"; fail=1; fi
+
+#  PER-ACTIVATION STORAGE, one level further out than JRL: sfLoc is read AFTER
+#  the recursive call returns. Per-activation 3; aliased slots 0, because the
+#  innermost activation would have written the shared slot last.
+if [ "$jso" = "3" ]; then
+    echo "  ok    JS out = 3  (the outermost activation's local survived the call)"; green=$((green+1))
+else echo "  FAIL  JS out = '$jso', want 3. 0 means the locals ALIAS."; fail=1; fi
+
+if [ "$jsd" = "0" ]; then echo "  ok    JS degrade count 0"; green=$((green+1))
+else echo "  FAIL  JS degrade count = '$jsd', want 0"; fail=1; fi
+#  THE BRIEF'S OWN DISCRIMINATOR: two functions inside ONE compile leaves this at
+#  1. If it moved, the implementation NESTED jitRunAction instead of sequencing
+#  jitBuildFunction, and the sixteen globals are being re-entered.
+if [ "$jscc" = "1" ]; then
+    echo "  ok    JS compile count 1 across TWO emitted functions  <- sequenced, not nested"; green=$((green+1))
+else echo "  FAIL  JS compile count = '$jscc', want 1 -- the build NESTED"; fail=1; fi
+
+#  ============ R3: THE DEFECT SIGNATURE, ASSERTED ON THE IR ITSELF ============
+#  Stronger than the values above because it names the MECHANISM rather than its
+#  consequence: NO function may call ITSELF unless it is the callee's own
+#  function. Before S3 the driver's function called itself.
+runcap "JS IR dump" jitSelfFn "$T/js.ir" "INCANT_JIT_DUMP=1"
+#  S2 (amended, 2026-08-05): names derive from ACTION IDENTITY -- `jit_<tag>` --
+#  not from a per-process counter, so these patterns match the identity form. A
+#  rung still grepping `jitFn[0-9]*` would go quietly VACUOUS the day the naming
+#  moved, which is exactly why the vacuity guard below reads the captured BLOCK
+#  and not merely the name.
+jsdrv=$(sed -n 's/^=== IR \(jit_[A-Za-z0-9_]*\) (post-mem2reg) ===.*/\1/p' "$T/js.ir" | head -1)
+#  The driver's own define block, and nothing else's.
+awk -v d="define i32 @$jsdrv()" '$0 ~ d {f=1} f{print} f && /^}/{exit}' "$T/js.ir" > "$T/js.drv"
+#  ⚠ VACUITY GUARD FIRST, H4's other half. A "does not contain" assertion passes
+#  trivially against an empty file, and an absence check that can pass by having
+#  nothing to look at is theatre. So: the driver must be NAMED, and its block
+#  must have been CAPTURED, before the never-assertion is allowed to mean anything.
+if [ -z "$jsdrv" ] || [ ! -s "$T/js.drv" ]; then
+    echo "  FAIL  JS R3 VACUITY: no driver name in the dump, or its define block"
+    echo "        was not captured. The never-assertion below would pass by"
+    echo "        having nothing to read. Nothing here is interpretable."; fail=1
+else
+    echo "  ok    JS R3 driver function named ($jsdrv) and its IR captured"; green=$((green+1))
+    if grep -q "call i32 @$jsdrv()" "$T/js.drv"; then
+        echo "  FAIL  JS R3 THE DRIVER CALLS ITSELF -- call i32 @$jsdrv() inside"
+        echo "        @$jsdrv. That IS the defect: an inlined callee's self-call"
+        echo "        targeting the enclosing function. Every recursion replays"
+        echo "        the driver's preamble."; fail=1
+    else
+        echo "  ok    JS R3 the driver does NOT call itself"; green=$((green+1)); fi
+    #  PRESENCE, so R3 cannot be satisfied by a driver that calls nothing at all.
+    if grep -q "call i32 @jit_" "$T/js.drv"; then
+        echo "  ok    JS R3 the driver DOES call another function (the callee's own)"; green=$((green+1))
+    else
+        echo "  FAIL  JS R3 the driver calls no function -- it inlined, or the"
+        echo "        callee never got its own function"; fail=1; fi
+fi
+#  AND THE POSITIVE HALF: the callee's own function DOES call itself. Recursion
+#  is still real; S3 moved WHERE the call lands, it did not remove the call.
+if [ -n "$jsdrv" ] && grep -E "^define i32 @jit_" "$T/js.ir" | grep -qv "@$jsdrv"; then
+    jscal=$(sed -n 's/^define i32 @\(jit_[A-Za-z0-9_]*\)().*/\1/p' "$T/js.ir" | grep -v "^$jsdrv$" | head -1)
+    awk -v d="define i32 @$jscal()" '$0 ~ d {f=1} f{print} f && /^}/{exit}' "$T/js.ir" > "$T/js.cal"
+    if [ -s "$T/js.cal" ] && grep -q "call i32 @$jscal()" "$T/js.cal"; then
+        echo "  ok    JS R3 the CALLEE's function calls ITSELF ($jscal) -- recursion is real"; green=$((green+1))
+    else
+        echo "  FAIL  JS R3 the callee's function does not recurse into itself"; fail=1; fi
+else
+    echo "  FAIL  JS R3 only one function was emitted -- the callee never got its own"; fail=1
+fi
+
+echo ""
 #  ⚠ H2 -- THE LADDER ASSERTS ITS OWN COMPLETENESS, and it must be unreachable
 #  except through the LAST rung. Added 2026-08-05 with the check/sentinel
 #  repair: for four days this file called two helpers it never defined, and the
@@ -885,7 +1026,7 @@ if [ "$green" -lt 1 ]; then
     echo "                   the helpers are missing again or the rungs evaporated."
     fail=1
 fi
-if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv JV JC + J-R THE PROOF)"
+if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv JV JC JS + J-R THE PROOF)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"
 exit $fail

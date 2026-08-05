@@ -1037,6 +1037,83 @@ that path sits early in the post-loop order.
 
 ---
 
+# IR PERSISTENCE — THE PREMISE (ruled in outline, Tony, 2026-08-05)
+
+> **Filed as REFERENCE. Nothing in this section builds, blocks, or modifies the S3–S5 arc.**
+> It is the written premise for the IR-persistence arc, recorded now so that arc starts from a
+> document rather than from a remembered conversation. **The one clause that is already in
+> scope is name stability**, and it landed as the S2 amendment — see the end of this section.
+
+## The problem it solves
+
+**Rejit-on-every-incantation is O(all of kant) at startup, and kant is no longer small.**
+Stash-and-rehydrate makes startup **O(what changed since the last incantation)**.
+
+⚠ **This is not a cache optimisation.** It is the difference between *an interpreter with a JIT
+bolted on* and *a compiled system that carries its compiler*.
+
+## Three-state dispatch, distinguished by which artifacts exist — no stored flag
+
+| state | condition | what happens |
+|---|---|---|
+| **compiled this run** | `rStuff.jitMethod` non-null | run it |
+| **compiled a previous run** | `jitMethod` null, **stashed IR present** | **rehydrate**: parse the IR module, `addIRModule`, look up by the stashed name, store into `rStuff.jitMethod`, dispatch through the pointer |
+| **never compiled** | neither | interpret, or compile fresh |
+
+`field.method()` never learns that rehydration happened.
+
+⚠ **THE POINTER REMAINS THE ONLY DISPATCH TRUTH; the stash is a store the pointer is REBUILT
+FROM.** No `isJitted` or equivalent stored status bit, **ever**. A bit beside the real state is
+the command-table disease — the drift class `rStuff.parseMethod` was built to kill — and a
+persisted *"jitted"* flag with no live pointer is **wrong at every process start by
+construction**.
+
+## The coherence law: DEFINING IS INVALIDATING
+
+The stash is written **beside the definition and dies with it**. `aCTionDefinE` is the single
+chokepoint every definition flows through, so clearing or refreshing that body's stashed IR is
+**one act at one site**.
+
+Under the archive model it is tighter still: entities persist **through the print form**, and
+**re-reading a printed definition IS defining** — so definition and IR travel as one record,
+written together, replaced together, **with no seam between them for drift to live in**.
+
+**No fingerprint, no hash, deliberately.** Write-side invalidation at the chokepoint makes
+read-side verification *a lock on a door with no room behind it*.
+
+⚠ **THE STANDING OBLIGATION THIS TRADES ON, one line: no definition path may bypass
+`aCTionDefinE`.** Today that holds by construction. **The day a second definition path exists is
+the day this section gets revisited — and not before.**
+
+## Name stability — and this clause is ALREADY IMPLEMENTED
+
+Stashed functions are **looked up by name across incarnations**, so function names must derive
+from **action identity**, never from a per-process counter.
+
+✅ **Landed 2026-08-05 as the S2 amendment** (`jitEmitters.rtn`, `jitBuildFunction`). Emitted
+names are `jit_<sanitised tag>` — `jit_sfDrive`, `jit_sf`, `jit_displayForm` — replacing the old
+`jitFn%d` off a static counter. **Why the counter could not stay:** a counter-derived name is a
+fact about *the order things happened to be compiled in this process*. Change a fixture, add a
+rung, compile two actions in the other order, and `jitFn1` names something else — **a stashed
+name that means a different function next time is not a key, it is a collision waiting for a
+quiet afternoon.** Collision-free-per-compile is still required and is now **checked** (a loud
+`-9` refusal) rather than guaranteed by a counter.
+
+## Form
+
+If the stash rides the archive it is **definition-class content** — meant to be re-read —
+therefore **fidelity form** by the 2026-08-03 print ruling. That places it behind the same
+`aCTionDefinE` attach prerequisite already named for `register`
+(`ruleActions.rtn:207` family).
+
+## Sequencing
+
+**Option (b) in the S3 work is this arc's floor.** After it, every self-test-passing action has
+its **own named function built start to finish**, so **per-action IR exists to stash**.
+Persistence remains the next arc and starts when Tony fires it.
+
+---
+
 # PART V — DEFERRED, AND NAMED SO IT DOES NOT CREEP
 
 - **`modedOP.boundTo` interaction with jitted dispatch** — pending that design pass.

@@ -16,8 +16,13 @@
     which re-enters the driver's ENTRY BLOCK and replays its whole preamble on
     every recursion. With the preamble harmless that is invisible; with the
     preamble holding the loop guard's reset, the guard is restored on every
-    recursion and the recursion never ends. Exit 139, no degrade message, and
-    no output after `jitRunAction: entering`.
+    recursion and the recursion never ends.
+
+    ⚠ SO THIS FIXTURE'S NEGATIVE CONTROL IS A HANG, NOT A RED, and the ladder
+    must run it under a wall-clock cap for that reason (H5: a hang is not a
+    wrong answer, it is the absence of a run, and it would silently delete every
+    check below it). On a pre-S3 binary: exit 139 or no return, no degrade
+    message, and no output after `jitRunAction: entering`.
 
     ⚠ WHY inlineSelfT's OWN GREEN HALF COULD NOT SEE IT, AND WHY displayForm
     COULD NOT EITHER: dfDrive's body is exactly ONE statement, so re-entering
@@ -27,41 +32,64 @@
     back edge. A driver with a preamble is the NORMAL case, and precisely the
     shape genParse's emitted rules will have.
 
-    WHAT IS ASSERTED HERE, and none of it is an absence check (rule H4):
+    WHAT IS ASSERTED, and none of it is an absence check (rule H4):
 
-      rbCount  = 4   the number of ACTIVATIONS. Non-zero on purpose: a result
-                     slot that merely defaults to zero cannot produce it, and a
-                     preamble that replayed its `rbDepth = 3` would never stop
-                     counting at all.
-      rbOut    = 3   the OUTERMOST activation's local, read AFTER the recursive
-                     call returns. Per-activation storage gives 3; aliased slots
-                     give 0, because the innermost activation would have written
-                     the shared slot last. Same discrimination J-R and jitJRL
-                     use, one level further out.
-      PREAMBLE = 1   printed ONCE. This is the other half of the defect and it
-                     was the oddity recorded-but-not-chased on 2026-08-05: a
-                     print in a driver ABOVE an inlined call produced NO output
-                     in the jitted half while the oracle printed it once. Under
-                     the replay it is 0 or N, never 1, so ONE is the only value
-                     that distinguishes a driver preamble that ran exactly as
-                     written from either failure.
+      sfPre   = 1   THE PREAMBLE RAN EXACTLY ONCE. This is the load-bearing row
+                    and it is the defect stated as a number: under the replay
+                    the driver's preamble re-executes on every recursion, so
+                    this reads 4, or the run never ends. ONE is the only value a
+                    driver whose preamble ran as written can produce.
+      sfCount = 4   THE NUMBER OF ACTIVATIONS. Non-zero on purpose -- a result
+                    slot that merely defaults to zero cannot produce it, and it
+                    is the sibling that stops sfPre's `1` from being a constant
+                    the machinery would emit anyway.
+      sfOut   = 3   THE OUTERMOST ACTIVATION'S LOCAL, read AFTER the recursive
+                    call returns. Per-activation storage gives 3; aliased slots
+                    give 0, because the innermost activation would have written
+                    the shared slot last. Same discrimination J-R and jitJRL
+                    use, one level further out.
 
-    ⚠ H7 NEGATIVE CONTROL -- THE PRE-S3 BINARY IS THE KNOWN-DEFECTIVE SPECIMEN.
-    This fixture is not a claim that would hold whatever the mechanism did: run
-    it on a binary built before S3 and it does not merely disagree, it never
-    returns. That is why the ladder runs it under a wall-clock cap and reports a
-    timeout BY NAME rather than as a diff -- a killed process yields truncated
-    output, and a truncation diff names the wrong row.
+    ⚠ NOTHING HERE READS A RETURNED VALUE, AND THAT IS DELIBERATE RATHER THAN
+    INCIDENTAL: `return` under JIT has no emitter, it calls jitDegrade, so a row
+    asserting what `sf(sfArg)` HANDED BACK would not be measuring this
+    mechanism -- it would be asking a question that is not yet askable. The
+    callee writes the globals itself; the driver only calls it. (Every green
+    rung in the ladder asserts a FIELD's value after the action rather than a
+    returned one, for exactly this reason.)
 
-    ⚠ AND THE IR CARRIES THE SIGNATURE DIRECTLY (rider R3), which is stronger
-    than the values because it names the mechanism rather than its consequence:
-    NO function may contain a call to ITSELF unless it is the callee's own
-    function. Before S3 the driver's function called itself; after S3 the driver
-    calls the CALLEE's function and only the callee calls itself.
+    ⚠⚠ ONE ROW IS PINNED WRONG ON PURPOSE, WITH ITS CAUSE MEASURED (H7's other
+    half -- where a construct is built but not certified, pin it red rather than
+    let an accident of topology imply coverage).
 
-    ONE testing(), THEN jitRefire() FOREVER -- a second testing() on one action
-    is the sequential-state-corruption tar baby, and the rung shape makes that
-    unconstructable rather than merely avoided.
+    `print "PREAMBLE":;` in the driver emits ONE LINE, which is what this
+    fixture certifies -- one line is the observable form of "the preamble ran
+    once", and under the replay it is not one. But THE LINE'S CONTENT IS WRONG:
+    a jitted print of a bare string literal emits the string's LENGTH instead of
+    its text.
+
+        print "AB":;                jitted 2    oracle AB
+        print "PREAMBLEPREAMBLE":;  jitted 16   oracle PREAMBLEPREAMBLE
+
+    ⚠ PRE-EXISTING AND NOT S3's, AND THAT IS MEASURED RATHER THAN ARGUED: the
+    identical 2 / 16 come out of a binary built from 6323adb -- before S1, S3
+    and S4 existed -- rebuilt for the purpose and then reverted. It involves no
+    self-call, no recursion and no inlining, so it is not this arc's to fix; it
+    is the 2026-08-05 "recorded, not chased" print oddity with a sharper
+    signature than the one recorded (silence was the earlier symptom; a number
+    wearing the shape of data is the current one, which is the same escalation
+    the corpus already names -- a conflated channel gets MORE dangerous as the
+    system gets better). Degrade count is 0 throughout, so the wrong content is
+    SILENT.
+
+    ONE testing(), THEN NOTHING ELSE FIRES IT -- a second testing() on one
+    action is the sequential-state-corruption tar baby, and the rung shape makes
+    that unconstructable rather than merely avoided.
+
+    ⚠ THE JITTED HALF RUNS FIRST AND THAT ORDER IS LOAD-BEARING. `testing()`
+    routes to jitRunAction only `if input.isCoded` (Commands.rtn:663), and an
+    interpreted run consumes that -- so an oracle placed above the jitted half
+    silently sends it to jitRunIfTest instead, and the fixture measures the
+    wrong engine at exit 0. Found the expensive way while writing this file.
 
     SENTINEL AT THE FOOT, and exactly ONE stop() in this file (rule H2): a
     second stop() anywhere above it silently deletes everything between.
@@ -80,8 +108,12 @@ define
     sfArg;
     sfOut;
     sfCount;
+    sfPre;
     /*  THE CALLEE. It mentions its own name, so an inlined copy of it calling
-        itself is the discovery S3's map is populated by.  */
+        itself is the discovery S3's map is populated by. sfLoc is a LOCAL --
+        first named inside the body, so aCTionNamE stamps it isLocal -- and it
+        is read AFTER the recursive call returns, which is what makes sfOut a
+        statement about per-activation storage rather than about arithmetic.  */
     sf argument code={
         sfLoc = sfDepth;
         if sfDepth > 0;
@@ -90,26 +122,38 @@ define
         sfCount = sfCount + 1;
         sfOut = sfLoc;
         };
-    /*  ⚠ THE DRIVER'S PREAMBLE IS THE WHOLE FIXTURE. Two statements above the
+    /*  ⚠ THE DRIVER'S PREAMBLE IS THE WHOLE FIXTURE. Three statements above the
         call, and the first of them is the loop guard's reset -- the exact
         placement inlineSelfT identified as the discriminating variable:
             guard reset OUTSIDE the driver -> nothing harmful replays -> exit 0
             guard reset INSIDE  the driver -> the reset replays forever -> 139
-        Only the location of one statement differed there. Here it is inside.  */
+        Only the location of one statement differed there. Here it is inside.
+        The driver does NOT assign the call's result -- see the return note in
+        the header.  */
     sfDrive code={
         sfDepth = 3;
+        sfPre = sfPre + 1;
         print "PREAMBLE":;
-        sfOut = sf(sfArg);
+        sf(sfArg);
         };
     ;
 
 sfArg   = 7;
 sfCount = 0;
+sfPre   = 0;
+/*  ⚠ sfOut IS INITIALISED, AND IT HAS TO BE. A field that has never been given
+    a value has no datA type, so it prints as its own TAG -- and the jitted store
+    writes the baked gCount slot without stamping one, so the field stays
+    tagless and the row reads `sfOut` instead of a number. That is the fixture's
+    job to get right, not the engine's; 0 here makes 3 a real move rather than a
+    value the default could also produce.  */
+sfOut   = 0;
 
-print "== jitted: driver WITH a preamble above a self-calling callee ==":;
+print "== SF PREAMBLE OUTPUT BEGINS ==":;
 testing(sfDrive);
+print "== SF PREAMBLE OUTPUT ENDS ==":;
 
-print "SF jitted : count = " sfCount " out = " sfOut:;
+print "SF jitted : pre = " sfPre " count = " sfCount " out = " sfOut:;
 
 print "jitSelfFn SENTINEL -- run reached the end":;
 stop();
