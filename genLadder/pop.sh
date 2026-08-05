@@ -184,7 +184,7 @@ run1 () { $B "incant/$1" > "$2" 2>&1      & _cap "$1"; }   # merged
 run2 () { $B "incant/$1" > "$2" 2> "$3"   & _cap "$1"; }   # split
 
 run1 genScratch "$T/gen";    check "genScratch runs"  0 $?
-run1 censusScratch "$T/cen"; check "censusScratch runs" 0 $?
+run1 popScratch "$T/cen"; check "popScratch runs" 0 $?
 run1 oneTest "$T/one";       check "oneTest runs"     0 $?
 run1 jsonTest "$T/jsn";      check "jsonTest runs"    0 $?
 

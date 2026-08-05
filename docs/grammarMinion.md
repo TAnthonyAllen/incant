@@ -32,6 +32,14 @@ The ladder discipline in grammar clothes: **prove genParse on ONE rule, extend r
 
 **Pause-and-ask gates:** end of task zero (population number to Tony) · end of Phase A (partition table to Tony) · any refusal whose triage is ambiguous · any verification red whose hunt wants a ruling · before touching any rule whose interpretive behavior is itself suspect.
 
+
+## STAGES (Tony, 2026-08-05)
+**Stage 1 (now):** Clod IS the minion. The charter is discipline, the corpus is a document, the gates are Tony.
+**Stage 2 (when the corpus outgrows a table read by eye):** baked loadable corpus with a query harness, per `docs/minionfire.md`.
+**Stage 3 (when campaigns outgrow the relay):** the minion becomes an agent — charter as instructions, corpus as memory, pause-and-ask gates as the leash. **Only the seat changes.**
+
+⚠ **CONSEQUENCE FOR STAGE 1, BINDING FROM NOW:** corpus claims are written for a reader with **NO session context** — self-contained, full provenance, leaning on no shared history. **The corpus is the part that outlives the executor.** A claim that only makes sense to whoever was in the room is a claim that does not survive stage 3, and stage 3 is the point.
+
 ## CORPUS
 - Loaded via `incant jigcorpus;` per the standing minion architecture; claims carry provenance / confidence / asOf per B0; operations per `docs/minionfire.md` (query / absorb / bake / challenge).
 - **Inherits, through adversarial re-absorption:** the 30-rule census fixture and `census.target` (including the known 9-line audit movement and the `MemberS` tangle) · genParseShape / genParseSeam briefs · Invariant R′ · the §2.4 tree-fixture pinned divergence. ⚠ Several inherited claims predate the rStuff-at-define refactor; **their asOf is presumed expired until re-measured.** Absorption is adversarial by doctrine — each inherited claim is challenged against HEAD before it becomes corpus.
@@ -40,6 +48,16 @@ The ladder discipline in grammar clothes: **prove genParse on ONE rule, extend r
 ## OPENING PROBE (Clod, read-and-report, before firing)
 - **P-G1:** install persistence — is a `parseMethod` install per-run-transient (rStuff rematerialises each incantation, next run starts clean) or does anything persist wanting explicit removal? Structural, grep-shaped. Decides whether Phase B needs teardown discipline or gets isolation free. (Expected: transient, per the additive-install model; measure anyway.)
 - **P-G2:** the true rule count, cheap preview of task zero — if it is a one-liner, report the number with the walk that produced it.
+
+
+## ⚠ STANDING WARNING — THE CLASSIFIER IS BLIND TO `noPrint`-WITH-ACTION ATTRIBUTES ON RULES
+**Measured 2026-08-05 (R-1), not hypothesised.** A `noPrint` attribute carrying an immediate action is **run at define time and never attached** (`ruleActions.rtn:207` family), so it exists in **source** and not in the **tree** — and every classification walk reads the tree.
+
+**Two rules carry one today**, both in `incant/grammar`: `Limit` (`:52`) and `Modifier` (`:54`). Measured rather than read: `Limit`'s four attributes are `[ min max ]`, **all plain, no `noPrint` among them**; `Modifier` has **zero** attributes. The source says `noPrint`; the tree does not. **Their partition rows are therefore incomplete by construction and carry an asterisk.**
+
+**The other class is empty:** across all 78 rules (both axes), **zero attached `noPrint` attributes** — so there are no fidelity-prerequisite customers among the rules, and no archaeology is owed.
+
+**Any future `noPrint`-with-action use on a rule must be flagged at definition**, because nothing downstream can see it.
 
 ## NOT IN SCOPE
 Generator internals beyond using them · rStuff/materialisation edits · the fork · grammar redesign (the deferred design minion's) · the genLadder · anything mid-flight on the main line at firing time.

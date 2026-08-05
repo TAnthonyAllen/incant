@@ -1,0 +1,81 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+registry(cOMMANDs);
+define dumpRulePlans immediateAction=dumpRulePlans; ;
+
+/*  popScratch -- THE CLASSIFIER'S OWN POP. 30 dumpRulePlans calls: the JSON
+    family, the two ladder scaffolds, a SPREAD of the real bootstrap grammar,
+    and one deliberate NON-rule. The ladder targets cannot test the classifier
+    (Scaf/ScafA/ScafB reach two kinds of five and never carry an unmaterialised
+    term), so this is the POP it otherwise lacks. Every term must come back with
+    the same plan node or the same refusal. Diff against genLadder/census.target.
+
+    ⚠⚠ RENAMED FROM `censusScratch` 2026-08-05 (Tony), AND THE RENAME IS THE
+    FINDING. This file is a hand-listed SAMPLE -- its own header always said "a
+    spread" -- but the name said CENSUS, and a census is an enumeration. That
+    misreading cost real ground: the grammar campaign opened believing "the
+    census asserts 30 rules" described COVERAGE of the grammar. The measured
+    population is 78 (Grokking: 60 rule members + 18 rule attributes), of which
+    this file touches 18. The fixture is well built for its actual job; only its
+    name was wrong, and its own author misread it.
+
+    ⚠ HEADER DRIFT FIXED IN THE SAME TOUCH: this said "27 rules" while making 30
+    calls. The last three -- debug, DEBUG, InvokE -- were appended without the
+    count moving. A number written without re-counting is a lie in the ledger.
+
+    ⚠ `debug` IS A DELIBERATE NEGATIVE CONTROL, not a typo for DEBUG. It must
+    come back REFUSED ("not a rule; locate finds a non-rule in registry
+    Keywords", census.target:161-162) while DEBUG -- the real rule, the very next
+    call -- plans or refuses on its merits. Do not "fix" the case.  */
+register(Ladder);
+define
+    Scaf  isRule "x"-;
+    Scaf2 isRule "{"- "}"-;
+    ScafA isRule "a"-;
+    ScafB isRule ScafA "b"-;
+    ;
+search reset stack Grokking Ladder UnitTests Utilities list;
+
+/*  A real parse first: rStuff is materialised lazily, so the census must be
+    taken against a tree that has actually run, not a freshly-defined one.  */
+define
+    testJSON argument code={
+        clear(listed);
+        field = JSONblock(argument);
+        };
+    ;
+testJSON('{"a":"b"}');
+
+dumpRulePlans('Scaf');
+dumpRulePlans('Scaf2');
+dumpRulePlans('ScafA');
+dumpRulePlans('ScafB');
+dumpRulePlans('JSONblock');
+dumpRulePlans('JSONfield');
+dumpRulePlans('JSONvalue');
+dumpRulePlans('JSONtoken');
+dumpRulePlans('JSONitem');
+dumpRulePlans('JSONlist');
+dumpRulePlans('JSONarray');
+dumpRulePlans('NumbeR');
+dumpRulePlans('FloaT');
+dumpRulePlans('PoweR');
+dumpRulePlans('QuotE');
+dumpRulePlans('NamE');
+dumpRulePlans('GrouP');
+dumpRulePlans('CodE');
+dumpRulePlans('DatA');
+dumpRulePlans('Limit');
+dumpRulePlans('MemberS');
+dumpRulePlans('Modifier');
+dumpRulePlans('TraiT');
+dumpRulePlans('TraiTdata');
+dumpRulePlans('Attributes');
+dumpRulePlans('NewGroup');
+dumpRulePlans('DefinE');
+dumpRulePlans('debug');
+dumpRulePlans('DEBUG');
+dumpRulePlans('InvokE');
+stop();

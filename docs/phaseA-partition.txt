@@ -1,3 +1,86 @@
+PHASE A PARTITION TABLE — SIGNED 2026-08-05 (Tony), re-rowed per the Phase B brief.
+================================================================================
+POPULATION 78 = Grokking's 60 rule MEMBERS + 18 rule ATTRIBUTES (zero overlap).
+  The 61st member, `Operators`, is a registry and not a rule — that is the whole
+  61-vs-60 line. All 18 attribute-axis entries are rules.
+  ⚠ The first probe reported 60 because it walked ONE AXIS. GrouP and NamE, flagged
+  then as unexplained absences, are attribute-axis rules. The anomaly was the walk.
+
+  PLANS 12   REFUSALS 66   UNKNOWN 0        metric: 12/78 plannable, 0/78 installed
+
+COMPLETENESS: every row carries a per-rule DONE marker and the walk carries a foot
+  sentinel (incant/phaseA). A PLAN with no DONE is UNKNOWN — walk incomplete —
+  never a refusal. H7 negative control: a CLAIM KANT-40 specimen injected after
+  rule 40 gives exit 0 / 40 PLAN / 40 DONE / NO SENTINEL, and the 38 unreached
+  rules produce no PLAN at all. That control exercised the FILE-level death; the
+  per-rule DONE (a death BETWEEN a PLAN and its DONE) is kept but not yet forced.
+
+ROLE AXIS (descriptive; under PLANNER GAP #6 no rule is excluded from the population)
+  declaration-flag rules   6  DEFINing PRINTing break continue return tokenize
+                              — body is a flag-set, no parsing terms
+  parsing rules           72  everything else
+--------------------------------------------------------------------------------
+PLANS (12)  — Phase B's worklist
+  BlocK  Braced  CodE  ElsE  ExpressioN  GrouP*  InvokE  InvokeArg  Parens
+  PrintField  RunRulE  WardeD
+  * GrouP is attribute-axis. G-1 confirms dispatch parity: parse() forks through
+    definingRule() (GroupItem.twk:1048-1054), which is get(1)->first.parent and
+    tests no axis at all. Same machinery; no wait.
+--------------------------------------------------------------------------------
+REFUSALS (66), by reason. All 66 triage to PLANNER GAP after the 08-05 ruling.
+
+GAP #1  inline group / character data isSET ("named future kind")            [13]
+        BasicElse CerR DEBUG DEF DO FOR IF NamE QuotE Search TraiT TraiTdata WhilE
+GAP #2  rule-level data isGROUP (§4.1 rule-as-data, rung 5)                   [9]
+        ANYstring ANYtoken Attributes InitiatE Looper NewGroup NumbeR ShortcuT Start
+GAP #1  inline group / character data isGROUP ("named future kind")           [8]
+        ANYorNum DefinE DelimText Iterate Limit* PrintXP ScopeField define
+GAP #2  rule-level data isSET (§4.1 rule-as-data, rung 5)                     [6]
+        BrancheS Modifier* PoweR followedBy nameSet numberSet
+GAP #6  no terms at all — the DEGENERATE FLAG-SET CASE                        [6]
+        DEFINing PRINTing break continue return tokenize
+        ⚠ RE-ROWED FROM AMBIGUOUS 2026-08-05 (Tony). One flag-set, return.
+GAP #3  1 unmaterialised terms                                                [6]
+        CouT FormaT Precision PrinT ScopeXP StringXP
+GAP #1  inline group / character data isSTRING ("named future kind")          [5]
+        ElseIf HeX LoopRestrict StatemenT Xpress
+GAP #4  container (not on the ladder yet)                                     [4]
+        BrancH Token TokenXP UnaryXP
+GAP #2  rule-level data isSTRING (§4.1 rule-as-data, rung 5)                  [3]
+        SemI loopOnAttributes loopOnMembers
+GAP #6  parseAction — flag-set term NOT in tail position                      [2]
+        DatA MemberS
+        ⚠ RE-ROWED FROM AMBIGUOUS 2026-08-05 (Tony). §2.8's tail-only restriction
+        is RETIRED for flag-set terms; the refusal is a planner gap, not a
+        grammar defect. This separates the 08-03 census tangle at last: the
+        grammar change (incant/grammar:53, `MemberS ':'- MEMBERs- Mlist=DefinE+;`)
+        and the planner's refusal are now distinguishable, the refusal named at a
+        spec section rather than inferred from a diff.
+GAP #2  rule-level data isANY / isCOUNT / isCHAR (§4.1, rung 5)               [3]
+        Any / counter / FloaT
+GAP #5  upTo/upToOver (not on the ladder yet)                                 [1]
+        SetBrackets
+--------------------------------------------------------------------------------
+⚠ ASTERISKED ROWS — INCOMPLETE BY CONSTRUCTION (R-1, measured 2026-08-05)
+  Limit    (incant/grammar:52)   carries `noPrint` in SOURCE
+  Modifier (incant/grammar:54)   carries `noPrint` in SOURCE
+  A noPrint attribute with an immediate action is RUN AT DEFINE AND NEVER
+  ATTACHED, so it exists in source and not in the tree — and this walk reads the
+  tree. Measured: Limit's four attributes are `[ min max ]`, all plain; Modifier
+  has zero attributes. Their classification cannot account for whatever the
+  noPrint did.
+  The other class is EMPTY: across all 78 rules, zero ATTACHED noPrint
+  attributes — no fidelity-prerequisite customers among the rules.
+--------------------------------------------------------------------------------
+THE CENSUS SAMPLE (incant/popScratch, renamed from censusScratch 2026-08-05)
+  30 dumpRulePlans calls. 18 are population rules; 12 are not — 7 JSON rules and
+  4 Scaf scaffolds (fixture-local), plus `debug`, which is a DELIBERATE NEGATIVE
+  CONTROL (a non-rule that must be refused; census.target:161-162), not a case
+  drift of DEBUG. It was never an enumeration: its own header said "a spread".
+================================================================================
+RAW WALK OUTPUT FOLLOWS (incant/phaseA)
+================================================================================
+
 PLAN Any
   REFUSE rule Any -- rule-level data isANY (§4.1 rule-as-data, rung 5)
 DONE Any 

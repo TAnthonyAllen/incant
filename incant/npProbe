@@ -1,0 +1,29 @@
+/*  R-1 PROBE -- noPrint attributes on rules. Read-only.
+    Walks every attribute of the named rules and reports tag + noPrinT verdict,
+    so "attached but unprinted" and "consumed at define, never attached" are
+    told apart by MEASUREMENT rather than by reading the source alone.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(NpProbe);
+define
+    npN;
+    showAttrs argument code={
+        npN = 0;
+        iterate npCur on argument attributes;
+        while ++npCur;
+            npN = npN + 1;
+            if noPrinT;  print "    noPrint attr:" ~taG:;
+            else         print "    plain   attr:" ~taG:;
+        return npN;
+        };
+    ;
+print "== Limit ==":;
+showAttrs(Limit);
+print "  Limit attribute count =" npN:;
+print "== Modifier ==":;
+showAttrs(Modifier);
+print "  Modifier attribute count =" npN:;
+print "NPPROBE SENTINEL":;
+stop();

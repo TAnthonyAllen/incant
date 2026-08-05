@@ -1,0 +1,50 @@
+/*  R-1 PROBE -- noPrint attributes across the whole 78-rule population.
+    Read-only, no installs, no emission.
+
+    ⚠ IT WALKS THE REGISTRY, IT DOES NOT NAME THE RULES, and that is a repair
+    rather than a preference. A first draft emitted one `npScan(<rule>);` call
+    per rule with the name bare -- and DIED at rule 11, because several rules are
+    KEYWORDS (`break`, `continue`, `return`, `define`) and a bare keyword in an
+    argument slot is not a name. The completeness guard caught it: 10 DONEs, no
+    sentinel, exit 0. Nested iteration needs no names and cannot hit that class.
+
+    Counts ATTACHED noPrint attributes -- the "attached but elided by display
+    print" class. The other class, noPrint WITH an immediate action, is INVISIBLE
+    HERE BY CONSTRUCTION: ruleActions.rtn runs it at define and never attaches
+    it, so it is found in SOURCE and this probe's silence about it is the point.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(NpAll);
+define
+    npHits;
+    npRules;
+    npScanMembers argument code={
+        iterate npOut on argument members;
+        while ++npOut;
+            npRules = npRules + 1;
+            iterate npIn on npOut attributes;
+            while ++npIn;
+                if noPrinT;  npHits = npHits + 1;
+                if noPrinT;  print "  NOPRINT-ATTR:" ~taG:;
+        return npHits;
+        };
+    npScanAttrs argument code={
+        iterate npOut2 on argument attributes;
+        while ++npOut2;
+            npRules = npRules + 1;
+            iterate npIn2 on npOut2 attributes;
+            while ++npIn2;
+                if noPrinT;  npHits = npHits + 1;
+                if noPrinT;  print "  NOPRINT-ATTR:" ~taG:;
+        return npHits;
+        };
+    ;
+npHits = 0; npRules = 0;
+npScanMembers(Grokking);
+print "NP after members: rules scanned =" npRules " noPrint attrs =" npHits:;
+npScanAttrs(Grokking);
+print "NP after attributes: rules scanned =" npRules " noPrint attrs =" npHits:;
+print "NPALL SENTINEL":;
+stop();
