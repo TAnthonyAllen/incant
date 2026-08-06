@@ -29,6 +29,7 @@ GroupItem *registries;
 GroupItem *divertOutput;
 GroupItem *falseResult;
 GroupItem *inDENT;
+GroupItem *labelNO;
 GroupItem *lastREF;
 GroupItem *lastStatement;
 GroupItem *generator;

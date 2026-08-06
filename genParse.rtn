@@ -1363,8 +1363,8 @@ GroupRules  ruler = groupRules;
 GroupItem   kid;
 String      deeper;
     if !node    return 0;
-    if node == trueResult {
-        cerr pad "(trueResult — matched, no tree)":;
+    if node == labelNO {
+        cerr pad "(labelNO — matched, no tree)":;
         return 1; }
     deeper = pad "  ";
     cerr pad node.tag:;

@@ -430,8 +430,15 @@ GroupItem 	*result = 0;
 			}
 		}
 	while ( ExpressioN->groupBody->gMethod(ExpressioN) );
+	/*  labelNO, not falseResult (director, 2026-08-07). This construct
+	executed NO statement, and an action's value is the value of the LAST
+	EXECUTED STATEMENT -- so it has no value. `false` was never a decision
+	that false is correct; it was the least-bad approximation while "yields
+	nothing" was unsayable. labelNO is isCOUNT 0, so the NUMERIC reading is
+	unchanged and both engines still agree; what is new is that the attach
+	can tell "nothing" from "the number zero".  */
 	if ( !result )
-		result = GroupControl::groupController->groupRules->falseResult;
+		result = GroupControl::groupController->groupRules->labelNO;
 	return result;
 }
 
@@ -730,8 +737,15 @@ int 		restrict = 0;
 			break;
 			}
 		}
+	/*  labelNO, not falseResult (director, 2026-08-07). This construct
+	executed NO statement, and an action's value is the value of the LAST
+	EXECUTED STATEMENT -- so it has no value. `false` was never a decision
+	that false is correct; it was the least-bad approximation while "yields
+	nothing" was unsayable. labelNO is isCOUNT 0, so the NUMERIC reading is
+	unchanged and both engines still agree; what is new is that the attach
+	can tell "nothing" from "the number zero".  */
 	if ( !result )
-		result = ruler->falseResult;
+		result = ruler->labelNO;
 	if ( LoopRestrict )
 		if ( !LoopRestrict->groupBody->flags.byRef )
 			ruler->lastREF->setGroup(LoopRestrict);
@@ -807,8 +821,15 @@ GroupItem 	*result = ExpressioN;
 	else
 	if ( ElsE )
 		result = ElsE->groupBody->gMethod(ElsE);
+	/*  labelNO, not falseResult (director, 2026-08-07). This construct
+	executed NO statement, and an action's value is the value of the LAST
+	EXECUTED STATEMENT -- so it has no value. `false` was never a decision
+	that false is correct; it was the least-bad approximation while "yields
+	nothing" was unsayable. labelNO is isCOUNT 0, so the NUMERIC reading is
+	unchanged and both engines still agree; what is new is that the attach
+	can tell "nothing" from "the number zero".  */
 	if ( !result )
-		result = GroupControl::groupController->groupRules->falseResult;
+		result = GroupControl::groupController->groupRules->labelNO;
 	return result;
 }
 
@@ -1594,8 +1615,15 @@ GroupItem 	*result = 0;
 			}
 		else	break;
 		}
+	/*  labelNO, not falseResult (director, 2026-08-07). This construct
+	executed NO statement, and an action's value is the value of the LAST
+	EXECUTED STATEMENT -- so it has no value. `false` was never a decision
+	that false is correct; it was the least-bad approximation while "yields
+	nothing" was unsayable. labelNO is isCOUNT 0, so the NUMERIC reading is
+	unchanged and both engines still agree; what is new is that the attach
+	can tell "nothing" from "the number zero".  */
 	if ( !result )
-		result = GroupControl::groupController->groupRules->falseResult;
+		result = GroupControl::groupController->groupRules->labelNO;
 	return result;
 }
 
@@ -10104,9 +10132,9 @@ GroupItem 	*kid = 0;
 char 		*deeper = 0;
 	if ( !node )
 		return 0;
-	if ( node == ruler->trueResult )
+	if ( node == ruler->labelNO )
 		{
-		::fprintf(stderr,"%s(trueResult — matched, no tree)\n",pad);
+		::fprintf(stderr,"%s(labelNO — matched, no tree)\n",pad);
 		return 1;
 		}
 	deeper = ::concat(2,pad,"  ");
@@ -10380,6 +10408,7 @@ GroupRules::GroupRules()
 	divertOutput = 0;
 	falseResult = 0;
 	inDENT = 0;
+	labelNO = 0;
 	lastREF = 0;
 	lastStatement = 0;
 	generator = 0;

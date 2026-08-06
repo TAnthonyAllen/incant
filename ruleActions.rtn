@@ -408,7 +408,14 @@ GroupItem   StatemenT:,
             if result.registry == keyWords  result = 0;
             break; }}
     while ExpressioN.gMethod(ExpressioN);
-    if !result  result = falseResult;
+    /*  labelNO, not falseResult (director, 2026-08-07). This construct
+        executed NO statement, and an action's value is the value of the LAST
+        EXECUTED STATEMENT -- so it has no value. `false` was never a decision
+        that false is correct; it was the least-bad approximation while "yields
+        nothing" was unsayable. labelNO is isCOUNT 0, so the NUMERIC reading is
+        unchanged and both engines still agree; what is new is that the attach
+        can tell "nothing" from "the number zero".  */
+    if !result  result = labelNO;
     return result;
 }
 
@@ -638,7 +645,14 @@ int         restrict;
             result.isBranch = 0;
             if result.registry == keyWords  result = 0;
             break; }}
-    if !result  result = falseResult;
+    /*  labelNO, not falseResult (director, 2026-08-07). This construct
+        executed NO statement, and an action's value is the value of the LAST
+        EXECUTED STATEMENT -- so it has no value. `false` was never a decision
+        that false is correct; it was the least-bad approximation while "yields
+        nothing" was unsayable. labelNO is isCOUNT 0, so the NUMERIC reading is
+        unchanged and both engines still agree; what is new is that the attach
+        can tell "nothing" from "the number zero".  */
+    if !result  result = labelNO;
     if LoopRestrict
         if !LoopRestrict.byRef  lastREF.group = LoopRestrict;
         else                    lastREF.clear();
@@ -690,7 +704,14 @@ GroupItem   result = ExpressioN;
         return falseResult; }
     if result && isInitialized   result = StatemenT.gMethod(StatemenT);
     or ElsE     result = ElsE.gMethod(ElsE);
-    if !result  result = falseResult;
+    /*  labelNO, not falseResult (director, 2026-08-07). This construct
+        executed NO statement, and an action's value is the value of the LAST
+        EXECUTED STATEMENT -- so it has no value. `false` was never a decision
+        that false is correct; it was the least-bad approximation while "yields
+        nothing" was unsayable. labelNO is isCOUNT 0, so the NUMERIC reading is
+        unchanged and both engines still agree; what is new is that the attach
+        can tell "nothing" from "the number zero".  */
+    if !result  result = labelNO;
     return result;
 }
 
@@ -1463,7 +1484,14 @@ GroupItem   looper,
                 if result.registry == keyWords  result = 0;
                 break; }}
         else    break; }
-    if !result  result = falseResult;
+    /*  labelNO, not falseResult (director, 2026-08-07). This construct
+        executed NO statement, and an action's value is the value of the LAST
+        EXECUTED STATEMENT -- so it has no value. `false` was never a decision
+        that false is correct; it was the least-bad approximation while "yields
+        nothing" was unsayable. labelNO is isCOUNT 0, so the NUMERIC reading is
+        unchanged and both engines still agree; what is new is that the attach
+        can tell "nothing" from "the number zero".  */
+    if !result  result = labelNO;
     return result;
 }
 

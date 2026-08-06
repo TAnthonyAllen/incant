@@ -1032,6 +1032,81 @@ GroupRules  ruler = groupRules;
             if !stuff.label   stuff.sukcess = false; }
 }
 
+/***************************************************************************
+    attachLabel — THE LABEL ATTACH, and the ONLY site that performs one.
+
+    PC-4, 2026-08-07. Extracted from parse()'s match loop so both arms run the
+    same code. Second half of the pair GX started: GX made both arms fire the
+    same rule ACTION, this makes both perform the same ATTACH. It supersedes
+    leaveRule's `if into  into +% label`, which was ONE case, run BEFORE the
+    action instead of after -- GM-17's divergence. Removed there, not duplicated.
+
+    THE YIELD PROTOCOL IS THE SKIP, and it is not a forensic test:
+        NULL      the rule FAILED               -- nothing to attach
+        labelNO   succeeded, yields NOTHING     -- nothing to attach
+        anything  succeeded, yields THAT node   -- attach it
+    An earlier attempt guarded on `isLabel` instead and was falsified fleet-wide
+    (GM-19/GM-21): trueResult is minted as `new("true")` and never stamped, so
+    the guard silently dropped DEFINing's attach and killed every definition in
+    the file. Do not reach for a flag here; the channel says what it means.
+
+    ⚠ THE `promote` PARAMETER IS A DATED DIVERGENCE, NOT A DESIGN. PC-1 rules
+    the generated arm ATTACH-UNDER ALWAYS -- it never consults isTarget --
+    while interpretive promotion runs untouched as legacy. So the fork is real
+    today and is passed explicitly rather than inferred, because a divergence
+    the signature states is one the next reader cannot miss.
+
+    ⚠ AND IT HAS A NAMED EXPIRY (IT-3, director 2026-08-07). isTarget promotion
+    is retired as a PARSE-LAYER mechanism -- the parse builds one shape, and
+    opinions about shape belong to actions. Promotion becomes opt-in in one
+    line: an action returns the child's label as its own yield, and attach-under
+    plants it. When the last carrier converts, `promote` and the isTarget case
+    DELETE, three cases become one, and this function is `pStuff.label +% lab`
+    with the two skips. Attrition list per GM-23: aCTionNewGroup (done),
+    aCTionShortcuT, plus the four text-readers at their own rungs.
+
+    ⚠ NESTED REFERENCES ARE COVERED, MEASURED BEFORE THIS LANDED. parseR
+    (RuleStuff.twk:689) does `bridge.label = into; term.parse(bridge)`, so a
+    reference term reaches parse() with `into` as pStuff's label -- both arms of
+    the nested call come through here too. parseR's header always claimed "ONE
+    mechanism serves both halves of mixed mode"; now it is true.
+
+    litOption keeps its own attach: a literal option builds its own fresh label
+    and never enters parse().
+***************************************************************************/
+void attachLabel(RuleStuff stuff, RuleStuff pStuff, int promote)
+{
+GroupRules  ruler = groupRules;
+GroupItem   lab = stuff.label;
+    if !lab || lab == labelNO   return;
+    if !pStuff                  return;
+    /*  PROMOTION IS AN ASSIGN AND IS NOT GUARDED ON THE DESTINATION -- a parent
+        with no label yet is the NORMAL case here, and this is what gives it
+        one.  */
+    if promote && stuff.isTarget {
+        pStuff.label    = lab;
+        lab.tag         = pStuff.ruleName;
+        return; }
+    /*  ⚠ THE ATTACH CASES ARE GUARDED, AND leaveRule ALREADY KNEW THIS. Its
+        line was `if into  into +% label` -- and `into` IS pStuff.label.
+        Extracting the body without the guard cost a fleet-wide SIGSEGV the
+        moment a rule was installed under a parent with no label
+        (RuleStuff.twk:181 sets label = 0 for a noLabel rule, ON SUCCESS):
+        addGroup with a null `this`, no diagnostic. A parent with nowhere to
+        put a child is not an error; there is simply nothing to attach to.
+        ⚠ AND THE GUARD BELONGS HERE, NOT ABOVE THE PROMOTE CASE. Placing it at
+        the top -- which was the first attempt -- ALSO crashes the fleet, by
+        skipping the promotion that was supposed to create the missing label.
+        Same symptom, opposite cause, and only three lines apart.  */
+    if !pStuff.label            return;
+    if promote && lab.isGROUP && stuff.max > 1 {
+        pStuff.label    +% lab.group;
+        lab.clear();
+        lab.fLAG        = true;
+        return; }
+    pStuff.label +% lab;
+}
+
 GroupItem parse(RuleStuff pStuff)
 {
 GroupItem   parentLabel;
@@ -1126,7 +1201,14 @@ RuleStuff   ruleStuff   = getStuff(pStuff);
             is not shared: leaveRule already attached this label through
             `into`, and the kount question is the rung-6 tripwire noted above,
             which is a separate and still-owed decision.  */
-        if sukcess  fireLabelMethod(ruleStuff);
+        /*  PC-1: ATTACH-UNDER, ALWAYS. The generated arm passes promote=0 and
+            so never consults isTarget -- the emitted method bakes `into` and
+            assumes attachment, and promotion would replace the parent's subtree
+            instead of growing it (GM-22's third wall, measured as ScafOUT
+            coming back childless).  */
+        if sukcess {
+            fireLabelMethod(ruleStuff);
+            attachLabel(ruleStuff,pStuff,0); }
         goto generatedExit; }
     while !isOK && kount < max {
 continueHere:
@@ -1149,27 +1231,7 @@ continueHere:
         fireLabelMethod(ruleStuff);
         if sukcess {
             kount++;
-            /***************************************************************
-                Deal w/label and increment kount. GC will deal w/label leak
-            ***************************************************************/
-            if label && pStuff
-                if isTarget {
-                    /*  PC-2 CENSUS PROBE, 2026-08-07. Gated on the standing
-                        parseTrace, default off. Names every site where
-                        INTERPRETIVE PROMOTION actually fires, so the attach-row
-                        migration gets a measured bound instead of a static read
-                        of an indentation-based grammar.  */
-                    if parseTrace
-                        cerr "  PROMOTE rule=" tag
-                             " label=" label.tag
-                             " -> becomes=" pStuff.ruleName:;
-                    pStuff.label = label;
-                    label.tag = pStuff.ruleName; }
-                or label.isGROUP && max > 1 {
-                    pStuff.label +% label.group;
-                    label.clear();
-                    label.fLAG  = true; }
-                else    pStuff.label +% label; }
+            attachLabel(ruleStuff,pStuff,1); }
         else break; }
 matchFailed:
     if !sukcess {
@@ -1186,7 +1248,12 @@ debugHere:
             if label    label = 0; }}
 generatedExit:
     if !sukcess && notifyFail   aCTionFailed(rule);
-    if sukcess && !label        label = trueResult;
+    /*  PC-3: a label-less SUCCESS yields labelNO, not trueResult. The old
+        substitution manufactured a value to mean "succeeded with nothing to
+        hand back". labelNO is non-null, so every pointer-null consumer (parseR,
+        each emitted method's && chain) still reads success exactly as before,
+        and isCOUNT 0 keeps its numeric reading identical.  */
+    if sukcess && !label        label = labelNO;
     inProcess   = false;
     return label;
 }

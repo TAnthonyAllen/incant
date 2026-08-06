@@ -154,6 +154,31 @@ GroupItem 	*action = 0;
 	groupRules->falseResult = groupRules->properties->addMember(new GroupItem("false"));
 	groupRules->falseResult->groupBody->flags.data = 5;
 	groupRules->falseResult->groupBody->flags.noPrint = 1;
+	/*  labelNO -- the return channel's third value (LA''-0, PC-3, 2026-08-07).
+	NULL = failed · labelNO = succeeded and yields NOTHING · any other node
+	= succeeded and yields that node.
+	
+	⚠ isCOUNT, VALUE 0, AND THAT IS THE WHOLE OF PC-3's ANSWER. The
+	"yields nothing" meaning lives in labelNO's IDENTITY -- `lab == labelNO`
+	-- and NOT in its numeric reading. That distinction is what lets the row
+	land without an engine divergence.
+	
+	The alternative was to leave it non-numeric, and it does not work: the
+	JIT's value channel is an i32 alloca (jitEmitters.rtn:1984), so a jitted
+	empty construct yields the integer 0 and CANNOT yield a GroupItem at
+	all. Making labelNO non-numeric would have put the interpreter and the
+	JIT into permanent disagreement about what an empty construct is worth
+	-- measured as ladder rung JV going red -- and closing that would mean
+	widening the JIT's entire value representation, which is the frame arc
+	and not this row.
+	
+	With isCOUNT it reads 0 exactly as falseResult did, so BOTH ENGINES
+	STILL AGREE and JV needs no re-pin; what is new is only that the attach
+	can now TELL "nothing" from "the number zero", which is the one thing
+	it could never do before.  */
+	groupRules->labelNO = groupRules->properties->addMember(new GroupItem("labelNO"));
+	groupRules->labelNO->groupBody->flags.data = 5;
+	groupRules->labelNO->groupBody->flags.noPrint = 1;
 	groupRules->lastREF = groupRules->properties->addMember(new GroupItem("lastREF"));
 	/***********************************************************************
 	Create other base registries

@@ -41,6 +41,7 @@ void addRuleStuff();
 GroupItem *addString(char *n);
 int allAttributesOptional();
 void append(GroupItem *grup);
+void attachLabel(RuleStuff *stuff, RuleStuff *pStuff, int promote);
 void clear();
 void clearData();
 void clearList();

@@ -47,9 +47,15 @@ char 		*at = ruler->atRuleMark;
 		::fprintf(stderr,"  HIT  %s\n",rule->groupBody->tag);
 	if ( ok )
 		{
+		/*  labelNO, not trueResult (PC-3). S2.4 rules an alternation
+		LABEL-TRANSPARENT: it builds no label and its winning option has
+		already attached one level down through the bridge. It succeeded and
+		has nothing to plumb, which is what labelNO says. trueResult said
+		"succeeded" in a channel that also had to mean "here is your node",
+		and the shared attach then planted the boolean in the tree -- GM-19.  */
 		if ( ruler->parseTrace )
 			::fprintf(stderr,"  WIN  %s\n",rule->groupBody->tag);
-		return ruler->trueResult;
+		return ruler->labelNO;
 		}
 	ruler->atRuleMark = from;
 	if ( ruler->parseTrace )
@@ -100,8 +106,12 @@ char 		*at = ruler->atRuleMark;
 		::fprintf(stderr,"  HIT  %s\n",rule->groupBody->tag);
 	if ( ok )
 		{
-		if ( into )
-			into->addAttribute(label);
+		/*  ⚠ NO ATTACH HERE (PC-4, 2026-08-07). This did `if into into +% label`
+		-- attach-under, which is now exactly what parse() performs for the
+		generated arm, once, for both this and every other emitted method.
+		A second writer here is what produced GM-17's divergence. `into` is
+		still taken and still passed by every emitted method: the emitter is
+		untouched and parse() derives the same node from pStuff.  */
 		if ( ruler->parseTrace )
 			::fprintf(stderr,"  WIN  %s\n",rule->groupBody->tag);
 		return label;

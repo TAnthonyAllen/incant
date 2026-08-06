@@ -873,3 +873,66 @@ state, exactly as PC-1's arrow says. Flagged so `@`'s fate is a row and not a ca
 campaign will want it again; default off, and the fleet is verified byte-identical on both streams
 with it in: `pop.sh` 33 green / 1 parked, ladder 150, recordPop 48, formsPop 14,
 tree/printPop/containerPop exit 0. **Metric stays 0/78.**
+
+## GM-24 — PC-3 AND PC-4 **LANDED AND GREEN**. THE INSTALL STILL REDS, AND GM-23's CENSUS WAS TOO NARROW.
+**asOf 2026-08-07 · confidence: MEASURED, both arms, oracles run · provenance: `GroupControl.twk`
+(labelNO), `GroupItem.twk` (attachLabel), `RuleStuff.twk` (leaveAlt/leaveRule),
+`ruleActions.rtn:1338` (the missed reader)**
+
+## ✅ PC-3 — THE EMPTY-YIELD ROW IS CLOSED **WITHOUT AN ENGINE DIVERGENCE**
+The brief anticipated that the emitters would have to learn `labelNO`, with KANT-8's dated-divergence
+form as the fallback if that ballooned. **It ballooned, and a third option dissolved it instead.**
+
+⚠ **THE JIT'S VALUE CHANNEL IS AN i32 ALLOCA** (`jitEmitters.rtn:1984`, initialised to 0) and its
+compiled functions return `int`. **`labelNO` is a GroupItem pointer, so the jitted side cannot carry
+it at all** — teaching the emitters would mean widening the JIT's entire value representation, which
+is the frame arc.
+
+**The answer: mint `labelNO` `isCOUNT`, value 0.** The *"yields nothing"* meaning lives in its
+**identity** (`lab == labelNO`), not in its numeric reading. So it reads `0` exactly as `falseResult`
+did, **both engines still agree**, and JV needs no re-pin — while the attach can now tell *"nothing"*
+from *"the number zero"*, which is the one thing it could never do before.
+
+**Ladder rung JV, which went red under the non-numeric form, is green on all three rows:**
+`A jitted 0 == oracle 0` · `B jitted 0 == oracle 0` · `C jitted 4 == oracle 4`. **Ladder 150.**
+
+## ✅ PC-4 — THE EXTRACTION IS IN, AND `tree.sh` IS GREEN FOR THE FIRST TIME SINCE LA
+`attachLabel` owns the attach for both arms; `leaveRule`'s attach removed. The generated arm passes
+`promote=0` (PC-1's attach-under), the interpretive arm `promote=1` (legacy), and **the fork is a
+parameter rather than an inference** so the divergence is stated in the signature — with IT-3's
+expiry written beside it. Fleet byte-identical on both streams, `pop.sh` 33 green / 1 parked, ladder
+150, recordPop 48, formsPop 14, tree/printPop/containerPop exit 0, MR's six-form table unchanged.
+
+⚠ **TWO GUARD-PLACEMENT FAILURES, THREE LINES APART, SAME SYMPTOM.** Extracting `leaveRule`'s body
+dropped its `if into` guard — and `into` **is** `pStuff.label`. Installing a rule under a parent with
+no label then hit `addGroup` with a **null `this`**: fleet-wide SIGSEGV, no diagnostic. **The first
+fix put the guard at the top of the function and crashed the fleet just as hard**, because
+**promotion is an ASSIGN and a parent with no label is its NORMAL case** — the guard was skipping the
+very step that creates the missing label. The guard belongs **below** the promote case and **above**
+the attaches. *Same crash, opposite cause, three lines apart.*
+
+## ⚠ THE INSTALL STILL REDS — AND IT IS A **CONVERSION**, NOT A WALL
+With Parens installed there is **no crash**, but `parensMin`'s argument never arrives and `tree.sh`
+diverges. **This is PC-1's checklist step finding real work — which GM-23 predicted it would not.**
+
+**GM-23's census asked the wrong question.** It censused *actions ON promotion parents* and found
+`InvokeArg` has none, concluding the radius was empty for the twelve. **The consumer is not
+`InvokeArg`'s action — it is `aCTionTokenXP`, which hoists `InvokeArg` from a DIFFERENT rule**
+(`ruleActions.rtn:1338`, `InvokeArg = xpress["InvokeArg"]`) and then branches on its shape
+(`if InvokeArg.isGROUP arg = InvokeArg.group; if !arg arg = InvokeArg;`). Under promotion
+`InvokeArg`'s label **is** the Parens node; under attach-under it merely **contains** it, so the
+`isGROUP` test fails and the wrapper is passed as the argument.
+
+**THE CORRECTED RULE, and it is the one to carry:** the blast radius is **every action that READS a
+promotion parent's label, from wherever it hoists it** — not every action *on* a promotion parent.
+A hoist (`xpress["InvokeArg"]`, `GroupItem DatA:;`) resolves by NAME through the label tree, so
+attach-under moves what the name finds, and the reader can live in any rule.
+
+**This is IT-6's economics arriving as a bill rather than a discount:** the conversion lands in
+`aCTionTokenXP`, an action — so it is two-for-one and serves both engines at once. **The census
+that scopes it has to be re-run against the corrected question before the next install attempt.**
+
+## DISPOSITION
+**PC-3 and PC-4 are KEPT and green.** Only the Parens install is reverted; `parseParens` removed
+rather than left as dead code. **Metric stays 0/78** — and for the first time the thing standing
+between it and 1/78 is a named one-action conversion rather than an unexplained red.

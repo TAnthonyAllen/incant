@@ -40,6 +40,7 @@ class GroupRules
                 divertOutput,
                 falseResult,
                 inDENT,
+                labelNO,
                 lastREF,
                 lastStatement,
                 generator,
