@@ -21,8 +21,20 @@ define pixelAt        immediateAction=pixelAt; ;
 
 register(DsFill);
 define
-    dsRed = "ff0000";
-    dsCanvas x=0 y=0 width=8 height=8 style="dsRed" px=2 py=2;
+    dsRed  = "ff0000";
+    dsBlue = "0000ff";
+    /*  SG: the style is a GroupItem holding NAMED COMPONENTS. strokeColor is
+        present and unused -- it is the slot `line` will read, and its presence
+        is what makes the recipe carry to a second command without inventing a
+        second convention.  */
+    dsStyle  fillColor="dsRed" strokeColor="dsBlue";
+    dsCanvas x=0 y=0 width=8 height=8 style="dsStyle" px=2 py=2;
+    /*  H7 NEGATIVE CONTROL. A style that names a strokeColor and NO fillColor.
+        If seam 3 were still reading the style's own text -- or reading any
+        component it happens to find -- this would fill anyway and the
+        conversion would be asserted by nothing. It must REFUSE, BY NAME.  */
+    dsStyleNoFill strokeColor="dsBlue";
+    dsNoFill x=0 y=0 width=8 height=8 style="dsStyleNoFill" px=2 py=2;
     ;
 
 makeDisplay(dsCanvas);
@@ -31,5 +43,9 @@ pixelAt(dsCanvas);
 displayFillRT(dsCanvas);
 print "-- after the fill (want r255 g0 b0 a255) --":;
 pixelAt(dsCanvas);
+print "-- H7 control: a style with no fillColor must REFUSE (want r0 g0 b0 a0) --":;
+makeDisplay(dsNoFill);
+displayFillRT(dsNoFill);
+pixelAt(dsNoFill);
 print "DSFILL SENTINEL":;
 stop();

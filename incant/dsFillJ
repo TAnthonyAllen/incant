@@ -28,9 +28,12 @@ define pixelAt     immediateAction=pixelAt; ;
 
 register(DsFillJ);
 define
-    djRed  = "ff0000";
-    djTeal = "008080";
-    djCanvas x=0 y=0 width=8 height=8 style="djRed" px=2 py=2;
+    djRed   = "ff0000";
+    djTeal  = "008080";
+    djBlue  = "0000ff";
+    djStyle  fillColor="djRed"  strokeColor="djBlue";
+    djStyle2 fillColor="djTeal" strokeColor="djBlue";
+    djCanvas x=0 y=0 width=8 height=8 style="djStyle" px=2 py=2;
     djFill code={ displayFill(djCanvas); };
     ;
 
@@ -39,13 +42,13 @@ print "-- before any fill (want r0 g0 b0 a0) --":;
 pixelAt(djCanvas);
 
 testing(djFill);
-print "-- fire 1, compiled, style=djRed (want r255 g0 b0 a255) --":;
+print "-- fire 1, compiled, style=djStyle (want r255 g0 b0 a255) --":;
 pixelAt(djCanvas);
 
 /*  ⚠ NO RECOMPILE BELOW THIS LINE. Only the colour changes.  */
-djCanvas.style = "djTeal";
+djCanvas.style = "djStyle2";
 jitRefire();
-print "-- fire 2, NO recompile, style=djTeal (want r0 g128 b128 a255) --":;
+print "-- fire 2, NO recompile, style=djStyle2 (want r0 g128 b128 a255) --":;
 pixelAt(djCanvas);
 
 print "DSFILLJ SENTINEL":;

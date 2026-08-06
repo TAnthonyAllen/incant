@@ -4,6 +4,7 @@
 #include "OCroutines.h"
 #include "StringRoutines.h"
 #include "GroupItem.h"
+#include "GroupControl.h"
 #include "GroupBody.h"
 #include "Layout.h"
 #include "Stylish.h"
@@ -24,33 +25,22 @@ NSRect 	frame = ::getFrame(grup);
 	return 0;
 }
 
-/*****************************************************************************
-    displayFillRT — THE SPECIMEN, and the runtime half of it.
-
-    Fills the field's own frame rect with the colour its `style` attribute
-    names. Nothing else: no pen, no text, no path, no clip.
-
-    NAMED displayFill AND NOT `fill`, AND THAT IS BEAR-TRAP #17 AND NOT TASTE.
-    `fill()` is in ~/data/support/Include/OCframe -- the shared cross-project
-    TAWK keyword/alias table -- so a bare `fill` would be silently claimed by
-    the alias table the moment both were live in one pass, mis-generating into
-    an Apple selector with no diagnostic until the C++ compile.
-*****************************************************************************/
 extern "C" GroupItem *displayFillRT(GroupItem *field)
 {
-GroupItem 	*style = field->get("style");
+GroupItem 	*comp = 0;
 NSColor 	*colour = 0;
 	if ( !field )
 		return 0;
-	if ( !style )
+	comp = ::styleComponent(field,"fillColor");
+	if ( !comp )
 		{
-		::fprintf(stderr,"displayFill: REFUSING %s -- no style attribute to take a colour from\n",field->groupBody->tag);
+		::fprintf(stderr,"displayFill: REFUSING %s -- its style names no fillColor component\n",field->groupBody->tag);
 		return 0;
 		}
-	colour = getColor(style->getText());
+	colour = getColor(comp->getText());
 	if ( !colour )
 		{
-		::fprintf(stderr,"displayFill: REFUSING %s -- style names no colour that could be realised\n",field->groupBody->tag);
+		::fprintf(stderr,"displayFill: REFUSING %s -- fillColor names no colour that could be realised\n",field->groupBody->tag);
 		return 0;
 		}
 	
@@ -125,14 +115,25 @@ char 				*txt = field->getText();
     global current-display, nothing to reset between runs, and the display is
     findable by every mechanism a GroupItem is findable by.
 
-    THE CURRENT-STYLE SLOT IS THE NODE'S `style` ATTRIBUTE, read at draw time.
-    Per FR-2a the style is a GroupItem holding components as attributes; this
-    increment reads exactly one component (the fill colour) and reads it the way
-    the tree already realises colours: the attribute's text names a cOLORs-style
-    entry, and getColor does realise-on-first-miss onto its object slot. So the
-    answer to DS's opening measurement -- does the slot hand over a realised
-    colour or a name needing realisation -- is A NAME, realised once and cached
-    on the colour node, never per draw call.
+    THE CURRENT-STYLE SLOT IS THE NODE'S `style` ATTRIBUTE, and per FR-2a it
+    NAMES A STYLE GroupItem THAT HOLDS COMPONENTS AS ATTRIBUTES -- `fillColor`,
+    `strokeColor`, and whatever later commands need. A draw method reads a
+    NAMED COMPONENT (styleComponent below), never the style's own text.
+
+    ⚠ SG, 2026-08-06: THIS REPLACED A DEGENERATE SLOT, and the reason is the
+    whole point of converting before `line` rather than after. The first cut had
+    the style attribute's text name a colour DIRECTLY -- so the style WAS one
+    colour. That is sufficient for fill, which needs exactly one, and it is why
+    the fill specimen could be small. It cannot express a second component, so
+    `line` (which needs a stroke colour) would have forced an ad-hoc
+    `strokeColor` attribute beside it and shipped a SECOND styling convention --
+    DS-6's rival-design failure, arriving one command after the fence was aimed
+    at it. One command is a conversion; three is a migration.
+
+    The colour itself is still a NAME needing realisation, which is DS's opening
+    measurement and is unchanged: the component's text names a cOLORs-style
+    entry and getColor realises hex->NSColor once, caching on the colour node's
+    object slot. Never per draw call.
 
     COORDINATES: CGBitmapContext is origin-bottom-left. guiDesign S10.3 rules
     that Display exposes top-left/y-down and flips internally. This increment
@@ -208,6 +209,33 @@ extern "C" GroupItem *pixelAt(GroupItem *field)
 	::fflush(stdout);
 	
 	return field;
+}
+
+/*****************************************************************************
+    displayFillRT — THE SPECIMEN, and the runtime half of it.
+
+    Fills the field's own frame rect with the colour its `style` attribute
+    names. Nothing else: no pen, no text, no path, no clip.
+
+    NAMED displayFill AND NOT `fill`, AND THAT IS BEAR-TRAP #17 AND NOT TASTE.
+    `fill()` is in ~/data/support/Include/OCframe -- the shared cross-project
+    TAWK keyword/alias table -- so a bare `fill` would be silently claimed by
+    the alias table the moment both were live in one pass, mis-generating into
+    an Apple selector with no diagnostic until the C++ compile.
+*****************************************************************************/
+extern "C" GroupItem *styleComponent(GroupItem *field, char *component)
+{
+GroupItem 	*style = field->get("style");
+GroupItem 	*node = 0;
+	if ( !style )
+		return 0;
+	node = GroupControl::groupController->locate(style->getText());
+	if ( !node )
+		{
+		::fprintf(stderr,"styleComponent: %s names style %s which does not resolve\n",field->groupBody->tag,style->getText());
+		return 0;
+		}
+	return node->get(component);
 }
 
 /*****************************************************************************

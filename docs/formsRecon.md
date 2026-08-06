@@ -371,7 +371,7 @@ compile names an unrelated file. Grep any short drawing verb against that file b
 |---|---|---|---|
 | 1 | **registration** | `define displayFill immediateAction=displayFill; ;` in the FIXTURE, not `incant/setup` | fixture-local on purpose: `incant/setup`'s registries are walked and baselined by `pop.sh`'s census, so a permanent entry is a baseline event. Same discipline `genParse`/`showParse` already follow |
 | 2 | **dispatch route** | command → `runOP` (`GroupActions.rtn:828`) → its **last** arm, `or isMethod` (`:890`) | ⚠ **the seed gate at `:874` does NOT cover that arm.** FR §4 predicted exactly this and it held. It does not bite here because the emitted call passes a **baked node address**, not a seeded operand — a drawing command needs to be *callable*, not *emittable* |
-| 3 | **style read** | `field["style"]` → its text names a colour → `getColor` (`Stylish.twk:87`) → `setColor` (`:136`) realises hex→NSColor **once**, cached on the colour node's object slot | **DS's opening measurement, answered: the slot hands over a NAME needing realisation, not a realised colour** — and the realisation is already once-per-entity, never per draw call |
+| 3 | **style read** | `styleComponent(field,"fillColor")` (`GroupDraw.twk:204`): the `style` attribute names a **style GroupItem**, whose **named component** attribute names a colour → `getColor` (`Stylish.twk:87`) → `setColor` (`:136`) realises hex→NSColor **once**, cached on the colour node's object slot | **DS's opening measurement, answered: the slot hands over a NAME needing realisation, not a realised colour** — realisation is once-per-entity, never per draw call. ⚠ **Read a NAMED COMPONENT, never the style's own text** — see §8.3 |
 | 4 | **Display write** | `CGContextSetRGBFillColor` + `CGContextFillRect` on the context in the node's pointer slot — `displayFillRT` (`GroupDraw.twk:204`) | the only line that differs per command |
 | 5 | **jit-callable** | `displayFill` (`jitEmitters.rtn:2846`) gates on `jitting`; `jitEmitFill` (`:2819`) bakes the node address and `displayFillRT`'s address and emits ONE `CreateCall` of `GroupItem*(GroupItem*)` | a carbon copy of `jitEmitTrace`. That signature is the **fallback-column convention, verified against `runOP`'s own dispatch** rather than adopted from a design, so every drawing command can wear it |
 | 6 | **what Display minimally is** (DS-6) | `makeDisplay` (`GroupDraw.twk:158`): a `CGBitmapContext` in the node's **pointer** slot, plus the node's `style` attribute as the current-style slot | **two of the GD ruling's four things. Pen and measure are absent by instruction**, not oversight |
@@ -389,22 +389,40 @@ compile names an unrelated file. Grep any short drawing verb against that file b
   handed and does not flip. The flip wants a frame height to be meaningful, which is layout's
   question, not this specimen's.
 
-## 8.3 ⚠ THE RECIPE DOES **NOT** REPLICATE CLEANLY TO `line`, AND THAT IS THE FINDING DS-2 ASKED FOR
+## 8.3 SEAM 3 WAS DEGENERATE AND HAS BEEN CONVERTED (SG, 2026-08-06)
 
-Seams 1, 2, 4 and 5 carry over unchanged — registration, dispatch, the one CG call, the emitted
-call. **Seam 3 does not**, and the reason is structural rather than incidental:
+**As first built, this recipe did NOT replicate to `line`, and the reason was structural.** Seams
+1, 2, 4 and 5 carried over unchanged; seam 3 did not, because the specimen's style slot was
+**degenerate** — the `style` attribute's text named a colour directly, so the style **was** one
+colour. Sufficient for `fill`, which needs exactly one, and why the specimen could be small.
+`line` needs a **stroke** colour and soon a width; `drawText` needs a text colour and a font. With
+one unnamed component there is nothing to distinguish them.
 
-**this specimen's style slot is DEGENERATE — the `style` attribute's text names a colour
-directly, so the style IS one colour.** That is enough for `fill`, which needs exactly one, and
-it is why the specimen could be small. `line` needs a **stroke** colour and would soon want a
-width; `drawText` needs a text colour and a font. The moment a second component exists there is
-nothing in this shape to distinguish them.
+⚠ **AND THE DANGER WAS NOT THE WALL, IT WAS WHAT A CHECKLIST-FOLLOWER DOES AT IT.** The natural
+move is to bolt an ad-hoc `strokeColor` attribute on beside the existing slot, get `line` green,
+and ship a **second styling convention** — DS-6's rival-design failure, arriving one command after
+the fence was aimed at it, wearing a passing POP.
 
-**So `line` is precisely where FR-2a's style-as-GroupItem stops being a preference and becomes
-required:** a style node carrying named component attributes (`fillColor`, `strokeColor`,
-`font`), with seam 3 reading a *named component* rather than the style's own text. **Do that
-before `line`, not after** — one command is a cheap conversion and three is a migration.
-Everything else on the recipe is ready.
+**CONVERTED, per FR-2a: a style is a GroupItem holding NAMED COMPONENTS.**
+
+```
+    dsRed   = "ff0000";
+    dsBlue  = "0000ff";
+    dsStyle  fillColor="dsRed" strokeColor="dsBlue";
+    dsCanvas  ... style="dsStyle" ...;
+```
+
+`styleComponent(field, name)` resolves the style and returns the named component;
+`displayFillRT` asks for `fillColor` and nothing else. **`strokeColor` is present and unused —
+it is the slot `line` will read**, and its presence is what lets the next command land without
+inventing anything. **One command was a conversion; three would have been a migration.**
+
+**H7 CONTROL, and it is a row in the POP rather than a claim here:** a style carrying
+`strokeColor` and no `fillColor` must **refuse by name** and leave the bitmap untouched. If seam 3
+still read the style's own text, or took whatever component it found, that case would fill anyway
+and the conversion would be asserted by nothing.
+
+**NumberFormatter stays stopped** (§3.1) — untouched by this conversion.
 
 ## 8.4 BEAR-TRAP #15 IS FALSIFIED ON ITS COLOUR HALF (DS-3)
 
@@ -442,3 +460,38 @@ different inputs.
 
 **The before-row is paired on purpose:** `r0 g0 b0 a0` is also what a bitmap nobody drew into
 gives, so alone it asserts nothing. Every zero-expecting row has a non-zero sibling.
+
+**Both fixtures now run under `genLadder/formsPop.sh`** — 14 checks, exit 0. It asserts **pixels,
+not exit status**: a drawing POP that checks exit 0 checks that nothing crashed, which is not the
+same as anything being drawn. Forms was the only arc without a harness, which meant nothing
+regression-checked `fill` when the next command landed. Every later command adds its rows there;
+that is the deal. The harness is negative-controlled three ways — a wrong expected pixel fails, a
+pixel row that never ran fails **by name** rather than passing silently, and stripping its helpers
+trips the self-certifying foot.
+
+---
+
+## 8.6 ⚠ THE HANDOVER CONDITION — READ THIS BEFORE ADDING A COMMAND
+
+**A MINION INHERITS FENCES, NOT JUST CROSSINGS.** The recipe above tells you *how*; the fences tell
+you *when you have left it*. Every finding worth having on 2026-08-06 was a fence product and not a
+recipe product — GX's residue, this section's wall, MR's corrected premise. A role that inherits
+only the crossings optimises for a green POP, and a green POP is exactly what the rival-convention
+failure wears.
+
+**So, the stop conditions for the next drawing command. Each is STOP AND REPORT, not improvise:**
+
+1. **Your command needs a style component the style node does not name.** Add the component to the
+   style shape as a deliberate act with its own row in `formsPop.sh` — never a second attribute
+   beside `style`, and never reading a component your command happens to find.
+2. **Your command needs geometry Display does not have.** The pen and the measure method are
+   *absent by instruction*, not missing by oversight; `drawText` is the day they land, and it wants
+   the ruled design, not an increment invented at the call site.
+3. **The y-flip.** guiDesign §10.3 rules top-left/y-down exposed with the flip internal. This
+   increment does not flip. The first command whose correctness depends on it should stop, not
+   flip locally.
+4. **Your command's name is a short common verb.** Grep it against
+   `~/data/support/Include/OCframe` first — bear-trap #17. `line`, `text`, `clear` and `stroke` are
+   all live candidates for silent capture by the shared alias table.
+5. **Your POP is green on its first write.** Run it with the mechanism removed. Rule H7, and it has
+   caught a fixture that certified nothing twice in one day.
