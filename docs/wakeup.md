@@ -1,6 +1,120 @@
-# ⚠⚠ SEALED 2026-08-05 (FINAL VINTAGE) — READ THIS SECTION FIRST.
-# Everything from `# ⚠⚠ UPDATED 2026-08-03` down is older vintage, still broadly accurate,
-# just no longer the top of the story. KANT-8 BURIED. THE GRAMMAR CAMPAIGN IS AT ITS REAL QUESTION.
+# ⚠⚠ SEALED 2026-08-07 (FINAL VINTAGE) — READ THIS SECTION FIRST.
+# Everything from `# ⚠⚠ SEALED 2026-08-05` down is older vintage, still broadly accurate,
+# just no longer the top of the story. THE ATTACH EXTRACTION IS IN THE TREE. DRAWING EXISTS,
+# INTERPRETED AND JITTED. THE METRIC IS STILL 0/78 AND IS NOW CORNERED BY ONE NAMED GAP.
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 2026-08-07 — THE PARSE-CONTRACT CAMPAIGN OPENED, THE EXTRACTION LANDED,
+#              AND THE FORMS ARC GREW A COMMAND, A HARNESS AND A RECIPE
+# ═══════════════════════════════════════════════════════════════════════════
+
+## WHAT IS RUNNABLE — six POPs now, two of them new
+```
+sh jitLadder/ladder.sh        150 checks, exit 0
+sh genLadder/pop.sh            33 green / 1 parked   (the SAME 3 owned reds)
+sh genLadder/recordPop.sh      48 checks, exit 0     NEW — ParsE/JiT records
+sh genLadder/formsPop.sh       14 checks, exit 0     NEW — displayFill, BY PIXEL
+sh genLadder/printPop.sh        9 · containerPop 11 · tree exit 0
+<binary> incant/oneTest · jsonTest · kant8T · phaseA · emitAll      exit 0
+```
+**Metric: 0/78 installed.** Nothing regressed today; everything below either landed green or
+reverted clean.
+
+## ⚠ THE ONE PROTOCOL TO CARRY: **CONVERT, GATE, THEN INSTALL**
+Earned three times today, in ascending cost. A change to the parse layer is proved against the
+INTERPRETIVE arm **before** any rule is installed. When the discriminator in `aCTionInvokeArg` was
+wrong it failed as **18 diagnostic lines and one moved baseline**; the same class of error two
+passes earlier, un-gated, arrived as a **fleet-wide SIGSEGV**. The gate is where this campaign's
+errors are supposed to die.
+
+## THE PC CAMPAIGN — the three walls were one finding
+`parse()`'s two arms never had a shared, enumerated contract. Every wall this week was a place they
+quietly disagreed. PC is the ledger; each divergence gets a row, measured both arms, dated.
+- **Row 1, fire-label — CLOSED (GX).** `fireLabelMethod` extracted; both arms fire the same rule
+  action. Was: the generated arm's `goto generatedExit` jumped clean over it.
+- **Row 2, attach — CLOSED (PC-1/PC-4).** `attachLabel` owns the attach for both arms;
+  `leaveRule`'s attach removed. **The generated arm passes `promote=0` (attach-under always), the
+  interpretive arm `promote=1` (legacy)** — the fork is a PARAMETER, not an inference, and carries
+  IT-3's expiry in its own comment. `tree.sh` green for the first time since LA.
+- **Row 3, empty-yield — CLOSED (PC-3).** `labelNO` is the return channel's third value:
+  **NULL = failed · labelNO = succeeded, yields nothing · any node = succeeded, yields that.**
+  ⚠ **Minted `isCOUNT` 0, and that is the whole trick.** The JIT's value channel is an **i32
+  alloca** and cannot carry a GroupItem, so a non-numeric labelNO would have split the engines
+  permanently. The meaning lives in **identity** (`lab == labelNO`); the numeric reading is
+  courtesy, unchanged at 0, so both engines still agree and rung JV needed no re-pin.
+
+## ⚠ IT — isTarget PROMOTION IS RETIRED AS A PARSE-LAYER MECHANISM (director)
+**The parse builds one shape; opinions about shape belong to actions.** Promotion becomes opt-in in
+one line: an action returns the child's label as its own yield, and attach-under plants it.
+Interpretive promotion runs untouched as legacy and retires by attrition. **End state, nameable
+now:** the `isTarget` predicate deletes, the promote case leaves `attachLabel`, three cases become
+one — `pStuff.label +% lab`, skip NULL and labelNO, both arms, no fork.
+**And the cost model beside it (IT-6, Tony's observation):** an action is ONE artifact serving BOTH
+engines — the interpreter fires it through `fireLabelMethod`, the jitter calls it through the
+fallback column — so **action-layer fixes are two-for-one and arm fixes pay per-arm.** Prefer the
+action layer where a divergence permits the choice. Exception: an action containing an `if jitting`
+fork is arm code in disguise and pays arm prices.
+
+## WHERE THE METRIC IS STUCK, AND IT IS ONE NAMED GAP
+**IA-0: the migration unit is the ALTERNATION** — all of one parent's options cross together, so the
+mixed-shape world never exists. **IA-1's gate then refuses every install**, because no
+reader-bearing alternation is fully plannable:
+```
+    InvokeArg  Braced OK · Parens OK · UnaryXP BLOCKED     <- nearest by far
+    ANYorNum   0 of 2        StatemenT  2 of 5        DatA  blocked (+ NotA is not a rule)
+```
+- **GAP A — container terms: CLOSED TODAY (CT).** `containerTo` in the support library, `CONTAINER`
+  a plannable kind classified BEFORE the reference test (a bin term is also a reference).
+  Partition moved **REFUSE 99 → 97**.
+- **GAP B — rule-as-data (§4.1, rung 5): OPEN, BANKED, AND NOW THE ONLY THING IN THE WAY.**
+  `NumbeR`/`ANYtoken`/`SemI` refuse on rule-level `isGROUP`/`isSTRING`, cascading into `Iterate`,
+  `Xpress`, `ANYorNum`, `StatemenT` — and into `UnaryXP`'s second term, which is why Gap A alone did
+  not unblock `InvokeArg`.
+
+⚠ **AND THE INSTRUMENT LESSON THAT CORRECTS ITS OWN SEQUENCING CLAIM: A REFUSAL CENSUS REPORTS THE
+FIRST BLOCKER, NOT THE BLOCKER SET.** The classification walk stops at the first term it cannot
+classify, so a refusal census is a census of **frontiers**. Closing a gap does not unblock the rules
+it appeared in — it reveals their next refusal. **Total refusals falling is real progress and is not
+the same measurement as any rule becoming plannable.** CLAUDE.md, H9 corollary.
+
+## WHAT ELSE LANDED — capability, not campaign
+- **DRAWING EXISTS, INTERPRETED AND JITTED.** `displayFill` fills a frame's rect through a style
+  slot into a `CGBitmapContext`. Interpreted `r0 g0 b0 a0 → r255 g0 b0 a255`; **jitted fire 2 tracks
+  a style swapped AFTER emission** (`r0 g128 b128 a255`), degrade 0, one compile — so it ran from
+  compiled code. **FR §4's prediction held: the route is the fallback column, not IR emission** —
+  a drawing method must be CALLABLE, not EMITTABLE. Five-seam recipe with file:line in
+  `docs/formsRecon.md` §8, plus §8.6's **handover fences**.
+  ⚠ Named `displayFill`, not `fill` — bear-trap #17, `fill()` is in the shared `OCframe` alias table.
+- **`ParsE` and `JiT` records.** `genParse` hangs the generated source on the rule; `jitRunAction`
+  hangs the post-mem2reg IR on the action. **One writer per fact**, both `noPrint`, both gated
+  (`INCANT_PARSE_RECORD` / `INCANT_JIT_RECORD`, and `recordParse()` for the in-fixture door).
+  **`showParse('Rule')`** prints the record — ⚠ **a command and not a kant action, because naming a
+  rule in expression position INVOKES it.** `incant/showGen` is the no-preparation looksee: run it,
+  edit one line, read any rule's generated method.
+- **`aCTionIF` no longer SIGSEGVs on a missing statement.** `if 1;` used to exit 139 with zero
+  output — **that was bear-trap #4's crash all along**, and the trap only ever described the parse
+  bleed above it. Refuses loudly now, naming the three known causes.
+
+## DOCTRINE ADDED TODAY
+- **BEAR-TRAP #26 — a field with no data returns its own TAG from `.text`.** Six payments in the
+  ledger, in both directions; one of them is a case where the trap made something *work*.
+- **RULE H9 — a census matches the IDIOM FAMILY, not the surface form**, plus the frontier corollary
+  above. Written after a census miscounted its own subject twice, in both directions.
+- **A minion inherits FENCES, not just crossings** (`docs/formsRecon.md` §8.6). The recipe says how;
+  the fences say when you have left it. Every finding worth having today was a fence product.
+
+## OPEN, AND WHOSE
+**Director's:** Gap B's brief (largest thing on the board — its blast radius wants its own charter) ·
+the IA-0 refinement for non-rule alternation options (`NotA`) · `aCTionTokenXP`'s conversion to the
+attached shape, which is specified and unblocked but pointless until an alternation can cross.
+**Flagged, not chased:** `litTo` still has no implementation in the support library — the labelled
+LITERAL road is a stub while the labelled CONTAINER road is now paved · guiDesign §10.0 vs §10.2
+disagree about whether measurement belongs on Display (flagged at the insert, reconcilable) ·
+GM-19's single audit line (`AUDIT TERM Parens [3]`) stays banked, unpinned, uncaused.
+
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ⚠⚠ SEALED 2026-08-05 — the 08-05 section follows. Older vintage from here down.
 
 # ═══════════════════════════════════════════════════════════════════════════
 # 2026-08-05 — KANT-8 CLOSED, `return` EMITTED, AND THE GRAMMAR CAMPAIGN OPENED
