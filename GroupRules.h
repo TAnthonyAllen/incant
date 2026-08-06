@@ -313,6 +313,7 @@ extern "C" GroupItem *resolveList(GroupItem *input);
 extern "C" void restoreLocalFields(GroupItem *action);
 extern "C" char *row42(GroupItem *term);
 extern "C" GroupItem *ruleMethod(GroupItem *input);
+extern "C" char *ruleNameArg(GroupItem *argument);
 extern "C" GroupItem *ruleOrRefuse(char *name, char *who);
 extern "C" GroupItem *runAction(GroupItem *argument, GroupItem *field);
 extern "C" GroupItem *runByteFn(GroupItem *instr);

@@ -1029,6 +1029,47 @@ char        dq = 34;
     worth keeping is that a debug affordance never drags in bear-trap #10's
     apparatus (groups.ext sync + tokall). Off unless a fixture asks.
 *******************************************************************************/
+/*******************************************************************************
+    ruleNameArg — GA, 2026-08-06. What a rule-name argument may be.
+
+    THREE FORMS ACCEPTED, and the ruling is "text, or a field resolving to
+    text; anything unresolvable refuses loudly by name":
+
+        genParse('Parens')   quoted literal   — the baseline
+        genParse(Parens)     bare name        — works, see below
+        genParse(gaName)     field holding "Parens"
+
+    ⚠ MEASURED, AND BOTH SURPRISES ARE THE SAME TRAP. A field with no data
+    returns its TAG from .text (bear-trap #26), and that single fact explains
+    the whole table:
+
+      · the BARE form already worked, by accident of the trap rather than by
+        design — `Parens` arrives as a node with no data of its own, so .text
+        echoes the tag, which happens to BE the rule name.
+      · the FIELD form failed for the identical reason and in the opposite
+        direction — `gaName` arrives as a REFERENCE node with no data, so .text
+        echoed "gaName" and genParse dutifully refused a rule by that name. The
+        DEFINED gaName holds "Parens"; the reference passed in does not.
+
+    It was NOT a silent failure, which an earlier note claimed: it printed
+    `genParse: REFUSING gaName -- not a rule` on STDERR the whole time, and the
+    first reading only looked at stdout. The refusal was working; the
+    resolution was missing.
+
+    So: try the name as given (covers literal and bare); if that is not a rule,
+    look it up and, if it is a field CARRYING DATA, take its text and try that.
+    Unresolvable falls through to ruleOrRefuse, which already refuses by name.
+*******************************************************************************/
+extern String ruleNameArg(GroupItem argument)
+{
+String      name = argument.text;
+GroupItem   grup;
+    if locateRule(name)     return name;
+    grup = locate(name);
+    if grup && grup.data    return grup.text;
+    return name;
+}
+
 extern GroupItem recordParse(GroupItem argument)
 {
 GroupRules  ruler = groupRules;
@@ -1040,7 +1081,7 @@ GroupRules  ruler = groupRules;
 
 extern GroupItem showParse(GroupItem argument)
 {
-GroupItem   rule = ruleOrRefuse(argument.text,"showParse");
+GroupItem   rule = ruleOrRefuse(ruleNameArg(argument),"showParse");
 GroupItem   record;
     if !rule    return null;
     record = rule["ParsE"];
@@ -1057,7 +1098,7 @@ GroupItem   record;
 
 extern GroupItem genParse(GroupItem argument)
 {
-GroupItem   rule = ruleOrRefuse(argument.text,"genParse");
+GroupItem   rule = ruleOrRefuse(ruleNameArg(argument),"genParse");
 GroupItem   plan;
 GroupItem   result;
     if !rule    return null;

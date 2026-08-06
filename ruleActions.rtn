@@ -660,6 +660,34 @@ GroupItem   result = ExpressioN;
     }
     if isMethod result = result.gMethod(result);
     else        result = ExpressioN;
+    /*  MR, 2026-08-06. REFUSE LOUDLY, NEVER CRASH. The line below used to
+        dereference StatemenT unguarded, so ANY `if` whose governed statement
+        is absent exited 139 with ZERO bytes of output -- no diagnostic, no
+        stop: line, nothing to grep. Smallest reproducer is `if 1;`, which
+        involves no rule and no mention.
+
+        ⚠ THIS IS BEAR-TRAP #4's CRASH, AND THE TRAP NEVER SAID SO. A `//`
+        wedged between an if's condition and its statement leaves exactly this
+        terminal state, and the trap describes the symptom as a broken parse
+        with field-resolution bleed. The bleed is real; the 139 underneath it
+        was this line.
+
+        It is also what a rule mention in condition position produces -- naming
+        a rule FIRES it, and in `if Braced;` the fired rule consumes the
+        following statement as its input, leaving nothing to govern. That is a
+        real language hazard but it is NOT the crash, and conflating them sent
+        one earlier reading of `if Braced;` up the wrong tree.
+
+        Refuses rather than falling through to `or ElsE`: an if whose statement
+        vanished is malformed, and running its else arm would invent an answer
+        for a construct nobody wrote. Says which construct and where.  */
+    if result && isInitialized && !StatemenT {
+        cerr "aCTionIF: REFUSING -- the condition parsed but its governed "
+             "statement is MISSING. Common causes: a // between the condition "
+             "and the statement (bear-trap #4), an `if <cond>;` with no "
+             "statement at all, or a rule named in the condition consuming the "
+             "statement as its input.":;
+        return falseResult; }
     if result && isInitialized   result = StatemenT.gMethod(StatemenT);
     or ElsE     result = ElsE.gMethod(ElsE);
     if !result  result = falseResult;

@@ -3,20 +3,22 @@
     NO PREPARATION: no environment variable, no shell, no arguments. Open it in
     Xcode, run, read the output. The capture arms itself with recordParse()
     below, which is the in-fixture door onto the same gate INCANT_PARSE_RECORD
-    opens.
+    opens. Nothing is written to disk.
 
-    TO LOOK AT A DIFFERENT RULE, EDIT THE TWO MARKED LINES AT THE FOOT --
-    and it is two, not one, which is worth saying plainly. Incant fixtures are
-    invoked as `incant <file>` with no argument channel, so the name cannot be
-    passed in. Naming it ONCE in a field and using it twice was tried first and
-    DOES NOT WORK: `genParse(gsRule)` resolves nothing and prints nothing, at
-    exit 0. Both call sites need the quoted literal, so they are kept adjacent
-    and marked to make a half-edit obvious at a glance.
+    TO LOOK AT A DIFFERENT RULE, EDIT THE ONE MARKED LINE. Incant fixtures are
+    invoked as `incant <file>` with no argument channel, so the name cannot come
+    from outside -- but GA (2026-08-06) taught genParse and showParse to accept
+    a FIELD that resolves to text, so the name is written once here and used
+    twice below, and the two calls cannot drift apart.
 
-    GENERATION ONLY. This does not install anything, does not touch
-    incant/grammar, and cannot move a baseline: genParse emits and installs
-    nothing (its own header says so), and the ParsE record is gated. Fleet
-    neutral by construction.
+    THE `=` IS LOAD-BEARING. `gsRule = "Parens";` gives the field data;
+    `gsRule "Parens";` does NOT -- that form prints as `gsRule`, measured --
+    and genParse would then refuse a rule by that name. Bear-trap #26 wearing
+    define syntax.
+
+    GENERATION ONLY. No install, no contact with incant/grammar, cannot move a
+    baseline: genParse emits and installs nothing, and the ParsE record is gated
+    off unless a fixture arms it.
 
     The twelve plannable rules are: Braced Parens ElsE InvokE InvokeArg
     PrintField WardeD GrouP CodE RunRulE BlocK ExpressioN.  */
@@ -24,15 +26,20 @@ Start();
 include(unitTests);
 include(utilities);
 search reset stack Grokking UnitTests Utilities list;
+
 registry(cOMMANDs);
 define genParse immediateAction=genParse; ;
 define showParse immediateAction=showParse; ;
 define recordParse immediateAction=recordParse; ;
+
+register(ShowGen);
+define
+    gsRule = "Parens";
+    ;
+
 recordParse();
+genParse(gsRule);
 print "---- generated method ----":;
-/*  <<<< EDIT BOTH OF THESE -- same rule name, quoted >>>>  */
-genParse('Parens');
-showParse('Parens');
-/*  <<<< end of the edit >>>>  */
+showParse(gsRule);
 print "SHOWGEN SENTINEL":;
 stop();

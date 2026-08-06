@@ -1,0 +1,66 @@
+/*****************************************************************************
+    jitPJ8 -- THE PJ-8 SURVIVAL FIXTURE. 2026-08-06.
+
+    PJ-8 rules that an action's `JiT` record is CLEARED WHEN THE ACTION IS
+    COMPILED -- for jitting (jitRunAction entry) or for interpreting
+    (processCode entry) -- and written at the jit capture site, with staleness
+    PRECLUDED BY LIFECYCLE rather than detected by a check.
+
+    ⚠ WHAT THIS FIXTURE EXISTS TO CATCH, and it is the one way that ruling can
+    go wrong in practice. The interpreting clear is only safe because
+    processCode fires ONCE per action: `field.isAction = true`
+    (GroupActions.rtn:603) overwrites actionType and so consumes isCoded, while
+    the call site is `if isCoded && !processCode(action)` (:549). If that
+    consumption ever changes, processCode starts firing on every activation and
+    THE CLEAR BEGINS ERASING RECORDS IT SHOULD KEEP -- silently, because a
+    missing record looks exactly like a record that was never written.
+
+    So the shape is jitJ1's, plus one thing: an ORDINARY INTERPRETED CALL after
+    the compile, and THEN the record read back. That interpreted call is the
+    hazard; if the lifetime dependency breaks, the record is gone by the time
+    jitShowRecord walks the node.
+
+    PRESENCE-WITH-VALUE (H4): jitShowRecord prints every attribute with its byte
+    count, so the assertion is "JiT is there AND holds bytes", not "no error
+    appeared". A deleted emitter breaks this check instead of satisfying it.
+
+    SENTINEL AT THE FOOT (H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitPJ8);
+define
+    p8In;
+    p8Out;
+    jitPJ8 code={ p8Out = p8In + 5; };
+    ;
+
+p8In  = 10;
+p8Out = 0;
+testing(jitPJ8);
+print "PJ8 fire 1: p8Out =" p8Out " (want 15)":;
+
+p8In  = 30;
+p8Out = 0;
+jitRefire();
+print "PJ8 fire 2: p8Out =" p8Out " (want 35, no recompile)":;
+
+/*  ⚠ THE HAZARD ITSELF: an ordinary interpreted activation, AFTER the compile.
+    If processCode re-entered here its JiT clear would wipe the record below.  */
+p8In  = 10;
+p8Out = 0;
+jitPJ8();
+print "PJ8 interpreted: p8Out =" p8Out " (the oracle -- want 15)":;
+
+/*  THE ASSERTION. JiT must still be present and non-empty AFTER all of the
+    above. Read back off the node, not off any global.  */
+jitShowRecord(jitPJ8);
+
+print "PJ8 SENTINEL -- run reached the end":;
+stop();

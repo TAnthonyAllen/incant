@@ -1053,6 +1053,26 @@ Hard-won lessons. Each one has cost real debugging time.
     is about what an ACTION destroys in place. Same family as project memory's "Executed BlocK
     is built once and cached" — that note records the mechanism; this records what it costs.
 
+26. **A FIELD WITH NO DATA RETURNS ITS OWN TAG FROM `.text`. THE INVOICE IS AT SIX PAYMENTS AND
+    COUNTING — treat every `.text` read as "value, or the name if there is no value".** This one
+    fact is behind an entire family of bugs that look unrelated, and its signature is always the
+    same: **a wrong answer wearing the shape of a real reading.** Not a crash, not an empty — a
+    plausible string that happens to be the identifier you were asking about.
+    **The ledger, because the pattern is the point:**
+    | # | site | what it cost |
+    |---|---|---|
+    | 1 | `+=` pre-load (2026-07-30) | an unguarded pre-load would concatenate onto the field's OWN NAME. The guard is `data`, **not** "text is non-empty" |
+    | 2 | `if x.taG;` as an existence test (2026-08-03) | truthy whether or not the lookup found anything; produced a false tools-down alarm. **Use `if x;`** |
+    | 3 | PJ-8's record clear (2026-08-06) | `clear()`ing the `JiT` attribute makes it read back as the string `"JiT"`, so every non-empty check in the fleet passes on it. **`setText("")`, never `clear()`**, for anything a POP reads |
+    | 4 | the `parensMin` localizer (2026-08-06) | `pmOut = argument;` then printing `pmOut` gave `pmOut is pmOut` — **with the mechanism installed AND removed alike.** A fixture that discriminated nothing and would have been read as proof. Print from INSIDE the action instead |
+    | 5 | `genParse`'s argument (2026-08-06) | the BARE form (`genParse(Parens)`) worked **by accident of this trap** — a node with no data echoes the tag, which happens to be the rule name — while the FIELD form failed by the same mechanism, because the *reference* node passed in has no data even when the *defined* field does |
+    | 6 | define syntax (2026-08-06) | **`gsRule "Parens";` does NOT give the field data** and prints as `gsRule`; only `gsRule = "Parens";` does. Two characters, and the failure is a plausible name |
+    **THE RULE THAT FALLS OUT, and it is cheap: never test presence or identity with `.text`.**
+    Test `data` for "does this field carry a value", test the node itself (`if x;`) for existence,
+    and when reading a name out of a field, be explicit about which you want. Payment 5 is the one
+    to remember, because there the trap made something *work* — and a thing that works by accident
+    breaks the day the accident stops.
+
 ---
 
 ## The `testing` Command

@@ -776,6 +776,32 @@ GroupItem 	*result = ExpressioN;
 	if ( isMethod(result->groupBody->flags.instructType) )
 		result = result->groupBody->gMethod(result);
 	else	result = ExpressioN;
+	/*  MR, 2026-08-06. REFUSE LOUDLY, NEVER CRASH. The line below used to
+	dereference StatemenT unguarded, so ANY `if` whose governed statement
+	is absent exited 139 with ZERO bytes of output -- no diagnostic, no
+	stop: line, nothing to grep. Smallest reproducer is `if 1;`, which
+	involves no rule and no mention.
+	
+	⚠ THIS IS BEAR-TRAP #4's CRASH, AND THE TRAP NEVER SAID SO. A `//`
+	wedged between an if's condition and its statement leaves exactly this
+	terminal state, and the trap describes the symptom as a broken parse
+	with field-resolution bleed. The bleed is real; the 139 underneath it
+	was this line.
+	
+	It is also what a rule mention in condition position produces -- naming
+	a rule FIRES it, and in `if Braced;` the fired rule consumes the
+	following statement as its input, leaving nothing to govern. That is a
+	real language hazard but it is NOT the crash, and conflating them sent
+	one earlier reading of `if Braced;` up the wrong tree.
+	
+	Refuses rather than falling through to `or ElsE`: an if whose statement
+	vanished is malformed, and running its else arm would invent an answer
+	for a construct nobody wrote. Says which construct and where.  */
+	if ( result && result->groupBody->flags.isInitialized && !StatemenT )
+		{
+		::fprintf(stderr,"aCTionIF: REFUSING -- the condition parsed but its governed statement is MISSING. Common causes: a // between the condition and the statement (bear-trap #4), an `if <cond>;` with no statement at all, or a rule named in the condition consuming the statement as its input.\n");
+		return GroupControl::groupController->groupRules->falseResult;
+		}
 	if ( result && result->groupBody->flags.isInitialized )
 		result = StatemenT->groupBody->gMethod(StatemenT);
 	else
@@ -2923,7 +2949,7 @@ extern "C" char *foldOf(GroupItem *rule)
 
 extern "C" GroupItem *genParse(GroupItem *argument)
 {
-GroupItem 	*rule = ::ruleOrRefuse(argument->getText(),"genParse");
+GroupItem 	*rule = ::ruleOrRefuse(::ruleNameArg(argument),"genParse");
 GroupItem 	*plan = 0;
 GroupItem 	*result = 0;
 	if ( !rule )
@@ -9307,69 +9333,6 @@ char 		*name = item->groupBody->flags.data ? item->getText() : (char*)0;
 	return ruler->trueResult;
 }
 
-/*******************************************************************************
-    genParse — two passes now, and that is the rung-3 result: planRule DECIDES,
-    emitPlan WRITES. Nothing between them knows about C++.
-
-    The walk is walked TWICE by emitPlan, once to validate and once to write.
-    That is deliberate and is one of the reasons the seam artifact is a plan and
-    not a visitor: §3.3's helper functions are discovered mid-walk, and with
-    text already going out you must buffer or emit out of order. With a plan you
-    just walk it again. It costs nothing at this size and it is the shape rung 5
-    needs.
-
-    Every refusal now lives in planRule, where it belongs — a refusal is a
-    validity question about the RULE, so it reads the same whichever emitter is
-    downstream (§4).
-*******************************************************************************/
-/*******************************************************************************
-    showParse — PJ-7's director's window: print a rule's recorded ParsE.
-
-        registry(cOMMANDs);
-        define showParse immediateAction=showParse; ;
-        showParse('Braced');
-
-    WHY THIS IS A COMMAND AND NOT A KANT ACTION, which was the brief's first
-    preference and is not available: A RULE NAME IN INCANT EXPRESSION POSITION
-    INVOKES THE RULE. `print Braced.ParsE;` prints nothing and `if Braced;`
-    exits 139 — both measured 2026-08-06 — because naming a rule runs it
-    against the current input. There is no ordinary incant statement that names
-    a rule without firing it, so the window has to come in through the same door
-    genParse itself uses: a command taking the name as TEXT and resolving it
-    with locateRule via ruleOrRefuse. That is the proven lookup, and it also
-    sidesteps the members gate that makes bare lookup unreliable for a rule.
-
-    PRINTS TO STDOUT AND SAYS SO WHEN THERE IS NOTHING. An empty or absent
-    record prints a named line rather than nothing at all — an instrument whose
-    silence means two different things (no record / no output) is the
-    one-channel-one-meaning failure, and here the two are a gate left closed
-    versus a genParse that never ran.
-
-    NOT REGISTERED IN incant/setup, DELIBERATELY. Registering it there would add
-    a member to a base registry that pop.sh's census walks and baselines. The
-    fixture registers it, exactly as the genParse fixtures already register
-    genParse — zero baseline risk, and the same two lines.
-*******************************************************************************/
-/*******************************************************************************
-    recordParse — GX-6: arm the ParsE record from INSIDE a fixture, so a
-    looksee needs no environment variable and no preparation.
-
-        registry(cOMMANDs);
-        define recordParse immediateAction=recordParse; ;
-        recordParse();
-
-    Same relationship to INCANT_PARSE_RECORD that `traceParse` has to a debug
-    switch: one more door onto the SAME gate, not a second gate. genParse reads
-    the env var first and falls back to this flag, so an armed fixture behaves
-    exactly as `INCANT_PARSE_RECORD=1` does -- attribute only, no file. A
-    fixture that wants the file sink still uses the env var, because a path has
-    to come from somewhere.
-
-    A FILE-STATIC AND NOT A GroupRules FIELD, deliberately: a new field in a
-    class shifts nothing here but a new GroupBody flag would, and the habit
-    worth keeping is that a debug affordance never drags in bear-trap #10's
-    apparatus (groups.ext sync + tokall). Off unless a fixture asks.
-*******************************************************************************/
 extern "C" GroupItem *recordParse(GroupItem *argument)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -9499,6 +9462,112 @@ char 	*name = input->getText();
 		else	::fprintf(stderr,"ruleMethod: expected a method name in ruleMethod text\n");
 	else	::fprintf(stderr,"ruleMethod: should be invoked as an attribute when its parent is defined\n");
 	return input->getGroup();
+}
+
+/*******************************************************************************
+    genParse — two passes now, and that is the rung-3 result: planRule DECIDES,
+    emitPlan WRITES. Nothing between them knows about C++.
+
+    The walk is walked TWICE by emitPlan, once to validate and once to write.
+    That is deliberate and is one of the reasons the seam artifact is a plan and
+    not a visitor: §3.3's helper functions are discovered mid-walk, and with
+    text already going out you must buffer or emit out of order. With a plan you
+    just walk it again. It costs nothing at this size and it is the shape rung 5
+    needs.
+
+    Every refusal now lives in planRule, where it belongs — a refusal is a
+    validity question about the RULE, so it reads the same whichever emitter is
+    downstream (§4).
+*******************************************************************************/
+/*******************************************************************************
+    showParse — PJ-7's director's window: print a rule's recorded ParsE.
+
+        registry(cOMMANDs);
+        define showParse immediateAction=showParse; ;
+        showParse('Braced');
+
+    WHY THIS IS A COMMAND AND NOT A KANT ACTION, which was the brief's first
+    preference and is not available: A RULE NAME IN INCANT EXPRESSION POSITION
+    INVOKES THE RULE. `print Braced.ParsE;` prints nothing and `if Braced;`
+    exits 139 — both measured 2026-08-06 — because naming a rule runs it
+    against the current input. There is no ordinary incant statement that names
+    a rule without firing it, so the window has to come in through the same door
+    genParse itself uses: a command taking the name as TEXT and resolving it
+    with locateRule via ruleOrRefuse. That is the proven lookup, and it also
+    sidesteps the members gate that makes bare lookup unreliable for a rule.
+
+    PRINTS TO STDOUT AND SAYS SO WHEN THERE IS NOTHING. An empty or absent
+    record prints a named line rather than nothing at all — an instrument whose
+    silence means two different things (no record / no output) is the
+    one-channel-one-meaning failure, and here the two are a gate left closed
+    versus a genParse that never ran.
+
+    NOT REGISTERED IN incant/setup, DELIBERATELY. Registering it there would add
+    a member to a base registry that pop.sh's census walks and baselines. The
+    fixture registers it, exactly as the genParse fixtures already register
+    genParse — zero baseline risk, and the same two lines.
+*******************************************************************************/
+/*******************************************************************************
+    recordParse — GX-6: arm the ParsE record from INSIDE a fixture, so a
+    looksee needs no environment variable and no preparation.
+
+        registry(cOMMANDs);
+        define recordParse immediateAction=recordParse; ;
+        recordParse();
+
+    Same relationship to INCANT_PARSE_RECORD that `traceParse` has to a debug
+    switch: one more door onto the SAME gate, not a second gate. genParse reads
+    the env var first and falls back to this flag, so an armed fixture behaves
+    exactly as `INCANT_PARSE_RECORD=1` does -- attribute only, no file. A
+    fixture that wants the file sink still uses the env var, because a path has
+    to come from somewhere.
+
+    A FILE-STATIC AND NOT A GroupRules FIELD, deliberately: a new field in a
+    class shifts nothing here but a new GroupBody flag would, and the habit
+    worth keeping is that a debug affordance never drags in bear-trap #10's
+    apparatus (groups.ext sync + tokall). Off unless a fixture asks.
+*******************************************************************************/
+/*******************************************************************************
+    ruleNameArg — GA, 2026-08-06. What a rule-name argument may be.
+
+    THREE FORMS ACCEPTED, and the ruling is "text, or a field resolving to
+    text; anything unresolvable refuses loudly by name":
+
+        genParse('Parens')   quoted literal   — the baseline
+        genParse(Parens)     bare name        — works, see below
+        genParse(gaName)     field holding "Parens"
+
+    ⚠ MEASURED, AND BOTH SURPRISES ARE THE SAME TRAP. A field with no data
+    returns its TAG from .text (bear-trap #26), and that single fact explains
+    the whole table:
+
+      · the BARE form already worked, by accident of the trap rather than by
+        design — `Parens` arrives as a node with no data of its own, so .text
+        echoes the tag, which happens to BE the rule name.
+      · the FIELD form failed for the identical reason and in the opposite
+        direction — `gaName` arrives as a REFERENCE node with no data, so .text
+        echoed "gaName" and genParse dutifully refused a rule by that name. The
+        DEFINED gaName holds "Parens"; the reference passed in does not.
+
+    It was NOT a silent failure, which an earlier note claimed: it printed
+    `genParse: REFUSING gaName -- not a rule` on STDERR the whole time, and the
+    first reading only looked at stdout. The refusal was working; the
+    resolution was missing.
+
+    So: try the name as given (covers literal and bare); if that is not a rule,
+    look it up and, if it is a field CARRYING DATA, take its text and try that.
+    Unresolvable falls through to ruleOrRefuse, which already refuses by name.
+*******************************************************************************/
+extern "C" char *ruleNameArg(GroupItem *argument)
+{
+char 		*name = argument->getText();
+GroupItem 	*grup = 0;
+	if ( ::locateRule(name) )
+		return name;
+	grup = GroupControl::groupController->locate(name);
+	if ( grup && grup->groupBody->flags.data )
+		return grup->getText();
+	return name;
 }
 
 /*******************************************************************************
@@ -9935,7 +10004,7 @@ char 		*name = 0;
 
 extern "C" GroupItem *showParse(GroupItem *argument)
 {
-GroupItem 	*rule = ::ruleOrRefuse(argument->getText(),"showParse");
+GroupItem 	*rule = ::ruleOrRefuse(::ruleNameArg(argument),"showParse");
 GroupItem 	*record = 0;
 	if ( !rule )
 		return 0;
