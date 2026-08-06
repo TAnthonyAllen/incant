@@ -662,3 +662,83 @@ replacement-returns in play, a label handed to an action is routinely swapped fo
 elsewhere and never stamped** — which is exactly an unstamped thing arriving in the label channel.
 **Consistent, and not yet confirmed;** confirming it needs one flag dump at a replacement site, and
 that was not taken this pass.
+
+## GM-21 — LA″: DECODE CENSUS **CLEAN**, SENTINEL COUNT **CORRECTED 1→6**, `isLabel` MYSTERY **CLOSED**
+**asOf 2026-08-07 · confidence: MEASURED · provenance: `genParse.rtn:1366` (the sole identity
+decoder), `GroupControl.twk:150-157` (sentinel minting), `ruleActions.rtn` (33 actions, re-censused),
+`GroupItem.twk` fireLabelMethod probe · one gated probe added, no behaviour changed**
+
+## ⚠ FIRST, A CORRECTION TO GM-20: THE SENTINEL COUNT WAS **1** AND IS **6**
+GM-20's census matched only `return trueResult|falseResult` and therefore missed the commoner
+idiom, `result = falseResult; … return result`. Re-censused mechanically:
+
+| action | yields |
+|---|---|
+| `aCTionDEBUG` | `trueResult` |
+| `aCTionDO`, `aCTionFOR`, `aCTionWhilE` | `falseResult` (the `if !result` default) |
+| `aCTionTokenXP` | `falseResult` |
+| `aCTionIF` | `falseResult` — **twice**: MR's malformed-`if` refusal, and the no-arm-ran default |
+
+**Six, not one.** GM-20's other two columns (18 transform-and-return-self, 14 replacement-returns)
+stand; only the sentinel column was undercounted. **The lesson is the census's own: a regex that
+matches the direct form silently under-reports the assigned form**, and an undercount reads as a
+smaller problem rather than as a broken instrument.
+
+## (1) THE DECODE CENSUS — **CLEAN, and the protocol is implementable**
+| decode style | population | disposition |
+|---|---|---|
+| **pointer-null** | everything that matters — `parse():1104`, `fireLabelMethod`, `parseR` and **every emitted method's `&&` chain** | **survive unchanged.** `labelNO` is non-null, so a label-less success still reads truthy exactly as `trueResult` did |
+| **identity** | **exactly ONE**: `showTree` (`genParse.rtn:1366`), `if node == trueResult` | a **diagnostic** — and `tree.sh`'s own printer. One-line conversion, no behaviour change |
+| **content** | `genParse.rtn:707` `result.text eq "1"` | **not a parse return** — that is the **kant-handover** convention, a different channel. `GroupActions.rtn:180,557` read `.tag` to index real nodes, not to decode |
+
+**So LA″-0's protocol costs one diagnostic line to adopt on the decode side.** ⚠ It is **not** free on
+the declare side: `groups.ext` mirrors GroupRules' members (`trueResult`/`falseResult` are both in
+the `external GroupRules` block), so **`labelNO` is a layout change** — `groups.ext` sync **plus**
+`tokall`, bear-trap #10's full apparatus.
+
+## (2) THE ACTION WALK — **ONE QUESTION, FIVE SITES, AND IT IS THE DIRECTOR'S**
+Per LA″-2 no bulk conversion was made. Ruling each sentinel case:
+
+| case | ruling | why |
+|---|---|---|
+| `aCTionDEBUG → trueResult` | **`labelNO`** — clear | the debug rule succeeded and has nothing to yield. Textbook succeeded-yield-nothing |
+| `aCTionIF`, MR's malformed-`if` refusal | **`falseResult`, unchanged** — clear | under LA″-0 `falseResult` demotes to an ordinary boolean **value**, so this reads *"the construct is malformed, a diagnostic was printed, and it yields false"*. Returning NULL instead would fail the enclosing parse and cascade, which is precisely what MR chose not to do |
+| `aCTionIF` no-arm-ran · `aCTionDO`/`aCTionFOR`/`aCTionWhilE` zero-iteration · `aCTionTokenXP` | ⚠ **UNCLEAR — STOPPED** | **five sites, ONE question** |
+
+**THE QUESTION, and it is language semantics rather than plumbing: does a construct that executed
+NO statement yield `false`, or yield NOTHING?** The standing rule is *"an action's value is the value
+of the LAST EXECUTED STATEMENT"* — and these executed none. `falseResult` says the construct has a
+value and it is false; `labelNO` says it has no value at all. **Both are defensible and they are
+observably different to a parent.** Today all five say `false`. Listed, not chosen.
+
+## (3) ⚠ LA″-5 RIDER: THE `isLabel` MYSTERY IS **CLOSED**, AND THE ANSWER IS THE SENTINELS
+A `parseTrace`-gated dump around `fireLabelMethod`'s replacement site, printing `isLabel` on the way
+in and out. On `incant/parensMin`: **3 of 79 returns come back UNSTAMPED, and all three are
+`tag=true` — `trueResult` itself.**
+```
+    fireLabel OUT DEFINing  isLabel=0  tag=true    (x2)
+    fireLabel OUT StatemenT isLabel=0  tag=true    (x1)
+```
+`trueResult` is minted as `properties += new("true")` (`GroupControl.twk:152`) and **is never
+stamped `isLabel`** — nothing stamps it, because it is not a label.
+
+**So GM-19's falsified `lab.isLabel` guard was dropping SENTINEL-labels from the attach, and the
+magnitude is explained by WHERE they land rather than by how many there are:** `DEFINing` is the
+define command. Dropping its attach breaks every definition in the file, which is exactly the
+fleet-wide exit 2 that was measured. **Three attaches, structurally placed.**
+
+⚠ **AND IT RETIRES THE AMENDMENT'S "DARK MATTER" READING.** The refined census question was *"who
+returns a node they didn't receive"*, with home-minted nodes as the suspected unknown population.
+**Measured: the unstamped arrivals are sentinels, not home-minted nodes.** The fourteen
+replacement-returners mostly hand back real nodes that carry the stamp. **The dark matter was the
+sentinels all along, which is why the protocol ruling addresses exactly the right thing.**
+
+## DISPOSITION
+**LA″ stops at the action walk, per LA″-2's residue clause.** The extraction (LA″-3) is unchanged
+and ready: with `labelNO` in hand the attach skips NULL and `labelNO` and needs **no `isLabel`
+dependency and no forensics** — which the rider now shows was never a viable discriminator anyway.
+**The five-site question gates it.**
+
+No behaviour changed this pass. The gated rider probe is kept (default off, `parseTrace`); fleet
+verified byte-identical on both streams with it in — `pop.sh` 33 green / 1 parked, ladder 150,
+recordPop 48, formsPop 14, tree/printPop/containerPop exit 0. **Metric stays 0/78.**

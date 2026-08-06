@@ -582,8 +582,23 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 			}
 		else
 		if ( !parseACTION(groupBody->flags.methodType) )
-			if ( !(stuff->label = groupBody->gMethod(stuff->label)) )
+			{
+			/*  LA''-5 RIDER, 2026-08-06: the flag dump at a REPLACEMENT-RETURN
+			site. 14 of 33 rule actions return a node they were not handed,
+			so the question is whether the node coming BACK still carries
+			isLabel. clear() does not strip flags (director, 2026-08-07), so
+			a replacement is the only remaining way an unstamped node can
+			reach the label channel. Gated on the standing parseTrace.  */
+			if ( ruler->parseTrace )
+				::fprintf(stderr,"    fireLabel IN  %s isLabel=%s\n",groupBody->tag,::toStringFromInt(stuff->label->groupBody->flags.isLabel != 0));
+			stuff->label = groupBody->gMethod(stuff->label);
+			if ( ruler->parseTrace )
+				if ( stuff->label )
+					::fprintf(stderr,"    fireLabel OUT %s isLabel=%s tag=%s\n",groupBody->tag,::toStringFromInt(stuff->label->groupBody->flags.isLabel != 0),stuff->label->groupBody->tag);
+				else	::fprintf(stderr,"    fireLabel OUT %s NULL\n",groupBody->tag);
+			if ( !stuff->label )
 				stuff->sukcess = 0;
+			}
 }
 
 /***************************************************************************

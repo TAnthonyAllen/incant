@@ -1012,8 +1012,24 @@ GroupRules  ruler = groupRules;
             stuff.label.method    = method;
             stuff.label.deferred  = true;
             if !stuff.label.data  stuff.label.text = "g" tag; }
-        or !parseACTION
-            if !(stuff.label = method(stuff.label))   stuff.sukcess = false;
+        or !parseACTION {
+            /*  LA''-5 RIDER, 2026-08-06: the flag dump at a REPLACEMENT-RETURN
+                site. 14 of 33 rule actions return a node they were not handed,
+                so the question is whether the node coming BACK still carries
+                isLabel. clear() does not strip flags (director, 2026-08-07), so
+                a replacement is the only remaining way an unstamped node can
+                reach the label channel. Gated on the standing parseTrace.  */
+            if parseTrace
+                cerr "    fireLabel IN  " tag
+                     " isLabel=" toStringFromInt(stuff.label.isLabel != 0):;
+            stuff.label = method(stuff.label);
+            if parseTrace
+                if stuff.label
+                    cerr "    fireLabel OUT " tag
+                         " isLabel=" toStringFromInt(stuff.label.isLabel != 0)
+                         " tag=" stuff.label.tag:;
+                else cerr "    fireLabel OUT " tag " NULL":;
+            if !stuff.label   stuff.sukcess = false; }
 }
 
 GroupItem parse(RuleStuff pStuff)
