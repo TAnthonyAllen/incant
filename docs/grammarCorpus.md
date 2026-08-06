@@ -513,3 +513,77 @@ a prerequisite for either shape above. `Parens` is **NOT installed**; `incant/gr
 and `parseParens` is not in the tree. **Metric stays 0/78.** The probe is kept, gated on the existing
 `parseTrace` and therefore silent by default. **GX-3's audit door was NOT built** — the install it
 was to unblock did not happen, so it would have been a door onto a room nobody can enter yet.
+
+## GM-19 — LA: THE ATTACH EXTRACTION WORKS AND **THE ALTERNATION RESISTS IT**. STOPPED AND REPORTED.
+**asOf 2026-08-06 · confidence: MEASURED, isolated, candidate fix falsified · provenance:
+`RuleStuff.twk:689` (parseR), `:603` (leaveRule), `:625` (leaveAlt), `GroupItem.mm:1086-94`
+(the three-case attach), `genLadder/tree.sh`**
+
+**THE PRE-FIRE MEASUREMENT ANSWERED CLEANLY, AND IT WAS THE RIGHT ONE TO TAKE FIRST.** LA's
+premise is that `parse()` can own the attach for both arms, which requires that nested rule
+references come through `parse()` at all. **They do.** `parseR` builds a bridge RuleStuff, sets
+`bridge.label = into`, and calls `term.parse(bridge)` — so a reference term reaches `parse()` with
+`into` arriving as `pStuff`'s label. `parseR`'s own header states the intent outright: *"ONE
+mechanism serves both halves of mixed mode."* **The design already said one mechanism; the code had
+two.** (A designer-side prediction that nested references reach `parse()` was offered at the usual
+odds beforehand and is **confirmed** — one for the structural column.)
+
+**WHAT WAS BUILT.** `GroupItem::attachLabel(stuff, pStuff)`, the three-case attach extracted
+verbatim from `parse()`'s match loop, called by **both** arms — the interpretive one where the
+block used to sit, the generated one after `fireLabelMethod`. `leaveRule`'s `if into  into +% label`
+removed rather than left beside it. Emitter untouched.
+
+**✅ THE PRIMARY ORACLE WENT GREEN.** `incant/parensMin` with `Parens` installed printed
+`INSIDE pmTake, argument is 7` — the argument arrives, from inside the action — and the probe read
+`fireLabelMethod InvokeArg … label=1`, **matching the uninstalled arm exactly, 4/4 both ways.**
+
+**✅ AND THE INSTALL GATE IS CLEAN, WHICH GM-17 COULD NOT STATE.** `AUDIT all registries: 4 missing
+rules, 12 missing terms, 4 loose, **0 unconsumed**` — byte-identical to the uninstalled arm.
+⚠ **GX-3's audit door needed no building: `audit()` dispatches again as a CONSEQUENCE of the action
+firing.** The room became enterable by fixing the door, so the separate non-parenthesised entry is
+not owed.
+
+## ⚠ AND THEN `tree.sh` WENT RED — THE ALTERNATION RESISTS THE SHARED SHAPE
+```
+    generated, before LA:   ScafOUT / ScafA        (the winning option, S2.4)
+    generated, after LA:    ScafOUT / true
+    interpretive, both:     ScafOUT / ScafALT      (unchanged)
+```
+**MECHANISM.** S2.4 rules an alternation **label-transparent**: it builds no label of its own and
+its winning option attaches itself. So `leaveAlt` returns **`trueResult`, not a label**, and on the
+generated path `stuff.label` is therefore **sometimes not a label at all**. An unconditional shared
+attach puts `true` into the parse tree where the option belongs. **Right language, wrong tree —
+the same hazard GM-18 named, arriving from the other side.**
+
+**ISOLATED TO LA, NOT TO THE INSTALL:** `tree.sh` is red with `Parens` **not** installed, since it
+exercises the Scaf rules. One measurement, no inference.
+
+⚠ **THE OBVIOUS CANDIDATE IS FALSIFIED, AND CHEAPLY — WHICH IS WHY IT WAS TRIED BEFORE BEING
+PROPOSED.** Guarding on `lab.isLabel` — *"is this actually a label"*, a predicate rather than a
+sentinel test, and `RuleStuff.twk:185` stamps `isLabel` when it mints one — **breaks everything**:
+exit **2** on all five named fixtures, every harness red, `parensMin` losing its argument line. So
+**interpretive labels do NOT reliably carry `isLabel`**, and the discriminator has to be something
+else. Recorded so nobody spends the build on it twice.
+
+**DISPOSITION: STOPPED AND REVERTED, per LA-3's tension clause.** `GroupItem.twk`, `RuleStuff.twk`
+and `incant/grammar` restored; `parseParens` removed rather than left as dead code. **Restoration
+verified byte-identical on both streams** for `oneTest`/`jsonTest`/`kant8T`/`phaseA`/`emitAll`, with
+`pop.sh` 33 green / 1 parked, ladder 150, recordPop 48, formsPop 14, tree/printPop/containerPop
+exit 0. **Metric stays 0/78.**
+
+**WHAT THE RULING NEEDS TO DECIDE**, and all three are above this seat:
+1. **How a generated method says "I attached nothing of my own".** `trueResult` currently carries
+   that meaning *and* "success" — one channel, two meanings, the family this tree keeps paying for.
+2. **Whether `leaveAlt` should return the winning option's label** instead. That is the shape that
+   removes the ambiguity at its source, and it **changes the emitter contract**, which LA-2 fenced
+   out.
+3. **Whether the alternation is simply exempt** from the shared attach, which keeps LA's extraction
+   for the SEQ case and accepts one deliberate asymmetry — cheapest, and honest if it is written
+   down rather than discovered later.
+
+**ONE MORE FINDING, BANKED NOT CHASED.** Installing `Parens` adds exactly one audit line —
+`AUDIT TERM Parens [3] ) -- rule TERM, not isRule, has rStuff` — so `oneTest`'s stderr baseline
+moves by one row. Cause **not established**. Leading hypothesis, graded as hypothesis: one of the
+two definition attributes resolves its `parent` to the final **term** rather than to the rule, and
+`getRStuff()` then mints rStuff there. **Not re-pinned** — a moved target is a claim that the world
+changed, and this one has no cause yet.
