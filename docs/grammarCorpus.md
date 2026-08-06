@@ -587,3 +587,78 @@ moves by one row. Cause **not established**. Leading hypothesis, graded as hypot
 two definition attributes resolves its `parent` to the final **term** rather than to the rule, and
 `getRStuff()` then mints rStuff there. **Not re-pinned** — a moved target is a claim that the world
 changed, and this one has no cause yet.
+
+## GM-20 — LA′ CENSUSES: **BOTH SAY STOP**, AND THE SECOND ONE IS A FOLKWAY AT 14/33
+**asOf 2026-08-07 · confidence: MEASURED (source census, mechanical) · provenance:
+`ruleActions.rtn` (33 rule actions), `GroupItem.twk:1104` and `:1164`, `:630-638` (`getStuff`),
+`genParse.rtn:1292,1328,1339,1557` · no code was changed by this pass**
+
+LA′-1 ordered two censuses before the extraction re-lands. **Neither clears it.**
+
+## (a) READERS OF LABEL-AS-SUCCESS — **the reader cannot move, and it is the emitter contract**
+
+The label channel is not merely *used* for success; **`parse()` MANUFACTURES the success meaning
+into it**, and generated code consumes it that way everywhere:
+
+| site | what it does |
+|---|---|
+| `GroupItem.twk:1164` | `if sukcess && !label  label = trueResult;` — **the producer.** A label-less success is handed back as a sentinel so the caller sees non-null |
+| `GroupItem.twk:1104` | `sukcess = label != 0;` — the generated arm derives success **from** the label |
+| `genParse.rtn:1292,1328,1339,1557` (and every emitted method) | `lit(t1,"(") && parseR(t2,label) && lit(t3,")")` — **`parseR` returns a GroupItem and generated code consumes it as a boolean** |
+
+⚠ **AND THERE IS NO SECOND CHANNEL AVAILABLE TO A GENERATED METHOD.** `getStuff`
+(`GroupItem.twk:630-638`) returns a **fresh clone** when the stuff is `inProcess`, and `parse()`
+sets `inProcess` before the fork — so on any reentrant parse `rule.rStuff` is **not** the frame
+`parse()` is using. `leaveRule`/`leaveAlt` receive only `rule`, so they cannot write the current
+frame's `sukcess`. **A generated method's ONLY output is its return value**, and its signature is
+`GroupItem(GroupItem)`, which LA-2/LA′-3 fence as byte-identical to banking.
+
+**So "sukcess carries success, the label channel carries a label or null" cannot be implemented on
+the generated path without a new back-channel.** That is a stop-and-report, not a coding decision.
+
+**⚠ THE PRECEDENT THAT WOULD WORK, named because the ruling will want it.** This exact problem is
+already solved once, in the other direction: `parentLabel` travels **on the rule's OWN `rStuff`**
+precisely *"because ruleStuff may be a reentrancy clone the callee cannot reach"*
+(`GroupItem.twk:1020`). A success flag returning by the same road is the symmetric move. It is a
+**design choice** and probably a **RuleStuff field**, which is a layout change and drags bear-trap
+#10's apparatus (`groups.ext` sync + `tokall`).
+
+## (b) THE WOODSHED — **14 of 33. That is a FOLKWAY, so per LA′-1(b): count reported, stopped.**
+
+Mechanical census of every `extern GroupItem aCTion*` in `ruleActions.rtn`, classified by what it
+returns relative to what it was handed:
+
+| class | count | members |
+|---|---|---|
+| **transform and return SELF** (or null) — correct by the ruling | **18** | ANYtoken · Braced · DEBUG · DefinE · Failed · NamE · NewGroup · NumbeR · Parens · QuotE · RunRulE · Search · SetBrackets · ShortcuT · TokenXP · TraiT · TraiTdata · Xpress |
+| **returns an explicit SENTINEL** | **1** | `aCTionIF → falseResult` |
+| **returns A NODE IT DID NOT RECEIVE** | **14** | BlocK · BrancH · CodE · DO · ExpressioN · FOR · IF · Iterate · PrinT · CerR · CouT · StatemenT · StringXP · WhilE |
+
+**Sentinels were the expected offenders and are ONE. The replacement-returns are fourteen** — the
+amendment's "possible dark matter" is the actual population, by an order of magnitude.
+
+⚠ **AND THE CENSUS EXPLAINS WHY, WHICH IS THE PART WORTH KEEPING: THE LABEL CHANNEL CARRIES
+**THREE** THINGS, NOT TWO.** Look at what the fourteen return —
+`aCTionExpressioN → interpretXP(xpList)`, `aCTionIF → result`, `aCTionPrinT → opPrint(...)`,
+`aCTionStatemenT → method(statement)`. **These are VALUES.** An action's return is the
+statement's computed value, and `fireLabelMethod` writes it straight into `stuff.label`
+(`stuff.label = method(stuff.label)`). So the channel carries **a label (tree structure), a success
+signal (via the `trueResult` substitution), and a value (the statement's result)** — and the third
+is not an abuse, it is how the language's statement values work.
+
+**That is why the woodshed is a folkway rather than a bug list.** Fourteen actions are not
+misbehaving; they are doing the only thing available. Sending them to the woodshed would be sending
+the language there.
+
+## DISPOSITION
+**LA′ STOPS AT THE CENSUSES, as LA′-1 instructs.** No code changed; the tree is exactly as GM-19
+left it — fleet byte-identical, `pop.sh` 33 green / 1 parked, ladder 150, recordPop 48, formsPop 14,
+tree/printPop/containerPop exit 0. **Metric stays 0/78.**
+
+**LA′-1(c) is CLOSED BY THE DIRECTOR, NOT BY MEASUREMENT** (2026-08-07): `clear()` does not clear
+flags, so `isLabel` survives `aCTionParens`'s `input.clear()`. **The `isLabel` falsification's cause
+therefore remains OPEN.** The census's leading candidate now has a name and a size: with 14
+replacement-returns in play, a label handed to an action is routinely swapped for a node **minted
+elsewhere and never stamped** — which is exactly an unstamped thing arriving in the label channel.
+**Consistent, and not yet confirmed;** confirming it needs one flag dump at a replacement site, and
+that was not taken this pass.
