@@ -377,6 +377,51 @@ displays that bitmap. No drawing, text handling, path work, font or colour
 handling in Apple-side code. Motivation is **control, not portability** — but
 nothing is to be done that makes portability harder later.
 
+### 10.0 Display — the shape (ruled 2026-08-06)
+
+*Newest statement of what Display **is**; read before §10.1–10.8, which predate it.
+Numbered 10.0 rather than 10.9 so it reads first without renumbering the existing
+subsections, which are cited by number elsewhere.*
+
+Display (ruled 2026-08-06). Display is four things: a bitmap context, one current-style
+slot, a pen, and a measure method.
+
+The window attribute in a form instantiates a Display from the frame — define-then-show,
+the markWindow/isWindow precedent. Font and color are components of a style; Stylish is
+the carrier. A style attribute in the forms walk sets Display's current-style slot; draw
+methods read components through the current style, never as loose state; any translation
+into context state happens once, at setStyle time. The displayForm walk paints parents
+before children, so containment order is z-order. Attribute methods are the only writers
+to the bitmap; forms never touch the context directly.
+
+Napkin text wraps. The pen is x,y inside the parent frame: measure the next word; if it
+fits before the right edge, draw and advance; otherwise drop a line; stop at the frame's
+bottom. No per-line frames — frames are layout-time artifacts, and minting them during the
+display walk means the walk writes to the tree it is walking.
+
+Word measurement is one method on Display, single site. The napkin answers "does this word
+fit" with the current font's crude advance. The typeset option — a pre-pass that runs
+before display, uses real metrics, and produces structure (line frames, page frames) which
+the ordinary walk then paints — swaps real metrics in at that same site. Typeset is HPDL,
+parked with its seam named. A page of printout is a Display whose frame has page
+dimensions; how pages leave the building is a blit question, not a drawing one.
+
+> ⚠ **FLAG RAISED AT INSERT TIME (Clod, 2026-08-06) — NOT PART OF THE RULING, and it wants
+> a sentence from the director or designer.** The last paragraph puts **word measurement on
+> Display**; **§10.2 below rules that metrics do NOT belong on Display** and puts `widthOf` /
+> `breakAt` on **Font**, on the argument that *"if `widthOf(text)` is a Display method you
+> need a Display to compute the size of the Display."*
+>
+> The two are **reconcilable and possibly already agree** — if Display's measure method is a
+> **facade** (`Display.measure(word)` → current style's font → `Font.widthOf`), then Font
+> still owns metrics, layout can still measure with no Display in existence, and §10.0's
+> "single site" is about **where the draw walk asks**, not about where metrics live. That
+> reading costs nothing and preserves both.
+>
+> They **conflict** only if the measure method is meant to *own* the metric. **Not settled
+> here** — recorded so a resurrection-reader meets the tension instead of picking whichever
+> section they read first.
+
 ### 10.1 What this supersedes
 
 **§6(b)'s text model.** That section has text and cells drawing themselves as

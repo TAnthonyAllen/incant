@@ -1,0 +1,16 @@
+/*  recordPT2 -- PJ-4 leg 2, and it exists for bear-trap #22's coverage rule:
+    A FIXTURE FOR A STATEMENT-LEVEL FEATURE MUST REACH THE SAME STATEMENT TWICE.
+    genParse runs on the SAME rule twice, so the `else pe->setText(...)` branch
+    (the update-in-place arm, unreached on a first pass) is exercised. If that
+    arm ever appended instead of replacing, the record would come back double
+    the emission and a one-pass fixture could not see it.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+registry(cOMMANDs);
+define genParse immediateAction=genParse; ;
+genParse('Braced');
+genParse('Braced');
+print "RECORDPT2 SENTINEL":;
+stop();

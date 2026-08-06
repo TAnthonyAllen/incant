@@ -1,0 +1,15 @@
+/*  recordPT -- PJ-4 leg 1. One genParse pass, so the ParsE record can be
+    diffed against the emission of the same run. The record is written by
+    genParse (genParse.rtn) into the rule's noPrint `ParsE` attribute and is
+    dumped by INCANT_PARSE_RECORD=<path>; with the variable unset this file
+    behaves exactly as it did before the record existed, which recordPop.sh
+    asserts as its own check.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+registry(cOMMANDs);
+define genParse immediateAction=genParse; ;
+genParse('Braced');
+print "RECORDPT SENTINEL":;
+stop();

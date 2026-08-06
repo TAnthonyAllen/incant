@@ -2355,14 +2355,51 @@ extern int jitRunAction(GroupItem action)
     // after it there is nothing left to print. Post-mem2reg on purpose: the
     // record should be what RUNS, not what the emitter first wrote (=2 is the
     // dump for the emitter's own output, and it is a different question).
-    // Read by jitFieldMethod, which hangs it on the field's `JiT` attribute
-    // beside CodE and BlocK.
+    // THE `JiT` RECORD IS HUNG HERE, and here is the ONLY place it is hung.
+    //
+    // PJ-2, one path two effects: jitRunAction is the ONLY function in the tree
+    // that compiles, so making the record a second effect of THIS function means
+    // every compile records, by construction, whoever drove it. It used to be
+    // hung by jitFieldMethod instead -- which compiles by CALLING this function,
+    // so the record existed only on the fallback-column route and every rung
+    // that reaches jitRunAction directly (testing(), the whole jit ladder) left
+    // no record at all. Two callers, one of which recorded, is exactly the
+    // writer/installer split PJ-2 forbids: the record could lie by omission.
+    //
+    // strdup'd, not aliased: gJitLastIR is overwritten by the next compile of
+    // ANY action, so handing the node a pointer into it would make every
+    // action's record silently become the last one compiled.
     {
         std::string             irText;
         llvm::raw_string_ostream irOut(irText);
         mod->print(irOut, nullptr);
         irOut.flush();
         gJitLastIR = irText;
+
+        if (action) {
+            GroupItem *jt = action->get("JiT");
+            if (!jt) {
+                jt = new GroupItem("JiT");
+                jt->groupBody->flags.noPrint = 1;
+                jt->setText(::strdup(gJitLastIR.c_str()));
+                action->addAttribute(jt); }
+            else    jt->setText(::strdup(gJitLastIR.c_str()));
+
+            /*  THE POP HOOK, twin of genParse's INCANT_PARSE_RECORD and
+                env-gated for the same measured reason: an unconditional marker
+                on stderr is what broke three POP targets on 2026-08-02. Unset,
+                this writes nothing and no baseline can move.
+
+                Reads jt->getText(), NOT gJitLastIR -- the point is to prove
+                what LANDED ON THE NODE. Dumping the global would pass even if
+                addAttribute had silently done nothing, which is the whole
+                failure this hook exists to detect.  */
+            if (char *jp = ::getenv("INCANT_JIT_RECORD")) {
+                if (FILE *f = ::fopen(jp,"w")) {
+                    char *got = jt->getText();
+                    if (got)    ::fwrite(got,1,::strlen(got),f);
+                    ::fclose(f); }
+                else ::fprintf(stderr,"jitRunAction: JiT record could not open %s\n",jp); } }
     }
     //  ONE COMPILE HAPPENED. Counted here rather than at entry so a run that
     //  refuses (-1..-5) does not inflate the count -- the POP asserts exactly
@@ -2557,16 +2594,13 @@ extern GroupItem jitFieldMethod(GroupItem field)
             (void*)definer->rStuff,
             definer->rStuff ? (void*)definer->rStuff->jitMethod : (void*)0);
 
-    /*  THE RECORD. strdup'd, not aliased: gJitLastIR is overwritten by the next
-        compile of ANY field, so handing the node a pointer into it would make
-        every field's record silently become the last one compiled. */
-    GroupItem *jt = definer->get("JiT");
-    if (!jt) {
-        jt = new GroupItem("JiT");
-        jt->groupBody->flags.noPrint = 1;
-        jt->setText(::strdup(gJitLastIR.c_str()));
-        definer->addAttribute(jt); }
-    else    jt->setText(::strdup(gJitLastIR.c_str()));
+    /*  THE RECORD IS NOT WRITTEN HERE ANY MORE -- jitRunAction hangs `JiT` at
+        the capture site, and the call above (`jitRunAction(definer)`) has
+        already done it against this exact node. Writing it again here would be
+        the second of two paths to one record, which is the thing PJ-2 forbids;
+        the record's home is the compiler, not this caller. The byte count below
+        still reads gJitLastIR, which is a READ of the same fact, not a second
+        write of it. */
 
     printf("=== jitFieldMethod: %s COMPILED, result = %d, slot set, JiT %zu bytes ===\n",
            name, r, gJitLastIR.size());

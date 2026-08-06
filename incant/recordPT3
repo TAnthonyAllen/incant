@@ -1,0 +1,12 @@
+/*  recordPT3 -- PJ-4 leg 3, the per-rule control. A DIFFERENT rule, so the
+    record cannot be passing by being a stale global that happens to be
+    populated. Pairs with recordPT: same shape, different bytes required.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+registry(cOMMANDs);
+define genParse immediateAction=genParse; ;
+genParse('Parens');
+print "RECORDPT3 SENTINEL":;
+stop();

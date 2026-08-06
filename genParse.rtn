@@ -985,10 +985,113 @@ extern GroupItem genParse(GroupItem argument)
 {
 GroupItem   rule = ruleOrRefuse(argument.text,"genParse");
 GroupItem   plan;
+GroupItem   result;
     if !rule    return null;
     plan = planRule(rule);
     if !plan    return null;
-    return emitPlan(plan);
+    -%
+    /*  THE `ParsE` RECORD -- PJ-1, sited here rather than at the installer.
+        ============================================================
+        THE BRIEF SAID "the site that installs rStuff.parseMethod". THAT SITE
+        CANNOT DO IT, and the reason is worth keeping: parseRuleMethod (below)
+        receives a METHOD NAME to dlsym-bind. The generated source text is not
+        in its scope and is not even in its PROCESS -- genParse emits text in
+        one run, a human pastes it into this file, it compiles into the binary,
+        and a LATER run's `parseMethod=parseScaf` definition attribute binds the
+        symbol. Two processes, days apart. So "one path, two effects" cannot
+        join emitter and installer; they are not one path and cannot be made
+        one.
+
+        PJ-2 IS HONOURED MORE STRICTLY HERE, NOT LESS: the record is written by
+        the emitter, which is the only thing that has the text, and
+        parseRuleMethod stays the single source of truth for the BINDING and
+        writes nothing at all. One writer per fact.
+
+        WHY THE CAPTURE IS AT THE SINK AND NOT AT emitPlan's FOURTEEN `cerr`
+        SITES. PJ-4 wants rule.ParsE byte-identical to the emitted text. Teeing
+        at fourteen call sites is a DISCIPLINE -- every future cerr added to the
+        emitter has to remember to tee, and the day one forgets, the record is
+        silently short and still diffs clean against a target regenerated from
+        it. Swapping the sink for the duration makes the record and the emission
+        THE SAME BYTES BY CONSTRUCTION: there is no second stream to keep in
+        step. That is CLAUDE.md's "prefer a structure that makes the failure
+        unconstructable over a discipline that avoids it".
+
+        ⚠ THE CAPTURE IS AT THE `FILE *` LEVEL, AND THAT IS NOT A STYLE CHOICE.
+        tok's `cerr` KEYWORD GENERATES `::fprintf(stderr,...)`, NOT `std::cerr`
+        -- read the generated emitPlan in GroupRules.mm if you doubt it. A
+        std::cerr.rdbuf() swap therefore captures NOTHING, silently: emission is
+        perfect, the record is zero bytes, and the run exits 0. Measured
+        2026-08-06 by writing exactly that bug. It is bear-trap #19's corollary
+        in miniature -- the sink was reasoned about rather than grepped, and one
+        grep of the codegen would have settled it in ten seconds. It is also the
+        three-languages-share-the-tree hazard: `cerr` is a tok keyword and does
+        not mean what the same word means in C++.
+
+        REDIRECT-THEN-REPLAY, not a tee, so no custom stream machinery is
+        needed. `stderr` on macOS is `__stderrp`, a modifiable FILE* lvalue, and
+        `fprintf(stderr,...)` reads it per call -- so pointing it at a
+        memstream for the duration catches every byte every callee writes,
+        including ones added to the emitter years from now that nobody
+        remembered to tee. The operator still sees every byte; it arrives after
+        emitPlan returns instead of during. Rule-level interleaving is preserved
+        because emitAll's `@@@ <rule>` / `DONE <rule>` markers come from the
+        FIXTURE, around this call, not from inside it. planRule's refusals are
+        deliberately OUTSIDE the swap and stay live and unbuffered.
+
+        ONE STRAIGHT LINE, NO EARLY RETURN, between the swap and the restore --
+        if that ever stops being true, stderr stays redirected and the operator
+        loses the emitter's output with no symptom but silence. The `if (ms)`
+        guard exists so a failed open_memstream degrades to "no record, normal
+        output" rather than to a swallowed emitter.  */
+    char   *recBuf  = 0;
+    size_t  recSize = 0;
+    FILE   *ms      = ::open_memstream(&recBuf,&recSize);
+    FILE   *wasErr  = stderr;
+    if (ms) stderr  = ms;
+    result = ::emitPlan(plan);
+    if (ms) {
+        stderr = wasErr;
+        ::fclose(ms);
+        if (recBuf) {
+            ::fwrite(recBuf,1,recSize,stderr);
+            ::fflush(stderr); } }
+    /*  strdup'd for the same reason jitRunAction strdups its IR: recBuf is
+        malloc'd by open_memstream and is freed below.  */
+    GroupItem  *pe = rule->get("ParsE");
+    if (!pe) {
+        pe = new GroupItem("ParsE");
+        pe->groupBody->flags.noPrint = 1;
+        pe->setText(::strdup(recBuf ? recBuf : ""));
+        rule->addAttribute(pe); }
+    else    pe->setText(::strdup(recBuf ? recBuf : ""));
+    if (recBuf) ::free(recBuf);
+
+    /*  THE POP HOOK, and it is env-gated for a measured reason, not caution.
+        A marker printed unconditionally to stderr is what broke three POP
+        targets on 2026-08-02 -- `printFamily.target` diffed `0a1,288`, lines
+        PREPENDED, zero content divergence, caused by an instrument. So the
+        record's own POP must be unable to move a baseline: unset, this writes
+        nothing anywhere and the byte streams are identical to the run above.
+
+        A PATH RATHER THAN A COUNT, because a count is the weak oracle. Reading
+        the text back out lets the POP diff the RECORD against the EMISSION
+        byte for byte, on two independent channels, which is the only form that
+        can catch a record that is present, plausible and truncated. Same
+        env-var-not-a-flag reasoning as INCANT_JIT_DUMP / INCANT_SLOT_PROBE: no
+        GroupBody bit, so no bitfield shift and no bear-trap #10 apparatus.
+
+        Reads pe->getText(), NOT `capture` -- the point is to prove what LANDED
+        ON THE NODE, and dumping the local would pass even if addAttribute had
+        silently done nothing.  */
+    if (char *rp = ::getenv("INCANT_PARSE_RECORD")) {
+        if (FILE *f = ::fopen(rp,"w")) {
+            char *got = pe->getText();
+            if (got)    ::fwrite(got,1,::strlen(got),f);
+            ::fclose(f); }
+        else    ::fprintf(stderr,"genParse: ParsE record could not open %s\n",rp); }
+    %-
+    return result;
 }
 
 /*******************************************************************************

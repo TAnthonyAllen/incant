@@ -2940,12 +2940,115 @@ extern "C" GroupItem *genParse(GroupItem *argument)
 {
 GroupItem 	*rule = ::ruleOrRefuse(argument->getText(),"genParse");
 GroupItem 	*plan = 0;
+GroupItem 	*result = 0;
 	if ( !rule )
 		return 0;
 	plan = ::planRule(rule);
 	if ( !plan )
 		return 0;
-	return ::emitPlan(plan);
+	
+	/*  THE `ParsE` RECORD -- PJ-1, sited here rather than at the installer.
+	============================================================
+	THE BRIEF SAID "the site that installs rStuff.parseMethod". THAT SITE
+	CANNOT DO IT, and the reason is worth keeping: parseRuleMethod (below)
+	receives a METHOD NAME to dlsym-bind. The generated source text is not
+	in its scope and is not even in its PROCESS -- genParse emits text in
+	one run, a human pastes it into this file, it compiles into the binary,
+	and a LATER run's `parseMethod=parseScaf` definition attribute binds the
+	symbol. Two processes, days apart. So "one path, two effects" cannot
+	join emitter and installer; they are not one path and cannot be made
+	one.
+	
+	PJ-2 IS HONOURED MORE STRICTLY HERE, NOT LESS: the record is written by
+	the emitter, which is the only thing that has the text, and
+	parseRuleMethod stays the single source of truth for the BINDING and
+	writes nothing at all. One writer per fact.
+	
+	WHY THE CAPTURE IS AT THE SINK AND NOT AT emitPlan's FOURTEEN `cerr`
+	SITES. PJ-4 wants rule.ParsE byte-identical to the emitted text. Teeing
+	at fourteen call sites is a DISCIPLINE -- every future cerr added to the
+	emitter has to remember to tee, and the day one forgets, the record is
+	silently short and still diffs clean against a target regenerated from
+	it. Swapping the sink for the duration makes the record and the emission
+	THE SAME BYTES BY CONSTRUCTION: there is no second stream to keep in
+	step. That is CLAUDE.md's "prefer a structure that makes the failure
+	unconstructable over a discipline that avoids it".
+	
+	⚠ THE CAPTURE IS AT THE `FILE *` LEVEL, AND THAT IS NOT A STYLE CHOICE.
+	tok's `cerr` KEYWORD GENERATES `::fprintf(stderr,...)`, NOT `std::cerr`
+	-- read the generated emitPlan in GroupRules.mm if you doubt it. A
+	std::cerr.rdbuf() swap therefore captures NOTHING, silently: emission is
+	perfect, the record is zero bytes, and the run exits 0. Measured
+	2026-08-06 by writing exactly that bug. It is bear-trap #19's corollary
+	in miniature -- the sink was reasoned about rather than grepped, and one
+	grep of the codegen would have settled it in ten seconds. It is also the
+	three-languages-share-the-tree hazard: `cerr` is a tok keyword and does
+	not mean what the same word means in C++.
+	
+	REDIRECT-THEN-REPLAY, not a tee, so no custom stream machinery is
+	needed. `stderr` on macOS is `__stderrp`, a modifiable FILE* lvalue, and
+	`fprintf(stderr,...)` reads it per call -- so pointing it at a
+	memstream for the duration catches every byte every callee writes,
+	including ones added to the emitter years from now that nobody
+	remembered to tee. The operator still sees every byte; it arrives after
+	emitPlan returns instead of during. Rule-level interleaving is preserved
+	because emitAll's `@@@ <rule>` / `DONE <rule>` markers come from the
+	FIXTURE, around this call, not from inside it. planRule's refusals are
+	deliberately OUTSIDE the swap and stay live and unbuffered.
+	
+	ONE STRAIGHT LINE, NO EARLY RETURN, between the swap and the restore --
+	if that ever stops being true, stderr stays redirected and the operator
+	loses the emitter's output with no symptom but silence. The `if (ms)`
+	guard exists so a failed open_memstream degrades to "no record, normal
+	output" rather than to a swallowed emitter.  */
+	char   *recBuf  = 0;
+	size_t  recSize = 0;
+	FILE   *ms      = ::open_memstream(&recBuf,&recSize);
+	FILE   *wasErr  = stderr;
+	if (ms) stderr  = ms;
+	result = ::emitPlan(plan);
+	if (ms) {
+	stderr = wasErr;
+	::fclose(ms);
+	if (recBuf) {
+	::fwrite(recBuf,1,recSize,stderr);
+	::fflush(stderr); } }
+	/*  strdup'd for the same reason jitRunAction strdups its IR: recBuf is
+	malloc'd by open_memstream and is freed below.  */
+	GroupItem  *pe = rule->get("ParsE");
+	if (!pe) {
+	pe = new GroupItem("ParsE");
+	pe->groupBody->flags.noPrint = 1;
+	pe->setText(::strdup(recBuf ? recBuf : ""));
+	rule->addAttribute(pe); }
+	else    pe->setText(::strdup(recBuf ? recBuf : ""));
+	if (recBuf) ::free(recBuf);
+	
+	/*  THE POP HOOK, and it is env-gated for a measured reason, not caution.
+	A marker printed unconditionally to stderr is what broke three POP
+	targets on 2026-08-02 -- `printFamily.target` diffed `0a1,288`, lines
+	PREPENDED, zero content divergence, caused by an instrument. So the
+	record's own POP must be unable to move a baseline: unset, this writes
+	nothing anywhere and the byte streams are identical to the run above.
+	
+	A PATH RATHER THAN A COUNT, because a count is the weak oracle. Reading
+	the text back out lets the POP diff the RECORD against the EMISSION
+	byte for byte, on two independent channels, which is the only form that
+	can catch a record that is present, plausible and truncated. Same
+	env-var-not-a-flag reasoning as INCANT_JIT_DUMP / INCANT_SLOT_PROBE: no
+	GroupBody bit, so no bitfield shift and no bear-trap #10 apparatus.
+	
+	Reads pe->getText(), NOT `capture` -- the point is to prove what LANDED
+	ON THE NODE, and dumping the local would pass even if addAttribute had
+	silently done nothing.  */
+	if (char *rp = ::getenv("INCANT_PARSE_RECORD")) {
+	if (FILE *f = ::fopen(rp,"w")) {
+	char *got = pe->getText();
+	if (got)    ::fwrite(got,1,::strlen(got),f);
+	::fclose(f); }
+	else    ::fprintf(stderr,"genParse: ParsE record could not open %s\n",rp); }
+	
+	return result;
 }
 
 /***************************************************************************
@@ -5133,16 +5236,13 @@ extern "C" GroupItem *jitFieldMethod(GroupItem *field)
 	(void*)definer->rStuff,
 	definer->rStuff ? (void*)definer->rStuff->jitMethod : (void*)0);
 	
-	/*  THE RECORD. strdup'd, not aliased: gJitLastIR is overwritten by the next
-	compile of ANY field, so handing the node a pointer into it would make
-	every field's record silently become the last one compiled. */
-	GroupItem *jt = definer->get("JiT");
-	if (!jt) {
-	jt = new GroupItem("JiT");
-	jt->groupBody->flags.noPrint = 1;
-	jt->setText(::strdup(gJitLastIR.c_str()));
-	definer->addAttribute(jt); }
-	else    jt->setText(::strdup(gJitLastIR.c_str()));
+	/*  THE RECORD IS NOT WRITTEN HERE ANY MORE -- jitRunAction hangs `JiT` at
+	the capture site, and the call above (`jitRunAction(definer)`) has
+	already done it against this exact node. Writing it again here would be
+	the second of two paths to one record, which is the thing PJ-2 forbids;
+	the record's home is the compiler, not this caller. The byte count below
+	still reads gJitLastIR, which is a READ of the same fact, not a second
+	write of it. */
 	
 	printf("=== jitFieldMethod: %s COMPILED, result = %d, slot set, JiT %zu bytes ===\n",
 	name, r, gJitLastIR.size());
@@ -5868,14 +5968,51 @@ extern "C" int jitRunAction(GroupItem *action)
 	// after it there is nothing left to print. Post-mem2reg on purpose: the
 	// record should be what RUNS, not what the emitter first wrote (=2 is the
 	// dump for the emitter's own output, and it is a different question).
-	// Read by jitFieldMethod, which hangs it on the field's `JiT` attribute
-	// beside CodE and BlocK.
+	// THE `JiT` RECORD IS HUNG HERE, and here is the ONLY place it is hung.
+	//
+	// PJ-2, one path two effects: jitRunAction is the ONLY function in the tree
+	// that compiles, so making the record a second effect of THIS function means
+	// every compile records, by construction, whoever drove it. It used to be
+	// hung by jitFieldMethod instead -- which compiles by CALLING this function,
+	// so the record existed only on the fallback-column route and every rung
+	// that reaches jitRunAction directly (testing(), the whole jit ladder) left
+	// no record at all. Two callers, one of which recorded, is exactly the
+	// writer/installer split PJ-2 forbids: the record could lie by omission.
+	//
+	// strdup'd, not aliased: gJitLastIR is overwritten by the next compile of
+	// ANY action, so handing the node a pointer into it would make every
+	// action's record silently become the last one compiled.
 	{
 	std::string             irText;
 	llvm::raw_string_ostream irOut(irText);
 	mod->print(irOut, nullptr);
 	irOut.flush();
 	gJitLastIR = irText;
+	
+	if (action) {
+	GroupItem *jt = action->get("JiT");
+	if (!jt) {
+	jt = new GroupItem("JiT");
+	jt->groupBody->flags.noPrint = 1;
+	jt->setText(::strdup(gJitLastIR.c_str()));
+	action->addAttribute(jt); }
+	else    jt->setText(::strdup(gJitLastIR.c_str()));
+	
+	/*  THE POP HOOK, twin of genParse's INCANT_PARSE_RECORD and
+	env-gated for the same measured reason: an unconditional marker
+	on stderr is what broke three POP targets on 2026-08-02. Unset,
+	this writes nothing and no baseline can move.
+	
+	Reads jt->getText(), NOT gJitLastIR -- the point is to prove
+	what LANDED ON THE NODE. Dumping the global would pass even if
+	addAttribute had silently done nothing, which is the whole
+	failure this hook exists to detect.  */
+	if (char *jp = ::getenv("INCANT_JIT_RECORD")) {
+	if (FILE *f = ::fopen(jp,"w")) {
+	char *got = jt->getText();
+	if (got)    ::fwrite(got,1,::strlen(got),f);
+	::fclose(f); }
+	else ::fprintf(stderr,"jitRunAction: JiT record could not open %s\n",jp); } }
 	}
 	//  ONE COMPILE HAPPENED. Counted here rather than at entry so a run that
 	//  refuses (-1..-5) does not inflate the count -- the POP asserts exactly
