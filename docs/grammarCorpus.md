@@ -1076,3 +1076,69 @@ formsPop 14, tree/printPop/containerPop exit 0. **Metric stays 0/78.**
 interpretive arm **before** the install, so the discriminator failed as **18 diagnostic lines and one
 moved baseline** instead of as a red install nobody could attribute. Three passes ago the same class
 of error arrived as a fleet-wide SIGSEGV. **Convert, gate, then install — in that order.**
+
+## GM-27 — IA-1: **NO READER-BEARING ALTERNATION CAN CROSS AS A UNIT TODAY.** The gate holds; the blocker is term kinds.
+**asOf 2026-08-07 · confidence: MEASURED, every option genParse'd · provenance: `incant/grammar`,
+`incant/setup:208` (`UnaryOPS bin`), fixture `iaAll` · no code changed, nothing installed**
+
+IA-0's ruling — **the migration unit is the alternation, all options cross together** — is what makes
+MM-2's mixed-shape world impossible, and it is sound. **IA-1's gate then refuses the install**, and
+refuses it for a reason that reshapes the sequencing rather than merely delaying it.
+
+## THE CENSUS — every option of every reader-bearing alternation, genParse'd
+
+| alternation | reader | options | verdict |
+|---|---|---|---|
+| **`InvokeArg`** | `aCTionTokenXP` | `Braced` ✅ · `Parens` ✅ · **`UnaryXP` ❌** | **blocked by ONE option** |
+| `ANYorNum` | `aCTionTokenXP` | **`NumbeR` ❌** · **`ANYtoken` ❌** | blocked, 0 of 2 |
+| `StatemenT` | `aCTionDO`/`FOR`/`IF`/`WhilE` | **`SemI` ❌** · `BlocK` ✅ · `WardeD` ✅ · **`Iterate` ❌** · **`Xpress` ❌** | blocked, 2 of 5 |
+| `DatA` | `aCTionTraiTdata` | `GrouP` ✅ · **`NumbeR` ❌** · `CodE` ✅ · **`SetBrackets` ❌** · **`DelimText` ❌** · `NotA` — **not a rule at all** | blocked |
+
+**`InvokeArg` is the nearest unit by a wide margin: one option away, and that option is one term
+kind away.**
+
+## THE REFUSALS CLUSTER INTO **TWO** GAPS, AND ONE OF THEM CAUSES MOST OF THE BLOCKAGE
+
+**GAP A — CONTAINER TERMS.** `REFUSE UnaryOPS -- container (not on the ladder yet)`.
+`UnaryXP UnaryOPS ANYtoken;` and `UnaryOPS` is a `bin` (`incant/setup:208`). **One rule blocked, and
+it is the only thing standing between InvokeArg and a crossable unit.** Direct sibling of the
+already-chartered Gap #6 (flag-setting as a plannable term kind) — same shape, different term kind.
+
+**GAP B — RULE-AS-DATA (§4.1, rung 5).** `REFUSE rule NumbeR -- rule-level data isGROUP`, same for
+`ANYtoken`, and `SemI` with `isSTRING`. **Three rules directly — and the cascade is the point:**
+```
+    NumbeR ❌ ──→ ANYorNum ❌  and  DatA ❌
+    ANYtoken ❌ ──→ Iterate ❌ ──→ StatemenT ❌
+    SemI ❌ ──→ Xpress ❌ ──→ StatemenT ❌
+```
+**Gap B alone accounts for `ANYorNum` entirely and for three of `StatemenT`'s five refusals.** The
+remaining term refusals (`SetBrackets`'s `]`, `DelimText`'s `dtext`) are `DatA`'s own and are not
+shared.
+
+## ⚠ WHAT THIS SAYS ABOUT SEQUENCING, WHICH IS WHAT IA-1 ASKED FOR
+**The gating work is TERM KINDS, NOT INSTALLS.** The metric cannot move by installing rules, because
+no alternation is crossable, because the planner refuses options that are not on its ladder. Ranked
+by unblocking value:
+
+1. **Gap A (containers)** — smallest, and it unblocks `UnaryXP` → **`InvokeArg` becomes crossable**,
+   which is the alternation with a ready reader conversion (`aCTionTokenXP`) and Braced/Parens
+   already proven. **This is the shortest path to a non-zero metric, and it is one term kind.**
+2. **Gap B (rule-as-data)** — larger, and it unblocks `NumbeR`/`ANYtoken`/`SemI`, cascading into
+   `ANYorNum` and most of `StatemenT`.
+3. `DatA`'s own term refusals — narrowest payoff, last.
+
+⚠ **AND ONE THING THE CENSUS FOUND THAT IS NOT A GAP: `NotA` IS NOT A RULE.**
+`genParse: no rule named NotA` — it is `NotA=[^ \t\r\n;]+;`, a set, listed among `DatA`'s options in
+the grammar's bootstrap comment. **An alternation whose options are not all rules cannot cross as a
+unit under IA-0 by construction**, regardless of any gap being closed. Flagged so `DatA`'s eventual
+brief does not assume otherwise.
+
+## DISPOSITION
+**Stopped at IA-1's gate, nothing installed, no code changed.** Tree exactly as GM-26 left it:
+PC-3 and PC-4 in and green, fleet byte-identical on both streams, `pop.sh` 33 green / 1 parked,
+ladder 150, recordPop 48, formsPop 14, tree/printPop/containerPop exit 0. **Metric stays 0/78.**
+
+**The zero's fate now rests on a term kind.** `Braced` and `Parens` are proven-plannable and waiting;
+`aCTionTokenXP`'s conversion is specified and unblocked; the only missing piece is that the planner
+learns one more kind of term. That is a smaller and better-named thing to be blocked on than
+anything this campaign has been blocked on so far.
