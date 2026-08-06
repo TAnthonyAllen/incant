@@ -1073,6 +1073,24 @@ Hard-won lessons. Each one has cost real debugging time.
     to remember, because there the trap made something *work* — and a thing that works by accident
     breaks the day the accident stops.
 
+> **RULE H9 — A CENSUS MATCHES THE IDIOM FAMILY, NOT THE SURFACE FORM.** Adopted 2026-08-07,
+> after a census miscounted its own subject **twice in two passes, in both directions.**
+>
+> Counting sentinel-returning rule actions by `return trueResult|falseResult` reported **1**. The
+> commoner idiom is `result = falseResult; … return result`, so the real figure was **6** — and a
+> re-census that matched assignments then reported 6 where the true yielding population was **4**,
+> because two of the hits assigned a sentinel to a *local flag* and to an *operator slot* and
+> returned something else entirely.
+>
+> **AN UNDERCOUNT READS AS A SMALLER PROBLEM; AN OVERCOUNT READS AS A BIGGER ONE. Neither reads as
+> a broken instrument**, which is what both were. A census is an instrument and inherits every rule
+> on this list: state what it matched, and prefer a form that fails loudly over one that answers
+> plausibly. Where the population is small enough — 33 here — **read the hits by eye before
+> reporting the number**, because the classification, not the grep, is the finding.
+>
+> Same family as H4's absence-versus-value: a count is a value, and a wrong one arrives wearing the
+> shape of a right one.
+
 ---
 
 ## The `testing` Command

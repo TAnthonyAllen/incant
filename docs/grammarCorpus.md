@@ -742,3 +742,67 @@ dependency and no forensics** — which the rider now shows was never a viable d
 No behaviour changed this pass. The gated rider probe is kept (default off, `parseTrace`); fleet
 verified byte-identical on both streams with it in — `pop.sh` 33 green / 1 parked, ladder 150,
 recordPop 48, formsPop 14, tree/printPop/containerPop exit 0. **Metric stays 0/78.**
+
+## GM-22 — LA″ LANDED AND HIT A **THIRD** WALL: `isTarget` PROMOTION. REVERTED. TWO RULINGS OWED.
+**asOf 2026-08-07 · confidence: MEASURED, isolated · provenance: `RuleStuff.twk:220-221`
+(`isTarget`), `GroupItem.twk:1074`, `jitLadder/ladder.sh:808-845` (rung JV), `genLadder/tree.sh`**
+
+The director's word — **labelNO at all five** — closed the walk, and the whole of LA″ was built:
+`labelNO` declared, mirrored in `groups.ext`, minted in `GroupControl`; `:1164` and `leaveAlt`
+converted; `showTree` converted; the no-statement sites converted; `leaveRule`'s attach removed;
+`attachLabel` extracted and called by both arms. **`tokall` run, build clean, extern canary 260.**
+
+## ✅ WHAT THE PROTOCOL PROVED
+**`labelNO` is sound and cost nothing where it was predicted to cost nothing.** With the whole
+protocol in and no rule installed, `oneTest`, `jsonTest`, `kant8T`, `phaseA` and `emitAll` were
+**byte-identical on both streams**, and `pop.sh` held at 33 green / 1 parked. The decode census was
+right: pointer-null consumers do not notice, and the one identity decoder converted in a line.
+
+## ⚠ FINDING 1 — THE THIRD WALL: `isTarget` PROMOTION, AND IT IS NOT GM-19's
+`tree.sh` went red **in a new shape**: `ScafOUT` came back with **no children at all**, where before
+LA it had the winning option (`ScafA`) and before this pass it had `true`.
+
+**`leaveRule`'s single case and `parse()`'s three cases are NOT the same operation for a generated
+rule.** `leaveRule` always did `into +% label` — **attach under**. `parse()`'s first case is
+```
+    if stuff.isTarget { pStuff.label = lab;  lab.tag = pStuff.ruleName; }
+```
+— **PROMOTE**: the child's label *becomes* the parent's, replacing it. And `isTarget` is set for any
+rule node that `isMember && !parent.binType` (`RuleStuff.twk:220-221`) — **which every alternation
+option is.** So the shared attach promotes where the emitted method's contract expects attachment,
+and the parent's subtree is replaced rather than grown.
+
+**LA-1/LA″-3's premise — "three cases, after the action, both arms" — is falsified by measurement.**
+The generated arm does not want the three-case selector; it wants the plain attach, because the
+emitter bakes `into` and assumes attach-under. Making the arms agree therefore needs either the
+generated arm to keep a deliberate one-case attach (**an asymmetry, which is what the extraction
+exists to remove**) or the emitter to learn about promotion (**which LA-2/LA″-3 fence out**).
+**Reported, not chosen.**
+
+## ⚠ FINDING 2 — THE ENGINES NOW DISAGREE ABOUT WHAT AN EMPTY CONSTRUCT IS WORTH
+Ladder rung **JV** went red: `JV VACUITY GUARD: a value was not captured at all (jitted='0'
+oracle='')`. This is **not** an accident, and JV's own header says so — the rung exists to certify
+that *"aCTionDO / aCTionIF / aCTionWhilE all end `if !result result = falseResult;` … whether the
+emitters reproduce the convention was an open candidate, settled here by measurement: THEY DO"*,
+taken as *"cheap insurance before the genParse conversions lean on conditionals wholesale"*.
+
+**So the dependency on zero-iterations-yield-`false` was DELIBERATE and CERTIFIED, not incidental.**
+Under the new protocol the interpreted side yields `labelNO` — which is deliberately **not**
+`isCOUNT`, so it has no numeric reading — while the **jitted** side still yields `0`, because all
+three actions return at their `if jitting` gate *above* the converted line and the emitters were
+never told about `labelNO`.
+
+**That is a genuine engine divergence introduced by the ruling, and it is the ruling's to finish:**
+either the emitters learn `labelNO`, or the JIT keeps `0` and JV is re-pinned to a stated
+asymmetry. **A re-pin needs a sentence, and this one needs a decision first.**
+
+## DISPOSITION
+**Fully reverted, both repos and the out-of-repo file.** `GroupItem.twk`, `RuleStuff.twk`,
+`GroupControl.twk`, `GroupRules.twk`, `ruleActions.rtn`, `genParse.rtn` restored;
+**`groups.ext` verified BYTE-IDENTICAL to its pre-change copy** (bear-trap #11 — it is outside this
+repo and shows in no `git status` here, so it was diffed against a backup taken before the edit).
+`tokall` re-run, rebuilt. Fleet byte-identical on both streams, `pop.sh` 33 green / 1 parked,
+ladder **150**, recordPop 48, formsPop 14, tree/printPop/containerPop exit 0. **Metric stays 0/78.**
+
+**The extraction is now blocked on two rulings rather than one**, and neither is a coding decision.
+The ten minutes remains ten minutes; it is the walls in front of it that keep being new.
