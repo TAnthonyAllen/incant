@@ -1154,6 +1154,15 @@ continueHere:
             ***************************************************************/
             if label && pStuff
                 if isTarget {
+                    /*  PC-2 CENSUS PROBE, 2026-08-07. Gated on the standing
+                        parseTrace, default off. Names every site where
+                        INTERPRETIVE PROMOTION actually fires, so the attach-row
+                        migration gets a measured bound instead of a static read
+                        of an indentation-based grammar.  */
+                    if parseTrace
+                        cerr "  PROMOTE rule=" tag
+                             " label=" label.tag
+                             " -> becomes=" pStuff.ruleName:;
                     pStuff.label = label;
                     label.tag = pStuff.ruleName; }
                 or label.isGROUP && max > 1 {

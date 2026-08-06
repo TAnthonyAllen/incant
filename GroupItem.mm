@@ -1489,6 +1489,13 @@ continueHere:
 			if ( ruleStuff->label && pStuff )
 				if ( ruleStuff->isTarget )
 					{
+					/*  PC-2 CENSUS PROBE, 2026-08-07. Gated on the standing
+					parseTrace, default off. Names every site where
+					INTERPRETIVE PROMOTION actually fires, so the attach-row
+					migration gets a measured bound instead of a static read
+					of an indentation-based grammar.  */
+					if ( ruler->parseTrace )
+						::fprintf(stderr,"  PROMOTE rule=%s label=%s -> becomes=%s\n",groupBody->tag,ruleStuff->label->groupBody->tag,pStuff->ruleName);
 					pStuff->label = ruleStuff->label;
 					ruleStuff->label->groupBody->tag = pStuff->ruleName;
 					}

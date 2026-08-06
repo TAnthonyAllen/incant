@@ -806,3 +806,70 @@ ladder **150**, recordPop 48, formsPop 14, tree/printPop/containerPop exit 0. **
 
 **The extraction is now blocked on two rulings rather than one**, and neither is a coding decision.
 The ten minutes remains ten minutes; it is the walls in front of it that keep being new.
+
+## GM-23 — PC-2: THE ATTACH ROW'S BLAST RADIUS IS **BOUNDED AND, FOR THE TWELVE, EMPTY**
+**asOf 2026-08-07 · confidence: MEASURED at run time, 1274 promotions observed, hits read by eye
+(H9) · provenance: `RuleStuff.twk:220-224` (`isTarget`), `GroupItem.twk` promote probe (gated,
+default off), fixture `promoteCensus` over `unitTests`+`utilities`+`generate` · no conversions**
+
+**MEASURED, NOT INFERRED, AND DELIBERATELY SO.** The grammar's alternation structure is
+indentation-based and a static read of it is exactly the kind of classification H9 was just adopted
+for. A `parseTrace`-gated probe was placed at the interpretive promotion site instead, and a fixture
+that arms the trace *before* including a broad slice of real incant was run: **1274 promotions, 23
+distinct (child → parent) pairs.**
+
+## THE POPULATION SPLITS IN TWO, AND THE SPLIT IS THE FINDING
+
+| population | how `isTarget` is set | parents observed | parents WITH an action |
+|---|---|---|---|
+| **alternation options** | `isMember && !parent.binType` (`:220`) | `GrouP` 409 · `DatA` 156 · `Token` 14 · `WardeD` 5 · `InvokeArg` 7 · `PrintXP` 2 · `ANYorNum` 13 · `StatemenT` 13 | **1** — `StatemenT` |
+| **embedded / target-term** | `isEmbedded && ((data && data<4) || max==1)` (`:224`) — includes the explicit `@` | `NamE` 394 · `NumbeR` 84 · `NewGroup` 163 (`TraiT@`) · `ANYtoken` 13 · `ShortcuT` 1 | **5** — all of them |
+
+⚠ **AND THE TWO POPULATIONS ARE DOING DIFFERENT JOBS.** Alternation promotion lands almost entirely
+on **action-less** parents — it is pure plumbing, an option standing in for the alternation that has
+no label of its own. **Embedded promotion is how a token's TEXT reaches its rule's action**:
+`tokenize → NamE`, `tokenize → NumbeR`, `TraiT@ → NewGroup`. All five of those parents have actions
+and **all five read the promoted shape**, because reading it *is* how they get their value —
+`aCTionNamE` and `aCTionNumbeR` both open with `input.text`, which under attach-under would return
+the label's own **TAG** (bear-trap #26) rather than the token.
+
+## ✅ THE BOUND, WHICH IS THE DELIVERABLE — **ZERO FOR THE TWELVE**
+PC-1 scopes the ruling to the **generated arm only**; interpretive promotion stays as legacy. So the
+migration's blast radius is *"actions on rules that cross to generated"*. Crossed against the twelve
+plannable rules (`Braced Parens ElsE InvokE InvokeArg PrintField WardeD GrouP CodE RunRulE BlocK
+ExpressioN`):
+
+```
+    InvokeArg   receives 7 promotions     hasAction = NO
+    WardeD      receives 5 promotions     hasAction = NO
+    GrouP       receives 409 promotions   hasAction = NO
+    the other nine receive NONE
+```
+
+**Three of the twelve are promotion parents and NONE of them has an action.** So **attach-under on
+the generated arm converts zero actions today.** The install checklist step PC-1 adds is real and
+should stand, but for Phase B's current population it will find nothing to convert.
+
+## THE MIGRATION'S FULL BOUND, for when the campaign moves past the twelve
+**Six actions, named, in dependency order** — every one of them reads the promoted shape:
+
+| action | what it reads | why it breaks under attach-under |
+|---|---|---|
+| `aCTionNamE` | `input.text` | the label would carry its own tag, not the token |
+| `aCTionNumbeR` | `input.text` | same; its own header already records a sibling trap where a label failed to survive `tokenize` |
+| `aCTionShortcuT` | `text`, `gCount` | same family |
+| `aCTionANYtoken` | `if input.isGROUP token = input.group; else token = input;` | handles both shapes, but under attach-under the child is an **attribute**, not `.group`, so it takes the `else` and tests the wrong node's registry |
+| `aCTionStatemenT` | `if isGROUP statement = group;` then `method(statement)` | same shape as ANYtoken, and it **dispatches** on the result |
+| `aCTionNewGroup` | `group` | the explicit `TraiT@` case — the one site where promotion was asked for by name in the grammar |
+
+⚠ **`NewGroup TraiT@;` IS THE ROW'S ONE PRINCIPLED OBJECTION, AND IT SHOULD BE ON THE RECORD.** The
+`@` modifier is the grammar *requesting* promotion explicitly. Everywhere else `isTarget` is inferred
+from position; there it is written down. **A ruling that "the generated arm never consults
+isTarget" makes `@` a no-op on that arm** — which is right for a migration and wrong as a permanent
+state, exactly as PC-1's arrow says. Flagged so `@`'s fate is a row and not a casualty.
+
+## DISPOSITION
+**No conversions, per PC-2.** The gated probe is **kept** — it is the census instrument and the
+campaign will want it again; default off, and the fleet is verified byte-identical on both streams
+with it in: `pop.sh` 33 green / 1 parked, ladder 150, recordPop 48, formsPop 14,
+tree/printPop/containerPop exit 0. **Metric stays 0/78.**
