@@ -2781,6 +2781,12 @@ char 		*piece = 0;
 		leaf = ::concat(7,"many",site->getText(),"(",sink,",",local,")");
 		}
 	else
+	if ( ::compare(node->groupBody->tag,"CONTAINER") == 0 )
+		{
+		slot = node->getAttribute("slot");
+		leaf = ::concat(9,"containerTo(",local,",",sink,",",::toStringFromChar(dq),slot->getText(),::toStringFromChar(dq),")");
+		}
+	else
 	if ( ::compare(node->groupBody->tag,"CALL") == 0 )
 		leaf = ::concat(5,"parseR(",local,",",sink,")");
 	else
@@ -8890,9 +8896,13 @@ int 		labelled = 0;
 		::fprintf(stderr,"  REFUSE %s -- upTo/upToOver (not on the ladder yet)\n",term->groupBody->tag);
 		return 0;
 		}
-	if ( isBIN(term->groupBody->flags.binType) || isREGISTRY(term->groupBody->flags.binType) )
+	/*  CONTAINER (CT, 2026-08-07). isREGISTRY keeps refusing -- a registry is
+	not a bin and its consumption was not measured. isBIN is classified in
+	the chain below, BEFORE the reference test, because a bin term is also
+	a reference and would otherwise plan as a CALL.  */
+	if ( isREGISTRY(term->groupBody->flags.binType) )
 		{
-		::fprintf(stderr,"  REFUSE %s -- container (not on the ladder yet)\n",term->groupBody->tag);
+		::fprintf(stderr,"  REFUSE %s -- registry container (not on the ladder yet)\n",term->groupBody->tag);
 		return 0;
 		}
 	if ( term->groupBody->flags.isMacro )
@@ -8927,6 +8937,27 @@ int 		labelled = 0;
 	Note what this does NOT change: a term that is both a reference and
 	parseACTION still refuses above, on parseACTION. Only the data overlap
 	moved.  */
+	/*  CONTAINER FIRST, AND THAT ORDER IS THE CLASSIFICATION. A bin term is
+	ALSO a reference -- UnaryOPS is defined in pROPERTIEs and referenced in
+	UnaryXP -- so testing the reference first would plan it as a CALL and
+	emit parseR against a container that is not a rule. A container matches
+	longest-entry-first and deposits the matched ENTRY; that is a different
+	consumption from every other kind on the ladder, which is why it is a
+	kind and not a literal with a set.
+	Measured on the specimen: noLabel=0, min=1, max=1. A noLabel container
+	has no spelling yet and refuses rather than guessing at one.  */
+	if ( isBIN(term->groupBody->flags.binType) )
+		{
+		if ( rs->noLabel )
+			{
+			::fprintf(stderr,"  REFUSE %s -- noLabel container (no spelling yet; the measured specimen is labelled)\n",term->groupBody->tag);
+			return 0;
+			}
+		node = new GroupItem("CONTAINER");
+		node->setText(term->groupBody->tag);
+		labelled = 1;
+		}
+	else
 	if ( definer != term )
 		{
 		node = new GroupItem("CALL");

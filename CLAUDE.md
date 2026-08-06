@@ -1090,6 +1090,16 @@ Hard-won lessons. Each one has cost real debugging time.
 >
 > Same family as H4's absence-versus-value: a count is a value, and a wrong one arrives wearing the
 > shape of a right one.
+>
+> ⚠ **COROLLARY, 2026-08-07 — A REFUSAL CENSUS REPORTS THE *FIRST* BLOCKER, NOT THE BLOCKER SET.**
+> A walk that refuses a rule stops at the first term it cannot classify, so a census of refusals is a
+> census of **frontiers**, not of causes. Closing one gap does not unblock the rules it appeared in;
+> it reveals their next refusal. Measured: closing the container gap moved `BrancH` from *"term
+> BrancheS unclassified"* to *"term SemI unclassified"* — same rule, next blocker — and left
+> `UnaryXP` blocked on its second term after its first was fixed. A sequencing claim of the form
+> *"closing gap A unblocks rule R"* is therefore **unsupported by a refusal census** and needs the
+> rule re-run after the close. Total refusals falling (99 → 97) is real progress and is **not** the
+> same measurement as any rule becoming plannable.
 
 ---
 

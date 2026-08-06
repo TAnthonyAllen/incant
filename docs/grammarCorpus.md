@@ -1142,3 +1142,68 @@ ladder 150, recordPop 48, formsPop 14, tree/printPop/containerPop exit 0. **Metr
 `aCTionTokenXP`'s conversion is specified and unblocked; the only missing piece is that the planner
 learns one more kind of term. That is a smaller and better-named thing to be blocked on than
 anything this campaign has been blocked on so far.
+
+## GM-28 — CT: **GAP A IS CLOSED.** The container term kind is on the ladder — and GM-27's sequencing claim was wrong.
+**asOf 2026-08-07 · confidence: MEASURED, codegen verified line-for-line, partition re-counted ·
+provenance: `RuleStuff.twk` (`containerTo`), `genParse.rtn` (classification + spelling),
+`incant/phaseA` (the partition) · capability added, nothing installed**
+
+## ✅ WHAT LANDED
+**CT-1, the shape, measured before emitting anything.** `testContainer` (`RuleStuff.twk`) consumes a
+container by a greedy scan over the container's own character set, then a **longest-entry match with
+one-character back-off** — the scan is an upper bound, because set membership can say *"this
+character could belong to some entry"* but never *"is this prefix an entry"*. On a hit it advances
+the mark and writes the matched **entry** into the term's own label as its group.
+**No hidden fork:** the two conditionals (`noAdvance`, `label`) are documented modifiers, not eras.
+
+**`containerTo(term, into, slot)`** — the generated arm's spelling, modelled on `testContainer`
+**line for line including its bare names**, because `reset()` / `contains()` / `length()` /
+`get(string())` each resolve against a *different* object and the resolution was **verified in the
+generated `.mm`** rather than reasoned about. The one divergence is the destination: a generated
+method has no per-term label, so it mints one tagged with the term's slot, hangs the entry on it, and
+**attaches it under `into`** — attach-under, no promotion, no retag (IA-0 untouched).
+Measured first: the specimen term is **labelled** (`noLabel=0`, `min=1`, `max=1`).
+
+**Classification.** `CONTAINER` is a kind, tested **before the reference test** — a bin term is *also*
+a reference (`UnaryOPS` is defined in pROPERTIEs, referenced in `UnaryXP`), so testing reference
+first would plan it as a `CALL` and emit `parseR` against something that is not a rule.
+**`isREGISTRY` keeps refusing and is now separated by name** from `isBIN`: a registry is not a bin
+and its consumption was not measured. `Operators` accordingly reads *"registry container"*.
+A **noLabel** container refuses rather than guessing at a spelling.
+
+## THE PARTITION MOVED, HONESTLY AND WITH A DATE (CT-2)
+```
+    incant/phaseA   REFUSE 99  ->  97      asOf 2026-08-07
+```
+
+## ⚠ AND GM-27's SEQUENCING CLAIM IS WRONG — THE CORRECTION MATTERS MORE THAN THE FEATURE
+GM-27 said *"Gap A … unblocks `UnaryXP` → **`InvokeArg` becomes crossable** … shortest path to a
+non-zero metric, and it is one term kind."* **It is not.** With the container kind in:
+```
+    @@@ UnaryXP
+      REFUSE ANYtoken -- inline group / character data isGROUP (named future kind)
+      REFUSE rule UnaryXP -- term ANYtoken unclassified
+```
+`UnaryXP`'s **second** term hits **Gap B**. `InvokeArg` is still not crossable, and CT-3 banks Gap B.
+
+**THE INSTRUMENT LESSON, and it is H9's family in a new dress: A REFUSAL CENSUS REPORTS THE FIRST
+BLOCKER, NOT THE BLOCKER SET.** The classification walk stops at the first term it cannot classify,
+so a census of refusals is a census of **frontiers**. Closing a gap does not unblock the rules it
+appeared in — it reveals their next refusal. Visible in the same diff: `BrancH` moved from
+*"term BrancheS unclassified"* to *"term SemI unclassified"*, same rule, next blocker.
+**Total refusals falling is real progress and is NOT the same measurement as any rule becoming
+plannable.** Written into CLAUDE.md as an H9 corollary.
+
+**So the honest sequencing is: Gap A and Gap B together unblock `UnaryXP`, and only then is
+`InvokeArg` a crossable unit.** Gap B is banked per CT-3 and now has a second reason to be next.
+
+⚠ **SIBLING GAP, FLAGGED NOT PAVED:** `litTo` — the labelled **literal** spelling — still has no
+implementation in the support library (`genParse.rtn`'s own latent note). CT adds the labelled
+**container** road; the literal one is still a stub, and the first labelled literal in a SEQ will
+emit a call to a function that does not exist.
+
+## DISPOSITION
+**CT is KEPT: capability added, nothing installed, nothing fires yet.** Fleet byte-identical on both
+streams except `incant/phaseA`'s stderr, which is the partition census and **moved by design**;
+`pop.sh` 33 green / 1 parked, ladder 150, recordPop 48, formsPop 14, tree/printPop/containerPop
+exit 0. **Metric stays 0/78.**

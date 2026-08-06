@@ -533,6 +533,64 @@ String      atText, matchStr;
 }
 
 /*******************************************************************************
+    containerTo — CT, 2026-08-07. The generated arm's spelling of a CONTAINER
+    term, and the support-library twin of testContainer.
+
+    A container term (`UnaryOPS` in `UnaryXP UnaryOPS ANYtoken;`) is a `bin`
+    whose entries are matched LONGEST-FIRST: scan greedily over the container's
+    own character set, then look the buffer up and back off one character at a
+    time until it IS an entry or is empty. That back-off is not an optimisation
+    -- set membership can say "this character could belong to some entry" but
+    never "is this prefix an entry", so the greedy scan is an UPPER BOUND. The
+    same lesson `Buffer::shorten` was added for.
+
+    ⚠ MODELLED ON testContainer LINE FOR LINE, INCLUDING ITS BARE NAMES, and
+    that is deliberate rather than lazy: `reset()`, `contains()`, `length()`,
+    `get(string())` each resolve against a different object here (buffer, inSet,
+    buffer, term), and the resolution was VERIFIED IN THE GENERATED .mm rather
+    than reasoned about. Change the declaration order and you change what the
+    bare names mean.
+
+    ⚠ THE ONE DIVERGENCE FROM testContainer IS THE DESTINATION, AND IT IS THE
+    WHOLE POINT. testContainer writes the matched entry into the TERM'S OWN
+    label (`ruleStuff.label.group = grup`), which the interpretive arm then
+    attaches upward. A generated method has no per-term label, so this mints one
+    tagged with the term's slot name, hangs the entry on it, and attaches it
+    under `into` -- attach-under, no promotion, no retag (IA-0). Measured: the
+    specimen term is LABELLED (`noLabel=0`), so the label is not optional.
+
+    NOTE, and it is a sibling gap rather than this one: `litTo` -- the labelled
+    LITERAL spelling -- still has no implementation (genParse.rtn's own latent
+    note). CT adds the labelled CONTAINER road and does not pave the literal one.
+*******************************************************************************/
+extern int containerTo(GroupItem term, GroupItem into, String slot)
+{
+GroupItem   grup;
+GroupItem   fresh;
+use term
+GroupRules  ruler   = groupRules;
+RuleStuff   ruleStuff = rStuff;
+PLGset      inSet   = characterSet;
+String      atInput = atRuleMark;
+int         advance;
+Buffer      buffer  = stringBUFFER;
+    reset();
+    while *atInput
+        if contains(*atInput) { buffer += *atInput; atInput++; }
+        else break;
+    while advance = length() {
+        if grup = get(string()) {
+            if !noAdvance   atRuleMark += advance;
+            if into {
+                fresh       = new(slot);
+                fresh.group = grup;
+                into        +% fresh; }
+            return true; }
+        shorten(1); }
+    return false;
+}
+
+/*******************************************************************************
     Match a literal string as an alternation MEMBER (JSONtoken's "false"/
     "true"). A plain literal member is not noLabel, so on success this
     creates a label tagged with the literal text and attaches it into `into`

@@ -353,8 +353,12 @@ int         labelled = 0;
     if rs.upTo || rs.upToOver {
         cerr "  REFUSE " term.tag " -- upTo/upToOver (not on the ladder yet)":;
         return null; }
-    if term.isBIN || term.isREGISTRY {
-        cerr "  REFUSE " term.tag " -- container (not on the ladder yet)":;
+    /*  CONTAINER (CT, 2026-08-07). isREGISTRY keeps refusing -- a registry is
+        not a bin and its consumption was not measured. isBIN is classified in
+        the chain below, BEFORE the reference test, because a bin term is also
+        a reference and would otherwise plan as a CALL.  */
+    if term.isREGISTRY {
+        cerr "  REFUSE " term.tag " -- registry container (not on the ladder yet)":;
         return null; }
     if term.isMacro {
         cerr "  REFUSE " term.tag " -- macro (not on the ladder yet)":;
@@ -382,7 +386,24 @@ int         labelled = 0;
         Note what this does NOT change: a term that is both a reference and
         parseACTION still refuses above, on parseACTION. Only the data overlap
         moved.  */
-    if definer != term {
+    /*  CONTAINER FIRST, AND THAT ORDER IS THE CLASSIFICATION. A bin term is
+        ALSO a reference -- UnaryOPS is defined in pROPERTIEs and referenced in
+        UnaryXP -- so testing the reference first would plan it as a CALL and
+        emit parseR against a container that is not a rule. A container matches
+        longest-entry-first and deposits the matched ENTRY; that is a different
+        consumption from every other kind on the ladder, which is why it is a
+        kind and not a literal with a set.
+        Measured on the specimen: noLabel=0, min=1, max=1. A noLabel container
+        has no spelling yet and refuses rather than guessing at one.  */
+    if term.isBIN {
+        if rs.noLabel {
+            cerr "  REFUSE " term.tag " -- noLabel container (no spelling yet;"
+                 " the measured specimen is labelled)":;
+            return null; }
+        node        = new("CONTAINER");
+        node.text   = term.tag;
+        labelled    = 1; }
+    or definer != term {
         node        = new("CALL");
         node.text   = definer.tag; }
     or term.data {
@@ -854,6 +875,9 @@ String      piece;
     or node.tag eq "MANY" {
         site = node.getAttribute("site");
         leaf = "many" site.text "(" sink "," local ")"; }
+    or node.tag eq "CONTAINER" {
+        slot = node.getAttribute("slot");
+        leaf = "containerTo(" local "," sink "," dq slot.text dq ")"; }
     or node.tag eq "CALL"       leaf = "parseR(" local "," sink ")";
     or node.tag eq "LIT"        leaf = "lit(" local "," dq node.text dq ")";
     or node.tag eq "LITTO" {
