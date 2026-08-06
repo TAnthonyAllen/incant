@@ -138,6 +138,47 @@ else
     echo "  ok    unarmed run writes no record file"; green=$((green+1))
 fi
 
+echo "-- ParsE: the gate arms the RECORD, not just a dump of it (PJ-7)."
+
+#  ONE GATE, THREE STATES: unset = nothing at all; =1 = capture + attribute;
+#  =<path> = capture + attribute + file. The attribute itself is gated because
+#  an always-on write changes the attribute LIST of every rule genParse touches,
+#  and this tree BASELINES attribute lists (pop.sh's census walks registries
+#  counting terms and loose entries). A record that can move an audit is an
+#  instrument that can move a measurement -- the 2026-08-02 defect exactly.
+runrec recordPT4 "$T/p4.o" "$T/p4.e" INCANT_PARSE_RECORD=1
+check    "recordPT4 runs with the gate at =1" 0 $?
+sentinel "recordPT4 sentinel (no truncation)" "$T/p4.o" "RECORDPT4 SENTINEL"
+#  THE DIRECTOR'S WINDOW. showParse resolves the rule by NAME through
+#  ruleOrRefuse, because naming a rule in expression position INVOKES it --
+#  `print Braced.ParsE;` prints nothing and `if Braced;` exits 139, both
+#  measured. So this command is the only read path from inside a fixture.
+hasmark "showParse prints the recorded source (director's window)" \
+        "$T/p4.o" "extern GroupItem parseBraced(GroupItem rule)"
+hasmark "showParse's output is the WHOLE record, to its last line" \
+        "$T/p4.o" "bind:  Braced parseTerms=3 parseMethod=parseBraced;"
+if [ -e "$T/p4.rec" ]; then
+    echo "  FAIL  =1 wrote a file; that mode is attribute-only"; fail=1
+else
+    echo "  ok    =1 arms the attribute and writes NO file"; green=$((green+1))
+fi
+
+#  GATE CLOSED. Not an absence check dressed up: showParse prints a NAMED line
+#  saying the record is absent, so this asserts a value rather than a silence.
+#  An instrument whose quiet means two different things (no record / no output)
+#  is the one-channel-one-meaning failure.
+runrec recordPT4 "$T/p4c.o" "$T/p4c.e" INCANT_UNUSED_PROBE=1
+check    "recordPT4 runs with the gate CLOSED" 0 $?
+sentinel "recordPT4 gate-closed sentinel" "$T/p4c.o" "RECORDPT4 SENTINEL"
+hasmark  "gate closed -> showParse says so BY NAME" \
+         "$T/p4c.o" "has no ParsE record"
+if grep -qF "extern GroupItem parseBraced" "$T/p4c.o"; then
+    echo "  FAIL  gate closed but a record was printed anyway"; fail=1
+else
+    echo "  ok    gate closed -> no record exists to print"; green=$((green+1))
+fi
+diffcheck "recordPT4 stderr identical, gate open vs closed" "$T/p4.e" "$T/p4c.e"
+
 echo "-- ParsE: second pass on the SAME rule (bear-trap #22 coverage rule)."
 
 #  An action's body is parsed ONCE into a cached BlocK and RE-EXECUTED, so a

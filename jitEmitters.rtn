@@ -2215,6 +2215,19 @@ extern int jitRunAction(GroupItem action)
     -%
     printf("=== jitRunAction: entering on %s ===\n", action->groupBody->tag);
     fflush(stdout);
+    /*  PJ-8, THE JIT HALF OF THE LIFECYCLE. Cleared on ENTRY, written at the
+        capture site near the foot. The gap between them is the whole point:
+        a compile that REFUSES (-1..-5) never reaches the capture, so it leaves
+        NO record rather than the previous compile's -- which is the exact
+        staleness the ruling precludes. Clearing at the write instead would be
+        a no-op, and detecting staleness with a check afterwards is what the
+        ruling replaces: STALENESS IS PRECLUDED BY LIFECYCLE, NOT DETECTED.
+        setText("") and not clear(): a field with NO data returns its TAG from
+        getText(), so a clear()ed record would read back as the string "JiT"
+        and every non-empty test in the fleet would pass on it.  */
+    if (action) {
+        GroupItem *stale = action->get("JiT");
+        if (stale)  stale->setText(::strdup("")); }
     jitInitOnce();
     llvm::orc::LLJIT *jit = (llvm::orc::LLJIT*)jitEngine();
     if (!jit) { printf("=== JIT engine null ===\n"); fflush(stdout); return -1; }

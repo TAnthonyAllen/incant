@@ -590,6 +590,23 @@ int         indenter = lastIndent;
 int processing  = processingCode;
 use field
     if isLabel  field = rule;
+    /*  PJ-8, THE INTERPRETING HALF OF THE LIFECYCLE. An action's IR record is
+        cleared whenever the action is COMPILED, and this is the compile for
+        interpreting: the lines below re-parse CodE and attach a fresh BlocK,
+        so any IR emitted against the previous one is invalid from here.
+        THIS FIRES EXACTLY ONCE PER ACTION, which is why it cannot erase a
+        record it should keep: the `field.isAction = true` below overwrites
+        actionType, consuming isCoded, and processAction's call site is
+        `if isCoded && !processCode(action)`. So a later interpreted call --
+        including a ladder fixture's oracle call after a jit compile -- does
+        NOT re-enter here. Verified at GroupActions.rtn:549 and :603; the same
+        consumption is what bear-trap #25 documents from the testing() side.
+        setText("") rather than clear(): a field with no data returns its TAG
+        from getText(), so a clear()ed record reads back as "JiT".  */
+    -%
+    GroupItem   *staleIR = field->get("JiT");
+    if (staleIR)    staleIR->setText(::strdup(""));
+    %-
     code      = field[CodE];
     if isRule action = code;
     currentMETHOD   = action;

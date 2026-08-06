@@ -327,6 +327,7 @@ extern "C" void setLimits(GroupItem *rule, GroupItem *limits);
 extern "C" GroupItem *setMark(GroupItem *argument);
 extern "C" int setParseMethod(RuleStuff *stuff, char *name);
 extern "C" GroupItem *setRuleAction(GroupItem *block);
+extern "C" GroupItem *showParse(GroupItem *argument);
 extern "C" int showTree(GroupItem *node, char *pad);
 extern "C" char *spellKant(GroupItem *speller, GroupItem *node, char *sink);
 extern "C" GroupItem *spellMode(GroupItem *argument);

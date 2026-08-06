@@ -2921,21 +2921,6 @@ extern "C" char *foldOf(GroupItem *rule)
 	return "SEQ";
 }
 
-/*******************************************************************************
-    genParse — two passes now, and that is the rung-3 result: planRule DECIDES,
-    emitPlan WRITES. Nothing between them knows about C++.
-
-    The walk is walked TWICE by emitPlan, once to validate and once to write.
-    That is deliberate and is one of the reasons the seam artifact is a plan and
-    not a visitor: §3.3's helper functions are discovered mid-walk, and with
-    text already going out you must buffer or emit out of order. With a plan you
-    just walk it again. It costs nothing at this size and it is the shape rung 5
-    needs.
-
-    Every refusal now lives in planRule, where it belongs — a refusal is a
-    validity question about the RULE, so it reads the same whichever emitter is
-    downstream (§4).
-*******************************************************************************/
 extern "C" GroupItem *genParse(GroupItem *argument)
 {
 GroupItem 	*rule = ::ruleOrRefuse(argument->getText(),"genParse");
@@ -3001,9 +2986,40 @@ GroupItem 	*result = 0;
 	loses the emitter's output with no symptom but silence. The `if (ms)`
 	guard exists so a failed open_memstream degrades to "no record, normal
 	output" rather than to a swallowed emitter.  */
+	/*  PJ-7, ONE GATE. `INCANT_PARSE_RECORD` arms the whole record -- capture,
+	attribute, and the optional file sink -- rather than arming a dump of an
+	always-written attribute.
+	
+	unset     nothing happens at all: no redirect, no attribute, no file
+	=1        capture + the ParsE attribute
+	=<path>   capture + the ParsE attribute + a dump of it to <path>
+	
+	WHY THE ATTRIBUTE ITSELF IS GATED AND NOT JUST THE DUMP. An always-on
+	attribute write changes the attribute LIST of every rule genParse
+	touches, and this tree audits attribute lists -- pop.sh's census walks
+	registries counting terms and loose entries, and `AUDIT` lines are
+	baselined. A record that can move an audit is an instrument that can
+	move a measurement, which is the 2026-08-02 defect (an instrument broke
+	three POP targets by prepending ~290 lines with zero content
+	divergence). With the gate closed the run is byte-identical to one
+	built before any of this existed, and recordPop asserts exactly that on
+	both streams.
+	
+	THE FILE SINK EARNS ITS KEEP AND SO IT STAYS, behind this same gate.
+	It is the ONLY read path: a rule name in incant EXPRESSION POSITION
+	INVOKES THE RULE rather than naming it -- `if Braced;` exits 139,
+	measured -- so no ordinary incant statement can reach the attribute to
+	diff it. The `showParse` command below is the director's window; the
+	file is the POP's, because a byte-for-byte diff needs bytes in a file
+	and not on a terminal.
+	
+	Both read pe->getText() and never the local -- the point is to prove
+	what LANDED ON THE NODE, and dumping the local would pass even if
+	addAttribute had silently done nothing.  */
+	char   *rp      = ::getenv("INCANT_PARSE_RECORD");
 	char   *recBuf  = 0;
 	size_t  recSize = 0;
-	FILE   *ms      = ::open_memstream(&recBuf,&recSize);
+	FILE   *ms      = rp ? ::open_memstream(&recBuf,&recSize) : 0;
 	FILE   *wasErr  = stderr;
 	if (ms) stderr  = ms;
 	result = ::emitPlan(plan);
@@ -3013,6 +3029,7 @@ GroupItem 	*result = 0;
 	if (recBuf) {
 	::fwrite(recBuf,1,recSize,stderr);
 	::fflush(stderr); } }
+	if (rp) {
 	/*  strdup'd for the same reason jitRunAction strdups its IR: recBuf is
 	malloc'd by open_memstream and is freed below.  */
 	GroupItem  *pe = rule->get("ParsE");
@@ -3022,31 +3039,14 @@ GroupItem 	*result = 0;
 	pe->setText(::strdup(recBuf ? recBuf : ""));
 	rule->addAttribute(pe); }
 	else    pe->setText(::strdup(recBuf ? recBuf : ""));
-	if (recBuf) ::free(recBuf);
 	
-	/*  THE POP HOOK, and it is env-gated for a measured reason, not caution.
-	A marker printed unconditionally to stderr is what broke three POP
-	targets on 2026-08-02 -- `printFamily.target` diffed `0a1,288`, lines
-	PREPENDED, zero content divergence, caused by an instrument. So the
-	record's own POP must be unable to move a baseline: unset, this writes
-	nothing anywhere and the byte streams are identical to the run above.
-	
-	A PATH RATHER THAN A COUNT, because a count is the weak oracle. Reading
-	the text back out lets the POP diff the RECORD against the EMISSION
-	byte for byte, on two independent channels, which is the only form that
-	can catch a record that is present, plausible and truncated. Same
-	env-var-not-a-flag reasoning as INCANT_JIT_DUMP / INCANT_SLOT_PROBE: no
-	GroupBody bit, so no bitfield shift and no bear-trap #10 apparatus.
-	
-	Reads pe->getText(), NOT `capture` -- the point is to prove what LANDED
-	ON THE NODE, and dumping the local would pass even if addAttribute had
-	silently done nothing.  */
-	if (char *rp = ::getenv("INCANT_PARSE_RECORD")) {
+	if (::compare(rp,"1") != 0) {
 	if (FILE *f = ::fopen(rp,"w")) {
 	char *got = pe->getText();
 	if (got)    ::fwrite(got,1,::strlen(got),f);
 	::fclose(f); }
-	else    ::fprintf(stderr,"genParse: ParsE record could not open %s\n",rp); }
+	else ::fprintf(stderr,"genParse: ParsE record could not open %s\n",rp); } }
+	if (recBuf) ::free(recBuf);
 	
 	return result;
 }
@@ -5828,6 +5828,19 @@ extern "C" int jitRunAction(GroupItem *action)
 	
 	printf("=== jitRunAction: entering on %s ===\n", action->groupBody->tag);
 	fflush(stdout);
+	/*  PJ-8, THE JIT HALF OF THE LIFECYCLE. Cleared on ENTRY, written at the
+	capture site near the foot. The gap between them is the whole point:
+	a compile that REFUSES (-1..-5) never reaches the capture, so it leaves
+	NO record rather than the previous compile's -- which is the exact
+	staleness the ruling precludes. Clearing at the write instead would be
+	a no-op, and detecting staleness with a check afterwards is what the
+	ruling replaces: STALENESS IS PRECLUDED BY LIFECYCLE, NOT DETECTED.
+	setText("") and not clear(): a field with NO data returns its TAG from
+	getText(), so a clear()ed record would read back as the string "JiT"
+	and every non-empty test in the fleet would pass on it.  */
+	if (action) {
+	GroupItem *stale = action->get("JiT");
+	if (stale)  stale->setText(::strdup("")); }
 	jitInitOnce();
 	llvm::orc::LLJIT *jit = (llvm::orc::LLJIT*)jitEngine();
 	if (!jit) { printf("=== JIT engine null ===\n"); fflush(stdout); return -1; }
@@ -9090,6 +9103,23 @@ int 		indenter = ruler->lastIndent;
 int 		processing = ruler->processingCode;
 	if ( field->groupBody->flags.isLabel )
 		field = field->rStuff->rule;
+	/*  PJ-8, THE INTERPRETING HALF OF THE LIFECYCLE. An action's IR record is
+	cleared whenever the action is COMPILED, and this is the compile for
+	interpreting: the lines below re-parse CodE and attach a fresh BlocK,
+	so any IR emitted against the previous one is invalid from here.
+	THIS FIRES EXACTLY ONCE PER ACTION, which is why it cannot erase a
+	record it should keep: the `field.isAction = true` below overwrites
+	actionType, consuming isCoded, and processAction's call site is
+	`if isCoded && !processCode(action)`. So a later interpreted call --
+	including a ladder fixture's oracle call after a jit compile -- does
+	NOT re-enter here. Verified at GroupActions.rtn:549 and :603; the same
+	consumption is what bear-trap #25 documents from the testing() side.
+	setText("") rather than clear(): a field with no data returns its TAG
+	from getText(), so a clear()ed record reads back as "JiT".  */
+	
+	GroupItem   *staleIR = field->get("JiT");
+	if (staleIR)    staleIR->setText(::strdup(""));
+	
 	code = field->get("CodE");
 	if ( field->groupBody->flags.isRule )
 		action = code;
@@ -9826,6 +9856,70 @@ char 		*name = 0;
 		}
 	else	::fprintf(stderr,"setRuleAction: could not set action target\n");
 	return item;
+}
+
+/*******************************************************************************
+    genParse — two passes now, and that is the rung-3 result: planRule DECIDES,
+    emitPlan WRITES. Nothing between them knows about C++.
+
+    The walk is walked TWICE by emitPlan, once to validate and once to write.
+    That is deliberate and is one of the reasons the seam artifact is a plan and
+    not a visitor: §3.3's helper functions are discovered mid-walk, and with
+    text already going out you must buffer or emit out of order. With a plan you
+    just walk it again. It costs nothing at this size and it is the shape rung 5
+    needs.
+
+    Every refusal now lives in planRule, where it belongs — a refusal is a
+    validity question about the RULE, so it reads the same whichever emitter is
+    downstream (§4).
+*******************************************************************************/
+/*******************************************************************************
+    showParse — PJ-7's director's window: print a rule's recorded ParsE.
+
+        registry(cOMMANDs);
+        define showParse immediateAction=showParse; ;
+        showParse('Braced');
+
+    WHY THIS IS A COMMAND AND NOT A KANT ACTION, which was the brief's first
+    preference and is not available: A RULE NAME IN INCANT EXPRESSION POSITION
+    INVOKES THE RULE. `print Braced.ParsE;` prints nothing and `if Braced;`
+    exits 139 — both measured 2026-08-06 — because naming a rule runs it
+    against the current input. There is no ordinary incant statement that names
+    a rule without firing it, so the window has to come in through the same door
+    genParse itself uses: a command taking the name as TEXT and resolving it
+    with locateRule via ruleOrRefuse. That is the proven lookup, and it also
+    sidesteps the members gate that makes bare lookup unreliable for a rule.
+
+    PRINTS TO STDOUT AND SAYS SO WHEN THERE IS NOTHING. An empty or absent
+    record prints a named line rather than nothing at all — an instrument whose
+    silence means two different things (no record / no output) is the
+    one-channel-one-meaning failure, and here the two are a gate left closed
+    versus a genParse that never ran.
+
+    NOT REGISTERED IN incant/setup, DELIBERATELY. Registering it there would add
+    a member to a base registry that pop.sh's census walks and baselines. The
+    fixture registers it, exactly as the genParse fixtures already register
+    genParse — zero baseline risk, and the same two lines.
+*******************************************************************************/
+extern "C" GroupItem *showParse(GroupItem *argument)
+{
+GroupItem 	*rule = ::ruleOrRefuse(argument->getText(),"showParse");
+GroupItem 	*record = 0;
+	if ( !rule )
+		return 0;
+	record = rule->get("ParsE");
+	if ( !record )
+		{
+		::printf("showParse: %s has no ParsE record -- run genParse with INCANT_PARSE_RECORD armed\n",argument->getText());
+		return 0;
+		}
+	if ( !record->getText() )
+		{
+		::printf("showParse: %s ParsE record is EMPTY\n",argument->getText());
+		return 0;
+		}
+	::printf("%s\n",record->getText());
+	return record;
 }
 
 /*******************************************************************************

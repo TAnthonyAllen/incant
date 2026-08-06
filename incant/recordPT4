@@ -1,0 +1,17 @@
+/*  recordPT4 -- PJ-7 leg 4: the DIRECTOR'S WINDOW, and the attribute-only gate
+    mode. Run with INCANT_PARSE_RECORD=1 the record lands on the rule and NO
+    file is written; showParse is then the only way to see it, which is the
+    whole point of the command existing. showParse resolves the rule by NAME
+    through ruleOrRefuse because naming a rule in expression position INVOKES
+    it -- `print Braced.ParsE;` prints nothing, `if Braced;` exits 139.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+registry(cOMMANDs);
+define genParse immediateAction=genParse; ;
+define showParse immediateAction=showParse; ;
+genParse('Braced');
+showParse('Braced');
+print "RECORDPT4 SENTINEL":;
+stop();
