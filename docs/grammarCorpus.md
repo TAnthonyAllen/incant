@@ -1009,3 +1009,70 @@ rather than wrong. **Not taken — the discriminator is a semantics choice.**
 fleet byte-identical, `pop.sh` 33 green / 1 parked, ladder 150, recordPop 48, formsPop 14,
 tree/printPop/containerPop exit 0. **Metric stays 0/78**, and the distance to 1/78 is now **one
 named action and one semantics choice.**
+
+## GM-26 — MM: THE DISCRIMINATOR IS FALSIFIED BY MEASUREMENT. **STOPPED WITH THE SPECIMEN, PER MM-2.**
+**asOf 2026-08-07 · confidence: MEASURED, 18 occurrences in `oneTest` alone, specimen captured ·
+provenance: `incant/grammar:105,109` (`UnaryXP`), `GroupItem.twk:1088` (the retag) · reverted, no
+code retained**
+
+`aCTionInvokeArg` was written exactly as MM-1/MM-2 specify — promote by hand, retag included, and
+the structural presence-shaped discriminator: *content present (`isGROUP`) → already promoted, pass
+through; content absent, lone child → promote it.* No tag reads, no sentinel identity, no arm
+knowledge. **It was gated on the interpretive arm before any install, and the gate caught it.**
+
+## ⚠ THE SPECIMEN
+MM-2's stop clause fired **18 times in `oneTest`**, every one the same shape:
+```
+    aCTionInvokeArg SPECIMEN: content-absent, children =
+          UnaryOPS
+          ANYtoken
+```
+That is **`UnaryXP`**, and `UnaryXP UnaryOPS ANYtoken;` (`incant/grammar:105`) is an InvokeArg option
+which is itself a **SEQUENCE**.
+
+## THE STRUCTURAL REASON, AND IT IS GENERAL RATHER THAN A MISSED CASE
+**A PROMOTED OPTION CONTRIBUTES ITS *TERMS* AS CHILDREN; AN ATTACHED OPTION CONTRIBUTES *ITSELF* AS A
+CHILD.** Both arrive as *"children of `InvokeArg`, no content"*, and **no count or presence test
+separates them**:
+
+| arm | InvokeArg's label holds | why the test misreads it |
+|---|---|---|
+| promoted `Parens` | content (`isGROUP`, `group = ExpressioN`) | reads as "already promoted" ✓ — the only case the test gets right |
+| promoted `UnaryXP` | **two children** (`UnaryOPS`, `ANYtoken`), no content | reads as "neither branch" ✗ |
+| attached `Parens` (generated) | **one child** (the `Parens` label) | reads as "lone child, promote it" ✓ |
+| promoted single-term option (hypothetical) | **one child** (its one term) | would read as "promote it" and be **wrong** ✗ |
+
+The last row is the important one even though nothing in the current grammar occupies it: **the
+lone-child test is not merely incomplete, it is ambiguous in principle.** A one-term sequence option
+and an attached option are the same shape. The two arms' outputs are **not a function of structure**.
+
+**And they are not a function of the tag either**, which was already known and is why MM-2 forbade
+tag reads: promotion RETAGS (`GroupItem.twk:1088`), so both arrive tagged `InvokeArg`.
+
+⚠ **SO CANDIDATE (1) IS NOT REPAIRABLE BY A BETTER TEST.** An action cannot tell the two shapes
+apart from the shapes alone — the information distinguishing them was **consumed by the retag**. Per
+MM-2 this is *"a finding about the shapes, not a licence to improvise a third test"*, and no third
+test was attempted.
+
+## WHAT THIS LEAVES, stated for the ruling and not chosen
+1. **The action is TOLD.** Whatever distinguishes the arms has to be carried, not inferred — the
+   `parentLabel`-on-the-rule's-own-`rStuff` precedent (`GroupItem.twk:1020`) is the tree's existing
+   answer to exactly this class of problem. Costs a channel.
+2. **The retag moves.** If promotion did not rename the option, the tag WOULD discriminate. The
+   retag exists so downstream readers see the alternation's name; whether it must happen at
+   promotion time or could happen at read time is a real question, and it is upstream of this row.
+3. **Candidate (3), attrition, becomes more attractive rather than less.** The ambiguity exists only
+   *while both arms run*. When interpretive promotion dies (IT-3) every option arrives attached, the
+   shape is unambiguous, and no discriminator is needed at all. **Under this reading the right move
+   is to convert the READER (`aCTionTokenXP`) to the attached shape and install rules in an order
+   that never leaves an alternation half-migrated** — which is a sequencing decision, not a code one.
+
+## DISPOSITION
+**Reverted; nothing retained.** The tree is exactly as GM-25 left it: PC-3 and PC-4 in and green,
+fleet byte-identical on both streams, `pop.sh` 33 green / 1 parked, ladder 150, recordPop 48,
+formsPop 14, tree/printPop/containerPop exit 0. **Metric stays 0/78.**
+
+⚠ **AND THE GATE IS THE THING TO KEEP FROM THIS PASS.** The conversion was proved against the
+interpretive arm **before** the install, so the discriminator failed as **18 diagnostic lines and one
+moved baseline** instead of as a red install nobody could attribute. Three passes ago the same class
+of error arrived as a fleet-wide SIGSEGV. **Convert, gate, then install — in that order.**
