@@ -375,3 +375,76 @@ GM-6 was worth writing down as a ruling before it was needed.**
 **NO FIX TAKEN, per the brief.** `Parens` runs first; if it reds the same way, two specimens make the
 pattern systemic and the fix lands **once at the right level** — the generated exit — instead of once
 per rule.
+
+## GM-17 — ⚠⚠ RULE TWO, `Parens`: REDS IN BRACED'S EXACT SHAPE. **THE PATTERN IS SYSTEMIC.**
+**asOf 2026-08-06 · confidence: MEASURED, both arms, negative-controlled · provenance:
+`incant/grammar:108` (the install, since reverted), `incant/parensMin` (the localizer specimen),
+`docs/emitted/parens-red-specimen.txt`, generated method in
+`docs/emitted/phaseB-twelve-emitted.txt:15-25`**
+
+`Parens` was the **designed discriminator** for GM-13/GM-16: the same three-term shape as `Braced`,
+a **different rule action**, so a matching red makes the fault systemic and a green would have made
+Braced's red specific to `aCTionBraced`. **It reds, in the same shape, and the answer is systemic.**
+
+**No emitter drift.** `genParse('Parens')` regenerated on 2026-08-06 is **byte-identical** to the
+2026-08-05 banking. Its one shape difference from Braced is its own and is correct: the middle term
+is optional (`ExpressioN?`), emitted as `(parseR(t2,label) || 1)`.
+
+**THE MEASUREMENT, both arms, same binary, install toggled at `incant/grammar:108` alone:**
+```
+ARM A  install ON      lit " ( " at term  (
+                       parseR term= ExpressioN  into= Parens
+                       parseR term= ExpressioN  -> attached as  ExpressioN  under  Parens
+                       lit " ) " at term  )
+                       HIT  Parens
+                       WIN  Parens
+                       stdout: (the action's print NEVER APPEARS)      exit 0, sentinel present
+ARM B  install OFF     stdout: INSIDE pmTake, argument is 7            exit 0, sentinel present
+                       stderr: empty (parseR/lit are not called on the interpretive path)
+```
+**Parse correct · attachment correctly named · rule HITs and WINs · the action never fires.** That is
+GM-16's finding reproduced on a second rule with a different action, which is exactly what the
+discriminator was built to decide.
+
+## ⚠ AND RULE TWO IS NOT A QUIETER RED THAN RULE ONE — IT IS A CATASTROPHIC ONE, FOR A STRUCTURAL REASON
+`Braced` cost ~30 lines of bytecode-generation output. **`Parens` takes the whole language down.**
+`StatemenT` contains no `RunRulE`; a top-level call parses as
+`Xpress → ExpressioN → Token → TokenXP → ANYorNum^ InvokeArg? → Parens`, so **`Parens` is on the path
+of EVERY parenthesised invocation in incant.** With the action skipped, `include(unitTests)` invokes
+`include` carrying no argument and the run dies on its **first statement**:
+```
+    getFile: could not open file: include: Is a directory        EXIT=2
+```
+Every fixture in the tree that includes anything fails identically. **The severity is a property of
+where the rule sits, not of how wrong the generated method is** — the generated method is, as far as
+the parse goes, right.
+
+⚠ **A CONSEQUENCE THAT WILL BITE THE NEXT EXECUTOR: THE STANDARD INSTALL GATE IS UNMEASURABLE FOR
+THIS RULE.** The consumed-check (`AUDIT all registries: … 0 unconsumed`, GM-12) is reached by calling
+`audit()` — **itself a parenthesised invocation**, so it does not dispatch under the install and
+prints nothing at all. Measured both ways: ARM A emits no `AUDIT` line, ARM B emits one. **So GM-13's
+"installs and consumes cleanly, but verifies red" cannot be stated for `Parens` — the install half is
+not observable while the install is live.** Do not record it as clean; record it as unmeasurable, and
+note that any future rule on the invocation path inherits the same blind spot.
+
+⚠ **THE LOCALIZER'S FIRST FIXTURE WAS GREEN-LOOKING AND CERTIFIED NOTHING — RULE H7, PAID AGAIN.**
+The first cut of `incant/parensMin` assigned the argument to an outer field and printed it after the
+call; it printed `pmOut is pmOut` with the install **ON and OFF alike** — a field with no data
+returns its TAG from `.text`, so the wrong answer looked like a real reading. **It discriminated
+nothing and would have been read as proof.** The fix was to print the argument **from inside the
+action**, where absence of the line is the signal. **A rung certifies only what fails when the
+mechanism is removed: run both arms, always, and treat a first-try agreement between arms as a
+broken instrument rather than a finding.**
+
+**DISPOSITION: PARKED AND FULLY REVERTED, per the standing brief.** `incant/grammar:108` restored,
+the generated `parseParens` **removed from `genParse.rtn` rather than left as dead code**, extern
+count back 257 → 256, rebuilt. **Restoration verified byte-identical, not assumed:** `oneTest`,
+`jsonTest`, `kant8T`, `phaseA` and `emitAll` all match their pre-install captures on **both streams**;
+`pop.sh` 33 green / 1 parked, `ladder.sh` 150, `recordPop.sh` 48, `printPop`/`containerPop`/`tree`
+exit 0. `incant/parensMin` is **kept** — it runs clean with no install and is the specimen for
+whoever takes the fix. **Metric stays 0/78 installed.**
+
+**WHAT THIS UNBLOCKS.** GM-16 said *"`Parens` runs first; if it reds the same way, two specimens make
+the pattern systemic and the fix lands once at the right level — the generated exit — instead of once
+per rule."* **It reds the same way. The condition is met.** The fix is a separate decision after this
+report and is not part of the fire.

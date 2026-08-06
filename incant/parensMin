@@ -1,0 +1,27 @@
+/*  PARENS MINIMAL INPUT -- rule two's localizer specimen. NO include(...) LINE,
+    and that absence is itself the finding: `include(x)` is parsed by Parens, so
+    with parseParens installed every fixture that includes anything dies on its
+    FIRST statement.
+
+    ⚠ THE ARGUMENT IS PRINTED FROM INSIDE THE ACTION, not read back from a
+    global afterwards. The first cut of this fixture assigned to an outer field
+    and compared that, and it printed the SAME wrong answer with the install ON
+    and OFF -- it discriminated nothing and would have been read as proof.
+    RULE H7 caught it: a rung certifies only what fails when the mechanism is
+    removed, so this file is always run BOTH ways.  */
+Start();
+registry(cOMMANDs);
+define traceParse immediateAction=traceParse; ;
+traceParse();
+register(ParensMin);
+define
+    pmTake argument code={
+        print "INSIDE pmTake, argument is" argument:;
+        };
+    pmRun code={
+        pmTake(7);
+        };
+    ;
+pmRun();
+print "PARENSMIN SENTINEL":;
+stop();

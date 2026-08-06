@@ -1,0 +1,41 @@
+PHASE B RULE TWO -- Parens RED SPECIMEN, 2026-08-06
+Binary: build of 2026-08-06, ~/bin/incant
+    Parens      "("- ExpressioN? ")"- parseTerms=3 parseMethod=parseParens;
+
+==== ARM A: INSTALL ON ====================================================
+--- incant/parensMin stdout ---
+PARENSMIN SENTINEL 
+
+stop: ending input divert
+--- incant/parensMin stderr (parseTrace localizer, gate open) ---
+  lit " ( " at term  (
+  parseR term= ExpressioN  into= Parens
+  parseR term= ExpressioN  -> attached as  ExpressioN  under  Parens
+  lit " ) " at term  )
+  HIT  Parens
+  WIN  Parens
+  lit " ( " at term  (
+  parseR term= ExpressioN  into= Parens
+  parseR term= ExpressioN  -> attached as  ExpressioN  under  Parens
+  lit " ) " at term  )
+  HIT  Parens
+  WIN  Parens
+  lit " ( " at term  (
+  parseR term= ExpressioN  into= Parens
+  parseR term= ExpressioN  -> attached as  ExpressioN  under  Parens
+  lit " ) " at term  )
+  HIT  Parens
+  WIN  Parens
+--- oneTest under the install: dies on its FIRST statement ---
+	current directory: /Users/anthony/Library/CloudStorage/Dropbox/data/InProcess/Groups
+getFile: could not open file: include: Is a directory
+(exit was 2)
+
+==== ARM B: INSTALL OFF (negative control, SAME BINARY) ===================
+--- incant/parensMin stdout ---
+INSIDE pmTake, argument is 7 
+PARENSMIN SENTINEL 
+
+stop: ending input divert
+--- incant/parensMin stderr ---
+(empty: parseR/lit are not called on the interpretive path)
