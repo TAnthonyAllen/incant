@@ -2473,6 +2473,26 @@ GroupItem 	*notifyLIST = grup->parent;
 		}
 }
 
+/* displayFill  the incant-facing drawing command. THE GATE IS THE WHOLE POINT,
+   and it is jitTrace's: under jitting, EMIT A CALL; otherwise DO THE WORK NOW.
+
+   Without the gate a drawing command behaves like `print` under jitting -- it
+   fires once at EMIT time, paints the bitmap during compilation, and then never
+   runs again. That looks like success on a single-fire POP and is not. With the
+   gate the call is emitted into the function body, so it runs PER FIRE, which
+   is what DS-4(b) asserts by changing the colour between fires. */
+extern "C" GroupItem *displayFill(GroupItem *field)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( ruler->jitting )
+		{
+		 jitEmitFill(field); 
+		return field;
+		}
+	 displayFillRT(field); 
+	return field;
+}
+
 /*******************************************************************************
 	Debug: setColor a field then print its resulting RGB components (0.0-1.0),
     to verify setColor's hex parse + scale. POP tool, not called from
@@ -4451,6 +4471,42 @@ extern "C" GroupItem *jitEmitDot(GroupItem *argument, GroupItem *target, GroupIt
 	gJitResult  = val;
 	gJitEmitted = true;
 	return resultNode;
+	
+}
+
+/* jitEmitFill  DS-4(b) -- THE DRAWING COMMAND, CALLABLE FROM COMPILED CODE.
+
+   A CARBON COPY OF jitEmitTrace'S SHAPE, and deliberately so: that is the
+   fallback-column convention, and it was verified against runOP's dispatch
+   rather than adopted from a design -- `result = op->groupBody->gMethod(target)`
+   is ONE ARGUMENT, VALUE-RETURNING, GroupItem*(GroupItem*). displayFillRT wears
+   exactly that shape, which is why no new calling convention was needed for the
+   first drawing method. FR section 4 predicted this route (the fallback column,
+   not IR emission) on the grounds that a drawing method needs to be CALLABLE
+   from emitted code rather than EMITTABLE as IR. It was right.
+
+   NO STRUCT OFFSETS ARE BAKED, for jitEmitTrace's reason: reaching the frame or
+   the style through GEP arithmetic over GroupItem -> groupBody would hard-code a
+   layout that bear-trap #10 moves, in emitted code no compiler checks. The
+   callee recomputes everything each build. One call, layout free.
+
+   The call is left untagged so LLVM cannot DCE a callee it cannot see into. */
+extern "C" void jitEmitFill(GroupItem *field)
+{
+	
+	if (!gJitBuilder || !field) return;
+	llvm::IRBuilder<> *b = gJitBuilder;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	
+	llvm::Value *fieldAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)field), ptr, "fillArg");
+	llvm::Value *callee = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&displayFillRT), ptr, "fillFn");
+	llvm::FunctionType *fnTy = llvm::FunctionType::get(ptr, {ptr}, false);
+	b->CreateCall(fnTy, callee, {fieldAddr});
+	gJitEmitted = true;
 	
 }
 

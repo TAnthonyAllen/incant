@@ -1,0 +1,52 @@
+/*  dsFillJ -- DS-4(b), THE JITTED HALF. The half that has never been true.
+
+    ⚠ THE COLOUR CHANGES BETWEEN FIRES, AND THAT IS THE PROOF. Under jitting the
+    interpreter executes an action body FOR REAL at emit time, so a bitmap with
+    the right pixel in it after ONE fire proves nothing -- the emit-time pass
+    could have painted it. Fire 2 recompiles nothing; if its pixel tracks a
+    colour changed AFTER emission, the fill ran from COMPILED CODE.
+
+    Injectivity: the two fires want DIFFERENT answers (red then teal), not just
+    different inputs. Two fires that both wanted red could not tell a per-fire
+    call from a single emit-time paint.
+
+    Fixture order is load-bearing (bear-trap #25): the jitted half FIRST. An
+    interpreted run consumes isCoded and testing() then silently routes to
+    jitRunIfTest, measuring the wrong engine at exit 0.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+registry(cOMMANDs);
+define makeDisplay immediateAction=makeDisplay; ;
+define displayFill immediateAction=displayFill; ;
+define pixelAt     immediateAction=pixelAt; ;
+
+register(DsFillJ);
+define
+    djRed  = "ff0000";
+    djTeal = "008080";
+    djCanvas x=0 y=0 width=8 height=8 style="djRed" px=2 py=2;
+    djFill code={ displayFill(djCanvas); };
+    ;
+
+makeDisplay(djCanvas);
+print "-- before any fill (want r0 g0 b0 a0) --":;
+pixelAt(djCanvas);
+
+testing(djFill);
+print "-- fire 1, compiled, style=djRed (want r255 g0 b0 a255) --":;
+pixelAt(djCanvas);
+
+/*  ⚠ NO RECOMPILE BELOW THIS LINE. Only the colour changes.  */
+djCanvas.style = "djTeal";
+jitRefire();
+print "-- fire 2, NO recompile, style=djTeal (want r0 g128 b128 a255) --":;
+pixelAt(djCanvas);
+
+print "DSFILLJ SENTINEL":;
+stop();

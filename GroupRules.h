@@ -142,6 +142,7 @@ extern "C" void debugRuleNamed(char *name);
 extern "C" void debugText(GroupItem *debugStuff, int flag);
 extern "C" GroupItem *demoRprime(GroupItem *argument);
 extern "C" void dispatcher(void *stuff);
+extern "C" GroupItem *displayFill(GroupItem *field);
 extern "C" void dumpColorRGB(GroupItem *field);
 extern "C" GroupItem *dumpContents(GroupItem *stuff);
 extern "C" void dumpFontInfo(GroupItem *field);
@@ -179,6 +180,7 @@ extern "C" GroupItem *jitEmitCompare(GroupItem *argument, GroupItem *target, int
 extern "C" int jitEmitContinue();
 extern "C" GroupItem *jitEmitDO(GroupItem *input);
 extern "C" GroupItem *jitEmitDot(GroupItem *argument, GroupItem *target, GroupItem *resultNode);
+extern "C" void jitEmitFill(GroupItem *field);
 extern "C" GroupItem *jitEmitGIF(GroupItem *input);
 extern "C" GroupItem *jitEmitIterStep(GroupItem *result);
 extern "C" void jitEmitIterate(GroupItem *input);

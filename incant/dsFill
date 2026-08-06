@@ -1,0 +1,35 @@
+/*  dsFill -- DS-4(a), THE INTERPRETED HALF. Verified BY PIXEL, not by exit 0.
+
+    The specimen crosses five seams once each: a command registers, dispatches,
+    reads its colour through the style slot, writes the bitmap, and (in dsFillJ)
+    does it from compiled code.
+
+    ⚠ THE BEFORE ROW IS NOT DECORATION. Row 1 wants 0,0,0,0 -- which a bitmap
+    that was never drawn into ALSO gives, so on its own it asserts nothing.
+    Row 2 wants a non-zero colour, so the pair distinguishes "the fill happened"
+    from "the slot defaults to empty". Pair every zero-expecting row with a
+    non-zero sibling.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+registry(cOMMANDs);
+define makeDisplay    immediateAction=makeDisplay; ;
+define displayFillRT  immediateAction=displayFillRT; ;
+define pixelAt        immediateAction=pixelAt; ;
+
+register(DsFill);
+define
+    dsRed = "ff0000";
+    dsCanvas x=0 y=0 width=8 height=8 style="dsRed" px=2 py=2;
+    ;
+
+makeDisplay(dsCanvas);
+print "-- before the fill (want r0 g0 b0 a0) --":;
+pixelAt(dsCanvas);
+displayFillRT(dsCanvas);
+print "-- after the fill (want r255 g0 b0 a255) --":;
+pixelAt(dsCanvas);
+print "DSFILL SENTINEL":;
+stop();

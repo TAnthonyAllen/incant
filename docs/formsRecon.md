@@ -1,7 +1,10 @@
 # formsRecon — the drawing surface, measured
 
-**KIND:** recon. Measurement only. No fixes, no design, no edits to any source file in this pass.
-**Brief:** FR-0…FR-5 plus amendment FR-2a (Clay → Clod via Tony, 2026-08-06).
+**KIND:** §1–§7 are recon — measurement only, no source edits in that pass. **§8 is DS**, the
+drawing specimen, and it BUILT things; its own acceptance is stated there. The two are kept in one
+file because the recipe in §8 is only readable against the table in §1, and splitting them would
+put a claim and its evidence in different documents.
+**Brief:** FR-0…FR-5 plus amendment FR-2a; then DS-0…DS-6 (Clay → Clod via Tony, 2026-08-06).
 **Ran:** 2026-08-06, branch `jit-unified-emit-wip`.
 **Corpus status:** first corpus file of the **forms minion** role. Written for a reader with **no
 session context** (stage-1 durability) — whoever fires forms next inherits this table, not the
@@ -343,3 +346,99 @@ branch      jit-unified-emit-wip
 HEAD        ed8d308  SEAL 2026-08-05: KANT-8 buried, the campaign at its real question
 dirty       IncantForms/WorkingOn/incant++   (Tony's working document, expected)
 ```
+
+---
+
+# 8. DS — THE DRAWING SPECIMEN, AND THE RECIPE THAT IS ITS PRODUCT
+
+**asOf 2026-08-06 · confidence: MEASURED, both halves green · fixtures `incant/dsFill`
+(interpreted) and `incant/dsFillJ` (jitted)**
+
+`displayFill` fills a field's frame rect with the colour its style names, into a bitmap.
+Nothing else. It was chosen because it crosses every seam exactly once, and the crossings —
+not the fill — are the deliverable.
+
+**⚠ IT IS NAMED `displayFill`, NOT `fill`, AND THAT IS BEAR-TRAP #17 RATHER THAN TASTE.**
+`fill()` is declared in `~/data/support/Include/OCframe`, the **shared cross-project TAWK
+keyword/alias table**. A bare `fill` gets silently claimed by that table the moment both are
+live in one pass and mis-generates into an Apple selector, with no diagnostic until the C++
+compile names an unrelated file. Grep any short drawing verb against that file before using it
+— `line`, `text`, `clear` and `stroke` are all candidates.
+
+## 8.1 THE FIVE-SEAM RECIPE — every later drawing command inherits these crossings
+
+| # | seam | how, with the site | notes for the next command |
+|---|---|---|---|
+| 1 | **registration** | `define displayFill immediateAction=displayFill; ;` in the FIXTURE, not `incant/setup` | fixture-local on purpose: `incant/setup`'s registries are walked and baselined by `pop.sh`'s census, so a permanent entry is a baseline event. Same discipline `genParse`/`showParse` already follow |
+| 2 | **dispatch route** | command → `runOP` (`GroupActions.rtn:828`) → its **last** arm, `or isMethod` (`:890`) | ⚠ **the seed gate at `:874` does NOT cover that arm.** FR §4 predicted exactly this and it held. It does not bite here because the emitted call passes a **baked node address**, not a seeded operand — a drawing command needs to be *callable*, not *emittable* |
+| 3 | **style read** | `field["style"]` → its text names a colour → `getColor` (`Stylish.twk:87`) → `setColor` (`:136`) realises hex→NSColor **once**, cached on the colour node's object slot | **DS's opening measurement, answered: the slot hands over a NAME needing realisation, not a realised colour** — and the realisation is already once-per-entity, never per draw call |
+| 4 | **Display write** | `CGContextSetRGBFillColor` + `CGContextFillRect` on the context in the node's pointer slot — `displayFillRT` (`GroupDraw.twk:204`) | the only line that differs per command |
+| 5 | **jit-callable** | `displayFill` (`jitEmitters.rtn:2846`) gates on `jitting`; `jitEmitFill` (`:2819`) bakes the node address and `displayFillRT`'s address and emits ONE `CreateCall` of `GroupItem*(GroupItem*)` | a carbon copy of `jitEmitTrace`. That signature is the **fallback-column convention, verified against `runOP`'s own dispatch** rather than adopted from a design, so every drawing command can wear it |
+| 6 | **what Display minimally is** (DS-6) | `makeDisplay` (`GroupDraw.twk:158`): a `CGBitmapContext` in the node's **pointer** slot, plus the node's `style` attribute as the current-style slot | **two of the GD ruling's four things. Pen and measure are absent by instruction**, not oversight |
+
+## 8.2 DISPLAY, AS MEASURED — the seed the class brief inherits
+
+- **It lives on a GroupItem and there are no statics.** The context goes in the **pointer** slot
+  (`setPointer`), which is where `makeStyleFor` already hangs a `Stylish`. ⚠ **Not the object
+  slot** — `setObject` is typed `NSObject*` and a `CGContextRef` is a CF type, so the object slot
+  rejects it at compile time. Consequence: "the display" is an ordinary field you can pass,
+  attach and look up, with nothing global to reset between runs.
+- **The current-style slot is the node's `style` attribute**, read at draw time.
+- ⚠ **NO Y-FLIP. Deliberate omission, and a debt named rather than hidden.** guiDesign §10.3 rules
+  that Display exposes top-left/y-down and flips internally; this increment fills a rect it was
+  handed and does not flip. The flip wants a frame height to be meaningful, which is layout's
+  question, not this specimen's.
+
+## 8.3 ⚠ THE RECIPE DOES **NOT** REPLICATE CLEANLY TO `line`, AND THAT IS THE FINDING DS-2 ASKED FOR
+
+Seams 1, 2, 4 and 5 carry over unchanged — registration, dispatch, the one CG call, the emitted
+call. **Seam 3 does not**, and the reason is structural rather than incidental:
+
+**this specimen's style slot is DEGENERATE — the `style` attribute's text names a colour
+directly, so the style IS one colour.** That is enough for `fill`, which needs exactly one, and
+it is why the specimen could be small. `line` needs a **stroke** colour and would soon want a
+width; `drawText` needs a text colour and a font. The moment a second component exists there is
+nothing in this shape to distinguish them.
+
+**So `line` is precisely where FR-2a's style-as-GroupItem stops being a preference and becomes
+required:** a style node carrying named component attributes (`fillColor`, `strokeColor`,
+`font`), with seam 3 reading a *named component* rather than the style's own text. **Do that
+before `line`, not after** — one command is a cheap conversion and three is a migration.
+Everything else on the recipe is ready.
+
+## 8.4 BEAR-TRAP #15 IS FALSIFIED ON ITS COLOUR HALF (DS-3)
+
+The trap records `setColor`'s `properties["hexSet"]` as a null-deref that *"still segfaults even
+under the full preamble"*, with the real init path unknown. **It does not segfault.**
+`hexSet=[0-9a-fA-F]` is defined in `incant/setup`'s `pROPERTIEs` registry and is present under an
+ordinary `Start()`. Measured with `dumpColorRGB` (which existed in `Debug.rtn` all along and was
+**never registered**, which is why nobody re-measured it):
+
+```
+    ff0000  ->  r=1.000 g=0.000 b=0.000 a=1.000
+    008080  ->  r=0.000 g=0.502 b=0.502 a=1.000     exit 0
+```
+
+Correct parse, correct scale. **It is not in the specimen's path as a hazard; it is the path, and
+it works.** The trap's *other* half — attribute-construction-then-dereference — was not exercised
+and is untouched by this. Likely cause of the original failure, unproven: the trap's own fixture
+built fields with no data, which is bear-trap #26.
+
+## 8.5 WHAT THE TWO POPs ASSERT
+
+```
+incant/dsFill    interpreted   pixel (2,2)  r0 g0 b0 a0   ->  r255 g0 b0 a255
+incant/dsFillJ   jitted        before       r0 g0 b0 a0
+                               fire 1       r255 g0 b0 a255      compiled, style=djRed
+                               fire 2       r0 g128 b128 a255    NO recompile, style=djTeal
+                                            degrade 0, compile 1, jitRunAction entered
+```
+
+**Fire 2 is the whole proof.** Under jitting the interpreter executes an action body for real at
+emit time, so a correct pixel after one fire proves nothing — the emit-time pass could have
+painted it. Fire 2 recompiles nothing and its pixel tracks a colour changed **after** emission,
+so the fill ran from compiled code. The two fires want **different** answers, not merely
+different inputs.
+
+**The before-row is paired on purpose:** `r0 g0 b0 a0` is also what a bitmap nobody drew into
+gives, so alone it asserts nothing. Every zero-expecting row has a non-zero sibling.
