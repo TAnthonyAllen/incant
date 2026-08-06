@@ -936,3 +936,76 @@ that scopes it has to be re-run against the corrected question before the next i
 **PC-3 and PC-4 are KEPT and green.** Only the Parens install is reverted; `parseParens` removed
 rather than left as dead code. **Metric stays 0/78** — and for the first time the thing standing
 between it and 1/78 is a named one-action conversion rather than an unexplained red.
+
+## GM-25 — PC-2′: THE CORRECTED CENSUS. **SIX READERS**, AND THE RADIUS IS PER-RULE.
+**asOf 2026-08-07 · confidence: MEASURED (mechanical over `ruleActions.rtn`, both hoist forms, hits
+read by eye) · provenance: `ruleActions.rtn`, `GroupItem.twk:1088` · no code changed**
+
+GM-23 asked **"who LIVES at a promotion parent"** and answered *"nobody, for the twelve"*. The
+install falsified it. **PC-2′ asks "who LOOKS at one"** — a hoist resolves by NAME through the label
+tree, so a shape change moves what the name finds and the reader can live in any rule.
+
+**Both hoist forms censused:** the colon form (`GroupItem DatA:,`) and the bracket form
+(`xpress["InvokeArg"]`).
+
+| promotion parent | read by | form |
+|---|---|---|
+| `DatA` | `aCTionTraiTdata` | colon |
+| `InvokeArg` | `aCTionTokenXP` | bracket |
+| `ANYorNum` | `aCTionTokenXP` | bracket |
+| `StatemenT` | `aCTionDO` · `aCTionFOR` · `aCTionIF` · `aCTionWhilE` | colon |
+| `GrouP` · `Token` · `WardeD` · `PrintXP` · `NamE` · `NewGroup` · `NumbeR` · `ANYtoken` · `ShortcuT` | **no readers** | — |
+
+**SIX DISTINCT ACTIONS: `aCTionTraiTdata` · `aCTionTokenXP` · `aCTionDO` · `aCTionFOR` ·
+`aCTionIF` · `aCTionWhilE`.** Note this is a *different* six from GM-23's — only the question
+changed, and **it names the actual crash site**: `aCTionTraiTdata`'s `DatA:` hoist is exactly where
+the install attempt's backtrace landed.
+
+## THE RADIUS IS PER-RULE, WHICH IS THE USEFUL FORM
+An install only disturbs the parents that the installed rule is an **option of**:
+
+| installing | promotes into | reader that must convert |
+|---|---|---|
+| **`Parens`** (rule two) | `InvokeArg` | **`aCTionTokenXP`** |
+| `Braced` | `InvokeArg` | `aCTionTokenXP` |
+| `GrouP`, `CodE` | `DatA` | `aCTionTraiTdata` |
+| `BlocK` | `StatemenT` | `aCTionDO`/`FOR`/`IF`/`WhilE` |
+| `ElsE`, `InvokE`, `PrintField`, `WardeD`, `RunRulE`, `ExpressioN` | — | none |
+
+**So the twelve cost at most three conversions, and Parens costs exactly one.** That is the bound
+GM-23 was reaching for and got wrong by asking about residence instead of reach.
+
+## ⚠ THE CONVERSION'S SHAPE QUESTION, AND IT IS NOT A ONE-LINER — DIRECTOR'S CALL
+IT-1's idiom is *"an action that wants promotion returns the child's label as its own yield"*. For
+`InvokeArg` that means giving it an action which hands back its option. **But the two shapes are not
+tag-distinguishable, because PROMOTION RETAGS** (`GroupItem.twk:1088`,
+`lab.tag = pStuff.ruleName`):
+
+```
+    interpretive (promote)   InvokeArg's label IS the Parens node, RETAGGED "InvokeArg",
+                             carrying Parens' own content (isGROUP, group = ExpressioN)
+    generated (attach-under) InvokeArg's label is a fresh "InvokeArg" node with a
+                             "Parens" child ATTRIBUTE
+```
+Both are tagged `InvokeArg`. An action that must serve both arms during the migration therefore
+cannot ask *"what is my tag"*; it has to ask about **structure** — *"do I carry an option as an
+attribute, or am I the option"* — and that discriminator wants choosing rather than guessing.
+
+**Three candidate shapes, none taken:**
+1. **`aCTionInvokeArg` promotes by hand** — return the attached option when there is one, else
+   `input`. IT-1's idiom exactly; needs the structural discriminator above.
+2. **`aCTionTokenXP` looks one level deeper** — its `if InvokeArg.isGROUP` branch learns that
+   `InvokeArg` may now *contain* rather than *be* the node. Smaller, but puts shape knowledge in
+   the consumer instead of the producer, which is the direction IT-0 rules against.
+3. **Wait for attrition** — this divergence disappears when `isTarget` retires (IT-3), so an
+   interim converter is scaffolding with a known demolition date.
+
+**Recommendation, offered as one: (1).** It is where IT-0 puts shape opinions, it is two-for-one per
+IT-6 (one action, both engines), and it retires cleanly at IT-3 by simply becoming unnecessary
+rather than wrong. **Not taken — the discriminator is a semantics choice.**
+
+## DISPOSITION
+**Census only; no code changed.** Tree is exactly as GM-24 left it: PC-3 and PC-4 in and green,
+fleet byte-identical, `pop.sh` 33 green / 1 parked, ladder 150, recordPop 48, formsPop 14,
+tree/printPop/containerPop exit 0. **Metric stays 0/78**, and the distance to 1/78 is now **one
+named action and one semantics choice.**
