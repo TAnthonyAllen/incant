@@ -1009,6 +1009,35 @@ char        dq = 34;
     fixture registers it, exactly as the genParse fixtures already register
     genParse — zero baseline risk, and the same two lines.
 *******************************************************************************/
+/*******************************************************************************
+    recordParse — GX-6: arm the ParsE record from INSIDE a fixture, so a
+    looksee needs no environment variable and no preparation.
+
+        registry(cOMMANDs);
+        define recordParse immediateAction=recordParse; ;
+        recordParse();
+
+    Same relationship to INCANT_PARSE_RECORD that `traceParse` has to a debug
+    switch: one more door onto the SAME gate, not a second gate. genParse reads
+    the env var first and falls back to this flag, so an armed fixture behaves
+    exactly as `INCANT_PARSE_RECORD=1` does -- attribute only, no file. A
+    fixture that wants the file sink still uses the env var, because a path has
+    to come from somewhere.
+
+    A FILE-STATIC AND NOT A GroupRules FIELD, deliberately: a new field in a
+    class shifts nothing here but a new GroupBody flag would, and the habit
+    worth keeping is that a debug affordance never drags in bear-trap #10's
+    apparatus (groups.ext sync + tokall). Off unless a fixture asks.
+*******************************************************************************/
+extern GroupItem recordParse(GroupItem argument)
+{
+GroupRules  ruler = groupRules;
+    -%
+    gParseRecordArmed = 1;
+    %-
+    return trueResult;
+}
+
 extern GroupItem showParse(GroupItem argument)
 {
 GroupItem   rule = ruleOrRefuse(argument.text,"showParse");
@@ -1120,6 +1149,9 @@ GroupItem   result;
         what LANDED ON THE NODE, and dumping the local would pass even if
         addAttribute had silently done nothing.  */
     char   *rp      = ::getenv("INCANT_PARSE_RECORD");
+    /*  GX-6: the in-fixture door onto the SAME gate. Env var wins when both are
+        set, because only it can carry a path.  */
+    if (!rp && gParseRecordArmed)   rp = (char*)"1";
     char   *recBuf  = 0;
     size_t  recSize = 0;
     FILE   *ms      = rp ? ::open_memstream(&recBuf,&recSize) : 0;

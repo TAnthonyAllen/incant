@@ -21,6 +21,16 @@
 #include <vector>
 #include <string>
 
+// gParseRecordArmed — genParse's in-fixture ParsE-record switch (GX-6), set by
+// the `recordParse` command and read by `genParse`, both in genParse.rtn. It
+// lives in THIS header and not in that file because tok relocates a file-scope
+// `-% %-` passthrough to the END of the generated .mm, so a static declared
+// there is emitted AFTER both of its users ("use of undeclared identifier").
+// This header is hand-written and NOT tok-processed, so the declaration
+// survives a retok — bear-trap #5 drops #include lines and anything else tok
+// regenerates. Nothing to do with the JIT; it is here for the retok property.
+static int gParseRecordArmed = 0;
+
 // The builder the emitters write into. Set by the compile driver before walking
 // an action body; grabbed by each emitter in a one-line -% %- (the only passthrough
 // the otherwise tok-native emitters need). C++17 inline var → one definition across

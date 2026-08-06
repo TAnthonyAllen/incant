@@ -1,0 +1,38 @@
+/*  showGen -- GX-6, THE LOOKSEE. Run it and read the generated parse method.
+
+    NO PREPARATION: no environment variable, no shell, no arguments. Open it in
+    Xcode, run, read the output. The capture arms itself with recordParse()
+    below, which is the in-fixture door onto the same gate INCANT_PARSE_RECORD
+    opens.
+
+    TO LOOK AT A DIFFERENT RULE, EDIT THE TWO MARKED LINES AT THE FOOT --
+    and it is two, not one, which is worth saying plainly. Incant fixtures are
+    invoked as `incant <file>` with no argument channel, so the name cannot be
+    passed in. Naming it ONCE in a field and using it twice was tried first and
+    DOES NOT WORK: `genParse(gsRule)` resolves nothing and prints nothing, at
+    exit 0. Both call sites need the quoted literal, so they are kept adjacent
+    and marked to make a half-edit obvious at a glance.
+
+    GENERATION ONLY. This does not install anything, does not touch
+    incant/grammar, and cannot move a baseline: genParse emits and installs
+    nothing (its own header says so), and the ParsE record is gated. Fleet
+    neutral by construction.
+
+    The twelve plannable rules are: Braced Parens ElsE InvokE InvokeArg
+    PrintField WardeD GrouP CodE RunRulE BlocK ExpressioN.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+registry(cOMMANDs);
+define genParse immediateAction=genParse; ;
+define showParse immediateAction=showParse; ;
+define recordParse immediateAction=recordParse; ;
+recordParse();
+print "---- generated method ----":;
+/*  <<<< EDIT BOTH OF THESE -- same rule name, quoted >>>>  */
+genParse('Parens');
+showParse('Parens');
+/*  <<<< end of the edit >>>>  */
+print "SHOWGEN SENTINEL":;
+stop();

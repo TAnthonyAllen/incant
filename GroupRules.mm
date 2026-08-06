@@ -3017,6 +3017,9 @@ GroupItem 	*result = 0;
 	what LANDED ON THE NODE, and dumping the local would pass even if
 	addAttribute had silently done nothing.  */
 	char   *rp      = ::getenv("INCANT_PARSE_RECORD");
+	/*  GX-6: the in-fixture door onto the SAME gate. Env var wins when both are
+	set, because only it can carry a path.  */
+	if (!rp && gParseRecordArmed)   rp = (char*)"1";
 	char   *recBuf  = 0;
 	size_t  recSize = 0;
 	FILE   *ms      = rp ? ::open_memstream(&recBuf,&recSize) : 0;
@@ -9304,6 +9307,78 @@ char 		*name = item->groupBody->flags.data ? item->getText() : (char*)0;
 	return ruler->trueResult;
 }
 
+/*******************************************************************************
+    genParse — two passes now, and that is the rung-3 result: planRule DECIDES,
+    emitPlan WRITES. Nothing between them knows about C++.
+
+    The walk is walked TWICE by emitPlan, once to validate and once to write.
+    That is deliberate and is one of the reasons the seam artifact is a plan and
+    not a visitor: §3.3's helper functions are discovered mid-walk, and with
+    text already going out you must buffer or emit out of order. With a plan you
+    just walk it again. It costs nothing at this size and it is the shape rung 5
+    needs.
+
+    Every refusal now lives in planRule, where it belongs — a refusal is a
+    validity question about the RULE, so it reads the same whichever emitter is
+    downstream (§4).
+*******************************************************************************/
+/*******************************************************************************
+    showParse — PJ-7's director's window: print a rule's recorded ParsE.
+
+        registry(cOMMANDs);
+        define showParse immediateAction=showParse; ;
+        showParse('Braced');
+
+    WHY THIS IS A COMMAND AND NOT A KANT ACTION, which was the brief's first
+    preference and is not available: A RULE NAME IN INCANT EXPRESSION POSITION
+    INVOKES THE RULE. `print Braced.ParsE;` prints nothing and `if Braced;`
+    exits 139 — both measured 2026-08-06 — because naming a rule runs it
+    against the current input. There is no ordinary incant statement that names
+    a rule without firing it, so the window has to come in through the same door
+    genParse itself uses: a command taking the name as TEXT and resolving it
+    with locateRule via ruleOrRefuse. That is the proven lookup, and it also
+    sidesteps the members gate that makes bare lookup unreliable for a rule.
+
+    PRINTS TO STDOUT AND SAYS SO WHEN THERE IS NOTHING. An empty or absent
+    record prints a named line rather than nothing at all — an instrument whose
+    silence means two different things (no record / no output) is the
+    one-channel-one-meaning failure, and here the two are a gate left closed
+    versus a genParse that never ran.
+
+    NOT REGISTERED IN incant/setup, DELIBERATELY. Registering it there would add
+    a member to a base registry that pop.sh's census walks and baselines. The
+    fixture registers it, exactly as the genParse fixtures already register
+    genParse — zero baseline risk, and the same two lines.
+*******************************************************************************/
+/*******************************************************************************
+    recordParse — GX-6: arm the ParsE record from INSIDE a fixture, so a
+    looksee needs no environment variable and no preparation.
+
+        registry(cOMMANDs);
+        define recordParse immediateAction=recordParse; ;
+        recordParse();
+
+    Same relationship to INCANT_PARSE_RECORD that `traceParse` has to a debug
+    switch: one more door onto the SAME gate, not a second gate. genParse reads
+    the env var first and falls back to this flag, so an armed fixture behaves
+    exactly as `INCANT_PARSE_RECORD=1` does -- attribute only, no file. A
+    fixture that wants the file sink still uses the env var, because a path has
+    to come from somewhere.
+
+    A FILE-STATIC AND NOT A GroupRules FIELD, deliberately: a new field in a
+    class shifts nothing here but a new GroupBody flag would, and the habit
+    worth keeping is that a debug affordance never drags in bear-trap #10's
+    apparatus (groups.ext sync + tokall). Off unless a fixture asks.
+*******************************************************************************/
+extern "C" GroupItem *recordParse(GroupItem *argument)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	
+	gParseRecordArmed = 1;
+	
+	return ruler->trueResult;
+}
+
 /*****************************************************************************
     reset — incant command (bound as reset immediateAction=resetField in
     setup). Self-describing by argument: for now it knows buffers (resets the
@@ -9858,49 +9933,6 @@ char 		*name = 0;
 	return item;
 }
 
-/*******************************************************************************
-    genParse — two passes now, and that is the rung-3 result: planRule DECIDES,
-    emitPlan WRITES. Nothing between them knows about C++.
-
-    The walk is walked TWICE by emitPlan, once to validate and once to write.
-    That is deliberate and is one of the reasons the seam artifact is a plan and
-    not a visitor: §3.3's helper functions are discovered mid-walk, and with
-    text already going out you must buffer or emit out of order. With a plan you
-    just walk it again. It costs nothing at this size and it is the shape rung 5
-    needs.
-
-    Every refusal now lives in planRule, where it belongs — a refusal is a
-    validity question about the RULE, so it reads the same whichever emitter is
-    downstream (§4).
-*******************************************************************************/
-/*******************************************************************************
-    showParse — PJ-7's director's window: print a rule's recorded ParsE.
-
-        registry(cOMMANDs);
-        define showParse immediateAction=showParse; ;
-        showParse('Braced');
-
-    WHY THIS IS A COMMAND AND NOT A KANT ACTION, which was the brief's first
-    preference and is not available: A RULE NAME IN INCANT EXPRESSION POSITION
-    INVOKES THE RULE. `print Braced.ParsE;` prints nothing and `if Braced;`
-    exits 139 — both measured 2026-08-06 — because naming a rule runs it
-    against the current input. There is no ordinary incant statement that names
-    a rule without firing it, so the window has to come in through the same door
-    genParse itself uses: a command taking the name as TEXT and resolving it
-    with locateRule via ruleOrRefuse. That is the proven lookup, and it also
-    sidesteps the members gate that makes bare lookup unreliable for a rule.
-
-    PRINTS TO STDOUT AND SAYS SO WHEN THERE IS NOTHING. An empty or absent
-    record prints a named line rather than nothing at all — an instrument whose
-    silence means two different things (no record / no output) is the
-    one-channel-one-meaning failure, and here the two are a gate left closed
-    versus a genParse that never ran.
-
-    NOT REGISTERED IN incant/setup, DELIBERATELY. Registering it there would add
-    a member to a base registry that pop.sh's census walks and baselines. The
-    fixture registers it, exactly as the genParse fixtures already register
-    genParse — zero baseline risk, and the same two lines.
-*******************************************************************************/
 extern "C" GroupItem *showParse(GroupItem *argument)
 {
 GroupItem 	*rule = ::ruleOrRefuse(argument->getText(),"showParse");

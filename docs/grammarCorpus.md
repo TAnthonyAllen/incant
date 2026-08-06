@@ -448,3 +448,68 @@ whoever takes the fix. **Metric stays 0/78 installed.**
 the pattern systemic and the fix lands once at the right level — the generated exit — instead of once
 per rule."* **It reds the same way. The condition is met.** The fix is a separate decision after this
 report and is not part of the fire.
+
+## GM-18 — GX: THE ACTION NOW FIRES ON THE GENERATED ARM. **A SECOND, DISTINCT DIVERGENCE IS UNDERNEATH IT.**
+**asOf 2026-08-06 · confidence: MEASURED, both arms, probe-instrumented · provenance:
+`GroupItem.twk` `fireLabelMethod` (new) and `parse()`'s generated arm, `RuleStuff.twk:603-617`
+(`leaveRule`), `GroupItem.mm:1086-1094` (the interpretive attach), specimen `incant/parensMin`**
+
+**THE FIX, AND IT IS THE SHAPE GX-1 ASKED FOR RATHER THAN A COPIED BLOCK.** The action-firing block
+was **extracted verbatim** from `parse()`'s match loop into `GroupItem::fireLabelMethod(RuleStuff)`,
+and **both arms now call it** — the interpretive arm where the block used to sit, the generated arm
+under `if sukcess` before `goto generatedExit`. One writer of the behaviour, so the two arms cannot
+drift on action-firing again. This extends `parse()`'s own S1.3 principle — *"the generated path
+matches the interpretive path because it RUNS the same exit, not because the exit was copied
+carefully"* — one region further up; the defect was that **the shared region started too late.**
+
+**No return value, deliberately:** both things it can change (`label`, `sukcess`) live on the
+RuleStuff, so it mutates in place. The tempting *"return the label, null means failure"* is wrong
+here and quietly so — `RuleStuff.twk:181` sets `label = 0` **on success** for a `noLabel` rule, so
+null would mean *"no label"* and *"method failed"* at once.
+
+**BEHAVIOUR-NEUTRAL WITH NO RULE INSTALLED, MEASURED:** `oneTest`, `jsonTest`, `kant8T`, `phaseA`,
+`emitAll` byte-identical on **both streams**; `pop.sh` 33 green / 1 parked, ladder 150,
+`recordPop` 48, `printPop`/`containerPop`/`tree` exit 0.
+
+**✅ THE PRIMARY ORACLE MOVED.** With `Parens` installed, a `parseTrace`-gated probe inside
+`fireLabelMethod` reports, for the first time, on the generated arm:
+```
+    fireLabelMethod Parens isMethod=1 label=1 deferred=0 parseACTION=0      <- BOTH arms now
+```
+**The rule action fires on the generated path.** GM-16/GM-17's defect is closed.
+
+## ⚠ AND THE ORACLE IS STILL RED, BECAUSE A SECOND DIVERGENCE SITS UNDER THE FIRST
+`incant/parensMin` still does not print `INSIDE pmTake, argument is 7` with the install live, and the
+probe names where it now goes wrong — one level up the tree:
+```
+    install ON    fireLabelMethod InvokeArg isMethod=0 label=0      <- nothing attached
+    install OFF   fireLabelMethod InvokeArg isMethod=0 label=1
+```
+**THE MECHANISM, AND IT IS STRUCTURAL RATHER THAN A BUG IN THE EMITTED METHOD.** The two arms attach
+the finished label to the parent in different places, and the generated one is a strict subset:
+
+| | interpretive (`GroupItem.mm:1086-1094`) | generated (`leaveRule`, `RuleStuff.twk:608`) |
+|---|---|---|
+| target rule | `pStuff.label = label; label.tag = pStuff.ruleName` | — |
+| `label.isGROUP && max > 1` | `pStuff.label +% label.group` then clear the label | — |
+| otherwise | `pStuff.label +% label` | `if into  into +% label` |
+| ordering | attach **after** the action | attach **before** the action |
+
+**Both differences bite `Parens` at once.** `aCTionParens` is `input.clear(); input.group =
+ExpressioN;` — it MAKES the label `isGROUP`, which is precisely the middle row, so the interpretive
+arm attaches the **ExpressioN** and the generated arm attaches a `Parens` wrapper around it. And it
+cannot even reach that row, because `leaveRule` has already attached by the time the action runs.
+**Right language, wrong tree** — the hazard `genParse.rtn`'s own §2.4 note raises for ALT, arriving
+here by a different road.
+
+**THIS IS A NEW FINDING, NOT NOISE** (GX-2 anticipated the disposition). It is also **not day-sized**:
+closing it means either `leaveRule` taking over the full three-case attach *and* firing the action
+before it, or generated methods ceasing to attach at all so `parse()` owns the plumbing for both
+arms. The second is the structurally-right answer and changes **every generated method's contract**.
+**Reported rather than chosen, per GX-5.**
+
+**DISPOSITION.** The `fireLabelMethod` extraction is **KEPT** — proven neutral, strictly correct, and
+a prerequisite for either shape above. `Parens` is **NOT installed**; `incant/grammar` is untouched
+and `parseParens` is not in the tree. **Metric stays 0/78.** The probe is kept, gated on the existing
+`parseTrace` and therefore silent by default. **GX-3's audit door was NOT built** — the install it
+was to unblock did not happen, so it would have been a door onto a room nobody can enter yet.

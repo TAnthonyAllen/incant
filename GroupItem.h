@@ -54,6 +54,7 @@ void dispatch();
 void dumpField();
 GroupItem *findAttribute(char *name);
 GroupItem *findParent(char *name);
+void fireLabelMethod(RuleStuff *stuff);
 GroupItem *firstComponent(char *name);
 GroupItem *followingEntry();
 GroupItem *get(char *name);

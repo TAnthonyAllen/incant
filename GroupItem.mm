@@ -532,6 +532,61 @@ GroupItem 	*group = this;
 }
 
 /***************************************************************************
+    Treat this field as a rule and match it against the input stream.
+***************************************************************************/
+/***************************************************************************
+    fireLabelMethod — THE RULE ACTION, and the ONLY site that fires one.
+
+    GX-1, 2026-08-06. Extracted verbatim from parse()'s match loop so that the
+    interpretive arm and the generated arm RUN THE SAME CODE rather than
+    carrying two carefully-matched copies. That is the same principle parse()'s
+    own S1.3 comment already states about the shared exit — "the generated path
+    matches the interpretive path because it RUNS the same exit, not because the
+    exit was copied carefully" — applied one region further up. The defect this
+    closes was precisely that the shared region STARTED TOO LATE: it began at
+    generatedExit, so the action layer sat outside it and the generated arm's
+    `goto` jumped clean over the rule action.
+
+    ⚠ MEASURED CONSEQUENCE OF THE GAP, TWO SPECIMENS, BOTH SHAPE-IDENTICAL:
+    `Braced` (2026-08-05) and `Parens` (2026-08-06) each parsed correctly,
+    attached their term under the right label, HIT and WIN — and their actions
+    never ran. corpus GM-16 / GM-17. Parens was catastrophic rather than subtle
+    only because of where it sits in the grammar: every parenthesised
+    invocation goes through it, so `include(x)` invoked `include` with no
+    argument and every fixture died on its first statement.
+
+    ⚠ NO RETURN VALUE, AND THAT IS DELIBERATE. Both things this can change --
+    the label and the success flag -- live on the RuleStuff, so it mutates them
+    in place and reports nothing. The tempting shape, "return the label, null
+    means failure", is WRONG here and quietly so: RuleStuff.twk:181 sets
+    `label = 0` for a `noLabel` rule ON SUCCESS, so a null label means "this
+    rule has no label" AND "the method failed" — one channel, two meanings, the
+    failure family this project has paid for repeatedly. Nothing is returned,
+    so there is nothing to conflate.
+
+    Not in groups.ext: called only from parse(), in this file.
+***************************************************************************/
+void GroupItem::fireLabelMethod(RuleStuff *stuff)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	ruler->ruleSTUFF = stuff;
+	if ( ruler->parseTrace )
+		::fprintf(stderr,"  fireLabelMethod %s isMethod=%s label=%s deferred=%s parseACTION=%s\n",groupBody->tag,::toStringFromInt(isMethod(groupBody->flags.instructType) != 0),::toStringFromInt(stuff->label != 0),::toStringFromInt(groupBody->flags.deferred != 0),::toStringFromInt(parseACTION(groupBody->flags.methodType) != 0));
+	if ( isMethod(groupBody->flags.instructType) && stuff->label )
+		if ( groupBody->flags.deferred )
+			{
+			stuff->label->setMethod(groupBody->gMethod);
+			stuff->label->groupBody->flags.deferred = 1;
+			if ( !stuff->label->groupBody->flags.data )
+				stuff->label->setText(::concat(2,"g",groupBody->tag));
+			}
+		else
+		if ( !parseACTION(groupBody->flags.methodType) )
+			if ( !(stuff->label = groupBody->gMethod(stuff->label)) )
+				stuff->sukcess = 0;
+}
+
+/***************************************************************************
 	Returns first component with matching tag. Unlike get() it recurses and descends.
     This should check to make sure it does not search the same field more
     than once or it ends up in an infinite loop. TBD need a searchable Stak
@@ -1278,9 +1333,6 @@ GroupItem *GroupItem::nextMember(GroupItem *current)
 	return current;
 }
 
-/***************************************************************************
-    Treat this field as a rule and match it against the input stream.
-***************************************************************************/
 GroupItem *GroupItem::parse(RuleStuff *pStuff)
 {
 GroupItem 	*parentLabel = 0;
@@ -1369,6 +1421,16 @@ RuleStuff 	*ruleStuff = getStuff(pStuff);
 		rStuff->parentLabel = parentLabel;
 		ruleStuff->label = defStuff->parseMethod(this);
 		ruleStuff->sukcess = ruleStuff->label != 0;
+		/*  GX-1: fire the rule action, through the SAME method the
+		interpretive arm calls. Guarded on sukcess so it sits at exactly
+		the point in the sequence its interpretive twin does -- there, the
+		action block is reached only after `if !sukcess goto matchFailed`.
+		The kount++/pStuff-label plumbing below it is NOT wanted here and
+		is not shared: leaveRule already attached this label through
+		`into`, and the kount question is the rung-6 tripwire noted above,
+		which is a separate and still-owed decision.  */
+		if ( ruleStuff->sukcess )
+			fireLabelMethod(ruleStuff);
 		goto generatedExit;
 		}
 	while ( !ruleStuff->isOK && ruleStuff->kount < ruleStuff->max )
@@ -1402,19 +1464,7 @@ continueHere:
 		/*******************************************************************
 		Success. Fire label method if there is one.
 		*******************************************************************/
-		ruler->ruleSTUFF = ruleStuff;
-		if ( isMethod(groupBody->flags.instructType) && ruleStuff->label )
-			if ( groupBody->flags.deferred )
-				{
-				ruleStuff->label->setMethod(groupBody->gMethod);
-				ruleStuff->label->groupBody->flags.deferred = 1;
-				if ( !ruleStuff->label->groupBody->flags.data )
-					ruleStuff->label->setText(::concat(2,"g",groupBody->tag));
-				}
-			else
-			if ( !parseACTION(groupBody->flags.methodType) )
-				if ( !(ruleStuff->label = groupBody->gMethod(ruleStuff->label)) )
-					ruleStuff->sukcess = 0;
+		fireLabelMethod(ruleStuff);
 		if ( ruleStuff->sukcess )
 			{
 			ruleStuff->kount++;
