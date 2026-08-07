@@ -1,0 +1,14 @@
+/*  liveProbe -- IA-4's CENSUS CARRIER, 2026-08-07. Deliberately does nothing.
+
+    The grammar is parsed at STARTUP, before a line of this file runs, so the
+    liveness question is already answered by the time the sentinel prints. All
+    this file has to do is prove the process got that far: a run that dies
+    during grammar parsing prints no sentinel, and its silence must NOT be read
+    as "the bind was not consumed" -- that is the whole vacuity hazard of a
+    census whose negative reading is an ABSENCE.
+
+    So the driver requires the sentinel before it records any row. Absent
+    sentinel is a VOID row, never a dead one.  */
+Start();
+print "LIVEPROBE SENTINEL":;
+stop();

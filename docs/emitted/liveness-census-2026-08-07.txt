@@ -1,0 +1,113 @@
+RESTORED: True
+
+line  rule                 kind    sentinel  refused  verdict
+29    counter              def     True      False    dead
+30    modifySet            def     True      False    dead
+31    nameSet              def     True      False    dead
+32    PoweR                def     True      False    dead
+33    FloaT                def     True      False    dead
+34    tokenize             def     True      False    dead
+35    NumbeR               def     True      False    dead
+36    DefinE               ref     True      False    dead
+37    QuotE                def     True      False    dead
+38    NamE                 def     True      False    dead
+39    GrouP                header  True      False    dead
+40    NamE                 ref     True      False    dead
+41    QuotE                ref     True      False    dead
+42    CodE                 def     True      False    dead
+43    DatA                 header  True      False    dead
+44    GrouP                ref     True      False    dead
+45    NumbeR               def     True      False    dead
+46    CodE                 ref     True      False    dead
+47    SetBrackets          def     True      False    dead
+48    DelimText            def     True      False    dead
+49    NotA                 def     True      False    dead
+50    debug                def     True      False    dead
+51    InvokE               def     True      False    dead
+52    Limit                def     True      False    dead
+53    MemberS              def     True      False    dead
+54    Modifier             def     True      False    dead
+55    TraiTdata            def     True      False    dead
+56    TraiT                def     True      False    dead
+57    Attributes           def     True      False    dead
+58    NewGroup             def     True      False    dead
+59    DefinE               def     True      False    dead
+60    define               def     True      False    dead
+61    RunRulE              def     True      False    dead
+62    InitiatE             def     True      False    dead
+78    change               def     True      False    dead
+81    ExpressioN           def     True      True     LIVE
+82    StatemenT            def     True      True     LIVE
+83    followedBy           def     True      True     LIVE
+84    SemI                 def     True      True     LIVE
+85    ElsE                 ref     True      True     LIVE
+90    HeX                  def     True      True     LIVE
+91    ShortcuT             def     True      True     LIVE
+92    ANYtoken             def     True      True     LIVE
+93    ANYstring            def     True      True     LIVE
+94    BlocK                def     True      True     LIVE
+95    PRINTing             def     True      True     LIVE
+96    BrancheS             header  True      True     LIVE
+97    break                ref     True      True     LIVE
+98    continue             ref     True      True     LIVE
+99    return               ref     True      True     LIVE
+100   Precision            def     True      True     LIVE
+101   FormaT               def     True      True     LIVE
+102   PrintXP              header  True      True     LIVE
+103   ShortcuT             ref     True      True     LIVE
+104   PrintField           def     True      True     LIVE
+105   UnaryXP              def     True      True     LIVE
+106   InvokeArg            header  True      True     LIVE
+107   Braced               def     True      True     LIVE
+108   Parens               def     True      True     LIVE
+109   UnaryXP              ref     True      True     LIVE
+110   ANYorNum             header  True      True     LIVE
+111   NumbeR               ref     True      True     LIVE
+112   ANYtoken             ref     True      True     LIVE
+113   TokenXP              def     True      True     LIVE
+114   Token                header  True      True     LIVE
+115   QuotE                ref     True      True     LIVE
+116   NumbeR               ref     True      True     LIVE
+117   StringXP             def     True      True     LIVE
+118   TokenXP              ref     True      True     LIVE
+119   Operators            ref     True      True     LIVE
+120   ExpressioN           def     True      True     LIVE
+121   ScopeField           header  True      True     LIVE
+122   ANYtoken             ref     True      True     LIVE
+123   NumbeR               ref     True      True     LIVE
+132   Looper               def     True      True     LIVE
+133   LoopRestrict         header  True      True     LIVE
+134   loopOnAttributes     def     True      True     LIVE
+135   loopOnMembers        def     True      True     LIVE
+136   ElsE                 header  True      True     LIVE
+137   BasicElse            def     True      True     LIVE
+138   ElseIf               def     True      True     LIVE
+139   WardeD               header  True      True     LIVE
+140   DEBUG                def     True      True     LIVE
+141   DEF                  def     True      True     LIVE
+142   DO                   def     True      True     LIVE
+143   IF                   def     True      True     LIVE
+144   FOR                  def     True      True     LIVE
+145   WhilE                def     True      True     LIVE
+146   PrinT                def     True      True     LIVE
+147   CerR                 def     True      True     LIVE
+148   CouT                 def     True      True     LIVE
+149   Search               def     True      True     LIVE
+150   BrancH               def     True      True     LIVE
+151   ScopeXP              def     True      True     LIVE
+152   Xpress               def     True      True     LIVE
+153   StatemenT            header  True      True     LIVE
+154   SemI                 ref     True      True     LIVE
+155   BlocK                ref     True      True     LIVE
+156   WardeD               ref     True      True     LIVE
+157   Iterate              def     True      True     LIVE
+158   Xpress               ref     True      True     LIVE
+159   Start                def     True      True     LIVE
+
+TOTAL probed=102  LIVE=67  dead=35  VOID=0
+
+DISTINCT LIVE NAMES = 53
+  ANYorNum ANYstring ANYtoken BasicElse BlocK Braced BrancH BrancheS CerR CouT DEBUG DEF DO ElsE ElseIf ExpressioN FOR FormaT HeX IF InvokeArg Iterate LoopRestrict Looper NumbeR Operators PRINTing Parens Precision PrinT PrintField PrintXP QuotE ScopeField ScopeXP Search SemI ShortcuT Start StatemenT StringXP Token TokenXP UnaryXP WardeD WhilE Xpress break continue followedBy loopOnAttributes loopOnMembers return
+DISTINCT DEAD-ONLY NAMES = 27
+  Attributes CodE DatA DefinE DelimText FloaT GrouP InitiatE InvokE Limit MemberS Modifier NamE NewGroup NotA PoweR RunRulE SetBrackets TraiT TraiTdata change counter debug define modifySet nameSet tokenize
+VOID rows: []

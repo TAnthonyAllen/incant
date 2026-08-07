@@ -1362,3 +1362,61 @@ formsPop 14, tree/printPop/containerPop exit 0. **Metric stays 0/78.**
 ⚠ `incant/ruleCover` was written, produced a run with **no sentinel**, and was **deleted rather than
 reported from** — a truncated run's numbers are uninterpretable, and its coverage figures were
 re-taken from the two sentinel-carrying runs instead.
+
+## GM-31 — IA-4: **THE LIVENESS CENSUS. THE DENOMINATOR IS 47, NOT 78 — AND THEY COUNT DIFFERENT THINGS.**
+**asOf 2026-08-07 · confidence: MEASURED, 102 probe runs, anti-vacuity control passed, probe corrected
+twice mid-sweep · provenance: `incant/grammar` (all 163 lines), `genParse.rtn:1646`
+(`parseRuleMethod`'s refusal), carrier `incant/liveProbe` (new), corpus
+`docs/emitted/liveness-census-2026-08-07.txt`**
+
+**THE INSTRUMENT.** `parseRuleMethod` REFUSES loudly when `parseTerms` disagrees with the live term
+count, so binding `parseTerms=99 parseMethod=parseNOSUCH` at a site and watching for the refusal
+answers *"is a bind consumed here"* with **no install and no rebuild** — the grammar is runtime data.
+**Refusal = LIVE. Silence = dead.** One rule per run, 102 runs, so a truncated parse can only spoil
+its own row.
+
+## ✅ THE ANTI-VACUITY CONTROL RAN FIRST AND PASSED
+The seven known documentation entries — `CodE` `InvokE` `RunRulE` `NewGroup` `DefinE` `define`
+`InitiatE` — **all census dead**, as GM-30 requires. Had any censused live, the probe would be
+suspect and the sweep void.
+
+## THE NUMBERS, asOf THIS RUN
+```
+    102 sites probed      67 LIVE      35 dead      0 VOID
+    47  distinct names LIVE at a DEFINITION or HEADER site   <- the denominator
+     6  distinct names LIVE only at a REFERENCE site         <- caveat class
+    27  distinct dead-only names
+```
+⚠ **47 AND 78 ARE NOT THE SAME MEASUREMENT AND 47 DOES NOT CORRECT 78.** The 78 counts **Grokking's
+registry population** (60 rule members + 18 rule attributes). The 47 counts **distinct names in
+`incant/grammar` that can consume an install bind at their own definition site.** Different sources,
+different axes. **The install campaign's denominator is 47**, because a rule that cannot consume a
+bind cannot be installed however plannable it is. **Metric line: 0/47 measured.**
+
+⚠ **THE CAVEAT CLASS IS NAMED, NOT SWEPT UNDER:** `break` `continue` `return` `NumbeR` `Operators`
+`QuotE` refuse at a **reference** site inside an alternation, but have no live definition site in
+this file. **A bind consumed at a reference is not established to bind the RULE** — that is an open
+question, not a 6-rule bonus, and it is why they sit outside the 47 rather than inside it.
+
+**THE 27 DEAD ARE THE BOOTSTRAP BLOCK**, every one at lines 29–62 inside the opening comment
+(GM-30), plus `change` — prose from an inner comment that my extractor read as a rule name, which
+**correctly censused dead** and is a small vote for the instrument.
+
+## ⚠⚠ THE PROBE LIED TWICE AND WAS CAUGHT BOTH TIMES — the finding under the finding
+**Run 1 inserted the bind before the FIRST `;` on the line.** Four rules carry a `;` as **DATA** —
+`SemI=";";`, `ANYstring=[^ \n\r\t;]+;`, and the two `guard=` lines — so the probe corrupted their
+text and reported **three false deads and one false VOID.** Fixed by finding the terminator outside
+quotes and brackets. **Run 2 then broke on `FormaT`**, whose character class contains an apostrophe:
+the quote tracker toggled inside `[...]`. Fixed by ignoring quotes at bracket depth.
+
+**BOTH FAILURES POINTED THE SAME WAY — TOWARD `dead` — WHICH IS THE DIRECTION THAT READS AS A
+SMALLER, TIDIER GRAMMAR.** An instrument whose errors flatter the answer is the H9 family exactly,
+and the only reason they surfaced is that **`VOID` was kept as a THIRD verdict from the start**: a
+run with no sentinel is *"my probe broke here"*, never *"this rule is dead"*. **Had absence been
+folded into `dead`, this census would have reported 43 and looked entirely reasonable.**
+
+## DISPOSITION
+**PROBE-AND-REVERT BY CONSTRUCTION — nothing installed, nothing landed.** `incant/grammar`,
+`genParse.rtn` and out-of-repo `groups.ext` **byte-identical**; no rebuild was needed at any point.
+Six fixtures byte-identical, `pop.sh` **row-for-row identical** (exit 1, 33 green / 1 parked).
+**Metric: 0/47.** Full table in `docs/emitted/liveness-census-2026-08-07.txt`.
