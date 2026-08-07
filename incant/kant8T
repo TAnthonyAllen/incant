@@ -18,6 +18,22 @@
     overwrite of the node's contents. So a returned node is a POINTER whose
     CONTENTS are reverted underneath the caller. That is the whole disease.
 
+    ⚠ EVERY file:line IN THE COMMENTARY BELOW HAS DRIFTED (checked 2026-08-07).
+    The MECHANISMS are all intact -- only the numbers moved -- and the comments
+    are left as written because they were true when written. Current sites:
+    restoreLocalFields GroupActions.rtn:648 with the recursive-clear at :653;
+    saveLocalFields :919 with the save predicate at :928; runAction :759,
+    binding at :777-778 and saving at :782; `recursive` set on direct
+    self-mention at ruleActions.rtn:1387. Full drift table and the doctrine it
+    earned -- CITE THE MECHANISM AND ITS ENCLOSING FUNCTION, LINE NUMBERS ARE
+    HINTS -- in docs/kantCorpus.md under CLAIM KANT-8. ⚠ One stale citation
+    lands on jitBindArgRT, which really does bind an argument, so following it
+    unchecked CONFIRMS the sentence you came to verify, on the wrong engine.
+
+    TEN ROWS. The four below are the original set, each isolating ONE variable;
+    K5 and K6a-K6d were added 2026-08-05, and K6e/K6f 2026-08-07 to discriminate
+    the cause of K6a's 2. See their own comment blocks further down.
+
     FOUR ROWS, each isolating ONE variable:
 
       K1  recursive, returns a LOCAL      -- KANT-8 as claimed. The baseline.
@@ -202,6 +218,89 @@ define
         return 0;
         };
 
+    /*  ===================== K6e (2026-08-07) =========================
+        THE RESTART, ISOLATED -- built to discriminate the explanation of
+        K6a's 2 from its rival. K6a's own legend anticipated only 3
+        (protected) or 1 (trampled). It measured 2, and until today that
+        number was neither recorded nor explained anywhere.
+
+        THE HYPOTHESIS: the trample is real AND an exhausted cursor is not
+        terminal. The inner activation re-points the shared cursor at
+        k6small and walks it out; the outer then resumes, and its next ++
+        RESTARTS from the head of the list rather than reporting
+        exhaustion, buying exactly one extra tick. One outer tick plus one
+        restarted tick is 2.
+        THE RIVAL: exhaustion IS terminal, and the extra tick comes from
+        something the second activation did -- a cursor left mid-list, a
+        counter written back, an artefact of the call itself.
+
+        This row removes the second activation entirely: one action, one
+        cursor, one node, NO recursion of any kind, and two consecutive
+        while loops over the SAME cursor with no iterate between them.
+        Nothing here can trample anything, so a non-zero second count can
+        only be the restart.
+            restart      second walk counts 1
+            terminal     second walk counts 0
+        ⚠ AND THE FIRST COUNT IS THE ANTI-VACUITY GUARD. A row asserting
+        only a 0 cannot tell "exhaustion is terminal" from "the iterate
+        never armed and neither loop ran". k6seenA must come back 1.  */
+    /*  ⚠ THE FIRST COUNT IS PRINTED FROM INSIDE THE ACTION, and that is not
+        a stylistic choice. An action returns ONE value, so the guard and the
+        measurement cannot both leave by the return; and reading k6seenA from
+        outside afterwards would be reading a node-resident local across a
+        call boundary -- the exact quantity this whole file says is not
+        trustworthy. Printing it in place is the only reading that does not
+        depend on the thing under test. Bear-trap #26's fourth payment.  */
+    k6Rst argument code={
+        iterate k6cur4 on k6small attributes;
+        k6seenA = 0;
+        while ++k6cur4;
+            k6seenA = k6seenA + 1;
+        print "K6e first walk counted =" k6seenA " (ANTI-VACUITY: must be 1, else void)":;
+        k6seenB = 0;
+        while ++k6cur4;
+            k6seenB = k6seenB + 1;
+        return k6seenB;
+        };
+
+    /*  ===================== K6f (2026-08-07) =========================
+        THE RESTART'S ARITHMETIC, IN THE MUTUAL SHAPE. K6e isolates the
+        property; this row asks whether the property actually ACCOUNTS for
+        K6a rather than merely coexisting with it -- and it is sized so
+        that three readings give three DIFFERENT numbers instead of the
+        collision a naive widening produces.
+
+        Outer walks k6wide (4 attributes), inner walks k6med (2). One tick
+        is taken before the call, so 3 outer attributes remain -- chosen
+        NOT to equal the inner list length, because when those two are
+        equal the restart reading and the cursor-never-trampled reading
+        land on the SAME total and the row discriminates nothing.
+            4   trampled AND restarting -- the inner's 2, then a full
+                restarted walk of k6med
+            5   cursor never trampled   -- outer resumes its own walk over
+                the 3 remaining k6wide attributes, from the inner's 2
+            2   trampled, exhaustion terminal -- the inner's count, frozen
+        K6a already excludes the middle reading; this row excludes it a
+        second time WITHOUT depending on K6a, which is the whole point of
+        a second witness.  */
+    k6wide      ww ee rr tt;
+    k6med       pp qq;
+    k6depth4;
+    k6Awide argument code={
+        iterate k6cur5 on argument attributes;
+        k6seen5 = 0;
+        while ++k6cur5;
+            k6seen5 = k6seen5 + 1;
+            if k6depth4 > 0;
+                k6depth4 = k6depth4 - 1;
+                k6Bwide(k6med);
+        return k6seen5;
+        };
+    k6Bwide argument code={
+        k6Awide(argument);
+        return 0;
+        };
+
     /*  DRIVERS, so the jitted legs can run. testing() binds no argument, and
         these rows are about actions that TAKE one -- so each driver is nullary
         and makes the real call itself, exactly as dfDrive does for displayForm.
@@ -336,6 +435,21 @@ print "K6c outer returned =" kOut " (k6big = its own; k6small = the inner's)":;
 print "== K6d: RE-ITERATE THE SAME CURSOR ON A DIFFERENT NODE, no recursion ==":;
 kOut = k6Re(k6big);
 print "K6d second walk counted =" kOut " (want 3; 1 = the re-iterate did NOT re-point)":;
+
+/*  ⚠ K6e AND K6f ARE THE DISCRIMINATING PAIR FOR K6a's 2 (2026-08-07).
+    They are ordered isolation-then-arithmetic on purpose: K6e establishes
+    whether the restart exists AT ALL in a shape with no second activation,
+    and only then does K6f ask whether it accounts for K6a's total. Run the
+    other way round, a K6f of 4 would be read as confirming a mechanism that
+    had not yet been shown to exist.  */
+print "== K6e: EXHAUSTED-CURSOR RESTART, ISOLATED -- no recursion at all ==":;
+kOut = k6Rst(k6big);
+print "K6e second walk counted =" kOut " (1 = cursor RESTARTS; 0 = exhaustion terminal)":;
+
+print "== K6f: THE RESTART ARITHMETIC IN THE MUTUAL SHAPE, 4 vs 5 vs 2 ==":;
+k6depth4 = 1;
+kOut = k6Awide(k6wide);
+print "K6f outer returned =" kOut " (4 = trample+restart; 5 = no trample; 2 = terminal)":;
 
 print "kant8T SENTINEL -- run reached the end":;
 stop();

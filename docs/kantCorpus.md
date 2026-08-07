@@ -347,8 +347,83 @@ argument IS such a carrier, today, with no runtime change and no interpreter edi
 > model (per-activation state kills both diseases; patching `saveLocalFields` kills neither the
 > mutual gap nor this one).
 
+> ### THE FULL ROW LEDGER, AND K6a's NUMBER (added 2026-08-07, `incant/kant8T`, exit 0, sentinel fires)
+>
+> The four-row table above is the 08-05 record and is left as written. The remaining rows were
+> never tabulated anywhere, and **K6a's value in particular was measured on 08-05 and then went
+> unrecorded for two days** — which matters because the frame arc's opening fixture is named as
+> *"K6a's shape, jitted"*, so this number is about to become a target.
+>
+> | row | shape | returned | grade |
+> |---|---|---|---|
+> | **K5** | K1's shape, called **twice** | **`k5loc`** both calls — invocation history does **not** change the answer | RUN |
+> | **K6a** | mutual A→B→A, iterator cursor carried across | **2** | RUN |
+> | **K6b** | control: same shape, local written **after** the call | **3** — the shape is not the fault | RUN |
+> | **K6c** | mutual, the **argument** read after the call | **`k6small`** — the inner's binding | RUN |
+> | **K6d** | control: re-iterate one cursor on two nodes, no recursion | **3** — the re-iterate re-points; the iterator is not a suspect | RUN |
+> | **K6e** | *new*: two consecutive walks on one cursor, **no recursion at all** | first **1**, second **1** | MEASURED |
+> | **K6f** | *new*: mutual, sized 4-outer / 2-inner so three readings give three numbers | **4** | MEASURED |
+>
+> **K6a = 2 IS NOW EXPLAINED, AND THE EXPLANATION WAS BUILT AS A DISCRIMINATION RATHER THAN A
+> READING.** K6a's own legend anticipated only **3** (protected) or **1** (trampled); 2 is neither,
+> and a number outside its own value map is exactly the kind of thing that gets pinned as a target
+> and then cited as if it had been understood. The decomposition is **1 outer tick + 1 restarted
+> tick**: the inner activation re-points the shared cursor at `k6small` and walks it out, the outer
+> resumes, and its next `++` **restarts the walk from the head of the list rather than reporting
+> exhaustion**.
+>
+> **Two witnesses, because the hypothesis was inferred and this domain's causal claims are a coin
+> flip until run:**
+> - **K6e removes the second activation entirely** — one action, one cursor, no recursion of any
+>   kind, two consecutive `while ++` loops with no `iterate` between them. Nothing there can trample
+>   anything, so a non-zero second count can *only* be the restart. It counted **1**: exhaustion is
+>   **not terminal**. Its first walk counted 1 as the anti-vacuity guard, printed **from inside the
+>   action** — an action returns one value, and reading the guard from outside afterwards would mean
+>   reading a node-resident local across a call boundary, i.e. the very quantity under test.
+> - **K6f checks the property ACCOUNTS for K6a** rather than merely coexisting with it, sized so the
+>   three readings separate: **4** trampled-and-restarting · **5** cursor never trampled · **2**
+>   trampled with terminal exhaustion. Measured **4**. ⚠ The sizing is load-bearing — with the inner
+>   list length equal to the outer's remaining attributes, the restart reading and the
+>   never-trampled reading **both total the same** and the row discriminates nothing.
+>
+> **CONSEQUENCE FOR THE FRAME ARC: 2 is a composite, and a target that pins it must know that.**
+> It is one part trample (the frame defect this file characterises) and one part iterator restart
+> (a property of `++` that has nothing to do with frames). A jitted K6a that came back 2 would
+> therefore agree with the interpreter **for two reasons at once**, and a jitted K6a that came back
+> 1 would be a *restart* divergence wearing a *frame* fixture — the failure H7 was written about.
+> **Assert the decomposition, not the total.**
+
+**⚠ A DRIFT TABLE, AND THE DOCTRINE IT EARNED (2026-08-07).** Every file:line in this claim's own
+prose and in `kant8T`'s commentary had drifted. **The mechanisms are all intact and unchanged — only
+the numbers moved** — which is precisely what makes this dangerous rather than merely untidy.
+
+| cited as | what it meant | where it actually is today |
+|---|---|---|
+| `GroupActions.rtn:587` | `recursive` cleared on outermost restore | **`:653`**, in `restoreLocalFields` (**`:648`**) |
+| `GroupActions.rtn:859-879` | the save predicate | **`:928`**, in `saveLocalFields` (**`:919`**) |
+| `GroupActions.rtn:672-674` / `:677` | bind before save | **`:777-778`** / **`:782`**, in `runAction` (**`:759`**) |
+| `GroupActions.rtn:708-711` / `:713` | bind before save (the later citation) | same as above — **`:708` is now `jitBindArgRT`** |
+| `ruleActions.rtn:1310` | `recursive` set on direct self-mention | **`:1387`** |
+
+⚠ **THE FOURTH ROW IS THE ONE TO REMEMBER, because a stale citation that lands on nothing is
+harmless and this one does not.** `:708` today is **`jitBindArgRT`**, and `:713` is
+`ruleArg.group = arg;` — *an argument binding*, in a function whose job really is to bind an
+argument. A reader following the citation unchecked finds code that **confirms the sentence they
+came to verify**, in the wrong function, on the wrong engine: the JIT's runtime helper instead of
+the interpreter's `runAction`. `:587` and `:859` are the same shape more weakly — one lands inside
+a variable declaration list, the other inside a comment about the JIT seed gate; both read as
+plausible neighbourhoods rather than as obvious misses.
+
+> **DOCTRINE: CITE THE MECHANISM AND ITS ENCLOSING FUNCTION. LINE NUMBERS ARE HINTS, NEVER
+> LOAD-BEARING.** A claim's checkable content is *"`recursive` is cleared on the outermost restore,
+> in `restoreLocalFields`"* — that survives every edit above it. *"line 587"* is a convenience that
+> decays silently, and all three drifted citations here read plausibly if followed unchecked. Same
+> family as `RULE H9`: an instrument that answers plausibly is worse than one that fails loudly.
+> **When a claim is re-cited, re-grep the mechanism; do not carry the number forward.**
+
 **2. THE SCOPE IS WIDER THAN "RECURSIVE ACTIONS".** `field.recursive` is a **STATIC** flag set at
-parse time by identity (`ruleActions.rtn:1310`), so the save/restore bracket runs on **every**
+parse time by identity (`ruleActions.rtn:1387` — see the drift table above), so the save/restore
+bracket runs on **every**
 call. K4 **never took its recursive branch** and came back emptied identically. So the claim bites
 **any action that MENTIONS ITS OWN NAME, on every invocation** — recursion or not. The cost is not
 "recursion is expensive", it is "naming yourself anywhere in your body is".
