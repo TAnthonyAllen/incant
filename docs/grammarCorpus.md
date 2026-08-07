@@ -1420,3 +1420,52 @@ folded into `dead`, this census would have reported 43 and looked entirely reaso
 `genParse.rtn` and out-of-repo `groups.ext` **byte-identical**; no rebuild was needed at any point.
 Six fixtures byte-identical, `pop.sh` **row-for-row identical** (exit 1, 33 green / 1 parked).
 **Metric: 0/47.** Full table in `docs/emitted/liveness-census-2026-08-07.txt`.
+
+## GM-32 — IA-5: **`BlocK` INSTALLS, EXECUTES, AND CRASHES.** Stopped and reported: new family, and it fails LOUDLY.
+**asOf 2026-08-07 · confidence: MEASURED, crash site named from a backtrace · provenance:
+`incant/grammar:94`, `GroupRules.mm:1598` (`aCTionWhilE`), `:85` (`aCTionBlocK`), emitted
+`parseBlocK` + `manyBlocK2`**
+
+`BlocK` was the last untried candidate of GM-30's plain five and censused **LIVE at its definition
+site** (GM-31). It installs, the bind is consumed with no refusal, and **`oneTest` and `kant8T` exit
+139**. `jsonTest`, `phaseA`, `emitAll` and `parensMin` are byte-identical.
+
+```
+  Thread 0 crashed:  Bad pointer dereference at 0x0
+    0  aCTionWhilE  GroupRules.mm:1598   if (result = StatemenT->groupBody->gMethod(StatemenT))
+    1  aCTionBlocK  GroupRules.mm:85     result = grup->groupBody->gMethod(grup);
+```
+**A `while`'s governed `StatemenT` is NULL.** So the generated `parseBlocK` ran — it changed the
+parse — and produced a **BlocK carrying no statements**. ⚠ **THE CRASH IS THE EVIDENCE OF EXECUTION**
+that the union lens could not supply: `BlocK` reads `fire=2 attach=0` **identically with the install
+on and off**, because `defer` means its label is skipped at the yield-protocol guard long before
+`attachLabel`'s no-label guard. For a deferred rule, neither axis of the union discriminates arms.
+
+**MECHANISM NOT ESTABLISHED, and the lead is offered as a lead.** `manyBlocK2` attaches each
+`StatemenT` to `label` — `BlocK`'s own label — which `defer` then causes to be skipped, so the
+statements would be parented to a node that goes nowhere. That is the right *shape*, and it is **not
+the IA-2 gate**: it dies at the `lab == labelNO` yield guard rather than the `!pStuff.label` attach
+guard, three lines and one meaning apart. Same file, different door. **One measurement, not a
+diagnosis.**
+
+## ⚠ AND THE COMPARISON WITH `ExpressioN` IS THE FINDING WORTH KEEPING
+Two hard rules, two reds, **two completely different failure manners**:
+| | `ExpressioN` | `BlocK` |
+|---|---|---|
+| symptom | 312 lines lost, **no sentinel, exit 0** | **exit 139**, crash site named |
+| diagnosability | none — the parse abandons silently | a backtrace, two frames, one null |
+| cost to localize | unbounded | one run under `script -q /dev/null` |
+
+**A hard rule failing loudly is the system working.** `BlocK` cost minutes because it crashed;
+`ExpressioN` is still undiagnosed because it did not. **That asymmetry is a harness-honesty defect
+in its own right and outlives either rule's generation gap** — the next hard rule to fail will fail
+into the same silence. Two findings, deliberately kept apart: *why a rule dies* is a generation
+question; *why it dies quietly* is an instrument question, and the second is the more dangerous.
+
+## DISPOSITION
+**FULLY REVERTED.** `incant/grammar`, `genParse.rtn`, out-of-repo `groups.ext` **byte-identical**;
+canary 262 → **260**. Six fixtures byte-identical on **both streams**; `pop.sh` **row-for-row
+identical** (exit 1, 33 green / 1 parked), ladder 150, recordPop 48, formsPop 14,
+tree/printPop/containerPop exit 0. **Metric stays 0/47.**
+**GM-30's plain five are now all disposed:** three documentation, two red — `ExpressioN` silently,
+`BlocK` loudly.
