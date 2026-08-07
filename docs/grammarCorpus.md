@@ -1469,3 +1469,74 @@ identical** (exit 1, 33 green / 1 parked), ladder 150, recordPop 48, formsPop 14
 tree/printPop/containerPop exit 0. **Metric stays 0/47.**
 **GM-30's plain five are now all disposed:** three documentation, two red — `ExpressioN` silently,
 `BlocK` loudly.
+
+## GM-33 — IA-6: **SILENT PARSE-ABANDONMENT IS NOW LOUD.** `completePop.sh`, and it found three live instances on its first honest run.
+**asOf 2026-08-07 · confidence: MEASURED, must-fail control run with the ExpressioN specimen ·
+provenance: `genLadder/completePop.sh` (new), carrier `incant/liveProbe`, specimen the ExpressioN
+install of GM-30**
+
+**THE PROPERTY DELIVERED:** a run whose parse dies without completing cannot read as green.
+
+**THE SIGNAL ALREADY EXISTED — nothing in the engine had to change.** incant prints
+`<Rule>: expected a method not <x>` on stderr when a statement fails to parse, then drops every
+statement after it and returns **0**. The message has always been there; **nothing ever ACTED on
+it.** So the honesty was bought entirely in the CHECKING layer, which is shape (a) of the brief plus
+(b)'s diagnostic value for free — the existing line *is* the localizer, naming the rule and the
+token, so a sweep row is an alarm and a pointer at once. **No parse-layer edit was needed or made.**
+
+**TWO CHECKS PER FIXTURE, over a structurally-defined population** — a runnable fixture is one
+calling `Start()` and `stop()`, so a fixture added tomorrow is swept without anyone maintaining a
+list. **112 fixtures**, matching the harnessCensus figure.
+1. **abandonment count == 0**, printed with its value (**H4** — the tempting `grep -q … && fail` goes
+   green the day someone deletes the emitting line; this breaks instead).
+2. **sentinel obligation** — a fixture declaring a completion sentinel must print it, with the
+   declaration **read out of the fixture** so a rename cannot quietly stop being checked.
+
+## ✅ THE MUST-FAIL CONTROL, using the specimen that motivated the fire
+```
+                        healthy tree      ExpressioN installed
+    abandoned parses         3                    40
+    missing sentinels        0                    60
+```
+naming `oneTest` (abandon=4) and `kant8T` (abandon=1 **and** sentinel absent) — **the exact two runs
+that lost 312 lines and truncated at line 3 while every harness reported green.** Both halves of the
+instrument fire. Control reverted; the sweep returns to 3/0 **identically**, fleet byte-identical,
+`pop.sh` row-for-row identical, grammar/genParse/`groups.ext` byte-identical.
+
+## ⚠ THREE LIVE ABANDONERS FOUND IN THE CURRENT TREE — the instrument's first honest run
+```
+    delimTest         abandon=1
+    grammarOnTheFly   abandon=1    RunRulE: expected a method not doc
+    hashProbe         abandon=1    RunRulE: expected a method not hBare
+```
+All at **exit 0**, all previously invisible, all pre-existing and **not caused by anything in this
+session**. They are **reported, not diagnosed** — that is the next fire's business. **The sweep is
+therefore RED on arrival, and that is the instrument working, not a defect in it.** Three owned reds,
+named, in `pop.sh`'s tradition.
+
+## ⚠⚠ THE INSTRUMENT LIED ON ITS FIRST RUN AND THE ABSURDITY IS WHAT CAUGHT IT
+Run 1 reported **112 abandoned parses out of 112 fixtures.** Cause: `grep -c` **exits 1 when the
+count is zero**, so `$(grep -c … || echo 0)` fired the `||` on every HEALTHY fixture and produced
+`"0\n0"`, which compares unequal to `"0"`. **The check failed exactly where it should have passed.**
+
+**It was caught only because 112/112 is absurd on its face.** Had the fleet been larger or the bug
+partial, a plausible number would have been reported as a finding — and this is *the script written
+to expose silent failure*. **An instrument built against a failure class is not exempt from that
+class**, which is the whole ledger's point turned on its author. Fourth member of the
+copy-the-idiom-lose-the-detail family, and the first where the idiom was a shell builtin's exit
+convention rather than a missing helper.
+
+## COVERAGE BOUNDARY, stated because the brief asked for it
+**Covered:** all 112 `Start()`/`stop()` fixtures, whenever `completePop.sh` is run.
+**NOT covered:** ad-hoc runs (`incant <file>` by hand) still abandon silently at exit 0; and the
+other six harnesses are **unmodified** — `pop.sh` can still go green on an abandoned run of a fixture
+it diffs rather than sentinels. Hardening their choke points (`run1`/`run2`, `runrec`, `runcap`) is
+the natural follow-on and was **not** taken here: `_cap` returns the fixture's exit status straight
+into `check`, so an added assertion clobbers `$?` unless the helper is restructured. **Day-size, but
+not this fire's day.**
+
+## DISPOSITION
+**New file only; no engine change, no install left behind.** Fleet byte-identical on both streams;
+`pop.sh` row-for-row identical (exit 1, 33 green / 1 parked); ladder 150, recordPop 48, formsPop 14,
+tree/printPop/containerPop exit 0. **Metric unchanged at 0/47.**
+`sh genLadder/completePop.sh` — **112 fixtures, 3 owned reds, exit 1.**
