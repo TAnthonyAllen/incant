@@ -366,6 +366,12 @@ GroupItem 	*lab = stuff->label;
 		return;
 	if ( !pStuff )
 		return;
+	/*  IA-2 LOCALIZER, gated on the standing parseTrace and therefore silent by
+	default. Reports the four quantities that decide which case below runs,
+	because the interesting failure is a SILENT return at the no-label guard
+	and an absent attach announces nothing on its own.  */
+	if ( ruler->parseTrace )
+		::fprintf(stderr,"    attachLabel lab=%s promote=%d isTarget=%u pLabel=%lu pRule=%s\n",lab->groupBody->tag,promote,stuff->isTarget,(pStuff->label != 0),pStuff->ruleName);
 	/*  PROMOTION IS AN ASSIGN AND IS NOT GUARDED ON THE DESTINATION -- a parent
 	with no label yet is the NORMAL case here, and this is what gives it
 	one.  */
@@ -386,6 +392,20 @@ GroupItem 	*lab = stuff->label;
 	the top -- which was the first attempt -- ALSO crashes the fleet, by
 	skipping the promotion that was supposed to create the missing label.
 	Same symptom, opposite cause, and only three lines apart.  */
+	/*  ⚠ IA-2, 2026-08-07 — THIS SILENT RETURN IS WHERE A GENERATED OPTION OF AN
+	ALTERNATION DIES, and it is measured, not suspected. An alternation is
+	label-transparent (S2.4): it mints no label, so `pStuff.label` is null
+	and there is nothing to attach under. Interpretively that is fine
+	because promotion at the isTarget case ABOVE runs first and is what
+	gives the alternation its label — but the generated arm passes
+	promote=0 by PC-1's ruling, so it reaches here and drops the option on
+	the floor. Probe line, Parens installed:
+	attachLabel lab=Parens promote=0 isTarget=1 pLabel=0 pRule=InvokeArg
+	A one-line experiment promoting in this case turned parensMin green with
+	the whole fleet at its standing footprint — so the missing promotion
+	ACCOUNTS for the red completely. It was NOT landed: it makes the
+	generated arm consult isTarget, which PC-1 forbids, and it moves against
+	IT-3's end state where promotion deletes entirely. Director's call.  */
 	if ( !pStuff->label )
 		return;
 	if ( promote && isGROUP(lab->groupBody->flags.data) && stuff->max > 1 )

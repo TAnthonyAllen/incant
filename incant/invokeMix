@@ -1,0 +1,44 @@
+/*  invokeMix -- IA-2's MIXED-ALTERNATION PROBE, 2026-08-07.
+
+    ⚠ THE QUESTION THIS EXISTS TO ASK, and no other fixture asks it: with
+    `Parens` GENERATED and its two sibling options `Braced` and `UnaryXP` still
+    INTERPRETIVE, does the alternation still work for the siblings? IA-0 says
+    the migration unit is the ALTERNATION -- all of one parent's options cross
+    together, so the mixed-shape world never exists. An install of ONE option
+    builds that world anyway, and this measures it.
+
+    ⚠ A GREEN FLEET IS NOT AN ANSWER TO THIS. parensMin exercises the Parens
+    option only, so it cannot fail when a SIBLING breaks -- H7 exactly: a rung
+    certifies only what fails when the mechanism is removed. Every row here
+    uses a DIFFERENT option of InvokeArg, so a row going dark names its option.
+
+    Each row prints from INSIDE, and the absence of a line is the signal
+    (bear-trap #26's fourth payment, and parensMin's own founding lesson).
+    NO include(...) LINE -- include(x) is parsed by Parens.  */
+Start();
+registry(cOMMANDs);
+define traceParse immediateAction=traceParse; ;
+register(InvokeMix);
+define
+    imBag   aa=1 bb=2 cc=3;
+    imTake argument code={
+        print "PARENS option: argument is" argument:;
+        };
+    imRun code={
+        imTake(7);
+        };
+    imBraced code={
+        imIdx = imBag["bb"];
+        print "BRACED option: imBag[bb] value is" imIdx " (want 2)":;
+        };
+    imUnary code={
+        imN = 5;
+        imN++;
+        print "UNARY option: 5 then ++ is" imN:;
+        };
+    ;
+imRun();
+imBraced();
+imUnary();
+print "INVOKEMIX SENTINEL":;
+stop();

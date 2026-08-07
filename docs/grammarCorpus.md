@@ -1207,3 +1207,93 @@ emit a call to a function that does not exist.
 streams except `incant/phaseA`'s stderr, which is the partition census and **moved by design**;
 `pop.sh` 33 green / 1 parked, ladder 150, recordPop 48, formsPop 14, tree/printPop/containerPop
 exit 0. **Metric stays 0/78.**
+
+## GM-29 — IA-2: **THE InvokeArg RED HAS A MECHANISM, AND IT IS IA-1's GATE EXPRESSED AS CODE.** Stopped and reported: new family.
+**asOf 2026-08-07 · confidence: MEASURED both arms, probe-instrumented, candidate run and reverted ·
+provenance: `GroupItem.twk:1101` (`attachLabel`'s no-label guard), `:1086` (the promote case),
+`incant/grammar:106-109`, specimens `incant/parensMin` and `incant/invokeMix` (new)**
+
+**THE FIRE INSTALLED `Parens` AND THE RED REPRODUCED EXACTLY**, with the emitted method
+**regenerated via `incant/showGen` rather than pasted from the 08-06 capture — and it came back byte
+identical**, so the emitter has not drifted for this rule across CT and the PC rows. Recorded either
+way, because "regenerate rather than paste" is only worth the step if the result is stated.
+
+## ✅ THE DIVERGENCE SITE, NAMED TO ONE LINE
+A `parseTrace`-gated probe was added inside `attachLabel` — the interesting failure is a **silent
+return**, and an absent attach announces nothing on its own. With `Parens` installed:
+```
+    attachLabel lab=Parens promote=0 isTarget=1 pLabel=0 pRule=InvokeArg
+```
+`InvokeArg` is an **alternation**. Per S2.4 an alternation is **label-transparent**: it mints no
+label of its own. So `pStuff.label` is null, and the generated arm — passing `promote=0` by PC-1's
+ruling — never reaches the promote case at `:1086` and falls to `if !pStuff.label return;` at
+`:1101`. **The option's label is dropped on the floor, silently, at exit 0.**
+
+**Interpretively the same shape works for exactly the reason the generated one fails.** Promotion
+*is* how a label-transparent parent acquires a label — the function's own comment says so at
+`:1083-1085`, *"a parent with no label yet is the NORMAL case here, and this is what gives it one."*
+⚠ **AND THE PROBE SHOWS THE SIGNATURE IS EVERYWHERE, WHICH IS THE FINDING'S REAL SIZE.** The pattern
+`isTarget=1 pLabel=0` appears throughout an ordinary parse — `Xpress`/`StatemenT`,
+`ANYtoken`/`ANYorNum`, `TokenXP`/`Token`, `NamE`/`GrouP` — every one an alternation parent. This is
+not a `Parens` defect. **It is the general case of an option crossing under an alternation.**
+
+## ⚠ THE CANDIDATE WAS RUN, AND IT ACCOUNTS FOR THE RED COMPLETELY — THEN REVERTED
+Promoting in the no-label case (one block, `if !pStuff.label && stuff.isTarget`) was built purely to
+convert an inference into a number, because a causal claim in this domain is a coin flip until run:
+
+| | install ON, before | install ON, candidate |
+|---|---|---|
+| `parensMin` argument | absent | **`INSIDE pmTake, argument is 7`** |
+| `InvokeArg` probe | `label=0` | **`label=1`** — matches the uninstalled arm |
+| `tree.sh` | — | **exit 0** |
+| whole fleet | — | `pop.sh` **row-for-row identical**, ladder 150, recordPop 48, formsPop 14, printPop/containerPop/tree exit 0 |
+
+**Total blast radius of the install-plus-candidate was ONE line** — `AUDIT TERM Parens [3] )` on
+`oneTest`'s stderr, stdout byte-identical. ⚠ **That line is GM-19's banked audit line, and it is now
+CAUSED**: it is the install's own consumed-check signature, not a loose end. One open item closes.
+
+**IT WAS NOT LANDED, AND THE REASON IS NOT CAUTION.** It makes the generated arm consult `isTarget`,
+which **PC-1 rules it must never do**, and it moves *against* IT-3's named end state where promotion
+deletes entirely and `attachLabel` becomes `pStuff.label +% lab` with two skips. A green fixture does
+not license contradicting a standing ruling. **Reported, per the fire's own new-family clause.**
+
+## ⚠ WHY THIS IS A NEW FAMILY AND NOT GX's
+GX and PC-4 closed **drift** — behaviour that should have been shared and was not, fixed by
+extraction into one writer. **`attachLabel` is already that one writer, and both arms already call
+it.** What diverges is a **deliberate, documented parameter** that is correct for a parent with a
+label and *structurally incapable* for a parent without one. Nothing drifted; a ruling met a class of
+parent it does not cover.
+
+## ⚠⚠ AND THE CONSEQUENCE FOR THE CAMPAIGN, WHICH IS THE PART TO CARRY
+**IA-0 says the migration unit is the ALTERNATION. Crossing an alternation means generating its
+OPTIONS. Every generated option hits `:1101` and vanishes. So IA-2 is not a blocker sitting beside
+IA-1's gate — it is IA-1's gate, in code.** The twelve plannable rules, classified by eye
+(H9: small population, read the hits):
+- **alternation OPTIONS, blocked directly:** `Braced` · `Parens` · `PrintField`
+- **alternations themselves,** whose crossing *is* crossing their options: `InvokeArg` · `WardeD` ·
+  `GrouP` · `ElsE` · `PrintXP`
+- **plain rules, untouched by this mechanism:** `InvokE` · `CodE` · `RunRulE` · `BlocK` · `ExpressioN`
+
+**A plain rule may therefore still be installable today, and that is the cheap next probe** — it
+would put a nonzero number on the metric without touching the ruling. Stated as a candidate, **not
+as a prediction**: per H9's corollary a frontier is a photograph, and this one wants re-measuring
+rather than reasoning from.
+
+## THE MIXED-ALTERNATION QUESTION IS PARTLY MEASURED, AND THE FIXTURE CAUGHT ITSELF
+`incant/invokeMix` (new, kept) asks what no other fixture does: with `Parens` generated and its
+siblings interpretive, do the siblings still work? **`Braced` reads `2` in BOTH arms — the
+interpretive sibling survives the mixed install.** ⚠ **The `UnaryXP` row is VOID and is reported as
+such**: postfix `imN++` does not exercise `UnaryOPS ANYtoken`, and it read `5` with the install ON
+and OFF alike. **Its first two rows were void the same way and the negative control caught them** —
+`imBag["bb"]` on value-less attributes printed a tag under both arms, bear-trap #26 again, in the
+fixture written to avoid it. **Run both arms always; a first-try agreement is a broken instrument
+until shown otherwise.**
+
+## DISPOSITION
+**FULLY REVERTED, verified rather than assumed.** `incant/grammar`, `genParse.rtn` and the
+out-of-repo `groups.ext` restored **byte-identical** (`parseParens` removed rather than left as dead
+code); extern canary 261 → **260**. `oneTest`/`jsonTest`/`kant8T`/`phaseA`/`emitAll` byte-identical
+on **both streams**; `pop.sh` **row-for-row identical** at 33 green / 1 parked, ladder 150,
+recordPop 48, formsPop 14, tree/printPop/containerPop exit 0. **Metric stays 0/78.**
+**The `attachLabel` probe is KEPT** — gated on the standing `parseTrace`, silent by default, and the
+only fixture whose stderr moves is `parensMin`, which opens the gate itself. GM-18's precedent.
