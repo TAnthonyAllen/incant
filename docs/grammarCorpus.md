@@ -1297,3 +1297,68 @@ on **both streams**; `pop.sh` **row-for-row identical** at 33 green / 1 parked, 
 recordPop 48, formsPop 14, tree/printPop/containerPop exit 0. **Metric stays 0/78.**
 **The `attachLabel` probe is KEPT** — gated on the standing `parseTrace`, silent by default, and the
 only fixture whose stderr moves is `parensMin`, which opens the gate itself. GM-18's precedent.
+
+## GM-30 — IA-3: **THE PLAIN FIVE ARE NOT FIVE.** Three are bootstrap documentation; the metric stays 0/78.
+**asOf 2026-08-07 · confidence: MEASURED, negative-controlled, two rules built and reverted ·
+provenance: `incant/grammar:1-67` (the opening comment), `:81`, `:94`, `:120`, `genParse.rtn:1646`
+(`parseRuleMethod`'s refusal path), specimens `incant/invokeEprobe` and `incant/invokeMix`**
+
+GM-29 offered five plain rules as installable candidates **explicitly as a candidate and not a
+prediction**. Under test, **three of the five are not rules in the file at all.**
+
+## ⚠⚠ `incant/grammar`'s OPENING COMMENT RUNS TO LINE 67, AND THE BOOTSTRAP RULES ARE INSIDE IT
+`CodE` (:42) · `InvokE` (:51) · `RunRulE` (:61) — with `NewGroup`, `DefinE`, `define`, `InitiatE` —
+are **hard-coded in the C++ bootstrapper**, and their appearance in the grammar is the comment's own
+written-out specification of what the bootstrapper builds. The comment says so in its second line.
+**Editing those lines changes nothing whatsoever**, and nothing announces that.
+
+**MY CLASSIFICATION WAS BY EYE AND IT READ INDENTATION AS STRUCTURE.** Those three sit at column 0;
+so do real top-level rules. The column-0-ness was a consequence of being inside a comment. **H9,
+third instance and the sharpest: the census matched the surface form and missed the idiom family** —
+and here the surface form was *"is this line even code"*.
+
+## THE NEGATIVE CONTROL THAT CAUGHT IT — and it cost one grammar edit, no build
+`parseRuleMethod` (`genParse.rtn:1646`) **REFUSES loudly** when `parseTerms` disagrees with the live
+term count. So a deliberately impossible count is a free probe of *"is this attribute consumed at
+all"*. With two bad binds live in ONE run:
+```
+    ExpressioN  (line 120, real definition)   parseTerms=99  ->  "REFUSING to bind" — CONSUMED
+    RunRulE     (line 61,  inside the comment) parseTerms=99  ->  silence          — NEVER SEEN
+```
+⚠ **THE GRAMMAR IS RUNTIME DATA, SO THIS COSTS NO REBUILD.** `incant/grammar` is read at startup;
+only the generated method needs compiling. Any *"is this bind consumed"* question is answerable in
+one run. That is the cheap instrument this campaign did not know it had.
+
+## THE TWO REAL CANDIDATES, MEASURED
+| rule | line | install | verdict |
+|---|---|---|---|
+| `ExpressioN` | 120 | binds cleanly, no refusal | ⚠ **RED — breaks the parse globally** |
+| `BlocK` | 94 | **NOT ATTEMPTED** — the stop-and-report clause fired first | open, and the obvious next fire |
+
+**`ExpressioN`'s red is a HARD one and it is NOT the IA-2 gate.** `parensMin` emits **nothing at
+all — not even its sentinel**; `kant8T` truncates after line 3; `oneTest` loses 312 lines. Those are
+abandoned parses **exiting 0**, the truncation trap. **Zero `promote=0` lines in the whole run**, so
+the generated arm's attach is never reached — this dies earlier than GM-29's guard, in a different
+place, and the mechanism is **NOT established**. A candidate worth one grep next time: the emitted
+method carries no guard, while `ExpressioN` is forward-declared at `:81` with
+`guard="^,;{}[]‑"` — *offered as a lead, not a diagnosis*, per the standing causal-claim asymmetry.
+
+## AND A SECOND ANTI-VACUITY CATCH, BECAUSE THE FIRST INSTALL LOOKED GREEN
+`InvokE` installed clean with the **entire fleet byte-identical** — which is exactly what a rule
+that never runs also produces. `incant/invokeEprobe` (new, kept) shows `InvokE` firing **zero**
+times while `Parens` and `RunRulE` both fire: the `(...)` is taken by `Parens` through `InvokeArg`
+every time. **The byte-identity was vacuous**, and on the evidence above it was vacuous twice over,
+since the install was a comment edit. ⚠ **Neither `fire=` nor `attach=` alone is a coverage
+oracle** — `BlocK` fires 2 and attaches 0 (it is `defer`red, so its label is skipped at the yield
+protocol), `RunRulE` attaches 1 and fires 0 (no label method). **Either axis alone misclassifies a
+different rule, in opposite directions. Count the union.**
+
+## DISPOSITION
+**FULLY REVERTED after two builds (`InvokE`, `RunRulE`, `ExpressioN` installed and removed in
+turn).** `incant/grammar`, `genParse.rtn`, out-of-repo `groups.ext` **byte-identical**; extern canary
+262 → **260**. All six fixtures byte-identical on **both streams**; `pop.sh` **row-for-row
+identical** (exit 1, 33 green / 1 parked, the same 3 owned reds), ladder 150, recordPop 48,
+formsPop 14, tree/printPop/containerPop exit 0. **Metric stays 0/78.**
+⚠ `incant/ruleCover` was written, produced a run with **no sentinel**, and was **deleted rather than
+reported from** — a truncated run's numbers are uninterpretable, and its coverage figures were
+re-taken from the two sentinel-carrying runs instead.

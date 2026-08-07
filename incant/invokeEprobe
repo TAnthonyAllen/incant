@@ -1,0 +1,34 @@
+/*  invokeEprobe -- IA-3, 2026-08-07. DOES THE `InvokE` RULE EVER FIRE?
+
+    ⚠ THE QUESTION IS ANTI-VACUITY, NOT CAPABILITY. Installing InvokE left the
+    entire fleet byte-identical, which is exactly what a rule that NEVER RUNS
+    would also produce. H7: a rung certifies only what fails when the mechanism
+    is removed, so before an install can be called green something has to show
+    the generated method executing. In parensMin's full attach trace InvokE
+    appears ZERO times while RunRulE appears twice -- so the `(...)` is being
+    taken by Parens through InvokeArg, and InvokE may be dead grammar.
+
+    InvokE is `'('- NamE? ')'-` -- a NamE, not an ExpressioN -- so this file
+    tries the shapes that could reach it: empty parens, a bare name in parens,
+    at statement position where RunRulE `NamE InvokE? ';'-?` governs.
+
+    Read the stderr with the gate open and grep for `lab=InvokE`. Absence is
+    the finding, and it is a finding either way.  */
+Start();
+registry(cOMMANDs);
+define traceParse immediateAction=traceParse; ;
+traceParse();
+register(InvokeE);
+define
+    ieThing;
+    ieNoArg code={
+        print "ieNoArg ran":;
+        };
+    ieWithArg argument code={
+        print "ieWithArg ran, argument is" argument:;
+        };
+    ;
+ieNoArg();
+ieWithArg(ieThing);
+print "INVOKEEPROBE SENTINEL":;
+stop();
