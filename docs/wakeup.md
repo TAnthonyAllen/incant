@@ -14,6 +14,8 @@ sh jitLadder/ladder.sh        150 checks, exit 0    (re-run today, green)
 sh genLadder/pop.sh            33 green / 1 parked  (the SAME 3 owned reds)
 sh genLadder/recordPop.sh      48 checks · formsPop.sh 14 · printPop 9 · containerPop 11 · tree 0
 sh genLadder/completePop.sh    121 swept · 3 abandoned · 2 missing sentinels · 208 green · exit 1
+sh jitLadder/ladder.sh         162 checks, exit 0     (150 + JXT + JXD pins)
+sh genLadder/mixed.sh            7 checks, exit 0     NEW — the parse-arm decomposition, PINNED RED-SIDE
 <binary> incant/oneTest · jsonTest · kant8T · phaseA · emitAll      exit 0
 ```
 **Metric: 0/47 installed.** Nothing regressed today; today's work added fixtures only.
@@ -145,9 +147,78 @@ which is the worked example that earns Tony's **generation-era doctrine** its pr
   accidentally equivalent. genKantParse's templates are tail-shaped naturally — fine, but that is
   an accident to be aware of, not a property to lean on.
 
+## ⚠⚠ CAMPAIGN OPENED — genKantParse (SEQ 41, Tony, 2026-08-08). FIVE STEPS, TWO FENCES.
+The assessment is **adopted**. Order: **1** Gap B in the plan layer · **2** the parse-arm dispatch
+fixture then the migration-unit ruling · **3** genKantParse v1 · **4** the adjudicator, before any
+rule crosses · **5** parallel jit-ladder work (E2 rung, scale fixture, not-gated sweep).
+**FENCES, exactly two:** the **Gap B charter precedes Gap B edits** (director's), and the
+**migration-unit ruling follows the parse-arm fixture**. Everything else is Clod's discretion.
+**Victory condition, stated so it is not re-litigated:** *not* "the same parse, generated" — **a
+compiled parser with the grammar folded in**. Generation is **partial evaluation of the parser
+with respect to the grammar**; the JIT compiles the frozen form. Full text: `ipc/clod-to-clay.md`
+SEQ 41.
+
+## ⚠⚠ STEP 2 IS ANSWERED AND THE ANSWER IS **NO** — the fence earned its keep on first use
+`genLadder/mixed.sh` (new, pinned, exit 0). **Parse-arm dispatch is NOT uniform.**
+```
+    variant   installed                '(a)'      '(i)'
+    none      (interpretive)           ScafALT    ScafALT
+    leaf      ScafA ScafI              NONE       NONE      <-- child DROPPED
+    alt       ScafALT                  NONE       NONE      <-- child DROPPED
+    out       ScafOUT                  ScafALT    ScafALT
+    all       everything               ScafA      ScafI
+```
+**Both PURE configurations keep the child; a MIXED one drops it** — not retagged, not
+mis-parented, **gone, at exit 0, with no diagnostic.** Strictly worse than the §2.4 retag
+divergence, and **new**: `tree.divergence` records a tag changing, never a node vanishing.
+⚠ **So IA-0 STANDS AS WRITTEN — the migration unit stays the ALTERNATION**, and the previous
+section's hopeful reading of `t1()` uniformity is **corrected**: `jitXmutual`'s **action**-dispatch
+uniformity is real and **does not extend to the parse arm**. Two forks, two answers.
+**Mechanism is a LEAD, not a ruling** (usual odds): IA-2's silent return generalised — the
+generated arm's `promote=0` meets a label-transparent parent whose label is null, and the promote
+case that rescues it interpretively sits on the **other arm**.
+⚠ **Built as a DECOMPOSITION, and that is why it found anything.** *"Does a mixed config parse"*
+is nearly vacuous — something always comes out. Asking whether an install **perturbs only itself**
+is what exposed the loss.
+
+## ⚠ GAP B IS 21 RULES ACROSS SIX DATA KINDS, NOT 3 ACROSS TWO (`docs/gapB-staging.md`)
+Staged under fence 1 — **measurement only, no plan-layer edit made.** Every prior statement names
+`NumbeR`/`ANYtoken`/`SemI` and `isGROUP`/`isSTRING`; those are **the specimens that were looked at,
+not the population.** Measured: `isGROUP` 9 · **`isSET` 6** · `isSTRING` 3 · `isCOUNT` 1 ·
+`isCHAR` 1 · `isANY` 1 = **21 rules, 45% of the 47 denominator.** `isSET` is **twice** `isSTRING`
+and appears in no prior statement — **RULE H9 again.**
+- ⚠ **§2.5 IS A PARTIAL MAP, and it is the charter's first problem.** Accumulate/iterate covers
+  **8 of 21**. **Inline group (9) is explicitly NOT the iterate case** — `planTerm` classifies a
+  reference as `CALL` *before* the data test and names the leftover a *"named future kind"* that
+  **must not quietly become one**. `isSTRING`/`isCOUNT` (4) are in **neither** family. **Three
+  constructs wearing one refusal message**; a charter sized on two shapes will meet 21 rules.
+  Suggested rung order: **accumulate (8, has a spec and `testMacro` as precedent) → scalar (4) →
+  inline group (9, the only genuinely new construct).**
+- ⚠ **THE CASCADE IS A FRONTIER** (H9's corollary): closing rule-as-data **reveals** the next
+  refusal in `Iterate`/`ANYorNum`/`UnaryXP`/`StatemenT`/`Xpress` rather than unblocking them.
+  **And `ANYtoken` and `SemI` are each blocked TWICE — rule-level AND term-level — so rule-level
+  work alone closes NEITHER cascade head. Both axes or neither.**
+- ⚠ **PLANNABILITY AND INSTALLABILITY ARE NOW TWO SEPARATE GATES.** Gap B buys the first. After
+  step 2 it does **not** buy the second: a plannable rule still cannot cross alone while partial
+  installs lose nodes. **The charter should say which one it is purchasing.**
+
+## LADDER 150 → 162, and three rows that assert defects rather than fixes
+**JXT** graduates `jitXtemplate` — ticks **1→3** (cumulative on purpose, so no folded constant
+satisfies both rows), oracle agrees, and **degrade PINNED AT 2**, the honest value: E2's
+tail-return accident is what makes it green, so **when E2's rung lands the count drops and JXT
+goes red demanding graduation.** Using the generic `rung` helper would have forced a choice
+between weakening the fleet's degrade-zero rule and not landing the rung; asserting the true value
+costs neither. **JXD-1/JXD-2** pin `AND`'s 139 and `OR`'s **wrong value by name**, both inverted.
+⚠ **`genLadder/mixed.sh` caught itself three times** and records all three: its anti-vacuity guard
+fired on **its own census** (matched `treeScratch`'s header *comment*, 5 bindings for 4 — H9 on the
+guard rather than the guarded) · its first verdict was an unreadable **diff-of-diffs** when the
+finding was plain in the trees · and its **PASS banner said the opposite of its verdict**,
+inherited from the draft written before the answer came back. **A harness whose summary line
+contradicts its own rows is the worst instrument failure available**, because the banner is the
+line most readers see.
+
 ## OPEN, AND WHOSE
-**Director's, in priority order:** (1) the **`t1()` dispatch-uniformity** finding and whether
-IA-0's migration unit shrinks to the rule · (2) **Gap B's brief** — still the largest thing on the
+**Director's, in priority order:** (1) **the Gap B charter** — fence 1, and now with numbers · (2) **Gap B's brief** — still the largest thing on the
 board and still the metric · (3) planB scheduled or parked, on §4's five-point recommendation ·
 (4) the ungated-operator sweep · (5) `if !field;` on valued fields.
 **Reconciliation (H8):** `docs/verification.md` is **untracked** — stage-1 durable, asOf
