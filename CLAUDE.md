@@ -489,6 +489,25 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 > instead of passing a constant, because the degrade counter is asserted at zero
 > by every rung and a substituted constant is asserted by nothing.
 >
+> ⚠ **A DEGRADE LINE ASSERTS THAT A FALLBACK *OCCURRED*, NEVER THAT THE FALLBACK WAS *SOUND*.**
+> Adopted 2026-08-08, and it is the one-channel-one-meaning family's newest member — the two facts
+> are *"a construct fell through"* and *"the answer is still correct"*, and `jitDegrade`'s counter
+> carries both on one number.
+>
+> **Soundness is PER-CONSTRUCT, and E2 is the counterexample.** `jitDegrade` reports
+> *"return INSIDE AN INLINED CALLEE … running INTERPRETED"* identically in two positions:
+>
+> | position | degrade count | actually sound? |
+> |---|---|---|
+> | **tail** return | 2 | **yes** — a tail return needs no branch to the enclosing epilogue, so falling through is equivalent. Ladder rung **JXT** is green on exactly this. |
+> | **mid-body** return | **2** | **NO** — the early exit is not taken, the tail runs, the answer changes. `incant/jitXe2`: jitted 222/999 where the interpreter says 111/0. |
+>
+> **Same count, opposite safety.** So the fleet's degrade-zero rule — asserted by every rung, and a
+> genuine H4-shaped instrument — **cannot distinguish a handled fallback from an unhandled one.**
+> Rungs **JE2** and **JXN** therefore assert **values**, never the counter. When a degrade line
+> appears, the question *"is this fallback sound for THIS construct"* has not been answered by
+> anything; go and answer it.
+
 > **RULE H7 — A RUNG CERTIFIES ONLY WHAT FAILS WHEN THE MECHANISM IS REMOVED.** Adopted
 > 2026-08-04, and it is the day's best finding because the fixture that taught it was GREEN.
 >
@@ -516,6 +535,28 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 > so the rung pins its outcome wrong and says why. **A green row is a claim; do not make one
 > the mechanism cannot cash.**
 >
+> ⚠ **MATCH THE TASK'S FAILURE LOUDNESS TO THE SEAT'S MECHANICAL STATE.** Adopted 2026-08-08, and
+> it is doctrine about the three-seat model itself rather than about the code.
+>
+> **Not all wrong work fails at the same volume.** A crashing fixture, a red diff, a broken build
+> announce themselves. **A misfiling in a precision classification does not** — it becomes a
+> charter-level mistake that gets *built on*, and the cost surfaces rungs later with no line
+> pointing back. **So late-session mechanical state routes to self-checking work, or to shutdown —
+> never to silent-failure work.**
+>
+> **The citation is the eight-slip inventory of 2026-08-08**, preserved verbatim in that day's
+> wakeup vintage. The session's *reasoning* held — E2 gating the campaign, the parse-arm answering
+> NO, a pre-registered prediction falsified — while the *mechanical* layer degraded: a harness
+> banner contradicting its own rows, a census matching prose, an anchored regex undercounting 13→8,
+> a `git add -A <paths>` omitting a directory so a commit **described work it did not contain**, a
+> second `git add -A` sweeping up a file held back one command earlier, a fixture comment header
+> crashing the parser, a broken `printf`, and **`${PIPESTATUS[0]}` used by someone who had read
+> that bear-trap the same day.**
+>
+> **That last one is the whole argument: knowing the rule did not prevent the error.** Which is why
+> the answer is *structure and scheduling*, not *more care* — and why it belongs beside the
+> make-the-failure-unconstructable family rather than in a list of things to remember.
+
 > **RULE H8 — THE RECONCILIATION LAW.** Tony, 2026-08-05. **After any offline work session,
 > the next joint session OPENS with reconciliation**: `git status` on both repos, Tony walks
 > every dirty hunk, and each one gets a verdict — **commit** (the revised square), **revert**
@@ -1072,6 +1113,24 @@ Hard-won lessons. Each one has cost real debugging time.
     and when reading a name out of a field, be explicit about which you want. Payment 5 is the one
     to remember, because there the trap made something *work* — and a thing that works by accident
     breaks the day the accident stops.
+
+27. **A FIXTURE'S COMMENT HEADER IS NOT INERT — it can kill the parse before the first statement,
+    at exit 138 with ZERO BYTES of output.** Candidate trap, 2026-08-08, reproduced and bisected but
+    **not diagnosed to a cause**. `incant/jitXnest`'s original header crashed the run: no output at
+    all, not even the `Search list:` line, so it read as "the binary is broken" rather than "your
+    comment is". Bisection: **fields-only crashed, every action was innocent, and the header ALONE
+    reproduced it**; rewriting the header as plain prose fixed it with the fixture body untouched.
+    The offending block held **indented, code-shaped lines** (statement-looking text with `;`, an
+    assignment, and an arrow token). Consistent with the standing fact that **tok/incant have no
+    lexer and comments are parsed, not skipped** (project memory; bear-trap #4 is the same family at
+    statement scope, and the `/* */` type-name note is its sibling).
+    **Practical rule until someone diagnoses it: fixture headers get PROSE, not pasted code.** If a
+    header must show a construct, keep it un-indented and free of `;` and operator tokens.
+    ⚠ **METHOD NOTE, recorded because it is the only reason a wrong cause is not written here:** the
+    attractive theory was the `<-` **rebind operator** appearing in the header. It was **tested and
+    FALSIFIED** — a header containing `<-` runs clean — *before* the bisect landed. Bear-trap #19's
+    corollary in its cheap direction: the theory that survives narrowing is not thereby confirmed,
+    and one test beat an hour of plausible reasoning.
 
 > **RULE H9 — A CENSUS MATCHES THE IDIOM FAMILY, NOT THE SURFACE FORM.** Adopted 2026-08-07,
 > after a census miscounted its own subject **twice in two passes, in both directions.**

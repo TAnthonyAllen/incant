@@ -1233,6 +1233,69 @@ else echo "  FAIL  JXD-2 degrade count = '$xod', pinned at 0. If nonzero, OR now
      echo "        DECLARES its fallback -- an honest answer, and a graduation."; fail=1; fi
 
 echo ""
+echo "-- JE2 / JXN  E2 OWNED WHILE IT WAITS. TWO MORE INVERTED ROWS."
+#  ⚠⚠ E2 IS A CAMPAIGN PREREQUISITE, NOT PARALLEL-TRACK PURITY WORK (R1, Tony,
+#  2026-08-08). These two rows exist so it is OWNED rather than remembered: an
+#  unpinned defect gets rediscovered as a new finding and costs the
+#  investigation twice.
+#
+#  E2 = a `return` inside an INLINED callee. jitEmitters degrades it, saying
+#  "running INTERPRETED". THAT IS TRUE AND IT IS NOT THE SAME AS SOUND:
+#      TAIL position      -- degrading is equivalent, because a tail return
+#                            needs no branch to the enclosing epilogue.
+#                            Rung JXT is green on exactly this, degrade 2.
+#      MID-BODY position  -- degrading CHANGES THE ANSWER. Same degrade count.
+#  So the degrade counter cannot distinguish the two, which is why both rows
+#  below assert VALUES and not the counter.
+
+#  JE2 -- the construct, isolated. Fire 1 must take an early return and does
+#  not: 222/999 where the interpreter says 111/0. PINNED WRONG.
+runcap "JE2 runs" jitXe2 "$T/jitXe2"
+check   "JE2 runs" 0 $?
+sentinel "JE2 sentinel" "$T/jitXe2" "XE SENTINEL"
+e1=$(sed -n 's/.*XE fire 1 result: xeOut = *\([0-9-][0-9]*\).*/\1/p' "$T/jitXe2" | head -1)
+et=$(sed -n 's/.*XE fire 1 result:.*xeTail = *\([0-9-][0-9]*\).*/\1/p' "$T/jitXe2" | head -1)
+eo=$(sed -n 's/.*XE interpreted  *: xeOut = *\([0-9-][0-9]*\).*/\1/p' "$T/jitXe2" | head -1)
+if [ "$e1" = "222" ] && [ "$et" = "999" ]; then
+    echo "  ok    JE2 PINNED: mid-body return IGNORED (222/999; correct is 111/0)"; green=$((green+1))
+elif [ "$e1" = "111" ] && [ "$et" = "0" ]; then
+    echo "  FAIL  JE2 WOKE -- E2 LANDED. The early return is now taken."
+    echo "        Good news arriving as a red. GRADUATE this row to a positive"
+    echo "        assertion (H6), and re-pin JXT's degrade from 2 to its new"
+    echo "        value with a sentence -- the two move together."
+    fail=1
+else
+    echo "  FAIL  JE2 PIN MOVED: got $e1/$et, pinned 222/999. Re-measure."; fail=1
+fi
+if [ "$eo" = "111" ]; then echo "  ok    JE2 oracle: interpreted 111 -- the engines DISAGREE, which is the defect"; green=$((green+1))
+else echo "  FAIL  JE2 oracle = '$eo', want 111. The interpreter's answer moved, not the JIT's."; fail=1; fi
+
+#  JXN -- THE CAMPAIGN CONSEQUENCE, and the row that makes E2 a prerequisite.
+#  Two levels of the SEQ 41 sequence template, inner rule failing its first
+#  term. Jitted reports SUCCESS on a failing term: for a parser that is
+#  ACCEPTING INPUT IT MUST REJECT, silently, at exit 0.
+#  ⚠ Both tails are asserted, not just the returned value: out=1 alone cannot
+#  distinguish "no early return fired" from "one fired and the other did not".
+runcap "JXN runs" jitXnest "$T/jitXnest"
+check   "JXN runs" 0 $?
+sentinel "JXN sentinel" "$T/jitXnest" "XN SENTINEL"
+n1=$(sed -n 's/.*XN fire 1 result: xnOut = *\([0-9-][0-9]*\).*/\1/p' "$T/jitXnest" | head -1)
+ni=$(sed -n 's/.*XN fire 1 result:.*innerTail = *\([0-9-][0-9]*\).*/\1/p' "$T/jitXnest" | head -1)
+no=$(sed -n 's/.*XN interpreted  *: xnOut = *\([0-9-][0-9]*\).*/\1/p' "$T/jitXnest" | head -1)
+if [ "$n1" = "1" ] && [ "$ni" = "999" ]; then
+    echo "  ok    JXN PINNED: nested template ACCEPTS a failing term (out 1, tail 999)"; green=$((green+1))
+elif [ "$n1" = "0" ] && [ "$ni" = "0" ]; then
+    echo "  FAIL  JXN WOKE -- the nested template now REJECTS correctly."
+    echo "        E2 has landed at depth 2 and genKantParse v1's correctness"
+    echo "        prerequisite is discharged. GRADUATE (H6) and say so in the seal."
+    fail=1
+else
+    echo "  FAIL  JXN PIN MOVED: got out $n1 / innerTail $ni, pinned 1/999."; fail=1
+fi
+if [ "$no" = "0" ]; then echo "  ok    JXN oracle: interpreted 0 -- correct, so the divergence is the JIT's"; green=$((green+1))
+else echo "  FAIL  JXN oracle = '$no', want 0."; fail=1; fi
+
+echo ""
 #  ⚠ H2 -- THE LADDER ASSERTS ITS OWN COMPLETENESS, and it must be unreachable
 #  except through the LAST rung. Added 2026-08-05 with the check/sentinel
 #  repair: for four days this file called two helpers it never defined, and the
@@ -1242,7 +1305,7 @@ if [ "$green" -lt 1 ]; then
     echo "                   the helpers are missing again or the rungs evaporated."
     fail=1
 fi
-if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv JV JC JS JRt JXT + JXD pinned + J-R THE PROOF)"
+if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv JV JC JS JRt JXT + JXD/JE2/JXN pinned + J-R THE PROOF)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"
 exit $fail

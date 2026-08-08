@@ -1,7 +1,115 @@
-# ⚠⚠ SEALED 2026-08-08 (FINAL VINTAGE) — READ THIS SECTION FIRST.
-# Everything from `# ⚠⚠ SEALED 2026-08-07` down is older vintage. THE METRIC IS 0/47, NOT 0/78.
-# A FORK IS OPEN ON THE BOARD — planB / genKantParse — AND IT IS THE FIRST TIME THIS PROJECT
-# HAS INHERITED A CHOICE RATHER THAN A FRONTIER.
+# ⚠⚠ SEALED 2026-08-08 EVENING (FINAL VINTAGE) — READ THIS SECTION FIRST.
+# THE FORK IS RESOLVED AND IS NOW A CHARTERED CAMPAIGN. THE METRIC IS 0/47.
+# FRESH FEET START AT T-1 (see NEXT ACTION below). Everything from the second
+# `# ⚠⚠ SEALED 2026-08-08` header down is the same day's earlier vintage, still accurate.
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 2026-08-08 EVENING — SHUTDOWN SEAL. CHARTER IN HISTORY, FOUR RULINGS SETTLED,
+#                      E2 PROMOTED INTO THE CAMPAIGN, PHASE T PARKED CLEAN
+# ═══════════════════════════════════════════════════════════════════════════
+
+## ⚠ NEXT ACTION, SO TOMORROW NEEDS NO ARCHAEOLOGY
+**T-1's mechanism check FIRST** — *which kind does `planRule` actually read when it refuses:
+the RESOLVED/transitive kind, or the DECLARED one?* **Then** the family table, built on
+**declared shape**, one grammar line cited per rule. **Then E2.** Working notes and the two
+findings that shape it: `docs/gapBPhaseT.md`. Charter: `docs/gapBCharter.md` (+2 amendments).
+
+## THE CHARTER IS IN HISTORY, AND ITS DEFECTS ARE AMENDMENTS ON TOP
+`f8cf727` commits it **unedited**; `a9fa6ce` amends it. Deliberate order — the charter's own
+defect history stays readable in the log rather than being quietly tidied.
+- **AMENDMENT A — the ruling-4 instrument slot is OPEN, not assumed.** §5 named
+  `incant/censusScratch`, which **does not exist** (renamed `incant/popScratch`, wakeup 08-05).
+  ⚠ **The cause is the keeper: the name was cited from a sealed wakeup instead of checked** —
+  doubt-the-instrument failing *inside a governing document*, the most expensive place for it.
+  Now a **measurement obligation**: the instrument is whichever fixture demonstrably produces
+  **both** ruling-4 numbers. `phaseA` is the candidate; `popScratch` is on record as *"a sample,
+  never a census"*. **No rung may cite an unverified oracle.**
+- **AMENDMENT B — THE TABLE'S COUNT IS THE COUNT.** "21" is now "21 censused, provisional".
+  Evictions land as **rows with reasons, never silent renumbering** (H9's overcount running
+  backwards). Three already identified: `BrancheS` **container, already paid (CT)** ·
+  `NewGroup` **DEFERRED**, carries `TraiT@` under IT-3's expiry · `Any` **ESCALATED as a
+  POPULATION QUESTION** — censused but absent from `incant/grammar`, which is a **census-instrument**
+  question and gets asked of the instrument before the taxonomy.
+
+## ✅ FOUR RULINGS SETTLED (Tony, 2026-08-08 evening)
+**R1 — E2 IS A CAMPAIGN PREREQUISITE, IN THE CAMPAIGN, NOT THE PARALLEL TRACK.** It gates v1 for
+**CORRECTNESS**, not purity: `incant/jitXnest` shows a **two-deep template accepting input it must
+reject, at exit 0**. ⚠ **"Template certified" is bounded to DEPTH 1, tail-position leaves only.**
+Sequence: **family table first** (gating, open — finish the started thing), **E2 immediately
+after**, before any Phase R rung concludes.
+**R2 / R3 —** amendments A and B as written above.
+**R4 — Phase T order confirmed:** T-1's mechanism check **first**, then the table on **declared
+shape**. The census column is **resolved** kind (`Looper → ANYtoken → NamE → set`); grouping on it
+files **references under scalars** — §2.5's build-wrongly failure one layer up, **caught before a
+row was written.** ⚠ **The refusal to ship a partial table was correct and is the standing standard.**
+
+## PINS — E2 IS OWNED WHILE IT WAITS. LADDER 162 → 170.
+New inverted rows **JE2** and **JXN** (green while the defect is present, red on repair, H6):
+- **JE2** — mid-body return in an inlined callee: jitted **222/999**, interpreted **111/0**.
+- **JXN** — the nested template **accepts a failing term** (out 1, tail 999); oracle 0.
+Standing: **JXT** degrade pinned at 2 · **JXD-1** (`AND` → 139) · **JXD-2** (`OR` → silently wrong)
+· `genLadder/mixed.sh`'s child-drop pin.
+
+## DOCTRINE ADDED (CLAUDE.md)
+- ⚠ **A DEGRADE LINE ASSERTS A FALLBACK *OCCURRED*, NEVER THAT IT WAS *SOUND*.** Soundness is
+  **per-construct**: E2 at **tail** position is sound, at **mid-body** it changes the answer — **same
+  degrade count 2.** So degrade-zero cannot tell a handled fallback from an unhandled one; JE2/JXN
+  assert **values**, never the counter.
+- ⚠ **MATCH THE TASK'S FAILURE LOUDNESS TO THE SEAT'S MECHANICAL STATE.** A misfiling in a precision
+  classification **does not fail loud** — it becomes a charter-level mistake that gets built on.
+  Late-session mechanical state routes to self-checking work or to shutdown, **never to
+  silent-failure work.**
+- **BEAR-TRAP #27 (candidate)** — a fixture's **comment header is not inert**: exit 138, **zero
+  bytes**, before the first statement; bisected to the header alone, body innocent. Headers get
+  **prose, not pasted code**. ⚠ The `<-` rebind theory was **tested and falsified before** the
+  bisect — the only reason a wrong cause is not written down.
+
+## ⚠ THE EIGHT-SLIP INVENTORY — verbatim, because it is the citation behind the scheduling doctrine
+Self-read at the pause: **the reasoning layer held; the mechanical layer degraded.** The findings
+were solid and several decisive (E2 gating the campaign, the parse arm answering NO, a
+pre-registered prediction falsified). Against that, **eight instrument slips in one session**:
+1. `mixed.sh`'s PASS banner said the **opposite of its own verdict**
+2. its census grep **matched prose** — 5 bindings for 4
+3. an anchored `^diffcheck` regex **undercounted pop.sh 13→8**
+4. `git add -A genLadder incant docs` **omitted `jitLadder/`** — a commit whose message
+   **described work it did not contain**
+5. `git add -A docs` **swept up `verification.md`**, held back one command earlier
+6. a fixture header **crashed the parser**
+7. a broken `printf` in the census loop
+8. **`${PIPESTATUS[0]}` used — a bear-trap in this repo's own CLAUDE.md, read the same day**
+
+Every one was caught, **mostly by accident or by a guard written earlier, not by care**. ⚠ **#8 is
+the tell: knowing the rule did not prevent the error** — which is the argument for structure and
+scheduling over more care, and is why the scheduling doctrine sits beside the
+make-the-failure-unconstructable family.
+
+## BOARD STATE
+- **Campaign runway OPEN** — Phase T is actionable now (T-1, then the table).
+- **Behind it:** step-5 remainder — the **E2 rung is now IN-CAMPAIGN per R1**; **scale fixture** and
+  the **not-gated sweep** (22 operators left, `jitXor` shape, two discriminating fires each) stay
+  parallel-track.
+- **`docs/vigram.md` — HONESTLY FLAGGED: NEVER OPENED.** Still the interleave track, steps 1–3 per
+  SEQ 46. Clod acknowledged the priority and then never read the file; nothing in it has been absorbed.
+
+## OPEN, AND TONY'S
+**child-drop decision** — charter it or bank it; **no clock, but not silent** · **migration ruling**
+(waits on child-drop) · **completePop owned-red vocabulary** (2 standing sentinel misses, `jitXand`
+/`jitXand2`, whose missing sentinel *is* the defect they record) · **vi grammar offline.**
+
+## FLEET AT SEAL
+```
+sh jitLadder/ladder.sh        170 checks, exit 0
+sh genLadder/pop.sh            33 green / 1 parked (exit 1, the same 3 owned reds)
+sh genLadder/mixed.sh           7 checks, exit 0   (parse-arm pin holds)
+sh genLadder/completePop.sh   123 swept · 3 abandoned · 2 missing sentinels · exit 1
+sh genLadder/tree.sh · printPop · containerPop · recordPop · formsPop      exit 0
+<binary> incant/oneTest · jsonTest · kant8T · phaseA · emitAll             exit 0
+```
+**Metric: 0/47 installed.**
+
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ⚠⚠ SEALED 2026-08-08 (morning/afternoon vintage) — the earlier 08-08 section follows.
 
 # ═══════════════════════════════════════════════════════════════════════════
 # 2026-08-08 — planB OPENED (genKantParse), AND THE SKETCH'S SPELLING DIED ON
