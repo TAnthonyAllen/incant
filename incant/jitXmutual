@@ -1,0 +1,82 @@
+/*****************************************************************************
+    jitXmutual -- MUTUAL RECURSION BETWEEN TWO KANT ACTIONS, UNDER JIT.
+    2026-08-08. The second half of the genKantParse call measurement.
+
+    WHY THIS AND NOT jitXcall ALONE. jitXcall proved an ACYCLIC call is emitted
+    and runs at run time (ticks 2, 8 -> 22, one compile, degrade 0). That is
+    not the shape genParse depends on. genParseSpec S2.6 rests explicitly on a
+    CYCLIC call graph -- `JSONblock -> JSONfield -> JSONvalue -> JSONblock` --
+    and argues it terminates because JSONblock consumes `{` before descending.
+    A recursive-descent parser IS a cycle by construction, so if the emit walk
+    cannot close a cycle, genKantParse has no jitted path for any real grammar.
+
+    THE RIVAL IS NOT "wrong answer", IT IS "does not return". jitEmitSelfCall
+    was built (2026-08-05, ladder rung JS) because a self-call inside an
+    INLINED body replayed the enclosing preamble -- the pre-fix binary exits
+    139 after 173,400 replays. Its cure is a map populated by an inline-stack
+    test at discovery. THE QUESTION HERE IS WHETHER THAT TEST SEES A CYCLE OF
+    LENGTH TWO, or only length one.
+
+    RUN THIS UNDER A WALL-CLOCK CAP (H5). A non-terminating emit walk is not a
+    wrong answer, it is the absence of a run, and it will take the terminal
+    with it.
+
+    jmTicks is a COUNT, and the counts are chosen non-equal across fires so a
+    slot that merely defaults cannot pass (H4 / the anti-vacuity rule):
+        fire 1  jmN = 4  ->  jmTicks 4
+        fire 2  jmN = 6  ->  jmTicks 6   NO RECOMPILE
+
+    DIAGNOSTIC:
+        ticks 4 then 10 (4+6)   EMITTED, cycle closed, runs at run time
+        ticks 4 then 4          the second fire ran nothing -- folded
+        hang / 139              the emit walk cannot close a two-cycle
+        degrade > 0             the cycle was declined rather than emitted,
+                                which is a HONEST answer and still a no
+
+    ORDER (bear-trap #25): jitted half FIRST, oracle last.
+    SENTINEL AT THE FOOT (H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitXmutual);
+define
+    jmN;
+    jmTicks;
+    jmA code={
+        if jmN > 0;
+            jmTicks = jmTicks + 1;
+            jmN = jmN - 1;
+            jmB();
+        };
+    jmB code={
+        if jmN > 0;
+            jmTicks = jmTicks + 1;
+            jmN = jmN - 1;
+            jmA();
+        };
+    ;
+
+jmN     = 4;
+jmTicks = 0;
+print "XM fire 1 setup : jmN =" jmN:;
+testing(jmA);
+print "XM fire 1 result: jmTicks =" jmTicks " (want 4)":;
+
+jmN = 6;
+print "XM fire 2 setup : jmN =" jmN " (recompile: NONE)":;
+jitRefire();
+print "XM fire 2 result: jmTicks =" jmTicks " (want 10 = 4+6)":;
+
+jmN     = 4;
+jmTicks = 0;
+jmA();
+print "XM interpreted  : jmTicks =" jmTicks " (the oracle -- want 4)":;
+
+print "XM SENTINEL -- run reached the end":;
+stop();

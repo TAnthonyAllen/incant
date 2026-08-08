@@ -1,0 +1,49 @@
+/*****************************************************************************
+    jitXand2 -- IS `AND` ITSELF UNJITTABLE, OR ONLY `AND` OVER CALLS?
+    2026-08-08. Narrows jitXand's 139.
+
+    jitXand (two returning callees joined by AND) exits 139.
+    jitXseq  (the same two callees, sequential, no AND) exits 0, degrade 2.
+    So the conjunction is implicated. This asks whether AND is broken under
+    jit generally, or only when its operands are DEGRADED INLINED CALLS.
+
+    Same AND, plain field operands, no calls anywhere.
+        exit 0   -> AND is fine on ordinary operands; the defect is narrow and
+                    lives at the seam between a degraded inlined callee and an
+                    ungated operator reading the value channel
+        139      -> AND is unjittable outright, which is the larger finding
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitXand2);
+define
+    x2L;
+    x2R;
+    x2Out;
+    x2Driver code={
+        x2Out = x2L AND x2R;
+        };
+    ;
+
+x2L = 0; x2R = 1; x2Out = 9;
+print "X2 fire 1 setup : x2L =" x2L " x2R =" x2R:;
+testing(x2Driver);
+print "X2 fire 1 result: x2Out =" x2Out " (want 0)":;
+
+x2L = 1; x2R = 1;
+print "X2 fire 2 setup : x2L =" x2L " x2R =" x2R " (recompile: NONE)":;
+jitRefire();
+print "X2 fire 2 result: x2Out =" x2Out " (want 1 -- differs from fire 1)":;
+
+x2L = 0; x2R = 1; x2Out = 9;
+x2Driver();
+print "X2 interpreted  : x2Out =" x2Out " (the oracle -- want 0)":;
+
+print "X2 SENTINEL -- run reached the end":;
+stop();

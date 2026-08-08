@@ -1,0 +1,89 @@
+/*****************************************************************************
+    jitXseq -- TWO value-returning callees, SEQUENTIALLY, NO conjunction.
+    2026-08-08. The third and deciding leg of the genKantParse call
+    measurement.
+
+    THE THREE RESULTS SO FAR:
+        jitXcall  exit 0, degrade 0   one callee, returns NOTHING          green
+        jitXret   exit 0, degrade 1   one callee, TAIL return              green
+                                      -- green BY TAIL POSITION: E2 says the
+                                      unbuilt thing is the BRANCH to the
+                                      enclosing epilogue, and a tail return
+                                      needs no branch, so falling through is
+                                      accidentally equivalent
+        jitXand   exit 139, degrade 2 TWO callees with returns, joined by AND
+
+    jitXand varied two things at once. This holds the conjunction out and keeps
+    everything else: two inlined callees, each with a tail return, each result
+    consumed.
+
+        RED here   ->  the crasher is TWO INLINED VALUE-RETURNING CALLEES in
+                       one body, and AND is innocent. That is the worse answer,
+                       because the obvious short-circuit rewrite --
+                           if !t1(); return 0;
+                           if !t2(); return 0;
+                       -- has exactly this shape and is blocked too.
+        GREEN here ->  the crasher is the CONJUNCTION, and the if-chain rewrite
+                       is available today. genKantParse's sequence template can
+                       be written with constructs that are already certified.
+
+    THIS IS THE QUESTION THAT DECIDES WHETHER THE SKETCH NEEDS NEW JIT WORK OR
+    ONLY A DIFFERENT SPELLING.
+
+    Two fires, inputs changed after emission, answers required to differ.
+    SENTINEL AT THE FOOT (H2). Run under a wall-clock cap (H5).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitXseq);
+define
+    xsIn;
+    xsA;
+    xsB;
+    xsSum;
+    xsTicks;
+    xsOne code={
+        xsTicks = xsTicks + 1;
+        return xsIn * 2;
+        };
+    xsTwo code={
+        xsTicks = xsTicks + 1;
+        return xsIn * 3;
+        };
+    xsDriver code={
+        xsA = xsOne();
+        xsB = xsTwo();
+        xsSum = xsA + xsB;
+        };
+    ;
+
+xsIn    = 4;
+xsA     = 0;
+xsB     = 0;
+xsSum   = 0;
+xsTicks = 0;
+print "XS fire 1 setup : xsIn =" xsIn:;
+testing(xsDriver);
+print "XS fire 1 result: xsA =" xsA " (want 8) xsB =" xsB " (want 12) xsSum =" xsSum " (want 20) ticks =" xsTicks:;
+
+xsIn = 10;
+print "XS fire 2 setup : xsIn =" xsIn " (recompile: NONE)":;
+jitRefire();
+print "XS fire 2 result: xsA =" xsA " (want 20) xsB =" xsB " (want 30) xsSum =" xsSum " (want 50) ticks =" xsTicks:;
+
+xsIn    = 4;
+xsA     = 0;
+xsB     = 0;
+xsSum   = 0;
+xsTicks = 0;
+xsDriver();
+print "XS interpreted  : xsSum =" xsSum " (the oracle -- want 20) ticks =" xsTicks:;
+
+print "XS SENTINEL -- run reached the end":;
+stop();

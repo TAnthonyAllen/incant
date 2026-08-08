@@ -1,0 +1,85 @@
+/*****************************************************************************
+    jitXret -- ISOLATOR. ONE value-returning callee, NO conjunction.
+    2026-08-08.
+
+    jitXand died 139 with two degrades naming E2 -- `return INSIDE AN INLINED
+    CALLEE ... it would branch to the enclosing function's epilogue`. That
+    fixture varies TWO things at once against the working jitXcall: it uses
+    AND, and its callees RETURN VALUES. This isolates the second.
+
+    THE ONLY DIFFERENCE FROM jitXcall, WHICH IS GREEN (ticks 2, 8 -> 22, one
+    compile, degrade 0): the callee ends in `return`, and the driver consumes
+    the returned value instead of reading a field the callee wrote.
+
+        RED here   ->  the wall is A VALUE-RETURNING CALLEE (E2), and AND is
+                       an innocent bystander. This is the one that matters for
+                       genKantParse, because EVERY term function in the sketch
+                       returns success or failure.
+        GREEN here ->  the wall is the conjunction itself, and the term
+                       functions are fine.
+
+    A NEGATIVE CONTROL IS BUILT IN (H7). xrSink is the jitXcall shape -- same
+    callee, same arithmetic, but writing a FIELD instead of returning -- and it
+    runs first. If xrSink is green and xrDriver is red in the same binary, the
+    return is the only variable left standing.
+
+    ⚠ TWO testing() CALLS ARE NOT AVAILABLE (the sequential-state tar baby), so
+    the control leg runs INTERPRETED and is asserted for VALUE only; it is a
+    control on the code shape, not on the engine. The jitted control is
+    jitXcall, in its own file, which is the shape that rule exists for.
+
+    SENTINEL AT THE FOOT (H2). Run under a wall-clock cap (H5).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitXret);
+define
+    xrIn;
+    xrOut;
+    xrTicks;
+    xrCallee code={
+        xrTicks = xrTicks + 1;
+        return xrIn * 2;
+        };
+    xrSink code={
+        xrTicks = xrTicks + 1;
+        xrOut = xrIn * 2;
+        };
+    xrDriver code={
+        xrOut = xrCallee();
+        };
+    ;
+
+xrIn    = 4;
+xrOut   = 0;
+xrTicks = 0;
+xrSink();
+print "XR control (interpreted, no return): xrOut =" xrOut " (want 8)":;
+
+xrIn    = 4;
+xrOut   = 0;
+xrTicks = 0;
+print "XR fire 1 setup : xrIn =" xrIn " -- jitting a driver whose callee RETURNS":;
+testing(xrDriver);
+print "XR fire 1 result: xrOut =" xrOut " (want 8) xrTicks =" xrTicks:;
+
+xrIn  = 11;
+xrOut = 0;
+print "XR fire 2 setup : xrIn =" xrIn " (recompile: NONE)":;
+jitRefire();
+print "XR fire 2 result: xrOut =" xrOut " (want 22) xrTicks =" xrTicks:;
+
+xrIn    = 4;
+xrOut   = 0;
+xrTicks = 0;
+xrDriver();
+print "XR interpreted  : xrOut =" xrOut " (the oracle -- want 8) xrTicks =" xrTicks:;
+
+print "XR SENTINEL -- run reached the end":;
+stop();

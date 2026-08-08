@@ -1,7 +1,166 @@
-# ⚠⚠ SEALED 2026-08-07 (FINAL VINTAGE) — READ THIS SECTION FIRST.
-# Everything from `# ⚠⚠ SEALED 2026-08-05` down is older vintage, still broadly accurate,
-# just no longer the top of the story. THE ATTACH EXTRACTION IS IN THE TREE. DRAWING EXISTS,
-# INTERPRETED AND JITTED. THE METRIC IS STILL 0/78 AND IS NOW CORNERED BY ONE NAMED GAP.
+# ⚠⚠ SEALED 2026-08-08 (FINAL VINTAGE) — READ THIS SECTION FIRST.
+# Everything from `# ⚠⚠ SEALED 2026-08-07` down is older vintage. THE METRIC IS 0/47, NOT 0/78.
+# A FORK IS OPEN ON THE BOARD — planB / genKantParse — AND IT IS THE FIRST TIME THIS PROJECT
+# HAS INHERITED A CHOICE RATHER THAN A FRONTIER.
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 2026-08-08 — planB OPENED (genKantParse), AND THE SKETCH'S SPELLING DIED ON
+#              SEVEN FIXTURES WHILE ITS PREMISE SURVIVED
+# ═══════════════════════════════════════════════════════════════════════════
+
+## WHAT IS RUNNABLE
+```
+sh jitLadder/ladder.sh        150 checks, exit 0    (re-run today, green)
+sh genLadder/pop.sh            33 green / 1 parked  (the SAME 3 owned reds)
+sh genLadder/recordPop.sh      48 checks · formsPop.sh 14 · printPop 9 · containerPop 11 · tree 0
+sh genLadder/completePop.sh    121 swept · 3 abandoned · 2 missing sentinels · 208 green · exit 1
+<binary> incant/oneTest · jsonTest · kant8T · phaseA · emitAll      exit 0
+```
+**Metric: 0/47 installed.** Nothing regressed today; today's work added fixtures only.
+
+## ⚠ THE SEAL CORRECTIONS OWED FROM THE 08-07 VINTAGE, APPLIED
+The section below this one says **0/78** in three places and it is **stale, not wrong-headed**:
+- **THE DENOMINATOR IS 47** (IA-4). 78 counts **Grokking's registry population** (60 members + 18
+  attributes); 47 counts **names in `incant/grammar` that can consume an install bind at their own
+  definition site**. Different sources, different axes — 47 does not *correct* 78, it **replaces
+  it as the campaign's denominator**, because a rule that cannot consume a bind cannot be
+  installed however plannable it is. 102 sites probed: 67 LIVE, 35 dead, 0 VOID.
+- **The oracle is amended to EVIDENCE-OF-EXECUTION** (IA-5). For a **deferred** rule neither axis
+  of the union lens discriminates the arms — `BlocK` reads `fire=2 attach=0` identically with the
+  install on and off, because `defer` skips its label at the yield guard long before
+  `attachLabel`'s no-label guard. **The crash was the evidence the lens could not supply.**
+- **The abandonment instrument is LIVE with three catches** (IA-6). `genLadder/completePop.sh`,
+  structurally defined population. Three pre-existing live abandoners, all at
+  exit 0, none session-caused: **`delimTest`, `grammarOnTheFly`, `hashProbe`**. Reported, not
+  diagnosed. **The sweep is RED on arrival and that is the instrument working.**
+
+⚠ **AND IT PROVED THE STRUCTURAL POPULATION WORKS BY CATCHING TODAY'S OWN FIXTURES — the numbers
+moved and the movement is named, not absorbed.** `112 / 3 abandoned / 0 missing sentinels`
+became **`121 / 3 / 2`**. The two new sentinel misses are **`jitXand` and `jitXand2`, and their
+missing sentinel IS the finding they were written to record**: `AND` under jit exits 139, so the
+sentinel cannot print. Nothing regressed — the abandoner count is **unchanged at 3**, and the
+sweep swept nine new fixtures with nobody maintaining a list, which is exactly what IA-6 bought.
+**⚠ But two deliberate crashes are now STANDING REDS with no way to own them.** `pop.sh` has an
+owned-red/parked vocabulary and `completePop.sh` has none, so these will be re-explained every
+session until someone rules. **That is IA-6's own named follow-on** (*"hardening their choke
+points is day-size but not this fire's day"*) arriving with a concrete demand case. **Tony's
+call:** an owned-red list, or measurement fixtures kept out of the swept population — noting that
+the second option weakens the structural-population property that makes the sweep worth having.
+- **GATE discharged on K5/K6** · **bracket fix scheduled at the green-fleet junction.**
+
+## ⚠⚠ THE FORK: planB / genKantParse — ASSESSED, NOT SCHEDULED
+Full assessment with every measurement: **`docs/genKantParse.md`**. Three sentences of it:
+
+**THE PREMISE IS SOUND AND THE SKETCH AS WRITTEN DOES NOT RUN, AND THOSE ARE SEPARATE FINDINGS.**
+The proposal — generate the parse as **kant CodE** installed in the rule's `method` slot, with the
+semantic action moved to `actionMethod` — collapses the whole PC divergence class for generated
+rules, because there stops being two artifacts to keep in parity. **But the body it is written in,
+`sukcess = t1() AND t2() AND t3()`, uses the two worst-behaved constructs the JIT currently has.**
+
+| measured today | result |
+|---|---|
+| `AND`, plain field operands | ❌ **exit 139, and NO degrade line — it crashes before the counter sees it** |
+| `OR`, plain field operands | ❌ **exit 0, degrade 0, WRONG ANSWER** (fire 2 wants 1, gets 0 — emit-time fold) |
+| action→action call, acyclic | ✅ emitted, runs per fire |
+| **action→action, MUTUALLY RECURSIVE** | ✅ **the cycle closes** — ticks 4→10, one compile, degrade 0 |
+| two value-returning callees, sequential | ✅ green (degrade 2, the known E2 tail-return) |
+| **the proposed replacement template** | ✅ **short-circuits for real — ticks 1→3** |
+
+**THE REPLACEMENT NEEDS NO NEW JIT WORK — ONLY A DIFFERENT SPELLING**, built from constructs the
+ladder already certifies (comparison, `if`, mid-block `return`, sequential calls):
+```
+    xtSuk = xtT1();   if xtSuk == 0;   return 0;
+    xtSuk = xtT2();   if xtSuk == 0;   return 0;
+    return 1;
+```
+⚠ **AND IT SHORT-CIRCUITS BY CONSTRUCTION, WHICH IS THE POINT AND NOT AN OPTIMISATION.** KANT-34
+records `&&`/`||` as evaluating both arms **in the interpreter too**, and records the reason as
+structural. **For a parser that is a correctness requirement, not a style choice** — a parse term
+consumes input, so an eager right arm advances the mark past text the rule never matched. The AND
+spelling cannot express parse semantics in **either** engine. The if-chain does not need to.
+If short-circuit is ever wanted as an *operator*, it must become **control flow** with its own
+`aCTion*` handler and emitter — the shape `if` and the loops already have — **not** a repair to
+`opAND`.
+
+## ⚠ THE FINDING THAT MOST CHANGES THE CAMPAIGN'S SHAPE — put in front of Tony first
+**`t1()` DISPATCH IS UNIFORM.** `aCTionRunRulE` dispatches on `rule.isMethod` and never asks
+whether the method was generated; under jit the callee is **inlined**, and `jitXmutual` shows a
+**two-cycle closes**. A generated and a non-generated callee are **the same call at both layers**.
+**So the mixed-shape world is safe — and IA-0's premise is what that undermines.** IA-0 ("the
+migration unit is the ALTERNATION, all of one parent's options cross together") exists precisely
+to prevent mixed shapes. If they are safe, **the migration unit can be the RULE**, and IA-1's gate
+loses the reason it refuses every install. **IA-0/IA-1 would dissolve rather than get satisfied.**
+⚠ Measured for **action** dispatch only. The **parse-arm** fork inside `parse()` is a separate
+question these fixtures do not cover, and the claim must not be stretched over it.
+
+## WHAT planB DOES NOT DO, STATED SO IT IS NOT OVERSOLD
+**It does not move the metric.** The gate is **GAP B (rule-as-data)**, and both of its refusals
+live in the **PLAN layer** — `planRule`'s *"rule-level data"* and `planTerm`'s *"inline group /
+character data"* — which genKantParse **shares unchanged**. A second back end respells plans that
+already succeed; it cannot make a refused rule plannable. **Close Gap B in the plan layer first**,
+where it pays both back ends and where a red has exactly one cause.
+
+## ⚠ genParse WAS ALREADY BUILT FOR A SECOND BACK END, and this is the cost answer
+`genParse.rtn` is already two layers with a clean seam, **and says so in its own comments**:
+`planRule` DECIDES (a GroupItem plan tree — `SEQ`/`ALT` over `CALL`/`LIT`/`LITTO`/`CONTAINER`/
+`OPT`/`MANY`), `emitPlan` WRITES, *"nothing between them knows about C++."* So **genKantParse is a
+second back end on a shared plan, ~200 lines of respelling — not a second campaign.** Adjudication
+is then the H8 shape Tony asked for almost for free: same rule, same plan, two back ends, one
+comparison fixture.
+**And the fork the brief did not name:** emit **kant source text** through the ordinary
+`define … code={ }` door (cheap, keeps `emitPlan`'s shape, keeps the artifact human-readable) vs
+**synthesize the BlocK tree** (needs the tree-synthesis idioms, bypasses `aCTionDefinE`).
+**Take the text route for v1.**
+
+## THE COMMAND TALLY IS SHORT — but the library needs REGISTERING, not writing
+~8 → **~11 for parity with today's frontier, ~13 to clear it**. Missing and load-bearing:
+**`inGuard`** (every member option is `(inGuard(...) && parseR(into))`) and **`stashDefer`**
+(`defer` is the parse→generate seam — where `gIF`/`gFOR`/`gPrinT`/`gXpress` come from).
+`containerTo` is **already paid**. `upTo`/`upToOver`/`macroVal` are beyond the frontier in *both*
+generators, so not owed for v1. ⚠ **But the seven support functions already exist as `extern "C"`
+in `RuleStuff` — making them kant-callable is shims + registration, not implementation.**
+**What is actually hiding is not a command:** Invariant **R′**'s two-part label-recycling
+handshake (an obligation on the emitted loop, deliberately not inherited), and **§7.1's
+min-zeroing defect**, which a kant action re-inherits the moment it reads `rs.min` at RUN time —
+which is the worked example that earns Tony's **generation-era doctrine** its promotion.
+
+## DOCTRINE / DEFECTS ADDED TODAY
+- **TWO PRE-EXISTING JIT DEFECTS, LOGGED INDEPENDENTLY OF planB.** `AND` under jit **crashes with
+  no degrade line**; `OR` under jit is **silently wrong at degrade 0**. Both are the ungated-
+  operator class. ⚠ The general statement — *an ungated operator in a jitted body folds its
+  emit-time value* — is **inferred from two members and NOT swept**; the not-gated list has **24**
+  entries. **A sweep is the obvious next instrument** and is cheap (the `jitXor` shape, one
+  fixture per operator, two discriminating fires).
+- **`if !field;` IS INERT ON A FIELD CARRYING A VALUE** — measured interpreted-only, `0` and `1`
+  both failing to fire, **both engines agreeing**, so it is a language question and not a JIT one.
+  KANT-35's `if !a;` idiom is measured only against **absent attributes**. **Use `== 0`.** Tony's.
+- ⚠ **THE ANTI-VACUITY RULE PAID ITS BILL INSIDE TODAY'S OWN INVESTIGATION.** The first `jitXor`
+  used `0 OR 1` and `1 OR 1` — both 1 — and **reported green**. It would have entered the
+  assessment as *"OR is fine."* The re-run with a discriminating pair found the fold. **A fixture
+  that cannot distinguish the answers distinguishes nothing** — including one written by someone
+  who had just finished reading the rule.
+- **E2 IS SURVIVABLE BY ACCIDENT, AND SHOULD BE KNOWN AS SUCH.** A `return` inside an inlined
+  callee degrades (*"it would branch to the enclosing function's epilogue"*). Every fixture shows
+  it. It is green today **only because a TAIL return needs no branch**, so falling through is
+  accidentally equivalent. genKantParse's templates are tail-shaped naturally — fine, but that is
+  an accident to be aware of, not a property to lean on.
+
+## OPEN, AND WHOSE
+**Director's, in priority order:** (1) the **`t1()` dispatch-uniformity** finding and whether
+IA-0's migration unit shrinks to the rule · (2) **Gap B's brief** — still the largest thing on the
+board and still the metric · (3) planB scheduled or parked, on §4's five-point recommendation ·
+(4) the ungated-operator sweep · (5) `if !field;` on valued fields.
+**Reconciliation (H8):** `docs/verification.md` is **untracked** — stage-1 durable, asOf
+2026-08-07, VI-1..VI-7, its own SURVEY ROW open and self-graded ASSUMED. Explainable as yesterday's
+output not yet committed, **but it has had no verdict** — commit / revert / named-WIP is Tony's.
+`IncantForms/WorkingOn/incant++` is Tony's own working document, dirty as normal, safe to ignore.
+**Flagged, not chased:** `litTo` still unimplemented · the three IA-6 abandoners
+(`delimTest`, `grammarOnTheFly`, `hashProbe`) · GM-19's single audit line.
+
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ⚠⚠ SEALED 2026-08-07 — the 08-07 section follows. Older vintage from here down.
+# ⚠ ITS METRIC LINE (0/78) IS SUPERSEDED BY 0/47 ABOVE.
 
 # ═══════════════════════════════════════════════════════════════════════════
 # 2026-08-07 — THE PARSE-CONTRACT CAMPAIGN OPENED, THE EXTRACTION LANDED,

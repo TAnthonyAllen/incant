@@ -1,0 +1,81 @@
+/*****************************************************************************
+    jitXcall -- ACTION-INVOKES-ANOTHER-ACTION UNDER JIT. 2026-08-08.
+
+    THE MEASUREMENT THE genKantParse BRIEF ASKS FOR (Clod's item 4). Every
+    other call rung measures a call to a purpose-built C++ extern through the
+    fallback column (jitTrace/jitEmitTrace at J6, displayFill at the forms
+    seam) or a SELF-call through jitEmitSelfCall (JR). NOTHING MEASURES ONE
+    KANT ACTION CALLING A DIFFERENT KANT ACTION -- which is exactly what
+    genKantParse's most common plan node, CALL (`t1()`), compiles to.
+
+    THE CLAIM UNDER TEST: `jxCallee();` inside a jitted body is EMITTED and
+    runs at RUN time, once per fire.
+
+    THE RIVAL, and it is what aCTionRunRulE's source predicts: that handler
+    carries NO `if jitting` gate and NO jitDegrade call, so under jitting the
+    callee is simply INTERPRETED during the emit walk and nothing is emitted.
+    That failure is SILENT and reports degrade count 0.
+
+    jxTicks is the discriminator and it is a COUNT, not an absence (H4): the
+    callee bumps it on every entry, so the number distinguishes the readings
+    rather than a missing line doing it.
+
+    DIAGNOSTIC:
+        fire1 out=8  fire2 out=22  ticks=2   EMITTED, runs at run time
+        fire1 out=8  fire2 out=8   ticks=1   ran at EMIT time, nothing emitted
+        fire1 out=0  fire2 out=0   ticks=0   the call never happened at all
+
+    Fire 2 changes the input AFTER emission with no recompile, so 8-then-22 can
+    only come from compiled code re-reading the field.
+
+    ORDER IS LOAD-BEARING (bear-trap #25): the jitted half FIRST, because
+    testing() routes on isCoded and an interpreted run consumes it. The oracle
+    is last.
+
+    SENTINEL AT THE FOOT (H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitXcall);
+define
+    jxIn;
+    jxOut;
+    jxTicks;
+    jxCallee code={
+        jxTicks = jxTicks + 1;
+        jxOut = jxIn * 2;
+        };
+    jxDriver code={
+        jxCallee();
+        };
+    ;
+
+jxIn    = 4;
+jxOut   = 0;
+jxTicks = 0;
+print "XC fire 1 setup : jxIn =" jxIn:;
+testing(jxDriver);
+print "XC fire 1 result: jxOut =" jxOut " (want 8)  jxTicks =" jxTicks:;
+
+jxIn  = 11;
+jxOut = 0;
+print "XC fire 2 setup : jxIn =" jxIn " (recompile: NONE)":;
+jitRefire();
+print "XC fire 2 result: jxOut =" jxOut " (want 22) jxTicks =" jxTicks:;
+
+print "XC TICKS TOTAL  : jxTicks =" jxTicks " (want 2 -- emitted; 1 means emit-time)":;
+
+jxIn    = 4;
+jxOut   = 0;
+jxTicks = 0;
+jxDriver();
+print "XC interpreted  : jxOut =" jxOut " (the oracle -- want 8) jxTicks =" jxTicks:;
+
+print "XC SENTINEL -- run reached the end":;
+stop();

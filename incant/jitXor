@@ -1,0 +1,53 @@
+/*****************************************************************************
+    jitXor -- IS `OR` JITTABLE? 2026-08-08. The sibling of jitXand2, which
+    exits 139 on plain field operands with no degrade line at all.
+
+    genKantParse's ALTERNATION template is an OR chain exactly as its SEQUENCE
+    template is an AND chain, so the two need separate answers.
+
+    ⚠ THE FIRST VERSION OF THIS FIXTURE WAS NON-DISCRIMINATING and is recorded
+    here rather than quietly fixed: its two fires were `0 OR 1` and `1 OR 1`,
+    both 1, so a folded constant would have passed it. Anti-vacuity rule --
+    pair every row with a sibling that must differ.
+
+        fire 1  0 OR 0  ->  0
+        fire 2  1 OR 0  ->  1     NO RECOMPILE, and it must differ from fire 1
+
+    exit 0 + the two answers differing  ->  OR is emitted and runs per fire
+    exit 0 + both answers 0             ->  folded, or ran at emit time
+    139                                 ->  OR joins AND as unjittable
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitXor);
+define
+    xoL;
+    xoR;
+    xoOut;
+    xoDriver code={
+        xoOut = xoL OR xoR;
+        };
+    ;
+
+xoL = 0; xoR = 0; xoOut = 9;
+print "XO fire 1 setup : xoL =" xoL " xoR =" xoR:;
+testing(xoDriver);
+print "XO fire 1 result: xoOut =" xoOut " (want 0)":;
+
+xoL = 1; xoR = 0;
+print "XO fire 2 setup : xoL =" xoL " xoR =" xoR " (recompile: NONE)":;
+jitRefire();
+print "XO fire 2 result: xoOut =" xoOut " (want 1 -- MUST differ from fire 1)":;
+
+xoL = 0; xoR = 0; xoOut = 9;
+xoDriver();
+print "XO interpreted  : xoOut =" xoOut " (the oracle -- want 0)":;
+
+print "XO SENTINEL -- run reached the end":;
+stop();

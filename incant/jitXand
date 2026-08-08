@@ -1,0 +1,93 @@
+/*****************************************************************************
+    jitXand -- THE genKantParse SKETCH'S CONJUNCTION, MEASURED BOTH ENGINES.
+    2026-08-08.
+
+    THE SKETCH under discussion writes a sequence rule's body as
+
+        if sukcess = t1() AND t2() AND t3();
+
+    That spelling has TWO requirements, and only one of them is about the JIT:
+
+      (1) SHORT-CIRCUIT, which for a parser is a SEMANTIC requirement and not a
+          style preference. If t1() fails, t2() must NOT run -- a parse term
+          consumes input, so an eagerly-evaluated right arm advances the mark
+          past text the rule never matched. CLAIM KANT-34 already records that
+          `||` and `&&` evaluate BOTH arms interpreted, and records the reason
+          as STRUCTURAL: an operateMethod receives operands the runtime has
+          already evaluated, so there is no point at which opAND could decline.
+          THIS FIXTURE ASKS WHETHER THE JITTED PATH INHERITS THAT or diverges.
+
+      (2) EMISSION. opAND is on jit.md S2.1's NOT-GATED list and has no
+          jitDegrade call, so the predicted behaviour is silent emit-time
+          interpretation at degrade count 0 -- the H4 failure family, where the
+          counter that is supposed to catch a fallback cannot see this one.
+
+    xaTicksR IS THE DISCRIMINATOR AND IT IS A COUNT (H4). The left arm is made
+    to FAIL, so a short-circuiting AND leaves the right arm's counter at 0 and
+    an eager one bumps it. An absence-of-output check could not tell those
+    apart from a right arm that ran and printed nothing.
+
+    DIAGNOSTIC, fire 1 (xaLeftOK = 0, so the left arm returns 0):
+        ticksL 1  ticksR 0   SHORT-CIRCUIT -- the sketch is safe as written
+        ticksL 1  ticksR 1   EAGER -- the sketch consumes input on a failed term
+    and across the two fires:
+        ticksL 1 -> 2        the calls are emitted and run per fire
+        ticksL 1 -> 1        the conjunction ran at EMIT time, nothing emitted
+
+    Fire 2 flips xaLeftOK to 1 AFTER emission with no recompile, so the two
+    fires are required to differ; a pair that agreed would prove nothing.
+
+    ORDER (bear-trap #25): jitted half FIRST, oracle last.
+    SENTINEL AT THE FOOT (H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitXand);
+define
+    xaLeftOK;
+    xaTicksL;
+    xaTicksR;
+    xaOut;
+    xaLeft code={
+        xaTicksL = xaTicksL + 1;
+        return xaLeftOK;
+        };
+    xaRight code={
+        xaTicksR = xaTicksR + 1;
+        return 1;
+        };
+    xaDriver code={
+        xaOut = xaLeft() AND xaRight();
+        };
+    ;
+
+xaLeftOK = 0;
+xaTicksL = 0;
+xaTicksR = 0;
+xaOut    = 9;
+print "XA fire 1 setup : xaLeftOK =" xaLeftOK " (left arm FAILS)":;
+testing(xaDriver);
+print "XA fire 1 result: xaOut =" xaOut " ticksL =" xaTicksL " ticksR =" xaTicksR:;
+print "XA fire 1 verdict: ticksR 0 = short-circuit, 1 = eager":;
+
+xaLeftOK = 1;
+print "XA fire 2 setup : xaLeftOK =" xaLeftOK " (left arm SUCCEEDS, recompile: NONE)":;
+jitRefire();
+print "XA fire 2 result: xaOut =" xaOut " ticksL =" xaTicksL " ticksR =" xaTicksR:;
+print "XA fire 2 verdict: ticksL 2 = emitted per fire, 1 = ran at emit time":;
+
+xaLeftOK = 0;
+xaTicksL = 0;
+xaTicksR = 0;
+xaOut    = 9;
+xaDriver();
+print "XA interpreted  : xaOut =" xaOut " ticksL =" xaTicksL " ticksR =" xaTicksR:;
+
+print "XA SENTINEL -- run reached the end":;
+stop();

@@ -1,0 +1,54 @@
+/*****************************************************************************
+    jitXnot -- NEGATION OF A ZERO-VALUED FIELD, INTERPRETED ONLY. 2026-08-08.
+
+    ⚠ THIS FIXTURE TOUCHES NO JIT. Its first version did, and asserted a JIT
+    finding that was really a fixture defect: `if !xnIn;` with xnIn = 0 did not
+    fire, and THE INTERPRETED ORACLE DID NOT FIRE EITHER. A divergence needs
+    two engines disagreeing; both agreed here, so there was no JIT finding and
+    the honest move is to take the JIT back out and ask the language question
+    on its own.
+
+    THE QUESTION: does `!` on a field CARRYING NUMERIC ZERO test true?
+
+    Not idle. KANT-35 records `if !a;` as the correct spelling of a refusal
+    guard, but every measured case there is an ABSENT ATTRIBUTE. A field
+    holding the number 0 is a different animal, and bear-trap #26 is the
+    standing reminder that presence and value are different questions on a
+    GroupItem. Row 2 is the control: an absent field, KANT-35's own shape.
+
+        row 1  xnIn = 0 (present, value zero)   `if !xnIn;`
+        row 2  xnMissing (never defined)        `if !xnMissing;`
+        row 3  xnIn = 1                         `if !xnIn;`   must NOT fire
+
+    Row 3 is the anti-vacuity sibling: without it, a `!` that never fires would
+    look like a correct answer on rows 1 and 2.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitXnot);
+define
+    xnIn;
+    xnOut;
+    xnProbe code={
+        xnOut = 0;
+        if !xnIn;
+            xnOut = 1;
+        };
+    ;
+
+xnIn = 0; xnOut = 9;
+xnProbe();
+print "XN row 1: xnIn = 0 (present, zero) -> xnOut =" xnOut " (1 = ! fired)":;
+
+xnIn = 1; xnOut = 9;
+xnProbe();
+print "XN row 3: xnIn = 1                 -> xnOut =" xnOut " (0 = ! correctly did NOT fire)":;
+
+print "XN SENTINEL -- run reached the end":;
+stop();

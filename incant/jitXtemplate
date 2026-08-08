@@ -1,0 +1,99 @@
+/*****************************************************************************
+    jitXtemplate -- THE PROPOSED genKantParse SEQUENCE TEMPLATE, JITTED.
+    2026-08-08. The recommendation, measured before it is made.
+
+    THE SKETCH'S SPELLING IS NOT AVAILABLE. Measured today:
+        `a AND b`   exit 139, and NO degrade line -- it crashes before the
+                    counter sees it (incant/jitXand2)
+        `a OR b`    exit 0, degrade 0, SILENTLY WRONG -- fire 2 wants 1 and
+                    gets 0, the emit-time value folded (incant/jitXor)
+        `!field`    inert on a field CARRYING a value, both engines agreeing,
+                    so it is a language question and not a JIT one
+                    (incant/jitXnot)
+
+    THIS IS THE REPLACEMENT, BUILT ONLY FROM CERTIFIED CONSTRUCTS: comparison
+    (gated, ladder J2/J3), if (gated, jitEmitGIF, both arms), mid-block return
+    (gated, ladder JRt), and a value-returning callee consumed sequentially
+    (measured green today at incant/jitXseq, degrade 2 for E2 tail returns).
+
+        xtRule code={
+            xtSuk = xtT1();
+            if xtSuk == 0;   return 0;
+            xtSuk = xtT2();
+            if xtSuk == 0;   return 0;
+            return 1;
+            };
+
+    IT SHORT-CIRCUITS BY CONSTRUCTION rather than by an operator that would
+    have to decline to evaluate. That is the point: a parse term consumes
+    input, so a right arm that runs after a failed left arm advances the mark
+    past text the rule never matched. The AND spelling cannot express that
+    today in EITHER engine (CLAIM KANT-34, and its reason is structural); this
+    spelling does not need to.
+
+    xtTicks IS THE SHORT-CIRCUIT PROOF AND IT IS A COUNT (H4):
+        fire 1  t1 fails  ->  ticks 1   t2 NEVER RAN
+        fire 2  both pass ->  ticks 3   (1 from fire 1, plus 2)
+    A ticks of 2 on fire 1 would mean t2 ran anyway, which is the eager
+    behaviour this template exists to avoid.
+
+    xtOut carries the rule's verdict, and the two fires must differ.
+
+    ORDER (bear-trap #25): jitted half FIRST, oracle last. Sentinel (H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitXtemplate);
+define
+    xtOK1;
+    xtOK2;
+    xtTicks;
+    xtSuk;
+    xtOut;
+    xtT1 code={
+        xtTicks = xtTicks + 1;
+        return xtOK1;
+        };
+    xtT2 code={
+        xtTicks = xtTicks + 1;
+        return xtOK2;
+        };
+    xtRule code={
+        xtSuk = xtT1();
+        if xtSuk == 0;
+            return 0;
+        xtSuk = xtT2();
+        if xtSuk == 0;
+            return 0;
+        return 1;
+        };
+    ;
+
+xtOK1   = 0;
+xtOK2   = 1;
+xtTicks = 0;
+xtOut   = 9;
+print "XT fire 1 setup : xtOK1 =" xtOK1 " (first term FAILS)":;
+testing(xtRule);
+print "XT fire 1 result: ticks =" xtTicks " (want 1 -- 2 means no short-circuit)":;
+
+xtOK1 = 1;
+xtOK2 = 1;
+print "XT fire 2 setup : xtOK1 =" xtOK1 " xtOK2 =" xtOK2 " (recompile: NONE)":;
+jitRefire();
+print "XT fire 2 result: ticks =" xtTicks " (want 3 -- both terms ran)":;
+
+xtOK1   = 0;
+xtOK2   = 1;
+xtTicks = 0;
+xtRule();
+print "XT interpreted  : ticks =" xtTicks " (the oracle -- want 1)":;
+
+print "XT SENTINEL -- run reached the end":;
+stop();
