@@ -1,0 +1,101 @@
+/*****************************************************************************
+    jitXe2 -- E2 CHARACTERISED: A MID-BODY RETURN INSIDE AN INLINED CALLEE.
+    2026-08-08. SEQ 41 step 5, item 1.
+
+    ⚠ THE CASE NOTHING IN THE FLEET HAS EVER RUN. Three things look like this
+    one and none of them is it:
+      · rung JRt4  -- mid-block return, but in the DRIVER action, not inlined.
+                      Green, degrade 0. Different construct.
+      · rung JXT   -- return inside an inlined callee, but in TAIL position.
+                      Green with degrade 2, and green BY ACCIDENT: E2's unbuilt
+                      thing is the BRANCH to the enclosing epilogue, and a tail
+                      return needs no branch, so falling through is equivalent.
+      · jitXseq    -- two inlined callees, both tail returns. Same accident.
+    So the fleet's evidence about E2 is entirely from the ONE position where
+    E2 does not matter. That is what this fixture fixes.
+
+    THE CONSTRUCT: a callee that returns EARLY, with live statements after the
+    return that must NOT run.
+
+        xeCallee:  if xeIn > 0;  return 111;
+                   xeTail = 999;
+                   return 222;
+
+    THE PREDICTION, and it is causal so it is worth writing down before the
+    run (this project's causal claims are roughly a coin flip): the emit walk
+    degrades the return statement rather than emitting a branch, so the early
+    exit is not taken, the tail runs anyway, and fire 1 answers 222 with
+    xeTail = 999. WRONG, and SILENT -- degrade fires but degrading a mid-body
+    return is not equivalent the way degrading a tail return is.
+
+    xeTail IS THE SECOND CHANNEL AND IT IS LOAD-BEARING (one channel, one
+    meaning). A returned value alone cannot distinguish "the early return was
+    taken" from "the tail ran and its value was discarded" -- both could
+    plausibly yield 111. xeTail answers the question the value cannot.
+
+    THE TWO FIRES TAKE OPPOSITE ARMS, so neither a folded constant nor a
+    default satisfies both:
+        fire 1  xeIn =  1  ->  111, xeTail 0     (early return TAKEN)
+        fire 2  xeIn = -1  ->  222, xeTail 999   (early return NOT taken)
+
+    DIAGNOSTIC:
+        111/0 then 222/999   E2 WORKS -- the branch is emitted
+        222/999 both fires   E2 UNBUILT -- early return ignored, tail always runs
+        111/999              the branch was taken AND the tail ran: worse than
+                             either, and would mean the emitted control flow
+                             falls through into dead code
+
+    ORDER (bear-trap #25): jitted half FIRST -- testing() routes on isCoded and
+    an interpreted run consumes it. Oracle last, and read as a FIELD plus a
+    returned value; bear-trap #25's sibling says a post-jit interpreted call is
+    not a clean oracle for a RETURNED value, so xeTail (a field) is the trusted
+    half of the oracle and the returned value is recorded, not leaned on.
+
+    SENTINEL AT THE FOOT (H2). Run under a wall-clock cap (H5).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitXe2);
+define
+    xeIn;
+    xeOut;
+    xeTail;
+    xeCallee code={
+        if xeIn > 0;
+            return 111;
+        xeTail = 999;
+        return 222;
+        };
+    xeDriver code={
+        xeOut = xeCallee();
+        };
+    ;
+
+xeIn   = 1;
+xeOut  = 0;
+xeTail = 0;
+print "XE fire 1 setup : xeIn =" xeIn " (early return SHOULD be taken)":;
+testing(xeDriver);
+print "XE fire 1 result: xeOut =" xeOut " (want 111) xeTail =" xeTail " (want 0)":;
+
+xeIn   = -1;
+xeOut  = 0;
+xeTail = 0;
+print "XE fire 2 setup : xeIn =" xeIn " (early return should NOT be taken, recompile: NONE)":;
+jitRefire();
+print "XE fire 2 result: xeOut =" xeOut " (want 222) xeTail =" xeTail " (want 999)":;
+
+xeIn   = 1;
+xeOut  = 0;
+xeTail = 0;
+xeDriver();
+print "XE interpreted  : xeOut =" xeOut " (oracle) xeTail =" xeTail " (oracle -- want 0)":;
+
+print "XE SENTINEL -- run reached the end":;
+stop();

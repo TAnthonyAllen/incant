@@ -1,0 +1,100 @@
+/*****************************************************************************
+    jitXnest -- DOES THE genKantParse SEQUENCE TEMPLATE SURVIVE NESTING?
+    2026-08-08. SEQ 41 step 5. The campaign consequence of E2, measured.
+
+    jitXtemplate certified the template ONE LEVEL DEEP and is green, but its
+    two term-callees end in TAIL returns -- the one position where E2 does not
+    bite. A real grammar does not look like that: in a rule fleet a term is
+    ITSELF a generated rule wearing the same template, so it carries MID-BODY
+    returns. jitXe2 measured that a mid-body return inside an INLINED callee is
+    IGNORED: the early exit is not taken, the tail runs, the answer is wrong,
+    and the run exits 0.
+
+    So the question here is the campaign's, not the JIT's: is E2 a PREREQUISITE
+    for genKantParse v1, or a nice-to-have?
+
+    The shape is two levels of the template. The inner rule fails at its first
+    term, so its early return must fire; the outer must then see zero and take
+    its own early return. Both levels exercise the construct.
+
+    Two tail flags, two channels, both needed: a returned zero alone cannot
+    distinguish both-early-returns-taken from everything-ran-and-the-last-value
+    was zero.
+
+    Fire 1 wants out 0 with both tails 0. Fire 2 flips the inner term to succeed
+    and wants out 1 with tails 999 and 888, so neither a folded constant nor a
+    default satisfies both. Any disagreement with the interpreted oracle means
+    the template does not survive nesting and E2 gates the campaign.
+
+    ⚠ HEADER REWRITTEN 2026-08-08 AND THE REASON IS THE FINDING. The first
+    version of this comment block CRASHED THE PARSER -- exit 138, zero bytes of
+    output, before the first statement. Bisected to the header alone: the
+    fixture body is fine and runs. Comments are not inert in this language
+    (there is no lexer), and that block contained indented code-shaped lines
+    including an arrow token. Prose only in fixture headers from here.
+
+    ORDER: jitted half first (bear-trap #25), oracle last. Sentinel (H2).
+    Run under a wall-clock cap (H5).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitXnest);
+define
+    xnInnerOK;
+    xnInnerTail;
+    xnOuterTail;
+    xnSuk;
+    xnOut;
+    xnTermA code={
+        return xnInnerOK;
+        };
+    xnInner code={
+        xnSuk = xnTermA();
+        if xnSuk == 0;
+            return 0;
+        xnInnerTail = 999;
+        return 1;
+        };
+    xnOuter code={
+        xnSuk = xnInner();
+        if xnSuk == 0;
+            return 0;
+        xnOuterTail = 888;
+        return 1;
+        };
+    xnDrive code={
+        xnOut = xnOuter();
+        };
+    ;
+
+xnInnerOK   = 0;
+xnInnerTail = 0;
+xnOuterTail = 0;
+xnOut       = 7;
+print "XN fire 1 setup : xnInnerOK =" xnInnerOK " (inner term FAILS -- both early returns must fire)":;
+testing(xnDrive);
+print "XN fire 1 result: xnOut =" xnOut " (want 0) innerTail =" xnInnerTail " (want 0) outerTail =" xnOuterTail " (want 0)":;
+
+xnInnerOK   = 1;
+xnInnerTail = 0;
+xnOuterTail = 0;
+xnOut       = 7;
+print "XN fire 2 setup : xnInnerOK =" xnInnerOK " (inner term SUCCEEDS, recompile: NONE)":;
+jitRefire();
+print "XN fire 2 result: xnOut =" xnOut " (want 1) innerTail =" xnInnerTail " (want 999) outerTail =" xnOuterTail " (want 888)":;
+
+xnInnerOK   = 0;
+xnInnerTail = 0;
+xnOuterTail = 0;
+xnOut       = 7;
+xnDrive();
+print "XN interpreted  : xnOut =" xnOut " (oracle) innerTail =" xnInnerTail " (oracle -- want 0) outerTail =" xnOuterTail " (oracle -- want 0)":;
+
+print "XN SENTINEL -- run reached the end":;
+stop();
