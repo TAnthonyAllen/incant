@@ -1115,6 +1115,124 @@ else echo "  FAIL  JRt4 fire 2 mbTail = '$t2', want 999 -- the statements after 
      echo "        is what keeps the emit walk going past a branch."; fail=1; fi
 
 echo ""
+echo "-- JXT SEQUENCE TEMPLATE. THE genKantParse BODY, AND A REAL SHORT-CIRCUIT."
+#  ⚠⚠ THIS RUNG DOES NOT USE `rung`, DELIBERATELY, AND THE REASON IS THE POINT:
+#  `rung` asserts degrade == 0, and this fixture's honest answer is degrade == 2.
+#  Using the generic helper would have forced a choice between weakening the
+#  fleet's degrade-zero rule and not landing the rung. Neither was right --
+#  the count is ASSERTED AT ITS TRUE VALUE instead, so it is still H4 (a value,
+#  not an absence) and it still breaks when the world moves.
+#
+#  WHAT IT CERTIFIES (SEQ 41 step 3's template, measured 2026-08-08):
+#      xtSuk = xtT1();  if xtSuk == 0;  return 0;   ... return 1;
+#  ticks 1 on fire 1 -- THE SECOND TERM NEVER RAN. ticks 3 on fire 2 -- both did.
+#  That is a short-circuit BY CONSTRUCTION rather than by an operator declining
+#  to evaluate, which CLAIM KANT-34 says the operator machinery cannot express.
+#
+#  ⚠ ticks IS CUMULATIVE ACROSS FIRES ON PURPOSE. It is not reset between them,
+#  so fire 2's 3 = 1 + 2 and the two rows CANNOT both be satisfied by a folded
+#  constant. A per-fire reset would have made 1 and 2 the expected pair, and a
+#  slot that merely defaulted could produce the first of those.
+runcap "JXT runs" jitXtemplate "$T/jitXtemplate"
+check   "JXT runs" 0 $?
+sentinel "JXT sentinel" "$T/jitXtemplate" "XT SENTINEL"
+xt1=$(sed -n 's/.*XT fire 1 result: ticks = *\([0-9][0-9]*\).*/\1/p' "$T/jitXtemplate" | head -1)
+xt2=$(sed -n 's/.*XT fire 2 result: ticks = *\([0-9][0-9]*\).*/\1/p' "$T/jitXtemplate" | head -1)
+xtd=$(sed -n 's/.*jitDegrade count = \([0-9]*\).*/\1/p' "$T/jitXtemplate" | head -1)
+xto=$(sed -n 's/.*XT interpreted  *: ticks = *\([0-9][0-9]*\).*/\1/p' "$T/jitXtemplate" | head -1)
+if [ "$xt1" = "1" ]; then echo "  ok    JXT fire 1 ticks = 1  <- THE SHORT-CIRCUIT: term 2 never ran"; green=$((green+1))
+else echo "  FAIL  JXT fire 1 ticks = '$xt1', want 1. A 2 means BOTH terms ran on a"
+     echo "        failed first term -- eager evaluation, and for a parser that is"
+     echo "        input consumed past text the rule never matched."; fail=1; fi
+if [ "$xt2" = "3" ]; then echo "  ok    JXT fire 2 ticks = 3  <- RUN-TIME PROOF (no recompile, both terms ran)"; green=$((green+1))
+else echo "  FAIL  JXT fire 2 ticks = '$xt2', want 3 (cumulative 1+2)."
+     echo "        Equal to fire 1 means the calls were folded at compile time."; fail=1; fi
+#  ⚠ E2 PINNED AT ITS TRUE VALUE, AND IT IS A GRADUATION TRIGGER (RULE H6).
+#  The two degrades are `return INSIDE AN INLINED CALLEE` -- E2, unbuilt. This
+#  fixture is green ONLY because a TAIL return needs no branch to the enclosing
+#  epilogue, so falling through is accidentally equivalent. When E2's rung lands
+#  (SEQ 41 step 5) this count goes to 0 and THIS ROW GOES RED ON PURPOSE. Do not
+#  re-pin it green without a sentence: a target that moved is a claim that the
+#  world changed, and the claim needs a cause.
+if [ "$xtd" = "2" ]; then echo "  ok    JXT degrade count = 2, PINNED (E2 tail-return; red here when E2 lands)"; green=$((green+1))
+else echo "  FAIL  JXT degrade count = '$xtd', pinned at 2. If 0, E2 LANDED and this"
+     echo "        row must GRADUATE to degrade-zero (H6). If higher, something new"
+     echo "        fell through and the template is no longer built from certified"
+     echo "        constructs."; fail=1; fi
+if [ "$xto" = "1" ]; then echo "  ok    JXT oracle agrees: interpreted ticks 1 == jitted (both short-circuit)"; green=$((green+1))
+else echo "  FAIL  JXT ORACLE DISAGREES: interpreted '$xto' vs jitted 1"; fail=1; fi
+
+echo ""
+echo "-- JXD PINNED DEFECTS. TWO ROWS THAT ASSERT THE BUG, NOT THE FIX."
+#  ⚠⚠ THESE TWO ROWS ARE INVERTED AND THAT IS THEIR WHOLE VALUE. They go GREEN
+#  while the defect is present and RED when it is repaired, which is the WOKE
+#  alarm's shape (RULE H6). A defect nobody pinned is a defect that comes back,
+#  and worse -- an UNPINNED defect gets rediscovered as a new finding and costs
+#  the investigation twice. Both were measured 2026-08-08 and are PRE-EXISTING.
+#
+#  BOTH ARE THE UNGATED-OPERATOR CLASS: opAND and opOR are on jit.md S2.1's
+#  not-gated list (24 entries). SEQ 41 step 5 sweeps the other 22.
+
+#  JXD-1 -- `AND` UNDER JIT EXITS 139, AND PRINTS NO DEGRADE LINE AT ALL.
+#  ⚠ THE MISSING DEGRADE LINE IS THE SHARP PART, not the crash. It dies BEFORE
+#  the counter every other rung asserts at zero can see it, so degrade-0 is not
+#  evidence about this construct. A gate that was never installed reads, from
+#  outside, exactly like one that passed.
+#  ⚠ THE SHELL PRINTS ITS OWN `Segmentation fault: 11` LINE ON THE NEXT ROW AND
+#  IT IS EXPECTED. runcap's own header warns that an instrument adding chatter to
+#  the evidence will be misread -- so it is ANNOUNCED rather than suppressed,
+#  because silencing it would mean silencing the same line on a rung where a
+#  crash is NOT expected. Announced beats hidden; hidden beats nothing.
+echo "     (the next line is the shell reporting the PINNED crash -- expected)"
+runcap "JXD-1 AND-under-jit runs (expecting the crash)" jitXand2 "$T/jitXand2"
+xa=$?
+if [ "$xa" = "139" ]; then
+    echo "  ok    JXD-1 PINNED: \`AND\` under jit exits 139 (defect present, as recorded)"; green=$((green+1))
+elif [ "$xa" = "0" ]; then
+    echo "  FAIL  JXD-1 WOKE -- \`AND\` under jit NO LONGER CRASHES (exit 0)."
+    echo "        This is GOOD NEWS ARRIVING AS A RED, which is the pin working."
+    echo "        Do not delete this row: GRADUATE it (H6). Verify the answers are"
+    echo "        also CORRECT before believing it -- not crashing and being right"
+    echo "        are different claims, and jitXor is the cautionary sibling."
+    fail=1
+else
+    echo "  FAIL  JXD-1 exit '$xa' -- neither the pinned 139 nor a clean 0. The"
+    echo "        defect changed shape; re-measure before re-pinning."; fail=1
+fi
+
+#  JXD-2 -- `OR` UNDER JIT IS SILENTLY WRONG AT DEGRADE 0.
+#  ⚠ THE WORSE OF THE TWO, because it exits 0 and lies. Fire 2 (1 OR 0) must be
+#  1 and is 0: the expression evaluated at EMIT time and folded. The pin asserts
+#  the WRONG value, by name, so a repair breaks this row instead of passing it.
+#
+#  ⚠⚠ AND THE FIXTURE ITSELF CARRIES THE LESSON THAT FOUND IT. The first version
+#  of jitXor used fires `0 OR 1` and `1 OR 1` -- BOTH 1 -- and REPORTED GREEN.
+#  It would have entered the record as "OR is fine." A fixture that cannot
+#  distinguish the answers distinguishes nothing, including one written minutes
+#  after citing the anti-vacuity rule.
+runcap "JXD-2 OR-under-jit runs" jitXor "$T/jitXor"
+check   "JXD-2 OR-under-jit runs" 0 $?
+sentinel "JXD-2 sentinel" "$T/jitXor" "XO SENTINEL"
+xo1=$(sed -n 's/.*XO fire 1 result: xoOut = *\([0-9-][0-9]*\).*/\1/p' "$T/jitXor" | head -1)
+xo2=$(sed -n 's/.*XO fire 2 result: xoOut = *\([0-9-][0-9]*\).*/\1/p' "$T/jitXor" | head -1)
+xod=$(sed -n 's/.*jitDegrade count = \([0-9]*\).*/\1/p' "$T/jitXor" | head -1)
+if [ "$xo1" = "0" ]; then echo "  ok    JXD-2 fire 1 = 0 (0 OR 0 -- correct, and the only correct row)"; green=$((green+1))
+else echo "  FAIL  JXD-2 fire 1 = '$xo1', want 0"; fail=1; fi
+if [ "$xo2" = "0" ]; then
+    echo "  ok    JXD-2 PINNED: fire 2 = 0 but WANTS 1 -- the emit-time fold, silent"; green=$((green+1))
+elif [ "$xo2" = "1" ]; then
+    echo "  FAIL  JXD-2 WOKE -- \`OR\` under jit now returns the CORRECT 1 on fire 2."
+    echo "        Good news arriving as a red. GRADUATE this row to a normal"
+    echo "        assertion (H6) and re-pin with a sentence naming the cause."
+    fail=1
+else
+    echo "  FAIL  JXD-2 fire 2 = '$xo2' -- neither the pinned 0 nor the correct 1."; fail=1
+fi
+if [ "$xod" = "0" ]; then echo "  ok    JXD-2 degrade count 0 CONFIRMS the silence (wrong answer, no warning)"; green=$((green+1))
+else echo "  FAIL  JXD-2 degrade count = '$xod', pinned at 0. If nonzero, OR now"
+     echo "        DECLARES its fallback -- an honest answer, and a graduation."; fail=1; fi
+
+echo ""
 #  ⚠ H2 -- THE LADDER ASSERTS ITS OWN COMPLETENESS, and it must be unreachable
 #  except through the LAST rung. Added 2026-08-05 with the check/sentinel
 #  repair: for four days this file called two helpers it never defined, and the
@@ -1124,7 +1242,7 @@ if [ "$green" -lt 1 ]; then
     echo "                   the helpers are missing again or the rungs evaporated."
     fail=1
 fi
-if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv JV JC JS JRt + J-R THE PROOF)"
+if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv JV JC JS JRt JXT + JXD pinned + J-R THE PROOF)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"
 exit $fail
