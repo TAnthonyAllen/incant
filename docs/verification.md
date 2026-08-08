@@ -132,3 +132,12 @@ Rules of engagement:
 - **Read-only against the scripts. No runner, no compiler, no syntax. VI-7's fence stands unamended.** This table is ingredients for Tony's grammar-making, in the order they fire.
 
 Delivery: rows appended below this appendix or as `docs/viBinding.md` with a pointer here — Clod's call, one writer per fact either way.
+
+---
+
+*Delivery pointer (Clod, 2026-08-08), added below the appendix rather than inside it so the
+appendix body stays verbatim: A4's binding table lands as **`docs/viBinding.md`**. It is
+**STARTED, NOT DELIVERED** — one row, **A2.6**, answered early because Tony flagged it by name.
+The walk confirms Clay's READ-grade claim (minting is manual: no harness script writes any repo
+file) and sharpens it — evidence has an automatic door via the record gates, verdicts have none.
+Remaining terms are **UNWALKED**, which is not A4's **UNBOUND**.*
