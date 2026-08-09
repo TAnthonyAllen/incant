@@ -3,16 +3,26 @@
 **Status:** ⚠ **RULED, NOT BUILT — five parts remain, part 3 is DISCHARGED.** Ruling by Tony,
 2026-08-09. Spec settled in the Clay↔Tony thread the same day and **transcribed here**.
 
-**SCHEDULING — Clod's read, 2026-08-09, after measuring:** post-First-Light as ruled, and
-**immediately after rather than later**. Nothing on the path to First Light needs it — the parse
-templates short-circuit *by construction* precisely because AND was unavailable, so there is no
-forcing function. The `a OR b` silent-wrong-at-exit-0 is the project's most dangerous defect class
-but has **one non-fixture use** (part 3), so urgency is low. **The real argument is adjacency:**
-this rung wants the interception/registration surface, and so do H3's command registrations and
-rung 2 — running them concurrently entangles blast radii, while running AND/OR *after* the parse
-arc means that surface has been exercised once and the OR collapse lands with a consumer waiting.
-**Queue:** bracket fix → H4's run → H3's registrations → rung 2 (Family A) → install arc →
-First Light → **this rung** → the alternation respell.
+⚠ **SCHEDULING — TONY'S PREFERENCE, 2026-08-09, AND IT SUPERSEDES CLOD'S READ: BEFORE
+genKantParse, not after.** Stated as a preference and not an order, and taken.
+
+**His reason, which is the better one: it changes and simplifies the parse code we will be
+generating.** The step-1 artifact is meant to **freeze as the step-4 byte-oracle**. If ALTERNATION
+collapses to a bare `OR` chain once this rung lands, then freezing first means freezing a shape
+that is about to move — an oracle that needs re-pinning, an install built on the superseded
+spelling, and generated text produced twice. **Ordering AND/OR first means genKantParse emits the
+final shape the first time.**
+
+⚠ **AND CLOD'S ARGUMENT FOR THE OTHER ORDER DID NOT SUPPORT ITS CONCLUSION, recorded because the
+reasoning error is the reusable part.** It ran: *this rung wants the interception/registration
+surface, and so do H3's registrations and rung 2, so running them concurrently entangles blast
+radii.* True — and an argument against **concurrency**, which nobody proposed. It says nothing
+about which of two **sequential** orderings is better. A valid objection was used to defend a
+position it was silent on.
+
+**Queue as it now stands:** bracket fix (still first, perishable junction) → **this rung** →
+H4's run + H3's registrations → rung 2 (Family A) → install arc → First Light. The alternation
+template is then written once, already collapsed.
 
 ⚠ **THIS FILE EXISTS BECAUSE THE RULING WAS MADE IN CHAT.** That is the decoder's diagnosis and
 T-0's cost arriving on the same day both were written down: a ruling whose only home is a thread

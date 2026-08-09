@@ -101,9 +101,13 @@ that does not cover it.
     return 0;
 ```
 
-⚠ **AFTER THE `AND`/`OR` RUNG (`docs/andOrRung.md`, ruled 2026-08-09) THIS COLLAPSES TO A BARE
-`OR` CHAIN** — and **carries the precondition across unchanged**, because non-restoring is a
-property of the *operand*, not of the operator, and no `OR` semantics repairs it.
+⚠ **THE `AND`/`OR` RUNG NOW COMES FIRST (Tony's preference, 2026-08-09 — `docs/andOrRung.md`),
+SO THIS BLOCK IS EXPECTED TO BE SUPERSEDED BEFORE IT IS EVER INSTALLED.** It collapses to a bare
+`OR` chain. ⚠ **DO NOT FREEZE THIS TEMPLATE AS THE STEP-4 ORACLE UNTIL THAT RUNG LANDS** — that is
+the whole point of the reordering: freezing first would pin an oracle that is about to move and
+make genKantParse emit the superseded spelling once before emitting the real one.
+⚠ **The precondition carries across unchanged**, because non-restoring is a property of the
+*operand*, not of the operator, and no `OR` semantics repairs it.
 
 ⚠ **THE DRAFT'S JUSTIFICATION IS FALSE FOR LITERAL ALTERNATIVES, AND THE TREE SAYS SO IN ITS OWN
 COMMENT.** The draft argues *"no save, no restore anywhere — the contract's self-restore makes the
