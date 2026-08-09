@@ -1,7 +1,132 @@
-# ⚠⚠ SEALED 2026-08-08 EVENING (FINAL VINTAGE) — READ THIS SECTION FIRST.
-# THE FORK IS RESOLVED AND IS NOW A CHARTERED CAMPAIGN. THE METRIC IS 0/47.
-# FRESH FEET START AT T-1 (see NEXT ACTION below). Everything from the second
-# `# ⚠⚠ SEALED 2026-08-08` header down is the same day's earlier vintage, still accurate.
+# ⚠⚠ SEALED 2026-08-09 (CURRENT VINTAGE) — READ THIS SECTION FIRST.
+# PHASE T IS DELIVERED AND E2 IS BUILT. THE METRIC IS 0/47 (see T-3 — it did NOT move to 0/46).
+# Everything from the `# ⚠⚠ SEALED 2026-08-08 EVENING` header down is older vintage.
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 2026-08-09 — THE FAMILY TABLE LANDED, E2 IS BUILT, AND A SEALED CENSUS
+#              TURNED OUT TO BE WRONG FOR 13 OF 21
+# ═══════════════════════════════════════════════════════════════════════════
+
+## ⚠ NEXT ACTION
+**Phase R rung 1: Family B (LITERAL, 3 rules) — the smallest family with a fully-known treatment**
+(`SemI`/`loopOnAttributes`/`loopOnMembers` map onto `planTerm`'s existing `LIT`). It carries an
+assigned obligation: **print and assert both ruling-4 numbers** rather than re-grepping them
+(H4, Tony 2026-08-09). Table and evidence: `docs/gapBPhaseT.md`.
+
+## ⚠⚠ THE FINDING THAT OUTRANKS THE DAY'S WORK — T-0
+**`docs/gapB-staging.md`'s rule→kind mapping was WRONG FOR 13 OF 21.** Counts reproduce exactly
+(9/6/3/1/1/1) on the **byte-identical binary**; memberships are scrambled. Mechanically diffed:
+8 agree, 13 do not. `loopOnAttributes="attributes"` is a string literal and measures **isSTRING**,
+not isGROUP; the rule literally named **`Any`** measures **isANY**, not isSET.
+- **RULED (Tony):** the re-measurement is the truth of record. The wrong table stays legible with a
+  dated correction banner on top — **no silent overwrite.** Cause stays **UNDIAGNOSED**: two
+  explanations were tested and both falsified, and nobody guesses a third in.
+- ⚠ **IT IS AMENDMENT A'S TWIN, ONE LAYER DOWN.** Amendment A exists because a *fixture name* was
+  cited from a sealed doc instead of checked. This is a *table* cited from a sealed doc instead of
+  re-run. **Cost of the re-run: one grep, against a fixture that already existed.**
+- ⚠ **AND THE EXPENSIVE SHAPE: T-1's whole premise was an artifact of it.** The resolved-vs-declared
+  question was designed carefully, fenced properly, and aimed at a divergence **that did not exist**
+  — `Looper` measures isGROUP, exactly what its declared shape predicts. **A defective citation does
+  not merely state something false; it generates well-reasoned questions that need not be asked.**
+  CLAUDE.md's asymmetry paragraph now carries the sharpened form: **the pattern is
+  unmeasured-citation-losing-to-measurement, not one seat losing to another.**
+
+## ✅ T-1 ANSWERED — `planRule` READS THE **DECLARED** KIND. ONE PARTITION SERVES.
+`genParse.rtn:517` is a single field read of `rule.data` with no chasing anywhere. The
+discriminator used is stronger than a divergence: **four reference-shaped rules whose referents
+carry NO rule-level data at all** (`NamE`, `RunRulE`, `TraiT`, `StatemenT` all pass :517) while the
+referrers all report `isGROUP`. **Resolution cannot manufacture a kind from a referent that has
+none.**
+⚠ **T-1a, RAISED AND NOT DIAGNOSED:** the grammar-text→stored-kind map is *not* naive
+(`counter=[0-9]` stores isCOUNT; `ShortcuT=[..]+` stores isGROUP). "Repetition promotes set→group"
+is broken by `numberSet`; "length-1 literal→isCHAR" is broken by `SemI`. **Two counterexamples, so
+it is an observation and not a mechanism.** Gates OPEN rows only.
+
+## ✅ THE FAMILY TABLE — 21 rows, complete and closed, verified mechanically
+```
+  A REFERENCE      5  ANYtoken Looper Attributes InitiatE Start   (+NewGroup DEFERRED, IT-3)
+  B LITERAL        3  SemI loopOnAttributes loopOnMembers      <- next rung
+  C CHARACTER SET  4  nameSet Modifier followedBy numberSet
+  D SET+SUBFIELDS  2  PoweR NumbeR      <- the shape §2.5 does not cover AT ALL
+  E REPEATED SET   2  ShortcuT ANYstring
+  OPEN             2  FloaT counter
+  EVICTED          2  BrancheS (container, paid) · Any (not a grammar rule)
+```
+A is §2.5's ITERATE and B maps onto `planTerm`'s existing `LIT` — both have known treatments.
+**D's two members disagree on kind**, which is the first thing its rung must explain. E was minted
+separately so a collapse into C has to be **argued**.
+- **`Any` EVICTED (ruled):** not a grammar rule — a **C++ bootstrap primitive**, `GroupMain.twk:156-158`,
+  `isANY` set explicitly, absent from `incant/grammar` entirely.
+- **Amendment B's `BrancheS` row cites "censused isGROUP"; it measures isSET.** Corrected on top;
+  the eviction stands because it rests on `bin`, never on the kind.
+- **Charter §2 annotated (text untouched):** "the scalar kinds" shares exactly ONE rule (`SemI`)
+  with what it denoted at ratification. ✅ **§3's attack order SURVIVES — by measurement, not
+  argument:** it keys on `NumbeR`/`ANYtoken`/`SemI`, **all three among the 8 filed correctly.**
+
+## ⚠⚠ T-3 — THE METRIC IS **0/47**, NOT 0/46. HELD, WITH THE MEASUREMENT.
+The `Any` eviction arrived with an attached arithmetic (`47→46`) and a documentation ask (*"note how
+the liveness census came to count a rule no grammar line defines"*). **Both assume `Any` was one of
+the 47. It was not.**
+- IA-4/GM-31 defines the 47 as *names in `incant/grammar` that can consume a bind at their own
+  definition site*, provenance *`incant/grammar`'s 163 lines*.
+- **`Any` appears NOWHERE in `docs/emitted/liveness-census-2026-08-07.txt`.** Never probed.
+**So the census never counted it and there is no instrument limitation to record.** `Any` was in the
+**21** (from the **78**, Grokking's registry, where a C++-minted member is a full citizen), never in
+the **47** (from grammar text) — GM-31 warns in bold these are different axes.
+⚠ **Decrementing would UNDERSTATE the denominator and flatter the metric** — Amendment B's overcount
+running backwards, sealed into the metric line. **Awaiting Tony having seen this.** The Gap B
+population itself *does* move: **21 censused → 20, 18 in scope.**
+
+## ✅ E2 IS BUILT — R1's CAMPAIGN PREREQUISITE IS DISCHARGED. LADDER 170 → 173.
+`jitXe2`: was jitted **222/999** against an interpreted 111/0; now **111/0 then 222/999**, degrade
+**0**, **one compile**, two fires on **opposite arms** with the input changed after emission.
+**The fix: an inlined region gets an epilogue of its own** — one `JitInlineFrame` per inline, whose
+exit block is the branch target for a return inside the callee. Branching to `gJitEpilogueBB` would
+have returned from the **caller**. The old refusal's diagnosis was right and became the spec.
+- **The exit block is unparented until first use** — an H7 obligation: a return-free callee must
+  emit **byte-identical** IR.
+- ⚠ **The value channel was not `gJitResult`, and the IR said so.** An assignment reads its
+  operand's `jitData->jitValue`. A first cut set only `gJitResult` and produced **a merge that was
+  correct and ignored**, plus a dominance violation. `jitInlinePop` now stamps the result node.
+- ⚠ **One self-inflicted bug worth knowing:** re-inserting a block that was already parented
+  surfaced as **"pointer being freed was not allocated" inside `~Function()`** at module teardown,
+  with a backtrace naming `LLJIT::lookup` and nothing of ours.
+- **THREE PINS FELL TO ONE REPAIR AND NOTHING ELSE MOVED** — JXT (degrade 2→0, its old pin
+  *predicted* this), JE2 (222/999→111/0), **JXN (out 1/999 → 0/0 — the two-deep template now
+  REJECTS what it must reject)**. All graduated per H6, each with the sentence the re-pin rule asks
+  for. Banner corrected: **JXD-1/JXD-2 are the only inverted rows left.**
+- **H7 negative control recorded at the rung**, and stronger than a synthetic gate-removal: the
+  mechanism-absent run was **pinned green in a shipping harness for a day** — 222/999, degrade 2,
+  exit 0, sentinel printed. **The wrong answer cost nothing visible.**
+
+## FLEET AT SEAL
+```
+sh jitLadder/ladder.sh        173 checks, exit 0     (was 170; +3, three rows graduated)
+sh genLadder/pop.sh            33 green / 1 parked (exit 1, the same 3 owned reds)
+sh genLadder/mixed.sh           7 checks, exit 0   (parse-arm pin holds)
+sh genLadder/completePop.sh   123 swept · 3 abandoned · 2 missing sentinels · 212 green · exit 1
+sh genLadder/tree.sh · printPop · containerPop · recordPop · formsPop      exit 0
+<binary> incant/oneTest · jsonTest · kant8T · phaseA · emitAll             exit 0
+```
+**Metric: 0/47 installed** (T-3 — NOT 0/46). Ruling-4 numbers: **97 total plan-layer refusals ·
+13 fully plannable of 78.** `incant/phaseA` is the ruling-4 instrument, **Amendment A discharged by
+measurement** (exists · reaches the Gap B branch, 21 hits on `:518` · completes 78 PLAN / 78 DONE).
+
+## OPEN, AND WHOSE
+**Tony's:** **T-3, the 0/47-vs-0/46 denominator** (measurement above; nothing else waits on it) ·
+`FloaT` and `counter`, the two OPEN taxonomy rows · child-drop decision, no clock ·
+`completePop` owned-red vocabulary (2 standing sentinel misses, `jitXand`/`jitXand2`) ·
+migration ruling (waits on child-drop) · vi grammar offline.
+**Parallel track, unchanged:** scale fixture · the not-gated sweep (22 operators left, `jitXor`
+shape, two discriminating fires each) — **`AND`/`OR` (JXD-1/JXD-2) remain the two measured members.**
+**`docs/vigram.md`** — read once on 2026-08-09 to close the "never opened" flag; **no action taken,
+no questions raised.** Stays paper-and-grep behind VI-7; Tony holds it for a dedicated session.
+**Untracked:** `docs/vigram.md` still wants a verdict (commit / revert / named-WIP).
+
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ⚠⚠ SEALED 2026-08-08 EVENING — the 08-08 evening section follows. Older vintage from here down.
+# ⚠ ITS METRIC LINE AND ITS "NEXT ACTION" (T-1) ARE BOTH DISCHARGED ABOVE.
 
 # ═══════════════════════════════════════════════════════════════════════════
 # 2026-08-08 EVENING — SHUTDOWN SEAL. CHARTER IN HISTORY, FOUR RULINGS SETTLED,

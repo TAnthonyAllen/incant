@@ -526,6 +526,49 @@ endif:                        ; preds = %then, %entry
   a missing merge is valid IR that computes the wrong thing.* **Validity and correctness are
   different questions**, and only one of them now has an instrument.
 
+### 3.4a E2 — a `return` inside an INLINED callee — ✅ **BUILT 2026-08-09** (ladder JE2 / JXN / JXT)
+
+**Was:** `jitEmitReturn` refused the case and `jitDegrade`d by name. An ordinary (non-self-test)
+callee INLINES into the enclosing function, so a `return` in its body would have branched to
+`gJitEpilogueBB` — **the CALLER's epilogue** — returning from the wrong function: a wrong answer
+wearing valid IR. The refusal was correct and its diagnosis became the specification.
+
+**⚠ WHY IT SURVIVED SO LONG, and it is the general lesson rather than the fix:** a **TAIL** return
+needs no branch, so falling through was *accidentally equivalent* — and every fixture in the fleet
+was tail-shaped. `jitDegrade` reported the **identical** line, at the **identical** count of 2, in
+both positions:
+
+| position | degrade | sound? |
+|---|---|---|
+| tail | 2 | **yes** — rung JXT was green on exactly this |
+| mid-body | **2** | **NO** — jitted 222/999 where the interpreter says 111/0 |
+
+**Same count, opposite safety.** This is the worked example behind CLAUDE.md's *"a degrade line
+asserts that a fallback OCCURRED, never that it was SOUND"*, and it is why JE2/JXN assert **values**
+and never the counter.
+
+**The fix — AN INLINED REGION GETS AN EPILOGUE OF ITS OWN.** One `JitInlineFrame` (`jitContext.h`)
+per inline, pushed/popped by `jitInlinePush`/`jitInlinePop` alongside `gJitInlining` so the two
+stacks cannot drift. A return in an inlined body commits its value, branches to **that frame's**
+exit block, and parks in a dead block — the ordinary return's three moves, aimed one level in.
+- **The exit block is created unparented and inserted on FIRST USE.** An H7 obligation, not a
+  saving: a return-free callee must emit **byte-identical** IR or every green rung's topology moves
+  for reasons unrelated to its subject.
+- **No phi is written — the merge is the memory location**, the same reasoning `jitStoreResult`'s
+  header gives for a two-armed `if`. mem2reg then produces the phi itself.
+- ⚠ **The value channel was not `gJitResult`, and the IR is what said so.** An enclosing assignment
+  reads its operand's `jitData->jitValue`, and that operand is the node `processAction` returned.
+  A first cut set only `gJitResult` and produced **a merge that was correct and ignored** —
+  `%inlineRet = load %result` sitting unused one line above `store %unbox3`, with a dominance
+  violation as the early-return arm carried its value out of its block. `jitInlinePop` therefore
+  takes the result node and **stamps** it, as `jitEmitRem` stamps its own.
+
+**Measured, one compile, two fires on opposite arms:** `111`/xeTail `0` then `222`/`999`,
+interpreted oracle `111`/`0`, **degrade 0**. Ladder **170 → 173**; three pins fell to this one
+repair (JXT, JE2, JXN) and **nothing else moved**, which is the evidence that E2 was the whole of
+it. **JXN is the one that mattered to the campaign** — a two-deep template that had been *accepting
+input it must reject*, silently, at exit 0, now rejects.
+
 ### 3.5 Known gaps that are not crashes
 - **Compare ops have no null/no-data guards, and the interpreter's are structurally bypassed**
   — each gate `return`s before the guard block below it. A jitted compare on null operands
