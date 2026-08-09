@@ -2583,6 +2583,24 @@ extern "C" void dumpFontInfo(GroupItem *field)
 }
 
 /*******************************************************************************
+    dumpPlanTally — print the two ruling-4 scalars. Called from incant/phaseA as
+    the last statement before its sentinel, so a truncated walk cannot print a
+    tally and a tally therefore means the walk finished.
+*******************************************************************************/
+extern "C" GroupItem *dumpPlanTally(GroupItem *argument)
+{
+	/*  ⚠ THE PREFIX IS `TALLY`, NOT `PLAN TALLY`, AND THAT IS NOT COSMETIC.
+	phaseA's A1 completeness guard counts `PLAN <name>` against
+	`DONE <name>`; a tally line beginning "PLAN " is counted as a walked
+	rule and the guard reads 80 PLAN / 78 DONE -- i.e. THE INSTRUMENT THAT
+	DETECTS A TRUNCATED WALK REPORTS A TRUNCATED WALK, caused by the
+	instrument added beside it. Measured on the first run of this rung.  */
+	::fprintf(stderr,"TALLY refusals = %s\n",::toStringFromInt(::planTally(3)));
+	::fprintf(stderr,"TALLY plannable = %s\n",::toStringFromInt(::planTally(4)));
+	return GroupControl::groupController->groupRules->trueResult;
+}
+
+/*******************************************************************************
     dumpRulePlans — the CENSUS FIXTURE (Clay SEQ 26). The ladder targets cannot
     test the classifier: Scaf/Scaf2/ScafA/ScafB exercise two kinds out of five
     and never carry an unmaterialised term. This runs the walk over the whole
@@ -2599,8 +2617,17 @@ GroupItem 	*plan = 0;
 	if ( !rule )
 		return 0;
 	plan = ::planRule(rule);
+	/*  THE RULING-4 TALLY, counted where the walk is DRIVEN rather than at
+	seventeen refusal sites (planTally's header carries the measured
+	invariant that licenses this). A refused rule contributed exactly one
+	planRule line; a rule refused ON A TERM contributed one more, counted
+	inside planRule.  */
 	if ( plan )
+		{
+		::planTally(2);
 		::printPlan(plan,"  ");
+		}
+	else	::planTally(1);
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
@@ -8867,23 +8894,57 @@ RuleStuff 	*stuff = 0;
 *******************************************************************************/
 extern "C" GroupItem *planRule(GroupItem *rule)
 {
+RuleStuff 	*rs = rule->rStuff;
 GroupItem 	*plan = 0;
 GroupItem 	*term = 0;
 GroupItem 	*node = 0;
 GroupItem 	*lab = 0;
 GroupItem 	*site = 0;
+GroupItem 	*at = 0;
+GroupItem 	*slot = 0;
+int 		literal = 0;
 int 		i = 1;
 	if ( ::unresolvedTerms(rule) )
 		{
 		::fprintf(stderr,"  REFUSE rule %s -- %s unmaterialised terms\n",rule->groupBody->tag,::toStringFromInt(::unresolvedTerms(rule)));
 		return 0;
 		}
+	/*  ⚠ GAP B FAMILY B -- RULE-LEVEL LITERAL. Phase R rung 1, 2026-08-09.
+	The charter's smallest family with a fully-known treatment: SemI=";",
+	loopOnAttributes="attributes", loopOnMembers="members". A rule whose OWN
+	data is a quoted literal matches that literal, which is precisely what
+	planTerm already emits for a literal in TERM position -- so this family
+	needs no new plan kind and no new support function. It reuses LIT/LITTO.
+	
+	⚠ THE SPLIT IS ON THE RULE'S OWN rStuff.noLabel, MIRRORING planTerm
+	EXACTLY, because LIT vs LITTO carries "does this attach a label" and
+	nothing else (see the kind table above). Copying that decision rather
+	than re-deciding it is the whole reason this family is cheap.
+	
+	⚠ AND THE FAMILY IS isSTRING ONLY, DELIBERATELY. The other five kinds
+	keep the refusal verbatim. Three constructs used to share one refusal
+	message; the taxonomy exists so each gets its own treatment and its own
+	text, and widening this test to `rule.data` would re-merge them on day
+	one. isCHAR (FloaT) LOOKS like a one-character member of this family and
+	is an OPEN row on purpose -- it carries sub-fields, so it is not this
+	shape (docs/gapBPhaseT.md, OPEN row 1).  */
 	if ( rule->groupBody->flags.data )
 		{
-		::fprintf(stderr,"  REFUSE rule %s -- rule-level data %s (§4.1 rule-as-data, rung 5)\n",rule->groupBody->tag,::dataName(rule->groupBody->flags.data));
-		return 0;
+		if ( !isSTRING(rule->groupBody->flags.data) )
+			{
+			::fprintf(stderr,"  REFUSE rule %s -- rule-level data %s (§4.1 rule-as-data, rung 5)\n",rule->groupBody->tag,::dataName(rule->groupBody->flags.data));
+			return 0;
+			}
+		if ( !rs )
+			{
+			::fprintf(stderr,"  REFUSE rule %s -- rule-level literal but no rStuff, so LIT vs LITTO is undecidable\n",rule->groupBody->tag);
+			return 0;
+			}
+		literal = 1;
 		}
-	if ( !::countRuleTerms(rule) )
+	/*  A literal-valued rule legitimately has NO terms -- its data IS its
+	content -- so the no-terms refusal must not fire on it.  */
+	if ( !literal && !::countRuleTerms(rule) )
 		{
 		::fprintf(stderr,"  REFUSE rule %s -- no terms at all\n",rule->groupBody->tag);
 		return 0;
@@ -8897,6 +8958,34 @@ int 		i = 1;
 		plan->addAttribute(lab);
 		}
 	plan->setText(rule->groupBody->tag);
+	/*  THE RULE'S OWN LITERAL PLANS FIRST, ahead of any terms, because it is
+	what the rule consumes before them. Family B's three rules have no terms
+	at all, so the ordering is invisible today and is written for the shape
+	rather than for the specimens.
+	
+	⚠ `at` IS 0 AND THAT IS A MARKER, NOT AN INDEX. Everywhere else `at` is a
+	baked rule[] index and term indices are 1-based, so 0 cannot collide with
+	one; it reads as "the rule's own data, not a term slot". Emit is OUT OF
+	SCOPE for this charter (§4) and belongs to genKantParse v1 -- this is
+	flagged HERE so the emit side inherits the question stated rather than
+	discovering an index that indexes nothing.  */
+	if ( literal )
+		{
+		if ( rs->noLabel )
+			node = new GroupItem("LIT");
+		else {
+			node = new GroupItem("LITTO");
+			slot = new GroupItem("slot");
+			slot->setText(rule->groupBody->tag);
+			}
+		node->setText(rule->getText());
+		at = new GroupItem("at");
+		at->setText("0");
+		node->addAttribute(at);
+		if ( slot )
+			node->addAttribute(slot);
+		plan->addMember(node);
+		}
 	while ( term = rule->get(i) )
 		{
 		if ( !term->groupBody->flags.noPrint )
@@ -8904,6 +8993,10 @@ int 		i = 1;
 			node = ::planTerm(term,i);
 			if ( !node )
 				{
+				/*  planTerm has already printed its own refusal line; this
+				counts THAT line. planRule's own line below is counted by
+				dumpRulePlans, at the call site. See planTally's header.  */
+				planTally(1);
 				::fprintf(stderr,"  REFUSE rule %s -- term %s unclassified\n",rule->groupBody->tag,term->groupBody->tag);
 				return 0;
 				}
@@ -8918,6 +9011,43 @@ int 		i = 1;
 		i++;
 		}
 	return plan;
+}
+
+/*******************************************************************************
+    planTally — THE RULING-4 NUMBERS, PRINTED AS SCALARS. Phase R rung 1's H4
+    obligation (Tony, 2026-08-09): the charter demands two numbers at every rung,
+    and until now BOTH were derived by grepping phaseA's output. A quantity
+    nobody prints is a quantity that can drift silently — and the SEQ 42 census
+    is this session's own proof that a derived-and-transcribed number outlives
+    the moment it was true.
+
+    ⚠ IT COUNTS AT THREE SITES, NOT SEVENTEEN, AND THE LICENCE IS A MEASURED
+    INVARIANT RATHER THAN A GUESS: every refusal line is immediately followed by
+    a `return null`, and planRule stops at its FIRST bad term. So
+        total refusals == (planRule nulls) + (planTerm nulls)
+    which is countable at the two CALL sites. Verified against the pre-change
+    corpus before being relied on:
+        97 total  ==  65 `REFUSE rule` (== 65 distinct rules refused)
+                  +   32 term-level    (== 32 `unclassified`)
+    ⚠ AND THE INVARIANT IS ASSERTED, NOT ASSUMED. It couples the tally to "one
+    line per null return", which a future two-line refusal path would break
+    silently. `genLadder/gapB.sh` therefore cross-checks the printed scalar
+    against the grep every run: the cheap instrument guards the cheap counter,
+    and a divergence names itself instead of quietly moving the metric.
+
+    mode 1 bump refusals · 2 bump plannable · 3 read refusals · 4 read plannable
+*******************************************************************************/
+extern "C" int planTally(int mode)
+{
+	
+	static int refusals = 0;
+	static int planned  = 0;
+	if ( mode == 1 )    return ++refusals;
+	if ( mode == 2 )    return ++planned;
+	if ( mode == 3 )    return refusals;
+	if ( mode == 4 )    return planned;
+	return -1;
+	
 }
 
 /*******************************************************************************

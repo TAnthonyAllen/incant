@@ -19,6 +19,7 @@ include(utilities);
 search reset stack Grokking UnitTests Utilities list;
 registry(cOMMANDs);
 define dumpRulePlans immediateAction=dumpRulePlans; ;
+define dumpPlanTally immediateAction=dumpPlanTally; ;
 
 /*  A real parse first: rStuff is materialised lazily, so the walk must be taken
     against a tree that has actually run (the census fixture's own note).  */
@@ -186,6 +187,14 @@ dumpRulePlans('WhilE');
 cerr "DONE WhilE":;
 dumpRulePlans('Xpress');
 cerr "DONE Xpress":;
+
+/*  THE RULING-4 SCALARS, PRINTED (H4, Tony 2026-08-09). Both numbers were
+    derived by grepping this file's output until now, and a quantity nobody
+    prints is a quantity that drifts silently -- the SEQ 42 census being this
+    project's own proof. Placed BELOW the walk and ABOVE the sentinel on
+    purpose: a truncated run cannot print a tally, so a tally means the walk
+    finished, and the sentinel still guards the tally itself.  */
+dumpPlanTally('tally');
 
 cerr "PHASEA SENTINEL -- walk reached the end":;
 stop();
