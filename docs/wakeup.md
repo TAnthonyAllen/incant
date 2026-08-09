@@ -187,8 +187,44 @@ sh genLadder/tree.sh · printPop · containerPop · recordPop · formsPop      e
 scalars** rather than grepped. `incant/phaseA` is the ruling-4 instrument, **Amendment A discharged by
 measurement** (exists · reaches the Gap B branch, 21 hits on `:518` · completes 78 PLAN / 78 DONE).
 
+## ✅ STEP 1 ARTIFACT — the parse-method TEMPLATE FAMILY + `Attributes` v0. `docs/attributesTemplate.md`
+All six holes filled by measurement. **Nothing installed.** Two answers move the draft and one
+wants Tony before First Light.
+- ⚠ **H4 (the gate) — YES for rules, NO for `lit`.** Native rule failure restores to `hereAt`
+  (`GroupItem.twk:1267`), generated to `from` (`leaveRule`, unconditional). **But `lit` commits its
+  skip pass before matching and returns false with the mark ADVANCED** (`RuleStuff.twk:525`), which
+  `leaveAlt`'s S4.2 comment already records. So the draft's ALTERNATION *"no save, no restore
+  anywhere"* is **false for any chain with a literal alternative** — Tony's fork, one level lower
+  than the seat-note expected: at a primitive, not at the seam. ⚠ **GRADE: READ, NOT RUN** — the
+  run is owed before the contract is signed, and both routes are named in the artifact.
+- ⚠ **H3 IS THE REAL BLOCKER, AND IT IS SMALL: the templates are kant, and every primitive they
+  need is unreachable from incant.** `atRuleMark` (the real spelling — Tony's working name is the
+  actual name), `checkSkip`, `parseR`, `lit`, `leaveRule` — **none registered as a command**;
+  search space named in the artifact. ⚠ **`setMark` is a FALSE FRIEND** — it is the *Buffer* mark
+  and would half-work. **This is Tony's own `incant++` note arriving as a measurement**, and the
+  gap is a bounded 3–4 command registrations, not a design question.
+- ✅ **H2 — Clay's citation was RIGHT: `Attributes=TraiT+;`.** One-or-more, pure reference, no
+  literals, so v0 is the bare ITERATE with no SEQUENCE wrapper. **A structural claim holding, which
+  is what the asymmetry predicts** — recorded as a hit, since the ledger wants both columns.
+- ⚠ **H1 INVERTS: `Attributes` is NOT among the 16 plannable — it REFUSES** (`rule-level data
+  isGROUP`). ⚠ **And its refusal names RUNG 5 while the family table calls Family A the RUNG 2
+  candidate** — two rung numberings in circulation for the same work, cheap now, T-0 later.
+- ⚠ **§2's mark save/restore is a SECOND WRITER — recommend dropping it.** `leaveRule` owns
+  Invariant R by explicit design (S1.8, one implementation every rule), and PC-4 records that a
+  second writer there produced GM-17's divergence. This dissolves H5 as well.
+- **SEQUENCE is already a green rung** — JXT *is* "the genKantParse body", degrade 0 **as of today**
+  (E2 took it from 2). **ITERATE has no rung**: built from certified parts, composition unrun — its
+  rung is step 2's. Loop is **`while`** (J3); ⚠ **never `for`** (the iterator divergence is a named
+  JIT-0.1 exclusion, `jitJUi`, 0 leaves vs 2).
+- ⚠ **`Attributes` lands on a PRE-RECORDED OPEN:** `parseR`'s header fences `parseMethod`-is-
+  per-node against *"rung 4, the first cross-method call"*, and `TraiT+` is nothing but a
+  rule-reference term. Right subject, but choose it knowingly.
+
 ## OPEN, AND WHOSE
-**Tony's:** ⚠ **`parked` — the decoder's ONE HELD SLOT, and Clay asked for the hold himself**
+**Tony's:** ⚠ **the parse contract's formal nod** — and with it the *"exactly as at entry"* wording,
+which is stronger than the native arm provides (native restores **post**-skip, generated **pre**-skip) ·
+⚠ **the ALTERNATION fork** (non-destructive `lit`, or keep the `from` save) ·
+⚠ **`parked` — the decoder's ONE HELD SLOT, and Clay asked for the hold himself**
 (§8 of `docs/decoder.md`): the dispatch's *"a scheduling state, not a verdict"* against SEQ 44
 PINCH 6's *"parked means nobody has ruled; pinned means we ruled it wrong and are watching."*
 **Incompatible, and PINCH 6 was written first.** If PINCH 6 wins, `parkdiff` / `parked-WIP` /
