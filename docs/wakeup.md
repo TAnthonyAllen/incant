@@ -8,10 +8,40 @@
 # ═══════════════════════════════════════════════════════════════════════════
 
 ## ⚠ NEXT ACTION
-**Phase R rung 1: Family B (LITERAL, 3 rules) — the smallest family with a fully-known treatment**
-(`SemI`/`loopOnAttributes`/`loopOnMembers` map onto `planTerm`'s existing `LIT`). It carries an
-assigned obligation: **print and assert both ruling-4 numbers** rather than re-grepping them
-(H4, Tony 2026-08-09). Table and evidence: `docs/gapBPhaseT.md`.
+**Phase R rung 2 — Family A (REFERENCE, 5) or Family C (CHARACTER SET, 4).** Both have a §2.5 spec
+(A is ITERATE, C is ACCUMULATE). ⚠ **§3's ordering aims at `InvokeArg`'s alternation via
+`NumbeR`/`ANYtoken`/`SemI`, and the DOUBLE-BLOCK RIDER still bites:** `SemI`'s **rule-level** block
+is now closed but its **term-level** half is not, and `ANYtoken` is likewise blocked twice. **Rule-
+level work alone closes neither cascade head.** Rung records: `docs/gapBPhaseR.md`.
+
+## ✅ PHASE R RUNG 1 — FAMILY B (LITERAL) IS GREEN. REFUSALS 97→94, PLANNABLE 13→16.
+**The metric's first movement under the charter — on the PLANNABILITY gate.** ⚠ **16 plannable is
+NOT 16 installable; the metric line stays 0/47** (§1: this charter buys gate 1 only).
+- **The treatment reuses `planTerm`'s existing `LIT`/`LITTO`** — no new plan kind, no new support
+  function, and the LIT-vs-LITTO split is *copied* from `planTerm` rather than re-decided. That
+  reuse is why it was rung 1.
+- **The test is `rule.isSTRING`, not `rule.data`, deliberately** — widening would re-merge the three
+  constructs the taxonomy exists to separate, **and would pass every positive row while doing it.**
+  Five negative controls ride along for exactly that reason.
+- **Bear-trap #26 was the live risk and did not bite** (`rule.text` → `;`, not `SemI`). The rung
+  asserts **the literal text by name**: *"it planned"* cannot tell `LITTO ;` from `LITTO SemI`.
+- ✅ **H4 DISCHARGED — both ruling-4 numbers are PRINTED as scalars** by `phaseA`
+  (`TALLY refusals` / `TALLY plannable`). `planTally` counts at **3 sites not 17**, licensed by a
+  **measured** invariant (`97 == 65 + 32`), and **the invariant is cross-checked against the grep
+  every run** so a future two-line refusal path names itself instead of moving the metric quietly.
+- ⚠ **THE TALLY'S FIRST DRAFT BROKE THE FIXTURE'S OWN COMPLETENESS GUARD** — prefixed `PLAN TALLY`,
+  it was counted by phaseA's A1 marker as two extra walked rules (**80 PLAN / 78 DONE**): *the
+  instrument that detects a truncated walk reported one, caused by the instrument added beside it.*
+  Caught first run because the rung asserts A1 **from outside**.
+- **NEW HARNESS `genLadder/gapB.sh` — 22 checks, exit 0**, with self-certification at the foot that
+  a vanished helper set cannot satisfy. **H7 negative control measured:** 11 rows red without the
+  treatment, **and the five negative controls stay green on that same capture** — so it
+  discriminates rather than reddening on any input.
+- ⚠ **BLAST RADIUS RECORDED, and rung 1 sets the precedent that every install documents what it
+  touched.** Exit statuses identical across all 13 entry points; **`phaseA.err` shows the intended
+  change and only it** (3 refusals → 3 plans, plus the 2 TALLY lines); every other diff is the H1
+  binary echo or **PIDs in the shell's segfault lines for the pinned crashers**. **No baseline
+  moved, no target re-pinned, no harness changed verdict.**
 
 ## ⚠⚠ THE FINDING THAT OUTRANKS THE DAY'S WORK — T-0
 **`docs/gapB-staging.md`'s rule→kind mapping was WRONG FOR 13 OF 21.** Counts reproduce exactly
@@ -101,6 +131,7 @@ have returned from the **caller**. The old refusal's diagnosis was right and bec
 
 ## FLEET AT SEAL
 ```
+sh genLadder/gapB.sh           22 checks, exit 0     NEW -- the Phase R rung POP
 sh jitLadder/ladder.sh        173 checks, exit 0     (was 170; +3, three rows graduated)
 sh genLadder/pop.sh            33 green / 1 parked (exit 1, the same 3 owned reds)
 sh genLadder/mixed.sh           7 checks, exit 0   (parse-arm pin holds)
@@ -108,8 +139,9 @@ sh genLadder/completePop.sh   123 swept · 3 abandoned · 2 missing sentinels ·
 sh genLadder/tree.sh · printPop · containerPop · recordPop · formsPop      exit 0
 <binary> incant/oneTest · jsonTest · kant8T · phaseA · emitAll             exit 0
 ```
-**Metric: 0/47 installed** (T-3 — NOT 0/46). Ruling-4 numbers: **97 total plan-layer refusals ·
-13 fully plannable of 78.** `incant/phaseA` is the ruling-4 instrument, **Amendment A discharged by
+**Metric: 0/47 installed** (T-3 — NOT 0/46; ruled, `Any` was never in the 47). Ruling-4 numbers:
+**94 total plan-layer refusals · 16 fully plannable of 78** — moved by rung 1, and now **printed as
+scalars** rather than grepped. `incant/phaseA` is the ruling-4 instrument, **Amendment A discharged by
 measurement** (exists · reaches the Gap B branch, 21 hits on `:518` · completes 78 PLAN / 78 DONE).
 
 ## OPEN, AND WHOSE
