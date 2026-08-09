@@ -18,12 +18,14 @@ tree wins and the divergence is NOTED, not silently fixed.**
 | **H2** | **`Attributes=TraiT+;`** | Clay's guess was **right**. ITERATE, one-or-more. §3 stands |
 | **H1** | **NO — `Attributes` is not among the 16 plannable** | it *refuses*. The draft's premise inverts |
 | **H3** | `atRuleMark` is the **real** spelling — and is **unreachable from incant** | ⚠ **the template's primitives do not exist on the kant side yet.** This is the real blocker |
-| **H5** | **no helper** — bare `return 0;` | and after ⚠ D1 below there is nothing for a helper to do |
+| **H5** | **no helper** — bare `return 0;` | ⚠ but the **epilogue stands** — D1 is withdrawn for the kant arm, see §5 |
 | **H6** | **`while`**, certified at ladder J3. ⚠ **never `for`** | the iterator is a named JIT-0.1 exclusion |
 
-⚠ **AND THE ONE THAT OUTRANKS THE REST — §2's mark save/restore is a SECOND WRITER.**
-`leaveRule` already owns Invariant R by explicit design, and the tree carries a scar from the last
-time something else wrote there. See ⚠ D1.
+⚠ **AND ONE CORRECTION TO THIS ARTIFACT'S OWN FIRST PASS: D1 IS WITHDRAWN FOR THE KANT ARM.**
+`leaveRule` owns Invariant R for the **emitted C++** arm — but it is not command-registered, so a
+**kant** method cannot reach it, and there is no first writer to conflict with. **The SEQUENCE
+epilogue stands, as ruled.** The claim was made without measuring whether the first writer was on
+the arm in question. See ⚠ D1.
 
 ---
 
@@ -63,10 +65,15 @@ tail-return fallback. So the template's certification is one day old.
         };
 ```
 
-**Note the spelling, which is load-bearing and differs from the draft in three places:** the
+**Note the spelling, which is load-bearing and differs from the draft in two places:** the
 governed statement sits on its **own line, indented** (a same-line `if` is bear-trap #4's
-neighbourhood); the failure exit is a **bare `return 0;`**, not a helper; and **there is no mark
-save and no restore** — see ⚠ D1.
+neighbourhood), and the failure exit is a **bare `return 0;`**, not a helper.
+
+⚠ **AS SHOWN, THIS IS THE CERTIFIED RUNG VERBATIM AND IT CARRIES NO MARK DISCIPLINE — JXT IS NOT A
+PARSE METHOD.** It certifies the *control-flow shape*: short-circuit, mid-block return, sequential
+value-returning callees. **A real parse method wraps this in an entry-save / tail-restore
+epilogue** (ruled 2026-08-09; see ⚠ D1 for why the epilogue is owed on the kant arm and what
+would retire it).
 
 **It short-circuits by construction rather than by an operator that would have to decline to
 evaluate**, and that is the whole reason it exists: the draft's `AND` spelling is measured
@@ -75,7 +82,16 @@ unavailable in *either* engine — `a AND b` exits 139 with no degrade line, `a 
 
 ### ALTERNATION — members A1..An, first match wins
 
+⚠ **PRECONDITION, AND IT IS PART OF THE TEMPLATE — NOT A FOOTNOTE: EVERY ALTERNATIVE MUST BE A
+RULE REFERENCE.** The bare chain below has no save and no restore, and that is correct *only*
+under that precondition. **A literal alternative does not self-restore** (§4 H4), so it needs its
+own `from` save — exactly what `leaveAlt` already does. Written into the block because the first
+literal-bearing alternation to reach for this template would otherwise inherit a justification
+that does not cover it.
+
 ```
+    /*  PRECONDITION: A1..An are all RULE REFERENCES.
+        A literal alternative needs its own save/restore -- see H4.  */
     xtSuk = xtA1();
     if xtSuk == 1;
         return 1;
@@ -84,6 +100,10 @@ unavailable in *either* engine — `a AND b` exits 139 with no degrade line, `a 
         return 1;
     return 0;
 ```
+
+⚠ **AFTER THE `AND`/`OR` RUNG (`docs/andOrRung.md`, ruled 2026-08-09) THIS COLLAPSES TO A BARE
+`OR` CHAIN** — and **carries the precondition across unchanged**, because non-restoring is a
+property of the *operand*, not of the operator, and no `OR` semantics repairs it.
 
 ⚠ **THE DRAFT'S JUSTIFICATION IS FALSE FOR LITERAL ALTERNATIVES, AND THE TREE SAYS SO IN ITS OWN
 COMMENT.** The draft argues *"no save, no restore anywhere — the contract's self-restore makes the
@@ -266,10 +286,20 @@ loopOnAttributes loopOnMembers Parens PrintField RunRulE SemI TokenXP WardeD`.
 draft's framing, and it means the step-4 byte-oracle cannot be produced by the planner until
 Family A lands.
 
-⚠ **AND A NUMBERING DIVERGENCE FOR TONY, noted not resolved:** the refusal names **rung 5**
-(`§4.1 rule-as-data, rung 5`), while the family table in the 08-09 seal has Family A (REFERENCE)
-as the **rung 2** candidate. Two different rung numberings are in circulation for the same work.
-Cheap to reconcile now, expensive as a citation later — which is T-0's whole lesson.
+✅ **THE RUNG-NUMBER "DIVERGENCE" IS RECONCILED, AND IT IS NOT ONE — BOTH CITATIONS ARE RIGHT.**
+Measured: `docs/gapBCharter.md`'s own title is *"Gap B Charter — rule-as-data (§4.1, **rung 5**)"*.
+So **rung 5 is the genParse LADDER's number for the whole rule-as-data workstream**, and
+**rung 1 / rung 2 are the Family rungs INSIDE that charter** (B = 1, landed; A = 2, next). Family A
+is *"charter rung 2, which is part of genParse rung 5."*
+
+⚠ **Two axes, not two numberings of one axis — the same shape as GM-31's warning that the 47
+(grammar text) and the 78 (registry) are different axes.** One line, so nobody re-derives it:
+**genParse ladder rung = the workstream; charter rung = the family within it.**
+
+✅ **AND THE SEQUENCING FOLLOWS, no longer conditional:** rung 2 = **Family A in the plan layer**,
+which is what makes `Attributes` plannable, **then** the hand-written install. H2's answer settles
+it — A is the campaign path. The alternative (pick an already-plannable rule for First Light)
+would forfeit the template work and the `parseR` alignment for a shortcut that certifies less.
 
 ### H5 — helper vs block-if
 
@@ -284,14 +314,37 @@ a side effect, which is a shape no rung certifies.
 
 ## 5. ⚠ DIVERGENCES FROM THE DRAFT — the asymmetry ledger's rows
 
-**D1 — §2's mark save/restore is a SECOND WRITER, and the tree has a scar from the last one.**
-The draft's SEQUENCE opens `xtMark = atRuleMark;` and fails through `xtFail()`, which restores.
-But `leaveRule` **already** restores, unconditionally, by explicit design — genParse S1.8 put
-Invariant R there rather than in emitted lines precisely so there would be **one implementation
-for every rule**, and `leaveRule`'s PC-4 comment records what happened when something else also
-wrote in that neighbourhood: *"A second writer here is what produced GM-17's divergence."*
-**Recommendation: drop the save and the restore from the template.** The failure path is
-`return 0`; the rewind belongs to the exit primitive. This also dissolves H5.
+**D1 — ⚠ WITHDRAWN FOR THE KANT ARM, 2026-08-09, AND THE WITHDRAWAL IS THE USEFUL PART.**
+
+*What it said:* the draft's SEQUENCE opens `xtMark = atRuleMark;` and fails through `xtFail()`,
+which restores — but `leaveRule` **already** restores, unconditionally, by explicit design.
+genParse S1.8 put Invariant R there rather than in emitted lines precisely so there would be **one
+implementation for every rule**, and `leaveRule`'s PC-4 comment records what happened when
+something else also wrote in that neighbourhood: *"A second writer here is what produced GM-17's
+divergence."* Recommendation was: drop the save and the restore.
+
+⚠ **THAT IS CORRECT FOR THE C++ EMITTED ARM AND DOES NOT APPLY TO THE KANT ARM, WHICH IS THE ONE
+THE TEMPLATE IS FOR.** `leaveRule` is called **by an emitted method's own return expression**. A
+kant parse method would have to call it too — and **it cannot**: `leaveRule` and `leaveAlt` are
+**not registered as incant commands** (measured, §4 H3(c), same search that found `atRuleMark`
+unreachable). **So on the kant arm there is no first writer, and therefore no second one.** The
+SEQUENCE template **does** need its own entry-save / tail-restore epilogue, exactly as Tony ruled
+on 2026-08-09 — *the `AND` collapse alone does not satisfy the contract*, because short-circuit
+stops the **evaluation** and does not give back what the arms that DID run consumed. Two different
+facts; only one is an operator's job.
+
+⚠ **THE METHOD FAILURE, NAMED, BECAUSE IT IS THE DAY'S OWN LESSON POINTED AT ME.** I asserted a
+second-writer conflict **without measuring whether the first writer is even on the kant path**.
+The check was one grep — the same grep I had already run for H3 — and its result was already in
+my hand. **A structural claim about the arm I was reading, applied to an arm I had not.**
+
+⚠ **AND IT LEAVES A REAL DECISION FOR TONY, cheaply stated: registering `leaveRule` collapses the
+question.** It is already a candidate on H3's 3–4-command list. Register it and the kant arm
+inherits the single implementation S1.8 designed, the epilogue drops, and D1 becomes true again by
+construction rather than by argument. Leave it unregistered and every kant template carries its
+own epilogue — more text, and two implementations of Invariant R, which is the thing S1.8 exists
+to prevent. **The epilogue is owed either way until that is decided;** this is about whether it
+stays owed.
 
 **D2 — ALTERNATION's "no save, no restore anywhere" is false for literal alternatives** (§2), and
 `leaveAlt`'s S4.2 comment is the counterexample, written before the draft.

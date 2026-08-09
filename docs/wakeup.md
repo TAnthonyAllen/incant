@@ -1,6 +1,12 @@
-# ⚠⚠ SEALED 2026-08-09 (CURRENT VINTAGE) — READ THIS SECTION FIRST.
-# PHASE T IS DELIVERED AND E2 IS BUILT. THE METRIC IS 0/47 (see T-3 — it did NOT move to 0/46).
+# ⚠⚠ SEALED 2026-08-09 EVENING (CURRENT VINTAGE) — READ THIS SECTION FIRST.
+# PHASE T DELIVERED · E2 BUILT · THE DECODER BUILT · STEP 1 ARTIFACT MEASURED ·
+# AND/OR RULED (not built). THE METRIC IS 0/47 (see T-3 — it did NOT move to 0/46).
 # Everything from the `# ⚠⚠ SEALED 2026-08-08 EVENING` header down is older vintage.
+#
+# ⚠ NEXT ACTION IS UNCHANGED AND STILL FIRST IN LINE: THE KANT-8 UNCONDITIONAL
+#   BRACKET FIX. Nothing today installed anything, so ITS JUNCTION IS INTACT —
+#   the fleet is green at 173/0 and the argument for taking it on the cleanest
+#   baseline still holds. See the NEXT ACTION block below; it needs no rewrite.
 
 # ═══════════════════════════════════════════════════════════════════════════
 # 2026-08-09 — THE FAMILY TABLE LANDED, E2 IS BUILT, AND A SEALED CENSUS
@@ -171,6 +177,54 @@ have returned from the **caller**. The old refusal's diagnosis was right and bec
   mechanism-absent run was **pinned green in a shipping harness for a day** — 222/999, degrade 2,
   exit 0, sentinel printed. **The wrong answer cost nothing visible.**
 
+## ✅ EVENING — AND/OR RULED, THE ARTIFACT CORRECTED TWICE, AND ONE WITHDRAWAL
+**`AND`/`OR` RULED (Tony, 2026-08-09): C++ semantics.** Return **1/0 always**, both engines
+byte-agreeing, **short-circuit with the unreached arm never evaluated, side effects included.**
+**The last open ruling on the promotion.** ⚠ **RULED, NOT BUILT** — transcribed to
+`docs/andOrRung.md` with the six-part rung drawer-ready (interceptor handlers per the `if`
+precedent · emitter diamond on the operand's `jitValue` channel, no phi, parent-once · **pre-flight
+census of right-arm side effects in shipping text**, grep-then-migrate-or-certify in the SAME
+commit · `jitXand`/`jitXand2` flip from documenting-the-139 to certifying, with H6 sentences ·
+KANT-34's both-arms line gets a **dated retirement note, not deletion** · H7 control by **tick
+count**, because a right arm that runs anyway still usually produces the right *answer*).
+**Scheduling: post-First-Light natural, earlier permitted, Clod's clock.** Parked tonight on
+purpose: part 3 is a **behaviour change to shipping text**, which is the loudest reason on the list
+to start at the top of a session rather than the bottom of one.
+- ⚠ **THE RULING WAS MADE IN CHAT AND NOW LIVES IN A FILE.** Today's two lessons — the decoder's
+  reason for existing and T-0's cost — arriving on the day both were written down.
+
+### ⚠ D1 WITHDRAWN FOR THE KANT ARM — my own claim, and the withdrawal is the useful part
+I ruled that the SEQUENCE template's mark save/restore was a **second writer** against
+`leaveRule`'s ownership of Invariant R, and recommended dropping it. **Correct for the C++ emitted
+arm. It does not apply to the kant arm, which is the one the template is for:** `leaveRule` is
+called by an emitted method's own return expression, and **it is not command-registered**, so a
+kant method cannot reach it. **No first writer ⇒ no second one.** The **entry-save / tail-restore
+epilogue stands, exactly as Tony ruled** — short-circuit stops the *evaluation*, it does not give
+back what the arms that DID run consumed.
+⚠ **The method failure, named: I asserted a conflict without measuring whether the first writer
+was on the arm in question — and the grep was one I had already run, for H3.** A structural claim
+about the arm I was reading, applied to an arm I had not.
+✅ **And it leaves a cheap decision: registering `leaveRule` collapses the question.** It is already
+a candidate on H3's 3–4-command list. Register it and the kant arm inherits S1.8's single
+implementation and the epilogue drops; leave it and every kant template carries its own — two
+implementations of Invariant R, which is what S1.8 exists to prevent.
+
+### ✅ THE RUNG-NUMBER DIVERGENCE IS NOT ONE — BOTH CITATIONS WERE RIGHT
+`docs/gapBCharter.md`'s own title reads *"Gap B Charter — rule-as-data (§4.1, **rung 5**)"*. So
+**rung 5 is the genParse ladder's number for the workstream** and **rung 1/2 are the FAMILY rungs
+inside the charter.** Family A is *charter rung 2, part of genParse rung 5.* ⚠ **Two axes, not two
+numberings of one axis — GM-31's 47-vs-78 warning in a new hat.**
+✅ **Sequencing settled and no longer conditional: rung 2 = Family A in the plan layer** (which is
+what makes `Attributes` plannable), **then** the hand-written install. Picking an
+already-plannable rule for First Light instead would forfeit the template work and the `parseR`
+alignment for a shortcut that certifies less.
+
+### ⚠ THE ALTERNATION PRECONDITION IS NOW INSIDE THE TEMPLATE, NOT A FOOTNOTE
+*Every alternative must be a rule reference.* Written into the code block itself, because the first
+literal-bearing alternation to reach for the template would otherwise inherit a justification that
+does not cover it. ⚠ **It survives the `AND`/`OR` collapse unchanged** — non-restoring is a property
+of the **operand**, not the operator.
+
 ## FLEET AT SEAL
 ```
 sh genLadder/decodePop.sh      22 checks, exit 0     NEW -- the decoder POP (34 terms)
@@ -221,7 +275,16 @@ wants Tony before First Light.
   rule-reference term. Right subject, but choose it knowingly.
 
 ## OPEN, AND WHOSE
-**Tony's:** ⚠ **the parse contract's formal nod** — and with it the *"exactly as at entry"* wording,
+**PARKED TONIGHT, DELIBERATELY, EACH WITH ITS REASON — the clean-kitchen list:**
+`AND`/`OR` rung (behaviour change to shipping text — top of a session, not the bottom) ·
+the **contract RUN** that converts H4 from READ to signable (needs an instrumented build or a
+behavioural probe; a misfiled measurement here becomes doctrine) · **H3's 3–4 command
+registrations** · **rung 2 = Family A** · then the install arc. ⚠ **The KANT-8 bracket fix is still
+FIRST IN LINE and its junction is intact — nothing today installed anything.**
+
+**Tony's:** ⚠ **the parse contract's formal nod** — ⚠ **hold it until H4 has its RUN**; a signature
+converts a read into doctrine, and today is the day that lesson cost the most. And with it the
+*"exactly as at entry"* wording,
 which is stronger than the native arm provides (native restores **post**-skip, generated **pre**-skip) ·
 ⚠ **the ALTERNATION fork** (non-destructive `lit`, or keep the `from` save) ·
 ⚠ **`parked` — the decoder's ONE HELD SLOT, and Clay asked for the hold himself**
