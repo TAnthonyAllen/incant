@@ -266,6 +266,34 @@ class GroupItem;
 class GroupBody;
 inline std::vector<GroupBody*> gJitInlining;
 
+// ================== E2: THE INLINED CALLEE'S OWN EXIT (2026-08-09) ============
+// ⚠ THE WHOLE OF E2 IS "AN INLINED REGION NEEDS AN EPILOGUE OF ITS OWN."
+// A `return` inside an inlined callee must terminate THE INLINED REGION. Branching
+// to gJitEpilogueBB there returns from the CALLER -- a wrong answer wearing valid
+// IR -- which is why jitEmitReturn refused the case outright until now.
+//
+// ONE FRAME PER INLINE, PARALLEL TO gJitInlining and pushed/popped by the same two
+// functions, so the two stacks cannot drift. `exitBB` is created UNPARENTED and is
+// inserted into the function only on FIRST USE:
+//
+// ⚠ THAT LAZINESS IS AN H7 REQUIREMENT, NOT AN OPTIMISATION. An inlined callee
+// with no return must emit BYTE-IDENTICAL IR to what it emits today, or every
+// currently-green rung's topology moves for a reason unrelated to its subject --
+// H3's assertion-that-cries-wolf, manufactured on purpose. `used` is the second
+// channel that makes "did any return actually target this" answerable, rather than
+// inferring it from the block having predecessors.
+//
+// THE VALUE CHANNEL IS THE RESULT SLOT, and it needs no phi for the same reason
+// jitStoreResult's header already gives for a two-armed if: THE MERGE IS THE MEMORY
+// LOCATION. Every return stores before it branches, the fall-through path has
+// stored via the ordinary per-statement commit, so the load at exitBB reads
+// whichever path ran.
+struct JitInlineFrame {
+    llvm::BasicBlock *exitBB = nullptr;
+    bool              used   = false;
+};
+inline std::vector<JitInlineFrame> gJitInlineFrames;
+
 inline GroupItem       *gJitCurrentAction = nullptr;
 inline llvm::Function  *gJitCurrentFn     = nullptr;
 

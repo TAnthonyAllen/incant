@@ -1154,11 +1154,17 @@ else echo "  FAIL  JXT fire 2 ticks = '$xt2', want 3 (cumulative 1+2)."
 #  (SEQ 41 step 5) this count goes to 0 and THIS ROW GOES RED ON PURPOSE. Do not
 #  re-pin it green without a sentence: a target that moved is a claim that the
 #  world changed, and the claim needs a cause.
-if [ "$xtd" = "2" ]; then echo "  ok    JXT degrade count = 2, PINNED (E2 tail-return; red here when E2 lands)"; green=$((green+1))
-else echo "  FAIL  JXT degrade count = '$xtd', pinned at 2. If 0, E2 LANDED and this"
-     echo "        row must GRADUATE to degrade-zero (H6). If higher, something new"
-     echo "        fell through and the template is no longer built from certified"
-     echo "        constructs."; fail=1; fi
+#  ✅ GRADUATED 2026-08-09, AND THE SENTENCE THE RE-PIN RULE ASKS FOR: the pin
+#  moved from 2 to 0 because E2 WAS BUILT, not because the fixture drifted. The
+#  two degrades were both `return INSIDE AN INLINED CALLEE`; an inlined region
+#  now carries its own exit block and the return branches there, so there is
+#  nothing left to fall through. The prediction was written into the old pin
+#  ("when E2's rung lands this count goes to 0") and it is what happened.
+#  This row is now an ORDINARY degrade-zero assertion and rejoins the fleet rule.
+if [ "$xtd" = "0" ]; then echo "  ok    JXT degrade count = 0 (E2 built 2026-08-09; was pinned at 2)"; green=$((green+1))
+else echo "  FAIL  JXT degrade count = '$xtd', want 0. E2 landed on 2026-08-09, so a"
+     echo "        non-zero count means something fell through that did not before --"
+     echo "        the template is no longer built from certified constructs."; fail=1; fi
 if [ "$xto" = "1" ]; then echo "  ok    JXT oracle agrees: interpreted ticks 1 == jitted (both short-circuit)"; green=$((green+1))
 else echo "  FAIL  JXT ORACLE DISAGREES: interpreted '$xto' vs jitted 1"; fail=1; fi
 
@@ -1256,18 +1262,48 @@ sentinel "JE2 sentinel" "$T/jitXe2" "XE SENTINEL"
 e1=$(sed -n 's/.*XE fire 1 result: xeOut = *\([0-9-][0-9]*\).*/\1/p' "$T/jitXe2" | head -1)
 et=$(sed -n 's/.*XE fire 1 result:.*xeTail = *\([0-9-][0-9]*\).*/\1/p' "$T/jitXe2" | head -1)
 eo=$(sed -n 's/.*XE interpreted  *: xeOut = *\([0-9-][0-9]*\).*/\1/p' "$T/jitXe2" | head -1)
-if [ "$e1" = "222" ] && [ "$et" = "999" ]; then
-    echo "  ok    JE2 PINNED: mid-body return IGNORED (222/999; correct is 111/0)"; green=$((green+1))
-elif [ "$e1" = "111" ] && [ "$et" = "0" ]; then
-    echo "  FAIL  JE2 WOKE -- E2 LANDED. The early return is now taken."
-    echo "        Good news arriving as a red. GRADUATE this row to a positive"
-    echo "        assertion (H6), and re-pin JXT's degrade from 2 to its new"
-    echo "        value with a sentence -- the two move together."
-    fail=1
+#  ✅ GRADUATED 2026-08-09 -- E2 BUILT, and this row is now a POSITIVE assertion.
+#  Was pinned at 222/999 (the early return ignored, the tail running anyway).
+#  The fix: an inlined region gets an epilogue of its own -- one JitInlineFrame
+#  per inline, whose exit block is the branch target for a return inside the
+#  callee. Branching to gJitEpilogueBB instead would have returned from the
+#  CALLER, which is why the case was refused rather than guessed at.
+#  ⚠ THE SECOND CHANNEL IS STILL LOAD-BEARING AND IS STILL ASSERTED. xeTail
+#  answers what the returned value cannot: 111 alone cannot distinguish "the
+#  early return was taken" from "the tail ran and its value was discarded".
+#  Both are checked, on both fires, and the two fires take OPPOSITE arms from
+#  ONE compile -- so no folded constant and no default satisfies both.
+#
+#  ✅ H7 NEGATIVE CONTROL -- MEASURED, and stronger than the usual synthetic
+#  gate-removal because the mechanism-absent run was PINNED GREEN IN A SHIPPING
+#  HARNESS for a day rather than being staged for the occasion:
+#      E2 ABSENT  (binary 1316624, 2026-08-08):  111/0 wanted, got 222/999,
+#                 degrade 2, exit 0, oracle 111/0  -- WRONG AND SILENT
+#      E2 PRESENT (binary of 2026-08-09):        111/0 and 222/999, degrade 0,
+#                 exit 0, oracle 111/0           -- engines agree
+#  The wrong answer cost NOTHING visible: exit 0, sentinel printed, and a
+#  degrade line that said "running INTERPRETED" -- true, and not the same as
+#  sound. That gap is why this rung asserts values and never the counter.
+e2=$(sed -n 's/.*XE fire 2 result: xeOut = *\([0-9-][0-9]*\).*/\1/p' "$T/jitXe2" | head -1)
+e2t=$(sed -n 's/.*XE fire 2 result:.*xeTail = *\([0-9-][0-9]*\).*/\1/p' "$T/jitXe2" | head -1)
+if [ "$e1" = "111" ] && [ "$et" = "0" ]; then
+    echo "  ok    JE2 fire 1: early return TAKEN -- 111, xeTail 0 (E2 built 2026-08-09)"; green=$((green+1))
+elif [ "$e1" = "222" ] && [ "$et" = "999" ]; then
+    echo "  FAIL  JE2 REGRESSED to the pre-E2 defect: mid-body return ignored again"
+    echo "        (222/999). The inlined region's exit block is not being reached."; fail=1
 else
-    echo "  FAIL  JE2 PIN MOVED: got $e1/$et, pinned 222/999. Re-measure."; fail=1
+    echo "  FAIL  JE2 fire 1 = $e1/$et, want 111/0."; fail=1
 fi
-if [ "$eo" = "111" ]; then echo "  ok    JE2 oracle: interpreted 111 -- the engines DISAGREE, which is the defect"; green=$((green+1))
+if [ "$e2" = "222" ] && [ "$e2t" = "999" ]; then
+    echo "  ok    JE2 fire 2: early return NOT taken -- 222, xeTail 999 (opposite arm)"; green=$((green+1))
+else
+    echo "  FAIL  JE2 fire 2 = $e2/$e2t, want 222/999. A fixture that cannot take"
+    echo "        BOTH arms from one compile distinguishes nothing."; fail=1
+fi
+xed=$(sed -n 's/.*jitDegrade count = *\([0-9][0-9]*\).*/\1/p' "$T/jitXe2" | head -1)
+if [ "$xed" = "0" ]; then echo "  ok    JE2 degrade count = 0 (was 2 -- both were this construct)"; green=$((green+1))
+else echo "  FAIL  JE2 degrade count = '$xed', want 0."; fail=1; fi
+if [ "$eo" = "111" ]; then echo "  ok    JE2 oracle: interpreted 111 -- the engines now AGREE"; green=$((green+1))
 else echo "  FAIL  JE2 oracle = '$eo', want 111. The interpreter's answer moved, not the JIT's."; fail=1; fi
 
 #  JXN -- THE CAMPAIGN CONSEQUENCE, and the row that makes E2 a prerequisite.
@@ -1282,17 +1318,30 @@ sentinel "JXN sentinel" "$T/jitXnest" "XN SENTINEL"
 n1=$(sed -n 's/.*XN fire 1 result: xnOut = *\([0-9-][0-9]*\).*/\1/p' "$T/jitXnest" | head -1)
 ni=$(sed -n 's/.*XN fire 1 result:.*innerTail = *\([0-9-][0-9]*\).*/\1/p' "$T/jitXnest" | head -1)
 no=$(sed -n 's/.*XN interpreted  *: xnOut = *\([0-9-][0-9]*\).*/\1/p' "$T/jitXnest" | head -1)
-if [ "$n1" = "1" ] && [ "$ni" = "999" ]; then
-    echo "  ok    JXN PINNED: nested template ACCEPTS a failing term (out 1, tail 999)"; green=$((green+1))
-elif [ "$n1" = "0" ] && [ "$ni" = "0" ]; then
-    echo "  FAIL  JXN WOKE -- the nested template now REJECTS correctly."
-    echo "        E2 has landed at depth 2 and genKantParse v1's correctness"
-    echo "        prerequisite is discharged. GRADUATE (H6) and say so in the seal."
-    fail=1
+#  ✅ GRADUATED 2026-08-09 -- and this is the row that mattered most, because it
+#  is the CAMPAIGN consequence rather than the construct. Was pinned at out 1 /
+#  innerTail 999: the two-deep template ACCEPTING input it must REJECT, silently,
+#  at exit 0. It now rejects, and R1's correctness prerequisite for genKantParse
+#  v1 is discharged.
+#  ⚠ THE SENTENCE THE RE-PIN RULE ASKS FOR: this row moved for the SAME single
+#  cause as JE2 and JXT -- E2 -- and no fixture, oracle or template was touched.
+#  Three pins, one repair, and the ladder moved nowhere else, which is the
+#  evidence that E2 was the whole of it rather than one of several causes.
+#  ⚠ BOTH TAILS STILL ASSERTED: out=0 alone cannot distinguish "no early return
+#  fired" from "one fired and the other did not".
+if [ "$n1" = "0" ] && [ "$ni" = "0" ]; then
+    echo "  ok    JXN: nested template REJECTS the failing term (out 0, innerTail 0)"; green=$((green+1))
+elif [ "$n1" = "1" ] && [ "$ni" = "999" ]; then
+    echo "  FAIL  JXN REGRESSED to the pre-E2 defect: the two-deep template is"
+    echo "        ACCEPTING INPUT IT MUST REJECT again, at exit 0. This is the"
+    echo "        campaign-blocking shape, not a purity row."; fail=1
 else
-    echo "  FAIL  JXN PIN MOVED: got out $n1 / innerTail $ni, pinned 1/999."; fail=1
+    echo "  FAIL  JXN got out $n1 / innerTail $ni, want 0/0."; fail=1
 fi
-if [ "$no" = "0" ]; then echo "  ok    JXN oracle: interpreted 0 -- correct, so the divergence is the JIT's"; green=$((green+1))
+xnd=$(sed -n 's/.*jitDegrade count = *\([0-9][0-9]*\).*/\1/p' "$T/jitXnest" | head -1)
+if [ "$xnd" = "0" ]; then echo "  ok    JXN degrade count = 0 -- E2 holds at DEPTH 2, not just depth 1"; green=$((green+1))
+else echo "  FAIL  JXN degrade count = '$xnd', want 0."; fail=1; fi
+if [ "$no" = "0" ]; then echo "  ok    JXN oracle: interpreted 0 -- the engines now AGREE"; green=$((green+1))
 else echo "  FAIL  JXN oracle = '$no', want 0."; fail=1; fi
 
 echo ""
@@ -1305,7 +1354,12 @@ if [ "$green" -lt 1 ]; then
     echo "                   the helpers are missing again or the rungs evaporated."
     fail=1
 fi
-if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv JV JC JS JRt JXT + JXD/JE2/JXN pinned + J-R THE PROOF)"
+#  ⚠ THE BANNER NAMES WHICH ROWS ARE PINNED AND IT IS KEPT HONEST DELIBERATELY.
+#  JE2 and JXN GRADUATED on 2026-08-09 when E2 landed; leaving them listed as
+#  "pinned" would make the summary line contradict its own rows, which is the
+#  instrument failure mixed.sh paid for on 2026-08-08 and the line most readers
+#  are the only one they read. JXD-1/JXD-2 are the only inverted rows left.
+if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv JV JC JS JRt JXT JE2 JXN + JXD-1/JXD-2 pinned + J-R THE PROOF)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"
 exit $fail

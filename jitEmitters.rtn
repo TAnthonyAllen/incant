@@ -630,12 +630,84 @@ extern void jitDiscardPartial()
    inside it is recognised as recursion. See gJitInlining in jitContext.h. */
 extern void jitInlinePush(GroupItem action)
 {
-    -% if (action) gJitInlining.push_back(action->groupBody); %-
+    -%
+    if (!action) return;
+    gJitInlining.push_back(action->groupBody);
+    //  E2. The frame is pushed for EVERY inline, but its block is created
+    //  UNPARENTED and stays out of the function until a return actually wants
+    //  it -- see JitInlineFrame's note on why that laziness is an H7 obligation
+    //  rather than a saving.
+    JitInlineFrame f;
+    if (gJitBuilder && gJitBuilder->GetInsertBlock())
+        f.exitBB = llvm::BasicBlock::Create(gJitBuilder->getContext(), "inlineExit");
+    gJitInlineFrames.push_back(f);
+    %-
 }
 
-extern void jitInlinePop()
+/*  jitInlinePop  CLOSE THE INLINED REGION -- and, if any return branched out of
+    it, land the builder on the region's own exit with the callee's value in hand.
+
+    ⚠ THE `used` ARM IS THE ONLY BEHAVIOUR CHANGE E2 MAKES TO AN EXISTING GREEN
+    PATH, AND IT IS GATED SO THERE IS NO CHANGE AT ALL WHEN NO RETURN FIRED.
+    A callee without a return leaves `used` false: the unparented block is deleted,
+    the builder is untouched, and the IR is what it was yesterday.
+
+    ⚠ THE LOAD IS NOT TIDINESS -- IT IS THE VALUE CHANNEL BECOMING EXPLICIT.
+    Until now an inlined callee's value reached its caller by ACCIDENT: the return
+    degraded before jitEmitReturn's `gJitResult = nullptr`, so the last statement's
+    value was left dangling in flight and the caller picked it up. That is
+    one-channel-one-meaning in its purest form -- gJitResult meaning both "the value
+    in flight" and "the callee's answer" -- and it is exactly why a TAIL return
+    looked fine while a mid-body one did not. Now every return stores to the slot
+    and branches; the merge point loads it once, deliberately.
+
+    ⚠⚠ AND IT TAKES `resultNode` BECAUSE gJitResult IS NOT THE CHANNEL THE CALLER
+    ACTUALLY READS -- measured, from the IR, after assuming otherwise and being
+    wrong. An enclosing assignment reads its operand's `jitData->jitValue`
+    (jitEmitAssign), and runAction's operand IS the node processAction returned.
+    Setting only gJitResult produced a MERGE THAT WAS CORRECT AND IGNORED: the
+    dump showed `%inlineRet = load %result` sitting unused one line above
+    `store %unbox3` -- the last statement's value stored on BOTH paths, and a
+    dominance violation as the early-return arm carried it out of its block.
+    So the merged value is STAMPED, the same way jitEmitRem stamps its result
+    node, and registered in gJitSeeded so it is cleared with every other seed at
+    the end of the build.  */
+extern void jitInlinePop(GroupItem resultNode)
 {
-    -% if (!gJitInlining.empty()) gJitInlining.pop_back(); %-
+    -%
+    if (!gJitInlineFrames.empty()) {
+        JitInlineFrame f = gJitInlineFrames.back();
+        gJitInlineFrames.pop_back();
+        llvm::IRBuilder<> *b = gJitBuilder;
+        if (f.used && b && b->GetInsertBlock()) {
+            //  The fall-through path still needs to reach the merge. A block
+            //  already terminated (the dead block parked after a return) does
+            //  not, and must not be given a second terminator.
+            if (!b->GetInsertBlock()->getTerminator())
+                b->CreateBr(f.exitBB);
+            //  ⚠ NO INSERT HERE. `used` means jitEmitReturn ALREADY parented
+            //  this block on first use, and inserting a block that is already in
+            //  the function corrupts the ilist -- it surfaces far away, as
+            //  "pointer being freed was not allocated" inside ~Function() at
+            //  module teardown, with a backtrace pointing at LLJIT::lookup and
+            //  naming nothing of ours. Moved rather than inserted, so the exit
+            //  reads after the body it closes.
+            f.exitBB->moveAfter(b->GetInsertBlock());
+            b->SetInsertPoint(f.exitBB);
+            if (gJitResultSlot) {
+                llvm::Type *i32 = llvm::Type::getInt32Ty(b->getContext());
+                llvm::Value *merged =
+                    b->CreateLoad(i32, gJitResultSlot, "inlineRet");
+                gJitResult  = merged;
+                gJitEmitted = true;
+                if (resultNode) {
+                    if (!resultNode->jitData) resultNode->jitData = new JitData();
+                    resultNode->jitData->setJitter(merged);
+                    gJitSeeded.push_back(resultNode); } } }
+        else if (f.exitBB && !f.used)
+            delete f.exitBB; }
+    if (!gJitInlining.empty()) gJitInlining.pop_back();
+    %-
 }
 
 /* jitStoreResult  commit the value just emitted into THE RESULT SLOT.
@@ -1211,29 +1283,40 @@ extern int jitEmitContinue()
    statements after a return -- correctly, since at emit time they are reachable
    text even when at run time they are not.
 
-   ⚠⚠ E2 -- A RETURN INSIDE AN INLINED BODY IS REFUSED, LOUDLY, AND THIS ARC
-   DEFERS IT WITH TONY'S SANCTION. An ordinary (non-self-test) callee still
-   INLINES into the enclosing function, so its `return` must terminate the
-   INLINED REGION and not the enclosing function -- branching to gJitEpilogueBB
-   there would return from the caller, which is a wrong answer wearing valid IR.
-   Distinguishing the two IS cheap: gJitInlining is non-empty exactly while a
-   callee is being inlined, and empty while jitBuildFunction walks the function's
-   own action (it calls processCode/jitExecBlock directly, not through
-   runAction). So this returns 0, the caller degrades by name, and the degrade
-   counter -- which every rung asserts at zero -- turns the gap from invisible
-   into a red the moment a fixture reaches it. Pinned as ladder row JRt-E2.
+   ⚠⚠ E2 -- BUILT 2026-08-09. WAS: "a return inside an inlined body is refused,
+   loudly, deferred with Tony's sanction." The diagnosis that stood behind that
+   refusal was right and is worth keeping, because it IS the fix's specification:
+   an ordinary (non-self-test) callee INLINES into the enclosing function, so its
+   `return` must terminate the INLINED REGION and not the enclosing function --
+   branching to gJitEpilogueBB there would return from the caller, which is a
+   wrong answer wearing valid IR. gJitInlining is non-empty exactly while a callee
+   is being inlined, and empty while jitBuildFunction walks the function's own
+   action (it calls processCode/jitExecBlock directly, not through runAction).
 
-   ⚠ THREE RETURN VALUES, NOT TWO, AND THAT IS ONE-CHANNEL-ONE-MEANING APPLIED
-   BEFORE IT COST ANYTHING. The first cut returned 0 for BOTH "E2, an inlined
-   callee, deferred with sanction" and "refused, something is wrong" -- and the
-   first run mis-reported an ordering bug of mine as E2, in a degrade message
-   naming a construct that was not the cause. A reader would have gone looking
-   for an inlined callee that was not there.
+   THE FIX IS THAT AN INLINED REGION GETS AN EPILOGUE OF ITS OWN -- one
+   JitInlineFrame per inline, bracketed by jitInlinePush/Pop, whose exit block is
+   this return's branch target. See JitInlineFrame in jitContext.h for why the
+   block is created unparented and inserted on first use (an H7 obligation: a
+   return-free callee must emit byte-identical IR), and why the value needs no phi.
+
+   ⚠ WHY IT WAS SURVIVABLE AT ALL, WHICH IS THE PART TO REMEMBER: a TAIL return
+   needs no branch, so falling through was accidentally equivalent and every
+   fixture in the fleet was tail-shaped. `incant/jitXe2` is the mid-body case --
+   jitted 222/999 against an interpreted 111/0, at degrade count 2 either way.
+   THE DEGRADE COUNTER COULD NOT TELL THE TWO POSITIONS APART, which is the
+   worked example behind CLAUDE.md's "a degrade line asserts that a fallback
+   OCCURRED, never that it was SOUND."
+
+   ⚠ TWO RETURN VALUES NOW, AND THE RETIRED THIRD IS RECORDED RATHER THAN
+   DELETED. The value 0 meant "E2, inside an inlined body, unbuilt" and E2 is
+   built, so nothing produces it and the caller's arm for it would be an
+   assertion nothing can fire. It was split out from -1 in the first place
+   because one code for both "deferred with sanction" and "something is wrong"
+   mis-reported an ordering bug as E2 -- one-channel-one-meaning, caught early,
+   and the split did its job for the three days it was needed.
        1  emitted
-       0  E2 -- inside an inlined body, unbuilt this arc, degrade by name
-      -1  REFUSED -- no builder or no epilogue block, i.e. a mis-sequenced caller
-   The caller degrades differently for 0 and -1, so the message names the case
-   rather than the construct. */
+      -1  REFUSED -- no builder, no epilogue block, or inlining with no frame:
+          in every case a mis-sequenced caller, NOT a language gap  */
 extern int jitEmitReturn()
 {
     -%
@@ -1243,10 +1326,30 @@ extern int jitEmitReturn()
         ::fprintf(stderr, "=== jitEmitReturn: no epilogue block -- REFUSING ===\n");
         ::fflush(stderr);
         return -1; }
-    //  E2. Not an error -- an unbuilt case, counted rather than guessed at.
-    if (!gJitInlining.empty()) return 0;
     llvm::LLVMContext &ctx = b->getContext();
     llvm::Function *fn = b->GetInsertBlock()->getParent();
+    //  ⚠ E2, BUILT 2026-08-09. An inlined callee's return terminates THE INLINED
+    //  REGION, never the enclosing function. Same three moves as the ordinary
+    //  path below -- commit the value, branch, park in a dead block -- with the
+    //  branch aimed at this inline frame's own exit instead of gJitEpilogueBB.
+    //  The frame's block is inserted HERE, on first use, which is what keeps a
+    //  return-free callee's IR byte-identical (JitInlineFrame's H7 note).
+    if (!gJitInlining.empty()) {
+        if (gJitInlineFrames.empty() || !gJitInlineFrames.back().exitBB) {
+            ::fprintf(stderr, "=== jitEmitReturn: inlining with no frame -- REFUSING ===\n");
+            ::fflush(stderr);
+            return -1; }
+        JitInlineFrame &f = gJitInlineFrames.back();
+        %-
+        jitStoreResult();
+        -%
+        if (!f.used) { fn->insert(fn->end(), f.exitBB); f.used = true; }
+        b->CreateBr(f.exitBB);
+        llvm::BasicBlock *idead = llvm::BasicBlock::Create(ctx, "afterInlineReturn", fn);
+        b->SetInsertPoint(idead);
+        gJitEmitted = true;
+        gJitResult  = nullptr;
+        return 1; }
     %-
     /*  COMMIT THE RETURNED VALUE THE SAME WAY EVERY OTHER STATEMENT COMMITS
         ITS OWN -- shared implementation, so a return cannot drift from the

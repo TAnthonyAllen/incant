@@ -788,8 +788,13 @@ use field
         -% jitInlinePush(field); %-
     }
     result  = processAction(field);
+    /*  ⚠ `result` IS PASSED BECAUSE IT IS THE VALUE CHANNEL. An enclosing
+        assignment reads its operand's jitData, and this node is that operand --
+        so when E2's merge produces the callee's answer, this is what has to
+        carry it. Measured the hard way: a merge that set only gJitResult was
+        emitted correctly and then ignored.  */
     if jitting {
-        -% jitInlinePop(); %-
+        -% jitInlinePop(result); %-
     }
     if field.recursive      restoreLocalFields(field);
     return  result;

@@ -159,14 +159,16 @@ GroupItem   arg = ExpressioN;
             //  count 0. Exactly the shape gIF and both loops already carry.
             if (ExpressioN && !isMethod(ExpressioN->groupBody->flags.instructType))
                 ::jitEmitBareRead(ExpressioN);
-            int rr = ::jitEmitReturn();
-            if (rr == 0)
-                jitDegrade("return INSIDE AN INLINED CALLEE -- E2, unbuilt: it "
-                           "would branch to the enclosing function's epilogue",
-                           input);
-            else if (rr < 0)
-                jitDegrade("return REFUSED -- no builder or no epilogue block. "
-                           "This is a mis-sequenced caller, NOT E2", input); }
+            //  ⚠ E2 BUILT 2026-08-09 -- the rr==0 arm is GONE, not silenced.
+            //  jitEmitReturn no longer has an "inside an inlined callee" answer:
+            //  an inlined region now carries its own exit block and the return
+            //  branches there. A degrade arm nothing can fire is an assertion
+            //  nothing can fire, so it is removed rather than left to rot.
+            //  -1 keeps its meaning exactly: a mis-sequenced caller, never a
+            //  language gap.
+            if (::jitEmitReturn() < 0)
+                jitDegrade("return REFUSED -- no builder, no epilogue block, or "
+                           "inlining with no frame. A mis-sequenced caller", input); }
         else    jitDegrade("break under jit -- no emitter yet", input);
         %-
     }

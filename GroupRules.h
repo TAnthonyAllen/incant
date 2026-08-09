@@ -201,7 +201,7 @@ extern "C" void jitIfBegin();
 extern "C" void jitIfElse();
 extern "C" void jitIfEnd();
 extern "C" void jitInitOnce();
-extern "C" void jitInlinePop();
+extern "C" void jitInlinePop(GroupItem *resultNode);
 extern "C" void jitInlinePush(GroupItem *action);
 extern "C" void jitLoopBegin();
 extern "C" void jitLoopBody();
