@@ -7,8 +7,49 @@
 #              TURNED OUT TO BE WRONG FOR 13 OF 21
 # ═══════════════════════════════════════════════════════════════════════════
 
-## ⚠ NEXT ACTION
-**Phase R rung 2 — Family A (REFERENCE, 5) or Family C (CHARACTER SET, 4).** Both have a §2.5 spec
+## ⚠⚠ NEXT ACTION — **THE KANT-8 UNCONDITIONAL BRACKET FIX.** GO given (Tony, 2026-08-09),
+## scheduled for the afternoon session. Everything it needs is in this block; no archaeology.
+
+**Why now, and it is perishable:** the scheduling term was *"at the green-fleet junction"*, and the
+junction is **open right now** — the fleet is green at **173/0** and freshly re-certified by rung
+1's blast-radius capture. **Every campaign rung from here lands on a progressively less pristine
+baseline**, so taking it today puts its blast radius on the cleanest fleet the project will have
+for a while.
+
+**THE SITES, located 2026-08-09 so the afternoon starts at the edit:**
+- `GroupActions.rtn:746-754` — `jitSaveFrameRT` / `jitRestoreFrameRT`, both `if field.recursive`.
+- `GroupActions.rtn:748 · 753 · 782 · 799` — the four `field.recursive`-gated bracket calls.
+- `saveLocalFields` `:924` · `restoreLocalFields` `:648`.
+- **The gate is the defect.** `recursive` is set at PARSE time **by identity**
+  (`ruleActions.rtn:1310`), so **mutual recursion never sets it** — and bear-trap #25's sibling
+  records that it is additionally **CLEARED AT RUN TIME** by `restoreLocalFields`, so whether the
+  bracket runs depends on **invocation history**. Unconditional kills both failure modes.
+
+**SCOPE — the defect is the bracket's ABSENCE and only that.** K6: blast radius wide but **entirely
+bracket-shaped**. K5 **dissolved its own premise** (flag-clear reachable only where harmless;
+sequential re-entry sound). K6a confirmed the restart mechanism. **The measurements ARE the spec;
+nothing re-opens them.**
+
+**OBLIGATIONS, all standing precedent now:**
+- **H6 graduations** — any `kant8T` row pinned green-while-defective goes red on repair and
+  graduates **with the re-pin sentence**, exactly as JE2/JXN did. **Values, never counters.**
+- **H7 control — measured, not inferred.** Rung 1 set the bar: **show the discrimination**, not
+  just the green (11 red / 5 still-green was the shape).
+- **Blast-radius rider is STANDING PRECEDENT, not a per-rung request.** Full fleet captured before
+  and after, **every stream diffed**, the impact record as deliverable. **Rung 1's format is the
+  template** (`docs/gapBPhaseR.md`), and its noise classes are already characterised: H1 binary
+  echo, PIDs in pinned-crasher segfault lines, pop.sh's working-tree readout.
+- **KR-3 ledger rows updated with the repair outcome.**
+- ⚠ **DOCTRINE CHECK AT THE TAIL:** K1–K4 established **carrier discipline** as a working
+  mitigation for **direct** self-recursion and **invalid for mutual**. If the unconditional bracket
+  makes that mitigation obsolete, the doctrine line gets a **dated retirement note — not deletion**
+  (same legibility rule as everywhere). **If it survives for some population, say which.**
+
+**NOT IN SCOPE:** Family C waits behind the bracket (follow-on if the afternoon runs long, next
+session otherwise). **The `jitEmitUnary`←`opPlusPlus` 139 stays parked** — it is *adjacent*, and
+**adjacency is not scope**: if the bracket's neighbourhood is touched, **note it, do not chase it**.
+
+## THEN — Phase R rung 2 — Family A (REFERENCE, 5) or Family C (CHARACTER SET, 4). Both have a §2.5 spec
 (A is ITERATE, C is ACCUMULATE). ⚠ **§3's ordering aims at `InvokeArg`'s alternation via
 `NumbeR`/`ANYtoken`/`SemI`, and the DOUBLE-BLOCK RIDER still bites:** `SemI`'s **rule-level** block
 is now closed but its **term-level** half is not, and `ANYtoken` is likewise blocked twice. **Rule-
