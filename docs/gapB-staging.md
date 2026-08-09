@@ -1,5 +1,29 @@
 # Gap B — staging measurement for the director's charter
 
+> # ⚠⚠ CORRECTION ON TOP — 2026-08-09. THE RULE→KIND TABLE BELOW IS WRONG FOR 13 OF 21.
+> **RULED (Tony, 2026-08-09, T-0 adjudication, ruling 1): the re-measurement against the live
+> binary is the truth of record for rule→kind across the Gap B population. The table in this file
+> is SUPERSEDED.** It is left in place unedited, per §5 routing and the `f8cf727`/`a9fa6ce`
+> precedent — **the wrong table stays legible with the correction on top; no silent overwrite, no
+> tidying.**
+>
+> **What is still good here:** the **counts** (`isGROUP 9 · isSET 6 · isSTRING 3 · isCOUNT 1 ·
+> isCHAR 1 · isANY 1 = 21`) reproduce **exactly** on the byte-identical binary, so every headline
+> built on them survives — 21 rules, `isSET` really is twice `isSTRING`, H9's lesson stands.
+> **What is not:** every statement that groups *named rules* by kind. 8 of 21 are filed correctly;
+> **13 are filed under the wrong kind.**
+>
+> **Corrected memberships, the family table, and the evidence: `docs/gapBPhaseT.md` finding T-0.**
+> The cause of the mis-assignment stays **UNDIAGNOSED** — two explanations were tested and both
+> falsified (it did not read the term-level axis; it is not a global sort sliced by count), and per
+> the ruling **nobody guesses a third into the file.**
+>
+> ⚠ Also corrected by that finding: **`Any` is not a grammar rule** (C++-minted,
+> `GroupMain.twk:156-158`) and is **EVICTED** from the campaign population by ruling of the same
+> date. And the **"45% of the 47"** line below **mixes axes** — the 21 derives from the 78
+> (Grokking's registry population), the 47 from `incant/grammar`'s text; GM-31 warns in bold that
+> the two are not the same measurement. See `gapBPhaseT.md` finding T-3.
+
 **Status:** MEASUREMENT ONLY · asOf 2026-08-08 · SEQ 41 step 1, under fence 1
 **⚠ THIS IS NOT THE CHARTER AND MUST NOT BE READ AS ONE.** SEQ 41 fence 1 puts the charter with
 the director and forbids plan-layer edits before it exists. **No `planRule`/`planTerm` line was

@@ -18,6 +18,25 @@ identified by Phase T (`docs/gapBPhaseT.md`, finding T-2):
 | `NewGroup` | **DEFERRED** | `grammar:58` is `NewGroup TraiT@` — carries the promote mark, which **IT-3 holds under a named expiry**. No chartered work for a shape a standing expiry deletes. |
 | `Any` | **POPULATION QUESTION — ESCALATED** | Censused, but **absent from `incant/grammar` entirely**. That is a **census-instrument** question, not a family question, and it is asked of the instrument before it is asked of the taxonomy. |
 
+⚠ **CORRECTION ON TOP OF AMENDMENT B — 2026-08-09 (Tony, T-0 adjudication ruling 2). The false
+sentence above stays visible; this is the correction, dated, and it does not edit the row.**
+
+- **`BrancheS`'s cited kind is WRONG.** The row says *"Censused `isGROUP` at rule level"*. It
+  measures **`isSET`** (`docs/gapBPhaseT.md` finding T-0 — the staging census's rule→kind mapping is
+  wrong for 13 of 21; counts intact, memberships scrambled).
+  ⚠ **THE EVICTION STANDS AND WAS NEVER AT RISK**: its ground is `grammar:96`'s `bin` — container
+  status, closed by `containerTo` (GAP A / CT) — **which never depended on the kind.** A false
+  evidence line under a sound disposition, corrected rather than quietly dropped.
+- **`Any` — ESCALATION RESOLVED: EVICTED** (ruled 2026-08-09). *Not a grammar rule*: it is a **C++
+  bootstrap primitive**, minted at `GroupMain.twk:156-158` with `isANY = true` set explicitly, and
+  it appears in **no line of `incant/grammar`**. It is out of the campaign population.
+  ⚠ **BUT THE DENOMINATOR DOES NOT MOVE.** The ruling's attached arithmetic (`47 → 46`, metric
+  `0/46`) assumed `Any` was one of the 47. **It was not** — the 47 is IA-4/GM-31's count of *names
+  in `incant/grammar`*, and `Any` appears nowhere in the census corpus
+  `docs/emitted/liveness-census-2026-08-07.txt`. **The metric stays `0/47`** pending Tony; full
+  measurement at `gapBPhaseT.md` finding **T-3**. The Gap B population itself does move: **21
+  censused → 20, 18 in scope.**
+
 ---
 
 ## 1. SCOPE (ruling 1) — plannability only, stated in the charter's own voice
@@ -45,6 +64,32 @@ each family with its named plan-layer obligation. **No repair work begins in any
 the table exists.** Three constructs currently share one refusal message; the taxonomy is what
 makes that unsayable going forward — each family gets its own refusal text as it gets its own
 treatment.
+
+⚠ **ANNOTATION ON §2 — 2026-08-09 (Tony, T-0 adjudication ruling 3). §2's text is UNTOUCHED; this
+records that one of its phrases now denotes a different rule set than it did at ratification.**
+
+**"the scalar kinds (isSTRING/isCOUNT/isCHAR)"** was written against the staging census. Per the
+measured 21 (`docs/gapBPhaseT.md` T-0) that phrase's membership changes completely — it shares
+**one** rule with what it denoted at ratification:
+
+| | at ratification (staging census) | as measured |
+|---|---|---|
+| isSTRING | `ANYstring` `InitiatE` `SemI` | `loopOnAttributes` `loopOnMembers` **`SemI`** |
+| isCOUNT | `Modifier` | `counter` |
+| isCHAR | `PoweR` | `FloaT` |
+
+**Phase T's disposition of the corrected five:** `SemI`/`loopOnAttributes`/`loopOnMembers` form
+**Family B (LITERAL)** — a real family with a known treatment (`planTerm`'s existing `LIT`).
+`counter` and `FloaT` are the **two OPEN rows**. So §2's *expectation* — that the scalar kinds mint
+a family of their own — **is substantially borne out**, on different rules and with 2 of 5 unfiled.
+
+✅ **THE SUBSTANTIVE HALF — THE §3 ATTACK ORDER SURVIVES THE SUBSTITUTION, AND NOT BY LUCK OF
+ARGUMENT: BY MEASUREMENT.** §3 orders by *target* (the family set blocking `InvokeArg`'s
+alternation), keyed to **`NumbeR`, `ANYtoken`, `SemI`** and `UnaryXP`'s second term — **and all
+three of those named rules are among the 8 the staging census filed CORRECTLY** (`NumbeR` isGROUP,
+`ANYtoken` isGROUP, `SemI` isSTRING, all confirmed). **No ordering conclusion in §3 leaned on a
+misfiled rule**, so nothing is flagged OPEN under this ruling. The ordering is by target rather than
+by kind, which is why it was insulated in the first place.
 
 **Phase R (per family, each its own rung):** plan-layer treatment for one family at a time,
 smallest sufficient family first within the ruling-3 ordering. Convert, gate, then install

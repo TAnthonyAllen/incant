@@ -674,6 +674,23 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 > is roughly a coin flip until it is run. Grade accordingly — and note that withdrawing a
 > prediction whose premise was removed counts as part of the same discipline, not as an
 > admission.
+>
+> ⚠ **AND ITS SHARPENED FORM, ratified 2026-08-09 so the pattern is not misread as a scoreboard:
+> THE ASYMMETRY IS UNMEASURED-CITATION LOSING TO MEASUREMENT — it is not one seat losing to
+> another. A SEALED DOCUMENT IS AN INSTRUMENT AND GETS DOUBT-THE-INSTRUMENT TREATMENT.** Three
+> citations, all the same shape and all cheap to have caught: **Amendment A** (a fixture name cited
+> from a sealed wakeup instead of checked — `censusScratch` had been renamed a week earlier);
+> **T-0** (a rule→kind *table* cited from a sealed staging doc instead of re-run — **13 of 21
+> memberships wrong**, on a byte-identical binary, found by one grep); and **the `Looper` premise**
+> (a whole mechanism question — resolved-vs-declared — built on top of T-0's bad row, so the
+> divergence it went hunting for **did not exist**).
+>
+> **The last is the expensive shape and the reason this is doctrine rather than a note:** a
+> defective citation does not merely state something false, it **generates downstream questions
+> that are themselves well-reasoned and entirely unnecessary.** T-1 was designed carefully, fenced
+> properly, and aimed at a phenomenon that was an artifact of a mis-transcribed table. **Re-measure
+> a cited number before you reason on top of it** — the re-run is nearly always one command against
+> a fixture that already exists, and the reasoning it saves is not.
 
 ```
 testByteCode / testIfElse fixtures in incant/generate; init maximus=11, righty=13 (unitTests:82)

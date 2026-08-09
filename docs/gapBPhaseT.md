@@ -228,9 +228,9 @@ row 3; **filed separately so that a collapse has to be argued rather than assume
 |---|---|---|
 | `BrancheS` :96 `BrancheS bin` (+ `break`/`continue`/`return` members) | **EVICTED — container, already paid** | Containers closed with `containerTo` (GAP A / CT, 2026-08-07). Its refusal is a container refusal wearing a rule-as-data message. ⚠ **Amendment B's row cites "censused isGROUP"; it is measured `isSET`.** The disposition is unaffected — the eviction rests on `bin`, not on the kind — but the charter's evidence line needs correcting. |
 | `NewGroup` :58 | **DEFERRED** | `TraiT@` carries promote, under IT-3's named expiry. Listed in Family A struck through so the shape is visible without being chartered. |
-| **`Any`** | **OPEN row 1 — POPULATION QUESTION, now ANSWERED as to fact** | ⚠ **`Any` is not a grammar rule.** It is a **C++ bootstrap primitive**: `GroupMain.twk:156-158` mints it into `grok` and sets **`isANY = true` explicitly**. It appears in no line of `incant/grammar`, which is why the census could not place it. It is a genuine member of the 21 (it really does refuse at 517) but it **has no declared grammar shape to file**, so it belongs to no family. **Tony's call: evict as "not a grammar rule", or charter a PRIMITIVE family of one** — noting the minting rule forbids a family of one. |
-| **`FloaT`** :33 | **OPEN row 2 — singleton** | `FloaT="." decimals=[0-9]+ PoweR?;` is a **literal plus sub-fields** — Family B's data shape with Family D's structure — and it is the **only** rule of that shape, so the minting rule keeps it OPEN. It is also the only `isCHAR` in the population. Resolves the moment either B or D is ruled to absorb it. |
-| **`counter`** :29 | **OPEN row 3 — the text→kind question** | `counter=[0-9];` is textually Family C and measures **isCOUNT**, alone in the population. It is the cleanest specimen of T-1a: *why does a declared set store as a count here and as a set in `nameSet`?* **Until answered, `counter` is OPEN and `numberSet`'s Family C filing and Family E's separateness are both provisional on the same answer.** |
+| **`Any`** | ✅ **EVICTED — RULED (Tony, 2026-08-09)** | *"Not a grammar rule, C++-minted, unused."* ⚠ Established as fact by Phase T: `GroupMain.twk:156-158` mints it into `grok` and sets **`isANY = true` explicitly**; it appears in **no line of `incant/grammar`**, which is why the SEQ 42 census could not place it. It really does refuse at `:517`, so it was a genuine member of the censused 21 — but it has **no declared grammar shape to file**, so it belongs to no family and no rung. Out of the campaign population. |
+| **`FloaT`** :33 | **OPEN row 1 — singleton** | `FloaT="." decimals=[0-9]+ PoweR?;` is a **literal plus sub-fields** — Family B's data shape with Family D's structure — and it is the **only** rule of that shape, so the minting rule keeps it OPEN. It is also the only `isCHAR` in the population. Resolves the moment either B or D is ruled to absorb it. |
+| **`counter`** :29 | **OPEN row 2 — the text→kind question** | `counter=[0-9];` is textually Family C and measures **isCOUNT**, alone in the population. It is the cleanest specimen of T-1a: *why does a declared set store as a count here and as a set in `nameSet`?* **Until answered, `counter` is OPEN and `numberSet`'s Family C filing and Family E's separateness are both provisional on the same answer.** |
 
 ### THE COUNT, AS AMENDMENT B REQUIRES IT
 
@@ -238,17 +238,47 @@ row 3; **filed separately so that a collapse has to be argued rather than assume
   21 censused (provisional)
    -1  BrancheS   EVICTED  — container, already paid (CT)
    -1  NewGroup   DEFERRED — promote under IT-3 expiry
+   -1  Any        EVICTED  — RULED Tony 2026-08-09, not a grammar rule (C++-minted)
   ---
-  19 in scope, of which:
+  18 in scope, of which:
        Family A  REFERENCE            5
        Family B  LITERAL              3
        Family C  CHARACTER SET        4
        Family D  SET + SUBFIELDS      2
        Family E  REPEATED SET         2
-       OPEN      Any · FloaT · counter    3
+       OPEN      FloaT · counter      2
   ---
-  19  ✔ every rule in exactly one family or OPEN
+  18  ✔ every rule in exactly one family or OPEN
 ```
+
+### ⚠ FINDING T-3 — THE `Any` EVICTION DOES **NOT** MOVE THE 47 DENOMINATOR, AND THE METRIC STAYS 0/47
+
+**HELD PENDING TONY, not executed.** The eviction ruling attached an arithmetic consequence —
+*"denominator moves 47→46 … metric is now 0/46"* — and a documentation task: *"note how the liveness
+census came to count a rule that no grammar line defines."* **Both rest on `Any` having been one of
+the 47. It was not.** Measured before writing either into a governing document:
+
+- **GM-31/IA-4 defines the 47 as** *"distinct names in `incant/grammar` that can consume an install
+  bind at their own definition site"*, provenance *"`incant/grammar` (all 163 lines)"*.
+- **`Any` has no line in `incant/grammar`** — established independently by Phase T, and the reason
+  it is evicted at all.
+- **`Any` appears nowhere in the census corpus** `docs/emitted/liveness-census-2026-08-07.txt`.
+  It was never among the 102 probed sites, because the probe walked grammar lines and `Any` has none.
+
+**So the liveness census never counted `Any`, and there is no instrument limitation to record** —
+the instrument behaved exactly as specified. The requested sentence cannot be written truthfully.
+
+**The two figures come from different axes and this is the axis confusion biting again.** `Any` was
+in the **21** (which derives from the **78**, Grokking's registry population, where a C++-minted
+member is a full citizen). It was never in the **47** (which derives from `incant/grammar`'s text).
+GM-31 warns in bold that *"47 and 78 are not the same measurement"*; the 21-of-47 percentage in the
+staging doc silently mixes them, which is a pre-existing wobble now worth naming.
+
+⚠ **DECREMENTING TO 46 WOULD UNDERSTATE THE DENOMINATOR AND FLATTER THE METRIC** — Amendment B's
+*"overcount running backwards"*, in the precise direction Amendment B was written to prevent, and
+it would be sealed into the metric line from this SEQ forward. **`Any`'s eviction from the Gap B
+population (21 → 20 censused, 18 in scope) is executed and correct. The denominator is untouched at
+47 and the metric line reads 0/47** until Tony rules otherwise having seen this.
 
 ---
 
@@ -274,9 +304,9 @@ Verified rather than assumed, which is the whole point of the amendment:
 ⚠ **ONE HONEST QUALIFICATION, because the amendment says *demonstrably produces*.** phaseA emits the
 **evidence** for both numbers; it does not **print either as a scalar**. Both were derived here by
 counting its output. By H4 that is a gap: a quantity nobody prints is a quantity that can drift
-silently. **Recommendation for the first Phase R rung: have it print the two scalars and assert
-them**, rather than have each rung re-derive them by grep. Small, and it is the difference between a
-metric and an eyeball. **The slot is filled; the hardening is named.**
+silently. ✅ **ASSIGNED (Tony, 2026-08-09): the first Phase R rung prints and asserts both ruling-4
+numbers**, rather than each rung re-deriving them by grep. Small, and it is the difference between a
+metric and an eyeball. **The slot is filled; the hardening is owned.**
 
 ---
 
