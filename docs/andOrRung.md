@@ -86,7 +86,7 @@ rule never matched — so for parse work, short-circuit is not an optimisation, 
 `incant/jitXtemplate` exists precisely because that could not be expressed with `AND` today, and
 short-circuits by construction instead (`CLAIM KANT-34`).
 
-## 3. THE RUNG — drawer-ready, six parts
+## 3. THE RUNG — six parts, ONE DISCHARGED (part 3), five remaining
 
 1. **Interceptor handlers, per the `if` precedent.** The existing gate shape; nothing new invented.
 2. **Emitter diamond, carrying E2's lessons.** Value rides the **operand's `jitValue` channel**
@@ -110,8 +110,13 @@ short-circuits by construction instead (`CLAIM KANT-34`).
    ⚠ **H9 EARNED ITS KEEP HERE: 165 vs 7.** The surface form matches the English words in every
    comment block in the tree, and reporting 165 would have made this look like a migration.
    **Read by eye, per the rule, because the population was small enough to.**
-   **Consequence: nothing to migrate.** The five fixtures are the rung's own subjects and flip
-   under part 4; `scopeUnits:168` is a plain field read. **Certify-clean, no migration commit.**
+   **Consequence: nothing to migrate.** Six of the seven uses sit in **four fixture files** that
+   are the rung's own subjects (and `jitXand`/`jitXand2` flip under part 4); the seventh,
+   `scopeUnits:168`, is a plain field read. **Certify-clean, no migration commit.**
+   ⚠ **A FIRST DRAFT OF THIS PARAGRAPH SAID "the five fixtures" — SIX USES ACROSS FOUR FILES,
+   miscounted two ways at once, in a census, one paragraph below the rule about censuses.
+   Corrected the same day. H9 is about the instrument, and the instrument includes the arithmetic
+   after the grep.**
 4. **`jitXand` / `jitXand2` flip from documenting-the-139 to certifying.** Two fixtures whose
    present job is to record a defect become the rung's positive rows. **H6 graduation: each gets
    its re-pin sentence.**
