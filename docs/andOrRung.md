@@ -1,8 +1,18 @@
 # `AND` / `OR` — the ruling, and the drawer-ready rung
 
-**Status:** ⚠ **RULED, NOT BUILT.** Ruling by Tony, 2026-08-09. Spec settled in the Clay↔Tony
-thread the same day and **transcribed here** — scheduling is post-First-Light natural, earlier
-permitted, **Clod's clock**.
+**Status:** ⚠ **RULED, NOT BUILT — five parts remain, part 3 is DISCHARGED.** Ruling by Tony,
+2026-08-09. Spec settled in the Clay↔Tony thread the same day and **transcribed here**.
+
+**SCHEDULING — Clod's read, 2026-08-09, after measuring:** post-First-Light as ruled, and
+**immediately after rather than later**. Nothing on the path to First Light needs it — the parse
+templates short-circuit *by construction* precisely because AND was unavailable, so there is no
+forcing function. The `a OR b` silent-wrong-at-exit-0 is the project's most dangerous defect class
+but has **one non-fixture use** (part 3), so urgency is low. **The real argument is adjacency:**
+this rung wants the interception/registration surface, and so do H3's command registrations and
+rung 2 — running them concurrently entangles blast radii, while running AND/OR *after* the parse
+arc means that surface has been exercised once and the OR collapse lands with a consumer waiting.
+**Queue:** bracket fix → H4's run → H3's registrations → rung 2 (Family A) → install arc →
+First Light → **this rung** → the alternation respell.
 
 ⚠ **THIS FILE EXISTS BECAUSE THE RULING WAS MADE IN CHAT.** That is the decoder's diagnosis and
 T-0's cost arriving on the same day both were written down: a ruling whose only home is a thread
@@ -21,6 +31,41 @@ thread and this file disagree, the thread wins and this file is corrected.**
   arm is never evaluated — side effects included.**
 
 This was **the last open ruling on the promotion.**
+
+## 1a. ⚠ WHAT THE RULING ACTUALLY COSTS — measured 2026-08-09, and it is not where the spec assumed
+
+**SHORT-CIRCUIT CANNOT LIVE IN AN OPERATOR HANDLER.** `runOP` evaluates both operands *before* it
+dispatches, so by the time `opAND`/`opOR` are entered, the right arm has already run — side
+effects included. Declining to evaluate is not available at that position **at all**.
+
+```cpp
+extern GroupItem opAND(GroupItem argument, GroupItem target)
+{   if gCount && argument.gCount    return trueResult;
+    return null; }                                          // Instruct.rtn:18
+
+extern GroupItem opOR(GroupItem argument, GroupItem target)
+{   if target
+        if gCount   return trueResult;
+        or argument && argument.gCount  return trueResult;
+    return falseResult; }                                   // Instruct.rtn:595
+```
+
+**So "interceptor handlers per the `if` precedent" is the whole job, not a styling note.** AND/OR
+must be **promoted from operators to intercepting rule actions** — they are registered today as
+`AND operateMethod=opAND;` / `OR operateMethod=opOR;` (`incant/setup:114,117`), the two-arg
+isOperator arm — and the promotion lands in **BOTH engines**, not just the JIT.
+
+⚠ **AND THE REASSURING HALF: THE INTERPRETED ARM DOES NOT MEET THE RULING TODAY EITHER.** `opAND`
+returns `trueResult` **or `null`**; `opOR` returns `trueResult`/`falseResult`. Neither returns
+1/0, and **they are not even consistent with each other** — `null` is "no node", `falseResult` is
+"the value 0". So this rung is not changing behaviour anyone could have relied on; it is bringing
+an arm up to a rule it never satisfied.
+
+**Difficulty, honestly: MEDIUM AND FRONT-LOADED.** The novel work is the category change plus
+interception in the interpreter. The JIT diamond is **already-solved machinery** — the
+`resultSlotLanded` pattern: an alloca, each arm storing in its own block, the exit loading, and
+**mem2reg inserting the phi itself**. Never-write-a-phi, already proven. Corpus migration:
+measured nil (part 3).
 
 ## 2. WHY IT MATTERS BEYOND TIDINESS
 
@@ -50,11 +95,23 @@ short-circuits by construction instead (`CLAIM KANT-34`).
    the memory location. **Parent-once** — re-inserting an already-parented block surfaced as
    *"pointer being freed was not allocated"* inside `~Function()` at module teardown, with a
    backtrace naming `LLJIT::lookup` and nothing of ours.
-3. ⚠ **PRE-FLIGHT CENSUS OF RIGHT-ARM SIDE EFFECTS IN THE EXISTING CORPUS.** Short-circuit is a
+3. ✅ **PRE-FLIGHT CENSUS — RUN 2026-08-09, AND THE RISK MEASURES NEAR ZERO.** Short-circuit is a
    **behaviour change to shipping text**: any `a AND b` whose right arm has a side effect changes
-   meaning the day this lands. **Grep before, then migrate or certify-clean in the SAME commit.**
-   ⚠ **H9 applies to that census** — match the idiom family, not the surface form, and with a
-   population this small **read the hits by eye before reporting the number.**
+   meaning the day this lands. Censused across `incant/`, `*.rtn`, `XML/`, `IncantForms/`:
+   ```
+     surface-form matches (the word AND/OR)          165
+     genuine OPERATOR uses, read by eye                7
+        incant/orProbe          x3   fixture ABOUT OR
+        incant/jitXor           x1   fixture documenting the defect
+        incant/jitXand/jitXand2 x2   fixtures documenting the 139
+        incant/scopeUnits:168   x1   `if !righty OR feeling;`  <- the ONE real use
+     right arms carrying a SIDE EFFECT                 0
+   ```
+   ⚠ **H9 EARNED ITS KEEP HERE: 165 vs 7.** The surface form matches the English words in every
+   comment block in the tree, and reporting 165 would have made this look like a migration.
+   **Read by eye, per the rule, because the population was small enough to.**
+   **Consequence: nothing to migrate.** The five fixtures are the rung's own subjects and flip
+   under part 4; `scopeUnits:168` is a plain field read. **Certify-clean, no migration commit.**
 4. **`jitXand` / `jitXand2` flip from documenting-the-139 to certifying.** Two fixtures whose
    present job is to record a defect become the rung's positive rows. **H6 graduation: each gets
    its re-pin sentence.**
