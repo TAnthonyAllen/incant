@@ -1,0 +1,223 @@
+/*****************************************************************************
+                decoder -- THE PROJECT GLOSSARY AS KANT DATA.
+
+    Pure data, no actions (the jigcorpus/unitTests pattern). Included by
+    `incant/decode` (the verb) and `incant/decodeT` (the POP). NO Start()/stop()
+    wrapper -- this is a registry file, not an execution file.
+
+    CANONICAL: this is the source-of-truth term corpus. Brief: docs/decoder.md.
+    Seeded 2026-08-09 from the decoder dispatch (Clay via Tony), transcribed by
+    Clod per WT-9.
+
+    ============================================================================
+    THE ONE RULE THAT SHAPES EVERY ENTRY: PRESENT-TENSE ONLY, ONE SENTENCE.
+    Where a term drifted across seals, the entry records the CURRENT BINDING and
+    nothing else. History stays in the seals. The decoder is a lookup table with
+    a print verb -- not a runner, not vigram infrastructure, not documentation.
+
+    ⚠ TRANSCRIPTION PROVENANCE IS PART OF EACH ENTRY, because this artifact
+    exists to kill citation rot and would be absurd if its own entries were
+    cited rather than measured. Two classes, per the dispatch:
+
+      DICTATED  the dispatch's sentence is the binding, transcribed as given.
+      PULLED    the dispatch marked it a citation, not a measurement, so the
+                binding sentence was read from the MINTING SEAL and the seal
+                wins where the two disagree.
+
+    THREE PULLS CAME BACK CORRECTED, and they are the artifact justifying
+    itself on its first run:
+      H4    the dispatch's sentence is rung 1's DISCHARGE of H4, not H4.
+      H9    the dispatch's held sentence is the COROLLARY; the primary is the
+            idiom-family rule.
+      degradeAssertsOccurrence  materially different -- the seal is about
+            fallback SOUNDNESS, the draft was about jit OCCURRENCE.
+    ============================================================================
+
+    ⚠ `parked` IS AN UNRATIFIED SLOT, NOT AN ENTRY. Held by Clay 2026-08-09 on
+    a collision he found in his own draft: the dispatch's candidate and SEQ 44's
+    PINCH 6 draw the line differently, and PINCH 6 was written first. Both
+    sentences sit side by side below until Tony rules. See docs/decoder.md.
+*****************************************************************************/
+register(Decoder);
+define
+    definition virtual;
+    status virtual;
+    candidateA virtual;
+    candidateB virtual;
+    source virtual;
+
+    decodeCorpus
+
+    /*  ---- H-NUMBERS: the standing harness rules ---------------------- */
+        H1
+            definition="A harness echoes the binary it is testing -- path, size and mtime, as its first output.";
+            source="PULLED from CLAUDE.md RULE H1";
+        H2
+            definition="Every harness asserts its own completeness with an end sentinel that can only fire if the final section ran, checked first and by name.";
+            source="PULLED from CLAUDE.md RULE H2";
+        H3
+            definition="An assertion that moves for correctness-unrelated reasons is noise -- assert the thing that only moves when the answer moves.";
+            source="PULLED from CLAUDE.md RULE H3";
+        H4
+            definition="Assert presence-with-value, never absence-of-message -- print the quantity unconditionally and compare its value.";
+            source="PULLED from CLAUDE.md RULE H4. The dispatch's sentence was rung 1's discharge of H4, not H4 itself; the seal wins.";
+        H5
+            definition="A fixture must not be able to delete the rest of the suite -- every fixture runs under a wall-clock cap, and a timeout fails the suite even when parked.";
+            source="PULLED from CLAUDE.md RULE H5";
+        H6
+            definition="A row pinned green-while-defective goes red on repair and graduates with a re-pin sentence; pins assert values, never counters.";
+            source="DICTATED. CLAUDE.md's headline is the wider 'a parked pin that starts passing must graduate' -- see docs/decoder.md OPEN.";
+        H7
+            definition="A rung certifies only what fails when its mechanism is removed; the negative control is measured, not inferred.";
+            source="DICTATED, and it matches CLAUDE.md RULE H7.";
+        H8
+            definition="The reconciliation law -- offline work is adjudicated against the tree before anything stacks on it.";
+            source="DICTATED, and it matches CLAUDE.md RULE H8.";
+        H9
+            definition="A census matches the idiom family, not the surface form.";
+            source="PULLED from CLAUDE.md RULE H9. The dispatch held the corollary -- a refusal census reports frontiers, not blocker sets -- which the seal files as the corollary, not the primary.";
+
+    /*  ---- CAMPAIGN NOUNS ---------------------------------------------- */
+        firstLight
+            definition="The metric's first movement to 1 of 47 -- one generated parse method installed on a real grammar rule and verified green.";
+            source="DICTATED";
+        gapB
+            definition="The plan-layer refusal class for rules carrying rule-level data the planner cannot yet plan, closed per-kind under the four-point charter.";
+            source="DICTATED. Populations and counts live in phaseA's printed scalars, not here -- the decoder is definitions, not metrics.";
+        vigram
+            definition="The verification grammar -- claims about the system expressed as parseable kant, so a rotted citation fails a parse instead of surviving in prose.";
+            source="DICTATED";
+        endGoalCycle
+            definition="One non-trivial rule taken through genParse to an installed parse method to a JiT attribute holding IR to a green parse, then rebuilt from stored IR alone and green again.";
+            source="DICTATED";
+        blastRadius
+            definition="The measured record of everything a change touched -- full fleet captured before and after, every stream diffed, the impact record a deliverable.";
+            source="DICTATED";
+
+    /*  ---- DOCTRINE ONE-LINERS ----------------------------------------- */
+        degradeAssertsOccurrence
+            definition="A degrade line asserts that a fallback occurred, never that the fallback was sound -- soundness is per-construct and nothing else answers it.";
+            source="PULLED from CLAUDE.md, adopted 2026-08-08. The dispatch's draft said something materially different -- that a degrade count asserts jit execution occurred -- and the seal wins.";
+        citationLosesToMeasurement
+            definition="An unmeasured citation loses to a measurement whichever seat it came from, and the cost of checking is one measurement run.";
+            source="DICTATED";
+        structuralVsCausal
+            definition="Weighting a design brief -- structural claims tend to hold, claims about what is in the tree get checked; take the distinctions, check the attributions.";
+            source="DICTATED";
+
+    /*  ---- WT RULES, minted from docs/walkieTalkie.md ------------------- */
+        WT1
+            definition="Walkie talkie is a shared conversation surface, not Clay reaching into the tree.";
+            source="PULLED from docs/walkieTalkie.md";
+        WT2
+            definition="Tony is removed from transcription, not from the loop -- he reads everything.";
+            source="PULLED from docs/walkieTalkie.md";
+        WT3
+            definition="SUPERSEDED BY WT9. Was: Clay gets read, writes stay dictate-and-transcribe.";
+            source="PULLED from docs/walkieTalkie.md";
+        WT4
+            definition="Model choice does not affect this -- the limit is product tooling, not capability.";
+            source="PULLED from docs/walkieTalkie.md";
+        WT5
+            definition="Four mechanisms carry the channel -- the write direction is proven and free, the read direction is not solved yet.";
+            source="PULLED from docs/walkieTalkie.md";
+        WT6
+            definition="Every Clay error on 2026-07-29 was a compression error, and one was expensive.";
+            source="PULLED from docs/walkieTalkie.md";
+        WT7
+            definition="OPEN. The exchange is turn-shaped, not stream-shaped, and the read boundary is not settled.";
+            source="PULLED from docs/walkieTalkie.md";
+        WT8
+            definition="OPEN. Two same-model seats agreeing is weak evidence, and a channel makes agreeing cheaper.";
+            source="PULLED from docs/walkieTalkie.md";
+        WT9
+            definition="Direct write is proven and adopted, but it removes a second close reader, so it is per-artifact rather than blanket.";
+            source="PULLED from docs/walkieTalkie.md";
+        WT10
+            definition="The trigger is Tony downloading atop clay-to-clod.md, and Clod polls that one path.";
+            source="PULLED from docs/walkieTalkie.md";
+        WT11
+            definition="No silent overwrite -- a Clay write carries the whole file, prior history included.";
+            source="PULLED from docs/walkieTalkie.md";
+        WT12
+            definition="Freshness must be readable, not inferred -- STATUS carries a sequence number and a date.";
+            source="PULLED from docs/walkieTalkie.md";
+        WT13
+            definition="The channel is asymmetric -- Clod can poll and Clay cannot, so Tony is Clay's interrupt.";
+            source="PULLED from docs/walkieTalkie.md";
+        WT14
+            definition="A ratification dispatch opens with a decode line covering its shorthand, and an undefined term in a decode line fails loud and mints the missing entry on the spot.";
+            source="DICTATED, new with this dispatch. Registered in docs/walkieTalkie.md.";
+
+    /*  ---- EARNED BY THE V0 PASS --------------------------------------- */
+        ownedRed
+            definition="A red the fleet expects -- explained, named, and asserted red by the harness's own vocabulary.";
+            source="DICTATED";
+
+    /*  ⚠ SLOT, NOT AN ENTRY. Two candidate sentences, held by Clay
+        2026-08-09 and awaiting Tony. `definition` deliberately says so, so a
+        decode of `parked` cannot be mistaken for a ruling.  */
+        parked
+            definition="UNRATIFIED SLOT -- two candidate sentences are on the table and Tony has not ruled. Decode candidateA and candidateB.";
+            status="HELD -- awaiting Tony. If candidateB wins, the three circulating framings sort into THREE terms, not two.";
+            candidateA="Deliberately not worked now, with a named owner and a recorded reason -- a scheduling state, not a verdict.";
+            candidateB="Parked means nobody has ruled; pinned means we ruled it wrong and are watching.";
+            source="candidateA from the decoder dispatch item 7; candidateB verbatim from clod-to-clay SEQ 44 PINCH 6, which was written FIRST.";
+
+    /*  ⚠ RESERVED, NOT FILLED. Waits on vigram O4 at the V1 gate -- Tony's
+        ruling, not pre-empted here. The loser's entry reads
+        "former spelling of --" per the brief.  */
+        byteIdentical
+            definition="RESERVED SLOT -- the byteIdentical / byteIdentant spelling waits on vigram O4 at the V1 gate.";
+            status="RESERVED -- not filled by this dispatch, deliberately.";
+            source="Decoder dispatch item 8.";
+    ;
+
+/*****************************************************************************
+    THE PRINT VERB. It lives WITH the corpus rather than in the runner, because
+    the brief's whole object is "a lookup table with a print verb" -- splitting
+    them would let a caller reach the table without the discipline.
+
+    ⚠ DISCIPLINE 2 (WT14) IS ENFORCED HERE, NOT MERELY DOCUMENTED: an undefined
+    term FAILS LOUD, by name, and says to mint it. A missing definition is a
+    finding, not a shrug -- and a decode that printed nothing for an unknown
+    term would let every future dispatch under-report in silence.
+
+    ⚠ THE NAME COMES FROM `.taG`, NEVER FROM `.text` (bear-trap #26's family).
+    Measured 2026-08-09: `decodeCorpus[argument.text]` exits 139 with ZERO bytes
+    of output, while `decodeCorpus[argument.taG]` in the identical position
+    works. Symptom recorded; cause NOT diagnosed.
+*****************************************************************************/
+register(Decoder);
+define
+
+    /*  Print ONE term. Fails loud when the corpus has no entry.  */
+    decodeOne argument code={
+        hit = decodeCorpus[argument.taG];
+        if hit;
+            print argument.taG " -- " hit.definition:;
+        else
+            print "decode UNDEFINED TERM " argument.taG " -- FAILS LOUD, mint the entry now (WT14)":;
+        };
+
+    /*  The decode line. ONE CALL, N NAMES -- measured, not assumed. An action
+        takes one argument, so a multi-name call arrives as a synthesised node
+        whose MEMBERS carry the names.
+        ⚠ THE GUARD IS LOAD-BEARING: a single-name call has no member list at
+        all, and `for x in y;` over a leaf is the nextGroup does-not-contain-a-
+        list error. Walked reversed so names print in the order written.  */
+    decodE argument code={
+        if argument.listLengtH;
+            for grup in <- argument;
+                decodeOne(grup);
+        else
+            decodeOne(argument);
+        };
+
+    /*  The whole corpus, one line per term. Small enough to be a legitimate
+        preamble on its own.  */
+    decodeAll code={
+        for grup in decodeCorpus;
+            print grup.taG " -- " grup.definition:;
+        };
+    ;

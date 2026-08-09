@@ -113,6 +113,34 @@ reading as a broken cursor, `TERMINATED` printed on a 139.
 Alternative considered and rejected as cruder: one numbered file per exchange. It cannot lose a
 turn, but it leaves Tony a directory to manage.
 
+### CLAIM WT-14
+```
+statement:   A ratification dispatch OPENS WITH A DECODE LINE covering its shorthand. An
+             undefined term in a decode line FAILS LOUD and mints the missing entry on the spot.
+confidence:  RULING
+provenance:  Tony's decoder brief, discipline 2; number assigned and built 2026-08-09
+asOf:        2026-08-09
+scope:       Covers anything headed for Tony's signature. Says nothing about ordinary chat or
+             about dispatches between the two agent seats that Tony is not being asked to sign.
+```
+Tony's seat is where every ruling routes, and compressed vocabulary was making him **the
+least-supported reader of the sentences his signature makes binding** — rulings 1–3 of the T-0
+adjudication needed translation *after* the ask. A decode line inverts that: the definitions land
+**before** the instructions that use them.
+
+**The fail-loud half is the load-bearing half, and it is enforced in code rather than asked for.**
+`incant/decoder`'s `decodeOne` prints `decode UNDEFINED TERM <name> -- FAILS LOUD, mint the entry
+now (WT14)`, and `genLadder/decodePop.sh` asserts that line by name, with the arm-removed run
+recorded as its negative control. A decode that printed nothing for an unknown term would let
+every future dispatch under-report and say so nowhere — which is the failure this rule exists to
+prevent, not a detail of it.
+
+⚠ **THE BOOTSTRAP IS CLOSED AND WAS DECLARED, NOT SMUGGLED.** The dispatch that minted this rule
+could not itself open with a decode line, because the decoder did not exist until it landed. It
+said so in its own text and named itself the last dispatch with that excuse.
+
+See `docs/decoder.md`. **Terms live in `incant/decoder`; run `incant/decode` to serve a line.**
+
 ### CLAIM WT-12
 ```
 statement:   Freshness must be READABLE, not inferred. STATUS carries a sequence number and date.

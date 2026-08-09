@@ -1,0 +1,181 @@
+/*****************************************************************************
+    decodeT -- THE POP FOR THE DECODER. 2026-08-09.
+
+        <binary> incant/decodeT
+
+    ⚠ THIS FIXTURE DOES NOT CERTIFY ITSELF ALONE. It PRODUCES quantities and
+    lines; genLadder/decodePop.sh is what COMPARES them, echoes the binary (H1),
+    takes $? directly, and carries the negative controls. Run the shell POP to
+    get a verdict -- this file's exit status is not one, because an incant parse
+    failure abandons the rest of the file and still exits 0.
+
+    FIVE CHECKS. Check C is the load-bearing one.
+
+      A  COUNT       the corpus holds the expected number of terms, printed as
+                     a scalar and compared (H4 -- presence-with-value). A count
+                     that is merely "more than zero" would pass on a corpus that
+                     lost half its entries.
+      B  SPOT VALUE  three terms decode to their ACTUAL TEXT, asserted by a
+                     distinguishing word each. "It decoded" cannot tell H4's
+                     sentence from H7's.
+      C  DEFINITION  every term carries a definition, counted and compared. See
+         CENSUS      the comment on checkDefined: its first draft was VACUOUS and
+                     the negative control is what said so.
+      D  FAIL LOUD   the verb is CALLED on a term nobody minted, so the undefined
+                     line is produced rather than inferred. This is discipline 2
+                     (WT14) being measured -- if decode quietly printed nothing
+                     for an unknown term, every decode line in every future
+                     dispatch would under-report and say so nowhere.
+      E  SLOTS       `parked` and `byteIdentical` announce themselves as
+                     UNRATIFIED / RESERVED, so a decode of either cannot be
+                     mistaken for a ruling.
+
+    ⚠ SELF-CERTIFICATION AT THE FOOT (H2 turned on the harness, per the
+    2026-08-05 corollary): if the run reaches the end having recorded ZERO green
+    checks, it says so and that is a FAILURE -- a vanished helper set or a
+    truncated walk cannot satisfy it. A tally of the checks that RAN is not
+    evidence about the checks that did not.
+
+    SENTINEL AT THE FOOT. SINGLE stop().
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+include(decoder);
+
+register(DecodeTest);
+define
+    greenCount virtual;
+
+    /*  A: the corpus size, PRINTED AS A SCALAR then compared.  */
+    checkCount code={
+        seen = 0;
+        for grup in decodeCorpus;
+            seen += 1;
+        print "TALLY terms =" seen:;
+        if seen == 34;
+            print "A ok    corpus holds 34 terms":;
+            greens += 1;
+        else
+            print "A FAIL  corpus holds" seen "terms, expected 34 -- entries were added or lost":;
+        };
+
+    /*  B: three spot values, each asserted by a word only THAT entry carries.  */
+    checkSpot code={
+        h4 = decodeCorpus["H4"];
+        h7 = decodeCorpus["H7"];
+        br = decodeCorpus["blastRadius"];
+        print "B1 H4  =" h4.definition:;
+        print "B2 H7  =" h7.definition:;
+        print "B3 blastRadius =" br.definition:;
+        greens += 1;
+        };
+
+    /*  C: THE DEFINITION CENSUS. Counts entries whose definition READS TRUTHY
+        and compares against the term count -- so an entry added without one is
+        named by a number rather than by an absence.
+
+        ⚠ THE FIRST DRAFT OF THIS CHECK WAS VACUOUS AND WENT GREEN, which is
+        the reason it is written this way. It tested
+        `grup.definition == grup.taG`, copied from jiquery's section 0; the
+        negative control (ownedRed's definition deleted) STAYED GREEN. Measured
+        2026-08-09, three shapes side by side:
+            definition="real text"   -> reads the text        truthy
+            no definition at all     -> reads 0               FALSY   <- this
+            definition=(#)           -> reads "definition"    truthy
+        So the ABSENT case is caught by counting truthiness, and the
+        PRESENT-BUT-DATALESS case is caught by neither: it PRINTS as the string
+        "definition" but does not COMPARE equal to it, and no in-language test
+        found in this pass distinguishes it. That case is asserted in
+        genLadder/decodePop.sh, where the printed line is greppable.
+        ⚠ Which also means jiquery's own content check cannot fire -- it
+        compares the value against the CLAIM's tag, while a dataless value
+        echoes the ATTRIBUTE's name. Reported, not fixed here.  */
+    checkDefined code={
+        seen = 0;
+        withDef = 0;
+        for grup in decodeCorpus;
+            seen += 1;
+            if grup.definition;
+                withDef += 1;
+        print "TALLY definitions =" withDef:;
+        if withDef == seen;
+            print "C ok    every one of the" seen "terms carries a definition":;
+            greens += 1;
+        else
+            print "C FAIL " withDef "definitions for" seen "terms -- an entry was added without one":;
+        };
+
+    /*  D: FAIL LOUD on an undefined term. Discipline 2, MEASURED -- the verb is
+        actually called on a term nobody minted and the undefined line is read
+        off the output. Asserting only that the corpus lacks the entry would be
+        an inference about what decode does with it, which is the thing under
+        test.  */
+    checkUndefined code={
+        decodE(notATermAnybodyMinted);
+        print "D  the line above must be the UNDEFINED TERM line, naming notATermAnybodyMinted":;
+        greens += 1;
+        };
+
+    /*  ⚠ SELF-CERTIFICATION, AND IT LIVES IN AN ACTION FOR A MEASURED REASON.
+        Written as a bare top-level `if greens == 5;` with the print on the next
+        line, aCTionIF REFUSED -- "the condition parsed but its governed
+        statement is MISSING", on stderr -- and BOTH the ok and the FAIL line
+        printed, unconditionally. Exit 0 throughout. So the harness's own
+        completeness guard was the thing that did not work, and it announced
+        both verdicts at once rather than none. Caught by reading the output,
+        not the status. Inside an action the binding holds.  */
+    selfCert code={
+        print "GREEN CHECKS RECORDED =" greens:;
+        if greens == 5;
+            print "SELF-CERT ok    all five checks recorded a green":;
+        else
+            print "SELF-CERT FAIL  expected 5 green checks -- a check did not run, and the rows above are not an audit":;
+        };
+
+    /*  E: the two slots must announce themselves.  */
+    checkSlots code={
+        pk = decodeCorpus["parked"];
+        bi = decodeCorpus["byteIdentical"];
+        print "E0a parked       definition =" pk.definition:;
+        print "E0b byteIdentical definition =" bi.definition:;
+        print "E1 parked        status =" pk.status:;
+        print "E2 parked        candidateA =" pk.candidateA:;
+        print "E3 parked        candidateB =" pk.candidateB:;
+        print "E4 byteIdentical status =" bi.status:;
+        greens += 1;
+        };
+    ;
+
+register(DecodeTest);
+define
+    greens = 0;
+    ;
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities Decoder DecodeTest list;
+
+print "=== A. COUNT ===":;
+checkCount();
+print :;
+print "=== B. SPOT VALUES ===":;
+checkSpot();
+print :;
+print "=== C. DEFINITION CENSUS (the load-bearing one) ===":;
+checkDefined();
+print :;
+print "=== D. FAIL LOUD ON AN UNDEFINED TERM ===":;
+checkUndefined();
+print :;
+print "=== E. UNRATIFIED / RESERVED SLOTS ===":;
+checkSlots();
+
+/*  ⚠ SELF-CERTIFICATION. The count is COMPARED, not merely printed: a check
+    that evaporates -- a vanished helper, a truncated walk -- is invisible in a
+    tally of the checks that ran, because nobody knows what the number should
+    have been. Naming the number is what makes the absence say something.  */
+print :;
+selfCert();
+print "DECODET SENTINEL -- run reached the end":;
+stop();

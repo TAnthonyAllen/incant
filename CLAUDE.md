@@ -1149,6 +1149,25 @@ Hard-won lessons. Each one has cost real debugging time.
     corollary in its cheap direction: the theory that survives narrowing is not thereby confirmed,
     and one test beat an hour of plausible reasoning.
 
+28. **THREE INCANT SPELLINGS THAT FAIL WITHOUT SAYING SO — CANDIDATE TRAPS, symptoms reproduced
+    and bisected 2026-08-09 while building the decoder, NONE DIAGNOSED.** Recorded as symptoms
+    only, per bear-trap #18's split: reproduction proves the SYMPTOM, never the CAUSE.
+    | spelling | what happens |
+    |---|---|
+    | `group[argument.text]` in an action body | **exit 139, ZERO bytes of output** — before the `Search list:` line, so it reads as "the binary is broken". `group[argument.taG]` in the identical position works. Bear-trap #26's family: `.taG` is the reliable read of a name |
+    | `if !x.attribute;` | **exit 139, ZERO bytes of output.** The positive form `if x.attribute;` is fine, and so is `x.attribute == "literal"` |
+    | `print "":;` for a blank line | prints the **string `quoteBody`**. Use `print :;` (jiquery's idiom). An empty string literal has no data, so it echoes its own tag — #26 again |
+    **And a fourth, mechanical rather than syntactic, in the same silent class: `include(X)`
+    SEARCHES NO PATH.** `getFile` opens the name relative to the working directory; every
+    includable file is registered by hand in **`incant/setup`'s `fILEs` registry**
+    (`grammar`, `utilities`, `unitTests`, `jigcorpus`, …). A new corpus file that is not
+    registered there fails with `getFile: could not open file: <name>` **and the run continues to
+    exit 0** — so the file is simply not there and nothing downstream says why.
+    ⚠ **The instructive part is the shared signature, not the three spellings:** all four fail in
+    a way that points at the wrong thing. Two produce no output at all (which reads as a broken
+    build), one produces a plausible string (which reads as data), and one produces a missing
+    include at exit 0 (which reads as a working run). None of them names the line.
+
 > **RULE H9 — A CENSUS MATCHES THE IDIOM FAMILY, NOT THE SURFACE FORM.** Adopted 2026-08-07,
 > after a census miscounted its own subject **twice in two passes, in both directions.**
 >

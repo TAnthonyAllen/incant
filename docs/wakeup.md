@@ -145,7 +145,8 @@ the 47. It was not.**
 **21** (from the **78**, Grokking's registry, where a C++-minted member is a full citizen), never in
 the **47** (from grammar text) — GM-31 warns in bold these are different axes.
 ⚠ **Decrementing would UNDERSTATE the denominator and flatter the metric** — Amendment B's overcount
-running backwards, sealed into the metric line. **Awaiting Tony having seen this.** The Gap B
+running backwards, sealed into the metric line. ✅ **CLOSED — Tony reviewed 2026-08-09, nothing to
+add. The metric line stands at 0/47 as sealed and the awaiting-Tony flag is down.** The Gap B
 population itself *does* move: **21 censused → 20, 18 in scope.**
 
 ## ✅ E2 IS BUILT — R1's CAMPAIGN PREREQUISITE IS DISCHARGED. LADDER 170 → 173.
@@ -172,6 +173,7 @@ have returned from the **caller**. The old refusal's diagnosis was right and bec
 
 ## FLEET AT SEAL
 ```
+sh genLadder/decodePop.sh      22 checks, exit 0     NEW -- the decoder POP (34 terms)
 sh genLadder/gapB.sh           22 checks, exit 0     NEW -- the Phase R rung POP
 sh jitLadder/ladder.sh        173 checks, exit 0     (was 170; +3, three rows graduated)
 sh genLadder/pop.sh            33 green / 1 parked (exit 1, the same 3 owned reds)
@@ -186,7 +188,13 @@ scalars** rather than grepped. `incant/phaseA` is the ruling-4 instrument, **Ame
 measurement** (exists · reaches the Gap B branch, 21 hits on `:518` · completes 78 PLAN / 78 DONE).
 
 ## OPEN, AND WHOSE
-**Tony's:** **T-3, the 0/47-vs-0/46 denominator** (measurement above; nothing else waits on it) ·
+**Tony's:** ⚠ **`parked` — the decoder's ONE HELD SLOT, and Clay asked for the hold himself**
+(§8 of `docs/decoder.md`): the dispatch's *"a scheduling state, not a verdict"* against SEQ 44
+PINCH 6's *"parked means nobody has ruled; pinned means we ruled it wrong and are watching."*
+**Incompatible, and PINCH 6 was written first.** If PINCH 6 wins, `parkdiff` / `parked-WIP` /
+`owned reds` sort into **three terms, not two**, and **a registration schema inherits whichever is
+pinned** — which is why the pin comes before the schema. ⚠ **Entangled with it: H6's wording**, whose
+dictated sentence is narrower than `CLAUDE.md`'s headline and is silent on exactly the parked case ·
 `FloaT` and `counter`, the two OPEN taxonomy rows · child-drop decision, no clock ·
 `completePop` owned-red vocabulary (2 standing sentinel misses, `jitXand`/`jitXand2`) ·
 migration ruling (waits on child-drop) · vi grammar offline.
@@ -195,16 +203,37 @@ shape, two discriminating fires each) — **`AND`/`OR` (JXD-1/JXD-2) remain the 
 **`docs/vigram.md`** — the 2026-08-09 addition is imported and **both files are now COMMITTED**
 (ruled: an untracked founding document is Amendment A's citation-rot risk in a new hat). §10 carries
 the V0 pass. **O1–O4 open by ruling, gating V1, Tony's at the V1 gate — not before.**
-**⚠ THE DECODER — `docs/decoder.md`, BRIEF TRANSCRIBED, NOT STARTED.** The glossary as kant data:
-a term is a GroupItem with a name and a one-line definition, a corpus group, a shortcut action, and
-dispatches opening `decode: H4 H7 blastRadius` so the definitions land **before** the instructions
-that use them. **Timing is Clod's discretion and nothing gates on it**; it is minutes, not a
-project, **and if it starts becoming one, stop and say so.**
-⚠ **Its brief existed in NO FILE until Tony asked** — relayed in chat, acknowledged in chat, never
-written down. **The decoder exists because vocabulary lives outside the system, and its own brief
-was living outside the system.** Transcribed against Tony's sticky; **if the two disagree the sticky
-wins.** Owed with it: a **WT number** for discipline 2 (ratification dispatches name their terms;
-an undefined term **fails loud** and mints the entry on the spot).
+## ✅ THE DECODER IS BUILT AND GREEN — 34 terms, `genLadder/decodePop.sh` 22 checks exit 0
+`incant/decoder` (corpus + verb) · `incant/decode` (edit the decode line, run) · `incant/decodeT`
+(fixture) · `genLadder/decodePop.sh` (instrument) · one line in `incant/setup`. **Discipline 2 is
+now `WT-14`**, registered in `docs/walkieTalkie.md` and **enforced in code, not documented** — an
+undefined term prints a fail-loud line naming itself, and the POP asserts that line with the
+arm-removed run as its control. Full record: `docs/decoder.md`.
+- ⚠ **THREE OF THE DISPATCH'S OWN ENTRIES CAME BACK CORRECTED**, caught only because Clay marked
+  them ⚠ PULL — *"my draft is a citation, not a measurement"* — and the seal was re-read instead of
+  transcribed. **H4**'s sentence was rung 1's *discharge* of H4, not H4. **H9**'s was the corollary,
+  not the primary. **`degradeAssertsOccurrence` was a materially different fact** — the seal is
+  *fallback occurred, never fallback was sound*; the draft was about jit occurrence, and serving it
+  would have retired E2's per-construct warning **by definition**. The two-class discipline is the
+  entire reason these were caught, on the artifact's first run.
+- ⚠ **THE LOAD-BEARING CHECK'S FIRST DRAFT WAS VACUOUS AND WENT GREEN** — `definition == taG`,
+  copied from `jiquery` section 0; deleting a definition **left it green**. Measured: an absent
+  attribute reads **0** (falsy, so a count catches it); a `definition=(#)` one reads the string
+  `"definition"` and **compares equal to nothing**, so only a grep on the printed line sees it.
+  **That asymmetry is why there is a shell POP beside the fixture at all.**
+- ⚠ **AND IT TRAVELS: `jiquery`'s own section-0 content check CANNOT FIRE.** It compares the value
+  against the **claim's** tag while a dataless value echoes the **attribute's** name. The check
+  written because *"the corpus silently lost its content and nothing noticed for a month"* is,
+  measured on the identical shape, unable to detect it. **Reported, not fixed — jigcorpus's
+  instrument, not the decoder's.**
+- **Three candidate incant traps, symptoms bisected and none diagnosed:** `group[argument.text]`
+  exits **139 with zero output** where `[argument.taG]` works · `if !x.attribute;` exits **139 with
+  zero output** · `print "":;` prints the string `quoteBody` (use `print :;`). Also mechanical and
+  worth knowing: **`include()` searches no path** — every includable file is registered by hand in
+  `incant/setup`'s `fILEs` registry, and an unregistered one fails **at exit 0**.
+⚠ **Its brief had existed in NO FILE until Tony asked** — relayed in chat, acknowledged in chat,
+never written down. **The decoder exists because vocabulary lives outside the system, and its own
+brief was living outside the system.**
 
 # ═══════════════════════════════════════════════════════════════════════════
 

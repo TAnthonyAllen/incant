@@ -1,0 +1,41 @@
+/*****************************************************************************
+    decode -- THE RUNNER. Serves a decode line from incant/decoder.
+
+        <binary> incant/decode
+
+    THE USAGE SHAPE, which is the point (docs/decoder.md section 2). A dispatch
+    headed for Tony's signature opens with a decode line covering its shorthand
+    (WT14). That line is served here: EDIT THE DECODE LINE at the foot and run.
+
+        decodE(H4 H7 blastRadius);
+
+    One call, N names. The verb and the corpus both live in incant/decoder; this
+    file is nothing but the invocation, so a decode line is a one-line edit and
+    never a copy of the machinery.
+
+    ⚠ `print :;` FOR A BLANK LINE, NEVER `print "":;` -- an empty string literal
+    has no data and prints as the string `quoteBody` (bear-trap #26's family).
+    Measured 2026-08-09, on the first run of this file.
+
+    SENTINEL AT THE FOOT (H2), single stop().
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+include(decoder);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities Decoder list;
+
+/*  ---- THE DECODE LINE -- edit this and run --------------------------- */
+print "=== decode ===":;
+decodE(H4 H7 blastRadius);
+
+print :;
+print "=== full corpus ===":;
+decodeAll();
+
+print :;
+print "DECODE SENTINEL -- run reached the end":;
+stop();
