@@ -192,9 +192,19 @@ measurement** (exists · reaches the Gap B branch, 21 hits on `:518` · complete
 migration ruling (waits on child-drop) · vi grammar offline.
 **Parallel track, unchanged:** scale fixture · the not-gated sweep (22 operators left, `jitXor`
 shape, two discriminating fires each) — **`AND`/`OR` (JXD-1/JXD-2) remain the two measured members.**
-**`docs/vigram.md`** — read once on 2026-08-09 to close the "never opened" flag; **no action taken,
-no questions raised.** Stays paper-and-grep behind VI-7; Tony holds it for a dedicated session.
-**Untracked:** `docs/vigram.md` still wants a verdict (commit / revert / named-WIP).
+**`docs/vigram.md`** — the 2026-08-09 addition is imported and **both files are now COMMITTED**
+(ruled: an untracked founding document is Amendment A's citation-rot risk in a new hat). §10 carries
+the V0 pass. **O1–O4 open by ruling, gating V1, Tony's at the V1 gate — not before.**
+**⚠ THE DECODER — `docs/decoder.md`, BRIEF TRANSCRIBED, NOT STARTED.** The glossary as kant data:
+a term is a GroupItem with a name and a one-line definition, a corpus group, a shortcut action, and
+dispatches opening `decode: H4 H7 blastRadius` so the definitions land **before** the instructions
+that use them. **Timing is Clod's discretion and nothing gates on it**; it is minutes, not a
+project, **and if it starts becoming one, stop and say so.**
+⚠ **Its brief existed in NO FILE until Tony asked** — relayed in chat, acknowledged in chat, never
+written down. **The decoder exists because vocabulary lives outside the system, and its own brief
+was living outside the system.** Transcribed against Tony's sticky; **if the two disagree the sticky
+wins.** Owed with it: a **WT number** for discipline 2 (ratification dispatches name their terms;
+an undefined term **fails loud** and mints the entry on the spot).
 
 # ═══════════════════════════════════════════════════════════════════════════
 
