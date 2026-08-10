@@ -274,3 +274,90 @@ feels like competence and is partly just shared priors. The mitigation is WT-2. 
 for is the two seats converging *faster* after the channel lands than before it, and the
 conventions that matter are the ones Tony can audit — which is why WT-11 and WT-12 are rulings
 rather than protocol the seats invent between themselves.
+
+---
+
+## The 2026-08-10 rulings — the channel becomes tracked
+
+Four entries, transcribed in one pass at the evening seal. **Ruling 1 (publicity) is Tony's and is
+recorded here because everything below depends on it:** the first push of `ipc/` writes the channel
+into public history **permanently**, and Tony accepted that **knowingly**. Pre-push scan run, one
+pass — **no credentials, no keys, no email addresses, no third-party names**; every absolute-path
+root in the channel was **already** in tracked, already-pushed files, with exactly **one delta**
+(`~/data/attic`, two lines naming a local backup tarball, same parent as the already-public
+`~/data/support`). Compression/encryption is **parked to its own discussion**, with its constraint
+pre-named: **encrypting the live channel kills Clay's read-reach**, because a clone would carry
+ciphertext — so that discussion concerns **history and archives, never the working files**.
+
+### CLAIM WT-14a — clone-read is a NAMED TRANSPORT
+```
+statement:   Clay reads ipc/ tips by cloning origin. His reach ends at the last push.
+confidence:  RULING
+provenance:  Tony, 2026-08-10, on tracking ipc/
+asOf:        2026-08-10
+scope:       Adds a transport. Does NOT give Clay write access or polling.
+```
+**WT-10's asymmetry stands unchanged:** Clay still **cannot poll** and reads when Tony prompts.
+What changes is only that the tip he reads is now reachable without Tony hand-carrying an upload.
+⚠ **The reach ends at the last push, which is a real edge:** between a write and the next seal-time
+commit, the channel exists **only on Clod's machine**. That window is the price of batching, and it
+is deliberate (WT-14d).
+
+### CLAIM WT-14b — TRACKING IS ORTHOGONAL TO WT-11
+```
+statement:   Git buys read-reach and history, and buys ZERO insurance against WT-11's failure
+             mode. WT-11's whole-file convention and the append-then-diff mechanism stand
+             untouched.
+confidence:  RULING
+provenance:  Clod's report, 2026-08-10, adopted by Tony
+asOf:        2026-08-10
+scope:       Covers what tracking does and does not license. Says nothing about cadence (WT-14d).
+```
+**WT-11's own text names the failure as SILENT** — *"that turn vanishes and nothing says so."*
+Git gives **recoverability**, which pays **only once someone knows to look**. It does nothing about
+not knowing. So the entries are orthogonal: tracking is a genuine gain on two axes and **not a
+mitigation on the axis WT-11 exists for**.
+
+⚠ **THE DANGER IS NAMED HERE ON PURPOSE: TRACKING *FEELS* LIKE INSURANCE, AND THAT IS HOW A
+DISCIPLINE RELAXES WITHOUT ANYONE DECIDING TO RELAX IT.** The reasoning would go *"it's in git now,
+so a lost turn is recoverable"* — true, and irrelevant, because nobody goes looking for a turn they
+do not know existed. **No write may skip the whole-file convention on the grounds that the file is
+tracked.**
+
+**On cost, from the seat that pays it:** the per-write cost is already near zero and **for a
+structural reason rather than a diligent one** — Clod appends (`>>`, which *cannot* overwrite) and
+then diffs the prefix against a snapshot to prove nothing moved. That is one copy and one diff.
+**So git would not be relieving a burden; there is not one to relieve** — which is the same point
+as the paragraph above, seen from the other end. The residual exposure is reaching for a whole-file
+write instead of an append, and **git does not prevent that; it only makes the aftermath
+recoverable by someone who already suspects.**
+
+### CLAIM WT-14c — SEQ-NEXT: FILE-AUTHORITATIVE, TRANSCRIBER-OWNED
+```
+statement:   Clay dictates "SEQ-next". The transcriber assigns the number from the file's own
+             counter and records the dictated-as form when one was given.
+confidence:  RULING
+provenance:  Tony/Clay, 2026-08-10, after the divergence-of-twelve
+asOf:        2026-08-10
+scope:       Both directions. Does not change STATUS semantics.
+```
+**The motivating record is kept rather than tidied away:** Clay's thread counter and the file's had
+diverged by **twelve** (dictated 27/28 against a file standing at 39), and writing the dictated
+number would have moved the header **backward** — breaking the one property the field has, since
+the file's own NOTE says *a higher SEQ is what tells Tony a message is new*. **The GAP log for the
+turn that was acted on before it was ever written stands as the correct record**, in the same
+manner as SEQ 14's.
+
+### CLAIM WT-14d — COMMIT CADENCE: AT SEAL, BATCHED
+```
+statement:   ipc/ commits at seal, batched — not per dispatch.
+confidence:  RULING
+provenance:  Tony, 2026-08-10
+asOf:        2026-08-10
+scope:       Cadence only. Says nothing about what a write must contain (WT-11).
+```
+**Tony's measurement is what settles it rather than a preference:** channel writes are **infrequent
+and never mid-work**, so seal-time commits are **the channel's natural rhythm and not a
+mitigation**. The dirty-tree concern dissolves on that fact — `pop.sh`'s kitchen-law readout stays
+clean between seals, so the visibility-is-the-enforcement property that readout depends on is not
+eroded by channel churn.

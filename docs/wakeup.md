@@ -1,4 +1,33 @@
-# ⚠⚠ SEALED 2026-08-09 EVENING (CURRENT VINTAGE) — READ THIS SECTION FIRST.
+# ⚠⚠⚠ SEALED 2026-08-10 MIDDAY (CURRENT VINTAGE) — READ THIS SECTION FIRST.
+# THE SEAM IS RULED · THE CENSUS IS EMPTY · KE-4 IS RULED · THE CHANNEL IS TRACKED.
+# TODAY REVERTED ITS ONLY BUILD AND STILL ENDS AHEAD: four premises retired, two
+# doors found, a channel made legible, and the next session opens at a FIXTURE LIST.
+#
+# ⚠⚠ NEXT ACTION — **THE SEAM + BRACKET CAMPAIGN. ONE CAMPAIGN, TWO RUNGS, ONE SEAL**
+#    (Q3 MERGED, Tony 2026-08-10). Scheduled for the ~16:00 restart the SAME DAY —
+#    Tony's siesta-then-afternoon pattern, which worked on 08-09. In order:
+#      1. THE CROSSING COUNTER in `runAction` — quantified expectation before the
+#         edit, because the seam's territory is `actionType` calls ONLY (two doors).
+#      2. VALUE-CAPTURE: **mint a fresh node, copy the value in, return that** —
+#         never the local's node, never a bare scalar, and **PRESERVE NULL AS NULL**.
+#      3. THE CONTROL FLEET: K3 at 42 gate-irrelevant · JRt1 interpreted == jitted ·
+#         **JRt3's certified divergence FLIPS to agreement, with its H6 re-pin
+#         sentence** · `incant/kant8M1` as the template witness · the speller's 85
+#         rows byte-identical · **K6 READABLE — the voided control back in service.**
+#      4. THE BRACKET RUNG, on the same seal, inheriting a green K6 as a free entry
+#         control.
+#    ⚠ **PRACTICALITY VALVE (Tony): the merge is PREFERRED, NOT MANDATORY.** If
+#    session length or a finding forces a split, **split KNOWINGLY and say so in the
+#    seal.** Full spec: `docs/kantCorpus.md` CLAIM KANT-8. **KE-4's refusal rung
+#    cold-opens whenever a fresh session wants a bounded win.**
+#
+# ⚠ THE FLEET AT SEAL: ladder **173 / exit 0** · pop **33 green / 1 parked** ·
+#   gapB 22 · mixed 7 · completePop 127 swept. Junction verified AFTER the census.
+#   Working tree clean but for Tony's own `IncantForms/WorkingOn/incant++`.
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# ⚠⚠ SEALED 2026-08-09 EVENING (SUPERSEDED BY THE BLOCK ABOVE) — READ THIS SECTION FIRST.
 # PHASE T DELIVERED · E2 BUILT · THE DECODER BUILT · STEP 1 ARTIFACT MEASURED ·
 # AND/OR RULED (not built). THE METRIC IS 0/47 (see T-3 — it did NOT move to 0/46).
 # Everything from the `# ⚠⚠ SEALED 2026-08-08 EVENING` header down is older vintage.

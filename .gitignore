@@ -65,5 +65,10 @@ Tests/
 # Personal working scratchpad — clipboard file, not source
 XML/WorkingOn/incant++
 
-# Walkie-talkie IPC — Clay<->Clod scratch channel, not source of truth
-ipc/
+# Walkie-talkie IPC — Clay<->Clod channel. TRACKED as of 2026-08-10 (Tony's
+# ruling): git buys Clay read-reach via clone and buys history. It buys ZERO
+# insurance against WT-11's failure mode, which is SILENT vanishing —
+# recoverability only pays once someone knows to look. So WT-11's whole-file
+# convention is untouched by this, and tracking must never be read as licence
+# to relax it. Commits are batched AT SEAL, not per dispatch. See WT-14a–d in
+# docs/walkieTalkie.md.
