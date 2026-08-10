@@ -309,6 +309,23 @@ scope:       Bites any recursive kant action that returns a local, which is the
              why this survived. Not verified whether returning the ARGUMENT
              instead of a local dodges it; that is the obvious next probe.
 ```
+⚠⚠ **READ THIS FIRST — THE TERRITORY IS NARROWER THAN "THE INTERPRETER". THERE ARE TWO DOORS INTO
+AN ACTION BODY AND ONLY ONE HAS A BRACKET OR A SEAM** (measured 2026-08-10, by the node-return
+census, which it outgrew):
+
+| door | how it is bound | bracket? | seam? |
+|---|---|---|---|
+| **`runAction`** — `actionType` calls (`GroupActions.rtn:894`), plus `Commands.rtn:191` and the genParse kant seam at `genParse.rtn:847`/`:964` | dispatch | **yes** | **yes** |
+| **`processAction` DIRECT** — every coded **rule** | `ruleActions.rtn:352`, `or isCoded  method = processAction;` | **no** | **no** |
+
+`processAction` is called from `runAction` at `:790` **and nowhere else**, and `runRule` goes to
+`rule.parse(0)`. **So this claim's territory is `actionType` calls, precisely — not "the
+interpreter".** The entire grammar/XML population was never exposed: **`jsonTest`'s thirteen rows
+never met this defect because they structurally could not.** That is why the fleet stayed green
+through six weeks of a live seam bug — **topology, not luck.** ⚠ **The next seam-shaped defect gets
+found faster by someone who knows there are two doors**, which is the whole reason this sits at the
+head of the entry rather than inside the census that found it.
+
 **⚠ THE OPEN PROBE IS ANSWERED, AND THE SCOPE LINE ABOVE IS UNDERSTATED (2026-08-05,
 `incant/kant8T`, four rows, interpreted, exit 0).** The `asOf` block is left exactly as written
 because it was true when written; both corrections are recorded here rather than by editing it.
@@ -680,6 +697,16 @@ reading the result) both change a function on the interpreter's hot path.
 > ```
 > A capture that hands back a raw integer breaks **four** reads at two sites. The value channel has
 > to stay node-shaped at the boundary even though the value is what is being preserved.
+>
+> **REFINED TO THE RUNG'S SPEC (2026-08-10): MINT A FRESH NODE, COPY THE VALUE IN, RETURN THAT —
+> never the local's node.** ⚠ **And the census pre-cleared exactly this**: *zero identity customers*
+> means a fresh node is **indistinguishable from today's behaviour for every living caller**, which
+> is what turns "mint a node" from a semantic change into a no-op with the bug removed.
+> ⚠ **ONE DESIGN QUESTION FOLDED INSIDE IT, AND IT IS ONE SENTENCE OF SPEC: THE NULL PATH.** Both
+> sites distinguish a node from a **null** (`if !result`), so the capture **must preserve "no
+> result" as null rather than minting an empty node** — otherwise both null-checks silently invert
+> and an empty answer starts reading as a successful one. That is the bear-trap #26 shape arriving
+> through the fix rather than through the defect.
 >
 > ⚠ **AND THE CROSS-FINDING TO KE-4, WHICH IS THE ONE TO ACT ON: THOSE SAME TWO SITES RETURN *TEXT*
 > LOCALS.** `genEmit`'s `leaf` and `genMany`'s `answer` are body-born text locals returned from live

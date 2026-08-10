@@ -702,6 +702,22 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 > void and every row below it became uninterpretable rather than wrong** — by the fixture's own
 > declared terms.
 >
+> ⚠ **AND THE SHARPEST STATEMENT OF THE WHOLE ASYMMETRY, EARNED 2026-08-10 WHEN **FOUR** RULINGS
+> DIED IN ONE DAY TO FOUR CHEAP MEASUREMENTS.** Not one bad session — the doctrine **eating well**:
+>
+> | the ruling | what killed it | cost of the check |
+> |---|---|---|
+> | the **detach** pick over value-capture | M2's walker read — restore pairs **positionally** | one function, read |
+> | **"copy forks the arms"** as a risk row | M1 — the jit **already returns by capture**, so capture *converges* them | one fixture |
+> | **"the unpushed channel cost us the SEQ divergence"** | `ipc/` is **gitignored** | one `git check-ignore` |
+> | **"the whole interpreted arm crosses the seam"** | only `actionType` reaches `runAction`; coded rules bind `processAction` direct | one grep |
+>
+> **EVERY ONE WAS SOUND REASONING ON A PREMISE NOBODY HAD RUN**, and three of the four were
+> *load-bearing for a scheduling or design decision*. **The rule is not "reason less".** It is:
+> **when a premise is one command away from being measured, measure it before you build on it** —
+> and note that the two disciplines that caught these were structural, not vigilant: the
+> **conditional pick** (name the precondition, gate the code on it) and the **negative control**.
+>
 > **THE PRECEDENT IS THE REFUSAL: DO NOT GRADE A VOIDED CONTROL.** Reporting *"this could not be
 > evaluated"* is a result. Grading it anyway is reading a broken instrument — the failure this
 > whole section exists to prevent — and it arrives **disguised as diligence**, because the rows are

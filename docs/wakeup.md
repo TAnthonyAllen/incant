@@ -59,9 +59,18 @@ body; only one has a bracket or a seam.** So the whole grammar/XML population si
 ⚠ **CARRIER DISCIPLINE RETIRED (dated note, not deletion)** — obsoleted by the seam fix, surviving
 for **no** population. Full record: `docs/kantCorpus.md`, `CLAIM KANT-8`.
 
-⚠ **THE SEAM RUNG STARTS FROM THIS CONSTRAINT: CAPTURE MUST RETURN A NODE CARRYING THE VALUE, NOT
-A BARE SCALAR.** `genParse.rtn:847` and `:964` both null-check the result **and then read `.text`
-off it** — four reads at two sites that a raw integer breaks.
+⚠ **THE SEAM RUNG STARTS FROM THIS CONSTRAINT: MINT A FRESH NODE, COPY THE VALUE IN, RETURN THAT
+— never the local's node, and never a bare scalar.** `genParse.rtn:847` and `:964` both null-check
+the result **and then read `.text`** off it — four reads at two sites that a raw integer breaks.
+**The census pre-cleared the minting**: zero identity customers means a fresh node is
+indistinguishable from today's behaviour for every living caller. ⚠ **ONE SENTENCE OF SPEC FOLDED
+INSIDE IT — THE NULL PATH: preserve "no result" as NULL, do not mint an empty node**, or both
+`if !result` checks silently invert and an empty answer reads as a successful one.
+⚠ **AND THE SEAM'S TERRITORY IS NARROWER THAN "THE INTERPRETER": only `actionType` calls reach
+`runAction`. Coded RULES bind `processAction` direct (`ruleActions.rtn:352`) and cross no seam.**
+So a moved **parse** row in the seam capture is a **finding, not noise** — the diff is a sharp
+instrument rather than a broad one. **Opening move of the campaign: a crossing counter in
+`runAction`**, so the expectation is quantified rather than reasoned.
 **Named controls, so the session starts at the fixtures:** K3 at 42 with gate-irrelevance ·
 JRt1 interpreted matching jitted · **JRt3's certified divergence flipping to agreement, with its
 H6 re-pin sentence (values, not counters)** · `incant/kant8M1` as the template-population witness ·
