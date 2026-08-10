@@ -43,6 +43,26 @@ or restore before reading it).
 follow-on.** The two cannot be sequenced the other way — the gate is what currently bounds
 KANT-8's blast radius. **That design call is now on the critical path, and it is Tony's.**
 
+⚠ **M1 + M2 RUN 2026-08-10, AND THE CONDITIONAL DETACH PICK IS OFF — M2's PRECONDITION FAILS.**
+`restoreLocalFields` pairs **positionally**, via an **unkeyed LIFO**: save walks forward pushing a
+body per member, restore walks backward popping one per member, and nothing but walk position ties
+a body to its field. **A mid-frame detach therefore hands the wrong body to a surviving local and
+strands one on the stack** — silent both ways. The tree already says so in the JIT's own rationale
+(*"restoreLocalFields walks BACKWARD because it pops a stack … the stack discipline was the bug
+surface, and it is gone rather than reimplemented"*). **So "one unlink at one site" does not hold;
+a correct detach is walker surgery.** The principled form — **key the restore by field, not by
+position** — is bigger than either option weighed, and it is Tony's. **STOPPED AND RECONVENING; no
+code written.**
+
+✅ **M1 CONFIRMS THE CHANNEL SPLIT AND NARROWS THE REPAIR.** Interpreted hands back the **node**;
+jitted hands back a **value** already out of it (42, then 45 on refire, degrade 0). **So the defect
+is interpreter-side aliasing and the jit arm owes byte-agreement only.** And the more useful half:
+printed from *inside*, **the frame bracket is not broken** — both locals restore perfectly at every
+depth on both engines (42/41/40 in, 40/41/42 out). The bug is only that *the returned pointer points
+into the frame being restored*. ⚠ M1 also found a **silent wrong answer nobody was looking for**: a
+**text** local on the jitted arm comes back as its **LENGTH**, degrade 0, exit 0 — filed
+`docs/knownErrors.md` **KE-4**, unruled, Tony's. Fixtures `incant/kant8M1`, `incant/kant8M1o`.
+
 Three witnesses, one signature: `kant8T` K3 → `k3loc` · `incant/genEmit`'s speller → `leaf` (85
 `spell.target` rows plus `rung5.target`) · ladder **JRt1** interpreted `''` vs jitted 21.
 `oneTest`, `jsonTest`, `phaseA`, `emitAll`, `tree`, `printPop` stayed **byte-identical**, so the
@@ -85,7 +105,12 @@ nothing re-opens them.**
   and after, **every stream diffed**, the impact record as deliverable. **Rung 1's format is the
   template** (`docs/gapBPhaseR.md`), and its noise classes are already characterised: H1 binary
   echo, PIDs in pinned-crasher segfault lines, pop.sh's working-tree readout.
-- **KR-3 ledger rows updated with the repair outcome.**
+- ~~**KR-3 ledger rows updated with the repair outcome.**~~ ⚠ **`KR-3` RETIRED 2026-08-10 (Tony).
+  THE LEDGER NEVER EXISTED AS A FILE** — a tree-wide grep returns exactly one hit, **this sentence
+  citing it**. A ledger spoken into being by the instruction to update it; Amendment A's family,
+  and the defective citation was Clay's. Struck rather than deleted, per the legibility rule.
+  **THE LEDGER OF RECORD IS THE K-ROW TABLE UNDER `CLAIM KANT-8` IN `docs/kantCorpus.md`** — future
+  briefs name that file and that table.
 - ⚠ **DOCTRINE CHECK AT THE TAIL:** K1–K4 established **carrier discipline** as a working
   mitigation for **direct** self-recursion and **invalid for mutual**. If the unconditional bracket
   makes that mitigation obsolete, the doctrine line gets a **dated retirement note — not deletion**

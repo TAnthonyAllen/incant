@@ -535,6 +535,79 @@ reading the result) both change a function on the interpreter's hot path.
 > returns to baseline with every remaining diff an H1 binary echo or a pinned-crasher PID.** The
 > patch is small and reproducible — four gate removals in `GroupActions.rtn`.
 
+> ### ⚠⚠ M1 + M2 RUN 2026-08-10 — THE DETACH PRECONDITION **FAILS**. STOP AND RECONVENE, NO CODE.
+> ### AND THIS TABLE IS THE LEDGER OF RECORD — `KR-3` IS RETIRED, IT NEVER EXISTED AS A FILE.
+>
+> Both probes from the M-gated dispatch, run on the shipping gated binary with **no source
+> change**. The pick was conditional on both coming back clean. **M2 does not.**
+>
+> **M2 — THE WALKER READ. IT PAIRS POSITIONALLY, VIA AN UNKEYED LIFO. DETACH BREAKS IT.**
+> `saveLocalFields` walks the action's fields **forward** pushing a `GroupBody` per qualifying
+> member; `restoreLocalFields` walks **backward** popping one per qualifying member. **Nothing
+> associates a body with its field except walk position** — the `Stak` carries no key.
+> ```
+>   save   f1 f2 f3   ->  push b1 b2 b3
+>   restore (backward) ->  f3<-b3   f2<-b2   f1<-b1        correct
+>   with f2 DETACHED   ->  f3<-b3   f1<-b2   and b1 STRANDED ON THE STACK
+> ```
+> So a mid-frame detach does not merely fail — **it hands `f1` the body that belonged to `f2`**
+> (a plausible wrong value, #26's family) **and leaks a stack entry into every later activation
+> sharing that `stak`.** Silent both ways.
+>
+> ⚠ **THE TREE ALREADY SAYS THIS, IN THE JIT'S OWN DESIGN RATIONALE**, which is why this is a
+> reading rather than an inference — `GroupRules.mm`, FRAME EPILOGUE, Increment 1: *"restoreLocalFields
+> walks BACKWARD **because it pops a stack**, and this does not — each slot has its own address, so
+> there is no ordering to honour. **That asymmetry is the point: the stack discipline was the bug
+> surface, and it is gone rather than reimplemented.**"* The JIT declined to reimplement the
+> positional pairing on purpose; the interpreter still has it.
+>
+> **CONSEQUENCE FOR THE COST ARGUMENT, stated plainly because it is the pick's whole basis:**
+> *"one unlink at one site"* does not survive M2. A correct detach must also remove that field's
+> body from the stack, and the stack is positional — so it is **walker surgery, not an unlink**.
+> **The principled version is to key the restore by field instead of by position**, which is a
+> bigger change than either option the dispatch weighed, and it is Tony's.
+>
+> **M1 — THE RETURN-CHANNEL PROBE. CLAY'S HYPOTHESIS IS CONFIRMED, ON A TEMPLATE-SHAPED FIXTURE.**
+> `incant/kant8M1` (jitted) and `incant/kant8M1o` (interpreted, own process, per the jitJRt2o rule).
+> One action, one `testing()`, then `jitRefire()` — the corruption is unconstructable in this shape.
+>
+> | | interpreted | jitted |
+> |---|---|---|
+> | returned value | **`m1count`** — the TAG | **42**, then **45** on refire |
+> | degrade / compile | — | **0 / 1** |
+>
+> **The interpreter hands back the NODE**, which the sweep has reverted under the caller. **The jit
+> hands back a VALUE** that left the node before the sweep could reach it — pointable in the emitted
+> code: the frame epilogue stores each slot back and *then* `CreateRet(CreateLoad(i32,
+> gJitResultSlot))`. **So the defect is interpreter-side aliasing, and the jit arm owes byte-agreement
+> only, not surgery** — exactly as the dispatch predicted. Ladder rung **JRt3** already certifies the
+> same divergence on the `kant8T` shape; M1 adds that it holds on the template population too.
+>
+> ⚠ **AND M1 ANSWERED A QUESTION IT WAS NOT ASKED, WHICH IS THE MORE USEFUL HALF: THE FRAME BRACKET
+> IS NOT BROKEN. ONLY THE RETURN SEAM IS.** Printed from *inside* the action, both locals restore
+> **perfectly** at every depth, in both directions, on **both** engines:
+> ```
+>   before  42 / 41 / 40        after  40 / 41 / 42
+> ```
+> Per-activation state is correct. **The bug is not "the bracket empties locals" — it is "the
+> returned pointer points into the frame being restored", which is this claim's own closing
+> sentence.** A repair that preserves the bracket and fixes only the seam is therefore sufficient,
+> and that narrows the design space usefully.
+>
+> **SCALAR VS NODE-VALUED — First Light's floor, and the answer is BOTH, plus a new defect.**
+> Scalar-valued locals are covered: `K1`/`K3`'s `k1loc = 42` and `k8loc = k8n + 40` are counts and
+> both come back as tags. **But the probe also found a silent wrong answer on the jitted arm** — a
+> **text** local prints as its **LENGTH** (`"alive"` → `5`, `"xy"` → `2`), degrade **0**, exit 0,
+> while the count local beside it is right at every depth. Filed as **`docs/knownErrors.md` KE-4**,
+> unruled, Tony's — it is outside this claim, and the certified template never put text in a local,
+> which is why nothing had tested that fence from the other side.
+>
+> **`KR-3` RETIRED (Tony, 2026-08-10).** The ledger never existed as a file; the single tree-wide
+> grep hit was the obligation sentence citing it — **a ledger spoken into being by the instruction
+> to update it**, Amendment A's family. **The K-row table in this claim is the ledger of record**
+> and future briefs name this file and this table. The obligation line in `docs/wakeup.md` carries a
+> dated retirement note rather than a deletion, per the legibility rule.
+
 ### CLAIM KANT-9 — an iterator is a HANDLE: `.taG` reads the iterator, and only ARGUMENT position derefs
 ```
 statement:   After `iterate g on X; ++g`, `g` is a handle whose cursor is in its

@@ -1,0 +1,64 @@
+/*****************************************************************************
+    kant8M1 -- M1, THE RETURN-CHANNEL PROBE. Jitted arm. 2026-08-10.
+
+    Asks two questions that ladder rung JRt3 cannot answer, on one action so
+    there is exactly one testing call and the sequential-state tar baby is
+    unconstructable in this fixture's shape.
+
+    ONE. Which channel does a returned local traverse on each engine. The
+    interpreted arm is expected to hand back the node itself, which the frame
+    sweep has already reverted under the caller. The jitted arm is expected to
+    hand back a value that left the node before the sweep could reach it.
+
+    TWO, and this is the one nothing in the tree measures. The frame the jit
+    builds is scoped to integer counts. A local holding text has no slot in it.
+    So a text local and a count local may sit on opposite sides of the same
+    fence, and which side each lands on is the floor the parse templates will
+    be built on.
+
+    The action prints both locals from INSIDE, before and after the nested
+    call, because reading a local from outside afterwards would mean reading
+    the very quantity under test across the boundary being measured. It
+    returns the count local, so the returned value is a third reading rather
+    than a repeat of the second.
+
+    Its interpreted twin lives in kant8M1o and runs in its own process, for
+    the reason recorded on jitJRt2o. A post-jit interpreted call is not a
+    clean oracle for a returned value.
+
+    SENTINEL AT THE FOOT, exactly ONE stop.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(Kant8M1);
+define
+    m1n;
+    m1out;
+    m1 code={
+        m1count = m1n + 40;
+        m1text  = "alive";
+        print "M1 jit  before  : m1count =" m1count " m1text =" m1text:;
+        if m1n > 0;
+            m1n = m1n - 1;
+            m1();
+        print "M1 jit  after   : m1count =" m1count " m1text =" m1text:;
+        return m1count;
+        };
+    ;
+
+m1n = 2;
+print "M1 jit  fire 1 setup : m1n =" m1n:;
+testing(m1);
+
+m1n = 5;
+print "M1 jit  fire 2 setup : m1n =" m1n " (recompile: NONE)":;
+jitRefire();
+
+print "M1 SENTINEL -- run reached the end":;
+stop();

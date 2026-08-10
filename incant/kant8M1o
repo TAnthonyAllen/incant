@@ -1,0 +1,44 @@
+/*****************************************************************************
+    kant8M1o -- M1's INTERPRETED COLUMN, IN ITS OWN PROCESS. 2026-08-10.
+
+    Same body as kant8M1, interpreted only. Its own process for the reason
+    recorded on jitJRt2o. A post-jit interpreted call is not a clean oracle
+    for a returned value, because whether the frame bracket runs depends on
+    invocation history.
+
+    This file records a DIVERGENCE and not an agreement, in the manner of
+    jitJRt3o. If the interpreted column ever starts agreeing with the jitted
+    one, that is the KANT-8 repair landing, and this row is what says so.
+
+    SENTINEL AT THE FOOT, exactly ONE stop.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(Kant8M1o);
+define
+    m1n;
+    m1out;
+    m1 code={
+        m1count = m1n + 40;
+        m1text  = "alive";
+        print "M1 int  before  : m1count =" m1count " m1text =" m1text:;
+        if m1n > 0;
+            m1n = m1n - 1;
+            m1();
+        print "M1 int  after   : m1count =" m1count " m1text =" m1text:;
+        return m1count;
+        };
+    ;
+
+m1n = 2;
+m1out = m1();
+print "M1 int  returned: m1out =" m1out " (KANT-8: expect the TAG m1count)":;
+
+print "M1o SENTINEL -- run reached the end":;
+stop();

@@ -691,6 +691,22 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 > properly, and aimed at a phenomenon that was an artifact of a mis-transcribed table. **Re-measure
 > a cited number before you reason on top of it** — the re-run is nearly always one command against
 > a fixture that already exists, and the reasoning it saves is not.
+>
+> ⚠ **AND A THIRD OUTCOME THAT PREDICTIONS KEEP OMITTING — THE TREATMENT VOIDS THE CONTROL.**
+> Ratified 2026-08-10, on a prediction that failed this way rather than by being wrong. **Any
+> prediction about how a fixture will move under a treatment that touches the fixture's own read
+> machinery must enumerate VOIDING as an outcome**, beside the pass and the fail. The worked
+> example: the KANT-8 bracket rung predicted `incant/kant8T`'s K6 rows would *invert completely*,
+> and said a *partial* recovery would mean something non-bracket was hiding in the blast radius.
+> **Neither happened.** The treatment removed the very discriminator K3 exists to be, so **K3 went
+> void and every row below it became uninterpretable rather than wrong** — by the fixture's own
+> declared terms.
+>
+> **THE PRECEDENT IS THE REFUSAL: DO NOT GRADE A VOIDED CONTROL.** Reporting *"this could not be
+> evaluated"* is a result. Grading it anyway is reading a broken instrument — the failure this
+> whole section exists to prevent — and it arrives **disguised as diligence**, because the rows are
+> right there and they do have values. A two-outcome prediction has nowhere to put a voided run,
+> and that absence is itself the pressure to misreport it.
 
 ```
 testByteCode / testIfElse fixtures in incant/generate; init maximus=11, righty=13 (unitTests:82)

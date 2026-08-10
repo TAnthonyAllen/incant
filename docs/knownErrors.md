@@ -169,3 +169,63 @@ time. **If so the fix is to finish the removal, not to re-add the case.**
 this rule — genParse refuses to plan `MemberS` since the `MEMBERs-` term was added. So the
 grammar half of this question is open on two fronts at once, which is an argument for settling
 them together.
+
+---
+
+# KE-4 — A **TEXT** LOCAL IN A JITTED ACTION COMES BACK AS ITS **LENGTH**, silently, degrade 0
+
+**Measured 2026-08-10**, `incant/kant8M1` (jitted) against `incant/kant8M1o` (interpreted, own
+process), on the shipping gated binary with **no source change**. Found while running M1, the
+KANT-8 return-channel probe; it is not what M1 went looking for.
+
+An action-local assigned a string prints, from **inside** the jitted action, as an integer:
+
+| the source line | interpreted | **jitted** |
+|---|---|---|
+| `m1text = "alive";` | `alive` | **`5`** |
+| `m1text = "xy";` | `xy` | **`2`** |
+
+**Two points, so it is a discrimination and not a reading:** the number tracks the string's
+**length**. The count local beside it (`m1count`) is correct on both arms, at every depth, in
+both directions — so this is not a general frame failure.
+
+```
+  M1 int  before  : m1count = 42 m1text = alive
+  M1 jit  before  : m1count = 42 m1text = 5
+  === jitDegrade count = 0 ===        <- the fallback counter never fires
+  === jitCompile count = 1 ===
+```
+
+**WHAT IS GENUINELY UNCLEAR — and this is why it is filed here and not as a bear trap.** The JIT's
+frame is **scoped to i32 counts by declared design**: the prologue allocates an integer slot per
+frame member and the epilogue stores each slot back to the field's own storage
+(`GroupRules.mm`, FRAME PROLOGUE / FRAME EPILOGUE, Increment 1, 2026-08-01), and
+`appendGroupValue`'s header states the same scope in as many words — *"PHASE SCOPE: i32 counts,
+matching what the emitters produce today. A double or string entry is the same shape with a
+different setter and wants a rung before it is written."* So a text local landing in an integer
+slot may be **the declared scope behaving exactly as declared**. What is not decided is whether a
+construct outside the declared scope should be allowed to **compile silently**.
+
+**THE COMPOSITION THAT MAKES IT BITE**, and it is the one the fleet doctrine is built around: a
+**wrong answer at exit 0 with the degrade counter at zero**. `jitDegrade` exists to say *"this
+construct fell through to interpretation"*; it says nothing when a construct is emitted **wrongly**
+rather than declined. So every rung's degrade-zero assertion passes, and the H4-shaped instrument
+that would normally catch a fallback is structurally unable to see this. Same family as the
+already-ruled *"a degrade line asserts that a fallback OCCURRED, never that it was SOUND"* — one
+step worse, because here no fallback occurred at all.
+
+⚠ **WHY NOTHING CAUGHT IT: THE CERTIFIED TEMPLATE NEVER PUTS TEXT IN A LOCAL.**
+`incant/jitXtemplate` — rung JXT, the SEQUENCE template, green and jitted — carries `xtSuk`,
+`xtTicks`, `xtOK1`, `xtOK2`, all counts, all **declared in the `define` block** rather than born in
+a body. The jitted population to date is integers by construction, so the fence was never tested
+from the other side.
+
+**WHO RULES:** Tony. **It is First Light's floor** and the M1 dispatch said so: if parse templates
+may hold text in a body-born local, this is on the critical path; if they may not, that is a
+constraint the template spec has to state, because today nothing enforces it and nothing reports
+it. The cheap middle option — **refuse rather than substitute**, i.e. call `jitDegrade` on a
+non-count local instead of emitting an integer slot for it — is the standing precedent from
+`jitPrintItem` and would convert this from a silent wrong answer into a counted fallback.
+
+**Fixtures:** `incant/kant8M1`, `incant/kant8M1o`. Neither is wired into a harness yet —
+deliberately, since the expected values are exactly what this entry asks Tony to rule.
