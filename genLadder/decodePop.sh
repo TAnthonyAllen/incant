@@ -120,8 +120,13 @@ sentinel "decodeT sentinel (run reached the end)" "$T/dt.o" "DECODET SENTINEL"
 #  The two scalars decodeT prints. Both compared by value.
 nt=$(sed -n 's/^TALLY terms = *\([0-9][0-9]*\).*/\1/p'       "$T/dt.o" | head -1)
 nd=$(sed -n 's/^TALLY definitions = *\([0-9][0-9]*\).*/\1/p' "$T/dt.o" | head -1)
-check "corpus holds 34 terms"          34 "$nt"
-check "34 of them carry a definition"  34 "$nd"
+#  ⚠ RE-PIN 2026-08-10, SEQ 27/28, AND THE SENTENCE THE RULE ASKS FOR: 34 -> 35
+#  because the corpus gained exactly one RULED term, `twoDoors` (Tony, ruled in Clay
+#  chat, relayed SEQ 28) -- the two entry paths into an action body. The target moved
+#  because the world did, and here is the cause. Nothing was lost: the count went UP
+#  by one and the named term is in incant/decoder under its own dated heading.
+check "corpus holds 35 terms"          35 "$nt"
+check "35 of them carry a definition"  35 "$nd"
 check "every term is defined"     "$nt" "$nd"
 
 #  decodeT's own self-certification, asserted FROM OUTSIDE -- a harness that
@@ -180,7 +185,7 @@ fi
 #  sentinel line ("DECODE SENTINEL -- run reached the end"). An unanchored
 #  count read 38 for 37 real rows. A definition row is `<singleWord> -- `.
 nl=$(grep -cE '^[A-Za-z][A-Za-z0-9]* -- ' "$T/dc.o")
-check "corpus dump + decode line = 37 definition rows" 37 "$nl"
+check "corpus dump + decode line = 38 definition rows" 38 "$nl"
 
 #  ⚠ THE DATALESS-ECHO ROW, and the reason this file exists. A definition that
 #  never stored prints as the ATTRIBUTE'S OWN NAME. In-language it compares

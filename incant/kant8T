@@ -282,7 +282,35 @@ define
             2   trampled, exhaustion terminal -- the inner's count, frozen
         K6a already excludes the middle reading; this row excludes it a
         second time WITHOUT depending on K6a, which is the whole point of
-        a second witness.  */
+        a second witness.
+
+        ⚠⚠ THE INDEPENDENCE ABOVE EXPIRED ON 2026-08-10, SEQ 27 rung B, AND
+        THE NUMBER DID NOT MOVE WHEN IT DID -- which is the reason this note
+        is long. The row was sized against a world where the frame bracket
+        ran only for directly self-mentioning actions, so the three readings
+        it lists all assume the outer activation's COUNTER carries across the
+        inner call even when its cursor might not. With the bracket now
+        unconditional, the counter is per-activation too, and the outer
+        simply counts its own four attributes. THAT IS ALSO FOUR.
+
+        So four now carries two meanings from two different eras -- the old
+        trample-and-restart, and the new fully-bracketed walk -- and this row
+        can no longer separate them by itself. The reading listed as five was
+        never the bracketed answer; it was the answer for a bracket that
+        saved the cursor and not the counter, which is a world that no longer
+        exists.
+
+        READ IT WITH K6a, which is the same shape over a three-attribute
+        outer list and therefore still discriminates: two means trampled,
+        three means the activation kept its own. K6a moved from two to three
+        on the same build that left this row at four, so the pair is
+        consistent and the world is the bracketed one. The second witness
+        still works; it just needs the first one now, which is exactly what
+        the paragraph above says it was built not to need.
+
+        NOT RE-SIZED HERE. Choosing new list widths so this row discriminates
+        alone is a fixture-design decision and belongs to whoever owns the
+        K-row table, not to the rung that revealed the collision.  */
     k6wide      ww ee rr tt;
     k6med       pp qq;
     k6depth4;
@@ -449,7 +477,7 @@ print "K6e second walk counted =" kOut " (1 = cursor RESTARTS; 0 = exhaustion te
 print "== K6f: THE RESTART ARITHMETIC IN THE MUTUAL SHAPE, 4 vs 5 vs 2 ==":;
 k6depth4 = 1;
 kOut = k6Awide(k6wide);
-print "K6f outer returned =" kOut " (4 = trample+restart; 5 = no trample; 2 = terminal)":;
+print "K6f outer returned =" kOut " (4 = trample+restart OR fully bracketed, AMBIGUOUS since 08-10 -- read with K6a; 2 = terminal)":;
 
 print "kant8T SENTINEL -- run reached the end":;
 stop();

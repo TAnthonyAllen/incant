@@ -10,6 +10,13 @@
     jitJRt3o. If the interpreted column ever starts agreeing with the jitted
     one, that is the KANT-8 repair landing, and this row is what says so.
 
+    GRADUATED 2026-08-10, SEQ 27 rung A. It said so. The interpreted column
+    now returns the value rather than the tag, because the return seam in
+    runAction takes the result value before the restore sweep runs, so the
+    caller no longer receives a pointer into the frame being restored. The
+    printed expectation below has been moved to match, and the old reading is
+    named there as the regression so a return of the tag stays legible as one.
+
     SENTINEL AT THE FOOT, exactly ONE stop.
 *****************************************************************************/
 Start();
@@ -38,7 +45,7 @@ define
 
 m1n = 2;
 m1out = m1();
-print "M1 int  returned: m1out =" m1out " (KANT-8: expect the TAG m1count)":;
+print "M1 int  returned: m1out =" m1out " (want 42; the TAG m1count = KANT-8 is back)":;
 
 print "M1o SENTINEL -- run reached the end":;
 stop();

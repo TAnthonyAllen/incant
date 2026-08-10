@@ -280,6 +280,10 @@ scope:       This is the PRICE of KANT-6's fix and the two claims must be read
 ```
 
 ### CLAIM KANT-8 — with `recursive` set, returning one of the action's OWN LOCALS returns an EMPTIED node
+> ## ✅ **REPAIRED 2026-08-10 (SEQ 27). Everything below is left exactly as written because it was
+> ## true when written; the repair, the K-row ledger of record, and what it does NOT fix are in the
+> ## block at the END of this claim.** Two rungs: value-capture at the return seam, then the
+> ## unconditional bracket. **K1/K4/K5 return 42; K6a's mutual case moved 2→3; K3 held at 42.**
 ```
 statement:   When `field.recursive` is set, runAction calls
              restoreLocalFields(field) AFTER processAction and BEFORE returning
@@ -724,6 +728,137 @@ reading the result) both change a function on the interpreter's hot path.
 > **copy-forks-the-arms** risk row **had its sign backwards** — M1 shows capture *converges* the
 > arms, because the jit already returns by capture. **The risk register was written before the
 > channel was measured**, which is the whole lesson and not a criticism of the register.
+
+> ## ✅✅ CLAIM KANT-8 IS REPAIRED — BUILT, RUN AND GREEN, 2026-08-10 (SEQ 27, both rungs, one seal).
+> ## THE LEDGER OF RECORD FOLLOWS. Confidence **RUN**. Fleet at seal: ladder **173 / exit 0**,
+> ## pop **33 green / 1 parked**, every other harness at its baseline exit.
+>
+> **WHAT LANDED, IN TWO RUNGS, IN THE ORDER THE 08-10 MEASUREMENT SAID WAS THE ONLY POSSIBLE ONE.**
+> Rung A repaired the **seam**; rung B removed the **gate**. The prior attempt failed because it
+> tried B without A, and the block above is what diagnosed that — it is now discharged.
+>
+> **RUNG A — VALUE-CAPTURE IN `runAction`.** After `processAction` and **before** the restore sweep,
+> the result's value is copied into a freshly minted node and that node is returned. Three clauses,
+> each with the caller that makes it load-bearing:
+> 1. **Mint fresh and copy in** — never the local's node, never a bare scalar. `manyKant`
+>    (`genParse.rtn:847`) and `spellKant` (`:964`) both null-check the result **and then read
+>    `.text`** off it. ⚠ **The copy constructor cannot be used here**: `GroupItem(GroupItem)` is
+>    body-**sharing** (`groupBody = grup.groupBody`), i.e. it aliases the very body the sweep
+>    overwrites. Mint on a tag, then `setContent` — that is the detaching form.
+> 2. **Mint on the result's own tag**, so `.tag` and `.text` answer exactly as before. `setContent`
+>    already stamps the tag as text for a contentless item, so bear-trap #26 does not bite.
+> 3. **Preserve null as null** — see the honest note below, because this one is *not* what it looks
+>    like.
+>
+> **Gated `!jitting`, deliberately.** The jitted arm already returns by capture and is the certified
+> one; its node in flight is the value channel an enclosing assignment reads through `jitData`,
+> which a fresh node would not carry. The jit owed **byte-agreement only** and delivered it — 173/0
+> with no IR-shaped row moving.
+>
+> **RUNG B — THE UNCONDITIONAL BRACKET.** All four `if field.recursive` gates removed
+> (`jitSaveFrameRT`, `jitRestoreFrameRT`, and `runAction`'s own save/restore pair). ⚠ **The four
+> sites were the ONLY readers of the flag** (tree-wide grep); `recursive` is now written at
+> `ruleActions.rtn:1389`, cleared at `GroupActions.rtn:653`, and **read by nothing** — vestigial,
+> and left in place as out of scope.
+>
+> ### THE K-ROW TABLE — THE LEDGER OF RECORD
+>
+> | row | shape | 08-10 baseline | after rung A | after rung B | verdict |
+> |---|---|---|---|---|---|
+> | **K3** | NON-recursive, returns a local — **the validity control** | 42 | **42** | **42** | ✅ held; the fixture is valid, so every row below is readable. This is the row the previous attempt voided |
+> | **K1** | recursive, returns a local | `k1loc` | **42** | **42** | ✅ **KANT-8 repaired** |
+> | **K4** | recursive, branch never taken | `k4loc` | **42** | **42** | ✅ repaired |
+> | **K5** call 1 / 2 | invocation-history dependence | `k5loc` / `k5loc` | **42 / 42** | **42 / 42** | ✅ repaired, and history-independent |
+> | **K2** | returns its ARGUMENT | 7 | 7 | 7 | unchanged — the carrier already dodged it |
+> | **K6a** | **mutual** A→B→A, cursor carried | 2 | 2 | **3** | ✅ **rung B's payoff** — "its own cursor". The gate could never cover this: `recursive` is set at parse time **by identity**, so mutual recursion never set it |
+> | **K6b / K6d / K6e** | controls | 3 / 3 / 1,1 | same | same | ✅ unmoved, as controls must be |
+> | **K6c** | mutual, the ARGUMENT read after the call | `k6small` | `k6small` | `k6small` | unchanged — **still the inner's binding**; the argument-carrier's mutual failure is NOT repaired by either rung |
+> | **K6f** | mutual, sized for three readings | 4 | 4 | 4 | ⚠ **number unmoved, MEANING changed — see below** |
+>
+> **⚠ K6f HAS COLLIDED, AND IT IS THE DAY'S ONE-CHANNEL-ONE-MEANING MEMBER.** The row was sized in a
+> world where the bracket ran only for directly self-mentioning actions, so its "5 = no trample"
+> reading assumes the outer activation's **counter** carries across the inner call even if its
+> cursor does not. With the bracket unconditional the counter is per-activation too, so the outer
+> simply counts its own four attributes — **which is also 4**. So 4 now means either the old
+> trample-and-restart or the new fully-bracketed walk, from two different eras, on one number.
+> **K6a disambiguates**: same shape over a **three**-attribute outer list, so 2 means trampled and 3
+> means the activation kept its own, and K6a moved 2→3 on the build that left K6f at 4. The pair is
+> consistent and the world is the bracketed one. **The fixture carries a dated note; it was NOT
+> re-sized** — choosing new widths so K6f discriminates alone is a fixture-design decision and
+> belongs to whoever owns this table, not to the rung that revealed the collision.
+>
+> ### ⚠ CLAUSE 3 IS THE HONEST ROW, AND ITS FIRST FIXTURE WAS GREEN AND CERTIFIED NOTHING
+> `incant/kant8N` was written as clause 3's negative control. It passed. **Then the control ran and
+> the row did not move** — because `runAction` has **two** ways of answering with nothing, and the
+> fixture reached the wrong one. The **reachable** null is the early return taken when a coded body
+> fails to parse, which happens **above** the seam and preserves nothing-ness without the seam being
+> involved. The **guarded** null is a run that gets past that and still yields no result — and a
+> sweep of the whole structural fixture population measured that occurring **0 times in 128 files**.
+> **So the guard is correct and prevents a null dereference, but it is uncontrolled by any fixture,
+> and no negative control for it can be written until a reachable case exists.** `kant8N` now says
+> so in its own header and labels its rows for what they measure. **Recorded rather than papered
+> over: an uncontrolled guard is a known gap, and a green row invented to cover it would be worse
+> than the gap.**
+>
+> ### CARRIER DISCIPLINE — THE DATED RETIREMENT NOTE THE OBLIGATION ASKED FOR
+> **It survives for exactly one population, and it is not the one it was written for.** For
+> **direct** self-recursion the carrier is now **obsolete**: K1/K4/K5 return their locals correctly,
+> so parking a value on an argument buys nothing a plain local does not. For **mutual** recursion it
+> was already **invalid** (K6c, 2026-08-05) and **remains invalid** — K6c is unmoved at `k6small`
+> after both rungs. ⚠ **So the discipline is retired as a mitigation and survives only as a warning:
+> the carrier never worked for A→B→A, and the unconditional bracket does not change that.** Not
+> deleted, per the legibility rule.
+>
+> ### WHAT THIS DOES NOT REPAIR, STATED SO IT IS NOT OVERSOLD
+> **KE-4 is untouched** — a *text* local on the **jitted** arm still returns its LENGTH. Rung A is
+> gated `!jitting` by design, so it could not have touched it, and KE-4's refusal rung stays in the
+> drawer as briefed. **K6c is untouched** (above). **The `recursive` flag is now vestigial** but not
+> removed.
+>
+> ### BLAST RADIUS — the standing rider, rung-1 format
+> Full fleet captured before and after **each** rung, every stream diffed. **Every harness: only the
+> H1 binary echo differs, every exit status identical** (gapB, mixed, tree, printPop, containerPop,
+> recordPop, formsPop, decodePop at 0; completePop at its owned-red 1). `oneTest`, `jsonTest`,
+> `phaseA`, `emitAll`, `kant8M1`, `spellScratch` **byte-identical**. Named movements, all four
+> accounted: **`kant8T`** (the K-rows above) · **`kant8M1o`** (`m1count` → **42**, the repair's
+> second witness) · **ladder JRt3** (graduated, below) · **`completePop`** 127→**128** swept and
+> 220→**222** green, both `kant8N`'s own two checks; abandoners **3** and missing sentinels **2**
+> unchanged. ⚠ One apparent diff was **a capture asymmetry in the measuring, not a change**: the
+> baseline split stdout/stderr and the verdict run combined them, moving the two pinned-crasher
+> segfault lines between streams. Counted, named, dismissed.
+>
+> ### H6 GRADUATIONS — with their sentences, values never counters
+> - **ladder JRt3** was pinned to the INTENDED DIVERGENCE (*interpreted returns the tag `k8loc`,
+>   jitted returns 42*). It is now a full **AGREEMENT** check (42 == 42), and the old tag reading is
+>   an explicit **regression** arm rather than a silent else. **The target moved because the seam
+>   now takes the value before the sweep, so the interpreter no longer hands back a pointer into the
+>   frame being restored.** ⚠ **The harness predicted this in advance and its own message caught
+>   it** — *"That is not a regression, it is NEWS: KANT-8 may have been repaired."* Ladder stays at
+>   **173**: a graduation, not an addition.
+> - **`incant/kant8M1o`** likewise: its header already said *"if the interpreted column ever starts
+>   agreeing with the jitted one, that is the KANT-8 repair landing, and this row is what says so."*
+>   It said so. Label moved to want 42, with the tag named as the regression.
+> - ⚠ **Both JRt3's harness text and the wakeup obligation cited `KR-3`.** Repointed to **this
+>   table**, with the retirement noted in place rather than deleted.
+>
+> ### ⚠ THE CROSSING COUNTER — THE TWO DOORS, MEASURED ON BOTH SIDES
+> Run before the edit, over `completePop`'s **structural** fixture population (127 files) so the
+> scope is defensible rather than hand-picked. Scaffold only; removed before sealing.
+>
+> | door | mechanism | crossings | as action | as RULE |
+> |---|---|---|---|---|
+> | **one** — `runAction` | bracketed, seamed | **523** | **523** | **0** |
+> | **two** — `runRule` → `rule.parse(0)` | frameless | **1183** | **0** | **1183** |
+>
+> **1706 dispatches, zero overlap**, and the 211 door-one names and 12 door-two names are **disjoint
+> as sets**. ⚠ **The 0 is a positive result, not an absence claim** — door two is not merely failing
+> to cross the seam, it is carrying the *entire* rule population somewhere else, which is what makes
+> the 0 meaningful (H4). Independently, a static enumeration finds **exactly four `runAction` call
+> sites** — `GroupActions.rtn:895`, `Commands.rtn:191`, `genParse.rtn:847` and `:964` — and `runOP`
+> tests `or isRule` **before** `or actionType`, so a rule cannot reach the seam by construction.
+> **This measurement certifies the TWO DOORS ruling (Tony, 2026-08-10) rather than merely scoping
+> the rung**, and under that ruling this campaign is **maintenance of door one, the legacy door** —
+> completing its correctness, not investment in the destination path.
 
 ### CLAIM KANT-9 — an iterator is a HANDLE: `.taG` reads the iterator, and only ARGUMENT position derefs
 ```

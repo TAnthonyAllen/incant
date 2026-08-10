@@ -1091,12 +1091,27 @@ sentinel "JRt3 interpreted column sentinel" "$T/jitJRt3o" "JRt3o SENTINEL"
 #  indistinguishable from one that has quietly closed -- and if KANT-8 is ever
 #  repaired, THIS row is what says so loudly instead of the repair landing
 #  unnoticed. Presence-with-value on both sides (H4).
-if grep -q "JRt3o interpreted : k8out = k8loc" "$T/jitJRt3o"; then
-    echo "  ok    JRt3 INTENDED DIVERGENCE holds: interpreted returns the TAG k8loc, jitted returns 42"; green=$((green+1))
-elif grep -q "JRt3o interpreted : k8out = 42" "$T/jitJRt3o"; then
-    echo "  FAIL  JRt3 THE DIVERGENCE HAS CLOSED -- the interpreter now returns 42."
-    echo "        That is not a regression, it is NEWS: KANT-8 may have been"
-    echo "        repaired. Update the KR-3 ledger row and this check together."; fail=1
+#
+#  ⚠ GRADUATED 2026-08-10 (SEQ 27 rung A, H6) -- AND THE RE-PIN SENTENCE, because
+#  a target that moved is a claim that the world changed and the claim needs a
+#  cause. THE CAUSE: runAction now captures the result's VALUE before
+#  restoreLocalFields sweeps the frame (GroupActions.rtn, the return seam), so
+#  the interpreter no longer hands back a pointer into the frame being restored.
+#  It returns 42, which is what the jitted arm has always returned. CLAIM KANT-8
+#  is repaired for the door-one population, and this row fired on exactly the day
+#  it was built to fire -- the pre-registered message above is what caught it.
+#  The row is therefore no longer a pinned divergence but a full AGREEMENT check,
+#  and the old tag reading is now an explicit REGRESSION arm rather than a silent
+#  else. Values, never counters.
+#  ⚠ LEDGER OF RECORD: the K-row table under CLAIM KANT-8 in docs/kantCorpus.md.
+#  The former text here said "update the KR-3 ledger row"; KR-3 was RETIRED
+#  2026-08-10 (Tony) -- it never existed as a file, and a tree-wide grep returned
+#  only the sentence instructing people to update it.
+if grep -q "JRt3o interpreted : k8out = 42" "$T/jitJRt3o"; then
+    echo "  ok    JRt3 ENGINES AGREE: interpreted 42 == jitted 42 (CLAIM KANT-8 repaired at the seam)"; green=$((green+1))
+elif grep -q "JRt3o interpreted : k8out = k8loc" "$T/jitJRt3o"; then
+    echo "  FAIL  JRt3 REGRESSION -- the interpreter is back to returning the TAG k8loc."
+    echo "        The runAction value-capture seam is not firing; CLAIM KANT-8 has returned."; fail=1
 else
     echo "  FAIL  JRt3 interpreted column is neither the tag nor 42 -- unreadable"; fail=1
 fi

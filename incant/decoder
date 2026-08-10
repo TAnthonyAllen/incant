@@ -154,6 +154,11 @@ define
             definition="A red the fleet expects -- explained, named, and asserted red by the harness's own vocabulary.";
             source="DICTATED";
 
+    /*  ---- RULED 2026-08-10, SEQ 28 ------------------------------------- */
+        twoDoors
+            definition="The two entry paths into an action body -- runAction, which is bracketed and seamed and serves the actionType population, and a direct processAction binding, which is frameless and serves coded rules. Ruled 2026-08-10: door two is blessed, its safety resting on the recursive-descent calling convention rather than on a runtime frame.";
+            source="DICTATED by Tony, ruled in Clay chat, relayed via SEQ 28. MEASURED the same day: 523 crossings at door one, all actions and no rules; 1183 at door two, all rules and no actions.";
+
     /*  ⚠ SLOT, NOT AN ENTRY. Two candidate sentences, held by Clay
         2026-08-09 and awaiting Tony. `definition` deliberately says so, so a
         decode of `parked` cannot be mistaken for a ruling.  */

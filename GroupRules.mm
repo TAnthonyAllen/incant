@@ -6060,8 +6060,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 
 extern "C" void jitRestoreFrameRT(GroupItem *field)
 {
-	if ( field->groupBody->flags.recursive )
-		::restoreLocalFields(field);
+	::restoreLocalFields(field);
 }
 
 /* jitRunAction  the generic compile driver — the JIT analog of generateCode. Owns
@@ -6462,10 +6461,20 @@ extern "C" int jitRunIfTest(GroupItem *fld)
     path cannot drift from the interpreted one. The flag is set at PARSE time by
     identity (ruleActions.rtn:1310), so it is already live on the callee node.
 *******************************************************************************/
+/*  ⚠ THE GATE IS GONE, 2026-08-10, SEQ 27 rung B. The comment above says the
+    gate is CARRIED so the emitted path cannot drift from the interpreted one,
+    and that reasoning still holds -- both paths are now ungated together, so
+    they still cannot drift. What changed is that the gate itself was the
+    defect. It is set at parse time BY IDENTITY, so mutual recursion never sets
+    it at all, and it is CLEARED at run time by restoreLocalFields, so whether
+    the bracket runs depends on invocation history. Unconditional kills both.
+    The prerequisite was rung A: while the return seam handed back the local's
+    own node, ungating the sweep blanked every returned local rather than only
+    the self-mentioning ones. With the value captured before the sweep, that
+    coupling is gone.  */
 extern "C" void jitSaveFrameRT(GroupItem *field)
 {
-	if ( field->groupBody->flags.recursive )
-		::saveLocalFields(field);
+	::saveLocalFields(field);
 }
 
 /* jitSeedField  unbox a real count/number field operand — the past-constant-folding
@@ -9950,6 +9959,7 @@ GroupItem 	*stray = 0;
 extern "C" GroupItem *runAction(GroupItem *argument, GroupItem *field)
 {
 GroupItem 	*result = 0;
+GroupItem 	*capture = 0;
 GroupItem 	*ruleArg = 0;
 	if ( isCoded(field->groupBody->flags.actionType) )
 		if ( !::processCode(field) )
@@ -9972,8 +9982,10 @@ GroupItem 	*ruleArg = 0;
 		else	ruleArg->setGroup(result = field);
 	else	result = field;
 	GroupControl::groupController->groupRules->lastREF->setGroup(result);
-	if ( field->groupBody->flags.recursive )
-		::saveLocalFields(field);
+	/*  UNCONDITIONAL, 2026-08-10, SEQ 27 rung B. See the note above
+	jitSaveFrameRT for why the gate was the defect rather than the
+	protection, and why rung A's return seam had to land first.  */
+	::saveLocalFields(field);
 	/*  BRACKET THE INLINE. Under jitting this call is being INLINED -- the
 	BlocK below re-executes into the caller's builder -- so for the duration
 	the action being walked is `field`, and a recursive call inside it must
@@ -9992,8 +10004,57 @@ GroupItem 	*ruleArg = 0;
 		{
 		 jitInlinePop(result); 
 		}
-	if ( field->groupBody->flags.recursive )
-		::restoreLocalFields(field);
+	/*  THE RETURN SEAM -- VALUE-CAPTURE. Tony, 2026-08-10, SEQ 27 rung A.
+	
+	restoreLocalFields overwrites a local's body IN PLACE, so returning the
+	local's own node hands the caller a pointer INTO the frame that is about
+	to be swept. The caller then reads it back blanked -- it answers with its
+	own tag instead of its value, which is CLAIM KANT-8. The cure is to take
+	the value BEFORE the sweep and hand back the copy.
+	
+	THE BRACKET IS NOT TOUCHED. M1 measured the locals restoring perfectly at
+	every depth on both engines; the only defect was the returned pointer
+	aiming into the frame. So this is a seam repair, not a bracket repair.
+	
+	Three clauses, each load-bearing, each with a caller that proves it:
+	1. MINT A FRESH NODE and copy the value in -- never the local's node, and
+	never a bare scalar. manyKant and spellKant (genParse.rtn) both
+	null-check this result and then read .text off it, which a raw number
+	breaks. Note the copy constructor is NOT usable here: it SHARES the
+	body, which is precisely what the sweep overwrites. Minting and then
+	calling setContent is the detaching form, and setContent already
+	carries the contentless case (it stamps the tag as the text), so a
+	result with no value reads back the same string it does today.
+	2. MINT ON THE RESULT'S OWN TAG, so both the tag and the text answer
+	exactly as they did before this seam existed.
+	3. PRESERVE NULL AS NULL. Minting an empty node instead would invert the
+	two null checks at those same sites, and an empty answer would then
+	read as a successful one -- silently, and in the flattering direction.
+	⚠ MEASURED 2026-08-10, AND THE GUARD IS DEFENSIVE RATHER THAN LOAD-
+	BEARING, WHICH IS WORTH KNOWING BEFORE ANYONE "SIMPLIFIES" IT AWAY.
+	There are TWO ways this method answers with nothing. The reachable one
+	is the early return above, when a coded body fails to parse; it
+	returns before this block and so preserves nothing-ness for free. The
+	other is a run that gets past that and still yields no result, and a
+	sweep of the whole fixture population found it happening ZERO times in
+	128 files. So this guard is currently uncontrolled by any fixture: it
+	is here because without it the mint would dereference a null and take
+	the process down, not because a green run proves it fires. incant's
+	kant8N certifies the reachable path and says plainly that it does not
+	reach this one.
+	
+	NOT UNDER jitting. The jitted arm already returns by capture and is the
+	certified one; the node in flight there is the value channel an enclosing
+	assignment reads through jitData, which a fresh node would not carry.
+	The interpreter is adopting the jit's semantics here, so the jitted arm
+	owes byte-agreement and must emit unchanged.  */
+	if ( result && !GroupControl::groupController->groupRules->jitting )
+		{
+		capture = new GroupItem(result->groupBody->tag);
+		capture->setContent(result);
+		result = capture;
+		}
+	::restoreLocalFields(field);
 	return result;
 }
 

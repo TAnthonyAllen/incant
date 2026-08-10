@@ -1,0 +1,92 @@
+/*****************************************************************************
+    kant8N -- THE NULL PATH ACROSS THE RETURN SEAM. 2026-08-10, SEQ 27 rung A.
+
+    THE CLAUSE THIS EXISTS FOR, and it is the only one of the three that fails
+    quietly. The seam in runAction mints a fresh node and copies the value in.
+    Clause three says a run that produced no result must hand back nothing at
+    all, rather than a freshly minted empty node. The other two clauses have
+    loud customers -- a caller that reads text off a bare number breaks at once,
+    and a caller handed the local's own node reads it back blanked, which is the
+    whole of the defect this campaign repaired. Clause three has neither. Two
+    callers in the generated parse layer test their result for emptiness and
+    then read it, so an empty node arriving in place of nothing stops the
+    emptiness test firing and an empty answer is taken for a successful one.
+
+    ⚠⚠ READ THIS BEFORE TRUSTING A GREEN RUN HERE, because the first draft of
+    this file was green and certified NOTHING, and the negative control is the
+    only reason anybody knows.
+
+    THERE ARE TWO WAYS runAction ANSWERS WITH NOTHING, and they are not the same
+    path. The reachable one is its early return, taken when a coded body fails
+    to parse; that return happens ABOVE the seam and so preserves nothing-ness
+    without the seam being involved at all. The other is a run that gets past
+    that point and still yields no result, which is the one the seam's own guard
+    covers. Row N3 below travels the FIRST path. It was written believing it
+    travelled the second, and the control says otherwise: with the guard
+    deliberately removed and the seam minting on the empty path, N3 DID NOT
+    MOVE. A row that cannot go red is not evidence, so it is labelled here for
+    what it actually measures rather than for what was hoped.
+
+    AND THE SECOND PATH HAS NO ROW AT ALL, deliberately. A sweep of the entire
+    fixture population measured it occurring zero times in 128 files, so there
+    is no reachable case to build one from. Its guard stays because without it
+    the mint would dereference nothing and take the process down. That is stated
+    rather than papered over: an uncontrolled guard is a known gap, and a green
+    row invented to cover it would be worse than the gap.
+
+    WHAT THIS FILE THEREFORE CERTIFIES: that a call yielding nothing still
+    yields nothing after crossing the seam, on the path the corpus actually
+    reaches, with N0 as the anti-vacuity row proving the seam is running at all.
+
+    SENTINEL AT THE FOOT, exactly ONE stop.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(Kant8N);
+define
+    nOut;
+    nTwo;
+    nThree;
+    nFour;
+    nValued code={
+        nGood = 99;
+        return nGood;
+        };
+    nQuiet code={
+        nInner = 5;
+        };
+    nPrinter code={
+        print "N2 inside : the action ran, and its last act is this print":;
+        };
+    nEmpty code={
+        };
+    ;
+
+print "== N0 ANTI-VACUITY: an action that DOES return a value ==":;
+nThree = "stamped";
+nThree = nValued();
+print "N0 nThree =" nThree " (want 99; a stamped or cleared read means the seam is not running)":;
+
+print "== N1: a body with no return at all -- NOT a null, it yields its last value ==":;
+nOut = "stamped";
+nOut = nQuiet();
+print "N1 nOut =" nOut " (want 5; recorded because 'no return' is NOT the null path)":;
+
+print "== N2: a body whose last act is a print -- also not a null ==":;
+nTwo = "stamped";
+nTwo = nPrinter();
+print "N2 nTwo =" nTwo " (want 1; the print's own value, again not the null path)":;
+
+print "== N3: THE REACHABLE NULL -- a body that fails to parse, so nothing comes back ==":;
+nFour = "stamped";
+nFour = nEmpty();
+print "N3 nFour =" nFour " (want the cleared read nFour; stamped = never assigned; any mint tag = clause 3 broken)":;
+
+print "kant8N SENTINEL -- run reached the end":;
+stop();

@@ -1,4 +1,81 @@
-# ⚠⚠⚠ SEALED 2026-08-10 MIDDAY (CURRENT VINTAGE) — READ THIS SECTION FIRST.
+# ⚠⚠⚠ SEALED 2026-08-10 EVENING (CURRENT VINTAGE) — READ THIS SECTION FIRST.
+# **CLAIM KANT-8 IS REPAIRED.** BOTH RUNGS LANDED, ONE SEAL, NO SPLIT. THE FLEET IS
+# GREEN AT 173/0 AND 33/1. THE TWO DOORS ARE MEASURED ON BOTH SIDES.
+#
+# ⚠⚠ NEXT ACTION — **NOTHING IS SCHEDULED, AND THAT IS DELIBERATE.** The campaign
+#    that has headed this file since 08-08 is DONE. Pick from the drawer:
+#      · **KE-4's refusal rung** — the bounded-win cold-open, still cold, still the
+#        right thing for a fresh session that wants one. Ruled refuse-at-emit.
+#      · **`AND`/`OR` rung** — ruled but NOT built, drawer-ready in `docs/andOrRung.md`.
+#        Part 3 is a behaviour change to shipping text, so it wants the TOP of a session.
+#      · **Phase R rung 2 — Family A (REFERENCE, 5)** or Family C (CHARACTER SET, 4).
+#      · **H3's 3–4 command registrations**, and the **contract RUN** that converts
+#        H4 from READ to signable.
+#
+# ⚠ **WHAT LANDED (full record: `docs/kantCorpus.md`, CLAIM KANT-8, the block at the
+#   END of the claim — that table is the LEDGER OF RECORD; `KR-3` stays retired).**
+#   **RUNG A — value-capture in `runAction`:** the result's value is copied into a
+#   freshly minted node BEFORE the restore sweep, and that node is returned. Gated
+#   `!jitting`, because the jitted arm already returns by capture and owed
+#   byte-agreement only — which it delivered. ⚠ **The copy constructor could not be
+#   used: `GroupItem(GroupItem)` SHARES the body**, the very thing the sweep
+#   overwrites. Mint on the tag, then `setContent`.
+#   **RUNG B — the unconditional bracket:** all four `if field.recursive` gates gone.
+#   ⚠ Those four were the flag's ONLY readers, so `recursive` is now **vestigial** —
+#   written, cleared, read by nothing. Left in place; removing it is not this rung's.
+#
+# ⚠ **THE ORDER WAS THE WHOLE THING.** The 08-10 attempt did B without A and
+#   universalised the defect. A-then-B was ruled by measurement and it held exactly:
+#   **K3 stayed at 42 through both rungs**, so the fixture never went void this time.
+#
+# ⚠ **RESULTS, VALUES NOT COUNTERS:** K1 `k1loc`→**42** · K4 `k4loc`→**42** · K5
+#   `k5loc`/`k5loc`→**42/42** · **K6a 2→3, rung B's payoff** (mutual recursion, which
+#   the gate could NEVER cover because `recursive` is set at parse time by identity) ·
+#   K2 unchanged at 7 · **K6c unchanged at `k6small` — the argument-carrier's mutual
+#   failure is NOT repaired** · `kant8M1o` `m1count`→**42**, the second witness.
+#
+# ⚠ **TWO PRE-REGISTERED PREDICTIONS FIRED, AND BOTH INSTRUMENTS CAUGHT THEIR OWN
+#   REPAIR** — ladder **JRt3** (*"That is not a regression, it is NEWS: KANT-8 may have
+#   been repaired"*) and `kant8M1o`'s header. **Both graduated per H6 with their re-pin
+#   sentences.** Ladder stays at **173**: a graduation, not an addition.
+#
+# ⚠⚠ **THREE FINDINGS THAT OUTLIVE THE RUNG:**
+#   1. **THE TWO DOORS, MEASURED ON BOTH SIDES.** Door one (`runAction`) **523
+#      crossings, 523 action, 0 RULE**; door two (`runRule`→`rule.parse(0)`) **1183,
+#      0 action, 1183 RULE**. 1706 dispatches, **zero overlap**, name sets disjoint
+#      (211 vs 12). ⚠ **The 0 is a POSITIVE result, not an absence claim** — door two
+#      carries the entire rule population elsewhere. **This certifies the TWO DOORS
+#      ruling**, and under it this campaign is **maintenance of door one, the legacy
+#      door.**
+#   2. **K6f HAS COLLIDED — number unmoved, MEANING changed.** Its "5 = no trample"
+#      reading assumed the outer COUNTER carries across; with the bracket
+#      unconditional the counter is per-activation too, so the outer counts its own 4
+#      — **which is also 4**. One number, two eras. **K6a disambiguates** (3-wide
+#      outer: 2 = trampled, 3 = kept its own) and moved 2→3 on the same build.
+#      **Annotated, deliberately NOT re-sized** — that is a fixture-design call.
+#   3. ⚠ **CLAUSE 3'S FIXTURE WAS GREEN AND CERTIFIED NOTHING, and only the negative
+#      control knew.** `runAction` has TWO null paths. The **reachable** one is its
+#      early return on a parse failure, ABOVE the seam. The **guarded** one measured
+#      **0 occurrences in 128 files**. So the null guard is correct and prevents a
+#      dereference, but is **uncontrolled by any fixture** — said plainly in
+#      `incant/kant8N`'s header rather than papered over with an invented green.
+#
+# ⚠ **NOT REPAIRED, so it is not oversold:** **KE-4** (text local on the JITTED arm
+#   returns its LENGTH) — rung A is `!jitting` by design and could not have touched it.
+#   **K6c**, above. The vestigial flag, above.
+#
+# ⚠ THE FLEET AT SEAL: ladder **173 / exit 0** · pop **33 green / 1 parked** · gapB 22 ·
+#   mixed 7 · **completePop 128 swept** (was 127; +1 and +2 green are `kant8N`, named) ·
+#   tree/printPop/containerPop/recordPop/formsPop/decodePop exit 0 · oneTest, jsonTest,
+#   phaseA, emitAll, kant8T exit 0. **Blast radius: every harness differs by the H1
+#   binary echo ONLY**, every exit status identical, `oneTest`/`jsonTest`/`phaseA`/
+#   `emitAll`/`kant8M1`/`spellScratch` byte-identical. Working tree carries this work
+#   plus Tony's own `IncantForms/WorkingOn/incant++`.
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# ⚠⚠ SEALED 2026-08-10 MIDDAY (SUPERSEDED BY THE BLOCK ABOVE) — its NEXT ACTION,
+# # the seam + bracket campaign, is the work the block above reports as DONE.
 # THE SEAM IS RULED · THE CENSUS IS EMPTY · KE-4 IS RULED · THE CHANNEL IS TRACKED.
 # TODAY REVERTED ITS ONLY BUILD AND STILL ENDS AHEAD: four premises retired, two
 # doors found, a channel made legible, and the next session opens at a FIXTURE LIST.
