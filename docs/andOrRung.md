@@ -64,6 +64,8 @@ extern GroupItem opOR(GroupItem argument, GroupItem target)
 must be **promoted from operators to intercepting rule actions** — they are registered today as
 `AND operateMethod=opAND;` / `OR operateMethod=opOR;` (`incant/setup:114,117`), the two-arg
 isOperator arm — and the promotion lands in **BOTH engines**, not just the JIT.
+**The category the promotion moves them INTO is named in §6** — tier 3, evaluation-controlling
+constructs, which are not operators at all.
 
 ⚠ **AND THE REASSURING HALF: THE INTERPRETED ARM DOES NOT MEET THE RULING TODAY EITHER.** `opAND`
 returns `trueResult` **or `null`**; `opOR` returns `trueResult`/`falseResult`. Neither returns
@@ -99,6 +101,24 @@ short-circuits by construction instead (`CLAIM KANT-34`).
 ## 3. THE RUNG — six parts, ONE DISCHARGED (part 3), five remaining
 
 1. **Interceptor handlers, per the `if` precedent.** The existing gate shape; nothing new invented.
+
+   ⚠ **OPERAND TRUTHINESS — NORMATIVE FOR BOTH ENGINES.** The interceptors accept mixed operand
+   types and test truth per this table, identically in both engines:
+
+   | operand | truth |
+   |---|---|
+   | null (no node) | **false** |
+   | present node, any contents — **including a node holding 0** | **true** |
+   | scalar | **by value** — 0 false, nonzero true |
+
+   **Presence, not contents, for nodes; value for scalars.** Pinned because the parse consumer
+   chains mix **kant** methods (1/0 per the contract) with `parseR` results (**GroupItem or null**
+   — §4 H3(a) of `docs/attributesTemplate.md`), and because **the current handlers disagree with
+   each other**: `opAND` fails with `null`, `opOR` with `falseResult`. **Neither existing behaviour
+   is the rule; this table is.** Byte-agreement (§1 bullet 2) is unsatisfiable on mixed-mode
+   alternations without it.
+   **The node-holding-0 row is the one that would bite silently** — both engines must answer it the
+   same way and **neither today answers it at all**.
 2. **Emitter diamond, carrying E2's lessons.** Value rides the **operand's `jitValue` channel**
    (⚠ *not* `gJitResult` — that conflation silently un-jitted every if/else and is the
    one-channel-one-meaning ledger's second row). **No phi** — fields are memory, and the merge is
@@ -144,6 +164,11 @@ The parse-template respell (`docs/attributesTemplate.md`):
 
 - **ALTERNATION → a bare `OR` chain.** With C++ semantics and real short-circuit, the
   first-match-wins chain collapses to one expression.
+- ⚠ **SEQUENCE does NOT collapse to an `AND` chain.** The if-chain SEQUENCE is **JXT — green,
+  jitted, degrade 0** — and an `AND`-chain respell would need **its own certification rung** to buy
+  brevity that *generated* text does not need. **Freeze-once compels movement only where the shape
+  is expected to be superseded, and only ALTERNATION carries that banner.** SEQUENCE's certified
+  spelling is **final** for the step-4 oracle.
 - ⚠ **SEQUENCE KEEPS ITS ENTRY-SAVE / TAIL-RESTORE EPILOGUE. The `AND` collapse alone does not
   satisfy the contract.** Short-circuit stops the *evaluation*; it does not give back what the
   arms that DID run consumed. Those are different facts and only one of them is an operator's job.
@@ -158,3 +183,30 @@ The parse-template respell (`docs/attributesTemplate.md`):
 change to shipping text**, which is the loudest reason on the list to start it at the top of a
 session rather than the bottom of one — *match the task's failure loudness to the seat's
 mechanical state*. The rung is specced so that starting it costs no archaeology.
+
+## 6. DOCTRINE — THE `runOP` TIERS, AND THE PHASE RULE
+
+Ruled in the Clay↔Tony thread, 2026-08-10; **this file is the transcription — the thread wins on
+disagreement**, same standing as §0's note.
+
+**`runOP` is the interpreter's strict-operator dispatcher and nothing else.** The emitter reads
+**the same registration table** at emit time and **never calls `runOP`.** Three tiers:
+
+| tier | what | how it is emitted | how agreement is bought |
+|---|---|---|---|
+| **1** | **hot scalar operators** | inlined IR | **by measured rung** |
+| **2** | **strict long-tail operators** | emitted **direct call to the shared C++ handler** | **by construction** |
+| **3** | **evaluation-controlling constructs** — *not operators* | **interceptor + diamond** | **by measurement, tick-discriminated** (part 6) |
+
+**Tier 3 stays small: `if`, `AND`/`OR`, iteration — then the door closes.**
+
+⚠ **THE PHASE RULE: emit time never enters a runtime handler for its value; run time never enters
+an emitter.** §2's `OR` silent-wrong is the **first violation** — the handler ran at emit and the
+value folded. The parked **`jitEmitUnary`←`opPlusPlus` 139** carries the **inverse** signature in
+its backtrace (a runtime handler entering an emitter); that parking note is cross-referenced to
+this rule as its **likely diagnosis frame**. **The 139 stays parked — adjacency is not scope.**
+
+⚠ **TIER-2 CAVEAT, UNMEASURED:** tier 2 assumes the **GroupItem-in / GroupItem-out** boundary holds
+for handlers **called from IR with no `runOP`-established interpreter state around them.** Not
+owed now, named so it is owed then: **the probe is Clod-sized when tier 2 is first exercised — one
+cold operator, emitted direct call, fire twice.**

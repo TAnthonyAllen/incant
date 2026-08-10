@@ -2421,6 +2421,11 @@ first time in a while, and it crashes (139) on the `jitInc` fixture:**
 Squarely in the JIT arc (`++`'s emit path), nothing to do with genParse. `jitscratch` is not a
 baseline and was not passing before in any meaningful sense — the old body never called
 `jitRunAction` at all.
+⚠ **CROSS-REFERENCE ADDED 2026-08-10 — LIKELY DIAGNOSIS FRAME, still parked, still not chased:**
+this backtrace carries the **inverse** signature of the phase rule in `docs/andOrRung.md` §6
+(*emit time never enters a runtime handler for its value; run time never enters an emitter*) —
+here a **runtime handler enters an emitter** (`opPlusPlus` → `jitEmitUnary`), where §2's `OR`
+silent-wrong is the same rule broken the other way. **Frame only; adjacency is not scope.**
 
 ## Open, Tony's (carried forward, none touched today)
 - **TODO.md cause-1 entry** — annotate as dead-since-`875b936`, don't strike. His file.
