@@ -6,6 +6,11 @@
 signature: **safety and structure by construction, not by guard machinery.** Tony's earlier
 GUI→HTML work is prior art and existence proof for the no-CSS emission model.
 
+⚠ **Independently convergent with the 2026-08-06 Display ruling** (*"context + one style slot + pen
++ measure, typeset is a pre-pass"*): **§3's current style is that slot, §6's measurement is that
+measure.** Two design passes, different entry points, same architecture — **checked, not assumed**
+(Clod, SEQ 30).
+
 ---
 
 ## §1 The pipeline
@@ -62,7 +67,8 @@ bounded to the next named-style anchor.
 
 - **Raw deltas** make state the residue of history — you must replay to know it, and it is
   order-fragile.
-- **Save/restore** is door one's bracket in costume, and its failure class is **freshly measured**.
+- **Save/restore** is door one's bracket in costume, and its failure class is **measured SEQ 27,
+  commit `168453d`** (`CLAIM KANT-8`, `docs/kantCorpus.md`).
 - **Parent-hierarchy walk** rejected: query-per-read cost, and it couples rendering to tree
   position, so **moving a fragment changes its print**.
 

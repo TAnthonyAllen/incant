@@ -120,13 +120,17 @@ sentinel "decodeT sentinel (run reached the end)" "$T/dt.o" "DECODET SENTINEL"
 #  The two scalars decodeT prints. Both compared by value.
 nt=$(sed -n 's/^TALLY terms = *\([0-9][0-9]*\).*/\1/p'       "$T/dt.o" | head -1)
 nd=$(sed -n 's/^TALLY definitions = *\([0-9][0-9]*\).*/\1/p' "$T/dt.o" | head -1)
-#  ⚠ RE-PIN 2026-08-10, SEQ 27/28, AND THE SENTENCE THE RULE ASKS FOR: 34 -> 35
-#  because the corpus gained exactly one RULED term, `twoDoors` (Tony, ruled in Clay
-#  chat, relayed SEQ 28) -- the two entry paths into an action body. The target moved
-#  because the world did, and here is the cause. Nothing was lost: the count went UP
-#  by one and the named term is in incant/decoder under its own dated heading.
-check "corpus holds 35 terms"          35 "$nt"
-check "35 of them carry a definition"  35 "$nd"
+#  ⚠ RE-PIN 2026-08-10, SEQ 27/28/29, AND THE SENTENCES THE RULE ASKS FOR. 34 -> 36
+#  in two named steps, neither of them a loss -- the count went UP and both terms are
+#  in incant/decoder under their own dated heading:
+#      +1  `twoDoors`          the two entry paths into an action body. Ruled Tony
+#                              2026-08-10, and CERTIFIED the same day by the SEQ 27
+#                              crossing census rather than resting on authority.
+#      +1  `oneNumberTwoEras`  a green that survived a semantics change by
+#                              arithmetic accident. Dictated SEQ 29 from kant8T's
+#                              K6f, which is the measured case.
+check "corpus holds 36 terms"          36 "$nt"
+check "36 of them carry a definition"  36 "$nd"
 check "every term is defined"     "$nt" "$nd"
 
 #  decodeT's own self-certification, asserted FROM OUTSIDE -- a harness that
@@ -185,7 +189,7 @@ fi
 #  sentinel line ("DECODE SENTINEL -- run reached the end"). An unanchored
 #  count read 38 for 37 real rows. A definition row is `<singleWord> -- `.
 nl=$(grep -cE '^[A-Za-z][A-Za-z0-9]* -- ' "$T/dc.o")
-check "corpus dump + decode line = 38 definition rows" 38 "$nl"
+check "corpus dump + decode line = 39 definition rows" 39 "$nl"
 
 #  ⚠ THE DATALESS-ECHO ROW, and the reason this file exists. A definition that
 #  never stored prints as the ATTRIBUTE'S OWN NAME. In-language it compares

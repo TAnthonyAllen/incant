@@ -1,16 +1,17 @@
-# ⚠⚠⚠ SEALED 2026-08-10 EVENING (CURRENT VINTAGE) — READ THIS SECTION FIRST.
-# **CLAIM KANT-8 IS REPAIRED.** BOTH RUNGS LANDED, ONE SEAL, NO SPLIT. THE FLEET IS
-# GREEN AT 173/0 AND 33/1. THE TWO DOORS ARE MEASURED ON BOTH SIDES.
+# ⚠⚠⚠ SEALED 2026-08-10 EVENING — SHUTDOWN SEAL (CURRENT VINTAGE). READ THIS FIRST.
+# **CLAIM KANT-8 IS REPAIRED AND CLOSED** — open since 2026-07-29, shut in ONE campaign,
+# TWO rungs, ONE seal, no split. **THE TWO DOORS ARE RULED AND CERTIFIED.** Display has a
+# design doc. Fleet green at **173/0** and **33 green / 1 parked**.
 #
-# ⚠⚠ NEXT ACTION — **NOTHING IS SCHEDULED, AND THAT IS DELIBERATE.** The campaign
-#    that has headed this file since 08-08 is DONE. Pick from the drawer:
-#      · **KE-4's refusal rung** — the bounded-win cold-open, still cold, still the
-#        right thing for a fresh session that wants one. Ruled refuse-at-emit.
-#      · **`AND`/`OR` rung** — ruled but NOT built, drawer-ready in `docs/andOrRung.md`.
-#        Part 3 is a behaviour change to shipping text, so it wants the TOP of a session.
-#      · **Phase R rung 2 — Family A (REFERENCE, 5)** or Family C (CHARACTER SET, 4).
-#      · **H3's 3–4 command registrations**, and the **contract RUN** that converts
-#        H4 from READ to signable.
+# ⚠⚠ NEXT ACTION — **NONE IS MANDATED, AND THAT IS ITSELF THE NEWS.** The campaign that
+#    has headed this file since 08-08 is DONE, and nothing replaced it at the head. **THE
+#    DRAWER IS THE MENU.** Full list at the FOOT of this seal under DRAWER AT SHUTDOWN;
+#    the two bounded openers, for a session that wants a clean win, are:
+#      · **KE-4's refusal rung** — still cold, still ruled refuse-at-emit, still the right
+#        cold-open. **Deliberately not taken today** — today already had its win.
+#      · **DISPLAY FIRST LIGHT — the HTML target.** Wiki-scope **static documents only**
+#        (no JS, no events, per §7.1); **first customer is docs-to-HTML**; opens whenever
+#        a session wants a green-fleet build day. `docs/displayDesign.md`.
 #
 # ⚠ **WHAT LANDED (full record: `docs/kantCorpus.md`, CLAIM KANT-8, the block at the
 #   END of the claim — that table is the LEDGER OF RECORD; `KR-3` stays retired).**
@@ -21,8 +22,12 @@
 #   used: `GroupItem(GroupItem)` SHARES the body**, the very thing the sweep
 #   overwrites. Mint on the tag, then `setContent`.
 #   **RUNG B — the unconditional bracket:** all four `if field.recursive` gates gone.
-#   ⚠ Those four were the flag's ONLY readers, so `recursive` is now **vestigial** —
-#   written, cleared, read by nothing. Left in place; removing it is not this rung's.
+#   ⚠ Those four were the flag's ONLY readers, so `recursive` is now **VESTIGIAL as of
+#   `168453d`** — written (`ruleActions.rtn:1389`), cleared (`GroupActions.rtn:653`),
+#   **read by nothing.** Removal DEFERRED, not forgotten: it is a field removal and so
+#   bear-trap #16 territory (`groups.ext`'s mirror first, then `tokall`). **Same family
+#   as the `ruleSTUFF` write-only ruling.** Dated note carried in the corpus entry **so a
+#   future census reads it as a KNOWN state instead of rediscovering it as a mystery.**
 #
 # ⚠ **THE ORDER WAS THE WHOLE THING.** The 08-10 attempt did B without A and
 #   universalised the defect. A-then-B was ruled by measurement and it held exactly:
@@ -43,22 +48,49 @@
 #   1. **THE TWO DOORS, MEASURED ON BOTH SIDES.** Door one (`runAction`) **523
 #      crossings, 523 action, 0 RULE**; door two (`runRule`→`rule.parse(0)`) **1183,
 #      0 action, 1183 RULE**. 1706 dispatches, **zero overlap**, name sets disjoint
-#      (211 vs 12). ⚠ **The 0 is a POSITIVE result, not an absence claim** — door two
-#      carries the entire rule population elsewhere. **This certifies the TWO DOORS
-#      ruling**, and under it this campaign is **maintenance of door one, the legacy
-#      door.**
+#      (211 vs 12). ⚠ **The 0 is a POSITIVE named-set result, not an absence claim** —
+#      door two carries the entire rule population elsewhere. **THE CENSUS CERTIFIES THE
+#      RULING RATHER THAN MERELY SCOPING THE RUNG**, so it stands on measurement and not
+#      on authority alone — ruled and certified the SAME DAY. Filed as **`CLAIM KANT-41`**
+#      (RUN). Under it this campaign is **maintenance of door one, the LEGACY door**, and
+#      **proposals to EXTEND door one's machinery should cite the ruling first.** ⚠ The
+#      convergence question **inverts and PARKS**: not *"does door two need a bracket"*
+#      but, post-self-hosting, *"does door one still need to exist."* **Nobody's task.**
 #   2. **K6f HAS COLLIDED — number unmoved, MEANING changed.** Its "5 = no trample"
 #      reading assumed the outer COUNTER carries across; with the bracket
 #      unconditional the counter is per-activation too, so the outer counts its own 4
 #      — **which is also 4**. One number, two eras. **K6a disambiguates** (3-wide
 #      outer: 2 = trampled, 3 = kept its own) and moved 2→3 on the same build.
-#      **Annotated, deliberately NOT re-sized** — that is a fixture-design call.
+#      **Annotated, deliberately NOT re-sized** — a fixture whose meaning changed is a
+#      design object again. ⚠ **THE RE-SIZE IS SPEC'D AND AWAITS TONY'S NOD** (SEQ 29):
+#      differentiate the outer and inner widths, **e.g. 5 / 3**, so the two eras stop
+#      aliasing on one number and *"no trample"* is discriminating rather than
+#      coincidental. One-line edit; **owner is whoever next takes the K-row table.**
+#      **The failure class now has a NAME** — `oneNumberTwoEras`, minted into the decoder
+#      corpus: *a green that survived a semantics change by arithmetic accident.*
 #   3. ⚠ **CLAUSE 3'S FIXTURE WAS GREEN AND CERTIFIED NOTHING, and only the negative
 #      control knew.** `runAction` has TWO null paths. The **reachable** one is its
 #      early return on a parse failure, ABOVE the seam. The **guarded** one measured
-#      **0 occurrences in 128 files**. So the null guard is correct and prevents a
-#      dereference, but is **uncontrolled by any fixture** — said plainly in
-#      `incant/kant8N`'s header rather than papered over with an invented green.
+#      **0 occurrences in 128 files**. So the null guard is **confirmed correct by
+#      census** and prevents a dereference, but is **uncontrolled by any fixture** —
+#      **honestly labelled uncontrolled-until-reachable** in `incant/kant8N`'s header
+#      rather than papered over with an invented green.
+#      ⚠ **AND THE ZERO HAS A MECHANISM, found by reading the corpus: `BLOCKED KANT-B1`,
+#      filed a week earlier by a different round, tried FOUR ways to produce a null from
+#      a kant body and could not.** So the 0-in-128 is not *"nobody happens to"* but
+#      ***"kant cannot express it"*** — much stronger, and it settles the ambiguity a bare
+#      count would have left. **The two findings were made a week apart and each would
+#      otherwise have been re-derived; both entries are now cross-linked.** B1's blocker
+#      is thereby located as **UPSTREAM of the seam** — clause 3 preserves a null if one
+#      ever arrives, so the probe belongs at `processAction`'s `BlocK` result.
+#      ⚠ **THIS IS THE DAY'S BEST EXHIBIT FOR THE VIGRAM THESIS: A CONTROL NEEDED A
+#      CONTROL.** The fixture was green; only the mechanism-removed run — by **failing to
+#      go red** — revealed that the green certified nothing. Without it the seal would
+#      have read *"clause 3 controlled"* and been wrong **in the flattering direction**,
+#      which is clause 3's own documented danger. **Discipline-as-structure caught it,
+#      not care.** Same lesson, same day, one level down: `${PIPESTATUS[0]}` — this
+#      repo's own documented bear-trap, read this morning — **bit anyway**, and was
+#      caught by re-measurement rather than by knowing.
 #
 # ⚠ **NOT REPAIRED, so it is not oversold:** **KE-4** (text local on the JITTED arm
 #   returns its LENGTH) — rung A is `!jitting` by design and could not have touched it.
@@ -70,12 +102,46 @@
 #   phaseA, emitAll, kant8T exit 0. **Blast radius: every harness differs by the H1
 #   binary echo ONLY**, every exit status identical, `oneTest`/`jsonTest`/`phaseA`/
 #   `emitAll`/`kant8M1`/`spellScratch` byte-identical. Working tree carries this work
-#   plus Tony's own `IncantForms/WorkingOn/incant++`.
+#   plus Tony's own `IncantForms/WorkingOn/incant++`. Commits `168453d` (the campaign),
+#   `7f99e66` (Display design), plus the SEQ 30 closeout.
+#
+# ⚠ **SEQ 29 — DISPLAY IS DESIGNED AND RECORDED: `docs/displayDesign.md`.** source →
+#   form → attributes → target. Two rulings inside it: **§3 the stream model** — output
+#   is a **forward-only stream, not a scope tree**; named styles replace state wholesale,
+#   **no restore exists BY CONSTRUCTION** (no bracket, no seam — §4 cites this repo's own
+#   freshly measured failure class as the reason); and **§5 emission** — targets receive
+#   **resolved** output, **no CSS**, everything inline. ⚠ **Independently convergent with
+#   the 2026-08-06 Display ruling** ("context + one style slot + pen + measure"): §3's
+#   current style IS that slot, §6's measurement IS that measure. **Two design passes,
+#   different entry points, same architecture — checked, not assumed.**
+#   `docs/note-to-clay-style.md` (the 06-27 ask) carries a dated pointer to it, naming
+#   what is settled and what is **not** (Cocoa seams, the SVG sink, §9(a) based-on chains).
+#   **`layout-recon.md` and `gui.md` get NO pointer** — they are §7.2 window-target
+#   INPUTS, not superseded designs.
+#
+# ⚠⚠ **DRAWER AT SHUTDOWN — the menu, in no mandated order:**
+#   · **KE-4 refusal rung** — bounded opener, cold, ruled refuse-at-emit. **Cold and NOT
+#     oversold: rung A is `!jitting` by design and could not have touched it.**
+#   · **Display First Light (HTML)** — bounded opener, scope-fenced to wiki-like static
+#     documents, first customer docs-to-HTML.
+#   · **K6f re-size** — spec'd, **awaiting Tony's nod**, owner = next K-row rung.
+#   · **`AND`/`OR` rung** — ruled, **drawer-ready** in `docs/andOrRung.md`, NOT built.
+#     Part 3 changes shipping text, so it wants the TOP of a session.
+#   · **First Light (parse)** — waiting. Behind it: Phase R rung 2 (Family A REFERENCE 5,
+#     or Family C CHARACTER SET 4) · **H3's 3–4 command registrations** · the **contract
+#     RUN** that converts H4 from READ to signable.
+#   · **At Clay's station, undrafted:** the **minion-channel addendum** and the
+#     **citation-sweep dispatch**.
+#
+# ⚠ **STILL STANDING, so nothing here reads as finished that is not:** **K6c** — the
+#   argument-carrier's MUTUAL failure is **not** repaired by either rung and remains
+#   `k6small`. **KE-4** — text local on the JITTED arm returns its LENGTH. **The
+#   vestigial flag.** **`BLOCKED KANT-B1`** — kant still cannot express a null.
 #
 # ═══════════════════════════════════════════════════════════════════════════════
 #
-# ⚠⚠ SEALED 2026-08-10 MIDDAY (SUPERSEDED BY THE BLOCK ABOVE) — its NEXT ACTION,
-# # the seam + bracket campaign, is the work the block above reports as DONE.
+# ⚠⚠ SEALED 2026-08-10 MIDDAY (SUPERSEDED BY THE BLOCK ABOVE) — its NEXT ACTION, the
+# seam + bracket campaign, is the work the block above reports as DONE AND CLOSED.
 # THE SEAM IS RULED · THE CENSUS IS EMPTY · KE-4 IS RULED · THE CHANNEL IS TRACKED.
 # TODAY REVERTED ITS ONLY BUILD AND STILL ENDS AHEAD: four premises retired, two
 # doors found, a channel made legible, and the next session opens at a FIXTURE LIST.

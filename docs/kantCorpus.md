@@ -756,10 +756,22 @@ reading the result) both change a function on the interpreter's hot path.
 > with no IR-shaped row moving.
 >
 > **RUNG B — THE UNCONDITIONAL BRACKET.** All four `if field.recursive` gates removed
-> (`jitSaveFrameRT`, `jitRestoreFrameRT`, and `runAction`'s own save/restore pair). ⚠ **The four
-> sites were the ONLY readers of the flag** (tree-wide grep); `recursive` is now written at
-> `ruleActions.rtn:1389`, cleared at `GroupActions.rtn:653`, and **read by nothing** — vestigial,
-> and left in place as out of scope.
+> (`jitSaveFrameRT`, `jitRestoreFrameRT`, and `runAction`'s own save/restore pair).
+>
+> > ### ⚠ DATED NOTE — `field.recursive` IS VESTIGIAL AS OF `168453d` (2026-08-10)
+> > **Written, cleared, and read by nothing.** The four gates removed by this rung were the flag's
+> > **only readers** (tree-wide grep, same day). What remains is a **writer** at
+> > `ruleActions.rtn:1389` (parse time, by identity) and a **clearer** at `GroupActions.rtn:653`
+> > (run time, inside `restoreLocalFields`) — two sites maintaining a bit that nothing consults.
+> > **Removal is DEFERRED, not forgotten:** it is a field-removal and therefore bear-trap #16
+> > territory (`groups.ext`'s `external` mirror must be edited first or `tokall` will not drop it),
+> > which is a bigger blast radius than this rung's scope. **Same family as the `ruleSTUFF`
+> > write-only ruling** — a field kept alive by its writers after its readers went away.
+> > ⚠ **This note exists so a future census reads it as a KNOWN state and not as a mystery**, which
+> > is the failure it is written against. *(Provenance care: the `ruleSTUFF` comparison is Tony's,
+> > relayed SEQ 29; a grep for that ruling's own text did not locate a file, so it is cited as a
+> > family resemblance and NOT as a line reference. Whoever formalises it should locate the original
+> > rather than inherit this sentence — Amendment A's lesson, applied to my own citation.)*
 >
 > ### THE K-ROW TABLE — THE LEDGER OF RECORD
 >
@@ -787,6 +799,21 @@ reading the result) both change a function on the interpreter's hot path.
 > re-sized** — choosing new widths so K6f discriminates alone is a fixture-design decision and
 > belongs to whoever owns this table, not to the rung that revealed the collision.
 >
+> > ### 🔧 THE RE-SIZE, SPEC'D AND AWAITING TONY'S NOD — DRAWER ITEM, NOT APPLIED
+> > **Tony, SEQ 29.** The restraint above is ratified — *"a fixture whose meaning changed is a
+> > design object again"* — and the repair is one line.
+> > **THE FIX: make the outer and inner list widths DIFFER, so the two eras stop aliasing.**
+> > Suggested **outer 5, inner 3** (today: outer 4, inner 2). The collision exists because the old
+> > counter-carries-across arithmetic and the new per-activation arithmetic land on the same total;
+> > with the widths separated, **the old semantics predicts one number and per-activation predicts
+> > another**, so *"no trample"* becomes **discriminating again instead of coincidental**.
+> > ⚠ **Whoever takes the next K-row rung carries this.** Re-state both predicted numbers in the
+> > row's legend when it lands, so the row cannot re-collide silently — and note that a re-size
+> > makes K6f independent of K6a again, which is the property its original comment claimed and
+> > this rung measured it to have lost.
+> > **The failure class now has a name:** `oneNumberTwoEras`, minted into the decoder corpus the
+> > same day — *a green that survived a semantics change by arithmetic accident.*
+>
 > ### ⚠ CLAUSE 3 IS THE HONEST ROW, AND ITS FIRST FIXTURE WAS GREEN AND CERTIFIED NOTHING
 > `incant/kant8N` was written as clause 3's negative control. It passed. **Then the control ran and
 > the row did not move** — because `runAction` has **two** ways of answering with nothing, and the
@@ -799,6 +826,14 @@ reading the result) both change a function on the interpreter's hot path.
 > so in its own header and labels its rows for what they measure. **Recorded rather than papered
 > over: an uncontrolled guard is a known gap, and a green row invented to cover it would be worse
 > than the gap.**
+>
+> ⚠ **AND THE ZERO HAS A MECHANISM — see `BLOCKED KANT-B1`, filed a week earlier by a different
+> round.** B1 tried **four ways to produce a null from a kant body and could not.** So the 0-in-128
+> is not *"nobody happens to do this"* but *"kant cannot express it"*, which is a much stronger
+> statement and settles the ambiguity a bare count would have left. **The guard stays uncontrolled
+> until B1 is solved**, and B1's blocker is now located as **upstream of the seam** — clause 3
+> preserves a null if one ever arrives, so the probe belongs at `processAction`'s `BlocK` result and
+> not at the return.
 >
 > ### CARRIER DISCIPLINE — THE DATED RETIREMENT NOTE THE OBLIGATION ASKED FOR
 > **It survives for exactly one population, and it is not the one it was written for.** For
@@ -1936,6 +1971,56 @@ scope:       Extends CLAIM KANT-26 from quoted strings to comments; the
 
 ## BLOCKED
 
+### CLAIM KANT-41 — TWO DOORS into an action body, and only one has a bracket or a seam
+```
+statement:   There are exactly two entry paths into an action body.
+             DOOR ONE -- `actionType` calls through `runAction`, which carries the
+             local-save bracket and the return seam.
+             DOOR TWO -- coded RULES: `ruleActions.rtn:352` binds `processAction`
+             DIRECT, and `runRule` goes to `rule.parse(0)`. No bracket, no seam,
+             by construction.
+             RULED 2026-08-10: door two is the ARCHITECTURAL DESTINATION, not an
+             unexamined gap. Rule actions are frameless BY DESIGN; their safety
+             property is the recursive-descent calling convention itself --
+             uniform 1/0 return, `atRuleMark` restored on failure -- and not a
+             runtime frame. The bracket and the seam are door one's machinery,
+             appropriate to the arbitrary-action population, which needs a frame
+             precisely because it carries no contract.
+confidence:  RUN
+provenance:  Ruled Tony 2026-08-10 in Clay chat; CERTIFIED the same day by the
+             SEQ 27 crossing census -- 1706 dispatches, door one 523/523 action/
+             0 RULE, door two 1183/0/1183, name sets disjoint (211 vs 12). The 0
+             is a POSITIVE named-set result, not an absence claim: door two is
+             not merely failing to cross the seam, it is carrying the ENTIRE rule
+             population elsewhere. Corroborated structurally by a static
+             enumeration of all four `runAction` call sites
+             (`GroupActions.rtn:895`, `Commands.rtn:191`, `genParse.rtn:847`,
+             `:964`) and by `runOP` testing `or isRule` BEFORE `or actionType`,
+             so a rule cannot reach the seam by construction.
+             ⚠ THE CENSUS CERTIFIES THE RULING RATHER THAN MERELY SCOPING THE
+             RUNG -- the ruling stands on measurement, not on authority alone.
+asOf:        2026-08-10, commit 168453d
+scope:       CONSEQUENCE 1: door one is the LEGACY door. The 2026-08-10 seam +
+             bracket campaign completes its CORRECTNESS and is maintenance of the
+             existing population, not investment in the destination path.
+             Proposals to EXTEND door one's machinery should cite this ruling
+             before proceeding.
+             CONSEQUENCE 2: the calling convention is promoted from interface
+             DISCIPLINE to load-bearing SAFETY. A generated parse method that
+             violates the 1/0 / atRuleMark contract is a SAFETY defect, not a
+             style defect. The vigram is the designated place where contract
+             conformance becomes checkable rather than trusted.
+```
+⚠ **THE CONVERGENCE QUESTION INVERTS, AND IT IS PARKED.** Not *"does door two need a bracket"* but,
+**post-self-hosting, *"does door one still need to exist"***. **Nobody's task** — recorded here so
+the inversion is not rediscovered rather than because anyone is expected to act on it.
+
+**Why this sits in the corpus rather than only in `CLAIM KANT-8`:** KANT-8's head carries the two
+doors as the *territory* of that defect. This entry carries them as an **architectural ruling** with
+its own provenance, because the ruling outlives the defect — and a future round asking *"why is the
+rule population frameless"* needs the answer to be **a ruling it can act on**, not a scoping note
+inside a repaired claim.
+
 ### BLOCKED KANT-B1 — a kant action cannot return NULL across `runAction`
 ```
 wanted:      The refusal answer. C++ emitLeaf refuses an unknown plan kind with
@@ -1986,6 +2071,31 @@ documented as fact. That is the risk here, not the reverse.
 > `BLOCKED KANT-B3` below. The refusal that DOES work is a two-valued text answer —
 > `CLAIM KANT-32`. The paragraph above is left standing because it is what was believed
 > when it was written; the correction sits beside it rather than replacing it.
+
+> ### ⚠ CORROBORATED FROM THE OPPOSITE END, 2026-08-10 (SEQ 27's clause-3 census, commit `168453d`)
+> **This entry and the seam campaign measured the same fact from two directions, and neither knew
+> about the other until the corpus was read.** B1 tried four ways to **produce** a null from a kant
+> body and could not. The SEQ 27 census instrumented `runAction`'s post-`processAction` return and
+> swept the whole structural fixture population: **that null occurred 0 times in 128 files.**
+>
+> **So B1 is the MECHANISM behind that zero**, and the zero is independent evidence for B1. Neither
+> is a bare count any more: *"nobody happens to return null"* and *"kant cannot express one"* were
+> two readings of the same measurement, and B1 settles which.
+>
+> ⚠ **WHAT THE SEAM REPAIR DID AND DID NOT CHANGE HERE.** Rung A's value-capture preserves null as
+> null (clause 3) — so **if** a body ever produced one, the seam would now hand it back intact. **B1
+> therefore stands unchanged, and its blocker is located: it is UPSTREAM of the return seam**, in
+> body evaluation, not at the hand-back. A future round should stop probing the return and probe
+> `processAction`'s `BlocK` result instead.
+>
+> **Consequence for the seam's own guard, recorded honestly:** `runAction`'s null guard is correct
+> and prevents a dereference, but is **uncontrolled by any fixture and cannot be controlled until B1
+> is solved** — there is no reachable case to build a negative control from. `incant/kant8N` says
+> so in its own header rather than carrying an invented green.
+>
+> *(Cross-link added by Clod, SEQ 30, on reading this entry while filing `CLAIM KANT-41` — the two
+> findings were made a week apart by different rounds and would otherwise each have been re-derived.
+> Neither entry's original text is altered.)*
 
 ### BLOCKED KANT-B3 — `:.` (opSetFlag) sets NO flag from a code body; every groupField tried fell to `not supported yet`
 ```

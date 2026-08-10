@@ -1,6 +1,33 @@
 # To Clay — the font/color/style layer needs your design pass (Stylish forced the issue)
 *Design handoff drafted by Clod, 2026-06-27. Constraint set by Tony.*
 
+> ## ⚠ DATED POINTER, 2026-08-10 (SEQ 30) — **THE DESIGN PASS THIS ASKED FOR HAS HAPPENED:
+> ## `docs/displayDesign.md`.** Read that first; this file is the ASK and remains legible as such.
+>
+> **Classified: this document is style-system content end to end** — it carries no
+> channel-etiquette half, so the whole of it falls under the pointer (Clod, SEQ 30, asked to
+> classify it).
+>
+> **What `displayDesign.md` SETTLES of the ask below:**
+> - *"what IS a Style and where does it live (per-element field? registry?)"* — **§3**: a style
+>   sheet is a GroupItem group of **named bundles**, defined once and referenced by name.
+> - *"how the cascade does copy-on-write without Details"* — **§3 dissolves the question.** There
+>   is **no cascade and no scoping**: a named set replaces the current style **wholesale**, and a
+>   field's own attributes merge for that field's rendering only, never written back. **The
+>   Details-free constraint is met by there being no inheritance structure to host.**
+> - The **output** half of the sink — **§5**: targets receive **resolved** output, everything
+>   inline, no CSS, no classes, no selectors. **§7.1** makes HTML the First Light target.
+>
+> **What it does NOT settle, so this file is not superseded:**
+> - The **Cocoa seams** — `getRGB` and `realizeFont` as thin leaf externs, one seam each.
+> - The **command-line-provable text/SVG sink** for proving it without a window.
+> - The **incant primitives each gap implies**, and `font-recon.md`'s parked Option A questions.
+> - **§9(a) is still open and Tony's:** based-on style chains (`Heading2 = Heading1 + deltas`),
+>   permissible only as definition-time resolution when the sheet loads, if at all.
+>
+> ⚠ **The hard constraint below — *no Details in incant* — is UNCHANGED and is satisfied rather
+> than relaxed** by the §3 model. Nothing here reopens it.
+
 Clay —
 
 Tonight Tony and I set out to make `Stylish.twk` compile — expecting a mechanical "reconnect the
