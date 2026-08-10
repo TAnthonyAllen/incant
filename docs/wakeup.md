@@ -3,18 +3,58 @@
 # AND/OR RULED (not built). THE METRIC IS 0/47 (see T-3 — it did NOT move to 0/46).
 # Everything from the `# ⚠⚠ SEALED 2026-08-08 EVENING` header down is older vintage.
 #
-# ⚠ NEXT ACTION IS UNCHANGED AND STILL FIRST IN LINE: THE KANT-8 UNCONDITIONAL
-#   BRACKET FIX. Nothing today installed anything, so ITS JUNCTION IS INTACT —
-#   the fleet is green at 173/0 and the argument for taking it on the cleanest
-#   baseline still holds. See the NEXT ACTION block below; it needs no rewrite.
+# ⚠ SUPERSEDED 2026-08-10 — THE BRACKET FIX WAS ATTEMPTED AND IS **BLOCKED ON
+#   `CLAIM KANT-8`'s OWN REPAIR**, which is a design call and is TONY'S. It was
+#   built as specified, it runs, and it UNIVERSALISES KANT-8 rather than fixing
+#   it: kant8T's K3 control goes void, so the rung's prediction could not be
+#   evaluated. REVERTED — the fleet is back at 173/0 and the junction is still
+#   intact for whoever takes it next. Sites and scope below are CONFIRMED
+#   correct; only the prerequisite was missing. See the two blocks below and
+#   `docs/kantCorpus.md` CLAIM KANT-8 (2026-08-10).
+#
+#   (Superseded text, left legible: "NEXT ACTION IS UNCHANGED AND STILL FIRST IN
+#   LINE: THE KANT-8 UNCONDITIONAL BRACKET FIX. Nothing today installed
+#   anything, so ITS JUNCTION IS INTACT — the fleet is green at 173/0 and the
+#   argument for taking it on the cleanest baseline still holds.")
 
 # ═══════════════════════════════════════════════════════════════════════════
 # 2026-08-09 — THE FAMILY TABLE LANDED, E2 IS BUILT, AND A SEALED CENSUS
 #              TURNED OUT TO BE WRONG FOR 13 OF 21
 # ═══════════════════════════════════════════════════════════════════════════
 
+## ⚠⚠ RUN 2026-08-10 — **BLOCKED, AND THE BLOCKER IS `CLAIM KANT-8` ITSELF. READ THIS BEFORE
+## THE BLOCK BELOW, WHICH IS LEFT AS WRITTEN BECAUSE ITS SITES AND SCOPE ARE STILL CORRECT.**
+**The fix was built exactly as specified — all four `if field.recursive` gates removed — and it
+runs. It does not repair `CLAIM KANT-8`; IT UNIVERSALISES IT.** The gate was the only thing
+keeping `restoreLocalFields` off the return seam on ordinary calls, so ungating it makes *every*
+action that returns a local return a blanked node, not just self-mentioning ones.
+
+**`kant8T`'s own validity control is what says so.** K3 — *non-recursive, returns a local, "want
+42; if this is not 42 the fixture is void"* — returns **`k3loc`**. By the fixture's declared
+terms every K6 row below it is then **uninterpretable, not wrong**.
+
+⚠ **SO THE PREDICTION THIS RUNG CARRIED COULD NOT BE EVALUATED.** K6 neither inverted nor
+partially recovered — **it stopped being readable**. And the thing "hiding in the blast radius"
+was never hidden: it is `CLAIM KANT-8`, RUN-confidence since 2026-07-29, on the same seam, whose
+own text already names the repair as **Tony's design call** (detach the result before restoring,
+or restore before reading it).
+
+**RULED BY MEASUREMENT: KANT-8's repair is a PREREQUISITE of the unconditional bracket, not a
+follow-on.** The two cannot be sequenced the other way — the gate is what currently bounds
+KANT-8's blast radius. **That design call is now on the critical path, and it is Tony's.**
+
+Three witnesses, one signature: `kant8T` K3 → `k3loc` · `incant/genEmit`'s speller → `leaf` (85
+`spell.target` rows plus `rung5.target`) · ladder **JRt1** interpreted `''` vs jitted 21.
+`oneTest`, `jsonTest`, `phaseA`, `emitAll`, `tree`, `printPop` stayed **byte-identical**, so the
+damage is precisely the returns-a-local population. **REVERTED — the fleet is back at baseline
+(ladder 173/exit 0, pop 33 green/1 parked), every remaining diff an H1 echo or a pinned-crasher
+PID.** Full record: `docs/kantCorpus.md`, `CLAIM KANT-8`, the 2026-08-10 block.
+
 ## ⚠⚠ NEXT ACTION — **THE KANT-8 UNCONDITIONAL BRACKET FIX.** GO given (Tony, 2026-08-09),
 ## scheduled for the afternoon session. Everything it needs is in this block; no archaeology.
+## ⚠ **ATTEMPTED 2026-08-10 AND BLOCKED — see the block immediately above. The sites and the
+## scope below are CORRECT and were confirmed by measurement; what is missing is the KANT-8
+## prerequisite. Nothing below is withdrawn.**
 
 **Why now, and it is perishable:** the scheduling term was *"at the green-fleet junction"*, and the
 junction is **open right now** — the fleet is green at **173/0** and freshly re-certified by rung

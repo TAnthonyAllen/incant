@@ -472,6 +472,69 @@ return text, so A's step 3 inherits this. Either it returns through the argument
 the obvious candidates (detach the result before restoring, or restore before
 reading the result) both change a function on the interpreter's hot path.
 
+> ### ⚠⚠ MEASURED 2026-08-10 — REMOVING THE GATE DOES NOT ESCAPE KANT-8, IT UNIVERSALISES IT.
+> ### THE UNCONDITIONAL BRACKET IS BLOCKED ON THIS CLAIM, AND THE SENTENCE ABOVE IS THE BLOCKER.
+>
+> The KANT-8 unconditional bracket fix (docs/wakeup.md NEXT ACTION, GO given 2026-08-09) was built
+> and run: all four `if field.recursive` gates removed — `jitSaveFrameRT`, `jitRestoreFrameRT`, and
+> `runAction`'s own save/restore pair. It compiles, links and runs. **It also turns this claim from
+> a property of self-mentioning actions into a property of EVERY action**, because the gate was the
+> only thing keeping `restoreLocalFields` away from the return seam on ordinary calls.
+>
+> **The fixture's own validity control is what says so, which is the cleanest possible form:**
+>
+> | row | shape | gated (baseline) | UNGATED |
+> |---|---|---|---|
+> | **K3** | **NON-recursive**, returns a local — *"want 42; if this is not 42 the fixture is void"* | **42** | **`k3loc`** |
+> | K6a | mutual A→B→A, cursor carried | 2 | **`k6seen`** |
+> | K6b | control, local written after the call | 3 | **`k6seen2`** |
+> | K6d | control, re-iterate, no recursion | 3 | **`k6seen3`** |
+> | K6e | two walks, no recursion at all | 1 | **`k6seenB`** |
+> | K6f | mutual, sized so three readings give three numbers | 4 | **`k6seen5`** |
+>
+> **K3 IS THE ROW THAT MATTERS AND IT IS THE ROW THAT WENT VOID.** Its whole job, per the 08-05
+> table above, is to separate *"returning a local is broken"* from *"`recursive` is the
+> discriminator"*. Removing the gate **removes the discriminator**, so K3 answers the first way —
+> and every row below it is then **uninterpretable rather than wrong**, by the fixture's own
+> declared terms.
+>
+> ⚠ **CONSEQUENCE FOR THE PREDICTION THE RUNG CARRIED.** The dispatch predicted K6's failure
+> signature would **invert completely**, and said a *partial* recovery would mean something
+> non-bracket was hiding in the blast radius. Neither happened: **K6 did not partially recover, it
+> stopped being readable.** So the prediction could not be evaluated on this build — and the thing
+> "hiding in the radius" was not hidden at all. **It is this claim, RUN-confidence since
+> 2026-07-29, sitting on the same seam and named three paragraphs above as Tony's design call.**
+>
+> **THREE INDEPENDENT WITNESSES, ONE SIGNATURE**, which is what makes the mechanism pointable
+> rather than inferred (this domain's causal claims are a coin flip until run):
+> ```
+>   incant/kant8T   K3        return k3loc   ->  k3loc          the control, voided
+>   incant/genEmit  speller   return leaf    ->  leaf           85 rows of spell.target + rung5
+>   jitLadder JRt1  oracle    interpreted    ->  ''             vs jitted 21
+> ```
+> `genEmit` is the sharpest of the three because **its own header already predicted it**: *"`return
+> <unset local>;` yields the local's tag"*. It is a kant speller whose answer `emitLeaf` treats as
+> authoritative, so a blanked return propagates straight into generated parser text as the literal
+> word `leaf`.
+>
+> **THE MECHANISM, READ NOT INFERRED** — and it is exactly this claim's `statement` with the
+> qualifier deleted: `runAction` calls `restoreLocalFields(field)` **after** `processAction` and
+> **before** `return result`, and `result` *is* the local's node. Gated, that reached only
+> self-mentioning actions. Ungated, it reaches all of them.
+>
+> **SEQUENCING RULED BY MEASUREMENT: KANT-8's repair is a PREREQUISITE of the unconditional
+> bracket, not a follow-on.** The two cannot be ordered the other way, because the gate *is* what
+> currently bounds KANT-8's blast radius. **The design call named above is now on the critical
+> path**, and it is unchanged in substance: detach the result before restoring, or restore before
+> reading it.
+>
+> **Fleet evidence, full before/after/revert capture, 16 entry points:** ungated, `ladder.sh` 0→1
+> (JRt1) and `pop.sh` gained two red targets (`rung5.target`, `spell.target`); `oneTest`,
+> `jsonTest`, `phaseA`, `emitAll`, `tree`, `printPop` stayed **byte-identical**, so the damage is
+> precisely the returns-a-local population and not a general breakage. **Reverted; the fleet
+> returns to baseline with every remaining diff an H1 binary echo or a pinned-crasher PID.** The
+> patch is small and reproducible — four gate removals in `GroupActions.rtn`.
+
 ### CLAIM KANT-9 — an iterator is a HANDLE: `.taG` reads the iterator, and only ARGUMENT position derefs
 ```
 statement:   After `iterate g on X; ++g`, `g` is a handle whose cursor is in its
