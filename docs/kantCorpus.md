@@ -608,6 +608,96 @@ reading the result) both change a function on the interpreter's hot path.
 > and future briefs name this file and this table. The obligation line in `docs/wakeup.md` carries a
 > dated retirement note rather than a deletion, per the legibility rule.
 
+> ### ✅ THE NODE-RETURN CENSUS — RUN 2026-08-10. **REAL CUSTOMERS: ZERO.** FORK BRANCH 1 EXECUTES.
+> ### AND THE SEAM FIX IS RULED: **VALUE-CAPTURE, ALIGNED TO THE JIT'S CHANNEL** (Tony, 2026-08-10).
+>
+> **R1 — THE RULING.** `runAction` captures the result's value **before** the restore sweep and
+> returns the captured value. **The bracket is untouched** — M1 measured it restoring perfectly at
+> every depth on both engines, so the defect is the seam and only the seam. This is **alignment,
+> not workaround**: M1 measured the jit already returning through an i32 result slot loaded after
+> the epilogue, so **value-capture is the certified arm's existing semantics** and the interpreter
+> is adopting it. Blast radius: `runAction`'s return neighbourhood. **The jit arm owes
+> byte-agreement only.**
+>
+> **THE CENSUS, H9 DISCIPLINE, AND/OR's 165-vs-7 as the worked precedent.** Scope: `incant/`,
+> `XML/`, `IncantForms/` — the files that actually carry `code={}` bodies (118 of them).
+> ⚠ **`*.rtn` IS OUT BY CONSTRUCTION, not by choice**: its 581 `return`s are C++/tok functions, and
+> `genParse.rtn`'s five `code=` hits are all **inside comments**.
+> ```
+>   surface-form matches (the word `return`)                    727
+>   statement-position `return <bare name>;`                     65
+>     less comment/prose lines quoting a return                  -9   -> 56
+>     less keyword returns (`return true` / `return false`)      -4   -> 52
+>     less `return argument;` (K2: arguments are saved AS BOUND) -1   -> 51
+>   of those 51, by what is returned:
+>     scalar / count locals                                      44   the bulk
+>     TEXT locals                                                 6   <- KE-4's population, not this one
+>     NODE-VALUED locals                                          2   <- THE CENSUS SUBJECT
+>   of those 2, real customers relying on identity                0
+> ```
+> **Arithmetic checked against the rows, per the six-uses-four-files cautionary case: 44 + 6 + 2 =
+> 52 candidates before the `argument` subtraction, 51 after — the count is stated both ways because
+> that is the step the earlier census got wrong.**
+>
+> **THE TWO NODE-VALUED RETURNS, BOTH DISCHARGED, EACH FOR A DIFFERENT REASON:**
+>
+> | site | what it returns | verdict |
+> |---|---|---|
+> | `incant/utilities:69` — `JSONfield` | `token`, a real parsed node the JSON tree is built from | ⚠ **OUT OF THE SEAM'S REACH BY MECHANISM** — see below |
+> | `incant/unitTests:166` + `scopeUnits:183` — `testNew` | `grup = new(argument)`, a minted node | **DEAD** — its only two call sites are **commented out** (`:202`, `:219`) |
+>
+> ⚠⚠ **THE MECHANISM FINDING, AND IT IS BIGGER THAN THE CENSUS: A CODED *RULE* NEVER ENTERS
+> `runAction` AT ALL.** `ruleActions.rtn:352` binds it directly — `or isCoded method =
+> processAction;` — and `processAction` is called from `runAction` at `GroupActions.rtn:790` **and
+> from nowhere else**. `runRule` goes to `rule.parse(0)`. **So there are two entry paths into an
+> action body, and only one of them has a frame bracket or a return seam.** Consequence: the entire
+> grammar/XML population — every `isRule … code={}`, `JSONfield` included — is **outside both**.
+> That is why `jsonTest`'s 13 rows never met KANT-8, and it is why the census comes back empty
+> rather than merely small.
+>
+> **H9's widening was run and found nothing further.** Re-matched against every `return <anything>;`
+> form the bare-name regex would miss: `return argument.taG;`, `return spellMany(many);`,
+> `return xrIn * 2;`, and the literals. **Zero additional node-valued candidates**, so the boundary
+> holds under a wider match rather than only under the one that produced the number.
+>
+> ✅ **FORK BRANCH 1 THEREFORE EXECUTES, PRE-RULED AND WITHOUT RECONVENING: the capture fix is the
+> whole repair.** No node-return population needs fencing; no keyed-restore design item is opened.
+>
+> ⚠ **CARRIER DISCIPLINE — DATED RETIREMENT NOTE, 2026-08-10, NOT DELETION.** `CLAIM KANT-22`'s
+> *"anything that must survive a recursive call lives on a carrier node"*, measured into K1–K4 and
+> then **narrowed by K6c to direct self-recursion only**, is **obsoleted by the seam fix**: once the
+> returned value is captured before the sweep, a local survives its own return and there is nothing
+> to carry it out of. **It survives for no population** — the mutual case it already failed, and the
+> direct case is what the fix removes. The K1–K4 rows stay exactly as written; they record what was
+> true and why, and the mitigation was correct for the period it covered.
+>
+> ⚠ **A DESIGN CONSTRAINT THE CENSUS TURNED UP, AND THE SEAM RUNG SHOULD START FROM IT: CAPTURE
+> MUST RETURN A NODE CARRYING THE VALUE, NOT A BARE SCALAR.** Both live `runAction` consumers on the
+> genParse kant seam null-check the result **and then read `.text` off it**:
+> ```
+>   genParse.rtn:847  manyKant   if !result return 0;   if result.text eq "1" return 1;
+>   genParse.rtn:964  speller    if !result return null; return result.text;
+> ```
+> A capture that hands back a raw integer breaks **four** reads at two sites. The value channel has
+> to stay node-shaped at the boundary even though the value is what is being preserved.
+>
+> ⚠ **AND THE CROSS-FINDING TO KE-4, WHICH IS THE ONE TO ACT ON: THOSE SAME TWO SITES RETURN *TEXT*
+> LOCALS.** `genEmit`'s `leaf` and `genMany`'s `answer` are body-born text locals returned from live
+> kant actions that **do** go through `runAction`. **So KE-4's silent-length defect has real
+> customers waiting — the kant speller and manier — the moment those actions are jitted.** The
+> refuse-at-emit ruling (R2) is what keeps that loud instead of silent, and the six text returns
+> above are its measured population.
+>
+> **R2 / R3 recorded elsewhere:** KE-4's ruling in `docs/knownErrors.md`; the `i32`-by-rule fence in
+> `docs/attributesTemplate.md` §6, frozen with the template shapes.
+>
+> **TWO CLAY CLAIMS DIE IN THIS RULING AND BOTH ARE LEDGERED WITH THE MISSES** (his own instruction):
+> the **detach pick** fell to M2's walker measurement — the cost calculus rested on an unmeasured
+> tolerance premise, and **the conditional-pick discipline caught it before code**; and the
+> **copy-forks-the-arms** risk row **had its sign backwards** — M1 shows capture *converges* the
+> arms, because the jit already returns by capture. **The risk register was written before the
+> channel was measured**, which is the whole lesson and not a criticism of the register.
+
 ### CLAIM KANT-9 — an iterator is a HANDLE: `.taG` reads the iterator, and only ARGUMENT position derefs
 ```
 statement:   After `iterate g on X; ++g`, `g` is a handle whose cursor is in its

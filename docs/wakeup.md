@@ -43,6 +43,40 @@ or restore before reading it).
 follow-on.** The two cannot be sequenced the other way — the gate is what currently bounds
 KANT-8's blast radius. **That design call is now on the critical path, and it is Tony's.**
 
+## ✅✅ SEAM RULED 2026-08-10 (Tony): **VALUE-CAPTURE, ALIGNED TO THE JIT'S CHANNEL.** CENSUS RUN,
+## **REAL CUSTOMERS ZERO — FORK BRANCH 1 EXECUTED.** THE SEAM FIX OPENS A FRESH SESSION.
+`runAction` captures the result's value **before** the restore sweep and returns it. **The bracket
+is untouched** (M1: locals restore perfectly at every depth on both engines). Not a workaround —
+**the jit already returns by capture**, so this is the interpreter adopting the certified arm's
+semantics, and the jit owes **byte-agreement only**.
+
+**NODE-RETURN CENSUS — 727 surface / 65 statement-position / 51 candidates / 2 node-valued /
+ZERO real customers.** `JSONfield`'s `token` is **out of the seam's reach by mechanism**;
+`testNew`'s `grup` is **dead** (both call sites commented out). ⚠ **THE MECHANISM FINDING IS BIGGER
+THAN THE CENSUS: A CODED *RULE* NEVER ENTERS `runAction`** — `ruleActions.rtn:352` binds
+`processAction` directly, and `runRule` goes to `rule.parse(0)`. **Two entry paths into an action
+body; only one has a bracket or a seam.** So the whole grammar/XML population sits outside both.
+⚠ **CARRIER DISCIPLINE RETIRED (dated note, not deletion)** — obsoleted by the seam fix, surviving
+for **no** population. Full record: `docs/kantCorpus.md`, `CLAIM KANT-8`.
+
+⚠ **THE SEAM RUNG STARTS FROM THIS CONSTRAINT: CAPTURE MUST RETURN A NODE CARRYING THE VALUE, NOT
+A BARE SCALAR.** `genParse.rtn:847` and `:964` both null-check the result **and then read `.text`
+off it** — four reads at two sites that a raw integer breaks.
+**Named controls, so the session starts at the fixtures:** K3 at 42 with gate-irrelevance ·
+JRt1 interpreted matching jitted · **JRt3's certified divergence flipping to agreement, with its
+H6 re-pin sentence (values, not counters)** · `incant/kant8M1` as the template-population witness ·
+the speller's 85 rows byte-identical · **K6 with readable rows — the voided control returning to
+service.** Then the bracket rung unblocks, inheriting a green K6 as a free entry control.
+
+✅ **KE-4 RULED refuse-at-emit** (`docs/knownErrors.md`), repair deferred to its own unscheduled
+rung. ✅ **`i32`-by-rule fence frozen into `docs/attributesTemplate.md` §6.**
+
+⚠ **AND KE-4 HAS REAL CUSTOMERS WAITING:** `genEmit`'s `leaf` and `genMany`'s `answer` are
+body-born **text** locals returned across the genParse kant seam, which *does* go through
+`runAction`. **Audited 2026-08-10 — the AND/OR fixtures and every named seam control carry ZERO
+text-bearing locals**, so their greens are trustworthy; the text population is confined to
+`genEmit` (7), `lessProbe` (4), `genMany` (2).
+
 ⚠ **M1 + M2 RUN 2026-08-10, AND THE CONDITIONAL DETACH PICK IS OFF — M2's PRECONDITION FAILS.**
 `restoreLocalFields` pairs **positionally**, via an **unkeyed LIFO**: save walks forward pushing a
 body per member, restore walks backward popping one per member, and nothing but walk position ties

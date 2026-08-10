@@ -220,7 +220,30 @@ step worse, because here no fallback occurred at all.
 a body. The jitted population to date is integers by construction, so the fence was never tested
 from the other side.
 
-**WHO RULES:** Tony. **It is First Light's floor** and the M1 dispatch said so: if parse templates
+✅ **RULED 2026-08-10 (Tony): REFUSE AT EMIT, on the `jitPrintItem` precedent.** A body-born text
+local **refuses at emit** rather than substituting an integer — silent-wrong becomes a **loud
+degrade**, and every degrade-zero assertion on a text-bearing fixture regains its meaning for one
+line of emitter code. **The REPAIR — real text returns from jitted actions — is deferred to its own
+rung, unscheduled**, and is this entry's second half.
+
+**THE REFUSAL OWES ITS H7**, and the rung is specified so it starts at the fixtures: one fixture
+that **would have printed the length** now degrading loudly, **plus a count-bearing negative
+control that stays green and degrade-clean** — so the check discriminates rather than reddening on
+any input. `incant/kant8M1` is the first of those two by construction; the second is a one-line
+variant of it.
+
+⚠ **AND THE POPULATION IS NOT HYPOTHETICAL — MEASURED BY THE NODE-RETURN CENSUS, 2026-08-10.**
+Six body-born **text** locals are returned from live actions, and **two of them sit on the genParse
+kant seam, which goes through `runAction`**: `incant/genEmit`'s `leaf` (the speller, consumed at
+`genParse.rtn:964` as `result.text`) and `incant/genMany`'s `answer` (the manier, consumed at
+`:847` as `result.text eq "1"`). **So the kant speller and manier are KE-4's customers the moment
+they are jitted** — which is what makes refuse-at-emit worth its one line now rather than later.
+
+**Fence in force meanwhile:** `docs/attributesTemplate.md` §6 carries the rule, frozen with the
+template shapes — **template locals are `i32` by rule, not by habit, until this is repaired rather
+than refused.**
+
+**WHO RULED THE REFUSAL:** Tony, above. **WHO RULES THE REPAIR:** Tony. **It is First Light's floor** and the M1 dispatch said so: if parse templates
 may hold text in a body-born local, this is on the critical path; if they may not, that is a
 constraint the template spec has to state, because today nothing enforces it and nothing reports
 it. The cheap middle option — **refuse rather than substitute**, i.e. call `jitDegrade` on a

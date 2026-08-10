@@ -372,6 +372,18 @@ the method working in both directions.
 **Frozen as of this pass:** the three template shapes in §2 in their certified spelling, and the
 `Attributes` v0 instance in §3 with its one deliberate blank.
 
+⚠ **AND A FENCE, ADDED 2026-08-10 AND FROZEN WITH THEM: A TEMPLATE'S BODY-BORN LOCALS ARE `i32`
+BY RULE, NOT BY HABIT.** A local holding **text** in a jitted action comes back as **its length**
+— `"alive"` → `5`, `"xy"` → `2` — with **degrade 0 and exit 0**, because the JIT's frame is scoped
+to integer counts by declared design and a construct outside that scope is emitted wrongly rather
+than declined (`docs/knownErrors.md` **KE-4**, measured on the shipping binary). **Ruled
+refuse-at-emit**, so the failure becomes a loud degrade rather than a silent wrong answer; the
+*repair* — real text returns from jitted actions — is deferred to its own unscheduled rung.
+**Until that rung lands, this line is the rule and not a caution.** The certified templates already
+satisfy it by accident rather than by intent — `xtSuk`, `xtTicks`, `xtOK1`, `xtOK2` are all counts
+*and* all `define`-declared rather than body-born — **which is exactly why nothing had tested the
+fence from the other side.**
+
 **Not frozen, and named:**
 - ⚠ the **contract's signature** — wants Tony, and wants H4 at RUN grade first (§4 H4).
 - ⚠ **`<invoke TraiT parse>`** — blocked on H3(c), a bounded command-registration job.
