@@ -1,0 +1,171 @@
+/*****************************************************************************
+    kantRuleA -- A RULE-SHAPED PARSE METHOD SPELLED WITH AND OR CHAINS.
+    2026-08-11, built on Tony's ruling that AND OR is not a blocker on
+    generating and that the generated parse method IS the POP for AND OR.
+
+    WHAT THIS IS. The shape genKantParse would emit for a rule with a term
+    sequence and an alternation in the middle, written by hand so the chain
+    can be fired today. It is not a generator and it does not install into a
+    real rule: the support library is C plus plus and is not yet callable from
+    kant, which is the shim and registration job that stands between this
+    fixture and a live rule.
+
+    WHAT IT REPLACES. The certified fallback is the if chain in
+    incant jitXtemplate, five statements per two terms, chosen in the 08-08
+    assessment because the AND spelling could not express parse semantics in
+    either engine. That ruling rested on eager evaluation and it is now
+    retired by measurement: incant jitXand fires the right arm zero times when
+    the left arm fails, over real returning callees, degrade zero, both
+    engines agreeing.
+
+    THE CORRECTNESS PROPERTY, AND IT IS NOT THE TICK COUNT. The 08-08 refusal
+    named a specific harm rather than a style: a parse term CONSUMES INPUT, so
+    an eagerly evaluated right arm advances the mark past text the rule never
+    matched. Ticks cannot see that. So every term here moves a shared cursor,
+    each term restores the cursor itself on failure per the convention the
+    respell depends on, and the rows below assert WHERE THE CURSOR ENDS UP.
+    A chain that returns the right verdict having eaten the wrong amount of
+    input is the failure this fixture exists to catch, and it would pass a
+    verdict only check.
+
+    FOUR ROWS.
+      1  sequence, first term fails      cursor back at entry, terms 2 and 3
+                                         never ran
+      2  sequence, all terms pass        cursor advanced by exactly three
+      3  alternation, first option fails cursor advanced by one, second
+                                         option ran and paid for the first
+                                         option's rewind
+      4  alternation, first option passes second option never ran
+
+    ORDER IS LOAD BEARING, bear-trap 25: testing routes by isCoded and an
+    interpreted run consumes it, so the jitted half runs FIRST and the oracle
+    runs LAST. One testing call, then jitRefire.
+
+    ZERO TEXT BEARING LOCALS, so the fixture stays inside the audited set.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(KantRuleA);
+define
+    krPos;
+    krTicks;
+    krSuk;
+    krOut;
+    krOK1;
+    krOK2;
+    krOK3;
+    krAltOK1;
+
+    /*  A TERM. Advances the cursor, and on failure puts it back itself --
+        the mark-restore-inside-the-term convention the AND chain depends on
+        for soundness. A term that did not do this could not be short
+        circuited safely, which is the whole reason the convention exists.  */
+    krT1 code={
+        krTicks = krTicks + 1;
+        krPos = krPos + 1;
+        if krOK1 == 0;
+            krPos = krPos - 1;
+            return 0;
+        return 1;
+        };
+    krT2 code={
+        krTicks = krTicks + 1;
+        krPos = krPos + 1;
+        if krOK2 == 0;
+            krPos = krPos - 1;
+            return 0;
+        return 1;
+        };
+    krT3 code={
+        krTicks = krTicks + 1;
+        krPos = krPos + 1;
+        if krOK3 == 0;
+            krPos = krPos - 1;
+            return 0;
+        return 1;
+        };
+
+    /*  THE ALTERNATION'S TWO OPTIONS. Same contract. The second one always
+        succeeds, so row 3 can show that a failed first option costs nothing
+        in cursor terms.  */
+    krA1 code={
+        krTicks = krTicks + 1;
+        krPos = krPos + 1;
+        if krAltOK1 == 0;
+            krPos = krPos - 1;
+            return 0;
+        return 1;
+        };
+    krA2 code={
+        krTicks = krTicks + 1;
+        krPos = krPos + 1;
+        return 1;
+        };
+
+    /*  THE ALTERNATION, an OR chain in its own method -- which is how a
+        generated rule would emit an option list.  */
+    krAlt code={
+        return krA1() OR krA2();
+        };
+
+    /*  THE RULE. Three terms, the middle one an alternation. This is the
+        whole method: one statement where the if chain needs seven.  */
+    krRule code={
+        krSuk = krT1() AND krAlt() AND krT3();
+        if krSuk == 0;
+            return 0;
+        return 1;
+        };
+    ;
+
+/*  ROW 1 -- JITTED. First term fails. Nothing after it may run and the
+    cursor must come home.  */
+krOK1 = 0; krOK2 = 1; krOK3 = 1; krAltOK1 = 1;
+krPos = 0; krTicks = 0; krOut = 9;
+print "KR row 1 setup  : first term FAILS, cursor at" krPos:;
+testing(krRule);
+print "KR row 1 result : ticks =" krTicks " cursor =" krPos:;
+print "KR row 1 verdict: ticks 1 = short-circuit, cursor 0 = no over-consumption":;
+
+/*  ROW 2 -- REFIRE, no recompile. Everything passes; the cursor must have
+    advanced by exactly three, one per term.  */
+krOK1 = 1; krOK2 = 1; krOK3 = 1; krAltOK1 = 1;
+krPos = 0; krTicks = 0;
+print "KR row 2 setup  : all terms PASS, cursor at" krPos " (recompile: NONE)":;
+jitRefire();
+print "KR row 2 result : ticks =" krTicks " cursor =" krPos:;
+print "KR row 2 verdict: cursor 3 = three terms consumed one each":;
+
+/*  ROW 3 -- REFIRE. The alternation's first option fails. Its own rewind
+    must pay for it, so the cursor still ends at three.  */
+krOK1 = 1; krOK2 = 1; krOK3 = 1; krAltOK1 = 0;
+krPos = 0; krTicks = 0;
+print "KR row 3 setup  : alternation option 1 FAILS, cursor at" krPos:;
+jitRefire();
+print "KR row 3 result : ticks =" krTicks " cursor =" krPos:;
+print "KR row 3 verdict: ticks 4 = option 2 ran, cursor 3 = option 1 rewound itself":;
+
+/*  ROW 4 -- REFIRE. The alternation's first option passes, so the second
+    must never run. This is the OR chain's own short-circuit row.  */
+krOK1 = 1; krOK2 = 1; krOK3 = 1; krAltOK1 = 1;
+krPos = 0; krTicks = 0;
+print "KR row 4 setup  : alternation option 1 PASSES":;
+jitRefire();
+print "KR row 4 result : ticks =" krTicks " cursor =" krPos:;
+print "KR row 4 verdict: ticks 3 = option 2 SKIPPED, 4 = eager OR":;
+
+/*  THE ORACLE, LAST. Row 1 again, interpreted. The two engines must agree
+    on both quantities, not merely on the verdict.  */
+krOK1 = 0; krOK2 = 1; krOK3 = 1; krAltOK1 = 1;
+krPos = 0; krTicks = 0;
+krRule();
+print "KR interpreted  : ticks =" krTicks " cursor =" krPos " (row 1's oracle)":;
+
+print "KR SENTINEL -- run reached the end":;
+stop();

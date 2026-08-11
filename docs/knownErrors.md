@@ -289,6 +289,35 @@ different operator.
 
 **Instrument:** `incant/andProbe` (§2 and §3, which sit adjacent on purpose).
 
+## ⚠⚠ AMENDED 2026-08-11 (SEQ 49) — **IT IS WORSE THAN A WRONG ANSWER OVER CALLS: `&&` KILLS THE PARSE.**
+
+The rows above use **bare field** operands. Over **CALLS** — which is the shape a generated parse
+method has, and therefore the shape that matters — `&&` does not answer wrongly. It exits **139
+with ZERO BYTES of output**, before the `Search list:` line, so it reads as a broken binary rather
+than a broken spelling. Same family as bear-traps #27/#28: the failure points at the wrong thing.
+
+**BISECTED, one operator at a time, on one file** (`incant/kantRuleS`, whose header carries this):
+
+| the body | result |
+|---|---|
+| `t1() AND alt() AND t3();` with `a1() \|\| a2()` | **exit 0**, all rows print |
+| `t1() && alt() && t3();` with `a1() OR a2()` | **exit 139, zero bytes** |
+
+So the conjunction is the killer and the disjunction is not. **A second, independent
+reproduction on PLAIN FIELDS — no calls — under the JIT also exits 139**, with the `testing()`
+call entered and the process dying before any row printed and **before any degrade line**, so
+nothing counts it. That fixture is **not kept**: a crasher in the swept population costs
+`completePop` its zero-missing-sentinels baseline, and a fixture that dies before its first row is
+an absence rather than a control. **The recipe is the reproducer** — take `incant/jitXand2`, change
+`AND` to `&&`, run it.
+
+⚠ **WHAT THIS CHANGES ABOUT THE REPAIR.** The believed one-line fix
+(`'&&' operateMethod=opAND;`) is now believed to fix **the wrong half**: it would give `&&` a
+strict handler and a correct truth table on fields, and would leave it **eager**, which for a
+parse term is the over-consumption harm KE-6's amendment measures. **The symbols rung should aim
+at tier 3 (`runShortCircuit`), not at `operateMethod`.** Still **not run**, and still a ruling
+rather than a rung.
+
 ---
 
 # KE-6 — `OR` and `||` DIVERGE ON EVALUATION: one short-circuits, one does not, **on one handler**
@@ -314,3 +343,28 @@ depending on which spelling the author reached for, and nothing announces it.
 **Repair rung:** drawer item, unscheduled, wants its own charter — and it should be taken
 **together with KE-5**, since both are the same question (do the symbol forms join tier 3) asked
 about the two different words.
+
+## ⚠⚠ AMENDED 2026-08-11 (SEQ 49) — **THE DIVERGENCE IS NOT COSMETIC. `||` CONSUMES INPUT NO OPTION MATCHED.**
+
+Filed above as *"only the evaluation differs, the values agree"*, which is true of **field**
+operands and **false of the shape this actually matters in.** Measured on a rule-shaped parse
+method whose terms advance a cursor — `incant/kantRuleA` (word forms) against `incant/kantRuleS`
+(the same rule, alternation spelled `||`), interpreted:
+
+| row | `OR` | `\|\|` |
+|---|---|---|
+| all terms pass | ticks 3, **cursor 3** | ticks 4, **cursor 4** |
+| alternation's option 1 passes | ticks 3, option 2 **skipped** | ticks 2, **cursor 2** |
+
+**Option one succeeds; option two runs anyway and advances the cursor.** The rule reports SUCCESS
+having eaten one more token than it matched. ⚠ **Both spellings return the same verdict on both
+rows** — they differ only in how much input they consumed, so **a harness asserting the rule's
+verdict would certify the eager spelling as correct.** Only the cursor tells them apart.
+
+**This is the harm `docs/genKantParse.md` §1 refused the AND spelling over** (*"a parse term
+consumes input, so an eagerly-evaluated right arm advances the mark past text the rule never
+matched"*). That refusal was right about eager operators and is **retired for the word forms**,
+which now short-circuit; it **stands, and is now measured rather than argued, for the symbols.**
+
+**So the symbols rung's target is tier 3, not `operateMethod`** — see KE-5's amendment, which
+reaches the same conclusion from the other word.

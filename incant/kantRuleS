@@ -1,0 +1,155 @@
+/*****************************************************************************
+    kantRuleS -- THE H7 NEGATIVE CONTROL FOR kantRuleA. 2026-08-11.
+
+    kantRuleA is green on all four rows. A green certifies only what fails
+    when the mechanism is removed, and here the mechanism is short circuit --
+    and removing it costs nothing at all, because the SYMBOL forms are the
+    EAGER spelling of the same two operators on one shared handler. So this
+    file is kantRuleA with the alternation's OR changed to the bar pair, and
+    nothing else changed.
+
+    WHAT IT SHOWS, and it is a CURSOR result, not a tick result. Measured:
+
+        row              kantRuleA (OR)        this file (bar pair)
+        1 first fails    ticks 1  cursor 0     ticks 1  cursor 0
+        2 all pass       ticks 3  cursor 3     ticks 4  CURSOR 4
+        4 alt opt 1 ok   ticks 3, opt 2 SKIPPED ticks 2  CURSOR 2
+
+    ⚠ THE EAGER DISJUNCTION CONSUMES A TOKEN THAT NO OPTION MATCHED. Option
+    one succeeds and option two runs anyway and advances the cursor, so the
+    rule reports success having eaten one more token than it matched. That is
+    precisely the harm the 08-08 assessment refused the AND spelling over --
+    a parse term consumes input, so an eagerly evaluated arm advances the mark
+    past text the rule never matched -- and it is here, measured, on a rule
+    shape rather than in the abstract.
+
+    ⚠⚠ A VERDICT ONLY CONTROL WOULD HAVE SEEN NOTHING. Both spellings return
+    SUCCESS on rows 2 and 4. They differ only in how much input they ate, and
+    only the cursor tells them apart. A harness asserting the rule's verdict
+    would have certified the eager spelling as correct.
+
+    ⚠⚠ AND THE CONJUNCTION IS NOT IN THIS FILE, WHICH IS ITSELF THE FINDING.
+    The symbol conjunction over CALLS does not answer wrongly -- it KILLS THE
+    PARSE: exit 139, ZERO bytes of output, before the search list line, so it
+    reads as a broken binary rather than a broken spelling. Bisected the same
+    day, one operator at a time, on this exact file: the AND chain with the
+    bar pair runs clean and exits 0, while the ampersand pair with the word OR
+    dies at 139 with no output. So the eager conjunction cannot appear in a
+    control because a fixture that dies before its first row is not a control,
+    it is an absence -- and it would cost completePop its zero missing
+    sentinels baseline. Independently reproduced on plain field operands, no
+    calls, under the jit: take incant jitXand2 and change the word to the
+    ampersand pair. Full record and the repair consequence: docs knownErrors
+    KE-5's 2026-08-11 amendment.
+
+    INTERPRETED ARM ONLY. With no testing call there is no isCoded routing to
+    protect, so bear-trap 25 does not apply and the rows simply run.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(KantRuleS);
+define
+    ksPos;
+    ksTicks;
+    ksSuk;
+    ksOut;
+    ksOK1;
+    ksOK2;
+    ksOK3;
+    ksAltOK1;
+
+    /*  A TERM. Advances the cursor, and on failure puts it back itself --
+        the mark-restore-inside-the-term convention the AND chain depends on
+        for soundness. A term that did not do this could not be short
+        circuited safely, which is the whole reason the convention exists.  */
+    ksT1 code={
+        ksTicks = ksTicks + 1;
+        ksPos = ksPos + 1;
+        if ksOK1 == 0;
+            ksPos = ksPos - 1;
+            return 0;
+        return 1;
+        };
+    ksT2 code={
+        ksTicks = ksTicks + 1;
+        ksPos = ksPos + 1;
+        if ksOK2 == 0;
+            ksPos = ksPos - 1;
+            return 0;
+        return 1;
+        };
+    ksT3 code={
+        ksTicks = ksTicks + 1;
+        ksPos = ksPos + 1;
+        if ksOK3 == 0;
+            ksPos = ksPos - 1;
+            return 0;
+        return 1;
+        };
+
+    /*  THE ALTERNATION'S TWO OPTIONS. Same contract. The second one always
+        succeeds, so row 3 can show that a failed first option costs nothing
+        in cursor terms.  */
+    ksA1 code={
+        ksTicks = ksTicks + 1;
+        ksPos = ksPos + 1;
+        if ksAltOK1 == 0;
+            ksPos = ksPos - 1;
+            return 0;
+        return 1;
+        };
+    ksA2 code={
+        ksTicks = ksTicks + 1;
+        ksPos = ksPos + 1;
+        return 1;
+        };
+
+    /*  THE ALTERNATION, an OR chain in its own method -- which is how a
+        generated rule would emit an option list.  */
+    ksAlt code={
+        return ksA1() || ksA2();
+        };
+
+    /*  THE RULE. Three terms, the middle one an alternation. This is the
+        whole method: one statement where the if chain needs seven.  */
+    ksRule code={
+        ksSuk = ksT1() AND ksAlt() AND ksT3();
+        if ksSuk == 0;
+            return 0;
+        return 1;
+        };
+    ;
+
+/*  ROW 1 -- INTERPRETED. First term fails. Under the word forms this gave
+    ticks 1 and cursor 0. Anything else here is the control firing.  */
+ksOK1 = 0; ksOK2 = 1; ksOK3 = 1; ksAltOK1 = 1;
+ksPos = 0; ksTicks = 0; ksOut = 9;
+print "KS row 1 setup  : first term FAILS, cursor at" ksPos:;
+ksRule();
+print "KS row 1 result : ticks =" ksTicks " cursor =" ksPos:;
+print "KS row 1 verdict: kantRuleA gave ticks 1 cursor 0 -- any other pair here is OVER-CONSUMPTION":;
+
+/*  ROW 2 -- INTERPRETED. Everything passes.  */
+ksOK1 = 1; ksOK2 = 1; ksOK3 = 1; ksAltOK1 = 1;
+ksPos = 0; ksTicks = 0;
+print "KS row 2 setup  : all terms PASS":;
+ksRule();
+print "KS row 2 result : ticks =" ksTicks " cursor =" ksPos:;
+
+/*  ROW 4 -- INTERPRETED. The alternation's first option passes, so under a
+    short-circuiting OR the second must never run.  */
+ksOK1 = 1; ksOK2 = 1; ksOK3 = 1; ksAltOK1 = 1;
+ksPos = 0; ksTicks = 0;
+print "KS row 4 setup  : alternation option 1 PASSES":;
+ksAlt();
+print "KS row 4 result : ticks =" ksTicks " cursor =" ksPos:;
+print "KS row 4 verdict: ticks 1 = the bar pair short-circuits, 2 = it is eager":;
+
+print "KS SENTINEL -- run reached the end":;
+stop();

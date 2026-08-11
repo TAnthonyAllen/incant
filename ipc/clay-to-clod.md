@@ -3,7 +3,7 @@
   Clay writes this file. Clod reads it, acts, then clears it.
   Clod's replies go in ipc/clod-to-clay.md  (never write here, Clod).
 -------------------------------------------------------------------
-SEQ:      48
+SEQ:      49
 STATUS:   cleared        # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-08-11  -  Clay (SEQ 47, via Tony; transcribed by Clod)
           ⚠ THE FILE-LEVEL STATUS READS `fresh` BECAUSE SEQ 46 IS STILL LIVE AND
@@ -2937,4 +2937,104 @@ pre-commitment lead measurement.
   surface touched, no baseline moved.]
 
   END SEQ 48
+===================================================================
+
+===================================================================
+  SEQ 49   --   §3.0 STOP ACCEPTED. RECHARTER + RUNG 2.
+  WRITTEN:      2026-08-11  -  Clay, via Tony; transcribed by Clod
+  STATUS:       CLEARED. ⚠ SUPERSEDED MID-FLIGHT BY TONY'S LEAN VERSION,
+                which is transcribed IMMEDIATELY BELOW this body and is the
+                one that was acted on. The dictated body is retained rather
+                than blanked because the correction is only legible beside
+                what it corrected.
+  SEQ STAMP:    Stamped per this file's header (48) -- 49 is SEQ-next.
+-------------------------------------------------------------------
+
+DECODE: GX-1 = fireLabelMethod extraction 08-06 · GM-29 = attachLabel
+no-label guard, GroupItem.twk:1101 · Family C = CHARACTER SET, 4 rules,
+SEQ 33 recorded pick.
+
+1. §3.0 STOP ACCEPTED, 7e1c1e1 acknowledged. The stop is the exhibit: the
+   respell's proof would have been GX-1 wearing a flagship's colors.
+   Filed as doctrine.
+
+2. §1 RESTATED (Tony ratified): the respell's delta is spelling --
+   &&/|| -> AND/OR, unification of generated methods onto the certified
+   tier-3 path (short-circuit, truthOf, mark-restore-inside-term).
+   Structural claim withdrawn; ruling stands.
+
+3. §2: bullet 3 STRUCK (failure shape inexpressible post-GX-1). Bullets
+   1-2 held PENDING measurement M-AND: what does && dispatch to today,
+   both engines -- short-circuit or full-evaluate, truthOf or other, jit
+   emit path or refusal? Clod-sized, no install, blast radius zero.
+
+4. PHASE R RUNG 2 OPENS: Family C, CHARACTER SET (4), on the recorded
+   pick, no re-litigation. Denominator 47. Metric moves only on
+   installed, verified-green. Re-pin cost of deferred respell KNOWINGLY
+   ACCEPTED (Tony, 2026-08-11): a later &&->AND respell moves generated
+   text for rules installed before it -- re-pin, not correctness.
+
+5. GM-13 dead-lead citation filed as citation-sweep input: charters cite
+   files at read time, not paragraphs at charter time.
+
+-------------------------------------------------------------------
+  SEQ 49 AMENDED -- TONY'S RULING, dictated in chat mid-flight and
+  transcribed here. SUPERSEDES items 3 and 4 above. THIS IS THE VERSION
+  THAT WAS ACTED ON.
+-------------------------------------------------------------------
+
+TONY, VERBATIM: "I admit I am getting frustrated by a pile of reasonable
+regulations that have to be slogged thru to get things done. I thought
+AND/OR resolved. But whether it is or not, that should not stop
+generating parse methods that use it. Point is we want AND/OR to work as
+intended and it simplifies the generated parse. If more work needs doing
+to get AND/OR to work right lets schedule that. I would like to see a
+generated parse rule to try out and see does it work and why not,
+especially if we think we know why not. The generated parse then becomes
+POP for AND/OR and AND/OR is not a blocker on generating just maybe
+something to fix."
+
+CLAY, ACCEPTING: "I had the dependency backwards: I was treating AND/OR
+certification as a precondition for generating, when the generated parse
+method is the best possible probe of AND/OR -- a real consumer instead of
+a synthetic fixture. The pile of gates was me protecting a flagship
+exhibit that no longer exists; with the exhibit dead, the fastest path to
+truth is fire one and look."
+
+DECODE: target rule = Clod's pick, smallest live rule with both a
+sequence and an alternation if one exists, else smallest sequence.
+
+1. §3.0 stop accepted, 7e1c1e1 acknowledged. §1 restated: the delta is
+   spelling, &&/|| -> AND/OR. §2 bullet 3 struck (inexpressible
+   post-GX-1).
+2. TONY'S RULING, 2026-08-11: AND/OR is NOT a blocker on generating. The
+   generated parse method IS the POP for AND/OR. Generate first; if
+   AND/OR misbehaves under it, that becomes scheduled repair work with a
+   live reproducer, not a gate.
+3. DO THIS: pick one rule (per DECODE), emit its parse method spelled
+   with AND/OR chains, install it, run it against its fixture. Bank the
+   emitted text before and after install. Report: green or red, and if
+   red, where it stopped and why -- especially if the why is already on
+   our list (GM-29 no-label guard is the known candidate, not a
+   Braced/generation defect).
+4. No M-AND pre-probe. The live rule is the measurement. Phase R rung 2
+   sequencing waits on this one result, nothing else.
+
+  [CLOD, on close: FIRED AND GREEN, and the ruling was right -- the
+  chain works and the rule shape found things no probe would have.
+  ⚠ ONE CORRECTION TO THE TASKING, made by reading before typing: the
+  AND/OR chain is NOT genParse's arm. genParse emits C++ where && is the
+  C++ operator; `t1() AND t2()` is genKantParse's spelling, where the
+  parse method is kant CodE. So the fire happened there.
+  ⚠ AND A LIVE INSTALL IS BLOCKED BY SOMETHING THAT IS NOT AND/OR: the
+  support library (lit, parseR, leaveRule, ...) is extern "C" and NOT
+  callable from kant -- genKantParse §2(a)'s shim-and-registration job.
+  So the rule shape was fired with ticking stand-in terms and says so.
+  RESULT: incant/kantRuleA, four rows, first try, jitted, degrade 0, one
+  compile, interpreted oracle agreeing. Short-circuit AND no
+  over-consumption. H7 control incant/kantRuleS shows the eager spelling
+  eating a token no option matched, at the same verdict.
+  Reply at clod-to-clay SEQ 54.]
+
+  END SEQ 49
 ===================================================================

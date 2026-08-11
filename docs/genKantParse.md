@@ -71,6 +71,49 @@ xtRule code={
 `incant/jitXtemplate`, jitted: **ticks 1 on fire 1** (first term fails, second term never runs)
 and **ticks 3 on fire 2** (both run), one compile, no recompile between fires, exit 0.
 
+> ## ⚠⚠ RETIRED FOR THE WORD FORMS, 2026-08-11 (SEQ 49) — **THE AND SPELLING IS AVAILABLE. FIRED AND MEASURED.**
+>
+> **This section's refusal was right when written and its cure is the thing that landed.** It ruled
+> that if short-circuit were ever wanted as an operator *"it has to become CONTROL FLOW — an
+> `aCTion*` handler with its own emitter, the shape `if` and the loops already have — not a repair
+> to `opAND`."* **That is exactly the 08-11 AND/OR rung**: `runShortCircuit`, intercepting at
+> `interpretXP` where the expression tree is built, with `jitEmitShortCircuit` on the emit side.
+>
+> **THE ROW THAT SAID ❌ THE WALL NOW READS:** `incant/jitXand`, AND over two **returning callees** —
+> the parse-term shape — fire 1 **`ticksR = 0`, the right arm never ran**, degrade 0, one compile,
+> interpreted oracle agreeing.
+>
+> **AND THE SPELLING WAS FIRED ON A RULE SHAPE, not just on the operator.** `incant/kantRuleA` is
+> the method this generator would emit for a rule with a three-term sequence and an alternation in
+> the middle — `krSuk = krT1() AND krAlt() AND krT3();`, one statement where the template below
+> needs seven. Jitted, four rows, first try, **degrade 0, one compile, no recompile between fires**:
+>
+> | row | ticks | cursor | what it certifies |
+> |---|---|---|---|
+> | first term fails | 1 | **0** | short-circuit **and no over-consumption** |
+> | all terms pass | 3 | 3 | one token per term |
+> | alternation opt 1 fails | 4 | 3 | opt 1 rewound itself, opt 2 ran |
+> | alternation opt 1 passes | 3 | 3 | **opt 2 skipped** — the OR chain's own short-circuit |
+>
+> ⚠ **THE CURSOR IS THE POINT, AND THE TICK COUNT IS NOT ENOUGH.** This section's harm was never
+> "an extra call" — it was *"a parse term consumes input, so an eagerly-evaluated right arm advances
+> the mark past text the rule never matched."* So every term moves a shared cursor and every row
+> asserts where it lands. **H7 control, and it is free because the eager spelling already exists:**
+> `incant/kantRuleS` is the same rule with the alternation spelled `||`, and it ends at **cursor 4
+> where the word form ends at 3** — a token eaten by an option that did not match. **Both spellings
+> return SUCCESS on that row.** A harness asserting the verdict would have certified the eager one.
+>
+> **WHAT IS NOT RETIRED.** ⚠ **The symbol forms**, where this section's argument now stands
+> *measured* rather than argued (`docs/knownErrors.md` KE-5/KE-6, both amended the same day; `&&`
+> over calls does not answer wrongly, it **kills the parse at 139 with zero output**). And ⚠ **the
+> if-chain template below is NOT deleted** — it is certified, it is the fallback, and it is what the
+> AND chain was measured against. **Which spelling v1 emits is Tony's call, not this file's.**
+>
+> **WHAT STILL BLOCKS A LIVE INSTALLED RULE, and it is not AND/OR:** the support library
+> (`lit`, `parseR`, `leaveRule`, `litOption`, `inGuard`, `containerTo`, `leaveAlt`) is `extern "C"`
+> and **not callable from kant** — §2(a)'s shim-and-registration job. `kantRuleA` stands in for the
+> terms with ticking actions for exactly that reason, and says so in its header.
+
 ⚠ **IT SHORT-CIRCUITS BY CONSTRUCTION, AND THAT IS THE ARCHITECTURAL POINT, NOT AN OPTIMISATION.**
 `CLAIM KANT-34` records that `&&`/`||` evaluate **both arms** and records the reason as
 **structural**: an operateMethod receives operands the runtime has already evaluated, so there is
