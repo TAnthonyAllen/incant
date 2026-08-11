@@ -1,3 +1,26 @@
+> # ⚠⚠ SUPERSEDED 2026-08-11 — THIS FILE IS HISTORICAL. IT IS NOT A LIVE RULING.
+>
+> **The live ruling on Display design is the `DisplayDesignHTML` entry of the `DesignDocs`
+> registry, `incant/designDocs`.** Tony converted this document to kant syntax offline on
+> 2026-08-10/11; he and Clay reviewed it; it was ruled canonical 2026-08-11 and homed that day.
+> **Read the registry entry for what is true. Read this file for how it was arrived at.**
+>
+> **The divergences are RULINGS, not drift**, and the registry entry names them in its own
+> `DisplayProvenance`: the **HTML event fence was widened** (§7.1's "no JS, static only" becomes
+> *simple events — resize, mouse clicks — pass back to kant, which re-lays-out and re-emits; the
+> target reports, kant decides*), the **measurer was made a protocol parameter** alongside the
+> target (§6), the **CSS-reconsider hedge was recorded** (§5's no-CSS emission may change on
+> implementation lessons), and the **save/restore rejected alternative was recorded inline** in the
+> entry's `StreamModel` rather than left to §4's rationale.
+>
+> **Retained, not deleted, per the standing legibility rule** — a dated retirement note rather
+> than a silent overwrite. §4 in particular is the *reasoning trail* for §3's stream model, and the
+> registry entry compresses it to one sentence. **Nothing below this banner has been edited.**
+>
+> ⚠ **Where a citation of this file is a PROVENANCE — a sealed record naming what was read on the
+> day — it stands and is not repointed.** Forward-looking references were repointed at retirement:
+> `docs/wakeup.md`'s current-vintage drawer entry and `docs/note-to-clay-style.md`'s header.
+
 # DISPLAY DESIGN — source → form → attributes → target
 
 **Drafted Clay, ruled Tony, 2026-08-10. Recorded via SEQ 29.**

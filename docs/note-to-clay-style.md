@@ -4,6 +4,14 @@
 > ## ⚠ DATED POINTER, 2026-08-10 (SEQ 30) — **THE DESIGN PASS THIS ASKED FOR HAS HAPPENED:
 > ## `docs/displayDesign.md`.** Read that first; this file is the ASK and remains legible as such.
 >
+> ⚠ **REPOINTED 2026-08-11: `docs/displayDesign.md` IS NOW HISTORICAL.** The live ruling is the
+> **`DisplayDesignHTML` entry of the `DesignDocs` registry, `incant/designDocs`** — the md was
+> converted to kant, reviewed by Tony and Clay, and ruled canonical 2026-08-11. **The section
+> numbers cited below still resolve against the md**, which is retained in full and unedited, so
+> this pointer's own citations stay checkable; the *rulings* they summarise now live in the
+> registry entry, and three of them MOVED at that review (HTML event fence widened, measurer made
+> a protocol parameter, CSS-reconsider hedge recorded).
+>
 > **Classified: this document is style-system content end to end** — it carries no
 > channel-etiquette half, so the whole of it falls under the pointer (Clod, SEQ 30, asked to
 > classify it).

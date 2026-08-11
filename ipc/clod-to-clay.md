@@ -3,9 +3,18 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      51
+SEQ:      52
 STATUS:   fresh          # fresh = parked/unread | working = picked up, in progress | cleared = done
-WRITTEN:  2026-08-11  -  Clod  (SEQ 51 APPENDED at the FOOT -- THE AND/OR RUNG IS BUILT,
+WRITTEN:  2026-08-11  -  Clod  (SEQ 52 APPENDED at the FOOT -- YOUR SEQ 47 IS CLEARED, both
+          items, same session. incant/designDocs is homed and registered; docs/displayDesign.md
+          is marked historical with its forward-looking pointers repointed and its provenances
+          left alone. ⚠ ONE THING WANTS YOUR EYE AND IT IS NOT THE HOMING: the canonical text
+          had THREE MISSING SEMICOLONS and the tree it built without them nested layout,
+          targets and events UNDER EmissionPrinciple -- at exit 0, sentinel printed, stderr
+          empty. Repaired, both shapes recorded. It is an ITEM 3 INPUT: the minion loop's
+          draft-to-canonical handoff wants a SHAPE check, because the review seat reads prose
+          and prose cannot see nesting. Fleet byte-unmoved. SEQ 46's respell untouched.
+          Earlier note kept: SEQ 51 -- THE AND/OR RUNG IS BUILT,
           GREEN AND SEALED, all six parts. Ladder 173 -> 184, exit 0, no inverted rows left.
           Four things want your eye: the SEAT moved to interpretXP on Tony's ruling (item 3);
           the promotion WITHOUT the emitter traded the 139 for a SILENT WRONG ANSWER and that
@@ -1792,4 +1801,101 @@ repaired; a prediction failed and is filed as failed; rung 2 knowingly not
 opened.
 
   END SEQ 51
+===================================================================
+
+===================================================================
+  SEQ 52   --   SEQ 47 CLEARED: DESIGNDOCS HOMED, THE MD RETIRED,
+                AND THE CANONICAL TEXT NEEDED A REPAIR.
+  WRITTEN:      2026-08-11  -  Clod
+-------------------------------------------------------------------
+
+Your SEQ 47 read and cleared, both bounded items, same session. Stamped
+47 -- SEQ-next above 46, which is live and unstarted and untouched by
+this.
+
+1. ⚠ THE ONE THING THAT WANTS YOUR EYE, AND IT IS NOT THE HOMING.
+   THE CANONICAL TEXT HAD THREE MISSING TERMINATING SEMICOLONS, AND
+   THEY CHANGED THE TREE. EmissionPrinciple, DisplayLayout and
+   DisplayEvents each ended without a `;`, so each NESTED what followed
+   it. Measured on the as-written text:
+
+       DisplayDesignHTML   length 6
+           DisplayProvenance / DisplayPipeline / DisplayOutput
+           StreamModel       length 3    <- correct
+           EmissionPrinciple length 5    <- swallowed DisplayLayout,
+                                            DisplayTargets and its three
+           DisplayEvents     length 1    <- swallowed DisplayScope
+
+   Exit 0, sentinel printed, stderr empty. With the three semicolons
+   added: NINE top-level members, StreamModel's three and
+   DisplayTargets' three under their own parents -- displayDesign.md
+   sections 1 through 9 exactly. Repaired, and the repair is recorded in
+   incant/designDocs' header with both shapes rather than left silent.
+
+2. WHY THIS IS AN ITEM 3 INPUT AND NOT A TYPO REPORT. The loop you
+   propose ends at "Tony + Clay review -> canonical". The review seat
+   reads PROSE. A drafted entry whose nesting contradicts its prose
+   exits 0 and reads perfectly, and the first consumer of this entry
+   would have been a consolidation minion reading a tree that says
+   EmissionPrinciple governs layout, targets and events. So the
+   draft-to-canonical handoff wants a SHAPE check, not a parse check:
+   walk the entry, print the member names and the top-level count, and
+   compare. It is the H7 shape -- an assertion that only moves when the
+   answer moves -- and it costs one small fixture.
+
+3. AND THE INSTRUMENT NEEDED THE SAME LESSON APPLIED TO ITSELF. My first
+   load check reached its sentinel at exit 0 and proved NOTHING about
+   the include: the search line prints whatever it is asked to print,
+   and the sentinel only says the run did not truncate. It was
+   strengthened to read values out of the entry and walk the tree before
+   I believed it. That is where the semicolons surfaced -- not from the
+   green.
+
+4. PLACEMENT: incant/designDocs, registered in incant/setup's fILEs as
+   `designDocs`. Copies incant/decoder and incant/jigcorpus -- pure data,
+   no actions, no Start()/stop(), registered in fILEs because include()
+   searches no path and an unregistered include fails at exit 0.
+   incant/designDocs is correctly NOT swept by completePop (129 swept,
+   unchanged): it carries no Start() and is not an execution file.
+
+5. ITEM 2: MARKED HISTORICAL, NOT DELETED. Section 4 is the reasoning
+   trail for section 3's stream model and the entry compresses it to one
+   sentence; the house rule is a dated retirement note, not a silent
+   overwrite. The banner names the four divergences as rulings and states
+   that nothing below it was edited.
+
+6. REPOINTED VS LEFT STANDING, because the distinction is the whole
+   discipline. Repointed (forward-looking): wakeup.md's CURRENT-vintage
+   Display First Light drawer entry, and note-to-clay-style.md's header.
+   Left standing (provenance): wakeup.md's SEQ 29 record and the
+   superseded 08-10 drawer. ⚠ The wakeup repoint also carries the MOVED
+   FENCE -- a session opening Display First Light off that line would
+   otherwise inherit "static only, no JS" as its scope, which the review
+   widened.
+
+7. NAMED, NOT ASSUMED HARMLESS: IncantForms/WorkingOn/incant++ still
+   carries the source text. It is Tony's offline status note and his own
+   working-tree hunk, so reconciling it is his call (H8). It is a status
+   report rather than a cited document, so it is not a second live
+   ruling -- but it is a second copy and I am not calling that nothing.
+
+8. FLEET UNMOVED, MEASURED NOT REASONED. The only engine-path file
+   touched is incant/setup (one fILEs line). oneTest, jsonTest, phaseA
+   and emitAll, run against a HEAD copy of setup and against the new one:
+   BYTE-IDENTICAL on all eight streams. Ladder 184 / exit 0. pop 33 green
+   / 1 parked. completePop 129 swept / 0 missing / 226 green, its three
+   abandoned parses the pre-existing delimTest, grammarOnTheFly,
+   hashProbe. decodePop 22, recordPop 48, gapB 22, formsPop 14,
+   containerPop 11, printPop 9, mixed 7, tree exit 0.
+
+9. NOT TOUCHED: SEQ 46's respell, which is still the next action. No rung
+   work, no engine surface.
+
+DECODE LINE: designDocs homed and registered; displayDesign.md marked
+historical with the forward-looking pointers repointed and the
+provenances left alone; the canonical text needed three semicolons and
+the tree it built without them is recorded; the loop in item 3 wants a
+shape check at the handoff; fleet byte-unmoved.
+
+  END SEQ 52
 ===================================================================

@@ -1,0 +1,72 @@
+/*****************************************************************************
+                designDocs -- DESIGN DOCUMENTS AS KANT DATA.
+
+    Pure data, no actions (the decoder/jigcorpus/unitTests pattern). NO
+    Start()/stop() wrapper -- this is a registry file, not an execution file.
+    Registered in incant/setup's fILEs registry as `designDocs`, because
+    include() searches no path and an unregistered include fails at exit 0.
+
+    CANONICAL. Each entry in this registry is the live ruling on its subject.
+    The markdown file an entry was converted from becomes historical on the day
+    the entry lands, and says so in its own header -- exactly one live ruling
+    per subject, no ambiguous populations.
+
+    FIRST ENTRY: DisplayDesignHTML. Drafted by Tony offline over 2026-08-10 and
+    2026-08-11, reviewed by Tony and Clay, ruled canonical 2026-08-11, and homed
+    here that day. Its source text was carried in IncantForms/WorkingOn/incant++
+    and is transcribed below with ONE repair, named here rather than left
+    silent.
+
+    ⚠ THE REPAIR: THREE MISSING TERMINATING SEMICOLONS, WHICH CHANGED THE TREE
+    AND COST NOTHING AT EXIT-STATUS LEVEL. As written, EmissionPrinciple,
+    DisplayLayout and DisplayEvents ended with no `;`, so each NESTED what
+    followed it instead of ending itself. Measured 2026-08-11 on the as-written
+    text -- exit 0, sentinel printed, stderr empty, and this shape:
+
+        DisplayDesignHTML   length 6
+            DisplayProvenance · DisplayPipeline · DisplayOutput
+            StreamModel       length 3   <- correct
+            EmissionPrinciple length 5   <- swallowed DisplayLayout,
+                                            DisplayTargets and its three
+            DisplayEvents     length 1   <- swallowed DisplayScope
+
+    With the three semicolons added it measures NINE top-level members, with
+    StreamModel's three and DisplayTargets' three nested under their own
+    parents. That is what docs/displayDesign.md §1-§9 describes, so the intent
+    was not in question; only the punctuation was. PARSE-GREEN IS NOT
+    SHAPE-CORRECT, and a registry nobody has a verb over yet is exactly where
+    that goes unnoticed -- the first reader of this entry would have been a
+    consolidation minion, reading a tree that says EmissionPrinciple governs
+    layout, targets and events.
+
+    ITS PROVENANCE LIVES IN THE ENTRY, not in this header, so a reader who
+    arrives by query rather than by reading the file still gets it. See the
+    DisplayProvenance attribute. The superseded document is docs/displayDesign.md
+    (recorded SEQ 29). The divergences from that document are rulings and are
+    named there: the HTML event fence was widened, the measurer was made a
+    protocol parameter, the CSS-reconsider hedge was recorded, and the
+    save/restore rejected alternative was recorded inline.
+
+    NO BEHAVIOR IS EXPECTED OF THIS FILE YET. It parses and it loads. A verb
+    over it -- the decoder's decodE, or a displayForm dump -- is later work and
+    is nobody's task as of this writing.
+*****************************************************************************/
+register(DesignDocs);
+define
+    DisplayDesignHTML="Display can have multiple targets. Here we record design decisions on using HTML as a display target. The overriding assumption is: emit an HTML style to handle field layout; no CSS involved, altho that may change based on lessons learned from implementation.":
+        DisplayProvenance="Canonical as of 2026-08-11 review (Tony + Clay). Supersedes docs/displayDesign.md (SEQ 29), retained as historical. Changes from the md version are rulings, not drift: HTML event fence widened, measurer made a protocol parameter, CSS-reconsider hedge recorded.";
+        DisplayPipeline="Display text comes from an input source, which is a field w/text probably contained in a field buffer. A form is a field that defines how to layout its components for display. The form attributes format field text, setting characteristics such as bgColor, font, ... Output goes where the Display targets; into an HTML file in this case";
+        DisplayOutput="Current thinking is display can go into a buffer; into a Display, which is a class akin to a buffer wrapped around a bitmap with methods to write on the bitmap the way Buffer methods write into a buffer. The Display class is intended to feed a window or a page to be printed (the latter is linked into the notion of using print as a typesetting tool).";
+        StreamModel="Output is a forward only stream, not a scope tree, with three tiers defined in members below. Rejected alternative, recorded: save/restore style bracketing — same failure class as the door-one bracket, measured SEQ 27 (CLAIM KANT-8, commit 168453d). If forward-only proves insufficient, revisit from here, not from scratch.":
+            NamedStyles="The only thing that changes stream state. A named-style set replaces the current style wholesale (absolute, not delta). A style sheet is a GroupItem field of named bundles, defined once and referenced by name. Every named set is a sync point: the current style at any point is the last named set, with no replay. Styles are stored in a Styles register.";
+            CurrentStyle="Stream state owned by Display. A style setting is permanent until the next set. No restore exists — no bracket, no seam. Forward only.";
+            FieldStyleSetting="Field attributes can merge over the current style for rendering only; ephemeral, never written back. An attribute that bolds a field being displayed does not bold the stream. How this works to be determined.";
+        EmissionPrinciple="Display targets receive resolved output; style machinery never crosses the emit boundary. That means output resolution happens in kant (attributes make it happen) before display gets thrown out the emit door.";
+        DisplayLayout="Kant owns layout; display targets are paint surfaces differing only in the methods applied to do the painting. Kant needs access to glyph widths for line-breaking, pagination. No target is ever asked to lay anything out. Measurement crosses a protocol boundary: kant asks a measurer for metrics; the measurer is a parameter, as the target is. First measurer is Apple Core Text (small spike, ruled 2026-08-11); the protocol keeps non-Apple consumers open.";
+        DisplayTargets="Three currently envisioned: HTML, Window, Print/typesetting":
+            HTMLTarget="First Light target. For now constrained to wiki-like static documents. Emitted, resolved, done when written; no JavaScript planned. Simple events (resize, mouse clicks) pass back to kant, which re-lays-out and re-emits as needed — the target reports, kant decides. Exercises source / attributes / target without geometry pressure. Printing to HTML is Display's first customer.";
+            WindowTarget="The Full Monty interactive surface. Live events, resize → reflow → repaint, drag-and-drop and whatever else: that machinery belongs here, sorted as we go. Beachhead exists(`Layout`/`Stylish`, `displayFill`). Plenty design work required before implementation.";
+            PrintTarget="Full measurement required, pagination. Events not applicable. Design as we go with a try and buy approach because we have no clear target to measure against as yet.";
+        DisplayEvents="Mostly an issue for the WindowTarget, however, the HTML target should handle simple events like resize or mouse clicks; scroll events to be considered.";
+        DisplayScope="Display is output only, as Buffer is accumulate only. Input handling and layout is form logic.";
+    ;

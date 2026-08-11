@@ -3,9 +3,13 @@
   Clay writes this file. Clod reads it, acts, then clears it.
   Clod's replies go in ipc/clod-to-clay.md  (never write here, Clod).
 -------------------------------------------------------------------
-SEQ:      46
+SEQ:      47
 STATUS:   fresh          # fresh = parked/unread | working = picked up, in progress | cleared = done
-WRITTEN:  2026-08-10  -  Clay (SEQ 40, 41 and 42, dictated in chat via Tony; transcribed by Clod)
+WRITTEN:  2026-08-11  -  Clay (SEQ 47, via Tony; transcribed by Clod)
+          ⚠ THE FILE-LEVEL STATUS READS `fresh` BECAUSE SEQ 46 IS STILL LIVE AND
+          UNSTARTED, not because SEQ 47 is unread. 47 is CLEARED in its own body.
+          One STATUS field, two entries -- the per-entry STATUS lines are the
+          authority when they disagree with this one, and they are read first.
 NUMBERING: ⚠ THE TWO COUNTERS HAVE DIVERGED. SEQ 40 and 41 were DICTATED as
           "SEQ 27" and "SEQ 28" -- Clay's chat-side thread numbering, which is
           independent of this file's and had fallen twelve behind it. They are
@@ -21,7 +25,19 @@ NUMBERING: ⚠ THE TWO COUNTERS HAVE DIVERGED. SEQ 40 and 41 were DICTATED as
           acted-before-written turn stands as the correct record. So 40/41 keep
           their dictated-number annotations as history, and nothing after 42
           needs one.
-LIVE:     NOTHING IS LIVE. SEQ 43 -- THE SHUTDOWN RULINGS -- is at the FOOT, CLEARED:
+LIVE:     ⚠ SEQ 46 IS LIVE AND UNSTARTED -- THE GENERATOR RESPELL ONTO AND/OR,
+          authorized and ruled, charter in docs/respellRung.md, and the NEXT
+          ACTION at the head of docs/wakeup.md. It is the only live entry in
+          this file.
+          SEQ 47 -- DISPLAYDESIGN CONSOLIDATION -- is at the FOOT, CLEARED the
+          session it arrived: incant/designDocs homed and registered,
+          docs/displayDesign.md marked historical, item 3 discussion-only per
+          its rider. Its body is RETAINED rather than blanked, per the SEQ 31
+          precedent, because it records a repair to the canonical text (three
+          missing semicolons, measured before and after) and blanking it would
+          leave the registry entry differing from Tony's source with no file
+          saying why.
+          SEQ 43 -- THE SHUTDOWN RULINGS -- is at the FOOT, CLEARED:
           publicity ACCEPTED knowingly, ipc/ TRACKED (this file is now in git),
           Q3 MERGED, WT-14a-d transcribed. SEQ 42 -- THE KANT-8 RULING PACKAGE -- is at the FOOT,
           CLEARED: M1 and M2 both ran, M2's precondition FAILED, no code written.
@@ -2721,4 +2737,133 @@ about to move -- generated text produced twice, and an oracle re-pinned
 for a reason that says nothing about correctness.
 
   END SEQ 46
+===================================================================
+
+===================================================================
+  SEQ 47   --   DISPLAYDESIGN CONSOLIDATION: REGISTRY HOMING +
+                MD RETIREMENT.
+  WRITTEN:     2026-08-11  -  Clay, via Tony; transcribed by Clod
+  STATUS:      CLEARED. Items 1 and 2 both landed the same session.
+               Item 3 is discussion and produced no artifact, as its
+               own rider provides.
+  SEQ STAMP:   Dispatch arrived with the number left blank for the
+               ledger-holder, per SEQ 42's file-authoritative rule.
+               Stamped 47 -- SEQ-next above 46, which is still LIVE and
+               UNSTARTED (the respell charter) and is not touched by
+               this entry.
+-------------------------------------------------------------------
+
+DECODE LINE. *DesignDocs registry* = a kant register(DesignDocs)
+holding design documents converted to GroupItem definitions; first
+entry is DisplayDesignHTML, drafted by Tony offline 2026-08-10/11,
+reviewed Tony + Clay, ruled canonical 2026-08-11. *Supersession* = the
+registry entry now rules; docs/displayDesign.md (recorded SEQ 29) is
+historical. Divergences from the md are rulings, not drift: HTML event
+fence widened, measurer made a protocol parameter, CSS-reconsider hedge
+recorded, save/restore rejected-alternative recorded inline.
+
+ITEM 1 -- PARK THE DESIGNDOCS REGISTRY IN AN INCANT FILE.
+Tony supplies the canonical register(DesignDocs) text (his edit
+incorporating the 2026-08-11 review amendments). Clod's call on
+placement within incant/, consistent with how incant/setup vocabulary
+landed. Bounded: home the file, confirm it loads clean (parse green),
+no behavior expected of it yet.
+
+  DELIVERED -- incant/designDocs, registered in incant/setup's fILEs as
+  `designDocs`. Placement copies incant/decoder and incant/jigcorpus:
+  pure data, no actions, no Start()/stop() wrapper, registered in fILEs
+  because include() searches no path and an unregistered include fails
+  at exit 0 (bear-trap #28's fourth item).
+
+  ⚠ AND IT DID NOT LOAD CLEAN, THOUGH IT LOADED GREEN. THREE MISSING
+  TERMINATING SEMICOLONS -- EmissionPrinciple, DisplayLayout and
+  DisplayEvents -- each NESTED what followed instead of ending itself.
+  As-written the entry measured SIX top-level members with
+  EmissionPrinciple carrying five children (DisplayLayout,
+  DisplayTargets and its three) and DisplayEvents carrying DisplayScope.
+  Exit 0, sentinel printed, stderr empty throughout. The three
+  semicolons were added and the corrected tree measures NINE top-level
+  members with StreamModel's three and DisplayTargets' three under their
+  own parents -- which is what docs/displayDesign.md sections 1 to 9
+  describe, so the intent was never in question. Repair recorded in the
+  file's own header with the before/after shape, not left silent.
+
+  ⚠ THE POINT WORTH KEEPING: PARSE-GREEN IS NOT SHAPE-CORRECT, and a
+  registry nobody has a verb over yet is exactly where that survives.
+  The first reader of this entry would have been a consolidation minion
+  (item 3), reading a tree that says EmissionPrinciple governs layout,
+  targets and events. The load check was strengthened mid-run for this
+  reason: a run that merely reaches its sentinel proves nothing about
+  the include, since the search line prints whatever it was asked to
+  print. It now reads values out of the entry and walks the tree.
+
+ITEM 2 -- RETIRE docs/displayDesign.md.
+The registry entry is canonical as of today; the md must not survive as
+a second live ruling (door-one/door-two lesson: no ambiguous
+populations). Mechanics are Clod's call -- delete, or mark historical
+with a supersession header pointing at the registry entry. Whichever,
+the outcome to certify: exactly one live ruling on Display design
+exists in the tree.
+
+  DELIVERED -- MARKED HISTORICAL, NOT DELETED. The house rule on this
+  project is a dated retirement note rather than a silent overwrite, and
+  section 4 in particular is the reasoning trail for section 3's stream
+  model, which the registry entry compresses to one sentence. The banner
+  names the four divergences as rulings and states that nothing below it
+  was edited.
+
+  FORWARD-LOOKING REFERENCES REPOINTED, PROVENANCES LEFT ALONE. Repointed:
+  docs/wakeup.md's CURRENT-vintage drawer entry for Display First Light,
+  and docs/note-to-clay-style.md's header pointer. Left standing:
+  wakeup.md's SEQ 29 record and the superseded 08-10 seal's drawer, both
+  of which are provenance naming what was read on the day. The
+  wakeup repoint also carries the moved fence, because a reader opening
+  Display First Light off that line would otherwise inherit "static only,
+  no JS" as the scope.
+
+  ⚠ ONE POPULATION LEFT DELIBERATELY UNTOUCHED AND FLAGGED TO TONY:
+  IncantForms/WorkingOn/incant++ still carries the source text, because
+  that file is Tony's offline status note and his own working tree hunk
+  (H8: no work stacks on an unreconciled tree, and reconciling his file
+  is his call). It is a status report, not a cited document, so it is not
+  a second live ruling -- but it IS a second copy, and it is named here
+  rather than assumed harmless.
+
+ITEM 3 -- DISCUSSION, NOT TASKING: THE MINION CONSOLIDATION LOOP.
+Proposed next step: deploy a minion to consolidate md files and draft
+new DesignDocs entries, iteratively -- minion consolidates -> drafts
+entry -> Tony + Clay review (Clod oar-in where entries cite commits,
+defects, or census numbers, i.e. where paraphrase can rot a citation) ->
+review changes become canonical -> md retired as in Item 2.
+For the afternoon's discussion: scope, which md files go first, and the
+minion's draft-versus-canonical handoff. Attribute vocabulary for
+entries (status=, ruledBy=, rationale=) is ruled defer-and-measure --
+minion output is the measurement.
+
+  NO ARTIFACT, per the rider. ONE INPUT FROM ITEM 1, offered for the
+  discussion rather than acted on: the three-semicolon finding is an
+  argument that the loop needs a SHAPE check at the draft-to-canonical
+  handoff, not just a parse check. A minion's drafted entry will exit 0
+  whether or not its nesting says what its prose says, and the review
+  seat reads prose. The check is cheap -- walk the entry, print the
+  member names and the top-level count -- and it is the H7 shape: assert
+  the thing that only moves when the answer moves.
+
+RIDERS. Items 1-2 are Clod-sized and bounded; no rung work, no engine
+surface touched. Item 3 produces no artifact today unless discussion
+rules otherwise.
+
+  HELD. The only engine-path file touched is incant/setup (one fILEs
+  line), and its inertness was MEASURED rather than reasoned: oneTest,
+  jsonTest, phaseA and emitAll run against a HEAD copy of setup and
+  against the new one are BYTE-IDENTICAL on all eight streams. Fleet at
+  the same numbers as the 08-11 seal -- ladder 184 / exit 0, pop 33 green
+  / 1 parked, completePop 129 swept / 0 missing sentinels / 226 green
+  (its 3 abandoned parses are the pre-existing delimTest,
+  grammarOnTheFly and hashProbe), decodePop 22, recordPop 48, gapB 22,
+  formsPop 14, containerPop 11, printPop 9, mixed 7, tree exit 0.
+  ⚠ incant/designDocs is NOT swept by completePop (129, unchanged) --
+  correctly, since it carries no Start() and is not an execution file.
+
+  END SEQ 47
 ===================================================================

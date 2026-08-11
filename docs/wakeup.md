@@ -199,7 +199,12 @@
 #     `spellMany`'s collapsed form against `manyScratch.target`. ⚠ **DO NOT tidy those guards
 #     on the strength of the note alone.**
 #   · **Display First Light (HTML)** — bounded opener, wiki-scope static documents, first
-#     customer docs-to-HTML. `docs/displayDesign.md`.
+#     customer docs-to-HTML. ⚠ **REPOINTED 2026-08-11: the live ruling is the
+#     `DisplayDesignHTML` entry of `incant/designDocs`**, not `docs/displayDesign.md`, which is
+#     now HISTORICAL and carries a supersession banner. ⚠ **And the fence MOVED at that review:
+#     the HTML target now handles simple events (resize, mouse clicks), passing them back to
+#     kant to re-lay-out and re-emit — "static only, no JS planned" is no longer the whole
+#     scope.** Whoever opens this reads the registry entry, not the md.
 #   · **K6f re-size** — spec'd, **awaiting Tony's nod**, owner = next K-row rung.
 #   · **First Light (parse)** — waiting. Behind it: **H3's 3–4 command registrations** · the
 #     **contract RUN** that converts H4 from READ to signable.
