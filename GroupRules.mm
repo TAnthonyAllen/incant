@@ -9100,6 +9100,66 @@ RuleStuff 	*stuff = 0;
 }
 
 /*******************************************************************************
+    parseViaKant — THE TRAMPOLINE. Loop closure step 1, 2026-08-11 (SEQ 52).
+
+    WHAT PROBLEM THIS SOLVES, because it is not the one the shims solve.
+    rStuff.parseMethod is a C++ FUNCTION POINTER — RuleStuff.twk:88 declares
+    `GroupItem &parseMethod(GroupItem);` — and parse() forks on it and calls
+    through it. A kant method is NOT a function pointer: it is a GroupItem
+    carrying CodE/BlocK, reached through processAction. So a kant parse method
+    cannot be installed into the slot that dispatches parse methods, and making
+    lit/parseR/leaveRule callable FROM kant does not touch that at all. The
+    shims govern what the body may call; this governs who may call the body.
+    Two distinct costs, and only the first is the "cheap" the charter promised.
+
+    THE CHEAP DOOR, AND THE OTHER ONE. RuleStuff.twk's jitMethod block named
+    this seam on 2026-08-05 and ruled that widening the pointer's signature is
+    a LAYOUT change — bear-trap #10's whole apparatus, groups.ext sync plus
+    tokall plus rebuild. This function is the other door: an ordinary C++
+    function OF THE EXISTING SIGNATURE that stands in the slot and forwards.
+    No layout change, no groups.ext edit, and it binds through the existing
+    parseMethod= dlsym path with no new vocabulary.
+
+    RESOLUTION IS BY CONVENTION, DELIBERATELY, so that v1 adds no binding verb:
+    rule `Foo` is served by the kant action named `kpFoo`. One rule, one name,
+    derivable in both directions by a reader. If a binding attribute is wanted
+    later it can carry the node itself and this lookup goes away — the
+    convention is v1's scaffolding and is not load-bearing on the design.
+
+    ⚠ IT REFUSES RATHER THAN FALLING THROUGH, and that is the tier-3 lesson
+    applied here. A missing or uncoded action returns null, which parse() reads
+    as "this rule did not match" — the honest answer — and says so on stderr
+    once. Quietly falling back to the interpretive arm would make an
+    unregistered action indistinguishable from a rule that legitimately failed,
+    which is the fold-and-be-quiet failure the degrade-zero rule exists to
+    catch.
+
+    ⚠ ONE CHANNEL, ONE MEANING: this returns what processAction returns and
+    invents nothing. A null is "no match", exactly as the emitted C++ methods'
+    leaveRule null is, so parse()'s caller cannot tell the arms apart by shape.
+*******************************************************************************/
+extern "C" GroupItem *parseViaKant(GroupItem *rule)
+{
+GroupItem 	*action = 0;
+char 		*want = 0;
+	want = ::concat(2,"kp",rule->groupBody->tag);
+	action = GroupControl::groupController->locate(want);
+	if ( !action )
+		{
+		::fprintf(stderr,"parseViaKant: no kant parse action named %s for rule %s\n",want,rule->groupBody->tag);
+		return 0;
+		}
+	if ( !isCoded(action->groupBody->flags.actionType) )
+		{
+		::fprintf(stderr,"parseViaKant: %s exists but carries no code\n",want);
+		return 0;
+		}
+	if ( GroupControl::groupController->groupRules->parseTrace )
+		::fprintf(stderr,"    parseViaKant %s -> %s\n",rule->groupBody->tag,want);
+	return ::processAction(action);
+}
+
+/*******************************************************************************
     planRule — the §4.1 fold, then one plan node per real term. NULL means the
     whole rule is refused: a plan that is missing a term is worse than no plan.
 *******************************************************************************/

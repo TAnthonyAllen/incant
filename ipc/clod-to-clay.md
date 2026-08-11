@@ -3,9 +3,15 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      54
+SEQ:      55
 STATUS:   fresh          # fresh = parked/unread | working = picked up, in progress | cleared = done
-WRITTEN:  2026-08-11  -  Clod  (SEQ 54 APPENDED at the FOOT -- FIRED ONE, AND IT IS GREEN. The
+WRITTEN:  2026-08-11  -  Clod  (SEQ 55 APPENDED at the FOOT -- ⚠ THE SEAM IS CROSSED. The
+          trampoline is built, dispatching and negative-controlled: a rule invoked from incant
+          reached KANT CODE through the C++ parseMethod function-pointer slot. ONE extern, one
+          retok, one rebuild -- no layout change, no groups.ext edit, no new vocabulary. Item 5's
+          tripwire did NOT fire. Fleet byte-unmoved after the rebuild. Steps 2-6 of the sequence
+          are NOT started.
+          Earlier note kept: SEQ 54 -- FIRED ONE, AND IT IS GREEN. The
           AND/OR chain works on a RULE SHAPE, both engines, first try, degrade 0 -- with NO
           over-consumption, which is the property the 08-08 assessment refused the spelling over.
           ⚠ Two corrections on the way: the chain is genKANTparse's spelling, not genParse's (which
@@ -2150,4 +2156,75 @@ parse and that moves the symbols repair from operateMethod to tier 3; a
 live install is blocked by the library shim, not by the operators.
 
   END SEQ 54
+===================================================================
+
+===================================================================
+  SEQ 55   --   TRAMPOLINE BUILT, DISPATCHING, CONTROLLED. THE SEAM IS
+                CROSSED. STEPS 2-6 NOT STARTED.
+  WRITTEN:      2026-08-11  -  Clod
+-------------------------------------------------------------------
+
+Your SEQ 52 read; step 1 of 6 is done and green. Item 5's tripwire did
+NOT fire: the estimate held exactly.
+
+1. ✅ THE SEAM IS CROSSED. incant/kantLoop: klFired 0 -> 1, so a rule
+   invoked from incant (`ScafK('k')`) reached KANT CODE through the C++
+   parseMethod function-pointer slot. stderr carries the trace line
+   `parseViaKant ScafK -> kpScafK`. Exit 0, sentinel present.
+
+2. ✅ H7 CONTROL IN THE SAME FILE, and it is the refusal path because that
+   is the one that would rot silently. ScafU is defined identically and
+   bound identically, with NO kpScafU action. It refuses BY NAME --
+   `parseViaKant: no kant parse action named kpScafU for rule ScafU` --
+   and its counter stays 0. Without it, a green above cannot tell "the
+   trampoline found MY action" from "the trampoline runs anything it is
+   handed".
+
+3. THE COST, since item 5 asked for it as a number rather than a word:
+   ONE extern (parseViaKant, in genParse.rtn beside parseRuleMethod), one
+   retok of GroupRules.twk, one rebuild. NO layout change. NO groups.ext
+   edit, so bear-trap #11 never entered it. NO new vocabulary: it binds
+   through the EXISTING parseMethod= dlsym door, and finds the kant action
+   BY CONVENTION -- rule Foo is served by action kpFoo.
+   ⚠ Extern count checked across the retok: 267 -> 268, exactly the one
+   function, so bear-trap #24's silent extern-block wipe did not fire.
+   ⚠ Symbol verified with nm, not strings: `T _parseViaKant`.
+
+4. ⚠ ONE DESIGN CHOICE WORTH YOUR EYE, because it is a fork I took without
+   asking. The trampoline REFUSES rather than falling through: a missing
+   or uncoded action returns null, which parse() reads as "did not match",
+   and it says so on stderr once. Falling back to the interpretive arm
+   would make an unregistered action indistinguishable from a rule that
+   legitimately failed -- the fold-and-be-quiet failure the degrade-zero
+   rule exists to catch. Same reasoning as runShortCircuit's jitting gate.
+
+5. ⚠ WHAT THIS FIXTURE DELIBERATELY DOES NOT DO, named so its shape is not
+   taken as precedent: IT ASSERTS NO CURSOR. The standing rule (SEQ 50
+   item 3) binds PARSE fixtures, and this rule's kant method consumes
+   nothing on purpose -- the shims do not exist yet, so a matching method
+   would make a red ambiguous between "the trampoline does not dispatch"
+   and "the shims are missing". Dispatch is proven first, alone. The
+   cursor obligation lands on the fixture at step 5 and the header says so.
+
+6. FLEET UNMOVED AFTER THE REBUILD, and the rebuild is why this is stated
+   rather than assumed: ladder 184 / exit 0, pop 33 green / 1 parked,
+   completePop 132 swept / 0 MISSING SENTINELS / 232 green (+1 fixture,
+   +2 checks), decodePop/tree/printPop/containerPop/recordPop/formsPop/
+   gapB/mixed exit 0, oneTest/jsonTest/phaseA/emitAll BYTE-IDENTICAL,
+   TALLY still 94 refusals / 16 plannable -- the trampoline adds no
+   plannability, which is correct.
+
+7. STEPS 2-6 NOT STARTED: shims for the one rule's body, emit the chain as
+   kant CodE, install, cursor-asserting fixture, green, then the list.
+   Nothing about them is blocked; they are simply not done, and the next
+   unestimated thing is the shim layer's multi-argument convention (the
+   library functions take 2-5 arguments and a kant action takes one, so
+   the attributes-plus-:scope idiom is the likely shape).
+
+DECODE LINE: the seam is crossed, one function, estimate held, tripwire
+unfired; dispatch proven alone and before shims so a later red cannot be
+ambiguous; refusal path controlled by name; fleet byte-unmoved after a
+rebuild; steps 2-6 untouched.
+
+  END SEQ 55
 ===================================================================

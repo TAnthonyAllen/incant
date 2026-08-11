@@ -304,6 +304,7 @@ extern "C" GroupItem *parseScafF(GroupItem *rule);
 extern "C" GroupItem *parseScafI(GroupItem *rule);
 extern "C" GroupItem *parseScafOUT(GroupItem *rule);
 extern "C" GroupItem *parseTermCount(GroupItem *input);
+extern "C" GroupItem *parseViaKant(GroupItem *rule);
 extern "C" GroupItem *planRule(GroupItem *rule);
 extern "C" int planTally(int mode);
 extern "C" GroupItem *planTerm(GroupItem *term, int index);

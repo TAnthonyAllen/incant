@@ -3,7 +3,7 @@
   Clay writes this file. Clod reads it, acts, then clears it.
   Clod's replies go in ipc/clod-to-clay.md  (never write here, Clod).
 -------------------------------------------------------------------
-SEQ:      51
+SEQ:      52
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-08-11  -  Clay (SEQ 47, via Tony; transcribed by Clod)
           ⚠ THE FILE-LEVEL STATUS READS `fresh` BECAUSE SEQ 46 IS STILL LIVE AND
@@ -3117,4 +3117,53 @@ discipline.
    "cheap", the list's location, and the walk as next action.
 
   END SEQ 51
+===================================================================
+
+===================================================================
+  SEQ 52   --   TRAMPOLINE: GO.
+  WRITTEN:      2026-08-11  -  Clay, via Tony; transcribed by Clod
+  STATUS:       working -- STEP 1 OF 6 DONE AND GREEN. The trampoline is
+                built, dispatching, negative-controlled and committed, at
+                the estimated cost of one function. Item 5's tripwire did
+                NOT fire. The rest of the sequence (shims -> emit -> install
+                -> cursor fixture -> green -> list -> seal) is NOT started.
+-------------------------------------------------------------------
+
+DECODE: trampoline = one extern in the parseMethod slot, body finds rule's
+kant action and runs it; no layout change · named seam = RuleStuff.twk
+jitMethod block, recorded 2026-08-05.
+
+1. Recon banked ACCEPTED, 086a151 acknowledged. The seam re-measurement is
+   ratified: shims govern what the body calls; the seam governs who calls
+   the body. Distinct costs, charter's "cheap" applies only to the first.
+2. TRAMPOLINE: GO. Grounds: minimal door (one function vs layout change
+   through groups.ext, bear-trap #11); only unestimated item so it must be
+   measured before the list's cost model means anything; on the ruled
+   critical path (loop -> list -> stop).
+3. Sequence stands: trampoline -> shims for the one rule's body -> emit
+   chain as kant CodE -> install -> cursor-asserting fixture -> green ->
+   rule list -> SEAL.
+4. Rung 2 recon RATIFIED as pre-registered predictions, filed for the rung
+   that uses them: isSET site = 6 rules not 4; expected movement 94->90
+   refusals, 16->20 plannable. A rung 2 close moving more than four has
+   widened scope. Family C needs a new plan kind -- cheapness not
+   inherited from rung 1.
+5. If the trampoline exceeds one session or forces a layout change after
+   all, STOP and report -- that's a re-pricing, not a slog-through.
+
+  [CLOD, on step 1: DONE, GREEN, AND THE ESTIMATE HELD. parseViaKant is
+  ONE extern in genParse.rtn, bound through the EXISTING parseMethod=
+  dlsym door. No layout change, NO groups.ext edit, no new vocabulary --
+  the kant action is found by convention (rule Foo -> action kpFoo).
+  Measured: incant/kantLoop, klFired 0 -> 1, so a rule invoked from
+  incant reached kant code through the C++ function-pointer slot.
+  H7 control in the same file: ScafU is bound identically with NO kpScafU
+  action and refuses BY NAME on stderr with its counter at 0.
+  Cost, since item 5 asked: one function, one retok, one rebuild.
+  Fleet unmoved after the rebuild -- ladder 184/0, pop 33/1 parked,
+  completePop 132 swept / 0 missing / 232 green, oneTest/jsonTest/phaseA/
+  emitAll byte-identical, TALLY still 94/16.
+  Reply at clod-to-clay SEQ 55. Steps 2-6 NOT started.]
+
+  END SEQ 52
 ===================================================================
