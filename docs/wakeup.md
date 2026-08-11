@@ -1,3 +1,58 @@
+# ⚠⚠ AMENDED 2026-08-11 LATER THE SAME DAY — THE RESPELL FIRED, TOOK §3.0 FIRST, AND **STOPPED
+# ON THE ANSWER**. READ THIS AMENDMENT BEFORE THE SEAL BELOW IT, WHOSE "NEXT ACTION" IT MOVES.
+#
+# ⚠⚠ **§3.0 ANSWERED NO. THE GOTO SCAFFOLDING IS NOT THE CAUSE OF THE BRACED RED — AND THE
+# CHARTER'S §1 PREMISE IS FALSIFIED BY THE EMITTED TEXT.** Four measurements, none needing an
+# install. Full record: **`docs/respellRung.md` §6's Braced block**, which is the file to read.
+#   1. **GM-13's lead was already dead** — falsified 2026-08-05 by **GM-16**, seventy lines below
+#      it in the same file. The charter cited the lead, not the file. A forward pointer is now at
+#      GM-13 so the next reader cannot repeat it.
+#   2. **The goto WAS a cause and was REPAIRED 2026-08-06** by GX-1's `fireLabelMethod`
+#      extraction. Verified in TODAY's source: `GroupItem.twk:1231-1232` fires the action
+#      **before** the `goto`.
+#   3. ⚠⚠ **NO GENERATED METHOD HAS EVER CONTAINED A GOTO.** Regenerated today rather than cited
+#      (`INCANT_PARSE_RECORD` on `incant/recordPT`): `parseBraced` is
+#      `lit(t1,"[") && parseR(t2,label) && lit(t3,"]")` — **already an operator chain, and
+#      byte-identical to the 2026-08-05 banking.** The `goto` lives in `parse()`'s hand-written
+#      arm. **So §3.5's promised exhibit — "goto out, chains in" — is not producible from ANY
+#      rule**, and the real delta is `&&`/`||` → `AND`/`OR`.
+#   4. **The surviving red is GM-29's mechanism**, named to one line: `attachLabel`'s no-label
+#      guard, `GroupItem.twk:1101`. `Braced` is an option of the **alternation** `InvokeArg`, and
+#      an option's label under a label-transparent parent is dropped silently at exit 0.
+#
+# ⚠ **HONEST LIMIT: `Braced` ITSELF HAS NOT BEEN RE-RUN SINCE 2026-08-05.** GM-29's post-GX-1
+#   reproduction is on `Parens`. "Braced is still red" is structural and pointable, **not
+#   measured** — measuring it is an install, which is a rung, and it was not taken.
+#
+# ⚠ **AND THE DISPATCH'S FEARED FAILURE WAS LIVE:** had Braced been installed as the exhibit and
+#   come back green, **GX-1 — landed five days ago for an unrelated defect — would have been read
+#   as the respell's proof.** That is the whole reason §3.0 was written before step 1.
+#
+# ⚠⚠ **NEXT ACTION IS NOW TONY'S, AND IT IS A DECISION, NOT A BUILD: RESTATE §1 IN TERMS OF THE
+#   REAL DELTA.** The §1 ruling is **NOT withdrawn**; what moved is the description of what it
+#   buys. With §1 restated, §2's third bullet (*"the Braced red's failure shape ceases to be
+#   expressible"*) needs re-deciding — **that shape ceased to be expressible via GX-1.** The
+#   `&&`→`AND` widening may still be worth doing on §2's first two bullets alone. **Nobody should
+#   start the rung until that sentence exists.**
+#
+# ⚠ **PHASE R RUNG 2 IS UNAFFECTED AND ITS ORDERING ARGUMENT NOW CUTS THE OTHER WAY.** The seal
+#   below puts the respell first so rung 2's rules are emitted in their final shape. With the
+#   respell stopped pending a ruling, **that reason no longer holds anything up** — Family C
+#   (CHARACTER SET, 4) is the recorded and accepted pick and opens without re-litigating it.
+#   ⚠ But note what §3.0 found on the way past: the emitted form is **already** `&&`-chained, so
+#   a later `&&`→`AND` respell moves generated text for every rule installed before it, rung 2's
+#   included. That is a re-pin, not a correctness risk.
+#
+# ⚠ **ALSO LANDED THIS SESSION (SEQ 47, commit `68e2f69`): the `DesignDocs` registry is homed at
+#   `incant/designDocs` and `docs/displayDesign.md` is HISTORICAL.** The Display First Light
+#   drawer entry below is repointed in place. ⚠ **The canonical text needed three semicolons** —
+#   parse-green is not shape-correct, and the mis-nested tree it built exited 0 with a sentinel.
+#
+# ⚠ **NOTHING ELSE MOVED.** Docs and ipc only; no engine surface, no fixture, no baseline. The
+#   `incant/recordPT` run was read-only and env-gated.
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+#
 # ⚠⚠⚠ SEALED 2026-08-11 — SHUTDOWN SEAL (CURRENT VINTAGE). READ THIS FIRST.
 # **THE AND/OR RUNG IS BUILT, GREEN AND SEALED — ALL SIX PARTS, ONE SESSION.** Ladder
 # **173 → 184 / exit 0** and there are **NO INVERTED ROWS LEFT ON IT** for the first time.

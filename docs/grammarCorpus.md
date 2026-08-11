@@ -270,6 +270,32 @@ satisfying it (rule H4).
 `docs/emitted/braced-red-specimen.txt` (253 lines), generated method in
 `docs/emitted/phaseB-twelve-emitted.txt`**
 
+> ⚠⚠ **FORWARD POINTER ADDED 2026-08-11 — THIS ENTRY'S `LEAD` IS DEAD AND HAS BEEN SINCE THE DAY
+> AFTER IT WAS WRITTEN. DO NOT CITE THE LEAD PARAGRAPH BELOW AS A LIVE HYPOTHESIS.**
+>
+> - **The lead itself** (*"the generated attachment differs in name or shape, so `aCTionBraced`
+>   finds nothing"*) was **falsified by measurement on 2026-08-05** — **GM-16**, this file. The
+>   localizer narrates `parseR term= ExpressioN -> attached as ExpressioN under Braced`. The
+>   attachment is right.
+> - **The cause GM-16 found instead** — `parse()`'s generated arm ending `goto generatedExit`,
+>   which jumped clean over the rule-action fire — was **REPAIRED on 2026-08-06 by GX-1**
+>   (**GM-18**): `fireLabelMethod` was extracted and **both arms call it**. Re-verified in today's
+>   source, `GroupItem.twk:1231-1232` — the fire sits *before* the `goto`.
+> - **The red that survives is a different mechanism, named to one line in GM-29** (2026-08-07):
+>   `attachLabel`'s no-label guard, `GroupItem.twk:1101`. `Braced` is an **option of the
+>   alternation `InvokeArg`** (`incant/grammar:105-109`); alternations are label-transparent so
+>   `pStuff.label` is null, and the generated arm passes `promote=0` per PC-1, so the option's
+>   label is dropped silently at exit 0. **Not a `Braced` defect — the general case of an option
+>   crossing under an alternation.**
+> - ⚠ **`Braced` ITSELF HAS NOT BEEN RE-RUN SINCE 2026-08-05.** GM-29's reproduction is on
+>   `Parens`. That `Braced` is still red is **inferred from shared shape and shared parent**, not
+>   measured, and anyone who needs it red or green must install and run it.
+>
+> **Why this pointer exists:** `docs/respellRung.md` §6 nominated `Braced` for its structural
+> exhibit citing this entry's *"LEAD, at the usual odds, UNMEASURED and NOT HARDENED"* line — a
+> sealed doc cited rather than read forward, seventy lines above its own refutation. The pointer is
+> the cheap fix; the expensive one was nearly a flagship exhibit resting on a dead lead.
+
 With the vocabulary registered, `Braced` installs correctly — `0 unconsumed`, no spurious terms,
 `oneTest` **exit 0**, `jsonTest` exit 0, ladder 150, `pop.sh` 33 green / 1 parked. **The install
 mechanism is not the problem any more.**

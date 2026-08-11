@@ -1,6 +1,13 @@
 # The generator respell onto `AND`/`OR` — the charter, and the ruling in front of it
 
-**Status:** ⚠ **AUTHORIZED AND FIRING — NOT BUILT.** Prerequisite satisfied 2026-08-11 (the
+**Status:** ⚠⚠ **STOPPED AT §3.0, 2026-08-11 — NOT BUILT, AND WAITING ON A RESTATEMENT OF §1 BY
+TONY.** The rung fired on SEQ 48 item 4, took §3.0's measurement first as instructed, and **§3.0
+answered NO**: the goto scaffolding is not the cause of the Braced red, the cause it *was* has been
+repaired since 2026-08-06, and **no emitted method has ever contained a goto**, so §3.5's exhibit is
+not producible. **Read §6's Braced block before anything else in this file.** The §1 ruling is
+**not withdrawn** — what moved is the description of what it buys.
+
+**Prior status, kept:** AUTHORIZED AND FIRING — NOT BUILT. Prerequisite satisfied 2026-08-11 (the
 AND/OR rung sealed clean: ladder **184 / exit 0**, byte-agreement certified, rider filed).
 **§1's ruling is GRANTED** — Tony, 2026-08-11. Deferred to the next session by Clod's
 recommendation and Tony's agreement; see §0.
@@ -72,8 +79,11 @@ strand the mark. **The cost** is a template edit whose blast radius includes two
 
 ## 3. THE WORK, IN ORDER
 
-0. ⚠ **MEASURE GM-13's LEAD FIRST — added by Clod 2026-08-11, and it gates §3.5 rather than the
-   whole rung.** See §6's Braced row for why.
+0. ✅ **MEASURED 2026-08-11, AND IT STOPPED THE RUNG RATHER THAN GATING §3.5. THE ANSWER IS NO.**
+   Full record in §6's Braced row, which is rewritten below. Headline: **GM-13's lead was already
+   dead**, the goto **was** a cause and was **repaired on 2026-08-06**, and **no emitted method has
+   ever contained a goto** — so §3.5's promised exhibit is not producible from any rule.
+   ⚠ **§§1-5 below are LEFT AS WRITTEN**, per the legibility rule. Read §6 first.
 1. **Baseline capture** — full fleet per the standing rider, **plus the genParse ladder
    specifically**: `parseScaf`/`parseScaf2` emission vs `genLadder/rung12.target`, and the current
    installed-rule population fired and captured **byte-for-byte**. **The old emission text is the
@@ -130,6 +140,85 @@ strand the mark. **The cost** is a template edit whose blast radius includes two
 - **GM-17/PC-4 family.** Template changes have previously **nearly reproduced a known defect
   before anything ran** (H1, save/restore logic). Same vigilance: **read the amended template
   against the known-defect ledger BEFORE first emission.**
+### ⚠⚠ BRACED — **§3.0 RAN 2026-08-11. THE ANSWER IS NO, AND IT IS BIGGER THAN THE EXHIBIT SLOT.**
+
+**Fired on Clay's SEQ 48 item 4, on Tony's GO. Original row kept verbatim below this block.**
+
+**FOUR MEASUREMENTS, in the order they were taken. None needed an install.**
+
+1. **GM-13's lead was already dead, and had been since the day after it was written.**
+   `docs/grammarCorpus.md` **GM-16** (2026-08-05) is titled *"the localizer worked, and it
+   falsified the lead it was built to test"* — `parseR term= ExpressioN -> attached as ExpressioN
+   under Braced`. **The attachment is correctly named.** GM-13's lead paragraph sits seventy lines
+   above its own refutation in the same file. ⚠ **This charter cited the lead, not the file.** A
+   forward pointer has been added at GM-13 so the next reader cannot repeat it.
+
+2. **The goto WAS a cause — and it was REPAIRED on 2026-08-06.** GM-16/GM-17 measured it on two
+   rules: `parse()`'s generated arm ended `goto generatedExit`, and the rule-action fire sat inside
+   the match loop, so the `goto` jumped over it. **GX-1 extracted `fireLabelMethod` and both arms
+   now call it** (GM-18). ⚠ **Verified in TODAY's source, not cited:** `GroupItem.twk:1231-1232`
+   reads `if sukcess { fireLabelMethod(ruleStuff); attachLabel(ruleStuff,pStuff,0); }` and *then*
+   `goto generatedExit`. **The fire is before the jump. That defect is closed.**
+
+3. ⚠⚠ **AND THE PREMISE UNDER §1 IS FALSIFIED BY THE EMITTED TEXT: NO GENERATED METHOD HAS EVER
+   CONTAINED A GOTO.** Measured today by regenerating rather than citing —
+   `INCANT_PARSE_RECORD=<path> incant incant/recordPT`:
+
+   ```
+   extern GroupItem parseBraced(GroupItem rule)
+   {
+   GroupItem   into  = rule.rStuff.parentLabel;
+   GroupItem   label = new("Braced");
+   ...
+       return leaveRule(rule,into,label,from, lit(t1,"[") && parseR(t2,label) && lit(t3,"]") );
+   }
+   ```
+
+   **Byte-identical to the 2026-08-05 banking** in `docs/emitted/phaseB-twelve-emitted.txt`, so the
+   emitter has not drifted. **It is ALREADY an operator chain.** The `goto generatedExit` at
+   `GroupItem.twk:1232`/`:1269` lives in `parse()`'s **hand-written** generated arm, which the
+   respell does not emit and which every generated method reaches through `leaveRule` either way.
+
+   ⚠ **THE CONSEQUENCE FOR THE RUNG, AND IT IS THE REASON THIS STOPPED RATHER THAN RE-AIMED:**
+   §3.5 promises *"old emission vs new for one representative rule, showing the goto scaffolding
+   out and the chains in"* — **that exhibit is not producible from ANY rule**, because no emitted
+   method has ever had a goto in it to take out. **The real delta is `&&`/`||` → `AND`/`OR`**: C++
+   operators in the emitted C++ becoming the incant words. That is a real change with a real
+   argument behind it (§2's customer-population case stands on its own feet), **but it is not the
+   change §1 describes**, and a seal built on §1's sentence would have claimed a structural repair
+   that had already happened five days earlier for an unrelated reason.
+
+4. **The red that survives has a different mechanism, and it is named to one line.** GM-29
+   (2026-08-07): `attachLabel`'s no-label guard, **`GroupItem.twk:1101`** — verified at the site in
+   today's source, comment and all. `Braced` is an **option of the alternation `InvokeArg`**
+   (`incant/grammar:105-109`); an alternation is label-transparent so `pStuff.label` is null, and
+   the generated arm passes `promote=0` per PC-1, so the option's label is **dropped on the floor,
+   silently, at exit 0**. GM-29's own probe shows the `isTarget=1 pLabel=0` signature throughout an
+   ordinary parse. **Not a `Braced` defect — the general case of an option under an alternation.**
+
+**HONEST LIMIT, STATED RATHER THAN GLOSSED: `Braced` ITSELF HAS NOT BEEN RE-RUN SINCE 2026-08-05.**
+GM-29's post-GX-1 reproduction is on **`Parens`**. That `Braced` is *still* red today rests on
+shared shape and shared alternation parent — **structural, pointable, and not measured.** Measuring
+it is an install (emit, `genParse.rtn`, an out-of-repo `groups.ext` extern, the grammar line,
+`tokall`, rebuild), which is a rung and not §3.0's one before/after. **It was not taken.**
+
+**DISPOSITION: STOPPED, per the dispatch's own terms** — *"if the goto scaffolding is not the
+cause, say so and stop; a flagship that goes green for an unrelated reason is worse than no
+flagship."* It is not the cause. ⚠ **And the failure mode the dispatch feared was live: had Braced
+been installed as the exhibit and come back green, GX-1 — landed five days ago, for a different
+defect — would have been read as the respell's proof.**
+
+**WHAT IS OWED BEFORE THIS RUNG CAN FIRE, and it is Tony's call, not a task anyone should start:**
+**§1 needs restating in terms of the real delta**, and with §1 restated, §2's third bullet (*"the
+Braced red's failure shape ceases to be expressible"*) needs re-deciding — **that shape ceased to
+be expressible via GX-1, not via anything this rung does.** The `&&`→`AND` widening may still be
+worth doing on §2's first two bullets alone. **Nothing about the ruling in §1 is withdrawn; what
+moved is the description of what it buys.**
+
+---
+
+**ORIGINAL ROW, KEPT VERBATIM:**
+
 - ⚠ **BRACED — AND THE CHARTER'S PREMISE HERE IS UNMEASURED, WHICH IS WHY §3.0 EXISTS.** The
   charter nominates `Braced` as §3.5's representative because *"first install went red on the goto
   structure."* **`GM-13` (`docs/grammarCorpus.md:268`) confirms the RED and PARKS it, but names

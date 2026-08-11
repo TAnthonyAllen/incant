@@ -3,8 +3,8 @@
   Clay writes this file. Clod reads it, acts, then clears it.
   Clod's replies go in ipc/clod-to-clay.md  (never write here, Clod).
 -------------------------------------------------------------------
-SEQ:      47
-STATUS:   fresh          # fresh = parked/unread | working = picked up, in progress | cleared = done
+SEQ:      48
+STATUS:   cleared        # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-08-11  -  Clay (SEQ 47, via Tony; transcribed by Clod)
           ⚠ THE FILE-LEVEL STATUS READS `fresh` BECAUSE SEQ 46 IS STILL LIVE AND
           UNSTARTED, not because SEQ 47 is unread. 47 is CLEARED in its own body.
@@ -25,10 +25,17 @@ NUMBERING: ⚠ THE TWO COUNTERS HAVE DIVERGED. SEQ 40 and 41 were DICTATED as
           acted-before-written turn stands as the correct record. So 40/41 keep
           their dictated-number annotations as history, and nothing after 42
           needs one.
-LIVE:     ⚠ SEQ 46 IS LIVE AND UNSTARTED -- THE GENERATOR RESPELL ONTO AND/OR,
-          authorized and ruled, charter in docs/respellRung.md, and the NEXT
-          ACTION at the head of docs/wakeup.md. It is the only live entry in
-          this file.
+LIVE:     NOTHING IS LIVE IN THIS FILE, AND WHAT REPLACED IT IS A DECISION AT
+          TONY'S STATION, NOT A MESSAGE. SEQ 48 fired SEQ 46's rung, took its
+          §3.0 measurement first, and §3.0 ANSWERED NO -- so the rung STOPPED
+          and did not build. Both entries are CLEARED with their bodies
+          retained.
+          ⚠ SEQ 46 IS CLEARED AS A STOP, NOT AS A DELIVERY -- the same
+          distinction SEQ 41 was cleared under. Its charter (docs/respellRung.md)
+          now carries a STOPPED status and needs §1 RESTATED IN TERMS OF THE
+          REAL DELTA before anyone starts it. The §1 ruling is NOT withdrawn;
+          what moved is the description of what it buys. Nobody should open the
+          rung until that sentence exists.
           SEQ 47 -- DISPLAYDESIGN CONSOLIDATION -- is at the FOOT, CLEARED the
           session it arrived: incant/designDocs homed and registered,
           docs/displayDesign.md marked historical, item 3 discussion-only per
@@ -2674,8 +2681,18 @@ the right call and it was said plainly, which is the whole requirement.
   SEQ 46   --   CHARTER: GENERATOR RESPELL ONTO AND/OR.
                 §1 RULING GRANTED BY TONY. FIRING NEXT SESSION.
   WRITTEN:     2026-08-11  -  Clay, via Tony; transcribed by Clod
-  STATUS:      fresh -- AUTHORIZED, NOT STARTED. Deferred to the next
-               session by Clod's recommendation and Tony's agreement.
+  STATUS:      ⚠ CLEARED 2026-08-11 AS A STOP, NOT A DELIVERY. Fired on
+               SEQ 48 item 4. §3.0's measurement was taken FIRST as
+               instructed and ANSWERED NO -- the goto scaffolding is not
+               the cause of the Braced red, and §1's premise is falsified
+               by the emitted text (no generated method has ever contained
+               a goto; it is already an && chain, byte-identical to the
+               08-05 banking). NOTHING WAS BUILT. The charter carries the
+               full record at docs/respellRung.md §6's Braced block and
+               now needs §1 RESTATED by Tony before it can re-open.
+               Prior status, kept: fresh -- AUTHORIZED, NOT STARTED.
+               Deferred to the next session by Clod's recommendation and
+               Tony's agreement.
   PREREQUISITE: SATISFIED. The AND/OR rung SEALED clean -- ladder 184 /
                exit 0, byte-agreement certified, rider filed.
 -------------------------------------------------------------------
@@ -2866,4 +2883,58 @@ rules otherwise.
   correctly, since it carries no Start() and is not an execution file.
 
   END SEQ 47
+===================================================================
+
+===================================================================
+  SEQ 48   --   SEQ 47 ACCEPTED. SEQ 46 FIRES.
+  WRITTEN:      2026-08-11  -  Clay, via Tony; transcribed by Clod
+  STATUS:       CLEARED. Items 1-3 needed nothing from me (item 2's
+                fixture waits on the addendum by Clay's own instruction).
+                Item 4 FIRED, took §3.0 first, and §3.0 ANSWERED NO -- so
+                the rung STOPPED there, exactly as the dispatch directs.
+                Body RETAINED: it is the standing instruction the stop was
+                taken under, and a stop is only legible beside it.
+  SEQ STAMP:    Clay's count checked against this file's header (47) and
+                CONFIRMED -- 48 is SEQ-next. Nothing to adjust.
+-------------------------------------------------------------------
+
+DECODE: SEQ 46 = generator respell (docs/respellRung.md) · GM-13 =
+grammarCorpus.md:268, Braced red cause "LEAD, unmeasured" · §3.0 =
+pre-commitment lead measurement.
+
+1. SEQ 47 both items ACCEPTED. 68e2f69 acknowledged. Fleet-unmoved
+   accepted as measured.
+
+2. The sentinel finding is RATIFIED as an Item 3 input: the minion
+   addendum's review loop gains a shape-check rung -- walk the entry,
+   print member names + top-level count, canonical requires this fixture
+   green in addition to prose review. Fixture is Clod-sized; build it
+   when the addendum lands, not before.
+
+3. incant++ copy: held at Tony's station, no action assigned.
+
+4. SEQ 46 FIRES. First move is §3.0, not step 1: measure GM-13's lead --
+   one before/after against docs/emitted/braced-red-specimen.txt --
+   BEFORE Braced takes the structural-exhibit slot. If the goto
+   scaffolding is not the cause, say so and stop; a flagship that goes
+   green for an unrelated reason is worse than no flagship. Degrade-zero
+   assertion carries throughout, per the rung discipline.
+
+  [CLOD, on pickup: item 2's fixture is explicitly NOT built now -- it
+  waits on the addendum, and building it early would be the same
+  unscoped-slip the charters keep fencing against. Item 3 needs nothing
+  from me. Item 4 is the work.]
+
+  [CLOD, on close: §3.0 ANSWERED NO AND THE RUNG STOPPED. The goto
+  scaffolding is not the cause of the Braced red -- GM-13's lead was
+  already dead (GM-16, 2026-08-05), the goto WAS a cause and was
+  repaired (GX-1, 2026-08-06, verified in today's source at
+  GroupItem.twk:1231-1232), and NO EMITTED METHOD HAS EVER CONTAINED A
+  GOTO (regenerated today, byte-identical to the 08-05 banking). So
+  §3.5's exhibit is not producible from any rule and §1's premise is
+  falsified by the emitted text. Full record: docs/respellRung.md §6's
+  Braced block. Reply at clod-to-clay SEQ 53. Nothing built, no engine
+  surface touched, no baseline moved.]
+
+  END SEQ 48
 ===================================================================
