@@ -141,3 +141,69 @@ case and has a spec; C is §2.5's ACCUMULATE case and also has one. ⚠ **§3's 
 `InvokeArg`'s alternation via `NumbeR`/`ANYtoken`/`SemI`** — `SemI`'s **rule-level** block is now
 closed, but the **double-block rider** says `SemI` and `ANYtoken` are each blocked **twice**, and
 `SemI`'s term-level half is still open. **Rule-level work alone closes neither cascade head.**
+
+---
+
+## RUNG 2 — FAMILY C (CHARACTER SET) · ⚠ **RECON ONLY, NOT BUILT** · 2026-08-11
+
+**Opened on SEQ 50 item 6, then RE-ORDERED by SEQ 51 before any code was written.** Loop closure
+on one rule became the session's work and the rule list its seal, so this rung's *implementation*
+is unstarted. **What follows is measurement taken before the re-order**, banked so the next
+executor starts at the treatment instead of re-deriving the ground. **Nothing here is a plan
+decision.**
+
+**Baseline re-measured today, same binary:** `TALLY refusals = 94` · `TALLY plannable = 16` —
+exactly rung 1's close, so the ground has not moved.
+
+### ⚠ FINDING 1 — THE RULE-LEVEL `isSET` REFUSAL SITE HOLDS **SIX** RULES, NOT FOUR
+
+`planRule`'s `if !rule.isSTRING` refusal (`genParse.rtn:541-543`) is where Family C waits. Its
+current occupants, measured rather than counted from the taxonomy:
+
+```
+  REFUSE rule BrancheS   -- rule-level data isSET      <- EVICTED (container, paid)
+  REFUSE rule followedBy -- rule-level data isSET      <- Family C
+  REFUSE rule Modifier   -- rule-level data isSET      <- Family C
+  REFUSE rule nameSet    -- rule-level data isSET      <- Family C
+  REFUSE rule numberSet  -- rule-level data isSET      <- Family C
+  REFUSE rule PoweR      -- rule-level data isSET      <- Family D (SET+SUBFIELDS)
+```
+
+⚠ **SO `if rule.isSET` IS THE WRONG TEST, AND IT WOULD PASS EVERY POSITIVE ROW WHILE BEING WRONG**
+— rung 1's exact lesson, arriving one rung later on a different kind. `BrancheS` is a **bin**
+(`grammar:96`, `BrancheS bin`) and `PoweR` carries **sub-fields with their own data**
+(`grammar:32`, `PoweR=[eE] sign?=[+-] power=[0-9]+;`). Both belong to other families with other
+treatments.
+
+**Candidate discriminator, offered as recon and NOT as a ruling:** Family C's four members carry
+**no terms at all** — their data *is* their content — while `PoweR` has two and `BrancheS` is a
+container classified earlier. `countRuleTerms(rule) == 0` therefore separates them, and
+`planRule` already computes it one branch below. **It wants measuring against all six before it is
+believed**, per this file's own standing on narrow tests.
+
+**Negative controls the rung owes:** `BrancheS` and `PoweR` must stay refused **and refuse for
+their own reasons**, not fall through a widened test.
+
+### ⚠ FINDING 2 — `followedBy` REFUSES IN **TWO POSITIONS**, AND RULE-LEVEL WORK CLOSES ONLY ONE
+
+Measured: besides its rule-level refusal above, `followedBy` refuses **in TERM position** —
+`REFUSE followedBy -- inline group / character data isSET (named future kind)` — and that refusal
+is the first blocker for **9 rules** (`BasicElse`, `CerR`, `DEBUG`, `DEF`, `DO`, `FOR`, `IF`,
+`WhilE`, `PrinT`).
+
+⚠ **THIS IS H9's COROLLARY WITH A NAME ATTACHED, AND IT PREDICTS THE RUNG'S NUMBER.** Making
+`followedBy` plannable **as a rule** does nothing for the 9 rules that reference it **as a term**:
+different site, different test (`planTerm`'s `term.data` branch), and `planTerm` refuses
+character-level data **deliberately**, because §2.5's ACCUMULATE-vs-ITERATE conflation *"yields a
+parser that accepts correctly and builds wrongly."* **So the expected movement is refusals 94 → 90
+and plannable 16 → 20 — four, not thirteen** — and a rung that reports otherwise has widened
+something it should not have.
+
+### WHAT FAMILY C DOES NOT INHERIT FROM RUNG 1
+
+Rung 1 was cheap because `planTerm` already emitted `LIT`/`LITTO` for a literal in term position,
+so the family reused a kind. ⚠ **There is no SET kind to reuse** — `genParse.rtn` has no `isSET`
+branch in `planTerm` at all (it refuses there, on purpose, per above). **Family C needs a NEW plan
+kind**, which is the §2.5 ACCUMULATE case: loop *inside* the matcher, one token spanning the run.
+Open at the row and not decided here: whether the rule's own repetition (`numberSet=[0-9]+` carries
+`+`, `nameSet=[a-zA-Z0-9]` does not) rides the node as `min`/`max` or is inherent to the kind.

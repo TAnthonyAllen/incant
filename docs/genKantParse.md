@@ -162,6 +162,38 @@ Clay's tally: `mark, rewind, report, checkSkip, peek, match-class, consume, capt
 **So: ~8 → ~11 for parity with today's frontier, and ~13 to clear it.** But the honest cost
 statement is not the count. It is this:
 
+> ## ⚠⚠ COST CORRECTION, 2026-08-11 (SEQ 51 item 5) — **"SHIM AND REGISTER" IS NOT THE FIRST COST. THERE IS A DISPATCH SEAM IN FRONT OF IT.**
+>
+> Measured while opening loop closure on one rule, **before any shim was written**, and recorded
+> because the sentence below ("cheaper than 8 commands owed") is true about the *library* and
+> silent about the *seam*.
+>
+> **`parseMethod` IS A C++ FUNCTION POINTER.** `RuleStuff.twk:88` declares
+> `GroupItem &parseMethod(GroupItem);` — a `GroupItem (*)(GroupItem*)` slot on the SHAPE struct —
+> and `parse()` forks on it and calls through it. **A kant method is not a function pointer.** It is
+> a GroupItem carrying `CodE`/`BlocK`, reached through `runAction`/`processAction`. So a kant parse
+> method **cannot be installed into the slot that dispatches parse methods**, and no amount of
+> making `lit`/`parseR`/`leaveRule` callable *from* kant changes that — the shims are about what the
+> body can call, and this is about who can call the body.
+>
+> ⚠ **THE TREE ALREADY NAMED THIS AND DATED IT, which is why this is a re-measurement rather than a
+> discovery.** `RuleStuff.twk`'s `jitMethod` block calls it *"THE NAMED SEAM, recorded 2026-08-05 so
+> it arrives as a plan and not a surprise"*: *"POINTER-SLOT DISPATCH FROM C++ takes a REAL PARAMETER,
+> and it is forced … the caller cannot be taught the field route."* It rules that **widening that
+> signature is a LAYOUT change** — bear-trap #10's full apparatus, `groups.ext` sync plus `tokall`
+> plus rebuild — **not an edit.**
+>
+> **SO LOOP CLOSURE'S STEP 1 IS A TRAMPOLINE, NOT A SHIM.** One `extern GroupItem` sitting in the
+> `parseMethod` slot whose whole body is *"find this rule's kant parse action and run it"*. That is
+> **one function and no layout change**, which is the cheap door; the layout change is the other
+> door and it is not needed for v1. **Neither door is what §2(a) below describes**, and the estimate
+> should carry both.
+>
+> **REVISED SEQUENCE for loop closure on one rule:** trampoline → shims for the functions that one
+> rule's body actually calls → emit that rule as kant CodE (chain spelling, ruled SEQ 50) → install
+> → cursor-asserting fixture (ruled SEQ 50 item 3) → green. **Only the first item is new work of an
+> unestimated kind.**
+
 ⚠ **THE LIBRARY DOES NOT NEED REWRITING — IT NEEDS REGISTERING.** Those seven functions are
 already `extern "C"`, already the machinery, already proven by the C++ ladder. Making them
 callable from kant is a **shim + registration** job (the `immediateAction=` / `ruleMethod=`

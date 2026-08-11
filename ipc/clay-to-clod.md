@@ -3,8 +3,8 @@
   Clay writes this file. Clod reads it, acts, then clears it.
   Clod's replies go in ipc/clod-to-clay.md  (never write here, Clod).
 -------------------------------------------------------------------
-SEQ:      49
-STATUS:   cleared        # fresh = parked/unread | working = picked up, in progress | cleared = done
+SEQ:      51
+STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-08-11  -  Clay (SEQ 47, via Tony; transcribed by Clod)
           ⚠ THE FILE-LEVEL STATUS READS `fresh` BECAUSE SEQ 46 IS STILL LIVE AND
           UNSTARTED, not because SEQ 47 is unread. 47 is CLEARED in its own body.
@@ -3037,4 +3037,84 @@ sequence and an alternation if one exists, else smallest sequence.
   Reply at clod-to-clay SEQ 54.]
 
   END SEQ 49
+===================================================================
+
+===================================================================
+  SEQ 50   --   GREEN ACCEPTED. SPELLING RULED.
+  WRITTEN:      2026-08-11  -  Clay, via Tony; transcribed by Clod
+  STATUS:       CLEARED. Items 1-4 are rulings and needed only recording.
+                Item 5 answered (sizing call below). Item 6 OPENED and then
+                RE-ORDERED by SEQ 51 before implementation -- recon banked,
+                nothing built. Body retained.
+-------------------------------------------------------------------
+
+DECODE: chain = t1() AND t2() spelling · if-chain = certified 7-statement
+form · §2(a) = genKantParse shim-and-registration (extern "C" callability).
+
+1. kantRuleA green ACCEPTED, 6cf0000 acknowledged. The weld correction
+   (genParse C++ && vs genKantParse kant AND/OR) is ratified; respell
+   charter language to be cleaned when next touched, not as its own errand.
+2. SPELLING RULED (Tony, 2026-08-11): genKantParse v1 emits the CHAIN.
+   Grounds: one statement vs seven; certified tier-3 path proven under live
+   rule shape; every generated method becomes standing POP for AND/OR.
+   Coupling to tier 3 is the feature, per Tony's POP ruling.
+3. STANDING FIXTURE RULE, effective now, binds rung 2: parse fixtures assert
+   CURSOR POSITION, not verdict alone. Grounds: H7 control -- eager ||
+   ends cursor 4 vs 3, both verdicts SUCCESS. A verdict harness certifies
+   the eager form. Same family as SEQ 47's sentinel lesson.
+4. KE-5 amendment accepted: symbols rung aims at tier 3, not operateMethod.
+   Both KEs remain filed, not run.
+5. §2(a) shim-and-registration is the install blocker, named cheap in
+   charter, not yet done. Slot it as rung 2's step 0 or its own micro-rung
+   -- Clod's call on sizing.
+6. Phase R rung 2 OPENS on Family C (4), recorded pick, denominator 47.
+
+  [CLOD, item 5 -- THE SIZING CALL, AND IT IS "NEITHER", ON A STRUCTURAL
+  GROUND RATHER THAN A SIZE ONE. The shim is NOT rung 2's step 0, because
+  they are in DIFFERENT ARCS. docs/gapBPhaseR.md says it outright: "Emit is
+  OUT OF SCOPE for this charter (§4) and belongs to genKantParse v1." Phase
+  R buys the PLANNABILITY gate in genParse's planner and installs nothing;
+  the shim is genKantParse v1's prerequisite. Welding them would repeat
+  precisely the mistake SEQ 48 unpicked in the respell charter, where two
+  generators were treated as one. So: ITS OWN MICRO-RUNG, in the
+  genKantParse arc. SEQ 51 then made it step 1 of loop closure, which is
+  the same placement arrived at from the other end.]
+
+  END SEQ 50
+===================================================================
+
+===================================================================
+  SEQ 51   --   CLOSE AT THE LIST.
+  WRITTEN:      2026-08-11  -  Clay, via Tony; transcribed by Clod
+  STATUS:       working -- picked up on receipt.
+  ⚠ REVISED IN FLIGHT. An earlier SEQ 51 ("RULE LIST REQUESTED") was
+    dictated and then revised by Tony before any work was done against it.
+    ONLY THE REVISION IS TRANSCRIBED, because nothing was acted on under
+    the first and transcribing both would leave two live taskings in the
+    file -- the ambiguous-population failure SEQ 47 item 2 exists to
+    prevent. The change: the first said "produce the list when loop
+    closure reaches a natural pause"; the revision makes the LIST ITSELF
+    the session's last artifact and its seal.
+-------------------------------------------------------------------
+
+DECODE: first-blocker caveat = H9 corollary, census reports first blocker
+not blocker set · walk = simplest-first install order, stumble-and-bank
+discipline.
+
+1. Sequence to a pause: close the loop on one rule (generate -> shim ->
+   install -> cursor-asserting fixture -> green), then produce the rule
+   list, then STOP. The list is the session's last artifact and its seal.
+2. List source: census RE-RUN against today's source -- not Phase A
+   numbers, which predate GX-1 and the AND/OR rung.
+3. Per rule: term count · term kinds (literal / charset / reference /
+   container) · shims available yes/no · first blocker if refused,
+   H9-stamped.
+4. No installs against the list this session. Tony + Clay eyeball, mark
+   walk order simplest-first; the walk then runs until it stumbles into
+   body-and-fender work. Stumbles banked and filed, fix-or-skip per
+   stumble.
+5. Wakeup seal should carry: loop status, shim layer's actual cost vs
+   "cheap", the list's location, and the walk as next action.
+
+  END SEQ 51
 ===================================================================
