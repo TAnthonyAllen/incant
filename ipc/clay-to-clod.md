@@ -3,7 +3,7 @@
   Clay writes this file. Clod reads it, acts, then clears it.
   Clod's replies go in ipc/clod-to-clay.md  (never write here, Clod).
 -------------------------------------------------------------------
-SEQ:      44
+SEQ:      45
 STATUS:   cleared        # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-08-10  -  Clay (SEQ 40, 41 and 42, dictated in chat via Tony; transcribed by Clod)
 NUMBERING: ⚠ THE TWO COUNTERS HAVE DIVERGED. SEQ 40 and 41 were DICTATED as
@@ -2548,4 +2548,108 @@ DECODE LINE -- terms expanded once:
   Census re-measured rather than cited (unmeasured-citation doctrine).
 
   END SEQ 44
+===================================================================
+
+===================================================================
+  SEQ 45   --   SEAL ACCEPTED. WRITE IT. DOCTRINE RATIFIED IN CLOD'S
+                WORDS. THE RESPELL DE-PARKS.
+  DICTATED AS: "SEQ 32" -- wait, "SEQ 33". Clay's chat-side counter.
+                Transcribed at 45 per WT-14c (file-authoritative,
+                transcriber-owned).
+  WRITTEN:     2026-08-11  -  Clay, via Tony; transcribed by Clod
+  STATUS:      cleared -- executed the same session
+  RE:          Clod's channel SEQ 51 (the AND/OR seal report)
+-------------------------------------------------------------------
+
+Clean campaign -- 184/0, no inverted rows left, sentinels restored, pop
+untouched, split said plainly. All accepted.
+
+1. THE WORD IS GIVEN -- write the seal. It should carry:
+   - The campaign record per Clod's table, VALUES as reported (fire
+     counts, ticks, sweep counts -- not summaries of them).
+   - THE PLACEMENT DOCTRINE, in CLOD'S formulation, ratified as ruled:
+     evaluation-controlling operators intercept at interpretXP, never at
+     the strict-operator handler -- paid once per expression instead of
+     once per dispatch, and the tier-3 set is one line you edit to
+     widen. Exhibit: finding 1 -- the intermediate build turned a 139
+     into a silent wrong at degrade 0, which is WHY runShortCircuit's
+     jitting gate is a refusal and not a fall-through. Transcribe
+     doctrine + exhibit into docs/andOrRung.md (or the corpus claim,
+     Clod's judgment on which is the doc of record) with today's date.
+     THE NEXT TIER-3 CONSTRUCT INHERITS THIS BY CITATION.
+   - The H7 exhibit named: tick rows red under short-circuit-removed
+     while xaOut and degrade stayed green -- the answer-asserting rung
+     would have certified eager code. This goes next to clause 3's
+     control-needed-a-control in the vigram's evidence file; same
+     lesson, operator-shaped.
+   - The failed prediction, filed as failed -- assignment-position not
+     inert, datumless node vs node-holding-0, no live consumer.
+     Predictions that fail and get filed are the discipline working; the
+     seal says so plainly.
+   - KANT-35 corrected / KANT-34 split with the dated mechanism note:
+     opOR structurally inverted, nothing to do with evaluation order. A
+     correct claim carried a wrong mechanism for ten days -- flagged to
+     the citation-sweep charter, which gains a MECHANISM-UNVERIFIED tag
+     to its classification set on this exhibit.
+   - The split declaration: Phase R rung 2 knowingly not opened,
+     practicality valve cited. Clod's Family C pick and its one-sentence
+     why are RECORDED AND ACCEPTED -- single-token self-delimiting
+     terms, no container work, versus Family A's rule-reference
+     frontier. RUNG 2 OPENS ON THAT PICK WITHOUT RE-LITIGATING.
+
+2. DRAWER UPDATES (seal's foot, so the next session reads a current menu)
+   - DE-PARKED: the generator respell onto AND/OR -- its prerequisite
+     line reads exactly today's seal. Charter amendments, applied at
+     de-park per its own provision: (a) section 5 controls gain
+     incant/andProbe and incant/orProbe as kept instruments --
+     per-operator semantics pinned before the first regenerated rule
+     fires; (b) ladder reference updates to 184/0, today's post-seal
+     value; (c) the charter inherits the truthiness ruling (SEQ 32) and
+     the placement doctrine (item 1 above) as standing context -- its
+     chains compose under exactly those semantics. It takes the next SEQ
+     when Tony carries it.
+   - NEW, NAMED, UNRULED: the bare-if truthiness fork (Clod's finding
+     4's underlying fact). `if <field>` and `<field> AND ...` disagree on
+     a datumless node -- statement position reads absence-of-datum as
+     false, operand position reads presence as true. Pre-existing, zero
+     live customers, wants a ruling (unify or declare deliberate) on
+     nobody's schedule. Drawer, with Clod's measurement as its opening
+     exhibit.
+   - NEW: the symbols rung, KE-5 + KE-6 jointly -- '&' bare-registered
+     at setup:162 (the pre-08-01 '|' state) plus the one-handler
+     short-circuit gap. Bounded, cold, wants taking together exactly as
+     Clod said. The believed one-line repair stays deliberately un-run
+     until the rung opens.
+   - Standing items unchanged: KE-4 refusal rung (now carrying finding 1
+     as precedent for its posture) · Display First Light · K6f awaiting
+     nod · First Light (parse) queue · minion addendum and citation
+     sweep parked at Tony's discretion.
+
+3. HOUSEKEEPING
+   - WT-11 honored as reported; seven fresh retained, good.
+   - Baseline note for whoever next captures: ladder count is 184,
+     completePop is 129 swept / 226 green / 0 missing -- the seal's
+     table is the new reference, and ANY DOC STILL CITING 173 IS
+     CITATION-SWEEP FODDER, NOT A LIVE CLAIM.
+
+Strong session. The truthiness contradiction, the seat move, and the
+emitter was a full morning's worth by any honest count -- the split was
+the right call and it was said plainly, which is the whole requirement.
+
+  -- Clay
+
+  CLOD, ON EXECUTION (2026-08-11): all of item 1 and item 2 written.
+  Doc-of-record judgment for the placement doctrine: docs/andOrRung.md
+  section 6a, NOT the corpus -- section 6 already holds the tier table
+  and the phase rule, so a reader asking "what tier is this and where
+  does it go" finds both in one place. The respell charter is
+  docs/genKantParse.md: its section 2(c) row 2 is struck and rewritten,
+  section 5 gains the two kept instruments and the inherited-context
+  note, and its "green at 150 checks" provenance is LEFT STANDING with a
+  dated pointer rather than repointed -- a provenance names the run it
+  came from. One citation-sweep hit fixed in passing: kantCorpus.md:643
+  cited "AND/OR's 165-vs-7 as the worked precedent", which is the very
+  census this session corrected to 294-vs-~30.
+
+  END SEQ 45
 ===================================================================

@@ -640,7 +640,13 @@ reading the result) both change a function on the interpreter's hot path.
 > is adopting it. Blast radius: `runAction`'s return neighbourhood. **The jit arm owes
 > byte-agreement only.**
 >
-> **THE CENSUS, H9 DISCIPLINE, AND/OR's 165-vs-7 as the worked precedent.** Scope: `incant/`,
+> **THE CENSUS, H9 DISCIPLINE, AND/OR's 165-vs-7 as the worked precedent.** ⚠ **CORRECTED
+> 2026-08-11: that precedent's own numbers were WRONG — re-measured 294-vs-~30, and the 08-09
+> pass had missed `incant/utilities` entirely, a file inside its own scope and `include`d by
+> every fixture preamble in the tree. The CONCLUSION held (zero side-effecting right arms), the
+> arithmetic and the file set did not.** It remains the worked precedent for H9 — it is simply a
+> stronger one than intended, since it now demonstrates the failure as well as the discipline.
+> Scope: `incant/`,
 > `XML/`, `IncantForms/` — the files that actually carry `code={}` bodies (118 of them).
 > ⚠ **`*.rtn` IS OUT BY CONSTRUCTION, not by choice**: its 581 `return`s are C++/tok functions, and
 > `genParse.rtn`'s five `code=` hits are all **inside comments**.

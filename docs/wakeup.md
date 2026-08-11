@@ -1,4 +1,204 @@
-# ⚠⚠⚠ SEALED 2026-08-10 EVENING — SHUTDOWN SEAL (CURRENT VINTAGE). READ THIS FIRST.
+# ⚠⚠⚠ SEALED 2026-08-11 — SHUTDOWN SEAL (CURRENT VINTAGE). READ THIS FIRST.
+# **THE AND/OR RUNG IS BUILT, GREEN AND SEALED — ALL SIX PARTS, ONE SESSION.** Ladder
+# **173 → 184 / exit 0** and there are **NO INVERTED ROWS LEFT ON IT** for the first time.
+# `AND`/`OR` short-circuit in both engines and byte-agree. Two KEs filed, one KANT claim
+# repaired, one prediction failed and filed as failed.
+#
+# ⚠⚠ NEXT ACTION — **PHASE R RUNG 2, and it is the one thing the last session deferred
+#    KNOWINGLY rather than by running out of road.** SEQ 31 §4 made it conditional on the
+#    AND/OR rung sealing clean; it did, and the session ended anyway — **a knowing split,
+#    said here per the practicality valve.** Clod's pick, stated in SEQ 51 and open to
+#    Tony's override: **Family C, CHARACTER SET (4)** — its terms are single-token and
+#    self-delimiting so it needs no container work, where **Family A REFERENCE (5)** leans
+#    on rule-reference resolution the refusal census still calls a frontier. ⚠ **And that
+#    census reports the FIRST blocker, not the blocker SET** (H9's corollary), so "Family A
+#    is nearly unblocked" is **not a claim the census can support** — re-run the rules after
+#    any close before believing it. Denominator stays **47**; the metric moves only on
+#    installed, verified-green rules.
+#
+# ⚠ **WHAT LANDED (spec and full record: `docs/andOrRung.md`, whose §Status table is the
+#   LEDGER OF RECORD, part by part).** `AND`/`OR` take C++ semantics — **return 1 or 0
+#   always, short-circuit, both engines agree**.
+#   **THE SEAT IS `interpretXP`, AND IT IS TONY'S RULING.** The first build gated at the top
+#   of `runOP` and he moved it. **`TokenXP` — the natural guess, since unaries live there —
+#   CANNOT work for a binary**, and the reason is pointable in the grammar:
+#   `TokenXP UnaryOPS? ANYorNum^ InvokeArg?` **groups** a unary with its operand, so the
+#   pairing is a *parse fact*; `ExpressioN Token+` is **FLAT**, so at that seat `AND` has no
+#   arms and no precedence. The binary first exists in `interpretXP`'s tree build, which is
+#   therefore where the **category** decision belongs — paid **once per expression** instead
+#   of once per dispatch, and `runOP` stays what §6 calls it, *the strict operator dispatcher
+#   and nothing else*. **`runOP` is untouched.**
+#   **ONE CONTRACT, ONE PLACE:** `truthOf` (`Instruct.rtn`) — null false · numeric **by
+#   value** · non-numeric true **by presence** · **text DELIBERATELY UNRULED and refused at
+#   emit**. Both arms of both words go through it, so the engines cannot grow separate ideas
+#   of truth.
+#   **THE EMITTER:** `jitEmitShortCircuit` + `jitScBegin`/`jitScEnd`. Entry-block alloca (so
+#   mem2reg can promote it), the short-circuit answer **PRE-STORED** so the skipped path
+#   needs **no block at all**, **no hand-written phi**, and the result **seeded onto the
+#   node's `jitData`** — ⚠ without that last step the topology was right and **the value had
+#   nowhere to go**: `x2Out` returned 0 on every fire while the diamond and the ticks were
+#   both already correct.
+#
+# ⚠⚠ **THE PLACEMENT DOCTRINE — RULED BY TONY, RATIFIED IN CLOD'S FORMULATION (SEQ 33), AND
+#   THE NEXT TIER-3 CONSTRUCT INHERITS IT BY CITATION. Doc of record: `docs/andOrRung.md` §6a**
+#   (filed there rather than in the corpus because §6 is already where the tier table and the
+#   phase rule live, so a reader arriving at "what tier is this and where does it go" finds
+#   both in one place):
+#
+#     **An evaluation-controlling operator intercepts at `interpretXP`, where the expression
+#     tree is BUILT — never at the strict-operator handler, and never at the strict
+#     dispatcher's door.** Paid **once per expression** instead of once per dispatch, and the
+#     **tier-3 set becomes one line you edit to widen.**
+#
+#   **AND ITS COMPANION RULE, which the exhibit forces: A TIER-3 PROMOTION IS NOT LANDABLE IN
+#   HALVES.** Promote the category and emit for it **in the same rung**, and make the emit-side
+#   gate a **REFUSAL** rather than a fall-through — a refusal is counted by every rung's
+#   degrade-zero assertion; a fold is counted by nothing.
+#
+# ⚠ **THE SPLIT, SAID PLAINLY, which is the whole requirement:** SEQ 31 §4 made Phase R rung 2
+#   conditional on this rung sealing clean. **It sealed clean and rung 2 was still not opened**
+#   — the session went to the truthiness contradiction, the seat move and the emitter.
+#   **A KNOWING SPLIT under the practicality valve, not an overrun.**
+#
+# ⚠ **RESULTS, VALUES NOT COUNTERS:** `jitXand2` fire 1 **0** / fire 2 **1** (was 0, silently
+#   wrong) · `jitXor` fire 1 **0** / fire 2 **1** (was 0, silently wrong) · `jitXand` fire 1
+#   `ticksR` **0 = SKIPPED**, fire 2 `ticksR` **1**, `ticksL` **2 = emitted per fire** ·
+#   `xaOut` fire 2 **1** · **degrade 0 on all three** · `orProbe` `hasOnly` → *"disjunction
+#   caught it"* · `andProbe` §1 unchanged across the rung, which is the claim.
+#
+# ⚠⚠ **FOUR FINDINGS THAT OUTLIVE THE RUNG:**
+#   1. ⚠ **THE PROMOTION ALONE MADE THINGS WORSE, AND THIS IS THE ONE TO REMEMBER.** On the
+#      intermediate build — interpreted arm promoted, **no emitter** — the `AND`-under-jit
+#      **139 DISAPPEARED AND WAS REPLACED BY THE SILENT WRONG ANSWER**, at **degrade count
+#      0**. Trading a loud crash for §2's *"dangerous one"* is a **REGRESSION IN LOUDNESS
+#      WEARING THE SHAPE OF PROGRESS**, and it was visible **only** because the two inverted
+#      JXD rows were watched across *both* builds. **A partial landing of a two-arm change can
+#      be worse than not starting**, which is why `runShortCircuit`'s jitting gate is a
+#      **REFUSAL** and never a fall-through.
+#   2. ⚠ **THE H7 NEGATIVE CONTROL IS THE BEST EXHIBIT THE RULE HAS.** Short-circuit removed
+#      (`CreateCondBr` → unconditional `CreateBr`), rebuilt, rung re-run:
+#      **tick rows RED · `xaOut = 1` GREEN · degrade 0 GREEN.** **The value row and the
+#      degrade row both survived the mechanism's removal**, so a rung built the obvious way
+#      would have certified **eager code as short-circuiting** — and nobody would have looked,
+#      because it tested the right feature and got the right number. **Only counting can see
+#      a skipped arm.** Recorded in the ladder at JXD-3.
+#   3. ⚠ **A CORRECT CLAIM CARRIED A WRONG MECHANISM FOR TEN DAYS. `CLAIM KANT-35` IS
+#      REPAIRED** — `||` on `!absent` went from *"saw BOTH PRESENT"* to *"caught it"* — and
+#      **the cause is NOT the evaluation-order mechanism the claim recorded**. `opOR`'s
+#      structure was **INVERTED**: it consulted `argument` only when `target` was **already
+#      truthy**, so a false left arm returned `falseResult` **without ever reading the right
+#      arm**. Structural claims hold, causal claims fail — **and the symptom kept reproducing,
+#      which is exactly how the wrong mechanism survived.** `KANT-34` splits: statement holds
+#      for the **symbol** forms, its *not-expressible* mechanism claim **retires**.
+#   4. ⚠ **THE CENSUS MISSED A FILE INSIDE ITS OWN SCOPE.** Part 3's 08-09 census read
+#      **165 surface / 7 genuine**; re-measured **294 / ~30**, and the miss is
+#      **`incant/utilities`** — six uses, **`include`d by every fixture preamble in the
+#      tree**. **The CONCLUSION stands** (zero side-effecting right arms under the wider net),
+#      which is why this is a **census** failure and not a rung failure. **H9 again, on the
+#      paragraph below the rule about censuses.** Reachability measured: `displayIfVisible`
+#      **LATENT (defined, never called)**, `listRules` **LIVE**.
+#
+# ⚠ **A PRE-REGISTERED PREDICTION FAILED AND IS FILED AS FAILED** (`andProbe` §4). Clod
+#   predicted the assignment-position change was inert. **It is not:** a false conjunction
+#   used to yield a node with **no data** (a bare `if` reads it **false**) and now yields one
+#   **holding 0** (a bare `if` reads it **TRUE**). Only shipping consumer is
+#   `displayIfVisible`, which is **never called**, so **nothing live moved**.
+#   ⚠ **AND THE FACT UNDERNEATH IT, WHICH THE RUNG DOES NOT CLOSE: `if <field>` AND
+#   `<field> AND …` ALREADY DISAGREED, BEFORE ANY OF THIS.** `if aFalse;` reads **TRUE** on a
+#   field holding 0 (bare tests go by **presence**); `aFalse AND aTrue` reads **false**. The
+#   ruled contract governs **the operator**, deliberately. **Closing that gap is a ruling with
+#   its own customer, and nobody has one.**
+#
+# ⚠ **FILED, NOT FIXED — the symbol forms, and they want taking TOGETHER** (`docs/knownErrors.md`):
+#   **KE-5** — `&&` answers **`true && true` as false**. Not a truth table at all. Mechanism
+#   **structural and pointable, not inferred**: `'&'` is registered **bare at `incant/setup:162`,
+#   no `operateMethod`** — the exact state `'|'` was in before 2026-08-01, and `setup:100-111`
+#   describes that failure mode in those words. ⚠ **The one-line repair is BELIEVED and was
+#   DELIBERATELY NOT RUN**, because applying it *is* the repair and the repair is out of scope.
+#   **KE-6** — **`OR` short-circuits and `||` does not, ON ONE SHARED HANDLER.** Created by
+#   this rung and **named rather than hidden**; values agree, only evaluation differs.
+#   **Widening tier 3 to the symbol forms is a RULING, not a rung.**
+#
+# ⚠ THE FLEET AT SEAL: ladder **184 / exit 0** (was 173) · pop **33 green / 1 parked**
+#   (unchanged) · gapB 22 · mixed 7 · **completePop 129 swept, 0 missing sentinels (was 2),
+#   226 green** · tree/printPop/containerPop/recordPop/formsPop/decodePop exit 0 · oneTest
+#   (`maximus = 11` then **26 ×4**), jsonTest (**13 ok**), phaseA, emitAll, kant8T exit 0.
+#   **Blast radius: every other stream byte-identical but the H1 binary echo.** Commits
+#   **`3483167`** (Groups) and **`3bdcd2d`** (support — `groups.ext` gained `truthOf` and
+#   `runShortCircuit` prototypes; ⚠ **out-of-repo build dependency, bear-trap #11, named
+#   here because it will not show in a Groups `git status`**). Working tree carries only
+#   Tony's own `IncantForms/WorkingOn/incant++`, deliberately held back.
+#
+# ⚠ **`incant/andProbe` IS NEW AND KEPT** — sibling to `orProbe`, the AND truth table plus the
+#   short-circuit and assignment-position rows. **Zero text-bearing locals**, so the 08-10
+#   audited set is intact. `completePop` picked it up automatically (128 → 129).
+#   ⚠ **Its first header KILLED THE PARSE** — code-shaped lines, **bear-trap #27 reproduced
+#   exactly**, exit 0 with the run truncated — and had to be wrapped in a comment block. The
+#   trap's "headers get PROSE" rule is **necessary but not sufficient: the block delimiter is
+#   also required.**
+#
+# ⚠⚠ **DRAWER AT SHUTDOWN — the menu, updated by SEQ 33. Two items DE-PARKED or NEW because
+#    of today, and they are marked so the next session reads a current menu:**
+#   · **Phase R rung 2** — the NEXT ACTION above. **Family C (4) is the RECORDED AND ACCEPTED
+#     pick** (SEQ 33) — it **opens on that pick without re-litigating it**. Family A (5) stays
+#     available if Tony overrides.
+#   · ⚠ **DE-PARKED TODAY — the GENERATOR RESPELL onto AND/OR.** Its prerequisite line
+#     (`docs/genKantParse.md` §2(c) row 2, *"emitted AND/OR short-circuit"*) **read ❌ THE WALL
+#     and now reads exactly today's seal.** Charter amendments applied at de-park, per its own
+#     provision: **(a)** §5 controls gain **`incant/andProbe` and `incant/orProbe` as KEPT
+#     instruments** — the respell composes *chains*, so per-operator semantics must be pinned
+#     **before the first regenerated rule fires**, or a chain defect and an operator defect are
+#     indistinguishable at the only moment anyone is looking; **(b)** ladder reference updated
+#     to **184 / 0**; **(c)** the charter **inherits** the truthiness ruling (SEQ 32) and the
+#     placement doctrine (§6a) as standing context. **Takes the next SEQ when Tony carries it.**
+#   · ⚠ **NEW, NAMED, UNRULED — the BARE-`if` TRUTHINESS FORK.** `if <field>` and
+#     `<field> AND …` **disagree on a datumless node**: statement position reads
+#     absence-of-datum as **false**, operand position reads presence as **true**.
+#     **Pre-existing, zero live customers**, wants a ruling — **unify, or declare it
+#     deliberate**. On **nobody's schedule**. Opening exhibit: `incant/andProbe` §4 and §5.
+#   · ⚠ **NEW — THE SYMBOLS RUNG, KE-5 + KE-6 JOINTLY.** `'&'` bare-registered at
+#     `incant/setup:162` (the pre-08-01 `'|'` state) **plus** the one-handler short-circuit
+#     gap. **Bounded, cold, and wants taking TOGETHER** — one question asked about two words.
+#     ⚠ **The believed one-line repair stays deliberately UN-RUN until the rung opens.**
+#   · **KE-4 refusal rung** — still cold, still ruled refuse-at-emit. **Untouched by the
+#     AND/OR rung and not oversold.** ⚠ **It now carries finding 1 as PRECEDENT for its
+#     posture**: refuse-and-count beats fold-and-be-quiet, demonstrated rather than argued.
+#   · **`KANT-35`'s orphaned consequence** — its *"multi-attribute presence checks MUST stay
+#     sequential"* instruction and `incant/genMany`'s site warning are **BELIEVED obsolete now
+#     that the claim is repaired. BELIEVED IS NOT MEASURED** — the check is re-running
+#     `spellMany`'s collapsed form against `manyScratch.target`. ⚠ **DO NOT tidy those guards
+#     on the strength of the note alone.**
+#   · **Display First Light (HTML)** — bounded opener, wiki-scope static documents, first
+#     customer docs-to-HTML. `docs/displayDesign.md`.
+#   · **K6f re-size** — spec'd, **awaiting Tony's nod**, owner = next K-row rung.
+#   · **First Light (parse)** — waiting. Behind it: **H3's 3–4 command registrations** · the
+#     **contract RUN** that converts H4 from READ to signable.
+#   · **At Clay's station, undrafted:** the **minion-channel addendum** and the
+#     **citation-sweep dispatch** — ⚠ **which gains a `MECHANISM-UNVERIFIED` tag to its
+#     classification set (SEQ 33), minted on `KANT-35`: a claim whose STATEMENT is measured
+#     and whose CAUSE was never run.** Three fresh exhibits from this session: the §3
+#     truthiness **TABLE**, the part-3 **CENSUS** (both cited-not-measured, both wrong, both
+#     caught by one run each), and **`KANT-35`'s mechanism**, which survived ten days because
+#     the symptom kept reproducing.
+#
+# ⚠ **BASELINE NOTE FOR WHOEVER NEXT CAPTURES (SEQ 33): the seal's fleet table above is the
+#   NEW REFERENCE — ladder 184, `completePop` 129 swept / 226 green / 0 missing. ANY DOC STILL
+#   CITING 173 IS CITATION-SWEEP FODDER, NOT A LIVE CLAIM.** `docs/genKantParse.md`'s
+#   "green at 150 checks" is **deliberately left standing** — it is a *provenance* naming the
+#   run its §5 table was measured against, and repointing a provenance falsifies the record;
+#   it carries a dated pointer to this seal instead.
+#
+# ⚠ **STILL STANDING, so nothing here reads as finished that is not:** **KE-4** · **K6c**
+#   (the argument-carrier's mutual failure) · **the vestigial `recursive` flag** (bear-trap
+#   #16 territory, removal deferred with a dated note) · **`BLOCKED KANT-B1`** — kant still
+#   cannot express a null · **KE-5/KE-6**, above · **the `if`-vs-operator truthiness gap**,
+#   above.
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# ⚠⚠ SEALED 2026-08-10 EVENING (SUPERSEDED BY THE BLOCK ABOVE) — its NEXT ACTION was
+# "none mandated, the drawer is the menu", and the **AND/OR rung** was taken off that
+# drawer and is reported DONE above. READ THIS FIRST.
 # **CLAIM KANT-8 IS REPAIRED AND CLOSED** — open since 2026-07-29, shut in ONE campaign,
 # TWO rungs, ONE seal, no split. **THE TWO DOORS ARE RULED AND CERTIFIED.** Display has a
 # design doc. Fleet green at **173/0** and **33 green / 1 parked**.

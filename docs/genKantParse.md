@@ -182,7 +182,7 @@ Three consequences:
 | # | brief's item | answer |
 |---|---|---|
 | 1 | **loops on the jitted path** | ✅ **YES, and richer than "one wall-shaped suspect."** `jitLoopBegin`/`Body`/`End` with a real back edge; `while`, `do` and **`iterate`** all carry `if jitting` gates; `break`/`continue` are consumed at the loop boundary. Rung JUi is **no longer a pinned divergence** (since 2026-08-04). ⚠ **The one exception is `for`**, which calls `jitDegrade("FOR under jit -- no emitter (iterate's disease, different keyword)")` — a named missing emitter, honestly counted, not a wall. |
-| 2 | **emitted AND/OR short-circuit** | ❌ **The wall, and it is bigger than "not short-circuiting."** Not short-circuiting *in either engine* and structurally so (KANT-34); and under jit `AND` **crashes** and `OR` is **silently wrong**. See §0. **But it is not owed** — §1's template dissolves it. |
+| 2 | **emitted AND/OR short-circuit** | ✅ **THE WALL IS DOWN, 2026-08-11 — this row is the respell's prerequisite and it now reads exactly the AND/OR seal.** ~~❌ The wall … not short-circuiting in either engine and structurally so (KANT-34); under jit `AND` **crashes** and `OR` is **silently wrong**.~~ **Struck.** `AND`/`OR` are promoted to **tier 3** and short-circuit in **both** engines: `jitXand` fire 1 `ticksR` **0 = SKIPPED**, fire 2 `ticksR` **1** / `ticksL` **2** (emitted per fire); `jitXand2` and `jitXor` fire 1 **0** → fire 2 **1**, degrade **0**. Ladder rungs **JXD-1/2/3**. ⚠ **KANT-34's mechanism clause is RETIRED** (short-circuit *is* expressible — just not at an `operateMethod`); its statement survives for the **symbol** forms only, which is **KE-6**. Spec: `docs/andOrRung.md`. |
 | 3 | **return emitter** | ✅ landed 2026-08-05, rung JRt, ladder 129→150 (returned scalar, factorial through real recursion, mid-block return). ⚠ **Residual: E2.** A `return` inside an **inlined callee** degrades — *"it would branch to the enclosing function's epilogue."* Every §1-shaped fixture shows it. **Green today only because a TAIL return needs no branch**, so falling through is accidentally equivalent. The genKantParse templates put returns in tail position naturally, so this is survivable — but it is an accident to be *aware of*, not a property to rely on. |
 | 4 | **action-invokes-action through the fallback column** | ✅ **YES — and the framing is wrong in a way that helps.** It does not go through the fallback column at all: the callee is **inlined**. Measured green acyclic (`jitXcall`) **and cyclic** (`jitXmutual` — mutual recursion, ticks 4→10, one compile, degrade 0). ⚠ **That cyclic result is the one that matters**, because genParseSpec §2.6 rests explicitly on a cyclic call graph (`JSONblock → JSONfield → JSONvalue → JSONblock`), and recursive descent *is* a cycle. `jitEmitSelfCall`'s inline-stack test sees a two-cycle, not just a self-call. |
 
@@ -295,17 +295,40 @@ Order is jitted-half-first, oracle-last throughout (bear-trap #25).
 | `incant/jitXmutual` | **mutual recursion** | exit 0, ticks 4→10, one compile, degrade 0 |
 | `incant/jitXret` | value-returning callee | exit 0, degrade 1 (E2), green by tail position |
 | `incant/jitXseq` | two returning callees, sequential | exit 0, degrade 2, all values correct |
-| `incant/jitXand` | the sketch's shape | **exit 139**, 2 degrades then crash |
-| `incant/jitXand2` | `AND` on plain fields | **exit 139**, no degrade line at all |
-| `incant/jitXor` | `OR` on plain fields | exit 0, degrade 0, **wrong answer** |
+| `incant/jitXand` | the sketch's shape | ~~exit 139, 2 degrades then crash~~ → **exit 0**, fire 1 `ticksR` **0 = SKIPPED**, fire 2 `ticksR` **1** / `ticksL` **2**, degrade **0** |
+| `incant/jitXand2` | `AND` on plain fields | ~~exit 139, no degrade line at all~~ → **exit 0**, fire 1 **0** / fire 2 **1**, degrade **0** |
+| `incant/jitXor` | `OR` on plain fields | ~~exit 0, degrade 0, wrong answer~~ → **exit 0**, fire 1 **0** / fire 2 **1**, degrade **0** |
 | `incant/jitXnot` | `!` on a valued field (interpreted only) | inert both rows — a language question |
 | `incant/jitXtemplate` | the proposed replacement | exit 0, **ticks 1→3, real short-circuit** |
 
-⚠ **Not wired into any harness.** These are measurement fixtures for a design decision, not
-rungs. If planB is opened, `jitXtemplate` is the one that should graduate to the ladder, and
-`jitXand2`/`jitXor` should become pinned known-defect rows rather than staying loose — a defect
-nobody pinned is a defect that comes back.
+⚠ **UPDATED 2026-08-11 — three rows moved and the "not wired" caveat is now HALF TRUE.**
+`jitXand`, `jitXand2` and `jitXor` **graduated into the ladder** as rungs **JXD-3, JXD-1 and
+JXD-2**, so they are no longer loose measurement fixtures. ~~If planB is opened … `jitXand2`/
+`jitXor` should become pinned known-defect rows~~ — **they were pinned, they woke, and they
+graduated**, which is the full H6 arc in nine days. `jitXtemplate` is still the one that would
+graduate if planB opens; the rest remain design measurements.
+
+⚠ **§5 CONTROLS — AMENDED AT DE-PARK (SEQ 33, 2026-08-11). Two KEPT instruments join this
+table, and the reason is a sequencing one:** the respell composes AND/OR **chains**, so the
+**per-operator semantics must be pinned before the first regenerated rule fires** — otherwise a
+chain defect and an operator defect are indistinguishable at the only moment anyone is looking.
+
+| kept instrument | pins |
+|---|---|
+| `incant/andProbe` | the `AND` truth table, short-circuit (word) vs strict (symbol), assignment position, and the `if`-vs-operator truthiness gap |
+| `incant/orProbe` | the `OR` truth table, `\|\|` strictness, and `!a \|\| !b` on an absent attribute (the `KANT-35` row, now repaired) |
+
+**This charter also inherits, as standing context:** the **operand truthiness ruling**
+(`docs/andOrRung.md` §3 part 1, SEQ 32) and the **placement doctrine** (§6 of the same file) —
+its chains compose under exactly those semantics, and neither is re-litigated here.
 
 **Binary under test:** `~/bin/incant`, mtime 2026-08-08 07:57, with `jitLadder/ladder.sh` green
 at 150 checks in the same session (H1 — a harness echoes the binary it is testing, and a stale
 binary is this project's most-paid-for instrument failure).
+
+⚠ **THAT BINARY AND THAT COUNT ARE HISTORICAL AS OF 2026-08-11 — they record what the §5 table
+above was measured against and are deliberately NOT rewritten** (a provenance naming the run it
+came from is the record; repointing it would falsify that). **The current reference is the
+2026-08-11 seal: ladder 184 / exit 0, `completePop` 129 swept / 226 green / 0 missing
+sentinels.** The three struck rows above were re-measured against the 08-11 binary, not this one.
+**Any doc still citing 173 as the live ladder count is citation-sweep fodder, not a live claim.**

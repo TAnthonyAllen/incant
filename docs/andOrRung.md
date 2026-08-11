@@ -309,6 +309,43 @@ disagreement**, same standing as §0's note.
 
 **Tier 3 stays small: `if`, `AND`/`OR`, iteration — then the door closes.**
 
+### 6a. ⚠ THE PLACEMENT DOCTRINE — RULED 2026-08-11 (Tony), ratified in Clod's formulation (SEQ 33)
+
+> **An evaluation-controlling operator intercepts at `interpretXP`, where the expression tree is
+> BUILT — never at the strict-operator handler, and never at the strict dispatcher's door.**
+
+**The next tier-3 construct inherits this by citation.** Three reasons, in the order they bind:
+
+1. **It is the first seat where the construct EXISTS.** `TokenXP UnaryOPS? ANYorNum^ InvokeArg?`
+   **groups** a unary with its operand, so a unary's pairing is a *parse fact* and `TokenXP` is
+   the right seat for one. `ExpressioN Token+` is **flat** — a binary operator sitting in that
+   sequence has **no arms and no precedence yet**, so there is nothing there to intercept. The
+   binary first exists in `interpretXP`'s left-associative tree build.
+2. **Category is a parse-time fact, so it is priced like one.** Binding a different method at
+   tree build costs **once per expression**; testing for the category inside the dispatcher costs
+   **once per evaluation**, forever, on the hot path.
+3. **It keeps `runOP` what §6 says it is** — *"the interpreter's strict-operator dispatcher and
+   nothing else."* A tier-3 test inside the strict dispatcher is a **category error wearing a
+   conditional**, and it makes the tier-3 *set* invisible: after this ruling the set is **one
+   line in `interpretXP`**, and widening it costs an edit to a line that says so.
+
+⚠ **THE EXHIBIT, and it is why the doctrine is stated with a companion rule rather than alone.**
+The first build of this rung gated at the top of `runOP` and shipped **the interpreted arm only**.
+That intermediate state **fixed the `AND`-under-jit 139 and replaced it with the SILENT WRONG
+ANSWER** — `jitXand2` and `jitXor` both wanted 1 on fire 2 and returned **0**, at **degrade count
+0**. A loud crash became §2's *"dangerous one."*
+
+**So the companion rule: A TIER-3 PROMOTION IS NOT LANDABLE IN HALVES. Promote the category and
+emit for it in the same rung, and make the emit-side gate a REFUSAL rather than a fall-through** —
+`runShortCircuit`'s `if jitting` returns `jitEmitShortCircuit`, and where the emitter cannot
+represent an operand it calls `jitDegrade` instead of substituting a constant. A refusal is
+counted by every rung's degrade-zero assertion; a fold is counted by nothing.
+
+⚠ **AND THE ONLY REASON THE INTERMEDIATE STATE WAS SEEN AT ALL** was that two **inverted** ladder
+rows (JXD-1, JXD-2) were being watched across *both* builds. Neither the values nor the degrade
+counter would have reported it — which is the same lesson as §3 part 6's negative control, one
+level up: **the instrument that catches a half-landing is a pin on the defect you are repairing.**
+
 ⚠ **THE PHASE RULE: emit time never enters a runtime handler for its value; run time never enters
 an emitter.** §2's `OR` silent-wrong is the **first violation** — the handler ran at emit and the
 value folded. The parked **`jitEmitUnary`←`opPlusPlus` 139** carries the **inverse** signature in
