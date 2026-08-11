@@ -3,9 +3,18 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      50
+SEQ:      51
 STATUS:   fresh          # fresh = parked/unread | working = picked up, in progress | cleared = done
-WRITTEN:  2026-08-10  -  Clod  (SEQ 50 APPENDED at the FOOT -- M1 AND M2 BOTH RUN; M2's
+WRITTEN:  2026-08-11  -  Clod  (SEQ 51 APPENDED at the FOOT -- THE AND/OR RUNG IS BUILT,
+          GREEN AND SEALED, all six parts. Ladder 173 -> 184, exit 0, no inverted rows left.
+          Four things want your eye: the SEAT moved to interpretXP on Tony's ruling (item 3);
+          the promotion WITHOUT the emitter traded the 139 for a SILENT WRONG ANSWER and that
+          interval is recorded (item 4); one of SEQ 32's two KE filings was ALREADY REPAIRED
+          by the rung and is filed as repaired, not deferred (item 7); and a pre-registered
+          prediction FAILED and is filed as failed (item 9). Phase R rung 2 KNOWINGLY not
+          opened. SEQ 44 THROUGH 50 ARE ALL STILL FRESH and all retained -- WT-11 seven times
+          running.
+          Earlier note kept: SEQ 50 APPENDED at the FOOT -- M1 AND M2 BOTH RUN; M2's
           PRECONDITION FAILED so the detach pick is OFF and no code was written. M1 confirms
           the channel split and NARROWS the repair. One unasked finding: a TEXT local is
           silently wrong on the jitted arm, filed KE-4. Part 3 item 3 answered NO -- ipc/ is
@@ -1649,4 +1658,138 @@ The 139 untouched and unchased. Family C not started. The bracket stays
 blocked. No repair code written -- M2 gated it and I stopped there.
 
   END SEQ 50
+===================================================================
+
+===================================================================
+  SEQ 51  --  THE AND/OR RUNG: BUILT, GREEN, SEALED. ALL SIX PARTS.
+              Replying to clay-to-clod SEQ 44 (dictated "SEQ 31") and
+              SEQ 32's truthiness ruling.
+  WRITTEN:    2026-08-11  -  Clod
+  STATUS:     fresh
+-------------------------------------------------------------------
+
+HEADLINE, VALUES NOT COUNTERS:
+  ladder    173 -> 184 ok, exit 0, PASSED. NO INVERTED ROWS LEFT.
+  jitXand2  fire 1 = 0, fire 2 = 1 (was 0 -- silently wrong), degrade 0
+  jitXor    fire 1 = 0, fire 2 = 1 (was 0 -- silently wrong), degrade 0
+  jitXand   fire 1 ticksR = 0 (SKIPPED)  fire 2 ticksR = 1, ticksL = 2
+  completePop  missing sentinels 2 -> 0, swept 128 -> 129, green 222 -> 226
+  pop       33 green / 1 parked -- UNCHANGED
+  every other stream BYTE-IDENTICAL but the H1 binary echo.
+
+1. YOUR SEQ 31 STEP 2 WAS A CITATION AND IT LOST TO THE DOC, per your own
+   section 0. andOrRung.md part 3 is the PRE-FLIGHT CENSUS and was already
+   DISCHARGED; there is no shipping-text edit named "part 3". The seal's
+   "Part 3 changes shipping text" is the REASON the rung wants top-of-session.
+   Built parts 1, 2, 4, 5, 6.
+
+2. THE TRUTHINESS RULING IS TRANSCRIBED AND IMPLEMENTED, one contract in one
+   place -- `truthOf` in Instruct.rtn. Rows 1-3 as ruled; row 4 fenced, refused
+   at emit. It reproduces the pre-rung word-form behaviour on every measured
+   row, which is the point: the promotion changed WHEN the arms run, never WHAT
+   the conjunction answers.
+
+3. ⚠ THE SEAT IS TONY'S, NOT THE ONE I BUILT FIRST. I gated at the top of
+   runOP; he asked why not TokenXP, where unaries live. Answer: TokenXP GROUPS
+   a unary with its operand (`TokenXP UnaryOPS? ANYorNum^ InvokeArg?`) so the
+   pairing is a parse fact, but `ExpressioN Token+` is FLAT -- a binary has no
+   arms and no precedence at that seat. The binary first exists in interpretXP,
+   which builds the tree. He ruled: bind there, and keep runOP out of it. Done
+   -- interpretXP binds runShortCircuit instead of runOP for AND/OR. Better on
+   three counts: paid once per expression not once per dispatch; runOP stays
+   what section 6 calls it; and the tier-3 SET is now one line that must be
+   edited to widen.
+
+4. ⚠⚠ THE FINDING THAT OUTLIVES THE RUNG, AND IT IS A WARNING ABOUT PARTIAL
+   LANDINGS. The promotion ALONE -- interpreted arm, no emitter -- fixed the
+   AND-under-jit 139 AND REPLACED IT WITH THE SILENT WRONG ANSWER. Measured on
+   the intermediate build: jitXand2 and jitXor both wanted 1 on fire 2 and
+   returned 0, AT DEGRADE COUNT 0. A loud crash became section 2's "dangerous
+   one". It was visible ONLY because the two inverted JXD rows were watched
+   across both builds. runShortCircuit's jitting gate is therefore a REFUSAL,
+   never a fall-through.
+
+5. H7 NEGATIVE CONTROL -- RUN AND RECORDED, and it is the best argument for the
+   rule I have seen on this project:
+       mechanism REMOVED:  ticksR fire1 = 1, fire2 = 2   FAIL x2
+                           xaOut fire2 = 1               ok   <- UNCHANGED
+                           degrade count = 0             ok   <- UNCHANGED
+   THE VALUE ROW AND THE DEGRADE ROW BOTH STAYED GREEN WITH SHORT-CIRCUIT GONE.
+   A rung built the obvious way would have certified eager code as
+   short-circuiting and nobody would have looked.
+
+6. H6 GRADUATIONS, with re-pin sentences naming CAUSES (at the head of the
+   ladder's JXD block): JXD-1 (the 139) and JXD-2 (the silent fold). Added
+   JXD-3, the tick-discriminated short-circuit rung -- because JXD-1 and JXD-2
+   assert VALUES and `0 AND x` is 0 whether or not x ran, so neither could see
+   the mechanism at all.
+
+7. ⚠ ONE OF YOUR TWO KE FILINGS IS WRONG AND I DID NOT FILE IT. The
+   `|| mis-answers !absent` defect is REPAIRED BY THIS RUNG, not a drawer item:
+       hasOnly (beta1 ABSENT)  before: "disjunction saw BOTH PRESENT"
+                               after : "disjunction caught it"
+   CAUSE, and it is NOT the mechanism KANT-35 records: opOR's structure was
+   INVERTED -- it consulted `argument` only when `target` was ALREADY truthy,
+   so a false left arm returned falseResult without ever reading the right arm.
+   Nothing to do with evaluation order. CLAIM KANT-35 carries a dated
+   repaired-note saying so; a correct claim carried a wrong mechanism for ten
+   days, and the symptom kept reproducing, which is how it survived.
+   ⚠ CONSEQUENCE OWED, NOT TAKEN: KANT-35's "presence checks MUST stay
+   sequential" instruction and genMany's site warning are now BELIEVED
+   obsolete. Believed is not measured. Own rung.
+
+8. FILED AS YOU ASKED, both out of scope: KE-5 (`&&` answers `true && true` as
+   FALSE; mechanism structural and pointable -- `'&'` registered bare at
+   setup:162, no operateMethod, the exact state `'|'` was in before 08-01; the
+   one-line repair is BELIEVED and deliberately NOT run) and KE-6 (`OR`
+   short-circuits, `||` does not, ON ONE HANDLER -- created by this rung and
+   named rather than hidden). They should be taken together: one question asked
+   about two words.
+
+9. A PRE-REGISTERED PREDICTION FAILED, recorded as failed. I predicted the
+   assignment-position change was inert. It is not: a false conjunction used to
+   yield a node with NO DATA (bare `if` reads false) and now yields one holding
+   0 (bare `if` reads TRUE). Only shipping consumer is displayIfVisible, which
+   is DEFINED AND NEVER CALLED, so nothing live moved. andProbe section 4 holds
+   the row.
+   ⚠ AND THE UNDERLYING FACT, which the rung does NOT close: `if <field>` and
+   `<field> AND ...` ALREADY DISAGREED before this rung. `if aFalse;` reads TRUE
+   on a field holding 0; `aFalse AND aTrue` reads false. The contract governs
+   the OPERATOR. Closing the gap is a ruling with its own customer.
+
+10. CENSUS CORRECTION, struck legibly and dated: 165 -> 294 surface, 7 -> ~30
+    genuine, file-set miss named. THE MISS THAT MATTERS: incant/utilities, six
+    uses, inside the census's own scope, and `include`d by every fixture
+    preamble in the tree. Reachability measured: displayIfVisible LATENT
+    (never called), listRules LIVE. THE CONCLUSION STANDS -- zero side-effecting
+    right arms under the wider net.
+
+11. andProbe PROMOTED to a kept fixture, sibling to orProbe, prose header per
+    bear-trap #27 (the first header I wrote KILLED THE PARSE -- code-shaped
+    lines -- and had to be wrapped). ZERO text-bearing locals, so the audited
+    set is intact. completePop picked it up automatically: 128 -> 129 swept.
+
+12. SCOPE FENCES ALL HELD: opPlusPlus untouched and not walked past, KE-4
+    untouched, vestigial `recursive` untouched, consumer respell not widened,
+    K-row table untouched.
+
+13. PHASE R RUNG 2 -- NOT OPENED, and this is a KNOWING split per the
+    practicality valve. The rung sealed clean, but the session went to the
+    truthiness contradiction, the seat move and the emitter. My pick when it
+    opens is FAMILY C, CHARACTER SET (4): its terms are single-token and
+    self-delimiting, so it needs no container work, whereas Family A REFERENCE
+    leans on rule-reference resolution that the refusal census says is still a
+    frontier -- and a refusal census reports the FIRST blocker, not the set.
+
+14. OUT-OF-REPO EDIT, NAMED PER BEAR-TRAP #11: groups.ext gained two
+    prototypes (truthOf, runShortCircuit). It lives in the SUPPORT repo and is
+    committed there, not here.
+
+DECODE LINE: all six parts built; seat moved to interpretXP on Tony's ruling;
+ladder 184/0; the promotion-without-emitter interval traded a crash for a silent
+wrong answer and that is recorded; one of your two KE filings was already
+repaired; a prediction failed and is filed as failed; rung 2 knowingly not
+opened.
+
+  END SEQ 51
 ===================================================================

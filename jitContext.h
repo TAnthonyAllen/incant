@@ -85,6 +85,35 @@ inline std::vector<llvm::BasicBlock*> gLoopExitBlocks;
 // a do's targets body. Pushed/popped in lockstep with the other two.
 inline std::vector<llvm::BasicBlock*> gLoopBodyBlocks;
 
+// SHORT-CIRCUIT TOPOLOGY (2026-08-11, the AND/OR rung -- docs/andOrRung.md
+// section 3 part 2). Two blocks, not three, and ONE SLOT:
+//
+//   <left arm emits into the current block>
+//   store <short-circuit answer> -> slot     ; 0 for AND, 1 for OR
+//   br i1 %left, scRhs, scEnd                ; AND: true evaluates the right
+//   br i1 %left, scEnd, scRhs                ; OR:  false evaluates the right
+//   scRhs: <right arm emits HERE>  store %right -> slot   br scEnd
+//   scEnd: %out = load slot
+//
+// ⚠ NO BLOCK FOR THE SKIPPED PATH, and that is the point rather than a saving.
+// PRE-STORING the short-circuit answer before the branch means the skipped arm
+// needs no block, so there is no second place where a "false" could be written
+// and no way for the two writers to disagree. The whole construct has ONE
+// writer per path into ONE location.
+//
+// ⚠ NO PHI IS WRITTEN, per the never-write-a-phi rule. This DOES allocate --
+// unlike the gIF emitter, whose comment correctly notes it has no allocas
+// because a field slot is a baked absolute address. An AND/OR result is an
+// EXPRESSION TEMPORARY with no field behind it, so it has no address to store
+// to and genuinely needs a slot; mem2reg then inserts the phi. That is the
+// documented resultSlotLanded pattern, and the difference from gIF is worth
+// stating because the gIF comment would otherwise read as a blanket claim.
+//
+// Stacks, not scalars, so nested/chained conjunctions nest -- `a AND b AND c`
+// builds two of these, and the inner must pop before the outer reads.
+inline std::vector<llvm::BasicBlock*> gScEndBlocks;
+inline std::vector<llvm::Value*>      gScSlots;
+
 // THE RESULT SLOT (2026-07-31, Tony's ruling). An i32 alloca in the function's
 // entry block holding the action's value. Every statement stores to it; the cap
 // loads it and rets. gJitResult-as-last-value retires.

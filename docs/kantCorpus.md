@@ -1903,6 +1903,29 @@ scope:       ⚠ STRUCTURAL, NOT AN OVERSIGHT. An operateMethod receives operand
              Tony ruled in advance that evaluate-both is acceptable for a truth
              test provided it is stated: it is stated here. Do not write `||`
              expecting a guard against an expensive or unsafe right arm.
+
+⚠ DATED RETIREMENT NOTE, 2026-08-11 -- PARTIAL. The AND/OR rung landed
+  (docs/andOrRung.md). This claim SPLITS, and it is not rewritten, because it
+  records what was true and why:
+
+    THE STATEMENT STILL HOLDS FOR THE SYMBOL FORMS. `a || b` still evaluates
+    both arms -- re-measured the same day, orProbe row 3 still prints
+    [RIGHT ARM EVALUATED]. `&&` is worse and separately filed (KE, `'&'` is
+    registered bare with no operateMethod).
+
+    THE MECHANISM CLAIM IS RETIRED. "There is no point at which opOR could
+    decline to evaluate the right arm -- short-circuit is not something the
+    current operator machinery can express" was TRUE OF THE OPERATOR
+    MACHINERY and is no longer the whole story: AND/OR were PROMOTED OUT of
+    that machinery (tier 3). interpretXP now binds runShortCircuit at tree
+    build, which sees its operands UNRESOLVED, so declining is expressible --
+    it just is not expressible AT AN operateMethod, which is what the claim
+    actually established. Measured: `false AND loudOne()` no longer prints
+    the marker; ladder rung JXD-3 certifies it by tick count.
+
+    SO THE WORD AND SYMBOL FORMS NOW DIVERGE, and that divergence is FILED
+    AND UNRULED rather than intended -- `OR` short-circuits, `||` does not,
+    on one shared handler. Widening tier 3 to the symbols is a ruling.
 ```
 
 ### CLAIM KANT-35 — ⚠ `!a || !b` IS NOT EQUIVALENT TO SEQUENTIAL `!a` / `!b` GUARDS on ABSENT attributes
@@ -1932,6 +1955,37 @@ scope:       Consistent with KANT-34's mechanism -- opOR receives ALREADY
              this warning at the site so the guards are not "cleaned up" later.
              DOES NOT COVER: `a || b` on plain truth values, which is sound in
              all three directions (KANT-29's correction).
+
+⚠⚠ DATED NOTE, 2026-08-11 -- THIS CLAIM IS REPAIRED, and it was repaired as a
+  SIDE EFFECT of the AND/OR rung rather than by anyone aiming at it. Kept, not
+  deleted: the claim records a real defect, a real cost, and a reverted change.
+
+    MEASURED, same fixture, same row, before and after the rung:
+        hasOnly (beta1 ABSENT)   before:  ||  "disjunction saw BOTH PRESENT"
+                                 after :  ||  "disjunction caught it"
+    The sequential guard was always right; the disjunction now agrees with it.
+
+    CAUSE, and it is NOT the mechanism this claim's scope paragraph names.
+    KANT-35 attributed the failure to KANT-34 -- "opOR receives ALREADY
+    EVALUATED operands and tests gCount, and an absent attribute's negation
+    does not arrive as a gCount opOR reads as true." The real cause was that
+    opOR's STRUCTURE was inverted: it only consulted `argument` when `target`
+    was ALREADY truthy, so a false left arm returned falseResult WITHOUT EVER
+    LOOKING AT THE RIGHT ARM. Nothing to do with evaluation order. Routing
+    both arms through the one truthOf contract fixed it.
+
+    ⚠ SO A CORRECT CLAIM CARRIED A WRONG MECHANISM FOR TEN DAYS, and the
+    mechanism was the plausible one -- it named a real property of the system
+    (KANT-34 is genuine) that simply was not what was biting here. Structural
+    claims hold, causal claims fail: this is another entry on that ledger,
+    and it survived because the SYMPTOM kept reproducing.
+
+    ⚠ CONSEQUENCE STILL OWED, NOT TAKEN THIS RUNG: the "multi-attribute
+    presence checks MUST stay as sequential guards" instruction, and the
+    warning `incant/genMany` carries at the site, are now believed obsolete
+    -- but "believed" is not "measured". Re-running spellMany's collapsed
+    form against manyScratch.target is the check, and it is a rung of its
+    own. DO NOT tidy the guards on the strength of this note alone.
 ```
 **Why this is filed the hour `||` landed.** `||` was filled *because* round 2's twin guards were
 the demand specimen. The first thing done with it was to collapse those guards — and that was

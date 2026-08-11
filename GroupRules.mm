@@ -3655,7 +3655,37 @@ GroupItem 	*token = 0;
 					xl->addMember(op);
 					xl->addMember(target);
 					xl->addMember(arg);
-					xl->setMethod(::runOP);
+					/*  TIER-3 BINDING, and THIS LINE IS THE TIER-3 SET.
+					2026-08-11, docs/andOrRung.md section 6; seat ruled
+					by Tony the same day.
+					
+					Section 6 splits the operator table three ways, and
+					the third tier -- "evaluation-controlling
+					constructs, NOT operators at all" -- cannot go
+					through runOP, which resolves both operands before
+					it dispatches. Binding a DIFFERENT method here is
+					the whole promotion: the node is built identically
+					([1]=op [2]=target [3]=arg), and only who walks it
+					changes.
+					
+					⚠ DECIDED AT TREE BUILD, ON PURPOSE. The category
+					of an operator is a parse-time fact, so it is paid
+					once per expression rather than re-tested on every
+					evaluation -- and runOP stays what section 6 calls
+					it, the strict dispatcher and nothing else.
+					
+					⚠ THE SET IS CLOSED: `if`, AND/OR, iteration, then
+					the door closes. The SYMBOL forms are deliberately
+					NOT here -- `&&` is not even registered (setup:162
+					has bare `'&'`, no operateMethod, the same state
+					`'|'` was in before 2026-08-01) and `||` is strict.
+					That asymmetry -- `OR` short-circuits, `||` does
+					not, on one shared handler -- is FILED AND UNRULED,
+					not overlooked. Widening tier 3 to the symbols is a
+					ruling, and it costs an edit to this line.  */
+					if ( ::compare(op->groupBody->tag,"AND") == 0 || ::compare(op->groupBody->tag,"OR") == 0 )
+						xl->setMethod(::runShortCircuit);
+					else	xl->setMethod(::runOP);
 					xl->groupBody->flags.invoke = 1;
 					op = 0;
 					target = 0;
@@ -4573,20 +4603,6 @@ extern "C" void jitEmitFill(GroupItem *field)
 	
 }
 
-/* jitEmitGIF  the gIF emitter — now rides the INTERPRET walk (pivot, 2026-06-30).
-   Called from aCTionIF's jitting gate with the live if-node. It mirrors aCTionIF's
-   own condition-eval (`result = ExpressioN; if isMethod result.gMethod`), but
-   instead of branching at runtime it brackets the arm with jitIfBegin/jitIfEnd:
-     - the condition gMethod drives its runOP tree -> opLT/opEQ jitting gate ->
-       jitEmitCompare leaves the i1 in gJitResult;
-     - jitIfBegin reads gJitResult, emits the CreateCondBr, enters the then block;
-     - the then-arm gMethod drives ITS runOP tree -> opAssign gate -> jitEmitAssign
-       stores INSIDE the then block;
-     - jitIfEnd branches to endif and resumes there.
-   No flat list, no jitXpress, no operand stack — the runOP walk owns its traversal
-   and never re-parents live nodes (the structural cure for the by-reference stack
-   corruption the deferred path hit). First POP: single compare, one then arm, no
-   else (else + nesting are the next increment; gIfEndBlocks already nests). */
 extern "C" GroupItem *jitEmitGIF(GroupItem *input)
 {
 GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
@@ -5103,6 +5119,70 @@ extern "C" int jitEmitSelfCall(GroupItem *argument, GroupItem *action)
 	gJitEmitted = true;
 	return 1; }
 	
+}
+
+/* jitEmitShortCircuit  TIER 3 UNDER THE JIT (2026-08-11, docs/andOrRung.md
+   section 3 part 2; ruling SEQ 32).
+
+   ⚠ WHY THIS EXISTS AT ALL, measured the same day and worth keeping: promoting
+   AND/OR to an intercepting action fixed the `AND`-under-jit 139 and REPLACED IT
+   WITH THE SILENT WRONG ANSWER. With no emitter, runShortCircuit ran at EMIT
+   time and folded its value -- jitXand2 and jitXor both wanted 1 on fire 2 and
+   returned 0, at DEGRADE COUNT 0. Trading a crash for section 2's "dangerous
+   one" is not progress, and this function is what makes the promotion honest.
+
+   ⚠ WHAT THIS EMITTER CAN AND CANNOT SEE, stated precisely because the
+   agreement claim depends on it. An arm that emits leaves an UNBOXED i32 in
+   flight, and `icmp ne 0` on it IS truthOf's row 2 exactly -- so on the
+   numeric row the two engines agree BY CONSTRUCTION, not by a careful copy.
+   Rows 1, 3 and 4 are NOT representable from an unboxed integer: a null, a
+   present-but-non-numeric node and a text node all arrive here as "no value in
+   flight", which is one symptom for three causes. The emitter therefore does
+   not GUESS among them -- it REFUSES (jitDegrade) and lets the interpreted arm,
+   which can still see the node, answer. A refused emit falls back to
+   interpretation, so this is one answer and a refusal to bake it, not two
+   answers.
+
+   ⚠ SO THE DEGRADE LINE HERE MEANS "NOT EMITTED", NEVER "SOUND". That is the
+   standing rule about degrade lines and it applies to this one: whether the
+   fallback is safe is a per-construct question, and for an AND/OR inside a
+   multi-fire jitted action it is NOT -- an emit-time fold returns fire 1's
+   answer forever. Rungs assert the VALUES on both fires; they must not accept
+   the counter as the proof. */
+extern "C" GroupItem *jitEmitShortCircuit(GroupItem *field)
+{
+GroupItem 	*op = field->get(1);
+GroupItem 	*target = field->get(2);
+GroupItem 	*arg = field->get(3);
+int 		isAND = 0;
+	if ( ::compare(op->groupBody->tag,"AND") == 0 )
+		isAND = 1;
+	if ( isMethod(target->groupBody->flags.instructType) && target->groupBody->flags.invoke )
+		target->groupBody->gMethod(target);
+	else	::jitEmitBareRead(target);
+	/*  gJitResult is a C++ global in jitContext.h and is NOT a field, so it
+	is unreadable at tok level -- tok emits
+	`ERROR FieldBody: could not find gJitResult` straight into the .mm,
+	which fails at the C++ step with `use of undeclared identifier`
+	pointing at a word from the error TEXT. Every test of it therefore
+	lives in passthrough. (Three-languages-share-the-tree, and the
+	generated line is the only place that says which one you were in.)  */
+	
+	if (!gJitResult) {
+	jitDegrade("AND/OR LEFT operand produced no value", target);
+	return nullptr;
+	}
+	
+	::jitScBegin(isAND);
+	if ( isMethod(arg->groupBody->flags.instructType) && arg->groupBody->flags.invoke )
+		arg->groupBody->gMethod(arg);
+	else	::jitEmitBareRead(arg);
+	
+	if (!gJitResult)
+	jitDegrade("AND/OR RIGHT operand produced no value", arg);
+	
+	::jitScEnd(field);
+	return field;
 }
 
 /* jitEmitStringPlusEQ  the FIRST CreateCall in the JIT layer, and the proof-of-
@@ -6477,6 +6557,117 @@ extern "C" void jitSaveFrameRT(GroupItem *field)
 	::saveLocalFields(field);
 }
 
+/* jitEmitGIF  the gIF emitter — now rides the INTERPRET walk (pivot, 2026-06-30).
+   Called from aCTionIF's jitting gate with the live if-node. It mirrors aCTionIF's
+   own condition-eval (`result = ExpressioN; if isMethod result.gMethod`), but
+   instead of branching at runtime it brackets the arm with jitIfBegin/jitIfEnd:
+     - the condition gMethod drives its runOP tree -> opLT/opEQ jitting gate ->
+       jitEmitCompare leaves the i1 in gJitResult;
+     - jitIfBegin reads gJitResult, emits the CreateCondBr, enters the then block;
+     - the then-arm gMethod drives ITS runOP tree -> opAssign gate -> jitEmitAssign
+       stores INSIDE the then block;
+     - jitIfEnd branches to endif and resumes there.
+   No flat list, no jitXpress, no operand stack — the runOP walk owns its traversal
+   and never re-parents live nodes (the structural cure for the by-reference stack
+   corruption the deferred path hit). First POP: single compare, one then arm, no
+   else (else + nesting are the next increment; gIfEndBlocks already nests). */
+/* jitScBegin  opens the short-circuit diamond. Consumes the LEFT arm's value
+   from gJitResult, allocates the merge slot in the ENTRY block (so it is a
+   promotable alloca and mem2reg can retire it), pre-stores the short-circuit
+   answer, and branches so that the RIGHT arm's block is entered only on the
+   non-deciding value. Leaves insertion in scRhs so the right-arm walk emits
+   there.
+
+   ⚠ THE ALLOCA GOES IN THE ENTRY BLOCK, NOT HERE. An alloca in a conditionally
+   entered block is not promotable, mem2reg leaves it as memory, and the phi we
+   are refusing to write by hand never appears -- the IR stays correct but the
+   whole never-write-a-phi argument silently stops applying. Entry-block
+   placement is what makes "mem2reg inserts the phi itself" true rather than
+   hoped for.
+
+   isAND is passed rather than re-derived from the op, so the two callers of the
+   contract (this and runShortCircuit's interpreted arm) cannot disagree about
+   which word they are emitting. */
+extern "C" void jitScBegin(int isAND)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+	llvm::Function *fn = b->GetInsertBlock()->getParent();
+	
+	llvm::IRBuilder<> entryB(&fn->getEntryBlock(),
+	fn->getEntryBlock().getFirstInsertionPt());
+	llvm::Value *slot = entryB.CreateAlloca(i32, nullptr, "scSlot");
+	b->CreateStore(llvm::ConstantInt::get(i32, isAND ? 0 : 1), slot);
+	
+	llvm::Value *lv = gJitResult;
+	if (!lv->getType()->isIntegerTy(1))
+	lv = b->CreateICmpNE(lv,
+	llvm::ConstantInt::get(lv->getType(), 0), "scLeft");
+	
+	llvm::BasicBlock *rhsBB = llvm::BasicBlock::Create(ctx, "scRhs", fn);
+	llvm::BasicBlock *endBB = llvm::BasicBlock::Create(ctx, "scEnd", fn);
+	if (isAND)  b->CreateCondBr(lv, rhsBB, endBB);
+	else        b->CreateCondBr(lv, endBB, rhsBB);
+	b->SetInsertPoint(rhsBB);
+	
+	gScSlots.push_back(slot);
+	gScEndBlocks.push_back(endBB);
+	gJitResult = nullptr;
+	
+}
+
+/* jitScEnd  closes the diamond. Stores the RIGHT arm's truth into the slot,
+   branches to the merge, and leaves the loaded result in flight as the value of
+   the whole conjunction.
+
+   ⚠ A RIGHT ARM THAT EMITTED NOTHING IS A REFUSAL, NOT A ZERO. gJitResult null
+   here means the sub-walk produced no value -- and storing a constant would be
+   substituting an answer the emitter does not have, which is exactly the move
+   jitPrintItem was corrected for on 2026-08-05. The slot keeps its pre-stored
+   short-circuit answer and jitDegrade announces it, so the run fails a rung
+   instead of returning a plausible number. */
+extern "C" void jitScEnd(GroupItem *resultNode)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+	llvm::Value *slot = gScSlots.back();
+	llvm::BasicBlock *endBB = gScEndBlocks.back();
+	gScSlots.pop_back();
+	gScEndBlocks.pop_back();
+	
+	if (gJitResult) {
+	llvm::Value *rv = gJitResult;
+	if (!rv->getType()->isIntegerTy(1))
+	rv = b->CreateICmpNE(rv,
+	llvm::ConstantInt::get(rv->getType(), 0), "scRight");
+	b->CreateStore(b->CreateZExt(rv, i32, "scRv"), slot);
+	}
+	b->CreateBr(endBB);
+	b->SetInsertPoint(endBB);
+	llvm::Value *out = b->CreateLoad(i32, slot, "scOut");
+	
+	/*  ⚠ SEED THE NODE, DO NOT ONLY LEAVE THE VALUE IN FLIGHT. This is
+	section 3 part 2's "value rides the OPERAND'S jitValue channel, not
+	gJitResult", and skipping it is measurable rather than theoretical:
+	with the diamond emitting correctly and the arms ticking correctly,
+	`x2Out = x2L AND x2R` still returned 0 on every fire, because the
+	enclosing opAssign reads its argument's jitData and found none.
+	The topology was right and the value had nowhere to go.
+	jitEmitRem's tail is the shape being copied.  */
+	if (resultNode) {
+	if (!resultNode->jitData) resultNode->jitData = new JitData();
+	resultNode->jitData->setJitter(out);
+	gJitSeeded.push_back(resultNode);
+	}
+	gJitResult = out;
+	gJitEmitted = true;
+	
+}
+
 /* jitSeedField  unbox a real count/number field operand — the past-constant-folding
    path. Bakes the field's stable GroupItem storage address as a constant pointer and
    emits a CreateLoad of its gCount/gNumber, so the operand reads the LIVE field value
@@ -7347,12 +7538,27 @@ extern "C" void modify(GroupItem *field, char *modifier)
 
 /***************************************************************************
 	Rule action for the AND operator
+
+    ⚠ THE SHORT-CIRCUIT DOES NOT LIVE HERE AND CANNOT. runOP evaluates
+    both operands BEFORE it dispatches, so by the time this is entered the
+    right arm has already run, side effects included (docs/andOrRung.md
+    section 1a). Declining to evaluate is not available at this position at
+    all -- runShortCircuit in GroupActions.rtn is where AND/OR are actually
+    reached from, and it intercepts ABOVE the resolution lines.
+
+    This handler remains as the STRICT fallback for any path that reaches
+    the operator table directly, and it is brought up to the ruling: it
+    returns 1 or 0, never null, and it tests both operands through the one
+    contract. Before 2026-08-11 it returned trueResult or NULL, and opOR
+    returned trueResult/falseResult -- the two were not even consistent
+    with each other, so nothing here is changing behaviour anyone could
+    have relied on.
 ***************************************************************************/
 extern "C" GroupItem *opAND(GroupItem *argument, GroupItem *target)
 {
-	if ( target->groupBody->gCount && argument->groupBody->gCount )
+	if ( ::truthOf(target) && ::truthOf(argument) )
 		return GroupControl::groupController->groupRules->trueResult;
-	return 0;
+	return GroupControl::groupController->groupRules->falseResult;
 }
 
 /***************************************************************************
@@ -8223,12 +8429,8 @@ extern "C" GroupItem *opNotEQ(GroupItem *argument, GroupItem *target)
 ***************************************************************************/
 extern "C" GroupItem *opOR(GroupItem *argument, GroupItem *target)
 {
-	if ( target )
-		if ( target->groupBody->gCount )
-			return GroupControl::groupController->groupRules->trueResult;
-		else
-		if ( argument && argument->groupBody->gCount )
-			return GroupControl::groupController->groupRules->trueResult;
+	if ( ::truthOf(target) || ::truthOf(argument) )
+		return GroupControl::groupController->groupRules->trueResult;
 	return GroupControl::groupController->groupRules->falseResult;
 }
 
@@ -10077,36 +10279,6 @@ GroupItem 	*result = 0;
 	return 0;
 }
 
-/***************************************************************************
-    runOP fires off a field that might be an action, a rule, a method,
-    or an operator
-
-    BEAR COUNTRY: the `target.isVirtual -> copyOf(target)` line below is a
-    virtual fork that is INTENTIONALLY UNGATED — it is the safety net for
-    operating on a virtual prototype (e.g. the bytecode bcOPs: bcPushLit /
-    bcPushField are virtual) outside a defining context. Do NOT gate it on
-    `defining`: that removes the net and the bytecode emit path would mutate
-    the shared prototype instead of a fork. Huge blast radius; runs hot (do
-    not add a permanent `ruler` here — use a directive if you need one to
-    debug). Break only in emergency. See the wakeup bear-trap log and the
-    aCTionNamE companion note.
-
-    THE isIterator EXEMPTION on the target unwrap (2026-07-29, Tony at the Xcode
-    seat). An iterator is a HANDLE, and runOP must not dereference a handle --
-    the same reason isPointer is already in that test, which is why this is one
-    more term there rather than a special case for ++/--.
-    The bug it fixes: pass 1 of `while ++grup` worked because a fresh iterator
-    has no position, so isGROUP was false and opPlusPlus received the iterator.
-    On pass 2 the cursor is set, isGROUP is true, runOP unwrapped to the CURRENT
-    ENTRY, and opPlusPlus got a node with no isIterator flag -- so ++ fell
-    through to the numeric path and the loop never terminated.
-    Gating on the OPERAND rather than on ++/-- also covers `:=`, which is the
-    iterator's only reset: unwrap first and := rebinds the current entry while
-    the cursor sits untouched, which fails silently.
-    The `arg` unwrap one line below is deliberately NOT exempted, and the split
-    is the useful part: an iterator in TARGET position stays the handle, in
-    ARGUMENT position it derefs to the current entry.
-***************************************************************************/
 extern "C" GroupItem *runOP(GroupItem *field)
 {
 GroupItem 	*result = 0;
@@ -10195,6 +10367,130 @@ int 		baseStak = 0;
 	while ( field && field->groupBody->flags.data && ruler->inputSTAK && ruler->inputSTAK->length > baseStak )
 		ruler->popInput();
 	return result;
+}
+
+/***************************************************************************
+    runOP fires off a field that might be an action, a rule, a method,
+    or an operator
+
+    BEAR COUNTRY: the `target.isVirtual -> copyOf(target)` line below is a
+    virtual fork that is INTENTIONALLY UNGATED — it is the safety net for
+    operating on a virtual prototype (e.g. the bytecode bcOPs: bcPushLit /
+    bcPushField are virtual) outside a defining context. Do NOT gate it on
+    `defining`: that removes the net and the bytecode emit path would mutate
+    the shared prototype instead of a fork. Huge blast radius; runs hot (do
+    not add a permanent `ruler` here — use a directive if you need one to
+    debug). Break only in emergency. See the wakeup bear-trap log and the
+    aCTionNamE companion note.
+
+    THE isIterator EXEMPTION on the target unwrap (2026-07-29, Tony at the Xcode
+    seat). An iterator is a HANDLE, and runOP must not dereference a handle --
+    the same reason isPointer is already in that test, which is why this is one
+    more term there rather than a special case for ++/--.
+    The bug it fixes: pass 1 of `while ++grup` worked because a fresh iterator
+    has no position, so isGROUP was false and opPlusPlus received the iterator.
+    On pass 2 the cursor is set, isGROUP is true, runOP unwrapped to the CURRENT
+    ENTRY, and opPlusPlus got a node with no isIterator flag -- so ++ fell
+    through to the numeric path and the loop never terminated.
+    Gating on the OPERAND rather than on ++/-- also covers `:=`, which is the
+    iterator's only reset: unwrap first and := rebinds the current entry while
+    the cursor sits untouched, which fails silently.
+    The `arg` unwrap one line below is deliberately NOT exempted, and the split
+    is the useful part: an iterator in TARGET position stays the handle, in
+    ARGUMENT position it derefs to the current entry.
+***************************************************************************/
+/***************************************************************************
+    runShortCircuit -- TIER 3, THE EVALUATION-CONTROLLING ARM.
+    Built 2026-08-11 (docs/andOrRung.md sections 1a and 6; ruling SEQ 32).
+
+    ⚠ WHY THIS IS NOT AN OPERATOR HANDLER, which is the whole finding
+    behind the rung: runOP resolves BOTH operands before it dispatches, so
+    an opAND/opOR entered from there has already paid for the right arm --
+    side effects included. Short-circuit is therefore unreachable at the
+    handler position AT ALL. It is reachable HERE, because an unresolved
+    operand is still an UNFIRED METHOD: the `arg.isMethod && arg.invoke`
+    line in runOP is the firing, and this function simply does not run it
+    on the arm the ruling says to skip.
+
+    ⚠ WHY THIS IS A SIBLING OF runOP AND NOT A BRANCH INSIDE IT (Tony,
+    2026-08-11). The seat was moved here from the top of runOP on his
+    ruling, and the reasoning generalises past this rung:
+
+      - The natural first guess is TokenXP, where unaries are handled.
+        That works for a UNARY because the grammar production
+        `TokenXP  UnaryOPS? ANYorNum^ InvokeArg?` GROUPS a unary with its
+        operand -- the pairing is a parse fact, so there is a node to
+        intercept. A BINARY has no such node: `ExpressioN  Token+` is a
+        FLAT sequence with `Operators` as one Token alternative, so at
+        that seat `AND` has no arms and no precedence yet.
+      - The binary structure first exists in interpretXP, which builds the
+        left-associative tree. So THE CATEGORY DECISION BELONGS AT TREE
+        BUILD, where it is paid ONCE per expression, and not on every
+        dispatch.
+      - And it keeps runOP what section 6 says it is: "the interpreter's
+        strict-operator dispatcher AND NOTHING ELSE." A tier-3 test in the
+        strict dispatcher's hot path is a category error wearing a
+        conditional.
+
+    So AND/OR keep their operator REGISTRATION -- parser, precedence walk
+    and Operators table all untouched -- and are promoted out of the
+    operator CATEGORY by the method interpretXP binds. The promotion is a
+    dispatch-binding change, not a grammar change.
+
+    ⚠ THE OPERAND CONTRACT IS truthOf's AND ONLY truthOf's. Both arms of
+    both words go through it, so the interpreted and jitted engines cannot
+    drift apart by one of them growing its own idea of truth.
+
+    THE TIER-3 SET IS CLOSED AND NAMED AT ITS BINDING SITE in interpretXP,
+    deliberately in one place: section 6 rules "tier 3 stays small -- if,
+    AND/OR, iteration -- then the door closes." Widening it is a ruling,
+    so widening it should cost an edit to a line that says so.
+***************************************************************************/
+extern "C" GroupItem *runShortCircuit(GroupItem *field)
+{
+GroupItem 	*op = field->get(1);
+GroupItem 	*target = field->get(2);
+GroupItem 	*arg = field->get(3);
+int 		leftIsTrue = 0;
+	/*  THE PHASE GATE (section 6): emit time never enters a runtime handler
+	for its value. Everything BELOW this line is run time.
+	
+	⚠ AND THE FLOOR IS A REFUSAL, NOT A FALL-THROUGH, because of what
+	was measured the moment the interpreted arm landed: promoting
+	AND/OR fixed the `AND`-under-jit 139 and REPLACED IT WITH THE
+	SILENT WRONG ANSWER -- jitXand2 and jitXor both want 1 on fire 2
+	and returned 0, at DEGRADE COUNT 0. That is a trade of a loud
+	failure for the exact shape docs/andOrRung.md section 2 calls "the
+	dangerous one ... the shape that survives review".
+	Refusing here restores the loudness: the degrade counter is
+	asserted at zero by every ladder rung, so an un-emitted AND/OR now
+	fails a rung instead of quietly folding its value at emit time.  */
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		 return jitEmitShortCircuit(field); 
+		}
+	if ( isGROUP(target->groupBody->flags.data) && !target->groupBody->flags.isPointer && !target->groupBody->flags.isIterator )
+		target = target->getGroup();
+	if ( op->groupBody->flags.instructType && isMethod(target->groupBody->flags.instructType) && target->groupBody->flags.invoke )
+		target = target->groupBody->gMethod(target);
+	leftIsTrue = ::truthOf(target);
+	/*  THE SKIP ITSELF. The right arm is never touched on these two paths
+	-- not resolved, not unwrapped, not fired -- which is the entire
+	behavioural claim of the rung and is what part 6's TICK count
+	exists to prove. A value assertion cannot prove it: a right arm
+	that runs anyway still produces the right ANSWER in most shapes,
+	so only COUNTING shows it was skipped.  */
+	if ( ::compare(op->groupBody->tag,"AND") == 0 && !leftIsTrue )
+		return GroupControl::groupController->groupRules->falseResult;
+	if ( ::compare(op->groupBody->tag,"OR") == 0 && leftIsTrue )
+		return GroupControl::groupController->groupRules->trueResult;
+	if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isPointer )
+		arg = arg->getGroup();
+	if ( arg && isMethod(arg->groupBody->flags.instructType) && arg->groupBody->flags.invoke )
+		arg = arg->groupBody->gMethod(arg);
+	if ( ::truthOf(arg) )
+		return GroupControl::groupController->groupRules->trueResult;
+	return GroupControl::groupController->groupRules->falseResult;
 }
 
 /***************************************************************************
@@ -10628,6 +10924,56 @@ int 		baseStak = 0;
 		::showTree(result,"    ");
 	else	::fprintf(stderr,"    (parse FAILED)\n");
 	return ruler->trueResult;
+}
+
+/***************************************************************************
+    truthOf -- THE OPERAND TRUTHINESS CONTRACT. Ruled 2026-08-11 by Tony,
+    carried by Clay (SEQ 32); spec docs/andOrRung.md section 3 part 1.
+    Normative for BOTH engines and BOTH word forms, and it lives in ONE
+    place on purpose -- a contract duplicated at three call sites is the
+    one-channel-one-meaning failure waiting for its second reader.
+
+    LAYERED: presence decides only when no value exists to decide by.
+
+        1  absent / null                 -> false
+        2  node holding a NUMERIC value  -> BY ITS VALUE   (0 false)
+        3  node holding no numeric value -> true BY PRESENCE
+
+    Row 2 covers comparison results, ALWAYS, and that is what forces the
+    layering rather than merely preferring it: under a flat "any present
+    node is true", a comparison returning 0 would be TRUE and every
+    conditional over a value-bearing expression would be always-true.
+    That is not a semantics, it is the abolition of falsehood. Row 3 is
+    the parse-consumer row -- parseR's GroupItem-or-null, structural
+    nodes, rule results -- which is the frame the original table was
+    written in, where null-vs-node IS the whole discrimination.
+
+    ⚠ ROW 4, TEXT-VALUED OPERANDS, IS DELIBERATELY UNRULED. No measured
+    customer needs it, and it borders KE-4's territory. At EMIT a text
+    operand is REFUSED (jitEmitShortCircuit calls jitDegrade rather than
+    substituting a constant -- a substituted constant is asserted by
+    nothing, and the degrade counter is asserted at zero by every rung).
+    At RUN it lands on row 3 and answers true-by-presence. The two arms
+    therefore AGREE in outcome, because a refused emit falls back to
+    interpretation; they are not two answers, they are one answer and a
+    refusal to bake it.
+
+    ⚠ MEASURED, 2026-08-11, and recorded because it is NOT what a reader
+    expects: `if <field>` and `<field> AND ...` ALREADY DISAGREE in the
+    shipping language. A field holding 0 dumps as `aFalse=0 int` -- it
+    carries isCOUNT and gCount 0 -- and `if aFalse;` reads TRUE while
+    `aFalse AND aTrue` reads false. This contract matches the OPERATOR
+    behaviour, which is the one it governs; it does not touch `if`, and
+    closing that gap is a separate ruling with its own customer.
+    Instrument: incant/andProbe rows 1 and 5.
+***************************************************************************/
+extern "C" int truthOf(GroupItem *field)
+{
+	if ( !field )
+		return 0;
+	if ( isCOUNT(field->groupBody->flags.data) || isNUMBER(field->groupBody->flags.data) )
+		return field->groupBody->gCount != 0;
+	return 1;
 }
 
 extern "C" void unMark(GroupItem *bufField)

@@ -1903,6 +1903,164 @@ GroupRules  ruler = groupRules;
    and never re-parents live nodes (the structural cure for the by-reference stack
    corruption the deferred path hit). First POP: single compare, one then arm, no
    else (else + nesting are the next increment; gIfEndBlocks already nests). */
+/* jitScBegin  opens the short-circuit diamond. Consumes the LEFT arm's value
+   from gJitResult, allocates the merge slot in the ENTRY block (so it is a
+   promotable alloca and mem2reg can retire it), pre-stores the short-circuit
+   answer, and branches so that the RIGHT arm's block is entered only on the
+   non-deciding value. Leaves insertion in scRhs so the right-arm walk emits
+   there.
+
+   ⚠ THE ALLOCA GOES IN THE ENTRY BLOCK, NOT HERE. An alloca in a conditionally
+   entered block is not promotable, mem2reg leaves it as memory, and the phi we
+   are refusing to write by hand never appears -- the IR stays correct but the
+   whole never-write-a-phi argument silently stops applying. Entry-block
+   placement is what makes "mem2reg inserts the phi itself" true rather than
+   hoped for.
+
+   isAND is passed rather than re-derived from the op, so the two callers of the
+   contract (this and runShortCircuit's interpreted arm) cannot disagree about
+   which word they are emitting. */
+extern void jitScBegin(int isAND)
+{
+    -%
+    llvm::IRBuilder<> *b = gJitBuilder;
+    llvm::LLVMContext &ctx = b->getContext();
+    llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+    llvm::Function *fn = b->GetInsertBlock()->getParent();
+
+    llvm::IRBuilder<> entryB(&fn->getEntryBlock(),
+                             fn->getEntryBlock().getFirstInsertionPt());
+    llvm::Value *slot = entryB.CreateAlloca(i32, nullptr, "scSlot");
+    b->CreateStore(llvm::ConstantInt::get(i32, isAND ? 0 : 1), slot);
+
+    llvm::Value *lv = gJitResult;
+    if (!lv->getType()->isIntegerTy(1))
+        lv = b->CreateICmpNE(lv,
+            llvm::ConstantInt::get(lv->getType(), 0), "scLeft");
+
+    llvm::BasicBlock *rhsBB = llvm::BasicBlock::Create(ctx, "scRhs", fn);
+    llvm::BasicBlock *endBB = llvm::BasicBlock::Create(ctx, "scEnd", fn);
+    if (isAND)  b->CreateCondBr(lv, rhsBB, endBB);
+    else        b->CreateCondBr(lv, endBB, rhsBB);
+    b->SetInsertPoint(rhsBB);
+
+    gScSlots.push_back(slot);
+    gScEndBlocks.push_back(endBB);
+    gJitResult = nullptr;
+    %-
+}
+
+/* jitScEnd  closes the diamond. Stores the RIGHT arm's truth into the slot,
+   branches to the merge, and leaves the loaded result in flight as the value of
+   the whole conjunction.
+
+   ⚠ A RIGHT ARM THAT EMITTED NOTHING IS A REFUSAL, NOT A ZERO. gJitResult null
+   here means the sub-walk produced no value -- and storing a constant would be
+   substituting an answer the emitter does not have, which is exactly the move
+   jitPrintItem was corrected for on 2026-08-05. The slot keeps its pre-stored
+   short-circuit answer and jitDegrade announces it, so the run fails a rung
+   instead of returning a plausible number. */
+extern void jitScEnd(GroupItem resultNode)
+{
+    -%
+    llvm::IRBuilder<> *b = gJitBuilder;
+    llvm::LLVMContext &ctx = b->getContext();
+    llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+    llvm::Value *slot = gScSlots.back();
+    llvm::BasicBlock *endBB = gScEndBlocks.back();
+    gScSlots.pop_back();
+    gScEndBlocks.pop_back();
+
+    if (gJitResult) {
+        llvm::Value *rv = gJitResult;
+        if (!rv->getType()->isIntegerTy(1))
+            rv = b->CreateICmpNE(rv,
+                llvm::ConstantInt::get(rv->getType(), 0), "scRight");
+        b->CreateStore(b->CreateZExt(rv, i32, "scRv"), slot);
+    }
+    b->CreateBr(endBB);
+    b->SetInsertPoint(endBB);
+    llvm::Value *out = b->CreateLoad(i32, slot, "scOut");
+
+    /*  ⚠ SEED THE NODE, DO NOT ONLY LEAVE THE VALUE IN FLIGHT. This is
+        section 3 part 2's "value rides the OPERAND'S jitValue channel, not
+        gJitResult", and skipping it is measurable rather than theoretical:
+        with the diamond emitting correctly and the arms ticking correctly,
+        `x2Out = x2L AND x2R` still returned 0 on every fire, because the
+        enclosing opAssign reads its argument's jitData and found none.
+        The topology was right and the value had nowhere to go.
+        jitEmitRem's tail is the shape being copied.  */
+    if (resultNode) {
+        if (!resultNode->jitData) resultNode->jitData = new JitData();
+        resultNode->jitData->setJitter(out);
+        gJitSeeded.push_back(resultNode);
+    }
+    gJitResult = out;
+    gJitEmitted = true;
+    %-
+}
+
+/* jitEmitShortCircuit  TIER 3 UNDER THE JIT (2026-08-11, docs/andOrRung.md
+   section 3 part 2; ruling SEQ 32).
+
+   ⚠ WHY THIS EXISTS AT ALL, measured the same day and worth keeping: promoting
+   AND/OR to an intercepting action fixed the `AND`-under-jit 139 and REPLACED IT
+   WITH THE SILENT WRONG ANSWER. With no emitter, runShortCircuit ran at EMIT
+   time and folded its value -- jitXand2 and jitXor both wanted 1 on fire 2 and
+   returned 0, at DEGRADE COUNT 0. Trading a crash for section 2's "dangerous
+   one" is not progress, and this function is what makes the promotion honest.
+
+   ⚠ WHAT THIS EMITTER CAN AND CANNOT SEE, stated precisely because the
+   agreement claim depends on it. An arm that emits leaves an UNBOXED i32 in
+   flight, and `icmp ne 0` on it IS truthOf's row 2 exactly -- so on the
+   numeric row the two engines agree BY CONSTRUCTION, not by a careful copy.
+   Rows 1, 3 and 4 are NOT representable from an unboxed integer: a null, a
+   present-but-non-numeric node and a text node all arrive here as "no value in
+   flight", which is one symptom for three causes. The emitter therefore does
+   not GUESS among them -- it REFUSES (jitDegrade) and lets the interpreted arm,
+   which can still see the node, answer. A refused emit falls back to
+   interpretation, so this is one answer and a refusal to bake it, not two
+   answers.
+
+   ⚠ SO THE DEGRADE LINE HERE MEANS "NOT EMITTED", NEVER "SOUND". That is the
+   standing rule about degrade lines and it applies to this one: whether the
+   fallback is safe is a per-construct question, and for an AND/OR inside a
+   multi-fire jitted action it is NOT -- an emit-time fold returns fire 1's
+   answer forever. Rungs assert the VALUES on both fires; they must not accept
+   the counter as the proof. */
+extern GroupItem jitEmitShortCircuit(GroupItem field)
+{
+GroupItem   op      = field[1],
+            target  = field[2],
+            arg     = field[3];
+int         isAND   = 0;
+    if op.tag eq "AND"  isAND = 1;
+    if target.isMethod && target.invoke     target.method(target);
+    else                                    jitEmitBareRead(target);
+    /*  gJitResult is a C++ global in jitContext.h and is NOT a field, so it
+        is unreadable at tok level -- tok emits
+        `ERROR FieldBody: could not find gJitResult` straight into the .mm,
+        which fails at the C++ step with `use of undeclared identifier`
+        pointing at a word from the error TEXT. Every test of it therefore
+        lives in passthrough. (Three-languages-share-the-tree, and the
+        generated line is the only place that says which one you were in.)  */
+    -%
+    if (!gJitResult) {
+        jitDegrade("AND/OR LEFT operand produced no value", target);
+        return nullptr;
+    }
+    %-
+    jitScBegin(isAND);
+    if arg.isMethod && arg.invoke           arg.method(arg);
+    else                                    jitEmitBareRead(arg);
+    -%
+    if (!gJitResult)
+        jitDegrade("AND/OR RIGHT operand produced no value", arg);
+    %-
+    jitScEnd(field);
+    return field;
+}
+
 extern GroupItem jitEmitGIF(GroupItem input)
 {
 GroupItem   ExpressioN:,

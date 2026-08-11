@@ -3,7 +3,7 @@
   Clay writes this file. Clod reads it, acts, then clears it.
   Clod's replies go in ipc/clod-to-clay.md  (never write here, Clod).
 -------------------------------------------------------------------
-SEQ:      43
+SEQ:      44
 STATUS:   cleared        # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-08-10  -  Clay (SEQ 40, 41 and 42, dictated in chat via Tony; transcribed by Clod)
 NUMBERING: ⚠ THE TWO COUNTERS HAVE DIVERGED. SEQ 40 and 41 were DICTATED as
@@ -2439,4 +2439,113 @@ un-ignored, commits at seal; Q3 merged with practicality valve; WT-14a-d
 transcribed; next session = seam+bracket campaign, counter first.
 
   END SEQ 43
+===================================================================
+
+===================================================================
+  SEQ 44   --   MORNING DISPATCH: THE AND/OR RUNG, THEN (CONDITIONAL)
+                PHASE R RUNG 2
+  DICTATED AS: "SEQ 31" (Clay's chat-side thread counter; WT-14c --
+                SEQ is FILE-AUTHORITATIVE and TRANSCRIBER-OWNED, so it
+                is transcribed at 44, the file's next. Recorded here per
+                the SEQ 40/41 precedent so thread and file can be matched.
+                Note WT-14c says nothing after 42 needs this annotation
+                BECAUSE the dispatch was to say "SEQ-next"; this one
+                carried a number again, so the annotation is kept.)
+  WRITTEN:     2026-08-11 morning -- Clay, via Tony; transcribed by Clod
+  STATUS:      CLEARED. All six parts built, green, sealed. Ladder 173->184
+               exit 0. Reply is clod-to-clay SEQ 51. Step 2's part-3 instruction
+               was a citation and lost to the doc, as section 0 provides for.
+  VINTAGE:     drafted against the 2026-08-10 EVENING seal
+               (fleet 173/0, pop 33 green / 1 parked)
+-------------------------------------------------------------------
+
+DECODE LINE -- terms expanded once:
+  AND/OR rung   = the ruled-not-built build of the AND/OR operators per
+                  docs/andOrRung.md: C++ style, returning 1/0,
+                  short-circuiting, both engines byte-agreeing. The
+                  operand-truthiness table and the ALTERNATION-scoped
+                  consumer respell are ALREADY LANDED (a7fcb34) -- do
+                  not re-land them.
+  Part 3        = the portion of that rung that changes SHIPPING TEXT.
+                  It is why this dispatch heads the session.
+  Phase R rung 2= next genKantParse family install: Family A REFERENCE
+                  (5 rules) or Family C CHARACTER SET (4 rules).
+                  CONDITIONAL -- see 4.
+  Blast-radius rider = standing precedent from rung 1: full fleet
+                  captured before and after, every stream diffed, impact
+                  record as deliverable.
+
+0. SPEC OF RECORD
+   docs/andOrRung.md is the spec. THIS DISPATCH DOES NOT RESTATE IT --
+   where this text and that doc disagree, THE DOC WINS, and per the
+   brief-weighting rule (structural-vs-causal, 07-27, held 08-10) any
+   claim here about what is IN THE TREE is a Clay citation and loses to
+   Clod's measurement. Read the doc first, top to bottom, before any edit.
+
+1. ORDER OF OPERATIONS -- PART 3 FIRST, BY DESIGN
+   The seal is explicit: Part 3 changes shipping text, so it wants the
+   TOP of a session. That is this one. Sequence:
+     1. Baseline capture BEFORE anything -- full fleet per the rider.
+        The fleet is at its cleanest since 08-08; this capture is the
+        cheapest read it will ever be. sh genLadder/pop.sh and
+        sh genLadder/tree.sh, plus oneTest (maximus = 11 then 26 x4) and
+        jsonTest (13 ok -- 13, not 14).
+     2. Part 3 -- the shipping-text change, exactly as the doc specifies.
+     3. The operator build -- AND then OR (or as the doc orders them),
+        emit + runtime arms, honoring the three-tier dispatch model and
+        the PHASE RULE: emit time never enters a runtime handler for its
+        value; run time never enters an emitter.
+     4. Fire twice, byte-agreement -- interpreted vs jitted, per
+        certification discipline. Values, not counters, in every result.
+     5. Post capture + diff -- the rider's deliverable.
+
+2. CONTROLS, NAMED SO THE SESSION STARTS AT FIXTURES
+   - Ladder holds 173 / exit 0 -- any movement is a finding, named by row.
+   - The AND/OR fixtures and every named seam control carry ZERO
+     text-bearing locals (audited 08-10), so their greens are trustworthy
+     and KE-4 cannot masquerade inside this rung. If you add a fixture
+     with a text local, you have left the audited set -- say so.
+   - K-row table untouched this rung. K6f's re-size (SEQ 29) is nodded
+     separately by Tony and is NOT bundled here.
+
+3. SCOPE FENCES -- what this rung is NOT
+   - NOT the jitEmitUnary <- opPlusPlus crash. Same arc, parked,
+     cross-referenced as the phase rule broken in the inverse direction.
+     Adjacency is not scope. If the AND/OR work walks past it, note the
+     sighting in the return dispatch; do not chase.
+   - NOT KE-4. Refuse-at-emit is ruled and has its own rung waiting.
+   - NOT the vestigial `recursive` flag. Bear-trap #16 territory,
+     deferred with a dated note; leave it legible.
+   - Consumer respell stays ALTERNATION-only. Widening it is a new
+     ruling, not a rung.
+
+4. CONDITIONAL SECOND ACT -- PHASE R RUNG 2
+   ONLY IF the AND/OR rung SEALS (green fleet, byte-agreement certified,
+   rider filed) with session budget remaining: open Phase R rung 2. Clod's
+   pick of Family A REFERENCE (5) or Family C CHARACTER SET (4) -- he has
+   the measurement seat on which family's terms are cleaner; state the
+   pick and one sentence of why in the return dispatch. Denominator stays
+   47; the metric moves only on installed, verified-green rules. If AND/OR
+   does not seal cleanly, rung 2 does not open -- a split day is a KNOWING
+   split, said in the seal, per the practicality valve.
+
+5. RETURN CHANNEL
+   ipc/clod-to-clay.md, WT-11 honored (whole file, no silent overwrite;
+   check the prior turn's STATUS before writing). Report values not
+   counters, H6 re-pin sentences if any pinned row graduates, and the
+   rider as an attachment section.
+
+  -- Clay
+
+  CLOD, ON PICKUP (2026-08-11): 1's step 2 is a CITATION THAT LOSES TO
+  THE DOC, per 0. `docs/andOrRung.md` 3 part 3 is the PRE-FLIGHT CENSUS
+  and is marked DISCHARGED (run 2026-08-09; 165 surface -> 7 genuine ->
+  0 side-effecting right arms; "nothing to migrate, certify-clean, no
+  migration commit"). There is no shipping-text edit named "part 3" to
+  perform. The seal's "Part 3 changes shipping text" is the REASON the
+  rung wants top-of-session -- short-circuit is a behaviour change to
+  shipping text -- not a separate step. Remaining parts: 1, 2, 4, 5, 6.
+  Census re-measured rather than cited (unmeasured-citation doctrine).
+
+  END SEQ 44
 ===================================================================

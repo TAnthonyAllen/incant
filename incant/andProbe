@@ -1,0 +1,106 @@
+/*****************************************************************************
+andProbe -- the AND truth table, and the conjunction half of the operand
+truthiness contract. Sibling to orProbe, which it deliberately mirrors.
+
+Built 2026-08-11 during the AND OR rung and KEPT rather than discarded,
+because it earned its place before a line of the rung was written. It was
+made to answer one question and it caught a contradiction between a
+normative table and measured behaviour, which is the cheapest kind of
+finding there is.
+
+WHAT EACH SECTION IS FOR, and none of them is decoration.
+
+Section 1 is the truth table for the word form. These three rows did not
+move across the rung and that is the claim -- the promotion changed WHEN
+the arms run, never WHAT the conjunction answers.
+
+Section 2 is PINNED WRONG ON PURPOSE. The symbol form answers false for
+true and true, which is not a truth table at all. The cause is structural
+and pointable rather than inferred: the symbol is registered bare in
+incant setup, with no operateMethod, exactly the state the vertical bar
+pair was in before it was filled on 2026-08-01. So the symbol matches an
+inert operator and fails the body. Filed as a known error with its own
+repair rung, deliberately NOT fixed here, because widening the rung to
+the symbol forms is a ruling and not a rung.
+
+Sections 3 and 3b are the short circuit rows, and they are a PAIR for a
+reason. The word form skips its right arm and prints nothing. The symbol
+form still evaluates it and prints the marker. Two spellings of one
+operator with different evaluation semantics is a trap in waiting, and
+these two lines sitting next to each other are the record of it.
+
+Section 3c fires a CALL in left position. Rows 1 through 3b all use bare
+fields on the left, so none of them touches the arm firing path at all --
+a fixture can look thorough and still leave the interesting branch cold.
+
+Section 4 is the assignment position, and it records a PREDICTION THAT
+FAILED. Before the rung, a false conjunction returned no node at all, so
+the receiving field held no data and read as false. After the rung it
+holds the number zero. The prediction was that this would not change how
+the field reads. It DID change -- the field now reads TRUE -- because a
+bare field test goes by presence and not by value. Recorded as a failure
+rather than quietly re-pinned. The only shipping consumer of this shape
+is displayIfVisible in incant utilities, which is defined and never
+called, so nothing live moved. The next caller of that idiom is the one
+who gets bitten.
+
+Section 5 is why. A field holding zero dumps as an int carrying zero, and
+a bare test on it still reads TRUE, while the same field through the word
+form reads false. The bare test and the operator DISAGREE, they disagreed
+before this rung, and the ruled contract governs the operator only.
+Closing that gap is a separate ruling with its own customer.
+
+ZERO TEXT BEARING LOCALS, so this fixture stays inside the audited set
+and the KE-4 length defect cannot masquerade in any row above.
+*****************************************************************************/
+Start();
+include(unitTests);
+search reset stack Grokking;
+search UnitTests list;
+register(AndProbe);
+define
+    aTrue = 1;
+    aFalse = 0;
+    loudOne code={ print + "    [RIGHT ARM EVALUATED]":; return aTrue; };
+    loudLeft code={ print + "    [LEFT ARM EVALUATED]":; return aTrue; };
+    runAnd code={
+        print "1 the WORD form, AND, on fields holding 1 and 0:":;
+        if aTrue AND aTrue;     print + "true  AND true  -> TRUE":;
+        else                    print + "true  AND true  -> false":;
+        if aTrue AND aFalse;    print + "true  AND false -> TRUE":;
+        else                    print + "true  AND false -> false":;
+        if aFalse AND aTrue;    print + "false AND true  -> TRUE":;
+        else                    print + "false AND true  -> false":;
+        print "2 the SYMBOL form, &&  -- PINNED WRONG, see the header:":;
+        if aTrue && aTrue;      print + "true  && true  -> TRUE":;
+        else                    print + "true  && true  -> false":;
+        if aTrue && aFalse;     print + "true  && false -> TRUE":;
+        else                    print + "true  && false -> false":;
+        if aFalse && aTrue;     print + "false && true  -> TRUE":;
+        else                    print + "false && true  -> false":;
+        print "3 SHORT-CIRCUIT, the SYMBOL form, left arm FALSE:":;
+        if aFalse && loudOne();   print + "false && loudOne() -> TRUE":;
+        else                      print + "false && loudOne() -> false":;
+        print "3b SHORT-CIRCUIT, the WORD form, left arm FALSE:":;
+        if aFalse AND loudOne();  print + "false AND loudOne() -> TRUE":;
+        else                      print + "false AND loudOne() -> false":;
+        print "3c A CALL IN LEFT POSITION -- the arm-firing path, left TRUE:":;
+        if loudLeft() AND loudOne();  print + "loudLeft() AND loudOne() -> TRUE":;
+        else                          print + "loudLeft() AND loudOne() -> false":;
+        print "4 ASSIGNMENT POSITION -- what the result LOOKS like:":;
+        andOut = aTrue AND aFalse;
+        print + "andOut after (true AND false) =" andOut:;
+        if andOut;              print + "  and if andOut; reads it TRUE":;
+        else                    print + "  and if andOut; reads it false":;
+        print "5 what `if` does with a 0-holding field -- NOT the same contract:":;
+        if aFalse;              print + "  if aFalse; -> TRUE":;
+        else                    print + "  if aFalse; -> false":;
+        if aTrue;               print + "  if aTrue;  -> TRUE":;
+        else                    print + "  if aTrue;  -> false":;
+        if !aFalse;             print + "  if !aFalse; -> TRUE":;
+        else                    print + "  if !aFalse; -> false":;
+        };
+    ;
+runAnd();
+print "AP SENTINEL":;
+stop();

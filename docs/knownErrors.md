@@ -252,3 +252,65 @@ non-count local instead of emitting an integer slot for it — is the standing p
 
 **Fixtures:** `incant/kant8M1`, `incant/kant8M1o`. Neither is wired into a harness yet —
 deliberately, since the expected values are exactly what this entry asks Tony to rule.
+
+---
+
+# KE-5 — `&&` ANSWERS `true && true` AS **false**. The symbol form of AND is not a truth table.
+
+**Filed 2026-08-11**, during the AND/OR rung, on Clay's SEQ 32 instruction to file rather than
+widen. **Deliberately NOT repaired** — the rung is scoped to the **word** forms, and widening
+tier 3 to the symbols is a ruling, not a rung.
+
+**MEASURED — `incant/andProbe` §2, values not counters:**
+```
+    true  && true   ->  false        <-- want TRUE
+    true  && false  ->  false
+    false && true   ->  false
+```
+All three rows answer false. The first is the one that makes this a defect rather than a
+semantics: **there is no reading of `&&` under which `true && true` is false.**
+
+**MECHANISM — STRUCTURAL AND POINTABLE, not inferred from the symptom.** `incant/setup:162`
+registers `'&';` **bare — no `operateMethod`**. There is no `'&&'` entry at all, and the Operators
+matcher returns the **longest match**, so `&&` matches the inert single-character `'&'` and fails
+the body. **This is the exact state `'|'` was in before 2026-08-01**, and `setup:100-111`'s own
+comment describes the failure mode in those words: *"`'|'` above is registered BARE, with no
+operateMethod, so `||` matched an inert operator and failed the body."*
+
+⚠ **THE REPAIR IS BELIEVED TO BE ONE LINE — `'&&' operateMethod=opAND;` beside the existing
+`'||' operateMethod=opOR;` — AND IT WAS NOT RUN.** `incant/setup` is read at runtime, so testing it
+costs no rebuild; it was left untested because *applying* it is the repair, and the repair is out
+of this rung's scope. **Stated as a structural read, not a measurement**, per the standing rule
+that reproduction proves the symptom and never the cause.
+
+**Contrast with the word form, same run:** `AND` answers all three rows correctly and
+short-circuits. So a reader who tests `AND` and assumes `&&` is a spelling of it gets a silently
+different operator.
+
+**Instrument:** `incant/andProbe` (§2 and §3, which sit adjacent on purpose).
+
+---
+
+# KE-6 — `OR` and `||` DIVERGE ON EVALUATION: one short-circuits, one does not, **on one handler**
+
+**Filed 2026-08-11**, created by the AND/OR rung and **named rather than hidden**.
+
+`OR` is bound at tree build to `runShortCircuit` (tier 3) and skips its right arm on a true left
+arm. `'||'` is registered `operateMethod=opOR` and stays a strict operator, so it evaluates both.
+**Both ultimately answer through the same `truthOf` contract, so their VALUES agree** — it is only
+the **evaluation** that differs.
+
+**MEASURED — `incant/orProbe` §3 vs `incant/andProbe` §3b:**
+```
+    true || loudZero()   ->  [RIGHT ARM EVALUATED]   then TRUE     strict
+    false AND loudOne()  ->  (no marker)             then false    short-circuit
+```
+
+**WHY IT IS NOT AN OVERSIGHT:** SEQ 32 scoped the rung to the word forms and ruled the symbol
+forms filed-not-widened. Recorded because **two spellings of one operator with different
+evaluation semantics is a trap in waiting** — a right arm with a side effect behaves differently
+depending on which spelling the author reached for, and nothing announces it.
+
+**Repair rung:** drawer item, unscheduled, wants its own charter — and it should be taken
+**together with KE-5**, since both are the same question (do the symbol forms join tier 3) asked
+about the two different words.

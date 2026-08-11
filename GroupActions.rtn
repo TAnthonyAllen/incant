@@ -910,6 +910,92 @@ GroupItem   result;
     is the useful part: an iterator in TARGET position stays the handle, in
     ARGUMENT position it derefs to the current entry.
 ***************************************************************************/
+/***************************************************************************
+    runShortCircuit -- TIER 3, THE EVALUATION-CONTROLLING ARM.
+    Built 2026-08-11 (docs/andOrRung.md sections 1a and 6; ruling SEQ 32).
+
+    ⚠ WHY THIS IS NOT AN OPERATOR HANDLER, which is the whole finding
+    behind the rung: runOP resolves BOTH operands before it dispatches, so
+    an opAND/opOR entered from there has already paid for the right arm --
+    side effects included. Short-circuit is therefore unreachable at the
+    handler position AT ALL. It is reachable HERE, because an unresolved
+    operand is still an UNFIRED METHOD: the `arg.isMethod && arg.invoke`
+    line in runOP is the firing, and this function simply does not run it
+    on the arm the ruling says to skip.
+
+    ⚠ WHY THIS IS A SIBLING OF runOP AND NOT A BRANCH INSIDE IT (Tony,
+    2026-08-11). The seat was moved here from the top of runOP on his
+    ruling, and the reasoning generalises past this rung:
+
+      - The natural first guess is TokenXP, where unaries are handled.
+        That works for a UNARY because the grammar production
+        `TokenXP  UnaryOPS? ANYorNum^ InvokeArg?` GROUPS a unary with its
+        operand -- the pairing is a parse fact, so there is a node to
+        intercept. A BINARY has no such node: `ExpressioN  Token+` is a
+        FLAT sequence with `Operators` as one Token alternative, so at
+        that seat `AND` has no arms and no precedence yet.
+      - The binary structure first exists in interpretXP, which builds the
+        left-associative tree. So THE CATEGORY DECISION BELONGS AT TREE
+        BUILD, where it is paid ONCE per expression, and not on every
+        dispatch.
+      - And it keeps runOP what section 6 says it is: "the interpreter's
+        strict-operator dispatcher AND NOTHING ELSE." A tier-3 test in the
+        strict dispatcher's hot path is a category error wearing a
+        conditional.
+
+    So AND/OR keep their operator REGISTRATION -- parser, precedence walk
+    and Operators table all untouched -- and are promoted out of the
+    operator CATEGORY by the method interpretXP binds. The promotion is a
+    dispatch-binding change, not a grammar change.
+
+    ⚠ THE OPERAND CONTRACT IS truthOf's AND ONLY truthOf's. Both arms of
+    both words go through it, so the interpreted and jitted engines cannot
+    drift apart by one of them growing its own idea of truth.
+
+    THE TIER-3 SET IS CLOSED AND NAMED AT ITS BINDING SITE in interpretXP,
+    deliberately in one place: section 6 rules "tier 3 stays small -- if,
+    AND/OR, iteration -- then the door closes." Widening it is a ruling,
+    so widening it should cost an edit to a line that says so.
+***************************************************************************/
+extern GroupItem runShortCircuit(GroupItem field)
+{
+GroupItem   op      = field[1],
+            target  = field[2],
+            arg     = field[3];
+int         leftIsTrue;
+    /*  THE PHASE GATE (section 6): emit time never enters a runtime handler
+        for its value. Everything BELOW this line is run time.
+
+        ⚠ AND THE FLOOR IS A REFUSAL, NOT A FALL-THROUGH, because of what
+        was measured the moment the interpreted arm landed: promoting
+        AND/OR fixed the `AND`-under-jit 139 and REPLACED IT WITH THE
+        SILENT WRONG ANSWER -- jitXand2 and jitXor both want 1 on fire 2
+        and returned 0, at DEGRADE COUNT 0. That is a trade of a loud
+        failure for the exact shape docs/andOrRung.md section 2 calls "the
+        dangerous one ... the shape that survives review".
+        Refusing here restores the loudness: the degrade counter is
+        asserted at zero by every ladder rung, so an un-emitted AND/OR now
+        fails a rung instead of quietly folding its value at emit time.  */
+    if jitting {
+        -% return jitEmitShortCircuit(field); %-
+    }
+    if target.isGROUP && !target.isPointer && !target.isIterator    target = target.group;
+    if op.instructType && target.isMethod && target.invoke   target = target.method(target);
+    leftIsTrue = truthOf(target);
+    /*  THE SKIP ITSELF. The right arm is never touched on these two paths
+        -- not resolved, not unwrapped, not fired -- which is the entire
+        behavioural claim of the rung and is what part 6's TICK count
+        exists to prove. A value assertion cannot prove it: a right arm
+        that runs anyway still produces the right ANSWER in most shapes,
+        so only COUNTING shows it was skipped.  */
+    if op.tag eq "AND"  && !leftIsTrue      return falseResult;
+    if op.tag eq "OR"   &&  leftIsTrue      return trueResult;
+    if arg.isGROUP && !arg.isPointer                arg = arg.group;
+    if arg && arg.isMethod && arg.invoke            arg = arg.method(arg);
+    if truthOf(arg)     return trueResult;
+    return falseResult;
+}
+
 extern GroupItem runOP(GroupItem field)
 {
 GroupItem   result,

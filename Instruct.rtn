@@ -13,12 +13,75 @@ GroupItem   grup;
 }
 
 /***************************************************************************
+    truthOf -- THE OPERAND TRUTHINESS CONTRACT. Ruled 2026-08-11 by Tony,
+    carried by Clay (SEQ 32); spec docs/andOrRung.md section 3 part 1.
+    Normative for BOTH engines and BOTH word forms, and it lives in ONE
+    place on purpose -- a contract duplicated at three call sites is the
+    one-channel-one-meaning failure waiting for its second reader.
+
+    LAYERED: presence decides only when no value exists to decide by.
+
+        1  absent / null                 -> false
+        2  node holding a NUMERIC value  -> BY ITS VALUE   (0 false)
+        3  node holding no numeric value -> true BY PRESENCE
+
+    Row 2 covers comparison results, ALWAYS, and that is what forces the
+    layering rather than merely preferring it: under a flat "any present
+    node is true", a comparison returning 0 would be TRUE and every
+    conditional over a value-bearing expression would be always-true.
+    That is not a semantics, it is the abolition of falsehood. Row 3 is
+    the parse-consumer row -- parseR's GroupItem-or-null, structural
+    nodes, rule results -- which is the frame the original table was
+    written in, where null-vs-node IS the whole discrimination.
+
+    ⚠ ROW 4, TEXT-VALUED OPERANDS, IS DELIBERATELY UNRULED. No measured
+    customer needs it, and it borders KE-4's territory. At EMIT a text
+    operand is REFUSED (jitEmitShortCircuit calls jitDegrade rather than
+    substituting a constant -- a substituted constant is asserted by
+    nothing, and the degrade counter is asserted at zero by every rung).
+    At RUN it lands on row 3 and answers true-by-presence. The two arms
+    therefore AGREE in outcome, because a refused emit falls back to
+    interpretation; they are not two answers, they are one answer and a
+    refusal to bake it.
+
+    ⚠ MEASURED, 2026-08-11, and recorded because it is NOT what a reader
+    expects: `if <field>` and `<field> AND ...` ALREADY DISAGREE in the
+    shipping language. A field holding 0 dumps as `aFalse=0 int` -- it
+    carries isCOUNT and gCount 0 -- and `if aFalse;` reads TRUE while
+    `aFalse AND aTrue` reads false. This contract matches the OPERATOR
+    behaviour, which is the one it governs; it does not touch `if`, and
+    closing that gap is a separate ruling with its own customer.
+    Instrument: incant/andProbe rows 1 and 5.
+***************************************************************************/
+extern int truthOf(GroupItem field)
+{
+    if !field                       return 0;
+    if field.isCOUNT || field.isNUMBER  return field.gCount != 0;
+    return 1;
+}
+
+/***************************************************************************
 	Rule action for the AND operator
+
+    ⚠ THE SHORT-CIRCUIT DOES NOT LIVE HERE AND CANNOT. runOP evaluates
+    both operands BEFORE it dispatches, so by the time this is entered the
+    right arm has already run, side effects included (docs/andOrRung.md
+    section 1a). Declining to evaluate is not available at this position at
+    all -- runShortCircuit in GroupActions.rtn is where AND/OR are actually
+    reached from, and it intercepts ABOVE the resolution lines.
+
+    This handler remains as the STRICT fallback for any path that reaches
+    the operator table directly, and it is brought up to the ruling: it
+    returns 1 or 0, never null, and it tests both operands through the one
+    contract. Before 2026-08-11 it returned trueResult or NULL, and opOR
+    returned trueResult/falseResult -- the two were not even consistent
+    with each other, so nothing here is changing behaviour anyone could
+    have relied on.
 ***************************************************************************/
 extern GroupItem opAND(GroupItem argument,GroupItem target)
 {
-    if gCount && argument.gCount    return trueResult;
-    return null;
+    if truthOf(target) && truthOf(argument)     return trueResult;
+    return falseResult;
 }
 
 /***************************************************************************
@@ -593,9 +656,7 @@ extern GroupItem opNotEQ(GroupItem argument,GroupItem target)
 ***************************************************************************/
 extern GroupItem opOR(GroupItem argument,GroupItem target)
 {
-    if target
-        if gCount   return trueResult;
-        or argument && argument.gCount  return trueResult;
+    if truthOf(target) || truthOf(argument)     return trueResult;
     return falseResult;
 }
 

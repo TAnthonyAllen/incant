@@ -547,7 +547,37 @@ GroupItem   op, target, arg, xl, token;
                     xl  += op;
                     xl  += target;
                     xl  += arg;
-                    xl.method   = runOP;
+                    /*  TIER-3 BINDING, and THIS LINE IS THE TIER-3 SET.
+                        2026-08-11, docs/andOrRung.md section 6; seat ruled
+                        by Tony the same day.
+
+                        Section 6 splits the operator table three ways, and
+                        the third tier -- "evaluation-controlling
+                        constructs, NOT operators at all" -- cannot go
+                        through runOP, which resolves both operands before
+                        it dispatches. Binding a DIFFERENT method here is
+                        the whole promotion: the node is built identically
+                        ([1]=op [2]=target [3]=arg), and only who walks it
+                        changes.
+
+                        ⚠ DECIDED AT TREE BUILD, ON PURPOSE. The category
+                        of an operator is a parse-time fact, so it is paid
+                        once per expression rather than re-tested on every
+                        evaluation -- and runOP stays what section 6 calls
+                        it, the strict dispatcher and nothing else.
+
+                        ⚠ THE SET IS CLOSED: `if`, AND/OR, iteration, then
+                        the door closes. The SYMBOL forms are deliberately
+                        NOT here -- `&&` is not even registered (setup:162
+                        has bare `'&'`, no operateMethod, the same state
+                        `'|'` was in before 2026-08-01) and `||` is strict.
+                        That asymmetry -- `OR` short-circuits, `||` does
+                        not, on one shared handler -- is FILED AND UNRULED,
+                        not overlooked. Widening tier 3 to the symbols is a
+                        ruling, and it costs an edit to this line.  */
+                    if op.tag eq "AND" || op.tag eq "OR"
+                            xl.method   = runShortCircuit;
+                    else    xl.method   = runOP;
                     xl.invoke   = true;
                     op = 0;
                     target = 0;

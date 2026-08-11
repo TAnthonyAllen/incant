@@ -1184,47 +1184,61 @@ if [ "$xto" = "1" ]; then echo "  ok    JXT oracle agrees: interpreted ticks 1 =
 else echo "  FAIL  JXT ORACLE DISAGREES: interpreted '$xto' vs jitted 1"; fail=1; fi
 
 echo ""
-echo "-- JXD PINNED DEFECTS. TWO ROWS THAT ASSERT THE BUG, NOT THE FIX."
-#  ⚠⚠ THESE TWO ROWS ARE INVERTED AND THAT IS THEIR WHOLE VALUE. They go GREEN
-#  while the defect is present and RED when it is repaired, which is the WOKE
-#  alarm's shape (RULE H6). A defect nobody pinned is a defect that comes back,
-#  and worse -- an UNPINNED defect gets rediscovered as a new finding and costs
-#  the investigation twice. Both were measured 2026-08-08 and are PRE-EXISTING.
+echo "-- JXD  AND/OR UNDER THE JIT. GRADUATED 2026-08-11 FROM PINS TO CERTIFYING."
+#  ⚠⚠ H6 GRADUATION, AND THE RE-PIN SENTENCE IS THE POINT OF THIS BLOCK.
+#  Until 2026-08-11 JXD-1 and JXD-2 were INVERTED rows: they went green while the
+#  defect was present and red when it was repaired. Both fired on the same build.
+#  A pin that starts passing must GRADUATE -- leaving it parked after the alarm
+#  defeats the alarm -- and a re-pin needs A SENTENCE, NOT A GREEN DIFF. Here are
+#  the two sentences, and each names a CAUSE rather than asserting that the world
+#  improved:
 #
-#  BOTH ARE THE UNGATED-OPERATOR CLASS: opAND and opOR are on jit.md S2.1's
-#  not-gated list (24 entries). SEQ 41 step 5 sweeps the other 22.
+#    JXD-1 -- `AND` under jit exited 139, and printed NO degrade line at all: it
+#    died before the counter every other rung asserts at zero could see it. CAUSE
+#    OF THE REPAIR: AND/OR were promoted out of the operator category (tier 3,
+#    docs/andOrRung.md S6). runOP resolved both operands before dispatching, so
+#    the crash was reached through a path that no longer exists -- interpretXP
+#    now binds runShortCircuit, and the JIT arm reaches jitEmitShortCircuit.
+#
+#    JXD-2 -- `OR` under jit was SILENTLY WRONG at degrade 0: fire 2 (1 OR 0)
+#    wanted 1 and gave 0, the expression folded at emit time. CAUSE OF THE
+#    REPAIR: the same promotion, plus an EMITTER. The diamond emits both arms
+#    into the compiled function, so the value is computed per fire instead of
+#    once at emit.
+#
+#  ⚠ AND THE ORDER OF THOSE TWO CLAUSES IS ITSELF A FINDING WORTH KEEPING. The
+#  promotion ALONE (interpreted arm, no emitter) fixed the 139 and turned it into
+#  jitXor's silent-wrong shape -- measured on the intermediate build the same
+#  day, at degrade 0. Trading a crash for a quiet wrong answer is a REGRESSION IN
+#  LOUDNESS wearing the shape of progress, and the only reason it was not filed
+#  as a repair is that these rows were watched across both builds.
+#
+#  BOTH WERE the ungated-operator class: opAND and opOR are on jit.md S2.1's
+#  not-gated list (24 entries). Two are now gated; SEQ 41 step 5 sweeps the
+#  other 22.
+runcap "JXD-1 AND-under-jit runs" jitXand2 "$T/jitXand2"
+check   "JXD-1 AND-under-jit runs" 0 $?
+sentinel "JXD-1 sentinel" "$T/jitXand2" "X2 SENTINEL"
+x21=$(sed -n 's/.*X2 fire 1 result: x2Out = *\([0-9-][0-9]*\).*/\1/p' "$T/jitXand2" | head -1)
+x22=$(sed -n 's/.*X2 fire 2 result: x2Out = *\([0-9-][0-9]*\).*/\1/p' "$T/jitXand2" | head -1)
+x2d=$(sed -n 's/.*jitDegrade count = \([0-9]*\).*/\1/p' "$T/jitXand2" | head -1)
+if [ "$x21" = "0" ]; then echo "  ok    JXD-1 fire 1 = 0 (0 AND 1)"; green=$((green+1))
+else echo "  FAIL  JXD-1 fire 1 = '$x21', want 0"; fail=1; fi
+#  ⚠ THE ANTI-VACUITY ROW. Fire 1 wants 0, which a result slot that merely
+#  DEFAULTS to zero also yields -- so fire 1 alone distinguishes nothing. Fire 2
+#  wants 1 on the SAME compiled function with NO recompile, so it fails unless a
+#  real value was computed per fire. Pair every zero-expecting row with a
+#  non-zero sibling.
+if [ "$x22" = "1" ]; then echo "  ok    JXD-1 fire 2 = 1 (1 AND 1) -- differs from fire 1, no recompile"; green=$((green+1))
+else echo "  FAIL  JXD-1 fire 2 = '$x22', want 1"; fail=1; fi
+if [ "$x2d" = "0" ]; then echo "  ok    JXD-1 degrade count = 0 -- AND is EMITTED, not fallen back"; green=$((green+1))
+else echo "  FAIL  JXD-1 degrade count = '$x2d', want 0"; fail=1; fi
 
-#  JXD-1 -- `AND` UNDER JIT EXITS 139, AND PRINTS NO DEGRADE LINE AT ALL.
-#  ⚠ THE MISSING DEGRADE LINE IS THE SHARP PART, not the crash. It dies BEFORE
-#  the counter every other rung asserts at zero can see it, so degrade-0 is not
-#  evidence about this construct. A gate that was never installed reads, from
-#  outside, exactly like one that passed.
-#  ⚠ THE SHELL PRINTS ITS OWN `Segmentation fault: 11` LINE ON THE NEXT ROW AND
-#  IT IS EXPECTED. runcap's own header warns that an instrument adding chatter to
-#  the evidence will be misread -- so it is ANNOUNCED rather than suppressed,
-#  because silencing it would mean silencing the same line on a rung where a
-#  crash is NOT expected. Announced beats hidden; hidden beats nothing.
-echo "     (the next line is the shell reporting the PINNED crash -- expected)"
-runcap "JXD-1 AND-under-jit runs (expecting the crash)" jitXand2 "$T/jitXand2"
-xa=$?
-if [ "$xa" = "139" ]; then
-    echo "  ok    JXD-1 PINNED: \`AND\` under jit exits 139 (defect present, as recorded)"; green=$((green+1))
-elif [ "$xa" = "0" ]; then
-    echo "  FAIL  JXD-1 WOKE -- \`AND\` under jit NO LONGER CRASHES (exit 0)."
-    echo "        This is GOOD NEWS ARRIVING AS A RED, which is the pin working."
-    echo "        Do not delete this row: GRADUATE it (H6). Verify the answers are"
-    echo "        also CORRECT before believing it -- not crashing and being right"
-    echo "        are different claims, and jitXor is the cautionary sibling."
-    fail=1
-else
-    echo "  FAIL  JXD-1 exit '$xa' -- neither the pinned 139 nor a clean 0. The"
-    echo "        defect changed shape; re-measure before re-pinning."; fail=1
-fi
-
-#  JXD-2 -- `OR` UNDER JIT IS SILENTLY WRONG AT DEGRADE 0.
-#  ⚠ THE WORSE OF THE TWO, because it exits 0 and lies. Fire 2 (1 OR 0) must be
-#  1 and is 0: the expression evaluated at EMIT time and folded. The pin asserts
-#  the WRONG value, by name, so a repair breaks this row instead of passing it.
+#  JXD-2 -- `OR` UNDER JIT. Certifying since 2026-08-11; see the graduation
+#  sentences at the head of this block for what it used to pin and why it moved.
+#  ⚠ IT WAS THE WORSE OF THE TWO, because it exited 0 and lied -- and that is
+#  retained rather than deleted, because it is the reason the rows below assert
+#  fire 2 BY VALUE and not merely that the run survived.
 #
 #  ⚠⚠ AND THE FIXTURE ITSELF CARRIES THE LESSON THAT FOUND IT. The first version
 #  of jitXor used fires `0 OR 1` and `1 OR 1` -- BOTH 1 -- and REPORTED GREEN.
@@ -1239,19 +1253,66 @@ xo2=$(sed -n 's/.*XO fire 2 result: xoOut = *\([0-9-][0-9]*\).*/\1/p' "$T/jitXor
 xod=$(sed -n 's/.*jitDegrade count = \([0-9]*\).*/\1/p' "$T/jitXor" | head -1)
 if [ "$xo1" = "0" ]; then echo "  ok    JXD-2 fire 1 = 0 (0 OR 0 -- correct, and the only correct row)"; green=$((green+1))
 else echo "  FAIL  JXD-2 fire 1 = '$xo1', want 0"; fail=1; fi
-if [ "$xo2" = "0" ]; then
-    echo "  ok    JXD-2 PINNED: fire 2 = 0 but WANTS 1 -- the emit-time fold, silent"; green=$((green+1))
-elif [ "$xo2" = "1" ]; then
-    echo "  FAIL  JXD-2 WOKE -- \`OR\` under jit now returns the CORRECT 1 on fire 2."
-    echo "        Good news arriving as a red. GRADUATE this row to a normal"
-    echo "        assertion (H6) and re-pin with a sentence naming the cause."
-    fail=1
-else
-    echo "  FAIL  JXD-2 fire 2 = '$xo2' -- neither the pinned 0 nor the correct 1."; fail=1
-fi
-if [ "$xod" = "0" ]; then echo "  ok    JXD-2 degrade count 0 CONFIRMS the silence (wrong answer, no warning)"; green=$((green+1))
-else echo "  FAIL  JXD-2 degrade count = '$xod', pinned at 0. If nonzero, OR now"
-     echo "        DECLARES its fallback -- an honest answer, and a graduation."; fail=1; fi
+if [ "$xo2" = "1" ]; then echo "  ok    JXD-2 fire 2 = 1 (1 OR 0) -- differs from fire 1, no recompile"; green=$((green+1))
+else echo "  FAIL  JXD-2 fire 2 = '$xo2', want 1"; fail=1; fi
+#  ⚠ DEGRADE 0 HERE MEANS "OR WAS EMITTED", AND NOTHING MORE. It is asserted
+#  BESIDE the two value rows, never instead of them: a degrade line reports that
+#  a fallback OCCURRED, never that a fallback was SOUND, and for an AND/OR inside
+#  a multi-fire action the fallback is NOT sound -- an emit-time fold returns
+#  fire 1's answer forever, which is precisely the defect this row used to pin.
+if [ "$xod" = "0" ]; then echo "  ok    JXD-2 degrade count = 0 -- OR is EMITTED, not fallen back"; green=$((green+1))
+else echo "  FAIL  JXD-2 degrade count = '$xod', want 0"; fail=1; fi
+
+echo ""
+echo "-- JXD-3  THE SHORT-CIRCUIT ITSELF, AND ONLY A TICK COUNT CAN SEE IT."
+#  ⚠ H7, AND THIS ROW IS WHY THE RUNG NEEDED A THIRD FIXTURE. JXD-1 and JXD-2
+#  assert VALUES, and a right arm that runs when it should not still produces the
+#  RIGHT ANSWER in both of their shapes -- `0 AND x` is 0 whether or not x ran.
+#  So neither of them can distinguish short-circuit from eager evaluation, and a
+#  rung that cannot fail when the mechanism is removed certifies nothing.
+#  COUNTING is the discriminator: jitXand ticks each arm as it runs.
+#     fire 1  left FAILS  -> ticksR must stay 0   (right arm SKIPPED)
+#     fire 2  left passes -> ticksR becomes 1     (right arm REACHED)
+#  ⚠ AND ticksL IS THE SECOND, INDEPENDENT CLAIM: 2 means the left arm was
+#  emitted and ran ONCE PER FIRE; 1 would mean it ran at EMIT TIME and the value
+#  folded -- the exact failure JXD-2 was pinned to for three days.
+#
+#  ⚠⚠ NEGATIVE CONTROL, RUN AND RECORDED 2026-08-11 -- H7 requires this and the
+#  result is the best argument for the whole rule. jitScBegin's CreateCondBr was
+#  replaced with an unconditional CreateBr to the right-arm block (eager, no
+#  short-circuit), rebuilt, and this rung re-run:
+#
+#      mechanism REMOVED :  ticksR fire1 = 1  fire2 = 2   FAIL x2
+#                           xaOut fire2 = 1               ok   <-- UNCHANGED
+#                           degrade count = 0             ok   <-- UNCHANGED
+#      mechanism PRESENT :  ticksR fire1 = 0  fire2 = 1   ok
+#
+#  THE VALUE ROW AND THE DEGRADE ROW BOTH STAYED GREEN WITH THE MECHANISM GONE.
+#  So a rung built the obvious way -- assert the answer, assert degrade 0 --
+#  would have certified short-circuit while emitting eager code, and nobody would
+#  have looked, because it tested the right feature and got the right number.
+#  Only the counts moved. That is why this rung counts.
+runcap "JXD-3 short-circuit tick fixture runs" jitXand "$T/jitXand"
+check   "JXD-3 short-circuit tick fixture runs" 0 $?
+sentinel "JXD-3 sentinel" "$T/jitXand" "XA SENTINEL"
+xar1=$(sed -n 's/.*XA fire 1 result:.*ticksR = *\([0-9][0-9]*\).*/\1/p' "$T/jitXand" | head -1)
+xal2=$(sed -n 's/.*XA fire 2 result:.*ticksL = *\([0-9][0-9]*\).*/\1/p' "$T/jitXand" | head -1)
+xar2=$(sed -n 's/.*XA fire 2 result:.*ticksR = *\([0-9][0-9]*\).*/\1/p' "$T/jitXand" | head -1)
+xao2=$(sed -n 's/.*XA fire 2 result: xaOut = *\([0-9-][0-9]*\).*/\1/p' "$T/jitXand" | head -1)
+xad=$(sed -n 's/.*jitDegrade count = \([0-9]*\).*/\1/p' "$T/jitXand" | head -1)
+if [ "$xar1" = "0" ]; then echo "  ok    JXD-3 fire 1 ticksR = 0 -- THE RIGHT ARM WAS SKIPPED (short-circuit)"; green=$((green+1))
+else echo "  FAIL  JXD-3 fire 1 ticksR = '$xar1', want 0. The right arm ran on a"
+     echo "        false left arm: that is EAGER evaluation, not short-circuit."; fail=1; fi
+if [ "$xar2" = "1" ]; then echo "  ok    JXD-3 fire 2 ticksR = 1 -- and REACHED when the left arm passes"; green=$((green+1))
+else echo "  FAIL  JXD-3 fire 2 ticksR = '$xar2', want 1. A right arm that is"
+     echo "        never reached would make the row above pass vacuously."; fail=1; fi
+if [ "$xal2" = "2" ]; then echo "  ok    JXD-3 fire 2 ticksL = 2 -- emitted PER FIRE, not folded at emit time"; green=$((green+1))
+else echo "  FAIL  JXD-3 fire 2 ticksL = '$xal2', want 2. 1 means the arm ran once,"
+     echo "        at emit time, and every later fire reuses that value."; fail=1; fi
+if [ "$xao2" = "1" ]; then echo "  ok    JXD-3 fire 2 xaOut = 1 -- the value, beside the counts"; green=$((green+1))
+else echo "  FAIL  JXD-3 fire 2 xaOut = '$xao2', want 1"; fail=1; fi
+if [ "$xad" = "0" ]; then echo "  ok    JXD-3 degrade count = 0"; green=$((green+1))
+else echo "  FAIL  JXD-3 degrade count = '$xad', want 0"; fail=1; fi
 
 echo ""
 echo "-- JE2 / JXN  E2 OWNED WHILE IT WAITS. TWO MORE INVERTED ROWS."
@@ -1373,8 +1434,11 @@ fi
 #  JE2 and JXN GRADUATED on 2026-08-09 when E2 landed; leaving them listed as
 #  "pinned" would make the summary line contradict its own rows, which is the
 #  instrument failure mixed.sh paid for on 2026-08-08 and the line most readers
-#  are the only one they read. JXD-1/JXD-2 are the only inverted rows left.
-if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv JV JC JS JRt JXT JE2 JXN + JXD-1/JXD-2 pinned + J-R THE PROOF)"
+#  are the only one they read.
+#  ⚠ AS OF 2026-08-11 THERE ARE NO INVERTED ROWS LEFT. JXD-1/JXD-2 graduated
+#  with the AND/OR rung and JXD-3 joined them, so the banner no longer carries a
+#  "pinned" clause at all -- if one is ever added back, add the row name with it.
+if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv JV JC JS JRt JXT JE2 JXN JXD-1 JXD-2 JXD-3 + J-R THE PROOF)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"
 exit $fail
