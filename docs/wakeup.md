@@ -4,17 +4,46 @@
 # `AND`/`OR` short-circuit in both engines and byte-agree. Two KEs filed, one KANT claim
 # repaired, one prediction failed and filed as failed.
 #
-# ⚠⚠ NEXT ACTION — **PHASE R RUNG 2, and it is the one thing the last session deferred
-#    KNOWINGLY rather than by running out of road.** SEQ 31 §4 made it conditional on the
-#    AND/OR rung sealing clean; it did, and the session ended anyway — **a knowing split,
-#    said here per the practicality valve.** Clod's pick, stated in SEQ 51 and open to
-#    Tony's override: **Family C, CHARACTER SET (4)** — its terms are single-token and
-#    self-delimiting so it needs no container work, where **Family A REFERENCE (5)** leans
-#    on rule-reference resolution the refusal census still calls a frontier. ⚠ **And that
-#    census reports the FIRST blocker, not the blocker SET** (H9's corollary), so "Family A
-#    is nearly unblocked" is **not a claim the census can support** — re-run the rules after
-#    any close before believing it. Denominator stays **47**; the metric moves only on
-#    installed, verified-green rules.
+# ⚠⚠ NEXT ACTION — **THE GENERATOR RESPELL ONTO AND/OR. AUTHORIZED, RULED, AND FIRING.**
+#    Charter transcribed to **`docs/respellRung.md`** (it was dictated in chat, and a ruling
+#    whose only home is a thread is an unmeasured citation waiting to be made). **§1's
+#    ruling is GRANTED — Tony, 2026-08-11:** the frozen section of
+#    `docs/attributesTemplate.md` may be edited to emit AND/OR chains, dated with the old
+#    form left legible; and **generated-code use of AND/OR is a NEW population, named and
+#    granted** — the landed consumer respell (`a7fcb34`) was ALTERNATION-only, and nothing
+#    slips in unscoped.
+#    **WHAT IT DOES, in one sentence:** an installed rule's generated parse method is built
+#    today from **`goto generatedExit`** scaffolding (`GroupItem.twk:1232`/`:1269`); the
+#    respell replaces it with **operator chains** — a term sequence becomes
+#    `t1() AND t2() AND t3()`, an alternation an `OR` chain. ⚠ **It is sound ONLY because of
+#    what landed 2026-08-11**: short-circuit stops the chain at the first failed term, and
+#    the convention puts the **mark-restore INSIDE each term**, so stopping early cannot
+#    strand the rule mark.
+#    ⚠ **FIRST MOVE IS NOT STEP 1. It is §3.0 — MEASURE GM-13's LEAD** before committing
+#    `Braced` to the structural-exhibit slot. The charter picks Braced because *"first
+#    install went red on the goto structure"*; `GM-13` (`docs/grammarCorpus.md:268`)
+#    confirms the RED but names its cause **"LEAD, at the usual odds, UNMEASURED and NOT
+#    HARDENED."** If the goto structure is not the cause, the flagship exhibit either stays
+#    red or **goes green for an unrelated reason and is read as proof.** One before/after
+#    against `docs/emitted/braced-red-specimen.txt`, which already exists.
+#
+# ⚠ **AND THE ORDERING IS DELIBERATE — RESPELL BEFORE PHASE R RUNG 2, on this project's own
+#   precedent.** `docs/andOrRung.md`'s scheduling note put AND/OR *before* genKantParse for
+#   exactly one reason: **"ordering AND/OR first means genKantParse emits the final shape the
+#   first time."** The same argument applies one link down the chain. Rung 2 **installs new
+#   rules**; the respell **changes the form every installed rule is emitted in**. Install
+#   first and rung 2's rules are emitted in a shape that is about to move — **generated text
+#   produced twice, and an oracle re-pinned for a reason that says nothing about
+#   correctness.** So: **respell, then rung 2.**
+#
+# ⚠ **SECOND ACTION — PHASE R RUNG 2**, unchanged in substance and no longer conditional on
+#   anything: **Family C, CHARACTER SET (4)** is the **RECORDED AND ACCEPTED** pick (SEQ 33)
+#   and **opens on that pick without re-litigating** — single-token, self-delimiting terms,
+#   no container work, where **Family A REFERENCE (5)** leans on rule-reference resolution
+#   the refusal census still calls a frontier. ⚠ **And that census reports the FIRST blocker,
+#   not the blocker SET** (H9's corollary), so *"Family A is nearly unblocked"* is **not a
+#   claim the census can support** — re-run the rules after any close before believing it.
+#   Denominator stays **47**; the metric moves only on installed, verified-green rules.
 #
 # ⚠ **WHAT LANDED (spec and full record: `docs/andOrRung.md`, whose §Status table is the
 #   LEDGER OF RECORD, part by part).** `AND`/`OR` take C++ semantics — **return 1 or 0
@@ -139,10 +168,8 @@
 #
 # ⚠⚠ **DRAWER AT SHUTDOWN — the menu, updated by SEQ 33. Two items DE-PARKED or NEW because
 #    of today, and they are marked so the next session reads a current menu:**
-#   · **Phase R rung 2** — the NEXT ACTION above. **Family C (4) is the RECORDED AND ACCEPTED
-#     pick** (SEQ 33) — it **opens on that pick without re-litigating it**. Family A (5) stays
-#     available if Tony overrides.
-#   · ⚠ **DE-PARKED TODAY — the GENERATOR RESPELL onto AND/OR.** Its prerequisite line
+#   · ⚠ **THE GENERATOR RESPELL — NOT IN THE DRAWER ANY MORE. It is the NEXT ACTION above,
+#     authorized and ruled.** Charter: **`docs/respellRung.md`**. Its prerequisite line
 #     (`docs/genKantParse.md` §2(c) row 2, *"emitted AND/OR short-circuit"*) **read ❌ THE WALL
 #     and now reads exactly today's seal.** Charter amendments applied at de-park, per its own
 #     provision: **(a)** §5 controls gain **`incant/andProbe` and `incant/orProbe` as KEPT
@@ -150,7 +177,10 @@
 #     **before the first regenerated rule fires**, or a chain defect and an operator defect are
 #     indistinguishable at the only moment anyone is looking; **(b)** ladder reference updated
 #     to **184 / 0**; **(c)** the charter **inherits** the truthiness ruling (SEQ 32) and the
-#     placement doctrine (§6a) as standing context. **Takes the next SEQ when Tony carries it.**
+#     placement doctrine (§6a) as standing context.
+#   · **Phase R rung 2** — the SECOND ACTION above, behind the respell for the freeze-once
+#     reason stated there. **Family C (4) is the RECORDED AND ACCEPTED pick** (SEQ 33) and
+#     **opens without re-litigating it**. Family A (5) stays available if Tony overrides.
 #   · ⚠ **NEW, NAMED, UNRULED — the BARE-`if` TRUTHINESS FORK.** `if <field>` and
 #     `<field> AND …` **disagree on a datumless node**: statement position reads
 #     absence-of-datum as **false**, operand position reads presence as **true**.

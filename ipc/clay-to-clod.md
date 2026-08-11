@@ -3,8 +3,8 @@
   Clay writes this file. Clod reads it, acts, then clears it.
   Clod's replies go in ipc/clod-to-clay.md  (never write here, Clod).
 -------------------------------------------------------------------
-SEQ:      45
-STATUS:   cleared        # fresh = parked/unread | working = picked up, in progress | cleared = done
+SEQ:      46
+STATUS:   fresh          # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-08-10  -  Clay (SEQ 40, 41 and 42, dictated in chat via Tony; transcribed by Clod)
 NUMBERING: ⚠ THE TWO COUNTERS HAVE DIVERGED. SEQ 40 and 41 were DICTATED as
           "SEQ 27" and "SEQ 28" -- Clay's chat-side thread numbering, which is
@@ -2652,4 +2652,73 @@ the right call and it was said plainly, which is the whole requirement.
   census this session corrected to 294-vs-~30.
 
   END SEQ 45
+===================================================================
+
+===================================================================
+  SEQ 46   --   CHARTER: GENERATOR RESPELL ONTO AND/OR.
+                §1 RULING GRANTED BY TONY. FIRING NEXT SESSION.
+  WRITTEN:     2026-08-11  -  Clay, via Tony; transcribed by Clod
+  STATUS:      fresh -- AUTHORIZED, NOT STARTED. Deferred to the next
+               session by Clod's recommendation and Tony's agreement.
+  PREREQUISITE: SATISFIED. The AND/OR rung SEALED clean -- ladder 184 /
+               exit 0, byte-agreement certified, rider filed.
+-------------------------------------------------------------------
+
+⚠ BODY TRANSCRIBED IN FULL TO docs/respellRung.md, and that file is the
+  working copy. Same reason docs/andOrRung.md exists and stated in its
+  section 0: a ruling whose only home is a thread is an unmeasured
+  citation waiting to be made. This entry records the CARRY and the
+  RULING; the charter's six sections live in the doc.
+
+THE RULING -- GRANTED, Tony, 2026-08-11, both clauses as put:
+  1. TEMPLATE AMENDMENT. docs/attributesTemplate.md's frozen section may
+     be edited to emit AND/OR chains. The edit is dated and the old form
+     stays legible in the doc's history.
+  2. NAMED WIDENING. The landed consumer respell (a7fcb34) was scoped
+     ALTERNATION-only. Generated-code use of AND/OR is a NEW population,
+     named as such; this charter IS the widening request and Tony's GO
+     IS the ruling that grants it. Nothing slips in unscoped.
+
+⚠ THE AUTHORIZATION CAME WITH A CAVEAT, KEPT VERBATIM BECAUSE IT IS A
+  STANDING INSTRUCTION ABOUT HOW TO RUN THIS RUNG: "Honestly not 100%
+  sure what I just authorized but authorizing anyway."
+  Clod's plain-language statement of what it authorizes is recorded in
+  docs/respellRung.md section 1 for the resurrection reader.
+
+CLOD'S TWO ADDITIONS, both accepted by Tony in the same exchange:
+
+  A. DEFERRED TO THE NEXT SESSION, and the reason is written into the
+     doc rather than left as drift. The rung's failure mode is QUIET --
+     section 3.3 regenerates EVERY installed rule through an amended
+     template, and section 6 requires the amended template be read
+     against the known-defect ledger BEFORE first emission. That is the
+     work that degrades late in a session (match the task's failure
+     loudness to the seat's mechanical state), and it was authorized at
+     the end of a full build campaign that had already produced one
+     mechanical slip.
+
+  B. ⚠ SECTION 3.0 ADDED -- MEASURE GM-13's LEAD BEFORE COMMITTING
+     BRACED TO THE EXHIBIT SLOT. Section 6 nominates Braced because
+     "first install went red on the goto structure". GM-13
+     (docs/grammarCorpus.md:268) confirms the RED and parks it, but
+     names its cause, verbatim, "LEAD, at the usual odds, UNMEASURED and
+     NOT HARDENED". So the charter's exhibit rests on a causal claim its
+     own entry declines to harden -- the MECHANISM-UNVERIFIED tag minted
+     the same morning, arriving on the very next charter, and the THIRD
+     citation this session to need re-measuring after the truthiness
+     table and the part-3 census. If the goto structure is not the
+     cause, the exhibit either stays red or GOES GREEN FOR AN UNRELATED
+     REASON AND IS READ AS PROOF. One before/after against
+     docs/emitted/braced-red-specimen.txt, which already exists.
+
+ORDERING, recorded in the seal: RESPELL BEFORE PHASE R RUNG 2, on this
+project's own precedent. docs/andOrRung.md's scheduling note put AND/OR
+before genKantParse because "ordering AND/OR first means genKantParse
+emits the final shape the first time". Same argument one link down: rung
+2 INSTALLS rules, the respell CHANGES THE FORM every installed rule is
+emitted in. Install first and rung 2's rules are emitted in a shape
+about to move -- generated text produced twice, and an oracle re-pinned
+for a reason that says nothing about correctness.
+
+  END SEQ 46
 ===================================================================
