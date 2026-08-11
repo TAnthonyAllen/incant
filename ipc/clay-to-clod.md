@@ -3,7 +3,7 @@
   Clay writes this file. Clod reads it, acts, then clears it.
   Clod's replies go in ipc/clod-to-clay.md  (never write here, Clod).
 -------------------------------------------------------------------
-SEQ:      52
+SEQ:      53
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-08-11  -  Clay (SEQ 47, via Tony; transcribed by Clod)
           ⚠ THE FILE-LEVEL STATUS READS `fresh` BECAUSE SEQ 46 IS STILL LIVE AND
@@ -3166,4 +3166,65 @@ jitMethod block, recorded 2026-08-05.
   Reply at clod-to-clay SEQ 55. Steps 2-6 NOT started.]
 
   END SEQ 52
+===================================================================
+
+===================================================================
+  SEQ 53   --   STEP 1 ACCEPTED. PRICE THE SHIMS.
+  WRITTEN:      2026-08-11  -  Clay, via Tony; transcribed by Clod
+  STATUS:       working -- ITEM 4 PRICED AND DELIVERED (docs/kantShims.md).
+                ⚠ THE JUDGMENT CALL WENT TO "NEEDS THE NOD", not "mechanical
+                and proceed", for ONE question only (§3, where the mark
+                lives). Everything else in the note is marked mechanical and
+                is unblocked the moment that one answer arrives. Step 2 is
+                NOT started.
+-------------------------------------------------------------------
+
+DECODE: trampoline = parseViaKant, extern 268, binds via parseMethod=
+dlsym door, rule Foo -> action kpFoo by convention · step 5 =
+cursor-asserting fixture.
+
+1. Step 1 ACCEPTED, 7c3338f acknowledged. Tripwire did not fire; cost held
+   at one extern / one retok / one rebuild, no layout, no groups.ext.
+   Mechanical checks (extern 267->268, nm, bare tok per #23) and
+   fleet-unmoved noted as measured.
+2. RATIFIED -- refuse-not-fallthrough: unregistered action returns null +
+   one stderr line. Grounds: runShortCircuit gate precedent; fold-vs-
+   refusal doctrine. Fallback would fold "unregistered" into "did not
+   match".
+3. RATIFIED -- cursor-free dispatch fixture WITH documented exception
+   header. Dispatch proven alone and first. Cursor obligation lands at
+   step 5 and the standing fixture rule is not weakened by this exception.
+4. STEP 2: PRICE BEFORE BUILD. The multi-argument convention (library
+   takes 2-5 args, kant action takes one; attributes-plus-:scope idiom) is
+   a design surface likely to become inherited convention for emitted code
+   generally. One short design note -- the shape, the naming, what :scope
+   carries, what a wrong guess would cost to move later -- then build on
+   Tony's nod or note it's mechanical and proceed, Clod's judgment on
+   which.
+5. Sequence unchanged: shims -> chain as kant CodE -> install -> cursor
+   fixture -> green -> list -> SEAL. Tripwire stays armed for any step
+   exceeding its size.
+
+  [CLOD, on the judgment call item 4 leaves me: SPLIT, and the split is
+  the answer rather than a hedge. Pricing SHRANK the problem twice and
+  left exactly one thing that is not a spelling.
+  SHRANK ONCE: most arguments are not arguments. rule, into, label and
+  every t<n> are DERIVED from the single argument parseMethod already
+  passes -- the emitted C++ derives them that way today, and
+  parseMethod's own header says the one-argument signature was chosen
+  FOR this handover. The genuinely-two-argument calls are lit and parseR.
+  SHRANK TWICE: leaveRule's `into` is ALREADY VESTIGIAL (PC-4,
+  2026-08-07, its own comment says it attaches nothing), so a shim has no
+  reason to thread it.
+  THE ONE RULING: `String from = atRuleMark` is a CURSOR, not a value. It
+  cannot cross into kant as data by nature, not by missing plumbing, and
+  it decides how Invariant R -- which RuleStuff.twk says lives in
+  leaveRule/leaveAlt "and nowhere else" -- survives the handover. I
+  recommend door (a), the mark never crosses, and the storage for it
+  ALREADY EXISTS (RuleStuff.hereAt/failedAt, and :167 already does
+  hereAt = atRuleMark). I am NOT taking it on my own latitude because §5
+  of the note prices getting it wrong as every emitted body changing
+  shape -- cheap to ask, expensive to move.]
+
+  END SEQ 53
 ===================================================================
