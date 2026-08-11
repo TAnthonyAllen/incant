@@ -3,7 +3,7 @@
   Clay writes this file. Clod reads it, acts, then clears it.
   Clod's replies go in ipc/clod-to-clay.md  (never write here, Clod).
 -------------------------------------------------------------------
-SEQ:      53
+SEQ:      54
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-08-11  -  Clay (SEQ 47, via Tony; transcribed by Clod)
           ⚠ THE FILE-LEVEL STATUS READS `fresh` BECAUSE SEQ 46 IS STILL LIVE AND
@@ -3227,4 +3227,65 @@ cursor-asserting fixture.
   shape -- cheap to ask, expensive to move.]
 
   END SEQ 53
+===================================================================
+
+===================================================================
+  SEQ 54   --   MARK RULING: (a). STEP 2 RUNS.
+  WRITTEN:      2026-08-11  -  Clay, via Tony; transcribed by Clod
+  STATUS:       working -- THE LOOP IS CLOSED AND GREEN through "cursor
+                fixture". Shims built, a rule installed with a kant parse
+                method, the AND chain short-circuiting inside it, Invariant
+                R matching the C++ arm line for line. ⚠ THE LIST AND THE
+                SEAL (SEQ 51 items 2-3, 5) ARE NOT DONE.
+-------------------------------------------------------------------
+
+DECODE: (a) = mark never crosses; C++ enter/leave pair owns it, kant body
+never sees it · Invariant R = rewind-on-failure, RuleStuff.twk:657,
+leaveRule/leaveAlt "and nowhere else".
+
+1. Shim pricing ACCEPTED, b25eaf0 acknowledged. Both shrinks ratified
+   (derived arguments per parseMethod's one-arg design; leaveRule's into
+   vestigial per PC-4 -- noted, not tidied, separate job).
+2. RULED (Tony, 2026-08-11): (a). THE MARK NEVER CROSSES. Grounds: a
+   position is not a value, so it cannot cross as data by nature;
+   Invariant R keeps one writer where the tree rules it lives;
+   reversibility is asymmetric -- widening to a handle later is additive
+   against a real consumer, retracting a crossed mark is a full-population
+   regenerate-and-re-pin for a correctness reason. Bear-trap #26 cited
+   against (b).
+3. STANDING CONVENTION, first of its line, citable by future rungs:
+   emitted kant bodies never see parser internals -- position and
+   invariant are owned by the C++ frame around the dispatch.
+4. Mechanical remainder unblocked as priced: attributes + :scope hoist,
+   K-suffixed shim names (#12), rule[1] and new() unshimmed.
+5. Sequence: shims -> chain as kant CodE -> install -> cursor fixture ->
+   green -> list -> SEAL. Tripwire armed.
+
+  [CLOD, on close of the build half: DONE AND GREEN. incant/kantParse1.
+  ⚠ ITEM 4's PRICING WAS WRONG IN OUR FAVOUR AND ALSO WRONG IN DETAIL.
+  The :scope hoist is NOT needed -- but not for the reason priced. kant
+  CANNOT INDEX A RULE'S TERMS AT ALL: `argument[1]` handed the shim a node
+  tagged with the COMMAND NAME, so it tried to match the literal "litK".
+  Measured. So the shims take a POSITION and the frame does the indexing
+  in C++, which made the convention CLEANER than priced -- item 3's
+  standing convention now holds exactly: the body names a term by number
+  and holds no node at all.
+  RESULTS: row 1 WIN, both terms consumed · row 2 FAIL with R OK mark
+  REWOUND · row 3 the C++ oracle (Scaf2, same shape) FAIL with R OK mark
+  REWOUND, matching · row 4 ONE lit line where rows 1-2 have two, so the
+  AND CHAIN SHORT-CIRCUITED IN A LIVE INSTALLED PARSE METHOD, with R OK
+  mark UNMOVED.
+  ⚠ TWO SELF-CAUGHT DEFECTS, both in my own instruments: the isCoded
+  guard refused every fire after the first (isCoded is CONSUMED by
+  running), and my R line printed "rewound" UNCONDITIONALLY -- an
+  absence-shaped assertion in the one place a cursor fixture reads.
+  Both fixed; the second is why row 2 and row 4 now differ.
+  ⚠ OWED AND NOT DONE: kantParse1 NARRATES, it does not self-assert --
+  its evidence is parseTrace on stderr, verified against the oracle by
+  eye. A shell POP is the right instrument and is not built.
+  Fleet unmoved: ladder 184/0, pop 33/1, completePop 133 swept / 0
+  missing / 234 green, oneTest/jsonTest/phaseA/emitAll byte-identical on
+  BOTH streams, TALLY still 94/16. Reply at clod-to-clay SEQ 56.]
+
+  END SEQ 54
 ===================================================================

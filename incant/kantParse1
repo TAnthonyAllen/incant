@@ -1,0 +1,91 @@
+/*****************************************************************************
+    kantParse1 -- LOOP CLOSURE, STEPS 2-5: A RULE THAT ACTUALLY PARSES, WITH
+    ITS METHOD WRITTEN IN KANT AND SPELLED AS AN AND CHAIN.
+    2026-08-11, SEQ 54.
+
+    THE RULE. ScafKB is `"["- "]"-` -- two noLabel literal terms, the smallest
+    shape that has a chain to short circuit and input to consume. Its parse
+    method is kant CodE, found by the trampoline's convention (rule ScafKB ->
+    action kpScafKB), and its body is one statement:
+
+        return litK(1) AND litK(2);
+
+    ⚠ THE ORACLE IS THE C++ ARM OF THE SAME SHAPE, and that is why this rule
+    is a pair of literals rather than something more interesting. Scaf2 is
+    `"{"- "}"-` and is bound to the EMITTED C++ parseScaf2. So the two arms
+    parse the same shape, fail in the same place, and their Invariant R
+    reports can be compared line for line. A fixture that only asserted the
+    kant arm's verdict would be asserting against nothing.
+
+    ⚠⚠ THIS IS THE CURSOR-ASSERTING FIXTURE the standing rule (SEQ 50 item 3)
+    requires, and the assertion is on the FAILING row, not the passing one.
+    Row 2 feeds `[` alone: the first term matches and CONSUMES, the second
+    fails, the chain short circuits, and the frame must put the mark back. A
+    verdict-only check passes whether or not the mark comes home -- which is
+    exactly the eager-|| failure kantRuleS measured, where both spellings
+    returned SUCCESS and only the cursor told them apart. The mark is
+    C++-owned by Tony's 2026-08-11 ruling, so the observable is leaveRule's
+    own R line, printed by the frame in the same words, and the assertion is
+    that the KANT arm and the C++ arm say the same thing.
+
+    WHAT EACH ROW IS FOR:
+      1  ScafKB '[]'   both terms match          -> WIN, input consumed
+      2  ScafKB '['    second term fails         -> FAIL, R OK mark rewound
+      3  Scaf2  '{'    THE ORACLE, C++ arm       -> FAIL, R OK mark rewound
+      4  ScafKB 'x'    FIRST term fails          -> FAIL, nothing consumed,
+                                                    so the mark was never moved
+
+    ⚠ ROWS 2 AND 4 ARE A PAIR AND NEITHER IS REDUNDANT. Row 4's first term
+    never advances, so a rewind there is free and proves nothing; row 2 is the
+    one with ground to give back. leaveRule's own comment makes the same
+    distinction ("whether the rewind had ground to give back"), and a fixture
+    carrying only row 4 would report R OK on a frame that rewound nothing.
+*****************************************************************************/
+Start();
+
+registry(cOMMANDs);
+define parseMethod immediateAction=parseRuleMethod noPrint; ;
+registry(cOMMANDs);
+define parseTerms immediateAction=parseTermCount noPrint; ;
+registry(cOMMANDs);
+define traceParse immediateAction=traceParse; ;
+registry(cOMMANDs);
+define litK immediateAction=litK; ;
+registry(cOMMANDs);
+define parseRK immediateAction=parseRK; ;
+
+/*  THE KANT PARSE METHOD. One statement. The AND chain is SEQ 50's ruled
+    spelling, and it is sound here for the reason the respell charter gives:
+    short circuit stops at the first failed term, and the mark restore lives
+    OUTSIDE the terms in the frame, so stopping early cannot strand it.  */
+register(KantParse1);
+define
+    kpScafKB code={
+        return litK(1) AND litK(2);
+        };
+    ;
+
+register(Ladder);
+define
+    ScafKB isRule "["- "]"- parseTerms=2 parseMethod=parseViaKant;
+    Scaf2  isRule "{"- "}"- parseTerms=2 parseMethod=parseScaf2;
+    ;
+
+search reset stack Grokking KantParse1 Ladder list;
+
+traceParse('on');
+
+print "=== ROW 1: ScafKB '[]' -- both terms match, kant arm ===":;
+ScafKB('[]');
+
+print "=== ROW 2: ScafKB '[' -- second term FAILS, mark must come home ===":;
+ScafKB('[');
+
+print "=== ROW 3: Scaf2 '{' -- THE ORACLE, same shape on the C++ arm ===":;
+Scaf2('{');
+
+print "=== ROW 4: ScafKB 'x' -- FIRST term fails, nothing was consumed ===":;
+ScafKB('x');
+
+print "KANTPARSE1 SENTINEL -- run reached the end":;
+stop();

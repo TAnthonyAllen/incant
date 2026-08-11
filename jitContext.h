@@ -216,6 +216,24 @@ inline llvm::Value *gJitResultNode = nullptr;
 class GroupItem;
 inline std::vector<GroupItem*> gJitSeeded;
 
+// gKantLabel / gKantFrom — THE KANT PARSE FRAME (SEQ 54, 2026-08-11). Nothing to
+// do with the JIT; they are here for the same retok property gParseRecordArmed is,
+// and that reason is worth not re-learning: a file-scope `-% %-` passthrough in a
+// .rtn is RELOCATED BY TOK TO THE END of the generated .mm, so a static declared
+// there is emitted AFTER its users and every use is "undeclared identifier". A bare
+// tok-level declaration at file scope is simply dropped. Measured both ways on
+// 2026-08-11; this header is hand-written and not tok-processed, so it survives.
+//
+// WHAT THEY ARE. Tony ruled 2026-08-11 that THE MARK NEVER CROSSES into kant: a
+// position is not a value, so it cannot travel as kant data at all, and keeping it
+// here keeps Invariant R with one writer (RuleStuff.twk:657 — leaveRule/leaveAlt
+// "and nowhere else"). parseViaKant saves both around the body and restores them
+// after, so the C++ call stack IS the frame stack and nested rules cost nothing.
+// The kant body names a term; the frame owns position and destination.
+static GroupItem *gKantLabel = 0;
+static char      *gKantFrom  = 0;
+static GroupItem *gKantRule  = 0;
+
 // THE FRAME (Increment 1, 2026-08-01). The action's own field list IS the frame
 // schema -- (isArgument || isLocal) && !noPrint -- which is not a new invention:
 // it is the exact predicate saveLocalFields/restoreLocalFields have walked in the

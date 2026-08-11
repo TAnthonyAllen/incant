@@ -6937,6 +6937,61 @@ GroupItem 	*notifyList = 0;
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
+/*******************************************************************************
+    litK / parseRK — THE KANT-CALLABLE SHIMS. SEQ 54, step 2.
+
+    ⚠ BOTH TAKE A TERM POSITION -- ONE ARGUMENT -- AND THE :scope MULTI-ARG
+    IDIOM PRICED IN docs/kantShims.md §4 IS NOT NEEDED AT ALL. Measurements,
+    not concessions:
+
+      A KANT BODY CANNOT INDEX A RULE'S TERMS. `argument[1]` in an action body
+      does not reach term 1; measured 2026-08-11, the shim received a node
+      whose tag was the COMMAND NAME and dutifully tried to match the literal
+      "litK". Bear-trap #26's family -- a plausible string where a node was
+      wanted. So the position is passed as a number and the FRAME does the
+      indexing, in C++, where `rule[1]` is `rule->get(1)` and works.
+      ⚠ This made the convention CLEANER rather than costing something: the
+      body now names a term BY POSITION and holds no node at all.
+
+      lit(field,str) uses `field` ONLY for its trace line -- the match runs off
+      `str`. And for a noLabel literal term the TERM'S OWN TAG *IS* the literal:
+      the 2026-08-05 narration reads `lit " [ " at term [`. So litK derives the
+      literal from the same place the C++ emitter bakes it from, and a second
+      argument would only be a chance for the two to disagree.
+
+      parseR(term,into)'s `into` is the label to attach under, which door (a)
+      makes FRAME-OWNED. The body says what to parse; the frame says where it
+      goes.
+
+    So the convention this establishes is stronger than "one argument fits":
+    A KANT BODY NAMES A TERM AND NOTHING ELSE. Everything else -- position,
+    label, invariant -- belongs to the frame, which is SEQ 54 item 3's standing
+    convention expressed as a signature.
+
+    ⚠ RETURN CONTRACT IS truthOf's, deliberately: non-null for success, null
+    for failure, so an AND chain short-circuits on exactly the same contract
+    both engines already share. No new notion of truth enters with the parser.
+*******************************************************************************/
+extern "C" GroupItem *litK(GroupItem *idx)
+{
+GroupItem 	*term = 0;
+int 		n = 0;
+	if ( !idx )
+		return 0;
+	n = ::atoi(idx->getText());
+	
+	term = gKantRule ? gKantRule->get(n) : 0;
+	
+	if ( !term )
+		{
+		::fprintf(stderr,"litK: no term %s in the current kant parse frame\n",idx->getText());
+		return 0;
+		}
+	if ( ::lit(term,term->groupBody->tag) )
+		return GroupControl::groupController->groupRules->trueResult;
+	return 0;
+}
+
 /***************************************************************************
 	The incant load command, a noPrint command designed used as an
     attribute invokes loadDirectory to read in a directory and for every file
@@ -8907,6 +8962,38 @@ extern "C" GroupItem *opUnaryMinus(GroupItem *result)
 	return GroupControl::groupController->groupRules->tempField;
 }
 
+extern "C" GroupItem *parseRK(GroupItem *idx)
+{
+GroupItem 	*got = 0;
+GroupItem 	*into = 0;
+GroupItem 	*term = 0;
+int 		n = 0;
+	if ( !idx )
+		return 0;
+	n = ::atoi(idx->getText());
+	/*  Passthrough for the same reason as the frame above -- tok cannot see a
+	hand-declared global. Both locals are referenced OUTSIDE the block as
+	well, which is what keeps bear-trap #13 from pruning them.  */
+	
+	into = gKantLabel;
+	term = gKantRule ? gKantRule->get(n) : 0;
+	
+	if ( !into )
+		{
+		::fprintf(stderr,"parseRK: called outside a kant parse frame -- no label to attach under\n");
+		return 0;
+		}
+	if ( !term )
+		{
+		::fprintf(stderr,"parseRK: no term %s in the current kant parse frame\n",idx->getText());
+		return 0;
+		}
+	got = ::parseR(term,into);
+	if ( got )
+		return GroupControl::groupController->groupRules->trueResult;
+	return 0;
+}
+
 extern "C" GroupItem *parseRuleMethod(GroupItem *input)
 {
 char 		*name = input->getText();
@@ -9141,7 +9228,11 @@ RuleStuff 	*stuff = 0;
 extern "C" GroupItem *parseViaKant(GroupItem *rule)
 {
 GroupItem 	*action = 0;
+GroupItem 	*label = 0;
+GroupItem 	*result = 0;
 char 		*want = 0;
+char 		*from = 0;
+char 		*at = 0;
 	want = ::concat(2,"kp",rule->groupBody->tag);
 	action = GroupControl::groupController->locate(want);
 	if ( !action )
@@ -9149,14 +9240,88 @@ char 		*want = 0;
 		::fprintf(stderr,"parseViaKant: no kant parse action named %s for rule %s\n",want,rule->groupBody->tag);
 		return 0;
 		}
-	if ( !isCoded(action->groupBody->flags.actionType) )
+	/*  ⚠ THE GUARD IS NOT `isCoded`, AND THE FIRST CUT'S WAS. isCoded is
+	CONSUMED BY RUNNING -- processAction compiles the body to a cached
+	BlocK and clears it -- so an isCoded test passes on fire 1 and REFUSES
+	every fire after, which is exactly what the first run of
+	incant/kantParse1 measured (row 1 dispatched, rows 2 and 4 reported
+	"carries no code"). Bear-trap #25 records the same fact from the
+	testing() side. A rule parses many times, so the guard has to hold
+	across fires: an action is runnable if it still carries source OR
+	already carries the compiled BlocK.  */
+	if ( !isCoded(action->groupBody->flags.actionType) && !action->getAttribute("BlocK") )
 		{
-		::fprintf(stderr,"parseViaKant: %s exists but carries no code\n",want);
+		::fprintf(stderr,"parseViaKant: %s carries neither code nor a compiled BlocK\n",want);
 		return 0;
 		}
 	if ( GroupControl::groupController->groupRules->parseTrace )
 		::fprintf(stderr,"    parseViaKant %s -> %s\n",rule->groupBody->tag,want);
-	return ::processAction(action);
+	/*  THE FRAME. Ruled 2026-08-11 (SEQ 54, door (a)): THE MARK NEVER CROSSES.
+	A position is not a value, so it cannot travel as kant data at all; and
+	keeping it here keeps Invariant R with one writer, which RuleStuff.twk
+	says lives in leaveRule/leaveAlt and nowhere else. The kant body says
+	WHAT to match; this frame owns WHERE the input is and WHERE results go.
+	
+	SAVE-AND-RESTORE IN LOCALS, NOT A GLOBAL ASSIGNMENT, because this is
+	re-entrant BY CONSTRUCTION: a kant body calls parseRK, which calls
+	parse(), which can fork straight back into this function for a nested
+	rule. The C++ call stack is the frame stack; nothing else needs to be.  */
+	from = GroupControl::groupController->groupRules->atRuleMark;
+	label = new GroupItem(rule->groupBody->tag);
+	/*  ⚠ THE SAVE/RESTORE IS PASSTHROUGH AND IT HAS TO BE. A hand-declared C++
+	global in jitContext.h is invisible to tok's field resolution -- it
+	emits `ERROR FieldBody: could not find gKantLabel` straight into the
+	.mm, which fails at the C++ compile and names the identifier but not
+	the reason. gParseRecordArmed is the precedent and every one of ITS
+	uses is inside a passthrough too. Measured 2026-08-11.
+	The prior* locals are declared HERE in raw C++ rather than as tok
+	locals, because a tok local referenced ONLY inside passthrough is
+	pruned as unused (bear-trap #13) and the block would then reference
+	an undeclared identifier.  */
+	
+	GroupItem  *priorLabel = gKantLabel;
+	char       *priorFrom  = gKantFrom;
+	GroupItem  *priorRule  = gKantRule;
+	gKantLabel = label;
+	gKantFrom  = from;
+	gKantRule  = rule;
+	
+	result = ::runAction(rule,action);
+	
+	gKantLabel = priorLabel;
+	gKantFrom  = priorFrom;
+	gKantRule  = priorRule;
+	
+	/*  leaveRule's job, done here because this IS the generated arm's exit for
+	a kant body. On success return the label and let parse() attach it
+	(PC-4: attach-under happens there, once, for every emitted method). On
+	failure rewind and return null -- and NO attach, exactly as the C++
+	twin. The trace line mirrors leaveRule's word for word so one grep
+	reads both arms.  */
+	if ( ::truthOf(result) )
+		{
+		if ( GroupControl::groupController->groupRules->parseTrace )
+			::fprintf(stderr,"  WIN  %s  (kant)\n",rule->groupBody->tag);
+		return label;
+		}
+	/*  ⚠ THE R LINE DISCRIMINATES, AND THE FIRST CUT'S DID NOT. It printed
+	"mark rewound" unconditionally, which is an absence-shaped assertion
+	wearing a value's clothes: it says R OK whether or not the rewind had
+	anything to give back, so the one thing a cursor fixture wants to know
+	is exactly what it cannot report. leaveRule's own line compares the
+	mark at exit against the entry mark and this mirrors it word for word,
+	so the kant arm and the C++ arm are diffable rather than merely
+	similar. Caught by writing the fixture that depends on it (H4).  */
+	at = GroupControl::groupController->groupRules->atRuleMark;
+	GroupControl::groupController->groupRules->atRuleMark = from;
+	if ( GroupControl::groupController->groupRules->parseTrace )
+		{
+		::fprintf(stderr,"  FAIL %s  (kant)\n",rule->groupBody->tag);
+		if ( at == from )
+			::fprintf(stderr,"       R OK   mark unmoved\n");
+		else	::fprintf(stderr,"       R OK   mark rewound\n");
+		}
+	return 0;
 }
 
 /*******************************************************************************
