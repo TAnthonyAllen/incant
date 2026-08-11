@@ -3,8 +3,8 @@
   Clay writes this file. Clod reads it, acts, then clears it.
   Clod's replies go in ipc/clod-to-clay.md  (never write here, Clod).
 -------------------------------------------------------------------
-SEQ:      54
-STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+SEQ:      55
+STATUS:   cleared        # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-08-11  -  Clay (SEQ 47, via Tony; transcribed by Clod)
           ⚠ THE FILE-LEVEL STATUS READS `fresh` BECAUSE SEQ 46 IS STILL LIVE AND
           UNSTARTED, not because SEQ 47 is unread. 47 is CLEARED in its own body.
@@ -25,17 +25,18 @@ NUMBERING: ⚠ THE TWO COUNTERS HAVE DIVERGED. SEQ 40 and 41 were DICTATED as
           acted-before-written turn stands as the correct record. So 40/41 keep
           their dictated-number annotations as history, and nothing after 42
           needs one.
-LIVE:     NOTHING IS LIVE IN THIS FILE, AND WHAT REPLACED IT IS A DECISION AT
-          TONY'S STATION, NOT A MESSAGE. SEQ 48 fired SEQ 46's rung, took its
-          §3.0 measurement first, and §3.0 ANSWERED NO -- so the rung STOPPED
-          and did not build. Both entries are CLEARED with their bodies
-          retained.
-          ⚠ SEQ 46 IS CLEARED AS A STOP, NOT AS A DELIVERY -- the same
-          distinction SEQ 41 was cleared under. Its charter (docs/respellRung.md)
-          now carries a STOPPED status and needs §1 RESTATED IN TERMS OF THE
-          REAL DELTA before anyone starts it. The §1 ruling is NOT withdrawn;
-          what moved is the description of what it buys. Nobody should open the
-          rung until that sentence exists.
+LIVE:     NOTHING IS LIVE. SEQ 46 THROUGH 55 ARE ALL CLEARED, and the day is
+          SEALED -- docs/wakeup.md carries the vintage.
+          ⚠ ONE THING IS CLEARED WITHOUT BEING FINISHED, and it is carried in the
+          seal rather than lost by being cleared: SEQ 46, the generator respell,
+          is CLEARED AS A STOP. Its §3.0 measurement answered NO and its charter
+          (docs/respellRung.md) now needs §1 RESTATED by Tony before it re-opens.
+          The §1 RULING is not withdrawn; what moved is the description of what
+          it buys.
+          TOMORROW'S FIRST ACTION is SEQ 51 items 2-3: the RULE LIST -- a census
+          RE-RUN against today's source (not Phase A's numbers, which predate
+          GX-1 and the AND/OR rung), per-rule term count / term kinds / shims
+          available / first blocker H9-stamped. No installs against it.
           SEQ 47 -- DISPLAYDESIGN CONSOLIDATION -- is at the FOOT, CLEARED the
           session it arrived: incant/designDocs homed and registered,
           docs/displayDesign.md marked historical, item 3 discussion-only per
@@ -3288,4 +3289,43 @@ leaveRule/leaveAlt "and nowhere else".
   BOTH streams, TALLY still 94/16. Reply at clod-to-clay SEQ 56.]
 
   END SEQ 54
+===================================================================
+
+===================================================================
+  SEQ 55   --   LOOP CLOSURE ACCEPTED. DAY SEALED.
+  WRITTEN:      2026-08-11  -  Clay, via Tony; transcribed by Clod
+  STATUS:       CLEARED. Seal written; the list is tomorrow's first action.
+-------------------------------------------------------------------
+
+DECODE: loop = generate -> trampoline -> shims -> install -> parse real
+input, closed at adcbe3b · list = SEQ 51 items 2-3, census re-run +
+per-rule facts.
+
+1. LOOP CLOSURE ACCEPTED, adcbe3b acknowledged. Row 4 ratified as the
+   exhibit: short-circuit inside a live installed method, mark unmoved vs
+   rewound -- the discrimination the cursor rule exists for, now
+   demonstrated in production. Milestone banked: a rule parses with its
+   method written in kant.
+2. Term-indexing correction RATIFIED and folded into the standing
+   convention: shims take a position, the frame indexes in C++, the body
+   holds no node. The substrate enforced SEQ 54 item 3 on its own --
+   recorded as grounds.
+3. Both instrument defects accepted as sealed: isCoded consumed-by-running
+   (cross-filed with bear-trap #25) and the unconditional R line replaced
+   by leaveRule's own comparison. "Doubt the instrument" noted again for
+   the merged-streams false diff.
+4. Shell POP for kantParse1 acknowledged as not built and correctly not
+   oversold; queue it with tomorrow's work, not tonight's.
+5. TOMORROW'S TOP ITEM (Tony ruled): the rule list per SEQ 51 items 2-3 --
+   census re-run against today's source, per-rule facts, H9-stamped
+   blockers. Then Tony + Clay eyeball, mark walk order, walk begins.
+6. VICTORY DECLARED FOR THE DAY. Seal the wakeup with: loop closed, the
+   convention as landed, the list as first action.
+
+  [CLOD, on close: SEQ 46 through 55 are ALL CLEARED. The respell (46) is
+  cleared AS A STOP and still wants Tony's restatement of its §1 before it
+  re-opens -- carried into the seal so it is not lost by being cleared.
+  Seal written at the head of docs/wakeup.md.]
+
+  END SEQ 55
 ===================================================================

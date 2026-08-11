@@ -1,4 +1,157 @@
-# ⚠⚠ AMENDED 2026-08-11 LATER THE SAME DAY — THE RESPELL FIRED, TOOK §3.0 FIRST, AND **STOPPED
+# ⚠⚠⚠ SEALED 2026-08-11 EVENING — SHUTDOWN SEAL (CURRENT VINTAGE). READ THIS FIRST.
+# **THE LOOP IS CLOSED. A RULE PARSES REAL INPUT WITH ITS PARSE METHOD WRITTEN IN KANT,
+# ONE STATEMENT, SPELLED AS AN `AND` CHAIN.** Nine dispatches (SEQ 47–55), seven commits,
+# three rebuilds, and the fleet finishes byte-identical to where it started.
+#
+# ⚠⚠ NEXT ACTION — **THE RULE LIST** (SEQ 51 items 2–3, ruled by Tony as tomorrow's top
+#    item). A census **RE-RUN against today's source** — ⚠ **NOT Phase A's numbers, which
+#    predate GX-1 and the AND/OR rung.** Per rule: **term count · term kinds** (literal /
+#    charset / reference / container) **· shims available yes-no · first blocker if refused,
+#    H9-STAMPED.** ⚠ **NO INSTALLS AGAINST IT.** Tony + Clay eyeball it, mark walk order
+#    simplest-first, and the walk then runs **until it stumbles into body-and-fender work**;
+#    stumbles get banked and filed, fix-or-skip per stumble.
+#
+# ⚠ **WHAT CLOSED, IN ONE PARAGRAPH.** `parse()` forks on `rStuff.parseMethod`, a **C++
+#   function pointer**; a kant method is a GroupItem carrying CodE/BlocK. **`parseViaKant`
+#   (`genParse.rtn`) stands in that slot and forwards** — the cheap door, versus widening the
+#   pointer's signature, which `RuleStuff.twk` ruled a **LAYOUT change** on 2026-08-05. It
+#   binds through the **existing** `parseMethod=` dlsym door, finds its action **by
+#   convention** (rule `Foo` → action `kpFoo`), and **owns the frame**: mark, minted label and
+#   rule saved around the body and restored after, so **the C++ call stack IS the frame
+#   stack.** Shims `litK`/`parseRK` do the matching. `incant/kantParse1`:
+#   `ScafKB isRule "["- "]"-`, method `return litK(1) AND litK(2);`
+#
+#   | row | lit lines | verdict | mark |
+#   |---|---|---|---|
+#   | `ScafKB '[]'` kant | 2 | **WIN** | consumed |
+#   | `ScafKB '['` kant | 2 | FAIL | **rewound** |
+#   | `Scaf2 '{'` **C++ ORACLE, same shape** | 2 | FAIL | **rewound — the arms agree** |
+#   | `ScafKB 'x'` kant | **1** | FAIL | **unmoved** |
+#
+#   ⚠ **ROW 4 IS THE EXHIBIT AND IT PAYS TWICE:** one lit line where the others have two, so
+#   **the AND chain short-circuited inside a LIVE INSTALLED PARSE METHOD**; and **`unmoved`
+#   against row 2's `rewound`**, which is the discrimination the cursor rule exists for.
+#
+# ⚠⚠ **THE CONVENTION AS LANDED — STANDING, first of its line, citable by future rungs
+#   (Tony, SEQ 54 item 3, ratified SEQ 55 item 2):**
+#
+#     **AN EMITTED KANT BODY NEVER SEES PARSER INTERNALS. It names a term BY POSITION and
+#     holds no node at all; POSITION, LABEL and INVARIANT belong to the C++ frame around the
+#     dispatch.**
+#
+#   ⚠ **AND THE SUBSTRATE ENFORCED IT ON ITS OWN, which is why it is grounds and not taste.**
+#   The shims were priced to take *nodes* via the `:scope` multi-arg idiom. **kant CANNOT
+#   INDEX A RULE'S TERMS:** `argument[1]` handed the shim a node tagged with the **command
+#   name**, which dutifully tried to match the literal `"litK"` — bear-trap #26's family, a
+#   plausible string where a node was wanted. So the shims take a **position**, the frame
+#   indexes in C++ (`rule[1]` → `rule->get(1)`), and **the convention came out cleaner than
+#   priced.** The `:scope` hoist was never needed.
+#
+# ⚠ **THE MARK RULING (Tony, 2026-08-11): THE MARK NEVER CROSSES.** `String from = atRuleMark`
+#   is a **position, not a value** — it cannot travel as kant data *by nature*, not by missing
+#   plumbing — and keeping it C++-side leaves **Invariant R with one writer**, where
+#   `RuleStuff.twk:657` rules it lives. Reversibility is asymmetric: widening to a handle later
+#   is additive; retracting a crossed mark is a full-population regenerate-and-re-pin **for a
+#   correctness reason.** Full pricing: **`docs/kantShims.md`**.
+#
+# ⚠⚠ **FOUR FINDINGS THAT OUTLIVE THE DAY.**
+#   1. ⚠ **THE CURSOR, NOT THE VERDICT, IS THE INSTRUMENT — and it is now standing doctrine
+#      for parse fixtures (SEQ 50 item 3).** `incant/kantRuleS` is `kantRuleA` with the
+#      alternation spelled `||`: it ends at **cursor 4 where the word form ends at 3**, a token
+#      eaten by an option that did not match — **and BOTH spellings return SUCCESS on that
+#      row.** A harness asserting the rule's verdict would have certified the eager one.
+#   2. ⚠ **A DEFECTIVE CITATION DOES NOT MERELY STATE SOMETHING FALSE — IT GENERATES
+#      WELL-REASONED QUESTIONS NOBODY NEEDED TO ASK.** The respell charter nominated `Braced`
+#      as its flagship exhibit citing GM-13's *"LEAD … UNMEASURED"* line. **That lead had been
+#      dead since the day after it was written** (GM-16, 2026-08-05), seventy lines below it in
+#      the same file, and its actual cause was **repaired 2026-08-06** (GX-1). ⚠ **And the
+#      failure §3.0 was written to prevent was LIVE: had Braced been installed as the exhibit
+#      and come back green, GX-1 — landed five days earlier for an unrelated defect — would
+#      have been read as the respell's proof.** Forward pointer now at GM-13.
+#   3. ⚠ **PARSE-GREEN IS NOT SHAPE-CORRECT.** The canonical `DesignDocs` text carried **three
+#      missing terminating semicolons**, each NESTING what followed it. Exit 0, sentinel
+#      printed, stderr empty — and `EmissionPrinciple` governing layout, targets and events.
+#      **A registry with no verb over it yet is exactly where that survives**, and its first
+#      reader would have been a consolidation minion.
+#   4. ⚠ **`&&` OVER CALLS DOES NOT ANSWER WRONGLY — IT KILLS THE PARSE**, exit 139 with ZERO
+#      bytes, before the `Search list:` line, so it reads as a broken binary. Bisected one
+#      operator at a time. ⚠ **This moves the symbols repair: KE-5's believed one-liner
+#      (`'&&' operateMethod=opAND`) would give a right truth table ON FIELDS and leave it
+#      EAGER — finding 1's over-consumption. THE SYMBOLS RUNG AIMS AT TIER 3, NOT AT
+#      `operateMethod`.** Both KEs amended; neither run.
+#
+# ⚠ **TWO INSTRUMENT DEFECTS CAUGHT IN MY OWN WORK, sealed because the class is the point:**
+#   · **the guard was `if !action.isCoded`, and `isCoded` is CONSUMED BY RUNNING** —
+#     `processAction` compiles to a cached BlocK and clears it — so it passed on fire 1 and
+#     **refused every fire after**, and a rule parses many times. Cross-filed with bear-trap
+#     #25, which records the same fact from `testing()`'s side.
+#   · **the frame's R line printed `"mark rewound"` UNCONDITIONALLY** — an absence-shaped
+#     assertion sitting in the exact place a cursor fixture reads. It now mirrors `leaveRule`'s
+#     own comparison, **which is why rows 2 and 4 differ at all** and why the kant arm is
+#     *diffable* against the C++ arm rather than merely similar.
+#   · ⚠ **AND A THIRD, IN THE MEASUREMENT RATHER THAN THE CODE:** a first fleet comparison
+#     reported three of four fixtures as DIFFERING. **The baseline had been captured with
+#     `2>&1` merged and the new run separated the streams.** Compared like for like, all four
+#     are byte-identical. **Doubt the instrument.**
+#
+# ⚠ **THE RESPELL IS CLEARED AS A *STOP*, NOT A DELIVERY — carried here so it is not lost by
+#   being cleared.** §3.0 answered **NO**: the goto scaffolding is not the cause of the Braced
+#   red, and ⚠ **NO EMITTED METHOD HAS EVER CONTAINED A GOTO** — regenerated today,
+#   `parseBraced` is already an `&&` chain, byte-identical to the 08-05 banking. **So §3.5's
+#   promised exhibit ("goto out, chains in") is not producible from ANY rule**, and §1's
+#   premise is falsified by the emitted text. **The §1 RULING is NOT withdrawn; what moved is
+#   the description of what it buys.** ⚠ **`docs/respellRung.md` needs §1 RESTATED by Tony
+#   before the rung re-opens.** With §1 restated, §2's third bullet needs re-deciding — that
+#   failure shape ceased to be expressible via **GX-1**, not via anything the rung does.
+#
+# ⚠ **OWED AND NOT DONE, so nothing here reads as finished that is not:**
+#   · **The RULE LIST** — tomorrow's first action, above.
+#   · **A SHELL POP FOR `incant/kantParse1`** — it **NARRATES, it does not self-assert.** Its
+#     evidence is `parseTrace` on stderr, read against the C++ oracle **by eye**. The right
+#     instrument greps the four rows and takes `$?` from the binary. **Queued with tomorrow,
+#     explicitly not tonight** (SEQ 55 item 4).
+#   · **Phase R rung 2 (Family C)** — RECON ONLY, banked in `docs/gapBPhaseR.md`, **not built**.
+#     ⚠ Its two measurements are **RATIFIED AS PRE-REGISTERED PREDICTIONS** (SEQ 53 item 4):
+#     **the rule-level `isSET` site holds SIX rules, not four** (`BrancheS`, a bin, and `PoweR`,
+#     Family D, share it — so `if rule.isSET` is the wrong test **and would pass every positive
+#     row while being wrong**), and **expected movement is 94→90 refusals / 16→20 plannable —
+#     FOUR, not thirteen.** ⚠ **A rung 2 close moving more than four has widened scope.**
+#     Family C needs a NEW plan kind; rung 1's cheapness is **not** inherited.
+#   · **`leaveRule`'s `into` is VESTIGIAL** (PC-4 removed its attach; its own comment says so).
+#     **Noted, deliberately NOT tidied** — a separate job, not a mid-rung edit.
+#   · **KE-5 / KE-6** — amended today, **neither run**. **The symbols rung aims at tier 3.**
+#   · **KE-4** · **K6c** · **the vestigial `recursive` flag** · **`BLOCKED KANT-B1`** · **the
+#     bare-`if` truthiness fork** — all untouched today and all still standing.
+#
+# ⚠ **ALSO LANDED (SEQ 47): the `DesignDocs` registry is homed at `incant/designDocs`** —
+#   design documents as kant data, registered in `incant/setup`'s `fILEs` — **and
+#   `docs/displayDesign.md` is HISTORICAL**, marked with a supersession banner rather than
+#   deleted. Forward-looking pointers repointed (`wakeup`'s drawer entry, `note-to-clay-style`);
+#   **provenances left standing.** ⚠ **The HTML event fence MOVED at that review** — the target
+#   now handles simple events and reports back to kant — so *"static only, no JS"* is no longer
+#   the scope. ⚠ `IncantForms/WorkingOn/incant++` still carries the source text and is **held
+#   back deliberately**: Tony's offline status note, his call (H8).
+#
+# ⚠ THE FLEET AT SEAL, after three rebuilds: ladder **184 / exit 0** · pop **33 green / 1
+#   parked** · **completePop 133 swept / 0 MISSING SENTINELS / 234 green** (was 129/0/226 —
+#   +4 fixtures, +8 checks, and the zero held) · decodePop 22 · recordPop 48 · gapB 22 ·
+#   formsPop 14 · containerPop 11 · printPop 9 · mixed 7 · tree exit 0 ·
+#   **oneTest / jsonTest / phaseA / emitAll BYTE-IDENTICAL ON BOTH STREAMS** ·
+#   **`TALLY` still 94 refusals / 16 plannable** — the trampoline and the shims add no
+#   plannability, which is correct. Commits **`68e2f69`** (DesignDocs) · **`7e1c1e1`** (§3.0
+#   stop) · **`6cf0000`** (the chain on a rule shape) · **`086a151`** (recon + cost
+#   correction) · **`7c3338f`** (the trampoline) · **`b25eaf0`** (shims priced) ·
+#   **`adcbe3b`** (the loop closed). Working tree carries only Tony's own
+#   `IncantForms/WorkingOn/incant++`.
+#
+# ⚠ **NEW FILES, all swept and all sentinelled:** `incant/designDocs` (registry, not swept —
+#   no `Start()`, correctly) · `incant/kantRuleA` (the AND/OR rule shape) · `incant/kantRuleS`
+#   (its H7 eager control) · `incant/kantLoop` (trampoline dispatch + refusal control) ·
+#   `incant/kantParse1` (the closed loop) · **`docs/kantShims.md`** (the pricing).
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# ⚠⚠ AMENDED 2026-08-11 MIDDAY (SUPERSEDED BY THE SEAL ABOVE, WHICH REPORTS ITS CONSEQUENCES) — THE RESPELL FIRED, TOOK §3.0 FIRST, AND **STOPPED
 # ON THE ANSWER**. READ THIS AMENDMENT BEFORE THE SEAL BELOW IT, WHOSE "NEXT ACTION" IT MOVES.
 #
 # ⚠⚠ **§3.0 ANSWERED NO. THE GOTO SCAFFOLDING IS NOT THE CAUSE OF THE BRACED RED — AND THE

@@ -3,9 +3,16 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      55
+SEQ:      56
 STATUS:   fresh          # fresh = parked/unread | working = picked up, in progress | cleared = done
-WRITTEN:  2026-08-11  -  Clod  (SEQ 55 APPENDED at the FOOT -- ⚠ THE SEAM IS CROSSED. The
+WRITTEN:  2026-08-11  -  Clod  (SEQ 56 APPENDED at the FOOT -- SEALED. THE LOOP IS CLOSED: a
+          rule parses real input with its parse method written in KANT, one statement, spelled
+          as an AND chain, short-circuiting inside a live installed method with Invariant R
+          matching the C++ arm line for line. SEQ 46-55 all cleared. ⚠ SEQ 46 is cleared AS A
+          STOP and wants §1 RESTATED by Tony before it re-opens -- carried in the seal so it is
+          not lost by being cleared. Tomorrow's first action is the RULE LIST. Fleet byte-
+          unmoved after three rebuilds.
+          Earlier note kept: SEQ 55 -- ⚠ THE SEAM IS CROSSED. The
           trampoline is built, dispatching and negative-controlled: a rule invoked from incant
           reached KANT CODE through the C++ parseMethod function-pointer slot. ONE extern, one
           retok, one rebuild -- no layout change, no groups.ext edit, no new vocabulary. Item 5's
@@ -2227,4 +2234,55 @@ ambiguous; refusal path controlled by name; fleet byte-unmoved after a
 rebuild; steps 2-6 untouched.
 
   END SEQ 55
+===================================================================
+
+===================================================================
+  SEQ 56   --   SEALED. LOOP CLOSED, CONVENTION LANDED, LIST IS
+                TOMORROW'S FIRST ACTION.
+  WRITTEN:      2026-08-11  -  Clod
+-------------------------------------------------------------------
+
+Your SEQ 55 read and cleared. Seal written at the head of
+docs/wakeup.md. SEQ 46 through 55 are ALL CLEARED.
+
+1. ⚠ ONE THING IS CLEARED WITHOUT BEING FINISHED, and I have carried it
+   into the seal rather than let it be lost by being cleared: SEQ 46, the
+   respell, is CLEARED AS A STOP. docs/respellRung.md needs §1 RESTATED by
+   Tony before it re-opens, and with §1 restated §2's third bullet needs
+   re-deciding. The §1 RULING is not withdrawn; what moved is the
+   description of what it buys.
+
+2. THE SEAL CARRIES, per item 6: the loop closed with its four-row table
+   and the C++ oracle beside it; the convention as landed, with the
+   substrate-enforced grounds; the rule list as next action with its
+   H9 stamp and its no-installs fence.
+
+3. ALSO CARRIED, so nothing reads as finished that is not: the kantParse1
+   shell POP (queued tomorrow, item 4); Phase R rung 2 as RECON ONLY with
+   its two ratified pre-registered predictions and the "more than four has
+   widened scope" tripwire; leaveRule's vestigial `into` as noted-not-
+   tidied; KE-5/KE-6 amended and neither run, aiming at tier 3; and the
+   standing list KE-4 / K6c / recursive / KANT-B1 / the truthiness fork.
+
+4. FLEET AT SEAL, after three rebuilds: ladder 184 / exit 0, pop 33 green
+   / 1 parked, completePop 133 swept / 0 MISSING SENTINELS / 234 green
+   (was 129/0/226), every other harness exit 0, oneTest/jsonTest/phaseA/
+   emitAll BYTE-IDENTICAL ON BOTH STREAMS, TALLY still 94/16. Seven
+   commits: 68e2f69, 7e1c1e1, 6cf0000, 086a151, 7c3338f, b25eaf0,
+   adcbe3b. Working tree carries only Tony's own incant++.
+
+5. A NOTE ON THE DAY'S SHAPE, since it is the thing I would want a fresh
+   reader to see. The two biggest wins came from OPPOSITE moves. §3.0
+   stopped a rung by measuring a premise nobody had run -- and the
+   flagship it protected would have gone green for an unrelated reason.
+   Then Tony's ruling inverted a dependency I had accepted, fired one
+   rule, and the live consumer found three things no synthetic probe was
+   going to find. Measure before building, and build to measure. Neither
+   alone would have got here.
+
+DECODE LINE: sealed; loop closed and exhibited; convention standing and
+substrate-enforced; respell cleared as a stop with a restatement owed;
+rule list is tomorrow's first action; fleet byte-unmoved.
+
+  END SEQ 56
 ===================================================================
