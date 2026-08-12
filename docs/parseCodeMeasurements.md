@@ -755,3 +755,102 @@ question was informational, and it is answered by not being the site.
 The `if`/`else` label-clobber incidental (addendum (c) §6) **stays filed as written** — no action —
 and it now has two forward customers: the `parseAction` verdict-channel rationale, and the eventual
 emitter's *"a body ends in return-of-chain"* structural guard.
+
+---
+
+# ADDENDUM 2026-08-12 (d) — THE FULL-MONTY GO: two blockers, and the tail spelling measured
+
+Same binary (1386720 bytes, mtime 2026-08-11 18:07). **No edit was made to any tracked file.**
+Fixtures `tailtest`…`tailtest4` in the session scratchpad.
+
+## 0. BASELINES CAPTURED BEFORE ANYTHING — per §3, and they match the seal
+
+| fixture | result | seal says |
+|---|---|---|
+| `oneTest` | exit 0, `maximus = 11` then **26 ×4**, 301 lines | 11 / 26×4 ✅ |
+| `jsonTest` | exit 0, **13 `ok :` rows**, stderr empty | 13 ok ✅ |
+
+Stored in the scratchpad's `baseline/`. **They are the before-picture for the `incant/setup` edit
+(c) would make** — `setup` is loaded by every fixture preamble, so that edit is the one with fleet
+reach.
+
+## 1. ⚠ BLOCKER ONE — THERE IS NO `aCTionDefinE` DRAFT
+
+`grep -H '^STATUS:' ipc/*.md`: `clay-to-clod.md` is **CLEARED**, last entry **SEQ 55** (the 08-11
+seal). Nothing has arrived. §1(a) is *"TONY'S DRAFT → Clod reviews, implements"*, and (b) and (c)
+both gate on it.
+
+**And (b)+(c) landing without (a) would be VACUOUS, not merely early** — measured, not assumed:
+`aCTionBraced` exists as a C++ extern (`ruleActions.rtn:97`, live in the binary as `_aCTionBraced`),
+so `Braced` carries **`isMethod=1`** (trace: `fireLabelMethod Braced isMethod=1 label=1`). Per M1b,
+`ruleActions.rtn:348` gates method binding on `if !isREGISTRY && !isMethod` — so
+**`Braced code={…}` attaches a CodE that nothing reads.** Including the file, registering it, and
+running would produce a clean green fleet **because nothing happened**. That is GM-30's `InvokE`
+result exactly: *"installed clean with the entire fleet byte-identical — which is what a rule that
+never runs also produces."*
+
+⚠ **Two things in §1(a) need Tony's word before anyone implements them, and guessing either is the
+expensive kind of wrong:**
+- **The scope of "dlsym-into-method DELETED."** Read unconditionally it removes every grammar
+  rule's C++ action binding — `aCTionIF`, `aCTionFOR`, `aCTionExpressioN` — and the system stops.
+  The sentence *"the method slot stays EMPTY **for kant-doored rules**"* implies the scoped reading,
+  which is surely what is meant, but the deletion is at a shared site and the scoping is the whole
+  content of the change.
+- **What the tail calls THROUGH once the slot is empty.** §1(a) empties `method` so `:1230`'s fire
+  goes vacuous, and §1(b) has the body call the C++ action. Those are consistent only if the tail
+  reaches the action by some route other than the method slot — an explicit `dlsym` in the shim, or
+  a pointer stashed at mint time. **Both are fine; neither is chosen.**
+
+## 2. ⚠ BLOCKER TWO — BOTH OFFERED TAIL SPELLINGS ARE UNSOUND. Measured, with a negative control.
+
+§1(b) asks which spelling is honest. **Neither, and the reason is structural.**
+
+**(i) A bare extern call from a kant body does not dispatch — and looks exactly like success.**
+
+| row | body | result |
+|---|---|---|
+| unregistered | `aCTionBraced();` | prints "returned", **exit 0, no diagnostic** |
+| **negative control** | `aCTionNOSUCHatALL();` | prints "returned", **exit 0, no diagnostic** |
+
+**A name that cannot exist behaves identically**, so the first row measured nothing. H7, and it would
+have gone into the record as *"the tail call works."*
+
+**(ii) Registered, it dispatches — and then reports TRUE unconditionally.** `aCTionBraced` is
+`input.clear(); input.group = ExpressioN; input.fLAG = true; return input;` — it hands back a
+**datumless** node. Same call, two readings, one run:
+
+```
+    A  bare if aCTionBraced()                  -> FALSE
+    B  if traceParse() AND aCTionBraced()      -> TRUE
+```
+
+⚠ **This is the bare-`if` truthiness fork** — named UNRULED in the 08-11 seal, with *"zero live
+customers"* — **landing on the proposed spelling.** `… AND aCTionBraced()` reads **TRUE whatever the
+action did**, because the AND contract reads a present non-numeric node as true. The tail would be a
+verdict-neutral no-op that always says success, composed with addendum (a)'s false-WIN mechanism.
+**The rung's own instrument would be the thing that lies.**
+
+**(iii) And the statement-after-the-gate spelling does not escape it**, because the real problem is
+underneath both: **the action needs the LABEL, and the convention says the body holds no node.** A
+bare call hands `aCTionBraced` whatever the command dispatch supplies — and since the first thing it
+does is **`input.clear()`**, it *clears the wrong node*. That is bear-trap #22's family: an action
+destructively mutating something it was not handed.
+
+## 3. THE HONEST SPELLING IS A FRAME-SIDE SHIM — the `actK()` priced on 2026-08-12
+
+The frame already holds `gKantLabel` and `gKantRule`. A zero-argument `actK()` does inside the chain
+what `fireLabelMethod` does outside it, and it is the only spelling that satisfies all three
+constraints at once: **the body names no node** (convention), **the action receives the label**
+(correctness), and **the verdict is the shim's, not the action's return** (addendum (a)).
+
+⚠ **And it is one fire site by construction only if §1(a)'s deletion lands with it** — otherwise
+`:1230` fires the action too and the tail is the second fire. **The two halves of §1(a) and §1(b)
+are a single change; landing either alone is worse than landing neither**, which is the AND/OR
+rung's finding 1 (*"a partial landing of a two-arm change can be worse than not starting"*).
+
+## 4. DISPOSITION — STOPPED, NOTHING EDITED
+
+No tracked file was touched; `incant/` is unchanged; the fleet has not moved. The stashed
+`parseCode` gains `parseTerms=3` (unambiguous and ruled) and carries the tail question inline
+pending the ruling. **The POP was not run, because a POP on an inert install is a vacuous green and
+reporting one would be worse than reporting nothing.**
