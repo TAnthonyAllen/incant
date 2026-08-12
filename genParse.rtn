@@ -1969,6 +1969,252 @@ int         n;
 }
 
 /*******************************************************************************
+    kantDoor — THE THREE DUTIES, lifted out of aCTionDefinE so the hunk there
+    is three lines and the revert is one. 2026-08-12, the full-monty rung.
+
+        mint kp<Tag>  ·  hang the CodE on it  ·  rStuff.parseMethod = parseViaKant
+
+    ⚠ TWO THINGS THE ORDER'S SKELETON DOES NOT COVER, both measured, both
+    load-bearing. Read these before editing.
+
+    (1) THE isCoded ARM CANNOT SIT UNDER `!isMethod`, WHICH IS WHERE THE
+        dlsym LINE LIVES. Braced already carries isMethod from its ORIGINAL
+        definition in incant/grammar (dlsym found aCTionBraced then), so on the
+        parseCode re-definition that guard is FALSE and the whole block is
+        skipped. That is exactly the M1b measurement of 2026-08-12 -- code{} on
+        a Grokking rule with a C++ action is silently inert -- and the mechanism
+        is this guard. So the caller tests isCoded ABOVE `!isMethod`, and
+        `!isMethod` stays on the dlsym arm only, unchanged for everyone else.
+
+    (2) "THE METHOD SLOT STAYS EMPTY" REQUIRES AN ACTIVE CLEAR, NOT MERELY NOT
+        BINDING. Braced arrives here with gMethod ALREADY set to aCTionBraced.
+        Left alone, :1230's fireLabelMethod fires it AND actK fires it -- the
+        double fire the order says is prevented by construction. So the door
+        clears gMethod / isMethod / immediateACTION, which is what actually
+        starves :1230.
+
+    ⚠ AND THE SCOPING IS A REAL CONDITIONAL, NOT AN ORDERING CONSEQUENCE. The
+    order says scoping falls out of ordering with no new conditionals. That
+    holds for the C++ population (aCTionIF, aCTionFOR ... are not coded, so
+    they take the else-arm untouched) but NOT for the CODED NON-GRAMMAR
+    population, which the 2026-08-12 census measured at five: list x2,
+    JSONfield, JSONarray, DelimOver -- and two of those are in incant/utilities,
+    which every fixture preamble includes. A bare `if isCoded` would take all
+    five through the kant door and break jsonTest. The caller therefore keeps
+    the RATIFIED test -- registry.isRule, true only for Grokking
+    (GroupMain.twk:16, the only live site) -- exactly as specced on 08-12.
+
+    BOUNDS: the highest term position the body names, against the live term
+    count. Scanned from the CodE text here because there is no parseTerms
+    declaration to read -- Tony struck it. Note this is the EARLIER of two
+    checks, not the only one: litK/parseRK already refuse loudly at call time
+    naming the position, and that one cannot be bypassed. This one fails at
+    DEFINITION, before any parse happens.
+*******************************************************************************/
+extern int kantDoor(GroupItem rule, GroupItem code)
+{
+GroupRules  ruler = groupRules;
+GroupItem   kantReg;
+GroupItem   mint;
+GroupItem   grup;
+String      mintName;
+int         want;
+int         live;
+    if !code {
+        cerr "kantDoor: " rule.tag " has no CodE -- nothing to hang":;
+        return 0; }
+    /*  BOUNDS FIRST, so a stale body never reaches the slot. Scan is plain C
+        over the body text: find every "K(" and read the integer after it,
+        which covers litK(n) and parseRK(n) with one pass and no table.  */
+    live = countRuleTerms(rule);
+    want = 0;
+    -%
+    {
+    char *scan = code->getText();
+    while ( scan && *scan )
+        {
+        if ( scan[0] == 'K' && scan[1] == '(' )
+            {
+            int n = ::atoi(scan + 2);
+            if ( n > want )  want = n;
+            }
+        scan++;
+        }
+    }
+    %-
+    if want > live {
+        cerr "kantDoor: REFUSING " rule.tag " -- body names term " toStringFromInt(want)
+             " but the rule has " toStringFromInt(live):;
+        return 0; }
+    if !want    cerr "kantDoor: WARNING " rule.tag " body names no term positions":;
+    /*  THE MINT. Its own registry, in the search list, so locate() finds it
+        the way parseViaKant already looks for it -- and so the kant parse
+        methods are a countable population rather than scattered. NOT Grokking:
+        setRuleStuff turns anything whose registry isRule into a rule, and the
+        mint must not be one.  */
+    kantReg = getRegistry("KantParse");
+    if !searchList["KantParse"]     searchList += kantReg;
+    mintName    = "kp" rule.tag;
+    /*  The groupList guard is not decoration: on the FIRST kant doored rule
+        the registry has just been created and indexing an empty one prints
+        `nextGroup: ERROR ... does not contain a list`. See kantDoored below.  */
+    if kantReg.groupList    mint = kantReg[mintName];
+    if !mint    mint = kantReg += new(mintName);
+    /*  Hang the CodE, and give the mint the two hidden locals every coded body
+        is built with -- aCTionDefinE adds them to the definee, and the mint is
+        the definee now.  */
+    mint            +% code;
+    grup            = mint += "this";
+    grup.isLocal    = true;
+    grup.noPrint    = true;
+    grup.group      = mint;
+    grup            = mint += "tempField";
+    grup.isLocal    = true;
+    grup.noPrint    = true;
+    mint.isCoded    = true;
+    mint.noPrint    = true;
+use rule
+    /*  STARVE :1230. See note (2) above -- this is the clear, not an omission. */
+    gMethod         = 0;
+    isMethod        = false;
+    immediateACTION = false;
+    isCoded         = false;
+    /*  ⚠ getRStuff(), NEVER THE RAW rStuff FIELD. The first cut used
+        `if !rStuff rStuff = new(rule)` and the bind SILENTLY DID NOT TAKE:
+        parse() forks on definingRule().rStuff.parseMethod, and the raw field
+        is not necessarily the materialised stuff that fork reads. The trace
+        said it plainly -- no `parseViaKant Braced` line at all, and
+        `attachLabel lab=Braced promote=1`, which is the INTERPRETED arm.
+        Meanwhile the method-slot clear HAD landed, so nothing built the
+        result and the consumer dereferenced a null.
+        parseRuleMethod -- the working parseMethod= door -- has always used
+        getRStuff(). Copy the working door rather than inventing a second one. */
+    setParseMethod(rule.getRStuff(),"parseViaKant");
+    cerr "kantDoor: " rule.tag " -> " mintName " via parseViaKant, "
+         toStringFromInt(live) " terms":;
+    free(mintName);
+    return 1;
+}
+
+/*******************************************************************************
+    kantDoored — the TRIPWIRE's question, and the census's. A rule is kant
+    doored when its mint exists. No new flag: the mint IS the record.
+*******************************************************************************/
+extern int kantDoored(GroupItem rule)
+{
+GroupItem   kantReg;
+GroupItem   mint;
+String      mintName;
+    /*  ⚠ locate, NOT getRegistry. getRegistry is a FACTORY -- it creates the
+        registry when it is missing, and the first cut of this function called
+        it on every rule that took the dlsym arm. That minted an empty
+        KantParse and then indexed it, and an empty registry has no list, so
+        oneTest's stderr grew four `nextGroup: ERROR KantParse does not contain
+        a list` lines. Caught by diffing stderr against the banked baseline
+        before landing anything -- stdout was identical throughout, so a
+        stdout-only comparison would have missed it entirely.  */
+    kantReg = locate("KantParse");
+    if !kantReg             return 0;
+    if !kantReg.groupList   return 0;
+    mintName = "kp" rule.tag;
+    mint = kantReg[mintName];
+    free(mintName);
+    if mint     return 1;
+    return 0;
+}
+
+/*******************************************************************************
+    actK — THE ACTION TAIL SHIM. 2026-08-12, the full-monty rung.
+
+    Third of the litK/parseRK family and the same convention: ZERO information
+    from the body. The body says "and now the rule's action runs"; the frame
+    supplies WHICH rule and WHICH label, exactly as it supplies position and
+    mark for the other two.
+
+    ⚠ WHY A SHIM AT ALL, WHEN THE BODY COULD "JUST CALL aCTionBraced()".
+    Measured 2026-08-12, both spellings, and both are unsound:
+      · a BARE extern call from a kant body does not dispatch, and the negative
+        control settles it -- aCTionNOSUCHatALL() behaves identically, exit 0,
+        no diagnostic. There is no "it worked" to observe.
+      · REGISTERED as a command it does dispatch, and then reports TRUE in an
+        AND chain whatever the action did, because aCTionBraced hands back a
+        clear()ed node and the AND contract reads a present non-numeric node as
+        true. Bare `if` on the same call reads FALSE. One call, two readings --
+        the bare-if truthiness fork, filed UNRULED in the 08-11 seal, landing
+        on the tail spelling.
+      · and underneath both: the action wants the LABEL, and the body holds no
+        node by convention. aCTionBraced's first statement is input.clear(), so
+        a bare call CLEARS THE WRONG NODE (bear-trap #22's family).
+
+    ⚠ THE VERDICT IS THE SHIM'S, NEVER THE ACTION'S RETURN. That is the whole
+    point of the third bullet above. A datumless return is aCTionBraced doing
+    its job correctly -- it is not a failure, and it must not become a
+    TRUE-by-presence either. So: dispatch happened => trueResult. Full stop.
+
+    ⚠ AND THE FAILURE IS LOUD, because the negative control showed this exact
+    family failing SILENTLY. A missing symbol REFUSES and says which name it
+    looked for. Refuse, never substitute.
+
+    ROUTE: dlsym at call time rather than a pointer stashed at mint. Priced
+    2026-08-12: the stash would need actK to find the mint anyway, so it is not
+    obviously cheaper; it adds a field whose only reader is this function; and
+    step 2 (the kant body inlining the action) DELETES the question entirely.
+    Cheap-to-remove beat cheap-to-run. If anyone ever measures a dlsym per
+    bracket as hot, the stash is a local change with no callers to update.
+
+    NOTE FOR STEP 2, recorded rather than assumed: the C++ arm's
+    fireLabelMethod does `stuff.label = method(stuff.label)` and FAILS the rule
+    when the action answers null. This shim does neither. For aCTionBraced the
+    assignment is identity -- it mutates and returns the SAME node -- so the
+    arms agree here; that is a Braced-specific equivalence and NOT a general
+    one. A rule whose action returns a different node, or null, will need this
+    revisited.
+
+    ⚠ THE ARGUMENT IS DECLARED AND IGNORED, deliberately. traceParse is the
+    proven precedent for an extern that is called both as `traceParse('on')`
+    and as `traceParse()`; a zero-parameter incant command is untested here and
+    this rung is not the place to test it.
+*******************************************************************************/
+extern GroupItem actK(GroupItem ignored)
+{
+GroupItem   label;
+GroupItem   rule;
+String      name;
+int         fired;
+    /*  Passthrough for the same reason as parseRK's -- tok cannot see a
+        hand-declared global in jitContext.h. Both locals are read OUTSIDE the
+        block as well, which is what keeps bear-trap #13 from pruning them.  */
+    -%
+    label = gKantLabel;
+    rule  = gKantRule;
+    %-
+    if !rule {
+        cerr "actK: called outside a kant parse frame -- no rule to act for":;
+        return null; }
+    if !label {
+        cerr "actK: no label in the kant parse frame for " rule.tag:;
+        return null; }
+    name    = "aCTion" rule.tag;
+    fired   = 0;
+    -%
+    GroupItem *(*action)(GroupItem *) =
+        (GroupItem *(*)(GroupItem *))::dlsym(RTLD_DEFAULT,name);
+    if ( action )
+        {
+        action(label);
+        fired = 1;
+        }
+    %-
+    if !fired {
+        cerr "actK: REFUSING -- no C++ action named " name " for rule " rule.tag:;
+        free(name);
+        return null; }
+    if parseTrace   cerr "    actK " rule.tag " -> " name:;
+    free(name);
+    return trueResult;
+}
+
+/*******************************************************************************
     traceParse — the incant-side switch for §1.8's library instrumentation
     (GroupRules.parseTrace). Off by default, so the baselines cannot move.
 *******************************************************************************/

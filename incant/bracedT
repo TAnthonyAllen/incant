@@ -1,0 +1,22 @@
+/*  bracedT -- MINIMAL Braced FIRING FIXTURE, for a breakpoint in aCTionBraced.
+    Modelled on unitTests testGet, which is the same shape and is green in
+    oneTest. No include line, so the only thing parsed is setup, the grammar
+    and this file -- which keeps the breakpoint hit count low.
+
+    Braced is the bracket option of InvokeArg, so it fires on an indexing
+    expression. ONE such expression appears below, on the line marked THE ONE.
+*****************************************************************************/
+Start();
+register(BT);
+define
+    sumple width=1 height=2;
+    fireIt code={
+        sumple[width] = 251;
+        print "  sumple width is now" sumple.width:;
+        };
+    ;
+search reset stack Grokking BT list;
+print "=== about to run fireIt, which contains THE ONE bracket expression ===":;
+fireIt();
+print "BRACEDT SENTINEL":;
+stop();

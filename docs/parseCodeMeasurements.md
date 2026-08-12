@@ -854,3 +854,85 @@ No tracked file was touched; `incant/` is unchanged; the fleet has not moved. Th
 `parseCode` gains `parseTerms=3` (unambiguous and ruled) and carries the tail question inline
 pending the ruling. **The POP was not run, because a POP on an inert install is a vacuous green and
 reporting one would be worse than reporting nothing.**
+
+---
+
+# ADDENDUM 2026-08-12 (e) — THE FULL-MONTY RUN: **THE FOURTH THING**, and §6's revert taken
+
+**Built and run.** tok bare (bear-trap #23's normal-build side), extern canary **270 → 273**
+(actK, kantDoor, kantDoored — no cascade), two clean builds, binary echoed at every step (H1).
+
+## 1. WHAT WAS BUILT
+
+- **`actK`** (`genParse.rtn`) — the tail shim, third of the litK/parseRK family. Zero information
+  from the body; frame supplies label and rule; **verdict owned by the shim**; loud refusal when the
+  symbol is absent. **Route: dlsym at call time**, priced against a pointer stashed at mint — the
+  stash needs actK to find the mint anyway, adds a field with one reader, and **step 2 deletes the
+  question**. Cheap-to-remove beat cheap-to-run.
+- **`kantDoor` / `kantDoored`** — the three duties lifted out of `aCTionDefinE` so its hunk is three
+  lines and the revert is one.
+- **`aCTionDefinE` reorder** — `isCoded` above the dlsym arm, `!isMethod` left on the dlsym arm only.
+- **`groups.ext`** gained two prototypes. ⚠ **Out-of-repo build dependency (bear-trap #11); it will
+  not appear in a Groups `git status`.** Backup of the pre-edit file is in the session scratchpad.
+
+## 2. ⚠ THREE THINGS THE ORDER'S SKELETON DID NOT COVER, all measured
+
+1. **The `isCoded` arm cannot live under `!isMethod`.** Braced already carries `isMethod` from its
+   original definition, so a `code{}` re-definition never reaches the block — M1b's silent inertness,
+   mechanically this guard. The test had to move above it.
+2. **"The method slot stays empty" needs an ACTIVE CLEAR.** Braced arrives with `gMethod` already
+   set. Not-binding is not enough; the door must clear `gMethod`/`isMethod`/`immediateACTION`.
+   **Measured working:** the trace reads `fireLabelMethod Braced isMethod=0`.
+3. **The scoping is a real conditional, not an ordering consequence.** A bare `if isCoded` would
+   also capture `list`, `JSONfield`, `JSONarray`, `DelimOver` — two of them in `incant/utilities`,
+   which every preamble includes. The ratified `registry.isRule` test was kept.
+
+**And one in the file, not the code: ⚠ THE `define` WRAPPER IS REQUIRED.** A bare top-level
+`Braced code={…};` is read as a RunRulE invocation and rejected —
+`RunRulE: expected a method not code` — which **abandons the rest of the file at exit 0**, zero
+stdout, no sentinel. **VOID by the pre-registration, and correctly caught by it.**
+⚠ **This corrects my own M2:** that fixture carried a `define` wrapper, so it verified merging from
+outside the **registry**, never the bare form. I reported it as verifying §2's "no define wrapper".
+It did not.
+
+## 3. ⚠ THE RESULT: THE FOURTH THING. **The clear lands; the bind does not.**
+
+| what | evidence |
+|---|---|
+| `kantDoor` runs, bounds pass | `kantDoor: Braced -> kpBraced via parseViaKant, 3 terms` |
+| install alone is clean | a fixture that installs and never uses the door: **exit 0, sentinel present** |
+| the method-slot clear TAKES | `fireLabelMethod Braced isMethod=0` — was `isMethod=1` |
+| **the parseMethod bind does NOT take** | **`parseViaKant Braced` appears ZERO times**, and `attachLabel lab=Braced promote=1` — **`promote=1` is the INTERPRETED arm** |
+| consequence | nothing builds the Braced result, `sumple[width]` yields null, and the consumer dereferences it: **SIGSEGV, `setContent(this=0x0)`** |
+
+**So the change disables Braced without replacing it.** Not red-matching-the-oracle, not green,
+and the crash makes it **VOID** — the fourth thing §6 names.
+
+**Bisected with no rebuild, which is the kant path's own cheapness paying off:** the body was cut
+back to `litK(1)` alone and to two-`litK` and three-term forms, all by editing `incant/parseCode`
+as runtime data. **All four crash identically**, so it is not the shims, not `parseRK`, not `actK`
+— it is the dispatch never arriving.
+
+**Two spellings of the bind were tried and both failed the same way:** the raw `rStuff` field, and
+`getRStuff()` — the latter chosen because `parseRuleMethod`, the *working* `parseMethod=` door, has
+always used it. Copying the working door was not sufficient.
+
+⚠ **THE LEAD, OFFERED AS A LEAD AND NOT A DIAGNOSIS** (standing causal-claim asymmetry):
+`parse()` forks on **`definingRule().rStuff.parseMethod`**. `kantDoor` binds onto the node
+`aCTionDefinE` hands it, which for a **re-definition** is the merged node — and that may not be the
+node `definingRule()` resolves to at parse time. **Note this is the same shape as the label thread's
+finding**: the merge lands on one node and the consumer reads another. Worth one probe before any
+further build: print the two rStuff addresses at bind time and at fork time.
+
+## 4. DISPOSITION — §6's REVERT LINE TAKEN, VERIFIED
+
+Reverted: the **`aCTionDefinE` hunk** and the **`incant/setup` fILEs registration** (`git checkout`,
+both tracked). Kept: **`actK`**, its two siblings (uncalled now, and the next rung's material), the
+`groups.ext` prototypes, this document, and `incant/parseCode` — **unregistered, so nothing loads
+it**. `incant/bracedK` moved to the scratchpad.
+
+**Fleet verified back to the mark, after retok and rebuild:** `oneTest` and `jsonTest`
+**byte-identical on BOTH streams** against the baselines banked before the first edit; `bracedT`,
+the C++ oracle, still green. **The fleet count did not move** — `parseCode` is unregistered and
+carries no `Start()`, so `completePop` does not sweep it; `bracedT` is the only new swept fixture,
+and it was landed at Tony's request in the previous turn.
