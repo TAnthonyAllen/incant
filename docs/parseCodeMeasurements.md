@@ -936,3 +936,73 @@ it**. `incant/bracedK` moved to the scratchpad.
 the C++ oracle, still green. **The fleet count did not move** — `parseCode` is unregistered and
 carries no `Start()`, so `completePop` does not sweep it; `bracedT` is the only new swept fixture,
 and it was landed at Tony's request in the previous turn.
+
+---
+
+# ⚠ ADDENDUM 2026-08-12 (f) — SHUTDOWN PROBE. **THE KANT DOOR IS NOT THE DEFECT.**
+
+Two runs, no rebuild, taken at shutdown against tomorrow's parked bench order. **They re-aim it.**
+
+## THE MEASUREMENT
+
+The **existing, known-working `parseMethod=` door** — the one `parseRuleMethod` implements and that
+`incant/kantParse1` and `incant/genScratch` bind through successfully — was pointed at a
+**re-definition of `Braced`** from a fixture, with `kantDoor` nowhere in the picture:
+
+```
+    define  Braced parseTerms=3 parseMethod=parseViaKant;  ;
+```
+
+| question | answer |
+|---|---|
+| does the run survive? | **exit 0, sentinel, `sumple width is now 251`** — the C++ arm answered |
+| does `parseViaKant` fire? | ⚠ **ZERO times** |
+| are the attributes consumed, or absorbed as terms? | **consumed** — Braced reads **3 terms before and 3 after**, so `incant/setup:52-58`'s "3 terms became 5" hazard is NOT in play |
+| does `parseRuleMethod` actually run? | **yes** — a deliberately bogus `parseTerms=99` bind printed `REFUSING ... rule now has 3`, twice, before and after |
+| therefore, on the real bind | it did **not** refuse ⇒ the count matched ⇒ **`setParseMethod` was called and returned** |
+
+## ⚠ WHAT IT MEANS: THE BIND IS WRITTEN AND NEVER READ — AND IT PREDATES TODAY'S CODE
+
+`kantDoor` was not in this probe. **The same failure reproduces through the door that already
+works.** So:
+
+- **The defect is NOT in `kantDoor`, `actK`, the mint, the reorder, or anything built today.** The
+  three duties may well be right; they were never given a chance to be wrong.
+- **It is in re-definition binding generally**: `parseMethod=` applied to a rule defined
+  **elsewhere** (Braced lives in `incant/grammar`, loaded at setup) writes a `parseMethod` that
+  `parse()`'s `definingRule().rStuff.parseMethod` fork does not read.
+- **The discriminator is same-definition vs cross-file re-definition.** Every binding that works
+  today — `kantParse1`, `genScratch`, the Scaf family — binds a rule **defined in the same define
+  block**. Nobody had ever bound one from another file.
+
+## CONSEQUENCES FOR THE PARKED BENCH ORDER
+
+- **§0's premise moves.** "The kant Braced path is in it-don't-work-fix-it mode" is true, but the
+  broken part is not the kant path. The bench as specced would isolate a mechanism that is not the
+  faulty one and could certify it green while Braced still does not parse.
+- **§3a's two-node probe is still the right first move**, but its subject is `parseRuleMethod`
+  versus `parse()`'s fork — **not `kantDoor`**. Same three outcomes, different patient.
+- **A cheaper first run exists and needs no kant anything:** bind a **generated C++** method
+  (`parseMethod=parseBraced`) to Braced by re-definition from a fixture. If that also fails to fire,
+  the defect is confirmed orthogonal to kant and the whole investigation moves off this campaign's
+  critical path.
+- ⚠ **§3d's breakpoint discriminator needs one word changed.** It asks that **`:1251`** stay
+  silent. `:1251` is the **interpreted** arm's fire; once the door works, `parse()` forks at
+  `:1219` and never reaches the match loop, so `:1251` is silent **by construction** and asserts
+  nothing. The discriminating site is **`:1230`**, the generated arm's fire, which the method-slot
+  clear is supposed to starve. An assertion that cannot fail is the thing this fleet's rules exist
+  to prevent.
+
+## §1's PRICING CALL, ANSWERED SO TOMORROW DOES NOT SPEND ON IT
+
+**Fixture-local `fILEs` entry plus `include`, not inline `code{}`.** Three reasons:
+- it exercises **the real artifact**, and an inline copy drifts from `incant/parseCode` the moment
+  one is edited and the other is not — §2's own anti-drift rule, applied to the file as well as the
+  duties;
+- it keeps the **runtime-data bisect** working on the shipping file, which is what made yesterday's
+  four-body bisect cost zero rebuilds;
+- **promotion in §4a becomes a one-line move** — the same `fILEs` line relocates from the fixture to
+  `incant/setup`, so the promotion diff is exactly the thing being promoted and nothing else.
+
+A fixture-local `registry(fILEs); define parseCode File='incant/parseCode'; ;` touches no shared
+file, so the bench's blast radius stays at one fixture.
