@@ -504,3 +504,83 @@ byte-identical on both streams; **jit ladder exit 0, 184 green**; `pop.sh` unmov
 The repair is chartered (SEQ 67 C.1). **Done means:** the exact census body above degrades to
 interpreted, **returns the interpreted answer**, and exits **0**. ⚠ **The census run is the fixture
 — it is already in hand**, so the repair cannot be graded against a fixture written to suit it.
+
+---
+
+## KE-4 — the three `pop.sh` targets were **ALREADY STALE AT THE SEQ 55 SEAL**. Verdicts and evidence
+
+*Measured 2026-08-13 (SEQ 70). Three binaries built and run against the SAME targets; only the
+binary varied. Report only — every re-pin sentence comes back for ruling.*
+
+### METHOD, stated before the numbers
+
+pop.sh's own recipes were replicated verbatim into one probe, then run against three binaries:
+
+| binary | commit | canary |
+|---|---|---|
+| HEAD | `9ffeb94` | 276 |
+| **the revert point** — parent of SEQ 56 | `87196a2` | 273 |
+| **the SEQ 55 seal** — the last clean-kitchen mark | `7decd8b` | 273 |
+
+Only `GroupItem.mm`, `GroupRules.h` and `GroupRules.mm` differ across that range, so each binary is
+a clean build of that commit's generated sources against unchanged fixtures and unchanged targets.
+
+⚠ **THE CONTROL RAN FIRST AND IS WHAT MAKES THE REST READABLE.** At HEAD the probe reproduced all
+three known reds exactly — 12, 7, refusals 4-want-7, 9. A replication that could not reproduce the
+failures would have made every later row noise.
+
+### THE RESULT — identical at all three points
+
+| target | HEAD | revert point | SEQ 55 seal |
+|---|---|---|---|
+| `census.target` | DIFFERS, 12 lines | **DIFFERS, 12** | **DIFFERS, 12** |
+| `iterT1m.divergence` | DIFFERS, 7 lines | **DIFFERS, 7** | **DIFFERS, 7** |
+| `iterT1m` refusal count | **4**, want 7 | **4** | **4** |
+| `oneTest.base` | DIFFERS, 9 lines | **DIFFERS, 9** | **DIFFERS, 9** |
+
+⚠ **AND THE DIFFS ARE BYTE-IDENTICAL, NOT MERELY THE SAME SIZE.** Each binary's diff was diffed
+against HEAD's: all three come back identical at both older points. Same failure, not three
+coincidentally-sized ones — the check that separates *"agrees"* from *"agrees for the same reason"*.
+
+### VERDICT — all three: **WORLD-MOVED, AND IT MOVED BEFORE THE SEAL**
+
+The dispatch offered two verdicts. Both were framed around the 08-12 window, and **neither fits**:
+the revert-point binary does not merely also disagree — **the SEQ 55 seal binary disagrees the same
+way.** So these targets were **already stale when the seal was written**, and nothing in SEQ 56-68
+is implicated in any of them.
+
+**The sentences these buy, one per target, offered for ruling and not applied:**
+
+- **`census.target`** — `MemberS` now **REFUSES** (`term MEMBERs unclassified`, `parseAction tail
+  position only`) where the target holds a 10-line `SEQ MemberS` plan. The target records a
+  *plannable* `MemberS`; the tree has not planned it at any of the three points. **The refusal is
+  the newer truth and the target is the older claim.**
+- **`iterT1m`** — the pinned divergence *and* its refusal count moved together, 7 → 4. The count
+  check's own comment names all three things it is built to catch: the announcement deleted, the
+  poison not taking, or *mutual recursion silently starting to work.* **Which of those it is has not
+  been established here and should not be guessed** — it is the one row of this report that names a
+  question rather than answering it.
+- **`oneTest.base`** — three `AUDIT MISSTERM` rows for `JSONtoken`/`JSONvalue` are **gone**, two
+  `AUDIT LOOSE` index numbers moved (`[9]→[1]`, `[14]→[6]`), and the summary gained a **new column**
+  (`0 unconsumed`) while missing-terms went 15 → 12. The new column is `auditUnconsumed`, which
+  post-dates the baseline. **The 15 → 12 is exactly the three vanished rows**, which is the
+  reconciliation the standing re-pin rule asks for — the three terms are *named* rather than
+  waved at.
+
+### ⚠ AN INSTRUMENT FAULT INSIDE THIS RUN, RECORDED BECAUSE IT NEARLY LANDED A THIRD DATA POINT
+
+The seal measurement was **run once and was VOID**, reporting `DIFFERS (0 changed lines)` and
+`refusals 0` for all three targets. Cause: the build command chained `cd` into the Xcode project
+directory, so the probe that followed **in the same invocation** ran from `TOK/` and every relative
+path missed — `getFile: could not open file: incant/setup`.
+
+**It was caught because the number was INCOHERENT ON ITS FACE**: a diff cannot *differ* with zero
+changed lines. Had the probe reported a bare pass/fail, `DIFFERS` would have read as a real result
+and *"the targets fail at the seal too"* would have been reported off a run that never opened a
+fixture. **Print the quantity, not the verdict** — H4, paying for itself inside the one session that
+wrote it down.
+
+### Who rules
+
+Tony. Nothing gates on these and they gate nothing. **The `iterT1m` row is the one with a live
+question in it**; the other two have causes named and are re-pin candidates on a sentence.
