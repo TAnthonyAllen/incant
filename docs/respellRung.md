@@ -37,6 +37,21 @@ and committed. It opens cold at the top of the next session.
 
 ## 1. THE RULING — ✅ **GRANTED, Tony, 2026-08-11**
 
+> ⚠ **DISPOSITION 2026-08-13 (SEQ 61 riding item). THE GRANT STANDS; ITS DESCRIPTIVE PARAGRAPH IS
+> RETIRED AS DESCRIPTION.** The conditional was: grep for citers, keep it descriptive if cited,
+> retire it if not. **Grepped: nothing outside this file's own thread cites §1.** The only hits are
+> `:12` and `:188` here and three notes in `docs/wakeup.md` that exist solely to say §1 needs
+> restating. **So the restatement Tony was owed is discharged by retirement rather than rewriting**
+> — nobody is reading it, and a description falsified by the same document three sections later is
+> a liability, not a debt.
+>
+> **What is retired is ONLY the "goto scaffolding out, operator chains in" account** in the
+> paragraph below, which §3 falsified by measurement: **no emitted method has ever contained a
+> goto**, so there is nothing to take out. **What STANDS, untouched, is the two-clause grant** —
+> the template amendment and the named widening of `AND`/`OR` to the generated-code population.
+> **The grant never depended on the description.** The real delta is `&&`/`||` → `AND`/`OR`, and
+> §2's customer-population case argues it on its own feet.
+
 Both clauses, as put:
 
 1. **Template amendment.** `docs/attributesTemplate.md`'s **frozen section may be edited** to emit
