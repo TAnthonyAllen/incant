@@ -1,0 +1,32 @@
+/*  bindSeamA -- THE NEGATIVE CONTROL for the cross-file parseMethod bind.
+    SEQ 58, 2026-08-13.
+
+    incant/bracedT's shape exactly, plus traceParse, and NO bind of any kind.
+    It exists so bindSeamB's addresses have something to be compared against,
+    and so the claim that Braced fires at all in this input is measured rather
+    than assumed. A no-fire would make its sibling vacuous.
+
+    WHAT IT ASSERTS. Braced reaches the INTERPRETED arm -- the trace carries
+    attachLabel lab=Braced promote=1 -- and the bracket expression works, so
+    sumple width reads 251. With parseTrace on, the seam probe prints one line
+    for Braced whose defParseMethod is null, because nobody has bound anything.
+
+    Run it and read stderr for the line beginning SEAM fork.
+*/
+Start();
+registry(cOMMANDs);
+define traceParse immediateAction=traceParse; ;
+traceParse();
+register(BSA);
+define
+    sumple width=1 height=2;
+    fireIt code={
+        sumple[width] = 251;
+        print "  sumple width is now" sumple.width:;
+        };
+    ;
+search reset stack Grokking BSA list;
+print "=== bindSeamA: no bind, interpreted arm, oracle 251 ===":;
+fireIt();
+print "BINDSEAMA SENTINEL":;
+stop();

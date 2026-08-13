@@ -1209,6 +1209,32 @@ RuleStuff   ruleStuff   = getStuff(pStuff);
     ***********************************************************************/
     definer = definingRule();
     defStuff = definer.rStuff;
+    /*  THE READ HALF OF THE BIND-READ SEAM PROBE, SEQ 58, 2026-08-13. Its
+        write half sits in the binding door in genParse. Together they
+        answered, in one bit, why a cross-file parse-method bind was written
+        and never read: the door bound onto a satellite node while this fork
+        resolved the real one.
+
+        Gated on the parse-trace flag, so an ordinary run cannot see it and no
+        baseline can move. A bind runs live in swept fixtures, and an
+        unconditional print here would move them.
+
+        NARROWED TO ONE RULE NAME ON PURPOSE, and cheap to widen. Braced is
+        the campaign's specimen; printing for every rule would add a line per
+        parse to a trace that is already verbose. If the next seam question is
+        about a different rule, change the string -- do not delete the probe,
+        because it is the only instrument that makes this seam visible.
+
+        Written as passthrough because it reads the flag off the rules
+        singleton from inside a method on this class, and the generated file
+        already carries the headers that spelling needs.  */
+-%
+    if ( GroupControl::groupController->groupRules->parseTrace
+         && groupBody->tag && !::strcmp(groupBody->tag,"Braced") )
+        ::fprintf(stderr,"SEAM fork  Braced  this=%p thisRStuff=%p definer=%p defStuff=%p defParseMethod=%p\n",
+            (void*)this,(void*)rStuff,(void*)definer,(void*)defStuff,
+            defStuff ? (void*)defStuff->parseMethod : (void*)0);
+%-
     if defStuff && defStuff.parseMethod {
         rStuff.parentLabel  = parentLabel;
         label   = defStuff.parseMethod(this);

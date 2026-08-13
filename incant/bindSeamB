@@ -1,0 +1,61 @@
+/*  bindSeamB -- THE CROSS-FILE RE-DEFINITION BIND, C++ control. SEQ 58,
+    2026-08-13. Sibling of incant/bindSeamA, which is its negative control.
+
+    Braced is defined in incant/grammar and loaded at setup, so binding a
+    parseMethod to it from HERE is the cross-file re-definition case -- the one
+    nobody had ever exercised before 2026-08-12, and the one that failed.
+
+    WHAT IT ASSERTS, and the two halves must not be read as one:
+
+    THE SEAM IS CLOSED. With parseTrace on, the SEAM bind and SEAM fork lines
+    now carry the SAME defStuff address and a NON-NULL defParseMethod, where
+    before the repair the bind landed on a satellite node and the reader saw
+    null. The trace shows attachLabel lab=Braced promote=0 -- promote=0 is the
+    GENERATED arm, against bindSeamA's promote=1. parseBraced runs its whole
+    chain: the two literals and the ExpressioN reference all match, and the
+    kant instrumentation prints HIT Braced then WIN Braced.
+
+    THE ANSWER IS STILL WRONG, ON PURPOSE AND FOR A DIFFERENT REASON. This
+    prints sumple width is now 1, where the oracle bindSeamA prints 251. That
+    is NOT the bind seam and NOT parseBraced. It is GM-29 / IA-2, commented at
+    the site in GroupItem.twk: Braced is an option of the alternation
+    InvokeArg, an alternation is label-transparent so pStuff.label is null, the
+    generated arm passes promote=0 by PC-1's ruling, and attachLabel's no-label
+    guard therefore drops the option's label on the floor, silently, at exit 0.
+
+    ⚠ SO A GREEN READING OF THIS FILE IS A MISREADING. It exits 0 and prints
+    its sentinel while answering wrong. It is kept as the reproduction of a
+    defect whose cure is a Director's call already recorded at IA-2 -- a
+    one-line promotion that turned parensMin green with the fleet unmoved, not
+    landed because it makes the generated arm consult isTarget, which PC-1
+    forbids. Until that call is made there is no correct value to pin, which is
+    why this pair is deliberately NOT wired into pop.sh.
+
+    Before this run, GM-29 had only ever been reproduced on Parens. Braced's
+    redness rested on shared shape and shared alternation parent, which
+    docs/respellRung.md flags in as many words as structural, pointable and not
+    measured. This file measures it.
+
+    The bind is installed BEFORE the define of fireIt, so the fixture's own
+    bracket expression parses through the door it just installed.
+*/
+Start();
+registry(cOMMANDs);
+define traceParse immediateAction=traceParse; ;
+traceParse();
+define
+    Braced parseTerms=3 parseMethod=parseBraced;
+    ;
+register(BSB);
+define
+    sumple width=1 height=2;
+    fireIt code={
+        sumple[width] = 251;
+        print "  sumple width is now" sumple.width:;
+        };
+    ;
+search reset stack Grokking BSB list;
+print "=== bindSeamB: bound to parseBraced, generated arm, KNOWN WRONG 1 not 251 ===":;
+fireIt();
+print "BINDSEAMB SENTINEL":;
+stop();

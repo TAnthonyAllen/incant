@@ -1146,3 +1146,156 @@ be read as closed by this addendum, not as live.
 re-definition control (`parseMethod=parseBraced` from a fixture), and the bench charter all stay
 parked exactly as (f) left them. **The re-definition bind defect is orthogonal to this dispatch**
 and remains the thing standing between the kant path and a green Braced.
+
+---
+
+# ⚠ ADDENDUM 2026-08-13 (h) — SEQ 58: **THE BIND-READ SEAM IS FOUND, AND CLOSED.** The next wall has a name and it is Tony's.
+
+**asOf 2026-08-13 · binary `~/bin/incant` 1387216 bytes, mtime 08:49 · fleet byte-identical
+across three rebuilds · every address below copied from a run, none inferred**
+
+(f) localized the defect to *"a write that returned and a read that found nothing"*. SEQ 58 asked
+for one bit: same node or different. **Different**, and the repair it pre-registered was the right
+one.
+
+## 0. ⚠ THE ORDER'S VEHICLE DID NOT EXIST, AND THIS IS THE FIRST FINDING
+
+SEQ 58 §0 specifies the control as `parseMethod=parseBraced` *"because parseBraced has an oracle
+(bracedT)"*. **`parseBraced` had never been compiled.** `nm ~/bin/incant | grep parseBraced` → **0
+hits**; the only occurrences in the tree were **emitted text inside two `.md` files**. Bound as
+specified it would have died in `setParseMethod` with `ERROR no method found`, and the run that was
+supposed to certify the seam would have certified nothing.
+
+**It costs one extern in one in-repo file, so it was added** — pasted verbatim from
+`docs/emitted/phaseB-twelve-emitted.txt`, which `docs/respellRung.md` re-derived on 2026-08-11 and
+found unmoved. **No `groups.ext` edit is owed** (the door reaches it by `dlsym` on the name, as it
+does the whole `parseScaf` family) and **no `incant/grammar` line** (the bind is made from a
+fixture — that is the point of a cross-file control). Extern canary **273 → 274**, and the +1 is
+this.
+
+## 1. ⚠ PROBE 1 — **DIFFERENT NODE.** Measured, in one run, with a negative control beside it
+
+Two probes, both **`parseTrace`-gated** so no baseline can move: the **write** half inside the
+binding door, the **read** half at `parse()`'s fork in `GroupItem.twk`. One run of the bind,
+pre-repair:
+
+```
+SEAM bind  Braced  boundNode=0x104c60840  boundStuff=0x104c5c100  ownRStuffField=0x104c5c100
+SEAM read  Braced  definer=0x104c36a80    defStuff=0x104c34000
+                   defParseMethod=0x0     boundParseMethod=0x10406f3c8
+SEAM fork  Braced  this=0x104c38380  definer=0x104c36a80  defStuff=0x104c34000  defParseMethod=0x0
+```
+
+| the question | the answer, from those three lines |
+|---|---|
+| did the write take? | **yes** — `boundParseMethod` is non-null. (f)'s refusal-instrument reasoning is confirmed at the address level, not just by inference from a non-refusal |
+| did the reader see it? | **no** — `defParseMethod=0x0`, at bind time *and* at parse time |
+| same node? | **no.** Bound `0x104c60840`; the reader resolves `0x104c36a80` |
+| which is canonical? | **the reader's.** `definingRule()` called **on the bound node itself** already returned `0x104c36a80` — the satellite knew where the real rule was; the door never asked |
+| does the fork line even fire? | **yes**, and the negative control proves it is not vacuous: with no bind at all the same probe prints for `Braced` with `defParseMethod=0x0`, and the rule parses interpretively |
+
+**So probe 2 was never needed.** Nothing cleared the field; the field the reader reads was never
+written. Probe 3's three-moment question is answered by the same output, because the bind-time
+`definingRule()` and the parse-time `definer` are **the same address**.
+
+## 2. THE REPAIR — SEQ 58 §4's first pre-registered shape, landed
+
+Both doors now resolve their target the way the reader does:
+
+```
+    GroupItem   ruleNode = grup.definingRule();
+    stuff = ruleNode.getRStuff();
+```
+
+**BOTH doors, not one, and that is not tidiness.** `parseTermCount` writes `termCount` and
+`parseRuleMethod`'s refusal guard reads it. Moving only the method door would compare a count
+nobody wrote against the rule's live terms and **silently downgrade the refusal to the
+no-`parseTerms` warning — which still binds.** The guard would have been lost quietly.
+
+**Nothing that worked before changes, and the fleet is the proof.** `definingRule()` returns `this`
+for a node that owns its children, so every same-file binding — `kantParse1`, `genScratch`, the
+`Scaf` family — resolves exactly as it did. `oneTest`, `jsonTest` and the whole `pop.sh` log are
+**byte-identical on both streams, split and merged**, across all three rebuilds of this session.
+
+### Post-repair, the same three lines
+
+```
+SEAM bind  Braced  boundNode=0x1010d4840  boundStuff=0x10073c000
+SEAM read  Braced  definer=0x10073ea80    defStuff=0x10073c000
+                   defParseMethod=0x1004eab90   boundParseMethod=0x1004eab90
+SEAM fork  Braced  this=0x100740380  definer=0x10073ea80  defStuff=0x10073c000
+                   defParseMethod=0x1004eab90
+```
+
+`boundStuff == defStuff`. The bind lands where the reader looks. **The seam is closed.**
+
+## 3. ⚠ AND THE CONTROL FIRES — for the first time, on Braced
+
+```
+  parseR term= ExpressioN  -> attached as  ExpressioN  under  Braced
+  lit " ] " at term  ]
+  HIT  Braced
+  WIN  Braced
+  fireLabelMethod Braced isMethod=1 label=1 deferred=0 parseACTION=0
+    attachLabel lab=Braced promote=0 isTarget=1 pLabel=0 pRule=InvokeArg
+```
+
+`parseBraced` runs its **whole** chain — both literals and the `ExpressioN` reference. **`promote=0`
+is the generated arm**, against the control's `promote=1`. That is (f)'s §3d discriminator, and it
+has inverted in the right direction.
+
+## 4. ⚠ THE ANSWER IS STILL WRONG, AND IT IS **NOT** THIS SEAM
+
+`sumple width is now 1`, where the oracle says **251**. Exit 0, sentinel present. **A green reading
+of that run is a misreading.**
+
+The mechanism is named, commented at its own site, and is **not** the bind: **GM-29 / IA-2**,
+`GroupItem.twk`'s `attachLabel`. `Braced` is an option of the alternation `InvokeArg`; an
+alternation is label-transparent so `pStuff.label` is null; the generated arm passes `promote=0` by
+PC-1's ruling; so it falls past the promote case into `if !pStuff.label return;` and **the option's
+label is dropped on the floor.** The trace line above is that signature, term for term.
+
+⚠ **AND THIS IS THE FIRST TIME IT HAS BEEN MEASURED ON `Braced`.** `docs/respellRung.md` states the
+honest limit in as many words — GM-29's post-GX-1 reproduction is on **`Parens`**, and that `Braced`
+is still red *"rests on shared shape and shared alternation parent — structural, pointable, and not
+measured."* **It is measured now.** The structural claim held, which is this project's standing
+asymmetry pointing the usual way.
+
+## 5. ⚠ THE NEXT MOVE IS A DIRECTOR'S CALL THAT IS ALREADY WRITTEN DOWN
+
+IA-2's own comment records it, and nothing here should be read as re-opening it:
+
+> *A one-line experiment promoting in this case turned `parensMin` green with the whole fleet at its
+> standing footprint — so the missing promotion ACCOUNTS for the red completely. It was NOT landed:
+> it makes the generated arm consult `isTarget`, which PC-1 forbids, and it moves against IT-3's end
+> state where promotion deletes entirely. Director's call.*
+
+So the cure is known, measured green once, and **refused on design grounds** — not on doubt. **It
+was not guessed past**, per SEQ 58 §4's third branch.
+
+## 6. WHAT LANDED, AND ONE DELIBERATE FLEET MOVE REPORTED BY NAME
+
+- `genParse.rtn` — the two-door repair, the write-half probe, and `parseBraced`.
+- `GroupItem.twk` — the read-half probe, `parseTrace`-gated and narrowed to one rule name on
+  purpose. **Do not delete it**; it is the only instrument that makes this seam visible.
+- `incant/bindSeamA` / `incant/bindSeamB` — the negative control and the reproduction, landed
+  rather than left in a scratchpad, because an unrecorded control dies with the session (H7).
+
+⚠ **`completePop` moves 134 → 136 swept and 236 → 240 green.** That is these two fixtures and
+nothing else; the three abandoned parses are the same recorded three. **`pop.sh` is untouched and
+byte-identical** — and the pair is **deliberately NOT wired into it**, because until §5's call is
+made there is no correct value to pin for `bindSeamB`, and a pin whose answer has not been chosen
+is exactly what H6 forbids creating.
+
+## 7. WHERE THIS LEAVES SEQ 57 AND SEQ 58
+
+- **SEQ 58 §5's bell has half rung.** The control fires, `bracedT` is green, the fleet is
+  byte-identical — but `sumple` width is 1, not 251. **The seam is past; GM-29 is not.**
+- **SEQ 57's rungs 1-3 are closed by this.** Rung 1's fork went the way (f) predicted (the C++
+  control failed to fire *before* the repair, so the defect was orthogonal to kant); rung 2's
+  two-node probe is §1 above; rung 3 is §2.
+- **SEQ 57 rung 4 — the kant door — stays parked**, and now for a *better* reason than yesterday's.
+  It is no longer blocked by an unexplained bind. It is blocked behind a named alternation defect
+  that would corrupt its grading: a kant `Braced` would come back wrong for a reason that has
+  nothing to do with kant, and the pre-registration's "red-matching-the-C++-arm = SUCCESS" row
+  would be true but uninformative.
