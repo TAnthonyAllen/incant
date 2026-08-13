@@ -3191,6 +3191,29 @@ int 		n = 0;
 		::fprintf(stderr,"genKant: REFUSING %s -- no plan\n",argument->getText());
 		return 0;
 		}
+	/*  ⚠ THE FOLD GATE, AND IT IS A REPAIR, NOT A PRECAUTION. SEQ 71, found by
+	the survey the same day the emitter landed. The join below is
+	UNCONDITIONALLY " AND ", which is correct for a SEQ and WRONG FOR AN
+	ALTERNATION -- an ALT means any option matches, and an AND chain means
+	they all must. Three of the five rules the survey found emittable are
+	fold=ALT (InvokeArg, ElsE, WardeD), so without this gate the emitter
+	produced bodies that PARSE AND ANSWER WRONG for every one of them.
+	
+	⚠ NOTE WHAT DID NOT CATCH IT. kantLeaf refuses by KIND and covered every
+	unknown TERM; nothing covered the wrong JOIN, because the join is not a
+	term. A per-item guard does not see a whole-body property. That is the
+	gap worth remembering, not the three rule names.
+	
+	REFUSING RATHER THAN EMITTING `OR`, deliberately: the template table's
+	alternation row is dead for a second, independent reason -- an option
+	attaches through a different frame (`into`, not `label`) -- so an OR
+	chain would be the right operator on the wrong plumbing. One dead row,
+	not half of one.  */
+	if ( ::compare(plan->groupBody->tag,"SEQ") != 0 )
+		{
+		::fprintf(stderr,"genKant: REFUSING %s -- fold is %s, and only SEQ has a kant spelling\n",argument->getText(),plan->groupBody->tag);
+		return 0;
+		}
 	while ( node = plan->nextMember(node) )
 		{
 		at = node->getAttribute("at");

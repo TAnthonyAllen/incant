@@ -297,3 +297,95 @@ return it once, and refuse with `null` rather than `0`.
 Two rules is two rules. The vocabulary is still **literal and rule-reference only**, so the four
 dead rows of §1 are still dead and every rule that needs them still refuses — loudly, by kind. **The
 ratchet's shape is proven; its reach is two.**
+
+---
+
+# SEQ 71 — THE RE-DERIVATION PASS: **PARTIAL. One defect found and fixed, one number VOID and named**
+
+*2026-08-13. Survey driven one rule per process, 79 processes — the in-process walk crashed after
+one rule (recorded below), and sidestepping it beat debugging it.*
+
+## ⚠ THE FINDING THAT MATTERS: `genKant` WAS EMITTING **WRONG BODIES** FOR ALTERNATIONS
+
+The survey said five rules price onto today's vocabulary. **Four of them were lies**, and the
+emitter's own output is what exposed it:
+
+```
+kpInvokeArg code={ return parseRK(1) AND parseRK(2) AND parseRK(3); };
+```
+
+`InvokeArg` is the **alternation `Braced` is an option of**. `dumpRuleTerms` gives `fold=ALT` for
+`InvokeArg`, `ElsE` and `WardeD`. **`genKant` joined unconditionally with `AND`** — which means
+*all options must match* where an alternation means *any one does*. **Bodies that parse and answer
+wrong**, which is the failure this whole campaign is built to prevent, in the emitter that landed
+the same day.
+
+⚠ **AND NOTE WHAT DID NOT CATCH IT.** `kantLeaf` refuses by KIND and covers every unknown **term**.
+The join is **not a term**, so a per-item guard could not see it: **a whole-body property is
+invisible to a per-item check.** That is the transferable lesson, not the three rule names.
+
+**Fixed — and it REFUSES rather than emitting `OR`**, because the alternation row is dead for a
+second, independent reason: an option attaches through a different frame (`into`, not `label`), so
+an `OR` chain would be the right operator on the wrong plumbing. One dead row, not half of one.
+
+```
+  Braced     define                         <- still emits
+  ElsE       REFUSING -- fold is ALT
+  GrouP      REFUSING -- fold is ALT
+  InvokeArg  REFUSING -- fold is ALT
+  WardeD     REFUSING -- fold is ALT
+```
+
+**So the honest count of rules that price onto today's vocabulary is ONE: `Braced`.** Ratchet green,
+smoke green, canary 276.
+
+## THE POPULATION — three numbers, none of which agree
+
+| source | number |
+|---|---|
+| the dispatch's citation | "**47** live rules" |
+| `incant/popScratch`'s own header (measured 2026-08-05) | **78** = 60 rule members + 18 rule attributes |
+| **this pass, by iterating the registry** | **79** members |
+
+**None of them is confirmed.** The 79 is one spelling — `for r in Grokking` — and the dispatch
+asked for a **second spelling**, which this pass did not deliver. ⚠ **The 47 is the one to stop
+citing**: it matches nothing measured, and columns 2-5 of the jittability census were handed back
+precisely because they divide by it.
+
+## ⚠ THE BLOCKING-KIND TALLY IS **VOID** — and it is void for an instrument reason, named
+
+The tempting table — 16 `isSET`, 9 `isGROUP`, 7 `isSTRING` — **is not reportable**, and it took one
+look at the leftovers to know it. 39 of 79 rows came back with an empty reason, and reading them by
+eye found **three different things wearing one blank**:
+
+| what the blank actually was | example |
+|---|---|
+| **the driver never looked the rule up** | `kant: no rule named (null)` (`ANYstring`) |
+| **a mangled name read** | `kant: no rule named Anydata type has no toString() method` (`Any`) |
+| **a REAL refusal in a message shape the parser missed** | `REFUSING BlocK -- term 2 is MANY` |
+
+So the counted rows are only the ones one `sed` happened to match, and the real distribution is
+unknown. **An undercount reads as a smaller problem and an overcount as a bigger one; neither reads
+as a broken instrument** — H9, arriving in the census H9 was quoted at.
+
+**What it would take to finish:** fix the driver's name-passing (bear-trap #26's family — a bare
+rule name whose node carries no data), and parse **both** refusal shapes (`  REFUSE <term> -- ...`
+and `genKant: REFUSING <rule> -- ...`). Neither is hard; both are precision work and neither was
+attempted at the end of a long session on purpose.
+
+## THE IN-PROCESS WALK CRASHES — filed, not chased
+
+`for r in Grokking; genKant(r);` reaches **exactly one rule** and exits **139**. Sidestepped by
+running one rule per process (79 runs, ~3s, no shared state), which is also the more auditable
+shape. **Not diagnosed.** Likely candidates are `genKant`'s own registry lookups disturbing the
+loop's cursor, or bear-trap #26's name-read — but that is inference and the causal-claim ledger says
+what inference is worth here.
+
+## WHAT THIS PASS DID **NOT** DELIVER
+
+The stamped table is **not** produced. Consumer counts, attach sites and verified per-rule term
+kinds across the population all wait on the same two instrument fixes above. ⚠ **So the next
+vocabulary charter still cannot be chosen off this table** — which was the pass's whole purpose, and
+saying so is better than stamping rows built on a driver that silently failed to look up half its
+population. **The one thing it did settle is worth the pass on its own: the emitter was producing
+wrong bodies for four rules, and now it refuses them.**
