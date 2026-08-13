@@ -176,3 +176,94 @@ read as the respell's proof.
 
 **STOPPED HERE, per the ask.** The file is stashed, not landed; nothing has processed it; processing
 gates on the `aCTionDefinE` revision.
+
+---
+
+# ⚠ THE EMITTER EXISTS — `genKant`, 2026-08-13 (SEQ 67 part B / 66-r1 phase 2). **The hand is replaced for two rules**
+
+*Every claim below RUN. `sh genLadder/kantRatchet.sh` is the standing instrument; canary 274 → 276
+(`genKant` + `kantLeaf`); fleet byte-identical on both streams; `pop.sh` unmoved.*
+
+**A hand-written kant parse body was always a manual run of a generator that did not exist yet.**
+It exists now, and its oracle is the hand: **byte-identity with the body `incant/bracedK` certified
+end to end on SEQ 63.**
+
+## THE RESULT — two rules, both byte-identical, from the LIVE terms
+
+```
+  ---- Braced
+  ok  R1 emit Braced from live terms (5 lines)
+  ok  R2 Braced emitted == hand body, BYTE-IDENTICAL (oracle: incant/parseCode)
+  ok  R3 EMITTED Braced parses real input -- sumple width is now 251
+  ok  R3 EMITTED Braced reached the GENERATED arm (promote=0)
+  ok  R3 EMITTED Braced went through the KANT door (kpBraced)
+  ---- ScafKB   (R1+R2 only)
+  ok  R1 emit ScafKB from live terms (5 lines)
+  ok  R2 ScafKB emitted == hand body, BYTE-IDENTICAL (oracle: incant/kantParse1)
+RATCHET GREEN -- 8 checks.
+```
+
+**`genKant` walks `planRule`'s classified plan** — the same walk `dumpSpellings` makes — so indices
+and kinds come from the rule **as it exists in the tree at that moment**, never from a reading by
+eye. That is the staleness class §7.1's index-guard item exists to name, closed here for the
+emitter's half.
+
+**`kantLeaf` spells the two kinds the shim vocabulary HAS** and returns null for everything else.
+⚠ **Refusing is the feature.** §1's table has four dead rows — optional, repetition, alternation,
+captured-literal — and an emitter that guessed at them would produce a body that parses and answers
+**wrong**, which is this project's worst failure shape. It names the kind it could not spell.
+
+## PROVENANCE IS ASSERTED IN-RUN, NEVER ASSUMED
+
+Every stage of `kantRatchet.sh` uses **that run's own output**: emitted fresh, byte-compared,
+written to a file, and executed **from that file**. That is the difference between *"the emitter can
+reproduce the hand body"* and *"the bytes that just ran came out of the emitter."* Nothing in the
+repo is modified — the emitted file and a re-pointed copy of the fixture live in a scratch dir — so
+a red run cannot leave a half-swapped artifact behind.
+
+R3 asserts **three** things, not one: the value, **the arm by name** (`promote=0`, because 251 alone
+can pass for the wrong reason — the interpreted arm has always produced it), and **the door by
+name** (`parseViaKant Braced -> kpBraced`, so a fallback to the C++ method cannot pass).
+
+## ⚠ ScafKB IS R1+R2 ONLY, AND THE REASON IS SAID OUT LOUD
+
+`kpScafKB`'s body lives **inline** in `incant/kantParse1`'s own define block, not in an included
+file, so there is **no `fILEs` line to re-point** at emitted bytes. Its runtime certification is
+**INHERITED** — byte-identity with a hand body that fixture already runs green — and is **not
+re-run**. Stated per the repeat rule, because **an unsaid inheritance is how a green row starts
+meaning less than a reader thinks.** Giving it an R3 means moving its body into an included file,
+which is a fixture change and was not this rung's business.
+
+## THE REPEAT RULE, as implemented
+
+A byte-match to a proven hand body **rides the bell** — cheap, inherited. Any **deliberate**
+divergence from the hand spelling **kills the byte-oracle for that rule** and re-engages full
+runtime certification for it; the harness says so by name in the red row. **Do not quietly re-target
+a moved oracle:** a target that moved is a claim the world changed, and the claim needs a cause.
+
+## NEGATIVE CONTROLS — both run, both fired (H7)
+
+| control | result |
+|---|---|
+| oracle perturbed by one line | **R2 RED**, "the byte-oracle is dead for this rule", exit 1 |
+| R3 pointed at a fixture with no matching `fILEs` line | **RED** by the failed-`sed` guard — *and* the harness's own H2 caught the short check count, `RATCHET INVALID -- only 4 checks recorded` |
+
+The second is the better demonstration because **nobody designed it as a pair**: the guard against a
+silently-failed `sed` and the self-certification floor caught the same fault from two directions.
+A vacuity guard on R1 (*emitted NOTHING*) is there for the same family — **a byte-compare of two
+empty files passes.**
+
+## ⚠ AND ONE BEAR-TRAP PAID FOR IN THE BUILDING, recorded because the detector earned its keep
+
+`kantLeaf`'s first cut returned a concatenation straight out of an `if` and used `return 0` for the
+refusal. **tok exited 139 and CASCADED** — the entire extern block gone from the regenerated header,
+**274 externs to ZERO** — surfacing three files away as `no member named 'opEQ'` in `Bytecode.mm`.
+Bear-trap #24 exactly. **The detector named it in one command:** `grep -c '^extern' GroupRules.h`
+after every retok. The cure was to copy `emitLeaf`'s spelling exactly — build into a `String` local,
+return it once, and refuse with `null` rather than `0`.
+
+## WHAT THIS DOES NOT CLAIM
+
+Two rules is two rules. The vocabulary is still **literal and rule-reference only**, so the four
+dead rows of §1 are still dead and every rule that needs them still refuses — loudly, by kind. **The
+ratchet's shape is proven; its reach is two.**

@@ -2857,29 +2857,6 @@ int 		i = 1;
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
-/*******************************************************************************
-    dumpSpellings — emitLeaf's OWN fixture, and it exists because emitLeaf was
-    about to be replaced with nothing to diff the replacement against.
-
-    THE ORACLE IS THE FUNCTION BEING REPLACED. That is the whole design: this
-    prints, for a named rule, the spelling emitLeaf produces for every plan node
-    it planned, under BOTH sinks. Capture it while the C++ emitLeaf is still the
-    only implementation and it becomes a byte-exact target the kant emitLeaf must
-    reproduce — the same discipline as `rung4.target` holding the emitted text
-    against the compiled-in method.
-
-    WHY NOT JUST USE THE RUNG TARGETS: emitLeaf writes every term spelling
-    inside them, so they DO gate it — but only for the kinds the ladder reaches.
-    LITTO is reached by no ladder rule (every Scaf term is noLabel), so both of
-    its spellings, `litTo` and `litOption`, were UNGATED. `CodE` plans as a SEQ
-    of two LITTO terms, so driving this off the census rules instead of the
-    ladder covers the kind the ladder cannot.
-
-    BOTH SINKS ON EVERY NODE, deliberately, even where the fold could never ask
-    for one: `into` is the ALT sink and `label` the SEQ sink, and LITTO is the
-    ONLY kind whose text differs between them. Printing both on every node costs
-    two lines and means the target moves if that ever stops being true.
-*******************************************************************************/
 extern "C" GroupItem *dumpSpellings(GroupItem *argument)
 {
 GroupItem 	*rule = 0;
@@ -3173,6 +3150,72 @@ extern "C" char *foldOf(GroupItem *rule)
 	if ( rule->groupBody->flags.isRule && rule->groupBody->flags.hasMembers && !rule->groupBody->flags.binType )
 		return "ALT";
 	return "SEQ";
+}
+
+/*******************************************************************************
+    genKant -- EMIT A RULE'S KANT PARSE BODY FROM ITS LIVE TERMS.
+
+    THE POINT OF THE WHOLE RATCHET. A hand-written body is a MANUAL RUN OF THIS
+    FUNCTION; this replaces the hand. Its oracle is byte-identity with the hand
+    body that incant/bracedK already certified end to end (SEQ 63), so a
+    byte-match inherits that certification rather than re-earning it -- identical
+    bytes through a certified pipeline cannot behave differently.
+
+    TEXT-FIRST, through the proven include chain (E0's route pricing). Tree
+    synthesis is a later economy and is NOT what this does.
+
+    ⚠ FROM THE LIVE TERMS, MEASURED, NOT BY EYE. It walks planRule's classified
+    plan -- the same walk dumpSpellings makes -- so the indices and kinds come
+    from the rule as it exists in the tree at this moment. Writing them by eye is
+    exactly the staleness class the index-guard item exists to name.
+
+    ⚠ EMITTED TO stderr, not stdout, and that is bear-trap #14: a run that ends
+    via stop() exits hard with no flush, so buffered stdout vanishes and looks
+    exactly like an emitter that never ran.
+*******************************************************************************/
+extern "C" GroupItem *genKant(GroupItem *argument)
+{
+GroupItem 	*rule = 0;
+GroupItem 	*plan = 0;
+GroupItem 	*node = 0;
+GroupItem 	*at = 0;
+char 		*body = 0;
+char 		*piece = 0;
+int 		n = 0;
+	rule = ::ruleOrRefuse(argument->getText(),"  kant");
+	if ( !rule )
+		return 0;
+	plan = ::planRule(rule);
+	if ( !plan )
+		{
+		::fprintf(stderr,"genKant: REFUSING %s -- no plan\n",argument->getText());
+		return 0;
+		}
+	while ( node = plan->nextMember(node) )
+		{
+		at = node->getAttribute("at");
+		piece = ::kantLeaf(node,at->getText());
+		if ( !piece )
+			{
+			::fprintf(stderr,"genKant: REFUSING %s -- term %s is %s, which has no kant spelling\n",argument->getText(),at->getText(),node->groupBody->tag);
+			return 0;
+			}
+		if ( n )
+			body = ::concat(3,body," AND ",piece);
+		else	body = piece;
+		n = n + 1;
+		}
+	if ( !n )
+		{
+		::fprintf(stderr,"genKant: REFUSING %s -- plan has no terms\n",argument->getText());
+		return 0;
+		}
+	::fprintf(stderr,"define\n");
+	::fprintf(stderr,"    kp%s code={\n",argument->getText());
+	::fprintf(stderr,"        return %s;\n",body);
+	::fprintf(stderr,"        };\n");
+	::fprintf(stderr,"    ;\n");
+	return GroupControl::groupController->groupRules->trueResult;
 }
 
 extern "C" GroupItem *genParse(GroupItem *argument)
@@ -7200,6 +7243,64 @@ char 		*mintName = 0;
 	if ( mint )
 		return 1;
 	return 0;
+}
+
+/*******************************************************************************
+    dumpSpellings — emitLeaf's OWN fixture, and it exists because emitLeaf was
+    about to be replaced with nothing to diff the replacement against.
+
+    THE ORACLE IS THE FUNCTION BEING REPLACED. That is the whole design: this
+    prints, for a named rule, the spelling emitLeaf produces for every plan node
+    it planned, under BOTH sinks. Capture it while the C++ emitLeaf is still the
+    only implementation and it becomes a byte-exact target the kant emitLeaf must
+    reproduce — the same discipline as `rung4.target` holding the emitted text
+    against the compiled-in method.
+
+    WHY NOT JUST USE THE RUNG TARGETS: emitLeaf writes every term spelling
+    inside them, so they DO gate it — but only for the kinds the ladder reaches.
+    LITTO is reached by no ladder rule (every Scaf term is noLabel), so both of
+    its spellings, `litTo` and `litOption`, were UNGATED. `CodE` plans as a SEQ
+    of two LITTO terms, so driving this off the census rules instead of the
+    ladder covers the kind the ladder cannot.
+
+    BOTH SINKS ON EVERY NODE, deliberately, even where the fold could never ask
+    for one: `into` is the ALT sink and `label` the SEQ sink, and LITTO is the
+    ONLY kind whose text differs between them. Printing both on every node costs
+    two lines and means the target moves if that ever stops being true.
+*******************************************************************************/
+/*******************************************************************************
+    kantLeaf -- ONE PLAN KIND, ONE KANT SPELLING. SEQ 67 part B / 66-r1 phase 2.
+
+    The kant twin of emitLeaf, and deliberately much smaller: emitLeaf spells
+    every kind for two sinks in C++, this spells the two kinds the kant shim
+    vocabulary actually HAS. Everything else returns null, which the caller
+    turns into a loud refusal.
+
+    ⚠ REFUSING IS THE FEATURE. The shim table in docs/kantParseTemplates.md has
+    exactly two live rows -- literal and rule-reference -- and four dead ones:
+    optional, repetition, alternation and captured-literal have no kant spelling
+    at all. An emitter that GUESSED at those would produce a body that parses
+    and answers wrong, which is this project's worst failure shape. It names the
+    kind it could not spell instead.
+*******************************************************************************/
+extern "C" char *kantLeaf(GroupItem *node, char *at)
+{
+char 	*leaf = 0;
+	/*  ⚠ BUILT INTO A LOCAL AND RETURNED ONCE, and `null` rather than `0`.
+	Both are emitLeaf's spelling copied exactly, and neither is taste. The
+	first cut returned the concatenation straight out of the `if` and used
+	`return 0` for the refusal; tok exited 139 and CASCADED, wiping the
+	entire extern block from the regenerated header -- 274 externs to ZERO,
+	which surfaces three files away as `no member named opEQ` in Bytecode.
+	Bear-trap #24's signature exactly, and the detector that named it in one
+	command is `grep -c '^extern' GroupRules.h` after every retok.  */
+	if ( ::compare(node->groupBody->tag,"LIT") == 0 )
+		leaf = ::concat(3,"litK(",at,")");
+	else
+	if ( ::compare(node->groupBody->tag,"CALL") == 0 )
+		leaf = ::concat(3,"parseRK(",at,")");
+	else	return 0;
+	return leaf;
 }
 
 /*****************************************************************************

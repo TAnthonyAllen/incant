@@ -732,6 +732,94 @@ GroupItem   plan;
     ONLY kind whose text differs between them. Printing both on every node costs
     two lines and means the target moves if that ever stops being true.
 *******************************************************************************/
+/*******************************************************************************
+    kantLeaf -- ONE PLAN KIND, ONE KANT SPELLING. SEQ 67 part B / 66-r1 phase 2.
+
+    The kant twin of emitLeaf, and deliberately much smaller: emitLeaf spells
+    every kind for two sinks in C++, this spells the two kinds the kant shim
+    vocabulary actually HAS. Everything else returns null, which the caller
+    turns into a loud refusal.
+
+    ⚠ REFUSING IS THE FEATURE. The shim table in docs/kantParseTemplates.md has
+    exactly two live rows -- literal and rule-reference -- and four dead ones:
+    optional, repetition, alternation and captured-literal have no kant spelling
+    at all. An emitter that GUESSED at those would produce a body that parses
+    and answers wrong, which is this project's worst failure shape. It names the
+    kind it could not spell instead.
+*******************************************************************************/
+extern String kantLeaf(GroupItem node, String at)
+{
+String      leaf;
+    /*  ⚠ BUILT INTO A LOCAL AND RETURNED ONCE, and `null` rather than `0`.
+        Both are emitLeaf's spelling copied exactly, and neither is taste. The
+        first cut returned the concatenation straight out of the `if` and used
+        `return 0` for the refusal; tok exited 139 and CASCADED, wiping the
+        entire extern block from the regenerated header -- 274 externs to ZERO,
+        which surfaces three files away as `no member named opEQ` in Bytecode.
+        Bear-trap #24's signature exactly, and the detector that named it in one
+        command is `grep -c '^extern' GroupRules.h` after every retok.  */
+    if node.tag eq "LIT"    leaf = "litK(" at ")";
+    or node.tag eq "CALL"   leaf = "parseRK(" at ")";
+    else                    return null;
+    return leaf;
+}
+
+/*******************************************************************************
+    genKant -- EMIT A RULE'S KANT PARSE BODY FROM ITS LIVE TERMS.
+
+    THE POINT OF THE WHOLE RATCHET. A hand-written body is a MANUAL RUN OF THIS
+    FUNCTION; this replaces the hand. Its oracle is byte-identity with the hand
+    body that incant/bracedK already certified end to end (SEQ 63), so a
+    byte-match inherits that certification rather than re-earning it -- identical
+    bytes through a certified pipeline cannot behave differently.
+
+    TEXT-FIRST, through the proven include chain (E0's route pricing). Tree
+    synthesis is a later economy and is NOT what this does.
+
+    ⚠ FROM THE LIVE TERMS, MEASURED, NOT BY EYE. It walks planRule's classified
+    plan -- the same walk dumpSpellings makes -- so the indices and kinds come
+    from the rule as it exists in the tree at this moment. Writing them by eye is
+    exactly the staleness class the index-guard item exists to name.
+
+    ⚠ EMITTED TO stderr, not stdout, and that is bear-trap #14: a run that ends
+    via stop() exits hard with no flush, so buffered stdout vanishes and looks
+    exactly like an emitter that never ran.
+*******************************************************************************/
+extern GroupItem genKant(GroupItem argument)
+{
+GroupItem   rule;
+GroupItem   plan;
+GroupItem   node;
+GroupItem   at;
+String      body;
+String      piece;
+int         n = 0;
+    rule = ruleOrRefuse(argument.text,"  kant");
+    if !rule    return null;
+    plan = planRule(rule);
+    if !plan {
+        cerr "genKant: REFUSING " argument.text " -- no plan":;
+        return null; }
+    while node = plan.nextMember(node) {
+        at      = node.getAttribute("at");
+        piece   = kantLeaf(node,at.text);
+        if !piece {
+            cerr "genKant: REFUSING " argument.text " -- term " at.text " is " node.tag ", which has no kant spelling":;
+            return null; }
+        if n    body = body " AND " piece;
+        else    body = piece;
+        n = n + 1; }
+    if !n {
+        cerr "genKant: REFUSING " argument.text " -- plan has no terms":;
+        return null; }
+    cerr "define":;
+    cerr "    kp" argument.text " code={":;
+    cerr "        return " body ";":;
+    cerr "        };":;
+    cerr "    ;":;
+    return trueResult;
+}
+
 extern GroupItem dumpSpellings(GroupItem argument)
 {
 GroupItem   rule;
