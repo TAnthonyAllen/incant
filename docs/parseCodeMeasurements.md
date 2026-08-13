@@ -1427,7 +1427,7 @@ nothing else moved · `completePop` unchanged at 136 / 240 / 3 / 0 · canary 274
 > **PC-1 restated (2026-08-13):** the generated arm never consults `isTarget` **where a parent label
 > exists** — promotion there would replace the parent's subtree (GM-22, `ScafOUT` childless). Where
 > **no** parent label exists there is no subtree at risk, and the consult is permitted: the IA-2
-> cell. Narrow spelling `(promote || !pStuff.label) && stuff.isTarget` landed in the commit that carries this addendum (hash filled below once written); broad
+> cell. Narrow spelling `(promote || !pStuff.label) && stuff.isTarget` landed **`e6438ba`**; broad
 > spelling measured indistinguishable on today's population (216 calls, zero in the divergent cell)
 > and **rejected on principle**.
 >
