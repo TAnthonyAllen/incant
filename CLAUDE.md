@@ -709,10 +709,26 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 > |---|---|---|
 > | the **detach** pick over value-capture | M2's walker read — restore pairs **positionally** | one function, read |
 > | **"copy forks the arms"** as a risk row | M1 — the jit **already returns by capture**, so capture *converges* them | one fixture |
-> | **"the unpushed channel cost us the SEQ divergence"** | `ipc/` is **gitignored** | one `git check-ignore` |
+> | **"the unpushed channel cost us the SEQ divergence"** | `ipc/` was **gitignored** ⚠ **— AND THAT PREMISE EXPIRED THE SAME DAY, see below** | one `git check-ignore` |
 > | **"the whole interpreted arm crosses the seam"** | only `actionType` reaches `runAction`; coded rules bind `processAction` direct | one grep |
 >
-> **EVERY ONE WAS SOUND REASONING ON A PREMISE NOBODY HAD RUN**, and three of the four were
+> ⚠ **AND THE THIRD ROW'S PREMISE HAS SINCE FLIPPED — CORRECTED 2026-08-13, AND THE CORRECTION IS
+ITSELF THE LESSON.** `ipc/` was in `.gitignore` from `a5c6be1` (2026-07-02) until **`48f134a`
+(2026-08-10) REMOVED it** — *"Seal 2026-08-10: ipc/ tracked (publicity accepted)"* — the **same day**
+this table was written. All six channel files are tracked today; `git check-ignore` on them now
+returns nothing.
+
+**So the row was RIGHT WHEN MEASURED and is WRONG NOW**, which is a harder failure than being wrong
+at the time: **a dated measurement written as a timeless fact.** It was repeated to Tony on
+2026-08-13 as *"ipc/ is gitignored, so the ledger rides in no commit"* — false, and the channel file
+was sitting as uncommitted dirt while being described as scratch.
+
+**The rule this adds to the doctrine above:** *measure before you reason on it* has a twin —
+**re-measure before you CITE it, and stamp the measurement with its date.** A premise with no date
+cannot be told apart from a premise that has expired, and this table's whole subject is premises
+nobody re-ran.
+
+**EVERY ONE WAS SOUND REASONING ON A PREMISE NOBODY HAD RUN**, and three of the four were
 > *load-bearing for a scheduling or design decision*. **The rule is not "reason less".** It is:
 > **when a premise is one command away from being measured, measure it before you build on it** —
 > and note that the two disciplines that caught these were structural, not vigilant: the

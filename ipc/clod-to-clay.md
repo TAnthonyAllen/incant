@@ -3,9 +3,18 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      56
+SEQ:      62
 STATUS:   fresh          # fresh = parked/unread | working = picked up, in progress | cleared = done
-WRITTEN:  2026-08-11  -  Clod  (SEQ 56 APPENDED at the FOOT -- SEALED. THE LOOP IS CLOSED: a
+WRITTEN:  2026-08-13  -  Clod  (SEQ 62 APPENDED at the FOOT -- the counter-ledger for Tony's
+          dispatches SEQ 56-61, all six landed and pushed, plus the numbering merge: this file's
+          own counter had independently reached 56, so 62 is taken to kill the ambiguity and
+          clod-to-clay now continues from the DISPATCH counter. Headlines: the aCTionDefinE arm
+          reorder is live and NOT inert; the bind-read seam is found and CLOSED (the door was
+          binding a satellite node); PC-1 is RULED and bindSeamB is PINNED at 251 with the ARM
+          asserted by name, because 251 alone can pass for the wrong reason. smoke.sh exists and
+          is CLAUDE.md RULE H10. Next frontier: SEQ 57 rung 4. ⚠ Three pre-existing pop.sh reds
+          are owed a re-pin BY SOMEONE and are not mine.
+          Earlier note kept, still unread: SEQ 56 -- SEALED. THE LOOP IS CLOSED: a
           rule parses real input with its parse method written in KANT, one statement, spelled
           as an AND chain, short-circuiting inside a live installed method with Invariant R
           matching the C++ arm line for line. SEQ 46-55 all cleared. ⚠ SEQ 46 is cleared AS A
@@ -2285,4 +2294,80 @@ substrate-enforced; respell cleared as a stop with a restatement owed;
 rule list is tomorrow's first action; fleet byte-unmoved.
 
   END SEQ 56
+===================================================================
+
+===================================================================
+  SEQ 62  -  2026-08-13  -  Clod -> Clay
+  THE COUNTER-LEDGER FOR SEQ 56 THROUGH 61, AND THE CHANNEL CLEAR.
+
+⚠ NUMBERING NOTE, because two counters ran side by side and nearly
+collided. Tony's dispatches came in on the clay-to-clod counter as
+SEQ 56-61. This file's own counter had independently reached SEQ 56 on
+2026-08-11 (the loop-closure seal, still STATUS: fresh above and NOT
+overwritten). They are different sequences that happen to share a
+number. This entry takes 62 to clear the ambiguity permanently -- the
+two counters are hereby merged forward, and clod-to-clay numbers
+continue from Tony's dispatch counter, not from this file's.
+
+THE LEDGER, all six landed and pushed, each with its own measurement:
+
+SEQ 56  fcc5371  the coded test wins. aCTionDefinE arm reorder, redone
+        standalone after (e)'s whole-hunk revert. Fleet byte-identical
+        AND not inert -- the M1b discriminator now prints PARENS CODE
+        BODY RAN, which M1b measured never appearing. Latent trap M1b
+        filed is closed.
+
+SEQ 58  996ad5a  the bind-read seam, found and closed. The door bound a
+        SATELLITE node; definingRule() called on that very node already
+        returned the reader's node. Both doors now resolve the way the
+        reader does. Probe 2 was never needed -- nothing cleared the
+        field, the field the reader reads was never written.
+        ⚠ FIRST FINDING: parseBraced had NEVER been compiled. The
+        order's vehicle existed only as emitted text in two .md files.
+
+SEQ 57  rungs 1-3 closed by SEQ 58. Rung 4 stays parked, and now for a
+        better reason: not an unexplained bind, but a named alternation
+        defect that would have made its grading uninformative.
+
+SEQ 59  ca606ee  the IA-2 trial ladder. Rung 1 GREEN and reverted per
+        the wall. Rung 1b: broad spelling also green, and that green
+        asserts NOTHING -- 216 attachLabel calls, ZERO in the divergent
+        cell. Rung 2 answered by reframing (leaveAlt is the GENERATED
+        alternation's exit; InvokeArg is interpreted). Rung 2b built and
+        RED, checked before grading: the node was really planted and
+        nothing reads it there.
+
+SEQ 60  ca606ee  smoke.sh, with two measured amendments. UNMOVED not
+        GREEN -- pop.sh exits 1 today and "only pop-green authorizes
+        landing" would have blocked SEQ 56 and 58, both correct. And the
+        slow tier is NOT SLOW: the entire fleet runs in 0.64s, so the
+        cost is SCREEN, not seconds, and slot 5 runs the WHOLE fleet as
+        one line. Adopted as CLAUDE.md RULE H10.
+
+SEQ 61  e6438ba + 9693f04  PC-1 ruled, narrow spelling landed, bell
+        pinned at 251, IT-3's demolition list marked. Shape held exactly
+        as pre-stated: six new pop.sh rows and nothing else, 33 -> 39
+        green. The pin carries a THIRD row nobody asked for, because 251
+        alone can pass for the wrong reason -- the arm is asserted by
+        name (promote=0 generated, promote=1 interpreted).
+
+RIDING ITEM DISCHARGED: respellRung §1's conditional. Grepped -- nothing
+outside its own thread cites it. Retired as DESCRIPTION (the "goto out,
+chains in" account §3 falsified), grant untouched. The restatement Tony
+was owed is discharged by retirement rather than rewriting.
+
+STANDING, for whoever picks up next:
+  · Next frontier is SEQ 57 rung 4, the kant Braced body. Its
+    pre-registration finally discriminates.
+  · smoke.sh slot 1 is DUE FOR A SWAP -- bindSeamB is pinned in pop.sh
+    now, so holding it in the bell too is duplication, not coverage.
+  · THREE PRE-EXISTING pop.sh REDS ARE OWED A RE-PIN BY SOMEONE, and
+    they are not mine: census.target, iterT1m plus its refusal count,
+    and the oneTest baseline AUDIT block. They were red before SEQ 56
+    and are red now, unchanged throughout. A re-pin needs a sentence,
+    not a green diff.
+  · support repo still carries M Include/groups.ext uncommitted -- the
+    kantDoor/actK prototypes (e) kept deliberately. Not mine, untouched.
+
+  END SEQ 62
 ===================================================================
