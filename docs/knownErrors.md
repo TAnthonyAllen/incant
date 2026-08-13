@@ -436,7 +436,70 @@ unsafe to point at unproven code — which is exactly what a probe is for. The d
 safety net, and a safety net that kills the run is worse than none, because it converts *"this
 construct is not supported yet"* into *"the binary is broken."*
 
-### Who rules
+### ⚠ REPAIRED 2026-08-13 (SEQ 67 C.1) — AND THE INFERENCE ABOVE WAS **WRONG**
+
+**Read this before trusting any causal line in this file.** The lead recorded above — *degrade
+returns null, nothing in flight, the `return` dereferences the absent value* — sent the search at
+`jitEmitReturn` and `gJitResult`. **The site says something else**, and it is three lines earlier
+than the frame's top:
+
+```
+    if !arg         arg = BrancheS;
+    or isMethod     arg = arg.gMethod(arg);      <-- arg is OVERWRITTEN by the method's return
+    switch(*BrancheS.tag) {
+        case 'r':   isReturn = true;             <-- stamps arg. arg is null. 139.
+```
+
+Under jitting the method **is the emitter**, and `jitEmitShortCircuit` ends its degrade path with a
+bare `return nullptr`. So `arg` became null and **the STAMP dereferenced it** — not the
+return-emission, which never ran. The dispatch's instruction to *verify at the site before
+repairing* is what caught it; the inference would have produced a correct-looking repair **in the
+wrong file**.
+
+**Fifth entry in the standing causal-claim ledger.** Structural claims here hold; causal ones are
+roughly a coin flip until run. Cost of the check: one function, read.
+
+### ⚠ AND THE MECHANISM IS THE ONE-CHANNEL-ONE-MEANING FAMILY, in its sharpest form yet
+
+A method's return value means **THE NODE** at run time and means **WHETHER EMISSION SUCCEEDED** at
+emit time. **One channel, one reader, two ERAS** — not two facts. That is the fourth row of
+`CLAUDE.md`'s standing table exactly, and it is the same shape as `isBranch` read by `aCTionBlocK`.
+
+**The repair is the cheap half of the standing cure** — stop treating "no node" as a node:
+
+```
+    if !arg         arg = BrancheS;      /* re-establish; same node the no-expression path uses */
+```
+
+**The structural half — a separate emitted/refused channel — is deliberately NOT in this repair.**
+It belongs to the invokable mechanism, which is gated behind the jittability census (C.2) and must
+not be pre-built.
+
+### The grading, against the done-condition as written
+
+| leg | before | after |
+|---|---|---|
+| exit status of the census body | **139** | **0**, `=== survived ===`, sentinel |
+| degrade still announced | — | **yes, count 1** — not removed to satisfy the check (H4) |
+| returns the interpreted answer | — | **0 = 0** |
+
+⚠ **AND A ZERO-AGREEING-WITH-ZERO IS THE WEAKEST POSSIBLE ROW**, so it was paired with a non-zero
+sibling per the standing rule — a body that degrades **mid-body** and then returns a constant:
+
+```
+r0nbody code={ litK(1) AND litK(2);  return 42; };
+     jitted 42   ·   interpreted 42   ·   degrade count 1   ·   both exit 0
+```
+
+**42 ≠ 0, so the agreement is real** — and the row asserts something the zero row could not: **a
+degrade in the middle of a body does not poison the statements after it.** That is the difference
+between *the fallback occurred* and *the fallback was sound*, which the standing rule says a
+degrade counter can never tell you.
+
+**Blast radius:** `aCTionBrancH` is on every `return`, `break` and `continue`. `oneTest`/`jsonTest`
+byte-identical on both streams; **jit ladder exit 0, 184 green**; `pop.sh` unmoved; canary 274.
+
+### Who rules — DISCHARGED
 
 The repair is chartered (SEQ 67 C.1). **Done means:** the exact census body above degrades to
 interpreted, **returns the interpreted answer**, and exits **0**. ⚠ **The census run is the fixture

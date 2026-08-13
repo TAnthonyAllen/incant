@@ -113,6 +113,29 @@ GroupItem   BrancheS:,
 GroupItem   arg = ExpressioN;
     if !arg         arg = BrancheS;
     or isMethod     arg = arg.gMethod(arg);
+    /*  ⚠ KE-3, REPAIRED 2026-08-13 (SEQ 67 C.1). THE LINE ABOVE OVERWRITES arg
+        WITH WHATEVER THE METHOD RETURNS, AND UNDER JITTING THAT METHOD IS AN
+        EMITTER THAT RETURNS NULL TO MEAN "I REFUSED". jitEmitShortCircuit ends
+        its degrade path with a bare `return nullptr`, so a body whose operand
+        the emitter cannot see -- a command invocation, which arrives as a bare
+        Token -- left arg null and the stamp below dereferenced it. Exit 139,
+        inside the EMIT walk, AFTER the degrade line had already announced the
+        refusal. Measured with its control: the identical body interpreted exits
+        0. Census and frames in docs/jit.md; entry in docs/knownErrors.md.
+
+        ⚠ AND IT IS THE ONE-CHANNEL-ONE-MEANING FAMILY AGAIN, in its sharpest
+        form yet -- the two meanings belong to different ERAS, not different
+        facts. A method's return value means THE NODE at run time and means
+        WHETHER EMISSION SUCCEEDED at emit time. One channel, one reader, two
+        eras. That is the fourth row of the standing table exactly, and the cure
+        here is the cheap half of the standing cure: stop treating "no node" as
+        a node. The structural half -- a separate emitted/refused channel -- is
+        the invokable mechanism's business, not this repair's.
+
+        FALLING BACK TO BrancheS IS NOT A NEW BEHAVIOUR: it is the same node the
+        no-expression path two lines up already uses, so the stamp lands
+        somewhere real and the walk continues instead of dying.  */
+    if !arg         arg = BrancheS;
     switch(*BrancheS.tag) {
         case 'b':   isBreak     = true;
         case 'c':   isContinue  = true;
