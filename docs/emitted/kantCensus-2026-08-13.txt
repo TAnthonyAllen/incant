@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   1387440 bytes  Aug 13 12:03
+  bin   1387536 bytes  Aug 13 17:59
   asOf  2026-08-13
 
 ==========================================================================
@@ -73,7 +73,7 @@
   BasicElse              3  LCR                       no  TERM followedBy -- inline group / character data isSET (named future kind)
   BlocK                  3  LR+L                      no  EMITTER term 2 is MANY, which has no kant spelling
   Braced                 3  LRL                      YES  NONE 
-  BrancH                 3  RR?C                      no  TERM SemI -- inline group / character data isSTRING (named future kind)
+  BrancH                 3  GR?C                      no  TERM SemI -- inline group / character data isSTRING (named future kind)
   BrancheS               3  LLL                       no  RULE rule-level data isSET (§4.1 rule-as-data, rung 5)
   CerR                   5  LCAZC                     no  RULE 1 unmaterialised terms
   CodE                   2  LL                        no  EMITTER term 1 is LITTO, which has no kant spelling
@@ -82,39 +82,39 @@
   DEF                    3  LCR                       no  TERM followedBy -- inline group / character data isSET (named future kind)
   DEFINing               0  (none)                    no  RULE no terms at all
   DO                     6  LCRLRC                    no  TERM followedBy -- inline group / character data isSET (named future kind)
-  DatA                   6  RRRRRC+                   no  TERM CodE -- parseAction (tail position only, §2.8)
+  DatA                   6  RGARRC+                   no  TERM CodE -- parseAction (tail position only, §2.8)
   DefinE                 4  GG?R?C                    no  TERM NewGroup -- inline group / character data isGROUP (named future kind)
   DelimText              2  LG                        no  TERM dtext -- inline group / character data isGROUP (named future kind)
   ElseIf                 5  LRC?RR?                   no  TERM SemI -- inline group / character data isSTRING (named future kind)
   FOR                    9  LCGLC?RCR?R               no  TERM followedBy -- inline group / character data isSET (named future kind)
-  FloaT                  2  C+R?                      no  RULE rule-level data isCHAR (§4.1 rule-as-data, rung 5)
+  FloaT                  2  C+C?                      no  RULE rule-level data isCHAR (§4.1 rule-as-data, rung 5)
   HeX                    4  CCGL                      no  TERM zero -- inline group / character data isSTRING (named future kind)
   IF                     6  LCRC?RR?                  no  TERM followedBy -- inline group / character data isSET (named future kind)
   InitiatE               0  (none)                    no  RULE rule-level data isGROUP (§4.1 rule-as-data, rung 5)
-  InvokE                 3  LR?L                      no  EMITTER term 2 is OPT, which has no kant spelling
+  InvokE                 3  LR?L                     YES  NONE 
   Iterate                6  LGLGL?L?                  no  TERM ANYtoken -- inline group / character data isGROUP (named future kind)
   Limit                  4  LGGL                      no  TERM min -- inline group / character data isGROUP (named future kind)
   Looper                 0  (none)                    no  RULE rule-level data isGROUP (§4.1 rule-as-data, rung 5)
   MemberS                3  LAR+                      no  TERM MEMBERs -- parseAction (tail position only, §2.8)
   Modifier               0  (none)                    no  RULE rule-level data isSET (§4.1 rule-as-data, rung 5)
   NewGroup               0  (none)                    no  RULE rule-level data isGROUP (§4.1 rule-as-data, rung 5)
-  NumbeR                 2  R?L                       no  RULE rule-level data isGROUP (§4.1 rule-as-data, rung 5)
-  Parens                 3  LR?L                      no  EMITTER term 2 is OPT, which has no kant spelling
+  NumbeR                 2  C?L                       no  RULE rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+  Parens                 3  LR?L                     YES  NONE 
   PoweR                  2  C?C+                      no  RULE rule-level data isSET (§4.1 rule-as-data, rung 5)
   PrinT                  5  LCAZC                     no  RULE 1 unmaterialised terms
-  PrintField             2  RR?                       no  EMITTER term 2 is OPT, which has no kant spelling
+  PrintField             2  RC?                      YES  NONE 
   QuotE                  2  CU                        no  TERM tik -- inline group / character data isSET (named future kind)
-  RunRulE                3  RR?L?                     no  EMITTER term 2 is OPT, which has no kant spelling
+  RunRulE                3  RR?L?                     no  TERM OPT at 3 -- optional wraps LIT, and only CALL has a kant spelling (optLK is not built)
   ScopeXP                3  LZC                       no  RULE 1 unmaterialised terms
   Search                 4  LCR+C                     no  TERM followedBy -- inline group / character data isSET (named future kind)
   SetBrackets            2  LU                        no  TERM ] -- upTo/upToOver (not on the ladder yet)
   ShortcuT               0  (none)                    no  RULE rule-level data isGROUP (§4.1 rule-as-data, rung 5)
   Start                  0  (none)                    no  RULE rule-level data isGROUP (§4.1 rule-as-data, rung 5)
   StringXP               2  LZ                        no  RULE 1 unmaterialised terms
-  TokenXP                3  R?RR?                     no  EMITTER term 1 is OPT, which has no kant spelling
+  TokenXP                3  G?RR?                     no  TERM OPT at 1 -- optional wraps CONTAINER, and only CALL has a kant spelling (optLK is not built)
   TraiT                  4  RC?R?R?                   no  TERM Modifier -- inline group / character data isSET (named future kind)
   TraiTdata              4  LRC?R?                    no  TERM Modifier -- inline group / character data isSET (named future kind)
-  UnaryXP                2  RG                        no  TERM ANYtoken -- inline group / character data isGROUP (named future kind)
+  UnaryXP                2  GG                        no  TERM ANYtoken -- inline group / character data isGROUP (named future kind)
   WardeD                12  RRRRRRRRRRRR              no  FOLD fold is ALT, and only SEQ has a kant spelling
   WhilE                  5  LCRC?R                    no  TERM followedBy -- inline group / character data isSET (named future kind)
   Xpress                 2  RC                        no  TERM SemI -- inline group / character data isSTRING (named future kind)
@@ -127,11 +127,11 @@
   numberSet              0  (none)                    no  RULE rule-level data isSET (§4.1 rule-as-data, rung 5)
   return                 0  (none)                    no  RULE no terms at all
   tokenize               0  (none)                    no  RULE no terms at all
-  ANYorNum               2  RG                        no  TERM ANYtoken -- inline group / character data isGROUP (named future kind)
+  ANYorNum               2  GG                        no  TERM ANYtoken -- inline group / character data isGROUP (named future kind)
   ANYstring              0  (none)                    no  RULE rule-level data isGROUP (§4.1 rule-as-data, rung 5)
   ElsE                   2  RR                        no  FOLD fold is ALT, and only SEQ has a kant spelling
   ExpressioN             1  R+                        no  EMITTER term 1 is MANY, which has no kant spelling
-  FormaT                 5  ZG?R?ZL                   no  RULE 2 unmaterialised terms
+  FormaT                 5  ZG?G?ZL                   no  RULE 2 unmaterialised terms
   GrouP                  2  RR                        no  FOLD fold is ALT, and only SEQ has a kant spelling
   InvokeArg              3  RRR                       no  FOLD fold is ALT, and only SEQ has a kant spelling
   LoopRestrict           2  CC                        no  TERM loopOnAttributes -- inline group / character data isSTRING (named future kind)
@@ -139,10 +139,10 @@
   PRINTing               0  (none)                    no  RULE no terms at all
   Precision              1  Z                         no  RULE 1 unmaterialised terms
   PrintXP                2  GR                        no  TERM ShortcuT -- inline group / character data isGROUP (named future kind)
-  ScopeField             2  GR                        no  TERM ANYtoken -- inline group / character data isGROUP (named future kind)
+  ScopeField             2  GG                        no  TERM ANYtoken -- inline group / character data isGROUP (named future kind)
   SemI                   0  (none)                    no  EMITTER term 0 is LITTO, which has no kant spelling
   StatemenT              5  CRRRR                     no  TERM SemI -- inline group / character data isSTRING (named future kind)
-  Token                  5  RRRRR                     no  TERM Operators -- registry container (not on the ladder yet)
+  Token                  5  RGRRG                     no  TERM Operators -- registry container (not on the ladder yet)
   counter                0  (none)                    no  RULE rule-level data isSET (§4.1 rule-as-data, rung 5)
   define                 4  LGLL                      no  TERM definitions -- inline group / character data isGROUP (named future kind)
 
@@ -153,14 +153,14 @@
   rows stamped        78
   rows crashed        0
 
-  SHIMS AVAILABLE     1
+  SHIMS AVAILABLE     4
 
   BLOCKER DISTRIBUTION (rows, by first blocker kind):
-      31 TERM
+      33 TERM
       31 RULE
-      11 EMITTER
+       6 EMITTER
+       4 NONE
        4 FOLD
-       1 NONE
 
   FOLD:
       67 SEQ

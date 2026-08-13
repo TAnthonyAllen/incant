@@ -7308,7 +7308,8 @@ char 		*mintName = 0;
 *******************************************************************************/
 extern "C" char *kantLeaf(GroupItem *node, char *at)
 {
-char 	*leaf = 0;
+char 		*leaf = 0;
+GroupItem 	*inner = 0;
 	/*  ⚠ BUILT INTO A LOCAL AND RETURNED ONCE, and `null` rather than `0`.
 	Both are emitLeaf's spelling copied exactly, and neither is taste. The
 	first cut returned the concatenation straight out of the `if` and used
@@ -7317,11 +7318,37 @@ char 	*leaf = 0;
 	which surfaces three files away as `no member named opEQ` in Bytecode.
 	Bear-trap #24's signature exactly, and the detector that named it in one
 	command is `grep -c '^extern' GroupRules.h` after every retok.  */
+	/*  ⚠ OPT ARM ADDED SEQ-NEXT (the OPT charter, rung one). An OPT plan node
+	WRAPS its inner node as a member, and the inner kind decides the shim:
+	a reference optional is optRK, a LITERAL optional wants optLK which IS
+	NOT BUILT. So this arm reads the inner kind and REFUSES the unbuilt one
+	BY NAME rather than spelling optRK over it — which would emit a body
+	that calls parseR on a literal term: a body that parses and answers
+	wrong, the exact shape the ALT fold gate was added for one dispatch
+	ago. Refuse-by-kind is what caught that, and this is the same guard
+	applied to the kind being introduced rather than to the ones already
+	known.  */
 	if ( ::compare(node->groupBody->tag,"LIT") == 0 )
 		leaf = ::concat(3,"litK(",at,")");
 	else
 	if ( ::compare(node->groupBody->tag,"CALL") == 0 )
 		leaf = ::concat(3,"parseRK(",at,")");
+	else
+	if ( ::compare(node->groupBody->tag,"OPT") == 0 )
+		{
+		inner = node->nextMember(inner);
+		if ( !inner )
+			{
+			::fprintf(stderr,"  REFUSE OPT at %s -- plan node wraps nothing\n",at);
+			return 0;
+			}
+		if ( ::compare(inner->groupBody->tag,"CALL") == 0 )
+			leaf = ::concat(3,"optRK(",at,")");
+		else {
+			::fprintf(stderr,"  REFUSE OPT at %s -- optional wraps %s, and only CALL has a kant spelling (optLK is not built)\n",at,inner->groupBody->tag);
+			return 0;
+			}
+		}
 	else	return 0;
 	return leaf;
 }
@@ -9392,6 +9419,87 @@ extern "C" GroupItem *opUnaryMinus(GroupItem *result)
 		return 0;
 		}
 	return GroupControl::groupController->groupRules->tempField;
+}
+
+/*******************************************************************************
+    optRK — THE OPTIONAL RULE-REFERENCE. Vocabulary item 3, rung one of the OPT
+    charter (decision (a), ruled by Tony 2026-08-13 off SEQ 72's stamped table:
+    OPT opens 5 of the 16 L/R rules, the measured maximum).
+
+    THE CONTRACT, and it is parseRK's with ONE leg's answer flipped:
+        attempt term N's parse;
+        on success  -> proceed as any term       (trueResult)
+        on failure  -> RESTORE THE CURSOR and    (trueResult)
+                       still answer success
+    Cursor discipline identical, only the verdict changes. That is why this is
+    one small function beside parseRK and not a new mechanism: it names a term
+    BY POSITION, holds no node, and leaves position/label/invariant to the
+    frame — SEQ 54/55's standing convention, unchanged.
+
+    ⚠ WHY A SEPARATE SHIM PER INNER KIND, rather than one optK that works out
+    LIT-vs-CALL at run time. planTerm ALREADY MAKES THAT DECISION when it
+    builds the plan, and a run-time re-derivation would be a SECOND IMPLEMENTER
+    of it — the exact arrangement countRuleTerms' own comment refuses ("ONE
+    implementer, deliberately"), because two implementers of one decision drift
+    and the drift is silent. So the emitter keys on the plan node's inner kind
+    and picks the shim; the shim does one thing. ⚠ THE LITERAL SIBLING optLK IS
+    NOT BUILT — `RunRulE`'s `';'-?` is the only rung-population term that wants
+    it and RunRulE is tomorrow's promotion. kantLeaf REFUSES that shape BY NAME
+    rather than letting optRK guess, per the refuse-by-kind discipline that
+    caught the ALT defect. An unexercised shim is a green row nobody cashed.
+
+    ⚠ THE RESTORE IS BELT AND BRACES ON THIS SHAPE, AND SAID SO OUT LOUD SO
+    NOBODY LATER READS IT AS LOAD-BEARING WHERE IT IS NOT. For an optional
+    REFERENCE the callee owns a frame and its own leaveRule already rewinds to
+    the callee's `from` on failure (planTerm's rung-6 note records exactly
+    this, and records that the interpretive arm instead skips the rewind and
+    re-skips before the next term, so the two are not observably different).
+    Restoring here to OUR `from` is therefore at worst a no-op and at best one
+    notch tighter than the generated arm. It is written because the CONTRACT
+    says the failure leg restores, and a contract honoured by an accident of
+    who-else-happens-to-rewind stops being honoured the day that changes.
+
+    ⚠ A BROKEN FRAME IS NOT AN ABSENT OPTIONAL, and the return values say so.
+    No `into`, no `term` -> return NULL, which fails the chain loudly. Only the
+    real "the optional did not match" leg answers success. One channel, one
+    meaning: trueResult out of here means THE CHAIN MAY PROCEED, and a missing
+    frame is not that.
+*******************************************************************************/
+extern "C" GroupItem *optRK(GroupItem *idx)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*got = 0;
+GroupItem 	*into = 0;
+GroupItem 	*term = 0;
+char 		*from = ruler->atRuleMark;
+int 		n = 0;
+	if ( !idx )
+		return 0;
+	n = ::atoi(idx->getText());
+	/*  Passthrough for parseRK's reason — tok cannot see a hand-declared
+	global. Both locals are referenced OUTSIDE the block as well, which is
+	what keeps bear-trap #13 from pruning them.  */
+	
+	into = gKantLabel;
+	term = gKantRule ? gKantRule->get(n) : 0;
+	
+	if ( !into )
+		{
+		::fprintf(stderr,"optRK: called outside a kant parse frame -- no label to attach under\n");
+		return 0;
+		}
+	if ( !term )
+		{
+		::fprintf(stderr,"optRK: no term %s in the current kant parse frame\n",idx->getText());
+		return 0;
+		}
+	got = ::parseR(term,into);
+	if ( got )
+		return ruler->trueResult;
+	ruler->atRuleMark = from;
+	if ( ruler->parseTrace )
+		::fprintf(stderr,"  optRK term= %s  ABSENT -- cursor restored\n",term->groupBody->tag);
+	return ruler->trueResult;
 }
 
 /*  === GENERATED by genParse('Braced'), pasted verbatim === SEQ 58, 2026-08-13.

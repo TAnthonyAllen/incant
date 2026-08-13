@@ -1,3 +1,116 @@
+# ⚠⚠⚠ SEALED 2026-08-13 LATE — SHUTDOWN SEAL (CURRENT VINTAGE). READ THIS FIRST.
+#
+#   THE ONE-LINE STATE: **the OPT vocabulary is BUILT and LANDED — `optRK` compiles, emits and
+#   trebles the emittable population from 1 to 4 — and RUNG ONE STUMBLED at 139 on the live
+#   install.** The stumble is banked with evidence and NOT diagnosed, on purpose. **Tomorrow
+#   opens on a CHORE, not a choice.**
+#
+#   ## WHAT LANDED TONIGHT
+#
+#   | thing | state |
+#   |---|---|
+#   | **decision (a) RULED** | the vocabulary charter is **OPT** (Tony, off SEQ 72's stamped table) |
+#   | `optRK` shim | **BUILT, COMPILED, LIVE** — `nm` shows `_optRK`; externs 276 → 277, no cascade |
+#   | `kantLeaf` OPT arm | emits `optRK` for a CALL optional; **REFUSES** LIT and CONTAINER optionals **by name** |
+#   | **emittable population** | **1 → 4**: `Braced` (was), **+ `InvokE`, `Parens`, `PrintField`** |
+#   | rung one (live install) | ⚠ **STUMBLED — exit 139.** Banked, not chased |
+#   | fleet | **UNMOVED** across a C++ change and a full rebuild — every `pop.sh` check row byte-identical |
+#
+#   ## ⚠ THE SIX THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   1. **THE DENOMINATOR IS 78. `47` IS DEAD EVERYWHERE.** 60 rule members + 18 rule attributes,
+#      out of 79 `Grokking` entries; the one non-rule entry is **`Operators`**. That single fact is
+#      the whole of the 78-vs-79 "discrepancy" two passes recorded — **both numbers were right and
+#      neither was labelled.** `docs/jit.md`'s columns 2–5 now have their denominator.
+#   2. **SEQ 72's stamped table is 78/78, zero blank, zero unclassified** —
+#      `genLadder/kantCensus.sh`, raw run at `docs/emitted/kantCensus-2026-08-13.txt`. The 39
+#      blanks that voided SEQ 71 are gone and a blank row is **unconstructable**.
+#   3. **THE (a) RULING'S BASIS IS THE TABLE, NOT A CITATION.** OPT opened the most rules of any
+#      single vocabulary item. ⚠ **AND THE RE-RUN MOVED THE NUMBER, EXACTLY AS THE FENCE SAID IT
+#      MIGHT: SEQ 72 said "5 held out by OPT"; closing OPT opened THREE.** `RunRulE` wants
+#      `optLK` (a LITERAL optional — `';'-?`), `TokenXP` wants a CONTAINER optional (`UnaryOPS?`).
+#      **A first-blocker count is not a promotion count. This is the discipline paying out, not
+#      failing.**
+#   4. **THE FENCE PROBE CAME BACK FENCED.** `locate(argument.text)`-shaped resolution exists at
+#      **three** live sites and **none is on the install or parse path**: `dumpRuleTerms`
+#      (instrument, filed), `runNotified` (`GroupItem.twk:1562`, listener dispatch) and
+#      `styleComponent` (`GroupDraw.twk:220`, drawing). ⚠ **The kant doors do NOT use it** —
+#      `parseViaKant` and `kantDoor` build `"kp" rule.tag` as a **String** and `locate` that, so a
+#      name never passes through a node's `.text`. `parseRuleMethod:1908` does read `.text`, but of
+#      a `parseMethod=` attribute whose value the source assigned with `=`, it dlsyms rather than
+#      locates, and it names the empty case. **The walk proceeds clean.**
+#   5. **RUNG ONE'S STUMBLE IS `docs/emitted/parens-opt-stumble-2026-08-13.txt`, AND ITS CAUSE IS
+#      NOT WRITTEN DOWN ON PURPOSE.** `Parens` bound cleanly, entered the kant door **3556 times**,
+#      never reached `parseR`, never refused, and died with **zero bytes of stdout**. That is the
+#      signature of unbounded re-entry — **a description, not a diagnosis.** Two mechanisms are
+#      available (Mechanism 3's re-entrant frame; the ALT-option `into`-not-`label` frame) and
+#      **NEITHER is named as cause**; `Braced` is also an `InvokeArg` option and works, which alone
+#      sinks the easy story. ⚠ **Mechanism 3 stays a filed tension. Do not pre-solve it.**
+#   6. **THE FIRST PICK WAS `InvokE` AND IT WAS GREEN AND HOLLOW.** Exit 0, both legs printed 251,
+#      **and the kant door never fired** — `fireIt()` parses `TokenXP → InvokeArg → Parens`, not
+#      `InvokE`. The bind took (the SEQ 58 seam reads correctly); the parse never forked. ⚠ **The
+#      STRUCTURAL claim held and the CAUSAL one — "this input reaches this rule" — was read off the
+#      grammar by eye and was false.** GM-30 had already recorded that `InvokE` does not fire; the
+#      note was cited and not measured. **251 alone proves nothing** did its job again.
+#
+#   ## ⚠ TOMORROW IS A CHORE, NOT A CHOICE — deliberately, and in this order
+#
+#   1. **Separate the two mechanisms behind the 139**, one run. Then fix-or-skip is Tony's.
+#   2. **Rung one re-run on `Parens`** — it is `Braced` with term 2 made optional: same parent
+#      alternation, same attach frame, and the control is already green and committed. The fixture
+#      pair is in the stumble specimen, **one `cp` from live**.
+#   3. **Then the promotion**, gated on rung one green — and ⚠ **the fence's re-run of all five is
+#      part of the chore, not optional**: two of them (`RunRulE`, `TokenXP`) are already known NOT
+#      to be opened by `optRK`.
+#
+#   ## ⚠ INSTRUMENT DEFECTS FOUND IN MY OWN WORK TONIGHT — the class is the point
+#
+#   - ⚠ **THE CENSUS KINDS COLUMN HAD A PRECEDENCE BUG AND 11 OF 78 ROWS WERE WRONG.** It tested
+#     `REFERENCE` **before** the data row, so every term that is **both a reference and carries
+#     data** was called `R` where the tree calls it a container or a charset. **`row42`'s own header
+#     warns about exactly this** — it mirrors `setTestMatch`'s cascade *in its own order* and says a
+#     classifier reading the table top-to-bottom would already disagree with the tree. **It was read
+#     top-to-bottom anyway.** Corrected and re-run; the delta is `TokenXP`, `UnaryXP`, `DatA`,
+#     `Token`, `BrancH`, `FloaT`, `NumbeR`, `PrintField`, `ANYorNum`, `FormaT`, `ScopeField`.
+#     ⚠ **WHAT CAUGHT IT WAS `planTerm` REFUSING BY KIND** — `TokenXP`'s `UnaryOPS?` came back
+#     CONTAINER where the census had said `R`. **Third time in two dispatches that refuse-by-kind
+#     has named an instrument defect. Structure, not vigilance.**
+#   - **ONE APOSTROPHE IN AN awk COMMENT KILLED THE WHOLE TABLE** — the program lives in a
+#     single-quoted shell string and `row42's` closed it. Output: a full header and **ZERO ROWS**.
+#     ⚠ **The self-certification floor caught it by name** (`rows != population`), which is
+#     H2-turned-on-the-harness doing precisely the job it was added for.
+#   - **RESIDUAL, NAMED NOT FIXED: the census's KINDS column and its SHIM column are TWO
+#     CLASSIFIERS** (`row42` vs `planTerm`) and they still disagree — `PrintField` reads `RC?` and
+#     emits anyway. **The SHIM column is authoritative** (it is the emitter itself). Same family as
+#     the precedence bug; do not read KINDS as a shim predictor.
+#
+#   ## RULING CARRIED ACROSS THE SESSION BOUNDARY
+#
+#   **THE REGISTRY WIRE FORMAT IS `ALWAYS-BZ1`** (Tony, 2026-08-13). Every buffer field prints as
+#   its compressed form: one code path, no chooser, no escaping anywhere. **Support minion SEQ 2
+#   Part B is UNBLOCKED — and unblocked is NOT scheduled.** `ipc/support-to-clod.md` has been open
+#   at `working` since 2026-08-03; the gate is now answered.
+#
+#   ## BANKED, BY NAME — none of these are diagnosed
+#
+#   · ⚠ **bare `ANYstring` resolves to a node tagged `DatA`** (symptom measured, mechanism NOT
+#     written down). Matters past the census: **any bare-identifier rule reference in incant may be
+#     reaching a different node than its spelling says.**
+#   · **the in-process walk exits 139** after one rule (`for r in Grokking; genKant(r);`) —
+#     sidestepped by one-rule-per-process, still undiagnosed.
+#   · **`dumpRuleTerms` carries the same `locate(argument.text)` hazard** — a C++ edit, unpaid.
+#   · **`iterT1m`'s live question** and the other two KE-4 reds — re-pins are Tony's, still owed.
+#   · **IT-3 attrition + the K5/K6 GATE** — standing from before this campaign, cheap to forget.
+#
+#   ## THE INSTRUMENTS, so nobody rebuilds one
+#
+#   `kantCensus.sh` (the stamped table; counts its own population first, cannot print a blank row,
+#   carries its own H7 negative control for name-passing) · `smoke.sh` (the bell) · `smokelib.sh`
+#   (**sourced never copied**) · `parked.sh` · `kantRatchet.sh` · `pop.sh` (fleet; **3 pre-existing
+#   reds, older than the SEQ 55 seal**) · `completePop.sh`.
+#   **RULE H10: smoke-green authorizes CONTINUING, only a fleet check authorizes LANDING — and the
+#   landable property is UNMOVED, not green.**
+#
 # ⚠⚠⚠ SEALED 2026-08-13 EVENING — SHUTDOWN SEAL (CURRENT VINTAGE). READ THIS FIRST.
 #
 #   THE ONE-LINE STATE: **the kant loop is CLOSED on a real rule** — `Braced` parses live input

@@ -1,0 +1,194 @@
+OPT CHARTER RUNG ONE -- BANKED STUMBLE SPECIMEN. 2026-08-13.
+Binary: $(the SEQ-NEXT build, 1387536 bytes, optRK live -- nm shows _optRK)
+
+WHY THIS IS A SPECIMEN AND NOT A FIXTURE IN incant/:
+  completePop.sh sweeps incant/* structurally on '^Start();' + 'stop();'.
+  The Parens form exits 139 with ZERO stdout, so committing it live would
+  move completePop's recorded baseline (137 swept / 242 green / 3 abandoned)
+  overnight on nobody's ruling. It fails LOUDLY there (declared sentinel not
+  printed), so it is safe -- but a baseline that is not mine does not move
+  without a sentence. Banked here instead, one cp from live tomorrow.
+  Precedent: docs/emitted/parens-red-specimen.txt, same rule.
+
+==========================================================================
+ATTEMPT 1 -- InvokE.  EXIT 0, BOTH LEGS PRINTED 251, AND IT PROVED NOTHING.
+==========================================================================
+  parseViaKant InvokE -> kpInvokE   : 0 occurrences
+  attachLabel lab=InvokE            : 0 occurrences
+  SEAM bind  InvokE  boundStuff=0x1050fd680
+  SEAM read  InvokE  defParseMethod=0x104e6863c  boundParseMethod=0x104e6863c
+
+  THE BIND TOOK -- defParseMethod == boundParseMethod is SEQ 58's closed
+  seam, working exactly as sealed. parse() simply never forked on InvokE,
+  because fireIt() DOES NOT PARSE VIA InvokE. It parses
+      TokenXP -> InvokeArg -> Parens        (incant/grammar:106-109)
+  InvokE (grammar:51) is reached from RunRulE, which is not the path a
+  statement-level call takes.
+
+  ⚠ THE LESSON IS THE STANDING ASYMMETRY, ON ME, TONIGHT. The STRUCTURAL
+  claim -- InvokE is LR?L with the optional between two literals, so the
+  absent leg is falsifiable -- HELD. The CAUSAL claim -- 'fireIt() parses
+  via InvokE' -- was read off the grammar BY EYE and was FALSE. One run
+  killed it. GM-30 had already recorded that InvokE does not fire; I cited
+  the note and did not measure it.
+
+==========================================================================
+ATTEMPT 2 -- Parens.  EXIT 139, ZERO BYTES OF STDOUT.
+==========================================================================
+  Parens is Braced with term 2 made optional -- the SAME parent
+  alternation (InvokeArg), the same attach frame, the same emitted shape.
+  It is the correct rung and the control (bracedK) is already green.
+
+  emitted body (genKant, from the live terms, byte-identical to the hand):
+      kpParens code={
+          return litK(1) AND optRK(2) AND litK(3);
+          };
+
+  MEASURED:
+    parseViaKant Parens -> kpParens  : 3556 occurrences
+    attachLabel lab=Parens           : 2, both promote=1 (INTERPRETED arm)
+    parseR term=ExpressioN           : 0
+    litK/parseRK/optRK refusals      : 0
+    stdout                           : 0 bytes -- died before its own header
+    last trace line                  : parseViaKant Parens -> kpParens
+
+  SO: the door is entered 3556 times, NO term ever reaches parseR, no shim
+  ever refuses, and the run dies inside the door. 3556-with-no-progress is
+  the signature of unbounded re-entry.
+
+  ⚠⚠ THAT IS A DESCRIPTION, NOT A DIAGNOSIS, AND IT IS LEFT THAT WAY ON
+  PURPOSE. Two mechanisms are available and I am naming NEITHER as cause:
+    (a) re-entrancy -- the body's own parse re-enters the door for the same
+        rule. docs/jitDesign.md's Mechanism 3 (re-entrant frame vs baked
+        stable address) is a FILED TENSION about this exact shape, and the
+        dispatch put it out of scope. Do not pre-solve it.
+    (b) the ALT-option frame -- Parens attaches through 'into', not
+        'label' (SEQ 71's second, independent reason the alternation row is
+        dead). But Braced is ALSO an InvokeArg option and works, so this
+        does not stand on its own.
+  The causal-claim ledger says what an inferred mechanism is worth here.
+  ONE RUN WOULD PROBABLY SEPARATE THEM. That run is tomorrow's, not
+  tonight's: STEP 4 says do not fix past the first stumble.
+
+==========================================================================
+WHAT IS NOT IN DOUBT -- the vocabulary itself landed and is exercised
+==========================================================================
+  optRK           : built, compiled, nm shows _optRK, externs 276 -> 277
+  kantLeaf OPT arm: emits optRK for CALL, REFUSES the two shapes it cannot
+                    spell, BY NAME (see the re-run below)
+  genKant now emits bodies for InvokE, Parens and PrintField that it
+  refused this morning. That capability is real and is committed.
+  Fleet UNMOVED across the C++ change and rebuild: every pop.sh check row
+  byte-identical, only the H1 binary-echo line differing.
+
+==========================================================================
+THE FIXTURE PAIR AS IT STOOD -- incant/invokeK
+==========================================================================
+/*  invokeK -- RUNG ONE OF THE OPT CHARTER. The kant arm.
+    2026-08-13. First live fire of optRK, the optional rule-reference shim.
+
+    THE PICK, AND WHY IT IS NOT THE ONE THE TABLE'S TERM COUNT NAMES.
+    SEQ 72's stamped table lists five rules held out by OPT alone. Simplest by
+    term count is PrintField at 2 (ExpressioN FormaT?). It is NOT the pick, and
+    the override is H7: PrintField's optional is the LAST TERM, so nothing
+    follows it that a mis-restored cursor could break. Its absent leg would go
+    green with the restore removed -- a rung that certifies nothing.
+
+    InvokE is 3 terms, row  InvokE 3 LR?L no EMITTER term 2 is OPT  and its
+    optional sits BETWEEN TWO LITERALS. On the absent leg the ')' must still
+    match, which it can only do if the cursor came back. That is the property
+    that makes OPT OPT, and this is the shape in which it can fail.
+
+    vs Parens, which has the identical LR?L shape: InvokE's optional callee is
+    NamE, Parens' is ExpressioN -- itself a MANY, and Parens is the banked red
+    (docs/emitted/parens-red-specimen.txt). Lighter callee, less entangled.
+
+    BOTH LEGS ARE ONE CHARACTER APART IN REAL INPUT:
+        fireIt()      the optional NamE is ABSENT
+        fireIt(zed)   the optional NamE is PRESENT
+    A fixture that fed only the present leg would not have tested the
+    vocabulary at all -- it would have tested parseRK, which was already
+    certified on SEQ 63.
+
+    ⚠ InvokE FIRES ON EVERY ACTION CALL, which is the widest blast radius any
+    rung has taken here. Deliberate: after the bind, `fireIt()`, `fireIt(zed)`
+    and `stop()` ALL parse through kpInvokE. There is nowhere for a broken
+    door to hide -- a failure takes the file down rather than one row, and the
+    sentinel below is what tells the two apart.
+
+    ⚠ ORDER IS LOAD-BEARING, copied from incant/bracedK: the include and the
+    bind come BEFORE the define of fireIt, because an action body is parsed
+    when it is DEFINED. Otherwise the fixture's own calls would parse through
+    the C++ door and this would measure nothing.
+
+    ⚠ THE ARM, NOT THE VALUE. 251 is what the interpreted arm has always
+    produced, so a green number proves nothing about which arm answered. Read
+    promote=0 (generated, what this rung claims) vs promote=1 (the bind did not
+    take). The oracle is incant/invokeKo, which runs the identical work with no
+    bind; the two are diffable by design.
+*/
+Start();
+registry(cOMMANDs);
+define litK immediateAction=litK; ;
+registry(cOMMANDs);
+define parseRK immediateAction=parseRK; ;
+registry(cOMMANDs);
+define optRK immediateAction=optRK; ;
+registry(cOMMANDs);
+define traceParse immediateAction=traceParse; ;
+traceParse();
+
+registry(fILEs);
+define invokeCode File='incant/invokeCode'; ;
+include(invokeCode);
+
+define
+    Parens parseTerms=3 parseMethod=parseViaKant;
+    ;
+
+register(IK);
+define
+    sumple width=1 height=2;
+    fireIt argument code={
+        sumple[width] = 251;
+        print "  sumple width is now" sumple.width:;
+        };
+    ;
+search reset stack Grokking IK list;
+print "=== invokeK: kant InvokE body, dlsym door, oracle 251 generated arm ===":;
+print "--- ABSENT leg: fireIt() , optional NamE not present ---":;
+fireIt();
+print "--- PRESENT leg: fireIt(zed) , optional NamE present ---":;
+fireIt(zed);
+print "INVOKEK SENTINEL":;
+stop();
+
+==========================================================================
+THE BODY FILE -- incant/invokeCode
+==========================================================================
+/*  invokeCode -- THE KANT InvokE PARSE BODY. OPT charter, rung one.
+
+    Companion to incant/parseCode (which holds kpBraced). Separate file for the
+    same reason parseCode is separate: a fixture-local fILEs entry points at it,
+    so promotion later is one line moving into incant/setup and the promotion
+    diff is exactly the thing promoted.
+
+    THE RULE:   InvokE '('- NamE? ')'-        incant/grammar:51
+    THE C++ TWIN, for byte-comparison against the generated arm:
+                lit(t1,"(") && (parseR(t2,label) || 1) && lit(t3,")")
+
+    THE HAND BODY BELOW IS A MANUAL RUN OF genKant, and genLadder/kantRatchet.sh
+    proves that by generating it fresh, byte-comparing, installing THIS RUN's
+    own bytes and executing from them. If the two ever diverge the byte-oracle
+    is dead for this rule and full runtime certification re-engages -- the
+    harness says so by name rather than quietly re-targeting.
+
+    ⚠ THE LAST FIVE LINES ARE THE ARTIFACT. kantRatchet takes `tail -5` of this
+    file as the oracle, so nothing may follow them and the shape must stay
+    exactly five lines. Prose belongs above, here.
+*/
+define
+    kpParens code={
+        return litK(1) AND optRK(2) AND litK(3);
+        };
+    ;

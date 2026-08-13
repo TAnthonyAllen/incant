@@ -256,6 +256,22 @@ EOF
     fi
 
     #  --- term count and kinds, from dumpRuleTerms's own classification -----
+    #  ⚠ THE ROW WINS, AND REFERENCE IS CONSULTED LAST -- CORRECTED 2026-08-13
+    #  (OPT charter rung one). The first cut tested `ref` FIRST and so disagreed
+    #  with the tree on every term that is BOTH a reference AND carries data.
+    #  row42's own header warns about precisely this: it mirrors setTestMatch's
+    #  cascade IN ITS OWN ORDER, and says a classifier reading the table
+    #  top-to-bottom would already disagree with the tree. I read it
+    #  top-to-bottom anyway. Caught by planTerm refusing TokenXP's UnaryOPS as a
+    #  CONTAINER where this column had called it R -- refuse-by-kind naming an
+    #  instrument defect for the third time in two dispatches.
+    #
+    #  ⚠ AND THE APOSTROPHES ABOVE ARE WHY THIS NOTE IS HERE AND NOT INSIDE THE
+    #  awk PROGRAM: that program lives in a single-quoted shell string, and one
+    #  apostrophe in an awk comment ends it. The first attempt at this fix
+    #  produced a table with a header and ZERO ROWS -- which the self-
+    #  certification floor caught by name (rows != population), exactly as H2-on-
+    #  the-harness is supposed to.
     #  Every term contributes exactly one letter. A term the classifier has no
     #  row for contributes '?', never nothing -- that is what makes a blank
     #  KINDS cell unconstructable rather than merely unlikely.
@@ -268,8 +284,10 @@ EOF
       END { if (n) emit(); printf "\n" }
       function emit(   k) {
         if (np) { n--; return }                      # noPrint terms are SKIPPED by the walk
-        if (ref)                                  k="R"
-        else if (row ~ /^default lit/)            k="L"
+        #  THE ROW WINS AND REFERENCE IS CONSULTED LAST. See the note above
+        #  the awk block for why; no apostrophes in here, the program is inside
+        #  a single-quoted shell string and one closes it.
+        if (row ~ /^default lit/)                 k="L"
         else if (row ~ /^isSET|^isSTRING|^isCHAR|^isTOKEN/) k="C"
         else if (row ~ /^isGROUP|^isBIN|^isREGISTRY|^isMAP/) k="G"
         else if (row ~ /^isMacro/)                k="M"
@@ -277,6 +295,7 @@ EOF
         else if (row ~ /^parseACTION/)            k="A"
         else if (row ~ /^upTo/)                   k="U"
         else if (row ~ /^\(no rStuff\)/)          k="Z"
+        else if (ref)                             k="R"
         else                                      k="X"
         printf "%s", k
         if (max+0 != 1 || min+0 != 1) printf "%s", (min+0==0 ? "?" : "+")

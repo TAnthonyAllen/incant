@@ -883,6 +883,14 @@ grep -c isRule incant/grammar   ->  0          (163 lines in the file)
 The grammar does not declare its rules with the `isRule` keyword, so **the population those four
 columns would be computed over is a citation this rung could not verify with the obvious command.**
 
+⚠ **SETTLED 2026-08-13 (SEQ 72): THE DENOMINATOR IS 78, AND "47" IS DEAD.** Measured by
+`genLadder/kantCensus.sh`, which counts its own population as its first act on every run:
+**60 rule members + 18 rule attributes = 78 rules**, out of 79 `Grokking` list entries. The one
+entry that is not a rule is **`Operators`**, the operator registry — which is the whole of the
+78-vs-79 discrepancy that two earlier passes recorded without resolving. **`47` matches nothing
+measured on either spelling.** Columns 2–5 were handed back precisely because they divide by it;
+they now have a denominator, and it is not the one they were written against.
+
 ⚠ **BUILDING A GRAPH CENSUS ON AN UNVERIFIED POPULATION IS THE T-0 SHAPE**, and this campaign
 corrected the third instance of it **the same day** — `docs/kantParseTemplates.md`'s `ref · ref`
 rows for `Xpress` and `UnaryXP`, wrong on a byte-identical binary, exposed by one command. An SCC

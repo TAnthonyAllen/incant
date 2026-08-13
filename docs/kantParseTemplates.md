@@ -508,3 +508,97 @@ reading any count here as "closing X opens N rules." It does not. It reveals N n
 3. **`dumpRuleTerms` (`genParse.rtn:172`) carries the same hazard** — `locate(argument.text)`. Safe
    as the census drives it (string literals only), but the defect is in the function, not the
    caller. A C++ edit and a rebuild, which a measurement-only dispatch may not spend.
+
+---
+
+# OPT CHARTER, RUNG ONE — **the vocabulary landed; the live install stumbled at 139**
+
+*2026-08-13 late. Decision (a) RULED by Tony off SEQ 72's stamped table: the vocabulary charter is
+OPT. Fleet UNMOVED across the C++ change and rebuild — every `pop.sh` check row byte-identical.*
+
+## THE SHIM — `optRK`, and why it is per-inner-kind
+
+`optRK(N)` is `parseRK`'s contract with **one leg's answer flipped**: attempt term N; on success
+proceed; on failure **restore the cursor and still answer success**. Cursor discipline identical,
+only the verdict changes.
+
+⚠ **A SEPARATE SHIM PER INNER KIND, not one `optK` that works out LIT-vs-CALL at run time.**
+`planTerm` already makes that decision when it builds the plan, and a run-time re-derivation would
+be a **second implementer** of it — the arrangement `countRuleTerms`' own comment refuses, because
+two implementers of one decision drift silently. So the emitter keys on the plan node's inner kind.
+**`optLK` (the literal optional) is NOT BUILT**, and `kantLeaf` refuses that shape by name.
+
+⚠ **THE RESTORE IS BELT-AND-BRACES ON THIS SHAPE AND THE FILE SAYS SO.** For an optional
+*reference* the callee owns a frame and its `leaveRule` already rewinds — `planTerm`'s rung-6 note
+records exactly that. **So this rung does NOT independently falsify the restore**; its certification
+arrives with `optLK`, where there is no callee frame. Recorded rather than left for someone to
+assume.
+
+## THE MEASURED DELIVERY — emittable population 1 → 4
+
+| rule | before | after |
+|---|---|---|
+| `Braced` | ✅ | ✅ |
+| `InvokE` | ❌ OPT | ✅ `litK(1) AND optRK(2) AND litK(3)` |
+| `Parens` | ❌ OPT | ✅ `litK(1) AND optRK(2) AND litK(3)` |
+| `PrintField` | ❌ OPT | ✅ `parseRK(1) AND optRK(2)` |
+| `RunRulE` | ❌ OPT | ❌ **optional wraps LIT** — wants `optLK` |
+| `TokenXP` | ❌ OPT | ❌ **optional wraps CONTAINER** |
+
+⚠⚠ **SEQ 72 SAID FIVE. CLOSING OPT OPENED THREE — AND THAT IS THE FENCE PAYING OUT, NOT FAILING.**
+SEQ 72's own report said *"re-run the five after any close"*, because a **first-blocker count is not
+a promotion count** (H9's refusal corollary). The re-run says three. **A count of what blocks first
+tells you nothing about what blocks second.**
+
+## ⚠ RUNG ONE — TWO PICKS, TWO DIFFERENT FAILURES, BOTH INSTRUCTIVE
+
+Full evidence: `docs/emitted/parens-opt-stumble-2026-08-13.txt`.
+
+**Pick 1, `InvokE` — EXIT 0, both legs printed 251, and it proved NOTHING.** Zero
+`parseViaKant InvokE` lines; zero `attachLabel lab=InvokE`. The **bind took** — `SEAM read` shows
+`defParseMethod == boundParseMethod`, SEQ 58's closed seam working as sealed — but `parse()` never
+forked, because **`fireIt()` does not parse via `InvokE`**. It parses `TokenXP → InvokeArg → Parens`
+(`incant/grammar:106-109`); `InvokE` is reached from `RunRulE`.
+⚠ **The STRUCTURAL claim held** (`LR?L`, optional between two literals, absent leg falsifiable);
+**the CAUSAL claim — "this input reaches this rule" — was read off the grammar by eye and was
+false.** GM-30 had already recorded that `InvokE` does not fire; the note was **cited and not
+measured**. The standing asymmetry, one more time, killed by one run.
+
+**Pick 2, `Parens` — EXIT 139, ZERO bytes of stdout.** `Parens` is `Braced` with term 2 made
+optional: same parent alternation, same attach frame, and the control is already green. Measured:
+**3556** `parseViaKant Parens -> kpParens` entries · **0** `parseR term=ExpressioN` · **0** shim
+refusals · died before its own header line.
+
+⚠⚠ **3556-with-no-progress is the signature of unbounded re-entry. THAT IS A DESCRIPTION, NOT A
+DIAGNOSIS, AND IT IS LEFT THAT WAY.** Two mechanisms are available and **neither is named as
+cause**: (a) re-entrancy — `docs/jitDesign.md`'s Mechanism 3 is a **filed tension** about this exact
+shape and is out of scope; (b) the ALT-option frame (`into`, not `label`). **`Braced` is also an
+`InvokeArg` option and works, which alone sinks (b) as a standalone story.** One run should separate
+them; that run is tomorrow's, because a stumble is banked, not chased.
+
+## ⚠ THE FENCE PROBE — FENCED
+
+`locate(argument.text)`-shaped resolution runs at **three** live sites, **none on the install or
+parse path**: `dumpRuleTerms` (instrument, filed), `runNotified` (`GroupItem.twk:1562`) and
+`styleComponent` (`GroupDraw.twk:220`). **The kant doors do not use it** — `parseViaKant` and
+`kantDoor` build `"kp" rule.tag` as a **String** and locate *that*, so a name never passes through a
+node's `.text`. `parseRuleMethod:1908` reads `.text`, but of a `parseMethod=` attribute whose value
+the source assigned with `=` (bear-trap #26 payment 6's safe form); it **dlsyms rather than
+locates**, and it names the empty case.
+
+## ⚠ AND A CORRECTION OWED TO SEQ 72's OWN TABLE — 11 of 78 rows were wrong
+
+The census KINDS column tested **`REFERENCE` before the data row**, so every term that is *both* a
+reference *and* carries data was called `R` where the tree calls it a container or charset.
+**`row42`'s own header warns about precisely this** — it mirrors `setTestMatch`'s cascade *in its own
+order*, and says a classifier reading the table top-to-bottom would already disagree with the tree.
+**It was read top-to-bottom anyway.** Corrected and re-run: `TokenXP` `UnaryXP` `DatA` `Token`
+`BrancH` `FloaT` `NumbeR` `PrintField` `ANYorNum` `FormaT` `ScopeField`.
+
+⚠ **WHAT CAUGHT IT WAS `planTerm` REFUSING BY KIND** — `TokenXP`'s `UnaryOPS?` came back CONTAINER
+where the census said `R`. **Third time in two dispatches that refuse-by-kind has named an
+instrument defect.** Structure, not vigilance.
+
+**RESIDUAL, NAMED NOT FIXED:** the census's KINDS and SHIM columns are **two classifiers** (`row42`
+vs `planTerm`) and still disagree — `PrintField` reads `RC?` and emits anyway. **The SHIM column is
+authoritative**; do not read KINDS as a shim predictor.

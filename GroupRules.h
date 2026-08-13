@@ -298,6 +298,7 @@ extern "C" GroupItem *opSetGroup(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opSetTag(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opString(GroupItem *target, Buffer *buffer);
 extern "C" GroupItem *opUnaryMinus(GroupItem *result);
+extern "C" GroupItem *optRK(GroupItem *idx);
 extern "C" GroupItem *parseBraced(GroupItem *rule);
 extern "C" GroupItem *parseRK(GroupItem *idx);
 extern "C" GroupItem *parseRuleMethod(GroupItem *input);
