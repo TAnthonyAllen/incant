@@ -827,3 +827,73 @@ in someone's head is not a condition. **Nothing is owed until the walk gives the
 counts**, at which point one 20-run average per engine re-asks the question against these same
 three arms. The crash above is KE-filed as **KE-3** and is the repair target of the JIT health
 thread — safety net before capability.
+
+---
+
+## C.2 — THE JITTABILITY CENSUS: **COLUMN 1 ANSWERED, COLUMNS 2-5 HANDED BACK**
+
+*SEQ 68 part B, 2026-08-13. H9-stamped. No installs, no mechanism built. Every row RUN or read by
+eye, and the population is small enough that it was read by eye — which is where the finding was.*
+
+### THE CORPUS IS THREE BODIES, AND IT WAS ENUMERATED, NOT SAMPLED
+
+```
+incant/parseCode:64   kpBraced   return litK(1) AND parseRK(2) AND litK(3);
+incant/kantParse1:63  kpScafKB   return litK(1) AND litK(2);
+incant/kantLoop:52    kpScafK    klFired = klFired + 1;
+```
+
+**What was matched, said before the number:** every `kp<Tag> code={` in `incant/` and `*.rtn`. Three
+hits, three bodies, one statement each.
+
+### ⚠ COLUMN 1 — AND THE CLASSIFICATION IS THE FINDING, NOT THE COUNT
+
+| body | statement | in today's jittable subset? |
+|---|---|---|
+| `kpBraced` | `return litK(1) AND parseRK(2) AND litK(3);` | **NO** — dies at an invocation |
+| `kpScafKB` | `return litK(1) AND litK(2);` | **NO** — dies at an invocation |
+| `kpScafK` | `klFired = klFired + 1;` | **yes** — plain field arithmetic |
+
+**A grep would report 1/3 jittable, or 0/2 depending on what it matched, and BOTH numbers would
+mislead.** `kpScafK` is a **fire counter** belonging to the loop ladder: it is a kant parse method
+that **contains no shim call at all and parses nothing**. It is jittable *precisely because it does
+not do the job*. Counting it as a jittable parse body is true and substantively false — H9's exact
+warning, and the reason the hits were read rather than tallied.
+
+**THE DECISION-RELEVANT NUMBER: every kant body that actually parses is 0% jittable, and it is 0 BY
+CONSTRUCTION.** A kant parse body *is* a chain of shim invocations — that is what the form is. So:
+
+⚠ **THERE IS NO PARTIAL CREDIT HERE, AND THAT IS THE ANSWER TO RUNG-OR-LADDER.** The question was
+framed as a fraction — how much of the corpus would the invokable mechanism buy. **The fraction is
+zero and one, not something in between.** Without the mechanism **nothing** in this corpus jits;
+with it, the whole form does. **The mechanism is the entire cost of entry, so "is it a rung or a
+ladder" cannot be answered by how much it wins — only by what it costs**, which the `728265a`
+census already priced: two gated shims, an invokable-recognition mechanism, and the re-entrant
+frame question, which is the filed tension.
+
+### ⚠ COLUMNS 2-5 — NOT TAKEN, AND THE REASON IS A FAILED VERIFICATION, NOT A BUDGET
+
+Body size, call-chain depth, the rule call graph's SCCs and per-rule consumer counts are all graph
+analyses **over "the 47 live rules."** That denominator did not reproduce:
+
+```
+grep -c isRule incant/grammar   ->  0          (163 lines in the file)
+```
+
+The grammar does not declare its rules with the `isRule` keyword, so **the population those four
+columns would be computed over is a citation this rung could not verify with the obvious command.**
+
+⚠ **BUILDING A GRAPH CENSUS ON AN UNVERIFIED POPULATION IS THE T-0 SHAPE**, and this campaign
+corrected the third instance of it **the same day** — `docs/kantParseTemplates.md`'s `ref · ref`
+rows for `Xpress` and `UnaryXP`, wrong on a byte-identical binary, exposed by one command. An SCC
+walk is precision classification whose errors are **silent**: an undercount reads as a simpler graph
+and an overcount as a more tangled one, and **neither reads as a broken instrument.**
+
+**What is owed before columns 2-5 are worth computing:** one command that yields the live rule
+population and its number, verified against a second spelling. Cheap, and it is the thing every one
+of those four columns is divided by.
+
+**Columns 2-5 also price a bet that column 1 has just made cheaper to hold.** They pre-fill the
+inlining policy for a world where invocations are IR-visible — and column 1 says nothing in this
+corpus reaches that world without the mechanism first. **The ordering is not lost by deferring
+them.**
