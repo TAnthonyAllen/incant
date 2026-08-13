@@ -1,3 +1,90 @@
+# ⚠⚠⚠ SEALED 2026-08-13 EVENING — SHUTDOWN SEAL (CURRENT VINTAGE). READ THIS FIRST.
+#
+#   THE ONE-LINE STATE: **the kant loop is CLOSED on a real rule** — `Braced` parses live input
+#   through a body written in kant, emitted by machine from its own live terms. The bind defect
+#   that blocked it for a week is found, closed and pinned. The jit-parse door is refused with the
+#   lock described. **The next session opens on a CHOICE, not a chore** — see the decision queue at
+#   the foot of this seal.
+#
+#   ## WHAT LANDED, SEQ 56 → 71 (all pushed; branch `jit-unified-emit-wip`)
+#
+#   | SEQ | commit | what |
+#   |---|---|---|
+#   | 56 | `fcc5371` | `aCTionDefinE` arm reorder — the coded test wins. Fleet byte-identical AND not inert: M1b's silent inertness is repaired |
+#   | 58 | `996ad5a` | **THE BIND-READ SEAM, FOUND AND CLOSED.** The door bound a SATELLITE node; `definingRule()` on that very node already returned the reader's. Both doors now resolve the reader's way. ⚠ `parseBraced` had never been compiled — added |
+#   | 59+60 | `ca606ee` | IA-2 trial ladder (rung 1 green, reverted per the wall); `smoke.sh` built |
+#   | 61 | `e6438ba`, `9693f04` | **PC-1 RULED.** Narrow spelling landed, `bindSeamB` PINNED at 251 with the ARM asserted by name, IT-3's demolition list marked |
+#   | 63 | `79186c3` | **FIRST LIGHT.** `bracedK` — kant `Braced` body, first live fire of `parseRK`; the two arms diff clean over 30 lines |
+#   | 65/66-r1 | `728265a` | Jit-parse leg PRICED and STOPPED at the first exit |
+#   | 67 | `39a86d7`, `2f6203c`, `92f57f7` | Frame/baked-address tension filed with its cost tripwire; **KE-3 degrade crash repaired**; **`genKant` — the emitter replaces the hand** |
+#   | 68 | `7b8f8fe`, `9ffeb94` | Walk stops at `Braced` (two table rows were wrong); jit census column 1 answered |
+#   | 70 | `55481d1` | **THE THREE REDS: all three are older than the SEQ 55 seal.** Verdicts with evidence |
+#   | 71 | `5276a89` | **`genKant` was emitting WRONG bodies for alternations — fold gate added.** Survey partial, tally VOID and named |
+#
+#   ## ⚠ THE FIVE THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   1. **The bind defect was a SATELLITE NODE**, not a clobber. `parseMethod=` from another file
+#      bound onto the node `aCTionDefinE` hands the door, while `parse()` forks on
+#      `definingRule().rStuff`. Both doors now resolve through `definingRule()`. Same-file binds
+#      (`kantParse1`, `genScratch`, the Scaf family) were never affected and are untouched.
+#   2. **PC-1 is RESTATED, not overridden.** The generated arm may consult `isTarget` ONLY where
+#      there is no parent label — no subtree to destroy, which is the rationale GM-22 protects.
+#      `bindSeamB` at 251 is the pin AND IT-3's tripwire.
+#   3. **The jit-parse door is REFUSED (c), with the lock described.** Mechanism 3 — re-entrant
+#      frame vs baked stable address — is **two correct rulings meeting**, filed as a TENSION with
+#      a **cost tripwire** in `docs/jitDesign.md`. Nothing is owed until the walk gives the fleet
+#      real rule counts. **Do not pre-solve it.**
+#   4. **`251` ALONE PROVES NOTHING** anywhere in this campaign. The interpreted arm has always
+#      produced it. Read the ARM by name: `promote=0` generated, `promote=1` interpreted.
+#   5. **The three `pop.sh` reds are OLDER THAN THE SEQ 55 SEAL** and are not this campaign's.
+#      Verdicts and evidence in `docs/knownErrors.md` KE-4. `iterT1m` is the one with a live
+#      question in it.
+#
+#   ## ⚠ THREE DOCTRINE SPECIMENS EARNED THIS SESSION
+#
+#   - **THE WRONG-LEAD LEDGER GAINED ITS FIFTH.** KE-3's filed cause — *"the return dereferenced an
+#     absent value"* — sent the search at `jitEmitReturn`. **The site said otherwise three lines
+#     earlier:** `arg = arg.gMethod(arg)` is overwritten by the emitter's `nullptr`, and the STAMP
+#     dereferenced it. The instruction to *verify at the site before repairing* is the only reason a
+#     correct-looking repair did not land in the wrong file.
+#   - **THE 42-CONTROL.** `0 = 0` is the weakest possible agreement. Paired with a body that
+#     degrades **mid-body** then returns 42, it asserts what the zero row could not: **a degrade in
+#     the middle of a body does not poison what follows** — *fallback sound*, not *fallback
+#     occurred*.
+#   - **A PER-ITEM GUARD CANNOT SEE A WHOLE-BODY PROPERTY.** `kantLeaf` refuses by KIND and covered
+#     every unknown term; **the JOIN is not a term**, so `genKant` emitted `AND` chains for
+#     alternations — bodies that parse and answer wrong — until SEQ 71's fold gate.
+#
+#   ## ⚠ AND THE T-0 FAMILY COLLECTED **FOUR** MORE IN ONE DAY. Stop citing tables; re-run them.
+#
+#   `Xpress`/`UnaryXP` cited `ref · ref` (both wrong — `SemI` is `isSTRING`, `ANYtoken` is
+#   `isGROUP`) · **"47 live rules"** (matches nothing measured; `popScratch` says 78, iteration says
+#   79, **and none is confirmed**) · `incant/parseCode` shaped for the unbuilt MINT door
+#   (`parseViaKant` locates `kp<Tag>`, not `<Tag>`) · the survey's own blocking-kind tally, **VOID**
+#   because 39 blank rows hid three different causes. **What caught the first was `kantLeaf`
+#   refusing by kind rather than guessing** — structure, not vigilance.
+#
+#   ## THE DECISION QUEUE — the next session picks from this list
+#
+#   | # | decision | state |
+#   |---|---|---|
+#   | a | **Next vocabulary charter** | ⚠ **BLOCKED on the stamped table.** The optional's claim to "opens the most rules" is unverified citation. SEQ 71 did not deliver the table; two instrument fixes are owed first (driver name-passing, both refusal shapes) |
+#   | b | **Invokable mechanism, yes/no** | Reframed: it is **kant-at-large** work, not parse work. Jittability is 0 without it and total with it — no partial credit — so the decision is purely price (`728265a`). Mechanism 3 stays a filed tension |
+#   | c | **Minion consult** | Parked. SEQ 70 was its trial assignment and is done; re-cut against surviving backlog, which may be the honest test of whether the role is needed |
+#   | d | **Promotion gate** | `incant/parseCode`'s `fILEs` line into `incant/setup`. **One line, whenever called** |
+#   | e | **IT-3 attrition + K5/K6 GATE** | Standing from before this campaign, cheap to forget. IT-3's list now carries the IA-2 demolition item |
+#   | f | **The three reds' re-pins** | Sentences bought (KE-4); every re-pin ruling is Tony's |
+#
+#   ## THE INSTRUMENTS, so nobody rebuilds one
+#
+#   `genLadder/smoke.sh` (5 slots, the bell — slot 1 is `bracedK`) · `smokelib.sh` (shared helpers,
+#   **sourced never copied**) · `parked.sh` (two-stage retirement; green flushes, RED reinstates,
+#   UNRUNNABLE is never a pass) · `kantRatchet.sh` (generate → byte-compare → install → run, all on
+#   one run's own output) · `pop.sh` (fleet; **3 pre-existing reds, older than the seal**) ·
+#   `completePop.sh` (137 swept / 242 green / 3 abandoned, all recorded).
+#   **RULE H10: smoke-green authorizes CONTINUING, only a fleet check authorizes LANDING — and the
+#   landable property is UNMOVED, not green.**
+#
 # ⚠⚠⚠ SEALED 2026-08-11 EVENING — SHUTDOWN SEAL (CURRENT VINTAGE). READ THIS FIRST.
 # **THE LOOP IS CLOSED. A RULE PARSES REAL INPUT WITH ITS PARSE METHOD WRITTEN IN KANT,
 # ONE STATEMENT, SPELLED AS AN `AND` CHAIN.** Nine dispatches (SEQ 47–55), seven commits,
