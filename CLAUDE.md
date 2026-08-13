@@ -1200,6 +1200,29 @@ Hard-won lessons. Each one has cost real debugging time.
     build), one produces a plausible string (which reads as data), and one produces a missing
     include at exit 0 (which reads as a working run). None of them names the line.
 
+> **RULE H10 — THE CITATION BOUNDARY: SMOKE-GREEN AUTHORIZES CONTINUING, ONLY A FLEET CHECK
+> AUTHORIZES LANDING. A smoke-green is NEVER citable as fleet-green.** Adopted 2026-08-13 (SEQ 60,
+> Tony's two-tier proposal). `genLadder/smoke.sh` is the iteration bell — fixture-under-test ·
+> oracle · same-door regression · liveness canary · fleet-unmoved — one screen, and **WIP by
+> design**: the membership rule is durable, the four names are today's values and swap when the
+> frontier moves. `pop.sh` is unchanged and owed before commit, after any C++ rebuild of shared
+> machinery, and before any target re-pin.
+>
+> ⚠ **AND THE PROPOSAL NEEDED ONE WORD CHANGED, FROM THE EXECUTION SEAT: UNMOVED, NOT GREEN.**
+> `pop.sh` exits 1 today and has all day — `census.target`, `iterT1m` and its refusal count, and the
+> `oneTest` baseline AUDIT block are red at the mark and owed a re-pin by someone else.
+> *"Only pop-green authorizes landing"* would have blocked SEQ 56 and SEQ 58, **both of which landed
+> correctly against an already-red fleet.** The landable property is that the fleet did not MOVE,
+> diffed against a capture banked before the first edit.
+>
+> ⚠ **AND THE PREMISE UNDER THE TWO TIERS WAS MEASURED AND DOES NOT HOLD: THE SLOW TIER IS NOT
+> SLOW.** `oneTest` 0.04s, every fixture ~0.03s, and **the entire `pop.sh` fleet 0.64s**. A
+> four-fixture smoke run saves about half a second. **What the operator actually pays is SCREEN, not
+> seconds** — ~90 lines ending in POP FAILED, re-read every iteration to spot whether *your* change
+> moved anything. So `smoke.sh` does **not** run a cheaper subset; it runs the WHOLE fleet and
+> reports it as ONE LINE. **When a tiering proposal cites cost, measure the cost first — the fix may
+> be a different fix than the one being asked for.**
+
 > **RULE H9 — A CENSUS MATCHES THE IDIOM FAMILY, NOT THE SURFACE FORM.** Adopted 2026-08-07,
 > after a census miscounted its own subject **twice in two passes, in both directions.**
 >

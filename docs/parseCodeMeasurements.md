@@ -1299,3 +1299,118 @@ is exactly what H6 forbids creating.
   that would corrupt its grading: a kant `Braced` would come back wrong for a reason that has
   nothing to do with kant, and the pre-registration's "red-matching-the-C++-arm = SUCCESS" row
   would be true but uninformative.
+
+---
+
+# ADDENDUM 2026-08-13 (i) — SEQ 59: **THE IA-2 TRIAL LADDER.** Rung 1 green, rung 2 answered, rung 2b red and instructive
+
+**asOf 2026-08-13 · every rung built, run, and REVERTED · baselines re-banked against the SEQ 58
+binary before rung 1 · revert verified byte-identical between rungs · canary 274 throughout**
+
+Baseline for every row below: **`bindSeamA` 251, `bindSeamB` 1**, `pop.sh` at its standing footprint.
+
+## RUNG 1 — **SUCCESS, row 1 of the pre-registration**
+
+| the bell | before | after |
+|---|---|---|
+| `bindSeamB` | **1** | **251** |
+| `bindSeamA` (oracle) | 251 | 251, unchanged |
+| `oneTest` / `jsonTest`, both streams, split and merged | — | **byte-identical** |
+| `pop.sh` whole log | — | **byte-identical** |
+| `completePop` | 136 / 240 / 3 / 0 | **identical** |
+
+**The cell opens.** Remaining cost is design-side only.
+
+### ⚠ The spelling landed is NARROWER than "the generated arm consults isTarget", and it matters for the ruling
+
+```
+    if (promote || !pStuff.label) && stuff.isTarget {
+```
+
+The generated arm consults `isTarget` **only when there is no parent label to attach under.** PC-1
+forbids that consult *because* promotion would replace the parent's subtree — GM-22's third wall,
+measured as `ScafOUT` coming back childless. **In the `pLabel==0` case there is no parent subtree to
+replace.** So this violates PC-1's letter and not its rationale, which should make the amendment
+Tony is owed a narrow one.
+
+## ⚠ RUNG 1b — THE BROAD SPELLING IS ALSO GREEN, AND THAT GREEN ASSERTS NOTHING
+
+`if stuff.isTarget {` — dropping the `promote` conjunct outright — **also** takes `bindSeamB` to 251
+with the fleet byte-identical. The tempting read is *"then the broad one is safe too."* It is not,
+and the census says why. Over one full run of `bindSeamB` (setup + grammar + fixture):
+
+| `attachLabel` calls | count |
+|---|---|
+| total | **216** |
+| `promote=1` | **215** |
+| `promote=0` | **1** — `lab=Braced promote=0 isTarget=1 pLabel=0 pRule=InvokeArg` |
+| **the cell where the two spellings DIVERGE** (`promote=0 isTarget=1 pLabel=1`) | **0** |
+
+**The two spellings are indistinguishable on today's population.** The broad one's fleet-unmoved
+result is not evidence of safety — it is a green on a case that never occurs. Same shape as the
+gate-removed fixture that stayed green in H7. **Prefer the narrow spelling on principle: it cannot
+reach GM-22's cell by construction, so no future population can make it wrong.**
+
+⚠ **And the same census bounds rung 1's own claim honestly:** the generated arm is exercised
+**once** in that entire run. "Fleet byte-identical" is true, and it also means the fleet barely
+touches this path today. It is not yet evidence about a fleet with many generated rules in it.
+
+## RUNG 2 — THE FRAME PROBE: **label reachable in-frame**
+
+Probe at the drop site, `parseTrace`-gated, with `bindSeamA` as its negative control (**zero** hits
+there — it fires only in the cell it is about):
+
+```
+IA2 DROP  lab=Braced  pRule=InvokeArg  pStuff.parentLabel=(null)
+          pStuff.parentStuff=TokenXP  pp.label=TokenXP  stuff.parentLabel=(null)
+```
+
+**The label is not what is missing** — it is right there, and the guard above already returned if it
+were not. **What is missing is a DESTINATION**, and the frame holds one: `pStuff.parentStuff.label`.
+
+⚠ **The order's premise wanted `leaveAlt`'s frame, and `leaveAlt` is not in this picture.**
+`leaveAlt` is the **generated** alternation's exit; `InvokeArg` is interpreted, so the drop happens
+on the interpreted alternation's own `RuleStuff`. That reframing is what made the probe answerable
+at all. It also explains the whole cell in one table:
+
+| alternation | option | outcome |
+|---|---|---|
+| interpreted | interpreted | works — `promote=1 && isTarget` promotes into the null slot |
+| interpreted | **generated** | **drops** — `promote=0`, nothing promotes, no parent label |
+| generated | generated | works — `parseR` hands the option `into` through the bridge, so its parent label is non-null |
+
+## ⚠ RUNG 2b — BUILT, AND **RED**. The destination the frame offers is reachable and wrong
+
+```
+    if pStuff.parentStuff && pStuff.parentStuff.label {
+        pStuff.parentStuff.label +% lab;
+        return; }
+```
+
+`bindSeamB` **stayed at 1**, and its whole trace and stdout came back **byte-identical but for
+ASLR**.
+
+**It is not a no-op misread as a red, and that was checked before grading.** The guard is true by
+the probe's own printed values; the generated line was read at the site
+(`pStuff->parentStuff->label->addAttribute(lab)`). **The node was really planted, and nothing reads
+it there.**
+
+**The lesson, and it is the durable part of this rung:** an alternation must **YIELD** its winning
+option's label upward, not **PARK** it in the grandparent's subtree. Rung 1 works because promotion
+makes the option's label *be* the alternation's yield; 2b fails because attaching adds a child in a
+place no consumer walks. **Reachable is not correct, and a frame having somewhere to put a node is
+not evidence that it is the right somewhere.**
+
+## THE COMPARISON, graded against SEQ 59's own pre-statement
+
+- **Both green → prefer rung 2.** Does not apply: **rung 2b is red.**
+- **Only rung 1 greens → amend-PC-1 vs ledger, Director's call with the fleet evidence attached.**
+  **This is the live branch.** The evidence: fleet byte-identical on both streams and the whole
+  `pop.sh` log; the amendment needed is the **narrow** spelling, which leaves PC-1's *rationale*
+  intact; and the honest bound is that today's fleet exercises the generated arm exactly once.
+- **Not landed.** Reverted per the wall, revert verified byte-identical against the pre-rung
+  baselines. `bindSeamB` is back to 1 and is still deliberately unpinned — the pin belongs to the
+  winner at landing, which is Tony's call.
+
+**Kept from this ladder:** the `IA2 DROP` probe, `parseTrace`-gated, with rung 2b's failure recorded
+at the site so the next reader does not reach for the same destination.

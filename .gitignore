@@ -72,3 +72,4 @@ XML/WorkingOn/incant++
 # convention is untouched by this, and tracking must never be read as licence
 # to relax it. Commits are batched AT SEAL, not per dispatch. See WT-14a–d in
 # docs/walkieTalkie.md.
+genLadder/smoke.fleet.base

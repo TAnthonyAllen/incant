@@ -1118,7 +1118,54 @@ GroupItem   lab = stuff.label;
         ACCOUNTS for the red completely. It was NOT landed: it makes the
         generated arm consult isTarget, which PC-1 forbids, and it moves against
         IT-3's end state where promotion deletes entirely. Director's call.  */
-    if !pStuff.label            return;
+    if !pStuff.label {
+        /*  SEQ 59 RUNG 2 -- THE FRAME PROBE AT THE DROP SITE. Gated on the
+            standing parse-trace flag, so no baseline can move. It asks one
+            thing: at the instant an option's label is dropped, is there a
+            reachable destination anywhere in the frame, or is the label simply
+            homeless. Reports the label itself (present, by construction -- the
+            guard above already returned if it were not), the parent rule, and
+            three candidate destinations one step out.  */
+-%
+        if ( GroupControl::groupController->groupRules->parseTrace )
+            {
+            const char *pName  = pStuff->ruleName ? pStuff->ruleName : "(none)";
+            const char *pPar   = pStuff->parentLabel ? pStuff->parentLabel->groupBody->tag : "(null)";
+            const char *ppName = (pStuff->parentStuff && pStuff->parentStuff->ruleName)
+                                 ? pStuff->parentStuff->ruleName : "(none)";
+            const char *ppLab  = (pStuff->parentStuff && pStuff->parentStuff->label)
+                                 ? pStuff->parentStuff->label->groupBody->tag : "(null)";
+            const char *sPar   = stuff->parentLabel ? stuff->parentLabel->groupBody->tag : "(null)";
+            ::fprintf(stderr,"    IA2 DROP  lab=%s  pRule=%s  pStuff.parentLabel=%s  pStuff.parentStuff=%s pp.label=%s  stuff.parentLabel=%s\n",
+                lab->groupBody->tag,pName,pPar,ppName,ppLab,sPar);
+            }
+%-
+        /*  ⚠ RUNG 2b WAS BUILT HERE AND IS RED. SEQ 59, 2026-08-13. Recorded
+            because the destination it used is the one the frame offers, so the
+            next reader will reach for it too.
+
+            The probe above measures a reachable destination one step out --
+            pStuff.parentStuff.label, which is TokenXP when Braced dies. That is
+            the interpreted spelling of the `into` a GENERATED alternation hands
+            its options through parseR's bridge, so it looked like option 2
+            exactly: no target flag consulted, nothing promoted, PC-1 untouched.
+
+                if pStuff.parentStuff && pStuff.parentStuff.label {
+                    pStuff.parentStuff.label +% lab;
+                    return; }
+
+            Built, run, and it moved NOTHING: bindSeamB stayed at 1, and its
+            whole trace and stdout came back byte-identical but for ASLR. The
+            attach demonstrably ran -- the guard is true by the probe's own
+            printed values and the generated line was read at the site -- so the
+            node was really planted and NOTHING READS IT THERE.
+
+            The lesson, which is the part worth keeping: an alternation must
+            YIELD its winning option's label upward, not park it in the
+            grandparent's subtree. Reachable is not the same as correct, and the
+            frame having somewhere to put a node is not evidence that it is the
+            right somewhere.  */
+        return; }
     if promote && lab.isGROUP && stuff.max > 1 {
         pStuff.label    +% lab.group;
         lab.clear();
