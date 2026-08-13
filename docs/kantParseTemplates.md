@@ -51,13 +51,43 @@ That is not an impression; it is what the shortlist measured out to.
 | rule | live terms | prices onto today's shims? | attach site |
 |---|---|---|---|
 | **`Braced`** | **3** | ✅ `lit · ref · lit` | ⚠ `pLabel=0 pRule=InvokeArg` — **measured directly**, not inherited from Parens |
-| `Xpress` | 2 | ✅ `ref · ref` | ⚠ `pLabel=0 pRule=StatemenT` — and it is on **every statement** |
-| `UnaryXP` | 2 | ✅ `ref · ref` | ⚠ option of `InvokeArg`; and `incant/invokeMix`'s UnaryXP row is **VOID** — hard to fire at all |
+| `Xpress` | 2 | ⚠ **❌ — CORRECTED 2026-08-13. `ref · isSTRING`, NOT `ref · ref`.** Term 2 is `SemI`, a charset/string term (`data isSTRING`, `testMatch SET`), which has no kant spelling | ⚠ `pLabel=0 pRule=StatemenT` — and it is on **every statement** |
+| `UnaryXP` | 2 | ⚠ **❌ — CORRECTED 2026-08-13. `setref · isGROUP`, NOT `ref · ref`.** Term 1 `UnaryOPS` is `data isSET` / row `isBIN/isREGISTRY`; term 2 `ANYtoken` is `data isGROUP`. Neither is a plain rule reference | ⚠ option of `InvokeArg`; and `incant/invokeMix`'s UnaryXP row is **VOID** — hard to fire at all |
 | `Parens` | 3 | ❌ term 2 is optional | the banked red |
 | `FormaT` | 5 | ❌ charsets + optionals | — |
 | `Precision` | 1 | ❌ the term is a repetition | — |
 | **`Looper`** | ⚠ **0** | ❌ **unbuildable** | — |
 | **`SemI`** | ⚠ **0** | ❌ **unbuildable** | — |
+
+⚠⚠ **AND TWO ROWS OF THIS TABLE WERE WRONG — CORRECTED 2026-08-13 (SEQ 68 part A) BY THE EMITTER
+REFUSING THEM.** The **counts** were right; the **kind column** was not. `Xpress` and `UnaryXP` were
+both listed `✅ ref · ref` and neither is:
+
+```
+genKant(Xpress)   ->  REFUSE SemI     -- inline group / character data isSTRING
+                      REFUSE rule Xpress -- term SemI unclassified
+genKant(UnaryXP)  ->  REFUSE ANYtoken -- inline group / character data isGROUP
+                      REFUSE rule UnaryXP -- term ANYtoken unclassified
+```
+
+`dumpRuleTerms` on the live tree confirms it: `Xpress` is `ExpressioN` (a real REFERENCE) then
+`SemI` (`data isSTRING`, `testMatch SET`); `UnaryXP` is `UnaryOPS` (`data isSET`, row
+`isBIN/isREGISTRY`) then `ANYtoken` (`data isGROUP`).
+
+**THE CONSEQUENCE IS THAT THE WALK'S WORK LIST IS EMPTY AFTER `Braced`.** The vocabulary — literal
+and rule-reference — is exhausted at one rule, not three.
+
+⚠ **THIS IS THE T-0 SHAPE AGAIN, and it is the third time this project has paid for it:** a
+rule→kind **table** reasoned on instead of re-run, on a byte-identical binary, wrong in a way one
+command exposes. The standing rule is *re-measure a cited number before you reason on top of it*,
+and the cost here would have been two fixtures built against a classification the tree disagrees
+with. **What caught it was not vigilance — it was `kantLeaf` refusing BY KIND rather than guessing**,
+which is the make-the-failure-unconstructable family doing its job on the day it landed.
+
+⚠ **AND NOTE WHAT IT DOES NOT SAY**, per H9's refusal corollary: a refusal census reports the
+**first** blocker, not the blocker set. Closing the `isSTRING` gap would unblock `Xpress`'s term 2
+and reveal whatever term 1 says next — `ExpressioN` looks clean, but that is a reading, not a run.
+`UnaryXP` has **both** terms unpriced, so it needs two vocabulary additions, not one.
 
 ⚠ **THE `Looper` ROW IS THE LESSON AND IT COST ONE COMMAND.** `Looper=ANYtoken` was the leading
 pick on structural grounds — one plain rule reference, and its attach site measures
