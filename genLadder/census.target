@@ -133,16 +133,8 @@ PLAN Limit
   REFUSE min -- inline group / character data isGROUP (named future kind)
   REFUSE rule Limit -- term min unclassified
 PLAN MemberS
-  SEQ MemberS
-    label=MemberS
-    LIT :
-      at=1
-    MANY DefinE
-      at=2
-      min=1
-      site=MemberS2
-      CALL DefinE
-        at=2
+  REFUSE MEMBERs -- parseAction (tail position only, §2.8)
+  REFUSE rule MemberS -- term MEMBERs unclassified
 PLAN Modifier
   REFUSE rule Modifier -- rule-level data isSET (§4.1 rule-as-data, rung 5)
 PLAN TraiT

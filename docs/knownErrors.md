@@ -580,7 +580,53 @@ and *"the targets fail at the seal too"* would have been reported off a run that
 fixture. **Print the quantity, not the verdict** — H4, paying for itself inside the one session that
 wrote it down.
 
+### ⚠ RULED 2026-08-13 (SEQ 70 follow-up). **THREE REDS, THREE DIFFERENT VERDICTS** — and the split is the point
+
+Tony's ruling, and it deliberately refused a single verdict for all three.
+
+**1. `oneTest.base` — RE-PINNED.** The world moved *legitimately* and the pin missed the boat. The
+sentence is the reconciliation: three `AUDIT MISSTERM` rows (`JSONtoken` ×1, `JSONvalue` ×2)
+vanished, **and 15 → 12 missing terms is exactly those three** — the terms are named, not waved at.
+The summary also gained a `0 unconsumed` column from `auditUnconsumed`, which **post-dates the
+baseline**. Re-pinned.
+
+**2. `census.target` — RE-PINNED, AND THE OFFERED SENTENCE WAS FALSIFIED BY THE GLANCE THAT WAS
+ASKED FOR.** The ruling proposed *"pin corrected, never valid"* — the target holding a plannable
+`MemberS` the tree has never planned. ⚠ **The archaeology says otherwise, and the distinction
+matters because the two sentences teach opposite lessons:**
+
+| what was checked | what it says |
+|---|---|
+| target born `41a3831`, **2026-07-28** | already carried `PLAN MemberS / SEQ MemberS / LIT : / CALL DefinE` |
+| re-pinned across five more commits **the same day** | the block **grew** `CALL` → `MANY DefinE` at the RUNG 5 (MANY) landing |
+| last touched `168195b`, 2026-07-28 | **byte-identical to the version at HEAD** — untouched for sixteen days |
+
+**So the target was captured from a real planning run and was maintained as the planner changed.
+It was VALID AT BIRTH.** The tree stopped planning `MemberS` some time **after 2026-07-28 and before
+2026-08-11**, which is earlier than any binary this campaign measured — hence "never planned at any
+measured point" was true and **still did not mean invalid-at-birth.** ⚠ **The sentence is
+WORLD-MOVED, in a window this investigation did not cover**, not pin-invalid. Re-pinned on that
+sentence.
+
+**3. `iterT1m` — NOT RE-PINNED. Stays red, pending cause.** 7 → 4 on the divergence *and* the
+refusal count. The count check's own comment names three causes — the announcement deleted, the
+poison not taking, or **mutual recursion silently starting to work** — and **none is established.**
+Re-pinning an unexplained number is laundering with extra steps. It stays red-with-a-named-question
+until one of the three is shown; that is bounded archaeology and a good short-session item, but the
+pin waits on the answer.
+
+**`pop.sh` after the two re-pins: 39 → 41 green, and the only remaining reds are `iterT1m`'s two
+rows** — which is now a fleet whose red *means something specific*.
+
+### ⚠ AND AN INSTRUMENT OF MY OWN LIED DURING THIS ERRAND, SAME SIGNATURE AS THE LAST ONE
+
+A loop written to check six historical versions of `census.target` for `SEQ MemberS` reported **0 in
+all six**. The direct read shows it present at line 103 of the very first one. **A uniform,
+unsurprising zero across every row** — the same shape as the void seal run earlier the same day
+(`DIFFERS (0 changed lines)`), and the same lesson: **the second measurement is what caught it, not
+care.** Had the loop been trusted, the "never valid" sentence would have been written and would have
+been wrong.
+
 ### Who rules
 
-Tony. Nothing gates on these and they gate nothing. **The `iterT1m` row is the one with a live
-question in it**; the other two have causes named and are re-pin candidates on a sentence.
+Tony — ruled above. `iterT1m` is the one still open, and it is open on purpose.
