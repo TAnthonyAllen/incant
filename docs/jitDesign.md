@@ -1156,3 +1156,50 @@ Not a schedule — an argument about dependency, for whoever sets the schedule.
 
 *Consolidated 2026-07-31. Premises 1-3 are Fearless's, stated as invariants. Contradictions
 found during consolidation are in `ipc/clod-to-clay.md` SEQ 37, not silently reconciled.*
+
+---
+
+# ⚠ FILED TENSION — RE-ENTRANT FRAME vs BAKED STABLE ADDRESS. Not debt. Nothing owed until a cost case exists
+
+*Filed 2026-08-13 (SEQ 67 part A) on Tony's ruling. The evidence is the pricing census in
+`docs/jit.md`, landed as **`728265a`** — read that first; this entry is the tension only.*
+
+**THE RULING BEING RECORDED: (c) — REFUSED, WITH THE LOCK DESCRIBED.** Jitting the kant parse
+bodies was priced and declined. Two of the three mechanisms are ordinary build work. **The third is
+not, and it is not a defect on either side:**
+
+| the ruling | what it says | why it is right |
+|---|---|---|
+| **the frame is the C++ call stack** | `parseViaKant` saves mark and label in **locals**, never a global, because a kant body calls `parseRK` → `parse()` → straight back into `parseViaKant` for a nested rule | re-entrancy by construction; SEQ 54 door (a), "the mark never crosses" |
+| **emitted calls bake stable addresses** | `jitEmitTrace` reaches its data by baking the node address as an `i64` constant | **no struct offsets in the IR** — baked offsets break silently on any `GroupBody` layout change, bear-trap #10 arriving in emitted code where no compiler would catch it |
+
+**Both are correct, and they meet.** A re-entrant frame **has no stable address to bake**, so the
+one emitted-call pattern the JIT owns does not transfer to this population. ⚠ **This is a tension
+between two sound rulings, NOT a bug and NOT debt** — neither side is wrong, and nothing is owed
+until something needs the speed.
+
+## ⚠ THE COST TRIPWIRE — A MEASUREMENT, NOT A MEMORY
+
+Filed **beside** the tension deliberately, because a tension whose re-opening condition lives in
+someone's head is a tension that gets re-opened by accident or never.
+
+**TODAY'S NUMBER, and it is why nothing is owed:** 20-run averages, **one `Braced` parse per run** —
+interpreted `0.5238s`, generated C++ `0.5232s`, kant interpreted `0.5261s`. **Within 0.6%**, and
+that spread contains the *entire* kant interpretation of a three-term body. The figure is dominated
+by process start and grammar load. **The quantity a JIT would attack is not resolvable at this
+scale.**
+
+**THE TRIPWIRE FIRES WHEN THE WALK GIVES THE FLEET REAL RULE COUNTS.** At that point, and not
+before, **one 20-run average per engine re-asks the question** — the same three arms, the same
+method, against a corpus with many rules parsing many times instead of one rule parsing once.
+
+- **If the spread is still inside noise:** the tension stays filed and nothing is owed. Re-record
+  the number with its date so the next reader inherits a measurement rather than a recollection.
+- **If a real gap opens:** the frame question is *then* worth answering, and the answer is a design
+  question about how an emitted call finds the **current** frame — a thread-local, a passed frame
+  pointer, a shadow stack. **Do not pre-solve it.** Pricing it now would be building against a cost
+  case nobody has.
+
+**The discipline this encodes** is the one this project keeps paying to relearn: a re-opening
+condition stated as *"revisit when it matters"* is not a condition. Stated as *"one command,
+against these three fixtures, when the walk lands"* it is.

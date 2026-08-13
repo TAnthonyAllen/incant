@@ -819,3 +819,11 @@ dependency is the **hand bodies certified on 2026-08-13 (SEQ 63)**, which are gr
 the emitter's byte-oracle is the hand body, and neither the emitter nor the oracle needs the jit
 leg. **The emitter ratchet can proceed on the interpreted engine** if Tony wants the campaign to
 keep moving while the jit door stays shut.
+
+⚠ **RULED 2026-08-13 (SEQ 67 part A): (c), REFUSED WITH THE LOCK DESCRIBED.** Mechanism 3 — the
+re-entrant frame against the baked stable address — is **filed as a TENSION, not debt**, in
+`docs/jitDesign.md`, **together with its cost tripwire**, because a re-opening condition that lives
+in someone's head is not a condition. **Nothing is owed until the walk gives the fleet real rule
+counts**, at which point one 20-run average per engine re-asks the question against these same
+three arms. The crash above is KE-filed as **KE-3** and is the repair target of the JIT health
+thread — safety net before capability.

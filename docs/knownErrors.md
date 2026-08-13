@@ -368,3 +368,76 @@ which now short-circuit; it **stands, and is now measured rather than argued, fo
 
 **So the symbols rung's target is tier 3, not `operateMethod`** — see KE-5's amendment, which
 reaches the same conclusion from the other word.
+
+---
+
+## KE-3 — `jitRunAction` **exits 139 on the degrade path** for a body whose operand is a command invocation
+
+*Measured 2026-08-13 (SEQ 65 rung 0 / SEQ 66-r1 phase 1.0). Repair scheduled as SEQ 67 part C.1 —
+safety net before capability. Filed here rather than as a bear trap because the MECHANISM is not
+ruled; the SYMPTOM and its discriminating control are.*
+
+### What was measured
+
+```
+r0body code={ return litK(1) AND litK(2); };      testing(r0body);
+
+=== jitRunAction: entering on r0body ===
+=== JIT DEGRADE #1: AND/OR LEFT operand produced no value
+    -- not JIT-supported yet, running INTERPRETED: Token ===
+exit 139
+```
+
+**The discriminating control, and it is what makes this a finding rather than a probe artifact:**
+
+| run | exit |
+|---|---|
+| the body **jitted** | **139** |
+| the **identical** body interpreted (`r0body()`) | **0**, sentinel present |
+
+So it is not that `litK` outside a parse frame is unsurvivable — interpreted, it survives.
+
+**Top frames** (`script -q /dev/null`, per the standing backtrace recipe):
+
+```
+0  aCTionBrancH      GroupRules.mm:167     <- the `return`
+1  aCTionBlocK       GroupRules.mm:85
+2  jitExecBlock      GroupRules.mm:5495
+3  jitBuildFunction  GroupRules.mm:4055
+4  jitRunAction      GroupRules.mm:6366
+```
+
+It dies **during the EMIT walk**, in the `return`, *after* the degrade announced that nothing was
+in flight.
+
+### ⚠ Discrimination from the parked `jitscratch` crash — recorded so the two are never merged
+
+| | `incant/jitscratch` (parked) | **this** |
+|---|---|---|
+| reaches `jitRunAction`? | **NO** — `docs/jit.md` records it *"did not reach `jitRunAction` at all"* | **YES**, and dies four frames deeper |
+| dies on | `jitInc` — the `++` emit path | `aCTionBrancH` — the `return`, on the degrade path |
+| in scope? | parked; adjacency is not scope | **repair target** |
+
+`++` is **structurally absent** from every kant parse body (grepped; the only hits are comment
+prose), so `jitEmitUnary` is out of scope here by construction, not by assumption.
+
+### What is genuinely unclear
+
+**The causal story is INFERENCE FROM THE FRAME, not measurement** — that the degrade returns null,
+leaving nothing in flight, and the `return` then dereferences the absent value. It is labelled as a
+lead in `docs/jit.md`'s census and is labelled as a lead here. ⚠ **This project's standing
+asymmetry says structural claims hold and causal ones are roughly a coin flip until run**, and four
+rulings died in one day to four cheap measurements. **Verify at the site before repairing.**
+
+### Why it bites harder than its size suggests
+
+**Every future jit probe walks across the degrade path.** A fallback that exits 139 makes the engine
+unsafe to point at unproven code — which is exactly what a probe is for. The degrade path is the
+safety net, and a safety net that kills the run is worse than none, because it converts *"this
+construct is not supported yet"* into *"the binary is broken."*
+
+### Who rules
+
+The repair is chartered (SEQ 67 C.1). **Done means:** the exact census body above degrades to
+interpreted, **returns the interpreted answer**, and exits **0**. ⚠ **The census run is the fixture
+— it is already in hand**, so the repair cannot be graded against a fixture written to suit it.
