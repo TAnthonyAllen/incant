@@ -11,7 +11,7 @@
 #  it has drifted and wants cutting.
 #
 #  MEMBERSHIP RULE -- five slots, and the fifth is Clod's amendment:
-#      1. the fixture under test        (today: bindSeamB)
+#      1. the fixture under test        (today: bracedK)
 #      2. its oracle                    (today: bindSeamA)
 #      3. one same-door regression      (today: kantParse1)
 #      4. one liveness canary           (today: oneTest)
@@ -63,21 +63,29 @@
 #     fail as a diff; it fails as a hang or a phantom, and twice this week a
 #     rebuild came back byte-identical in SIZE so size alone proved nothing.
 #   · H2 turned on the harness itself: the foot FAILS if zero checks ran, which
-#     a vanished helper or a bad path cannot satisfy. Third instance of
-#     copy-the-idiom-lose-the-helper on this project; pre-empted here.
+#     a vanished helper or a bad path cannot satisfy. Fourth instance of
+#     copy-the-idiom-lose-the-helper on this project; pre-empted here, and the
+#     helpers now live once in smokelib.sh rather than being copied to parked.sh.
+#
+#  RETIREMENT IS TWO-STAGE (charter, Tony, 2026-08-13). A slot that stops
+#  earning its place does NOT get deleted: stage one moves it to parked.sh with
+#  date, reason and origin slot; stage two, after the frontier has moved past it
+#  a few times, runs parked.sh and disposes of it on the evidence. The incident
+#  record keeps the reason; only the mechanism is discarded.
+#
+#  THE PARKING TRIGGER RIDES THE CONFIG SWAP, deliberately attached to an edit
+#  you are already making rather than to a schedule: when the frontier moves,
+#  glance at the slots and ask which one has caught nothing since the last swap.
 
 #  ===========================  CONFIG -- swap freely  =======================
-#  SLOT 1 WENT GREEN 2026-08-13 (SEQ 61): the PC-1 restatement landed, the
-#  narrow spelling is in the tree, and bindSeamB is now PINNED at 251 in
-#  pop.sh -- so slot 5 covers it too. THAT MEANS THE FRONTIER HAS MOVED AND
-#  SLOT 1 IS DUE FOR A SWAP: a fixture that is pinned in pop.sh is fleet
-#  business, and holding it here as well is duplication, not coverage. Next
-#  frontier is SEQ 57 rung 4, the kant Braced body -- point slot 1 at its
-#  fixture when it exists. Until then slot 1 is green-but-idle, which is the
-#  honest state and not a passing check to lean on.
-FRONTIER=bindSeamB          # slot 1: the fixture under test
+#  SLOT 1 SWAPPED 2026-08-13 (SEQ 63): bindSeamB out, bracedK in. bindSeamB is
+#  PINNED in pop.sh since SEQ 61, so slot 5 already covers it -- holding it here
+#  too was duplication, not coverage. Its rows moved to parked.sh with a date and
+#  a reason rather than being deleted. bracedK is the new frontier: the kant
+#  Braced body, first live fire of parseRK.
+FRONTIER=bracedK            # slot 1: the fixture under test
 FRONTIER_WANT="sumple width is now 251"
-FRONTIER_SENT="BINDSEAMB SENTINEL"
+FRONTIER_SENT="BRACEDK SENTINEL"
 
 ORACLE=bindSeamA            # slot 2: its oracle
 ORACLE_WANT="sumple width is now 251"
@@ -99,54 +107,16 @@ mkdir -p "$T"
 fail=0
 checks=0
 
-pass () { echo "  ok    $1"; checks=$((checks+1)); }
-bad  () { echo "  FAIL  $1"; shift; [ -n "$1" ] && echo "        $*"; fail=1; checks=$((checks+1)); }
-
-#  --- H5: run a fixture under a wall-clock cap, exit status taken directly ---
-#  ⚠ THESE LOCALS ARE PREFIXED cap_ ON PURPOSE. sh has no function scope, so
-#  the first cut used _p/_w/_rc here and _s/_w/_l in row() -- and the watchdog
-#  PID silently overwrote the wanted STRING, so every row compared its output
-#  against a five-digit process id and reported FAIL with `want: 80340`. It was
-#  caught in one run only because the row prints the value it wanted (H4); a
-#  bare pass/fail would have read as a real red on three slots.
-runcap () {                       # runcap <fixture> <outfile>
-    $B "incant/$1" > "$2" 2>&1 &
-    cap_pid=$!
-    { ( sleep "$CAP"; kill -9 $cap_pid 2>/dev/null ) >/dev/null 2>&1 & } 2>/dev/null
-    cap_wd=$!
-    wait $cap_pid; cap_st=$?
-    { kill $cap_wd 2>/dev/null; wait $cap_wd 2>/dev/null; } 2>/dev/null
-    [ $cap_st = 137 ] && cap_st=124
-    return $cap_st
-}
-
-#  --- slots 1-4 share one shape: ran, did not truncate, said the right thing --
-row () {                          # row <fixture> <sentinel|-> <want|-> <label>
-    _f=$1; _s=$2; _w=$3; _l=$4
-    runcap "$_f" "$T/$_f"; _rc=$?
-    if [ $_rc = 124 ]; then bad "$_l -- TIMEOUT after ${CAP}s (a hang is not a wrong answer)"; return; fi
-    if [ $_rc != 0 ];  then bad "$_l -- exit $_rc"; return; fi
-    if [ "$_s" != "-" ] && ! grep -q "$_s" "$T/$_f"; then
-        bad "$_l -- sentinel absent, run TRUNCATED; every other ok in it is uninterpretable"; return; fi
-    if [ "$_w" != "-" ] && ! grep -q "$_w" "$T/$_f"; then
-        bad "$_l" "want: $_w" ; grep -o 'sumple width is now [0-9]*' "$T/$_f" | sed 's/^/        got:  /'; return; fi
-    pass "$_l"
-}
+#  ⚠ SOURCED, NEVER COPIED. parked.sh uses the same helpers, and a lot visited
+#  only at flush moments is where a stale copy rots longest. Fourth instance of
+#  copy-the-idiom-lose-the-helper on this project; see smokelib.sh's header.
+. genLadder/smokelib.sh
 
 if [ ! -x "$B" ]; then echo "  FAIL  binary not executable: $B"; exit 1; fi
-echo "  bin   $B"
-echo "  bin   $(ls -lL "$B" | awk '{print $5" bytes  "$6" "$7" "$8}')"
-
-#  --- H1+, THE STALENESS GUARD. Size is not proof: two rebuilds this week came
-#      back byte-identical in size. Compare mtimes against generated sources. ---
-newest=$(ls -t *.mm 2>/dev/null | head -1)
-if [ -n "$newest" ] && [ "$newest" -nt "$B" ]; then
-    bad "STALE BINARY -- $newest is newer than $B. Rebuild before reading anything below."
+if ! echobin; then
     echo ""
     echo "SMOKE ABORTED -- a stale binary fails as a hang or a phantom, not as a diff."
     rm -rf "$T"; exit 1
-else
-    pass "binary is newer than the newest generated .mm"
 fi
 
 echo ""

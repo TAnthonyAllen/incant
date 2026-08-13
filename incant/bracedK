@@ -1,0 +1,70 @@
+/*  bracedK -- THE KANT BRACED BODY. SEQ 57 rung 4 / SEQ 63 part 2, 2026-08-13.
+    FIRST LIVE FIRE OF parseRK, which has been BUILT-NEVER-FIRED since it was
+    written.
+
+    THIS FIXTURE IS incant/bindSeamB WITH THE KANT DOOR IN PLACE OF THE C++ ONE,
+    and nothing else. Same field shape, same one bracket expression, same
+    oracle. incant/bindSeamA is the interpreted oracle for both, and bindSeamB
+    is the C++ arm this one is meant to match line for line -- which is what
+    makes the two parseTrace outputs diffable, by design rather than by luck.
+
+    THE BODY LIVES IN incant/parseCode, THE REAL ARTIFACT, reached through a
+    FIXTURE-LOCAL fILEs entry. Nothing shared moves: promotion later is the one
+    line below relocating into incant/setup, so the promotion diff is exactly
+    the thing promoted. It also keeps the runtime-data bisect working on the
+    shipping file, which is what made an earlier four-body bisect cost zero
+    rebuilds.
+
+    THE DOOR IS THE dlsym ONE -- parseMethod=parseViaKant, with parseTerms=3 so
+    parseRuleMethod's refusal guard is live rather than warning. The MINT door
+    stays unbuilt this rung; its index-guard parity item is the price of
+    admission whenever it is next proposed.
+
+    ⚠ THE SHIMS ARE REGISTERED HERE rather than in setup. A parse method whose
+    body calls litK and parseRK needs those resolvable as commands at parse
+    time. Keeping it local holds the eventual setup edit to the fILEs line
+    alone. actK is deliberately NOT registered: this rung's body has no tail,
+    because no kantDoor runs to clear the rule's method slot, so parse fires
+    the action itself and a tail would fire it twice.
+
+    ⚠ ORDER IS LOAD-BEARING. The include and the bind both come BEFORE the
+    define of fireIt, because an action body is parsed when it is DEFINED --
+    so the fixture's own bracket expression parses through the kant door
+    rather than through a hand-fed string.
+
+    ⚠ 251 ALONE IS NOT A PASS. The interpreted arm has always produced 251, so
+    a green value proves nothing about which arm answered. Read the arm by name
+    in the trace: promote=0 is the generated arm and is what this rung claims,
+    promote=1 means the bind did not take and the interpreted arm answered.
+    That lesson was paid for at the IA-2 pin and applies here first.
+*/
+Start();
+registry(cOMMANDs);
+define litK immediateAction=litK; ;
+registry(cOMMANDs);
+define parseRK immediateAction=parseRK; ;
+registry(cOMMANDs);
+define traceParse immediateAction=traceParse; ;
+traceParse();
+
+registry(fILEs);
+define parseCode File='incant/parseCode'; ;
+include(parseCode);
+
+define
+    Braced parseTerms=3 parseMethod=parseViaKant;
+    ;
+
+register(BK);
+define
+    sumple width=1 height=2;
+    fireIt code={
+        sumple[width] = 251;
+        print "  sumple width is now" sumple.width:;
+        };
+    ;
+search reset stack Grokking BK list;
+print "=== bracedK: kant Braced body, dlsym door, oracle 251 generated arm ===":;
+fireIt();
+print "BRACEDK SENTINEL":;
+stop();

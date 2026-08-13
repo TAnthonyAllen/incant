@@ -1493,3 +1493,116 @@ coverage. Noted in the file. **Next frontier is SEQ 57 rung 4** — the kant `Br
 un-parks on its original terms now that the bind is read and the label is honest, and whose
 pre-registration finally discriminates: *red-matching-the-C++-arm* is now a true SUCCESS row instead
 of an uninformative one.
+
+---
+
+# 🔔 ADDENDUM 2026-08-13 (k) — SEQ 63: **THE KANT LOOP CLOSES ON `Braced`.** First live fire of `parseRK`, and the two arms are byte-identical
+
+**asOf 2026-08-13 · no rebuild taken for any row here — this rung is runtime data on the SEQ 61
+binary (1387216 bytes, mtime 09:46), which is the kant path's own cheapness paying off · `pop.sh`
+UNMOVED · `completePop` 136 → 137 swept, 240 → 242 green (`bracedK`'s own two checks, nothing else)**
+
+## ⚠ TWO MECHANISM CORRECTIONS BEFORE THE RESULT, because the dispatched body would not have fired
+
+The order specified `Braced code={ … }` bound through `parseMethod=parseViaKant`. **Neither half of
+the shipped artifact matched that door**, and both mismatches are silent-at-exit-0 failures:
+
+1. **`parseViaKant` locates `kp<Tag>`, not `<Tag>`.** It builds the name `"kp" rule.tag` and looks
+   *that* up. `incant/parseCode` named the entry **`Braced`**, which is the **mint** door's shape —
+   the mint reaches the same place by minting `kpBraced` and hanging the body on it. Through the
+   dlsym door an entry named `Braced` is **simply not found**. Renamed to **`kpBraced`**.
+   ⚠ **And naming the rule would now do something else too:** since SEQ 56 the coded test wins in
+   `aCTionDefinE`, so a body attached to the *rule* `Braced` sets its method to `processAction`.
+   Naming the *action* sidesteps that entirely and leaves the rule's C++ action untouched.
+2. **The `actK()` tail had to go**, and the artifact's own header says why without noticing it
+   applies here: `actK` exists because **`kantDoor` clears the rule's method slot**, making the tail
+   the only route to the action. **No `kantDoor` runs this rung**, so the slot is intact and
+   `parse()` fires the action itself — keeping the tail would have fired it **twice**. The order
+   specified the tail-less body and was right; the artifact was written for the other door.
+
+Both recorded in `incant/parseCode`'s header rather than fixed silently.
+
+## THE RESULT — **row 1 of the amended pre-registration**
+
+```
+=== bracedK: kant Braced body, dlsym door, oracle 251 generated arm ===
+  sumple width is now 251
+BRACEDK SENTINEL                                    exit 0
+```
+```
+    parseViaKant Braced -> kpBraced
+    lit " [ " at term  [                            <- litK(1)
+    parseR term= ExpressioN  into= Braced           <- ⚠ parseRK(2), FIRST LIVE FIRE
+    parseR term= ExpressioN  -> attached as ExpressioN under Braced
+    lit " ] " at term  ]                            <- litK(3)
+  WIN  Braced  (kant)
+    attachLabel lab=Braced promote=0 isTarget=1 pLabel=0 pRule=InvokeArg
+```
+
+**251, `promote=0`, sentinel, fleet unmoved — all four legs.** `promote=0` is the **generated** arm,
+which is the leg that matters: the interpreted arm has always produced 251, so the value alone
+proves nothing about which arm answered. That discrimination was paid for at the IA-2 pin and is
+applied here before anything is called green.
+
+**`parseRK` graduates from BUILT-NEVER-FIRED.** A three-term rule with a **rule reference** in the
+middle parsed real input through a body written in kant.
+
+## ⚠ AND THE STRONGEST ROW IS ONE THE PRE-REGISTRATION DID NOT ASK FOR: **THE TWO ARMS DIFF CLEAN**
+
+The order noted the frame made the arms diffable by design. Taken up — `bindSeamB` (generated C++
+`parseBraced`) against `bracedK` (kant body), over the whole `Braced` parse:
+
+```
+31,32c31
+<   HIT  Braced          <- leaveRule's two lines
+<   WIN  Braced
+---
+>   WIN  Braced  (kant)  <- parseViaKant's one line
+```
+
+**Thirty lines, and the ONLY difference is the instrumentation's own marker.** Both literals, the
+`ExpressioN` descent and its attach, the arm marker — identical. The C++ arm and the kant arm are
+doing the same thing, and this is the exhibit that says so rather than asserting it.
+
+## THE RETIREMENT CHARTER IS BUILT — `parked.sh`, and it self-certifies
+
+Two-stage retirement per the charter. `genLadder/smokelib.sh` now holds the helpers **once**;
+`smoke.sh` and `parked.sh` both **source** it. That is the standing answer to
+copy-the-idiom-lose-the-helper, whose ledger reached **four** instances — and a lot visited only at
+flush moments is where a stale copy rots longest.
+
+**Grading asymmetry implemented as the charter states it:** green **flushes** and is announced as
+weak evidence (*"it was parked for running green"*); **RED reinstates or files and must never be
+flushed**; **UNRUNNABLE is its own outcome and never a pass**, still counting as a recorded check so
+the harness's self-certification cannot be satisfied by rows evaporating.
+
+**Both negative controls run and both fire** (H7):
+
+| control | result |
+|---|---|
+| a parked row whose value moved | **RED**, "REINSTATE … DO NOT FLUSH", **exit 1** |
+| a parked row whose fixture vanished | **`???? FIXTURE MISSING, not checked`**, flushable, never `ok` |
+| all-clear | exit **0** |
+
+**First residents:** `bindSeamB`'s value row **and its ARM row**, parked 2026-08-13 from smoke slot
+1, reason *"promoted to `pop.sh` pin, SEQ 61"*. ⚠ **Both together, deliberately** — parking the
+value without the arm would park half a check, and the arm is the half that makes the value mean
+anything. The arm row is written out longhand rather than forced through `parkrow`'s value test,
+because **a parked check that changed shape on the way in is not the check that was parked.**
+
+**Slot 1's swap is the parking trigger's first exercise**, and the habit is now written into
+`smoke.sh`'s header: when the frontier moves, glance at the slots and ask which caught nothing since
+the last swap.
+
+## WHERE THIS LEAVES THE BOARD
+
+- **SEQ 57 is closed.** Rungs 1-3 were overtaken by SEQ 58's seam close and the SEQ 61 ruling; rung
+  4 is **green** above. What remains of it is the **promotion gate**: `incant/parseCode`'s `fILEs`
+  line relocating from `incant/bracedK` into `incant/setup`, which is a one-line move by
+  construction and was not taken here — the fixture-local entry is doing its job and nothing shared
+  needs to move yet.
+- **The mint door stays unbuilt**, and its price of admission is unchanged: the index-guard parity
+  item, because the mint binds inside `aCTionDefinE` with no `parseRuleMethod` and therefore **no
+  count check at all**. `bracedK` binds with `parseTerms=3` through the door that *does* check.
+- **The three pre-existing `pop.sh` reds are now the board's oldest item** and are still owed a
+  re-pin with a sentence each.

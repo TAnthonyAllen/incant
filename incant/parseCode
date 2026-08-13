@@ -33,10 +33,35 @@
     ⚠ READ docs/kantParseTemplates.md BEFORE EDITING. It carries the pick
     rationale, the term kind table, and the three outcome pre registration this
     entry must be read against.
+
+    =========================================================================
+    ⚠ REVISED 2026-08-13, SEQ 63, AND TWO THINGS ABOVE ARE NOW HISTORY. The
+    entry was written for the MINT door, which is still unbuilt. Today it is
+    bound through the dlsym door, parseMethod=parseViaKant, which is the door
+    SEQ 58 repaired and proved. Two consequences, both mechanism and neither
+    taste.
+
+    THE ACTION IS NAMED kpBraced, NOT Braced. parseViaKant builds the name it
+    wants as kp then the rule tag and locates THAT. The mint route reaches the
+    same place by minting kp<Tag> and hanging the body on it, so under the mint
+    the file could name the rule; under the dlsym door it must name the action.
+    An entry named Braced is simply not found, and parseViaKant refuses loudly.
+
+    AND NAMING THE RULE WOULD NOW DO SOMETHING ELSE AS WELL. Since SEQ 56 the
+    coded test wins the dispatch in aCTionDefinE, so a body attached to the
+    rule Braced sets its method to processAction. Naming the action sidesteps
+    that entirely; the rule keeps its own C++ action untouched.
+
+    THE actK TAIL IS GONE, and the header paragraph above explains why it has
+    to be. actK exists because kantDoor CLEARS the rule method slot when it
+    installs, making the tail the only route to the action. No kantDoor runs
+    here, so the slot is intact and parse fires the action itself -- keeping
+    the tail would fire it TWICE. The tail returns when its door does.
+    =========================================================================
 *****************************************************************************/
 
 define
-    Braced code={
-        return litK(1) AND parseRK(2) AND litK(3) AND actK();
+    kpBraced code={
+        return litK(1) AND parseRK(2) AND litK(3);
         };
     ;
