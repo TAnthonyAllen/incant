@@ -475,6 +475,54 @@ valcheck loopBranchT "1 bare break in while  *->\\[ " 3 "break is CONSUMED by th
 valcheck loopBranchT "2 bare continue in while *->\\[ " 12 "continue still skips correctly (12)"
 
 #  ---------------------------------------------------------------------------
+#  THE IA-2 PIN -- THE RULING MADE EXECUTABLE. SEQ 61, 2026-08-13.
+#
+#  bindSeamB binds a generated C++ parse method to Braced by CROSS-FILE
+#  re-definition, so it exercises two things nothing else in this fleet does:
+#  the bind-read seam (SEQ 58) and the generated arm of an alternation option
+#  (IA-2/GM-29). Its value was unpinnable until 2026-08-13 because the correct
+#  answer had not been chosen; the director's PC-1 restatement chose it, which
+#  is what dissolved H6's objection to pinning.
+#
+#  bindSeamA is the ORACLE and is pinned beside it deliberately: the same
+#  fixture with no bind, reaching the same rule through the INTERPRETED arm.
+#  Both want 251. A pin without its oracle would say nothing about which arm
+#  produced the number.
+#
+#  ⚠ AND THE THIRD ROW IS THE ONE THAT MAKES THE PIN HONEST. 251 ALONE CAN
+#  PASS FOR THE WRONG REASON. If the cross-file bind ever silently stops being
+#  read -- exactly the SEQ 58 defect, which was live for days -- bindSeamB
+#  falls back to the interpreted arm and prints 251 ANYWAY, because the
+#  interpreted arm has always worked. The value check would go green while
+#  certifying the opposite of what it claims. So the arm is asserted BY NAME:
+#  promote=0 on Braced's attachLabel line is the generated arm, promote=1 is
+#  the interpreted one. bindSeamA is checked for promote=1 for the same reason
+#  in the other direction -- an oracle that quietly started using the generated
+#  arm would stop being an oracle.
+#
+#  ⚠ TRIPWIRE DUTY: this pin is also IT-3's. When the promote/isTarget case is
+#  demolished, the IA-2 cell needs an action-layer carrier first (the option's
+#  label yielded upward -- attaching it into the grandparent's subtree was
+#  built and measured RED, SEQ 59 rung 2b). Delete the case without supplying
+#  the carrier and this row goes red. That is intended, not incidental.
+#  ---------------------------------------------------------------------------
+branchrun bindSeamA "BINDSEAMA SENTINEL" "bindSeamA runs (IA-2 oracle, interpreted arm)"
+valcheck  bindSeamA "sumple width is now " 251 "bindSeamA oracle value (251)"
+if grep -q "attachLabel lab=Braced promote=1" "$T/bindSeamA"; then
+    echo "  ok    bindSeamA reaches Braced by the INTERPRETED arm (promote=1)"; green=$((green+1))
+else
+    echo "  FAIL  bindSeamA -- no promote=1 Braced attach; the oracle is not on the interpreted arm"; fail=1
+fi
+branchrun bindSeamB "BINDSEAMB SENTINEL" "bindSeamB runs (IA-2 pin, generated arm)"
+valcheck  bindSeamB "sumple width is now " 251 "bindSeamB PINNED at 251 -- PC-1 restated, SEQ 61"
+if grep -q "attachLabel lab=Braced promote=0" "$T/bindSeamB"; then
+    echo "  ok    bindSeamB reaches Braced by the GENERATED arm (promote=0)"; green=$((green+1))
+else
+    echo "  FAIL  bindSeamB -- no promote=0 Braced attach; the cross-file bind is NOT being read,"
+    echo "        and the 251 above is the interpreted arm answering. See SEQ 58."; fail=1
+fi
+
+#  ---------------------------------------------------------------------------
 #  displayForm -- THE INTERPRETER PIN. Step 0 of the displayForm arc (Tony +
 #  Clay addendum, 2026-08-04). Tony's own tests in IncantForms/WorkingOn/tester
 #  pass and are happy-path by design; this pins the same action against a tree

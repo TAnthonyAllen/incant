@@ -67,11 +67,14 @@
 #     copy-the-idiom-lose-the-helper on this project; pre-empted here.
 
 #  ===========================  CONFIG -- swap freely  =======================
-#  ⚠ AS SHIPPED TODAY SLOT 1 IS RED, ON PURPOSE. The frontier is the IA-2 cell
-#  and it is NOT FIXED in the tree -- SEQ 59's rung 1 went green and was
-#  REVERTED pending Tony's PC-1 ruling, so bindSeamB reads 1 where the oracle
-#  reads 251. A standing red here is the frontier being open, not breakage.
-#  When the ruling lands, slot 1 goes green and the frontier moves on.
+#  SLOT 1 WENT GREEN 2026-08-13 (SEQ 61): the PC-1 restatement landed, the
+#  narrow spelling is in the tree, and bindSeamB is now PINNED at 251 in
+#  pop.sh -- so slot 5 covers it too. THAT MEANS THE FRONTIER HAS MOVED AND
+#  SLOT 1 IS DUE FOR A SWAP: a fixture that is pinned in pop.sh is fleet
+#  business, and holding it here as well is duplication, not coverage. Next
+#  frontier is SEQ 57 rung 4, the kant Braced body -- point slot 1 at its
+#  fixture when it exists. Until then slot 1 is green-but-idle, which is the
+#  honest state and not a passing check to lean on.
 FRONTIER=bindSeamB          # slot 1: the fixture under test
 FRONTIER_WANT="sumple width is now 251"
 FRONTIER_SENT="BINDSEAMB SENTINEL"

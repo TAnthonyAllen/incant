@@ -349,6 +349,16 @@ void GroupItem::append(GroupItem *grup)
     with the two skips. Attrition list per GM-23: aCTionNewGroup (done),
     aCTionShortcuT, plus the four text-readers at their own rungs.
 
+    ⚠ DEMOLITION ITEM ADDED 2026-08-13 (SEQ 61, with the PC-1 restatement):
+    BEFORE the promote/isTarget case deletes, THE IA-2 CELL NEEDS AN
+    ACTION-LAYER CARRIER -- the winning option's label yielded UPWARD as the
+    alternation's own yield. Not attached into the grandparent's subtree: that
+    was built and measured RED (SEQ 59 rung 2b, recorded at the drop site
+    below). The narrow guard is NOT a new carrier; it extends the condemned
+    case and deletes with it, so IT-3's end state is unmoved. THE TRIPWIRE IS
+    incant/bindSeamB PINNED AT 251 in genLadder/pop.sh -- delete the case
+    without supplying the carrier and that pin goes red.
+
     ⚠ NESTED REFERENCES ARE COVERED, MEASURED BEFORE THIS LANDED. parseR
     (RuleStuff.twk:689) does `bridge.label = into; term.parse(bridge)`, so a
     reference term reaches parse() with `into` as pStuff's label -- both arms of
@@ -375,7 +385,16 @@ GroupItem 	*lab = stuff->label;
 	/*  PROMOTION IS AN ASSIGN AND IS NOT GUARDED ON THE DESTINATION -- a parent
 	with no label yet is the NORMAL case here, and this is what gives it
 	one.  */
-	if ( promote && stuff->isTarget )
+	/*  ⚠ THE `!pStuff.label` DISJUNCT IS PC-1 AS RESTATED BY THE DIRECTOR ON
+	2026-08-13 (SEQ 61), NOT A LOOSENING OF IT. The generated arm never
+	consults isTarget WHERE A PARENT LABEL EXISTS -- promotion there would
+	replace the parent's subtree, which is GM-22's third wall, measured as
+	ScafOUT coming back childless. Where no parent label exists there is no
+	subtree at risk, so the consult is permitted, and that cell is IA-2's.
+	PC-1's rationale stands; its letter is trimmed to the rationale's reach.
+	See the IA-2 block below and docs/parseCodeMeasurements.md addendum (j)
+	for the ruling verbatim and the trial it rests on.  */
+	if ( (promote || !pStuff->label) && stuff->isTarget )
 		{
 		pStuff->label = lab;
 		lab->groupBody->tag = pStuff->ruleName;
@@ -405,7 +424,21 @@ GroupItem 	*lab = stuff->label;
 	the whole fleet at its standing footprint — so the missing promotion
 	ACCOUNTS for the red completely. It was NOT landed: it makes the
 	generated arm consult isTarget, which PC-1 forbids, and it moves against
-	IT-3's end state where promotion deletes entirely. Director's call.  */
+	IT-3's end state where promotion deletes entirely. Director's call.
+	
+	⚠ RULED 2026-08-13, SEQ 61 -- AND THE CELL IS NOW CLOSED. Both
+	objections were answered rather than waived. PC-1 was RESTATED, not
+	overridden: the forbidden consult is the one where a parent label
+	exists, because that is the one with a subtree to destroy; this cell has
+	no parent label and therefore nothing at risk. IT-3 is unmoved because
+	the narrow guard adds no carrier -- it rides the condemned case and dies
+	with it, and IT-3's list gained the demolition item this cell needs
+	(see the header above). The landed spelling is the NARROW one,
+	`(promote || !pStuff.label) && stuff.isTarget`. The broad spelling was
+	also measured green and was REJECTED ON PRINCIPLE: over 216 attachLabel
+	calls in one full run, ZERO fell in the cell where the two spellings
+	differ, so its green was a pass on a case that never occurs.
+	Ruling verbatim: docs/parseCodeMeasurements.md addendum (j).  */
 	if ( !pStuff->label )
 		{
 		/*  SEQ 59 RUNG 2 -- THE FRAME PROBE AT THE DROP SITE. Gated on the

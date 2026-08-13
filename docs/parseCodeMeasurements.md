@@ -1414,3 +1414,82 @@ not evidence that it is the right somewhere.**
 
 **Kept from this ladder:** the `IA2 DROP` probe, `parseTrace`-gated, with rung 2b's failure recorded
 at the site so the next reader does not reach for the same destination.
+
+---
+
+# ⚠ ADDENDUM 2026-08-13 (j) — SEQ 61: **PC-1 RULED.** The narrow spelling is landed and the bell is pinned
+
+**asOf 2026-08-13 · binary `~/bin/incant` 1387216 bytes, mtime 09:46 · `pop.sh` 33 → 39 green,
+nothing else moved · `completePop` unchanged at 136 / 240 / 3 / 0 · canary 274**
+
+## THE RULING, VERBATIM — Tony, 2026-08-13. This block is the record; everything else cites it
+
+> **PC-1 restated (2026-08-13):** the generated arm never consults `isTarget` **where a parent label
+> exists** — promotion there would replace the parent's subtree (GM-22, `ScafOUT` childless). Where
+> **no** parent label exists there is no subtree at risk, and the consult is permitted: the IA-2
+> cell. Narrow spelling `(promote || !pStuff.label) && stuff.isTarget` landed in the commit that carries this addendum (hash filled below once written); broad
+> spelling measured indistinguishable on today's population (216 calls, zero in the divergent cell)
+> and **rejected on principle**.
+>
+> **IT-3 reconciliation:** **no new carrier** — the narrow guard extends the condemned case and
+> deletes with it at attrition. **Demolition item added to IT-3's list:** before the
+> `promote`/`isTarget` case deletes, the IA-2 cell requires an **action-layer carrier** (the
+> option's label yielded upward, per the rung 2b constraint); **`bindSeamB`'s pin at 251 is the
+> tripwire.** PC-1's rationale stands; its letter is trimmed to the rationale's reach.
+
+**Cited from three places in the source**, so a reader arriving at any of them finds it: the guard
+itself, the IA-2 block below it, and the IT-3 header above it — all in `GroupItem.twk`'s
+`attachLabel`.
+
+## WHAT LANDED, AND THE SHAPE HELD
+
+The order pre-stated the expected shape as *one hunk, one pin, one comment, one bank*, and said a
+surprise would be information. **There was no surprise.** `pop.sh` against the pre-edit bank:
+
+```
+> ok  bindSeamA runs (IA-2 oracle, interpreted arm)
+> ok  bindSeamA oracle value (251)
+> ok  bindSeamA reaches Braced by the INTERPRETED arm (promote=1)
+> ok  bindSeamB runs (IA-2 pin, generated arm)
+> ok  bindSeamB PINNED at 251 -- PC-1 restated, SEQ 61
+> ok  bindSeamB reaches Braced by the GENERATED arm (promote=0)
+  POP FAILED -- 33 green  ->  39 green / 1 parked-WIP
+```
+
+**Six new rows and nothing else.** The three pre-existing reds are unchanged and still owed a
+re-pin by someone; `oneTest`/`jsonTest` byte-identical on both streams split and merged;
+`completePop` unmoved because no fixture file was added — both already existed.
+
+## ⚠ THE PIN CARRIES A THIRD ROW THE ORDER DID NOT ASK FOR, AND IT IS THE ONE THAT MAKES IT HONEST
+
+**251 alone can pass for the wrong reason**, and the failure it would hide was live in this tree for
+days. If the cross-file bind ever silently stops being read — the exact SEQ 58 defect — `bindSeamB`
+**falls back to the interpreted arm and prints 251 anyway**, because the interpreted arm has always
+worked. The value check would go green while certifying the opposite of what it claims.
+
+So **the arm is asserted by name**: `promote=0` on Braced's `attachLabel` line is the generated arm,
+`promote=1` the interpreted one. `bindSeamA` is checked for `promote=1` for the same reason in the
+other direction — an oracle that quietly started using the generated arm would stop being an oracle.
+
+Same family as the standing rule that a constant the default could also produce asserts nothing:
+here the *value* is reachable by two paths, so the value is not the assertion — **the path is.**
+
+## WHAT THE PIN NOW OWES IT-3
+
+`bindSeamB` at 251 is a **tripwire with a stated trigger**, recorded on IT-3's own list in the
+`attachLabel` header: demolish the `promote`/`isTarget` case without first supplying the IA-2 cell's
+action-layer carrier, and this row goes red. **That is intended, not incidental** — it is how a
+scheduled deletion is prevented from silently re-opening a closed defect. The carrier's shape is
+already constrained by measurement rather than left open: the option's label must be **yielded
+upward**, because **parking it in the grandparent's subtree was built and measured RED** (SEQ 59
+rung 2b, recorded at the drop site).
+
+## THE FRONTIER MOVES
+
+`genLadder/smoke.sh` slot 1 is **green**, all six checks, fleet unmoved against a freshly banked
+reference. ⚠ **And that makes slot 1 due for a swap rather than a thing to celebrate:** a fixture
+pinned in `pop.sh` is fleet business, and holding it in the smoke bell as well is duplication, not
+coverage. Noted in the file. **Next frontier is SEQ 57 rung 4** — the kant `Braced` body, which
+un-parks on its original terms now that the bind is read and the label is honest, and whose
+pre-registration finally discriminates: *red-matching-the-C++-arm* is now a true SUCCESS row instead
+of an uninformative one.
