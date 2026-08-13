@@ -703,3 +703,119 @@ Three rules follow, and they are why every section above carries a date:
 `jit-coverage-recon.md`, `llvm-jit-recon.md`, `jitFullmontyPlan.md`, `gif-jit-recon.md`,
 `jit-phase1-walk.md`. Their reasoning trails are in git; their conclusions are here and in
 `jitDesign.md`.*
+
+---
+
+## ⚠ JITTING THE KANT PARSE BODIES — PRICED 2026-08-13, AND **STOPPED AT THE FIRST EXIT**
+
+*SEQ 65 rung 0 / SEQ 66-r1 phase 1.0. asOf 2026-08-13, binary 1387216 bytes mtime 09:46. No
+rebuild taken and no code changed — this is a pricing census. Every row RUN.*
+
+The dispatch pre-stated its own stop condition: *"if extern-call emission is a mechanism rather
+than a gap-fill, stop and report before building."* **It is a mechanism. Stopping.**
+
+### The question, and both halves of the answer
+
+**Can the JIT emit a call to a C++ extern of the `litK`/`parseRK` shape? YES — the capability
+exists.** `jitEmitTrace` (`jitEmitters.rtn`) bakes a callee address and emits one `CreateCall` of
+`GroupItem*(GroupItem*)`, and its header records that the signature was **verified against the
+tree** rather than adopted from the design: `runOP` dispatches
+`result = op->groupBody->gMethod(target)`, one argument, value-returning. So the shape a parse
+shim would need is already emitted somewhere.
+
+**Does the walker RECOGNISE `litK(1)` as a call? NO — and this is the finding.** Pointed at a body
+of exactly the parse-body class:
+
+```
+r0body code={ return litK(1) AND litK(2); };      testing(r0body);
+```
+```
+=== jitRunAction: entering on r0body ===
+=== JIT DEGRADE #1: AND/OR LEFT operand produced no value
+    -- not JIT-supported yet, running INTERPRETED: Token ===
+exit 139
+```
+
+**The operand arrives at the AND emitter as a bare `Token`.** `jitEmitShortCircuit`'s dispatch is
+`if target.isMethod && target.invoke  target.method(target); else jitEmitBareRead(target);` — a
+command invocation satisfies neither, falls to the bare read, and yields nothing. **It is not that
+the call emits badly; it is not seen as a call site at all.**
+
+### ⚠ AND THE EMIT WALK CRASHES ON THE SHAPE. Measured, with the discriminating control
+
+| run | exit |
+|---|---|
+| the body **jitted** (`testing`) | **139** |
+| the identical body **interpreted** (`r0body()`) | **0**, sentinel present |
+
+**So the crash is not the probe's artificiality** — calling `litK` outside a parse frame is
+survivable interpreted. Top frames, via `script -q /dev/null`:
+
+```
+0  aCTionBrancH      GroupRules.mm:167
+1  aCTionBlocK       GroupRules.mm:85
+2  jitExecBlock      GroupRules.mm:5495
+3  jitBuildFunction  GroupRules.mm:4055
+4  jitRunAction      GroupRules.mm:6366
+```
+
+It dies in **`aCTionBrancH` — the `return` — during the EMIT walk**, after the degrade announced
+that nothing was in flight. ⚠ **This is a NEW crash, not the parked one.** `incant/jitscratch` dies
+on `jitInc` (the `++` path) and §"What actually runs" above records that it *"did not reach
+`jitRunAction` at all"*; this reaches it and dies four frames deeper. The parked crash stays parked.
+
+⚠ **The causal story — degrade returns null, `return` then dereferences the absent value — is
+INFERENCE from the frame, not measurement**, and this project's standing asymmetry says structural
+claims here hold and causal ones are a coin flip until run. Recorded as a lead.
+
+### THE PRICE — three mechanisms and a crash, not a gap-fill
+
+1. **`litK`/`parseRK` are UNGATED commands.** Every emittable op carries a `jitting` gate with two
+   halves (`jitTrace`/`jitEmitTrace` is the pattern). Ungated, the walker's `target.method(target)`
+   branch would **execute them at EMIT time, once** — which is `opPrint`'s documented failure
+   exactly, one level up: *"it appears to work and it lies."* Two shims × two halves.
+2. **A command invocation must reach the emitter as an invokable.** Today it is a `Token`. That is
+   the mechanism, not vocabulary — nothing is mis-emitting, the call site is invisible.
+3. ⚠ **THE FRAME IS THE HARD ONE, and it is a design question rather than a shim.** `litK` and
+   `parseRK` read position and mark from **`parseViaKant`'s C++ frame**, which is **re-entrant by
+   construction** — its own header says *"the C++ call stack is the frame stack; nothing else needs
+   to be,"* saved in locals because a kant body calls `parseRK`, which calls `parse()`, which can
+   fork straight back in. `jitEmitTrace` reaches its data by **baking a stable address as a
+   constant**. **A re-entrant frame has no stable address to bake.** So the one emitted-call
+   pattern the JIT has does not transfer to this population without answering how an emitted call
+   finds the *current* frame.
+4. **Plus the live crash above**, which would have to be fixed before any of it could be graded.
+
+### THE COST NUMBER, given because the skeptic's case deserves one rather than an argument
+
+20-run averages, same machine, same binary, one `Braced` parse per run in every case:
+
+| arm | per run |
+|---|---|
+| `bindSeamA` — interpreted | 0.5238s |
+| `bindSeamB` — generated C++ | 0.5232s |
+| `bracedK` — **kant interpreted** | 0.5261s |
+
+**All three within 0.6% of one another**, and that spread contains the *entire* kant interpretation
+of a three-term body. ⚠ **The quantity the JIT would attack is not resolvable at this scale** — the
+figure is dominated by process start and grammar load, not by the one parse. **There is no cost
+case to make today**, and saying so with a number is the point of having pre-stated it.
+
+### WHERE THIS LANDS AGAINST THE DECISION SPACE
+
+Parity is **ungradable** — the jitted arm does not run, so there is no three-way diff to take, and
+grading a voided control would be reading a broken instrument. Blast radius is **nil**: nothing was
+built, no code changed, fleet untouched, canary unmoved at 274.
+
+**On the pre-stated numbers this reads as (c)-with-a-named-blocker rather than (b)**, and the
+distinction matters: *prove-and-park* certifies a capability and switches it off, but **there is no
+capability to certify yet.** The honest disposition is **the door is closed and the lock is
+described** — three mechanisms, of which the frame one is genuinely architectural, plus a crash.
+**Director's call, and this is the skeptic's first exit taken as written.**
+
+**Consequence for SEQ 66-r1: phase 1.0's stop condition has fired, so 1.1-1.3 are not attempted.**
+⚠ **Phase 2 is NOT blocked by this.** Its gate is *"Phase 1 green and not refused"*, but its actual
+dependency is the **hand bodies certified on 2026-08-13 (SEQ 63)**, which are green and unaffected:
+the emitter's byte-oracle is the hand body, and neither the emitter nor the oracle needs the jit
+leg. **The emitter ratchet can proceed on the interpreted engine** if Tony wants the campaign to
+keep moving while the jit door stays shut.
