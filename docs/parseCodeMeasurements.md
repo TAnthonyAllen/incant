@@ -1006,3 +1006,143 @@ works.** So:
 
 A fixture-local `registry(fILEs); define parseCode File='incant/parseCode'; ;` touches no shared
 file, so the bench's blast radius stays at one fixture.
+
+---
+
+# ADDENDUM 2026-08-13 (g) — SEQ 56: THE ARM REORDER, REDONE STANDALONE AND **LANDED**
+
+**asOf 2026-08-13 · binary `~/bin/incant` → DerivedData Debug/Groups, 1387072 bytes, mtime
+2026-08-13 08:23 (rebuilt for this change) · before-binary was the same size at mtime
+2026-08-12 16:49, the post-revert build of addendum (e)**
+
+Tony's standing order: **fix forward, do not revert.** (e)'s hunk was reverted whole because the
+kant door crashed; the *dispatch reorder* inside it was never the thing that failed, so it comes
+back on its own.
+
+## 1. WHAT LANDED — two lines, and nothing else from (e)
+
+`ruleActions.rtn`, `aCTionDefinE`. Before / after:
+
+```
+    if !isREGISTRY && !isMethod {                if !isREGISTRY {
+        String methodName = "aCTion" tag;            if isCoded     method = processAction;
+        void*  methodAddress;                        or !isMethod {
+        if methodAddress = dlsym(...)                    String methodName = "aCTion" tag;
+            gMethod = methodAddress;                     void*  methodAddress;
+        or isCoded  method = processAction;              if methodAddress = dlsym(...)
+        free(methodName);                                    gMethod = methodAddress;
+        if gMethod {                                     free(methodName);
+            isMethod = true;                             if gMethod {
+            immediateACTION = true; }}                       isMethod = true;
+                                                             immediateACTION = true; }}}
+```
+
+**`!isREGISTRY` stays on BOTH arms** — it is not the guard the order names, and leaving it in place
+keeps a coded registry doing exactly what it did yesterday. **`!isMethod` moved to the dlsym arm
+alone**, which is (e) §2 item 1 carried over: a `code={}` re-definition of a rule already carrying
+`isMethod` never reaches a guarded arm, and that is M1b's silent inertness *mechanically*.
+
+**Deliberately NOT brought back**, per the order — they gate on the bind-defect investigation (f):
+no `kantDoor` call, no method-slot clear, no `registry.isRule` scoping, no `fILEs` registration.
+The scoping was needed in (e) because the arm routed to the door; here it routes to
+`processAction`, which is where the four pure-kant coded rules already landed.
+
+## 2. THE PRE-MEASURE — taken, one command, and it names the whole collision set
+
+The order only discriminates for a rule that is **both coded and dlsym-resolvable**. Censused
+before building, with a positive control so the grep cannot pass by finding nothing:
+
+| what | result |
+|---|---|
+| `aCTion*` symbols in the binary | **34** |
+| positive control (`aCTionParens`, `aCTionBlocK`) | both present — the pattern matches something |
+| `aCTionlist` · `aCTionJSONfield` · `aCTionJSONarray` · `aCTionDelimOver` | **none exist** |
+| the 34 tags cross-matched against every `code=`/`code{` rule definition in `incant/`, `*.rtn`, `*.twk` | **one hit: `incant/parseCode:39` `Braced code={`** |
+| is that hit live? | **no** — `parseCode` appears in no `File=` line of `incant/setup`'s `fILEs`, so `include` cannot reach it |
+
+**So the predicted fleet outcome was outcome 1, and it is what happened.**
+
+## 3. VERIFICATION — the ladder, in order
+
+- baselines captured **before any edit**, both streams **split** *and* merged, so the after-capture
+  is like-for-like on each channel separately (the 08-11 instrument lesson);
+- edit → **`tok GroupRules.twk`, bare** (bear-trap #23's normal-build side — no `groupDirectives`);
+- **extern canary `grep -c '^extern' GroupRules.h` = 273 before and 273 after.** Unmoved, as
+  predicted: this change adds no symbol;
+- generated `.mm` read by eye at `GroupRules.mm:605-626` — the reorder is exactly the intended
+  shape, `setMethod(::processAction)` first, the dlsym block under `!isMethod`;
+- rebuilt (TOK.xcodeproj, Groups scheme, `BUILD SUCCEEDED`); **`GroupRules.o` and the product both
+  stamped 08:23**, so the change is demonstrably in the binary that ran;
+- binary echoed at every step (H1).
+
+### The fleet diff — BYTE-IDENTICAL, on every stream
+
+| stream | before vs after |
+|---|---|
+| `oneTest` stdout · stderr · merged | **identical** |
+| `jsonTest` stdout · stderr · merged | **identical** |
+| `genLadder/pop.sh` whole log | **identical** apart from the two `git status` lines naming this change's own files |
+
+`oneTest` still reads **11 then 26 ×4**; `jsonTest` still **13 ok**. Both exit 0.
+
+**The fleet was already red at the mark, and this is a finding, not this change's:** `pop.sh`
+reports **33 green / 1 parked / 3 FAIL** identically before and after — `census.target` (`MemberS`
+now refuses where the target holds a `SEQ`), `iterT1m` plus its refusal count 4-want-7, and the
+`oneTest baseline` diff (the AUDIT block: loose-index numbering moved, three `MISSTERM JSONtoken`
+/`JSONvalue` rows gone, and the summary line gained `0 unconsumed`). ⚠ **Those three targets are
+owed a re-pin with a sentence each** — the standing rule is that a moved target is a claim the
+world changed and the claim needs a cause. Not taken here, because the order's scope is two lines
+and a silent re-pin is exactly what that rule forbids.
+
+`genLadder/completePop.sh`: **134 fixtures swept, 236 green, 0 missing sentinels, 3 abandoned
+parses** — `delimTest`, `grammarOnTheFly`, `hashProbe`, abandon=1 each. **Pre-existing and
+recorded**, same three and same counts, at `docs/grammarCorpus.md:1534-1536` and
+`docs/wakeup.md:1203` ("none session-caused").
+
+## 4. ⚠ THE REORDER IS **NOT** INERT — M1b IS REPAIRED, MEASURED
+
+Byte-identical on the fleet is not the same claim as *"the change does nothing"*, and conflating
+the two would be an unsurprising green nobody audits. So the M1b discriminator was rebuilt and run
+(scratchpad `m1parens`, prose header per bear-trap #27, no `include` line for the reason
+`incant/parensMin`'s header gives):
+
+```
+=== ROW A: baseline, no code on Parens ===
+INSIDE m1Take, argument is 7
+=== MERGE: give the Grokking rule Parens a code body ===
+=== ROW B: same call, after Parens carries code ===
+PARENS CODE BODY RAN            <-- ⚠ NEW. M1b measured this line NEVER appearing
+INSIDE m1Take, argument is 7    <-- and Parens still parses; the 7 still arrives
+M1PARENS SENTINEL
+```
+exit 0, sentinel present, run under `script -q /dev/null`.
+
+**The negative control is banked rather than re-run** — M1b measured this exact shape on the
+dlsym-first order and reported `PARENS CODE BODY RAN` never appearing, at exit 0 with no warning.
+That is H7 satisfied without a second build: the line that appears now is the one that could not
+appear before.
+
+**What it establishes, stated no wider than it goes:** a `code={}` body on a rule that already
+carries a C++ action now **runs**, where yesterday it was accepted and silently discarded. The
+rule's own parse is undisturbed — the C++ action still matched and still delivered its argument.
+The `nextGroup: ERROR CodE does not contain a list` ×2 is M2's characterised noise (a control with
+no merge at all emits the identical two lines), not a reorder artifact.
+
+**Not established, and not claimed:** what happens when the coded arm and a live `gMethod` disagree
+about the answer. Both fire here and both are right; nothing in this change decides an order
+between them, and nothing in today's tree makes them disagree.
+
+## 5. THE LATENT TRAP M1b FILED IS NOW CLOSED
+
+M1b filed it rather than fixing it: *"writing `code{}` on a rule that already has a C++ action is
+accepted at exit 0 and does nothing"* — bear-trap #26's family, a plausible outcome where an error
+was wanted. **The outcome is no longer plausible-and-empty; the body runs.** The trap entry should
+be read as closed by this addendum, not as live.
+
+## 6. WHAT THIS DOES NOT TOUCH
+
+(f)'s re-aimed investigation is undisturbed and unadvanced: the two-node address probe
+(`parseRuleMethod` vs `parse()`'s `definingRule().rStuff.parseMethod` fork), the generated-C++
+re-definition control (`parseMethod=parseBraced` from a fixture), and the bench charter all stay
+parked exactly as (f) left them. **The re-definition bind defect is orthogonal to this dispatch**
+and remains the thing standing between the kant path and a green Braced.

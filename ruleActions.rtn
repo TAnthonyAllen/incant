@@ -340,20 +340,41 @@ use NewGroup
                         newMember.setRStuff(fresh); }}
         /***********************************************************************
             If NewGroup is a rule check to see if it has a rule method .
-            Note: method is fired even if there is an incant action associated with
-            the rule, in which case the method is expeced to run the action.
             Also makes sure if NewGroup isGROUP the group is made a rule
+
+            THE CODED TEST WINS (Tony's order, SEQ 56, 2026-08-13). The arms
+            were dlsym-first until now. An incant code body on a rule is what
+            the rule MEANS, so it takes the dispatch and the dlsym probe is
+            the fallback. Two measured carry-overs, not style.
+
+            First, the not-isMethod guard stays on the DLSYM ARM ONLY. A coded
+            re-definition of a rule that already carries isMethod from its
+            original definition, which is every Grokking rule with a C++
+            action, never reaches a guarded arm. That is M1b silent inertness,
+            measured on Braced and Parens: exit 0, no warning, the CodE
+            attached and read by nobody. See docs/parseCodeMeasurements.md.
+
+            Second, the order only discriminates for a rule that is BOTH coded
+            and dlsym resolvable. The five coded rules in the tree, list twice
+            plus JSONfield, JSONarray and DelimOver, have no aCTion symbol of
+            their own, so they fell through the failed dlsym to isCoded before
+            and land on processAction directly now. Same destination either
+            way. Censused against the 34 aCTion symbols in the binary before
+            the build. The only collision anywhere in the tree is the coded
+            Braced in incant/parseCode, which is unregistered in the setup
+            fILEs registry and so is loaded by nothing.
         ***********************************************************************/
         if isRule {
-            if !isREGISTRY && !isMethod {
-                String  methodName = "aCTion" tag;
-                void*   methodAddress;
-                if methodAddress = dlsym(RTLD_SELF,methodName) gMethod = methodAddress;
-                or isCoded     method = processAction;
-                free(methodName);
-                if gMethod {
-                    isMethod   = true;
-                    immediateACTION = true; }}}
+            if !isREGISTRY {
+                if isCoded     method = processAction;
+                or !isMethod {
+                    String  methodName = "aCTion" tag;
+                    void*   methodAddress;
+                    if methodAddress = dlsym(RTLD_SELF,methodName) gMethod = methodAddress;
+                    free(methodName);
+                    if gMethod {
+                        isMethod   = true;
+                        immediateACTION = true; }}}}
     /***********************************************************************
         THE DEFINITION IS COMPLETE HERE — attributes and members are both in —
         so this is where a term's rStuff is materialised (Clay SEQ 27). Doing it
