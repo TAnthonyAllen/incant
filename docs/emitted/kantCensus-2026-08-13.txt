@@ -1,0 +1,187 @@
+  bin   /Users/anthony/bin/incant
+  bin   1387440 bytes  Aug 13 12:03
+  asOf  2026-08-13
+
+==========================================================================
+  INSTRUMENT FIX 1 -- NAME-PASSING, WITH ITS NEGATIVE CONTROL
+==========================================================================
+  bare   Braced     ->     kpBraced code={
+  bare   ANYstring  ->   kant: no rule named (null)
+  string Braced     ->     kpBraced code={
+  string ANYstring  ->   REFUSE rule ANYstring -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+
+  READ THE CONTROL, NOT JUST THE REPAIR:
+    bare/Braced      WORKS -- and it works BY ACCIDENT. Braced carries no
+                     rule-level data, so .text falls back to echoing the
+                     tag (bear-trap #26, payment 5). Every rule the SEQ 71
+                     survey got right, it got right this way.
+    bare/ANYstring   the name never arrives: 'no rule named (null)'.
+    ⚠ AND THE .taG REPAIR IS A TRAP, measured not reasoned: bare
+      ANYstring resolves to a node whose TAG IS 'DatA'. Reading .taG
+      would have surveyed DatA under a row labelled ANYstring -- turning
+      39 blank rows into 39 rows that look like facts.
+
+==========================================================================
+  THE DENOMINATOR -- measured this run, not cited
+==========================================================================
+  Grokking members    : 60 rules + 1 non-rule
+  Grokking attributes : 18 rules + 0 non-rule
+  POPULATION (rules)  : 78
+  all list entries    : 79
+
+  AGAINST THE THREE PRIORS, every one named:
+    "47 live rules"  (the dispatch's citation) -- matches NOTHING measured
+                       here, on either spelling. Stop citing it.
+    78  (popScratch header, 2026-08-05)         -- CONFIRMED = 78.
+    79  (SEQ 71, 'for r in Grokking')           -- CONFIRMED = 79.
+
+  THE CAUSE OF 78 vs 79, and it is one word: the two numbers count
+  different things and BOTH ARE RIGHT. 79 is list ENTRIES; 78 is RULES.
+  The single entry that is not a rule is:
+      NOTRULE  Operators 
+  -- the operator registry, a member of Grokking that is not isRule.
+  This census's denominator is 78. It excludes that entry BY NAME.
+
+==========================================================================
+  THE STAMPED TABLE -- 78 rules, one process each
+==========================================================================
+
+  BLOCKER KINDS (enumerated; nothing else can appear in that column):
+    NONE  LOOKUP  TERM  RULE  FOLD  EMITTER  UNCLASSIFIED  NO-OUTPUT  CRASH
+
+  KIND COLUMN legend -- one letter per term, in term order:
+    L literal   R reference   C charset/character-data   G container
+    M macro     N condition   A parseAction   U upTo
+    Z UNMATERIALISED -- the term has no rStuff yet (rStuff is built
+      lazily); a distinct STATE, not a kind the classifier lacks
+    X unclassified  -- the classifier has a term and no row for it
+    a trailing + or ? on a letter is that term's repetition / optional
+    modifier; a modifier is not a kind and does not replace one.
+
+  ⚠ KINDS ARE ALPHABETIC, MODIFIERS ARE PUNCTUATION, and that is not
+    cosmetic. The first cut of this column spelled unclassified '?' AND
+    optional '?', so FormaT read '?G?R??L' and no reader could say which
+    '?' was a kind and which a modifier -- one channel carrying two
+    meanings, caught in the instrument rather than in the tree it
+    measures. Every term contributes exactly one LETTER, always.
+
+  RULE               TERMS  KINDS                   SHIM  FIRST BLOCKER
+  ------------------ -----  ---------------------- -----  ---------------------------------
+  ANYtoken               0  (none)                    no  RULE rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+  Any                    0  (none)                    no  RULE rule-level data isANY (§4.1 rule-as-data, rung 5)
+  Attributes             0  (none)                    no  RULE rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+  BasicElse              3  LCR                       no  TERM followedBy -- inline group / character data isSET (named future kind)
+  BlocK                  3  LR+L                      no  EMITTER term 2 is MANY, which has no kant spelling
+  Braced                 3  LRL                      YES  NONE 
+  BrancH                 3  RR?C                      no  TERM SemI -- inline group / character data isSTRING (named future kind)
+  BrancheS               3  LLL                       no  RULE rule-level data isSET (§4.1 rule-as-data, rung 5)
+  CerR                   5  LCAZC                     no  RULE 1 unmaterialised terms
+  CodE                   2  LL                        no  EMITTER term 1 is LITTO, which has no kant spelling
+  CouT                   5  LCAZC                     no  RULE 1 unmaterialised terms
+  DEBUG                  4  LCG?C                     no  TERM followedBy -- inline group / character data isSET (named future kind)
+  DEF                    3  LCR                       no  TERM followedBy -- inline group / character data isSET (named future kind)
+  DEFINing               0  (none)                    no  RULE no terms at all
+  DO                     6  LCRLRC                    no  TERM followedBy -- inline group / character data isSET (named future kind)
+  DatA                   6  RRRRRC+                   no  TERM CodE -- parseAction (tail position only, §2.8)
+  DefinE                 4  GG?R?C                    no  TERM NewGroup -- inline group / character data isGROUP (named future kind)
+  DelimText              2  LG                        no  TERM dtext -- inline group / character data isGROUP (named future kind)
+  ElseIf                 5  LRC?RR?                   no  TERM SemI -- inline group / character data isSTRING (named future kind)
+  FOR                    9  LCGLC?RCR?R               no  TERM followedBy -- inline group / character data isSET (named future kind)
+  FloaT                  2  C+R?                      no  RULE rule-level data isCHAR (§4.1 rule-as-data, rung 5)
+  HeX                    4  CCGL                      no  TERM zero -- inline group / character data isSTRING (named future kind)
+  IF                     6  LCRC?RR?                  no  TERM followedBy -- inline group / character data isSET (named future kind)
+  InitiatE               0  (none)                    no  RULE rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+  InvokE                 3  LR?L                      no  EMITTER term 2 is OPT, which has no kant spelling
+  Iterate                6  LGLGL?L?                  no  TERM ANYtoken -- inline group / character data isGROUP (named future kind)
+  Limit                  4  LGGL                      no  TERM min -- inline group / character data isGROUP (named future kind)
+  Looper                 0  (none)                    no  RULE rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+  MemberS                3  LAR+                      no  TERM MEMBERs -- parseAction (tail position only, §2.8)
+  Modifier               0  (none)                    no  RULE rule-level data isSET (§4.1 rule-as-data, rung 5)
+  NewGroup               0  (none)                    no  RULE rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+  NumbeR                 2  R?L                       no  RULE rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+  Parens                 3  LR?L                      no  EMITTER term 2 is OPT, which has no kant spelling
+  PoweR                  2  C?C+                      no  RULE rule-level data isSET (§4.1 rule-as-data, rung 5)
+  PrinT                  5  LCAZC                     no  RULE 1 unmaterialised terms
+  PrintField             2  RR?                       no  EMITTER term 2 is OPT, which has no kant spelling
+  QuotE                  2  CU                        no  TERM tik -- inline group / character data isSET (named future kind)
+  RunRulE                3  RR?L?                     no  EMITTER term 2 is OPT, which has no kant spelling
+  ScopeXP                3  LZC                       no  RULE 1 unmaterialised terms
+  Search                 4  LCR+C                     no  TERM followedBy -- inline group / character data isSET (named future kind)
+  SetBrackets            2  LU                        no  TERM ] -- upTo/upToOver (not on the ladder yet)
+  ShortcuT               0  (none)                    no  RULE rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+  Start                  0  (none)                    no  RULE rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+  StringXP               2  LZ                        no  RULE 1 unmaterialised terms
+  TokenXP                3  R?RR?                     no  EMITTER term 1 is OPT, which has no kant spelling
+  TraiT                  4  RC?R?R?                   no  TERM Modifier -- inline group / character data isSET (named future kind)
+  TraiTdata              4  LRC?R?                    no  TERM Modifier -- inline group / character data isSET (named future kind)
+  UnaryXP                2  RG                        no  TERM ANYtoken -- inline group / character data isGROUP (named future kind)
+  WardeD                12  RRRRRRRRRRRR              no  FOLD fold is ALT, and only SEQ has a kant spelling
+  WhilE                  5  LCRC?R                    no  TERM followedBy -- inline group / character data isSET (named future kind)
+  Xpress                 2  RC                        no  TERM SemI -- inline group / character data isSTRING (named future kind)
+  break                  0  (none)                    no  RULE no terms at all
+  continue               0  (none)                    no  RULE no terms at all
+  followedBy             0  (none)                    no  RULE rule-level data isSET (§4.1 rule-as-data, rung 5)
+  loopOnAttributes       0  (none)                    no  EMITTER term 0 is LITTO, which has no kant spelling
+  loopOnMembers          0  (none)                    no  EMITTER term 0 is LITTO, which has no kant spelling
+  nameSet                0  (none)                    no  RULE rule-level data isSET (§4.1 rule-as-data, rung 5)
+  numberSet              0  (none)                    no  RULE rule-level data isSET (§4.1 rule-as-data, rung 5)
+  return                 0  (none)                    no  RULE no terms at all
+  tokenize               0  (none)                    no  RULE no terms at all
+  ANYorNum               2  RG                        no  TERM ANYtoken -- inline group / character data isGROUP (named future kind)
+  ANYstring              0  (none)                    no  RULE rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+  ElsE                   2  RR                        no  FOLD fold is ALT, and only SEQ has a kant spelling
+  ExpressioN             1  R+                        no  EMITTER term 1 is MANY, which has no kant spelling
+  FormaT                 5  ZG?R?ZL                   no  RULE 2 unmaterialised terms
+  GrouP                  2  RR                        no  FOLD fold is ALT, and only SEQ has a kant spelling
+  InvokeArg              3  RRR                       no  FOLD fold is ALT, and only SEQ has a kant spelling
+  LoopRestrict           2  CC                        no  TERM loopOnAttributes -- inline group / character data isSTRING (named future kind)
+  NamE                   3  CC?L                      no  TERM first -- inline group / character data isSET (named future kind)
+  PRINTing               0  (none)                    no  RULE no terms at all
+  Precision              1  Z                         no  RULE 1 unmaterialised terms
+  PrintXP                2  GR                        no  TERM ShortcuT -- inline group / character data isGROUP (named future kind)
+  ScopeField             2  GR                        no  TERM ANYtoken -- inline group / character data isGROUP (named future kind)
+  SemI                   0  (none)                    no  EMITTER term 0 is LITTO, which has no kant spelling
+  StatemenT              5  CRRRR                     no  TERM SemI -- inline group / character data isSTRING (named future kind)
+  Token                  5  RRRRR                     no  TERM Operators -- registry container (not on the ladder yet)
+  counter                0  (none)                    no  RULE rule-level data isSET (§4.1 rule-as-data, rung 5)
+  define                 4  LGLL                      no  TERM definitions -- inline group / character data isGROUP (named future kind)
+
+==========================================================================
+  TALLIES -- and every row is accounted for, which is the point
+==========================================================================
+  population          78
+  rows stamped        78
+  rows crashed        0
+
+  SHIMS AVAILABLE     1
+
+  BLOCKER DISTRIBUTION (rows, by first blocker kind):
+      31 TERM
+      31 RULE
+      11 EMITTER
+       4 FOLD
+       1 NONE
+
+  FOLD:
+      67 SEQ
+      11 ALT
+
+  ⚠ AND THE CROSS-TAB IS THE COROLLARY MADE VISIBLE INSIDE THIS TABLE:
+    11 rules are fold=ALT, but only 4 report FOLD as their FIRST
+    blocker. The other 7 refuse EARLIER, at rule or term level, and
+    would still refuse if the alternation row were spelled tomorrow.
+      DatA               TERM CodE -- parseAction (tail position only, §2.8)
+      ANYorNum           TERM ANYtoken -- inline group / character data isGROUP (named future kind)
+      LoopRestrict       TERM loopOnAttributes -- inline group / character data isSTRING (named future kind)
+      PrintXP            TERM ShortcuT -- inline group / character data isGROUP (named future kind)
+      ScopeField         TERM ANYtoken -- inline group / character data isGROUP (named future kind)
+      StatemenT          TERM SemI -- inline group / character data isSTRING (named future kind)
+      Token              TERM Operators -- registry container (not on the ladder yet)
+
+  ⚠ H9's REFUSAL COROLLARY BINDS THIS TALLY: these are FIRST blockers,
+    not blocker sets. Closing any one kind does NOT unblock the rules
+    counted under it -- it reveals their next refusal. A sequencing claim
+    of the form 'closing X opens N rules' is NOT supported by this table
+    and needs those N rules re-run after the close.
+
+CENSUS COMPLETE -- 78/78 rows, no blank cells, no unclassified shapes.

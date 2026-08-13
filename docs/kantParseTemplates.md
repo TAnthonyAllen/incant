@@ -389,3 +389,122 @@ vocabulary charter still cannot be chosen off this table** — which was the pas
 saying so is better than stamping rows built on a driver that silently failed to look up half its
 population. **The one thing it did settle is worth the pass on its own: the emitter was producing
 wrong bodies for four rules, and now it refuses them.**
+
+---
+
+# SEQ 72 — THE STAMPED TABLE, DELIVERED. **Both instrument fixes landed; the denominator settled**
+
+*2026-08-13. Instrument: `genLadder/kantCensus.sh` (new). Raw run banked at
+`docs/emitted/kantCensus-2026-08-13.txt`. **78/78 rows, zero blank, zero unclassified, zero
+crashed.** No install, no bind, no parse of real input; no C++ change, no retok, no rebuild —
+fleet byte-unmoved on all 60 check rows.*
+
+## THE NAME-PASSING FIX, AND ⚠ THE OBVIOUS REPAIR WAS WORSE THAN THE DEFECT
+
+SEQ 71's driver passed the rule name as a **bare identifier** — `genKant(Foo)` — and `genKant`
+reads `argument.text`. Bear-trap #26, failing **two different ways**, which is why one `sed`
+could never have sorted the 39 blanks:
+
+| spelling | result |
+|---|---|
+| `genKant(ANYstring)` | `kant: no rule named (null)` — the name **never arrives** |
+| `genKant(Any)` | `kant: no rule named Anydata type has no toString() method` — the name arrives at a node that **carries data**, so `.text` reads the DATA and the stringify diagnostic is what got printed as a name |
+
+⚠ **The tempting one-liner is `.text` → `.taG`, and it manufactures the T-0 failure rather than
+fixing it.** Measured, not reasoned:
+
+```
+Braced.taG    = Braced      right
+Any.taG       = Any         right
+ANYstring.taG = DatA        ⚠ A DIFFERENT RULE
+```
+
+A `.taG` repair would have surveyed **`DatA` under a row labelled `ANYstring`** — **39 blank rows
+become 39 rows that look like facts**, in a table whose entire purpose is to be reasoned on top of.
+An undercount reads as a smaller problem; a wrong row reads as the world.
+
+**The fix is to pass a string literal: `genKant("Foo")`.** A driver change, which is why nothing
+could move.
+
+⚠ **AND THE NEGATIVE CONTROL IS THE ROW THAT MATTERS (H7):** `bare/Braced` **works — by accident.**
+`Braced` carries no rule-level data, so `.text` falls back to echoing the tag (trap #26, payment 5).
+**Every rule the SEQ 71 survey got right, it got right that way.** The control runs inside the
+census on every invocation and the census refuses to print a table if it stops firing.
+
+## NO BLANK ROW IS CONSTRUCTABLE — the closed set, printed in the output header
+
+`NONE · LOOKUP · TERM · RULE · FOLD · EMITTER · UNCLASSIFIED · NO-OUTPUT · CRASH`
+
+The two shapes SEQ 71 conflated are **TERM** (`  REFUSE <term> --`) and **RULE**
+(`  REFUSE rule <rule> --`), separated only by the literal word `rule`; they turn out to be **31 and
+31**, so the conflation was hiding a clean half-and-half split. `UNCLASSIFIED` **fails the census**
+and prints verbatim, so an unforeseen shape gets a name rather than a bucket. The **first** refusal
+line is the blocker — `genKant`'s own `-- no plan` always *trails* the refusal that caused it.
+
+⚠ **THREE DEFECTS FOUND IN THE NEW INSTRUMENT ITSELF**, listed because the class is the point:
+**(1) one channel, one meaning** — the first cut of the KINDS column spelled *unclassified* `?` and
+*optional* `?`, so `FormaT` read `?G?R??L` and no reader could say which was which; kinds are now
+alphabetic and modifiers punctuation. **(2) an anti-vacuity guard** — the KINDS cell must carry one
+letter per counted term, because a classifier that drops a term prints a **shorter, entirely
+plausible** string; control run with one arm removed fires on six rules by name. **(3) H1** —
+`ls -l` on `~/bin/incant` reports the **symlink's** mtime, which never moves; `ls -lL`.
+
+## THE DENOMINATOR — settled, and there was never a discrepancy
+
+| source | number | verdict |
+|---|---|---|
+| the dispatch's citation | 47 | **matches nothing measured, on either spelling. Dead.** |
+| `popScratch` header (2026-08-05) | 78 | **CONFIRMED** — 60 rule members + 18 rule attributes |
+| SEQ 71, `for r in Grokking` | 79 | **CONFIRMED** — list ENTRIES, not rules |
+
+**79 counts entries; 78 counts rules. Both are right.** The single entry that is not a rule is
+**`Operators`**, the operator registry. The census's denominator is **78** and it excludes that
+entry **by name, in the output, every run**.
+
+## ⚠ WHAT THE TABLE SETTLES FOR THE NEXT VOCABULARY CHARTER
+
+**Sixteen rules have terms that are entirely `L`/`R`** — every term already prices onto today's two
+shims — and are held out by exactly one thing each. This is the only cut that can speak to *"what
+does one vocabulary item buy"*, because it is the only cut where **nothing else is known to be in
+the way**:
+
+| held out by | count | rules |
+|---|---|---|
+| **nothing** | 1 | `Braced` |
+| **OPT** (optional) | **5** | `InvokE` `Parens` `PrintField` `RunRulE` `TokenXP` |
+| **ALT** (fold) | 4 | `ElsE` `GrouP` `InvokeArg` `WardeD` |
+| **MANY** (repetition) | 2 | `BlocK` `ExpressioN` |
+| **LITTO** | 1 | `CodE` |
+| rule-level data / registry | 3 | `BrancheS` `NumbeR` `Token` |
+
+**So §2's cheapest-opener call is measured and SUPPORTED:** the optional is the largest single
+cause, 5 against the alternation's 4 — and the gap is wider in practice, because **ALT is a
+mechanism and OPT is one token** (an option attaches through `into`, not `label`, which is why
+SEQ 71 refused ALT rather than emitting `OR`).
+
+⚠⚠ **AND THE FENCE IS NOT OPTIONAL. This is a STRUCTURAL READ OF A CLASSIFIER'S OUTPUT, NOT A RUN.**
+It says: for those five, **no other unspelled kind appears in their term lists.** It does **not** say
+spelling OPT makes them emit, nor that emitting makes them parse correctly, nor that a sixth gate
+will not appear behind a closed one. Structural claims on this project hold and causal ones are a
+coin flip until run — **re-run the five after any close.**
+
+## ⚠ THE CROSS-TAB, which is H9's refusal corollary visible inside the table
+
+**11 rules are `fold=ALT` but only 4 report FOLD as their first blocker.** The other seven refuse
+*earlier* — `DatA`, `ANYorNum`, `LoopRestrict`, `PrintXP`, `ScopeField`, `StatemenT`, `Token` — and
+would still refuse if the alternation row were spelled tomorrow. **That is the argument against
+reading any count here as "closing X opens N rules." It does not. It reveals N next refusals.**
+
+## BANKED STUMBLES — not chased, fix-or-skip is Tony's
+
+1. **The in-process walk still crashes** — `for r in Grokking; genKant(r);` reaches one rule and
+   exits 139. Carried from SEQ 71 unchanged; one-rule-per-process sidesteps it and has no shared
+   state between rows, which is the better shape anyway.
+2. ⚠ **Why bare `ANYstring` resolves to a node tagged `DatA` is UNDIAGNOSED.** The grammar line is
+   `ANYstring=[^ \n\r\t;]+;` (`incant/grammar:93`) and names no `DatA`. **Symptom measured and
+   reproduced; mechanism NOT written down**, per the split that keeps bear-trap #18 honest. It
+   matters past this census: **any bare-identifier rule reference in incant may be reaching a
+   different node than its spelling says.**
+3. **`dumpRuleTerms` (`genParse.rtn:172`) carries the same hazard** — `locate(argument.text)`. Safe
+   as the census drives it (string literals only), but the defect is in the function, not the
+   caller. A C++ edit and a rebuild, which a measurement-only dispatch may not spend.

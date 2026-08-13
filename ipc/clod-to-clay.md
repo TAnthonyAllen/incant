@@ -3,9 +3,25 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      62
+SEQ:      72
 STATUS:   fresh          # fresh = parked/unread | working = picked up, in progress | cleared = done
-WRITTEN:  2026-08-13  -  Clod  (SEQ 62 APPENDED at the FOOT -- the counter-ledger for Tony's
+WRITTEN:  2026-08-13  -  Clod  (SEQ 72 APPENDED at the FOOT -- THE STAMPED TABLE, delivered.
+          78/78 rows, ZERO blank, ZERO unclassified, ZERO crashed: the 39 blanks that voided
+          SEQ 71's tally are gone and the instrument can no longer construct one. Both owed
+          instrument fixes landed, each with its negative control. ⚠ THE NAME-PASSING FIX IS
+          NOT THE OBVIOUS ONE -- .text -> .taG would have turned 39 blank rows into 39 rows
+          that LOOK LIKE FACTS, because bare `ANYstring` resolves to a node tagged `DatA`
+          (measured). The fix is to pass a string literal. DENOMINATOR SETTLED: 78 rules, and
+          78-vs-79 was never a discrepancy -- 79 counts list ENTRIES, 78 counts RULES, and the
+          one non-rule is `Operators`. "47" matches nothing and is confirmed dead. ⚠ AND
+          DECISION (a) IS UNBLOCKED: the optional's "opens the most rules" claim is MEASURED
+          and SUPPORTED -- 5 rules are held out by OPT alone against the alternation's 4, and
+          ALT is a mechanism where OPT is one token -- but it is a STRUCTURAL read of term
+          lists, not a run, and the five want re-running after any close. Fleet UNMOVED, all
+          60 check rows byte-identical; no C++, no retok, no rebuild. New instrument:
+          genLadder/kantCensus.sh. ⚠ Three pre-existing pop.sh reds still owed a re-pin BY
+          SOMEONE and still not mine.
+          Earlier note kept, STILL UNREAD: SEQ 62 -- the counter-ledger for Tony's
           dispatches SEQ 56-61, all six landed and pushed, plus the numbering merge: this file's
           own counter had independently reached 56, so 62 is taken to kill the ambiguity and
           clod-to-clay now continues from the DISPATCH counter. Headlines: the aCTionDefinE arm
@@ -2370,4 +2386,436 @@ STANDING, for whoever picks up next:
     kantDoor/actK prototypes (e) kept deliberately. Not mine, untouched.
 
   END SEQ 62
+===================================================================
+
+===================================================================
+  SEQ 72  -  2026-08-13  -  Clod -> Clay
+  THE STAMPED TABLE, DELIVERED. Both instrument fixes landed and
+  negative-controlled; the denominator settled with a cause.
+  Dispatch: SEQ 72, "TWO INSTRUMENT FIXES, THEN THE STAMPED TABLE".
+===================================================================
+
+THE HEADLINE IN ONE LINE. 78/78 rows stamped, ZERO blank, ZERO
+unclassified, ZERO crashed. The 39 blanks that voided SEQ 71's tally
+are gone -- not reduced, gone -- and the instrument is now structurally
+incapable of producing one. SHIMS AVAILABLE = 1 (Braced), which
+independently reproduces SEQ 71's honest count from a different driver.
+
+THE INSTRUMENT IS genLadder/kantCensus.sh, new this dispatch. Raw run
+banked at docs/emitted/kantCensus-2026-08-13.txt (187 lines).
+NO INSTALLS. No bind, no parse of real input, nothing executed off the
+table. Fleet UNMOVED, proven below.
+
+
+===================================================================
+STEP 1  --  NAME-PASSING. FIXED, AND THE OBVIOUS FIX WAS A TRAP.
+===================================================================
+
+⚠ MECHANISM VERIFIED AT THE SITE BEFORE REPAIRING, per the dispatch's
+own instruction and the wrong-lead ledger's fifth entry. Good thing:
+the filed symptom pointed one way and the site said something else.
+
+THE SEQ 71 DRIVER PASSED THE NAME AS A BARE IDENTIFIER -- genKant(Foo)
+-- and genKant reads argument.text. That is bear-trap #26 exactly, and
+it failed in TWO DIFFERENT WAYS, which is why one sed could never have
+sorted the blanks out:
+
+  genKant(ANYstring) -> "  kant: no rule named (null)"
+  genKant(Any)       -> "  kant: no rule named Anydata type has no
+                          toString() method"
+
+Two causes, not one:
+  (a) ANYstring -- the name NEVER ARRIVES. .text returns null.
+  (b) Any       -- the name arrives at a node that CARRIES DATA, so
+      .text reads the DATA, not the tag, and isANY data has no
+      toString(). The diagnostic itself is what got printed as a name.
+
+⚠⚠ AND THE TEMPTING ONE-LINE REPAIR IS WORSE THAN THE DEFECT IT FIXES.
+The natural move is .text -> .taG (bear-trap #26's own advice). It fixes
+(b) and SILENTLY CORRUPTS (a). MEASURED, not reasoned:
+
+      Braced.taG    = Braced        <- right
+      Any.taG       = Any           <- right
+      ANYstring.taG = DatA          <- ⚠ A DIFFERENT RULE
+
+So a .taG repair would have surveyed the rule DatA under a row LABELLED
+ANYstring. That converts 39 blank rows into 39 rows that look like
+facts, in a table whose whole purpose is to be reasoned on top of. An
+undercount reads as a smaller problem; a WRONG ROW reads as the world.
+This is the T-0 family being manufactured rather than merely repeated.
+
+THE FIX IS TO PASS A STRING LITERAL:  genKant("Foo").
+Both blanks become named, correct refusals. No C++ change, no retok, no
+rebuild -- which is why the fleet cannot have moved, and did not.
+
+PROOF, and it is the NEGATIVE CONTROL the dispatch asked for (H7). It
+runs INSIDE the census on every invocation, and the census REFUSES TO
+PRINT A TABLE if any row of it fails:
+
+  bare   Braced     ->     kpBraced code={
+  bare   ANYstring  ->   kant: no rule named (null)
+  string Braced     ->     kpBraced code={
+  string ANYstring  ->   REFUSE rule ANYstring -- rule-level data isGROUP
+
+⚠ ROW 1 IS THE ONE TO READ. bare/Braced WORKS -- BY ACCIDENT. Braced
+carries no rule-level data, so .text falls back to echoing the tag.
+That is bear-trap #26 payment 5 verbatim, and it means EVERY RULE THE
+SEQ 71 SURVEY GOT RIGHT, IT GOT RIGHT BY ACCIDENT. A driver that works
+for the rules you happen to look at first is the worst possible one.
+
+
+===================================================================
+STEP 2  --  BOTH REFUSAL SHAPES. STRUCTURE, NOT VIGILANCE.
+===================================================================
+
+Requirement as stated: the survey must be INCAPABLE of emitting a blank
+row. Implemented as an enumerated closed set printed in the output
+header, with the last three existing so that nothing can fall out of it:
+
+  NONE          a body was emitted -- shims available
+  LOOKUP        ruleOrRefuse:  "kant: no rule named X" / "not a rule"
+  TERM          planTerm:      "  REFUSE <term> -- <reason>"
+  RULE          planRule:      "  REFUSE rule <rule> -- <reason>"
+  FOLD          genKant:       "REFUSING X -- fold is ALT..."
+  EMITTER       genKant:       any other "REFUSING X -- ..."
+  UNCLASSIFIED  a refusal-shaped line matching none of the above.
+                Gets a NAME and a kind, is printed VERBATIM in a stumble
+                block, and FAILS THE CENSUS. No silent bucket exists.
+  NO-OUTPUT     neither a body nor any refusal line
+  CRASH         nonzero exit, or sentinel absent
+
+The two shapes SEQ 71 conflated are TERM and RULE -- both begin
+"  REFUSE " and are separated only by the literal word "rule". They are
+different questions (which TERM blocked vs the RULE as a whole) and the
+distribution below shows they are 31 and 31, i.e. the conflation was
+hiding a clean half-and-half split.
+
+⚠ FIRST BLOCKER, NOT LAST COMPLAINT. genKant's own "-- no plan" ALWAYS
+trails the term/rule refusal that caused it. Taking the FIRST refusal
+line is what makes the column mean what H9's corollary says it means.
+
+THREE FURTHER DEFECTS FOUND IN MY OWN INSTRUMENT AND FIXED BEFORE THE
+RUN THAT PRODUCED THIS TABLE -- listed because the class is the point:
+  1. ⚠ ONE CHANNEL, ONE MEANING, in the KINDS column. The first cut
+     spelled "unclassified" as '?' AND "optional" as '?'. FormaT read
+     "?G?R??L" and NO READER COULD SAY which '?' was a kind and which a
+     modifier. Now: kinds are ALPHABETIC, modifiers are PUNCTUATION.
+  2. An ANTI-VACUITY guard: the KINDS cell must carry exactly one
+     LETTER per counted term. Without it, a classifier that dropped a
+     term prints a SHORTER, ENTIRELY PLAUSIBLE string. Negative control
+     run: with one classifier arm removed, it fires on six rules and
+     names them ("CerR: 4 letters for 5 terms (LCAC)").
+  3. H1: ls -l on ~/bin/incant reports the SYMLINK's mtime, which never
+     moves. ls -lL. A stale binary reported as fresh is the exact
+     failure H1 exists for.
+
+
+===================================================================
+STEP 3  --  THE DENOMINATOR. SETTLED, WITH A ONE-WORD CAUSE.
+===================================================================
+
+Counted as the census's FIRST ACT, every run, via incant/ruleCount
+(which already existed and already carries its own vacuity guard --
+it prints the NON-rules by name, so an inert isRulE test would show up
+as an empty non-rule list).
+
+  Grokking members    : 60 rules + 1 non-rule
+  Grokking attributes : 18 rules + 0 non-rule
+  POPULATION (rules)  : 78
+  all list entries    : 79
+
+AGAINST ALL THREE PRIORS, EVERY ONE NAMED:
+
+  "47 live rules"  (the dispatch's citation)  -- matches NOTHING
+     measured, on either spelling. Confirmed dead. Stop citing it.
+  78  (popScratch header, 2026-08-05)         -- CONFIRMED.
+  79  (SEQ 71, "for r in Grokking")           -- CONFIRMED.
+
+⚠ THE CAUSE OF 78 vs 79 IS CHEAP AND IT IS THIS: BOTH ARE RIGHT AND
+THEY COUNT DIFFERENT THINGS. 79 is list ENTRIES. 78 is RULES. The one
+entry that is not a rule is:
+
+      NOTRULE  Operators
+
+-- the operator registry, a member of Grokking that is not isRule.
+
+So there was never a discrepancy to resolve, only two unlabelled
+numbers. NO BANKED STUMBLE IS OWED HERE. This census's denominator is
+78 and it excludes that entry BY NAME, in the output, every run.
+
+
+===================================================================
+STEP 4  --  THE TABLE.  asOf 2026-08-13, against TODAY's source.
+===================================================================
+
+⚠ ARM DISCIPLINE, ANSWERED HONESTLY RATHER THAN OMITTED. The dispatch
+binds "the ARM by name in every result line" to every EXECUTED check.
+THIS CENSUS EXECUTES NO PARSE -- nothing is installed, nothing is
+bound, no input is matched -- so there is NO ARM to name in these rows,
+and the census header says so out loud. Its absence must read as "no
+check was executed", never as an omission.
+
+THE ONE EXECUTED CHECK IN THIS DISPATCH IS kantRatchet, run after the
+fixes, and it names its arm itself:
+
+  ok  R3 EMITTED Braced parses real input -- sumple width is now 251
+  ok  R3 EMITTED Braced reached the GENERATED arm (promote=0)
+  ok  R3 EMITTED Braced went through the KANT door (kpBraced)
+  RATCHET GREEN -- 8 checks.  (exit 0, taken from the binary)
+
+KINDS LEGEND -- one letter per term, in term order:
+  L literal   R reference   C charset/character-data   G container
+  A parseAction   U upTo   M macro   N condition
+  Z UNMATERIALISED (the term has no rStuff yet -- a STATE, not a kind
+    the classifier lacks)
+  X unclassified (the classifier has a term and no row for it)
+  trailing + = repetition, ? = optional. Modifiers are punctuation,
+  kinds are letters, and never the reverse.
+
+⚠ X APPEARS ZERO TIMES IN 78 ROWS. Every term of every rule in the
+population is now classified into a named kind or the named
+unmaterialised state. That is the claim SEQ 71 could not make.
+
+```
+  RULE               TERMS  KINDS                   SHIM  FIRST BLOCKER
+  ------------------ -----  ---------------------- -----  ---------------------------------
+  ANYtoken               0  (none)                    no  RULE rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+  Any                    0  (none)                    no  RULE rule-level data isANY (§4.1 rule-as-data, rung 5)
+  Attributes             0  (none)                    no  RULE rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+  BasicElse              3  LCR                       no  TERM followedBy -- inline group / character data isSET (named future kind)
+  BlocK                  3  LR+L                      no  EMITTER term 2 is MANY, which has no kant spelling
+  Braced                 3  LRL                      YES  NONE
+  BrancH                 3  RR?C                      no  TERM SemI -- inline group / character data isSTRING (named future kind)
+  BrancheS               3  LLL                       no  RULE rule-level data isSET (§4.1 rule-as-data, rung 5)
+  CerR                   5  LCAZC                     no  RULE 1 unmaterialised terms
+  CodE                   2  LL                        no  EMITTER term 1 is LITTO, which has no kant spelling
+  CouT                   5  LCAZC                     no  RULE 1 unmaterialised terms
+  DEBUG                  4  LCG?C                     no  TERM followedBy -- inline group / character data isSET (named future kind)
+  DEF                    3  LCR                       no  TERM followedBy -- inline group / character data isSET (named future kind)
+  DEFINing               0  (none)                    no  RULE no terms at all
+  DO                     6  LCRLRC                    no  TERM followedBy -- inline group / character data isSET (named future kind)
+  DatA                   6  RRRRRC+                   no  TERM CodE -- parseAction (tail position only, §2.8)
+  DefinE                 4  GG?R?C                    no  TERM NewGroup -- inline group / character data isGROUP (named future kind)
+  DelimText              2  LG                        no  TERM dtext -- inline group / character data isGROUP (named future kind)
+  ElseIf                 5  LRC?RR?                   no  TERM SemI -- inline group / character data isSTRING (named future kind)
+  FOR                    9  LCGLC?RCR?R               no  TERM followedBy -- inline group / character data isSET (named future kind)
+  FloaT                  2  C+R?                      no  RULE rule-level data isCHAR (§4.1 rule-as-data, rung 5)
+  HeX                    4  CCGL                      no  TERM zero -- inline group / character data isSTRING (named future kind)
+  IF                     6  LCRC?RR?                  no  TERM followedBy -- inline group / character data isSET (named future kind)
+  InitiatE               0  (none)                    no  RULE rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+  InvokE                 3  LR?L                      no  EMITTER term 2 is OPT, which has no kant spelling
+  Iterate                6  LGLGL?L?                  no  TERM ANYtoken -- inline group / character data isGROUP (named future kind)
+  Limit                  4  LGGL                      no  TERM min -- inline group / character data isGROUP (named future kind)
+  Looper                 0  (none)                    no  RULE rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+  MemberS                3  LAR+                      no  TERM MEMBERs -- parseAction (tail position only, §2.8)
+  Modifier               0  (none)                    no  RULE rule-level data isSET (§4.1 rule-as-data, rung 5)
+  NewGroup               0  (none)                    no  RULE rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+  NumbeR                 2  R?L                       no  RULE rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+  Parens                 3  LR?L                      no  EMITTER term 2 is OPT, which has no kant spelling
+  PoweR                  2  C?C+                      no  RULE rule-level data isSET (§4.1 rule-as-data, rung 5)
+  PrinT                  5  LCAZC                     no  RULE 1 unmaterialised terms
+  PrintField             2  RR?                       no  EMITTER term 2 is OPT, which has no kant spelling
+  QuotE                  2  CU                        no  TERM tik -- inline group / character data isSET (named future kind)
+  RunRulE                3  RR?L?                     no  EMITTER term 2 is OPT, which has no kant spelling
+  ScopeXP                3  LZC                       no  RULE 1 unmaterialised terms
+  Search                 4  LCR+C                     no  TERM followedBy -- inline group / character data isSET (named future kind)
+  SetBrackets            2  LU                        no  TERM ] -- upTo/upToOver (not on the ladder yet)
+  ShortcuT               0  (none)                    no  RULE rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+  Start                  0  (none)                    no  RULE rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+  StringXP               2  LZ                        no  RULE 1 unmaterialised terms
+  TokenXP                3  R?RR?                     no  EMITTER term 1 is OPT, which has no kant spelling
+  TraiT                  4  RC?R?R?                   no  TERM Modifier -- inline group / character data isSET (named future kind)
+  TraiTdata              4  LRC?R?                    no  TERM Modifier -- inline group / character data isSET (named future kind)
+  UnaryXP                2  RG                        no  TERM ANYtoken -- inline group / character data isGROUP (named future kind)
+  WardeD                12  RRRRRRRRRRRR              no  FOLD fold is ALT, and only SEQ has a kant spelling
+  WhilE                  5  LCRC?R                    no  TERM followedBy -- inline group / character data isSET (named future kind)
+  Xpress                 2  RC                        no  TERM SemI -- inline group / character data isSTRING (named future kind)
+  break                  0  (none)                    no  RULE no terms at all
+  continue               0  (none)                    no  RULE no terms at all
+  followedBy             0  (none)                    no  RULE rule-level data isSET (§4.1 rule-as-data, rung 5)
+  loopOnAttributes       0  (none)                    no  EMITTER term 0 is LITTO, which has no kant spelling
+  loopOnMembers          0  (none)                    no  EMITTER term 0 is LITTO, which has no kant spelling
+  nameSet                0  (none)                    no  RULE rule-level data isSET (§4.1 rule-as-data, rung 5)
+  numberSet              0  (none)                    no  RULE rule-level data isSET (§4.1 rule-as-data, rung 5)
+  return                 0  (none)                    no  RULE no terms at all
+  tokenize               0  (none)                    no  RULE no terms at all
+  ANYorNum               2  RG                        no  TERM ANYtoken -- inline group / character data isGROUP (named future kind)
+  ANYstring              0  (none)                    no  RULE rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+  ElsE                   2  RR                        no  FOLD fold is ALT, and only SEQ has a kant spelling
+  ExpressioN             1  R+                        no  EMITTER term 1 is MANY, which has no kant spelling
+  FormaT                 5  ZG?R?ZL                   no  RULE 2 unmaterialised terms
+  GrouP                  2  RR                        no  FOLD fold is ALT, and only SEQ has a kant spelling
+  InvokeArg              3  RRR                       no  FOLD fold is ALT, and only SEQ has a kant spelling
+  LoopRestrict           2  CC                        no  TERM loopOnAttributes -- inline group / character data isSTRING (named future kind)
+  NamE                   3  CC?L                      no  TERM first -- inline group / character data isSET (named future kind)
+  PRINTing               0  (none)                    no  RULE no terms at all
+  Precision              1  Z                         no  RULE 1 unmaterialised terms
+  PrintXP                2  GR                        no  TERM ShortcuT -- inline group / character data isGROUP (named future kind)
+  ScopeField             2  GR                        no  TERM ANYtoken -- inline group / character data isGROUP (named future kind)
+  SemI                   0  (none)                    no  EMITTER term 0 is LITTO, which has no kant spelling
+  StatemenT              5  CRRRR                     no  TERM SemI -- inline group / character data isSTRING (named future kind)
+  Token                  5  RRRRR                     no  TERM Operators -- registry container (not on the ladder yet)
+  counter                0  (none)                    no  RULE rule-level data isSET (§4.1 rule-as-data, rung 5)
+  define                 4  LGLL                      no  TERM definitions -- inline group / character data isGROUP (named future kind)
+
+```
+
+===================================================================
+THE TALLIES -- and every one of the 78 is accounted for
+===================================================================
+
+  population       78          rows stamped  78
+  rows crashed      0          blank rows     0      unclassified  0
+  SHIMS AVAILABLE   1          (Braced)
+
+  FIRST BLOCKER, by kind      FOLD, by kind
+    31  TERM                    67  SEQ
+    31  RULE                    11  ALT
+    11  EMITTER
+     4  FOLD
+     1  NONE
+
+  FIRST BLOCKER, by reason -- the sub-tabulation SEQ 71 could not do:
+    TERM (31)                       RULE (31)
+      12  character data isSET        9  rule-level data isGROUP
+       9  character data isGROUP      7  rule-level data isSET
+       6  character data isSTRING     6  no terms at all
+       2  parseAction (tail only)     7  unmaterialised terms (6x1, 1x2)
+       1  upTo/upToOver               1  rule-level data isCHAR
+       1  registry container          1  rule-level data isANY
+    EMITTER (11)
+       5  OPT      4  LITTO      2  MANY
+
+⚠ THE CROSS-TAB, AND IT IS H9's COROLLARY VISIBLE INSIDE THE TABLE:
+11 rules are fold=ALT but only 4 report FOLD as their FIRST blocker.
+The other SEVEN refuse EARLIER, at rule or term level, and would still
+refuse if the alternation row were spelled tomorrow:
+
+    DatA         TERM CodE -- parseAction (tail position only)
+    ANYorNum     TERM ANYtoken -- character data isGROUP
+    LoopRestrict TERM loopOnAttributes -- character data isSTRING
+    PrintXP      TERM ShortcuT -- character data isGROUP
+    ScopeField   TERM ANYtoken -- character data isGROUP
+    StatemenT    TERM SemI -- character data isSTRING
+    Token        TERM Operators -- registry container
+
+That is the whole argument against reading any count here as "closing X
+opens N rules". It does not. It reveals N next refusals.
+
+
+===================================================================
+⚠ THE ONE THING THIS TABLE SETTLES THAT DECISION (a) WAS BLOCKED ON
+===================================================================
+
+The seal parked the next vocabulary charter because the optional's
+claim to "opens the most rules" was UNVERIFIED CITATION. It is now
+measured, and the measurement SUPPORTS it -- but the fence matters more
+than the answer, so read both.
+
+SIXTEEN rules have terms that are ENTIRELY L and R -- i.e. every term
+already prices onto today's two shims -- and are held out by exactly one
+thing each. This is the only cut of the table that speaks to "what does
+one vocabulary item buy", because it is the only cut where nothing else
+is known to be in the way:
+
+  RULE               KINDS         held out by
+  ------------------ ------------  -----------------------------------
+  Braced             LRL           NOTHING -- in range today
+  InvokE             LR?L          OPT
+  Parens             LR?L          OPT
+  PrintField         RR?           OPT
+  RunRulE            RR?L?         OPT
+  TokenXP            R?RR?         OPT
+  ElsE               RR            ALT (fold)
+  GrouP              RR            ALT (fold)
+  InvokeArg          RRR           ALT (fold)
+  WardeD             RRRRRRRRRRRR  ALT (fold)
+  BlocK              LR+L          MANY
+  ExpressioN         R+            MANY
+  CodE               LL            LITTO
+  BrancheS           LLL           rule-level data isSET
+  NumbeR             R?L           rule-level data isGROUP
+  Token              RRRRR         registry container (Operators)
+
+  OPT     5      ALT  4      MANY 2      LITTO 1      other 3
+                                                      in range 1
+
+SO: THE OPTIONAL IS THE LARGEST SINGLE CAUSE among rules otherwise
+entirely inside today's vocabulary -- 5, against the alternation's 4.
+And the gap is wider than 5-vs-4 in practice, because the alternation
+is dead for a SECOND, INDEPENDENT reason already on the record (an
+option attaches through `into`, not `label`), so ALT is a MECHANISM and
+OPT is ONE TOKEN. SEQ 71 refused ALT rather than emitting OR for
+exactly that reason.
+
+⚠⚠ AND NOW THE FENCE, WHICH IS NOT OPTIONAL. THIS IS A STRUCTURAL READ
+OF A CLASSIFIER'S OUTPUT, NOT A RUN. What the table says is: for those
+five rules, NO OTHER UNSPELLED KIND APPEARS IN THEIR TERM LISTS. What
+it does NOT say, and cannot:
+  · that spelling OPT makes them EMIT -- the emitter has other gates;
+  · that emitting makes them PARSE CORRECTLY -- nothing here executes;
+  · that a sixth rule will not turn up behind a closed OPT gate.
+The standing asymmetry applies with full force: structural claims on
+this project hold, causal ones are a coin flip until run. THIS IS A
+STRUCTURAL CLAIM ABOUT TERM LISTS AND IT IS THE STRONGEST HONEST FORM
+THE TABLE SUPPORTS. Whoever picks the charter should re-run these five
+after the close, not assume them.
+
+
+===================================================================
+FLEET  --  UNMOVED, which is the landable property (H10)
+===================================================================
+
+Captured BEFORE the first edit and again after the last, both streams:
+
+  pop.sh   exit 1 before, exit 1 after
+           ALL 60 CHECK ROWS BYTE-IDENTICAL.
+           The only textual difference in the whole capture is pop.sh's
+           own tree-state banner, which correctly reports the one new
+           untracked file (genLadder/kantCensus.sh). No check moved.
+  smoke.sh SMOKE GREEN -- 6 checks, fleet UNMOVED vs smoke.fleet.base
+  ratchet  RATCHET GREEN -- 8 checks, exit 0
+
+THE THREE PRE-EXISTING REDS ARE PRESENT AND UNCHANGED, as expected and
+not mine: census.target, iterT1m plus its refusal count (4, want 7),
+and the oneTest baseline AUDIT block. KE-4, older than the SEQ 55 seal.
+
+NO C++ CHANGED. NO RETOK. NO REBUILD. Both instrument fixes are DRIVER
+changes -- a string literal instead of a bare identifier, and a shell
+classifier. That is why the fleet could not move, and it is also why
+this dispatch cost nothing to verify.
+
+
+===================================================================
+BANKED STUMBLES  -- fix-or-skip is Tony's, per stumble
+===================================================================
+
+1. THE IN-PROCESS WALK STILL CRASHES. `for r in Grokking; genKant(r);`
+   reaches one rule and exits 139. NOT diagnosed, NOT chased -- one
+   rule per process sidesteps it and is the more auditable shape
+   anyway (no shared state between rows). Carried forward from SEQ 71
+   unchanged; I did not spend the dispatch on it.
+
+2. ⚠ WHY BARE `ANYstring` RESOLVES TO A NODE TAGGED `DatA` IS
+   UNDIAGNOSED. The grammar line is `ANYstring=[^ \n\r\t;]+;`
+   (incant/grammar:93) and there is nothing about DatA in it. I have
+   the SYMPTOM measured and reproduced; I do NOT have the mechanism,
+   and per the split that keeps bear-trap #18 honest, I am not writing
+   one down. It matters beyond this census: ANY bare-identifier rule
+   reference in incant may be reaching a different node than its
+   spelling says.
+
+3. `dumpRuleTerms` (genParse.rtn:172) uses `locate(argument.text)` and
+   therefore carries the SAME name-passing hazard genKant did. It
+   happens to be safe as the census drives it (string literals only),
+   but the defect is in the function, not the caller. Not repaired --
+   that is a C++ edit and a rebuild, which this measurement-only
+   dispatch is not allowed to spend.
+
+4. `Token`'s first blocker is the `Operators` REGISTRY as a term, and
+   `Operators` is also the single non-rule member of Grokking that
+   makes 79 differ from 78. Same object, two roles, noted in case
+   whoever prices the registry-container row wants both facts at once.
+
+  END SEQ 72
 ===================================================================
