@@ -59,9 +59,28 @@
 #   2. **Rung one re-run on `Parens`** — it is `Braced` with term 2 made optional: same parent
 #      alternation, same attach frame, and the control is already green and committed. The fixture
 #      pair is in the stumble specimen, **one `cp` from live**.
+#   0. ⚠ **THE DOOR-ENTRY ASSERTION — proposed by Clay, SECONDED, and it is the session's
+#      structural answer to the hollow green.** `InvokE` exited 0 with both arms at 251 and
+#      proved nothing because **the input never reached the rule**. The arm-by-name discipline
+#      catches WHICH code answered; **nothing yet asserts the target was ever ASKED.** So the
+#      fixture contract gains: **the target rule's door fired, or the run is not a result.**
+#      ⚠ **AND THE PREMISE NEEDED CORRECTING BEFORE ANYONE BUILDS IT: there is NO door-entry
+#      counter.** The `3556` was a grep over a `cerr` inside `parseViaKant` that is **gated on
+#      `parseTrace`**. What DOES exist is `genLadder/kantRatchet.sh:131` — `grep -q
+#      "parseViaKant $RULE -> kp$RULE"`, R3's third assertion. **So this is not new machinery;
+#      it is R3's door check PROMOTED out of the ratchet into the general contract.** Two
+#      refinements agreed: **print the COUNT, do not merely test presence** (R3's `grep -q`
+#      would have passed `Parens` at 3556 had it not crashed — `>=1` is the weakest possible
+#      form, and a non-crashing runaway satisfies it); and **the residual is named** — this is
+#      an instrument reading an instrument, coupled to a `parseTrace`-gated line's exact text.
+#      Polarity is right: delete the line and the count goes 0 and the run fails CLOSED.
+#      ⚠ **Count 0 catches TWO failures** — bind-took-but-never-reached (`InvokE`) and
+#      bind-never-took. The `SEAM bind`/`SEAM read` lines separate them, one grep away.
+#      **Fourth refuse-by-kind promotion in three dispatches.**
 #   3. **Then the promotion**, gated on rung one green — and ⚠ **the fence's re-run of all five is
 #      part of the chore, not optional**: two of them (`RunRulE`, `TokenXP`) are already known NOT
-#      to be opened by `optRK`.
+#      to be opened by `optRK`. **`optLK` and the container optional go on the vocabulary shelf as
+#      named, priced follow-ons — not tonight's debts** (Clay, ratified at close).
 #
 #   ## ⚠ INSTRUMENT DEFECTS FOUND IN MY OWN WORK TONIGHT — the class is the point
 #
