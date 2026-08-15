@@ -1,4 +1,45 @@
 
+/******************************************************************************
+    This incant command method reads the field passed in as a file spec and
+    loads the field buffer (creating it if necessary) with text read in from
+    the file. Returns the loaded field.
+******************************************************************************/
+/***************************************************************************
+    arrondir -- EXPLICIT CONVERSION TO A COUNT (Tony's ruling, 2026-08-01,
+    clause 2 / word 3). For when the user wants control instead of relying on
+    implicit narrowing.
+
+    ⚠ NAMED IN FRENCH ON PURPOSE, AND IT PAYS TWICE (Tony). `round` is libc
+    <math.h>, and extern "C" strips overload resolution, so an extern named
+    `round` is bear-trap #12 -- clean per file, `duplicate symbol` at Ld, no hint
+    which incant file caused it. The first cut dodged that with a differently
+    named extern plus the `=method` binding form (bear-trap #7). BORROWING A WORD
+    FROM ANOTHER LANGUAGE INSTEAD REMOVES BOTH: the name is free at the C level,
+    so the extern carries it directly and the indirection disappears. Cheaper
+    than inventing a name, and it reads.
+
+    HALF-UP, the same rule and the same spelling as everywhere else: >= .5 goes
+    up, < .5 goes down, so -2.5 gives -2. ⚠ THAT DISTINCTION IS NOW LOAD-BEARING
+    rather than academic -- under Word 2 the compound-assign family computes in
+    doubles and narrows the RESULT, so negative halves actually reach a rounding
+    decision. lround() would round half AWAY FROM ZERO and disagree here.
+
+    ⚠ ROUTED THROUGH .count (getCount) DELIBERATELY, exactly as the compound
+    arms are, so the half-up rule keeps ONE IMPLEMENTER. An inline floor(x+0.5)
+    here would be a second copy of a rule whose whole history is copies
+    disagreeing.
+
+***************************************************************************/
+extern GroupItem arrondir(GroupItem field)
+{
+    if !field {
+        cerr "arrondir: no argument provided":;
+        return null; }
+    tempField.count = field.count;
+    return tempField;
+}
+
+
 /*******************************************************************************
     Commands.rtn
     Home for extern methods backing the cOMMANDs base registry. Commands fire
@@ -73,6 +114,7 @@ int         unconsumed = 0;
     return argument;
 }
 
+
 /***************************************************************************
 	The incant clear command invokes this. It clears its argument.
     If data is a buffer, it is reset. If data is a stak, it is cleared.
@@ -88,6 +130,7 @@ extern GroupItem cLEAR(GroupItem input)
     return input;
 }
 
+
 /***************************************************************************
 	Returns a copy of the field passed in
 ***************************************************************************/
@@ -96,6 +139,7 @@ extern GroupItem cOPY(GroupItem field)
 GroupItem newField = new(field);
     return newField;
 }
+
 
 /***************************************************************************
 	copyOf() makes a copy of the field passed in. The copy groupBody is a copy.
@@ -116,6 +160,7 @@ GroupItem block = new;
     return block;
 }
 
+
 /***************************************************************************
 	The incant debugGuard command invokes this to toggle the debugGuard
     flag in the argument passed in
@@ -128,6 +173,7 @@ extern GroupItem debugOnGuard(GroupItem input)
     else    cerr "debugOnGuard: expected a rule argument, got:",tag:;
     return trueResult;
 }
+
 
 /***************************************************************************
 	The incant dumpContents command runs this. It is used mostly for debugging.
@@ -147,6 +193,7 @@ GroupItem   grup;
         dumpContents(stuff); }
     return trueResult;
 }
+
 
 /***************************************************************************
     runJSONblock (genParseSpec S5.3's entry wrapper) is RETIRED, genParseShape
@@ -199,45 +246,6 @@ GroupItem   fieldList   = field.getAttribute("bcLIST");
     return fieldList;
 }
 
-/******************************************************************************
-    This incant command method reads the field passed in as a file spec and
-    loads the field buffer (creating it if necessary) with text read in from
-    the file. Returns the loaded field.
-******************************************************************************/
-/***************************************************************************
-    arrondir -- EXPLICIT CONVERSION TO A COUNT (Tony's ruling, 2026-08-01,
-    clause 2 / word 3). For when the user wants control instead of relying on
-    implicit narrowing.
-
-    ⚠ NAMED IN FRENCH ON PURPOSE, AND IT PAYS TWICE (Tony). `round` is libc
-    <math.h>, and extern "C" strips overload resolution, so an extern named
-    `round` is bear-trap #12 -- clean per file, `duplicate symbol` at Ld, no hint
-    which incant file caused it. The first cut dodged that with a differently
-    named extern plus the `=method` binding form (bear-trap #7). BORROWING A WORD
-    FROM ANOTHER LANGUAGE INSTEAD REMOVES BOTH: the name is free at the C level,
-    so the extern carries it directly and the indirection disappears. Cheaper
-    than inventing a name, and it reads.
-
-    HALF-UP, the same rule and the same spelling as everywhere else: >= .5 goes
-    up, < .5 goes down, so -2.5 gives -2. ⚠ THAT DISTINCTION IS NOW LOAD-BEARING
-    rather than academic -- under Word 2 the compound-assign family computes in
-    doubles and narrows the RESULT, so negative halves actually reach a rounding
-    decision. lround() would round half AWAY FROM ZERO and disagree here.
-
-    ⚠ ROUTED THROUGH .count (getCount) DELIBERATELY, exactly as the compound
-    arms are, so the half-up rule keeps ONE IMPLEMENTER. An inline floor(x+0.5)
-    here would be a second copy of a rule whose whole history is copies
-    disagreeing.
-
-***************************************************************************/
-extern GroupItem arrondir(GroupItem field)
-{
-    if !field {
-        cerr "arrondir: no argument provided":;
-        return null; }
-    tempField.count = field.count;
-    return tempField;
-}
 
 extern GroupItem getFile(GroupItem filing)
 {
@@ -283,6 +291,7 @@ use filing
     return filing;
 }
 
+
 /***************************************************************************
 	Returns a type field (from types: defined in the Generating registry)
     based on the data of the field passed in.
@@ -310,6 +319,7 @@ use field
         if !type                type = types["GroupItem*"]; }
     return type;
 }
+
 
 /***************************************************************************
 	guard command should be run as a rule attribute to specify a guard for
@@ -352,6 +362,7 @@ extern GroupItem guard(GroupItem item)
     return item;
 }
 
+
 /*****************************************************************************
 	The input argument is expected to be a listenTo attribute that contains
     a group, the notifier, that will be listened to by listenTo's parent, the
@@ -391,21 +402,6 @@ GroupItem	grup = input.group,
     return trueResult;
 }
 
-/***************************************************************************
-	window attribute handler. A form field carries `window` as an attribute;
-    this fires at parent-define time (fLAG set) and marks the parent form
-    field as a window (isWindow). Define-then-show: it does NOT open the
-    window -- openWindow(form) is the separate explicit raise trigger,
-    called by name when the window should appear.
-***************************************************************************/
-extern GroupItem markWindow(GroupItem input)
-{
-GroupItem   form = input.parent;
-    if input.fLAG
-        form.isWindow = true;
-    else    cerr "window: should be invoked as an attribute when its parent is defined":;
-    return trueResult;
-}
 
 /***************************************************************************
 	The incant load command, a noPrint command designed used as an
@@ -446,6 +442,7 @@ String      directoryName,
     return target;
 }
 
+
 /*****************************************************************************
 	The incant include command call this method to read in file to be processed.
     It does not specify what rule to run on the new input.
@@ -459,6 +456,7 @@ GroupRules  ruler = groupRules;
     else cerr ``"loadInputFromFile: failed getting file from",tag:;
     return falseResult;
 }
+
 
 /*****************************************************************************
 	Command to make a new field w/tag set from input text. The GroupItem(String)
@@ -475,6 +473,24 @@ GroupItem   grup = new(strung);
     isInitialized = true;
     return grup;
 }
+
+
+/***************************************************************************
+	window attribute handler. A form field carries `window` as an attribute;
+    this fires at parent-define time (fLAG set) and marks the parent form
+    field as a window (isWindow). Define-then-show: it does NOT open the
+    window -- openWindow(form) is the separate explicit raise trigger,
+    called by name when the window should appear.
+***************************************************************************/
+extern GroupItem markWindow(GroupItem input)
+{
+GroupItem   form = input.parent;
+    if input.fLAG
+        form.isWindow = true;
+    else    cerr "window: should be invoked as an attribute when its parent is defined":;
+    return trueResult;
+}
+
 
 /***************************************************************************
 	The incant printTO command runs this to set toBUFFER to the buffer in
@@ -494,6 +510,7 @@ extern GroupItem printToBuffer(GroupItem bufferField)
     else cerr "printToBuffer: ignored":;
     return trueResult;
 }
+
 
 /***************************************************************************
 	The processFlags method is invoked by multiple incant noPrint fire and
@@ -553,6 +570,7 @@ GroupItem   target  = item.fLAG ? item.parent : item;
     return trueResult;
 }
 
+
 /*****************************************************************************
 	The incant quoted command is usually used in a print statement to output
     its argument text in quotes.
@@ -563,6 +581,7 @@ String  strung = "\"" text "\"";
 GroupItem   grup = new(strung);
     return grup;
 }
+
 
 /***************************************************************************
 	Register the parent block of item in the currentRegistry. This method is
@@ -601,6 +620,7 @@ String      name = item.data ? item.text : 0;
     return trueResult;
 }
 
+
 /***************************************************************************
     C extern backing the incant `system` command. Named runSystem to avoid
     the extern "C" symbol clash with libc system(3). User-beware: no escaping,
@@ -617,6 +637,7 @@ int     status;
     return falseResult;
 }
 
+
 /***************************************************************************
     A cOMMANDs method associated with commands like hash and buffer that set
     the appropriate value for the grup passed in.
@@ -631,6 +652,7 @@ extern GroupItem setInternalType(GroupItem grup)
     else    cerr "ERROR setInternalType: failed because no argument provided":;
     return null;
 }
+
 
 /***************************************************************************
 	Immediate method for the stop command.
@@ -647,6 +669,7 @@ GroupRules  ruler = groupRules;
         cout :"stop: end parsing":; }
     return  input;
 }
+
 
 /***************************************************************************
 	Immediate method for the testing command — scratch verification harness,
@@ -670,6 +693,7 @@ GroupRules  ruler = groupRules;
     return jitRunIfTest(input) ? trueResult : null;
 }
 
+
 /***************************************************************************
 	Rule action for unWrap used in the gXpress generator action.
 ***************************************************************************/
@@ -680,6 +704,7 @@ GroupItem   grup = result;
         while isGROUP   grup = group;
     return grup;
 }
+
 
 /***************************************************************************
     Write a buffer field's contents to /tmp/<field.tag> and close. Used as

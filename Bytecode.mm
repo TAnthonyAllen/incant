@@ -186,7 +186,8 @@ int 		seen = 0;
 			{
 			grup->groupBody->flags.byRef = 1;
 			Looper->setGroup(grup);
-			GroupControl::groupController->groupRules->lastREF->setGroup(grup);
+			GroupControl::groupController->groupRules->lastREF->groupBody->gGroup = grup;
+			GroupControl::groupController->groupRules->lastREF->groupBody->flags.data = 6;
 			cursorHolder->setCount(target + 1);
 			prod = new GroupItem("prod");
 			prod->setCount(1);

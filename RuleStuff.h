@@ -85,6 +85,7 @@ int min;
 int termCount;
 RuleStuff *parentStuff;
 int (*testMatch)(GroupItem *);
+GroupItem *(*actionMethod)(GroupItem *);
 GroupItem *(*parseMethod)(GroupItem *);
 int (*jitMethod)();
 struct 

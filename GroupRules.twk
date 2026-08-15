@@ -291,6 +291,6 @@ include /Users/anthony/Dropbox/data/InProcess/Groups/GroupActions.rtn
 include /Users/anthony/Dropbox/data/InProcess/Groups/ruleActions.rtn
 include /Users/anthony/Dropbox/data/InProcess/Groups/Debug.rtn
 include /Users/anthony/Dropbox/data/InProcess/Groups/Instruct.rtn
-include /Users/anthony/Dropbox/data/InProcess/Groups/Generate.rtn
 include /Users/anthony/Dropbox/data/InProcess/Groups/jitEmitters.rtn
 include /Users/anthony/Dropbox/data/InProcess/Groups/genParse.rtn
+include /Users/anthony/Dropbox/data/InProcess/Groups/Generate.rtn

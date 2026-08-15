@@ -85,6 +85,7 @@ int         kount,
             termCount;
 RuleStuff   parentStuff;
 int         &testMatch(GroupItem);
+GroupItem   &actionMethod(GroupItem);
 GroupItem   &parseMethod(GroupItem);
 int         &jitMethod();
 boolean

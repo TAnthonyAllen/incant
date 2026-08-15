@@ -760,7 +760,10 @@ int 		restrict = 0;
 		if ( restrict && grup->options.affiliation != restrict )
 			continue;
 		if ( !LoopOn->groupBody->flags.byRef )
-			ruler->lastREF->setGroup(grup);
+			{
+			ruler->lastREF->groupBody->gGroup = grup;
+			ruler->lastREF->groupBody->flags.data = 6;
+			}
 		result = StatemenT->groupBody->gMethod(StatemenT);
 		if ( result->groupBody->flags.byRef )
 			grup = result->priorInParent;
@@ -797,7 +800,10 @@ int 		restrict = 0;
 		result = ruler->labelNO;
 	if ( LoopRestrict )
 		if ( !LoopRestrict->groupBody->flags.byRef )
-			ruler->lastREF->setGroup(LoopRestrict);
+			{
+			ruler->lastREF->groupBody->gGroup = LoopRestrict;
+			ruler->lastREF->groupBody->flags.data = 6;
+			}
 		else	ruler->lastREF->clear();
 	return result;
 }
@@ -937,7 +943,6 @@ GroupItem 	*source = input->get(2);
 		because the two want opposite fixes.  */
 		if ( iterator )
 			iterator->groupBody->flags.fLAG = 1;
-		::fprintf(stderr,"aCTionIterate: source %s has no list\n",source->groupBody->tag);
 		return 0;
 		}
 	// attributes and members filter overloaded on hasAttributes and hasMembers
@@ -1450,7 +1455,7 @@ Buffer 		*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTA
 		jitDegrade("string expression under jit -- no emitter, builds at emit time",input);
 	if ( !buffer )
 		buffer = new Buffer("print buffer");
-	::appendPrintXP(stuff,buffer);
+	appendPrintXP(stuff,buffer);
 	return ::opString(stuff,buffer);
 }
 
@@ -2386,59 +2391,6 @@ extern "C" char *dataName(int d)
 }
 
 /***************************************************************************
-	Returns a string version of data
-***************************************************************************/
-extern "C" char *dataType(GroupItem *input)
-{
-char 	*name = 0;
-	switch (input->groupBody->flags.data)
-		{
-		case 2:
-			name = "char";
-			break;
-		case 3:
-			name = "Set";
-			break;
-		case 4:
-			name = "Buffer";
-			break;
-		case 5:
-			name = "int";
-			break;
-		case 6:
-			name = "GroupItem";
-			break;
-		case 7:
-			name = "PLGitem";
-			break;
-		case 8:
-			name = "BitMAP";
-			break;
-		case 9:
-			name = "double";
-			break;
-		case 10:
-			name = "object";
-			break;
-		case 11:
-			name = "regex";
-			break;
-		case 12:
-			name = "Stak";
-			break;
-		case 13:
-			name = "String";
-			break;
-		case 14:
-			name = "Token";
-			break;
-		default:
-			name = "null";
-		}
-	return name;
-}
-
-/***************************************************************************
 	The incant debugGuard command invokes this to toggle the debugGuard
     flag in the argument passed in
 ***************************************************************************/
@@ -2740,8 +2692,8 @@ extern "C" GroupItem *dumpPlanTally(GroupItem *argument)
 	rule and the guard reads 80 PLAN / 78 DONE -- i.e. THE INSTRUMENT THAT
 	DETECTS A TRUNCATED WALK REPORTS A TRUNCATED WALK, caused by the
 	instrument added beside it. Measured on the first run of this rung.  */
-	::fprintf(stderr,"TALLY refusals = %s\n",::toStringFromInt(::planTally(3)));
-	::fprintf(stderr,"TALLY plannable = %s\n",::toStringFromInt(::planTally(4)));
+	::fprintf(stderr,"TALLY refusals = %s\n",::toStringFromInt(planTally(3)));
+	::fprintf(stderr,"TALLY plannable = %s\n",::toStringFromInt(planTally(4)));
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
@@ -2769,10 +2721,10 @@ GroupItem 	*plan = 0;
 	inside planRule.  */
 	if ( plan )
 		{
-		::planTally(2);
+		planTally(2);
 		::printPlan(plan,"  ");
 		}
-	else	::planTally(1);
+	else	planTally(1);
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
@@ -2813,7 +2765,7 @@ int 		i = 1;
 		if ( term->groupBody->flags.noPrint )
 			::fprintf(stderr,"         noPrint (SKIPPED by the walk)\n");
 		else {
-			::fprintf(stderr,"         ROW  %s\n",::row42(term));
+			::fprintf(stderr,"         ROW  %s\n",row42(term));
 			if ( definer != term )
 				::fprintf(stderr,"         REFERENCE -> %s\n",definer->groupBody->tag);
 			::fprintf(stderr,"         data %s\n",::dataName(term->groupBody->flags.data));
@@ -3217,7 +3169,7 @@ int 		n = 0;
 	while ( node = plan->nextMember(node) )
 		{
 		at = node->getAttribute("at");
-		piece = ::kantLeaf(node,at->getText());
+		piece = kantLeaf(node,at->getText());
 		if ( !piece )
 			{
 			::fprintf(stderr,"genKant: REFUSING %s -- term %s is %s, which has no kant spelling\n",argument->getText(),at->getText(),node->groupBody->tag);
@@ -3243,7 +3195,7 @@ int 		n = 0;
 
 extern "C" GroupItem *genParse(GroupItem *argument)
 {
-GroupItem 	*rule = ::ruleOrRefuse(::ruleNameArg(argument),"genParse");
+GroupItem 	*rule = ::ruleOrRefuse(ruleNameArg(argument),"genParse");
 GroupItem 	*plan = 0;
 GroupItem 	*result = 0;
 	if ( !rule )
@@ -4067,7 +4019,7 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	//  it -- and S3 mints more than one function per compile, so "between
 	//  compiles" stopped being a fine enough grain the day the map landed.
 	
-	::jitFlushTransient();
+	jitFlushTransient();
 	
 	//  ⚠ THE EPILOGUE BLOCK IS CREATED **AFTER** THE FLUSH, AND THAT ORDER IS
 	//  THE WHOLE OF ITS CORRECTNESS. Created above with the entry block -- where
@@ -4342,7 +4294,7 @@ extern "C" void jitDiscardPartial()
 	gJitBuiltFn = nullptr;
 	gJitBuiltName.clear();
 	
-	::jitFlushTransient();
+	jitFlushTransient();
 	
 	//  These two point INTO the function just erased (or at its dead stack
 	//  builder), so nulling them is not tidiness either.
@@ -4708,7 +4660,7 @@ GroupItem 	*result = 0;
 	case: aCTionBlocK for a while body, this line for a do body.
 	WHY the do body is not block-wrapped where the while body is has NOT
 	been established -- the measurement stands, the mechanism is open.  */
-	::jitStoreResult();
+	jitStoreResult();
 	::jitDoCond();
 	result = ExpressioN;
 	/*  BARE CONDITION OPERAND -- see the note in jitEmitGIF. `if isMethod` is
@@ -4837,14 +4789,14 @@ GroupItem 	*result = ExpressioN;
 		result = ExpressioN;
 		::jitEmitBareRead(ExpressioN);
 		}
-	::jitIfBegin();
+	jitIfBegin();
 	if ( StatemenT )
 		result = StatemenT->groupBody->gMethod(StatemenT);
 	/*  Commit the then-arm's value INSIDE thenBB, and the else-arm's INSIDE
 	elseBB. This is the merge: the exit block's load reads whichever arm
 	ran. Must sit BEFORE jitIfElse/jitIfEnd, which move the insert point. */
-	::jitStoreResult();
-	::jitIfElse();
+	jitStoreResult();
+	jitIfElse();
 	/*  ⚠ E1, ONE LEVEL DOWN, AND AN ABSENT ELSE IS WHY. jitIfElse has just moved
 	the insert point into elseBB, but gJitResult still holds THE THEN ARM'S
 	value -- so when there is no ElsE to overwrite it, the jitStoreResult
@@ -4862,8 +4814,8 @@ GroupItem 	*result = ExpressioN;
 	 gJitResult = nullptr; 
 	if ( ElsE )
 		result = ElsE->groupBody->gMethod(ElsE);
-	::jitStoreResult();
-	::jitIfEnd();
+	jitStoreResult();
+	jitIfEnd();
 	/*  ⚠ NOTHING IS LEFT IN FLIGHT. Both arms have already committed their own
 	value to the result slot INSIDE their own block -- that is the merge.
 	gJitResult still holds the else-arm's value, and the enclosing walk
@@ -5138,7 +5090,7 @@ extern "C" int jitEmitReturn()
 	return -1; }
 	JitInlineFrame &f = gJitInlineFrames.back();
 	
-	::jitStoreResult();
+	jitStoreResult();
 	
 	if (!f.used) { fn->insert(fn->end(), f.exitBB); f.used = true; }
 	b->CreateBr(f.exitBB);
@@ -5152,7 +5104,7 @@ extern "C" int jitEmitReturn()
 	ITS OWN -- shared implementation, so a return cannot drift from the
 	block walk's idea of what a value is (the double and i1 coercions live
 	in one place). A no-op for a bare return, which is E3 above.  */
-	::jitStoreResult();
+	jitStoreResult();
 	
 	b->CreateBr(gJitEpilogueBB);
 	llvm::BasicBlock *dead = llvm::BasicBlock::Create(ctx, "afterReturn", fn);
@@ -5384,7 +5336,7 @@ int 		isAND = 0;
 	return nullptr;
 	}
 	
-	::jitScBegin(isAND);
+	jitScBegin(isAND);
 	if ( isMethod(arg->groupBody->flags.instructType) && arg->groupBody->flags.invoke )
 		arg->groupBody->gMethod(arg);
 	else	::jitEmitBareRead(arg);
@@ -5392,7 +5344,7 @@ int 		isAND = 0;
 	if (!gJitResult)
 	jitDegrade("AND/OR RIGHT operand produced no value", arg);
 	
-	::jitScEnd(field);
+	jitScEnd(field);
 	return field;
 }
 
@@ -5536,7 +5488,7 @@ extern "C" GroupItem *jitEmitWHILE(GroupItem *input)
 GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
 GroupItem 	*StatemenT = input->getLabelGroup("StatemenT");
 GroupItem 	*result = 0;
-	::jitLoopBegin();
+	jitLoopBegin();
 	result = ExpressioN;
 	/*  BARE CONDITION OPERAND -- see the note in jitEmitGIF. `if isMethod` is
 	false for a bare read, so without this the condition emits nothing and
@@ -5544,7 +5496,7 @@ GroupItem 	*result = 0;
 	if ( isMethod(result->groupBody->flags.instructType) )
 		result = result->groupBody->gMethod(result);
 	else	::jitEmitBareRead(ExpressioN);
-	::jitLoopBody();
+	jitLoopBody();
 	if ( StatemenT )
 		result = StatemenT->groupBody->gMethod(StatemenT);
 	/*  NO jitStoreResult() HERE, and that is a correction rather than an
@@ -5554,7 +5506,7 @@ GroupItem 	*result = 0;
 	statement plus this one, duplicating the last. One committer per value
 	(the one-channel family's cousin: two writers, one location, benign only
 	while they agree).  */
-	::jitLoopEnd();
+	jitLoopEnd();
 	 gJitResult = nullptr; 
 	return result;
 }
@@ -5586,72 +5538,9 @@ GroupItem 	*BlocK = input->getLabelGroup("BlocK");
 	return input;
 }
 
-/* jitFieldMethod  THE ONE NAMED SITE THAT OWNS SET-THEN-CALL for a field's
-   compiled method. Clay SEQ 27 v2, 2026-08-04, and it is parseMethod's shape
-   transplanted from rules to fields -- deliberately, so there is one pattern in
-   the tree and not two.
-
-   THE CONTRACT, in the order the code reads:
-     1. slot set   -> CALL THROUGH THE POINTER. That is the whole dispatch. No
-                      name lookup, no reconstruction from the `JiT` record, no
-                      consultation of CodE or BlocK.
-     2. slot empty -> compile (jitRunAction), then STASH BOTH: the function
-                      pointer into rStuff.jitMethod, the emitted IR text into a
-                      `JiT` attribute beside CodE and BlocK.
-     3. compile refused -> leave the slot EMPTY and say so. A refusal must not
-                      install a pointer, and it must not be silent; a field that
-                      quietly stopped being jitted would read as a field that was
-                      never jittable.
-
-   ⚠ SEQ 38 HOLDS BY CONSTRUCTION, AND THIS IS THE PLACE IT WOULD HAVE BROKEN.
-   locate is PROHIBITED, NOT PROVIDED: action execution resolves no names. The
-   field arrives as the FIRST PARAMETER and everything else is a pointer walk
-   from it -- rStuff off the node, the `JiT` attribute off its own list. Nothing
-   here asks the registry for anything, and if a later change to this function
-   seems to need locate, that change is misdesigned rather than blocked.
-
-   ⚠⚠ THE SLOT IS READ AND WRITTEN ON definingRule(), NOT ON THE NODE THAT
-   ARRIVES, AND THAT IS THE WHOLE MECHANISM RATHER THAN A DETAIL. Measured
-   2026-08-04, because the first cut got it wrong and recompiled on every fire:
-
-       call 1   field=0x1031ccf80   body=0x1031c6380
-       call 2   field=0x1031df5c0   body=0x1031c6380
-       call 3   field=0x1031ed9c0   body=0x1031c6380
-       definer  0x100eaa3c0 on ALL THREE
-
-   EVERY CALL SITE HANDS A FRESH GroupItem WRAPPER over the one shared
-   GroupBody -- incant's field semantics, not a bug: a field is pointer-shaped
-   storage with value-content semantics, so a reference is its own node. Storing
-   the pointer on the arriving node therefore stores it on a temporary that is
-   discarded the moment the statement ends. The store STUCK (readback confirmed
-   it); it was simply written somewhere nothing would ever look again.
-
-   definingRule() is a POINTER WALK to the node that OWNS the children, and
-   parse() uses it for exactly this problem in exactly this way -- its comment
-   says bind once and every reference sees it, "including references created
-   LATER", with "no locate (S1.3 forbids it)". So the half that makes the shape
-   work is the RESOLUTION, not the slot; transplanting the slot without the walk
-   produces code that looks right and compiles forever. SEQ 38 is satisfied by
-   the same fact: a pointer walk resolves no names.
-
-   ⚠ WHY THE SLOT'S HOME IS MATERIALISED HERE AND NOT AT DEFINE TIME. aCTionDefinE
-   ZEROES rStuff for a non-rule (`if !isRule rStuff = 0;`, ruleActions.rtn), so an
-   ordinary attribute reaches this point with no shape struct at all -- the design
-   as ruled says "the slot rides the attribute's stuff", and the attribute has
-   none. Rather than change what a define does to every field in the language, the
-   slot's owner mints its own home on the one path that needs it, using the same
-   two lines aCTionDefinE already uses for member terms (`RuleStuff fresh =
-   new(newMember); newMember.setRStuff(fresh);`). Cost is one struct per jitted
-   field, paid on first fire, and the define-time invariant is untouched.
-
-   ⚠ THE `JiT` ATTRIBUTE IS A RECORD AND NOT A CACHE. It is written after a
-   successful compile and read by nobody in this function. Reconstructing a
-   callable from it would mean re-entering LLVM to parse text we already hold a
-   pointer to -- slower, and it would give the same fact two homes, which is the
-   one-channel-one-meaning failure this project has now paid for twice.
-
-   Returns trueResult when the method ran (either path), null when the compile
-   was refused. */
+/*  jitFieldMethod -- set-then-call dispatch for a field's compiled method.
+    see DesignDocs: JitFieldMethod
+*******************************************************************************/
 extern "C" GroupItem *jitFieldMethod(GroupItem *field)
 {
 	
@@ -7232,7 +7121,7 @@ int 		live = 0;
 	result and the consumer dereferenced a null.
 	parseRuleMethod -- the working parseMethod= door -- has always used
 	getRStuff(). Copy the working door rather than inventing a second one. */
-	::setParseMethod(rule->getRStuff(),"parseViaKant");
+	setParseMethod(rule->getRStuff(),"parseViaKant");
 	::fprintf(stderr,"kantDoor: %s -> %s via parseViaKant, %s terms\n",rule->groupBody->tag,mintName,::toStringFromInt(live));
 	::free(mintName);
 	return 1;
@@ -8184,8 +8073,10 @@ char 	*printText = buffer->string();
 extern "C" GroupItem *opDebug(GroupItem *result)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*actionField = 0;
-	actionField = ruler->currentMETHOD->get(result->parent->groupBody->tag);
+GroupItem 	*field = 0;
+	field = ruler->currentMETHOD;
+	if ( isGROUP(result->groupBody->flags.data) )
+		result = result->getGroup();
 	return result;
 }
 
@@ -8341,10 +8232,12 @@ GroupItem 	*product = 0;
 				case 7:
 					if ( target->groupBody->flags.hasAttributes )
 						product->setCount(1);
+					else	product = 0;
 					break;
 				case 8:
 					if ( target->groupBody->flags.hasMembers )
 						product->setCount(1);
+					else	product = 0;
 					break;
 				case 9:
 					if ( target->groupBody->flags.isLocal )
@@ -8398,15 +8291,25 @@ GroupItem 	*product = 0;
 					if ( isMember(target->options.affiliation) )
 						product->setCount(1);
 					break;
+				case 36:
+					if ( target->rStuff->actionMethod )
+						product->setCount(1);
+					break;
 				case 401:
 					if ( !target->nextInParent )
 						product = 0;
-					else	product = target->nextInParent;
+					else {
+						product = target->nextInParent;
+						product->groupBody->flags.isInitialized = 1;
+						}
 					break;
 				case 402:
 					if ( !target->priorInParent )
 						product = 0;
-					else	product = target->priorInParent;
+					else {
+						product = target->priorInParent;
+						product->groupBody->flags.isInitialized = 1;
+						}
 					break;
 				case 403:
 					if ( !target->groupBody->groupList || !target->groupBody->groupList->firstInList )
@@ -8668,7 +8571,8 @@ extern "C" GroupItem *opLT(GroupItem *argument, GroupItem *target)
 ***************************************************************************/
 extern "C" GroupItem *opLastREF(GroupItem *result)
 {
-	GroupControl::groupController->groupRules->lastREF->setGroup(result);
+	GroupControl::groupController->groupRules->lastREF->groupBody->gGroup = result;
+	GroupControl::groupController->groupRules->lastREF->groupBody->flags.data = 6;
 	return result;
 }
 
@@ -8798,7 +8702,8 @@ extern "C" GroupItem *opMinusMinus(GroupItem *result)
 			iterator = result->getGroup();
 			iterator = iterator->priorInParent;
 			}
-		GroupControl::groupController->groupRules->lastREF->setGroup(iterator);
+		GroupControl::groupController->groupRules->lastREF->groupBody->gGroup = iterator;
+		GroupControl::groupController->groupRules->lastREF->groupBody->flags.data = 6;
 		result->setGroup(iterator);
 		if ( !iterator )
 			result = 0;
@@ -9179,10 +9084,17 @@ extern "C" GroupItem *opPlusPlus(GroupItem *result)
 		if ( !iterator )
 			iterator = result->groupBody->groupList->firstInList;
 		else	iterator = iterator->nextInParent;
-		GroupControl::groupController->groupRules->lastREF->setGroup(iterator);
-		result->setGroup(iterator);
-		if ( !iterator )
+		if ( iterator )
+			{
+			GroupControl::groupController->groupRules->lastREF->groupBody->gGroup = iterator;
+			GroupControl::groupController->groupRules->lastREF->groupBody->flags.data = 6;
+			iterator->groupBody->flags.isInitialized = 1;
+			result->setGroup(iterator);
+			}
+		else {
+			result->setGroup((GroupItem*)0);
 			result = 0;
+			}
 		return result;
 		}
 	if ( GroupControl::groupController->groupRules->jitting )
@@ -9362,16 +9274,17 @@ extern "C" GroupItem *opSetFlag(GroupItem *argument, GroupItem *target)
 }
 
 /***************************************************************************
-	Rule action for the := set group operator. Stamps byRef on the argument so
-	setGroup stores it BY REFERENCE (no copy). byRef is left SET (sticky) on
-	purpose: a later `=` of the same field then also references, because opAssign
-	honors byRef too. (2026-06-09. See TODO: audit := sites whose fields later
-	get legitimately =-copied — sticky byRef would alias them.)
+	Rule action for the := set group operator. It stashes argument as isGROUP
+    in target without changing its parent or affiliation
 ***************************************************************************/
 extern "C" GroupItem *opSetGroup(GroupItem *argument, GroupItem *target)
 {
 	if ( argument )
-		target->setGroup(argument);
+		{
+		target->groupBody->gGroup = argument;
+		target->groupBody->flags.data = 6;
+		target->groupBody->flags.isInitialized = 1;
+		}
 	return target;
 }
 
@@ -9502,6 +9415,43 @@ int 		n = 0;
 	return ruler->trueResult;
 }
 
+/*******************************************************************************
+	Process a parseAction
+*******************************************************************************/
+extern "C" GroupItem *parseAction(GroupItem *field)
+{
+	if ( field->rStuff->label )
+		if ( field->groupBody->gMethod(field->rStuff->label) )
+			return parseSetLabel(field);
+		else	field->rStuff->label->clear();
+	else
+	if ( field->groupBody->gMethod(field) )
+		return GroupControl::groupController->groupRules->trueResult;
+	GroupControl::groupController->groupRules->atRuleMark = field->rStuff->hereAt;
+	return 0;
+}
+
+/*******************************************************************************
+	Run a wild card test on this group against current input
+*******************************************************************************/
+extern "C" GroupItem *parseAny(GroupItem *field)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+RuleStuff 	*ruleStuff = field->rStuff;
+int 		counter = 0;
+	if ( ruleStuff->checkInput() )
+		while ( counter++ < ruleStuff->max )
+			if ( counter && counter >= ruleStuff->min )
+				{
+				ruleStuff->label->setToken(ruleStuff->hereAt,counter);
+				return parseSetLabel(field);
+				}
+	if ( ruleStuff->label )
+		ruleStuff->label->clear();
+	ruler->atRuleMark = ruleStuff->hereAt;
+	return 0;
+}
+
 /*  === GENERATED by genParse('Braced'), pasted verbatim === SEQ 58, 2026-08-13.
 
     THE ORACLE-BEARING CONTROL FOR THE BIND-READ SEAM. Byte-identical to
@@ -9530,6 +9480,78 @@ GroupItem 	*t2 = rule->get(2);
 GroupItem 	*t3 = rule->get(3);
 char 		*from = GroupControl::groupController->groupRules->atRuleMark;
 	return ::leaveRule(rule,into,label,from,::lit(t1,"[") && ::parseR(t2,label) && ::lit(t3,"]"));
+}
+
+/*******************************************************************************
+	Run a character test on this group against current input
+*******************************************************************************/
+extern "C" GroupItem *parseCharacter(GroupItem *field)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+RuleStuff 	*ruleStuff = field->rStuff;
+int 		counter = 0;
+	if ( ruleStuff->checkInput() )
+		while ( *ruler->atRuleMark == field->getCharacter() && counter++ < ruleStuff->max )
+			{
+			ruleStuff->label->setToken(ruleStuff->hereAt,counter);
+			return parseSetLabel(field);
+			}
+	if ( ruleStuff->label )
+		ruleStuff->label->clear();
+	ruler->atRuleMark = ruleStuff->hereAt;
+	return 0;
+}
+
+/*******************************************************************************
+	Process a condition
+*******************************************************************************/
+extern "C" GroupItem *parseCondition(GroupItem *field)
+{
+RuleStuff 	*ruleStuff = field->rStuff;
+	if ( ruleStuff->min )
+		return GroupControl::groupController->groupRules->trueResult;
+	return 0;
+}
+
+/*******************************************************************************
+    Registry and Container test looks for a field entry that matches the input stream.
+*******************************************************************************/
+extern "C" GroupItem *parseContainer(GroupItem *field)
+{
+GroupItem 	*grup = 0;
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+RuleStuff 	*ruleStuff = field->rStuff;
+PLGset 		*inSet = field->getCharacterSet();
+char 		*atInput = ruler->atRuleMark;
+int 		advance = 0;
+Buffer 		*buffer = ruler->stringBUFFER;
+	if ( ruleStuff->checkInput() )
+		{
+		buffer->reset();
+		while ( *atInput )
+			if ( inSet->contains(*atInput) )
+				{
+				buffer->appendChar(*atInput,0,0);
+				atInput++;
+				}
+			else	break;
+		while ( advance = buffer->length() )
+			{
+			if ( grup = field->get(buffer->string()) )
+				{
+				if ( !ruleStuff->noAdvance )
+					ruler->atRuleMark += advance;
+				if ( ruleStuff->label )
+					ruleStuff->label->setGroup(grup);
+				return parseSetLabel(field);
+				}
+			buffer->shorten(1);
+			}
+		}
+	if ( ruleStuff->label )
+		ruleStuff->label->clear();
+	ruler->atRuleMark = ruleStuff->hereAt;
+	return 0;
 }
 
 extern "C" GroupItem *parseRK(GroupItem *idx)
@@ -9564,6 +9586,44 @@ int 		n = 0;
 	return 0;
 }
 
+/*****************************************************************************
+     Parse a rule.
+*****************************************************************************/
+extern "C" GroupItem *parseRule(GroupItem *field)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+RuleStuff 	*ruleStuff = field->rStuff;
+GroupItem 	*code = 0;
+GroupItem 	*grup = 0;
+GroupItem 	*result = 0;
+	/*************************************************************************
+	processCode will parse rule code={} and stick the result in method
+	that then gets invoked as the rule parse method
+	*************************************************************************/
+	if ( isCoded(field->groupBody->flags.actionType) )
+		if ( !::processCode(field) )
+			return 0;
+	code = field->get("CodE");
+	// bail to the existing field parse if no parse code provided
+	if ( isAction(field->groupBody->flags.actionType) )
+		{
+		while ( grup = code->nextAttribute(grup) )
+			if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.noPrint && grup->groupBody != field->groupBody )
+				grup->clear();
+		// does jitRunAction set label??? result???
+		if ( ruler->jitting && ::jitRunAction(field) )
+			;
+		else	result = ::processAction(field);
+		}
+	else	result = field->parse(ruleStuff);
+	if ( result )
+		return result;
+	if ( ruleStuff->label )
+		ruleStuff->label->clear();
+	ruler->atRuleMark = ruleStuff->hereAt;
+	return 0;
+}
+
 extern "C" GroupItem *parseRuleMethod(GroupItem *input)
 {
 char 		*name = input->getText();
@@ -9587,7 +9647,7 @@ int 		live = 0;
 					::fprintf(stderr,"             emitted against %s terms, rule now has %s\n",::toStringFromInt(stuff->termCount),::toStringFromInt(live));
 					return ruleNode->getGroup();
 					}
-				::setParseMethod(stuff,name);
+				setParseMethod(stuff,name);
 				
 				if ( GroupControl::groupController->groupRules->parseTrace )
 				{
@@ -9732,6 +9792,69 @@ char 		*from = GroupControl::groupController->groupRules->atRuleMark;
 }
 
 /*******************************************************************************
+	Run a character set test on this group against current input
+*******************************************************************************/
+extern "C" GroupItem *parseSet(GroupItem *field)
+{
+PLGset 		*set = field->getCharacterSet();
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+RuleStuff 	*ruleStuff = field->rStuff;
+int 		counter = 0;
+	if ( ruleStuff->checkInput() )
+		while ( set->contains(*ruler->atRuleMark) && counter++ < ruleStuff->max )
+			{
+			if ( ruleStuff->label )
+				ruleStuff->label->setToken(ruleStuff->hereAt,counter);
+			return parseSetLabel(field);
+			}
+	if ( ruleStuff->label )
+		ruleStuff->label->clear();
+	ruler->atRuleMark = ruleStuff->hereAt;
+	return 0;
+}
+
+/*******************************************************************************
+	On rule success deal w/label setting and return true
+*******************************************************************************/
+extern "C" GroupItem *parseSetLabel(GroupItem *field)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+RuleStuff 	*ruleStuff = field->rStuff;
+	if ( ruleStuff->noAdvance )
+		ruler->atRuleMark = ruleStuff->hereAt;
+	if ( ruleStuff->label )
+		{
+		if ( ruleStuff->rule->groupBody->gMethod )
+			ruleStuff->label = ruleStuff->rule->groupBody->gMethod(ruleStuff->label);
+		if ( ruleStuff->label && ruleStuff->parentLabel )
+			ruleStuff->parentLabel->addAttribute(ruleStuff->label);
+		return ruleStuff->label;
+		}
+	return ruler->trueResult;
+}
+
+/***************************************************************************
+	Parse method for a field w/data = isSTRING or isTOKEN
+***************************************************************************/
+extern "C" GroupItem *parseString(GroupItem *field)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+RuleStuff 	*ruleStuff = field->rStuff;
+int 		counter = 0;
+	while ( counter++ < ruleStuff->max )
+		if ( ruleStuff->checkInput() )
+			{
+			char 	*matchedString = ruleStuff->rule->matches(ruler->atRuleMark);
+			ruleStuff->label->setText(matchedString);
+			return ::parseSetLabel(field);
+			}
+	if ( ruleStuff->label )
+		ruleStuff->label->clear();
+	ruler->atRuleMark = ruleStuff->hereAt;
+	return 0;
+}
+
+/*******************************************************************************
     parseRuleMethod — genParseShape §4.1, the binding. What connects a compiled
     parseScaf to Scaf.rStuff.parseMethod.
 
@@ -9794,6 +9917,21 @@ RuleStuff 	*stuff = 0;
 		else	::fprintf(stderr,"parseTerms: expected a count in text\n");
 	else	::fprintf(stderr,"parseTerms: should be invoked as a definition attribute\n");
 	return input->getGroup();
+}
+
+/*******************************************************************************
+	Process an up to match
+*******************************************************************************/
+extern "C" GroupItem *parseUpTo(GroupItem *field)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+RuleStuff 	*ruleStuff = field->rStuff;
+	if ( ::testUpTo(field) )
+		return ::parseSetLabel(field);
+	if ( ruleStuff->label )
+		ruleStuff->label->clear();
+	ruler->atRuleMark = ruleStuff->hereAt;
+	return 0;
 }
 
 /*******************************************************************************
@@ -10745,8 +10883,9 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 *****************************************************************************/
 extern "C" GroupItem *resetField(GroupItem *argument)
 {
-	if ( isBUFFER(argument->groupBody->flags.data) )
-		argument->getBuffer()->unMark();
+Buffer 	*buff = argument->getBuffer();
+	if ( buff )
+		buff->reset();
 	return 0;
 }
 
@@ -10995,6 +11134,7 @@ GroupItem 	*stray = 0;
 *******************************************************************************/
 extern "C" GroupItem *runAction(GroupItem *argument, GroupItem *field)
 {
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*result = 0;
 GroupItem 	*capture = 0;
 GroupItem 	*ruleArg = 0;
@@ -11009,7 +11149,7 @@ GroupItem 	*ruleArg = 0;
 	jitValue is by then an i1 (jitEmitCompare's result), so the second pass
 	asserts inside LLVM. jitEmitSelfCall answers 0 for every other callee, so
 	this gate changes nothing about ordinary calls.  */
-	if ( GroupControl::groupController->groupRules->jitting )
+	if ( ruler->jitting )
 		{
 		 if (::jitEmitSelfCall(argument, field)) return field; 
 		}
@@ -11018,7 +11158,8 @@ GroupItem 	*ruleArg = 0;
 			ruleArg->setGroup(result = argument);
 		else	ruleArg->setGroup(result = field);
 	else	result = field;
-	GroupControl::groupController->groupRules->lastREF->setGroup(result);
+	ruler->lastREF->groupBody->gGroup = result;
+	ruler->lastREF->groupBody->flags.data = 6;
 	/*  UNCONDITIONAL, 2026-08-10, SEQ 27 rung B. See the note above
 	jitSaveFrameRT for why the gate was the defect rather than the
 	protection, and why rung A's return seam had to land first.  */
@@ -11027,7 +11168,7 @@ GroupItem 	*ruleArg = 0;
 	BlocK below re-executes into the caller's builder -- so for the duration
 	the action being walked is `field`, and a recursive call inside it must
 	be recognised as such. See gJitInlining.  */
-	if ( GroupControl::groupController->groupRules->jitting )
+	if ( ruler->jitting )
 		{
 		 jitInlinePush(field); 
 		}
@@ -11037,7 +11178,7 @@ GroupItem 	*ruleArg = 0;
 	so when E2's merge produces the callee's answer, this is what has to
 	carry it. Measured the hard way: a merge that set only gJitResult was
 	emitted correctly and then ignored.  */
-	if ( GroupControl::groupController->groupRules->jitting )
+	if ( ruler->jitting )
 		{
 		 jitInlinePop(result); 
 		}
@@ -11085,7 +11226,7 @@ GroupItem 	*ruleArg = 0;
 	assignment reads through jitData, which a fresh node would not carry.
 	The interpreter is adopting the jit's semantics here, so the jitted arm
 	owes byte-agreement and must emit unchanged.  */
-	if ( result && !GroupControl::groupController->groupRules->jitting )
+	if ( result && !ruler->jitting )
 		{
 		capture = new GroupItem(result->groupBody->tag);
 		capture->setContent(result);
@@ -11202,6 +11343,20 @@ int 		baseStak = 0;
 	while ( field && field->groupBody->flags.data && ruler->inputSTAK && ruler->inputSTAK->length > baseStak )
 		ruler->popInput();
 	return result;
+}
+
+/*******************************************************************************
+	runRuleAction checks to see if there is a method parked in actionMethod.
+    If there is, and there is a rule label, it runs actionMethod.
+*******************************************************************************/
+extern "C" GroupItem *runRuleAction(GroupItem *field)
+{
+RuleStuff 	*ruleStuff = field->rStuff;
+	if ( ruleStuff->label )
+		if ( ruleStuff->actionMethod )
+			return ruleStuff->label = ruleStuff->actionMethod(ruleStuff->label);
+		else	return ruleStuff->label;
+	return GroupControl::groupController->groupRules->trueResult;
 }
 
 /***************************************************************************
@@ -11477,6 +11632,51 @@ int 		offset = markOffset->getCount();
 		else	::fprintf(stderr,"setMark: ERROR mark offset exceeds current buffer length\n");
 		}
 	else	::fprintf(stderr,"setMark: ERROR no buffer source provided\n");
+	return 0;
+}
+
+/*******************************************************************************
+	Set parseMethod. For now does not handle macros
+*******************************************************************************/
+extern "C" GroupItem *setParse(GroupItem *field)
+{
+RuleStuff 	*ruleStuff = field->rStuff;
+	if ( !ruleStuff->parseMethod )
+		{
+		ruleStuff->actionMethod = field->groupBody->gMethod;
+		if ( upTo(ruleStuff->overTo) || upToOver(ruleStuff->overTo) )
+			ruleStuff->parseMethod = ::parseUpTo;
+		else
+		if ( isBIN(field->groupBody->flags.binType) || isREGISTRY(field->groupBody->flags.binType) )
+			ruleStuff->parseMethod = ::parseContainer;
+		else
+		if ( field->groupBody->flags.isCondition )
+			ruleStuff->parseMethod = ::parseCondition;
+		else
+		if ( parseACTION(field->groupBody->flags.methodType) )
+			ruleStuff->parseMethod = ::parseAction;
+		else
+		if ( field->groupBody->groupList )
+			ruleStuff->parseMethod = ::parseRule;
+		else
+		switch (field->groupBody->flags.data)
+			{
+			case 1:
+				ruleStuff->parseMethod = ::parseAny;
+				break;
+			case 2:
+				ruleStuff->parseMethod = ::parseCharacter;
+				break;
+			case 3:
+				ruleStuff->parseMethod = ::parseSet;
+				break;
+			case 6:
+				ruleStuff->parseMethod = 0;
+				break;
+			default:
+				ruleStuff->parseMethod = ::parseString;
+			}
+		}
 	return 0;
 }
 
@@ -12207,5 +12407,6 @@ int 	result = 0;
 /*	Warning: the following methods were referenced but not declared
 	read(int,char*,long)
 	floor(double)
+	setParseMethod(char*,char*)
 	getRStuff()
 */

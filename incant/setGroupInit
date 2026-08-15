@@ -1,0 +1,46 @@
+/*****************************************************************************
+    setGroupInit is a probe for the oneTest red of 2026 08 15. Report tier.
+    Row D is the treatment, a set group in condition position.
+    Row E is the negative control, an assign in the same position.
+    Row F is the same set group used as a plain statement then tested, so the
+    finding cannot be read as the lookup itself failing.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(SetGroupInit);
+define
+    sgSource    sgAlpha;
+    rowD argument code={
+        if dTarget := argument;
+            print "D setgroup in condition   THEN arm":;
+        else
+            print "D setgroup in condition   ELSE arm":;
+        };
+    rowE argument code={
+        if eTarget = argument;
+            print "E assign in condition     THEN arm":;
+        else
+            print "E assign in condition     ELSE arm":;
+        };
+    rowF argument code={
+        fTarget := argument;
+        print "F setgroup ran, target tag is" fTarget.taG:;
+        if fTarget;
+            print "F bare test of the target THEN arm":;
+        else
+            print "F bare test of the target ELSE arm":;
+        };
+    ;
+
+print "== setGroupInit: all three rows are handed the same live node ==":;
+rowD(sgSource);
+rowE(sgSource);
+rowF(sgSource);
+print "setGroupInit SENTINEL -- run reached the end":;
+stop();

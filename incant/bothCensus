@@ -1,0 +1,50 @@
+/*  bothCensus -- does any rule in the live population carry BOTH an attribute
+    set and a member list? Item 6, 2026-08-15.
+
+    ONE LINE PER RULE, with both flags printed unconditionally as A or dash and
+    M or dash, so an absent flag is a printed value and never a missing row
+    (rule H4). The tally is done over these lines, not inside the walk, so the
+    instrument cannot disagree with itself.
+
+    IDIOM COPIED FROM incant/ruleCount, deliberately: the iterate/while form
+    rather than a for loop, a DIFFERENT local for each of the two walks, and no
+    braced block in a body (KANT-40). A for loop over Grokking exits 139 with
+    zero output on this binary -- reproduced 2026-08-15, independent of genKant.
+
+    VACUITY GUARD: attributes and members are walked and printed separately, so
+    a run in which either flag were inert would show a whole column constant.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(BothCensus);
+define
+    bcMembers argument code={
+        iterate bcCur on argument members;
+        while ++bcCur;
+            if !isRulE;     continue;
+            print "row ";
+            if hasAttributeS;   print "A";
+            else                print "-";
+            if hasMemberS;      print "M";
+            else                print "-";
+            print " " ~taG:;
+        };
+    bcAttrs argument code={
+        iterate bcCur2 on argument attributes;
+        while ++bcCur2;
+            if !isRulE;     continue;
+            print "row ";
+            if hasAttributeS;   print "A";
+            else                print "-";
+            if hasMemberS;      print "M";
+            else                print "-";
+            print " " ~taG:;
+        };
+    ;
+print "== BOTH CENSUS: members ==":;
+bcMembers(Grokking);
+print "== BOTH CENSUS: attributes ==":;
+bcAttrs(Grokking);
+print "BOTHCENSUS SENTINEL -- run reached the end":;
+stop();

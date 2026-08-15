@@ -1,0 +1,24 @@
+/*  ddProbe2 asks how a nested DesignDocs entry can be RETRIEVED. Row 1 is by
+    bare name, row 2 is by descent from its parent, row 3 is a fresh local for
+    each walk. Text length is printed so a wrong node is visible as a wrong
+    size rather than as a plausible name.  */
+Start();
+include(unitTests);
+include(utilities);
+include(designDocs);
+search reset stack Grokking DesignDocs UnitTests Utilities list;
+register(DdProbe2);
+define
+    shape argument code={
+        print "  children " argument.listLengtH " datA " argument.datA:;
+        };
+    ;
+print "== row 1: bare name ==":;
+shape(JitFieldMethodContract);
+print "== row 2: descent from parent ==":;
+ddChild := JitFieldMethod["JitFieldMethodContract"];
+shape(ddChild);
+print "== row 3: parent itself (control) ==":;
+shape(JitFieldMethod);
+print "DDPROBE2 SENTINEL -- run reached the end":;
+stop();

@@ -1,0 +1,23 @@
+/*  ddProbe checks the SHAPE of the migrated DesignDocs entry, not merely that
+    the file parses. The registry header records that a parse-green entry
+    silently nested three of its members under the wrong parent, so counts and
+    names are printed rather than assumed.  */
+Start();
+include(unitTests);
+include(utilities);
+include(designDocs);
+search reset stack Grokking DesignDocs UnitTests Utilities list;
+register(DdProbe);
+define
+    ddWalk argument code={
+        print "entry " ~taG " children " argument.listLengtH:;
+        iterate ddCur on argument members;
+        while ++ddCur;
+            print "   child " ~taG " sub " listLengtH:;
+        };
+    ;
+print "== ddProbe ==":;
+ddWalk(JitFieldMethod);
+ddWalk(JitFieldMethodContract);
+print "DDPROBE SENTINEL -- run reached the end":;
+stop();

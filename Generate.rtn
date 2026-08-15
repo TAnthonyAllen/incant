@@ -1,24 +1,219 @@
 
-/***************************************************************************
-	Returns a string version of data
-***************************************************************************/
-extern String dataType(GroupItem input)
+/*******************************************************************************
+	Process a parseAction
+*******************************************************************************/
+extern GroupItem parseAction(GroupItem field)
 {
-String  name;
-    switch(data) {
-        case isCHAR:    name = "char";
-        case isSET:     name = "Set";
-        case isBUFFER:  name = "Buffer";
-        case isCOUNT:   name = "int";
-        case isGROUP:   name = "GroupItem";
-        case isITEM:    name = "PLGitem";
-        case isMAP:     name = "BitMAP";
-        case isNUMBER:  name = "double";
-        case isOBJECT:  name = "object";
-        case isREGEX:   name = "regex";
-        case isSTAK:    name = "Stak";
-        case isSTRING:  name = "String";
-        case isTOKEN:   name = "Token";
-        default:        name = "null"; }
-    return name;
+    if label
+        if field.method(label)  return parseSetLabel(field);
+        else    label.clear();
+    or field.method(field)      return trueResult;
+    atRuleMark  = hereAt;
+    return 0;
+}
+
+/*******************************************************************************
+	Run a wild card test on this group against current input
+*******************************************************************************/
+extern GroupItem parseAny(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+RuleStuff   ruleStuff = field.rStuff;
+int         counter;
+    if checkInput()
+        while counter++ < max
+            if counter && counter >= min {
+                label.setToken(hereAt,counter);
+                return parseSetLabel(field); }
+    if label    label.clear();
+    atRuleMark = hereAt;
+    return 0;
+}
+
+/*******************************************************************************
+	Run a character test on this group against current input
+*******************************************************************************/
+extern GroupItem parseCharacter(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+RuleStuff   ruleStuff = field.rStuff;
+int         counter;
+    if checkInput()
+        while *atRuleMark == character && counter++ < max {
+            label.setToken(hereAt,counter);
+            return parseSetLabel(field); }
+    if label    label.clear();
+    atRuleMark = hereAt;
+    return 0;
+}
+
+/*******************************************************************************
+	Process a condition
+*******************************************************************************/
+extern GroupItem parseCondition(GroupItem field)
+{
+RuleStuff   ruleStuff = field.rStuff;
+    if min  return trueResult;
+    return  0;
+}
+
+/*******************************************************************************
+    Registry and Container test looks for a field entry that matches the input stream.
+*******************************************************************************/
+extern GroupItem parseContainer(GroupItem field)
+{
+GroupItem   grup;
+use field
+GroupRules  ruler   = groupRules;
+RuleStuff   ruleStuff = rStuff;
+PLGset      inSet   = characterSet;
+String      atInput = atRuleMark;
+int         advance;
+Buffer      buffer  = stringBUFFER;
+    if checkInput() {
+        reset();
+        while *atInput
+            if contains(*atInput)   { buffer += *atInput; atInput++; }
+            else break;
+        while advance = length() {
+            if grup = get(string()) {
+                if !noAdvance   atRuleMark += advance;
+                if label    label.group = grup;
+                return parseSetLabel(field); }
+            shorten(1); }}
+    if label    label.clear();
+    atRuleMark = hereAt;
+    return 0;
+}
+
+/*****************************************************************************
+     Parse a rule.
+*****************************************************************************/
+extern GroupItem parseRule(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+RuleStuff   ruleStuff = rStuff;
+GroupItem   code,
+            grup,
+            result;
+use field
+    /*************************************************************************
+        processCode will parse rule code={} and stick the result in method
+        that then gets invoked as the rule parse method
+    *************************************************************************/
+    if isCoded
+        if !processCode(field)  return 0;
+    code = field[CodE];
+    // bail to the existing field parse if no parse code provided
+    if isAction {
+use grup
+        while grup = code.nextAttribute(grup)
+            if isLocal && !noPrint && groupBody != field.groupBody clear();
+        // does jitRunAction set label??? result???
+        if jitting && jitRunAction(field);
+        else result = processAction(field); }
+    else        result = parse(ruleStuff);
+    if result   return result;
+    if label    label.clear();
+    atRuleMark = hereAt;
+    return 0;
+}
+
+/*******************************************************************************
+	Run a character set test on this group against current input
+*******************************************************************************/
+extern GroupItem parseSet(GroupItem field)
+{
+PLGset      set = characterSet;
+GroupRules  ruler = groupRules;
+RuleStuff   ruleStuff = field.rStuff;
+int         counter;
+    if checkInput()
+        while set.contains(*atRuleMark) && counter++ < max {
+            if label   label.setToken(hereAt,counter);
+            return parseSetLabel(field); }
+    if label    label.clear();
+    atRuleMark = hereAt;
+    return 0;
+}
+
+/*******************************************************************************
+	On rule success deal w/label setting and return true
+*******************************************************************************/
+extern GroupItem parseSetLabel(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+RuleStuff   ruleStuff = field.rStuff;
+    if noAdvance    atRuleMark = hereAt;
+    if label {
+        if rule.method  label = rule.method(label);
+        if label && parentLabel parentLabel +% label;
+        return label; }
+    return trueResult;
+}
+
+/***************************************************************************
+	Parse method for a field w/data = isSTRING or isTOKEN
+***************************************************************************/
+extern GroupItem parseString(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+RuleStuff   ruleStuff = field.rStuff;
+int         counter;
+    while counter++ < max
+        if checkInput() {
+            String  matchedString = rule.matches(atRuleMark);
+            label.text  = matchedString;
+            return parseSetLabel(field); }
+    if label    label.clear();
+    atRuleMark = hereAt;
+    return 0;
+}
+
+/*******************************************************************************
+	Process an up to match
+*******************************************************************************/
+extern GroupItem parseUpTo(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+RuleStuff   ruleStuff = field.rStuff;
+    if testUpTo(field)  return parseSetLabel(field);
+    if label    label.clear();
+    atRuleMark = hereAt;
+    return 0;
+}
+
+/*******************************************************************************
+	runRuleAction checks to see if there is a method parked in actionMethod.
+    If there is, and there is a rule label, it runs actionMethod.
+*******************************************************************************/
+extern GroupItem runRuleAction(GroupItem field)
+{
+RuleStuff   ruleStuff = field.rStuff;
+    if label
+        if actionMethod     return label = actionMethod(label);
+        else                return label;
+    return  trueResult;
+}
+
+/*******************************************************************************
+	Set parseMethod. For now does not handle macros
+*******************************************************************************/
+extern GroupItem setParse(GroupItem field)
+{
+RuleStuff   ruleStuff = rStuff;
+    if !parseMethod {
+        actionMethod = method;
+        if upTo || upToOver     parseMethod = parseUpTo;
+        or isBIN || isREGISTRY  parseMethod = parseContainer;
+        or isCondition          parseMethod = parseCondition;
+        or parseACTION          parseMethod = parseAction;
+        or groupList            parseMethod = parseRule;
+        else switch(data) {
+            case isANY:     parseMethod = parseAny;
+            case isCHAR:    parseMethod = parseCharacter;
+            case isSET:     parseMethod = parseSet;
+            case isGROUP:   parseMethod = null;
+            default:        parseMethod = parseString; }}
+    return null;
 }

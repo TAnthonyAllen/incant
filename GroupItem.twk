@@ -1605,6 +1605,7 @@ void setContent(GroupItem item)
             else {
                 if item.groupList   copyListFrom(item);
                 if item.isGROUP     group = item.gGroup;
+                or item.isBUFFER    text = item.text;
                 or item.data        copyData(item); }
         else    cerr "setContent: tried to set group to itself",tag:; }
     else clearData();

@@ -1,5 +1,55 @@
 
 /***************************************************************************
+    Buffer-side mark machinery wrappers — thin passthroughs to Buffer's
+    setMark/unMark/setFile/closeFile. Used by incant code that wants
+    explicit control over the mark, and by applyTextDirective to
+    arm/disarm Buffer.markIsSet around find-and-replace sweeps.
+***************************************************************************/
+extern void flushBuffer(GroupItem bufField)
+{
+    if bufField.isBUFFER    bufField.buffer.flush();
+}
+
+
+/*****************************************************************************
+    The argument passed in to getMarkLineAt must have source and fromThis ƒ
+    It returns the line wrapped in a GroupItem field using setToken (as a stream
+    pointer into the buffer with a length). The field will only contain
+    valid text as long as the buffer contains it in place. Note: getMarkLineAt
+    calls findInBuffer to locate the matching line so if there is already
+    a mark set, it will search for the matching line from that mark on.
+    It then sets mark at beginning of the line in the source buffer. This
+    method is called by the getLine incant command defined in setup.
+*****************************************************************************/
+extern GroupItem getMarkLineAt(GroupItem argument)
+{
+GroupItem   source = argument["source"],
+            fromThis = argument["fromThis"];
+GroupItem   result;
+    if source && source.isBUFFER
+        if fromThis {
+            Buffer      buffer = source.buffer;
+            int         matchLength;
+            String      lineStart;
+            if buffer
+                if matchLength = findInBuffer(fromThis.text) {
+                    lineStart = mark;
+                    while lineStart != start && lineStart != '\n' lineStart--;
+                    if lineStart >= start lineStart++;
+                    else lineStart = start;
+                    mark = lineStart + matchLength;
+                    while mark < current && mark != '\n' mark++;
+                    mark++;
+                    result = new("markLine");
+                    result.setToken(lineStart,(int)(mark - lineStart));
+                    mark = lineStart; }}
+        else cerr "getMarkLineAt: ERROR no match field provided":;
+    else cerr "getMarkLineAt: ERROR no source or source is not a buffer":;
+    return result;
+}
+
+
+/***************************************************************************
 	Rule action for the +% operator
 ***************************************************************************/
 extern GroupItem opAddAttribute(GroupItem argument,GroupItem target)
@@ -12,53 +62,6 @@ GroupItem   grup;
     return target;
 }
 
-/***************************************************************************
-    truthOf -- THE OPERAND TRUTHINESS CONTRACT. Ruled 2026-08-11 by Tony,
-    carried by Clay (SEQ 32); spec docs/andOrRung.md section 3 part 1.
-    Normative for BOTH engines and BOTH word forms, and it lives in ONE
-    place on purpose -- a contract duplicated at three call sites is the
-    one-channel-one-meaning failure waiting for its second reader.
-
-    LAYERED: presence decides only when no value exists to decide by.
-
-        1  absent / null                 -> false
-        2  node holding a NUMERIC value  -> BY ITS VALUE   (0 false)
-        3  node holding no numeric value -> true BY PRESENCE
-
-    Row 2 covers comparison results, ALWAYS, and that is what forces the
-    layering rather than merely preferring it: under a flat "any present
-    node is true", a comparison returning 0 would be TRUE and every
-    conditional over a value-bearing expression would be always-true.
-    That is not a semantics, it is the abolition of falsehood. Row 3 is
-    the parse-consumer row -- parseR's GroupItem-or-null, structural
-    nodes, rule results -- which is the frame the original table was
-    written in, where null-vs-node IS the whole discrimination.
-
-    ⚠ ROW 4, TEXT-VALUED OPERANDS, IS DELIBERATELY UNRULED. No measured
-    customer needs it, and it borders KE-4's territory. At EMIT a text
-    operand is REFUSED (jitEmitShortCircuit calls jitDegrade rather than
-    substituting a constant -- a substituted constant is asserted by
-    nothing, and the degrade counter is asserted at zero by every rung).
-    At RUN it lands on row 3 and answers true-by-presence. The two arms
-    therefore AGREE in outcome, because a refused emit falls back to
-    interpretation; they are not two answers, they are one answer and a
-    refusal to bake it.
-
-    ⚠ MEASURED, 2026-08-11, and recorded because it is NOT what a reader
-    expects: `if <field>` and `<field> AND ...` ALREADY DISAGREE in the
-    shipping language. A field holding 0 dumps as `aFalse=0 int` -- it
-    carries isCOUNT and gCount 0 -- and `if aFalse;` reads TRUE while
-    `aFalse AND aTrue` reads false. This contract matches the OPERATOR
-    behaviour, which is the one it governs; it does not touch `if`, and
-    closing that gap is a separate ruling with its own customer.
-    Instrument: incant/andProbe rows 1 and 5.
-***************************************************************************/
-extern int truthOf(GroupItem field)
-{
-    if !field                       return 0;
-    if field.isCOUNT || field.isNUMBER  return field.gCount != 0;
-    return 1;
-}
 
 /***************************************************************************
 	Rule action for the AND operator
@@ -84,6 +87,7 @@ extern GroupItem opAND(GroupItem argument,GroupItem target)
     return falseResult;
 }
 
+
 /***************************************************************************
 	Rule action for the = assign operator. A byRef argument (one that came
 	through := / opSetGroup) is stored BY REFERENCE so the `=` does not undo the
@@ -102,6 +106,42 @@ extern GroupItem opAssign(GroupItem argument,GroupItem target)
     return  target;
 }
 
+
+/***************************************************************************
+	operator method for the cerr rule -- THE STDERR SINK, added 2026-08-01.
+
+    opPrint above is a TWO-arm choice (diverted buffer, else stdout) and there
+    was no third arm to select; that absence is what grammar-minion round 1
+    refused on with evidence (docs/grammarCorpus.md CLAIM GRAM-4), and it is
+    what held minionA round 2 -- genParse's emitters write their PRODUCT via
+    cerr, so a kant version could not reproduce its own target.
+
+    ⚠ DELIBERATELY A SIBLING, NOT A THIRD ARM IN opPrint. Two reasons:
+      1. It follows Tony's own precedent. aCTionStringXP was split out of the
+         print action rather than folded into it -- "it duplicates much of the
+         print action, but no biggie it is short, and no if statement needed to
+         figure out what print method to invoke."
+      2. It does NOT preempt `sink=`. Selecting a sink per statement is an OPEN
+         design item Tony owns (GRAM-P1, the replacement for the first-character
+         test). A sibling rule needs no selector at all, so it leaves that
+         decision exactly where it was.
+
+    NOTE the toBUFFER asymmetry, and it is intentional: cerr does NOT honour the
+    print diversion. `printTO` exists to capture program output; a diagnostic
+    that silently vanished into a capture buffer would be the opposite of what a
+    diagnostic is for. If that turns out to be wrong it is a one-line change.
+***************************************************************************/
+extern GroupItem opCerr(GroupItem target,Buffer buffer)
+{
+String      printText   = string();
+    if printText    cerr printText;
+    else            cerr "cerr: recieved no print text":;
+    reset();
+    bufferSTAK  += buffer;
+    return trueResult;
+}
+
+
 /***************************************************************************
 	Rule action for the +* copy list operator
 ***************************************************************************/
@@ -112,16 +152,43 @@ extern GroupItem opCopyList(GroupItem argument,GroupItem target)
     return target;
 }
 
+
+/***************************************************************************
+	operator method for the cout rule -- THE EXPLICIT STDOUT SINK, 2026-08-01.
+
+    opPrint above consults toBUFFER and so is DIVERTIBLE. This one does not,
+    and that is its entire reason for existing (Tony): once you have diverted
+    `print` with printTO(), you invariably need to reach the terminal anyway,
+    and there was no way to. `cout` is that way.
+
+    ⚠ THE MISSING toBUFFER TEST IS THE FEATURE, NOT AN OVERSIGHT, and it is
+    the line that closes KANT-23 -- the pinned defect where a grafted `cout`
+    was swallowed by an armed diversion. Do not "fix" this by adding the
+    toBUFFER arm back; that would restore the defect exactly.
+***************************************************************************/
+extern GroupItem opCout(GroupItem target,Buffer buffer)
+{
+String      printText   = string();
+    if printText    cout printText;
+    else            cerr "cout: recieved no print text":;
+    reset();
+    bufferSTAK  += buffer;
+    return trueResult;
+}
+
+
 /***************************************************************************
 	Rule action for ** debug operator
 ***************************************************************************/
 extern GroupItem opDebug(GroupItem result)
 {
 GroupRules  ruler = groupRules;
-GroupItem   actionField;
-    actionField = currentMETHOD[result.parent.tag];
+GroupItem   field;
+    field   = currentMETHOD;
+    if result.isGROUP   result = result.group;
     return  result;
 }
+
 
 /***************************************************************************
 	Rule action for the / divide operator
@@ -152,6 +219,7 @@ extern GroupItem opDiv(GroupItem argument,GroupItem target)
     return tempField;
 }
 
+
 /***************************************************************************
 	Rule action for the /= slash equal operator
 ***************************************************************************/
@@ -178,6 +246,7 @@ use target
             opDivEQ(result,target);
     return result;
 }
+
 
 /***************************************************************************
 	Dot operator method returns the field referenced in a dot product
@@ -240,7 +309,9 @@ use argument
                             else                    product = 0;
                 case 6:     product.count   = target.data;
                 case 7:     if target.hasAttributes product.count = 1;
+                            else    product = 0;
                 case 8:     if target.hasMembers    product.count = 1;
+                            else    product = 0;
                 case 9:     if target.isLocal       product.count = 1;
                 case 10:    if target.isArgument    product.count = 1;
                 case 11:    if target.invoke        product.count = 1;
@@ -254,8 +325,15 @@ use argument
                 case 29:    if target.noPrint       product.count = 1;
                 case 34:    if target.isAttribute   product.count = 1;
                 case 35:    if target.isMember      product.count = 1;
-                case 401:   if !target.nextInParent    product = null; else product = target.nextInParent;
-                case 402:   if !target.priorInParent   product = null; else product = target.priorInParent;
+                case 36:    if target.actionMethod  product.count = 1;
+                case 401:   if !target.nextInParent product = null;
+                            else {
+                                product = target.nextInParent;
+                                product.isInitialized = true; }
+                case 402:   if !target.priorInParent    product = null;
+                            else {
+                                product = target.priorInParent;
+                                product.isInitialized = true; }
                 case 403:   if !target.groupList || !target.firstInList  product = null; else product = target.firstInList;
                 case 404:   if !target.groupList || !target.lastInList   product = null; else product = target.lastInList;
                 case 405:   if !target.groupList  product = null; else product = target.nextMember(0);
@@ -263,6 +341,21 @@ use argument
             if product && !product.parent   product.parent = target; }}
     return product;
 }
+
+
+/***************************************************************************
+	Rule action for =] operator that returns the last item on the arguments
+    list
+***************************************************************************/
+extern GroupItem opEnd(GroupItem argument,GroupItem target)
+{
+use argument
+    if groupList {
+        target.group = lastInList;
+        return target; }
+    return null;
+}
+
 
 /***************************************************************************
 	Rule action for the == operator
@@ -282,51 +375,6 @@ extern GroupItem opEQ(GroupItem argument,GroupItem target)
     return null;
 }
 
-/***************************************************************************
-	Rule action for =] operator that returns the last item on the arguments
-    list
-***************************************************************************/
-extern GroupItem opEnd(GroupItem argument,GroupItem target)
-{
-use argument
-    if groupList {
-        target.group = lastInList;
-        return target; }
-    return null;
-}
-
-/***************************************************************************
-	Rule action that handles [argument] references.
-***************************************************************************/
-extern GroupItem opGet(GroupItem argument,GroupItem target)
-{
-GroupItem   result;
-String      txt;
-    if argument.isGROUP && argument.gText txt = argument.gText;
-    else    txt = argument.text;
-use target
-    if argument.isCOUNT result = get(argument.count);
-    else                result = get(txt);
-    return result;
-}
-
-/***************************************************************************
-	Rule action for the =% getAttribute operator
-***************************************************************************/
-extern GroupItem opGetAttribute(GroupItem argument,GroupItem target)
-{
-String strung = argument.text;
-    return getAttribute(strung);
-}
-
-/***************************************************************************
-	Rule action for the =/ getMember operator
-***************************************************************************/
-extern GroupItem opGetMember(GroupItem argument,GroupItem target)
-{
-String strung = argument.text;
-    return getMember(strung);
-}
 
 /***************************************************************************
 	Rule action for the >= operator
@@ -346,6 +394,43 @@ extern GroupItem opGE(GroupItem argument,GroupItem target)
     return null;
 }
 
+
+/***************************************************************************
+	Rule action that handles [argument] references.
+***************************************************************************/
+extern GroupItem opGet(GroupItem argument,GroupItem target)
+{
+GroupItem   result;
+String      txt;
+    if argument.isGROUP && argument.gText txt = argument.gText;
+    else    txt = argument.text;
+use target
+    if argument.isCOUNT result = get(argument.count);
+    else                result = get(txt);
+    return result;
+}
+
+
+/***************************************************************************
+	Rule action for the =% getAttribute operator
+***************************************************************************/
+extern GroupItem opGetAttribute(GroupItem argument,GroupItem target)
+{
+String strung = argument.text;
+    return getAttribute(strung);
+}
+
+
+/***************************************************************************
+	Rule action for the =/ getMember operator
+***************************************************************************/
+extern GroupItem opGetMember(GroupItem argument,GroupItem target)
+{
+String strung = argument.text;
+    return getMember(strung);
+}
+
+
 /***************************************************************************
 	Rule action for the > operator
 ***************************************************************************/
@@ -363,6 +448,7 @@ extern GroupItem opGT(GroupItem argument,GroupItem target)
     or compareValues(target,argument) > 0   return trueResult;
     return null;
 }
+
 
 /***************************************************************************
 	Rule action for the IN operator.
@@ -393,14 +479,17 @@ GroupItem   result;
     return result ;
 }
 
+
 /***************************************************************************
 	Rule action for @ operator
 ***************************************************************************/
 extern GroupItem opLastREF(GroupItem result)
 {
-    lastREF.group = result;
+    lastREF.gGroup  = result;
+    lastREF.isGROUP = true;
     return result;
 }
+
 
 /***************************************************************************
 	Rule action for the <= operator
@@ -420,6 +509,7 @@ extern GroupItem opLE(GroupItem argument,GroupItem target)
     return null;
 }
 
+
 /***************************************************************************
 	Rule action for the < operator
 ***************************************************************************/
@@ -438,6 +528,7 @@ extern GroupItem opLT(GroupItem argument,GroupItem target)
     return null;
 }
 
+
 /***************************************************************************
 	Rule action for ~= match operator
 ***************************************************************************/
@@ -446,6 +537,7 @@ extern GroupItem opMatch(GroupItem argument,GroupItem target)
     if !compare(text,argument.text) return trueResult;
     return null;
 }
+
 
 /***************************************************************************
 	Rule action for the - operator
@@ -474,24 +566,6 @@ extern GroupItem opMinus(GroupItem argument,GroupItem target)
     return tempField;
 }
 
-/***************************************************************************
-	Rule action for the prefix unary minus (negate). Value-producing like
-	opMinus, NOT in-place like opMinusMinus: 0 - operand into tempField; the
-	operand is left untouched. Routed here from handleUnary via the named
-	"negate" op (ruleMethod=opUnaryMinus), distinct from the binary - slot.
-***************************************************************************/
-extern GroupItem opUnaryMinus(GroupItem result)
-{
-    if jitting {
-        -% return jitEmitUnary(result, jitNeg); %-
-    }
-    if isCOUNT   tempField.count  = 0 - gCount;
-    or isNUMBER  tempField.number = 0 - gNumber;
-    if !tempField.data {
-        cerr "ERROR Operator unary - failed on",tag:;
-        return null; }
-    return tempField;
-}
 
 /***************************************************************************
 	Rule action for the -= operator
@@ -537,6 +611,7 @@ use target
     return result;
 }
 
+
 /***************************************************************************
 	Rule action for -- operator
 ***************************************************************************/
@@ -553,7 +628,8 @@ extern GroupItem opMinusMinus(GroupItem result)
         else {
             iterator    = result.group;
             iterator    = priorInParent; }
-        lastREF.group   = iterator;
+        lastREF.gGroup  = iterator;
+        lastREF.isGROUP = true;
         result.group    = iterator;
         if !iterator    result = 0;
         return result; }
@@ -575,6 +651,7 @@ extern GroupItem opMinusMinus(GroupItem result)
     else    cerr "ERROR Operator -- not supported for data type of",tag:;
     return result;
 }
+
 
 /***************************************************************************
 	Rule action for the * multiply operator
@@ -601,6 +678,7 @@ extern GroupItem opMultiply(GroupItem argument,GroupItem target)
     return tempField;
 }
 
+
 /***************************************************************************
 	Rule action for the *= operator
 ***************************************************************************/
@@ -624,6 +702,7 @@ use target
     return result;
 }
 
+
 /***************************************************************************
 	Rule action for ! operator
 ***************************************************************************/
@@ -632,6 +711,7 @@ extern GroupItem opNOT(GroupItem result)
     if !contents()   return trueResult;
     return null;
 }
+
 
 /***************************************************************************
 	Rule action for the != operator
@@ -651,6 +731,7 @@ extern GroupItem opNotEQ(GroupItem argument,GroupItem target)
     return null;
 }
 
+
 /***************************************************************************
 	Rule action for the OR operator
 ***************************************************************************/
@@ -659,6 +740,7 @@ extern GroupItem opOR(GroupItem argument,GroupItem target)
     if truthOf(target) || truthOf(argument)     return trueResult;
     return falseResult;
 }
+
 
 /***************************************************************************
 	Rule action for the + operator
@@ -687,6 +769,7 @@ extern GroupItem opPlus(GroupItem argument,GroupItem target)
         return null; }
     return tempField;
 }
+
 
 /***************************************************************************
 	Rule action for the += operator.
@@ -791,6 +874,7 @@ use target
     return target;
 }
 
+
 /***************************************************************************
 	Rule action for ++ operator
 ***************************************************************************/
@@ -843,9 +927,14 @@ extern GroupItem opPlusPlus(GroupItem result)
         or result.hasMembers    iterator = result.nextMember(iterator);
         or !iterator    iterator = result.firstInList;
         else            iterator = nextInParent;
-        lastREF.group   = iterator;
-        result.group    = iterator;
-        if !iterator    result = 0;
+        if iterator {
+            lastREF.gGroup  = iterator;
+            lastREF.isGROUP = true;
+            iterator.isInitialized = true;
+            result.group    = iterator; }
+        else {
+            result.group    = 0;
+            result          = 0; }
         return result; }
     if jitting {
         -% return jitEmitUnary(result, jitInc); %-
@@ -862,6 +951,7 @@ extern GroupItem opPlusPlus(GroupItem result)
     return result;
 }
 
+
 /*****************************************************************************
 	=* as unary op to make its argument a pointer
 *****************************************************************************/
@@ -875,6 +965,7 @@ extern GroupItem opPointer(GroupItem field)
     field.isPointer = true;
     return field;
 }
+
 
 /***************************************************************************
 	operator method for the print rule.
@@ -892,62 +983,6 @@ String      printText   = string();
     return trueResult;
 }
 
-/***************************************************************************
-	operator method for the cerr rule -- THE STDERR SINK, added 2026-08-01.
-
-    opPrint above is a TWO-arm choice (diverted buffer, else stdout) and there
-    was no third arm to select; that absence is what grammar-minion round 1
-    refused on with evidence (docs/grammarCorpus.md CLAIM GRAM-4), and it is
-    what held minionA round 2 -- genParse's emitters write their PRODUCT via
-    cerr, so a kant version could not reproduce its own target.
-
-    ⚠ DELIBERATELY A SIBLING, NOT A THIRD ARM IN opPrint. Two reasons:
-      1. It follows Tony's own precedent. aCTionStringXP was split out of the
-         print action rather than folded into it -- "it duplicates much of the
-         print action, but no biggie it is short, and no if statement needed to
-         figure out what print method to invoke."
-      2. It does NOT preempt `sink=`. Selecting a sink per statement is an OPEN
-         design item Tony owns (GRAM-P1, the replacement for the first-character
-         test). A sibling rule needs no selector at all, so it leaves that
-         decision exactly where it was.
-
-    NOTE the toBUFFER asymmetry, and it is intentional: cerr does NOT honour the
-    print diversion. `printTO` exists to capture program output; a diagnostic
-    that silently vanished into a capture buffer would be the opposite of what a
-    diagnostic is for. If that turns out to be wrong it is a one-line change.
-***************************************************************************/
-extern GroupItem opCerr(GroupItem target,Buffer buffer)
-{
-String      printText   = string();
-    if printText    cerr printText;
-    else            cerr "cerr: recieved no print text":;
-    reset();
-    bufferSTAK  += buffer;
-    return trueResult;
-}
-
-/***************************************************************************
-	operator method for the cout rule -- THE EXPLICIT STDOUT SINK, 2026-08-01.
-
-    opPrint above consults toBUFFER and so is DIVERTIBLE. This one does not,
-    and that is its entire reason for existing (Tony): once you have diverted
-    `print` with printTO(), you invariably need to reach the terminal anyway,
-    and there was no way to. `cout` is that way.
-
-    ⚠ THE MISSING toBUFFER TEST IS THE FEATURE, NOT AN OVERSIGHT, and it is
-    the line that closes KANT-23 -- the pinned defect where a grafted `cout`
-    was swallowed by an armed diversion. Do not "fix" this by adding the
-    toBUFFER arm back; that would restore the defect exactly.
-***************************************************************************/
-extern GroupItem opCout(GroupItem target,Buffer buffer)
-{
-String      printText   = string();
-    if printText    cout printText;
-    else            cerr "cout: recieved no print text":;
-    reset();
-    bufferSTAK  += buffer;
-    return trueResult;
-}
 
 /***************************************************************************
 	Rule action for the <- rebind operator — the clean slot rebind.
@@ -962,6 +997,7 @@ extern GroupItem opRebind(GroupItem argument,GroupItem target)
     if argument target.group = argument;
     return      target;
 }
+
 
 /***************************************************************************
 	Rule action for the % integer div operator
@@ -982,6 +1018,7 @@ GroupRules  ruler = groupRules;
     return tempField;
 }
 
+
 /***************************************************************************
 	Rule action for the :% replace operator.
 ***************************************************************************/
@@ -998,6 +1035,7 @@ GroupItem   grup,
         added.isAttribute = true; }
     return target;
 }
+
 
 /***************************************************************************
 	Rule action for the :+ replace operator.
@@ -1016,18 +1054,6 @@ GroupItem   grup,
     return target;
 }
 
-/***************************************************************************
-	Rule action for the := set group operator. Stamps byRef on the argument so
-	setGroup stores it BY REFERENCE (no copy). byRef is left SET (sticky) on
-	purpose: a later `=` of the same field then also references, because opAssign
-	honors byRef too. (2026-06-09. See TODO: audit := sites whose fields later
-	get legitimately =-copied — sticky byRef would alias them.)
-***************************************************************************/
-extern GroupItem opSetGroup(GroupItem argument,GroupItem target)
-{
-    if argument group = argument;
-    return      target;
-}
 
 /***************************************************************************
 	Rule action for the :. operator — the inverse of opDot. Where opDot reads
@@ -1054,6 +1080,21 @@ extern GroupItem opSetFlag(GroupItem argument,GroupItem target)
     return target;
 }
 
+
+/***************************************************************************
+	Rule action for the := set group operator. It stashes argument as isGROUP
+    in target without changing its parent or affiliation
+***************************************************************************/
+extern GroupItem opSetGroup(GroupItem argument,GroupItem target)
+{
+    if argument {
+        target.gGroup           = argument;
+        target.isGROUP          = true;
+        target.isInitialized    = true; }
+    return      target;
+}
+
+
 /***************************************************************************
 	Rule action for the <: set tag operator.
 ***************************************************************************/
@@ -1062,6 +1103,7 @@ extern GroupItem opSetTag(GroupItem argument,GroupItem target)
     if argument target.tag = argument.text;
     return      target;
 }
+
 
 /***************************************************************************
 	operator method for the string rule.
@@ -1074,53 +1116,58 @@ extern GroupItem opString(GroupItem target,Buffer buffer)
     return target;
 }
 
+
 /***************************************************************************
-    Buffer-side mark machinery wrappers — thin passthroughs to Buffer's
-    setMark/unMark/setFile/closeFile. Used by incant code that wants
-    explicit control over the mark, and by applyTextDirective to
-    arm/disarm Buffer.markIsSet around find-and-replace sweeps.
+	Rule action for the prefix unary minus (negate). Value-producing like
+	opMinus, NOT in-place like opMinusMinus: 0 - operand into tempField; the
+	operand is left untouched. Routed here from handleUnary via the named
+	"negate" op (ruleMethod=opUnaryMinus), distinct from the binary - slot.
 ***************************************************************************/
-extern void flushBuffer(GroupItem bufField)
+extern GroupItem opUnaryMinus(GroupItem result)
 {
-    if bufField.isBUFFER    bufField.buffer.flush();
+    if jitting {
+        -% return jitEmitUnary(result, jitNeg); %-
+    }
+    if isCOUNT   tempField.count  = 0 - gCount;
+    or isNUMBER  tempField.number = 0 - gNumber;
+    if !tempField.data {
+        cerr "ERROR Operator unary - failed on",tag:;
+        return null; }
+    return tempField;
 }
 
+
 /*****************************************************************************
-    The argument passed in to getMarkLineAt must have source and fromThis ƒ
-    It returns the line wrapped in a GroupItem field using setToken (as a stream
-    pointer into the buffer with a length). The field will only contain
-    valid text as long as the buffer contains it in place. Note: getMarkLineAt
-    calls findInBuffer to locate the matching line so if there is already
-    a mark set, it will search for the matching line from that mark on.
-    It then sets mark at beginning of the line in the source buffer. This
-    method is called by the getLine incant command defined in setup.
+    reset — incant command (bound as reset immediateAction=resetField in
+    setup). Self-describing by argument: for now it knows buffers (resets the
+    mark). A fuller incant action dispatching on argument.taG comes later.
 *****************************************************************************/
-extern GroupItem getMarkLineAt(GroupItem argument)
+extern GroupItem resetField(GroupItem argument)
 {
-GroupItem   source = argument["source"],
-            fromThis = argument["fromThis"];
-GroupItem   result;
-    if source && source.isBUFFER
-        if fromThis {
-            Buffer      buffer = source.buffer;
-            int         matchLength;
-            String      lineStart;
-            if buffer
-                if matchLength = findInBuffer(fromThis.text) {
-                    lineStart = mark;
-                    while lineStart != start && lineStart != '\n' lineStart--;
-                    if lineStart >= start lineStart++;
-                    else lineStart = start;
-                    mark = lineStart + matchLength;
-                    while mark < current && mark != '\n' mark++;
-                    mark++;
-                    result = new("markLine");
-                    result.setToken(lineStart,(int)(mark - lineStart));
-                    mark = lineStart; }}
-        else cerr "getMarkLineAt: ERROR no match field provided":;
-    else cerr "getMarkLineAt: ERROR no source or source is not a buffer":;
-    return result;
+Buffer buff = buffer;
+    if buff reset();
+    return null;
 }
+
+
+extern void setFile(GroupItem bufField,String name)
+{
+    if bufField.isBUFFER    bufField.buffer.setFile(name);
+}
+
+
+/***************************************************************************
+    setFileOp — operator-signature shim over Buffer.setFile, for the modedOP
+    writable-operator path: `doc modedOP "path"` points doc's buffer at a
+    file. target is the buffer field, argument carries the path text. Same
+    (argument, target) shape as opAssign and the other binary op methods.
+***************************************************************************/
+extern GroupItem setFileOp(GroupItem argument,GroupItem target)
+{
+    if target.isBUFFER  target.buffer.setFile(argument.text);
+    return target;
+}
+
 
 /*****************************************************************************
     The argument passed in to getMarkLineAt must have source and markOffset
@@ -1141,35 +1188,57 @@ int         offset = markOffset.count;
     return null;
 }
 
-extern void setFile(GroupItem bufField,String name)
+
+/***************************************************************************
+    truthOf -- THE OPERAND TRUTHINESS CONTRACT. Ruled 2026-08-11 by Tony,
+    carried by Clay (SEQ 32); spec docs/andOrRung.md section 3 part 1.
+    Normative for BOTH engines and BOTH word forms, and it lives in ONE
+    place on purpose -- a contract duplicated at three call sites is the
+    one-channel-one-meaning failure waiting for its second reader.
+
+    LAYERED: presence decides only when no value exists to decide by.
+
+        1  absent / null                 -> false
+        2  node holding a NUMERIC value  -> BY ITS VALUE   (0 false)
+        3  node holding no numeric value -> true BY PRESENCE
+
+    Row 2 covers comparison results, ALWAYS, and that is what forces the
+    layering rather than merely preferring it: under a flat "any present
+    node is true", a comparison returning 0 would be TRUE and every
+    conditional over a value-bearing expression would be always-true.
+    That is not a semantics, it is the abolition of falsehood. Row 3 is
+    the parse-consumer row -- parseR's GroupItem-or-null, structural
+    nodes, rule results -- which is the frame the original table was
+    written in, where null-vs-node IS the whole discrimination.
+
+    ⚠ ROW 4, TEXT-VALUED OPERANDS, IS DELIBERATELY UNRULED. No measured
+    customer needs it, and it borders KE-4's territory. At EMIT a text
+    operand is REFUSED (jitEmitShortCircuit calls jitDegrade rather than
+    substituting a constant -- a substituted constant is asserted by
+    nothing, and the degrade counter is asserted at zero by every rung).
+    At RUN it lands on row 3 and answers true-by-presence. The two arms
+    therefore AGREE in outcome, because a refused emit falls back to
+    interpretation; they are not two answers, they are one answer and a
+    refusal to bake it.
+
+    ⚠ MEASURED, 2026-08-11, and recorded because it is NOT what a reader
+    expects: `if <field>` and `<field> AND ...` ALREADY DISAGREE in the
+    shipping language. A field holding 0 dumps as `aFalse=0 int` -- it
+    carries isCOUNT and gCount 0 -- and `if aFalse;` reads TRUE while
+    `aFalse AND aTrue` reads false. This contract matches the OPERATOR
+    behaviour, which is the one it governs; it does not touch `if`, and
+    closing that gap is a separate ruling with its own customer.
+    Instrument: incant/andProbe rows 1 and 5.
+***************************************************************************/
+extern int truthOf(GroupItem field)
 {
-    if bufField.isBUFFER    bufField.buffer.setFile(name);
+    if !field                       return 0;
+    if field.isCOUNT || field.isNUMBER  return field.gCount != 0;
+    return 1;
 }
+
 
 extern void unMark(GroupItem bufField)
 {
     if bufField.isBUFFER    bufField.buffer.unMark();
-}
-
-/*****************************************************************************
-    reset — incant command (bound as reset immediateAction=resetField in
-    setup). Self-describing by argument: for now it knows buffers (resets the
-    mark). A fuller incant action dispatching on argument.taG comes later.
-*****************************************************************************/
-extern GroupItem resetField(GroupItem argument)
-{
-    if argument.isBUFFER    argument.buffer.unMark();
-    return null;
-}
-
-/***************************************************************************
-    setFileOp — operator-signature shim over Buffer.setFile, for the modedOP
-    writable-operator path: `doc modedOP "path"` points doc's buffer at a
-    file. target is the buffer field, argument carries the path text. Same
-    (argument, target) shape as opAssign and the other binary op methods.
-***************************************************************************/
-extern GroupItem setFileOp(GroupItem argument,GroupItem target)
-{
-    if target.isBUFFER  target.buffer.setFile(argument.text);
-    return target;
 }

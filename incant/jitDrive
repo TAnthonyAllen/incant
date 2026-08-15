@@ -1,0 +1,53 @@
+/*  jitDrive -- a kant JIT driver STUB. The deliverable is the enumeration, not
+    the driver. It walks a real action's statements and, per statement kind,
+    names the shim an emitter would need and whether kant can reach it today.
+
+    The dispatch idiom is the two step one, set group as a STATEMENT and then a
+    bare test. The condition position form is broken on this binary, see the
+    setGroupInit probe, so this file must not use it.
+
+    Reachability is not guessed. A shim counts as reachable only if it is
+    registered in incant setup, which is what makes it callable by name.  */
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitDrive);
+define
+    jdTarget argument code={
+        jdLocal = 1;
+        if jdLocal > 0;
+            jdLocal = jdLocal * 2;
+        else
+            jdLocal = 7;
+        print "jdTarget ran, jdLocal =" jdLocal:;
+        return jdLocal;
+        };
+    jdWalk argument code={
+        blok := argument["BlocK"];
+        if blok;
+            print "BlocK found on" argument.taG:;
+        else
+            print "REFUSE no BlocK on" argument.taG:;
+        lines := blok[1];
+        if lines;
+            print "lines found, length" lines.listLengtH:;
+        else
+            print "REFUSE no lines under BlocK":;
+        iterate jdCur on lines members;
+        while ++jdCur;
+            jdReport(jdCur);
+        };
+    jdReport argument code={
+        print "  stmt" ~taG:;
+        };
+    ;
+print "== jitDrive stub over jdTarget ==":;
+jdTarget(0);
+jdWalk(jdTarget);
+print "JITDRIVE SENTINEL -- run reached the end":;
+stop();

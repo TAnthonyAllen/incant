@@ -946,6 +946,7 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	testMatch = 0;
 	parseMethod = 0;
 	jitMethod = 0;
+	actionMethod = 0;
 	hereAt = 0;
 	failedAt = 0;
 	label = 0;
@@ -985,6 +986,7 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	testMatch = 0;
 	parseMethod = 0;
 	jitMethod = 0;
+	actionMethod = 0;
 	ruleName = 0;
 	hereAt = 0;
 	failedAt = 0;

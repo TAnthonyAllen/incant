@@ -70,10 +70,12 @@ define
     register immediateAction=rEGISTER noPrint;
     reset immediateAction=resetField;
     runByteFn immediateAction=runByteFn;
+    runRuleAction immediateAction;
     interpretBC immediateAction=interpretBC;
     openWindow immediateAction=openWindow;
     setFile immediateAction=setFile;
     setMark immediateAction;
+    setParse immediateAction;
     setPointer immediateAction=opPointer noPrint;
     sort immediateAction=processFlags noPrint;
     stack immediateAction=setInternalType noPrint;
@@ -254,6 +256,7 @@ define
     texT=4;
     listLengtH=5;
     datA=6;
+    hasActioN=36;
     hasAttributeS=7;
     hasMemberS=8;
     isLocaL=9;

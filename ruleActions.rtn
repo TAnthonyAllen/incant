@@ -11,6 +11,7 @@ GroupItem   token;
     return input;
 }
 
+
 /*******************************************************************************
 	The BlocK rule action.
 *******************************************************************************/
@@ -87,8 +88,9 @@ GroupItem   grup,
             if jitting  continue;
             break; }}
     if result && result.isGROUP  result = result.gGroup;
-    return result;
+    return  result;
 }
+
 
 /*******************************************************************************
 	Rule action for Braced rule.
@@ -102,6 +104,7 @@ GroupItem ExpressioN:;
     input.fLAG  = true;
     return input;
 }
+
 
 /*******************************************************************************
 	Rule action for BrancH.
@@ -198,6 +201,48 @@ GroupItem   arg = ExpressioN;
     return arg;
 }
 
+
+/*******************************************************************************
+	Immediate method for the CerR rule -- THE STDERR SINK, added 2026-08-01.
+        CerR        cerr- followedBy PRINTing- stuff=PrintXP+ SemI- defer;
+
+    Term-for-term identical to PrinT with one substitution, the keyword; and
+    this body is aCTionPrinT's operand loop with one substitution, the closing
+    call. That is Tony's ruling KANT-13 in force -- ONE print mechanism, several
+    destinations: PrintXP+ is fixed and only the sink varies.
+
+    ⚠ NO `generating` BRANCH, and that is a real difference from aCTionPrinT
+    rather than an omission. aCTionPrinT's generating arm is documented there as
+    "currently UNUSED on the bytecode print path" and kept as the future home
+    for operand compilation. A diagnostic sink has no bytecode story yet, so
+    inventing one here would be building a branch nothing can reach and nothing
+    can test. When `cerr` needs to be emitted, it inherits that arm from the
+    print work rather than having grown a speculative copy of it.
+*******************************************************************************/
+extern GroupItem aCTionCerR(GroupItem input)
+{
+GroupItem   stuff:;
+Buffer      buffer = bufferSTAK.pop();
+    /*  DEGRADE-BY-DEFAULT (Tony's ruling via Clay, 2026-08-05). BODY-REACHABLE
+        CONTENT with no emitter, so under jitting it would otherwise EXECUTE AT
+        EMIT TIME -- once, silently, in the wrong era. It now announces itself
+        through the counter the ladder already asserts at zero, then FALLS
+        THROUGH and runs interpreted, so behaviour is unchanged and the gap is
+        COUNTED rather than invisible.
+        docs/gateCensus.md: one of the five. The WALK MACHINERY (aCTionExpressioN
+        et al.) is deliberately NOT in this set -- degrading the emit walk would
+        stop the compiler rather than surface a bug.
+        ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK. Placed by a heuristic the
+        first time, it landed INSIDE two multi-line declaration lists and wiped
+        GroupRules.h's extern block to ZERO (bear-trap #24's signature, canary
+        239 -> 0). Declarations here span lines and end on a bare `;`.  */
+    if jitting  jitDegrade("cerr under jit -- no emitter, sink fires at emit time", input);
+    if !buffer      buffer = new("cerr buffer");
+    appendPrintXP(stuff,buffer);
+    return opCerr(input,buffer);
+}
+
+
 /*******************************************************************************
     CheckFor is a debugging tool. It matches its text and returns null
     if it matches so it fails even if it succeeds.
@@ -212,6 +257,7 @@ extern GroupItem aCTionCheckFor(GroupItem input)
     debugAllRules = true;
     return null;
 }
+
 
 /*******************************************************************************
 	CodE rule action Note: box boundaries defined by its left and right attributes
@@ -243,6 +289,54 @@ GroupItem   lefty   = rule[1],
     return label;
 }
 
+
+/*******************************************************************************
+	Immediate method for the CouT rule -- THE EXPLICIT STDOUT SINK, 2026-08-01.
+        CouT        cout- followedBy PRINTing- stuff=PrintXP+ SemI- defer;
+
+    WHY IT EXISTS, and it is not symmetry for its own sake (Tony): `print` is
+    DIVERTIBLE -- printTO() sends it to a buffer -- and the moment you have
+    diverted it you invariably need a way to reach the terminal anyway. `cout`
+    is that way. So the three keywords are not three names for one thing:
+
+        print   divertible      -> buffer if armed, else stdout
+        cout    NOT divertible  -> always stdout
+        cerr    NOT divertible  -> always stderr
+
+    That is the KANT-13 shape exactly: one mechanism (PrintXP+, one spacing
+    default, one appendPrintXP walk), the keyword selecting only the sink.
+
+    ⚠ THIS CLOSES KANT-23. The pinned defect was that a grafted `cout` WAS
+    being captured by an armed diversion -- genLadder/printPop.sh calls that
+    "the single most important byte in either file". A native CouT routed
+    through opCout, which never consults toBUFFER, cannot be captured. The
+    printFamilyNew divergence targets move accordingly and the move is
+    accounted for in printPop.sh.
+*******************************************************************************/
+extern GroupItem aCTionCouT(GroupItem input)
+{
+GroupItem   stuff:;
+Buffer      buffer = bufferSTAK.pop();
+    /*  DEGRADE-BY-DEFAULT (Tony's ruling via Clay, 2026-08-05). BODY-REACHABLE
+        CONTENT with no emitter, so under jitting it would otherwise EXECUTE AT
+        EMIT TIME -- once, silently, in the wrong era. It now announces itself
+        through the counter the ladder already asserts at zero, then FALLS
+        THROUGH and runs interpreted, so behaviour is unchanged and the gap is
+        COUNTED rather than invisible.
+        docs/gateCensus.md: one of the five. The WALK MACHINERY (aCTionExpressioN
+        et al.) is deliberately NOT in this set -- degrading the emit walk would
+        stop the compiler rather than surface a bug.
+        ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK. Placed by a heuristic the
+        first time, it landed INSIDE two multi-line declaration lists and wiped
+        GroupRules.h's extern block to ZERO (bear-trap #24's signature, canary
+        239 -> 0). Declarations here span lines and end on a bare `;`.  */
+    if jitting  jitDegrade("cout under jit -- no emitter, sink fires at emit time", input);
+    if !buffer      buffer = new("cout buffer");
+    appendPrintXP(stuff,buffer);
+    return opCout(input,buffer);
+}
+
+
 /*******************************************************************************
 	Immediate method for DEBUG rule
         DEBUG       "debug"- followedBy rules?=NamE+;
@@ -263,6 +357,7 @@ GroupItem   rules:,
     else    debugAllRules = !debugAllRules;
     return input;
 }
+
 
 /*******************************************************************************
 	Immediate method for the Define rule that defines a rule.
@@ -424,6 +519,7 @@ use NewGroup
     return input;
 }
 
+
 /*******************************************************************************
 	Sets the operator method in a do statement
         DO      do- BLOCKing StatemenT while- ExpressioN SemI-;
@@ -465,6 +561,7 @@ GroupItem   StatemenT:,
     return result;
 }
 
+
 /*******************************************************************************
 	ExpressioN rule immediate action. Note: operators including unary operators
     have to preceed their arguments.
@@ -482,155 +579,6 @@ extern GroupItem aCTionExpressioN(GroupItem xpList)
     return interpretXP(xpList);
 }
 
-/*******************************************************************************
-    generateXP — the `generating` mode: build a flat-RPN revisedList from the
-    parsed expression and emit nothing (the bytecode walk emits later). Members
-    are added BY REFERENCE; gXpress launders them with copyOf at bytecode-emit
-    time. (jitXP, its copyOf-on-append twin for the JIT lowering, was folded out
-    2026-06-30 — JIT now falls through to interpretXP per the unified
-    emit-on-walk pivot; see docs/jitDesign.md.)
-*******************************************************************************/
-extern GroupItem generateXP(GroupItem xpList)
-{
-GroupItem   op, target, arg, xl, token;
-GroupItem   revisedList = new("revisedList");
-GroupItem   grup, store, tgt;
-    if xpList.listLength == 1 {
-        arg = xpList.firstInList;
-        if arg.isGROUP && !arg.isArgument   arg = arg.group;
-        revisedList += arg; }
-    else {
-        /******************************************************************
-            Mirror the non-generating walk's op/target/arg identification
-            (right-to-left, precedence-correct via the same state machine),
-            but emit flat RPN instead of building the runOP tree: for each
-            completed instruction emit target, then arg (when a leaf), then
-            op; for '=' emit the value then a bcStoreField carrying target.
-        *******************************************************************/
-        // No-operator expression (a bare operand sequence, e.g. the print
-        // operands `"hello" name`): the RPN walk below only emits when it
-        // completes an op+target, so with no operator it produces an EMPTY
-        // revisedList and the clear() below would destroy the tokens. Detect
-        // that and leave xpList intact so aCTionPrinT/appendGroup can print
-        // the operands directly. (Operator expressions fall through to RPN.)
-        GroupItem   hasOp, tk;
-        while tk = xpList.prior(tk)
-            if tk.isOperator   hasOp = tk;
-        if !hasOp {
-            xpList.isLIST       = true;
-            xpList.reversePrint = true;
-            return xpList; }
-        while token = xpList.prior(token) {
-            grup = token;
-            // Operator-skip guard: never unwrap an operator. Operators carry
-            // their interpret=/operateMethod= as attributes (e.g. > has
-            // interpret=runGT), which is the dispatch handler gXpress/
-            // interpretBC need — unwrapping would dis-member the op.
-            if grup.isGROUP && !grup.isOperator
-                while grup.isGROUP
-                    grup = grup.group;
-            if grup.isOperator   op = grup;
-            else {
-                if !arg arg = grup;
-                or op   target = grup; }
-            if op
-                if target {
-                    if op.tag eq "=" {
-                        if !arg.method   revisedList += arg;
-                        store = copyOf(bcOPs["bcStoreField"]);
-                        tgt = new("target");
-                        tgt.group = target;
-                        store +% tgt;
-                        revisedList += store; }
-                    else {
-                        revisedList += target;
-                        if !arg.method   revisedList += arg;
-                        revisedList += op; }
-                    xl = new("xl");
-                    xl.method   = runOP;
-                    op = 0;
-                    target = 0;
-                    arg = xl; }}}
-    dumpContents(revisedList);
-    xpList.clear();
-    xpList.group = revisedList;
-    return xpList;
-}
-
-/*******************************************************************************
-    interpretXP — the interpret/run mode: build the left-associative runOP tree
-    the interpreter walks. (Split out of aCTionExpressioN 2026-06-30; was the
-    fallthrough below the generating/jitting branches.)
-*******************************************************************************/
-extern GroupItem interpretXP(GroupItem xpList)
-{
-GroupItem   op, target, arg, xl, token;
-    if xpList.listLength == 1 {
-        arg = xpList.firstInList;
-        if arg.isGROUP && !arg.isArgument   arg = arg.group;
-        goto finishXP; }
-    while token = xpList.prior(token) {
-        if registry == opFields   op = token;
-        else {
-            if !arg arg = token;
-            or op {
-                target  = token;
-                if xl   xl = null; }
-            else {
-                if !xl {
-                    xl = new("xl");
-                    xl.isLIST   = true; }
-                if arg != xl    xl += arg;
-                xl  += token;
-                arg = xl; }}
-        if op
-            if arg {
-                if arg.actionType || arg.instructType   arg.invoke = true;
-                if target {
-                    xl  = new("xl");
-                    xl  += op;
-                    xl  += target;
-                    xl  += arg;
-                    /*  TIER-3 BINDING, and THIS LINE IS THE TIER-3 SET.
-                        2026-08-11, docs/andOrRung.md section 6; seat ruled
-                        by Tony the same day.
-
-                        Section 6 splits the operator table three ways, and
-                        the third tier -- "evaluation-controlling
-                        constructs, NOT operators at all" -- cannot go
-                        through runOP, which resolves both operands before
-                        it dispatches. Binding a DIFFERENT method here is
-                        the whole promotion: the node is built identically
-                        ([1]=op [2]=target [3]=arg), and only who walks it
-                        changes.
-
-                        ⚠ DECIDED AT TREE BUILD, ON PURPOSE. The category
-                        of an operator is a parse-time fact, so it is paid
-                        once per expression rather than re-tested on every
-                        evaluation -- and runOP stays what section 6 calls
-                        it, the strict dispatcher and nothing else.
-
-                        ⚠ THE SET IS CLOSED: `if`, AND/OR, iteration, then
-                        the door closes. The SYMBOL forms are deliberately
-                        NOT here -- `&&` is not even registered (setup:162
-                        has bare `'&'`, no operateMethod, the same state
-                        `'|'` was in before 2026-08-01) and `||` is strict.
-                        That asymmetry -- `OR` short-circuits, `||` does
-                        not, on one shared handler -- is FILED AND UNRULED,
-                        not overlooked. Widening tier 3 to the symbols is a
-                        ruling, and it costs an edit to this line.  */
-                    if op.tag eq "AND" || op.tag eq "OR"
-                            xl.method   = runShortCircuit;
-                    else    xl.method   = runOP;
-                    xl.invoke   = true;
-                    op = 0;
-                    target = 0;
-                    arg = xl; }}}
-finishXP:
-    xpList.clear();
-    xpList.group = arg;
-    return xpList;
-}
 
 /*******************************************************************************
 	If the parse gets here it failed.
@@ -651,6 +599,7 @@ use input
     stopParsingInput(input);
     return input;
 }
+
 
 /*******************************************************************************
 	Runs the action associated with a for statement
@@ -703,7 +652,9 @@ int         restrict;
         result = 0;
         Looper.group = grup;
         if restrict && grup.affiliation != restrict   continue;
-        if !LoopOn.byRef        lastREF.group = grup;
+        if !LoopOn.byRef {
+            lastREF.gGroup  = grup;
+            lastREF.isGROUP = true; }
         result = StatemenT.gMethod(StatemenT);
         if byRef    grup = result.priorInParent;
         if isBranch {
@@ -730,10 +681,13 @@ int         restrict;
         can tell "nothing" from "the number zero".  */
     if !result  result = labelNO;
     if LoopRestrict
-        if !LoopRestrict.byRef  lastREF.group = LoopRestrict;
+        if !LoopRestrict.byRef {
+            lastREF.gGroup  = LoopRestrict;
+            lastREF.isGROUP = true; }
         else                    lastREF.clear();
     return result;
 }
+
 
 /*******************************************************************************
 	IF rule action
@@ -791,6 +745,7 @@ GroupItem   result = ExpressioN;
     return result;
 }
 
+
 /*******************************************************************************
 	The rule action for the Iterate rule
          Iterate     ANYtoken "on"- ANYtoken attributes? members?;
@@ -840,7 +795,6 @@ GroupItem   source = input[2];
             inside the rule machinery. That distinction was checked first
             because the two want opposite fixes.  */
         if iterator     iterator.fLAG = true;
-        cerr "aCTionIterate: source " tag " has no list":;
         return 0; }
     // attributes and members filter overloaded on hasAttributes and hasMembers
     if attributes   iterator.hasAttributes = true;
@@ -850,6 +804,7 @@ GroupItem   source = input[2];
     iterator.isIterator     = true;
     return  iterator;
 }
+
 
 /*******************************************************************************
     NamE rule action
@@ -888,6 +843,7 @@ String      arg = input.text;
     return input;
 }
 
+
 /*******************************************************************************
 	The NewGroup action just sets the currentDefine field in GroupRules so
     that the MEMBERs case in processFlags can find it to set its addingMembers flag
@@ -899,6 +855,7 @@ GroupItem   grup = group;
     if !currentRegistry.isRule && !currentDefine    currentDefine = grup;
     return field;
 }
+
 
 /*******************************************************************************
 	immediate method for the incant Number rule.
@@ -949,6 +906,7 @@ String  arg = input.text;
     return input;
 }
 
+
 /*******************************************************************************
 	Rule action for Parens rule.
         Braced      "("- ExpressioN? ")"-;
@@ -961,6 +919,7 @@ GroupItem ExpressioN:;
         input.group = ExpressioN; }
     return input;
 }
+
 
 /*******************************************************************************
 	Immediate method for the Print rule or the StringXP rule.
@@ -1071,91 +1030,6 @@ Buffer      buffer = bufferSTAK.pop();
     return opPrint(input,buffer);
 }
 
-/*******************************************************************************
-	Immediate method for the CerR rule -- THE STDERR SINK, added 2026-08-01.
-        CerR        cerr- followedBy PRINTing- stuff=PrintXP+ SemI- defer;
-
-    Term-for-term identical to PrinT with one substitution, the keyword; and
-    this body is aCTionPrinT's operand loop with one substitution, the closing
-    call. That is Tony's ruling KANT-13 in force -- ONE print mechanism, several
-    destinations: PrintXP+ is fixed and only the sink varies.
-
-    ⚠ NO `generating` BRANCH, and that is a real difference from aCTionPrinT
-    rather than an omission. aCTionPrinT's generating arm is documented there as
-    "currently UNUSED on the bytecode print path" and kept as the future home
-    for operand compilation. A diagnostic sink has no bytecode story yet, so
-    inventing one here would be building a branch nothing can reach and nothing
-    can test. When `cerr` needs to be emitted, it inherits that arm from the
-    print work rather than having grown a speculative copy of it.
-*******************************************************************************/
-extern GroupItem aCTionCerR(GroupItem input)
-{
-GroupItem   stuff:;
-Buffer      buffer = bufferSTAK.pop();
-    /*  DEGRADE-BY-DEFAULT (Tony's ruling via Clay, 2026-08-05). BODY-REACHABLE
-        CONTENT with no emitter, so under jitting it would otherwise EXECUTE AT
-        EMIT TIME -- once, silently, in the wrong era. It now announces itself
-        through the counter the ladder already asserts at zero, then FALLS
-        THROUGH and runs interpreted, so behaviour is unchanged and the gap is
-        COUNTED rather than invisible.
-        docs/gateCensus.md: one of the five. The WALK MACHINERY (aCTionExpressioN
-        et al.) is deliberately NOT in this set -- degrading the emit walk would
-        stop the compiler rather than surface a bug.
-        ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK. Placed by a heuristic the
-        first time, it landed INSIDE two multi-line declaration lists and wiped
-        GroupRules.h's extern block to ZERO (bear-trap #24's signature, canary
-        239 -> 0). Declarations here span lines and end on a bare `;`.  */
-    if jitting  jitDegrade("cerr under jit -- no emitter, sink fires at emit time", input);
-    if !buffer      buffer = new("cerr buffer");
-    appendPrintXP(stuff,buffer);
-    return opCerr(input,buffer);
-}
-
-/*******************************************************************************
-	Immediate method for the CouT rule -- THE EXPLICIT STDOUT SINK, 2026-08-01.
-        CouT        cout- followedBy PRINTing- stuff=PrintXP+ SemI- defer;
-
-    WHY IT EXISTS, and it is not symmetry for its own sake (Tony): `print` is
-    DIVERTIBLE -- printTO() sends it to a buffer -- and the moment you have
-    diverted it you invariably need a way to reach the terminal anyway. `cout`
-    is that way. So the three keywords are not three names for one thing:
-
-        print   divertible      -> buffer if armed, else stdout
-        cout    NOT divertible  -> always stdout
-        cerr    NOT divertible  -> always stderr
-
-    That is the KANT-13 shape exactly: one mechanism (PrintXP+, one spacing
-    default, one appendPrintXP walk), the keyword selecting only the sink.
-
-    ⚠ THIS CLOSES KANT-23. The pinned defect was that a grafted `cout` WAS
-    being captured by an armed diversion -- genLadder/printPop.sh calls that
-    "the single most important byte in either file". A native CouT routed
-    through opCout, which never consults toBUFFER, cannot be captured. The
-    printFamilyNew divergence targets move accordingly and the move is
-    accounted for in printPop.sh.
-*******************************************************************************/
-extern GroupItem aCTionCouT(GroupItem input)
-{
-GroupItem   stuff:;
-Buffer      buffer = bufferSTAK.pop();
-    /*  DEGRADE-BY-DEFAULT (Tony's ruling via Clay, 2026-08-05). BODY-REACHABLE
-        CONTENT with no emitter, so under jitting it would otherwise EXECUTE AT
-        EMIT TIME -- once, silently, in the wrong era. It now announces itself
-        through the counter the ladder already asserts at zero, then FALLS
-        THROUGH and runs interpreted, so behaviour is unchanged and the gap is
-        COUNTED rather than invisible.
-        docs/gateCensus.md: one of the five. The WALK MACHINERY (aCTionExpressioN
-        et al.) is deliberately NOT in this set -- degrading the emit walk would
-        stop the compiler rather than surface a bug.
-        ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK. Placed by a heuristic the
-        first time, it landed INSIDE two multi-line declaration lists and wiped
-        GroupRules.h's extern block to ZERO (bear-trap #24's signature, canary
-        239 -> 0). Declarations here span lines and end on a bare `;`.  */
-    if jitting  jitDegrade("cout under jit -- no emitter, sink fires at emit time", input);
-    if !buffer      buffer = new("cout buffer");
-    appendPrintXP(stuff,buffer);
-    return opCout(input,buffer);
-}
 
 /***************************************************************************
     QuotE rule action
@@ -1180,6 +1054,7 @@ use input
         isLiteral = true; }
     return  input;
 }
+
 
 /*******************************************************************************
 	runs the rule passed in, returns the rule result if it succeeds.
@@ -1210,6 +1085,7 @@ GroupItem   argument,
         }
     return input;
 }
+
 
 /***************************************************************************
     Process a scope expression. It is a convenient way to set local fields.
@@ -1244,6 +1120,7 @@ String      name;
                 grup.group = field; }
             else    grup.clear(); }}
 }
+
 
 /*******************************************************************************
 	Search rule action. List, setStakked, add to, or reset the SearchList.
@@ -1287,6 +1164,7 @@ int         setStakked;
     return input;
 }
 
+
 /*******************************************************************************
 	Create a set from the string passed in
 *******************************************************************************/
@@ -1301,6 +1179,7 @@ use group
     return group;
 }
 
+
 /*******************************************************************************
 	Process string shortcuts.
 *******************************************************************************/
@@ -1310,6 +1189,7 @@ extern GroupItem aCTionShortcuT(GroupItem group)
     isShortcut = true;
     return group;
 }
+
 
 /*******************************************************************************
 	Process a statement (if we are not parsing code), otherwise return it.
@@ -1339,41 +1219,6 @@ use input
     return input;
 }
 
-/*******************************************************************************
-	appendPrintXP -- THE ONE PrintXP WALK. Added 2026-08-01 (Tony's call) when
-    the arrival of `cerr` and `cout` made it the FOURTH copy of the same loop.
-
-    Callers: aCTionPrinT, aCTionStringXP, aCTionCerR, aCTionCouT. They now
-    differ only in their TAIL -- which sink op they close with -- which is
-    Tony's ruling KANT-13 made structural instead of merely observed: ONE print
-    mechanism, several destinations. A per-destination spacing or formatting
-    default is no longer something you could introduce by accident; there is one
-    body and four call sites.
-
-    ⚠ WHAT DELIBERATELY DID NOT MOVE IN HERE, because hoisting it would have
-    been a silent behaviour change rather than a refactor:
-      - `isPRINTING = false;`  aCTionPrinT sets it, aCTionStringXP does not.
-        That asymmetry is PRE-EXISTING and load-bearing (see the isPRINTING note
-        on aCTionTokenXP's guard); hoisting it would have started clearing a
-        generating-path flag on the string path. It stays in the callers.
-      - aCTionPrinT's `generating` branch, which is a whole separate arm above
-        this loop and has no equivalent on the other three.
-      - the closing sink call, obviously -- that IS the difference.
-*******************************************************************************/
-extern void appendPrintXP(GroupItem stuff, Buffer buffer)
-{
-GroupItem   grup;
-    while grup = stuff.nextAttribute(grup) {
-        if noPrint  continue;
-        GroupItem   FormaT:,
-                    result,
-                    ExpressioN:;
-        if ExpressioN {
-            if isMethod result = method(ExpressioN);
-            else        result = ExpressioN;
-            appendGroup(result,FormaT,buffer); }
-        else            appendGroup(grup,FormaT,buffer); }
-}
 
 /*******************************************************************************
 	Immediate method for the StringXP rule.
@@ -1401,6 +1246,7 @@ Buffer      buffer = bufferSTAK.pop();
     appendPrintXP(stuff,buffer);
     return opString(stuff,buffer);
 }
+
 
 /*******************************************************************************
 	TokenXP returns a token or a token expression.
@@ -1485,6 +1331,7 @@ endToken:
     return xpress;
 }
 
+
 /*******************************************************************************
 	Immediate method for the TraiT rule that defines an attribute. It can be
         TraiTdata="="       DatA Modifier? Limit?;
@@ -1513,6 +1360,7 @@ GroupItem   Modifier:,
     return input;
 }
 
+
 /*******************************************************************************
     Immediate method for the TraiTdata rule.
 *******************************************************************************/
@@ -1533,6 +1381,7 @@ GroupItem   Modifier:,
     else input.setContent(DatA);
     return  input;
 }
+
 
 /*******************************************************************************
 	Sets the operator method in a while statement
@@ -1571,6 +1420,7 @@ GroupItem   looper,
     return result;
 }
 
+
 /*******************************************************************************
 	Xpress rule method.
 *******************************************************************************/
@@ -1583,4 +1433,193 @@ GroupItem   ExpressioN:;
         input.clear();
         input.group = ExpressioN; }
     return input;
+}
+
+
+/*******************************************************************************
+	appendPrintXP -- THE ONE PrintXP WALK. Added 2026-08-01 (Tony's call) when
+    the arrival of `cerr` and `cout` made it the FOURTH copy of the same loop.
+
+    Callers: aCTionPrinT, aCTionStringXP, aCTionCerR, aCTionCouT. They now
+    differ only in their TAIL -- which sink op they close with -- which is
+    Tony's ruling KANT-13 made structural instead of merely observed: ONE print
+    mechanism, several destinations. A per-destination spacing or formatting
+    default is no longer something you could introduce by accident; there is one
+    body and four call sites.
+
+    ⚠ WHAT DELIBERATELY DID NOT MOVE IN HERE, because hoisting it would have
+    been a silent behaviour change rather than a refactor:
+      - `isPRINTING = false;`  aCTionPrinT sets it, aCTionStringXP does not.
+        That asymmetry is PRE-EXISTING and load-bearing (see the isPRINTING note
+        on aCTionTokenXP's guard); hoisting it would have started clearing a
+        generating-path flag on the string path. It stays in the callers.
+      - aCTionPrinT's `generating` branch, which is a whole separate arm above
+        this loop and has no equivalent on the other three.
+      - the closing sink call, obviously -- that IS the difference.
+*******************************************************************************/
+extern void appendPrintXP(GroupItem stuff, Buffer buffer)
+{
+GroupItem   grup;
+    while grup = stuff.nextAttribute(grup) {
+        if noPrint  continue;
+        GroupItem   FormaT:,
+                    result,
+                    ExpressioN:;
+        if ExpressioN {
+            if isMethod result = method(ExpressioN);
+            else        result = ExpressioN;
+            appendGroup(result,FormaT,buffer); }
+        else            appendGroup(grup,FormaT,buffer); }
+}
+
+
+/*******************************************************************************
+    generateXP — the `generating` mode: build a flat-RPN revisedList from the
+    parsed expression and emit nothing (the bytecode walk emits later). Members
+    are added BY REFERENCE; gXpress launders them with copyOf at bytecode-emit
+    time. (jitXP, its copyOf-on-append twin for the JIT lowering, was folded out
+    2026-06-30 — JIT now falls through to interpretXP per the unified
+    emit-on-walk pivot; see docs/jitDesign.md.)
+*******************************************************************************/
+extern GroupItem generateXP(GroupItem xpList)
+{
+GroupItem   op, target, arg, xl, token;
+GroupItem   revisedList = new("revisedList");
+GroupItem   grup, store, tgt;
+    if xpList.listLength == 1 {
+        arg = xpList.firstInList;
+        if arg.isGROUP && !arg.isArgument   arg = arg.group;
+        revisedList += arg; }
+    else {
+        /******************************************************************
+            Mirror the non-generating walk's op/target/arg identification
+            (right-to-left, precedence-correct via the same state machine),
+            but emit flat RPN instead of building the runOP tree: for each
+            completed instruction emit target, then arg (when a leaf), then
+            op; for '=' emit the value then a bcStoreField carrying target.
+        *******************************************************************/
+        // No-operator expression (a bare operand sequence, e.g. the print
+        // operands `"hello" name`): the RPN walk below only emits when it
+        // completes an op+target, so with no operator it produces an EMPTY
+        // revisedList and the clear() below would destroy the tokens. Detect
+        // that and leave xpList intact so aCTionPrinT/appendGroup can print
+        // the operands directly. (Operator expressions fall through to RPN.)
+        GroupItem   hasOp, tk;
+        while tk = xpList.prior(tk)
+            if tk.isOperator   hasOp = tk;
+        if !hasOp {
+            xpList.isLIST       = true;
+            xpList.reversePrint = true;
+            return xpList; }
+        while token = xpList.prior(token) {
+            grup = token;
+            // Operator-skip guard: never unwrap an operator. Operators carry
+            // their interpret=/operateMethod= as attributes (e.g. > has
+            // interpret=runGT), which is the dispatch handler gXpress/
+            // interpretBC need — unwrapping would dis-member the op.
+            if grup.isGROUP && !grup.isOperator
+                while grup.isGROUP
+                    grup = grup.group;
+            if grup.isOperator   op = grup;
+            else {
+                if !arg arg = grup;
+                or op   target = grup; }
+            if op
+                if target {
+                    if op.tag eq "=" {
+                        if !arg.method   revisedList += arg;
+                        store = copyOf(bcOPs["bcStoreField"]);
+                        tgt = new("target");
+                        tgt.group = target;
+                        store +% tgt;
+                        revisedList += store; }
+                    else {
+                        revisedList += target;
+                        if !arg.method   revisedList += arg;
+                        revisedList += op; }
+                    xl = new("xl");
+                    xl.method   = runOP;
+                    op = 0;
+                    target = 0;
+                    arg = xl; }}}
+    dumpContents(revisedList);
+    xpList.clear();
+    xpList.group = revisedList;
+    return xpList;
+}
+
+
+/*******************************************************************************
+    interpretXP — the interpret/run mode: build the left-associative runOP tree
+    the interpreter walks. (Split out of aCTionExpressioN 2026-06-30; was the
+    fallthrough below the generating/jitting branches.)
+*******************************************************************************/
+extern GroupItem interpretXP(GroupItem xpList)
+{
+GroupItem   op, target, arg, xl, token;
+    if xpList.listLength == 1 {
+        arg = xpList.firstInList;
+        if arg.isGROUP && !arg.isArgument   arg = arg.group;
+        goto finishXP; }
+    while token = xpList.prior(token) {
+        if registry == opFields   op = token;
+        else {
+            if !arg arg = token;
+            or op {
+                target  = token;
+                if xl   xl = null; }
+            else {
+                if !xl {
+                    xl = new("xl");
+                    xl.isLIST   = true; }
+                if arg != xl    xl += arg;
+                xl  += token;
+                arg = xl; }}
+        if op
+            if arg {
+                if arg.actionType || arg.instructType   arg.invoke = true;
+                if target {
+                    xl  = new("xl");
+                    xl  += op;
+                    xl  += target;
+                    xl  += arg;
+                    /*  TIER-3 BINDING, and THIS LINE IS THE TIER-3 SET.
+                        2026-08-11, docs/andOrRung.md section 6; seat ruled
+                        by Tony the same day.
+
+                        Section 6 splits the operator table three ways, and
+                        the third tier -- "evaluation-controlling
+                        constructs, NOT operators at all" -- cannot go
+                        through runOP, which resolves both operands before
+                        it dispatches. Binding a DIFFERENT method here is
+                        the whole promotion: the node is built identically
+                        ([1]=op [2]=target [3]=arg), and only who walks it
+                        changes.
+
+                        ⚠ DECIDED AT TREE BUILD, ON PURPOSE. The category
+                        of an operator is a parse-time fact, so it is paid
+                        once per expression rather than re-tested on every
+                        evaluation -- and runOP stays what section 6 calls
+                        it, the strict dispatcher and nothing else.
+
+                        ⚠ THE SET IS CLOSED: `if`, AND/OR, iteration, then
+                        the door closes. The SYMBOL forms are deliberately
+                        NOT here -- `&&` is not even registered (setup:162
+                        has bare `'&'`, no operateMethod, the same state
+                        `'|'` was in before 2026-08-01) and `||` is strict.
+                        That asymmetry -- `OR` short-circuits, `||` does
+                        not, on one shared handler -- is FILED AND UNRULED,
+                        not overlooked. Widening tier 3 to the symbols is a
+                        ruling, and it costs an edit to this line.  */
+                    if op.tag eq "AND" || op.tag eq "OR"
+                            xl.method   = runShortCircuit;
+                    else    xl.method   = runOP;
+                    xl.invoke   = true;
+                    op = 0;
+                    target = 0;
+                    arg = xl; }}}
+finishXP:
+    xpList.clear();
+    xpList.group = arg;
+    return xpList;
 }

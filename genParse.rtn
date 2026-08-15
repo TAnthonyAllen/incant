@@ -1,3 +1,1101 @@
+
+/*******************************************************************************
+    actK — THE ACTION TAIL SHIM. 2026-08-12, the full-monty rung.
+
+    Third of the litK/parseRK family and the same convention: ZERO information
+    from the body. The body says "and now the rule's action runs"; the frame
+    supplies WHICH rule and WHICH label, exactly as it supplies position and
+    mark for the other two.
+
+    ⚠ WHY A SHIM AT ALL, WHEN THE BODY COULD "JUST CALL aCTionBraced()".
+    Measured 2026-08-12, both spellings, and both are unsound:
+      · a BARE extern call from a kant body does not dispatch, and the negative
+        control settles it -- aCTionNOSUCHatALL() behaves identically, exit 0,
+        no diagnostic. There is no "it worked" to observe.
+      · REGISTERED as a command it does dispatch, and then reports TRUE in an
+        AND chain whatever the action did, because aCTionBraced hands back a
+        clear()ed node and the AND contract reads a present non-numeric node as
+        true. Bare `if` on the same call reads FALSE. One call, two readings --
+        the bare-if truthiness fork, filed UNRULED in the 08-11 seal, landing
+        on the tail spelling.
+      · and underneath both: the action wants the LABEL, and the body holds no
+        node by convention. aCTionBraced's first statement is input.clear(), so
+        a bare call CLEARS THE WRONG NODE (bear-trap #22's family).
+
+    ⚠ THE VERDICT IS THE SHIM'S, NEVER THE ACTION'S RETURN. That is the whole
+    point of the third bullet above. A datumless return is aCTionBraced doing
+    its job correctly -- it is not a failure, and it must not become a
+    TRUE-by-presence either. So: dispatch happened => trueResult. Full stop.
+
+    ⚠ AND THE FAILURE IS LOUD, because the negative control showed this exact
+    family failing SILENTLY. A missing symbol REFUSES and says which name it
+    looked for. Refuse, never substitute.
+
+    ROUTE: dlsym at call time rather than a pointer stashed at mint. Priced
+    2026-08-12: the stash would need actK to find the mint anyway, so it is not
+    obviously cheaper; it adds a field whose only reader is this function; and
+    step 2 (the kant body inlining the action) DELETES the question entirely.
+    Cheap-to-remove beat cheap-to-run. If anyone ever measures a dlsym per
+    bracket as hot, the stash is a local change with no callers to update.
+
+    NOTE FOR STEP 2, recorded rather than assumed: the C++ arm's
+    fireLabelMethod does `stuff.label = method(stuff.label)` and FAILS the rule
+    when the action answers null. This shim does neither. For aCTionBraced the
+    assignment is identity -- it mutates and returns the SAME node -- so the
+    arms agree here; that is a Braced-specific equivalence and NOT a general
+    one. A rule whose action returns a different node, or null, will need this
+    revisited.
+
+    ⚠ THE ARGUMENT IS DECLARED AND IGNORED, deliberately. traceParse is the
+    proven precedent for an extern that is called both as `traceParse('on')`
+    and as `traceParse()`; a zero-parameter incant command is untested here and
+    this rung is not the place to test it.
+*******************************************************************************/
+extern GroupItem actK(GroupItem ignored)
+{
+GroupItem   label;
+GroupItem   rule;
+String      name;
+int         fired;
+    /*  Passthrough for the same reason as parseRK's -- tok cannot see a
+        hand-declared global in jitContext.h. Both locals are read OUTSIDE the
+        block as well, which is what keeps bear-trap #13 from pruning them.  */
+    -%
+    label = gKantLabel;
+    rule  = gKantRule;
+    %-
+    if !rule {
+        cerr "actK: called outside a kant parse frame -- no rule to act for":;
+        return null; }
+    if !label {
+        cerr "actK: no label in the kant parse frame for " rule.tag:;
+        return null; }
+    name    = "aCTion" rule.tag;
+    fired   = 0;
+    -%
+    GroupItem *(*action)(GroupItem *) =
+        (GroupItem *(*)(GroupItem *))::dlsym(RTLD_DEFAULT,name);
+    if ( action )
+        {
+        action(label);
+        fired = 1;
+        }
+    %-
+    if !fired {
+        cerr "actK: REFUSING -- no C++ action named " name " for rule " rule.tag:;
+        free(name);
+        return null; }
+    if parseTrace   cerr "    actK " rule.tag " -> " name:;
+    free(name);
+    return trueResult;
+}
+
+
+/*******************************************************************************
+    countRuleTerms — how many REAL terms a rule has, by the same classifier the
+    emitter walks with. ONE implementer, deliberately: the emitter bakes indices
+    against this count and the binder re-checks it, and a check that used its
+    own private notion of "real term" would be worth nothing.
+*******************************************************************************/
+extern int countRuleTerms(GroupItem rule)
+{
+GroupItem   term;
+int         i = 1;
+int         n = 0;
+    while term = rule[i] {
+        if !term.noPrint    n++;
+        i++; }
+    return n;
+}
+
+
+extern String dataName(int d)
+{
+    if !d           return "none";
+    or d == 1       return "isANY";
+    or d == 2       return "isCHAR";
+    or d == 3       return "isSET";
+    or d == 4       return "isBUFFER";
+    or d == 5       return "isCOUNT";
+    or d == 6       return "isGROUP";
+    or d == 7       return "isITEM";
+    or d == 8       return "isMAP";
+    or d == 9       return "isNUMBER";
+    or d == 10      return "isOBJECT";
+    or d == 11      return "isREGEX";
+    or d == 12      return "isSTAK";
+    or d == 13      return "isSTRING";
+    or d == 14      return "isTOKEN";
+    return "unknown";
+}
+
+
+/*******************************************************************************
+    demoRprime — INVARIANT R′, DEMONSTRATED, both clauses.
+
+    A POP that only shows a passing run proves neither clause: at min <= 1 the
+    rewind branch is never reached, and a recycled label and a fresh one look
+    identical from outside. So this runs the two loop shapes side by side on the
+    same input and reports the difference.
+
+    WHY IT IS A CONTROLLED COMPARISON AND NOT A GENERATED RULE: the mark clause
+    is only observable at min >= 2, and MIN >= 2 IS CURRENTLY UNREACHABLE
+    THROUGH THE GRAMMAR. Measured 2026-07-28: `X[2]` is rejected outright
+    (ERROR Operator - failed on isRule and Token) and `X[2 9]` parses, prints
+    "nextGroup: ERROR max does not contain a list", and leaves min/max at 1/1 --
+    the limit is SILENTLY NOT APPLIED. setLimits itself reads correctly, so the
+    fault is upstream of it. That makes genParseSpec §2.2's "latent until
+    someone writes X[2]" true in a stronger sense than it states.
+
+    MARK CLAUSE. Input "a" against a term needing 2. The entry-saved loop (the
+    emitted shape) gives back the whole run. The per-pass loop (parse()'s shape,
+    where checkInput reassigns hereAt every iteration) rewinds to the start of
+    the FAILED attempt, which is already past the match -- so the first match's
+    input stays consumed. That is the defect §2.2 records, made visible.
+
+    LABEL CLAUSE. Input "aa". Each pass goes through parse() and builds a fresh
+    label, so two passes attach TWO children. A recycling loop -- parse()'s
+    `isGROUP && max > 1` path, which clears the label and hands it back via the
+    fLAG handshake -- would show one.
+*******************************************************************************/
+extern GroupItem demoRprime(GroupItem argument)
+{
+GroupRules  ruler = groupRules;
+GroupItem   rule = locateRule("ScafC");
+GroupItem   term;
+GroupItem   label;
+String      entry;
+String      perPass;
+int         baseStak = 0;
+int         kount = 0;
+int         kids = 0;
+int         going = 1;
+    if !rule {
+        cerr "demoRprime: no ScafC on the search list":;
+        return null; }
+    term = rule[1];
+    if inputSTAK    baseStak = inputSTAK.length;
+
+    pushInput(argument);
+    entry   = atRuleMark;
+    label   = new("demoEntry");
+    while parseR(term,label)    kount++;
+    if kount >= 2
+        cerr "  R-prime MARK  entry-saved (emitted) : matched " toStringFromInt(kount) " of 2 -- SUCCEEDED, no rewind due":;
+    else {
+        atRuleMark = entry;
+        if atRuleMark == entry
+            cerr "  R-prime MARK  entry-saved (emitted) : matched " toStringFromInt(kount) " of 2 -- REWOUND to loop entry":;
+        else
+            cerr "  R-prime MARK  entry-saved (emitted) : matched " toStringFromInt(kount) " of 2 -- input STRANDED":; }
+    while inputSTAK && inputSTAK.length > baseStak      popInput();
+
+    kount = 0;
+    pushInput(argument);
+    entry   = atRuleMark;
+    perPass = entry;
+    label   = new("demoPerPass");
+    while going {
+        perPass = atRuleMark;
+        going   = parseR(term,label) != 0;
+        if going    kount++; }
+    if kount >= 2
+        cerr "  R-prime MARK  per-pass  (parse()) : matched " toStringFromInt(kount) " of 2 -- SUCCEEDED, no rewind due":;
+    else {
+        atRuleMark = perPass;
+        if atRuleMark == entry
+            cerr "  R-prime MARK  per-pass  (parse()) : matched " toStringFromInt(kount) " of 2 -- REWOUND to loop entry":;
+        else
+            cerr "  R-prime MARK  per-pass  (parse()) : matched " toStringFromInt(kount) " of 2 -- rewound only to the FAILED PASS, input STRANDED":; }
+    while inputSTAK && inputSTAK.length > baseStak      popInput();
+
+    kount = 0;
+    pushInput(argument);
+    label = new("demoLabels");
+    while parseR(term,label)    kount++;
+    while label[kids + 1]       kids++;
+    cerr "  R-prime LABEL entry-saved (emitted) : " toStringFromInt(kount) " passes attached " toStringFromInt(kids) " fresh label(s)":;
+    while inputSTAK && inputSTAK.length > baseStak      popInput();
+    return trueResult;
+}
+
+
+/*******************************************************************************
+    dumpPlanTally — print the two ruling-4 scalars. Called from incant/phaseA as
+    the last statement before its sentinel, so a truncated walk cannot print a
+    tally and a tally therefore means the walk finished.
+*******************************************************************************/
+extern GroupItem dumpPlanTally(GroupItem argument)
+{
+    /*  ⚠ THE PREFIX IS `TALLY`, NOT `PLAN TALLY`, AND THAT IS NOT COSMETIC.
+        phaseA's A1 completeness guard counts `PLAN <name>` against
+        `DONE <name>`; a tally line beginning "PLAN " is counted as a walked
+        rule and the guard reads 80 PLAN / 78 DONE -- i.e. THE INSTRUMENT THAT
+        DETECTS A TRUNCATED WALK REPORTS A TRUNCATED WALK, caused by the
+        instrument added beside it. Measured on the first run of this rung.  */
+    cerr "TALLY refusals = " toStringFromInt(planTally(3)):;
+    cerr "TALLY plannable = " toStringFromInt(planTally(4)):;
+    return trueResult;
+}
+
+
+/*******************************************************************************
+    dumpRulePlans — the CENSUS FIXTURE (Clay SEQ 26). The ladder targets cannot
+    test the classifier: Scaf/Scaf2/ScafA/ScafB exercise two kinds out of five
+    and never carry an unmaterialised term. This runs the walk over the whole
+    27-rule census and prints the plan or the refusal for every one, so the
+    classifier gets the POP it otherwise lacks. The assertion is at PLAN level,
+    so it is target-independent and survives the kant emitter unchanged.
+*******************************************************************************/
+extern GroupItem dumpRulePlans(GroupItem argument)
+{
+GroupItem   rule;
+GroupItem   plan;
+    cerr "PLAN " argument.text:;
+    rule = ruleOrRefuse(argument.text,"  plan");
+    if !rule    return null;
+    plan = planRule(rule);
+    /*  THE RULING-4 TALLY, counted where the walk is DRIVEN rather than at
+        seventeen refusal sites (planTally's header carries the measured
+        invariant that licenses this). A refused rule contributed exactly one
+        planRule line; a rule refused ON A TERM contributed one more, counted
+        inside planRule.  */
+    if plan {
+        planTally(2);
+        printPlan(plan,"  "); }
+    else    planTally(1);
+    return trueResult;
+}
+
+
+extern GroupItem dumpRuleTerms(GroupItem argument)
+{
+GroupItem   rule = locate(argument.text);
+GroupItem   term;
+GroupItem   definer;
+RuleStuff   rs;
+RuleStuff   ruleStuff;
+int         i = 1;
+    if !rule {
+        cerr "dumpRuleTerms: no rule named ",argument.text:;
+        return null; }
+    ruleStuff = rule.rStuff;
+    cerr "RULE " rule.tag " fold=" foldOf(rule):;
+    if rule.isRule      cerr "     isRule":;
+    if !rule.isRule     cerr "     NOT isRule":;
+    if rule.registry    cerr "     registry " rule.registry.tag:;
+    cerr "     rule.data=" dataName(rule.data):;
+    if ruleStuff && ruleStuff.onGroup   cerr "     rule.onGroup=" ruleStuff.onGroup.tag:;
+    if !ruleStuff                       cerr "     rule has NO rStuff":;
+    or !ruleStuff.onGroup               cerr "     rule.onGroup=NONE":;
+    while term = rule[i] {
+        rs      = term.rStuff;
+        definer = term.definingRule();
+        cerr "    [" toStringFromInt(i) "] " term.tag:;
+        if term.noPrint     cerr "         noPrint (SKIPPED by the walk)":;
+        else {
+            cerr "         ROW  " row42(term):;
+            if definer != term  cerr "         REFERENCE -> " definer.tag:;
+            cerr "         data " dataName(term.data):;
+            if term.isAttribute cerr "         attribute":;
+            if term.isMember    cerr "         member":;
+            if rs {
+                cerr "         min " toStringFromInt(rs.min) " max " toStringFromInt(rs.max):;
+                if rs.noLabel   cerr "         noLabel":;
+                if rs.isTarget  cerr "         isTarget":;
+                if rs.banged    cerr "         banged":;
+                if rs.noAdvance cerr "         noAdvance":;
+                if rs.noSkip    cerr "         noSkip":;
+                if rs.isOption  cerr "         isOption":;
+                if rs.notifyFail cerr "        notifyFail":;
+                if rs.doNothing cerr "         doNothing":;
+                if rs.testMatch cerr "         testMatch SET":;
+                if !rs.testMatch cerr "         testMatch none":;
+                if rs.onGroup   cerr "         onGroup " rs.onGroup.tag:;
+                if !rs.onGroup  cerr "         onGroup NONE":; }
+            if !rs  cerr "         NO rStuff":; }
+        i++; }
+    return trueResult;
+}
+
+
+extern GroupItem dumpSpellings(GroupItem argument)
+{
+GroupItem   rule;
+GroupItem   plan;
+GroupItem   node;
+GroupItem   at;
+String      local;
+String      piece;
+    cerr "SPELL " argument.text:;
+    rule = ruleOrRefuse(argument.text,"  spell");
+    if !rule    return null;
+    plan = planRule(rule);
+    if !plan {
+        cerr "  no plan":;
+        return null; }
+    cerr "  fold " plan.tag:;
+    while node = plan.nextMember(node) {
+        at      = node.getAttribute("at");
+        local   = "t" at.text;
+        piece   = emitLeaf(node,local,"label");
+        if !piece   piece = "REFUSED";
+        cerr "  " node.tag " sink=label " piece:;
+        piece   = emitLeaf(node,local,"into");
+        if !piece   piece = "REFUSED";
+        cerr "  " node.tag " sink=into  " piece:; }
+    return trueResult;
+}
+
+
+extern String emitLeaf(GroupItem node, String local, String sink)
+{
+GroupItem   speller = locateSpeller();
+GroupItem   slot;
+GroupItem   site;
+GroupItem   inner;
+char        dq = 34;
+String      leaf;
+String      piece;
+    /*  IF A KANT SPELLER IS REGISTERED, ITS ANSWER IS AUTHORITATIVE — INCLUDING
+        NULL. Falling back to the C++ body on a null would mean a kant refusal
+        (or a kant bug) silently produced the right text, and the whole point of
+        the handover is that a kant defect must be VISIBLE. So the lookup decides
+        which implementation runs, and the result never does.
+
+        Absent a speller this is byte-for-byte the function it always was, which
+        is why every existing target still holds. Same shape as parseMethod's
+        fork: bind if it is there, run the oracle if it is not.  */
+    if speller  return spellKant(speller,node,sink);
+    if node.tag eq "OPT" {
+        inner = node.nextMember(inner);
+        if !inner {
+            cerr "emitLeaf: OPT node has no wrapped term":;
+            return null; }
+        piece = emitLeaf(inner,local,sink);
+        if !piece   return null;
+        leaf = "(" piece " || 1)"; }
+    or node.tag eq "MANY" {
+        site = node.getAttribute("site");
+        leaf = "many" site.text "(" sink "," local ")"; }
+    or node.tag eq "CONTAINER" {
+        slot = node.getAttribute("slot");
+        leaf = "containerTo(" local "," sink "," dq slot.text dq ")"; }
+    or node.tag eq "CALL"       leaf = "parseR(" local "," sink ")";
+    or node.tag eq "LIT"        leaf = "lit(" local "," dq node.text dq ")";
+    or node.tag eq "LITTO" {
+        slot = node.getAttribute("slot");
+        if sink eq "into"
+            leaf = "litOption(" local ",into," dq node.text dq ")";
+        else
+            leaf = "litTo(" local ",label," dq node.text dq "," dq slot.text dq ")"; }
+    else {
+        cerr "emitLeaf: no emission for plan kind " node.tag:;
+        return null; }
+    return leaf;
+}
+
+
+extern int emitMany(GroupItem node)
+{
+GroupItem   manier = locateManier();
+GroupItem   site = node.getAttribute("site");
+GroupItem   low  = node.getAttribute("min");
+String      name;
+    /*  THE FORK. Absent a kant emitMany this is the function it always was, so
+        every existing target holds with or without incant/genMany present —
+        which is emitLeaf's proven shape and the reason the C++ body is not
+        deleted during a conversion round.  */
+    if manier   return manyKant(manier,node);
+    if !site || !low {
+        cerr "emitMany: MANY node has no site/min":;
+        return 0; }
+    name = "many" site.text;
+    cerr "extern int " name "(GroupItem label, GroupItem term)":;
+    cerr "{":;
+    cerr "GroupRules  ruler = groupRules;":;
+    cerr "String      from = atRuleMark;":;
+    cerr "int         kount;":;
+    cerr "    while parseR(term,label)    kount++;":;
+    cerr "    if kount >= " low.text "   return true;":;
+    cerr "    atRuleMark = from;":;
+    cerr "    return false;":;
+    cerr "}":;
+    return 1;
+}
+
+
+/*******************************************************************************
+    emitPlan — a plan tree -> C++ text. The emitter side of the seam (§4): the
+    frame preamble, joining conjuncts with &&, quoting. It reads the plan and
+    NEVER the rule, which is the property that makes it replaceable.
+
+    ALT is REFUSED rather than emitted. The old interleaved path would have
+    written a SEQ frame with && joins for an alternation, which was simply
+    wrong; a plan makes the fold explicit, so the wrongness became visible the
+    moment there was something to look at. leaveAlt/|| emission arrives with the
+    alternation rung.
+*******************************************************************************/
+extern GroupItem emitPlan(GroupItem plan)
+{
+GroupItem   node;
+GroupItem   lab;
+GroupItem   at;
+String      tag = plan.text;
+String      terms;
+String      local;
+String      index;
+String      piece;
+String      sink;
+String      joiner;
+int         isAlt = 0;
+int         first = 1;
+int         n = 0;
+char        dq = 34;
+    if plan.tag eq "ALT"    isAlt = 1;
+    or plan.tag ne "SEQ" {
+        cerr "emitPlan: REFUSING " tag " -- fold " plan.tag " has no emitter":;
+        return null; }
+    /*  THE FOLD DECIDES THE SINK AND THE JOINER, and both are emitter-side
+        (§4): the walk already said SEQ or ALT, this only spells it.
+
+        S2.4 — AN ALTERNATION BUILDS NO LABEL OF ITS OWN and passes `into`
+        straight through, so the winning option attaches to the ENCLOSING
+        rule's label. Getting this wrong yields the right LANGUAGE over the
+        WRONG TREE — an empty JSONvalue wrapping every value — which passes
+        every mark-and-win check and only surfaces when a code={} action reads
+        it. That is why rung 7's acceptance test is a TREE COMPARISON against
+        the interpretive path, not a WIN/FAIL run.
+
+        So an ALT emits no `label` local, its options take `into`, and a
+        labelled literal option is spelled litOption (which attaches itself,
+        because leaveAlt is label-transparent by design) rather than litTo.
+        litOption's first parameter is already the term, matching the
+        term-first convention, and is unused exactly as lit's is — re-read
+        2026-07-28 before wiring it in.  */
+    if isAlt {
+        sink    = "into";
+        joiner  = " || "; }
+    else {
+        sink    = "label";
+        joiner  = " && ";
+        lab     = plan.getAttribute("label"); }
+    /*  FIRST PASS: validate every node, and emit the helpers §3.3 calls for.
+        This is what the two-pass shape exists for — a helper is discovered
+        mid-walk, and with text already going out you would have to buffer it or
+        emit it out of order. With a plan you simply walk it again.  */
+    while node = plan.nextMember(node) {
+        if isAlt
+            if node.tag ne "CALL" && node.tag ne "LITTO" {
+                cerr "emitPlan: REFUSING " tag " -- " node.tag " as an alternation option (no census shape)":;
+                return null; }
+        at      = node.getAttribute("at");
+        index   = at.text;
+        local   = "t" index;
+        piece   = emitLeaf(node,local,sink);
+        if !piece {
+            cerr "emitPlan: REFUSING " tag " -- unemittable plan node":;
+            return null; }
+        if node.tag eq "MANY"
+            if !emitMany(node) {
+                cerr "emitPlan: REFUSING " tag " -- unemittable repetition helper":;
+                return null; }
+        n++; }
+    cerr "extern GroupItem parse" tag "(GroupItem rule)":;
+    cerr "{":;
+    cerr "GroupItem   into  = rule.rStuff.parentLabel;":;
+    if !isAlt   cerr "GroupItem   label = new(" dq lab.text dq ");":;
+    node = 0;
+    while node = plan.nextMember(node) {
+        at      = node.getAttribute("at");
+        index   = at.text;
+        local   = "t" index;
+        cerr "GroupItem   " local " = rule[" index "];":;
+        piece   = emitLeaf(node,local,sink);
+        if first    terms = piece;
+        else        terms = terms joiner piece;
+        first = 0; }
+    cerr "String      from  = atRuleMark;":;
+    if isAlt    cerr "    return leaveAlt(rule,from, " terms " );":;
+    else        cerr "    return leaveRule(rule,into,label,from, " terms " );":;
+    cerr "}":;
+    cerr "/*  bind:  " tag " parseTerms=" toStringFromInt(n) " parseMethod=parse" tag ";  */":;
+    return trueResult;
+}
+
+
+/*******************************************************************************
+    foldOf — genParseSpec §4.1's fold selection, as a reportable value.
+*******************************************************************************/
+extern String foldOf(GroupItem rule)
+{
+    if rule.isRule && rule.hasMembers && !rule.binType   return "ALT";
+    return "SEQ";
+}
+
+
+/*******************************************************************************
+    genKant -- EMIT A RULE'S KANT PARSE BODY FROM ITS LIVE TERMS.
+
+    THE POINT OF THE WHOLE RATCHET. A hand-written body is a MANUAL RUN OF THIS
+    FUNCTION; this replaces the hand. Its oracle is byte-identity with the hand
+    body that incant/bracedK already certified end to end (SEQ 63), so a
+    byte-match inherits that certification rather than re-earning it -- identical
+    bytes through a certified pipeline cannot behave differently.
+
+    TEXT-FIRST, through the proven include chain (E0's route pricing). Tree
+    synthesis is a later economy and is NOT what this does.
+
+    ⚠ FROM THE LIVE TERMS, MEASURED, NOT BY EYE. It walks planRule's classified
+    plan -- the same walk dumpSpellings makes -- so the indices and kinds come
+    from the rule as it exists in the tree at this moment. Writing them by eye is
+    exactly the staleness class the index-guard item exists to name.
+
+    ⚠ EMITTED TO stderr, not stdout, and that is bear-trap #14: a run that ends
+    via stop() exits hard with no flush, so buffered stdout vanishes and looks
+    exactly like an emitter that never ran.
+*******************************************************************************/
+extern GroupItem genKant(GroupItem argument)
+{
+GroupItem   rule;
+GroupItem   plan;
+GroupItem   node;
+GroupItem   at;
+String      body;
+String      piece;
+int         n = 0;
+    rule = ruleOrRefuse(argument.text,"  kant");
+    if !rule    return null;
+    plan = planRule(rule);
+    if !plan {
+        cerr "genKant: REFUSING " argument.text " -- no plan":;
+        return null; }
+    /*  ⚠ THE FOLD GATE, AND IT IS A REPAIR, NOT A PRECAUTION. SEQ 71, found by
+        the survey the same day the emitter landed. The join below is
+        UNCONDITIONALLY " AND ", which is correct for a SEQ and WRONG FOR AN
+        ALTERNATION -- an ALT means any option matches, and an AND chain means
+        they all must. Three of the five rules the survey found emittable are
+        fold=ALT (InvokeArg, ElsE, WardeD), so without this gate the emitter
+        produced bodies that PARSE AND ANSWER WRONG for every one of them.
+
+        ⚠ NOTE WHAT DID NOT CATCH IT. kantLeaf refuses by KIND and covered every
+        unknown TERM; nothing covered the wrong JOIN, because the join is not a
+        term. A per-item guard does not see a whole-body property. That is the
+        gap worth remembering, not the three rule names.
+
+        REFUSING RATHER THAN EMITTING `OR`, deliberately: the template table's
+        alternation row is dead for a second, independent reason -- an option
+        attaches through a different frame (`into`, not `label`) -- so an OR
+        chain would be the right operator on the wrong plumbing. One dead row,
+        not half of one.  */
+    if plan.tag ne "SEQ" {
+        cerr "genKant: REFUSING " argument.text " -- fold is " plan.tag ", and only SEQ has a kant spelling":;
+        return null; }
+    while node = plan.nextMember(node) {
+        at      = node.getAttribute("at");
+        piece   = kantLeaf(node,at.text);
+        if !piece {
+            cerr "genKant: REFUSING " argument.text " -- term " at.text " is " node.tag ", which has no kant spelling":;
+            return null; }
+        if n    body = body " AND " piece;
+        else    body = piece;
+        n = n + 1; }
+    if !n {
+        cerr "genKant: REFUSING " argument.text " -- plan has no terms":;
+        return null; }
+    cerr "define":;
+    cerr "    kp" argument.text " code={":;
+    cerr "        return " body ";":;
+    cerr "        };":;
+    cerr "    ;":;
+    return trueResult;
+}
+
+
+extern GroupItem genParse(GroupItem argument)
+{
+GroupItem   rule = ruleOrRefuse(ruleNameArg(argument),"genParse");
+GroupItem   plan;
+GroupItem   result;
+    if !rule    return null;
+    plan = planRule(rule);
+    if !plan    return null;
+    -%
+    /*  THE `ParsE` RECORD -- PJ-1, sited here rather than at the installer.
+        ============================================================
+        THE BRIEF SAID "the site that installs rStuff.parseMethod". THAT SITE
+        CANNOT DO IT, and the reason is worth keeping: parseRuleMethod (below)
+        receives a METHOD NAME to dlsym-bind. The generated source text is not
+        in its scope and is not even in its PROCESS -- genParse emits text in
+        one run, a human pastes it into this file, it compiles into the binary,
+        and a LATER run's `parseMethod=parseScaf` definition attribute binds the
+        symbol. Two processes, days apart. So "one path, two effects" cannot
+        join emitter and installer; they are not one path and cannot be made
+        one.
+
+        PJ-2 IS HONOURED MORE STRICTLY HERE, NOT LESS: the record is written by
+        the emitter, which is the only thing that has the text, and
+        parseRuleMethod stays the single source of truth for the BINDING and
+        writes nothing at all. One writer per fact.
+
+        WHY THE CAPTURE IS AT THE SINK AND NOT AT emitPlan's FOURTEEN `cerr`
+        SITES. PJ-4 wants rule.ParsE byte-identical to the emitted text. Teeing
+        at fourteen call sites is a DISCIPLINE -- every future cerr added to the
+        emitter has to remember to tee, and the day one forgets, the record is
+        silently short and still diffs clean against a target regenerated from
+        it. Swapping the sink for the duration makes the record and the emission
+        THE SAME BYTES BY CONSTRUCTION: there is no second stream to keep in
+        step. That is CLAUDE.md's "prefer a structure that makes the failure
+        unconstructable over a discipline that avoids it".
+
+        ⚠ THE CAPTURE IS AT THE `FILE *` LEVEL, AND THAT IS NOT A STYLE CHOICE.
+        tok's `cerr` KEYWORD GENERATES `::fprintf(stderr,...)`, NOT `std::cerr`
+        -- read the generated emitPlan in GroupRules.mm if you doubt it. A
+        std::cerr.rdbuf() swap therefore captures NOTHING, silently: emission is
+        perfect, the record is zero bytes, and the run exits 0. Measured
+        2026-08-06 by writing exactly that bug. It is bear-trap #19's corollary
+        in miniature -- the sink was reasoned about rather than grepped, and one
+        grep of the codegen would have settled it in ten seconds. It is also the
+        three-languages-share-the-tree hazard: `cerr` is a tok keyword and does
+        not mean what the same word means in C++.
+
+        REDIRECT-THEN-REPLAY, not a tee, so no custom stream machinery is
+        needed. `stderr` on macOS is `__stderrp`, a modifiable FILE* lvalue, and
+        `fprintf(stderr,...)` reads it per call -- so pointing it at a
+        memstream for the duration catches every byte every callee writes,
+        including ones added to the emitter years from now that nobody
+        remembered to tee. The operator still sees every byte; it arrives after
+        emitPlan returns instead of during. Rule-level interleaving is preserved
+        because emitAll's `@@@ <rule>` / `DONE <rule>` markers come from the
+        FIXTURE, around this call, not from inside it. planRule's refusals are
+        deliberately OUTSIDE the swap and stay live and unbuffered.
+
+        ONE STRAIGHT LINE, NO EARLY RETURN, between the swap and the restore --
+        if that ever stops being true, stderr stays redirected and the operator
+        loses the emitter's output with no symptom but silence. The `if (ms)`
+        guard exists so a failed open_memstream degrades to "no record, normal
+        output" rather than to a swallowed emitter.  */
+    /*  PJ-7, ONE GATE. `INCANT_PARSE_RECORD` arms the whole record -- capture,
+        attribute, and the optional file sink -- rather than arming a dump of an
+        always-written attribute.
+
+            unset     nothing happens at all: no redirect, no attribute, no file
+            =1        capture + the ParsE attribute
+            =<path>   capture + the ParsE attribute + a dump of it to <path>
+
+        WHY THE ATTRIBUTE ITSELF IS GATED AND NOT JUST THE DUMP. An always-on
+        attribute write changes the attribute LIST of every rule genParse
+        touches, and this tree audits attribute lists -- pop.sh's census walks
+        registries counting terms and loose entries, and `AUDIT` lines are
+        baselined. A record that can move an audit is an instrument that can
+        move a measurement, which is the 2026-08-02 defect (an instrument broke
+        three POP targets by prepending ~290 lines with zero content
+        divergence). With the gate closed the run is byte-identical to one
+        built before any of this existed, and recordPop asserts exactly that on
+        both streams.
+
+        THE FILE SINK EARNS ITS KEEP AND SO IT STAYS, behind this same gate.
+        It is the ONLY read path: a rule name in incant EXPRESSION POSITION
+        INVOKES THE RULE rather than naming it -- `if Braced;` exits 139,
+        measured -- so no ordinary incant statement can reach the attribute to
+        diff it. The `showParse` command below is the director's window; the
+        file is the POP's, because a byte-for-byte diff needs bytes in a file
+        and not on a terminal.
+
+        Both read pe->getText() and never the local -- the point is to prove
+        what LANDED ON THE NODE, and dumping the local would pass even if
+        addAttribute had silently done nothing.  */
+    char   *rp      = ::getenv("INCANT_PARSE_RECORD");
+    /*  GX-6: the in-fixture door onto the SAME gate. Env var wins when both are
+        set, because only it can carry a path.  */
+    if (!rp && gParseRecordArmed)   rp = (char*)"1";
+    char   *recBuf  = 0;
+    size_t  recSize = 0;
+    FILE   *ms      = rp ? ::open_memstream(&recBuf,&recSize) : 0;
+    FILE   *wasErr  = stderr;
+    if (ms) stderr  = ms;
+    result = ::emitPlan(plan);
+    if (ms) {
+        stderr = wasErr;
+        ::fclose(ms);
+        if (recBuf) {
+            ::fwrite(recBuf,1,recSize,stderr);
+            ::fflush(stderr); } }
+    if (rp) {
+        /*  strdup'd for the same reason jitRunAction strdups its IR: recBuf is
+            malloc'd by open_memstream and is freed below.  */
+        GroupItem  *pe = rule->get("ParsE");
+        if (!pe) {
+            pe = new GroupItem("ParsE");
+            pe->groupBody->flags.noPrint = 1;
+            pe->setText(::strdup(recBuf ? recBuf : ""));
+            rule->addAttribute(pe); }
+        else    pe->setText(::strdup(recBuf ? recBuf : ""));
+
+        if (::compare(rp,"1") != 0) {
+            if (FILE *f = ::fopen(rp,"w")) {
+                char *got = pe->getText();
+                if (got)    ::fwrite(got,1,::strlen(got),f);
+                ::fclose(f); }
+            else ::fprintf(stderr,"genParse: ParsE record could not open %s\n",rp); } }
+    if (recBuf) ::free(recBuf);
+    %-
+    return result;
+}
+
+
+/*******************************************************************************
+    kantDoor — THE THREE DUTIES, lifted out of aCTionDefinE so the hunk there
+    is three lines and the revert is one. 2026-08-12, the full-monty rung.
+
+        mint kp<Tag>  ·  hang the CodE on it  ·  rStuff.parseMethod = parseViaKant
+
+    ⚠ TWO THINGS THE ORDER'S SKELETON DOES NOT COVER, both measured, both
+    load-bearing. Read these before editing.
+
+    (1) THE isCoded ARM CANNOT SIT UNDER `!isMethod`, WHICH IS WHERE THE
+        dlsym LINE LIVES. Braced already carries isMethod from its ORIGINAL
+        definition in incant/grammar (dlsym found aCTionBraced then), so on the
+        parseCode re-definition that guard is FALSE and the whole block is
+        skipped. That is exactly the M1b measurement of 2026-08-12 -- code{} on
+        a Grokking rule with a C++ action is silently inert -- and the mechanism
+        is this guard. So the caller tests isCoded ABOVE `!isMethod`, and
+        `!isMethod` stays on the dlsym arm only, unchanged for everyone else.
+
+    (2) "THE METHOD SLOT STAYS EMPTY" REQUIRES AN ACTIVE CLEAR, NOT MERELY NOT
+        BINDING. Braced arrives here with gMethod ALREADY set to aCTionBraced.
+        Left alone, :1230's fireLabelMethod fires it AND actK fires it -- the
+        double fire the order says is prevented by construction. So the door
+        clears gMethod / isMethod / immediateACTION, which is what actually
+        starves :1230.
+
+    ⚠ AND THE SCOPING IS A REAL CONDITIONAL, NOT AN ORDERING CONSEQUENCE. The
+    order says scoping falls out of ordering with no new conditionals. That
+    holds for the C++ population (aCTionIF, aCTionFOR ... are not coded, so
+    they take the else-arm untouched) but NOT for the CODED NON-GRAMMAR
+    population, which the 2026-08-12 census measured at five: list x2,
+    JSONfield, JSONarray, DelimOver -- and two of those are in incant/utilities,
+    which every fixture preamble includes. A bare `if isCoded` would take all
+    five through the kant door and break jsonTest. The caller therefore keeps
+    the RATIFIED test -- registry.isRule, true only for Grokking
+    (GroupMain.twk:16, the only live site) -- exactly as specced on 08-12.
+
+    BOUNDS: the highest term position the body names, against the live term
+    count. Scanned from the CodE text here because there is no parseTerms
+    declaration to read -- Tony struck it. Note this is the EARLIER of two
+    checks, not the only one: litK/parseRK already refuse loudly at call time
+    naming the position, and that one cannot be bypassed. This one fails at
+    DEFINITION, before any parse happens.
+*******************************************************************************/
+extern int kantDoor(GroupItem rule, GroupItem code)
+{
+GroupRules  ruler = groupRules;
+GroupItem   kantReg;
+GroupItem   mint;
+GroupItem   grup;
+String      mintName;
+int         want;
+int         live;
+    if !code {
+        cerr "kantDoor: " rule.tag " has no CodE -- nothing to hang":;
+        return 0; }
+    /*  BOUNDS FIRST, so a stale body never reaches the slot. Scan is plain C
+        over the body text: find every "K(" and read the integer after it,
+        which covers litK(n) and parseRK(n) with one pass and no table.  */
+    live = countRuleTerms(rule);
+    want = 0;
+    -%
+    {
+    char *scan = code->getText();
+    while ( scan && *scan )
+        {
+        if ( scan[0] == 'K' && scan[1] == '(' )
+            {
+            int n = ::atoi(scan + 2);
+            if ( n > want )  want = n;
+            }
+        scan++;
+        }
+    }
+    %-
+    if want > live {
+        cerr "kantDoor: REFUSING " rule.tag " -- body names term " toStringFromInt(want)
+             " but the rule has " toStringFromInt(live):;
+        return 0; }
+    if !want    cerr "kantDoor: WARNING " rule.tag " body names no term positions":;
+    /*  THE MINT. Its own registry, in the search list, so locate() finds it
+        the way parseViaKant already looks for it -- and so the kant parse
+        methods are a countable population rather than scattered. NOT Grokking:
+        setRuleStuff turns anything whose registry isRule into a rule, and the
+        mint must not be one.  */
+    kantReg = getRegistry("KantParse");
+    if !searchList["KantParse"]     searchList += kantReg;
+    mintName    = "kp" rule.tag;
+    /*  The groupList guard is not decoration: on the FIRST kant doored rule
+        the registry has just been created and indexing an empty one prints
+        `nextGroup: ERROR ... does not contain a list`. See kantDoored below.  */
+    if kantReg.groupList    mint = kantReg[mintName];
+    if !mint    mint = kantReg += new(mintName);
+    /*  Hang the CodE, and give the mint the two hidden locals every coded body
+        is built with -- aCTionDefinE adds them to the definee, and the mint is
+        the definee now.  */
+    mint            +% code;
+    grup            = mint += "this";
+    grup.isLocal    = true;
+    grup.noPrint    = true;
+    grup.group      = mint;
+    grup            = mint += "tempField";
+    grup.isLocal    = true;
+    grup.noPrint    = true;
+    mint.isCoded    = true;
+    mint.noPrint    = true;
+use rule
+    /*  STARVE :1230. See note (2) above -- this is the clear, not an omission. */
+    gMethod         = 0;
+    isMethod        = false;
+    immediateACTION = false;
+    isCoded         = false;
+    /*  ⚠ getRStuff(), NEVER THE RAW rStuff FIELD. The first cut used
+        `if !rStuff rStuff = new(rule)` and the bind SILENTLY DID NOT TAKE:
+        parse() forks on definingRule().rStuff.parseMethod, and the raw field
+        is not necessarily the materialised stuff that fork reads. The trace
+        said it plainly -- no `parseViaKant Braced` line at all, and
+        `attachLabel lab=Braced promote=1`, which is the INTERPRETED arm.
+        Meanwhile the method-slot clear HAD landed, so nothing built the
+        result and the consumer dereferenced a null.
+        parseRuleMethod -- the working parseMethod= door -- has always used
+        getRStuff(). Copy the working door rather than inventing a second one. */
+    setParseMethod(rule.getRStuff(),"parseViaKant");
+    cerr "kantDoor: " rule.tag " -> " mintName " via parseViaKant, "
+         toStringFromInt(live) " terms":;
+    free(mintName);
+    return 1;
+}
+
+
+/*******************************************************************************
+    kantDoored — the TRIPWIRE's question, and the census's. A rule is kant
+    doored when its mint exists. No new flag: the mint IS the record.
+*******************************************************************************/
+extern int kantDoored(GroupItem rule)
+{
+GroupItem   kantReg;
+GroupItem   mint;
+String      mintName;
+    /*  ⚠ locate, NOT getRegistry. getRegistry is a FACTORY -- it creates the
+        registry when it is missing, and the first cut of this function called
+        it on every rule that took the dlsym arm. That minted an empty
+        KantParse and then indexed it, and an empty registry has no list, so
+        oneTest's stderr grew four `nextGroup: ERROR KantParse does not contain
+        a list` lines. Caught by diffing stderr against the banked baseline
+        before landing anything -- stdout was identical throughout, so a
+        stdout-only comparison would have missed it entirely.  */
+    kantReg = locate("KantParse");
+    if !kantReg             return 0;
+    if !kantReg.groupList   return 0;
+    mintName = "kp" rule.tag;
+    mint = kantReg[mintName];
+    free(mintName);
+    if mint     return 1;
+    return 0;
+}
+
+
+/*******************************************************************************
+    dumpSpellings — emitLeaf's OWN fixture, and it exists because emitLeaf was
+    about to be replaced with nothing to diff the replacement against.
+
+    THE ORACLE IS THE FUNCTION BEING REPLACED. That is the whole design: this
+    prints, for a named rule, the spelling emitLeaf produces for every plan node
+    it planned, under BOTH sinks. Capture it while the C++ emitLeaf is still the
+    only implementation and it becomes a byte-exact target the kant emitLeaf must
+    reproduce — the same discipline as `rung4.target` holding the emitted text
+    against the compiled-in method.
+
+    WHY NOT JUST USE THE RUNG TARGETS: emitLeaf writes every term spelling
+    inside them, so they DO gate it — but only for the kinds the ladder reaches.
+    LITTO is reached by no ladder rule (every Scaf term is noLabel), so both of
+    its spellings, `litTo` and `litOption`, were UNGATED. `CodE` plans as a SEQ
+    of two LITTO terms, so driving this off the census rules instead of the
+    ladder covers the kind the ladder cannot.
+
+    BOTH SINKS ON EVERY NODE, deliberately, even where the fold could never ask
+    for one: `into` is the ALT sink and `label` the SEQ sink, and LITTO is the
+    ONLY kind whose text differs between them. Printing both on every node costs
+    two lines and means the target moves if that ever stops being true.
+*******************************************************************************/
+/*******************************************************************************
+    kantLeaf -- ONE PLAN KIND, ONE KANT SPELLING. SEQ 67 part B / 66-r1 phase 2.
+
+    The kant twin of emitLeaf, and deliberately much smaller: emitLeaf spells
+    every kind for two sinks in C++, this spells the two kinds the kant shim
+    vocabulary actually HAS. Everything else returns null, which the caller
+    turns into a loud refusal.
+
+    ⚠ REFUSING IS THE FEATURE. The shim table in docs/kantParseTemplates.md has
+    exactly two live rows -- literal and rule-reference -- and four dead ones:
+    optional, repetition, alternation and captured-literal have no kant spelling
+    at all. An emitter that GUESSED at those would produce a body that parses
+    and answers wrong, which is this project's worst failure shape. It names the
+    kind it could not spell instead.
+*******************************************************************************/
+extern String kantLeaf(GroupItem node, String at)
+{
+String      leaf;
+GroupItem   inner;
+    /*  ⚠ BUILT INTO A LOCAL AND RETURNED ONCE, and `null` rather than `0`.
+        Both are emitLeaf's spelling copied exactly, and neither is taste. The
+        first cut returned the concatenation straight out of the `if` and used
+        `return 0` for the refusal; tok exited 139 and CASCADED, wiping the
+        entire extern block from the regenerated header -- 274 externs to ZERO,
+        which surfaces three files away as `no member named opEQ` in Bytecode.
+        Bear-trap #24's signature exactly, and the detector that named it in one
+        command is `grep -c '^extern' GroupRules.h` after every retok.  */
+    /*  ⚠ OPT ARM ADDED SEQ-NEXT (the OPT charter, rung one). An OPT plan node
+        WRAPS its inner node as a member, and the inner kind decides the shim:
+        a reference optional is optRK, a LITERAL optional wants optLK which IS
+        NOT BUILT. So this arm reads the inner kind and REFUSES the unbuilt one
+        BY NAME rather than spelling optRK over it — which would emit a body
+        that calls parseR on a literal term: a body that parses and answers
+        wrong, the exact shape the ALT fold gate was added for one dispatch
+        ago. Refuse-by-kind is what caught that, and this is the same guard
+        applied to the kind being introduced rather than to the ones already
+        known.  */
+    if node.tag eq "LIT"    leaf = "litK(" at ")";
+    or node.tag eq "CALL"   leaf = "parseRK(" at ")";
+    or node.tag eq "OPT" {
+        inner = node.nextMember(inner);
+        if !inner {
+            cerr "  REFUSE OPT at " at " -- plan node wraps nothing":;
+            return null; }
+        if inner.tag eq "CALL"  leaf = "optRK(" at ")";
+        else {
+            cerr "  REFUSE OPT at " at " -- optional wraps " inner.tag ", and only CALL has a kant spelling (optLK is not built)":;
+            return null; } }
+    else                    return null;
+    return leaf;
+}
+
+
+/*******************************************************************************
+    litK / parseRK — THE KANT-CALLABLE SHIMS. SEQ 54, step 2.
+
+    ⚠ BOTH TAKE A TERM POSITION -- ONE ARGUMENT -- AND THE :scope MULTI-ARG
+    IDIOM PRICED IN docs/kantShims.md §4 IS NOT NEEDED AT ALL. Measurements,
+    not concessions:
+
+      A KANT BODY CANNOT INDEX A RULE'S TERMS. `argument[1]` in an action body
+      does not reach term 1; measured 2026-08-11, the shim received a node
+      whose tag was the COMMAND NAME and dutifully tried to match the literal
+      "litK". Bear-trap #26's family -- a plausible string where a node was
+      wanted. So the position is passed as a number and the FRAME does the
+      indexing, in C++, where `rule[1]` is `rule->get(1)` and works.
+      ⚠ This made the convention CLEANER rather than costing something: the
+      body now names a term BY POSITION and holds no node at all.
+
+      lit(field,str) uses `field` ONLY for its trace line -- the match runs off
+      `str`. And for a noLabel literal term the TERM'S OWN TAG *IS* the literal:
+      the 2026-08-05 narration reads `lit " [ " at term [`. So litK derives the
+      literal from the same place the C++ emitter bakes it from, and a second
+      argument would only be a chance for the two to disagree.
+
+      parseR(term,into)'s `into` is the label to attach under, which door (a)
+      makes FRAME-OWNED. The body says what to parse; the frame says where it
+      goes.
+
+    So the convention this establishes is stronger than "one argument fits":
+    A KANT BODY NAMES A TERM AND NOTHING ELSE. Everything else -- position,
+    label, invariant -- belongs to the frame, which is SEQ 54 item 3's standing
+    convention expressed as a signature.
+
+    ⚠ RETURN CONTRACT IS truthOf's, deliberately: non-null for success, null
+    for failure, so an AND chain short-circuits on exactly the same contract
+    both engines already share. No new notion of truth enters with the parser.
+*******************************************************************************/
+extern GroupItem litK(GroupItem idx)
+{
+GroupItem   term;
+int         n;
+    if !idx     return null;
+    n = atoi(idx.text);
+    -%
+    term = gKantRule ? gKantRule->get(n) : 0;
+    %-
+    if !term {
+        cerr "litK: no term " idx.text " in the current kant parse frame":;
+        return null; }
+    if lit(term,term.tag)   return trueResult;
+    return null;
+}
+
+
+/*******************************************************************************
+    emitLeaf — one PLAN node -> one leaf expression string.
+
+    Everything here is about the TARGET and nothing about the rule: which
+    support function spells a decision the walk already made, and how a literal
+    is quoted. The walk decided LIT vs LITTO ("does this attach a label"); this
+    decides that a LITTO inside a SEQ is spelled litTo. The same plan handed to
+    a kant emitter produces different text and the same decisions — which is the
+    whole reason the seam exists.
+
+    NOTE, latent: litTo has no implementation in the support library. Never
+    fires on the ladder (every Scaf/ScafA/ScafB term is noLabel). Flagged rather
+    than silently carried.
+*******************************************************************************/
+/*******************************************************************************
+    emitMany — the repetition helper, one per repeated term (§3.3).
+
+    THIS IS WHERE INVARIANT R′ LIVES, and both clauses are properties of the
+    emitted loop rather than promises made about it:
+
+      MARK  — `from` is captured ONCE, at helper entry, and the rewind on a
+              short run goes back to THERE. The interpretive path cannot do
+              this: checkInput() reassigns hereAt at the top of every iteration
+              (RuleStuff.twk:125) and the rewind targets hereAt
+              (GroupItem.twk:1101), so after N passes it points at the start of
+              pass N. A min >= 2 term that matches once then fails strands the
+              first match. The generated loop is correct for every min/max.
+
+      LABEL — each pass calls parseR, which goes through parse() and builds a
+              FRESH label. Nothing here reads or writes fLAG, so parse()'s
+              `isGROUP && max > 1` recycling handshake (writer GroupItem.twk:1087,
+              reader RuleStuff.twk:141-144) is simply absent. R′ says do not
+              invent one.
+
+    A failing pass rewinds ITSELF (Invariant R in the callee's leaveRule), so
+    the helper never has to unwind a partial pass — it only has to give back
+    the whole run when the count is short. R and R′ compose; neither duplicates
+    the other.
+
+    min is baked as a literal. max is NOT bounded, matching the hand-written
+    manyJSONblockFields/manyJSONlistItems: every repeated term in the census is
+    unbounded (sentinel 268435457), so a bound would be dead code emitted at
+    every site. Revisit when a finite max first appears — the plan carries what
+    is needed.
+*******************************************************************************/
+/*******************************************************************************
+    locateManier — is there a KANT emitMany on the search list?
+
+    Mirrors locateSpeller exactly, one registry over. ⚠ THE SEPARATE REGISTRY IS
+    THE POINT and it was minionA's call, improving on the foreman's note. Sharing
+    `Spellers` would mean any fixture putting it on its search list turns on the
+    kant spellLeaf TOO — so genScratch could not adopt a kant emitMany without
+    switching every rung's leaf spelling in the same commit. Two registries, two
+    independent switches, two independent pins.
+*******************************************************************************/
+extern GroupItem locateManier()
+{
+GroupRules  ruler = groupRules;
+GroupItem   registri;
+GroupItem   hit;
+    while registri = searchList.next(registri)
+        if registri.tag eq "Maniers" {
+            hit = registri["spellMany"];
+            if hit  return hit; }
+    return null;
+}
+
 /*******************************************************************************
     genParse.rtn — the parse-method emitter (genParseSpec §4).
 
@@ -101,179 +1199,745 @@ GroupItem   hit;
     return null;
 }
 
+
 /*******************************************************************************
-    ruleOrRefuse — locateRule, with a refusal that says what went wrong. If a
-    bare locate() would have found something, name it and name its registry:
-    "no rule of that name" and "that name is a keyword" are different problems
-    and the caller should not have to guess which.
+    locateSpeller — is there a KANT emitLeaf on the search list?
+
+    SCOPED ON PURPOSE, and it is §1.3's lesson applied one more time: a bare
+    locate() resolves down the general search stack (pROPERTIEs, Operators,
+    cOMMANDs, Keywords, GroupFields), so anything sharing the name would be a
+    silent mis-target. Only a registry literally named `Spellers` can supply the
+    action, and only under the name `spellLeaf`.
 *******************************************************************************/
-extern GroupItem ruleOrRefuse(String name, String who)
+extern GroupItem locateSpeller()
 {
-GroupItem   rule = locateRule(name);
-GroupItem   stray;
-    if rule     return rule;
-    stray = locate(name);
-    if !stray {
-        cerr who ": no rule named " name:;
-        return null; }
-    if stray.registry
-        cerr who ": REFUSING " name " -- not a rule; locate finds a non-rule in registry " stray.registry.tag:;
-    else
-        cerr who ": REFUSING " name " -- not a rule (and it is in no registry)":;
+GroupRules  ruler = groupRules;
+GroupItem   registri;
+GroupItem   hit;
+    while registri = searchList.next(registri)
+        if registri.tag eq "Spellers" {
+            hit = registri["spellLeaf"];
+            if hit  return hit; }
     return null;
 }
 
-extern String dataName(int d)
-{
-    if !d           return "none";
-    or d == 1       return "isANY";
-    or d == 2       return "isCHAR";
-    or d == 3       return "isSET";
-    or d == 4       return "isBUFFER";
-    or d == 5       return "isCOUNT";
-    or d == 6       return "isGROUP";
-    or d == 7       return "isITEM";
-    or d == 8       return "isMAP";
-    or d == 9       return "isNUMBER";
-    or d == 10      return "isOBJECT";
-    or d == 11      return "isREGEX";
-    or d == 12      return "isSTAK";
-    or d == 13      return "isSTRING";
-    or d == 14      return "isTOKEN";
-    return "unknown";
-}
 
 /*******************************************************************************
-    row42 — which genParseSpec §4.2 row a term falls in, computed by mirroring
-    setTestMatch's cascade IN ITS OWN ORDER (upTo -> container -> data ->
-    isMacro -> isCondition -> parseACTION -> default). Order matters: `data`
-    is tested BEFORE isMacro in the real function, so a classifier that reads
-    the §4.2 table top-to-bottom would already disagree with the tree.
+    manyKant — call the kant emitMany and read its answer.
+
+    ⚠ THE ANSWER IS TEXT, NOT A POINTER, AND THAT IS FORCED (CLAIM KANT-32). A
+    kant action cannot return NULL across runAction (KANT-B1), and getText()
+    falls back to the node's TAG when there is no data — so "empty" and "named"
+    are indistinguishable and a null-test would read a refusal as a success.
+    Testing for the literal "1" instead makes ANYTHING ELSE a refusal, including
+    a kant body that failed to parse. That is the safe direction: a broken kant
+    emitter degrades to the C++ one rather than silently emitting nothing.
+
+    NOTHING RIDES IN ON THE NODE, unlike spellKant's `sink`. The MANY node already
+    carries `site` and `min`, so no attribute is stamped — which also means the
+    census cannot move underneath this.
 *******************************************************************************/
-extern String row42(GroupItem term)
+extern int manyKant(GroupItem manier, GroupItem node)
 {
-RuleStuff   rs = term.rStuff;
-int         d = term.data;
-    if !rs                          return "(no rStuff)";
-    if rs.upTo                      return "upTo";
-    or rs.upToOver                  return "upToOver";
-    or term.isBIN                   return "isBIN/isREGISTRY";
-    or term.isREGISTRY              return "isBIN/isREGISTRY";
-    or d                            return dataName(d);
-    or term.isMacro                 return "isMacro";
-    or term.isCondition             return "isCondition";
-    or term.parseACTION             return "parseACTION";
-    or !term.contents()             return "default lit/litTo";
-    return "NO ROW MATCHES";
+GroupItem   result = runAction(node,manier);
+    if !result              return 0;
+    if result.text eq "1"   return 1;
+    return 0;
 }
 
-extern GroupItem dumpRuleTerms(GroupItem argument)
+
+/*******************************************************************************
+    manyMode — WHICH implementation is live, and it is the acceptance test.
+
+    Same argument as spellMode one registry over: emitMany's fork is SILENT by
+    design, so a round that never registered its action would be just as green as
+    one that did, and the POP could not tell them apart. This prints the answer
+    and pop.sh pins it. It reads `c++` until the kant emitMany is on the search
+    list and `kant` afterwards; whoever flips it accounts for the flip.
+*******************************************************************************/
+extern GroupItem manyMode(GroupItem argument)
 {
-GroupItem   rule = locate(argument.text);
-GroupItem   term;
-GroupItem   definer;
-RuleStuff   rs;
-RuleStuff   ruleStuff;
-int         i = 1;
-    if !rule {
-        cerr "dumpRuleTerms: no rule named ",argument.text:;
-        return null; }
-    ruleStuff = rule.rStuff;
-    cerr "RULE " rule.tag " fold=" foldOf(rule):;
-    if rule.isRule      cerr "     isRule":;
-    if !rule.isRule     cerr "     NOT isRule":;
-    if rule.registry    cerr "     registry " rule.registry.tag:;
-    cerr "     rule.data=" dataName(rule.data):;
-    if ruleStuff && ruleStuff.onGroup   cerr "     rule.onGroup=" ruleStuff.onGroup.tag:;
-    if !ruleStuff                       cerr "     rule has NO rStuff":;
-    or !ruleStuff.onGroup               cerr "     rule.onGroup=NONE":;
-    while term = rule[i] {
-        rs      = term.rStuff;
-        definer = term.definingRule();
-        cerr "    [" toStringFromInt(i) "] " term.tag:;
-        if term.noPrint     cerr "         noPrint (SKIPPED by the walk)":;
-        else {
-            cerr "         ROW  " row42(term):;
-            if definer != term  cerr "         REFERENCE -> " definer.tag:;
-            cerr "         data " dataName(term.data):;
-            if term.isAttribute cerr "         attribute":;
-            if term.isMember    cerr "         member":;
-            if rs {
-                cerr "         min " toStringFromInt(rs.min) " max " toStringFromInt(rs.max):;
-                if rs.noLabel   cerr "         noLabel":;
-                if rs.isTarget  cerr "         isTarget":;
-                if rs.banged    cerr "         banged":;
-                if rs.noAdvance cerr "         noAdvance":;
-                if rs.noSkip    cerr "         noSkip":;
-                if rs.isOption  cerr "         isOption":;
-                if rs.notifyFail cerr "        notifyFail":;
-                if rs.doNothing cerr "         doNothing":;
-                if rs.testMatch cerr "         testMatch SET":;
-                if !rs.testMatch cerr "         testMatch none":;
-                if rs.onGroup   cerr "         onGroup " rs.onGroup.tag:;
-                if !rs.onGroup  cerr "         onGroup NONE":; }
-            if !rs  cerr "         NO rStuff":; }
-        i++; }
+    if locateManier()   cerr "MANIER kant":;
+    else                cerr "MANIER c++":;
     return trueResult;
 }
 
-/*******************************************************************************
-    foldOf — genParseSpec §4.1's fold selection, as a reportable value.
-*******************************************************************************/
-extern String foldOf(GroupItem rule)
-{
-    if rule.isRule && rule.hasMembers && !rule.binType   return "ALT";
-    return "SEQ";
-}
 
 /*******************************************************************************
-    countRuleTerms — how many REAL terms a rule has, by the same classifier the
-    emitter walks with. ONE implementer, deliberately: the emitter bakes indices
-    against this count and the binder re-checks it, and a check that used its
-    own private notion of "real term" would be worth nothing.
+    RUNTIME LOOP (Clay 2026-07-27) — close the loop ONCE on rung 1's scaffold
+    before climbing. Text-diff proves genParse emits what a human wrote; it says
+    nothing about whether the emitted code compiles, links, binds, or RUNS (the
+    invocation-blocker failure class was invisible to any source comparison).
+
+    NO ENTRY WRAPPER (genParseShape §1.7). runScaf/runScaf2 are RETIRED. The
+    invocation is `Scaf('x')`, exactly as `Start()` — which exercises emission,
+    the fork, binding and dispatch. A bespoke wrapper exercised none of them: it
+    called parseScaf directly, so it could have passed with the binding wholly
+    unbuilt, which is precisely the blind spot the runtime loop exists to close.
+    What the wrappers WERE good for — the Invariant R report — moved into
+    leaveRule (§1.8), where `from` and atRuleMark are both in hand at the moment
+    the question is asked.
+
+    parseScaf/parseScaf2 below are the VERBATIM output of genParse. They call
+    lit and leaveRule from the RuleStuff support library (cross-file via
+    groups.ext).
 *******************************************************************************/
-extern int countRuleTerms(GroupItem rule)
+
+/*  === GENERATED by genParse('ScafC'), pasted verbatim (rung-5 emission) ===
+    ScafC isRule ScafA+ "c"-;  — one helper per repeated term, min baked in,
+    the term arriving as the frame's term local. Invariant R′ is structural
+    here: `from` is captured ONCE at helper entry (mark clause), and each pass
+    goes through parseR -> parse() and builds a fresh label, with no fLAG
+    anywhere (label clause).  */
+extern int manyScafC1(GroupItem label, GroupItem term)
 {
+GroupRules  ruler = groupRules;
+String      from = atRuleMark;
+int         kount;
+    while parseR(term,label)    kount++;
+    if kount >= 1   return true;
+    atRuleMark = from;
+    return false;
+}
+
+
+/*******************************************************************************
+    optRK — THE OPTIONAL RULE-REFERENCE. Vocabulary item 3, rung one of the OPT
+    charter (decision (a), ruled by Tony 2026-08-13 off SEQ 72's stamped table:
+    OPT opens 5 of the 16 L/R rules, the measured maximum).
+
+    THE CONTRACT, and it is parseRK's with ONE leg's answer flipped:
+        attempt term N's parse;
+        on success  -> proceed as any term       (trueResult)
+        on failure  -> RESTORE THE CURSOR and    (trueResult)
+                       still answer success
+    Cursor discipline identical, only the verdict changes. That is why this is
+    one small function beside parseRK and not a new mechanism: it names a term
+    BY POSITION, holds no node, and leaves position/label/invariant to the
+    frame — SEQ 54/55's standing convention, unchanged.
+
+    ⚠ WHY A SEPARATE SHIM PER INNER KIND, rather than one optK that works out
+    LIT-vs-CALL at run time. planTerm ALREADY MAKES THAT DECISION when it
+    builds the plan, and a run-time re-derivation would be a SECOND IMPLEMENTER
+    of it — the exact arrangement countRuleTerms' own comment refuses ("ONE
+    implementer, deliberately"), because two implementers of one decision drift
+    and the drift is silent. So the emitter keys on the plan node's inner kind
+    and picks the shim; the shim does one thing. ⚠ THE LITERAL SIBLING optLK IS
+    NOT BUILT — `RunRulE`'s `';'-?` is the only rung-population term that wants
+    it and RunRulE is tomorrow's promotion. kantLeaf REFUSES that shape BY NAME
+    rather than letting optRK guess, per the refuse-by-kind discipline that
+    caught the ALT defect. An unexercised shim is a green row nobody cashed.
+
+    ⚠ THE RESTORE IS BELT AND BRACES ON THIS SHAPE, AND SAID SO OUT LOUD SO
+    NOBODY LATER READS IT AS LOAD-BEARING WHERE IT IS NOT. For an optional
+    REFERENCE the callee owns a frame and its own leaveRule already rewinds to
+    the callee's `from` on failure (planTerm's rung-6 note records exactly
+    this, and records that the interpretive arm instead skips the rewind and
+    re-skips before the next term, so the two are not observably different).
+    Restoring here to OUR `from` is therefore at worst a no-op and at best one
+    notch tighter than the generated arm. It is written because the CONTRACT
+    says the failure leg restores, and a contract honoured by an accident of
+    who-else-happens-to-rewind stops being honoured the day that changes.
+
+    ⚠ A BROKEN FRAME IS NOT AN ABSENT OPTIONAL, and the return values say so.
+    No `into`, no `term` -> return NULL, which fails the chain loudly. Only the
+    real "the optional did not match" leg answers success. One channel, one
+    meaning: trueResult out of here means THE CHAIN MAY PROCEED, and a missing
+    frame is not that.
+*******************************************************************************/
+extern GroupItem optRK(GroupItem idx)
+{
+GroupRules  ruler = groupRules;
+GroupItem   got;
+GroupItem   into;
 GroupItem   term;
-int         i = 1;
-int         n = 0;
-    while term = rule[i] {
-        if !term.noPrint    n++;
-        i++; }
-    return n;
+String      from = atRuleMark;
+int         n;
+    if !idx     return null;
+    n = atoi(idx.text);
+    /*  Passthrough for parseRK's reason — tok cannot see a hand-declared
+        global. Both locals are referenced OUTSIDE the block as well, which is
+        what keeps bear-trap #13 from pruning them.  */
+    -%
+    into = gKantLabel;
+    term = gKantRule ? gKantRule->get(n) : 0;
+    %-
+    if !into {
+        cerr "optRK: called outside a kant parse frame -- no label to attach under":;
+        return null; }
+    if !term {
+        cerr "optRK: no term " idx.text " in the current kant parse frame":;
+        return null; }
+    got = parseR(term,into);
+    if got  return trueResult;
+    atRuleMark = from;
+    if parseTrace   cerr "  optRK term=",term.tag," ABSENT -- cursor restored":;
+    return trueResult;
 }
+
+
+/*  === GENERATED by genParse('Braced'), pasted verbatim === SEQ 58, 2026-08-13.
+
+    THE ORACLE-BEARING CONTROL FOR THE BIND-READ SEAM. Byte-identical to
+    docs/emitted/phaseB-twelve-emitted.txt lines 2-10, which docs/respellRung.md
+    re-derived on 2026-08-11 and found unmoved, so this is the emitter's own
+    output and not a hand-written imitation.
+
+    WHY IT IS BEING ADDED NOW. SEQ 58 specified the C++ control as
+    `parseMethod=parseBraced` on the grounds that parseBraced has an oracle
+    (incant/bracedT). It had never been COMPILED -- `nm` showed zero hits and
+    the only parseBraced in the tree was emitted text inside two .md files.
+    Without it the control could only be run with a stand-in that fails to
+    match, which answers the seam bit but cannot ring SEQ 58 section 5's bell.
+
+    It costs one extern in one in-repo file. No groups.ext edit is owed: the
+    binding door reaches it by dlsym on the name, exactly as the parseScaf
+    family is reached, so nothing needs to see a declaration. No grammar line
+    either -- the bind is made from a fixture, which is the whole point of the
+    cross-file control.  */
+extern GroupItem parseBraced(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("Braced");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+GroupItem   t3 = rule[3];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, lit(t1,"[") && parseR(t2,label) && lit(t3,"]") );
+}
+
+
+extern GroupItem parseRK(GroupItem idx)
+{
+GroupItem   got;
+GroupItem   into;
+GroupItem   term;
+int         n;
+    if !idx     return null;
+    n = atoi(idx.text);
+    /*  Passthrough for the same reason as the frame above -- tok cannot see a
+        hand-declared global. Both locals are referenced OUTSIDE the block as
+        well, which is what keeps bear-trap #13 from pruning them.  */
+    -%
+    into = gKantLabel;
+    term = gKantRule ? gKantRule->get(n) : 0;
+    %-
+    if !into {
+        cerr "parseRK: called outside a kant parse frame -- no label to attach under":;
+        return null; }
+    if !term {
+        cerr "parseRK: no term " idx.text " in the current kant parse frame":;
+        return null; }
+    got = parseR(term,into);
+    if got  return trueResult;
+    return null;
+}
+
+
+extern GroupItem parseRuleMethod(GroupItem input)
+{
+String      name = text;
+RuleStuff   stuff;
+int         live;
+use input
+    if input.fLAG
+        if name {
+            GroupItem   grup = parent;
+            if grup {
+                GroupItem   ruleNode = grup.definingRule();
+                stuff = ruleNode.getRStuff();
+                live  = countRuleTerms(ruleNode);
+                if !stuff.termCount
+                    cerr "parseMethod: WARNING binding " name " to " grup.tag " with no parseTerms -- indices unguarded":;
+                or stuff.termCount != live {
+                    cerr "parseMethod: REFUSING to bind " name " to " grup.tag:;
+                    cerr "             emitted against " toStringFromInt(stuff.termCount) " terms, rule now has " toStringFromInt(live):;
+                    return group; }
+                setParseMethod(stuff,name);
+-%
+                if ( GroupControl::groupController->groupRules->parseTrace )
+                    {
+                    GroupItem *bDefiner = grup->definingRule();
+                    RuleStuff *bDefStuff = bDefiner ? bDefiner->rStuff : 0;
+                    ::fprintf(stderr,"SEAM bind  %s  boundNode=%p boundStuff=%p ownRStuffField=%p\n",
+                        grup->groupBody->tag,(void*)grup,(void*)stuff,(void*)grup->rStuff);
+                    ::fprintf(stderr,"SEAM read  %s  definer=%p defStuff=%p defParseMethod=%p  boundParseMethod=%p\n",
+                        grup->groupBody->tag,(void*)bDefiner,(void*)bDefStuff,
+                        bDefStuff ? (void*)bDefStuff->parseMethod : (void*)0,
+                        (void*)stuff->parseMethod);
+                    }
+%-
+                }
+            else    cerr "parseMethod: no rule to bind to":; }
+        else    cerr "parseMethod: expected a method name in text":;
+    else    cerr "parseMethod: should be invoked as a definition attribute":;
+    return group;
+}
+
+
+/*  === GENERATED by genParse('Scaf'), pasted verbatim (rung-1 emission) === */
+extern GroupItem parseScaf(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("Scaf");
+GroupItem   t1 = rule[1];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, lit(t1,"x") );
+}
+
+
+/*  === GENERATED by genParse('Scaf2'), pasted verbatim (rung-2 emission) === */
+extern GroupItem parseScaf2(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("Scaf2");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, lit(t1,"{") && lit(t2,"}") );
+}
+
+
+/*  === GENERATED by genParse('ScafA'), pasted verbatim (rung-4 callee) === */
+extern GroupItem parseScafA(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("ScafA");
+GroupItem   t1 = rule[1];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, lit(t1,"a") );
+}
+
+
+extern GroupItem parseScafALT(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+String      from  = atRuleMark;
+    return leaveAlt(rule,from, parseR(t1,into) || parseR(t2,into) );
+}
+
+
+/*  === GENERATED by genParse('ScafB'), pasted verbatim (rung-4 caller) ===
+    ScafB's first term is a REFERENCE to ScafA, so the leaf is parseR, not lit.
+    This is the rung the whole ladder above 4 depends on: parseR hands the term
+    to parse(), parse() resolves parseMethod from the DEFINING rule, and
+    parseScafA runs -- reached through a reference term that was never bound
+    and has its own rStuff.  */
+extern GroupItem parseScafB(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("ScafB");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, parseR(t1,label) && lit(t2,"b") );
+}
+
+
+extern GroupItem parseScafC(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("ScafC");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, manyScafC1(label,t1) && lit(t2,"c") );
+}
+
+
+/*  === GENERATED by genParse('ScafE'/'ScafF'), pasted verbatim (rung-6) ===
+    ScafE isRule "e"- ScafA? "f"-;   — optional REFERENCE
+    ScafF isRule "f"- ","?- "g"-;    — optional noLabel LITERAL
+    The two shapes the census actually contains. The optional sits between two
+    MANDATORY terms deliberately: an optional that swallows a following failure
+    is the same defect as optional-as-mandatory, inverted, and only a mandatory
+    neighbour can catch it.  */
+extern GroupItem parseScafE(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("ScafE");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+GroupItem   t3 = rule[3];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, lit(t1,"e") && (parseR(t2,label) || 1) && lit(t3,"f") );
+}
+
+
+extern GroupItem parseScafF(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("ScafF");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+GroupItem   t3 = rule[3];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, lit(t1,"f") && (lit(t2,",") || 1) && lit(t3,"g") );
+}
+
+
+/*  === GENERATED by genParse, pasted verbatim (rung-7, ALT emission) ===
+    ScafALT  ScafA; ScafI;                    — the alternation
+    ScafOUT  isRule "("- ScafALT ")"-;        — reaches it as a term
+    Note what the ALT frame does NOT have: a `label` local. §2.4 — an
+    alternation builds no label of its own and passes `into` straight through,
+    so the winning option attaches to the ENCLOSING rule's label. ScafOUT hands
+    its own `label` down as that `into`.  */
+extern GroupItem parseScafI(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("ScafI");
+GroupItem   t1 = rule[1];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, lit(t1,"i") );
+}
+
+
+extern GroupItem parseScafOUT(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("ScafOUT");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+GroupItem   t3 = rule[3];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, lit(t1,"(") && parseR(t2,label) && lit(t3,")") );
+}
+
 
 /*******************************************************************************
-    unresolvedTerms — how many REAL terms have no rStuff yet.
+    parseRuleMethod — genParseShape §4.1, the binding. What connects a compiled
+    parseScaf to Scaf.rStuff.parseMethod.
 
-    MEASURED 2026-07-28 (§1 census): rStuff is materialised LAZILY. The runtime
-    creates it on demand through getRStuff -- caught in the act, printing
-    "getRStuff: min no rStuff - creating" for one of the very terms this counts.
-    So a missing rStuff means NOT YET, not NOT A TERM, and it is nothing like
-    the noPrint code-tail entries it was briefly conflated with.
+    §4.1's candidate was the setRuleAction path in the `=value` form, and that
+    is what this is, modelled line for line on interpretMethod (GroupActions.rtn)
+    — the closest existing analogue, because it is the one command that binds a
+    dlsym'd symbol somewhere OTHER than the plain method slot. Registered in
+    cOMMANDs as `parseMethod`, used as a definition attribute:
 
-    That conflation was a real defect: with `!rStuff` in the skip test,
-    genParse('CodE') emitted `leaveRule(rule,into,label,from, (null) )` -- a
-    rule reduced to nothing -- and recorded parseTerms=0, which the §3 guard
-    would have BOUND with a warning rather than refused. Rules outside the
-    ladder only; Scaf/Scaf2/ScafA/ScafB terms all carry rStuff.
+        Scaf isRule "x"- parseMethod=parseScaf;
 
-    Until the rung-3 walk decides how to classify an unmaterialised term (it
-    cannot read modifiers that are not there yet, and whether they are merely
-    absent or genuinely default is NOT yet established), genParse REFUSES
-    rather than emitting a method it knows is missing terms. A refusal is a
-    validity question about the rule, so it belongs walk-side either way.
+    exactly the shape the grammar already uses for ruleMethod= and
+    interpretMethod=. In the kant world this whole function is one ORC-compile
+    and a stored handle; here it is a dlsym.
+
+    getRStuff, not rStuff: a rule reached at definition time may not have been
+    parsed yet, and the fork reads the field off the rule's OWN stuff.
+
+    definingRule(), not parent -- SEQ 58, 2026-08-13, and it is a MEASURED
+    repair, not a tidy-up. Both doors used to bind onto the node aCTionDefinE
+    hands them, which for a definition written in the SAME place as the rule is
+    the rule itself, so every binding that had ever been made worked. A
+    CROSS-FILE re-definition is different: the node being defined is a satellite
+    that shares the real rule's child list, and the two addresses were measured
+    apart in one run --
+
+        SEAM bind  Braced  boundNode=0x104c60840 boundStuff=0x104c5c100
+        SEAM read  Braced  definer=0x104c36a80   defStuff=0x104c34000
+                           defParseMethod=0x0    boundParseMethod=0x10406f3c8
+
+    -- so the write TOOK and the reader never saw it. parse() forks on
+    definingRule().rStuff.parseMethod (GroupItem.twk), so the cure is for the
+    door to resolve its target the same way the reader does. In the same-file
+    case definingRule() returns `this` (a node that owns its children routes
+    back to itself), so nothing that worked before changes.
+
+    BOTH DOORS MOVE TOGETHER, and that is not optional. parseTermCount writes
+    termCount and parseRuleMethod's refusal guard reads it; leaving one on the
+    satellite would compare a count nobody wrote against a rule's live terms and
+    silently downgrade the refusal to the no-parseTerms warning -- which still
+    binds. The guard would have been lost quietly, which is the failure mode
+    this fleet's rules exist to prevent.
 *******************************************************************************/
-extern int unresolvedTerms(GroupItem rule)
+extern GroupItem parseTermCount(GroupItem input)
 {
-GroupItem   term;
-int         i = 1;
-int         n = 0;
-    while term = rule[i] {
-        if !term.noPrint && !term.rStuff    n++;
-        i++; }
-    return n;
+String      name = text;
+RuleStuff   stuff;
+use input
+    if input.fLAG
+        if name {
+            GroupItem   grup = parent;
+            if grup {
+                GroupItem   ruleNode = grup.definingRule();
+                stuff = ruleNode.getRStuff();
+                stuff.termCount = atoi(name); }
+            else    cerr "parseTerms: no rule to record against":; }
+        else    cerr "parseTerms: expected a count in text":;
+    else    cerr "parseTerms: should be invoked as a definition attribute":;
+    return group;
 }
+
+
+/*******************************************************************************
+    parseViaKant — THE TRAMPOLINE. Loop closure step 1, 2026-08-11 (SEQ 52).
+
+    WHAT PROBLEM THIS SOLVES, because it is not the one the shims solve.
+    rStuff.parseMethod is a C++ FUNCTION POINTER — RuleStuff.twk:88 declares
+    `GroupItem &parseMethod(GroupItem);` — and parse() forks on it and calls
+    through it. A kant method is NOT a function pointer: it is a GroupItem
+    carrying CodE/BlocK, reached through processAction. So a kant parse method
+    cannot be installed into the slot that dispatches parse methods, and making
+    lit/parseR/leaveRule callable FROM kant does not touch that at all. The
+    shims govern what the body may call; this governs who may call the body.
+    Two distinct costs, and only the first is the "cheap" the charter promised.
+
+    THE CHEAP DOOR, AND THE OTHER ONE. RuleStuff.twk's jitMethod block named
+    this seam on 2026-08-05 and ruled that widening the pointer's signature is
+    a LAYOUT change — bear-trap #10's whole apparatus, groups.ext sync plus
+    tokall plus rebuild. This function is the other door: an ordinary C++
+    function OF THE EXISTING SIGNATURE that stands in the slot and forwards.
+    No layout change, no groups.ext edit, and it binds through the existing
+    parseMethod= dlsym path with no new vocabulary.
+
+    RESOLUTION IS BY CONVENTION, DELIBERATELY, so that v1 adds no binding verb:
+    rule `Foo` is served by the kant action named `kpFoo`. One rule, one name,
+    derivable in both directions by a reader. If a binding attribute is wanted
+    later it can carry the node itself and this lookup goes away — the
+    convention is v1's scaffolding and is not load-bearing on the design.
+
+    ⚠ IT REFUSES RATHER THAN FALLING THROUGH, and that is the tier-3 lesson
+    applied here. A missing or uncoded action returns null, which parse() reads
+    as "this rule did not match" — the honest answer — and says so on stderr
+    once. Quietly falling back to the interpretive arm would make an
+    unregistered action indistinguishable from a rule that legitimately failed,
+    which is the fold-and-be-quiet failure the degrade-zero rule exists to
+    catch.
+
+    ⚠ ONE CHANNEL, ONE MEANING: this returns what processAction returns and
+    invents nothing. A null is "no match", exactly as the emitted C++ methods'
+    leaveRule null is, so parse()'s caller cannot tell the arms apart by shape.
+*******************************************************************************/
+extern GroupItem parseViaKant(GroupItem rule)
+{
+GroupItem   action;
+GroupItem   label;
+GroupItem   result;
+String      want;
+String      from;
+String      at;
+    want    = "kp" rule.tag;
+    action  = locate(want);
+    if !action {
+        cerr "parseViaKant: no kant parse action named " want " for rule " rule.tag:;
+        return null; }
+    /*  ⚠ THE GUARD IS NOT `isCoded`, AND THE FIRST CUT'S WAS. isCoded is
+        CONSUMED BY RUNNING -- processAction compiles the body to a cached
+        BlocK and clears it -- so an isCoded test passes on fire 1 and REFUSES
+        every fire after, which is exactly what the first run of
+        incant/kantParse1 measured (row 1 dispatched, rows 2 and 4 reported
+        "carries no code"). Bear-trap #25 records the same fact from the
+        testing() side. A rule parses many times, so the guard has to hold
+        across fires: an action is runnable if it still carries source OR
+        already carries the compiled BlocK.  */
+    if !action.isCoded && !action.getAttribute("BlocK") {
+        cerr "parseViaKant: " want " carries neither code nor a compiled BlocK":;
+        return null; }
+    if parseTrace
+        cerr "    parseViaKant " rule.tag " -> " want:;
+    /*  THE FRAME. Ruled 2026-08-11 (SEQ 54, door (a)): THE MARK NEVER CROSSES.
+        A position is not a value, so it cannot travel as kant data at all; and
+        keeping it here keeps Invariant R with one writer, which RuleStuff.twk
+        says lives in leaveRule/leaveAlt and nowhere else. The kant body says
+        WHAT to match; this frame owns WHERE the input is and WHERE results go.
+
+        SAVE-AND-RESTORE IN LOCALS, NOT A GLOBAL ASSIGNMENT, because this is
+        re-entrant BY CONSTRUCTION: a kant body calls parseRK, which calls
+        parse(), which can fork straight back into this function for a nested
+        rule. The C++ call stack is the frame stack; nothing else needs to be.  */
+    from        = atRuleMark;
+    label       = new(rule.tag);
+    /*  ⚠ THE SAVE/RESTORE IS PASSTHROUGH AND IT HAS TO BE. A hand-declared C++
+        global in jitContext.h is invisible to tok's field resolution -- it
+        emits `ERROR FieldBody: could not find gKantLabel` straight into the
+        .mm, which fails at the C++ compile and names the identifier but not
+        the reason. gParseRecordArmed is the precedent and every one of ITS
+        uses is inside a passthrough too. Measured 2026-08-11.
+        The prior* locals are declared HERE in raw C++ rather than as tok
+        locals, because a tok local referenced ONLY inside passthrough is
+        pruned as unused (bear-trap #13) and the block would then reference
+        an undeclared identifier.  */
+    -%
+    GroupItem  *priorLabel = gKantLabel;
+    char       *priorFrom  = gKantFrom;
+    GroupItem  *priorRule  = gKantRule;
+    gKantLabel = label;
+    gKantFrom  = from;
+    gKantRule  = rule;
+    %-
+    result      = runAction(rule,action);
+    -%
+    gKantLabel = priorLabel;
+    gKantFrom  = priorFrom;
+    gKantRule  = priorRule;
+    %-
+    /*  leaveRule's job, done here because this IS the generated arm's exit for
+        a kant body. On success return the label and let parse() attach it
+        (PC-4: attach-under happens there, once, for every emitted method). On
+        failure rewind and return null -- and NO attach, exactly as the C++
+        twin. The trace line mirrors leaveRule's word for word so one grep
+        reads both arms.  */
+    if truthOf(result) {
+        if parseTrace   cerr "  WIN ",rule.tag," (kant)":;
+        return label; }
+    /*  ⚠ THE R LINE DISCRIMINATES, AND THE FIRST CUT'S DID NOT. It printed
+        "mark rewound" unconditionally, which is an absence-shaped assertion
+        wearing a value's clothes: it says R OK whether or not the rewind had
+        anything to give back, so the one thing a cursor fixture wants to know
+        is exactly what it cannot report. leaveRule's own line compares the
+        mark at exit against the entry mark and this mirrors it word for word,
+        so the kant arm and the C++ arm are diffable rather than merely
+        similar. Caught by writing the fixture that depends on it (H4).  */
+    at = atRuleMark;
+    atRuleMark = from;
+    if parseTrace {
+        cerr "  FAIL",rule.tag," (kant)":;
+        if at == from   cerr "       R OK   mark unmoved":;
+        else            cerr "       R OK   mark rewound":; }
+    return null;
+}
+
+
+/*******************************************************************************
+    planRule — the §4.1 fold, then one plan node per real term. NULL means the
+    whole rule is refused: a plan that is missing a term is worse than no plan.
+*******************************************************************************/
+extern GroupItem planRule(GroupItem rule)
+{
+RuleStuff   rs = rule.rStuff;
+GroupItem   plan;
+GroupItem   term;
+GroupItem   node;
+GroupItem   lab;
+GroupItem   site;
+GroupItem   at;
+GroupItem   slot;
+int         literal = 0;
+int         i = 1;
+    if unresolvedTerms(rule) {
+        cerr "  REFUSE rule " rule.tag " -- " toStringFromInt(unresolvedTerms(rule)) " unmaterialised terms":;
+        return null; }
+    /*  ⚠ GAP B FAMILY B -- RULE-LEVEL LITERAL. Phase R rung 1, 2026-08-09.
+        The charter's smallest family with a fully-known treatment: SemI=";",
+        loopOnAttributes="attributes", loopOnMembers="members". A rule whose OWN
+        data is a quoted literal matches that literal, which is precisely what
+        planTerm already emits for a literal in TERM position -- so this family
+        needs no new plan kind and no new support function. It reuses LIT/LITTO.
+
+        ⚠ THE SPLIT IS ON THE RULE'S OWN rStuff.noLabel, MIRRORING planTerm
+        EXACTLY, because LIT vs LITTO carries "does this attach a label" and
+        nothing else (see the kind table above). Copying that decision rather
+        than re-deciding it is the whole reason this family is cheap.
+
+        ⚠ AND THE FAMILY IS isSTRING ONLY, DELIBERATELY. The other five kinds
+        keep the refusal verbatim. Three constructs used to share one refusal
+        message; the taxonomy exists so each gets its own treatment and its own
+        text, and widening this test to `rule.data` would re-merge them on day
+        one. isCHAR (FloaT) LOOKS like a one-character member of this family and
+        is an OPEN row on purpose -- it carries sub-fields, so it is not this
+        shape (docs/gapBPhaseT.md, OPEN row 1).  */
+    if rule.data {
+        if !rule.isSTRING {
+            cerr "  REFUSE rule " rule.tag " -- rule-level data " dataName(rule.data) " (§4.1 rule-as-data, rung 5)":;
+            return null; }
+        if !rs {
+            cerr "  REFUSE rule " rule.tag " -- rule-level literal but no rStuff,"
+                 " so LIT vs LITTO is undecidable":;
+            return null; }
+        literal = 1; }
+    /*  A literal-valued rule legitimately has NO terms -- its data IS its
+        content -- so the no-terms refusal must not fire on it.  */
+    if !literal && !countRuleTerms(rule) {
+        cerr "  REFUSE rule " rule.tag " -- no terms at all":;
+        return null; }
+    if rule.isRule && rule.hasMembers && !rule.binType  plan = new("ALT");
+    else {
+        plan        = new("SEQ");
+        lab         = new("label");
+        lab.text    = rule.tag;
+        plan +% lab; }
+    plan.text = rule.tag;
+    /*  THE RULE'S OWN LITERAL PLANS FIRST, ahead of any terms, because it is
+        what the rule consumes before them. Family B's three rules have no terms
+        at all, so the ordering is invisible today and is written for the shape
+        rather than for the specimens.
+
+        ⚠ `at` IS 0 AND THAT IS A MARKER, NOT AN INDEX. Everywhere else `at` is a
+        baked rule[] index and term indices are 1-based, so 0 cannot collide with
+        one; it reads as "the rule's own data, not a term slot". Emit is OUT OF
+        SCOPE for this charter (§4) and belongs to genKantParse v1 -- this is
+        flagged HERE so the emit side inherits the question stated rather than
+        discovering an index that indexes nothing.  */
+    if literal {
+        if rs.noLabel   node = new("LIT");
+        else {
+            node        = new("LITTO");
+            slot        = new("slot");
+            slot.text   = rule.tag; }
+        node.text   = rule.text;
+        at          = new("at");
+        at.text     = "0";
+        node +% at;
+        if slot     node +% slot;
+        plan += node; }
+    while term = rule[i] {
+        if !term.noPrint {
+            node = planTerm(term,i);
+            if !node {
+                /*  planTerm has already printed its own refusal line; this
+                    counts THAT line. planRule's own line below is counted by
+                    dumpRulePlans, at the call site. See planTally's header.  */
+                planTally(1);
+                cerr "  REFUSE rule " rule.tag " -- term " term.tag " unclassified":;
+                return null; }
+            if node.tag eq "MANY" {
+                site        = new("site");
+                site.text   = rule.tag toStringFromInt(i);
+                node +% site; }
+            plan += node; }
+        i++; }
+    return plan;
+}
+
+
+/*******************************************************************************
+    planTally — THE RULING-4 NUMBERS, PRINTED AS SCALARS. Phase R rung 1's H4
+    obligation (Tony, 2026-08-09): the charter demands two numbers at every rung,
+    and until now BOTH were derived by grepping phaseA's output. A quantity
+    nobody prints is a quantity that can drift silently — and the SEQ 42 census
+    is this session's own proof that a derived-and-transcribed number outlives
+    the moment it was true.
+
+    ⚠ IT COUNTS AT THREE SITES, NOT SEVENTEEN, AND THE LICENCE IS A MEASURED
+    INVARIANT RATHER THAN A GUESS: every refusal line is immediately followed by
+    a `return null`, and planRule stops at its FIRST bad term. So
+        total refusals == (planRule nulls) + (planTerm nulls)
+    which is countable at the two CALL sites. Verified against the pre-change
+    corpus before being relied on:
+        97 total  ==  65 `REFUSE rule` (== 65 distinct rules refused)
+                  +   32 term-level    (== 32 `unclassified`)
+    ⚠ AND THE INVARIANT IS ASSERTED, NOT ASSUMED. It couples the tally to "one
+    line per null return", which a future two-line refusal path would break
+    silently. `genLadder/gapB.sh` therefore cross-checks the printed scalar
+    against the grep every run: the cheap instrument guards the cheap counter,
+    and a divergence names itself instead of quietly moving the metric.
+
+    mode 1 bump refusals · 2 bump plannable · 3 read refusals · 4 read plannable
+*******************************************************************************/
+extern int planTally(int mode)
+{
+-%
+    static int refusals = 0;
+    static int planned  = 0;
+    if ( mode == 1 )    return ++refusals;
+    if ( mode == 2 )    return ++planned;
+    if ( mode == 3 )    return refusals;
+    if ( mode == 4 )    return planned;
+    return -1;
+%-
+}
+
 
 /*******************************************************************************
     THE PLAN (rung 3, Clay SEQ 26 §2/§3) — the seam artifact.
@@ -499,106 +2163,6 @@ int         labelled = 0;
     return null;
 }
 
-/*******************************************************************************
-    planRule — the §4.1 fold, then one plan node per real term. NULL means the
-    whole rule is refused: a plan that is missing a term is worse than no plan.
-*******************************************************************************/
-extern GroupItem planRule(GroupItem rule)
-{
-RuleStuff   rs = rule.rStuff;
-GroupItem   plan;
-GroupItem   term;
-GroupItem   node;
-GroupItem   lab;
-GroupItem   site;
-GroupItem   at;
-GroupItem   slot;
-int         literal = 0;
-int         i = 1;
-    if unresolvedTerms(rule) {
-        cerr "  REFUSE rule " rule.tag " -- " toStringFromInt(unresolvedTerms(rule)) " unmaterialised terms":;
-        return null; }
-    /*  ⚠ GAP B FAMILY B -- RULE-LEVEL LITERAL. Phase R rung 1, 2026-08-09.
-        The charter's smallest family with a fully-known treatment: SemI=";",
-        loopOnAttributes="attributes", loopOnMembers="members". A rule whose OWN
-        data is a quoted literal matches that literal, which is precisely what
-        planTerm already emits for a literal in TERM position -- so this family
-        needs no new plan kind and no new support function. It reuses LIT/LITTO.
-
-        ⚠ THE SPLIT IS ON THE RULE'S OWN rStuff.noLabel, MIRRORING planTerm
-        EXACTLY, because LIT vs LITTO carries "does this attach a label" and
-        nothing else (see the kind table above). Copying that decision rather
-        than re-deciding it is the whole reason this family is cheap.
-
-        ⚠ AND THE FAMILY IS isSTRING ONLY, DELIBERATELY. The other five kinds
-        keep the refusal verbatim. Three constructs used to share one refusal
-        message; the taxonomy exists so each gets its own treatment and its own
-        text, and widening this test to `rule.data` would re-merge them on day
-        one. isCHAR (FloaT) LOOKS like a one-character member of this family and
-        is an OPEN row on purpose -- it carries sub-fields, so it is not this
-        shape (docs/gapBPhaseT.md, OPEN row 1).  */
-    if rule.data {
-        if !rule.isSTRING {
-            cerr "  REFUSE rule " rule.tag " -- rule-level data " dataName(rule.data) " (§4.1 rule-as-data, rung 5)":;
-            return null; }
-        if !rs {
-            cerr "  REFUSE rule " rule.tag " -- rule-level literal but no rStuff,"
-                 " so LIT vs LITTO is undecidable":;
-            return null; }
-        literal = 1; }
-    /*  A literal-valued rule legitimately has NO terms -- its data IS its
-        content -- so the no-terms refusal must not fire on it.  */
-    if !literal && !countRuleTerms(rule) {
-        cerr "  REFUSE rule " rule.tag " -- no terms at all":;
-        return null; }
-    if rule.isRule && rule.hasMembers && !rule.binType  plan = new("ALT");
-    else {
-        plan        = new("SEQ");
-        lab         = new("label");
-        lab.text    = rule.tag;
-        plan +% lab; }
-    plan.text = rule.tag;
-    /*  THE RULE'S OWN LITERAL PLANS FIRST, ahead of any terms, because it is
-        what the rule consumes before them. Family B's three rules have no terms
-        at all, so the ordering is invisible today and is written for the shape
-        rather than for the specimens.
-
-        ⚠ `at` IS 0 AND THAT IS A MARKER, NOT AN INDEX. Everywhere else `at` is a
-        baked rule[] index and term indices are 1-based, so 0 cannot collide with
-        one; it reads as "the rule's own data, not a term slot". Emit is OUT OF
-        SCOPE for this charter (§4) and belongs to genKantParse v1 -- this is
-        flagged HERE so the emit side inherits the question stated rather than
-        discovering an index that indexes nothing.  */
-    if literal {
-        if rs.noLabel   node = new("LIT");
-        else {
-            node        = new("LITTO");
-            slot        = new("slot");
-            slot.text   = rule.tag; }
-        node.text   = rule.text;
-        at          = new("at");
-        at.text     = "0";
-        node +% at;
-        if slot     node +% slot;
-        plan += node; }
-    while term = rule[i] {
-        if !term.noPrint {
-            node = planTerm(term,i);
-            if !node {
-                /*  planTerm has already printed its own refusal line; this
-                    counts THAT line. planRule's own line below is counted by
-                    dumpRulePlans, at the call site. See planTally's header.  */
-                planTally(1);
-                cerr "  REFUSE rule " rule.tag " -- term " term.tag " unclassified":;
-                return null; }
-            if node.tag eq "MANY" {
-                site        = new("site");
-                site.text   = rule.tag toStringFromInt(i);
-                node +% site; }
-            plan += node; }
-        i++; }
-    return plan;
-}
 
 /*******************************************************************************
     printPlan — the plan made visible. This is the mitigation for the plan's own
@@ -626,619 +2190,41 @@ String      deeper;
     return 1;
 }
 
-/*******************************************************************************
-    planTally — THE RULING-4 NUMBERS, PRINTED AS SCALARS. Phase R rung 1's H4
-    obligation (Tony, 2026-08-09): the charter demands two numbers at every rung,
-    and until now BOTH were derived by grepping phaseA's output. A quantity
-    nobody prints is a quantity that can drift silently — and the SEQ 42 census
-    is this session's own proof that a derived-and-transcribed number outlives
-    the moment it was true.
 
-    ⚠ IT COUNTS AT THREE SITES, NOT SEVENTEEN, AND THE LICENCE IS A MEASURED
-    INVARIANT RATHER THAN A GUESS: every refusal line is immediately followed by
-    a `return null`, and planRule stops at its FIRST bad term. So
-        total refusals == (planRule nulls) + (planTerm nulls)
-    which is countable at the two CALL sites. Verified against the pre-change
-    corpus before being relied on:
-        97 total  ==  65 `REFUSE rule` (== 65 distinct rules refused)
-                  +   32 term-level    (== 32 `unclassified`)
-    ⚠ AND THE INVARIANT IS ASSERTED, NOT ASSUMED. It couples the tally to "one
-    line per null return", which a future two-line refusal path would break
-    silently. `genLadder/gapB.sh` therefore cross-checks the printed scalar
-    against the grep every run: the cheap instrument guards the cheap counter,
-    and a divergence names itself instead of quietly moving the metric.
-
-    mode 1 bump refusals · 2 bump plannable · 3 read refusals · 4 read plannable
-*******************************************************************************/
-extern int planTally(int mode)
-{
--%
-    static int refusals = 0;
-    static int planned  = 0;
-    if ( mode == 1 )    return ++refusals;
-    if ( mode == 2 )    return ++planned;
-    if ( mode == 3 )    return refusals;
-    if ( mode == 4 )    return planned;
-    return -1;
-%-
-}
-
-/*******************************************************************************
-    dumpPlanTally — print the two ruling-4 scalars. Called from incant/phaseA as
-    the last statement before its sentinel, so a truncated walk cannot print a
-    tally and a tally therefore means the walk finished.
-*******************************************************************************/
-extern GroupItem dumpPlanTally(GroupItem argument)
-{
-    /*  ⚠ THE PREFIX IS `TALLY`, NOT `PLAN TALLY`, AND THAT IS NOT COSMETIC.
-        phaseA's A1 completeness guard counts `PLAN <name>` against
-        `DONE <name>`; a tally line beginning "PLAN " is counted as a walked
-        rule and the guard reads 80 PLAN / 78 DONE -- i.e. THE INSTRUMENT THAT
-        DETECTS A TRUNCATED WALK REPORTS A TRUNCATED WALK, caused by the
-        instrument added beside it. Measured on the first run of this rung.  */
-    cerr "TALLY refusals = " toStringFromInt(planTally(3)):;
-    cerr "TALLY plannable = " toStringFromInt(planTally(4)):;
-    return trueResult;
-}
-
-/*******************************************************************************
-    dumpRulePlans — the CENSUS FIXTURE (Clay SEQ 26). The ladder targets cannot
-    test the classifier: Scaf/Scaf2/ScafA/ScafB exercise two kinds out of five
-    and never carry an unmaterialised term. This runs the walk over the whole
-    27-rule census and prints the plan or the refusal for every one, so the
-    classifier gets the POP it otherwise lacks. The assertion is at PLAN level,
-    so it is target-independent and survives the kant emitter unchanged.
-*******************************************************************************/
-extern GroupItem dumpRulePlans(GroupItem argument)
-{
-GroupItem   rule;
-GroupItem   plan;
-    cerr "PLAN " argument.text:;
-    rule = ruleOrRefuse(argument.text,"  plan");
-    if !rule    return null;
-    plan = planRule(rule);
-    /*  THE RULING-4 TALLY, counted where the walk is DRIVEN rather than at
-        seventeen refusal sites (planTally's header carries the measured
-        invariant that licenses this). A refused rule contributed exactly one
-        planRule line; a rule refused ON A TERM contributed one more, counted
-        inside planRule.  */
-    if plan {
-        planTally(2);
-        printPlan(plan,"  "); }
-    else    planTally(1);
-    return trueResult;
-}
-
-/*******************************************************************************
-    dumpSpellings — emitLeaf's OWN fixture, and it exists because emitLeaf was
-    about to be replaced with nothing to diff the replacement against.
-
-    THE ORACLE IS THE FUNCTION BEING REPLACED. That is the whole design: this
-    prints, for a named rule, the spelling emitLeaf produces for every plan node
-    it planned, under BOTH sinks. Capture it while the C++ emitLeaf is still the
-    only implementation and it becomes a byte-exact target the kant emitLeaf must
-    reproduce — the same discipline as `rung4.target` holding the emitted text
-    against the compiled-in method.
-
-    WHY NOT JUST USE THE RUNG TARGETS: emitLeaf writes every term spelling
-    inside them, so they DO gate it — but only for the kinds the ladder reaches.
-    LITTO is reached by no ladder rule (every Scaf term is noLabel), so both of
-    its spellings, `litTo` and `litOption`, were UNGATED. `CodE` plans as a SEQ
-    of two LITTO terms, so driving this off the census rules instead of the
-    ladder covers the kind the ladder cannot.
-
-    BOTH SINKS ON EVERY NODE, deliberately, even where the fold could never ask
-    for one: `into` is the ALT sink and `label` the SEQ sink, and LITTO is the
-    ONLY kind whose text differs between them. Printing both on every node costs
-    two lines and means the target moves if that ever stops being true.
-*******************************************************************************/
-/*******************************************************************************
-    kantLeaf -- ONE PLAN KIND, ONE KANT SPELLING. SEQ 67 part B / 66-r1 phase 2.
-
-    The kant twin of emitLeaf, and deliberately much smaller: emitLeaf spells
-    every kind for two sinks in C++, this spells the two kinds the kant shim
-    vocabulary actually HAS. Everything else returns null, which the caller
-    turns into a loud refusal.
-
-    ⚠ REFUSING IS THE FEATURE. The shim table in docs/kantParseTemplates.md has
-    exactly two live rows -- literal and rule-reference -- and four dead ones:
-    optional, repetition, alternation and captured-literal have no kant spelling
-    at all. An emitter that GUESSED at those would produce a body that parses
-    and answers wrong, which is this project's worst failure shape. It names the
-    kind it could not spell instead.
-*******************************************************************************/
-extern String kantLeaf(GroupItem node, String at)
-{
-String      leaf;
-GroupItem   inner;
-    /*  ⚠ BUILT INTO A LOCAL AND RETURNED ONCE, and `null` rather than `0`.
-        Both are emitLeaf's spelling copied exactly, and neither is taste. The
-        first cut returned the concatenation straight out of the `if` and used
-        `return 0` for the refusal; tok exited 139 and CASCADED, wiping the
-        entire extern block from the regenerated header -- 274 externs to ZERO,
-        which surfaces three files away as `no member named opEQ` in Bytecode.
-        Bear-trap #24's signature exactly, and the detector that named it in one
-        command is `grep -c '^extern' GroupRules.h` after every retok.  */
-    /*  ⚠ OPT ARM ADDED SEQ-NEXT (the OPT charter, rung one). An OPT plan node
-        WRAPS its inner node as a member, and the inner kind decides the shim:
-        a reference optional is optRK, a LITERAL optional wants optLK which IS
-        NOT BUILT. So this arm reads the inner kind and REFUSES the unbuilt one
-        BY NAME rather than spelling optRK over it — which would emit a body
-        that calls parseR on a literal term: a body that parses and answers
-        wrong, the exact shape the ALT fold gate was added for one dispatch
-        ago. Refuse-by-kind is what caught that, and this is the same guard
-        applied to the kind being introduced rather than to the ones already
-        known.  */
-    if node.tag eq "LIT"    leaf = "litK(" at ")";
-    or node.tag eq "CALL"   leaf = "parseRK(" at ")";
-    or node.tag eq "OPT" {
-        inner = node.nextMember(inner);
-        if !inner {
-            cerr "  REFUSE OPT at " at " -- plan node wraps nothing":;
-            return null; }
-        if inner.tag eq "CALL"  leaf = "optRK(" at ")";
-        else {
-            cerr "  REFUSE OPT at " at " -- optional wraps " inner.tag ", and only CALL has a kant spelling (optLK is not built)":;
-            return null; } }
-    else                    return null;
-    return leaf;
-}
-
-/*******************************************************************************
-    genKant -- EMIT A RULE'S KANT PARSE BODY FROM ITS LIVE TERMS.
-
-    THE POINT OF THE WHOLE RATCHET. A hand-written body is a MANUAL RUN OF THIS
-    FUNCTION; this replaces the hand. Its oracle is byte-identity with the hand
-    body that incant/bracedK already certified end to end (SEQ 63), so a
-    byte-match inherits that certification rather than re-earning it -- identical
-    bytes through a certified pipeline cannot behave differently.
-
-    TEXT-FIRST, through the proven include chain (E0's route pricing). Tree
-    synthesis is a later economy and is NOT what this does.
-
-    ⚠ FROM THE LIVE TERMS, MEASURED, NOT BY EYE. It walks planRule's classified
-    plan -- the same walk dumpSpellings makes -- so the indices and kinds come
-    from the rule as it exists in the tree at this moment. Writing them by eye is
-    exactly the staleness class the index-guard item exists to name.
-
-    ⚠ EMITTED TO stderr, not stdout, and that is bear-trap #14: a run that ends
-    via stop() exits hard with no flush, so buffered stdout vanishes and looks
-    exactly like an emitter that never ran.
-*******************************************************************************/
-extern GroupItem genKant(GroupItem argument)
-{
-GroupItem   rule;
-GroupItem   plan;
-GroupItem   node;
-GroupItem   at;
-String      body;
-String      piece;
-int         n = 0;
-    rule = ruleOrRefuse(argument.text,"  kant");
-    if !rule    return null;
-    plan = planRule(rule);
-    if !plan {
-        cerr "genKant: REFUSING " argument.text " -- no plan":;
-        return null; }
-    /*  ⚠ THE FOLD GATE, AND IT IS A REPAIR, NOT A PRECAUTION. SEQ 71, found by
-        the survey the same day the emitter landed. The join below is
-        UNCONDITIONALLY " AND ", which is correct for a SEQ and WRONG FOR AN
-        ALTERNATION -- an ALT means any option matches, and an AND chain means
-        they all must. Three of the five rules the survey found emittable are
-        fold=ALT (InvokeArg, ElsE, WardeD), so without this gate the emitter
-        produced bodies that PARSE AND ANSWER WRONG for every one of them.
-
-        ⚠ NOTE WHAT DID NOT CATCH IT. kantLeaf refuses by KIND and covered every
-        unknown TERM; nothing covered the wrong JOIN, because the join is not a
-        term. A per-item guard does not see a whole-body property. That is the
-        gap worth remembering, not the three rule names.
-
-        REFUSING RATHER THAN EMITTING `OR`, deliberately: the template table's
-        alternation row is dead for a second, independent reason -- an option
-        attaches through a different frame (`into`, not `label`) -- so an OR
-        chain would be the right operator on the wrong plumbing. One dead row,
-        not half of one.  */
-    if plan.tag ne "SEQ" {
-        cerr "genKant: REFUSING " argument.text " -- fold is " plan.tag ", and only SEQ has a kant spelling":;
-        return null; }
-    while node = plan.nextMember(node) {
-        at      = node.getAttribute("at");
-        piece   = kantLeaf(node,at.text);
-        if !piece {
-            cerr "genKant: REFUSING " argument.text " -- term " at.text " is " node.tag ", which has no kant spelling":;
-            return null; }
-        if n    body = body " AND " piece;
-        else    body = piece;
-        n = n + 1; }
-    if !n {
-        cerr "genKant: REFUSING " argument.text " -- plan has no terms":;
-        return null; }
-    cerr "define":;
-    cerr "    kp" argument.text " code={":;
-    cerr "        return " body ";":;
-    cerr "        };":;
-    cerr "    ;":;
-    return trueResult;
-}
-
-extern GroupItem dumpSpellings(GroupItem argument)
-{
-GroupItem   rule;
-GroupItem   plan;
-GroupItem   node;
-GroupItem   at;
-String      local;
-String      piece;
-    cerr "SPELL " argument.text:;
-    rule = ruleOrRefuse(argument.text,"  spell");
-    if !rule    return null;
-    plan = planRule(rule);
-    if !plan {
-        cerr "  no plan":;
-        return null; }
-    cerr "  fold " plan.tag:;
-    while node = plan.nextMember(node) {
-        at      = node.getAttribute("at");
-        local   = "t" at.text;
-        piece   = emitLeaf(node,local,"label");
-        if !piece   piece = "REFUSED";
-        cerr "  " node.tag " sink=label " piece:;
-        piece   = emitLeaf(node,local,"into");
-        if !piece   piece = "REFUSED";
-        cerr "  " node.tag " sink=into  " piece:; }
-    return trueResult;
-}
-
-/*******************************************************************************
-    emitLeaf — one PLAN node -> one leaf expression string.
-
-    Everything here is about the TARGET and nothing about the rule: which
-    support function spells a decision the walk already made, and how a literal
-    is quoted. The walk decided LIT vs LITTO ("does this attach a label"); this
-    decides that a LITTO inside a SEQ is spelled litTo. The same plan handed to
-    a kant emitter produces different text and the same decisions — which is the
-    whole reason the seam exists.
-
-    NOTE, latent: litTo has no implementation in the support library. Never
-    fires on the ladder (every Scaf/ScafA/ScafB term is noLabel). Flagged rather
-    than silently carried.
-*******************************************************************************/
-/*******************************************************************************
-    emitMany — the repetition helper, one per repeated term (§3.3).
-
-    THIS IS WHERE INVARIANT R′ LIVES, and both clauses are properties of the
-    emitted loop rather than promises made about it:
-
-      MARK  — `from` is captured ONCE, at helper entry, and the rewind on a
-              short run goes back to THERE. The interpretive path cannot do
-              this: checkInput() reassigns hereAt at the top of every iteration
-              (RuleStuff.twk:125) and the rewind targets hereAt
-              (GroupItem.twk:1101), so after N passes it points at the start of
-              pass N. A min >= 2 term that matches once then fails strands the
-              first match. The generated loop is correct for every min/max.
-
-      LABEL — each pass calls parseR, which goes through parse() and builds a
-              FRESH label. Nothing here reads or writes fLAG, so parse()'s
-              `isGROUP && max > 1` recycling handshake (writer GroupItem.twk:1087,
-              reader RuleStuff.twk:141-144) is simply absent. R′ says do not
-              invent one.
-
-    A failing pass rewinds ITSELF (Invariant R in the callee's leaveRule), so
-    the helper never has to unwind a partial pass — it only has to give back
-    the whole run when the count is short. R and R′ compose; neither duplicates
-    the other.
-
-    min is baked as a literal. max is NOT bounded, matching the hand-written
-    manyJSONblockFields/manyJSONlistItems: every repeated term in the census is
-    unbounded (sentinel 268435457), so a bound would be dead code emitted at
-    every site. Revisit when a finite max first appears — the plan carries what
-    is needed.
-*******************************************************************************/
-/*******************************************************************************
-    locateManier — is there a KANT emitMany on the search list?
-
-    Mirrors locateSpeller exactly, one registry over. ⚠ THE SEPARATE REGISTRY IS
-    THE POINT and it was minionA's call, improving on the foreman's note. Sharing
-    `Spellers` would mean any fixture putting it on its search list turns on the
-    kant spellLeaf TOO — so genScratch could not adopt a kant emitMany without
-    switching every rung's leaf spelling in the same commit. Two registries, two
-    independent switches, two independent pins.
-*******************************************************************************/
-extern GroupItem locateManier()
+extern GroupItem recordParse(GroupItem argument)
 {
 GroupRules  ruler = groupRules;
-GroupItem   registri;
-GroupItem   hit;
-    while registri = searchList.next(registri)
-        if registri.tag eq "Maniers" {
-            hit = registri["spellMany"];
-            if hit  return hit; }
-    return null;
-}
-
-/*******************************************************************************
-    manyKant — call the kant emitMany and read its answer.
-
-    ⚠ THE ANSWER IS TEXT, NOT A POINTER, AND THAT IS FORCED (CLAIM KANT-32). A
-    kant action cannot return NULL across runAction (KANT-B1), and getText()
-    falls back to the node's TAG when there is no data — so "empty" and "named"
-    are indistinguishable and a null-test would read a refusal as a success.
-    Testing for the literal "1" instead makes ANYTHING ELSE a refusal, including
-    a kant body that failed to parse. That is the safe direction: a broken kant
-    emitter degrades to the C++ one rather than silently emitting nothing.
-
-    NOTHING RIDES IN ON THE NODE, unlike spellKant's `sink`. The MANY node already
-    carries `site` and `min`, so no attribute is stamped — which also means the
-    census cannot move underneath this.
-*******************************************************************************/
-extern int manyKant(GroupItem manier, GroupItem node)
-{
-GroupItem   result = runAction(node,manier);
-    if !result              return 0;
-    if result.text eq "1"   return 1;
-    return 0;
-}
-
-/*******************************************************************************
-    manyMode — WHICH implementation is live, and it is the acceptance test.
-
-    Same argument as spellMode one registry over: emitMany's fork is SILENT by
-    design, so a round that never registered its action would be just as green as
-    one that did, and the POP could not tell them apart. This prints the answer
-    and pop.sh pins it. It reads `c++` until the kant emitMany is on the search
-    list and `kant` afterwards; whoever flips it accounts for the flip.
-*******************************************************************************/
-extern GroupItem manyMode(GroupItem argument)
-{
-    if locateManier()   cerr "MANIER kant":;
-    else                cerr "MANIER c++":;
+    -%
+    gParseRecordArmed = 1;
+    %-
     return trueResult;
 }
 
-extern int emitMany(GroupItem node)
-{
-GroupItem   manier = locateManier();
-GroupItem   site = node.getAttribute("site");
-GroupItem   low  = node.getAttribute("min");
-String      name;
-    /*  THE FORK. Absent a kant emitMany this is the function it always was, so
-        every existing target holds with or without incant/genMany present —
-        which is emitLeaf's proven shape and the reason the C++ body is not
-        deleted during a conversion round.  */
-    if manier   return manyKant(manier,node);
-    if !site || !low {
-        cerr "emitMany: MANY node has no site/min":;
-        return 0; }
-    name = "many" site.text;
-    cerr "extern int " name "(GroupItem label, GroupItem term)":;
-    cerr "{":;
-    cerr "GroupRules  ruler = groupRules;":;
-    cerr "String      from = atRuleMark;":;
-    cerr "int         kount;":;
-    cerr "    while parseR(term,label)    kount++;":;
-    cerr "    if kount >= " low.text "   return true;":;
-    cerr "    atRuleMark = from;":;
-    cerr "    return false;":;
-    cerr "}":;
-    return 1;
-}
 
 /*******************************************************************************
-    locateSpeller — is there a KANT emitLeaf on the search list?
-
-    SCOPED ON PURPOSE, and it is §1.3's lesson applied one more time: a bare
-    locate() resolves down the general search stack (pROPERTIEs, Operators,
-    cOMMANDs, Keywords, GroupFields), so anything sharing the name would be a
-    silent mis-target. Only a registry literally named `Spellers` can supply the
-    action, and only under the name `spellLeaf`.
+    row42 — which genParseSpec §4.2 row a term falls in, computed by mirroring
+    setTestMatch's cascade IN ITS OWN ORDER (upTo -> container -> data ->
+    isMacro -> isCondition -> parseACTION -> default). Order matters: `data`
+    is tested BEFORE isMacro in the real function, so a classifier that reads
+    the §4.2 table top-to-bottom would already disagree with the tree.
 *******************************************************************************/
-extern GroupItem locateSpeller()
+extern String row42(GroupItem term)
 {
-GroupRules  ruler = groupRules;
-GroupItem   registri;
-GroupItem   hit;
-    while registri = searchList.next(registri)
-        if registri.tag eq "Spellers" {
-            hit = registri["spellLeaf"];
-            if hit  return hit; }
-    return null;
+RuleStuff   rs = term.rStuff;
+int         d = term.data;
+    if !rs                          return "(no rStuff)";
+    if rs.upTo                      return "upTo";
+    or rs.upToOver                  return "upToOver";
+    or term.isBIN                   return "isBIN/isREGISTRY";
+    or term.isREGISTRY              return "isBIN/isREGISTRY";
+    or d                            return dataName(d);
+    or term.isMacro                 return "isMacro";
+    or term.isCondition             return "isCondition";
+    or term.parseACTION             return "parseACTION";
+    or !term.contents()             return "default lit/litTo";
+    return "NO ROW MATCHES";
 }
 
-/*******************************************************************************
-    spellKant — call the kant emitLeaf and hand back its text.
-
-    ONE ARGUMENT, because a kant action takes one: the plan node. `local` is not
-    passed at all — the kant side derives it from the node's own `at` attribute,
-    which every node carries INCLUDING an OPT's wrapped inner node (planTerm
-    builds `at` before the OPT wrap and both end up with the same index). `sink`
-    is the one thing genuinely external to the node — it is the fold's decision —
-    so it rides as an attribute.
-
-    THE `sink` ATTRIBUTE IS REUSED, NOT STACKED, exactly as iterBind reuses its
-    `source` child: a second call must retarget the first attribute rather than
-    add another, or getAttribute keeps answering with the stale one. `sink` is
-    not among the attributes printPlan prints, so the census cannot move under it.
-*******************************************************************************/
-/*******************************************************************************
-    spellMode — WHICH implementation is live. One line, and it is the whole
-    answer to "a green stub reads as coverage".
-
-    emitLeaf's fork is silent by design: absent a kant speller it is the function
-    it always was, so every target stays green — which means a round that never
-    registered its action would ALSO be green, and the POP could not tell the
-    difference. This prints the answer, `pop.sh` pins it, and the pin is the
-    acceptance test: it says `c++` until the kant emitLeaf lands and `kant`
-    afterwards, and whoever flips it accounts for the flip. Same shape as
-    tree.divergence flipping from asserting a divergence to asserting agreement.
-
-    Called BEFORE the first `SPELL` line on purpose — spell.target starts at
-    `SPELL`, so the mode line is asserted separately and cannot move the target.
-*******************************************************************************/
-extern GroupItem spellMode(GroupItem argument)
-{
-    if locateSpeller()  cerr "SPELLER kant":;
-    else                cerr "SPELLER c++":;
-    return trueResult;
-}
-
-extern String spellKant(GroupItem speller, GroupItem node, String sink)
-{
-GroupItem   slot;
-GroupItem   result;
-    slot = node.getAttribute("sink");
-    if !slot {
-        slot = new("sink");
-        node +% slot; }
-    slot.text = sink;
-    result = runAction(node,speller);
-    if !result  return null;
-    return result.text;
-}
-
-extern String emitLeaf(GroupItem node, String local, String sink)
-{
-GroupItem   speller = locateSpeller();
-GroupItem   slot;
-GroupItem   site;
-GroupItem   inner;
-char        dq = 34;
-String      leaf;
-String      piece;
-    /*  IF A KANT SPELLER IS REGISTERED, ITS ANSWER IS AUTHORITATIVE — INCLUDING
-        NULL. Falling back to the C++ body on a null would mean a kant refusal
-        (or a kant bug) silently produced the right text, and the whole point of
-        the handover is that a kant defect must be VISIBLE. So the lookup decides
-        which implementation runs, and the result never does.
-
-        Absent a speller this is byte-for-byte the function it always was, which
-        is why every existing target still holds. Same shape as parseMethod's
-        fork: bind if it is there, run the oracle if it is not.  */
-    if speller  return spellKant(speller,node,sink);
-    if node.tag eq "OPT" {
-        inner = node.nextMember(inner);
-        if !inner {
-            cerr "emitLeaf: OPT node has no wrapped term":;
-            return null; }
-        piece = emitLeaf(inner,local,sink);
-        if !piece   return null;
-        leaf = "(" piece " || 1)"; }
-    or node.tag eq "MANY" {
-        site = node.getAttribute("site");
-        leaf = "many" site.text "(" sink "," local ")"; }
-    or node.tag eq "CONTAINER" {
-        slot = node.getAttribute("slot");
-        leaf = "containerTo(" local "," sink "," dq slot.text dq ")"; }
-    or node.tag eq "CALL"       leaf = "parseR(" local "," sink ")";
-    or node.tag eq "LIT"        leaf = "lit(" local "," dq node.text dq ")";
-    or node.tag eq "LITTO" {
-        slot = node.getAttribute("slot");
-        if sink eq "into"
-            leaf = "litOption(" local ",into," dq node.text dq ")";
-        else
-            leaf = "litTo(" local ",label," dq node.text dq "," dq slot.text dq ")"; }
-    else {
-        cerr "emitLeaf: no emission for plan kind " node.tag:;
-        return null; }
-    return leaf;
-}
-
-/*******************************************************************************
-    emitPlan — a plan tree -> C++ text. The emitter side of the seam (§4): the
-    frame preamble, joining conjuncts with &&, quoting. It reads the plan and
-    NEVER the rule, which is the property that makes it replaceable.
-
-    ALT is REFUSED rather than emitted. The old interleaved path would have
-    written a SEQ frame with && joins for an alternation, which was simply
-    wrong; a plan makes the fold explicit, so the wrongness became visible the
-    moment there was something to look at. leaveAlt/|| emission arrives with the
-    alternation rung.
-*******************************************************************************/
-extern GroupItem emitPlan(GroupItem plan)
-{
-GroupItem   node;
-GroupItem   lab;
-GroupItem   at;
-String      tag = plan.text;
-String      terms;
-String      local;
-String      index;
-String      piece;
-String      sink;
-String      joiner;
-int         isAlt = 0;
-int         first = 1;
-int         n = 0;
-char        dq = 34;
-    if plan.tag eq "ALT"    isAlt = 1;
-    or plan.tag ne "SEQ" {
-        cerr "emitPlan: REFUSING " tag " -- fold " plan.tag " has no emitter":;
-        return null; }
-    /*  THE FOLD DECIDES THE SINK AND THE JOINER, and both are emitter-side
-        (§4): the walk already said SEQ or ALT, this only spells it.
-
-        S2.4 — AN ALTERNATION BUILDS NO LABEL OF ITS OWN and passes `into`
-        straight through, so the winning option attaches to the ENCLOSING
-        rule's label. Getting this wrong yields the right LANGUAGE over the
-        WRONG TREE — an empty JSONvalue wrapping every value — which passes
-        every mark-and-win check and only surfaces when a code={} action reads
-        it. That is why rung 7's acceptance test is a TREE COMPARISON against
-        the interpretive path, not a WIN/FAIL run.
-
-        So an ALT emits no `label` local, its options take `into`, and a
-        labelled literal option is spelled litOption (which attaches itself,
-        because leaveAlt is label-transparent by design) rather than litTo.
-        litOption's first parameter is already the term, matching the
-        term-first convention, and is unused exactly as lit's is — re-read
-        2026-07-28 before wiring it in.  */
-    if isAlt {
-        sink    = "into";
-        joiner  = " || "; }
-    else {
-        sink    = "label";
-        joiner  = " && ";
-        lab     = plan.getAttribute("label"); }
-    /*  FIRST PASS: validate every node, and emit the helpers §3.3 calls for.
-        This is what the two-pass shape exists for — a helper is discovered
-        mid-walk, and with text already going out you would have to buffer it or
-        emit it out of order. With a plan you simply walk it again.  */
-    while node = plan.nextMember(node) {
-        if isAlt
-            if node.tag ne "CALL" && node.tag ne "LITTO" {
-                cerr "emitPlan: REFUSING " tag " -- " node.tag " as an alternation option (no census shape)":;
-                return null; }
-        at      = node.getAttribute("at");
-        index   = at.text;
-        local   = "t" index;
-        piece   = emitLeaf(node,local,sink);
-        if !piece {
-            cerr "emitPlan: REFUSING " tag " -- unemittable plan node":;
-            return null; }
-        if node.tag eq "MANY"
-            if !emitMany(node) {
-                cerr "emitPlan: REFUSING " tag " -- unemittable repetition helper":;
-                return null; }
-        n++; }
-    cerr "extern GroupItem parse" tag "(GroupItem rule)":;
-    cerr "{":;
-    cerr "GroupItem   into  = rule.rStuff.parentLabel;":;
-    if !isAlt   cerr "GroupItem   label = new(" dq lab.text dq ");":;
-    node = 0;
-    while node = plan.nextMember(node) {
-        at      = node.getAttribute("at");
-        index   = at.text;
-        local   = "t" index;
-        cerr "GroupItem   " local " = rule[" index "];":;
-        piece   = emitLeaf(node,local,sink);
-        if first    terms = piece;
-        else        terms = terms joiner piece;
-        first = 0; }
-    cerr "String      from  = atRuleMark;":;
-    if isAlt    cerr "    return leaveAlt(rule,from, " terms " );":;
-    else        cerr "    return leaveRule(rule,into,label,from, " terms " );":;
-    cerr "}":;
-    cerr "/*  bind:  " tag " parseTerms=" toStringFromInt(n) " parseMethod=parse" tag ";  */":;
-    return trueResult;
-}
 
 /*******************************************************************************
     genParse — two passes now, and that is the rung-3 result: planRule DECIDES,
@@ -1344,14 +2330,59 @@ GroupItem   grup;
     return name;
 }
 
-extern GroupItem recordParse(GroupItem argument)
+
+/*******************************************************************************
+    ruleOrRefuse — locateRule, with a refusal that says what went wrong. If a
+    bare locate() would have found something, name it and name its registry:
+    "no rule of that name" and "that name is a keyword" are different problems
+    and the caller should not have to guess which.
+*******************************************************************************/
+extern GroupItem ruleOrRefuse(String name, String who)
 {
-GroupRules  ruler = groupRules;
-    -%
-    gParseRecordArmed = 1;
-    %-
-    return trueResult;
+GroupItem   rule = locateRule(name);
+GroupItem   stray;
+    if rule     return rule;
+    stray = locate(name);
+    if !stray {
+        cerr who ": no rule named " name:;
+        return null; }
+    if stray.registry
+        cerr who ": REFUSING " name " -- not a rule; locate finds a non-rule in registry " stray.registry.tag:;
+    else
+        cerr who ": REFUSING " name " -- not a rule (and it is in no registry)":;
+    return null;
 }
+
+
+/*******************************************************************************
+    setParseMethod — dlsym a name into a RuleStuff's parseMethod slot.
+
+    Passthrough because tok has no syntax for casting a void* to a typed fnptr
+    member, and parseMethod is typed by construction (bear-trap #20). Body is
+    ENTIRELY passthrough and everything it touches arrives as a PARAMETER —
+    bear-trap #13: an incant-level local referenced only inside a passthrough
+    gets pruned as unused, taking its initializing call with it. Parameters are
+    never pruned, so the whole computation is pushed into the argument list.
+    stderr, not stdout, for the failure report (bear-trap #14).
+    
+    The above comment on tok passthru is incorrect. Most of the code between -%
+    and %- below can be replaced with one tok line; no need to qualify parseMethod:
+        parseMethod = dlsym(RTLD_SELF,name);
+*******************************************************************************/
+extern int setParseMethod(RuleStuff stuff, String name)
+{
+-%
+    void    *address = ::dlsym(RTLD_DEFAULT,name);
+    if ( !address )
+        {
+        ::fprintf(stderr,"setParseMethod: ERROR no method found %s\n",name);
+        return 0;
+        }
+    stuff->parseMethod = (GroupItem *(*)(GroupItem *))address;
+    return 1;
+%-
+}
+
 
 extern GroupItem showParse(GroupItem argument)
 {
@@ -1370,248 +2401,6 @@ GroupItem   record;
     return record;
 }
 
-extern GroupItem genParse(GroupItem argument)
-{
-GroupItem   rule = ruleOrRefuse(ruleNameArg(argument),"genParse");
-GroupItem   plan;
-GroupItem   result;
-    if !rule    return null;
-    plan = planRule(rule);
-    if !plan    return null;
-    -%
-    /*  THE `ParsE` RECORD -- PJ-1, sited here rather than at the installer.
-        ============================================================
-        THE BRIEF SAID "the site that installs rStuff.parseMethod". THAT SITE
-        CANNOT DO IT, and the reason is worth keeping: parseRuleMethod (below)
-        receives a METHOD NAME to dlsym-bind. The generated source text is not
-        in its scope and is not even in its PROCESS -- genParse emits text in
-        one run, a human pastes it into this file, it compiles into the binary,
-        and a LATER run's `parseMethod=parseScaf` definition attribute binds the
-        symbol. Two processes, days apart. So "one path, two effects" cannot
-        join emitter and installer; they are not one path and cannot be made
-        one.
-
-        PJ-2 IS HONOURED MORE STRICTLY HERE, NOT LESS: the record is written by
-        the emitter, which is the only thing that has the text, and
-        parseRuleMethod stays the single source of truth for the BINDING and
-        writes nothing at all. One writer per fact.
-
-        WHY THE CAPTURE IS AT THE SINK AND NOT AT emitPlan's FOURTEEN `cerr`
-        SITES. PJ-4 wants rule.ParsE byte-identical to the emitted text. Teeing
-        at fourteen call sites is a DISCIPLINE -- every future cerr added to the
-        emitter has to remember to tee, and the day one forgets, the record is
-        silently short and still diffs clean against a target regenerated from
-        it. Swapping the sink for the duration makes the record and the emission
-        THE SAME BYTES BY CONSTRUCTION: there is no second stream to keep in
-        step. That is CLAUDE.md's "prefer a structure that makes the failure
-        unconstructable over a discipline that avoids it".
-
-        ⚠ THE CAPTURE IS AT THE `FILE *` LEVEL, AND THAT IS NOT A STYLE CHOICE.
-        tok's `cerr` KEYWORD GENERATES `::fprintf(stderr,...)`, NOT `std::cerr`
-        -- read the generated emitPlan in GroupRules.mm if you doubt it. A
-        std::cerr.rdbuf() swap therefore captures NOTHING, silently: emission is
-        perfect, the record is zero bytes, and the run exits 0. Measured
-        2026-08-06 by writing exactly that bug. It is bear-trap #19's corollary
-        in miniature -- the sink was reasoned about rather than grepped, and one
-        grep of the codegen would have settled it in ten seconds. It is also the
-        three-languages-share-the-tree hazard: `cerr` is a tok keyword and does
-        not mean what the same word means in C++.
-
-        REDIRECT-THEN-REPLAY, not a tee, so no custom stream machinery is
-        needed. `stderr` on macOS is `__stderrp`, a modifiable FILE* lvalue, and
-        `fprintf(stderr,...)` reads it per call -- so pointing it at a
-        memstream for the duration catches every byte every callee writes,
-        including ones added to the emitter years from now that nobody
-        remembered to tee. The operator still sees every byte; it arrives after
-        emitPlan returns instead of during. Rule-level interleaving is preserved
-        because emitAll's `@@@ <rule>` / `DONE <rule>` markers come from the
-        FIXTURE, around this call, not from inside it. planRule's refusals are
-        deliberately OUTSIDE the swap and stay live and unbuffered.
-
-        ONE STRAIGHT LINE, NO EARLY RETURN, between the swap and the restore --
-        if that ever stops being true, stderr stays redirected and the operator
-        loses the emitter's output with no symptom but silence. The `if (ms)`
-        guard exists so a failed open_memstream degrades to "no record, normal
-        output" rather than to a swallowed emitter.  */
-    /*  PJ-7, ONE GATE. `INCANT_PARSE_RECORD` arms the whole record -- capture,
-        attribute, and the optional file sink -- rather than arming a dump of an
-        always-written attribute.
-
-            unset     nothing happens at all: no redirect, no attribute, no file
-            =1        capture + the ParsE attribute
-            =<path>   capture + the ParsE attribute + a dump of it to <path>
-
-        WHY THE ATTRIBUTE ITSELF IS GATED AND NOT JUST THE DUMP. An always-on
-        attribute write changes the attribute LIST of every rule genParse
-        touches, and this tree audits attribute lists -- pop.sh's census walks
-        registries counting terms and loose entries, and `AUDIT` lines are
-        baselined. A record that can move an audit is an instrument that can
-        move a measurement, which is the 2026-08-02 defect (an instrument broke
-        three POP targets by prepending ~290 lines with zero content
-        divergence). With the gate closed the run is byte-identical to one
-        built before any of this existed, and recordPop asserts exactly that on
-        both streams.
-
-        THE FILE SINK EARNS ITS KEEP AND SO IT STAYS, behind this same gate.
-        It is the ONLY read path: a rule name in incant EXPRESSION POSITION
-        INVOKES THE RULE rather than naming it -- `if Braced;` exits 139,
-        measured -- so no ordinary incant statement can reach the attribute to
-        diff it. The `showParse` command below is the director's window; the
-        file is the POP's, because a byte-for-byte diff needs bytes in a file
-        and not on a terminal.
-
-        Both read pe->getText() and never the local -- the point is to prove
-        what LANDED ON THE NODE, and dumping the local would pass even if
-        addAttribute had silently done nothing.  */
-    char   *rp      = ::getenv("INCANT_PARSE_RECORD");
-    /*  GX-6: the in-fixture door onto the SAME gate. Env var wins when both are
-        set, because only it can carry a path.  */
-    if (!rp && gParseRecordArmed)   rp = (char*)"1";
-    char   *recBuf  = 0;
-    size_t  recSize = 0;
-    FILE   *ms      = rp ? ::open_memstream(&recBuf,&recSize) : 0;
-    FILE   *wasErr  = stderr;
-    if (ms) stderr  = ms;
-    result = ::emitPlan(plan);
-    if (ms) {
-        stderr = wasErr;
-        ::fclose(ms);
-        if (recBuf) {
-            ::fwrite(recBuf,1,recSize,stderr);
-            ::fflush(stderr); } }
-    if (rp) {
-        /*  strdup'd for the same reason jitRunAction strdups its IR: recBuf is
-            malloc'd by open_memstream and is freed below.  */
-        GroupItem  *pe = rule->get("ParsE");
-        if (!pe) {
-            pe = new GroupItem("ParsE");
-            pe->groupBody->flags.noPrint = 1;
-            pe->setText(::strdup(recBuf ? recBuf : ""));
-            rule->addAttribute(pe); }
-        else    pe->setText(::strdup(recBuf ? recBuf : ""));
-
-        if (::compare(rp,"1") != 0) {
-            if (FILE *f = ::fopen(rp,"w")) {
-                char *got = pe->getText();
-                if (got)    ::fwrite(got,1,::strlen(got),f);
-                ::fclose(f); }
-            else ::fprintf(stderr,"genParse: ParsE record could not open %s\n",rp); } }
-    if (recBuf) ::free(recBuf);
-    %-
-    return result;
-}
-
-/*******************************************************************************
-    RUNTIME LOOP (Clay 2026-07-27) — close the loop ONCE on rung 1's scaffold
-    before climbing. Text-diff proves genParse emits what a human wrote; it says
-    nothing about whether the emitted code compiles, links, binds, or RUNS (the
-    invocation-blocker failure class was invisible to any source comparison).
-
-    NO ENTRY WRAPPER (genParseShape §1.7). runScaf/runScaf2 are RETIRED. The
-    invocation is `Scaf('x')`, exactly as `Start()` — which exercises emission,
-    the fork, binding and dispatch. A bespoke wrapper exercised none of them: it
-    called parseScaf directly, so it could have passed with the binding wholly
-    unbuilt, which is precisely the blind spot the runtime loop exists to close.
-    What the wrappers WERE good for — the Invariant R report — moved into
-    leaveRule (§1.8), where `from` and atRuleMark are both in hand at the moment
-    the question is asked.
-
-    parseScaf/parseScaf2 below are the VERBATIM output of genParse. They call
-    lit and leaveRule from the RuleStuff support library (cross-file via
-    groups.ext).
-*******************************************************************************/
-
-/*  === GENERATED by genParse('ScafC'), pasted verbatim (rung-5 emission) ===
-    ScafC isRule ScafA+ "c"-;  — one helper per repeated term, min baked in,
-    the term arriving as the frame's term local. Invariant R′ is structural
-    here: `from` is captured ONCE at helper entry (mark clause), and each pass
-    goes through parseR -> parse() and builds a fresh label, with no fLAG
-    anywhere (label clause).  */
-extern int manyScafC1(GroupItem label, GroupItem term)
-{
-GroupRules  ruler = groupRules;
-String      from = atRuleMark;
-int         kount;
-    while parseR(term,label)    kount++;
-    if kount >= 1   return true;
-    atRuleMark = from;
-    return false;
-}
-
-extern GroupItem parseScafC(GroupItem rule)
-{
-GroupItem   into  = rule.rStuff.parentLabel;
-GroupItem   label = new("ScafC");
-GroupItem   t1 = rule[1];
-GroupItem   t2 = rule[2];
-String      from  = atRuleMark;
-    return leaveRule(rule,into,label,from, manyScafC1(label,t1) && lit(t2,"c") );
-}
-
-/*  === GENERATED by genParse('ScafE'/'ScafF'), pasted verbatim (rung-6) ===
-    ScafE isRule "e"- ScafA? "f"-;   — optional REFERENCE
-    ScafF isRule "f"- ","?- "g"-;    — optional noLabel LITERAL
-    The two shapes the census actually contains. The optional sits between two
-    MANDATORY terms deliberately: an optional that swallows a following failure
-    is the same defect as optional-as-mandatory, inverted, and only a mandatory
-    neighbour can catch it.  */
-extern GroupItem parseScafE(GroupItem rule)
-{
-GroupItem   into  = rule.rStuff.parentLabel;
-GroupItem   label = new("ScafE");
-GroupItem   t1 = rule[1];
-GroupItem   t2 = rule[2];
-GroupItem   t3 = rule[3];
-String      from  = atRuleMark;
-    return leaveRule(rule,into,label,from, lit(t1,"e") && (parseR(t2,label) || 1) && lit(t3,"f") );
-}
-
-extern GroupItem parseScafF(GroupItem rule)
-{
-GroupItem   into  = rule.rStuff.parentLabel;
-GroupItem   label = new("ScafF");
-GroupItem   t1 = rule[1];
-GroupItem   t2 = rule[2];
-GroupItem   t3 = rule[3];
-String      from  = atRuleMark;
-    return leaveRule(rule,into,label,from, lit(t1,"f") && (lit(t2,",") || 1) && lit(t3,"g") );
-}
-
-/*  === GENERATED by genParse, pasted verbatim (rung-7, ALT emission) ===
-    ScafALT  ScafA; ScafI;                    — the alternation
-    ScafOUT  isRule "("- ScafALT ")"-;        — reaches it as a term
-    Note what the ALT frame does NOT have: a `label` local. §2.4 — an
-    alternation builds no label of its own and passes `into` straight through,
-    so the winning option attaches to the ENCLOSING rule's label. ScafOUT hands
-    its own `label` down as that `into`.  */
-extern GroupItem parseScafI(GroupItem rule)
-{
-GroupItem   into  = rule.rStuff.parentLabel;
-GroupItem   label = new("ScafI");
-GroupItem   t1 = rule[1];
-String      from  = atRuleMark;
-    return leaveRule(rule,into,label,from, lit(t1,"i") );
-}
-
-extern GroupItem parseScafALT(GroupItem rule)
-{
-GroupItem   into  = rule.rStuff.parentLabel;
-GroupItem   t1 = rule[1];
-GroupItem   t2 = rule[2];
-String      from  = atRuleMark;
-    return leaveAlt(rule,from, parseR(t1,into) || parseR(t2,into) );
-}
-
-extern GroupItem parseScafOUT(GroupItem rule)
-{
-GroupItem   into  = rule.rStuff.parentLabel;
-GroupItem   label = new("ScafOUT");
-GroupItem   t1 = rule[1];
-GroupItem   t2 = rule[2];
-GroupItem   t3 = rule[3];
-String      from  = atRuleMark;
-    return leaveRule(rule,into,label,from, lit(t1,"(") && parseR(t2,label) && lit(t3,")") );
-}
 
 /*******************************************************************************
     showTree / treeOf — §2.4's acceptance test, and it has to be a TREE test.
@@ -1647,6 +2436,72 @@ String      deeper;
     return 1;
 }
 
+
+extern String spellKant(GroupItem speller, GroupItem node, String sink)
+{
+GroupItem   slot;
+GroupItem   result;
+    slot = node.getAttribute("sink");
+    if !slot {
+        slot = new("sink");
+        node +% slot; }
+    slot.text = sink;
+    result = runAction(node,speller);
+    if !result  return null;
+    return result.text;
+}
+
+
+/*******************************************************************************
+    spellKant — call the kant emitLeaf and hand back its text.
+
+    ONE ARGUMENT, because a kant action takes one: the plan node. `local` is not
+    passed at all — the kant side derives it from the node's own `at` attribute,
+    which every node carries INCLUDING an OPT's wrapped inner node (planTerm
+    builds `at` before the OPT wrap and both end up with the same index). `sink`
+    is the one thing genuinely external to the node — it is the fold's decision —
+    so it rides as an attribute.
+
+    THE `sink` ATTRIBUTE IS REUSED, NOT STACKED, exactly as iterBind reuses its
+    `source` child: a second call must retarget the first attribute rather than
+    add another, or getAttribute keeps answering with the stale one. `sink` is
+    not among the attributes printPlan prints, so the census cannot move under it.
+*******************************************************************************/
+/*******************************************************************************
+    spellMode — WHICH implementation is live. One line, and it is the whole
+    answer to "a green stub reads as coverage".
+
+    emitLeaf's fork is silent by design: absent a kant speller it is the function
+    it always was, so every target stays green — which means a round that never
+    registered its action would ALSO be green, and the POP could not tell the
+    difference. This prints the answer, `pop.sh` pins it, and the pin is the
+    acceptance test: it says `c++` until the kant emitLeaf lands and `kant`
+    afterwards, and whoever flips it accounts for the flip. Same shape as
+    tree.divergence flipping from asserting a divergence to asserting agreement.
+
+    Called BEFORE the first `SPELL` line on purpose — spell.target starts at
+    `SPELL`, so the mode line is asserted separately and cannot move the target.
+*******************************************************************************/
+extern GroupItem spellMode(GroupItem argument)
+{
+    if locateSpeller()  cerr "SPELLER kant":;
+    else                cerr "SPELLER c++":;
+    return trueResult;
+}
+
+
+/*******************************************************************************
+    traceParse — the incant-side switch for §1.8's library instrumentation
+    (GroupRules.parseTrace). Off by default, so the baselines cannot move.
+*******************************************************************************/
+extern GroupItem traceParse(GroupItem argument)
+{
+GroupRules  ruler = groupRules;
+    parseTrace = true;
+    return trueResult;
+}
+
+
 extern GroupItem treeOf(GroupItem argument)
 {
 GroupRules  ruler = groupRules;
@@ -1666,835 +2521,35 @@ int         baseStak = 0;
     return trueResult;
 }
 
-/*******************************************************************************
-    demoRprime — INVARIANT R′, DEMONSTRATED, both clauses.
-
-    A POP that only shows a passing run proves neither clause: at min <= 1 the
-    rewind branch is never reached, and a recycled label and a fresh one look
-    identical from outside. So this runs the two loop shapes side by side on the
-    same input and reports the difference.
-
-    WHY IT IS A CONTROLLED COMPARISON AND NOT A GENERATED RULE: the mark clause
-    is only observable at min >= 2, and MIN >= 2 IS CURRENTLY UNREACHABLE
-    THROUGH THE GRAMMAR. Measured 2026-07-28: `X[2]` is rejected outright
-    (ERROR Operator - failed on isRule and Token) and `X[2 9]` parses, prints
-    "nextGroup: ERROR max does not contain a list", and leaves min/max at 1/1 --
-    the limit is SILENTLY NOT APPLIED. setLimits itself reads correctly, so the
-    fault is upstream of it. That makes genParseSpec §2.2's "latent until
-    someone writes X[2]" true in a stronger sense than it states.
-
-    MARK CLAUSE. Input "a" against a term needing 2. The entry-saved loop (the
-    emitted shape) gives back the whole run. The per-pass loop (parse()'s shape,
-    where checkInput reassigns hereAt every iteration) rewinds to the start of
-    the FAILED attempt, which is already past the match -- so the first match's
-    input stays consumed. That is the defect §2.2 records, made visible.
-
-    LABEL CLAUSE. Input "aa". Each pass goes through parse() and builds a fresh
-    label, so two passes attach TWO children. A recycling loop -- parse()'s
-    `isGROUP && max > 1` path, which clears the label and hands it back via the
-    fLAG handshake -- would show one.
-*******************************************************************************/
-extern GroupItem demoRprime(GroupItem argument)
-{
-GroupRules  ruler = groupRules;
-GroupItem   rule = locateRule("ScafC");
-GroupItem   term;
-GroupItem   label;
-String      entry;
-String      perPass;
-int         baseStak = 0;
-int         kount = 0;
-int         kids = 0;
-int         going = 1;
-    if !rule {
-        cerr "demoRprime: no ScafC on the search list":;
-        return null; }
-    term = rule[1];
-    if inputSTAK    baseStak = inputSTAK.length;
-
-    pushInput(argument);
-    entry   = atRuleMark;
-    label   = new("demoEntry");
-    while parseR(term,label)    kount++;
-    if kount >= 2
-        cerr "  R-prime MARK  entry-saved (emitted) : matched " toStringFromInt(kount) " of 2 -- SUCCEEDED, no rewind due":;
-    else {
-        atRuleMark = entry;
-        if atRuleMark == entry
-            cerr "  R-prime MARK  entry-saved (emitted) : matched " toStringFromInt(kount) " of 2 -- REWOUND to loop entry":;
-        else
-            cerr "  R-prime MARK  entry-saved (emitted) : matched " toStringFromInt(kount) " of 2 -- input STRANDED":; }
-    while inputSTAK && inputSTAK.length > baseStak      popInput();
-
-    kount = 0;
-    pushInput(argument);
-    entry   = atRuleMark;
-    perPass = entry;
-    label   = new("demoPerPass");
-    while going {
-        perPass = atRuleMark;
-        going   = parseR(term,label) != 0;
-        if going    kount++; }
-    if kount >= 2
-        cerr "  R-prime MARK  per-pass  (parse()) : matched " toStringFromInt(kount) " of 2 -- SUCCEEDED, no rewind due":;
-    else {
-        atRuleMark = perPass;
-        if atRuleMark == entry
-            cerr "  R-prime MARK  per-pass  (parse()) : matched " toStringFromInt(kount) " of 2 -- REWOUND to loop entry":;
-        else
-            cerr "  R-prime MARK  per-pass  (parse()) : matched " toStringFromInt(kount) " of 2 -- rewound only to the FAILED PASS, input STRANDED":; }
-    while inputSTAK && inputSTAK.length > baseStak      popInput();
-
-    kount = 0;
-    pushInput(argument);
-    label = new("demoLabels");
-    while parseR(term,label)    kount++;
-    while label[kids + 1]       kids++;
-    cerr "  R-prime LABEL entry-saved (emitted) : " toStringFromInt(kount) " passes attached " toStringFromInt(kids) " fresh label(s)":;
-    while inputSTAK && inputSTAK.length > baseStak      popInput();
-    return trueResult;
-}
-
-/*  === GENERATED by genParse('Scaf'), pasted verbatim (rung-1 emission) === */
-extern GroupItem parseScaf(GroupItem rule)
-{
-GroupItem   into  = rule.rStuff.parentLabel;
-GroupItem   label = new("Scaf");
-GroupItem   t1 = rule[1];
-String      from  = atRuleMark;
-    return leaveRule(rule,into,label,from, lit(t1,"x") );
-}
-
-/*  === GENERATED by genParse('Scaf2'), pasted verbatim (rung-2 emission) === */
-extern GroupItem parseScaf2(GroupItem rule)
-{
-GroupItem   into  = rule.rStuff.parentLabel;
-GroupItem   label = new("Scaf2");
-GroupItem   t1 = rule[1];
-GroupItem   t2 = rule[2];
-String      from  = atRuleMark;
-    return leaveRule(rule,into,label,from, lit(t1,"{") && lit(t2,"}") );
-}
 
 /*******************************************************************************
-    setParseMethod — dlsym a name into a RuleStuff's parseMethod slot.
+    unresolvedTerms — how many REAL terms have no rStuff yet.
 
-    Passthrough because tok has no syntax for casting a void* to a typed fnptr
-    member, and parseMethod is typed by construction (bear-trap #20). Body is
-    ENTIRELY passthrough and everything it touches arrives as a PARAMETER —
-    bear-trap #13: an incant-level local referenced only inside a passthrough
-    gets pruned as unused, taking its initializing call with it. Parameters are
-    never pruned, so the whole computation is pushed into the argument list.
-    stderr, not stdout, for the failure report (bear-trap #14).
-    
-    The above comment on tok passthru is incorrect. Most of the code between -%
-    and %- below can be replaced with one tok line; no need to qualify parseMethod:
-        parseMethod = dlsym(RTLD_SELF,name);
+    MEASURED 2026-07-28 (§1 census): rStuff is materialised LAZILY. The runtime
+    creates it on demand through getRStuff -- caught in the act, printing
+    "getRStuff: min no rStuff - creating" for one of the very terms this counts.
+    So a missing rStuff means NOT YET, not NOT A TERM, and it is nothing like
+    the noPrint code-tail entries it was briefly conflated with.
+
+    That conflation was a real defect: with `!rStuff` in the skip test,
+    genParse('CodE') emitted `leaveRule(rule,into,label,from, (null) )` -- a
+    rule reduced to nothing -- and recorded parseTerms=0, which the §3 guard
+    would have BOUND with a warning rather than refused. Rules outside the
+    ladder only; Scaf/Scaf2/ScafA/ScafB terms all carry rStuff.
+
+    Until the rung-3 walk decides how to classify an unmaterialised term (it
+    cannot read modifiers that are not there yet, and whether they are merely
+    absent or genuinely default is NOT yet established), genParse REFUSES
+    rather than emitting a method it knows is missing terms. A refusal is a
+    validity question about the rule, so it belongs walk-side either way.
 *******************************************************************************/
-extern int setParseMethod(RuleStuff stuff, String name)
-{
--%
-    void    *address = ::dlsym(RTLD_DEFAULT,name);
-    if ( !address )
-        {
-        ::fprintf(stderr,"setParseMethod: ERROR no method found %s\n",name);
-        return 0;
-        }
-    stuff->parseMethod = (GroupItem *(*)(GroupItem *))address;
-    return 1;
-%-
-}
-
-/*  === GENERATED by genParse('ScafA'), pasted verbatim (rung-4 callee) === */
-extern GroupItem parseScafA(GroupItem rule)
-{
-GroupItem   into  = rule.rStuff.parentLabel;
-GroupItem   label = new("ScafA");
-GroupItem   t1 = rule[1];
-String      from  = atRuleMark;
-    return leaveRule(rule,into,label,from, lit(t1,"a") );
-}
-
-/*  === GENERATED by genParse('ScafB'), pasted verbatim (rung-4 caller) ===
-    ScafB's first term is a REFERENCE to ScafA, so the leaf is parseR, not lit.
-    This is the rung the whole ladder above 4 depends on: parseR hands the term
-    to parse(), parse() resolves parseMethod from the DEFINING rule, and
-    parseScafA runs -- reached through a reference term that was never bound
-    and has its own rStuff.  */
-extern GroupItem parseScafB(GroupItem rule)
-{
-GroupItem   into  = rule.rStuff.parentLabel;
-GroupItem   label = new("ScafB");
-GroupItem   t1 = rule[1];
-GroupItem   t2 = rule[2];
-String      from  = atRuleMark;
-    return leaveRule(rule,into,label,from, parseR(t1,label) && lit(t2,"b") );
-}
-
-/*  === GENERATED by genParse('Braced'), pasted verbatim === SEQ 58, 2026-08-13.
-
-    THE ORACLE-BEARING CONTROL FOR THE BIND-READ SEAM. Byte-identical to
-    docs/emitted/phaseB-twelve-emitted.txt lines 2-10, which docs/respellRung.md
-    re-derived on 2026-08-11 and found unmoved, so this is the emitter's own
-    output and not a hand-written imitation.
-
-    WHY IT IS BEING ADDED NOW. SEQ 58 specified the C++ control as
-    `parseMethod=parseBraced` on the grounds that parseBraced has an oracle
-    (incant/bracedT). It had never been COMPILED -- `nm` showed zero hits and
-    the only parseBraced in the tree was emitted text inside two .md files.
-    Without it the control could only be run with a stand-in that fails to
-    match, which answers the seam bit but cannot ring SEQ 58 section 5's bell.
-
-    It costs one extern in one in-repo file. No groups.ext edit is owed: the
-    binding door reaches it by dlsym on the name, exactly as the parseScaf
-    family is reached, so nothing needs to see a declaration. No grammar line
-    either -- the bind is made from a fixture, which is the whole point of the
-    cross-file control.  */
-extern GroupItem parseBraced(GroupItem rule)
-{
-GroupItem   into  = rule.rStuff.parentLabel;
-GroupItem   label = new("Braced");
-GroupItem   t1 = rule[1];
-GroupItem   t2 = rule[2];
-GroupItem   t3 = rule[3];
-String      from  = atRuleMark;
-    return leaveRule(rule,into,label,from, lit(t1,"[") && parseR(t2,label) && lit(t3,"]") );
-}
-
-/*******************************************************************************
-    parseRuleMethod — genParseShape §4.1, the binding. What connects a compiled
-    parseScaf to Scaf.rStuff.parseMethod.
-
-    §4.1's candidate was the setRuleAction path in the `=value` form, and that
-    is what this is, modelled line for line on interpretMethod (GroupActions.rtn)
-    — the closest existing analogue, because it is the one command that binds a
-    dlsym'd symbol somewhere OTHER than the plain method slot. Registered in
-    cOMMANDs as `parseMethod`, used as a definition attribute:
-
-        Scaf isRule "x"- parseMethod=parseScaf;
-
-    exactly the shape the grammar already uses for ruleMethod= and
-    interpretMethod=. In the kant world this whole function is one ORC-compile
-    and a stored handle; here it is a dlsym.
-
-    getRStuff, not rStuff: a rule reached at definition time may not have been
-    parsed yet, and the fork reads the field off the rule's OWN stuff.
-
-    definingRule(), not parent -- SEQ 58, 2026-08-13, and it is a MEASURED
-    repair, not a tidy-up. Both doors used to bind onto the node aCTionDefinE
-    hands them, which for a definition written in the SAME place as the rule is
-    the rule itself, so every binding that had ever been made worked. A
-    CROSS-FILE re-definition is different: the node being defined is a satellite
-    that shares the real rule's child list, and the two addresses were measured
-    apart in one run --
-
-        SEAM bind  Braced  boundNode=0x104c60840 boundStuff=0x104c5c100
-        SEAM read  Braced  definer=0x104c36a80   defStuff=0x104c34000
-                           defParseMethod=0x0    boundParseMethod=0x10406f3c8
-
-    -- so the write TOOK and the reader never saw it. parse() forks on
-    definingRule().rStuff.parseMethod (GroupItem.twk), so the cure is for the
-    door to resolve its target the same way the reader does. In the same-file
-    case definingRule() returns `this` (a node that owns its children routes
-    back to itself), so nothing that worked before changes.
-
-    BOTH DOORS MOVE TOGETHER, and that is not optional. parseTermCount writes
-    termCount and parseRuleMethod's refusal guard reads it; leaving one on the
-    satellite would compare a count nobody wrote against a rule's live terms and
-    silently downgrade the refusal to the no-parseTerms warning -- which still
-    binds. The guard would have been lost quietly, which is the failure mode
-    this fleet's rules exist to prevent.
-*******************************************************************************/
-extern GroupItem parseTermCount(GroupItem input)
-{
-String      name = text;
-RuleStuff   stuff;
-use input
-    if input.fLAG
-        if name {
-            GroupItem   grup = parent;
-            if grup {
-                GroupItem   ruleNode = grup.definingRule();
-                stuff = ruleNode.getRStuff();
-                stuff.termCount = atoi(name); }
-            else    cerr "parseTerms: no rule to record against":; }
-        else    cerr "parseTerms: expected a count in text":;
-    else    cerr "parseTerms: should be invoked as a definition attribute":;
-    return group;
-}
-
-extern GroupItem parseRuleMethod(GroupItem input)
-{
-String      name = text;
-RuleStuff   stuff;
-int         live;
-use input
-    if input.fLAG
-        if name {
-            GroupItem   grup = parent;
-            if grup {
-                GroupItem   ruleNode = grup.definingRule();
-                stuff = ruleNode.getRStuff();
-                live  = countRuleTerms(ruleNode);
-                if !stuff.termCount
-                    cerr "parseMethod: WARNING binding " name " to " grup.tag " with no parseTerms -- indices unguarded":;
-                or stuff.termCount != live {
-                    cerr "parseMethod: REFUSING to bind " name " to " grup.tag:;
-                    cerr "             emitted against " toStringFromInt(stuff.termCount) " terms, rule now has " toStringFromInt(live):;
-                    return group; }
-                setParseMethod(stuff,name);
--%
-                if ( GroupControl::groupController->groupRules->parseTrace )
-                    {
-                    GroupItem *bDefiner = grup->definingRule();
-                    RuleStuff *bDefStuff = bDefiner ? bDefiner->rStuff : 0;
-                    ::fprintf(stderr,"SEAM bind  %s  boundNode=%p boundStuff=%p ownRStuffField=%p\n",
-                        grup->groupBody->tag,(void*)grup,(void*)stuff,(void*)grup->rStuff);
-                    ::fprintf(stderr,"SEAM read  %s  definer=%p defStuff=%p defParseMethod=%p  boundParseMethod=%p\n",
-                        grup->groupBody->tag,(void*)bDefiner,(void*)bDefStuff,
-                        bDefStuff ? (void*)bDefStuff->parseMethod : (void*)0,
-                        (void*)stuff->parseMethod);
-                    }
-%-
-                }
-            else    cerr "parseMethod: no rule to bind to":; }
-        else    cerr "parseMethod: expected a method name in text":;
-    else    cerr "parseMethod: should be invoked as a definition attribute":;
-    return group;
-}
-
-/*******************************************************************************
-    parseViaKant — THE TRAMPOLINE. Loop closure step 1, 2026-08-11 (SEQ 52).
-
-    WHAT PROBLEM THIS SOLVES, because it is not the one the shims solve.
-    rStuff.parseMethod is a C++ FUNCTION POINTER — RuleStuff.twk:88 declares
-    `GroupItem &parseMethod(GroupItem);` — and parse() forks on it and calls
-    through it. A kant method is NOT a function pointer: it is a GroupItem
-    carrying CodE/BlocK, reached through processAction. So a kant parse method
-    cannot be installed into the slot that dispatches parse methods, and making
-    lit/parseR/leaveRule callable FROM kant does not touch that at all. The
-    shims govern what the body may call; this governs who may call the body.
-    Two distinct costs, and only the first is the "cheap" the charter promised.
-
-    THE CHEAP DOOR, AND THE OTHER ONE. RuleStuff.twk's jitMethod block named
-    this seam on 2026-08-05 and ruled that widening the pointer's signature is
-    a LAYOUT change — bear-trap #10's whole apparatus, groups.ext sync plus
-    tokall plus rebuild. This function is the other door: an ordinary C++
-    function OF THE EXISTING SIGNATURE that stands in the slot and forwards.
-    No layout change, no groups.ext edit, and it binds through the existing
-    parseMethod= dlsym path with no new vocabulary.
-
-    RESOLUTION IS BY CONVENTION, DELIBERATELY, so that v1 adds no binding verb:
-    rule `Foo` is served by the kant action named `kpFoo`. One rule, one name,
-    derivable in both directions by a reader. If a binding attribute is wanted
-    later it can carry the node itself and this lookup goes away — the
-    convention is v1's scaffolding and is not load-bearing on the design.
-
-    ⚠ IT REFUSES RATHER THAN FALLING THROUGH, and that is the tier-3 lesson
-    applied here. A missing or uncoded action returns null, which parse() reads
-    as "this rule did not match" — the honest answer — and says so on stderr
-    once. Quietly falling back to the interpretive arm would make an
-    unregistered action indistinguishable from a rule that legitimately failed,
-    which is the fold-and-be-quiet failure the degrade-zero rule exists to
-    catch.
-
-    ⚠ ONE CHANNEL, ONE MEANING: this returns what processAction returns and
-    invents nothing. A null is "no match", exactly as the emitted C++ methods'
-    leaveRule null is, so parse()'s caller cannot tell the arms apart by shape.
-*******************************************************************************/
-extern GroupItem parseViaKant(GroupItem rule)
-{
-GroupItem   action;
-GroupItem   label;
-GroupItem   result;
-String      want;
-String      from;
-String      at;
-    want    = "kp" rule.tag;
-    action  = locate(want);
-    if !action {
-        cerr "parseViaKant: no kant parse action named " want " for rule " rule.tag:;
-        return null; }
-    /*  ⚠ THE GUARD IS NOT `isCoded`, AND THE FIRST CUT'S WAS. isCoded is
-        CONSUMED BY RUNNING -- processAction compiles the body to a cached
-        BlocK and clears it -- so an isCoded test passes on fire 1 and REFUSES
-        every fire after, which is exactly what the first run of
-        incant/kantParse1 measured (row 1 dispatched, rows 2 and 4 reported
-        "carries no code"). Bear-trap #25 records the same fact from the
-        testing() side. A rule parses many times, so the guard has to hold
-        across fires: an action is runnable if it still carries source OR
-        already carries the compiled BlocK.  */
-    if !action.isCoded && !action.getAttribute("BlocK") {
-        cerr "parseViaKant: " want " carries neither code nor a compiled BlocK":;
-        return null; }
-    if parseTrace
-        cerr "    parseViaKant " rule.tag " -> " want:;
-    /*  THE FRAME. Ruled 2026-08-11 (SEQ 54, door (a)): THE MARK NEVER CROSSES.
-        A position is not a value, so it cannot travel as kant data at all; and
-        keeping it here keeps Invariant R with one writer, which RuleStuff.twk
-        says lives in leaveRule/leaveAlt and nowhere else. The kant body says
-        WHAT to match; this frame owns WHERE the input is and WHERE results go.
-
-        SAVE-AND-RESTORE IN LOCALS, NOT A GLOBAL ASSIGNMENT, because this is
-        re-entrant BY CONSTRUCTION: a kant body calls parseRK, which calls
-        parse(), which can fork straight back into this function for a nested
-        rule. The C++ call stack is the frame stack; nothing else needs to be.  */
-    from        = atRuleMark;
-    label       = new(rule.tag);
-    /*  ⚠ THE SAVE/RESTORE IS PASSTHROUGH AND IT HAS TO BE. A hand-declared C++
-        global in jitContext.h is invisible to tok's field resolution -- it
-        emits `ERROR FieldBody: could not find gKantLabel` straight into the
-        .mm, which fails at the C++ compile and names the identifier but not
-        the reason. gParseRecordArmed is the precedent and every one of ITS
-        uses is inside a passthrough too. Measured 2026-08-11.
-        The prior* locals are declared HERE in raw C++ rather than as tok
-        locals, because a tok local referenced ONLY inside passthrough is
-        pruned as unused (bear-trap #13) and the block would then reference
-        an undeclared identifier.  */
-    -%
-    GroupItem  *priorLabel = gKantLabel;
-    char       *priorFrom  = gKantFrom;
-    GroupItem  *priorRule  = gKantRule;
-    gKantLabel = label;
-    gKantFrom  = from;
-    gKantRule  = rule;
-    %-
-    result      = runAction(rule,action);
-    -%
-    gKantLabel = priorLabel;
-    gKantFrom  = priorFrom;
-    gKantRule  = priorRule;
-    %-
-    /*  leaveRule's job, done here because this IS the generated arm's exit for
-        a kant body. On success return the label and let parse() attach it
-        (PC-4: attach-under happens there, once, for every emitted method). On
-        failure rewind and return null -- and NO attach, exactly as the C++
-        twin. The trace line mirrors leaveRule's word for word so one grep
-        reads both arms.  */
-    if truthOf(result) {
-        if parseTrace   cerr "  WIN ",rule.tag," (kant)":;
-        return label; }
-    /*  ⚠ THE R LINE DISCRIMINATES, AND THE FIRST CUT'S DID NOT. It printed
-        "mark rewound" unconditionally, which is an absence-shaped assertion
-        wearing a value's clothes: it says R OK whether or not the rewind had
-        anything to give back, so the one thing a cursor fixture wants to know
-        is exactly what it cannot report. leaveRule's own line compares the
-        mark at exit against the entry mark and this mirrors it word for word,
-        so the kant arm and the C++ arm are diffable rather than merely
-        similar. Caught by writing the fixture that depends on it (H4).  */
-    at = atRuleMark;
-    atRuleMark = from;
-    if parseTrace {
-        cerr "  FAIL",rule.tag," (kant)":;
-        if at == from   cerr "       R OK   mark unmoved":;
-        else            cerr "       R OK   mark rewound":; }
-    return null;
-}
-
-/*******************************************************************************
-    litK / parseRK — THE KANT-CALLABLE SHIMS. SEQ 54, step 2.
-
-    ⚠ BOTH TAKE A TERM POSITION -- ONE ARGUMENT -- AND THE :scope MULTI-ARG
-    IDIOM PRICED IN docs/kantShims.md §4 IS NOT NEEDED AT ALL. Measurements,
-    not concessions:
-
-      A KANT BODY CANNOT INDEX A RULE'S TERMS. `argument[1]` in an action body
-      does not reach term 1; measured 2026-08-11, the shim received a node
-      whose tag was the COMMAND NAME and dutifully tried to match the literal
-      "litK". Bear-trap #26's family -- a plausible string where a node was
-      wanted. So the position is passed as a number and the FRAME does the
-      indexing, in C++, where `rule[1]` is `rule->get(1)` and works.
-      ⚠ This made the convention CLEANER rather than costing something: the
-      body now names a term BY POSITION and holds no node at all.
-
-      lit(field,str) uses `field` ONLY for its trace line -- the match runs off
-      `str`. And for a noLabel literal term the TERM'S OWN TAG *IS* the literal:
-      the 2026-08-05 narration reads `lit " [ " at term [`. So litK derives the
-      literal from the same place the C++ emitter bakes it from, and a second
-      argument would only be a chance for the two to disagree.
-
-      parseR(term,into)'s `into` is the label to attach under, which door (a)
-      makes FRAME-OWNED. The body says what to parse; the frame says where it
-      goes.
-
-    So the convention this establishes is stronger than "one argument fits":
-    A KANT BODY NAMES A TERM AND NOTHING ELSE. Everything else -- position,
-    label, invariant -- belongs to the frame, which is SEQ 54 item 3's standing
-    convention expressed as a signature.
-
-    ⚠ RETURN CONTRACT IS truthOf's, deliberately: non-null for success, null
-    for failure, so an AND chain short-circuits on exactly the same contract
-    both engines already share. No new notion of truth enters with the parser.
-*******************************************************************************/
-extern GroupItem litK(GroupItem idx)
+extern int unresolvedTerms(GroupItem rule)
 {
 GroupItem   term;
-int         n;
-    if !idx     return null;
-    n = atoi(idx.text);
-    -%
-    term = gKantRule ? gKantRule->get(n) : 0;
-    %-
-    if !term {
-        cerr "litK: no term " idx.text " in the current kant parse frame":;
-        return null; }
-    if lit(term,term.tag)   return trueResult;
-    return null;
-}
-
-extern GroupItem parseRK(GroupItem idx)
-{
-GroupItem   got;
-GroupItem   into;
-GroupItem   term;
-int         n;
-    if !idx     return null;
-    n = atoi(idx.text);
-    /*  Passthrough for the same reason as the frame above -- tok cannot see a
-        hand-declared global. Both locals are referenced OUTSIDE the block as
-        well, which is what keeps bear-trap #13 from pruning them.  */
-    -%
-    into = gKantLabel;
-    term = gKantRule ? gKantRule->get(n) : 0;
-    %-
-    if !into {
-        cerr "parseRK: called outside a kant parse frame -- no label to attach under":;
-        return null; }
-    if !term {
-        cerr "parseRK: no term " idx.text " in the current kant parse frame":;
-        return null; }
-    got = parseR(term,into);
-    if got  return trueResult;
-    return null;
-}
-
-/*******************************************************************************
-    optRK — THE OPTIONAL RULE-REFERENCE. Vocabulary item 3, rung one of the OPT
-    charter (decision (a), ruled by Tony 2026-08-13 off SEQ 72's stamped table:
-    OPT opens 5 of the 16 L/R rules, the measured maximum).
-
-    THE CONTRACT, and it is parseRK's with ONE leg's answer flipped:
-        attempt term N's parse;
-        on success  -> proceed as any term       (trueResult)
-        on failure  -> RESTORE THE CURSOR and    (trueResult)
-                       still answer success
-    Cursor discipline identical, only the verdict changes. That is why this is
-    one small function beside parseRK and not a new mechanism: it names a term
-    BY POSITION, holds no node, and leaves position/label/invariant to the
-    frame — SEQ 54/55's standing convention, unchanged.
-
-    ⚠ WHY A SEPARATE SHIM PER INNER KIND, rather than one optK that works out
-    LIT-vs-CALL at run time. planTerm ALREADY MAKES THAT DECISION when it
-    builds the plan, and a run-time re-derivation would be a SECOND IMPLEMENTER
-    of it — the exact arrangement countRuleTerms' own comment refuses ("ONE
-    implementer, deliberately"), because two implementers of one decision drift
-    and the drift is silent. So the emitter keys on the plan node's inner kind
-    and picks the shim; the shim does one thing. ⚠ THE LITERAL SIBLING optLK IS
-    NOT BUILT — `RunRulE`'s `';'-?` is the only rung-population term that wants
-    it and RunRulE is tomorrow's promotion. kantLeaf REFUSES that shape BY NAME
-    rather than letting optRK guess, per the refuse-by-kind discipline that
-    caught the ALT defect. An unexercised shim is a green row nobody cashed.
-
-    ⚠ THE RESTORE IS BELT AND BRACES ON THIS SHAPE, AND SAID SO OUT LOUD SO
-    NOBODY LATER READS IT AS LOAD-BEARING WHERE IT IS NOT. For an optional
-    REFERENCE the callee owns a frame and its own leaveRule already rewinds to
-    the callee's `from` on failure (planTerm's rung-6 note records exactly
-    this, and records that the interpretive arm instead skips the rewind and
-    re-skips before the next term, so the two are not observably different).
-    Restoring here to OUR `from` is therefore at worst a no-op and at best one
-    notch tighter than the generated arm. It is written because the CONTRACT
-    says the failure leg restores, and a contract honoured by an accident of
-    who-else-happens-to-rewind stops being honoured the day that changes.
-
-    ⚠ A BROKEN FRAME IS NOT AN ABSENT OPTIONAL, and the return values say so.
-    No `into`, no `term` -> return NULL, which fails the chain loudly. Only the
-    real "the optional did not match" leg answers success. One channel, one
-    meaning: trueResult out of here means THE CHAIN MAY PROCEED, and a missing
-    frame is not that.
-*******************************************************************************/
-extern GroupItem optRK(GroupItem idx)
-{
-GroupRules  ruler = groupRules;
-GroupItem   got;
-GroupItem   into;
-GroupItem   term;
-String      from = atRuleMark;
-int         n;
-    if !idx     return null;
-    n = atoi(idx.text);
-    /*  Passthrough for parseRK's reason — tok cannot see a hand-declared
-        global. Both locals are referenced OUTSIDE the block as well, which is
-        what keeps bear-trap #13 from pruning them.  */
-    -%
-    into = gKantLabel;
-    term = gKantRule ? gKantRule->get(n) : 0;
-    %-
-    if !into {
-        cerr "optRK: called outside a kant parse frame -- no label to attach under":;
-        return null; }
-    if !term {
-        cerr "optRK: no term " idx.text " in the current kant parse frame":;
-        return null; }
-    got = parseR(term,into);
-    if got  return trueResult;
-    atRuleMark = from;
-    if parseTrace   cerr "  optRK term=",term.tag," ABSENT -- cursor restored":;
-    return trueResult;
-}
-
-/*******************************************************************************
-    kantDoor — THE THREE DUTIES, lifted out of aCTionDefinE so the hunk there
-    is three lines and the revert is one. 2026-08-12, the full-monty rung.
-
-        mint kp<Tag>  ·  hang the CodE on it  ·  rStuff.parseMethod = parseViaKant
-
-    ⚠ TWO THINGS THE ORDER'S SKELETON DOES NOT COVER, both measured, both
-    load-bearing. Read these before editing.
-
-    (1) THE isCoded ARM CANNOT SIT UNDER `!isMethod`, WHICH IS WHERE THE
-        dlsym LINE LIVES. Braced already carries isMethod from its ORIGINAL
-        definition in incant/grammar (dlsym found aCTionBraced then), so on the
-        parseCode re-definition that guard is FALSE and the whole block is
-        skipped. That is exactly the M1b measurement of 2026-08-12 -- code{} on
-        a Grokking rule with a C++ action is silently inert -- and the mechanism
-        is this guard. So the caller tests isCoded ABOVE `!isMethod`, and
-        `!isMethod` stays on the dlsym arm only, unchanged for everyone else.
-
-    (2) "THE METHOD SLOT STAYS EMPTY" REQUIRES AN ACTIVE CLEAR, NOT MERELY NOT
-        BINDING. Braced arrives here with gMethod ALREADY set to aCTionBraced.
-        Left alone, :1230's fireLabelMethod fires it AND actK fires it -- the
-        double fire the order says is prevented by construction. So the door
-        clears gMethod / isMethod / immediateACTION, which is what actually
-        starves :1230.
-
-    ⚠ AND THE SCOPING IS A REAL CONDITIONAL, NOT AN ORDERING CONSEQUENCE. The
-    order says scoping falls out of ordering with no new conditionals. That
-    holds for the C++ population (aCTionIF, aCTionFOR ... are not coded, so
-    they take the else-arm untouched) but NOT for the CODED NON-GRAMMAR
-    population, which the 2026-08-12 census measured at five: list x2,
-    JSONfield, JSONarray, DelimOver -- and two of those are in incant/utilities,
-    which every fixture preamble includes. A bare `if isCoded` would take all
-    five through the kant door and break jsonTest. The caller therefore keeps
-    the RATIFIED test -- registry.isRule, true only for Grokking
-    (GroupMain.twk:16, the only live site) -- exactly as specced on 08-12.
-
-    BOUNDS: the highest term position the body names, against the live term
-    count. Scanned from the CodE text here because there is no parseTerms
-    declaration to read -- Tony struck it. Note this is the EARLIER of two
-    checks, not the only one: litK/parseRK already refuse loudly at call time
-    naming the position, and that one cannot be bypassed. This one fails at
-    DEFINITION, before any parse happens.
-*******************************************************************************/
-extern int kantDoor(GroupItem rule, GroupItem code)
-{
-GroupRules  ruler = groupRules;
-GroupItem   kantReg;
-GroupItem   mint;
-GroupItem   grup;
-String      mintName;
-int         want;
-int         live;
-    if !code {
-        cerr "kantDoor: " rule.tag " has no CodE -- nothing to hang":;
-        return 0; }
-    /*  BOUNDS FIRST, so a stale body never reaches the slot. Scan is plain C
-        over the body text: find every "K(" and read the integer after it,
-        which covers litK(n) and parseRK(n) with one pass and no table.  */
-    live = countRuleTerms(rule);
-    want = 0;
-    -%
-    {
-    char *scan = code->getText();
-    while ( scan && *scan )
-        {
-        if ( scan[0] == 'K' && scan[1] == '(' )
-            {
-            int n = ::atoi(scan + 2);
-            if ( n > want )  want = n;
-            }
-        scan++;
-        }
-    }
-    %-
-    if want > live {
-        cerr "kantDoor: REFUSING " rule.tag " -- body names term " toStringFromInt(want)
-             " but the rule has " toStringFromInt(live):;
-        return 0; }
-    if !want    cerr "kantDoor: WARNING " rule.tag " body names no term positions":;
-    /*  THE MINT. Its own registry, in the search list, so locate() finds it
-        the way parseViaKant already looks for it -- and so the kant parse
-        methods are a countable population rather than scattered. NOT Grokking:
-        setRuleStuff turns anything whose registry isRule into a rule, and the
-        mint must not be one.  */
-    kantReg = getRegistry("KantParse");
-    if !searchList["KantParse"]     searchList += kantReg;
-    mintName    = "kp" rule.tag;
-    /*  The groupList guard is not decoration: on the FIRST kant doored rule
-        the registry has just been created and indexing an empty one prints
-        `nextGroup: ERROR ... does not contain a list`. See kantDoored below.  */
-    if kantReg.groupList    mint = kantReg[mintName];
-    if !mint    mint = kantReg += new(mintName);
-    /*  Hang the CodE, and give the mint the two hidden locals every coded body
-        is built with -- aCTionDefinE adds them to the definee, and the mint is
-        the definee now.  */
-    mint            +% code;
-    grup            = mint += "this";
-    grup.isLocal    = true;
-    grup.noPrint    = true;
-    grup.group      = mint;
-    grup            = mint += "tempField";
-    grup.isLocal    = true;
-    grup.noPrint    = true;
-    mint.isCoded    = true;
-    mint.noPrint    = true;
-use rule
-    /*  STARVE :1230. See note (2) above -- this is the clear, not an omission. */
-    gMethod         = 0;
-    isMethod        = false;
-    immediateACTION = false;
-    isCoded         = false;
-    /*  ⚠ getRStuff(), NEVER THE RAW rStuff FIELD. The first cut used
-        `if !rStuff rStuff = new(rule)` and the bind SILENTLY DID NOT TAKE:
-        parse() forks on definingRule().rStuff.parseMethod, and the raw field
-        is not necessarily the materialised stuff that fork reads. The trace
-        said it plainly -- no `parseViaKant Braced` line at all, and
-        `attachLabel lab=Braced promote=1`, which is the INTERPRETED arm.
-        Meanwhile the method-slot clear HAD landed, so nothing built the
-        result and the consumer dereferenced a null.
-        parseRuleMethod -- the working parseMethod= door -- has always used
-        getRStuff(). Copy the working door rather than inventing a second one. */
-    setParseMethod(rule.getRStuff(),"parseViaKant");
-    cerr "kantDoor: " rule.tag " -> " mintName " via parseViaKant, "
-         toStringFromInt(live) " terms":;
-    free(mintName);
-    return 1;
-}
-
-/*******************************************************************************
-    kantDoored — the TRIPWIRE's question, and the census's. A rule is kant
-    doored when its mint exists. No new flag: the mint IS the record.
-*******************************************************************************/
-extern int kantDoored(GroupItem rule)
-{
-GroupItem   kantReg;
-GroupItem   mint;
-String      mintName;
-    /*  ⚠ locate, NOT getRegistry. getRegistry is a FACTORY -- it creates the
-        registry when it is missing, and the first cut of this function called
-        it on every rule that took the dlsym arm. That minted an empty
-        KantParse and then indexed it, and an empty registry has no list, so
-        oneTest's stderr grew four `nextGroup: ERROR KantParse does not contain
-        a list` lines. Caught by diffing stderr against the banked baseline
-        before landing anything -- stdout was identical throughout, so a
-        stdout-only comparison would have missed it entirely.  */
-    kantReg = locate("KantParse");
-    if !kantReg             return 0;
-    if !kantReg.groupList   return 0;
-    mintName = "kp" rule.tag;
-    mint = kantReg[mintName];
-    free(mintName);
-    if mint     return 1;
-    return 0;
-}
-
-/*******************************************************************************
-    actK — THE ACTION TAIL SHIM. 2026-08-12, the full-monty rung.
-
-    Third of the litK/parseRK family and the same convention: ZERO information
-    from the body. The body says "and now the rule's action runs"; the frame
-    supplies WHICH rule and WHICH label, exactly as it supplies position and
-    mark for the other two.
-
-    ⚠ WHY A SHIM AT ALL, WHEN THE BODY COULD "JUST CALL aCTionBraced()".
-    Measured 2026-08-12, both spellings, and both are unsound:
-      · a BARE extern call from a kant body does not dispatch, and the negative
-        control settles it -- aCTionNOSUCHatALL() behaves identically, exit 0,
-        no diagnostic. There is no "it worked" to observe.
-      · REGISTERED as a command it does dispatch, and then reports TRUE in an
-        AND chain whatever the action did, because aCTionBraced hands back a
-        clear()ed node and the AND contract reads a present non-numeric node as
-        true. Bare `if` on the same call reads FALSE. One call, two readings --
-        the bare-if truthiness fork, filed UNRULED in the 08-11 seal, landing
-        on the tail spelling.
-      · and underneath both: the action wants the LABEL, and the body holds no
-        node by convention. aCTionBraced's first statement is input.clear(), so
-        a bare call CLEARS THE WRONG NODE (bear-trap #22's family).
-
-    ⚠ THE VERDICT IS THE SHIM'S, NEVER THE ACTION'S RETURN. That is the whole
-    point of the third bullet above. A datumless return is aCTionBraced doing
-    its job correctly -- it is not a failure, and it must not become a
-    TRUE-by-presence either. So: dispatch happened => trueResult. Full stop.
-
-    ⚠ AND THE FAILURE IS LOUD, because the negative control showed this exact
-    family failing SILENTLY. A missing symbol REFUSES and says which name it
-    looked for. Refuse, never substitute.
-
-    ROUTE: dlsym at call time rather than a pointer stashed at mint. Priced
-    2026-08-12: the stash would need actK to find the mint anyway, so it is not
-    obviously cheaper; it adds a field whose only reader is this function; and
-    step 2 (the kant body inlining the action) DELETES the question entirely.
-    Cheap-to-remove beat cheap-to-run. If anyone ever measures a dlsym per
-    bracket as hot, the stash is a local change with no callers to update.
-
-    NOTE FOR STEP 2, recorded rather than assumed: the C++ arm's
-    fireLabelMethod does `stuff.label = method(stuff.label)` and FAILS the rule
-    when the action answers null. This shim does neither. For aCTionBraced the
-    assignment is identity -- it mutates and returns the SAME node -- so the
-    arms agree here; that is a Braced-specific equivalence and NOT a general
-    one. A rule whose action returns a different node, or null, will need this
-    revisited.
-
-    ⚠ THE ARGUMENT IS DECLARED AND IGNORED, deliberately. traceParse is the
-    proven precedent for an extern that is called both as `traceParse('on')`
-    and as `traceParse()`; a zero-parameter incant command is untested here and
-    this rung is not the place to test it.
-*******************************************************************************/
-extern GroupItem actK(GroupItem ignored)
-{
-GroupItem   label;
-GroupItem   rule;
-String      name;
-int         fired;
-    /*  Passthrough for the same reason as parseRK's -- tok cannot see a
-        hand-declared global in jitContext.h. Both locals are read OUTSIDE the
-        block as well, which is what keeps bear-trap #13 from pruning them.  */
-    -%
-    label = gKantLabel;
-    rule  = gKantRule;
-    %-
-    if !rule {
-        cerr "actK: called outside a kant parse frame -- no rule to act for":;
-        return null; }
-    if !label {
-        cerr "actK: no label in the kant parse frame for " rule.tag:;
-        return null; }
-    name    = "aCTion" rule.tag;
-    fired   = 0;
-    -%
-    GroupItem *(*action)(GroupItem *) =
-        (GroupItem *(*)(GroupItem *))::dlsym(RTLD_DEFAULT,name);
-    if ( action )
-        {
-        action(label);
-        fired = 1;
-        }
-    %-
-    if !fired {
-        cerr "actK: REFUSING -- no C++ action named " name " for rule " rule.tag:;
-        free(name);
-        return null; }
-    if parseTrace   cerr "    actK " rule.tag " -> " name:;
-    free(name);
-    return trueResult;
-}
-
-/*******************************************************************************
-    traceParse — the incant-side switch for §1.8's library instrumentation
-    (GroupRules.parseTrace). Off by default, so the baselines cannot move.
-*******************************************************************************/
-extern GroupItem traceParse(GroupItem argument)
-{
-GroupRules  ruler = groupRules;
-    parseTrace = true;
-    return trueResult;
+int         i = 1;
+int         n = 0;
+    while term = rule[i] {
+        if !term.noPrint && !term.rStuff    n++;
+        i++; }
+    return n;
 }

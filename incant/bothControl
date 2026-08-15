@@ -1,0 +1,31 @@
+/*  POSITIVE CONTROL for bothCensus. bcPos is built with three attributes and
+    two members, so it must read AM. bcAttr has attributes only and bcMem has
+    members only. If bcPos does not read AM the census cannot see a both-rule
+    and its zero means nothing.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(BothControl);
+define
+    bcAttr      one two;
+    bcMem
+        m1;
+        m2;
+    bcPos       one two three
+        p1;
+        p2;
+    show argument code={
+        print "ctl ";
+        if argument.hasAttributeS;  print "A";
+        else                        print "-";
+        if argument.hasMemberS;     print "M";
+        else                        print "-";
+        print " " argument.taG:;
+        };
+    ;
+show(bcAttr);
+show(bcMem);
+show(bcPos);
+print "BOTHCONTROL SENTINEL":;
+stop();

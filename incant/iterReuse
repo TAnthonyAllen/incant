@@ -1,0 +1,63 @@
+/*****************************************************************************
+    iterReuse is a probe for the displayForm red of 2026 08 15. Report tier.
+    Row A is the treatment, one local used for both iterates.
+    Row B is the negative control, two different locals over the same tree.
+    Row C reverses row A's order so the finding cannot be read as members
+    being broken. Counts print as numbers so a zero is a value.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(IterReuse);
+define
+    irRoot      alpha beta gamma
+        irM1;
+        irM2;
+    rowA argument code={
+        aCount = 0;
+        mCount = 0;
+        iterate grup on argument attributes;
+        while ++grup;
+            aCount = aCount + 1;
+        iterate grup on argument members;
+        while ++grup;
+            mCount = mCount + 1;
+        print "A one local   attrs=" aCount " members=" mCount:;
+        };
+
+    rowB argument code={
+        aCount = 0;
+        mCount = 0;
+        iterate one on argument attributes;
+        while ++one;
+            aCount = aCount + 1;
+        iterate two on argument members;
+        while ++two;
+            mCount = mCount + 1;
+        print "B two locals  attrs=" aCount " members=" mCount:;
+        };
+
+    rowC argument code={
+        aCount = 0;
+        mCount = 0;
+        iterate grup on argument members;
+        while ++grup;
+            mCount = mCount + 1;
+        iterate grup on argument attributes;
+        while ++grup;
+            aCount = aCount + 1;
+        print "C one local, reversed  members=" mCount " attrs=" aCount:;
+        };
+    ;
+
+print "== iterReuse: irRoot has 3 attributes and 2 members ==":;
+rowA(irRoot);
+rowB(irRoot);
+rowC(irRoot);
+print "iterReuse SENTINEL -- run reached the end":;
+stop();

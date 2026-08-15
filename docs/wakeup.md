@@ -1,3 +1,192 @@
+# ⚠⚠⚠ SEALED 2026-08-15 — SHUTDOWN SEAL (CURRENT VINTAGE). READ THIS FIRST.
+#
+#   THE ONE-LINE STATE: **the curve-ball day. Tony coded offline in kant, brought back a
+#   machine-written parse-method family and a rewritten `Generate.rtn`, and the reconciliation
+#   of that work found and closed TWO defect classes hiding behind one another.** The fleet
+#   closes at **41 green / 2 red / 1 parked — one green BETTER than the 08-13 seal it opened
+#   from.** Both reds are `iterT1m`, pre-existing, older than the SEQ 55 seal, verdicts banked
+#   in `docs/knownErrors.md` KE-4. **Kitchen is clean; the next session opens on a CHOICE.**
+#
+#   ## WHAT LANDED — one commit, one vintage (Tony waived the per-hunk walk on the fleet line's
+#   ## authority)
+#
+#   | thing | state |
+#   |---|---|
+#   | Tony's offline work | `Generate.rtn` rewritten as a 12-method `parse*` family; `parseMethod`/`actionMethod` fnptr slots; `IncantForms/WorkingOn/parser` (kant emitter for parse bodies) |
+#   | `opSetGroup` two-line fix | stamp inside the `if argument` guard, `isInitialized` set alongside |
+#   | `opPlusPlus` exhaustion | `result.group = 0` on an exhausted iterator, via `setGroup` |
+#   | `useDefaultSpace` | **BOTH halves restored** to `processAction`; the `aCTionPrinT` copy removed |
+#   | `parseContainer` | the two lines lost in transcription from `testContainer` restored |
+#   | alphabetical order | 8 `.rtn`, 288 units, **0 out of order**; `genLadder/alphaLint.sh` is the checker |
+#   | DesignDocs pilot | `jitFieldMethod` 66 comment lines → 3; entry + 8 children in `incant/designDocs` |
+#   | op-selector | **RATIFIED as the slot model**, no design session needed |
+#   | probes | 7 new fixtures, all exit 0 with sentinels (see THE INSTRUMENTS) |
+#
+#   ## ⚠ THE SIX THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   1. **`setGroup()` SET FOUR THINGS, AND BYPASSING IT DROPPED THREE OF THEM.** Tony's offline
+#      `opSetGroup` wrote `gGroup` raw — deliberately, to stash a field without touching parent or
+#      affiliation, which is right and stands. But `setGroup` also set `isInitialized`, cleared on
+#      a null argument, and copied when the argument had a parent. **Two separate reds and one
+#      SIGSEGV came out of the two flags it stopped setting.** When a raw-ivar write replaces a
+#      setter here, enumerate what the setter did.
+#   2. **`aCTionIF` READS `isInitialized` ON THE CONDITION'S VALUE** (`ruleActions.rtn`, generated
+#      as `if ( result && result->groupBody->flags.isInitialized )`). That is why
+#      `if action := generator[argument];` took the ELSE arm and the whole bytecode emit path went
+#      dark at exit 0. **Certified by `incant/setGroupInit`**: row D `:=` in condition, row E `=`
+#      control, row F `:=` as a statement then a bare test — **F is the load-bearing row, because
+#      it proves the bind WORKED and isolates the failure to the condition-position read.**
+#   3. **AN EXHAUSTED ITERATOR USED TO BE CLEARED BY ACCIDENT OF `setGroup(0)`.** With the guard
+#      added it kept `isGROUP` and a stale `gGroup`, and `aCTionIterate`'s first line
+#      (`while iterator.isGROUP  iterator = iterator.group;`) then **redirected the next iterate
+#      onto the stale node**. Symptom: a second `iterate` over the SAME local walks zero items.
+#      **Certified by `incant/iterReuse`** — A one local 3/0, B two locals 3/2, C reversed 2/0.
+#      ⚠ **ROW C IS THE EXHIBIT**: reversing the order moves the zero, so it was never
+#      "members are broken", it was reuse of the local. `incant/ruleCount` had been working around
+#      this for weeks with `rcCur`/`rcCur3` and never said why.
+#   4. **BOTH-PRESENT IS ZERO AND IS NOW REJECTED BY FIAT, like data+list.** No rule in the live
+#      population carries both an attribute set and a member list: **0 both / 43 attrs-only /
+#      13 members-only / 23 neither, over all 79 `Grokking` entries** (`incant/bothCensus`).
+#      ⚠ **The zero is only worth the control that backs it**: `incant/bothControl` builds a node
+#      with 3 attributes and 2 members and it reads `A M`, so the instrument can see a both-rule.
+#      **The emitter template is closed: pure sequence or pure alternation.** The `else` bridge and
+#      the mid-body restore problem are both gone.
+#   5. **THE OP-SELECTOR IS NOT A VOCABULARY PROBLEM.** The 13 selectors
+#      (`jitOp`/`jitCmp`/`jitUnary`, `jitContext.h:454-465`) are **never computed** — each is a
+#      compile-time constant hardcoded at the site that already knows which operator it is.
+#      **RULED: the slot model** — the op node carries `jitMethod` beside `operateMethod`, the
+#      driver calls the slot, the selector parameter retires. **A kant-side name→enum table was
+#      REJECTED**: it re-introduces name lookup the language works to eliminate, gives the op's
+#      identity two homes, and an unmapped op yields 0 which IS `jitAdd` — a `-` emitting an ADD,
+#      silently, degrade count 0. ⚠ **And the cost is smaller than it looks: 18 gates already have
+#      a body that is exactly one `return jitEmitX(...)` line.** The shims are written; they are
+#      anonymous and trapped inside `if jitting`.
+#   6. **`iterT1m` IS THE SAME STANDING QUESTION IT WAS BEFORE THE CURVE BALL.** Both reds are
+#      pre-existing and are NOT this session's. Re-pin rulings are Tony's, sentences bought in KE-4.
+#
+#   ## ⚠ DOCTRINE EARNED, AND THE FIRST ONE IS LEDGER-GRADE
+#
+#   - ⚠⚠ **A CONTENT-COMPLETE DIFF THAT STILL FAILS EARNS A BYTE-LEVEL LOOK BEFORE IT EARNS
+#     ANOTHER THEORY.** Paid for the same day. After the iterator cure `displayForm` still failed,
+#     so the tempting read was "a second walk defect". **The walk was already correct**: all 21
+#     content lines matched byte for byte and the sole difference was **ONE TRAILING SPACE** on the
+#     sentinel — two lines that render identically and only `od` separates. The real cause was the
+#     unreverted second half of a two-half change. **Had the search gone hunting for a walk defect,
+#     the space it searched would not have contained the answer** — bear-trap #19's corollary, met
+#     from the cheap direction for once. Diff bytes before theorising.
+#   - **A TWO-HALF CHANGE NEEDS BOTH HALVES REVERTED.** `useDefaultSpace` was *moved* from
+#     `processAction` to `aCTionPrinT`. Restoring only the origin left it set in BOTH places, which
+#     is a third state nobody designed. Certified in both directions: line out → `spell.target` and
+#     `manyScratch.target` RED with `lit(t1,"x")` becoming `lit( t 1  , " x " )`; line back → green
+#     and the fleet byte-identical to the pre-edit capture.
+#   - **A PREDICTION THAT NAMES ITS OWN GAP IS WORTH MORE THAN ONE THAT PASSES.** The relay-#3 fix
+#     was predicted to clear `oneTest` and the two spacing rows **and to leave `displayForm` red**,
+#     because that chain lived in `opPlusPlus` and violated neither ruled invariant. All four rows
+#     landed as predicted. The value was in the row predicted to FAIL — it named the second cure
+#     before anyone went looking for it.
+#   - **A PRE-REGISTERED PREDICTION THAT FAILS IS THE CHEAP WIN.** "`displayForm` shares
+#     `oneTest`'s cause" was recorded, then falsified by one grep — **only ONE `:=`-in-condition
+#     site exists in all of `incant/`.** That failure is what split one investigation into two
+#     correct ones.
+#   - **A REORDER IS NOT CODEGEN-NEUTRAL, AND THE CONTROL IS HOW YOU KNOW.** tok's bare-name
+#     resolution is order-dependent, so the alphabetical pass was certified by a function-level
+#     diff — **288 functions in, 288 out, none lost, none gained, 15 bodies differing ONLY by tok's
+#     `::` global-scope qualifier** — then by build, then by a fleet that did not move. A build
+#     that succeeds is not evidence that a reorder was safe.
+#
+#   ## ⚠ THREE VIGRAM CANDIDATES NOW STANDING (design intent; no vigram work opens today)
+#
+#   1. **`isGROUP ⇒ gGroup non-null`** — ⚠ **it has a live NEGATIVE CONTROL**: `x := f["MissingKey"]`
+#      built the violation on demand and `if x;` **exited 139 with zero bytes** before the fix.
+#      The invariant can be shown to fire before it is trusted, which is the H7 bar.
+#   2. **`isGROUP ⇒ isInitialized`** — the flag `aCTionIF` actually reads. Stamped together now, so
+#      neither can be forgotten separately.
+#   3. **AN EXHAUSTED ITERATOR CARRIES NO GROUP.** ⚠ **Load-bearing for Tony's `IterateIf`**
+#      (`if iterate grup on X attributes;`, desugaring to opIterate + opPlusPlus-as-test + back-edge
+#      advance), which leans on the `isInitialized` work. **An argument for the invariant, not a hold.**
+#   ⚠ **FILED, NOT RULED: `isGROUP` carries TWO meanings** — *carries a group* and
+#   *follow-me-redirect* (`aCTionIterate`'s first line reads it the second way). One-channel-one-
+#   meaning, newest member. **No channel split ruled today.**
+#
+#   ## THE COMMENT PROBLEM, MEASURED — and `genParse.rtn` is now crowned by THREE independent
+#   ## measurements
+#
+#   **299 comment blocks over 3 lines, 4053 lines**, across the `.rtn` fleet.
+#   `genParse.rtn` **1242** · `jitEmitters.rtn` **1066** · `ruleActions.rtn` 603 · `GroupActions.rtn`
+#   509 · `Instruct.rtn` 359 · `Commands.rtn` 246 · `Debug.rtn` 20 · **`Generate.rtn` 8**.
+#   ⚠ **`Generate.rtn` is the reference specimen and the gap to the next file up is ~150x.** That is
+#   the target style stated in numbers. And `genParse.rtn` is now worst on **comment volume**,
+#   **alphabetical disorder (23 of 56)**, and Tony's own read — three independent measurements
+#   agreeing, which is why its spa treatment is queued rather than argued.
+#
+#   ## ⚠ DesignDocs — SCHEMA v2 RULED, AND ONE BLOCKER A NAIVE VERB WOULD HAVE HIT
+#
+#   **Sub-entries are MEMBERS, and members are not bare-locatable.** Measured: bare name → empty
+#   node; `Parent["Child"]` → empty node; **reached by ITERATING the parent's members → the real
+#   node with its 3 children**; top-level parent as control → 8 children. **So the registry's whole
+#   content below the top level is walkable but NOT addressable**, and a query verb written the
+#   obvious way (locate by key) would silently return empty nodes for every sub-entry.
+#   **RULED: the verb is a WALKER, not a restructure** — sub-entries stay members, the walker walks
+#   by tag and enforces key uniqueness in passing, and this is the general answer wherever data
+#   registries recur (`gDO`'s "members are not bare-locatable" wall included).
+#   **Schema v2 adopted, next-relay work:** `Status` (canonical / measured `<date>` / open, owner
+#   `<name>`) · `Evidence` (verbatim, no reflow) · `CodeSite` (a field, so entry-outlives-method is
+#   lint-checkable) · `Rejected` (earned by two independent authors reaching for it).
+#   ⚠ **SITE-SCOPED WARNINGS ARE THE NAMED EXCEPTION AND NEVER MIGRATE** — a warning stays one line
+#   at its post in the function it guards; the registry may carry the why.
+#   **Mechanical:** entry text **cannot contain a double quote** (it terminates the string);
+#   apostrophes and semicolons are fine.
+#   ⚠ **PARSE-GREEN IS NOT SHAPE-CORRECT** — the pilot entry was verified by walking it
+#   (8 children, `Contract` sub 3), not by exit status. The registry's own header records why.
+#
+#   ## PARKED, WITH OWNERS — nobody has to guess whose these are
+#
+#   | item | owner |
+#   |---|---|
+#   | `IterateIf` construct | **Tony**, in flight |
+#   | `parseRule` rec sheet — the `isAction` fork into `setParse` slots, `parseFail` (7 duplications), the `if jitting` stub → `actionMethod` slot | **Tony** |
+#   | `genParseTest` both-present guard line | **Tony**, his file |
+#   | DesignDocs schema v2 + the walker verb | next relay |
+#   | op-selector campaign — de-gating the 31 `Instruct.rtn` gates and unblocking the kant jit driver **close together as ONE mechanism** | post-pause |
+#   | `opPlusEQ` as a named exception (per-leaf dispatch, outside the slot model) and the `jitEmitAssign` call-shape wrinkle | **Clod**, to propose when the campaign opens |
+#   | `iterT1m` ×2 re-pins | **Tony** |
+#
+#   ## ⚠ THE KANT JIT DRIVER — DOABLE, AND ITS KEYSTONE WAS ALREADY IN TONY'S OFFLINE WORK
+#
+#   `incant/jitDrive` runs: it finds a real action's `BlocK`, walks it, dispatches per node.
+#   **62 jit externs, 4 reachable from kant today** (`jitTrace`, `jitRefire`, `jitShowRecord`,
+#   `jitFieldMethod`) — so kant→jit-extern calling is already proven, not hypothetical.
+#   ⚠ **The guessed missing-bits list was HALF WRONG and the correction is the finding**: a
+#   **builder handle is NOT needed** — 20 externs take `()` and work on module-level state, so kant
+#   calls them as bare commands and registration is the whole cost. `jitStoreResult()` and
+#   `jitNodeInFlight()` already exist. **The real blocker was the op selector**, which is now ruled.
+#
+#   ## THE INSTRUMENTS, so nobody rebuilds one
+#
+#   `pop.sh` (fleet, 41/2/1) · `smoke.sh` (the bell) · `smokelib.sh` (**sourced never copied**) ·
+#   `parked.sh` · `kantRatchet.sh` · `kantCensus.sh` · `completePop.sh` ·
+#   **`alphaLint.sh` (NEW — hygiene tier, report only, deliberately NOT in `pop.sh`, and it
+#   certifies itself: zero method lists extracted exits 2 rather than printing a clean banner)**.
+#   **NEW PROBES, report tier, all exit 0 with sentinels:** `incant/iterReuse` (iterator reuse, with
+#   its reversed-order exhibit) · `incant/setGroupInit` (`:=` in condition, with its `=` control) ·
+#   `incant/bothCensus` + `incant/bothControl` (both-present, with its positive control) ·
+#   `incant/ddProbe` + `incant/ddProbe2` (DesignDocs shape and addressability) · `incant/jitDrive`
+#   (the kant jit driver stub).
+#   **RULE H10: smoke-green authorizes CONTINUING, only a fleet check authorizes LANDING — and the
+#   landable property is UNMOVED, not green.**
+#
+#   ## ⚠ TWO STANDING HAZARDS RE-CONFIRMED THIS SESSION, both cheap to lose
+#
+#   - **A BARE `for r in Grokking;` WALK EXITS 139 WITH ZERO OUTPUT.** Reproduced independently and
+#     **it is NOT `genKant`-specific** — a walk whose body does nothing but count also dies. The
+#     workaround is the `iterate`/`while ++` idiom (`incant/ruleCount`) or one-rule-per-process.
+#   - **A STALE `.mm` COMPILES AND RUNS.** The binary that opened this session was built from a
+#     `GroupRules.mm` generated BEFORE two of that morning's `.rtn` edits — Xcode recompiled the
+#     `.mm`, `tok` was never re-run. **Verified before trusting any measurement**: `opSetGroup`,
+#     `opPlusPlus` and `aCTionIF` were byte-identical between the stale and fresh `.mm`, which is
+#     the only reason the day's chains stood. **No mechanization ruled** (Tony's practice is
+#     always-retok); treated as one-off unless the fleet says otherwise.
+#
 # ⚠⚠⚠ SEALED 2026-08-13 LATE — SHUTDOWN SEAL (CURRENT VINTAGE). READ THIS FIRST.
 #
 #   THE ONE-LINE STATE: **the OPT vocabulary is BUILT and LANDED — `optRK` compiles, emits and

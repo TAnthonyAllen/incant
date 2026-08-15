@@ -170,9 +170,10 @@ int         restrict, target, seen;
     while grup = loopOn.next(grup) {
         if restrict && grup.affiliation != restrict   continue;
         if seen == target {
-            grup.byRef = true;
-            Looper.group = grup;
-            lastREF.group = grup;
+            grup.byRef      = true;
+            Looper.group    = grup;
+            lastREF.gGroup  = grup;
+            lastREF.isGROUP = true;
             cursorHolder.setCount(target + 1);
             prod = new("prod");
             prod.setCount(1);

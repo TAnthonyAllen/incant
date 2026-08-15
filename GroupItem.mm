@@ -2015,6 +2015,9 @@ void GroupItem::setContent(GroupItem *item)
 				if ( isGROUP(item->groupBody->flags.data) )
 					setGroup(item->groupBody->gGroup);
 				else
+				if ( isBUFFER(item->groupBody->flags.data) )
+					setText(item->getText());
+				else
 				if ( item->groupBody->flags.data )
 					copyData(item);
 				}
