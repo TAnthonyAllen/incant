@@ -777,6 +777,25 @@ let you inject trace code without polluting `.twk` source. See the bible's
 
 ---
 
+## Where a finding goes — three registers, and picking the wrong one loses it
+
+Measurement taken for one purpose routinely turns up a defect belonging to another. **CAPTURE, DO
+NOT CHASE** — stopping to fix it derails the task that found it, and mentioning it in prose loses
+it. Three destinations, and they are not interchangeable:
+
+| register | for | shape |
+|---|---|---|
+| **`docs/fixIts.md`** | **the default.** Something is broken or owed, and it is actionable | a row: what · where (file:line) · evidence · done-when · owner |
+| `docs/knownErrors.md` | a deep defect needing investigation and a **ruling** before anyone can act | long-form KE entry with measurement and discrimination |
+| `TODO.md` | design and roadmap work, organised by arc | prose under its phase |
+
+⚠ **A finding recorded ONLY in a commit message is recorded and simultaneously lost.** That is
+where fixits lived until 2026-08-16 and it is why this section exists.
+⚠ **A `fixIts.md` row is MINION-READY OR IT IS NOT A ROW** — if it cannot be handed to someone with
+no context, it is not finished being written.
+
+---
+
 ## Bear Traps
 
 Hard-won lessons. Each one has cost real debugging time.
