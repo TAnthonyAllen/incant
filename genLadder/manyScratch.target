@@ -8,8 +8,8 @@ int         kount;
     atRuleMark = from;
     return false;
 }
+emitMany: MANY node has no site/min 
 emitMany: MANY node has no site/min
-emitMany: MANY node has no site/min
-MANY ANSWER=1
+MANY ANSWER= 1 
 MANY ANSWER=0
-MANY ANSWER=0
+MANY ANSWER= 0 

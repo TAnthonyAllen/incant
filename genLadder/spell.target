@@ -1,54 +1,54 @@
 SPELL Scaf
   fold SEQ
-  LIT sink=label lit(t1,"x")
-  LIT sink=into  lit(t1,"x")
+  LIT sink=label lit( t1 , " x " ) 
+  LIT sink=into  lit( t1 , " x " ) 
 SPELL Scaf2
   fold SEQ
-  LIT sink=label lit(t1,"{")
-  LIT sink=into  lit(t1,"{")
-  LIT sink=label lit(t2,"}")
-  LIT sink=into  lit(t2,"}")
+  LIT sink=label lit( t1 , " { " ) 
+  LIT sink=into  lit( t1 , " { " ) 
+  LIT sink=label lit( t2 , " } " ) 
+  LIT sink=into  lit( t2 , " } " ) 
 SPELL ScafB
   fold SEQ
-  CALL sink=label parseR(t1,label)
-  CALL sink=into  parseR(t1,into)
-  LIT sink=label lit(t2,"b")
-  LIT sink=into  lit(t2,"b")
+  CALL sink=label parseR( t1 , label ) 
+  CALL sink=into  parseR( t1 , into ) 
+  LIT sink=label lit( t2 , " b " ) 
+  LIT sink=into  lit( t2 , " b " ) 
 SPELL ScafC
   fold SEQ
-  MANY sink=label manyScafC1(label,t1)
-  MANY sink=into  manyScafC1(into,t1)
-  LIT sink=label lit(t2,"c")
-  LIT sink=into  lit(t2,"c")
+  MANY sink=label many ScafC1 ( label , t1 ) 
+  MANY sink=into  many ScafC1 ( into , t1 ) 
+  LIT sink=label lit( t2 , " c " ) 
+  LIT sink=into  lit( t2 , " c " ) 
 SPELL ScafE
   fold SEQ
-  LIT sink=label lit(t1,"e")
-  LIT sink=into  lit(t1,"e")
-  OPT sink=label (parseR(t2,label) || 1)
-  OPT sink=into  (parseR(t2,into) || 1)
-  LIT sink=label lit(t3,"f")
-  LIT sink=into  lit(t3,"f")
+  LIT sink=label lit( t1 , " e " ) 
+  LIT sink=into  lit( t1 , " e " ) 
+  OPT sink=label ( parseR( t2 , label )   || 1) 
+  OPT sink=into  ( parseR( t2 , into )   || 1) 
+  LIT sink=label lit( t3 , " f " ) 
+  LIT sink=into  lit( t3 , " f " ) 
 SPELL ScafF
   fold SEQ
-  LIT sink=label lit(t1,"f")
-  LIT sink=into  lit(t1,"f")
-  OPT sink=label (lit(t2,",") || 1)
-  OPT sink=into  (lit(t2,",") || 1)
-  LIT sink=label lit(t3,"g")
-  LIT sink=into  lit(t3,"g")
+  LIT sink=label lit( t1 , " f " ) 
+  LIT sink=into  lit( t1 , " f " ) 
+  OPT sink=label ( lit( t2 , " , " )   || 1) 
+  OPT sink=into  ( lit( t2 , " , " )   || 1) 
+  LIT sink=label lit( t3 , " g " ) 
+  LIT sink=into  lit( t3 , " g " ) 
 SPELL ScafALT
   fold ALT
-  CALL sink=label parseR(t1,label)
-  CALL sink=into  parseR(t1,into)
-  CALL sink=label parseR(t2,label)
-  CALL sink=into  parseR(t2,into)
+  CALL sink=label parseR( t1 , label ) 
+  CALL sink=into  parseR( t1 , into ) 
+  CALL sink=label parseR( t2 , label ) 
+  CALL sink=into  parseR( t2 , into ) 
 SPELL CodE
   fold SEQ
-  LITTO sink=label litTo(t1,label,"{","{")
-  LITTO sink=into  litOption(t1,into,"{")
-  LITTO sink=label litTo(t2,label,"}","}")
-  LITTO sink=into  litOption(t2,into,"}")
+  LITTO sink=label litTo( t1 ,label, " { " , " { " ) 
+  LITTO sink=into  litOption( t1 ,into, " { " ) 
+  LITTO sink=label litTo( t2 ,label, " } " , " } " ) 
+  LITTO sink=into  litOption( t2 ,into, " } " ) 
 SPELL Limit
-  REFUSE min -- inline group / character data isGROUP (named future kind)
+  REFUSE min -- inline group / structural data isGROUP (named future kind)
   REFUSE rule Limit -- term min unclassified
   no plan

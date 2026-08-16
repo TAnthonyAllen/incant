@@ -19,6 +19,6 @@ dfRoot
 	dfCoded2 
 		codedTwo does not have method 
 	dfBare 
-displayFormT SENTINEL -- run reached the end
+displayFormT SENTINEL -- run reached the end 
 
 stop: ending input divert
