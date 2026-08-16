@@ -499,13 +499,14 @@ nothing could have dropped it — therefore the writer and the reader are lookin
 nodes**. This is a **provenance mismatch, not a copy loss**, and that is why chasing it through
 the duplication path produced a confusing blast radius: *the mechanism was never on that path.*
 
-⚠ **CONSEQUENCE, AND IT WANTS TONY'S EYE: `aCTionTraiTdata:1381`'s `&& !isLiteral` MAY BE INERT
-TODAY.** With isLiteral clear, `(isRule && !isLiteral)` reduces to `isRule`, which is the
-pre-change condition exactly. If that clause was added to route a literal to `setContent` rather
-than `setGroup`, the measurement says the routing is coming from somewhere else — namely
-`aCTionDefinE` no longer substituting `new(item.text)`. **Stated as a consequence of a measured
-premise, NOT as a diagnosis**: the reading above is on post-definition term nodes, and confirming
-it on the `DatA` node *at TraiTdata time* is one more probe that this recon's bound does not cover.
+~~⚠ **CONSEQUENCE, AND IT WANTS TONY'S EYE: `aCTionTraiTdata:1381`'s `&& !isLiteral` MAY BE INERT
+TODAY.**~~ **WITHDRAWN 2026-08-16 — MEASURED FALSE. See section B0-3 below.** The gate is **LIVE**:
+the node it tests carries `isLiteral=1`. The inference was sound and its premise was the wrong
+node — I read post-definition term nodes and reasoned onto a node one stage upstream. The very
+mechanism finding in this section (writer and reader are different nodes) predicted that the
+reading would not transfer, and I applied it to the flag's death without applying it to my own
+inference. **The correction is what buys the refinement in B0-3, so the error was productive, but
+it was an error: a measured premise carried one node too far.**
 
 ## 5. VERDICT — **GENUINE YAK, with the blast radius named**
 
@@ -535,3 +536,119 @@ Without it the includes never run, `search` fails token by token, and **`print` 
 at exit 0** — a run indistinguishable from a short successful one. `incant/countScratch` has the
 correct shape; `incant/litProbe`'s first draft did not, which is why that probe asserts its
 completeness on stderr instead. Same silent-failure family as bear-trap #28.
+
+---
+---
+
+# B0-3 — ARBITRATING THE :1381 GATE
+
+**asOf 2026-08-16.** Provenance: **one instrumented run**, ephemeral directive on
+`aCTionTraiTdata`, driver `incant/litProbe`, live grammar bootstrap. Tree restored byte-exact
+afterwards. No source changed.
+
+## VERDICT: **FLAG SET — THE GATE IS LIVE AND STAYS. Tony's report is correct; my inertness flag is withdrawn.**
+
+## ⚠ ONE CORRECTION TO THE BRIEF'S PREMISE, and it matters for anyone re-running this
+
+The gate does **not** test `input`. tok bound the bare names to **`DatA`** — last-mentioned wins,
+and `DatA` is the last field mentioned before the line:
+
+```c
+if ( (DatA->groupBody->flags.isRule && !DatA->groupBody->flags.isLiteral) || DatA->...registry == opFields )
+        input->setGroup(DatA);
+else    input->setContent(DatA);
+```
+
+`DatA` may additionally have been **replaced** by `new GroupItem(DatA)` earlier in the function
+when it carried rStuff. So the node under test is *DatA at that instant*, which is neither the
+QuotE node nor the eventual rule term.
+
+## THE MEASUREMENT — 192 readings, taken at the gate, node identity attached
+
+The eight literals Tony relabelled, every one arriving with **both** flags set, so
+`(isRule && !isLiteral)` is **FALSE** and each routes to `setContent`:
+
+```
+TDPROBE tag= DatA text= {  isLiteral= 1 isRule= 1
+TDPROBE tag= DatA text= }  isLiteral= 1 isRule= 1
+TDPROBE tag= DatA text= [  isLiteral= 1 isRule= 1
+TDPROBE tag= DatA text= ]  isLiteral= 1 isRule= 1
+TDPROBE tag= DatA text= (  isLiteral= 1 isRule= 1
+TDPROBE tag= DatA text= )  isLiteral= 1 isRule= 1
+TDPROBE tag= DatA text= #  isLiteral= 1 isRule= 1
+TDPROBE tag= DatA text= :  isLiteral= 1 isRule= 1
+```
+
+The contrast, same site, same run — references and containers, `isLiteral` **clear**, so the
+condition is TRUE and they route to `setGroup`:
+
+```
+TDPROBE tag= NamE       text= NamE              isLiteral= 0 isRule= 1
+TDPROBE tag= NumbeR     text= numberSet Guardset isLiteral= 0 isRule= 1
+TDPROBE tag= PrintXP    text= PrintXP           isLiteral= 0 isRule= 1
+TDPROBE tag= ScopeField text= ScopeField        isLiteral= 0 isRule= 1
+TDPROBE tag= StatemenT  text= StatemenT         isLiteral= 0 isRule= 1
+```
+
+**Both arms of the gate are exercised in one run, and they separate exactly on the flag.** Totals:
+60 readings set, 132 clear. **A cleared flag could not have changed the AND's outcome; a set one
+does, and here it is set on precisely the population Tony described.**
+
+## ⚠ THE FENCE, EARNED FREE — AND THE DEATH SITE IS THE GATE'S OWN ELSE ARM
+
+B0-2 established that the flag is alive at the writer and dead at the rule term. This run puts the
+boundary at a single line, and the irony is worth recording: **the branch that proves the flag is
+alive is what kills it.**
+
+A literal takes `else input->setContent(DatA)`. `setContent` (`GroupItem.twk`) copies **lists,
+group, text and data** — via `copyListFrom`, `group =`, `text =`, `copyData` — and **never touches
+`groupBody->flags`.** So `input`, the node that becomes the rule term, receives the spelling and
+**not** the flag.
+
+**REFINED B0 CLAIM, replacing the one banked in B0-2:**
+
+> **isLiteral survives to `aCTionTraiTdata`'s gate and dies crossing `setContent` into the TraiT
+> node.** It is not lost to duplication — the copy constructor shares the body and cannot lose it —
+> and it is not lost across the TraiT handoff. It is lost at exactly one line, because `setContent`
+> is a *content* copy and a flag is not content.
+>
+> Provenance: Tony's direct observation · B0-2's census and `incant/litFlagProbe` · this section's
+> instrumented run. **The yak's neck is fenced to one statement.**
+
+Whoever eventually shaves it now has a one-line target rather than three functions, and a choice
+that can be stated in a sentence: carry the flag explicitly at that assignment, or accept that a
+content copy does not carry flags and stop asking it to.
+
+## HOW TO RE-RUN IT — the directive, verbatim
+
+No incant probe can take this reading: the node is unreachable from incant at that instant, which
+is itself part of the finding. The sanctioned path is `groupDirectives`. Paste this block in
+alphabetical position and **build with `tok GroupRules.twk groupDirectives`**:
+
+```
+aCTionTraiTdata "if (isRule" before active
+    cerr "TDPROBE tag=",DatA.tag,"text=",DatA.text,"isLiteral=",DatA.isLiteral,"isRule=",DatA.isRule:;
+#;
+```
+
+Then any run drives it — `incant/litProbe` is enough, since the grammar bootstrap passes every
+labelled literal through the site.
+
+⚠ **DISARM, DO NOT DELETE, IS THIS FILE'S OWN CONVENTION** — drop the leading `a` from `active` to
+get `ctive`, which is what most entries in `groupDirectives` already are: parked probes kept for
+reuse. **It is not committed here** because `groupDirectives` is Tony's active WIP file; it was
+restored byte-exact (md5 verified) after this run.
+
+⚠ **AND THE BINARY WAS PUT BACK BARE**: `tok GroupRules.twk` with no directives file, rebuilt,
+verified `TDPROBE` absent from both the `.mm` and a live run, `fprintf(stderr)` back to 256. Fleet
+re-checked after restoration: **34 green, unmoved from the post-Item-1 state.** An instrumented
+binary must never be left behind a measurement (bear-trap #23's cross-annotation).
+
+## METHOD NOTE — the class of my error, since it is the second of its kind this week
+
+The inertness flag was **sound reasoning on a premise carried one node too far**. B0-2's own
+finding — *the writer and the reader are different nodes* — was the exact warning against it, and I
+applied it to the flag's disappearance without applying it to my own inference. **A measured value
+is measured AT A NODE AND AT A TIME; moving it to another node is a new claim needing a new
+measurement.** That is the structural-versus-causal ledger again: the structural claim in B0-2
+(shared body) held perfectly, and the causal extension (therefore the gate is inert) did not.
