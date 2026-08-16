@@ -1216,6 +1216,53 @@ Hard-won lessons. Each one has cost real debugging time.
     build), one produces a plausible string (which reads as data), and one produces a missing
     include at exit 0 (which reads as a working run). None of them names the line.
 
+29. **A `/* */` BLOCK COMMENT WEDGED BETWEEN TWO ARMS OF AN `if`/`or` CHAIN — immediately before an
+    `or` — WIPES THE ENTIRE EXTERN BLOCK TO ZERO.** Bear-trap #4 one scope up: same no-lexer cause
+    (comments are *parsed*, not skipped), but `/* */` instead of `//`, and **chain arms** instead of
+    an `if`'s governed statement. Signature is #10/#24's exactly — `grep -c '^extern' GroupRules.h`
+    goes **288 → 0**, and the build then fails three files away in `Bytecode.mm` with `no member
+    named 'opEQ'`. tok prints `FAIL Block at: or <cond> {` **and** `FAIL Body3 at: {_...`, where the
+    Body3 line names the **START of the enclosing function**, not the comment — so the diagnostic
+    points at a function that is fine.
+    **MEASURED THREE WAYS, 2026-08-16, in `genParse.rtn`'s `planTerm` (the same edit each time,
+    only the comment moved):**
+    | placement | externs |
+    |---|---|
+    | above the whole `if`/`or` chain | **288 — fine** |
+    | inside an arm's braced body, after the `{` | **288 — fine** |
+    | between two arms, immediately before an `or` | **0 — fatal** |
+    **The cure is the convention that was already there**: `planTerm`'s existing design comments all
+    sit above the chain, and the trap was walked into by not copying them. Put the prose above the
+    whole chain, or inside the arm it describes — never in the gap between arms.
+    ⚠ **The bisect is worth copying too, because content looks guilty and is not.** Every paragraph
+    of the comment killed it individually, which is what proves the cause is POSITION rather than
+    any token inside it — an hour of hunting for a bad character is an hour wasted. And the standing
+    canary is what caught it: **`grep -c '^extern' GroupRules.h` after every retok.**
+
+30. **THE DIRECTIVE CONTRACT: `groupDirectives` APPLIES AT MOST ONE DIRECTIVE PER TARGET FUNCTION —
+    THE FIRST *ARMED* ENTRY IN FILE ORDER. Every loser injects NOTHING, silently.** ⚠ **This is BY
+    DESIGN, not a tok defect** (ratified 2026-08-16) — but it is undocumented everywhere else and
+    reads exactly like a broken directive. Sibling of #23: that one is about *passing* the
+    directives file, this one about what happens once you have.
+    **The three clauses, each measured 2026-08-16:**
+    - **First armed wins.** Two `active` entries on `aCTionDefinE` — the first at file line 23
+      fired, the second at line 27 did not.
+    - **Disarmed entries are SKIPPED ENTIRELY and do not hold a slot.** A `ctive` dummy placed
+      *first* did not block an `active` entry below it. (The file's own convention: dropping the
+      leading `a` from `active` disarms an entry while parking it for reuse.)
+    - **Anchors do NOT create separate slots.** The two `aCTionDefinE` entries above had
+      *different* anchors (`"if Attributes"` vs `"if isLiteral"`) and still contested one slot.
+    **THE FAILURE MODE IS THE DANGER, not the rule:** the losing directive produces no warning, a
+    clean `tok` exit, and an intact extern block. You get a well-formed directive, a successful
+    build, and zero output — which reads as *"the code path never ran"* when the truth is *"your
+    instrument was never installed."* That is a whole afternoon aimed at the wrong question.
+    ⚠ **THE DISCIPLINE, and it is H1 one level down — an instrument must prove it is installed
+    before it is trusted: `grep <your-marker> GroupRules.mm` after the retok, BEFORE the build.**
+    One command, and it converts a silent no-op into a visible one. It is what caught this.
+    **Live example in the tree:** `aCTionDebuG` carries **three** stacked entries. All three are
+    disarmed, so the stack is harmless parking today — but arming *two* of them would silently give
+    you only the first, and nobody has ever found that out.
+
 > **RULE H10 — THE CITATION BOUNDARY: SMOKE-GREEN AUTHORIZES CONTINUING, ONLY A FLEET CHECK
 > AUTHORIZES LANDING. A smoke-green is NEVER citable as fleet-green.** Adopted 2026-08-13 (SEQ 60,
 > Tony's two-tier proposal). `genLadder/smoke.sh` is the iteration bell — fixture-under-test ·
