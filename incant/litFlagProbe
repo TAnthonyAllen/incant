@@ -1,0 +1,50 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+/*****************************************************************************
+    litFlagProbe -- ITEM 2 RECON, 2026-08-16. Does the isLiteral flag survive
+    to the sites that read it?
+
+    THE CLAIM UNDER TEST, Tony's direct observation as relayed by Clay: that
+    isLiteral does not carry across rStuff duplication, nor across the handoff
+    from TraiTdata into TraiT.
+
+    The read sites that matter are in aCTionTraiTdata, which tests isRule
+    together with the negation of isLiteral, and in aCTionDefinE, whose
+    tag-swap arm tests isLiteral alone. Both read the flag off a node that may
+    first have been duplicated, and that duplication runs only when the node
+    already carries rStuff.
+
+    isLiteraL is GroupField seventeen, so incant can read it directly. This
+    prints it for a labelled literal, a bare literal, a reference term and a
+    rule, so that a set value and a clear value both appear. A probe that
+    printed only one of them could pass while measuring nothing.
+
+    PREAMBLE IS LOAD-BEARING. The two includes must precede the search
+    statement or search fails token by token, after which print emits zero
+    bytes at exit zero. Measured 2026-08-16 on the first draft of litProbe.
+
+    HEADER IS ALSO LOAD-BEARING, and this is bear-trap twenty-seven. An
+    earlier draft of this header quoted the read-site test verbatim, operators
+    included. That killed the parse before the includes ran, the search
+    statement then failed on unregistered names, and the whole probe printed
+    nothing at exit zero. Headers here get prose.
+
+    RUN:   <binary> incant/litFlagProbe
+*****************************************************************************/
+register(Ladder);
+define
+    LitScaf isRule "x"-;
+    ;
+search reset stack Grokking Ladder UnitTests Utilities list;
+
+print "== isLiteraL at the read sites ==":;
+print "  Braced[1]   labelled literal   isLiteraL =" Braced[1].isLiteraL:;
+print "  Braced[3]   labelled literal   isLiteraL =" Braced[3].isLiteraL:;
+print "  Braced[2]   reference          isLiteraL =" Braced[2].isLiteraL:;
+print "  LitScaf[1]  bare literal       isLiteraL =" LitScaf[1].isLiteraL:;
+print "  Braced      the rule itself    isLiteraL =" Braced.isLiteraL:;
+print "litFlagProbe SENTINEL":;
+stop();

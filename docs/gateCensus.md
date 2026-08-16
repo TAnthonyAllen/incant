@@ -402,3 +402,136 @@ emit world, so a gate would be meaningless); 3 are comment text (`jitEmitters.rt
 **No site reaches jit emit machinery without the literal gate.** Every `jitEmit<Name>(` call
 outside `jitEmitters.rtn` is inside an `if jitting` block; every one inside `jitEmitters.rtn` is
 either a definition or a call already downstream of a gate.
+
+---
+---
+
+# B0-2 — THE isLiteral RECON (Item 2, measurement only)
+
+**asOf 2026-08-16.** Provenance: **grep + read + one new probe** (`incant/litFlagProbe`).
+No source changed by this section. Bound honoured: census and traces first, verdict at the end.
+
+**⚠ THE CLAIM I WAS ASKED TO BANK DOES NOT SURVIVE MEASUREMENT AS WORDED, AND THE CORRECTED
+VERSION IS MORE USEFUL.** Asked to bank: *"isLiteral does not carry across rStuff duplication or
+the TraiT handoff."* The OBSERVATION behind it is real and reproduced — the flag reads **clear at
+every site that matters**. The MECHANISM is not duplication.
+
+## 1. THE CENSUS — every isLiteral site in source
+
+Excludes `Aside/` (gitignored) and generated `GroupRules.mm`/`.h`.
+
+| # | site | function | W/R | which copy of the truth |
+|---|---|---|---|---|
+| 1 | `GroupBody.twk:68` | — | decl | the flag lives in **GroupBody**, not in RuleStuff |
+| 2 | `ruleActions.rtn:905` | `aCTionNumbeR` | **W** | sets on `input`, the NumbeR parse node |
+| 3 | `ruleActions.rtn:1052` | `aCTionQuotE` | **W** | sets on `input`, the QuotE parse node |
+| 4 | `ruleActions.rtn:1055` | `aCTionQuotE` | **W** | sets on `input`, the QuotE parse node |
+| 5 | `ruleActions.rtn:376` | `aCTionDefinE` | R | reads on **`NewGroup`** (`use NewGroup`), tag-swap arm |
+| 6 | `ruleActions.rtn:1381` | `aCTionTraiTdata` | R | reads on **`DatA`** — see §4, this is the live one |
+| 7 | `Instruct.rtn:319` | `opDot` case 17 | R | the incant accessor, `isLiteraL`, GroupField 17 |
+| 8 | `GroupActions.rtn:944` | `runOP` | R | jit seed, operand node at expression time |
+| 9 | `GroupActions.rtn:948` | `runOP` | R | jit seed, operand node at expression time |
+| 10 | `jitEmitters.rtn:2215` | `jitPrintList` | R | print-item classification |
+| 11 | `jitEmitters.rtn:2345` | `jitPrintProbe` | R | trace only |
+| 12 | `jitEmitters.rtn:2361` | `jitPrintProbe` | R | trace only |
+
+**Three writers, all at PARSE time on the token node. Nine readers, split across three unrelated
+populations** — rule definition (5,6), the incant accessor (7), and the JIT operand path (8-12).
+Sites 8-12 are a different population entirely and are NOT in question: they read the operand
+node the parse just built, with no definition machinery in between.
+
+## 2. WHAT THE DUPLICATION COPIES AND WHAT IT DROPS
+
+⚠ **THE PATH IS NOT "rStuff duplication". IT IS NODE DUPLICATION, GATED ON rStuff PRESENCE** —
+`if rStuff  DatA = new(DatA);` (`aCTionTraiTdata`), `if rStuff  trait = new(trait);`
+(`aCTionTraiT`). rStuff is the *trigger*, not the thing copied. That distinction is why the flag
+hunt went where it went.
+
+`GroupItem(GroupItem grup)`, `GroupItem.twk:40-48`, in full:
+
+| what | happens |
+|---|---|
+| `groupBody` | **SHARED — `groupBody = grup.groupBody`. Not copied.** |
+| `isCopy` | set true |
+| `rStuff` | **deep-copied** — fresh RuleStuff, then `*rStuff = *grup.rStuff` |
+| `rule` | re-pointed to the new node |
+| `followed`, `isOK`, `sukcess` | **explicitly reset to false** — the only three passengers dropped |
+
+⚠ **SO THE DUPLICATION CANNOT DROP isLiteral. THE FLAG LIVES IN `groupBody->flags`, AND THE BODY
+IS THE ONE THING THE COPY SHARES.** A flag set before the copy is visible through both handles;
+worse, a flag *set after* the copy through either handle is visible through the other.
+
+**Corroborated in-tree, independently and for a different reason:** `GroupActions.rtn:857`, the
+return-seam comment — *"the copy constructor is NOT usable here: it SHARES the body, which is
+precisely what the sweep overwrites."* Two readers reached the same structural fact from opposite
+directions.
+
+**What IS dropped, and it is worth its own line:** `followed`, `isOK`, `sukcess` — three parse
+bookkeeping fields, reset deliberately. Clay asked whether isLiteral was the only passenger
+falling off. It is not a passenger at all; these three are, and they are dropped **on purpose**.
+
+## 3. THE TraiTdata → TraiT HANDOFF
+
+`aCTionTraiTdata` ends `input.group = DatA` or `input.setContent(DatA)`. `aCTionTraiT` then takes
+`trait = input[1]`, may `trait = trait.group`, may duplicate, and ends `input.group = trait`.
+**Neither reads nor writes isLiteral except at site 6.** The handoff moves *nodes*, and since the
+copy shares the body, no flag is lost crossing it.
+
+## 4. ⚠ THE MEASUREMENT, AND IT IS THE FINDING
+
+`incant/litFlagProbe` reads `isLiteraL` (GroupField 17) directly, on a labelled literal, a bare
+literal, a reference and a rule, so a set value and a clear value could both appear:
+
+```
+Braced[1]   labelled literal   isLiteraL = [ 0
+Braced[3]   labelled literal   isLiteraL = ] 0
+Braced[2]   reference          isLiteraL = ExpressioN 0
+LitScaf[1]  bare literal       isLiteraL = x 0
+```
+
+**Every literal term reads CLEAR.** The text is right there — `[`, `]`, `x` — so these are
+unambiguously the literals, and the flag is off.
+
+⚠ **PUT §2 AND §4 TOGETHER AND THE MECHANISM INVERTS: THE FLAG IS NOT LOST IN TRANSIT, IT WAS
+NEVER ON THE NODE THAT IS READ.** `aCTionQuotE` flags the **QuotE parse node**; what survives into
+the rule as a term is a node reached through the DatA/TraiT chain. Duplication shares bodies, so
+nothing could have dropped it — therefore the writer and the reader are looking at **different
+nodes**. This is a **provenance mismatch, not a copy loss**, and that is why chasing it through
+the duplication path produced a confusing blast radius: *the mechanism was never on that path.*
+
+⚠ **CONSEQUENCE, AND IT WANTS TONY'S EYE: `aCTionTraiTdata:1381`'s `&& !isLiteral` MAY BE INERT
+TODAY.** With isLiteral clear, `(isRule && !isLiteral)` reduces to `isRule`, which is the
+pre-change condition exactly. If that clause was added to route a literal to `setContent` rather
+than `setGroup`, the measurement says the routing is coming from somewhere else — namely
+`aCTionDefinE` no longer substituting `new(item.text)`. **Stated as a consequence of a measured
+premise, NOT as a diagnosis**: the reading above is on post-definition term nodes, and confirming
+it on the `DatA` node *at TraiTdata time* is one more probe that this recon's bound does not cover.
+
+## 5. VERDICT — **GENUINE YAK, with the blast radius named**
+
+Not "obvious small fix". Making the flag survive means one of:
+
+1. **Flag the right node** — set isLiteral where the term is materialised, not only on the QuotE
+   node. That is inside `aCTionDefinE`/`aCTionTraiT`, the two functions Tony has just rewritten,
+   and it changes what every one of the nine readers sees, including the three JIT ones.
+2. **Propagate at the handoff** — copy the flag explicitly across the DatA/TraiT chain. Cheap to
+   write, and it re-introduces exactly the shared-body hazard §2 names: after
+   `new GroupItem(node)` the two handles share flags, so a later write through either is visible
+   through both.
+
+**The blast radius is `aCTionDefinE` + `aCTionTraiT` + `aCTionTraiTdata`** — the three functions
+that build every rule in the grammar, mid-rewrite, with the fleet not yet re-baselined. That is
+the confusing blast radius Tony hit, and it is real.
+
+**AND NOTHING NOW DEPENDS ON IT.** `planTerm` was the one consumer that mattered and as of
+`0a75df5` it is keyed to the representation instead. Sites 8-12 are the unaffected population.
+Site 6 is the open question above. **Recommendation: leave the flag alone; if site 6's clause is
+confirmed inert, delete the clause rather than repair the flag.**
+
+## 6. RESIDUAL — a fixture-authoring gotcha, paid for twice today
+
+**A probe needs `Start();` as its FIRST line, with `include`/`search` before the comment header.**
+Without it the includes never run, `search` fails token by token, and **`print` emits ZERO BYTES
+at exit 0** — a run indistinguishable from a short successful one. `incant/countScratch` has the
+correct shape; `incant/litProbe`'s first draft did not, which is why that probe asserts its
+completeness on stderr instead. Same silent-failure family as bear-trap #28.
