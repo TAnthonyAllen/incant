@@ -2059,6 +2059,43 @@ int         labelled = 0;
         kind and not a literal with a set.
         Measured on the specimen: noLabel=0, min=1, max=1. A noLabel container
         has no spelling yet and refuses rather than guessing at one.  */
+    /*  THE LABELLED-LITERAL REPRESENTATION. Tony's ruling via Clay, 2026-08-16.
+        A literal term now carries its spelling as character data, so the data arm
+        below, which used to be a pure refusal, classifies it instead.
+
+        WHAT MOVED is the representation, not a flag. aCTionDefinE used to
+        substitute a literal term with a fresh node TAGGED with the spelling and
+        carrying no data. That branch is gone, the term itself is attached, and
+        aCTionTraiT now sets the spelling as CONTENT. So the spelling left the tag
+        and lives in the data, and every literal fell into the refusal, which is
+        why the whole Scaf family reported no plan.
+
+        KEYED TO THE REPRESENTATION, NEVER TO isLiteral. That flag does not
+        survive rStuff duplication or the TraiTdata handoff into TraiT. Tony
+        observed it directly and the census is in docs/gateCensus.md section B0-2.
+        It lies at exactly the read sites that matter, so the material signature is
+        what is tested here.
+
+        THE MEASURED SPLIT, from incant/litProbe beside countScratch's bare Ladder
+        rules. Both halves carry isSTRING data and noLabel is the ONLY
+        discriminator, which is why LIT versus LITTO needs no new test. A labelled
+        literal is tagged with its LABEL and has noLabel clear; a bare one is
+        tagged with the generic container name and has noLabel set. Because that
+        bare tag is now generic, sourcing the spelling from the tag would emit the
+        container name as the literal. It comes from the data instead.
+
+        AND THE FIREWALL KEEPS ITS TEETH: isSTRING only, mirroring the rule-level
+        literal family further down, which records the same restriction and the
+        same reason. The other kinds still refuse, isGROUP above all, since the
+        genuine inline-group construct is what that refusal was written for.
+        isCHAR stays out for the reason recorded there, that it carries sub-fields
+        and so is not this shape. Reading the text is guarded by data, which is
+        bear-trap 26 exactly: a dataless field answers with its own tag.
+
+        PLACEMENT IS LOAD-BEARING AND THIS COMMENT MUST STAY ABOVE THE CHAIN. A
+        block comment wedged BETWEEN two arms, immediately before an or, wipes the
+        whole extern block to zero. Measured three ways 2026-08-16: above the chain
+        OK, inside an arm body OK, between arms fatal. Bear-trap 4 one level up.  */
     if term.isBIN {
         if rs.noLabel {
             cerr "  REFUSE " term.tag " -- noLabel container (no spelling yet;"
@@ -2070,8 +2107,14 @@ int         labelled = 0;
     or definer != term {
         node        = new("CALL");
         node.text   = definer.tag; }
+    or term.data && term.isSTRING {
+        if rs.noLabel   node = new("LIT");
+        else {
+            node        = new("LITTO");
+            labelled    = 1; }
+        node.text = term.text; }
     or term.data {
-        cerr "  REFUSE " term.tag " -- inline group / character data " dataName(term.data) " (named future kind)":;
+        cerr "  REFUSE " term.tag " -- inline group / structural data " dataName(term.data) " (named future kind)":;
         return null; }
     or !term.contents() {
         if rs.noLabel   node = new("LIT");

@@ -1,0 +1,38 @@
+/*****************************************************************************
+    litProbe -- SCRATCH MEASUREMENT, 2026-08-16. What does a literal rule term
+    look like under the new labelled-literal representation?
+
+    Prints dumpRuleTerms for the three Grokking rules Tony relabelled. The
+    UNlabelled counterpart is already captured by incant/countScratch, whose
+    Ladder rules (Scaf, Scaf2, ScafA) spell their literals bare.
+
+    THE MEASURED SPLIT, which is what the classifier keys on:
+        labelled     leftBrace="["-    tag=leftBrace   data=isSTRING   noLabel CLEAR
+        unlabelled   "x"-              tag=GrouP       data=isSTRING   noLabel SET
+    In both the spelling has left the TAG and lives in the DATA.
+
+    Reads nothing, changes nothing. Delete when the classifier question closes.
+
+    SENTINEL AT THE FOOT, checked first and by name.
+
+    RUN:   <binary> incant/litProbe
+*****************************************************************************/
+registry(cOMMANDs);
+define dumpRuleTerms immediateAction=dumpRuleTerms; ;
+
+dumpRuleTerms('Braced');
+dumpRuleTerms('Parens');
+dumpRuleTerms('BlocK');
+dumpRuleTerms('FormaT');
+dumpRuleTerms('DatA');
+
+/*  COMPLETENESS ASSERTION, and it is NOT a print. `print` at top level in a
+    probe with no search preamble produces ZERO BYTES of stdout at exit 0 --
+    symptom reproduced 2026-08-16, NOT diagnosed, and the same silent-spelling
+    family as bear-trap #28. A stdout sentinel here would assert nothing.
+    So the check is the LAST DUMP ITSELF, on stderr where dumpRuleTerms writes:
+
+        RULE BlocK present  <=>  the file reached its final statement
+        3 `^RULE ` lines    <=>  nothing in the middle was skipped
+
+    Both are checked by name, and neither can be satisfied by a truncated run.  */
