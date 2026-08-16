@@ -27,24 +27,6 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
-### F-1 — `audit()`'s empty-argument sentinel is broken by labelled literals
-**Where:** `Commands.rtn:86`, in `auditRStuff`.
-**What:** the "called with no argument" case is detected by a **tag comparison**:
-`if target.tag eq "InvokeArg"  target = 0;`. The 2026-08-16 grammar change gave `Parens` labelled
-children (`leftParen="("-`, `rightParen=")"-`), so the node reaching that guard is now tagged
-`rightParen`, the test fails, and `audit()` audits a *literal* instead of every registry.
-**Evidence:** `incant/oneTest` stderr — `nextGroup: ERROR rightParen does not contain a list` ×4,
-then `AUDIT rightParen: 0 missing rules, 0 missing terms, 0 loose, 0 unconsumed`. All 37 AUDIT
-lines absent from stdout.
-**Blast:** the rStuff audit reports nothing, so the three known-open populations
-(4 missing rules / 12 missing terms / 4 loose) are **UNMEASURED, not moved**. Two `pop.sh` reds
-(`rStuff audit`, `oneTest baseline`) collapse to this one cause.
-**Done when:** `audit()` with no argument reaches the all-registries branch again and the pinned
-line returns; then, separately, whether the populations actually moved becomes answerable.
-**Owner:** Tony. **Size:** one guard.
-⚠ **Note for whoever fixes it:** a tag comparison as a sentinel is the defect *class*, not just
-this instance — any other `eq "InvokeArg"` or similar shape has the same exposure.
-
 ### F-2 — the generator now walks the new literal attributes
 **Where:** visible in `incant/oneTest` output; origin is the labelled-literals grammar change.
 **What:** `BlocK` went from `length 1` to `length 3`, and the codegen path now emits
@@ -56,6 +38,9 @@ work**, so it wants a decision before the generator arc moves, not after.
 **Done when:** ruled — either the generator skips label-only literal attributes, or the emission is
 declared correct and the baseline absorbs it.
 **Owner:** Tony. **Size:** unknown, wants assessment first.
+⚠ **BLOCKS A RE-PIN:** `genLadder/oneTest.base` cannot be re-pinned until this is ruled — the
+baseline carries these lines, so capturing over it would silently bless the behaviour. That is
+why `oneTest baseline` is still red at 39 green with everything else in it accounted for.
 
 ### F-3 — `JSONarray`'s guard is an existence test, not a has-a-list test
 **Where:** `incant/utilities:74-76`.
@@ -120,6 +105,25 @@ first — bear-trap #30. Nobody has ever found this out because nobody has armed
 ---
 
 ## CLOSED — kept one cycle for the trail
+
+### F-1 — ✅ CLOSED 2026-08-16 — and the fix was NOT where the row said
+**The row blamed `auditRStuff`'s guard. The guard was innocent.** `aCTionParens` only cleared its
+node when an ExpressioN was present, so an empty `()` returned the Parens node untouched — which
+after the labelled-literals change carries `leftParen`/`rightParen` as attributes where it
+previously carried nothing. What reached `audit()` was therefore the `rightParen` literal
+(`data=13`, isSTRING) instead of the `InvokeArg` node the guard tests for.
+**Fix:** `ruleActions.rtn`, `aCTionParens` clears unconditionally, mirroring `aCTionBraced` which
+always did. Two lines. `auditRStuff` unchanged.
+**Verified:** `AUDITPROBE arg= InvokeArg argdata= 0` — the shape the guard expects — and the
+all-registries line returns. Fleet 38 → 39 green.
+**And it answered the question that opened it:** the rStuff populations were unmeasured, not
+moved — and once measurable, **missing terms went 12 → 0**. Tony's `aCTionDefinE` change closed
+that population by construction. Re-pinned with the twelve named in `pop.sh`.
+⚠ **Blast radius accepted knowingly:** every `()` in the language goes through `aCTionParens`, so
+this touches every no-argument command call. Fleet unmoved apart from the intended row.
+⚠ **The class survives the instance and is worth keeping:** a **tag comparison used as a sentinel**
+is fragile against grammar edits. This one happened to be repairable upstream, so the guard stays.
+The next one may not be.
 
 - **`jitMethod` name collision** — the op-node slot would have collided with `rStuff.jitMethod`
   (compiled body of a field's method). **Closed by Clay's ruling: the slot is `jitEmitter`.**

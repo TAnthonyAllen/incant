@@ -346,7 +346,27 @@ diffcheck "manyScratch.target (kant emitMany: emission + both refusals)" \
 #  Naming JSONblock and JSONarray before JSONtoken/JSONvalue reference them
 #  turned all three into real references, which is why they are no longer
 #  missing. Explanation plus measurement, not just a green diff.
-AUDITLINE="AUDIT all registries: 4 missing rules, 12 missing terms, 4 loose, 0 unconsumed"
+#  RE-PINNED 12 -> 0 (2026-08-16), and the WHOLE population closed rather than
+#  partially moved, which is why this one gets a mechanism and not just a count.
+#  Tony's aCTionDefinE change mints rStuff for any isRule term that lacks it --
+#      if item.isRule   if !item.rStuff  item.rStuff = new(item);
+#  -- and every one of the twelve was an `isRule term, no rStuff`, so they are
+#  closed BY CONSTRUCTION, not by accident: CerR[4] CouT[4] PrinT[4] StringXP[2]
+#  stuff, FormaT[1] flags, FormaT[4] formatTYPE, Precision[1] precision,
+#  ScopeXP[2] scopeList, list[1] entries, list[3] CodE, JSONarray[4] CodE,
+#  JSONfield[5] CodE. The `stuff=PrintXP+` gap the 08-01 note called "the gap to
+#  close, not the count to keep bumping" is the one that closed.
+#  ⚠ THE OTHER TWO POPULATIONS DID NOT MOVE -- 4 missing rules and 4 loose stand
+#  exactly as pinned, which is what says this was a targeted close and not the
+#  instrument going quiet. It went quiet for four hours on 2026-08-16 for an
+#  unrelated reason (see below) and that is precisely how a real move can hide.
+#  ⚠ AND THE INSTRUMENT HAD TO BE REPAIRED BEFORE THIS NUMBER COULD BE READ AT
+#  ALL. The labelled-literals grammar change broke aCTionParens' empty-parens
+#  case, so `audit()` audited a literal and reported `AUDIT rightParen: 0,0,0,0`.
+#  Had this line been pinned at the natural-looking ZERO, a completely dead audit
+#  would have read GREEN. Pinning open populations at their real non-zero values
+#  is what made a dead instrument visible.
+AUDITLINE="AUDIT all registries: 4 missing rules, 0 missing terms, 4 loose, 0 unconsumed"
 if grep -qF "$AUDITLINE" "$T/one"; then
     echo "  ok    rStuff audit (present, populations unchanged)"; green=$((green+1))
 else

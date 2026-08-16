@@ -1079,11 +1079,9 @@ char 	*arg = input->getText();
 extern "C" GroupItem *aCTionParens(GroupItem *input)
 {
 GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
+	input->clear();
 	if ( ExpressioN )
-		{
-		input->clear();
 		input->setGroup(ExpressioN);
-		}
 	return input;
 }
 

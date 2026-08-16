@@ -924,9 +924,8 @@ String  arg = input.text;
 extern GroupItem aCTionParens(GroupItem input)
 {
 GroupItem ExpressioN:;
-    if ExpressioN {
-        input.clear();
-        input.group = ExpressioN; }
+    input.clear();
+    if ExpressioN   input.group = ExpressioN;
     return input;
 }
 
