@@ -1,0 +1,382 @@
+===============================================================================
+ EXHIBIT -- NOT A BASELINE, NOT A TARGET, NOT NORMATIVE.
+ incant/generating, captured 2026-08-16, the day the generator was quarantined
+ out of the POP roster by Tony's ruling.
+===============================================================================
+
+ WHY THIS EXISTS: so the autopsy starts from "what it emitted the day it was
+ parked" rather than from a reconstruction. Nothing compares against this file.
+ Nothing goes red if it drifts. It is a photograph, not a pin.
+
+ ⚠ DO NOT PROMOTE THIS TO A TARGET without deciding, deliberately, that the
+ generator's output is supposed to be stable again -- which is the very thing
+ the quarantine says is not true while the grammar moves.
+
+ STATE AT ADMISSION, measured rather than assumed:
+   exit 0, sentinel present, 15 runGenerated rows.
+   maximus sequence 11, 26, 26, 26, 26 -- IDENTICAL to the sequence the retired
+   genLadder/oneTest.base recorded at lines 100/179/238/297/347. So the five
+   fixtures still ANSWER correctly; what changed under the labelled-literals
+   grammar work is the WALK, which now visits the literal attributes and emits
+   `runGenerated:  { ;` and `runGenerated:  } ;` rows that did not exist before.
+   That distinction -- right answers, noisier walk -- is the autopsy's starting
+   point and is why the specimen was worth keeping intact.
+
+ PROVENANCE: binary ~/bin/incant built bare (no directives file) at the F-1
+ commit 5b63e6b. Command: <binary> incant/generating
+
+===================== STDOUT BEGINS =====================
+Search list: Grokking Generating UnitTests bcOPs Utilities
+Generating action for tag 
+revisedList          length 3	no data
+	righty               member    	righty=13 int
+	Token                member    	Token=0 int
+	<=                   member     length 1	no data
+revisedList          length 4	no data
+	righty               member    	righty=13 int
+	Token                member    	Token=2 int
+	*                    member     length 1	no data
+	bcStoreField         member     length 2	no data
+generateCode: running on testByteCode
+
+About to generate 
+BlocK                noPrint length 3	BlocK  string
+	leftCurly            attribute 	leftCurly={ string
+	StatemenT            attribute  length 2	StatemenT=gIF string
+	rightCurly           attribute 	rightCurly=} string
+
+runGenerated:  { ; 
+End of runGenerated 
+
+runGenerated:  action is: gIF 
+	gIF: tag= StatemenT text= gIF 
+StatemenT            length 2	StatemenT=gIF string
+	ExpressioN           attribute  revisedList	ExpressioN=revisedList group
+	StatemenT            attribute  length 1	no data
+ExpressioN           attribute  length 3 revisedList	ExpressioN=revisedList group
+	righty               member    	righty=13 int
+	Token                member    	Token=0 int
+	<=                   member     length 1	no data
+Entering gXpress 
+	emit tag= bcPushField content= bcPushField 
+		bcPushField has no list to dump 
+	emit tag= bcPushLit content= 0 
+		bcPushLit has no list to dump 
+	emit tag= <= content= <= 
+		<= has no list to dump 
+	emit tag= bcBRZ content= bcBRZ 
+		bcBRZ has no list to dump 
+Entering gXpress 
+	emit tag= bcPushField content= bcPushField 
+		bcPushField has no list to dump 
+	emit tag= bcPushLit content= 2 
+		bcPushLit has no list to dump 
+	emit tag= * content= * 
+		* has no list to dump 
+	emit tag= bcStoreField content= bcStoreField 
+		bcStoreField has no list to dump 
+	emit tag= bcLabel1 content= bcLabel1 
+		bcLabel1 has no list to dump 
+	End of gIF 
+End of runGenerated 
+
+runGenerated:  } ; 
+End of runGenerated 
+End of generatE 
+bcLIST               attribute  noPrint length 9	no data
+	bcPushField          member     length 3	no data
+	bcPushLit            member     length 1	bcPushLit=0 int
+	<=                   member     length 1	no data
+	bcBRZ                member     length 2	no data
+	bcPushField          member     length 3	no data
+	bcPushLit            member     length 1	bcPushLit=2 int
+	*                    member     length 1	no data
+	bcStoreField         member     length 2	no data
+	bcLabel1             member    	no data
+ 
+About to run interpretBC 
+Ran interpretBC 
+maximus = 11 
+Generating action for tag 
+revisedList          length 3	no data
+	righty               member    	righty=13 int
+	Token                member    	Token=0 int
+	>                    member     length 1	no data
+revisedList          length 4	no data
+	righty               member    	righty=13 int
+	Token                member    	Token=2 int
+	*                    member     length 1	no data
+	bcStoreField         member     length 2	no data
+revisedList          length 2	no data
+	Token                member    	Token=7 int
+	bcStoreField         member     length 2	no data
+generateCode: running on testIfElse
+
+About to generate 
+BlocK                noPrint length 3	BlocK  string
+	leftCurly            attribute 	leftCurly={ string
+	StatemenT            attribute  length 3	StatemenT=gIF string
+	rightCurly           attribute 	rightCurly=} string
+
+runGenerated:  { ; 
+End of runGenerated 
+
+runGenerated:  action is: gIF 
+	gIF: tag= StatemenT text= gIF 
+StatemenT            length 3	StatemenT=gIF string
+	ExpressioN           attribute  revisedList	ExpressioN=revisedList group
+	StatemenT            attribute  length 1	no data
+	ElsE                 attribute  length 1	no data
+ExpressioN           attribute  length 3 revisedList	ExpressioN=revisedList group
+	righty               member    	righty=13 int
+	Token                member    	Token=0 int
+	>                    member     length 1	no data
+Entering gXpress 
+	emit tag= bcPushField content= bcPushField 
+		bcPushField has no list to dump 
+	emit tag= bcPushLit content= 0 
+		bcPushLit has no list to dump 
+	emit tag= > content= > 
+		> has no list to dump 
+	emit tag= bcBRZ content= bcBRZ 
+		bcBRZ has no list to dump 
+Entering gXpress 
+	emit tag= bcPushField content= bcPushField 
+		bcPushField has no list to dump 
+	emit tag= bcPushLit content= 2 
+		bcPushLit has no list to dump 
+	emit tag= * content= * 
+		* has no list to dump 
+	emit tag= bcStoreField content= bcStoreField 
+		bcStoreField has no list to dump 
+	emit tag= bcBR content= bcBR 
+		bcBR has no list to dump 
+	emit tag= bcLabel3 content= bcLabel3 
+		bcLabel3 has no list to dump 
+Entering gXpress 
+	emit tag= bcPushLit content= 7 
+		bcPushLit has no list to dump 
+	emit tag= bcStoreField content= bcStoreField 
+		bcStoreField has no list to dump 
+	emit tag= bcLabel2 content= bcLabel2 
+		bcLabel2 has no list to dump 
+	End of gIF 
+End of runGenerated 
+
+runGenerated:  } ; 
+End of runGenerated 
+End of generatE 
+bcLIST               attribute  noPrint length 13	no data
+	bcPushField          member     length 5	no data
+	bcPushLit            member     length 1	bcPushLit=0 int
+	>                    member     length 1	no data
+	bcBRZ                member     length 2	no data
+	bcPushField          member     length 5	no data
+	bcPushLit            member     length 1	bcPushLit=2 int
+	*                    member     length 1	no data
+	bcStoreField         member     length 2	no data
+	bcBR                 member     length 2	no data
+	bcLabel3             member    	no data
+	bcPushLit            member     length 1	bcPushLit=7 int
+	bcStoreField         member     length 2	no data
+	bcLabel2             member    	no data
+ 
+About to run interpretBC 
+Ran interpretBC 
+maximus = 26 
+Generating action for tag 
+revisedList          length 3	no data
+	righty               member    	righty=13 int
+	Token                member    	Token=20 int
+	<=                   member     length 1	no data
+revisedList          length 4	no data
+	righty               member    	righty=13 int
+	Token                member    	Token=1 int
+	+                    member     length 1	no data
+	bcStoreField         member     length 2	no data
+generateCode: running on testWhilE
+
+About to generate 
+BlocK                noPrint length 3	BlocK  string
+	leftCurly            attribute 	leftCurly={ string
+	StatemenT            attribute  length 2	StatemenT=gWhilE string
+	rightCurly           attribute 	rightCurly=} string
+
+runGenerated:  { ; 
+End of runGenerated 
+
+runGenerated:  action is: gWhilE 
+	emit tag= bcLabel4 content= bcLabel4 
+		bcLabel4 has no list to dump 
+Entering gXpress 
+	emit tag= bcPushField content= bcPushField 
+		bcPushField has no list to dump 
+	emit tag= bcPushLit content= 20 
+		bcPushLit has no list to dump 
+	emit tag= <= content= <= 
+		<= has no list to dump 
+	emit tag= bcBRZ content= bcBRZ 
+		bcBRZ has no list to dump 
+Entering gXpress 
+	emit tag= bcPushField content= bcPushField 
+		bcPushField has no list to dump 
+	emit tag= bcPushLit content= 1 
+		bcPushLit has no list to dump 
+	emit tag= + content= + 
+		+ has no list to dump 
+	emit tag= bcStoreField content= bcStoreField 
+		bcStoreField has no list to dump 
+	emit tag= bcBR content= bcBR 
+		bcBR has no list to dump 
+	emit tag= bcLabel5 content= bcLabel5 
+		bcLabel5 has no list to dump 
+End of runGenerated 
+
+runGenerated:  } ; 
+End of runGenerated 
+End of generatE 
+bcLIST               attribute  noPrint length 11	no data
+	bcLabel4             member    	no data
+	bcPushField          member     length 7	no data
+	bcPushLit            member     length 1	bcPushLit=20 int
+	<=                   member     length 1	no data
+	bcBRZ                member     length 2	no data
+	bcPushField          member     length 7	no data
+	bcPushLit            member     length 1	bcPushLit=1 int
+	+                    member     length 1	no data
+	bcStoreField         member     length 2	no data
+	bcBR                 member     length 2	no data
+	bcLabel5             member    	no data
+ 
+About to run interpretBC 
+Ran interpretBC 
+maximus = 26 
+Generating action for tag 
+revisedList          length 4	no data
+	righty               member    	righty=13 int
+	Token                member    	Token=1 int
+	+                    member     length 1	no data
+	bcStoreField         member     length 2	no data
+revisedList          length 3	no data
+	righty               member    	righty=13 int
+	Token                member    	Token=20 int
+	<=                   member     length 1	no data
+generateCode: running on testDo
+
+About to generate 
+BlocK                noPrint length 3	BlocK  string
+	leftCurly            attribute 	leftCurly={ string
+	StatemenT            attribute  length 2	StatemenT=gDO string
+	rightCurly           attribute 	rightCurly=} string
+
+runGenerated:  { ; 
+End of runGenerated 
+
+runGenerated:  action is: gDO 
+	emit tag= bcLabel6 content= bcLabel6 
+		bcLabel6 has no list to dump 
+Entering gXpress 
+	emit tag= bcPushField content= bcPushField 
+		bcPushField has no list to dump 
+	emit tag= bcPushLit content= 1 
+		bcPushLit has no list to dump 
+	emit tag= + content= + 
+		+ has no list to dump 
+	emit tag= bcStoreField content= bcStoreField 
+		bcStoreField has no list to dump 
+Entering gXpress 
+	emit tag= bcPushField content= bcPushField 
+		bcPushField has no list to dump 
+	emit tag= bcPushLit content= 20 
+		bcPushLit has no list to dump 
+	emit tag= <= content= <= 
+		<= has no list to dump 
+	emit tag= bcBRZ content= bcBRZ 
+		bcBRZ has no list to dump 
+	emit tag= bcBR content= bcBR 
+		bcBR has no list to dump 
+	emit tag= bcLabel7 content= bcLabel7 
+		bcLabel7 has no list to dump 
+End of runGenerated 
+
+runGenerated:  } ; 
+End of runGenerated 
+End of generatE 
+bcLIST               attribute  noPrint length 11	no data
+	bcLabel6             member    	no data
+	bcPushField          member     length 9	no data
+	bcPushLit            member     length 1	bcPushLit=1 int
+	+                    member     length 1	no data
+	bcStoreField         member     length 2	no data
+	bcPushField          member     length 9	no data
+	bcPushLit            member     length 1	bcPushLit=20 int
+	<=                   member     length 1	no data
+	bcBRZ                member     length 2	no data
+	bcBR                 member     length 2	no data
+	bcLabel7             member    	no data
+ 
+About to run interpretBC 
+Ran interpretBC 
+maximus = 26 
+Generating action for tag 
+revisedList          length 1	no data
+	sumple               member     length 7	sumple=What if it is a long string. string
+revisedList          length 4	no data
+	counter              member    	counter=0 int
+	Token                member    	Token=1 int
+	+                    member     length 1	no data
+	bcStoreField         member     length 2	no data
+generateCode: running on testFor
+
+About to generate 
+BlocK                noPrint length 3	BlocK  string
+	leftCurly            attribute 	leftCurly={ string
+	StatemenT            attribute  length 4	StatemenT=gFOR string
+	rightCurly           attribute 	rightCurly=} string
+
+runGenerated:  { ; 
+End of runGenerated 
+
+runGenerated:  action is: gFOR 
+	emit tag= bcLabel8 content= bcLabel8 
+		bcLabel8 has no list to dump 
+	emit tag= bcForNext content= bcForNext 
+		bcForNext has no list to dump 
+	emit tag= bcBRZ content= bcBRZ 
+		bcBRZ has no list to dump 
+Entering gXpress 
+	emit tag= bcPushField content= bcPushField 
+		bcPushField has no list to dump 
+	emit tag= bcPushLit content= 1 
+		bcPushLit has no list to dump 
+	emit tag= + content= + 
+		+ has no list to dump 
+	emit tag= bcStoreField content= bcStoreField 
+		bcStoreField has no list to dump 
+	emit tag= bcBR content= bcBR 
+		bcBR has no list to dump 
+	emit tag= bcLabel9 content= bcLabel9 
+		bcLabel9 has no list to dump 
+End of runGenerated 
+
+runGenerated:  } ; 
+End of runGenerated 
+End of generatE 
+bcLIST               attribute  noPrint length 9	no data
+	bcLabel8             member    	no data
+	bcForNext            member     length 4	no data
+	bcBRZ                member     length 2	no data
+	bcPushField          member     length 10	no data
+	bcPushLit            member     length 1	bcPushLit=1 int
+	+                    member     length 1	no data
+	bcStoreField         member     length 2	no data
+	bcBR                 member     length 2	no data
+	bcLabel9             member    	no data
+ 
+About to run interpretBC 
+Ran interpretBC 
+maximus = 26 
+generating SENTINEL -- run reached the end 
+
+stop: ending input divert
+===================== STDERR BEGINS =====================

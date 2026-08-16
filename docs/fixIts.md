@@ -27,35 +27,6 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
-### F-2 — the generator now walks the new literal attributes
-**Where:** visible in `incant/oneTest` output; origin is the labelled-literals grammar change.
-**What:** `BlocK` went from `length 1` to `length 3`, and the codegen path now emits
-`runGenerated:  { ;` and `runGenerated:  } ;` — the punctuation is reaching the generator as
-material.
-**Evidence:** `oneTest` diff vs `genLadder/oneTest.base`, the non-audit half; three repetitions.
-**Status:** benign today because nothing consumes it. **Flagged by Tony as affecting generator
-work**, so it wants a decision before the generator arc moves, not after.
-**Done when:** ruled — either the generator skips label-only literal attributes, or the emission is
-declared correct and the baseline absorbs it.
-**Owner:** Tony. **Size:** unknown, wants assessment first.
-⚠ **BLOCKS A RE-PIN:** `genLadder/oneTest.base` cannot be re-pinned until this is ruled — the
-baseline carries these lines, so capturing over it would silently bless the behaviour. That is
-why `oneTest baseline` is still red at 39 green with everything else in it accounted for.
-
-### F-3 — `JSONarray`'s guard is an existence test, not a has-a-list test
-**Where:** `incant/utilities:74-76`.
-**What:** `JSONlist?` is OPTIONAL; the guard is `if JSONlist;`. After a populated array parses, the
-node stays truthy while its list does not survive, so a later empty array walks a leaf.
-**Evidence:** minimal reproducer is TWO parses and order matters —
-`[x,y]` then `[]` **fires**; `[]`, `[] []`, `[x,y]`, `[]` then `[x,y]`, `[x,y] [x,y]` all clean.
-Symptom `nextGroup: ERROR JSONlist does not contain a list`. One `pop.sh` red (`jsonTest baseline`).
-**Narrowed:** `ruleActions.rtn` is **NOT** the owner — reverted, rebuilt, error persisted. Remaining
-space: `Instruct.rtn`, `GroupActions.rtn`, `RuleStuff.twk`, `GroupItem.twk`, `incant/grammar`, HEAD.
-⚠ **May be latent-and-newly-exposed rather than new** — the guard has always been existence-only.
-Settle that before "fixing" `utilities`.
-**Owner:** unassigned. **Status:** `parked Tony` 2026-08-16 — *"not something I want to worry about
-now."* **Size:** small if the guard is the fix; unknown if the exposure is.
-
 ### F-4 — `docs/gui.md` cites files a fresh clone no longer receives
 **Where:** `docs/gui.md:729` and `:818`, citing `Aside/WithJIT/ParseXML.rtn` as the verified
 track-builder to "bring in before porting". Also `docs/plg-*-recon-2026-05-29.md` citing
@@ -82,9 +53,59 @@ to `result = processAction(field);`. The removal is inert in every reachable con
 rewrite).
 **Owner:** Clod. **Size:** one paragraph.
 
+### F-9 — census the conditional clears: which are true-conditional, which are safe only by vacancy
+**Where:** tree-wide, `.rtn` and `.twk`. The pattern is `if <something> { ... clear() ... }`.
+**Why:** F-1's defect was exactly this shape. `aCTionParens` cleared its node **only when an
+ExpressioN was present**. That was correct for years — not because the condition was right, but
+because the unclear path happened to leave an EMPTY node. The labelled-literals change put
+attributes on that node, the vacancy ended, and the conditional clear became a live bug three
+files away in `audit()`.
+**The classification wanted, one row per site:**
+  - **true-conditional** — the clear genuinely should not happen on the other path. Safe.
+  - **safe-by-vacancy** — the other path is only harmless because the node happens to carry
+    nothing. ⚠ **These are the live ones.** Any change that gives the node content arms them, and
+    the failure surfaces somewhere else entirely.
+**Model for the fix when one is found:** `aCTionBraced`, which has always cleared unconditionally
+and was never exposed. The repair for `aCTionParens` was to match it — two lines.
+**Done when:** every site is classified and the safe-by-vacancy ones are either made
+unconditional or annotated with what keeps them vacant.
+**Owner:** unassigned. **Size:** census first, then per-site. **Good minion candidate** — the
+classification is mechanical once the pattern is stated.
+
 ---
 
 ## PARKED
+
+### F-2 — generator autopsy: the walk visits the new literal attributes
+**Reclassified 2026-08-16** from *"ruling owed before the seal"* to **entry task of the resumed
+generator campaign**. It is no longer a blocker on anything.
+**Where:** the generator walk; visible in `incant/generating` (quarantined).
+**What:** `BlocK` reads `length 3` where it read `length 1`, and the walk emits
+`runGenerated:  { ;` and `runGenerated:  } ;` — the punctuation reaches the generator as material.
+**⚠ THE ANSWERS ARE NOT AFFECTED, and this is the finding that sizes the job:** the five fixtures
+still produce `maximus` 11, 26, 26, 26, 26 — byte-identical to the sequence the retired
+`oneTest.base` recorded. **Right answers, noisier walk.** So this is a tidiness-and-design question
+about what the generator should skip, not a correctness bug.
+**Evidence:** `docs/emitted/generating-exhibit-2026-08-16.txt` — the specimen photographed at
+admission. An EXHIBIT, not a pin; nothing compares against it.
+**Why it stopped being urgent:** Tony's ruling quarantined the generator out of the POP roster
+entirely, so no baseline pins it and no grammar change re-attributes rows on it.
+**Done when:** the autopsy rules whether the generator skips label-only literal attributes.
+**Owner:** the resumed campaign. **Status:** `parked` — deliberately, with a specimen.
+
+### F-3 — `JSONarray`'s guard is an existence test, not a has-a-list test
+**Where:** `incant/utilities:74-76`.
+**What:** `JSONlist?` is OPTIONAL; the guard is `if JSONlist;`. After a populated array parses, the
+node stays truthy while its list does not survive, so a later empty array walks a leaf.
+**Evidence:** minimal reproducer is TWO parses and order matters —
+`[x,y]` then `[]` **fires**; `[]`, `[] []`, `[x,y]`, `[]` then `[x,y]`, `[x,y] [x,y]` all clean.
+Symptom `nextGroup: ERROR JSONlist does not contain a list`. One `pop.sh` red (`jsonTest baseline`).
+**Narrowed:** `ruleActions.rtn` is **NOT** the owner — reverted, rebuilt, error persisted. Remaining
+space: `Instruct.rtn`, `GroupActions.rtn`, `RuleStuff.twk`, `GroupItem.twk`, `incant/grammar`, HEAD.
+⚠ **May be latent-and-newly-exposed rather than new** — the guard has always been existence-only.
+Settle that before "fixing" `utilities`.
+**Owner:** unassigned. **Status:** `parked Tony` 2026-08-16 — *"not something I want to worry about
+now."* **Size:** small if the guard is the fix; unknown if the exposure is.
 
 ### F-7 — `opPlusPlus` carries the poisoned-iterator guard twice
 **Where:** `Instruct.rtn:887` and `:923`.

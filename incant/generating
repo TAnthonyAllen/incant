@@ -1,0 +1,61 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+/*****************************************************************************
+    generating -- THE QUARANTINED GENERATOR SPECIMEN.
+
+    ⚠ THIS FILE IS NOT IN THE POP ROSTER, AND THAT IS DELIBERATE. Tony's ruling,
+    2026-08-16: the generator campaign is INACTIVE while the grammar is actively
+    moving. A baseline over it pins a moving target and converts every grammar
+    change into re-attribution work on rows nobody owns. So it is QUARANTINED,
+    NOT DELETED -- the autopsy comes later and wants the specimen intact.
+
+    RUN IT ON DEMAND:   <binary> incant/generating
+    Do NOT add it to genLadder/pop.sh or smoke.sh. Do NOT capture a target from
+    it. If you want to know what it emitted the day it was parked, that is the
+    EXHIBIT, not a baseline -- docs/emitted/generating-exhibit-2026-08-16.txt,
+    dated and explicitly non-normative.
+
+    WHAT IT HOLDS: the five generateAction rows that used to live above oneTest's
+    stop, moved here verbatim with their setup lines and their ordering intact.
+    The ordering carried real information and is preserved with its reasoning:
+
+      testByteCode runs FIRST from init maximus of eleven. The condition righty
+      is not less than or equal to zero, being thirteen, so the store is skipped
+      and maximus stays eleven. That is the clean discriminator -- a broken runLE
+      taking the then-arm wrongly would write twenty-six instead. Running it
+      first matters, because testIfElse would otherwise leave twenty-six behind
+      and mask the result.
+
+      testIfElse runs SECOND. Thirteen is greater than zero, the then-arm runs,
+      maximus becomes twenty-six. The pair also exercises the Wall-3
+      back-to-back fix, two generateActions before a single stop.
+
+      testWhilE, testDo and testFor follow, each with the local reset its
+      fixture needs.
+
+    ⚠ WHY oneTest KEPT ITS INCLUDES. The include and search lines above are
+    IDENTICAL to oneTest's, and oneTest keeps its own copies even though it no
+    longer generates anything. Removing them there would drop rules out of the
+    registries and move the rStuff audit populations -- which would look exactly
+    like a real regression in a check that has just been re-pinned. The includes
+    are load-bearing for the audit, not for the generator.
+
+    ONE stop(), at the foot, per the standing law.
+*****************************************************************************/
+
+generateAction(testByteCode);
+generateAction(testIfElse);
+generateAction(testWhilE);
+righty = 13;
+generateAction(testDo);
+counter = 0;
+generateAction(testFor);
+
+print "generating SENTINEL -- run reached the end":;
+stop();
