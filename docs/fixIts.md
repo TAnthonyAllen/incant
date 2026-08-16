@@ -43,7 +43,7 @@ Files remain on disk here and in history everywhere, but not in a bare clone's w
 **Done when:** each hunk gets H8's verdict — commit, revert, or named-WIP with an owner.
 **Owner:** Tony. **Size:** one look each.
 
-### F-6 — the correction owed to commit `6212a71`
+### F-6 — the correction owed to commit `6212a71` (folds into the next landing)
 **Where:** the message of `6212a71`.
 **What:** it flags `Generate.rtn`'s removal of `parseRule`'s jitting gate as a running-code change.
 **That is wrong.** `jitting` is raised only inside `jitRunAction`, so during parse it is false, and
