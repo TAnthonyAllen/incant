@@ -141,3 +141,264 @@ jitting-gated actions and `jitEmitters.rtn`. It does NOT cover the op-methods' o
 anything reached through the degrade fall-through, where run-time control flow runs at emit time
 **by design** and is counted rather than prevented. A seventh member would most likely live
 there, and the counter is what would surface it.
+
+---
+---
+
+# B0 — THE GATE CENSUS FOR JIT/INTERPRETER SEPARATION (step 1 of N)
+
+**asOf 2026-08-16.** Provenance: **grep + read**. Measurement only — no source changed.
+Brief: Clay → Clod, "JIT/interpreter separation, step 1 of N: THE GATE CENSUS."
+
+**Stability:** the census was run against the **working tree** and re-run against **HEAD
+(`9c4962b`)**; the gate/emit site lists are **IDENTICAL** (53 gate hits, 68 emit hits, both
+trees). The tree is dirty in `Instruct.rtn` (+2), `ruleActions.rtn` (18/18), `GroupActions.rtn`
+(-1), but **no dirty hunk touches a `jitting` / `jitEmit` / `jitDegrade` / `fLAG` line**, so the
+table below is valid against either tree. Stated because H8 forbids stacking on an unreconciled
+tree, and because a census is an instrument (H9).
+
+## THE TWO GREPS, AND THE FULL ACCOUNTING
+
+| grep | form | repo-wide hits | in-scope source hits |
+|---|---|---|---|
+| **A** | literal `if jitting` | **142** | **53** |
+| **B** | `jitEmit<Name>(` — call or definition | **215** | **68** |
+
+**Grep A accounting (142 = 53 + 89 excluded):**
+
+| bucket | n | where |
+|---|---|---|
+| **IN-SCOPE SOURCE** | **53** | `Instruct.rtn` 32 · `ruleActions.rtn` 13 · `GroupActions.rtn` 5 · `jitEmitters.rtn` 3 |
+| excl: archaeology (gitignored) | 50 | `Aside/` ×3 files |
+| excl: prose | 23 | `docs/` ×9 files, `CLAUDE.md` |
+| excl: fixture prose | 10 | `incant/` ×8 files — **all verified comment text, zero live gates** |
+| excl: harness | 4 | `jitLadder/ladder.sh` |
+| excl: generated | 2 | `GroupRules.mm` |
+
+**Grep B accounting (215 = 68 + 147 excluded):**
+
+| bucket | n | where |
+|---|---|---|
+| **IN-SCOPE SOURCE** | **68** | `jitEmitters.rtn` 30 · `Instruct.rtn` 28 · `ruleActions.rtn` 8 · `GroupActions.rtn` 2 |
+| excl: generated | 87 | `GroupRules.mm` 68 · `GroupRules.h` 19 |
+| excl: archaeology | 38 | `Aside/` ×3 files |
+| excl: prose | 11 | `docs/` ×4 files |
+| excl: fixture prose | 9 | `incant/generate` 7 · `jitXcall` 1 · `jitJUi` 1 |
+| excl: harness | 2 | `jitLadder/ladder.sh` |
+
+**EXCLUDED-WIP, per the brief's scope boundary** — `Generate.rtn` and
+`IncantForms/WorkingOn/parser`. Checked and logged rather than read:
+**both contain ZERO hits on either grep.** They contribute nothing to the census, so the
+exclusion costs no coverage. (`IncantForms/WorkingOn/incant++` carries one prose mention of
+"jitting" — Tony's own note asking for exactly this separation work. Filed, not read further.)
+
+## THE CLASSIFICATION RULE (stated, because the brief's four buckets are not disjoint as written)
+
+`SHIM` is a claim about the **gate body**; `SHARED` is a claim about **what runs before the
+gate**. Those are orthogonal axes, and several hits satisfy both (`opDot` has a one-line shim
+body *and* an executed prologue the emit call consumes). Applied precedence, so every hit lands
+in exactly one bucket:
+
+**CROSSER > SHARED > SHIM > PARSE-ADJACENT.**
+
+- **SHIM** — the gate hands off and returns; nothing interpreted runs before it, and nothing the
+  emit path consumes is computed before it. *Mechanically liftable to a slot install.*
+- **SHARED** — executable code runs before the gate AND either the emit path consumes it, or the
+  gate does not return so interpretation continues underneath it. *The separation has to cut here.*
+- **CROSSER** — as the brief defines it.
+- **PARSE-ADJACENT** — lives in or serves parser code.
+
+## THE TABLE — 51 live gates (53 hits − 2 comment-text mentions)
+
+### SHIM — 21
+
+| file:line | function | class | body | notes |
+|---|---|---|---|---|
+| `Instruct.rtn:99` | `opAssign` | SHIM | 1 | `return jitEmitAssign(argument,target)` |
+| `Instruct.rtn:198` | `opDiv` | SHIM | 1 | `jitEmitBinary(…,jitSDiv)` |
+| `Instruct.rtn:365` | `opEQ` | SHIM | 1 | `jitEmitCompare(…,jitEQ)` |
+| `Instruct.rtn:384` | `opGE` | SHIM | 1 | `jitEmitCompare(…,jitGE)` |
+| `Instruct.rtn:439` | `opGT` | SHIM | 1 | `jitEmitCompare(…,jitGT)` |
+| `Instruct.rtn:499` | `opLE` | SHIM | 1 | `jitEmitCompare(…,jitLE)` |
+| `Instruct.rtn:518` | `opLT` | SHIM | 1 | `jitEmitCompare(…,jitLT)` |
+| `Instruct.rtn:547` | `opMinus` | SHIM | 1 | `jitEmitBinary(…,jitSub)` |
+| `Instruct.rtn:661` | `opMultiply` | SHIM | 1 | `jitEmitBinary(…,jitMul)` |
+| `Instruct.rtn:721` | `opNotEQ` | SHIM | 1 | `jitEmitCompare(…,jitNE)` |
+| `Instruct.rtn:750` | `opPlus` | SHIM | 1 | `jitEmitBinary(…,jitAdd)` |
+| `Instruct.rtn:1130` | `opUnaryMinus` | SHIM | 1 | `jitEmitUnary(…,jitNeg)` |
+| `ruleActions.rtn:535` | `aCTionDO` | SHIM | 1 | `return jitEmitDO(input)`; preceding `StatemenT:`/`ExpressioN:` are declarations |
+| `ruleActions.rtn:705` | `aCTionIF` | SHIM | 1 | `return jitEmitGIF(input)`; the preceding `result = ExpressioN` is inert for the emit path |
+| `ruleActions.rtn:1396` | `aCTionWhilE` | SHIM | 1 | `return jitEmitWHILE(input)` |
+| `GroupActions.rtn:1081` | `runShortCircuit` | SHIM | 1 | `return jitEmitShortCircuit(field)`; its own comment names this "THE PHASE GATE … everything BELOW this line is run time" |
+| `Instruct.rtn:229` | `opDivEQ` | SHIM *(compound)* | 2 | `jitEmitBinary` **then** `return jitEmitAssign` |
+| `Instruct.rtn:576` | `opMinusEQ` | SHIM *(compound)* | 2 | same shape |
+| `Instruct.rtn:688` | `opMultiplyEQ` | SHIM *(compound)* | 2 | same shape |
+| `jitEmitters.rtn:30` | `displayFill` | SHIM *(dual-arm)* | 2 | `if jitting {jitEmitFill}` **else** `displayFillRT` — emit/runtime twins, no shared work |
+| `jitEmitters.rtn:3068` | `jitTrace` | SHIM *(dual-arm)* | 2 | `jitEmitTrace` / `jitTraceRT` — same shape |
+
+### SHARED — 29
+
+| file:line | function | class | body | notes |
+|---|---|---|---|---|
+| `Instruct.rtn:289` | `opDot` | SHARED | 1 | `ruler = groupRules` runs first and the emit call **consumes** it (`ruler->tempField`) |
+| `Instruct.rtn:636` | `opMinusMinus` | SHARED | 1 | whole `if isIterator {…return}` arm runs **at emit time** above the gate |
+| `Instruct.rtn:825` | `opPlusEQ` | SHARED | 1 | degrade-only; `use target` + list dispatch above |
+| `Instruct.rtn:832` | `opPlusEQ` | SHARED | 1 | degrade-only |
+| `Instruct.rtn:835` | `opPlusEQ` | SHARED | 1 | degrade-only |
+| `Instruct.rtn:841` | `opPlusEQ` | SHARED | 2 | `case isCOUNT:` leaf, binary+assign |
+| `Instruct.rtn:848` | `opPlusEQ` | SHARED | 2 | `case isNUMBER:` leaf |
+| `Instruct.rtn:855` | `opPlusEQ` | SHARED | 1 | `return jitEmitStringPlusEQ` — one-line body, but nested in the type switch |
+| `Instruct.rtn:858` | `opPlusEQ` | SHARED | 1 | degrade-only (Buffer target) |
+| `Instruct.rtn:863` | `opPlusEQ` | SHARED | 1 | degrade-only (Stak target) |
+| `Instruct.rtn:866` | `opPlusEQ` | SHARED | 1 | degrade-only (unhandled datA) |
+| `Instruct.rtn:869` | `opPlusEQ` | SHARED | 1 | degrade-only (no datA) |
+| `Instruct.rtn:872` | `opPlusEQ` | SHARED | 1 | degrade-only (dataless argument) |
+| `Instruct.rtn:900` | `opPlusPlus` | SHARED | 1 | `jitEmitIterStep`; sits **inside** the iterator arm, below a run-time `fLAG` read |
+| `Instruct.rtn:1013` | `opRem` | SHARED | 1 | `ruler = groupRules` consumed by the emit call |
+| `ruleActions.rtn:63` | `aCTionBlocK` | SHARED | 1 | `jitStoreResult()` mid-walk; statement already dispatched above |
+| `ruleActions.rtn:88` | `aCTionBlocK` | SHARED | 1 | `if jitting continue;` — the emit walk must **not** inherit the interpreter's stop |
+| `ruleActions.rtn:171` | `aCTionBrancH` | SHARED | ~24 | `arg = arg.gMethod(arg)` **executes** above the gate; multi-statement emit block |
+| `ruleActions.rtn:239` | `aCTionCerR` | SHARED | 1 | degrade-then-fall-through |
+| `ruleActions.rtn:333` | `aCTionCouT` | SHARED | 1 | degrade-then-fall-through |
+| `ruleActions.rtn:641` | `aCTionFOR` | SHARED | 1 | degrade-then-fall-through; prologue extracts `Looper`/`ExpressioN`/… |
+| `ruleActions.rtn:770` | `aCTionIterate` | SHARED | 1 | ⚠ **emits and deliberately does NOT return** — its own comment: "the only gate in the tree that does not return" |
+| `ruleActions.rtn:981` | `aCTionPrinT` | SHARED | ~35 | multi-statement emit block; `jitPrintOpen`/`jitPrintArm`/`jitEmitBareRead` |
+| `ruleActions.rtn:1148` | `aCTionSearch` | SHARED | 1 | degrade-then-fall-through |
+| `ruleActions.rtn:1245` | `aCTionStringXP` | SHARED | 1 | degrade-then-fall-through |
+| `GroupActions.rtn:812` | `runAction` | SHARED | 1 | `isCoded`/`processCode` runs above; gate is a **conditional** return (`jitEmitSelfCall`) |
+| `GroupActions.rtn:829` | `runAction` | SHARED | 1 | `jitInlinePush(field)` — mid-body, after `saveLocalFields` |
+| `GroupActions.rtn:838` | `runAction` | SHARED | 1 | `jitInlinePop(result)` — mid-body, after `processAction` |
+| `GroupActions.rtn:941` | `runOP` | SHARED | — | compound condition `if jitting && (op.isOperator \|\| op.isUnary)`; the seed gate, deep prologue |
+
+### CROSSER — 1
+
+| file:line | function | class | body | notes |
+|---|---|---|---|---|
+| `Instruct.rtn:939` | `opPlusPlus` | CROSSER | 1 | `return jitEmitUnary(result,jitInc)`. **PARKED — not chased.** ⚠ The brief's coordinates `GroupRules.mm:3904→2424` are **STALE**: 3904 is inside a `jitBuildFunction` comment and 2424 is `debugText`. Current generated coordinates are **`GroupRules.mm:9105 → 5435`**; source is `Instruct.rtn:939 → jitEmitters.rtn:1587`. |
+
+### PARSE-ADJACENT — 0
+
+**The bucket is empty, and the absence is bounded rather than assumed.** Searched: every `.rtn`
+in the tree (`genParse.rtn` included — **0 hits on both greps**), every top-level `.twk`, and the
+jit headers. The `if jitting` stub that `docs/wakeup.md`'s parked list attributes to `parseRule`
+is **not present**: `parseRule` lives in `Generate.rtn`, which Tony rewrote offline as the
+12-method `parse*` family, and that file now carries zero hits on either grep. Nothing in the
+parser population reaches emit machinery today.
+
+**Tony's ruling is still owed on the bucket** — but the thing to rule on is that it is currently
+**empty**, not a list.
+
+## THE 13 SELECTORS — `jitContext.h:454-465`
+
+`enum jitOp { jitAdd, jitSub, jitMul, jitSDiv }` (454) ·
+`enum jitCmp { jitEQ, jitNE, jitLT, jitLE, jitGT, jitGE }` (461) ·
+`enum jitUnary { jitInc, jitDec, jitNeg }` (465). **13, confirmed by count.**
+
+**CONFIRMED: nothing computes a selector at run time.** Every in-scope source occurrence of all
+13 falls into exactly three kinds — the `enum` declaration; a `case <sel>:` / `(op == <sel>)` in
+the consumer switch inside `jitEmitters.rtn`; or a **compile-time literal argument at a gate
+site**. There is no variable of type `jitOp`/`jitCmp`/`jitUnary`, no arithmetic on one, and no
+table mapping a name to one. The slot model's premise holds.
+
+**The 18 selector-passing gate sites**, all in `Instruct.rtn`:
+
+| selector | sites | gate lines |
+|---|---|---|
+| `jitAdd` | 3 | 751 (`opPlus`) · 842, 849 (`opPlusEQ` leaves) |
+| `jitSub` | 2 | 548 (`opMinus`) · 577 (`opMinusEQ`) |
+| `jitMul` | 2 | 662 (`opMultiply`) · 689 (`opMultiplyEQ`) |
+| `jitSDiv` | 2 | 199 (`opDiv`) · 230 (`opDivEQ`) |
+| `jitEQ` `jitNE` `jitLT` `jitLE` `jitGT` `jitGE` | 1 each | 366 · 722 · 519 · 500 · 440 · 385 |
+| `jitInc` `jitDec` `jitNeg` | 1 each | 940 (the CROSSER) · 637 · 1131 |
+| | **18** | |
+
+## NOTES — anomalies. Nothing here was fixed; nothing here is a row.
+
+**N1. ⚠ `opPlusPlus` CARRIES THE POISONED-ITERATOR GUARD TWICE, AND THE COPY ABOVE THE GATE
+DOMINATES. A two-half change where only one half landed.** Structural, checkable by pointer:
+`if result.fLAG return 0;` appears at **`Instruct.rtn:887`** (top of function, above everything)
+**and again at `Instruct.rtn:923`** (inside the iterator arm, below the jitting gate). The
+comment block at 923 is a verbatim duplicate of the one at 887 plus this rider:
+
+> ⚠ MOVED BELOW THE JITTING GATE, 2026-08-05, by the run-time-flag census. It used to sit ABOVE
+> it, at the top of the function, where it was a RUN-TIME FLAG STEERING THE EMIT WALK …
+
+**It was copied below, not moved.** Two consequences follow from the ordering alone:
+1. Line **923 is unreachable**. Nothing between 887 and 923 mutates `fLAG` — only the `isIterator`
+   test and the `if jitting { return jitEmitIterStep }` gate, which returns.
+2. The condition the rider describes as the danger is **still constructed at 887**: under jitting,
+   a poisoned node returns 0 before reaching any gate, so no advance instruction is emitted.
+
+⚠ **The structural claim above is what I am asserting.** Whether a poisoned node actually reaches
+`opPlusPlus` during an emit walk is a **causal** claim and is NOT made here — this project's
+ledger says structural claims hold and causal ones are a coin flip until run. The 08-05 note
+itself records that it "did not bite … correct by accident of ordering". **One fixture answers
+it; none exists.** This is the census's only finding that could be a live defect.
+
+**N2. THE BRIEF'S CROSSER COORDINATES HAVE EXPIRED.** `GroupRules.mm:3904→2424` points at a
+comment and at `debugText` in today's `.mm`. The pair itself is real and still parked; only the
+addresses moved (now `9105→5435`). Same shape as the `ipc/`-gitignored row in `CLAUDE.md`: a
+dated measurement carried as a timeless fact. `.mm` line numbers are generated output and should
+be re-derived, never cited across sessions — `Instruct.rtn:939` is the durable address.
+
+**N3. ⚠ THE SEAL'S "18" IS RIGHT AND ITS DEFINITION IS WRONG — AND THERE ARE TWO DIFFERENT 18s.**
+`docs/wakeup.md` (08-15 seal, item 5) says *"18 gates already have a body that is exactly one
+`return jitEmitX(...)` line."* Measured:
+
+| property | count |
+|---|---|
+| gate sites passing a selector (all in `Instruct.rtn`) | **18** |
+| gates whose body is exactly one `return jitEmitX(…)`, **in `Instruct.rtn`** | **18** |
+| gates whose body is exactly one `return jitEmitX(…)`, **tree-wide** | **22** |
+| gates that are SHIM under this census's precedence rule | **21** |
+
+The two 18s are **different sets**: the selector set includes `opPlusEQ:842/849`,
+`opDivEQ:230`, `opMinusEQ:577`, `opMultiplyEQ:689` (all two-call bodies) and excludes
+`opAssign`, `opDot`, `opRem`, `opPlusPlus:901`, `opPlusEQ:855` (which pass no selector). They
+coincide in size by accident. **The op-selector campaign's scope is the FIRST 18**; anyone
+reading the seal's wording will build against a set of 18 that is not the one the campaign needs.
+
+**N4. THE SELECTOR NAMES COLLIDE WITH INCANT FIXTURE ACTION NAMES.** `incant/generate` defines
+`jitAdd code={ 3 + 5; };`, `jitSub`, `jitMul`, `jitEQ`, `jitInc`, … and `incant/jitscratch` calls
+`testing(jitAdd)`. Different namespace entirely, but a `grep -w jitAdd` returns them looking like
+uses. Anyone auditing selector reach must filter `incant/`, or the count inflates.
+
+**N5. A FIXTURE COMMENT CARRIES AN EXPIRED CLAIM.** `incant/jitDfProbe:70` states *"aCTionIterate
+has NO jitting gate — verified by grep, not by absence in the dump: in ruleActions.rtn only
+aCTionBlocK, aCTionDO, aCTionIF and aCTionWhilE carry `if jitting`."* That was true when written;
+**`aCTionIterate` now carries a gate at `ruleActions.rtn:770`**, and `ruleActions.rtn` now has
+gates in 13 places, not 4. Not a defect — a dated statement with no date on it, in a file a future
+reader will treat as a measurement.
+
+**N6. `aCTionIterate:770` IS THE ONLY GATE THAT EMITS AND FALLS THROUGH.** Recorded because it
+breaks the pattern every other row follows and its own comment says the deviation is deliberate:
+the emit-time walk still needs the iterator **established** so the enclosing `while ++grup` takes
+`opPlusPlus`'s iterator arm and reaches `jitEmitIterStep`. It is the one SHARED row where the
+sharing is load-bearing by design rather than by inheritance.
+
+**N7. SCOPE OF THE PARSE-ADJACENT ABSENCE CLAIM.** Stated so it is not read as broader than it is:
+searched every `.rtn` in the tree, all top-level `.twk`, `jitContext.h`, `jitExterns`,
+`GroupRules.h`. **Not** searched: `GUI/`, `GUI/Stuff/`, `Tests/`, `XML/` (no hits on either
+repo-wide grep, so they contain none), and the two excluded-WIP files (checked for hit COUNT only,
+zero on both, not read). Generated `.mm`/`.h` were excluded as generated, not audited line by line
+against their sources.
+
+## POP
+
+| requirement | result |
+|---|---|
+| table row count equals grep hit count | ✅ 53 grep-A hits = 51 rows + 2 comment-text mentions; 68 grep-B hits accounted (see below) |
+| every hit classified into exactly one bucket or logged as excluded-WIP | ✅ 21 SHIM + 29 SHARED + 1 CROSSER + 0 PARSE-ADJACENT = 51 |
+| zero unclassified remainder | ✅ |
+
+**Grep B's 68 in-scope hits reconcile as:** 38 are the emit call inside a grep-A gate already
+tabled above (no separate row — same site, two greps); 19 are `extern` **definitions** in
+`jitEmitters.rtn`; 6 are emitter→emitter internal calls (`jitEmitDO:820`, `jitEmitGIF:941`,
+`jitEmitShortCircuit:1477/1493`, `jitEmitWHILE:1652`, `jitPrintList:2257` — all already inside the
+emit world, so a gate would be meaningless); 3 are comment text (`jitEmitters.rtn:519, 532, 645`);
+2 are the dual-arm dispatchers' emit calls (`displayFill:31`, `jitTrace:3069`, tabled as SHIM).
+**38 + 19 + 6 + 3 + 2 = 68.** ✅
+
+**No site reaches jit emit machinery without the literal gate.** Every `jitEmit<Name>(` call
+outside `jitEmitters.rtn` is inside an `if jitting` block; every one inside `jitEmitters.rtn` is
+either a definition or a call already downstream of a gate.
