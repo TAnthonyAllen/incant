@@ -373,6 +373,15 @@ GroupItem   grup,
             item;
 use NewGroup
     if isGROUP  NewGroup = group;
+    /*  THIS IS THE OPERATOR-NAMING SITE. An operator is written in setup as a
+        quoted literal, and the swap below is what gives it its symbol as its
+        NAME, so it can be matched against the input stream by spelling.
+        Measured 2026-08-16 over a whole grammar bootstrap: it fires 55 times,
+        every firing is an Operators registry entry, and NOT ONE is a rule. So
+        it looks like dead weight beside any literal-handling change and is the
+        opposite -- delete it and every operator in the language unnames itself,
+        silently. It reads NewGroup, the thing being DEFINED, never the terms
+        inside it, which is why labelling literal terms does not reach it.  */
     if isLiteral {
         tag    = text;
         text   = 0; }
