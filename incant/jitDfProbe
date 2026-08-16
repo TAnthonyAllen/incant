@@ -14,6 +14,28 @@
     verbatim -- gate included -- and jitEmitSelfCall brackets the call in
     runAction's own order: bind, save, call, restore.
 
+    ⚠ CORRECTION 2026-08-16 (B0 gate census, docs/gateCensus.md; confirmed by
+    Tony). FINDING 1 BELOW IS NOW FALSE ON ITS FACE, and it is corrected HERE
+    rather than in place, because the 08-04 block is provenance and rewriting it
+    would falsify what was actually measured that day.
+        WHAT IT SAYS: "aCTionIterate has NO jitting gate -- in ruleActions.rtn
+        only aCTionBlocK, aCTionDO, aCTionIF and aCTionWhilE carry `if jitting`."
+        WHAT IS TRUE TODAY: aCTionIterate CARRIES A GATE, at ruleActions.rtn:770,
+        and it is the only gate in the tree that EMITS AND DELIBERATELY DOES NOT
+        RETURN -- the emit-time walk still needs the iterator ESTABLISHED so the
+        enclosing `while ++grup` takes opPlusPlus's iterator arm and reaches
+        jitEmitIterStep. That is the direct cure for the split-across-two-times
+        shape finding 1 describes.
+        AND THE COUNT MOVED WITH IT: ruleActions.rtn carries 13 gates now, not 4
+        -- aCTionBlocK (x2), aCTionBrancH, aCTionCerR, aCTionCouT, aCTionDO,
+        aCTionFOR, aCTionIF, aCTionIterate, aCTionPrinT, aCTionSearch,
+        aCTionStringXP, aCTionWhilE.
+    ⚠ THE CLASS, WHICH IS WHY THIS IS WORTH A PARAGRAPH: the sentence was a
+    MEASUREMENT, correctly taken, correctly labelled "verified by grep" -- and it
+    carried no date inside itself, so it reads as a standing fact about the tree.
+    That is the T-0 family exactly. A grep result is true at a timestamp; write
+    the timestamp next to it or the next reader inherits an expired premise.
+
     ⚠ THE MIS-ATTRIBUTION IS PART OF THE RECORD. This was handed off as "the
     argument resolves against the OUTER node -- KANT-8's family". It was not.
     jitBindArgRT had already fixed the argument; the printout said so and nobody
