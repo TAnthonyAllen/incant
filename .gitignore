@@ -17,6 +17,7 @@
 # Backup / legacy stashes — attic boxes, not source of truth
 # (Sessions/ removed from this list — session docs are now tracked
 #  as institutional memory, parallel to PLG repo's Sessions/ dir.)
+Aside/
 BeforeRefactor/
 BeforeSave/
 XML/BackupXML/
