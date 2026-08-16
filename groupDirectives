@@ -2,8 +2,8 @@
 /*******************************************************************************
 	Global
     if NewGroup.tag eq "Start" debugRuleNamed("RunRulE");
-    if NewGroup.tag eq "CheckFor" debugAllRules = true;
-    if NewGroup.tag eq "genParseTest" item = 0;
+    if NewGroup.tag eq "writeTempFile" debugAllRules = true;
+    if NewGroup.tag eq "Braced" item = 0;
     cerr "aCTionDefinE:",NewGroup.tag,lastIndent:;
     if NewGroup.tag eq "matrix" {
         debugRuleNamed("StatemenT");
@@ -22,6 +22,7 @@ aCTionDebuG embed.debugged ctive
 #;
 aCTionDefinE "if Attributes" before active
     cerr "aCTionDefinE:",NewGroup.tag,lastIndent:;
+    if NewGroup.tag eq "Braced" item = 0;
 #;
 aCTionElsE if ctive
     if blocking cerr "unBlocked:", blocking:;
@@ -207,32 +208,31 @@ parse "if !checkInput" before active
 parse ruleSTUFF ctive
     if tag eq "DEBUG"  doNothing = false;
 #;
-parse kount active
+parse fireLabelMethod active
     if debugAllRules || rule.debugged {
-        debugIndent--;
-        indent("  ");
-        cerr ruleName,"succeeded";
-        if label {
-            cerr ,"label:",label.tag;
-            if label.data   cerr "=" getDebugText(label.text,10); }
-        else    cerr " w/no label";
-        cerr ,"at: " getDebugText(atRuleMark,10):;
-        doNothing = false; }
-#;
-parse matchFailed ctive
-    // need to figure out where this goes
-    if debugAllRules || rule.debugged {
-        debugIndent--;
-        indent("  ");
         if sukcess {
-            cerr ruleName,"not failure";
+            debugIndent--;
+            indent("  ");
+            cerr ruleName,"succeeded";
             if label {
                 cerr ,"label:",label.tag;
-                if label.data   cerr "=" label.text; }
+                if label.data   cerr "=" getDebugText(label.text,10); }
             else    cerr " w/no label";
             cerr ,"at: " getDebugText(atRuleMark,10):; }
-        else    cerr ruleName,"match failed":;
-    doNothing = false; }
+        doNothing = false; }
+#;
+parse debugHere active
+    if debugAllRules || rule.debugged {
+        if sukcess {
+            debugIndent--;
+            indent("  ");
+            cerr ruleName,"succeeded with count " kount; }
+        else {
+            debugIndent--;
+            indent("  ");
+            cerr ruleName,"match failed"; }
+        cerr ,"at: " getDebugText(atRuleMark,10):;
+        doNothing = false; }
 #;
 push if before ctive
     if tag eq "Stuff" cerr ``"push: adding",grup.tag,"to",tag:;
@@ -263,8 +263,10 @@ updateContentFlags starting
     debugRuleNamed("IF");
 *******************************************************************************/
 #GroupMain
-bootstrapper popInput active
-    debugAllRules   = true;
+bootstrapper pushInput active
+    debugRuleNamed("RunRulE");
+    debugRuleNamed("NamE");
+    debugRuleNamed("InvokE");
 #;
 /*******************************************************************************
 	GroupRules

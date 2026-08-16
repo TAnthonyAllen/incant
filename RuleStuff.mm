@@ -979,6 +979,9 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	// min and max may be overwritten by the TraiT rule action
 	max = 1;
 	min = 1;
+	if ( grup = grup->parent )
+		if ( parentStuff = grup->rStuff )
+			parentLabel = parentStuff->label;
 }
 
 RuleStuff::RuleStuff(RuleStuff *r)

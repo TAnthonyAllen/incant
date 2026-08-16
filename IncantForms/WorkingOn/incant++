@@ -1,22 +1,19 @@
 /*****************************************************************************
     Offline Status
 *****************************************************************************/
-I took a day off to code on my own. I realized I like to code and missed it, and that realization comes with unintended consequences. What is different about me coding? I code in kant and in doing so that process evolves in a good way. I write kant the way I want it to work, which may not be how it works, and hitting edges that do not work, so coding kant becomes an immediate feedback process with ramifications.
-For example, hitting what might be a hard edge sends me into the code affected to have a look. Increasingly, that is becoming unsavory. Code that I was very familiar with is turning less familiar in an ugly way as simple rule actions get gated to take on responsibilities not originally intended. Generating and jitting have a downside wrt mess inflicted on innocent code w/gating and confusing the flow of code, not to mention it adds more C++ when the end objective is reduce or eliminate C++ in favor of move to kant.
-And kant is better than it was. The way it works is becoming more like how I want it to work. Less work arounds required. It still needs buttressing with C++ commands, but those commands tend trivially short. And kant code keeps getting more economical wrt the amount of code you need to write to get things done. Hammer and tongs will continue to be needed to continue that becoming better process.
-Take aways:
-    We got some clean up in aisle 3. The tok/C++ code underlying kant needs a spa treatment to get it back into a shape that does not give me a headache when I look at it. To that affect I have suggestions listed here for comment.
-        Get rid of as much gating as possible. Right now jitting is intermixed inextricably into interpreter code. The interpreter code is what we are measuring against. There is a conflict of interest buried in there somewhere. Can we separate jitting from interpreting; and in doing so define a clean JIT. I suspect the intermixing poochifies jitting code as much as it poochifies interpreter code.
-        The look of code is important as is its organization; it is not happenstance that well organized code looks like good code. Think the difference between well structured text as opposed to no text structure and lots of run on sentences. To that end I suggest the following coding style changes:
-            No long comments in code, comments should be minimized. When further explanation is required it needs to go somewhere else, maybe in a what does this code do discussion/documentation and right now we have no somewhere else to park that.
-            No gating if we can avoid it; and if we are tempted to resort to it, that is a clue: we need a design session to consider how to avoid doing so. Code that serves different purposes kept separate. We do this now. Jitting code that deals w/LLVM stuff is in jitEmitters.rtn. Yet there is still a lot of intermixing happening. What would we have to do to eliminate that? A design question with a recon component. My goal is to end up w/a jitting process of clean code to be admired reflecting all the work that went into it (definitely worthy of the admiration).
-            Add new methods into existing code in alphabetical order (not been happening). That is a simple objective I would much appreciate and a simple job for a code minion to rectify and enforce.
-            How our rtn files are organized could stand a review to apply a little order to what goes where. This has been happening organically as we work. A review on code structure every now and then is warranted. I would suggest start with genParse.rtn, the most organically disorganized code, because it grew to combine parsing w/verification stuff. My offline kant coding was directed at replacing the parsing side of that (kant and tok components discussed below). It is still work in progress but getting there, and it got to getting there in a days work, which I find encouraging.
-    We can do more w/kant than we are doing. My offline exercise was oriented at genParse. The kant code is in IncantForms/WorkingOn/parser and the soon to be associated tok code in Generate.rtn (which is included into GroupRules, but none of the methods therein are currently referred to anywhere except in my imagination). The tok methods are interesting tho. They combine match and parse. So for example, testString was a match action in RuleStuff. It got converted into parseString, a parse method for a rule that contains string data (keep in mind, our grammar rules tend to have data, attribute, or members; usually only one of those). BTW I could use a little design help w/parseRule; that is where I ended up last night when my head stopped functioning.
-        I did change a few files chasing down kant interpreter errors. A Clod recon will identify the changes and if any changes need explanation just ask.
-    Methinks a kant driver for jitting worth considering, along the lines of my kant work on parse method generating. Maybe stub out a kant jitting driver to assess whether or not doable and what are the missing bits.
-            
-wrt 1: the if jitting && jitRunAction(field); was honestly a stub line I did and do not expect to survive, and if changing how jitting is done retires the line so much the better.
-wrt 2. processCode does not fail silently; relying on it to fail loudly rather than add unneeded error handling
-wrt 3. noPrint attributes are ignored in a rule parse; there may be few or none noPrint attributes to worry about. Can try deleting the noPrint gate
-wrt 4. each rule cleans up for itself. It may be redundant but safe. parseRule is unfinished but it too will clean up for itself and that should address your concern
+I decided not to change Iterate aside from a minor use of unWrap. A when not broke dont fix decision. I did change where useDefaultSpace gets reset so it happens in opPrint and opString; that is: useDefaultSpace is true by default and can be toggled within a print statement via the $ shortcut. I simplified genParseTest in the parser incantation (that means the parser incant file); it is now shorter and conforms to the design decision that a rule can have data, attributes, or members: pick one. Loud error if a rule does not comply. I changed grammar so that rules like Braced pick up labels on literal attributes like "["; so Braced rule now looks like:
+        Braced      leftBrace="["- ExpressioN rightBrace="]"-;
+    That is a step to get what genParseTest for Braced to look like:
+    code={
+        if  leftBrace() AND ExpressioN() AND rightBrace(); return runRuleAction(this);
+        }
+    Does not mean the Braced parse action will be able to find leftBrace and ExpressioN ... That is likely to require a change to parseRule to insert those as local fields. Will worry about that when ready to test parseRule. Not there yet.
+Files I changed:
+    RuleStuff.twk changed constructors to look for parentStuff and set it if the rule has a parent w/rStuff
+    Generate.rtn no changes made that show up in running code. WIP.
+    GrouActions.rtn and Instruct.rtn changed where useDefaultSpace is set/reset
+    ruleActions.rtn changed how aCTionDefinE sets rStuff for rule attributes
+Ran POP in xcode and things work. Full POP warranted but probably can wait until kitchen cleaning time.
+On the task list:
+    Would like to push ahead on cleaning up comments -> DesignDocs. That looks like a minion task to me.
+    Would like to work on getting jitting to work alongside interpreter not mixed in with it. Not sure where that sits. Design work may be needed. I think Clod looked into it.

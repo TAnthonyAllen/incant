@@ -980,6 +980,7 @@ String      printText   = string();
     else cerr "print: recieved no print text":;
     reset();
     bufferSTAK  += buffer;
+    useDefaultSpace = true;
     return trueResult;
 }
 
@@ -1113,6 +1114,7 @@ extern GroupItem opString(GroupItem target,Buffer buffer)
     target.text = toString();
     reset();
     bufferSTAK  += buffer;
+    useDefaultSpace = true;
     return target;
 }
 

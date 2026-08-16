@@ -1362,12 +1362,12 @@ continueHere:
 matchFailed:
     if !sukcess {
         if !sukcess && kount >= min sukcess = true;
+debugHere:
         if !*atRuleMark && inputDiverted {
             while inputDiverted && !*atRuleMark {
                 lastIndent = 0;
                 popInput(); }
             if sukcess && *atRuleMark   goto continueHere; }
-debugHere:
         if !sukcess {
             failedAt    = atRuleMark;
             atRuleMark  = hereAt;

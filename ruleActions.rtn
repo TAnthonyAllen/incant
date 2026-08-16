@@ -94,7 +94,7 @@ GroupItem   grup,
 
 /*******************************************************************************
 	Rule action for Braced rule.
-        Braced      "["- ExpressioN "]"-;
+        Braced      leftBrace="["- ExpressioN rightBrace="]"-;
 *******************************************************************************/
 extern GroupItem aCTionBraced(GroupItem input)
 {
@@ -426,14 +426,17 @@ use item
                     if tag eq "argument"    isArgument = true;
                     if NewGroup.isMacro     noPrint = true;
                     isInitialized  = true;
-                    if NewGroup.isRule && !item.binType    item.isRule = true;
-                    if item.isLiteral {
-                        grup = new(item.text);
-                        if item.isRule && item.rStuff {
-                        grup.rStuff     = new(item.rStuff);
-                        grup.ruleName   = grup.tag; }}
-                    else    grup = item;
-                    grup    = NewGroup +% grup; }
+                    if NewGroup.isRule && !item.binType && !item.isRule item.isRule = true;
+                    if item.isRule
+                        if !item.rStuff item.rStuff = new(item);
+                        else {
+                            item.rStuff = new(item.rStuff);
+                            grup = item.parent;
+                            if grup && grup.rStuff {
+                                item.parentStuff = grup.rStuff;
+                                item.parentLabel = grup.parentLabel; }
+                            item.rStuff.rule    = item; }
+                    grup    = NewGroup +% item; }
         /***********************************************************************
             If there is code NewGroup is flagged as coded. The code gets processed
             by processCode() the first time NewGroup is included in an expression.
@@ -757,14 +760,14 @@ GroupItem   result = ExpressioN;
 
 /*******************************************************************************
 	The rule action for the Iterate rule
-         Iterate     ANYtoken "on"- ANYtoken attributes? members?;
+        Iterate     iterate- ANYtoken on- ANYtoken attributes? members? defer;
 *******************************************************************************/
 extern GroupItem aCTionIterate(GroupItem input)
 {
 GroupItem   attributes:,
             members:;
-GroupItem   iterator = input[1];
-GroupItem   source = input[2];
+GroupItem   iterator = unWrap(input[1]);
+GroupItem   source = unWrap(input[2]);
     /*  ⚠ EMIT, THEN FALL THROUGH -- the only gate in the tree that does not
         return, and deliberately so. The emit-time walk still needs the iterator
         ESTABLISHED, because the enclosing `while ++grup` must take opPlusPlus's
@@ -776,8 +779,6 @@ GroupItem   source = input[2];
     if jitting {
         -% jitEmitIterate(input); %-
     }
-    while iterator.isGROUP  iterator = iterator.group;
-    while isGROUP           source = group;
     // here iterator gets a copy of the source groupList
     if iterator && source && groupList {
         iterator.groupList  = groupList;
@@ -918,7 +919,7 @@ String  arg = input.text;
 
 /*******************************************************************************
 	Rule action for Parens rule.
-        Braced      "("- ExpressioN? ")"-;
+        Parens      leftParen="("- ExpressioN? rightParen=")"-;
 *******************************************************************************/
 extern GroupItem aCTionParens(GroupItem input)
 {
@@ -1231,7 +1232,7 @@ use input
 
 /*******************************************************************************
 	Immediate method for the StringXP rule.
-        StringXP    ","- stuff=PrintXP+ defer;
+        StringXP    pound="#"- stuff=PrintXP+ defer;
 *******************************************************************************/
 extern GroupItem aCTionStringXP(GroupItem input)
 {
@@ -1386,11 +1387,10 @@ GroupItem   Modifier:,
         if Modifier modify(DatA,Modifier.text);
         if Limit    setLimits(DatA,Limit);
         isRule      = true; }
-    if isRule || registry == opFields    input.group = DatA;
+    if (isRule && !isLiteral) || registry == opFields    input.group = DatA;
     else input.setContent(DatA);
     return  input;
 }
-
 
 /*******************************************************************************
 	Sets the operator method in a while statement

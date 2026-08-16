@@ -91,21 +91,21 @@ define
     ShortcuT=[-+~`$_:,]+;
     ANYtoken=NamE;
     ANYstring=[^ \n\r\t;]+;
-    BlocK           "{"- StatemenT+ "}"- defer;
+    BlocK           leftCurly="{"- StatemenT+ rightCurly="}"- defer;
     PRINTing parseAction=processFlags guard='n';
     BrancheS bin
         break;
         continue;
         return;
-    Precision='.'   precision=counter*;
-    FormaT="#"      flags=[-# 0+']* formatWIDTH?=NumbeR Precision? formatTYPE=[a-zA-Z] tokenize;
+    Precision       dot='.' precision=counter*;
+    FormaT          pound="#" flags=[-# 0+']* formatWIDTH?=NumbeR Precision? formatTYPE=[a-zA-Z] tokenize;
     PrintXP
         ShortcuT;
         PrintField  ExpressioN FormaT?;
     UnaryXP         UnaryOPS ANYtoken;
     InvokeArg
-        Braced      "["- ExpressioN "]"-;
-        Parens      "("- ExpressioN? ")"-;
+        Braced      leftBrace="["- ExpressioN rightBrace="]"-;
+        Parens      leftParen="("- ExpressioN? rightParen=")"-;
         UnaryXP;
     ANYorNum
         NumbeR;
@@ -114,7 +114,7 @@ define
     Token
         QuotE;
         NumbeR;
-        StringXP    "#"- stuff=PrintXP+ defer;
+        StringXP    pound="#"- stuff=PrintXP+ defer;
         TokenXP;
         Operators;
     ExpressioN      Token+;
@@ -143,18 +143,18 @@ define
         IF          if- followedBy ExpressioN SemI-? StatemenT ElsE? defer;
         FOR         for- followedBy Looper in- reversE?="<-" ExpressioN SemI- LoopRestrict? StatemenT defer;
         WhilE       while- followedBy ExpressioN SemI-? StatemenT defer;
-        PrinT       print- followedBy PRINTing- stuff=PrintXP+  SemI- defer;
-        CerR        cerr- followedBy PRINTing- stuff=PrintXP+  SemI- defer;
-        CouT        cout- followedBy PRINTing- stuff=PrintXP+  SemI- defer;
-        Search      "search"- followedBy GrouP+ SemI-;
+        PrinT       print- followedBy PRINTing- stuff=PrintXP+ SemI- defer;
+        CerR        cerr- followedBy PRINTing- stuff=PrintXP+ SemI- defer;
+        CouT        cout- followedBy PRINTing- stuff=PrintXP+ SemI- defer;
+        Search      search- followedBy GrouP+ SemI-;
         BrancH      BrancheS ExpressioN? SemI- defer;
-        ScopeXP     ":"- scopeList=ScopeField+ SemI- defer;
+        ScopeXP     colon=":"- scopeList=ScopeField+ SemI- defer;
     Xpress          ExpressioN SemI-;
     StatemenT
         SemI;
         BlocK;
         WardeD;
-        Iterate     "iterate"- ANYtoken "on"- ANYtoken attributes? members? defer;
+        Iterate     iterate- ANYtoken on- ANYtoken attributes? members? defer;
         Xpress;
     Start=StatemenT+;;
     /*************************************************************************

@@ -110,8 +110,7 @@ use grup
         while grup = code.nextAttribute(grup)
             if isLocal && !noPrint && groupBody != field.groupBody clear();
         // does jitRunAction set label??? result???
-        if jitting && jitRunAction(field);
-        else result = processAction(field); }
+        result = processAction(field); }
     else        result = parse(ruleStuff);
     if result   return result;
     if label    label.clear();

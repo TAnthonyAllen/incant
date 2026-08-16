@@ -1709,6 +1709,7 @@ matchFailed:
 		{
 		if ( !ruleStuff->sukcess && ruleStuff->kount >= ruleStuff->min )
 			ruleStuff->sukcess = 1;
+debugHere:
 		if ( !*ruler->atRuleMark && ruler->inputDiverted )
 			{
 			while ( ruler->inputDiverted && !*ruler->atRuleMark )
@@ -1719,7 +1720,6 @@ matchFailed:
 			if ( ruleStuff->sukcess && *ruler->atRuleMark )
 				goto continueHere;
 			}
-debugHere:
 		if ( !ruleStuff->sukcess )
 			{
 			ruleStuff->failedAt = ruler->atRuleMark;

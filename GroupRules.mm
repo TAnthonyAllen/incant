@@ -131,7 +131,7 @@ GroupItem 	*prior = 0;
 
 /*******************************************************************************
 	Rule action for Braced rule.
-        Braced      "["- ExpressioN "]"-;
+        Braced      leftBrace="["- ExpressioN rightBrace="]"-;
 *******************************************************************************/
 extern "C" GroupItem *aCTionBraced(GroupItem *input)
 {
@@ -482,6 +482,15 @@ GroupItem 	*grup = 0;
 GroupItem 	*item = 0;
 	if ( isGROUP(NewGroup->groupBody->flags.data) )
 		NewGroup = NewGroup->getGroup();
+	/*  THIS IS THE OPERATOR-NAMING SITE. An operator is written in setup as a
+	quoted literal, and the swap below is what gives it its symbol as its
+	NAME, so it can be matched against the input stream by spelling.
+	Measured 2026-08-16 over a whole grammar bootstrap: it fires 55 times,
+	every firing is an Operators registry entry, and NOT ONE is a rule. So
+	it looks like dead weight beside any literal-handling change and is the
+	opposite -- delete it and every operator in the language unnames itself,
+	silently. It reads NewGroup, the thing being DEFINED, never the terms
+	inside it, which is why labelling literal terms does not reach it.  */
 	if ( NewGroup->groupBody->flags.isLiteral )
 		{
 		NewGroup->groupBody->tag = NewGroup->getText();
@@ -545,19 +554,22 @@ GroupItem 	*item = 0;
 				if ( NewGroup->groupBody->flags.isMacro )
 					item->groupBody->flags.noPrint = 1;
 				item->groupBody->flags.isInitialized = 1;
-				if ( NewGroup->groupBody->flags.isRule && !item->groupBody->flags.binType )
+				if ( NewGroup->groupBody->flags.isRule && !item->groupBody->flags.binType && !item->groupBody->flags.isRule )
 					item->groupBody->flags.isRule = 1;
-				if ( item->groupBody->flags.isLiteral )
-					{
-					grup = new GroupItem(item->getText());
-					if ( item->groupBody->flags.isRule && item->rStuff )
-						{
-						grup->setRStuff(new RuleStuff(item->rStuff));
-						grup->rStuff->ruleName = grup->groupBody->tag;
+				if ( item->groupBody->flags.isRule )
+					if ( !item->rStuff )
+						item->setRStuff(new RuleStuff(item));
+					else {
+						item->setRStuff(new RuleStuff(item->rStuff));
+						grup = item->parent;
+						if ( grup && grup->rStuff )
+							{
+							item->rStuff->parentStuff = grup->rStuff;
+							item->rStuff->parentLabel = grup->rStuff->parentLabel;
+							}
+						item->rStuff->rule = item;
 						}
-					}
-				else	grup = item;
-				grup = NewGroup->addAttribute(grup);
+				grup = NewGroup->addAttribute(item);
 				}
 	/***********************************************************************
 	If there is code NewGroup is flagged as coded. The code gets processed
@@ -890,14 +902,14 @@ GroupItem 	*result = ExpressioN;
 
 /*******************************************************************************
 	The rule action for the Iterate rule
-         Iterate     ANYtoken "on"- ANYtoken attributes? members?;
+        Iterate     iterate- ANYtoken on- ANYtoken attributes? members? defer;
 *******************************************************************************/
 extern "C" GroupItem *aCTionIterate(GroupItem *input)
 {
 GroupItem 	*attributes = input->getLabelGroup("attributes");
 GroupItem 	*members = input->getLabelGroup("members");
-GroupItem 	*iterator = input->get(1);
-GroupItem 	*source = input->get(2);
+GroupItem 	*iterator = ::unWrap(input->get(1));
+GroupItem 	*source = ::unWrap(input->get(2));
 	/*  ⚠ EMIT, THEN FALL THROUGH -- the only gate in the tree that does not
 	return, and deliberately so. The emit-time walk still needs the iterator
 	ESTABLISHED, because the enclosing `while ++grup` must take opPlusPlus's
@@ -910,10 +922,6 @@ GroupItem 	*source = input->get(2);
 		{
 		 jitEmitIterate(input); 
 		}
-	while ( isGROUP(iterator->groupBody->flags.data) )
-		iterator = iterator->getGroup();
-	while ( isGROUP(source->groupBody->flags.data) )
-		source = source->getGroup();
 	// here iterator gets a copy of the source groupList
 	if ( iterator && source && source->groupBody->groupList )
 		{
@@ -1066,7 +1074,7 @@ char 	*arg = input->getText();
 
 /*******************************************************************************
 	Rule action for Parens rule.
-        Braced      "("- ExpressioN? ")"-;
+        Parens      leftParen="("- ExpressioN? rightParen=")"-;
 *******************************************************************************/
 extern "C" GroupItem *aCTionParens(GroupItem *input)
 {
@@ -1432,7 +1440,7 @@ GroupItem 	*sourceFile = new GroupItem("sourceFile");
 
 /*******************************************************************************
 	Immediate method for the StringXP rule.
-        StringXP    ","- stuff=PrintXP+ defer;
+        StringXP    pound="#"- stuff=PrintXP+ defer;
 *******************************************************************************/
 extern "C" GroupItem *aCTionStringXP(GroupItem *input)
 {
@@ -1625,7 +1633,7 @@ GroupItem 	*DatA = input->getLabelGroup("DatA");
 			::setLimits(DatA,Limit);
 		DatA->groupBody->flags.isRule = 1;
 		}
-	if ( DatA->groupBody->flags.isRule || DatA->groupBody->registry == GroupControl::groupController->groupRules->opFields )
+	if ( (DatA->groupBody->flags.isRule && !DatA->groupBody->flags.isLiteral) || DatA->groupBody->registry == GroupControl::groupController->groupRules->opFields )
 		input->setGroup(DatA);
 	else	input->setContent(DatA);
 	return input;
@@ -9150,6 +9158,7 @@ char 		*printText = buffer->string();
 	else	::fprintf(stderr,"print: recieved no print text\n");
 	buffer->reset();
 	ruler->bufferSTAK->push(buffer);
+	ruler->useDefaultSpace = 1;
 	return ruler->trueResult;
 }
 
@@ -9306,6 +9315,7 @@ extern "C" GroupItem *opString(GroupItem *target, Buffer *buffer)
 	target->setText(buffer->toString());
 	buffer->reset();
 	GroupControl::groupController->groupRules->bufferSTAK->push(buffer);
+	GroupControl::groupController->groupRules->useDefaultSpace = 1;
 	return target;
 }
 
@@ -9611,9 +9621,7 @@ GroupItem 	*result = 0;
 			if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.noPrint && grup->groupBody != field->groupBody )
 				grup->clear();
 		// does jitRunAction set label??? result???
-		if ( ruler->jitting && ::jitRunAction(field) )
-			;
-		else	result = ::processAction(field);
+		result = ::processAction(field);
 		}
 	else	result = field->parse(ruleStuff);
 	if ( result )
@@ -10365,6 +10373,43 @@ int 		labelled = 0;
 	kind and not a literal with a set.
 	Measured on the specimen: noLabel=0, min=1, max=1. A noLabel container
 	has no spelling yet and refuses rather than guessing at one.  */
+	/*  THE LABELLED-LITERAL REPRESENTATION. Tony's ruling via Clay, 2026-08-16.
+	A literal term now carries its spelling as character data, so the data arm
+	below, which used to be a pure refusal, classifies it instead.
+	
+	WHAT MOVED is the representation, not a flag. aCTionDefinE used to
+	substitute a literal term with a fresh node TAGGED with the spelling and
+	carrying no data. That branch is gone, the term itself is attached, and
+	aCTionTraiT now sets the spelling as CONTENT. So the spelling left the tag
+	and lives in the data, and every literal fell into the refusal, which is
+	why the whole Scaf family reported no plan.
+	
+	KEYED TO THE REPRESENTATION, NEVER TO isLiteral. That flag does not
+	survive rStuff duplication or the TraiTdata handoff into TraiT. Tony
+	observed it directly and the census is in docs/gateCensus.md section B0-2.
+	It lies at exactly the read sites that matter, so the material signature is
+	what is tested here.
+	
+	THE MEASURED SPLIT, from incant/litProbe beside countScratch's bare Ladder
+	rules. Both halves carry isSTRING data and noLabel is the ONLY
+	discriminator, which is why LIT versus LITTO needs no new test. A labelled
+	literal is tagged with its LABEL and has noLabel clear; a bare one is
+	tagged with the generic container name and has noLabel set. Because that
+	bare tag is now generic, sourcing the spelling from the tag would emit the
+	container name as the literal. It comes from the data instead.
+	
+	AND THE FIREWALL KEEPS ITS TEETH: isSTRING only, mirroring the rule-level
+	literal family further down, which records the same restriction and the
+	same reason. The other kinds still refuse, isGROUP above all, since the
+	genuine inline-group construct is what that refusal was written for.
+	isCHAR stays out for the reason recorded there, that it carries sub-fields
+	and so is not this shape. Reading the text is guarded by data, which is
+	bear-trap 26 exactly: a dataless field answers with its own tag.
+	
+	PLACEMENT IS LOAD-BEARING AND THIS COMMENT MUST STAY ABOVE THE CHAIN. A
+	block comment wedged BETWEEN two arms, immediately before an or, wipes the
+	whole extern block to zero. Measured three ways 2026-08-16: above the chain
+	OK, inside an arm body OK, between arms fatal. Bear-trap 4 one level up.  */
 	if ( isBIN(term->groupBody->flags.binType) )
 		{
 		if ( rs->noLabel )
@@ -10383,9 +10428,20 @@ int 		labelled = 0;
 		node->setText(definer->groupBody->tag);
 		}
 	else
+	if ( term->groupBody->flags.data && isSTRING(term->groupBody->flags.data) )
+		{
+		if ( rs->noLabel )
+			node = new GroupItem("LIT");
+		else {
+			node = new GroupItem("LITTO");
+			labelled = 1;
+			}
+		node->setText(term->getText());
+		}
+	else
 	if ( term->groupBody->flags.data )
 		{
-		::fprintf(stderr,"  REFUSE %s -- inline group / character data %s (named future kind)\n",term->groupBody->tag,::dataName(term->groupBody->flags.data));
+		::fprintf(stderr,"  REFUSE %s -- inline group / structural data %s (named future kind)\n",term->groupBody->tag,::dataName(term->groupBody->flags.data));
 		return 0;
 		}
 	else
@@ -10641,7 +10697,6 @@ GroupItem 	*action = field;
 		while ( grup = action->nextAttribute(grup) )
 			if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.isLabel && !grup->groupBody->flags.noPrint && grup->groupBody != action->groupBody )
 				grup->clear();
-		ruler->useDefaultSpace = 1;
 		if ( result = result->groupBody->gMethod(result) )
 			result->groupBody->flags.isBranch = 0;
 		}
