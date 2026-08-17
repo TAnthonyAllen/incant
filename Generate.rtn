@@ -194,7 +194,8 @@ RuleStuff   ruleStuff = field.rStuff;
 extern GroupItem setParse(GroupItem field)
 {
 RuleStuff   ruleStuff = rStuff;
-    if !parseMethod {
+    if !ruleStuff   cerr "setParse: ERROR field passed in",tag,"has no rStuff":;
+    or !parseMethod {
         actionMethod = method;
         if upTo || upToOver     parseMethod = parseUpTo;
         or isBIN || isREGISTRY  parseMethod = parseContainer;

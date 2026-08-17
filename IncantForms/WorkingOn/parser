@@ -1,7 +1,7 @@
 Start();
 include(utilities);
 search reset stack Grokking;
-search Utilities list;
+search GroupFields Utilities list;
 
 debug Start;
 register(Utilities);
@@ -12,6 +12,14 @@ define
     /***************************************************************************
         genParseTest walks one rule and generates a code attribute w/parse code for
         the rule.
+        Note: getParseTest assumes it just works. But what if it dont?
+        Note: the use of actionTypE gate in walkRules to avoid rerunning genParseTest
+        if has already been run. The test is at the top of walkRules so you have to
+        get into walkRules for the gate to happen.
+        Note: we may want to add debugging print messages at top of genParseTest
+        and compile, at least on our initial runs on a single rule.
+        BTW the no attributes no members case is handled by the first setParse
+        call in genParseTest. Look that over with monocle in place and a squinty eye.
     ***************************************************************************/
     genParseTest argument code={
         reset(codeBuffer);
@@ -33,21 +41,30 @@ define
         @argument;
         print $"return runRuleAction(this);":;
         print `closeBrace:;
-        code = codeBuffer;
-        argument +% code;
+        CodE = codeBuffer;
+        CodE :. noPrinT;
+        argument +% CodE;
+        argument :. isCodeD;
         printTO(0);
-        @code;
-        print $taG "=" code:;
+        @CodE;
+        print $taG "=" CodE:;
         };
-    walkRule argument code={
-        if datA;
-            if listLength;
-                print "rules should not have data and a list; one or the other":;
-                return;
-        genParseTest(argument);
+    walkRules argument code={
+        if actionTypE == 0;
+            length  = listLengtH;
+            if datA != 0;   print ~$taG "=" argument;
+            else            print ~$taG;
+            genParseTest(argument);
+            compile(argument);
+            if length > 0;
+                iterate grup on argument;
+                while ++grup;
+                    if noPrinT;     continue;
+                    if binTypE;     continue;
+                    if isRule;      walkRules(grup);
+        else    cerr taG "already has code so no parse generated":;
         };
     ;
 
-clear(listed);
-walkRule(Braced);
+walkRules(Braced);
 stop();
