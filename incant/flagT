@@ -1,0 +1,52 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+/*****************************************************************************
+    flagT -- DOES `:.` SET A FLAG, IN ISOLATION. 2026-08-17.
+
+    Question one of two. `:.` was found globally dead this session: opSetFlag
+    switched on the raw operand's gCount, and the operand never resolves to the
+    groupFields registry entry -- noPrinT arrived with gCount 0, isPercenT with
+    37, neither being its registry number. The repair looks the flag up BY NAME
+    in groupFields, which is the literal statement of the rule that the argument
+    has to be a groupField.
+
+    ⚠ THIS PROBE ANSWERS ONLY THAT. It says nothing about whether a flag set on
+    one node is visible from another -- that is question two, and it is a
+    groupBody identity question, not a `:.` question. Keeping them apart is the
+    point: if this is green, `:.` works, full stop, and the CodE symptom was
+    never `:.`'s fault.
+
+    ROWS:
+      A  BEFORE  -- the flag reads 0 on a fresh field. Without this row a
+                   green C proves nothing, because a field that was already
+                   flagged would pass identically.
+      B  AFTER   -- the same node, same flag, reads 1.
+      C  NEGATIVE CONTROL -- an argument that is NOT a groupField must refuse
+                   BY NAME on stderr and change nothing. A guard never seen to
+                   fire is a guard nobody has tested.
+*****************************************************************************/
+
+register(FlagSubj);
+define
+    ftA="x";
+    ftB="y";
+    ftNotAField="I am not a groupField";
+    ftProbe code={
+        a := ftA.noPrinT;
+        print "A  before :.   ftA.noPrinT =" a " (want 0 -- a fresh field)":;
+        ftA :. noPrinT;
+        b := ftA.noPrinT;
+        print "B  after  :.   ftA.noPrinT =" b " (want 1 -- same node, same flag)":;
+        ftB :. ftNotAField;
+        print "C  negative control fired -- stderr must name ftNotAField by name":;
+        };
+    ;
+
+ftProbe();
+print "FLAGT SENTINEL -- run reached the end":;
+stop();

@@ -1,0 +1,84 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+/*****************************************************************************
+    bodyT -- THE ALIASING EXHIBIT, and the check that certifies the mint fix
+    when it lands. 2026-08-17.
+
+    ⚠ WHAT IT DEMONSTRATES, measured this session: two rules given a generated
+    CodE attribute the reuse-a-shared-name way end up sharing ONE groupBody, so
+    the second generation OVERWRITES the first. Bodies are correct at the moment
+    they print and are aliases by the time anything reads them back.
+
+    THE MECHANISM, named precisely because it is a family and not a one-off:
+    a bare name in an action body reaches THE SEARCH LIST before any local
+    scope, so `CodE` is not a local -- it resolves to the language's own
+    persistent CodE node. Measured: the same node address across three separate
+    calls of a probe action, with no assignment between them. So an assignment
+    to it writes through a resolved name into a shared persistent node, once per
+    call, forever. Name-scope pollution, the same class as bear-trap 26's
+    plausible-name-resolves-somewhere.
+
+    ⚠ AND `+%` IS INNOCENT -- ALSO MEASURED. It SHARES the body rather than
+    copying it, which is correct behaviour and was confirmed by pointer: the
+    local and the attached node have different node addresses and identical
+    groupBody addresses. Sharing does exactly what sharing does; the defect is
+    that what gets attached was never a fresh body per rule.
+
+    THE FIX DIRECTION, settled by those two measurements together: MINT per
+    rule, do not reuse a shared name. new on the tag, then fill, then attach.
+    With a fresh body per rule the alias class is unconstructable rather than
+    avoided.
+
+    ⚠ HOW TO READ THIS FIXTURE AFTER THE MINT LANDS -- ITS VERDICT INVERTS,
+    DELIBERATELY, AND THAT IS THE POINT:
+        BEFORE the fix  the two groupBody addresses MATCH and both hosts read
+                        the second content. That is the defect, exhibited.
+        AFTER  the fix  the two addresses DIFFER and each host reads its own
+                        content. That is the certification.
+    So do not "repair" this fixture when it starts reporting the other thing.
+    Update the expectation and say which state was measured, per H6.
+
+    The pointer rows come from showBody, which exists for exactly this: incant
+    accessors are snapshot-by-value, so two probes returning the same text prove
+    text equality and never node identity.
+*****************************************************************************/
+
+register(BodySubj);
+define
+    btBuf buffer;
+    btHostA;
+    btHostB;
+    btProbe code={
+        reset(btBuf);
+        printTO(btBuf);
+        print "AAAA":;
+        printTO(0);
+        CodE = btBuf;
+        btHostA +% CodE;
+
+        reset(btBuf);
+        printTO(btBuf);
+        print "BBBB":;
+        printTO(0);
+        CodE = btBuf;
+        btHostB +% CodE;
+
+        ga := btHostA["CodE"];
+        gb := btHostB["CodE"];
+        showBody(ga);
+        showBody(gb);
+        cerr "hostA CodE reads:" ga:;
+        cerr "hostB CodE reads:" gb:;
+        cerr "  MATCHING groupBody addresses above = ALIASED (the defect)":;
+        cerr "  DIFFERING addresses + AAAA/BBBB    = minted (the fix)":;
+        };
+    ;
+
+btProbe();
+cerr "BODYT SENTINEL -- run reached the end":;
+stop();

@@ -12076,6 +12076,46 @@ char 		*name = 0;
 	return item;
 }
 
+/***************************************************************************
+    showBody -- PRINT A FIELD'S NODE AND groupBody ADDRESSES. 2026-08-17.
+
+    An instrument, not a feature. Flags live in groupBody, so two field
+    instances either share one body and see each other's flags, or they do not
+    and they cannot. That is a pointer question and incant cannot ask it: every
+    incant-side accessor is snapshot-by-value, so two probes returning the same
+    text prove text equality and never node identity.
+
+    Its purpose is to settle copy-versus-share seams by measurement rather than
+    by reasoning about which of the two copy mechanisms in the tree a given
+    operation went through -- the copy constructor shares the body, setContent
+    copies content and drops flags, and knowing which one an operation used is
+    the whole question at such a seam.
+
+    stderr and not stdout, deliberately: a run that ends in stop() loses
+    buffered stdout, and a probe whose output vanishes on the interesting runs
+    is not a probe.
+***************************************************************************/
+extern "C" GroupItem *showBody(GroupItem *field)
+{
+	if ( !field )
+		{
+		::fprintf(stderr,"showBody: no field\n");
+		return 0;
+		}
+	/*  ⚠ NO WIDTH SPECIFIER IN THE FORMAT STRING. A printf width of the form
+	percent-minus is the passthrough CLOSE delimiter, so it ends the block
+	in the middle of a string literal: tok exits 139 with a zero-byte log
+	and the extern canary drops to 0. Measured 2026-08-17. Pad by hand if
+	alignment is ever wanted here.  */
+	
+	::fprintf(stderr,"BODY  %s  node=%p  groupBody=%p\n",
+	field->groupBody->tag ? field->groupBody->tag : "(untagged)",
+	(void*)field, (void*)field->groupBody);
+	::fflush(stderr);
+	
+	return field;
+}
+
 extern "C" GroupItem *showParse(GroupItem *argument)
 {
 GroupItem 	*rule = ::ruleOrRefuse(::ruleNameArg(argument),"showParse");

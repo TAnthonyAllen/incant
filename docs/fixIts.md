@@ -178,6 +178,49 @@ The invoke is load-bearing for the kant emission path. `ruleActions.rtn` restore
 registered in `docs/knownErrors.md`'s carry-over payload.
 **Owner:** fix is Clod's on any convenient landing, behind the payload row's ruling.
 
+### F-13 — ⚠⚠ THE GENERATED PARSE BODIES ALL ALIAS ONE groupBody
+**Where:** `IncantForms/WorkingOn/parser`, `genParseTest` — `CodE = codeBuffer;` then
+`argument +% CodE;`. **Owner: Tony** (his file, and the fix is his edit).
+**What:** the 54-rule `walkRules(Start)` run **certified GENERATION, not INSTALLATION.** Every body
+was correct at the moment it printed; every install after the first **overwrote its predecessor's
+content through a shared `groupBody`**. The generated text is real. The installed population is
+**54 aliases of the last rule written.**
+**Evidence (`incant/bodyT`, the exhibit):** two hosts, two distinct nodes, **one** groupBody —
+```
+BODY  CodE  node=0x102d3b5c0  groupBody=0x102d2a690
+BODY  CodE  node=0x102d3b580  groupBody=0x102d2a690
+hostA CodE reads: BBBB      hostB CodE reads: BBBB      <- A's content gone
+```
+**THE MECHANISM, and it is a family not a one-off:** a bare name in an action body reaches **the
+search list before any local scope**, so `CodE` is not a local — it resolves to the language's own
+persistent `CodE` node. Measured: **identical node address across three separate calls**, no
+assignment between them. `CodE = codeBuffer` was never writing a local; it writes through a resolved
+name into a shared persistent node, once per call, forever.
+⚠ **`+%` IS INNOCENT, also measured** — it *shares* the body, which is correct, and sharing does
+exactly what sharing does. The defect is that what gets attached was never a fresh body per rule.
+**THE FIX IS SETTLED BY THOSE TWO MEASUREMENTS: MINT PER RULE** — `new` on the tag, fill, attach
+(the KANT-8 rung A shape, minted-not-copied). Then the alias class is **unconstructable**, not
+avoided.
+**Done when:** `incant/bodyT` **inverts** — differing groupBody addresses and `AAAA`/`BBBB` — and a
+re-run of the monty reports **54 DISTINCT bodies installed**, not 54 generated. ⚠ Do not "repair"
+`bodyT` when its verdict flips; update the expectation and say which state was measured (H6).
+⚠ **GATE EVERY EARLIER "INSTALLED AND RAN" READING THROUGH THIS.** The eleven-rule run's parses
+worked because each rule was exercised **near its generation**. Population-scale parsing through the
+installed set is **not yet true**.
+
+### F-14 — the walk has four SILENT exits; there is no skipped-rules list
+**Where:** `parser` — three `continue` gates in `walkRules`, plus `genParseTest`'s `datA != 0`
+early return.
+**What:** the `Start` run shows **147 ENTERs, 54 generated, 21 refused-by-name — and 72 unaccounted.**
+Nothing failed to compile (zero `ERROR processCode`), and the refusals ARE named, but the 72 that
+entered and produced nothing say nothing about why.
+**Why it matters:** this is the constraint already ratified for Ruling 3 — *a walk that prunes must
+say what it skipped* — and it is what stands between a subtraction and an actual coverage census.
+**Done when:** each of the four exits emits one `cerr` naming the rule and the reason.
+**Size:** four lines. **Good minion candidate**, and it yields a trustworthy empty-condition list as
+a side effect (the current one cannot be extracted — interleaved `printToBuffer` output defeats
+line-tracking).
+
 ### F-12 — the jit ladder is RED at rung JV, and has been
 **Where:** `jitLadder/ladder.sh`, rung **JV**.
 **What:** `FAIL JV VACUITY GUARD: a value was not captured at all (jitted='0' oracle='')`. The

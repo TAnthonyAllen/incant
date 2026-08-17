@@ -147,6 +147,35 @@ what the generated parser must reproduce, so **read it before deleting it, and d
 the replacement is green** — while equally not repairing it where the repair only serves the path
 being retired.
 
+| **R-3** | **WHAT DOES A NAME BIND TO, AND WHAT DOES WRITING THROUGH IT TOUCH?** The assign-semantics census, three rows earned in one drill 2026-08-17 | leave it per-operator and document each | one ruled model for binding and write-through | `docs/fixIts.md` F-13 | mint-per-rule at the one site that bit us |
+
+**R-3 — THREE ROWS FROM ONE DRILL, AND THEY ARE ONE QUESTION, NOT THREE TRAPS:**
+1. **`:.` is a TOGGLE, so "make sure this flag is on" is UNWRITABLE.** There is no idempotent
+   spelling. Every `:.` site is a bet about current state, and the odds depend on which C++ hygiene
+   ran first — `processCode` sets `noPrint` on what it attaches, so a defensive set becomes a clear.
+   **Set-twice equals clear.** Census question is not *does it work* (certified green this morning,
+   `incant/flagT`) but **should flag-setting be a toggle at all, or should there be
+   set / clear / toggle spellings?**
+2. **`=` is `setContent`, and it writes THROUGH a resolved name into a shared persistent node.**
+   `CodE = codeBuffer` never wrote a local.
+3. **A bare name in an action body reaches the SEARCH LIST before any local scope.** Measured:
+   identical node address across three separate calls, no assignment between them.
+
+**So the bedevilment is not five unrelated traps — it is one unruled question answered differently
+per operator and per position.** The campaign charter is writing itself.
+⚠ **Not for today.** Today's step closes with the mint fix at the one site; the ruling opens with
+the campaign.
+
+### ⚠ SEQUENCING CONSTRAINT DISCOVERED, ruling owed at the landing
+**Once the generated methods install, the parser can no longer read the source that follows.**
+Measured: after `walkRules` runs, **no further statement in the file executes** — not `cerr`, not a
+registered action, not `stop()`. Only the original file's bare `stop();` survived.
+**That is not a bug, it is the demonstration**: the generated parser is live enough to **eat its own
+loader**. It names a real constraint on the walk's final form — generation, installation and
+continued script execution cannot naively share a process. Either **the walk is the last statement**
+(the `stop()` survival says it effectively already is), or **activation is separated from
+generation**, which is separable in principle and not separated today.
+
 **R-1 — WHY IT IS A CONTRACT AND NOT A BUG**, by the test above: branch B changes what `if x;` means
 for *every* method-bearing field, so justifying either branch needs a **new sentence** in a doc.
 

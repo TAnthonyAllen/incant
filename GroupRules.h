@@ -371,6 +371,7 @@ extern "C" GroupItem *setMark(GroupItem *argument);
 extern "C" GroupItem *setParse(GroupItem *field);
 extern "C" int setParseMethod(RuleStuff *stuff, char *name);
 extern "C" GroupItem *setRuleAction(GroupItem *block);
+extern "C" GroupItem *showBody(GroupItem *field);
 extern "C" GroupItem *showParse(GroupItem *argument);
 extern "C" int showTree(GroupItem *node, char *pad);
 extern "C" char *spellKant(GroupItem *speller, GroupItem *node, char *sink);

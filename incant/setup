@@ -82,6 +82,7 @@ define
     stack immediateAction=setInternalType noPrint;
     stop=stopParsingInput immediateAction;
     system immediateAction=runSystem;
+    showBody immediateAction;
     testing immediateAction;
     jitRefire immediateAction=jitRefire;
     jitFieldMethod immediateAction=jitFieldMethod;
