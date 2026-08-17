@@ -145,6 +145,23 @@ can trip it.
 field, or the executing behaviour is deliberate and gets named at the sites that rely on it.
 **Owner:** unassigned; needs a ruling before anyone "fixes" it. **Size:** ruling first, then small.
 
+### F-12 — the jit ladder is RED at rung JV, and has been
+**Where:** `jitLadder/ladder.sh`, rung **JV**.
+**What:** `FAIL JV VACUITY GUARD: a value was not captured at all (jitted='0' oracle='')`. The
+oracle capture comes back **empty**, so the guard fires — correctly. The guard is doing its job;
+what it is reporting has not been diagnosed.
+**Evidence:** measured 2026-08-17 against **`HEAD`'s own copy** of the ladder (`git show
+HEAD:jitLadder/ladder.sh`), so it is **not** introduced by the step-2 rungs — those add 10 ok rows
+and no failures (181 → 191 ok, failure set identical).
+⚠ **Note what JV is for**, because it makes the red more interesting rather than less: JV's rows A
+and B expect `0`, which a result slot that merely defaults to zero also yields, and row C wants **4**
+so the rung cannot pass vacuously. The vacuity guard exists so the rung cannot compare nothing to
+nothing. **It is currently the thing firing.**
+**Done when:** the empty oracle capture is explained — either the fixture stopped printing the line
+the regex reads, or the interpreted leg genuinely produced nothing — and JV is green or pinned with
+a sentence.
+**Owner:** unassigned. **Size:** one fixture read plus one run. **Good minion candidate.**
+
 ### F-10 — in `Parse`, a bare retok SILENTLY DELETES committed debug support (found closing F-5)
 **Where:** `InProcess/Parse` — `plgDirectives`, and the committed `PLGrule.C`, `Alternative.C`,
 `Element.C`.

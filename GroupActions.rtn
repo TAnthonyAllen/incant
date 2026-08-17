@@ -1009,9 +1009,19 @@ GroupItem   result,
         it is a GroupBody slot reached by alias. Written out here so both halves
         name the same thing, and caught by reading the generated .mm rather than
         by the compiler, which is the cheaper end of that lesson.  */
+    /*  ⚠ THE SLOT COUNT IS INCREMENTED HERE, AT THE FORK, AND NOT IN THE SHIMS.
+        Moved here at op two, deliberately and before there were thirteen of
+        them. Every slot dispatch passes through this one line, so a new shim
+        author CANNOT forget to count -- counting is not their job. The
+        alternative, one ++ per shim, is a discipline that has to be re-applied
+        by everyone who ever adds an op, and this project's ledger on
+        copy-the-idiom-lose-the-helper is three instances deep. Prefer the
+        structure that makes the omission unconstructable.  */
     -%
-    if (GroupControl::groupController->groupRules->jitting && op->groupBody->gJitEmitter)
+    if (GroupControl::groupController->groupRules->jitting && op->groupBody->gJitEmitter) {
+        ++gJitSlotCount;
         return op->groupBody->gJitEmitter(arg,target);
+    }
     %-
     if op.isOperator    result = op.operat(arg,target);
     or op.isMethod      result = op.method(target);

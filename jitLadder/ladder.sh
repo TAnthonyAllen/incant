@@ -190,6 +190,39 @@ rung () {
     else echo "  FAIL  $label ORACLE DISAGREES: interpreted $or vs jitted $w1"; fail=1; fi
 }
 
+#  slotrung <file> <sentinel> <label> <want1> <want2> <wantslot>
+#  rung() plus the step-2 discriminator: how many emissions went through an op's
+#  gJitEmitter slot instead of the `if jitting` gate inside the interpreter op.
+#
+#  ⚠ THIS IS THE ONLY ASSERTION THAT CAN SEE THE MIGRATION. The fork is
+#  value-transparent by design -- a migrated op and an unmigrated op emit the
+#  same IR and return the same number -- so every row rung() checks above is
+#  IDENTICAL whether or not the slot is installed. Measured, not assumed:
+#  pulling the registration left jitJR's answers at 6 and 24 and moved only the
+#  count. A slot rung without this line is a rung that certifies nothing.
+#
+#  ⚠ A MISSING COUNT LINE IS A FAILURE, NOT A SKIP. H4, and the reason is this
+#  harness's own history: a check that evaporates is invisible in a tally of
+#  checks that ran. If the print is ever deleted the rung goes RED rather than
+#  quietly dropping its only real assertion.
+slotrung () {
+    rung "$1" "$2" "$3" "$4" "$5"
+    ws=$6
+    gs=$(sed -n 's/.*jitSlot count = \([0-9]*\).*/\1/p' "$T/$1" | head -1)
+    if [ -z "$gs" ]; then
+        echo "  FAIL  $3 jitSlot count line MISSING -- the discriminator is gone,"
+        echo "        and every value row above passes with or without the slot"
+        fail=1
+    elif [ "$gs" = "$ws" ]; then
+        echo "  ok    $3 jitSlot count = $ws  <- emitted through the SLOT, not the old gate"
+    else
+        echo "  FAIL  $3 jitSlot count = '$gs', want $ws"
+        echo "        0 means the jitEmitter registration is gone and the OLD GATE"
+        echo "        answered -- note the values above would be identical either way."
+        fail=1
+    fi
+}
+
 #  ============================================================================
 #  THE RUNG PLAN. Each rung is the previous PLUS ONE construct.
 #
@@ -374,7 +407,13 @@ else
     echo "  FAIL  J7 the two-leg calling story is not in the IR"; fail=1
 fi
 
-echo "-- JE  `if` WITH NO ELSE ARM -- the shape no rung had"
+#  ⚠ SINGLE QUOTES, NOT DOUBLE. The backticks around if are markdown here, but
+#  inside a double-quoted string the shell reads them as COMMAND SUBSTITUTION and
+#  tries to run `if` -- a keyword with no construct after it -- so every run of
+#  this ladder printed a syntax error to stderr and dropped the word from the
+#  header. Harmless in itself, and exactly the kind of standing stderr noise a
+#  real failure hides inside. Fixed 2026-08-17.
+echo '-- JE  `if` WITH NO ELSE ARM -- the shape no rung had'
 #  J2 covers if/else. NOTHING covered a bare `if cond; body;`, and that gap hid a
 #  dominance violation for as long as the emitter has existed: with no else arm to
 #  overwrite it, gJitResult still held the THEN arm's value when the commit fired
@@ -1420,6 +1459,30 @@ else echo "  FAIL  JXN degrade count = '$xnd', want 0."; fail=1; fi
 if [ "$no" = "0" ]; then echo "  ok    JXN oracle: interpreted 0 -- the engines now AGREE"; green=$((green+1))
 else echo "  FAIL  JXN oracle = '$no', want 0."; fail=1; fi
 
+#  ============================================================================
+#  JM1 / JM2 -- THE SLOT MIGRATION RUNGS (step 2, 2026-08-17). These do not add a
+#  CONSTRUCT the way J1..JXN do; they guard the MECHANISM the rest of the
+#  campaign is built on -- that an op emits through its own gJitEmitter slot
+#  rather than through the `if jitting` gate buried in its interpreter body.
+#
+#  ⚠ READ slotrung's header before changing either line. The value rows here
+#  are identical whether or not the slot is installed -- that is what
+#  presence-gated means -- so the count is the entire assertion and the other
+#  rows are scaffolding around it.
+#
+#  JM1 = op one, jitOp family  (multiply). 42 then 45; different operands so a
+#        folded constant cannot satisfy both.
+#  JM2 = op two, jitCmp family (greater-than). 1 then 0, operands inverted; the
+#        pair is chosen so one answer is NON-zero, since a zero alone is a value
+#        a do-nothing default also produces.
+#
+#  Both want a count of ONE because the count is per process and each rung
+#  contains exactly one migrated op. The 1 -> 2 movement lives in jitJR, which
+#  contains both a multiply and a greater-than -- it read 1 between op one and
+#  op two, and 2 after, on identical products.
+slotrung jitSlotT  "JITSLOT SENTINEL"  "JM1" 42 45 1
+slotrung jitSlotT2 "JITSLOT2 SENTINEL" "JM2" 1  0  1
+
 echo ""
 #  ⚠ H2 -- THE LADDER ASSERTS ITS OWN COMPLETENESS, and it must be unreachable
 #  except through the LAST rung. Added 2026-08-05 with the check/sentinel
@@ -1438,7 +1501,7 @@ fi
 #  ⚠ AS OF 2026-08-11 THERE ARE NO INVERTED ROWS LEFT. JXD-1/JXD-2 graduated
 #  with the AND/OR rung and JXD-3 joined them, so the banner no longer carries a
 #  "pinned" clause at all -- if one is ever added back, add the row name with it.
-if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv JV JC JS JRt JXT JE2 JXN JXD-1 JXD-2 JXD-3 + J-R THE PROOF)"
+if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv JV JC JS JRt JXT JE2 JXN JXD-1 JXD-2 JXD-3 + J-R THE PROOF + SLOT: JM1 JM2)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"
 exit $fail

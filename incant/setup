@@ -123,7 +123,7 @@ define
     '?';
     '>>';
     '>='    operateMethod=opGE  interpretMethod=runGE;
-    '>'     operateMethod=opGT  interpretMethod=runGT;
+    '>'     operateMethod=opGT  interpretMethod=runGT  jitEmitter=jitEmitGT;
 
     '=='    operateMethod=opEQ  interpretMethod=runEQ;
     '=['    operateMethod=opGet;

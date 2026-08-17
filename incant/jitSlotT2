@@ -1,0 +1,77 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+/*****************************************************************************
+    jitSlotT2 -- OP TWO OF THE SLOT MIGRATION, the jitCmp specimen. 2026-08-17.
+
+    Certifies that the greater-than operator emits through its gJitEmitter slot.
+    Sibling of jitSlotT, which certifies the multiply. Read that one first; it
+    carries the argument for why the slot COUNT and not the answer is the row
+    that matters, and the measured negative control behind it.
+
+    WHY A COMPARISON AND NOT A SECOND ARITHMETIC. The selector population the
+    slot model retires has THREE families -- jitOp, jitCmp, jitUnary -- and the
+    pathfinder proved the slot on jitOp only. A binary-shaped assumption in the
+    slot signature would hide behind a second jitOp member and surface many ops
+    into the sweep instead of at op two, which is where it is cheapest to find.
+
+    ⚠ THE ANSWER IS THAT THERE WAS NO SUCH ASSUMPTION, recorded because a null
+    result still cost something to obtain. jitEmitCompare has the same shape as
+    jitEmitBinary -- argument and target in, target back -- even though its
+    RESULT type differs, an i1 rather than an operand-typed value. So the
+    two-argument slot spans jitOp and jitCmp with nothing special-cased and this
+    shim was the same three lines as the first. That is the finding op two was
+    sent to get: the pathfinder generalizes.
+
+    WHY A SEPARATE FILE AND NOT A SECOND SECTION IN jitSlotT. A rung gets ONE
+    testing call and then jitRefire forever; a second testing call in the same
+    process re-enters the sequential-state corruption the refire scaffold exists
+    to make unconstructable. Two ops therefore means two files -- and that also
+    buys per-op diagnosis, since a joint rung asserting a count of two could not
+    say WHICH op had stopped using its slot.
+
+    THE COUNT IS PER PROCESS, which is why this rung wants one and not two. The
+    combined observation lives in incant jitJR, which contains both a multiply
+    and a greater-than: it read 1 before op two landed and 2 after, on identical
+    products. That is the 1 to 2 movement this campaign tracks.
+
+    ⚠ FIRE TWO INVERTS THE OPERANDS so the answers differ. One of the two is a
+    zero, so the pair is chosen such that the other is not -- a row that a
+    do-nothing default could also satisfy asserts nothing on its own.
+
+    ⚠ THE OUTPUT FIELD IS INITIALIZED BEFORE THE FIRE. An uninitialized field
+    returns its own tag when read (bear-trap 26); initialized, the compiled
+    store lands and the read-back is real. Measured both ways in jitSlotT.
+
+    ⚠ THE JITTED HALF IS FIRST, bear-trap 25.
+*****************************************************************************/
+
+register(JitLadder);
+define
+    jsgA;
+    jsgB;
+    jsgOut;
+    jsgGT code={
+        jsgOut = jsgA > jsgB;
+        };
+    ;
+
+jsgA = 6; jsgB = 3; jsgOut = 0;
+print "JSG fire 1 setup : jsgA =" jsgA " jsgB =" jsgB:;
+testing(jsgGT);
+print "JSG fire 1 result: jsgOut =" jsgOut " (want 1)":;
+
+jsgA = 3; jsgB = 6; jsgOut = 0;
+print "JSG fire 2 setup : jsgA =" jsgA " jsgB =" jsgB " (recompile: NONE)":;
+jitRefire();
+print "JSG fire 2 result: jsgOut =" jsgOut " (want 0)":;
+
+jsgA = 6; jsgB = 3; jsgOut = 0;
+jsgGT();
+print "JSG interpreted  : jsgOut =" jsgOut " (the oracle -- want 1)":;
+print "JITSLOT2 SENTINEL -- run reached the end":;
+stop();

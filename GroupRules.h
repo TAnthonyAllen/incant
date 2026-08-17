@@ -186,6 +186,7 @@ extern "C" GroupItem *jitEmitDO(GroupItem *input);
 extern "C" GroupItem *jitEmitDot(GroupItem *argument, GroupItem *target, GroupItem *resultNode);
 extern "C" void jitEmitFill(GroupItem *field);
 extern "C" GroupItem *jitEmitGIF(GroupItem *input);
+extern "C" GroupItem *jitEmitGT(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *jitEmitIterStep(GroupItem *result);
 extern "C" void jitEmitIterate(GroupItem *input);
 extern "C" GroupItem *jitEmitMul(GroupItem *argument, GroupItem *target);

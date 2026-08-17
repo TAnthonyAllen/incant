@@ -4850,6 +4850,27 @@ GroupItem 	*result = ExpressioN;
 	return result;
 }
 
+/* jitEmitGT  OP TWO of the slot migration, and a jitCmp deliberately rather than
+   a second arithmetic. The pathfinder proved the slot on the family whose gate
+   already worked; the selector population being retired has THREE families
+   (jitOp, jitCmp, jitUnary), so the second specimen is chosen to exercise a
+   different one -- a binary-shaped assumption in the slot signature would hide
+   behind a second jitOp and surface at op nine instead of op two.
+
+   ⚠ THE FINDING IS THAT THERE WAS NO SUCH ASSUMPTION. jitEmitCompare has the
+   same shape as jitEmitBinary -- (argument,target,op) returning target -- even
+   though its RESULT type differs (an i1 rather than an operand-typed value).
+   The slot's two-argument signature therefore spans jitOp and jitCmp with
+   nothing special-cased, and this shim is the same three lines as jitEmitMul.
+
+   `>` was picked from five structurally identical comparison gates because
+   incant/jitJR already contains `if jrN > 1`, so migrating it converts an
+   existing rung into a free 1 -> 2 cross-check on the slot count. */
+extern "C" GroupItem *jitEmitGT(GroupItem *argument, GroupItem *target)
+{
+	 return jitEmitCompare(argument, target, jitGT); 
+}
+
 /* jitEmitIterStep  THE JITTED ITERATOR ADVANCE. Tony's ruling, 2026-08-04:
    an unqualified iterate over a group visits EVERY DECLARED CHILD; the
    interpreter's measured behaviour is the intended semantics and THE JIT'S
@@ -4986,10 +5007,7 @@ extern "C" void jitEmitIterate(GroupItem *input)
    Passthrough because jitMul is a jitContext.h enum and tok does not see it. */
 extern "C" GroupItem *jitEmitMul(GroupItem *argument, GroupItem *target)
 {
-	
-	++gJitSlotCount;
-	return jitEmitBinary(argument, target, jitMul);
-	
+	 return jitEmitBinary(argument, target, jitMul); 
 }
 
 /* jitEmitRem  THE FALLBACK COLUMN MEETING A REAL opMethod -- the first emitted
@@ -11458,9 +11476,19 @@ GroupItem 	*target = field->get(2);
 	it is a GroupBody slot reached by alias. Written out here so both halves
 	name the same thing, and caught by reading the generated .mm rather than
 	by the compiler, which is the cheaper end of that lesson.  */
+	/*  ⚠ THE SLOT COUNT IS INCREMENTED HERE, AT THE FORK, AND NOT IN THE SHIMS.
+	Moved here at op two, deliberately and before there were thirteen of
+	them. Every slot dispatch passes through this one line, so a new shim
+	author CANNOT forget to count -- counting is not their job. The
+	alternative, one ++ per shim, is a discipline that has to be re-applied
+	by everyone who ever adds an op, and this project's ledger on
+	copy-the-idiom-lose-the-helper is three instances deep. Prefer the
+	structure that makes the omission unconstructable.  */
 	
-	if (GroupControl::groupController->groupRules->jitting && op->groupBody->gJitEmitter)
+	if (GroupControl::groupController->groupRules->jitting && op->groupBody->gJitEmitter) {
+	++gJitSlotCount;
 	return op->groupBody->gJitEmitter(arg,target);
+	}
 	
 	if ( isOperator(op->groupBody->flags.instructType) )
 		result = op->groupBody->gOp(arg,target);

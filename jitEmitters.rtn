@@ -698,10 +698,29 @@ extern GroupItem jitEmitBinary(GroupItem argument,GroupItem target,int op)
    Passthrough because jitMul is a jitContext.h enum and tok does not see it. */
 extern GroupItem jitEmitMul(GroupItem argument,GroupItem target)
 {
-    -%
-    ++gJitSlotCount;
-    return jitEmitBinary(argument, target, jitMul);
-    %-
+    -% return jitEmitBinary(argument, target, jitMul); %-
+}
+
+
+/* jitEmitGT  OP TWO of the slot migration, and a jitCmp deliberately rather than
+   a second arithmetic. The pathfinder proved the slot on the family whose gate
+   already worked; the selector population being retired has THREE families
+   (jitOp, jitCmp, jitUnary), so the second specimen is chosen to exercise a
+   different one -- a binary-shaped assumption in the slot signature would hide
+   behind a second jitOp and surface at op nine instead of op two.
+
+   ⚠ THE FINDING IS THAT THERE WAS NO SUCH ASSUMPTION. jitEmitCompare has the
+   same shape as jitEmitBinary -- (argument,target,op) returning target -- even
+   though its RESULT type differs (an i1 rather than an operand-typed value).
+   The slot's two-argument signature therefore spans jitOp and jitCmp with
+   nothing special-cased, and this shim is the same three lines as jitEmitMul.
+
+   `>` was picked from five structurally identical comparison gates because
+   incant/jitJR already contains `if jrN > 1`, so migrating it converts an
+   existing rung into a free 1 -> 2 cross-check on the slot count. */
+extern GroupItem jitEmitGT(GroupItem argument,GroupItem target)
+{
+    -% return jitEmitCompare(argument, target, jitGT); %-
 }
 
 
