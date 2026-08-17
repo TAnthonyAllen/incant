@@ -1,4 +1,104 @@
-# ⚠⚠⚠ SEALED 2026-08-16 — SHUTDOWN SEAL (CURRENT VINTAGE). READ THIS FIRST.
+# ⚠⚠⚠ SEALED 2026-08-17 — SHUTDOWN SEAL (CURRENT VINTAGE). READ THIS FIRST.
+#
+#   THE ONE-LINE STATE: **the runway session. It opened on the 08-16 seal's own queue — F-5, the
+#   landable-set declaration, the capture — and cleared all of it. F-5 is CLOSED across two foreign
+#   repos, the compile/actionTypE trio is LANDED with the fleet certified UNMOVED, and STEP 2 IS
+#   NOW OPEN.** Fleet **40 green / 1 parked**, reds `iterT1m` ×2 + `jsonTest baseline`, all
+#   pre-existing. Three repos clean or intentionally dirty; everything pushed.
+#   ⚠ **THE NAMED OMISSION, per the valve: the two `iterT1m` re-pin sentences are STILL NOT IN HAND.**
+#   Sealed without them, knowingly. They remain Tony's, KE-4.
+#
+#   ## WHAT LANDED — 3 commits across 2 repos, all pushed
+#
+#   | commit | repo | what |
+#   |---|---|---|
+#   | `1e4c738` | **Parse** | `.act` bodies attach to their rules; `PLG.C` regenerated BARE, not committed as found |
+#   | `fcb87b8` | Groups | `fixIts`: **F-5 closed**, **F-10 opened** |
+#   | `62deb33` | Groups | **Tony-commit — the `compile` command and the `actionTypE` group field** |
+#
+#   ## ⚠ THE THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   1. ⚠⚠ **BEAR-TRAP #31, AND IT IS THE DAY'S BEST FINDING BECAUSE IT ARRIVED DISGUISED AS THREE
+#      REGRESSIONS.** `incant/setup` is read at **RUNTIME**, so Tony's `compile immediateAction;` was
+#      live against a binary that had no such extern. The fleet read **37 green, not 40**. Four rows
+#      carried `setCompiledMethod: ERROR no method found compile`; three went red on that line
+#      ALONE — and all three are fixtures with **nothing to do with the new command**
+#      (`manyScratch.target`, `displayForm baseline`, `oneTest baseline`), because the error prints
+#      into the output a diff-based row compares. **The control is one command** —
+#      `git checkout HEAD -- incant/setup`, re-run — **and it reproduced the seal exactly at 40.**
+#      Order is **rebuild, then measure**. A fleet number taken between the edit and the build is a
+#      number about the gap.
+#   2. ⚠ **TONY'S `Generate.rtn` WIP DOES NOT TOK — IT SEGFAULTS AND WIPES THE EXTERN BLOCK.**
+#      `tok GroupRules.twk` with his working `parseRule` in the chain exits **139** and takes the
+#      canary **288 → 0**, which then fails the build three files away in `Bytecode.mm` with nothing
+#      pointing home. Cause is the bare unbound `action` in `if result = action["BlocK"]` — the
+#      fallout of removing `processCode` from `parseRule`, which **he has already diagnosed**. tok
+#      says `FAIL Block at: if result = action["` / `FAIL Body3` / `Expected a semi-colon`.
+#      **For the landing his file was set aside to HEAD and restored byte-exact** (md5
+#      `4d31e82e55bee529c2b92f4f878313aa`). It is untouched, still dirty, still his.
+#   3. **THE TRIO IS ADDITIVE AND IT WAS PROVED TWICE, NOT ASSERTED.** Extern set **288 → 289**, diff
+#      exactly one line (`extern "C" GroupItem *compile(GroupItem *field);`). Fleet body
+#      **BYTE-IDENTICAL** to the control, 62 lines each, zero differing check rows — the only capture
+#      diffs are the harness's own H1 header and tree-state list, which move by design.
+#   4. ⚠ **ONE LINE OF TONY'S CODE WAS REPAIRED AND IS NAMED, NOT BURIED.** `compile` could not
+#      compile: `processCode` returns **`int`**, not `GroupItem`. Landed as
+#      `if !processCode(field) return 0; return field;` — preserves the failure signal, matches
+#      `cLEAR`/`cOPY` either side of it, and `walkRules` ignores the return anyway. **If Tony wanted a
+#      bare success flag, that is the line.**
+#   5. **`plgDirectives` IS NOT `groupDirectives` — F-10.** Some of its entries generate **flag-gated**
+#      debug support (`if ( state->debugRulePLG || debug )`) and **that generated code IS the committed
+#      baseline** (`GUARD-REJECTED`: PLGrule.twk **0**, PLGrule.C **1**; same in `Alternative`,
+#      `Element`). So a bare retok of those files **silently deletes working debug support** — the
+#      exact opposite of the correct answer for `PLG.C`, same repo, same directives file, **no marker
+#      at either target saying which.** Not bear-trap #23 repeating: #23 discriminates *normal build*
+#      from *hunting*; here both are normal builds and the discriminator is **which file**.
+#   6. **DEAD CITATION: the 08-16 seal's "the reissued brief is in the Clay channel" IS NOT THERE.**
+#      `ipc/clay-to-clod.md` ends at **SEQ 55, dated Aug 11**, all cleared — it predates the 08-16
+#      rulings. The operative step-2 spec is the **Fearless relay text**, which says so itself.
+#      One grep, and it is the same class the doctrine already names.
+#   7. **F-6 DISCHARGED** in `62deb33`'s message: `parseRule`'s jitting-gate removal is **INERT**
+#      (`jitting` is raised only inside `jitRunAction`, so it is false during parse).
+#
+#   ## ⚠ DOCTRINE EARNED
+#
+#   - ⚠⚠ **A SURPRISING RED IS A HYPOTHESIS. RUN THE CONTROL BEFORE YOU NAME A CAUSE.** 37-vs-40 had
+#     a ready story (three regressions from Tony's edits) that was **entirely wrong** and would have
+#     sent the session hunting in three unrelated fixtures. The control cost one command. This is
+#     doubt-the-instrument met from the cheap direction, and it is the second time in two sessions
+#     that a one-command control beat a plausible reading.
+#   - **`${PIPESTATUS[0]}` BIT AGAIN, IN THIS SEAT, ON THE DAY ITS TRAP WAS RE-READ.** `tok ... | tail`
+#     reported an **empty** exit status; taken directly, `tok` was exiting **139**. Third recorded
+#     instance on this project. **Knowing the rule does not prevent the error** — which is the
+#     make-it-unconstructable argument, again.
+#   - **A REGENERATED ARTIFACT IS A TEST, AND IT SHOULD CARRY A PREDICTION.** `PLG.C` was regenerated
+#     under three pre-registered predictions (pure deletion · exactly the `attachActions` hunk vs HEAD
+#     · `PLG.h` byte-identical). All three held, which is what made the commit safe to write rather
+#     than hopeful. `tok` being dated **Nov 10 2024** — the same binary that produced the working copy
+#     — is why the test had no drift in it, and that was checked, not assumed.
+#
+#   ## THE INSTRUMENTS
+#
+#   Unchanged fleet: `pop.sh` (**40 green / 1 parked**) · `smoke.sh` · `smokelib.sh` · `parked.sh` ·
+#   `kantRatchet.sh` · `kantCensus.sh` · `completePop.sh` · `alphaLint.sh`.
+#   **NEW DOCS:** `docs/commentMinion.md` (**Track B charter, DRAFT — Clod drafted, CLAY REVIEW OWED,
+#   no minion sees it until both sign**) · `docs/jitterBrief.md` (**queued behind step 2; do not start
+#   before `processJit(field)` exists**).
+#
+#   ## NEXT SESSION OPENS ON — step 2, and two things waiting on other people
+#
+#   1. ⚠ **STEP 2 IS OPEN AND UNBLOCKED.** Pathfinder **`opMultiply`/`jitMul`**; slot **`jitEmitter`**;
+#      **slot beside the BINDING**, not beside `operateMethod`; **presence-gated fork in `runOP`'s
+#      existing seed gate ONLY, no new gates**; ⚠ **`jitCantEmit`-delegating-to-`operat` FORBIDDEN in
+#      every window.** Spec is the relay text (see dead citation, #6 above).
+#   2. **Clay's review of `docs/commentMinion.md`.** Its live recommendation: take the trial from
+#      **`Commands.rtn`** (`arrondir` 42 lines, optional second `guard` 22) and **NOT** from
+#      `Instruct.rtn`, whose fattest targets are `opMultiply` (the pathfinder itself), `opPlusPlus`
+#      (parked as F-7) and `runOP` (the seed gate) — *"tracks don't touch"* would otherwise be
+#      nominally true and literally false.
+#   3. **Tony:** the two `iterT1m` sentences (KE-4), and whether `compile`'s return shape is what he
+#      wanted.
+#
+# ⚠⚠⚠ SEALED 2026-08-16 — shutdown seal (superseded 2026-08-17, kept as the reasoning trail).
 #
 #   THE ONE-LINE STATE: **the kitchen-cleaning session. It opened on the curve ball's residue —
 #   an unreconciled tree, an instrumented binary and a fleet reading 29 green — and closes at

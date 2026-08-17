@@ -1282,6 +1282,32 @@ Hard-won lessons. Each one has cost real debugging time.
     disarmed, so the stack is harmless parking today — but arming *two* of them would silently give
     you only the first, and nobody has ever found that out.
 
+31. **`incant/setup` IS READ AT RUNTIME, SO A NEW REGISTRATION GOES LIVE THE MOMENT IT IS SAVED —
+    AGAINST WHATEVER BINARY IS INSTALLED. A registration whose extern is not in that binary turns
+    green fixtures red and reads as N REGRESSIONS FROM YOUR EDIT.** Measured 2026-08-17, with a
+    control. This is the runtime twin of the stale-`.mm` hazard: that one is *a stale build compiles
+    and runs*, this one is *a live registration runs against a stale build*.
+    **The signature, on stderr, in every fixture's output:**
+    ```
+    setCompiledMethod: ERROR no method found <name>
+    setCompiledMethod: failed for <name>
+    setRuleAction: could not set action for immediateAction
+    ```
+    **What it cost, and why the arithmetic is the trap:** adding `compile immediateAction;` to
+    `incant/setup` before the rebuild dropped `pop.sh` from **40 green to 37**. Four rows carried the
+    error line; three of them went red on it **alone**. Nothing was broken — the extern simply did
+    not exist yet. **The three reds are in fixtures that have nothing to do with the new command**
+    (`manyScratch.target`, `displayForm baseline`, `oneTest baseline`), because the error prints into
+    the captured output that a diff-based row compares.
+    ⚠ **THE DISCRIMINATOR IS A CONTROL, AND IT IS ONE COMMAND: `git checkout HEAD -- incant/setup`,
+    re-run the fleet.** If the reds vanish against the *same* binary, the cause is the pending
+    rebuild and not your code. That reproduced the seal exactly (40 green) and turned a three-
+    regression scare into a one-line diagnosis. Restore the working copy afterwards and **check the
+    md5** — the file is somebody's uncommitted work.
+    **Generalises past `setup`:** any incant source read at runtime — the grammar, the registries —
+    can reference C++ that a not-yet-rebuilt binary lacks. **Order is rebuild, then measure.** A
+    fleet number taken between the edit and the build is a number about the gap, not about the code.
+
 > **RULE H10 — THE CITATION BOUNDARY: SMOKE-GREEN AUTHORIZES CONTINUING, ONLY A FLEET CHECK
 > AUTHORIZES LANDING. A smoke-green is NEVER citable as fleet-green.** Adopted 2026-08-13 (SEQ 60,
 > Tony's two-tier proposal). `genLadder/smoke.sh` is the iteration bell — fixture-under-test ·
