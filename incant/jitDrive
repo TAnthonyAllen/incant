@@ -29,6 +29,15 @@ define
         };
     jdWalk argument code={
         blok := argument["BlocK"];
+        /*  ⚠ THIS LINE EXECUTES THE BLOCK TODAY -- fixIts F-11, and this is the
+            census's only customer tree-wide. jdTarget is called ONCE at the foot
+            of this file and prints TWICE; the second firing is this existence
+            test. The double print is NOT a jitDrive defect, so do not go hunting
+            for one.
+            Tony RULED 2026-08-17 that `if` on a BlocK answers presence and never
+            executes, so this line becomes correct as written when the fix lands
+            and is deliberately NOT rewritten to the listLengtH workaround -- that
+            would be churn reverted a week later. Remove this comment then.  */
         if blok;
             print "BlocK found on" argument.taG:;
         else

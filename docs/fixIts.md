@@ -141,9 +141,42 @@ can trip it.
 **The workaround, and it is the better assertion anyway:** read a property instead —
 `if b.listLengtH;` — which does not execute and yields a **value** rather than a bare truth
 (H4). `compileProbe` row B does this and reports `statement count = 3`.
-**Done when:** ruled — either `if` on a BlocK is defined to be an existence test like every other
-field, or the executing behaviour is deliberate and gets named at the sites that rely on it.
-**Owner:** unassigned; needs a ruling before anyone "fixes" it. **Size:** ruling first, then small.
+## ✅ RULED 2026-08-17 (Tony): **`if` on a BlocK answers PRESENCE and never executes**, consistent
+with every other field. The fix rides any convenient landing; the ruling is what monty-era code
+writes against.
+
+### THE CENSUS, run 2026-08-17 — **expected zero customers, found ONE**
+**What it matched, stated because a census is an instrument (H9):** every site in **incant source**
+(`incant/`, `IncantForms/`) that *obtains* a BlocK node — `["BlocK"]`, `[.BlocK.]`, `.BlocK` — then
+each hit read by eye for condition position. **Scope limit, named honestly:** `.rtn`/`.twk` are out
+of scope, because `if x` on a `GroupItem*` there is a plain C++ pointer test with no dispatch; and a
+BlocK reaching a condition *without* being named (via `argument[1]`, an iterate) would not be caught
+by this grep.
+
+| hit | verdict |
+|---|---|
+| **`incant/jitDrive:32`** `if blok;` | ⚠ **THE CUSTOMER.** Wants existence, gets execution |
+| `incant/compileProbe:70` | safe — already uses the `listLengtH` workaround |
+| `incant/retProbe:14` | prose quoting `GroupActions.rtn:447`; that site is C++, out of scope |
+| `IncantForms/BackupXML/oneTest:57` | assignment not condition, and in a gitignored backup |
+
+**MEASURED, not read:** `jdTarget` is called **once** at the foot of `jitDrive` and prints
+**twice** — the second firing is the existence test. Annotated at its post so the next reader does
+not hunt a phantom `jitDrive` bug. ⚠ **Deliberately NOT rewritten to the workaround** — it becomes
+correct as written when the fix lands, and churn reverted a week later is worse than a comment.
+
+### THE MECHANISM, and the fork it opens
+`ruleActions.rtn:717`, in `aCTionIF`: **`if isMethod  result = result.gMethod(result);`** — a
+condition value that `isMethod` is *invoked*. A BlocK carries a method, so it fires.
+
+⚠ **BRANCH B IS DEAD, MEASURED RATHER THAN ARGUED.** Removing the invoke entirely (the reading that
+matches the ruling's *"consistent with every other field"* rationale) was built and run:
+**fleet 40 → 33 green**, `rung5.target` emitted **nothing at all**, `spellScratch` **SIGSEGV 139**.
+The invoke is load-bearing for the kant emission path. `ruleActions.rtn` restored byte-exact
+(md5 verified), rebuilt, fleet back to baseline.
+**So the fix must be BlocK-specific.** How to spell "is a BlocK" at that line is the open question —
+registered in `docs/knownErrors.md`'s carry-over payload.
+**Owner:** fix is Clod's on any convenient landing, behind the payload row's ruling.
 
 ### F-12 — the jit ladder is RED at rung JV, and has been
 **Where:** `jitLadder/ladder.sh`, rung **JV**.

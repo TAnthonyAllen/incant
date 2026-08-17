@@ -60,7 +60,18 @@ anyone had to rule on it.
 
 | # | the question | branch A | branch B | detail | proceeding under |
 |---|---|---|---|---|---|
-| — | *(none open)* | | | | |
+| **R-1** | F-11's fix: how does `aCTionIF` recognise a BlocK so it tests presence instead of invoking? | **exclude BlocK by a flag/tag test at `ruleActions.rtn:717`** — narrow, safe, but leaves `if <any other method-bearing field>` still executing, which the ruling's *"consistent with every other field"* rationale arguably contradicts | **drop the invoke in condition position generally** — matches the rationale | `docs/fixIts.md` F-11 | nothing yet; no fix written |
+
+**R-1 — WHY IT IS A CONTRACT AND NOT A BUG**, by the test above: branch B changes what `if x;` means
+for *every* method-bearing field, so justifying either branch needs a **new sentence** in a doc.
+
+⚠ **BRANCH B IS ALREADY MEASURED AND IT IS DEAD.** Built and run 2026-08-17: **fleet 40 → 33 green**,
+`rung5.target` emitted **nothing**, `spellScratch` **SIGSEGV 139** — the invoke is load-bearing for
+the kant emission path. Source restored byte-exact, rebuilt, fleet back to baseline.
+**So the ruling is not "A or B" — it is: A is forced, and the question is how narrowly to spell it,
+and whether the residual inconsistency (other method-bearing fields still execute in condition
+position) is accepted or filed.** That is a one-sentence ruling, which is the point of measuring
+first.
 
 ---
 
