@@ -9483,9 +9483,23 @@ GroupItem 	*flagDef = 0;
 				break;
 			case 26:
 				target->groupBody->flags.mergeOn = !target->groupBody->flags.mergeOn;
+				/*  ⚠ noPrinT SETS, IT DOES NOT TOGGLE. Tony's ruling 2026-08-17,
+				and the only case in this switch that does so today.
+				A toggle makes "make sure this flag is on" UNWRITABLE -- there
+				is no idempotent spelling, so every site is a bet about the
+				current state, and the odds depend on whatever C++ hygiene ran
+				first. Measured the expensive way: genParseTest's defensive
+				`CodE :. noPrinT` was CLEARING a flag that was already set,
+				which let the walk descend into the generated attribute, which
+				masked the printTO leak, which made the run appear to
+				terminate. One toggle, three symptoms.
+				The rest of this switch still toggles, deliberately -- whether
+				flag-setting should be toggle-only, or split into set / clear /
+				toggle spellings, is the R-3 census question and is NOT ruled.
+				This is the one flag with no good reason to toggle.  */
 				break;
 			case 29:
-				target->groupBody->flags.noPrint = !target->groupBody->flags.noPrint;
+				target->groupBody->flags.noPrint = 1;
 				break;
 			case 31:
 				target->groupBody->flags.byRef = !target->groupBody->flags.byRef;
