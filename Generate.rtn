@@ -93,24 +93,17 @@ extern GroupItem parseRule(GroupItem field)
 {
 GroupRules  ruler = groupRules;
 RuleStuff   ruleStuff = rStuff;
-GroupItem   code,
+GroupItem   code = field[CodE],
             grup,
             result;
-use field
-    /*************************************************************************
-        processCode will parse rule code={} and stick the result in method
-        that then gets invoked as the rule parse method
-    *************************************************************************/
-    if isCoded
-        if !processCode(field)  return 0;
-    code = field[CodE];
+    // assumes processCode was run on field already
     // bail to the existing field parse if no parse code provided
-    if isAction {
+    if field.isAction {
 use grup
         while grup = code.nextAttribute(grup)
-            if isLocal && !noPrint && groupBody != field.groupBody clear();
-        // does jitRunAction set label??? result???
-        result = processAction(field); }
+            if isLocal && !isRule && groupBody != field.groupBody clear();
+        // here the parse action in method gets run
+        if result = field["BlocK"]     result = result.gMethod(result); }
     else        result = parse(ruleStuff);
     if result   return result;
     if label    label.clear();
@@ -145,7 +138,7 @@ GroupRules  ruler = groupRules;
 RuleStuff   ruleStuff = field.rStuff;
     if noAdvance    atRuleMark = hereAt;
     if label {
-        if rule.method  label = rule.method(label);
+        if rule.actionMethod  label = rule.actionMethod(label);
         if label && parentLabel parentLabel +% label;
         return label; }
     return trueResult;
