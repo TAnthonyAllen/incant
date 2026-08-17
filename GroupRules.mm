@@ -8512,6 +8512,28 @@ GroupItem 	*product = 0;
 				case 406:
 					if ( target->groupBody->flags.actionType )
 						product->setCount(1);
+					/*  binTypE -- ANY container kind, not just bin. binType is an
+					ENUM and not a bitfield: isBIN 1, isCLASS 2, isLIST 3,
+					isREGISTRY 4 (GroupBody.h:65-78), so a nonzero test answers
+					"is this a container of some sort" in one read. That is
+					deliberately WIDER than the isBIN || isREGISTRY pair
+					setParse tests, and wider in the right direction -- a CLASS
+					and a LIST are no more a rule than a bin is.  */
+					break;
+				case 407:
+					if ( target->groupBody->flags.binType )
+						product->setCount(1);
+					/*  isActioN -- the PARSER-READ half of the actionType enum.
+					actionTypE (406) is nonzero for isAction OR isCoded and so
+					cannot witness the transition between them; parseRule tests
+					isAction SPECIFICALLY. This makes the exact condition the
+					parser reads assertable from incant, which is what lets a
+					fixture demonstrate the isCoded -> isAction transition
+					rather than assume it. See incant/enumT.  */
+					break;
+				case 408:
+					if ( isAction(target->groupBody->flags.actionType) )
+						product->setCount(1);
 					break;
 				default:
 					product->setText(::concat(3,"access to ",argument->groupBody->tag," not supported yet"));
@@ -9427,8 +9449,28 @@ GroupItem 	*added = 0;
 ***************************************************************************/
 extern "C" GroupItem *opSetFlag(GroupItem *argument, GroupItem *target)
 {
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*flagDef = 0;
+	if ( !argument )
+		if ( ruler->lastREF )
+			{
+			argument = target;
+			target = ruler->lastREF->getGroup();
+			}
+		else	::fprintf(stderr,"opSetFlag: lastREF not set\n");
+	if ( !argument || !target )
+		{
+		::fprintf(stderr,"opSetFlag: missing operand\n");
+		return target;
+		}
+	flagDef = ruler->groupFields->get(argument->groupBody->tag);
+	if ( !flagDef )
+		{
+		::fprintf(stderr,"opSetFlag: argument %s is NOT a groupField\n",argument->groupBody->tag);
+		return target;
+		}
 	if ( argument && target )
-		switch (argument->groupBody->gCount)
+		switch (flagDef->groupBody->gCount)
 			{
 			case 12:
 				target->groupBody->flags.fLAG = !target->groupBody->flags.fLAG;
@@ -9454,8 +9496,11 @@ extern "C" GroupItem *opSetFlag(GroupItem *argument, GroupItem *target)
 			case 33:
 				target->groupBody->flags.binType = !isBIN(target->groupBody->flags.binType);
 				break;
+			case 40:
+				target->groupBody->flags.actionType = !isCoded(target->groupBody->flags.actionType);
+				break;
 			default:
-				::fprintf(stderr,"opSetFlag: setting %s not supported yet\n",target->groupBody->tag);
+				::fprintf(stderr,"opSetFlag: groupField %s has no case yet -- gCount %s\n",argument->groupBody->tag,::toStringFromInt(flagDef->groupBody->gCount));
 			}
 	else	::fprintf(stderr,"opSetFlag: missing operand\n");
 	return target;
@@ -11920,6 +11965,9 @@ int 		offset = markOffset->getCount();
 extern "C" GroupItem *setParse(GroupItem *field)
 {
 RuleStuff 	*ruleStuff = field->rStuff;
+	if ( !ruleStuff )
+		::fprintf(stderr,"setParse: ERROR field passed in %s has no rStuff\n",field->groupBody->tag);
+	else
 	if ( !ruleStuff->parseMethod )
 		{
 		ruleStuff->actionMethod = field->groupBody->gMethod;

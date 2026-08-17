@@ -1,0 +1,65 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+/*****************************************************************************
+    enumT -- THE ENUM-TRANSITION CONFIRMATION ROW. 2026-08-17.
+
+    Ruling 2 (Tony): compile tests isCoded; success transitions isCoded to
+    isAction; failure leaves the state untouched with processCode complaining
+    loud. The consequence that matters is that WALK-WRITES AND PARSER-READS
+    CANNOT DISAGREE BY CONSTRUCTION -- walkRules gates on actionTypE while
+    parseRule tests isAction, and if those could drift apart the whole grammar
+    could generate, install, and be silently ignored at exit 0.
+
+    ⚠ THIS ROW EXISTS BECAUSE DESIGNED IS NOT DEMONSTRATED. The mechanism was
+    found already implemented -- processCode's success arm carries
+    `field.isAction = true` and its own comment says it overwrites actionType
+    and consumes isCoded -- so nothing needed writing. That is exactly the
+    situation where a confirmation row is worth its cost and an assumption is
+    not: the design says it happens, and this says it happened.
+
+    ⚠ WHY isActioN AND NOT actionTypE. actionTypE reads NONZERO for isAction OR
+    isCoded, so it cannot tell the two apart and would pass identically before
+    and after the transition -- a row that moves for neither reason. isActioN
+    reads the flag parseRule ACTUALLY tests. Without it this fixture would be
+    the vacuous kind it is meant to prevent.
+
+    THE THREE ROWS:
+      A  before compile -- the subject carries code but has not been compiled,
+         so isActioN must be 0 and actionTypE must be 1. That PAIR is the
+         discriminator: 1 and 0 together prove the state is isCoded and not
+         merely empty, which neither number alone can say.
+      B  compile returns the field (it accepted an isCoded subject).
+      C  after compile -- isActioN must be 1. The transition happened, so the
+         arm the walk creates IS the arm the parser reads.
+*****************************************************************************/
+
+register(EnumSubj);
+define
+    etMark;
+    etSubject code={ etMark = 7; };
+    ;
+
+register(EnumProbe);
+define
+    etProbe code={
+        a := etSubject.actionTypE;
+        b := etSubject.isActioN;
+        print "A  before compile: actionTypE =" a " isActioN =" b " (want 1 and 0 -- isCoded, not empty)":;
+        r := compile(etSubject);
+        if r;
+            print "B  compile returned a field on the isCoded subject":;
+        else
+            print "B  FAIL compile returned null":;
+        c := etSubject.isActioN;
+        print "C  after  compile: isActioN =" c " (want 1 -- the transition parseRule reads)":;
+        };
+    ;
+
+etProbe();
+print "ENUMT SENTINEL -- run reached the end":;
+stop();

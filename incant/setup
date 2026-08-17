@@ -292,12 +292,15 @@ define
     noPrinT=29;
     noSkiP;
     byReF=31;
+    isCodeD=40;
     nexT=401;
     prioR=402;
     firsT=403;
     lasT=404;
     firstMembeR=405;
     actionTypE=406;
+    binTypE=407;
+    isActioN=408;
     ;
 registry(fILEs);
 define

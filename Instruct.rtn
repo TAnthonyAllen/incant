@@ -338,6 +338,22 @@ use argument
                 case 404:   if !target.groupList || !target.lastInList   product = null; else product = target.lastInList;
                 case 405:   if !target.groupList  product = null; else product = target.nextMember(0);
                 case 406:   if target.actionType  product.count = 1;
+                /*  binTypE -- ANY container kind, not just bin. binType is an
+                    ENUM and not a bitfield: isBIN 1, isCLASS 2, isLIST 3,
+                    isREGISTRY 4 (GroupBody.h:65-78), so a nonzero test answers
+                    "is this a container of some sort" in one read. That is
+                    deliberately WIDER than the isBIN || isREGISTRY pair
+                    setParse tests, and wider in the right direction -- a CLASS
+                    and a LIST are no more a rule than a bin is.  */
+                case 407:   if target.binType     product.count = 1;
+                /*  isActioN -- the PARSER-READ half of the actionType enum.
+                    actionTypE (406) is nonzero for isAction OR isCoded and so
+                    cannot witness the transition between them; parseRule tests
+                    isAction SPECIFICALLY. This makes the exact condition the
+                    parser reads assertable from incant, which is what lets a
+                    fixture demonstrate the isCoded -> isAction transition
+                    rather than assume it. See incant/enumT.  */
+                case 408:   if target.isAction    product.count = 1;
                 default:    product.text    = "access to " tag " not supported yet"; }
             if product && !product.parent   product.parent = target; }}
     return product;
@@ -1067,8 +1083,23 @@ GroupItem   grup,
 ***************************************************************************/
 extern GroupItem opSetFlag(GroupItem argument,GroupItem target)
 {
+GroupRules  ruler = groupRules;
+GroupItem   flagDef;
+use argument
+    if !argument
+        if lastREF {
+            argument = target;
+            target = lastREF.group; }
+        else    cerr "opSetFlag: lastREF not set":;
+    if !argument || !target {
+        cerr "opSetFlag: missing operand":;
+        return target; }
+    flagDef = groupFields[tag];
+    if !flagDef {
+        cerr "opSetFlag: argument",tag,"is NOT a groupField":;
+        return target; }
     if argument && target
-        switch(argument.gCount) {
+        switch(flagDef.gCount) {
             case 12:    target.fLAG         = !target.fLAG;
             case 21:    target.isPercent    = !target.isPercent;
             case 25:    target.isVirtual    = !target.isVirtual;
@@ -1077,7 +1108,8 @@ extern GroupItem opSetFlag(GroupItem argument,GroupItem target)
             case 31:    target.byRef        = !target.byRef;
             case 32:    target.isLIST       = !target.isLIST;
             case 33:    target.isBIN        = !target.isBIN;
-           default:    cerr "opSetFlag: setting " tag " not supported yet":; }
+            case 40:    target.isCoded      = !target.isCoded;
+           default:    cerr "opSetFlag: groupField",tag,"has no case yet -- gCount",toStringFromInt(flagDef.gCount):; }
     else    cerr "opSetFlag: missing operand":;
     return target;
 }
