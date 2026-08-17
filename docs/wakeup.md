@@ -1,4 +1,113 @@
-# ⚠⚠⚠ SEALED 2026-08-17 — SHUTDOWN SEAL (CURRENT VINTAGE). READ THIS FIRST.
+# ⚠⚠⚠ SEALED 2026-08-17 LATE — SHUTDOWN SEAL (CURRENT VINTAGE). READ THIS FIRST.
+#
+#   THE ONE-LINE STATE: **the day the monty ran, and the day it turned out not to have.** The walk
+#   generates 54 rules and terminates; the strict jit sweep closed 10/10; and the last hours were
+#   an eight-hypothesis hunt that ended with the cause NOT FOUND and the search space finally
+#   narrowed by measurement. **Tony takes the parse offline from here with an Xcode walk.**
+#   Fleet **40 green / 1 parked, byte-identical to this morning's baseline.** jitLadder **205 ok,
+#   stderr 0, one owned red (JV/F-12)**. Both repos pushed. Tree clean but for Tony's `incant++`.
+#
+#   ## ⚠⚠ THE THING A FRESH READER MUST NOT RE-DERIVE: WHAT "IT WORKS" ACTUALLY COVERS
+#
+#   **`walkRules(Start)` terminates and emits 54 correct-looking parse bodies. NOTHING COMPILES.**
+#   The 147 walk entries partition with **zero remainder** — 54 generated, 73 leaf-installed,
+#   21 revisit-refused — but `processCode` refuses **53 of the generated bodies**, and that was
+#   invisible until this evening because `compile` had been silently refusing every rule.
+#   **So the ledger is: generation ✅ · installation ✅ · compilation ❌.**
+#
+#   ## ⚠ THE FALSIFICATION TABLE — EIGHT HYPOTHESES, SEVEN DEAD, ONE REPRODUCING
+#
+#   | # | hypothesis | died on |
+#   |---|---|---|
+#   | 1 | missing `this`/`tempField` | ensure block landed (prune-noPrint 34→102), still 53 |
+#   | 2 | generated shape invalid | all shapes compile at define time |
+#   | 3 | mint path broken | hand-built CodE → `compile SUCCEEDED` |
+#   | 4 | emitter reads `.text` not tag | every leaf spells as a name; `SemI()` correct **14×** |
+#   | 5 | the body content | `Token`'s **real body** compiles standalone |
+#   | 6 | `clear(CodE)` | passes with and without |
+#   | 7 | dedent / close-brace indent (Tony's suspect) | both indents compile |
+#   | **8** | **the target is a real grammar rule** | ⚠ **REPRODUCES — 139** |
+#
+#   **Row 8 is the live lead and it is one line to reproduce:** an identical trivial body compiles
+#   on a PLAIN FIELD and **exits 139 on a REAL GRAMMAR RULE** (`QuotE`). The variable was never the
+#   text — it is **what you attach it to**. ⚠ **And note where that points: a rule carrying BOTH its
+#   grammar structure and a compiled body is the two-live-paths shape R-2 forbade.**
+#
+#   ## WHAT LANDED — 11 commits, all pushed
+#
+#   | commit | what |
+#   |---|---|
+#   | `a2711e6` `9f1beba` | **step 2 pathfinder** — `*` then `>` emit through a `jitEmitter` slot |
+#   | `1913c6a` `04df6b1` | **sweep batches 1 & 2 — STRICT BINARY/COMPARISON MIGRATED 10/10** |
+#   | `2a4d97b` | `compile`'s `isCoded` guard — an uncoded field truncated a whole run at exit 0 |
+#   | `533fa2e` | **F-11 census** — expected zero customers, found one |
+#   | `66f5be7` | **`showBody`** — the pointer instrument, and the aliasing it found |
+#   | `dfd5a23` | **`mintT`** — five spellings of "give me my own node", two correct |
+#   | `95e8e19` | **Tony's mint** — every rule gets its own CodE; the walk terminates |
+#   | `0874699` `5e35cab` | **`:.` SETS, all nine flags** (Tony's ruling) |
+#   | `8dd7cd6` | R-4 ensure + `reportCodeFail`, **diagnosis falsified in the message** |
+#
+#   ## ⚠ RULINGS BANKED
+#
+#   **R-2 RULED — REPLACEMENT, NOT COEXISTENCE**, verbatim from `jit.md` §0. Generated parse IS the
+#   parser; old `parse()` is the specification and transitional fallback. **Ruling 1 later hardened
+#   it: no fallback arm at all — refuse loudly.** ⚠ **The fork-3 counter and crossing fixture were
+#   STRUCK** — no second arm means nothing to count.
+#   **R-3 OPEN — the assign-semantics census.** *What does a name bind to, and what does writing
+#   through it touch?* Three rows from one drill, and they are ONE question answered differently per
+#   operator and per position.
+#   **R-4 RULED, IMPLEMENTED, AND ITS DIAGNOSIS FALSIFIED.** compile owns the preconditions; they
+#   were genuinely absent; that was not the trip point.
+#   **RULING 3 (cycle guard) RETIRED ON EVIDENCE** — ENTERs 130 at a 20s cap and 130 at 40s, 77
+#   distinct rules, identical. The walk terminates on its own merits.
+#   **`:.` SETS FOR EVERY FLAG.** Census first: zero sites relied on toggling, **five were broken by
+#   it** (`isPercenT` on reused locals in `utilities`' layout loops).
+#
+#   ## ⚠ THE NAPALM IS REAL, AND IT HAS A CUSTOMER
+#
+#   **Once the generated methods install, the parser can no longer read the source that follows** —
+#   after `walkRules` runs, no further statement executes, not `cerr`, not a registered action, not
+#   `stop()`. Not a hang: the generated parser is live enough to **eat its own loader**. The
+#   loader-separation question (generation vs activation, separable in principle, not separated
+#   today) now has a paying customer and belongs on the queue as its own item.
+#
+#   ## THE INSTRUMENTS — four new, all born this week
+#
+#   `showBody` (node + groupBody addresses; incant accessors are snapshot-by-value so identity is
+#   otherwise unaskable) · **`incant/flagT`** (does `:.` set a flag) · **`incant/bodyT`** (do two
+#   attachments alias — ⚠ **its verdict INVERTS when the mint lands; do not "repair" it**) ·
+#   **`incant/mintT`** (which spelling gives me my own node — the R-3 copy-semantics chapter,
+#   pre-written and executable) · `reportCodeFail` (named home for parse-error reporting; converges
+#   with `aCTionFailed` when someone makes it good).
+#   Ladder rungs **JM1-JM4** carry the slot migration; `slotrung` asserts the count and fails on a
+#   MISSING line.
+#
+#   ## ⚠ TRAPS COLLECTED, ALL PAID FOR IN ONE DAY
+#
+#   - a block comment **between an `if`'s closing brace and its `else`** wipes the extern block to 0
+#     (bear-trap #29 — walked into while writing an error handler)
+#   - `%-` inside a passthrough format string **is the close delimiter**
+#   - a `:` inside a string literal collides with the `:` print terminator
+#   - **literal braces inside a string in a code body close the block early** — which is why Tony's
+#     `openBrace`/`closeBrace` fields exist
+#   - **`+=` on a name adds an ATTRIBUTE** (via `addString`), it is not the member-add `:+`
+#   - `field[CodE]` in a fresh extern killed the process; three separate bites
+#   - ⚠ **`[]` runs `get(String)` and IS agnostic between attributes and members.** A claim that it
+#     is not was cited from a sealed doc without re-measuring, then "confirmed" by a probe using the
+#     wrong operator. **Corrected by Tony.** Re-measure before citing, then re-measure the probe.
+#
+#   ## NEXT SESSION OPENS ON
+#
+#   1. **Tony's offline Xcode walk of the parse** — row 8 is the lead.
+#   2. **Bootstrap rules in `GroupMain.twk` are ARMED, not firing** — they carry bare literals
+#      (`strap += "["`, `new("{")`) whose tags are the characters, and never got the
+#      labelled-literals cleanup the grammar did. The walk does not reach them yet; it will.
+#      Two grammar-level siblings exist: `grammar:60` (`define`) and `grammar:61` (`RunRulE`) carry
+#      bare `';'`, and they are the only source of the one `;()` emitted. **`SemI=";"` is innocent.**
+#   3. **F-13/F-14** — the aliasing exhibit and the walk's four silent exits (now instrumented).
+#   4. **Owed by Tony:** the two `iterT1m` re-pins, and `docs/commentMinion.md` to Clay for review.
+#
+# ⚠⚠⚠ SEALED 2026-08-17 — earlier vintage, superseded by the block above.
 #
 #   THE ONE-LINE STATE: **the runway session. It opened on the 08-16 seal's own queue — F-5, the
 #   landable-set declaration, the capture — and cleared all of it. F-5 is CLOSED across two foreign
