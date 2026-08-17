@@ -62,6 +62,37 @@ anyone had to rule on it.
 |---|---|---|---|---|---|
 | **R-1** | F-11's fix: how does `aCTionIF` recognise a BlocK so it tests presence instead of invoking? | **exclude BlocK by a flag/tag test at `ruleActions.rtn:717`** — narrow, safe, but leaves `if <any other method-bearing field>` still executing, which the ruling's *"consistent with every other field"* rationale arguably contradicts | **drop the invoke in condition position generally** — matches the rationale | `docs/fixIts.md` F-11 | nothing yet; no fix written |
 
+| **R-2** | **HOW DOES GENERATED PARSE FIRE?** Tony, 2026-08-17: *"I do not think having parse fire it is a good idea unless we get to the point that we can shitcan the old parse and replace it in new shoes."* | **old `parse()` fires it** via `definingRule().rStuff.parseMethod` — the existing `parseRuleMethod` door. Migration-friendly, one rule at a time | **generated parse is its own entry** — old `parse()` fires only at the ROOT, or is replaced outright | this section | nothing; no firing mechanism is being built |
+
+**R-2 — THE SCOPE IS SMALLER THAN IT LOOKS, and this is the finding to carry into the ruling.**
+The emitted body is **already self-dispatching**: `if leftBrace() AND ExpressioN() AND rightBrace();
+return runRuleAction(this);` calls its terms **directly**, and `runRuleAction` is a registered incant
+command. A generated rule therefore **descends by itself** and never asks old `parse()` to walk its
+children. **So the only open question is what fires the ROOT — one node, not eighty.**
+
+⚠ **AND IT DEFLATES R-1'S NEIGHBOUR.** `rStuff.parseMethod` is **old parse's** dispatch channel. If
+generated parse self-dispatches, that channel matters only at the entry point — so **do not spend
+effort repairing satellite `setParse` writes into a channel that may be abandoned.** That is the
+demolition-arc trap run backwards: repairing the condemned.
+
+⚠ **THE SAME RULING ALREADY EXISTS ONE DOMAIN OVER.** `docs/jit.md` §0: *the JIT REPLACES the
+interpreter, it is not an accelerator running beside an interpreter that stays* — and its one open
+ruling is *what happens to a construct the JIT cannot emit yet, because falling back to the
+interpreter IS divergence.* **Tony's parse position is the identical shape**, so the ruling may be
+mostly pre-made; the value of asking is consistency, not novelty.
+
+⚠ **THE HAZARD IN TODAY'S BEHAVIOUR, unmeasured but structural: THE MIXING IS ALREADY HAPPENING AND
+IT IS SILENT.** `ExpressioN()` invokes whatever `ExpressioN` currently is — generated if it has been
+compiled, old-parse if it has not. That is convenient and it is exactly the silent-divergence shape
+the JIT ruling names. **If mixed mode is accepted transitionally it must be COUNTED, not silent** —
+the same instrument shape as `gJitSlotCount` and the degrade counter, for the same reason: a fallback
+nobody counts is a fallback nobody can assert is absent.
+
+⚠ **AND THE DEMOLITION DOCTRINE CUTS BOTH WAYS.** Old `parse()` is the only written specification of
+what the generated parser must reproduce, so **read it before deleting it, and do not delete until
+the replacement is green** — while equally not repairing it where the repair only serves the path
+being retired.
+
 **R-1 — WHY IT IS A CONTRACT AND NOT A BUG**, by the test above: branch B changes what `if x;` means
 for *every* method-bearing field, so justifying either branch needs a **new sentence** in a doc.
 
