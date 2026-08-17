@@ -337,6 +337,7 @@ use argument
                 case 403:   if !target.groupList || !target.firstInList  product = null; else product = target.firstInList;
                 case 404:   if !target.groupList || !target.lastInList   product = null; else product = target.lastInList;
                 case 405:   if !target.groupList  product = null; else product = target.nextMember(0);
+                case 406:   if target.actionType  product.count = 1;
                 default:    product.text    = "access to " tag " not supported yet"; }
             if product && !product.parent   product.parent = target; }}
     return product;

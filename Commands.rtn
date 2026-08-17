@@ -130,6 +130,14 @@ extern GroupItem cLEAR(GroupItem input)
     return input;
 }
 
+/*******************************************************************************
+	Compile field action
+*******************************************************************************/
+extern GroupItem compile(GroupItem field)
+{
+    if !processCode(field)  return 0;
+    return field;
+}
 
 /***************************************************************************
 	Returns a copy of the field passed in

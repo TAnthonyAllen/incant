@@ -2288,6 +2288,16 @@ extern "C" int closeFile(GroupItem *bufField)
 	return 0;
 }
 
+/*******************************************************************************
+	Compile field action
+*******************************************************************************/
+extern "C" GroupItem *compile(GroupItem *field)
+{
+	if ( !::processCode(field) )
+		return 0;
+	return field;
+}
+
 /* concatEQ  the runtime helper the string-+= JIT call lands on. All the member
    work (getText/setText) and the variadic concat happen here as ordinary C++ —
    this IS the interpreter's isSTRING += body (cf. GroupRules.mm string-concat
@@ -8331,6 +8341,10 @@ GroupItem 	*product = 0;
 					if ( !target->groupBody->groupList )
 						product = 0;
 					else	product = target->nextMember(0);
+					break;
+				case 406:
+					if ( target->groupBody->flags.actionType )
+						product->setCount(1);
 					break;
 				default:
 					product->setText(::concat(3,"access to ",argument->groupBody->tag," not supported yet"));

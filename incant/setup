@@ -27,6 +27,7 @@ define
     clear immediateAction=cLEAR;
     arrondir immediateAction=arrondir;
     closeFile immediateAction;
+    compile immediateAction;
     condition immediateAction=processFlags noPrint;
     copy immediateAction=cOPY;
     copyOf immediateAction;
@@ -279,7 +280,7 @@ define
     isPointeR;
     isRulE=23;
     isShortcuT=24;
-    isVirtuaL;
+    isVirtuaL=25;
     mergeON=26;
     negatE;
     noLabeL=28;
@@ -291,6 +292,7 @@ define
     firsT=403;
     lasT=404;
     firstMembeR=405;
+    actionTypE=406;
     ;
 registry(fILEs);
 define
