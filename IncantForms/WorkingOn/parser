@@ -21,6 +21,22 @@ define
         BTW the no attributes no members case is handled by the first setParse
         call in genParseTest. Look that over with monocle in place and a squinty eye.
     ***************************************************************************/
+    /*  ⚠ PRE-REGISTERED PREDICTION FOR THE POST-MINT RE-RUN, written down
+        BEFORE it runs so it cannot be fitted afterwards.
+        The 2026-08-17 census measured prune-noPrint at 17, and all seventeen
+        were the ONE shared CodE node. After the mint fix gives every rule its
+        own CodE -- properly noPrint, because processCode sets that on what it
+        attaches -- every member walk that meets a CodE should prune it.
+            PREDICTED prune-noPrint = 34
+            derived as generated(54) minus empty-condition bodies(20), since a
+            rule with no terms never enters the member loop at all.
+        READING IT: ~34 confirms per-rule flag hygiene. Still 17 means the mint
+        did not change what the walk sees. 54 would mean zero-length rules are
+        entering the loop too, which would say `length` is being read after the
+        attach rather than before.
+        This is the SECOND independent certification of the mint -- bodyT proves
+        distinct bodies by POINTER, this proves flag hygiene by CENSUS. Two
+        mechanisms, one fix.  */
     genParseTest argument code={
         reset(codeBuffer);
         printTO(codeBuffer);
@@ -28,6 +44,8 @@ define
         setParse(argument);
         if datA != 0;
             if listLengtH; print "rules should not have data and a list; one or the other":;
+            cerr "CENSUS leaf-install :" taG:;
+            printTO(0);
             return;
         if hasAttributeS;   conjunct = "AND";
         else                conjunct = "OR";
@@ -41,9 +59,11 @@ define
         @argument;
         print $"return runRuleAction(this);":;
         print `closeBrace:;
+        clear(CodE);
         CodE = codeBuffer;
-        CodE :. noPrinT;
-        argument +% CodE;
+        codeCopy <- copyOf(CodE);
+        codeCopy :. noPrinT;
+        argument +% codeCopy;
         argument :. isCodeD;
         printTO(0);
         @CodE;
@@ -59,9 +79,26 @@ define
             if length > 0;
                 iterate grup on argument;
                 while ++grup;
-                    if noPrinT;     continue;
-                    if binTypE;     continue;
+                    if noPrinT;
+                        cerr "CENSUS prune-noPrint :" taG:;
+                        continue;
+                    if binTypE;
+                        cerr "CENSUS prune-container:" taG:;
+                        continue;
+                    /*  isRule is SHADOWED BY binTypE as of the 2026-08-17 census --
+                        prune-notRule fired ZERO times, because a container is
+                        pruned before the walk can descend into its members, and
+                        the bin-member case is the only thing isRule ever caught.
+                        ⚠ SHADOWED IS NOT REDUNDANT. The two gates gate different
+                        properties, container-ness and rule-ness, and they coincide
+                        only for today's population. isRule was demonstrably
+                        load-bearing before binTypE existed -- `--`, a bin member,
+                        segfaulted the walk through this path. Its zero is an
+                        ABSENCE CLAIM until something demonstrates the gate can
+                        still fire when its condition holds.
+                        DO NOT REMOVE EITHER WITHOUT A NEGATIVE CONTROL.  */
                     if isRule;      walkRules(grup);
+                    else            cerr "CENSUS prune-notRule :" taG:;
         else    cerr taG "already has code so no parse generated":;
         };
     ;
