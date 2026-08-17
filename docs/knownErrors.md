@@ -18,6 +18,52 @@ makes it bite · who rules.
 
 ---
 
+# ⚠ OPEN RULINGS — CARRY-OVER PAYLOAD
+
+**Adopted 2026-08-17, for the joint full-monty front.** This block is an **INDEX, one line per
+item**, pointing at wherever the detail lives — a KE entry below, a `docs/fixIts.md` row, or the
+item itself if it is two lines. **Clod maintains it. Tony never curates it.** When a carry-over is
+wanted, this block *is* the payload: copy from the heading to the rule below it, nothing to collect.
+
+**WHY IT EXISTS.** Clay is out of the loop between carry-overs by design, so a question that needs
+a *ruling* rather than a *fix* has to survive the session that found it. The failure this guards
+against is not forgetting — it is **settling a contract at the keyboard**, which produces something
+that gets built on and surfaces rungs later with no line pointing back.
+
+**THE TEST, and it is one line because it is applied mid-debug or not at all:**
+
+> **Does the fix require writing a NEW sentence into a doc to justify it?**
+> **No** — it only makes code obey a rule that already exists → **BUG.** Tony and Clod, settled in
+> the fire. **Yes** — someone must *choose* between two defensible behaviours → **CONTRACT.** It
+> comes here and goes to Clay.
+
+*Worked example: a rule carrying attributes AND members violates a **ratified** contract, so it is a
+bug. What a template should emit for a rule with **neither** has no ratified answer, so it is a
+ruling.*
+
+**THE BACKSTOP, for when the test gets skipped — and it will.** If a commit message starts
+**justifying** a behaviour ("we do X because Y is better"), a contract is being set in the fire.
+That sentence belongs in a ruling. Mechanical, and auditable the same day.
+
+**COST ASYMMETRY: WHEN UNSURE, ESCALATE.** Escalating a bug wastes one carry-over round. Settling a
+contract in the fire is the expensive one.
+
+**AN OPEN RULING DOES NOT BLOCK THE WORK.** Record it, then **proceed under a named assumption**
+stated at the code site, **prefer the reversible branch** where two options are close, and **flag in
+the commit** which code was written against an unruled assumption — so applying the ruling is a grep,
+not an archaeology. ⚠ **ONE NAMED EXCEPTION THAT DOES BLOCK: frame semantics.** It is load-bearing
+for the JIT and a guess there surfaces far from its cause.
+
+**EACH ROW PRE-REGISTERS BOTH BRANCHES**, not just the question — it makes the ruling a one-liner
+instead of an investigation, and on 2026-08-10 that discipline twice **dissolved** a fork before
+anyone had to rule on it.
+
+| # | the question | branch A | branch B | detail | proceeding under |
+|---|---|---|---|---|---|
+| — | *(none open)* | | | | |
+
+---
+
 ## KE-1 — an empty attribute reads back as its own TAG
 
 **Measured 2026-07-31.** A value written in the delimited-literal form parses cleanly, stores,
