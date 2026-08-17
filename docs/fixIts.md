@@ -37,12 +37,6 @@ Files remain on disk here and in history everywhere, but not in a bare clone's w
 (`git show <ref>:Aside/WithJIT/ParseXML.rtn`) instead of naming a path.
 **Owner:** unassigned. **Size:** doc edit, three references. **Good minion candidate.**
 
-### F-5 — two repos carry uncommitted work nobody has accounted for
-**Where:** `InProcess/Parse` — `PLG.C`, `PLG.twk` modified. `InProcess/Tokf` — `Name.h` untracked.
-**What:** neither was mentioned in the 2026-08-16 reconciliation; both predate it.
-**Done when:** each hunk gets H8's verdict — commit, revert, or named-WIP with an owner.
-**Owner:** Tony. **Size:** one look each.
-
 ### F-6 — the correction owed to commit `6212a71` (folds into the next landing)
 **Where:** the message of `6212a71`.
 **What:** it flags `Generate.rtn`'s removal of `parseRule`'s jitting gate as a running-code change.
@@ -123,9 +117,59 @@ be chased. **Owner:** Tony.
 first — bear-trap #30. Nobody has ever found this out because nobody has armed two.
 **Done when:** annotated at the site, or collapsed to one. **Owner:** unassigned. **Size:** comment.
 
+### F-10 — in `Parse`, a bare retok SILENTLY DELETES committed debug support (found closing F-5)
+**Where:** `InProcess/Parse` — `plgDirectives`, and the committed `PLGrule.C`, `Alternative.C`,
+`Element.C`.
+**What:** `plgDirectives` is **not** purely ephemeral instrumentation the way `groupDirectives` is.
+Some of its entries generate **flag-gated** debug support — `if ( state->debugRulePLG || debug )` —
+and **that generated code is what is committed**. A bare `tok PLGrule.twk` therefore deletes it.
+**Evidence, measured 2026-08-17:**
+  - `plgDirectives`' `#PLGrule match return before active` entry emits
+    `cout "PLGrule: " name " GUARD-REJECTED at offset " ...`, and that is `PLGrule.C:143-145`.
+  - `grep -c GUARD-REJECTED` → **PLGrule.twk: 0 · PLGrule.C: 1.** Same shape in `Alternative`
+    (`elem[` → twk 0 / .C 2, at `:98` and `:113`) and `Element.C:26,40,438`.
+  - All three files are **clean against HEAD**, so the instrumented form IS the committed baseline.
+⚠ **THE TRAP IS THAT THE CORRECT INVOCATION IS PER-FILE AND THE FILE DOES NOT SAY WHICH.** Closing
+F-5 needed the *opposite* answer for `PLG.C`: its injections were ~13 **unconditional** `::printf`
+floods, so bare was right and regenerating stripped them. For `PLGrule.C` bare would be a silent
+loss. **One repo, one directives file, opposite correct commands, no marker at either target.**
+**Why this is not just Groups bear-trap #23 again:** #23's cross-annotation discriminates *normal
+build* from *hunting*. Here both files are normal builds and the discriminator is **which file**.
+**Done when:** either (a) Parse's `CLAUDE.md` states which `.twk` are tok'd WITH `plgDirectives` and
+which bare — the `#PLGrule` / `#Alternative` / `#Element` sections vs the rest — or (b) the gated
+trace is promoted into the `.twk` sources so every retok is lossless and `plgDirectives` goes back
+to being purely ephemeral. **(b) is the structural fix**; (a) is a discipline, and disciplines get
+audited.
+**Owner:** unassigned. **Size:** (a) doc paragraph. (b) move ~11 gated blocks into 3 `.twk`, then
+verify by a bare retok producing a byte-identical `.C`. **Good minion candidate** — (b) has a
+built-in verification: if the retok diff is empty, the move was complete.
+
 ---
 
 ## CLOSED — kept one cycle for the trail
+
+### F-5 — ✅ CLOSED 2026-08-17 — all three hunks disposed, both repos clean
+**Verdicts ratified by Tony**: the May-31 dirt was old work needing closure, not fresh intent.
+| hunk | verdict | outcome |
+|---|---|---|
+| `Parse/PLG.twk` — `.act` bodies → `state.attachActions(content)` | **commit** | `1e4c738`, pushed |
+| `Parse/PLG.C` | **regenerate bare, don't commit as found** | it carried ~13 unconditional `::printf` traces, all directive-injected |
+| `Tokf/Name.h` | **delete** | 0 bytes, `file` reports *empty*, zero references anywhere |
+**The `PLG.C` half is the part worth keeping.** The working copy was an **instrumented artifact
+left behind a measurement** — every trace line mapped to an `active` entry in `plgDirectives`
+(`BlockplgAct`, `ElementTypeplgAct`, `ForwardDeclplgNow`, `IncludeplgNow`, `RuleplgNow`,
+`RuleOptionplgAct`, `AlternativeplgAct`, `ElementplgAct`, plus the `#PLG process` block dumping the
+rules table after every parse). Committing it would have put an unconditional debug flood into the
+normal build.
+**Three predictions registered before the regen ran, all held exactly:** regen vs the instrumented
+copy = pure deletion of the 13, **no `+` side at all**; regen vs HEAD = exactly the `attachActions`
+hunk (branch swap · `char *tail` pruned · two trailing tok-warning lines); `PLG.h` byte-identical
+(bear-trap #5 watch — no `#include`s lost). `tok` is dated **Nov 10 2024**, the same binary that
+produced the working copy, so no tok drift was in the test.
+**The change resolves:** `attachActions` declared `PLGparse.h:63`, defined `PLGparse.C:188`, and
+tok's own warning block is the witness — `parseActDeclarations(char*)` dropped off *"referenced but
+not declared"*. Not built, not run; nothing downstream waits on PLG.
+⚠ **It also turned up F-10 above**, which is the general form of the same hazard.
 
 ### F-1 — ✅ CLOSED 2026-08-16 — and the fix was NOT where the row said
 **The row blamed `auditRStuff`'s guard. The guard was innocent.** `aCTionParens` only cleared its
