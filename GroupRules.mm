@@ -2293,6 +2293,8 @@ extern "C" int closeFile(GroupItem *bufField)
 *******************************************************************************/
 extern "C" GroupItem *compile(GroupItem *field)
 {
+	if ( !isCoded(field->groupBody->flags.actionType) )
+		return 0;
 	if ( !::processCode(field) )
 		return 0;
 	return field;
@@ -9615,27 +9617,21 @@ extern "C" GroupItem *parseRule(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->rStuff;
-GroupItem 	*code = 0;
+GroupItem 	*code = field->get("CodE");
 GroupItem 	*grup = 0;
 GroupItem 	*result = 0;
-	/*************************************************************************
-	processCode will parse rule code={} and stick the result in method
-	that then gets invoked as the rule parse method
-	*************************************************************************/
-	if ( isCoded(field->groupBody->flags.actionType) )
-		if ( !::processCode(field) )
-			return 0;
-	code = field->get("CodE");
+	// assumes processCode was run on field already
 	// bail to the existing field parse if no parse code provided
 	if ( isAction(field->groupBody->flags.actionType) )
 		{
 		while ( grup = code->nextAttribute(grup) )
-			if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.noPrint && grup->groupBody != field->groupBody )
+			if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.isRule && grup->groupBody != field->groupBody )
 				grup->clear();
-		// does jitRunAction set label??? result???
-		result = ::processAction(field);
+		// here the parse action in method gets run
+		if ( result = field->get("BlocK") )
+			result = result->groupBody->gMethod(result);
 		}
-	else	result = field->parse(ruleStuff);
+	else	result = result->parse(ruleStuff);
 	if ( result )
 		return result;
 	if ( ruleStuff->label )
@@ -9844,8 +9840,8 @@ RuleStuff 	*ruleStuff = field->rStuff;
 		ruler->atRuleMark = ruleStuff->hereAt;
 	if ( ruleStuff->label )
 		{
-		if ( ruleStuff->rule->groupBody->gMethod )
-			ruleStuff->label = ruleStuff->rule->groupBody->gMethod(ruleStuff->label);
+		if ( ruleStuff->rule->rStuff->actionMethod )
+			ruleStuff->label = ruleStuff->rule->rStuff->actionMethod(ruleStuff->label);
 		if ( ruleStuff->label && ruleStuff->parentLabel )
 			ruleStuff->parentLabel->addAttribute(ruleStuff->label);
 		return ruleStuff->label;

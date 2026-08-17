@@ -117,6 +117,34 @@ be chased. **Owner:** Tony.
 first — bear-trap #30. Nobody has ever found this out because nobody has armed two.
 **Done when:** annotated at the site, or collapsed to one. **Owner:** unassigned. **Size:** comment.
 
+### F-11 — ⚠ TESTING A `BlocK` NODE IN A CONDITION **EXECUTES IT**
+**Where:** language-level. Found in `incant/compileProbe`, 2026-08-17.
+**What:** `if x;` on an ordinary field is an existence test, which is the documented idiom
+(bear-trap #26 exists to push people toward it). **On a `BlocK` node it is not a test — it runs the
+block.** So the natural way to ask *"did compile leave a BlocK behind"* answers the question by
+performing the action, silently, and a fixture written the obvious way reports success while doing
+the one thing the command under test is supposed not to do.
+**Evidence, isolated by bracketing every statement with a print (2026-08-17):**
+```
+  r := compile(codedFour);   print "1 compiled"          -> no marker
+  if r;                      print "2 after if r;"       -> no marker   (field: SAFE)
+  b := codedFour["BlocK"];   print "3 after subscript"   -> no marker
+  if b;                      print "4 after if b;"       -> MARKER FIRES between 3 and 4
+```
+⚠ **Three earlier controls came back clean and were each MISLEADING for a different reason** —
+an uncompiled subject has no BlocK to run, and a sequence with no `if` never reaches the trigger.
+The cause was found only by bracketing *every* step. Do not re-derive from the negative runs.
+**Why it matters beyond the probe:** this is the one-channel-one-meaning family — `if x;` carries
+*does this exist* and *run this and use the result*, chosen by the operand's type, with no marker at
+the call site. Anything walking cached bodies (the generator, the jit driver, a DesignDocs walker)
+can trip it.
+**The workaround, and it is the better assertion anyway:** read a property instead —
+`if b.listLengtH;` — which does not execute and yields a **value** rather than a bare truth
+(H4). `compileProbe` row B does this and reports `statement count = 3`.
+**Done when:** ruled — either `if` on a BlocK is defined to be an existence test like every other
+field, or the executing behaviour is deliberate and gets named at the sites that rely on it.
+**Owner:** unassigned; needs a ruling before anyone "fixes" it. **Size:** ruling first, then small.
+
 ### F-10 — in `Parse`, a bare retok SILENTLY DELETES committed debug support (found closing F-5)
 **Where:** `InProcess/Parse` — `plgDirectives`, and the committed `PLGrule.C`, `Alternative.C`,
 `Element.C`.

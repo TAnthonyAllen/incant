@@ -135,6 +135,7 @@ extern GroupItem cLEAR(GroupItem input)
 *******************************************************************************/
 extern GroupItem compile(GroupItem field)
 {
+    if !field.isCoded       return 0;
     if !processCode(field)  return 0;
     return field;
 }

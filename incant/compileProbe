@@ -1,0 +1,90 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+/*****************************************************************************
+    compileProbe -- THE FIRST FIRING OF THE compile COMMAND. 2026-08-17.
+
+    compile landed in commit 62deb33 and had never been run. A command that
+    exists, links, and has never been invoked is asserted by nothing, so this
+    fixture exists to fire it once and say what happened.
+
+    WHAT compile IS. It runs processCode on the field handed to it and returns
+    that field on success, or null when processCode reports failure. Tony added
+    it so kant can compile a field on demand; the parser incantation calls it
+    from walkRules immediately after generating a parse body.
+
+    THE FOUR ROWS.
+
+    Row A fires compile on a subject that carries a code body and asks whether
+    a field came back.
+
+    Row B asks whether a BlocK is present on the subject afterwards, which is
+    what processCode is supposed to leave behind.
+
+    Row C is the negative control, and it is the row that makes the others mean
+    something. It fires compile on a subject with no code body at all. If that
+    also returns a field, then row A is not evidence that compile did anything
+    to a coded subject, because the same answer comes back either way.
+
+    Row D fires the compiled subject explicitly and asserts its own marker
+    appears. That is a presence-with-value check on the thing that matters --
+    a compiled BlocK that will actually run -- rather than an absence check.
+
+    ⚠ ON WHETHER compile FIRES THE BODY AS A SIDE EFFECT. It must not; emit or
+    compile without run is the whole point of the command, and the same rule is
+    written into the queued jitter brief. This fixture answers that by POSITION
+    rather than by an absence assertion: the subject marker is printed by the
+    subject body and nothing else prints it. If the marker appears ABOVE row A,
+    compile fired the body. If it appears only at row D, compile did not.
+    Read the order, not merely the presence.
+
+    ⚠⚠ ROW B DOES NOT TEST THE BlocK IN A CONDITION, AND THAT IS DELIBERATE.
+    The first draft of this fixture wrote the obvious existence test on the
+    BlocK node, and the subject body RAN -- measured 2026-08-17, isolated by
+    bracketing every statement with a print. Testing an ordinary field in a
+    condition is safe. Testing a BlocK node in a condition EXECUTES IT. So the
+    obvious existence check answers the question by doing the thing the command
+    is supposed not to do, and it does so silently.
+
+    Row B therefore reads the statement count instead, which is also the better
+    assertion: a count is presence WITH a value, where a bare existence test is
+    satisfied by anything at all. See fixIts F-11.
+*****************************************************************************/
+
+register(CompileSubject);
+define
+    codedOne code={ print "        SUBJECT MARKER -- the codedOne body ran":; };
+    bareOne;
+    ;
+
+register(CompileProbe);
+define
+    probeCompile code={
+        r := compile(codedOne);
+        if r;
+            print "A ok    compile returned a field on a CODED subject":;
+        else
+            print "A FAIL  compile returned null on a CODED subject":;
+        b := codedOne["BlocK"];
+        if b.listLengtH;
+            print "B ok    BlocK present after compile, statement count =" b.listLengtH:;
+        else
+            print "B FAIL  no BlocK, or an empty one, on the subject after compile":;
+        n := compile(bareOne);
+        if n;
+            print "C ????  compile returned a field on an UNCODED subject -- rows A and B discriminate nothing":;
+        else
+            print "C ok    compile returns null on an UNCODED subject (negative control holds)":;
+        };
+    ;
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities CompileSubject list;
+
+probeCompile();
+print "D       firing the compiled subject explicitly, its marker must follow":;
+codedOne();
+print "COMPILEPROBE SENTINEL -- run reached the end":;
+stop();
