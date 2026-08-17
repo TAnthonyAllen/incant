@@ -198,9 +198,23 @@ assignment between them. `CodE = codeBuffer` was never writing a local; it write
 name into a shared persistent node, once per call, forever.
 ⚠ **`+%` IS INNOCENT, also measured** — it *shares* the body, which is correct, and sharing does
 exactly what sharing does. The defect is that what gets attached was never a fresh body per rule.
-**THE FIX IS SETTLED BY THOSE TWO MEASUREMENTS: MINT PER RULE** — `new` on the tag, fill, attach
-(the KANT-8 rung A shape, minted-not-copied). Then the alias class is **unconstructable**, not
-avoided.
+**THE FIX, SPELLING CERTIFIED 2026-08-17 (Tony) — USE `copyOf`, THE HOUSE IDIOM:**
+```
+        codeCopy <- copyOf(CodE);
+        argument +% codeCopy;
+```
+Copied verbatim from `fillDownAcross` (`incant/utilities:174`), which does this exact job for this
+exact reason — one source, many destinations — and from `setFrame`. Then the alias class is
+**unconstructable**, not avoided.
+**Measured against four spellings** (`incant/mintT`, pointer evidence per row): write-through-the-name
+**aliases**; `= new(...)` **aliases AND returns a node tagged with a command name reading 0**;
+`<- new(...)` works but hand-rebuilds `copyOf`; **`<- copyOf(...)` is one call, distinct bodies,
+correct content.**
+⚠ **AND THE UNCOMFORTABLE PART, kept because it is the point:** `copyOf` was already the house idiom
+in two places **and was already written in Clod's own project notes as "copyOf stamps (else `+%`
+aliases)"**. Documented, in use twice, and the drill still re-derived it from pointers over a full
+session. **That is R-3's thesis: when the semantics are unruled, documented knowledge does not reach
+the fingers at write time, because the natural spelling does not look wrong.**
 **Done when:** `incant/bodyT` **inverts** — differing groupBody addresses and `AAAA`/`BBBB` — and a
 re-run of the monty reports **54 DISTINCT bodies installed**, not 54 generated. ⚠ Do not "repair"
 `bodyT` when its verdict flips; update the expectation and say which state was measured (H6).

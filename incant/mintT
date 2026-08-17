@@ -1,0 +1,117 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+/*****************************************************************************
+    mintT -- FIVE SPELLINGS OF "GIVE ME MY OWN NODE", AND ONLY TWO ARE RIGHT.
+    2026-08-17. The copy-semantics exhibit for the R-3 census.
+
+    Sibling of flagT (does `:.` set a flag) and bodyT (do two attachments alias).
+    Those two ask whether a thing works; this one asks WHICH SPELLING, which is
+    the question R-3 exists to rule on: what does a name bind to, and what does
+    writing through it touch. Every row carries POINTER evidence, because incant
+    accessors are snapshot-by-value and two probes returning the same text prove
+    text equality, never node identity. showBody is the only way to ask.
+
+    ⚠ THE HEADLINE, AND IT IS UNCOMFORTABLE: `copyOf` was already the house
+    idiom, in `fillDownAcross` and `setFrame` in incant/utilities, doing this
+    exact job for this exact reason -- one source, many destinations. It was
+    also already written down in Clod's own project notes as "copyOf stamps
+    (else +% aliases)". It was documented, it was in use twice, and the drill
+    still re-derived it from pointers over a full session. THAT IS R-3's THESIS
+    STATED ONE MORE WAY: when the semantics are unruled, documented knowledge
+    does not reach the fingers at write time, because THE NATURAL SPELLING DOES
+    NOT LOOK WRONG.
+
+    THE ROWS, in the order they were measured:
+
+    A  write through the shared name  -- TODAY'S SPELLING, AND THE DEFECT.
+       Same groupBody both times; the second write overwrites the first, so both
+       hosts read the second content. `CodE` in an action body is not a local:
+       it reaches the SEARCH LIST before any local scope and resolves to the
+       language's own persistent node, measured as the same address across three
+       separate calls with no assignment between them.
+
+    B  `= new(...)` then fill        -- SILENTLY WRONG, and the worst row.
+       `=` is setContent, so it copies the new node's CONTENT INTO THE EXISTING
+       LOCAL rather than re-pointing it. Same body again. ⚠ AND THE TAG COMES
+       BACK AS A COMMAND NAME reading 0 -- a plausible spelling producing a
+       wrong node with no diagnostic, bear-trap 26's cousin.
+
+    C  `<- new(...)` then fill       -- WORKS, but hand-reconstructs copyOf.
+       Distinct bodies, correct content. `<-` re-points the slot where `=` wrote
+       through it, which is the one-line statement of R-3. Rejected anyway: it
+       rebuilds by hand what one call already does.
+
+    D  `<- copyOf(...)` then attach  -- ⭐ THE HOUSE IDIOM. Distinct bodies,
+       correct content, one call. Copied verbatim from fillDownAcross's
+       `grupCopy <- copyOf(grup); newStuff += grupCopy;`.
+
+    E  `+% copyOf(...)` inline       -- also correct, distinct bodies. Shorter;
+       D is preferred only because it is what the tree already says.
+
+    ⚠ `+%` IS INNOCENT AND THIS FIXTURE IS ITS SECOND ACQUITTAL IN WRITING. It
+    SHARES the body, which is correct behaviour -- rows D and E differ from row
+    A only in that what they hand it is already fresh. The defect was never the
+    attach; it was that nothing minted.
+*****************************************************************************/
+
+register(MintSubj);
+define
+    mtBuf buffer;
+    mtA;  mtB;  mtC;  mtD;  mtE;  mtF;  mtG;  mtH;
+    mtProbe code={
+        cerr "A  write through the shared name -- TODAY'S SPELLING":;
+        reset(mtBuf);  printTO(mtBuf);  print "AAAA":;  printTO(0);
+        CodE = mtBuf;
+        mtA +% CodE;
+        reset(mtBuf);  printTO(mtBuf);  print "BBBB":;  printTO(0);
+        CodE = mtBuf;
+        mtB +% CodE;
+        showBody(mtA["CodE"]);  showBody(mtB["CodE"]);
+        cerr "   reads:" mtA["CodE"] "and" mtB["CodE"] " (want AAAA and BBBB)":;
+
+        cerr "B  = new(...) then fill -- setContent writes THROUGH the local":;
+        reset(mtBuf);  printTO(mtBuf);  print "CCCC":;  printTO(0);
+        minted = new("CodE");
+        minted = mtBuf;
+        mtC +% minted;
+        reset(mtBuf);  printTO(mtBuf);  print "DDDD":;  printTO(0);
+        minted = new("CodE");
+        minted = mtBuf;
+        mtD +% minted;
+        showBody(mtC["CodE"]);  showBody(mtD["CodE"]);
+        cerr "   reads:" mtC["CodE"] "and" mtD["CodE"] " (want CCCC and DDDD)":;
+
+        cerr "C  <- new(...) then fill -- rebind works, but rebuilds copyOf":;
+        reset(mtBuf);  printTO(mtBuf);  print "EEEE":;  printTO(0);
+        fresh <- new("CodE");
+        fresh = mtBuf;
+        mtE +% fresh;
+        reset(mtBuf);  printTO(mtBuf);  print "FFFF":;  printTO(0);
+        fresh <- new("CodE");
+        fresh = mtBuf;
+        mtF +% fresh;
+        showBody(mtE["CodE"]);  showBody(mtF["CodE"]);
+        cerr "   reads:" mtE["CodE"] "and" mtF["CodE"] " (want EEEE and FFFF)":;
+
+        cerr "D  <- copyOf(...) -- THE HOUSE IDIOM (fillDownAcross, setFrame)":;
+        reset(mtBuf);  printTO(mtBuf);  print "GGGG":;  printTO(0);
+        CodE = mtBuf;
+        codeCopy <- copyOf(CodE);
+        mtG +% codeCopy;
+        reset(mtBuf);  printTO(mtBuf);  print "HHHH":;  printTO(0);
+        CodE = mtBuf;
+        codeCopy <- copyOf(CodE);
+        mtH +% codeCopy;
+        showBody(mtG["CodE"]);  showBody(mtH["CodE"]);
+        cerr "   reads:" mtG["CodE"] "and" mtH["CodE"] " (want GGGG and HHHH)":;
+        };
+    ;
+
+mtProbe();
+cerr "MINTT SENTINEL -- run reached the end":;
+stop();
