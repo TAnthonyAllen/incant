@@ -4748,6 +4748,11 @@ extern "C" GroupItem *jitEmitDot(GroupItem *argument, GroupItem *target, GroupIt
 	
 }
 
+extern "C" GroupItem *jitEmitEQ(GroupItem *argument, GroupItem *target)
+{
+	 return jitEmitCompare(argument, target, jitEQ); 
+}
+
 /* jitEmitFill  DS-4(b) -- THE DRAWING COMMAND, CALLABLE FROM COMPILED CODE.
 
    A CARBON COPY OF jitEmitTrace'S SHAPE, and deliberately so: that is the
@@ -4782,6 +4787,22 @@ extern "C" void jitEmitFill(GroupItem *field)
 	b->CreateCall(fnTy, callee, {fieldAddr});
 	gJitEmitted = true;
 	
+}
+
+/*  BATCH ONE OF THE SWEEP, 2026-08-17 -- the four remaining comparisons, which
+    completes the ordered half of the jitCmp family beside jitEmitGT above.
+
+    All four are the same three lines, which is the tempo claim being tested and
+    is now measured over six ops rather than argued. Nothing here decides
+    anything: the selector is the whole content of each shim, which is the point
+    of moving it from a gate parameter to a fact the op carries.
+
+    ⚠ DO NOT ADD A COUNTER INCREMENT TO ANY OF THESE. The slot count lives at the
+    fork in runOP precisely so a shim author cannot forget it. See
+    docs/jitSlotMigration.md.  */
+extern "C" GroupItem *jitEmitGE(GroupItem *argument, GroupItem *target)
+{
+	 return jitEmitCompare(argument, target, jitGE); 
 }
 
 extern "C" GroupItem *jitEmitGIF(GroupItem *input)
@@ -4984,6 +5005,16 @@ extern "C" void jitEmitIterate(GroupItem *input)
 	gJitEmitted = true;
 	gJitResult  = nullptr;
 	
+}
+
+extern "C" GroupItem *jitEmitLE(GroupItem *argument, GroupItem *target)
+{
+	 return jitEmitCompare(argument, target, jitLE); 
+}
+
+extern "C" GroupItem *jitEmitLT(GroupItem *argument, GroupItem *target)
+{
+	 return jitEmitCompare(argument, target, jitLT); 
 }
 
 /* jitEmitMul  THE STEP-2 PATHFINDER. The emitter for `*`, installed on the op
@@ -6605,6 +6636,11 @@ extern "C" int jitRunAction(GroupItem *action)
 	//  that separates a migrated op from an unmigrated one -- the values and the
 	//  IR are identical by design, so nothing else can.
 	printf("=== jitSlot count = %d ===\n", gJitSlotCount); fflush(stdout);
+	//  The unary-edge guard, reported the same way and for the same reason: a
+	//  refusal that is only visible on stderr is a refusal a rung cannot assert.
+	//  Expected ZERO until the unary specimen lands; non-zero means an op was
+	//  given a slot it is not yet certified to use.
+	printf("=== jitSlotUnaryRefused = %d ===\n", gJitSlotUnaryRefused); fflush(stdout);
 	gJitBuilder = nullptr;   // don't leave it dangling at this run's destroyed stack B
 	gJitResult  = nullptr;
 	return r;
@@ -11484,10 +11520,30 @@ GroupItem 	*target = field->get(2);
 	by everyone who ever adds an op, and this project's ledger on
 	copy-the-idiom-lose-the-helper is three instances deep. Prefer the
 	structure that makes the omission unconstructable.  */
+	/*  ⚠ THE UNARY EDGE IS REFUSED, LOUDLY AND COUNTABLY, UNTIL ITS SPECIMEN
+	LANDS. This fork accepts any node carrying a slot, and the seed gate
+	above spans isOperator AND isUnary -- so a unary op handed a jitEmitter
+	would go live down a path nothing has certified, with only convention
+	stopping it. Convention is not a gate.
+	KE-4 POSTURE: the refusal is COUNTED and SAID. A quiet decline would be
+	indistinguishable from a guard that was never reached. Falling through
+	to the interpreter arm below is the safe answer and is what happens.
+	Retire guard, counter and rung row together when unary opens -- see
+	docs/jitSlotMigration.md, parked section.  */
 	
 	if (GroupControl::groupController->groupRules->jitting && op->groupBody->gJitEmitter) {
+	if (op->groupBody->flags.isUnary) {
+	++gJitSlotUnaryRefused;
+	::fprintf(stderr,
+	"=== JIT SLOT REFUSED #%d: unary op '%s' carries a jitEmitter, "
+	"but the unary specimen has not landed -- running INTERPRETED ===\n",
+	gJitSlotUnaryRefused, op->groupBody->tag ? op->groupBody->tag : "(unnamed)");
+	::fflush(stderr);
+	}
+	else {
 	++gJitSlotCount;
 	return op->groupBody->gJitEmitter(arg,target);
+	}
 	}
 	
 	if ( isOperator(op->groupBody->flags.instructType) )

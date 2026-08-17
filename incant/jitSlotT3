@@ -1,0 +1,81 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+/*****************************************************************************
+    jitSlotT3 -- BATCH ONE OF THE SWEEP. 2026-08-17.
+
+    The four remaining comparisons migrate together: >=, <, <=, ==. With > from
+    op two, that is the whole ordered half of the jitCmp family on slots.
+
+    THE ASSERTION IS A COUNT OF FOUR -- one per migrated op in this action, and
+    exactly the batch size. That is the batch discipline: a batch of N asserts
+    the slot count moving by N, so an op that silently failed to install would
+    show as N-1 rather than hiding behind three siblings that worked.
+
+    ⚠ THIS ACTION CONTAINS NO ARITHMETIC, ON PURPOSE. The obvious way to fold
+    four comparisons into one asserted value is to add them up -- but plus is
+    itself a sweep candidate, so the day it migrates this rung's expected count
+    would silently become seven and somebody would "fix" the target. An
+    assertion that moves for reasons unrelated to what it certifies is noise
+    (H3). Four ifs assigning distinct constants keep this number pinned to the
+    four ops it is about, permanently.
+
+    ⚠ AND THE VALUE STILL DEPENDS ON THE COMPARISONS, which is what stops the
+    count from being the only live row. Each fire lands on a different constant
+    because a different comparison was the last one true:
+
+        fire 1, 6 and 3:  >= true -> 1, < false, <= false, == false   => 1
+        fire 2, 3 and 6:  >= false, < true -> 2, <= true -> 3, == false => 3
+
+    1 and 3 differ, so a folded constant cannot satisfy both, and NEITHER is
+    zero -- a row a do-nothing default could also produce asserts nothing.
+
+    H7 SPOT CONTROL for this batch, measured 2026-08-17 by pulling ONE member's
+    registration -- the <= entry -- from incant setup, which is read at run time
+    so no rebuild is involved:
+
+        all four registered   slot count 4    fire 1 = 1   fire 2 = 3
+        <= pulled             slot count 3    fire 1 = 1   fire 2 = 3
+
+    ⚠ THE VALUES DO NOT MOVE. Only the count does. That is the whole reason this
+    campaign asserts counts: the migration is value-transparent by construction,
+    so the products cannot see it and a rung built on them would certify nothing.
+
+    ⚠ OUTPUT FIELD INITIALIZED BEFORE THE FIRE (bear-trap 26 -- an uninitialized
+    field reads back as its own tag). JITTED HALF FIRST (bear-trap 25). ONE
+    testing call then jitRefire, never two.
+*****************************************************************************/
+
+register(JitLadder);
+define
+    jsbA;
+    jsbB;
+    jsbOut;
+    jsbAll code={
+        jsbOut = 0;
+        if jsbA >= jsbB;    jsbOut = 1;
+        if jsbA < jsbB;     jsbOut = 2;
+        if jsbA <= jsbB;    jsbOut = 3;
+        if jsbA == jsbB;    jsbOut = 4;
+        };
+    ;
+
+jsbA = 6; jsbB = 3; jsbOut = 0;
+print "JSB fire 1 setup : jsbA =" jsbA " jsbB =" jsbB:;
+testing(jsbAll);
+print "JSB fire 1 result: jsbOut =" jsbOut " (want 1)":;
+
+jsbA = 3; jsbB = 6; jsbOut = 0;
+print "JSB fire 2 setup : jsbA =" jsbA " jsbB =" jsbB " (recompile: NONE)":;
+jitRefire();
+print "JSB fire 2 result: jsbOut =" jsbOut " (want 3)":;
+
+jsbA = 6; jsbB = 3; jsbOut = 0;
+jsbAll();
+print "JSB interpreted  : jsbOut =" jsbOut " (the oracle -- want 1)":;
+print "JITSLOT3 SENTINEL -- run reached the end":;
+stop();

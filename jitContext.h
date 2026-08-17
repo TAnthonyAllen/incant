@@ -170,6 +170,21 @@ inline int gJitDegradeCount = 0;
 // absence check on a trace line passes the day someone removes the line.
 inline int gJitSlotCount = 0;
 
+// THE UNARY REFUSAL COUNT (step 2 hardening, 2026-08-17). runOP's fork accepts
+// any node carrying a gJitEmitter, and its seed gate spans isOperator AND
+// isUnary -- so a unary op given a slot would be dispatched through a path that
+// has never had an op-one-grade specimen. Nothing but convention prevented that.
+//
+// ⚠ IT IS A COUNT AND A LOUD LINE, NOT A SILENT SKIP, and that is KE-4's posture:
+// REFUSALS ARE COUNTED, QUIET ACCEPTANCES ARE COUNTED BY NOTHING. A guard that
+// merely declined would be indistinguishable from a guard that was never reached,
+// which is the whole failure class this project keeps paying for.
+//
+// RETIRE THIS WHEN UNARY OPENS with its own specimen -- see the parked section of
+// docs/jitSlotMigration.md. Retiring it means deleting the guard AND this counter
+// AND the rung row that asserts it, by mapping, not by letting the line vanish.
+inline int gJitSlotUnaryRefused = 0;
+
 // THE COMPILE COUNTER (Clay SEQ 27 v2, 2026-08-04). Compile-on-first-fire is the
 // ruling, so "did the second fire recompile?" is the POP's central question and
 // it needs an instrument rather than an inference. Incremented ONCE per

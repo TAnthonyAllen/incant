@@ -724,6 +724,38 @@ extern GroupItem jitEmitGT(GroupItem argument,GroupItem target)
 }
 
 
+/*  BATCH ONE OF THE SWEEP, 2026-08-17 -- the four remaining comparisons, which
+    completes the ordered half of the jitCmp family beside jitEmitGT above.
+
+    All four are the same three lines, which is the tempo claim being tested and
+    is now measured over six ops rather than argued. Nothing here decides
+    anything: the selector is the whole content of each shim, which is the point
+    of moving it from a gate parameter to a fact the op carries.
+
+    ⚠ DO NOT ADD A COUNTER INCREMENT TO ANY OF THESE. The slot count lives at the
+    fork in runOP precisely so a shim author cannot forget it. See
+    docs/jitSlotMigration.md.  */
+extern GroupItem jitEmitGE(GroupItem argument,GroupItem target)
+{
+    -% return jitEmitCompare(argument, target, jitGE); %-
+}
+
+extern GroupItem jitEmitLT(GroupItem argument,GroupItem target)
+{
+    -% return jitEmitCompare(argument, target, jitLT); %-
+}
+
+extern GroupItem jitEmitLE(GroupItem argument,GroupItem target)
+{
+    -% return jitEmitCompare(argument, target, jitLE); %-
+}
+
+extern GroupItem jitEmitEQ(GroupItem argument,GroupItem target)
+{
+    -% return jitEmitCompare(argument, target, jitEQ); %-
+}
+
+
 /* jitEmitCompare  the shared relational emitter — jitEmitBinary's sibling for the
    six predicates (== != < <= > >=). Same header-clean signature, same operand-load
    and gJitResult-stash boilerplate, and the SAME int/float promotion block:
@@ -2698,6 +2730,11 @@ extern int jitRunAction(GroupItem action)
     //  that separates a migrated op from an unmigrated one -- the values and the
     //  IR are identical by design, so nothing else can.
     printf("=== jitSlot count = %d ===\n", gJitSlotCount); fflush(stdout);
+    //  The unary-edge guard, reported the same way and for the same reason: a
+    //  refusal that is only visible on stderr is a refusal a rung cannot assert.
+    //  Expected ZERO until the unary specimen lands; non-zero means an op was
+    //  given a slot it is not yet certified to use.
+    printf("=== jitSlotUnaryRefused = %d ===\n", gJitSlotUnaryRefused); fflush(stdout);
     gJitBuilder = nullptr;   // don't leave it dangling at this run's destroyed stack B
     gJitResult  = nullptr;
     return r;

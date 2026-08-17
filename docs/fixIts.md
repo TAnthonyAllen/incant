@@ -151,8 +151,16 @@ field, or the executing behaviour is deliberate and gets named at the sites that
 oracle capture comes back **empty**, so the guard fires — correctly. The guard is doing its job;
 what it is reporting has not been diagnosed.
 **Evidence:** measured 2026-08-17 against **`HEAD`'s own copy** of the ladder (`git show
-HEAD:jitLadder/ladder.sh`), so it is **not** introduced by the step-2 rungs — those add 10 ok rows
-and no failures (181 → 191 ok, failure set identical).
+HEAD:jitLadder/ladder.sh`), so it is **not** introduced by the step-2 rungs — those add ok rows
+and no failures (181 → 191 ok on wiring, failure set identical).
+**VINTAGE, bounded 2026-08-17 by one look rather than a dig** — and it is older than it looked:
+  - the vacuity guard itself was introduced **`1698377`, 2026-08-04** (*"Rung JC wired, the ladder's
+    four evaporated checks restored, JV closes a candidate"*)
+  - checked out and run at **`3483167`, 2026-08-11** — the previous commit to touch this file before
+    today — **JV was ALREADY RED with the byte-identical message.**
+  ⚠ So the red has been standing **at least since 2026-08-11**, across every seal since, unnoticed
+  because the ladder was not on the seal roster. That is the argument for putting it there, which
+  happened the same day.
 ⚠ **Note what JV is for**, because it makes the red more interesting rather than less: JV's rows A
 and B expect `0`, which a result slot that merely defaults to zero also yields, and row C wants **4**
 so the rung cannot pass vacuously. The vacuity guard exists so the rung cannot compare nothing to

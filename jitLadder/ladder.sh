@@ -221,6 +221,25 @@ slotrung () {
         echo "        answered -- note the values above would be identical either way."
         fail=1
     fi
+    #  THE UNARY EDGE, asserted at zero on every slot rung. runOP's fork accepts
+    #  any node carrying a slot and its seed gate spans isUnary, so a unary op
+    #  given an emitter would run down an uncertified path. The guard refuses it
+    #  loudly and counts the refusal; this row is the assertion that no such op
+    #  exists yet. ⚠ Demonstrated to FIRE, 2026-08-17, by temporarily giving '++'
+    #  a slot: refused 2, slot count 0, values still right. A guard never seen to
+    #  fire is a guard nobody has tested.
+    #  Retire this row WITH the guard when the unary specimen lands.
+    ur=$(sed -n 's/.*jitSlotUnaryRefused = \([0-9]*\).*/\1/p' "$T/$1" | head -1)
+    if [ -z "$ur" ]; then
+        echo "  FAIL  $3 jitSlotUnaryRefused line MISSING -- the unary guard is unreportable"; fail=1
+    elif [ "$ur" = "0" ]; then
+        echo "  ok    $3 jitSlotUnaryRefused = 0 (no unary op is carrying a slot)"
+    else
+        echo "  FAIL  $3 jitSlotUnaryRefused = $ur -- a UNARY op was handed a jitEmitter"
+        echo "        before its specimen landed. The guard caught it; the registration"
+        echo "        is the bug. See docs/jitSlotMigration.md, parked section."
+        fail=1
+    fi
 }
 
 #  ============================================================================
@@ -869,7 +888,16 @@ ovb=$(sed -n 's/^B interpreted value = \([0-9-][0-9]*\).*/\1/p' "$T/jv" | head -
 ovc=$(sed -n 's/^C interpreted value = \([0-9-][0-9]*\).*/\1/p' "$T/jv" | head -1)
 jvd=$(sed -n 's/.*jitDegrade count = \([0-9-][0-9]*\).*/\1/p' "$T/jv" | tail -1)
 if [ -z "$jva" ] || [ -z "$ova" ]; then
-    echo "  FAIL  JV VACUITY GUARD: a value was not captured at all (jitted='$jva' oracle='$ova')"; fail=1
+    #  ⚠ OWNED RED -- docs/fixIts.md F-12. This row is RED and has been; it is
+    #  NOT a regression from the slot-migration work, which was measured against
+    #  HEAD's own copy of this file (step-2 rungs add ok rows and no failures).
+    #  The guard is doing its job -- the oracle capture comes back EMPTY -- and
+    #  WHAT it is reporting is undiagnosed. Do not re-pin, do not silence: the
+    #  guard is the only thing standing between JV and a rung that compares
+    #  nothing to nothing. Diagnose or pin with a sentence, per H6.
+    echo "  FAIL  JV VACUITY GUARD: a value was not captured at all (jitted='$jva' oracle='$ova')"
+    echo "        ^ OWNED RED, docs/fixIts.md F-12 -- pre-existing, not the sweep"
+    fail=1
 else
     for row in "A:$jva:$ova:0" "B:$jvb:$ovb:0" "C:$jvc:$ovc:4"; do
         r=${row%%:*}; rest=${row#*:}; j=${rest%%:*}; rest=${rest#*:}; o=${rest%%:*}; w=${rest##*:}
@@ -1480,8 +1508,20 @@ else echo "  FAIL  JXN oracle = '$no', want 0."; fail=1; fi
 #  contains exactly one migrated op. The 1 -> 2 movement lives in jitJR, which
 #  contains both a multiply and a greater-than -- it read 1 between op one and
 #  op two, and 2 after, on identical products.
+#  JM3 = BATCH ONE of the sweep -- >=, <, <= and == together, which with > from
+#        op two puts the whole ordered half of jitCmp on slots. Wants FOUR,
+#        exactly the batch size: a batch of N asserts the count moving by N, so
+#        an op that silently failed to install shows as N-1 instead of hiding
+#        behind three siblings that worked.
+#        ⚠ Its action contains NO ARITHMETIC deliberately -- plus is a sweep
+#        candidate, so folding four comparisons into a sum would make this
+#        target move to 7 the day plus migrates, for reasons unrelated to what
+#        it certifies (H3). Four ifs assigning distinct constants pin it.
+#        H7 spot control, measured: pulling the <= registration gives count 3
+#        with fire 1 and fire 2 UNCHANGED at 1 and 3.
 slotrung jitSlotT  "JITSLOT SENTINEL"  "JM1" 42 45 1
 slotrung jitSlotT2 "JITSLOT2 SENTINEL" "JM2" 1  0  1
+slotrung jitSlotT3 "JITSLOT3 SENTINEL" "JM3" 1  3  4
 
 echo ""
 #  ⚠ H2 -- THE LADDER ASSERTS ITS OWN COMPLETENESS, and it must be unreachable

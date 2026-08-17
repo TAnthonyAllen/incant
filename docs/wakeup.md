@@ -80,6 +80,15 @@
 #
 #   Unchanged fleet: `pop.sh` (**40 green / 1 parked**) · `smoke.sh` · `smokelib.sh` · `parked.sh` ·
 #   `kantRatchet.sh` · `kantCensus.sh` · `completePop.sh` · `alphaLint.sh`.
+#   ⚠⚠ **`jitLadder/ladder.sh` IS ON THE SEAL ROSTER AS OF 2026-08-17** (Clay's call, Tony
+#   ratified). **EVERY SEAL FROM HERE RUNS IT AND RECORDS ITS STATE BESIDE `pop.sh`.** Current
+#   state: **199 ok / 1 OWNED RED / exit 1 / stderr 0 bytes.** The red is **JV**, annotated in
+#   place and naming **`docs/fixIts.md` F-12**; it is **pre-existing, not the sweep** — bounded by
+#   one look to **at least 2026-08-11**, standing across every seal since, *unnoticed precisely
+#   because the ladder was not on the roster.* That is the argument for putting it there.
+#   ⚠ Its stderr was **90 bytes of shell syntax error on every run** until 2026-08-17 — backticks
+#   inside a double-quoted `echo` read as command substitution. Now 0. **Standing stderr noise in
+#   an instrument is where a real failure hides**, so a non-zero byte count is itself a finding.
 #   **NEW DOCS:** `docs/commentMinion.md` (**Track B charter, DRAFT — Clod drafted, CLAY REVIEW OWED,
 #   no minion sees it until both sign**) · `docs/jitterBrief.md` (**queued behind step 2; do not start
 #   before `processJit(field)` exists**).

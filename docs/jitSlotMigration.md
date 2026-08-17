@@ -36,6 +36,43 @@ refusal.**
 |---|---|---|---|---|---|
 | 1 | `*` | `jitOp` | `jitEmitMul` | `incant/jitSlotT` (ladder **JM1**) | 2026-08-17 |
 | 2 | `>` | `jitCmp` | `jitEmitGT` | `incant/jitSlotT2` (ladder **JM2**) | 2026-08-17 |
+| 3 | `>=` | `jitCmp` | `jitEmitGE` | `incant/jitSlotT3` (ladder **JM3**) | 2026-08-17 |
+| 4 | `<` | `jitCmp` | `jitEmitLT` | `incant/jitSlotT3` | 2026-08-17 |
+| 5 | `<=` | `jitCmp` | `jitEmitLE` | `incant/jitSlotT3` | 2026-08-17 |
+| 6 | `==` | `jitCmp` | `jitEmitEQ` | `incant/jitSlotT3` | 2026-08-17 |
+
+**Batch 1 (ops 3-6) landed together**, four shims of three lines each. The **ordered half of
+`jitCmp` is now complete**.
+
+### The eligible population, censused 2026-08-17
+
+**16** one-line-return jit gates in `Instruct.rtn`. **10** are strict binary/comparison
+`(argument,target,selector)` shape — the sweep-eligible set. **6 migrated, 2 remain:**
+
+| remaining | selector |
+|---|---|
+| `!=` | `jitNE` |
+| `+` `-` `/` | `jitAdd` `jitSub` `jitSDiv` |
+
+*(That is 4 remaining, not 2 — `!=` plus the three arithmetic. Batch 2's natural shape.)*
+
+**The other 6 are correctly out of scope**, and the reason is shape rather than preference:
+`jitEmitDot` and `jitEmitRem` take a **third** argument (`ruler->tempField`), so they do not fit a
+two-argument slot as written; three are `jitEmitUnary` (parked, see below); and `jitEmitAssign` is
+the parked call-shape wrinkle — note it *is* already `(argument,target)`, so it is a shape fit and
+parked for other reasons.
+
+### Batch discipline
+
+**A batch of N asserts the slot count moving by exactly N.** An op that silently failed to install
+shows as **N-1** rather than hiding behind siblings that worked. One **H7 spot control** per batch:
+pull one member's registration and confirm the count drops by one **with the values unchanged**.
+Measured for batch 1 by pulling `<=` — count 4 → 3, fire 1 and fire 2 still 1 and 3.
+
+⚠ **A batch rung must not contain an op that is itself a sweep candidate.** `jitSlotT3` uses four
+`if`s assigning distinct constants rather than summing the comparisons, because folding them with
+`+` would make its expected count jump to 7 the day `+` migrates — **an assertion moving for reasons
+unrelated to what it certifies** (H3).
 
 **Op two was three lines** — shim, `groups.ext` decl, registration. **The pathfinder generalizes.**
 The finding it was sent to get is a null one and is worth stating: `jitEmitCompare` has the same
@@ -72,9 +109,20 @@ vanished. If it retires, the rungs retire *by mapping*, assertion by assertion.
 **UNARY.** The slot-beside-the-binding ruling was built to reach it, but the install path differs —
 `ruleMethod=` into `method`/`isMethod`, not `operateMethod=`/`isOperator`. It gets its **own first
 specimen with the same care as op one**, not a three-line assumption off the binary/cmp pattern.
-Note the fork already covers it structurally: `runOP`'s seed gate is
-`(op.isOperator || op.isUnary)`, and the binder sets no flag, so a unary op carrying a slot would
-take the fork today. **That is an argument that it is reachable, not evidence that it works.**
+
+⚠ **AND THE EDGE IS NOW HARDENED RATHER THAN LEFT TO CONVENTION (2026-08-17).** `runOP`'s fork
+accepts any node carrying a slot and its seed gate spans `isUnary`, so a unary op handed an emitter
+would have gone live down an uncertified path with nothing but habit stopping it. It is now a
+**loud, counted refusal**: `gJitSlotUnaryRefused` increments, a numbered line goes to stderr, and
+control falls through to the interpreter arm. **KE-4 posture — refusals are counted, quiet
+acceptances are counted by nothing.**
+
+**Demonstrated to fire**, because a guard nobody has triggered is a guard nobody has tested:
+temporarily registering `jitEmitter` on `'++'` gave **refused 2, slot count 0, values still 11/31**.
+Every `slotrung` asserts `jitSlotUnaryRefused = 0`.
+
+**RETIRE GUARD, COUNTER AND RUNG ROW TOGETHER** when unary opens — by mapping, not by letting a
+line vanish.
 
 **`opPlusEQ` AS A NAMED EXCEPTION** (per-leaf dispatch, outside the slot model) and the
 **`jitEmitAssign` call-shape wrinkle** stay parked with unary. Clod proposes when the campaign opens

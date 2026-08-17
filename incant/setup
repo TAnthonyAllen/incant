@@ -122,10 +122,10 @@ define
     negate  unary ruleMethod=opUnaryMinus;
     '?';
     '>>';
-    '>='    operateMethod=opGE  interpretMethod=runGE;
+    '>='    operateMethod=opGE  interpretMethod=runGE  jitEmitter=jitEmitGE;
     '>'     operateMethod=opGT  interpretMethod=runGT  jitEmitter=jitEmitGT;
 
-    '=='    operateMethod=opEQ  interpretMethod=runEQ;
+    '=='    operateMethod=opEQ  interpretMethod=runEQ  jitEmitter=jitEmitEQ;
     '=['    operateMethod=opGet;
     '=]'    operateMethod=opEnd;
     '=/'    assign operateMethod=opGetMember;
@@ -133,11 +133,11 @@ define
     '=%'    operateMethod=opGetAttribute;
     '='     operateMethod=opAssign;
 
-    '<='    operateMethod=opLE  interpretMethod=runLE;
+    '<='    operateMethod=opLE  interpretMethod=runLE  jitEmitter=jitEmitLE;
     '<<';
     '<:'    operateMethod=opSetTag;
     '<-'    assign operateMethod=opRebind;
-    '<'     operateMethod=opLT  interpretMethod=runLT;
+    '<'     operateMethod=opLT  interpretMethod=runLT  jitEmitter=jitEmitLT;
 
     ':>';
     ':='    operateMethod=opSetGroup;

@@ -1017,10 +1017,30 @@ GroupItem   result,
         by everyone who ever adds an op, and this project's ledger on
         copy-the-idiom-lose-the-helper is three instances deep. Prefer the
         structure that makes the omission unconstructable.  */
+    /*  ⚠ THE UNARY EDGE IS REFUSED, LOUDLY AND COUNTABLY, UNTIL ITS SPECIMEN
+        LANDS. This fork accepts any node carrying a slot, and the seed gate
+        above spans isOperator AND isUnary -- so a unary op handed a jitEmitter
+        would go live down a path nothing has certified, with only convention
+        stopping it. Convention is not a gate.
+        KE-4 POSTURE: the refusal is COUNTED and SAID. A quiet decline would be
+        indistinguishable from a guard that was never reached. Falling through
+        to the interpreter arm below is the safe answer and is what happens.
+        Retire guard, counter and rung row together when unary opens -- see
+        docs/jitSlotMigration.md, parked section.  */
     -%
     if (GroupControl::groupController->groupRules->jitting && op->groupBody->gJitEmitter) {
-        ++gJitSlotCount;
-        return op->groupBody->gJitEmitter(arg,target);
+        if (op->groupBody->flags.isUnary) {
+            ++gJitSlotUnaryRefused;
+            ::fprintf(stderr,
+                "=== JIT SLOT REFUSED #%d: unary op '%s' carries a jitEmitter, "
+                "but the unary specimen has not landed -- running INTERPRETED ===\n",
+                gJitSlotUnaryRefused, op->groupBody->tag ? op->groupBody->tag : "(unnamed)");
+            ::fflush(stderr);
+        }
+        else {
+            ++gJitSlotCount;
+            return op->groupBody->gJitEmitter(arg,target);
+        }
     }
     %-
     if op.isOperator    result = op.operat(arg,target);
