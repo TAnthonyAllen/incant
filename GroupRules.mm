@@ -4965,6 +4965,33 @@ extern "C" void jitEmitIterate(GroupItem *input)
 	
 }
 
+/* jitEmitMul  THE STEP-2 PATHFINDER. The emitter for `*`, installed on the op
+   node's gJitEmitter slot by `jitEmitter=jitEmitMul` in the Operators registry,
+   and called by runOP's fork instead of the `if jitting` gate inside opMultiply.
+
+   ⚠ IT IS NAMED jitEmitMul AND NOT jitMul, AND THAT IS NOT A PREFERENCE.
+   `jitMul` is already an unscoped enum constant — enum jitOp { jitAdd, jitSub,
+   jitMul, jitSDiv } in jitContext.h — so a function of that name is a
+   redeclaration in the same scope. Same class as the jitMethod/jitEmitter
+   collision Clay ruled on, resolved the same way: keep the jitEmit* stem so the
+   whole mechanism greps under one name.
+
+   The body is deliberately ONE LINE ONTO jitEmitBinary. This shim exists to move
+   the SELECTOR from a parameter passed at the gate to a fact baked into the
+   function the op carries — which is the entire point of the slot model, and why
+   the selector parameter can eventually retire. It adds no emission logic of its
+   own and must not grow any: a shim that starts deciding things is a second home
+   for the op's identity.
+
+   Passthrough because jitMul is a jitContext.h enum and tok does not see it. */
+extern "C" GroupItem *jitEmitMul(GroupItem *argument, GroupItem *target)
+{
+	
+	++gJitSlotCount;
+	return jitEmitBinary(argument, target, jitMul);
+	
+}
+
 /* jitEmitRem  THE FALLBACK COLUMN MEETING A REAL opMethod -- the first emitted
    call to an existing operator rather than to a purpose-built helper.
 
@@ -5527,6 +5554,51 @@ GroupItem 	*result = 0;
 	jitLoopEnd();
 	 gJitResult = nullptr; 
 	return result;
+}
+
+/*******************************************************************************
+    jitEmitter — binds an op's JIT emitter, step 2 of the jit separation.
+
+    Modelled on ruleMethod directly above, with two deliberate differences.
+
+    ⚠ IT SETS NO FLAG. ruleMethod sets isMethod or isOperator because those say
+    how the INTERPRETER dispatches the op. An emitter must not disturb that: the
+    op keeps its interpreter binding and gains an emitter alongside it. Presence
+    of the slot is the only signal, which is what lets runOP's fork be a null
+    test and nothing more.
+
+    ⚠ IT DOES NOT FORK ON THE ATTRIBUTE TAG. ruleMethod reads input.tag == 'r' to
+    tell ruleMethod= from operateMethod=, which is why a third spelling could not
+    simply be added there — jitEmitter starts with 'j' and would silently take
+    the operateMethod branch, installing an emitter into the operat slot and
+    destroying the interpreter binding. A separate binder is the fix.
+
+    The binary/unary split is interpreter dispatch anatomy and the jit does not
+    inherit it, so one binder serves both families.
+*******************************************************************************/
+extern "C" GroupItem *jitEmitter(GroupItem *input)
+{
+char 	*name = input->getText();
+	if ( input->groupBody->flags.fLAG )
+		if ( name )
+			{
+			GroupItem 	*grup = input->parent;
+			void 		*sym = ::dlsym(RTLD_SELF,name);
+			if ( grup )
+				{
+				/*  The symbol is tested, not the slot: GroupItem carries no
+				jitEmitter member (it is a GroupBody slot reached by alias),
+				and a failed dlsym must be LOUD rather than installing null
+				and leaving the op silently unmigrated.  */
+				if ( sym )
+					grup->setJitEmitter(sym);
+				else	::fprintf(stderr,"jitEmitter: could not find emitter: %s\n",name);
+				}
+			else	::fprintf(stderr,"jitEmitter: no parent to attach the emitter to\n");
+			}
+		else	::fprintf(stderr,"jitEmitter: expected an emitter name in jitEmitter text\n");
+	else	::fprintf(stderr,"jitEmitter: should be invoked as an attribute when its parent is defined\n");
+	return input->getGroup();
 }
 
 extern "C" void *jitEngine()
@@ -6511,6 +6583,10 @@ extern "C" int jitRunAction(GroupItem *action)
 	//  Same H4 discipline as the degrade line above, and the POP's central
 	//  quantity: compile-on-first-fire means the SECOND fire must not move this.
 	printf("=== jitCompile count = %d ===\n", gJitCompileCount); fflush(stdout);
+	//  Step 2's discriminator. Same H4 discipline, and it is the ONLY quantity
+	//  that separates a migrated op from an unmigrated one -- the values and the
+	//  IR are identical by design, so nothing else can.
+	printf("=== jitSlot count = %d ===\n", gJitSlotCount); fflush(stdout);
 	gJitBuilder = nullptr;   // don't leave it dangling at this run's destroyed stack B
 	gJitResult  = nullptr;
 	return r;
@@ -11365,6 +11441,27 @@ GroupItem 	*target = field->get(2);
 		}
 		
 		}
+	/*  STEP 2, THE PRESENCE-GATED FORK. Inside the seed gate above by design --
+	no new gate was added, because the seeding this fork depends on is done
+	by that gate and only that gate. Slot installed, the emitter is called
+	and runOP is done; slot absent, control falls through to the interpreter
+	dispatch below EXACTLY as before, untouched. That is the whole migration
+	contract: an op is either migrated or it is not, and an unmigrated op
+	cannot tell the difference.
+	⚠ THERE IS NO DEFAULT EMITTER AND THERE MUST NEVER BE ONE. A jitCantEmit
+	that delegated to operat would make every unmigrated op look migrated, at
+	degrade count zero -- a silent identity default, forbidden in every window.
+	The null slot IS the refusal, and it refuses by doing nothing.  */
+	/*  Passthrough for the same reason setOperat is: tok resolves the CALL
+	`op.jitEmitter(...)` through groupBody correctly but renders the bare
+	null TEST as `op->jitEmitter`, and GroupItem carries no such member --
+	it is a GroupBody slot reached by alias. Written out here so both halves
+	name the same thing, and caught by reading the generated .mm rather than
+	by the compiler, which is the cheaper end of that lesson.  */
+	
+	if (GroupControl::groupController->groupRules->jitting && op->groupBody->gJitEmitter)
+	return op->groupBody->gJitEmitter(arg,target);
+	
 	if ( isOperator(op->groupBody->flags.instructType) )
 		result = op->groupBody->gOp(arg,target);
 	else

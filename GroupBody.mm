@@ -21,6 +21,7 @@
 *****************************************************************************/
 GroupBody::GroupBody()
 {
+	gJitEmitter = 0;
 	groupList = 0;
 	registry = 0;
 	guardSet = 0;
@@ -42,6 +43,7 @@ GroupBody::GroupBody()
 
 GroupBody::GroupBody(char *s)
 {
+	gJitEmitter = 0;
 	groupList = 0;
 	registry = 0;
 	guardSet = 0;

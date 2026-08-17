@@ -1,0 +1,77 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+/*****************************************************************************
+    jitSlotT -- THE STEP-2 PATHFINDER RUNG. 2026-08-17.
+
+    Certifies that `*` emits through its gJitEmitter SLOT rather than through
+    the `if jitting` gate inside opMultiply.
+
+    ⚠⚠ READ THIS BEFORE ADDING A VALUE ASSERTION AND THINKING IT COVERS THE
+    MECHANISM. IT CANNOT. The migration is value-transparent BY DESIGN: a
+    migrated multiply and an unmigrated multiply emit the same IR and return
+    the same number, because a presence-gated fork is supposed to be invisible
+    to everything except the fork. So the products below are necessary and are
+    NOT sufficient, and the load-bearing row is the slot COUNT.
+
+    THE NEGATIVE CONTROL, MEASURED 2026-08-17 rather than asserted. The
+    jitEmitter registration was removed from the Operators entry for the star
+    operator in incant setup, which is read at run time so no rebuild is
+    involved, and incant jitJR was run both ways.
+
+        registered      slot count 1    results 6 and 24    degrade 0
+        NOT registered  slot count 0    results 6 and 24    degrade 0
+
+    The products are IDENTICAL down the column. Only the count moves. That is
+    the H7 bar met and it is also the reason this rung exists in the shape it
+    does -- a rung asserting only the product would have stayed green with the
+    mechanism removed, which is a green that means nothing.
+
+    WHY A COUNT AND NOT A TRACE LINE. H4. An absence check on a printed marker
+    passes on the day somebody deletes the marker. The count is printed
+    unconditionally by jitRunAction beside the degrade and compile counts, and
+    is compared against a value.
+
+    ⚠ FIRE 2 USES DIFFERENT OPERANDS ON PURPOSE. 42 and 45 differ, so a folded
+    constant or a stale result cannot satisfy both. A pair that happened to
+    agree would prove nothing -- the injectivity rule, copied from jitJR.
+
+    ⚠ THE JITTED HALF IS FIRST AND THAT ORDER IS LOAD-BEARING, bear-trap 25:
+    testing routes by isCoded and an interpreted run consumes it, so an oracle
+    placed above the jitted half silently measures the interpreter at exit 0.
+*****************************************************************************/
+
+register(JitLadder);
+define
+    jsA;
+    jsB;
+    jsOut;
+    jsMul code={
+        jsOut = jsA * jsB;
+        };
+    ;
+
+/*  ⚠ THE ASSERTED QUANTITIES ARE THE PRINTED result AND count LINES, NOT A
+    FIELD READ. A first draft of this rung printed jsOut after each fire and got
+    the string jsOut back both times -- bear-trap 26, a field with no data
+    returns its own tag, so the row rendered a plausible name and discriminated
+    nothing. The jitted value lives in the RETURN, which jitRunAction and
+    jitRefire already print with their values. Assert those three lines:
+        jitRunAction result = 42
+        jitSlot count = 1
+        jitRefire result = 45  */
+
+jsA = 6; jsB = 7;
+print "SLOT fire 1 setup : jsA =" jsA " jsB =" jsB " -- want result 42, slot count 1":;
+testing(jsMul);
+
+jsA = 5; jsB = 9;
+print "SLOT fire 2 setup : jsA =" jsA " jsB =" jsB " -- want result 45, recompile NONE":;
+jitRefire();
+
+print "JITSLOT SENTINEL -- run reached the end":;
+stop();

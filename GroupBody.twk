@@ -13,6 +13,15 @@ union
     GroupItem       &gMethod(GroupItem);
     GroupItem       &gOp(GroupItem,GroupItem);
     ;
+/*  gJitEmitter -- the JIT emitter slot, step 2 of the jit separation.
+    BESIDE the binding union and deliberately NOT INSIDE IT: an op must carry
+    its interpreter binding (gMethod or gOp) and its emitter AT THE SAME TIME,
+    so a union would make installing the emitter destroy the interpreter.
+    Two arguments, uniform for both families -- a binary op is emitted from
+    (argument,target) and a unary from (argument,target) with target unused,
+    because the emitter fork is one call site and an arity split there would
+    reintroduce the dispatch anatomy the jit does not inherit.  */
+GroupItem       &gJitEmitter(GroupItem,GroupItem);
 union
     String          gText;
     void            *gPointer;

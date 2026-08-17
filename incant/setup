@@ -160,7 +160,12 @@ define
     '+%'    operateMethod=opAddAttribute;
     '+'     operateMethod=opPlus  interpretMethod=runPlus;
     '*='    operateMethod=opMultiplyEQ;
-    '*'     operateMethod=opMultiply  interpretMethod=runMultiply;
+    /*  `*` IS THE STEP-2 PATHFINDER -- the first op to carry a jitEmitter.
+        Three slots, three consumers, one op: operateMethod is the interpreter,
+        interpretMethod is the bytecode handler, jitEmitter is the JIT. They sit
+        side by side deliberately; installing the third disturbs neither of the
+        first two, which is what makes the migration one op at a time.  */
+    '*'     operateMethod=opMultiply  interpretMethod=runMultiply  jitEmitter=jitEmitMul;
     '@'     unary ruleMethod=opLastREF;
     '&';
     '%'     operateMethod=opRem;

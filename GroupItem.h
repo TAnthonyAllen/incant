@@ -110,6 +110,7 @@ void setContent(GroupItem *item);
 void setCount(int i);
 void setGroup(GroupItem *g);
 void setItem(PLGitem *i);
+void setJitEmitter(void *m);
 void setMap(BitMAP *i);
 void setMethod(GroupItem *(*m)(GroupItem *));
 void setNumber(double d);

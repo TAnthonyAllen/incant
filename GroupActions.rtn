@@ -790,6 +790,48 @@ use input
 
 
 /*******************************************************************************
+    jitEmitter — binds an op's JIT emitter, step 2 of the jit separation.
+
+    Modelled on ruleMethod directly above, with two deliberate differences.
+
+    ⚠ IT SETS NO FLAG. ruleMethod sets isMethod or isOperator because those say
+    how the INTERPRETER dispatches the op. An emitter must not disturb that: the
+    op keeps its interpreter binding and gains an emitter alongside it. Presence
+    of the slot is the only signal, which is what lets runOP's fork be a null
+    test and nothing more.
+
+    ⚠ IT DOES NOT FORK ON THE ATTRIBUTE TAG. ruleMethod reads input.tag == 'r' to
+    tell ruleMethod= from operateMethod=, which is why a third spelling could not
+    simply be added there — jitEmitter starts with 'j' and would silently take
+    the operateMethod branch, installing an emitter into the operat slot and
+    destroying the interpreter binding. A separate binder is the fix.
+
+    The binary/unary split is interpreter dispatch anatomy and the jit does not
+    inherit it, so one binder serves both families.
+*******************************************************************************/
+extern GroupItem jitEmitter(GroupItem input)
+{
+String  name = text;
+use input
+    if input.fLAG
+        if name {
+            GroupItem   grup = parent;
+            void        *sym = dlsym(RTLD_SELF,name);
+            if grup {
+                /*  The symbol is tested, not the slot: GroupItem carries no
+                    jitEmitter member (it is a GroupBody slot reached by alias),
+                    and a failed dlsym must be LOUD rather than installing null
+                    and leaving the op silently unmigrated.  */
+                if sym  grup.setJitEmitter(sym);
+                else    cerr "jitEmitter: could not find emitter:",name:; }
+            else    cerr "jitEmitter: no parent to attach the emitter to":; }
+        else    cerr "jitEmitter: expected an emitter name in jitEmitter text":;
+    else    cerr "jitEmitter: should be invoked as an attribute when its parent is defined":;
+    return group;
+}
+
+
+/*******************************************************************************
 	Run an action that may need code processing.
 *******************************************************************************/
 extern GroupItem runAction(GroupItem argument,GroupItem field)
@@ -950,6 +992,27 @@ GroupItem   result,
         }
         %-
     }
+    /*  STEP 2, THE PRESENCE-GATED FORK. Inside the seed gate above by design --
+        no new gate was added, because the seeding this fork depends on is done
+        by that gate and only that gate. Slot installed, the emitter is called
+        and runOP is done; slot absent, control falls through to the interpreter
+        dispatch below EXACTLY as before, untouched. That is the whole migration
+        contract: an op is either migrated or it is not, and an unmigrated op
+        cannot tell the difference.
+        ⚠ THERE IS NO DEFAULT EMITTER AND THERE MUST NEVER BE ONE. A jitCantEmit
+        that delegated to operat would make every unmigrated op look migrated, at
+        degrade count zero -- a silent identity default, forbidden in every window.
+        The null slot IS the refusal, and it refuses by doing nothing.  */
+    /*  Passthrough for the same reason setOperat is: tok resolves the CALL
+        `op.jitEmitter(...)` through groupBody correctly but renders the bare
+        null TEST as `op->jitEmitter`, and GroupItem carries no such member --
+        it is a GroupBody slot reached by alias. Written out here so both halves
+        name the same thing, and caught by reading the generated .mm rather than
+        by the compiler, which is the cheaper end of that lesson.  */
+    -%
+    if (GroupControl::groupController->groupRules->jitting && op->groupBody->gJitEmitter)
+        return op->groupBody->gJitEmitter(arg,target);
+    %-
     if op.isOperator    result = op.operat(arg,target);
     or op.isMethod      result = op.method(target);
     or isRule           result = runRule(arg,target);

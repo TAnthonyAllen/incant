@@ -157,6 +157,19 @@ inline int (*gJitLastFn)() = nullptr;
 // are one union and a counter parked in gCount destroys whatever shares it.
 inline int gJitDegradeCount = 0;
 
+// THE SLOT COUNTER (step 2, 2026-08-17). Counts emissions that went through an
+// op's gJitEmitter slot rather than through its `if jitting` gate inside the
+// interpreter op.
+//
+// ⚠ IT EXISTS BECAUSE THE MIGRATION IS VALUE-TRANSPARENT AND THEREFORE INVISIBLE
+// TO EVERY VALUE ASSERTION. A migrated `*` and an unmigrated `*` emit the same
+// IR and return the same answer -- that is the whole point of a presence-gated
+// fork -- so a rung that checks the product cannot tell whether the slot fired,
+// and would stay green with the registration deleted. This counter is the
+// discriminator, and it is a COUNT rather than a message for H4's reason: an
+// absence check on a trace line passes the day someone removes the line.
+inline int gJitSlotCount = 0;
+
 // THE COMPILE COUNTER (Clay SEQ 27 v2, 2026-08-04). Compile-on-first-fire is the
 // ruling, so "did the second fire recompile?" is the POP's central question and
 // it needs an instrument rather than an inference. Incremented ONCE per

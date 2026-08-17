@@ -677,6 +677,34 @@ extern GroupItem jitEmitBinary(GroupItem argument,GroupItem target,int op)
 }
 
 
+/* jitEmitMul  THE STEP-2 PATHFINDER. The emitter for `*`, installed on the op
+   node's gJitEmitter slot by `jitEmitter=jitEmitMul` in the Operators registry,
+   and called by runOP's fork instead of the `if jitting` gate inside opMultiply.
+
+   ⚠ IT IS NAMED jitEmitMul AND NOT jitMul, AND THAT IS NOT A PREFERENCE.
+   `jitMul` is already an unscoped enum constant — enum jitOp { jitAdd, jitSub,
+   jitMul, jitSDiv } in jitContext.h — so a function of that name is a
+   redeclaration in the same scope. Same class as the jitMethod/jitEmitter
+   collision Clay ruled on, resolved the same way: keep the jitEmit* stem so the
+   whole mechanism greps under one name.
+
+   The body is deliberately ONE LINE ONTO jitEmitBinary. This shim exists to move
+   the SELECTOR from a parameter passed at the gate to a fact baked into the
+   function the op carries — which is the entire point of the slot model, and why
+   the selector parameter can eventually retire. It adds no emission logic of its
+   own and must not grow any: a shim that starts deciding things is a second home
+   for the op's identity.
+
+   Passthrough because jitMul is a jitContext.h enum and tok does not see it. */
+extern GroupItem jitEmitMul(GroupItem argument,GroupItem target)
+{
+    -%
+    ++gJitSlotCount;
+    return jitEmitBinary(argument, target, jitMul);
+    %-
+}
+
+
 /* jitEmitCompare  the shared relational emitter — jitEmitBinary's sibling for the
    six predicates (== != < <= > >=). Same header-clean signature, same operand-load
    and gJitResult-stash boilerplate, and the SAME int/float promotion block:
@@ -2647,6 +2675,10 @@ extern int jitRunAction(GroupItem action)
     //  Same H4 discipline as the degrade line above, and the POP's central
     //  quantity: compile-on-first-fire means the SECOND fire must not move this.
     printf("=== jitCompile count = %d ===\n", gJitCompileCount); fflush(stdout);
+    //  Step 2's discriminator. Same H4 discipline, and it is the ONLY quantity
+    //  that separates a migrated op from an unmigrated one -- the values and the
+    //  IR are identical by design, so nothing else can.
+    printf("=== jitSlot count = %d ===\n", gJitSlotCount); fflush(stdout);
     gJitBuilder = nullptr;   // don't leave it dangling at this run's destroyed stack B
     gJitResult  = nullptr;
     return r;

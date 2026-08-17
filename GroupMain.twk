@@ -57,6 +57,13 @@ GroupItem   item;
     immediateACTION     = true;
     isMethod            = true;
     noPrint             = true;
+
+    item = new("jitEmitter");
+    commands            += item;
+    method              = jitEmitter;
+    immediateACTION     = true;
+    isMethod            = true;
+    noPrint             = true;
    /**************************************************************************
         and the registry command
     *************************************************************************/

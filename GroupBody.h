@@ -108,6 +108,7 @@ union
 	GroupItem *(*gMethod)(GroupItem *);
 	GroupItem *(*gOp)(GroupItem *, GroupItem *);
 	};
+GroupItem *(*gJitEmitter)(GroupItem *, GroupItem *);
 union 
 	{
 	char *gText;

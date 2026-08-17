@@ -2075,6 +2075,17 @@ void GroupItem::setItem(PLGitem *i)
 		updateListeners();
 }
 
+void GroupItem::setJitEmitter(void *m)
+{
+	/*  Deliberately sets NO flag. isOperator and isMethod describe how the
+	INTERPRETER dispatches this op, and installing an emitter must not
+	disturb that -- the emitter rides alongside the binding, it does not
+	replace it. Presence of the slot IS the gate, which is what makes the
+	migration fork in runOP a null test and nothing more.
+	void* and a hand-cast for the same reason setOperat does it.  */
+	 groupBody->gJitEmitter = (GroupItem*(*)(GroupItem*,GroupItem*))m; 
+}
+
 void GroupItem::setMap(BitMAP *i)
 {
 	groupBody->gMap = i;
