@@ -64,6 +64,60 @@ anyone had to rule on it.
 
 | **R-2** | **HOW DOES GENERATED PARSE FIRE?** Tony, 2026-08-17: *"I do not think having parse fire it is a good idea unless we get to the point that we can shitcan the old parse and replace it in new shoes."* | **old `parse()` fires it** via `definingRule().rStuff.parseMethod` — the existing `parseRuleMethod` door. Migration-friendly, one rule at a time | **generated parse is its own entry** — old `parse()` fires only at the ROOT, or is replaced outright | this section | nothing; no firing mechanism is being built |
 
+## ✅ R-2 RULED 2026-08-17 (Clay, ratified by Tony) — REPLACEMENT, NOT COEXISTENCE
+
+**Verbatim transfer from `docs/jit.md` §0.** *Generated parse **is** the parser; old `parse()` is the
+**specification** and the **transitional fallback**, and it retires by attrition as the population
+lands.* Two live paths means every divergence is a schedule artifact, every green is ambiguous about
+who answered, and *"which arm ran"* haunts every fixture forever. **The parse campaign has already
+paid this tuition once** — the PC campaign existed because `parse()`'s two arms never had a shared
+contract.
+
+**Mixed mode: accepted transitionally, COUNTED mandatorily — and GATED.**
+⚠ **THE GATE IS NOT THE COUNTER.** On 2026-08-08 `genLadder/mixed.sh` measured the *old* install-path
+mixing and found something worse than divergence: **a mixed configuration silently DROPPED A CHILD
+NODE** — both pure configurations kept it, the mixed one lost it, **at exit 0 with no diagnostic**.
+That is why IA-0 ruled the migration unit was the alternation. The new self-dispatch mechanism is a
+different animal and **may** not carry that defect — *may not is not does not*. **So the entry gate
+for mixed mode is re-running mixed.sh's question against the NEW mechanism**, before eighty rules
+are in flight. Its shape is a **decomposition, not a smoke test**:
+`diff(ALL installed, NONE) == diff(A only) + diff(ALT only) + diff(OUT only)` — equal means
+divergence is **local and composable**.
+
+**Root dispatch: a seam owned by the existing frame convention**, not an architecture. An emitted
+body never sees parser internals; position, label and invariant belong to the C++ frame around the
+dispatch.
+
+**STILL OPEN, and it is Tony's** — the same one `jit.md` §0 holds open: **what a rule the generator
+cannot emit yet does during the transition.** Precedent is one-sided: **refuse-and-count has beaten
+fold-and-be-quiet every time it has been measured.**
+
+### ⚠ THE SEAM ALREADY EXISTS IN CODE — found 2026-08-17, and it answers "who calls the door"
+
+There is **nothing to build for the root**. The dispatch is already two nested forks:
+
+1. `parse()` forks on `definingRule().rStuff.parseMethod` — `mixed.sh`'s original subject.
+2. `setParse` installs **`parseRule`** into that slot for any rule with a `groupList`
+   (`Generate.rtn`, `or groupList parseMethod = parseRule`).
+3. **`parseRule` forks AGAIN** — `if field.isAction` runs the generated `BlocK`,
+   **`else result = parse(ruleStuff)`** falls back to old parse.
+
+**Fork 3 is the new mixed-mode seam.** So: **the counter goes there, in one place**, and the crossing
+fixture is constructible in both directions off the same fork. `Start()` needs no kick — the door is
+already wired.
+
+⚠ **AND THE NAPALM SMELL IS REAL, CORRECTLY IDENTIFIED, AND ALREADY THE BEHAVIOUR.** `walkRules`
+compiles rule by rule, so a rule's generated method goes live for the **remainder of the same
+process** the moment it lands — the parser changes **under the walk that is building it**. Two
+mitigations worth noting before it bites: the installs are **in-memory and per-process**, so a bad
+generation is undone by not running the script rather than by repair; and **generation and
+activation are separable in principle** but are not separated today.
+**FIRST MEASUREMENT OWED:** does a rule carrying freshly-generated `CodE` actually take `parseRule`'s
+`isAction` arm? `walkRules` gates on `actionTypE == 0` while `parseRule` tests `isAction`
+specifically, and `actionType` is a 2-value enum (`isAction`, `isCoded`) — **so it is not obvious
+that the arm the walk creates is the arm the parser reads.** One probe, and it is the crossing
+fixture's first row.
+
 **R-2 — THE SCOPE IS SMALLER THAN IT LOOKS, and this is the finding to carry into the ruling.**
 The emitted body is **already self-dispatching**: `if leftBrace() AND ExpressioN() AND rightBrace();
 return runRuleAction(this);` calls its terms **directly**, and `runRuleAction` is a registered incant
