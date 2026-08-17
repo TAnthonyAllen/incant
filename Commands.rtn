@@ -135,7 +135,53 @@ extern GroupItem cLEAR(GroupItem input)
 *******************************************************************************/
 extern GroupItem compile(GroupItem field)
 {
+GroupItem   grup;
     if !field.isCoded       return 0;
+    /*  ⚠ COMPILE OWNS THE COMPILATION PRECONDITIONS, ENSURED IDEMPOTENTLY.
+        R-4, Tony's ruling 2026-08-17.
+
+        Every coded body is built with TWO HIDDEN LOCALS -- `this` and
+        `tempField`. aCTionDefinE adds them at definition time when it sees a
+        CodE, and genParse's kant door replicates them by hand for the same
+        reason, its own comment calling them "the two hidden locals every coded
+        body is built with". A body generated at RUN time gets a CodE attached
+        and NEITHER local, so `runRuleAction(this)` names something that does
+        not exist and processCode refuses the parse.
+
+        PRESENT-CHECK PER MEMBER, so a define-door rule that already carries
+        them is left ALONE -- not re-minted, not replaced. That idempotence is
+        the whole point of putting this here rather than in the generator: the
+        precondition belongs to compilation, so compile guarantees it for every
+        caller instead of each generator remembering.
+
+        ⚠ `this` NEEDS THE BACK-POINTER, not just the two flags. Both minting
+        sites set group to the owning field, which is what makes `this` resolve
+        to the rule inside its own body. An ensure that created the member and
+        stopped at isLocal/noPrint would look right and still fail.
+
+        ⚠ THE PRESENT-CHECK IS A SUBSCRIPT, NOT getMember, AND THE DIFFERENCE
+        IS A BUG I ALREADY WROTE ONCE. These two are ATTRIBUTES, not members:
+        tok's `+=` on a name routes through addString, which does
+        `if binType addMember else addAttribute`, and a rule is not a bin. So
+        getMember could never find them, the guard would miss every time, and
+        compile would re-mint on every call -- the exact non-idempotence this
+        block exists to prevent, behind a check that looked correct.
+        The subscript runs get(String), which walks the whole list with next()
+        and is agnostic between attributes and members, so it finds them.
+        (addString is idempotent on its own -- getFromList first -- so this
+        guard is belt and braces. It is kept because R-4 asks that an existing
+        precondition be left untouched, not merely un-duplicated.)  */
+    grup = field["this"];
+    if !grup {
+        grup            = field += "this";
+        grup.isLocal    = true;
+        grup.noPrint    = true;
+        grup.group      = field; }
+    grup = field["tempField"];
+    if !grup {
+        grup            = field += "tempField";
+        grup.isLocal    = true;
+        grup.noPrint    = true; }
     if !processCode(field)  return 0;
     return field;
 }

@@ -679,6 +679,35 @@ use grup
     Parse an action. Note: the coded field is made an action before its
     code is parsed otherwise a recursive call will complain
 *****************************************************************************/
+/*****************************************************************************
+    reportCodeFail -- WHERE THE CODE BODY ACTUALLY FAILED TO PARSE.
+
+    A bare "parse failed" is a diagnostic that costs more than it gives. It sent
+    a whole session reverse-engineering six hypotheses about 53 failures, five
+    of which died on measurement, because nothing said which token or line.
+
+    ⚠ THIS IS NOT NEW MACHINERY. aCTionFailed already reports rule, position,
+    line and last-parsed-statement, and it works -- it is simply gated on the
+    rStuff notifyFail flag, which processFlags sets PER RULE, and the BlocK rule
+    a code body is parsed with does not carry it. So the report never fires for
+    processCode. This reads the same accessors rather than flagging a shared
+    grammar rule mid-flight.
+
+    ONE IMPLEMENTER BY INTENT. If parse-error reporting is ever made good --
+    and the standing complaint is that it points at the next county rather than
+    the error -- this and aCTionFailed should converge here, not diverge.
+
+    cerr, not cout: a code body can be processed with print diverted.
+*****************************************************************************/
+extern void reportCodeFail(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+    cerr "ERROR processCode: " field.tag,"parse failed":;
+    cerr "    failed at " getDebugText(failedAt, 40):;
+    cerr "    on line " toStringFromInt(sourceLINE):;
+}
+
+
 extern int processCode(GroupItem field)
 {
 GroupRules  ruler = groupRules;
@@ -719,7 +748,7 @@ use field
         result.noPrint  = true;
         field   +% result;
         field.isAction = true; }
-    else    cerr "ERROR processCode: " field.tag,"parse failed":;
+    else    reportCodeFail(field);
     if !processing  processingCode = false;
     lastIndent      = indenter;
     popInput();

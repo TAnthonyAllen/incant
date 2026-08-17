@@ -2293,8 +2293,58 @@ extern "C" int closeFile(GroupItem *bufField)
 *******************************************************************************/
 extern "C" GroupItem *compile(GroupItem *field)
 {
+GroupItem 	*grup = 0;
 	if ( !isCoded(field->groupBody->flags.actionType) )
 		return 0;
+	/*  ⚠ COMPILE OWNS THE COMPILATION PRECONDITIONS, ENSURED IDEMPOTENTLY.
+	R-4, Tony's ruling 2026-08-17.
+	
+	Every coded body is built with TWO HIDDEN LOCALS -- `this` and
+	`tempField`. aCTionDefinE adds them at definition time when it sees a
+	CodE, and genParse's kant door replicates them by hand for the same
+	reason, its own comment calling them "the two hidden locals every coded
+	body is built with". A body generated at RUN time gets a CodE attached
+	and NEITHER local, so `runRuleAction(this)` names something that does
+	not exist and processCode refuses the parse.
+	
+	PRESENT-CHECK PER MEMBER, so a define-door rule that already carries
+	them is left ALONE -- not re-minted, not replaced. That idempotence is
+	the whole point of putting this here rather than in the generator: the
+	precondition belongs to compilation, so compile guarantees it for every
+	caller instead of each generator remembering.
+	
+	⚠ `this` NEEDS THE BACK-POINTER, not just the two flags. Both minting
+	sites set group to the owning field, which is what makes `this` resolve
+	to the rule inside its own body. An ensure that created the member and
+	stopped at isLocal/noPrint would look right and still fail.
+	
+	⚠ THE PRESENT-CHECK IS A SUBSCRIPT, NOT getMember, AND THE DIFFERENCE
+	IS A BUG I ALREADY WROTE ONCE. These two are ATTRIBUTES, not members:
+	tok's `+=` on a name routes through addString, which does
+	`if binType addMember else addAttribute`, and a rule is not a bin. So
+	getMember could never find them, the guard would miss every time, and
+	compile would re-mint on every call -- the exact non-idempotence this
+	block exists to prevent, behind a check that looked correct.
+	The subscript runs get(String), which walks the whole list with next()
+	and is agnostic between attributes and members, so it finds them.
+	(addString is idempotent on its own -- getFromList first -- so this
+	guard is belt and braces. It is kept because R-4 asks that an existing
+	precondition be left untouched, not merely un-duplicated.)  */
+	grup = field->get("this");
+	if ( !grup )
+		{
+		grup = field->addString("this");
+		grup->groupBody->flags.isLocal = 1;
+		grup->groupBody->flags.noPrint = 1;
+		grup->setGroup(field);
+		}
+	grup = field->get("tempField");
+	if ( !grup )
+		{
+		grup = field->addString("tempField");
+		grup->groupBody->flags.isLocal = 1;
+		grup->groupBody->flags.noPrint = 1;
+		}
 	if ( !::processCode(field) )
 		return 0;
 	return field;
@@ -9469,49 +9519,61 @@ GroupItem 	*flagDef = 0;
 		::fprintf(stderr,"opSetFlag: argument %s is NOT a groupField\n",argument->groupBody->tag);
 		return target;
 		}
+	/*  ⚠⚠ `:.` SETS. IT DOES NOT TOGGLE. Tony's ruling, 2026-08-17.
+	A toggle makes "make sure this flag is on" UNWRITABLE -- there is no
+	idempotent spelling, so every site is a bet about the current state and
+	the odds depend on whatever C++ hygiene ran first. Measured the
+	expensive way: a defensive `CodE :. noPrinT` in genParseTest was
+	CLEARING a flag that was already set, which let the walk descend into
+	the generated attribute, which masked a printTO leak, which made the run
+	appear to terminate. ONE TOGGLE, THREE SYMPTOMS, mutually masking.
+	Census before the ruling, 12 executable sites: ZERO relied on
+	clear-by-second-toggle, and FIVE were actively BROKEN by it -- the
+	isPercenT sites in incant/utilities target reused locals inside loops,
+	so every other cell silently lost its percent sizing. Set fixes five and
+	breaks none. If a toggle is ever wanted, it gets its own spelling then.
+	
+	⚠ THE ENUM-VALUED FLAGS ARE PASSTHROUGH WITH LITERAL VALUES AND HAVE TO
+	BE. binType and actionType are ENUMS, not bitfields -- isBIN 1,
+	isCLASS 2, isLIST 3, isREGISTRY 4; isAction 1, isCoded 2
+	(GroupBody.h:65-78). Writing `target.isLIST = true` generates
+	`binType = !isLIST(binType)`, because tok renders the accessor as its
+	TEST MACRO on the left of an assignment too -- so it assigns 0 or 1 and
+	can NEVER assign 3. Measured: `x :. isCodeD` was assigning actionType 1,
+	which is isACTION. That is why compile refused every generated rule
+	while the actionTypE gate still closed -- the gate was reading a flag
+	the wrong write had set. One bad spelling, two false readings.
+	Setting an enum CLOBBERS whatever it was, which is inherent to an enum
+	and is the intended meaning of "set this kind".  */
 	if ( argument && target )
 		switch (flagDef->groupBody->gCount)
 			{
 			case 12:
-				target->groupBody->flags.fLAG = !target->groupBody->flags.fLAG;
+				target->groupBody->flags.fLAG = 1;
 				break;
 			case 21:
-				target->groupBody->flags.isPercent = !target->groupBody->flags.isPercent;
+				target->groupBody->flags.isPercent = 1;
 				break;
 			case 25:
-				target->groupBody->flags.isVirtual = !target->groupBody->flags.isVirtual;
+				target->groupBody->flags.isVirtual = 1;
 				break;
 			case 26:
-				target->groupBody->flags.mergeOn = !target->groupBody->flags.mergeOn;
-				/*  ⚠ noPrinT SETS, IT DOES NOT TOGGLE. Tony's ruling 2026-08-17,
-				and the only case in this switch that does so today.
-				A toggle makes "make sure this flag is on" UNWRITABLE -- there
-				is no idempotent spelling, so every site is a bet about the
-				current state, and the odds depend on whatever C++ hygiene ran
-				first. Measured the expensive way: genParseTest's defensive
-				`CodE :. noPrinT` was CLEARING a flag that was already set,
-				which let the walk descend into the generated attribute, which
-				masked the printTO leak, which made the run appear to
-				terminate. One toggle, three symptoms.
-				The rest of this switch still toggles, deliberately -- whether
-				flag-setting should be toggle-only, or split into set / clear /
-				toggle spellings, is the R-3 census question and is NOT ruled.
-				This is the one flag with no good reason to toggle.  */
+				target->groupBody->flags.mergeOn = 1;
 				break;
 			case 29:
 				target->groupBody->flags.noPrint = 1;
 				break;
 			case 31:
-				target->groupBody->flags.byRef = !target->groupBody->flags.byRef;
+				target->groupBody->flags.byRef = 1;
 				break;
 			case 32:
-				target->groupBody->flags.binType = !isLIST(target->groupBody->flags.binType);
+				 target->groupBody->flags.binType = 3; 
 				break;
 			case 33:
-				target->groupBody->flags.binType = !isBIN(target->groupBody->flags.binType);
+				 target->groupBody->flags.binType = 1; 
 				break;
 			case 40:
-				target->groupBody->flags.actionType = !isCoded(target->groupBody->flags.actionType);
+				 target->groupBody->flags.actionType = 2; 
 				break;
 			default:
 				::fprintf(stderr,"opSetFlag: groupField %s has no case yet -- gCount %s\n",argument->groupBody->tag,::toStringFromInt(flagDef->groupBody->gCount));
@@ -10937,10 +10999,6 @@ GroupItem 	*action = field;
 	return result;
 }
 
-/*****************************************************************************
-    Parse an action. Note: the coded field is made an action before its
-    code is parsed otherwise a recursive call will complain
-*****************************************************************************/
 extern "C" int processCode(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -10984,7 +11042,7 @@ int 		processing = ruler->processingCode;
 		field->addAttribute(result);
 		field->groupBody->flags.actionType = 1;
 		}
-	else	::fprintf(stderr,"ERROR processCode: %s parse failed\n",field->groupBody->tag);
+	else	::reportCodeFail(field);
 	if ( !processing )
 		ruler->processingCode = 0;
 	ruler->lastIndent = indenter;
@@ -11161,6 +11219,38 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	gParseRecordArmed = 1;
 	
 	return ruler->trueResult;
+}
+
+/*****************************************************************************
+    Parse an action. Note: the coded field is made an action before its
+    code is parsed otherwise a recursive call will complain
+*****************************************************************************/
+/*****************************************************************************
+    reportCodeFail -- WHERE THE CODE BODY ACTUALLY FAILED TO PARSE.
+
+    A bare "parse failed" is a diagnostic that costs more than it gives. It sent
+    a whole session reverse-engineering six hypotheses about 53 failures, five
+    of which died on measurement, because nothing said which token or line.
+
+    ⚠ THIS IS NOT NEW MACHINERY. aCTionFailed already reports rule, position,
+    line and last-parsed-statement, and it works -- it is simply gated on the
+    rStuff notifyFail flag, which processFlags sets PER RULE, and the BlocK rule
+    a code body is parsed with does not carry it. So the report never fires for
+    processCode. This reads the same accessors rather than flagging a shared
+    grammar rule mid-flight.
+
+    ONE IMPLEMENTER BY INTENT. If parse-error reporting is ever made good --
+    and the standing complaint is that it points at the next county rather than
+    the error -- this and aCTionFailed should converge here, not diverge.
+
+    cerr, not cout: a code body can be processed with print diverted.
+*****************************************************************************/
+extern "C" void reportCodeFail(GroupItem *field)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	::fprintf(stderr,"ERROR processCode: %s parse failed\n",field->groupBody->tag);
+	::fprintf(stderr,"    failed at %s\n",::getDebugText(ruler->ruleSTUFF->failedAt,40));
+	::fprintf(stderr,"    on line %s\n",::toStringFromInt(ruler->sourceLINE));
 }
 
 /*****************************************************************************

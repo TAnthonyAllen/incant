@@ -347,6 +347,7 @@ extern "C" GroupItem *processFlags(GroupItem *item);
 extern "C" GroupItem *quoted(GroupItem *input);
 extern "C" GroupItem *rEGISTER(GroupItem *item);
 extern "C" GroupItem *recordParse(GroupItem *argument);
+extern "C" void reportCodeFail(GroupItem *field);
 extern "C" GroupItem *resetField(GroupItem *argument);
 extern "C" GroupItem *resolveList(GroupItem *input);
 extern "C" void restoreLocalFields(GroupItem *action);
