@@ -1098,31 +1098,43 @@ use argument
     if !flagDef {
         cerr "opSetFlag: argument",tag,"is NOT a groupField":;
         return target; }
+    /*  ⚠⚠ `:.` SETS. IT DOES NOT TOGGLE. Tony's ruling, 2026-08-17.
+        A toggle makes "make sure this flag is on" UNWRITABLE -- there is no
+        idempotent spelling, so every site is a bet about the current state and
+        the odds depend on whatever C++ hygiene ran first. Measured the
+        expensive way: a defensive `CodE :. noPrinT` in genParseTest was
+        CLEARING a flag that was already set, which let the walk descend into
+        the generated attribute, which masked a printTO leak, which made the run
+        appear to terminate. ONE TOGGLE, THREE SYMPTOMS, mutually masking.
+        Census before the ruling, 12 executable sites: ZERO relied on
+        clear-by-second-toggle, and FIVE were actively BROKEN by it -- the
+        isPercenT sites in incant/utilities target reused locals inside loops,
+        so every other cell silently lost its percent sizing. Set fixes five and
+        breaks none. If a toggle is ever wanted, it gets its own spelling then.
+
+        ⚠ THE ENUM-VALUED FLAGS ARE PASSTHROUGH WITH LITERAL VALUES AND HAVE TO
+        BE. binType and actionType are ENUMS, not bitfields -- isBIN 1,
+        isCLASS 2, isLIST 3, isREGISTRY 4; isAction 1, isCoded 2
+        (GroupBody.h:65-78). Writing `target.isLIST = true` generates
+        `binType = !isLIST(binType)`, because tok renders the accessor as its
+        TEST MACRO on the left of an assignment too -- so it assigns 0 or 1 and
+        can NEVER assign 3. Measured: `x :. isCodeD` was assigning actionType 1,
+        which is isACTION. That is why compile refused every generated rule
+        while the actionTypE gate still closed -- the gate was reading a flag
+        the wrong write had set. One bad spelling, two false readings.
+        Setting an enum CLOBBERS whatever it was, which is inherent to an enum
+        and is the intended meaning of "set this kind".  */
     if argument && target
         switch(flagDef.gCount) {
-            case 12:    target.fLAG         = !target.fLAG;
-            case 21:    target.isPercent    = !target.isPercent;
-            case 25:    target.isVirtual    = !target.isVirtual;
-            case 26:    target.mergeOn      = !target.mergeOn;
-            /*  ⚠ noPrinT SETS, IT DOES NOT TOGGLE. Tony's ruling 2026-08-17,
-                and the only case in this switch that does so today.
-                A toggle makes "make sure this flag is on" UNWRITABLE -- there
-                is no idempotent spelling, so every site is a bet about the
-                current state, and the odds depend on whatever C++ hygiene ran
-                first. Measured the expensive way: genParseTest's defensive
-                `CodE :. noPrinT` was CLEARING a flag that was already set,
-                which let the walk descend into the generated attribute, which
-                masked the printTO leak, which made the run appear to
-                terminate. One toggle, three symptoms.
-                The rest of this switch still toggles, deliberately -- whether
-                flag-setting should be toggle-only, or split into set / clear /
-                toggle spellings, is the R-3 census question and is NOT ruled.
-                This is the one flag with no good reason to toggle.  */
+            case 12:    target.fLAG         = true;
+            case 21:    target.isPercent    = true;
+            case 25:    target.isVirtual    = true;
+            case 26:    target.mergeOn      = true;
             case 29:    target.noPrint      = true;
-            case 31:    target.byRef        = !target.byRef;
-            case 32:    target.isLIST       = !target.isLIST;
-            case 33:    target.isBIN        = !target.isBIN;
-            case 40:    target.isCoded      = !target.isCoded;
+            case 31:    target.byRef        = true;
+            case 32:    -% target->groupBody->flags.binType = 3; %-
+            case 33:    -% target->groupBody->flags.binType = 1; %-
+            case 40:    -% target->groupBody->flags.actionType = 2; %-
            default:    cerr "opSetFlag: groupField",tag,"has no case yet -- gCount",toStringFromInt(flagDef.gCount):; }
     else    cerr "opSetFlag: missing operand":;
     return target;
