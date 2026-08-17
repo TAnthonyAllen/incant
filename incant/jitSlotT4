@@ -1,0 +1,87 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+/*****************************************************************************
+    jitSlotT4 -- BATCH TWO OF THE SWEEP, AND THE MILESTONE. 2026-08-17.
+
+    The last four of the strict binary/comparison population migrate: !=, +, -
+    and /. With the six before them THE STRICT SWEEP CLOSES AT 10 OF 10.
+
+    ⚠ THAT IS NOT THE SWEEP CLOSING. Ops remain without slots -- they are
+    out-by-SHAPE, not unswept: jitEmitDot and jitEmitRem take a third argument,
+    three are jitEmitUnary, and jitEmitAssign is a shape fit parked for other
+    reasons. So the null slot still means not-yet-migrated and NEVER-NULL STAYS
+    OPEN. The sweep-close obligations in docs/jitSlotMigration.md are unclaimed.
+
+    ⚠⚠ EACH CERTIFIED OP APPEARS EXACTLY ONCE IN THE ACTION, AND THAT IS A
+    DESIGN CONSTRAINT RATHER THAN A COINCIDENCE. Plus and != are ordinary
+    fixture idiom -- they turn up in setup lines, guards and counters without
+    anyone thinking about it -- so a rung certifying them can very easily use
+    one incidentally and assert a count it cannot account for. The count here
+    is FOUR and every one of the four is named:
+
+        jsdOut = jsdA + jsdB        the +
+        jsdOut = jsdOut - jsdC      the -
+        jsdOut = jsdOut / jsdD      the /
+        if jsdOut != jsdZ           the !=
+
+    The assignments are opAssign, which is NOT migrated (it is the parked
+    jitEmitAssign wrinkle), so they contribute nothing to the count. The same
+    rule that kept jitSlotT3 free of arithmetic keeps this one free of a second
+    occurrence of anything.
+
+    ⚠ BOTH HALVES OF THE ACTION ARE LOAD-BEARING, which is what stops the count
+    from being the only live row:
+
+        fire 1  20 10 6 2, Z 12   ->  30, 24, 12   12 != 12 is FALSE  =>  12
+        fire 2  40 10 5 5, Z 12   ->  50, 45,  9    9 != 12 is TRUE   =>  99
+
+    If the three arithmetic ops were wrong, fire 1 would not be 12. If != were
+    wrong, fire 2 would not reach 99. 12 and 99 differ, so nothing is folded,
+    and NEITHER is zero -- a row a do-nothing default could also produce asserts
+    nothing.
+
+    H7 SPOT CONTROL for this batch, measured 2026-08-17 by pulling ONE member's
+    registration -- the minus entry -- from incant setup, read at run time so no
+    rebuild is involved. Recorded in the commit; the shape is always the same:
+    the count drops by exactly one and THE VALUES DO NOT MOVE.
+
+    ⚠ OUTPUT FIELD INITIALIZED (bear-trap 26). JITTED HALF FIRST (bear-trap 25).
+    ONE testing call then jitRefire, never two.
+*****************************************************************************/
+
+register(JitLadder);
+define
+    jsdA;
+    jsdB;
+    jsdC;
+    jsdD;
+    jsdZ;
+    jsdOut;
+    jsdAll code={
+        jsdOut = jsdA + jsdB;
+        jsdOut = jsdOut - jsdC;
+        jsdOut = jsdOut / jsdD;
+        if jsdOut != jsdZ;  jsdOut = 99;
+        };
+    ;
+
+jsdA = 20; jsdB = 10; jsdC = 6; jsdD = 2; jsdZ = 12; jsdOut = 0;
+print "JSD fire 1 setup : 20 10 6 2 vs 12":;
+testing(jsdAll);
+print "JSD fire 1 result: jsdOut =" jsdOut " (want 12)":;
+
+jsdA = 40; jsdB = 10; jsdC = 5; jsdD = 5; jsdZ = 12; jsdOut = 0;
+print "JSD fire 2 setup : 40 10 5 5 vs 12 (recompile: NONE)":;
+jitRefire();
+print "JSD fire 2 result: jsdOut =" jsdOut " (want 99)":;
+
+jsdA = 20; jsdB = 10; jsdC = 6; jsdD = 2; jsdZ = 12; jsdOut = 0;
+jsdAll();
+print "JSD interpreted  : jsdOut =" jsdOut " (the oracle -- want 12)":;
+print "JITSLOT4 SENTINEL -- run reached the end":;
+stop();

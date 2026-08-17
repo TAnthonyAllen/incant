@@ -4377,6 +4377,11 @@ extern "C" void jitDoEnd()
 	
 }
 
+extern "C" GroupItem *jitEmitAdd(GroupItem *argument, GroupItem *target)
+{
+	 return jitEmitBinary(argument, target, jitAdd); 
+}
+
 /* jitEmitAssign  the store-back emitter — commits a value into a target field's
    slot. Assign is a single store operation, so no jitOp selector. SKELETON — not
    wired (no gate, no fixtures).
@@ -4690,6 +4695,11 @@ GroupItem 	*result = 0;
 	::jitDoEnd();
 	 gJitResult = nullptr; 
 	return result;
+}
+
+extern "C" GroupItem *jitEmitDiv(GroupItem *argument, GroupItem *target)
+{
+	 return jitEmitBinary(argument, target, jitSDiv); 
 }
 
 /* jitEmitDot  THE ACCESSOR ARM -- the third category above, and it closes the
@@ -5039,6 +5049,26 @@ extern "C" GroupItem *jitEmitLT(GroupItem *argument, GroupItem *target)
 extern "C" GroupItem *jitEmitMul(GroupItem *argument, GroupItem *target)
 {
 	 return jitEmitBinary(argument, target, jitMul); 
+}
+
+/*  BATCH TWO OF THE SWEEP, 2026-08-17 -- the last four of the strict
+    binary/comparison population: !=, and the three remaining arithmetic.
+
+    THIS CLOSES THE STRICT SWEEP AT 10 OF 10. Everything still carrying an
+    `if jitting` gate from here is out-by-SHAPE rather than unswept:
+    jitEmitDot and jitEmitRem take a third argument (ruler->tempField), three
+    are jitEmitUnary, and jitEmitAssign is a shape fit parked for other reasons.
+    Each waits on its own specimen. See docs/jitSlotMigration.md.
+
+    ⚠ NEVER-NULL STAYS OPEN, DELIBERATELY. The strict population being complete
+    is NOT the sweep closing: ops remain without slots, so the null case still
+    means "not yet migrated" and hardening now would fail on every one of them.
+    The sweep-close obligations are unchanged and unclaimed.
+
+    Same three lines each, and no counter increment -- that lives at the fork.  */
+extern "C" GroupItem *jitEmitNE(GroupItem *argument, GroupItem *target)
+{
+	 return jitEmitCompare(argument, target, jitNE); 
 }
 
 /* jitEmitRem  THE FALLBACK COLUMN MEETING A REAL opMethod -- the first emitted
@@ -5473,6 +5503,11 @@ extern "C" GroupItem *jitEmitStringPlusEQ(GroupItem *argument, GroupItem *target
 	gJitResult = llvm::ConstantInt::get(i32, 0);
 	return target;
 	
+}
+
+extern "C" GroupItem *jitEmitSub(GroupItem *argument, GroupItem *target)
+{
+	 return jitEmitBinary(argument, target, jitSub); 
 }
 
 /* jitEmitTrace  THE EMITTER HALF -- and the FIRST EMITTED CALL in this layer

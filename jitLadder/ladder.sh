@@ -1521,7 +1521,22 @@ else echo "  FAIL  JXN oracle = '$no', want 0."; fail=1; fi
 #        with fire 1 and fire 2 UNCHANGED at 1 and 3.
 slotrung jitSlotT  "JITSLOT SENTINEL"  "JM1" 42 45 1
 slotrung jitSlotT2 "JITSLOT2 SENTINEL" "JM2" 1  0  1
+#  JM4 = BATCH TWO, AND THE MILESTONE -- !=, +, - and /, which closes the STRICT
+#        binary/comparison population at 10 OF 10. Wants FOUR.
+#        ⚠ Each certified op appears EXACTLY ONCE in its action, which is a
+#        constraint and not luck: + and != are ordinary fixture idiom and turn
+#        up incidentally in setup lines and guards, so a rung certifying them
+#        can very easily assert a count it cannot account for. All four are
+#        named in the fixture header.
+#        Both halves load-bearing: fire 1 = 12 comes from the three arithmetic
+#        ops, fire 2 = 99 is only reached if != is right.
+#        H7 spot control, measured: pulling the '-' registration gives count 3
+#        with fire 1 and fire 2 UNCHANGED at 12 and 99.
+#        ⚠ 10 of 10 IS NOT THE SWEEP CLOSING. What remains is out-by-SHAPE --
+#        the tempField pair, three unary, jitEmitAssign -- so the null slot
+#        still means not-yet-migrated and NEVER-NULL STAYS OPEN.
 slotrung jitSlotT3 "JITSLOT3 SENTINEL" "JM3" 1  3  4
+slotrung jitSlotT4 "JITSLOT4 SENTINEL" "JM4" 12 99 4
 
 echo ""
 #  ⚠ H2 -- THE LADDER ASSERTS ITS OWN COMPLETENESS, and it must be unreachable

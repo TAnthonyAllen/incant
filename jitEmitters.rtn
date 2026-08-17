@@ -756,6 +756,42 @@ extern GroupItem jitEmitEQ(GroupItem argument,GroupItem target)
 }
 
 
+/*  BATCH TWO OF THE SWEEP, 2026-08-17 -- the last four of the strict
+    binary/comparison population: !=, and the three remaining arithmetic.
+
+    THIS CLOSES THE STRICT SWEEP AT 10 OF 10. Everything still carrying an
+    `if jitting` gate from here is out-by-SHAPE rather than unswept:
+    jitEmitDot and jitEmitRem take a third argument (ruler->tempField), three
+    are jitEmitUnary, and jitEmitAssign is a shape fit parked for other reasons.
+    Each waits on its own specimen. See docs/jitSlotMigration.md.
+
+    ⚠ NEVER-NULL STAYS OPEN, DELIBERATELY. The strict population being complete
+    is NOT the sweep closing: ops remain without slots, so the null case still
+    means "not yet migrated" and hardening now would fail on every one of them.
+    The sweep-close obligations are unchanged and unclaimed.
+
+    Same three lines each, and no counter increment -- that lives at the fork.  */
+extern GroupItem jitEmitNE(GroupItem argument,GroupItem target)
+{
+    -% return jitEmitCompare(argument, target, jitNE); %-
+}
+
+extern GroupItem jitEmitAdd(GroupItem argument,GroupItem target)
+{
+    -% return jitEmitBinary(argument, target, jitAdd); %-
+}
+
+extern GroupItem jitEmitSub(GroupItem argument,GroupItem target)
+{
+    -% return jitEmitBinary(argument, target, jitSub); %-
+}
+
+extern GroupItem jitEmitDiv(GroupItem argument,GroupItem target)
+{
+    -% return jitEmitBinary(argument, target, jitSDiv); %-
+}
+
+
 /* jitEmitCompare  the shared relational emitter — jitEmitBinary's sibling for the
    six predicates (== != < <= > >=). Same header-clean signature, same operand-load
    and gJitResult-stash boilerplate, and the SAME int/float promotion block:

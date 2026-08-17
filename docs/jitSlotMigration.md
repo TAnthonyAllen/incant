@@ -41,22 +41,34 @@ refusal.**
 | 5 | `<=` | `jitCmp` | `jitEmitLE` | `incant/jitSlotT3` | 2026-08-17 |
 | 6 | `==` | `jitCmp` | `jitEmitEQ` | `incant/jitSlotT3` | 2026-08-17 |
 
-**Batch 1 (ops 3-6) landed together**, four shims of three lines each. The **ordered half of
-`jitCmp` is now complete**.
+| 7 | `!=` | `jitCmp` | `jitEmitNE` | `incant/jitSlotT4` (ladder **JM4**) | 2026-08-17 |
+| 8 | `+` | `jitOp` | `jitEmitAdd` | `incant/jitSlotT4` | 2026-08-17 |
+| 9 | `-` | `jitOp` | `jitEmitSub` | `incant/jitSlotT4` | 2026-08-17 |
+| 10 | `/` | `jitOp` | `jitEmitDiv` | `incant/jitSlotT4` | 2026-08-17 |
+
+**Batch 1 (ops 3-6)** completed the ordered half of `jitCmp`. **Batch 2 (ops 7-10)** took the rest.
+
+## ⚠ THE STRICT BINARY/COMPARISON POPULATION IS MIGRATED IN FULL — 10 OF 10
+
+**And that is NOT the sweep closing.** Ops remain without slots. They are **out-by-shape, not
+unswept**, and each waits on its own specimen:
+
+| still gated | why it is not a three-line shim |
+|---|---|
+| `jitEmitDot`, `jitEmitRem` | take a **third** argument (`ruler->tempField`) — needs a shape-extension ruling |
+| `jitEmitUnary` ×3 (`++`, `--`, unary `-`) | different install path (`ruleMethod=`), and **the fork refuses them loudly today** |
+| `jitEmitAssign` | already `(argument,target)` — a **shape fit**, parked for other reasons |
+
+**So the null slot still means "not yet migrated", and NEVER-NULL STAYS OPEN.** The sweep-close
+obligations below are unchanged and unclaimed. Hardening on the strength of the strict population
+being complete would fail on every op in the table above.
 
 ### The eligible population, censused 2026-08-17
 
 **16** one-line-return jit gates in `Instruct.rtn`. **10** are strict binary/comparison
-`(argument,target,selector)` shape — the sweep-eligible set. **6 migrated, 2 remain:**
+`(argument,target,selector)` shape — the sweep-eligible set, now **10 migrated, 0 remaining**.
 
-| remaining | selector |
-|---|---|
-| `!=` | `jitNE` |
-| `+` `-` `/` | `jitAdd` `jitSub` `jitSDiv` |
-
-*(That is 4 remaining, not 2 — `!=` plus the three arithmetic. Batch 2's natural shape.)*
-
-**The other 6 are correctly out of scope**, and the reason is shape rather than preference:
+**The other 6 are out of scope by shape rather than preference:**
 `jitEmitDot` and `jitEmitRem` take a **third** argument (`ruler->tempField`), so they do not fit a
 two-argument slot as written; three are `jitEmitUnary` (parked, see below); and `jitEmitAssign` is
 the parked call-shape wrinkle — note it *is* already `(argument,target)`, so it is a shape fit and

@@ -93,6 +93,25 @@
 #   no minion sees it until both sign**) · `docs/jitterBrief.md` (**queued behind step 2; do not start
 #   before `processJit(field)` exists**).
 #
+#   ## ⚠⚠ MILESTONE — THE STRICT BINARY/COMPARISON SWEEP IS COMPLETE, 10 OF 10
+#
+#   Every strict `(argument,target,selector)` op now emits through a `jitEmitter` slot on its own
+#   node instead of an `if jitting` gate inside its interpreter body:
+#   **`*` `>` `>=` `<` `<=` `==` `!=` `+` `-` `/`** — pathfinder, op two, then two batches of four.
+#   Ledger, recipe and obligations: **`docs/jitSlotMigration.md`**.
+#   ⚠⚠ **THIS IS NOT THE SWEEP CLOSING, AND NEVER-NULL STAYS OPEN.** What remains is
+#   **out-by-SHAPE, not unswept** — the `jitEmitDot`/`jitEmitRem` pair take a **third** argument
+#   (`ruler->tempField`) and need a shape-extension ruling; three are `jitEmitUnary`;
+#   `jitEmitAssign` is a shape *fit* parked for other reasons. **The null slot therefore still
+#   means "not yet migrated", so hardening now would fail on every one of them.**
+#   **THE CERTIFICATION IS A COUNT AND HAD TO BE:** the fork is value-transparent by construction,
+#   so products are blind to it. `gJitSlotCount` is asserted by rungs **JM1-JM4**, a batch of N
+#   asserts the count moving by exactly N, and **five H7 pulls** have now shown the same shape —
+#   pull one registration, the count drops by one, **the values do not move.**
+#   **THE UNARY EDGE IS HARDENED** — `gJitSlotUnaryRefused`, loud and counted, **demonstrated to
+#   fire** by temporarily slotting `'++'` (refused 2, slot count 0, values still right). Retire
+#   guard, counter and rung row **together** when the unary specimen lands.
+#
 #   ## NEXT SESSION OPENS ON — step 2, and two things waiting on other people
 #
 #   1. ⚠ **STEP 2 IS OPEN AND UNBLOCKED.** Pathfinder **`opMultiply`/`jitMul`**; slot **`jitEmitter`**;

@@ -146,19 +146,19 @@ define
     ':+'    operateMethod=opReplaceMember;
     ':%'    operateMethod=opReplaceAttribute;
     '/='    operateMethod=opDivEQ;
-    '/'     operateMethod=opDiv;
+    '/'     operateMethod=opDiv  jitEmitter=jitEmitDiv;
     '.'     operateMethod=opDot;
     ':.'    operateMethod=opSetFlag;
     '-='    operateMethod=opMinusEQ;
     '--'    unary ruleMethod=opMinusMinus;
 
     '**'    unary ruleMethod=opDebug;
-    '-'     operateMethod=opMinus;
+    '-'     operateMethod=opMinus  jitEmitter=jitEmitSub;
     '+='    operateMethod=opPlusEQ;
     '++'    unary ruleMethod=opPlusPlus;
     '+*'    operateMethod=opCopyList;
     '+%'    operateMethod=opAddAttribute;
-    '+'     operateMethod=opPlus  interpretMethod=runPlus;
+    '+'     operateMethod=opPlus  interpretMethod=runPlus  jitEmitter=jitEmitAdd;
     '*='    operateMethod=opMultiplyEQ;
     /*  `*` IS THE STEP-2 PATHFINDER -- the first op to carry a jitEmitter.
         Three slots, three consumers, one op: operateMethod is the interpreter,
@@ -169,7 +169,7 @@ define
     '@'     unary ruleMethod=opLastREF;
     '&';
     '%'     operateMethod=opRem;
-    '!='    operateMethod=opNotEQ  interpretMethod=runNotEQ;
+    '!='    operateMethod=opNotEQ  interpretMethod=runNotEQ  jitEmitter=jitEmitNE;
     '!'     unary ruleMethod=opNOT;
     '+/';
     ;
