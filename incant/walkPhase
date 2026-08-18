@@ -1,0 +1,155 @@
+/*  walkPhase -- THE TWO-PHASE PARSE WALK, and the census it exists to produce.
+    Ruling 4, Tony 2026-08-18. Built as its own fixture rather than as an edit
+    to the parser form, which is Tony's live working file.
+
+    WHY TWO PHASES. With generation and compilation interleaved, a compile
+    failure is wherever the walk happened to be standing when it hit, and the
+    walk order decides which failures are ever seen at all. Separated, phase one
+    is a pure tree walk that installs a body on every rule it reaches, and phase
+    two is a flat sweep over the population phase one collected. A refusal then
+    lands as a row in a table with a rule name on it, and every refusal in the
+    run is reported instead of the first one.
+
+    THE PARTITION IS THE PRODUCT, not a side effect. Every rule phase one
+    reaches leaves it in exactly one of three states, and they must sum to the
+    number of rules entered with no remainder.
+        GENERATED       a body was built and installed
+        LEAF            the rule carries data, so setParse installed it and
+                        there is nothing to generate
+        REFUSED         already carried code, so the walk left it alone
+    Phase two then splits GENERATED into compiled and refused.
+
+    ⚠ TWO THINGS THIS FIXTURE DOES THAT LOOK LIKE OMISSIONS AND ARE NOT.
+
+    PHASE ZERO WARMS THE SWEEP BODY. An action body is parsed on its FIRST
+    invocation, and by the time phase two is reached the grammar has been
+    rewritten under the parser, so that first parse dies. Calling the sweep once
+    over an empty census before phase one consumes that parse while the grammar
+    is still intact. Without it the run crashes at the sweep call with no output
+    from inside the sweep at all, which reads as the sweep being broken.
+
+    IT DOES NOT CALL setParse. Installing a parse method is what phase one
+    would naturally mean by install, and it is exactly what cannot be done here:
+    setParse binds parseRule, and parseRule's not-an-action arm dereferences a
+    null, so the first rule that is reached through it takes the process down.
+    See the capture register. Generation and installation are separable; parse
+    method binding belongs with activation, not with generation.
+
+    ⚠ WHAT THIS FIXTURE CANNOT DO TODAY, named rather than worked around: the
+    compile command exits the process on a refused parse. So phase two reports
+    every rule up to the first refusal and then the run ends. The count printed
+    before the end is still a true count, and the sentinel is what tells you
+    whether the sweep finished. A run with no sentinel has more refusals than
+    the one it named. Removing that exit is a one-line change in the compile
+    command and it belongs to whoever owns that file.
+
+    ⚠ NO BRACED BLOCK IN A BODY. The refused arm is its own action for that
+    reason and not for tidiness; an else with a braced block here ended the
+    define block early and every following token was read as a top level
+    statement, reported as expected a method not wpGen. Same family as KANT-40.
+
+    ⚠ BOTH PHASES ARE DRIVEN FROM ONE ACTION, AND THAT IS THE NAPALM WORKED
+    AROUND RATHER THAN IGNORED. Once enough generated methods install, the
+    parser can no longer read the source that FOLLOWS -- so phase two written as
+    a second top level call is unreachable, and the first draft of this fixture
+    proved it by never arriving. An action body is parsed at define time, before
+    anything is generated, so a single driver call reaches both phases. Every
+    report line is cerr rather than print for the same family of reason: stdout
+    is block buffered and a run that ends badly loses it, while a partition you
+    cannot read is a partition you did not measure.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(WalkPhase);
+define
+    wpBuffer buffer;
+    wpOpen="{";
+    wpClose="}";
+    wpCensus;
+    wpGenerated=0;
+    wpLeaf=0;
+    wpRefused=0;
+    wpEntered=0;
+    wpCompiled=0;
+    wpRejected=0;
+    wpGen argument code={
+        reset(wpBuffer);
+        printTO(wpBuffer);
+        print wpOpen:;
+        if datA != 0;
+            printTO(0);
+            wpLeaf = wpLeaf + 1;
+            cerr "LEAF     " ~taG:;
+            return;
+        if hasAttributeS;   wpJoin = "AND";
+        else                wpJoin = "OR";
+        print `"if ";
+        iterate wpTerm on argument;
+        while ++wpTerm;
+            print $taG "()";
+            if nexT;    print _wpJoin;
+            else        print ";";
+        @argument;
+        print $"return runRuleAction(this);":;
+        print `wpClose:;
+        clear(CodE);
+        CodE = wpBuffer;
+        wpCopy <- copyOf(CodE);
+        wpCopy :. noPrinT;
+        argument +% wpCopy;
+        argument :. isCodeD;
+        printTO(0);
+        wpGenerated = wpGenerated + 1;
+        wpCensus +% argument;
+        cerr "GENERATED" ~taG:;
+        };
+    wpAlready argument code={
+        wpRefused = wpRefused + 1;
+        cerr "REFUSED  " ~taG:;
+        };
+    wpWalk argument code={
+        wpEntered = wpEntered + 1;
+        if actionTypE != 0;
+            wpAlready(argument);
+            return;
+        wpGen(argument);
+        if listLengtH;
+            iterate wpCur on argument;
+            while ++wpCur;
+                if noPrinT;     continue;
+                if binTypE;     continue;
+                if isRule;      wpWalk(wpCur);
+        };
+    wpSweep argument code={
+        iterate wpSw on argument attributes;
+        while ++wpSw;
+            cerr "COMPILING" ~taG:;
+            wpOut := compile(wpSw);
+            if wpOut;   wpCompiled = wpCompiled + 1;
+            else        wpRejected = wpRejected + 1;
+        };
+    wpRun argument code={
+        cerr "== PHASE 0: warm the sweep body before the grammar is touched ==":;
+        wpSweep(wpCensus);
+        wpCompiled = 0;
+        wpRejected = 0;
+        cerr "== PHASE 1: generate and install ==":;
+        wpWalk(argument);
+        cerr "== PHASE 1 PARTITION ==":;
+        cerr "entered   " wpEntered:;
+        cerr "generated " wpGenerated:;
+        cerr "leaf      " wpLeaf:;
+        cerr "refused   " wpRefused:;
+        cerr "== PHASE 2: flat compile sweep ==":;
+        cerr "census    " wpCensus.listLengtH:;
+        wpSweep(wpCensus);
+        cerr "== PHASE 2 RESULT ==":;
+        cerr "compiled  " wpCompiled:;
+        cerr "rejected  " wpRejected:;
+        cerr "WALKPHASE SENTINEL -- the sweep finished":;
+        };
+    ;
+wpRun(Start);
+stop();

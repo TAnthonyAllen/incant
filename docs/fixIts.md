@@ -222,6 +222,107 @@ re-run of the monty reports **54 DISTINCT bodies installed**, not 54 generated. 
 worked because each rule was exercised **near its generation**. Population-scale parsing through the
 installed set is **not yet true**.
 
+### F-18 — ⚠⚠ `parseRule`'s BAIL ARM DEREFERENCES A NULL, AND IT IS THE NAPALM'S MECHANISM
+**Where:** `Generate.rtn:107` — the whole line is `else result = parse(ruleStuff);`, and `result` is
+declared `GroupItem code = field[CodE], grup, result;` and **never assigned on that path**. tok's
+bare-field resolution bound the call to the last-mentioned field, which is `result`, so the generated
+code is:
+```
+	else	result = result->parse(ruleStuff);       // GroupRules.mm, parseRule
+```
+`result` is `0` there. **Project memory calls this exact hazard by name** — *"tok bare-field
+resolution: last-mentioned wins"* — and `result` became last-mentioned two lines up, at
+`if result = field["BlocK"] result = result.gMethod(result);`. The intent is plainly
+`field.parse(ruleStuff)`.
+
+**Why it has never fired:** the arm is reached only when a rule has `parseRule` in its `parseMethod`
+slot and is **not** yet `isAction`. Nothing in an ordinary run installs a `parseMethod` at all
+(F-17b), so the line is unreachable — until a parse walk calls `setParse`.
+
+**⚠ THIS IS WHAT "THE NAPALM" IS.** The standing description — *"once the generated methods install,
+the parser can no longer read the source that follows; not `cerr`, not a registered action, not
+`stop()`"* — has been carried as a mystery since 2026-08-17. It is this line. Measured 2026-08-18
+with `incant/walkPhase`:
+
+| phase 1 calls `setParse`? | outcome |
+|---|---|
+| yes | **exit 139** at the first action invoked after the walk, with no output from inside it |
+| no  | walk completes, census reports, sweep runs, **sentinel reached, exit 0** |
+
+The reason the failure looks like "the loader was eaten" is that an action's body is parsed on its
+**first invocation** (`processAction` → `if isCoded && !processCode(action)`), so the first action
+called after the walk is the first thing to re-enter the parser and die. Nothing was eaten; one
+pointer was null.
+
+**⚠ AND THE OBVIOUS FIX IS NOT A FIX.** Writing `field.parse(ruleStuff)` re-enters `GroupItem::parse`,
+which forks on `defStuff.parseMethod` and calls `parseRule` again — a crash traded for infinite
+recursion. **There is no path back to the interpretive walk once `parseRule` is bound**, which means
+the bail arm this line was written to provide **cannot exist**. That is R-2's *"no fallback arm at
+all — refuse loudly"* arriving as a mechanical fact rather than a preference.
+**Done when:** Tony rules what the arm does. The standing ruling points at refuse-loudly — report
+through `reportCodeFail` and return 0 — but it is his call, and the comment above the line
+(*"bail to the existing field parse if no parse code provided"*) records an intention that the
+architecture has since removed. **Owner: Tony** (ruling), then a one-line change.
+⚠ **Whatever it becomes, it is a precondition for `setParse` running anywhere near a walk**, so it
+gates the activation phase and therefore option (b).
+
+### F-17 — CAPTURE REGISTER FROM THE F-15 LANDING, 2026-08-18
+Eight items, none chased. Four are Clay's from the ruling brief, four were found doing the work.
+Each is a row in its own right; grouped only because they were captured in one pass.
+
+**F-17a — `setParse` binding mid-walk changes live routing.** The moment `genParseTest` calls
+`setParse`, `parse()` starts dispatching that rule through `defStuff.parseMethod` instead of the arm
+chain. That is **activation happening during generation**, and it is the napalm's sibling. **Third
+customer for off-rule storage + an explicit activation phase.** *Done when:* generation cannot
+change routing. **Owner:** with the activation work.
+
+**F-17b — `parseMethod` is dead infrastructure in ordinary runs.** `setParse` has exactly one caller
+in the tree (`genParseTest`); `setParseMethod` is reachable only through the kant door
+(`genParse.rtn:868`) and the `parseMethod=` binding (`:1456`). So `defStuff.parseMethod` is null in
+every ordinary run and every rule takes the arm chain — which is what made the F-15 gate a routing
+decision rather than a container-parser decision. Goes live with activation work. **Not a defect;
+recorded so nobody re-derives it.**
+
+**F-17c — `BrancheS` conformance: is `testOptions` over `break`/`continue`/`return` equivalent to
+today's `testMatch`?** One measurement, owed when its turn comes in the pick-one pass. Until then
+the F-15 gate keeps `BrancheS` on arm one, so nothing is broken and nothing is proved.
+
+**F-17d — the false-by-vacancy family.** F-15's shape was: a loop that skips every candidate returns
+its initialised `false`, and the caller cannot tell "tested and failed" from "nothing to test".
+`testAttributes` (`RuleStuff.twk:336`) was the instance. **Census owed:** other `hasAttributes`-gated
+or skip-looping sites with the same shape. **Good minion candidate.**
+
+**F-17e — ⚠ `compile` EXITS THE PROCESS on a refused parse, so a flat sweep can never report more
+than its first refusal.** `Commands.rtn` — `if !processCode(field) exit(1);` (it was `return 0;`
+before 2026-08-18). Ruling 4 asks for per-rule failure reporting via `reportCodeFail`, which already
+prints; the exit is what stops the census. `incant/walkPhase` names this in its own header and its
+sentinel is what tells you whether the sweep finished. *Done when:* the sweep can report every
+refusal in one run. **Owner: Tony** — it is his file and his deliberate edit.
+
+**F-17f — ⚠ A BRACED `else { }` BLOCK IN AN ACTION BODY ENDS THE `define` BLOCK EARLY.** Candidate
+bear trap, reproduced and bisected 2026-08-18, **not diagnosed**. Symptom: `RunRulE: expected a
+method not <firstActionName>` for every token after the offending action, i.e. the rest of the
+define is read as top-level statements. Bisected to the braces alone — the same body with the arm
+hoisted into its own action parses clean. Same family as `incant/bothCensus`'s header note
+*"no braced block in a body (KANT-40)"*, which records the fact without a cause. **The workaround
+that works:** hoist the arm into its own action, or use `if <negated>;` plus an indented block and a
+`return`. `incant/walkPhase` is built that way and says why.
+
+**F-17g — the census fixtures print a stray field name in front of every `cerr` row.** `incant/
+bothCensus` prints `row  A - quoteBody BlocK`; `incant/walkPhase` prints `quoteBody COMPILING
+quoteBody TokenXP`. The columns and counts are unaffected, and both fixtures tally over their own
+printed lines, so no measurement is wrong. Cosmetic, but it makes a census log hard to read and it
+is almost certainly the sticky-print-default family (project memory: *"tok `print` default is sticky
+across externs and files"*). *Done when:* a census row prints its tag and nothing else.
+
+**F-17h — `~/data/support/Include/groups.ext` has been dirty since 2026-08-18 09:57 and is
+SUBSTRATE.** 16 added lines: `compile`, `showBody`, `gJitEmitter`/`setJitEmitter`, and ten
+`jitEmit*` prototypes — the extern declarations for commands landed over the past week. It is a real
+build dependency living **outside this repo** (bear-trap #11), so `git status` here never shows it,
+and `pop.sh`'s two-repo tree line is the only thing that does. Every build today, including the F-15
+certification, depended on it. Per the kitchen law it stopped being live-task WIP the moment a
+baseline was captured over it. **Owner: Tony** (his working copy, support repo).
+
 ### F-16 — ⚠ `walkRules(NumbeR)` NEVER WALKS `NumbeR` — a bare name at top level DEREFERENCES through `isGROUP`
 **Where:** `IncantForms/WorkingOn/parser:89-95`, the driver calls. Applies to any rule whose data is
 a group — `NumbeR` and `ANYtoken` are the two measured.
