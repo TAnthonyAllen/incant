@@ -222,6 +222,93 @@ re-run of the monty reports **54 DISTINCT bodies installed**, not 54 generated. 
 worked because each rule was exercised **near its generation**. Population-scale parsing through the
 installed set is **not yet true**.
 
+### F-16 — ⚠ `walkRules(NumbeR)` NEVER WALKS `NumbeR` — a bare name at top level DEREFERENCES through `isGROUP`
+**Where:** `IncantForms/WorkingOn/parser:89-95`, the driver calls. Applies to any rule whose data is
+a group — `NumbeR` and `ANYtoken` are the two measured.
+**What:** a **bare rule name written at top level** resolves through the group indirection and hands
+the action the rule's TARGET, not the rule. Measured 2026-08-18, both halves in one run:
+```
+who(NumbeR)                      arrived as numberSet   hasData          <- a LEAF, no list
+ANYorNum["NumbeR"] then who(n)   arrived as NumbeR      hasData len 2    <- the real rule
+```
+`ANYtoken` behaves the same way and arrives as `NamE`.
+**Why it matters, and it is the direct explanation of the 08-18 offline report:** `walkRules(NumbeR)`
+printed `numberSet=... CENSUS leaf-install : numberSet` and NumbeR "never got compiled" — because
+**NumbeR was never the argument.** The leaf-install was `numberSet` doing exactly the right thing.
+The read *"genParseTest early-outs because NumbeR has data"* is true of the node that arrived and
+says nothing about NumbeR.
+⚠ **Scope, so this is not over-claimed:** the deref is at **name resolution**, so descent is
+UNAFFECTED — `iterate` and `[]` both hand back the real node (measured above). Only rules named
+directly in a driver line are hit. The `walkRules(Start)` census is therefore sound for everything
+it reached by descent.
+**Consequence for the "pick one" ruling:** the real `NumbeR` carries **data AND a 2-long list**, so
+`genParseTest`'s own both-present warning is correct and has simply never been reachable from a
+bare-name driver call. Whatever way the hybrid bootstrap rules are ruled, the partition assertion
+has to run over the walked population, not over hand-typed names.
+**Done when:** the driver reaches the real node — e.g. a `walkRules` entry point that takes the
+rule by subscript from its registry — and `walkRules(NumbeR)` reports on `NumbeR`.
+**Owner:** Tony (his file). **Size:** one call-shape change plus a decision on the hybrid rules.
+
+### F-15 — ⚠⚠ `hasAttributes` SHADOWS `hasMembers` IN `parse()`, SO AN ALTERNATION RULE DIES THE MOMENT IT IS HANDED A BODY
+**Where:** `GroupItem.twk:1347-1352` (`GroupItem::parse`) —
+```
+        if testMatch || onGroup || hasAttributes {
+            ...
+            if sukcess && hasAttributes                 sukcess = testAttributes(ruleStuff); }
+        or isRule && hasMembers                         sukcess = testOptions(ruleStuff);
+```
+`or` chains the two arms, so **a rule that owns any attribute never reaches `testOptions`.** And
+`testAttributes` (`RuleStuff.twk:336`) **skips every `noPrint` attribute** and returns its
+`result` local, which stays false when every attribute was skipped. So an alternation rule holding
+nothing but noPrint attributes **matches nothing at all**.
+
+**Why the parse walk trips it:** `genParseTest` attaches its generated `CodE` with `+%`
+(add-attribute) and marks it `noPrinT`; `processCode` attaches the resulting `BlocK` the same way
+(`GroupActions.rtn` — `field +% result; result.noPrint = true`). Either one is enough. The rule
+stops matching, the parse that was reading the body runs off the end of its input, and the report
+is `ERROR processCode: <rule> parse failed / failed at :reached end of input`.
+
+**Evidence, measured 2026-08-18 on Tony's 10:14 binary.** Eleven rules, **an EMPTY body**
+(`{ return runRuleAction(this); }`) so the body text cannot be the variable, one process each:
+
+| shape | rules | outcome |
+|---|---|---|
+| attributes | `QuotE` `StringXP` `TokenXP` `Braced` `BlocK` `Iterate` `Xpress` | **ok 7/7** |
+| members | `ANYorNum` `StatemenT` `WardeD` `InvokeArg` | **FAIL 4/4** |
+
+⚠ **Two attractive causes were tested and FALSIFIED first**, and neither is the mechanism:
+`OR`-vs-`AND` (forcing the conjunct to `AND` on `ANYorNum` fails identically), and `compile`'s
+`code +% grup` stealing or re-affiliating the shared member nodes (dumped before and after — the
+members are untouched).
+
+**Negative control (H7), and it is the row that makes this a finding rather than a correlation:**
+`IncantForms/WorkingOn/altShadowT`. It hangs **one noPrint attribute** on `ANYorNum` — no body, no
+`compile`, no `isCodeD` — and the very next *invocation* in the file cannot be parsed:
+```
+A  poisoned ANYorNum with one noPrint attribute -- row B must now fail to parse
+RunRulE: expected a method not rowB
+```
+⚠ Its row B must be an **action call with an argument**, not a `cerr`. A first draft used `cerr`
+and **parsed clean under the poison**, which would have read as the defect being absent —
+`ANYorNum` sits under `TokenXP` and is reached only when a name is followed by an invocation
+argument. Match the probe to the path.
+
+**Why this is bigger than one defect:** it means **no generated body can be attached to any
+member-shaped grammar rule** by the current spelling, and a successful `processCode` re-poisons the
+rule with its `BlocK` even if the `CodE` problem is dodged. **Phase 1 of a generate-then-compile
+split would therefore poison every alternation rule in the grammar before phase 2 ran.**
+
+**Done when:** Tony rules on where a generated body lives for an alternation rule, and
+`altShadowT` **inverts** — row B parses and the sentinel prints. Candidates, his call:
+(a) make the alternation arm reachable — test `isRule && hasMembers` first, or teach the guard to
+mean *has a non-noPrint attribute*; (b) hold `CodE`/`BlocK` off the live rule until an explicit
+activation phase (this is the loader-separation item, and it now has a second paying customer);
+(c) rule that a rule is sequence-or-alternation and never both, and store the body somewhere the
+parse never walks.
+⚠ **(a) has grammar-wide blast radius** — it changes the match order for every rule that owns both
+attributes and members — so it wants a fleet-unmoved capture before and after, not a spot check.
+**Owner:** Tony (ruling), then whoever implements. **Evidence is complete; no re-derivation owed.**
+
 ### F-14 — the walk has four SILENT exits; there is no skipped-rules list
 **Where:** `parser` — three `continue` gates in `walkRules`, plus `genParseTest`'s `datA != 0`
 early return.

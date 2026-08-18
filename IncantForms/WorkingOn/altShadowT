@@ -1,0 +1,64 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+search GroupFields Utilities list;
+
+/*****************************************************************************
+    altShadowT -- WHY A MEMBER-SHAPED GRAMMAR RULE CANNOT CARRY A GENERATED
+    BODY. Measured 2026-08-18, with a negative control.
+
+    THE FINDING. In GroupItem.twk parse, the arm that runs testAttributes is
+    tested BEFORE the arm that runs testOptions, and the two are chained with
+    or. So hasAttributes SHADOWS hasMembers. A rule whose terms are members is
+    an alternation and reaches testOptions only while it owns no attributes at
+    all. Hang ONE attribute on it and the alternation is never consulted again.
+
+    WHY THAT BITES THE PARSE WALK. genParseTest attaches its generated CodE
+    with the add-attribute operator, and processCode attaches the resulting
+    BlocK the same way. Both are noPrint. testAttributes skips every noPrint
+    attribute and therefore returns false, so an alternation rule that has been
+    handed a body stops matching anything at all, and the parse that was
+    reading the body runs off the end of its input.
+
+    THE PARTITION IT PRODUCES, measured on eleven rules with an EMPTY body, so
+    the body text cannot be the variable. Every attribute-shaped rule compiled.
+    Every member-shaped rule refused. QuotE, StringXP, TokenXP, Braced, BlocK,
+    Iterate and Xpress are the ok side. ANYorNum, StatemenT, WardeD and
+    InvokeArg are the refused side.
+
+    ROW A IS THE NEGATIVE CONTROL AND IT IS THE ROW THAT MAKES THIS A FINDING
+    RATHER THAN A CORRELATION. It hangs a single noPrint attribute on ANYorNum.
+    No body, no compile, no isCoded, nothing to do with generation. If the
+    shadowing is the mechanism, the very next INVOCATION in this file cannot be
+    parsed. Expect RunRulE expected a method not, on stderr, naming row B.
+
+    ROW B IS AN ACTION CALL WITH AN ARGUMENT, AND THE SHAPE IS LOAD-BEARING.
+    A first draft used a cerr line and it PARSED FINE with the poison in place,
+    which would have read as the defect being absent. ANYorNum sits under
+    TokenXP, so it is reached when the parser resolves a name followed by an
+    invocation argument. A bare keyword statement never asks for it. Match the
+    probe to the path or the probe answers a different question.
+
+    READING IT. Row B failing to parse IS the pass. If row B runs and prints,
+    the shadowing has been fixed or the rule is no longer on the path that
+    parses an invocation, and this fixture needs re-deriving before it is
+    cited. The sentinel therefore must NOT appear while the defect stands.
+*****************************************************************************/
+
+register(Utilities);
+define
+    dummy;
+    rowB argument code={
+        cerr "B  FAIL  the invocation parsed -- alternation survived the poison":;
+        };
+    poison argument code={
+        dud <- copyOf(dummy);
+        dud :. noPrinT;
+        argument +% dud;
+        cerr "A  poisoned" taG "with one noPrint attribute -- row B must now fail to parse":;
+        };
+    ;
+poison(ANYorNum);
+rowB(dummy);
+cerr "ALTSHADOWT SENTINEL -- reaching here means the defect is GONE":;
+stop();
