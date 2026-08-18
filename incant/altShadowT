@@ -1,0 +1,66 @@
+/*  altShadowT -- THE F-15 REGRESSION CHECK. Written 2026-08-18 as a negative
+    control that had to FAIL, graduated the same day when the fix landed.
+
+    WHAT F-15 WAS. In parse, the arm that runs testAttributes was tested before
+    the arm that runs testOptions, and the two are chained with or, so any rule
+    owning an attribute never reached the alternation walk. testAttributes
+    skips every noPrint attribute and returns false when they were all skipped,
+    so an alternation rule that acquired one noPrint attribute matched nothing
+    at all and the enclosing parse ran off the end of its input. That is what
+    stopped the generated parse walk: it hangs a noPrint body on the rule.
+
+    HOW IT WAS FIXED. Tony ruled the members arm goes first, gated on the rule
+    not carrying data, so that container rules keep their old routing.
+
+    ⚠ THIS FIXTURE'S VERDICT INVERTED WHEN THE FIX LANDED, DELIBERATELY. In its
+    first form the pass condition was that row B could NOT be parsed and the
+    sentinel could NOT be reached. Do not read the history as a bug in the
+    fixture. Rule H6: a parked pin that starts passing graduates, and this is
+    the graduated form.
+
+    THE THREE ROWS.
+
+    Row A hangs one noPrint attribute on a members-shaped rule. No body, no
+    compile, nothing to do with code generation. This is the poison.
+
+    Row B is an action call with an argument, and its shape is load-bearing. A
+    first draft used a print line and it parsed cleanly even under the defect,
+    which would have read as no defect present. The poisoned rule sits under
+    the token rule, so it is reached when the parser resolves a name followed
+    by an invocation argument. A bare keyword statement never asks for it.
+    Match the probe to the path or the probe answers a different question.
+
+    Row C is the VACUITY GUARD and it is what makes rows A and B mean
+    something. A poison that never landed also lets row B parse, so row C
+    walks the attributes of the poisoned rule and names what it finds. If the
+    poison is absent, row C says so and the whole run asserts nothing.
+
+    READING IT. All three rows plus the sentinel must appear. A missing
+    sentinel means the run truncated, which is the defect returning.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(AltShadow);
+define
+    dummy;
+    rowB argument code={
+        print "B ok    the invocation parsed -- the alternation survived the poison":;
+        };
+    rowC argument code={
+        iterate asCur on argument attributes;
+        while ++asCur;
+            print "C guard poisoned rule carries attribute" ~taG:;
+        };
+    poison argument code={
+        dud <- copyOf(dummy);
+        dud :. noPrinT;
+        argument +% dud;
+        print "A ok    poisoned" ~taG "with one noPrint attribute":;
+        };
+    ;
+poison(ANYorNum);
+rowB(dummy);
+rowC(ANYorNum);
+print "ALTSHADOWT SENTINEL -- run reached the end":;
+stop();

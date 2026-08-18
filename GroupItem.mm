@@ -1675,7 +1675,40 @@ continueHere:
 			::setMacroValue(this);
 		/*******************************************************************
 		Run the matches that determine if this rule succeeds
+		
+		THE MEMBERS ARM IS TESTED FIRST, AND THE !data GATE IS WHY IT CAN
+		BE. Tony ruled this 2026-08-18, closing F-15. The two arms are
+		chained with or, so whichever is written first claims the rule.
+		Written the other way round, hasAttributes SHADOWED hasMembers: an
+		alternation rule that acquired any attribute at all stopped
+		reaching testOptions, and testAttributes skips every noPrint
+		attribute and so returned false by vacancy. The rule then matched
+		nothing, and whatever parse was reading it ran off the end of its
+		input. The generated parse walk hit this because it hangs a
+		noPrint body on the rule, and hits it a second time because a
+		successful compile hangs a noPrint block there too.
+		
+		THE GATE IS NOT A SPECIAL CASE, IT IS THE CLASSIFICATION. A rule
+		carrying data is a data rule and is matched by testMatch. A rule
+		carrying members and no data is an alternation and is matched by
+		testOptions. Doctrine: shape is tested members-first, and data
+		presence excludes the members arm.
+		
+		MEASURED BEFORE IT WAS WRITTEN, by the census in incant, over 79
+		rules. Eleven are members-only and move to testOptions, which is
+		the repair. Two carry members AND data, and both are containers
+		whose executor is parseContainer; the gate keeps them on arm one
+		exactly as before, so the edit is behavior-preserving by census
+		rather than by hope. Nothing else in the population can move.
+		
+		AND THE GATE IS LOAD-TIME SAFE, which the alternatives were not.
+		It reads flags that exist the moment a rule is built, so it has no
+		dependency on setParse having bound a parse method -- and in an
+		ordinary run setParse has never fired at all.
 		*******************************************************************/
+		if ( groupBody->flags.isRule && groupBody->flags.hasMembers && !groupBody->flags.data )
+			ruleStuff->sukcess = ::testOptions(ruleStuff);
+		else
 		if ( ruleStuff->testMatch || ruleStuff->onGroup || groupBody->flags.hasAttributes )
 			{
 			if ( ruleStuff->testMatch )
@@ -1688,9 +1721,6 @@ continueHere:
 					ruleStuff->sukcess = ::testAttributes(ruleStuff);
 				}
 			}
-		else
-		if ( groupBody->flags.isRule && groupBody->flags.hasMembers )
-			ruleStuff->sukcess = ::testOptions(ruleStuff);
 		if ( !ruleStuff->sukcess )
 			goto matchFailed;
 		/*******************************************************************

@@ -562,6 +562,59 @@ run1 displayFormT "$T/dsp";  check "displayFormT runs" 0 $?
 sentinel "displayFormT sentinel" "$T/dsp" "displayFormT SENTINEL"
 diffcheck "displayForm baseline (interpreter pin)" genLadder/displayForm.base "$T/dsp"
 
+#  ---------------------------------------------------------------------------
+#  F-15 REGRESSION + THE PARTITION GUARD. Both landed 2026-08-18 with the guard
+#  reorder in parse; ruling 3 makes the census a standing fleet check.
+#
+#  altShadowT is the F-15 control, graduated per H6. It poisons a members-shaped
+#  rule with one noPrint attribute and asserts the alternation still matches. Its
+#  row C is the vacuity guard: a poison that never landed would also let row B
+#  pass, so the attribute is named back rather than assumed.
+run1 altShadowT "$T/alt";    check "altShadowT runs (F-15 regression)" 0 $?
+sentinel "altShadowT sentinel" "$T/alt" "ALTSHADOWT SENTINEL"
+if grep -q "^B ok" "$T/alt"; then
+    echo "  ok    F-15 stays closed: a poisoned alternation rule still parses"; green=$((green+1))
+else
+    echo "  FAIL  F-15 HAS RETURNED -- one noPrint attribute killed an alternation rule."
+    echo "        The arm order in parse, or its !data gate, has moved. See fixIts F-15."; fail=1
+fi
+if grep -q "^C guard poisoned rule carries attribute" "$T/alt"; then
+    echo "  ok    altShadowT vacuity guard: the poison demonstrably landed"; green=$((green+1))
+else
+    echo "  FAIL  altShadowT VACUITY: no attribute on the poisoned rule, so the row"
+    echo "        above asserts nothing. The check passed by not testing anything."; fail=1
+fi
+
+#  ⚠ THE PARTITION GUARD ASSERTS A SET BY NAME, NOT A COUNT. Ruling 2 makes a
+#  container a data rule with a container parser, so Operators is a PERMANENT
+#  member of this set and is exempt by name. BrancheS is the same shape and is
+#  still owed a pick-one split, so it is listed here as the currently-sanctioned
+#  population rather than silently tolerated -- when it splits, this row goes RED
+#  and the expected set drops to Operators alone. That is the point: it moves when
+#  the answer moves, and a NEW hybrid appearing also turns it red.
+run1 shadowCensus "$T/sc";   check "shadowCensus runs (pick-one partition)" 0 $?
+sentinel "shadowCensus sentinel" "$T/sc" "SHADOWCENSUS SENTINEL"
+scrows=$(grep -c "^row " "$T/sc")
+scmembers=$(grep "^row " "$T/sc" | awk '$3=="M"' | wc -l | tr -d " ")
+schybrid=$(grep "^row " "$T/sc" | awk '$3=="M" && $4=="D" {print $NF}' | sort | tr "\n" " ")
+#  Anti-vacuity: a census that walked nothing would report an empty hybrid set
+#  and pass. Both populations are asserted non-zero first, so an inert walk is
+#  a failure and not a clean bill of health.
+if [ "$scrows" -gt 0 ] && [ "$scmembers" -gt 0 ]; then
+    echo "  ok    shadowCensus walked $scrows rules, $scmembers members-shaped (non-vacuous)"; green=$((green+1))
+else
+    echo "  FAIL  shadowCensus walked nothing ($scrows rows, $scmembers members-shaped)."
+    echo "        The hybrid set below would be empty for that reason, not because"
+    echo "        the population is clean."; fail=1
+fi
+if [ "$schybrid" = "BrancheS Operators " ]; then
+    echo "  ok    pick-one: data-plus-members set is exactly { BrancheS Operators }"; green=$((green+1))
+else
+    echo "  FAIL  pick-one partition MOVED: data-plus-members set is { $schybrid}"
+    echo "        Expected { BrancheS Operators }. Operators is exempt by ruling 2;"
+    echo "        BrancheS is owed a split. Anything else is a new hybrid."; fail=1
+fi
+
 diffcheck "oneTest baseline"  genLadder/oneTest.base  "$T/one"
 diffcheck "jsonTest baseline" genLadder/jsonTest.base "$T/jsn"
 
