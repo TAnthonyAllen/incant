@@ -1124,6 +1124,21 @@ Hard-won lessons. Each one has cost real debugging time.
     rebuilt bare. **A trap that tells you how to turn something ON is not a ruling that it should
     be on.**
 
+    ⚠⚠ **AND THE 2026-08-18 HARDENING, WHICH RAISES THE STAKES: A DIRECTIVES BUILD IS
+    *SEMANTICALLY DIFFERENT*, NOT MERELY INSTRUMENTED.** Everything above treats the hazard as
+    *extra output* — trace lines polluting a diff. That understates it. A directive injects
+    arbitrary code at its anchor, and some armed entries **change behaviour**: `aCTionNamE
+    starting active` is `if arg eq "this" result = 0;`, which alters how a name resolves. A binary
+    built with directives is therefore **a different program**, and a byte-agreement,
+    fleet-unmoved or POP result taken on it is a result about that other program.
+
+    **THE RULE, now doctrine rather than habit: REBUILD BARE BEFORE ANY CAPTURE.** Not "discard
+    the run if it looks noisy" — the noisy case is the *lucky* one, because you can see it. An
+    armed behaviour-changing directive produces a clean-looking capture that is simply about
+    something else. The order is: `tok <file>` with no directives file · rebuild · *then* measure.
+    Ratified 2026-08-18 after the F-15 landing, where the bare rebuild was done first and the
+    before/after certification is only worth anything because it was.
+
 25. **`testing()` ROUTES BY `isCoded`, AND AN INTERPRETED RUN CONSUMES IT — SO AN ORACLE PLACED
     ABOVE THE JITTED HALF SILENTLY MEASURES THE WRONG ENGINE, AT EXIT 0.** `testing()` calls
     `jitRunAction` only `if input.isCoded` and otherwise falls to `jitRunIfTest`, the control-flow

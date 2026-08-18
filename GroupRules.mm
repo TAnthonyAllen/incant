@@ -9754,6 +9754,22 @@ extern "C" GroupItem *parseAction(GroupItem *field)
 /*******************************************************************************
 	Run a wild card test on this group against current input
 *******************************************************************************/
+/*****************************************************************************
+    ⚠ THE LABEL WRITE IS GUARDED IN ALL FOUR OF THESE, and until 2026-08-18 it
+    was guarded in only one. parseSet had `if label` and parseAny,
+    parseCharacter and parseString wrote through it bare, so a rule matched
+    with no label in its frame stored into a null and took the process down.
+
+    IT HAD NEVER FIRED because nothing in an ordinary run binds a parse method
+    at all, so these four are reached only once a generation walk has called
+    setParse. The first walk that did reached parseString on the `if` keyword
+    and died in setText with a null receiver -- same family as F-18 one layer
+    down, and found the same way, by a backtrace after the F-18 repair did not
+    stop the crash.
+
+    parseSet is the model and it was already correct. Copy the working sibling
+    rather than inventing a fifth spelling.
+*****************************************************************************/
 extern "C" GroupItem *parseAny(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -9763,7 +9779,8 @@ int 		counter = 0;
 		while ( counter++ < ruleStuff->max )
 			if ( counter && counter >= ruleStuff->min )
 				{
-				ruleStuff->label->setToken(ruleStuff->hereAt,counter);
+				if ( ruleStuff->label )
+					ruleStuff->label->setToken(ruleStuff->hereAt,counter);
 				return parseSetLabel(field);
 				}
 	if ( ruleStuff->label )
@@ -9813,7 +9830,8 @@ int 		counter = 0;
 	if ( ruleStuff->checkInput() )
 		while ( *ruler->atRuleMark == field->getCharacter() && counter++ < ruleStuff->max )
 			{
-			ruleStuff->label->setToken(ruleStuff->hereAt,counter);
+			if ( ruleStuff->label )
+				ruleStuff->label->setToken(ruleStuff->hereAt,counter);
 			return parseSetLabel(field);
 			}
 	if ( ruleStuff->label )
@@ -9916,8 +9934,33 @@ RuleStuff 	*ruleStuff = field->rStuff;
 GroupItem 	*code = field->get("CodE");
 GroupItem 	*grup = 0;
 GroupItem 	*result = 0;
+	/*  ⚠ THERE IS NO FALLBACK ARM, AND THERE CANNOT BE ONE. Tony ruled this
+	2026-08-18, closing F-18, and the comment is rewritten with the code
+	because the OLD comment said the opposite and that is how a repair gets
+	undone years later. It read "bail to the existing field parse if no
+	parse code provided", and the line under it did not do that: it read
+	`result = parse(ruleStuff)` where a bare name binds to the
+	last-mentioned field, which was `result`, still null. So the bail arm
+	dereferenced a null and took the process down.
+	
+	AND THE OBVIOUS REPAIR IS NOT A REPAIR. Spelling it against the rule
+	instead re-enters the parse method fork, which dispatches straight back
+	into this function -- a crash traded for infinite recursion. Once a
+	parse method is bound there is no route back to the interpretive walk,
+	so the bail this line was written to provide is not merely unwritten,
+	it is unreachable by construction.
+	
+	THEREFORE: REFUSE, LOUDLY. Report through the named home and return the
+	ordinary rule-failure result, which is what the tail below already
+	does. R-2 ruling 1 -- no fallback arm at all -- arriving as mechanics
+	rather than as a preference.
+	
+	⚠ THE CONSEQUENCE IS A SCHEDULING CONSTRAINT, not just a code shape:
+	binding a parse method anywhere near a generation walk is gated until
+	the activation phase exists, because until then every rule bound and
+	not yet compiled lands here. Off-rule storage inherits it -- activation
+	is complete, and it is last.  */
 	// assumes processCode was run on field already
-	// bail to the existing field parse if no parse code provided
 	if ( isAction(field->groupBody->flags.actionType) )
 		{
 		while ( grup = code->nextAttribute(grup) )
@@ -9927,7 +9970,7 @@ GroupItem 	*result = 0;
 		if ( result = field->get("BlocK") )
 			result = result->groupBody->gMethod(result);
 		}
-	else	result = result->parse(ruleStuff);
+	else	::reportNoBody(field);
 	if ( result )
 		return result;
 	if ( ruleStuff->label )
@@ -10157,7 +10200,8 @@ int 		counter = 0;
 		if ( ruleStuff->checkInput() )
 			{
 			char 	*matchedString = ruleStuff->rule->matches(ruler->atRuleMark);
-			ruleStuff->label->setText(matchedString);
+			if ( ruleStuff->label )
+				ruleStuff->label->setText(matchedString);
 			return ::parseSetLabel(field);
 			}
 	if ( ruleStuff->label )
@@ -11260,6 +11304,35 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	::fprintf(stderr,"ERROR processCode: %s parse failed\n",field->groupBody->tag);
 	::fprintf(stderr,"    failed at %s\n",::getDebugText(ruler->ruleSTUFF->failedAt,40));
 	::fprintf(stderr,"    on line %s\n",::toStringFromInt(ruler->sourceLINE));
+}
+
+/*****************************************************************************
+    reportNoBody -- the OTHER refusal, and it is a different fact from the one
+    above. reportCodeFail says a body was parsed and the parse failed.
+    reportNoBody says a rule was reached through a bound parse method and has
+    no compiled body to run, so the parse cannot proceed and is refusing.
+
+    A SIBLING RATHER THAN A REUSE, DELIBERATELY. Calling reportCodeFail here
+    would print "ERROR processCode: X parse failed" for a rule that processCode
+    never touched -- an instrument naming the wrong mechanism, which is the
+    failure this project spends most of its time paying for. The convergence
+    note above still applies to both: if parse-error reporting is ever made
+    good, these two and aCTionFailed converge here.
+
+    cerr for the same reason as its sibling: a code body can be processed with
+    print diverted, and a refusal that vanishes into a buffer is not loud.
+
+    ⚠ IT CAN REPEAT, and that is intended rather than overlooked. A refusing
+    rule refuses on every attempt, so a walk that binds a parse method without
+    compiling will print once per attempt. Nothing reaches this in an ordinary
+    run -- no ordinary path binds a parse method at all -- so the only way to
+    see a flood is to be doing exactly the work the flood is about.
+*****************************************************************************/
+extern "C" void reportNoBody(GroupItem *field)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	::fprintf(stderr,"REFUSED parseRule: %s has a parse method but no compiled body\n",field->groupBody->tag);
+	::fprintf(stderr,"    at %s\n",::getDebugText(ruler->atRuleMark,40));
 }
 
 /*****************************************************************************

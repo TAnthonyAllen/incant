@@ -707,6 +707,35 @@ GroupRules  ruler = groupRules;
     cerr "    on line " toStringFromInt(sourceLINE):;
 }
 
+/*****************************************************************************
+    reportNoBody -- the OTHER refusal, and it is a different fact from the one
+    above. reportCodeFail says a body was parsed and the parse failed.
+    reportNoBody says a rule was reached through a bound parse method and has
+    no compiled body to run, so the parse cannot proceed and is refusing.
+
+    A SIBLING RATHER THAN A REUSE, DELIBERATELY. Calling reportCodeFail here
+    would print "ERROR processCode: X parse failed" for a rule that processCode
+    never touched -- an instrument naming the wrong mechanism, which is the
+    failure this project spends most of its time paying for. The convergence
+    note above still applies to both: if parse-error reporting is ever made
+    good, these two and aCTionFailed converge here.
+
+    cerr for the same reason as its sibling: a code body can be processed with
+    print diverted, and a refusal that vanishes into a buffer is not loud.
+
+    ⚠ IT CAN REPEAT, and that is intended rather than overlooked. A refusing
+    rule refuses on every attempt, so a walk that binds a parse method without
+    compiling will print once per attempt. Nothing reaches this in an ordinary
+    run -- no ordinary path binds a parse method at all -- so the only way to
+    see a flood is to be doing exactly the work the flood is about.
+*****************************************************************************/
+extern void reportNoBody(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+    cerr "REFUSED parseRule: " field.tag,"has a parse method but no compiled body":;
+    cerr "    at " getDebugText(atRuleMark, 40):;
+}
+
 
 extern int processCode(GroupItem field)
 {

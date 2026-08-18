@@ -222,7 +222,7 @@ re-run of the monty reports **54 DISTINCT bodies installed**, not 54 generated. 
 worked because each rule was exercised **near its generation**. Population-scale parsing through the
 installed set is **not yet true**.
 
-### F-18 — ⚠⚠ `parseRule`'s BAIL ARM DEREFERENCES A NULL, AND IT IS THE NAPALM'S MECHANISM
+### F-18 — ✅ CLOSED 2026-08-18 — `parseRule`'s bail arm refuses loudly. ⚠ AND ITS NAPALM CLAIM IS RETRACTED
 **Where:** `Generate.rtn:107` — the whole line is `else result = parse(ruleStuff);`, and `result` is
 declared `GroupItem code = field[CodE], grup, result;` and **never assigned on that path**. tok's
 bare-field resolution bound the call to the last-mentioned field, which is `result`, so the generated
@@ -239,32 +239,89 @@ resolution: last-mentioned wins"* — and `result` became last-mentioned two lin
 slot and is **not** yet `isAction`. Nothing in an ordinary run installs a `parseMethod` at all
 (F-17b), so the line is unreachable — until a parse walk calls `setParse`.
 
-**⚠ THIS IS WHAT "THE NAPALM" IS.** The standing description — *"once the generated methods install,
-the parser can no longer read the source that follows; not `cerr`, not a registered action, not
-`stop()`"* — has been carried as a mystery since 2026-08-17. It is this line. Measured 2026-08-18
-with `incant/walkPhase`:
+⚠⚠ **THE NAPALM CLAIM MADE HERE ON 2026-08-18 IS RETRACTED, SAME DAY, BY THE REPAIR ITSELF.** This
+row originally read *"this is what the napalm is"*. **It is not, or at least it is not only.** With
+the null dereference repaired and `setParse` restored to the walk, the run **still died** — and the
+backtrace named a different function, `parseString` (F-19). `parseRule` was **never entered at all**:
+zero refusal lines, and no `parseRule` frame in a sample of the hung process.
 
-| phase 1 calls `setParse`? | outcome |
-|---|---|
-| yes | **exit 139** at the first action invoked after the walk, with no output from inside it |
-| no  | walk completes, census reports, sweep runs, **sentinel reached, exit 0** |
+**The defect on this line is real and is fixed. The mechanism story built on top of it was not
+tested before it was written.** Bear-trap #19's corollary in its expensive direction — the
+hypothesis survived narrowing and was still wrong, because the search space never contained
+`parseString`. What was actually measured, and all that was measured:
 
-The reason the failure looks like "the loader was eaten" is that an action's body is parsed on its
-**first invocation** (`processAction` → `if isCoded && !processCode(action)`), so the first action
-called after the walk is the first thing to re-enter the parser and die. Nothing was eaten; one
-pointer was null.
+| phase 1 calls `setParse`? | before the repairs | after F-18 + F-19 |
+|---|---|---|
+| yes | **exit 139** in `parseString` | **no crash — a non-terminating parse** |
+| no  | walk completes, sweep runs, **sentinel, exit 0** | unchanged |
+
+One thing the original row got right and it stands: an action's body is parsed on its **first
+invocation** (`processAction` → `if isCoded && !processCode(action)`), which is why the first action
+called after a walk is the first thing to re-enter the parser. `incant/walkPhase`'s phase 0 exists
+for that reason and it works.
 
 **⚠ AND THE OBVIOUS FIX IS NOT A FIX.** Writing `field.parse(ruleStuff)` re-enters `GroupItem::parse`,
 which forks on `defStuff.parseMethod` and calls `parseRule` again — a crash traded for infinite
 recursion. **There is no path back to the interpretive walk once `parseRule` is bound**, which means
 the bail arm this line was written to provide **cannot exist**. That is R-2's *"no fallback arm at
 all — refuse loudly"* arriving as a mechanical fact rather than a preference.
-**Done when:** Tony rules what the arm does. The standing ruling points at refuse-loudly — report
-through `reportCodeFail` and return 0 — but it is his call, and the comment above the line
-(*"bail to the existing field parse if no parse code provided"*) records an intention that the
-architecture has since removed. **Owner: Tony** (ruling), then a one-line change.
-⚠ **Whatever it becomes, it is a precondition for `setParse` running anywhere near a walk**, so it
-gates the activation phase and therefore option (b).
+**RULED AND LANDED 2026-08-18 (Tony): refuse loudly.** The arm is now `reportNoBody(field);` — no
+parse call, no fallback — and the rule falls through to the ordinary failure return already at the
+foot of the function. `reportNoBody` is a **sibling of `reportCodeFail`, not a reuse of it**: the two
+state different facts (*a body failed to parse* versus *there is no body*), and calling the wrong one
+would print `ERROR processCode:` for a rule `processCode` never touched, which is an instrument
+naming the wrong mechanism. Extern set 302 → 303, one line.
+**The comment was rewritten in the same edit, deliberately.** The old one said *"bail to the existing
+field parse if no parse code provided"* — the opposite of the doctrine — and a comment that
+contradicts its code is how a repair gets undone years later. Intent and mechanics now agree on the
+line.
+⚠ **The scheduling consequence stands regardless of the retraction above:** binding a parse method
+anywhere near a generation walk is gated until the activation phase exists. Off-rule storage
+inherits it — **activation is complete, and it is last.**
+
+### F-19 — ✅ CLOSED 2026-08-18 — three of the four `parse*` helpers wrote through a null `label`
+**Where:** `Generate.rtn` — `parseAny`, `parseCharacter`, `parseString`. **`parseSet`, four functions
+away in the same file, already had the guard** (`if label label.setToken(...)`), so the correct
+spelling was sitting beside the wrong one the whole time.
+**What:** each wrote the match result into `label` on the SUCCESS path with no null test —
+`label.setToken(hereAt,counter)` in two, `label.text = matchedString` in `parseString`. A rule matched
+with no label in its frame stores into a null.
+**Evidence — a backtrace, not an inference:**
+```
+stop reason = EXC_BAD_ACCESS (code=1, address=0x0)
+frame #0: GroupItem::setText(this=0x0000000000000000, s="if") at GroupItem.mm:2232
+```
+`s="if"` — the keyword being matched when it died.
+**Why it never fired:** same reason as F-18. Nothing in an ordinary run binds a `parseMethod`
+(F-17b), so these are reached only after a generation walk calls `setParse`.
+**How it was found, and it is the lesson:** by re-running the F-18 negative control **after** the
+F-18 repair and finding the crash still there. A repair that does not move the symptom is evidence,
+and it was the only thing that took `parseString` out of the blind spot.
+**Fixed:** three `if label` guards, copied from the working sibling rather than spelled a fifth way.
+Fleet body unmoved (48 green / 1 parked; jitLadder 205 ok / stderr 0 / one owned red).
+
+### F-20 — ⚠ `setParse` WRITES THE RAW `rStuff` ON THE NODE IT WAS PASSED; `parse()` READS `definingRule().rStuff`
+**Where:** write side `Generate.rtn`, `setParse` — `RuleStuff ruleStuff = rStuff;`, generated as
+`field->rStuff`. Read side `GroupItem.twk:1290-1291` — `definer = definingRule(); defStuff = definer.rStuff;`.
+**What:** the two ends of the `parseMethod` slot do not name the same object, on **two** axes — raw
+field versus materialised stuff, and the passed node versus the defining rule. So a `setParse` bind
+can land somewhere the fork never looks.
+⚠ **THIS EXACT DEFECT HAS BEEN PAID FOR ONCE ALREADY, and the receipt is in the tree.**
+`genParse.rtn:858` carries it verbatim: *"getRStuff(), NEVER THE RAW rStuff FIELD. The first cut used
+`if !rStuff rStuff = new(rule)` and the bind SILENTLY DID NOT TAKE: parse() forks on
+definingRule().rStuff.parseMethod, and the raw field is not necessarily the materialised stuff that
+fork reads."* `setParse` does both of the things that comment forbids.
+**Evidence it is not taking today (indirect but consistent):** with `setParse` in the walk and F-18
+repaired, a sample of the hung process shows the **interpretive** walk only —
+`parse → testOptions/testAttributes → parse` — with **no `parseRule` frame anywhere**, and
+`reportNoBody` never prints. If the bind had taken, one or the other would show.
+⚠ **Structural claim, not yet a direct measurement.** The two spellings are read off the source and
+the generated code; that the bind fails *for this reason* is inferred. On this project that grading
+matters — one probe printing the two pointers settles it, and `genParse.rtn`'s SEAM probe is already
+the shape to copy.
+**Done when:** the bind is measured, and if it is failing, `setParse` uses `getRStuff()` on the
+defining rule like `parseRuleMethod` already does. **Blocks:** any claim about what a walk-bound
+parse method does, including the remaining half of F-18's own story.
 
 ### F-17 — CAPTURE REGISTER FROM THE F-15 LANDING, 2026-08-18
 Eight items, none chased. Four are Clay's from the ruling brief, four were found doing the work.

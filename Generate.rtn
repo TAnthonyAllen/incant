@@ -15,6 +15,22 @@ extern GroupItem parseAction(GroupItem field)
 /*******************************************************************************
 	Run a wild card test on this group against current input
 *******************************************************************************/
+/*****************************************************************************
+    ⚠ THE LABEL WRITE IS GUARDED IN ALL FOUR OF THESE, and until 2026-08-18 it
+    was guarded in only one. parseSet had `if label` and parseAny,
+    parseCharacter and parseString wrote through it bare, so a rule matched
+    with no label in its frame stored into a null and took the process down.
+
+    IT HAD NEVER FIRED because nothing in an ordinary run binds a parse method
+    at all, so these four are reached only once a generation walk has called
+    setParse. The first walk that did reached parseString on the `if` keyword
+    and died in setText with a null receiver -- same family as F-18 one layer
+    down, and found the same way, by a backtrace after the F-18 repair did not
+    stop the crash.
+
+    parseSet is the model and it was already correct. Copy the working sibling
+    rather than inventing a fifth spelling.
+*****************************************************************************/
 extern GroupItem parseAny(GroupItem field)
 {
 GroupRules  ruler = groupRules;
@@ -23,7 +39,7 @@ int         counter;
     if checkInput()
         while counter++ < max
             if counter && counter >= min {
-                label.setToken(hereAt,counter);
+                if label   label.setToken(hereAt,counter);
                 return parseSetLabel(field); }
     if label    label.clear();
     atRuleMark = hereAt;
@@ -40,7 +56,7 @@ RuleStuff   ruleStuff = field.rStuff;
 int         counter;
     if checkInput()
         while *atRuleMark == character && counter++ < max {
-            label.setToken(hereAt,counter);
+            if label   label.setToken(hereAt,counter);
             return parseSetLabel(field); }
     if label    label.clear();
     atRuleMark = hereAt;
@@ -96,15 +112,40 @@ RuleStuff   ruleStuff = rStuff;
 GroupItem   code = field[CodE],
             grup,
             result;
+    /*  ⚠ THERE IS NO FALLBACK ARM, AND THERE CANNOT BE ONE. Tony ruled this
+        2026-08-18, closing F-18, and the comment is rewritten with the code
+        because the OLD comment said the opposite and that is how a repair gets
+        undone years later. It read "bail to the existing field parse if no
+        parse code provided", and the line under it did not do that: it read
+        `result = parse(ruleStuff)` where a bare name binds to the
+        last-mentioned field, which was `result`, still null. So the bail arm
+        dereferenced a null and took the process down.
+
+        AND THE OBVIOUS REPAIR IS NOT A REPAIR. Spelling it against the rule
+        instead re-enters the parse method fork, which dispatches straight back
+        into this function -- a crash traded for infinite recursion. Once a
+        parse method is bound there is no route back to the interpretive walk,
+        so the bail this line was written to provide is not merely unwritten,
+        it is unreachable by construction.
+
+        THEREFORE: REFUSE, LOUDLY. Report through the named home and return the
+        ordinary rule-failure result, which is what the tail below already
+        does. R-2 ruling 1 -- no fallback arm at all -- arriving as mechanics
+        rather than as a preference.
+
+        ⚠ THE CONSEQUENCE IS A SCHEDULING CONSTRAINT, not just a code shape:
+        binding a parse method anywhere near a generation walk is gated until
+        the activation phase exists, because until then every rule bound and
+        not yet compiled lands here. Off-rule storage inherits it -- activation
+        is complete, and it is last.  */
     // assumes processCode was run on field already
-    // bail to the existing field parse if no parse code provided
     if field.isAction {
 use grup
         while grup = code.nextAttribute(grup)
             if isLocal && !isRule && groupBody != field.groupBody clear();
         // here the parse action in method gets run
         if result = field["BlocK"]     result = result.gMethod(result); }
-    else        result = parse(ruleStuff);
+    else        reportNoBody(field);
     if result   return result;
     if label    label.clear();
     atRuleMark = hereAt;
@@ -155,7 +196,7 @@ int         counter;
     while counter++ < max
         if checkInput() {
             String  matchedString = rule.matches(atRuleMark);
-            label.text  = matchedString;
+            if label   label.text  = matchedString;
             return parseSetLabel(field); }
     if label    label.clear();
     atRuleMark = hereAt;
