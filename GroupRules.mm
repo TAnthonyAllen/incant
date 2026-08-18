@@ -35,7 +35,7 @@ GroupItem 	*token = 0;
 	if ( isGROUP(input->groupBody->flags.data) )
 		token = input->getGroup();
 	else	token = input;
-	if ( token && token->groupBody->registry == GroupControl::groupController->groupRules->keyWords )
+	if ( token && token->groupBody->registry == GroupControl::groupController->groupRules->keyWords && !token->groupBody->flags.noPrint )
 		return 0;
 	return input;
 }
@@ -983,6 +983,8 @@ GroupItem 	*grup = 0;
 GroupItem 	*result = 0;
 char 		*arg = input->getText();
 	result = GroupControl::groupController->locateInMethod(arg);
+	if ( result && result->parent == action )
+		goto endName;
 	if ( ruler->defining && result && result->groupBody->flags.isVirtual )
 		result = ::copyOf(result);
 	grup = new GroupItem(arg);
@@ -1002,6 +1004,7 @@ char 		*arg = input->getText();
 					}
 	if ( !result )
 		result = grup;
+endName:
 	input->setGroup(result);
 	return input;
 }
@@ -2293,9 +2296,10 @@ extern "C" int closeFile(GroupItem *bufField)
 *******************************************************************************/
 extern "C" GroupItem *compile(GroupItem *field)
 {
+GroupItem 	*code = 0;
 GroupItem 	*grup = 0;
 	if ( !isCoded(field->groupBody->flags.actionType) )
-		return 0;
+		goto endCompile;
 	/*  ⚠ COMPILE OWNS THE COMPILATION PRECONDITIONS, ENSURED IDEMPOTENTLY.
 	R-4, Tony's ruling 2026-08-17.
 	
@@ -2330,23 +2334,29 @@ GroupItem 	*grup = 0;
 	(addString is idempotent on its own -- getFromList first -- so this
 	guard is belt and braces. It is kept because R-4 asks that an existing
 	precondition be left untouched, not merely un-duplicated.)  */
-	grup = field->get("this");
-	if ( !grup )
-		{
-		grup = field->addString("this");
-		grup->groupBody->flags.isLocal = 1;
-		grup->groupBody->flags.noPrint = 1;
-		grup->setGroup(field);
-		}
+	code = field->get("CodE");
+	grup = 0;
+	while ( grup = field->next(grup) )
+		if ( grup->groupBody->flags.noPrint )
+			continue;
+		else
+		if ( grup->groupBody->flags.isRule )
+			code->addAttribute(grup);
+	grup = new GroupItem("this");
+	grup->groupBody->flags.isLocal = 1;
+	grup->groupBody->flags.noPrint = 1;
+	grup->setGroup(field);
+	grup->options.affiliation = 1;
+	code->replace(grup);
 	grup = field->get("tempField");
-	if ( !grup )
-		{
-		grup = field->addString("tempField");
-		grup->groupBody->flags.isLocal = 1;
-		grup->groupBody->flags.noPrint = 1;
-		}
+	grup = new GroupItem("tempField");
+	grup->groupBody->flags.isLocal = 1;
+	grup->groupBody->flags.noPrint = 1;
+	grup->options.affiliation = 1;
+	code->replace(grup);
 	if ( !::processCode(field) )
-		return 0;
+		::exit(1);
+endCompile:
 	return field;
 }
 
@@ -10930,13 +10940,12 @@ extern "C" GroupItem *printToBuffer(GroupItem *bufferField)
 		{
 		GroupControl::groupController->groupRules->toBUFFER = bufferField->getBuffer();
 		GroupControl::groupController->groupRules->toBUFFER->reset();
-		::printf("printToBuffer: diverting print output to %s\n",bufferField->groupBody->tag);
 		}
 	else
 	if ( GroupControl::groupController->groupRules->toBUFFER )
 		{
+debugHere:
 		GroupControl::groupController->groupRules->toBUFFER = 0;
-		::printf("printToBuffer: stopping print to buffer (buffer not reset)\n");
 		}
 	else	::fprintf(stderr,"printToBuffer: ignored\n");
 	return GroupControl::groupController->groupRules->trueResult;

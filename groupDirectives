@@ -20,7 +20,7 @@ aCTionDebuG subrule.debugged ctive
 aCTionDebuG embed.debugged ctive
     if embed.debugged print "Debugging",embed.tag:;
 #;
-aCTionDefinE "if Attributes" before active
+aCTionDefinE "if Attributes" before ctive
     cerr "aCTionDefinE:",NewGroup.tag,lastIndent:;
     if NewGroup.tag eq "Braced" item = 0;
 #;
@@ -30,8 +30,8 @@ aCTionElsE if ctive
 aCTionExpressioN while before ctive
     if entries.listLength == 1   result = 0;
 #;
-aCTionNamE result before ctive
-    if arg eq "sample"   result = 0;
+aCTionNamE starting active
+    if arg eq "this"   result = 0;
 #;
 aCTionRunRulE if within ctive
     if tag eq "define" debugAllRules = true;
@@ -41,6 +41,29 @@ aCTionSearch cout ctive
 #;
 aCTionXpress result before ctive
     print "Instructions for",action.tag: list:;
+#;
+compile if before active
+    print "compiling " field.tag:;
+#;
+/*******************************************************************************
+    THE SUCCESS LINE DISCRIMINATES, because endCompile is reached by BOTH the
+    real path and the not-coded bail, and the flat "succeeded" it used to print
+    fired for either. Leaf rules that were never compiled reported "compiling
+    tik succeeded" all day. That is an absence-shaped instrument in the sense
+    rule H4 forbids: the line could not tell you the thing it named.
+
+    isAction is the discriminator because processCode SETS it on success, and
+    it does so by overwriting actionType, which consumes isCoded -- so isCoded
+    cannot be read here, it is gone by the time the label is reached. The
+    failure path never arrives at all; compile exits on a refused parse.
+
+    The one edge, named rather than hidden: a field that was ALREADY an action
+    and is not coded bails and still prints succeeded. walkRules cannot produce
+    that, since it gates on actionType being zero before it calls compile.
+*******************************************************************************/
+compile endCompile active
+    if field.isAction   print "compiling " field.tag " succeeded":;
+    else                print "compiling " field.tag " SKIPPED -- not coded":;
 #;
 copyOf starting ctive
     if grup.tag eq "bcPushField"    fLAG = true;
@@ -56,7 +79,7 @@ guard GroupItem ctive
 guard clearData ctive
     debugGuards = false;
 #;
-loadInputFromFile if before active
+loadInputFromFile if before ctive
      cerr ```"including",tag:;
 #;
 /*******************************************************************************
@@ -89,6 +112,12 @@ opPrinter printText before
         debugRuleNamed("Attributes");
         debugRuleNamed("MemberS"); }
 *******************************************************************************/
+printToBuffer toBUFFER ctive
+    print "printToBuffer: diverting print output to " bufferField.tag:;
+#;
+printToBuffer debugHere ctive
+    print "printToBuffer: stopping print to buffer (buffer not reset)":;
+#;
 processAction code ctive
     if tag eq "JSONarray"   dumpContents(code);
 #;
@@ -98,7 +127,7 @@ processCode processingCode ctive
 processCode result ctive
     if tag eq "gFOR" dumpContents(action);
 #;
-rEGISTER currentRegistry active
+rEGISTER currentRegistry ctive
     cerr ````"Current registry:",currentRegistry.tag:;
     item = 0;
 #;
@@ -216,7 +245,7 @@ parse fireLabelMethod active
             cerr ruleName,"succeeded";
             if label {
                 cerr ,"label:",label.tag;
-                if label.data   cerr "=" getDebugText(label.text,10); }
+                if label.data  cerr "=" getDebugText(label.text,10); }
             else    cerr " w/no label";
             cerr ,"at: " getDebugText(atRuleMark,10):; }
         doNothing = false; }

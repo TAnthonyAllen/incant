@@ -7,7 +7,7 @@ extern GroupItem aCTionANYtoken(GroupItem input)
 GroupItem   token;
     if input.isGROUP    token = input.group;
     else                token = input;
-    if token && token.registry == keyWords      return null;
+    if token && registry == keyWords && !noPrint      return null;
     return input;
 }
 
@@ -834,7 +834,8 @@ GroupItem   action = currentMETHOD;
 GroupItem   grup;
 GroupItem   result;
 String      arg = input.text;
-    result  = locateInMethod(arg);
+    result = locateInMethod(arg);
+    if result && result.parent == action  goto endName;
     if defining && result && result.isVirtual    result = copyOf(result);
     grup    = new(arg);
     if alphaSet.contains(*arg) && processingCode
@@ -849,6 +850,7 @@ String      arg = input.text;
                     result  = action +% grup;
                     isLocal = true; }
     if !result  result = grup;
+endName:
     input.group = result;
     return input;
 }

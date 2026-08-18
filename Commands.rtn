@@ -135,8 +135,9 @@ extern GroupItem cLEAR(GroupItem input)
 *******************************************************************************/
 extern GroupItem compile(GroupItem field)
 {
-GroupItem   grup;
-    if !field.isCoded       return 0;
+GroupItem   code,
+            grup;
+    if !field.isCoded       goto endCompile;
     /*  ⚠ COMPILE OWNS THE COMPILATION PRECONDITIONS, ENSURED IDEMPOTENTLY.
         R-4, Tony's ruling 2026-08-17.
 
@@ -171,18 +172,25 @@ GroupItem   grup;
         (addString is idempotent on its own -- getFromList first -- so this
         guard is belt and braces. It is kept because R-4 asks that an existing
         precondition be left untouched, not merely un-duplicated.)  */
-    grup = field["this"];
-    if !grup {
-        grup            = field += "this";
-        grup.isLocal    = true;
-        grup.noPrint    = true;
-        grup.group      = field; }
+    code    = field["CodE"];
+    grup    = 0;
+    while grup = field.next(grup)
+        if grup.noPrint     continue;
+        or grup.isRule      code +% grup;
+    grup            = new("this");
+    grup.isLocal    = true;
+    grup.noPrint    = true;
+    grup.group      = field;
+    grup.isAttribute    = true;
+    code.replace(grup);
     grup = field["tempField"];
-    if !grup {
-        grup            = field += "tempField";
-        grup.isLocal    = true;
-        grup.noPrint    = true; }
-    if !processCode(field)  return 0;
+    grup            = new("tempField");
+    grup.isLocal    = true;
+    grup.noPrint    = true;
+    grup.isAttribute    = true;
+    code.replace(grup);
+    if !processCode(field)  exit(1);
+endCompile:
     return field;
 }
 
@@ -555,13 +563,13 @@ GroupItem   form = input.parent;
 ***************************************************************************/
 extern GroupItem printToBuffer(GroupItem bufferField)
 {
+use toBUFFER
     if bufferField && isBUFFER {
         toBUFFER = bufferField.buffer;
-        toBUFFER.reset();
-        print "printToBuffer: diverting print output to " bufferField.tag:; }
+        reset(); }
     or toBUFFER {
-        toBUFFER = 0;
-        print "printToBuffer: stopping print to buffer (buffer not reset)":; }
+debugHere:
+        toBUFFER = 0; }
     else cerr "printToBuffer: ignored":;
     return trueResult;
 }
