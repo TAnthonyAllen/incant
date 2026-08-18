@@ -309,6 +309,56 @@ parse never walks.
 attributes and members — so it wants a fleet-unmoved capture before and after, not a spot check.
 **Owner:** Tony (ruling), then whoever implements. **Evidence is complete; no re-derivation owed.**
 
+#### ⚠ PRE-FLIGHT CENSUS FOR THE GUARD REORDER — RUN 2026-08-18, AND IT IS **NONZERO**
+Instrument: `incant/shadowCensus` (extends `incant/bothCensus` with a data and a group column,
+because the reorder bypasses **testMatch and onGroup**, not only `testAttributes` — a census of
+attributes alone would have cleared the edit on incomplete grounds). 79 rules, Grokking:
+
+| A M D G | count | reorder impact |
+|---|---|---|
+| `A---` attributes only | 40 | none |
+| `--D-` data only | 17 | none |
+| `-M--` members only | 11 | **this is what the reorder repairs** |
+| `----` | 6 | none |
+| `A-D-` attributes + data | 3 | none — no members |
+| **`-MD-` members + data** | **2** | ⚠ **AT RISK** |
+
+**Zero rules own both attributes and members** (confirms `bothCensus`). The two at-risk rules are
+**`BrancheS`** (`grammar:96`, `bin`, members `break`/`continue`/`return`) and **`Operators`**
+(`grammar:119`, the operator registry used as an alternative of `Token`).
+
+**Why they are genuinely at risk rather than nominally.** Both carry data and NO attributes and are
+not groups, so `testMatch` is the only thing in arm 1 that can make either succeed — and both
+demonstrably do succeed today (`pop.sh`'s `loopBranchT` parses `break`/`continue`; every expression
+in the fleet parses an operator). After the reorder, a members-shaped rule takes `testOptions` and
+**never reaches `testMatch`**, so both would be re-routed onto an alternation walk over their
+members. For `Operators` that also discards the registry's documented **longest-match** discipline,
+which `parseContainer` implements and `testOptions` does not.
+
+⚠ **AND THE ROUTE THAT WOULD HAVE SAVED THEM IS NOT INSTALLED.** `setParse` — which is what would
+give a bin or registry `parseContainer` — has **exactly one caller in the whole tree**, and it is
+`genParseTest` in `IncantForms/WorkingOn/parser`. The other door, `setParseMethod`, is reached only
+through the explicit kant/`parseMethod=` binding (`genParse.rtn:868`, `:1456`). So in an ordinary
+run `defStuff.parseMethod` is null and **every rule takes the arm chain**, exactly as `parse()`'s
+own comment says. Containers are not protected by having a container parser; they are protected
+today **by the very ordering the reorder inverts**.
+
+**What this hands back to Tony (order-of-operations step 4 says list, do not edit):**
+1. The reorder as spelled needs an exclusion for containers — `isRule && hasMembers && !binTypE`
+   and something for `isREGISTRY` — or
+2. the narrower repair of the same defect: leave the arm order alone and make the guard mean **has
+   a non-noPrint attribute**. That is the false-by-vacancy repair in its own terms, and it moves
+   **nothing** in this census — both at-risk rules have no attributes at all, so their guard value
+   is unchanged — while still letting a poisoned alternation rule reach `testOptions`. Or
+3. rule 2 (pick-one) FIRST: `BrancheS` and `Operators` are themselves data-plus-structure hybrids,
+   so splitting them removes the ambiguity rather than working around it. On this reading the
+   pick-one conformance pass is a **prerequisite** for the reorder, not a follow-on.
+
+**Baselines banked on the bare binary before any edit** (`tok GroupRules.twk` with no directives
+file, canary `302 -> 302`, rebuilt 11:31): fleet **40 green / 1 parked**, reds `iterT1m` x2 +
+`jsonTest baseline`; jitLadder **205 ok, stderr 0, one owned red (JV/F-12)**. Both match the
+2026-08-17 seal exactly.
+
 ### F-14 — the walk has four SILENT exits; there is no skipped-rules list
 **Where:** `parser` — three `continue` gates in `walkRules`, plus `genParseTest`'s `datA != 0`
 early return.

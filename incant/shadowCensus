@@ -1,0 +1,74 @@
+/*  shadowCensus -- THE PRE-FLIGHT FOR THE GUARD REORDER, 2026-08-18.
+
+    THE EDIT IT CLEARS. In GroupItem.twk parse, the arm that runs testOptions
+    is about to be tested FIRST, ahead of the arm that runs testMatch, onGroup
+    and testAttributes. Today the two are chained with or, so a rule owning any
+    attribute never reaches testOptions -- which is F-15.
+
+    WHAT THE EDIT CAN MOVE, and it is wider than F-15's own subject. After the
+    reorder a rule that has members takes the alternation arm and therefore
+    NEVER runs testMatch or onGroup or testAttributes. So the population at
+    risk is every rule that has members AND anything the first arm would have
+    done for it. That is three things, not one, and a census of attributes
+    alone would clear the edit on incomplete grounds.
+
+    THE COLUMNS, all printed unconditionally as a letter or a dash so an absent
+    flag is a printed value and never a missing row (rule H4).
+        A   hasAttributeS
+        M   hasMemberS
+        D   carries data, which is what sets testMatch
+        G   is a group, which is what sets onGroup
+    A row is AT RISK when M is present and any of A, D or G is also present.
+    Rows with M alone, or with no M at all, cannot move.
+
+    VACUITY GUARD. Every column is printed for every row, so a column that had
+    gone inert would show as constant down the whole listing rather than as an
+    empty result. The tally is done over the printed lines by the caller, not
+    inside the walk, so the instrument cannot disagree with its own count.
+
+    IDIOM COPIED FROM incant/bothCensus, deliberately and including its two
+    separate walks with a DIFFERENT local each. A for loop over Grokking exits
+    139 with zero output on this binary, reproduced 2026-08-15.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(ShadowCensus);
+define
+    scMembers argument code={
+        iterate scCur on argument members;
+        while ++scCur;
+            if !isRulE;     continue;
+            print "row ";
+            if hasAttributeS;   print "A";
+            else                print "-";
+            if hasMemberS;      print "M";
+            else                print "-";
+            if datA != 0;       print "D";
+            else                print "-";
+            if isGROUP;         print "G";
+            else                print "-";
+            print " " ~taG:;
+        };
+    scAttrs argument code={
+        iterate scCur2 on argument attributes;
+        while ++scCur2;
+            if !isRulE;     continue;
+            print "row ";
+            if hasAttributeS;   print "A";
+            else                print "-";
+            if hasMemberS;      print "M";
+            else                print "-";
+            if datA != 0;       print "D";
+            else                print "-";
+            if isGROUP;         print "G";
+            else                print "-";
+            print " " ~taG:;
+        };
+    ;
+print "== SHADOW CENSUS: members of Grokking ==":;
+scMembers(Grokking);
+print "== SHADOW CENSUS: attributes of Grokking ==":;
+scAttrs(Grokking);
+print "SHADOWCENSUS SENTINEL -- run reached the end":;
+stop();
