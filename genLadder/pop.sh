@@ -223,6 +223,34 @@ fi
 grep -v "^getRStuff" "$T/cen" | sed -n '/^PLAN /,$p' | grep -vE "^Search list:|^stop:|^$" > "$T/cenp"
 diffcheck "census.target" genLadder/census.target "$T/cenp"
 
+#  parseClass -- WHICH setParse ARM CLAIMS EACH FIELD, over the whole grammar.
+#  Added 2026-08-19, and it is the instrument that day did not have.
+#
+#  BOTH parse-generation defects found that day were CLASSIFICATION defects and
+#  neither needed a parse to be visible. `tokenize` was falling past every arm
+#  into the data switch and binding parseString -- which, until the parseString
+#  repair, reported success without matching anything. `CodE`, which the grammar
+#  declares parseAction, came within one arm ORDER of binding parseRule. A third
+#  landed the same afternoon: with `or method` above an unguarded data switch,
+#  three isGROUP references carrying a method (ANYtoken, NewGroup, ShortcuT --
+#  seven rows) bound parseAction where the template leaves them unbound.
+#
+#  ⚠ IT READS THE BOUND POINTER, IT DOES NOT RE-DERIVE THE ARM. parseClassify
+#  compares the actual fnptr, so this cannot drift into being a second
+#  implementation of setParse's chain that disagrees with the real one.
+#
+#  ⚠ AND IT IS THE ONLY ROW IN THIS FILE THAT EXERCISES setParse AT ALL. Every
+#  other check here runs the interpretive path, where no parse method is ever
+#  bound -- so before this row the whole generated-parse arc was invisible to
+#  the fleet, and "fleet unmoved" said nothing whatever about it.
+#
+#  stderr, not stdout: every line the fixture prints is cerr, deliberately, so a
+#  run that ends badly cannot lose it in a block buffer.
+run2 parseClass "$T/pco" "$T/pce"; check "parseClass runs" 0 $?
+sentinel "parseClass" "$T/pce" "PARSECLASS SENTINEL"
+grep '^PC ' "$T/pce" | sort > "$T/pcp"
+diffcheck "parseClass.target (setParse classification)" genLadder/parseClass.target "$T/pcp"
+
 #  emitLeaf's OWN target -- THE ORACLE IS THE FUNCTION BEING REPLACED. Captured
 #  while the C++ emitLeaf was still the only implementation, so a kant rewrite
 #  has something byte-exact to answer to (Minion A round 1).

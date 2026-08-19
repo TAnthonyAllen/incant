@@ -1,0 +1,74 @@
+/*****************************************************************************
+    parseClass -- the setParse CLASSIFICATION CENSUS.
+
+    For every rule reachable from Grokking, and for every term of every rule,
+    this binds a parse method and prints which arm of setParse claimed it. It
+    answers one question and answers it before any parse happens: when the walk
+    binds this grammar, what will each field be executed by.
+
+    WHY IT EXISTS. Both parse generation defects found on 2026-08-19 were
+    classification defects, and neither needed a parse to be visible. tokenize
+    was falling to the data switch and binding parseString, which before the
+    parseString repair reported success without matching anything. CodE, which
+    the grammar declares parseAction, came within one arm order of binding
+    parseRule instead. A table like this shows both at a glance and nothing in
+    the fleet showed either.
+
+    THE STOP IS INSIDE THE DRIVER ACTION, AND THAT IS THE SHAPE NOT A STYLE.
+    Binding parse methods across the grammar poisons the loader, so the parser
+    can no longer read the source that follows. An action body is parsed once at
+    define time, so a driver that never returns to the loader is the only shape
+    that survives its own effect.
+
+    EVERY LINE IS ON CERR for the same reason the walk fixtures are: stdout is
+    block buffered and a run that ends badly loses it.
+
+    ONE SENTINEL, AT THE FOOT, INSIDE THE DRIVER.
+*****************************************************************************/
+Start();
+include(unitTests);
+search reset stack Grokking;
+search UnitTests list;
+register(ParseClass);
+define
+    /*  THE SKIPS ARE walkPhase's, DELIBERATELY COPIED RATHER THAN CHOSEN.
+        A census that walks where the real walk does not reports its own
+        shape, not the grammar's. Without these it descended into the
+        Operators registry and produced 54 rows of `NO-rSTUFF` for `+`, `==`,
+        `AND` and their siblings -- container entries the walk never binds,
+        and 54 setParse errors this fixture invented for itself.
+        ⚠ THE SKIP IS ON THE DESCENT, NOT ON THE CLASSIFICATION. A container
+        TERM is a real term and wants parseContainer; it is descending into
+        its ENTRIES that is wrong. Skipping both was the first correction and
+        it silently deleted every parseContainer row -- an over-correction
+        that reads exactly like a clean result.  */
+    pcTerms argument code={
+        iterate pcA on argument attributes;
+        while ++pcA;
+            if noPrinT;     continue;
+            setParse(pcA);
+            parseClassify(pcA);
+        iterate pcM on argument members;
+        while ++pcM;
+            if noPrinT;     continue;
+            setParse(pcM);
+            parseClassify(pcM);
+        };
+    pcWalk argument code={
+        iterate pcR on argument members;
+        while ++pcR;
+            if noPrinT;     continue;
+            if !isRulE;     continue;
+            setParse(pcR);
+            parseClassify(pcR);
+            if binTypE;     continue;
+            pcTerms(pcR);
+        };
+    pcRun code={
+        cerr "== PARSE CLASSIFICATION CENSUS ==":;
+        pcWalk(Grokking);
+        cerr "PARSECLASS SENTINEL -- run reached the end":;
+        stop();
+        };
+    ;
+pcRun();

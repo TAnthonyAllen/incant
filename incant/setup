@@ -28,6 +28,7 @@ define
     arrondir immediateAction=arrondir;
     closeFile immediateAction;
     compile immediateAction;
+    parseClassify immediateAction;
     condition immediateAction=processFlags noPrint;
     copy immediateAction=cOPY;
     copyOf immediateAction;

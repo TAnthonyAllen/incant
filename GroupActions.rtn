@@ -769,6 +769,50 @@ GroupRules  ruler = groupRules;
     print buffer is not loud.
 *****************************************************************************/
 /*****************************************************************************
+    parseClassify -- WHICH ARM OF setParse CLAIMED THIS FIELD.
+
+    ⚠ THE INSTRUMENT THE 2026-08-19 SESSION DID NOT HAVE, and both of that
+    day's parse-generation defects were invisible without it and obvious with
+    it. `tokenize` was silently bound to parseString -- which, before the
+    parseString repair, reported success without matching anything -- and
+    `CodE` came within one arm order of being moved off parseAction. Neither
+    needed a PARSE to be visible; both are decided the moment setParse runs,
+    and nothing printed that decision.
+
+    ⚠ IT READS THE BOUND POINTER, IT DOES NOT RE-DERIVE THE ARM. A classifier
+    that recomputed the answer from the flags would be a second implementation
+    of setParse's chain, and the day it disagreed with the real one it would
+    say so about the wrong thing. Comparing the actual fnptr cannot drift.
+
+    cerr rather than print: this is a diagnostic, a fixture may have print
+    diverted, and stdout is block-buffered so a run that ends badly loses it.
+    Returns the field so a walk can chain it.
+*****************************************************************************/
+extern GroupItem parseClassify(GroupItem field)
+{
+String      pcName = "other";
+    -%
+    if (!field)                 pcName = (char *)"null-field";
+    else if (!field->rStuff)    pcName = (char *)"NO-rSTUFF";
+    else {
+        GroupItem *(*pm)(GroupItem *) = field->rStuff->parseMethod;
+        if      (!pm)                    pcName = (char *)"none";
+        else if (pm == ::parseUpTo)      pcName = (char *)"parseUpTo";
+        else if (pm == ::parseContainer) pcName = (char *)"parseContainer";
+        else if (pm == ::parseCondition) pcName = (char *)"parseCondition";
+        else if (pm == ::parseAction)    pcName = (char *)"parseAction";
+        else if (pm == ::parseRule)      pcName = (char *)"parseRule";
+        else if (pm == ::parseAny)       pcName = (char *)"parseAny";
+        else if (pm == ::parseCharacter) pcName = (char *)"parseCharacter";
+        else if (pm == ::parseSet)       pcName = (char *)"parseSet";
+        else if (pm == ::parseString)    pcName = (char *)"parseString";
+    }
+    %-
+    cerr "PC " pcName " " field.tag:;
+    return field;
+}
+
+/*****************************************************************************
     limitWriteGuard / limitWriteCheck -- F-27's ruling: a bad write to maxLimit
     is refused AT THE WRITE, and the assignment does not take.
 

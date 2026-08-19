@@ -317,6 +317,7 @@ extern "C" GroupItem *parseAction(GroupItem *field);
 extern "C" GroupItem *parseAny(GroupItem *field);
 extern "C" GroupItem *parseBraced(GroupItem *rule);
 extern "C" GroupItem *parseCharacter(GroupItem *field);
+extern "C" GroupItem *parseClassify(GroupItem *field);
 extern "C" GroupItem *parseCondition(GroupItem *field);
 extern "C" GroupItem *parseContainer(GroupItem *field);
 extern "C" GroupItem *parseRK(GroupItem *idx);

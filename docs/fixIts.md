@@ -120,6 +120,21 @@ than creating it. Same family as the rung-6 repetition tripwire already noted at
 divergence is intended and why. **Owner: Tony** (his file, his intent). **Size:** rulings, then small
 edits.
 
+### F-30 — `Operators` reaches `setParse` as a term and has no `rStuff`
+**Where:** found by `incant/parseClass`, 2026-08-19 — the one surviving `NO-rSTUFF` row out of 239
+once the census was aligned with `walkPhase`'s skips.
+**What:** the `Operators` registry is reachable as a member of `Grokking`, so a walk that binds parse
+methods calls `setParse` on it and gets `setParse: ERROR field passed in Operators has no rStuff`.
+Same symptom Tony hit on the pick-one terms (`e`), different node.
+**Why it is only one row now:** the first draft of the census descended INTO `Operators` and produced
+**54** such rows for `+`, `==`, `AND` and their siblings. Those were the fixture's own artifact — the
+real walk does not descend into a container — and were removed by copying `walkPhase`'s skips. **The
+container itself is still reached, and that row is real.**
+**Three candidate repairs, none chosen:** give registries an `rStuff`; have the walk skip
+`isREGISTRY` at the top level as it already skips container ENTRIES; or make `setParse` silent for a
+node it cannot bind. **Owner: Tony** — which one is right depends on whether a registry is supposed
+to be parseable at all.
+
 ### F-28 — the ONE `maxLimit` bounds TWO different KINDS of quantity, and only one of them refuses loudly
 **Where:** `RuleStuff.twk`'s `testMacro` loop and `GroupItem.twk:1339`'s `while !isOK && kount < max`.
 **What:** one field, two populations — **how many characters one match may span**, and **how many

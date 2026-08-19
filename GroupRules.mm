@@ -7512,38 +7512,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 }
 
 /*****************************************************************************
-    reportMaxLimit -- THE THIRD REFUSAL, and it states a fact neither sibling
-    can. reportCodeFail says a body was parsed and the parse failed;
-    reportNoBody says a rule was reached with no compiled body. This one says
-    a match ran into the maxLimit ceiling with input still matching, so what
-    was about to be returned is a TRUNCATION.
-
-    ⚠ IT REFUSES RATHER THAN TRUNCATING, and that is the whole point of it.
-    Silently returning the first N characters of a longer token is
-    parse-succeeded-with-wrong-content, which is the worst failure genre on
-    this project's books -- every downstream reader believes a token that was
-    never in the input. A limit hit means either a defect or a genuinely large
-    token, and both deserve to be named at the moment they happen.
-
-    ⚠ ONE IMPLEMENTER, WHICH IS HOW THE TWO ENGINES ARE KEPT HONEST. The
-    interpretive loop (testMacro, RuleStuff.twk) and the generated-parse loops
-    (parseAny/parseCharacter/parseSet, Generate.rtn) both call THIS function,
-    so "same behaviour, same words" is true by construction rather than by two
-    copies being carefully matched. The convergence note on reportCodeFail
-    applies to all three.
-
-    ⚠ WHAT IT IS NOT ALLOWED TO FIRE ON. max is not only the ceiling: it is 1
-    by default and it is whatever an explicit [min max] Limit sets. Both of
-    those hit `counter >= max` in the ordinary course of a correct parse -- a
-    one-character rule followed by another matching character reaches it on
-    every single match. So the callers gate on `max > 1 && !limitsSet`, which
-    is true only for the ceiling modify() stamps. Ungated, this would reject
-    every name longer than one letter.
-
-    cerr for its siblings' reason: a refusal that vanishes into a diverted
-    print buffer is not loud.
-*****************************************************************************/
-/*****************************************************************************
     limitWriteGuard / limitWriteCheck -- F-27's ruling: a bad write to maxLimit
     is refused AT THE WRITE, and the assignment does not take.
 
@@ -10032,6 +10000,82 @@ int 		more = 0;
 	return 0;
 }
 
+/*****************************************************************************
+    reportMaxLimit -- THE THIRD REFUSAL, and it states a fact neither sibling
+    can. reportCodeFail says a body was parsed and the parse failed;
+    reportNoBody says a rule was reached with no compiled body. This one says
+    a match ran into the maxLimit ceiling with input still matching, so what
+    was about to be returned is a TRUNCATION.
+
+    ⚠ IT REFUSES RATHER THAN TRUNCATING, and that is the whole point of it.
+    Silently returning the first N characters of a longer token is
+    parse-succeeded-with-wrong-content, which is the worst failure genre on
+    this project's books -- every downstream reader believes a token that was
+    never in the input. A limit hit means either a defect or a genuinely large
+    token, and both deserve to be named at the moment they happen.
+
+    ⚠ ONE IMPLEMENTER, WHICH IS HOW THE TWO ENGINES ARE KEPT HONEST. The
+    interpretive loop (testMacro, RuleStuff.twk) and the generated-parse loops
+    (parseAny/parseCharacter/parseSet, Generate.rtn) both call THIS function,
+    so "same behaviour, same words" is true by construction rather than by two
+    copies being carefully matched. The convergence note on reportCodeFail
+    applies to all three.
+
+    ⚠ WHAT IT IS NOT ALLOWED TO FIRE ON. max is not only the ceiling: it is 1
+    by default and it is whatever an explicit [min max] Limit sets. Both of
+    those hit `counter >= max` in the ordinary course of a correct parse -- a
+    one-character rule followed by another matching character reaches it on
+    every single match. So the callers gate on `max > 1 && !limitsSet`, which
+    is true only for the ceiling modify() stamps. Ungated, this would reject
+    every name longer than one letter.
+
+    cerr for its siblings' reason: a refusal that vanishes into a diverted
+    print buffer is not loud.
+*****************************************************************************/
+/*****************************************************************************
+    parseClassify -- WHICH ARM OF setParse CLAIMED THIS FIELD.
+
+    ⚠ THE INSTRUMENT THE 2026-08-19 SESSION DID NOT HAVE, and both of that
+    day's parse-generation defects were invisible without it and obvious with
+    it. `tokenize` was silently bound to parseString -- which, before the
+    parseString repair, reported success without matching anything -- and
+    `CodE` came within one arm order of being moved off parseAction. Neither
+    needed a PARSE to be visible; both are decided the moment setParse runs,
+    and nothing printed that decision.
+
+    ⚠ IT READS THE BOUND POINTER, IT DOES NOT RE-DERIVE THE ARM. A classifier
+    that recomputed the answer from the flags would be a second implementation
+    of setParse's chain, and the day it disagreed with the real one it would
+    say so about the wrong thing. Comparing the actual fnptr cannot drift.
+
+    cerr rather than print: this is a diagnostic, a fixture may have print
+    diverted, and stdout is block-buffered so a run that ends badly loses it.
+    Returns the field so a walk can chain it.
+*****************************************************************************/
+extern "C" GroupItem *parseClassify(GroupItem *field)
+{
+char 	*pcName = "other";
+	
+	if (!field)                 pcName = (char *)"null-field";
+	else if (!field->rStuff)    pcName = (char *)"NO-rSTUFF";
+	else {
+	GroupItem *(*pm)(GroupItem *) = field->rStuff->parseMethod;
+	if      (!pm)                    pcName = (char *)"none";
+	else if (pm == ::parseUpTo)      pcName = (char *)"parseUpTo";
+	else if (pm == ::parseContainer) pcName = (char *)"parseContainer";
+	else if (pm == ::parseCondition) pcName = (char *)"parseCondition";
+	else if (pm == ::parseAction)    pcName = (char *)"parseAction";
+	else if (pm == ::parseRule)      pcName = (char *)"parseRule";
+	else if (pm == ::parseAny)       pcName = (char *)"parseAny";
+	else if (pm == ::parseCharacter) pcName = (char *)"parseCharacter";
+	else if (pm == ::parseSet)       pcName = (char *)"parseSet";
+	else if (pm == ::parseString)    pcName = (char *)"parseString";
+	}
+	
+	::fprintf(stderr,"PC %s %s\n",pcName,field->groupBody->tag);
+	return field;
+}
+
 /*******************************************************************************
 	Process a condition
 *******************************************************************************/
@@ -12392,6 +12436,32 @@ int 		offset = markOffset->getCount();
 /*******************************************************************************
 	Set parseMethod. For now does not handle macros
 *******************************************************************************/
+/*****************************************************************************
+    ⚠ THE `or data` GUARD IS THE TEMPLATE'S AND DROPPING IT COSTS REAL ROUTING.
+    setTestMatch tests data THIRD, above every method-shaped arm, so a field
+    that CARRIES data is matched by its data and a method-bearing leaf is the
+    leftover case. With `or method` above an unguarded switch, the method arm
+    claimed fields that have a data answer. Measured 2026-08-19 by
+    incant/parseClass, before and after: exactly three fields moved, and all
+    three are isGROUP references carrying a method -- `ANYtoken` (=NamE),
+    `NewGroup` (TraiT@) and `ShortcuT`. Each had bound parseAction; each is now
+    left UNBOUND, which is the template's answer for isGROUP and what lets
+    parse()'s onGroup dereference the reference instead of firing a method at
+    it. `tokenize` and `CodE` did not move. Data first, then the leftover
+    method leaf, then string.
+
+    ⚠ THE FIRST DRAFT OF THIS PARAGRAPH CALLED ShortcuT A CHARACTER SET and
+    said it should bind parseSet. It is isGROUP, and the right answer is
+    unbound -- the census said so and the prose had been written from the
+    grammar line `ShortcuT=[-+~`$_:,]+` before the measurement came back.
+
+    ⚠ AND THIS PROSE LIVES ABOVE THE FUNCTION FOR A MEASURED REASON. Written
+    inside the if/or chain, immediately before an `or`, it silently DELETED
+    setParse from the generated extern block -- 307 externs to 306, tok exit 0,
+    build succeeded. That is bear-trap #29 exactly, and the standing canary
+    `grep -c '^extern' GroupRules.h` is what caught it. Comments go above the
+    chain or inside an arm's braces, never in the gap between arms.
+*****************************************************************************/
 extern "C" GroupItem *setParse(GroupItem *field)
 {
 RuleStuff 	*ruleStuff = field->rStuff;
@@ -12416,23 +12486,28 @@ RuleStuff 	*ruleStuff = field->rStuff;
 		if ( field->groupBody->groupList )
 			ruleStuff->parseMethod = ::parseRule;
 		else
-		switch (field->groupBody->flags.data)
-			{
-			case 1:
-				ruleStuff->parseMethod = ::parseAny;
-				break;
-			case 2:
-				ruleStuff->parseMethod = ::parseCharacter;
-				break;
-			case 3:
-				ruleStuff->parseMethod = ::parseSet;
-				break;
-			case 6:
-				ruleStuff->parseMethod = 0;
-				break;
-			default:
-				ruleStuff->parseMethod = ::parseString;
-			}
+		if ( field->groupBody->flags.data )
+			switch (field->groupBody->flags.data)
+				{
+				case 1:
+					ruleStuff->parseMethod = ::parseAny;
+					break;
+				case 2:
+					ruleStuff->parseMethod = ::parseCharacter;
+					break;
+				case 3:
+					ruleStuff->parseMethod = ::parseSet;
+					break;
+				case 6:
+					ruleStuff->parseMethod = 0;
+					break;
+				default:
+					ruleStuff->parseMethod = ::parseString;
+				}
+		else
+		if ( field->groupBody->gMethod )
+			ruleStuff->parseMethod = ::parseAction;
+		else	ruleStuff->parseMethod = ::parseString;
 		}
 	return 0;
 }
