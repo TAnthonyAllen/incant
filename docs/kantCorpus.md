@@ -2203,6 +2203,50 @@ find that way than by reading `opSetFlag`.
 It needed no new mechanism, it is measured, and it survives `getText()`'s tag
 fallback, which is the thing that defeats every "return nothing" spelling.
 
+### CLAIM KANT-42 — KANT-26's SCOPE LIMIT, MEASURED BOTH WAYS: a brace is INERT in a defining string body and STILL BITES in a code body
+```
+statement:   A literal `{` or `}` inside a double-quoted string on a DEFINE
+             line is harmless. The row parses, the value survives byte for
+             byte, and nesting is unaffected. The same character inside a
+             string in a `code={ }` body still truncates, exactly as KANT-26
+             says. So the hazard is a property of the CodE capture, not of
+             braces in incant strings.
+confidence:  RUN
+provenance:  Measured 2026-08-19 for the minion-report skeleton, which needs
+             claims to carry their verification commands VERBATIM and so must
+             know whether shell text is safe in a defining string.
+             `incant/braceT`, ten entries in a registry, worst-case shapes
+             included, all ten present with values intact and the sentinel
+             printed at exit 0:
+                 BT2  "open brace only { and then text"
+                 BT3  "close brace only } and then text"
+                 BT4  "matched pair { inside } one value"
+                 BT5  "awk '$1==\"row\" {print $7}' census.out"
+                 BT8  "for f in *.twk; do tok $f; done"
+                 BT9  nested parent carrying `{`, with two children, one of
+                      which carries `{print $1}`
+             ⚠ NEGATIVE CONTROL, and it is what makes this a boundary rather
+             than a hopeful absence. The same brace-bearing string moved into a
+             `code={ }` body truncates the define:
+                 cerr "B awk '{print $1}' ...":;
+                 -> RunRulE: expected a method not bcOne
+                 -> exit 0, no sentinel, nothing named the line
+asOf:        2026-08-19
+scope:       Covers a double-quoted string as the VALUE on a define line, leaf
+             and nested-parent alike, in a registry. CONFIRMS AND EXTENDS the
+             note KANT-26 already carried in its own scope field -- "the
+             workaround shows it parses fine in a DatA value on a define line"
+             -- which was an aside there and is measured here.
+             Says nothing about `-% %-` passthrough, about single-quoted
+             values, or about a brace in a TAG rather than a value.
+             ⚠ CONSEQUENCE FOR MINION REPORTS: a claim may carry its command
+             verbatim with no escaping convention, no openBrace/closeBrace
+             fields and no quarantine attribute -- PROVIDED the report is DATA.
+             The DesignDocs ruling already requires exactly that, so the format
+             ruling removes the hazard as a side effect. A minion that puts a
+             command inside a `code={ }` body reintroduces it.
+```
+
 ---
 
 ## RELATED, AND NOT PART OF THIS CORPUS

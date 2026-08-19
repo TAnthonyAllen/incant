@@ -1,0 +1,69 @@
+/*  braceT -- DOES A LITERAL BRACE INSIDE A DEFINING STRING BODY CLOSE THE BLOCK
+    EARLY. Clay's item 5b, 2026-08-19, and it gates the minion report skeleton.
+
+    WHY IT IS ASKED. Minion reports are ruled to land as DesignDocs entries, and
+    the claims format wants each claim to carry its verification command
+    verbatim. Real commands carry literal braces routinely, awk being the
+    obvious one. The trap table says literal braces inside a string in a CODE
+    body close the block early, which is why Tony's openBrace and closeBrace
+    fields exist. Whether the same bites in a DEFINING string body, which is
+    what a DesignDocs entry is, has never been measured.
+
+    THE SHAPE IS THE POINT. Every row below is a leaf entry in a registry,
+    exactly as a DesignDocs claim would be, and the values run from harmless to
+    the worst real command shape. A sentinel entry sits LAST, so a truncated
+    define is reported by an absence that is checked by name rather than by a
+    reader noticing a short list.
+
+    HOW TO READ IT. The walk prints one line per entry it finds. All eight rows
+    present and the sentinel printed means braces are inert here. Missing rows,
+    a short count, or an expected-a-method complaint on stderr means they bite,
+    and the count says which row did it.
+
+    ANTI VACUITY. The count is asserted against a number written here in prose
+    rather than computed, so a walk that found nothing cannot report success by
+    finding nothing. Eight entries, and the ninth line is the sentinel.
+*****************************************************************************/
+Start();
+include(utilities);
+search reset stack Grokking;
+search GroupFields Utilities list;
+
+registry(BraceT);
+define
+    BT1="plain value, no braces at all";
+    BT2="open brace only { and then text";
+    BT3="close brace only } and then text";
+    BT4="matched pair { inside } one value";
+    BT5="awk '$1==\"row\" {print $7}' census.out";
+    BT6="grep -c '^extern' GroupRules.h";
+    BT7="sed -n '11111,11119p' GroupRules.mm";
+    BT8="for f in *.twk; do tok $f; done";
+    BT9="nested parent with a brace { in its own value":
+        BT9a="child one, brace } in the child";
+        BT9b="child two, awk '{print $1}' in the child";
+    BTsentinel="LAST ENTRY -- absent means the define truncated";
+    ;
+
+register(BraceWalk);
+define
+    btSeen=0;
+    btWalk argument code={
+        iterate btCur on argument;
+        while ++btCur;
+            btSeen = btSeen + 1;
+            cerr "ROW " btSeen " " ~taG " |" btCur "|":;
+            if listLengtH;
+                iterate btKid on btCur;
+                while ++btKid;
+                    cerr "   KID  " ~taG " |" btKid "|":;
+        };
+    btRun argument code={
+        btWalk(argument);
+        cerr "BRACET COUNT" btSeen "-- want 10 (8 rows + nested parent + sentinel)":;
+        cerr "BRACET SENTINEL -- the run reached the end":;
+        stop();
+        };
+    ;
+
+btRun(BraceT);
