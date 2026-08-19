@@ -1002,6 +1002,7 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	ruleName = grup->groupBody->tag;
 	// min and max may be overwritten by the TraiT rule action
 	max = 1;
+	maxRepeat = 1;
 	min = 1;
 	if ( grup = grup->parent )
 		if ( parentStuff = grup->rStuff )
@@ -1023,6 +1024,7 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	sourceLine = 0;
 	rule = 0;
 	max = 0;
+	maxRepeat = 0;
 	min = 0;
 	termCount = 0;
 	banged = 0;

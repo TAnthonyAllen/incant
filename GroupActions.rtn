@@ -583,9 +583,11 @@ extern void modify(GroupItem field,String modifier)
     setRuleStuff();
     while *modifier
         switch(*modifier++) {
-            case '+':   max     = maxLimit.count;
-            case '*':   min     = 0;
-                        max     = maxLimit.count;
+            case '+':   max         = maxLimit.count;
+                        maxRepeat   = repeatLimit.count;
+            case '*':   min         = 0;
+                        max         = maxLimit.count;
+                        maxRepeat   = repeatLimit.count;
             case '?':   min     = 0;
             case '!':   banged  = true;
             case '<':   noAdvance   = true;
@@ -793,6 +795,8 @@ extern GroupItem parseClassify(GroupItem field)
 String      pcName = "other";
     -%
     if (!field)                 pcName = (char *)"null-field";
+    else if (isREGISTRY(field->groupBody->flags.binType))
+                                pcName = (char *)"skipped-registry";
     else if (!field->rStuff)    pcName = (char *)"NO-rSTUFF";
     else {
         GroupItem *(*pm)(GroupItem *) = field->rStuff->parseMethod;
@@ -843,19 +847,57 @@ String      pcName = "other";
 extern int limitWriteGuard(GroupItem target)
 {
 GroupRules  ruler = groupRules;
-    if !target                                  return 0;
-    if target.groupBody != maxLimit.groupBody   return 0;
-    return maxLimit.count;
+    if !target                                      return 0;
+    if target.groupBody == maxLimit.groupBody       return maxLimit.count;
+    if target.groupBody == repeatLimit.groupBody    return repeatLimit.count;
+    return 0;
 }
 
 extern void limitWriteCheck(GroupItem target,int priorLimit)
 {
 GroupRules  ruler = groupRules;
+    if target.groupBody == repeatLimit.groupBody {
+        if (repeatLimit.isCOUNT || repeatLimit.isNUMBER) && repeatLimit.count > 0   return;
+        cerr "REFUSED repeatLimit write: " repeatLimit.text " is not a usable limit":;
+        cerr "    keeping repeatLimit " toStringFromInt(priorLimit):;
+        cerr "    limits already stamped are unchanged":;
+        repeatLimit.count = priorLimit;
+        return; }
     if (maxLimit.isCOUNT || maxLimit.isNUMBER) && maxLimit.count > 0    return;
-    cerr "REFUSED maxLimit write: " maxLimit.text " is not a usable repetition limit":;
+    cerr "REFUSED maxLimit write: " maxLimit.text " is not a usable limit":;
     cerr "    keeping maxLimit " toStringFromInt(priorLimit):;
-    cerr "    repetition limits already stamped are unchanged":;
+    cerr "    limits already stamped are unchanged":;
     maxLimit.count  = priorLimit;
+}
+
+/*****************************************************************************
+    reportRepeatLimit -- THE FOURTH REFUSAL, and the one that had no voice.
+
+    reportMaxLimit says a MATCH ran into the token ceiling. This says a RULE ran
+    into the repetition ceiling: it matched its limit of times and parse() then
+    stopped, which until 2026-08-19 happened in total silence. That silence is
+    what made the shared-ceiling arrangement dangerous -- a rule cut short here
+    simply stops and the statements after the cut are never parsed, at exit 0.
+
+    ⚠ IT REPORTS AND DOES NOT FAIL, and that is deliberate rather than timid.
+    The character loop refuses because a truncated TOKEN is wrong content. A
+    rule that repeated to its ceiling has matched everything it matched
+    correctly; what is wrong is that there may be more. Failing the match would
+    discard correct work and change parse outcomes wholesale. So the fact gets
+    named and the existing kount >= min semantics are left alone.
+
+    ⚠ THE COUNTS ARE PASSED, NOT RE-DERIVED. rStuff is per node and parse() may
+    be running on a REENTRANCY CLONE (docs/rstuff-chokepoint.md), so reading
+    rule.rStuff here could report a different frame's numbers than the loop that
+    hit the ceiling. The caller has the live frame; it hands over the values.
+*****************************************************************************/
+extern int reportRepeatLimit(GroupItem rule,int kounted,int limit)
+{
+GroupRules  ruler = groupRules;
+    cerr "REFUSED repetition limit: rule " rule.tag:;
+    cerr "    repeated " toStringFromInt(kounted) " times, hit repeatLimit " toStringFromInt(limit):;
+    cerr "    at " getDebugText(atRuleMark, 40):;
+    return 0;
 }
 
 extern int reportMaxLimit(GroupItem field)
@@ -1452,6 +1494,7 @@ GroupItem   minimum = limits%"min";
         Stamped only where a maximum was actually supplied.  */
     if maximum {
         max         = maximum.count;
+        maxRepeat   = maximum.count;
         limitsSet   = true; }
 }
 

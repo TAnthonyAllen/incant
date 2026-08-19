@@ -1336,7 +1336,7 @@ RuleStuff   ruleStuff   = getStuff(pStuff);
             fireLabelMethod(ruleStuff);
             attachLabel(ruleStuff,pStuff,0); }
         goto generatedExit; }
-    while !isOK && kount < max {
+    while !isOK && kount < maxRepeat {
 continueHere:
         sukcess     = false;
         if !checkInput()    goto matchFailed;
@@ -1389,6 +1389,7 @@ continueHere:
             kount++;
             attachLabel(ruleStuff,pStuff,1); }
         else break; }
+    if kount >= maxRepeat && maxRepeat > 1 && !limitsSet   reportRepeatLimit(rule,kount,maxRepeat);
 matchFailed:
     if !sukcess {
         if !sukcess && kount >= min sukcess = true;

@@ -228,43 +228,45 @@ GroupItem 	*action = 0;
 	the parser, and a live field read there would be paid for on every
 	character of every match.
 	
-	⚠⚠ THE VALUE IS MEASURED, AND IT IS NOT THE 100 THE BRIEF PROPOSED.
-	A 181-fixture sweep on 2026-08-19 instrumented both populations this
-	one field bounds:
+	⚠⚠ TWO KNOBS, BECAUSE ONE FIELD WAS BOUNDING TWO DIFFERENT KINDS OF
+	QUANTITY (Tony's ruling, 2026-08-19, closing F-28). Both defaults are
+	measured -- a 181-fixture sweep instrumented each population:
 	
-	characters in one match  ceiling  79   NotA, grammarOnTheFly
-	repetitions of one rule  ceiling 171   StatemenT, phaseA
+	maxLimit     TOKEN limit, characters in one match   ceiling  79
+	(NotA, grammarOnTheFly)                default 100
+	repeatLimit  REPETITION limit, times a rule repeats ceiling 171
+	(StatemenT, phaseA)                    default 100000
 	
-	100 clears the character population and DOES NOT CLEAR THE OTHER --
-	phaseA is a 171-statement file and a ceiling of 100 would have
-	truncated it. 100000 clears both by three orders of magnitude.
+	They are not the same kind of number and that is why they split. 79 is
+	a real bound on a token: no name or number gets much longer, so 100 is
+	a limit with meaning and a hit is worth refusing. 171 is not a bound on
+	anything -- it is the length of one fixture, and the next file may have
+	a thousand statements -- so its ceiling is chosen to be unreachable
+	rather than chosen from the data. Sharing one field forced the token
+	limit up to the repetition limit's number, which is what made 100
+	unusable until now.
 	
-	⚠ AND THE HEADROOM IS ASYMMETRIC ON PURPOSE, because the two
-	populations are not the same KIND of quantity. 79 is a real bound on
-	a token: no name or number gets much longer. 171 is not a bound on
-	anything -- it is the length of one fixture, and the next file may
-	have a thousand statements. No sweep can bound user input, so the
-	repetition side gets a number chosen to be unreachable rather than a
-	number chosen from the data.
+	⚠ AND THE ASYMMETRY IN WHAT A HIT MEANS SURVIVES THE SPLIT. A token cut
+	short is WRONG CONTENT, so the character loops refuse through
+	reportMaxLimit and fail the match. A rule that repeated to its ceiling
+	matched everything it matched correctly; what is wrong is that there may
+	be more. So the repetition loop REPORTS through reportRepeatLimit and
+	leaves the match alone -- it no longer stops in silence, which is what
+	made the old shared ceiling dangerous.
 	
-	⚠⚠ AND THE TRUNCATION IT AVOIDS WOULD BE SILENT. The character loop
-	refuses loudly through reportMaxLimit; parse()'s repetition loop at
-	GroupItem.twk:1339 has no such report, so a rule cut short there
-	just stops, and the statements after the cut are simply not parsed.
-	That asymmetry is why this number errs LARGE. Splitting the two
-	limits is the real repair -- docs/fixIts.md F-28.
-	
-	⚠ THE CEILING IS ALSO LOAD-BEARING AS A RUNAWAY STOP, which the
-	sweep found by accident: incant/sinkProbe drives StatemenT to the
-	ceiling EXACTLY, so it was doing 268435457 iterations and burning
-	17 seconds of CPU on every run. At 100000 the same run terminates
-	the same way in milliseconds. A runaway sets no floor for the limit,
-	so it is excluded from the table above rather than allowed to pin it
-	at 268 million forever.
+	⚠ THE CEILING IS ALSO LOAD-BEARING AS A RUNAWAY STOP, found by the sweep
+	rather than looked for: incant/sinkProbe drives StatemenT to the ceiling
+	EXACTLY, so it was doing 268435457 iterations and burning 17 seconds of
+	CPU per run. At 100000 the identical run terminates the same way in
+	milliseconds with byte-identical output. A runaway sets no floor, so it
+	pins nothing. See docs/fixIts.md F-29.
 	***********************************************************************/
 	groupRules->maxLimit = new GroupItem("maxLimit");
-	groupRules->maxLimit->setCount(100000);
+	groupRules->maxLimit->setCount(100);
+	groupRules->repeatLimit = new GroupItem("repeatLimit");
+	groupRules->repeatLimit->setCount(100000);
 	groupRules->properties->addMember(groupRules->inDENT);
 	groupRules->properties->addMember(groupRules->printSPACE);
 	groupRules->properties->addMember(groupRules->maxLimit);
+	groupRules->properties->addMember(groupRules->repeatLimit);
 }

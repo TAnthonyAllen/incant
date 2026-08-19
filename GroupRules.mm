@@ -7503,11 +7503,21 @@ GroupItem 	*inner = 0;
 extern "C" void limitWriteCheck(GroupItem *target, int priorLimit)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( target->groupBody == ruler->repeatLimit->groupBody )
+		{
+		if ( (isCOUNT(ruler->repeatLimit->groupBody->flags.data) || isNUMBER(ruler->repeatLimit->groupBody->flags.data)) && ruler->repeatLimit->getCount() > 0 )
+			return;
+		::fprintf(stderr,"REFUSED repeatLimit write: %s is not a usable limit\n",ruler->repeatLimit->getText());
+		::fprintf(stderr,"    keeping repeatLimit %s\n",::toStringFromInt(priorLimit));
+		::fprintf(stderr,"    limits already stamped are unchanged\n");
+		ruler->repeatLimit->setCount(priorLimit);
+		return;
+		}
 	if ( (isCOUNT(ruler->maxLimit->groupBody->flags.data) || isNUMBER(ruler->maxLimit->groupBody->flags.data)) && ruler->maxLimit->getCount() > 0 )
 		return;
-	::fprintf(stderr,"REFUSED maxLimit write: %s is not a usable repetition limit\n",ruler->maxLimit->getText());
+	::fprintf(stderr,"REFUSED maxLimit write: %s is not a usable limit\n",ruler->maxLimit->getText());
 	::fprintf(stderr,"    keeping maxLimit %s\n",::toStringFromInt(priorLimit));
-	::fprintf(stderr,"    repetition limits already stamped are unchanged\n");
+	::fprintf(stderr,"    limits already stamped are unchanged\n");
 	ruler->maxLimit->setCount(priorLimit);
 }
 
@@ -7544,9 +7554,11 @@ extern "C" int limitWriteGuard(GroupItem *target)
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( !target )
 		return 0;
-	if ( target->groupBody != ruler->maxLimit->groupBody )
-		return 0;
-	return ruler->maxLimit->getCount();
+	if ( target->groupBody == ruler->maxLimit->groupBody )
+		return ruler->maxLimit->getCount();
+	if ( target->groupBody == ruler->repeatLimit->groupBody )
+		return ruler->repeatLimit->getCount();
+	return 0;
 }
 
 /*****************************************************************************
@@ -8201,10 +8213,12 @@ extern "C" void modify(GroupItem *field, char *modifier)
 			{
 			case '+':
 				field->rStuff->max = GroupControl::groupController->groupRules->maxLimit->getCount();
+				field->rStuff->maxRepeat = GroupControl::groupController->groupRules->repeatLimit->getCount();
 				break;
 			case '*':
 				field->rStuff->min = 0;
 				field->rStuff->max = GroupControl::groupController->groupRules->maxLimit->getCount();
+				field->rStuff->maxRepeat = GroupControl::groupController->groupRules->repeatLimit->getCount();
 				break;
 			case '?':
 				field->rStuff->min = 0;
@@ -10057,6 +10071,8 @@ extern "C" GroupItem *parseClassify(GroupItem *field)
 char 	*pcName = "other";
 	
 	if (!field)                 pcName = (char *)"null-field";
+	else if (isREGISTRY(field->groupBody->flags.binType))
+	pcName = (char *)"skipped-registry";
 	else if (!field->rStuff)    pcName = (char *)"NO-rSTUFF";
 	else {
 	GroupItem *(*pm)(GroupItem *) = field->rStuff->parseMethod;
@@ -11615,6 +11631,36 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 }
 
 /*****************************************************************************
+    reportRepeatLimit -- THE FOURTH REFUSAL, and the one that had no voice.
+
+    reportMaxLimit says a MATCH ran into the token ceiling. This says a RULE ran
+    into the repetition ceiling: it matched its limit of times and parse() then
+    stopped, which until 2026-08-19 happened in total silence. That silence is
+    what made the shared-ceiling arrangement dangerous -- a rule cut short here
+    simply stops and the statements after the cut are never parsed, at exit 0.
+
+    ⚠ IT REPORTS AND DOES NOT FAIL, and that is deliberate rather than timid.
+    The character loop refuses because a truncated TOKEN is wrong content. A
+    rule that repeated to its ceiling has matched everything it matched
+    correctly; what is wrong is that there may be more. Failing the match would
+    discard correct work and change parse outcomes wholesale. So the fact gets
+    named and the existing kount >= min semantics are left alone.
+
+    ⚠ THE COUNTS ARE PASSED, NOT RE-DERIVED. rStuff is per node and parse() may
+    be running on a REENTRANCY CLONE (docs/rstuff-chokepoint.md), so reading
+    rule.rStuff here could report a different frame's numbers than the loop that
+    hit the ceiling. The caller has the live frame; it hands over the values.
+*****************************************************************************/
+extern "C" int reportRepeatLimit(GroupItem *rule, int kounted, int limit)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	::fprintf(stderr,"REFUSED repetition limit: rule %s\n",rule->groupBody->tag);
+	::fprintf(stderr,"    repeated %s times, hit repeatLimit %s\n",::toStringFromInt(kounted),::toStringFromInt(limit));
+	::fprintf(stderr,"    at %s\n",::getDebugText(ruler->atRuleMark,40));
+	return 0;
+}
+
+/*****************************************************************************
     reset — incant command (bound as reset immediateAction=resetField in
     setup). Self-describing by argument: for now it knows buffers (resets the
     mark). A fuller incant action dispatching on argument.taG comes later.
@@ -12405,6 +12451,7 @@ GroupItem 	*minimum = limits->getAttribute("min");
 	if ( maximum )
 		{
 		ruleStuff->max = maximum->getCount();
+		ruleStuff->maxRepeat = maximum->getCount();
 		ruleStuff->limitsSet = 1;
 		}
 }
@@ -12455,6 +12502,23 @@ int 		offset = markOffset->getCount();
     unbound -- the census said so and the prose had been written from the
     grammar line `ShortcuT=[-+~`$_:,]+` before the measurement came back.
 
+    ⚠ REGISTRIES ARE SKIPPED AT THE ENTRY, AND THE SITE IS THE RULING (Tony,
+    2026-08-19). A registry is INFRASTRUCTURE, not grammar: `Operators` is
+    reachable as a member of `Grokking`, so a walk that binds parse methods
+    reached it, found no rStuff, and printed
+    `setParse: ERROR field passed in Operators has no rStuff` -- an error for a
+    node that was never a parse candidate. Skipping at the entry rather than
+    inside the chain means it never reaches arming AND never reaches the rStuff
+    complaint, which is the difference between a clean skip and a swallowed
+    error. Closes F-30.
+
+    ⚠ THE SKIP IS isREGISTRY ONLY, NEVER isBIN, and the two are different
+    answers to different questions. A bin is a grammar TERM whose entries are
+    the alternatives -- `BrancheS` and `UnaryOPS` are bins and both legitimately
+    bind parseContainer, measured. A registry is a namespace the walk happens to
+    be standing in. Widening this to binType would silently delete four
+    parseContainer rows.
+
     ⚠ AND THIS PROSE LIVES ABOVE THE FUNCTION FOR A MEASURED REASON. Written
     inside the if/or chain, immediately before an `or`, it silently DELETED
     setParse from the generated extern block -- 307 externs to 306, tok exit 0,
@@ -12465,6 +12529,8 @@ int 		offset = markOffset->getCount();
 extern "C" GroupItem *setParse(GroupItem *field)
 {
 RuleStuff 	*ruleStuff = field->rStuff;
+	if ( isREGISTRY(field->groupBody->flags.binType) )
+		return 0;
 	if ( !ruleStuff )
 		::fprintf(stderr,"setParse: ERROR field passed in %s has no rStuff\n",field->groupBody->tag);
 	else
@@ -12999,6 +13065,7 @@ GroupRules::GroupRules()
 	generator = 0;
 	maxLimit = 0;
 	printSPACE = 0;
+	repeatLimit = 0;
 	ruleSkipSet = 0;
 	searchList = 0;
 	setupFILE = 0;

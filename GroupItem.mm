@@ -1665,7 +1665,7 @@ RuleStuff 	*ruleStuff = getStuff(pStuff);
 			}
 		goto generatedExit;
 		}
-	while ( !ruleStuff->isOK && ruleStuff->kount < ruleStuff->max )
+	while ( !ruleStuff->isOK && ruleStuff->kount < ruleStuff->maxRepeat )
 		{
 continueHere:
 		ruleStuff->sukcess = 0;
@@ -1734,6 +1734,8 @@ continueHere:
 			}
 		else	break;
 		}
+	if ( ruleStuff->kount >= ruleStuff->maxRepeat && ruleStuff->maxRepeat > 1 && !ruleStuff->limitsSet )
+		::reportRepeatLimit(ruleStuff->rule,ruleStuff->kount,ruleStuff->maxRepeat);
 matchFailed:
 	if ( !ruleStuff->sukcess )
 		{

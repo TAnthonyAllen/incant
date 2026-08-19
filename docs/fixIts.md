@@ -130,12 +130,37 @@ Same symptom Tony hit on the pick-one terms (`e`), different node.
 **54** such rows for `+`, `==`, `AND` and their siblings. Those were the fixture's own artifact — the
 real walk does not descend into a container — and were removed by copying `walkPhase`'s skips. **The
 container itself is still reached, and that row is real.**
-**Three candidate repairs, none chosen:** give registries an `rStuff`; have the walk skip
-`isREGISTRY` at the top level as it already skips container ENTRIES; or make `setParse` silent for a
-node it cannot bind. **Owner: Tony** — which one is right depends on whether a registry is supposed
-to be parseable at all.
+**✅ RULED AND CLOSED (Tony, 2026-08-19): registries are infrastructure, not grammar.** `setParse`
+skips `isREGISTRY` at its own **entry**, so a registry never reaches arming and never reaches the
+rStuff complaint — the difference between a clean skip and a swallowed error. `parseClassify` reports
+it as `skipped-registry`, and `parseClass.target` was re-pinned on exactly one moved row
+(`PC NO-rSTUFF Operators` → `PC skipped-registry Operators`, 239 rows both sides).
+**⚠ THE SKIP IS `isREGISTRY` ONLY, NEVER `isBIN`.** A bin is a grammar TERM whose entries are the
+alternatives — `BrancheS` and `UnaryOPS` are bins and both legitimately bind `parseContainer`,
+measured. Widening the test to `binType` would silently delete four `parseContainer` rows.
 
-### F-28 — the ONE `maxLimit` bounds TWO different KINDS of quantity, and only one of them refuses loudly
+### F-31 — the walk generates 56 bodies and EVERY ONE fails to compile, but only in a full sweep
+**Where:** `incant/walkPhase`, measured 2026-08-19 on the current tree.
+**The partition:** entered **139** · generated **56** · leaf **60** · refused **23** (9 distinct rules:
+`ExpressioN` ×8, `StatemenT` ×7, `PRINTing` ×2, and one each of `while`, `tokenize`, `QuotE`,
+`NumbeR`, `ElsE`, `DEFINing`). Then phase 2: **compiled 0, rejected 56.**
+**⚠ THE REJECTED COUNT IS CORROBORATED, not taken from the counter.** `walkPhase` captures
+`compile`'s return with `:=`, which F-22 records as unreliable, so the count alone would be suspect.
+The independent signal is **56 `ERROR processCode: <rule> parse failed` lines**, one per body, each
+reading `failed at :reached end of input / on line 1`.
+**⚠ AND IT IS A PHASE INTERACTION, NOT A PER-BODY DEFECT — this is the discriminating measurement.**
+`incant/compileProbe` compiles a single body on the same binary and passes every row (A, B, D green,
+subject marker printed). Tony's `runNamE` likewise compiled `NamE` successfully in Xcode — and `NamE`
+is among the 56 that fail here. So a body that compiles alone fails after phase 1 has installed the
+others.
+**Consistent with `walkPhase`'s own header** (*"once enough generated methods install, the parser can
+no longer read the source that FOLLOWS"*), and note it does **not** call `setParse` — so whatever
+poisons phase 2 is not parse-method binding.
+**Done when:** the first phase-1 install that breaks a subsequent compile is named — bisect by
+generating N bodies then compiling one, for increasing N. **Owner:** unassigned. **Size:** one
+fixture, mechanical.
+
+### F-28 — ✅ CLOSED 2026-08-19 — the split landed: `maxLimit` is the token limit, `repeatLimit` the repetition limit
 **Where:** `RuleStuff.twk`'s `testMacro` loop and `GroupItem.twk:1339`'s `while !isOK && kount < max`.
 **What:** one field, two populations — **how many characters one match may span**, and **how many
 times a rule may repeat**. Measured 2026-08-19 over 181 fixtures they are three orders of magnitude
@@ -154,8 +179,26 @@ F-27's ruling refused to allow at the write site.
 **The consequence today:** the default has to be chosen for the population that cannot be bounded,
 so it is **100000** and the character limit is along for the ride. Tony's 100 — a good number for a
 token — is unusable while the two share a field.
-**Done when:** the two limits are separate fields, or the repetition loop gets its own refusal so a
-truncation there is at least loud. **Owner: Tony** (it is a design split, not a repair).
+**RULED AND LANDED (Tony, 2026-08-19).** Two `GroupRules` fields, two stamped `RuleStuff` ints, and
+the repetition loop joins refuse-loud:
+
+| knob | bounds | fleet ceiling | default | on a hit |
+|---|---|---|---|---|
+| `maxLimit` | characters in one match | **79** | **100** | `reportMaxLimit`, **match fails** |
+| `repeatLimit` | times a rule repeats | **171** | **100000** | `reportRepeatLimit`, **reports only** |
+
+**⚠ THE TWO HITS DO DIFFERENT THINGS AND THAT IS THE RULING, not an oversight.** A truncated TOKEN is
+wrong content, so it refuses. A rule that repeated to its ceiling matched everything it matched
+correctly — what is wrong is that there may be more — so failing it would discard correct work and
+change parse outcomes wholesale. It names the fact and leaves `kount >= min` alone.
+`modify()` stamps both; `setLimits` stamps both from an explicit `[min max]` so a declared limit still
+bounds repetition; F-27's write guard covers both fields with the same union hazard.
+**Anti-vacuity, measured:** across 182 fixtures **exactly one** reaches either ceiling
+(`sinkProbe`, repetition) and **nothing reaches the token ceiling of 100** — so the new default has
+headroom over the whole corpus, and the sweep is what says so rather than the 79 alone.
+**Control: `incant/limitT`, ten rows** — both boot defaults, a silent legitimate re-pin on each knob
+(the H7 negative control), zero and string writes refused on each with the prior value surviving, and
+a final row asserting the two knobs are **independent**.
 
 ### F-29 — `incant/sinkProbe` drives `StatemenT` to the repetition ceiling: a rule succeeding without advancing
 **Where:** `incant/sinkProbe`, found by the F-27 high-water sweep rather than looked for.
@@ -167,9 +210,30 @@ which is what proves the iterations were doing no work.
 as the `parseSet` defect repaired in `654a180` — live in the corpus today, on the interpretive path,
 and invisible because the ceiling silently absorbed it. **A runaway sets no floor for the limit**, so
 it is excluded from F-28's table rather than allowed to pin the default at 268 million forever.
-**Done when:** the rule or term that matches empty in `sinkProbe` is named, and it is known whether
-the shape occurs anywhere else. **Owner:** unassigned. **Good minion candidate** — the sweep that
-found it is one script and can be re-pointed.
+**⚠ HUNTED 2026-08-19. THE RULE IS NAMED; THE MECHANISM IS CANDIDATE-GRADE AND SAYS SO.**
+The rule is **`StatemenT`**, named by `reportRepeatLimit` the first time it fired, which also printed
+the input position — an instrument built that morning answering the question the same afternoon.
+
+**Measured, five facts:**
+1. The runaway rule is `StatemenT`, repeating to the ceiling.
+2. The spin sits at **the first statement of the run that fails to resolve to a method**. Inserting a
+   failing statement (`debug ALL;`) 40 lines earlier **moved the spin to it**; without the insertion it
+   sits at `dumpContents(WardeD);` (`sinkProbe:60`). Two positions, two runs, deterministic.
+3. **The retries are silent** — two `nextGroup: ERROR stuff does not contain a list` lines and then
+   100000 quiet repetitions, so the repeats are not re-running the statement's actions.
+4. `sinkProbe` **truncates**: stdout stops at `S5`, PARTs 2 and 3 never run, **exit 0**.
+5. **It is the only citizen.** 182 fixtures swept; exactly one reaches either ceiling.
+
+**CANDIDATE MECHANISM, NOT ESTABLISHED:** `StatemenT` re-attempts at an unmoved mark once a statement
+fails to resolve, and the ceiling is the only thing that ends it.
+**⚠ AND THE CONTROL THAT FAILED IS THE INTERESTING PART.** Three minimal reproductions — a bad
+statement in a clean context, with an unresolvable name, and with `sinkProbe`'s own search list — **all
+parsed fine and none spun.** So a failing statement is NOT sufficient; the trigger needs `sinkProbe`'s
+accumulated state, which is its own GRAM-1 graft (a bare reference to a method-bearing field invoking
+the method). **Do not write "a failed statement spins the parser" into doctrine — it is falsified by
+its own control as stated.**
+**Done when:** the spin is reproduced in a fixture that does not depend on sinkProbe's history, and
+the option of `StatemenT` that keeps succeeding is named. **Owner:** unassigned.
 
 ### F-27 — ✅ CLOSED 2026-08-19 — `maxLimit` landed, refuse-loud at the write, default MEASURED at 100000
 **Where:** `GroupControl.twk`, `setBaseRegistries` — `maxLimit.count = 268435457;`.

@@ -81,6 +81,7 @@ GroupItem *sourceLine;
 GroupItem *rule;
 int kount;
 int max;
+int maxRepeat;
 int min;
 int termCount;
 RuleStuff *parentStuff;

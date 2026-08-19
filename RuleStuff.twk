@@ -81,6 +81,7 @@ GroupItem   label,
             rule;
 int         kount,
             max,
+            maxRepeat,
             min,
             termCount;
 RuleStuff   parentStuff;
@@ -117,6 +118,7 @@ RuleStuff(GroupItem grup)
     ruleName    = tag;
     // min and max may be overwritten by the TraiT rule action
     max         = 1;
+    maxRepeat   = 1;
     min         = 1;
     if grup = grup.parent
         if parentStuff = grup.rStuff

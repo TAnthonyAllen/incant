@@ -1,4 +1,3 @@
-PC NO-rSTUFF Operators
 PC none ANYtoken
 PC none ANYtoken
 PC none ANYtoken
@@ -237,3 +236,4 @@ PC parseString while
 PC parseString zero
 PC parseUpTo ]
 PC parseUpTo quoteBody
+PC skipped-registry Operators

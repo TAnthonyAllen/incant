@@ -318,6 +318,23 @@ RuleStuff   ruleStuff = field.rStuff;
     unbound -- the census said so and the prose had been written from the
     grammar line `ShortcuT=[-+~`$_:,]+` before the measurement came back.
 
+    ⚠ REGISTRIES ARE SKIPPED AT THE ENTRY, AND THE SITE IS THE RULING (Tony,
+    2026-08-19). A registry is INFRASTRUCTURE, not grammar: `Operators` is
+    reachable as a member of `Grokking`, so a walk that binds parse methods
+    reached it, found no rStuff, and printed
+    `setParse: ERROR field passed in Operators has no rStuff` -- an error for a
+    node that was never a parse candidate. Skipping at the entry rather than
+    inside the chain means it never reaches arming AND never reaches the rStuff
+    complaint, which is the difference between a clean skip and a swallowed
+    error. Closes F-30.
+
+    ⚠ THE SKIP IS isREGISTRY ONLY, NEVER isBIN, and the two are different
+    answers to different questions. A bin is a grammar TERM whose entries are
+    the alternatives -- `BrancheS` and `UnaryOPS` are bins and both legitimately
+    bind parseContainer, measured. A registry is a namespace the walk happens to
+    be standing in. Widening this to binType would silently delete four
+    parseContainer rows.
+
     ⚠ AND THIS PROSE LIVES ABOVE THE FUNCTION FOR A MEASURED REASON. Written
     inside the if/or chain, immediately before an `or`, it silently DELETED
     setParse from the generated extern block -- 307 externs to 306, tok exit 0,
@@ -328,6 +345,7 @@ RuleStuff   ruleStuff = field.rStuff;
 extern GroupItem setParse(GroupItem field)
 {
 RuleStuff   ruleStuff = rStuff;
+    if isREGISTRY   return null;
     if !ruleStuff   cerr "setParse: ERROR field passed in",tag,"has no rStuff":;
     or !parseMethod {
         actionMethod = method;
