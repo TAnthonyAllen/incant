@@ -44,6 +44,7 @@ class GroupRules
                 lastREF,
                 lastStatement,
                 generator,
+                maxLimit,
                 printSPACE,
                 ruleSkipSet,
                 searchList,

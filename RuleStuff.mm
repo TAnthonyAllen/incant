@@ -610,18 +610,26 @@ extern "C" int testAction(GroupItem *field)
 extern "C" int testAny(GroupItem *field)
 {
 int 		counter = 0;
+int 		more = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->rStuff;
 	ruleStuff->isOK = 0;
 	if ( *ruler->atRuleMark )
 		{
-		while ( counter < ruleStuff->max )
+		while ( *ruler->atRuleMark )
 			{
+			if ( counter >= ruleStuff->max )
+				{
+				more = 1;
+				break;
+				}
 			counter++;
 			ruler->atRuleMark++;
-			if ( !*ruler->atRuleMark || counter >= ruleStuff->max )
+			if ( !*ruler->atRuleMark )
 				break;
 			}
+		if ( more && ruleStuff->max > 1 && !ruleStuff->limitsSet )
+			return ::reportMaxLimit(field);
 		if ( counter && counter >= ruleStuff->min )
 			{
 			if ( ruleStuff->noAdvance )
@@ -662,18 +670,26 @@ int 		result = 0;
 extern "C" int testCharacter(GroupItem *field)
 {
 int 		counter = 0;
+int 		more = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->rStuff;
 	ruleStuff->isOK = 0;
 	if ( *ruler->atRuleMark )
 		{
-		while ( *ruler->atRuleMark == field->getCharacter() && counter < ruleStuff->max )
+		while ( *ruler->atRuleMark == field->getCharacter() )
 			{
+			if ( counter >= ruleStuff->max )
+				{
+				more = 1;
+				break;
+				}
 			counter++;
 			ruler->atRuleMark++;
-			if ( !*ruler->atRuleMark || counter >= ruleStuff->max )
+			if ( !*ruler->atRuleMark )
 				break;
 			}
+		if ( more && ruleStuff->max > 1 && !ruleStuff->limitsSet )
+			return ::reportMaxLimit(field);
 		if ( counter && counter >= ruleStuff->min )
 			{
 			if ( ruleStuff->noAdvance )
@@ -777,6 +793,7 @@ extern "C" int testSet(GroupItem *field)
 {
 PLGset 	*set = field->getCharacterSet();
 int 		counter = 0;
+int 		more = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->rStuff;
 	ruleStuff->isOK = 0;
@@ -784,11 +801,18 @@ RuleStuff 	*ruleStuff = field->rStuff;
 		{
 		while ( set->contains(*ruler->atRuleMark) )
 			{
+			if ( counter >= ruleStuff->max )
+				{
+				more = 1;
+				break;
+				}
 			counter++;
 			ruler->atRuleMark++;
-			if ( !*ruler->atRuleMark || counter >= ruleStuff->max )
+			if ( !*ruler->atRuleMark )
 				break;
 			}
+		if ( more && ruleStuff->max > 1 && !ruleStuff->limitsSet )
+			return ::reportMaxLimit(field);
 		if ( counter && counter >= ruleStuff->min )
 			{
 			if ( ruleStuff->noAdvance )

@@ -120,6 +120,59 @@ than creating it. Same family as the rung-6 repetition tripwire already noted at
 divergence is intended and why. **Owner: Tony** (his file, his intent). **Size:** rulings, then small
 edits.
 
+### F-27 — ⚠ `maxLimit` IS LANDED AT THE STATUS QUO; THE DEFAULT IS NOT PINNED UNTIL THIS IS MEASURED
+**Where:** `GroupControl.twk`, `setBaseRegistries` — `maxLimit.count = 268435457;`.
+**What:** the maxLimit brief (2026-08-19) replaces `modify()`'s inline `-0xefffffff` with a
+user-settable `maxLimit` property and specifies a default of **100**. Everything landed **except the
+default**, which is sitting at the exact value `-0xefffffff` evaluated to (proved by compiler, not
+assumed) so the change is **behaviour-neutral by construction**. The brief's own item 4 forbids
+pinning 100 before a measurement, and the measurement needs a build.
+**The re-pin, when the number is known:** one line, the one named above.
+
+⚠ **AND THE MEASUREMENT IS WIDER THAN THE BRIEF ASSUMED — THIS IS THE FINDING THAT MAKES IT
+LOAD-BEARING RATHER THAN PRUDENT.** The brief scopes the high-water count to "per modifier site
+(`*`, `+`, and the upTo scans if they share the bound)". Measured against the code:
+
+| site | bounded by `max`? | what a ceiling of 100 would cap |
+|---|---|---|
+| `testMacro`'s character loop (`testAny`/`testCharacter`/`testSet`) | **yes** | how many CHARACTERS one token may span |
+| `Generate.rtn`'s `parseAny`/`parseCharacter`/`parseSet` | **yes** | same, on the generated path |
+| **`parse()`'s repetition loop, `GroupItem.twk:1339`** | **YES — and the brief does not mention it** | how many TIMES a rule may repeat |
+| `testUpTo` | **no** — it counts with `count`/`matchLength`, never reads `max` | nothing |
+
+**The third row is the risk.** `while !isOK && kount < max` is the same `max`, so a ceiling of 100
+caps **list length**, not only token length — any `X*` or `X+` construct with more than 100 elements
+would silently stop at 100. A source file with 101 statements at one level is not exotic. **The
+high-water run must record `kount` as well as `counter`**, and the headroom has to clear the larger
+of the two.
+**And the fourth row is a small win:** `testUpTo` does **not** share the bound, so whitespace runs,
+comment bodies and string scans — the brief's named suspects — are not in the population at all.
+
+**Done when:** an instrumented fleet run reports high-water `counter` (per tester) and high-water
+`kount` (per rule), the default is set above the larger with headroom, and a before/after fleet
+capture is byte-identical. **⚠ Any movement means the measurement missed a site — stop and report,
+do not re-pin** (the brief's item 5, and H6's re-pin-needs-a-sentence rule).
+**Owner:** measurement + re-pin unassigned; the two rulings below are **Tony's**.
+
+**⚠ TWO THINGS THAT WANT A NOD, both outside the brief's stated boundary and both landed because
+item 3 is not implementable without them:**
+1. **`setLimits` now writes `limitsSet`** (`GroupActions.rtn`). The flag was already declared in
+   `RuleStuff.twk`, already mirrored in `groups.ext`, and **never written by anything** — so this
+   costs no layout change, no `groups.ext` field edit and no `tokall`. It is read as
+   `max > 1 && !limitsSet`, which is true only for the ceiling `modify()` stamps.
+2. **The report is gated, and ungated it would be catastrophic.** `max` is **1 by default**, so
+   `counter >= max` is reached on the ordinary correct match of every single-character rule whose
+   next character also matches — `NamE`'s `first-=[a-zA-Z]` would refuse every name longer than one
+   letter. The gate is what confines the report to the unbounded ceiling. **A `max > 1` test alone
+   would be safe only by vacancy** (no numeric `[min max]` Limit exists anywhere in the grammar or
+   corpus — checked), which is exactly the shape F-9 exists to stop; hence the flag.
+
+**⚠ ONE HAZARD RECORDED, NOT SOLVED:** `getCount()` returns **0** when the field carries no data
+(`GroupItem.twk:440`). So `maxLimit = "big";` — or anything that clears it — makes `modify()` stamp
+**max = 0**, and every `+`/`*` rule silently matches nothing from that point on. User-settable data
+with a catastrophic zero is a refuse-loud candidate; no guard was added because inventing the policy
+is not this brief's to do. **Owner: Tony.**
+
 ---
 
 ## PARKED

@@ -64,6 +64,14 @@ extern GroupItem parseAction(GroupItem field)
     parseACTION rule that happened to have a label was handed the LABEL where
     the template hands it the FIELD.
 
+    ⚠ AND ON THE SAME DAY THE LOOP GAINED THE maxLimit CEILING REPORT. The three
+    loops above are the generated-path twins of RuleStuff's testMacro, so the
+    limit test moved to the top of each of them for the same reason and they
+    call the same reportMaxLimit. One implementer, so "both engines, same words"
+    is true by construction. See reportMaxLimit's header for why the report is
+    gated on `max > 1 && !limitsSet` -- ungated it rejects every name longer
+    than one letter.
+
     ⚠ READ-GRADE, all of it. These are unreachable until a walk calls setParse,
     so nothing here has been run -- the template diff is the control and the
     Xcode walk is the measurement. What was NOT touched, and why, is in
@@ -74,12 +82,15 @@ extern GroupItem parseAny(GroupItem field)
 GroupRules  ruler = groupRules;
 RuleStuff   ruleStuff = field.rStuff;
 int         counter;
+int         more;
     if checkInput() {
-        while counter < max {
+        while *atRuleMark {
+            if counter >= max { more = true; break; }
             counter++;
             atRuleMark++;
-            if !*atRuleMark || counter >= max break; }
-        if counter && counter >= min {
+            if !*atRuleMark break; }
+        if more && max > 1 && !limitsSet   reportMaxLimit(field);
+        or counter && counter >= min {
             if label   label.setToken(hereAt,counter);
             return parseSetLabel(field); }}
     if label    label.clear();
@@ -95,12 +106,15 @@ extern GroupItem parseCharacter(GroupItem field)
 GroupRules  ruler = groupRules;
 RuleStuff   ruleStuff = field.rStuff;
 int         counter;
+int         more;
     if checkInput() {
-        while *atRuleMark == character && counter < max {
+        while *atRuleMark == character {
+            if counter >= max { more = true; break; }
             counter++;
             atRuleMark++;
-            if !*atRuleMark || counter >= max break; }
-        if counter && counter >= min {
+            if !*atRuleMark break; }
+        if more && max > 1 && !limitsSet   reportMaxLimit(field);
+        or counter && counter >= min {
             if label   label.setToken(hereAt,counter);
             return parseSetLabel(field); }}
     if label    label.clear();
@@ -207,12 +221,15 @@ PLGset      set = characterSet;
 GroupRules  ruler = groupRules;
 RuleStuff   ruleStuff = field.rStuff;
 int         counter;
+int         more;
     if checkInput() {
         while set.contains(*atRuleMark) {
+            if counter >= max { more = true; break; }
             counter++;
             atRuleMark++;
-            if !*atRuleMark || counter >= max break; }
-        if counter && counter >= min {
+            if !*atRuleMark break; }
+        if more && max > 1 && !limitsSet   reportMaxLimit(field);
+        or counter && counter >= min {
             if label   label.setToken(hereAt,counter);
             return parseSetLabel(field); }}
     if label    label.clear();

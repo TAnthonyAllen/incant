@@ -274,16 +274,39 @@ GroupItem   ancestor;
     return false;
 }
 
+/*******************************************************************************
+    ⚠ THE LIMIT TEST MOVED TO THE TOP OF THE LOOP, 2026-08-19, and the move is
+    what makes the ceiling REPORTABLE. Written as `if !*atRuleMark || counter >=
+    max break;` at the foot, the two exits are indistinguishable afterwards: a
+    run that ended because the input stopped matching and a run that was CUT at
+    the ceiling both leave the same state. Tested at the top, reaching
+    `counter >= max` while `tester` is still true means the next character would
+    have matched -- which is a truncation, and the one thing this loop must not
+    do silently. Character count is unchanged either way: both spellings stop
+    with exactly max consumed.
+
+    The `more` flag carries only that fact. The gate on it is
+    `max > 1 && !limitsSet`, because max is 1 by default and is whatever an
+    explicit Limit set -- see reportMaxLimit's header for why an ungated version
+    rejects every name longer than one letter.
+
+    tester is still used EXACTLY ONCE. That is deliberate: bear-trap #18 says
+    tok's macro facility is only trusted in the shape it already ships in, and a
+    twice-substituted parameter is not that shape.
+*******************************************************************************/
 #testMacro(tester)-
 int         counter;
+int         more;
 GroupRules  ruler = groupRules;
 RuleStuff   ruleStuff = rStuff;
     isOK = false;
     if *atRuleMark {
         while tester {
+            if counter >= max { more = true; break; }
             counter++;
             atRuleMark++;
-            if !*atRuleMark || counter >= max break; }
+            if !*atRuleMark break; }
+        if more && max > 1 && !limitsSet   return reportMaxLimit(field);
         if counter && counter >= min {
             if noAdvance    atRuleMark = hereAt;
             if label        label.setToken(hereAt,counter);
@@ -297,7 +320,7 @@ RuleStuff   ruleStuff = rStuff;
 extern int testAny(GroupItem field)
 {
 use field
-testMacro(counter < max);
+testMacro(*atRuleMark);
 }
 
 /*******************************************************************************
@@ -306,7 +329,7 @@ testMacro(counter < max);
 extern int testCharacter(GroupItem field)
 {
 use field
-testMacro(*atRuleMark == character && counter < max);
+testMacro(*atRuleMark == character);
 }
 
 /*******************************************************************************

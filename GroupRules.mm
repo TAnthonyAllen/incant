@@ -8151,11 +8151,11 @@ extern "C" void modify(GroupItem *field, char *modifier)
 		switch ( *(modifier++) )
 			{
 			case '+':
-				field->rStuff->max = -0xefffffff;
+				field->rStuff->max = GroupControl::groupController->groupRules->maxLimit->getCount();
 				break;
 			case '*':
 				field->rStuff->min = 0;
-				field->rStuff->max = -0xefffffff;
+				field->rStuff->max = GroupControl::groupController->groupRules->maxLimit->getCount();
 				break;
 			case '?':
 				field->rStuff->min = 0;
@@ -9821,6 +9821,14 @@ extern "C" GroupItem *parseAction(GroupItem *field)
     parseACTION rule that happened to have a label was handed the LABEL where
     the template hands it the FIELD.
 
+    ⚠ AND ON THE SAME DAY THE LOOP GAINED THE maxLimit CEILING REPORT. The three
+    loops above are the generated-path twins of RuleStuff's testMacro, so the
+    limit test moved to the top of each of them for the same reason and they
+    call the same reportMaxLimit. One implementer, so "both engines, same words"
+    is true by construction. See reportMaxLimit's header for why the report is
+    gated on `max > 1 && !limitsSet` -- ungated it rejects every name longer
+    than one letter.
+
     ⚠ READ-GRADE, all of it. These are unreachable until a walk calls setParse,
     so nothing here has been run -- the template diff is the control and the
     Xcode walk is the measurement. What was NOT touched, and why, is in
@@ -9831,15 +9839,24 @@ extern "C" GroupItem *parseAny(GroupItem *field)
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->rStuff;
 int 		counter = 0;
+int 		more = 0;
 	if ( ruleStuff->checkInput() )
 		{
-		while ( counter < ruleStuff->max )
+		while ( *ruler->atRuleMark )
 			{
+			if ( counter >= ruleStuff->max )
+				{
+				more = 1;
+				break;
+				}
 			counter++;
 			ruler->atRuleMark++;
-			if ( !*ruler->atRuleMark || counter >= ruleStuff->max )
+			if ( !*ruler->atRuleMark )
 				break;
 			}
+		if ( more && ruleStuff->max > 1 && !ruleStuff->limitsSet )
+			::reportMaxLimit(field);
+		else
 		if ( counter && counter >= ruleStuff->min )
 			{
 			if ( ruleStuff->label )
@@ -9891,15 +9908,24 @@ extern "C" GroupItem *parseCharacter(GroupItem *field)
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->rStuff;
 int 		counter = 0;
+int 		more = 0;
 	if ( ruleStuff->checkInput() )
 		{
-		while ( *ruler->atRuleMark == field->getCharacter() && counter < ruleStuff->max )
+		while ( *ruler->atRuleMark == field->getCharacter() )
 			{
+			if ( counter >= ruleStuff->max )
+				{
+				more = 1;
+				break;
+				}
 			counter++;
 			ruler->atRuleMark++;
-			if ( !*ruler->atRuleMark || counter >= ruleStuff->max )
+			if ( !*ruler->atRuleMark )
 				break;
 			}
+		if ( more && ruleStuff->max > 1 && !ruleStuff->limitsSet )
+			::reportMaxLimit(field);
+		else
 		if ( counter && counter >= ruleStuff->min )
 			{
 			if ( ruleStuff->label )
@@ -10229,15 +10255,24 @@ PLGset 		*set = field->getCharacterSet();
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->rStuff;
 int 		counter = 0;
+int 		more = 0;
 	if ( ruleStuff->checkInput() )
 		{
 		while ( set->contains(*ruler->atRuleMark) )
 			{
+			if ( counter >= ruleStuff->max )
+				{
+				more = 1;
+				break;
+				}
 			counter++;
 			ruler->atRuleMark++;
-			if ( !*ruler->atRuleMark || counter >= ruleStuff->max )
+			if ( !*ruler->atRuleMark )
 				break;
 			}
+		if ( more && ruleStuff->max > 1 && !ruleStuff->limitsSet )
+			::reportMaxLimit(field);
+		else
 		if ( counter && counter >= ruleStuff->min )
 			{
 			if ( ruleStuff->label )
@@ -11404,6 +11439,48 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 }
 
 /*****************************************************************************
+    reportMaxLimit -- THE THIRD REFUSAL, and it states a fact neither sibling
+    can. reportCodeFail says a body was parsed and the parse failed;
+    reportNoBody says a rule was reached with no compiled body. This one says
+    a match ran into the maxLimit ceiling with input still matching, so what
+    was about to be returned is a TRUNCATION.
+
+    ⚠ IT REFUSES RATHER THAN TRUNCATING, and that is the whole point of it.
+    Silently returning the first N characters of a longer token is
+    parse-succeeded-with-wrong-content, which is the worst failure genre on
+    this project's books -- every downstream reader believes a token that was
+    never in the input. A limit hit means either a defect or a genuinely large
+    token, and both deserve to be named at the moment they happen.
+
+    ⚠ ONE IMPLEMENTER, WHICH IS HOW THE TWO ENGINES ARE KEPT HONEST. The
+    interpretive loop (testMacro, RuleStuff.twk) and the generated-parse loops
+    (parseAny/parseCharacter/parseSet, Generate.rtn) both call THIS function,
+    so "same behaviour, same words" is true by construction rather than by two
+    copies being carefully matched. The convergence note on reportCodeFail
+    applies to all three.
+
+    ⚠ WHAT IT IS NOT ALLOWED TO FIRE ON. max is not only the ceiling: it is 1
+    by default and it is whatever an explicit [min max] Limit sets. Both of
+    those hit `counter >= max` in the ordinary course of a correct parse -- a
+    one-character rule followed by another matching character reaches it on
+    every single match. So the callers gate on `max > 1 && !limitsSet`, which
+    is true only for the ceiling modify() stamps. Ungated, this would reject
+    every name longer than one letter.
+
+    cerr for its siblings' reason: a refusal that vanishes into a diverted
+    print buffer is not loud.
+*****************************************************************************/
+extern "C" int reportMaxLimit(GroupItem *field)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+RuleStuff 	*ruleStuff = field->rStuff;
+	::fprintf(stderr,"REFUSED match limit: rule %s term %s\n",ruleStuff->ruleName,field->groupBody->tag);
+	::fprintf(stderr,"    hit maxLimit %s with input still matching\n",::toStringFromInt(ruleStuff->max));
+	::fprintf(stderr,"    at %s\n",::getDebugText(ruler->atRuleMark,40));
+	return 0;
+}
+
+/*****************************************************************************
     reportNoBody -- the OTHER refusal, and it is a different fact from the one
     above. reportCodeFail says a body was parsed and the parse failed.
     reportNoBody says a rule was reached through a bound parse method and has
@@ -12214,8 +12291,17 @@ RuleStuff 	*ruleStuff = rule->rStuff;
 GroupItem 	*maximum = limits->getAttribute("max");
 GroupItem 	*minimum = limits->getAttribute("min");
 	ruleStuff->min = minimum->getCount();
+	/*  limitsSet IS THE DISCRIMINATOR reportMaxLimit needs, and it was
+	already declared and already mirrored in groups.ext -- it had simply
+	never been written by anything. It answers "did the grammar ask for
+	this max, or is it the maxLimit ceiling", which is the question that
+	separates a truncation worth refusing from a limit doing its job.
+	Stamped only where a maximum was actually supplied.  */
 	if ( maximum )
+		{
 		ruleStuff->max = maximum->getCount();
+		ruleStuff->limitsSet = 1;
+		}
 }
 
 /*****************************************************************************
@@ -12775,6 +12861,7 @@ GroupRules::GroupRules()
 	lastREF = 0;
 	lastStatement = 0;
 	generator = 0;
+	maxLimit = 0;
 	printSPACE = 0;
 	ruleSkipSet = 0;
 	searchList = 0;

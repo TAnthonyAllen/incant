@@ -215,6 +215,32 @@ GroupItem 	*action = 0;
 	action->groupBody->registry = groupRules->commands;
 	groupRules->printSPACE = new GroupItem("printSPACE");
 	groupRules->printSPACE->setText(" ");
+	/***********************************************************************
+	maxLimit -- the ceiling modify() stamps into rStuff.max for the `+`
+	and `*` modifiers, replacing the inline -0xefffffff it used to
+	write. Ordinary user-visible data in pROPERTIEs, so a grammar sets
+	it the way it sets any other property.
+	
+	⚠ modify() STAMPS max AT RULE-DEFINITION TIME, so a change to
+	maxLimit affects only rules defined AFTER it. Set it before the
+	grammar loads, never mid-session. The stamp is deliberate rather
+	than a defect: the comparison it feeds sits on the hottest loop in
+	the parser, and a live field read there would be paid for on every
+	character of every match.
+	
+	⚠⚠ THE VALUE BELOW IS THE STATUS QUO, NOT THE INTENDED DEFAULT, and
+	that is on purpose. 268435457 is exactly what -0xefffffff evaluated
+	to, so this change is behaviour-neutral by construction. The
+	intended default is 100 and it is NOT pinned until the high-water
+	measurement has run -- docs/fixIts.md F-27. The reason that
+	measurement is owed rather than optional: this same max ALSO bounds
+	parse()'s repetition loop at GroupItem.twk:1339, so the ceiling
+	caps how many TIMES a rule may repeat, not only how many characters
+	one match may span.
+	***********************************************************************/
+	groupRules->maxLimit = new GroupItem("maxLimit");
+	groupRules->maxLimit->setCount(268435457);
 	groupRules->properties->addMember(groupRules->inDENT);
 	groupRules->properties->addMember(groupRules->printSPACE);
+	groupRules->properties->addMember(groupRules->maxLimit);
 }
