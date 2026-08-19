@@ -100,11 +100,14 @@ PLAN JSONarray
     LIT ]
       at=3
 PLAN NumbeR
-  REFUSE rule NumbeR -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+  REFUSE numberSet -- inline group / structural data isSET (named future kind)
+  REFUSE rule NumbeR -- term numberSet unclassified
 PLAN FloaT
-  REFUSE rule FloaT -- rule-level data isCHAR (§4.1 rule-as-data, rung 5)
+  REFUSE point -- inline group / structural data isCHAR (named future kind)
+  REFUSE rule FloaT -- term point unclassified
 PLAN PoweR
-  REFUSE rule PoweR -- rule-level data isSET (§4.1 rule-as-data, rung 5)
+  REFUSE e -- inline group / structural data isSET (named future kind)
+  REFUSE rule PoweR -- term e unclassified
 PLAN QuotE
   REFUSE tik -- inline group / structural data isSET (named future kind)
   REFUSE rule QuotE -- term tik unclassified

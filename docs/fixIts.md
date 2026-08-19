@@ -344,6 +344,34 @@ recorded so nobody re-derives it.**
 today's `testMatch`?** One measurement, owed when its turn comes in the pick-one pass. Until then
 the F-15 gate keeps `BrancheS` on arm one, so nothing is broken and nothing is proved.
 
+⚠ **F-17c ADDENDUM, MEASURED 2026-08-19 — THE `bin`-IS-AN-ATTRIBUTE PREMISE IS FALSIFIED.**
+Instrument: `incant/branchProbe`, which prints the four census columns for a rule and then walks its
+attribute list and its member list, printing one line each. The fork as posed was: *`bin` is a
+noPrint ATTRIBUTE the census should be ignoring, so the repair is a classifier filter.* **There is no
+attribute to ignore.**
+
+| rule | columns | attributes | members |
+|---|---|---|---|
+| `BrancheS` | `-MD-`, `datA = 3` | **zero** | 3 — `break` `continue` `return`, all `isRulE` |
+| `Operators` | `-MD-`, `datA = 3` | **zero** | 57, none `isRulE` |
+| `NumbeR` (control) | `A---`, `datA = 0` | 3 — `numberSet` `FloaT` `tokenize` | zero |
+
+**The control is what makes the two zeros mean something** (H4/vacuity): the same loop that printed
+nothing for `BrancheS` printed three rows for `NumbeR` in the same run. So the attribute walk is
+live and the answer is genuinely empty — `bin` is consumed by `processFlags` at define time and
+leaves no attribute behind. **No child trips the classifier. The `D` is on the rule node itself.**
+
+**AND THE STRUCTURAL READING THAT REPLACES IT, measured across all 13 members-shaped rules: the
+`-MD-` pair is exactly the two CONTAINERS.** `BrancheS` is a `bin` (`incant/grammar:96`), `Operators`
+is a `registry` (`incant/setup:100`); the other **eleven** members-shaped rules carry no data at all.
+So the datum is a container property, not a rule-shape choice — which is the same thing the
+pre-flight census said from the other side when it warned that routing `Operators` onto `testOptions`
+would discard `parseContainer`'s longest-match discipline.
+⚠ **NOT MEASURED, and deliberately not inferred:** *what* that `isSET` datum is, and whether
+`processFlags` derives it from the members. One probe printing the set settles it; until then the
+causal story is unwritten. **The fork's remaining live question is therefore not "filter the census"
+but "does pick-one apply to a container at all" — Tony's.**
+
 **F-17d — the false-by-vacancy family.** F-15's shape was: a loop that skips every candidate returns
 its initialised `false`, and the caller cannot tell "tested and failed" from "nothing to test".
 `testAttributes` (`RuleStuff.twk:336`) was the instance. **Census owed:** other `hasAttributes`-gated
@@ -516,6 +544,38 @@ today **by the very ordering the reorder inverts**.
 file, canary `302 -> 302`, rebuilt 11:31): fleet **40 green / 1 parked**, reds `iterT1m` x2 +
 `jsonTest baseline`; jitLadder **205 ok, stderr 0, one owned red (JV/F-12)**. Both match the
 2026-08-17 seal exactly.
+
+#### ⚠⚠ PHASE-ONE SHADOW CENSUS — RUN 2026-08-19, AND IT PRICES THE (b) PULL-FORWARD AT **ALL OF IT**
+Instrument: `incant/phaseProbe` (Tony's ruled next measurement, banked 2026-08-18). Same four
+columns as the pick-one census, read **twice in one process** — once on the clean tree, once after
+the two-phase walk — so a rule whose shape changed is a printed difference rather than an argument.
+Run on the 2026-08-19 09:09 bare binary. Exit 0, sentinel present, **56 bodies generated**.
+
+**INSTRUMENT CHECK FIRST, and it is the reason the numbers below are readable.** The probe emits a
+warm-up S2 block while the tree is still clean; it must agree with S1 row for row, or the two shape
+readers do not read the same thing and every conclusion is about the readers. **79 rows, AGREE.**
+
+**THE FLIPPED SET — 11 of 79 rules are reclassified by phase one:**
+
+| flip | count | rules |
+|---|---|---|
+| `-M--` → `AM--` | **8** | `ANYorNum` `ElsE` `GrouP` `InvokeArg` `LoopRestrict` `StatemenT` `Token` `WardeD` |
+| `----` → `A---` | 3 | `DEFINing` `PRINTing` `tokenize` |
+
+⚠ **The eight are F-15's poisoned shape exactly** — a members-only alternation rule acquiring an
+attribute, which is the thing that stops it matching. Zero rules owned both before the walk, so
+**every one of the eight is a hybrid CREATED by generation**, not one that was already there. The
+three `----` rules are harmless: no members to shadow.
+
+**AND THE HALF THAT PRICES IT. The intersection with the rules the parser needs in order to read a
+code body is TOTAL: 11 of 11 flipped rules are reachable from `BlocK`; ZERO fall outside.** The term
+graph is emitted from the clean tree (275 edges over 79 rules) and the reachability is computed in
+the shell where it can be checked by eye.
+
+**What that settles:** there is no subset of the grammar that phase one damages harmlessly. Deferring
+off-rule storage behind phase two is not available, because phase one reclassifies rules phase two
+needs — all of them. **This is the measurement F-15 option (b) was waiting on, and it comes back
+in favour of (b) being done FIRST, not last.** *Done when:* Tony rules. **Owner:** Tony.
 
 ### F-14 — the walk has four SILENT exits; there is no skipped-rules list
 **Where:** `parser` — three `continue` gates in `walkRules`, plus `genParseTest`'s `datA != 0`

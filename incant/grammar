@@ -29,10 +29,10 @@
 counter=[0-9];
 modifySet=[-~+?!%&|*@_<^{}$];
 nameSet=[a-zA-Z0-9];
-PoweR=[eE] sign?=[+-]  power=[0-9]+;
-FloaT="."           decimals=[0-9]+ PoweR?;
+PoweR               e=[eE] sign?=[+-] power=[0-9]+;
+FloaT               point="." decimals=[0-9]+ PoweR?;
 tokenize^@;                                     // method set to tokenize()
-NumbeR=numberSet=[0-9]+       FloaT? tokenize;  // happens tho grammar does not allow it
+NumbeR              numberSet=[0-9]+ FloaT? tokenize;
 DefinE;
 QuotE               tik=['"] quoteBody}=tik$@;
 NamE                first-=[a-zA-Z] nameSet-^* tokenize;

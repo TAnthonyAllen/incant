@@ -1,0 +1,77 @@
+/*  branchProbe -- IS BrancheS PICK-ONE CONFORMING, AND WHICH CHILD TRIPS THE
+    CLASSIFIER. Clay's fork, 2026-08-19.
+
+    THE CLAIM UNDER TEST. Tony reads BrancheS as conforming: it is a members
+    rule, and the `bin` it carries is a noPrint ATTRIBUTE that the census
+    should be ignoring rather than counting. shadowCensus prints BrancheS as
+    -MD-, which is members plus DATA and no attributes at all, so the two
+    readings disagree about which column is even lit.
+
+    WHAT IS PRINTED, and every column prints as a letter or a dash so an
+    absent flag is a printed value and never a missing row.
+        HEAD    the four census columns plus binTypE, for BrancheS and for
+                Operators, the other -MD- rule
+        ATTR    one line per attribute, with its noPrint flag
+        MEMB    one line per member, with its noPrint flag
+
+    A rule whose only attribute is a noPrint one, and whose D column is lit by
+    something other than an attribute, answers the fork: the D is the thing to
+    explain, not the A.
+
+    ONE DRIVER CALL. No walk here -- this reads the clean tree only.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(BranchProbe);
+define
+    bpHead argument code={
+        print "HEAD  ";
+        if hasAttributeS;   print "A";
+        else                print "-";
+        if hasMemberS;      print "M";
+        else                print "-";
+        if datA != 0;       print "D";
+        else                print "-";
+        if isGROUP;         print "G";
+        else                print "-";
+        print " tag " ~taG " datA " datA " binTypE " binTypE:;
+        };
+    bpAttrs argument code={
+        iterate bpA on argument attributes;
+        while ++bpA;
+            print "ATTR  ";
+            if noPrinT;     print "n";
+            else            print "-";
+            if isRulE;      print "r";
+            else            print "-";
+            print " " ~taG " datA " datA:;
+        };
+    bpMembs argument code={
+        iterate bpM on argument members;
+        while ++bpM;
+            print "MEMB  ";
+            if noPrinT;     print "n";
+            else            print "-";
+            if isRulE;      print "r";
+            else            print "-";
+            print " " ~taG " datA " datA:;
+        };
+    bpOne argument code={
+        bpHead(argument);
+        bpAttrs(argument);
+        bpMembs(argument);
+        };
+    bpRun argument code={
+        bpB = argument["BrancheS"];
+        bpOne(bpB);
+        bpO = argument["Operators"];
+        bpOne(bpO);
+        bpN = argument["NumbeR"];
+        bpOne(bpN);
+        print "BRANCHPROBE SENTINEL":;
+        };
+    ;
+bpRun(Grokking);
+stop();

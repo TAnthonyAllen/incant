@@ -1,0 +1,165 @@
+/*  phaseProbe -- WHAT PHASE ONE DOES TO THE GRAMMAR IT LEAVES BEHIND, and how
+    much of the damage lands on the rules phase two needs. Tony's ruled next
+    measurement, 2026-08-18. It prices pulling off-rule storage forward.
+
+    THE QUESTION. Phase one installs a generated body on every rule it reaches,
+    and a body is an attribute. The whole population is measured with the same
+    four columns the pick-one census uses, once on a clean tree and once after
+    the walk, so a rule whose SHAPE changed is a printed difference rather than
+    an argument. A rule that was members-only and is now attributes-and-members
+    has been reclassified by the act of generating for it.
+
+    AND THE HALF THAT PRICES IT. A shape change only matters if the parser needs
+    that rule to read a code body. So the probe also emits the term graph, and
+    the intersection of the flipped set with the rules reachable from the block
+    rule is computed OUTSIDE, in the shell, where it can be checked by eye. The
+    graph is emitted from the CLEAN tree, before anything is generated, because
+    that is the grammar whose reachability the question is about.
+
+    THREE STREAMS, one line each, all on stdout with a leading keyword.
+        RULE  <tag>            a rule in the population, and the parent of the
+                               EDGE lines that follow it
+        EDGE  <tag>            one term of the rule named by the last RULE line
+        S1    <AMDG> <tag>     shape on the clean tree
+        S2    <AMDG> <tag>     shape after phase one
+
+    EDGE lines carry no parent of their own, deliberately: naming the parent
+    inside the loop asks a bare-name question this fixture does not need to
+    answer. Position does the work and the shell reads it that way.
+
+    ⚠ EVERY COLUMN IS PRINTED FOR EVERY ROW, as a letter or a dash, so an absent
+    flag is a printed value and never a missing row. A column that had gone
+    inert shows as a constant down the whole listing rather than as an empty
+    result.
+
+    ⚠ THE WARM-UP EMITS A FIRST S2 BLOCK AND THAT IS USEFUL, NOT NOISE. Phase
+    zero calls the after-shape actions while the tree is still clean, so the S2
+    lines before the MARK line are a second clean-tree reading and must agree
+    with S1 row for row. A disagreement there means the two shape readers do not
+    read the same thing, and every conclusion below it would be about the
+    readers rather than about the walk. The shell checks that first.
+
+    ⚠ ONE DRIVER CALL, because a second top level statement is not reachable
+    after a walk. Phase zero warms every action body while the grammar is still
+    intact, for the same reason the two-phase walk does it.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(PhaseProbe);
+define
+    ppBuffer buffer;
+    ppOpen="{";
+    ppClose="}";
+    ppSeen=0;
+    ppEdges argument code={
+        iterate ppT on argument;
+        while ++ppT;
+            print "EDGE  " ~taG:;
+        };
+    ppShape1 argument code={
+        print "S1    ";
+        if hasAttributeS;   print "A";
+        else                print "-";
+        if hasMemberS;      print "M";
+        else                print "-";
+        if datA != 0;       print "D";
+        else                print "-";
+        if isGROUP;         print "G";
+        else                print "-";
+        print " " ~taG:;
+        };
+    ppShape2 argument code={
+        print "S2    ";
+        if hasAttributeS;   print "A";
+        else                print "-";
+        if hasMemberS;      print "M";
+        else                print "-";
+        if datA != 0;       print "D";
+        else                print "-";
+        if isGROUP;         print "G";
+        else                print "-";
+        print " " ~taG:;
+        };
+    ppClean argument code={
+        print "RULE  " ~taG:;
+        ppShape1(argument);
+        ppEdges(argument);
+        };
+    ppMembers argument code={
+        iterate ppM on argument members;
+        while ++ppM;
+            if !isRulE;     continue;
+            ppClean(ppM);
+        };
+    ppAttrs argument code={
+        iterate ppA on argument attributes;
+        while ++ppA;
+            if !isRulE;     continue;
+            ppClean(ppA);
+        };
+    ppMembers2 argument code={
+        iterate ppM2 on argument members;
+        while ++ppM2;
+            if !isRulE;     continue;
+            ppShape2(ppM2);
+        };
+    ppAttrs2 argument code={
+        iterate ppA2 on argument attributes;
+        while ++ppA2;
+            if !isRulE;     continue;
+            ppShape2(ppA2);
+        };
+    ppGen argument code={
+        reset(ppBuffer);
+        printTO(ppBuffer);
+        print ppOpen:;
+        if datA != 0;
+            printTO(0);
+            return;
+        if hasAttributeS;   ppJoin = "AND";
+        else                ppJoin = "OR";
+        print `"if ";
+        iterate ppTerm on argument;
+        while ++ppTerm;
+            print $taG "()";
+            if nexT;    print _ppJoin;
+            else        print ";";
+        @argument;
+        print $"return runRuleAction(this);":;
+        print `ppClose:;
+        clear(CodE);
+        CodE = ppBuffer;
+        ppCopy <- copyOf(CodE);
+        ppCopy :. noPrinT;
+        argument +% ppCopy;
+        argument :. isCodeD;
+        printTO(0);
+        ppSeen = ppSeen + 1;
+        };
+    ppWalk argument code={
+        if actionTypE != 0;     return;
+        ppGen(argument);
+        if listLengtH;
+            iterate ppCur on argument;
+            while ++ppCur;
+                if noPrinT;     continue;
+                if binTypE;     continue;
+                if isRule;      ppWalk(ppCur);
+        };
+    ppRun argument code={
+        ppMembers2(argument);
+        ppAttrs2(argument);
+        ppSeen = 0;
+        ppMembers(argument);
+        ppAttrs(argument);
+        ppWalk(Start);
+        print "MARK  after-walk shapes follow":;
+        ppMembers2(argument);
+        ppAttrs2(argument);
+        print "PHASEPROBE SENTINEL -- generated" ppSeen:;
+        };
+    ;
+ppRun(Grokking);
+stop();
