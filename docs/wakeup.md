@@ -201,6 +201,57 @@
 #   container. `pop.sh`'s partition row re-pinned — ⚠ an empty expected set is an absence check, so it
 #   now also asserts the data-shaped population non-zero (**17**).
 #
+#   ## ⚠⚠ THIRD LATE ADDITION — F-17e CLOSED, AND THE COUNT IT WAS SUPPRESSING IS **56 OF 56**
+#
+#   **`compile` no longer exits on a refused parse** (`Commands.rtn`, `exit(1)` → `return null;`).
+#   `processCode` had already reported through `reportCodeFail` by the time control reached that
+#   line, so the exit added nothing but the end of the process — and a refusal is now a **value a
+#   caller can tally**. `runParse(Start)` used to die at the first `ERROR processCode`; it now
+#   reports **six** and keeps going.
+#
+#   **THE CAMPAIGN'S ACTUAL POSITION, and it is worse than the number everyone was quoting.**
+#   `incant/walkPhase`, exit 0, sentinel:
+#   ```
+#   entered 139 · generated 56 · leaf 60 · refused 23     (sums, no remainder)
+#   census 56  ->  compiled 0 · rejected 56
+#   ```
+#   **Nothing compiles. Not 53 of 54 — 56 of 56**, and this is the first time the figure was
+#   *takeable*, because the exit was terminating the census that would have produced it.
+#   ⚠ **The instrument was checked before the number was believed, twice:** the 56 `ERROR
+#   processCode` lines name **56 distinct rules**, and that set is **identical** to the set of 56
+#   `COMPILING` lines — corroboration from a channel the tally does not control — and the sweep was
+#   re-run with `=` in place of its `:=` capture, returning the identical verdict.
+#
+#   ## ⚠ NamE IS NOT FRAME-DEPENDENT — IT IS **PHASE**-DEPENDENT, and that is the finding
+#
+#   | configuration | NamE |
+#   |---|---|
+#   | standalone, driver frame | **137 hang** |
+#   | standalone, walk's own call path | **137 hang** |
+#   | after an 18-rule prefix, either frame | **137 hang** |
+#   | after the **full** 30-rule TokenXP prefix | **137 hang** |
+#   | inside `walkPhase`'s **two-phase** run | **refuses cleanly**, run completes |
+#
+#   **So there is no minimal walk target to name — the minimal reproducer is STANDALONE**, and it is
+#   installed as **`runNamE`** in `IncantForms/WorkingOn/parser` (swap the foot line to
+#   `runNamE(NamE);`; it hangs at a labelled `cerr`, so the last line printed names the statement).
+#   The discriminator is neither the frame nor the prefix: it is **whether the grammar is fully
+#   generated before anything is compiled.** Two-phase turns the hang into an ordinary refusal —
+#   Ruling 4's split doing real work. Filed **F-23**; Tony's, in Xcode, and the texture is a cycle to
+#   interrupt rather than a frame to catch.
+#
+#   **`parser` is current** — driver-as-action, cerr sentinel, bare `compile`, **zero `:=`**. Two
+#   things in it predated today: the post-mint prediction is **retired in place** (its
+#   `CENSUS prune-noPrint` counters were removed in the 08-18 offline edit, so no run can settle it —
+#   kept as provenance, marked do-not-repair-by-re-adding-the-counters), and the stale `Start` note
+#   is replaced by the six-refusals-then-hang measurement.
+#
+#   **F-22 sweep, listed and untouched:** `enumT:53` · `walkPhase:129` · `compileProbe:65` and `:75`.
+#   None crashes today. ⚠ **`:= new(...)` / `:= copyOf(...)` are NOT on it** — that is the sanctioned
+#   mint idiom; the suspect shape is a **command return**. **F-24 opened** in passing: `compile`
+#   returns the FIELD for an uncoded subject, so `compileProbe`'s own row C has been printing `????`
+#   on every run with nobody watching. It does **not** touch the 56/56 — all 56 were `isCoded`.
+#
 #   ## NEXT SESSION OPENS ON
 #
 #   1. **Tony's two rulings, both now priced by measurement:** F-15 option **(b) first** (off-rule
