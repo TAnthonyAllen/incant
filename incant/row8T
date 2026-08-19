@@ -1,0 +1,87 @@
+/*  row8T -- RE-VERIFYING ROW 8 OF THE FALSIFICATION TABLE UNDER A DRIVER SHAPE
+    THAT CANNOT LIE ABOUT ITS OWN EXIT. Clay's item 1, 2026-08-19.
+
+    WHAT ROW 8 CLAIMED. From the 2026-08-17 late seal: an identical trivial body
+    compiles on a plain field and exits one hundred and thirty nine on a real
+    grammar rule. The variable was never the body text, it is what you attach it
+    to. That reading is the live lead for Tony's offline walk.
+
+    WHY IT IS BEING RE-RUN RATHER THAN CITED. Row 8's evidence is an exit code
+    taken across a walk-installs boundary, and that is exactly the evidence
+    format measured on 2026-08-19 to be an accident of file shape. The same
+    walker reported zero with dead lines below its stop and one hundred and
+    thirty nine with those lines removed, and neither run reached its stop. So
+    row 8's number is uninterpretable until it is retaken in a shape where the
+    loader is not part of the answer.
+
+    THE SHAPE THAT REMOVES THE LOADER. The driver is an action, so its body is
+    parsed once at define time into a cached block and needs no loader to run.
+    Its stop is inside it, so the process ends before the loader is asked for
+    another statement. Its sentinel is on the error channel, because the output
+    channel is block buffered and a crash loses it, so an output sentinel cannot
+    report the crash it exists to detect.
+
+    THE TWO ROWS, AND THE ORDER IS LOAD BEARING. Row A attaches the trivial body
+    to a plain registered field and compiles it. Row B attaches the identical
+    body to the real grammar rule and compiles that. A comes first so that if B
+    dies, A's verdict is already on the error channel and the run still says
+    something. A is also the vacuity control, because if A fails too then B's
+    failure is not about grammar rules at all.
+
+    EVERY STEP ANNOUNCES ITSELF BEFORE IT RUNS, so a crash names the statement
+    that caused it rather than leaving a silence to be interpreted.
+
+    THIS FIXTURE POISONS A LIVE GRAMMAR RULE ON PURPOSE. It is single use per
+    process and asserts nothing after row B.
+*****************************************************************************/
+Start();
+include(utilities);
+search reset stack Grokking;
+search GroupFields Utilities list;
+
+register(Utilities);
+define
+    r8plain;
+    r8Buffer buffer;
+    r8Open="{";
+    r8Close="}";
+    r8Attach argument code={
+        reset(r8Buffer);
+        printTO(r8Buffer);
+        print r8Open:;
+        setParse(argument);
+        if hasAttributeS;   r8Join = "AND";
+        else                r8Join = "OR";
+        print `"if ";
+        iterate r8Term on argument;
+        while ++r8Term;
+            setParse(r8Term);
+            print $taG "()";
+            if nexT;    print _r8Join;
+            else        print ";";
+        @argument;
+        print $"return runRuleAction(this);":;
+        print `r8Close:;
+        printTO(0);
+        clear(CodE);
+        CodE = r8Buffer;
+        r8Copy <- copyOf(CodE);
+        r8Copy :. noPrinT;
+        argument +% r8Copy;
+        argument :. isCodeD;
+        @CodE;
+        cerr "BODY>>" CodE "<<":;
+        };
+    r8Run argument code={
+        cerr "R8    attach  trivial body ->" ~taG:;
+        r8Attach(argument);
+        cerr "R8    compile" ~taG:;
+        r8R := compile(argument);
+        if r8R;     cerr "R8    ok      compile returned a field":;
+        else        cerr "R8    FAIL    compile returned null":;
+        cerr "ROW8 SENTINEL -- the row ran to completion":;
+        stop();
+        };
+    ;
+
+r8Run(QuotE);

@@ -172,9 +172,48 @@ Measured: after `walkRules` runs, **no further statement in the file executes** 
 registered action, not `stop()`. Only the original file's bare `stop();` survived.
 **That is not a bug, it is the demonstration**: the generated parser is live enough to **eat its own
 loader**. It names a real constraint on the walk's final form — generation, installation and
-continued script execution cannot naively share a process. Either **the walk is the last statement**
-(the `stop()` survival says it effectively already is), or **activation is separated from
-generation**, which is separable in principle and not separated today.
+continued script execution cannot naively share a process. Either **the walk is the last statement**,
+or **activation is separated from generation**, which is separable in principle and not separated
+today.
+
+⚠ **CORRECTION 2026-08-19 — THE `stop()` NEVER SURVIVED.** This entry used to read *"Only the
+original file's bare `stop();` survived"*, and cite that survival as evidence the walk is already
+effectively the last statement. **It is false, and the way it was false is the lesson.** Measured on
+`IncantForms/WorkingOn/parser`: the run printed no `stop:` line and **exited 0** — the
+abandon-the-rest-of-the-file-on-parse-failure path, because five dead `walkRules` lines sat below the
+`stop()` and the poisoned loader could not parse them. **Truncate those same lines and the identical
+run exits 139.** Neither run reached `stop()`. The exit status was an accident of what followed the
+walk, and the survival claim was read off it.
+
+## ⚠⚠ THE SEAM'S FIRST LANDED HALF — A CACHED `BlocK` EXECUTES PAST INSTALL WITH NO LOADER
+
+**Design fact, banked 2026-08-19, and it is the existence proof this item was waiting for.** Move the
+driver into an action and put its `stop()` inside, and the run completes: **`TokenXP` 59 lines ·
+`Braced` 59 · `NumbeR` 19 · `QuotE` 7 · `StringXP` 7**, every one printing its sentinel, printing
+`stop:`, and exiting 0. Before the move, `Braced` and `NumbeR` exited **139**.
+
+**The mechanism is the seam itself.** An action body is parsed ONCE at define time into a cached
+`BlocK`; running it needs no loader. So *"the parser can no longer read the source that follows"* is
+a statement about **the loader**, not about **execution** — and the two are already separable in a
+running process today, with no new machinery. **Activation-side execution past an install boundary
+is therefore not a thing to be designed and hoped for; it is a thing that already works, and the
+loader-separation work is about giving it a front door rather than about inventing it.**
+
+⚠ **What it does NOT prove, stated so nobody over-reads it:** the walk still cannot be followed by
+*newly parsed* source in the same process. The proof is about already-parsed code only.
+
+### Instrument doctrine that rides with it — THE SENTINEL GOES ON `cerr`
+Stdout is block-buffered when it is not a tty, so **a crash loses it**. A stdout sentinel therefore
+cannot report the crash it exists to detect — it is absent in exactly the case it was written for,
+and its absence is indistinguishable from the run never getting there. Measured the same day: the
+first version of the driver's sentinel was a `print`, and it produced **zero bytes** on a run that
+had demonstrably reached it; moved to `cerr`, the identical run printed it above the crash line.
+**Any sentinel placed after work that can segfault belongs on the unbuffered channel.**
+⚠ **And its live limitation, named rather than discovered later:** a sentinel cannot survive a
+`exit()` that happens *before* it. `compile` exits the process on a refused parse (fixIts F-17e), so
+in any fixture that compiles, a missing sentinel means *compile refused or crashed* and NOT *the
+loader ate it*. **The exit code is what separates those: `1` is `compile`'s own exit after a named
+refusal, `139` is a crash.**
 
 **R-1 — WHY IT IS A CONTRACT AND NOT A BUG**, by the test above: branch B changes what `if x;` means
 for *every* method-bearing field, so justifying either branch needs a **new sentence** in a doc.

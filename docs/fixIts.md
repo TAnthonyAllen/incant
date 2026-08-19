@@ -577,6 +577,56 @@ off-rule storage behind phase two is not available, because phase one reclassifi
 needs — all of them. **This is the measurement F-15 option (b) was waiting on, and it comes back
 in favour of (b) being done FIRST, not last.** *Done when:* Tony rules. **Owner:** Tony.
 
+### ⚠ PRE-FLIGHT FOR THE CONTAINER RESHAPE — RUN 2026-08-19, AND THE READER COUNT IS WRONG
+**Direction (Tony's, pre-work only, no edit authorized):** the bins' `D` is the character set read
+through `inSet`; make it a labelled attribute on the NumbeR-reshape pattern, `-MD-` goes 2 → 0, and
+pick-one holds without amendment.
+
+**THE GREP WAS ASKED FOR TWO READERS AND FOUND FIVE, AND THE FIFTH IS A WRITER.**
+
+| # | site | what it does with the set |
+|---|---|---|
+| 1 | `parseContainer` — `Generate.rtn:85` | reads (named in the direction) |
+| 2 | `testContainer` — `RuleStuff.twk:386` | reads (named in the direction) |
+| 3 | **`containerTo`** — `RuleStuff.twk:577` | reads — the LABELLED-container road added for genParse (IA-0/CT). **Not named.** |
+| 4 | **`setGuard`** — `GroupItem.twk:500` | `if isSET { guardSet = characterSet; guarded = true; }` — **a bin's GUARD IS its set** |
+| 5 | ⚠⚠ **`addGroup`** — `GroupItem.twk:80-86` | **WRITES it.** `if binType { PLGset binGuard = guardSet; set((int)*group.tag); binGuard = characterSet; setSimple(group.tag); }` |
+
+⚠ **ROW 5 CHANGES THE SHAPE OF THE JOB, and it also answers a question left open on 2026-08-19
+morning** (*what IS that isSET datum, and does `processFlags` derive it from the members?*).
+**The set is not authored anywhere. It is DERIVED, incrementally, at add-member time** — every
+`addGroup` onto a bin folds that member's first character into the set. So "move the set to a
+labelled attribute" is not a data-placement edit:
+- either **`addGroup` must be taught to write into the attribute** — and `addGroup` is core
+  bootstrap machinery on every add in the system, so that is blast-radius work, not a reshape; or
+- the set stops being maintained and becomes **hand-authored**, in which case it goes stale the
+  first time a member is added to a bin and nothing says so.
+**Neither is what the direction assumed.** Row 4 compounds it: the same set is the rule's guard, so
+moving it moves guarding too.
+
+**THE POSITIVE CONTROL — and the premise "the fleet won't certify this either" is HALF WRONG,
+measured over the 19 fixtures `pop.sh` runs.** Unlike the float reshape, where fleet coverage was
+genuinely **zero**, container membership is covered by value:
+
+| what | fleet coverage |
+|---|---|
+| `BrancheS` membership | **covered** — `loopBranchT`, presence-with-value: break → **3**, continue → **12** |
+| `Operators` symbol longest-match | **covered** — `==` ×13, `++` ×20, `:=` ×6, `&&` ×5, `+=` ×3, `!=` ×2, `>=` ×1. Each is a multi-char operator whose first character is itself a registered operator, so a longest-match regression goes red in 13 places at once |
+| `Operators` word forms | partial — `AND` ×12, `IN` ×4, `OR` ×1, `GO` **0** |
+| **the documented failure mode** | ⚠ **NOT COVERED** |
+
+**What a new control must add, and it is the `--g` disease `testContainer`'s own header describes:**
+*"any container holding both a symbol and a word can produce it"* — the scan builds a set-based span,
+finds no entry, and the whole match fails rather than backing off.
+1. **zero-coverage prefix pairs:** `||`, `<=`, `>>`, `<<`, `:+` — all **0** occurrences in the fleet.
+2. **word-beside-symbol:** `AND`/`OR`/`IN`/`GO` adjacent to `&`/`|`, which is the exact stated flaw.
+3. **a `BrancheS` member as the prefix of a real identifier** — a *code* identifier named e.g.
+   `returnValue` or `breaker`. The fleet has none; the six hits for that pattern are all prose in
+   fixture headers.
+**Done when:** those three rows exist, green, BEFORE any edit — and row 5's decision is made, because
+it decides whether this is a reshape or a change to `addGroup`. **Owner:** Tony (ruling), then whoever
+implements. **No edit made.**
+
 ### F-21 — `walkRules` prints a null through `appendString` on the five new `FloaT`/`PoweR` terms
 **Where:** `IncantForms/WorkingOn/parser`, `walkRules`' `print ~$taG "=" argument;` line. The message
 comes from the SUPPORT repo, `Frame/Buffer.C:202` (`Buffer: ERROR no text passed into
