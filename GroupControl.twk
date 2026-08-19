@@ -230,18 +230,42 @@ GroupItem   action;
         the parser, and a live field read there would be paid for on every
         character of every match.
 
-        ⚠⚠ THE VALUE BELOW IS THE STATUS QUO, NOT THE INTENDED DEFAULT, and
-        that is on purpose. 268435457 is exactly what -0xefffffff evaluated
-        to, so this change is behaviour-neutral by construction. The
-        intended default is 100 and it is NOT pinned until the high-water
-        measurement has run -- docs/fixIts.md F-27. The reason that
-        measurement is owed rather than optional: this same max ALSO bounds
-        parse()'s repetition loop at GroupItem.twk:1339, so the ceiling
-        caps how many TIMES a rule may repeat, not only how many characters
-        one match may span.
+        ⚠⚠ THE VALUE IS MEASURED, AND IT IS NOT THE 100 THE BRIEF PROPOSED.
+        A 181-fixture sweep on 2026-08-19 instrumented both populations this
+        one field bounds:
+
+            characters in one match  ceiling  79   NotA, grammarOnTheFly
+            repetitions of one rule  ceiling 171   StatemenT, phaseA
+
+        100 clears the character population and DOES NOT CLEAR THE OTHER --
+        phaseA is a 171-statement file and a ceiling of 100 would have
+        truncated it. 100000 clears both by three orders of magnitude.
+
+        ⚠ AND THE HEADROOM IS ASYMMETRIC ON PURPOSE, because the two
+        populations are not the same KIND of quantity. 79 is a real bound on
+        a token: no name or number gets much longer. 171 is not a bound on
+        anything -- it is the length of one fixture, and the next file may
+        have a thousand statements. No sweep can bound user input, so the
+        repetition side gets a number chosen to be unreachable rather than a
+        number chosen from the data.
+
+        ⚠⚠ AND THE TRUNCATION IT AVOIDS WOULD BE SILENT. The character loop
+        refuses loudly through reportMaxLimit; parse()'s repetition loop at
+        GroupItem.twk:1339 has no such report, so a rule cut short there
+        just stops, and the statements after the cut are simply not parsed.
+        That asymmetry is why this number errs LARGE. Splitting the two
+        limits is the real repair -- docs/fixIts.md F-28.
+
+        ⚠ THE CEILING IS ALSO LOAD-BEARING AS A RUNAWAY STOP, which the
+        sweep found by accident: incant/sinkProbe drives StatemenT to the
+        ceiling EXACTLY, so it was doing 268435457 iterations and burning
+        17 seconds of CPU on every run. At 100000 the same run terminates
+        the same way in milliseconds. A runaway sets no floor for the limit,
+        so it is excluded from the table above rather than allowed to pin it
+        at 268 million forever.
     ***********************************************************************/
     maxLimit        = new("maxLimit");
-    maxLimit.count  = 268435457;
+    maxLimit.count  = 100000;
     properties += inDENT;
     properties += printSPACE;
     properties += maxLimit;

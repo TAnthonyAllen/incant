@@ -7500,6 +7500,87 @@ GroupItem 	*inner = 0;
 	return leaf;
 }
 
+extern "C" void limitWriteCheck(GroupItem *target, int priorLimit)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( (isCOUNT(ruler->maxLimit->groupBody->flags.data) || isNUMBER(ruler->maxLimit->groupBody->flags.data)) && ruler->maxLimit->getCount() > 0 )
+		return;
+	::fprintf(stderr,"REFUSED maxLimit write: %s is not a usable repetition limit\n",ruler->maxLimit->getText());
+	::fprintf(stderr,"    keeping maxLimit %s\n",::toStringFromInt(priorLimit));
+	::fprintf(stderr,"    repetition limits already stamped are unchanged\n");
+	ruler->maxLimit->setCount(priorLimit);
+}
+
+/*****************************************************************************
+    reportMaxLimit -- THE THIRD REFUSAL, and it states a fact neither sibling
+    can. reportCodeFail says a body was parsed and the parse failed;
+    reportNoBody says a rule was reached with no compiled body. This one says
+    a match ran into the maxLimit ceiling with input still matching, so what
+    was about to be returned is a TRUNCATION.
+
+    ⚠ IT REFUSES RATHER THAN TRUNCATING, and that is the whole point of it.
+    Silently returning the first N characters of a longer token is
+    parse-succeeded-with-wrong-content, which is the worst failure genre on
+    this project's books -- every downstream reader believes a token that was
+    never in the input. A limit hit means either a defect or a genuinely large
+    token, and both deserve to be named at the moment they happen.
+
+    ⚠ ONE IMPLEMENTER, WHICH IS HOW THE TWO ENGINES ARE KEPT HONEST. The
+    interpretive loop (testMacro, RuleStuff.twk) and the generated-parse loops
+    (parseAny/parseCharacter/parseSet, Generate.rtn) both call THIS function,
+    so "same behaviour, same words" is true by construction rather than by two
+    copies being carefully matched. The convergence note on reportCodeFail
+    applies to all three.
+
+    ⚠ WHAT IT IS NOT ALLOWED TO FIRE ON. max is not only the ceiling: it is 1
+    by default and it is whatever an explicit [min max] Limit sets. Both of
+    those hit `counter >= max` in the ordinary course of a correct parse -- a
+    one-character rule followed by another matching character reaches it on
+    every single match. So the callers gate on `max > 1 && !limitsSet`, which
+    is true only for the ceiling modify() stamps. Ungated, this would reject
+    every name longer than one letter.
+
+    cerr for its siblings' reason: a refusal that vanishes into a diverted
+    print buffer is not loud.
+*****************************************************************************/
+/*****************************************************************************
+    limitWriteGuard / limitWriteCheck -- F-27's ruling: a bad write to maxLimit
+    is refused AT THE WRITE, and the assignment does not take.
+
+    ⚠ THE SITE IS THE RULING. Tony, 2026-08-19: catching a bad limit at its one
+    write site is cheaper than diagnosing a million silent zero-matches at parse
+    time, and a stamped max = 0 is the succeed-without-advancing family wearing a
+    configuration costume. So this does NOT live in modify() -- by the time
+    modify() reads a poisoned count the write has already got away, and every
+    rule defined since carries it.
+
+    ⚠ WHY IT IS TWO FUNCTIONS AND NOT ONE. Refusing requires the value the write
+    is about to destroy, so half of it has to run BEFORE opAssign's setContent
+    and half after. The guard returns the prior count and doubles as the "is this
+    even maxLimit" test: a non-zero return means both "this write is to maxLimit"
+    and "here is what to put back", so opAssign pays one int test on every other
+    assignment in the system and nothing else.
+
+    ⚠ THE TEST IS ON THE DATA TYPE, NOT ONLY ON THE COUNT, and that is not
+    belt-and-braces. `maxLimit = "big"` leaves an isSTRING, and getCount reads
+    `count` straight out of the union for an isSTRING -- which overlaps the text
+    pointer, so it comes back LARGE and non-zero rather than 0. A count-only test
+    would wave that through and stamp a garbage ceiling. Only a genuine isCOUNT
+    or isNUMBER above zero is a usable limit.
+
+    The message names all three things the ruling asked for: the rejected value,
+    the retained value, and that repetition limits are unchanged.
+*****************************************************************************/
+extern "C" int limitWriteGuard(GroupItem *target)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( !target )
+		return 0;
+	if ( target->groupBody != ruler->maxLimit->groupBody )
+		return 0;
+	return ruler->maxLimit->getCount();
+}
+
 /*****************************************************************************
 	The input argument is expected to be a listenTo attribute that contains
     a group, the notifier, that will be listened to by listenTo's parent, the
@@ -8243,6 +8324,7 @@ GroupItem 	*grup = 0;
 ***************************************************************************/
 extern "C" GroupItem *opAssign(GroupItem *argument, GroupItem *target)
 {
+int 	priorLimit = ::limitWriteGuard(target);
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		 return jitEmitAssign(argument, target); 
@@ -8252,6 +8334,17 @@ extern "C" GroupItem *opAssign(GroupItem *argument, GroupItem *target)
 			target->setGroup(argument);
 		else	target->setContent(argument);
 	else	target->clearData();
+	/*  F-27, Tony's ruling 2026-08-19. Non-zero priorLimit means the target IS
+	maxLimit and here is what to restore, so every other assignment in the
+	system pays one int test. See limitWriteGuard's header in
+	GroupActions.rtn for why the refusal has to be here rather than in
+	modify(), and why it takes two halves.
+	⚠ THE GUARD CALL SITS ABOVE THE jitting ARM DELIBERATELY: it must run on
+	the same passes the write does, and it mentions `target` so the bare
+	`group` below still resolves to target -- verified in the generated .mm,
+	which is the only way that question has ever been answerable here.  */
+	if ( priorLimit )
+		::limitWriteCheck(target,priorLimit);
 	return target;
 }
 
@@ -11438,38 +11531,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	::fprintf(stderr,"    on line %s\n",::toStringFromInt(ruler->sourceLINE));
 }
 
-/*****************************************************************************
-    reportMaxLimit -- THE THIRD REFUSAL, and it states a fact neither sibling
-    can. reportCodeFail says a body was parsed and the parse failed;
-    reportNoBody says a rule was reached with no compiled body. This one says
-    a match ran into the maxLimit ceiling with input still matching, so what
-    was about to be returned is a TRUNCATION.
-
-    ⚠ IT REFUSES RATHER THAN TRUNCATING, and that is the whole point of it.
-    Silently returning the first N characters of a longer token is
-    parse-succeeded-with-wrong-content, which is the worst failure genre on
-    this project's books -- every downstream reader believes a token that was
-    never in the input. A limit hit means either a defect or a genuinely large
-    token, and both deserve to be named at the moment they happen.
-
-    ⚠ ONE IMPLEMENTER, WHICH IS HOW THE TWO ENGINES ARE KEPT HONEST. The
-    interpretive loop (testMacro, RuleStuff.twk) and the generated-parse loops
-    (parseAny/parseCharacter/parseSet, Generate.rtn) both call THIS function,
-    so "same behaviour, same words" is true by construction rather than by two
-    copies being carefully matched. The convergence note on reportCodeFail
-    applies to all three.
-
-    ⚠ WHAT IT IS NOT ALLOWED TO FIRE ON. max is not only the ceiling: it is 1
-    by default and it is whatever an explicit [min max] Limit sets. Both of
-    those hit `counter >= max` in the ordinary course of a correct parse -- a
-    one-character rule followed by another matching character reaches it on
-    every single match. So the callers gate on `max > 1 && !limitsSet`, which
-    is true only for the ceiling modify() stamps. Ungated, this would reject
-    every name longer than one letter.
-
-    cerr for its siblings' reason: a refusal that vanishes into a diverted
-    print buffer is not loud.
-*****************************************************************************/
 extern "C" int reportMaxLimit(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;

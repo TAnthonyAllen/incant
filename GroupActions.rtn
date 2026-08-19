@@ -768,6 +768,52 @@ GroupRules  ruler = groupRules;
     cerr for its siblings' reason: a refusal that vanishes into a diverted
     print buffer is not loud.
 *****************************************************************************/
+/*****************************************************************************
+    limitWriteGuard / limitWriteCheck -- F-27's ruling: a bad write to maxLimit
+    is refused AT THE WRITE, and the assignment does not take.
+
+    ⚠ THE SITE IS THE RULING. Tony, 2026-08-19: catching a bad limit at its one
+    write site is cheaper than diagnosing a million silent zero-matches at parse
+    time, and a stamped max = 0 is the succeed-without-advancing family wearing a
+    configuration costume. So this does NOT live in modify() -- by the time
+    modify() reads a poisoned count the write has already got away, and every
+    rule defined since carries it.
+
+    ⚠ WHY IT IS TWO FUNCTIONS AND NOT ONE. Refusing requires the value the write
+    is about to destroy, so half of it has to run BEFORE opAssign's setContent
+    and half after. The guard returns the prior count and doubles as the "is this
+    even maxLimit" test: a non-zero return means both "this write is to maxLimit"
+    and "here is what to put back", so opAssign pays one int test on every other
+    assignment in the system and nothing else.
+
+    ⚠ THE TEST IS ON THE DATA TYPE, NOT ONLY ON THE COUNT, and that is not
+    belt-and-braces. `maxLimit = "big"` leaves an isSTRING, and getCount reads
+    `count` straight out of the union for an isSTRING -- which overlaps the text
+    pointer, so it comes back LARGE and non-zero rather than 0. A count-only test
+    would wave that through and stamp a garbage ceiling. Only a genuine isCOUNT
+    or isNUMBER above zero is a usable limit.
+
+    The message names all three things the ruling asked for: the rejected value,
+    the retained value, and that repetition limits are unchanged.
+*****************************************************************************/
+extern int limitWriteGuard(GroupItem target)
+{
+GroupRules  ruler = groupRules;
+    if !target                                  return 0;
+    if target.groupBody != maxLimit.groupBody   return 0;
+    return maxLimit.count;
+}
+
+extern void limitWriteCheck(GroupItem target,int priorLimit)
+{
+GroupRules  ruler = groupRules;
+    if (maxLimit.isCOUNT || maxLimit.isNUMBER) && maxLimit.count > 0    return;
+    cerr "REFUSED maxLimit write: " maxLimit.text " is not a usable repetition limit":;
+    cerr "    keeping maxLimit " toStringFromInt(priorLimit):;
+    cerr "    repetition limits already stamped are unchanged":;
+    maxLimit.count  = priorLimit;
+}
+
 extern int reportMaxLimit(GroupItem field)
 {
 GroupRules  ruler = groupRules;

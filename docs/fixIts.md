@@ -120,7 +120,43 @@ than creating it. Same family as the rung-6 repetition tripwire already noted at
 divergence is intended and why. **Owner: Tony** (his file, his intent). **Size:** rulings, then small
 edits.
 
-### F-27 — ⚠ `maxLimit` IS LANDED AT THE STATUS QUO; THE DEFAULT IS NOT PINNED UNTIL THIS IS MEASURED
+### F-28 — the ONE `maxLimit` bounds TWO different KINDS of quantity, and only one of them refuses loudly
+**Where:** `RuleStuff.twk`'s `testMacro` loop and `GroupItem.twk:1339`'s `while !isOK && kount < max`.
+**What:** one field, two populations — **how many characters one match may span**, and **how many
+times a rule may repeat**. Measured 2026-08-19 over 181 fixtures they are three orders of magnitude
+apart in kind, not just in value:
+
+| population | fleet ceiling | is it a real bound? |
+|---|---|---|
+| characters in one match | **79** (`NotA`, `grammarOnTheFly`) | **yes** — no name or number gets much longer |
+| repetitions of one rule | **171** (`StatemenT`, `phaseA`) | **no** — that is the length of one file, and the next may have a thousand statements |
+
+⚠ **AND THE ASYMMETRY THAT MAKES IT URGENT: the character loop REFUSES LOUDLY through
+`reportMaxLimit`; the repetition loop has no report at all.** A rule cut short at `:1339` just
+stops, and every statement after the cut is simply not parsed — silently, at exit 0. That is the
+`parse-succeeded-with-wrong-content` genre with no instrument pointing at it, which is exactly what
+F-27's ruling refused to allow at the write site.
+**The consequence today:** the default has to be chosen for the population that cannot be bounded,
+so it is **100000** and the character limit is along for the ride. Tony's 100 — a good number for a
+token — is unusable while the two share a field.
+**Done when:** the two limits are separate fields, or the repetition loop gets its own refusal so a
+truncation there is at least loud. **Owner: Tony** (it is a design split, not a repair).
+
+### F-29 — `incant/sinkProbe` drives `StatemenT` to the repetition ceiling: a rule succeeding without advancing
+**Where:** `incant/sinkProbe`, found by the F-27 high-water sweep rather than looked for.
+**What:** its `StatemenT` `kount` reaches **268435457 — the ceiling EXACTLY**, so the rule was
+matching without consuming input and only the bound stopped it. It cost **17.02s of CPU on every
+run**; at the pinned 100000 the identical run takes **0.037s** and its output is **byte-identical**,
+which is what proves the iterations were doing no work.
+**Why it matters beyond the fixture:** this is the succeed-without-advancing family — the same shape
+as the `parseSet` defect repaired in `654a180` — live in the corpus today, on the interpretive path,
+and invisible because the ceiling silently absorbed it. **A runaway sets no floor for the limit**, so
+it is excluded from F-28's table rather than allowed to pin the default at 268 million forever.
+**Done when:** the rule or term that matches empty in `sinkProbe` is named, and it is known whether
+the shape occurs anywhere else. **Owner:** unassigned. **Good minion candidate** — the sweep that
+found it is one script and can be re-pointed.
+
+### F-27 — ✅ CLOSED 2026-08-19 — `maxLimit` landed, refuse-loud at the write, default MEASURED at 100000
 **Where:** `GroupControl.twk`, `setBaseRegistries` — `maxLimit.count = 268435457;`.
 **What:** the maxLimit brief (2026-08-19) replaces `modify()`'s inline `-0xefffffff` with a
 user-settable `maxLimit` property and specifies a default of **100**. Everything landed **except the
@@ -167,11 +203,28 @@ item 3 is not implementable without them:**
    would be safe only by vacancy** (no numeric `[min max]` Limit exists anywhere in the grammar or
    corpus — checked), which is exactly the shape F-9 exists to stop; hence the flag.
 
-**⚠ ONE HAZARD RECORDED, NOT SOLVED:** `getCount()` returns **0** when the field carries no data
-(`GroupItem.twk:440`). So `maxLimit = "big";` — or anything that clears it — makes `modify()` stamp
-**max = 0**, and every `+`/`*` rule silently matches nothing from that point on. User-settable data
-with a catastrophic zero is a refuse-loud candidate; no guard was added because inventing the policy
-is not this brief's to do. **Owner: Tony.**
+**⚠ THE HAZARD IS RULED AND CLOSED.** Tony, 2026-08-19: a write to `maxLimit` yielding a zero or
+non-numeric count **reports at the write and does not take** — `maxLimit` keeps its prior value.
+Rationale on the record: catching a bad limit at its one write site is cheaper than diagnosing a
+million silent zero-matches at parse time, and a stamped `max = 0` is the succeed-without-advancing
+family wearing a configuration costume. Implemented as `limitWriteGuard`/`limitWriteCheck` around
+`opAssign`'s body — **the site is the ruling**, since by the time `modify()` reads a poisoned count
+the write has already got away.
+**⚠ AND THE TEST IS ON THE DATA TYPE, NOT ONLY THE COUNT.** `maxLimit = "big"` leaves an `isSTRING`,
+and `getCount` reads `count` straight out of the union for one — which overlaps the text pointer, so
+it comes back **large and non-zero**, not 0. A count-only test would have waved it through.
+**Control: `incant/limitT`, five rows, all measured.** Boot default `100000` · legitimate re-pin to
+250 **silent** (the H7 negative control — if every write reported, the refusal rows would go green on
+an instrument that always fires) · `= 0` refused, 250 survives · `= "big"` refused, 250 survives ·
+a further legitimate re-pin to 300 still takes.
+
+**THE MEASURED DEFAULT: 100000, and 100 was NOT safe.** 181-fixture sweep, both populations
+instrumented. Characters ceiling **79**; repetitions ceiling **171** — so `incant/phaseA`, a
+171-statement file, **would have been truncated by Tony's proposed 100**. See F-28 for why the
+headroom is asymmetric and F-29 for the runaway the sweep turned up.
+**Fleet at the pinned default: 48 green / 1 parked, reds `iterT1m` ×2 + `jsonTest baseline` — the
+recorded pre-existing set, byte-identical to the pre-pin capture** on every assertion row (the only
+diff is `pop.sh`'s own H1 binary-echo header).
 
 ---
 

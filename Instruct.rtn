@@ -96,6 +96,7 @@ extern GroupItem opAND(GroupItem argument,GroupItem target)
 ***************************************************************************/
 extern GroupItem opAssign(GroupItem argument,GroupItem target)
 {
+int         priorLimit = limitWriteGuard(target);
     if jitting {
         -% return jitEmitAssign(argument, target); %-
     }
@@ -103,6 +104,16 @@ extern GroupItem opAssign(GroupItem argument,GroupItem target)
         if argument.byRef   group = argument;
         else                target.setContent(argument);
     else    target.clearData();
+    /*  F-27, Tony's ruling 2026-08-19. Non-zero priorLimit means the target IS
+        maxLimit and here is what to restore, so every other assignment in the
+        system pays one int test. See limitWriteGuard's header in
+        GroupActions.rtn for why the refusal has to be here rather than in
+        modify(), and why it takes two halves.
+        ⚠ THE GUARD CALL SITS ABOVE THE jitting ARM DELIBERATELY: it must run on
+        the same passes the write does, and it mentions `target` so the bare
+        `group` below still resolves to target -- verified in the generated .mm,
+        which is the only way that question has ever been answerable here.  */
+    if priorLimit   limitWriteCheck(target,priorLimit);
     return  target;
 }
 

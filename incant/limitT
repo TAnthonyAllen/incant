@@ -1,0 +1,49 @@
+/*****************************************************************************
+    limitT -- the control for fixIts F-27, Tony's ruling of 2026-08-19: a write
+    to maxLimit that yields a zero or non numeric count is refused AT THE WRITE,
+    and the assignment does not take.
+
+    THE ROWS ARE ORDERED SO THAT RETAINED IS DISTINGUISHABLE FROM NEVER CHANGED.
+    Row 2 moves the limit to a value nothing else in the system would produce,
+    so when row 3 and row 4 are refused, the value that survives is provably the
+    one row 2 put there rather than the boot default. A refusal test that ran
+    only against the boot value could not tell a working refusal from a write
+    that never happened.
+
+    ROW 2 IS ALSO THE NEGATIVE CONTROL, per rule H7. It is a legitimate re pin
+    and it must be SILENT. If every write reported, rows 3 and 4 would go green
+    on an instrument that simply always fires.
+
+    Row 4 is the sharper of the two refusals. A string leaves the count reading
+    LARGE rather than zero, because getCount hands back the union field for an
+    isSTRING and that overlaps the text pointer, so a count only test would wave
+    it through. Row 3 is the plain zero.
+
+    SENTINEL AT THE FOOT, and one stop only.
+*****************************************************************************/
+Start();
+include(unitTests);
+search reset stack Grokking;
+search UnitTests list;
+register(LimitTest);
+define
+    runLimit code={
+        print "1 boot default:";
+        print + "   maxLimit = " maxLimit:;
+        print "2 legitimate re-pin to 250 -- MUST BE SILENT:";
+        maxLimit = 250;
+        print + "   maxLimit = " maxLimit:;
+        print "3 refused write of zero -- reports, and 250 must survive:";
+        maxLimit = 0;
+        print + "   maxLimit = " maxLimit:;
+        print "4 refused write of a string -- reports, and 250 must survive:";
+        maxLimit = "big";
+        print + "   maxLimit = " maxLimit:;
+        print "5 legitimate re-pin still works after two refusals:";
+        maxLimit = 300;
+        print + "   maxLimit = " maxLimit:;
+        };
+    ;
+runLimit();
+print "LT SENTINEL":;
+stop();
