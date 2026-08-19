@@ -9755,13 +9755,16 @@ int 		n = 0;
 *******************************************************************************/
 extern "C" GroupItem *parseAction(GroupItem *field)
 {
-	if ( field->rStuff->label )
-		if ( field->groupBody->gMethod(field->rStuff->label) )
-			return parseSetLabel(field);
-		else	field->rStuff->label->clear();
+	if ( parseACTION(field->groupBody->flags.methodType) || !field->rStuff->label )
+		{
+		if ( field->groupBody->gMethod(field) )
+			return GroupControl::groupController->groupRules->trueResult;
+		}
 	else
-	if ( field->groupBody->gMethod(field) )
-		return GroupControl::groupController->groupRules->trueResult;
+	if ( field->rStuff->label && field->groupBody->gMethod(field->rStuff->label) )
+		return parseSetLabel(field);
+	if ( field->rStuff->label )
+		field->rStuff->label->clear();
 	GroupControl::groupController->groupRules->atRuleMark = field->rStuff->hereAt;
 	return 0;
 }
@@ -9784,6 +9787,44 @@ extern "C" GroupItem *parseAction(GroupItem *field)
 
     parseSet is the model and it was already correct. Copy the working sibling
     rather than inventing a fifth spelling.
+
+    ⚠⚠ AND ON 2026-08-19 THE SAME FAMILY WAS AUDITED AGAINST ITS TEMPLATES AND
+    parseSet WAS NOT THE MODEL AFTER ALL. Tony's finding: it was derived from
+    RuleStuff's testSet and kept half of it. The half it dropped is the half
+    that MOVES. testMacro, which is what testAny/testCharacter/testSet are:
+
+        while tester
+            counter++, atRuleMark++, break at end-of-input or counter >= max
+        then, ONCE, if counter && counter >= min -- set the label, succeed
+
+    All three carried the tester and the label write and returned from INSIDE
+    the loop, with no atRuleMark++ and no min gate. So the match consumed NO
+    INPUT and reported success on the first character -- and a match that
+    succeeds while advancing nothing is a parse that cannot terminate. Restored
+    from testMacro. The noAdvance rewind stays in parseSetLabel, which is where
+    this family already keeps it.
+
+    parseString dropped testString's `if matchedString` guard, so it reported
+    success whenever checkInput passed, matched or not -- and it is the function
+    the F-19 backtrace named. Its `while counter++ < max` wrapper went with the
+    repair rather than gaining the guard inside it: `*` sets max to 268435457
+    (modify, GroupActions.rtn), so a guarded miss in that loop would spin, and
+    repetition on this path is parse()'s rung-6 tripwire, not this function's.
+
+    parseContainer took `atInput = atRuleMark` at DECLARATION time, before its
+    own checkInput() had run the skip pass, so the container scan could start on
+    whitespace. testContainer cannot have this bug: its caller had already
+    skipped. Re-taken inside the block. parseUpTo had no checkInput() at all,
+    for the same reason and with the same consequence.
+
+    parseAction had lost testAction's `parseACTION ||` disjunct, so a
+    parseACTION rule that happened to have a label was handed the LABEL where
+    the template hands it the FIELD.
+
+    ⚠ READ-GRADE, all of it. These are unreachable until a walk calls setParse,
+    so nothing here has been run -- the template diff is the control and the
+    Xcode walk is the measurement. What was NOT touched, and why, is in
+    docs/fixIts.md F-26.
 *****************************************************************************/
 extern "C" GroupItem *parseAny(GroupItem *field)
 {
@@ -9791,13 +9832,21 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->rStuff;
 int 		counter = 0;
 	if ( ruleStuff->checkInput() )
-		while ( counter++ < ruleStuff->max )
-			if ( counter && counter >= ruleStuff->min )
-				{
-				if ( ruleStuff->label )
-					ruleStuff->label->setToken(ruleStuff->hereAt,counter);
-				return parseSetLabel(field);
-				}
+		{
+		while ( counter < ruleStuff->max )
+			{
+			counter++;
+			ruler->atRuleMark++;
+			if ( !*ruler->atRuleMark || counter >= ruleStuff->max )
+				break;
+			}
+		if ( counter && counter >= ruleStuff->min )
+			{
+			if ( ruleStuff->label )
+				ruleStuff->label->setToken(ruleStuff->hereAt,counter);
+			return parseSetLabel(field);
+			}
+		}
 	if ( ruleStuff->label )
 		ruleStuff->label->clear();
 	ruler->atRuleMark = ruleStuff->hereAt;
@@ -9843,12 +9892,21 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->rStuff;
 int 		counter = 0;
 	if ( ruleStuff->checkInput() )
-		while ( *ruler->atRuleMark == field->getCharacter() && counter++ < ruleStuff->max )
+		{
+		while ( *ruler->atRuleMark == field->getCharacter() && counter < ruleStuff->max )
+			{
+			counter++;
+			ruler->atRuleMark++;
+			if ( !*ruler->atRuleMark || counter >= ruleStuff->max )
+				break;
+			}
+		if ( counter && counter >= ruleStuff->min )
 			{
 			if ( ruleStuff->label )
 				ruleStuff->label->setToken(ruleStuff->hereAt,counter);
 			return parseSetLabel(field);
 			}
+		}
 	if ( ruleStuff->label )
 		ruleStuff->label->clear();
 	ruler->atRuleMark = ruleStuff->hereAt;
@@ -9881,6 +9939,7 @@ Buffer 		*buffer = ruler->stringBUFFER;
 	if ( ruleStuff->checkInput() )
 		{
 		buffer->reset();
+		atInput = ruler->atRuleMark;
 		while ( *atInput )
 			if ( inSet->contains(*atInput) )
 				{
@@ -10171,12 +10230,21 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->rStuff;
 int 		counter = 0;
 	if ( ruleStuff->checkInput() )
-		while ( set->contains(*ruler->atRuleMark) && counter++ < ruleStuff->max )
+		{
+		while ( set->contains(*ruler->atRuleMark) )
+			{
+			counter++;
+			ruler->atRuleMark++;
+			if ( !*ruler->atRuleMark || counter >= ruleStuff->max )
+				break;
+			}
+		if ( counter && counter >= ruleStuff->min )
 			{
 			if ( ruleStuff->label )
 				ruleStuff->label->setToken(ruleStuff->hereAt,counter);
 			return parseSetLabel(field);
 			}
+		}
 	if ( ruleStuff->label )
 		ruleStuff->label->clear();
 	ruler->atRuleMark = ruleStuff->hereAt;
@@ -10210,15 +10278,16 @@ extern "C" GroupItem *parseString(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->rStuff;
-int 		counter = 0;
-	while ( counter++ < ruleStuff->max )
-		if ( ruleStuff->checkInput() )
+	if ( ruleStuff->checkInput() )
+		{
+		char 	*matchedString = ruleStuff->rule->matches(ruler->atRuleMark);
+		if ( matchedString )
 			{
-			char 	*matchedString = ruleStuff->rule->matches(ruler->atRuleMark);
 			if ( ruleStuff->label )
 				ruleStuff->label->setText(matchedString);
 			return ::parseSetLabel(field);
 			}
+		}
 	if ( ruleStuff->label )
 		ruleStuff->label->clear();
 	ruler->atRuleMark = ruleStuff->hereAt;
@@ -10297,8 +10366,9 @@ extern "C" GroupItem *parseUpTo(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->rStuff;
-	if ( ::testUpTo(field) )
-		return ::parseSetLabel(field);
+	if ( ruleStuff->checkInput() )
+		if ( ::testUpTo(field) )
+			return ::parseSetLabel(field);
 	if ( ruleStuff->label )
 		ruleStuff->label->clear();
 	ruler->atRuleMark = ruleStuff->hereAt;

@@ -66,6 +66,60 @@ unconditional or annotated with what keeps them vacant.
 **Owner:** unassigned. **Size:** census first, then per-site. **Good minion candidate** — the
 classification is mechanical once the pattern is stated.
 
+### F-26 — what the 2026-08-19 `Generate.rtn` template audit did NOT touch, and why each one is Tony's
+**Context:** Tony's finding — `parseSet` was derived from `RuleStuff`'s `testSet` and kept half of
+it — generalised into a walk of every method in the file against its template. The transcription
+omissions were repaired in the same pass (see the block above `parseAny`). **These five are the
+residue: divergences that are real but that I cannot tell from deliberate adaptation, so nothing was
+changed.** ⚠ **All READ-grade.** Nothing in this file is reachable until a walk calls `setParse`, so
+none of it has been run; the template diff is the control.
+
+**1. The rule action fires TWICE on the generated path.** `setParse` parks `actionMethod = method`;
+`parseSetLabel` and `runRuleAction` each fire it. But `parse()`'s generated fork
+(`GroupItem.twk:1334-1337`) then calls `fireLabelMethod(ruleStuff)`, which fires the **same**
+`method` on the **same** label. Two calls, one label — and `fireLabelMethod`'s own header claims to
+be *"THE RULE ACTION, and the ONLY site that fires one"*, which is false while `actionMethod`
+exists. Same shape for the attach: `parseSetLabel` does `parentLabel +% label` and the fork then
+calls `attachLabel`. **Either the `actionMethod` channel or the fork's two calls is the one that
+should go, and that is a design call.**
+
+**2. `setParse`'s dispatch order is not `setTestMatch`'s.** Three differences: (a) the `data` switch
+is the **`else`** arm, not `or data`, so a rule with `data == 0` that reaches it is bound
+`parseString`; the template's last arm is `or !contents() if !isMethod testMatch = testString;` and
+**both** guards are absent. (b) `isCondition` / `parseACTION` / `groupList` are tested **before**
+data, where the template tests data third — so a rule carrying data **and** one of those flags gets
+a different executor from the one the interpretive path would pick. (c) no `isMacro →
+setMacroValue` arm; that one is documented in the header (*"For now does not handle macros"*) and is
+listed only so the set is complete.
+
+**3. Four parse methods never call `checkInput()`** — `parseAction`, `parseCondition`, `parseRule`
+(`parseUpTo` was the fourth and was repaired, because it reads the input stream directly). On the
+interpretive path `parse()` called it before `testMatch`; on the generated path **nothing does**,
+and `checkInput` is what mints `rStuff.label`, sets `hereAt`, runs the skip pass and evaluates the
+guard. **`parseRule` is the one that matters** — every walked grammar rule binds it, and its tail
+reads a `label` and a `hereAt` that nothing on that path has written. Not repaired here because
+minting a label inside `parseRule` changes the generated-path contract: what `runRuleAction(this)`
+hands back, and what the fork's `sukcess = label != 0` then reads.
+
+**4. `parseRule`'s local-clear guard differs from `processAction`'s in three places.** Template
+(`GroupActions.rtn:667-669`): `isLocal && !isLabel && !noPrint && groupBody != action.groupBody`,
+with `action = code` set immediately above it. `parseRule`: `isLocal && !isRule && groupBody !=
+field.groupBody`. So `!isLabel` became `!isRule`, `!noPrint` is gone, and the self-comparison is
+against the **rule** where the template compares against the **CodE**. The template's fill-down loop
+(label → locals, which is what sets `isLabel`) has no counterpart at all — and that part is almost
+certainly deliberate, since `parseRule` runs at parse time when there is no label to fill down from.
+**Which is exactly why the other three are listed rather than guessed at.**
+
+**5. A `*` term matching zero occurrences FAILS on the generated path.** `testMacro`'s
+`if counter && counter >= min` cannot succeed at counter 0; interpretively `parse()`'s `matchFailed`
+block rescues it (`if !sukcess && kount >= min sukcess = true`). The generated fork `goto
+generatedExit`s **past** that block. Restoring `testMacro`'s loop this pass inherits the gap rather
+than creating it. Same family as the rung-6 repetition tripwire already noted at `GroupItem.twk:1256`.
+
+**Done when:** each of the five has a ruling — repair, or a line in `Generate.rtn` saying the
+divergence is intended and why. **Owner: Tony** (his file, his intent). **Size:** rulings, then small
+edits.
+
 ---
 
 ## PARKED
