@@ -1,4 +1,148 @@
-# ⚠⚠⚠ SEALED 2026-08-17 LATE — SHUTDOWN SEAL (CURRENT VINTAGE). READ THIS FIRST.
+# ⚠⚠⚠ SEALED 2026-08-19 — KITCHEN PASS (CURRENT VINTAGE). READ THIS FIRST.
+#
+#   ⚠ **THIS SEAL COVERS TWO DAYS.** 2026-08-18 was worked and pushed but never sealed — an API
+#   failure took the session mid-brief — so everything below spans 08-18 and 08-19 together. The
+#   08-17-late block beneath is intact and superseded.
+#
+#   ## THE ONE-LINE STATE: **the day the rules learned to pick one, and the day two owed
+#   measurements both came back and both changed a plan.** The GroupMain bootstrap trio is
+#   pick-one conforming; the phase-one shadow census prices the (b) pull-forward at **all of it**;
+#   and the BrancheS fork's premise is **falsified by its own control.** Fleet **48 green / 1
+#   parked, byte-identical to the pre-edit baseline**; jitLadder **205 ok, stderr 0, one owned red
+#   (JV/F-12)**. Groups clean but for Tony's two `IncantForms/WorkingOn` files.
+#
+#   ## ⚠⚠ THE THING A FRESH READER MUST NOT RE-DERIVE — THE TWO VERDICTS
+#
+#   **PHASE ONE DAMAGES ALL OF THE GRAMMAR PHASE TWO NEEDS, AND THERE IS NO SAFE SUBSET.**
+#   `incant/phaseProbe`, 79 rules read twice in one process. **11 flip shape. EIGHT of them go
+#   `-M--` → `AM--`** — a members-only alternation rule acquiring an attribute, which is F-15's
+#   poisoned shape exactly — and since **zero rules owned both before the walk, every one of the
+#   eight is a hybrid CREATED by generation.** Then the half that prices it: **11 of 11 flipped
+#   rules are reachable from `BlocK`. Zero fall outside.** So off-rule storage cannot be deferred
+#   behind phase two. **This is F-15 option (b), and the measurement says FIRST, not last.**
+#   ⚠ Its instrument check ran first and is why the rest is readable: the warm-up S2 block agrees
+#   with S1 **row for row, 79/79**, so the two shape readers demonstrably read the same thing.
+#
+#   **BrancheS: THE `bin`-IS-AN-ATTRIBUTE PREMISE IS FALSIFIED, AND NO CHILD TRIPS THE CLASSIFIER.**
+#   The fork was posed as *`bin` is a noPrint ATTRIBUTE the census should ignore, so the repair is a
+#   classifier filter*. `incant/branchProbe` walks the attribute list and prints one line each:
+#
+#   | rule | columns | attributes | members |
+#   |---|---|---|---|
+#   | `BrancheS` | `-MD-`, `datA = 3` | **zero** | 3 — `break` `continue` `return` |
+#   | `Operators` | `-MD-`, `datA = 3` | **zero** | 57 |
+#   | `NumbeR` (control) | `A---`, `datA = 0` | 3 | zero |
+#
+#   **The control is what makes the two zeros mean anything** — the same loop printed three rows for
+#   `NumbeR` in the same run, so the walk is live and the answer is genuinely empty. `bin` is
+#   consumed by `processFlags` at define time and leaves nothing behind. **The `D` is on the rule
+#   node itself.** And the structural replacement, measured over all 13 members-shaped rules: **the
+#   `-MD-` pair is exactly the two CONTAINERS** — `BrancheS` a bin, `Operators` a registry — while
+#   the other **eleven** carry no data at all. ⚠ **What that `isSET` datum IS was NOT measured and
+#   is deliberately not inferred.** The live question is no longer *filter the census*; it is
+#   **does pick-one apply to a container at all** — Tony's.
+#
+#   ## WHAT LANDED
+#
+#   | commit | what |
+#   |---|---|
+#   | `a5ca5e1` `a390f83` | F-15/F-16 — the refusals are a SHADOWING defect, measured with a control; pre-flight census NONZERO |
+#   | `c13f06f` | **F-15 CLOSED** — the members arm goes first, gated on `!data`; fleet UNMOVED |
+#   | `9614ea2` | **Ruling 4** — the two-phase walk lands and delivers the partition |
+#   | `4ab72dd` | Tony's 2026-08-18 offline work: `compile`, the name/token guards, directives |
+#   | `1f39bac` | **F-18 RULED AND LANDED** + **F-19 opened and closed** + **F-20 opened** |
+#   | `7488cb5` | **PICK-ONE lands on the GroupMain trio** + both owed measurements |
+#
+#   ## ⚠ THE SEAL BRIEF'S SIX ITEMS, ANSWERED IN ORDER
+#
+#   **1. F-18 — LANDED, `1f39bac`.** `Generate.rtn`'s `parseRule` bail arm is `reportNoBody(field);`
+#   — no parse call, no fallback — and the comment was rewritten in the same edit, because the old
+#   one stated the opposite doctrine. `reportNoBody` is a **sibling** of `reportCodeFail`, not a
+#   reuse: the two state different facts and the wrong one would print `ERROR processCode:` for a
+#   rule `processCode` never touched. Externs 302 → 303.
+#   ⚠ **AND ITS NAPALM CLAIM IS RETRACTED BY THE REPAIR ITSELF** — with the null deref fixed the run
+#   still died and the backtrace named a different function; `parseRule` was never entered. The
+#   defect was real, the mechanism story was written before it was tested.
+#
+#   **2. DIRECTIVES-BUILD DOCTRINE — CONFIRMED ON DISK,** `CLAUDE.md` bear-trap #23, the 2026-08-18
+#   hardening block. A directives build is **semantically different**, not merely instrumented
+#   (`aCTionNamE starting active` changes how a name resolves), so a capture taken on one is a
+#   result about a different program. **Rebuild bare before any capture** is doctrine now. Every
+#   number in this seal was taken that way: `tok GroupMain.twk`, no directives file, canary
+#   `303 → 303`, rebuilt 09:09.
+#
+#   **3. ⚠ DesignDocs `KantParser` — NOT INSTALLED. DO NOT RECORD IT GREEN.** The five attributes
+#   (`KantParser` `KantParserWhy` `KantParserHow` `KantParserFlow` `InterpretOrCompile`) exist
+#   **only in `IncantForms/WorkingOn/incant++`**, which is Tony's uncommitted working file — a grep
+#   of the whole tree finds them nowhere else, and `incant/designDocs` (last touched 08-15) has no
+#   `KantParser` entry at all. So: **authored, not homed, not compile-verified.** The pending
+#   amendment stands and is now sharper: `KantParserHow`'s constraint wording — *"only data, only
+#   attributes, or only members"* — would gain an *"ignoring noPrint attributes"* clause **if** the
+#   noPrint exemption is ruled; the BrancheS measurement above says that exemption **would not save
+#   BrancheS**, because BrancheS has no attributes to exempt. ⚠ Note also that `KantParserHow`
+#   asserts *"Incant grammar rules now fit that constraint"* — as of this seal **two do not**, and
+#   they are the two containers.
+#
+#   **4. PICK-ONE — SCOPE WAS NOT OPEN HERE. Tony's sentence was received in session, verbatim and
+#   PLURAL**, and this is the one place the brief and the room disagreed:
+#   > *"Change GroupMain bootstrap rules that do not pick one; For example, NumbeR rule should be
+#   > changed to: `NumbeR numberSet=[0-9]+ FloaT? tokenize;`"*
+#   The census closes the set at **exactly three** — `incant/shadowCensus`'s `A-D-` class is
+#   `{ FloaT NumbeR PoweR }` and `census.target` refuses all three for the identical
+#   `rule-level data (§4.1)` reason. **After the edit the `A-D-` class is EMPTY, 3 → 0.**
+#   ```
+#   NumbeR   setGroup(numberSet)   ->  addAttribute(numberSet) "+"     <- Tony's spelling exactly
+#   FloaT    setCharacter('.')     ->  attribute `point` = "."         <- NAME CHOSEN BY CLOD
+#   PoweR    setCharacterSet("eE") ->  attribute `e`     = [eE]        <- NAME CHOSEN BY CLOD
+#   ```
+#   ⚠ **`point` and `e` want a nod, not a review** — chosen by the `HeX zero-="0" x-=[xX]` precedent
+#   for a marker term. Everything else is mechanical.
+#   ⚠ **THE FLEET BEING UNMOVED IS NOT THE CERTIFICATION, and this is the H7 row of the day:
+#   NOTHING IN `pop.sh` PARSES A FLOAT.** The positive control is `incant/dblProbe` — `3.5` · `0.25`
+#   · `1.5e2 → 150` · `3.5+1 = 4.5` · `10/4 = 2.5`, all correct after the reshape, **exponent
+#   included**, plus `incant/divT` sentinel-green.
+#   **THE LABELLED-LITERALS CLEANUP WAS NOT BUNDLED** — same rules, same visit, still Tony's and
+#   still undecided. The bare literals (`strap += "("`, `new("{")`) are untouched.
+#
+#   **5. BrancheS fork — MEASURED. Verdict above.** Recorded under `docs/fixIts.md` F-17c with the
+#   probe, the control, and the named non-measurement.
+#
+#   **6. CARRIED UNTOUCHED, verbatim from the brief:** shadowCensus probe *(⚠ **this one is now
+#   DONE** — `incant/phaseProbe`, verdict above, recorded under F-15)* · Tony's offline Xcode walk,
+#   row 8 · checkSkip-in-kant, parked post-jit-proof, with its loader-separation row · F-13/F-14 ·
+#   **Tony's owed: the two `iterT1m` re-pins, and `docs/commentMinion.md` to Clay.**
+#
+#   ## THE CENSUS RE-PIN, AND WHY IT IS NOT A REGRESSION
+#
+#   `genLadder/census.target` moved by **six lines, all three rules, one shape**. Refusals rise
+#   **24 → 27** and `PLAN` stays **30**. That is H9's corollary in its cheap direction — a refusal
+#   census reports the FIRST blocker, so removing one reveals the next — and **the destination is
+#   the point:** the three rules now refuse in **exactly the shape `QuotE` and `NamE` already refuse
+#   in** (`inline group / structural data` → `term unclassified`). They left a private refusal class
+#   and joined the shared one, so their remaining work is the work the conforming rules already
+#   need, not extra work.
+#
+#   ## THE INSTRUMENTS — two new
+#
+#   **`incant/phaseProbe`** (clean-vs-post-walk shape, term graph, reachability computed in the
+#   shell where it can be checked by eye; carries its own warm-up agreement check) ·
+#   **`incant/branchProbe`** (attribute/member walk with a built-in vacuity control — the reason its
+#   two zeros are readable).
+#
+#   ## NEXT SESSION OPENS ON
+#
+#   1. **Tony's two rulings, both now priced by measurement:** F-15 option **(b) first** (off-rule
+#      storage / explicit activation), and **does pick-one apply to a container** (BrancheS,
+#      Operators).
+#   2. **`KantParser` needs a home** — `incant/designDocs`, then compile-verify, then the noPrint
+#      clause if it is ruled.
+#   3. **F-20** — `setParse` writes `field->rStuff` while `parse()` reads `definingRule().rStuff`.
+#      Graded structural-not-measured; one probe printing two pointers settles it.
+#   4. **F-13/F-14**, and Tony's offline Xcode walk, row 8.
+#   5. **Owed by Tony:** the two `iterT1m` re-pins, `docs/commentMinion.md` to Clay, and adjudication
+#      of `IncantForms/WorkingOn/{incant++,parser}`, dirty since before this session (H8).
+#
+# ⚠⚠⚠ SEALED 2026-08-17 LATE — SUPERSEDED by the 2026-08-19 block above. Kept intact.
 #
 #   THE ONE-LINE STATE: **the day the monty ran, and the day it turned out not to have.** The walk
 #   generates 54 rules and terminates; the strict jit sweep closed 10/10; and the last hours were
