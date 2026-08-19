@@ -1,0 +1,168 @@
+/*  jitArcPhase1 -- DesignDocs-format minion report. Phase-1 map and grade of the
+    jit arc. Pilot charter, 2026-08-19. Status unbaked; nothing installed.
+
+    Read the Status entry first. This file is data, not a document: it is meant
+    to be walked and triaged by attribute rather than read top to bottom.
+
+    Every Claim carries the command that checks it. Run the command, do not
+    re-derive the claim. A claim whose command disagrees with its statement is a
+    finding about this report, not about the reader.
+*****************************************************************************/
+Start();
+include(utilities);
+search reset stack Grokking;
+search GroupFields Utilities list;
+
+registry(JitArcPhase1);
+define
+    Status="unbaked. Nothing here is installed, nothing measured moved, no DesignDocs entry was created. Grades are proposals for challenge.";
+    Vintage="What this work was graded against. Every grade below leaned on this state and no other.":
+        VintageSha="d1eed98c9f631623943713492382c783e8fb9f16 -- HEAD at the time of grading, branch jit-unified-emit-wip. Command: git rev-parse HEAD";
+        VintageSeal="docs/wakeup.md current vintage SEALED 2026-08-19, plus its four late additions. The 2026-08-17-late block beneath it is marked superseded and was read as history, not as adjudication input.";
+        VintageFleet="pop.sh 48 green / 1 parked; jitLadder 205 ok, stderr 0, one owned red (JV/F-12). Both taken this session on a bare binary, canary 303.";
+        VintageCaveat="⚠ THE DOCS AND THE SEAL DISAGREE ON DATES BY DESIGN. jit.md is asOf 2026-07-30 to 2026-08-13; andOrRung.md asOf 2026-08-11. The seal is 2026-08-19. A grade of superseded therefore usually means the doc was RIGHT WHEN WRITTEN and the tree moved, which is jit.md section 7's own doctrine turned on jit.md.";
+    Touched="Files read, and why each was pulled. Nothing was written outside minionWork.":
+        TouchedJit="docs/jit.md -- charter input. Read in full, 907 lines.";
+        TouchedAndOr="docs/andOrRung.md -- charter input. Read in full, 358 lines.";
+        TouchedJitDesign="docs/jitDesign.md -- pulled because jit.md defers three open items to it by name (O4, the frame model, the JitData side-table contradiction). Read section O4 only, lines 234-300. Needed to grade JitMemTwoRegContradiction.";
+        TouchedKnownErrors="docs/knownErrors.md -- pulled because andOrRung.md files the symbol forms there by name. Read the KE headline index and the KE-5 and KE-6 heads. Needed to grade AndOrSymbolForms.";
+        TouchedWakeup="docs/wakeup.md -- the vintage. Read the current 2026-08-19 block and the R-2 / Ruling 1 lines in the superseded 08-17 block.";
+        TouchedNotPulled="⚠ NOT pulled, and named so the omission is a decision rather than an oversight: docs/attributesTemplate.md and docs/kantParseTemplates.md. Both are cross-referenced by andOrRung section 4, but that section is about the CONSUMER rung, which is downstream design rather than a claim about the jit arc's current state. Grading it would have been grading a plan.";
+        TouchedTree="Source read for verification only, never modified: Instruct.rtn, ruleActions.rtn, jitEmitters.rtn, GroupRules.twk, GroupActions.rtn, incant/setup.";
+    Claims="Graded claims. Three grades: current, superseded, unverifiable. Each claim names its proposed DesignDocs entry.":
+        JitReplacesInterpreter="THE JIT BECOMES THE INTERPRETER. One execution path, and in the end it is the compiled one. Not an accelerator beside an interpreter that stays.":
+            JitReplacesInterpreterGrade="current";
+            JitReplacesInterpreterWhy="It is a ruling, not a measurement, so no command can falsify it. It is load-bearing because a cold reader derives accelerator from the code and misreads every downstream decision -- jit.md records that happening twice to two reasoners.";
+            JitReplacesInterpreterCheck="No command. This is the one claim in the set that is correctly unfalsifiable by grep, and it is graded current because the record contains no later ruling touching it.";
+            JitReplacesInterpreterEntry="Proposed entry JitReplacesInterpreter with Why / How / Flow. This is the arc's root entry and every other jit entry should hang beneath it.";
+        JitLocalsAsFrames="Consequence 1. saveLocalFields gets DELETED, not repaired; locals-as-frames lands once, in the JIT.":
+            JitLocalsAsFramesGrade="current as a RULING, NOT YET EXECUTED. The ruling stands; the deletion has not happened.";
+            JitLocalsAsFramesCheck="grep -c 'saveLocalFields|restoreLocalFields' GroupActions.rtn  -->  11. The function is alive.";
+            JitLocalsAsFramesWhy="⚠ THIS ROW ALMOST SHIPPED WRONG. A first pass used a filtered grep and reported ZERO hits outside comments, which would have graded the deletion as already done. The filter hid GroupActions.rtn. Caught on the mechanical pass, and it is the reason the check column is a bare command with no pipeline in it.";
+            JitLocalsAsFramesEntry="Proposed JitFrameModel with Why / How / Flow, cross-linked to jitDesign Part III.";
+        JitCrossoverFallback="Consequence 2, the open ruling. During crossover, what happens to a construct the JIT cannot emit yet. Falling back to the interpreter IS the divergence. The candidate answer, degrade to the oracle LOUDLY, already exists in the tree.":
+            JitCrossoverFallbackGrade="⚠ SUPERSEDED BY A NAMED RULING, and this is the disclosed calibration row.";
+            JitCrossoverFallbackBy="R-2, then Ruling 1. The seal records: R-2 RULED, REPLACEMENT NOT COEXISTENCE, verbatim from jit.md section 0. Ruling 1 later hardened it: no fallback arm at all, refuse loudly. Cited from docs/wakeup.md lines 353-355.";
+            JitCrossoverFallbackWhy="The two answers are NOT the same answer said twice, and that is the whole of the supersession. Degrade-to-the-oracle-loudly keeps a fallback arm and makes it audible. Refuse-loudly removes the arm. jit.md still presents the first as the live candidate.";
+            JitCrossoverFallbackScope="⚠ THE SUPERSESSION IS NARROWER THAN IT LOOKS AND THE REPORT DECLINES TO WIDEN IT. R-2 and Ruling 1 were ruled on the PARSE replacement -- generated parse versus old parse() -- not on the JIT crossover. They were derived FROM this section, which is why the seal says verbatim from jit.md section 0. So the defensible grade is that the section states as an open candidate a question the record has since answered in the sibling arc, and jit.md does not say so. Whether the parse ruling BINDS the JIT crossover is Tony's, and this report does not assume it.";
+            JitCrossoverFallbackEntry="Proposed JitCrossoverPolicy with Why / How / Flow, and it must carry the parse-arc cross-reference or the next reader re-opens this.";
+        JitEmitterInventory="Section 1.1. Six emitters and their support, all in jitEmitters.rtn.":
+            JitEmitterInventoryGrade="superseded -- the count is now 29.";
+            JitEmitterInventoryCheck="grep -cE '^extern [A-Za-z]+ jitEmit[A-Za-z]+' jitEmitters.rtn  -->  29";
+            JitEmitterInventoryWhy="Six was asOf 2026-07-30. Since then at least jitEmitShortCircuit, jitEmitWHILE, jitEmitDO, jitEmitReturn, jitEmitIterate, jitEmitSelfCall, jitEmitTrace, jitEmitRem, jitEmitContinue and the per-operator family landed. The table is not wrong about what it lists; it is wrong that the list is the inventory.";
+            JitEmitterInventoryEntry="Proposed JitEmitLayer with Why / How / Flow. ⚠ RECOMMEND the entry NOT carry an inventory. An inventory is a status table, and jit.md section 7 is the ruling on what those become. Carry the command instead.";
+        JitNoEmitCall="Section 1.1. There is no jitEmitCall. The gate point would be runOP's isMethod branch.":
+            JitNoEmitCallGrade="current";
+            JitNoEmitCallCheck="grep -n jitEmitCall jitEmitters.rtn  -->  one hit, jitEmitters.rtn:1619, and it is a COMMENT describing the concept. No definition.";
+            JitNoEmitCallWhy="Confirms against the 2026-08-13 pricing census, which stopped precisely because a command invocation is not recognised as a call site.";
+            JitNoEmitCallEntry="Proposed JitEmitCallGap, beneath JitCrossoverPolicy.";
+        JitDegradeCite="Section 1.3. jitDegrade at jitEmitters.rtn:61.":
+            JitDegradeCiteGrade="superseded -- the line moved.";
+            JitDegradeCiteCheck="grep -n 'extern.*jitDegrade' jitEmitters.rtn  -->  408";
+            JitDegradeCiteWhy="A drift of 347 lines. jit.md's own section 2.1 carries the warning -- line numbers move, re-grep rather than trusting a cited line -- and this is that warning firing on jit.md itself.";
+            JitDegradeCiteEntry="Proposed JitDegradePrimitive. ⚠ RECOMMEND entries cite by SYMBOL plus the grep, never by line.";
+        JitVerifyCite="Section 1.2. llvm::verifyFunction at jitEmitters.rtn:529.":
+            JitVerifyCiteGrade="superseded -- the line moved.";
+            JitVerifyCiteCheck="grep -n verifyFunction jitEmitters.rtn  -->  the live call is at 327";
+            JitVerifyCiteWhy="Drift of 202 lines, same family as JitDegradeCite. The SUBSTANCE is current: it is placed before mem2reg, and it returns true when the function is broken.";
+            JitVerifyCiteEntry="Proposed JitInstruments with Why / How / Flow, covering verifyFunction and INCANT_JIT_DUMP together.";
+        JitOperatorCensus="Section 2.1. Instruct.rtn, 42 op-dispatch functions: 18 gated, 24 not.":
+            JitOperatorCensusGrade="superseded on BOTH numbers and on the membership.";
+            JitOperatorCensusCheck="grep -c '^extern GroupItem op' Instruct.rtn  -->  44.  And for gated functions rather than gate occurrences: awk '/^extern GroupItem op/{fn=$3} /if jitting/{if(!s[fn]++)print fn}' Instruct.rtn | wc -l  -->  20";
+            JitOperatorCensusWhy="⚠ THE MEMBERSHIP IS THE FINDING, NOT THE COUNT, and this is H9's rule applied to someone else's census. opDot and opRem are BOTH gated today and BOTH appear in jit.md's not-gated list of 24. So the not-gated list is wrong in two named rows, which a reader checking only the totals would never see. ⚠ Note also that a bare grep -c 'if jitting' returns 32, counting occurrences rather than functions -- the awk above is what the claim needs, and reporting 32 would have overstated the gated population by 60 percent.";
+            JitOperatorCensusEntry="Proposed JitGateCensus with Why / How / Flow. The entry should carry the awk, not the number.";
+        JitStatementCensus="Section 2.1. ruleActions.rtn, 30 aCTion functions: EXACTLY ONE gated. Only aCTionIF.":
+            JitStatementCensusGrade="⚠ SUPERSEDED, and it is the largest single movement in the map.";
+            JitStatementCensusCheck="awk '/^extern GroupItem aCTion/{fn=$3} /if jitting/{if(!s[fn]++)print fn}' ruleActions.rtn  -->  twelve: aCTionBlocK aCTionBrancH aCTionCerR aCTionCouT aCTionDO aCTionFOR aCTionIF aCTionIterate aCTionPrinT aCTionSearch aCTionStringXP aCTionWhilE. And grep -c '^extern GroupItem aCTion' ruleActions.rtn  -->  33, not 30.";
+            JitStatementCensusWhy="One to twelve. The claim was true asOf 2026-07-30 and the whole loop and branch arc has landed since.";
+            JitStatementCensusScope="⚠ TWELVE IS NOT TWELVE EMITTERS, and a report that said gated: 12 would repeat the very error it just caught in JitOperatorCensus. Several of the twelve are LOUD DEGRADES rather than emit gates -- aCTionCerR, aCTionCouT, aCTionFOR, aCTionSearch and aCTionStringXP call jitDegrade and fall through. The honest split needs one more pass and this report does not claim it.";
+            JitStatementCensusEntry="Proposed JitGateCensus, same entry as the operator half, with the emit-versus-degrade split as a child once measured.";
+        JitMemTwoRegContradiction="Section 3.4. Field slots are inttoptr absolute addresses, not allocas, so mem2reg has nothing to promote. THIS IS THE SHARPEST OPEN CONTRADICTION IN THE DESIGN.":
+            JitMemTwoRegContradictionGrade="⚠ SUPERSEDED BY A NAMED RULING. The observation is current; the word OPEN is not.";
+            JitMemTwoRegContradictionBy="O4, RESOLVED 2026-07-31 BY MEASUREMENT and RATIFIED the same day as PHASED, NOT (a)-versus-(b). docs/jitDesign.md lines 234-300. The principle is THE MERGE IS THE MEMORY LOCATION; baked addresses are correct and current for fields, and the frame model with its allocas is deferred, not superseded.";
+            JitMemTwoRegContradictionCheck="sed -n '250,300p' docs/jitDesign.md -- read the RESOLVED block and the PHASED ratification.";
+            JitMemTwoRegContradictionWhy="⚠ ONE DAY OF STALENESS, INSIDE ONE CONSOLIDATION. jit.md section 3.4 is asOf 2026-07-30 and O4 resolved on 07-31, and jit.md was consolidated on 07-31. So the two halves of the same consolidation disagree, and the doc that says do not add plans here is the one carrying the stale open item.";
+            JitMemTwoRegContradictionEntry="Proposed JitSlotModel with Why / How / Flow, carrying the merge-is-the-memory-location principle as its Why. It supersedes BOTH texts.";
+        JitToolchain="Section 5. LLVM 22.1.7, arm64, link -lLLVM-22, gnu++17 plus libc++.":
+            JitToolchainGrade="current";
+            JitToolchainCheck="grep -c lLLVM-22 ../TOK/TOK.xcodeproj/project.pbxproj  -->  2. Also visible in the live link line of any xcodebuild run this session.";
+            JitToolchainEntry="Proposed JitToolchain, a leaf. No Why/How/Flow needed -- it is a fact, not a design.";
+        JitStatusTableDoctrine="Section 7. A STATUS TABLE IS A CLAIM WITH AN asOf THAT NOBODY WROTE DOWN.":
+            JitStatusTableDoctrineGrade="current, and this report is its exhibit.";
+            JitStatusTableDoctrineWhy="⚠ SIX OF THE FOURTEEN GRADES IN THIS REPORT ARE SUPERSEDED STATUS TABLES OR STALE LINE CITATIONS IN THE DOCUMENT THAT CONTAINS THIS DOCTRINE. That is not an indictment; jit.md predicted it in writing and asked to be re-run. It is the strongest single argument in the map for the entry format carrying commands rather than counts.";
+            JitStatusTableDoctrineEntry="Proposed JitDocDoctrine. ⚠ RECOMMEND it be promoted OUT of the jit arc to a general DesignDocs convention -- it is not about the JIT.";
+        JitKantParsePricing="The 2026-08-13 pricing census. Can the JIT emit a call to a litK-shaped extern -- yes; does the walker RECOGNISE litK(1) as a call -- no. Ruled (c), refused with the lock described.":
+            JitKantParsePricingGrade="current";
+            JitKantParsePricingCheck="No re-run taken -- the census recorded its own binary (1387216 bytes, mtime 09:46) and today's binary is not that one, so a re-run would be a different measurement rather than a check. The RULING is cited from the same document and is not time-sensitive.";
+            JitKantParsePricingWhy="Three mechanisms and a crash, of which the re-entrant frame against the baked stable address is architectural. Filed as a TENSION with a cost tripwire rather than as debt.";
+            JitKantParsePricingEntry="Proposed JitKantParseDoor with Why / How / Flow. The Flow attribute should carry the re-opening condition, because a condition living in someone's head is not a condition.";
+        JitRuleDenominator="C.2. The denominator is 78 rules, and 47 is dead.":
+            JitRuleDenominatorGrade="current, and independently corroborated this session.";
+            JitRuleDenominatorCheck="~/bin/incant incant/shadowCensus | grep -c '^row '  -->  79 list entries, of which 78 are rules; the one non-rule is Operators, the registry.";
+            JitRuleDenominatorWhy="⚠ CORROBORATION, NOT REPETITION: shadowCensus is a different instrument from genLadder/kantCensus.sh and reaches the same 79-with-one-non-rule split. Two instruments agreeing is worth more than one instrument re-run.";
+            JitRuleDenominatorEntry="Proposed KantRulePopulation. ⚠ RECOMMEND it live OUTSIDE the jit arc -- four separate campaigns divide by this number.";
+        AndOrRuling="AND and OR take C++ semantics: return 1 or 0 always, both engines byte-agree, and they short-circuit with the unreached arm never evaluated.":
+            AndOrRulingGrade="current";
+            AndOrRulingWhy="Tony's ruling 2026-08-09 with the truthiness amendment 2026-08-11. A ruling, so no command falsifies it. The layered truthiness table -- absent false, numeric by value, non-numeric true by presence, text FENCED -- is the normative part and is the thing a DesignDocs entry must carry verbatim.";
+            AndOrRulingCheck="No command. ⚠ The IMPLEMENTATION is separately checkable and was not checked by this report -- see Unverified.";
+            AndOrRulingEntry="Proposed AndOrSemantics with Why / How / Flow. The truthiness table is its own child entry, four rows, and row 4's fence must survive the move.";
+        AndOrLadderStatus="Ladder 184 / exit 0.":
+            AndOrLadderStatusGrade="superseded by later measurement -- the ladder is 205 today.";
+            AndOrLadderStatusCheck="bash jitLadder/ladder.sh | grep -c '^  ok'  -->  205, stderr 0, one owned red (JV).";
+            AndOrLadderStatusWhy="184 was true on 2026-08-11 and twenty-one rungs have landed since. ⚠ This is the mildest grade in the map and is included deliberately: a status number that GREW is still a superseded status number, and a reader citing 184 today would be citing a stale figure even though nothing regressed.";
+            AndOrLadderStatusEntry="Proposed AndOrRungStatus. ⚠ RECOMMEND against creating it. A ladder count belongs in the ladder, not in a design entry -- this is JitStatusTableDoctrine applied to the report's own proposals.";
+        AndOrSymbolForms="STILL UNRULED: the symbol forms. OR short-circuits, || does not, on the same handler. && answers true && true as false.":
+            AndOrSymbolFormsGrade="current -- still unruled, still filed, still open.";
+            AndOrSymbolFormsCheck="grep -n '^# KE-5|^# KE-6' docs/knownErrors.md  -->  both present, both filed 2026-08-11, neither carrying a resolution.";
+            AndOrSymbolFormsWhy="Widening tier 3 to the symbols is a ruling, not a rung -- so this cannot age out by anyone building anything.";
+            AndOrSymbolFormsEntry="Proposed AndOrSymbolGap beneath AndOrSemantics.";
+            AndOrSymbolFormsHazard="⚠ CITATION HAZARD FOUND WHILE CHECKING THIS ROW, and it is not about AND/OR. docs/knownErrors.md contains TWO entries numbered KE-3 and TWO numbered KE-4. Command: grep -c '^# KE-3|^## KE-3' docs/knownErrors.md --> 2. jit.md cites KE-3 by number for the jitRunAction 139, which is the SECOND one. Any citation of KE-3 or KE-4 is currently ambiguous.";
+        AndOrPlacementDoctrine="6a. An evaluation-controlling operator intercepts at interpretXP, where the expression tree is BUILT -- never at the strict-operator handler, and never at the strict dispatcher's door.":
+            AndOrPlacementDoctrineGrade="current";
+            AndOrPlacementDoctrineWhy="Ruled by Tony 2026-08-11, ratified in Clod's formulation. Carries a companion rule -- a tier-3 promotion is not landable in halves -- earned by a measured intermediate state where the interpreted-only promotion turned a loud 139 into a silent wrong answer at degrade 0.";
+            AndOrPlacementDoctrineCheck="grep -n 'AND.*operateMethod|OR.*operateMethod' incant/setup  -->  OR at 118, AND at 121. ⚠ The doc cites 114 and 117; the lines have drifted by four. The REGISTRATIONS are current, the citation is not.";
+            AndOrPlacementDoctrineEntry="Proposed TierThreePlacement with Why / How / Flow. ⚠ RECOMMEND it live outside the AND/OR entry -- the doc says the next tier-3 construct inherits it by citation, which only works if it is not filed under one construct.";
+        AndOrTierTwoCaveat="TIER-2 CAVEAT, UNMEASURED: tier 2 assumes the GroupItem-in / GroupItem-out boundary holds for handlers called from IR with no runOP-established interpreter state around them.":
+            AndOrTierTwoCaveatGrade="current, and correctly labelled unmeasured by its own author.";
+            AndOrTierTwoCaveatWhy="Named as owed-when-tier-2-is-first-exercised, with the probe pre-specified: one cold operator, emitted direct call, fire twice. ⚠ This is the best-formed open item in either document -- it states the unknown, the trigger, and the experiment.";
+            AndOrTierTwoCaveatCheck="No command -- it is a prediction about work not yet done. Its trigger is checkable: nothing in jitEmitters.rtn emits a direct call to a strict handler today. grep -c CreateCall jitEmitters.rtn is the tripwire.";
+            AndOrTierTwoCaveatEntry="Proposed TierTwoBoundary beneath TierThreePlacement.";
+    Unverified="What this pass could NOT settle, enumerated so the unknown is a list rather than a discovery.":
+        UnverifiedImplementation="Whether the AND/OR implementation still MEETS its ruling. The ruling is graded current as a ruling; no fixture was run to confirm runShortCircuit still returns 1/0 and still short-circuits. The rung's own certifying rows (jitXand, jitXand2, jitXor, and the tick-counted control) exist and were not fired. Cost to settle: one ladder run, already taken this session at 205 ok, but its JXD rows were not read individually.";
+        UnverifiedDegradeSplit="The emit-versus-degrade split inside the twelve gated statement handlers. Reported as twelve gated with the caveat stated; the honest number for EMITTERS is smaller and was not measured.";
+        UnverifiedCensusReachability="andOrRung part 3's re-measured census (~30 genuine operator uses, 0 with side effects) was NOT re-run. It is asOf 2026-08-11 and the tree has moved. ⚠ Its own history is the reason to distrust it silently ageing: the first pass reported 7 and missed incant/utilities entirely, which is included by every fixture preamble in the tree.";
+        UnverifiedKantPricing="The 2026-08-13 pricing numbers were not re-measured. They were taken on a binary that no longer exists, and the document says so, so a re-run would be a new measurement rather than a verification.";
+        UnverifiedManyToMany="The charter asked for many-to-many claim-to-entry mapping. This report proposes entries per claim and flags four that should live OUTSIDE the jit arc, but it does NOT propose the reverse direction -- which existing DesignDocs entries these claims should attach to. incant/designDocs currently holds two roots (DisplayDesignHTML, JitFieldMethod) and JitFieldMethod is plainly the attachment point for several of these. Not proposed, because attachment is an installation decision and installation is out of scope.";
+        UnverifiedSectionsSkipped="jit.md sections 3.5, 4.1, 4.2, 4.3 and 6 were read but not individually graded. 4.3 in particular records a stale load-bearing comment at ruleActions.rtn:286-291 and is a live fixit candidate rather than a design claim; it is flagged here rather than graded.";
+    Controls="Per protocol: the run that went red, or none-possible with the reason. ⚠ This section is where a read-only charter chafes and the report says so rather than filling it in.":
+        ControlNegativeAvailable="⚠ ONE claim in this map has a real negative control and it is JitLocalsAsFrames. The control ran and went RED: a filtered grep reported zero saveLocalFields hits outside comments, which would have graded the ruling as executed. The unfiltered command found 11 in GroupActions.rtn. The instrument was the filter, and the report caught it before publishing.";
+        ControlNonePossibleRulings="NONE POSSIBLE, and the reason is categorical rather than budgetary: JitReplacesInterpreter, JitCrossoverFallback, AndOrRuling, AndOrPlacementDoctrine and AndOrTierTwoCaveat are RULINGS. A ruling has no red run -- it can only be superseded by another ruling. The control for a ruling grade is the SEARCH for a superseding ruling, and that search is recorded in Vintage.";
+        ControlNonePossibleDrift="NONE POSSIBLE for the line-citation grades (JitDegradeCite, JitVerifyCite, and the setup:114 row). A drifted line number has no control -- the grep either finds the symbol elsewhere or it does not. The nearest thing to a control is that the SAME command was run against three separate files and disagreed with the doc in all three, so a single mis-typed grep is ruled out by repetition.";
+        ControlPresentForCensus="PRESENT for the two census grades. The control is the deliberately WRONG command: grep -c 'if jitting' Instruct.rtn returns 32 where the awk returns 20. Running both is what proves the awk is measuring functions and not occurrences, and 32 is what a careless pass would have reported.";
+        ControlAbsentWhereItMatters="⚠ HONEST GAP: no control exists for the SUPERSEDED-BY-RULING grades beyond a manual search of one vintage. If a superseding ruling lives in a seal older than the current vintage, or in a thread, this pass would not have found it. That is the largest single weakness in the map and it is structural, not effort.";
+    ;
+
+register(JitArcWalk);
+define
+    jaCount=0;
+    jaKids=0;
+    jaWalk argument code={
+        iterate jaCur on argument;
+        while ++jaCur;
+            jaCount = jaCount + 1;
+            cerr "SECTION " ~taG:;
+            if listLengtH;
+                iterate jaKid on jaCur;
+                while ++jaKid;
+                    jaKids = jaKids + 1;
+                    cerr "   ENTRY " ~taG:;
+        };
+    jaRun argument code={
+        jaWalk(argument);
+        cerr "JITARC top-level entries" jaCount:;
+        cerr "JITARC child attributes " jaKids:;
+        cerr "JITARCPHASE1 SENTINEL -- the report parsed and walked":;
+        stop();
+        };
+    ;
+jaRun(JitArcPhase1);

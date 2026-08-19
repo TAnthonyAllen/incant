@@ -3,7 +3,7 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      72
+SEQ:      73
 STATUS:   fresh          # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-08-13  -  Clod  (SEQ 72 APPENDED at the FOOT -- THE STAMPED TABLE, delivered.
           78/78 rows, ZERO blank, ZERO unclassified, ZERO crashed: the 39 blanks that voided
@@ -2819,3 +2819,72 @@ BANKED STUMBLES  -- fix-or-skip is Tony's, per stumble
 
   END SEQ 72
 ===================================================================
+
+
+===================================================================
+SEQ 73  -  MINION-DAY PILOT DELIVERED. Report + protocol verdict, both in
+           minionWork/. Status unbaked, nothing installed, nothing measured
+           moved. Fleet 48 green / 1 parked, ladder 205 -- untouched by this
+           work, which was read-only against docs/ and the record.
+===================================================================
+
+DELIVERABLES
+  minionWork/jitArcPhase1     DesignDocs-format report. PARSES AND WALKS --
+                              6 sections, 19 claims, all present by name.
+                              Self-verifying: it carries its own walker and
+                              a cerr sentinel.
+  minionWork/pilotAddendum.md Protocol verdict, prose, per the charter.
+
+THE GRADES, 19 claims:  9 current  ·  7 superseded  ·  3 current-with-a-caveat
+  ⚠ THE DISCLOSED ROW WAS FOUND -- and then deliberately NARROWED. R-2 and
+  Ruling 1 were ruled on the PARSE replacement and were DERIVED FROM the very
+  jit.md section they supersede, so "the JIT crossover fallback is superseded"
+  is wider than the evidence. JitCrossoverFallbackScope says so and hands the
+  binding question to Tony. The failure mode of a planted answer is not missing
+  it, it is taking too much.
+
+THE THREE BIGGEST MOVEMENTS, all with commands in the report:
+  jit.md "exactly ONE gated statement handler"   ->  TWELVE
+  jit.md "42 ops, 18 gated"                      ->  44 ops, 20 gated, and the
+                                                     MEMBERSHIP is wrong in two
+                                                     named rows (opDot, opRem
+                                                     are gated and appear in the
+                                                     not-gated list)
+  jit.md §3.4 "sharpest OPEN contradiction"       ->  RESOLVED by O4, ratified
+                                                     2026-07-31, one day after
+                                                     §3.4's asOf and in the same
+                                                     consolidation
+
+REASONED/ASSUMED QUEUE FOR YOUR CHALLENGE -- six rows, listed at the foot of
+the addendum. Everything else carries a command and should be reviewed by
+RUNNING it, not reading it.
+
+PROTOCOL VERDICT, short form:
+  EARNED: Vintage+sha (six grades are meaningless without it) · Touched, and
+          specifically its NOT-PULLED sub-entry · Unverified · Status.
+  CHAFED: the none-possible clause -- 4 of 6 control rows are none-possible on
+          a read-only task, because a RULING has no red run. KEEP IT: being
+          forced to write the categorical reason is what produced the report's
+          own biggest admission (my supersession search covered ONE vintage).
+          Charter needs one sentence saying mostly-none-possible is expected.
+  MISSING: a CORRECTIONS field. I made an error mid-pass and caught it; there
+          was no structural home, so it is buried in a Why.
+
+⚠ THE ONE CHANGE I WOULD MAKE ABOVE ALL OTHERS: SHIP A SKELETON FILE THAT
+  ALREADY RUNS, not a description of the format. I lost a cycle to a parse
+  failure and the cause is a NEW measured fact: A BLANK LINE INSIDE A `define`
+  BLOCK ENDS THE BLOCK. The report truncated after its first entry at exit 0
+  with `RunRulE: expected a method not Vintage`. That is not in the trap table.
+  I did NOT file it -- writes were fenced to minionWork/ and this file -- so it
+  is owed a home by someone with the write.
+
+AND THE PILOT'S OWN BEST EVIDENCE FOR CLAIMS-MUST-CARRY-COMMANDS: it caught ME.
+  JitLocalsAsFrames was one command from shipping as "the deletion is done" --
+  a filtered grep returned zero saveLocalFields hits outside comments. The
+  unfiltered command found 11 in GroupActions.rtn. Confident, coherent, wrong,
+  and nothing downstream would have caught it. The format made me write the
+  command next to the claim, and the command disagreed with me.
+
+SIZING: one charter was right, but near the ceiling. The last four of 19 claims
+  were thinner than the first four -- I was pattern-matching by then. Diminishing
+  returns start around 15 claims, which is a better unit than "one document".
