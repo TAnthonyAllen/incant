@@ -129,6 +129,36 @@
 #   **`incant/branchProbe`** (attribute/member walk with a built-in vacuity control — the reason its
 #   two zeros are readable).
 #
+#   ## ⚠ LATE ADDITION — `IncantForms/WorkingOn/parser` RUNS TO COMPLETION AGAIN, AND IT HAD NOT BEEN
+#
+#   Tony asked for whatever the walker needed to be runnable in Xcode. **It had not been reaching
+#   its `stop()` at all, and its exit status was an accident of what followed it.** Once the walk
+#   installs generated methods the loader cannot read the source that follows, so a top-level
+#   `walkRules(X); stop();` dies at `checkInput: no input source`. With five dead `walkRules` lines
+#   sitting BELOW the `stop()`, the poisoned loader failed to parse them and abandoned the file —
+#   the documented exit-0-on-parse-failure path — so the run reported **0**. Truncate those same
+#   lines and the identical run reports **139**. **Neither reached `stop()`, and neither said so.**
+#
+#   **THE FIX IS SHAPE, NOT CARE: the driver is now an action and its `stop()` is INSIDE it.** An
+#   action body is parsed once into a cached BlocK, so it needs no loader, and stopping from in
+#   there ends the process before the loader is ever asked for another statement. The sentinel
+#   beside it is on **`cerr`** deliberately — stdout is block-buffered and a crash loses it, so a
+#   stdout sentinel cannot report the crash it exists to detect. Measured: **TokenXP 59 lines ·
+#   Braced 59 · NumbeR 19 · QuotE 7 · StringXP 7**, every one reaching the sentinel, printing
+#   `stop:`, exit 0. `Start` still exits 1 at the first `ERROR processCode` — **F-17e, Tony's.**
+#
+#   ⚠ **AND IT CAUGHT A REGRESSION THE FLEET COULD NOT SEE** — `setParse: ERROR field passed in e
+#   has no rStuff`, from the pick-one conversion's two new terms, which were added with `+%` and
+#   never given rStuff (`QuotE`'s `tik` is the precedent and carries an explicit `setRuleStuff()`).
+#   **48 green through the whole thing.** H7 from the other end: an instrument that does not
+#   exercise a construct is silent about it, and silence is not a pass. **F-21 opened** for the
+#   four `Buffer: ERROR no text passed into appendString` lines, zero on the control binary.
+#
+#   ⚠ **AND ONE CONSEQUENCE OF PICK-ONE THAT IS NOT A DEFECT: F-16's bare-name deref NO LONGER
+#   APPLIES TO `NumbeR`.** On the pre-change control, `walkRules(NumbeR)` printed three lines and
+#   walked `numberSet`; today it walks the real `NumbeR` and all six descendants. **F-16's
+#   "done when" is satisfied for NumbeR — by removing the group data, not by changing the call.**
+#
 #   ## NEXT SESSION OPENS ON
 #
 #   1. **Tony's two rulings, both now priced by measurement:** F-15 option **(b) first** (off-rule
