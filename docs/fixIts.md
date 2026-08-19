@@ -592,12 +592,44 @@ statement.
 | after the FULL 30-rule TokenXP prefix | **137 hang** |
 | inside `incant/walkPhase`'s **two-phase** run | **refuses cleanly** — `ERROR processCode: NamE parse failed`, run completes exit 0 |
 
-⚠ **THE LAST ROW IS THE DISCRIMINATOR.** It is not NamE alone and it is not the prefix: it is NamE
-compiled against a grammar that is only **partly** generated. Generate-the-whole-population-then-
-compile turns the hang into an ordinary refusal. That is Ruling 4's two-phase split doing real work.
-Kill-capped at 45s, 60s, 90s and 150s; deterministic at every cap.
+⚠⚠ **THE PHASE READING ABOVE IS RETRACTED, SAME DAY, 2026-08-19. THE DISCRIMINATOR IS `setParse`.**
+The table's last row differs from the other four by **one call**, and it is not the phase split: the
+parser's `genParseTest` calls `setParse`; `walkPhase`'s `wpGen` **does not**. Two controls, run as a
+pair:
+
+| run | result |
+|---|---|
+| `runNamE(NamE)` — genParseTest **with** setParse | **137 hang** |
+| `runNamEnoParse(NamE)` — identical, setParse **suppressed** | **exit 0, completes** |
+| `walkPhase` as committed (no setParse) | 56 clean refusals, sweep finishes |
+| `walkPhase` with setParse **added** to `wpGen` | ⚠ **HANGS ON ITS FIRST SWEPT ITEM** (`StatemenT`), zero refusals reported |
+
+**So it is not NamE, and it is not the population.** I attributed the difference to Ruling 4's
+two-phase split; the two-phase arm simply never armed the rules. **Structural claims on this project
+hold and causal ones fail — this was a causal one, and it is the sixth.**
+
+⚠ **AND THE MECHANISM WAS IN WRITING BEFORE IT WAS MEASURED**, which is the only reason a reading is
+offered at all. `setParse` binds `parseMethod = parseRule` (`GroupRules.mm:12200`, one-shot behind
+`if (!parseMethod)`), and `parseRule` reads the rule's own `CodE` (`:9949`). So compiling an armed
+rule's body re-enters that rule through its own generated parse. **F-17a** already called setParse
+during generation *"activation happening during generation"*, and **F-18**'s ruling already recorded
+that `field.parse(...)` *"trades crash for infinite recursion through the parseMethod fork"*. A hang
+is what that predicts. ⚠ **NOT MEASURED and not claimed: the recursion itself.** Breakpoints B9/B10
+in the parser crib are aimed at exactly that — the same tag repeating in `parseRule` is the loop.
 **Done when:** ruled. **Owner: Tony**, in Xcode — and the texture differs from F-22's: a hang gives no
 crash frame, so the question is what is *cycling* when the process is interrupted.
+
+### F-25 — the provenance exhibit came back NEGATIVE: hand-defined and walk-installed BOTH compile
+**Where:** `IncantForms/WorkingOn/parser` — `runTokenHand(tokenHandSubject)` and
+`runTokenWalked(Token)`, built 2026-08-19 to the brief.
+**Expected:** hand compiles, walked refuses — provenance as the discriminator behind the 56/56.
+**Measured: both compile, exit 0, both sentinels.** So **provenance is not the discriminator**, and
+the confound the pair carried (hand side a plain field, walked side the live grammar rule) never had
+to be resolved. ⚠ Note what it does NOT say: `Token` **does** refuse inside `walkPhase`'s sweep. Same
+rule, same install path, opposite verdict — and the difference between those two runs is `setParse`
+again (see F-23), not how the body was authored.
+**Kept in the file** as a negative exhibit and as the control for the setParse pair.
+**Owner:** none — this row is a result, not a task.
 
 ### F-24 — `compile` returns the FIELD for an UNCODED subject, so a sweep cannot tell compiled from never-coded
 **Where:** `Commands.rtn` — `if !field.isCoded goto endCompile;` and `endCompile: return field;`.

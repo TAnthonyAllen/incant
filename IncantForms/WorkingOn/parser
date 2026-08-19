@@ -1,3 +1,136 @@
+/*  ============================================================================
+    CRIB FOR THE XCODE WALK -- read this, not the commit log. 2026-08-19.
+
+    FOUR COMMANDS. Swap the single driver line at the FOOT of this file:
+
+        runTokenHand(tokenHandSubject);     MEASURED: COMPILES
+        runTokenWalked(Token);              MEASURED: COMPILES
+        runNamE(NamE);                      MEASURED: HANGS  (137)
+        runNamEnoParse(NamE);               MEASURED: COMPLETES, exit 0
+
+    ⚠⚠ THE PROVENANCE EXHIBIT WAS BUILT AND IT FAILED ITS OWN EXPECTATION, AND
+    THAT FAILURE IS THE FINDING. It was built to show hand-defined COMPILES and
+    walk-installed REFUSES. Both compile. **Provenance is not the discriminator**
+    -- so the confound the pair carried (hand side is a plain field, walked side
+    is the live grammar rule) never had to be resolved. Left in place because a
+    negative exhibit is evidence and because it is the control for what follows.
+
+    ⚠⚠ WHAT THE DISCRIMINATOR ACTUALLY IS: **setParse**. Rows 3 and 4 above are
+    the same rule and the same body, differing by ONE CALL:
+
+        genParseTest WITH    setParse   ->  NamE HANGS (137, capped 90s)
+        genParseTest WITHOUT setParse   ->  NamE completes, exit 0
+
+    And it is not NamE. `incant/walkPhase` does NOT call setParse, and its sweep
+    reports 56 clean refusals; add setParse to its generator and the SAME sweep
+    HANGS ON ITS FIRST ITEM (`StatemenT`) with zero refusals reported.
+
+    ⚠ THIS RETRACTS THE PHASE STORY. F-23 read the difference as one-phase versus
+    two-phase -- NamE hanging when the grammar is only partly generated. The
+    two-phase arm differed by NOT CALLING setParse, and the phase split got the
+    credit. Structural claims here hold and causal ones fail; this was a causal
+    one.
+
+    ⚠ AND IT WAS PREDICTED IN WRITING BEFORE IT WAS MEASURED, which is why the
+    reading is worth something: F-17a says the moment genParseTest calls setParse
+    "parse() starts dispatching that rule through defStuff.parseMethod instead of
+    the arm chain -- activation happening during generation", and F-18's ruling
+    records that `field.parse(...)` "trades crash for INFINITE RECURSION through
+    the parseMethod fork". A hang is exactly what that predicts. NOT claimed as
+    measured: the mechanism itself. That is the walk.
+
+    The `spOn` field is the toggle -- set 0 to suppress setParse. It is read in
+    genParseTest and nowhere else.
+
+    THE FIVE STATIONS. Each is an inert assignment to a UNIQUELY named field,
+    so a name-conditioned breakpoint lands on one station only, and each is
+    paired with a labelled cerr so the transcript names the station with no
+    debugger at all. Nothing downstream reads any of them. All plain `=`,
+    never `:=` (fixIts F-22).
+
+        anchorHandDefine      before the hand body is defined (fires at file
+                              parse time, inside aCTionDefinE)
+        anchorHandCompile     before the hand subject is compiled
+        anchorWalkInstall     before the walk generates and installs onto Token
+        anchorWalkedCompile   before the walked subject is compiled
+        anchorNamECompile     before runNamE's compile, the hang
+
+    ⚠⚠ START HERE -- B9 AND B10 ARE THE TWO THAT MATTER NOW, and the pair is a
+    candidate mechanism visible in ONE LOOK rather than a theory:
+
+    B9  GroupRules.mm:12200   ruleStuff->parseMethod = ::parseRule;
+        WHERE setParse ARMS THE RULE. Any rule carrying a groupList lands here,
+        which is every walked grammar rule. Guarded by `if (!parseMethod)` at
+        :12184, so it is ONE-SHOT per rule -- if it does not fire, the rule was
+        already armed by an earlier pass. Inspect field->groupBody->tag, and
+        that parseMethod was null on entry.
+
+    B10 GroupRules.mm:9945    parseRule entry
+        THE FRAME TO WATCH REPEAT. parseRule reads the rule's own CodE at :9949.
+        So once B9 has armed a rule, compiling that rule's body re-enters the
+        rule through its own generated parse method. ⚠ INSPECT field->tag ON
+        EACH HIT: the SAME TAG REPEATING IS THE LOOP, and that is the thing to
+        look at when you interrupt the hang -- there is no crash frame to catch.
+        This is F-18's ruling arriving from the other side; its text already says
+        `field.parse(...)` "trades crash for INFINITE RECURSION through the
+        parseMethod fork". Confirming or killing that is the walk.
+
+    THE REST, for the refusal (setParse-absent) side rather than the hang.
+    C++ BREAKPOINTS, file:line as of this commit. ⚠ GroupRules.mm is GENERATED,
+    so any retok moves these -- each row carries the grep that re-finds it.
+
+    B1  GroupRules.mm:11111   code = field->get("CodE");
+        processCode's FIRST read of the subject's body. Inspect `code`: null or
+        not, its groupBody ADDRESS, its parent, noPrint, and its text. Run both
+        arms and take the first field that differs -- that is the answer.
+        re-find:  grep -n 'code = field->get("CodE")' GroupRules.mm   (3 hits,
+                  want the one inside processCode, the LAST)
+
+    B2  GroupRules.mm:11112   if (field->isRule) action = code;
+        A grammar rule takes `action = code`; a plain field keeps `action =
+        field`, and two lines down that becomes ruler->currentMETHOD.
+        ⚠ DEMOTED: this was the provenance fork the exhibit was aimed at, and
+        the exhibit came back negative -- both arms compile -- so it is no
+        longer a lead. Kept because it still explains what currentMETHOD points
+        at on each arm.
+        re-find:  grep -n 'action = code' GroupRules.mm
+
+    B3  GroupRules.mm:11119   if (result = blockRULE->parse(0))
+        THE TEST THAT ACTUALLY REFUSES -- not the message. Step over it and read
+        `result`: null IS the refusal. Compare ruler->atRuleMark before and
+        after to see how far the body got.
+        re-find:  grep -n 'blockRULE->parse(0)' GroupRules.mm
+
+    B4  GroupRules.mm:11125   else ::reportCodeFail(field);
+        The backstop. Fires ONLY on refusal, so it is the cheapest "did this arm
+        refuse" gate if you want to run first and inspect second.
+        re-find:  grep -n 'reportCodeFail(field)' GroupRules.mm
+
+    B5  GroupRules.mm:11328   reportCodeFail entry
+        Second backstop, in case B4 is folded. Inspect field->groupBody->tag to
+        confirm WHICH rule refused -- this message has named the wrong mechanism
+        once before, so trust the pointer over the string.
+
+    B6  GroupRules.mm:2301    if (!isCoded(field->flags.actionType)) goto endCompile;
+        compile's first read of the subject. If this jumps on either arm, that
+        arm never compiled at all and the exhibit is VOID rather than negative.
+        Check it fires-through on both before believing any comparison.
+
+    B7  GroupItem.mm:189      GroupItem::addAttribute
+        The install-side write -- the walk's `argument +% codeCopy` lands here.
+        ⚠ Inspect grup->parent ON ENTRY: if it is non-null the node is COPIED at
+        GroupItem.mm:228, so the node that ends up installed is NOT the node
+        that was passed in, and any pointer you captured earlier is stale.
+
+    B8  GroupItem.mm:2035     GroupItem::setContent
+        Where `CodE = codeBuffer` lands -- the shared grammar CodE rule taking
+        the body text before it is copied onto the subject.
+
+    ⚠ POINTER IDENTITY IS THE WHOLE QUESTION AND INCANT CANNOT ASK IT. Incant
+    accessors snapshot by value, which is why showBody exists. Under the
+    debugger you get identity for free: compare groupBody ADDRESSES, not tags
+    and not text.
+    ============================================================================  */
 Start();
 include(utilities);
 search reset stack Grokking;
@@ -9,6 +142,23 @@ define
     codeBuffer buffer;
     openBrace="{";
     closeBrace="}";
+    anchorHandDefine=0;
+    anchorHandCompile=0;
+    anchorWalkInstall=0;
+    anchorWalkedCompile=0;
+    anchorNamECompile=0;
+    spOn=1;
+    /*  tokenHandSubject -- TOKEN'S REAL BODY, DEFINED BY HAND THROUGH THE
+        DEFINE DOOR. Byte-for-byte the alternation the walk generates for
+        `Token`, so the two arms of the exhibit differ in PROVENANCE and not in
+        text. Hypothesis 5 of the 2026-08-17 falsification table is the reason
+        this rule was chosen: Token's real body was already on record as
+        compiling standalone.  */
+    anchorHandDefine = 1;
+    tokenHandSubject code={
+        if QuotE() OR NumbeR() OR StringXP() OR TokenXP() OR Operators();
+        return runRuleAction(this);
+        };
     /***************************************************************************
         genParseTest walks one rule and generates a code attribute w/parse code for
         the rule.
@@ -51,7 +201,7 @@ define
         reset(codeBuffer);
         printTO(codeBuffer);
         print openBrace:;
-        setParse(argument);
+        if spOn != 0;   setParse(argument);
         if datA != 0;
             if listLengtH; print "rules should not have data and a list; one or the other":;
             cerr "CENSUS leaf-install :" taG:;
@@ -62,7 +212,7 @@ define
         print `"if ";
         iterate grup on argument;
         while ++grup;
-            setParse(grup);
+            if spOn != 0;   setParse(grup);
             print $taG "()";
             if nexT;    print _conjunct;
             else        print ";";
@@ -168,10 +318,45 @@ define
         The `compile` call is BARE on purpose. Capturing a command's return with
         `:=` segfaults (fixIts F-22), and that defect faked a whole crash matrix
         before it was found. Nothing in this file captures one.  */
+    /*  THE EXHIBIT PAIR. Same body text, two provenances, one verdict each.
+        Both bare-compile; neither captures a return (F-22).  */
+    runTokenHand argument code={
+        cerr "STATION anchorHandCompile -- about to compile the HAND-DEFINED body":;
+        anchorHandCompile = 1;
+        handOut = compile(argument);
+        if handOut;     cerr "HAND    COMPILED -- compile returned a field":;
+        else            cerr "HAND    REFUSED  -- compile returned null":;
+        cerr "TOKENHAND SENTINEL -- the hand arm ran to completion":;
+        stop();
+        };
+    runTokenWalked argument code={
+        cerr "STATION anchorWalkInstall -- about to generate and install onto the rule":;
+        anchorWalkInstall = 1;
+        genParseTest(argument);
+        cerr "STATION anchorWalkedCompile -- about to compile the WALK-INSTALLED body":;
+        anchorWalkedCompile = 1;
+        walkedOut = compile(argument);
+        if walkedOut;   cerr "WALKED  COMPILED -- compile returned a field":;
+        else            cerr "WALKED  REFUSED  -- compile returned null":;
+        cerr "TOKENWALKED SENTINEL -- the walked arm ran to completion":;
+        stop();
+        };
+    runNamEnoParse argument code={
+        cerr "NamE repro, setParse SUPPRESSED -- the control for the hang":;
+        spOn = 0;
+        genParseTest(argument);
+        cerr "STATION anchorNamECompile -- compiling with NO setParse":;
+        anchorNamECompile = 1;
+        compile(argument);
+        cerr "NamEnoParse: compile returned -- NO HANG":;
+        cerr "NAMENOPARSE SENTINEL -- the control ran to completion":;
+        stop();
+        };
     runNamE argument code={
         cerr "NamE repro: generating the body":;
         genParseTest(argument);
-        cerr "NamE repro: compiling -- IT HANGS HERE":;
+        cerr "STATION anchorNamECompile -- about to compile; IT HANGS HERE":;
+        anchorNamECompile = 1;
         compile(argument);
         cerr "NamE repro: compile returned -- THE HANG IS GONE, re-measure":;
         stop();
