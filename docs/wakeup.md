@@ -286,6 +286,29 @@
 #   leak), and ten breakpoints each with a re-find grep, because `GroupRules.mm` is generated and any
 #   retok moves them. Filed **F-25** for the negative exhibit, kept in the file as the control.
 #
+#   ## FIFTH LATE ADDITION — THE MINION-DAY PILOT RAN, AND `minionWork/` NOW EXISTS
+#
+#   One charter, read-only, solo. **`minionWork/jitArcPhase1`** is a DesignDocs-format report on the
+#   jit arc — 19 claims, **9 current · 7 superseded · 3 current-with-caveat**, each carrying the
+#   command that checks it. It parses, walks, and verifies itself. **`minionWork/pilotAddendum.md`**
+#   is the protocol verdict. Status **unbaked**: nothing installed, nothing measured moved.
+#
+#   **Three doc claims moved and they matter to anyone reading `docs/jit.md`:** *"exactly ONE gated
+#   statement handler"* → **twelve**; *"42 ops, 18 gated"* → **44 and 20**, with the membership wrong
+#   in two named rows (`opDot`, `opRem` are gated and sit in the not-gated list); and §3.4's
+#   *"sharpest **OPEN** contradiction"* → **resolved by O4**, ratified 2026-07-31, one day after
+#   §3.4's own asOf and inside the same consolidation.
+#
+#   ⚠ **AND A NEW AUTHORING FACT, MEASURED AND NOT YET FILED IN THE TRAP TABLE: A BLANK LINE INSIDE A
+#   `define` BLOCK ENDS THE BLOCK.** Silently, at exit 0, with `RunRulE: expected a method not <next
+#   entry>` on stderr — the documented truncation signature. Found by losing a cycle to it. It was
+#   **not filed** because the pilot's writes were fenced to `minionWork/` and the IPC file, so it is
+#   **owed a home by someone with the write** — `docs/kantCorpus.md` beside KANT-42 is the fit.
+#
+#   Also filed this session: **`CLAIM KANT-42`** — a brace is **inert** in a defining string body and
+#   **still bites** in a `code={ }` body, both sides measured with a negative control. That is what
+#   lets a minion claim carry its verification command verbatim with no escaping convention.
+#
 #   ## NEXT SESSION OPENS ON
 #
 #   1. **Tony's two rulings, both now priced by measurement:** F-15 option **(b) first** (off-rule
