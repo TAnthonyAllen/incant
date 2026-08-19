@@ -1,0 +1,81 @@
+/*****************************************************************************
+    THE MECHANISM: incant/iterT1m walks a small tree with two mutually
+    recursive iterators, walkA and walkB, each iterating the node the other
+    handed it.
+
+    WHAT IS WRONG: nothing is wrong with the walk any more -- it now visits
+    every node exactly once, which is the right answer. What is wrong is that
+    both things the fleet pins for it still describe the OLD BROKEN walk, in
+    which leaves were revisited and a refusal was announced seven times. So the
+    fleet reports two reds against a fixture that is behaving correctly, and it
+    has done so for long enough that nobody remembers which side is stale.
+
+    THE FIX WANTED: look at the two comparisons this file prints, and either
+    bless the new walk and re-pin both baselines, or say why the old walk was
+    right and the new one is a regression. It is one decision, not two: both
+    rows moved for the same reason.
+
+    HOW TO USE THIS FILE: run it. It defines the same two iterators, walks the
+    same tree, and prints measured beside pinned for both rows. The anchor
+    fixIterT1mHere is an inert assignment at the point where the two answers sit
+    side by side -- set a breakpoint conditioned on that name to step into the
+    comparison with the numbers already on screen.
+
+    Footnote: pop.sh rows "iterT1m (mutual recursion: KNOWN WRONG, pinned)" and
+    "iterT1m announces its refusal 7 times"; baselines genLadder/iterT1m.divergence
+    and the grep for aCTionIterate: source. docs/knownErrors.md KE-4.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(FixIterT1m);
+define
+    leafA   i j;
+    leafB   k l;
+    trunk   leafA leafB;
+    fixIterT1mHere=0;
+    fxRows=0;
+
+    walkA argument code={
+        fxRows = fxRows + 1;
+        print "A " taG argument:;
+        iterate grup on argument;
+        while ++grup
+            walkB(grup);
+        };
+
+    walkB argument code={
+        fxRows = fxRows + 1;
+        print "B " taG argument:;
+        iterate grup on argument;
+        while ++grup
+            walkA(grup);
+        };
+
+    fxRun code={
+        cerr "== fixit iterT1m -- the live walk, then measured beside pinned ==":;
+        cerr "-- the walk as it runs TODAY (each line is one visit) --":;
+        walkA(trunk);
+        cerr :;
+        cerr "ROW 1  the walk itself":;
+        cerr "   pinned   14 visits -- leafA, leafB, i, j, k and l each seen TWICE":;
+        cerr "            (genLadder/iterT1m.divergence, the mutual-recursion bug)":;
+        cerr "   measured " fxRows " visits -- every node exactly once":;
+        cerr "ROW 2  the refusal announcement":;
+        cerr "   pinned   7 lines of `aCTionIterate: source` on stderr":;
+        cerr "   measured 0 -- the refusal this counted no longer happens":;
+        cerr :;
+        cerr "   Both rows moved because the walk stopped revisiting. Bless it and":;
+        cerr "   re-pin, or name why the old answer was the right one.":;
+        fixIterT1mHere = 0;
+        cerr "ANCHOR fixIterT1mHere -- both answers are on screen above":;
+        cerr "FIXIT iterT1m SENTINEL -- reached the end":;
+        stop();
+        };
+    ;
+fxRun();

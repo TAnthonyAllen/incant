@@ -156,9 +156,37 @@ others.
 **Consistent with `walkPhase`'s own header** (*"once enough generated methods install, the parser can
 no longer read the source that FOLLOWS"*), and note it does **not** call `setParse` — so whatever
 poisons phase 2 is not parse-method binding.
-**Done when:** the first phase-1 install that breaks a subsequent compile is named — bisect by
-generating N bodies then compiling one, for increasing N. **Owner:** unassigned. **Size:** one
-fixture, mechanical.
+**⚠ BISECTED 2026-08-19. ONE INSTALL FLIPS IT, AND IT IS NOT A COUNT.** `incant/fixBisect` installs
+the first N bodies and then compiles the FIRST one, the one known good alone:
+
+| N | last installed | compiling `BasicElse` |
+|---|---|---|
+| 1 … 42 | … `break` | fails on **CONTENT** — `failed at "else() AND followedBy()"`, so the body text **is read** |
+| **43** | **`tokenize`** | fails at **`reached end of input`**, line 1 |
+
+Same first body, same compile, **one extra install between them**. So it is not accumulation: a
+single install turns a readable body into an empty read, which is the signature all 56 of
+`walkPhase`'s failures carry. **Individually perfect, collectively unreadable** — the shape the
+aliasing family predicts.
+**⚠ AND THE DETECTOR HAD TO BE THE SIGNATURE, NOT THE ERROR.** `BasicElse` fails to compile at EVERY
+N, because its generated body calls `else()` and `else` is a keyword — a real defect but a different
+one. Counting `ERROR processCode` reports failure at N=1 and **hides the transition completely**.
+Only *"reached end of input"* moves.
+**⚠ THE NAME-SKIP CONTROL IS VOID, NOT NEGATIVE.** Two spellings meant to skip the suspect by name —
+`taG eq "tokenize"` and `fbCur.taG eq "tokenize"` — **both matched every member and installed
+nothing at all**, so they cannot say whether skipping it mattered. Reported as void per the
+do-not-grade-a-voided-control rule. What stands is the A/B, which isolates the same single install
+without naming it. *(The string comparison behaviour is itself a candidate trap: an `eq` against a
+tag in an `iterate` body matching universally.)*
+**CANDIDATE MECHANISM, NOT ESTABLISHED:** `tokenize` is the tokenizer hook (`incant/grammar:34`,
+method set to `tokenize()`), used by `NamE`, `NumbeR`, `HeX` and `FormaT`. Installing a generated
+body over it — `clear(CodE)`, then `isCodeD` — plausibly displaces the method every later read
+depends on, so the reader tokenizes nothing and every subsequent body compiles as empty. **Structural
+support only; the control that would confirm it is the void one above.**
+**Done when:** the poisoning is confirmed by a working skip (or refuted), and the one field the
+install clobbers is named — `showBody`'s pointer technique on the first failing pair. **Owner:**
+unassigned. **⚠ This is the last blocker's address: everything gated on "parse generation closes"
+sits behind it.**
 
 ### F-28 — ✅ CLOSED 2026-08-19 — the split landed: `maxLimit` is the token limit, `repeatLimit` the repetition limit
 **Where:** `RuleStuff.twk`'s `testMacro` loop and `GroupItem.twk:1339`'s `while !isOK && kount < max`.

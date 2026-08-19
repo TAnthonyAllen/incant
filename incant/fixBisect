@@ -1,0 +1,117 @@
+/*****************************************************************************
+    fixBisect -- F-31's bisect. HOW MANY INSTALLS DOES IT TAKE TO POISON THE
+    COMPILE OF THE FIRST BODY.
+
+    walkPhase generates 56 bodies and then every one of them fails to compile
+    with the identical signature, reached end of input on line 1. compileProbe
+    compiles a single body on the same binary and passes, and NamE compiled
+    clean standalone. So a body that compiles alone fails once the others are
+    installed, and the question is how many others it takes.
+
+    This installs the first fbLimit bodies and then compiles the FIRST one, the
+    one that was known good when it was alone. fbLimit is the knob and the
+    shell drives it.
+
+    THE DETECTOR IS THE ERROR LINE, NOT compile's RETURN. F-24 records that
+    compile returns the field for an uncoded subject, so its return cannot tell
+    compiled from never coded. ERROR processCode on stderr is the independent
+    signal and the one walkPhase's own count was corroborated against.
+
+    THE GENERATOR IS walkPhase's, COPIED VERBATIM rather than written afresh, so
+    a difference between the two fixtures cannot be a difference in what they
+    generate.
+
+    ONE SENTINEL, INSIDE THE DRIVER, because installing bodies poisons the
+    loader and a driver that returns to it never arrives.
+
+    ⚠⚠ THE ANSWER, 2026-08-19. ONE INSTALL FLIPS IT, AND IT IS THE 43rd:
+
+        fbLimit 42   last installed break      BasicElse fails on CONTENT --
+                                               failed at "else() AND followedBy()"
+                                               so the body text is READ
+        fbLimit 43   last installed tokenize   BasicElse fails at
+                                               "reached end of input" on line 1
+
+    Same first body, same compile, one extra install between them. So this is
+    not a count and not an accumulation: a single install turns a readable body
+    into an empty read, which is the signature all 56 of walkPhase's failures
+    carry.
+
+    ⚠ AND N=1 IS NOT THE BUG, WHICH IS WHY THE DETECTOR IS THE SIGNATURE AND NOT
+    THE ERROR. BasicElse fails to compile at EVERY N, because its generated body
+    calls `else()` and `else` is a keyword -- a real defect but a different one.
+    Counting `ERROR processCode` would have reported failure at N=1 and hidden
+    the transition entirely. Only "reached end of input" moves.
+
+    ⚠ THE NAME-SKIP CONTROL IS VOID, NOT NEGATIVE, and it is reported as void.
+    Two spellings were tried to skip the suspect by name -- `taG eq "tokenize"`
+    and `fbCur.taG eq "tokenize"` -- and BOTH matched every member, installing
+    nothing at all. A control that installs zero bodies cannot say whether
+    skipping one of them mattered. What stands is the A/B above, which isolates
+    the same single install without naming it.
+
+    Footnote: docs/fixIts.md F-31.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(FixBisect);
+define
+    fbBuffer buffer;
+    fbOpen="{";
+    fbClose="}";
+    fbLimit=43;
+    fbCount=0;
+    fbFirst;
+    fbGen argument code={
+        reset(fbBuffer);
+        printTO(fbBuffer);
+        print fbOpen:;
+        if datA != 0;
+            printTO(0);
+            return;
+        if hasAttributeS;   fbJoin = "AND";
+        else                fbJoin = "OR";
+        print `"if ";
+        iterate fbTerm on argument;
+        while ++fbTerm;
+            print $taG "()";
+            if nexT;    print _fbJoin;
+            else        print ";";
+        @argument;
+        print $"return runRuleAction(this);":;
+        print `fbClose:;
+        clear(CodE);
+        CodE = fbBuffer;
+        fbCopy <- copyOf(CodE);
+        fbCopy :. noPrinT;
+        argument +% fbCopy;
+        argument :. isCodeD;
+        printTO(0);
+        fbCount = fbCount + 1;
+        if fbCount == 1;    fbFirst +% argument;
+        cerr "INSTALL " fbCount " " ~taG:;
+        };
+    fbWalk argument code={
+        iterate fbCur on argument members;
+        while ++fbCur;
+            if fbCount >= fbLimit;  continue;
+            if noPrinT;             continue;
+            if binTypE;             continue;
+            if !isRulE;             continue;
+            if actionTypE != 0;     continue;
+            fbGen(fbCur);
+        };
+    fbRun code={
+        fbWalk(Grokking);
+        cerr "== installed " fbCount " bodies, now compiling the FIRST ==":;
+        iterate fbC on fbFirst;
+        while ++fbC;
+            cerr "COMPILING " ~taG:;
+            compile(fbC);
+        cerr "FIXBISECT SENTINEL -- reached the end":;
+        stop();
+        };
+    ;
+fbRun();

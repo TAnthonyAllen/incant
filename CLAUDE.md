@@ -789,6 +789,36 @@ it. Three destinations, and they are not interchangeable:
 | `docs/knownErrors.md` | a deep defect needing investigation and a **ruling** before anyone can act | long-form KE entry with measurement and discrimination |
 | `TODO.md` | design and roadmap work, organised by arc | prose under its phase |
 
+### ⚠ AND A FOURTH REGISTER, ADOPTED 2026-08-19: `incant/fixits/` — RUNNABLE CAPTURE
+
+**PROSE CAPTURE ROTS; RUNNABLE CAPTURE DOES NOT.** An issue banked for Tony as a paragraph costs him
+a reconstruction before he can start — the exhibit that forced this was *"what are the iterT1m
+re-pins?"*, asked weeks after they were banked. So an issue owed to Tony is banked as an
+**incantation he can run**, one file per issue in `incant/fixits/`.
+
+**Each file carries four things.** A header in plain language, three lines — *this mechanism · is
+doing this wrong · the fix wanted is this* — with ledger numbers only as a footnote. A driver action
+that **demonstrates the issue live** and prints measured beside pinned, so the mystery is on screen
+rather than in a document. A uniquely-named inert anchor (`fixIterT1mHere = 0;`) at the point where
+the answers sit side by side, with a `cerr` naming what he is looking at, so a name-conditioned
+breakpoint lands exactly there. And the house shape throughout: cached action, `cerr` sentinel, bare
+calls, no `:=` captures.
+
+**Three lives, one artifact.** Born as a reminder → stepped as a repro → on the fix, the same file
+re-pins its expectation and **promotes into the fleet as the regression test**, or retires through
+`parked.sh`'s two-stage pattern if the fleet already covers it. No orphaned prose at any stage.
+
+⚠ **`incant/fixits/` IS TONY'S QUEUE, NOT THE FLEET.** Nothing in it runs under `pop.sh` until it is
+promoted. The single coupling is the seal line, and that line is **generated, not remembered** —
+`genLadder/fixitNag.sh` reads the directory and prints
+`Tony's fixit incantations waiting: N (oldest: <name>, since <date>)`. Tony's words for the record:
+*forgetting is not an excuse once the seal reminds him to get off the pot.*
+
+⚠ **THE STANDING RULE (Tony ruled, 2026-08-19): BANKING AN ISSUE OWED TO TONY MEANS WRITING ITS
+FIXIT INCANTATION AS PART OF THE BANKING.** Capture means runnable capture. **Applies from now, not
+retroactively** — existing docket items migrate as each becomes topical, and there is no bulk
+conversion owed.
+
 ⚠ **A finding recorded ONLY in a commit message is recorded and simultaneously lost.** That is
 where fixits lived until 2026-08-16 and it is why this section exists.
 ⚠ **A `fixIts.md` row is MINION-READY OR IT IS NOT A ROW** — if it cannot be handed to someone with
