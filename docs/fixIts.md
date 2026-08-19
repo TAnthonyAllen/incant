@@ -577,6 +577,25 @@ off-rule storage behind phase two is not available, because phase one reclassifi
 needs — all of them. **This is the measurement F-15 option (b) was waiting on, and it comes back
 in favour of (b) being done FIRST, not last.** *Done when:* Tony rules. **Owner:** Tony.
 
+### F-21 — `walkRules` prints a null through `appendString` on the five new `FloaT`/`PoweR` terms
+**Where:** `IncantForms/WorkingOn/parser`, `walkRules`' `print ~$taG "=" argument;` line. The message
+comes from the SUPPORT repo, `Frame/Buffer.C:202` (`Buffer: ERROR no text passed into
+appendString`), so it is out of this repo (bear-trap #11) and will not appear in any grep here.
+**What:** four copies on every `TokenXP`/`Braced` walk, one immediately after each of
+`CENSUS leaf-install : point | decimals | e | sign`. The five terms of `FloaT` and `PoweR` are the
+only leaves that do it — `numberSet`, `tik`, `quoteBody`, `leftBrace`, `pound`, `stuff`,
+`rightBrace`, `leftParen`, `rightParen` and `ANYtoken` all leaf-install silently.
+**Evidence it is NEW, with the control:** zero occurrences on the pre-pick-one binary
+(`git checkout 1f39bac -- GroupMain.{twk,mm}`, rebuilt, same driver file — `grep -c` returns 0 for
+both the `Braced` and `TokenXP` walks). It appears because pick-one made `FloaT` and `PoweR`
+WALKABLE: they used to carry rule-level data, so `genParseTest` leaf-installed them and never
+descended, and their terms were never reached at all.
+⚠ **Cosmetic as measured, and that is a claim about today only.** The walk completes, the sentinel
+fires, and `FloaTCodE`/`PoweRCodE` come out correct. It is stderr noise, not a failed generation.
+**Done when:** a leaf whose data is an inline character or character-set prints its data or prints
+nothing, rather than handing a null to `appendString`.
+**Owner:** unassigned. **Size:** one print site. **Good minion candidate.**
+
 ### F-14 — the walk has four SILENT exits; there is no skipped-rules list
 **Where:** `parser` — three `continue` gates in `walkRules`, plus `genParseTest`'s `datA != 0`
 early return.

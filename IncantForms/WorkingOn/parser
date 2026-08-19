@@ -67,7 +67,7 @@ define
         argument :. isCodeD;
         printTO(0);
         @CodE;
-        print $taG "=" CodE:;
+        print taG "=" CodE:;
         };
     walkRules argument code={
         if actionTypE == 0;
@@ -79,29 +79,51 @@ define
             if length > 0;
                 iterate grup on argument;
                 while ++grup;
-                    if noPrinT;
-                        cerr "CENSUS prune-noPrint :" taG:;
-                        continue;
-                    if binTypE;
-                        cerr "CENSUS prune-container:" taG:;
-                        continue;
-                    /*  isRule is SHADOWED BY binTypE as of the 2026-08-17 census --
-                        prune-notRule fired ZERO times, because a container is
-                        pruned before the walk can descend into its members, and
-                        the bin-member case is the only thing isRule ever caught.
-                        ⚠ SHADOWED IS NOT REDUNDANT. The two gates gate different
-                        properties, container-ness and rule-ness, and they coincide
-                        only for today's population. isRule was demonstrably
-                        load-bearing before binTypE existed -- `--`, a bin member,
-                        segfaulted the walk through this path. Its zero is an
-                        ABSENCE CLAIM until something demonstrates the gate can
-                        still fire when its condition holds.
-                        DO NOT REMOVE EITHER WITHOUT A NEGATIVE CONTROL.  */
+                    if noPrinT;     continue;
+                    if binTypE;     continue;
                     if isRule;      walkRules(grup);
-                    else            cerr "CENSUS prune-notRule :" taG:;
         else    cerr taG "already has code so no parse generated":;
+        };
+    /*  ⚠ THE DRIVER IS AN ACTION, AND ITS `stop()` IS INSIDE IT. That is not
+        style -- it is what makes this file finish. Measured 2026-08-19.
+
+        Once the walk installs generated methods, THE LOADER CAN NO LONGER READ
+        THE SOURCE THAT FOLLOWS. A top-level `walkRules(X); stop();` therefore
+        never reaches its `stop()`: the parser goes back for the next statement,
+        finds it cannot read one, and dies with `checkInput: no input source`.
+        An action body is parsed ONCE, at define time, into a cached BlocK, so
+        everything in here is already-parsed code and needs no loader. Calling
+        `stop()` from in here ends the process before the loader is ever asked
+        for another statement.
+
+        ⚠ AND THE OLD SHAPE'S EXIT STATUS WAS AN ACCIDENT OF WHAT FOLLOWED IT.
+        With five dead `walkRules` lines sitting below the `stop()`, the run
+        exited 0 -- the poisoned loader failed to parse them and abandoned the
+        file, which is the documented exit-0-on-parse-failure path. Truncate
+        those same lines and the identical run exits 139. NEITHER run reached
+        `stop()`, and neither said so. That is why the sentinel below is on
+        `cerr`: stdout is block-buffered and a crash loses it, so a stdout
+        sentinel cannot report the crash it exists to detect.
+
+        MEASURED TARGET MATRIX, this shape, 2026-08-19 binary -- all five reach
+        the sentinel, print `stop:`, and exit 0:
+            TokenXP 59 lines · Braced 59 · NumbeR 19 · QuotE 7 · StringXP 7
+        `Start` still exits 1 with no sentinel, and it is NOT this file's bug:
+        it stops at the first `ERROR processCode: define parse failed` because
+        `compile` exits the process on a refused parse. That is fixIts F-17e,
+        and it is yours.
+
+        ONE TARGET PER RUN. The `stop()` ends the process, and a second walk
+        could not read its own driver line anyway. Swap the name below; the
+        others are parked here rather than left under the `stop()` as lines
+        that look live:
+            runParse(QuotE);  runParse(NumbeR);  runParse(StringXP);
+            runParse(TokenXP);  runParse(Braced);                            */
+    runParse argument code={
+        walkRules(argument);
+        cerr "PARSER SENTINEL -- walk complete":;
+        stop();
         };
     ;
 
-walkRules(Braced);
-stop();
+runParse(TokenXP);
