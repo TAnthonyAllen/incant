@@ -35,6 +35,22 @@ include(utilities);
 search reset stack Grokking UnitTests Utilities list;
 register(ShadowCensus);
 define
+    scHas=0;
+    /*  THE D COLUMN, SINGLE-SOURCED, AND IT NOW EXEMPTS A CONTAINER.
+        A bin or registry's data is DERIVED, not authored -- GroupItem::addGroup
+        folds each member's first character into the set at ADD-MEMBER time, so
+        the datum is a cache of the membership rather than a rule-level
+        alternative to it. `binTypE` is deliberately the same test addGroup
+        writes under, so this reader cannot drift from that writer.
+        Three sequential ifs and no `&&`: the symbol form of AND answers
+        `true && true` as false on this build (knownErrors KE-5).  */
+    scDcol argument code={
+        scHas = 0;
+        if datA != 0;       scHas = 1;
+        if binTypE != 0;    scHas = 0;
+        if scHas != 0;      print "D";
+        else                print "-";
+        };
     scMembers argument code={
         iterate scCur on argument members;
         while ++scCur;
@@ -44,8 +60,7 @@ define
             else                print "-";
             if hasMemberS;      print "M";
             else                print "-";
-            if datA != 0;       print "D";
-            else                print "-";
+            scDcol(scCur);
             if isGROUP;         print "G";
             else                print "-";
             print " " ~taG:;
@@ -59,8 +74,7 @@ define
             else                print "-";
             if hasMemberS;      print "M";
             else                print "-";
-            if datA != 0;       print "D";
-            else                print "-";
+            scDcol(scCur2);
             if isGROUP;         print "G";
             else                print "-";
             print " " ~taG:;

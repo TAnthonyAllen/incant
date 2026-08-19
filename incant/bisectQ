@@ -1,0 +1,105 @@
+/*  bisectQ -- FINDING THE PREDECESSOR THAT MAKES QuotE COMPILABLE. Clay's
+    bisect brief, 2026-08-19.
+
+    THE LEAD. QuotE compiles clean inside the TokenXP walk and crashes two runs
+    out of two when compiled alone (incant/row8T). Same binary, same rule, same
+    generated body shape. So something a predecessor compiles establishes what
+    QuotE needs, and this fixture finds which one.
+
+    THE METHOD IS PREFIX THEN TARGET. Walk TokenXP in its real order and stop
+    after a chosen number of compiles, then attach a body to QuotE and compile
+    that. With the limit at zero the run is row8T and should crash. With the
+    limit set to every compile that precedes QuotE in walk order the run is the
+    walk and should pass. Between those two the limit is bisected.
+
+    THE LIMIT IS COUNTED IN COMPILES, NOT IN RULES, because the walk compiles
+    every node it reaches including the leaves that only get a parse installed.
+    Counting anything else would not be the walk's real order.
+
+    EVERY COMPILE ANNOUNCES ITS SEQUENCE NUMBER AND ITS TARGET ON THE ERROR
+    CHANNEL BEFORE IT RUNS, so a crash names the rule that caused it and the
+    listing run doubles as the ordered inventory the bisect needs.
+
+    THE WALK BODY IS COPIED FROM Tony's parser form deliberately, gates and all,
+    so that what is measured here is the same walk and not a paraphrase of it.
+
+    ONE TARGET, ONE PROCESS, and the driver is an action whose stop is inside
+    it, for the reasons recorded on the sequencing-constraint item.
+*****************************************************************************/
+Start();
+include(utilities);
+search reset stack Grokking;
+search GroupFields Utilities list;
+
+register(Utilities);
+define
+    bqBuffer buffer;
+    bqOpen="{";
+    bqClose="}";
+    bqSeen=0;
+    bqLimit=0;
+    bqMode=0;
+    bqGen argument code={
+        reset(bqBuffer);
+        printTO(bqBuffer);
+        print bqOpen:;
+        setParse(argument);
+        if datA != 0;
+            printTO(0);
+            return;
+        if hasAttributeS;   bqJoin = "AND";
+        else                bqJoin = "OR";
+        print `"if ";
+        iterate bqTerm on argument;
+        while ++bqTerm;
+            setParse(bqTerm);
+            print $taG "()";
+            if nexT;    print _bqJoin;
+            else        print ";";
+        @argument;
+        print $"return runRuleAction(this);":;
+        print `bqClose:;
+        printTO(0);
+        clear(CodE);
+        CodE = bqBuffer;
+        bqCopy <- copyOf(CodE);
+        bqCopy :. noPrinT;
+        argument +% bqCopy;
+        argument :. isCodeD;
+        };
+    bqWalk argument code={
+        if bqSeen >= bqLimit;   return;
+        if actionTypE != 0;     return;
+        bqLen = listLengtH;
+        bqGen(argument);
+        bqSeen = bqSeen + 1;
+        cerr "SEQ" bqSeen ~taG:;
+        compile(argument);
+        if bqLen > 0;
+            iterate bqCur on argument;
+            while ++bqCur;
+                if noPrinT;     continue;
+                if binTypE;     continue;
+                if isRule;      bqWalk(bqCur);
+        };
+    bqRun argument code={
+        cerr "== PREFIX, limit" bqLimit "==":;
+        bqWalk(TokenXP);
+        cerr "== PREFIX DONE, compiles run" bqSeen "==":;
+        if bqMode != 0;
+            cerr "== TARGET via the WALK's own call path ==":;
+            bqLimit = bqLimit + 1;
+            bqWalk(argument);
+        else
+            cerr "== TARGET from the DRIVER frame ==":;
+            bqGen(argument);
+            bqTarget := compile(argument);
+            if bqTarget;    cerr "TARGET ok      compile returned a field":;
+            else            cerr "TARGET FAIL    compile returned null":;
+        cerr "BISECTQ SENTINEL -- prefix and target both completed":;
+        stop();
+        };
+    ;
+
+bqLimit = 0;
+bqRun(QuotE);

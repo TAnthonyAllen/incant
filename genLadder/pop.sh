@@ -585,34 +585,47 @@ else
     echo "        above asserts nothing. The check passed by not testing anything."; fail=1
 fi
 
-#  ⚠ THE PARTITION GUARD ASSERTS A SET BY NAME, NOT A COUNT. Ruling 2 makes a
-#  container a data rule with a container parser, so Operators is a PERMANENT
-#  member of this set and is exempt by name. BrancheS is the same shape and is
-#  still owed a pick-one split, so it is listed here as the currently-sanctioned
-#  population rather than silently tolerated -- when it splits, this row goes RED
-#  and the expected set drops to Operators alone. That is the point: it moves when
-#  the answer moves, and a NEW hybrid appearing also turns it red.
+#  ⚠ THE PARTITION GUARD ASSERTS A SET BY NAME, NOT A COUNT, AND THE SET IS NOW
+#  EMPTY. Re-pinned 2026-08-19. It used to expect { BrancheS Operators } and its
+#  own note said the row goes red "when it splits". It did not split -- the
+#  CLASSIFIER was wrong about it. A bin or registry's data is DERIVED, not
+#  authored: GroupItem::addGroup folds each member's first character into the set
+#  at add-member time, one character per member, and nothing anywhere authors it.
+#  So that datum is a cache of the membership, never a rule-level alternative to
+#  it, and the two rules were reported as hybrids that were never written.
+#  shadowCensus now exempts a container by the SAME `binTypE` test addGroup writes
+#  under. Both rules moved -MD- -> -M--, the members-shaped population went 11 ->
+#  13, and pick-one holds with NO exceptions for the first time.
+#
+#  ⚠ AN EMPTY EXPECTED SET IS AN ABSENCE CHECK UNLESS SOMETHING PROVES THE COLUMN
+#  STILL WORKS (rule H4), and a D column that had gone inert would produce exactly
+#  this empty set. So the data-only population is asserted non-zero on the row
+#  below, beside the existing rows/members guards. All three must hold before the
+#  emptiness means anything.
 run1 shadowCensus "$T/sc";   check "shadowCensus runs (pick-one partition)" 0 $?
 sentinel "shadowCensus sentinel" "$T/sc" "SHADOWCENSUS SENTINEL"
 scrows=$(grep -c "^row " "$T/sc")
 scmembers=$(grep "^row " "$T/sc" | awk '$3=="M"' | wc -l | tr -d " ")
+scdata=$(grep "^row " "$T/sc" | awk '$4=="D"' | wc -l | tr -d " ")
 schybrid=$(grep "^row " "$T/sc" | awk '$3=="M" && $4=="D" {print $NF}' | sort | tr "\n" " ")
 #  Anti-vacuity: a census that walked nothing would report an empty hybrid set
 #  and pass. Both populations are asserted non-zero first, so an inert walk is
 #  a failure and not a clean bill of health.
-if [ "$scrows" -gt 0 ] && [ "$scmembers" -gt 0 ]; then
-    echo "  ok    shadowCensus walked $scrows rules, $scmembers members-shaped (non-vacuous)"; green=$((green+1))
+if [ "$scrows" -gt 0 ] && [ "$scmembers" -gt 0 ] && [ "$scdata" -gt 0 ]; then
+    echo "  ok    shadowCensus walked $scrows rules, $scmembers members-shaped, $scdata data-shaped (non-vacuous)"; green=$((green+1))
 else
-    echo "  FAIL  shadowCensus walked nothing ($scrows rows, $scmembers members-shaped)."
-    echo "        The hybrid set below would be empty for that reason, not because"
-    echo "        the population is clean."; fail=1
+    echo "  FAIL  shadowCensus walked nothing, or a COLUMN went inert"
+    echo "        ($scrows rows, $scmembers members-shaped, $scdata data-shaped)."
+    echo "        The empty hybrid set below would be empty for that reason, not"
+    echo "        because the population is clean."; fail=1
 fi
-if [ "$schybrid" = "BrancheS Operators " ]; then
-    echo "  ok    pick-one: data-plus-members set is exactly { BrancheS Operators }"; green=$((green+1))
+if [ -z "$schybrid" ]; then
+    echo "  ok    pick-one: data-plus-members set is EMPTY -- no exceptions"; green=$((green+1))
 else
     echo "  FAIL  pick-one partition MOVED: data-plus-members set is { $schybrid}"
-    echo "        Expected { BrancheS Operators }. Operators is exempt by ruling 2;"
-    echo "        BrancheS is owed a split. Anything else is a new hybrid."; fail=1
+    echo "        Expected EMPTY. A container's derived set is exempt by binTypE;"
+    echo "        anything appearing here is a rule that was genuinely written as"
+    echo "        both, which is what pick-one forbids."; fail=1
 fi
 
 diffcheck "oneTest baseline"  genLadder/oneTest.base  "$T/one"

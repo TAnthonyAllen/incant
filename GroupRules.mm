@@ -10467,8 +10467,20 @@ int 		i = 1;
 	text, and widening this test to `rule.data` would re-merge them on day
 	one. isCHAR (FloaT) LOOKS like a one-character member of this family and
 	is an OPEN row on purpose -- it carries sub-fields, so it is not this
-	shape (docs/gapBPhaseT.md, OPEN row 1).  */
-	if ( rule->groupBody->flags.data )
+	shape (docs/gapBPhaseT.md, OPEN row 1).
+	
+	⚠ A CONTAINER IS EXEMT BECAUSE ITS DATA IS DERIVED, NOT AUTHORED.
+	Measured 2026-08-19: GroupItem::addGroup builds a bin or registry's
+	character set incrementally at ADD-MEMBER time -- `if binType { ...
+	binGuard->set((int)*group->tag); ... }` -- one character per member, and
+	nothing anywhere authors it. So a container's `data` is a cache of its
+	own membership, not a rule-level alternative to its members, and
+	refusing it as rule-as-data reports a hybrid that was never written.
+	`!rule.binType` is deliberately the SAME test addGroup writes under, so
+	the reader cannot drift from the writer. No new flag: the only existing
+	candidate, `altered`, is the stak-invalidation bit and is CLEARED by
+	resetStak, so a derived mark stored there would silently evaporate.  */
+	if ( rule->groupBody->flags.data && !rule->groupBody->flags.binType )
 		{
 		if ( !isSTRING(rule->groupBody->flags.data) )
 			{

@@ -158,7 +158,7 @@ define
         print "MARK  after-walk shapes follow":;
         ppMembers2(argument);
         ppAttrs2(argument);
-        print "PHASEPROBE SENTINEL -- generated" ppSeen:;
+        cerr "PHASEPROBE SENTINEL -- generated" ppSeen:;
         };
     ;
 ppRun(Grokking);

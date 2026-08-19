@@ -577,6 +577,40 @@ off-rule storage behind phase two is not available, because phase one reclassifi
 needs — all of them. **This is the measurement F-15 option (b) was waiting on, and it comes back
 in favour of (b) being done FIRST, not last.** *Done when:* Tony rules. **Owner:** Tony.
 
+### F-22 — ⚠⚠ CAPTURING `compile`'s RETURN WITH `:=` CRASHES THE PROCESS, AND IT FAKED AN ENTIRE INVESTIGATION
+**Where:** any fixture writing `x := compile(field);`. Was in `incant/row8T` and in `incant/bisectQ`'s
+driver-frame arm; both now use the bare `compile(field);` that `walkRules` has always used.
+**The measurement, one variable, 2026-08-19:**
+
+| statement | QuotE, no prefix |
+|---|---|
+| `bqTarget := compile(argument);` | **exit 139** |
+| `compile(argument);` | **exit 0, sentinel** |
+
+Same rule, same generated body, same stack frame, same binary, nothing else changed.
+
+⚠ **WHAT IT COST, AND THIS IS WHY IT IS A ROW RATHER THAN A NOTE.** It produced a complete, coherent,
+entirely false finding. `row8T` reported `QuotE` 139 (2/2), `NamE` 137, `tokenize` 139, `GrouP` clean
+— read as *"members-shaped rules compile, attribute-shaped rules crash"*, which is plausible, matches
+the project's known fault line, and is **wrong**. Re-run with the bare call: **`QuotE` exit 0,
+`tokenize` exit 0, `GrouP` exit 0.** Two of the three crashes were the capture.
+**The `GrouP` row is what made it convincing** — one green row in the matrix reads as proof the
+instrument discriminates, when it only proved this defect is not universal.
+
+**RETRACTED BY THIS ROW:** row8T's crash matrix, and with it the "QuotE compiles inside the walk but
+crashes alone" order-dependence lead. **There is no order dependence.** Measured: `QuotE` compiled
+through the walk's own call path with a **zero-rule prefix** passes, and with the full 18-compile
+prefix from the driver frame crashes — the prefix was never the variable. The walk passed because
+`walkRules` calls `compile(argument);` bare; every crashing probe captured the result.
+
+**STANDING:** `NamE` still **hangs (137)** with the bare call, killed at 45s and at 150s. That one is
+real and survives the correction. **Not investigated further** — it is the offline walk's territory.
+**Candidate bear trap, symptoms only, NOT diagnosed** — same family as #3 (`:=` stamps `byRef`
+permanently on its argument), but that a `:=` capture of a **command return value** segfaults is a
+symptom and no mechanism is claimed here.
+**Done when:** either the mechanism is ruled, or a trap entry says do not capture a command's return
+with `:=`. **Owner:** unassigned.
+
 ### ⚠ PRE-FLIGHT FOR THE CONTAINER RESHAPE — RUN 2026-08-19, AND THE READER COUNT IS WRONG
 **Direction (Tony's, pre-work only, no edit authorized):** the bins' `D` is the character set read
 through `inSet`; make it a labelled attribute on the NumbeR-reshape pattern, `-MD-` goes 2 → 0, and

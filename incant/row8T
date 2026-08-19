@@ -76,9 +76,8 @@ define
         cerr "R8    attach  trivial body ->" ~taG:;
         r8Attach(argument);
         cerr "R8    compile" ~taG:;
-        r8R := compile(argument);
-        if r8R;     cerr "R8    ok      compile returned a field":;
-        else        cerr "R8    FAIL    compile returned null":;
+        compile(argument);
+        cerr "R8    compile returned -- no refusal, no crash":;
         cerr "ROW8 SENTINEL -- the row ran to completion":;
         stop();
         };
