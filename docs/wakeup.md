@@ -159,6 +159,48 @@
 #   walked `numberSet`; today it walks the real `NumbeR` and all six descendants. **F-16's
 #   "done when" is satisfied for NumbeR — by removing the group data, not by changing the call.**
 #
+#   ## ⚠⚠ SECOND LATE ADDITION — THE QuotE ORDER-DEPENDENCE DISSOLVED, AND IT WAS MY INSTRUMENT
+#
+#   **THERE IS NO PREDECESSOR AND THERE IS NO ORDER DEPENDENCE.** `incant/bisectQ` walked TokenXP in
+#   real order (QuotE is SEQ 19 of 30) and took the endpoints first: **N=0 crashes, and N=18 — every
+#   compile that precedes QuotE — STILL CRASHES.** One difference between the arms was visible in one
+#   look and got one run: the walk calls `compile(argument);` bare, my driver wrote
+#   `bqTarget := compile(argument);`.
+#
+#   | run | result |
+#   |---|---|
+#   | N=0, driver frame, **`:=` capture** | **139** |
+#   | N=18, driver frame, **`:=` capture** | **139** |
+#   | N=0, **bare** `compile` | **exit 0, sentinel** |
+#   | N=0, walk's own call path (bare) | **exit 0, sentinel** |
+#
+#   **One variable, and it is not a rule.** The walk passed because `walkRules` has always called
+#   compile bare. Filed **F-22**, candidate trap, **symptoms only** — a `:=` capture of a COMMAND
+#   RETURN segfaults; that is bear-trap #3's family (`:=` stamps `byRef` permanently) and no
+#   mechanism is claimed.
+#
+#   ⚠⚠ **RETRACTED: the row-8 matrix in the block above was measuring the fixture.** It reported
+#   `QuotE` 139 (2/2), `NamE` 137, `tokenize` 139, `GrouP` clean, and I read a shape split off it —
+#   members-shaped compiles, attribute-shaped crashes. **Bare call: `QuotE` exit 0, `tokenize` exit
+#   0, `GrouP` exit 0.** Two of the three crashes were the capture. **And the green row is what made
+#   it convincing** — `GrouP` passing read as proof the instrument discriminated, when it only proved
+#   the defect is not universal. **A matrix with one green row is not thereby a working instrument.**
+#   ✅ **STANDING:** `NamE` still **hangs (137)** with the bare call, at a 45s cap and at 150s. Real,
+#   and deliberately not chased.
+#
+#   ## ⚠ AND PICK-ONE NOW HOLDS WITH NO EXCEPTIONS — the classifier was wrong about the containers
+#
+#   A bin's or registry's data is **DERIVED, not authored**: `GroupItem::addGroup` folds each member's
+#   first character into the set at **add-member time**, and nothing anywhere authors it. So
+#   `BrancheS` and `Operators` were reported as hybrids **that were never written**. Both readers now
+#   exempt a container by `!binType` — **the same test `addGroup` writes under, so the reader cannot
+#   drift from the writer**. `-MD-` **2 → 0**; members-shaped 11 → 13.
+#   **No new flag, and none was needed.** The only existing candidate, `altered`, is the
+#   stak-invalidation bit that `resetStak` **clears** — a derived mark stored there would evaporate.
+#   `census.target` did **not** move and no re-pin is owed: the planner's 30 PLAN rules never reach a
+#   container. `pop.sh`'s partition row re-pinned — ⚠ an empty expected set is an absence check, so it
+#   now also asserts the data-shaped population non-zero (**17**).
+#
 #   ## NEXT SESSION OPENS ON
 #
 #   1. **Tony's two rulings, both now priced by measurement:** F-15 option **(b) first** (off-rule
