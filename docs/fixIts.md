@@ -139,6 +139,19 @@ it as `skipped-registry`, and `parseClass.target` was re-pinned on exactly one m
 alternatives — `BrancheS` and `UnaryOPS` are bins and both legitimately bind `parseContainer`,
 measured. Widening the test to `binType` would silently delete four `parseContainer` rows.
 
+### F-32 — the generator emits `else()` for a keyword term, so `BasicElse`'s body cannot parse
+**Where:** `walkPhase`/`fixBisect`'s generated body for `BasicElse`, surfaced 2026-08-19 as the
+constant-failure background of F-31's bisect.
+**What:** the emitted body is `if else() AND followedBy() AND StatemenT(...)`. `else` is a keyword, so
+the statement cannot parse, and `BasicElse` fails to compile at **every** install count — the error
+reads `failed at "else() AND followedBy()"`, i.e. the text is read and rejected.
+**Why it is worth its own row:** it is a *different* defect from F-31 and it nearly hid it. Counting
+`ERROR processCode` to detect F-31's poisoning reports a failure at N=1 and conceals the transition
+entirely; only the `reached end of input` signature moves. **A constant failure is camouflage for a
+variable one.**
+**Done when:** the term emitter either quotes or renames a keyword-named term, and `BasicElse`
+compiles. **Owner:** unassigned. **Good minion candidate** — the failing text is in hand.
+
 ### F-31 — the walk generates 56 bodies and EVERY ONE fails to compile, but only in a full sweep
 **Where:** `incant/walkPhase`, measured 2026-08-19 on the current tree.
 **The partition:** entered **139** · generated **56** · leaf **60** · refused **23** (9 distinct rules:
