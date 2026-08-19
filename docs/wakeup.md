@@ -252,6 +252,40 @@
 #   returns the FIELD for an uncoded subject, so `compileProbe`'s own row C has been printing `????`
 #   on every run with nobody watching. It does **not** touch the 56/56 — all 56 were `isCoded`.
 #
+#   ## ⚠⚠ FOURTH LATE ADDITION — THE DISCRIMINATOR IS `setParse`, AND THE PHASE STORY IS RETRACTED
+#
+#   The provenance exhibit was built to Clay's brief and **came back negative** — `runTokenHand`
+#   and `runTokenWalked` **both compile**, so how the body was authored is not the discriminator.
+#   But `Token` **does** refuse inside `walkPhase`'s sweep, same rule and same install path, so one
+#   call separated those runs. It did:
+#
+#   | run | result |
+#   |---|---|
+#   | `runNamE(NamE)` — genParseTest **with** `setParse` | **137 hang** |
+#   | `runNamEnoParse(NamE)` — identical, `setParse` suppressed | **exit 0, completes** |
+#   | `walkPhase` as committed (**no** setParse) | 56 clean refusals, sweep finishes |
+#   | `walkPhase` **with setParse added** | ⚠ **hangs on its FIRST swept item** (`StatemenT`), 0 refusals |
+#
+#   ⚠⚠ **F-23's phase reading, filed this morning, is RETRACTED.** I read the difference as one-phase
+#   versus two-phase — *"NamE compiled against a grammar that is only partly generated"* — and the
+#   two-phase arm simply **never armed the rules**. The phase split got the credit for `setParse`'s
+#   absence. **Structural claims here hold, causal ones fail; this was a causal one, and it is the
+#   sixth.**
+#
+#   ⚠ **The mechanism was in writing BEFORE it was measured**, which is the only reason a reading is
+#   offered: `setParse` binds `parseMethod = parseRule` (`GroupRules.mm:12200`, one-shot behind
+#   `if (!parseMethod)`), and `parseRule` reads the rule's own `CodE` (`:9949`). **F-17a** already
+#   called this *"activation happening during generation"*; **F-18**'s ruling already recorded that
+#   `field.parse(...)` *"trades crash for infinite recursion through the parseMethod fork"*. A hang is
+#   what that predicts. **NOT measured and not claimed: the recursion itself** — that is the walk, and
+#   breakpoints **B9/B10** are aimed at exactly it (`parseRule` entry, *the frame to watch repeat* —
+#   the same tag recurring IS the loop).
+#
+#   **`IncantForms/WorkingOn/parser` is the deliverable** and carries its own crib: a four-command
+#   recipe with each outcome measured, five uniquely-named inert anchors (fleet UNMOVED confirms no
+#   leak), and ten breakpoints each with a re-find grep, because `GroupRules.mm` is generated and any
+#   retok moves them. Filed **F-25** for the negative exhibit, kept in the file as the control.
+#
 #   ## NEXT SESSION OPENS ON
 #
 #   1. **Tony's two rulings, both now priced by measurement:** F-15 option **(b) first** (off-rule
