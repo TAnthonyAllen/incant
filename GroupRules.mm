@@ -2354,8 +2354,23 @@ GroupItem 	*grup = 0;
 	grup->groupBody->flags.noPrint = 1;
 	grup->options.affiliation = 1;
 	code->replace(grup);
+	/*  ⚠ A REFUSED RULE MUST NOT TERMINATE THE RUN. Tony's ruling on F-17e,
+	2026-08-19. This line was `exit(1)` and that was louder than ruled:
+	R-4 asks compile to REPORT and REFUSE, and processCode has already
+	reported through reportCodeFail by the time control arrives here, so
+	exiting added nothing but the end of the process.
+	
+	WHAT IT COST is the reason the ruling exists: a flat sweep could never
+	report more than its FIRST refusal, so the population figure everyone
+	was quoting was a lower bound wearing the shape of a count, and the
+	census that would have corrected it was the thing being terminated.
+	Returning null makes a refusal a VALUE a caller can tally, which is
+	what a per-rule failure report needs.
+	
+	NO DOUBLE REPORT: processCode owns the message (GroupActions.rtn), and
+	compile owns only the verdict.  */
 	if ( !::processCode(field) )
-		::exit(1);
+		return 0;
 endCompile:
 	return field;
 }

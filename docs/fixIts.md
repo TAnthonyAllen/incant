@@ -377,12 +377,13 @@ its initialised `false`, and the caller cannot tell "tested and failed" from "no
 `testAttributes` (`RuleStuff.twk:336`) was the instance. **Census owed:** other `hasAttributes`-gated
 or skip-looping sites with the same shape. **Good minion candidate.**
 
-**F-17e — ⚠ `compile` EXITS THE PROCESS on a refused parse, so a flat sweep can never report more
-than its first refusal.** `Commands.rtn` — `if !processCode(field) exit(1);` (it was `return 0;`
-before 2026-08-18). Ruling 4 asks for per-rule failure reporting via `reportCodeFail`, which already
-prints; the exit is what stops the census. `incant/walkPhase` names this in its own header and its
-sentinel is what tells you whether the sweep finished. *Done when:* the sweep can report every
-refusal in one run. **Owner: Tony** — it is his file and his deliberate edit.
+**F-17e — ✅ CLOSED 2026-08-19, Tony's ruling. `compile` reports and refuses; it no longer exits.**
+`Commands.rtn` — `if !processCode(field) exit(1);` became `if !processCode(field) return null;`.
+`processCode` had already reported through `reportCodeFail` by the time control reached that line, so
+the exit added nothing but the end of the process, and a refusal is now a **value a caller can
+tally**. *Verified:* a `runParse(Start)` used to die at the first `ERROR processCode`; it now reports
+**six** refusals and keeps going. And the measurement the exit was suppressing is finally
+takeable — see the full-population count below. Fleet UNMOVED across the change, canary 303 → 303.
 
 **F-17f — ⚠ A BRACED `else { }` BLOCK IN AN ACTION BODY ENDS THE `define` BLOCK EARLY.** Candidate
 bear trap, reproduced and bisected 2026-08-18, **not diagnosed**. Symptom: `RunRulE: expected a
@@ -577,6 +578,40 @@ off-rule storage behind phase two is not available, because phase one reclassifi
 needs — all of them. **This is the measurement F-15 option (b) was waiting on, and it comes back
 in favour of (b) being done FIRST, not last.** *Done when:* Tony rules. **Owner:** Tony.
 
+### F-23 — `NamE` HANGS UNDER A ONE-PHASE COMPILE AND REFUSES CLEANLY UNDER A TWO-PHASE ONE
+**Where:** reproducer installed as `runNamE` in `IncantForms/WorkingOn/parser` — swap the driver line
+at the foot to `runNamE(NamE);`. It hangs at a labelled `cerr`, so the last line printed names the
+statement.
+**Measured 2026-08-19**, five configurations, bare `compile` throughout (no `:=`, per F-22):
+
+| configuration | NamE |
+|---|---|
+| standalone, no prefix, driver frame | **137 hang** |
+| standalone, no prefix, walk's own call path | **137 hang** |
+| after an 18-rule TokenXP prefix, either frame | **137 hang** |
+| after the FULL 30-rule TokenXP prefix | **137 hang** |
+| inside `incant/walkPhase`'s **two-phase** run | **refuses cleanly** — `ERROR processCode: NamE parse failed`, run completes exit 0 |
+
+⚠ **THE LAST ROW IS THE DISCRIMINATOR.** It is not NamE alone and it is not the prefix: it is NamE
+compiled against a grammar that is only **partly** generated. Generate-the-whole-population-then-
+compile turns the hang into an ordinary refusal. That is Ruling 4's two-phase split doing real work.
+Kill-capped at 45s, 60s, 90s and 150s; deterministic at every cap.
+**Done when:** ruled. **Owner: Tony**, in Xcode — and the texture differs from F-22's: a hang gives no
+crash frame, so the question is what is *cycling* when the process is interrupted.
+
+### F-24 — `compile` returns the FIELD for an UNCODED subject, so a sweep cannot tell compiled from never-coded
+**Where:** `Commands.rtn` — `if !field.isCoded goto endCompile;` and `endCompile: return field;`.
+**Evidence:** `incant/compileProbe`'s own negative control, row **C**, prints
+`C ???? compile returned a field on an UNCODED subject -- rows A and B discriminate nothing`. It has
+been saying so on every run; it is not in `pop.sh`, so nothing was watching.
+**Why it matters more after F-17e than before:** the return value now carries a verdict — `null`
+means *refused* — so a third meaning (*there was nothing to compile*) is riding on the same channel
+as *compiled fine*. One channel, two meanings.
+⚠ **Scope, so the count below is not over-doubted:** it does **not** touch the 56/56 figure. Every one
+of those 56 was marked `isCoded` by phase one, so none took the uncoded path.
+**Done when:** an uncoded subject returns null, and compileProbe row C goes green.
+**Owner:** unassigned. **Size:** one line plus a comment. **Good minion candidate.**
+
 ### F-22 — ⚠⚠ CAPTURING `compile`'s RETURN WITH `:=` CRASHES THE PROCESS, AND IT FAKED AN ENTIRE INVESTIGATION
 **Where:** any fixture writing `x := compile(field);`. Was in `incant/row8T` and in `incant/bisectQ`'s
 driver-frame arm; both now use the bare `compile(field);` that `walkRules` has always used.
@@ -608,6 +643,15 @@ real and survives the correction. **Not investigated further** — it is the off
 **Candidate bear trap, symptoms only, NOT diagnosed** — same family as #3 (`:=` stamps `byRef`
 permanently on its argument), but that a `:=` capture of a **command return value** segfaults is a
 symptom and no mechanism is claimed here.
+**THE TREE-WIDE SWEEP, 2026-08-19 — four other sites, LISTED AND UNTOUCHED per the brief:**
+`incant/enumT:53` · `incant/walkPhase:129` · `incant/compileProbe:65` · `incant/compileProbe:75`,
+all of the form `x := compile(...)`. ⚠ **None of them currently crashes** — all three files run to
+exit 0 today — so this is a latent list, not a breakage list. `walkPhase` was cross-checked directly:
+re-run with `=` instead of `:=` it returns the **identical** verdict (56/56), so its census figure is
+not an artifact of the capture.
+⚠ **Deliberately NOT on this list: `:= new(...)` and `:= copyOf(...)`.** Those are the sanctioned mint
+idiom — `:=` exists so the argument's tag survives (bear-trap #1) — and there are ten of them in
+`incant/generate` alone. The suspect shape is a **command return**, not `:=` itself.
 **Done when:** either the mechanism is ruled, or a trap entry says do not capture a command's return
 with `:=`. **Owner:** unassigned.
 

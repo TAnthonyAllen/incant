@@ -21,8 +21,18 @@ define
         BTW the no attributes no members case is handled by the first setParse
         call in genParseTest. Look that over with monocle in place and a squinty eye.
     ***************************************************************************/
-    /*  ⚠ PRE-REGISTERED PREDICTION FOR THE POST-MINT RE-RUN, written down
-        BEFORE it runs so it cannot be fitted afterwards.
+    /*  ⚠⚠ RETIRED 2026-08-19 -- THIS PREDICTION CAN NO LONGER BE READ, AND THE
+        REASON IS IN THIS FILE. It is scored against `CENSUS prune-noPrint`
+        counts, and the two census `cerr` lines it counts were REMOVED from
+        walkRules in the 2026-08-18 offline edit. The instrument is gone, so no
+        run of this file can settle it either way. Kept, not deleted: it is the
+        reasoning trail for the mint certification and a provenance that names
+        what was predicted before it ran. Do not "repair" it by re-adding the
+        counters to make the number appear -- if the question is live again it
+        wants a fresh pre-registration against an instrument that exists.
+
+        PRE-REGISTERED PREDICTION FOR THE POST-MINT RE-RUN, written down
+        BEFORE it ran so it could not be fitted afterwards.
         The 2026-08-17 census measured prune-noPrint at 17, and all seventeen
         were the ONE shared CodE node. After the mint fix gives every rule its
         own CodE -- properly noPrint, because processCode sets that on what it
@@ -108,10 +118,20 @@ define
         MEASURED TARGET MATRIX, this shape, 2026-08-19 binary -- all five reach
         the sentinel, print `stop:`, and exit 0:
             TokenXP 59 lines · Braced 59 · NumbeR 19 · QuotE 7 · StringXP 7
-        `Start` still exits 1 with no sentinel, and it is NOT this file's bug:
-        it stops at the first `ERROR processCode: define parse failed` because
-        `compile` exits the process on a refused parse. That is fixIts F-17e,
-        and it is yours.
+
+        ⚠ `Start` CHANGED TODAY AND IS NO LONGER AN EXIT-1. F-17e is fixed --
+        `compile` now reports through processCode's channel and RETURNS NULL
+        instead of exiting -- so a `runParse(Start)` reports many refusals
+        instead of dying at the first. Measured after the fix: SIX refusals
+        reported (`define` `DEFINing` `;` `DO` `do` `while`) and then the run
+        HANGS. Killed at a 120s cap. That hang is the live blocker on a
+        one-phase full-grammar walk, and it is what `runNamE` below is for.
+
+        FOR A FULL-POPULATION COUNT, DO NOT USE THIS FILE -- USE
+        `incant/walkPhase`. It separates generation from compilation, so it
+        reports EVERY refusal instead of stopping at whatever the walk was
+        standing on. Measured 2026-08-19, exit 0, sentinel: entered 139,
+        generated 56, leaf 60, refused 23, and then 56 compiled 0 / rejected 56.
 
         ONE TARGET PER RUN. The `stop()` ends the process, and a second walk
         could not read its own driver line anyway. Swap the name below; the
@@ -122,6 +142,38 @@ define
     runParse argument code={
         walkRules(argument);
         cerr "PARSER SENTINEL -- walk complete":;
+        stop();
+        };
+    /*  runNamE -- THE NamE HANG, MINIMAL. Built for Tony's Xcode walk,
+        2026-08-19. Swap the driver line at the foot of the file to
+        `runNamE(NamE);` and the process hangs; break in and look at what is
+        CYCLING rather than hunting a crash frame.
+
+        WHY THIS SHAPE AND NOT A WALK. NamE was measured in five configurations
+        and it hangs in every ONE-PHASE one, so no prefix is needed and the
+        smallest reproducer is the honest one:
+
+            standalone, no prefix, driver frame        137 hang
+            standalone, no prefix, walk's call path    137 hang
+            after an 18-rule prefix, either frame      137 hang
+            after the FULL 30-rule TokenXP prefix      137 hang
+            inside `incant/walkPhase`'s TWO-PHASE run  REFUSES CLEANLY
+
+        ⚠ THE LAST ROW IS THE DISCRIMINATOR AND IT IS THE INTERESTING ONE.
+        Generate-then-compile over the whole population turns the hang into an
+        ordinary `ERROR processCode: NamE parse failed`, and the run finishes.
+        Interleaved generate-and-compile hangs. So it is not NamE alone -- it is
+        NamE compiled against a grammar that is only PARTLY generated.
+
+        The `compile` call is BARE on purpose. Capturing a command's return with
+        `:=` segfaults (fixIts F-22), and that defect faked a whole crash matrix
+        before it was found. Nothing in this file captures one.  */
+    runNamE argument code={
+        cerr "NamE repro: generating the body":;
+        genParseTest(argument);
+        cerr "NamE repro: compiling -- IT HANGS HERE":;
+        compile(argument);
+        cerr "NamE repro: compile returned -- THE HANG IS GONE, re-measure":;
         stop();
         };
     ;

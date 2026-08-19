@@ -93,9 +93,9 @@ define
         else
             cerr "== TARGET from the DRIVER frame ==":;
             bqGen(argument);
-            bqTarget := compile(argument);
-            if bqTarget;    cerr "TARGET ok      compile returned a field":;
-            else            cerr "TARGET FAIL    compile returned null":;
+            bqOut = compile(argument);
+            if bqOut;   cerr "TARGET ok      compile returned a field":;
+            else        cerr "TARGET refused compile returned null":;
         cerr "BISECTQ SENTINEL -- prefix and target both completed":;
         stop();
         };
