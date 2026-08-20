@@ -1,3 +1,140 @@
+# ⚠⚠⚠ SEALED 2026-08-20 — KITCHEN PASS (CURRENT VINTAGE). READ THIS FIRST.
+#
+#   ⚠ **THIS SUPERSEDES THE 2026-08-19 LATE SEAL BELOW, WHICH IS INTACT AND STILL TRUE AS OF ITS
+#   OWN MARK.** That one closed the day 56 problems became one. This one closes the one.
+#
+#   ## THE ONE-LINE STATE: **the campaign gate is OPEN.** `F-31` is **CONFIRMED and ratified**, its
+#   mechanism is **measured**, and the fix is **ruled and released — but deliberately not tasked.**
+#   Fleet **53 green / 1 parked**, canary **308**, everything pushed, tree clean but for Tony's three
+#   working files. **Tony's fixit incantations waiting: 0**
+#
+#   ## ⚠⚠ THE THING A FRESH READER MUST NOT RE-DERIVE — THREE MEASUREMENTS, THEY NEST
+#
+#   **1. WHICH install — a SAME-COUNT SWAP.** The old 42-vs-43 A/B moved count and membership
+#   together and could not settle it. Hold installs **fixed at 42** and exchange one member:
+#
+#   | arm | 42 installs | `tokenize` among them | compiling `BasicElse` |
+#   |---|---|---|---|
+#   | 0 | `BlocK` in | no | **CONTENT** — `failed at "else() AND followedBy()…"` |
+#   | 1 | `BlocK` out | **yes** | **EMPTY** — `reached end of input`, line 1 |
+#
+#   **2. WHEN — dispatch is LIVE, not frozen at bind.** Two compiles of the same body in **one
+#   process**, one install between: reads CONTENT before, EMPTY after.
+#
+#   **3. WHY — Arm A, and it is the promoter.** A temporary `cerr` on the C++ `tokenize`
+#   (`GroupActions.rtn:1545`), counting calls, then a **bare revert and rebuild**:
+#
+#   | arm | `tokenize` in | whole run | **DURING the compile** |
+#   |---|---|---|---|
+#   | 0 | no | 1163 | **2** |
+#   | 1 | yes | 1170 | **0** |
+#
+#   ⚠ **READ THE TWO COLUMNS TOGETHER OR NEITHER MEANS ANYTHING.** The whole-run totals are
+#   effectively equal, so the tokenizer is **alive in both runs** and the install does not kill it
+#   globally — that is the anti-vacuity control. **During the compile it goes 2 → 0**: a reader that
+#   got tokens and choked, versus one that **never got a token.**
+#
+#   ## ⚠ AND THE TRACE BOUGHT A REFINEMENT — TWO CAUSES, AND THEY EXPLAIN DIFFERENT HALVES
+#
+#   The body installed over `tokenize` is **degenerate — `{ if  return runRuleAction(this); }`, an
+#   `if` with no condition** — because `tokenize^@;` (`grammar:34`) is a **termless** rule and the
+#   generator's term loop emits nothing.
+#   **Do not merge the causes:** the **DUAL ROLE** explains **the collision** (a rule the reader
+#   depends on gets a body installed over it mid-use); **TERMLESSNESS** explains **the degenerate
+#   body**, now charted separately as **F-33**. They compound — but **a hook WITH terms is still a
+#   hook**, which is exactly why the fix was ruled on the dual role and not on the body.
+#
+#   ## THE FIX: RULED, RELEASED, NOT TASKED — and each word was decided separately
+#
+#   **SELECTED: off-rule storage plus explicit activation**, fourth customer (with the napalm, the
+#   `BlocK` re-poison, mid-walk `setParse` binding). **REFUTED: exempt-the-hook** — correct for
+#   today's grammar, **silently wrong for tomorrow's**. Tony ruled the **hook class OPEN**: `tokenize`
+#   may be the only member *now*, and self-hosting **structurally mints dual-role rules over time**.
+#   ⚠ **THE CENSUS NEVER GOT TO VOTE, AND THAT IS THE POINT** — it returned **one** member, and the
+#   siblings' immunity is **incidental** (they carry data; `tokenize` does not). Second time this
+#   campaign a fix was chosen by asking **what the project IS** rather than what the bug does; the
+#   pick-one constraint went the same way.
+#   **The census survives as a standing registry: `docs/hookRules.md`**, row one `tokenize`.
+#
+#   ## ⚠ WHAT TONY IS ON THE HOOK FOR
+#
+#   1. **THE BUILD — released-and-untasked BY RULING, not by drift.** Cut it first thing on a fresh
+#      session. ⚠ **STEP ONE IS PRE-REGISTRATION:** write `incant/f31`'s expected taken-signature down
+#      **before touching code** — a target regenerated green is not a target. ⚠ **AND f31 ORACLES THE
+#      SYMPTOM, NOT THE MECHANISM:** a green f31 says `tokenize` survives installation and says
+#      **nothing** about the other three customers. **The build's verification surface is wider than
+#      the fixit that gated it.**
+#   2. **F-33** — ratify the shape: emit the **minimal well-formed body** for a termless rule (no
+#      `if`, straight to the return). **Not** "refuse to generate" — refusal leaves termless rules
+#      permanently outside self-hosting for no gain.
+#   3. **F-26's five** — still his. Sites for all five are now in the docket, file:line, so he reads
+#      rather than hunts. ⚠ **Items 1 and 5 are NOT mintable as fixits yet** and the reason is
+#      measured: nothing drives a parse through a bound `parseRule`.
+#   4. **`groupDirectives`** — his working copy; the `compile`-entry `debugAllRules` line is still not
+#      regenerable from it.
+#   5. **One ordinal to check:** the relay called `tokenize` the **fifth** customer of
+#      off-rule-plus-activation; the tree says **fourth** and names three predecessors. **Flagged, not
+#      reconciled** — a customer count is exactly the kind of cited number that gets built on.
+#   6. **Carried:** DesignDocs `KantParser` authored-not-installed · `IncantForms/WorkingOn`
+#      reconciliation (H8) · F-29's mechanism · F-32 the `else()` emit · `jsonTest baseline` red,
+#      pre-existing all session.
+#
+#   ## WHAT ELSE CLOSED — `iterT1m`, and KE-4 with it
+#
+#   **Row 1 GRADUATED (H6):** `iterT1m.divergence` → **`iterT1m.target`**, 7 visits, each node once.
+#   The re-pin sentence is a **subsequence claim**: the old 14-line pin differs by **deletions only**,
+#   so today's walk *is* the old walk minus its seven duplicate visits — and it is the exact trace the
+#   fixture's own header **pre-registered as correct**. ⚠ **NOT claimed:** that header's conclusion
+#   that the recursion inference now covers mutual recursion. `field.recursive` is **unchanged**
+#   (`ruleActions.rtn:1320`, still identity-against-`currentMETHOD`). **The target pins the answer, not
+#   a mechanism.**
+#   **Row 2 — cause established, then RULED AND RESTORED.** KE-4's three candidates resolved to the
+#   **first**: the `cerr` was **deleted in `9c4962b` (2026-08-15)**, Tony's own offline work. Restored
+#   verbatim; **provably one line** (canary 308, `.mm` diff = 1 insertion); fleet **52 → 53 with
+#   exactly one row moved**. ⚠ **The pin is 4, not the old 7** — seven was the count under the *broken*
+#   walk. **The number moved because the WALK moved.**
+#   ⚠ **REMEDY: ASSERTABILITY** — restoring it changed **no behaviour**; the poison was intact
+#   throughout. It restored the fleet's only **presence-with-value** cover for the poison.
+#
+#   ## THE REGISTER GREW A CHARTER TODAY — five addenda, and the queue emptied
+#
+#   `incant/fixits/` gained: **prose below `stop();`** (parse-dead — Tony's ruling, hostile-text probe
+#   agrees); **the loaded gun** (the seal line is an *armed condition*, not a reminder — silencing it
+#   is unloading someone else's gun); **the peas pass** (session open runs `fixitNag.sh` and asks
+#   *step one now, or which citizen first* — **new campaign work does not open while that is
+#   pending**); **REMEDY blocks** naming `BEHAVIOUR`/`ASSERTABILITY` first word; and **`NEXT:` on
+#   every citizen, never absent**, graded `OPEN → BEST GUESS → RULED → REMEDY`.
+#   ⚠ **`RULED` exists because the other three are EPISTEMIC and a ruling is DEONTIC** — a project
+#   that rules on trajectory ahead of evidence produces *decided-but-not-yet-buildable* structurally.
+#   ⚠ **AND ABSENCE-AS-SIGNAL FAILED ITS FIRST COLD READER**, which is why `NEXT:` is mandatory: a
+#   grade needing a qualifying clause to be read correctly is **a failure surviving correct
+#   application.**
+#
+#   ## ⚠ WHY THE BUILD WAS NOT CUT TONIGHT — a scheduling ruling, not a judgement call
+#
+#   The 2026-08-08 doctrine fired on its exact signature: **reasoning intact, mechanics degrading.**
+#   Six mechanical misfires this session — a non-discriminating `eq` guard that **voided a control**, a
+#   registry lookup echoing its own tag, `!listLengtH` reporting zero leaves, an ordinal skip landing
+#   on `continue` **twice**, a `fixitNag` sort written wrong twice, and a control that **collapsed into
+#   an arm already in hand**. ⚠ **Every one was caught — and the catch rate is NOT the metric.** The
+#   ruling is *scheduling, not more care*, and the fourth-customer build is the **highest blast-radius
+#   work on the board** (a ruling with three other customers, where a misfiling is charter-level and
+#   gets built on).
+#
+#   ## THE DISCIPLINE EXHIBITS, because each cost something today
+#   **TWO VOID CONTROLS IN F-31 ALONE, both caught by a PRINTED NAME and neither by reasoning:**
+#   *"43 installs without `tokenize`"* is **unbuildable** (the population is exactly 43 and `tokenize`
+#   is last, so the skip silently collapses to the N=42 arm and **reproduces the CONTENT read**, which
+#   reads as a clean refutation); and an ordinal skip above `fbGen`'s `datA` gate skips `continue`,
+#   which `fbGen` drops silently anyway. **A fixture that names what it skipped cannot lose a control
+#   the way the name-skip did.**
+#   **THE INSTRUMENTED BUILD WAS REVERTED AND REBUILT BARE BEFORE ANY CAPTURE** (bear-trap #23's
+#   hardening) — verified by canary 308, zero `TOKZ` in the `.mm`, and the fleet returning to 53.
+#   **A RELAY DROP:** an amendment arrived whose parent ruling never did. **Flagging the gap beat
+#   reconstructing it** — a reconstruction would have been plausible, unmarked and wrong.
+#
+# ---
+#
 # ⚠⚠⚠ SEALED 2026-08-19 LATE — KITCHEN PASS (CURRENT VINTAGE). READ THIS FIRST.
 #
 #   ⚠ **THIS SUPERSEDES THE 2026-08-19 SEAL BELOW, WHICH IS INTACT AND STILL TRUE AS OF ITS OWN

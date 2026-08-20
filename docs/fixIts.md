@@ -267,7 +267,16 @@ capture-not-chase.
 1. ~~**Arm A**~~ — ✅ done, positive.
 2. ✅ **Mechanism promoted, build released** — the invariant fix (off-rule storage plus explicit
    activation).
-3. **`incant/f31` re-enters the queue when the build lands**, wearing a `REMEDY` block, for one last
+3. **BUILD STEP ONE, chartered 2026-08-20 and NOT conditional on when the build starts: write
+   `incant/f31`'s expected taken-signature down BEFORE touching code.** Otherwise the harness gets
+   regenerated green around whatever the change happened to do — *a target that is regenerated green
+   is not a target.*
+   ⚠ **AND THE HARNESS'S SCOPE IS NARROWER THAN THE BUILD'S:** f31 **oracles the `tokenize` symptom,
+   not the mechanism.** A green f31 certifies that `tokenize` survives installation; it says **nothing**
+   about off-rule-storage-plus-explicit-activation being right for the ruling's **other three
+   customers** (the napalm, the `BlocK` re-poison, mid-walk `setParse` binding), none of which is
+   exercised here. **The verification surface for the build is wider than the fixit that gated it.**
+4. **`incant/f31` re-enters the queue when the build lands**, wearing a `REMEDY` block, for one last
    run: bless the taken signature. **One citizen, two tours.** It was **discharged by ruling** on
    ratification and now lives at `incant/f31` — off the queue, still runnable.
 

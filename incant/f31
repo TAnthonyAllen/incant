@@ -220,6 +220,24 @@ Footnote: docs/fixIts.md F-31, incant/fixBisect, bear-trap 28.
 ============================================================================
 NEXT: RULED
 
+⚠⚠ SCOPE OF THIS HARNESS, AND READ IT BEFORE YOU READ A GREEN RUN. THIS FILE
+ORACLES THE SYMPTOM, NOT THE MECHANISM. When the build lands and this fixture
+goes clean, what has been certified is that tokenize survives installation. It
+is NOT certification that off-rule storage plus explicit activation is right
+for the ruling's other three customers -- the napalm, the BlocK re-poison, and
+mid-walk setParse binding. Those have their own surfaces and none of them is
+exercised here. THE VERIFICATION SURFACE FOR THE BUILD IS WIDER THAN THE FIXIT
+THAT GATED IT, and a future reader who takes this file going green as the
+mechanism cleared has read a symptom oracle as a mechanism certificate.
+
+⚠ BUILD STEP ONE, CHARTERED AND NOT CONDITIONAL ON WHEN THE BUILD STARTS:
+WRITE THE EXPECTED TAKEN-SIGNATURE DOWN BEFORE TOUCHING ANY CODE. What this
+file must print once the fix is in, in full, pre-registered. Otherwise the
+harness gets regenerated green around whatever the change happened to do, which
+is the failure this project has a ledger for -- a target that is regenerated
+green is not a target. Cheap, and it is the vigram discipline turned on the
+harness's own integrity rather than on the code it watches.
+
 ⚠ THIS FILE IS OFF THE QUEUE, ON PURPOSE, AND IT IS COMING BACK. Discharged by
 ruling 2026-08-20 when CONFIRMED was ratified, so it no longer sits in
 incant/fixits/ and no longer counts in the seal line. It lives at incant/f31
