@@ -116,9 +116,44 @@ block rescues it (`if !sukcess && kount >= min sukcess = true`). The generated f
 generatedExit`s **past** that block. Restoring `testMacro`'s loop this pass inherits the gap rather
 than creating it. Same family as the rung-6 repetition tripwire already noted at `GroupItem.twk:1256`.
 
+### ⚠ THE SITES, ADDED 2026-08-20 so Tony reads rather than hunts — one line each, all re-grepped today
+
+| # | the divergence | read here | against this template |
+|---|---|---|---|
+| 1 | rule action fires twice | `Generate.rtn:351` parks `actionMethod`; `:249` (`parseSetLabel`) and `:294` (`runRuleAction`) each fire it | `GroupItem.twk:1335-1337` — the fork then calls `fireLabelMethod` (defined `:1000`) **and** `attachLabel` (`:1087`) on the same label. The false claim is the header at `:969` |
+| 2 | dispatch order | `Generate.rtn:345` `setParse`'s arms | `RuleStuff.twk:238` `setTestMatch` |
+| 3 | no `checkInput()` | `Generate.rtn:5` `parseAction`, `:128` `parseCondition`, `:168` `parseRule` — **`parseRule` is the one that matters** | `GroupItem.twk:1342`, where the interpretive path calls it before `testMatch` |
+| 4 | local-clear guard | `Generate.rtn:205` — `isLocal && !isRule && groupBody != field.groupBody` | `GroupActions.rtn:672` — `isLocal && !isLabel && !noPrint && groupBody != action.groupBody` |
+| 5 | `*` at zero fails | `RuleStuff.twk:312` — `if counter && counter >= min`, unsatisfiable at 0 | `GroupItem.twk:1395` — the rescue `if !sukcess && kount >= min sukcess = true`, which `GroupItem.twk:1338`'s `goto generatedExit` jumps **past** |
+
+### ⚠ AND 1 AND 5 ARE NOT MINTABLE AS FIXIT INCANTATIONS YET — measured 2026-08-20, and this is the finding, not an excuse
+
+Both are **generated-path run-time** claims, so demonstrating either needs a parse that actually
+executes through a bound `parseRule`. **There is no command that drives one.** `incant/setup`'s
+registry exposes `setParse`, `parseMethod` (`parseRuleMethod`) and `parseTerms` (`parseTermCount`);
+the only thing that drives a real parse is a **file include**, so a fixture would have to carry its
+own corpus file — which must be registered in `incant/setup`'s `fILEs` registry (bear-trap #28's
+fourth row), in Tony's live-read file. **That is a build, not a mint**, and it plausibly belongs
+behind F-31's ruling since the whole generated path is gated there.
+
+**⚠ AND `walkPhase`'S HEADER IS STALE ON THE PREMISE THAT WOULD HAVE STOPPED THIS.** It states that
+it *"does not call `setParse`"* because *"`setParse` binds `parseRule`, and `parseRule`'s
+not-an-action arm dereferences a null, so the first rule that is reached through it takes the process
+down."* **Re-measured: it does not.** `incant/parseClass` binds all 239 fields and is a green fleet
+row, and a fresh probe bound the same 239 and then ran an `include` **at exit 0**. Binding is safe;
+what is untested is a parse *through* the bound methods. Dated-fact rot, same shape as the
+`ipc/`-gitignored row — the header should be corrected by whoever next touches that file.
+
+**⚠ THREE VOID CONTROLS WERE BUILT AND DISCARDED GETTING TO THAT SENTENCE**, reported rather than
+graded: an `if "$arm" eq "bind";` guard inside the driver **did not discriminate** and both arms
+bound 239; `showBody(Utilities["flatten"])` printed `BODY showBody`, the lookup echoing its own tag
+(bear-trap #26's family); and `include(utilities)` after binding **returns without anything
+observably arriving**, so "survived" is not "parsed". None of the three is evidence about F-26.
+
 **Done when:** each of the five has a ruling — repair, or a line in `Generate.rtn` saying the
 divergence is intended and why. **Owner: Tony** (his file, his intent). **Size:** rulings, then small
-edits.
+edits. **For 1 and 5 the ruling can be read off the sites above; the runnable demonstration is owed
+an instrument first.**
 
 ### F-30 — `Operators` reaches `setParse` as a term and has no `rStuff`
 **Where:** found by `incant/parseClass`, 2026-08-19 — the one surviving `NO-rSTUFF` row out of 239
