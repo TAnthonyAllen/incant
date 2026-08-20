@@ -218,7 +218,7 @@ screen. The other arm is one character: set f31Arm to zero.
 Footnote: docs/fixIts.md F-31, incant/fixBisect, bear-trap 28.
 
 ============================================================================
-NEXT: BEST GUESS
+NEXT: REMEDY -- BEHAVIOUR (shape ruled, build gated on Arm A)
 
 DECISION ONE, AND IT COMMITS NOTHING ABOUT MECHANISM: ratify CONFIRMED, or
 refute it. That is a ruling about WHICH INSTALL, and the same-count swap above
@@ -285,12 +285,13 @@ of what they happen to hold, not because anything exempts them. A future
 machinery rule that is a hook rather than a character set is a second customer
 the moment it exists, and nothing in the tree would stop it.
 
-THAT IS WHAT THE CENSUS BUYS, and it is not the clean count it looks like:
-
-    on TODAY'S count of one    defer-the-hook and off-rule-plus-activation are
-                               equivalent in effect, and the cheaper wins
-    on the REASON for the one  the count is one by accident of data, so the
-                               special case is a fix with an expiry date
+⚠ THE CENSUS NO LONGER DECIDES BETWEEN FIX SHAPES. RECHARTERED 2026-08-20 by
+Tony's ruling, the same day it was run: the HOOK CLASS IS OPEN. tokenize may be
+the only member now, and now is the operative word -- self-hosting structurally
+mints dual-role rules over time, because moving machinery into rules is what
+self-hosting IS. The count is therefore a fact about today and not a basis for
+choosing. The census becomes a STANDING REGISTRY, docs/hookRules.md, row one
+tokenize/grammar:34, appended whenever machinery migrates into a rule.
 
 ⚠ AND THE SEARCH SPACE IS NAMED, because an absence claim is only as good as
 its search. This censused ONE surface: rules the bootstrap constructs by name
@@ -304,23 +305,28 @@ install tokenize last" is a real candidate fix and NOT merely a re-ordering of
 the same failure. That is the fourth-customer shape with self-hosting
 preserved, and it is now the better-supported of the two below.
 
-THE TWO FIX SHAPES RIDE BEHIND THE TRACE. Both are candidate-grade. Neither is
-recommended, and they differ in what they concede:
+THE FIX SHAPE IS RULED. Tony, 2026-08-20, on trajectory grounds.
 
-    off-rule storage plus explicit activation
-        generate tokenize's body like every other citizen, store it OFF the
+    REFUTED as a class fix -- exempt the hook from installation
+        Correct for today's grammar and SILENTLY WRONG FOR TOMORROW'S, which
+        is the worst failure shape available: right answer, expiry date, no
+        alarm on it. Refuted REGARDLESS of the census count, so the count
+        never got to vote. It also conceded that tokenize never self-hosts its
+        own parse, which is a language ruling nobody wanted to make by
+        accident.
+
+    SELECTED -- off-rule storage plus explicit activation
+        Generate tokenize's body like every other citizen, store it OFF the
         rule, and activate only when nothing further needs the old tokenizer.
-        This makes tokenize the FOURTH customer of a ruling that already has
-        three -- the napalm, the BlocK re-poison, and mid-walk setParse
-        binding. ⚠ IT ASSUMES THE MECHANISM. If the trace comes back negative
-        this shape is solving a problem that was never there.
+        The invariant fix: right for a grammar that will keep growing hooks,
+        whatever the registry holds on any given day. Fourth customer of that
+        ruling, with the napalm, the BlocK re-poison, and mid-walk setParse
+        binding. Self-hosting preserved.
+        ⚠ GATED: Arm A's mechanism promotion comes BEFORE the build. The shape
+        is chosen; the mechanism it addresses is still candidate-grade.
 
-    exempt the hook from installation
-        never install a generated body over tokenize at all. ⚠ IT CONCEDES
-        THAT tokenize NEVER SELF-HOSTS ITS OWN PARSE, which is a ruling about
-        the language and not a patch. Cheaper, and it forecloses something.
-
-WHAT WOULD KILL EITHER: a negative trace kills the first outright and leaves
-the second as a blunt workaround for an unknown cause. A trace that shows the
-read entering the overwritten body promotes the story and makes the choice
-between the two a design call rather than a guess.
+WHAT A NEGATIVE ARM A WOULD DO NOW: it does not restore the refuted shape --
+that was refuted on trajectory, not on evidence, and a trace cannot un-refute
+it. What it would do is reopen WHAT the install actually breaks, leaving the
+selected shape as a fix aimed at an unestablished target. That is why Arm A
+gates the build rather than the choice.

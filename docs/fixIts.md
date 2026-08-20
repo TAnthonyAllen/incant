@@ -308,12 +308,27 @@ siblings exist — `nameSet`, `numberSet`, `counter`, `delimiter`, `Modifier`, `
 because they are character sets, so the `datA` gate drops them. `tokenize` carries none: it is a
 **method hook**, which is exactly why it is the one that gets a body written over it.
 
-**⚠ SO THE SIBLINGS' IMMUNITY IS INCIDENTAL, NOT DESIGNED**, and that inverts what the count means.
-On **today's count of one**, defer-the-hook and off-rule-plus-activation are equivalent in effect and
-the cheaper wins. On **the reason for the one**, the count is one *by accident of what those rules
-happen to hold* — so **the special case is a fix with an expiry date**: the first machinery rule that
-is a hook rather than a character set becomes a second customer, and nothing in the tree would stop
-it.
+**⚠ SO THE SIBLINGS' IMMUNITY IS INCIDENTAL, NOT DESIGNED**: the count is one *by accident of what
+those rules happen to hold*, and the first machinery rule that is a hook rather than a character set
+becomes a second customer with nothing in the tree to stop it.
+
+**⚠⚠ AND THE CENSUS WAS RECHARTERED THE SAME DAY IT WAS RUN — IT DOES NOT DECIDE THE FIX. Tony ruled
+the HOOK CLASS OPEN**, and *now* is the operative word: `tokenize` may be the only member today, but
+**self-hosting structurally mints dual-role rules over time**, because moving machinery into rules is
+what self-hosting *is*. So **`defer-the-hook` is REFUTED as a class fix regardless of the count** —
+correct for today's grammar, **silently wrong for tomorrow's**, which is the worst shape available: a
+right answer with an expiry date and no alarm on it. **The count never got to vote.**
+**SELECTED: off-rule storage plus explicit activation**, the invariant fix, **on trajectory
+grounds** — fourth customer of that ruling (with the napalm, the `BlocK` re-poison, and mid-walk
+`setParse` binding), self-hosting preserved. **⚠ GATED: Arm A's mechanism promotion comes BEFORE the
+build.** A negative Arm A would *not* restore the refuted shape — that was refuted on trajectory, not
+on evidence, and a trace cannot un-refute it; it would reopen *what the install actually breaks*,
+leaving the selected shape aimed at an unestablished target.
+**The census survives as a STANDING REGISTRY — `docs/hookRules.md`**, row one `tokenize`/`grammar:34`,
+appended whenever machinery migrates into a rule.
+⚠ **Second time this campaign a fix was chosen by asking what the PROJECT IS rather than what the BUG
+DOES** — the pick-one constraint went the same way. A bug-shaped question here returns *"one member,
+take the cheap special case"*: the correct answer to the wrong question.
 **⚠ SEARCH SPACE NAMED:** this censused **one surface** — rules the bootstrap constructs by name in
 `GroupMain.twk`, cross-read against the walk's ENTER/INSTALL trace. **A rule declared in the grammar
 that the reader nonetheless invokes would not appear in it, and whether that class is empty is not
