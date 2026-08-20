@@ -812,6 +812,17 @@ question is NOT "did we write it down." It is "will it be staring at him at shut
 is no, IT IS NOT CAPTURED YET** — it is merely recorded, which is the failure mode this register was
 built to end.
 
+⚠⚠ **THE SEAL LINE IS THE LOADED GUN** (Tony's coinage, 2026-08-20, and it is the name the practice
+was missing). It is **not a reminder — it is an armed condition.** A fixit sitting in the queue at
+shutdown is **pointing at Tony's foot until it is stepped.** That is the whole difference between a
+docket and this register: a docket waits to be consulted, a loaded gun does not.
+
+**The design consequence is the previous note with teeth: the line stays GENERATED, UNSKIPPABLE, and
+TERMINAL in the brief.** Not "prominent", not "usually included" — those are decisions someone
+re-makes every session, and the session where it goes badly is the session someone is busy.
+**Silencing it is unloading someone else's gun** — which is not a tidying decision anybody but Tony
+gets to make.
+
 ⚠ **ONE FILE MAY CARRY MORE THAN ONE TEST (Tony, 2026-08-20).** The unit is the *issue owed*, not
 the assertion — a file that demonstrates two related things in one run is fine and is often better,
 because it is one thing to run. Do not split a file per assertion.
