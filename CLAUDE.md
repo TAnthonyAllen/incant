@@ -844,9 +844,37 @@ terminated correctly at exit 0 with nothing printed. What it restored was **the 
 presence-with-value cover for the poison**, which without it could be pinned only at zero, and H4
 forbids that. `ASSERTABILITY`, and the fleet moving 52 → 53 green is the whole of the change.
 
-⚠ **RECORDED WITHOUT ITS PARENT.** This refinement reached Clod on its own; **Addendum 3's other
-clauses were never received and are NOT captured here.** Treat this entry as one clause of a
-convention, not the convention — a gap named rather than a reconstruction guessed at.
+**THE BLOCK ITSELF — ADDENDUM 3, transcribed verbatim from issue (Clay, Tony's ruling, 2026-08-20).**
+
+**1. IF A RECOMMENDED SOLUTION EXISTS AT MINT TIME, IT GOES BELOW `stop();` LOUDLY** — a marked
+`REMEDY:` block, **not buried in diagnosis prose**. It states **the fix**, **its site**, and **what
+the incantation's output looks like when the remedy has taken versus not** — plus the
+`BEHAVIOUR`/`ASSERTABILITY` first word above.
+
+**2. THAT CHANGES WHAT THE CITIZEN IS FOR SUCH ISSUES: not an investigation but a VERIFICATION
+HARNESS.** The gun discharges by **running the fixit after the remedy and blessing the output.**
+That is exactly how row 2 resolved, **and it worked because the file prompted the "did the restore
+fix it?" question instead of leaving that check to memory.**
+
+**3. NO REMEDY KNOWN IS ALSO INFORMATION.** The **absence** of a `REMEDY:` block tells the reader
+this one is **genuinely open**. ⚠ **Never write a speculative remedy as if recommended** — candidate
+mechanisms stay in diagnosis prose **with their grade attached**, per the standing citation
+discipline.
+
+**4. Retrofit clause — ✅ SATISFIED BY RETIREMENT, not owed.** It asked that `iterT1m` gain its
+REMEDY block in the same commit that re-pinned it. `iterT1m` **retired by mapping** instead
+(`859afe9`), which supersedes the retrofit: **a block's life ends when its citizen's does**, and its
+content is mapped out like every other assertion — walk → `iterT1m.target`, refusal count → the
+`pop.sh` grep row, exit 0 → `iterrunLIVE`. The reason lives on in KE-4.
+
+⚠ **AND A RELAY LESSON, recorded because the failure was invisible from both ends** (2026-08-20). The
+refinement above travelled and **its parent did not** — Addendum 3 was issued and never arrived, so
+Clod held a rule about a block whose definition it had never seen. **The refusal was to flag the gap
+rather than reconstruct the parent from context**, and that is the behaviour to copy: a relayed
+amendment whose parent is not confirmed-landed is **one clause of a convention, not the convention**.
+Reconstructing it would have produced something plausible, unmarked, and wrong — the citation
+failure this project already has a ledger for, arriving through a new door. **Clay's half of the fix
+is to carry the parent's full text whenever an amendment goes out against an unconfirmed ruling.**
 
 ⚠⚠ **THE PEAS PASS — A STANDING SESSION-OPEN STEP (Clay proposed, Tony ratified, 2026-08-20).
 SHUTDOWN ARMS, WAKEUP CONFRONTS.** The seal line only works if something makes Tony look at it
