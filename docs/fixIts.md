@@ -196,10 +196,43 @@ method set to `tokenize()`), used by `NamE`, `NumbeR`, `HeX` and `FormaT`. Insta
 body over it — `clear(CodE)`, then `isCodeD` — plausibly displaces the method every later read
 depends on, so the reader tokenizes nothing and every subsequent body compiles as empty. **Structural
 support only; the control that would confirm it is the void one above.**
-**Done when:** the poisoning is confirmed by a working skip (or refuted), and the one field the
-install clobbers is named — `showBody`'s pointer technique on the first failing pair. **Owner:**
-unassigned. **⚠ This is the last blocker's address: everything gated on "parse generation closes"
-sits behind it.**
+**⚠⚠ CONFIRMED 2026-08-20 BY A SAME-COUNT SWAP — IT IS `tokenize`'S IDENTITY, NOT THE NUMBER OF
+INSTALLS.** `incant/fixits/f31`. The void name-skip is replaced by an **ordinal** skip, and the
+confound is broken by holding the count fixed and exchanging one member for another:
+
+| arm | installs | `tokenize` among them | last install | compiling `BasicElse` |
+|---|---|---|---|---|
+| 0 — control | **42** | no | `break` | **CONTENT** — `failed at "else() AND followedBy() AND StatemenT("` |
+| 1 — measurement | **42** | **yes** (`BlocK` dropped instead) | `tokenize` | **EMPTY** — `reached end of input`, line 1 |
+
+**Same count. One member swapped. Opposite answers.** The A/B alone could not say this, because 42
+vs 43 moves the count and the membership together.
+
+**⚠ AND THE SWAP HAD TO BE A SWAP, WHICH IS WORTH RECORDING BECAUSE THE OBVIOUS CONTROL IS
+UNBUILDABLE.** The first attempt was *"install 43 with the suspect left out"*. **The eligible
+population is exactly 43 bodies and `tokenize` is the LAST of them**, so 43-without-`tokenize` does
+not exist — a skip at that limit silently yields 42 installs, which is just the existing N=42 arm
+wearing a different name. It reproduced the CONTENT read and would have read as a clean refutation.
+**A control that collapses into an arm you already have is void in the same way the name-skip was,
+and it does not announce itself.** Hence both arms at 42, and hence both counts printed on every
+run.
+**⚠ A SECOND VOID WAS CAUGHT THE SAME WAY:** an ordinal skip placed after `fbGen`'s `datA` gate
+still skipped the wrong node — `continue` reaches `fbGen` and is dropped there silently, so it
+consumed the skip without ever being an install. **The skip must sit at the LAST point before the
+install work**, and the fixture prints the name it skipped for exactly this reason. Both misfires
+were caught by the printed name, not by reasoning.
+
+**⚠ THE POINTER HALF, and the answer is NOT what "displaces the method" predicted.** `showBody` on
+`Grokking["tokenize"]` before and after the installs prints **identical** lines — same `node`, same
+`groupBody`. **The install does not re-point the field.** It overwrites `CodE` and sets `isCodeD`
+**inside the one body every reader already shares** (the walked member and `Grokking["tokenize"]`
+were measured sharing one `groupBody` while holding different node pointers). So the field the
+install clobbers is `Grokking["tokenize"]` itself, **in place** — which is why every later read
+tokenizes nothing.
+
+**Done when:** ✅ confirmed by a working control, ✅ the clobbered field named. **Remaining: the
+architect's word on the ruling**, since everything gated on "parse generation closes" sits behind
+it. **Owner:** Tony — run `incant/fixits/f31`. **⚠ This is the last blocker's address.**
 
 ### F-28 — ✅ CLOSED 2026-08-19 — the split landed: `maxLimit` is the token limit, `repeatLimit` the repetition limit
 **Where:** `RuleStuff.twk`'s `testMacro` loop and `GroupItem.twk:1339`'s `while !isOK && kount < max`.

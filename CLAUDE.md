@@ -794,10 +794,30 @@ it. Three destinations, and they are not interchangeable:
 **PROSE CAPTURE ROTS; RUNNABLE CAPTURE DOES NOT.** An issue banked for Tony as a paragraph costs him
 a reconstruction before he can start — the exhibit that forced this was *"what are the iterT1m
 re-pins?"*, asked weeks after they were banked. So an issue owed to Tony is banked as an
-**incantation he can run**, one file per issue in `incant/fixits/`.
+**incantation he can run**, in `incant/fixits/`.
 
-**Each file carries four things.** A header in plain language, three lines — *this mechanism · is
-doing this wrong · the fix wanted is this* — with ledger numbers only as a footnote. A driver action
+⚠ **RATIONALE AMENDED 2026-08-20 (Tony's observation, and it changes what counts as a regression):
+THE REGISTER EXISTS BECAUSE PROSE HOOK-ITEMS GET *FORGOTTEN*, NOT BECAUSE THEY *ROT*. Retrieval
+failure, not staleness.** The line above is true and is not the point. A perfectly fresh, perfectly
+accurate paragraph fails just as completely if nobody is looking at it on the day it matters.
+
+**So the generated seal line and its shutdown placement are not conveniences — they ARE the
+mechanism**, and the files are what the mechanism points at. It follows that **any future change
+making the nag skippable, hand-typed, or quieter is a regression against the register's actual
+purpose**, however much it improves the files themselves. Judge changes to `fixitNag.sh` on that
+axis, not on tidiness.
+
+⚠ **AND THE CHEAP DISCIPLINE THAT FALLS OUT, for anything landing on Tony's hook mid-session: the
+question is NOT "did we write it down." It is "will it be staring at him at shutdown." If the answer
+is no, IT IS NOT CAPTURED YET** — it is merely recorded, which is the failure mode this register was
+built to end.
+
+⚠ **ONE FILE MAY CARRY MORE THAN ONE TEST (Tony, 2026-08-20).** The unit is the *issue owed*, not
+the assertion — a file that demonstrates two related things in one run is fine and is often better,
+because it is one thing to run. Do not split a file per assertion.
+
+**Each file carries four things.** An explanation in plain language — *this mechanism · is doing
+this wrong · the fix wanted is this* — with ledger numbers only as a footnote. A driver action
 that **demonstrates the issue live** and prints measured beside pinned, so the mystery is on screen
 rather than in a document. A uniquely-named inert anchor (`fixIterT1mHere = 0;`) at the point where
 the answers sit side by side, with a `cerr` naming what he is looking at, so a name-conditioned
@@ -818,6 +838,22 @@ promoted. The single coupling is the seal line, and that line is **generated, no
 FIXIT INCANTATION AS PART OF THE BANKING.** Capture means runnable capture. **Applies from now, not
 retroactively** — existing docket items migrate as each becomes topical, and there is no bulk
 conversion owed.
+
+⚠ **THE EXPLANATION GOES BELOW `stop();`, NOT IN A HEADER COMMENT (Addendum 2, ratified by Tony
+2026-08-20).** The runnable region ends at `stop();`; everything after it is **parse-dead — the
+parse terminates there and the text below is never read.** So explanation prose is *unconstrained*:
+no quoting, no comment markers, no brace discipline, no worrying about operators or semicolons.
+
+**PROVENANCE: architect's word, 2026-08-20**, and a hostile-text probe run the same day agrees —
+a block below `stop();` carrying an unmatched `{`, bare `:=`/`<-`/`&&`, an unterminated string
+literal, an unclosed `/*`, a stray `%-` and a fake `code={ }` ran clean at exit 0 with the live
+region intact.
+
+**This retires the header comment for fixit files, and the reason is bear-trap #27:** a fixture's
+comment header is *not inert* — `incant/jitXnest`'s header killed its parse at exit 138 with zero
+bytes of output. A dead region cannot do that. **`ANCHOR` and `SENTINEL` lines stay ABOVE the stop**
+— they are output, and output only comes from the live region. The dead region is for the reader,
+never for the run.
 
 ⚠ **A finding recorded ONLY in a commit message is recorded and simultaneously lost.** That is
 where fixits lived until 2026-08-16 and it is why this section exists.

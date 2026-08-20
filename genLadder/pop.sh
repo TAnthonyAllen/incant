@@ -460,36 +460,66 @@ iterrunLIVE iterT1 genLadder/iterT1.target "iterT1 (per-frame locals, deep)"
 #  the case with teeth: `grup := argument;` READS LIKE A NO-OP AND IS NOT ONE.
 iterrun iterT3 genLadder/iterT3.target "iterT3 (rewind, := reset)"
 
-#  T1m -- PINNED DIVERGENCE, not a passing test. Same shape as tree.divergence:
-#  a fixture on an OPEN item. field.recursive is INFERRED by identity against
-#  currentMETHOD, so it covers DIRECT self-reference only; in A -> B -> A
-#  neither action names itself, neither gets flagged, and locals are lost. The
-#  target below is therefore the WRONG ANSWER (4 lines, not 7), asserted
-#  UNCHANGED. Fix the inference and this goes RED -- account for the move, and
-#  the 7-line trace T1m's own header documents is what it should become.
-#  ⚠ ALSO NO LONGER PARKED (2026-08-02), and for a different reason from iterT1.
-#  Parking means "the answer this would be measured against has not been chosen
-#  yet". Tony has now chosen it: a refused source is announced once and
-#  poisoned. So the REFUSAL half is settled and pinned exactly. What remains
-#  wrong -- mutual recursion losing locals, so the walk is 14 lines where 7 is
-#  correct -- is a KNOWN DEFECT deliberately pinned, which is a diffcheck with a
-#  comment (the tree.divergence pattern), not a parked item. Fix the recursion
-#  and this goes RED naming itself, which is the point.
-iterrunLIVE iterT1m genLadder/iterT1m.divergence "iterT1m (mutual recursion: KNOWN WRONG, pinned)"
+#  T1m -- GRADUATED 2026-08-20, from a pinned WRONG answer to a real target.
+#  Tony ran incant/fixits/iterT1m, read the walk, and blessed it. This is the
+#  iterT1 graduation a second time (H6): a pin that starts holding must become
+#  either a full check or a deliberately pinned defect, never stay a stale pin.
+#
+#  WHAT THE TARGET NOW HOLDS: the 7-line trace -- A trunk / B leafA / A i /
+#  A j / B leafB / A k / A l -- every node visited exactly ONCE, in order.
+#  That is the answer incant/iterT1m's own header PRE-REGISTERED as correct
+#  ("7 in that order"), so this is not a green diff blessed for being green:
+#  the fixture named the right answer before the world produced it.
+#
+#  THE SENTENCE THE RE-PIN RULE ASKS FOR, and it is a subsequence claim rather
+#  than a count: the old 14-line divergence pin differed from today's output by
+#  DELETIONS ONLY -- 4d3, 6,7d4, 9,10d5, 13,14d7, nothing added and nothing
+#  reordered. Today's walk IS the old walk with its seven duplicate visits
+#  removed. That is exactly "each node once" and it is why the move is legible
+#  without a bisect. It is also the SAME 7-changed-line diff KE-4 measured on
+#  2026-08-13, so the walk has not moved since; only the refusal count has.
+#
+#  ⚠ WHAT IS *NOT* CLAIMED, because the fixture's own header would have you
+#  claim it: the header reasons "7 in that order -> the inference covers mutual
+#  recursion after all". THAT INFERENCE IS UNSUPPORTED. field.recursive is still
+#  set by identity against currentMETHOD (ruleActions.rtn:1320, unchanged), so
+#  it still covers DIRECT self-reference only and neither walkA nor walkB names
+#  itself. The walk is right for some OTHER reason, and which one is not
+#  established. The target pins the ANSWER, which Tony has read; it does not
+#  pin a mechanism nobody has measured.
+iterrunLIVE iterT1m genLadder/iterT1m.target "iterT1m (mutual recursion, each node once)"
 #  ⚠ THE REFUSAL IS ASSERTED BY COUNT, NOT BY ABSENCE OF A HANG (rule H4).
 #  Before 2026-08-02 this fixture did not fail -- it HUNG, at 1,475,745 refusals,
 #  because a refused `iterate` returned before setting isIterator, so `while
 #  ++grup` missed opPlusPlus's iterator arm and fell through to the DATA arm,
 #  which returns a truthy node forever. A refused source is now announced once
 #  and POISONED, and the advance is the poison's only reader.
-#  Seven refusals, one per leaf visit. Asserting the NUMBER rather than "it
-#  finished" means the check breaks if the announcement is deleted, if the
-#  poison stops taking, OR if mutual recursion silently starts working -- the
-#  same WOKE property the parked diff above carries, on the other half of the
-#  fixture's meaning.
+#  Asserting the NUMBER rather than "it finished" means the check breaks if the
+#  announcement is deleted, if the poison stops taking, OR if mutual recursion
+#  silently starts working.
+#
+#  ⚠ STILL RED, AND ITS CAUSE IS NOW ESTABLISHED -- KE-4's open question is
+#  ANSWERED, and the answer is the FIRST of the three causes that comment names,
+#  not the third. `git log -S'aCTionIterate: source'` puts the removal in
+#  9c4962b (2026-08-15, "Tony's offline kant work reconciled"): the line
+#      cerr "aCTionIterate: source " tag " has no list":;
+#  was deleted from aCTionIterate's refusal arm in ruleActions.rtn. The arm is
+#  otherwise intact -- `if iterator iterator.fLAG = true; return 0;` -- so the
+#  POISON still takes and the walk still terminates at exit 0. There is nothing
+#  left to count.
+#  ⚠ SO THE TWO ROWS DID *NOT* MOVE FOR THE SAME REASON, which is what the fixit
+#  file asserts and it is wrong: the walk went 14 -> 7 because mutual recursion
+#  started working (on or before 2026-08-13, cause unknown); the count went
+#  7 -> 4 with it, and then 4 -> 0 on 08-15 when the cerr was deleted.
+#  ⚠ AND IT IS NOT RE-PINNED TO 0, DELIBERATELY: pinning 0 here would be an
+#  absence assertion, which H4 exists to forbid -- it would go green forever and
+#  would go green *hardest* the day somebody deleted the poison too. Tony's
+#  call, and it is one line either way: restore the cerr and pin 4 (four leaf
+#  visits, one refusal each, presence-with-value restored), or retire this row
+#  and say what covers the poison instead. Until then it is red-with-a-cause.
 n=$(grep -c "aCTionIterate: source" "$T/iterT1m.e")
-if [ "$n" = 7 ]; then echo "  ok    iterT1m announces its refusal 7 times (once per leaf)"; green=$((green+1))
-else echo "  FAIL  iterT1m refusal count is $n, want 7 -- the poison or the announcement moved"; fail=1; fi
+if [ "$n" = 4 ]; then echo "  ok    iterT1m announces its refusal 4 times (once per leaf)"; green=$((green+1))
+else echo "  FAIL  iterT1m refusal count is $n, want 4 -- the cerr was DELETED in 9c4962b (2026-08-15); restore it and pin 4, or retire this row"; fail=1; fi
 
 #  BRANCH SEMANTICS -- language-level POPs, here for the same reason iterT1 is:
 #  they are the only cover for rules that were RATIFIED on 2026-07-31 and had no

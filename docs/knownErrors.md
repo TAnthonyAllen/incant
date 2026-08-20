@@ -837,6 +837,51 @@ unsurprising zero across every row** — the same shape as the void seal run ear
 care.** Had the loop been trusted, the "never valid" sentence would have been written and would have
 been wrong.
 
+### ⚠ RESOLVED 2026-08-20 — `iterT1m`'s TWO ROWS HAVE TWO DIFFERENT CAUSES, and the 08-13 ruling asked the right question
+
+The 08-13 ruling held `iterT1m` red *pending cause* and named three candidates. **Both rows now have
+one, and they are not the same one** — which is precisely why "re-pin them together, they moved
+together" would have been wrong.
+
+**ROW 1 — THE WALK. Cause not established, but the ANSWER is ruled and the pin has graduated.**
+Tony ran `incant/fixits/iterT1m` on 2026-08-20, read the walk, and blessed it. The walk now visits
+every node exactly once. **The sentence is a subsequence claim, not a count:** the old 14-line
+divergence pin differs from today's output by **deletions only** — `4d3`, `6,7d4`, `9,10d5`,
+`13,14d7`, nothing added and nothing reordered — so today's walk *is* the old walk with its seven
+duplicate visits removed, and it is the exact 7-line trace **`incant/iterT1m`'s own header
+pre-registered as correct, in order**. A fixture that named the right answer before the world
+produced it is a much stronger warrant than a green diff.
+`genLadder/iterT1m.divergence` → **`genLadder/iterT1m.target`**, H6 graduation, `pop.sh` 51 → 52.
+⚠ **What is NOT claimed:** that header goes on to conclude *"7 in that order → the inference covers
+mutual recursion after all."* **It does not follow.** `field.recursive` is still set by identity
+against `currentMETHOD` (`ruleActions.rtn:1320`, unchanged), so it still covers **direct**
+self-reference only and neither `walkA` nor `walkB` names itself. The walk is right for some other
+reason and nobody has measured which. **The target pins the answer, not a mechanism.**
+
+**ROW 2 — THE REFUSAL COUNT. Cause ESTABLISHED, and it is the FIRST of the three candidates, not
+the third.** `git log -S'aCTionIterate: source'` puts the removal in **`9c4962b`, 2026-08-15,
+"Tony's offline kant work reconciled"**: the line
+
+```
+cerr "aCTionIterate: source " tag " has no list":;
+```
+
+was deleted from `aCTionIterate`'s refusal arm in `ruleActions.rtn`. The arm is otherwise intact —
+`if iterator iterator.fLAG = true; return 0;` — so **the poison still takes** and the walk still
+terminates at exit 0. There is nothing left to count.
+
+**So the timeline is two moves, not one:** 7 → 4 when mutual recursion started working (on or before
+2026-08-13, cause unknown), then **4 → 0 on 08-15 when the `cerr` went.** The 08-13 measurement saw
+4 because it predates the deletion.
+
+**⚠ AND IT IS DELIBERATELY NOT RE-PINNED TO 0.** Pinning zero would be an **absence assertion**,
+which H4 exists to forbid — it goes green forever, and goes green *hardest* the day someone deletes
+the poison too. The row stays **red with a named cause**, and `pop.sh`'s FAIL text now carries the
+commit so nobody re-derives it. **Tony's call, one line either way:** restore the `cerr` and pin
+**4** (the fixit file measures and prints that 4 — seven visits, three with a list, four leaf visits,
+one refused iterate each), or retire the row and say what covers the poison instead.
+
 ### Who rules
 
-Tony — ruled above. `iterT1m` is the one still open, and it is open on purpose.
+Tony — ruled above, and **row 1 is now closed by him**. Row 2 is the one still open: its *cause* is
+answered, its *remedy* is his.

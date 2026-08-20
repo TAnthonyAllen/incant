@@ -1,0 +1,158 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(FixF31);
+define
+    fbBuffer buffer;
+    fbOpen="{";
+    fbClose="}";
+    fbLimit=42;
+    fbSkipAt=1;
+    fbNever=999;
+    fbCount=0;
+    fbSkipped=0;
+    fbFirst;
+    f31Arm=1;
+    fixF31Here=0;
+    fbSkipIt argument code={
+        fbSkipped = fbSkipped + 1;
+        fbSkipAt = fbNever;
+        cerr "SKIP  leaving this one OUT, and here is its name":;
+        cerr "SKIP  " taG argument:;
+        showBody(argument);
+        };
+    fbGen argument code={
+        reset(fbBuffer);
+        printTO(fbBuffer);
+        print fbOpen:;
+        if datA != 0;
+            printTO(0);
+            return;
+        if hasAttributeS;   fbJoin = "AND";
+        else                fbJoin = "OR";
+        print `"if ";
+        iterate fbTerm on argument;
+        while ++fbTerm;
+            print $taG "()";
+            if nexT;    print _fbJoin;
+            else        print ";";
+        @argument;
+        print $"return runRuleAction(this);":;
+        print `fbClose:;
+        if fbCount == fbSkipAt;
+            printTO(0);
+            fbSkipIt(argument);
+            return;
+        clear(CodE);
+        CodE = fbBuffer;
+        fbCopy <- copyOf(CodE);
+        fbCopy :. noPrinT;
+        argument +% fbCopy;
+        argument :. isCodeD;
+        printTO(0);
+        fbCount = fbCount + 1;
+        if fbCount == 1;    fbFirst +% argument;
+        cerr "INSTALL " fbCount " " ~taG:;
+        };
+    fbWalk argument code={
+        iterate fbCur on argument members;
+        while ++fbCur;
+            if fbCount >= fbLimit;  continue;
+            if noPrinT;             continue;
+            if binTypE;             continue;
+            if !isRulE;             continue;
+            if actionTypE != 0;     continue;
+            fbGen(fbCur);
+        };
+    fbRun code={
+        cerr "== fixit F-31 -- is it ONE install, or the COUNT of installs ==":;
+        if f31Arm == 0;     fbSkipAt = fbNever;
+        cerr "-- the suspect BEFORE any installs --":;
+        showBody(Grokking["tokenize"]);
+        fbWalk(Grokking);
+        cerr "== installed " fbCount " bodies, left out " fbSkipped " ==":;
+        cerr "-- the suspect AFTER the installs --":;
+        showBody(Grokking["tokenize"]);
+        cerr "== compiling the FIRST body, the one known good alone ==":;
+        iterate fbC on fbFirst;
+        while ++fbC;
+            cerr "COMPILING " ~taG:;
+            compile(fbC);
+        fixF31Here = 0;
+        cerr "ANCHOR fixF31Here -- the verdict is the failed at line just above":;
+        cerr :;
+        cerr "READ IT LIKE THIS -- both arms install FORTY TWO bodies":;
+        cerr "   arm 0  BlocK in, tokenize OUT   failed at else() AND followedBy()":;
+        cerr "                                   the body text IS read":;
+        cerr "   arm 1  BlocK OUT, tokenize in   failed at reached end of input":;
+        cerr "                                   the body reads EMPTY":;
+        cerr "   Same count. One member swapped. Opposite answers.":;
+        cerr "   So it is the IDENTITY of the install, not the NUMBER of them.":;
+        cerr "   Both pinned 2026-08-20. This run should reproduce its own arm.":;
+        cerr :;
+        cerr "   VOID, and not a verdict: installed other than 42, or left out":;
+        cerr "   other than 1. Both counts are printed above for that reason.":;
+        cerr "FIXIT f31 SENTINEL -- reached the end":;
+        stop();
+        };
+    ;
+fbRun();
+
+============================================================================
+THE MECHANISM
+
+walkPhase generates a rule body for every grammar rule and installs it. Each
+body compiles perfectly on its own. Once they are all installed, every one of
+them fails to compile with the same signature -- reached end of input, on line
+one -- as though the body text were empty.
+
+WHAT IS WRONG
+
+fixBisect narrowed that to a SINGLE install. With the first forty two bodies
+installed, the first body still fails on its CONTENT, so its text is being
+read. Install one more -- the forty third, the tokenizer hook -- and the same
+body, on the same binary, fails as an empty read.
+
+That left a confound: forty three installs, or THAT install? The obvious
+control was to skip the suspect by name, and it was VOID -- two spellings both
+matched every member and installed nothing, so they said nothing either way.
+It is now bear-trap 28's fourth row: an eq against a tag inside an iterate body
+matches universally.
+
+WHAT THIS FILE DOES INSTEAD -- a same-count swap, and why it had to be one
+
+The eligible population is exactly forty three bodies and tokenize is the LAST
+of them, so forty three installs WITHOUT tokenize cannot be built. Substitution
+is impossible at that count. So both arms run at FORTY TWO installs and differ
+only in which member is present:
+
+    arm 0   the first forty two, tokenize absent      CONTENT read
+    arm 1   BlocK dropped, tokenize present instead   EMPTY read
+
+Same number of installs. One member exchanged for another. Opposite outcomes.
+
+THE RULING WANTED
+
+Confirm or refute, from the output above. Measured 2026-08-20 it CONFIRMS: the
+poisoning follows tokenize's identity and not the count. What is owed is the
+architect's word on that, because everything gated on parse generation closing
+sits behind it.
+
+WHAT THE POINTERS SAY, which is the second half of the done-when
+
+showBody prints the suspect before and after the installs and the two lines are
+IDENTICAL -- same node, same groupBody. So the install does not RE-POINT the
+field. It overwrites the CodE inside the one body every reader already shares,
+and sets isCodeD on it. The field the install clobbers is Grokking tokenize
+itself, in place. That is why a later read tokenizes nothing.
+
+HOW TO USE THIS FILE
+
+Run it. It names the one body it left out, so a skip that silently skips
+nothing cannot be mistaken for a result -- which is exactly how the last
+control was lost. The anchor fixF31Here sits where the verdict line has just
+been printed; a breakpoint conditioned on that name lands with the answer on
+screen. The other arm is one character: set f31Arm to zero.
+
+Footnote: docs/fixIts.md F-31, incant/fixBisect, bear-trap 28.
