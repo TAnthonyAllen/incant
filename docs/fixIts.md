@@ -277,9 +277,29 @@ the napalm, the `BlocK` re-poison, and mid-walk `setParse` binding) — two fix 
 established.** Both live in `incant/fixits/f31`'s terminal **`NEXT: BEST GUESS`** block (Addendum 4) with their
 grade and their kill conditions attached — **no `REMEDY:` block, because nothing is established
 enough to recommend.** That block also charters the order: **ratifying CONFIRMED is decision one and
-commits nothing about mechanism**; the promoting trace is **fix-campaign step zero**; both fix shapes
-ride behind it, since a negative trace kills the first outright and reduces the second to a blunt
-workaround for an unknown cause.
+commits nothing about mechanism**; **step zero has TWO ARMS of equal rank**; both fix shapes ride
+behind them.
+
+**⚠ ARM B IS RUN, AND DISPATCH IS LIVE — NOT FROZEN AT BIND** (2026-08-20). Two compiles of the
+**same body** in **one process** with one install between:
+
+| | installs | compiling `BasicElse` |
+|---|---|---|
+| COMPILE-1 | 42, `tokenize` left out | **CONTENT** — `failed at "else() AND followedBy() AND StatemenT("` |
+| COMPILE-2 | 43, `tokenize` just installed | **EMPTY** — `reached end of input` |
+
+The frozen-at-bind prediction was that a reader which had already resolved the tokenizer would go on
+reading cleanly. **It does not.** Reading re-consults something the install changed.
+**⚠ WHAT IT DOES NOT SETTLE:** the failure is **temporally** tied to the install; it is **not** shown
+to route through `tokenize`'s body specifically — any state the install touches yields this. **Arm A
+(the trace) is still owed and is still the promoter.** ⚠ **And the count moves between the two
+compiles (42→43), which is the original confound deliberately reintroduced** — so this does *not*
+replace the same-count swap: **the swap holds count fixed and settles IDENTITY, this holds population
+fixed and settles TIME.** Neither substitutes for the other.
+**Consequence:** a live dispatch means sequencing does not rescue a read that comes *after* the
+install, so *"compile everyone else first, install `tokenize` last"* is a **real candidate fix** and
+not a re-ordering of the same failure — the fourth-customer shape with self-hosting preserved, now
+the better-supported of the two.
 
 **⚠ THE POINTER HALF, and the answer is NOT what "displaces the method" predicted.** `showBody` on
 `Grokking["tokenize"]` before and after the installs prints **identical** lines — same `node`, same

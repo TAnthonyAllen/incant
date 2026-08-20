@@ -226,11 +226,46 @@ settles it on its own evidence. It does not oblige you to accept the dual-role
 story, and you should not read it as doing so. Everything gated on parse
 generation closing sits behind this one word.
 
-FIX-CAMPAIGN STEP ZERO, IF YOU RATIFY: the promoting trace. Watch a single read
-after install 43 enter tokenize's overwritten body. That is the one measurement
-that turns the dual-role story from candidate into established, and it is
-chartered as step zero because BOTH fix shapes below are shaped by its answer.
-Do it before either of them, not alongside.
+FIX-CAMPAIGN STEP ZERO, IF YOU RATIFY. TWO ARMS, SAME RANK. Either may settle
+dispatch alone; together they cross-check.
+
+ARM A -- THE TRACE. Still owed. Watch a single read after install 43 enter
+tokenize's overwritten body. This is the one measurement that turns the
+dual-role story from candidate into ESTABLISHED, because it is the only one
+that shows the read going THROUGH the overwritten body rather than merely
+failing after the install.
+
+ARM B -- THE ORDER PROBE. Feasibility ruled and the cheapest well-formed
+variant already RUN, 2026-08-20. Two compiles of the SAME body in ONE process
+with one install between them:
+
+    install 42, tokenize left out
+    COMPILE-1  BasicElse   failed at else() AND followedBy() AND StatemenT(
+    install tokenize
+    COMPILE-2  BasicElse   failed at reached end of input
+
+⚠ WHAT THIS SETTLES: DISPATCH IS LIVE, NOT FROZEN AT BIND. The frozen-at-bind
+prediction was that a reader which had already resolved the tokenizer would go
+on reading cleanly. It does not. The same body, on the same node, in the same
+process, reads fine before the install and reads empty after it. Reading is
+re-consulting something the install changed.
+
+⚠ WHAT IT DOES NOT SETTLE, and do not let the strength of it borrow authority
+from Arm A: it shows the failure is TEMPORALLY tied to the install. It does not
+show the failing read routes through tokenize's body SPECIFICALLY. Any state
+the install touches would produce this. Arm A is still owed and is still the
+promoter.
+⚠ AND NOTE THE COUNT MOVES BETWEEN THE TWO COMPILES -- 42 then 43. That is the
+original confound, deliberately reintroduced, and it is why this does not
+replace the two-arm swap above. The swap holds the count FIXED and settles
+IDENTITY; this holds the population fixed and settles TIME. Neither substitutes
+for the other.
+
+CONSEQUENCE FOR THE FIX SHAPES: a live dispatch means sequencing alone does not
+rescue a read that comes after the install -- so "compile everyone else first,
+install tokenize last" is a real candidate fix and NOT merely a re-ordering of
+the same failure. That is the fourth-customer shape with self-hosting
+preserved, and it is now the better-supported of the two below.
 
 THE TWO FIX SHAPES RIDE BEHIND THE TRACE. Both are candidate-grade. Neither is
 recommended, and they differ in what they concede:
