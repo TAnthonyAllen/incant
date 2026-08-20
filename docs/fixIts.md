@@ -194,10 +194,51 @@ compiles. **Owner:** unassigned. **Good minion candidate** — the failing text 
 refuted prediction, a rechartered census and a selected fix — which is the chartering working, not a
 delay.
 
-**The sequence from here, already chartered:**
-1. **Arm A** — trace the read into `tokenize`'s overwritten body.
-2. **A positive Arm A promotes the mechanism** and **releases the build** of the invariant fix
-   (off-rule storage plus explicit activation).
+**⚠⚠ ARM A RAN 2026-08-20 AND CAME BACK POSITIVE — THE MECHANISM IS PROMOTED AND THE BUILD IS
+RELEASED.** Method: a temporary `cerr` on the C++ `tokenize` (`GroupActions.rtn:1545`, the function
+that gloms parent label components into the label string), counting calls; then a **bare revert and
+rebuild**, verified — canary 308, zero `TOKZ` in the `.mm`, fleet back to 53 green. Both arms install
+**42** bodies and differ only in whether `tokenize` is among them:
+
+| arm | `tokenize` in | calls, whole run | **calls DURING the compile** | compile |
+|---|---|---|---|---|
+| 0 | no | 1163 | **2** | CONTENT read |
+| 1 | **yes** | 1170 | **0** | end-of-input |
+
+**⚠ THE TWO COLUMNS MUST BE READ TOGETHER.** The whole-run totals are effectively equal (1163 vs
+1170), so the C++ tokenizer is **alive and called throughout both runs** and the install does **not**
+kill it globally — that is the anti-vacuity control, and it is what makes the second column mean
+anything. **During the compile the count goes 2 → 0.** Two calls then a content failure is a reader
+that got tokens and choked on them; **zero calls then end-of-input is a reader that never got a
+token.**
+
+**⚠ AND THE TRACE BOUGHT A REFINEMENT — THE BODY INSTALLED OVER `tokenize` IS DEGENERATE:**
+
+```
+{
+    if  return runRuleAction(this);
+}
+```
+
+**An `if` with no condition.** `tokenize` is declared `tokenize^@;` (`grammar:34`) — a bare hook with
+**zero terms** — so the generator emits `if `, loops the terms and emits nothing, then emits the
+return. **The dual-role collision bites here and not on the other 42 precisely because the hook is
+TERMLESS.**
+**⚠ WHAT REMAINS INFERENCE**, stated so it is not read as measured: that the read *executes this
+body* rather than merely being diverted by `isCodeD` into some other empty path. **The distinction no
+longer changes the fix** — both readings are *"the install displaced the hook"*, which is what the
+selected shape addresses.
+**⚠ A THIRD SHAPE FELL OUT, CANDIDATE-GRADE AND DELIBERATELY NOT PROMOTED:** refuse to generate a
+body for a rule with **zero terms**. Cheap, local to the generator, and on today's evidence it would
+have prevented this entire failure. **It does not displace the ruled fix** — that was chosen on
+trajectory (*installing over live machinery is wrong whatever the body looks like*), and a termless
+guard leaves that intact for the first hook that *does* have terms. **A guard worth having beside the
+invariant fix, not instead of it**; the call belongs to whoever builds.
+
+**The sequence from here:**
+1. ~~**Arm A**~~ — ✅ done, positive.
+2. ✅ **Mechanism promoted, build released** — the invariant fix (off-rule storage plus explicit
+   activation).
 3. **`incant/f31` re-enters the queue when the build lands**, wearing a `REMEDY` block, for one last
    run: bless the taken signature. **One citizen, two tours.** It was **discharged by ruling** on
    ratification and now lives at `incant/f31` — off the queue, still runnable.

@@ -238,11 +238,48 @@ generation closing sits behind this one word.
 FIX-CAMPAIGN STEP ZERO, IF YOU RATIFY. TWO ARMS, SAME RANK. Either may settle
 dispatch alone; together they cross-check.
 
-ARM A -- THE TRACE. Still owed. Watch a single read after install 43 enter
-tokenize's overwritten body. This is the one measurement that turns the
-dual-role story from candidate into ESTABLISHED, because it is the only one
-that shows the read going THROUGH the overwritten body rather than merely
-failing after the install.
+ARM A -- THE TRACE. RUN 2026-08-20. THE MECHANISM IS PROMOTED.
+
+Method: a temporary cerr on the C++ tokenize in GroupActions.rtn -- the
+function that gloms parent label components into the label string -- counting
+calls, then a bare revert and rebuild. Both arms install FORTY TWO bodies and
+differ only in whether tokenize is one of them.
+
+    arm 0  tokenize OUT   calls whole run 1163   DURING THE COMPILE  2
+                          compile reads CONTENT
+    arm 1  tokenize IN    calls whole run 1170   DURING THE COMPILE  0
+                          compile reads END OF INPUT
+
+⚠ READ THE TWO COLUMNS TOGETHER, BECAUSE EITHER ALONE MISLEADS. The whole-run
+totals are effectively EQUAL, 1163 against 1170 -- so the C++ tokenizer is
+alive and being called throughout both runs, and the install does NOT kill it
+globally. That is the anti-vacuity control and it is what makes the second
+column mean something. During the compile itself the count goes TWO TO ZERO:
+after a body is installed over tokenize, the read stops reaching the C++
+tokenizer at all. Two calls then a content failure is a reader that got some
+tokens and choked on them; zero calls then end-of-input is a reader that never
+got a token.
+
+AND THE BODY THAT REPLACED IT, dumped from the install buffer:
+
+    {
+        if  return runRuleAction(this);
+    }
+
+⚠ AN `if` WITH NO CONDITION -- AND THAT IS THE REFINEMENT THE TRACE BOUGHT.
+tokenize is declared `tokenize^@;` at grammar line 34: a bare hook with ZERO
+TERMS. The generator emits `if `, then loops the terms and emits nothing
+because there are none, then emits the return. So the dual-role collision bites
+HERE and not on the other forty two precisely because THE HOOK IS TERMLESS and
+the generator produces a degenerate body for it. A rule with terms gets a body
+that at least does something.
+
+WHAT IS NOW ESTABLISHED: the read stops reaching the tokenizer after the
+install, measured, with a live control. WHAT REMAINS INFERENCE, stated so it is
+not read as measured: that the read is executing THIS body rather than merely
+being diverted by isCodeD into some other empty path. The distinction no longer
+changes the fix, because both readings are "the install displaced the hook",
+which is what the selected shape addresses.
 
 ARM B -- THE ORDER PROBE. Feasibility ruled and the cheapest well-formed
 variant already RUN, 2026-08-20. Two compiles of the SAME body in ONE process
@@ -344,11 +381,25 @@ THE FIX SHAPE IS RULED. Tony, 2026-08-20, on trajectory grounds.
         whatever the registry holds on any given day. Fourth customer of that
         ruling, with the napalm, the BlocK re-poison, and mid-walk setParse
         binding. Self-hosting preserved.
-        ⚠ GATED: Arm A's mechanism promotion comes BEFORE the build. The shape
-        is chosen; the mechanism it addresses is still candidate-grade.
+        ⚠ THE GATE IS DISCHARGED. Arm A ran 2026-08-20 and came back
+        POSITIVE, so the mechanism is promoted and the BUILD IS RELEASED.
+        This block stays RULED rather than REMEDY because RULED becomes
+        REMEDY when a BUILD LANDS with a site and taken-vs-not signatures,
+        and none exists yet. Nothing here is applicable; the next hand does
+        the building.
 
-WHAT A NEGATIVE ARM A WOULD DO NOW: it does not restore the refuted shape --
-that was refuted on trajectory, not on evidence, and a trace cannot un-refute
-it. What it would do is reopen WHAT the install actually breaks, leaving the
-selected shape as a fix aimed at an unestablished target. That is why Arm A
-gates the build rather than the choice.
+A NEGATIVE ARM A WOULD HAVE REOPENED what the install actually breaks, leaving
+the selected shape aimed at an unestablished target -- which is why it gated
+the build rather than the choice. It came back positive, so that branch is
+closed and recorded rather than deleted, because a fork nobody can see the
+other side of reads as a decision nobody made.
+
+⚠ AND A THIRD SHAPE FELL OUT OF THE TRACE, RECORDED AS A CANDIDATE AND
+DELIBERATELY NOT PROMOTED: refuse to generate a body for a rule with ZERO
+TERMS. It is cheap, it is local to the generator, and on today's evidence it
+would have prevented this entire failure. It does NOT displace the ruled fix:
+the ruling was made on trajectory -- installing over live machinery is wrong
+whatever the body looks like -- and a termless guard would leave that intact
+for the first hook that DOES have terms. Grade: candidate. It is a guard worth
+having beside the invariant fix, not instead of it, and that is a call for
+whoever builds.

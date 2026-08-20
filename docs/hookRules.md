@@ -17,6 +17,14 @@ the hook.
 |---|---|---|---|---|
 | 1 | `tokenize` | `incant/grammar:34` (constructed `GroupMain.twk:157`, `method = tokenize`) | the tokenizer — turns raw text into tokens for every read. Used by `NamE`, `NumbeR`, `HeX`, `FormaT` | 2026-08-20 |
 
+⚠ **WHAT MAKES A HOOK-ROW DANGEROUS IS TERMLESSNESS, measured 2026-08-20 (F-31 Arm A).** `tokenize`
+is declared `tokenize^@;` — a bare hook with **zero terms** — so the body generator emits `if `, finds
+no terms to emit, and produces a **degenerate body**: `{ if  return runRuleAction(this); }`, an `if`
+with no condition. Installing that displaces the hook: the C++ `tokenize` went from **2 calls to 0**
+during the poisoned compile, against an unchanged whole-run total. **So when adding a row, note
+whether the rule carries terms** — a termless hook is the shape that produces a body incapable of
+doing the hook's job.
+
 **Append a row whenever machinery migrates into a rule.** That is the entire maintenance rule, and it
 is the reason this is a registry rather than a measurement.
 
