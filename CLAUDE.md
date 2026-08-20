@@ -823,6 +823,31 @@ re-makes every session, and the session where it goes badly is the session someo
 **Silencing it is unloading someone else's gun** — which is not a tidying decision anybody but Tony
 gets to make.
 
+⚠⚠ **THE REMEDY BLOCK NAMES WHAT IT REMEDIES, AS ITS FIRST WORD — `BEHAVIOUR` or `ASSERTABILITY`**
+(Clay, refinement to Addendum 3, 2026-08-20). Two classes, and they set opposite reader
+expectations:
+
+| first word | what changed | what a reader should expect on re-running the fixit |
+|---|---|---|
+| **BEHAVIOUR** | the machine does something different | the machine's answer moves |
+| **ASSERTABILITY** | only the fleet's ability to *measure* it | **the output moves and the machine is UNCHANGED** |
+
+**The block exists to stop a specific misreading**, and it is the difference between a reader asking
+*"did the fix take?"* and asking *"wait — was anything broken?"* An assertability remedy looks
+alarming precisely because output appears where there was none, while nothing about the program has
+moved. Say which it is, first word, and the alarm never starts.
+
+**THE FOUNDING EXAMPLE IS `iterT1m`'s ROW 2** (KE-4, ruled 2026-08-20). Restoring the deleted
+`cerr` in `aCTionIterate`'s refusal arm **changed no behaviour whatever** — the poison
+(`if iterator iterator.fLAG = true; return 0;`) was intact throughout and the walk already
+terminated correctly at exit 0 with nothing printed. What it restored was **the fleet's only
+presence-with-value cover for the poison**, which without it could be pinned only at zero, and H4
+forbids that. `ASSERTABILITY`, and the fleet moving 52 → 53 green is the whole of the change.
+
+⚠ **RECORDED WITHOUT ITS PARENT.** This refinement reached Clod on its own; **Addendum 3's other
+clauses were never received and are NOT captured here.** Treat this entry as one clause of a
+convention, not the convention — a gap named rather than a reconstruction guessed at.
+
 ⚠⚠ **THE PEAS PASS — A STANDING SESSION-OPEN STEP (Clay proposed, Tony ratified, 2026-08-20).
 SHUTDOWN ARMS, WAKEUP CONFRONTS.** The seal line only works if something makes Tony look at it
 again, so the count is now a **matched pair on the same generated number**, and neither half is

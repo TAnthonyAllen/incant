@@ -890,6 +890,10 @@ so there are exactly four leaf visits — `i`, `j`, `k`, `l` — one refused ite
 moved because the WALK moved, not because the announcement did.** Restoring the old 7 would have
 pinned the defect back in.
 
+**REMEDY: ASSERTABILITY.** (Founding example of the REMEDY-block convention — CLAUDE.md's fourth
+register. First word names the class: this one moved the *output* and left the *machine* unchanged,
+so a reader re-running it should expect exactly that and should not go hunting for a break.)
+
 **What restoring did NOT do — worth stating plainly, because it was the question asked:** it resolved
 **nothing** about behaviour. The refusal arm's real work is the poison (`if iterator iterator.fLAG =
 true; return 0;`), which was intact throughout, and `iterT1m` terminated correctly at exit 0 with the
