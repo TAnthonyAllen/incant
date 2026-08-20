@@ -1,6 +1,7 @@
 # COMMENT MINION — CHARTER (the comment pancake)
 
-**STATUS: DRAFT, 2026-08-17. Clod drafted; Clay reviews; Tony fires.**
+**STATUS: SIGNED, 2026-08-20. Clod drafted 08-17; Clay reviewed and signed 08-20 with amendments
+A1/A2/A3; Tony fires.** One seam (S1) is open and marked in place, awaiting Tony's nod.
 ⚠ **NO MINION SEES THIS UNTIL CLOD AND CLAY HAVE BOTH SIGNED.** Nothing here acts before Tony
 fires it.
 
@@ -76,12 +77,25 @@ sequencing call — **after step 2 lands, not beside it.**
 
 | field | contract |
 |---|---|
-| `Status` | `canonical` · `measured <date>` · `open, owner <name>` |
+| `Status` | `canonical` · `measured <date>` · `open, owner <name>` · **`extracted <date>`** |
 | `Evidence` | **verbatim, no reflow.** Numbers, addresses and captured output as they were recorded |
 | `CodeSite` | **a field, not prose** — so entry-outlives-method becomes lint-checkable |
 | `Rejected` | an alternative is recorded **only once two independent authors have reached for it** |
 
 Naming follows the pilot: `<MethodName><Aspect>`, e.g. `ArrondirContract`, `ArrondirEvidence`.
+
+### ⚠ A1 — `extracted <date>` IS THE BIRTH-STATE OF EVERY MIGRATED ENTRY (Clay, 2026-08-20)
+
+Every minion-migrated entry is born `extracted <date>`. **Promotion to `canonical` or `measured` is
+a STATUS CHANGE, NEVER A MOVE** — that is the promotion-not-migration ruling made concrete.
+
+**This settles the one-registry-or-two squabble (Tony, 2026-08-20), and it settles it by adopting
+the instinct rather than overruling it.** The case for a separate `CommentsDocs` was that harvested
+comments differ from authored design entries in provenance and in curation state. **They do — and
+both differences are now first-class fields**: `CodeSite` carries the provenance, `Status` carries
+the curation state. ⚠ **The context-rebuild walk of `DesignDocs` filters on `extracted`** — that is
+the *named walk* the `Operators`/`bcOPs` split precedent requires, and it is **satisfied by field
+query rather than by a second registry.** One registry, two channels, no migration on promotion.
 
 ---
 
@@ -103,6 +117,31 @@ Naming follows the pilot: `<MethodName><Aspect>`, e.g. `ArrondirContract`, `Arro
    looks like data loss.
 5. **No double quotes in entry text.** A `"` terminates the string. Apostrophes and semicolons are
    fine.
+   ### ⚠ S1 — THE SEAM WITH THE `Evidence` CONTRACT. MEASURED 2026-08-20; AWAITING TONY'S NOD.
+   Clay flagged the collision: `Evidence` is **verbatim, no reflow**, and constraint 5 forbids `"`.
+   **A migrated comment containing a double quote cannot be both.** Routed to Clod to measure
+   rather than to invent.
+   **⚠ THE NEGATIVE CONTROL FIRST, BECAUSE IT RERATES THE WHOLE CONSTRAINT.** A `"` inside entry
+   text does **not** error — it **silently truncates**:
+   ```
+   qnB="text with a "double quote" inside it"     reads back as:  text with a
+   ```
+   **Exit 0, sentinel printed, and the entries before and after are unharmed.** So constraint 5 is
+   not a style rule — it is a **silent data-loss hazard**, and it lands squarely on `Evidence`,
+   because captured output is exactly where quotes live. **The live example is in this project's own
+   docket right now:** F-31's evidence reads ``failed at "else() AND followedBy()"``, which would
+   migrate as `failed at ` — losing the discriminating half, silently.
+   **PROPOSED CONVENTION (Clod):** substitute `'` for `"`, and append **`[quotes substituted]`** to
+   the entry. **Measured to survive verbatim** — apostrophes (`it's`), paired single quotes
+   (`'like this'`), brackets, semicolons and colons all read back unchanged, and the note itself
+   survives.
+   ⚠ **The note is not courtesy — it is what keeps the `Evidence` contract honest.** *Verbatim, no
+   reflow* cannot be literally satisfied for quote-bearing text, so the entry must **declare the one
+   transformation applied**; without it, a reader comparing entry against source sees a mismatch and
+   cannot tell substitution from transcription error.
+   ⚠ **AND ONE HARD RULE THE NEGATIVE CONTROL EARNS: GREP THE SOURCE TEXT FOR `"` BEFORE WRITING
+   THE ENTRY, NEVER AFTER.** A post-hoc check on the written entry cannot find what was truncated
+   away — **the evidence of the loss is gone.**
 
 ---
 
@@ -116,10 +155,24 @@ Naming follows the pilot: `<MethodName><Aspect>`, e.g. `ArrondirContract`, `Arro
    The classification is the deliverable that gets reviewed — not the diff.
 3. **WRITE THE ENTRY** in `incant/designDocs`, schema v2, pilot naming.
 4. ⚠ **VERIFY BY WALKING IT.** See the standing warning below. Exit status proves nothing here.
-5. **CUT, AND LEAVE A POINTER** — the code site keeps a short line naming the registry entry, so a
-   reader at the method finds the reasoning without knowing the registry exists.
+5. **CUT, AND LEAVE A POINTER.** ⚠ **The spelling is RATIFIED and is not a choice:**
+   `see DesignDocs: <EntryName>` — the form the tree already ships at `jitEmitters.rtn:1812`.
+   **One spelling, stated here, so a second dialect never exists.** A reader at the method finds the
+   reasoning without knowing the registry exists, and the uniform marker makes the pointer
+   population *countable*.
+   *(Chartered as a future fleet row, explicitly NOT the minion's task: a pointer census — every
+   `see DesignDocs:` pointer resolves to an entry, every entry's `CodeSite` resolves to a live site,
+   with a **deliberately broken pointer as the negative control**, or it is a check that passes by
+   finding nothing.)*
 6. **FLEET CHECK** (`genLadder/pop.sh`), diffed against a capture banked **before** step 5.
    Prediction on record: **unmoved** — comments are not code. A red is news.
+   ⚠ **A3 — AND THE CANARY FIRST, BY NAME (Clay, 2026-08-20):** after any retok of a touched file
+   and **before trusting the fleet run**, `grep -c '^extern' GroupRules.h` against the canary count
+   (**308** at 2026-08-20). **This is bear-trap #29's exact territory** — a comment in the wrong
+   position wiped the extern block **288 → 0** at `tok` exit 0 and BUILD SUCCEEDED, and the canary
+   was the only tell. The minion's entire diet is comment edits in `.rtn` files. **The charter says
+   it here, where the minion reads, rather than relying on the operator remembering why the canary
+   exists.**
 
 ## PAUSE-AND-ASK GATES
 
