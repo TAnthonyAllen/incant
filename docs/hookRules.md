@@ -17,13 +17,20 @@ the hook.
 |---|---|---|---|---|
 | 1 | `tokenize` | `incant/grammar:34` (constructed `GroupMain.twk:157`, `method = tokenize`) | the tokenizer — turns raw text into tokens for every read. Used by `NamE`, `NumbeR`, `HeX`, `FormaT` | 2026-08-20 |
 
-⚠ **WHAT MAKES A HOOK-ROW DANGEROUS IS TERMLESSNESS, measured 2026-08-20 (F-31 Arm A).** `tokenize`
-is declared `tokenize^@;` — a bare hook with **zero terms** — so the body generator emits `if `, finds
-no terms to emit, and produces a **degenerate body**: `{ if  return runRuleAction(this); }`, an `if`
-with no condition. Installing that displaces the hook: the C++ `tokenize` went from **2 calls to 0**
-during the poisoned compile, against an unchanged whole-run total. **So when adding a row, note
-whether the rule carries terms** — a termless hook is the shape that produces a body incapable of
-doing the hook's job.
+⚠ **TWO CAUSES, AND THEY EXPLAIN DIFFERENT HALVES — do not merge them** (measured 2026-08-20, F-31
+Arm A):
+
+| the cause | what it explains |
+|---|---|
+| **the DUAL ROLE** | **the collision.** A rule the reader depends on gets a body installed over it while the reader is still using it. This is the hook-rule property, and it is why this registry exists |
+| **TERMLESSNESS** | **the degenerate body.** `tokenize` is declared `tokenize^@;` with **zero terms**, so the generator emits `if `, finds nothing to loop, and produces `{ if  return runRuleAction(this); }` — an `if` with no condition. Charted separately as **F-33** |
+
+The two compound: a hook that is *also* termless gets a body **incapable of doing the hook's job**,
+and the measurement is the C++ `tokenize` going **2 calls → 0** during the poisoned compile against an
+unchanged whole-run total. **But a hook WITH terms is still a hook**, and installing over it is still
+wrong — which is exactly why the fix was ruled on the dual role and not on the body.
+**When adding a row, note whether the rule carries terms** — it tells you how *loud* the failure will
+be, not whether there is one.
 
 **Append a row whenever machinery migrates into a rule.** That is the entire maintenance rule, and it
 is the reason this is a registry rather than a measurement.

@@ -187,6 +187,36 @@ variable one.**
 **Done when:** the term emitter either quotes or renames a keyword-named term, and `BasicElse`
 compiles. **Owner:** unassigned. **Good minion candidate** — the failing text is in hand.
 
+### F-33 — the generator emits a MALFORMED body for a zero-term rule, silently
+**Where:** the body generator's term loop — `incant/fixBisect`/`incant/f31`'s `fbGen` reproduces it
+verbatim from `walkPhase`'s. Emits `if `, loops the rule's terms, then emits
+`return runRuleAction(this);`.
+**What:** for a rule with **zero terms** the loop emits nothing, so the body comes out as
+
+```
+{
+    if  return runRuleAction(this);
+}
+```
+
+**an `if` with no condition** — malformed, and emitted **silently**: no warning, no refusal, clean
+install.
+**How it was found:** F-31's **Arm A trace**, 2026-08-20, dumped from the install buffer. **Capture,
+not chase** — **it gates nothing in F-31's arc**, whose mechanism (installing over live machinery) is
+measured and whose fix is ruled and released independently of this.
+**Why it matters beyond `tokenize`:** `tokenize` is the zero-term rule that happens to also be a
+hook, so its malformed body was *catastrophic*. **Any other termless rule gets the same malformed
+body with no hook to make the damage loud** — which is the silent-failure shape this register exists
+to catch.
+**NEXT: BEST GUESS — candidate remedy, Tony ratifies before build.** Emit the **minimal well-formed
+body** for a termless rule: **no `if` at all, straight to `return runRuleAction(this);`**.
+⚠ **NOT "refuse to generate."** Refusal was the shape that fell out of the trace first and it is
+**rejected on trajectory, the same way `defer-the-hook` was**: it would leave termless rules
+**permanently outside self-hosting**, which cuts against the north star **for no gain** — the minimal
+body costs the same to emit and keeps them inside.
+**Done when:** a termless rule generates a well-formed body, and something in the fleet covers it.
+**Owner:** Tony ratifies the shape; then whoever builds.
+
 ### F-31 — ✅ **CONFIRMED, RATIFIED BY TONY, 2026-08-20 — THE CAMPAIGN GATE IS OPEN**
 
 **Everything queued behind "parse generation closes" is unblocked.** The verdict was chartered as
@@ -228,12 +258,10 @@ TERMLESS.**
 body* rather than merely being diverted by `isCodeD` into some other empty path. **The distinction no
 longer changes the fix** — both readings are *"the install displaced the hook"*, which is what the
 selected shape addresses.
-**⚠ A THIRD SHAPE FELL OUT, CANDIDATE-GRADE AND DELIBERATELY NOT PROMOTED:** refuse to generate a
-body for a rule with **zero terms**. Cheap, local to the generator, and on today's evidence it would
-have prevented this entire failure. **It does not displace the ruled fix** — that was chosen on
-trajectory (*installing over live machinery is wrong whatever the body looks like*), and a termless
-guard leaves that intact for the first hook that *does* have terms. **A guard worth having beside the
-invariant fix, not instead of it**; the call belongs to whoever builds.
+**⚠ THE DEGENERATE BODY IS ITS OWN DEFECT AND HAS LEFT THIS TABLE — see F-33.** It was briefly
+listed here as a third fix shape; **it is not one.** It gates nothing in this arc, and the fix ruled
+here stands on trajectory regardless of what the body looks like. Charted separately per
+capture-not-chase.
 
 **The sequence from here:**
 1. ~~**Arm A**~~ — ✅ done, positive.
