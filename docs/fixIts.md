@@ -257,6 +257,26 @@ consumed the skip without ever being an install. **The skip must sit at the LAST
 install work**, and the fixture prints the name it skipped for exactly this reason. Both misfires
 were caught by the printed name, not by reasoning.
 
+**⚠ THE `WHY tokenize` STORY IS A DUAL-ROLE COLLISION, CANDIDATE-GRADE — and it is NOT
+double-compilation**, a reading the evidence permits and which would aim the fix at nothing.
+`tokenize` wears two hats: **citizen #43** of the population, so the campaign generates and installs
+a parse body for it like any other rule; and the **tokenizer HOOK** (`incant/grammar:34`), the live
+machinery the reading side calls. The install does not break `tokenize`-the-rule — it breaks
+`tokenize`-the-**hook**: after #43, a read routes through a body whose `CodE` says *how to parse the
+`tokenize` rule* instead of *how to tokenize*, yields no tokens, and reports end of input at line 1.
+**That is the signature double-compilation cannot produce** — not `tokenize` failing, but everything
+after the install becoming unreadable while each body stays perfect. *Individually perfect,
+collectively unreadable — because the collective's reading channel was one of the individuals.*
+**⚠ GRADE: the A/B isolates the install and the pointers show the in-place overwrite, but NOBODY HAS
+WATCHED A READ ENTER THE OVERWRITTEN BODY.** The whole causal chain rests on that step.
+**The one measurement that promotes it:** trace a single read after install #43 and watch it enter
+`tokenize`'s overwritten body. **Fourth customer of off-rule-storage-plus-explicit-activation** (with
+the napalm, the `BlocK` re-poison, and mid-walk `setParse` binding) — two fix *shapes* follow
+(store off-rule and activate late; or exempt the hook from installation, which is a ruling on whether
+`tokenize` should self-host its own parse) and **neither is recommended, because the mechanism is not
+established.** Both live in `incant/fixits/f31`'s diagnosis prose with their grade attached; the file
+deliberately carries **no `REMEDY:` block**, per Addendum 3 clause 3.
+
 **⚠ THE POINTER HALF, and the answer is NOT what "displaces the method" predicted.** `showBody` on
 `Grokking["tokenize"]` before and after the installs prints **identical** lines — same `node`, same
 `groupBody`. **The install does not re-point the field.** It overwrites `CodE` and sets `isCodeD`

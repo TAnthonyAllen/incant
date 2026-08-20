@@ -132,6 +132,69 @@ only in which member is present:
 
 Same number of installs. One member exchanged for another. Opposite outcomes.
 
+WHY tokenize, AND NOT SOME OTHER RULE -- CANDIDATE-GRADE, and read the grade
+
+⚠ IT IS NOT COMPILED TWICE. That reading is available from the evidence and it
+is wrong, so it is named here to be shot: nothing about install 43 compiles
+anything a second time. Ruling on double-compilation would send the fix at the
+wrong target entirely.
+
+The candidate is a DUAL-ROLE COLLISION. tokenize wears two hats at once.
+
+    hat one    it is citizen 43 of the population -- a grammar rule like any
+               other, so the campaign dutifully generates a parse body for it
+               and installs it, exactly as it does for the other forty two
+    hat two    it is the tokenizer HOOK, grammar line 34, the live machinery
+               the reading side calls to turn raw text into tokens
+
+The install does not break tokenize-the-rule. It breaks tokenize-the-HOOK.
+After install 43, when the sweep goes to read BasicElse's text, the read routes
+through a body whose CodE now says how to PARSE THE tokenize RULE instead of
+how to TOKENIZE. That yields no tokens from the raw text, so the very first
+read reports end of input at line one.
+
+That is the signature, and it is the one double-compilation cannot produce:
+not tokenize failing, but EVERYTHING AFTER THE INSTALL BECOMING UNREADABLE
+while each individual body stays perfect. Individually perfect, collectively
+unreadable -- because the collective's reading channel was one of the
+individuals.
+
+WHAT IS MEASURED, AND WHAT IS NOT
+
+    measured     the same-count swap above. Forty two installs either way, one
+                 member exchanged, opposite answers. That isolates the install.
+    measured     the install re-points nothing. showBody is identical before
+                 and after; what changes is CodE overwritten and isCodeD set
+                 INSIDE the one body every reader already shares.
+    structural   tokenize is the tokenizer hook at grammar line 34, used by
+                 NamE, NumbeR, HeX and FormaT.
+    NOT measured NOBODY HAS WATCHED A READ ACTUALLY ENTER THE OVERWRITTEN
+                 BODY. The whole causal story above rests on that step and it
+                 has never been observed.
+
+THE ONE MEASUREMENT THAT WOULD PROMOTE IT from candidate to established: trace
+a single read after install 43 and watch it enter tokenize's overwritten body.
+Until someone does that, the story here is a candidate and is labelled one.
+
+WHAT IT RHYMES WITH, offered as orientation and not as evidence
+
+The off-rule storage and explicit-activation ruling already carries three
+customers -- the napalm, the BlocK re-poison, and mid-walk setParse binding --
+and all three are variants of installing over live machinery while the
+machinery is still in use. On this mechanism tokenize is the fourth. Two fix
+SHAPES follow, and neither is recommended here because the mechanism is not
+established: generate tokenize's body like everyone else, store it off-rule,
+and activate only when nothing further needs the old tokenizer; or exempt the
+hook from installation entirely, which is a ruling about whether tokenize
+should ever self-host its own parse.
+
+⚠ NOTE THE ABSENCE OF A REMEDY BLOCK, AND THAT IT IS DELIBERATE. Addendum 3
+clause 3: an absent REMEDY block means the issue is genuinely open, and a
+speculative remedy must never be written as though recommended. The two shapes
+above are candidates carrying their grade, in diagnosis prose, which is where
+clause 3 puts them. A REMEDY block gets written here when the mechanism is
+established and a fix is chosen -- not before.
+
 THE RULING WANTED
 
 Confirm or refute, from the output above. Measured 2026-08-20 it CONFIRMS: the
