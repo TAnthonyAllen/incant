@@ -805,6 +805,7 @@ GroupItem   source = unWrap(input[2]);
             inside the rule machinery. That distinction was checked first
             because the two want opposite fixes.  */
         if iterator     iterator.fLAG = true;
+        cerr "aCTionIterate: source " tag " has no list":;
         return 0; }
     // attributes and members filter overloaded on hasAttributes and hasMembers
     if attributes   iterator.hasAttributes = true;

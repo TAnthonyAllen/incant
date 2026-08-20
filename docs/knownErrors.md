@@ -874,14 +874,35 @@ terminates at exit 0. There is nothing left to count.
 2026-08-13, cause unknown), then **4 → 0 on 08-15 when the `cerr` went.** The 08-13 measurement saw
 4 because it predates the deletion.
 
-**⚠ AND IT IS DELIBERATELY NOT RE-PINNED TO 0.** Pinning zero would be an **absence assertion**,
-which H4 exists to forbid — it goes green forever, and goes green *hardest* the day someone deletes
-the poison too. The row stays **red with a named cause**, and `pop.sh`'s FAIL text now carries the
-commit so nobody re-derives it. **Tony's call, one line either way:** restore the `cerr` and pin
-**4** (the fixit file measures and prints that 4 — seven visits, three with a list, four leaf visits,
-one refused iterate each), or retire the row and say what covers the poison instead.
+**⚠ IT WAS NOT RE-PINNED TO 0**, because pinning zero is an **absence assertion** — it goes green
+forever, and goes green *hardest* the day someone deletes the poison too. The row was held red with
+a named cause until ruled.
+
+**✅ RULED THE SAME DAY: RESTORE.** Tony's call. The line is back in `aCTionIterate`'s refusal arm in
+`ruleActions.rtn`, **verbatim from `9c4962b^`**, retok'd **bare** and rebuilt before any measurement.
+**The change is provably one line:** canary held at 308 externs and `git diff --stat GroupRules.mm`
+is `1 insertion`, the `fprintf` and nothing else. Fleet **52 → 53 green with exactly one row moved** —
+so no other fixture's captured stderr picked the announcement up.
+
+**⚠ AND THE PIN IS 4, NOT THE OLD 7, WHICH IS THE PART TO KEEP.** Seven was the count under the
+*broken* walk, which saw seven leaves because it revisited them. The walk now visits each node once,
+so there are exactly four leaf visits — `i`, `j`, `k`, `l` — one refused iterate each. **The number
+moved because the WALK moved, not because the announcement did.** Restoring the old 7 would have
+pinned the defect back in.
+
+**What restoring did NOT do — worth stating plainly, because it was the question asked:** it resolved
+**nothing** about behaviour. The refusal arm's real work is the poison (`if iterator iterator.fLAG =
+true; return 0;`), which was intact throughout, and `iterT1m` terminated correctly at exit 0 with the
+`cerr` absent. The line is an **instrument**, and what it restores is *assertability* — the fleet's
+only presence-with-value cover for the poison.
+
+**⚠ ONE RESIDUE, NAMED AND NOT CLOSED:** the restored line prints `source->groupBody->tag`, and the
+arm it sits in fires when `!iterator || !source || !groupList`. The `!groupList` case is what
+`iterT1m` exercises and it is safe — probed 2026-08-20 with an undefined name, which still yields a
+node (bear-trap #26) and prints rather than crashes. **The `source == 0` case was not reached by that
+probe and is not claimed either way.** Pre-existing — the line read the same before `9c4962b`.
 
 ### Who rules
 
-Tony — ruled above, and **row 1 is now closed by him**. Row 2 is the one still open: its *cause* is
-answered, its *remedy* is his.
+Tony — ruled above, and **KE-4 is now CLOSED**: row 1 blessed and graduated, row 2 restored and
+pinned at 4. Both halves are live fleet checks and neither is a pinned defect.

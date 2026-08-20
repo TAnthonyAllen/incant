@@ -498,28 +498,25 @@ iterrunLIVE iterT1m genLadder/iterT1m.target "iterT1m (mutual recursion, each no
 #  announcement is deleted, if the poison stops taking, OR if mutual recursion
 #  silently starts working.
 #
-#  ⚠ STILL RED, AND ITS CAUSE IS NOW ESTABLISHED -- KE-4's open question is
-#  ANSWERED, and the answer is the FIRST of the three causes that comment names,
-#  not the third. `git log -S'aCTionIterate: source'` puts the removal in
-#  9c4962b (2026-08-15, "Tony's offline kant work reconciled"): the line
-#      cerr "aCTionIterate: source " tag " has no list":;
-#  was deleted from aCTionIterate's refusal arm in ruleActions.rtn. The arm is
-#  otherwise intact -- `if iterator iterator.fLAG = true; return 0;` -- so the
-#  POISON still takes and the walk still terminates at exit 0. There is nothing
-#  left to count.
-#  ⚠ SO THE TWO ROWS DID *NOT* MOVE FOR THE SAME REASON, which is what the fixit
-#  file asserts and it is wrong: the walk went 14 -> 7 because mutual recursion
-#  started working (on or before 2026-08-13, cause unknown); the count went
-#  7 -> 4 with it, and then 4 -> 0 on 08-15 when the cerr was deleted.
-#  ⚠ AND IT IS NOT RE-PINNED TO 0, DELIBERATELY: pinning 0 here would be an
-#  absence assertion, which H4 exists to forbid -- it would go green forever and
-#  would go green *hardest* the day somebody deleted the poison too. Tony's
-#  call, and it is one line either way: restore the cerr and pin 4 (four leaf
-#  visits, one refusal each, presence-with-value restored), or retire this row
-#  and say what covers the poison instead. Until then it is red-with-a-cause.
+#  ⚠ RULED AND RESTORED 2026-08-20, and the count is 4 rather than 7 for a
+#  reason worth keeping. KE-4 held this row red pending a cause and named three
+#  candidates. It resolved to the FIRST -- the announcement was DELETED, in
+#  9c4962b (2026-08-15). The poison was never the problem: the refusal arm's
+#  real work, `if iterator iterator.fLAG = true; return 0;`, was intact the
+#  whole time and the walk terminated correctly without the cerr. What was lost
+#  was the ability to ASSERT it, since nothing printed and the only pin
+#  available was zero -- an absence assertion, which H4 forbids.
+#  Tony ruled RESTORE. The line is back in ruleActions.rtn's refusal arm,
+#  verbatim from 9c4962b^, and the fleet can measure the poison again.
+#  ⚠ WHY 4 AND NOT 7: seven was the count under the BROKEN walk, which visited
+#  seven leaves because it revisited them. The walk now visits each node once,
+#  so there are exactly four leaf visits -- i, j, k, l -- and one refused
+#  iterate each. The number moved because the WALK moved, not the announcement.
+#  Both halves of this fixture are now live checks and neither is a pinned
+#  defect: the trace above, and the count below.
 n=$(grep -c "aCTionIterate: source" "$T/iterT1m.e")
 if [ "$n" = 4 ]; then echo "  ok    iterT1m announces its refusal 4 times (once per leaf)"; green=$((green+1))
-else echo "  FAIL  iterT1m refusal count is $n, want 4 -- the cerr was DELETED in 9c4962b (2026-08-15); restore it and pin 4, or retire this row"; fail=1; fi
+else echo "  FAIL  iterT1m refusal count is $n, want 4 -- the announcement, the poison, or the walk's leaf count has moved; 0 means the cerr in aCTionIterate's refusal arm is gone again (it was, once: 9c4962b)"; fail=1; fi
 
 #  BRANCH SEMANTICS -- language-level POPs, here for the same reason iterT1 is:
 #  they are the only cover for rules that were RATIFIED on 2026-07-31 and had no

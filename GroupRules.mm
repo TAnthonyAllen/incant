@@ -951,6 +951,7 @@ GroupItem 	*source = ::unWrap(input->get(2));
 		because the two want opposite fixes.  */
 		if ( iterator )
 			iterator->groupBody->flags.fLAG = 1;
+		::fprintf(stderr,"aCTionIterate: source %s has no list\n",source->groupBody->tag);
 		return 0;
 		}
 	// attributes and members filter overloaded on hasAttributes and hasMembers
