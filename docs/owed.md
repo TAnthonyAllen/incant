@@ -68,6 +68,43 @@ with no named owner is a **docket** entry (`docs/fixIts.md`), not a queue entry.
 | 2026-08-20 | **the pointer census** as a fleet row (every `see DesignDocs:` resolves; every `CodeSite` resolves; broken-pointer negative control) | y |
 | — | **F-6** — the correction owed to commit `6212a71`, folds into the next landing | y |
 
+⚠ **DRIVE CONNECTOR — MEASURED FROM THIS SEAT 2026-08-20, AND IT IS NOT WHAT THE ESTIMATE ASSUMED.**
+The design seat reported *"my end already exists — the Google Drive tools are live in this
+environment right now"*, and generalised from that to *"nothing needs building on the Clay side; the
+work is Tony-side plumbing, and the cheapest shape is Clod copying `ipc/*.md` into a Drive folder as
+a post-write step."*
+
+**In THIS seat the Drive tools are PRESENT BUT UNAUTHORISED.** One call, one line back:
+
+```
+mcp__claude_ai_Google_Drive__list_recent_files  →
+  Insufficient scope: required ".../auth/drive .../auth/drive.file
+  .../auth/drive.resource .../auth/drive.readonly"
+```
+
+**So the proposed cheapest shape is not executable from here today.** Tomorrow's first item is not
+plumbing, it is an **authorisation decision**: either grant this seat Drive scope, or have Tony place
+the files Drive-side. Until one of those happens, **no Clod-side sync step exists to be written into
+a write discipline.**
+
+⚠ **AND IT IS AN AUTHORISATION DECISION, NOT A TOGGLE — name it before flipping it.** Drive write
+scope makes this seat an **outward publishing channel**; `ipc/` content leaves the machine and may be
+cached or indexed independently of anything later deleted. **The relevant precedent is that Tony has
+already ruled on these files' publicity once** — `48f134a`, 2026-08-10, *"Seal 2026-08-10: ipc/
+tracked (publicity accepted)"*, which removed `ipc/` from `.gitignore`. That lowers the bar; it does
+not remove the decision.
+
+⚠ **AND THE WT AMENDMENT SHOULD WAIT ON THE TRANSPORT, NOT LEAD IT.** The plan supersedes
+`walkieTalkie.md`'s *"Clay has no filesystem reach"* sentence with tonight's census as cause of
+death. **Correct, but not yet** — that sentence should be replaced by *what the transport actually
+turns out to be*, and today the honest replacement would read *"reach exists in one seat, is
+unauthorised in the other."* **Superseding it before the transport is settled writes a second
+undated premise into the file the census just finished cleaning.**
+
+⚠ **THE META-POINT, and it is this session's own doctrine landing on the seat that ratified it:** the
+estimate was sound reasoning on a premise measured **in one seat and generalised to another**. Cost
+of the check was **one tool call**. This is the fourth time today.
+
 ### ⚠ The walkie-talkie channel — STALLED, and nobody was looking
 
 | since | item | delivered |
