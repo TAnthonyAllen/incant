@@ -49,7 +49,9 @@ and whether that class is empty was never measured. Any future row may come from
 **Off-rule storage plus explicit activation** — the invariant fix, chosen **on trajectory grounds**:
 it is right for a grammar that will keep growing hooks, whatever this table holds. It is the fourth
 customer of that ruling, with the napalm, the `BlocK` re-poison, and mid-walk `setParse` binding.
-**Pending only Arm A's mechanism promotion before build** (see `docs/fixIts.md` F-31).
+**Pending only Arm A's mechanism promotion before build** (see `docs/fixIts.md` F-31). The verdict
+that gated the campaign — F-31 `CONFIRMED` — was **ratified by Tony on 2026-08-20**; the build gate
+is Arm A and nothing else.
 
 ⚠ **AND THE META-NOTE, because this is the second time in the campaign it has happened: the fix was
 chosen by asking what the PROJECT IS, not what the BUG DOES.** The pick-one constraint went the same

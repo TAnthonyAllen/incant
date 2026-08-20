@@ -218,7 +218,16 @@ screen. The other arm is one character: set f31Arm to zero.
 Footnote: docs/fixIts.md F-31, incant/fixBisect, bear-trap 28.
 
 ============================================================================
-NEXT: REMEDY -- BEHAVIOUR (shape ruled, build gated on Arm A)
+NEXT: RULED
+
+⚠ THIS FILE IS OFF THE QUEUE, ON PURPOSE, AND IT IS COMING BACK. Discharged by
+ruling 2026-08-20 when CONFIRMED was ratified, so it no longer sits in
+incant/fixits/ and no longer counts in the seal line. It lives at incant/f31
+and still runs.
+IT RE-ENTERS THE QUEUE WHEN THE BUILD LANDS, wearing a REMEDY block, for one
+last run: bless the taken signature. One citizen, two tours of duty -- which is
+the shape the register's anatomy predicted rather than a special case made for
+it.
 
 DECISION ONE, AND IT COMMITS NOTHING ABOUT MECHANISM: ratify CONFIRMED, or
 refute it. That is a ruling about WHICH INSTALL, and the same-count swap above
@@ -304,6 +313,19 @@ rescue a read that comes after the install -- so "compile everyone else first,
 install tokenize last" is a real candidate fix and NOT merely a re-ordering of
 the same failure. That is the fourth-customer shape with self-hosting
 preserved, and it is now the better-supported of the two below.
+
+THE SHAPE IS off-rule storage plus explicit activation, selected by Tony's
+ruling of 2026-08-20 on trajectory grounds. THE GATE IS ARM A: the mechanism it
+addresses is still candidate-grade, and nothing here is applicable until the
+trace promotes it. Read this block for what was DECIDED and what must happen
+before it becomes a remedy -- not for something to apply.
+
+⚠ AND THE VERDICT ABOVE IS RATIFIED, WHICH IS A SEPARATE THING FROM ALL OF
+THIS: CONFIRMED, ratified by Tony, 2026-08-20. The campaign gate is OPEN and
+everything queued behind "parse generation closes" is unblocked. That ruling
+was chartered as prior to and independent of the mechanism, and it stayed that
+way through four amendments, a refuted prediction, a rechartered census and a
+selected fix.
 
 THE FIX SHAPE IS RULED. Tony, 2026-08-20, on trajectory grounds.
 

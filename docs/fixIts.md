@@ -187,7 +187,29 @@ variable one.**
 **Done when:** the term emitter either quotes or renames a keyword-named term, and `BasicElse`
 compiles. **Owner:** unassigned. **Good minion candidate** — the failing text is in hand.
 
-### F-31 — the walk generates 56 bodies and EVERY ONE fails to compile, but only in a full sweep
+### F-31 — ✅ **CONFIRMED, RATIFIED BY TONY, 2026-08-20 — THE CAMPAIGN GATE IS OPEN**
+
+**Everything queued behind "parse generation closes" is unblocked.** The verdict was chartered as
+**prior to and independent of the mechanism**, and it held that way through four amendments, a
+refuted prediction, a rechartered census and a selected fix — which is the chartering working, not a
+delay.
+
+**The sequence from here, already chartered:**
+1. **Arm A** — trace the read into `tokenize`'s overwritten body.
+2. **A positive Arm A promotes the mechanism** and **releases the build** of the invariant fix
+   (off-rule storage plus explicit activation).
+3. **`incant/f31` re-enters the queue when the build lands**, wearing a `REMEDY` block, for one last
+   run: bless the taken signature. **One citizen, two tours.** It was **discharged by ruling** on
+   ratification and now lives at `incant/f31` — off the queue, still runnable.
+
+⚠ **ONE DISCREPANCY, FLAGGED RATHER THAN SILENTLY RECONCILED.** The relay describes `tokenize` as the
+**fifth** customer of off-rule-storage-plus-explicit-activation; everything recorded here and in
+`docs/hookRules.md` says **fourth**, enumerating three predecessors — the napalm, the `BlocK`
+re-poison, and mid-walk `setParse` binding. **Either a fifth customer was added somewhere outside
+this record, or the number slipped in relay.** Left as *fourth* here because that is the count whose
+members are named; **the ordinal is worth one check by whoever knows the fifth.**
+
+### F-31 — the investigation, as it stood before ratification
 **Where:** `incant/walkPhase`, measured 2026-08-19 on the current tree.
 **The partition:** entered **139** · generated **56** · leaf **60** · refused **23** (9 distinct rules:
 `ExpressioN` ×8, `StatemenT` ×7, `PRINTing` ×2, and one each of `while`, `tokenize`, `QuotE`,

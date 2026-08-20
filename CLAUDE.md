@@ -888,6 +888,38 @@ whole purpose of this register is that **nothing load-bearing rides on memory.**
 cold reader on the first file to use it — a deliberate, documented, correctly-graded absence read as
 a missing piece, which is exactly what an absence always will.
 
+⚠⚠ **ADDENDUM 5 — THE FOURTH GRADE: `RULED` (Clay, 2026-08-20).** `NEXT:` gains a fourth first
+word. **`RULED` — the fix SHAPE is selected by ruling, the build is GATED, and the block names both
+the gate and the shape.** Explicitly: **nothing in a `RULED` block is applicable yet.** A reader
+arriving there learns *what was decided* and *what must happen before it becomes a remedy*.
+
+**THE LIFECYCLE IS NOW ORDERED, and the transitions are named:**
+
+`OPEN` → `BEST GUESS` → `RULED` → `REMEDY`
+
+| transition | requires |
+|---|---|
+| `OPEN` → `BEST GUESS` | a candidate found |
+| `BEST GUESS` → `RULED` | **a ruling issued** |
+| `RULED` → `REMEDY` | **a build landed, with site and taken-vs-not signatures** |
+
+⚠ **A citizen may skip states downward but MUST NEVER wear a later word than its state has earned.
+`REMEDY` without a site is the specific overclaim this addendum exists to forbid.**
+
+**WHY IT IS A GRADE AND NOT A QUALIFYING CLAUSE — this is the reasoning to keep.** The first three
+grades are **epistemic**: *what do we know about the fix* (known / guessed / nothing). **`RULED` is
+different in kind — it is DEONTIC: what has been DECIDED.** A project that rules on trajectory ahead
+of evidence — which this one does deliberately and on principle — **will keep producing
+decided-but-not-yet-buildable**, so the state recurs structurally rather than occasionally.
+
+⚠ **AND IT IS THE REGISTER'S OWN THEOREM APPLIED TO THE REGISTER, for the third time: A GRADE THAT
+NEEDS A QUALIFYING CLAUSE TO BE READ CORRECTLY IS A FAILURE SURVIVING CORRECT APPLICATION.** The
+interim spelling was `REMEDY — BEHAVIOUR (shape ruled, build gated)`, which is accurate and which
+**requires the reader to finish the line to learn that the first word overclaimed.** Same family as
+absence-as-signal in Addendum 4: correct at the application site, wrong at the reading site.
+**Provenance:** found by Clod on first contact, resolved interim by Clod correctly under the
+then-existing taxonomy, promoted to a grade because the state is structural.
+
 ⚠ **AND THE IRONY IS THE LESSON, so it is written down rather than enjoyed:** everything f31's
 `NEXT:` block needed **already existed** — it had been said, in full, in chat. **It just lived in a
 conversation instead of in the file you had just run.** The answer to *"now what"* has to be staring
