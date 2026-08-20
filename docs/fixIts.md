@@ -296,6 +296,29 @@ to route through `tokenize`'s body specifically — any state the install touche
 compiles (42→43), which is the original confound deliberately reintroduced** — so this does *not*
 replace the same-count swap: **the swap holds count fixed and settles IDENTITY, this holds population
 fixed and settles TIME.** Neither substitutes for the other.
+**⚠ THE HOOK CENSUS (step zero item 3) IS RUN, AND THE COUNT IS ONE — BUT NOT FOR THE REASON THAT
+WOULD MAKE THE SPECIAL CASE SAFE.** Measured 2026-08-20 off the walk's own ENTER/INSTALL trace: **59
+entered `fbGen`, 43 installed, 16 dropped at the `datA` gate** (`ANYtoken Any Attributes InitiatE
+Looper Modifier NewGroup ShortcuT Start continue followedBy loopOnAttributes loopOnMembers nameSet
+numberSet return`).
+
+**`tokenize` is the only bootstrap-constructed machinery rule that REACHES installation.** The
+siblings exist — `nameSet`, `numberSet`, `counter`, `delimiter`, `Modifier`, `Limit`, `MEMBERs`,
+`Any`, `ruleSkipSet` are all built in `GroupMain.twk` the same way — but **every one carries data**,
+because they are character sets, so the `datA` gate drops them. `tokenize` carries none: it is a
+**method hook**, which is exactly why it is the one that gets a body written over it.
+
+**⚠ SO THE SIBLINGS' IMMUNITY IS INCIDENTAL, NOT DESIGNED**, and that inverts what the count means.
+On **today's count of one**, defer-the-hook and off-rule-plus-activation are equivalent in effect and
+the cheaper wins. On **the reason for the one**, the count is one *by accident of what those rules
+happen to hold* — so **the special case is a fix with an expiry date**: the first machinery rule that
+is a hook rather than a character set becomes a second customer, and nothing in the tree would stop
+it.
+**⚠ SEARCH SPACE NAMED:** this censused **one surface** — rules the bootstrap constructs by name in
+`GroupMain.twk`, cross-read against the walk's ENTER/INSTALL trace. **A rule declared in the grammar
+that the reader nonetheless invokes would not appear in it, and whether that class is empty is not
+measured.**
+
 **Consequence:** a live dispatch means sequencing does not rescue a read that comes *after* the
 install, so *"compile everyone else first, install `tokenize` last"* is a **real candidate fix** and
 not a re-ordering of the same failure — the fourth-customer shape with self-hosting preserved, now

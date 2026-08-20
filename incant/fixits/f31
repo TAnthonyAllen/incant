@@ -261,6 +261,43 @@ replace the two-arm swap above. The swap holds the count FIXED and settles
 IDENTITY; this holds the population fixed and settles TIME. Neither substitutes
 for the other.
 
+ITEM 3 -- THE HOOK CENSUS. Subordinate to neither arm. RUN 2026-08-20, and it
+answers the question the two fix shapes turn on: does tokenize have siblings.
+
+    entered fbGen           59
+    INSTALLED               43
+    dropped at the datA gate 16
+    dropped:  ANYtoken Any Attributes InitiatE Looper Modifier NewGroup
+              ShortcuT Start continue followedBy loopOnAttributes
+              loopOnMembers nameSet numberSet return
+
+⚠ THE ANSWER IS ONE, AND THE REASON IS THE INTERESTING PART. tokenize is the
+only bootstrap-constructed machinery rule that REACHES installation. The others
+exist -- nameSet, numberSet, counter, delimiter, Modifier, Limit, MEMBERs, Any,
+ruleSkipSet are all built in GroupMain.twk the same way -- but every one of
+them CARRIES DATA, because they are character sets, and the datA gate drops
+them before fbGen ever installs anything. tokenize carries no data. It is a
+method hook, and that is precisely why it is the one that gets a body written
+over it.
+
+⚠ SO THE SIBLINGS' IMMUNITY IS INCIDENTAL, NOT DESIGNED. They are safe because
+of what they happen to hold, not because anything exempts them. A future
+machinery rule that is a hook rather than a character set is a second customer
+the moment it exists, and nothing in the tree would stop it.
+
+THAT IS WHAT THE CENSUS BUYS, and it is not the clean count it looks like:
+
+    on TODAY'S count of one    defer-the-hook and off-rule-plus-activation are
+                               equivalent in effect, and the cheaper wins
+    on the REASON for the one  the count is one by accident of data, so the
+                               special case is a fix with an expiry date
+
+⚠ AND THE SEARCH SPACE IS NAMED, because an absence claim is only as good as
+its search. This censused ONE surface: rules the bootstrap constructs by name
+in GroupMain.twk, cross-read against the walk's own ENTER and INSTALL trace. A
+rule DECLARED IN THE GRAMMAR that the reader nonetheless invokes would not
+appear in it. Whether that class is empty is NOT measured here.
+
 CONSEQUENCE FOR THE FIX SHAPES: a live dispatch means sequencing alone does not
 rescue a read that comes after the install -- so "compile everyone else first,
 install tokenize last" is a real candidate fix and NOT merely a re-ordering of
