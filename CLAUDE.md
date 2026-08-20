@@ -856,16 +856,43 @@ HARNESS.** The gun discharges by **running the fixit after the remedy and blessi
 That is exactly how row 2 resolved, **and it worked because the file prompted the "did the restore
 fix it?" question instead of leaving that check to memory.**
 
-**3. NO REMEDY KNOWN IS ALSO INFORMATION.** The **absence** of a `REMEDY:` block tells the reader
-this one is **genuinely open**. ⚠ **Never write a speculative remedy as if recommended** — candidate
-mechanisms stay in diagnosis prose **with their grade attached**, per the standing citation
-discipline.
+**3. ~~NO REMEDY KNOWN IS ALSO INFORMATION — the ABSENCE of a `REMEDY:` block tells the reader this
+one is genuinely open.~~ ⚠ SUPERSEDED SAME DAY BY ADDENDUM 4, BELOW.** The half that **stands**:
+⚠ **never write a speculative remedy as if recommended** — candidate mechanisms stay in prose **with
+their grade attached**, per the standing citation discipline. The half that **failed**: absence as a
+signal. **It failed its first cold reader, on the first file to use it.**
 
 **4. Retrofit clause — ✅ SATISFIED BY RETIREMENT, not owed.** It asked that `iterT1m` gain its
 REMEDY block in the same commit that re-pinned it. `iterT1m` **retired by mapping** instead
 (`859afe9`), which supersedes the retrofit: **a block's life ends when its citizen's does**, and its
 content is mapped out like every other assertion — walk → `iterT1m.target`, refusal count → the
 `pop.sh` grep row, exit 0 → `iterrunLIVE`. The reason lives on in KE-4.
+
+⚠⚠ **ADDENDUM 4 — EVERY CITIZEN ENDS WITH `NEXT:` (Clay, Tony's ruling, 2026-08-20). IT IS NEVER
+ABSENT.** The dead region of every fixit **terminates** in a marked `NEXT:` block whose **first word
+is one of three grades**:
+
+| first word | means | carries |
+|---|---|---|
+| **`REMEDY`** | fix known and **recommended** | Addendum 3's block — the fix, its site, taken-vs-not signatures, and the `BEHAVIOUR`/`ASSERTABILITY` word |
+| **`BEST GUESS`** | candidate fix or fixes | each **with its grade**, and what would **promote or kill** it. ⚠ **Explicitly NOT a recommendation** |
+| **`OPEN`** | no idea | **what would generate one** — the measurement, the trace, the census — or, if truly nothing is known, **that** |
+
+**IT ANSWERS ONE QUESTION: "what do I do after ruling on what is on screen."** It may name a next
+measurement, a fix, or a **fork** (*"if you ratify, then…"*). **A fixit whose output leaves the
+reader asking *now what* is half-briefed, however good its diagnosis.**
+
+⚠ **THIS SUPERSEDES ADDENDUM 3 CLAUSE 3'S ABSENCE-AS-SIGNAL, and the rationale is the register's own
+doctrine turned on the register: ABSENCE IS AMBIGUOUS BETWEEN DELIBERATE AND FORGOTTEN**, and the
+whole purpose of this register is that **nothing load-bearing rides on memory.** It failed its first
+cold reader on the first file to use it — a deliberate, documented, correctly-graded absence read as
+a missing piece, which is exactly what an absence always will.
+
+⚠ **AND THE IRONY IS THE LESSON, so it is written down rather than enjoyed:** everything f31's
+`NEXT:` block needed **already existed** — it had been said, in full, in chat. **It just lived in a
+conversation instead of in the file you had just run.** The answer to *"now what"* has to be staring
+at the reader from the artifact, not resident two seats away. That is this register's founding
+argument applied one level down, to the register itself.
 
 ⚠ **AND A RELAY LESSON, recorded because the failure was invisible from both ends** (2026-08-20). The
 refinement above travelled and **its parent did not** — Addendum 3 was issued and never arrived, so

@@ -188,12 +188,9 @@ and activate only when nothing further needs the old tokenizer; or exempt the
 hook from installation entirely, which is a ruling about whether tokenize
 should ever self-host its own parse.
 
-⚠ NOTE THE ABSENCE OF A REMEDY BLOCK, AND THAT IT IS DELIBERATE. Addendum 3
-clause 3: an absent REMEDY block means the issue is genuinely open, and a
-speculative remedy must never be written as though recommended. The two shapes
-above are candidates carrying their grade, in diagnosis prose, which is where
-clause 3 puts them. A REMEDY block gets written here when the mechanism is
-established and a fix is chosen -- not before.
+There is no REMEDY block here, because nothing is established enough to
+recommend. What replaces it is the NEXT block at the foot of this file, which
+is never absent and which grades itself -- see it for what to do after ruling.
 
 THE RULING WANTED
 
@@ -219,3 +216,39 @@ been printed; a breakpoint conditioned on that name lands with the answer on
 screen. The other arm is one character: set f31Arm to zero.
 
 Footnote: docs/fixIts.md F-31, incant/fixBisect, bear-trap 28.
+
+============================================================================
+NEXT: BEST GUESS
+
+DECISION ONE, AND IT COMMITS NOTHING ABOUT MECHANISM: ratify CONFIRMED, or
+refute it. That is a ruling about WHICH INSTALL, and the same-count swap above
+settles it on its own evidence. It does not oblige you to accept the dual-role
+story, and you should not read it as doing so. Everything gated on parse
+generation closing sits behind this one word.
+
+FIX-CAMPAIGN STEP ZERO, IF YOU RATIFY: the promoting trace. Watch a single read
+after install 43 enter tokenize's overwritten body. That is the one measurement
+that turns the dual-role story from candidate into established, and it is
+chartered as step zero because BOTH fix shapes below are shaped by its answer.
+Do it before either of them, not alongside.
+
+THE TWO FIX SHAPES RIDE BEHIND THE TRACE. Both are candidate-grade. Neither is
+recommended, and they differ in what they concede:
+
+    off-rule storage plus explicit activation
+        generate tokenize's body like every other citizen, store it OFF the
+        rule, and activate only when nothing further needs the old tokenizer.
+        This makes tokenize the FOURTH customer of a ruling that already has
+        three -- the napalm, the BlocK re-poison, and mid-walk setParse
+        binding. ⚠ IT ASSUMES THE MECHANISM. If the trace comes back negative
+        this shape is solving a problem that was never there.
+
+    exempt the hook from installation
+        never install a generated body over tokenize at all. ⚠ IT CONCEDES
+        THAT tokenize NEVER SELF-HOSTS ITS OWN PARSE, which is a ruling about
+        the language and not a patch. Cheaper, and it forecloses something.
+
+WHAT WOULD KILL EITHER: a negative trace kills the first outright and leaves
+the second as a blunt workaround for an unknown cause. A trace that shows the
+read entering the overwritten body promotes the story and makes the choice
+between the two a design call rather than a guess.

@@ -274,8 +274,12 @@ WATCHED A READ ENTER THE OVERWRITTEN BODY.** The whole causal chain rests on tha
 the napalm, the `BlocK` re-poison, and mid-walk `setParse` binding) — two fix *shapes* follow
 (store off-rule and activate late; or exempt the hook from installation, which is a ruling on whether
 `tokenize` should self-host its own parse) and **neither is recommended, because the mechanism is not
-established.** Both live in `incant/fixits/f31`'s diagnosis prose with their grade attached; the file
-deliberately carries **no `REMEDY:` block**, per Addendum 3 clause 3.
+established.** Both live in `incant/fixits/f31`'s terminal **`NEXT: BEST GUESS`** block (Addendum 4) with their
+grade and their kill conditions attached — **no `REMEDY:` block, because nothing is established
+enough to recommend.** That block also charters the order: **ratifying CONFIRMED is decision one and
+commits nothing about mechanism**; the promoting trace is **fix-campaign step zero**; both fix shapes
+ride behind it, since a negative trace kills the first outright and reduces the second to a blunt
+workaround for an unknown cause.
 
 **⚠ THE POINTER HALF, and the answer is NOT what "displaces the method" predicted.** `showBody` on
 `Grokking["tokenize"]` before and after the installs prints **identical** lines — same `node`, same
