@@ -823,6 +823,28 @@ re-makes every session, and the session where it goes badly is the session someo
 **Silencing it is unloading someone else's gun** — which is not a tidying decision anybody but Tony
 gets to make.
 
+⚠⚠ **THE PEAS PASS — A STANDING SESSION-OPEN STEP (Clay proposed, Tony ratified, 2026-08-20).
+SHUTDOWN ARMS, WAKEUP CONFRONTS.** The seal line only works if something makes Tony look at it
+again, so the count is now a **matched pair on the same generated number**, and neither half is
+skippable or hand-typed.
+
+**The step, at session open, before any new business:** run `genLadder/fixitNag.sh` **from the repo
+root** and put its line at the **top of the wakeup exchange**. Generated, never typed — same
+discipline as the seal line, same reason.
+
+**⚠ AND THE FRAMING IS A QUESTION, NOT A STATUS.** The queue is Tony's, so the pass asks:
+**step one now, or name which citizen goes first?** **New campaign work does not open while that
+answer is pending.** Answering *"none — the new thing is hotter"* is a **legitimate ruling** under
+fix-or-skip and closes the pass cleanly. What is not allowed is **defaulting into** that answer by
+not asking: an unasked question reads identically to a skipped one a week later.
+
+**AGEING GOES IN THE LINE**, which is why `fixitNag.sh` carries *oldest … since*. **A citizen three
+sessions old is a different conversation from one minted yesterday**, and the pass exists to make
+that difference visible without anyone reconstructing it.
+
+**It costs zero new machinery** — the script exists and the wakeup brief exists. The ruling is only
+*where the line goes* and *what Clod does about it*.
+
 ⚠ **ONE FILE MAY CARRY MORE THAN ONE TEST (Tony, 2026-08-20).** The unit is the *issue owed*, not
 the assertion — a file that demonstrates two related things in one run is fine and is often better,
 because it is one thing to run. Do not split a file per assertion.
