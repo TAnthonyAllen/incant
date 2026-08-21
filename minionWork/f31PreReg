@@ -1,0 +1,72 @@
+/*  f31PreReg -- CHARTER A STEP A2. PRE-REGISTRATION, COMMITTED BEFORE ANY CODE
+    IS WRITTEN. Nothing below is read off a run; every number is derived from
+    the pre-build tree or stated from the extern set about to be added.
+
+    A target regenerated green is not a target. This file exists so the
+    machinery cannot be measured against expectations it wrote itself.
+*****************************************************************************/
+Start();
+include(utilities);
+search reset stack Grokking;
+search GroupFields Utilities list;
+
+registry(F31PreReg);
+define
+    Status="PRE-REGISTRATION. Committed before the first line of the build. Derived from the pre-build tree at HEAD af77f0e, canary 308, bare binary Aug 20 10:38.";
+    CanaryDelta="THE EXACT EXPECTED CANARY DELTA -- Clay's floor guess was +2; this is the pre-stated number and it is +4.":
+        CanaryFrom="308, measured pre-build. Command: grep -c '^extern' GroupRules.h";
+        CanaryTo="312, expected post-build.";
+        CanarySet="FOUR externs, named here so the count can be audited rather than trusted: storeBody, activateBody, activateAll, bodyCensus.";
+        CanaryWhyNotTwo="Clay's +2 assumed store and activate. It is +4 because activate has TWO forms per A1 (per-rule and whole-population) and they are separate externs, and because the corpus is censusable BY QUERY VERB per A1, which is the fourth. If the built set differs from these four names, THAT IS A FINDING ABOUT THE BUILD, not a re-pin.";
+        CanaryNaming="⚠ THE VERBS ARE NOT NAMED store AND activate, AND THE REASON IS MEASURED. `store` IS IN TAWK'S APPLE-SYMBOL ALIAS TABLE -- ~/data/support/Include/OCframe lines 590 and 917 map it to textStorage. That is bear-trap #17 exactly, whose instruction is to grep the target name BEFORE adding a new short bare-keyword usage. storeBody dodges it. `activate` is clean and is kept as the stem. Command: grep -nE '^\\s*(store|activate)\\b' ~/data/support/Include/OCframe";
+    GroupsExt="THE groups.ext EDITS OWED BY NAME (bear-trap #11). That file lives OUTSIDE THIS REPO at ~/Dropbox/data/InProcess/Include/groups.ext and appears in NO commit here, so it is listed explicitly rather than left to a diff.":
+        GroupsExtMd5Before="31ff1b0f7db20271e5d98f7ef0851a7b, measured pre-build. Command: md5 -q ~/Dropbox/data/InProcess/Include/groups.ext";
+        GroupsExtOwed="FOUR declarations in the external GroupRules.h block, one per extern: storeBody, activateBody, activateAll, bodyCensus. Project memory records that a C++ extern wired as an incant command usually needs this decl or it fails with no method found X.";
+        GroupsExtNoIvars="⚠ NO GroupBody FLAG IS ADDED and no class ivar changes, so bear-trap #10's bitfield-shift toll and the tokall sweep are NOT owed by this build. If that turns out to be wrong while wiring, it is a refuse-loud stop, not a quiet tokall.";
+    F31Signature="f31's EXPECTED TAKEN-SIGNATURE -- the line banked at SEQ 76 pending the fork, now writable under Ruling 1.":
+        F31Today="TODAY, pre-build: arm 0 (BlocK in, tokenize OUT) fails on CONTENT -- failed at else() AND followedBy(). Arm 1 (BlocK OUT, tokenize in) fails EMPTY -- reached end of input, line 1. Same count, one member swapped, opposite answers.";
+        F31Expected="AFTER THE BUILD: BOTH ARMS READ CONTENT. Arm 1 must stop producing the empty read. The mechanism is that f31 stores 42 bodies and activates ONLY the one it compiles, so tokenize's live slot is never written and the reader it backs is never displaced.";
+        F31NotExpected="⚠ WHAT IS **NOT** CLAIMED, so a green f31 is not over-read: that both arms COMPILE. They are expected to keep FAILING -- on CONTENT -- because F-32's else() emit is an independent defect and BasicElse's body cannot parse regardless. The signature is about WHICH failure, not about success.";
+        F31Command="~/bin/incant incant/f31 2>&1 | grep -E 'failed at|reached end of input'";
+    Census="THE CENSUS SHAPE, restated from SEQ 76 where N was derived, so it sits in the committed record beside the rest.":
+        CensusN="N = 56, derived pre-build from incant/walkPhase: entered 139, generated 56, leaf 60, refused 23, and the 56 are DISTINCT rules.";
+        CensusPhase1="After phase 1: pending 56, activated 0.";
+        CensusPhase2="After phase 2: pending 0, activated 56, ZERO REMAINDER.";
+        CensusCommand="~/bin/incant incant/walkPhase 2>&1 | grep -E 'pending|activated'";
+    CompileCount="⚠⚠ THE NUMBER THE CAMPAIGN TURNS ON, PRE-REGISTERED WITH ITS BASELINE AND ITS TRAP.":
+        CompileBaseline="TODAY, pre-build: phase 2 compiles 0 of 56 and rejects 56. EVERY compile fails with reached end of input. That is F-31 at full strength under the direct-install idiom. Command: ~/bin/incant incant/walkPhase 2>&1 | grep -A3 'PHASE 2 RESULT'";
+        CompileExpected="EXPECTED AFTER THE BUILD: a count GREATER THAN ZERO. Any movement off zero is the fix biting.";
+        CompileTrap="⚠ AND THE PRE-REGISTERED SUSPICION, WRITTEN DOWN BEFORE THE RUN SO IT CANNOT BE RATIONALISED AFTERWARDS: 56 OF 56 WOULD BE SUSPICIOUS, NOT TRIUMPHANT. F-32's else() emit and F-33's degenerate termless body are KNOWN, UNFIXED, and both live in this population, so a residue of failures is the CORRECT outcome. A clean sweep would mean either the residue defects are not where they are believed to be, or the count is measuring something other than compilation. IF 56 APPEARS, IT GETS REPORTED AS A PROBLEM.";
+        CompileResidue="The residue's failure TEXTS get stated, not just its size -- an F-32 failure and an F-33 failure should read differently, and if they read the same that is itself a finding.";
+    FleetExpected="Fleet expectations, pre-stated so a moved row is visible rather than absorbed.":
+        FleetPop="pop.sh 53 green / 1 parked, exit 1, jsonTest baseline the sole owned red -- UNMOVED.";
+        FleetTree="tree.sh exit 0, unchanged.";
+        FleetParseClass="parseClass 239 rows, unmoved.";
+        FleetBaselines="oneTest and jsonTest diffed against the step-1 captures.";
+        FleetBare="⚠ EVERY CAPTURE ON A BARE BUILD -- tok with NO directives file, per bear-trap #23 and its 2026-08-18 hardening. A directives build is a DIFFERENT PROGRAM, not a noisier one.";
+    ;
+
+register(F31PreRegWalk);
+define
+    fpCount=0;
+    fpKids=0;
+    fpWalk argument code={
+        iterate fpCur on argument;
+        while ++fpCur;
+            fpCount = fpCount + 1;
+            cerr "SECTION " ~taG:;
+            if listLengtH;
+                iterate fpKid on fpCur;
+                while ++fpKid;
+                    fpKids = fpKids + 1;
+                    cerr "   ENTRY " ~taG:;
+        };
+    fpRun argument code={
+        fpWalk(argument);
+        cerr "PREREG sections " fpCount:;
+        cerr "PREREG entries " fpKids:;
+        cerr "F31PREREG SENTINEL -- the pre-registration parsed and walked":;
+        stop();
+        };
+    ;
+fpRun(F31PreReg);

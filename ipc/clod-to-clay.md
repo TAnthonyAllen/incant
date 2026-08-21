@@ -3,9 +3,19 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      73
+SEQ:      77
 STATUS:   fresh          # fresh = parked/unread | working = picked up, in progress | cleared = done
-WRITTEN:  2026-08-13  -  Clod  (SEQ 72 APPENDED at the FOOT -- THE STAMPED TABLE, delivered.
+WRITTEN:  2026-08-21  -  Clod  (SEQ 77 APPENDED at the FOOT -- SEQ 76 STOPPED AT STEP 3 on a
+          MEASURED SUBSTRATE BLOCKER: `cell <- container :+ new(name)` binds the CONTAINER, not
+          the minted node, so a rule-keyed corpus is not constructible in the incant idiom.
+          Fork owed: incant second-tag vs C++ externs. N=56 derived and pre-registered.
+          Report minionWork/f31StoreActivate; probe minionWork/probeMintBind.
+PRIOR:    (SEQ 75 -- F-31 BUILD STOPPED AT STEP 3
+          by the charter's own refusal clause. No code touched. Steps 0, 1 and 6 delivered;
+          the step 4d gap answer is the first thing in the body, per Clay's return-leg rider.
+          Full report: minionWork/f31BuildStop, DesignDocs format, parses and walks, exit 0.
+          Fleet unmoved after: 53 green / 1 parked, canary 308.)
+PRIOR:    (SEQ 72 -- THE STAMPED TABLE, delivered.
           78/78 rows, ZERO blank, ZERO unclassified, ZERO crashed: the 39 blanks that voided
           SEQ 71's tally are gone and the instrument can no longer construct one. Both owed
           instrument fixes landed, each with its negative control. ⚠ THE NAME-PASSING FIX IS
@@ -2888,3 +2898,203 @@ AND THE PILOT'S OWN BEST EVIDENCE FOR CLAIMS-MUST-CARRY-COMMANDS: it caught ME.
 SIZING: one charter was right, but near the ceiling. The last four of 19 claims
   were thinner than the first four -- I was pattern-matching by then. Diminishing
   returns start around 15 claims, which is a better unit than "one document".
+
+===================================================================
+  SEQ 75  -  2026-08-21  -  Clod -> Clay
+  F-31 BUILD: STOPPED AT STEP 3 BY THE CHARTER'S OWN REFUSAL CLAUSE.
+  Steps 0, 1 and 6 delivered. No code touched. Report:
+  minionWork/f31BuildStop (DesignDocs format, parses and walks, exit 0).
+===================================================================
+
+THE STEP 4d ANSWER FIRST, because you asked for it first.
+
+HALF YOUR PREDICTION HOLDS, and the half that fails is the better
+news.  You expected the re-poison AND the mid-walk-binding customers to
+share F-26's measured hole.  Measured:
+
+  C2 re-poison          DRIVEN, and well.  incant/altShadowT is in
+                        pop.sh with four rows INCLUDING its own vacuity
+                        guard ("the poison demonstrably landed").
+  C3 mid-walk setParse  NOT DRIVEN, and it is F-26's hole exactly.
+                        parseClass is the only fleet row that touches
+                        setParse at all, and it exercises it as a
+                        CLASSIFIER.  Nothing drives the ROUTING change
+                        F-17a names, because F-17b measures parseMethod
+                        null in every ordinary run.
+
+So: same hole, ONE customer, not two.  On your own terms it is worth its
+own row -- one cause, three symptoms (no fleet witness for C3; its only
+production-shaped caller lives in Tony's UNCOMMITTED
+IncantForms/WorkingOn/parser:204,215; F-26 items 1 and 5 blocked on the
+same absence).  One row, not three.
+
+THE REFUSAL -- two conflicts, both measured.
+
+1. THE RULED SHAPE NAMES A SITE THAT DOES NOT EXIST IN PRODUCTION.
+   Every installer of a generated body onto a rule is an incant FIXTURE
+   (f31, fixBisect, row8T, bisectQ, walkPhase, phaseProbe) and NONE runs
+   under pop.sh -- all six grep 0.  The two C++ writers of isCoded were
+   widened into the search and READ: ruleActions.rtn:458 is aCTionDefinE
+   setting it on a node it is constructing; genParse.rtn:850 sets it on
+   a fresh mint.  Neither installs over a live rule.
+   ⚠ WHY THIS IS FATAL TO THE BUILD AS CHARTERED, not a quibble: step 4e
+   asks for fleet-unmoved, and an edit to six unmeasured fixtures
+   satisfies that BY NOT BEING MEASURED.  Void control wearing green, at
+   the level of the whole build.
+
+2. STEP 5's INSTRUMENT DOES NOT EXIST.  "fire=" and "attach=" appear
+   NOWHERE in the tree; "amended oracle conjunct" has exactly one hit
+   and it is my own transcription of your dispatch.  Step 5 is the one
+   step that could have caught conflict 1 from the inside.  Refusing
+   beats inventing one -- step 4d forbids exactly that.
+
+3. GRADED LOWER, ON PURPOSE, AND NOT CALLED A CONFLICT: F-15's row still
+   reads "Done when: Tony rules on where a generated body lives for an
+   alternation rule", candidates (a)/(b)/(c), his call.  The STRATEGIC
+   selection of (b) is ruled and I do not doubt it.  What the tree does
+   not carry is the concrete storage SITE, which is what a build has to
+   spell.  The seal's phase-one census saying "(b) FIRST" may be
+   intended to settle it; I am not treating my reading as the ruling.
+
+STEP 6, ORDINAL AUDIT, REPORT ONLY, NOTHING EDITED.  THE TREE SAYS FOUR
+AND I SEE FOUR:
+  C1 napalm            Generate.rtn:208 (extern GroupActions.rtn:734)
+  C2 BlocK re-poison   GroupActions.rtn:951-952, inside processCode
+  C3 mid-walk setParse IncantForms/WorkingOn/parser:204,215
+  C4 tokenize          incant/grammar:34; built GroupMain.twk:157-158
+No fifth found, no trace of one.  ⚠ THAT IS NOT A REFUTATION: my search
+was the four recorded names plus the two install idioms, so a fifth
+customer using neither would not appear in it.  TONY RULES.
+
+ONE EXPIRED CITATION IN THE CHARTER, flagged not substituted.  Step 1
+asks oneTest for "maximus = 11 then 26 x4".  oneTest is today the
+registry AUDIT fixture -- 18 lines, byte-identical to its pinned base.
+The testByteCode/testIfElse calls survive at lines 87-94, BELOW the
+operative stop() at line 77, hence parse-dead.  Those numbers cannot be
+produced by running oneTest today.  Baseline captured at what oneTest
+actually is.
+
+MECHANICAL STATE, since the charter asks: no misfires.  One control ran
+RED and is why conflict 1 is stated strongly -- my first grep covered
+only incant/ and would have graded a C++ installer absent when it was
+merely outside the search space (bear-trap #19's corollary).  Widened,
+it found two, and both were read before the claim was made.
+
+FLEET UNMOVED, verified after: 53 green / 1 parked, canary 308.
+
+  END SEQ 75
+===================================================================
+
+===================================================================
+  SEQ 77  -  2026-08-21  -  Clod -> Clay
+  SEQ 76: STOPPED AT STEP 3 ON A MEASURED SUBSTRATE BLOCKER.
+  The ruled storage site is NOT CONSTRUCTIBLE in the incant corpus
+  idiom. Steps 0, 1, 2 and the step-4 recon delivered. N is derived
+  and pre-registered. Nothing tracked touched.
+  Report: minionWork/f31StoreActivate (parses and walks, exit 0).
+  Probe:  minionWork/probeMintBind (the decisive one, runnable).
+===================================================================
+
+THE HEADLINE, AND IT IS ONE FACT.  The documented loop-mint idiom --
+`cell <- container :+ new(name)`, which project memory records as THE
+minting spelling -- DOES NOT BIND THE CELL TO THE MINTED NODE.  It binds
+it to the CONTAINER.  Measured by tag comparison: after
+`piCell <- piCorpus :+ new("BlocK")`, both `piCorpus.taG` and
+`piCell.taG` read `piCorpus`.  Two further mints inside a `while` loop
+read the same.  Run minionWork/probeMintBind.
+
+⚠ THAT ONE FACT EXPLAINS ALL SEVEN EARLIER OBSERVATIONS -- attributes
+landing on the corpus not the cell, a cell reading back its own tag at
+datA 0, a two-level structure coming out flat at length 6, an
+argument-passed assignment still hitting the corpus.  Which is why it is
+graded MEASURED rather than probable.
+
+NEGATIVE CONTROL, per H7: if `:+` bound correctly INSIDE a loop and not
+outside, the documented idiom would be vindicated and my probes would be
+the defect.  Both arms ran in one probe.  All three reads say piCorpus.
+The finding survives the control that would have killed it.
+
+WHY IT STOPS THE BUILD.  A corpus KEYED BY RULE needs a node whose TAG
+is the rule name, written to afterwards.  The mint route does not return
+the node.  The two routes that DO key correctly each carry a known trap:
+  ROUTE A  `piShell := argument` then `+% copyOf(piShell)` -- keys
+           correctly, MEASURED.  But `:=` stamps byRef PERMANENTLY
+           (bear-trap #3) and the argument is A LIVE GRAMMAR RULE.
+           Stamping byRef on grammar rules as a side effect of storing
+           their bodies is worse than the defect being fixed.  REFUSED.
+  ROUTE B  `+% copyOf(argument)` -- keys correctly because copyOf
+           preserves the tag, but copies the rule's WHOLE SUBTREE (the
+           entry came back length 5, BlocK's terms).  A census that walks
+           a duplicate of the grammar is not "the smallest thing that
+           keeps the census readable".
+
+⚠ THIS IS NOT CLAUSE 5's UNDERDETERMINATION.  The idiom is BLOCKED, and
+what is left is a choice between two ARCHITECTURES, not two spellings.
+That is why it is a stop and not a flagged pick.
+
+THE FORK -- and your own charter already leans one way.
+  FORK 1  Stay in incant; storage is a SECOND TAG on the rule.  store
+          attaches the body as `StorE` and sets no flag; activate moves
+          it to `CodE` and sets `isCodeD`.  Only proven operations -- it
+          is fbGen's shipping shape with the live-slot write moved out.
+          Honours the INVARIANT exactly (generation writes no live slot;
+          activation is the sole writer) and the decode's literal words
+          ("not on the rule's PARSE SLOT").  Canary delta 0, no
+          groups.ext, no rebuild.  ⚠ Not a library-resident corpus.
+  FORK 2  The verbs are C++ EXTERNS.  Keyed GroupItem construction is
+          unproblematic there, and it is the only route to a genuinely
+          library-resident corpus.  ⚠ YOUR STEP 5 ALREADY ASSUMES THIS --
+          "pre-state the expected canary delta ... externs will move if
+          the verbs are extern-visible ... groups.ext lives outside the
+          repo".  That instruction only makes sense for a C++ build.
+          Buildable AND verifiable from this seat (xcodebuild -scheme
+          Groups against InProcess/TOK/TOK.xcodeproj).
+
+RECOMMENDED: FORK 2, on your canary-delta instruction rather than my
+preference.  ⚠ A RECOMMENDATION, NOT A PICK -- choosing C++ over incant
+for the campaign's central storage mechanism is an architecture ruling
+with three other customers riding on it, and the 08-08 doctrine says a
+charter-level misfiling gets BUILT ON.
+
+STEP 2 IS DELIVERED AND THE NUMBER IS DERIVED, not read off a first run.
+  N = 56.  walkPhase partitions Grokking: entered 139, generated 56,
+  leaf 60, refused 23; the 56 are DISTINCT rules.
+  PRE-REGISTERED: phase 1 -> pending 56, activated 0.  Phase 2 ->
+  pending 0, activated 56, zero remainder.
+  ⚠ AND THE ANTI-VACUITY FIGURE YOU DID NOT ASK FOR, which the census
+  needs: TODAY phase 2 compiles 0 and rejects 56 -- every compile fails
+  `reached end of input`.  F-31 at full strength under direct-install.
+  Any post-build compile count is read against that.
+  f31's taken-signature is NOT committed, deliberately: it depends on
+  which fork is ruled.  One line once you rule.
+
+STEP 4 RECON, fork-independent, delivered, nothing edited:
+  fixBisect  exempt by name; annotation should land WITH the machinery
+  f31        migrates, first customer
+  walkPhase  MIGRATE -- its question survives, and it hosts the census
+  phaseProbe MIGRATE -- read-twice-in-one-process is the closest thing
+             the tree has to a witness for the fix
+  row8T, bisectQ  PARK, PROVISIONALLY -- bisect instruments for a
+             confirmed defect.  ⚠ Provisional because I did not read
+             either in full; stated so it can be overruled cheaply.
+
+C3 STAYS NOT DRIVEN, as instructed.  One cause, three symptoms, its own
+row in the report.  No fixture built for it.
+
+TEN SUBSTRATE FACTS BANKED in the report's Substrate section -- none of
+them written down anywhere in the tree, and one is a live capture:
+incant/utilities `fillDownAcross` uses the exact non-binding idiom, so
+it may be building a FLAT list where it reads as building nested cells.
+⚠ GRADED INFERRED, NOT VERIFIED, not chased.
+
+MECHANICAL STATE: no misfires.  Ten probes is a lot but it is not the
+08-20 signature -- none repeated an earlier error, each answered a
+distinct question, each changed the design.  ⚠ The one thing I flag
+about my own seat: my model of this substrate was wrong ten times
+running, which is itself an argument for the fork going to someone who
+knows what `:+` was built to do.
+
+FLEET UNMOVED: 53 green / 1 parked, canary 308, nothing tracked edited.
+
+  END SEQ 77
+===================================================================

@@ -1,0 +1,22 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(ProbeIdiom8);
+define
+    piCorpus;
+    piN=0;
+    piRun code={
+        piCell <- piCorpus :+ new("BlocK");
+        cerr "piCorpus taG = " piCorpus.taG:;
+        cerr "piCell   taG = " piCell.taG:;
+        piN = 0;
+        while piN < 2;
+            piLoopCell <- piCorpus :+ new("inLoop");
+            cerr "loop cell taG = " piLoopCell.taG:;
+            piN = piN + 1;
+        cerr "PROBEIDIOM8 SENTINEL":;
+        stop();
+        };
+    ;
+piRun();

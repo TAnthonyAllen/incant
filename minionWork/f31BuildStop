@@ -1,0 +1,92 @@
+/*  f31BuildStop -- DesignDocs-format report against SEQ 74, cut the F-31 build.
+    Status: STOPPED AT STEP 3 BY REFUSAL. No code was touched. Steps 0, 1 and 6
+    completed and are delivered below; steps 2, 4 and 5 are not started, and the
+    reason is a conflict between the ruled shape and the tree, which step 3 of
+    the charter instructs be refused loud rather than reconciled silently.
+
+    Read the Stop entry first, then Gaps. Gaps carries the step 4d answer Clay
+    asked for on the return leg.
+
+    Every claim carries the command that checks it. Run the command, do not
+    re-derive the claim. A claim whose command disagrees with its statement is a
+    finding about this report, not about the reader.
+*****************************************************************************/
+Start();
+include(utilities);
+search reset stack Grokking;
+search GroupFields Utilities list;
+
+registry(F31BuildStop);
+define
+    Status="STOPPED at step 3, by the refusal clause in the charter itself. Nothing was edited, nothing was committed, nothing measured moved. Steps 0, 1 and 6 are complete and delivered. Steps 2, 4 and 5 are not started.";
+    Vintage="What this work was measured against. Every claim below leaned on this state and no other.":
+        VintageSha="af77f0e, HEAD at the time of measurement, branch jit-unified-emit-wip. Command: git rev-parse --short HEAD";
+        VintageSeal="docs/wakeup.md current vintage SEALED 2026-08-20, the kitchen pass that opened the campaign gate. Read in full; the 2026-08-19 blocks beneath it were read as superseded history.";
+        VintageBinary="Home bin incant, 1407776 bytes, Aug 20 10:38, bare. Command: ls -lL ~/bin/incant";
+        VintageCanary="308. Command: grep -c '^extern' GroupRules.h";
+        VintageFleet="pop.sh 53 green / 1 parked, exit 1, one owned red. jitLadder 205 ok, 1 owned red JV/F-12. Both taken this session on the bare binary above.";
+        VintageExt="groups.ext md5 31ff1b0f7db20271e5d98f7ef0851a7b, unchanged since the 2026-08-19 seal recorded it. Command: md5 -q ~/Dropbox/data/InProcess/Include/groups.ext";
+    Step0="PEAS PASS -- GREEN, the charter opened.":
+        Step0Result="Tony's fixit incantations waiting: 0, exit 0. Command: sh genLadder/fixitNag.sh";
+    Step1="BASELINE CAPTURE -- taken before any edit, on a bare binary, no directives file passed. All six captures banked.":
+        Step1Pop="53 green / 1 parked, exit 1. Matches the seal. Command: sh genLadder/pop.sh";
+        Step1Tree="exit 0. The ScafI versus ScafALT retag question is OPEN and is pre-existing, per the seal. Command: sh genLadder/tree.sh";
+        Step1Canary="308, matches. Command: grep -c '^extern' GroupRules.h";
+        Step1ParseClass="268 lines, 239 rows, exit 0. Command: ~/bin/incant incant/parseClass | wc -l";
+        Step1JsonTest="13 ok, exit 0, one-line diff against its pinned base, the pre-existing owned red. Captured, not chased, per the charter. Command: diff genLadder/jsonTest.base <(~/bin/incant incant/jsonTest 2>&1)";
+        Step1OneTestEXPIRED="⚠ THE CHARTER CITED AN EXPIRED EXPECTATION AND IT IS FLAGGED RATHER THAN QUIETLY SUBSTITUTED. Step 1 asks for incant/oneTest showing maximus = 11 then 26 four times. oneTest is today the registry AUDIT fixture: 18 lines, exit 0, byte-identical to its pinned base. The testByteCode and testIfElse calls that produced 11 and 26 still sit in the file, at lines 87 through 94, which is BELOW the operative stop() at line 77 and therefore parse-dead. The maximus numbers cannot be produced by running oneTest today. Command: diff genLadder/oneTest.base <(~/bin/incant incant/oneTest 2>&1) and grep -n 'stop()' incant/oneTest";
+        Step1OneTestGrade="This is the dated-measurement-cited-as-timeless failure the doctrine names. The baseline is captured correctly at what oneTest actually is; only the charter's description of it is stale.";
+    Stop="⚠⚠ THE REFUSAL. Two independent conflicts between the ruled shape and the tree. Step 3 of the charter says refuse loud and report; this is that.":
+        StopOne="CONFLICT 1 -- THE RULED SHAPE NAMES A SITE THAT DOES NOT EXIST IN PRODUCTION. The charter says generated parse bodies go to off-rule storage DURING THE PHASE-1 WALK, and installation onto the rule becomes a separate explicit activation step. Every site in the tree that installs a generated body onto a rule is an incant FIXTURE, and NONE of them runs under pop.sh. There is no production installer to change.";
+        StopOneCommand="grep -rn 'isCodeD' incant/ *.rtn --- returns six incant fixtures (f31, fixBisect, row8T, bisectQ, walkPhase, phaseProbe) and one comment in Instruct.rtn. Then: for f in walkPhase f31 fixBisect phaseProbe bisectQ row8T; do grep -c $f genLadder/pop.sh; done --- returns 0 for all six.";
+        StopOneNotAQuibble="The two C++ writers of isCoded are NOT the site either, and this was checked rather than assumed. ruleActions.rtn:458 is aCTionDefinE, the language's own define path, which sets isCoded on a node it is CONSTRUCTING. genParse.rtn:850 sets it on a fresh MINT node the kant door builds, not on a live rule. Neither installs a generated body over an existing rule. Command: grep -rn 'isCoded *= *true' --include=*.rtn .";
+        StopOneWhatItMeans="The build as chartered would install the storage-plus-activation shape into six fixtures that no instrument measures. Step 4e asks for fleet-unmoved, which such an edit would trivially satisfy BY NOT BEING MEASURED. That is the void control wearing green, at the level of the whole build rather than one row.";
+        StopTwo="CONFLICT 2 -- STEP 5's ANTI-VACUITY INSTRUMENT DOES NOT EXIST. Step 5 asks for fire= and attach= union counts, per the amended oracle conjunct. Neither token appears anywhere in the tree, and the phrase amended oracle conjunct appears exactly once, in my own transcription of this dispatch.";
+        StopTwoCommand="grep -rn 'fire=|attach=' genLadder/ jitLadder/ incant/ *.rtn --- returns nothing. grep -rn 'oracle conjunct' docs/ ipc/ --- returns one hit, ipc/clay-to-clod.md:3412, the transcription.";
+        StopTwoWhatItMeans="Step 5 is the one step that could have caught conflict 1 from the inside. It cannot run, because the instrument it names is either somewhere outside this tree or was carried in relay from a context this seat does not have. Refusing beats inventing one, because a mid-build fixture is exactly what step 4d forbids.";
+        StopThird="⚠ A THIRD THING, WEAKER, AND GRADED LOWER ON PURPOSE. F-15's row still reads Done when: Tony rules on where a generated body lives for an alternation rule, and lists candidates (a), (b) and (c) as HIS CALL. Option (b) is the selected shape. The STRATEGIC selection is ruled and is not in doubt. What the tree does not carry is a ruling on the concrete storage SITE, which is the thing a build has to spell. This is graded CANDIDATE, not conflict, because the seal's phase-one shadow census does say option (b) FIRST and that may be intended to settle it. Command: sed -n '/^### F-15/,/^### F-16/p' docs/fixIts.md";
+    Step6="ORDINAL AUDIT -- report only, no citations edited, per the charter. THE TREE SAYS FOUR. I found four, each with a site. I did not find a fifth.":
+        Step6Count="FOUR customers, four sites, all present and all read this session.";
+        Step6C1="Customer 1, the napalm bail arm, F-18. Site: Generate.rtn:208, else reportNoBody(field). The extern itself is GroupActions.rtn:734. Command: grep -rn 'reportNoBody' --include=*.rtn .";
+        Step6C2="Customer 2, the BlocK re-poison, F-15. Site: GroupActions.rtn:951-952, result.noPrint = true then field +% result, inside processCode. That is the attach that re-poisons a member-shaped rule even when the CodE problem is dodged. Command: grep -n 'result.noPrint' GroupActions.rtn";
+        Step6C3="Customer 3, mid-walk setParse binding, F-17a. Site: IncantForms/WorkingOn/parser:204 and :215, genParseTest. ⚠ This is TONY'S UNCOMMITTED WORKING FILE, which is itself worth noting: the third customer's only production-shaped caller lives in a file that is not committed. incant/parseClass:49,54,62 also calls setParse but is a census instrument, not a walk. Command: grep -rn 'setParse(' IncantForms/ incant/ *.rtn";
+        Step6C4="Customer 4, tokenize, F-31. Site: incant/grammar:34, declared tokenize^@ with zero terms; constructed GroupMain.twk:157-158, strap = new(tokenize) then method = tokenize. Command: grep -n 'tokenize' incant/grammar GroupMain.twk";
+        Step6Verdict="THE TREE SAYS FOUR AND I CAN SEE FOUR. I found no fifth and no trace of one. This does NOT refute the relay's fifth -- an absence claim is only as good as its search, and my search was the four names already recorded plus a grep of the two install idioms. A fifth customer that does not use isCodeD or setParse would not have appeared in it. TONY RULES; nothing was edited.";
+    Gaps="⚠ THE STEP 4d ANSWER, which Clay asked for FIRST on the return leg. What drives each customer, measured.":
+        GapsC1="Customer 1, the napalm: DRIVEN. reportNoBody is reachable and pop.sh has coverage of the refusal. This one is checkable as chartered.";
+        GapsC2="Customer 2, the BlocK re-poison: DRIVEN, and well. incant/altShadowT runs under pop.sh with four rows including its own vacuity guard: F-15 stays closed, a poisoned alternation rule still parses, plus altShadowT vacuity guard: the poison demonstrably landed. Command: grep -n 'altShadowT' genLadder/pop.sh";
+        GapsC3="Customer 3, mid-walk setParse binding: PARTIALLY DRIVEN, and the part that is missing is the part that matters. incant/parseClass runs under pop.sh at 239 pinned rows and is, per the 2026-08-19 seal, THE ONLY ROW IN THE FLEET THAT EXERCISES setParse AT ALL. But it exercises setParse as a CLASSIFIER, asking which arm claims each field. Nothing in the fleet drives the ROUTING CHANGE that F-17a names, because F-17b measures that parseMethod is null in every ordinary run and every rule takes the arm chain. So the defect is real and the fleet cannot see it.";
+        GapsC4="Customer 4, tokenize: DRIVEN, but by a fixture that is off the fleet. incant/f31 reproduces both arms and is runnable, and it was discharged from the fixit queue by ruling on ratification. It is not in pop.sh. Command: grep -c f31 genLadder/pop.sh --- returns 0.";
+        GapsVerdict="⚠ THE HOLE IS STILL OPEN AND IT IS THE SAME HOLE. Clay predicted that whether anything drives the re-poison and mid-walk-binding customers is the same measured gap that kept F-26 items 1 and 5 unmintable. HALF RIGHT, and the half that is wrong is the better news. The re-poison IS driven, by altShadowT, with a vacuity guard. The mid-walk binding is NOT, and the reason is exactly F-26's: nothing drives a parse through a bound parseRule, so the routing change has no witness. Same hole, one customer not two.";
+        GapsWorthARow="On Clay's own terms this is worth its own row: the mid-walk setParse customer has no fleet witness, its only production-shaped caller is in an uncommitted working file, and F-26 items 1 and 5 are blocked on the same absence. That is one cause with three visible symptoms, which is a fixIts row rather than three.";
+    Controls="Per protocol: the run that went red, or none-possible with the reason.":
+        ControlsRed="ONE control ran and went RED, and it is why conflict 1 is stated as strongly as it is. The first pass grepped only incant/ for the install idiom and concluded the sites were all fixtures. That command excludes the C++ side entirely and would have graded a production installer as absent when it was merely out of the search space, which is bear-trap #19's corollary exactly. The widened command found two C++ writers of isCoded. Both were then READ, and both turned out not to be installers -- but the claim is now made on a search that could have refuted it.";
+        ControlsNonePossible="NONE POSSIBLE for conflict 2. An instrument that does not exist has no negative control; the grep either finds fire= and attach= or it does not, and it does not. The nearest thing to a control is that the same two tokens were searched across four directories and the .rtn files at the root, and the only hit in the tree is the transcription of the dispatch itself.";
+        ControlsNotRun="⚠ HONEST GAP: I did NOT attempt the build and then measure it as void. That would have been the strongest possible evidence for conflict 1 -- edit the six fixtures, show pop.sh byte-unmoved, and point at the unmoved fleet as proof that nothing measured it. It was not done because step 2 forbids touching code before pre-registration, and pre-registering a target for a shape I am refusing would be pre-registering the wrong thing.";
+        ControlsMechanics="Mechanical state, reported because the charter asks. No misfires this session. Two citations were checked rather than trusted and one of them (oneTest's maximus) had expired; the SEQ number was derived from the merged counter rather than assumed; the transcription was appended with prior history intact and the number gap recorded in the header rather than hidden.";
+    ;
+
+register(F31Walk);
+define
+    fsCount=0;
+    fsKids=0;
+    fsWalk argument code={
+        iterate fsCur on argument;
+        while ++fsCur;
+            fsCount = fsCount + 1;
+            cerr "SECTION " ~taG:;
+            if listLengtH;
+                iterate fsKid on fsCur;
+                while ++fsKid;
+                    fsKids = fsKids + 1;
+                    cerr "   ENTRY " ~taG:;
+        };
+    fsRun argument code={
+        fsWalk(argument);
+        cerr "F31STOP top-level entries " fsCount:;
+        cerr "F31STOP child attributes " fsKids:;
+        cerr "F31BUILDSTOP SENTINEL -- the report parsed and walked":;
+        stop();
+        };
+    ;
+fsRun(F31BuildStop);

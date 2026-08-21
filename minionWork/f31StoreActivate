@@ -1,0 +1,97 @@
+/*  f31StoreActivate -- DesignDocs-format report against SEQ 76, birth the
+    storage-and-activation machinery.
+
+    Status: STOPPED AT STEP 3 ON A MEASURED SUBSTRATE BLOCKER. No tracked file
+    was touched. Steps 0, 1, 2 and 4 recon are complete and delivered; the
+    pre-registration number is derived and stated. The blocker is that the ruled
+    storage site is not constructible in the incant corpus idiom the charter
+    names, and the routes that remain are an architecture fork rather than the
+    smallest-thing pick clause 5 anticipated.
+
+    Read Blocker first, then Fork. Substrate carries ten measured facts about
+    the idiom, each of which cost a probe and none of which was assumed.
+
+    Every claim carries the command that checks it.
+*****************************************************************************/
+Start();
+include(utilities);
+search reset stack Grokking;
+search GroupFields Utilities list;
+
+registry(F31StoreActivate);
+define
+    Status="STOPPED at step 3 on a substrate blocker, not on a charter conflict. Steps 0, 1, 2 and the step 4 recon are delivered. Nothing tracked was edited; the only new files are this report and probe scratch outside the repo.";
+    Vintage="The capture this work is built against, per the charter's instruction to state which one.":
+        VintageCapture="THE SEQ 74 CAPTURE, unchanged. Verified not stale rather than assumed: HEAD af77f0e, canary 308, binary 1407776 bytes Aug 20 10:38, groups.ext md5 31ff1b0f7db20271e5d98f7ef0851a7b. All four identical to the SEQ 74 readings. Commands: git rev-parse --short HEAD; grep -c '^extern' GroupRules.h; ls -lL ~/bin/incant; md5 -q ~/Dropbox/data/InProcess/Include/groups.ext";
+        VintageMtime="⚠ Eight .rtn files carry mtimes newer than the binary. This is NOT evidence of a moved tree -- project memory records binary mtime as unreliable here, and the four identity checks above are the authority. Recorded so a later reader does not read the mtimes as a stale build.";
+    Step0="PEAS PASS -- GREEN. Tony's fixit incantations waiting: 0, exit 0. Command: sh genLadder/fixitNag.sh";
+    Step1="BASELINE -- the SEQ 74 capture stands, re-verified cheaply per the charter. pop.sh 53 green / 1 parked; canary 308; tree.sh exit 0; parseClass 239 rows; jsonTest 13-ok owned red; oneTest the registry audit fixture, 18 lines, byte-identical to base. The maximus citation is struck, per SEQ 76.";
+    Step2="PRE-REGISTRATION -- DERIVED BEFORE ANY BUILD, which is the whole point of the clause.":
+        Step2N="N = 56. Derived from the CURRENT walk, before building anything, so it cannot be read off the new machinery's first run. incant/walkPhase partitions Grokking as entered 139, generated 56, leaf 60, refused 23, and its own census line reports 56. The 56 are distinct rules, not repeats. Commands: ~/bin/incant incant/walkPhase 2>&1 | grep -E '^(entered|generated|leaf|refused|census)' and ~/bin/incant incant/walkPhase 2>&1 | grep '^GENERATED' | awk '{print $2}' | sort -u | wc -l";
+        Step2CensusShape="PRE-REGISTERED: after phase 1, pending 56 and activated 0. After phase 2, pending 0 and activated 56, zero remainder. This is committed here BEFORE the machinery exists.";
+        Step2Baseline="⚠ AND THE NUMBER THAT MAKES IT NON-VACUOUS, which the charter did not ask for and which the census needs: TODAY phase 2 compiles 0 and rejects 56. Every single compile fails with reached end of input. That is F-31 at full strength under the direct-install idiom, and it is the figure any post-build compile count must be read against. Command: ~/bin/incant incant/walkPhase 2>&1 | grep -A3 'PHASE 2 RESULT'";
+        Step2F31Signature="NOT COMMITTED, and deliberately so. f31's expected taken-signature depends on which fork below is ruled -- under the per-rule activate form it is store 42 or 43 pending, activate ONLY the compiled one, both arms read CONTENT because tokenize was never activated. Writing that down now would pre-register a signature for machinery whose shape is not settled, which is pre-registering the wrong thing. It is one line once the fork is ruled.";
+    Blocker="⚠⚠ THE STOP. THE RULED STORAGE SITE IS NOT CONSTRUCTIBLE IN THE INCANT CORPUS IDIOM THE CHARTER NAMES. Ten probes, each answering a distinct question; nothing here is inferred from a symptom.":
+        BlockerHeadline="The documented loop-mint idiom -- cell <- container :+ new(name), recorded in project memory as THE minting spelling -- DOES NOT BIND THE CELL TO THE MINTED NODE. It binds it to the CONTAINER. Measured directly by tag comparison, inside a loop and outside it.";
+        BlockerCommand="The decisive probe printed piCorpus.taG and piCell.taG after piCell <- piCorpus :+ new('BlocK'). Both read piCorpus. Two further mints inside a while loop also read piCorpus. Probe preserved at scratchpad probeIdiom8.";
+        BlockerExplains="⚠ THIS ONE FACT EXPLAINS ALL SEVEN EARLIER OBSERVATIONS, which is why it is graded measured rather than probable. Every apparent anomaly -- attributes landing on the corpus instead of the cell, a cell reading back its own tag with datA 0, a two-level structure coming out flat with length 6, an argument-passed assignment still hitting the corpus -- is the same bind going to the wrong node.";
+        BlockerWhyItMatters="A corpus KEYED BY RULE is the ruled storage site. Keying requires minting a node whose TAG is the rule name and then writing to that node. The mint route does not return the node, and the two routes that do return a correctly-tagged node each carry a known bear-trap, below.";
+        BlockerRouteA="ROUTE A, := on the rule. piShell := argument then piCorpus +% copyOf(piShell) DOES produce a correctly-keyed entry -- measured, cell taG = BlocK. ⚠ BUT := STAMPS byRef PERMANENTLY ON ITS ARGUMENT (bear-trap #3), and the argument here is A LIVE GRAMMAR RULE. Stamping byRef on grammar rules as a side effect of storing their bodies is a worse defect than the one being fixed. REFUSED, not merely disliked.";
+        BlockerRouteB="ROUTE B, copyOf the whole rule. piCorpus +% copyOf(argument) keys correctly because copyOf preserves the tag, but it copies the rule's ENTIRE SUBTREE -- the corpus entry came back length 5, which is BlocK's terms. That is not the smallest thing that keeps the census readable; it is a census that walks a duplicate of the grammar.";
+        BlockerNotUnderdetermination="⚠ CLAUSE 5 SAYS: where the idiom underdetermines a choice, pick the smallest thing and flag it. THIS IS NOT UNDERDETERMINATION. The idiom is BLOCKED, and what remains is a choice between two architectures, not two spellings. That is why this is a stop rather than a flagged pick.";
+    Substrate="The ten measured facts, banked because they are worth more than this build and none of them is written down anywhere in the tree.":
+        SubOne="group[argument.taG] lookup on a runtime-built group WORKS. Two hits, both correct.";
+        SubTwo="A minted cell assigned from a buffer reads back datA 0 and its own tag -- bear-trap #26 -- because the assignment never reached the cell.";
+        SubThree="+% WITHOUT copyOf ALIASES. Two entries built from the same field both read the LAST value written. Confirms project memory's copyOf stamps, else +% aliases.";
+        SubFour="+% after :+ lands on the CONTAINING group's list, not nested under the member. piCorpus reported length 6 for what was meant to be 2 cells of 2 attributes.";
+        SubFive="Passing the cell into a helper action as argument does NOT fix it -- argument = piBody still wrote to piCorpus. This rules out bare-field resolution as the cause and is what pointed at the bind itself.";
+        SubSix="piNode = new(taG) produces a node TAGGED piNode carrying the rule name AS DATA -- bear-trap #1, = reimprints the target's own tag. So new() into a field cannot mint a keyed node.";
+        SubSeven="copyOf preserves the tag. This is the only measured route to a correctly-keyed corpus entry.";
+        SubEight=":= binds correctly and preserves the tag, and is bear-trap #3's sticky byRef. Correct and unusable on live grammar nodes.";
+        SubNine="+% onto a node obtained by GROUP ITERATION or by an action's argument works -- this is fbGen and wpGen's shipping shape and is why the direct-install idiom works at all.";
+        SubTen="⚠ A CONSEQUENCE WORTH ITS OWN LOOK, GRADED INFERRED AND NOT CHASED: incant/utilities fillDownAcross uses the exact idiom that does not bind -- cell <- rowBlock :+ new(cellName) then cell :. mergeON and cell +% regularItem. If the bind behaves there as it does here, that shipping function is building a FLAT list on rowBlock rather than the nested cells it reads as building. NOT VERIFIED -- no fixture was run against it, and it is capture-not-chase. Command to start: grep -n 'fillDownAcross' -A20 incant/utilities";
+    Fork="THE RULING OWED. Two architectures, and the charter's own text already leans one way.":
+        ForkOne="FORK 1, STAY IN INCANT, STORAGE AS A SECOND TAG ON THE RULE. store attaches the body as an attribute tagged StorE and sets NO flag; activate moves it to CodE and sets isCodeD. Uses ONLY proven operations -- it is fbGen's shipping shape with the live-slot write moved out. Satisfies the RULING'S INVARIANT exactly: generation writes no live slot, activation is the only writer of it. Satisfies the decode's literal words, which say not on the rule's PARSE SLOT. Canary delta 0, no groups.ext, no rebuild. ⚠ DOES NOT satisfy library-resident corpus -- storage is on the rule under a different tag.";
+        ForkTwo="FORK 2, THE VERBS ARE C++ EXTERNS. Keyed GroupItem construction is unproblematic in C++, and this is the only route that gives a genuinely library-resident corpus. ⚠ AND THE CHARTER ALREADY CONTEMPLATES IT: step 5 asks me to PRE-STATE THE EXPECTED CANARY DELTA because externs will move if the verbs are extern-visible, and reminds me groups.ext lives outside the repo. That instruction only makes sense for a C++ build. Costs: canary delta, groups.ext sync (bear-trap #11), tokall (bear-trap #10), and a rebuild. A rebuild IS available to this seat -- xcodebuild -scheme Groups against InProcess/TOK/TOK.xcodeproj -- so this fork is buildable AND verifiable here.";
+        ForkRecommendation="RECOMMENDED: FORK 2, and the reason is the charter's own canary-delta instruction, not my preference. Fork 1 is smaller and honours the invariant, but it puts the campaign's central storage mechanism somewhere the ruling explicitly said it should not be, and three other customers ride on that mechanism. ⚠ THIS IS A RECOMMENDATION AND NOT A PICK. Choosing C++ over incant for the campaign's central mechanism is an architecture ruling, and the 08-08 doctrine says a charter-level misfiling gets BUILT ON.";
+    Step4Recon="FIXTURE DISPOSITION -- the recon is done and is fork-independent, so it is delivered now. Nothing was edited.":
+        ReconFixBisect="fixBisect: EXEMPT BY NAME per the charter, keeps the direct-install idiom as the poison exhibit, wants an in-file annotation. NOT YET ANNOTATED -- the annotation should land in the same commit as the machinery so the exemption and the thing it is exempt from arrive together.";
+        ReconF31="f31: migrates, first customer. Its migration is one edit under either fork -- fbGen's tail becomes a store call, and the compile is preceded by a per-rule activate.";
+        ReconWalkPhase="walkPhase: MIGRATE. Its question -- what does the walk partition into, and does phase 2 compile -- survives the reframe intact and it is the natural host for the pending/activated census. It is also where N=56 came from.";
+        ReconPhaseProbe="phaseProbe: MIGRATE. Its question is whether reading a rule twice in one process flips its shape, which is exactly what storage-versus-activation is supposed to change. It is the closest thing the tree has to a witness for the fix.";
+        ReconRow8T="row8T and bisectQ: PARK, provisionally. Both are bisect instruments built to isolate F-31 under the direct-install idiom, and F-31 is confirmed and ratified. Their question is answered. ⚠ PROVISIONAL because I did not read either in full -- the call is stated so it can be overruled cheaply, not presented as settled.";
+    C3="C3 STAYS NOT DRIVEN, per the charter, restated here as its own row.":
+        C3Statement="Mid-walk setParse routing has NO fleet witness. parseClass is the only fleet row touching setParse and exercises it as a classifier; F-17b measures parseMethod null in every ordinary run, so the routing change F-17a names cannot be observed by anything the fleet runs.";
+        C3OneCauseThreeSymptoms="ONE CAUSE, THREE SYMPTOMS: no fleet witness for the routing change; the only production-shaped caller is IncantForms/WorkingOn/parser:204 and :215, which is TONY'S UNCOMMITTED WORKING FILE; and F-26 items 1 and 5 are unmintable as fixits for the same absence. One fixIts row, not three.";
+        C3NotBuilt="NO FIXTURE WAS BUILT FOR IT, per the charter's explicit instruction. The new verbs do not manufacture a witness and were not asked to.";
+    Controls="Per protocol: the run that went red, or none-possible with the reason.":
+        ControlsRed="THE WHOLE PROBE SEQUENCE IS A CHAIN OF REDS, and that is the honest description. Nine probes each falsified a design I was about to build. The one that matters: probe 9 would have shipped a corpus keyed by DATA instead of TAG -- piNode=BlocK rather than a node tagged BlocK -- and every lookup in the census would have missed silently, returning nothing while the corpus visibly held entries. That is bear-trap #26's shape exactly and it was caught by dumping rather than by reasoning.";
+        ControlsNegative="⚠ THE NEGATIVE CONTROL FOR THE HEADLINE FINDING IS THE LOOP ARM. If :+ bound correctly in a loop and not outside it, the documented loop-mint idiom would be vindicated and my probes would be the defect. Both arms were run in one probe: outside a loop and twice inside one, all three read piCorpus. The finding survives the control that would have killed it.";
+        ControlsNonePossible="NONE POSSIBLE for the fork recommendation. It is a ruling proposal, and a ruling has no red run.";
+        ControlsMechanics="MECHANICAL STATE, reported because the charter asks. NO MISFIRES. Ten probes is a lot, but they are not the 08-20 signature: none repeated an earlier error, each answered a distinct question, and each changed the design. The stop is being called on a MEASURED blocker with a negative control, not on accumulated confusion. ⚠ The one thing I will flag about my own state: my model of this substrate was wrong ten times in a row, which is a reason to distrust MY reading of the idiom, and is a second argument for the fork going to someone who knows what :+ was built to do.";
+    ;
+
+register(F31SAWalk);
+define
+    fzCount=0;
+    fzKids=0;
+    fzWalk argument code={
+        iterate fzCur on argument;
+        while ++fzCur;
+            fzCount = fzCount + 1;
+            cerr "SECTION " ~taG:;
+            if listLengtH;
+                iterate fzKid on fzCur;
+                while ++fzKid;
+                    fzKids = fzKids + 1;
+                    cerr "   ENTRY " ~taG:;
+        };
+    fzRun argument code={
+        fzWalk(argument);
+        cerr "F31SA top-level entries " fzCount:;
+        cerr "F31SA child attributes " fzKids:;
+        cerr "F31STOREACTIVATE SENTINEL -- the report parsed and walked":;
+        stop();
+        };
+    ;
+fzRun(F31StoreActivate);

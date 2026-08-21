@@ -3,13 +3,29 @@
   Clay writes this file. Clod reads it, acts, then clears it.
   Clod's replies go in ipc/clod-to-clay.md  (never write here, Clod).
 -------------------------------------------------------------------
-SEQ:      55
-STATUS:   cleared        # fresh = parked/unread | working = picked up, in progress | cleared = done
-WRITTEN:  2026-08-11  -  Clay (SEQ 47, via Tony; transcribed by Clod)
-          ⚠ THE FILE-LEVEL STATUS READS `fresh` BECAUSE SEQ 46 IS STILL LIVE AND
-          UNSTARTED, not because SEQ 47 is unread. 47 is CLEARED in its own body.
-          One STATUS field, two entries -- the per-entry STATUS lines are the
-          authority when they disagree with this one, and they are read first.
+SEQ:      78
+STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-08-21  -  Clay (SEQ 78, dictated via Tony; transcribed by Clod)
+          ⚠ SEQ 78 IS LIVE AND IS AT THE FOOT -- TWO RULINGS (Fork 2 selected;
+          `:+` binds the container BY DESIGN, no repair) and TWO CHARTERS:
+          A = the build resumed at step 3 under Fork 2, verbs as library
+          externs; B = the isLIST recon, rides after A seals.
+          SEQ 76 sits above it, CLEARED AS A STOP -- the substrate blocker was
+          measured, the fork was owed, and Ruling 1 answers it.
+          ⚠ SEQ 74 IS ALSO ABOVE, CLEARED AS A STOP -- BIRTH THE PRODUCTION
+          STORAGE-AND-ACTIVATION MACHINERY. The REGISTRY is the ruled storage
+          site, ratified by Tony 2026-08-21. Amends SEQ 74, which STOPPED
+          CORRECTLY at step 3; both its conflicts are resolved in the body --
+          conflict 1 BY REFRAME (there was no installer to repair, Clod is
+          building it), conflict 2 by the census becoming the instrument.
+          ⚠ THE PRIOR STEP 5 IS STRUCK: fire=/attach= and "amended oracle
+          conjunct" were Clay session-memory, not tree. Errata owned.
+          SEQ 74 sits above it, CLEARED AS A STOP -- its steps 0/1/6 were
+          delivered and its report is minionWork/f31BuildStop.
+          ⚠ NUMBER GAP, RECORDED NOT HIDDEN: this file's body jumps 55 -> 74.
+          The two counters merged forward at clod-to-clay SEQ 62, and Tony's
+          dispatches 56 through 73 arrived in-band and were never transcribed
+          here.
 NUMBERING: ⚠ THE TWO COUNTERS HAVE DIVERGED. SEQ 40 and 41 were DICTATED as
           "SEQ 27" and "SEQ 28" -- Clay's chat-side thread numbering, which is
           independent of this file's and had fallen twelve behind it. They are
@@ -25,8 +41,17 @@ NUMBERING: ⚠ THE TWO COUNTERS HAVE DIVERGED. SEQ 40 and 41 were DICTATED as
           acted-before-written turn stands as the correct record. So 40/41 keep
           their dictated-number annotations as history, and nothing after 42
           needs one.
-LIVE:     NOTHING IS LIVE. SEQ 46 THROUGH 55 ARE ALL CLEARED, and the day is
-          SEALED -- docs/wakeup.md carries the vintage.
+LIVE:     ⚠ SEQ 76 IS LIVE, AT THE FOOT, AND IS WORKING (picked up 2026-08-21).
+          BIRTH THE STORAGE-AND-ACTIVATION MACHINERY: two library verbs, store
+          and activate, over a library-resident registry keyed by rule, with a
+          pending/activated census as the anti-vacuity instrument. tokenize is
+          a CUSTOMER, not an exemption; F-33's termlessness is HANDS-OFF (the
+          degenerate body stores as-is, inert). fixBisect is EXEMPT BY NAME and
+          keeps the direct-install idiom as the POISON EXHIBIT.
+          SEQ 74 above it is CLEARED AS A STOP -- correctly stopped at step 3,
+          steps 0/1/6 delivered, report minionWork/f31BuildStop.
+          SEQ 46 THROUGH 55 ARE ALL CLEARED, and 2026-08-20 is SEALED --
+          docs/wakeup.md carries the vintage.
           ⚠ ONE THING IS CLEARED WITHOUT BEING FINISHED, and it is carried in the
           seal rather than lost by being cleared: SEQ 46, the generator respell,
           is CLEARED AS A STOP. Its §3.0 measurement answered NO and its charter
@@ -3328,4 +3353,304 @@ per-rule facts.
   Seal written at the head of docs/wakeup.md.]
 
   END SEQ 55
+===================================================================
+
+===================================================================
+  SEQ 74   --   CUT THE F-31 BUILD. OFF-RULE STORAGE PLUS EXPLICIT
+                ACTIVATION.
+  WRITTEN:      2026-08-21  -  Clay, dictated via Tony; transcribed by Clod
+                per WT-9. Appended below SEQ 55, which is retained (WT-11).
+  STATUS:       WORKING. Picked up 2026-08-21 at transcription, per the
+                standing rule that `working` is set on pickup and not on
+                completion. Clay's dispatch shipped it as `fresh`.
+  NUMBERING:    SEQ 74 because the two counters merged forward at clod-to-clay
+                SEQ 62 and the highest number in use across the pair is 73
+                (clod-to-clay, the minion-day pilot). This file's own body
+                stops at 55 because Tony's dispatches 56-73 came in-band and
+                were never transcribed here. Recorded so the gap is visible.
+-------------------------------------------------------------------
+
+DECODE (Clay's, verbatim):
+  pre-registration = expected result written and committed before code is
+    touched
+  off-rule storage = generated CodE held in storage not on the rule's parse
+    slot; installation becomes a separate explicit activation step
+  peas pass = fixitNag.sh at session open, no new campaign work while
+    nonzero
+  the four customers = F-18 napalm bail arm, the BlocK re-poison, mid-walk
+    setParse binding, tokenize (F-31) -- ordinal under audit, see step 6.
+
+CHARTER: cut the F-31 build. Off-rule storage plus explicit activation, per
+the 2026-08-20 ruling. Refuse-loud, no fallback, R-2 stands.
+
+STEP 0 -- PEAS PASS. Run `sh genLadder/fixitNag.sh`. Expected: waiting 0. If
+nonzero, stop and report; the charter does not open.
+
+STEP 1 -- BASELINE CAPTURE, BEFORE ANY EDIT. `sh genLadder/pop.sh` (expect 53
+green / 1 parked), `sh genLadder/tree.sh`, canary (expect 308),
+`incant/oneTest` (maximus = 11 then 26 x4), `incant/jsonTest` (13 ok; the
+baseline-red is pre-existing and owned -- capture, don't chase). Bare build
+only -- no directives file, per bear-trap #23.
+
+STEP 2 -- PRE-REGISTRATION, BEFORE TOUCHING CODE. Write `incant/f31`'s
+expected taken-signature into the fixit file (or a sibling target file) and
+commit it. A target regenerated green is not a target. State it as a B0 claim
+with the exact command that checks it.
+
+STEP 3 -- THE FIX. Generated parse bodies go to off-rule storage during the
+phase-1 walk; installation onto the rule is an explicit activation step,
+separately invoked. `tokenize` is a CUSTOMER, not an exemption -- the hook
+class is ruled OPEN and `docs/hookRules.md` is the registry (row one:
+`tokenize`). Do not special-case termlessness anywhere in this edit: F-33 is
+charted separately, its shape is pending Tony's ratification, and this build
+must leave the degenerate body degenerate -- stored, inert, never activated
+over the hook mid-use. If the ruled shape as you find it in the docket
+conflicts with anything in the tree, REFUSE LOUD AND REPORT; do not reconcile
+silently.
+
+STEP 4 -- VERIFICATION, WIDER THAN f31. A green f31 says only that `tokenize`
+survives installation -- it oracles the SYMPTOM. The build's surface is all
+four customers. Minimum evidence set, one B0 claim each with its command:
+  (a) f31 green against the pre-registered signature (step 2);
+  (b) fixBisect: BOTH arms of the same-count swap now read CONTENT -- the
+      N=43 / tokenize-in arm must no longer produce the empty read;
+  (c) the napalm arm: `reportNoBody` still fires on a body-less rule, no
+      fallback (F-18's landed behaviour unmoved);
+  (d) the re-poison and mid-walk-binding customers: PROPOSE the check per
+      customer from what the tree exercises -- if nothing drives one, SAY SO
+      as a measured gap rather than inventing a fixture mid-build;
+  (e) fleet: pop.sh 53 green / 1 parked, tree.sh unchanged, parseClass 239
+      rows unmoved, canary, both baselines diffed against step 1.
+
+STEP 5 -- ANTI-VACUITY. Show the activation step actually RUNS: positive
+evidence that bodies stored off-rule get activated and fire (fire=/attach=
+union counts, per the amended oracle conjunct). A fleet that is green because
+nothing activated is the void control wearing green.
+
+STEP 6 -- ORDINAL AUDIT, REPORT ONLY. The relay said FIFTH customer; the tree
+says FOURTH and names three predecessors. Grep the tree, list the customers
+with file:line, report the count. TONY RULES; do not edit citations.
+
+REPORT: DesignDocs format, claims graded, every claim carrying its
+verification command. If mechanics start misfiring the way the 08-20
+session's did, STOP AND SAY SO -- the scheduling ruling applies to Clod too.
+
+CLAY'S RIDER ON THE RETURN LEG (dictated): "when Clod's report comes back
+through you, I'll want the step-4 gap answers first -- whether anything
+drives the re-poison and mid-walk-binding customers is the same measured hole
+that kept F-26 items 1 and 5 unmintable, and if it's still empty after this
+build, that's a finding worth its own row."
+
+  END SEQ 74
+===================================================================
+
+===================================================================
+  SEQ 76   --   BIRTH THE PRODUCTION STORAGE-AND-ACTIVATION MACHINERY.
+                THE REGISTRY IS THE RULED SITE. AMENDS SEQ 74.
+  WRITTEN:      2026-08-21  -  Clay, dictated via Tony; transcribed by Clod
+                per WT-9. Appended below SEQ 74, which is retained (WT-11).
+  STATUS:       WORKING. Picked up 2026-08-21 at transcription.
+-------------------------------------------------------------------
+
+DECODE (Clay's, verbatim):
+  the registry = a library-resident GroupItem corpus of generated bodies
+    keyed by rule, censusable by query verb -- RATIFIED BY TONY THIS
+    SESSION AS THE STORAGE SITE
+  store/activate = the two new library verbs; store files a body pending,
+    activate binds it to the rule's live slot, per-rule and
+    whole-population forms
+  pending/activated = the two census populations; phase 1 fills pending,
+    phase 2 moves to activated, zero remainder
+  poison exhibit = fixBisect's direct-install idiom, kept deliberately.
+
+CHARTER (amends SEQ 74's, which stopped correctly): birth the production
+storage-and-activation machinery. The registry is the ruled site.
+Refuse-loud, no fallback, R-2 stands.
+
+⚠ THE TWO CONFLICTS ARE RESOLVED, AND HOW MATTERS:
+  CONFLICT 1 is resolved BY REFRAME, NOT BY A FOUND SITE. There was no
+    production installer to repair -- YOU ARE BUILDING IT. The fixtures
+    are its first customers.
+  CONFLICT 2 is resolved by the same ruling: the census over
+    pending/activated IS the activation instrument; nothing gets invented
+    mid-build. THE PRIOR STEP 5 IS STRUCK -- its cited instruments
+    (fire=/attach=, "amended oracle conjunct") were CLAY SESSION-MEMORY,
+    NOT TREE. Errata owned and recorded.
+
+STEP 0 -- PEAS PASS. fixitNag.sh, expect 0. Nonzero stops the charter.
+
+STEP 1 -- BASELINE CAPTURE, CORRECTED. pop.sh (53/1), tree.sh, canary 308,
+parseClass 239, jsonTest (13-ok owned red), and oneTest AS IT ACTUALLY IS
+-- the registry audit fixture, 18 lines, byte-identical to base; THE
+MAXIMUS NUMBERS ARE STRUCK as an expired citation, per Clod's SEQ 74
+correction. Bare build, bear-trap #23. Most of this was banked at SEQ 74
+-- re-verify cheap items only if the tree has moved since; STATE WHICH
+CAPTURE YOU ARE BUILDING AGAINST.
+
+STEP 2 -- PRE-REGISTRATION, BEFORE TOUCHING CODE. TWO targets now, both
+committed first:
+  (a) incant/f31's expected taken-signature (unchanged requirement);
+  (b) THE EXPECTED CENSUS SHAPE: pending N after phase 1, activated N and
+      pending 0 after phase 2, N STATED AS A NUMBER YOU DERIVE FROM THE
+      CURRENT WALK BEFORE BUILDING. ⚠ A census whose expected value is
+      read off its own first run is not a pre-registration.
+
+STEP 3 -- THE BUILD.
+  1. TWO VERBS IN THE LIBRARY, NOT IN FIXTURES: store (files a generated
+     body into the registry, keyed by rule) and activate (binds a stored
+     body to the rule's live slot; per-rule form AND whole-population
+     form). Instrumentation-in-the-library, per the held claim.
+  2. Generation's phase-1 walk routes EVERY emitted body through store.
+     NO PATH WRITES A LIVE SLOT AT GENERATION TIME -- if you find one
+     while wiring, that is a REFUSE-LOUD STOP, not a silent reroute.
+  3. ACTIVATION IS THE ONLY WRITER of the live slot on the generated arc.
+     The hook class gets NO EXEMPTION: tokenize stores and activates like
+     any member, hookRules.md row one unchanged.
+  4. F-33 HANDS-OFF: the termless degenerate body STORES AS-IS, inert
+     unless activated. No shape repair, no refusal-to-store -- its ruling
+     is separately pending.
+  5. Registry mechanics follow the established corpus idiom (the
+     DesignDocs/GroupItem precedent). Where the idiom underdetermines a
+     choice, PICK THE SMALLEST THING that keeps the census readable and
+     FLAG THE CHOICE in the report.
+
+STEP 4 -- FIXTURE DISPOSITION, one line each in the report.
+  fixBisect  EXEMPT BY NAME. Keeps the direct-install idiom as the POISON
+             EXHIBIT -- annotate it IN-FILE so no future sweep repairs it
+             into uselessness. Verify it still reproduces the F-31
+             signature post-build: the poison must remain demonstrable
+             even though production can no longer commit it.
+  f31        MIGRATES to the new verbs -- first customer.
+  the other four (row8T, bisectQ, walkPhase, phaseProbe): MIGRATE OR PARK,
+             Clod's call per fixture, criterion being whether the
+             fixture's question survives the reframe. A parked fixture
+             states why in its header.
+
+STEP 5 -- VERIFICATION SURFACE, all four customers plus the census.
+  · f31 green against the pre-registered signature.
+  · CENSUS against the pre-registered shape: pending/activated counts,
+    ZERO REMAINDER, B0 claims with commands. THIS IS THE ANTI-VACUITY
+    INSTRUMENT -- a green fleet with an empty registry is the void
+    control, and the census is what makes that unwearable.
+  · fixBisect same-count swap: BOTH ARMS READ CONTENT.
+  · C1 napalm: reportNoBody unmoved on a body-less rule.
+  · C2 re-poison: altShadowT's four rows green including its vacuity guard.
+  · C3: NOT DRIVEN, AND STAYS THAT WAY. The new verbs do NOT manufacture a
+    witness for mid-walk setParse routing. State the gap as SEQ 74
+    measured it -- one cause, three symptoms -- as its own report row.
+    DO NOT BUILD A FIXTURE FOR IT UNDER THIS CHARTER.
+  · Fleet: pop.sh 53/1, tree.sh, parseClass 239 rows, canary, baselines
+    diffed against step 1. ⚠ NOTE: externs WILL move if the verbs are
+    extern-visible -- PRE-STATE THE EXPECTED CANARY DELTA rather than
+    discovering it, and remember groups.ext lives OUTSIDE THE REPO
+    (bear-trap #11) if declarations change.
+
+STEP 6 -- NOTHING. The ordinal stays flagged (four found, fifth
+unrefuted), F-33 stays pending -- both Tony's, neither Clod's, neither
+blocks.
+
+REPORT: DesignDocs format, claims graded, commands attached. The
+mechanics-misfire clause stands: if you start catching your own errors at
+the rate the 08-20 session did, STOP AND SAY SO. Clay's note for the
+record: "Your SEQ 74 stop was the charter's best moment -- same standard
+applies to this one."
+
+  END SEQ 76
+===================================================================
+
+===================================================================
+  SEQ 78   --   TWO RULINGS, THEN TWO CHARTERS. FORK 2 SELECTED;
+                :+ IS BY DESIGN.
+  WRITTEN:      2026-08-21  -  Clay, dictated via Tony; transcribed by Clod
+                per WT-9. Appended below SEQ 76, which is retained (WT-11).
+  STATUS:       WORKING. Picked up 2026-08-21 at transcription.
+-------------------------------------------------------------------
+
+⚠⚠ RULING 1 -- FORK 2. THE VERBS LIVE IN THE LIBRARY. Clod's
+canary-delta reading of SEQ 76 was CORRECT; the charter UNDER-SPELLED it.
+CLAY'S ERRATUM, owned.
+
+⚠⚠ RULING 2 -- `:+` BINDS THE CONTAINER **BY DESIGN**. NOT A DEFECT. NO
+REPAIR. NOBODY TOUCHES ITS SEMANTICS. The seven-observations-one-fact
+finding and `minionWork/probeMintBind` SURVIVE AS THE DOCUMENTATION OF
+THE DESIGN, not as a defect exhibit.
+
+===================================================================
+  CHARTER A -- THE BUILD, RESUMED AT STEP 3 UNDER FORK 2.
+===================================================================
+
+A1. VERBS AS LIBRARY EXTERNS:
+    store    -- mint a corpus entry keyed by RULE NAME, file the
+                generated body PENDING. Mint/tag/append done DIRECTLY IN
+                C++, which is precisely why the `:+` finding does not
+                touch this build.
+    activate -- bind a stored body to the rule's live slot; PER-RULE and
+                WHOLE-POPULATION forms.
+    Corpus is a GroupItem POPULATION, censusable by QUERY VERB,
+    DesignDocs idiom.
+
+A2. PRE-REGISTRATION COMPLETIONS, COMMITTED BEFORE CODE:
+    · f31's expected taken-signature -- the one line banked pending the
+      fork, NOW WRITABLE.
+    · THE EXACT EXPECTED CANARY DELTA, stated from the extern set about
+      to be added. ⚠ CLAY'S FLOOR GUESS IS +2; CLOD'S NUMBER,
+      PRE-STATED, WINS.
+    · THE groups.ext EDITS OWED BY NAME (bear-trap #11) -- no commit
+      trail exists for that file, so THE REPORT LISTS THE EDITS
+      EXPLICITLY.
+
+A3. Generation's phase-1 walk routes EVERY body through store;
+    ACTIVATION IS THE SOLE WRITER of the live slot on the generated arc;
+    hook class NO EXEMPTION; F-33's degenerate body STORES AS-IS, inert
+    -- STORE CARRIES NO WELL-FORMEDNESS GATE.
+
+A4. FIXTURE DISPOSITIONS AS CLOD'S SEQ 76 RECON: fixBisect exempt by
+    name, annotation lands WITH the machinery; f31, walkPhase,
+    phaseProbe MIGRATE; row8T, bisectQ PARK PROVISIONALLY, headers state
+    why, cheap to overrule.
+
+A5. VERIFICATION:
+    · Census against the pre-registration -- phase 1 pending 56 /
+      activated 0; phase 2 pending 0 / activated 56, ZERO REMAINDER.
+    · ⚠⚠ THEN THE NUMBER THE WHOLE CAMPAIGN TURNS ON: POST-BUILD PHASE-2
+      COMPILE COUNT, READ AGAINST 0-OF-56. Any movement off zero is the
+      fix biting. STATE THE COUNT AND THE RESIDUE'S FAILURE TEXTS.
+      ⚠ F-32's `else()` emit and F-33's degenerate body are the EXPECTED
+      RESIDUE -- A COMPILE COUNT OF 56 WOULD ACTUALLY BE SUSPICIOUS, AND
+      IF YOU SEE IT, SAY SO RATHER THAN CELEBRATING.
+    · The four customers: f31 against its signature; fixBisect BOTH ARMS
+      CONTENT; C1 reportNoBody unmoved; C2 altShadowT four rows.
+    · C3 stays a ROW, not driven, no fixture.
+    · Fleet: pop.sh 53/1, tree.sh, parseClass 239, canary AT THE
+      PRE-STATED DELTA, baselines diffed.
+    · BARE BUILD FOR EVERY CAPTURE.
+
+===================================================================
+  CHARTER B -- THE isLIST RECON. SEPARATE WORK, SEPARATE COMMIT,
+               RIDES AFTER A SEALS.
+===================================================================
+
+TONY'S RULING: the gate LOOKS LIKE A SPECULATIVE FEATURE; MEASURE
+whether it is ever hit, and IF NOT, SHITCAN.
+
+B1. Instrument the gate arm (temporary counter/cerr, Arm-A style), run
+    THE FULL FLEET plus BOTH BASELINES plus THE genParse WALK, count
+    hits. ⚠ THEN REVERT AND REBUILD BARE BEFORE ANY OTHER CAPTURE -- the
+    instrumented binary TAKES NO NUMBERS FOR CHARTER A.
+B2. ⚠ ZERO-HITS IS FLEET-SILENCE, NOT PROOF OF DEATH: pair it with a
+    STATIC READ -- what, if anything, in the tree can produce an isLIST
+    container that reaches `:+`. TWO CLAIMS, GRADED SEPARATELY.
+B3. IF BOTH COME BACK EMPTY: REMOVAL IS AUTHORIZED -- Tony's word,
+    standing permission covers the commit. PRE-REGISTER fleet-unmoved
+    and canary-unchanged for the removal commit; IT LANDS SEPARATELY
+    from Charter A's commits so either reverts alone.
+B4. IF EITHER CLAIM COMES BACK NONZERO: STOP, report the hit site, NO
+    REMOVAL. A feature with one live customer is not a shitcan, it is a
+    census row.
+
+ALSO RECORDED, NO ACTION: fillDownAcross REGRADED UNDER RULING 2 --
+latent-misuse candidate, NOT substrate damage; NEXT is Tony's read.
+F-33 QUEUED BEHIND CHARTER A'S SEAL. ORDINAL STAYS FLAGGED.
+
+  END SEQ 78
 ===================================================================
