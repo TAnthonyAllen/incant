@@ -935,6 +935,30 @@ Reconstructing it would have produced something plausible, unmarked, and wrong �
 failure this project already has a ledger for, arriving through a new door. **Clay's half of the fix
 is to carry the parent's full text whenever an amendment goes out against an unconfirmed ruling.**
 
+⚠⚠ **THE SEAL CHECKLIST GAINS A LINE — THE FRONTIER INCANTATION (Clay, Tony's word, 2026-08-21).**
+**Every seal revises `incant/frontier` to the current edge, RUNS it, and NAMES ITS FIRST FAILING
+STATION in the seal.**
+
+`incant/frontier` is the campaign's live edge in executable form: a numbered pipeline that walks the
+current frontier one station at a time and **dies at the first thing that does not work yet**. That
+death is the deliverable — the station that fails is where the campaign *is*.
+
+**It is ONE file, revised in place, NEVER forked.** No `frontier2`, no `frontierOld`. A copy means
+someone broke the practice.
+
+**It is neither a fleet citizen nor a fixit citizen** — it never joins `pop.sh` and never appears in
+`fixitNag`'s count, and the reason is the cleanest statement of what it is: **the fleet measures what
+holds; the frontier measures what does not yet.** A red frontier is the normal, correct state.
+
+**Every station prints PASS or FAIL with the value it read, unconditionally** (rule H4), and the
+first FAIL stops the ladder so later stations run silently and nothing buries the frontier line.
+Each station opens with a uniquely-named inert anchor (`fixFrontier<n>Here`) so a name-conditioned
+Xcode breakpoint lands exactly there with everything the earlier stations built still in scope.
+⚠ **And it caught itself being void on its first run** — `if frOk;` on a declared field tests
+EXISTENCE, always true, so three stations printed PASS unearned. That is bear-trap #26's family, and
+it is why the file now tests `frOk == 1` for flags while keeping `if x;` for lookups that can
+return null. The structure found it, not anybody's memory.
+
 ⚠⚠ **THE PEAS PASS — A STANDING SESSION-OPEN STEP (Clay proposed, Tony ratified, 2026-08-20).
 SHUTDOWN ARMS, WAKEUP CONFRONTS.** The seal line only works if something makes Tony look at it
 again, so the count is now a **matched pair on the same generated number**, and neither half is
@@ -1538,6 +1562,34 @@ Hard-won lessons. Each one has cost real debugging time.
     **Generalises past `setup`:** any incant source read at runtime — the grammar, the registries —
     can reference C++ that a not-yet-rebuilt binary lacks. **Order is rebuild, then measure.** A
     fleet number taken between the edit and the build is a number about the gap, not about the code.
+
+32. **A MULTI-STATEMENT INDENTED `if`-ARM FOLLOWED BY AN `else` BREAKS THE PARSE — AND THE ERROR
+    NAMES A HEALTHY ACTION, NEVER THE OFFENDER.** Measured 2026-08-21 with two passing controls, so
+    it is the COMBINATION and not either half:
+    | shape | result |
+    |---|---|
+    | multi-statement indented arm, **no** `else` | ok |
+    | single-statement `if` + `else` | ok |
+    | multi-statement indented arm **then** `else` | **BROKEN** |
+    ⚠ **THE MISDIRECTION IS THE EXPENSIVE PART.** It fails at **define** time, so the whole `define`
+    block dies and the run reports `RunRulE: expected a method not <X>` where **X is the FIRST action
+    in the file** — an action that is perfectly fine. Every instinct then says "what is wrong with
+    X", and nothing is. Bisect by *removing later actions*, not by staring at the named one.
+    **The cure is the flag idiom:** `frOk = 0;` · set it in a single-statement `if` · then two
+    separate `if`s on its value. `incant/frontier` uses it at all eight stations and its prose says
+    why. Same no-lexer family as bear-traps #4 and #29 — the parser has no idea a block ended.
+
+33. **AN EXTERN WIRED AS AN INCANT COMMAND MUST RETURN `GroupItem`. RETURNING `int` KILLS THE
+    PROCESS ON THE STATEMENT *AFTER* THE CALL.** Measured 2026-08-21. The command machinery takes
+    the return value as a `GroupItem*`, so an `int` is read as a pointer and the crash lands on the
+    NEXT statement — the callee's own entry trace never fires, which reads exactly like *"the
+    command was never registered"* and sends you hunting registration (bear-trap #7/#19 territory)
+    for something that dispatched perfectly.
+    **Census at that date: of every registered `immediateAction` command in the tree, ZERO return
+    `int`.** The convention was total and undocumented. If a verb needs to report a count, PRINT it
+    (rule H4 wants the value printed anyway) and return `trueResult` or `null`.
+    ⚠ Detector: a command whose first line of tracing never appears, while the statement before it
+    completed normally. Look at the RETURN TYPE before you look at the registration.
 
 > **RULE H10 — THE CITATION BOUNDARY: SMOKE-GREEN AUTHORIZES CONTINUING, ONLY A FLEET CHECK
 > AUTHORIZES LANDING. A smoke-green is NEVER citable as fleet-green.** Adopted 2026-08-13 (SEQ 60,

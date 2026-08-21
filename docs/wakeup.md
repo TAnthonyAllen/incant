@@ -1,3 +1,142 @@
+# ⚠⚠⚠ SEALED 2026-08-21 — KITCHEN PASS (CURRENT VINTAGE). READ THIS FIRST.
+#
+#   ⚠ **THIS SUPERSEDES THE 2026-08-20 SEAL BELOW, WHICH IS INTACT AND STILL TRUE AS OF ITS OWN
+#   MARK.** That one opened the campaign gate. This one spent the gate — and found the road.
+#
+#   ## THE ONE-LINE STATE: **the storage-and-activation machinery EXISTS, the headline number has
+#   NOT moved, and the campaign now has an instrument that says exactly where it is stuck.**
+#   `incant/frontier` runs and **dies at STATION 4**. Fleet **53 green / 1 parked**, canary **314**,
+#   jitLadder 205, everything pushed. **Tony's fixit incantations waiting: 0**
+#
+#   ## ⚠⚠ THE FIVE THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   **1. THE FRONTIER FILE EXISTS AND DIES AT STATION 4.** `incant/frontier`, eight stations,
+#   revised in place at every seal and never forked. Stations 1-3 PASS (generate · store, census
+#   pending 1 · mint twin, taG reads Braced). **STATION 4 FAILS: a `copyOf` twin REFUSES the body
+#   install that the LIVE RULE accepts one station earlier** — same `frHang`, same body, different
+#   target. ⚠ **That is ONE STEP UPSTREAM of the portability gate the crucible was built to answer**,
+#   so the crucible is *wounded at a named line*, not dead. **The front question for the next session
+#   is: what does install require that a `copyOf` twin lacks?** Steppable at `fixFrontier4Here`.
+#
+#   **2. THE SWEEP-RETRIEVAL SUSPECT IS DEAD.** The leading candidate for the sweep's uniform
+#   `reached end of input` was *"retrieval hands compile an empty read"*. **Measured and refuted** —
+#   the dump shows the body arriving IN FULL:
+#   `{ if  SemI() OR BlocK() OR WardeD() OR Iterate() OR Xpress(); return runRuleAction(this); }`
+#   A further cell (OR-chain on a detached entry) did **not** reproduce the sweep's text either. The
+#   texture is narrowed to **subject-identity or a population/sequence effect** and is **named, not
+#   chased**. Do not re-run the empty-read theory; it is closed.
+#
+#   **3. THE ARTIFACT'S TRUE ADDRESS IS `BlocK` + `isAction`, NOT rStuff.** Attached by `processCode`
+#   at **`GroupActions.rtn:951-952`** (`result.noPrint = true; field +% result; field.isAction =
+#   true`). ⚠ **The rStuff siting in the SEQ 81 charter is STRUCK AS AN ERRATUM.** Anything designed
+#   against "commission into rStuff" needs re-siting before it means anything.
+#   ⚠ **And its companion blocker, captured:** `:. isActioN` has **no case in `opSetFlag`** — it
+#   prints `groupField isActioN has no case yet -- gCount 408` and does nothing. Station 6 will need
+#   another route to the `isAction` half. **Blocker-in-waiting, not yet paid.**
+#
+#   **4. R1-GREEN STANDS: A DETACHED ENTRY COMPILES FINE AND RESOLVES NOTHING.** The 2x2
+#   (`minionWork/probeCompileCells`, runnable) is the sharpest thing measured this session:
+#   | body | terms | `runRuleAction` | result |
+#   |---|---|---|---|
+#   | R1 | no | no | **GREEN** |
+#   | R2 | no | yes | fails at `runRuleAction(this)` |
+#   | R3 | yes | no | fails at the term |
+#   | R4 | yes | yes | fails at the term |
+#   **A detached-entry compile fails on the FIRST UNRESOLVABLE CONSTRUCT**, and both term calls and
+#   `runRuleAction(this)` are unresolvable there. ⚠ **So "entries do not compile" was WRONG — they
+#   compile, and resolve nothing.** The cause is arm 2's finding, below.
+#
+#   **5. WHY, EXACTLY — AND IT IS A ONE-LINE MECHANISM.** `GroupItem.twk:1789`:
+#   `if registry && registry.isRule  isRule = true;` — **filing a node in an `isRule` registry
+#   AUTO-PROMOTES IT TO A RULE.** `GroupMain.twk:16` sets that on Grokking, and `genParse.rtn:780`
+#   records it true **only** for Grokking. `GenBodies` is not `isRule`, so corpus entries **are not
+#   rules**, so `runRuleAction(this)` has nothing to resolve against.
+#   ⚠ **AND THE COROLLARY THAT MATTERS FOR THE CRUCIBLE:** `kantDoor`'s "NOT Grokking … the mint must
+#   not be one" (`genParse.rtn:826-830`) is **NOT the substrate rejecting rule-shaped-but-not-a-rule.**
+#   It exists to stop **accidental** promotion. **It says nothing against a deliberate rule-shaped
+#   twin — the crucible is untouched by it.**
+#
+#   ## WHAT LANDED — six commits, all pushed
+#
+#   | commit | what |
+#   |---|---|
+#   | `4dcee26` | **pre-registration, committed BEFORE a line of code** — canary delta, groups.ext edits by name, f31 signature, census shape, and `56 of 56 PRE-REGISTERED AS SUSPICIOUS` |
+#   | `d097772` | **the machinery is born** — five verbs, corpus in `GenBodies`, phase 1 hits its pin at 56/0/0/56 |
+#   | `40864cb` | back-pointer **deleted** (audited: no second purpose), bodyless compile refuses loud, **the number taken** |
+#   | `758dd32` | **Option B built and stopped by its own stop condition** — and the condition's premise falsified |
+#   | `f97c4f4` | the crucible recon: arms 2 and 3 delivered, **arm 1 declared INCOMPLETE rather than reported** |
+#   | `62986a5` | **`incant/frontier` born**, dies at station 4 |
+#
+#   ## THE MACHINERY, AS BUILT — six library verbs, canary 308 → 314
+#
+#   `storeBody` · `storedBody` · `activateBody` · `activateAll` · `compileStored` · `bodyCensus`.
+#   Corpus is the **`GenBodies`** registry, keyed by rule tag. States on an entry: **1 pending · 3
+#   compiled-green · 2 commissioned — never 0**, because a fresh node counts zero already and zero
+#   must never mean a state we put it in.
+#   ⚠ **`groups.ext` took SIX decls and rides in no commit here (bear-trap #11).** md5 at session
+#   start `31ff1b0f7db20271e5d98f7ef0851a7b`, **at seal `96e8fc0b9f86a3dedc0b95badcb28c96`** — the six are `storeBody`, `storedBody`,
+#   `activateBody`, `activateAll`, `compileStored`, `bodyCensus` in the `external GroupRules.h` block.
+#
+#   ## ⚠⚠ THE HEADLINE NUMBER: STILL 0 OF 56. Said plainly, because it is the point.
+#
+#   | | |
+#   |---|---|
+#   | phase 1 census | **56 / 0 / 0 / 56 — the pre-registration EXACTLY** |
+#   | phase 2 | **compiled 0, rejected 56** against a pinned 0 of 56 |
+#   | residue | **uniform** — all 56 `reached end of input` |
+#
+#   **THE INVARIANT HOLDS AND THE NUMBER DID NOT MOVE, AND BOTH HALVES ARE TRUE.** Generation writes
+#   no live slot; phase 1 is clean. But **whole-population activation before any compile reproduces
+#   the poisoning**, and **compile-from-store is not constructible by compiling a detached entry**.
+#   ⚠ **`reached end of input` IS NOT A DISPLACEMENT DETECTOR** — under Option B displacement was
+#   *impossible* (commissioned 0 at every checkpoint) and the text appeared anyway. Anything that
+#   leaves a reader with no tokens produces it. **A constant failure is camouflage for a variable
+#   one**, which is the trap that hid F-31's transition behind `BasicElse`.
+#
+#   ## THREE SUBSTRATE FINDINGS THE BUILD PAID FOR — two are now bear-traps #32 and #33
+#
+#   **#32 — a multi-statement indented `if`-arm followed by an `else` breaks the parse**, and the
+#   error names **the first action in the file**, which is healthy. Two controls passed; only the
+#   combination fails. That misdirection cost an entire bisect. Cure is the flag idiom.
+#   **#33 — an incant command extern MUST return `GroupItem`.** An `int` return is read as a pointer
+#   and the process dies **on the statement after the call**, so the callee's entry trace never fires
+#   and it reads as *"never registered"*. Census: **zero** registered commands return `int`.
+#   **Third, applied not charted:** `setGroup` **deep-copies a parented target** (`GroupItem.twk:1662`)
+#   unless the node is `isLocal`/`isLabel` or the target is `byRef` — which is why `kantDoor` sets
+#   `isLocal` before `group`, and why the corpus back-pointer was deleted rather than repaired.
+#
+#   ## ⚠ WHAT TONY IS ON THE HOOK FOR
+#
+#   1. **THE FRONT QUESTION, and it is answerable in the debugger before anyone writes a line:
+#      what does install require that a `copyOf` twin lacks?** Break at `fixFrontier4Here`.
+#   2. **F-33 — QUEUED AND LOAD-BEARING.** The termless-rule body. It is in the 56.
+#   3. **Charter B — the `isLIST` recon — UNSTARTED.** Chartered in full at SEQ 78; rides after A seals.
+#   4. **The 8 nested-term refusals are UNMEASURED under the new siting** — `;` `attributes` `cerr`
+#      `cout` `in` `iterate` `members` `on`, all nested terms `locate()` cannot reach. They did **not**
+#      reproduce under Option B, so **no fixit row is minted from them** until the siting settles.
+#   5. **The ordinal is STILL FLAGGED** — four customers found and sited, fifth unrefuted.
+#   6. **`IncantForms/WorkingOn/drawing` is annotated but UNCOMMITTED** — it is his working file. See
+#      the Drawing-registry section in the session report; six entries confident, two flagged `"?"`,
+#      `endPath` refuted by dlsym.
+#   7. **Carried:** `groupDirectives` working copy · F-29's mechanism · F-32's `else()` emit ·
+#      `jsonTest baseline` red, pre-existing all session.
+#
+#   ## THE DISCIPLINE EXHIBITS, because each one changed an outcome
+#   **THE PRE-REGISTRATION DID ITS JOB TWICE.** It caught the canary at +5 not +4 (the fifth verb,
+#   `storedBody`, closing a gap nobody could have reasoned out: **the direct install was doing double
+#   duty as the walk's VISITED MARK**, and separating them made the walk recurse forever). And its
+#   `56-of-56-is-suspicious` clause was written before any run, so it could not be rationalised after.
+#   **ARM 1 WAS DECLARED INCOMPLETE RATHER THAN REPORTED.** Its control's marker body silently failed
+#   to parse, so nothing ever demonstrated the artifact executing. Reporting a twin comparison on top
+#   of that would have been a void control wearing green — the exact failure H7 exists to prevent.
+#   **THE FRONTIER FILE CAUGHT ITSELF BEING VOID ONE RUN AFTER IT WAS WRITTEN**, and that is the best
+#   argument for the practice: `if frOk;` tests existence, always true, so three stations printed PASS
+#   unearned. **The structure found it, not anybody's memory.**
+#   **A GRINDING THRESHOLD WAS HONOURED THREE TIMES** — activation binding, the compile site, and the
+#   starvation texture were each handed back after three distinct attempts rather than ground on.
+#
+# ---
+#
 # ⚠⚠⚠ SEALED 2026-08-20 — KITCHEN PASS (CURRENT VINTAGE). READ THIS FIRST.
 #
 #   ⚠ **THIS SUPERSEDES THE 2026-08-19 LATE SEAL BELOW, WHICH IS INTACT AND STILL TRUE AS OF ITS

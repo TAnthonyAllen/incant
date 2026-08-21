@@ -3,9 +3,12 @@
   Clay writes this file. Clod reads it, acts, then clears it.
   Clod's replies go in ipc/clod-to-clay.md  (never write here, Clod).
 -------------------------------------------------------------------
-SEQ:      82
+SEQ:      83
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
-WRITTEN:  2026-08-21  -  Clay (SEQ 82, dictated via Tony; transcribed by Clod)
+WRITTEN:  2026-08-21  -  Clay (SEQ 83, dictated via Tony; transcribed by Clod)
+          ⚠ SEQ 83 IS LIVE AND IS AT THE FOOT -- SHUTDOWN: kitchen pass, the
+          seal-checklist line, two bear-trap rows, plus the Drawing registry
+          googoo task. The seal names STATION 4 as frontier.
           ⚠ SEQ 82 IS LIVE AND IS AT THE FOOT -- BUILD incant/frontier, the
           standing eight-station ladder. It ABSORBS the arm-1 rerun. The
           sweep-body dump goes FIRST and may relocate the frontier.
@@ -3950,4 +3953,64 @@ WITH TOKENIZE AS THE SUBJECT INSTEAD OF BRACED is the day the campaign is
 over."
 
   END SEQ 82
+===================================================================
+
+===================================================================
+  SEQ 83   --   SHUTDOWN + ONE GOOGOO TASK (Drawing registry).
+  WRITTEN:      2026-08-21  -  Clay, dictated via Tony; transcribed by Clod
+                per WT-9. Appended below SEQ 82, retained (WT-11).
+  STATUS:       WORKING. Picked up 2026-08-21 at transcription.
+-------------------------------------------------------------------
+
+SEAL DUTIES, IN THE STANDING ORDER:
+
+1. KITCHEN PASS ON wakeup.md -- whole-file revision per WT-11, NEW SEAL
+   ATOP, SUPERSEDED SEALS INTACT. MUST-NOT-RE-DERIVE BLOCK:
+   · the frontier file EXISTS, dies at STATION 4 (copyOf twin refuses the
+     install the LIVE RULE accepts -- the crucible's open question, ONE STEP
+     UPSTREAM of the portability gate it was built to answer)
+   · the SWEEP-RETRIEVAL SUSPECT IS DEAD (body arrives FULL -- texture
+     narrows to subject-identity or population/sequence, named not chased)
+   · the ARTIFACT'S TRUE ADDRESS is BlocK+isAction via processCode at
+     GroupActions.rtn:951-952; rStuff STRUCK AS AN ERRATUM
+   · R1-GREEN (detached entries compile fine and RESOLVE NOTHING) stands
+     from SEQ 81.
+
+2. WORD GIVEN: land the SEAL-CHECKLIST LINE in docs/ (frontier revised to
+   current edge and run; FIRST FAIL STATION NAMED IN THE SEAL) and BOTH
+   BEAR-TRAP ROWS -- else-after-block (WITH THE MISDIRECTION WARNING:
+   RunRulE names a HEALTHY action, never the offender) and
+   immediateAction-externs-return-GroupItem.
+
+3. FRONTIER FILE: already at current edge -- SEAL NAMES STATION 4. First
+   seal to carry the new checklist line; LET IT BE ITS OWN FIRST CUSTOMER.
+
+4. CARRIED FORWARD, STATED IN THE SEAL: station-4 precondition hunt is THE
+   FRONT QUESTION (Tony steps in at fixFrontier4Here) · isActioN has no
+   opSetFlag case, station 6's blocker-in-waiting, captured · F-33 queued
+   and LOAD-BEARING · Charter B UNSTARTED · the 8 nested-term refusals
+   UNMEASURED under the new siting · ordinal STILL FLAGGED · fixitNag
+   expected 0.
+
+5. Fleet/canary/baselines verified at seal per standing practice;
+   groups.ext md5 STATED IF IT MOVED THIS SESSION.
+
+THE GOOGOO TASK -- DRAWING REGISTRY, NON-COMPUTING:
+
+Update the Drawing registry entries to carry function= and signature=
+attributes per the line entry's pattern:
+    line function="CGContextAddLineToPoint" signature="v:pdY";
+
+· ⚠ READ THE SIGNATURE ENCODING OFF THE EXISTING ENTRIES FIRST -- DERIVE the
+  convention from what is there (v:pdY et al.), DO NOT INVENT ONE. STATE THE
+  DECODED CONVENTION IN ONE LINE in the report so Tony can veto a misreading
+  cheaply.
+· Function names from the CG API each entry actually wraps; where the mapping
+  is OBVIOUS, write it; where it is NOT, or the signature encoding is
+  AMBIGUOUS for that call's shape, MARK THE ENTRY signature="?" AND LIST IT
+  -- ⚠ A FLAGGED UNKNOWN BEATS A PLAUSIBLE WRONG CODE THAT GETS BUILT ON.
+· MATCH THE FILE'S EXISTING IDIOM EXACTLY; NO REFORMATTING SWEEP.
+· REPORT: entries updated, entries flagged, convention as decoded.
+
+  END SEQ 83
 ===================================================================
