@@ -31,6 +31,7 @@ define
     storeBody immediateAction=storeBody;
     storedBody immediateAction=storedBody;
     activateBody immediateAction=activateBody;
+    compileStored immediateAction=compileStored;
     activateAll immediateAction=activateAll;
     bodyCensus immediateAction=bodyCensus;
     parseClassify immediateAction;

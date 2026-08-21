@@ -140,6 +140,7 @@ extern "C" GroupItem *cLEAR(GroupItem *input);
 extern "C" GroupItem *cOPY(GroupItem *field);
 extern "C" int closeFile(GroupItem *bufField);
 extern "C" GroupItem *compile(GroupItem *field);
+extern "C" GroupItem *compileStored(GroupItem *rule);
 extern "C" GroupItem *concatEQ(GroupItem *target, GroupItem *argument);
 extern "C" GroupItem *copyOf(GroupItem *grup);
 extern "C" int countRuleTerms(GroupItem *rule);

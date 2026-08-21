@@ -911,6 +911,61 @@ GroupItem   reg,
 
 
 /*******************************************************************************
+    compileStored -- PHASE 2 UNDER OPTION B. COMPILE THE BODY OUT OF THE
+    REGISTRY, WITHOUT EVER WRITING THE RULE'S LIVE SLOT.
+
+    THE SPELLING, FLAGGED AS THE CHARTER ASKS: a sixth verb rather than a new
+    arm on compile, and it compiles THE CORPUS ENTRY, not the rule. The entry
+    is a GroupItem like any other, so hanging a CodE on IT and compiling IT
+    exercises the whole parse path while the rule stays untouched. That is
+    kantDoor's mint pattern (genParse.rtn) -- it compiles a `kp<Rule>` mint in
+    a separate registry for exactly this reason -- rather than a new mechanism.
+
+    WHY NOT AN ARM ON compile: compile's contract is "compile the field you are
+    given". Teaching it to go looking somewhere else for a body would make one
+    function mean two things depending on a flag, which is the one-channel-two-
+    meanings failure this project keeps paying for. The canary moves 313 -> 314
+    and that is PRE-STATED here rather than discovered.
+
+    STATES ON THE ENTRY: 1 pending · 3 COMPILED GREEN · 2 commissioned. Phase 2
+    moves 1 -> 3 for a green compile and LEAVES 1 for a failure, so the residue
+    is exactly the set still at 1. Phase 3 moves 3 -> 2. Never 0: a fresh node
+    counts zero already, so zero can never mean a state we put it in.
+*******************************************************************************/
+extern GroupItem compileStored(GroupItem rule)
+{
+GroupItem   reg,
+            entry,
+            body,
+            hung,
+            out;
+    if !rule    return null;
+    reg = getRegistry("GenBodies");
+    if !reg.groupList {
+        cerr "compileStored: REFUSING " rule.tag " -- the corpus is empty":;
+        return null; }
+    entry = reg[rule.tag];
+    if !entry {
+        cerr "compileStored: REFUSING " rule.tag " -- no stored body":;
+        return null; }
+    body = entry.getAttribute("StorE");
+    if !body {
+        cerr "compileStored: REFUSING " rule.tag " -- the entry carries no body":;
+        return null; }
+    hung            = copyOf(body);
+    hung.tag        = "CodE";
+    hung.noPrint    = true;
+    entry           +% hung;
+    entry.isCoded   = true;
+    out             = compile(entry);
+    entry.isCoded   = false;
+    if !out     return null;
+    entry.count     = 3;
+    return trueResult;
+}
+
+
+/*******************************************************************************
     activateAll -- THE WHOLE-POPULATION FORM.
 
     Walks the corpus and binds every PENDING entry to the rule it was filed
@@ -941,12 +996,12 @@ int         done = 0;
         cerr "CORPUS activated 0 -- the corpus is empty":;
         return null; }
     while entry = reg.next(entry)
-        if entry.count == 1 {
+        if entry.count == 3 {
             rule = locate(entry.tag);
             if !rule
                 cerr "activateAll: REFUSING " entry.tag " -- no live rule of that name":;
             or activateBody(rule)   done = done + 1; }
-    cerr "CORPUS activated " toStringFromInt(done):;
+    cerr "CORPUS commissioned " toStringFromInt(done):;
     return trueResult;
 }
 
@@ -970,19 +1025,22 @@ extern GroupItem bodyCensus(GroupItem ignored)
 {
 GroupItem   reg,
             entry;
-int         pending = 0;
-int         active  = 0;
-int         stray   = 0;
-int         total   = 0;
+int         pending  = 0;
+int         compiled = 0;
+int         active   = 0;
+int         stray    = 0;
+int         total    = 0;
     reg = getRegistry("GenBodies");
     if reg.groupList
         while entry = reg.next(entry) {
             total = total + 1;
-            if entry.count == 1         pending = pending + 1;
-            or entry.count == 2         active  = active + 1;
-            else                        stray   = stray + 1; }
+            if entry.count == 1         pending  = pending + 1;
+            or entry.count == 3         compiled = compiled + 1;
+            or entry.count == 2         active   = active + 1;
+            else                        stray    = stray + 1; }
     cerr "CORPUS pending " toStringFromInt(pending)
-         " activated " toStringFromInt(active)
+         " compiled " toStringFromInt(compiled)
+         " commissioned " toStringFromInt(active)
          " stray " toStringFromInt(stray)
          " total " toStringFromInt(total):;
     return trueResult;

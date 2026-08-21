@@ -1840,7 +1840,7 @@ int 		done = 0;
 		return 0;
 		}
 	while ( entry = reg->next(entry) )
-		if ( entry->getCount() == 1 )
+		if ( entry->getCount() == 3 )
 			{
 			rule = GroupControl::groupController->locate(entry->groupBody->tag);
 			if ( !rule )
@@ -1849,7 +1849,7 @@ int 		done = 0;
 			if ( ::activateBody(rule) )
 				done = done + 1;
 			}
-	::fprintf(stderr,"CORPUS activated %s\n",::toStringFromInt(done));
+	::fprintf(stderr,"CORPUS commissioned %s\n",::toStringFromInt(done));
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
@@ -2360,6 +2360,7 @@ extern "C" GroupItem *bodyCensus(GroupItem *ignored)
 GroupItem 	*reg = 0;
 GroupItem 	*entry = 0;
 int 		pending = 0;
+int 		compiled = 0;
 int 		active = 0;
 int 		stray = 0;
 int 		total = 0;
@@ -2371,11 +2372,14 @@ int 		total = 0;
 			if ( entry->getCount() == 1 )
 				pending = pending + 1;
 			else
+			if ( entry->getCount() == 3 )
+				compiled = compiled + 1;
+			else
 			if ( entry->getCount() == 2 )
 				active = active + 1;
 			else	stray = stray + 1;
 			}
-	::fprintf(stderr,"CORPUS pending %s activated %s stray %s total %s\n",::toStringFromInt(pending),::toStringFromInt(active),::toStringFromInt(stray),::toStringFromInt(total));
+	::fprintf(stderr,"CORPUS pending %s compiled %s commissioned %s stray %s total %s\n",::toStringFromInt(pending),::toStringFromInt(compiled),::toStringFromInt(active),::toStringFromInt(stray),::toStringFromInt(total));
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
@@ -2528,6 +2532,68 @@ GroupItem 	*grup = 0;
 		return 0;
 endCompile:
 	return field;
+}
+
+/*******************************************************************************
+    compileStored -- PHASE 2 UNDER OPTION B. COMPILE THE BODY OUT OF THE
+    REGISTRY, WITHOUT EVER WRITING THE RULE'S LIVE SLOT.
+
+    THE SPELLING, FLAGGED AS THE CHARTER ASKS: a sixth verb rather than a new
+    arm on compile, and it compiles THE CORPUS ENTRY, not the rule. The entry
+    is a GroupItem like any other, so hanging a CodE on IT and compiling IT
+    exercises the whole parse path while the rule stays untouched. That is
+    kantDoor's mint pattern (genParse.rtn) -- it compiles a `kp<Rule>` mint in
+    a separate registry for exactly this reason -- rather than a new mechanism.
+
+    WHY NOT AN ARM ON compile: compile's contract is "compile the field you are
+    given". Teaching it to go looking somewhere else for a body would make one
+    function mean two things depending on a flag, which is the one-channel-two-
+    meanings failure this project keeps paying for. The canary moves 313 -> 314
+    and that is PRE-STATED here rather than discovered.
+
+    STATES ON THE ENTRY: 1 pending · 3 COMPILED GREEN · 2 commissioned. Phase 2
+    moves 1 -> 3 for a green compile and LEAVES 1 for a failure, so the residue
+    is exactly the set still at 1. Phase 3 moves 3 -> 2. Never 0: a fresh node
+    counts zero already, so zero can never mean a state we put it in.
+*******************************************************************************/
+extern "C" GroupItem *compileStored(GroupItem *rule)
+{
+GroupItem 	*reg = 0;
+GroupItem 	*entry = 0;
+GroupItem 	*body = 0;
+GroupItem 	*hung = 0;
+GroupItem 	*out = 0;
+	if ( !rule )
+		return 0;
+	reg = GroupControl::groupController->getRegistry("GenBodies");
+	if ( !reg->groupBody->groupList )
+		{
+		::fprintf(stderr,"compileStored: REFUSING %s -- the corpus is empty\n",rule->groupBody->tag);
+		return 0;
+		}
+	entry = reg->get(rule->groupBody->tag);
+	if ( !entry )
+		{
+		::fprintf(stderr,"compileStored: REFUSING %s -- no stored body\n",rule->groupBody->tag);
+		return 0;
+		}
+	body = entry->getAttribute("StorE");
+	if ( !body )
+		{
+		::fprintf(stderr,"compileStored: REFUSING %s -- the entry carries no body\n",rule->groupBody->tag);
+		return 0;
+		}
+	hung = ::copyOf(body);
+	hung->groupBody->tag = "CodE";
+	hung->groupBody->flags.noPrint = 1;
+	entry->addAttribute(hung);
+	entry->groupBody->flags.actionType = 2;
+	out = ::compile(entry);
+	entry->groupBody->flags.actionType = 0;
+	if ( !out )
+		return 0;
+	entry->setCount(3);
+	return GroupControl::groupController->groupRules->trueResult;
 }
 
 /* concatEQ  the runtime helper the string-+= JIT call lands on. All the member

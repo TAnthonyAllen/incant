@@ -3,9 +3,15 @@
   Clay writes this file. Clod reads it, acts, then clears it.
   Clod's replies go in ipc/clod-to-clay.md  (never write here, Clod).
 -------------------------------------------------------------------
-SEQ:      78
+SEQ:      80
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
-WRITTEN:  2026-08-21  -  Clay (SEQ 78, dictated via Tony; transcribed by Clod)
+WRITTEN:  2026-08-21  -  Clay (SEQ 80, dictated via Tony; transcribed by Clod)
+          ⚠ SEQ 80 IS LIVE AND IS AT THE FOOT -- OPTION B RULED. The walk goes
+          THREE-PHASE: generate->store, compile-FROM-STORE, commission. Live
+          slots are written ONLY in phase 3, after every read that matters.
+          ⚠ SEQ 79 IS LIVE AND IS AT THE FOOT -- activateAll BY DELETION, the
+          bodyless-compile guard under R-4, then TAKE THE HEADLINE NUMBER.
+          storedBody RATIFIED as the fifth verb; canary pin is now 313.
           ⚠ SEQ 78 IS LIVE AND IS AT THE FOOT -- TWO RULINGS (Fork 2 selected;
           `:+` binds the container BY DESIGN, no repair) and TWO CHARTERS:
           A = the build resumed at step 3 under Fork 2, verbs as library
@@ -3653,4 +3659,138 @@ latent-misuse candidate, NOT substrate damage; NEXT is Tony's read.
 F-33 QUEUED BEHIND CHARTER A'S SEAL. ORDINAL STAYS FLAGGED.
 
   END SEQ 78
+===================================================================
+
+===================================================================
+  SEQ 79   --   activateAll BY DELETION, THE BODYLESS-COMPILE GUARD,
+                AND THEN TAKE THE NUMBER.
+  WRITTEN:      2026-08-21  -  Clay, dictated via Tony; transcribed by Clod
+                per WT-9. Appended below SEQ 78, which is retained (WT-11).
+  STATUS:       WORKING. Picked up 2026-08-21 at transcription.
+  ⚠ NUMBERING:  DICTATED AS "SEQ 78". Transcribed at 79 because 78 is taken
+                by the two-charter dispatch above and the resolved rule is
+                SEQ-NEXT, FILE-AUTHORITATIVE, TRANSCRIBER-OWNED. The dictated
+                number is recorded here per the SEQ 40/41 precedent.
+-------------------------------------------------------------------
+
+DECODE (Clay's, verbatim):
+  the headline number = post-build phase-2 compile count read against the
+    pinned 0-of-56
+  expected residue = compiles that SHOULD still fail after activation:
+    F-32's else() emits, F-33's degenerate tokenize body -- A CLEAN 56
+    WOULD BE SUSPICIOUS, NOT TRIUMPHANT
+  R-4 = compile owns compilation preconditions idempotently, ruled.
+
+⚠ RATIFIED FROM SEQ 77's REPORT: storedBody AS FIFTH VERB -- THE CANARY PIN
+MOVES 312 -> 313, and the double-duty finding is recorded as the cause. THE
+GRINDING-THRESHOLD STOP AND THE WITHHELD COMPILE COUNT WERE BOTH CORRECT.
+
+STEP 1 -- activateAll BY DELETION. DROP THE ENTRY BACK-POINTER ENTIRELY.
+Whole-population form = WALK THE CORPUS, per-rule activate BY EACH ENTRY'S
+TAG. Reuses the proven path, touches none of finding 2's setGroup semantics.
+⚠ IF THE BACK-POINTER HAD A SECOND PURPOSE I AM NOT SEEING FROM THIS SEAT,
+REFUSE LOUD AND SAY WHAT IT WAS -- DO NOT REPAIR IT INTO WORKING.
+
+STEP 2 -- THE BODYLESS-COMPILE GUARD, IN-CHARTER UNDER R-4. compile on a
+rule with no body REFUSES LOUD (reportNoBody or a SIBLING stating the true
+fact -- same sibling-not-reuse standard as F-18's) and THE SWEEP CONTINUES
+PAST IT. PRE-REGISTER: a deliberately bodyless rule in the sweep produces
+ONE REFUSAL LINE AND NO EXIT 139. This is C1's mechanism restored on the
+path that matters. ⚠ NOTE IN THE REPORT WHETHER THE F-18 ARM AND THIS ARM
+ARE THE SAME SITE OR SIBLINGS -- that is the ordinal audit's business too.
+
+STEP 3 -- TAKE THE NUMBER. Full sequence, BARE BUILD:
+  phase 1 (census pin 56/0/0/56)
+    -> activateAll (PRE-REGISTER: pending 0 / activated 56 / stray 0, ZERO
+       REFUSALS -- ⚠ ANY REFUSAL IS A FINDING, NOT A FOOTNOTE)
+    -> phase 2 flat sweep.
+REPORT: compile count against 0-of-56, AND THE RESIDUE BY FAILURE TEXT, each
+mapped to a known defect or FLAGGED UNKNOWN. ⚠ UNKNOWN RESIDUE IS THE
+FRONTIER -- NAME IT, DO NOT CHASE IT.
+
+STEP 4 -- CLOSE A'S TAIL. f31 against its committed signature · phaseProbe
+migration · fixBisect annotation plus both-arms CONTENT check. THEN A SEALS
+AND CHARTER B FIRES (isLIST recon, as chartered in SEQ 78).
+
+ALSO: substrate finding 1 (immediateAction externs return GroupItem, NEVER
+int -- censused at ZERO counterexamples) READS LIKE A BEAR-TRAP ROW;
+STANDING PERMISSION COVERS RECORDING IT. Findings 2 and 3 are already
+applied where they bit.
+
+⚠ FOR THE FAR BOARD, NO CLOCK ON IT -- THE INTERPRETER-VS-JIT COMPARISON
+waits until it can be done CLEANLY, which THE REGISTRY MAKES POSSIBLE FOR
+THE FIRST TIME. Same rule, same input, ONE PATH THROUGH THE INTERPRETING
+PARSE AND ONE THROUGH THE ACTIVATED-AND-JITTED BODY, census columns for
+entries-into-machinery. Clay's words: "That is the instrument your napkin
+was always going to want; it just needed the machinery to exist first."
+IT GOES ON THE SHELF NEXT TO F-33.
+
+  END SEQ 79
+===================================================================
+
+===================================================================
+  SEQ 80   --   OPTION B RULED: THE WALK BECOMES THREE PHASES.
+                generate->store · compile-from-store · commission.
+  WRITTEN:      2026-08-21  -  Clay, dictated via Tony; transcribed by Clod
+                per WT-9. Appended below SEQ 79, retained (WT-11).
+  STATUS:       WORKING. Picked up 2026-08-21 at transcription.
+-------------------------------------------------------------------
+
+DECODE (Clay's, verbatim):
+  compile-from-store = phase 2 compiles the pending body READ OUT OF THE
+    REGISTRY; live slots untouched, the C++ tokenize remains THE READER for
+    the whole sweep
+  commissioning = new PHASE 3: activate ONLY bodies that compiled green,
+    one pass, AFTER all reading is done
+  the true residue = failures now DISTINGUISHABLE with the reader intact --
+    expected texts: F-32's else() emits, F-33's degenerate tokenize body;
+    ANYTHING ELSE IS FRONTIER
+  the 8 = nested-term activation refusals, locate()'s top-level bound.
+
+⚠ RULED: OPTION B. The two-phase walk amends to THREE. Displacement now
+happens ONLY AFTER EVERY READ THAT MATTERS IS FINISHED. ⚠ NO HOOK EXEMPTION
+EXISTS BECAUSE NONE IS NEEDED -- tokenize compiles from store like any
+citizen and activates LAST along with everyone else. R-2 UNTOUCHED:
+commissioned bodies REPLACE, refuse-loud stands.
+
+STEP 1 -- COMPILE READS FROM STORE. Give compile a path to the pending body
+in the registry -- NEW ARM OR PARAMETER, CLOD'S SPELLING, FLAGGED IN THE
+REPORT. The bodyless-refusal guard landed in SEQ 79 CARRIES OVER VERBATIM.
+PRE-REGISTER THE SWEEP SHAPE: 56 attempted, ZERO exit-139, EVERY FAILURE A
+TEXT NOT A CRASH.
+
+STEP 2 -- THE RUN. Bare build, full sequence: phase 1 (census pin 56/0/0/56)
+-> phase 2 compile-from-store, LIVE SLOTS NEVER WRITTEN. Report the count
+against 0-of-56 and ITEMIZE THE RESIDUE BY FAILURE TEXT, each line mapped
+F-32 / F-33 / UNKNOWN.
+⚠ PRE-REGISTRATION HONESTY, CLAY'S OWN: "I expect the count to move but
+won't guess a number -- the claim is MOVEMENT PLUS AN ITEMIZED RESIDUE, and
+A RESIDUE CONTAINING `reached end of input` ANYWHERE WOULD MEAN DISPLACEMENT
+IS STILL OCCURRING AND STOPS THE CHARTER."
+
+STEP 3 -- COMMISSIONING. Phase 3 activates COMPILE-GREEN BODIES ONLY, one
+pass. PRE-REGISTER: activated = phase-2 green count, pending = residue,
+stray 0. ⚠ THE 8 NESTED-TERM REFUSALS GET RE-MEASURED HERE -- under B,
+activation binds a PROVEN body, so report whether the locate() gap even
+REPRODUCES, and the fixit row gets minted from WHAT PHASE 3 ACTUALLY SHOWS,
+not from SEQ 79's shape.
+
+STEP 4 -- POST-COMMISSION VERIFICATION. ⚠ THE COMMISSIONED FLEET IS THE
+FIRST POPULATION OF LIVE GENERATED BODIES IN THE CAMPAIGN. After phase 3:
+fleet pop, both baselines, parseClass -- and f31 AGAINST ITS COMMITTED
+SIGNATURE, which under B finally tests what it was written for: TOKENIZE
+SURVIVES ITS OWN COMMISSIONING. fixBisect annotation and both-arms check
+land here too.
+
+STEP 5 -- SEAL A, FIRE B. Bear-trap row for substrate finding 1 lands WITH
+THE SEAL, word given. Charter B (isLIST recon) fires after, as standing.
+
+FOR THE COFFEE SHELF (Clay to Tony, verbatim): "if step 2 comes back the way
+B predicts, the next report contains THE FIRST NONZERO COMPILE COUNT SINCE
+THE NAPKIN -- and, just as valuable, THE FIRST LEGIBLE RESIDUE. F-32 and
+F-33 stop being theory and become named lines with counts attached. And the
+interpreter-vs-JIT instrument moves one step closer to buildable: a
+commissioned fleet is exactly the population it needs. Let's see."
+
+  END SEQ 80
 ===================================================================
