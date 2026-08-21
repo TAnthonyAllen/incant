@@ -3,9 +3,13 @@
   Clay writes this file. Clod reads it, acts, then clears it.
   Clod's replies go in ipc/clod-to-clay.md  (never write here, Clod).
 -------------------------------------------------------------------
-SEQ:      80
+SEQ:      81
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
-WRITTEN:  2026-08-21  -  Clay (SEQ 80, dictated via Tony; transcribed by Clod)
+WRITTEN:  2026-08-21  -  Clay (SEQ 81, dictated via Tony; transcribed by Clod)
+          ⚠ SEQ 81 IS LIVE AND IS AT THE FOOT -- THE CRUCIBLE RECON, three arms,
+          REPORT-ONLY. Arm 1 (portability A/B) is the gate and runs first.
+          Tony's pre-registration: portability HOLDS BY DESIGN INTENT; a failure
+          is a SUBSTRATE FINDING, not a dead end.
           ⚠ SEQ 80 IS LIVE AND IS AT THE FOOT -- OPTION B RULED. The walk goes
           THREE-PHASE: generate->store, compile-FROM-STORE, commission. Live
           slots are written ONLY in phase 3, after every read that matters.
@@ -3793,4 +3797,76 @@ interpreter-vs-JIT instrument moves one step closer to buildable: a
 commissioned fleet is exactly the population it needs. Let's see."
 
   END SEQ 80
+===================================================================
+
+===================================================================
+  SEQ 81   --   THE CRUCIBLE RECON. Three arms, REPORT-ONLY, ruling
+                follows. Arm 1 is the gate.
+  WRITTEN:      2026-08-21  -  Clay, dictated via Tony; transcribed by Clod
+                per WT-9. Appended below SEQ 80, retained (WT-11).
+  STATUS:       WORKING. Picked up 2026-08-21 at transcription.
+-------------------------------------------------------------------
+
+⚠ TONY'S FRAMING, RECORDED BECAUSE IT IS THE PRE-REGISTRATION: "IT BETTER BE"
+-- portability is a DESIGN CLAIM. If the artifact is not portable, that is NOT
+a recon miss, it is A SUBSTRATE FINDING about compile baking identity where
+the calling convention says it should not -- A DEFECT BY THIS ARCHITECTURE'S
+OWN LIGHTS, not a fact to route around. Clay: "the recon is now testing the
+substrate against its designer's intent, which is the best kind of
+pre-registration."
+
+DECODE (Clay's, verbatim):
+  the crucible = mint a TWIN of the rule via copyOf, compile the generated
+    body ON THE TWIN, harvest the compiled artifact, DISCARD the twin,
+    commission the artifact into the rule's rStuff in phase 3 -- IDENTITY
+    NEVER SWITCHES, THE TWIN IS A JIG
+  portability = THE GATE: an artifact compiled in the twin's rStuff runs
+    correctly from the rule's rStuff
+  Tony's pre-registration = PORTABILITY HOLDS BY DESIGN INTENT -- the calling
+    convention binds the rule at dispatch.
+
+ARM 1 -- THE PORTABILITY A/B. THE GATE; RUN IT FIRST. One process, Braced,
+per probeCompileSite discipline.
+  CONTROL: activateBody + compile on the LIVE RULE -> run -> capture
+    behaviour (the proven COMPILED-ok path).
+  TEST: mint twin (copyOf), install body on twin, compile on twin, MOVE the
+    compiled artifact from twin's rStuff to the ORIGINAL rule's rStuff --
+    move or copyOf per the F-13 idiom, NEVER ALIAS -- discard twin, run the
+    original.
+  CLAIM: both arms produce IDENTICAL RUN BEHAVIOUR.
+  ⚠ INCLUDE AN ANTI-VACUITY LINE: evidence the test arm ACTUALLY EXECUTED
+    THE MOVED ARTIFACT and not a stale or interpreted path. Clod's spelling
+    -- a marker in the twin-compiled body, a census read, whatever is
+    cheapest and loud.
+  ⚠ IF IT FAILS: capture the FAILURE TEXTURE and WHAT THE ARTIFACT RESOLVES
+    AGAINST (twin ghost? null scope?), GRADE IT, STOP THE ARM. Per Tony's
+    pre-registration that is a substrate finding with its own life -- DO NOT
+    ATTEMPT A REPAIR MID-RECON.
+
+ARM 2 -- THE kp<Rule> RE-READ. The registry marks it NOT-A-RULE for a
+reason. READ THE REASON OUT OF THE TREE and report it verbatim-adjacent
+(file:line, the mechanism it guards). The question: is
+rule-shaped-but-not-a-rule a category THE SUBSTRATE DELIBERATELY REJECTS --
+which would bear on the twin's legitimacy -- or is the marking about
+something else entirely (registry hygiene, walk exclusion) that leaves the
+crucible untouched? REPORT, DO NOT RULE.
+
+ARM 3 -- THE STARVATION-TEXTURE RECONCILIATION, carried from SEQ 80. The
+sweep's 56 failed at `reached end of input`; probeCompileSite's arm A failed
+at CONTENT. BOTH WERE DETACHED-ENTRY COMPILES. Name why the texts differ --
+leading suspect: the sweep's body-retrieval handed compile an EMPTY READ
+where the probe's did not -- or FLAG IT UNRESOLVABLE with what is
+measurable. ⚠ A SITE FIX THAT LEAVES THIS TEXT UNEXPLAINED LEAVES A SECOND
+CAUSE LOOSE, so this arm is NOT OPTIONAL GARNISH.
+
+CONSTRAINTS: bare build for every capture · fleet + canary verified UNMOVED
+at close (nothing here should touch tracked state -- the probes live in
+minionWork) · twins in the probe are DISCARDED IN-PROCESS; the census should
+read STRAY 0 after, AND SAY SO.
+
+NOT IN SCOPE: the crucible build itself, F-33, fixit rows from the 8
+refusals (unmeasured under B and staying that way until the siting settles),
+Charter B. All ride behind the ruling this recon feeds.
+
+  END SEQ 81
 ===================================================================

@@ -1,0 +1,56 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(Arm3);
+define
+    a3Any=0;
+    a3Buf buffer;
+    a3Open="{";
+    a3Close="}";
+    StorE;
+    a3Sample width=1 height=2;
+    a3Put argument code={
+        clear(StorE);
+        StorE = a3Buf;
+        a3Copy <- copyOf(StorE);
+        a3Copy :. noPrinT;
+        argument +% a3Copy;
+        storeBody(argument);
+        };
+    a3Try argument code={
+        a3Out := compileStored(argument);
+        if a3Out;  cerr "   >>> GREEN":;
+        else       cerr "   >>> failed":;
+        };
+    a3Run code={
+        cerr "== R1: no terms, no runRuleAction ==":;
+        reset(a3Buf); printTO(a3Buf);
+        print a3Open:; print $"a3Sample[width] = 251;":; print `a3Close:;
+        printTO(0);
+        a3Put(Grokking["QuotE"]); a3Try(Grokking["QuotE"]);
+
+        cerr "== R2: no terms, WITH runRuleAction ==":;
+        reset(a3Buf); printTO(a3Buf);
+        print a3Open:; print $"return runRuleAction(this);":; print `a3Close:;
+        printTO(0);
+        a3Put(Grokking["StringXP"]); a3Try(Grokking["StringXP"]);
+
+        cerr "== R3: WITH terms, no runRuleAction ==":;
+        reset(a3Buf); printTO(a3Buf);
+        print a3Open:; print $"if ExpressioN();":; print `a3Close:;
+        printTO(0);
+        a3Put(Grokking["Xpress"]); a3Try(Grokking["Xpress"]);
+
+        cerr "== R4: WITH terms AND runRuleAction (the sweep's shape) ==":;
+        reset(a3Buf); printTO(a3Buf);
+        print a3Open:; print $"if ExpressioN(); return runRuleAction(this);":; print `a3Close:;
+        printTO(0);
+        a3Put(Grokking["Iterate"]); a3Try(Grokking["Iterate"]);
+
+        bodyCensus(a3Any);
+        cerr "ARM3 SENTINEL":;
+        stop();
+        };
+    ;
+a3Run();
