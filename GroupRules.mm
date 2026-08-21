@@ -1831,6 +1831,7 @@ extern "C" GroupItem *activateAll(GroupItem *ignored)
 {
 GroupItem 	*reg = 0;
 GroupItem 	*entry = 0;
+GroupItem 	*rule = 0;
 int 		done = 0;
 	reg = GroupControl::groupController->getRegistry("GenBodies");
 	if ( !reg->groupBody->groupList )
@@ -1840,9 +1841,14 @@ int 		done = 0;
 		}
 	while ( entry = reg->next(entry) )
 		if ( entry->getCount() == 1 )
-			if ( entry->getGroup() )
-				if ( ::activateBody(entry->getGroup()) )
-					done = done + 1;
+			{
+			rule = GroupControl::groupController->locate(entry->groupBody->tag);
+			if ( !rule )
+				::fprintf(stderr,"activateAll: REFUSING %s -- no live rule of that name\n",entry->groupBody->tag);
+			else
+			if ( ::activateBody(rule) )
+				done = done + 1;
+			}
 	::fprintf(stderr,"CORPUS activated %s\n",::toStringFromInt(done));
 	return GroupControl::groupController->groupRules->trueResult;
 }
@@ -2425,8 +2431,30 @@ extern "C" GroupItem *compile(GroupItem *field)
 {
 GroupItem 	*code = 0;
 GroupItem 	*grup = 0;
+	/*  ⚠ REFUSE LOUD ON A BODYLESS FIELD, AND RETURN null. SEQ 79 step 2,
+	in-charter under R-4: compile owns the compilation preconditions, and
+	"carries a body at all" is the first of them.
+	
+	WHAT THIS REPLACES IS WORSE THAN THE CRASH IT WAS CHARTERED AGAINST.
+	The old spelling was `goto endCompile`, and endCompile is `return
+	field` -- so compile on a rule with NO BODY returned the field, which
+	is TRUTHY, and every caller tallying `if compile(x)` counted it as a
+	SUCCESS. A bodyless rule did not fail to compile, it silently reported
+	that it had. That is an absence passing for a value, rule H4's exact
+	shape, and it was invisible for as long as every caller happened to
+	pass coded fields.
+	
+	A SIBLING MESSAGE, NOT reportNoBody, per the F-18 standard: that one
+	says a rule was reached THROUGH A BOUND PARSE METHOD and has no body,
+	which is a different fact about a different path. Reusing it would put
+	two meanings on one channel. Spelled as a cerr rather than a new
+	extern deliberately -- it is greppable by text, and a sixth extern
+	would move the canary pin again for a message.  */
 	if ( !isCoded(field->groupBody->flags.actionType) )
-		goto endCompile;
+		{
+		::fprintf(stderr,"compile: REFUSING %s -- no compiled body\n",field->groupBody->tag);
+		return 0;
+		}
 	/*  ⚠ COMPILE OWNS THE COMPILATION PRECONDITIONS, ENSURED IDEMPOTENTLY.
 	R-4, Tony's ruling 2026-08-17.
 	
@@ -12986,7 +13014,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 *******************************************************************************/
 extern "C" GroupItem *storeBody(GroupItem *rule)
 {
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*reg = 0;
 GroupItem 	*entry = 0;
 GroupItem 	*body = 0;
@@ -13002,29 +13029,24 @@ GroupItem 	*body = 0;
 		return 0;
 		}
 	reg = GroupControl::groupController->getRegistry("GenBodies");
-	if ( !ruler->searchList->get("GenBodies") )
-		ruler->searchList->addMember(reg);
 	if ( reg->groupBody->groupList )
 		entry = reg->get(rule->groupBody->tag);
 	if ( !entry )
 		entry = reg->addMember(new GroupItem(rule->groupBody->tag));
 	body->parent = 0;
 	entry->addAttribute(body);
-	/*  ⚠ isLocal BEFORE group, AND IT IS NOT DECORATION. GroupItem::setGroup
-	(GroupItem.twk:1662) keeps the pointer you hand it ONLY when the node
-	is isLocal or isLabel, or the target is byRef. Otherwise, for a target
-	that HAS a parent -- which every grammar rule does -- it takes the
-	`gGroup = new(g)` arm and stores an EMBEDDED COPY. The back-pointer
-	then names a copy of the rule rather than the rule, and a
-	whole-population activate binds bodies to nodes nobody reads.
+	/*  ⚠ NO BACK-POINTER. SEQ 79 step 1, ruled: activateAll resolves the rule
+	by NAME instead. The entry once carried entry.group = rule so the
+	whole-population form could find its rule, and it did not work --
+	GroupItem::setGroup (GroupItem.twk:1662) keeps the pointer only for an
+	isLocal/isLabel node or a byRef target, and otherwise takes the
+	`gGroup = new(g)` arm and stores an EMBEDDED COPY of a parented node.
+	Setting isLocal first, which is what kantDoor does, did not rescue it.
 	
-	Measured 2026-08-21: without this line the corpus filled correctly at
-	56 pending and activateAll reported 0 activated, because the copy it
-	got back could not be bound. kantDoor sets isLocal before group for the
-	same reason (genParse.rtn, the `this` mint) -- this is copying the
-	working door faithfully rather than nearly.  */
-	entry->groupBody->flags.isLocal = 1;
-	entry->setGroup(rule);
+	THE FIELD IS DELETED RATHER THAN REPAIRED. Audited before removal, as
+	instructed: entry.group was written exactly here and read in exactly
+	one place, activateAll's loop. It had NO second purpose, so nothing
+	else can be relying on it.  */
 	entry->setCount(1);
 	return entry;
 }
@@ -13582,3 +13604,4 @@ int 	result = 0;
 	setParseMethod(char*,char*)
 	getRStuff()
 */
+// Ignoring declaration of unused variable ruler in method: storeBody(GroupItem*)
