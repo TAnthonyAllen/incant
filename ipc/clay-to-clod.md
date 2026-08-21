@@ -3,9 +3,12 @@
   Clay writes this file. Clod reads it, acts, then clears it.
   Clod's replies go in ipc/clod-to-clay.md  (never write here, Clod).
 -------------------------------------------------------------------
-SEQ:      81
+SEQ:      82
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
-WRITTEN:  2026-08-21  -  Clay (SEQ 81, dictated via Tony; transcribed by Clod)
+WRITTEN:  2026-08-21  -  Clay (SEQ 82, dictated via Tony; transcribed by Clod)
+          ⚠ SEQ 82 IS LIVE AND IS AT THE FOOT -- BUILD incant/frontier, the
+          standing eight-station ladder. It ABSORBS the arm-1 rerun. The
+          sweep-body dump goes FIRST and may relocate the frontier.
           ⚠ SEQ 81 IS LIVE AND IS AT THE FOOT -- THE CRUCIBLE RECON, three arms,
           REPORT-ONLY. Arm 1 (portability A/B) is the gate and runs first.
           Tony's pre-registration: portability HOLDS BY DESIGN INTENT; a failure
@@ -3869,4 +3872,82 @@ refusals (unmeasured under B and staying that way until the siting settles),
 Charter B. All ride behind the ruling this recon feeds.
 
   END SEQ 81
+===================================================================
+
+===================================================================
+  SEQ 82   --   BUILD incant/frontier AS A STANDING CITIZEN.
+                It absorbs the arm-1 rerun. Sweep-body dump goes FIRST.
+  WRITTEN:      2026-08-21  -  Clay, dictated via Tony; transcribed by Clod
+                per WT-9. Appended below SEQ 81, retained (WT-11).
+  STATUS:       WORKING. Picked up 2026-08-21 at transcription.
+-------------------------------------------------------------------
+
+DECODE (Clay's, verbatim):
+  the frontier incantation = A SINGLE STANDING FILE, incant/frontier,
+    REVISED AT EVERY SEAL, NEVER FORKED -- Tony's Xcode window onto the
+    campaign's live edge
+  station = one pipeline stage in the ladder; EACH PRINTS ITS OWN VERDICT
+    UNCONDITIONALLY
+  the current frontier = as of SEQ 81: compile-of-a-stored-body, pending the
+    portability verdict.
+
+⚠ ONE COMMAND FIRST, BEFORE THE FILE IS BORN: THE SWEEP-BODY DUMP from
+SEQ 81 -- dump ONE sweep entry's body text AT COMPILE TIME, settling whether
+sweep retrieval hands compile EMPTY READS. ⚠ ITS ANSWER MAY RELOCATE THE
+FRONTIER BEFORE THE FRONTIER FILE EVEN EXISTS, WHICH IS WHY IT GOES FIRST.
+
+THE SHAPE -- STATIONS IN PIPELINE ORDER, each numbered and named in plain
+language:
+  (1) generate one body (subject: Braced)
+  (2) store it -- census reads pending 1
+  (3) mint twin via copyOf
+  (4) install body on twin -- BlocK+isAction attached, VERIFIED BY READ-BACK,
+      NOT ASSUMED
+  (5) compile on twin
+  (6) harvest -- move BlocK+isAction to the ORIGINAL rule
+  (7) discard twin -- census reads stray 0
+  (8) run the original -- MARKER EVIDENCE that the commissioned artifact
+      EXECUTED, not an interpreted path
+
+H4 DISCIPLINE AT EVERY STATION: print
+  STATION n <name>: PASS <value>      or
+  STATION n <name>: FAIL <expected / read>
+UNCONDITIONALLY, WITH VALUES, so an empty read is an ANSWER and SILENCE IS
+IMPOSSIBLE. ⚠ FIRST FAIL STOPS THE LADDER LOUD; stations after it DO NOT RUN
+AND SAY NOTHING -- no cascade noise burying the frontier line.
+
+ANCHOR IDIOM BEFORE EACH STATION, per the fixit practice, so Tony can
+breakpoint any station and step into it in Xcode. HEADER states, in plain
+words: what this file is, THAT IT IS REVISED AT EVERY SEAL AND NEVER
+DUPLICATED, and WHAT THE FRONTIER WAS AS OF THE LAST REVISION (one dated
+line, SUPERSEDED IN PLACE).
+
+⚠ STATION 8's MARKER BODY MUST ITSELF BE PRE-REGISTERED AS PARSEABLE -- THE
+ARM-1 LESSON LANDS HERE AS STRUCTURE: the control's own health is station
+4's read-back and the marker's parse check, BUILT IN, so the void-control
+failure mode is UNBUILDABLE IN THIS FILE.
+
+STANDING PRACTICE, RECORDED: the SEAL CHECKLIST gains a line -- FRONTIER
+INCANTATION REVISED TO CURRENT EDGE AND RUN; ITS FIRST FAIL STATION NAMED IN
+THE SEAL. fixitNag stays the fixit queue's nag; FRONTIER IS NOT A QUEUE
+CITIZEN AND NEVER APPEARS THERE. ⚠ IT ALSO DOES NOT JOIN pop.sh -- THE FLEET
+MEASURES WHAT HOLDS; FRONTIER MEASURES WHAT DOES NOT YET.
+
+WHAT IT DELIVERS IMMEDIATELY: on first build, expected trace is STATIONS 1-4
+PASS and the frontier at 5 OR BEYOND -- and that run IS THE ARM-1 A/B's TEST
+ARM, with station 8 as THE PORTABILITY VERDICT and the live-rule control run
+alongside per the one-process discipline.
+  · station 8 PASSES against control -> PORTABILITY HOLDS, Tony's
+    pre-registration confirmed, THE CRUCIBLE CHARTER CUTS NEXT.
+  · any station FAILS -> Tony has the failure IN HIS DEBUGGER AT A NAMED
+    LINE, STEPPABLE, which is the whole point of the file.
+
+CLAY, FOR THE RECORD: "this file is the campaign's autobiography in
+executable form. Today it dies at compile-of-stored; the session that seals
+the crucible revises it and it dies at commissioning; the session after, it
+dies nowhere -- and the day incant/frontier runs all eight stations green
+WITH TOKENIZE AS THE SUBJECT INSTEAD OF BRACED is the day the campaign is
+over."
+
+  END SEQ 82
 ===================================================================

@@ -1,0 +1,243 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(Frontier);
+define
+    frAny=0;
+    frDead=0;
+    frOk=0;
+    frBuf buffer;
+    frOpen="{";
+    frClose="}";
+    frMark=987654;
+    StorE;
+    frSample width=1 height=2;
+    frTwin;
+    frSubject;
+
+    frBodyMarker code={
+        reset(frBuf);
+        printTO(frBuf);
+        print frOpen:;
+        print $"cerr " frMark ";":;
+        print $"return runRuleAction(this);":;
+        print `frClose:;
+        printTO(0);
+        clear(StorE);
+        StorE = frBuf;
+        };
+    frBodyTrigger code={
+        reset(frBuf);
+        printTO(frBuf);
+        print frOpen:;
+        print $"frSample[width] = 251;":;
+        print `frClose:;
+        printTO(0);
+        clear(StorE);
+        StorE = frBuf;
+        };
+    frHang argument code={
+        frCopy <- copyOf(StorE);
+        frCopy :. noPrinT;
+        argument +% frCopy;
+        };
+
+    frStation1 code={
+        fixFrontier1Here = 0;
+        cerr "ANCHOR frontier station 1 -- generate one body":;
+        frBodyMarker();
+        frOk = 0;
+        if StorE.datA;      frOk = 1;
+        if frOk == 1;
+            cerr "STATION 1 generate body: PASS -- body text follows":;
+            cerr StorE:;
+        if frOk == 0;
+            cerr "STATION 1 generate body: FAIL -- expected non-empty body text, read empty":;
+            frDead = 1;
+        };
+    frStation2 code={
+        fixFrontier2Here = 0;
+        cerr "ANCHOR frontier station 2 -- store it":;
+        frSubject <- Grokking["Braced"];
+        frHang(frSubject);
+        frE := storeBody(frSubject);
+        frOk = 0;
+        if frE;             frOk = 1;
+        if frOk == 1;            cerr "STATION 2 store body: PASS -- entry filed; census follows, pending must read 1":;
+        if frOk == 0;
+            cerr "STATION 2 store body: FAIL -- storeBody refused":;
+            frDead = 1;
+        bodyCensus(frAny);
+        };
+    frStation3 code={
+        fixFrontier3Here = 0;
+        cerr "ANCHOR frontier station 3 -- mint twin via copyOf":;
+        frTwin <- copyOf(Grokking["Braced"]);
+        frOk = 0;
+        if frTwin;          frOk = 1;
+        if frOk == 1;            cerr "STATION 3 mint twin: PASS -- twin taG reads " frTwin.taG:;
+        if frOk == 0;
+            cerr "STATION 3 mint twin: FAIL -- copyOf returned nothing":;
+            frDead = 1;
+        };
+    frStation4 code={
+        fixFrontier4Here = 0;
+        cerr "ANCHOR frontier station 4 -- install body on twin, then READ IT BACK":;
+        frBodyMarker();
+        frHang(frTwin);
+        frRead <- frTwin["StorE"];
+        frOk = 0;
+        if frRead;          frOk = 1;
+        if frOk == 1;
+            cerr "STATION 4 install on twin: PASS -- read-back follows":;
+            cerr frRead:;
+        if frOk == 0;
+            cerr "STATION 4 install on twin: FAIL -- expected a StorE attribute on the twin, read nothing":;
+            frDead = 1;
+        };
+    frStation5 code={
+        fixFrontier5Here = 0;
+        cerr "ANCHOR frontier station 5 -- compile on twin":;
+        frTwin :. isCodeD;
+        frOut := compile(frTwin);
+        frOk = 0;
+        if frOut;           frOk = 1;
+        if frOk == 1;            cerr "STATION 5 compile on twin: PASS -- compile returned a value":;
+        if frOk == 0;
+            cerr "STATION 5 compile on twin: FAIL -- compile refused or the parse failed; texture is above this line":;
+            frDead = 1;
+        };
+    frStation6 code={
+        fixFrontier6Here = 0;
+        cerr "ANCHOR frontier station 6 -- harvest BlocK onto the original rule":;
+        frArt <- frTwin["BlocK"];
+        frOk = 0;
+        if frArt;           frOk = 1;
+        if frOk == 1;
+            frSubject +% copyOf(frArt);
+            frSubject :. isActioN;
+            cerr "STATION 6 harvest: PASS -- artifact moved; its taG reads " frArt.taG:;
+        if frOk == 0;
+            cerr "STATION 6 harvest: FAIL -- expected a BlocK on the twin, read nothing":;
+            frDead = 1;
+        };
+    frStation7 code={
+        fixFrontier7Here = 0;
+        cerr "ANCHOR frontier station 7 -- discard twin":;
+        clear(frTwin);
+        cerr "STATION 7 discard twin: PASS -- twin cleared; census follows, stray must read 0":;
+        bodyCensus(frAny);
+        };
+    frStation8 code={
+        fixFrontier8Here = 0;
+        cerr "ANCHOR frontier station 8 -- run the original; the marker is the verdict":;
+        cerr "STATION 8 expects the marker " frMark " below if the commissioned artifact executed":;
+        frBodyTrigger();
+        frHang(Grokking["QuotE"]);
+        storeBody(Grokking["QuotE"]);
+        frFire := compileStored(Grokking["QuotE"]);
+        frOk = 0;
+        if frFire;          frOk = 1;
+        if frOk == 1;            cerr "STATION 8 run original: trigger PARSED -- marker presence above is the verdict":;
+        if frOk == 0;       cerr "STATION 8 run original: FAIL -- the trigger itself would not parse, so the marker proves nothing":;
+        };
+
+    frRun code={
+        cerr "=== incant/frontier -- the campaign live edge, eight stations ===":;
+        frStation1();
+        if frDead == 0;     frStation2();
+        if frDead == 0;     frStation3();
+        if frDead == 0;     frStation4();
+        if frDead == 0;     frStation5();
+        if frDead == 0;     frStation6();
+        if frDead == 0;     frStation7();
+        if frDead == 0;     frStation8();
+        if frDead == 1;     cerr "=== FRONTIER: the ladder stopped at the FAIL above. Later stations did not run. ===":;
+        if frDead == 0;     cerr "=== FRONTIER: all eight stations ran. ===":;
+        cerr "FRONTIER SENTINEL -- the ladder reached its foot":;
+        stop();
+        };
+    ;
+frRun();
+
+WHAT THIS FILE IS
+
+incant/frontier is the campaign's live edge, executable. It walks the pipeline
+one station at a time and dies at the first thing that does not work yet. That
+death is the point: the station that fails is where the campaign currently is.
+
+IT IS ONE FILE, REVISED IN PLACE AT EVERY SEAL, AND NEVER FORKED. There is no
+frontier2, no frontierOld. If you are looking at a copy, someone broke the
+practice. Each seal updates the dated line below and re-runs the file, and the
+seal names the first failing station.
+
+FRONTIER AS OF 2026-08-21 (SEQ 82): compile-of-a-stored-body, pending the
+portability verdict. Subject is Braced. The day this file runs all eight
+stations green with tokenize as the subject instead of Braced is the day the
+campaign is over.
+
+IT IS NOT A FLEET CITIZEN. It never joins pop.sh -- the fleet measures what
+holds, and this measures what does not yet. It is not a fixit citizen either
+and never appears in fixitNag's count.
+
+HOW TO USE IT IN XCODE
+
+Every station opens with a uniquely-named inert anchor -- fixFrontier1Here
+through fixFrontier8Here -- and a cerr naming the station. Set a name
+conditioned breakpoint on any anchor and you land exactly at that station with
+everything the previous stations built still in scope, ready to step.
+
+WHY EVERY STATION PRINTS EVEN WHEN IT PASSES
+
+Rule H4. A station that only speaks on failure passes the day somebody deletes
+the code that would have spoken. So each prints PASS or FAIL with the value it
+read, and an empty read is an answer rather than a silence. The first FAIL sets
+frDead and every later station is skipped without printing, so the failing line
+is the last verdict on screen and nothing buries it.
+
+WHY THE CONTROL CANNOT BE VOID
+
+The arm-1 lesson from SEQ 81, built in as structure rather than remembered as
+care. That recon could not report an A/B because its marker body silently
+failed to parse, so nothing ever demonstrated the artifact executing -- a void
+control wearing green. Here station 1 prints the generated body text and fails
+if it is empty, station 4 reads the body back off the twin rather than assuming
+the install took, and station 8 states the expected marker value BEFORE firing
+the trigger and reports separately whether the trigger itself parsed. If the
+trigger will not parse, station 8 says so, because a marker that never had a
+chance to appear is not evidence of anything.
+
+WHAT STATION 8 ACTUALLY DOES
+
+Braced fires when a bracket expression is parsed. So the trigger is a small
+body containing one -- frSample[width] = 251 -- compiled after the artifact has
+been commissioned onto the live Braced. If the commissioned artifact executes,
+the marker prints. The bracket-expression driver is borrowed from
+incant/bindSeamA, which drives Braced the same way and is already in the fleet.
+
+A NOTE ON THE if/else SHAPE USED THROUGHOUT
+
+Every station reads a flag and then tests it twice rather than using if/else.
+That is not style. Measured 2026-08-21 while building this file: a
+multi-statement indented if-arm followed by an else BREAKS THE PARSE, and it
+breaks it silently at define time -- the whole define block fails and the run
+reports "RunRulE: expected a method not <first action>", which names the first
+action in the file rather than the offending one. Two controls passed in the
+same probe: a multi-statement indented arm with NO else is fine, and a
+single-statement if with an else is fine. Only the combination fails.
+So: frOk = 0, set it, then two separate ifs.
+
+AND WHY THE FLAG IS TESTED AS `frOk == 1` AND NEVER AS `if frOk`
+
+Measured here, on this file, on its first run. `if frOk;` on a DECLARED field
+tests that the field EXISTS, which is always true -- so station 4 printed its
+PASS line and its FAIL line together, and stations 1 to 3 had been printing
+PASS whether or not they had earned it. The instrument was void in exactly the
+way it was built to prevent, and it was caught only because station 4 failed
+loudly enough to print both halves.
+
+That is bear-trap 26's family: existence and value are different questions, and
+`if x;` answers the first. For a lookup that can return null -- frE, frTwin,
+frRead, frArt, frOut, frFire -- `if x;` is the RIGHT test and is kept. For a
+numeric flag it is always wrong. Both forms appear in this file on purpose.
