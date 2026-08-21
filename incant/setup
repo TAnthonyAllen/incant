@@ -28,6 +28,11 @@ define
     arrondir immediateAction=arrondir;
     closeFile immediateAction;
     compile immediateAction;
+    storeBody immediateAction=storeBody;
+    storedBody immediateAction=storedBody;
+    activateBody immediateAction=activateBody;
+    activateAll immediateAction=activateAll;
+    bodyCensus immediateAction=bodyCensus;
     parseClassify immediateAction;
     condition immediateAction=processFlags noPrint;
     copy immediateAction=cOPY;

@@ -1808,6 +1808,93 @@ int 		fired = 0;
 }
 
 /*******************************************************************************
+    activateAll -- THE WHOLE-POPULATION FORM.
+
+    Walks the corpus and binds every PENDING entry to the rule it was filed
+    against. The rule is read back from the entry's group back-pointer, which
+    storeBody set -- the same back-pointer idiom kantDoor uses for `this`.
+    PRINTS the number activated, unconditionally and with its value, so a
+    caller can assert a quantity rather than an absence (rule H4).
+
+    ⚠ RETURNS GroupItem, NOT int, AND THAT IS LOAD-BEARING. An extern wired as
+    an incant command MUST return a GroupItem: the command machinery takes the
+    return value as a GroupItem*, so an int return is read as a pointer and the
+    process dies ON THE STATEMENT AFTER THE CALL, never at the call itself.
+    Measured 2026-08-21 -- the first cut of this function returned int, and the
+    trace proved it by never firing: the crash happened before the callee was
+    entered on the NEXT statement, which reads as "the command was never
+    called". Census of incant/setup at that date: of every registered
+    immediateAction command in the tree, ZERO return int. This one does not
+    either.
+*******************************************************************************/
+extern "C" GroupItem *activateAll(GroupItem *ignored)
+{
+GroupItem 	*reg = 0;
+GroupItem 	*entry = 0;
+int 		done = 0;
+	reg = GroupControl::groupController->getRegistry("GenBodies");
+	if ( !reg->groupBody->groupList )
+		{
+		::fprintf(stderr,"CORPUS activated 0 -- the corpus is empty\n");
+		return 0;
+		}
+	while ( entry = reg->next(entry) )
+		if ( entry->getCount() == 1 )
+			if ( entry->getGroup() )
+				if ( ::activateBody(entry->getGroup()) )
+					done = done + 1;
+	::fprintf(stderr,"CORPUS activated %s\n",::toStringFromInt(done));
+	return GroupControl::groupController->groupRules->trueResult;
+}
+
+/*******************************************************************************
+    activateBody -- BIND ONE STORED BODY TO ITS RULE'S LIVE SLOT.
+
+    The per-rule form. THE ONLY WRITER of CodE and isCoded on the generated
+    arc. A fresh node is minted and retagged rather than the stored one being
+    moved, so the corpus entry survives activation and the census can still
+    see it -- a corpus that empties itself on activation cannot report a
+    zero remainder, it can only report an empty corpus.
+*******************************************************************************/
+extern "C" GroupItem *activateBody(GroupItem *rule)
+{
+GroupItem 	*reg = 0;
+GroupItem 	*entry = 0;
+GroupItem 	*body = 0;
+GroupItem 	*hung = 0;
+	if ( !rule )
+		{
+		::fprintf(stderr,"activateBody: no field\n");
+		return 0;
+		}
+	reg = GroupControl::groupController->getRegistry("GenBodies");
+	if ( !reg->groupBody->groupList )
+		{
+		::fprintf(stderr,"activateBody: REFUSING %s -- the corpus is empty\n",rule->groupBody->tag);
+		return 0;
+		}
+	entry = reg->get(rule->groupBody->tag);
+	if ( !entry )
+		{
+		::fprintf(stderr,"activateBody: REFUSING %s -- nothing stored for it\n",rule->groupBody->tag);
+		return 0;
+		}
+	body = entry->getAttribute("StorE");
+	if ( !body )
+		{
+		::fprintf(stderr,"activateBody: REFUSING %s -- the entry carries no body\n",rule->groupBody->tag);
+		return 0;
+		}
+	hung = ::copyOf(body);
+	hung->groupBody->tag = "CodE";
+	hung->groupBody->flags.noPrint = 1;
+	rule->addAttribute(hung);
+	rule->groupBody->flags.actionType = 2;
+	entry->setCount(2);
+	return rule;
+}
+
+/*******************************************************************************
 	Print the field passed in to the buffer passed in
 *******************************************************************************/
 extern "C" GroupItem *appendGroup(GroupItem *input, GroupItem *FormaT, Buffer *buffer)
@@ -1966,7 +2053,7 @@ GroupItem 	*grup = 0;
 /******************************************************************************
     This incant command method reads the field passed in as a file spec and
     loads the field buffer (creating it if necessary) with text read in from
-    the file. Returns the loaded field.
+    the file. Returns the loaded field. See DesignDocs entry: arrondirNote.
 ******************************************************************************/
 /***************************************************************************
     arrondir -- EXPLICIT CONVERSION TO A COUNT (Tony's ruling, 2026-08-01,
@@ -2245,6 +2332,45 @@ int 		found = 0;
 				}
 			}
 	return found;
+}
+
+/*******************************************************************************
+    bodyCensus -- THE QUERY VERB.
+
+    Reports the corpus as pending / activated / stray, PRINTED UNCONDITIONALLY
+    AND WITH VALUES. That is rule H4: a census that stays silent when the
+    corpus is empty is an absence check, and an absence check passes the day
+    somebody deletes the code that would have spoken. Zero pending is a
+    reportable answer here, not a silence.
+
+    `stray` counts entries whose count is neither 1 nor 2. It should always be
+    zero; it exists so that a corpus written by something other than these
+    verbs is visible rather than silently partitioned into the two known bins.
+
+    ⚠ RETURNS GroupItem for the reason spelled out on activateAll above.
+*******************************************************************************/
+extern "C" GroupItem *bodyCensus(GroupItem *ignored)
+{
+GroupItem 	*reg = 0;
+GroupItem 	*entry = 0;
+int 		pending = 0;
+int 		active = 0;
+int 		stray = 0;
+int 		total = 0;
+	reg = GroupControl::groupController->getRegistry("GenBodies");
+	if ( reg->groupBody->groupList )
+		while ( entry = reg->next(entry) )
+			{
+			total = total + 1;
+			if ( entry->getCount() == 1 )
+				pending = pending + 1;
+			else
+			if ( entry->getCount() == 2 )
+				active = active + 1;
+			else	stray = stray + 1;
+			}
+	::fprintf(stderr,"CORPUS pending %s activated %s stray %s total %s\n",::toStringFromInt(pending),::toStringFromInt(active),::toStringFromInt(stray),::toStringFromInt(total));
+	return GroupControl::groupController->groupRules->trueResult;
 }
 
 /***************************************************************************
@@ -12828,6 +12954,111 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		::printf("\nstop: end parsing\n");
 		}
 	return input;
+}
+
+/*******************************************************************************
+    THE GENERATED-BODY CORPUS -- storeBody / activateBody / activateAll /
+    bodyCensus. Charter A, SEQ 78, Ruling 1 (Fork 2).
+
+    THE INVARIANT THESE FOUR EXIST TO ENFORCE, and it is the whole point:
+    GENERATION NEVER WRITES THE LIVE SLOT. The live slot on the generated arc
+    is CodE plus isCoded, and activateBody is the ONLY thing in this file that
+    writes it. Phase one files bodies pending; phase two binds them. F-31's
+    mechanism was a body installed over a rule the reader was still using, and
+    that is unconstructable once the two steps are separate.
+
+    THE HANDOFF IS `StorE`, NOT `CodE`, AND THAT IS NOT A DETAIL. The walk
+    builds its body copy tagged StorE and hangs it on the rule; storeBody moves
+    it off into the corpus. A StorE attribute is inert -- nothing in parse()
+    or processCode reads that tag -- so at no point during generation does a
+    rule carry a body the reader can be diverted into. Retagging to CodE
+    happens in activateBody, at bind time, on a fresh node.
+
+    ⚠ COUNT IS 1 FOR PENDING AND 2 FOR ACTIVATED, NEVER 0. A fresh GroupItem's
+    count is already zero, so a zero-means-pending encoding cannot tell
+    "filed pending" from "never touched" -- the census would report a corpus
+    that was never written as a corpus full of pending work. Same reason the
+    JIT ladder pairs every zero-expecting row with a non-zero sibling.
+
+    THE MINT COPIES kantDoor's DOOR (genParse.rtn) rather than inventing a
+    second one, including its groupList guard: indexing a registry that has
+    just been created prints `nextGroup: ERROR ... does not contain a list`.
+*******************************************************************************/
+extern "C" GroupItem *storeBody(GroupItem *rule)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*reg = 0;
+GroupItem 	*entry = 0;
+GroupItem 	*body = 0;
+	if ( !rule )
+		{
+		::fprintf(stderr,"storeBody: no field\n");
+		return 0;
+		}
+	body = rule->getAttribute("StorE");
+	if ( !body )
+		{
+		::fprintf(stderr,"storeBody: REFUSING %s -- no StorE attribute to file\n",rule->groupBody->tag);
+		return 0;
+		}
+	reg = GroupControl::groupController->getRegistry("GenBodies");
+	if ( !ruler->searchList->get("GenBodies") )
+		ruler->searchList->addMember(reg);
+	if ( reg->groupBody->groupList )
+		entry = reg->get(rule->groupBody->tag);
+	if ( !entry )
+		entry = reg->addMember(new GroupItem(rule->groupBody->tag));
+	body->parent = 0;
+	entry->addAttribute(body);
+	/*  ⚠ isLocal BEFORE group, AND IT IS NOT DECORATION. GroupItem::setGroup
+	(GroupItem.twk:1662) keeps the pointer you hand it ONLY when the node
+	is isLocal or isLabel, or the target is byRef. Otherwise, for a target
+	that HAS a parent -- which every grammar rule does -- it takes the
+	`gGroup = new(g)` arm and stores an EMBEDDED COPY. The back-pointer
+	then names a copy of the rule rather than the rule, and a
+	whole-population activate binds bodies to nodes nobody reads.
+	
+	Measured 2026-08-21: without this line the corpus filled correctly at
+	56 pending and activateAll reported 0 activated, because the copy it
+	got back could not be bound. kantDoor sets isLocal before group for the
+	same reason (genParse.rtn, the `this` mint) -- this is copying the
+	working door faithfully rather than nearly.  */
+	entry->groupBody->flags.isLocal = 1;
+	entry->setGroup(rule);
+	entry->setCount(1);
+	return entry;
+}
+
+/*******************************************************************************
+    storedBody -- THE PER-RULE QUERY VERB. Returns the corpus entry for a rule,
+    or null if nothing is filed against it.
+
+    ⚠ THIS EXTERN WAS NOT IN THE PRE-REGISTERED SET, AND THAT IS REPORTED AS A
+    FINDING RATHER THAN RE-PINNED. The pre-registration named four verbs and a
+    canary delta of +4; this makes it five and +5. The gap it closes was found
+    by the build and could not have been reasoned out beforehand:
+
+    THE DIRECT-INSTALL IDIOM WAS DOING DOUBLE DUTY. A phase-one walk recurses
+    into a rule's terms, and its only termination guard is `actionType != 0` --
+    which became non-zero *because the body had just been installed*. Installing
+    was simultaneously the STORE and the VISITED MARK. Separating the two, which
+    is the whole point of this charter, deleted the visited mark: walkPhase went
+    StatemenT -> BlocK -> StatemenT for ever and died at exit 139.
+
+    So the corpus has to answer "is this rule already filed", and A1 already
+    says the corpus is censusable BY QUERY VERB. This is that verb at per-rule
+    granularity. It is a READ -- it writes nothing and never mints an entry --
+    so it cannot itself become a second writer of anything.
+*******************************************************************************/
+extern "C" GroupItem *storedBody(GroupItem *rule)
+{
+GroupItem 	*reg = 0;
+	if ( !rule )
+		return 0;
+	reg = GroupControl::groupController->getRegistry("GenBodies");
+	if ( !reg->groupBody->groupList )
+		return 0;
+	return reg->get(rule->groupBody->tag);
 }
 
 /***************************************************************************

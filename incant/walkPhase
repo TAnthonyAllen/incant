@@ -65,6 +65,8 @@ search reset stack Grokking UnitTests Utilities list;
 register(WalkPhase);
 define
     wpBuffer buffer;
+    StorE;
+    wpAny=0;
     wpOpen="{";
     wpClose="}";
     wpCensus;
@@ -94,12 +96,12 @@ define
         @argument;
         print $"return runRuleAction(this);":;
         print `wpClose:;
-        clear(CodE);
-        CodE = wpBuffer;
-        wpCopy <- copyOf(CodE);
+        clear(StorE);
+        StorE = wpBuffer;
+        wpCopy <- copyOf(StorE);
         wpCopy :. noPrinT;
         argument +% wpCopy;
-        argument :. isCodeD;
+        storeBody(argument);
         printTO(0);
         wpGenerated = wpGenerated + 1;
         wpCensus +% argument;
@@ -112,6 +114,10 @@ define
     wpWalk argument code={
         wpEntered = wpEntered + 1;
         if actionTypE != 0;
+            wpAlready(argument);
+            return;
+        wpSeen := storedBody(argument);
+        if wpSeen;
             wpAlready(argument);
             return;
         wpGen(argument);
@@ -142,8 +148,13 @@ define
         cerr "generated " wpGenerated:;
         cerr "leaf      " wpLeaf:;
         cerr "refused   " wpRefused:;
-        cerr "== PHASE 2: flat compile sweep ==":;
+        cerr "== CORPUS AFTER PHASE 1 (pre-registered: pending 56 activated 0) ==":;
+        bodyCensus(wpAny);
+        cerr "== PHASE 2: activate, then flat compile sweep ==":;
         cerr "census    " wpCensus.listLengtH:;
+        activateAll(wpAny);
+        cerr "== CORPUS AFTER ACTIVATION (pre-registered: pending 0 activated 56) ==":;
+        bodyCensus(wpAny);
         wpSweep(wpCensus);
         cerr "== PHASE 2 RESULT ==":;
         cerr "compiled  " wpCompiled:;
