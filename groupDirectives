@@ -122,7 +122,7 @@ processAction code ctive
     if tag eq "JSONarray"   dumpContents(code);
 #;
 processCode processingCode ctive
-    debugRuleNamed("StatemenT");
+    debugAllRules = true;
 #;
 processCode result ctive
     if tag eq "gFOR" dumpContents(action);
