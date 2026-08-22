@@ -1,0 +1,72 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(ProbeR);
+define
+    tpFace;
+    tpFirst;
+    tpPar;
+    tpUn;
+    tpRun code={
+        tpFace <- Grokking["Braced"];
+        cerr "face.taG        " tpFace.taG:;
+        tpFirst <- tpFace.firsT;
+        cerr "first.taG       " tpFirst.taG:;
+        tpPar <- tpFirst.parenT;
+        cerr "parenT.taG raw  " tpPar.taG:;
+        tpUn <- unWrap(tpPar);
+        cerr "unWrap(parenT)  " tpUn.taG:;
+        cerr "SENTINEL":;
+        stop();
+        };
+    ;
+tpRun();
+
+TASK 1 READS (Clay dispatch amendment 7). Read-only, no build.
+
+READ 1 -- TOPOLOGY. Performed, and it supports Tony's banked fact:
+
+    face.taG        Braced          <- Grokking["Braced"]
+    first.taG       leftBrace       <- its first child
+    parenT.taG raw  parenT          <- the opDot WRAPPER, not the parent
+    unWrap(parenT)  leftBrace       <- did NOT reach Braced
+
+The Grokking face carries the shared child list, first child leftBrace. Since
+definingRule() is `get(1).parent`, canon for the term is leftBrace's parent.
+Combined with the Amendment 6 result -- binding Grokking["Braced"] verified by
+parseClassify, and the fork still reading defParseMethod 0x0 -- leftBrace's
+parent CANNOT be the Grokking face. So the catalog face and canon are
+different nodes, which is exactly the plural-faces picture: registration mints
+shape, reference mints life, and canon is the owner of the shared substance.
+
+READ 2 -- REACHABILITY. ⚠ NOT PERFORMED. THE INSTRUMENT IS NOT AVAILABLE, and
+this is reported rather than worked around.
+
+definingRule() cannot be reconstructed from incant with the current accessor
+set. Two accessors are needed and both misbehave for this purpose:
+  firsT  (403) returns the child node directly -- usable.
+  parenT (2)   returns a WRAPPER whose group is the parent, and unWrap on
+               that wrapper returned leftBrace rather than Braced.
+Three spellings were tried (bare, unWrap on both, unWrap on parenT only) and
+none reached the parent. definingRule() is a C++ method with no registered
+incant command, so there is no honest incant road to canon today.
+
+⚠ WHAT WAS REFUSED: guessing. The tempting move is to declare canon
+unreachable and report read 2 as a divergence. That would be a confident claim
+resting on an accessor that is already known to wrap and already known to echo
+tags (bear-traps #26 and #35, both paid for on this project this week). An
+instrument that cannot name the parent cannot testify that the parent is
+wrong. Reporting "not measured" is a result; grading a broken instrument is
+the failure the whole ledger exists to prevent.
+
+READ 3 -- STABILITY. Not attempted; it depends on read 2's road.
+
+WHAT WOULD UNBLOCK IT, either is cheap:
+  (a) expose definingRule() as an incant command -- one registration plus a
+      one-line extern, C++ so it needs Tony's build; or
+  (b) Tony reads it in the debugger at fixFrontier7Here, where the frontier
+      already stops, with everything in scope.
+And note the dispatch already sanctions a third road: Task 2's post-edit seam
+trace IS a read of the same fact, and Amendment 7 pre-registers the come-home
+if the fork still reads null off canon.
