@@ -1641,6 +1641,83 @@ Hard-won lessons. Each one has cost real debugging time.
     a hit/miss control pair** (`minionWork/probeTwinCopy` rows 0a/0b) for exactly this reason.
     **The rule: probes read through bare locals, and test existence with a direct subscript.**
 
+36. **A BACKTRACE NAMES THE LINE THAT DIED, NOT THE LINE THAT READ NULL — AND A CONTROL SPECIFIED
+    OFF A BACKTRACE INHERITS THAT OFF-BY-ONE.** Found 2026-08-22 while building the rStuff census's
+    own control. The crash frame read `runRuleAction ... GroupRules.mm:12411`, so the control was
+    written against **12411**. The `rStuff` read is at **12410**:
+    ```
+    12410   RuleStuff *ruleStuff = field->rStuff;     <- the null read
+    12411   if ( ruleStuff->label )                   <- the line the backtrace names
+    ```
+    The null arrives on one line and is dereferenced on the next, so the debugger points at the
+    **consumer**, never the **producer**. Harmless when reading a crash; **not** harmless when the
+    line number becomes a control, a target, or a grep — the control then looks for a site that
+    does not exist and reports the whole census void (or worse, silently passes on a wrong row).
+    ⚠ **The tell is that the named line has no obvious null source in it.** When a backtrace line
+    dereferences something it did not fetch, walk BACKWARD to the fetch before writing the number
+    down anywhere. Same family as bear-trap #19's corollary — the cause sits outside the space the
+    evidence points at — one line up instead of one file over.
+
+⚠⚠ **RULING D — SHAPE, LIVENESS, AND BIRTH. Tony, 2026-08-22, and it is the real yield of the
+rStuff census.** Two clauses, and they point opposite ways on purpose.
+
+**D1 — AN `isRule`-CLASS FLAG SAYS *RULE-SHAPED*, NEVER *LIVE*.** `copyOf` copies `groupBody`
+wholesale and never copies `rStuff`, so after Ruling A (a twin is a specimen, not an organism) a
+`groupBody` flag can only ever mean *shaped like a rule*. **Liveness is asked of `rStuff` itself —
+presence IS the liveness test.** Absence is **lawful**: it is what a specimen is. Code touching
+`rStuff` guards for it, and where the yield matters the specimen semantics apply — `runRuleAction`
+returns `trueResult`, because for an inert specimen *"ran successfully, nothing happened"* is the
+truthful report.
+
+**D2 — `isLabel` IS A BIRTH CERTIFICATE, NOT A SHAPE FLAG.** A label exists only as the result of a
+live parse, and its `rStuff->rule` link is part of that birth. **So `isLabel` implies live `rStuff`,
+always.** An `rStuff`-less label is **not a specimen — it is wreckage**: something upstream broke,
+copied, or hand-built what only a parse may mint. Absence here is **unlawful — refuse loud at the
+point of discovery, naming the invariant**, because the defect happened in the getting-there and
+this is merely where it became visible.
+
+⚠ **THE DIAGNOSTIC THAT FALLS OUT, and it is the one to remember: THE DEFECT IS A QUESTION POSED TO
+THE WRONG ORACLE.** `processFlags` guards an `rStuff` deref with `if (isRule)`; `processCode` guards
+one with `if (isLabel)`. Both flags live in `groupBody`, which is **copied**; the thing being
+dereferenced is **never** copied. So the guard passes and the deref dies — and it reads as a
+mysterious crash rather than as a wrong test. **Whenever a guard and its subject live in different
+structures, ask whether they can disagree.**
+
+⚠ **AND A CERTIFICATION THE ARCHITECTURE EARNED FOR FREE — THE DISPATCH IS THE GUARD.** Of the 78
+`rStuff` deref sites, **34 are the generated `parse*` family, and not one is reachable by a
+specimen** — they are dispatched *through* `rStuff->parseMethod`, so a node with no `rStuff` cannot
+arrive. That is **structure, not audit**: nobody has to remember it, and it cannot rot. Worth
+knowing when the parse-generation design is next weighed — it bought a whole family of
+crash-immunity as a side effect of how it dispatches.
+
+**CLOSED BY RULING, so nobody re-opens it:** *"does the crucible ever mint an `isLabel` specimen?"* —
+**no, ever.** Labels do not wander; they are tree denizens after a parse. A label specimen is not a
+direction the campaign might take, it is a state the machinery must report as a wound.
+
+> **RULE H11 — A CENSUS WITHOUT A KNOWN-POSITIVE CONTROL IS NOT A MEASUREMENT.** Adopted
+> 2026-08-22, promoted from practice the same hour it was practised, because it caught **two
+> confident wrong numbers in one census** — and neither looked wrong.
+>
+> The rStuff census pre-registered a clause: *both already-known sites must appear in the raw hits,
+> or the count is void.* They are the control pair, not decoration. It fired twice.
+> - `grep -r --include=*.mm` — **the globs were UNQUOTED**, so the shell expanded them against the
+>   cwd before grep saw them. Reported **64 hits** over a file set that included `.md` files. Then
+>   `ugrep` ignored `--include` entirely, warned about it in passing, and printed a total anyway.
+> - The pattern `->rStuff->` **missed the entire local-deref idiom** — `RuleStuff *s = x->rStuff;`
+>   then `s->member`, which is precisely the shape of `runRuleAction`, **the crash that started the
+>   census.** A census of a population that excludes the known member is not a small error.
+>
+> **The corrected count was 116 raw / 78 sites.** The first number, 64, was plausible, quotable, and
+> wrong. **Nothing but the control clause stood between it and the report.** Same family as H9 (a
+> count is a value, and a wrong one arrives wearing the shape of a right one) — this is its
+> constructive half: **name the rows the search MUST return before you run it.**
+>
+> ⚠ **AND THE PREDICTION-DISCIPLINE NOTE THE SAME RUN PAID FOR: COUNTS WITHOUT A MECHANISM BEHIND
+> THEM ARE GUESSES WEARING NUMBERS.** Graded across both seats, every prediction grounded in a
+> *mechanism* held — reachability, where the bulk would live, at-least-one-can't-tell — and **every
+> bare count missed, in the same direction, by up to 3x.** Predict mechanisms; when you must predict
+> a count, say what mechanism sets it, or mark it as the guess it is.
+
 > **RULE H10 — THE CITATION BOUNDARY: SMOKE-GREEN AUTHORIZES CONTINUING, ONLY A FLEET CHECK
 > AUTHORIZES LANDING. A smoke-green is NEVER citable as fleet-green.** Adopted 2026-08-13 (SEQ 60,
 > Tony's two-tier proposal). `genLadder/smoke.sh` is the iteration bell — fixture-under-test ·
