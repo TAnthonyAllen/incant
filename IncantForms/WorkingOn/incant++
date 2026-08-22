@@ -1,19 +1,70 @@
 /*****************************************************************************
     Offline Status
 *****************************************************************************/
-I decided not to change Iterate aside from a minor use of unWrap. A when not broke dont fix decision. I did change where useDefaultSpace gets reset so it happens in opPrint and opString; that is: useDefaultSpace is true by default and can be toggled within a print statement via the $ shortcut. I simplified genParseTest in the parser incantation (that means the parser incant file); it is now shorter and conforms to the design decision that a rule can have data, attributes, or members: pick one. Loud error if a rule does not comply. I changed grammar so that rules like Braced pick up labels on literal attributes like "["; so Braced rule now looks like:
-        Braced      leftBrace="["- ExpressioN rightBrace="]"-;
-    That is a step to get what genParseTest for Braced to look like:
-    code={
-        if  leftBrace() AND ExpressioN() AND rightBrace(); return runRuleAction(this);
-        }
-    Does not mean the Braced parse action will be able to find leftBrace and ExpressioN ... That is likely to require a change to parseRule to insert those as local fields. Will worry about that when ready to test parseRule. Not there yet.
-Files I changed:
-    RuleStuff.twk changed constructors to look for parentStuff and set it if the rule has a parent w/rStuff
-    Generate.rtn no changes made that show up in running code. WIP.
-    GrouActions.rtn and Instruct.rtn changed where useDefaultSpace is set/reset
-    ruleActions.rtn changed how aCTionDefinE sets rStuff for rule attributes
-Ran POP in xcode and things work. Full POP warranted but probably can wait until kitchen cleaning time.
-On the task list:
-    Would like to push ahead on cleaning up comments -> DesignDocs. That looks like a minion task to me.
-    Would like to work on getting jitting to work alongside interpreter not mixed in with it. Not sure where that sits. Design work may be needed. I think Clod looked into it.
+I looked at the frontier incantation (and btw just having frontier available is a big help for xcode work). What I found is some seriously odd kant behavior. Here is the bit of frontier I was examining:
+    frStation3 code={
+        fixFrontier3Here = 0;
+        cerr "ANCHOR frontier station 3 -- mint twin via copyOf":;
+        frTwin <- copyOf(Grokking["Braced"]);
+        frOk = 0;
+        **frTwin;
+        if frTwin;          frOk = 1;
+        dumpContents(frStation3);
+        **frTwin;
+        if frOk == 1;            cerr "STATION 3 mint twin: PASS -- twin taG reads " frTwin.taG:;
+        if frOk == 0;
+            cerr "STATION 3 mint twin: FAIL -- copyOf returned nothing":;
+            frDead = 1;
+        };
+At the first invocation of **frTwin frTwin comes thru as the Braced copy. In the second invocation the if statement changes frTwin to be ExpressioN. This is the trace printed when the second **frTwin runs:
+frStation3           attribute  length 13	frStation3=frStation3data type has no toString() method other
+	CodE                 attribute  noPrint	CodE  other
+	this                 attribute  is local noPrint frStation3	this  group
+	tempField            attribute  is local noPrint	no data
+	fixFrontier3Here     attribute  is local	fixFrontier3Here=0 int
+	frTwin               attribute  Braced	frTwin=ExpressioN group
+	copyOf               attribute 	no data
+	Grokking             attribute  length 79	Grokking=Grokking other
+	frOk                 attribute 	frOk=1 int
+	dumpContents         attribute 	no data
+	frStation3           attribute  length 13	frStation3=frStation3data type has no toString() method other
+	taG                  attribute 	taG=1 int
+	frDead               attribute 	frDead=0 int
+	BlocK                attribute  noPrint length 12	BlocK  string
+STATION 3 mint twin: PASS -- twin taG reads  Braced 
+You can see the group in frTwin got changed by the if statement into ExpressioN and frOk == 1. The if expression sees Braced has an action: aCTionBraced and runs it (not intended but it happens). aCTionBraced clears Braced so no more groupList and sets Braced.group to ExpressioN. The PASS cerr line prints out frTwin.taG as Braced because opDot() sees frTwin as Braced (runOp only unwraps frTwin once).
+Taking out the if statement from frStation3 and setting frOk = 1; gets us thru stations 3 and 4 because Braced then still has its groupList. However, station 5 fails because when I dumpContents for Braced. Here is the station 5 code with my debug probes.
+    frStation5 code={
+        fixFrontier5Here = 0;
+        cerr "ANCHOR frontier station 5 -- compile on twin":;
+        frTwin :. isCodeD;
+        dumpContents(frTwin);
+        **frTwin;
+        frOut := compile(frTwin);
+        frOk = 0;
+        if frOut;           frOk = 1;
+        if frOk == 1;            cerr "STATION 5 compile on twin: PASS -- compile returned a value":;
+        if frOk == 0;
+            cerr "STATION 5 compile on twin: FAIL -- compile refused or the parse failed; texture is above this line":;
+            frDead = 1;
+        };
+    Here is what dumpContent prints out
+Braced               attribute  length 5	no data
+	leftBrace            attribute 	leftBrace=[ string
+	ExpressioN           attribute  length 1	no data
+	rightBrace           attribute 	rightBrace=] string
+	StorE                attribute  noPrint	StorE  string
+	StorE                attribute  noPrint	StorE  string
+Note there are two StorE entries on its list and NO CodE entry so the compile craps out.
+
+Bottom line: the if statement in station 3 should not see aCTionBraced as a method (it should be stashed in actionMethod, however, Braced has no rStuff. We currently do not remove rule actions from method when we stash them in actionMethod. I have no idea why Braced has no rStuff.)
+    The two StorEs and no CodE need fixing and if fixed maybe station 5 works???
+I left frontier with my debug probes left in.
+/*****************************************************************************
+    Working on (instructions passed to Clod)
+*****************************************************************************/
+
+/*****************************************************************************
+    Clod response
+*****************************************************************************/
+nmfb2prfxp9

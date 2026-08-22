@@ -363,4 +363,6 @@ define
         };
     ;
 
-runParse(TokenXP);
+runNamE(NamE);
+runNamEnoParse(NamE);
+runParse(NamE);

@@ -78,35 +78,37 @@ So a draw statement would look like:    draw something something;    Where somet
 define
     Drawing registry;
         align;                  // must have a value: center left right, or letter c l or r
-        border;
-        clip;
-        closePath;
-        down;
-        endPath;
+        border;                 // border needs an action
+        clip        function="CGContextClip" signature="v:p";
+        closePath   function="CGContextClosePath" signature="v:p";
+        curve       function="CGContextAddCurveToPoint" signature="?";
+        down;                   // set current y -= down.count
+        endPath;                // end path without closing?
         fill;                   // can take a color value
-        height;
-        home;
+        height;                 // does not belong here. Drawing does not change frame
+        home;                   // current y = frame.y current x = frame.x
         invert;
-        left;
-        line;
-        move;
+        left;                   // set current x -= left.count
+        line        function="CGContextAddLineToPoint" signature="v:pdY";
+        move        function="CGContextMoveToPoint" signature="v:pdY";
         oval;
-        percent;
-        radius;
-        rectangle;
-        relative;
-        right;
-        rounded;
-        rotate;
-        save;
-        scale;
-        shift;
+        path        function="CGContextBeginPath" signature="?";
+        percent;                // isPERCENT = percent.count
+        radius;                 // radius.count value used by rounded? or oval?
+        rectangle   function="CGContextAddRect" signature="?";
+        relative;               // isRELATIVE = relative.count
+        right;                  // set current x += right.count
+        rounded;                // does CGContext have a method for drawing a rounded rectangle?
+        rotate      function="CGContextRotateCTM" signature="v:pd";
+        save        function="CGContextSaveGState" signature="v:p";
+        scale       function="CGContextScaleCTM" signature="?";
+        shift       function="CGContextTranslateCTM" signature="?";
         stroke;                 // can take a color value
-        up;
-        width;
+        up;                     // set current y += up.count
+        width       function="CGContextSetLineWidth" signature="v:pd";
         write;                  // can take a color value
-        x;
-        y;
+        x;                      // set current x
+        y;                      // set current y
         /***********************************************************************
             Drawing rules
         ***********************************************************************/
