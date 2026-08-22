@@ -7,6 +7,7 @@ define
     frAny=0;
     frDead=0;
     frOk=0;
+    frOk2=0;
     frBuf buffer;
     frOpen="{";
     frClose="}";
@@ -15,6 +16,10 @@ define
     frSample width=1 height=2;
     frTwin;
     frSubject;
+    frLiveLen=0;
+    frLiveLen2=0;
+    frTwinLen=0;
+    frTwinLen2=0;
 
     frBodyMarker code={
         reset(frBuf);
@@ -58,73 +63,83 @@ define
         };
     frStation2 code={
         fixFrontier2Here = 0;
-        cerr "ANCHOR frontier station 2 -- store it":;
+        cerr "ANCHOR frontier station 2 -- mint the twin, BEFORE anything is hung on the live rule":;
         frSubject <- Grokking["Braced"];
-        frHang(frSubject);
-        frE := storeBody(frSubject);
+        frTwin <- copyOf(Grokking["Braced"]);
+        frLiveLen = frSubject.listLengtH;
+        frTwinLen = frTwin.listLengtH;
+        cerr "STATION 2 live list length " frLiveLen " twin list length " frTwinLen:;
         frOk = 0;
-        if frE;             frOk = 1;
-        if frOk == 1;            cerr "STATION 2 store body: PASS -- entry filed; census follows, pending must read 1":;
+        if frTwinLen == frLiveLen;      frOk = 1;
+        if frTwinLen == 0;              frOk = 0;
+        if frOk == 1;            cerr "STATION 2 mint twin: PASS -- twin is a faithful, unfired copy":;
         if frOk == 0;
-            cerr "STATION 2 store body: FAIL -- storeBody refused":;
+            cerr "STATION 2 mint twin: FAIL -- twin list length does not match the live rule, or is empty":;
             frDead = 1;
-        bodyCensus(frAny);
         };
     frStation3 code={
         fixFrontier3Here = 0;
-        cerr "ANCHOR frontier station 3 -- mint twin via copyOf":;
-        frTwin <- copyOf(Grokking["Braced"]);
+        cerr "ANCHOR frontier station 3 -- hang the body on the LIVE rule and store it":;
+        frHang(frSubject);
+        storeBody(frSubject);
+        frLiveLen2 = frSubject.listLengtH;
+        cerr "STATION 3 live list length was " frLiveLen " now " frLiveLen2:;
         frOk = 0;
-        if frTwin;          frOk = 1;
-        if frOk == 1;            cerr "STATION 3 mint twin: PASS -- twin taG reads " frTwin.taG:;
+        if frLiveLen2 > frLiveLen;      frOk = 1;
+        if frOk == 1;            cerr "STATION 3 store body: PASS -- body hung on the live rule; census follows, pending must read 1":;
         if frOk == 0;
-            cerr "STATION 3 mint twin: FAIL -- copyOf returned nothing":;
+            cerr "STATION 3 store body: FAIL -- the live rule did not grow, so nothing was hung":;
             frDead = 1;
+        bodyCensus(frAny);
         };
     frStation4 code={
         fixFrontier4Here = 0;
-        cerr "ANCHOR frontier station 4 -- install body on twin, then READ IT BACK":;
-        frBodyMarker();
-        frHang(frTwin);
-        frRead <- frTwin["StorE"];
+        cerr "ANCHOR frontier station 4 -- install on the twin via activateBody, then READ IT BACK":;
+        activateBody(frTwin);
+        frCode <- frTwin["CodE"];
+        frTwinLen2 = frTwin.listLengtH;
+        cerr "STATION 4 twin list length was " frTwinLen " now " frTwinLen2:;
         frOk = 0;
-        if frRead;          frOk = 1;
+        if frTwinLen2 > frTwinLen;      frOk = 1;
+        frOk2 = 0;
+        if frCode;                      frOk2 = 1;
+        if frOk2 == 0;                  frOk = 0;
         if frOk == 1;
             cerr "STATION 4 install on twin: PASS -- read-back follows":;
-            cerr frRead:;
+            cerr frCode:;
         if frOk == 0;
-            cerr "STATION 4 install on twin: FAIL -- expected a StorE attribute on the twin, read nothing":;
+            cerr "STATION 4 install on twin: FAIL -- expected the twin to grow and to carry a CodE":;
             frDead = 1;
         };
     frStation5 code={
         fixFrontier5Here = 0;
-        cerr "ANCHOR frontier station 5 -- compile on twin":;
-        frTwin :. isCodeD;
-        frOut := compile(frTwin);
+        cerr "ANCHOR frontier station 5 -- compile the twin":;
+        compile(frTwin);
+        frBlock <- frTwin["BlocK"];
         frOk = 0;
-        if frOut;           frOk = 1;
-        if frOk == 1;            cerr "STATION 5 compile on twin: PASS -- compile returned a value":;
+        if frBlock;         frOk = 1;
+        if frOk == 1;            cerr "STATION 5 compile twin: PASS -- the twin carries a BlocK":;
         if frOk == 0;
-            cerr "STATION 5 compile on twin: FAIL -- compile refused or the parse failed; texture is above this line":;
+            cerr "STATION 5 compile twin: FAIL -- no BlocK on the twin, so the parse did not land; texture is above this line":;
             frDead = 1;
         };
     frStation6 code={
         fixFrontier6Here = 0;
-        cerr "ANCHOR frontier station 6 -- harvest BlocK onto the original rule":;
+        cerr "ANCHOR frontier station 6 -- harvest the BlocK onto the original rule":;
         frArt <- frTwin["BlocK"];
         frOk = 0;
         if frArt;           frOk = 1;
         if frOk == 1;
             frSubject +% copyOf(frArt);
             frSubject :. isActioN;
-            cerr "STATION 6 harvest: PASS -- artifact moved; its taG reads " frArt.taG:;
+            cerr "STATION 6 harvest: PASS -- artifact copied onto the live rule":;
         if frOk == 0;
             cerr "STATION 6 harvest: FAIL -- expected a BlocK on the twin, read nothing":;
             frDead = 1;
         };
     frStation7 code={
         fixFrontier7Here = 0;
-        cerr "ANCHOR frontier station 7 -- discard twin":;
+        cerr "ANCHOR frontier station 7 -- discard the twin":;
         clear(frTwin);
         cerr "STATION 7 discard twin: PASS -- twin cleared; census follows, stray must read 0":;
         bodyCensus(frAny);
@@ -172,7 +187,7 @@ frontier2, no frontierOld. If you are looking at a copy, someone broke the
 practice. Each seal updates the dated line below and re-runs the file, and the
 seal names the first failing station.
 
-FRONTIER AS OF 2026-08-21 (SEQ 82): compile-of-a-stored-body, pending the
+FRONTIER AS OF 2026-08-22 (SEQ 83): compile-of-a-stored-body, pending the
 portability verdict. Subject is Braced. The day this file runs all eight
 stations green with tokenize as the subject instead of Braced is the day the
 campaign is over.
@@ -196,25 +211,74 @@ read, and an empty read is an answer rather than a silence. The first FAIL sets
 frDead and every later station is skipped without printing, so the failing line
 is the last verdict on screen and nothing buries it.
 
-WHY THE CONTROL CANNOT BE VOID
+THE 2026-08-22 RESTRUCTURE, AND WHY THE STATIONS MOVED
 
-The arm-1 lesson from SEQ 81, built in as structure rather than remembered as
-care. That recon could not report an A/B because its marker body silently
-failed to parse, so nothing ever demonstrated the artifact executing -- a void
-control wearing green. Here station 1 prints the generated body text and fails
-if it is empty, station 4 reads the body back off the twin rather than assuming
-the install took, and station 8 states the expected marker value BEFORE firing
-the trigger and reports separately whether the trigger itself parsed. If the
-trigger will not parse, station 8 says so, because a marker that never had a
-chance to appear is not evidence of anything.
+Three changes, all ruled by Clay on Tony's 2026-08-22 offline report. Each one
+closes a defect that had been producing readings nobody could trust.
 
-WHAT STATION 8 ACTUALLY DOES
+ONE. THE TWIN IS MINTED BEFORE ANYTHING IS HUNG ON THE LIVE RULE. Stations 2
+and 3 swapped. The old order hung a StorE on the live Braced at station 2 and
+only then copied that rule at station 3, so the twin was BORN carrying a StorE
+and station 4 hung a second one. Two StorE entries and no CodE is what compile
+was being handed. That was an ordering artifact of this file, not a substrate
+defect, and swapping the stations removes it at the source rather than cleaning
+up after it.
 
-Braced fires when a bracket expression is parsed. So the trigger is a small
-body containing one -- frSample[width] = 251 -- compiled after the artifact has
-been commissioned onto the live Braced. If the commissioned artifact executes,
-the marker prints. The bracket-expression driver is borrowed from
-incant/bindSeamA, which drives Braced the same way and is already in the fleet.
+TWO. THE INSTALL GOES THROUGH activateBody, AND THE FLAG IS NOT SET BY HAND.
+Station 4 used frHang plus `frTwin :. isCodeD`, which attaches an attribute
+still tagged StorE and then asserts codedness separately. But isCoded IS
+actionType == 2 (GroupBody.h:75), and the two shipped verbs -- activateBody
+(GroupRules.mm:1893-1898) and compileStored (:2586-2591) -- both set it as the
+last of the same three lines that mint the CodE: copyOf the stored body, retag
+it CodE, noPrint it, attach it, actionType = 2. Hand-setting the flag put the
+claim and the artifact on two channels that could disagree, and they did: the
+flag said coded and there was no CodE to compile. Now the flag and the artifact
+come from the same three lines, so they cannot.
+
+THREE. NOTHING RULE-SHAPED IS TRUTH-TESTED WITH `if`, ANYWHERE IN THIS FILE.
+This is the big one and it is the reason the old station 4 "failure" was a
+ghost. `aCTionIF` evaluates a condition by CALLING the condition node's gMethod
+(GroupRules.mm:857, behind the isMethod(instructType) gate). instructType and
+gMethod both live in groupBody, and copyOf copies the groupBody wholesale --
+so a twin of Braced carries aCTionBraced, and `if frTwin;` RUNS IT.
+aCTionBraced (GroupRules.mm:136) is four lines: it clears its input and sets
+the node's group to ExpressioN. So the old station 3 gutted the twin while
+testing that the twin existed, and station 4 then failed to install onto a
+node with no list. The 2026-08-21 seal's front question -- "what does install
+require that a copyOf twin lacks?" -- had the answer NOTHING. Station 4 was
+reading a corpse station 3 had made.
+
+It is not a frontier-only hazard. It took this session's own probe: a bare
+`if <returned rule>;` fired the action and wiped the CodE that had just been
+attached to it, and the probe then reported, correctly and uselessly, that no
+CodE was there. Any measurement that truth-tests a rule-shaped value is
+reading through a corrupting instrument.
+
+So every station now asserts on an artifact a fired action CANNOT FAKE:
+groupList length, and the presence of a CodE or a BlocK reached by subscript.
+A cleared node has length zero, so a station that fires its own subject fails
+loudly instead of passing quietly. Bare calls are used where the return value
+would be rule-shaped -- activateBody and compile are called for effect and
+their returns are deliberately not tested, because both hand back the rule.
+
+This restriction lifts when the gMethod move lands (rule actions relocate to
+rStuff.actionMethod, vacated gMethod reverts to the structural default). Until
+then it is absolute.
+
+AND WHY THE FLAG IS TESTED AS `frOk == 1` AND NEVER AS `if frOk`
+
+Measured here, on this file, on its first run. `if frOk;` on a DECLARED field
+tests that the field EXISTS, which is always true -- so station 4 printed its
+PASS line and its FAIL line together, and stations 1 to 3 had been printing
+PASS whether or not they had earned it. The instrument was void in exactly the
+way it was built to prevent, and it was caught only because station 4 failed
+loudly enough to print both halves.
+
+That is bear-trap 26's family: existence and value are different questions, and
+`if x;` answers the first. For a lookup that can return null -- frCode, frBlock,
+frArt, frFire -- `if x;` is the RIGHT test and is kept, because those are not
+rule-shaped and firing is not a risk. For a numeric flag it is always wrong.
+Both forms appear in this file on purpose.
 
 A NOTE ON THE if/else SHAPE USED THROUGHOUT
 
@@ -228,16 +292,46 @@ same probe: a multi-statement indented arm with NO else is fine, and a
 single-statement if with an else is fine. Only the combination fails.
 So: frOk = 0, set it, then two separate ifs.
 
-AND WHY THE FLAG IS TESTED AS `frOk == 1` AND NEVER AS `if frOk`
+WHAT STATION 8 ACTUALLY DOES
 
-Measured here, on this file, on its first run. `if frOk;` on a DECLARED field
-tests that the field EXISTS, which is always true -- so station 4 printed its
-PASS line and its FAIL line together, and stations 1 to 3 had been printing
-PASS whether or not they had earned it. The instrument was void in exactly the
-way it was built to prevent, and it was caught only because station 4 failed
-loudly enough to print both halves.
+Braced fires when a bracket expression is parsed. So the trigger is a small
+body containing one -- frSample[width] = 251 -- compiled after the artifact has
+been commissioned onto the live Braced. If the commissioned artifact executes,
+the marker prints. The bracket-expression driver is borrowed from
+incant/bindSeamA, which drives Braced the same way and is already in the fleet.
 
-That is bear-trap 26's family: existence and value are different questions, and
-`if x;` answers the first. For a lookup that can return null -- frE, frTwin,
-frRead, frArt, frOut, frFire -- `if x;` is the RIGHT test and is kept. For a
-numeric flag it is always wrong. Both forms appear in this file on purpose.
+WHERE THE EDGE IS, 2026-08-22, AFTER THE RESTRUCTURE
+
+Stations 1 to 4 PASS with real values: live and twin both read list length 3
+at the mint, the live rule goes 3 -> 4 when the body is hung, the twin goes
+3 -> 4 when activateBody installs, and the CodE reads back in full. The two
+StorE entries are gone and there is exactly one CodE.
+
+STATION 5 IS THE EDGE, AND IT GETS FURTHER THAN ANYTHING HAS BEFORE. compile
+on the twin now reaches the body and RUNS IT -- the marker 987654 prints,
+which is the first time a generated body has executed in this pipeline. It
+then dies on the body's LAST statement, `return runRuleAction(this)`, with a
+null dereference at GroupRules.mm:12411 (Generate.rtn:291):
+
+    RuleStuff *ruleStuff = field->rStuff;
+    if ( ruleStuff->label )          <-- rStuff is null, this is the crash
+
+`this` is the twin, and a copyOf twin HAS NO rStuff -- copyOf copies the
+groupBody and the list, and rStuff is a GroupItem member, so it is neither.
+That is now doctrine rather than a gap (Ruling A, 2026-08-22: a twin is a
+specimen, not an organism, and nothing re-arms one by copying rStuff). But
+every generated body ends in runRuleAction(this), so the inert-twin ruling
+and this unguarded read are in direct collision: the ruling says a twin has
+no action to run, and the code cannot survive asking.
+
+⚠ SO STATION 5 CURRENTLY EXITS 139 AND ITS FAIL LINE NEVER PRINTS. That
+breaks this file's own promise that the failing verdict is the last thing on
+screen. It is recorded here rather than worked around, because the fix is a
+guard in runRuleAction and that is C++, gated on a build.
+
+A KNOWN BLOCKER SITTING AT STATION 6
+
+`frSubject :. isActioN` has no case in opSetFlag -- it prints "groupField
+isActioN has no case yet -- gCount 408" and does nothing. Station 6 will need
+another route to the isAction half. Recorded at the 2026-08-21 seal as a
+blocker-in-waiting; it is not paid yet and this file does not pretend it is.
