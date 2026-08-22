@@ -1,0 +1,39 @@
+rStuff CENSUS -- PRE-REGISTRATION
+Written 2026-08-22 BEFORE a single grep was run. Clay's dispatch amendment 1,
+mark 2. Committed before counting so it cannot be rationalised afterwards.
+
+WHAT IS BEING COUNTED
+Every dereference through rStuff that is not dominated by a null check:
+  C++ side   ->rStuff->
+  rtn/twk    bare `rStuff.` and `field.rStuff` followed by a member read
+Reported per site as: site / enclosing caller / can a specimen reach it.
+
+CLAY'S PREDICTION, ON RECORD
+"Low single digits, most unreachable by twins."
+
+CLOD'S PREDICTION, ON RECORD, AND DELIBERATELY MORE SPECIFIC SO IT CAN FAIL
+1. TOTAL unguarded sites: I predict MORE than "low single digits" on the raw
+   grep -- I expect 10 to 30 raw hits -- but I expect the count that SURVIVES
+   classification to be low single digits. Stated separately on purpose: an
+   undercount reads as a smaller problem and an overcount as a bigger one
+   (rule H9), and I want both numbers exposed.
+2. REACHABLE BY A SPECIMEN: I predict 0 to 2 beyond the two already ruled
+   (opDot case 36, runRuleAction).
+3. WHERE THE UNREACHABLE ONES LIVE: I predict the bulk sit in the parse walk
+   and rule-modification machinery -- parse(), testOptions, checkInput,
+   setParse, modify -- reached only through a registered rule, which by Ruling
+   A's producer-side assert (mark 3) will carry rStuff by construction.
+4. CAN'T-TELL ROWS: I predict at least 1. If I report zero can't-tells I have
+   probably defaulted somewhere rather than flagged, which is the failure this
+   clause exists to catch.
+
+⚠ THE ANTI-VACUITY CLAUSE, pre-registered because it is the one that matters.
+A census is an instrument and inherits every rule on the list (H9). This one
+has TWO known-positive rows -- opDot case 36 and runRuleAction -- and BOTH
+MUST APPEAR IN THE RAW HITS. If either is missing from the grep output, the
+grep is wrong and the whole count is void. They are the control pair, not
+decoration.
+
+⚠ AND THE CLASSIFICATION IS THE FINDING, NOT THE GREP. H9's corollary, paid
+for twice on this project: read the hits by eye before reporting a number. A
+sentinel census reported 1, then 6, then 4 for the same population.
