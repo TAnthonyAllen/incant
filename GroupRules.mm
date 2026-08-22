@@ -8630,7 +8630,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*field = 0;
 	field = ruler->currentMETHOD;
 	if ( isGROUP(result->groupBody->flags.data) )
-		result = result->getGroup();
+		result = ::unWrap(result);
 	return result;
 }
 

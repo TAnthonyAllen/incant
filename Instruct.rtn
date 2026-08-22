@@ -196,7 +196,7 @@ extern GroupItem opDebug(GroupItem result)
 GroupRules  ruler = groupRules;
 GroupItem   field;
     field   = currentMETHOD;
-    if result.isGROUP   result = result.group;
+    if result.isGROUP   result = unWrap(result);
     return  result;
 }
 
