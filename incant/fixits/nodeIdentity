@@ -1,0 +1,122 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(FixIdent);
+define
+    fiL;
+    fiFirst;
+    fiPar;
+    fiLen=0;
+    fiRun code={
+        fixNodeIdentityHere = 0;
+        cerr "ANCHOR fixNodeIdentityHere -- three roads to a node, two of them lie":;
+
+        cerr "ROAD 1 direct subscript -- canonOf must say SAME NODE, twice, same pointers":;
+        canonOf(Grokking["Braced"]);
+        canonOf(Grokking["Braced"]);
+
+        cerr "ROAD 2 the <- rebind -- canonOf reports a THIRD pointer":;
+        fiL <- Grokking["Braced"];
+        canonOf(fiL);
+
+        cerr "ROAD 3 the parenT accessor -- walk child then back to parent":;
+        fiL <- Grokking["Braced"];
+        fiFirst <- fiL.firsT;
+        cerr "   first child taG   " fiFirst.taG " (expect leftBrace)":;
+        fiPar <- unWrap(fiFirst.parenT);
+        cerr "   unWrap(parenT)    " fiPar.taG " (expect Braced, reads leftBrace)":;
+
+        cerr "ROAD 4 a chained subscript READ in assignment position":;
+        fiLen = Grokking["Braced"].listLengtH;
+        cerr "   frLiveLen style read " fiLen " (expect 3, reads a garbage token)":;
+        fiL <- Grokking["Braced"];
+        fiLen = fiL.listLengtH;
+        cerr "   read via a capture   " fiLen " (expect 3, and does)":;
+
+        cerr "FIXIT SENTINEL -- nodeIdentity reached its foot":;
+        stop();
+        };
+    ;
+fiRun();
+
+INCANT'S ROADS TO A NODE DO NOT ALL PRESERVE IDENTITY
+
+This is one issue wearing four masks. Run the incantation above and read the
+four roads side by side. Only road 1 hands you the node you asked for.
+
+WHAT IS WRONG
+
+Road 2, the `<-` rebind, hands back a COPY. canonOf prints its pointer and the
+copy's pointer and says DIFFERENT NODES. The copy's definingRule still resolves
+to the original, so it looks right from every angle except one.
+
+Road 3 reads through a capture first, deliberately, so it demonstrates the
+parenT defect and not road 4's. Road 3, the parenT accessor, returns a WRAPPER whose group is the parent -- and
+unWrap on that wrapper lands back on the CHILD it was applied to, not the
+parent. Three spellings were tried on 2026-08-22 and none reached the parent,
+which is why definingRule() could not be reconstructed from incant at all and
+why canonOf had to be written as a C++ exposure.
+
+Road 4, a chained subscript in a read position, returns garbage. In print
+position it echoes tags (bear-trap 35). In ASSIGNMENT position it produced the
+string xlInSet where the answer was 3. Measured while converting incant/frontier.
+
+WHY IT MATTERS MORE THAN IT LOOKS
+
+A copy answers every READ correctly. Same tag, same flags, same list, same
+definingRule. It diverges only when you MUTATE it -- and then the write lands
+on the copy, and every read-back off that copy CONFIRMS THE WRITE. The probe
+reports success. The system never changed. There is no error, no crash, no
+diagnostic, and the fixture goes green.
+
+WHAT IT COST, and every one of these was reported as a finding before it was
+caught -- one week, four wrong conclusions, all from the same root:
+
+    "the catalog face and canon are DIFFERENT NODES"   -- copy vs canon
+    "setParse does not move the action"                -- bound a copy
+    "commissioning breaks setParse"                    -- bound a copy
+    "the fork reads null, so binding is unreachable"   -- bound a copy
+
+The last one sent a whole ruling (E) to the architect's desk asking which node
+should carry a binding. The answer was: the ordinary one, and we had never
+actually written to it.
+
+THE FIX WANTED
+
+A ruling first, then possibly nothing. Is copy-on-`<-` INTENDED semantics? It
+is the architect's language and nobody should probe for intent. If intended,
+this file becomes documentation plus a standing discipline. If unintended, it
+is a defect whose blast radius is one measured week.
+
+The parenT unwrap is separate and looks like a plain defect either way: an
+accessor that cannot name a parent has no use.
+
+NEXT: BEST GUESS
+
+Two candidates, graded, and explicitly NOT a recommendation.
+
+  1. COPY-ON-<- IS INTENDED (grade: likely). `<-` is documented as "rebinds a
+     local's slot to a fresh node", and "fresh node" is exactly what was
+     measured. If so the remedy is documentation and a discipline -- MUTATE
+     through a direct subscript or an iterate cursor, READ through a capture --
+     and this citizen promotes into the fleet as the regression test that the
+     three roads keep behaving as documented.
+     PROMOTED OR KILLED BY: the architect's word. Nothing to measure.
+
+  2. THE parenT UNWRAP IS A PLAIN DEFECT (grade: likely, independent of 1).
+     opDot case 2 sets product.group = target.parent, and unWrap walks
+     `while isGROUP grup = group` -- whose bare-name resolution is ambiguous
+     enough that it may be walking the wrong operand. That is a reading, not a
+     diagnosis.
+     PROMOTED OR KILLED BY: reading unWrap's generated code in GroupRules.mm and
+     checking which object each bare name resolved to. One grep, not a build.
+
+WHAT WOULD MAKE THIS FILE GO QUIET: road 2 printing SAME NODE, road 3 printing
+Braced, and road 4's first read printing 3. Any of the three can move
+independently.
+
+⚠ STANDING DISCIPLINE, effective regardless of the ruling: IDENTITY QUESTIONS
+ARE ASKED IN POINTERS, THROUGH canonOf. A resolver that reports names cannot
+answer a question about identity -- two faces of one rule share a tag by
+construction, and that is precisely how this hid for a week.
