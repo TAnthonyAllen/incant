@@ -17,6 +17,10 @@ define
     frSample width=1 height=2;
     frTwin;
     frLive;
+    frRan=0;
+    frDeclared=9;
+    frBanner=0;
+    frIncomplete=0;
     frLiveLen=0;
     frLiveLen2=0;
     frTwinLen=0;
@@ -27,8 +31,7 @@ define
         reset(frBuf);
         printTO(frBuf);
         print frOpen:;
-        print $"frWitness = " frMark ";":;
-        print $"cerr " frMark ";":;
+        print $"if  leftBrace() AND ExpressioN() AND rightBrace();      frWitness = " frMark ";":;
         print $"return runRuleAction(this);":;
         print `frClose:;
         printTO(0);
@@ -53,6 +56,7 @@ define
 
     frStation1 code={
         fixFrontier1Here = 0;
+        frRan = frRan + 1;
         cerr "ANCHOR frontier station 1 -- generate one body":;
         frBodyMarker();
         frOk = 0;
@@ -66,6 +70,7 @@ define
         };
     frStation2 code={
         fixFrontier2Here = 0;
+        frRan = frRan + 1;
         cerr "ANCHOR frontier station 2 -- mint the twin, BEFORE anything is hung on the live rule":;
         frTwin <- copyOf(Grokking["Braced"]);
         frLive <- Grokking["Braced"];
@@ -82,6 +87,7 @@ define
         };
     frStation3 code={
         fixFrontier3Here = 0;
+        frRan = frRan + 1;
         cerr "ANCHOR frontier station 3 -- hang the body on the LIVE rule and store it":;
         frHang(Grokking["Braced"]);
         storeBody(Grokking["Braced"]);
@@ -98,6 +104,7 @@ define
         };
     frStation4 code={
         fixFrontier4Here = 0;
+        frRan = frRan + 1;
         cerr "ANCHOR frontier station 4 -- install on the twin via activateBody, then READ IT BACK":;
         activateBody(frTwin);
         frCode <- frTwin["CodE"];
@@ -117,41 +124,48 @@ define
         };
     frStation5 code={
         fixFrontier5Here = 0;
+        frRan = frRan + 1;
         cerr "ANCHOR frontier station 5 -- compile the twin":;
+        frLive <- frTwin;
+        frTwinLen = frLive.listLengtH;
         compile(frTwin);
-        frBlock <- frTwin["BlocK"];
+        frLive <- frTwin;
+        frTwinLen2 = frLive.listLengtH;
+        cerr "STATION 5 twin list length was " frTwinLen " now " frTwinLen2:;
         frOk = 0;
-        if frBlock;         frOk = 1;
-        if frOk == 1;            cerr "STATION 5 compile twin: PASS -- the twin carries a BlocK":;
+        if frTwinLen2 > frTwinLen;      frOk = 1;
+        if frOk == 1;            cerr "STATION 5 compile twin: PASS -- the twin grew a BlocK":;
         if frOk == 0;
             cerr "STATION 5 compile twin: FAIL -- no BlocK on the twin, so the parse did not land; texture is above this line":;
             frDead = 1;
         };
     frStation6 code={
         fixFrontier6Here = 0;
+        frRan = frRan + 1;
         cerr "ANCHOR frontier station 6 -- harvest the BlocK onto the original rule":;
         frArt <- frTwin["BlocK"];
         frCod <- frTwin["CodE"];
-        frOk = 0;
-        if frArt;           frOk = 1;
-        frOk3 = 0;
-        if frCod;           frOk3 = 1;
-        if frOk3 == 1;      Grokking["Braced"] +% copyOf(frCod);
-        if frOk == 1;       Grokking["Braced"] +% copyOf(frArt);
-        if frOk == 1;       Grokking["Braced"] :. isActioN;
         frLive <- Grokking["Braced"];
+        frLiveLen = frLive.listLengtH;
+        Grokking["Braced"] +% copyOf(frCod);
+        Grokking["Braced"] +% copyOf(frArt);
+        Grokking["Braced"] :. isActioN;
+        frLive <- Grokking["Braced"];
+        frLiveLen2 = frLive.listLengtH;
         frOk2 = 0;
         if frLive.isActioN;      frOk2 = 1;
-        cerr "STATION 6 BlocK harvested " frOk " -- CodE harvested " frOk3 " -- isActioN reads back " frOk2:;
+        cerr "STATION 6 live list length was " frLiveLen " now " frLiveLen2 " -- isActioN reads back " frOk2:;
+        frOk = 0;
+        if frLiveLen2 > frLiveLen;      frOk = 1;
         if frOk2 == 0;      frOk = 0;
-        if frOk3 == 0;      frOk = 0;
-        if frOk == 1;            cerr "STATION 6 harvest: PASS -- artifact copied AND isActioN verified set on the live rule":;
+        if frOk == 1;            cerr "STATION 6 harvest: PASS -- artifact grew onto the live rule AND isActioN verified set":;
         if frOk == 0;
-            cerr "STATION 6 harvest: FAIL -- need BOTH a BlocK on the twin and isActioN reading back set":;
+            cerr "STATION 6 harvest: FAIL -- need BOTH the live rule to grow and isActioN reading back set":;
             frDead = 1;
         };
     frStation7 code={
         fixFrontier7Here = 0;
+        frRan = frRan + 1;
         cerr "ANCHOR frontier station 7 -- BIND the live rule's parse path to the artifact":;
         setParse(Grokking["Braced"]);
         cerr "STATION 7 parseClassify follows; it must read  PC parseRule Braced":;
@@ -167,6 +181,7 @@ define
         };
     frStation8 code={
         fixFrontier8Here = 0;
+        frRan = frRan + 1;
         cerr "ANCHOR frontier station 8 -- discard the twin":;
         clear(frTwin);
         cerr "STATION 8 discard twin: PASS -- twin cleared; census follows, stray must read 0":;
@@ -174,6 +189,7 @@ define
         };
     frStation9 code={
         fixFrontier9Here = 0;
+        frRan = frRan + 1;
         cerr "ANCHOR frontier station 9 -- run the original; the witness is the verdict":;
         cerr "STATION 9 expects the witness to read " frMark " if the commissioned artifact executed":;
         frBodyTrigger();
@@ -194,7 +210,7 @@ define
         };
 
     frRun code={
-        cerr "=== incant/frontier -- the campaign live edge, eight stations ===":;
+        cerr "=== incant/frontier -- the campaign live edge, nine stations ===":;
         frStation1();
         if frDead == 0;     frStation2();
         if frDead == 0;     frStation3();
@@ -204,8 +220,18 @@ define
         if frDead == 0;     frStation7();
         if frDead == 0;     frStation8();
         if frDead == 0;     frStation9();
+        cerr "FRONTIER ran-census: stations that RAN " frRan " of " frDeclared " declared":;
+        frOk = 0;
+        if frRan == frDeclared;     frOk = 1;
+        frBanner = 0;
+        if frDead == 0;             frBanner = 1;
+        if frOk == 0;               frBanner = 0;
+        frIncomplete = 0;
+        if frOk == 0;               frIncomplete = 1;
+        if frDead == 1;             frIncomplete = 0;
         if frDead == 1;     cerr "=== FRONTIER: STOPPED -- a station returned a NO verdict above. ===":;
-        if frDead == 0;     cerr "=== FRONTIER: all nine stations PASSED. ===":;
+        if frIncomplete == 1;   cerr "=== FRONTIER: INCOMPLETE -- a station never RAN. No success is claimed; see the census. ===":;
+        if frBanner == 1;   cerr "=== FRONTIER: all nine stations RAN and PASSED. ===":;
         cerr "FRONTIER SENTINEL -- the ladder reached its foot":;
         stop();
         };
@@ -336,7 +362,52 @@ been commissioned onto the live Braced. If the commissioned artifact executes,
 the marker prints. The bracket-expression driver is borrowed from
 incant/bindSeamA, which drives Braced the same way and is already in the fleet.
 
-THE READING OF RECORD, 2026-08-22 FOURTH PASS -- CONVERTED TO DIRECT SUBSCRIPTS
+⚠⚠ READING OF RECORD v2, 2026-08-22 -- ALL NINE STATIONS RAN AND PASSED.
+
+    STATION 9 trigger parsed 1 -- witness reads 987654 and must equal 987654
+    STATION 9 run original: PASS -- the commissioned artifact EXECUTED on trigger
+    FRONTIER ran-census: stations that RAN 9 of 9 declared
+    === FRONTIER: all nine stations RAN and PASSED. ===
+
+A body that did not exist when the process started was generated, stored
+off-rule, activated on a twin, compiled, harvested onto the live rule, bound
+into its parse path, and then EXECUTED BY THE ORDINARY PARSE as Braced's own
+parse implementation -- correctly enough that the bracket it governs parsed.
+tokenize was never touched. That is the campaign's question, answered on a
+specimen.
+
+THREE EDITS MADE IT READABLE, and each closed a hole the previous reading
+exposed rather than a defect in the mechanism:
+
+1. TRUTH-TEST DISCIPLINE EXTENDED FROM RULE-SHAPED TO METHOD-SHAPED. Stations
+   5 and 6 used to ask `if frBlock;` and `if frArt;`. A BlocK carries
+   aCTionBlocK as its gMethod, so those lines FIRED THE ARTIFACT -- bear-trap
+   #34 -- and the fired body's return then unwound the station (#37). Two traps
+   on one line. Both now assert on list-length growth and on the isActioN
+   channel: artifacts a fired action cannot fake.
+2. THE BODY IS THE GENPARSE SHAPE, not a stub. A bound parse method REPLACES
+   the interpretive walk, so a stub that matches none of Braced's terms breaks
+   every bracket written after it -- which is what killed station 9's own
+   source line in reading v1. The specimen now does the rule's work.
+3. THE FOOT CARRIES A RAN-CENSUS. Reading v1 printed "all nine stations
+   PASSED" while station 9 sat unparsed, because frDead only ever rises from a
+   station that RAN. The foot now compares stations-ran against
+   stations-declared and refuses to claim success unless they match.
+
+⚠⚠ AND WHAT THIS RUN DOES **NOT** SHOW: #37 IS STILL NOT CONFIRMED CURED, AND
+ITS RETIREMENT CLAUSE STILL DOES NOT FIRE.
+
+Station 6's verdict is INLINE again and it prints -- but read why before
+crediting containment. It prints because edit 1 removed the FIRE, not because
+the unwind was contained. No artifact runs inside station 6 any more, so the
+#37 path is not exercised here at all. Containment is proven at parseRule's
+door (minionWork/probeDecisiveV2) and nowhere else; the evaluation door --
+aCTionIF's condition fork, GroupRules.mm:857 -- is parked as a ruling with an
+H7 control attached to the gMethod-move batch. A green run that never enters
+the failing path is not evidence the path is fixed, and this file will not
+claim it is.
+
+WHERE THE EDGE WAS, 2026-08-22 FOURTH PASS -- CONVERTED TO DIRECT SUBSCRIPTS
 
 Stations 1 to 8 PASS on values. Station 9 never ran. Read the three boxes
 below before the banner, because the banner is wrong and says so here.
