@@ -1658,6 +1658,31 @@ Hard-won lessons. Each one has cost real debugging time.
     down anywhere. Same family as bear-trap #19's corollary — the cause sits outside the space the
     evidence points at — one line up instead of one file over.
 
+37. **A COMMISSIONED ARTIFACT'S `return` UNWINDS THE BLOCK THAT FIRED IT — SO ANY BLOCK THAT
+    TOUCHES AN ARMED RULE CAN LOSE ITS TAIL, SILENTLY.** Measured 2026-08-22 with two controls.
+    A generated body ends `return runRuleAction(this);`. Under the two-doors ruling door two mints
+    **no frame**, so that return unwinds whatever frame it stands in — which is the *caller's*
+    block, not the artifact's. Observed the first time a live body carried a return.
+    | generated body | the firing block |
+    |---|---|
+    | with `return runRuleAction(this);` | prints up to the fire, then **NOTHING** — no later statement, no verdict, no flag set |
+    | without it | runs to completion |
+    ⚠ **THE SYMPTOM IS AN ABSENCE, WHICH IS WHY IT COSTS.** The block does not crash and does not
+    report; it simply stops, and the statements that vanish are usually the ones that would have
+    said something was wrong. `incant/frontier` station 6 printed its values and then **no verdict
+    at all** — an H4 hole opened by the defect, not by the fixture. Two authors were bitten the same
+    day: the station, and then `minionWork/probeBind`, whose first version did commissioning and
+    reporting in one action and ended silently at the commissioning line.
+    **INTERIM DISCIPLINE, and it is a seat change rather than a fix: put verdicts and assertions ONE
+    STATEMENT LATER, in a block the artifact cannot unwind.** `frVerdict6` is the pattern — station 6
+    captures its values, a sibling action evaluates them. The assertion is unchanged; only its seat
+    moves.
+    ⚠ **RETIREMENT CLAUSE, keyed to containment landing:** ruled 2026-08-22 (Amendment 4, Mark 1) —
+    the machinery that fires a commissioned body **consumes the body's return as a value, never as
+    control flow**; *"leave the artifact"* terminates at the firing boundary. When that lands in
+    `runRuleAction` and its firing callers, retire this row **with a note**, and the relocated
+    verdicts may come home.
+
 ⚠⚠ **RULING D — SHAPE, LIVENESS, AND BIRTH. Tony, 2026-08-22, and it is the real yield of the
 rStuff census.** Two clauses, and they point opposite ways on purpose.
 
@@ -1693,6 +1718,29 @@ crash-immunity as a side effect of how it dispatches.
 **CLOSED BY RULING, so nobody re-opens it:** *"does the crucible ever mint an `isLabel` specimen?"* —
 **no, ever.** Labels do not wander; they are tree denizens after a parse. A label specimen is not a
 direction the campaign might take, it is a state the machinery must report as a wound.
+
+> **THE GLOSS CONVENTION — NO MINTED ID SHIPS WITHOUT A TWO-TERM GLOSS.** Tony's suggestion,
+> adopted 2026-08-22, effective immediately, **all seats**.
+>
+> Every minted identifier travels with a two-term gloss on **first mention in a document or
+> message**; repeats may go bare. **The gloss is the HOOK, not a summary** — the thing that makes a
+> reader go *"oh, that one."*
+>
+> `F-31` (tokenize snake-eats-tail) · `F-13` (aliased bodies) · `R-4` (compile owns preconditions) ·
+> `#31` (Tony builds C++) · `#34` (truth-test fires action) · `#37` (artifact return unwinds caller) ·
+> `H11` (census needs a positive control) · `Ruling A` (twin is a specimen) · `Ruling B` (gMethod
+> vacancy) · `Ruling C` (compile's two refusals) · `Ruling D` (shape vs liveness vs birth) ·
+> `Mark 3` (producer asserts the invariant)
+>
+> **The gloss is assigned AT MINTING, in the register where the id is born**, and registers gain a
+> gloss field; when entries reach DesignDocs it joins the lowercase field set. `docs/wakeup.md`
+> carries the gloss block — one compact `id → gloss` line each, **live ids only**, maintained as
+> ordinary register upkeep.
+>
+> ⚠ **THE CONSTRAINT IS A COMPREHENSION CHECK, NOT A STYLE RULE: a row that cannot be named in two
+> terms is not understood yet.** And the reason it binds every seat rather than being a nicety —
+> **a gloss that drifts between seats is a third dialect**, which is the disease it cures. Backfill
+> of live ids and the wakeup template addition are Clod-sized, queued post-seal.
 
 > **RULE H11 — A CENSUS WITHOUT A KNOWN-POSITIVE CONTROL IS NOT A MEASUREMENT.** Adopted
 > 2026-08-22, promoted from practice the same hour it was practised, because it caught **two
