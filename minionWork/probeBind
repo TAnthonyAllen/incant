@@ -1,0 +1,169 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(ProbeR);
+define
+    pbOk=0;
+    pbBuf buffer;
+    pbOpen="{";
+    pbClose="}";
+    pbMark=987654;
+    StorE;
+    pbSample width=1 height=2;
+    pbTwin;
+    pbSubject;
+    pbWitness=0;
+
+    pbBody code={
+        reset(pbBuf);
+        printTO(pbBuf);
+        print pbOpen:;
+        print $"pbWitness = " pbMark ";":;
+        print $"cerr " pbMark ";":;
+        print $"return runRuleAction(this);":;
+        print `pbClose:;
+        printTO(0);
+        clear(StorE);
+        StorE = pbBuf;
+        };
+    pbTrigger code={
+        reset(pbBuf);
+        printTO(pbBuf);
+        print pbOpen:;
+        print $"pbSample[width] = 251;":;
+        print `pbClose:;
+        printTO(0);
+        clear(StorE);
+        StorE = pbBuf;
+        };
+    pbHang argument code={
+        pbCopy <- copyOf(StorE);
+        pbCopy :. noPrinT;
+        argument +% pbCopy;
+        };
+
+    pbA=0;
+    pbB=0;
+    pbC=0;
+    pbD=0;
+
+    pbReadChannels argument code={
+        pbA = 0;
+        if argument.isActioN;       pbA = 1;
+        pbB = 0;
+        if argument.actionTypE;     pbB = 1;
+        pbC = 0;
+        if argument.isMethoD;       pbC = 1;
+        pbD = 0;
+        if argument.hasActioN;      pbD = 1;
+        cerr "  isActioN " pbA " (408: actionType==1 -- what parseRule tests)":;
+        cerr "  actionTypE " pbB " (406: nonzero for isAction OR isCoded)":;
+        cerr "  isMethoD " pbC " (19: gMethod bound -- the OLD action)":;
+        cerr "  hasActioN " pbD " (36: rStuff.actionMethod bound)":;
+        };
+
+    pbSetup code={
+        cerr "=== probeBind -- does the live rule parse ever consult the artifact? ===":;
+        pbBody();
+        pbTwin <- copyOf(Grokking["Braced"]);
+        pbSubject <- Grokking["Braced"];
+        cerr "-- A live Braced BEFORE any commissioning":;
+        pbReadChannels(pbSubject);
+        pbHang(pbSubject);
+        storeBody(pbSubject);
+        activateBody(pbTwin);
+        compile(pbTwin);
+        };
+    pbCommission code={
+        pbArt <- pbTwin["BlocK"];
+        pbSubject +% copyOf(pbArt);
+        pbSubject :. isActioN;
+        };
+    pbAfter code={
+        cerr "-- B live Braced AFTER commissioning":;
+        pbReadChannels(pbSubject);
+        pbBlk <- pbSubject["BlocK"];
+        pbOk = 0;
+        if pbBlk;   pbOk = 1;
+        cerr "  carries a BlocK " pbOk:;
+        };
+    pbFireIt code={
+        cerr "-- C fire a bracket expression, GUARD TRACE on Braced":;
+        pbTrigger();
+        pbHang(Grokking["QuotE"]);
+        storeBody(Grokking["QuotE"]);
+        pbWitness = 0;
+        debugGuard(Grokking["Braced"]);
+        pbFire := compileStored(Grokking["QuotE"]);
+        cerr "-- D after the trigger parse":;
+        pbOk = 0;
+        if pbFire;  pbOk = 1;
+        cerr "  trigger parsed " pbOk:;
+        cerr "  witness reads " pbWitness " and must read " pbMark " if the artifact ran":;
+        cerr "PROBE SENTINEL -- reached the foot":;
+        };
+
+    pbRun code={
+        pbSetup();
+        pbCommission();
+        pbAfter();
+        pbFireIt();
+        stop();
+        };
+    ;
+pbRun();
+
+WHAT THIS PROBE ANSWERED, 2026-08-22 (Clay dispatch amendment 4, mark 2)
+
+THE READING
+
+  channel                              before      after commissioning
+  isActioN   (408, actionType==1)         0                1
+  actionTypE (406, nonzero)               0                1
+  isMethoD   (19, gMethod bound)          1                1
+  hasActioN  (36, rStuff.actionMethod)    0                0
+  BlocK present                           -                1
+  trigger parsed                          -                1
+  witness (987654 if the artifact ran)    -                0
+
+Q2 -- WHAT DOES THE LIVE RULE'S ACTION MACHINERY HOLD? Measured above, and it
+is the binding gap in one row pair: gMethod is STILL BOUND to the old
+aCTionBraced (isMethoD 1, unchanged by commissioning), and
+rStuff.actionMethod -- the channel runRuleAction reads -- is EMPTY
+(hasActioN 0, also unchanged). The artifact is armed and beside the road:
+BlocK attached, isActioN set, and NOTHING on the live dispatch path points
+at it.
+
+Q1 -- DOES THE PARSE REACH THE RULE AT ALL? Yes, and this is inference from a
+measured value rather than a trace: the trigger body is
+`pbSample[width] = 251;` and it PARSED (trigger parsed 1). A bracket
+expression cannot parse without Braced matching it (incant/grammar:107,
+Braced under InvokeArg). So the parse reaches the rule and does not consult
+the artifact. Stated as an inference chain on purpose -- see the void
+instrument below.
+
+STRUCTURAL CORROBORATION, source-read not inferred: parse() forks on
+defStuff.parseMethod (GroupItem.twk:1318), and parseRule -- the ONLY consumer
+of isAction anywhere in the tree (GroupRules.mm:10497) -- is reached only
+through that fork. incant/grammar:107 gives Braced NO parseMethod= binding.
+So the flag station 6 works so hard to set is read by a function the live
+Braced can never reach. Setting isActioN on a rule with no parseMethod is
+writing to an address nobody reads.
+
+⚠ THE VOID INSTRUMENT, RECORDED BECAUSE ITS SILENCE LOOKED LIKE AN ANSWER.
+`debugGuard(Grokking["Braced"])` was the intended answer to Q1 and produced
+NO trace. That reads as "the parse never reached Braced" and would have been
+a clean, confident, wrong finding. The positive control killed it: run the
+same probe with debugGuard on ExpressioN and on StatemenT -- rules certain to
+be parsed -- and BOTH also produce zero trace lines. The tracer emits nothing
+for any rule here, so its silence discriminates nothing. Rule H11: a census
+without a known-positive control is not a measurement, and neither is a
+trace.
+
+⚠ AND THE PROBE WAS BITTEN BY THE CONTAINMENT DEFECT IT WAS WRITTEN
+ALONGSIDE. Its first version did the commissioning and the reporting in one
+action, and the run ended silently at the commissioning line -- the armed
+artifact's `return` unwound the probe's own block. The work is split across
+pbSetup / pbCommission / pbAfter / pbFireIt for that reason, which is the
+frVerdict6 pattern. Second author bitten by it in one day.
