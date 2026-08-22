@@ -84,6 +84,7 @@ define
     setFile immediateAction=setFile;
     setMark immediateAction;
     setParse immediateAction;
+    traceParse immediateAction;
     setPointer immediateAction=opPointer noPrint;
     sort immediateAction=processFlags noPrint;
     stack immediateAction=setInternalType noPrint;

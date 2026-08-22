@@ -8,6 +8,7 @@ define
     frDead=0;
     frOk=0;
     frOk2=0;
+    frOk3=0;
     frBuf buffer;
     frOpen="{";
     frClose="}";
@@ -129,17 +130,21 @@ define
         fixFrontier6Here = 0;
         cerr "ANCHOR frontier station 6 -- harvest the BlocK onto the original rule":;
         frArt <- frTwin["BlocK"];
+        frCod <- frTwin["CodE"];
         frOk = 0;
         if frArt;           frOk = 1;
-        if frOk == 1;
-            frSubject +% copyOf(frArt);
-            frSubject :. isActioN;
+        frOk3 = 0;
+        if frCod;           frOk3 = 1;
+        if frOk3 == 1;      frSubject +% copyOf(frCod);
+        if frOk == 1;       frSubject +% copyOf(frArt);
+        if frOk == 1;       frSubject :. isActioN;
         frOk2 = 0;
         if frSubject.isActioN;      frOk2 = 1;
-        cerr "STATION 6 BlocK harvested " frOk " -- isActioN reads back " frOk2:;
+        cerr "STATION 6 BlocK harvested " frOk " -- CodE harvested " frOk3 " -- isActioN reads back " frOk2:;
         };
     frVerdict6 code={
         if frOk2 == 0;      frOk = 0;
+        if frOk3 == 0;      frOk = 0;
         if frOk == 1;            cerr "STATION 6 harvest: PASS -- artifact copied AND isActioN verified set on the live rule":;
         if frOk == 0;
             cerr "STATION 6 harvest: FAIL -- need BOTH a BlocK on the twin and isActioN reading back set":;
@@ -147,15 +152,29 @@ define
         };
     frStation7 code={
         fixFrontier7Here = 0;
-        cerr "ANCHOR frontier station 7 -- discard the twin":;
-        clear(frTwin);
-        cerr "STATION 7 discard twin: PASS -- twin cleared; census follows, stray must read 0":;
-        bodyCensus(frAny);
+        cerr "ANCHOR frontier station 7 -- BIND the live rule's parse path to the artifact":;
+        setParse(frSubject);
+        cerr "STATION 7 parseClassify follows; it must read  PC parseRule Braced":;
+        parseClassify(frSubject);
+        frOk = 0;
+        if frSubject.hasActioN;     frOk = 1;
+        cerr "STATION 7 actionMethod now bound " frOk " (setParse moves gMethod into it)":;
+        if frOk == 1;            cerr "STATION 7 bind: PASS -- parse path routed; the census line above is the evidence":;
+        if frOk == 0;
+            cerr "STATION 7 bind: FAIL -- setParse left actionMethod empty, so nothing was routed":;
+            frDead = 1;
         };
     frStation8 code={
         fixFrontier8Here = 0;
-        cerr "ANCHOR frontier station 8 -- run the original; the marker is the verdict":;
-        cerr "STATION 8 expects the witness to read " frMark " if the commissioned artifact executed":;
+        cerr "ANCHOR frontier station 8 -- discard the twin":;
+        clear(frTwin);
+        cerr "STATION 8 discard twin: PASS -- twin cleared; census follows, stray must read 0":;
+        bodyCensus(frAny);
+        };
+    frStation9 code={
+        fixFrontier9Here = 0;
+        cerr "ANCHOR frontier station 9 -- run the original; the witness is the verdict":;
+        cerr "STATION 9 expects the witness to read " frMark " if the commissioned artifact executed":;
         frBodyTrigger();
         frHang(Grokking["QuotE"]);
         storeBody(Grokking["QuotE"]);
@@ -165,12 +184,12 @@ define
         if frFire;          frOk = 1;
         frOk2 = 0;
         if frWitness == frMark;     frOk2 = 1;
-        cerr "STATION 8 trigger parsed " frOk " -- witness reads " frWitness " and must equal " frMark:;
+        cerr "STATION 9 trigger parsed " frOk " -- witness reads " frWitness " and must equal " frMark:;
         if frOk == 0;       frDead = 1;
         if frOk2 == 0;      frDead = 1;
-        if frOk == 0;       cerr "STATION 8 run original: FAIL -- the trigger itself would not parse, so the witness proves nothing":;
-        if frOk2 == 1;      cerr "STATION 8 run original: PASS -- the commissioned artifact EXECUTED on trigger":;
-        if frOk2 == 0;      cerr "STATION 8 run original: FAIL -- the commissioned artifact did NOT execute; the two values above are the evidence":;
+        if frOk == 0;       cerr "STATION 9 run original: FAIL -- the trigger itself would not parse, so the witness proves nothing":;
+        if frOk2 == 1;      cerr "STATION 9 run original: PASS -- the commissioned artifact EXECUTED on trigger":;
+        if frOk2 == 0;      cerr "STATION 9 run original: FAIL -- the commissioned artifact did NOT execute; the two values above are the evidence":;
         };
 
     frRun code={
@@ -184,8 +203,9 @@ define
         if frDead == 0;     frVerdict6();
         if frDead == 0;     frStation7();
         if frDead == 0;     frStation8();
+        if frDead == 0;     frStation9();
         if frDead == 1;     cerr "=== FRONTIER: STOPPED -- a station returned a NO verdict above. ===":;
-        if frDead == 0;     cerr "=== FRONTIER: all eight stations PASSED. ===":;
+        if frDead == 0;     cerr "=== FRONTIER: all nine stations PASSED. ===":;
         cerr "FRONTIER SENTINEL -- the ladder reached its foot":;
         stop();
         };
@@ -316,7 +336,61 @@ been commissioned onto the live Braced. If the commissioned artifact executes,
 the marker prints. The bracket-expression driver is borrowed from
 incant/bindSeamA, which drives Braced the same way and is already in the fleet.
 
-WHERE THE EDGE IS, 2026-08-22 SECOND PASS -- ACTIVATION LIVE, INSTRUMENT HONEST
+WHERE THE EDGE IS, 2026-08-22 THIRD PASS -- BINDING ATTEMPTED, TWO FINDINGS
+
+Station 7 is new: it applies the napalm pattern's binding clause by calling
+setParse on the live rule. The frontier now dies THERE, and the reason is a
+measured defect rather than a missing piece.
+
+FINDING ONE -- setParse BINDS THE PARSE METHOD BUT DOES NOT MOVE THE ACTION.
+`setParse` (Generate.rtn:367) opens its bind block with `actionMethod =
+method;`, which is Ruling B's gMethod-to-actionMethod move, already shipping.
+It does not take. Measured on a PRISTINE Braced, so nothing the crucible did
+is responsible:
+
+    setParse(Braced)  ->  parseClassify prints  PC parseRule Braced
+                          hasActioN still reads 0
+
+The parse method binds; the action does not move. Station 7 fails on exactly
+that read, which is what a station is for.
+
+FINDING TWO -- AND IT IS THE BIGGER ONE: BINDING THE REGISTRY RULE DOES NOT
+REACH THE NODE THE PARSE ACTUALLY CONSULTS. Measured with the seam probe that
+already lives in GroupItem.twk:1310, armed by registering `traceParse` as a
+command (the extern was already in the binary; no rebuild). During the
+trigger parse:
+
+    SEAM fork  Braced  this=0x104eef4c0  thisRStuff=0x104ef0630
+               definer=0x104eec5c0  defStuff=0x104eed3f0  defParseMethod=0x0
+
+Read it left to right. The fork FIRES, so the parse reaches Braced -- Q1 is
+now answered by a trace and no longer by inference. `this` is the TERM node.
+`definer` is a DIFFERENT node. And the fork reads `defStuff->parseMethod` and
+finds NULL -- after a setParse that reported PC parseRule Braced.
+
+We bound the registry rule. The walk consults the definer of the term that
+REFERENCES it. Those are different nodes with different rStuff, so the
+binding lands somewhere the parse never looks.
+
+⚠ THIS IS NOT NEW AND IT IS NOT A CODING DECISION. RuleStuff.mm:520-527
+records it as an OPEN question in exactly these words: "parseMethod lives on
+rStuff, and rStuff is PER NODE: the term has its own, separate from the
+registry rule's. So binding a rule's parseMethod does NOT reach the term
+nodes that reference it, and a converted rule would be used when invoked BY
+NAME but not when referenced from another rule." It is marked Tony's and
+Clay's call. The crucible has now walked into it from the other side and
+measured it on a live trigger parse.
+
+So the binding clause is NOT buildable as "call setParse on the rule". What
+it needs is a ruling on which node carries the binding, and that ruling is
+the open question above. Nothing further is built here.
+
+⚠ For the record, measured and NOT assumed: even with the bind in place on
+the registry rule and isActioN set, the trigger still leaves the witness at
+0. Both findings are live at once; closing finding one would not by itself
+move station 9.
+
+WHERE THE EDGE WAS, 2026-08-22 SECOND PASS -- ACTIVATION LIVE, INSTRUMENT HONEST
 
 Stations 1 to 7 PASS on values. Station 6 now verifies that isActioN actually
 TOOK rather than that frArt existed, and it reads back 1, because opSetFlag
