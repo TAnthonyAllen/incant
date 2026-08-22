@@ -1,0 +1,49 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(ProbeR);
+define
+    prOk=0;
+    prLive;
+    prTwin;
+    prTag;
+
+    prRun code={
+        cerr "=== probeTwinCopy -- what a copyOf twin does and does not inherit ===":;
+
+        prOk = 0;
+        if Grokking["Braced"];              prOk = 1;
+        cerr "0a subscript HIT  Braced        " prOk " (control: must read 1)":;
+        prOk = 0;
+        if Grokking["zzzNotARule"];         prOk = 1;
+        cerr "0b subscript MISS zzzNotARule   " prOk " (control: must read 0)":;
+
+        prOk = 0;
+        if Grokking["Braced"].noLabeL;      prOk = 1;
+        cerr "1 LIVE noLabeL                  " prOk " (true implies rStuff EXISTS)":;
+
+        prTwin <- copyOf(Grokking["Braced"]);
+        prOk = 0;
+        if prTwin.taG eq "Braced";          prOk = 1;
+        cerr "2 TWIN taG is Braced            " prOk:;
+        prOk = 0;
+        if prTwin.isMethoD;                 prOk = 1;
+        cerr "3 TWIN isMethoD                 " prOk " (groupBody copied, so gMethod CAME ACROSS)":;
+        prOk = 0;
+        if prTwin.noLabeL;                  prOk = 1;
+        cerr "4 TWIN noLabeL                  " prOk " (0 against line 1's 1 means rStuff did NOT)":;
+
+        prLive <- Grokking["Braced"];
+        cerr "5 live listLengtH BEFORE        " prLive.listLengtH:;
+        cerr "6 twin listLengtH BEFORE        " prTwin.listLengtH:;
+        prTag = "marker";
+        prTwin +% prTag;
+        cerr "7 twin listLengtH after hang    " prTwin.listLengtH:;
+        cerr "8 live listLengtH after hang    " prLive.listLengtH " (unmoved means the twin IS isolated)":;
+
+        cerr "PROBE SENTINEL -- reached the foot":;
+        stop();
+        };
+    ;
+prRun();
