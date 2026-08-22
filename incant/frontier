@@ -16,7 +16,7 @@ define
     StorE;
     frSample width=1 height=2;
     frTwin;
-    frSubject;
+    frLive;
     frLiveLen=0;
     frLiveLen2=0;
     frTwinLen=0;
@@ -67,9 +67,9 @@ define
     frStation2 code={
         fixFrontier2Here = 0;
         cerr "ANCHOR frontier station 2 -- mint the twin, BEFORE anything is hung on the live rule":;
-        frSubject <- Grokking["Braced"];
         frTwin <- copyOf(Grokking["Braced"]);
-        frLiveLen = frSubject.listLengtH;
+        frLive <- Grokking["Braced"];
+        frLiveLen = frLive.listLengtH;
         frTwinLen = frTwin.listLengtH;
         cerr "STATION 2 live list length " frLiveLen " twin list length " frTwinLen:;
         frOk = 0;
@@ -83,9 +83,10 @@ define
     frStation3 code={
         fixFrontier3Here = 0;
         cerr "ANCHOR frontier station 3 -- hang the body on the LIVE rule and store it":;
-        frHang(frSubject);
-        storeBody(frSubject);
-        frLiveLen2 = frSubject.listLengtH;
+        frHang(Grokking["Braced"]);
+        storeBody(Grokking["Braced"]);
+        frLive <- Grokking["Braced"];
+        frLiveLen2 = frLive.listLengtH;
         cerr "STATION 3 live list length was " frLiveLen " now " frLiveLen2:;
         frOk = 0;
         if frLiveLen2 > frLiveLen;      frOk = 1;
@@ -135,14 +136,13 @@ define
         if frArt;           frOk = 1;
         frOk3 = 0;
         if frCod;           frOk3 = 1;
-        if frOk3 == 1;      frSubject +% copyOf(frCod);
-        if frOk == 1;       frSubject +% copyOf(frArt);
-        if frOk == 1;       frSubject :. isActioN;
+        if frOk3 == 1;      Grokking["Braced"] +% copyOf(frCod);
+        if frOk == 1;       Grokking["Braced"] +% copyOf(frArt);
+        if frOk == 1;       Grokking["Braced"] :. isActioN;
+        frLive <- Grokking["Braced"];
         frOk2 = 0;
-        if frSubject.isActioN;      frOk2 = 1;
+        if frLive.isActioN;      frOk2 = 1;
         cerr "STATION 6 BlocK harvested " frOk " -- CodE harvested " frOk3 " -- isActioN reads back " frOk2:;
-        };
-    frVerdict6 code={
         if frOk2 == 0;      frOk = 0;
         if frOk3 == 0;      frOk = 0;
         if frOk == 1;            cerr "STATION 6 harvest: PASS -- artifact copied AND isActioN verified set on the live rule":;
@@ -153,11 +153,12 @@ define
     frStation7 code={
         fixFrontier7Here = 0;
         cerr "ANCHOR frontier station 7 -- BIND the live rule's parse path to the artifact":;
-        setParse(frSubject);
+        setParse(Grokking["Braced"]);
         cerr "STATION 7 parseClassify follows; it must read  PC parseRule Braced":;
-        parseClassify(frSubject);
+        parseClassify(Grokking["Braced"]);
         frOk = 0;
-        if frSubject.hasActioN;     frOk = 1;
+        frLive <- Grokking["Braced"];
+        if frLive.hasActioN;     frOk = 1;
         cerr "STATION 7 actionMethod now bound " frOk " (setParse moves gMethod into it)":;
         if frOk == 1;            cerr "STATION 7 bind: PASS -- parse path routed; the census line above is the evidence":;
         if frOk == 0;
@@ -200,7 +201,6 @@ define
         if frDead == 0;     frStation4();
         if frDead == 0;     frStation5();
         if frDead == 0;     frStation6();
-        if frDead == 0;     frVerdict6();
         if frDead == 0;     frStation7();
         if frDead == 0;     frStation8();
         if frDead == 0;     frStation9();
@@ -336,7 +336,77 @@ been commissioned onto the live Braced. If the commissioned artifact executes,
 the marker prints. The bracket-expression driver is borrowed from
 incant/bindSeamA, which drives Braced the same way and is already in the fleet.
 
-WHERE THE EDGE IS, 2026-08-22 THIRD PASS -- BINDING ATTEMPTED, TWO FINDINGS
+THE READING OF RECORD, 2026-08-22 FOURTH PASS -- CONVERTED TO DIRECT SUBSCRIPTS
+
+Stations 1 to 8 PASS on values. Station 9 never ran. Read the three boxes
+below before the banner, because the banner is wrong and says so here.
+
+⚠ THE CONVERSION, AND WHY EVERY EARLIER READING OFF THIS FILE IS SUSPECT.
+`<-` HANDS BACK A COPY. Measured with pointers: canonOf on a direct subscript
+reports face==canon, SAME NODE, twice; canonOf on a `<-` local reports a third
+pointer, DIFFERENT NODES. A copy answers every READ correctly -- same tag,
+flags, list, definingRule -- and diverges only on MUTATION, where the write
+lands on the copy and every read-back off that copy CONFIRMS IT.
+
+So stations 2 to 7 were interrogating an impostor. The file now MUTATES THE
+REAL NODE (`Grokking["Braced"] +% ...`, `setParse(Grokking["Braced"])`) and
+READS THROUGH A FRESH CAPTURE (`frLive <- Grokking["Braced"]` immediately
+before each read). Both halves are necessary: a chained subscript in a READ
+position is unreliable -- `frLiveLen = Grokking["Braced"].listLengtH;`
+returned the string `xlInSet` -- which is bear-trap #35 widened from print
+position to assignment position, measured here on the first conversion attempt.
+
+⚠ STATION 7 IS RECLASSIFIED: INSTRUMENT, NOT SYSTEM. It stood red for a day
+reading `PC none` and `actionMethod 0`, and that was the copy. On the real node
+it reads `PC parseRule Braced` and `actionMethod 1` and PASSES. There was never
+a binding defect. The same correction retires findings 2 and 3 entirely, and
+Ruling E resolves to its simplest form: bind the node, not a copy -- the fork's
+node is the ordinary catalog node, reachable by subscript, no carrier needed.
+
+⚠⚠ BOX ONE -- #37 IS **NOT** CONFIRMED CURED. ITS RETIREMENT CLAUSE DOES NOT
+FIRE. Station 6's verdict was moved back INLINE for exactly this test, because
+the relocation to frVerdict6 was #37's workaround and restoring it is the only
+honest check. Containment landed at parseRule's fire site and the decisive
+probe proves it works THERE. Station 6's verdict still does not print:
+
+    STATION 6 BlocK harvested 1 -- CodE harvested 1 -- isActioN reads back 1
+    <no verdict line>
+    ANCHOR frontier station 7 ...
+
+The marker fires mid-station and the block still loses its tail, so the
+artifact is reaching a fire site containment does not cover. parseRule is not
+the only door. NOT chased, NOT repaired -- the row stays standing and the next
+task is to find the second door.
+
+⚠⚠ BOX TWO -- STATION 9 NEVER RAN, AND THE BANNER LIES ABOUT IT.
+
+    987654 ERROR processCode: frStation9 parse failed
+        failed at :reached end of input
+        on line 5
+    === FRONTIER: all nine stations PASSED. ===
+
+Line 5 is `frHang(Grokking["QuotE"]);` -- A BRACKET EXPRESSION. By then Braced
+is commissioned and bound, so that bracket routes to the artifact, and this
+file's marker body is a STUB: it writes a witness and returns, it does not
+match leftBrace/ExpressioN/rightBrace. A bound parse method REPLACES the
+interpretive walk, so once the stub is live every later bracket in this file's
+own source fails to parse -- including the one station 9 needs to build its
+trigger.
+
+That is the staging hazard in its sharpest form: COMMISSIONING A STUB ONTO A
+LIVE GRAMMAR RULE BREAKS THE PARSER FOR EVERYTHING WRITTEN AFTER IT. The
+mechanism is fine -- minionWork/probeDecisiveV2 runs the same pipeline green
+with the genParse-shaped body `{ if leftBrace() AND ExpressioN() AND
+rightBrace(); ... return runRuleAction(this); }` and reads trigger parsed 1,
+witness 987654, exit 0. The frontier's body is the wrong body.
+
+⚠ AND THE BANNER HOLE IS A REAL DEFECT IN THIS FILE, recorded not fixed: a
+station whose BODY FAILS TO PARSE never runs, never sets frDead, and the foot
+prints "all nine stations PASSED". frDead only ever rises from a station that
+RAN. H2 exactly -- the completeness assertion cannot see a section that was
+never reached. No repair on sight; it comes home.
+
+WHERE THE EDGE WAS, 2026-08-22 THIRD PASS -- BINDING ATTEMPTED, TWO FINDINGS
 
 Station 7 is new: it applies the napalm pattern's binding clause by calling
 setParse on the live rule. The frontier now dies THERE, and the reason is a
