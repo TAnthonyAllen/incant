@@ -20,11 +20,13 @@ define
     frLiveLen2=0;
     frTwinLen=0;
     frTwinLen2=0;
+    frWitness=0;
 
     frBodyMarker code={
         reset(frBuf);
         printTO(frBuf);
         print frOpen:;
+        print $"frWitness = " frMark ";":;
         print $"cerr " frMark ";":;
         print $"return runRuleAction(this);":;
         print `frClose:;
@@ -132,9 +134,15 @@ define
         if frOk == 1;
             frSubject +% copyOf(frArt);
             frSubject :. isActioN;
-            cerr "STATION 6 harvest: PASS -- artifact copied onto the live rule":;
+        frOk2 = 0;
+        if frSubject.isActioN;      frOk2 = 1;
+        cerr "STATION 6 BlocK harvested " frOk " -- isActioN reads back " frOk2:;
+        };
+    frVerdict6 code={
+        if frOk2 == 0;      frOk = 0;
+        if frOk == 1;            cerr "STATION 6 harvest: PASS -- artifact copied AND isActioN verified set on the live rule":;
         if frOk == 0;
-            cerr "STATION 6 harvest: FAIL -- expected a BlocK on the twin, read nothing":;
+            cerr "STATION 6 harvest: FAIL -- need BOTH a BlocK on the twin and isActioN reading back set":;
             frDead = 1;
         };
     frStation7 code={
@@ -147,15 +155,22 @@ define
     frStation8 code={
         fixFrontier8Here = 0;
         cerr "ANCHOR frontier station 8 -- run the original; the marker is the verdict":;
-        cerr "STATION 8 expects the marker " frMark " below if the commissioned artifact executed":;
+        cerr "STATION 8 expects the witness to read " frMark " if the commissioned artifact executed":;
         frBodyTrigger();
         frHang(Grokking["QuotE"]);
         storeBody(Grokking["QuotE"]);
+        frWitness = 0;
         frFire := compileStored(Grokking["QuotE"]);
         frOk = 0;
         if frFire;          frOk = 1;
-        if frOk == 1;            cerr "STATION 8 run original: trigger PARSED -- marker presence above is the verdict":;
-        if frOk == 0;       cerr "STATION 8 run original: FAIL -- the trigger itself would not parse, so the marker proves nothing":;
+        frOk2 = 0;
+        if frWitness == frMark;     frOk2 = 1;
+        cerr "STATION 8 trigger parsed " frOk " -- witness reads " frWitness " and must equal " frMark:;
+        if frOk == 0;       frDead = 1;
+        if frOk2 == 0;      frDead = 1;
+        if frOk == 0;       cerr "STATION 8 run original: FAIL -- the trigger itself would not parse, so the witness proves nothing":;
+        if frOk2 == 1;      cerr "STATION 8 run original: PASS -- the commissioned artifact EXECUTED on trigger":;
+        if frOk2 == 0;      cerr "STATION 8 run original: FAIL -- the commissioned artifact did NOT execute; the two values above are the evidence":;
         };
 
     frRun code={
@@ -166,10 +181,11 @@ define
         if frDead == 0;     frStation4();
         if frDead == 0;     frStation5();
         if frDead == 0;     frStation6();
+        if frDead == 0;     frVerdict6();
         if frDead == 0;     frStation7();
         if frDead == 0;     frStation8();
-        if frDead == 1;     cerr "=== FRONTIER: the ladder stopped at the FAIL above. Later stations did not run. ===":;
-        if frDead == 0;     cerr "=== FRONTIER: all eight stations ran. ===":;
+        if frDead == 1;     cerr "=== FRONTIER: STOPPED -- a station returned a NO verdict above. ===":;
+        if frDead == 0;     cerr "=== FRONTIER: all eight stations PASSED. ===":;
         cerr "FRONTIER SENTINEL -- the ladder reached its foot":;
         stop();
         };
@@ -300,7 +316,71 @@ been commissioned onto the live Braced. If the commissioned artifact executes,
 the marker prints. The bracket-expression driver is borrowed from
 incant/bindSeamA, which drives Braced the same way and is already in the fleet.
 
-WHERE THE EDGE IS, 2026-08-22, AFTER THE RESTRUCTURE
+WHERE THE EDGE IS, 2026-08-22 SECOND PASS -- ACTIVATION LIVE, INSTRUMENT HONEST
+
+Stations 1 to 7 PASS on values. Station 6 now verifies that isActioN actually
+TOOK rather than that frArt existed, and it reads back 1, because opSetFlag
+gained its isActioN case the same day -- before that, `:. isActioN` printed
+"no case yet -- gCount 408", did nothing, and the station reported PASS
+anyway. That was the station claiming more than it verified, and it is the
+reason the hardening was ruled.
+
+STATION 8 SAYS NO, AND THAT IS THE READING OF RECORD. The trigger PARSES
+(1), and the witness reads 0 where it must read 987654. So the artifact is
+commissioned onto the live rule -- BlocK copied, isActioN verified set,
+corpus reporting commissioned 1 stray 0 -- and it DOES NOT EXECUTE when a
+bracket expression is parsed. A third piece is missing between activation
+and execution, and the frontier has located it on a Braced specimen, as a
+measured NO rather than a SIGSEGV in the tokenizer. That is the file working
+as designed.
+
+⚠ THE WITNESS IS WHY THAT SENTENCE CAN BE WRITTEN AT ALL. Until this pass
+station 8 asserted only that the trigger parsed and left the marker to the
+operator's eye -- and the run ended "all eight stations ran", which READS as
+success over a NO verdict. The marker did print, twice, at stations 5 and 6,
+so an eye scanning for 987654 found it and would have called it green. It
+was never station 8's marker. The witness field is set by the generated body
+itself and zeroed immediately before the trigger fires, so it can only carry
+the marker value if the artifact executed AT STATION 8. Headline-count as
+camouflage, inside the instrument built to prevent it.
+
+⚠⚠ AND WHY THERE IS A frVerdict6 SITTING OUTSIDE STATION 6 -- A FINDING, NOT
+A STYLE CHOICE. A COMMISSIONED ARTIFACT'S `return` TERMINATES THE BLOCK THAT
+FIRED IT.
+
+The generated body ends `return runRuleAction(this);`, as every generated
+body does. Once the artifact is live on Braced, something in station 6's own
+harvest fires it -- the marker prints mid-station -- and its return
+propagates OUT, so every statement after that point in frStation6 is never
+executed. Not a parse truncation: the statements are in the block and the
+block stops running.
+
+MEASURED, by removing only the return tail from the generated body:
+
+    with `return runRuleAction(this);`     station 6 prints its values, then
+                                           NOTHING -- no checkpoints, no
+                                           verdict, no frDead
+    without it                             checkpoints and verdict all print
+
+Two controls ruled out first, so the cause is not guessed: the
+multi-statement indented arm was replaced with two single-statement ifs (no
+change), and the dot read on the commissioned rule was removed entirely (no
+change, and the marker still fired).
+
+This is the one-channel-one-meaning family again -- a return signal that
+means "leave the artifact" is read as "leave the enclosing block" -- and it
+is NOT repaired here, because repairing it is a ruling, not a fix. What the
+file does instead is refuse to let the defect silence a verdict: station 6
+captures its values and frVerdict6 evaluates them one statement later, in a
+block the artifact cannot unwind. The assertion is unchanged; only its seat
+moved.
+
+⚠ Note the interaction to watch: this same return-propagation is a candidate
+for station 8's NO and has NOT been shown to be its cause. Station 8 reads
+NO with the return tail present AND absent, so the two are separate
+findings until something says otherwise.
+
+WHERE THE EDGE WAS, 2026-08-22 FIRST PASS -- AFTER THE RESTRUCTURE
 
 Stations 1 to 4 PASS with real values: live and twin both read list length 3
 at the mint, the live rule goes 3 -> 4 when the body is hung, the twin goes

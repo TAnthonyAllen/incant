@@ -9954,6 +9954,28 @@ GroupItem 	*flagDef = 0;
 				break;
 			case 40:
 				 target->groupBody->flags.actionType = 2; 
+				/*  isActioN -- THE WRITE HALF. The read half (opDot case 408) has
+				existed since incant/enumT; only the write was missing, so
+				`x :. isActioN` printed "no case yet -- gCount 408" and did
+				NOTHING. incant/frontier station 6 hit it: the station reported
+				PASS while the flag it was setting never took.
+				
+				⚠ PASSTHROUGH WITH A LITERAL, per the enum paragraph above, and
+				for exactly the reason it gives -- `target.isAction = true`
+				would generate `actionType = !isAction(actionType)`, which can
+				only ever write 0 or 1 by accident of isAction being 1. Here 1
+				happens to be right, and that is precisely why it must NOT be
+				spelled that way: the next enum case to be added would inherit
+				a spelling that is wrong everywhere except by coincidence.
+				
+				ONE CHANNEL: actionType = 1 is what isAction(button) tests
+				(GroupBody.h:74) and what processCode writes when it commissions
+				a parsed body (GroupRules.mm:11685). Flag and artifact are
+				constitutionally unable to disagree because they are the same
+				integer, which is isCodeD's discipline applied to its sibling.  */
+				break;
+			case 408:
+				 target->groupBody->flags.actionType = 1; 
 				break;
 			default:
 				::fprintf(stderr,"opSetFlag: groupField %s has no case yet -- gCount %s\n",argument->groupBody->tag,::toStringFromInt(flagDef->groupBody->gCount));
