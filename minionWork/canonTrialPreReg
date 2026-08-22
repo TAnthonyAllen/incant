@@ -1,0 +1,46 @@
+CANON-RESOLUTION TRIAL -- PRE-REGISTRATION
+Written 2026-08-22 BEFORE the exposure edit and the setParse edit. Clay
+dispatch amendment 8. Committed before the build so nothing below can be
+rationalised afterwards.
+
+WHAT IS BEING TRIED
+Provisional ruling (Amendment 7): binders resolve through definingRule() to
+canon before writing. setParse resolves; the actionMethod write rides the same
+resolution. Exposure: canonOf() as an incant command so reads 2 and 3 can be
+run honestly.
+
+⚠ THE PREDICTION THAT MATTERS, AND IT IS A WARNING ABOUT BUY CRITERION 2.
+`genLadder/parseClass.target` is a PINNED 239-row census produced by calling
+setParse on rules AND ON THEIR TERMS (incant/parseClass's pcWalk and pcTerms).
+If setParse resolves to canon before binding, then a TERM handed to setParse
+will bind -- and classify -- as its CANON rather than as itself. I therefore
+predict the parseClass census MOVES, and buy criterion 2 (fleet unmoved) may
+read FALSE for a reason that is the trial working correctly rather than the
+trial breaking something.
+
+I am registering this BEFORE the run because it is exactly the shape that gets
+rationalised after: a moved target with a plausible story. If it moves, the
+re-pin needs a sentence naming which rows changed and why -- the standing
+re-pin discipline -- and that sentence is Tony's to accept, not mine to assume.
+If it does NOT move, that is informative too: it would mean terms already
+resolve to themselves under definingRule(), i.e. they own their child lists.
+
+OTHER PREDICTIONS, on record:
+1. canonOf(Grokking["Braced"]) returns a node whose tag is Braced but which is
+   NOT the catalog face. I cannot presently distinguish them by tag, so the
+   discriminator is behavioural: bind canon, then the seam trace's
+   defParseMethod goes NON-NULL. That is read 2.
+2. Finding 1 (hasActioN 0 after setParse) is CURED by the same edit, because
+   `actionMethod = method` will then write canon's rStuff -- the one the fork
+   reads. If finding 1 is cured and finding 2 is not, the one-diagnosis read
+   is wrong and the trial has found something new.
+3. The extern canary stays 314. A drop to 0 means the new extern's body has a
+   parse fault (bear-traps #24/#29) and NOTHING below it is trustworthy.
+4. `if term.definingRule() != term` FAILS TO PARSE (genParse.rtn:1129, already
+   documented). The call is assigned to a local. If I forget, prediction 3
+   fires.
+
+WHAT WOULD MAKE ME STOP AND COME HOME, pre-committed:
+- read 2 divergence: canon bound and the fork still reads null. Amendment 7
+  pre-registers this; the ruling returns to Tony's desk.
+- any NEW bear-trap class minted by the trial itself (buy criterion 4).
