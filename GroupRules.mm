@@ -13670,4 +13670,3 @@ int 	result = 0;
 	setParseMethod(char*,char*)
 	getRStuff()
 */
-// Ignoring declaration of unused variable ruler in method: storeBody(GroupItem*)

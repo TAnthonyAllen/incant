@@ -806,7 +806,6 @@ extern GroupItem showBody(GroupItem field)
 *******************************************************************************/
 extern GroupItem storeBody(GroupItem rule)
 {
-GroupRules  ruler = groupRules;
 GroupItem   reg,
             entry,
             body;
