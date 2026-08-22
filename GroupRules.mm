@@ -2448,6 +2448,59 @@ GroupItem 	*newField = new GroupItem(field);
 }
 
 /***************************************************************************
+    canonOf -- name the node definingRule() resolves to, from incant.
+
+    THE INSTRUMENT ROAD-1 EXISTS FOR (Clay dispatch amendment 8). Ruling E is
+    about resolution, so the tree needs a way to ASK where a face resolves to,
+    and until now it had none: definingRule() is a C++ method with no command,
+    and it cannot be reconstructed from incant because parenT returns a WRAPPER
+    whose unWrap lands back on the child it was applied to. Three spellings
+    were tried on 2026-08-22 and none reached the parent.
+
+    ⚠ THIS IS ALSO setParse's OWN PREREQUISITE, which is why it is not a
+    detour: the provisional ruling needs setParse to resolve through
+    definingRule() before binding, and for that the call has to be rtn-shaped.
+    One build carries the instrument, the reads, and the edit.
+
+    Reports with its value on every call (rule H4) rather than only on
+    surprise -- a resolver that speaks only when it disagrees cannot be told
+    from one that was never called.
+
+    ⚠ definingRule() IS ASSIGNED TO A LOCAL, NEVER TESTED INLINE. genParse.rtn
+    :1129 records that `if term.definingRule() != term` fails to parse. The
+    hazard is documented, cheap to avoid, and expensive to rediscover -- it
+    would surface as bear-trap #24's signature, the extern block wiped to zero
+    three files away.
+***************************************************************************/
+extern "C" GroupItem *canonOf(GroupItem *argument)
+{
+GroupItem 	*canon = 0;
+	if ( !argument )
+		{
+		::fprintf(stderr,"canonOf: no field passed in\n");
+		return 0;
+		}
+	canon = argument->definingRule();
+	if ( !canon )
+		{
+		::fprintf(stderr,"canonOf: %s resolved to nothing\n",argument->groupBody->tag);
+		return 0;
+		}
+	/*  ⚠ POINTERS, NOT TAGS, AND THE TRIAL IS WHY. On 2026-08-22 this
+	function reported `canonOf: Braced -> Braced` and that sentence was
+	USELESS: the whole question was whether the catalog face and canon are
+	the SAME NODE, and two nodes of one rule share a tag by construction.
+	A resolver that reports names cannot answer a question about identity.
+	Passthrough because %p on a GroupItem* is not sayable in tok.  */
+	
+	::fprintf(stderr,"canonOf: %s face=%p canon=%p  %s\n",
+	argument->groupBody->tag,(void*)argument,(void*)canon,
+	argument == canon ? "SAME NODE" : "DIFFERENT NODES");
+	
+	return canon;
+}
+
+/***************************************************************************
     Close the file associated with the buffer. If no file has been set,
     fall back to using the field's tag as the filename — the tag is a
     handle the user already controls and serves no other purpose in this
@@ -12874,6 +12927,41 @@ int 		offset = markOffset->getCount();
     build succeeded. That is bear-trap #29 exactly, and the standing canary
     `grep -c '^extern' GroupRules.h` is what caught it. Comments go above the
     chain or inside an arm's braces, never in the gap between arms.
+
+    ⚠⚠ THE CANON-RESOLUTION TRIAL WAS RUN HERE ON 2026-08-22 AND REVERTED THE
+    SAME DAY. Recorded so nobody re-runs it blind.
+
+    THE TRY (Tony's try-and-buy on Ruling E): resolve through definingRule()
+    to canon before binding -- `canon = field.definingRule()`, then bind
+    canon's rStuff, with the actionMethod write riding the same resolution.
+    One resolution function, both directions, since parse() forks on
+    definingRule().rStuff.parseMethod.
+
+    THE BUY FAILED, on measurement, and the numbers are the reason:
+
+      pristine setParse(Braced)   before: PC parseRule Braced
+                                   after: PC none Braced
+      parseClass census           parseRule 104 -> 39, none 23 -> 92,
+                                  parseContainer 4 -> 1
+      fleet                       53 green -> 52; parseClass.target the only
+                                  new red, exactly as pre-registered
+      finding 1                   NOT cured -- canon hasActioN still 0
+
+    So resolving the binder to canon does not merely fail to help, it stops
+    most rules binding at all. The census move was PRE-REGISTERED as expected
+    (minionWork/canonTrialPreReg) but its DIRECTION was not: the prediction was
+    that terms would classify as their canon, not that binding would collapse.
+
+    CANDIDATE MECHANISM, UNCONFIRMED AND DELIBERATELY NOT ACTED ON: parseClassify
+    reads the rStuff of the node it is HANDED, while the trial made setParse
+    write a different node's -- so every face would report `none` whether or not
+    canon was bound. It is contradicted by the same run reading `none` off canon
+    itself, so it does not stand as an explanation. Left as a candidate with its
+    grade attached, per the citation discipline.
+
+    WHAT SURVIVES THE REVERT: canonOf(), the instrument the trial was worth --
+    definingRule() had no incant road before it, which is why read 2 could not
+    be run honestly at all.
 *****************************************************************************/
 extern "C" GroupItem *setParse(GroupItem *field)
 {

@@ -363,6 +363,41 @@ RuleStuff   ruleStuff = field.rStuff;
     build succeeded. That is bear-trap #29 exactly, and the standing canary
     `grep -c '^extern' GroupRules.h` is what caught it. Comments go above the
     chain or inside an arm's braces, never in the gap between arms.
+
+    ⚠⚠ THE CANON-RESOLUTION TRIAL WAS RUN HERE ON 2026-08-22 AND REVERTED THE
+    SAME DAY. Recorded so nobody re-runs it blind.
+
+    THE TRY (Tony's try-and-buy on Ruling E): resolve through definingRule()
+    to canon before binding -- `canon = field.definingRule()`, then bind
+    canon's rStuff, with the actionMethod write riding the same resolution.
+    One resolution function, both directions, since parse() forks on
+    definingRule().rStuff.parseMethod.
+
+    THE BUY FAILED, on measurement, and the numbers are the reason:
+
+      pristine setParse(Braced)   before: PC parseRule Braced
+                                   after: PC none Braced
+      parseClass census           parseRule 104 -> 39, none 23 -> 92,
+                                  parseContainer 4 -> 1
+      fleet                       53 green -> 52; parseClass.target the only
+                                  new red, exactly as pre-registered
+      finding 1                   NOT cured -- canon hasActioN still 0
+
+    So resolving the binder to canon does not merely fail to help, it stops
+    most rules binding at all. The census move was PRE-REGISTERED as expected
+    (minionWork/canonTrialPreReg) but its DIRECTION was not: the prediction was
+    that terms would classify as their canon, not that binding would collapse.
+
+    CANDIDATE MECHANISM, UNCONFIRMED AND DELIBERATELY NOT ACTED ON: parseClassify
+    reads the rStuff of the node it is HANDED, while the trial made setParse
+    write a different node's -- so every face would report `none` whether or not
+    canon was bound. It is contradicted by the same run reading `none` off canon
+    itself, so it does not stand as an explanation. Left as a candidate with its
+    grade attached, per the citation discipline.
+
+    WHAT SURVIVES THE REVERT: canonOf(), the instrument the trial was worth --
+    definingRule() had no incant road before it, which is why read 2 could not
+    be run honestly at all.
 *****************************************************************************/
 extern GroupItem setParse(GroupItem field)
 {

@@ -282,6 +282,56 @@ GroupItem block = new;
 
 
 /***************************************************************************
+    canonOf -- name the node definingRule() resolves to, from incant.
+
+    THE INSTRUMENT ROAD-1 EXISTS FOR (Clay dispatch amendment 8). Ruling E is
+    about resolution, so the tree needs a way to ASK where a face resolves to,
+    and until now it had none: definingRule() is a C++ method with no command,
+    and it cannot be reconstructed from incant because parenT returns a WRAPPER
+    whose unWrap lands back on the child it was applied to. Three spellings
+    were tried on 2026-08-22 and none reached the parent.
+
+    ⚠ THIS IS ALSO setParse's OWN PREREQUISITE, which is why it is not a
+    detour: the provisional ruling needs setParse to resolve through
+    definingRule() before binding, and for that the call has to be rtn-shaped.
+    One build carries the instrument, the reads, and the edit.
+
+    Reports with its value on every call (rule H4) rather than only on
+    surprise -- a resolver that speaks only when it disagrees cannot be told
+    from one that was never called.
+
+    ⚠ definingRule() IS ASSIGNED TO A LOCAL, NEVER TESTED INLINE. genParse.rtn
+    :1129 records that `if term.definingRule() != term` fails to parse. The
+    hazard is documented, cheap to avoid, and expensive to rediscover -- it
+    would surface as bear-trap #24's signature, the extern block wiped to zero
+    three files away.
+***************************************************************************/
+extern GroupItem canonOf(GroupItem argument)
+{
+GroupItem   canon;
+    if !argument {
+        cerr "canonOf: no field passed in":;
+        return null; }
+    canon = argument.definingRule();
+    if !canon {
+        cerr "canonOf: " argument.tag " resolved to nothing":;
+        return null; }
+    /*  ⚠ POINTERS, NOT TAGS, AND THE TRIAL IS WHY. On 2026-08-22 this
+        function reported `canonOf: Braced -> Braced` and that sentence was
+        USELESS: the whole question was whether the catalog face and canon are
+        the SAME NODE, and two nodes of one rule share a tag by construction.
+        A resolver that reports names cannot answer a question about identity.
+        Passthrough because %p on a GroupItem* is not sayable in tok.  */
+-%
+    ::fprintf(stderr,"canonOf: %s face=%p canon=%p  %s\n",
+        argument->groupBody->tag,(void*)argument,(void*)canon,
+        argument == canon ? "SAME NODE" : "DIFFERENT NODES");
+%-
+    return canon;
+}
+
+
+/***************************************************************************
 	The incant debugGuard command invokes this to toggle the debugGuard
     flag in the argument passed in
 ***************************************************************************/

@@ -85,6 +85,7 @@ define
     setMark immediateAction;
     setParse immediateAction;
     traceParse immediateAction;
+    canonOf immediateAction;
     setPointer immediateAction=opPointer noPrint;
     sort immediateAction=processFlags noPrint;
     stack immediateAction=setInternalType noPrint;

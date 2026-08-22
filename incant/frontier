@@ -342,7 +342,42 @@ Station 7 is new: it applies the napalm pattern's binding clause by calling
 setParse on the live rule. The frontier now dies THERE, and the reason is a
 measured defect rather than a missing piece.
 
-FINDING ONE -- setParse BINDS THE PARSE METHOD BUT DOES NOT MOVE THE ACTION.
+⚠⚠ FINDING ONE IS WITHDRAWN, 2026-08-22, AND THE WITHDRAWAL IS THE FINDING.
+It was a MISATTRIBUTED READING, and it was mine. The claim below says
+"measured on a PRISTINE Braced". It was not. The `PC parseRule` half came
+from a pristine bind; the `hasActioN 0` half came from a DIFFERENT POINT IN
+THE SAME RUN, after commissioning. Two readings from two states, reported as
+one measurement on one state.
+
+Re-measured cleanly with canonOf's build, pristine face, treatment in between:
+
+    face hasActioN BEFORE setParse   0
+    face hasActioN AFTER  setParse   1
+
+So `actionMethod = method` WORKS. setParse moves the action exactly as
+designed, on the node it is handed. There is no finding one.
+
+⚠ AND WHAT IT COST IS THE POINT: a ruling was issued on it. Finding one was
+reclassified as "design correct, mechanics fail" and a probe was chartered
+against mechanics that were never failing. The defect was in the report, not
+the code, and nothing downstream could have caught it -- which is why the
+citation discipline says re-measure a number before you reason on top of it,
+and why a reading assembled from two points in a run is not one reading.
+
+WHERE FINDINGS ONE AND THREE WENT: they are ONE finding, and it is three.
+
+    pristine Braced      setParse -> PC parseRule,  hasActioN 1
+    commissioned Braced  setParse -> PC none,       hasActioN 0
+
+COMMISSIONING BREAKS setParse. That is the whole of it, and it now also
+carries what used to be finding one's evidence. Station 7 fails on the
+commissioned rule and is correct to. Finding two -- the fork reading null --
+may be downstream of the same cause, since a rule that never bound has
+nothing for the fork to read; that is NOT established and is not claimed.
+
+THE SUPERSEDED CLAIM, kept because the record should show what was believed:
+
+FINDING ONE (WITHDRAWN) -- setParse BINDS THE PARSE METHOD BUT DOES NOT MOVE THE ACTION.
 `setParse` (Generate.rtn:367) opens its bind block with `actionMethod =
 method;`, which is Ruling B's gMethod-to-actionMethod move, already shipping.
 It does not take. Measured on a PRISTINE Braced, so nothing the crucible did
