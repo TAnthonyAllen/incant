@@ -1,3 +1,86 @@
+# ⚠⚠⚠ SEALED 2026-08-22 — KITCHEN PASS (CURRENT VINTAGE). READ THIS FIRST.
+#
+#   ⚠ **THIS SUPERSEDES THE 2026-08-21 SEAL BELOW, WHICH IS INTACT AND STILL TRUE AS OF ITS OWN
+#   MARK.** That one had an instrument that said where the campaign was stuck. This one ran it green.
+#
+#   ## THE ONE-LINE STATE: **the F-31 (tokenize snake-eats-tail) fix shape is PROVEN end-to-end on a
+#   specimen.** `incant/frontier` runs **nine stations, all RAN and all PASSED**, ran-census 9 of 9,
+#   exit 0, reproduces. Fleet **53 green / 1 parked**, canary **315**, everything pushed.
+#   **Tony's fixit incantations waiting: 1 (nodeIdentity, since 2026-08-22)**
+#
+#   ## ⚠⚠ THE FIVE THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   **1. THE CAMPAIGN'S QUESTION IS ANSWERED, ON A SPECIMEN.** A body that did not exist when the
+#   process started was generated, stored off-rule, activated on a twin, compiled, harvested onto the
+#   live rule, bound into its parse path, and **executed by the ordinary parse as Braced's own parse
+#   implementation** — correctly enough that the bracket it governs parsed. `tokenize` untouched.
+#   Runnable: `minionWork/probeDecisiveV2`, `incant/frontier`.
+#
+#   **2. THREE THINGS HAD TO BE TRUE AT ONCE.** Remove any one and the run goes red or silent.
+#   **Bind the real node** — `<-` hands back a reference-sharing-substance, and a reference confirms
+#   every read-back of a write that changed nothing (Ruling E: bind the node, not a copy).
+#   **The fork's node is the ordinary catalog node** — no carrier, no fallback, no resolution
+#   function; `canonOf(Grokking["Braced"])` reports SAME NODE and equals the fork's `definer`.
+#   **The return is consumed at the fire site** — a body's yield is a value, never control flow.
+#
+#   **3. ⚠ THE CONFOUNDER THAT ATE A WEEK, AND WHY NO INSTRUMENT CAUGHT IT.** `<-` yields a node that
+#   shares the original's child list but is **not** the original. It answers every READ correctly —
+#   same tag, flags, list, `definingRule` — and diverges only on MUTATION, where the write lands on
+#   the copy and **the read-back off that copy confirms it**. No error, no crash, fixture green. Four
+#   findings were reported and later inverted from this one root. **Identity questions are asked in
+#   POINTERS, through `canonOf`** — a resolver that reports names cannot answer a question about
+#   identity, because two faces of one rule share a tag by construction.
+#
+#   **4. #37 (artifact return unwinds caller) IS STILL STANDING — DO NOT READ THE GREEN AS ITS CURE.**
+#   Containment is proven at `parseRule`'s door ONLY. The frontier is green because the truth-test
+#   discipline **removed the fire**, not because the unwind was contained; the #37 path is not
+#   exercised anywhere in that run. The evaluation door — `aCTionIF`'s condition fork,
+#   `GroupRules.mm:857` — is parked as a named acceptance criterion on the gMethod-move batch with an
+#   H7 control: **truth-test a commissioned BlocK; it must NOT fire.** Retirement fires on that
+#   verified landing, not before.
+#
+#   **5. THE STAGING PROPERTY, DEMONSTRATED NOT ASSERTED: arming without routing is inert by
+#   construction.** The artifact sat armed on the live rule across whole sessions and never fired
+#   until it was routed. So the tokenize repair stages **store → arm → verify → bind**, everything
+#   before the bind provably inert, the live switch at one ruled moment.
+#
+#   ## RULINGS BANKED BY THIS CAMPAIGN
+#
+#   **A** twin inertness (a `copyOf` twin is specimen, not organism) · **C** compile guards both
+#   channels with distinct refusals (flag-vs-artifact disagreement is itself diagnostic) ·
+#   **D** shape vs liveness vs birth — D1 `isRule`-class flags say rule-SHAPED never LIVE, liveness is
+#   asked of `rStuff`; D2 `isLabel` is a birth certificate, an `rStuff`-less label is WRECKAGE and
+#   refuses loud; D3 registration mints shape, reference mints life · **E** bind the node, not a copy ·
+#   **containment lives at the fire site**, yields are consumed not obeyed.
+#   ⚠ **DOOR TAXONOMY:** deliberate fire sites (parseRule) consume returns — landed and proven.
+#   **Evaluation sites (any operand-position gMethod call) are a LANGUAGE ruling, not an edit** —
+#   consuming there changes what `if` means for every method-valued condition.
+#
+#   ## ⚠ WHAT TONY IS ON THE HOOK FOR
+#
+#   1. **Arm A** — instrument the walk around install #43, confirm one concrete read into `tokenize`'s
+#      overwritten body. It gates the repair and nothing this campaign did touched it.
+#   2. **`nodeIdentity` fixit** — intent half RULED (pointer wanted, mechanism missing); the `parenT`
+#      grep is the open half, one command, no build.
+#   3. **The `<-` memory row** (`project_incant_new_operators_setflag_rebind`) describes the symptom as
+#      if it were the design — wants a word now that the intent is ruled.
+#   4. **Carried:** `groupDirectives` working copy · `jsonTest baseline` red, pre-existing all session ·
+#      `IncantForms/WorkingOn/{incant++,tester}` are his live files.
+#
+#   ## THE DISCIPLINE EXHIBITS, because each changed an outcome
+#   **THE TRY-AND-BUY SYSTEM SAID NO, AND WAS RIGHT.** One full cycle, criteria pre-registered before
+#   the edit, criterion 2 failed on measurement, the one-commit revert floor executed clean — and the
+#   no-buy turned out righter than known once the confounder surfaced.
+#   **A GREEN RUN THAT NEVER ENTERS THE FAILING PATH IS NOT EVIDENCE THE PATH IS FIXED**, and the
+#   frontier says so in its own prose rather than letting its banner imply otherwise.
+#   **THE RAN-CENSUS EXISTS BECAUSE THE BANNER LIED ONCE:** reading v1 printed "all nine stations
+#   PASSED" while station 9 sat unparsed, because `frDead` only ever rises from a station that RAN.
+#   **FOUR FINDINGS WERE WITHDRAWN OR INVERTED AND NO WRONG RULING SURVIVED** — finding 1 withdrawn
+#   before its ruling was acted on, finding 3's fix-vs-reorder explicitly held for mechanism, Ruling E's
+#   trial refused by pre-registered criteria. The process caught what the probes could not.
+#
+# ---
+#
 # ⚠⚠⚠ SEALED 2026-08-21 — KITCHEN PASS (CURRENT VINTAGE). READ THIS FIRST.
 #
 #   ⚠ **THIS SUPERSEDES THE 2026-08-20 SEAL BELOW, WHICH IS INTACT AND STILL TRUE AS OF ITS OWN
