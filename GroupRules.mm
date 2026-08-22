@@ -515,6 +515,27 @@ GroupItem 	*item = 0;
 					NewGroup->groupBody->flags.isRule = 1;
 				if ( !NewGroup->rStuff )
 					NewGroup->setRStuff(new RuleStuff(NewGroup));
+				/*  ⚠ THE PRODUCER OWNS THE INVARIANT: EVERY LIVE RULE
+				CARRIES rStuff. Mark 3, Tony 2026-08-22.
+				
+				GUARD THE CONSUMER GENTLY, ASSERT THE PRODUCER LOUDLY --
+				R-4's shape, one layer up. The consumer-side guards added
+				the same day (runRuleAction, opDot case 36, processFlags)
+				make SILENCE out of a state that is lawful for a specimen
+				and a DEFECT on a live rule, and per Ruling A the consumer
+				must not try to tell those apart: rStuff-less IS the
+				definition of specimen. So the loudness moves to where the
+				invariant actually lives.
+				
+				This is the registration boundary -- filing into an isRule
+				registry is what promotes a node to a rule -- so it is the
+				one place that can promise a live rule has rStuff. The
+				line above ensures it; this refuses if the ensure did not
+				take, which would mean the allocation itself failed and
+				every downstream guard is about to report "specimen" for
+				something that is really a broken rule.  */
+				if ( !NewGroup->rStuff )
+					::fprintf(stderr,"REGISTER: INVARIANT BROKEN -- %s promoted to a rule in registry %s but carries no rStuff. Every live rule must carry rStuff (Mark 3); downstream guards will now read this broken rule as a lawful specimen.\n",NewGroup->groupBody->tag,ruler->currentRegistry->groupBody->tag);
 				}
 			else
 			if ( NewGroup->groupBody->registry != ruler->currentRegistry )
@@ -830,8 +851,23 @@ GroupItem 	*lastStatement = GroupControl::groupController->groupRules->lastState
 	// top-level statement execution (!processingCode) — it survives backtracking,
 	// unlike ruleSTUFF.label. Top-level granularity for now; in-block is a future
 	// refinement.
+	/*  ⚠ THE LAST CODE ALLOWED TO CRASH IS THE CODE THAT REPORTS CRASHES.
+	Standing principle, Tony 2026-08-22, and it outlives this fix.
+	
+	Failure reporting must survive its own subject. `failedAt` lives on
+	rStuff, and a subject arriving here with no rStuff is exactly the
+	"something went wrong in the getting-there" case this reporter exists
+	to announce -- so trusting the subject to be intact is the one
+	assumption it must never make. It cannot say so dead.
+	
+	Print what exists, name what is absent. Reported unconditionally and
+	with its value either way (rule H4): an absence that prints nothing
+	would be indistinguishable from a parse that failed at offset zero.  */
 	::printf("Rule %s\n",input->groupBody->tag);
-	::printf("\tFailed at:\t%s\n",::getDebugText(input->rStuff->failedAt,40));
+	if ( input->rStuff )
+		::printf("\tFailed at:\t%s\n",::getDebugText(input->rStuff->failedAt,40));
+	if ( !input->rStuff )
+		::printf("\tFailed at:  <unavailable -- this subject carries no rStuff; see Ruling D>\n");
 	::printf("\ton Line:\t\t%d \n",GroupControl::groupController->groupRules->sourceLINE);
 	// added the gText guard (for cases that do not use StatemenT
 	if ( lastStatement->groupBody->gText )
@@ -2494,6 +2530,29 @@ GroupItem 	*grup = 0;
 	guard is belt and braces. It is kept because R-4 asks that an existing
 	precondition be left untouched, not merely un-duplicated.)  */
 	code = field->get("CodE");
+	/*  ⚠ THE SECOND REFUSAL, AND IT IS DELIBERATELY NOT THE FIRST ONE'S
+	MESSAGE. Ruling C, 2026-08-22: compile owns its preconditions BY FLAG
+	AND BY ARTIFACT, and the two can disagree.
+	
+	isCoded IS actionType == 2 (GroupBody.h:75). Anything may set that
+	flag; only activateBody and compileStored actually mint the CodE, as
+	the last of the same three lines. So a caller that hand-sets the flag
+	-- which incant/frontier did until 2026-08-22 -- arrives here claiming
+	a body it does not have, and the lines below took `code` straight into
+	addAttribute. That crashed: SIGSEGV at GroupItem.mm:212, no
+	diagnostic, and from a shell it looked like a silent early exit
+	because a crash eats buffered stdout.
+	
+	THE FLAG/ARTIFACT DISAGREEMENT IS ITSELF THE DIAGNOSTIC, which is why
+	this must not collapse into the bodyless message above. That one says
+	"you never claimed a body". This one says "you claimed one and it is
+	not there" -- a different defect, in a different caller, and the two
+	sentences send you to different places.  */
+	if ( !code )
+		{
+		::fprintf(stderr,"compile: REFUSING %s -- isCoded is set but there is no CodE attribute; the flag and the artifact disagree\n",field->groupBody->tag);
+		return 0;
+		}
 	grup = 0;
 	while ( grup = field->next(grup) )
 		if ( grup->groupBody->flags.noPrint )
@@ -8846,7 +8905,7 @@ GroupItem 	*product = 0;
 						product->setCount(1);
 					break;
 				case 36:
-					if ( target->rStuff->actionMethod )
+					if ( target->rStuff && target->rStuff->actionMethod )
 						product->setCount(1);
 					break;
 				case 401:
@@ -11568,6 +11627,30 @@ GroupItem 	*priorMETHOD = ruler->currentMETHOD;
 GroupItem 	*action = field;
 int 		indenter = ruler->lastIndent;
 int 		processing = ruler->processingCode;
+	/*  ⚠ THE D2 TRIPWIRE. NOT a tolerance guard -- a refuse-loud trap, and
+	the difference is the whole ruling. Tony, 2026-08-22.
+	
+	D1 says an isRule-class groupBody flag means RULE-SHAPED and that
+	rStuff-less is LAWFUL, because that is what a specimen is. D2 says
+	isLabel is different in kind: a label exists ONLY as the result of a
+	live parse, and its rStuff.rule link is part of that birth. So
+	isLabel IMPLIES live rStuff, always. An rStuff-less label is not a
+	specimen -- it is WRECKAGE: something upstream broke, copied, or
+	hand-built what only a parse may mint.
+	
+	SO THIS SPEAKS RATHER THAN SHRUGS, and it speaks HERE even though the
+	defect happened somewhere else. This is where it became visible, and
+	silence here would let wreckage travel down the specimen path --
+	compile calls processCode, which is station 5's road.
+	
+	The guard it replaces asked isLabel (groupBody, COPIED) before
+	dereferencing rStuff (never copied): a question posed to the wrong
+	oracle, and one flag away from firing.  */
+	if ( field->groupBody->flags.isLabel && !field->rStuff )
+		{
+		::fprintf(stderr,"processCode: REFUSING %s -- isLabel with no rStuff. Only a live parse mints a label (Ruling D2), so this node is wreckage, not a specimen; look upstream at whatever copied or hand-built it.\n",field->groupBody->tag);
+		return 0;
+		}
 	if ( field->groupBody->flags.isLabel )
 		field = field->rStuff->rule;
 	/*  PJ-8, THE INTERPRETING HALF OF THE LIFECYCLE. An action's IR record is
@@ -11661,7 +11744,7 @@ GroupItem 	*target = item->groupBody->flags.fLAG ? item->parent : item;
 				::exit(0);
 				break;
 			case 'f':
-				if ( target->groupBody->flags.isRule )
+				if ( target->rStuff )
 					target->rStuff->notifyFail = 1;
 				break;
 			case 'i':
@@ -12408,6 +12491,29 @@ int 		baseStak = 0;
 extern "C" GroupItem *runRuleAction(GroupItem *field)
 {
 RuleStuff 	*ruleStuff = field->rStuff;
+	/*  ⚠ THE SPECIMEN GUARD, AND trueResult HERE IS A SEMANTIC RULING RATHER
+	THAN A CRASH GUARD SOMEBODY FORGOT TO REVISIT. Ruling A + Ruling D1,
+	Tony 2026-08-22.
+	
+	FOR AN INERT SPECIMEN, THE BODY'S YIELD IS trueResult BY DEFINITION:
+	no action exists to run, so "ran successfully, nothing happened" is
+	the truthful report. A copyOf twin is a specimen, not an organism --
+	copyOf copies the groupBody and the list, and rStuff is neither, so a
+	twin having no rStuff is LAWFUL and is what a twin IS.
+	
+	THIS LINE IS THE TAIL OF EVERY GENERATED BODY. `return
+	runRuleAction(this)` is what the generator emits, and on a specimen
+	`this` is the twin -- so this return is the body's yield for every
+	specimen there will ever be. When generated bodies are later wired
+	into the live yield protocol (null / labelNO / node), READ THIS AS A
+	DECISION, not as a placeholder.
+	
+	It was found the expensive way: incant/frontier station 5 ran a
+	generated body end to end -- the marker printed, the first body ever
+	to execute in that pipeline -- and then died here, at the last
+	statement, dereferencing a null rStuff.  */
+	if ( !ruleStuff )
+		return GroupControl::groupController->groupRules->trueResult;
 	if ( ruleStuff->label )
 		if ( ruleStuff->actionMethod )
 			return ruleStuff->label = ruleStuff->actionMethod(ruleStuff->label);

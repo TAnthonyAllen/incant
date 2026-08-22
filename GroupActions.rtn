@@ -922,6 +922,28 @@ GroupItem   blockRULE = grokking/BlocK,
 int         indenter = lastIndent;
 int processing  = processingCode;
 use field
+    /*  ⚠ THE D2 TRIPWIRE. NOT a tolerance guard -- a refuse-loud trap, and
+        the difference is the whole ruling. Tony, 2026-08-22.
+
+        D1 says an isRule-class groupBody flag means RULE-SHAPED and that
+        rStuff-less is LAWFUL, because that is what a specimen is. D2 says
+        isLabel is different in kind: a label exists ONLY as the result of a
+        live parse, and its rStuff.rule link is part of that birth. So
+        isLabel IMPLIES live rStuff, always. An rStuff-less label is not a
+        specimen -- it is WRECKAGE: something upstream broke, copied, or
+        hand-built what only a parse may mint.
+
+        SO THIS SPEAKS RATHER THAN SHRUGS, and it speaks HERE even though the
+        defect happened somewhere else. This is where it became visible, and
+        silence here would let wreckage travel down the specimen path --
+        compile calls processCode, which is station 5's road.
+
+        The guard it replaces asked isLabel (groupBody, COPIED) before
+        dereferencing rStuff (never copied): a question posed to the wrong
+        oracle, and one flag away from firing.  */
+    if isLabel && !rStuff {
+        cerr "processCode: REFUSING " tag " -- isLabel with no rStuff. Only a live parse mints a label (Ruling D2), so this node is wreckage, not a specimen; look upstream at whatever copied or hand-built it.":;
+        return false; }
     if isLabel  field = rule;
     /*  PJ-8, THE INTERPRETING HALF OF THE LIFECYCLE. An action's IR record is
         cleared whenever the action is COMPILED, and this is the compile for

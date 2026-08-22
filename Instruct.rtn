@@ -336,7 +336,7 @@ use argument
                 case 29:    if target.noPrint       product.count = 1;
                 case 34:    if target.isAttribute   product.count = 1;
                 case 35:    if target.isMember      product.count = 1;
-                case 36:    if target.actionMethod  product.count = 1;
+                case 36:    if target.rStuff && target.actionMethod  product.count = 1;
                 case 401:   if !target.nextInParent product = null;
                             else {
                                 product = target.nextInParent;

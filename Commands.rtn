@@ -194,6 +194,27 @@ GroupItem   code,
         guard is belt and braces. It is kept because R-4 asks that an existing
         precondition be left untouched, not merely un-duplicated.)  */
     code    = field["CodE"];
+    /*  ⚠ THE SECOND REFUSAL, AND IT IS DELIBERATELY NOT THE FIRST ONE'S
+        MESSAGE. Ruling C, 2026-08-22: compile owns its preconditions BY FLAG
+        AND BY ARTIFACT, and the two can disagree.
+
+        isCoded IS actionType == 2 (GroupBody.h:75). Anything may set that
+        flag; only activateBody and compileStored actually mint the CodE, as
+        the last of the same three lines. So a caller that hand-sets the flag
+        -- which incant/frontier did until 2026-08-22 -- arrives here claiming
+        a body it does not have, and the lines below took `code` straight into
+        addAttribute. That crashed: SIGSEGV at GroupItem.mm:212, no
+        diagnostic, and from a shell it looked like a silent early exit
+        because a crash eats buffered stdout.
+
+        THE FLAG/ARTIFACT DISAGREEMENT IS ITSELF THE DIAGNOSTIC, which is why
+        this must not collapse into the bodyless message above. That one says
+        "you never claimed a body". This one says "you claimed one and it is
+        not there" -- a different defect, in a different caller, and the two
+        sentences send you to different places.  */
+    if !code {
+        cerr "compile: REFUSING " field.tag " -- isCoded is set but there is no CodE attribute; the flag and the artifact disagree":;
+        return null; }
     grup    = 0;
     while grup = field.next(grup)
         if grup.noPrint     continue;
@@ -643,7 +664,7 @@ GroupItem   target  = item.fLAG ? item.parent : item;
                         if !defining    lastIndent = 0;
             case 'e':   print "Exiting parse":;
                         exit(0);
-            case 'f':   if isRule notifyFail = true;
+            case 'f':   if rStuff notifyFail = true;
             case 'i':
                 if command eq "index"   isIndexed = true;
                 or command eq "isList"  isLIST = true;

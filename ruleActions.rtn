@@ -396,7 +396,27 @@ use NewGroup
             if currentRegistry.isRule {
                 NewGroup = currentRegistry += NewGroup;
                 if !binType     isRule = true;
-                if !rStuff      rStuff = new(NewGroup); }
+                if !rStuff      rStuff = new(NewGroup);
+                /*  ⚠ THE PRODUCER OWNS THE INVARIANT: EVERY LIVE RULE
+                    CARRIES rStuff. Mark 3, Tony 2026-08-22.
+
+                    GUARD THE CONSUMER GENTLY, ASSERT THE PRODUCER LOUDLY --
+                    R-4's shape, one layer up. The consumer-side guards added
+                    the same day (runRuleAction, opDot case 36, processFlags)
+                    make SILENCE out of a state that is lawful for a specimen
+                    and a DEFECT on a live rule, and per Ruling A the consumer
+                    must not try to tell those apart: rStuff-less IS the
+                    definition of specimen. So the loudness moves to where the
+                    invariant actually lives.
+
+                    This is the registration boundary -- filing into an isRule
+                    registry is what promotes a node to a rule -- so it is the
+                    one place that can promise a live rule has rStuff. The
+                    line above ensures it; this refuses if the ensure did not
+                    take, which would mean the allocation itself failed and
+                    every downstream guard is about to report "specimen" for
+                    something that is really a broken rule.  */
+                if !rStuff  cerr "REGISTER: INVARIANT BROKEN -- " NewGroup.tag " promoted to a rule in registry " currentRegistry.tag " but carries no rStuff. Every live rule must carry rStuff (Mark 3); downstream guards will now read this broken rule as a lawful specimen.":; }
             or registry != currentRegistry
                 if currentDefine == NewGroup ||  !currentDefine || !currentDefine.addingMembers
                     NewGroup = currentRegistry += NewGroup; }}
@@ -603,8 +623,21 @@ use input
     // top-level statement execution (!processingCode) — it survives backtracking,
     // unlike ruleSTUFF.label. Top-level granularity for now; in-block is a future
     // refinement.
+    /*  ⚠ THE LAST CODE ALLOWED TO CRASH IS THE CODE THAT REPORTS CRASHES.
+        Standing principle, Tony 2026-08-22, and it outlives this fix.
+
+        Failure reporting must survive its own subject. `failedAt` lives on
+        rStuff, and a subject arriving here with no rStuff is exactly the
+        "something went wrong in the getting-there" case this reporter exists
+        to announce -- so trusting the subject to be intact is the one
+        assumption it must never make. It cannot say so dead.
+
+        Print what exists, name what is absent. Reported unconditionally and
+        with its value either way (rule H4): an absence that prints nothing
+        would be indistinguishable from a parse that failed at offset zero.  */
     cout "Rule " tag:;
-    cout `"Failed at:" `getDebugText(failedAt, 40):;
+    if rStuff   cout `"Failed at:" `getDebugText(failedAt, 40):;
+    if !rStuff  cout `"Failed at:  <unavailable -- this subject carries no rStuff; see Ruling D>":;
     cout `"on Line:" ``sourceLINE,:;
     // added the gText guard (for cases that do not use StatemenT
     if lastStatement.gText   cout "  Last parsed: ", lastStatement.text:;

@@ -290,6 +290,28 @@ RuleStuff   ruleStuff = field.rStuff;
 extern GroupItem runRuleAction(GroupItem field)
 {
 RuleStuff   ruleStuff = field.rStuff;
+    /*  ⚠ THE SPECIMEN GUARD, AND trueResult HERE IS A SEMANTIC RULING RATHER
+        THAN A CRASH GUARD SOMEBODY FORGOT TO REVISIT. Ruling A + Ruling D1,
+        Tony 2026-08-22.
+
+        FOR AN INERT SPECIMEN, THE BODY'S YIELD IS trueResult BY DEFINITION:
+        no action exists to run, so "ran successfully, nothing happened" is
+        the truthful report. A copyOf twin is a specimen, not an organism --
+        copyOf copies the groupBody and the list, and rStuff is neither, so a
+        twin having no rStuff is LAWFUL and is what a twin IS.
+
+        THIS LINE IS THE TAIL OF EVERY GENERATED BODY. `return
+        runRuleAction(this)` is what the generator emits, and on a specimen
+        `this` is the twin -- so this return is the body's yield for every
+        specimen there will ever be. When generated bodies are later wired
+        into the live yield protocol (null / labelNO / node), READ THIS AS A
+        DECISION, not as a placeholder.
+
+        It was found the expensive way: incant/frontier station 5 ran a
+        generated body end to end -- the marker printed, the first body ever
+        to execute in that pipeline -- and then died here, at the last
+        statement, dereferencing a null rStuff.  */
+    if !ruleStuff   return trueResult;
     if label
         if actionMethod     return label = actionMethod(label);
         else                return label;
