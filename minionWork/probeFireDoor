@@ -1,0 +1,117 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(ProbeR);
+define
+    doBuf buffer;
+    doOpen="{";
+    doClose="}";
+    doMark=987654;
+    StorE;
+    doTwin;
+    doWitness=0;
+    doOk=0;
+    doBody code={
+        reset(doBuf);
+        printTO(doBuf);
+        print doOpen:;
+        print $"doWitness = " doMark ";":;
+        print $"cerr " doMark ";":;
+        print $"return runRuleAction(this);":;
+        print `doClose:;
+        printTO(0);
+        clear(StorE);
+        StorE = doBuf;
+        };
+    doHang argument code={
+        doCopy <- copyOf(StorE);
+        doCopy :. noPrinT;
+        argument +% doCopy;
+        };
+    doRun code={
+        doBody();
+        doTwin <- copyOf(Grokking["Braced"]);
+        doHang(Grokking["Braced"]);
+        storeBody(Grokking["Braced"]);
+        activateBody(doTwin);
+        compile(doTwin);
+        doOk = 0;
+        if StorE.datA;      doOk = 1;
+        cerr "SETUP body generated " doOk:;
+        doE := storeBody(Grokking["Braced"]);
+        doOk = 0;
+        if doE;             doOk = 1;
+        cerr "SETUP stored " doOk:;
+        cerr "A about to <- the BlocK off the twin":;
+        doArt <- doTwin["BlocK"];
+        cerr "B <- done, no fire yet; about to TRUTH-TEST it with if":;
+        doOk = 0;
+        if doArt;           doOk = 1;
+        cerr "C if done, doArt " doOk:;
+        doCod <- doTwin["CodE"];
+        cerr "DOOR step 1 -- about to +% the CodE":;
+        Grokking["Braced"] +% copyOf(doCod);
+        cerr "DOOR step 2 -- CodE attached; about to +% the BlocK":;
+        Grokking["Braced"] +% copyOf(doArt);
+        cerr "DOOR step 3 -- BlocK attached; about to :. isActioN":;
+        Grokking["Braced"] :. isActioN;
+        cerr "DOOR step 4 -- isActioN set; about to <- capture":;
+        doLive <- Grokking["Braced"];
+        cerr "DOOR step 5 -- captured; about to read .isActioN":;
+        doOk = 0;
+        if doLive.isActioN;     doOk = 1;
+        cerr "DOOR step 6 -- read done, isActioN " doOk:;
+        cerr "DOOR SENTINEL -- station 6 completed without firing":;
+        stop();
+        };
+    ;
+doRun();
+
+THE DOOR READ, 2026-08-22 (Clay dispatch amendment 11, box one)
+
+THE QUESTION: station 6's harvest fires the commissioned artifact and loses
+its tail. Containment covers parseRule's fire site. Which door is this?
+
+THE ANSWER, and it is OUTSIDE the enumerated three:
+
+    A about to <- the BlocK off the twin
+    B <- done, no fire yet; about to TRUTH-TEST it with if
+    987654 C if done, doArt 1        <- FIRED HERE, and the run ends
+
+The door is `if doArt;` -- aCTionIF's condition fork at GroupRules.mm:857,
+`if (isMethod(instructType)) result = gMethod(result)`. A BlocK carries
+aCTionBlocK as its gMethod, so truth-testing a BlocK EXECUTES THE BODY.
+
+It is NOT fireLabelMethod, NOT parseSetLabel, NOT actK. Those three are the
+rule-action doors. This is the ordinary `if` condition evaluation, and it can
+fire ANY node carrying a gMethod -- which after commissioning includes both
+the rule and its BlocK.
+
+⚠ THE POSITIVE CONTROL IS WHY THIS READS AT ALL. The first bisect ran clean
+end to end and "proved" station 6 does not fire -- because compile had left no
+BlocK and steps 1 to 3 were operating on nothing. A bisect that never armed
+its subject proves nothing, and it looked exactly like a result. The control
+(`SETUP twin carries a BlocK 1`) fires the marker itself, which is how the
+truncation became visible.
+
+⚠ THIS IS TWO TRAPS MEETING ON ONE LINE. Bear-trap #34 says truth-testing a
+value that carries a gMethod fires it; #37 says a fired body's return unwinds
+the block. `if frArt;` does both: it fires the artifact and then loses the rest
+of the station. The frontier's own prose already forbids truth-testing
+rule-shaped values -- the rule simply was not extended to BlocK-shaped ones,
+because nobody had commissioned an artifact when it was written.
+
+WHAT THIS MEANS FOR CONTAINMENT: applying yield-consumption at this door is a
+DIFFERENT decision from applying it at parseRule's. parseRule fires a body
+deliberately, as the rule's parse implementation, and consuming its return is
+plainly right. An `if` condition firing a method is ordinary language
+behaviour on ordinary traffic -- consuming isBranch there changes what `if`
+means for every method-valued condition in the language, not just for
+commissioned artifacts. That is a ruling, not an edit.
+
+THE CHEAPER ROUTE, offered not taken: the frontier need not truth-test the
+BlocK at all. Its own standing discipline says assert on artifacts a fired
+action cannot fake -- list length, or presence by subscript without an `if`.
+Extending that discipline from rule-shaped to method-shaped nodes closes the
+door in the instrument without touching the language.
