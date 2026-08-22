@@ -10578,7 +10578,43 @@ GroupItem 	*result = 0;
 				grup->clear();
 		// here the parse action in method gets run
 		if ( result = field->get("BlocK") )
+			{
 			result = result->groupBody->gMethod(result);
+			/*  ⚠⚠ CONTAINMENT -- THE BODY'S RETURN IS A VALUE, NEVER CONTROL
+			FLOW. Tony's ruling 2026-08-22 (dispatch amendment 5, mark 1),
+			built after the frontier walked into it.
+			
+			Every generated body ends `return runRuleAction(this)`.
+			aCTionBrancH stamps isBranch on what a `return` yields, and
+			aCTionBlocK breaks its walk when it sees isBranch -- correct
+			INSIDE the body, and a disaster outside it. Door two mints no
+			frame, so without this line the stamp rides out of the artifact
+			and the FIRING block reads it as its own `return`: every
+			statement after the fire silently never runs.
+			
+			MEASURED, with two controls (incant/frontier station 6, and
+			minionWork/probeBind, which was truncated the same way an hour
+			later): with the tail present the firing block printed its
+			values and then NOTHING -- no verdict, no flag, no diagnostic.
+			Removing only the tail restored it. Replacing the arm shape and
+			removing a dot read both changed nothing.
+			
+			"Leave the artifact" terminates HERE, at the firing boundary.
+			"Leave the enclosing block" stays the exclusive property of that
+			block's own statements. The value survives; only the signal is
+			consumed -- which is the whole of the ruling, and why this is
+			one line rather than a frame.
+			
+			Passthrough with a literal because isBranch is an ENUM bitfield
+			(isBreak 1, isContinue 2, isReturn 3 -- GroupBody.h:87-89), and
+			`result.isBranch = false` would generate the TEST MACRO on the
+			left of the assignment. That is opSetFlag's enum lesson, paid
+			for once already this week.  */
+			
+			if ( result )
+			result->groupBody->flags.isBranch = 0;
+			
+			}
 		}
 	else	::reportNoBody(field);
 	if ( result )

@@ -1,0 +1,107 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(ProbeR);
+define
+    dOk=0;
+    dBuf buffer;
+    dOpen="{";
+    dClose="}";
+    dMark=987654;
+    StorE;
+    dTwin;
+    dSample width=1 height=2;
+    dWitness=0;
+    dBody code={
+        reset(dBuf);
+        printTO(dBuf);
+        print dOpen:;
+        print $"if  leftBrace() AND ExpressioN() AND rightBrace();      dWitness = " dMark ";":;
+        print $"return runRuleAction(this);":;
+        print `dClose:;
+        printTO(0);
+        clear(StorE);
+        StorE = dBuf;
+        };
+    dHang argument code={
+        dCopy <- copyOf(StorE);
+        dCopy :. noPrinT;
+        argument +% dCopy;
+        };
+    dRun code={
+        cerr "=== DECISIVE v2 (real genParse-shaped body) -- operate on the REAL node throughout (no <- on the subject) ===":;
+        dBody();
+        dTwin <- copyOf(Grokking["Braced"]);
+        dHang(Grokking["Braced"]);
+        storeBody(Grokking["Braced"]);
+        activateBody(dTwin);
+        compile(dTwin);
+        dArt <- dTwin["BlocK"];
+        dCod <- dTwin["CodE"];
+        Grokking["Braced"] +% copyOf(dCod);
+        Grokking["Braced"] +% copyOf(dArt);
+        Grokking["Braced"] :. isActioN;
+        cerr "-- commissioned on the REAL node; now bind it":;
+        setParse(Grokking["Braced"]);
+        parseClassify(Grokking["Braced"]);
+        canonOf(Grokking["Braced"]);
+        cerr "-- fire the trigger":;
+        traceParse(Grokking["Braced"]);
+        reset(dBuf);
+        printTO(dBuf);
+        print dOpen:;
+        print $"dSample[width] = 251;":;
+        print `dClose:;
+        printTO(0);
+        clear(StorE);
+        StorE = dBuf;
+        dHang(Grokking["QuotE"]);
+        storeBody(Grokking["QuotE"]);
+        dWitness = 0;
+        dFire := compileStored(Grokking["QuotE"]);
+        dOk = 0;
+        if dFire;   dOk = 1;
+        cerr "   trigger parsed " dOk:;
+        cerr "   WITNESS reads " dWitness " and must read " dMark:;
+        cerr "DECISIVE SENTINEL":;
+        stop();
+        };
+    ;
+dRun();
+
+THE READING, 2026-08-22 -- ALL THREE CLAUSES, A REAL BODY, AND A CLEAN RUN
+
+    PC parseRule Braced                                     bound
+    canonOf: face=canon=0x100d30300  SAME NODE
+             canonParseMethod=0x100a05aa4                   on the REAL node
+    SEAM fork: definer=0x100d30300
+               defParseMethod=0x100a05aa4                   the fork READS it
+    trigger parsed  1                                       the parse SUCCEEDED
+    WITNESS reads   987654                                  the artifact RAN
+    DECISIVE SENTINEL                                       exit 0, no errors
+
+WHAT IS DEMONSTRATED: a body that did not exist when the process started was
+generated, stored off-rule, activated, bound, and then EXECUTED BY THE
+ORDINARY PARSE as the rule's own parse implementation -- correctly enough that
+the bracket expression it governs parsed. tokenize was never touched.
+
+THE BODY IS THE GENPARSE SHAPE, not a stub:
+
+    { if  leftBrace() AND ExpressioN() AND rightBrace();   dWitness = 987654;
+      return runRuleAction(this); }
+
+That matters. The earlier stub wrote a witness and returned; it proved the
+artifact RAN but the trigger then failed, because a bound parse method
+REPLACES the interpretive walk and a stub does not match the rule's terms.
+The real shape matches them, so `trigger parsed` reads 1 -- the artifact is
+not merely executing, it is doing the rule's job.
+
+THREE THINGS HAD TO BE TRUE AT ONCE, and each was a separate day's finding:
+  1. the binding must land on the REAL node -- `<-` hands back a copy, and a
+     copy confirms every read-back of a write that changed nothing
+  2. the fork reads definingRule().rStuff.parseMethod, and for Braced the
+     ordinary catalog node IS that node -- no carrier, no fallback
+  3. the body's `return` must be CONSUMED at the fire site, or it unwinds the
+     block that fired it and the run ends before anything can be read
+Remove any one and this run goes red or silent.
