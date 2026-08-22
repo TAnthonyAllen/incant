@@ -385,6 +385,19 @@ So the binding clause is NOT buildable as "call setParse on the rule". What
 it needs is a ruling on which node carries the binding, and that ruling is
 the open question above. Nothing further is built here.
 
+FINDING THREE -- OBSERVED, NOT DIAGNOSED, AND RECORDED THAT WAY ON PURPOSE.
+setParse's classification DIFFERS between a pristine and a commissioned rule:
+
+    pristine Braced      setParse -> PC parseRule Braced
+    commissioned Braced  setParse -> PC none Braced
+
+Station 7 prints the second. `none` is parseClassify's arm for "rStuff
+exists and parseMethod is null", so the bind block either did not run or ran
+and assigned nothing -- and by inspection it has an `else` fallback, so
+"assigned nothing" should not be reachable. That is as far as measurement
+goes today. No mechanism is offered here, because the last four times a
+mechanism was reasoned out on this project rather than run, it was wrong.
+
 ⚠ For the record, measured and NOT assumed: even with the bind in place on
 the registry rule and isActioN set, the trigger still leaves the witness at
 0. Both findings are live at once; closing finding one would not by itself
