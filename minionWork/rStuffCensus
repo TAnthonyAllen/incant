@@ -1,0 +1,109 @@
+rStuff CENSUS -- RESULT
+2026-08-22. Clay's dispatch amendment 1, mark 2. Read-only; nothing was
+edited to produce this. Pre-registration: minionWork/rStuffCensusPreReg,
+committed BEFORE the first grep.
+
+WHAT WAS SEARCHED, stated so the absence claim is bounded (rule H9)
+59 files: every *.mm and *.h in the tree except ./include (BDWGC). The
+generated C++ is the right surface here because that is where the deref
+happens; the .rtn/.twk originals are one-to-one with it.
+
+  raw `->rStuff` occurrences ............ 116
+  genuine deref sites .................... 78
+  literal-guard false positives ............ 2
+
+A "genuine deref site" is a member read through rStuff -- either
+`x->rStuff->member` directly, or `RuleStuff *s = x->rStuff;` followed by
+`s->member` with no null test between. The second shape is why the first
+grep of this census was VOID: runRuleAction uses it, and a `->rStuff->`
+pattern does not match it at all.
+
+THE TABLE
+
+  family                          sites   can a specimen reach it
+  ------------------------------  -----   -----------------------
+  A  define / modify machinery       20    NO
+  B  generated parse* family         34    NO
+  C  parse-walk test* family         15    NO
+  D  RULED (already in the batch)     2    YES -- both crashed, both measured
+  E  CANDIDATES                       3    1 YES, 2 CAN'T-TELL
+  F  false positives                  2    n/a -- guarded, my classifier missed it
+  G  rule-action subjects             2    NO
+                                     --
+                                     78
+
+A -- modify(13) aCTionDefinE(4) setLimits setMacroValue reportMaxLimit
+     materialiseTerms. These run at DEFINE time on fields being defined from
+     incant source. A specimen is COPIED, never defined, so it cannot arrive
+     here. Mark 3's producer-side assert owns this family's invariant.
+B -- parseAction(5) parseSetLabel(3) parseScaf*(10) parseJSON*(6) parseRule
+     parseAny parseSet parseString parseUpTo parseContainer parseCondition
+     parseCharacter. SELF-EXCLUDING, and this is the load-bearing sentence:
+     they are dispatched THROUGH rStuff->parseMethod, so a node with no
+     rStuff cannot reach them -- the dispatch is the guard.
+C -- test*(8) getWhatFollows(2) getGuard checkInput and friends. These are
+     handed a RuleStuff the walk already holds.
+G -- aCTionCodE aCTionStatemenT. Subjects are registered grammar rules.
+
+THE THREE CANDIDATE ROWS, for Tony to mark
+
+1. processFlags  GroupRules.mm:11665   -- REACHABLE (YES)
+       if ( target->groupBody->flags.isRule )
+               target->rStuff->notifyFail = 1;
+   ⚠ GUARDED BY THE WRONG FLAG, and it is case 36's shape exactly. isRule
+   lives in groupBody, which copyOf copies wholesale, so a twin is isRule
+   and has no rStuff -- the guard passes and the deref dies. processFlags
+   is bound as an incant command, so a fixture CAN hand it a specimen. No
+   current caller does. The defect is that the guard tests the wrong thing,
+   not that someone is calling it wrong.
+
+2. processCode   GroupRules.mm:11572   -- CAN'T-TELL
+       if ( field->groupBody->flags.isLabel )
+               field = field->rStuff->rule;
+   Same wrong-flag shape (isLabel is a groupBody flag and is copied), and
+   this one sits ON THE SPECIMEN PATH -- compile() calls processCode, and
+   station 5 goes through it. It does not fire today only because a Braced
+   twin is not isLabel. It is ONE FLAG away. Whether the crucible ever mints
+   an isLabel specimen is a question about the campaign's direction, which
+   is Tony's to answer, not mine to default.
+
+3. aCTionFailed  GroupRules.mm:834     -- CAN'T-TELL
+       ::printf(... ::getDebugText(input->rStuff->failedAt,40));
+   Fires when a parse FAILS. If a specimen is ever the subject of a failing
+   parse, the failure report itself dies -- which would replace a
+   diagnostic with a crash, the worst possible place for one. Whether
+   specimens get parsed as subjects is the same open question as row 2.
+
+HOW THE PREDICTION DID -- graded, including the half that failed
+
+  Clay: "low single digits, most unreachable by twins."
+        RAW COUNT: failed (78, not single digits).
+        REACHABLE COUNT: HELD -- 1 new YES, 2 can't-tell, out of 78.
+  Clod 1: raw 10-30, surviving classification low single digits.
+        FAILED IN BOTH HALVES, and by a lot: 116 raw, 78 surviving. I
+        under-predicted the population by roughly 3x. Recorded rather than
+        smoothed: the reason the reachable number is small is the DISPATCH
+        STRUCTURE (family B), not scarcity of derefs.
+  Clod 2: 0-2 reachable beyond the two ruled. HELD -- exactly 1.
+  Clod 3: bulk in parse/rule machinery. HELD -- 69 of 78 in A, B, C.
+  Clod 4: at least 1 can't-tell. HELD -- 2.
+
+⚠ THE CENSUS'S OWN INSTRUMENT FAILED TWICE BEFORE IT WORKED, and the
+pre-registered control is the only reason that is known rather than
+invisible. Both failures produced a confident number.
+
+  1. `grep -r --include=*.mm` -- the globs were UNQUOTED, so the shell
+     expanded them against the cwd before grep saw them. Reported 64 hits
+     across a file set that included .md files. Then ugrep ignored
+     --include entirely and warned about it in passing while still printing
+     a total.
+  2. The control was mis-specified: I named GroupRules.mm:12411 from the
+     backtrace, but the rStuff read is at :12410 -- the backtrace names the
+     line that DIED, not the line that read null.
+
+  The pre-registration said both known rows MUST appear or the count is
+  void. Row 8849 appeared and row 12410 did not, which is what forced both
+  corrections. WITHOUT THAT CLAUSE THE FIRST NUMBER WOULD HAVE BEEN
+  REPORTED: 64 hits, plausible, wrong, and missing the entire local-deref
+  idiom that the day's own crash used. A count of a population that
+  excludes the known member is not a small error.
