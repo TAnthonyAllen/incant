@@ -2493,9 +2493,11 @@ GroupItem 	*canon = 0;
 	A resolver that reports names cannot answer a question about identity.
 	Passthrough because %p on a GroupItem* is not sayable in tok.  */
 	
-	::fprintf(stderr,"canonOf: %s face=%p canon=%p  %s\n",
+	::fprintf(stderr,"canonOf: %s face=%p canon=%p  %s  faceStuff=%p canonStuff=%p canonParseMethod=%p\n",
 	argument->groupBody->tag,(void*)argument,(void*)canon,
-	argument == canon ? "SAME NODE" : "DIFFERENT NODES");
+	argument == canon ? "SAME NODE" : "DIFFERENT NODES",
+	(void*)argument->rStuff,(void*)canon->rStuff,
+	canon->rStuff ? (void*)canon->rStuff->parseMethod : (void*)0);
 	
 	return canon;
 }

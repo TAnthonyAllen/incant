@@ -1,0 +1,51 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(ProbeR);
+define
+    iL;
+    iRun code={
+        cerr "-- A direct subscript, twice: same node?":;
+        canonOf(Grokking["Braced"]);
+        canonOf(Grokking["Braced"]);
+        cerr "-- B via a <- local:":;
+        iL <- Grokking["Braced"];
+        canonOf(iL);
+        cerr "IDENT SENTINEL":;
+        stop();
+        };
+    ;
+iRun();
+
+THE CONFOUNDER, MEASURED 2026-08-22 (Clay dispatch amendment 9)
+
+    A  canonOf(Grokking["Braced"])   face=0x10110c300 canon=0x10110c300  SAME NODE
+       (twice, identical)
+    B  iL <- Grokking["Braced"]
+       canonOf(iL)                   face=0x10118c080 canon=0x10110c300  DIFFERENT NODES
+
+⚠ `<-` DOES NOT HAND YOU THE NODE. It hands you a COPY whose definingRule()
+still resolves to the original. The direct subscript DOES hand you the node,
+and the same node every time.
+
+WHY THIS MATTERS MORE THAN IT LOOKS: a copy answers every question about the
+original correctly. Same tag, same flags, same list, same definingRule. It
+reads identically. It only diverges when you MUTATE it -- and then the write
+lands on the copy and every read-back off that copy CONFIRMS THE WRITE. The
+probe reports success and the system never changed.
+
+WHAT IT COST TODAY, and every one of these was reported before it was caught:
+  - "the catalog face and canon are DIFFERENT NODES"  -- WRONG. That was the
+    <- copy vs canon. The catalog node IS canon.
+  - "setParse does not move the action" (finding 1)   -- withdrawn earlier for
+    a different reason; also contaminated by this.
+  - "commissioning breaks setParse" (finding 3)       -- WRONG. Does not
+    reproduce when the real node is used.
+  - "the fork reads null" (finding 2)                 -- WRONG as a defect. The
+    fork reads null because the binding went to a copy.
+
+THE RULE: to MUTATE a node, name it directly -- Grokking["X"], or an iterate
+cursor. Reserve `<-` for values you only read. And when a bind "succeeds" but
+its effect is invisible elsewhere, suspect that you bound a copy before you
+suspect the mechanism.
