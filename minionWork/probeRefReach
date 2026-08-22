@@ -1,0 +1,191 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(ProbeR);
+define
+    pbOk=0;
+    pbBuf buffer;
+    pbOpen="{";
+    pbClose="}";
+    pbMark=987654;
+    StorE;
+    pbSample width=1 height=2;
+    pbTwin;
+    pbIA;
+    pbT;
+    pbSubject;
+    pbWitness=0;
+
+    pbBody code={
+        reset(pbBuf);
+        printTO(pbBuf);
+        print pbOpen:;
+        print $"pbWitness = " pbMark ";":;
+        print $"cerr " pbMark ";":;
+        print $"return runRuleAction(this);":;
+        print `pbClose:;
+        printTO(0);
+        clear(StorE);
+        StorE = pbBuf;
+        };
+    pbTrigger code={
+        reset(pbBuf);
+        printTO(pbBuf);
+        print pbOpen:;
+        print $"pbSample[width] = 251;":;
+        print `pbClose:;
+        printTO(0);
+        clear(StorE);
+        StorE = pbBuf;
+        };
+    pbHang argument code={
+        pbCopy <- copyOf(StorE);
+        pbCopy :. noPrinT;
+        argument +% pbCopy;
+        };
+
+    pbA=0;
+    pbB=0;
+    pbC=0;
+    pbD=0;
+
+    pbReadChannels argument code={
+        pbA = 0;
+        if argument.isActioN;       pbA = 1;
+        pbB = 0;
+        if argument.actionTypE;     pbB = 1;
+        pbC = 0;
+        if argument.isMethoD;       pbC = 1;
+        pbD = 0;
+        if argument.hasActioN;      pbD = 1;
+        cerr "  isActioN " pbA " (408: actionType==1 -- what parseRule tests)":;
+        cerr "  actionTypE " pbB " (406: nonzero for isAction OR isCoded)":;
+        cerr "  isMethoD " pbC " (19: gMethod bound -- the OLD action)":;
+        cerr "  hasActioN " pbD " (36: rStuff.actionMethod bound)":;
+        };
+
+    pbSetup code={
+        cerr "=== probeBind -- does the live rule parse ever consult the artifact? ===":;
+        pbBody();
+        pbTwin <- copyOf(Grokking["Braced"]);
+        pbSubject <- Grokking["Braced"];
+        cerr "-- A live Braced BEFORE any commissioning":;
+        pbReadChannels(pbSubject);
+        pbHang(pbSubject);
+        storeBody(pbSubject);
+        activateBody(pbTwin);
+        compile(pbTwin);
+        };
+    pbBind argument code={
+        setParse(argument);
+        parseClassify(argument);
+        };
+    pbStep0 code={
+        cerr "-- ARM 1 bind the REGISTRY RULE (what Ruling E says owns it)":;
+        pbBind(pbSubject);
+        cerr "-- ARM 2 bind every member of InvokeArg, i.e. the TERM nodes too":;
+        pbIA <- Grokking["InvokeArg"];
+        iterate pbT on pbIA members;
+        while ++pbT;
+            setParse(pbT);
+            parseClassify(pbT);
+        };
+    pbCommission code={
+        pbArt <- pbTwin["BlocK"];
+        pbCod <- pbTwin["CodE"];
+        pbSubject +% copyOf(pbCod);
+        cerr "-- after CodE copied":;
+        pbSubject +% copyOf(pbArt);
+        pbSubject :. isActioN;
+        };
+    pbAfter code={
+        cerr "-- B live Braced AFTER commissioning":;
+        pbReadChannels(pbSubject);
+        pbBlk <- pbSubject["BlocK"];
+        pbOk = 0;
+        if pbBlk;   pbOk = 1;
+        cerr "  carries a BlocK " pbOk:;
+        };
+    pbFireIt code={
+        cerr "-- C fire a bracket expression, GUARD TRACE on Braced":;
+        pbTrigger();
+        pbHang(Grokking["QuotE"]);
+        storeBody(Grokking["QuotE"]);
+        pbWitness = 0;
+        traceParse(pbSubject);
+        pbFire := compileStored(Grokking["QuotE"]);
+        cerr "-- D after the trigger parse":;
+        pbOk = 0;
+        if pbFire;  pbOk = 1;
+        cerr "  trigger parsed " pbOk:;
+        cerr "  witness reads " pbWitness " and must read " pbMark " if the artifact ran":;
+        cerr "PROBE SENTINEL -- reached the foot":;
+        };
+
+    pbRun code={
+        pbSetup();
+        pbStep0();
+        pbCommission();
+        pbAfter();
+        pbFireIt();
+        stop();
+        };
+    ;
+pbRun();
+
+TASK 1 -- THE REFERENCE-REACHABILITY READ (Clay dispatch amendment 6)
+2026-08-22. Read-only. Armed via traceParse, which turns on the seam probe
+that already lives at GroupItem.twk:1310.
+
+THE QUESTION: Ruling E (rule owns binding, fork resolves) says the fork will
+consult the referenced registry rule's rStuff.parseMethod when the definer's
+reads null. Its implementation hinge is whether the fork can REACH the
+registry rule from the node it is standing on.
+
+WHAT THE MECHANISM PROMISES. definingRule() (GroupItem.twk:956) is already
+built for exactly this, and its own comment says so: "resolving it here means
+binding a rule once reaches every reference to it, including references
+created LATER. No registry sweep (which would miss late references) and no
+locate." A reference term shares the defining rule's child list, so the first
+child's parent IS the definer, by pointer. That is Ruling E's mechanism,
+already in the tree.
+
+WHAT THE RUN SAYS -- ONE PROCESS, IN ORDER:
+
+  ARM 1  setParse(Grokking["Braced"])          ->  PC parseRule Braced
+  ARM 2  setParse on every member of InvokeArg ->  PC parseRule Braced
+  FORK   SEAM fork Braced this=0x100eb74c0 thisRStuff=0x100eb8630
+                     definer=0x100eb45c0 defStuff=0x100eb53f0
+                     defParseMethod=0x0
+  RESULT witness reads 0
+
+⚠ THE BIND TOOK AND THE FORK STILL READS NULL. parseClassify reads
+field->rStuff->parseMethod off the very node setParse was handed, and it
+reports parseRule -- so the write landed. The fork then reads
+definer->rStuff->parseMethod and gets 0x0. A node has one rStuff pointer, so
+if definer were the node we bound, the fork could not read null.
+
+CONCLUSION: the fork's definer is a THIRD NODE -- not the registry rule
+reached by Grokking["Braced"], and not any InvokeArg member reachable from
+incant. The reference-reachability premise does NOT hold as assumed on the
+current resolution, so this comes home rather than proceeding to Task 2.
+Ruling E needs a carrier decision: WHICH node the fork should resolve
+THROUGH, given definingRule() does not land on the bindable one for Braced.
+
+⚠ WHAT IS NOT CLAIMED. No mechanism is offered for WHY definingRule() lands
+elsewhere. Candidates exist -- Grokking["Braced"] may itself be a reference
+rather than the definition (Braced is written as a member of InvokeArg at
+incant/grammar:107, not as a top-level rule), and setRuleStuff can REPLACE a
+node's rStuff when rStuff.rule is not the node. Both are unrun. The
+causal-claim ledger says a mechanism reasoned out here is a coin flip.
+
+⚠ ARM 2 PRINTED ONE ROW, NOT THREE, and that is unexplained. InvokeArg lists
+Braced, Parens and UnaryXP; the iterate yielded one classification line.
+Recorded so the next reader does not mistake the arm for exhaustive.
+
+INCIDENTAL, worth a probe author's minute: `iterate X on Grokking["Tag"]
+members;` FAILS TO PARSE inside an action body -- "ERROR processCode: <action>
+parse failed / reached end of input", and the action then produces NO output
+while the run continues at exit 0. Hoist the subscript to a local first, which
+is what incant/parseClass does. Same silent-truncation family as bear-trap #28.
