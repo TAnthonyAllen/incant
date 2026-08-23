@@ -3,8 +3,8 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      77
-STATUS:   fresh          # fresh = parked/unread | working = picked up, in progress | cleared = done
+SEQ:      78
+STATUS:   fresh           # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-08-21  -  Clod  (SEQ 77 APPENDED at the FOOT -- SEQ 76 STOPPED AT STEP 3 on a
           MEASURED SUBSTRATE BLOCKER: `cell <- container :+ new(name)` binds the CONTAINER, not
           the minted node, so a rule-keyed corpus is not constructible in the incant idiom.
@@ -3097,4 +3097,133 @@ knows what `:+` was built to do.
 FLEET UNMOVED: 53 green / 1 parked, canary 308, nothing tracked edited.
 
   END SEQ 77
+===================================================================
+
+===================================================================
+SEQ 78  --  2026-08-23, Clod.  ANSWER TO SEQ 84 -- tokenize retirement
+feasibility, all four measurements RUN.  NO REPAIRS, NO RETIREMENT EDITS.
+
+HEADLINE: THREE FRIENDLY, ONE UNFRIENDLY, AND THE UNFRIENDLY ONE IS NAMED.
+M1 capture-only. M2 span-compatible, and the span IS already the shipped
+representation. M3 BOTH accounts true, order not established -- but the
+attribute account is SHARPENED in a way that RESCUES the design's spelling.
+M4 says home 1 is NOT PERMITTED today; permitted set is {2, 3}.
+
+M1 -- CAPTURE ONLY.  GroupActions.rtn:1568, generated GroupRules.mm:13432.
+The whole body is five lines and it is already the two-mark subtraction the
+design proposes:
+    RuleStuff ruleStuff = rStuff;
+    String    atEnd     = atRuleMark;
+    int tokenLength = (int)(atEnd - parentStuff.hereAt);
+    label.setToken(parentStuff.hereAt, tokenLength);
+    return label;
+atRuleMark is READ into a local and never assigned; parentStuff.hereAt is READ.
+The only write is on the label. No input advance, no token supplied to the walk.
+setToken (GroupItem.mm) writes four fields on the label ONLY: data=14 (isTOKEN),
+gText = the start pointer, gCount = the length, isInitialized.
+⚠ AND THE POINT THE DESIGN DOES NOT YET KNOW: setToken DOES NOT MANUFACTURE A
+STRING. gText is a POINTER INTO THE INPUT, assigned directly, no copy. The
+label already carries exactly hereAt + length. THE TWO-MARK STORE IS WHAT
+SHIPS TODAY.
+The Arm A tension dissolves: the walk died UPSTREAM of the capture. The term
+never matched, so the action never fired. Absence of the firing is a SYMPTOM of
+the term failing, not the cause of the death. A retrospective capture is indeed
+not load-bearing, and nothing contradicts that.
+⚠ ONE REFINEMENT: tokenize captures at the PARENT level -- parentStuff.hereAt,
+not its own. Its own comment says it: "Gloms parent label components together
+into the label string." It is the LAST attribute of NamE, NumbeR, HeX and
+FormaT (incant/grammar:34,35,38,90,101), collapsing what the parent just matched
+into one token. That is materially different from a per-term capture and it
+matters to M4's home 2.
+
+M2 -- SPAN-COMPATIBLE, BY CONSTRUCTION, AND ALREADY SO.
+Control clause pre-registered and satisfied: the census returned the isTOKEN arm
+of getText AND tokenize's own setToken call.
+The whole consumer interface for a token is TWO accessors, and both already
+derive from the span on demand:
+    getText()   GroupItem.mm  -- isTOKEN arm mallocs, strncpys gCount bytes from
+                gText, null-terminates. THE STRING IS MANUFACTURED PER CALL.
+    getCount()  GroupItem.mm  -- returns gCount directly for isTOKEN.
+Consumers sampled with their form wanted:
+    aCTionANYtoken  ruleActions.rtn:5   reads registry and noPrint -- WANTS THE
+                    NODE, never touches the text.  (known-positive control)
+    aCTionNamE      ruleActions.rtn     String arg = input.text -- WANTS A
+                    STRING, gets it through getText, i.e. from the span.
+So "consumers make their own stinking string from two fields" is not a change
+of representation. IT IS A DESCRIPTION OF WHAT ALREADY HAPPENS. No consumer was
+found that needs the manufactured thing at capture time.
+⚠ OPEN, NOT CLAIMED, AND ITS MEASUREMENT NAMED: gText points INTO the input
+buffer, so a span is only readable while that buffer lives, and pushInput /
+popInput exist. Whether any consumer reads a token after its buffer is popped is
+NOT measured here and is the one thing that could still put a remainder on M2.
+The measurement: stamp a token, pop the input divert, read it.
+
+M3 -- BOTH ACCOUNTS TRUE. ORDER NOT ESTABLISHED. THE SPELLING IS RESCUED.
+Arm classification, read off the same flags the parse reads, before/after one
+43-install sweep, one process:
+    Braced    list 3 -> 4    hasAttr 1 -> 1    NO ARM FLIP    survives
+    NamE      list 3 -> 3    hasAttr 1 -> 1    NO ARM FLIP    survives
+    tokenize  list 0 -> 1    hasAttr 0 -> 1    ARM FLIP       DIES
+⚠ BRACED GAINED THE SAME KIND OF ATTRIBUTE -- a CodE, list 3 to 4 -- AND DID NOT
+FLIP. So the attribute account is NOT "an attribute arrived". It is "the FIRST
+attribute arrived", flipping a rule with no attributes into a rule with
+attributes. Braced's innocence is EVIDENCE FOR the account, not against it.
+Fork account, direct-subscript road, same process:
+    Braced    face 0x104f9c300 canon 0x104f9c300  SAME       before AND after
+    tokenize  face 0x1046ac780 canon 0x1046ac780  SAME       before
+    tokenize  face 0x1046ac780 canon 0x10509c3c0  DIFFERENT  after
+Both facts land on the same node at the same install and on neither control.
+ORDER IS NOT ESTABLISHED and no chain is asserted -- ordering them needs a
+treatment, which is repair-adjacent and out of scope.
+⚠⚠ AND THE ANSWER TO YOUR NOTE: THE DESIGN'S SPELLING SURVIVES, because the
+poisoned act is narrower than "fields attached". What was attached in Arm A was
+a CodE ON THE RULE NODE. tokenize writes to its LABEL on every healthy firing --
+that is the shipped, working path, and the label is the parse product, not the
+grammar node. So "fields attached to its LABEL" is NOT the implicated act;
+"fields attached to the RULE NODE of an attribute-less rule" is. Only if the
+design meant the rule node does M3 say no.
+
+M4 -- HOME 1 IS NOT PERMITTED TODAY. PERMITTED SET IS {2, 3}.
+The cited premise was RE-MEASURED rather than cited: docs/attributesTemplate.md
+H3 (2026-08-09) says atRuleMark is unreachable from incant. CONFIRMED against
+the current binary -- and it confirmed in exactly the way bt26 predicts, which is
+why it needed running:
+    atRuleMark read  atRuleMark
+    hereAt     read  hereAt
+Both echo their own tags. No error, no crash, exit 0, sentinel printed. An
+unwary M4 reads that as two successful values.
+  HOME 1, in the generated body: NOT PERMITTED. The primitives are not nameable
+    from kant. Same gap that blocked the parse-method template in August; it has
+    not moved. This is the ONE unfriendly fact, and it is a primitive gap rather
+    than a design objection -- expose the two marks and home 1 opens.
+  HOME 2, generic boundary machinery: ALREADY EXISTS AND SHIPS, ON BOTH ARMS.
+    RuleStuff.twk:314   interpretive   if label label.setToken(hereAt,counter);
+    Generate.rtn:94/118/268  generated  if label label.setToken(hereAt,counter);
+    So the parse ALREADY stamps marks on labels at match success, on both arms.
+    ⚠ BUT NOT THE SAME SPAN. Those use the rule's OWN hereAt and the match
+    counter; tokenize uses the PARENT's hereAt. Home 2 is therefore an EXTENSION
+    of a shipped mechanism, not a pointer at one -- smaller than building it,
+    larger than nothing, and the delta is exactly "parent-level entry mark".
+  HOME 3, shrunken hook: permitted trivially, it is the current thing doing
+    less, and it keeps the dual citizenship M3 just measured.
+NOT CHOOSING. Ranking the permitted set is design.
+
+INSTRUMENT FINDING, MINTED, AND IT CAUGHT A LIVE REPORT -- canonRoadDependence.
+canonOf's face depends on THE ROAD the node travelled. An action-argument road
+mints a fresh face; a direct subscript does not. Measured both roads in one
+process: on the argument road Braced reads DIFFERENT NODES before any install,
+so a census taken that way has no discriminating power while looking exactly
+like one that does.
+⚠ MY FIRST M3 PROBE USED THE ARGUMENT ROAD AND APPEARED TO CONTRADICT THE ARM A
+REPORT. The contradiction was the instrument. Arm A fixed the direct-subscript
+road for every row and REPRODUCES on it -- that finding STANDS. Recorded as a
+problem record with both roads in evidence. Your minting-site clause honoured:
+recorded, not chased; the fence stands.
+
+BASELINES: fleet 53 green / 1 parked, every assertion row byte-identical to the
+pre-measurement capture. decodePop 62 terms green (two birth-rule re-pins, each
++1, each named). ddPop 6 green. incant/frontier md5
+2fa1596a54924971f3db081da09dd693 before and after -- untouched.
+
+  END SEQ 78
 ===================================================================

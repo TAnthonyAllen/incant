@@ -3,9 +3,12 @@
   Clay writes this file. Clod reads it, acts, then clears it.
   Clod's replies go in ipc/clod-to-clay.md  (never write here, Clod).
 -------------------------------------------------------------------
-SEQ:      83
+SEQ:      84
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
-WRITTEN:  2026-08-21  -  Clay (SEQ 83, dictated via Tony; transcribed by Clod)
+WRITTEN:  2026-08-23  -  Clay (SEQ 84, dictated via Tony; transcribed by Clod)
+          ⚠ SEQ 84 IS LIVE AND IS AT THE FOOT -- TOKENIZE RETIREMENT
+          FEASIBILITY. Four measurements, NO REPAIRS. Measurement gates design;
+          design gates repair. M3 can say no to the design as spoken.
           ⚠ SEQ 83 IS LIVE AND IS AT THE FOOT -- SHUTDOWN: kitchen pass, the
           seal-checklist line, two bear-trap rows, plus the Drawing registry
           googoo task. The seal names STATION 4 as frontier.
@@ -4013,4 +4016,66 @@ attributes per the line entry's pattern:
 · REPORT: entries updated, entries flagged, convention as decoded.
 
   END SEQ 83
+===================================================================
+
+===================================================================
+SEQ 84  --  2026-08-23, Clay (dictated via Tony; transcribed by Clod, WT-9).
+STATUS: CLEARED. All four measurements RUN, 2026-08-23. Answer in
+        ipc/clod-to-clay.md SEQ 78. Three friendly, one unfriendly and named:
+        M4 home 1 blocked on the H3 primitive gap (atRuleMark/hereAt not
+        nameable from kant, re-measured not cited). Permitted homes {2,3}.
+        M3 says BOTH accounts true, order not established -- and the design's
+        spelling SURVIVES: the poisoned act is a field on the RULE NODE of an
+        attribute-less rule, not a field on the LABEL. No repairs, no
+        retirement edits, frontier md5 unchanged.
+
+ON THE CHEAT CHARGE, one paragraph before the brief.
+
+"Doctor, it hurts when I do this" is a joke when the patient could just as
+well do something else. It is a DIAGNOSIS when the motion itself is the
+pathology -- and a node serving as grammar object and live instrument at once
+is the motion. Arm A proved 42 of 43 installs innocent; the wound only opens
+where the dual role exists. Removing a structural hazard instead of armoring
+against it is not defining the problem away, it is the difference between
+building a bridge over the swamp and draining it. The cheat version would be
+retiring tokenize WITHOUT the four measurements -- declaring the assumption
+instead of buying it. That is exactly what this brief refuses to do.
+
+BRIEF: tokenize retirement feasibility -- four measurements, no repairs.
+Direction ruled: Tony, 2026-08-23. Nothing here edits the parse, the hook, or
+the sweep.
+
+THE PROPOSED DIRECTION, so the measurements have a purpose. tokenize's action
+shrinks to capturing TWO MARKS -- hereAt at rule entry, atRuleMark at exit --
+stored as fields, with consumers materialising their own string from the marks
+on demand. If that flies the dual citizenship dissolves: rule 43 becomes an
+ordinary grammar rule, install 43 becomes as innocent as install 3 (the Braced
+row is the evidence class), the fourth-customer clause of the F-31 fix shape
+has no customer, and the sweep goes for 54 ordinary installs with no
+ruled-moment live switch.
+
+  M1  WHAT DOES tokenize's ACTION ACTUALLY DO -- not intended, DOES. Capture,
+      supply, or both. Open because Arm A's control arm showed the walk DYING
+      without the firing, and a purely retrospective capture should not be
+      load-bearing for the parse advancing. If it SUPPLIES, marks replace the
+      memory but not the supply, and the retirement has an irreducible
+      remainder that needs naming before design.
+  M2  WHO CONSUMES THE PRODUCT, AND IN WHAT FORM. Census every read, with site
+      and form wanted. Known-positive control: the ANYtoken consumer.
+  M3  THE MECHANISM DISCRIMINATION -- fork account vs attribute account.
+      Promoted to load-bearing because the design says "fields attached to its
+      label" and Arm A's structural fact says the kill may BE an attribute
+      arriving. Record BOTH facts at one instrumented resolution: which node
+      arrives (pointers, canonOf) and which arm classification takes.
+  M4  ARE TWO MARK-STORES EXPRESSIBLE IN A GENERATED KANT BODY. Ranks the
+      three homes: in the generated body / generic boundary machinery /
+      shrunken hook. REPORT the permitted set, DO NOT CHOOSE.
+
+EVIDENCE BAR: identity in pointers, provenance on every claim, observer
+instruments only, baselines before and after.
+
+NOT IN SCOPE: no retirement edits, no repairs, no <-/wrap-unwrap work, the
+frontier frozen with md5 checked, bt32 stays retired, F31's record stays open.
+
+  END SEQ 84
 ===================================================================

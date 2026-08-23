@@ -255,6 +255,9 @@ define
         hookIdentityFork
             definition="Measured 2026-08-23 by Arm A -- install 43 gives the tokenize hook its FIRST attribute and its catalog face and canon become DIFFERENT NODES, while every healthy installed rule stays SAME NODE.";
             source="DICTATED, minted 2026-08-23 by the Arm A measurement. Operational record: designDocs ProblemRecords hookIdentityFork.";
+        canonRoadDependence
+            definition="canonOf's face-versus-canon answer depends on the ROAD the node travelled -- an action-argument road mints a fresh face, a direct subscript does not -- so an identity census must fix one road and say which.";
+            source="DICTATED, minted 2026-08-23 during M3's instrument check. Operational record: designDocs ProblemRecords canonRoadDependence.";
         armingWithoutRouting
             definition="The staging property, demonstrated not asserted -- an artifact armed on a live rule is inert until it is routed, so the live switch happens at one ruled moment.";
             source="DICTATED from the 2026-08-22 seal.";

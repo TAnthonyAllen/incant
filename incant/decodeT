@@ -54,11 +54,11 @@ define
         for grup in decodeCorpus;
             seen += 1;
         print "TALLY terms =" seen:;
-        if seen == 61;
-            print "A ok    corpus holds 61 terms":;
+        if seen == 62;
+            print "A ok    corpus holds 62 terms":;
             greens += 1;
         else
-            print "A FAIL  corpus holds" seen "terms, expected 61 -- entries were added or lost":;
+            print "A FAIL  corpus holds" seen "terms, expected 62 -- entries were added or lost":;
         };
 
     /*  B: three spot values, each asserted by a word only THAT entry carries.  */

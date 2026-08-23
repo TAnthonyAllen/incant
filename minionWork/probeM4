@@ -1,0 +1,19 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(ProbeM4);
+define
+    m4A=0;
+    m4B=0;
+    m4Run code={
+        cerr "=== M4 -- are the two marks reachable from a kant body? ===":;
+        m4A = atRuleMark;
+        cerr "   atRuleMark read " m4A:;
+        m4B = hereAt;
+        cerr "   hereAt     read " m4B:;
+        cerr "M4 SENTINEL -- reached the foot":;
+        stop();
+        };
+    ;
+m4Run();
