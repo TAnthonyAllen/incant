@@ -59,6 +59,22 @@
 #      (genParse never sees NamE or FormaT) · the wrap/unwrap evidence pile
 #      (`canonRoadDependence`, the rebind-taG sighting). **#37 stays parked and fed.**
 #   5. **HeX is parked**, reversal instructions inside its own comment. **Station 3 stays parked.**
+#   6. ⚠ **`groups.ext` IS DIRTY IN THE SUPPORT REPO AND IT IS THE CAMPAIGN'S OWN WORK.** Eleven
+#      insertions, mtime 2026-08-21, uncommitted: `maxLimit`, `repeatLimit`, `reportMaxLimit`,
+#      `reportRepeatLimit`, `storeBody`, `storedBody`, `activateBody` and siblings. **It is EXPLAINED,
+#      not a surprise diff** — it is the out-of-repo extern mirror keeping pace. **But bear-trap #11
+#      applies: it lives outside the Groups repo, so it never appears in a Groups `git status` and
+#      the build depends on it.** Committing it is Tony's call; a resurrection reader needs to know
+#      it is there and uncommitted.
+
+#   ## THE SEAL CHECKLIST, run 2026-08-23
+#   `incant/frontier` — **RUN, exit 0, nine of nine RAN and PASSED. FIRST FAILING STATION: NONE.**
+#   Its prose now records that the campaign it was built for closed *without it ever needing
+#   `tokenize` as its subject*, and that the next edge is unnamed — the 19 parse failures are the
+#   candidates. Fleet **52 green / 1 parked**, zero timeouts · decodePop **72 terms, 22 checks** ·
+#   ddPop **6 green** · canary **315** · generated-file check **2 set sites** ·
+#   **Tony's fixit incantations waiting: 1 (nodeIdentity, since 2026-08-22)** · everything pushed,
+#   working tree clean except Tony's own `IncantForms/WorkingOn/{incant++,tester}`.
 
 # ---
 
