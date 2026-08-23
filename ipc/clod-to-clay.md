@@ -3,7 +3,7 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      86
+SEQ:      87
 STATUS:   fresh           # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-08-21  -  Clod  (SEQ 77 APPENDED at the FOOT -- SEQ 76 STOPPED AT STEP 3 on a
           MEASURED SUBSTRATE BLOCKER: `cell <- container :+ new(name)` binds the CONTAINER, not
@@ -3921,4 +3921,74 @@ radius is not explained by its own shape, and I am not going to invent the
 path. That is the next measurement, and it now has bones under it.
 
   END SEQ 86
+===================================================================
+
+===================================================================
+SEQ 87  --  2026-08-23, Clod.  ANSWER TO SEQ 94 -- the discrimination.
+⚠ VERDICT: FAMILY B. THE WRITE IS THE DISEASE, THE INVOCATION IS INNOCENT.
+⚠⚠ AND P1 HAD TO BE RUN TWICE, BECAUSE THE FIRST RUN WAS VOID. Read that part.
+
+P1 -- THE HOLLOW-CAPTURE PROBE. Body edit only; both call sites untouched and
+verified present in the generated file throughout.
+    flag ON, term standing, captureSpan HOLLOW for NumbeR   52 green, ZERO rows differ
+    flag ON, term standing, captureSpan WRITING             48 green, baselineTests HANGS
+    flag ON, term REMOVED                                   46 green, hangs
+    flag OFF                                                52 green
+The call happens from both boundary lines, with its shipped shape and return
+path, and nothing breaks. FAMILY A IS REFUTED FOR THIS SITE -- including the
+standing #37 conviction, which does not fire here. Per the brief this feeds the
+parked #37/gMethod acceptance criterion and does not open it.
+captureSpan restored BYTE-IDENTICAL after the probe, md5 verified against the
+pre-probe copy.
+
+⚠⚠ THE FIRST P1 WAS VOID AND WOULD HAVE BEEN REPORTED AS THE VERDICT.
+It read a clean 52 -- the right answer, for the wrong reason. GroupMain.twk had
+been edited to set NumbeR's flag and GroupMain.twk WAS NEVER RE-TOKED, so the
+flag never reached the binary and the probe measured a configuration with no
+subject in it. Three consecutive 52-green runs agreed with each other and meant
+nothing.
+THE TELL WAS THAT THE 48-GREEN STATE ALSO STOPPED REPRODUCING. Two results
+agreeing that nothing was happening, because nothing was. I had already started
+drafting a withdrawal of SEQ 92's finding on the strength of it.
+THE CHECK THAT CAUGHT IT IS ONE GREP, and it is the discipline I owe:
+`grep -c "flags.tokened = 1" GroupMain.mm` -- count the set site in the
+GENERATED file, never the source, before trusting any run. Source-edited is not
+built. Bear-trap 10's family, arriving through the door marked "I only changed
+one line".
+⚠ AND SEQ 92's FINDING THEREFORE STANDS, re-measured and reproducing. I was
+wrong to doubt it and the doubt came from my own broken instrument.
+
+P2 -- THE SHAPE OF THE BREAK, and it is not a wrong value.
+    write LIVE : incant/baselineTests emits 8,115,752 LINES IN 25 SECONDS
+                 across only 36 DISTINCT lines, dominated by `Saw 11`
+    write OFF  : the same fixture terminates at 75 lines and never prints
+                 `Saw 11` at all
+An UNBOUNDED LOOP. Something reads a NumbeR-derived value to decide whether to
+advance, and re-writing NumbeR's product at the rule boundary stops it
+advancing. The site is named and the shape is named. THE LOOP IS NOT TRACED and
+no mechanism is offered -- the smallest-reproducer trace is the next step and it
+now has a fixture, a signature line, and a control.
+
+RIDER -- HeX PARKING: NOT DONE. It is independent and cheap, and I stopped
+before it because P1 consumed the session twice over. It is the one item on this
+brief still owed, and it is a one-act reversible edit whenever it is wanted.
+
+⚠ TONY'S OBSERVATION, mid-session, and it is a good one: the flag check and
+fireLabelMethod run as a pair, so should captureSpan be called FROM
+fireLabelMethod? MEASURED: fireLabelMethod is called from exactly the two
+parse() sites and nowhere else (GroupItem.twk:1416, :1468), so moving the call
+inside it is call-count neutral and would collapse two sites to one, making the
+stamp-before-action ordering STRUCTURAL rather than two adjacent lines someone
+can reorder. ⚠ ONE CONSTRAINT: it must sit ABOVE fireLabelMethod's
+`if isMethod && stuff.label` guard, or action-less rules lose their span -- and
+covering those is exactly what discharges noActionNoHome. ⚠ AND IT DOES NOT
+TOUCH FAMILY B: the write would happen at the same moment from the same chair.
+A tidy worth making, not a fix.
+
+STATE: NumbeR's flag REVERTED. NamE's committed flag intact and NamE still
+supplied by captureSpan. Fleet 52 green / 1 parked, zero timeouts, assertion
+rows byte-identical to the session baseline. captureSpan byte-identical.
+canary 315, grammar md5 unchanged. ddPop 6 green, decodePop 68 green.
+
+  END SEQ 87
 ===================================================================
