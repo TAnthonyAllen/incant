@@ -1,0 +1,21 @@
+Start();
+include(unitTests);
+include(utilities);
+include(generate);
+search reset stack Grokking Generating UnitTests Utilities list;
+register(BufLife);
+define
+    blOne;
+    blLen=0;
+    blRun code={
+        cerr "=== BUFFER LIFETIME -- generatE was parsed inside an include that has POPPED ===":;
+        blOne <- Generating["generatE"];
+        blLen = blOne.listLengtH;
+        cerr "   generatE list length reads " blLen " (a live node from the popped divert)":;
+        cerr "   generatE printed:":;
+        cerr blOne:;
+        cerr "BUFLIFE SENTINEL -- reached the foot":;
+        stop();
+        };
+    ;
+blRun();

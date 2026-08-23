@@ -219,8 +219,6 @@ GroupRules  ruler = groupRules;
     item            = grok["nameSet"];
     item            = strap +% item;
     modify(item,"-^*");
-    item            = grok["tokenize"];
-    strap           +% item;
     
     strap           = grok += "NumbeR";
     setRuleStuff();

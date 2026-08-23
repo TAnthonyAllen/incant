@@ -1018,62 +1018,63 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*action = ruler->currentMETHOD;
 GroupItem 	*grup = 0;
 GroupItem 	*result = 0;
-char 		*arg = input->getText();
 	
-	/*  PROBE SEQ 85 -- NamE STAMPS ITS OWN SPAN. NOT A MIGRATION. tokenize
-	stays NamE's last term and fires normally; this appends a SECOND span,
-	from NamE's own stuff, into a separately-named noPrint attribute so
-	both products sit on one label. Nothing is rerouted.
+	/*  SEQ 86 MIGRATION -- NamE SUPPLIES ITS OWN TOKEN.
+	Inherits tokenize's glom formula rather than replacing it: the span is
+	parentStuff.hereAt to the rule's own atRuleMark, proven in pointers on
+	153 firings. The rule's OWN hereAt is the END of the match, which is
+	why the start comes from the parent.
 	
-	SITED BELOW the declarations and ABOVE input.group = result, because
-	that assignment retags the label as a group -- the shipped span must be
-	read while the label is still the token tokenize made it.
+	THIS RUNS ABOVE the arg declaration ON PURPOSE, and the first cut did
+	not. Sited below it, the de-term run exited 139 with zero output: the
+	first statement reads input.text and line 930 dereferences it, so with
+	the term gone and the stamp late there was no token to read. The stamp
+	must occupy the term's role, which means writing the PRODUCT and doing
+	it before anything reads the product.
 	
-	THE START MARK IS parentStuff.hereAt, MEASURED NOT ASSUMED. The rule's
-	own hereAt is the END of the match: with selfStart taken from it, all
-	nine rows read selfLen 0 against shipLen 3..22. parentStuff.hereAt
-	equals tokenize's own start pointer in every row.
+	THE ORACLE IS READ FIRST AND OVERWRITTEN SECOND. While the tokenize
+	term still stands it has already stamped input by the time the action
+	fires, so shipStart and shipLen capture its answer before setToken
+	replaces it with an identical one. Once the term is removed the oracle
+	is simply absent and the verdict says so rather than inventing one.
 	
-	NEVER PUT A LEFT-JUSTIFY FLAG IN A FORMAT HERE. A percent followed by
-	a minus is the passthrough CLOSE delimiter, so a width flag of that
-	shape ends the block early; tok then cascades to Expected-a-semi-colon
-	and takes the extern block 315 to 0. This comment cannot spell the
-	sequence either, because comments are parsed, not skipped -- writing it
-	here is what broke the retok immediately after it was written.  */
+	No width flags in the format below, and this comment does not spell the
+	close delimiter -- comments are parsed, not skipped.  */
 	{
 	RuleStuff *nameStuff = input->rStuff;
 	char *shipStart = input->groupBody->gText;
 	int   shipLen   = input->groupBody->gCount;
 	int   shipIsTok = isTOKEN(input->groupBody->flags.data);
 	char *ruleEnd   = GroupControl::groupController->groupRules->atRuleMark;
-	char *ownHere   = nameStuff ? nameStuff->hereAt : 0;
 	char *parHere   = (nameStuff && nameStuff->parentStuff) ? nameStuff->parentStuff->hereAt : 0;
-	char *selfStart = parHere;
-	int   selfLen   = (selfStart && ruleEnd) ? (int)(ruleEnd - selfStart) : -1;
-	if ( selfStart && selfLen >= 0 )
+	char *ownHere   = nameStuff ? nameStuff->hereAt : 0;
+	int   selfLen   = (parHere && ruleEnd) ? (int)(ruleEnd - parHere) : -1;
+	if ( parHere && selfLen >= 0 )
 	{
 	GroupItem *selfSpan = new GroupItem("nameSpan");
-	selfSpan->setToken(selfStart,selfLen);
+	selfSpan->setToken(parHere,selfLen);
 	selfSpan->groupBody->flags.noPrint = 1;
 	input->addAttribute(selfSpan);
+	input->setToken(parHere,selfLen);
 	}
 	if ( GroupControl::groupController->groupRules->parseTrace )
 	{
 	const char *verdict;
-	if ( !shipIsTok )                                   verdict = "VOID-notToken";
+	if ( !shipIsTok )                                   verdict = "ORACLE-ABSENT";
 	else if ( shipLen <= 0 && selfLen <= 0 )            verdict = "VOID-bothEmpty";
 	else if ( shipLen != selfLen )                      verdict = "DIVERGE-len";
-	else if ( ::strncmp(shipStart,selfStart,shipLen) )  verdict = "DIVERGE-bytes";
+	else if ( ::strncmp(shipStart,parHere,shipLen) )    verdict = "DIVERGE-bytes";
 	else                                                verdict = "MATCH";
 	::fprintf(stderr,
 	"NAMESPAN %s shipLen=%d selfLen=%d | shipStart=%p ownHere=%p parHere=%p atRuleMark=%p | ship=[%.*s] self=[%.*s]\n",
 	verdict,shipLen,selfLen,
 	(void*)shipStart,(void*)ownHere,(void*)parHere,(void*)ruleEnd,
 	shipLen > 0 ? shipLen : 0, shipStart ? shipStart : "",
-	selfLen > 0 ? selfLen : 0, selfStart ? selfStart : "");
+	selfLen > 0 ? selfLen : 0, parHere ? parHere : "");
 	}
 	}
 	
+char 		*arg = input->getText();
 	result = GroupControl::groupController->locateInMethod(arg);
 	if ( result && result->parent == action )
 		goto endName;

@@ -218,8 +218,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	item = grok->get("nameSet");
 	item = strap->addAttribute(item);
 	::modify(item,"-^*");
-	item = grok->get("tokenize");
-	strap->addAttribute(item);
 	strap = grok->addString("NumbeR");
 	strap->setRuleStuff();
 	item = grok->get("numberSet");

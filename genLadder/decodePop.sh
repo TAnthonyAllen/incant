@@ -120,6 +120,10 @@ sentinel "decodeT sentinel (run reached the end)" "$T/dt.o" "DECODET SENTINEL"
 #  The two scalars decodeT prints. Both compared by value.
 nt=$(sed -n 's/^TALLY terms = *\([0-9][0-9]*\).*/\1/p'       "$T/dt.o" | head -1)
 nd=$(sed -n 's/^TALLY definitions = *\([0-9][0-9]*\).*/\1/p' "$T/dt.o" | head -1)
+#  ⚠ RE-PIN 2026-08-23 (fifth, same day). 63 -> 64 terms, 66 -> 67 dump rows.
+#  ONE term added, named: `noActionNoHome`, minted by the SEQ 86 migration under
+#  the birth rule. +1 and +1; arithmetic closes exactly.
+#
 #  ⚠ RE-PIN 2026-08-23 (fourth, same day). 62 -> 63 terms, 65 -> 66 dump rows.
 #  ONE term added, named: `percentMinusClosesPassthrough`, minted by the SEQ 85
 #  NamE-span probe under the birth rule. +1 and +1; arithmetic closes exactly.
@@ -157,8 +161,8 @@ nd=$(sed -n 's/^TALLY definitions = *\([0-9][0-9]*\).*/\1/p' "$T/dt.o" | head -1
 #      +1  `oneNumberTwoEras`  a green that survived a semantics change by
 #                              arithmetic accident. Dictated SEQ 29 from kant8T's
 #                              K6f, which is the measured case.
-check "corpus holds 63 terms"          63 "$nt"
-check "63 of them carry a definition"  63 "$nd"
+check "corpus holds 64 terms"          64 "$nt"
+check "64 of them carry a definition"  64 "$nd"
 check "every term is defined"     "$nt" "$nd"
 
 #  decodeT's own self-certification, asserted FROM OUTSIDE -- a harness that
@@ -217,7 +221,7 @@ fi
 #  sentinel line ("DECODE SENTINEL -- run reached the end"). An unanchored
 #  count read 38 for 37 real rows. A definition row is `<singleWord> -- `.
 nl=$(grep -cE '^[A-Za-z][A-Za-z0-9]* -- ' "$T/dc.o")
-check "corpus dump + decode line = 66 definition rows" 66 "$nl"
+check "corpus dump + decode line = 67 definition rows" 67 "$nl"
 
 #  ⚠ THE DATALESS-ECHO ROW, and the reason this file exists. A definition that
 #  never stored prints as the ATTRIBUTE'S OWN NAME. In-language it compares

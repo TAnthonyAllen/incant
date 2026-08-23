@@ -1,0 +1,31 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(ActHome);
+define
+    ahN;
+    ahM=0; ahLen=0; ahAttr=0;
+    ahRow argument code={
+        ahN <- argument;
+        ahLen = ahN.listLengtH;
+        ahM = 0;
+        if ahN.isMethoD;    ahM = 1;
+        ahAttr = 0;
+        if ahN.hasAttributeS;   ahAttr = 1;
+        cerr "HOME " ~taG " isMethod=" ahM " list=" ahLen " hasAttr=" ahAttr:;
+        };
+    ahRun code={
+        cerr "=== WHICH OF THE FOUR HAS AN ACTION TO CARRY A SELF-STAMP? ===":;
+        ahRow(Grokking["NamE"]);
+        ahRow(Grokking["NumbeR"]);
+        ahRow(Grokking["HeX"]);
+        ahRow(Grokking["FormaT"]);
+        cerr "-- controls: a rule known to HAVE an action, and the hook itself --":;
+        ahRow(Grokking["Braced"]);
+        ahRow(Grokking["tokenize"]);
+        cerr "ACTIONHOME SENTINEL -- reached the foot":;
+        stop();
+        };
+    ;
+ahRun();

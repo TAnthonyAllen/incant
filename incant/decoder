@@ -261,6 +261,9 @@ define
         percentMinusClosesPassthrough
             definition="A printf left-justify flag inside a tok C++ passthrough closes the passthrough early, because percent-minus IS the close delimiter -- and a comment cannot spell the sequence either, since comments are parsed rather than skipped.";
             source="DICTATED, minted 2026-08-23 during the SEQ 85 NamE-span probe. Operational record: designDocs ProblemRecords percentMinusClosesPassthrough.";
+        noActionNoHome
+            definition="Half the tokenize population cannot self-stamp: NamE and NumbeR carry actions, HeX and FormaT read isMethod 0, so a migration shaped as the-action-gains-a-block has no delivery vehicle on two of the four rules.";
+            source="DICTATED, minted 2026-08-23 during the SEQ 86 migration. Operational record: designDocs ProblemRecords noActionNoHome.";
         armingWithoutRouting
             definition="The staging property, demonstrated not asserted -- an artifact armed on a live rule is inert until it is routed, so the live switch happens at one ruled moment.";
             source="DICTATED from the 2026-08-22 seal.";
