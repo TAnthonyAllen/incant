@@ -273,6 +273,9 @@ define
         unregisteredIsATerm
             definition="A declaration written into the grammar that is NOT registered as a command in incant/setup is not fired and consumed -- it is parsed as an ORDINARY TERM, silently growing the rule's term list.";
             source="PULLED from incant/setup's own install-vocabulary comment, re-read 2026-08-23 for SEQ 90 D1. Operational record: designDocs ProblemRecords unregisteredIsATerm.";
+        boundarySupplyNotSubstitutable
+            definition="Byte-identical spans do not make the boundary supply substitutable for the tokenize term: NamE migrates clean and NumbeR loses four fleet rows to the FLAG ALONE, with its term still standing and its spans matching 5 of 5.";
+            source="DICTATED, minted 2026-08-23 by SEQ 92 step 2. Operational record: designDocs ProblemRecords boundarySupplyNotSubstitutable.";
         armingWithoutRouting
             definition="The staging property, demonstrated not asserted -- an artifact armed on a live rule is inert until it is routed, so the live switch happens at one ruled moment.";
             source="DICTATED from the 2026-08-22 seal.";

@@ -1,0 +1,20 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(NumRun);
+define
+    nuA=0; nuB=0; nuC=0;
+    nuRun code={
+        nuA = 7;
+        nuB = 4242;
+        nuC = nuA + 31415;
+        nuA = 100000;
+        nuB = 3;
+        cerr "nums " nuA " " nuB " " nuC:;
+        cerr "NUMRUN SENTINEL -- reached the foot":;
+        stop();
+        };
+    ;
+traceParse('on');
+nuRun();

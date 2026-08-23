@@ -1052,6 +1052,15 @@ GroupRules  ruler = groupRules;
     action is a null read waiting to happen; that was measured the expensive
     way once, at exit 139 with no output.
 
+    IT SUPPLIES THE PRODUCT, not merely a side record. The setToken at the foot
+    is the channel every consumer already reads; the noPrint attribute above it
+    is kept as free debug surface and nothing consults it. Ruled 2026-08-23.
+
+    THE TRACE READS THE PRODUCT BEFORE THE WRITE, deliberately. Once this
+    function supplies the product, a comparison taken AFTER the write would
+    compare this function to itself and report MATCH forever -- vacuity in a
+    new coat. The oracle is sampled first or it is not an oracle.
+
     THE LOCALS ARE NAMED spanFrom AND spanTo FOR A REASON: the obvious spellings
     are tok keywords and the parse fails on the declaration line while naming
     the enclosing function, which reads as a broken function rather than a
@@ -1099,6 +1108,7 @@ int         spanLen;
         }
 %-
     label   +% span;
+    label.setToken(spanFrom,spanLen);
 }
 
 /***************************************************************************

@@ -3,7 +3,7 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      84
+SEQ:      85
 STATUS:   fresh           # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-08-21  -  Clod  (SEQ 77 APPENDED at the FOOT -- SEQ 76 STOPPED AT STEP 3 on a
           MEASURED SUBSTRATE BLOCKER: `cell <- container :+ new(name)` binds the CONTAINER, not
@@ -3765,4 +3765,78 @@ unchanged. decodePop 67 green, ddPop 6 green. No re-pin taken -- no grammar
 shape changed, and parseClass.target stays held.
 
   END SEQ 84
+===================================================================
+
+===================================================================
+SEQ 85  --  2026-08-23, Clod.  ANSWER TO SEQ 92 -- captureSpan supplies.
+⚠ NO TOUCHDOWN DANCE. NamE COMPLETES END TO END. NumbeR DOES NOT MIGRATE, and
+the gate caught it BEFORE the term came out. Steps 3, 4, 5 and phase 3 not
+reached -- the sequence has a failed gate at step 2 and the exit exam needs all
+four migrated.
+
+STEP 1 -- NamE COMPLETES. THE DESTINATION PIPELINE IS PROVEN.
+  1a  captureSpan gained setToken, B1's chair-correct marks written to the
+      product's own gText and gCount. The noPrint attribute stays as free debug
+      surface; nothing consults it.
+  1b  RE-VERIFY WITH THE TRANSITIONAL STAMP STANDING: 138 rows, NAMESPAN MATCH
+      138 of 138, byte-identical.
+      ⚠ HOW INDEPENDENCE WAS PRESERVED, since the law demands the statement:
+      captureSpan derives from ruleStuff.hereAt at the BOUNDARY chair; the
+      transitional stamp derives from parentStuff.hereAt at the ACTION chair.
+      Neither reads the product to DERIVE its span -- only to compare. And
+      captureSpan's trace samples the product BEFORE its own write, by
+      construction, so the function can never compare itself to itself. The
+      ordering is boundary first, action second: captureSpan runs before
+      fireLabelMethod and the action runs inside it.
+  1c  TRANSITIONAL STAMP OUT of aCTionNamE -- the function is back to its
+      original shape, zero passthrough. Re-verify: 138 CAPTURE rows,
+      ORACLE-ABSENT as expected with no term and no action stamp, spans still
+      correct (nsbRun include generate register ...).
+      ⚠ CONSUMERS UNBROKEN ON captureSpan AS SOLE SUPPLY: oneTest
+      BYTE-IDENTICAL. input.text and the ANYtoken chain read what the boundary
+      wrote. FLEET GATE PASSED, assertion rows byte-identical, 52 green.
+  So: construction-site flag -> boundary -> setToken -> consumers, with no
+  transitional anything and no tokenize term. That is the destination shape,
+  running, on a rule that fires 138 times in a medium file.
+
+STEP 2 -- NumbeR DOES NOT MIGRATE, AND THE FLAG ALONE IS ENOUGH TO DO IT.
+  The dual-run was CLEAN and the law was honoured: tokenize's term writes
+  mid-match, captureSpan's trace samples the product BEFORE its own write, so
+  the two channels are independent by construction.
+      CAPTURE MATCH 5 of 5, pointers identical
+      spans [7] [4242] [31415] [100000] [3] -- four distinct lengths, no
+      zero-length rows
+  Then the fleet refused. Four states, one binary:
+      no flag on NumbeR                    52 green   the gate-1 state
+      flag ON, tokenize term STANDING      48 green   FOUR ROWS LOST
+      flag ON, tokenize term REMOVED       46 green   SIX ROWS LOST
+      flag reverted                        52 green   byte-identical to gate 1
+  ⚠⚠ THE FLAG COSTS ROWS WITH THE TERM STILL STANDING. That is not a de-term
+  failure and it is not a span failure -- the spans were measured equal, 5 of 5,
+  on this very rule. Visible damage on the term-removed state: baselineTests
+  HANGS and is killed at the 90s cap, and the rStuff audit reads 47 loose where
+  it reads 4, with GroupField entries reporting numberSet children. Recorded as
+  symptoms. NOTHING DIAGNOSED, NOTHING CHASED, NO MECHANISM OFFERED -- whatever
+  differs is not the bytes, and guessing here has lost often enough.
+  Minted as boundarySupplyNotSubstitutable. NumbeR reverted; fleet verified
+  byte-identical to gate 1.
+
+⚠ THE ASYMMETRY IS THE REAL RESULT OF THIS SESSION. Same flag, same set-site
+shape, same command, same formula, same trace, same independence discipline --
+NamE completes and NumbeR does not. So "the trigger is set-site- and
+firing-agnostic" holds for the mechanism but NOT for the outcome, and the
+HeX/FormaT non-issue ruling rests on transferability that this measurement
+declines to confirm. I did not land their declarations on the strength of a
+transferability claim NumbeR just falsified.
+
+NOT REACHED, and why: step 3 (HeX/FormaT) waits on step 2's gate. Step 4's
+alignment POP would assert bits that are not all set. Step 5's re-pin waits on
+the completed grammar shape, which has not changed -- parseClass.target stays
+held. Phase 3 needs tokenize at zero reads-through; it has two.
+
+STATE: fleet 52 green / 1 parked, assertion rows byte-identical to the
+pre-session capture. oneTest byte-identical. canary 315. grammar md5 unchanged.
+decodePop 68 green, ddPop 6 green. Machinery landed and NamE standing on it.
+
+  END SEQ 85
 ===================================================================
