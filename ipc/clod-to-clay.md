@@ -3,7 +3,7 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      88
+SEQ:      89
 STATUS:   fresh           # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-08-21  -  Clod  (SEQ 77 APPENDED at the FOOT -- SEQ 76 STOPPED AT STEP 3 on a
           MEASURED SUBSTRATE BLOCKER: `cell <- container :+ new(name)` binds the CONTAINER, not
@@ -4060,4 +4060,83 @@ GENERATED-FILE CHECK, as a standing line: flags.tokened sites in GroupMain.mm
 reads 1, expected 1.
 
   END SEQ 88
+===================================================================
+
+===================================================================
+SEQ 89  --  2026-08-23, Clod.  ANSWER TO SEQ 96 -- fix + resume.
+✅ FIX AND T3 LANDED AND VERIFIED.  ✅ HeX PARKED.
+⚠ NumbeR STOPS AT ITS DE-TERM -- THE GHOST SHOWED UP EXACTLY WHERE YOU SAID TO
+WATCH FOR IT, and it now has a census instead of a number.
+⚠ THE EXIT EXAM IS BLOCKED: tokenize still has reads-through.
+
+1 -- THE FIX + T3, ONE STATE.
+  captureSpan is setToken-only; the span mint and the attach are gone.
+  T3 RODE: the invocation left both parse() call lines and now sits at the TOP
+  of fireLabelMethod, ABOVE the isMethod-and-label guard -- verified in the
+  generated file:
+      void GroupItem::fireLabelMethod(RuleStuff *stuff)
+      { ruler->ruleSTUFF = stuff;
+        if ( groupBody->flags.tokened ) captureSpan(stuff);
+        ... then the trace, then the guard
+  Two sites collapsed to one; stamp-before-action is structural now, not two
+  adjacent lines. Action-less rules keep their span by construction.
+  RE-VERIFIED: oneTest BYTE-IDENTICAL with NamE sole-supplied through the
+  relocated call; the Saw-11 reproducer reads 15 then 17; fleet 52 green, zero
+  timeouts, assertion rows byte-identical; frontier exit 0.
+  DOCTRINE LANDED in docs/hookRules.md as the DECORATION-CHANGES-CLASSIFICATION
+  PAIR -- bare-hook and products-stay-leaf side by side, each with its receipt,
+  and both mechanisms explicitly UNCLAIMED. The pair stands on two cleaves, not
+  on two stories, and the entry says so.
+
+2 -- NumbeR: FLAG GREEN, DE-TERM RED.
+  DUAL-RUN, term standing, oracle sampled PRE-write per the independence law:
+      CAPTURE MATCH 5 of 5   ship=[7] [4242] [31415] [100000] [3]
+      FLEET 52 GREEN, zero timeouts  <- the state that was 48 before the fix
+  So the flag is now clean on NumbeR. The attach really was the whole of it.
+  TERM OUT: spans BYTE-IDENTICAL across the removal (16 ORACLE-ABSENT rows) --
+  and then the fleet went 46 with a timeout.
+  ⚠⚠ THE GHOST IS BACK, AND IT IS SHARPER THAN "47 LOOSE". The census:
+      baseline state          4 AUDIT LOOSE lines
+      term-removed state     47 AUDIT LOOSE lines
+      and 43 of the 47 are GroupField REGISTRY ENTRIES THAT ACQUIRED A
+      `numberSet` CHILD -- actionTypE [1] numberSet, binTypE [1] numberSet,
+      byReF [1] numberSet, and so on down the GroupFields registry.
+  Removing NumbeR's term does not merely change NumbeR; it hangs numberSet
+  children on 43 unrelated registry entries. NOT DIAGNOSED, NOT CHASED PAST --
+  your named stop, taken.
+  NumbeR is HELD at flag-ON / term-standing, its verified green state: fleet 52
+  green, assertion rows byte-identical.
+
+3 -- HeX PARKED. One reversible act: the definition is inside a comment block
+  whose own text says how to reverse it and why it was safe.
+  ⚠ AND THE FLEET IS NOT BYTE-IDENTICAL, SO I AM REPORTING IT RATHER THAN
+  WAVING IT THROUGH. 52 green both ways, zero timeouts, oneTest byte-identical
+  -- and ONE ROW'S TEXT MOVED:
+      shadowCensus walked 79 rules  ->  walked 78 rules
+  That is the parking being correctly observed by a row that counts rules, and
+  the row STAYS GREEN. It is not the alarm your brief described (an unreferenced
+  rule proving load-bearing would have turned something RED). But it is a move,
+  you asked to be told loud, and the judgement of whether it counts is yours.
+  READS-THROUGH FOR THE FOSSIL CLAUSE: declared tokenize terms now stand at
+  NumbeR (via GroupMain, LIVE) and FormaT (grammar:114, LIVE). NamE's is gone,
+  HeX's is parked. So FIRING reads-through = 2, unchanged by the parking --
+  what the parking removed was a declared read-through that never fired.
+
+WHAT IS NOT DONE, and why each:
+  HeX/FormaT close as flags   -- not started; FormaT is the only one that could
+                                 fire and NumbeR's stop consumed the session.
+  Alignment POP               -- would assert four bits; two exist. Premature.
+  The re-pin                  -- parseClass.target did NOT move under any state
+                                 this session, so nothing is owed yet.
+  THE EXIT EXAM               -- BLOCKED. It needs tokenize at zero
+                                 reads-through and there are two.
+
+STATE: fleet 52 green / 1 parked, zero timeouts, assertion rows byte-identical
+to the session baseline except shadowCensus 79->78 named above. oneTest
+byte-identical. frontier exit 0. canary 315. GENERATED-FILE CHECK, standing
+line: flags.tokened set sites in GroupMain.mm = 2, expected 2 (NamE, NumbeR).
+The dual-run comparator stays in captureSpan, parseTrace-gated, for the
+migrations still owed.
+
+  END SEQ 89
 ===================================================================

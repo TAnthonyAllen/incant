@@ -87,7 +87,20 @@ define
     /*************************************************************************
         incant grammar rules
     *************************************************************************/
+    /*  HeX IS PARKED, 2026-08-23, and this is the whole act -- reversible by
+        deleting these comment markers.
+
+        It was an ORPHAN, measured: HeX appeared exactly ONCE in the live tree,
+        on the line below, its own definition. Nothing referenced it and nothing
+        could reach it, so it never fired. The control for that census was NamE,
+        which appears eight times in this file and five in GroupMain.
+
+        Its definition carried a full capture apparatus -- a tokenize term of
+        its own -- that no parse could ever run. Parking it removes one of
+        tokenize's reads-through without touching anything that fires.
+
     HeX             zero-="0" x-=[xX] value-=[0-9a-fA-F]+ tokenize;
+    *************************************************************************/
     ShortcuT=[-+~`$_:,]+;
     ANYtoken=NamE;
     ANYstring=[^ \n\r\t;]+;

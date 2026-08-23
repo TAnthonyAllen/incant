@@ -537,7 +537,6 @@ void GroupItem::captureSpan(RuleStuff *stuff)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*label = stuff->label;
-GroupItem 	*span = 0;
 char 		*spanFrom = stuff->hereAt;
 char 		*spanTo = ruler->atRuleMark;
 int 		spanLen = 0;
@@ -550,35 +549,27 @@ int 		spanLen = 0;
 	spanLen = (int)(spanTo - spanFrom);
 	if ( spanLen < 0 )
 		return;
-	span = new GroupItem("spaN");
-	span->setToken(spanFrom,spanLen);
-	span->groupBody->flags.noPrint = 1;
 	
-	/*  DUAL-RUN ADJUDICATION, live only under the parse trace. While a rule
-	still carries its tokenize term, that term has already stamped the
-	product by the time this boundary is reached, so the product's own
-	token is the shipped ORACLE and the span about to be attached is the
-	candidate. The guard reports VOID rather than MATCH when there is
-	nothing to compare, because two empty spans satisfy any byte test and
-	that exact vacuity printed nine false matches once already.  */
+	/*  DUAL-RUN COMPARATOR, live only under the parse trace, temporary for the
+	migration runs. THE ORACLE IS SAMPLED BEFORE THE WRITE BELOW -- once
+	this function supplies the product, a sample taken after would compare
+	the function to itself and read MATCH forever.  */
 	if ( GroupControl::groupController->groupRules->parseTrace )
 	{
-	int   shipLen   = isTOKEN(label->groupBody->flags.data) ? label->groupBody->gCount : -1;
-	char *shipFrom  = isTOKEN(label->groupBody->flags.data) ? label->groupBody->gText : 0;
+	int   shipLen  = isTOKEN(label->groupBody->flags.data) ? label->groupBody->gCount : -1;
+	char *shipFrom = isTOKEN(label->groupBody->flags.data) ? label->groupBody->gText : 0;
 	const char *verdict;
-	if ( !shipFrom )                                    verdict = "ORACLE-ABSENT";
-	else if ( shipLen <= 0 && spanLen <= 0 )            verdict = "VOID-bothEmpty";
-	else if ( shipLen != spanLen )                      verdict = "DIVERGE-len";
-	else if ( ::strncmp(shipFrom,spanFrom,spanLen) )    verdict = "DIVERGE-bytes";
-	else                                                verdict = "MATCH";
-	::fprintf(stderr,"CAPTURE %s rule=%s shipLen=%d spanLen=%d shipFrom=%p spanFrom=%p ship=[%.*s] span=[%.*s]\n",
+	if ( !shipFrom )                                   verdict = "ORACLE-ABSENT";
+	else if ( shipLen <= 0 && spanLen <= 0 )           verdict = "VOID-bothEmpty";
+	else if ( shipLen != spanLen )                     verdict = "DIVERGE-len";
+	else if ( ::strncmp(shipFrom,spanFrom,spanLen) )   verdict = "DIVERGE-bytes";
+	else                                               verdict = "MATCH";
+	::fprintf(stderr,"CAPTURE %s rule=%s shipLen=%d spanLen=%d ship=[%.*s] span=[%.*s]\n",
 	verdict, groupBody->tag ? groupBody->tag : "?", shipLen, spanLen,
-	(void*)shipFrom,(void*)spanFrom,
 	shipLen > 0 ? shipLen : 0, shipFrom ? shipFrom : "",
 	spanLen > 0 ? spanLen : 0, spanFrom);
 	}
 	
-	label->addAttribute(span);
 	label->setToken(spanFrom,spanLen);
 }
 
@@ -836,6 +827,8 @@ void GroupItem::fireLabelMethod(RuleStuff *stuff)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	ruler->ruleSTUFF = stuff;
+	if ( groupBody->flags.tokened )
+		captureSpan(stuff);
 	if ( ruler->parseTrace )
 		::fprintf(stderr,"  fireLabelMethod %s isMethod=%s label=%s deferred=%s parseACTION=%s\n",groupBody->tag,::toStringFromInt(isMethod(groupBody->flags.instructType) != 0),::toStringFromInt(stuff->label != 0),::toStringFromInt(groupBody->flags.deferred != 0),::toStringFromInt(parseACTION(groupBody->flags.methodType) != 0));
 	if ( isMethod(groupBody->flags.instructType) && stuff->label )
@@ -1743,8 +1736,6 @@ RuleStuff 	*ruleStuff = getStuff(pStuff);
 		coming back childless).  */
 		if ( ruleStuff->sukcess )
 			{
-			if ( groupBody->flags.tokened )
-				captureSpan(ruleStuff);
 			fireLabelMethod(ruleStuff);
 			attachLabel(ruleStuff,pStuff,0);
 			}
@@ -1811,8 +1802,6 @@ continueHere:
 		/*******************************************************************
 		Success. Fire label method if there is one.
 		*******************************************************************/
-		if ( groupBody->flags.tokened )
-			captureSpan(ruleStuff);
 		fireLabelMethod(ruleStuff);
 		if ( ruleStuff->sukcess )
 			{

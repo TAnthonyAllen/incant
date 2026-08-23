@@ -231,6 +231,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	::modify(item,"+");
 	strap->setMethod(::aCTionNumbeR);
 	strap->groupBody->flags.methodType = 1;
+	strap->groupBody->flags.tokened = 1;
 	item = grok->getMember("FloaT");
 	item = strap->addAttribute(item);
 	::modify(item,"?");

@@ -72,3 +72,28 @@ is Arm A and nothing else.
 chosen by asking what the PROJECT IS, not what the BUG DOES.** The pick-one constraint went the same
 way. A bug-shaped question here would have returned *"one member, take the cheap special case"* — the
 correct answer to the wrong question.
+
+---
+
+## ⚠ THE DECORATION-CHANGES-CLASSIFICATION PAIR — two populations, two convictions
+
+Adopted 2026-08-23. Both members were found the same way: a node was given something extra that
+was believed inert, and the extra thing changed what the node **was**.
+
+| population | the decoration | what it changed | the receipt |
+|---|---|---|---|
+| **grammar nodes** — the bare-hook class | an installed `CodE`, i.e. the rule's **first attribute** | a bare method-hook flips to an attribute-matcher and its method stops being fired at all | install #43 on `tokenize`: `hasAttr 0 -> 1`, and `Braced` — which already had attributes and gained the same `CodE` — did **not** flip |
+| **product nodes** — products stay leaf | a `noPrint` attribute hung on a rule's product | a `NumbeR` product that gains a child stops evaluating as a number; `+=` adds nothing and the enclosing loop never advances | `captureSpan` = `setToken` + attach → 48 green and `baselineTests` never terminates; `setToken` alone → 52 green, reproducer reads 15 then 17 |
+
+**PRODUCTS STAY LEAF.** A product consumed as a *value* must carry no children. The attribute that
+broke this was ruled in as *"free debug surface"* and it was not free — it was the entire defect.
+
+⚠ **THE MECHANISM IS UNCLAIMED IN BOTH ROWS AND THE DOCTRINE DOES NOT NEED IT.** Nobody has traced
+why a child breaks the arithmetic, and nobody traced the hook's arm-flip past the flag reading. Each
+row stands on a **cleave** — three states, one variable each, the set site counted in the
+*generated* file before every run — not on a story. Three mechanisms that fit these symptoms
+perfectly were killed on contact before the cleaves were run; the cleaves are why the doctrine is
+safe to state and the mechanisms are not.
+
+**The practical rule for anyone adding machinery:** before you decorate a node, ask which population
+it belongs to and what reads it. A flag is free; a **child is not**.

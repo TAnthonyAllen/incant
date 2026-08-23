@@ -1001,6 +1001,7 @@ void fireLabelMethod(RuleStuff stuff)
 {
 GroupRules  ruler = groupRules;
     ruleSTUFF   = stuff;
+    if tokened  captureSpan(stuff);
     if parseTrace
         cerr "  fireLabelMethod " tag
              " isMethod=" toStringFromInt(isMethod != 0)
@@ -1070,7 +1071,6 @@ void captureSpan(RuleStuff stuff)
 {
 GroupRules  ruler = groupRules;
 GroupItem   label = stuff.label;
-GroupItem   span;
 String      spanFrom = stuff.hereAt;
 String      spanTo   = ruler.atRuleMark;
 int         spanLen;
@@ -1079,35 +1079,27 @@ int         spanLen;
     if !spanTo      return;
     spanLen = (int)(spanTo - spanFrom);
     if spanLen < 0  return;
-    span    = new("spaN");
-    span.setToken(spanFrom,spanLen);
-    span.noPrint = true;
 -%
-    /*  DUAL-RUN ADJUDICATION, live only under the parse trace. While a rule
-        still carries its tokenize term, that term has already stamped the
-        product by the time this boundary is reached, so the product's own
-        token is the shipped ORACLE and the span about to be attached is the
-        candidate. The guard reports VOID rather than MATCH when there is
-        nothing to compare, because two empty spans satisfy any byte test and
-        that exact vacuity printed nine false matches once already.  */
+    /*  DUAL-RUN COMPARATOR, live only under the parse trace, temporary for the
+        migration runs. THE ORACLE IS SAMPLED BEFORE THE WRITE BELOW -- once
+        this function supplies the product, a sample taken after would compare
+        the function to itself and read MATCH forever.  */
     if ( GroupControl::groupController->groupRules->parseTrace )
         {
-        int   shipLen   = isTOKEN(label->groupBody->flags.data) ? label->groupBody->gCount : -1;
-        char *shipFrom  = isTOKEN(label->groupBody->flags.data) ? label->groupBody->gText : 0;
+        int   shipLen  = isTOKEN(label->groupBody->flags.data) ? label->groupBody->gCount : -1;
+        char *shipFrom = isTOKEN(label->groupBody->flags.data) ? label->groupBody->gText : 0;
         const char *verdict;
-        if ( !shipFrom )                                    verdict = "ORACLE-ABSENT";
-        else if ( shipLen <= 0 && spanLen <= 0 )            verdict = "VOID-bothEmpty";
-        else if ( shipLen != spanLen )                      verdict = "DIVERGE-len";
-        else if ( ::strncmp(shipFrom,spanFrom,spanLen) )    verdict = "DIVERGE-bytes";
-        else                                                verdict = "MATCH";
-        ::fprintf(stderr,"CAPTURE %s rule=%s shipLen=%d spanLen=%d shipFrom=%p spanFrom=%p ship=[%.*s] span=[%.*s]\n",
+        if ( !shipFrom )                                   verdict = "ORACLE-ABSENT";
+        else if ( shipLen <= 0 && spanLen <= 0 )           verdict = "VOID-bothEmpty";
+        else if ( shipLen != spanLen )                     verdict = "DIVERGE-len";
+        else if ( ::strncmp(shipFrom,spanFrom,spanLen) )   verdict = "DIVERGE-bytes";
+        else                                               verdict = "MATCH";
+        ::fprintf(stderr,"CAPTURE %s rule=%s shipLen=%d spanLen=%d ship=[%.*s] span=[%.*s]\n",
             verdict, groupBody->tag ? groupBody->tag : "?", shipLen, spanLen,
-            (void*)shipFrom,(void*)spanFrom,
             shipLen > 0 ? shipLen : 0, shipFrom ? shipFrom : "",
             spanLen > 0 ? spanLen : 0, spanFrom);
         }
 %-
-    label   +% span;
     label.setToken(spanFrom,spanLen);
 }
 
@@ -1412,7 +1404,6 @@ RuleStuff   ruleStuff   = getStuff(pStuff);
             instead of growing it (GM-22's third wall, measured as ScafOUT
             coming back childless).  */
         if sukcess {
-            if tokened  captureSpan(ruleStuff);
             fireLabelMethod(ruleStuff);
             attachLabel(ruleStuff,pStuff,0); }
         goto generatedExit; }
@@ -1464,7 +1455,6 @@ continueHere:
         /*******************************************************************
             Success. Fire label method if there is one.
         *******************************************************************/
-        if tokened  captureSpan(ruleStuff);
         fireLabelMethod(ruleStuff);
         if sukcess {
             kount++;

@@ -233,6 +233,7 @@ GroupRules  ruler = groupRules;
     modify(item,"+");
     method          = aCTionNumbeR;
     immediateACTION = true;
+    tokened         = true;
     item            = grok/FloaT;
     item            = strap +% item;
     modify(item,"?");
