@@ -3,7 +3,7 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      79
+SEQ:      80
 STATUS:   fresh           # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-08-21  -  Clod  (SEQ 77 APPENDED at the FOOT -- SEQ 76 STOPPED AT STEP 3 on a
           MEASURED SUBSTRATE BLOCKER: `cell <- container :+ new(name)` binds the CONTAINER, not
@@ -3326,4 +3326,83 @@ sentence). ddPop 6 green. oneTest byte-identical. frontier md5
 2fa1596a54924971f3db081da09dd693 unchanged. Build clean, extern canary 315.
 
   END SEQ 79
+===================================================================
+
+===================================================================
+SEQ 80  --  2026-08-23, Clod.  ANSWER TO SEQ 87 -- home 2, phase 1.
+⚠ THE PHASE GATE TRIPPED ON ITS FIRST CONDITION. NOTHING WAS BUILT.
+
+⚠⚠ AND THE FIRST THING I OWE IS A CORRECTION TO MY OWN SEQ 84 REPORT, because
+the brief's optimistic branch was built on it. I wrote that home 2 ALREADY
+EXISTS AND SHIPS, ON BOTH ARMS, and named RuleStuff.twk:314 and
+Generate.rtn:94/118/268. THAT WAS MATERIALLY OVERSTATED. Those sites stamp
+CHARACTER-SET TERMS. They do not stamp rule PRODUCTS. Your clause -- if the
+delta is genuinely one parent-level entry mark, say so with the site named --
+came straight from my line, and it does not hold.
+
+M-A -- COVERAGE. Complete setToken census, both languages, whole tree, control
+sites named before it ran and all present:
+  RuleStuff.twk:314    the testMacro, expanded at :325 :334 :344   character
+                       terms, INTERPRETIVE arm
+  Generate.rtn:94/118/268  parseAny parseCharacter parseSet        character
+                       terms, GENERATED arm
+  GroupActions.rtn:1572    tokenize      THE ONLY SHIPPED WRITER OF A
+                       PARENT-LEVEL RULE SPAN
+  ruleActions.rtn:284      aCTionCodE    one rule's bespoke bracket scan
+  Instruct.rtn:44          getMarkLineAt a utility, not parse machinery
+⚠ testOptions and testAttributes -- THE TWO ARMS THAT MATCH RULES -- contain
+ZERO setToken calls.
+  WHICH MARKS: the shipped term stamp writes the TERM's own hereAt plus a match
+  COUNTER. The proven rule formula is the PARENT's hereAt to the rule's own
+  atRuleMark. Not the same span, and one does not widen into the other.
+  WHEN: on success only, and only if the term carries a label.
+  ⚠ THE RUNTIME PROOF WAS ALREADY IN HAND AND IS STRONGER THAN THE CENSUS:
+  de-terming NamE left its product with NO token, so the first statement of its
+  action read null and the process exited 139. Had any shipped machinery
+  stamped that product it could not have crashed. An absence that crashes is
+  presence-with-value at its loudest.
+  KNOWN-POSITIVE CONTROL satisfied: NamE's transitional stamp is visible to the
+  instrument, 138 firings, before any testimony about shipped stamps counted.
+
+M-B -- THE DELTA, IN MECHANISM. NOT one parent-level entry mark. Home 2 is a
+NEW stamp site at the rule boundary, not a widening. The good news is that the
+site is singular: BOTH arms already converge on one function. GroupItem.twk
+parse() calls fireLabelMethod at :1336 (generated fork success) and :1387
+(interpretive success). A stamp immediately before each satisfies the step-4
+ordering constraint by construction -- the product is written before the action
+that reads it, which is exactly the ordering whose absence produced the 139.
+So: one mechanism, two call sites, one function. Mechanism-sized.
+⚠ BUT ITS MARK SOURCE IS UNMEASURED AND MUST NOT BE ASSUMED. The formula was
+proven from the ACTION's vantage, where the product's rStuff gave parentStuff
+as the start. parse()'s vantage is a different node with different stuff, and
+the NamE probe already showed a rule's OWN hereAt is its END. Measuring which
+stuff carries the entry mark AT THAT SITE is phase 2's first act, not an
+assumption phase 2 may open with.
+
+M-C -- BLAST RADIUS, and the classifier question answered cheaply as asked.
+  PRODUCT-POPULATION CLASSIFIER: NO. parse()'s arm selection reads the RULE,
+  never the label. Empirically, NamE's products have carried an extra noPrint
+  attribute on every firing (138 per medium file) since SEQ 85 and no fleet
+  assertion row moved for it. The flip lesson does not repeat on products.
+  DUMPS: noPrint hides the attribute -- oneTest byte-identical with a whole
+  rule's product population decorated. Tree-dump targets are predicted safe.
+  NAMED RE-PIN TARGET: parseClass.target, and it is the ONLY one. It moved
+  53 -> 52 on NamE's TERM REMOVAL, not on attribute addition, and it will move
+  once more per remaining de-term. Its re-pin stays held to the completed shape.
+  MEMORY: one extra GroupItem per rule firing, BDWGC-managed. NamE alone is 138
+  per medium file; the whole-rule population across a fleet run is order 10^4
+  to 10^5 nodes. Named as an order of magnitude, not measured precisely.
+
+PHASE GATE: TRIPPED. The shipped stamps are narrower than both-arms-every-rule
+-- they do not stamp rule products at all. By the brief's own terms this comes
+back to the table and phase 2 does not open. Nothing was built, no parse
+machinery was touched, and the tree is where SEQ 86 left it.
+
+STATE: fleet 52 green / 1 parked, unchanged and byte-identical to where SEQ 86
+left it, with parseClass.target the single named red row awaiting its held
+re-pin. decodePop 65 green, ddPop 6 green. NamE's transitional stamp stands.
+RIDERS: buffer-lifetime not attempted this brief -- no clean read shape
+presented, and twice void honestly still beats once dressed up.
+
+  END SEQ 80
 ===================================================================

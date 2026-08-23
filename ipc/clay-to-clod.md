@@ -3,7 +3,7 @@
   Clay writes this file. Clod reads it, acts, then clears it.
   Clod's replies go in ipc/clod-to-clay.md  (never write here, Clod).
 -------------------------------------------------------------------
-SEQ:      84
+SEQ:      87
 STATUS:   cleared        # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-08-23  -  Clay (SEQ 84, dictated via Tony; transcribed by Clod)
           ⚠ SEQ 84 IS LIVE AND IS AT THE FOOT -- TOKENIZE RETIREMENT
