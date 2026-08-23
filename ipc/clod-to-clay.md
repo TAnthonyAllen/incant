@@ -3,7 +3,7 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      85
+SEQ:      86
 STATUS:   fresh           # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-08-21  -  Clod  (SEQ 77 APPENDED at the FOOT -- SEQ 76 STOPPED AT STEP 3 on a
           MEASURED SUBSTRATE BLOCKER: `cell <- container :+ new(name)` binds the CONTAINER, not
@@ -3839,4 +3839,86 @@ pre-session capture. oneTest byte-identical. canary 315. grammar md5 unchanged.
 decodePop 68 green, ddPop 6 green. Machinery landed and NamE standing on it.
 
   END SEQ 85
+===================================================================
+
+===================================================================
+SEQ 86  --  2026-08-23, Clod.  ANSWER TO SEQ 93 -- NumbeR's anatomy, recon.
+READ-ONLY. Zero edits. Fleet byte-identical, canary 315, grammar md5 unchanged.
+⚠ THE COMMENT IS REFUTED ON ITS LOAD-BEARING CLAUSE, AND R4 IS THE ONE THAT
+CHANGES WHAT WE THOUGHT WE WERE LOOKING AT.
+
+R1 -- THE GOVERNING NumbeR, IN POINTERS, DIRECT-SUBSCRIPT ROAD.
+    canonOf: NumbeR  face=0x1052a8340 canon=0x1052a8340  SAME NODE
+    canonOf: NamE    SAME NODE      canonOf: HeX SAME NODE
+    canonOf: Braced  SAME NODE      (controls, same road, same run)
+No fork. The governing NumbeR is the ordinary catalog node.
+⚠ MY FIRST PASS GOT THIS WRONG AND I CAUGHT IT: the canonOf calls went through
+an action ARGUMENT and every rule read DIFFERENT NODES, which is
+canonRoadDependence exactly -- the hazard the brief named, walked into by me,
+one probe later. The rows above are the direct-subscript road and they are the
+ones that count.
+
+R2 -- THE ANATOMY, MAPPED, CLAUSE BY CLAUSE AGAINST THE COMMENT.
+    measured NumbeR   list=3  data=0  members=0
+      attribute [1]  numberSet   data=1
+      attribute [2]  FloaT       list=3
+      attribute [3]  tokenize
+  clause `NumbeR=[0-9]+`            REFUTED AS WRITTEN. NumbeR carries NO data;
+                                    the character class lives on the numberSet
+                                    TERM, which is where data=1 reads.
+  clause `FloaT?`                   CONFIRMED, attribute [2].
+  clause `tokenize`                 CONFIRMED, attribute [3].
+  clause `: HeX=... tokenize ;;`    ⚠⚠ REFUTED. NumbeR HAS NO MEMBERS.
+                                    HeX is not nested under it at runtime.
+  So there is ONE capture point on NumbeR, not two, and there are not two
+  scopes. The comment's central structural claim does not describe the tree.
+⚠ THE MEMBERS ANSWER CARRIES ITS OWN POSITIVE CONTROL, because "0 members" and
+"broken accessor" read identically: firstMembeR reads 0 for NumbeR, HeX and
+Braced, and reads NamE for GrouP. The accessor discriminates, so the zero is
+real. (An earlier walk printed a MEMBERS-of label naming the wrong rule -- a
+bare-tag artifact inside an iterate. The label was wrong; the emptiness was
+not, and this control is why I can say which.)
+    HeX measured   list=4  members=0: zero, x, value, tokenize -- a standalone
+    top-level rule with its own capture, not an arm of anything.
+
+R3 -- THE REDEFINITION QUESTION. NO SECOND LIVE DEFINITION SITE.
+NumbeR is defined in exactly two places: GroupMain's bootstrap construction
+(governing) and incant/grammar:35 (measured INERT at SEQ 89, with a live line
+as control). Everything else -- grammar:45, :111, :116, :123 -- is a REFERENCE.
+⚠ BUT THE RECOLLECTION HAS A TRACE, and it is worth Tony's eye:
+    live     NumbeR              numberSet=[0-9]+ FloaT? tokenize;
+    archived NumbeR=numberSet=[0-9]+   FloaT? tokenize;  // happens tho grammar does not allow it
+in IncantForms/BackupXML/grammar:35. A DIFFERENT SPELLING, carrying its own
+comment saying the grammar does not allow what it does. So the line WAS edited
+at some point and the archived form is the older one. That is evidence the
+recollection is about something real; it is NOT a live redefinition, and today
+nothing redefines NumbeR. The recollection retires as CHECKED, with the trace
+named rather than dismissed.
+
+R4 -- THE LOST ROWS, AND THIS IS THE FINDING THAT MOVES THE CONVERSATION.
+The rows lost at 48-green (flag ON, tokenize term STILL STANDING) are:
+    baselineTests TIMED OUT after 90s -- KILLED  (plus its two dependent rows)
+    break is CONSUMED by the loop; code after it runs (3)   got 0
+    continue still skips correctly (12)                     got 0
+⚠⚠ NOT ONE OF THEM IS ABOUT NUMBERS. They are a hang and two LOOP-CONTROL
+rows. The dual-run corpus was [7] [4242] [31415] [100000] [3] -- five plain
+decimals, no floats, no hex, no loop context.
+SO THE ANSWER THE BRIEF ASKED FOR IS NO: the dual-run corpus could not have
+exercised what the fleet exercises. It measured NumbeR's span in isolation and
+the fleet lost break, continue and a run that never terminated.
+No tracing, no diagnosis, nothing graded -- as instructed.
+
+R5 -- HeX's CITIZENSHIP. ORPHAN, CONFIRMED, WITH ITS CONTROL.
+    HeX   appears ONCE in the live tree: incant/grammar:90, its own definition.
+    NamE  appears 8 times in the grammar and 5 in GroupMain.  (control)
+Live-but-unreferenced since birth, with a full capture apparatus of its own
+that nothing can reach. Stakes the parking lean; parking is not this brief.
+
+WHAT WANTS A PROBE AND IS NOT GUESSED AT HERE: why a capture flag on NumbeR
+reaches break, continue and a non-terminating run. The anatomy says NumbeR is
+a three-attribute rule with one capture point and no members, so the blast
+radius is not explained by its own shape, and I am not going to invent the
+path. That is the next measurement, and it now has bones under it.
+
+  END SEQ 86
 ===================================================================

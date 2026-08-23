@@ -1,0 +1,29 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(NumR1);
+define
+    r1N;
+    r1Len=0; r1Mem=0;
+    r1Run code={
+        cerr "=== R1: identity on the DIRECT-SUBSCRIPT road (canonRoadDependence) ===":;
+        canonOf(Grokking["NumbeR"]);
+        canonOf(Grokking["NamE"]);
+        canonOf(Grokking["HeX"]);
+        canonOf(Grokking["Braced"]);
+        cerr :;
+        cerr "=== R2: member counts via bare locals, no iterate label artifacts ===":;
+        r1N <- Grokking["NumbeR"];
+        cerr "NumbeR  list=" r1N.listLengtH " firstMember=" r1N.firstMembeR:;
+        r1N <- Grokking["HeX"];
+        cerr "HeX     list=" r1N.listLengtH " firstMember=" r1N.firstMembeR:;
+        r1N <- Grokking["Braced"];
+        cerr "Braced  list=" r1N.listLengtH " firstMember=" r1N.firstMembeR:;
+        r1N <- Grokking["GrouP"];
+        cerr "GrouP   list=" r1N.listLengtH " firstMember=" r1N.firstMembeR " (control: a rule that HAS members)":;
+        cerr "NUMR1 SENTINEL":;
+        stop();
+        };
+    ;
+r1Run();
