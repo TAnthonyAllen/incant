@@ -3,7 +3,7 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      80
+SEQ:      81
 STATUS:   fresh           # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-08-21  -  Clod  (SEQ 77 APPENDED at the FOOT -- SEQ 76 STOPPED AT STEP 3 on a
           MEASURED SUBSTRATE BLOCKER: `cell <- container :+ new(name)` binds the CONTAINER, not
@@ -3405,4 +3405,89 @@ RIDERS: buffer-lifetime not attempted this brief -- no clean read shape
 presented, and twice void honestly still beats once dressed up.
 
   END SEQ 80
+===================================================================
+
+===================================================================
+SEQ 81  --  2026-08-23, Clod.  ANSWER TO SEQ 88 -- the B1-B5 battery.
+⚠ TWO GATE CONDITIONS TRIPPED. NOTHING BUILT. Phase 2B does not open.
+Four of five ran; B5 was not run and the reason is that its subject went back
+to the table before it could be measured.
+
+B1 -- MARK SOURCE AT parse()'s VANTAGE.  ✅ CLEAN, AND IT INVERTS THE ACTION
+CHAIR. Instrumented at the interpretive success boundary, in pointers, with
+tokenize's shipped start as the oracle, per firing:
+    ownMatchesShip = 1   in 125 of 125 rows carrying an oracle
+    parMatchesShip = 1   in  70 of 125
+At parse()'s chair the RULE's OWN hereAt IS THE START. At the action's chair it
+is the END. Both readings are correct and they differ by ONE LEVEL OF
+INDIRECTION: in the action, input.rStuff is the PRODUCT LABEL's stuff whose
+parentStuff is the rule; in parse(), ruleStuff IS the rule's stuff.
+⚠ SO THE BOUNDARY FORMULA IS ruleStuff.hereAt TO atRuleMark, NO PARENT WALK --
+and your caution was worth its place in the brief: carrying the action-chair
+formula to this chair would have been wrong in 55 of 125 rows and SILENTLY
+RIGHT in the other 70, which is the worse half. 914 rows total; only 125 carry
+an oracle, because only products that are tokens have one.
+Site: GroupItem.twk:1387, the interpretive success path.
+
+B2 -- FLAG RESIDENCE AND SCOPE.  ⚠ GATE TRIP. The condition family lives on the
+GLOBAL SINGLETON. Measured in processFlags (GroupRules.mm:11879):
+    GroupRules *ruler = GroupControl::groupController->groupRules;
+    case 'D':  ruler->defining = !ruler->defining;     DEFINing, a TOGGLE
+    case 'P':  ruler->isPRINTING = 1;                  isPRINTING, SET-ONLY
+There is NO per-attempt home anywhere in this plumbing, and the two existing
+members do not want one -- DEFINing is a toggle the grammar raises and lowers
+by writing the term TWICE (incant/grammar:60, `DEFINing-^ ... DEFINing-`), which
+is exactly the global-ish tolerance you predicted. TOKENize cannot use that:
+a set-only global raised by an inner rule is still raised when an OUTER rule
+closes, so a rule that never declared TOKENize gets stamped.
+Per the gate -- scope wrong, no per-attempt home available -- this comes back
+ungraded. I am NOT proposing the fix; I will note only that the smear window is
+narrow by construction (TOKENize would be a LAST term, so nothing nests between
+its raise and its boundary), which makes read-and-clear a candidate SHAPE
+rather than an edit. That is a design event and it is yours.
+
+B3 -- processFlags' MOMENT.  PARTIAL, AND HONESTLY SO. The function's own header
+says these commands are "run at field definition", and the only rule carrying
+them is `define`, so the raise happens while a definition is being parsed. What
+I did NOT establish is the precise call path for a noLabel condition term --
+DEFINing carries `-`, and fireLabelMethod guards on `isMethod && stuff.label`,
+so it does not obviously fire through the path the boundary would share. That
+matters to your ordering requirement and it is UNMEASURED. Reported as partial
+rather than dressed up, because B2 tripped the gate before a trace was worth
+building for.
+
+B4 -- genParse AND CONDITION-FAMILY TERMS.  ⚠ GATE TRIP, AND IT CARRIES A
+BIGGER FACT WITH IT. Census over the sweep's 43 installs:
+    define    NOT installed     the ONLY rule carrying condition terms
+    NamE      NOT installed
+    FormaT    NOT installed
+    NumbeR    installed
+    HeX       installed
+    DEFINing  installed  -- as a CITIZEN, not as a term inside a generated body
+So the sweep has NEVER generated a body containing a condition term. TOKENize
+would be the first condition genParse ever meets in that position -- your named
+gate condition, which sends its shape back to the table.
+⚠⚠ AND THE BIGGER FACT, WHICH I DID NOT EXPECT AND WHICH RESHAPES THE
+MIGRATION: TWO OF THE FOUR PARENTS ARE NOT INSTALLED AT ALL. genParse never
+sees NamE or FormaT. The ruled design says "load and genParse both read the
+same declaration" -- for half the population genParse reads nothing, because
+those rules never reach generation. I have not diagnosed WHY (fbWalk's guards
+are datA, noPrinT, binTypE, isRulE, actionTypE) and I am not guessing: it is a
+measured census result and the diagnosis is a separate question.
+
+B5 -- NOT RUN. The species swap's own design went back to the table on B2 and
+B4 before B5 could say anything about it, and B5 is the one measurement that
+edits the nodes under discussion. Running it would have measured a shape that
+is no longer proposed.
+
+PHASE GATE: TRIPPED TWICE (B2 scope, B4 generator), with B3 partial. By the
+brief's terms this comes back before any build, and it has. No parse machinery
+was edited. The B1 instrumentation was reverted and the tree rebuilt clean --
+canary 315, probe absent from the generated file, oneTest byte-identical, fleet
+52 green / 1 parked with every assertion row byte-identical.
+
+RIDERS: buffer-lifetime not attempted -- no clean read shape presented.
+Fences unchanged. parseMethod-to-groupBody stays queued, untouched.
+
+  END SEQ 81
 ===================================================================

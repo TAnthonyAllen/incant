@@ -3,8 +3,13 @@
   Clay writes this file. Clod reads it, acts, then clears it.
   Clod's replies go in ipc/clod-to-clay.md  (never write here, Clod).
 -------------------------------------------------------------------
-SEQ:      87
-STATUS:   cleared        # fresh = parked/unread | working = picked up, in progress | cleared = done
+SEQ:      88
+STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-08-23  -  Clay (SEQ 88, dictated via Tony; transcribed by Clod)
+          ⚠ SEQ 88 IS LIVE AND IS AT THE FOOT -- TOKENize, condition-species
+          capture triggered at the boundary. Supersedes SEQ 87's phase 2 as
+          drafted; phase 1's findings stand as its foundation. FIVE-MEASUREMENT
+          BATTERY B1-B5, all read-side, NOTHING BUILDS until all five report.
 WRITTEN:  2026-08-23  -  Clay (SEQ 84, dictated via Tony; transcribed by Clod)
           ⚠ SEQ 84 IS LIVE AND IS AT THE FOOT -- TOKENIZE RETIREMENT
           FEASIBILITY. Four measurements, NO REPAIRS. Measurement gates design;
@@ -4078,4 +4083,52 @@ NOT IN SCOPE: no retirement edits, no repairs, no <-/wrap-unwrap work, the
 frontier frozen with md5 checked, bt32 stays retired, F31's record stays open.
 
   END SEQ 84
+===================================================================
+
+===================================================================
+SEQ 88  --  2026-08-23, Clay (dictated via Tony; transcribed by Clod, WT-9).
+STATUS: CLEARED. Battery run 2026-08-23; answer in ipc/clod-to-clay.md.
+        GATE TRIPPED TWICE -- B2 (condition flags are GLOBAL, no per-attempt
+        home) and B4 (no generated body has ever contained a condition term;
+        and NamE and FormaT are not installed at all). B1 CLEAN and it INVERTS
+        the action-chair formula: at parse()'s chair the rule's OWN hereAt is
+        the START, 125 of 125 in pointers. B3 partial, B5 not run. Nothing
+        built, no parse machinery edited, tree clean.
+
+BRIEF (AMENDED): TOKENize -- condition-species capture, triggered at the
+boundary. Supersedes the home-2 brief's phase 2 as drafted; phase 1's findings
+are its foundation and stand.
+
+THE RULED DESIGN. TOKENize is a new CONDITION-SPECIES term of the
+DEFINing/isPRINTING family, fired in processFlags. Its entire job is raising a
+flag: it tests true, consumes nothing, owns no grammar node of its own.
+Case-distinct from the rule tokenize by kant identifier rules -- kin to the eye,
+different citizens to the machine. The trigger lives in parse() at the success
+boundary, the single site M-A/M-B located, both arms converging on the
+fireLabelMethod calls at GroupItem.twk:1336 and :1387. Rule succeeds, flag
+checked, capture command invoked, THEN fireLabelMethod. Action-less rules get
+their span identically because the trigger never consults the action
+population. Step-4 ordering holds by construction. Grammar is the sole source
+of truth: the four parents' tokenize term changes SPECIES in place to TOKENize,
+no hardcoded rule list anywhere.
+
+  B1  MARK SOURCE AT parse()'s VANTAGE. In pointers, against tokenize's still
+      shipped start pointer as oracle, per firing.
+  B2  FLAG RESIDENCE AND SCOPE. Per-attempt, per-rule, or global? The teeth are
+      recursion and backtracking: inner NamE raises and fails, outer NamE
+      succeeds, whose flag? Design wants per-attempt.
+  B3  processFlags' MOMENT. The raise must land before the boundary read on the
+      same attempt, both arms.
+  B4  genParse AND CONDITION-FAMILY TERMS. If TOKENize would be the first
+      condition genParse ever meets, that is a generator edit.
+  B5  THE SPECIES SWAP IS STRUCTURALLY INERT. Scratch copy, one parent.
+
+PHASE GATE: any of B1 unidentifiable, B2 scope wrong with no per-attempt home,
+B3 ordering violated either arm, B4 requiring generator work, B5 moving a node
+-- comes back ungraded before any build.
+
+QUEUED, NOT RIDING: parseMethod moves from rStuff to groupBody (singleton fact,
+singleton home). Its own brief, slotted after the exit exam.
+
+  END SEQ 88
 ===================================================================
