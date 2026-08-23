@@ -1,0 +1,24 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(NameSpan);
+define
+    nsA=0;
+    nsBeta=0;
+    nsLongerIdentifierName=0;
+    nsX9=0;
+
+    nsRun code={
+        nsA = 1;
+        nsBeta = nsA + 1;
+        nsLongerIdentifierName = nsBeta * 2;
+        nsX9 = nsLongerIdentifierName;
+        nsX9 = nsX9 + 1;
+        cerr "values " nsA " " nsBeta " " nsLongerIdentifierName " " nsX9:;
+        cerr "NAMESPAN PROBE SENTINEL -- reached the foot":;
+        stop();
+        };
+    ;
+traceParse('on');
+nsRun();

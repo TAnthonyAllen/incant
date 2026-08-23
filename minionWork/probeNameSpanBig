@@ -1,0 +1,16 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(NameSpanBig);
+define
+    nsbGo=0;
+    nsbRun code={
+        cerr "NAMESPANBIG about to parse a real file with the probe live":;
+        };
+    ;
+traceParse('on');
+nsbRun();
+include(generate);
+cerr "NAMESPANBIG SENTINEL -- reached the foot":;
+stop();

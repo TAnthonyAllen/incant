@@ -3,7 +3,7 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      78
+SEQ:      79
 STATUS:   fresh           # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-08-21  -  Clod  (SEQ 77 APPENDED at the FOOT -- SEQ 76 STOPPED AT STEP 3 on a
           MEASURED SUBSTRATE BLOCKER: `cell <- container :+ new(name)` binds the CONTAINER, not
@@ -3226,4 +3226,104 @@ pre-measurement capture. decodePop 62 terms green (two birth-rule re-pins, each
 2fa1596a54924971f3db081da09dd693 before and after -- untouched.
 
   END SEQ 78
+===================================================================
+
+===================================================================
+SEQ 79  --  2026-08-23, Clod.  ANSWER TO SEQ 85 -- NamE stamps its own span.
+BYTE-IDENTICAL, 153 FIRINGS, 0 DIVERGENCES.  No migration, no grammar edits,
+tokenize untouched and still firing.
+
+EQUIVALENCE VERDICT: MATCH, 153 of 153, byte-for-byte.
+   16 firings   minionWork/probeNameSpan     hand corpus, 15 MATCH + sentinel
+  138 firings   minionWork/probeNameSpanBig  a REAL file parsed with the probe
+                live (include of incant/generate), 138 MATCH
+Span lengths 3,4,5,6,7,8,9,10,11,12,14 -- eleven distinct lengths, so the
+result is not one length repeated. ZERO zero-length rows: no row could have
+passed by comparing nothing to nothing.
+
+⚠ THE VACUITY GUARD IS NOT DECORATION -- IT CAUGHT THE FIRST CUT. Sited after
+`input.group = result`, which RETAGS the label as a group, getCount read 0
+while getText still answered the name; the equality test compared zero bytes to
+zero bytes and printed MATCH NINE TIMES OUT OF NINE. A vacuous green that
+looked exactly like the answer we wanted. The guard now reports VOID-notToken
+and VOID-bothEmpty and can never spell either as MATCH.
+
+⚠ THE TIMING WIRE DIVERGED, AND THAT IS THE PROBE'S REAL YIELD. Your first
+suspect was right. NamE's OWN hereAt is the END of the match, not the start:
+with selfStart taken from it, all nine rows read selfLen 0 against shipLen
+3..22. The start is parentStuff.hereAt, and it equals tokenize's own start
+POINTER in every row -- not merely the same text:
+  ship=[nsRun]                  shipStart=0x7c2c3d12b  parHere=0x7c2c3d12b
+  ship=[nsLongerIdentifierName] shipStart=0x104c23b55  parHere=0x104c23b55
+  ownHere == atRuleMark in every row -- the end mark, as measured.
+So the mark a rule needs is on its stuff's PARENT, and that is a fact the
+migration has to carry. Marks recorded on the miss, per the brief.
+
+CONSUMER CHAIN, END TO END, NOTHING REROUTED. Every consumer still reads
+tokenize's product. incant/oneTest BYTE-IDENTICAL to the pre-probe capture.
+incant/frontier exit 0, all nine stations RAN and PASSED. Fleet 53 green /
+1 parked, every assertion row byte-identical. decodePop 63 green, ddPop 6 green.
+Self-stamping coexists with the shipped path.
+
+noPRINT VERIFIED DOING ITS JOB, AND ON TRIAL RATHER THAN EXCUSED. The attach is
+UNCONDITIONAL -- every NamE label in every run carries the extra attribute.
+Gating it on the trace flag would have made the baselines trivially unmoved and
+tested nothing. They are unmoved anyway. noPrint holds.
+
+FLIP HAZARD -- CHECKED, CLEAR, ONE LINE AS ASKED. After 153 firings NamE's
+grammar node reads list=3 hasAttr=1 hasMemb=0, unmoved from its pre-sweep
+reading; tokenize reads list=0 hasAttr=0, still a bare hook. The write lands on
+the PRODUCT LABEL, never on the grammar node -- the shipped healthy path, and
+M3's flip is not in reach of this mechanism.
+(canonOf rows in that probe travelled the ARGUMENT road, so NamE reads DIFFERENT
+NODES there by canonRoadDependence, not by anything the probe did.)
+
+M2 BUFFER REMAINDER -- ATTEMPTED, VOID, STILL OPEN. The big corpus DOES cross a
+pushInput/popInput boundary (the include), and all 138 rows matched DURING the
+divert. The read-after-pop attempt was void: the check read a rebind local's
+taG and got the local's own name back, bt26/bt35's family. Reported as void,
+not as a result. It remains the named measurement from SEQ 84 M2.
+
+MINTED, AND THE METHOD IS THE POINT -- percentMinusClosesPassthrough.
+Three retoks died at extern 315 -> 0 and I DIAGNOSED TWO CAUSES AND BOTH WERE
+WRONG: a declared type-name inside the passthrough comment, then the block
+sitting inside the declaration block. The third change fixed it, which under
+the usual reading would have canonised whichever theory was live. Three
+controls, one retok each, settled it:
+  A  comment WITH declared type-names, below declarations, no width flag  315
+  B  no comment, ABOVE the declaration it was blamed for, no width flag   315
+  C  known-good file, ONLY the width flag restored                          0
+A printf left-justify flag is a percent followed by a minus, which IS the
+passthrough close delimiter. Sole cause; both diagnoses false.
+⚠ AND IT DEMONSTRATED ITSELF AGAIN IMMEDIATELY: the comment written to warn the
+next reader SPELLED THE SEQUENCE, and the next retok went to zero again.
+Comments are parsed, not skipped -- the warning was the wound. The comment now
+says it in words and cannot contain it.
+
+THE FOUR-RULE MIGRATION AS I WOULD STAKE IT -- STAKED, NOT EXECUTED.
+  WHICH ACTIONS CHANGE: aCTionNamE, aCTionNumbeR, aCTionHeX, aCTionFormaT --
+  each gains the same block, reading parentStuff.hereAt and atRuleMark and
+  calling setToken on its own product. NamE's is written and measured; the
+  other three are the same five lines against their own stuff.
+  ⚠ HeX AND FormaT ARE NOT MEASURED AND I WOULD NOT ASSUME THEM. NamE and
+  NumbeR both end `... tokenize` on a flat term list; HeX and FormaT carry
+  named sub-fields (value=, pound=, flags=, formatWIDTH=) and their parent
+  span may not be the same shape. One probe each, same instrument.
+  WHAT THE tokenize TERM BECOMES OPERATIONALLY: vestigial. It still fires and
+  still stamps the same bytes onto the same label -- measured, not assumed --
+  so removing it is a SEPARATE act from adding the self-stamp, and each of the
+  four rules can be migrated and verified with the term still in place. That is
+  the whole reason the dual-run shape is worth keeping for the migration too.
+  ⚠ THE FOSSIL RULING IS YOURS AND I HAVE NOT TAKEN IT. What I can say is that
+  after all four self-stamp, the term's only remaining effect is to write bytes
+  that are already there -- and that install 43 stops being special the moment
+  tokenize is no longer a rule anyone reads THROUGH, which is a different
+  condition from it no longer being a rule that FIRES.
+
+BASELINES: fleet 53 green / 1 parked, assertion rows byte-identical.
+decodePop 63 terms green (birth-rule mint, +1, named, re-pinned with its
+sentence). ddPop 6 green. oneTest byte-identical. frontier md5
+2fa1596a54924971f3db081da09dd693 unchanged. Build clean, extern canary 315.
+
+  END SEQ 79
 ===================================================================

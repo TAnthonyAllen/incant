@@ -1,0 +1,32 @@
+Start();
+include(unitTests);
+include(utilities);
+include(generate);
+search reset stack Grokking Generating UnitTests Utilities list;
+register(NameFlip);
+define
+    nfN;
+    nfG;
+    nfLen=0; nfAttr=0; nfMemb=0;
+    nfArm argument code={
+        nfN <- argument;
+        nfLen = nfN.listLengtH;
+        nfAttr = 0;
+        if nfN.hasAttributeS;   nfAttr = 1;
+        nfMemb = 0;
+        if nfN.hasMemberS;      nfMemb = 1;
+        cerr "FLIP " ~taG " list=" nfLen " hasAttr=" nfAttr " hasMemb=" nfMemb:;
+        canonOf(argument);
+        };
+    nfRun code={
+        cerr "=== FLIP HAZARD: NamE's GRAMMAR NODE after the probe has fired many times ===":;
+        nfArm(Grokking["NamE"]);
+        nfArm(Grokking["tokenize"]);
+        cerr "=== BUFFER REMAINDER: a name defined inside an include, read AFTER the pop ===":;
+        nfG <- Generating["generatE"];
+        cerr "   generatE node found, taG reads " nfG.taG " (a name parsed inside a popped divert)":;
+        cerr "NAMEFLIP SENTINEL -- reached the foot":;
+        stop();
+        };
+    ;
+nfRun();
