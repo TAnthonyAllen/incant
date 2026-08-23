@@ -3,7 +3,7 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      89
+SEQ:      90
 STATUS:   fresh           # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-08-21  -  Clod  (SEQ 77 APPENDED at the FOOT -- SEQ 76 STOPPED AT STEP 3 on a
           MEASURED SUBSTRATE BLOCKER: `cell <- container :+ new(name)` binds the CONTAINER, not
@@ -4139,4 +4139,71 @@ The dual-run comparator stays in captureSpan, parseTrace-gated, for the
 migrations still owed.
 
   END SEQ 89
+===================================================================
+
+===================================================================
+SEQ 90  --  2026-08-23, Clod.  ANSWER TO SEQ 97 -- the culprit.
+✅ ALL FOUR CUTS LANDED AS PRE-REGISTERED. NOTHING ANOMALOUS ANYWHERE.
+✅ FormaT CLOSED. Firing reads-through is now ONE.
+
+THE MECHANISM, named by elimination: THE JANITOR HAD A SECOND JOB.
+tokenize's own comment advertises one thing -- "gloms parent label components
+together into the label string". The glom CONSUMED the labels that a rule's
+LABELED sub-terms produce. captureSpan inherited the capture; nobody inherited
+the collapse. With the term gone, those child labels persist on the product.
+
+C4 -- THE VENUE. LOAD TIME, confined, as pre-registered.
+    audit(), no user parse, term REMOVED    42 loose, 38 of them numberSet
+    audit(), no user parse, term STANDING    4 loose        (control)
+Every firing-time story dies here.
+
+C1 -- THE ORDERING. THE ACTION IS INNOCENT, as pre-registered. One TraiT
+field-number construction, traced at aCTionNumbeR entry and exit:
+    term standing   ENTRY children=0 first=(none) text=[406]   EXIT children=0
+    term removed    ENTRY children=1 first=numberSet           EXIT children=1
+The child is present BEFORE the action and the action never touches it.
+Timeline 2 stays dead; Tony's source read holds.
+
+C2 -- THE NamE CENSUS. OUTCOME B, AND IT IS THE DISCRIMINATOR THIS WHOLE
+CAMPAIGN HAS BEEN MISSING. NamE products read children=0 even in the
+term-removed state. NamE is not immune by luck -- read the two grammar lines:
+    NamE     first-=[a-zA-Z] nameSet-^* tokenize    both sub-terms carry the
+                                                    noLabel dash
+    NumbeR   numberSet=[0-9]+ FloaT? tokenize       numberSet is LABELED
+A noLabel sub-term produces no label, so there is nothing to hang. THAT is the
+asymmetry that has been unexplained since SEQ 92: not rule-specific weirdness,
+just whether a rule's sub-terms carry labels.
+
+C3 -- THE IDENTITY, direct-subscript road. Per-firing product nodes, distinct:
+    actionTypE child 0x104ea2000 · binTypE 0x104ea5e80 · byReF 0x104ea5d00
+    the grammar's own numberSet term node 0x104500a00 -- a fourth pointer
+NEITHER LOUD MISS FIRED: no aliasing, no grammar structure leaking into
+products. This was where Timeline 1 was most exposed and it held.
+
+FormaT -- CLOSED, AND THE PREDICTION WAS PRE-REGISTERED BEFORE THE RUN.
+Predicted: FormaT's terms are ALL labeled (pound= flags= formatWIDTH?=
+formatTYPE=), so by the mechanism it should behave like NumbeR -- UNLESS it
+never fires, in which case its terms never produce labels at match time and the
+de-term is inert. Predicted INERT.
+    registered-consumed   FormaT list 6 -> 6 with TOKENize declared
+    term out              list 6 -> 5
+    load-time census      4 loose -- UNMOVED
+    fleet                 52 green, zero timeouts, zero rows differ
+    oneTest               BYTE-IDENTICAL
+INERT, as predicted.
+FIRING READS-THROUGH IS NOW ONE: NumbeR, via GroupMain. NamE migrated, HeX
+parked, FormaT closed.
+
+⚠ THE FIX IS NOT BUILT, per the brief. The fork sits on measured ground now:
+captureSpan inherits the collapse, or the consumer strips, or the attach is
+prevented at source. Products-stay-leaf leans toward children never persist.
+NumbeR holds at flag-ON / term-standing, its verified green state.
+
+STATE: fleet 52 green / 1 parked, zero timeouts, assertion rows byte-identical
+to the session baseline. oneTest byte-identical. canary 315. GENERATED-FILE
+CHECK, standing line: flags.tokened set sites = 2, expected 2. ddPop 6 green.
+Exit exam still held -- one firing read-through remains, and it is NumbeR's,
+which is exactly the one the fork unblocks.
+
+  END SEQ 90
 ===================================================================

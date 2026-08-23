@@ -111,7 +111,7 @@ define
         continue;
         return;
     Precision       dot='.' precision=counter*;
-    FormaT          pound="#" flags=[-# 0+']* formatWIDTH?=NumbeR Precision? formatTYPE=[a-zA-Z] tokenize;
+    FormaT          pound="#" flags=[-# 0+']* formatWIDTH?=NumbeR Precision? formatTYPE=[a-zA-Z] TOKENize;
     PrintXP
         ShortcuT;
         PrintField  ExpressioN FormaT?;

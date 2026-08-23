@@ -1,0 +1,25 @@
+Start();
+register(C3reg);
+define
+    c3E;
+    c3K;
+    c3Row argument code={
+        c3E <- argument;
+        cerr "C3 entry " ~taG " children=" c3E.listLengtH:;
+        c3K <- c3E[1];
+        canonOf(c3K);
+        };
+    c3Run code={
+        cerr "=== C3: identity of the hanging children, direct-subscript road ===":;
+        c3Row(GroupFields["actionTypE"]);
+        c3Row(GroupFields["binTypE"]);
+        c3Row(GroupFields["byReF"]);
+        cerr "-- control: the grammar's numberSet TERM node itself --":;
+        canonOf(Grokking["numberSet"]);
+        cerr "-- control: a GroupField entry that is NOT in the 43 --":;
+        canonOf(GroupFields["taG"]);
+        cerr "C3 SENTINEL":;
+        stop();
+        };
+    ;
+c3Run();
