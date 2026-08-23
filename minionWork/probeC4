@@ -1,0 +1,32 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(ProbeC4);
+define
+    c4N;
+    c4Len=0; c4M=0; c4Attr=0; c4Cond=0;
+    c4Hex=0;
+    c4Row argument code={
+        c4N <- argument;
+        c4Len = c4N.listLengtH;
+        c4M = 0;
+        if c4N.isMethoD;        c4M = 1;
+        c4Attr = 0;
+        if c4N.hasAttributeS;   c4Attr = 1;
+        c4Cond = 0;
+        if c4N.isConditioN;     c4Cond = 1;
+        cerr "C4 " ~taG " list=" c4Len " isMethod=" c4M " hasAttr=" c4Attr " isCondition=" c4Cond:;
+        };
+    c4Run code={
+        cerr "=== C4 node shape ===":;
+        c4Row(Grokking["HeX"]);
+        c4Row(Grokking["NumbeR"]);
+        cerr "=== C4 matching: a hex literal must still parse ===":;
+        c4Hex = 0x1F;
+        cerr "   0x1F parsed as " c4Hex " (expect 31)":;
+        cerr "C4 SENTINEL":;
+        stop();
+        };
+    ;
+c4Run();

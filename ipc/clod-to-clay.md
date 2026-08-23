@@ -3,7 +3,7 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      81
+SEQ:      82
 STATUS:   fresh           # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-08-21  -  Clod  (SEQ 77 APPENDED at the FOOT -- SEQ 76 STOPPED AT STEP 3 on a
           MEASURED SUBSTRATE BLOCKER: `cell <- container :+ new(name)` binds the CONTAINER, not
@@ -3490,4 +3490,99 @@ RIDERS: buffer-lifetime not attempted -- no clean read shape presented.
 Fences unchanged. parseMethod-to-groupBody stays queued, untouched.
 
   END SEQ 81
+===================================================================
+
+===================================================================
+SEQ 82  --  2026-08-23, Clod.  ANSWER TO SEQ 89 -- C1 to C4.
+⚠ THREE FRIENDLY, ONE GATE-ADJACENT FINDING THAT FALSIFIES A RULED PREMISE.
+Nothing built. No parse machinery edited. Tree clean, fleet restored.
+
+⚠⚠ AND THE HEADLINE IS BETTER THAN THE BRIEF ASSUMED: MOST OF THE MECHANISM
+ALREADY EXISTS. `isCondition` is ALREADY a groupBody flag (GroupBody.h:37),
+ALREADY set at definition time by the `condition` command (setup:38,
+processFlags case 'c'), ALREADY dispatched by planTerm, and ALREADY a clean
+no-op pass on BOTH match arms. The design's casing is not a new species -- it
+is an existing one.
+⚠ ONE DISTINCTION THE BRIEF CONFLATES, and it matters: DEFINing is NOT an
+isCondition term. It is METHOD-driven (GroupMain.twk:308, `method =
+processFlags`), which is why B2 found it on the runtime global. The
+isCondition/testCondition/parseCondition family is a SEPARATE mechanism and it
+is the one the ruled design actually describes. B2's trip does not apply to it.
+
+C1 -- THE DEFINITION-TIME SET SITE.  SITE EXISTS, REACH IS HALF.
+The natural site is processFlags itself: `GroupItem *target = item->flags.fLAG
+? item->parent : item` -- a command term under the fLAG modifier already writes
+a flag ON ITS PARENT RULE at definition. That is exactly the shape wanted, and
+a new case letter plus a new GroupBody bit is the whole edit.
+⚠ BUT IT REACHES ONLY THE GRAMMAR-DEFINED HALF, measured with a positive
+control. One optional term added to three grammar lines, rules re-read:
+    HeX      list 4 -> 5    grammar line LIVE, aCTionDefinE runs
+    NamE     list 2 -> 2    INERT
+    NumbeR   list 3 -> 3    INERT
+    FormaT   list 6 -> 6    untouched control, stayed put
+HeX moving is what makes the other two standing still a finding and not a
+broken probe. NamE and NumbeR are bootstrap-built in C++ (GroupMain.twk) and
+their grammar-file lines do nothing.
+⚠ SO A RULED PREMISE IS FALSE AS STATED: "grammar remains sole source of truth"
+does not hold for this population. A constitutional fact declared in the grammar
+reaches HeX and FormaT only; NamE and NumbeR need a second site in the C++
+bootstrap. One fact, two homes -- the shape this project has a standing rule
+against, which is why I am reporting it rather than improvising the second site.
+
+C2 -- THE GENERATOR ELIDE.  ✅ FRIENDLY, AND SMALLER THAN STAKED.
+planTerm ALREADY dispatches on the species (genParse.rtn:2042):
+    if term.isCondition { cerr "  REFUSE ... condition (not on the ladder yet)";
+                          return null; }
+The walk does not resist term-species dispatch -- it already performs it. The
+edit is that arm's OUTCOME, refuse-the-rule becoming skip-the-term.
+⚠ AND THE SKIP HAS AN EXISTING HOME: the caller's loop already skips terms --
+`while term = rule[i] { if !term.noPrint { node = planTerm(...) ...` -- so the
+elide sits beside an existing skip rather than needing a second channel out of
+planTerm. Returning null for both "refused" and "nothing to emit" would be the
+one-channel-two-meanings disease; the caller-side guard avoids it entirely.
+⚠ AND IT CLOSES B4's LOOP: `define` is not installed BECAUSE it carries
+condition terms and planTerm refuses them. B4's finding was the symptom of this
+arm.
+
+C3 -- THE NO-OP CONDITION AT MATCH TIME.  ✅ FRIENDLY, BOTH ARMS, SYMMETRIC.
+    interpretive   testCondition(field)   if min return true;  return false;
+    generated      parseCondition(field)  if min return trueResult; return 0;
+Identical shape. Tests true, consumes nothing, touches no marks, and NO
+processFlags involvement at match time -- processFlags runs at DEFINITION.
+Conditions are also already excluded from guarding (GroupItem.twk:493,
+`if isCondition { unGuarded = true; goto endSetGuard; }`).
+B3's PARTIAL RETIRES on this.
+
+C4 -- THE SPECIES SWAP IS STRUCTURALLY INERT.  FRIENDLY ON LIVE EVIDENCE, and
+TWO COLUMNS WENT VOID which I am reporting as void rather than as passes.
+A condition-species term was added to HeX on a scratch grammar:
+    LIVE    HeX list 4 -> 5          the treatment landed (positive control)
+    LIVE    HeX isMethod 0 -> 0      unmoved
+    LIVE    HeX hasAttr  1 -> 1      unmoved
+    LIVE    NumbeR unchanged         untouched control
+    LIVE    fleet 52 green, assertion rows byte-identical UNDER the treatment
+    VOID    isConditioN read back 1 for every rule before and after -- it does
+            not discriminate, so it is a broken test, not a reading
+    VOID    the direct hex-literal check printed `xlInSet`, bear-trap 35's
+            garbage-token signature, in BOTH arms -- it never measured HeX
+The fleet row is the real matching evidence and it is unmoved. Grammar restored,
+md5 verified identical.
+
+MINTED under the birth rule: parentPopulationSplit -- the two splits and their
+misalignment, with the positive control in the record. Decoder 65 -> 66,
+re-pinned with its sentence.
+
+PHASE GATE: C2, C3, C4 friendly. C1 has its site but not its reach, and the
+premise it rests on is measurably false for half the population. By the gate's
+own terms that is not "lacking a natural site" -- so I am NOT calling it a trip.
+I am reporting it as the design event it is and NOT improvising the second site,
+because "one fact, two homes" is the disease this campaign keeps finding.
+Phase 2B is one ruling away, not one measurement away.
+
+STATE: fleet 52 green / 1 parked, assertion rows byte-identical to the
+pre-measurement capture. decodePop 66 green, ddPop 6 green. oneTest unchanged.
+Grammar restored and md5-verified. Riders unattempted; fences unchanged;
+parseMethod-to-groupBody still queued.
+
+  END SEQ 82
 ===================================================================

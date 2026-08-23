@@ -267,6 +267,9 @@ define
         boundaryStampIsTermLevel
             definition="The shipped setToken machinery stamps CHARACTER-SET TERMS on both arms, never rule PRODUCTS -- the only shipped writer of a parent-level rule span is tokenize itself, so home 2 is a new mechanism rather than an extension of a shipped one.";
             source="DICTATED, minted 2026-08-23 by SEQ 87 phase 1 M-A. It CORRECTS the SEQ 84 M4 line that read home 2 as already shipping on both arms. Operational record: designDocs ProblemRecords boundaryStampIsTermLevel.";
+        parentPopulationSplit
+            definition="The four tokenize parents split two ways that do not line up: NamE and NumbeR are bootstrap-built in C++ and never pass through aCTionDefinE, while NamE and FormaT are never installed by the sweep -- so grammar-is-sole-source-of-truth is false for half of them and genParse sees a different half.";
+            source="DICTATED, minted 2026-08-23 by SEQ 89 C1 with a positive control. Operational record: designDocs ProblemRecords parentPopulationSplit.";
         armingWithoutRouting
             definition="The staging property, demonstrated not asserted -- an artifact armed on a live rule is inert until it is routed, so the live switch happens at one ruled moment.";
             source="DICTATED from the 2026-08-22 seal.";

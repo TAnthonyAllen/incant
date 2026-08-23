@@ -1,0 +1,24 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(ProbeC1);
+define
+    c1N;
+    c1Len=0;
+    c1Row argument code={
+        c1N <- argument;
+        c1Len = c1N.listLengtH;
+        cerr "C1 " ~taG " list=" c1Len:;
+        };
+    c1Run code={
+        cerr "=== C1 reach: does aCTionDefinE run for the four parents? ===":;
+        c1Row(Grokking["NamE"]);
+        c1Row(Grokking["NumbeR"]);
+        c1Row(Grokking["HeX"]);
+        c1Row(Grokking["FormaT"]);
+        cerr "C1 SENTINEL":;
+        stop();
+        };
+    ;
+c1Run();
