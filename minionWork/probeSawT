@@ -1,0 +1,17 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(SawT);
+define
+    swMax=0;
+    swRun code={
+        swMax = 11;
+        swMax += 4;
+        cerr "after += 4  swMax=" swMax " (want 15)":;
+        cerr "SAWT SENTINEL":;
+        stop();
+        };
+    ;
+traceParse('on');
+swRun();

@@ -1,0 +1,19 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(SawRun);
+define
+    swMax=0;
+    swRun code={
+        swMax = 11;
+        cerr "start swMax=" swMax:;
+        swMax += 4;
+        cerr "after += 4  swMax=" swMax " (want 15)":;
+        swMax += 2;
+        cerr "after += 2  swMax=" swMax " (want 17)":;
+        cerr "SAW SENTINEL -- reached the foot":;
+        stop();
+        };
+    ;
+swRun();
