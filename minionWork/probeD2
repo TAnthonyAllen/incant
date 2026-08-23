@@ -1,0 +1,28 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(ProbeD2);
+define
+    d2N;
+    d2Len=0; d2M=0; d2Attr=0; d2Rule=0;
+    d2Row argument code={
+        d2N <- argument;
+        d2Len = d2N.listLengtH;
+        d2M = 0;
+        if d2N.isMethoD;        d2M = 1;
+        d2Attr = 0;
+        if d2N.hasAttributeS;   d2Attr = 1;
+        d2Rule = 0;
+        if d2N.isRulE;          d2Rule = 1;
+        cerr "D2 " ~taG " list=" d2Len " isMethod=" d2M " hasAttr=" d2Attr " isRule=" d2Rule:;
+        };
+    d2Run code={
+        d2Row(Grokking["FormaT"]);
+        d2Row(Grokking["HeX"]);
+        d2Row(Grokking["NumbeR"]);
+        cerr "D2 SENTINEL":;
+        stop();
+        };
+    ;
+d2Run();

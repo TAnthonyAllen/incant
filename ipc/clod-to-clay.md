@@ -3,7 +3,7 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      82
+SEQ:      83
 STATUS:   fresh           # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-08-21  -  Clod  (SEQ 77 APPENDED at the FOOT -- SEQ 76 STOPPED AT STEP 3 on a
           MEASURED SUBSTRATE BLOCKER: `cell <- container :+ new(name)` binds the CONTAINER, not
@@ -3585,4 +3585,92 @@ Grammar restored and md5-verified. Riders unattempted; fences unchanged;
 parseMethod-to-groupBody still queued.
 
   END SEQ 82
+===================================================================
+
+===================================================================
+SEQ 83  --  2026-08-23, Clod.  ANSWER TO SEQ 90 -- phase D, three wires.
+✅ ALL THREE FRIENDLY. The gate opens.
+⚠ AND ONE COLLISION TO CLEAR BEFORE 2B's FIRST ACT: the brief restates as a
+ruling a premise SEQ 89 measured FALSE. Details at the foot.
+
+D1 -- isRule's SET SITE AND RESIDENCE.  ✅ THE PATTERN EXISTS AND TOKENize
+JOINS IT WITHOUT SPECIAL-CASING.
+    the family    index, isList, isRule, virtual -- all registered in
+                  incant/setup as `immediateAction=processFlags noPrint`
+    the set site  processFlags, dispatched on the command's first letter;
+                  case 'i' does target.groupBody.flags.isRule = 1
+    residence     groupBody. GroupBody.h:12. Exactly where the design rules it.
+    the target    processFlags picks `item.flags.fLAG ? item.parent : item`, so
+                  a declaration inside a definition can already write its
+                  PARENT rule -- the shape the design needs, already shipping.
+⚠⚠ AND D1 TURNED UP THE FACT THE WHOLE FLOOR DESIGN RESTS ON, which I have
+minted rather than leave in a source comment. From setup's own install-vocabulary
+block: A DECLARATION WRITTEN INTO THE GRAMMAR THAT IS NOT REGISTERED AS A
+COMMAND IS NOT FIRED AND NOT CONSUMED -- IT IS PARSED AS AN ORDINARY TERM.
+When that was learned, a parseMethod declaration registered only inside its test
+fixture took Braced from THREE terms to FIVE against a generated method indexing
+rule[1..3], and oneTest died at SIGSEGV.
+The design's entire claim -- no match-time existence, nothing in any term list,
+nothing to elide -- is bought by the registration and by nothing else. An
+unregistered TOKENize is a term in four grammar rules at once. Minted as
+unregisteredIsATerm.
+
+D2 -- FLAG ARRIVAL IS INERT.  ✅ MEASURED AS A CONTROL PAIR on FormaT, the
+uninstalled parent you named:
+    baseline                              FormaT list 6
+    POSITIVE CONTROL, ordinary term       FormaT list 6 -> 7   grows
+    TREATMENT, registered flag-species    FormaT list 6 -> 6   consumed
+    isMethod, hasAttr unmoved in both; HeX and NumbeR untouched controls unmoved
+The first row is what makes the second evidence rather than a shrug -- without
+it, "nothing happened" and "the line is dead" read identically.
+⚠ ONE COLUMN NOTED AS NON-DISCRIMINATING, not claimed as a pass: isRulE read 1
+for every row before and after. Expected for three rules, but it separates
+nothing here, so it certifies nothing.
+
+D3 -- fbWalk INDIFFERENCE.  ✅ CONFIRMED, NOT EXPECTED, on HeX -- the INSTALLED
+parent, because an uninstalled one would have made this vacuous.
+    installs      43 both ways
+    HeX list      5 both ways
+    generated body, both ways, byte-identical:
+        { if  zero() AND x() AND value() AND tokenize(); return runRuleAction(this); }
+Four terms emitted, the flag-species declaration emitted NOTHING.
+⚠ MY FIRST D3 WAS NEARLY VACUOUS AND I THREW IT OUT: showBody prints identity,
+not body text, so the diff compared two pointer-stripped one-liners. Reported
+here only because the correction is the reason the second one counts.
+
+PHASE GATE: D1, D2, D3 all friendly. By the brief's terms 2B is unblocked.
+
+⚠⚠ BUT 2B's FIRST ACT IS NOT EXECUTABLE AS WRITTEN, AND THE REASON IS A
+PREMISE COLLISION RATHER THAN A MEASUREMENT.
+The brief rules: "Grammar remains sole source of truth: the declaration lives in
+the rule's definition; load sets the flag." SEQ 89 measured that FALSE for half
+this population, with a positive control:
+    HeX      grammar line LIVE      4 -> 5 on an added term
+    FormaT   grammar line LIVE      6 -> 7, re-confirmed today
+    NamE     grammar line INERT     2 -> 2
+    NumbeR   grammar line INERT     3 -> 3
+NamE and NumbeR are bootstrap-built in C++ (GroupMain.twk) and their
+grammar-file lines do nothing. So a grammar-declared TOKENize reaches HeX and
+FormaT and CANNOT reach NamE or NumbeR.
+2B names NamE as the adjudicator. Declaring its flag needs a SECOND SITE in the
+C++ bootstrap -- one fact, two homes -- which is the shape I declined to
+improvise last round and am still declining. Two clean ways out, both yours:
+    (a) rule the second site, and 2B proceeds with NamE as written; or
+    (b) reassign the adjudicator to HeX or FormaT, which the grammar reaches
+        today, and NamE joins after the second site is ruled.
+Either is one sentence. I have built nothing pending it, because the machinery
+edit and the adjudication are the same act in 2B's sequencing and I would be
+choosing (b) by default just by starting.
+
+⚠ ONE MORE THING WORTH A LINE, since the design now hinges on a GroupBody bit:
+adding one is bear-trap 10's whole apparatus -- the flag must ALSO go into the
+external GroupItem block in groups.ext, which lives OUTSIDE this repo, and the
+bitfield shift then requires a full tokall. Miss either and the failure is
+silent and catastrophic. Named now so it is planned, not discovered.
+
+STATE: fleet 52 green / 1 parked, assertion rows byte-identical. oneTest
+byte-identical. grammar restored and md5-verified. canary 315. decodePop 67
+green, ddPop 6 green. Nothing built, no parse machinery edited.
+
+  END SEQ 83
 ===================================================================
