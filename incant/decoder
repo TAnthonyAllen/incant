@@ -208,8 +208,8 @@ define
             definition="Deliberate fire sites consume a returned yield as a value and are landed; evaluation sites are a LANGUAGE ruling, because consuming there changes what if means for every method-valued condition.";
             source="PULLED from the 2026-08-22 seal";
         F31
-            definition="The tokenize snake-eats-tail defect -- installing a generated parse method on tokenize overwrites the body the next rule's compile is still reading.";
-            source="PULLED from docs/fixIts.md and the 2026-08-22 seal";
+            definition="CLOSED 2026-08-23. The tokenize dual-role defect: installing a generated parse method gave the one bare hook its FIRST attribute, reclassifying it so its method stopped firing and the reader it served starved. Not a body-misread.";
+            source="PULLED from docs/fixIts.md and the 2026-08-22 seal; CORRECTED and closed 2026-08-23. Operational record: designDocs ProblemRecords F31, status remedy.";
         bt4
             definition="A line comment wedged between an if condition and its governed statement is consumed as that statement and breaks the parse.";
             source="PULLED from CLAUDE.md bear trap 4. Operational record: designDocs ProblemRecords bt4.";
@@ -255,6 +255,18 @@ define
         hookIdentityFork
             definition="Measured 2026-08-23 by Arm A -- install 43 gives the tokenize hook its FIRST attribute and its catalog face and canon become DIFFERENT NODES, while every healthy installed rule stays SAME NODE.";
             source="DICTATED, minted 2026-08-23 by the Arm A measurement. Operational record: designDocs ProblemRecords hookIdentityFork.";
+        TOKENize
+            definition="The flag-species declaration that says a rule's products carry spans -- noPrint, define-time, sets the tokened bit on groupBody through processFlags case T, and has no match-time existence at all.";
+            source="DICTATED, minted 2026-08-23. Operational record: designDocs ProblemRecords.";
+        tokened
+            definition="LIVE as of 2026-08-23, formerly a dormant groupBody bit with a setter nothing could reach -- its master is now TOKENize, and captureSpan is its only reader.";
+            source="DICTATED. It was found already declared in GroupBody.twk, GroupBody.h and groups.ext with the bools blocks byte-identical, which is why the campaign needed no bitfield change.";
+        labelsAreForReaders
+            definition="A sub-term whose label no reader consumes carries the noLabel dash -- shipped machinery, and the whole reason NamE was immune to the persistence that broke NumbeR.";
+            source="DICTATED, minted 2026-08-23 from cut C2. Doctrine: docs/hookRules.md.";
+        absenceIsNotAChannel
+            definition="The campaign's epitaph -- a bare hook, a leaf product and an unread label all encoded meaning in what was MISSING, and uniform progress erased all three absences; every fix was to say the thing explicitly.";
+            source="DICTATED, 2026-08-23. Doctrine: docs/hookRules.md, the decoration-changes-classification trio.";
         canonRoadDependence
             definition="canonOf's face-versus-canon answer depends on the ROAD the node travelled -- an action-argument road mints a fresh face, a direct subscript does not -- so an identity census must fix one road and say which.";
             source="DICTATED, minted 2026-08-23 during M3's instrument check. Operational record: designDocs ProblemRecords canonRoadDependence.";

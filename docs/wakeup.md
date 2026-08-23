@@ -1,3 +1,67 @@
+# ⚠⚠⚠ SEALED 2026-08-23 — THE CAMPAIGN CLOSES. READ THIS FIRST.
+
+#   ⚠ **THIS SUPERSEDES THE 2026-08-22 SEAL BELOW, WHICH IS INTACT AND STILL TRUE AS OF ITS OWN
+#   MARK.** That one proved the fix shape on a specimen. This one made the shape unnecessary.
+
+#   ## THE ONE-LINE STATE: **F-31 is CLOSED, status remedy, and the fix that was proven end-to-end
+#   was never fired in anger.** `tokenize` has **zero reads-through and zero firings**, is still in
+#   the grammar, still bare, still tagged. The same-count discriminator that isolated F-31 now
+#   answers **identically on both arms** — its defining measurement returns null.
+#   **THE COUNT: 22 compiled clean, 19 parse-failed, 1 crashed, of 42 attempted.**
+#   Fleet **52 green / 1 parked**, rows byte-identical. Decoder 72 terms.
+
+#   ## ⚠⚠ THE FIVE THINGS A FRESH READER MUST NOT RE-DERIVE
+
+#   **1. THE MECHANISM WAS NEVER A BODY-MISREAD.** Installing a generated parse method gave the one
+#   BARE hook its **FIRST attribute**, which reclassified it from method-hook to attribute-matcher —
+#   so its method stopped being fired and the reader it served starved. `Braced`, which already had
+#   attributes and gained the same `CodE`, did not flip. Measured `hasAttr 0 -> 1`.
+
+#   **2. THE JANITOR HAD A SECOND JOB, AND THAT IS THE ASYMMETRY NOBODY COULD EXPLAIN FOR A WEEK.**
+#   `tokenize`'s comment advertised one thing — it "gloms parent label components together into the
+#   label string". That glom **also consumed** the labels a rule's LABELED sub-terms produce.
+#   `captureSpan` inherited the capture; nobody inherited the collapse.
+
+#   **3. THE DASH IS WHY NamE WAS IMMUNE — IT IS SPELLING, NOT LUCK.** Read the two lines:
+#   `NamE first-=[a-zA-Z] nameSet-^*` — both sub-terms carry the **noLabel dash**;
+#   `NumbeR numberSet=[0-9]+` — **labeled**. A noLabel sub-term mints no label, so there is nothing
+#   to hang. Respelling NumbeR the same way took the load census **42 → 4**. Do not go looking for
+#   rule-specific weirdness; there is none.
+
+#   **4. THE COUNT'S 19 FAILURES ARE WEATHER, NOT THE SNAKE.** Named, not absorbed: BasicElse CodE
+#   DEFINing DO DelimText ElseIf FOR IF InvokE Limit MemberS PrinT RunRulE Search SetBrackets
+#   TraiTdata WhilE break tokenize; plus DatA crashing at 139. The four the earlier 12-of-43 partial
+#   had already named are all present, which is what makes them **pre-existing rather than caused**.
+#   `tokenize` failing is expected and harmless — a bare rule generates an empty condition and
+#   nothing routes through it. Each is an ordinary frontier row now.
+
+#   **5. THE EPITAPH, because it is the whole campaign in one sentence: ABSENCE IS NOT A CHANNEL.**
+#   A bare hook meant *I am live machinery*; a leaf product meant *I am a value*; an unread label
+#   meant *nothing*. Uniform progress erased all three absences. **Every fix shipped was the same
+#   fix: say the thing explicitly** — a flag instead of bareness, `setToken` instead of decoration,
+#   a dash instead of an unread label.
+
+#   ## THE DISCIPLINE EXHIBITS, because each changed an outcome
+#   **FIVE MECHANISMS DIED ON CONTACT** and one survivor was named on bones — four cuts, every
+#   outcome pre-registered, all four landing where they were aimed and neither loud miss firing.
+#   **TWO PROBES WERE VOID AND SAID SO.** A hollow-capture run reported a clean 52 that meant
+#   nothing, because `GroupMain.twk` was edited and never re-tok'd — the flag never reached the
+#   binary. **The check is now standing: count the set site in the GENERATED file, never the source.**
+#   **A KILLED CAPTURE WAS READ AS A DIFF**, against rule H5's explicit warning, and produced a
+#   finding that had to be re-measured. It reproduced — but the doubt was the instrument's fault.
+
+#   ## ⚠ WHAT IS CARRIED
+#   1. **The fix-shape apparatus** — off-rule storage, explicit activation, ruled-moment bind —
+#      **superseded-unexecuted**, proven on Braced, retired to doctrine.
+#   2. **`DatA` crashes at 139** in the count harness — its own row, undiagnosed.
+#   3. **Buffer-lifetime** — still honestly void, twice attempted.
+#   4. **Queued:** `parseMethod` → `groupBody` · define liberation · the installation gap
+#      (genParse never sees NamE or FormaT) · the wrap/unwrap evidence pile
+#      (`canonRoadDependence`, the rebind-taG sighting). **#37 stays parked and fed.**
+#   5. **HeX is parked**, reversal instructions inside its own comment. **Station 3 stays parked.**
+
+# ---
+
 # ⚠⚠⚠ SEALED 2026-08-22 — KITCHEN PASS (CURRENT VINTAGE). READ THIS FIRST.
 #
 #   ⚠ **THIS SUPERSEDES THE 2026-08-21 SEAL BELOW, WHICH IS INTACT AND STILL TRUE AS OF ITS OWN

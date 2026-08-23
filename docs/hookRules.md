@@ -95,5 +95,20 @@ row stands on a **cleave** — three states, one variable each, the set site cou
 perfectly were killed on contact before the cleaves were run; the cleaves are why the doctrine is
 safe to state and the mechanisms are not.
 
+| **sub-terms** — labels are for readers | a **label** minted by a sub-term nobody reads | the label is attached to the parent's product and persists once the collapse that swept it is gone | `NamE`'s `first-` / `nameSet-` carry the noLabel dash and were immune throughout; `NumbeR`'s `numberSet=` was labeled and was not. Respelling with the dash: load census 42 → 4 |
+
+**LABELS ARE FOR READERS.** A sub-term whose label no reader consumes carries the **noLabel dash**.
+That is shipped, decade-green machinery — `NamE` has spelled it that way since the beginning, which
+is the entire reason `NamE` migrated clean and `NumbeR` did not.
+
 **The practical rule for anyone adding machinery:** before you decorate a node, ask which population
-it belongs to and what reads it. A flag is free; a **child is not**.
+it belongs to and what reads it. A flag is free; a **child is not**; and a **label nobody reads is a
+child waiting to happen**.
+
+⚠ **AND THE EPITAPH, because all three rows are one sentence in three spellings: THE SYSTEM USED
+ABSENCE AS A CHANNEL.** A bare hook meant *I am live machinery*; a leaf product meant *I am a
+value*; an unread label meant *nothing*. Uniform progress erased the absences — an install gave the
+hook its first attribute, a capture gave the product its first child, a retired janitor stopped
+sweeping the labels. **Every fix this campaign shipped is the same fix: say the thing explicitly.**
+A flag instead of bareness. `setToken` instead of decoration. A dash instead of an unread label.
+**Absence is not a channel.**

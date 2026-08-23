@@ -185,13 +185,14 @@ GroupRules  ruler = groupRules;
     item.character  = '.';
     item            = strap +% item;
     item.setRuleStuff();
+    modify(item,"-");
     item            = new("decimals");
     item.characterSet    = new("0-9");
     item            = strap +% item;
-    modify(item,"+");
+    modify(item,"-+");
     item            = grok/PoweR;
     item            = strap +% item;
-    modify(item,"?");
+    modify(item,"-?");
 
     strap           = grok += "QuotE";
     setRuleStuff();
@@ -230,15 +231,18 @@ GroupRules  ruler = groupRules;
     setRuleStuff();
     item            = grok["numberSet"];
     item            = strap +% item;
-    modify(item,"+");
+    /*  THE noLabel DASH, 2026-08-23. NumbeR reads its own token and nothing
+        else -- aCTionNumbeR takes input.text and converts. A sub-term whose
+        label no reader consumes should not mint one, and NamE has spelled it
+        this way since the beginning, which is why NamE was immune to the
+        persistence the glom used to sweep up. Labels are for readers.  */
+    modify(item,"-+");
     method          = aCTionNumbeR;
     immediateACTION = true;
     tokened         = true;
     item            = grok/FloaT;
     item            = strap +% item;
-    modify(item,"?");
-    item            = grok["tokenize"];
-    strap           +% item;
+    modify(item,"-?");
 
     strap           = grok += "GrouP";
     setRuleStuff();

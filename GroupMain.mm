@@ -186,13 +186,14 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	item->setCharacter('.');
 	item = strap->addAttribute(item);
 	item->setRuleStuff();
+	::modify(item,"-");
 	item = new GroupItem("decimals");
 	item->setCharacterSet(new PLGset("0-9"));
 	item = strap->addAttribute(item);
-	::modify(item,"+");
+	::modify(item,"-+");
 	item = grok->getMember("PoweR");
 	item = strap->addAttribute(item);
-	::modify(item,"?");
+	::modify(item,"-?");
 	strap = grok->addString("QuotE");
 	strap->setRuleStuff();
 	strap->setMethod(::aCTionQuotE);
@@ -228,15 +229,18 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	strap->setRuleStuff();
 	item = grok->get("numberSet");
 	item = strap->addAttribute(item);
-	::modify(item,"+");
+	/*  THE noLabel DASH, 2026-08-23. NumbeR reads its own token and nothing
+	else -- aCTionNumbeR takes input.text and converts. A sub-term whose
+	label no reader consumes should not mint one, and NamE has spelled it
+	this way since the beginning, which is why NamE was immune to the
+	persistence the glom used to sweep up. Labels are for readers.  */
+	::modify(item,"-+");
 	strap->setMethod(::aCTionNumbeR);
 	strap->groupBody->flags.methodType = 1;
 	strap->groupBody->flags.tokened = 1;
 	item = grok->getMember("FloaT");
 	item = strap->addAttribute(item);
-	::modify(item,"?");
-	item = grok->get("tokenize");
-	strap->addAttribute(item);
+	::modify(item,"-?");
 	strap = grok->addString("GrouP");
 	strap->setRuleStuff();
 	dStuff = strap;

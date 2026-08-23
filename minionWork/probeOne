@@ -1,0 +1,422 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(FixF31);
+define
+    fbBuffer buffer;
+    fbOpen="{";
+    fbClose="}";
+    fbLimit=999;
+    fbSkipAt=1;
+    fbNever=999;
+    fbCount=0;
+    fbSkipped=0;
+    fbFirst;
+    f31Arm=0;
+    fixF31Here=0;
+    fbSkipIt argument code={
+        fbSkipped = fbSkipped + 1;
+        fbSkipAt = fbNever;
+        cerr "SKIP  leaving this one OUT, and here is its name":;
+        cerr "SKIP  " taG argument:;
+        showBody(argument);
+        };
+    fbGen argument code={
+        reset(fbBuffer);
+        printTO(fbBuffer);
+        print fbOpen:;
+        if datA != 0;
+            printTO(0);
+            return;
+        if hasAttributeS;   fbJoin = "AND";
+        else                fbJoin = "OR";
+        print `"if ";
+        iterate fbTerm on argument;
+        while ++fbTerm;
+            print $taG "()";
+            if nexT;    print _fbJoin;
+            else        print ";";
+        @argument;
+        print $"return runRuleAction(this);":;
+        print `fbClose:;
+        if fbCount == fbSkipAt;
+            printTO(0);
+            fbSkipIt(argument);
+            return;
+        clear(CodE);
+        CodE = fbBuffer;
+        fbCopy <- copyOf(CodE);
+        fbCopy :. noPrinT;
+        argument +% fbCopy;
+        argument :. isCodeD;
+        printTO(0);
+        fbCount = fbCount + 1;
+        if fbCount == 1;    fbFirst +% argument;
+        cerr "INSTALL " fbCount " " ~taG:;
+        };
+    fbWalk argument code={
+        iterate fbCur on argument members;
+        while ++fbCur;
+            if fbCount >= fbLimit;  continue;
+            if noPrinT;             continue;
+            if binTypE;             continue;
+            if !isRulE;             continue;
+            if actionTypE != 0;     continue;
+            fbGen(fbCur);
+        };
+    fbRun code={
+        cerr "== fixit F-31 -- is it ONE install, or the COUNT of installs ==":;
+        if f31Arm == 0;     fbSkipAt = fbNever;
+        cerr "-- the suspect BEFORE any installs --":;
+        showBody(Grokking["tokenize"]);
+        fbWalk(Grokking);
+        cerr "== installed " fbCount " bodies, left out " fbSkipped " ==":;
+        cerr "-- the suspect AFTER the installs --":;
+        showBody(Grokking["tokenize"]);
+        cerr "== ONE TARGET ==":;
+        cerr "COMPILING tokenize":;
+        compile(Grokking["tokenize"]);
+        cerr "TARGETDONE tokenize":;
+        fixF31Here = 0;
+        cerr "ANCHOR fixF31Here -- the verdict is the failed at line just above":;
+        cerr :;
+        cerr "READ IT LIKE THIS -- both arms install FORTY TWO bodies":;
+        cerr "   arm 0  BlocK in, tokenize OUT   failed at else() AND followedBy()":;
+        cerr "                                   the body text IS read":;
+        cerr "   arm 1  BlocK OUT, tokenize in   failed at reached end of input":;
+        cerr "                                   the body reads EMPTY":;
+        cerr "   Same count. One member swapped. Opposite answers.":;
+        cerr "   So it is the IDENTITY of the install, not the NUMBER of them.":;
+        cerr "   Both pinned 2026-08-20. This run should reproduce its own arm.":;
+        cerr :;
+        cerr "   VOID, and not a verdict: installed other than 42, or left out":;
+        cerr "   other than 1. Both counts are printed above for that reason.":;
+        cerr "FIXIT f31 SENTINEL -- reached the end":;
+        stop();
+        };
+    ;
+fbRun();
+
+============================================================================
+THE MECHANISM
+
+walkPhase generates a rule body for every grammar rule and installs it. Each
+body compiles perfectly on its own. Once they are all installed, every one of
+them fails to compile with the same signature -- reached end of input, on line
+one -- as though the body text were empty.
+
+WHAT IS WRONG
+
+fixBisect narrowed that to a SINGLE install. With the first forty two bodies
+installed, the first body still fails on its CONTENT, so its text is being
+read. Install one more -- the forty third, the tokenizer hook -- and the same
+body, on the same binary, fails as an empty read.
+
+That left a confound: forty three installs, or THAT install? The obvious
+control was to skip the suspect by name, and it was VOID -- two spellings both
+matched every member and installed nothing, so they said nothing either way.
+It is now bear-trap 28's fourth row: an eq against a tag inside an iterate body
+matches universally.
+
+WHAT THIS FILE DOES INSTEAD -- a same-count swap, and why it had to be one
+
+The eligible population is exactly forty three bodies and tokenize is the LAST
+of them, so forty three installs WITHOUT tokenize cannot be built. Substitution
+is impossible at that count. So both arms run at FORTY TWO installs and differ
+only in which member is present:
+
+    arm 0   the first forty two, tokenize absent      CONTENT read
+    arm 1   BlocK dropped, tokenize present instead   EMPTY read
+
+Same number of installs. One member exchanged for another. Opposite outcomes.
+
+WHY tokenize, AND NOT SOME OTHER RULE -- CANDIDATE-GRADE, and read the grade
+
+⚠ IT IS NOT COMPILED TWICE. That reading is available from the evidence and it
+is wrong, so it is named here to be shot: nothing about install 43 compiles
+anything a second time. Ruling on double-compilation would send the fix at the
+wrong target entirely.
+
+The candidate is a DUAL-ROLE COLLISION. tokenize wears two hats at once.
+
+    hat one    it is citizen 43 of the population -- a grammar rule like any
+               other, so the campaign dutifully generates a parse body for it
+               and installs it, exactly as it does for the other forty two
+    hat two    it is the tokenizer HOOK, grammar line 34, the live machinery
+               the reading side calls to turn raw text into tokens
+
+The install does not break tokenize-the-rule. It breaks tokenize-the-HOOK.
+After install 43, when the sweep goes to read BasicElse's text, the read routes
+through a body whose CodE now says how to PARSE THE tokenize RULE instead of
+how to TOKENIZE. That yields no tokens from the raw text, so the very first
+read reports end of input at line one.
+
+That is the signature, and it is the one double-compilation cannot produce:
+not tokenize failing, but EVERYTHING AFTER THE INSTALL BECOMING UNREADABLE
+while each individual body stays perfect. Individually perfect, collectively
+unreadable -- because the collective's reading channel was one of the
+individuals.
+
+WHAT IS MEASURED, AND WHAT IS NOT
+
+    measured     the same-count swap above. Forty two installs either way, one
+                 member exchanged, opposite answers. That isolates the install.
+    measured     the install re-points nothing. showBody is identical before
+                 and after; what changes is CodE overwritten and isCodeD set
+                 INSIDE the one body every reader already shares.
+    structural   tokenize is the tokenizer hook at grammar line 34, used by
+                 NamE, NumbeR, HeX and FormaT.
+    NOT measured NOBODY HAS WATCHED A READ ACTUALLY ENTER THE OVERWRITTEN
+                 BODY. The whole causal story above rests on that step and it
+                 has never been observed.
+
+THE ONE MEASUREMENT THAT WOULD PROMOTE IT from candidate to established: trace
+a single read after install 43 and watch it enter tokenize's overwritten body.
+Until someone does that, the story here is a candidate and is labelled one.
+
+WHAT IT RHYMES WITH, offered as orientation and not as evidence
+
+The off-rule storage and explicit-activation ruling already carries three
+customers -- the napalm, the BlocK re-poison, and mid-walk setParse binding --
+and all three are variants of installing over live machinery while the
+machinery is still in use. On this mechanism tokenize is the fourth. Two fix
+SHAPES follow, and neither is recommended here because the mechanism is not
+established: generate tokenize's body like everyone else, store it off-rule,
+and activate only when nothing further needs the old tokenizer; or exempt the
+hook from installation entirely, which is a ruling about whether tokenize
+should ever self-host its own parse.
+
+There is no REMEDY block here, because nothing is established enough to
+recommend. What replaces it is the NEXT block at the foot of this file, which
+is never absent and which grades itself -- see it for what to do after ruling.
+
+THE RULING WANTED
+
+Confirm or refute, from the output above. Measured 2026-08-20 it CONFIRMS: the
+poisoning follows tokenize's identity and not the count. What is owed is the
+architect's word on that, because everything gated on parse generation closing
+sits behind it.
+
+WHAT THE POINTERS SAY, which is the second half of the done-when
+
+showBody prints the suspect before and after the installs and the two lines are
+IDENTICAL -- same node, same groupBody. So the install does not RE-POINT the
+field. It overwrites the CodE inside the one body every reader already shares,
+and sets isCodeD on it. The field the install clobbers is Grokking tokenize
+itself, in place. That is why a later read tokenizes nothing.
+
+HOW TO USE THIS FILE
+
+Run it. It names the one body it left out, so a skip that silently skips
+nothing cannot be mistaken for a result -- which is exactly how the last
+control was lost. The anchor fixF31Here sits where the verdict line has just
+been printed; a breakpoint conditioned on that name lands with the answer on
+screen. The other arm is one character: set f31Arm to zero.
+
+Footnote: docs/fixIts.md F-31, incant/fixBisect, bear-trap 28.
+
+============================================================================
+NEXT: RULED
+
+⚠⚠ SCOPE OF THIS HARNESS, AND READ IT BEFORE YOU READ A GREEN RUN. THIS FILE
+ORACLES THE SYMPTOM, NOT THE MECHANISM. When the build lands and this fixture
+goes clean, what has been certified is that tokenize survives installation. It
+is NOT certification that off-rule storage plus explicit activation is right
+for the ruling's other three customers -- the napalm, the BlocK re-poison, and
+mid-walk setParse binding. Those have their own surfaces and none of them is
+exercised here. THE VERIFICATION SURFACE FOR THE BUILD IS WIDER THAN THE FIXIT
+THAT GATED IT, and a future reader who takes this file going green as the
+mechanism cleared has read a symptom oracle as a mechanism certificate.
+
+⚠ BUILD STEP ONE, CHARTERED AND NOT CONDITIONAL ON WHEN THE BUILD STARTS:
+WRITE THE EXPECTED TAKEN-SIGNATURE DOWN BEFORE TOUCHING ANY CODE. What this
+file must print once the fix is in, in full, pre-registered. Otherwise the
+harness gets regenerated green around whatever the change happened to do, which
+is the failure this project has a ledger for -- a target that is regenerated
+green is not a target. Cheap, and it is the vigram discipline turned on the
+harness's own integrity rather than on the code it watches.
+
+⚠ THIS FILE IS OFF THE QUEUE, ON PURPOSE, AND IT IS COMING BACK. Discharged by
+ruling 2026-08-20 when CONFIRMED was ratified, so it no longer sits in
+incant/fixits/ and no longer counts in the seal line. It lives at incant/f31
+and still runs.
+IT RE-ENTERS THE QUEUE WHEN THE BUILD LANDS, wearing a REMEDY block, for one
+last run: bless the taken signature. One citizen, two tours of duty -- which is
+the shape the register's anatomy predicted rather than a special case made for
+it.
+
+DECISION ONE, AND IT COMMITS NOTHING ABOUT MECHANISM: ratify CONFIRMED, or
+refute it. That is a ruling about WHICH INSTALL, and the same-count swap above
+settles it on its own evidence. It does not oblige you to accept the dual-role
+story, and you should not read it as doing so. Everything gated on parse
+generation closing sits behind this one word.
+
+FIX-CAMPAIGN STEP ZERO, IF YOU RATIFY. TWO ARMS, SAME RANK. Either may settle
+dispatch alone; together they cross-check.
+
+ARM A -- THE TRACE. RUN 2026-08-20. THE MECHANISM IS PROMOTED.
+
+Method: a temporary cerr on the C++ tokenize in GroupActions.rtn -- the
+function that gloms parent label components into the label string -- counting
+calls, then a bare revert and rebuild. Both arms install FORTY TWO bodies and
+differ only in whether tokenize is one of them.
+
+    arm 0  tokenize OUT   calls whole run 1163   DURING THE COMPILE  2
+                          compile reads CONTENT
+    arm 1  tokenize IN    calls whole run 1170   DURING THE COMPILE  0
+                          compile reads END OF INPUT
+
+⚠ READ THE TWO COLUMNS TOGETHER, BECAUSE EITHER ALONE MISLEADS. The whole-run
+totals are effectively EQUAL, 1163 against 1170 -- so the C++ tokenizer is
+alive and being called throughout both runs, and the install does NOT kill it
+globally. That is the anti-vacuity control and it is what makes the second
+column mean something. During the compile itself the count goes TWO TO ZERO:
+after a body is installed over tokenize, the read stops reaching the C++
+tokenizer at all. Two calls then a content failure is a reader that got some
+tokens and choked on them; zero calls then end-of-input is a reader that never
+got a token.
+
+AND THE BODY THAT REPLACED IT, dumped from the install buffer:
+
+    {
+        if  return runRuleAction(this);
+    }
+
+⚠ AN `if` WITH NO CONDITION -- AND THAT IS THE REFINEMENT THE TRACE BOUGHT.
+tokenize is declared `tokenize^@;` at grammar line 34: a bare hook with ZERO
+TERMS. The generator emits `if `, then loops the terms and emits nothing
+because there are none, then emits the return. So the dual-role collision bites
+HERE and not on the other forty two precisely because THE HOOK IS TERMLESS and
+the generator produces a degenerate body for it. A rule with terms gets a body
+that at least does something.
+
+WHAT IS NOW ESTABLISHED: the read stops reaching the tokenizer after the
+install, measured, with a live control. WHAT REMAINS INFERENCE, stated so it is
+not read as measured: that the read is executing THIS body rather than merely
+being diverted by isCodeD into some other empty path. The distinction no longer
+changes the fix, because both readings are "the install displaced the hook",
+which is what the selected shape addresses.
+
+ARM B -- THE ORDER PROBE. Feasibility ruled and the cheapest well-formed
+variant already RUN, 2026-08-20. Two compiles of the SAME body in ONE process
+with one install between them:
+
+    install 42, tokenize left out
+    COMPILE-1  BasicElse   failed at else() AND followedBy() AND StatemenT(
+    install tokenize
+    COMPILE-2  BasicElse   failed at reached end of input
+
+⚠ WHAT THIS SETTLES: DISPATCH IS LIVE, NOT FROZEN AT BIND. The frozen-at-bind
+prediction was that a reader which had already resolved the tokenizer would go
+on reading cleanly. It does not. The same body, on the same node, in the same
+process, reads fine before the install and reads empty after it. Reading is
+re-consulting something the install changed.
+
+⚠ WHAT IT DOES NOT SETTLE, and do not let the strength of it borrow authority
+from Arm A: it shows the failure is TEMPORALLY tied to the install. It does not
+show the failing read routes through tokenize's body SPECIFICALLY. Any state
+the install touches would produce this. Arm A is still owed and is still the
+promoter.
+⚠ AND NOTE THE COUNT MOVES BETWEEN THE TWO COMPILES -- 42 then 43. That is the
+original confound, deliberately reintroduced, and it is why this does not
+replace the two-arm swap above. The swap holds the count FIXED and settles
+IDENTITY; this holds the population fixed and settles TIME. Neither substitutes
+for the other.
+
+ITEM 3 -- THE HOOK CENSUS. Subordinate to neither arm. RUN 2026-08-20, and it
+answers the question the two fix shapes turn on: does tokenize have siblings.
+
+    entered fbGen           59
+    INSTALLED               43
+    dropped at the datA gate 16
+    dropped:  ANYtoken Any Attributes InitiatE Looper Modifier NewGroup
+              ShortcuT Start continue followedBy loopOnAttributes
+              loopOnMembers nameSet numberSet return
+
+⚠ THE ANSWER IS ONE, AND THE REASON IS THE INTERESTING PART. tokenize is the
+only bootstrap-constructed machinery rule that REACHES installation. The others
+exist -- nameSet, numberSet, counter, delimiter, Modifier, Limit, MEMBERs, Any,
+ruleSkipSet are all built in GroupMain.twk the same way -- but every one of
+them CARRIES DATA, because they are character sets, and the datA gate drops
+them before fbGen ever installs anything. tokenize carries no data. It is a
+method hook, and that is precisely why it is the one that gets a body written
+over it.
+
+⚠ SO THE SIBLINGS' IMMUNITY IS INCIDENTAL, NOT DESIGNED. They are safe because
+of what they happen to hold, not because anything exempts them. A future
+machinery rule that is a hook rather than a character set is a second customer
+the moment it exists, and nothing in the tree would stop it.
+
+⚠ THE CENSUS NO LONGER DECIDES BETWEEN FIX SHAPES. RECHARTERED 2026-08-20 by
+Tony's ruling, the same day it was run: the HOOK CLASS IS OPEN. tokenize may be
+the only member now, and now is the operative word -- self-hosting structurally
+mints dual-role rules over time, because moving machinery into rules is what
+self-hosting IS. The count is therefore a fact about today and not a basis for
+choosing. The census becomes a STANDING REGISTRY, docs/hookRules.md, row one
+tokenize/grammar:34, appended whenever machinery migrates into a rule.
+
+⚠ AND THE SEARCH SPACE IS NAMED, because an absence claim is only as good as
+its search. This censused ONE surface: rules the bootstrap constructs by name
+in GroupMain.twk, cross-read against the walk's own ENTER and INSTALL trace. A
+rule DECLARED IN THE GRAMMAR that the reader nonetheless invokes would not
+appear in it. Whether that class is empty is NOT measured here.
+
+CONSEQUENCE FOR THE FIX SHAPES: a live dispatch means sequencing alone does not
+rescue a read that comes after the install -- so "compile everyone else first,
+install tokenize last" is a real candidate fix and NOT merely a re-ordering of
+the same failure. That is the fourth-customer shape with self-hosting
+preserved, and it is now the better-supported of the two below.
+
+THE SHAPE IS off-rule storage plus explicit activation, selected by Tony's
+ruling of 2026-08-20 on trajectory grounds. THE GATE IS ARM A: the mechanism it
+addresses is still candidate-grade, and nothing here is applicable until the
+trace promotes it. Read this block for what was DECIDED and what must happen
+before it becomes a remedy -- not for something to apply.
+
+⚠ AND THE VERDICT ABOVE IS RATIFIED, WHICH IS A SEPARATE THING FROM ALL OF
+THIS: CONFIRMED, ratified by Tony, 2026-08-20. The campaign gate is OPEN and
+everything queued behind "parse generation closes" is unblocked. That ruling
+was chartered as prior to and independent of the mechanism, and it stayed that
+way through four amendments, a refuted prediction, a rechartered census and a
+selected fix.
+
+THE FIX SHAPE IS RULED. Tony, 2026-08-20, on trajectory grounds.
+
+    REFUTED as a class fix -- exempt the hook from installation
+        Correct for today's grammar and SILENTLY WRONG FOR TOMORROW'S, which
+        is the worst failure shape available: right answer, expiry date, no
+        alarm on it. Refuted REGARDLESS of the census count, so the count
+        never got to vote. It also conceded that tokenize never self-hosts its
+        own parse, which is a language ruling nobody wanted to make by
+        accident.
+
+    SELECTED -- off-rule storage plus explicit activation
+        Generate tokenize's body like every other citizen, store it OFF the
+        rule, and activate only when nothing further needs the old tokenizer.
+        The invariant fix: right for a grammar that will keep growing hooks,
+        whatever the registry holds on any given day. Fourth customer of that
+        ruling, with the napalm, the BlocK re-poison, and mid-walk setParse
+        binding. Self-hosting preserved.
+        ⚠ THE GATE IS DISCHARGED. Arm A ran 2026-08-20 and came back
+        POSITIVE, so the mechanism is promoted and the BUILD IS RELEASED.
+        This block stays RULED rather than REMEDY because RULED becomes
+        REMEDY when a BUILD LANDS with a site and taken-vs-not signatures,
+        and none exists yet. Nothing here is applicable; the next hand does
+        the building.
+
+A NEGATIVE ARM A WOULD HAVE REOPENED what the install actually breaks, leaving
+the selected shape aimed at an unestablished target -- which is why it gated
+the build rather than the choice. It came back positive, so that branch is
+closed and recorded rather than deleted, because a fork nobody can see the
+other side of reads as a decision nobody made.
+
+⚠ AND A THIRD SHAPE FELL OUT OF THE TRACE, RECORDED AS A CANDIDATE AND
+DELIBERATELY NOT PROMOTED: refuse to generate a body for a rule with ZERO
+TERMS. It is cheap, it is local to the generator, and on today's evidence it
+would have prevented this entire failure. It does NOT displace the ruled fix:
+the ruling was made on trajectory -- installing over live machinery is wrong
+whatever the body looks like -- and a termless guard would leave that intact
+for the first hook that DOES have terms. Grade: candidate. It is a guard worth
+having beside the invariant fix, not instead of it, and that is a call for
+whoever builds.

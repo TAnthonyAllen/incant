@@ -1,0 +1,17 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(DashC);
+define
+    dcA=0; dcB=0;
+    dcRun code={
+        dcA = 4242;
+        dcB = 3.5;
+        cerr "CONTROL int  " dcA " (want 4242)":;
+        cerr "CONTROL real " dcB " (want 3.5)":;
+        cerr "DASH SENTINEL":;
+        stop();
+        };
+    ;
+dcRun();

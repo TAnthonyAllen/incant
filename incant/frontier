@@ -249,10 +249,19 @@ frontier2, no frontierOld. If you are looking at a copy, someone broke the
 practice. Each seal updates the dated line below and re-runs the file, and the
 seal names the first failing station.
 
-FRONTIER AS OF 2026-08-22 (SEQ 83): compile-of-a-stored-body, pending the
-portability verdict. Subject is Braced. The day this file runs all eight
-stations green with tokenize as the subject instead of Braced is the day the
-campaign is over.
+FRONTIER AS OF 2026-08-23: THE CAMPAIGN THIS FILE WAS BUILT FOR IS CLOSED, and
+it closed without this ladder ever needing tokenize as its subject. F-31's
+defining measurement returns null, tokenize has zero reads-through and zero
+firings, and the whole nine-station pipeline -- generate, store, activate,
+compile, harvest, bind, discard, fire -- is recorded superseded-unexecuted. It
+was proven on Braced and never fired in anger, because the dual role was retired
+instead of staged around.
+
+The file stands unchanged and green as the proof that the shape worked. THE NEXT
+EDGE IS NOT NAMED HERE YET: the count now sits at 22 compiled clean of 42, and
+the 19 parse failures are ordinary content-level frontier rows with no snake in
+any of them. Whichever of those the next campaign opens on is what this file
+should be re-pointed at.
 
 IT IS NOT A FLEET CITIZEN. It never joins pop.sh -- the fleet measures what
 holds, and this measures what does not yet. It is not a fixit citizen either

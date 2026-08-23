@@ -32,6 +32,13 @@ nameSet=[a-zA-Z0-9];
 PoweR               e=[eE] sign?=[+-] power=[0-9]+;
 FloaT               point="." decimals=[0-9]+ PoweR?;
 tokenize^@;                                     // method set to tokenize()
+/*  ⚠ THE NEXT TWO RULE LINES ARE INERT AND ARE MIRRORS, NOT DEFINITIONS.
+    NumbeR and NamE are built in C++ in GroupMain, and THAT is the governing
+    site. Measured twice with a live line as the control: adding a term to
+    either line below changes nothing, while the same edit to a live line moves
+    its rule's list length. Edit GroupMain, not here. As of 2026-08-23 the
+    governing constructions carry the noLabel dash on their sub-terms and no
+    tokenize term at all, so these lines no longer describe them.  */
 NumbeR              numberSet=[0-9]+ FloaT? tokenize;
 DefinE;
 QuotE               tik=['"] quoteBody}=tik$@;
