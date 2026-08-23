@@ -179,6 +179,82 @@ define
             definition="RESERVED SLOT -- the byteIdentical / byteIdentant spelling waits on vigram O4 at the V1 gate.";
             status="RESERVED -- not filled by this dispatch, deliberately.";
             source="Decoder dispatch item 8.";
+
+    /*  ---- BACKFILL 2026-08-23. The corpus had stood at its 2026-08-10 mark
+        while the campaign minted ids continuously. One sentence each --
+        operational depth lives in designDocs ProblemRecords, never here.  */
+        H10
+            definition="The citation boundary -- a smoke-green authorises continuing, only a fleet check authorises landing, and the landable property is that the fleet did not MOVE.";
+            source="PULLED from CLAUDE.md RULE H10";
+        H11
+            definition="A census without a known-positive control is not a measurement -- name the rows the search MUST return before you run it.";
+            source="PULLED from CLAUDE.md RULE H11";
+        RulingA
+            definition="A copyOf twin is a specimen and not an organism -- copyOf copies the groupBody and the list, rStuff is neither, and nothing re-arms a twin by copying it.";
+            source="PULLED from the 2026-08-22 seal";
+        RulingB
+            definition="The gMethod vacancy -- rule actions relocate to rStuff actionMethod and the vacated gMethod reverts to the structural default.";
+            source="PULLED from the 2026-08-22 seal";
+        RulingC
+            definition="Compile guards both channels with distinct refusals, so a flag-versus-artifact disagreement is itself diagnostic.";
+            source="PULLED from the 2026-08-22 seal";
+        RulingD
+            definition="Shape versus liveness versus birth -- an isRule-class flag says rule-SHAPED never LIVE, liveness is asked of rStuff, and an rStuff-less isLabel is wreckage that refuses loud.";
+            source="PULLED from CLAUDE.md Ruling D";
+        RulingE
+            definition="Bind the node, not a copy -- the fork's node is the ordinary catalog node reachable by subscript, with no carrier and no resolution function.";
+            source="PULLED from the 2026-08-22 seal";
+        doorTaxonomy
+            definition="Deliberate fire sites consume a returned yield as a value and are landed; evaluation sites are a LANGUAGE ruling, because consuming there changes what if means for every method-valued condition.";
+            source="PULLED from the 2026-08-22 seal";
+        F31
+            definition="The tokenize snake-eats-tail defect -- installing a generated parse method on tokenize overwrites the body the next rule's compile is still reading.";
+            source="PULLED from docs/fixIts.md and the 2026-08-22 seal";
+        bt4
+            definition="A line comment wedged between an if condition and its governed statement is consumed as that statement and breaks the parse.";
+            source="PULLED from CLAUDE.md bear trap 4. Operational record: designDocs ProblemRecords bt4.";
+        bt26
+            definition="A field with no data returns its own tag from a text read, so a wrong answer arrives wearing the shape of a real reading.";
+            source="PULLED from CLAUDE.md bear trap 26. Operational record: designDocs ProblemRecords bt26.";
+        bt29
+            definition="A block comment between two arms of an if-or chain wipes the entire extern block to zero.";
+            source="PULLED from CLAUDE.md bear trap 29. Operational record: designDocs ProblemRecords bt29.";
+        bt32
+            definition="RETIRED-UNREPRODUCED 2026-08-23 -- a multi-statement indented if-arm followed by an else was reported once to break the parse at define time, and has never reproduced.";
+            source="PULLED from CLAUDE.md bear trap 32. Operational record and the full evidence: designDocs ProblemRecords bt32.";
+        bt34
+            definition="Truth-testing a rule-shaped value is a call and not a read, so the test fires the rule's action and can destroy its own subject.";
+            source="PULLED from CLAUDE.md bear trap 34. Operational record: designDocs ProblemRecords bt34.";
+        bt35
+            definition="The rebind operator hands back a node sharing the original's list but not its identity, and a chained subscript read unwraps only once.";
+            source="PULLED from CLAUDE.md bear trap 35. Operational record: designDocs ProblemRecords bt35.";
+        bt37
+            definition="A commissioned artifact's return unwinds the block that fired it, so a block touching an armed rule can lose its tail silently.";
+            source="PULLED from CLAUDE.md bear trap 37. Operational record: designDocs ProblemRecords bt37.";
+        frontier
+            definition="The campaign's live edge in executable form -- one file, revised in place and never forked, that walks the pipeline one station at a time and dies at the first thing that does not work yet.";
+            source="DICTATED from CLAUDE.md's frontier clause.";
+        peasPass
+            definition="The session-open confrontation -- shutdown arms the fixit count, wakeup confronts it, and the framing is a question rather than a status.";
+            source="DICTATED from CLAUDE.md's peas-pass clause.";
+        loadedGun
+            definition="Tony's name for the generated seal line -- not a reminder but an armed condition, pointing at his foot until it is stepped.";
+            source="DICTATED, Tony's coinage 2026-08-20.";
+        glossConvention
+            definition="No minted id ships without a two-term gloss on first mention, assigned at minting, and a row that cannot be named in two terms is not understood yet.";
+            source="DICTATED from CLAUDE.md's gloss convention.";
+        problemRecord
+            definition="A designDocs entry keyed on a problem rather than on the station that met it, carrying a permanent skeleton of attributes plus a sheddable prose description.";
+            source="DICTATED, minted 2026-08-23.";
+        tombstone
+            definition="A problem record whose prose has been shed, leaving only the skeleton attributes -- and the surface a future campaign greps to ask whether a symptom is a rematch.";
+            source="DICTATED, minted 2026-08-23.";
+        canonOf
+            definition="The C++ exposure that answers identity in POINTERS, because a resolver reporting names cannot distinguish two faces of one rule that share a tag by construction.";
+            source="DICTATED from the 2026-08-22 seal.";
+        armingWithoutRouting
+            definition="The staging property, demonstrated not asserted -- an artifact armed on a live rule is inert until it is routed, so the live switch happens at one ruled moment.";
+            source="DICTATED from the 2026-08-22 seal.";
     ;
 
 /*****************************************************************************

@@ -1,0 +1,20 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(P32a);
+define
+    p32Ok=0;
+    p32N=0;
+
+    p32Run code={
+        cerr "=== probe32a CONTROL -- multi-statement indented arm, NO else ===":;
+        p32Ok = 1;
+        if p32Ok == 1;
+            p32N = 7;
+            cerr "arm ran, p32N " p32N:;
+        cerr "PROBE32a SENTINEL -- reached the foot":;
+        stop();
+        };
+    ;
+p32Run();

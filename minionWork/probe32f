@@ -1,0 +1,36 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(P32f);
+define
+    frDead=0;
+    frOk=0;
+    frLiveLen=0;
+    frLiveLen2=0;
+
+    frStationA code={
+        cerr "ANCHOR probe32f station A -- verbatim frontier station shape, REWRITTEN with if/else":;
+        frLiveLen = 3;
+        frLiveLen2 = 4;
+        cerr "STATION A live list length was " frLiveLen " now " frLiveLen2:;
+        frOk = 0;
+        if frLiveLen2 > frLiveLen;      frOk = 1;
+        if frOk == 1;
+            cerr "STATION A store body: PASS -- body hung on the live rule":;
+            cerr "second statement in the then-arm":;
+        else
+            cerr "STATION A store body: FAIL -- the live rule did not grow":;
+            frDead = 1;
+        };
+    frStationB code={
+        cerr "STATION B ran, frDead " frDead:;
+        };
+    frFoot code={
+        cerr "PROBE32f SENTINEL -- reached the foot":;
+        stop();
+        };
+    ;
+frStationA();
+frStationB();
+frFoot();

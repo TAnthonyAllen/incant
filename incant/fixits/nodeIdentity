@@ -8,6 +8,8 @@ define
     fiFirst;
     fiPar;
     fiLen=0;
+    fiOver;
+    fiDirect;
     fiRun code={
         fixNodeIdentityHere = 0;
         cerr "ANCHOR fixNodeIdentityHere -- three roads to a node, two of them lie":;
@@ -26,6 +28,18 @@ define
         cerr "   first child taG   " fiFirst.taG " (expect leftBrace)":;
         fiPar <- unWrap(fiFirst.parenT);
         cerr "   unWrap(parenT)    " fiPar.taG " (expect Braced, reads leftBrace)":;
+
+        cerr "ROAD 3b IS unWrap OVERSHOOTING? Apply it to Braced ITSELF.":;
+        cerr "   if Braced is group-shaped, unWrap walks INTO it and lands on its":;
+        cerr "   first member -- which is exactly what road 3 printed.":;
+        fiOver <- unWrap(Grokking["Braced"]);
+        cerr "   unWrap(Braced)      " fiOver.taG " (leftBrace here CLOSES the chain)":;
+
+        cerr "ROAD 3c IS ROAD 3 ACTUALLY ROAD 2? Take parenT with NO <- capture.":;
+        cerr "   road 3 walks to the child through a <- rebind, and road 2 proves":;
+        cerr "   a <- hands back a COPY. A copy may not carry the parent link.":;
+        fiDirect <- unWrap(Grokking["Braced"].firsT.parenT);
+        cerr "   direct chain parenT " fiDirect.taG " (Braced here folds road 3 into road 2)":;
 
         cerr "ROAD 4 a chained subscript READ in assignment position":;
         fiLen = Grokking["Braced"].listLengtH;
@@ -94,27 +108,53 @@ accessor that cannot name a parent has no use.
 
 NEXT: BEST GUESS
 
-Two candidates, graded, and explicitly NOT a recommendation.
+Candidate 1 stands. Candidate 2 is KILLED. A third question opened and is named.
 
-  1. COPY-ON-<- IS INTENDED (grade: likely). `<-` is documented as "rebinds a
-     local's slot to a fresh node", and "fresh node" is exactly what was
-     measured. If so the remedy is documentation and a discipline -- MUTATE
-     through a direct subscript or an iterate cursor, READ through a capture --
-     and this citizen promotes into the fleet as the regression test that the
-     three roads keep behaving as documented.
+  1. COPY-ON-<- IS INTENDED (grade: likely, UNCHANGED). `<-` is documented as
+     "rebinds a local's slot to a fresh node", and "fresh node" is exactly what
+     road 2 measures. If so the remedy is documentation and a discipline --
+     MUTATE through a direct subscript or an iterate cursor, READ through a
+     capture -- and this citizen promotes into the fleet as the regression test
+     that the roads keep behaving as documented.
      PROMOTED OR KILLED BY: the architect's word. Nothing to measure.
 
-  2. THE parenT UNWRAP IS A PLAIN DEFECT (grade: likely, independent of 1).
-     opDot case 2 sets product.group = target.parent, and unWrap walks
-     `while isGROUP grup = group` -- whose bare-name resolution is ambiguous
-     enough that it may be walking the wrong operand. That is a reading, not a
-     diagnosis.
-     PROMOTED OR KILLED BY: reading unWrap's generated code in GroupRules.mm and
-     checking which object each bare name resolved to. One grep, not a build.
+  2. THE parenT UNWRAP IS unWrap WALKING TOO FAR -- ⚠ KILLED 2026-08-23 BY
+     ROAD 3b, AND THE KILL IS THE POINT. The grep was done and it produced a
+     clean mechanism: opDot case 2 sets product.group = target.parent
+     (GroupRules.mm:8882), and unWrap walks `while isGROUP grup = grup.getGroup()`
+     UNCONDITIONALLY (GroupRules.mm:13535). Braced is a rule and rules look
+     group-shaped, so unWrap should descend one level past the parent and land
+     on its first member -- which is leftBrace, which is exactly what road 3
+     prints. The mechanism explained the symptom perfectly.
+     It is wrong. Road 3b applies unWrap to Braced directly and gets BRACED
+     BACK, so Braced is not group-shaped by the flag unWrap tests and there is
+     no descent to overshoot. One line of incant, no build, and a mechanism that
+     fit the evidence exactly died on contact.
+     This is the project's own asymmetry landing again: the structural reading
+     (what the two functions DO) was right and citable; the causal claim built
+     on it (therefore THIS is why road 3 fails) was a coin flip and lost.
+
+  3. IS ROAD 3 ACTUALLY ROAD 2? -- ⚠ OPEN, AND ITS FIRST CONTROL WENT VOID.
+     Road 3 reaches the child through a `<-` rebind, and road 2 proves a `<-`
+     hands back a COPY. A copy may not carry a usable parent link, in which case
+     road 3 is not a parenT defect at all and there are three roads here, not
+     four. Road 3c tries to discriminate by taking parenT with no `<-` in the
+     way -- and to do that it must use a chained subscript, which is ROAD 4. It
+     reads `xl`, road 4's garbage-token signature. THE TREATMENT VOIDED THE
+     CONTROL: removing one defect from the path forced another into it, so road
+     3c is uninterpretable rather than negative, and it is recorded, not graded.
+     WHAT WOULD GENERATE AN ANSWER: reach the first child by an ITERATE CURSOR,
+     which is neither a `<-` copy nor a chained read, then take parenT off the
+     cursor. Attempted 2026-08-23 and the fixture would not parse -- a
+     multi-statement `while ++` body inside this file failed at "reached end of
+     input", line 33. Three mechanism attempts is the grinding line, so it
+     stopped there. The measurement is still the right one; it wants a spelling
+     that parses.
 
 WHAT WOULD MAKE THIS FILE GO QUIET: road 2 printing SAME NODE, road 3 printing
 Braced, and road 4's first read printing 3. Any of the three can move
-independently.
+independently -- and question 3 above may yet collapse road 3 into road 2, in
+which case there are two defects here and not three.
 
 ⚠ STANDING DISCIPLINE, effective regardless of the ruling: IDENTITY QUESTIONS
 ARE ASKED IN POINTERS, THROUGH canonOf. A resolver that reports names cannot

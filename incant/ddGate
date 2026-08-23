@@ -1,0 +1,49 @@
+/*****************************************************************************
+    ddGate -- THE TRIM GATE, MEASURED.
+
+    Walks designDocs ProblemRecords and prints, for every entry, the three
+    quantities the gate is written in terms of: whether the prose has been
+    shed, the lifecycle status, and the reviewed text. It prints them for
+    every entry unconditionally, whether or not the entry is in violation,
+    because a check that speaks only on failure passes the day somebody
+    deletes the code that would have spoken.
+
+    THE GATE ITSELF IS ASSERTED IN genLadder ddPop.sh, not here. This file
+    produces the quantities; the shell compares them. That keeps the string
+    comparison out of incant, where a compare inside an iterate body has
+    matched every member before now.
+
+    THE GATE: no entry has shed its description unless its status is terminal,
+    which means remedy or retired-unreproduced, AND its reviewed attribute is
+    past the placeholder token.
+
+    Header is prose on purpose. SENTINEL AT THE FOOT, single stop.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(utilities);
+include(designDocs);
+
+search reset stack Grokking DesignDocs UnitTests Utilities list;
+register(DdGate);
+define
+    ddDesc=0;
+    ddSeen=0;
+
+    ddRow argument code={
+        ddSeen = ddSeen + 1;
+        ddDesc = 0;
+        if argument.description;     ddDesc = 1;
+        print "GATE|" argument.taG "|" ddDesc "|" argument.status "|" argument.reviewed "|":;
+        };
+
+    ddGateRun code={
+        print "=== ddGate -- trim gate quantities, one row per problem record ===":;
+        for grup in ProblemRecords;
+            ddRow(grup);
+        print "GATECOUNT records walked " ddSeen:;
+        };
+    ;
+ddGateRun();
+print "DDGATE SENTINEL -- run reached the end":;
+stop();

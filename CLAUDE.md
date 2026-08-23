@@ -997,6 +997,55 @@ calls, no `:=` captures.
 re-pins its expectation and **promotes into the fleet as the regression test**, or retires through
 `parked.sh`'s two-stage pattern if the fleet already covers it. No orphaned prose at any stage.
 
+### ⚠ A FIFTH REGISTER, ADOPTED 2026-08-23: `incant/designDocs` → `ProblemRecords` — THE OPERATIONAL HISTORY
+
+**`docs/fixIts.md` says what is OWED. `ProblemRecords` says what we have FOUGHT.** They are different
+questions and the second one had no home, which is why bear-trap knowledge lived in `CLAUDE.md` prose
+and in the humans' memory, and why Tony kept having to ask what `H4` or `F-31` meant.
+
+**One entry per PROBLEM, never per station or per rung.** `incant/frontier` iterates — its station 4
+next month is a different animal from its station 4 today — so an archive keyed on where a problem
+was met goes stale the first time the ladder rotates, and goes stale **silently**. `station` and
+`vintage` are attributes; the problem is the identity.
+
+**SKELETON, permanent:** `symptom` · `finding` · `workaround` · `solution` · `status` · `verdict` ·
+`reviewed`. **FLESH:** `description`, and nothing else. **Trimming an entry deletes `description` and
+nothing else** — mechanical, not a judgment about which sentences matter.
+
+⚠ **THREE FACTS, THREE CHANNELS**, because this project has paid four times for putting two meanings
+on one. `status` is the lifecycle grade only — the ratified `NEXT:` grades (`open` · `guess` ·
+`ruled` · `remedy`) plus `baked` · `workaround`, with **two terminal flavours: `remedy` and
+`retired-unreproduced`**, which are different tombstones on purpose. `verdict` is Tony's disposition
+and is the **loud** channel — where FIX THIS goes, standing verbatim once written. `reviewed` is the
+commentary ledger, append-only while live, collapsing to the final ruling at trim.
+
+⚠ **THE TRIM GATE IS TONY'S AND IT IS STRUCTURAL, NOT REMEMBERED.** An entry is trimmable only when
+`status` is terminal **and** `reviewed` is past the exact placeholder token `-- unreviewed --`.
+`genLadder/ddPop.sh` asserts it, with an H7 negative control that strips a non-terminal record's
+prose and requires the gate to go red. **The gate exists because four findings were withdrawn or
+inverted in one month and what caught every inversion was the surviving record of HOW the original
+conclusion was reached** — trimming an active or freshly-settled entry destroys exactly that.
+
+⚠ **THE BIRTH RULE — ONE ACT, THREE EFFECTS. AN ID IN NEITHER PLACE IS NOT YET AN ID.** A new id is
+born by writing its **one-sentence decoder line** (`incant/decoder`), **and** creating its **problem
+record** with `status=open` and explicit placeholders, **and** rendering it with `tombstone()` before
+it is committed. **Birth happens when a symptom is FIRST NAMED, not when the write-up happens** — an
+archive that only records finished fights is systematically missing every fight in progress, which
+are the ones most likely to be re-encountered.
+
+⚠ **SKELETON ATTRIBUTES ARE WRITTEN TO SURVIVE ALONE** — one sentence each, leaning on no prose, and
+`symptom` written as **what a future rematch would grep for**, because a rematch is recognised by
+symptom and never by name. Nobody greps for `bt34`; they grep for *the measurement destroyed its own
+subject*. This is cheap at birth and impossible to retrofit, so `tombstone()` in `incant/lookup` is
+the enforcement: it renders the entry with the prose already shed, which is exactly what the trim
+will leave. **Render before you commit.**
+
+**Reading it:** `incant/lookup` is ONE verb over BOTH populations — `lookuP(bt34)` prints the
+decoder's one-line definition and the problem record's operational history, whichever exist, so
+nobody has to know which file to ask. `tombstone(x)` previews the trim. `lookupIndex()` lists every
+record with its status. **`incant/decoder` stays one present-tense sentence per term; depth lives in
+the problem records and never in the decoder.**
+
 ⚠ **`incant/fixits/` IS TONY'S QUEUE, NOT THE FLEET.** Nothing in it runs under `pop.sh` until it is
 promoted. The single coupling is the seal line, and that line is **generated, not remembered** —
 `genLadder/fixitNag.sh` reads the directory and prints

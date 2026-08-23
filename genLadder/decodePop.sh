@@ -120,6 +120,21 @@ sentinel "decodeT sentinel (run reached the end)" "$T/dt.o" "DECODET SENTINEL"
 #  The two scalars decodeT prints. Both compared by value.
 nt=$(sed -n 's/^TALLY terms = *\([0-9][0-9]*\).*/\1/p'       "$T/dt.o" | head -1)
 nd=$(sed -n 's/^TALLY definitions = *\([0-9][0-9]*\).*/\1/p' "$T/dt.o" | head -1)
+#  ⚠ RE-PIN 2026-08-23, AND THE SENTENCE THE RULE ASKS FOR. 36 -> 60 terms,
+#  39 -> 63 dump rows. ONE CAUSE, and every moved row is that cause: the corpus
+#  had stood at its 2026-08-10 mark while the campaign minted ids continuously,
+#  and the 2026-08-23 brief (Clay, ratified Tony) ordered the backfill. EXACTLY
+#  24 TERMS WERE ADDED, and they are nameable, which is what makes this a re-pin
+#  and not a regenerated green:
+#      H10 H11 RulingA RulingB RulingC RulingD RulingE doorTaxonomy F31
+#      bt4 bt26 bt29 bt32 bt34 bt35 bt37
+#      frontier peasPass loadedGun glossConvention problemRecord tombstone
+#      canonOf armingWithoutRouting
+#  36 + 24 = 60, and the dump row count moves by the same 24. No term was
+#  removed or reworded; the arithmetic is additive and closes exactly.
+#  Operational depth for the bt- and Ruling- entries lives in designDocs
+#  ProblemRecords, never here -- the decoder stays one sentence per term.
+#
 #  ⚠ RE-PIN 2026-08-10, SEQ 27/28/29, AND THE SENTENCES THE RULE ASKS FOR. 34 -> 36
 #  in two named steps, neither of them a loss -- the count went UP and both terms are
 #  in incant/decoder under their own dated heading:
@@ -129,8 +144,8 @@ nd=$(sed -n 's/^TALLY definitions = *\([0-9][0-9]*\).*/\1/p' "$T/dt.o" | head -1
 #      +1  `oneNumberTwoEras`  a green that survived a semantics change by
 #                              arithmetic accident. Dictated SEQ 29 from kant8T's
 #                              K6f, which is the measured case.
-check "corpus holds 36 terms"          36 "$nt"
-check "36 of them carry a definition"  36 "$nd"
+check "corpus holds 60 terms"          60 "$nt"
+check "60 of them carry a definition"  60 "$nd"
 check "every term is defined"     "$nt" "$nd"
 
 #  decodeT's own self-certification, asserted FROM OUTSIDE -- a harness that
@@ -189,7 +204,7 @@ fi
 #  sentinel line ("DECODE SENTINEL -- run reached the end"). An unanchored
 #  count read 38 for 37 real rows. A definition row is `<singleWord> -- `.
 nl=$(grep -cE '^[A-Za-z][A-Za-z0-9]* -- ' "$T/dc.o")
-check "corpus dump + decode line = 39 definition rows" 39 "$nl"
+check "corpus dump + decode line = 63 definition rows" 63 "$nl"
 
 #  ⚠ THE DATALESS-ECHO ROW, and the reason this file exists. A definition that
 #  never stored prints as the ATTRIBUTE'S OWN NAME. In-language it compares

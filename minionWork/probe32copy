@@ -64,7 +64,7 @@ define
         if frOk == 1;
             cerr "STATION 1 generate body: PASS -- body text follows":;
             cerr StorE:;
-        if frOk == 0;
+        else
             cerr "STATION 1 generate body: FAIL -- expected non-empty body text, read empty":;
             frDead = 1;
         };
@@ -81,7 +81,7 @@ define
         if frTwinLen == frLiveLen;      frOk = 1;
         if frTwinLen == 0;              frOk = 0;
         if frOk == 1;            cerr "STATION 2 mint twin: PASS -- twin is a faithful, unfired copy":;
-        if frOk == 0;
+        else
             cerr "STATION 2 mint twin: FAIL -- twin list length does not match the live rule, or is empty":;
             frDead = 1;
         };
@@ -97,7 +97,7 @@ define
         frOk = 0;
         if frLiveLen2 > frLiveLen;      frOk = 1;
         if frOk == 1;            cerr "STATION 3 store body: PASS -- body hung on the live rule; census follows, pending must read 1":;
-        if frOk == 0;
+        else
             cerr "STATION 3 store body: FAIL -- the live rule did not grow, so nothing was hung":;
             frDead = 1;
         bodyCensus(frAny);
@@ -118,7 +118,7 @@ define
         if frOk == 1;
             cerr "STATION 4 install on twin: PASS -- read-back follows":;
             cerr frCode:;
-        if frOk == 0;
+        else
             cerr "STATION 4 install on twin: FAIL -- expected the twin to grow and to carry a CodE":;
             frDead = 1;
         };
@@ -135,7 +135,7 @@ define
         frOk = 0;
         if frTwinLen2 > frTwinLen;      frOk = 1;
         if frOk == 1;            cerr "STATION 5 compile twin: PASS -- the twin grew a BlocK":;
-        if frOk == 0;
+        else
             cerr "STATION 5 compile twin: FAIL -- no BlocK on the twin, so the parse did not land; texture is above this line":;
             frDead = 1;
         };
@@ -159,7 +159,7 @@ define
         if frLiveLen2 > frLiveLen;      frOk = 1;
         if frOk2 == 0;      frOk = 0;
         if frOk == 1;            cerr "STATION 6 harvest: PASS -- artifact grew onto the live rule AND isActioN verified set":;
-        if frOk == 0;
+        else
             cerr "STATION 6 harvest: FAIL -- need BOTH the live rule to grow and isActioN reading back set":;
             frDead = 1;
         };
@@ -175,7 +175,7 @@ define
         if frLive.hasActioN;     frOk = 1;
         cerr "STATION 7 actionMethod now bound " frOk " (setParse moves gMethod into it)":;
         if frOk == 1;            cerr "STATION 7 bind: PASS -- parse path routed; the census line above is the evidence":;
-        if frOk == 0;
+        else
             cerr "STATION 7 bind: FAIL -- setParse left actionMethod empty, so nothing was routed":;
             frDead = 1;
         };
@@ -206,7 +206,7 @@ define
         if frOk2 == 0;      frDead = 1;
         if frOk == 0;       cerr "STATION 9 run original: FAIL -- the trigger itself would not parse, so the witness proves nothing":;
         if frOk2 == 1;      cerr "STATION 9 run original: PASS -- the commissioned artifact EXECUTED on trigger":;
-        if frOk2 == 0;      cerr "STATION 9 run original: FAIL -- the commissioned artifact did NOT execute; the two values above are the evidence":;
+        else      cerr "STATION 9 run original: FAIL -- the commissioned artifact did NOT execute; the two values above are the evidence":;
         };
 
     frRun code={
@@ -326,54 +326,45 @@ chronological passes, ~300 lines, newest on top. They are kept verbatim in
 docs/frontierHistory.md as the reasoning trail, including the readings later
 withdrawn or inverted. Nothing was deleted.
 
-WHERE THE ANALYSIS WENT, AND WHY IT IS NOT KEYED ON STATIONS
+WHERE THE PER-STATION ANALYSIS WENT, AND WHY
 
-This file says WHAT IT DOES. It used to also say what that MEANS, in
-chronological prose at the foot, and Tony's 2026-08-23 offline report named
-the cost: reading a station required scrolling between the analysis and the
-station code, and there was nowhere for him to answer.
+This file says WHAT IT DOES. It used to also say what that MEANS, and Tony's
+2026-08-23 offline report named the cost: the meaning was chronological prose
+at the foot, so reading a station required scrolling between the analysis and
+the station code, and there was nowhere for him to answer.
 
-The meaning now lives in incant/designDocs as ProblemRecords, ONE ENTRY PER
-PROBLEM. It is deliberately NOT one entry per station. This file iterates --
-its station 4 next month is a different animal from its station 4 today -- so
-an archive keyed on station numbers goes stale the first time the ladder
-rotates, and goes stale SILENTLY. Where a problem was met is an attribute on
-the record, not its identity:
+The meaning now lives in incant/designDocs as FrontierStations -- one entry
+per station, each carrying the same eight attributes:
 
-    station     which station met it, in the vintage below
-    vintage     the frontier seal date the station numbers refer to
+    gloss        the two-term hook
+    purpose      what the station proves when it is green
+    problem      the defect or hazard it addresses or exposes, by shorthand id
+    workaround   what this file does today to get past it
+    solution     the fix, or NEEDED plus what would generate one
+    status       the lifecycle grade: baked, workaround, open, guess, ruled, remedy
+    verdict      Tony's disposition -- the loud channel, where FIX THIS goes
+    reviewed     Tony's prose
 
-Each record carries a permanent SKELETON that survives forever -- symptom,
-finding, workaround, solution, status, verdict, reviewed -- plus a sheddable
-description holding the prose. Trimming an entry means deleting the
-description and nothing else.
+status and verdict are two attributes rather than one on purpose. A grade and
+a disposition are different facts, and this project has paid four times for
+putting two meanings on one channel.
 
-    status      the lifecycle grade only: open, guess, ruled, remedy, baked,
-                workaround, and the two terminal flavours remedy and
-                retired-unreproduced
-    verdict     Tony's disposition -- the loud channel, where FIX THIS goes
-    reviewed    Tony's ledger, append-only while live, collapsing at trim
+The shorthand ids the analysis leans on -- bt32, bt34, bt35, bt37, H2, H4, H7,
+RulingA, RulingD, RulingE, F31 -- are in the same file as Shorthand, with the
+same attribute discipline. CLAUDE.md keeps the long form; that entry is the
+index and carries the hook, the standing workaround and the STATUS.
 
-symptom is written as what a future rematch would GREP FOR, because the
-trimmed archive is a have-we-fought-this-before surface and a rematch is
-recognised by symptom, never by name.
+TO LOOK EITHER UP: edit the lookup line at the foot of incant/lookup and run
+it. lookuP(bt32 FSifElse) prints both. lookupIndex() prints every station and
+every id, one line each.
 
-TO LOOK ANY OF IT UP: edit the lookup line at the foot of incant/lookup and
-run it. lookuP(bt34) queries the decoder AND the problem records in one call
-and prints whichever exist, so nobody has to know which file to ask.
-tombstone(bt34) renders a record with the prose already shed, which is what a
-trim will leave. lookupIndex() prints every record with its status.
-
-⚠ THE if/else NOTE THAT USED TO SIT HERE IS RESOLVED, AND THE WORKAROUND IS
-FROZEN RATHER THAN NEEDED. Every station reads a flag and tests it twice
-because bear trap 32 recorded that a multi-statement indented if-arm followed
-by an else breaks the parse. On 2026-08-23 this file was COPIED to
-minionWork/probe32copy and eight of those pairs were converted to if/else --
-two of them producing the exact reported shape. The copy ran all nine
-stations, all PASSED, exit 0. With six earlier probe shapes that is eight
-measurements and no reproduction, and bt32 is regraded retired-unreproduced.
-THE SHAPE IN THIS FILE DOES NOT CHANGE, by ruling: the original is the closest
-surviving relative of the destroyed 2026-08-21 source, and rewriting it would
-destroy the last thing that was ever near the symptom. Tony's verdict stands
-verbatim in the record and is suspended, not withdrawn -- a second sighting
-regrades bt32 OPEN and revives it.
+⚠ THE if/else NOTE THAT USED TO SIT HERE IS NOW A LIVE QUESTION, NOT A NOTE.
+Every station in this file reads a flag and tests it twice rather than using
+if/else, because bear trap 32 recorded that a multi-statement indented if-arm
+followed by an else breaks the parse. RE-MEASURED 2026-08-23 against the
+current binary across six shapes -- IT DOES NOT REPRODUCE. See
+FrontierStations FSifElse and Shorthand bt32 for the measurement, the six
+probe files, and what the re-measurement does NOT establish. Tony's verdict is
+recorded there and it is FIX THIS. The workaround stays in this file until the
+trap is either reproduced or retired by ruling -- changing the shape now would
+destroy the only source that is known to have shown the symptom.

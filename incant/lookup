@@ -1,0 +1,111 @@
+/*****************************************************************************
+    lookup -- ONE READER OVER BOTH POPULATIONS.
+
+    Tony never has to learn which file to ask. A name is tried against the
+    decoder corpus, which holds one present-tense sentence per term, AND
+    against designDocs ProblemRecords, which holds operational history. Both
+    print when both exist. Either prints alone when only one does. A name in
+    neither says so and names both namespaces.
+
+        lookuP(bt32 bt35 RulingE)      the lookup line, edit it and run
+        tombstone(bt32)                render it with the prose already shed
+        lookupIndex()                  every record, one line, name and gloss
+
+    tombstone() IS THE BIRTH DISCIPLINE, not a convenience. A skeleton
+    attribute has to survive alone, and the only honest way to check that is to
+    look at what the trim will leave. Render before you commit.
+
+    Header is prose on purpose. A fixture comment header is not inert -- an
+    indented, code shaped header killed a fixture parse at exit 138 with zero
+    bytes of output. Keep this one free of semicolons and operators.
+
+    SENTINEL AT THE FOOT, single stop.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(utilities);
+include(decoder);
+include(designDocs);
+
+search reset stack Grokking DesignDocs Decoder UnitTests Utilities list;
+register(LookuP);
+define
+    luHit=0;
+
+    luSkeleton argument code={
+        print "  symptom    " argument.symptom:;
+        print "  finding    " argument.finding:;
+        print "  workaround " argument.workaround:;
+        print "  solution   " argument.solution:;
+        print "  status     " argument.status:;
+        print "  verdict    " argument.verdict:;
+        print "  reviewed   " argument.reviewed:;
+        print "  station    " argument.station:;
+        print "  vintage    " argument.vintage:;
+        print "  site       " argument.site:;
+        print "  bear traps " argument.beartraps:;
+        };
+
+    luFull argument code={
+        luSkeleton(argument);
+        print "  description":;
+        print argument.description:;
+        print :;
+        };
+
+    luOne argument code={
+        luHit = 0;
+        luD = decodeCorpus[argument.taG];
+        if luD;
+            print "=== " argument.taG " -- " luD.definition:;
+            luHit = 1;
+        luP = ProblemRecords[argument.taG];
+        if luP;
+            print "--- problem record ---":;
+            luFull(luP);
+            luHit = 1;
+        if luHit == 0;
+            print "=== " argument.taG " -- IN NEITHER POPULATION. Not yet an id: a name is born by writing its decoder line AND its problem record in the same act. ===":;
+            print :;
+        };
+
+    lookuP argument code={
+        if argument.listLengtH;
+            for grup in <- argument;
+                luOne(grup);
+        else
+            luOne(argument);
+        };
+
+    tombstone argument code={
+        luP = ProblemRecords[argument.taG];
+        if luP;
+            print "=== " argument.taG " AS A TOMBSTONE, prose shed ===":;
+            luSkeleton(luP);
+            print :;
+        else
+            print "=== " argument.taG " -- no problem record ===":;
+        };
+
+    tombstoneAll code={
+        for grup in ProblemRecords;
+            tombstone(grup);
+        };
+
+    lookupIndex code={
+        print "-- ProblemRecords, one line per problem --":;
+        for grup in ProblemRecords;
+            print grup.taG " -- " grup.gloss " [" grup.status "]":;
+        print :;
+        };
+    ;
+
+/*  ---- THE LOOKUP LINE -- edit this and run --------------------------- */
+print "=== lookup ===":;
+lookuP(bt32);
+
+print "=== index ===":;
+lookupIndex();
+
+print "LOOKUP SENTINEL -- run reached the end":;
+stop();
