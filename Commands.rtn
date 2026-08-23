@@ -735,6 +735,7 @@ GroupItem   target  = item.fLAG ? item.parent : item;
                 if item.isSTRING && item.gText == 'd'   sortDescending = true;
                 else    sortAscending   = true;
             case 't':   tokened         = true;
+            case 'T':   tokened         = true;
             case 'u':   isUnary         = true;
             case 'v':   isVirtual       = true;
             default:    cerr "processFlag: invalid argument",command:; }

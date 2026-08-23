@@ -1,0 +1,19 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(HexRun);
+define
+    hxA=0; hxB=0; hxC=0; hxD=0;
+    hxRun code={
+        hxA = 0x1F;
+        hxB = 0xff;
+        hxC = 0xDEAD;
+        hxD = 0x0;
+        cerr "hex values " hxA " " hxB " " hxC " " hxD:;
+        cerr "HEXRUN SENTINEL -- reached the foot":;
+        stop();
+        };
+    ;
+traceParse('on');
+hxRun();

@@ -212,6 +212,12 @@ GroupRules  ruler = groupRules;
     strap           = grok += "NamE";
     setRuleStuff();
     method          = aCTionNamE;
+    /*  TOKENize's BOOTSTRAP ARM. NamE is built here in C++, not by
+        aCTionDefinE, and its grammar-file line is inert -- measured, with a
+        live line as the control. So its constitution is written at its
+        construction site, which is here. The grammar arm sets the same bit
+        through processFlags for rules the grammar actually defines.  */
+    tokened         = true;
     item            = new("first");
     item.characterSet    = new("a-zA-Z");
     item            = strap +% item;

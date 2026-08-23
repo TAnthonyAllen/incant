@@ -42,6 +42,7 @@ GroupItem *addString(char *n);
 int allAttributesOptional();
 void append(GroupItem *grup);
 void attachLabel(RuleStuff *stuff, RuleStuff *pStuff, int promote);
+void captureSpan(RuleStuff *stuff);
 void clear();
 void clearData();
 void clearList();

@@ -1,0 +1,16 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(FmtRun);
+define
+    fmN=42;
+    fmRun code={
+        print fmN#5d:;
+        print fmN#x:;
+        cerr "FMTRUN SENTINEL -- reached the foot":;
+        stop();
+        };
+    ;
+traceParse('on');
+fmRun();

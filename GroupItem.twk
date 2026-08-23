@@ -1033,6 +1033,75 @@ GroupRules  ruler = groupRules;
 }
 
 /***************************************************************************
+    captureSpan — THE BOUNDARY CAPTURE, and the ONLY definition of it.
+
+    Invoked from parse()'s two success paths when the rule's groupBody carries
+    the tokened bit, which TOKENize sets once at definition. It writes the span
+    the rule just matched onto the rule's product as a noPrint attribute, and
+    it does nothing else.
+
+    THE FORMULA IS CHAIR-SPECIFIC AND WAS MEASURED, not inherited. From THIS
+    chair the rule's own stuff carries the ENTRY mark and the rules singleton
+    carries the exit: own hereAt matched the shipped span start in 125 firings
+    out of 125. From the ACTION's chair the same rule reads the other way
+    round, because there the node in hand is the PRODUCT, whose parent stuff is
+    the rule. The action-chair spelling must never be copied here.
+
+    IT RUNS BEFORE fireLabelMethod AT BOTH CALL SITES, which is not a
+    preference. An action reads its own product, so a stamp landing after the
+    action is a null read waiting to happen; that was measured the expensive
+    way once, at exit 139 with no output.
+
+    THE LOCALS ARE NAMED spanFrom AND spanTo FOR A REASON: the obvious spellings
+    are tok keywords and the parse fails on the declaration line while naming
+    the enclosing function, which reads as a broken function rather than a
+    reserved word.
+***************************************************************************/
+void captureSpan(RuleStuff stuff)
+{
+GroupRules  ruler = groupRules;
+GroupItem   label = stuff.label;
+GroupItem   span;
+String      spanFrom = stuff.hereAt;
+String      spanTo   = ruler.atRuleMark;
+int         spanLen;
+    if !label       return;
+    if !spanFrom    return;
+    if !spanTo      return;
+    spanLen = (int)(spanTo - spanFrom);
+    if spanLen < 0  return;
+    span    = new("spaN");
+    span.setToken(spanFrom,spanLen);
+    span.noPrint = true;
+-%
+    /*  DUAL-RUN ADJUDICATION, live only under the parse trace. While a rule
+        still carries its tokenize term, that term has already stamped the
+        product by the time this boundary is reached, so the product's own
+        token is the shipped ORACLE and the span about to be attached is the
+        candidate. The guard reports VOID rather than MATCH when there is
+        nothing to compare, because two empty spans satisfy any byte test and
+        that exact vacuity printed nine false matches once already.  */
+    if ( GroupControl::groupController->groupRules->parseTrace )
+        {
+        int   shipLen   = isTOKEN(label->groupBody->flags.data) ? label->groupBody->gCount : -1;
+        char *shipFrom  = isTOKEN(label->groupBody->flags.data) ? label->groupBody->gText : 0;
+        const char *verdict;
+        if ( !shipFrom )                                    verdict = "ORACLE-ABSENT";
+        else if ( shipLen <= 0 && spanLen <= 0 )            verdict = "VOID-bothEmpty";
+        else if ( shipLen != spanLen )                      verdict = "DIVERGE-len";
+        else if ( ::strncmp(shipFrom,spanFrom,spanLen) )    verdict = "DIVERGE-bytes";
+        else                                                verdict = "MATCH";
+        ::fprintf(stderr,"CAPTURE %s rule=%s shipLen=%d spanLen=%d shipFrom=%p spanFrom=%p ship=[%.*s] span=[%.*s]\n",
+            verdict, groupBody->tag ? groupBody->tag : "?", shipLen, spanLen,
+            (void*)shipFrom,(void*)spanFrom,
+            shipLen > 0 ? shipLen : 0, shipFrom ? shipFrom : "",
+            spanLen > 0 ? spanLen : 0, spanFrom);
+        }
+%-
+    label   +% span;
+}
+
+/***************************************************************************
     attachLabel — THE LABEL ATTACH, and the ONLY site that performs one.
 
     PC-4, 2026-08-07. Extracted from parse()'s match loop so both arms run the
@@ -1333,6 +1402,7 @@ RuleStuff   ruleStuff   = getStuff(pStuff);
             instead of growing it (GM-22's third wall, measured as ScafOUT
             coming back childless).  */
         if sukcess {
+            if tokened  captureSpan(ruleStuff);
             fireLabelMethod(ruleStuff);
             attachLabel(ruleStuff,pStuff,0); }
         goto generatedExit; }
@@ -1384,6 +1454,7 @@ continueHere:
         /*******************************************************************
             Success. Fire label method if there is one.
         *******************************************************************/
+        if tokened  captureSpan(ruleStuff);
         fireLabelMethod(ruleStuff);
         if sukcess {
             kount++;

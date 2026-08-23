@@ -11954,6 +11954,9 @@ GroupItem 	*target = item->groupBody->flags.fLAG ? item->parent : item;
 			case 't':
 				target->groupBody->flags.tokened = 1;
 				break;
+			case 'T':
+				target->groupBody->flags.tokened = 1;
+				break;
 			case 'u':
 				target->groupBody->flags.isUnary = 1;
 				break;

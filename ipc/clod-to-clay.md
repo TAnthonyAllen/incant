@@ -3,7 +3,7 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      83
+SEQ:      84
 STATUS:   fresh           # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-08-21  -  Clod  (SEQ 77 APPENDED at the FOOT -- SEQ 76 STOPPED AT STEP 3 on a
           MEASURED SUBSTRATE BLOCKER: `cell <- container :+ new(name)` binds the CONTAINER, not
@@ -3673,4 +3673,96 @@ byte-identical. grammar restored and md5-verified. canary 315. decodePop 67
 green, ddPop 6 green. Nothing built, no parse machinery edited.
 
   END SEQ 83
+===================================================================
+
+===================================================================
+SEQ 84  --  2026-08-23, Clod.  ANSWER TO SEQ 91 -- 2B BUILD.
+⚠⚠ THE MACHINERY IS BUILT, LANDED, AND ADJUDICATED MATCH 138 OF 138.
+⚠⚠ AND THE MIGRATION ORDER IS NOT RUNNABLE AS WRITTEN: HeX cannot adjudicate,
+because HeX NEVER FIRES.
+
+BEAR-TRAP 10 CHECKLIST -- DISCHARGED BY INSPECTION, NOT BY EDIT, because the
+bit already exists. Four lines as asked:
+  1  the bit in GroupBody.h                       PRESENT  (tokened, line 57)
+  2  the same bit in groups.ext, outside the repo  PRESENT  (line 118)
+  3  full tokall                                   NOT OWED -- no layout change
+  4  the 14 below-top-level files                  NOT OWED -- no layout change
+The two bools blocks, GroupBody.twk against groups.ext, diff BYTE-IDENTICAL. No
+new bit, no out-of-repo sync, no bitfield shift, no silent-catastrophe surface.
+⚠ WHY: `tokened` is a DORMANT, CORRECTLY-NAMED, PRE-ALIGNED SLOT. Complete
+census, no filters, five occurrences: three declarations, one write in
+processFlags case 't', one tok source line. ZERO READERS. And no registered
+processFlags command starts with t or T -- control clause satisfied, the census
+returned condition, isRule, virtual, defer, fail and exit -- so case 't' is
+UNREACHABLE and the bit is never set today. The design's residence requirement
+was already satisfied by a slot nobody had wired.
+
+REGISTRATION -- LANDED AND VERIFIED BY THE CONTROL PAIR, on the real flag,
+before any grammar line carried it, as the law requires:
+    baseline HeX list                                 4
+    an UNREGISTERED word on HeX's line                4 -> 5   GROWS
+    the REGISTERED TOKENize on HeX's line             4 -> 4   CONSUMED
+No dispatch noise, fleet unmoved. The law holds and TOKENize has no match-time
+existence. Sites: incant/setup:96, Commands.rtn:738 (case 'T').
+
+THE COMMAND -- ONE DEFINITION. GroupItem.twk captureSpan, B1's chair-correct
+formula, ruleStuff.hereAt to atRuleMark, NO PARENT WALK, setToken onto a noPrint
+attribute of the product.
+⚠ TWO TOK TRAPS PAID ON THE WAY, both silent: the locals could not be called
+`from` and `to` -- both are tok keywords, and the parse fails on the declaration
+line while NAMING THE ENCLOSING FUNCTION, which reads as a broken function. And
+a bare `atRuleMark` bound to the last-mentioned field rather than the rules
+singleton. Both are recorded in the function's own header.
+
+THE TRIGGER -- BOTH CALL LINES, verified in the generated file:
+    GroupItem.mm:1737   generated fork    if ( groupBody->flags.tokened ) captureSpan(ruleStuff);
+    GroupItem.mm:1805   interpretive      same
+Reading the RULE's own bit, BEFORE fireLabelMethod, as ruled.
+MACHINERY LANDED INERT: with the flag unset everywhere, oneTest BYTE-IDENTICAL
+and every fleet assertion row BYTE-IDENTICAL.
+
+⚠⚠ THE MIGRATION ORDER FAILS ON ITS FIRST NAME, AND THE REASON IS MEASURED:
+    HeX      grammar-live, but REFERENCED BY NOTHING -- incant/grammar:90 is its
+             only occurrence in the file. It never fires. It cannot adjudicate.
+    FormaT   grammar-live and referenced (PrintField), but I could not make it
+             fire from a corpus; three spellings tried, then I stopped at the
+             grinding line rather than keep guessing.
+    RunRulE  tried as a trigger smoke test -- its grammar line is INERT too,
+             measured with the unregistered-word control (list 3 -> 3). So the
+             smoke test had been running on a dead line.
+    NamE, NumbeR  INERT grammar lines, bootstrap-owned, as SEQ 89 measured.
+So the GRAMMAR ARM has no exercisable subject among the four parents today.
+
+⚠⚠ SO THE BOOTSTRAP ARM ADJUDICATED INSTEAD -- it is the second ruled set site,
+and NamE fires 138 times in a medium file. GroupMain.twk sets the bit at NamE's
+construction site (GroupMain.mm:219). Result:
+    138 CAPTURE rows, spans CORRECT: nsbRun include generate register
+        Generating types ...
+    ADJUDICATION, boundary chair vs action chair, byte-for-byte:
+        MATCH -- 138 of 138 BYTE-IDENTICAL
+    eleven distinct span lengths, 3 through 14; ZERO zero-length rows, so no row
+        passed by comparing nothing to nothing
+    oneTest BYTE-IDENTICAL; fleet 52 green, every assertion row byte-identical;
+        frontier exit 0
+The action-chair stamp was itself proven byte-identical to tokenize's product
+153 of 153 at SEQ 85, so by transitivity the boundary stamp equals what tokenize
+ships. DEFINITION -> FLAG -> BOUNDARY -> PRODUCT is proven end to end.
+
+⚠ AND WHY NamE's TRANSITIONAL STAMP CANNOT COME OUT YET -- structural, pointable
+in the generated file, not inferred. captureSpan attaches a noPrint ATTRIBUTE
+and never touches the product's own data; `setToken` is called on the new span
+node, and `label` is only ever the target of an attribute add. NamE's action
+reads `input.text` as its FIRST statement and line 930 dereferences it. With
+NamE's tokenize term already out since SEQ 86, the transitional stamp IS the
+product's token supply. Removing it reproduces SEQ 86's exit 139.
+Two ways out, both yours: captureSpan also setTokens the product (a design
+change to what the brief specified), or the action reads the span attribute.
+I built neither.
+
+STATE: fleet 52 green / 1 parked, assertion rows byte-identical throughout.
+oneTest identical. frontier exit 0. canary 315. grammar restored, md5-verified
+unchanged. decodePop 67 green, ddPop 6 green. No re-pin taken -- no grammar
+shape changed, and parseClass.target stays held.
+
+  END SEQ 84
 ===================================================================

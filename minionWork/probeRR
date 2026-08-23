@@ -1,0 +1,15 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(RR);
+define
+    rrN;
+    rrRun code={
+        rrN <- Grokking["RunRulE"];
+        cerr "RunRulE list=" rrN.listLengtH:;
+        cerr "RR SENTINEL":;
+        stop();
+        };
+    ;
+rrRun();

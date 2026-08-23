@@ -93,6 +93,7 @@ define
     system immediateAction=runSystem;
     showBody immediateAction;
     testing immediateAction;
+    TOKENize immediateAction=processFlags noPrint;
     jitRefire immediateAction=jitRefire;
     jitFieldMethod immediateAction=jitFieldMethod;
     jitShowRecord immediateAction=jitShowRecord;
