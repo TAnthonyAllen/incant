@@ -110,13 +110,29 @@ NEXT: BEST GUESS
 
 Candidate 1 stands. Candidate 2 is KILLED. A third question opened and is named.
 
-  1. COPY-ON-<- IS INTENDED (grade: likely, UNCHANGED). `<-` is documented as
+  1. ⚠ DISCHARGED BY RULING, 2026-08-23 (Tony, R-f). THE ANSWER IS NO: `<-` IS
+     MEANT TO HAND BACK THE NODE, SO COPY-ON-REBIND IS A DEFECT AND NOT THE
+     DESIGN. The candidate below is kept as the record of what was asked and
+     what it was graded, because the grade was WRONG and that is worth seeing:
+     "likely intended" lost to one word from the only person who could give it,
+     which is what discharge-by-ruling is for.
+     THE REPAIR IS FENCED AND IS NOT THIS FILE'S: it is queued behind the seal
+     with the JIT emitter as forcing function, and it is explicitly NOT part of
+     the tokenize campaign -- that fix binds the real node despite the current
+     `<-`, per Ruling E, and does not require `<-` fixed.
+     THE STANDING DISCIPLINE IS UNCHANGED AND IS NOW PERMANENT UNTIL REPAIR:
+     mutate through a direct subscript or an iterate cursor, read through a
+     capture, ask identity in pointers through canonOf.
+
+     THE SUPERSEDED CANDIDATE, kept because the record should show what was
+     believed: COPY-ON-<- IS INTENDED (graded: likely). `<-` is documented as
      "rebinds a local's slot to a fresh node", and "fresh node" is exactly what
      road 2 measures. If so the remedy is documentation and a discipline --
      MUTATE through a direct subscript or an iterate cursor, READ through a
      capture -- and this citizen promotes into the fleet as the regression test
      that the roads keep behaving as documented.
      PROMOTED OR KILLED BY: the architect's word. Nothing to measure.
+     KILLED BY EXACTLY THAT, 2026-08-23.
 
   2. THE parenT UNWRAP IS unWrap WALKING TOO FAR -- ⚠ KILLED 2026-08-23 BY
      ROAD 3b, AND THE KILL IS THE POINT. The grep was done and it produced a

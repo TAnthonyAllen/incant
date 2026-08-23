@@ -120,6 +120,11 @@ sentinel "decodeT sentinel (run reached the end)" "$T/dt.o" "DECODET SENTINEL"
 #  The two scalars decodeT prints. Both compared by value.
 nt=$(sed -n 's/^TALLY terms = *\([0-9][0-9]*\).*/\1/p'       "$T/dt.o" | head -1)
 nd=$(sed -n 's/^TALLY definitions = *\([0-9][0-9]*\).*/\1/p' "$T/dt.o" | head -1)
+#  ⚠ RE-PIN 2026-08-23 (second, same day). 60 -> 61 terms, 63 -> 64 dump rows.
+#  ONE term added, named: `hookIdentityFork`, minted by the Arm A measurement
+#  under the birth rule -- a new id is born by writing its decoder line AND its
+#  problem record in the same act. +1 and +1; the arithmetic closes exactly.
+#
 #  ⚠ RE-PIN 2026-08-23, AND THE SENTENCE THE RULE ASKS FOR. 36 -> 60 terms,
 #  39 -> 63 dump rows. ONE CAUSE, and every moved row is that cause: the corpus
 #  had stood at its 2026-08-10 mark while the campaign minted ids continuously,
@@ -144,8 +149,8 @@ nd=$(sed -n 's/^TALLY definitions = *\([0-9][0-9]*\).*/\1/p' "$T/dt.o" | head -1
 #      +1  `oneNumberTwoEras`  a green that survived a semantics change by
 #                              arithmetic accident. Dictated SEQ 29 from kant8T's
 #                              K6f, which is the measured case.
-check "corpus holds 60 terms"          60 "$nt"
-check "60 of them carry a definition"  60 "$nd"
+check "corpus holds 61 terms"          61 "$nt"
+check "61 of them carry a definition"  61 "$nd"
 check "every term is defined"     "$nt" "$nd"
 
 #  decodeT's own self-certification, asserted FROM OUTSIDE -- a harness that
@@ -204,7 +209,7 @@ fi
 #  sentinel line ("DECODE SENTINEL -- run reached the end"). An unanchored
 #  count read 38 for 37 real rows. A definition row is `<singleWord> -- `.
 nl=$(grep -cE '^[A-Za-z][A-Za-z0-9]* -- ' "$T/dc.o")
-check "corpus dump + decode line = 63 definition rows" 63 "$nl"
+check "corpus dump + decode line = 64 definition rows" 64 "$nl"
 
 #  ⚠ THE DATALESS-ECHO ROW, and the reason this file exists. A definition that
 #  never stored prints as the ATTRIBUTE'S OWN NAME. In-language it compares
