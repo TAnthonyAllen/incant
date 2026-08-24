@@ -1,0 +1,48 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(ProbeR);
+define
+    pwSubj;
+    pwVia;
+    pwChk;
+    pwA=0;
+    pwB=0;
+    pwC=0;
+    pwD=0;
+    pwMake code={
+        pwSubj = new("pwSubj");
+        pwSubj +% new("kidA");
+        };
+    pwRun code={
+        pwMake();
+        pwVia <- pwSubj;
+
+        cerr "ROW L  LIST write  (+% a child) through the <- local":;
+        pwVia +% new("kidB");
+        pwChk := pwSubj;
+        pwA = pwChk.listLengtH;
+        cerr "   original listLengtH  " pwA " (2 = shared, 1 = copy)":;
+
+        cerr "ROW F  FLAG write  (:. noPrinT) through the <- local":;
+        pwVia :. noPrinT;
+        pwChk := pwSubj;
+        pwB = pwChk.noPrinT;
+        pwC = pwVia.noPrinT;
+        cerr "   through the <- local  " pwC " (1 = the write took here)":;
+        cerr "   original noPrinT      " pwB " (1 = shared, 0 = LOST)":;
+
+        cerr "ROW C  CONTENT write (.text) through the <- local":;
+        cerr "   C1 about to WRITE .text through the <- local":;
+        pwVia.text = "stamped";
+        cerr "   C2 the write returned":;
+        pwChk := pwSubj;
+        cerr "   C3 re-captured the original":;
+        cerr "   original .text        " pwChk.texT " (stamped = shared)":;
+
+        cerr "PROBE SENTINEL -- probeRebindWhat reached its foot":;
+        stop();
+        };
+    ;
+pwRun();

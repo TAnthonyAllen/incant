@@ -1,0 +1,35 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(ProbeR);
+define
+    prSubj;
+    prVia;
+    prChk;
+    prLen0=0;
+    prLen1=0;
+    prLen2=0;
+    prMake code={
+        prSubj = new("prSubj");
+        prSubj +% new("kidA");
+        };
+    prRun code={
+        prMake();
+        prLen0 = prSubj.listLengtH;
+        cerr "row 0 control  subject built, listLengtH " prLen0 " (want 1)":;
+
+        cerr "row M  MUTATE THROUGH A <- LOCAL, then read the ORIGINAL":;
+        prVia <- prSubj;
+        prVia +% new("kidB");
+        prLen1 = prVia.listLengtH;
+        cerr "   through the <- local        " prLen1 " (2 = the write landed here)":;
+        prChk := prSubj;
+        prLen2 = prChk.listLengtH;
+        cerr "   the ORIGINAL, read via :=   " prLen2 " (2 = SHARED, 1 = COPY)":;
+
+        cerr "PROBE SENTINEL -- probeRebindCopy reached its foot":;
+        stop();
+        };
+    ;
+prRun();
