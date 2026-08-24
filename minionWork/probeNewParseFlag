@@ -1,0 +1,21 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(NPF);
+define
+    npSubj;
+    npA=0;
+    npB=0;
+    npRun code={
+        npSubj := Grokking["Braced"];
+        npA = npSubj.hasNewParsE;
+        cerr "row 0 BEFORE  hasNewParsE " npA " (0 = clear, the honest start)":;
+        npSubj :. hasNewParsE;
+        npB = npSubj.hasNewParsE;
+        cerr "row 1 AFTER   hasNewParsE " npB " (1 = the write took AND reads back)":;
+        cerr "PROBE SENTINEL":;
+        stop();
+        };
+    ;
+npRun();

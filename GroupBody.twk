@@ -90,7 +90,8 @@ boolean bools {
     negate
     recursive
     reversePrint
-    tokened } flags;
+    tokened
+    hasNewParse } flags;
 	
 /*****************************************************************************
 	Constructors uses default constructor

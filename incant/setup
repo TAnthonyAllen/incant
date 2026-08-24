@@ -303,6 +303,7 @@ define
     noPrinT=29;
     noSkiP;
     byReF=31;
+    hasNewParsE=41;
     isCodeD=40;
     nexT=401;
     prioR=402;

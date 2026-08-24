@@ -225,6 +225,7 @@ define
         codeCopy :. noPrinT;
         argument +% codeCopy;
         argument :. isCodeD;
+        argument :. hasNewParsE;
         printTO(0);
         @CodE;
         print taG "=" CodE:;
@@ -359,10 +360,12 @@ define
         anchorNamECompile = 1;
         compile(argument);
         cerr "NamE repro: compile returned -- THE HANG IS GONE, re-measure":;
-        stop();
+        **argument;
         };
     ;
 
 runNamE(NamE);
+NamE("this is a test;");
+stop();
 runNamEnoParse(NamE);
 runParse(NamE);

@@ -1,0 +1,24 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(Wreck);
+define
+    WrkA isRule "z"- parseTerms=1;
+    WrkB isRule "y"- parseTerms=1 parseMethod=parseScaf;
+    wdArm code={
+        cerr "STATE 1 -- flag SET, no ParsE artifact parked":;
+        WrkA :. hasNewParsE;
+        };
+    wdDisarm code={
+        cerr "STATE 2 -- ParsE artifact parked by the bind, flag toggled CLEAR":;
+        WrkB :. hasNewParsE;
+        };
+    ;
+search reset stack Grokking Wreck UnitTests Utilities list;
+wdArm();
+WrkA('z');
+wdDisarm();
+WrkB('y');
+print "WRECKAGE SENTINEL":;
+stop();

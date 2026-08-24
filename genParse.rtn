@@ -893,6 +893,7 @@ use rule
         parseRuleMethod -- the working parseMethod= door -- has always used
         getRStuff(). Copy the working door rather than inventing a second one. */
     setParseMethod(rule.getRStuff(),"parseViaKant");
+    parkParse(rule,"parseViaKant");
     cerr "kantDoor: " rule.tag " -> " mintName " via parseViaKant, "
          toStringFromInt(live) " terms":;
     free(mintName);
@@ -1481,6 +1482,19 @@ use input
                     cerr "             emitted against " toStringFromInt(stuff.termCount) " terms, rule now has " toStringFromInt(live):;
                     return group; }
                 setParseMethod(stuff,name);
+                /*  CHANGE 4, 2026-08-24 -- THE SWEEP IS ONE SITE. Every
+                    `parseMethod=` writer in the tree routes through here:
+                    incant/kantParse1, bindSeamB, bracedK, treeScratch,
+                    genScratch, termScratch and parseCode all use the define-
+                    attribute spelling, so migrating this line migrates them
+                    all and NO WRITER IS LEFT WRITING AN ADDRESS NOTHING READS.
+                    ⚠ THE rStuff WRITE ABOVE IS DELIBERATELY KEPT FOR NOW: the
+                    old address still has live readers (parse()'s descent path
+                    among them), and removing it in the same commit that adds
+                    the new one would make a regression indistinguishable from
+                    a migration defect. Retiring the field spelling is its own
+                    step, taken once the gate is proven.  */
+                parkParse(ruleNode,name);
 -%
                 if ( GroupControl::groupController->groupRules->parseTrace )
                     {

@@ -2447,31 +2447,6 @@ GroupItem 	*newField = new GroupItem(field);
 	return newField;
 }
 
-/***************************************************************************
-    canonOf -- name the node definingRule() resolves to, from incant.
-
-    THE INSTRUMENT ROAD-1 EXISTS FOR (Clay dispatch amendment 8). Ruling E is
-    about resolution, so the tree needs a way to ASK where a face resolves to,
-    and until now it had none: definingRule() is a C++ method with no command,
-    and it cannot be reconstructed from incant because parenT returns a WRAPPER
-    whose unWrap lands back on the child it was applied to. Three spellings
-    were tried on 2026-08-22 and none reached the parent.
-
-    ⚠ THIS IS ALSO setParse's OWN PREREQUISITE, which is why it is not a
-    detour: the provisional ruling needs setParse to resolve through
-    definingRule() before binding, and for that the call has to be rtn-shaped.
-    One build carries the instrument, the reads, and the edit.
-
-    Reports with its value on every call (rule H4) rather than only on
-    surprise -- a resolver that speaks only when it disagrees cannot be told
-    from one that was never called.
-
-    ⚠ definingRule() IS ASSIGNED TO A LOCAL, NEVER TESTED INLINE. genParse.rtn
-    :1129 records that `if term.definingRule() != term` fails to parse. The
-    hazard is documented, cheap to avoid, and expensive to rediscover -- it
-    would surface as bear-trap #24's signature, the extern block wiped to zero
-    three files away.
-***************************************************************************/
 extern "C" GroupItem *canonOf(GroupItem *argument)
 {
 GroupItem 	*canon = 0;
@@ -3538,6 +3513,54 @@ char 	*name = input->getText();
 		else	::fprintf(stderr,"FAIL: no fail method argument provided\n");
 	else	::fprintf(stderr,"FAIL: should be a rule attribute\n");
 	return GroupControl::groupController->groupRules->trueResult;
+}
+
+extern "C" GroupItem *fireNewParse(GroupItem *rule)
+{
+GroupItem 	*artifact = 0;
+	if ( !rule )
+		return 0;
+	artifact = rule->getAttribute("ParsE");
+	/*  THE DISCRIMINATOR, and it is why this line exists rather than being
+	debug residue: with two arms live in the gate, a correct product proves
+	nothing about WHICH MACHINERY MADE IT. Gated on the standing parseTrace
+	flag so it joins the existing idiom instead of inventing a switch.  */
+	if ( GroupControl::groupController->groupRules->parseTrace )
+		::fprintf(stderr,"  fireNewParse ARTIFACT ARM on %s -> %s\n",rule->groupBody->tag,artifact->getText());
+	/*  TWO ARTIFACT KINDS, ONE GATE, and the split is not an implementation
+	detail -- the two generators produce different things:
+	
+	ParsE  -- a dlsym-able C++ METHOD NAME, parked by parkParse from the
+	`parseMethod=` bind path. There is no node to park for a
+	function pointer, so the artifact holds the name and this
+	site resolves it.
+	CodE   -- an INCANT BODY parked by a walking generator
+	(IncantForms/WorkingOn/parser's genParseTest is the live
+	one), compiled in place and fired as the rule's own action.
+	
+	⚠ THE FLAG MEANS "AN ARTIFACT IS PARKED", NEVER "WHICH KIND". Reading
+	one channel for two facts is this project's most expensive recurring
+	shape, so the KIND is answered by looking, not by the flag.  */
+	if ( !artifact )
+		{
+		if ( rule->getAttribute("CodE") )
+			{
+			if ( GroupControl::groupController->groupRules->parseTrace )
+				::fprintf(stderr,"  fireNewParse CODE ARM on %s\n",rule->groupBody->tag);
+			return ::processAction(rule);
+			}
+		::fprintf(stderr,"fireNewParse: WRECKAGE on %s -- hasNewParse is set but there is neither a ParsE name nor a CodE body to fire. NOT falling through to the old parse.\n",rule->groupBody->tag);
+		return 0;
+		}
+	
+	void *address = ::dlsym(RTLD_DEFAULT,artifact->getText());
+	if ( !address )
+	{
+	::fprintf(stderr,"fireNewParse: ERROR no method found %s\n",artifact->getText());
+	return 0;
+	}
+	return ((GroupItem *(*)(GroupItem *))address)(rule);
+	
 }
 
 /***************************************************************************
@@ -7745,6 +7768,7 @@ int 		live = 0;
 	parseRuleMethod -- the working parseMethod= door -- has always used
 	getRStuff(). Copy the working door rather than inventing a second one. */
 	setParseMethod(rule->getRStuff(),"parseViaKant");
+	::parkParse(rule,"parseViaKant");
 	::fprintf(stderr,"kantDoor: %s -> %s via parseViaKant, %s terms\n",rule->groupBody->tag,mintName,::toStringFromInt(live));
 	::free(mintName);
 	return 1;
@@ -9049,6 +9073,14 @@ GroupItem 	*product = 0;
 				case 408:
 					if ( isAction(target->groupBody->flags.actionType) )
 						product->setCount(1);
+					/*  hasNewParse READ half. The write half is opSetFlag case 41.
+					Both halves land together on purpose: a flag a fixture can
+					set and cannot read is a gate nobody can assert, which is
+					rule H4's absence-versus-value in flag form.  */
+					break;
+				case 41:
+					if ( target->groupBody->flags.hasNewParse )
+						product->setCount(1);
 					break;
 				default:
 					product->setText(::concat(3,"access to ",argument->groupBody->tag," not supported yet"));
@@ -10030,6 +10062,15 @@ GroupItem 	*flagDef = 0;
 				break;
 			case 31:
 				target->groupBody->flags.byRef = 1;
+				/*  hasNewParse -- THE ARTIFACT GATE, 2026-08-24. Ruled on
+				architectural grounds: a generated parse body's address must be
+				FACE-PROOF BY CONSTRUCTION, so it parks as a noPrint member on
+				the shared child list (processCode's proven pattern) and this
+				flag is the cheap test that says one is there. The rStuff field
+				spelling for parseMethod/actionMethod retires behind it.  */
+				break;
+			case 41:
+				target->groupBody->flags.hasNewParse = 1;
 				break;
 			case 32:
 				 target->groupBody->flags.binType = 3; 
@@ -10210,6 +10251,64 @@ int 		n = 0;
 	if ( ruler->parseTrace )
 		::fprintf(stderr,"  optRK term= %s  ABSENT -- cursor restored\n",term->groupBody->tag);
 	return ruler->trueResult;
+}
+
+/***************************************************************************
+    canonOf -- name the node definingRule() resolves to, from incant.
+
+    THE INSTRUMENT ROAD-1 EXISTS FOR (Clay dispatch amendment 8). Ruling E is
+    about resolution, so the tree needs a way to ASK where a face resolves to,
+    and until now it had none: definingRule() is a C++ method with no command,
+    and it cannot be reconstructed from incant because parenT returns a WRAPPER
+    whose unWrap lands back on the child it was applied to. Three spellings
+    were tried on 2026-08-22 and none reached the parent.
+
+    ⚠ THIS IS ALSO setParse's OWN PREREQUISITE, which is why it is not a
+    detour: the provisional ruling needs setParse to resolve through
+    definingRule() before binding, and for that the call has to be rtn-shaped.
+    One build carries the instrument, the reads, and the edit.
+
+    Reports with its value on every call (rule H4) rather than only on
+    surprise -- a resolver that speaks only when it disagrees cannot be told
+    from one that was never called.
+
+    ⚠ definingRule() IS ASSIGNED TO A LOCAL, NEVER TESTED INLINE. genParse.rtn
+    :1129 records that `if term.definingRule() != term` fails to parse. The
+    hazard is documented, cheap to avoid, and expensive to rediscover -- it
+    would surface as bear-trap #24's signature, the extern block wiped to zero
+    three files away.
+***************************************************************************/
+/***************************************************************************
+    parkParse / fireNewParse -- THE FACE-PROOF ARTIFACT ADDRESS.
+
+    Ruled 2026-08-24 on ARCHITECTURAL grounds, not evidentiary ones: a
+    generated parse body's address must be face-proof BY CONSTRUCTION. A rule
+    has many faces -- measured, three distinct reference nodes for one ScafKB,
+    each with its own RuleStuff -- and rStuff is PER NODE, so an address in it
+    is an address in one face. The shared child list is not.
+
+    So the artifact parks as a noPrint ATTRIBUTE tagged `ParsE`, which is
+    processCode's proven pattern for exactly this job (GroupActions.rtn:951 --
+    `result.noPrint = true; field +% result; field.isAction = true`), and the
+    `hasNewParse` flag is the cheap gate that says one is there.
+
+    ⚠ WHY THE MEMBER CARRIES A NAME AND NOT A POINTER. A dlsym'd C++ parse
+    method is a function pointer and there is no node to park; a GroupItem can
+    hold its NAME. So the artifact stores the name and the fire site resolves
+    it, which also means the address survives anything that copies structure
+    without copying rStuff -- which is the whole point of the move.
+***************************************************************************/
+extern "C" int parkParse(GroupItem *rule, char *name)
+{
+GroupItem 	*artifact = 0;
+	if ( !rule )
+		return 0;
+	artifact = new GroupItem("ParsE");
+	artifact->setText(name);
+	artifact->groupBody->flags.noPrint = 1;
+	rule->addAttribute(artifact);
+	rule->groupBody->flags.hasNewParse = 1;
+	return 1;
 }
 
 /*******************************************************************************
@@ -10679,6 +10778,19 @@ int 		live = 0;
 					return ruleNode->getGroup();
 					}
 				setParseMethod(stuff,name);
+				/*  CHANGE 4, 2026-08-24 -- THE SWEEP IS ONE SITE. Every
+				`parseMethod=` writer in the tree routes through here:
+				incant/kantParse1, bindSeamB, bracedK, treeScratch,
+				genScratch, termScratch and parseCode all use the define-
+				attribute spelling, so migrating this line migrates them
+				all and NO WRITER IS LEFT WRITING AN ADDRESS NOTHING READS.
+				⚠ THE rStuff WRITE ABOVE IS DELIBERATELY KEPT FOR NOW: the
+				old address still has live readers (parse()'s descent path
+				among them), and removing it in the same commit that adds
+				the new one would make a regression indistinguishable from
+				a migration defect. Retiring the field spelling is its own
+				step, taken once the gate is proven.  */
+				::parkParse(ruleNode,name);
 				
 				if ( GroupControl::groupController->groupRules->parseTrace )
 				{
@@ -12643,6 +12755,7 @@ extern "C" GroupItem *runRule(GroupItem *field, GroupItem *rule)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*result = 0;
+GroupItem 	*newParse = 0;
 int 		baseStak = 0;
 	if ( ruler->inputSTAK )
 		baseStak = ruler->inputSTAK->length;
@@ -12651,7 +12764,49 @@ int 		baseStak = 0;
 		ruler->divertToRule = 1;
 		ruler->pushInput(field);
 		}
-	result = rule->parse(0);
+	/*  THE ARTIFACT GATE. Ruled 2026-08-24: the generated body's address is a
+	noPrint `ParsE` attribute on the shared child list, gated by
+	hasNewParse. The cheap flag test comes first; the member lookup only
+	happens behind it.
+	
+	⚠ BOTH DISAGREEMENT STATES REFUSE LOUD AND NEITHER FALLS THROUGH. A
+	silent fallthrough to the old parse is the undiscriminated-green trap
+	permanently installed: the run would produce a plausible product by the
+	OTHER machinery and nothing would say which one made it. That is this
+	project's most expensive recurring shape, so the gate is built so it
+	cannot happen rather than trusting nobody to add it later.  */
+	/*  THE ROUTING SCAFFOLD, gated on parseTrace so it cannot move a baseline.
+	It answers one question the gate cannot: WHICH DOOR a rule arrives
+	through. runRule is the RunRulE / rule-expression door; a rule reached
+	by ordinary term descent never gets here, and no storage change can
+	alter that.  */
+	if ( ruler->parseTrace )
+		::fprintf(stderr,"  runRule DOOR on %s\n",rule->groupBody->tag);
+	/*  EITHER ARTIFACT KIND SATISFIES THE FLAG. `ParsE` is a dlsym-able method
+	name from the bind path; `CodE` is an incant body from a walking
+	generator. The flag says AN ARTIFACT IS PARKED and never which kind --
+	one channel, one meaning -- so the presence test accepts both and
+	fireNewParse decides how to fire it.  */
+	newParse = rule->getAttribute("ParsE");
+	if ( !newParse )
+		newParse = rule->getAttribute("CodE");
+	if ( rule->groupBody->flags.hasNewParse && !newParse )
+		{
+		::fprintf(stderr,"runRule: WRECKAGE on %s -- hasNewParse is SET but there is no ParsE artifact. Something set the flag without parking a body, or the body was removed from under it. NOT falling through to the old parse.\n",rule->groupBody->tag);
+		return 0;
+		}
+	if ( !rule->groupBody->flags.hasNewParse && newParse )
+		{
+		::fprintf(stderr,"runRule: WRECKAGE on %s -- a ParsE artifact is parked but hasNewParse is CLEAR. Something parked a body without arming it, or cleared the flag under a live artifact. NOT falling through to the old parse.\n",rule->groupBody->tag);
+		return 0;
+		}
+	// the following gate on parseMethod is a retractable test
+	if ( rule->groupBody->flags.hasNewParse )
+		result = ::fireNewParse(rule);
+	else
+	if ( rule->rStuff->parseMethod )
+		result = rule->rStuff->parseMethod(rule);
+	else	result = rule->parse(0);
 	while ( field && field->groupBody->flags.data && ruler->inputSTAK && ruler->inputSTAK->length > baseStak )
 		ruler->popInput();
 	return result;

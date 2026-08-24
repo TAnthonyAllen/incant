@@ -306,6 +306,81 @@ GroupItem block = new;
     would surface as bear-trap #24's signature, the extern block wiped to zero
     three files away.
 ***************************************************************************/
+/***************************************************************************
+    parkParse / fireNewParse -- THE FACE-PROOF ARTIFACT ADDRESS.
+
+    Ruled 2026-08-24 on ARCHITECTURAL grounds, not evidentiary ones: a
+    generated parse body's address must be face-proof BY CONSTRUCTION. A rule
+    has many faces -- measured, three distinct reference nodes for one ScafKB,
+    each with its own RuleStuff -- and rStuff is PER NODE, so an address in it
+    is an address in one face. The shared child list is not.
+
+    So the artifact parks as a noPrint ATTRIBUTE tagged `ParsE`, which is
+    processCode's proven pattern for exactly this job (GroupActions.rtn:951 --
+    `result.noPrint = true; field +% result; field.isAction = true`), and the
+    `hasNewParse` flag is the cheap gate that says one is there.
+
+    ⚠ WHY THE MEMBER CARRIES A NAME AND NOT A POINTER. A dlsym'd C++ parse
+    method is a function pointer and there is no node to park; a GroupItem can
+    hold its NAME. So the artifact stores the name and the fire site resolves
+    it, which also means the address survives anything that copies structure
+    without copying rStuff -- which is the whole point of the move.
+***************************************************************************/
+extern int parkParse(GroupItem rule, String name)
+{
+GroupItem   artifact;
+    if !rule    return 0;
+    artifact        = new("ParsE");
+    artifact.text   = name;
+    artifact.noPrint = true;
+    rule            +% artifact;
+    rule.hasNewParse = true;
+    return 1;
+}
+
+
+extern GroupItem fireNewParse(GroupItem rule)
+{
+GroupItem   artifact;
+    if !rule    return null;
+    artifact = rule.getAttribute("ParsE");
+    /*  THE DISCRIMINATOR, and it is why this line exists rather than being
+        debug residue: with two arms live in the gate, a correct product proves
+        nothing about WHICH MACHINERY MADE IT. Gated on the standing parseTrace
+        flag so it joins the existing idiom instead of inventing a switch.  */
+    if parseTrace   cerr "  fireNewParse ARTIFACT ARM on",rule.tag,"->",artifact.text:;
+    /*  TWO ARTIFACT KINDS, ONE GATE, and the split is not an implementation
+        detail -- the two generators produce different things:
+
+          ParsE  -- a dlsym-able C++ METHOD NAME, parked by parkParse from the
+                    `parseMethod=` bind path. There is no node to park for a
+                    function pointer, so the artifact holds the name and this
+                    site resolves it.
+          CodE   -- an INCANT BODY parked by a walking generator
+                    (IncantForms/WorkingOn/parser's genParseTest is the live
+                    one), compiled in place and fired as the rule's own action.
+
+        ⚠ THE FLAG MEANS "AN ARTIFACT IS PARKED", NEVER "WHICH KIND". Reading
+        one channel for two facts is this project's most expensive recurring
+        shape, so the KIND is answered by looking, not by the flag.  */
+    if !artifact {
+        if rule.getAttribute("CodE") {
+            if parseTrace   cerr "  fireNewParse CODE ARM on",rule.tag:;
+            return processAction(rule); }
+        cerr "fireNewParse: WRECKAGE on",rule.tag,"-- hasNewParse is set but there is neither a ParsE name nor a CodE body to fire. NOT falling through to the old parse.":;
+        return null; }
+-%
+    void *address = ::dlsym(RTLD_DEFAULT,artifact->getText());
+    if ( !address )
+        {
+        ::fprintf(stderr,"fireNewParse: ERROR no method found %s\n",artifact->getText());
+        return 0;
+        }
+    return ((GroupItem *(*)(GroupItem *))address)(rule);
+%-
+}
+
+
 extern GroupItem canonOf(GroupItem argument)
 {
 GroupItem   canon;

@@ -365,6 +365,11 @@ use argument
                     fixture demonstrate the isCoded -> isAction transition
                     rather than assume it. See incant/enumT.  */
                 case 408:   if target.isAction    product.count = 1;
+                /*  hasNewParse READ half. The write half is opSetFlag case 41.
+                    Both halves land together on purpose: a flag a fixture can
+                    set and cannot read is a gate nobody can assert, which is
+                    rule H4's absence-versus-value in flag form.  */
+                case 41:    if target.hasNewParse product.count = 1;
                 default:    product.text    = "access to " tag " not supported yet"; }
             if product && !product.parent   product.parent = target; }}
     return product;
@@ -1143,6 +1148,13 @@ use argument
             case 26:    target.mergeOn      = true;
             case 29:    target.noPrint      = true;
             case 31:    target.byRef        = true;
+            /*  hasNewParse -- THE ARTIFACT GATE, 2026-08-24. Ruled on
+                architectural grounds: a generated parse body's address must be
+                FACE-PROOF BY CONSTRUCTION, so it parks as a noPrint member on
+                the shared child list (processCode's proven pattern) and this
+                flag is the cheap test that says one is there. The rStuff field
+                spelling for parseMethod/actionMethod retires behind it.  */
+            case 41:    target.hasNewParse   = true;
             case 32:    -% target->groupBody->flags.binType = 3; %-
             case 33:    -% target->groupBody->flags.binType = 1; %-
             case 40:    -% target->groupBody->flags.actionType = 2; %-
