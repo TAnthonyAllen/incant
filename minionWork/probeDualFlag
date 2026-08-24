@@ -1,0 +1,31 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(DF);
+define
+    dfBoth=0;
+    dfRuleOnly=0;
+    dfMethOnly=0;
+    dfNote argument code={
+        dfBoth = dfBoth + 1;
+        cerr "  BOTH " argument.taG:;
+        };
+    dfR code={ dfRuleOnly = dfRuleOnly + 1; };
+    dfM code={ dfMethOnly = dfMethOnly + 1; };
+    dfWalk argument code={
+        iterate dfCur on argument members;
+        while ++dfCur;
+            if !isRulE;     continue;
+            if isMethoD;    dfNote(dfCur);
+            else            dfR();
+        };
+    dfRun code={
+        dfWalk(Grokking);
+        cerr "TOTAL rule-shaped AND method-bearing = " dfBoth:;
+        cerr "TOTAL rule-shaped, no method          = " dfRuleOnly:;
+        cerr "SENTINEL":;
+        stop();
+        };
+    ;
+dfRun();

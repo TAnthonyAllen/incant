@@ -168,80 +168,22 @@ Buffer      buffer  = stringBUFFER;
 extern GroupItem parseRule(GroupItem field)
 {
 GroupRules  ruler = groupRules;
-RuleStuff   ruleStuff = rStuff;
-GroupItem   code = field[CodE],
-            grup,
-            result;
-    /*  ⚠ THERE IS NO FALLBACK ARM, AND THERE CANNOT BE ONE. Tony ruled this
-        2026-08-18, closing F-18, and the comment is rewritten with the code
-        because the OLD comment said the opposite and that is how a repair gets
-        undone years later. It read "bail to the existing field parse if no
-        parse code provided", and the line under it did not do that: it read
-        `result = parse(ruleStuff)` where a bare name binds to the
-        last-mentioned field, which was `result`, still null. So the bail arm
-        dereferenced a null and took the process down.
-
-        AND THE OBVIOUS REPAIR IS NOT A REPAIR. Spelling it against the rule
-        instead re-enters the parse method fork, which dispatches straight back
-        into this function -- a crash traded for infinite recursion. Once a
-        parse method is bound there is no route back to the interpretive walk,
-        so the bail this line was written to provide is not merely unwritten,
-        it is unreachable by construction.
-
-        THEREFORE: REFUSE, LOUDLY. Report through the named home and return the
-        ordinary rule-failure result, which is what the tail below already
-        does. R-2 ruling 1 -- no fallback arm at all -- arriving as mechanics
-        rather than as a preference.
-
-        ⚠ THE CONSEQUENCE IS A SCHEDULING CONSTRAINT, not just a code shape:
-        binding a parse method anywhere near a generation walk is gated until
-        the activation phase exists, because until then every rule bound and
-        not yet compiled lands here. Off-rule storage inherits it -- activation
-        is complete, and it is last.  */
+GroupItem   pMethod = field["builtinParsE"],
+            code = field[CodE],
+            result,
+            grup;
+RuleStuff   ruleStuff = pMethod.rStuff;
     // assumes processCode was run on field already
-    if field.isAction {
-use grup
-        while grup = code.nextAttribute(grup)
-            if isLocal && !isRule && groupBody != field.groupBody clear();
-        // here the parse action in method gets run
-        if result = field["BlocK"] {
-            result = result.gMethod(result);
-            /*  ⚠⚠ CONTAINMENT -- THE BODY'S RETURN IS A VALUE, NEVER CONTROL
-                FLOW. Tony's ruling 2026-08-22 (dispatch amendment 5, mark 1),
-                built after the frontier walked into it.
-
-                Every generated body ends `return runRuleAction(this)`.
-                aCTionBrancH stamps isBranch on what a `return` yields, and
-                aCTionBlocK breaks its walk when it sees isBranch -- correct
-                INSIDE the body, and a disaster outside it. Door two mints no
-                frame, so without this line the stamp rides out of the artifact
-                and the FIRING block reads it as its own `return`: every
-                statement after the fire silently never runs.
-
-                MEASURED, with two controls (incant/frontier station 6, and
-                minionWork/probeBind, which was truncated the same way an hour
-                later): with the tail present the firing block printed its
-                values and then NOTHING -- no verdict, no flag, no diagnostic.
-                Removing only the tail restored it. Replacing the arm shape and
-                removing a dot read both changed nothing.
-
-                "Leave the artifact" terminates HERE, at the firing boundary.
-                "Leave the enclosing block" stays the exclusive property of that
-                block's own statements. The value survives; only the signal is
-                consumed -- which is the whole of the ruling, and why this is
-                one line rather than a frame.
-
-                Passthrough with a literal because isBranch is an ENUM bitfield
-                (isBreak 1, isContinue 2, isReturn 3 -- GroupBody.h:87-89), and
-                `result.isBranch = false` would generate the TEST MACRO on the
-                left of the assignment. That is opSetFlag's enum lesson, paid
-                for once already this week.  */
-            -%
-            if ( result )
-                    result->groupBody->flags.isBranch = 0;
-            %- } }
-    else        reportNoBody(field);
-    if result   return result;
+    if checkInput() {
+        if field.isAction {
+            while grup = code.nextAttribute(grup)
+                if isLocal && !isRule && groupBody != field.groupBody clear();
+            // here the parse action in method gets run
+            if result = field["BlocK"] {
+                result = result.gMethod(result);
+                if result   result.isBranch = 0; }
+        else        reportNoBody(field); }
+        if result   return result; }
     if label    label.clear();
     atRuleMark = hereAt;
     return 0;
@@ -324,6 +266,8 @@ RuleStuff   ruleStuff = field.rStuff;
 *******************************************************************************/
 extern GroupItem runRuleAction(GroupItem field)
 {
+GroupItem   pMethod = field["builtinParsE"],
+            aMethod = field["builtinActoR"];
 RuleStuff   ruleStuff = field.rStuff;
     /*  ⚠ THE SPECIMEN GUARD, AND trueResult HERE IS A SEMANTIC RULING RATHER
         THAN A CRASH GUARD SOMEBODY FORGOT TO REVISIT. Ruling A + Ruling D1,
@@ -346,6 +290,28 @@ RuleStuff   ruleStuff = field.rStuff;
         generated body end to end -- the marker printed, the first body ever
         to execute in that pipeline -- and then died here, at the last
         statement, dereferencing a null rStuff.  */
+    /*  ⚠ THE pMethod GUARD, 2026-08-24. The classification attributes only
+        exist where setParse has run, which today is almost nowhere -- and
+        runRuleAction is NOT reached only by the new parse. It is on the
+        ORDINARY path: aCTionBrancH (GroupRules.mm:157) and runOP (:12698)
+        both dispatch a rule action through gMethod and land here, which is how
+        incant/frontier died at exit 139 without ever touching setParse,
+        generate or compile.
+
+        SO THE DEFAULT IS THE OLD ADDRESS AND THE NEW ONE IS PREFERRED ONLY
+        WHEN PRESENT. An early `if !pMethod return trueResult` would have been
+        the obvious guard and is WRONG: it swaps the crash for a silent no-op
+        on every ordinary call, which is the undiscriminated-green shape --
+        the function would stop doing the actionMethod dispatch it has always
+        done and nothing would say so.
+
+        ⚠ AND THE DEREF CANNOT BE GUARDED IN PLACE, which is why the
+        declaration above changed rather than gaining a test: it was an
+        INITIALISER, so it ran unconditionally on entry, before any statement
+        could protect it. The specimen guard below tests the RESULT of that
+        deref and therefore could only ever fire when pMethod was already
+        non-null.  */
+    if pMethod      ruleStuff = pMethod.rStuff;
     if !ruleStuff   return trueResult;
     /*  THE actionMethod TAIL MEASUREMENT, parseTrace-gated. This is the
         consumption site for the OTHER half of the classification pair, and it
@@ -353,10 +319,9 @@ RuleStuff   ruleStuff = field.rStuff;
         the derived channel is populated where it is actually consumed --
         which is the question the setParse mirror deliberately does NOT
         change, and therefore the one worth watching while it does not.  */
-    if parseTrace   cerr "  runRuleAction TAIL on",tag,"actionMethod set =",actionMethod != 0:;
-    if label
-        if actionMethod     return label = actionMethod(label);
-        else                return label;
+    if label {
+        if aMethod  label = aMethod.method(label);
+        return label; }
     return  trueResult;
 }
 
@@ -461,5 +426,15 @@ RuleStuff   ruleStuff = rStuff;
             default:        parseMethod = parseString; }
         or method               parseMethod = parseAction;
         else                    parseMethod = parseString; }
+    if parseMethod {
+        GroupItem builtinParsE = field += "builtinParsE";
+        rStuff  = ruleStuff;
+        noPrint = true;
+        method  = parseMethod; }
+    if actionMethod {
+        GroupItem builtinActoR = field += "builtinActoR";
+        rStuff  = ruleStuff;
+        noPrint  = true;
+        method   = actionMethod; }
     return null;
 }

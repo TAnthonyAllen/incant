@@ -1,0 +1,15 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(NF);
+define
+    nfS;
+    nfRun code={
+        nfS := Grokking["NamE"];
+        cerr "NamE  isRulE " nfS.isRulE "  isMethoD " nfS.isMethoD "  actionTypE " nfS.actionTypE "  isOperatoR " nfS.isOperatoR:;
+        cerr "SENTINEL":;
+        stop();
+        };
+    ;
+nfRun();

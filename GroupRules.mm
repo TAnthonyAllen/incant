@@ -1700,7 +1700,13 @@ GroupItem 	*result = 0;
 			if ( result->groupBody->flags.isBranch )
 				{
 				if ( isContinue(result->groupBody->flags.isBranch) )
+					{
+					// result set to trueResult so result != continue or if continue is the last
+					// statement in the while loop result will be passed on to the enclosing block
+					// as continue which the pooches the block
+					result = GroupControl::groupController->groupRules->trueResult;
 					continue;
+					}
 				else
 				if ( isReturn(result->groupBody->flags.isBranch) )
 					return result;
@@ -2620,6 +2626,7 @@ GroupItem 	*grup = 0;
 	if ( !::processCode(field) )
 		return 0;
 endCompile:
+	field->groupBody->flags.hasNewParse = 1;
 	return field;
 }
 
@@ -10669,85 +10676,31 @@ int 		n = 0;
 extern "C" GroupItem *parseRule(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*ruleStuff = field->rStuff;
+GroupItem 	*pMethod = field->get("builtinParsE");
 GroupItem 	*code = field->get("CodE");
-GroupItem 	*grup = 0;
 GroupItem 	*result = 0;
-	/*  ⚠ THERE IS NO FALLBACK ARM, AND THERE CANNOT BE ONE. Tony ruled this
-	2026-08-18, closing F-18, and the comment is rewritten with the code
-	because the OLD comment said the opposite and that is how a repair gets
-	undone years later. It read "bail to the existing field parse if no
-	parse code provided", and the line under it did not do that: it read
-	`result = parse(ruleStuff)` where a bare name binds to the
-	last-mentioned field, which was `result`, still null. So the bail arm
-	dereferenced a null and took the process down.
-	
-	AND THE OBVIOUS REPAIR IS NOT A REPAIR. Spelling it against the rule
-	instead re-enters the parse method fork, which dispatches straight back
-	into this function -- a crash traded for infinite recursion. Once a
-	parse method is bound there is no route back to the interpretive walk,
-	so the bail this line was written to provide is not merely unwritten,
-	it is unreachable by construction.
-	
-	THEREFORE: REFUSE, LOUDLY. Report through the named home and return the
-	ordinary rule-failure result, which is what the tail below already
-	does. R-2 ruling 1 -- no fallback arm at all -- arriving as mechanics
-	rather than as a preference.
-	
-	⚠ THE CONSEQUENCE IS A SCHEDULING CONSTRAINT, not just a code shape:
-	binding a parse method anywhere near a generation walk is gated until
-	the activation phase exists, because until then every rule bound and
-	not yet compiled lands here. Off-rule storage inherits it -- activation
-	is complete, and it is last.  */
+GroupItem 	*grup = 0;
+RuleStuff 	*ruleStuff = pMethod->rStuff;
 	// assumes processCode was run on field already
-	if ( isAction(field->groupBody->flags.actionType) )
+	if ( ruleStuff->checkInput() )
 		{
-		while ( grup = code->nextAttribute(grup) )
-			if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.isRule && grup->groupBody != field->groupBody )
-				grup->clear();
-		// here the parse action in method gets run
-		if ( result = field->get("BlocK") )
+		if ( isAction(field->groupBody->flags.actionType) )
 			{
-			result = result->groupBody->gMethod(result);
-			/*  ⚠⚠ CONTAINMENT -- THE BODY'S RETURN IS A VALUE, NEVER CONTROL
-			FLOW. Tony's ruling 2026-08-22 (dispatch amendment 5, mark 1),
-			built after the frontier walked into it.
-			
-			Every generated body ends `return runRuleAction(this)`.
-			aCTionBrancH stamps isBranch on what a `return` yields, and
-			aCTionBlocK breaks its walk when it sees isBranch -- correct
-			INSIDE the body, and a disaster outside it. Door two mints no
-			frame, so without this line the stamp rides out of the artifact
-			and the FIRING block reads it as its own `return`: every
-			statement after the fire silently never runs.
-			
-			MEASURED, with two controls (incant/frontier station 6, and
-			minionWork/probeBind, which was truncated the same way an hour
-			later): with the tail present the firing block printed its
-			values and then NOTHING -- no verdict, no flag, no diagnostic.
-			Removing only the tail restored it. Replacing the arm shape and
-			removing a dot read both changed nothing.
-			
-			"Leave the artifact" terminates HERE, at the firing boundary.
-			"Leave the enclosing block" stays the exclusive property of that
-			block's own statements. The value survives; only the signal is
-			consumed -- which is the whole of the ruling, and why this is
-			one line rather than a frame.
-			
-			Passthrough with a literal because isBranch is an ENUM bitfield
-			(isBreak 1, isContinue 2, isReturn 3 -- GroupBody.h:87-89), and
-			`result.isBranch = false` would generate the TEST MACRO on the
-			left of the assignment. That is opSetFlag's enum lesson, paid
-			for once already this week.  */
-			
-			if ( result )
-			result->groupBody->flags.isBranch = 0;
-			
+			while ( grup = code->nextAttribute(grup) )
+				if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.isRule && grup->groupBody != field->groupBody )
+					grup->clear();
+			// here the parse action in method gets run
+			if ( result = field->get("BlocK") )
+				{
+				result = result->groupBody->gMethod(result);
+				if ( result )
+					result->groupBody->flags.isBranch = 0;
+				}
+			else	::reportNoBody(field);
 			}
+		if ( result )
+			return result;
 		}
-	else	::reportNoBody(field);
-	if ( result )
-		return result;
 	if ( ruleStuff->label )
 		ruleStuff->label->clear();
 	ruler->atRuleMark = ruleStuff->hereAt;
@@ -12764,48 +12717,10 @@ int 		baseStak = 0;
 		ruler->divertToRule = 1;
 		ruler->pushInput(field);
 		}
-	/*  THE ARTIFACT GATE. Ruled 2026-08-24: the generated body's address is a
-	noPrint `ParsE` attribute on the shared child list, gated by
-	hasNewParse. The cheap flag test comes first; the member lookup only
-	happens behind it.
-	
-	⚠ BOTH DISAGREEMENT STATES REFUSE LOUD AND NEITHER FALLS THROUGH. A
-	silent fallthrough to the old parse is the undiscriminated-green trap
-	permanently installed: the run would produce a plausible product by the
-	OTHER machinery and nothing would say which one made it. That is this
-	project's most expensive recurring shape, so the gate is built so it
-	cannot happen rather than trusting nobody to add it later.  */
-	/*  THE ROUTING SCAFFOLD, gated on parseTrace so it cannot move a baseline.
-	It answers one question the gate cannot: WHICH DOOR a rule arrives
-	through. runRule is the RunRulE / rule-expression door; a rule reached
-	by ordinary term descent never gets here, and no storage change can
-	alter that.  */
-	if ( ruler->parseTrace )
-		::fprintf(stderr,"  runRule DOOR on %s\n",rule->groupBody->tag);
-	/*  EITHER ARTIFACT KIND SATISFIES THE FLAG. `ParsE` is a dlsym-able method
-	name from the bind path; `CodE` is an incant body from a walking
-	generator. The flag says AN ARTIFACT IS PARKED and never which kind --
-	one channel, one meaning -- so the presence test accepts both and
-	fireNewParse decides how to fire it.  */
-	newParse = rule->getAttribute("ParsE");
-	if ( !newParse )
-		newParse = rule->getAttribute("CodE");
-	if ( rule->groupBody->flags.hasNewParse && !newParse )
-		{
-		::fprintf(stderr,"runRule: WRECKAGE on %s -- hasNewParse is SET but there is no ParsE artifact. Something set the flag without parking a body, or the body was removed from under it. NOT falling through to the old parse.\n",rule->groupBody->tag);
-		return 0;
-		}
-	if ( !rule->groupBody->flags.hasNewParse && newParse )
-		{
-		::fprintf(stderr,"runRule: WRECKAGE on %s -- a ParsE artifact is parked but hasNewParse is CLEAR. Something parked a body without arming it, or cleared the flag under a live artifact. NOT falling through to the old parse.\n",rule->groupBody->tag);
-		return 0;
-		}
-	// the following gate on parseMethod is a retractable test
 	if ( rule->groupBody->flags.hasNewParse )
-		result = ::fireNewParse(rule);
-	else
-	if ( rule->rStuff->parseMethod )
-		result = rule->rStuff->parseMethod(rule);
+		if ( newParse = rule->get("builtinParsE") )
+			newParse->groupBody->gMethod(rule);
+		else	::fprintf(stderr,"runRule could not find builtinParsE attribute\n");
 	else	result = rule->parse(0);
 	while ( field && field->groupBody->flags.data && ruler->inputSTAK && ruler->inputSTAK->length > baseStak )
 		ruler->popInput();
@@ -12818,6 +12733,8 @@ int 		baseStak = 0;
 *******************************************************************************/
 extern "C" GroupItem *runRuleAction(GroupItem *field)
 {
+GroupItem 	*pMethod = field->get("builtinParsE");
+GroupItem 	*aMethod = field->get("builtinActoR");
 RuleStuff 	*ruleStuff = field->rStuff;
 	/*  ⚠ THE SPECIMEN GUARD, AND trueResult HERE IS A SEMANTIC RULING RATHER
 	THAN A CRASH GUARD SOMEBODY FORGOT TO REVISIT. Ruling A + Ruling D1,
@@ -12840,6 +12757,29 @@ RuleStuff 	*ruleStuff = field->rStuff;
 	generated body end to end -- the marker printed, the first body ever
 	to execute in that pipeline -- and then died here, at the last
 	statement, dereferencing a null rStuff.  */
+	/*  ⚠ THE pMethod GUARD, 2026-08-24. The classification attributes only
+	exist where setParse has run, which today is almost nowhere -- and
+	runRuleAction is NOT reached only by the new parse. It is on the
+	ORDINARY path: aCTionBrancH (GroupRules.mm:157) and runOP (:12698)
+	both dispatch a rule action through gMethod and land here, which is how
+	incant/frontier died at exit 139 without ever touching setParse,
+	generate or compile.
+	
+	SO THE DEFAULT IS THE OLD ADDRESS AND THE NEW ONE IS PREFERRED ONLY
+	WHEN PRESENT. An early `if !pMethod return trueResult` would have been
+	the obvious guard and is WRONG: it swaps the crash for a silent no-op
+	on every ordinary call, which is the undiscriminated-green shape --
+	the function would stop doing the actionMethod dispatch it has always
+	done and nothing would say so.
+	
+	⚠ AND THE DEREF CANNOT BE GUARDED IN PLACE, which is why the
+	declaration above changed rather than gaining a test: it was an
+	INITIALISER, so it ran unconditionally on entry, before any statement
+	could protect it. The specimen guard below tests the RESULT of that
+	deref and therefore could only ever fire when pMethod was already
+	non-null.  */
+	if ( pMethod )
+		ruleStuff = pMethod->rStuff;
 	if ( !ruleStuff )
 		return GroupControl::groupController->groupRules->trueResult;
 	/*  THE actionMethod TAIL MEASUREMENT, parseTrace-gated. This is the
@@ -12848,12 +12788,12 @@ RuleStuff 	*ruleStuff = field->rStuff;
 	the derived channel is populated where it is actually consumed --
 	which is the question the setParse mirror deliberately does NOT
 	change, and therefore the one worth watching while it does not.  */
-	if ( GroupControl::groupController->groupRules->parseTrace )
-		::fprintf(stderr,"  runRuleAction TAIL on %s actionMethod set = %lu\n",field->groupBody->tag,ruleStuff->actionMethod != 0);
 	if ( ruleStuff->label )
-		if ( ruleStuff->actionMethod )
-			return ruleStuff->label = ruleStuff->actionMethod(ruleStuff->label);
-		else	return ruleStuff->label;
+		{
+		if ( aMethod )
+			ruleStuff->label = aMethod->groupBody->gMethod(ruleStuff->label);
+		return ruleStuff->label;
+		}
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
@@ -13272,6 +13212,20 @@ RuleStuff 	*ruleStuff = field->rStuff;
 		if ( field->groupBody->gMethod )
 			ruleStuff->parseMethod = ::parseAction;
 		else	ruleStuff->parseMethod = ::parseString;
+		}
+	if ( ruleStuff->parseMethod )
+		{
+		GroupItem 	*builtinParsE = field->addString("builtinParsE");
+		builtinParsE->setRStuff(ruleStuff);
+		builtinParsE->groupBody->flags.noPrint = 1;
+		builtinParsE->setMethod(ruleStuff->parseMethod);
+		}
+	if ( ruleStuff->actionMethod )
+		{
+		GroupItem 	*builtinActoR = field->addString("builtinActoR");
+		builtinActoR->setRStuff(ruleStuff);
+		builtinActoR->groupBody->flags.noPrint = 1;
+		builtinActoR->setMethod(ruleStuff->actionMethod);
 		}
 	return 0;
 }
