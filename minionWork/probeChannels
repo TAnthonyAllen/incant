@@ -1,0 +1,32 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(ProbeR);
+define
+    pnOne argument code={
+        cerr "  RULE        " taG argument:;
+        cerr "     listLengtH " argument.listLengtH:;
+        cerr "     datA       " argument.datA:;
+        cerr "     hasAttrs   " argument.hasAttributeS:;
+        cerr "     hasMembs   " argument.hasMemberS:;
+        cerr "     texT       " argument.texT:;
+        };
+    pnRun code={
+        cerr "FAMILY C":;
+        pnOne(Grokking["DEFINing"]);
+        pnOne(Grokking["break"]);
+        cerr "CONTROL alternatives":;
+        pnOne(Grokking["WardeD"]);
+        cerr "CONTROL data-carrying, passing":;
+        pnOne(Grokking["NumbeR"]);
+        cerr "CONTROL plain failing":;
+        pnOne(Grokking["IF"]);
+        cerr "CROSS-REF -- the installation gap's two rules":;
+        pnOne(Grokking["NamE"]);
+        pnOne(Grokking["FormaT"]);
+        cerr "PROBE SENTINEL":;
+        stop();
+        };
+    ;
+pnRun();
