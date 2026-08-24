@@ -1732,6 +1732,29 @@ Hard-won lessons. Each one has cost real debugging time.
     `runRuleAction` and its firing callers, retire this row **with a note**, and the relocated
     verdicts may come home.
 
+38. **DECLARING AN ITERATE CURSOR IN THE `define` BLOCK LIMITS THE WALK TO EXACTLY ONE MEMBER —
+    SILENTLY, AT EXIT 0.** Found 2026-08-24 while writing a census that reported **1** where the
+    answer was **60**, and the wrong number looked entirely healthy: no error, no diagnostic, a
+    sentinel reached, a clean exit. Measured as a one-run A/B in `minionWork/probeCursorDeclared` —
+    same process, same registry, two arms differing by one declaration line:
+    | arm | cursor | members visited |
+    |---|---|---|
+    | A | `pdDeclared;` named in the `define` block | **1** |
+    | B | `pdFresh` introduced by `iterate` itself | **60** |
+    ⚠ **THE DANGER IS THAT IT PUNISHES GOOD HABITS.** Declaring your locals up top is what every
+    other field in an incant fixture does, and `incant/f31`'s `fbWalk` — the walk this idiom is
+    copied from — happens to get it right only because `fbCur` and `fbTerm` are **never declared**,
+    which its source says nothing about. So the natural, tidy spelling is the broken one, and the
+    working example gives no hint why it works.
+    **The rule: never declare an iterate cursor. Let `iterate` introduce it.** And per rule H11, a
+    census over a known population states the expected magnitude before it runs — this one was
+    caught because 1 was obviously not 42-ish, and a walk that returned 55 instead of 60 would not
+    have been.
+    Same family as bear-trap 28's fourth row (`eq` against a tag inside an `iterate` body matches
+    EVERY member, taking 43 installs to 0) — **silent iterate-walk miscount, opposite direction**:
+    that one over-matches to nothing, this one under-walks to one. Both produce a plausible number
+    and neither names a line.
+
 ⚠⚠ **RULING D — SHAPE, LIVENESS, AND BIRTH. Tony, 2026-08-22, and it is the real yield of the
 rStuff census.** Two clauses, and they point opposite ways on purpose.
 
