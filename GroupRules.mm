@@ -12842,6 +12842,14 @@ RuleStuff 	*ruleStuff = field->rStuff;
 	statement, dereferencing a null rStuff.  */
 	if ( !ruleStuff )
 		return GroupControl::groupController->groupRules->trueResult;
+	/*  THE actionMethod TAIL MEASUREMENT, parseTrace-gated. This is the
+	consumption site for the OTHER half of the classification pair, and it
+	reads the FACE's rStuff. Printing it here answers, per firing, whether
+	the derived channel is populated where it is actually consumed --
+	which is the question the setParse mirror deliberately does NOT
+	change, and therefore the one worth watching while it does not.  */
+	if ( GroupControl::groupController->groupRules->parseTrace )
+		::fprintf(stderr,"  runRuleAction TAIL on %s actionMethod set = %lu\n",field->groupBody->tag,ruleStuff->actionMethod != 0);
 	if ( ruleStuff->label )
 		if ( ruleStuff->actionMethod )
 			return ruleStuff->label = ruleStuff->actionMethod(ruleStuff->label);

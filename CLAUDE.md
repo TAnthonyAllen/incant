@@ -1778,6 +1778,31 @@ precisely the property that made it unusable.
 census that answers "which rules actually fire" is cheap, so there is no excuse for a second
 instance.
 
+⚠⚠ **MINTED DATA LIVES IN SHARED SUBSTANCE; DERIVED DATA MAY LIVE PER-FACE.** Tony, 2026-08-24,
+minted with the setParse mirror.
+
+**Generated artifacts park in attributes on the child list** — `ParsE` (or `CodE`) plus
+`hasNewParsE`. They are MINTED once, by a generator, and there is exactly one of them, so their
+address must be face-proof: a rule has many faces and `rStuff` is per node, while the child list is
+shared.
+
+**Classification stays in `rStuff`** — `parseMethod`, `actionMethod`, as `setParse` assigns them.
+That data is DERIVED: any face can recompute it from its own shape, so a per-face copy is not a
+second truth, it is the same answer computed twice.
+
+⚠ **THE TWO CHANNELS NEVER SHARE A WRITER, A READER, OR A NAME.** That is the whole rule and it is
+what makes the split safe rather than merely tidy. `hasNewParsE` is raised ONLY for a minted
+artifact — never by the classifier — because a flag that is always set answers nothing, and a
+vacuous flag is precisely the trap this spelling exists to avoid. The mirror `setParse` writes is
+named `builtinParsE`/`builtinActoR` for the same reason: a shared name would let one channel's
+reader find the other channel's data, which is the one-channel-one-meaning failure wearing a new
+hat.
+
+**The mirror is WRITE-ONLY until some gate reads it**, and that is understood rather than
+overlooked: today it buys Xcode visibility — every rule's classification inspectable as an
+attribute with no rStuff spelunking — and it positions a future uniform-address gate without
+committing to one.
+
 ⚠⚠ **RULING E-A — THE ATTACH-AT-SUCCESS LAW. Tony, 2026-08-24, minted on a measured Part 1.**
 
 **ATTACHMENT HAPPENS ONLY AT THE SUCCESS BOUNDARY. NO PROVISIONAL ATTACH, EVER. Iterating forms

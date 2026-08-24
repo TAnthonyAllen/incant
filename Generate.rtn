@@ -347,6 +347,13 @@ RuleStuff   ruleStuff = field.rStuff;
         to execute in that pipeline -- and then died here, at the last
         statement, dereferencing a null rStuff.  */
     if !ruleStuff   return trueResult;
+    /*  THE actionMethod TAIL MEASUREMENT, parseTrace-gated. This is the
+        consumption site for the OTHER half of the classification pair, and it
+        reads the FACE's rStuff. Printing it here answers, per firing, whether
+        the derived channel is populated where it is actually consumed --
+        which is the question the setParse mirror deliberately does NOT
+        change, and therefore the one worth watching while it does not.  */
+    if parseTrace   cerr "  runRuleAction TAIL on",tag,"actionMethod set =",actionMethod != 0:;
     if label
         if actionMethod     return label = actionMethod(label);
         else                return label;
