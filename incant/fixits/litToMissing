@@ -1,0 +1,100 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+registry(cOMMANDs);
+define genParse immediateAction=genParse; ;
+register(FixLitTo);
+define
+    flRun code={
+        fixLitToHere = 0;
+        cerr "ANCHOR fixLitToHere -- the execution tier is blocked on ONE helper":;
+        cerr "The emission below is correct and compile-green on the odometer.":;
+        cerr "It calls litTo(), which the substrate does not implement.":;
+        };
+    ;
+flRun();
+genParse('break');
+print "FIXIT SENTINEL -- litToMissing reached its foot":;
+stop();
+
+genParse EMITS litTo() AND NOTHING IMPLEMENTS IT
+
+Read the emission printed above. That is genParse's output for `break`, and it
+is correct -- rule-ladder rung two landed the ZERO MEANS SELF convention that
+makes `t0 = rule` bind to the rule node itself. The odometer counts break GREEN.
+
+The last line of the body is
+
+    return leaveRule(rule,into,label,from, litTo(t0,label,"break","break") );
+
+and `litTo` DOES NOT EXIST.
+
+HOW IT WAS FOUND, and it is worth knowing that no amount of reading would have
+found it. The body was spliced into genParse.rtn beside the parseScaf family
+(the existing verbatim-emission precedent), retok'd, and the BUILD failed:
+
+    GroupRules.mm:11123:42: error: use of undeclared identifier 'litTo'
+
+tok itself had already said so, in the trailing block it prints and nobody
+reads:
+
+    /*  Warning: the following methods were referenced but not declared
+        ...
+        litTo(GroupItem*,GroupItem*,char*,char*)
+        ...  */
+
+⚠ SO COMPILE-GREEN ON THE ODOMETER DOES NOT MEAN BUILDABLE. The odometer asks
+"can this rule be PLANNED AND EMITTED", and break can. Whether the emitted text
+REFERS TO ANYTHING is a different question and the odometer does not ask it.
+This is probeNameResolve's finding one level up: that probe showed the scaffold
+count accepts calls to names that are not rules, so compile is a parse check.
+This shows the odometer accepts emissions calling helpers that do not exist.
+Both instruments are honest about what they measure; neither measures capability.
+
+WHAT IS KNOWN, and it is unusually clean because the charter predicted it
+
+`lit` EXISTS -- RuleStuff.twk:549, declared in groups.ext:716, used by the
+shipped parseScaf and parseScaf2. It matches an unlabelled literal.
+`litTo` is its LABELLED twin: match the literal AND attach it to the frame's
+label under a named slot. break emits the labelled form because its rStuff does
+not carry noLabel.
+
+⚠ AND docs/genParseLadder.md ALREADY SAYS SO. The charter's own ladder:
+
+    | 1 | single-literal sequence | ... | lit("x")          | no |
+    | 2 | two-literal sequence    | ... | lit("{") && ...   | no |
+    | 3 | labelled literal        | litTo, slot naming | litTo(label,slot,"x") | no |
+
+Rungs 1 and 2 are built. RUNG 3 IS NOT, and break sits on it. This is not a
+surprise defect -- it is a documented, ungated, unbuilt rung that the rule
+ladder walked into from the other direction.
+
+NEXT: OPEN
+
+The SHAPE is obvious and the SEMANTICS are not, which is why this is OPEN rather
+than a remedy: `lit` returns a bool after advancing atRuleMark, and the labelled
+form additionally has to build the slot and attach it to `label`. What it
+attaches, under what tag, and what happens on a failed match after a partial
+attach are naming decisions with a parse-tree shape behind them -- and the
+whole point of the odometer's per-rule verdict is that a wrong answer here would
+be invisible in the count.
+
+WHAT WOULD GENERATE ONE:
+
+  1. Read `lit` (RuleStuff.twk:549) and `containerTo` (immediately below it in
+     the same file) side by side. containerTo is ALREADY the `...To` form of a
+     different leaf kind, so it is the existing answer to "what does the To
+     suffix mean here" and litTo should almost certainly mirror it rather than
+     invent a second convention.
+
+  2. Then the ordinary new-extern discipline, which is not optional for a
+     support-layer function: groups.ext declaration (bear-trap 11 -- it lives
+     OUTSIDE this repo and never shows in a Groups git status), then tokall,
+     then rebuild, then re-splice break and re-run this file.
+
+TAKEN vs NOT TAKEN: with litTo built, splicing break's body and rebuilding
+SUCCEEDS, and rule-ladder rung two can finally run its execution half --
+fire the body, diff the parse product against genLadder/breakSpecimen.base,
+then unsplice and prove the interpreter path comes back byte-identical.
+Without it the build fails at the line quoted above, every time.
