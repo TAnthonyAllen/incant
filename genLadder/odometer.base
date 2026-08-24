@@ -1,0 +1,50 @@
+  pop   58 rules qualify (live walk, four filters: not noPrint, not a bin, is a rule, actionType 0)
+
+  -- FRONTIER: 44 rules genParse cannot yet emit. Each is a row, not a total.
+     ANYtoken         REFUSE rule ANYtoken -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+     Any              REFUSE rule Any -- rule-level data isANY (§4.1 rule-as-data, rung 5)
+     Attributes       REFUSE rule Attributes -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+     BasicElse        REFUSE followedBy -- inline group / structural data isSET (named future kind)
+     CerR             REFUSE followedBy -- inline group / structural data isSET (named future kind)
+     CouT             REFUSE followedBy -- inline group / structural data isSET (named future kind)
+     DEBUG            REFUSE followedBy -- inline group / structural data isSET (named future kind)
+     DEF              REFUSE followedBy -- inline group / structural data isSET (named future kind)
+     DEFINing         REFUSE rule DEFINing -- no terms at all
+     DO               REFUSE followedBy -- inline group / structural data isSET (named future kind)
+     DatA             REFUSE CodE -- parseAction (tail position only, §2.8)
+     DefinE           REFUSE NewGroup -- inline group / structural data isGROUP (named future kind)
+     DelimText        REFUSE dtext -- inline group / structural data isGROUP (named future kind)
+     FOR              REFUSE followedBy -- inline group / structural data isSET (named future kind)
+     FloaT            REFUSE point -- inline group / structural data isCHAR (named future kind)
+     IF               REFUSE followedBy -- inline group / structural data isSET (named future kind)
+     InitiatE         REFUSE rule InitiatE -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+     Iterate          REFUSE ANYtoken -- inline group / structural data isGROUP (named future kind)
+     Limit            REFUSE min -- inline group / structural data isGROUP (named future kind)
+     Looper           REFUSE rule Looper -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+     MemberS          REFUSE MEMBERs -- parseAction (tail position only, §2.8)
+     Modifier         REFUSE rule Modifier -- rule-level data isSET (§4.1 rule-as-data, rung 5)
+     NewGroup         REFUSE rule NewGroup -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+     NumbeR           REFUSE numberSet -- inline group / structural data isSET (named future kind)
+     PoweR            REFUSE e -- inline group / structural data isSET (named future kind)
+     PrinT            REFUSE followedBy -- inline group / structural data isSET (named future kind)
+     QuotE            REFUSE tik -- inline group / structural data isSET (named future kind)
+     ScopeXP          REFUSE scopeList -- inline group / structural data isGROUP (named future kind)
+     Search           REFUSE followedBy -- inline group / structural data isSET (named future kind)
+     SetBrackets      REFUSE ] -- upTo/upToOver (not on the ladder yet)
+     ShortcuT         REFUSE rule ShortcuT -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+     Start            REFUSE rule Start -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+     StringXP         REFUSE stuff -- inline group / structural data isGROUP (named future kind)
+     TraiT            REFUSE Modifier -- inline group / structural data isSET (named future kind)
+     TraiTdata        REFUSE Modifier -- inline group / structural data isSET (named future kind)
+     UnaryXP          REFUSE ANYtoken -- inline group / structural data isGROUP (named future kind)
+     WhilE            REFUSE followedBy -- inline group / structural data isSET (named future kind)
+     break            REFUSE rule break -- no terms at all
+     continue         REFUSE rule continue -- no terms at all
+     followedBy       REFUSE rule followedBy -- rule-level data isSET (§4.1 rule-as-data, rung 5)
+     nameSet          REFUSE rule nameSet -- rule-level data isSET (§4.1 rule-as-data, rung 5)
+     numberSet        REFUSE rule numberSet -- rule-level data isSET (§4.1 rule-as-data, rung 5)
+     return           REFUSE rule return -- no terms at all
+     tokenize         REFUSE rule tokenize -- no terms at all
+
+  genParse count 14 green / 44 red of 58 attempted
+  ODOMETER SENTINEL -- 58 of 58 attempted, foot reached

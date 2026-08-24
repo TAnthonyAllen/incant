@@ -1,0 +1,41 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(OdoPop);
+define
+    opWalk argument code={
+        iterate opCur on argument members;
+        while ++opCur;
+            if noPrinT;             continue;
+            if binTypE;             continue;
+            if !isRulE;             continue;
+            if actionTypE != 0;     continue;
+            opEmit(opCur);
+        };
+    opEmit argument code={
+        print "ODOPOP" argument.taG:;
+        };
+    opRun code={
+        opWalk(Grokking);
+        print "ODOPOP-END":;
+        stop();
+        };
+    ;
+opRun();
+
+THE ODOMETER'S POPULATION, GENERATED AT RUN TIME AND NEVER READ FROM A FILE.
+
+This is incant/fixits/countInputInTmp's lesson applied at birth. The scaffold
+count reads its rule list from /tmp/b2/rules.txt, a file that does not survive a
+reboot and whose absence produces a SHORTER run with identical wording rather
+than an error. This file exists so the odometer can never have that defect: the
+list is recomputed from the live registry on every run.
+
+The four filters are the harness's own, matching incant/f31's fbWalk exactly --
+not noPrint, not a bin, is a rule, actionType zero.
+
+⚠ THE CURSOR `opCur` IS DELIBERATELY NOT DECLARED IN THE define BLOCK. Bear-trap
+38: a cursor named there limits the walk to exactly one member, silently, at
+exit 0. The first draft of countInputInTmp reported 1 and looked healthy. Do not
+"tidy" this by declaring it.

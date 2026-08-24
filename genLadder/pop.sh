@@ -686,6 +686,30 @@ fi
 diffcheck "oneTest baseline"  genLadder/oneTest.base  "$T/one"
 diffcheck "jsonTest baseline" genLadder/jsonTest.base "$T/jsn"
 
+#  ===========================================================================
+#  THE genParse ODOMETER, wired in 2026-08-24 once its first baseline existed.
+#
+#  ⚠ WHAT THIS ROW IS AND IS NOT. It is NOT a pass/fail on parse generation --
+#  the odometer is RED by design today (14 of 58) and a red odometer is the
+#  correct state. This row asserts only that the number HAS NOT MOVED WITHOUT
+#  SOMEONE SAYING SO. A moved odometer is the point of having one; it just has
+#  to be a re-pin with a sentence behind it, like every other target here.
+#
+#  The `bin` lines are filtered because H1 makes the harness echo the binary's
+#  size and mtime, which move on every rebuild for reasons that say nothing
+#  about genParse -- rule H3, assert the thing that only moves when the answer
+#  moves.
+#
+#  ⚠ AND THE NAME IS LOAD-BEARING: this is the genParse count, never the
+#  scaffold count. genLadder/countPop.sh measures incant/f31's fbGen and asks
+#  whether emitted text PARSES; this measures planRule/emitPlan/emitLeaf and
+#  asks whether a rule can be PLANNED AND EMITTED. Two numbers, two subjects,
+#  and conflating them in a citation is the failure this wording exists to
+#  prevent.
+bash genLadder/odometer.sh 2>&1 | grep -v '^  bin ' > "$T/odo"
+diffcheck "genParse odometer (14 green / 44 red of 58 -- RED BY DESIGN, pinned)" \
+          genLadder/odometer.base "$T/odo"
+
 echo ""
 if [ $fail = 0 ]; then echo "POP PASSED -- $green green / $parked parked-WIP"
 else echo "POP FAILED -- $green green / $parked parked-WIP"; fi
