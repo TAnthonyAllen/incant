@@ -510,7 +510,15 @@ char        dq = 34;
         at      = node.getAttribute("at");
         index   = at.text;
         local   = "t" index;
-        cerr "GroupItem   " local " = rule[" index "];":;
+        /*  ZERO MEANS SELF. Ruled 2026-08-24, rule-ladder rung two. Index 0 is
+            the rule's OWN data rather than a term slot, so the local it names
+            binds to the RULE NODE ITSELF -- not to rule[0], which indexes
+            nothing because term indices are 1-based. The referent of "no term"
+            is the rule whose own text carries the tag, via bear-trap 26's
+            fallback (a field with no data reads back as its name).
+            Term indices are untouched and stay 1-based.  */
+        if index eq "0"     cerr "GroupItem   " local " = rule;":;
+        else                cerr "GroupItem   " local " = rule[" index "];":;
         piece   = emitLeaf(node,local,sink);
         if first    terms = piece;
         else        terms = terms joiner piece;
@@ -1898,7 +1906,12 @@ int         i = 1;
 
         ⚠ `at` IS 0 AND THAT IS A MARKER, NOT AN INDEX. Everywhere else `at` is a
         baked rule[] index and term indices are 1-based, so 0 cannot collide with
-        one; it reads as "the rule's own data, not a term slot". Emit is OUT OF
+        one; it reads as "the rule's own data, not a term slot".
+        ⚠ THE EMIT-SIDE QUESTION THIS PARAGRAPH PARKED IS ANSWERED: ZERO MEANS
+        SELF -- marker 0 binds its local to the rule node itself. Ruled and
+        landed 2026-08-24, rule-ladder rung two; the convention is stated at the
+        emit site in emitPlan. The out-of-scope note below is retired and kept
+        only as the trail. Emit was OUT OF
         SCOPE for this charter (§4) and belongs to genKantParse v1 -- this is
         flagged HERE so the emit side inherits the question stated rather than
         discovering an index that indexes nothing.  */
