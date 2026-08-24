@@ -605,6 +605,57 @@ String      atText, matchStr;
     ⚠ TEMPORARY. Remove with its groups.ext declaration once the answer is
     banked; it exists to make one ruling checkable, not to ship.
 *******************************************************************************/
+/*******************************************************************************
+    litTo -- THE LABELLED LITERAL. `lit`'s twin, and genParse ladder rung 3.
+
+    Emitted as  litTo(t0,label,"break","break")  by emitLeaf's LITTO case, so
+    the arguments are (TERM, LABEL, MATCH-TEXT, SLOT). The spec row is
+    docs/genParseSpec.md 3.2: "as above, text into the named slot" -- where
+    "as above" is lit's line: skip pass, match literal at atRuleMark, advance.
+
+    ⚠ WRITTEN AGAINST THE ATTACH-AT-SUCCESS LAW (Ruling E-A, 2026-08-24), which
+    is why the order below is match-first-attach-after and is not merely tidy.
+    NOTHING IS MINTED BEFORE THE MATCH IS KNOWN TO HAVE SUCCEEDED: every early
+    return leaves `into` and `atRuleMark` exactly as they were found, so a
+    failed match cannot leave a provisional node behind for a later arm of an
+    OR-chain to trip over. `containerTo` immediately below embodies the same
+    order and was MEASURED doing so before this was written.
+
+    THE MATCH HALF IS lit's, DELIBERATELY CHARACTER-FOR-CHARACTER: the skip
+    pass, the walk, and the atRuleMark advance are the same moves in the same
+    sequence. Two literal matchers that drift apart would be a defect nobody
+    could see from either one alone, so the only difference is what happens
+    AFTER the match is known good.
+
+    ⚠ WHY THE TEXT AND THE SLOT MAY BE THE SAME STRING, since break's emission
+    passes "break" twice and that looks like a bug. They answer different
+    questions -- `str` is WHAT TO MATCH in the input, `slot` is WHAT TO CALL the
+    product on the label -- and for a tag-fallback rule (ZERO MEANS SELF, where
+    the rule's own tag IS the token it matches) the two answers coincide. That
+    is a coincidence of VALUES, not a special case in the code, and no branch
+    here tests for it.
+*******************************************************************************/
+extern int litTo(GroupItem field, GroupItem into, String str, String slot)
+{
+GroupRules  ruler = groupRules;
+GroupItem   fresh;
+String      atText, matchStr;
+    if parseTrace   cerr "  litTo \"",str,"\" at term ",field.tag," slot ",slot:;
+    if skipSet.contains(*atRuleMark)   atRuleMark = checkSkip(atRuleMark);
+    atText      = atRuleMark;
+    matchStr    = str;
+    while *matchStr
+        if *atText == *matchStr { atText++; matchStr++; }
+        else return false;
+    atRuleMark = atText;
+    if into {
+        fresh       = new(slot);
+        fresh.text  = str;
+        into        +% fresh; }
+    return true;
+}
+
+
 extern GroupItem ctProbe(GroupItem term)
 {
 GroupItem   into = new("ctInto");

@@ -1,0 +1,21 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(ProbeR);
+define
+    pbOne argument code={
+        cerr "  " argument.taG "  isRulE " argument.isRulE "  binTypE " argument.binTypE "  isMembeR " argument.isMembeR:;
+        };
+    pbRun code={
+        cerr "row 0 control -- Braced, a real invoked rule":;
+        pbOne(Grokking["Braced"]);
+        cerr "row 1 the container":;
+        pbOne(Grokking["BrancheS"]);
+        cerr "row 2 the subject":;
+        pbOne(Grokking["break"]);
+        cerr "PROBE SENTINEL":;
+        stop();
+        };
+    ;
+pbRun();

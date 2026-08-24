@@ -1755,6 +1755,36 @@ Hard-won lessons. Each one has cost real debugging time.
     that one over-matches to nothing, this one under-walks to one. Both produce a plausible number
     and neither names a line.
 
+⚠⚠ **RULING E-A — THE ATTACH-AT-SUCCESS LAW. Tony, 2026-08-24, minted on a measured Part 1.**
+
+**ATTACHMENT HAPPENS ONLY AT THE SUCCESS BOUNDARY. NO PROVISIONAL ATTACH, EVER. Iterating forms
+unwind to the pre-attempt state on failure.** This is the failure half of *a labelled sub-term
+attaches its children*, written down.
+
+**It is DESCRIPTIVE, not new** — `containerTo` (`RuleStuff.twk:595`) already embodies it, and the
+law was ratified only after that was **measured rather than read**, because `containerTo` had never
+executed: its sole caller is genParse's emitter, and no generated parse method calling it has ever
+been built.
+
+| cell | result |
+|---|---|
+| mark ON a container entry | `match=1`, `into` **0 → 1** |
+| mark NOT on an entry | `match=0`, `into` **0 → 0** |
+
+⚠ **THE HIT CELL IS THE ANTI-VACUITY CONTROL AND IS NOT OPTIONAL.** `0 → 0` alone is exactly what a
+function that never attaches anything would print, so the miss on its own asserts nothing. Pair
+every zero-expecting row with a non-zero sibling.
+
+**The shape the law demands is one-directional and visible at a glance: MATCH FIRST, ATTACH AFTER.**
+In `containerTo` the attach sits inside the success branch and is immediately followed by
+`return true`; the failure path never reaches it, and `atRuleMark` advances only in that same
+branch. Any new leaf helper copies that order — a helper that mints a node before it knows the match
+succeeded has already broken the law even if it later tries to tidy up.
+
+**Cross-reference:** `incant/fixits/litToMissing`, the citizen that surfaced the gap, and
+`litTo` (`RuleStuff.twk`), the first helper written *against* the law rather than found to comply
+with it.
+
 ⚠⚠ **RULING D — SHAPE, LIVENESS, AND BIRTH. Tony, 2026-08-22, and it is the real yield of the
 rStuff census.** Two clauses, and they point opposite ways on purpose.
 

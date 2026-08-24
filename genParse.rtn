@@ -500,7 +500,26 @@ char        dq = 34;
             if !emitMany(node) {
                 cerr "emitPlan: REFUSING " tag " -- unemittable repetition helper":;
                 return null; }
-        n++; }
+        /*  ZERO MEANS SELF, THE BIND-SIDE HALF. Ruled 2026-08-24 with the emit
+            side; landed here 2026-08-24 when the rule ladder fired break and
+            the bind refused.
+
+            `n` becomes the emitted `parseTerms=` value, and parseRuleMethod's
+            staleness guard compares that against countRuleTerms(rule) -- REAL
+            terms, non-noPrint. The marker-0 node is NOT A TERM; it is the
+            rule's own data. Counting it made the bind line claim one term for a
+            rule that has none, and the guard correctly refused:
+
+                parseMethod: REFUSING to bind parsebreak to break
+                             emitted against 1 terms, rule now has 0
+
+            ⚠ THE GUARD WAS RIGHT AND IS DELIBERATELY UNTOUCHED. It protects
+            every binding against a method emitted for a different shape, so
+            weakening it to accommodate one convention would trade a real safety
+            property for a counting convenience. The bind line was the thing
+            telling an untruth, so the bind line is what changed.  */
+        if index ne "0" {
+            n++; } }
     cerr "extern GroupItem parse" tag "(GroupItem rule)":;
     cerr "{":;
     cerr "GroupItem   into  = rule.rStuff.parentLabel;":;

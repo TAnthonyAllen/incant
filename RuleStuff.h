@@ -126,6 +126,7 @@ extern "C" GroupItem *leaveAlt(GroupItem *rule, char *from, int ok);
 extern "C" GroupItem *leaveRule(GroupItem *rule, GroupItem *into, GroupItem *label, char *from, int ok);
 extern "C" int lit(GroupItem *field, char *str);
 extern "C" int litOption(GroupItem *field, GroupItem *into, char *str);
+extern "C" int litTo(GroupItem *field, GroupItem *into, char *str, char *slot);
 extern "C" int manyJSONblockFields(GroupItem *label, GroupItem *term);
 extern "C" int manyJSONlistItems(GroupItem *label, GroupItem *term);
 extern "C" GroupItem *parseGeneric(GroupItem *into, char *ruleName);

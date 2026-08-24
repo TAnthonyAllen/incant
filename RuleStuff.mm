@@ -51,50 +51,6 @@ Buffer 		*buffer = ruler->stringBUFFER;
 	return 0;
 }
 
-/*******************************************************************************
-    containerTo — CT, 2026-08-07. The generated arm's spelling of a CONTAINER
-    term, and the support-library twin of testContainer.
-
-    A container term (`UnaryOPS` in `UnaryXP UnaryOPS ANYtoken;`) is a `bin`
-    whose entries are matched LONGEST-FIRST: scan greedily over the container's
-    own character set, then look the buffer up and back off one character at a
-    time until it IS an entry or is empty. That back-off is not an optimisation
-    -- set membership can say "this character could belong to some entry" but
-    never "is this prefix an entry", so the greedy scan is an UPPER BOUND. The
-    same lesson `Buffer::shorten` was added for.
-
-    ⚠ MODELLED ON testContainer LINE FOR LINE, INCLUDING ITS BARE NAMES, and
-    that is deliberate rather than lazy: `reset()`, `contains()`, `length()`,
-    `get(string())` each resolve against a different object here (buffer, inSet,
-    buffer, term), and the resolution was VERIFIED IN THE GENERATED .mm rather
-    than reasoned about. Change the declaration order and you change what the
-    bare names mean.
-
-    ⚠ THE ONE DIVERGENCE FROM testContainer IS THE DESTINATION, AND IT IS THE
-    WHOLE POINT. testContainer writes the matched entry into the TERM'S OWN
-    label (`ruleStuff.label.group = grup`), which the interpretive arm then
-    attaches upward. A generated method has no per-term label, so this mints one
-    tagged with the term's slot name, hangs the entry on it, and attaches it
-    under `into` -- attach-under, no promotion, no retag (IA-0). Measured: the
-    specimen term is LABELLED (`noLabel=0`), so the label is not optional.
-
-    NOTE, and it is a sibling gap rather than this one: `litTo` -- the labelled
-    LITERAL spelling -- still has no implementation (genParse.rtn's own latent
-    note). CT adds the labelled CONTAINER road and does not pave the literal one.
-*******************************************************************************/
-/*******************************************************************************
-    ctProbe -- MEASUREMENT SCAFFOLD, rule-ladder rung two, 2026-08-24.
-
-    containerTo is emitted-but-never-executed: its only caller is genParse's
-    emitter, and no generated parse method that calls it has ever been built.
-    So the question "does containerTo attach only at the success boundary" could
-    not be answered by running anything, and a structural read is not a
-    measurement. This drives it directly, on a hit and on a miss, and prints
-    the `into` child count either side of the call.
-
-    ⚠ TEMPORARY. Remove with its groups.ext declaration once the answer is
-    banked; it exists to make one ruling checkable, not to ship.
-*******************************************************************************/
 extern "C" GroupItem *ctProbe(GroupItem *term)
 {
 GroupItem 	*into = new GroupItem("ctInto");
@@ -290,6 +246,109 @@ char 		*matchStr = 0;
 	ruler->atRuleMark = atText;
 	fresh = new GroupItem(str);
 	into->addAttribute(fresh);
+	return 1;
+}
+
+/*******************************************************************************
+    containerTo — CT, 2026-08-07. The generated arm's spelling of a CONTAINER
+    term, and the support-library twin of testContainer.
+
+    A container term (`UnaryOPS` in `UnaryXP UnaryOPS ANYtoken;`) is a `bin`
+    whose entries are matched LONGEST-FIRST: scan greedily over the container's
+    own character set, then look the buffer up and back off one character at a
+    time until it IS an entry or is empty. That back-off is not an optimisation
+    -- set membership can say "this character could belong to some entry" but
+    never "is this prefix an entry", so the greedy scan is an UPPER BOUND. The
+    same lesson `Buffer::shorten` was added for.
+
+    ⚠ MODELLED ON testContainer LINE FOR LINE, INCLUDING ITS BARE NAMES, and
+    that is deliberate rather than lazy: `reset()`, `contains()`, `length()`,
+    `get(string())` each resolve against a different object here (buffer, inSet,
+    buffer, term), and the resolution was VERIFIED IN THE GENERATED .mm rather
+    than reasoned about. Change the declaration order and you change what the
+    bare names mean.
+
+    ⚠ THE ONE DIVERGENCE FROM testContainer IS THE DESTINATION, AND IT IS THE
+    WHOLE POINT. testContainer writes the matched entry into the TERM'S OWN
+    label (`ruleStuff.label.group = grup`), which the interpretive arm then
+    attaches upward. A generated method has no per-term label, so this mints one
+    tagged with the term's slot name, hangs the entry on it, and attaches it
+    under `into` -- attach-under, no promotion, no retag (IA-0). Measured: the
+    specimen term is LABELLED (`noLabel=0`), so the label is not optional.
+
+    NOTE, and it is a sibling gap rather than this one: `litTo` -- the labelled
+    LITERAL spelling -- still has no implementation (genParse.rtn's own latent
+    note). CT adds the labelled CONTAINER road and does not pave the literal one.
+*******************************************************************************/
+/*******************************************************************************
+    ctProbe -- MEASUREMENT SCAFFOLD, rule-ladder rung two, 2026-08-24.
+
+    containerTo is emitted-but-never-executed: its only caller is genParse's
+    emitter, and no generated parse method that calls it has ever been built.
+    So the question "does containerTo attach only at the success boundary" could
+    not be answered by running anything, and a structural read is not a
+    measurement. This drives it directly, on a hit and on a miss, and prints
+    the `into` child count either side of the call.
+
+    ⚠ TEMPORARY. Remove with its groups.ext declaration once the answer is
+    banked; it exists to make one ruling checkable, not to ship.
+*******************************************************************************/
+/*******************************************************************************
+    litTo -- THE LABELLED LITERAL. `lit`'s twin, and genParse ladder rung 3.
+
+    Emitted as  litTo(t0,label,"break","break")  by emitLeaf's LITTO case, so
+    the arguments are (TERM, LABEL, MATCH-TEXT, SLOT). The spec row is
+    docs/genParseSpec.md 3.2: "as above, text into the named slot" -- where
+    "as above" is lit's line: skip pass, match literal at atRuleMark, advance.
+
+    ⚠ WRITTEN AGAINST THE ATTACH-AT-SUCCESS LAW (Ruling E-A, 2026-08-24), which
+    is why the order below is match-first-attach-after and is not merely tidy.
+    NOTHING IS MINTED BEFORE THE MATCH IS KNOWN TO HAVE SUCCEEDED: every early
+    return leaves `into` and `atRuleMark` exactly as they were found, so a
+    failed match cannot leave a provisional node behind for a later arm of an
+    OR-chain to trip over. `containerTo` immediately below embodies the same
+    order and was MEASURED doing so before this was written.
+
+    THE MATCH HALF IS lit's, DELIBERATELY CHARACTER-FOR-CHARACTER: the skip
+    pass, the walk, and the atRuleMark advance are the same moves in the same
+    sequence. Two literal matchers that drift apart would be a defect nobody
+    could see from either one alone, so the only difference is what happens
+    AFTER the match is known good.
+
+    ⚠ WHY THE TEXT AND THE SLOT MAY BE THE SAME STRING, since break's emission
+    passes "break" twice and that looks like a bug. They answer different
+    questions -- `str` is WHAT TO MATCH in the input, `slot` is WHAT TO CALL the
+    product on the label -- and for a tag-fallback rule (ZERO MEANS SELF, where
+    the rule's own tag IS the token it matches) the two answers coincide. That
+    is a coincidence of VALUES, not a special case in the code, and no branch
+    here tests for it.
+*******************************************************************************/
+extern "C" int litTo(GroupItem *field, GroupItem *into, char *str, char *slot)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*fresh = 0;
+char 		*atText = 0;
+char 		*matchStr = 0;
+	if ( ruler->parseTrace )
+		::fprintf(stderr,"  litTo \" %s \" at term  %s  slot  %s\n",str,field->groupBody->tag,slot);
+	if ( ruler->skipSet->contains(*ruler->atRuleMark) )
+		ruler->atRuleMark = ruler->checkSkip(ruler->atRuleMark);
+	atText = ruler->atRuleMark;
+	matchStr = str;
+	while ( *matchStr )
+		if ( *atText == *matchStr )
+			{
+			atText++;
+			matchStr++;
+			}
+		else	return 0;
+	ruler->atRuleMark = atText;
+	if ( into )
+		{
+		fresh = new GroupItem(slot);
+		fresh->setText(str);
+		into->addAttribute(fresh);
+		}
 	return 1;
 }
 

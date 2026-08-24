@@ -1,0 +1,29 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(BrkT);
+define
+    break parseTerms=0 parseMethod=parsebreak;
+    ;
+traceParse('on');
+define
+    bkN=0;
+    bkBump argument code={
+        bkN = bkN + 1;
+        };
+    bkWalk argument code={
+        iterate bkCur on argument members;
+        while ++bkCur;
+            if bkN == 3;    break;
+            bkBump(bkCur);
+        };
+    bkRun code={
+        bkWalk(Grokking);
+        print "BREAK SPECIMEN bkN =" bkN:;
+        print "BREAK SPECIMEN SENTINEL":;
+        traceParse('off');
+        stop();
+        };
+    ;
+bkRun();
