@@ -1444,7 +1444,12 @@ GroupItem   looper,
         if looper.isIterator    looper = looper.group;
         if result = StatemenT.gMethod(StatemenT) {
             if isBranch {
-                if isContinue   continue;
+                if isContinue {
+                    // result set to trueResult so result != continue or if continue is the last
+                    // statement in the while loop result will be passed on to the enclosing block
+                    // as continue which the pooches the block
+                    result      = trueResult;
+                    continue; }
                 or isReturn     return result;
                 /*  BREAK IS CONSUMED HERE -- see aCTionDO's copy of this block
                     for the full note. Ratified 2026-07-31: break terminates the

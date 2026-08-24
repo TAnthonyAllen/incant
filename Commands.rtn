@@ -248,6 +248,7 @@ GroupItem   code,
         compile owns only the verdict.  */
     if !processCode(field)  return null;
 endCompile:
+    field.hasNewParse   = true;
     return field;
 }
 

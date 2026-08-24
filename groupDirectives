@@ -232,6 +232,7 @@ parse "if !checkInput" before active
         if debugIndent < 0 debugIndent = 0;
         indent("  ");
         cerr "Match",ruleName,"on text",getDebugText(atRuleMark,20):;
+        if tag eq "NamE"   doNothing = false;
         debugIndent++; }
 #;
 parse ruleSTUFF ctive
