@@ -120,6 +120,7 @@ void getWhatFollows();
 void setTestMatch();
 };
 extern "C" int containerTo(GroupItem *term, GroupItem *into, char *slot);
+extern "C" GroupItem *ctProbe(GroupItem *term);
 extern "C" int inGuard(GroupItem *field, char *chars, char ch);
 extern "C" GroupItem *leaveAlt(GroupItem *rule, char *from, int ok);
 extern "C" GroupItem *leaveRule(GroupItem *rule, GroupItem *into, GroupItem *label, char *from, int ok);

@@ -1,0 +1,18 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+registry(cOMMANDs);
+define ctProbe immediateAction=ctProbe; ;
+register(CTP);
+define
+    ctRun code={
+        cerr "ROW MISS -- input is NOT a BrancheS entry at the mark":;
+        ctProbe(Grokking["BrancheS"]);
+        cerr "ROW MISS again -- same subject, fresh into each call":;
+        ctProbe(Grokking["BrancheS"]);
+        cerr "PROBE SENTINEL":;
+        stop();
+        };
+    ;
+ctRun();

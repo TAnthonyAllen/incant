@@ -592,6 +592,31 @@ String      atText, matchStr;
     LITERAL spelling -- still has no implementation (genParse.rtn's own latent
     note). CT adds the labelled CONTAINER road and does not pave the literal one.
 *******************************************************************************/
+/*******************************************************************************
+    ctProbe -- MEASUREMENT SCAFFOLD, rule-ladder rung two, 2026-08-24.
+
+    containerTo is emitted-but-never-executed: its only caller is genParse's
+    emitter, and no generated parse method that calls it has ever been built.
+    So the question "does containerTo attach only at the success boundary" could
+    not be answered by running anything, and a structural read is not a
+    measurement. This drives it directly, on a hit and on a miss, and prints
+    the `into` child count either side of the call.
+
+    ⚠ TEMPORARY. Remove with its groups.ext declaration once the answer is
+    banked; it exists to make one ruling checkable, not to ship.
+*******************************************************************************/
+extern GroupItem ctProbe(GroupItem term)
+{
+GroupItem   into = new("ctInto");
+int         before, after, ok;
+    if into.groupList   before = into.listLength;
+    ok      = containerTo(term,into,"ctSlot");
+    if into.groupList   after = into.listLength;
+    cerr "  ctProbe term ",term.tag," match=",ok," into ",before," -> ",after:;
+    return trueResult;
+}
+
+
 extern int containerTo(GroupItem term, GroupItem into, String slot)
 {
 GroupItem   grup;

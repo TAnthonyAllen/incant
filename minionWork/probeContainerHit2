@@ -1,0 +1,7 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+registry(cOMMANDs);
+define ctProbe immediateAction=ctProbe; ;
+ctProbe(Grokking["BrancheS"]) break

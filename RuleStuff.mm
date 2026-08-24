@@ -14,37 +14,6 @@
 #include "Stylish.h"
 #include "GroupDraw.h"
 
-/*******************************************************************************
-    containerTo — CT, 2026-08-07. The generated arm's spelling of a CONTAINER
-    term, and the support-library twin of testContainer.
-
-    A container term (`UnaryOPS` in `UnaryXP UnaryOPS ANYtoken;`) is a `bin`
-    whose entries are matched LONGEST-FIRST: scan greedily over the container's
-    own character set, then look the buffer up and back off one character at a
-    time until it IS an entry or is empty. That back-off is not an optimisation
-    -- set membership can say "this character could belong to some entry" but
-    never "is this prefix an entry", so the greedy scan is an UPPER BOUND. The
-    same lesson `Buffer::shorten` was added for.
-
-    ⚠ MODELLED ON testContainer LINE FOR LINE, INCLUDING ITS BARE NAMES, and
-    that is deliberate rather than lazy: `reset()`, `contains()`, `length()`,
-    `get(string())` each resolve against a different object here (buffer, inSet,
-    buffer, term), and the resolution was VERIFIED IN THE GENERATED .mm rather
-    than reasoned about. Change the declaration order and you change what the
-    bare names mean.
-
-    ⚠ THE ONE DIVERGENCE FROM testContainer IS THE DESTINATION, AND IT IS THE
-    WHOLE POINT. testContainer writes the matched entry into the TERM'S OWN
-    label (`ruleStuff.label.group = grup`), which the interpretive arm then
-    attaches upward. A generated method has no per-term label, so this mints one
-    tagged with the term's slot name, hangs the entry on it, and attaches it
-    under `into` -- attach-under, no promotion, no retag (IA-0). Measured: the
-    specimen term is LABELLED (`noLabel=0`), so the label is not optional.
-
-    NOTE, and it is a sibling gap rather than this one: `litTo` -- the labelled
-    LITERAL spelling -- still has no implementation (genParse.rtn's own latent
-    note). CT adds the labelled CONTAINER road and does not pave the literal one.
-*******************************************************************************/
 extern "C" int containerTo(GroupItem *term, GroupItem *into, char *slot)
 {
 GroupItem 	*grup = 0;
@@ -80,6 +49,65 @@ Buffer 		*buffer = ruler->stringBUFFER;
 		buffer->shorten(1);
 		}
 	return 0;
+}
+
+/*******************************************************************************
+    containerTo — CT, 2026-08-07. The generated arm's spelling of a CONTAINER
+    term, and the support-library twin of testContainer.
+
+    A container term (`UnaryOPS` in `UnaryXP UnaryOPS ANYtoken;`) is a `bin`
+    whose entries are matched LONGEST-FIRST: scan greedily over the container's
+    own character set, then look the buffer up and back off one character at a
+    time until it IS an entry or is empty. That back-off is not an optimisation
+    -- set membership can say "this character could belong to some entry" but
+    never "is this prefix an entry", so the greedy scan is an UPPER BOUND. The
+    same lesson `Buffer::shorten` was added for.
+
+    ⚠ MODELLED ON testContainer LINE FOR LINE, INCLUDING ITS BARE NAMES, and
+    that is deliberate rather than lazy: `reset()`, `contains()`, `length()`,
+    `get(string())` each resolve against a different object here (buffer, inSet,
+    buffer, term), and the resolution was VERIFIED IN THE GENERATED .mm rather
+    than reasoned about. Change the declaration order and you change what the
+    bare names mean.
+
+    ⚠ THE ONE DIVERGENCE FROM testContainer IS THE DESTINATION, AND IT IS THE
+    WHOLE POINT. testContainer writes the matched entry into the TERM'S OWN
+    label (`ruleStuff.label.group = grup`), which the interpretive arm then
+    attaches upward. A generated method has no per-term label, so this mints one
+    tagged with the term's slot name, hangs the entry on it, and attaches it
+    under `into` -- attach-under, no promotion, no retag (IA-0). Measured: the
+    specimen term is LABELLED (`noLabel=0`), so the label is not optional.
+
+    NOTE, and it is a sibling gap rather than this one: `litTo` -- the labelled
+    LITERAL spelling -- still has no implementation (genParse.rtn's own latent
+    note). CT adds the labelled CONTAINER road and does not pave the literal one.
+*******************************************************************************/
+/*******************************************************************************
+    ctProbe -- MEASUREMENT SCAFFOLD, rule-ladder rung two, 2026-08-24.
+
+    containerTo is emitted-but-never-executed: its only caller is genParse's
+    emitter, and no generated parse method that calls it has ever been built.
+    So the question "does containerTo attach only at the success boundary" could
+    not be answered by running anything, and a structural read is not a
+    measurement. This drives it directly, on a hit and on a miss, and prints
+    the `into` child count either side of the call.
+
+    ⚠ TEMPORARY. Remove with its groups.ext declaration once the answer is
+    banked; it exists to make one ruling checkable, not to ship.
+*******************************************************************************/
+extern "C" GroupItem *ctProbe(GroupItem *term)
+{
+GroupItem 	*into = new GroupItem("ctInto");
+int 		before = 0;
+int 		after = 0;
+int 		ok = 0;
+	if ( into->groupBody->groupList )
+		before = into->groupBody->groupList->listLength;
+	ok = containerTo(term,into,"ctSlot");
+	if ( into->groupBody->groupList )
+		after = into->groupBody->groupList->listLength;
+	::fprintf(stderr,"  ctProbe term  %s  match= %d  into  %d  ->  %d\n",term->groupBody->tag,ok,before,after);
+	return GroupControl::groupController->groupRules->trueResult;
 }
 
 /*******************************************************************************
