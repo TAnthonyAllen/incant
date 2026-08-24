@@ -1,0 +1,25 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+traceParse('on');
+register(StdT);
+define
+    stN=0;
+    stBump argument code={
+        stN = stN + 1;
+        };
+    stWalk argument code={
+        iterate stCur on argument members;
+        while ++stCur;
+            if stN == 3;    break;
+            stBump(stCur);
+        };
+    stRun code={
+        stWalk(Grokking);
+        print "STD bkN =" stN:;
+        };
+    ;
+stRun();
+traceParse('off');
+stop();

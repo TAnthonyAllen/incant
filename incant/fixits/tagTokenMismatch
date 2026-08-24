@@ -1,0 +1,116 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+registry(cOMMANDs);
+define genParse immediateAction=genParse; ;
+register(TagTok);
+define
+    ttRun code={
+        fixTagTokenHere = 0;
+        cerr "ANCHOR fixTagTokenHere -- five rules were turned green by the":;
+        cerr "tag-as-data fallback. Three of them match their own name. Two do":;
+        cerr "not, and nothing in the fleet can tell the difference.":;
+        };
+    ;
+ttRun();
+
+cerr "SOUND 1 of 3 -- break is a bare member of BrancheS bin; the token IS break":;
+genParse('break');
+cerr :;
+cerr "SOUND 2 of 3 -- continue, same shape":;
+genParse('continue');
+cerr :;
+cerr "SOUND 3 of 3 -- return, same shape":;
+genParse('return');
+cerr :;
+cerr "WRONG 1 of 2 -- DEFINing. Read the literal it emits, then read the":;
+cerr "grammar line that uses it:  define DEFINing-^ definitions=DefinE+ ...":;
+cerr "The source token is 'define'. DEFINing is a command that sets a flag.":;
+genParse('DEFINing');
+cerr :;
+cerr "WRONG 2 of 2 -- tokenize. Grammar line 34 is  tokenize^@;  with the":;
+cerr "comment 'method set to tokenize()'. It is a method hook, not a matcher.":;
+genParse('tokenize');
+cerr :;
+cerr "FIXIT SENTINEL -- tagTokenMismatch reached its foot":;
+stop();
+
+THE TAG-AS-DATA FALLBACK IS ONLY SOUND WHERE THE TAG IS THE TOKEN
+
+WHAT YOU JUST RAN
+
+Five emissions. Every one of them is a `litTo(t0,label,"<tag>","<tag>")`, and
+every one of them is COMPILE-GREEN on the odometer. Three of them are correct.
+Two of them will match a literal that never appears in any source text.
+
+    rule        grammar                            tag == token?
+    break       bare member of `BrancheS bin`      YES
+    continue    bare member of `BrancheS bin`      YES
+    return      bare member of `BrancheS bin`      YES
+    DEFINing    `define DEFINing-^ definitions=..` NO -- the token is `define`
+    tokenize    `tokenize^@;` method set to tokenize()   NO -- a method hook
+
+⚠ THE FIFTH IS STATED, NOT ASSUMED. tokenize was checked rather than lumped in
+with DEFINing: grammar line 34 is a bare declaration whose own comment says the
+method is set to tokenize(), and the 2026-08-23 campaign established it as the
+label-glomming janitor. It matches no token. That is a measurement, and it
+happens to agree with the guess -- which is the only reason the guess is
+repeated here.
+
+WHY THE FLEET CANNOT SEE IT -- and this is the third confirmed sighting
+
+COMPILE IS A PARSE CHECK. It asks whether emitted text PARSES, never whether it
+MEANS anything. The ledger now has three sightings of the same blind spot, each
+found a different way:
+
+  1. probeNameResolve  -- the scaffold count compiled a body whose condition was
+     `zzNotARule1() AND zzNotARule2();`, two names that are not rules and never
+     will be.
+  2. litToMissing      -- the odometer counted break GREEN while its emission
+     called litTo(), which the substrate had not implemented.
+  3. THIS ROW          -- the odometer counts DEFINing and tokenize GREEN while
+     their emissions match literals that do not occur.
+
+Each is one rung further from the text and one rung closer to meaning, and none
+of the three is visible in a count. The instruments are honest about what they
+measure; NONE OF THEM MEASURES CAPABILITY, and 19/58 must never be cited as
+though it did.
+
+⚠ SO TWO OF THE ODOMETER'S 19 ARE FALSE GREENS. The number is not withdrawn --
+it is correct about what it measures -- but any plan that reads 19 as "19 rules
+whose parse we could generate" is over by at least two.
+
+REMEDY CANDIDATES, UNGRADED AND NOT CHASED
+
+Two shapes, recorded so the next reader does not re-derive them, and NEITHER is
+recommended because the choice is a design question about what the fallback is
+FOR:
+
+  A. GUARD THE FALLBACK. Take the tag-as-data path only when the tag really is
+     the token, and refuse loud otherwise. Cheap, honest, and it moves the
+     odometer DOWN from 19 to 17 -- which is the correct direction and should be
+     expected rather than treated as a regression. Note the ratchet would fire
+     on it, which is the ratchet working: a re-pin with a sentence behind it.
+
+  B. READ THE TRUE TOKEN WHERE THE GRAMMAR NAMES IT. `define DEFINing-^ ...`
+     does say what DEFINing stands for; a fallback that could reach the using
+     site would emit the right literal instead of refusing. Strictly better if
+     it is reachable, strictly more work, and it may not be reachable at all for
+     a hook like tokenize, which stands for no token in any position.
+
+⚠ THEY ARE NOT ALTERNATIVES SO MUCH AS A ORDER: A is the safe floor and can land
+without B. B without A would leave the hook case still wrong.
+
+NEXT: OPEN
+
+No candidate is graded, because the gating question is not a measurement -- it
+is what the tag-as-data fallback is FOR. It was introduced (rung one of the rule
+ladder) to stop no-terms rules being refused as degenerate, on the measured
+finding that their match content lives in the tag. That finding is TRUE FOR
+THREE OF THE FIVE. Whether the other two are a defect in the fallback or simply
+rules that should still refuse is the ruling, and it is Tony's.
+
+WHAT WOULD GENERATE ONE: decide whether a rule that matches NO token belongs in
+the odometer's green at all. If it does not, candidate A is the whole fix and
+17/58 is the truer number.

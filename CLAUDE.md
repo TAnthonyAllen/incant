@@ -1755,6 +1755,29 @@ Hard-won lessons. Each one has cost real debugging time.
     that one over-matches to nothing, this one under-walks to one. Both produce a plausible number
     and neither names a line.
 
+⚠⚠ **THE RULE-LADDER SELECTION CRITERION — TWO CLAUSES, AND THE SECOND WAS PAID FOR.** Tony,
+2026-08-24.
+
+**Pick the rule with the FEWEST INTERPRETER CROSSINGS in its emitted body — AND that is
+DEMONSTRABLY FIRED in a standard parse trace.** Narrow the jit↔interpreter seam first and widen it
+one deliberate notch per rung; but a seam you cannot reach is not a narrow seam, it is no seam.
+
+⚠ **THE SECOND CLAUSE COST A RUNG, AND THE TWO FACTS ARE THE SAME FACT.** `break` was selected for
+clause one and has **zero** crossings — its emitted body is a single `litTo()`, a substrate helper,
+with not one `parseR()` call back into an interpreted rule. It was then spliced, built (canary
+315 → 316), and bound. **It never fired.** `litTo`'s trace line is absent from an 830-line parse
+trace.
+
+**Because `break` is a BIN ENTRY, not an invoked rule.** The grammar has `BrancheS bin` with
+break/continue/return as members; the trace reads `fireLabelMethod BrancheS isMethod=0` — matched by
+**container lookup** — and `break` never fires as a label at all. **A parse method bound to it is
+inert.** It has no crossings *because it is not a rule invocation*, so clause one selected it for
+precisely the property that made it unusable.
+
+**The tuition is paid once. Every later rung checks the trace before it checks the seam** — and the
+census that answers "which rules actually fire" is cheap, so there is no excuse for a second
+instance.
+
 ⚠⚠ **RULING E-A — THE ATTACH-AT-SUCCESS LAW. Tony, 2026-08-24, minted on a measured Part 1.**
 
 **ATTACHMENT HAPPENS ONLY AT THE SUCCESS BOUNDARY. NO PROVISIONAL ATTACH, EVER. Iterating forms

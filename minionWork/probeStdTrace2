@@ -1,0 +1,20 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+traceParse('on');
+register(StdU);
+define
+    suA=0;
+    suB;
+    suC code={
+        suA = 3 + 4;
+        if suA > 5;     suA = suA * 2;
+        else            suA = 0;
+        suB := Grokking["Braced"];
+        print "STD2" suA:;
+        };
+    ;
+suC();
+traceParse('off');
+stop();
