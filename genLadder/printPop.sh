@@ -139,12 +139,33 @@ strip "$T/pn.o" > "$T/pn.f"
 #  its own action -- which is exactly why it could be built without preempting
 #  the sink= design. `cout` is the case that still wants a discriminator.
 #  ⚠ WHAT THESE FILES STILL PIN, now that the sink half is correct: SECTION 6.
-#  `omitted-2 [ xlInSet` on stdout is an UNINITIALISED READ -- it is 35b (`=`
+#  `omitted-2 [ xl1InSet` on stdout is an UNINITIALISED READ -- it is 35b (`=`
 #  with a list on a non-string target), a different open item entirely, and it
 #  is the only knowingly-wrong byte left in either file. The `.divergence` names
 #  are kept for that reason and because renaming them would churn the ledger;
 #  they are no longer divergent ABOUT SINKS.
-diffcheck "printFamilyNew.divergence (stdout: sinks CORRECT; sec.6 xlInSet still 35b)" \
+#
+#  ⚠ RE-PINNED 2026-08-24 (Tony's ruling), AND THE CAUSE IS NAMED, per the
+#  standing rule that a re-pin needs a sentence and not a green diff. The token
+#  moved `xlInSet` -> `xl1InSet` because Tony's offline discriminator renamed
+#  interpretXP's two `xl` mint sites to `xl1` (ruleActions.rtn:1617, the
+#  no-operator-yet accumulate arm) and `xl2` (:1626, the op/target/arg build),
+#  leaving the generating path's mint at :1584 bare. THE RENAME IS NOT A FIX AND
+#  NOTHING ABOUT THE DEFECT MOVED -- 35b is exactly as wrong as it was. What the
+#  rename bought is a MEASUREMENT: this byte now names its own construction
+#  site, which proves section 6's uninitialised read and `incant/fixits/
+#  nodeIdentity`'s ROAD 4 garbage are THE SAME SITE rather than two similar
+#  ones. That was assumed before and is now measured.
+#
+#  ⚠ THIS ROW IS STILL RED, ON A SECOND AND OLDER CAUSE THAT IS NOT RE-PINNED
+#  AND IS OWED A SEPARATE RULING. The target carries two `printToBuffer:`
+#  trace lines the run no longer emits, because 4ab72dd (2026-08-18) moved
+#  those two prints out of Commands.rtn and into PARKED (`ctive`, disarmed)
+#  entries in `groupDirectives`. The target was captured before that move. It
+#  is a known-cause re-pin waiting on Tony's word, deliberately NOT absorbed
+#  into the xl1 re-pin -- absorbing it would have made one ruling silently
+#  cover two.
+diffcheck "printFamilyNew.divergence (stdout: sinks CORRECT; sec.6 xl1InSet still 35b; printToBuffer lines owed a re-pin)" \
           genLadder/printFamilyNew.divergence "$T/pn.f"
 diffcheck "printFamilyNew.err.divergence (stderr: cerr native, flush holds print ALONE)" \
           genLadder/printFamilyNew.err.divergence "$T/pn.e"

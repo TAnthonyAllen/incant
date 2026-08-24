@@ -313,8 +313,8 @@ use argument
             product = new(tag);
             switch(gCount) {
                 case 1:     product.text    = target.tag;
-                case 2:     if !target.parent    product = null; else product.group = target.parent;
-                case 3:     if !target.registry  product = null; else product.group = target.registry;
+                case 2:     if !target.parent    product = null; else product = target.parent;
+                case 3:     if !target.registry  product = null; else product = target.registry;
                 case 4:     product.text    = target.text;
                 case 5:     if target.groupList     product.count = target.listLength;
                             else                    product = 0;

@@ -1,0 +1,123 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(FixStamp);
+define
+    fsFace;
+    fsRef;
+    fsPar;
+    fsLen=0;
+    fsReg;
+    fsRegLen=0;
+    fsRun code={
+        fixParentStampHere = 0;
+        cerr "ANCHOR fixParentStampHere -- opDot hands back a REAL node now, and":;
+        cerr "the stamp at Instruct.rtn:369 still fires on whatever it hands back":;
+
+        cerr "ROW 0 control -- the accessor is live and returns the real parent":;
+        fsFace <- Grokking["Braced"];
+        fsRef := fsFace.firsT;
+        fsPar <- fsRef.parenT;
+        fsLen = fsPar.listLengtH;
+        cerr "   parenT off the REF   " fsPar.taG "  listLengtH " fsLen " (want Braced / 3)":;
+
+        cerr "ROW 1 the registry case -- case 3 now hands back the REGISTRY node":;
+        cerr "   the stamp asks !product.parent, and a registry may HAVE no parent,":;
+        cerr "   in which case it writes registry.parent = the field asked from.":;
+        fsReg <- fsRef.registrY;
+        fsRegLen = fsReg.listLengtH;
+        cerr "   registrY off the REF " fsReg.taG "  listLengtH " fsRegLen " (ROW 2 must match)":;
+
+        cerr "ROW 2 read the SAME registry a second time -- a stamp that landed":;
+        cerr "   is permanent, so a second read is taken off a mutated node.":;
+        fsReg <- fsRef.registrY;
+        fsRegLen = fsReg.listLengtH;
+        cerr "   registrY again       " fsReg.taG "  listLengtH " fsRegLen " (must match ROW 1)":;
+
+        cerr "FIXIT SENTINEL -- parentStamp reached its foot":;
+        stop();
+        };
+    ;
+fsRun();
+
+THE PARENT STAMP NOW FIRES ON NODES IT DOES NOT OWN
+
+Instruct.rtn:369, the last line of opDot's groupFields branch, reads:
+
+    if product && !product.parent   product.parent = target;
+
+That line was written when every case in the switch above it MINTED its own
+product -- a fresh `new(tag)` wrapper that belonged to nobody. Stamping a
+parent onto a node you just minted is harmless and helpful.
+
+It is no longer true that every case mints. Cases 401-405 (nexT, prioR, firsT,
+lasT, nextMembeR) have returned REAL tree nodes for a long time, and they got
+away with it for a structural reason rather than a designed one: a node reached
+as somebody's next, prior, first or last ALWAYS already has a parent, so
+`!product.parent` is false and the stamp never fires.
+
+As of 2026-08-24 cases 2 and 3 also return real nodes -- `parenT` hands back the
+actual parent and `registrY` hands back the actual registry -- and neither
+inherits that structural protection.
+
+    case 2  product is target's PARENT. Its own parent is the grandparent,
+            which is null at the top of any tree. Stamp fires: the root's
+            parent is set to its own grandchild. That is a cycle.
+
+    case 3  product is a REGISTRY node. Registries are shared, long-lived and
+            not obviously parented. Stamp fires: a shared registry acquires a
+            parent pointing at whichever field happened to ask it a question.
+
+WHAT IS ACTUALLY KNOWN, AND WHAT IS NOT
+
+Known: the two cases now return real nodes; the stamp is unguarded; the fleet
+did not move when they changed (52 green / 1 parked, rows byte-identical) and
+`printFamilyNew.divergence` moved only for an unrelated rename.
+
+NOT known, and this is the whole reason the file exists: whether the stamp
+actually fires for either case on any live path. Fleet silence is weak evidence
+and not a clearance -- a stamped parent is a SILENT mutation of shared state,
+the exact shape that answers every read correctly and diverges only later, and
+the fleet has no assertion pointed at it. The incantation above is a first look,
+not a verdict: ROW 0 proves the accessor is live so the rows below are not
+vacuous, and ROWS 1 and 2 read the same registry twice so a mutation that landed
+between them has somewhere to show.
+
+⚠ AS MINTED, ROWS 1 AND 2 ARE VOID AND THE FILE SAYS SO RATHER THAN LETTING
+THEM READ AS EVIDENCE. Both print `fsReg` and `fsRegLen` -- two locals echoing
+their own tags, which is bear-trap 26 and means `registrY` returned null: the
+node asked (Braced's leftBrace) has no registry, so case 3 stops at its
+`if !target.registry` guard and never reaches the stamp. The rows agree with
+each other because they are both nothing, not because nothing moved. ROW 0 is
+the anti-vacuity guard that makes this legible -- it reads Braced / 3, so the
+accessor is demonstrably live and the nulls below it are about the SUBJECT and
+not about a dead file. Finding a field that HAS a registry is part of
+measurement 2 below.
+
+NEXT: OPEN
+
+No candidate fix is recommended, because the measurement that would choose
+between the two obvious shapes has not been taken.
+
+WHAT WOULD GENERATE ONE -- in order, cheapest first:
+
+  1. Does the stamp fire at all? One `cerr` inside the `if` at Instruct.rtn:369
+     naming the case number and both tags, built BARE, run against the fleet and
+     against this file. If it never fires, this is documentation and the row
+     closes as retired-unreproduced.
+
+  2. If it fires, which case? The two want different answers. Case 2's cycle is
+     a tree defect. Case 3's registry write is a shared-state defect and is the
+     worse of the two.
+
+  3. Only then choose the shape. The candidates, NEITHER recommended and both
+     cheap: gate the stamp to the cases that mint (a `product != target` test
+     is not enough -- a minted wrapper and a real node are both != target), or
+     set a local at each minting case and stamp only on that. The second is
+     duller and says what it means.
+
+⚠ DO NOT read a green run of this file as a clearance. The file demonstrates
+that the accessor works and gives the mutation a place to become visible. It
+does not assert the stamp is silent, because nothing here can see the stamp.
+That is measurement 1's job.

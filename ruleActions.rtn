@@ -1614,7 +1614,7 @@ GroupItem   op, target, arg, xl, token;
                 if xl   xl = null; }
             else {
                 if !xl {
-                    xl = new("xl");
+                    xl = new("xl1");
                     xl.isLIST   = true; }
                 if arg != xl    xl += arg;
                 xl  += token;
@@ -1623,7 +1623,7 @@ GroupItem   op, target, arg, xl, token;
             if arg {
                 if arg.actionType || arg.instructType   arg.invoke = true;
                 if target {
-                    xl  = new("xl");
+                    xl  = new("xl2");
                     xl  += op;
                     xl  += target;
                     xl  += arg;

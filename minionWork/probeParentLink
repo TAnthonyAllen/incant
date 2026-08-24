@@ -1,0 +1,43 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(ProbeR);
+define
+    ppFace;
+    ppCopy;
+    ppRef;
+    ppParA;
+    ppParB;
+    ppLenA=0;
+    ppLenB=0;
+    ppRun code={
+        ppFace <- Grokking["Braced"];
+        cerr "row 0 control  face.taG        " ppFace.taG " (must read Braced)":;
+
+        cerr "row I  IDENTITY, asked in pointers -- nodeIdentity roads 1 and 2":;
+        cerr "   direct subscript twice must say SAME NODE, same pointers":;
+        canonOf(Grokking["Braced"]);
+        canonOf(Grokking["Braced"]);
+        cerr "   the same node through a <- rebind must say DIFFERENT NODES":;
+        canonOf(ppFace);
+
+        cerr "row A  child reached through a <- rebind":;
+        ppCopy <- ppFace.firsT;
+        cerr "   child.taG                   " ppCopy.taG " (must read leftBrace)":;
+        ppParA <- ppCopy.parenT;
+        ppLenA = ppParA.listLengtH;
+        cerr "   parenT off the COPY         " ppParA.taG "  listLengtH " ppLenA " (Braced/3 = link carried)":;
+
+        cerr "row B  child reached through a := byRef bind":;
+        ppRef := ppFace.firsT;
+        cerr "   child.taG                   " ppRef.taG " (must read leftBrace)":;
+        ppParB <- ppRef.parenT;
+        ppLenB = ppParB.listLengtH;
+        cerr "   parenT off the REF          " ppParB.taG "  listLengtH " ppLenB " (Braced/3 = link carried)":;
+
+        cerr "PROBE SENTINEL -- probeParentLink reached its foot":;
+        stop();
+        };
+    ;
+ppRun();

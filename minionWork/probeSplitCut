@@ -1,0 +1,29 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(ProbeR);
+define
+    psX;
+    psY;
+    psLen=0;
+    psRun code={
+        cerr "row 0 CHAINED -- index-then-dot in one expression":;
+        psLen = Grokking["Braced"].listLengtH;
+        cerr "   chained read                " psLen " (expect 3)":;
+
+        cerr "row A SPLIT with = (opAssign copy)":;
+        psX = Grokking["Braced"];
+        psLen = psX.listLengtH;
+        cerr "   split read via =            " psLen " (expect 3)":;
+
+        cerr "row B SPLIT with <- (rebind)":;
+        psY <- Grokking["Braced"];
+        psLen = psY.listLengtH;
+        cerr "   split read via <-           " psLen " (expect 3)":;
+
+        cerr "PROBE SENTINEL -- probeSplitCut reached its foot":;
+        stop();
+        };
+    ;
+psRun();

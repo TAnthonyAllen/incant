@@ -15,6 +15,6 @@ PN ==== 6. string, OMITTED FORM ====
 spelled-1 [ PN-O-one  ] 
 spelled-2 [ PN-O two  ] 
 omitted-1 [ PN-O-one ] 
-omitted-2 [ xlInSet
+omitted-2 [ xl1InSet
  ] 
 PN SENTINEL -- run reached the end; if this line is absent the run TRUNCATED 

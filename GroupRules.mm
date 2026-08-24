@@ -4226,7 +4226,7 @@ GroupItem 	*token = 0;
 			else {
 				if ( !xl )
 					{
-					xl = new GroupItem("xl");
+					xl = new GroupItem("xl1");
 					xl->groupBody->flags.binType = 3;
 					}
 				if ( arg != xl )
@@ -4242,7 +4242,7 @@ GroupItem 	*token = 0;
 					arg->groupBody->flags.invoke = 1;
 				if ( target )
 					{
-					xl = new GroupItem("xl");
+					xl = new GroupItem("xl2");
 					xl->addMember(op);
 					xl->addMember(target);
 					xl->addMember(arg);
@@ -8879,12 +8879,12 @@ GroupItem 	*product = 0;
 				case 2:
 					if ( !target->parent )
 						product = 0;
-					else	product->setGroup(target->parent);
+					else	product = target->parent;
 					break;
 				case 3:
 					if ( !target->groupBody->registry )
 						product = 0;
-					else	product->setGroup(target->groupBody->registry);
+					else	product = target->groupBody->registry;
 					break;
 				case 4:
 					product->setText(target->getText());
