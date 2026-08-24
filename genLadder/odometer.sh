@@ -44,7 +44,7 @@ if [ "$P" -eq 0 ]; then echo "  FAIL  population is empty -- nothing to measure"
 
 #  ---- one process per rule -------------------------------------------------
 green=0; red=0; rows=0
-: > "$T/reds.txt"
+: > "$T/reds.txt"; : > "$T/is.green"
 while read -r rule; do
     [ -n "$rule" ] || continue
     cat > "$T/one" <<EOF
@@ -65,13 +65,15 @@ EOF
         red=$((red+1)); echo "$rule|run truncated" >> "$T/reds.txt"; continue
     fi
     if echo "$out" | grep -q "^extern GroupItem parse$rule("; then
-        green=$((green+1))
+        green=$((green+1)); echo "$rule" >> "$T/is.green"
     else
         why=$(echo "$out" | grep -m1 '  REFUSE ' | sed 's/^ *//')
         [ -z "$why" ] && why="no emission and no refusal line"
         red=$((red+1)); echo "$rule|$why" >> "$T/reds.txt"
     fi
 done < "$T/pop.txt"
+
+sort -o "$T/is.green" "$T/is.green"
 
 #  ---- the frontier, named not absorbed ------------------------------------
 if [ "$red" -gt 0 ]; then
@@ -82,6 +84,29 @@ fi
 
 echo
 echo "  genParse count $green green / $red red of $rows attempted"
+
+#  ---- THE RATCHET: strictly monotone, and a regression is stop-the-line ----
+#  ⚠ THIS IS THE LADDER'S ONLY HARD RULE. A rule that was green and is now red
+#  means the rung that just landed broke something a previous rung proved, and
+#  the whole rung reverts. The green set is checked in beside the baseline so
+#  the assertion cannot drift with the run that produced it.
+#
+#  H4: the ratchet prints its count WITH ITS VALUE on every run, green or not.
+#  An absence-based check ("no regression line appeared") would pass the day
+#  someone deletes the comparison.
+if [ -f genLadder/odometer.green ]; then
+    sort genLadder/odometer.green > "$T/was.green"
+    comm -23 "$T/was.green" "$T/is.green" > "$T/regressed"
+    nreg=$(wc -l < "$T/regressed" | tr -d " ")
+    echo "  ratchet  $nreg previously-green rules regressed (must be 0)"
+    if [ "$nreg" -ne 0 ]; then
+        echo "  STOP-THE-LINE -- the odometer is not monotone. Revert the rung."
+        sed 's/^/     RED NOW, WAS GREEN: /' "$T/regressed"
+        exit 1
+    fi
+else
+    echo "  ratchet  no green set on file yet -- first run, nothing to compare"
+fi
 
 #  ---- self-certification (H2, turned on the harness) ----------------------
 if [ "$rows" -eq 0 ]; then

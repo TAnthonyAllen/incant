@@ -46,7 +46,7 @@ define
         fbTermN = fbTermN + 1;
         };
     fbTagMatch argument code={
-        print $"m_" taG;
+        print $"m" taG;
         print $"()";
         print ";";
         };

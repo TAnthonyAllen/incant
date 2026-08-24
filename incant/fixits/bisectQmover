@@ -1,0 +1,67 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(FixBQ);
+define
+    fqRun code={
+        fixBisectQHere = 0;
+        cerr "ANCHOR fixBisectQHere -- bisectQ is the one wrong-way mover":;
+        cerr "This file does not reproduce it. Run the subject itself:":;
+        cerr "     ~/bin/incant incant/bisectQ 2>&1 | grep -c 'ERROR processCode'":;
+        cerr "  before the fbGen repair (commit e8e8619^):  0":;
+        cerr "  after:                                      1":;
+        cerr "FIXIT SENTINEL -- bisectQmover reached its foot":;
+        stop();
+        };
+    ;
+fqRun();
+
+bisectQ GAINED A processCode ERROR IN THE fbGen REPAIR PASS
+
+On 2026-08-24 the scaffold emitter in incant/f31 and its eleven copies was
+repaired for families A, B and C (commit e8e8619). Eleven of the twelve patched
+files either improved or held. One did not.
+
+    file                    processCode errors before -> after   exit
+    incant/fixBisect                    1 -> 0                   0 -> 0
+    minionWork/probeM3                  1 -> 0                   0 -> 0
+    minionWork/probeExitExam            4 -> 1                 139 -> 139
+    incant/walkPhase                   49 -> 55                 139 -> 0
+    incant/phaseProbe                   0 -> 0                   0 -> 0
+    incant/bisectQ                      0 -> 1                   0 -> 0     <-- this
+
+WHY IT IS EXPECTED THAT THESE MOVE AT ALL, so the row is not misread as a
+regression in the repair: every one of these files EMBEDS a copy of the emitter
+that was changed, and their whole purpose is to compile generated bodies. Their
+output moving is the repair working. What singles bisectQ out is DIRECTION -- it
+is the only file that went from clean to not-clean.
+
+WHAT IS NOT KNOWN
+
+Whether the new error is collateral from the mechanical edit (the patch inserted
+a counter field, a bump action and a tag-match action into each copy, and
+bisectQ's surrounding shape may differ from the others in a way the patch did
+not respect), or whether bisectQ is compiling a rule that the repaired emitter
+now emits DIFFERENTLY and worse.
+
+⚠ "LIKELY COLLATERAL FROM THE FIXTURE EDIT" IS THE STANDING GUESS AND IT IS
+RECORDED AS A GUESS. This project's ledger says structural claims hold here and
+causal ones are a coin flip until run; nothing below has been run.
+
+NEXT: OPEN
+
+WHAT WOULD GENERATE AN ANSWER, cheapest first:
+
+  1. `git diff e8e8619^ e8e8619 -- incant/bisectQ` and read the inserted block
+     against the same block in incant/fixBisect, which went the RIGHT way under
+     the identical patch. If the two insertions differ structurally, the patch
+     is the cause and the fix is local.
+
+  2. If the insertions are equivalent, print the error: run bisectQ and read
+     which rule's processCode failed and at what text. The emitted body is
+     visible via the same route minionWork/probeBodyText uses.
+
+  3. Only then decide whether the emitter or the fixture is wrong. Note that
+     bisectQ is a campaign bisect probe, not a fleet member and not a pinned
+     target, so nothing downstream is currently relying on it being clean.

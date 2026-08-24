@@ -1,6 +1,6 @@
   pop   58 rules qualify (live walk, four filters: not noPrint, not a bin, is a rule, actionType 0)
 
-  -- FRONTIER: 44 rules genParse cannot yet emit. Each is a row, not a total.
+  -- FRONTIER: 39 rules genParse cannot yet emit. Each is a row, not a total.
      ANYtoken         REFUSE rule ANYtoken -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
      Any              REFUSE rule Any -- rule-level data isANY (§4.1 rule-as-data, rung 5)
      Attributes       REFUSE rule Attributes -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
@@ -9,7 +9,6 @@
      CouT             REFUSE followedBy -- inline group / structural data isSET (named future kind)
      DEBUG            REFUSE followedBy -- inline group / structural data isSET (named future kind)
      DEF              REFUSE followedBy -- inline group / structural data isSET (named future kind)
-     DEFINing         REFUSE rule DEFINing -- no terms at all
      DO               REFUSE followedBy -- inline group / structural data isSET (named future kind)
      DatA             REFUSE CodE -- parseAction (tail position only, §2.8)
      DefinE           REFUSE NewGroup -- inline group / structural data isGROUP (named future kind)
@@ -38,13 +37,10 @@
      TraiTdata        REFUSE Modifier -- inline group / structural data isSET (named future kind)
      UnaryXP          REFUSE ANYtoken -- inline group / structural data isGROUP (named future kind)
      WhilE            REFUSE followedBy -- inline group / structural data isSET (named future kind)
-     break            REFUSE rule break -- no terms at all
-     continue         REFUSE rule continue -- no terms at all
      followedBy       REFUSE rule followedBy -- rule-level data isSET (§4.1 rule-as-data, rung 5)
      nameSet          REFUSE rule nameSet -- rule-level data isSET (§4.1 rule-as-data, rung 5)
      numberSet        REFUSE rule numberSet -- rule-level data isSET (§4.1 rule-as-data, rung 5)
-     return           REFUSE rule return -- no terms at all
-     tokenize         REFUSE rule tokenize -- no terms at all
 
-  genParse count 14 green / 44 red of 58 attempted
+  genParse count 19 green / 39 red of 58 attempted
+  ratchet  0 previously-green rules regressed (must be 0)
   ODOMETER SENTINEL -- 58 of 58 attempted, foot reached

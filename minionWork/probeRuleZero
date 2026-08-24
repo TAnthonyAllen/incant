@@ -1,0 +1,22 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(ProbeR);
+define
+    przSubj;
+    przT;
+    przRun code={
+        przSubj := Grokking["break"];
+        cerr "row 0 control  break listLengtH " przSubj.listLengtH " (0 = no terms, as measured)":;
+        cerr "row 1 the emitted subscript rule[0] -- does it index anything?":;
+        przT := przSubj[0];
+        cerr "   rule[0] listLengtH " przT.listLengtH "  texT " przT.texT:;
+        cerr "row 2 the 1-based control, rule[1]":;
+        przT := przSubj[1];
+        cerr "   rule[1] texT " przT.texT:;
+        cerr "PROBE SENTINEL":;
+        stop();
+        };
+    ;
+przRun();

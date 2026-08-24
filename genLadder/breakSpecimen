@@ -1,0 +1,38 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(BrkT);
+define
+    bkN=0;
+    bkBump argument code={
+        bkN = bkN + 1;
+        };
+    bkWalk argument code={
+        iterate bkCur on argument members;
+        while ++bkCur;
+            if bkN == 3;    break;
+            bkBump(bkCur);
+        };
+    bkRun code={
+        bkWalk(Grokking);
+        print "BREAK SPECIMEN bkN =" bkN:;
+        print "BREAK SPECIMEN SENTINEL":;
+        stop();
+        };
+    ;
+bkRun();
+
+THE RUNG-ONE SPECIMEN: a minimal program whose parse contains a `break`.
+
+It exists to be parsed, and its OUTPUT is the oracle -- the interpreter's
+product against which a bound generated parsebreak must be compared. Captured
+BEFORE any bind, per the rung's own rule, so the comparison cannot be taken
+against a baseline the treatment already touched.
+
+The walk stops at 3 rather than running to completion, so the `break` is not
+decoration: a run in which the break did not fire prints a different number.
+That is the anti-vacuity guard -- a specimen whose break could be deleted
+without changing the output would prove nothing about break's parse.
+
+⚠ The cursor `bkCur` is deliberately NOT declared (bear-trap 38).

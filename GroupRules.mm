@@ -11161,7 +11161,29 @@ int 		i = 1;
 		literal = 1;
 		}
 	/*  A literal-valued rule legitimately has NO terms -- its data IS its
-	content -- so the no-terms refusal must not fire on it.  */
+	content -- so the no-terms refusal must not fire on it.
+	
+	⚠ THE TAG-AS-DATA FALLBACK, added 2026-08-24 (rung one of the rule
+	ladder). A rule with no terms and no data is NOT degenerate: its match
+	content lives in a channel this planner never read. Measured -- for
+	DEFINing and break every readable channel is empty (listLength 0, data
+	0, no attributes, no members) and only `text` answers, carrying the
+	rule's own TAG. That is bear-trap 26's fallback doing real work: a field
+	with no data reads back as its name, and for these rules the name IS the
+	token to match.
+	
+	So the rule's own tag is planned as its literal, through the SAME
+	LIT/LITTO block the data-carrying case already uses -- no second
+	mechanism, and `node.text = rule.text` picks the tag up by that same
+	fallback.
+	
+	⚠ THE REFUSAL BELOW STAYS REACHABLE ON PURPOSE and is not dead code. It
+	still fires for a no-terms rule with no rStuff, because LIT vs LITTO is
+	undecidable without it -- exactly the reason the data-carrying path
+	refuses one line above. A rule whose tag-fallback also comes up empty
+	must refuse LOUD rather than emit a match on nothing.  */
+	if ( !literal && !::countRuleTerms(rule) && rs )
+		literal = 1;
 	if ( !literal && !::countRuleTerms(rule) )
 		{
 		::fprintf(stderr,"  REFUSE rule %s -- no terms at all\n",rule->groupBody->tag);

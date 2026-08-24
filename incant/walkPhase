@@ -80,7 +80,7 @@ define
         wpTermN = wpTermN + 1;
         };
     wpTagMatch argument code={
-        print $"m_" taG;
+        print $"m" taG;
         print $"()";
         print ";";
         };

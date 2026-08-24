@@ -115,7 +115,7 @@ define
         ppTermN = ppTermN + 1;
         };
     ppTagMatch argument code={
-        print $"m_" taG;
+        print $"m" taG;
         print $"()";
         print ";";
         };

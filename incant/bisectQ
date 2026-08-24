@@ -43,7 +43,7 @@ define
         bqTermN = bqTermN + 1;
         };
     bqTagMatch argument code={
-        print $"m_" taG;
+        print $"m" taG;
         print $"()";
         print ";";
         };

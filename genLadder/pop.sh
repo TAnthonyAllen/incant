@@ -707,7 +707,7 @@ diffcheck "jsonTest baseline" genLadder/jsonTest.base "$T/jsn"
 #  and conflating them in a citation is the failure this wording exists to
 #  prevent.
 bash genLadder/odometer.sh 2>&1 | grep -v '^  bin ' > "$T/odo"
-diffcheck "genParse odometer (14 green / 44 red of 58 -- RED BY DESIGN, pinned)" \
+diffcheck "genParse odometer (19 green / 39 red of 58 -- RED BY DESIGN, pinned; ratchet monotone)" \
           genLadder/odometer.base "$T/odo"
 
 echo ""
