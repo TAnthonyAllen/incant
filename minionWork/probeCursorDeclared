@@ -1,0 +1,27 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(ProbeR);
+define
+    pdDeclared;
+    pdWalkDeclared argument code={
+        iterate pdDeclared on argument members;
+        while ++pdDeclared;
+            cerr "A " ~taG:;
+        };
+    pdWalkUndeclared argument code={
+        iterate pdFresh on argument members;
+        while ++pdFresh;
+            cerr "B " ~taG:;
+        };
+    pdRun code={
+        cerr "ARM A cursor pdDeclared IS declared in the define block":;
+        pdWalkDeclared(Grokking);
+        cerr "ARM B cursor pdFresh is NOT declared -- iterate introduces it":;
+        pdWalkUndeclared(Grokking);
+        cerr "PROBE SENTINEL -- probeCursorDeclared reached its foot":;
+        stop();
+        };
+    ;
+pdRun();

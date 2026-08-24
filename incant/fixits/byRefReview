@@ -1,0 +1,132 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(FixByRef);
+define
+    brSubj;
+    brVia;
+    brChk;
+    brLen=0;
+    brMake code={
+        brSubj = new("brSubj");
+        brSubj +% new("kidA");
+        };
+    brRun code={
+        fixByRefHere = 0;
+        cerr "ANCHOR fixByRefHere -- byRef is set in ONE place and read from none":;
+        cerr "of incant. This file shows what IS reachable, and names what is not.":;
+
+        cerr "ROW 0 control -- a scratch subject, nothing live is touched":;
+        brMake();
+        brLen = brSubj.listLengtH;
+        cerr "   subject listLengtH   " brLen " (want 1)":;
+
+        cerr "ROW 1 a := binding auto-derefs: the accessor reaches the REAL node":;
+        brChk := brSubj;
+        brLen = brChk.listLengtH;
+        cerr "   through :=           " brLen " (1 = reached the subject)":;
+
+        cerr "ROW 2 a <- binding does NOT carry isGROUP, so nothing auto-derefs":;
+        cerr "   and .parenT reads the LOCAL's parent instead of the subject's.":;
+        brVia <- brSubj;
+        brLen = brVia.listLengtH;
+        cerr "   through <-           " brLen " (1 = the list is still shared)":;
+
+        cerr "ROW 3 THE FLAG ITSELF IS UNREADABLE FROM INCANT. There is no opDot":;
+        cerr "   case for byRef and none for isPointer, so this file CANNOT print":;
+        cerr "   the thing it is about. That is part of the finding, not a gap":;
+        cerr "   in the fixture -- see the dead region below.":;
+
+        cerr "FIXIT SENTINEL -- byRefReview reached its foot":;
+        stop();
+        };
+    ;
+brRun();
+
+IS byRef THE WRAPPER-ADDRESS MECHANISM, AND WOULD WE DESIGN IT ON PURPOSE
+
+⚠ PARKED BY RULING. Tony wants a ruling before any work here. Nothing in this
+file is a recommendation and no repair is proposed.
+
+THE QUESTION, in Tony's words (2026-08-24)
+
+    byRef may be an attempt to express wrapper-address -- hand me the local
+    itself, not what it contains. The language auto-derefs; wrapper-identity is
+    otherwise inexpressible.
+
+CROSS-REFERENCE, AND NOBODY SHOULD RE-DERIVE THIS: commit 23df1b0, runOP must
+not unwrap a handle. The iterator fight was plausibly the same fight wearing a
+different name. If it was, then the mechanism has been rediscovered at least
+twice under two names and never designed once.
+
+WHAT IS STRUCTURAL AND CITABLE -- pointed at, not inferred
+
+  byRef is written in EXACTLY ONE PLACE in the operator layer: opSetFlag's
+  case 31 (Instruct.rtn:1145, `target.byRef = true`), reached from incant as
+  `x :. byReF` (incant/setup:305 maps byReF to 31). One other write exists,
+  in generateCode (Commands.rtn:417). It is READ by opAssign
+  (Instruct.rtn:104, `if argument.byRef group = argument`) -- so a byRef
+  argument makes a subsequent `=` reference instead of copy, which is
+  CLAUDE.md bear-trap 3's sticky behaviour, at its source.
+
+  isPointer is a DIFFERENT flag with the same smell. It is SET by the `&`
+  modifier in processFlags (GroupRules.mm:8571) and by the `=*` unary op
+  (GroupRules.mm:9829). It is READ in exactly one role: runOP's unwrap
+  guards -- GroupRules.mm:12468, 12470, 12740, 12755 -- each of the form
+
+      if isGROUP(target) && !isPointer(target) && !isIterator(target)
+          target = target.group
+
+  ⚠ SO isPointer ALREADY IS A "DO NOT AUTO-DEREF THIS HANDLE" MARK, and it
+  already sits in the same test as isIterator, which is the other thing that
+  must not be unwrapped. That is the structural answer to half the question:
+  the wrapper-address mechanism EXISTS, it is called isPointer, it is spelled
+  `&`, and it is enforced in one place.
+
+AND THE TWO OPERATORS, since they are what raised the question
+
+  opRebind, the `<-`   (Instruct.rtn:1022-1026)
+      if argument target.group = argument;
+      -- its own comment: "with NO byRef stamp (unlike :=) and no content copy
+      (unlike =)". Sets no flags at all.
+
+  opSetGroup, the `:=` (Instruct.rtn:1179-1186)
+      target.gGroup = argument; target.isGROUP = true; target.isInitialized = true;
+      -- also no byRef stamp, despite the comment above claiming otherwise.
+
+  ⚠ THE COMMENT AND THE CODE DISAGREE and the code wins on inspection: neither
+  operator stamps byRef. The measurable difference is isGROUP, which is exactly
+  the flag runOP's unwrap tests -- so `:=` produces a handle the language
+  auto-derefs and `<-` produces one it does not. Recorded as a disagreement,
+  not resolved here.
+
+WHAT IS NOT KNOWN
+
+Whether byRef and isPointer are two attempts at one idea, or two ideas that
+merely rhyme. Whether the iterator exemption (isIterator in those same four
+guards) is a third. Nothing here measures intent, and intent is the architect's
+to state.
+
+⚠ AND A LIMIT THIS FILE CANNOT ARGUE ITS WAY PAST: neither flag is readable
+from incant. opDot resolves about forty numbered accessor cases and byRef and
+isPointer are not among them, so an incantation can demonstrate the EFFECTS
+(rows 1 and 2 above) and can never print the CAUSE. Any future measurement here
+either adds those read cases or runs under a debugger at the anchor.
+
+NEXT: RULED
+
+The shape is not selected and the build is gated on Tony. What is decided is
+only that the question is real and is his, which is why this citizen exists
+parked rather than as a repair.
+
+THE GATE: Tony's answer to two questions, in order.
+  1. Is byRef the wrapper-address mechanism -- and if the answer is that
+     isPointer already is, then what is byRef FOR?
+  2. Is auto-deref-with-an-opt-out the design we would choose on purpose, or
+     the design we arrived at?
+
+WHAT A "YES, DESIGN IT" WOULD MAKE BUILDABLE, named so the gate has a far side
+and NOT recommended: one flag rather than three overlapping ones, read in one
+place, with a spelling at the incant surface and an opDot read case so a
+fixture can assert it. That is a description of a destination, not a plan.
