@@ -1,0 +1,19 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+registry(cOMMANDs);
+define canonOf immediateAction=canonOf; ;
+define
+    NamE parseTerms=2 parseMethod=parseScaf;
+    ;
+register(NB);
+define
+    nbRun code={
+        cerr "ROW 0 the bind's own target, by subscript":;
+        canonOf(Grokking["NamE"]);
+        };
+    ;
+nbRun();
+print "NAMEBIND SENTINEL":;
+stop();

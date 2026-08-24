@@ -1,0 +1,31 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+registry(cOMMANDs);
+define canonOf immediateAction=canonOf; ;
+register(FS);
+define
+    fsBefore code={
+        cerr "ROW 0 BEFORE any bind -- the registry face of Braced":;
+        canonOf(Grokking["Braced"]);
+        };
+    ;
+fsBefore();
+
+define
+    Braced parseTerms=3 parseMethod=parseBraced;
+    ;
+
+register(FS2);
+define
+    fsAfter code={
+        cerr "ROW 1 AFTER the cross-file bind -- same subscript, same question":;
+        canonOf(Grokking["Braced"]);
+        cerr "   canonParseMethod above is the discriminator: 0x0 means the":;
+        cerr "   bind landed on a face the canon does not share.":;
+        };
+    ;
+fsAfter();
+print "FACESPLIT SENTINEL":;
+stop();
