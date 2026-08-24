@@ -1,0 +1,128 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+registry(cOMMANDs);
+define genKant immediateAction=genKant; ;
+register(KantPath);
+define
+    kgRun code={
+        fixKantGenPathHere = 0;
+        cerr "ANCHOR fixKantGenPathHere -- the kant parse generator, driven as":;
+        cerr "far as it goes today. Read the two stages below in order.":;
+        };
+    ;
+kgRun();
+
+cerr "STAGE 0  ANTI-VACUITY CONTROL -- the kant generator must WORK on a rule":;
+cerr "         it can already spell, or every refusal below means nothing.":;
+cerr "         Xpress is ExpressioN + SemI -- a CALL and a LIT, no LITTO.":;
+cerr "         PASS looks like:  return parseRK(1) AND litK(2);":;
+genKant('Xpress');
+
+cerr :;
+cerr "STAGE 1  THE SUBJECT -- break, the same rule the C++ path was walked on,":;
+cerr "         so the two generators are measured against one another.":;
+cerr "         This is where it breaks. The refusal prints next.":;
+genKant('break');
+
+cerr :;
+cerr "STAGE 2  and beyond do not run. See the dead region below for the whole":;
+cerr "         intended path and exactly how much of it is real.":;
+cerr "FIXIT SENTINEL -- kantGenPath reached its foot":;
+stop();
+
+THE KANT PARSE GENERATOR STOPS AT THE LABELLED LITERAL
+
+WHAT YOU JUST RAN
+
+Stage 0 is the control and it PASSES: genKant('Xpress') emits
+
+    return parseRK(1) AND litK(2);
+
+so the kant generator is alive, spells a rule-call and an unlabelled literal,
+and joins them. Nothing below is a dead-path artifact.
+
+Stage 1 is the subject and it REFUSES:
+
+    genKant: REFUSING break -- term 0 is LITTO, which has no kant spelling
+
+WHERE IT BREAKS -- the named site
+
+`kantLeaf` (genParse.rtn:942) is the kant twin of `emitLeaf`. It has exactly
+three cases:
+
+    if node.tag eq "LIT"    leaf = "litK(" at ")";
+    or node.tag eq "CALL"   leaf = "parseRK(" at ")";
+    or node.tag eq "OPT"    ... optRK ...
+    else                    return null;          <- LITTO lands here
+
+LITTO is the LABELLED literal -- match a literal AND attach it to the frame's
+label under a named slot. There is no kant spelling for it, so every rule
+carrying one refuses. Measured the same day, one command each:
+
+    Braced   REFUSING -- term 1 is LITTO
+    BlocK    REFUSING -- term 1 is LITTO
+    Parens   REFUSING -- term 1 is LITTO
+    CodE     REFUSING -- term 1 is LITTO
+    break    REFUSING -- term 0 is LITTO
+    Xpress   return parseRK(1) AND litK(2);        <- the control
+
+⚠ AND THE SYMMETRY IS THE HEADLINE, because it says this is one gap and not
+two. The C++ path was walked to its own stopping point on 2026-08-24 and stopped
+at the SAME FAMILY: genParse emitted `litTo(...)` and the substrate had never
+implemented it (incant/fixits/litToMissing). litTo has since been written, so
+the C++ side of the labelled literal is closed and THE KANT SIDE IS THE HALF
+STILL OPEN. Both generators reached the labelled literal and neither could spell
+it; they are the same missing rung seen from two directions.
+
+NEXT: BEST GUESS -- explicitly NOT a recommendation
+
+CANDIDATE: add `litToK` beside `litK`, and give kantLeaf its LITTO case.
+Graded BEST GUESS because the shape is nearly forced but one judgement is not.
+`litK` (genParse.rtn:1015) is eleven lines: resolve the term from `gKantRule`,
+refuse loud if absent, then `if lit(term,term.tag) return trueResult;`. The
+labelled twin is the same eleven lines calling the C++ `litTo(term, into,
+term.tag, slot)` instead, with `into = gKantLabel` -- and gKantLabel ALREADY
+EXISTS and is already read this way by two sibling helpers (genParse.rtn:1389
+and :1450), so no new frame plumbing is needed. kantLeaf then gains
+`or node.tag eq "LITTO"  leaf = "litToK(" at ")";`.
+
+WHAT WOULD PROMOTE IT: the one judgement is the SLOT NAME. emitLeaf's C++ LITTO
+case takes the slot from the plan node's `slot` attribute; a one-argument
+`litToK(idx)` would have to derive it from the term instead, and whether
+`term.tag` is always the right slot is the question to settle before writing the
+line. Settle that and the candidate becomes a remedy.
+WHAT WOULD KILL IT: if the slot must come from the plan and cannot be derived
+from the term, then litToK needs two arguments, and a kant action takes one --
+which routes through the attributes-plus-scope idiom and is a bigger change than
+this paragraph describes.
+
+⚠ litTo ITSELF IS ALREADY WRITTEN AND OBEYS THE ATTACH-AT-SUCCESS LAW
+(Ruling E-A): match first, attach after, nothing minted before the match is
+known good. Anything built here inherits that and must not re-open it.
+
+THE DEAD REGION -- the whole intended path, and how much of it is real
+
+    STAGE 0  control: genKant spells a LIT + CALL rule           REAL, passes
+    STAGE 1  genKant('break') emits a kant body                  BREAKS HERE
+    STAGE 2  store the body off-rule                             not reached
+    STAGE 3  activate / compile it                               not reached
+    STAGE 4  bind it as break's parse implementation             not reached
+    STAGE 5  fire: parse a specimen, diff against the oracle     not reached
+    STAGE 6  unbind, prove the interpreter path comes back       not reached
+
+Stages 2 through 4 are the machinery the Braced campaign already proved, so they
+are expected to work when a body finally reaches them -- that is why this file
+stops at 1 rather than attempting them against nothing.
+
+⚠ STAGE 5 CARRIES A SEPARATE, ALREADY-MEASURED HAZARD, and it is worth knowing
+before anyone spends a day on it: `break` CANNOT FIRE. It is a member of the
+`BrancheS bin`, matched by CONTAINER LOOKUP, and the parse trace shows
+`fireLabelMethod BrancheS isMethod=0` with `break` never firing as a label at
+all. A parse method bound to it is inert because nothing invokes it. So when the
+LITTO gap closes, THE SUBJECT MUST CHANGE for the execution stages -- pick a
+rule that is genuinely invoked. Xpress, the control above, is one.
+
+RE-RUN THIS FILE after any remedy. Stage 0 must still pass and stage 1 must emit
+a body instead of refusing; that is the discharge test.

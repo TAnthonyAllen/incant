@@ -1,0 +1,9 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+registry(cOMMANDs);
+define genKant immediateAction=genKant; ;
+genKant('break');
+print "KANT SENTINEL":;
+stop();
