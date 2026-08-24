@@ -39,6 +39,14 @@ define
     bqSeen=0;
     bqLimit=0;
     bqMode=0;
+    bqBump code={
+        bqTermN = bqTermN + 1;
+        };
+    bqTagMatch argument code={
+        print $"m_" taG;
+        print $"()";
+        print ";";
+        };
     bqGen argument code={
         reset(bqBuffer);
         printTO(bqBuffer);
@@ -50,13 +58,16 @@ define
         if hasAttributeS;   bqJoin = "AND";
         else                bqJoin = "OR";
         print `"if ";
+        bqTermN = 0;
         iterate bqTerm on argument;
         while ++bqTerm;
             setParse(bqTerm);
-            print $taG "()";
+            bqBump();
+            print $"t" bqTermN "()";
             if nexT;    print _bqJoin;
             else        print ";";
         @argument;
+        if bqTermN == 0;    bqTagMatch(argument);
         print $"return runRuleAction(this);":;
         print `bqClose:;
         printTO(0);

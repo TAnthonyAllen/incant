@@ -11,6 +11,7 @@ define
     fbSkipAt=1;
     fbNever=999;
     fbCount=0;
+    fbTermN=0;
     fbSkipped=0;
     fbFirst;
     d3Hex;
@@ -24,6 +25,14 @@ define
         cerr "SKIP  " taG argument:;
         showBody(argument);
         };
+    fbBump code={
+        fbTermN = fbTermN + 1;
+        };
+    fbTagMatch argument code={
+        print $"m_" taG;
+        print $"()";
+        print ";";
+        };
     fbGen argument code={
         reset(fbBuffer);
         printTO(fbBuffer);
@@ -34,12 +43,15 @@ define
         if hasAttributeS;   fbJoin = "AND";
         else                fbJoin = "OR";
         print `"if ";
+        fbTermN = 0;
         iterate fbTerm on argument;
         while ++fbTerm;
-            print $taG "()";
+            fbBump();
+            print $"t" fbTermN "()";
             if nexT;    print _fbJoin;
             else        print ";";
         @argument;
+        if fbTermN == 0;    fbTagMatch(argument);
         print $"return runRuleAction(this);":;
         print `fbClose:;
         if fbCount == fbSkipAt;

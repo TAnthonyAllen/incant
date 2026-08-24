@@ -1,0 +1,40 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(ProbeR);
+define
+    pnBuf buffer;
+    pnOpen="{";
+    pnClose="}";
+    pnCopy;
+    pnSubj;
+    pnBuild argument code={
+        reset(pnBuf);
+        printTO(pnBuf);
+        print pnOpen:;
+        print `"if ";
+        print $"zzNotARule1() AND zzNotARule2();";
+        print $"return runRuleAction(this);":;
+        print `pnClose:;
+        printTO(0);
+        clear(CodE);
+        CodE = pnBuf;
+        pnCopy := copyOf(CodE);
+        pnCopy :. noPrinT;
+        argument +% pnCopy;
+        argument :. isCodeD;
+        };
+    pnRun code={
+        cerr "QUESTION: must an emitted call NAME resolve for compile to accept it?":;
+        cerr "Body uses two names that are not rules and never will be.":;
+        pnSubj := Grokking["SetBrackets"];
+        pnBuild(pnSubj);
+        cerr "   C1 body installed, about to compile":;
+        compile(pnSubj);
+        cerr "   C2 compile RETURNED -- if no ERROR line above, names need NOT resolve":;
+        cerr "PROBE SENTINEL":;
+        stop();
+        };
+    ;
+pnRun();

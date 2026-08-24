@@ -111,6 +111,14 @@ define
             if !isRulE;     continue;
             ppShape2(ppA2);
         };
+    ppBump code={
+        ppTermN = ppTermN + 1;
+        };
+    ppTagMatch argument code={
+        print $"m_" taG;
+        print $"()";
+        print ";";
+        };
     ppGen argument code={
         reset(ppBuffer);
         printTO(ppBuffer);
@@ -121,12 +129,15 @@ define
         if hasAttributeS;   ppJoin = "AND";
         else                ppJoin = "OR";
         print `"if ";
+        ppTermN = 0;
         iterate ppTerm on argument;
         while ++ppTerm;
-            print $taG "()";
+            ppBump();
+            print $"t" ppTermN "()";
             if nexT;    print _ppJoin;
             else        print ";";
         @argument;
+        if ppTermN == 0;    ppTagMatch(argument);
         print $"return runRuleAction(this);":;
         print `ppClose:;
         clear(CodE);

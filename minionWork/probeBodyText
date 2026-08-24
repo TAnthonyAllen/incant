@@ -7,14 +7,14 @@ define
     fbBuffer buffer;
     fbOpen="{";
     fbClose="}";
-    fbLimit=42;
+    fbLimit=999;
     fbSkipAt=1;
     fbNever=999;
     fbCount=0;
     fbTermN=0;
     fbSkipped=0;
     fbFirst;
-    f31Arm=1;
+    f31Arm=0;
     fixF31Here=0;
     fbSkipIt argument code={
         fbSkipped = fbSkipped + 1;
@@ -23,7 +23,7 @@ define
         cerr "SKIP  " taG argument:;
         showBody(argument);
         };
-    fbBump code={
+    fbBump argument code={
         fbTermN = fbTermN + 1;
         };
     fbTagMatch argument code={
@@ -44,7 +44,7 @@ define
         fbTermN = 0;
         iterate fbTerm on argument;
         while ++fbTerm;
-            fbBump();
+            fbBump(fbTerm);
             print $"t" fbTermN "()";
             if nexT;    print _fbJoin;
             else        print ";";
@@ -66,6 +66,7 @@ define
         fbCount = fbCount + 1;
         if fbCount == 1;    fbFirst +% argument;
         cerr "INSTALL " fbCount " " ~taG:;
+        cerr "TEXTOF " ~taG " :: " fbCopy.texT:;
         };
     fbWalk argument code={
         iterate fbCur on argument members;
@@ -80,18 +81,13 @@ define
     fbRun code={
         cerr "== fixit F-31 -- is it ONE install, or the COUNT of installs ==":;
         if f31Arm == 0;     fbSkipAt = fbNever;
-        traceParse('on');
         cerr "-- the suspect BEFORE any installs --":;
         showBody(Grokking["tokenize"]);
         fbWalk(Grokking);
         cerr "== installed " fbCount " bodies, left out " fbSkipped " ==":;
         cerr "-- the suspect AFTER the installs --":;
         showBody(Grokking["tokenize"]);
-        cerr "== compiling the FIRST body, the one known good alone ==":;
-        iterate fbC on fbFirst;
-        while ++fbC;
-            cerr "COMPILING " ~taG:;
-            compile(fbC);
+        cerr "== TEXT DUMP ONLY ==":;
         fixF31Here = 0;
         cerr "ANCHOR fixF31Here -- the verdict is the failed at line just above":;
         cerr :;

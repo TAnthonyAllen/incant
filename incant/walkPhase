@@ -76,6 +76,14 @@ define
     wpEntered=0;
     wpCompiled=0;
     wpRejected=0;
+    wpBump code={
+        wpTermN = wpTermN + 1;
+        };
+    wpTagMatch argument code={
+        print $"m_" taG;
+        print $"()";
+        print ";";
+        };
     wpGen argument code={
         reset(wpBuffer);
         printTO(wpBuffer);
@@ -88,12 +96,15 @@ define
         if hasAttributeS;   wpJoin = "AND";
         else                wpJoin = "OR";
         print `"if ";
+        wpTermN = 0;
         iterate wpTerm on argument;
         while ++wpTerm;
-            print $taG "()";
+            wpBump();
+            print $"t" wpTermN "()";
             if nexT;    print _wpJoin;
             else        print ";";
         @argument;
+        if wpTermN == 0;    wpTagMatch(argument);
         print $"return runRuleAction(this);":;
         print `wpClose:;
         clear(StorE);
