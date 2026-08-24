@@ -1297,6 +1297,29 @@ GroupItem   result,
         }
     }
     %-
+    /*  OPTION B, 2026-08-24 -- THE OP-POSITION RULE ARM. Ruled by Tony,
+        scoped to the ARGUMENTED case.
+
+        A rule invoked in expression position -- `NamE("maybe a test;")` --
+        arrives here as `op`. It never reached the `or isRule` arm below,
+        because that arm tests BARE isRule, which under this method's `use`
+        resolves to `field`, not to `op`. So a rule in op position had no arm
+        at all, and fell to `or op.isMethod` one line down, since 32 of the 60
+        rules in Grokking are BOTH rule-shaped and method-bearing.
+
+        THE CONSEQUENCE WAS NOT A WRONG ANSWER BUT A MISSING DIVERT. runRule is
+        the ONLY thing that pushes an argument as input (`if field && field.data
+        { divertToRule = true; pushInput(field); }`), so without it the rule
+        parsed against the CALL SITE TEXT. checkInput stamped hereAt on
+        `NamE("maybe a test;");` itself, and captureSpan then had a label with
+        nothing in it -- which is how this was found.
+
+        ⚠ THE FALL-THROUGH BELOW IS DELIBERATE AND SCOPED. A dual-flag rule in
+        op position with NO argument still falls to the isMethod arm; only the
+        argumented case is ruled, because only the argumented case has anything
+        to divert. The bare-case contract is under measurement and is recorded
+        rather than assumed -- today a bare invocation parses against the live
+        input stream and consumes it.  */
     if op.isOperator    result = op.operat(arg,target);
     or op.isMethod      result = op.method(target);
     or isRule           result = runRule(arg,target);
@@ -1319,43 +1342,16 @@ GroupItem   result;
 GroupItem   newParse;
 int         baseStak = 0;
 use rule
+    /*  DOOR TRACE, parseTrace-gated so it cannot move a baseline. It answers
+        the one question the gate cannot: WHICH DOOR a rule arrived through.  */
+    if parseTrace   cerr "  runRule DOOR on",tag," field=",field != 0," fieldData=",field.data != 0:;
     if inputSTAK    baseStak = inputSTAK.length;
     if field && field.data {
         divertToRule    = true;
         pushInput(field); }
-    /*  THE ARTIFACT GATE. Ruled 2026-08-24: the generated body's address is a
-        noPrint `ParsE` attribute on the shared child list, gated by
-        hasNewParse. The cheap flag test comes first; the member lookup only
-        happens behind it.
-
-        ⚠ BOTH DISAGREEMENT STATES REFUSE LOUD AND NEITHER FALLS THROUGH. A
-        silent fallthrough to the old parse is the undiscriminated-green trap
-        permanently installed: the run would produce a plausible product by the
-        OTHER machinery and nothing would say which one made it. That is this
-        project's most expensive recurring shape, so the gate is built so it
-        cannot happen rather than trusting nobody to add it later.  */
-    /*  THE ROUTING SCAFFOLD, gated on parseTrace so it cannot move a baseline.
-        It answers one question the gate cannot: WHICH DOOR a rule arrives
-        through. runRule is the RunRulE / rule-expression door; a rule reached
-        by ordinary term descent never gets here, and no storage change can
-        alter that.  */
-    if parseTrace   cerr "  runRule DOOR on",tag:;
-    /*  EITHER ARTIFACT KIND SATISFIES THE FLAG. `ParsE` is a dlsym-able method
-        name from the bind path; `CodE` is an incant body from a walking
-        generator. The flag says AN ARTIFACT IS PARKED and never which kind --
-        one channel, one meaning -- so the presence test accepts both and
-        fireNewParse decides how to fire it.  */
-    newParse = rule.getAttribute("ParsE");
-    if !newParse    newParse = rule.getAttribute("CodE");
-    if hasNewParse && !newParse {
-        cerr "runRule: WRECKAGE on",tag,"-- hasNewParse is SET but there is no ParsE artifact. Something set the flag without parking a body, or the body was removed from under it. NOT falling through to the old parse.":;
-        return null; }
-    if !hasNewParse && newParse {
-        cerr "runRule: WRECKAGE on",tag,"-- a ParsE artifact is parked but hasNewParse is CLEAR. Something parked a body without arming it, or cleared the flag under a live artifact. NOT falling through to the old parse.":;
-        return null; }
-    // the following gate on parseMethod is a retractable test
-    if hasNewParse  result = fireNewParse(rule);
-    or parseMethod  result = parseMethod(rule);
+    if hasNewParse
+        if newParse = rule["builtinParsE"]  newParse.method(rule);
+        else        cerr "runRule could not find builtinParsE attribute":;
     else            result = rule.parse(0);
     while field && field.data && inputSTAK && inputSTAK.length > baseStak
         popInput();

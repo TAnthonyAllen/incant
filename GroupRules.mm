@@ -12679,6 +12679,29 @@ GroupItem 	*target = field->get(2);
 	}
 	}
 	
+	/*  OPTION B, 2026-08-24 -- THE OP-POSITION RULE ARM. Ruled by Tony,
+	scoped to the ARGUMENTED case.
+	
+	A rule invoked in expression position -- `NamE("maybe a test;")` --
+	arrives here as `op`. It never reached the `or isRule` arm below,
+	because that arm tests BARE isRule, which under this method's `use`
+	resolves to `field`, not to `op`. So a rule in op position had no arm
+	at all, and fell to `or op.isMethod` one line down, since 32 of the 60
+	rules in Grokking are BOTH rule-shaped and method-bearing.
+	
+	THE CONSEQUENCE WAS NOT A WRONG ANSWER BUT A MISSING DIVERT. runRule is
+	the ONLY thing that pushes an argument as input (`if field && field.data
+	{ divertToRule = true; pushInput(field); }`), so without it the rule
+	parsed against the CALL SITE TEXT. checkInput stamped hereAt on
+	`NamE("maybe a test;");` itself, and captureSpan then had a label with
+	nothing in it -- which is how this was found.
+	
+	⚠ THE FALL-THROUGH BELOW IS DELIBERATE AND SCOPED. A dual-flag rule in
+	op position with NO argument still falls to the isMethod arm; only the
+	argumented case is ruled, because only the argumented case has anything
+	to divert. The bare-case contract is under measurement and is recorded
+	rather than assumed -- today a bare invocation parses against the live
+	input stream and consumes it.  */
 	if ( isOperator(op->groupBody->flags.instructType) )
 		result = op->groupBody->gOp(arg,target);
 	else
@@ -12710,6 +12733,10 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*result = 0;
 GroupItem 	*newParse = 0;
 int 		baseStak = 0;
+	/*  DOOR TRACE, parseTrace-gated so it cannot move a baseline. It answers
+	the one question the gate cannot: WHICH DOOR a rule arrived through.  */
+	if ( ruler->parseTrace )
+		::fprintf(stderr,"  runRule DOOR on %s  field= %lu  fieldData= %d\n",rule->groupBody->tag,field != 0,field->groupBody->flags.data != 0);
 	if ( ruler->inputSTAK )
 		baseStak = ruler->inputSTAK->length;
 	if ( field && field->groupBody->flags.data )

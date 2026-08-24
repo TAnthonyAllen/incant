@@ -1,0 +1,14 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+traceParse('on');
+cerr "=== ARGUMENTED: NamE(\"maybe a test;\") ===":;
+NamE("maybe a test;");
+cerr "=== BARE: NamE() ===":;
+NamE();
+cerr "=== BARE: list() ===":;
+list();
+cerr "DOORS SENTINEL":;
+traceParse('off');
+stop();
