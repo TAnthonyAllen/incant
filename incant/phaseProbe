@@ -111,6 +111,7 @@ define
             if !isRulE;     continue;
             ppShape2(ppA2);
         };
+    ppTermN=0;
     ppBump code={
         ppTermN = ppTermN + 1;
         };
