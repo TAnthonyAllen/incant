@@ -256,6 +256,7 @@ extern "C" int jitUnboxCount(GroupItem *node);
 extern "C" int kantDoor(GroupItem *rule, GroupItem *code);
 extern "C" int kantDoored(GroupItem *rule);
 extern "C" char *kantLeaf(GroupItem *node, char *at);
+extern "C" int labelMinters(GroupItem *rule);
 extern "C" void limitWriteCheck(GroupItem *target, int priorLimit);
 extern "C" int limitWriteGuard(GroupItem *target);
 extern "C" GroupItem *listenTo(GroupItem *input);

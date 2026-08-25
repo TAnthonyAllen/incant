@@ -827,6 +827,16 @@ void GroupItem::fireLabelMethod(RuleStuff *stuff)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	ruler->ruleSTUFF = stuff;
+	/*  THE COLLISION PROBE, 2026-08-25, assertion 5 of the label-seam brief.
+	fixIts row 1 predicts that adding a capture at runRuleAction gives a
+	rule reached through parse()'s FORK a second one here -- capture,
+	action, capture, action -- with this one reading getStuff(pStuff),
+	which may be a re-entrancy CLONE whose hereAt is not the rule's own.
+	The prediction is inferred rather than measured, so it is instrumented
+	rather than designed around. Reports the tokened bit and the stuff
+	identity in POINTERS, because the whole question is WHICH stuff.  */
+	if ( ruler->parseTrace )
+		::fprintf(stderr,"  CAPFIRE fireLabelMethod %s tokened=%s\n",groupBody->tag,::toStringFromInt(groupBody->flags.tokened != 0));
 	if ( groupBody->flags.tokened )
 		captureSpan(stuff);
 	if ( ruler->parseTrace )
@@ -850,6 +860,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 			reach the label channel. Gated on the standing parseTrace.  */
 			if ( ruler->parseTrace )
 				::fprintf(stderr,"    fireLabel IN  %s isLabel=%s\n",groupBody->tag,::toStringFromInt(stuff->label->groupBody->flags.isLabel != 0));
+			if ( ruler->parseTrace )
+				::fprintf(stderr,"  ACTFIRE fireLabelMethod %s\n",groupBody->tag);
 			stuff->label = groupBody->gMethod(stuff->label);
 			if ( ruler->parseTrace )
 				if ( stuff->label )

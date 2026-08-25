@@ -1,0 +1,77 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+search GroupFields Utilities list;
+
+register(Utilities);
+define
+    traceParse immediateAction=traceParse;
+    codeBuffer buffer;
+    openBrace="{";
+    closeBrace="}";
+    spOn=1;
+    plsOracle;
+    plsNew;
+    plsWs;
+    plsFork;
+
+    genParseTest argument code={
+        reset(codeBuffer);
+        printTO(codeBuffer);
+        print openBrace:;
+        if spOn != 0;   setParse(argument);
+        if datA != 0;
+            if listLengtH; print "rules should not have data and a list; one or the other":;
+            printTO(0);
+            return;
+        if hasAttributeS;   conjunct = "AND";
+        else                conjunct = "OR";
+        print `"if ";
+        iterate grup on argument;
+        while ++grup;
+            if noPrinT;     continue;
+            if spOn != 0;   setParse(grup);
+            if notFirstTimeThru > 0;    print _conjunct;
+            ++notFirstTimeThru;
+            print $taG "()";
+        print ";";
+        @argument;
+        print $"return runRuleAction(this);":;
+        print `closeBrace:;
+        clear(CodE);
+        CodE = codeBuffer;
+        codeCopy <- copyOf(CodE);
+        codeCopy :. noPrinT;
+        argument +% codeCopy;
+        argument :. isCodeD;
+        printTO(0);
+        };
+
+    plsRun code={
+        cerr "=== ROW O -- ORACLE, NamE on the OLD road (no new parse installed)":;
+        plsOracle = NamE("foo");
+        cerr "ORACLE result = [" plsOracle "]":;
+
+        cerr "=== INSTALL -- generate NamE's body and compile it":;
+        genParseTest(NamE);
+        compile(NamE);
+
+        cerr "=== ROW N -- NEW parse, same input":;
+        plsNew = NamE("foo");
+        cerr "NEWPARSE result = [" plsNew "]":;
+
+        cerr "=== ROW W -- NEW parse, LEADING WHITESPACE variant":;
+        plsWs = NamE("   foo");
+        cerr "WHITESPACE result = [" plsWs "]":;
+
+        cerr "=== ROW F -- the parse()-FORK road: NamE reached as a member of GrouP":;
+        plsFork = GrouP("foo");
+        cerr "FORK result = [" plsFork "]":;
+
+        cerr "PROBELABELSEAM SENTINEL -- all three rows ran":;
+        stop();
+        };
+    ;
+
+traceParse();
+plsRun();

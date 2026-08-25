@@ -180,7 +180,14 @@ RuleStuff   ruleStuff = pMethod.rStuff;
                 if isLocal && !isRule && groupBody != field.groupBody clear();
             // here the parse action in method gets run
             if result = field["BlocK"] {
+                -%
+                int priorInFlight = gNewParseInFlight;
+                gNewParseInFlight = 1;
+                %-
                 result = result.gMethod(result);
+                -%
+                gNewParseInFlight = priorInFlight;
+                %-
                 if result   result.isBranch = 0; }
         else        reportNoBody(field); }
         if result   return result; }
@@ -223,7 +230,9 @@ GroupRules  ruler = groupRules;
 RuleStuff   ruleStuff = field.rStuff;
     if noAdvance    atRuleMark = hereAt;
     if label {
-        if rule.actionMethod  label = rule.actionMethod(label);
+        if rule.actionMethod {
+            if parseTrace   cerr "  ACTFIRE parseSetLabel " field.tag:;
+            label = rule.actionMethod(label); }
         if label && parentLabel parentLabel +% label;
         return label; }
     return trueResult;
@@ -261,6 +270,52 @@ RuleStuff   ruleStuff = field.rStuff;
 }
 
 /*******************************************************************************
+    labelMinters -- HOW MANY OF THIS RULE'S SUB-TERMS WILL MINT A LABEL.
+
+    THE CONDITION IS COPIED FROM checkInput AND NOT FROM THE SPELLING, and that
+    is Tony's ruling of 2026-08-25 rather than a preference. RuleStuff.mm's
+    checkInput sets `label = 0` when
+
+        noLabel || (isRule && hasMembers && !binType)
+
+    -- so the dash is only HALF of it. A sub-term that is itself a rule with
+    members mints no label either, and a dash-only census calls such a rule
+    "has labelled components", declines to capture, and leaves it silently
+    returning an empty label while the specimen works. Mirror the mechanism,
+    never the grammar line.
+
+    ⚠ noLabel LIVES ON THE TERM'S rStuff, THE OTHER THREE ON ITS groupBody, and
+    a term with NO rStuff is NOT thereby label-free -- rStuff is materialised
+    lazily, so an unstuffed term still mints when it is parsed. Absence of
+    rStuff is therefore not a skip; only the two positive conditions are.
+    That is Ruling D1 read in the direction it actually points.
+
+    ⚠ next() IS SAFE HERE AND THE REASON IS LOCAL: its shared `entry` state is
+    clobbered by NESTED calls, and this loop body calls nothing that can parse
+    or re-enter. It counts flags and moves on. Do not copy the idiom into a
+    walk whose body descends.
+
+    Returns the COUNT, not a boolean, because rule H4 wants the quantity
+    printed rather than a verdict asserted -- a caller that prints 0 and a
+    caller that prints 3 are telling the reader different things, and "false"
+    tells it neither.
+*******************************************************************************/
+extern int labelMinters(GroupItem rule)
+{
+GroupItem   grup;
+RuleStuff   termStuff;
+int         minters = 0;
+    if !rule    return 0;
+    while grup = rule.next(grup) {
+        if grup.noPrint     continue;
+        termStuff = grup.rStuff;
+        if termStuff && termStuff.noLabel   continue;
+        if grup.isRule && grup.hasMembers && !grup.binType  continue;
+        minters++; }
+    return minters;
+}
+
+/*******************************************************************************
 	runRuleAction checks to see if there is a method parked in actionMethod.
     If there is, and there is a rule label, it runs actionMethod.
 *******************************************************************************/
@@ -269,6 +324,16 @@ extern GroupItem runRuleAction(GroupItem field)
 GroupItem   pMethod = field["builtinParsE"],
             aMethod = field["builtinActoR"];
 RuleStuff   ruleStuff = field.rStuff;
+int         inFlight = 0;
+int         minters = 0;
+    /*  THE GATE IS LIFTED INTO A LOCAL AT ENTRY, in passthrough because a
+        hand-declared C++ global in jitContext.h is invisible to tok's field
+        resolution -- gParseRecordArmed is the precedent and every one of ITS
+        uses is inside a passthrough too. `inFlight` is read OUTSIDE the block
+        as well, which is what keeps bear-trap #13 from pruning it.  */
+    -%
+    inFlight = gNewParseInFlight;
+    %-
     /*  ⚠ THE SPECIMEN GUARD, AND trueResult HERE IS A SEMANTIC RULING RATHER
         THAN A CRASH GUARD SOMEBODY FORGOT TO REVISIT. Ruling A + Ruling D1,
         Tony 2026-08-22.
@@ -313,6 +378,41 @@ RuleStuff   ruleStuff = field.rStuff;
         non-null.  */
     if pMethod      ruleStuff = pMethod.rStuff;
     if !ruleStuff   return trueResult;
+    /*  THE LABEL SOURCE FOR AN ALL-DASHED RULE (Tony's ruling, 2026-08-25).
+        Two label sources by case: a rule with labelled components gloms them;
+        a rule with NONE takes its label from the matched text, the way
+        tokenize did. This is the second arm, and it is the ONLY seam
+        available for it -- the emitted body's tail is
+        `return runRuleAction(this)`, so the action fires from INSIDE the
+        body and nothing outside can get between the terms matching and the
+        action running.
+
+        ⚠ THE GATE IS NOT OPTIONAL. See jitContext.h's gNewParseInFlight: this
+        function is on the ORDINARY path too, where no parse is in flight and
+        hereAt is stale. Ungated, this writes a plausible span into a label
+        every ordinary rule-action dispatch is about to read.
+
+        ⚠ AND THE `or` ARM IS SILENCE, DELIBERATELY. A rule WITH labelled
+        components belongs to the glom seam, which is separately uninherited
+        and separately parked; this fix must not fire across it. The count is
+        printed either way so the reader can see which arm was taken.  */
+    if inFlight && label {
+        minters = labelMinters(field);
+        if parseTrace   cerr "  CENSUS " field.tag " labelMinters=" minters:;
+        if minters == 0 {
+            /*  ⚠ IDENTITY IN POINTERS, NEVER IN TAGS -- assertion 3 of the
+                brief, and the standing lesson of the `<-` week: two faces of
+                one rule share a tag by construction, so a resolver that
+                reports names cannot answer a question about identity. The
+                twin print at the ACTFIRE site below reads the SAME locals, so
+                a reader can compare the write site and the read site directly
+                instead of inheriting that they agree.  */
+            -%
+            if ( GroupControl::groupController->groupRules->parseTrace )
+                ::fprintf(stderr,"  SPANSET %s stuff=%p label=%p\n",
+                    field->groupBody->tag,(void*)ruleStuff,(void*)ruleStuff->label);
+            %-
+            field.captureSpan(ruleStuff); }}
     /*  THE actionMethod TAIL MEASUREMENT, parseTrace-gated. This is the
         consumption site for the OTHER half of the classification pair, and it
         reads the FACE's rStuff. Printing it here answers, per firing, whether
@@ -320,7 +420,13 @@ RuleStuff   ruleStuff = field.rStuff;
         which is the question the setParse mirror deliberately does NOT
         change, and therefore the one worth watching while it does not.  */
     if label {
-        if aMethod  label = aMethod.method(label);
+        if aMethod {
+            -%
+            if ( GroupControl::groupController->groupRules->parseTrace )
+                ::fprintf(stderr,"  ACTFIRE runRuleAction %s stuff=%p label=%p\n",
+                    field->groupBody->tag,(void*)ruleStuff,(void*)ruleStuff->label);
+            %-
+            label = aMethod.method(label); }
         return label; }
     return  trueResult;
 }

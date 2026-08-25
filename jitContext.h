@@ -262,6 +262,27 @@ static GroupItem *gKantLabel = 0;
 static char      *gKantFrom  = 0;
 static GroupItem *gKantRule  = 0;
 
+// gNewParseInFlight — THE NEW-PARSE GATE (2026-08-25, Tony's ruling on the label
+// seam). Raised by parseRule around the generated body's run, tested by
+// runRuleAction, saved and restored in C++ locals at the set site so the call
+// stack IS the frame stack — the same property gKantLabel above relies on, and
+// for the same reason.
+//
+// ⚠ WHY IT EXISTS AT ALL, because an ungated fix looked correct and was not.
+// runRuleAction is NOT reached only by the new parse: aCTionBrancH
+// (GroupRules.mm:157) and runOP (:12698) both dispatch a rule action through
+// gMethod and land there, which is how incant/frontier died at exit 139 on
+// 2026-08-24 without ever touching setParse. On those roads NO PARSE IS IN
+// FLIGHT, so rStuff.hereAt is whatever the last parse left behind — a stale
+// start against a live atRuleMark yields a plausible span, silently written
+// into the label the action is about to read. The gate makes that
+// unconstructable rather than merely avoided.
+//
+// Lives here rather than in a .rtn for the reason the block above records: a
+// file-scope passthrough in a .rtn is relocated by tok to the END of the
+// generated .mm, so a static declared there is emitted after its users.
+static int gNewParseInFlight = 0;
+
 // THE FRAME (Increment 1, 2026-08-01). The action's own field list IS the frame
 // schema -- (isArgument || isLocal) && !noPrint -- which is not a new invention:
 // it is the exact predicate saveLocalFields/restoreLocalFields have walked in the

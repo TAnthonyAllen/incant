@@ -7896,6 +7896,58 @@ GroupItem 	*inner = 0;
 	return leaf;
 }
 
+/*******************************************************************************
+    labelMinters -- HOW MANY OF THIS RULE'S SUB-TERMS WILL MINT A LABEL.
+
+    THE CONDITION IS COPIED FROM checkInput AND NOT FROM THE SPELLING, and that
+    is Tony's ruling of 2026-08-25 rather than a preference. RuleStuff.mm's
+    checkInput sets `label = 0` when
+
+        noLabel || (isRule && hasMembers && !binType)
+
+    -- so the dash is only HALF of it. A sub-term that is itself a rule with
+    members mints no label either, and a dash-only census calls such a rule
+    "has labelled components", declines to capture, and leaves it silently
+    returning an empty label while the specimen works. Mirror the mechanism,
+    never the grammar line.
+
+    ⚠ noLabel LIVES ON THE TERM'S rStuff, THE OTHER THREE ON ITS groupBody, and
+    a term with NO rStuff is NOT thereby label-free -- rStuff is materialised
+    lazily, so an unstuffed term still mints when it is parsed. Absence of
+    rStuff is therefore not a skip; only the two positive conditions are.
+    That is Ruling D1 read in the direction it actually points.
+
+    ⚠ next() IS SAFE HERE AND THE REASON IS LOCAL: its shared `entry` state is
+    clobbered by NESTED calls, and this loop body calls nothing that can parse
+    or re-enter. It counts flags and moves on. Do not copy the idiom into a
+    walk whose body descends.
+
+    Returns the COUNT, not a boolean, because rule H4 wants the quantity
+    printed rather than a verdict asserted -- a caller that prints 0 and a
+    caller that prints 3 are telling the reader different things, and "false"
+    tells it neither.
+*******************************************************************************/
+extern "C" int labelMinters(GroupItem *rule)
+{
+GroupItem 	*grup = 0;
+RuleStuff 	*termStuff = 0;
+int 		minters = 0;
+	if ( !rule )
+		return 0;
+	while ( grup = rule->next(grup) )
+		{
+		if ( grup->groupBody->flags.noPrint )
+			continue;
+		termStuff = grup->rStuff;
+		if ( termStuff && termStuff->noLabel )
+			continue;
+		if ( grup->groupBody->flags.isRule && grup->groupBody->flags.hasMembers && !grup->groupBody->flags.binType )
+			continue;
+		minters++;
+		}
+	return minters;
+}
+
 extern "C" void limitWriteCheck(GroupItem *target, int priorLimit)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -10692,7 +10744,14 @@ RuleStuff 	*ruleStuff = pMethod->rStuff;
 			// here the parse action in method gets run
 			if ( result = field->get("BlocK") )
 				{
+				
+				int priorInFlight = gNewParseInFlight;
+				gNewParseInFlight = 1;
+				
 				result = result->groupBody->gMethod(result);
+				
+				gNewParseInFlight = priorInFlight;
+				
 				if ( result )
 					result->groupBody->flags.isBranch = 0;
 				}
@@ -10939,7 +10998,11 @@ RuleStuff 	*ruleStuff = field->rStuff;
 	if ( ruleStuff->label )
 		{
 		if ( ruleStuff->rule->rStuff->actionMethod )
+			{
+			if ( ruler->parseTrace )
+				::fprintf(stderr,"  ACTFIRE parseSetLabel %s\n",field->groupBody->tag);
 			ruleStuff->label = ruleStuff->rule->rStuff->actionMethod(ruleStuff->label);
+			}
 		if ( ruleStuff->label && ruleStuff->parentLabel )
 			ruleStuff->parentLabel->addAttribute(ruleStuff->label);
 		return ruleStuff->label;
@@ -12746,7 +12809,7 @@ int 		baseStak = 0;
 		}
 	if ( rule->groupBody->flags.hasNewParse )
 		if ( newParse = rule->get("builtinParsE") )
-			newParse->groupBody->gMethod(rule);
+			result = newParse->groupBody->gMethod(rule);
 		else	::fprintf(stderr,"runRule could not find builtinParsE attribute\n");
 	else	result = rule->parse(0);
 	while ( field && field->groupBody->flags.data && ruler->inputSTAK && ruler->inputSTAK->length > baseStak )
@@ -12763,6 +12826,16 @@ extern "C" GroupItem *runRuleAction(GroupItem *field)
 GroupItem 	*pMethod = field->get("builtinParsE");
 GroupItem 	*aMethod = field->get("builtinActoR");
 RuleStuff 	*ruleStuff = field->rStuff;
+int 		inFlight = 0;
+int 		minters = 0;
+	/*  THE GATE IS LIFTED INTO A LOCAL AT ENTRY, in passthrough because a
+	hand-declared C++ global in jitContext.h is invisible to tok's field
+	resolution -- gParseRecordArmed is the precedent and every one of ITS
+	uses is inside a passthrough too. `inFlight` is read OUTSIDE the block
+	as well, which is what keeps bear-trap #13 from pruning it.  */
+	
+	inFlight = gNewParseInFlight;
+	
 	/*  ⚠ THE SPECIMEN GUARD, AND trueResult HERE IS A SEMANTIC RULING RATHER
 	THAN A CRASH GUARD SOMEBODY FORGOT TO REVISIT. Ruling A + Ruling D1,
 	Tony 2026-08-22.
@@ -12809,6 +12882,46 @@ RuleStuff 	*ruleStuff = field->rStuff;
 		ruleStuff = pMethod->rStuff;
 	if ( !ruleStuff )
 		return GroupControl::groupController->groupRules->trueResult;
+	/*  THE LABEL SOURCE FOR AN ALL-DASHED RULE (Tony's ruling, 2026-08-25).
+	Two label sources by case: a rule with labelled components gloms them;
+	a rule with NONE takes its label from the matched text, the way
+	tokenize did. This is the second arm, and it is the ONLY seam
+	available for it -- the emitted body's tail is
+	`return runRuleAction(this)`, so the action fires from INSIDE the
+	body and nothing outside can get between the terms matching and the
+	action running.
+	
+	⚠ THE GATE IS NOT OPTIONAL. See jitContext.h's gNewParseInFlight: this
+	function is on the ORDINARY path too, where no parse is in flight and
+	hereAt is stale. Ungated, this writes a plausible span into a label
+	every ordinary rule-action dispatch is about to read.
+	
+	⚠ AND THE `or` ARM IS SILENCE, DELIBERATELY. A rule WITH labelled
+	components belongs to the glom seam, which is separately uninherited
+	and separately parked; this fix must not fire across it. The count is
+	printed either way so the reader can see which arm was taken.  */
+	if ( inFlight && ruleStuff->label )
+		{
+		minters = ::labelMinters(field);
+		if ( GroupControl::groupController->groupRules->parseTrace )
+			::fprintf(stderr,"  CENSUS %s labelMinters=%d\n",field->groupBody->tag,minters);
+		if ( minters == 0 )
+			{
+			/*  ⚠ IDENTITY IN POINTERS, NEVER IN TAGS -- assertion 3 of the
+			brief, and the standing lesson of the `<-` week: two faces of
+			one rule share a tag by construction, so a resolver that
+			reports names cannot answer a question about identity. The
+			twin print at the ACTFIRE site below reads the SAME locals, so
+			a reader can compare the write site and the read site directly
+			instead of inheriting that they agree.  */
+			
+			if ( GroupControl::groupController->groupRules->parseTrace )
+			::fprintf(stderr,"  SPANSET %s stuff=%p label=%p\n",
+			field->groupBody->tag,(void*)ruleStuff,(void*)ruleStuff->label);
+			
+			field->captureSpan(ruleStuff);
+			}
+		}
 	/*  THE actionMethod TAIL MEASUREMENT, parseTrace-gated. This is the
 	consumption site for the OTHER half of the classification pair, and it
 	reads the FACE's rStuff. Printing it here answers, per firing, whether
@@ -12818,7 +12931,14 @@ RuleStuff 	*ruleStuff = field->rStuff;
 	if ( ruleStuff->label )
 		{
 		if ( aMethod )
+			{
+			
+			if ( GroupControl::groupController->groupRules->parseTrace )
+			::fprintf(stderr,"  ACTFIRE runRuleAction %s stuff=%p label=%p\n",
+			field->groupBody->tag,(void*)ruleStuff,(void*)ruleStuff->label);
+			
 			ruleStuff->label = aMethod->groupBody->gMethod(ruleStuff->label);
+			}
 		return ruleStuff->label;
 		}
 	return GroupControl::groupController->groupRules->trueResult;
