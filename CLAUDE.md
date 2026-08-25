@@ -1762,6 +1762,36 @@ Hard-won lessons. Each one has cost real debugging time.
     EVERY member, taking 43 installs to 0) — **silent iterate-walk miscount, opposite direction**:
     that one over-matches to nothing, this one under-walks to one. Both produce a plausible number
     and neither names a line.
+    ⚠ **AND ITS TWIN IS #39** — same family, one construct over: there the tidy spelling is wrong
+    in BOTH directions, and the rule that covers this row too is **declare it if and only if more
+    than one action touches it.** An iterate cursor is touched by one, so it stays undeclared.
+
+39. **A NAME SHARED BY TWO ACTIONS MUST BE DECLARED; A NAME USED INSIDE ONE MUST NOT BE. THE
+    TIDY SPELLING IS WRONG IN BOTH DIRECTIONS, AND BOTH FAIL SILENTLY WITH A PLAUSIBLE NUMBER.**
+    Bear-trap #38's twin one construct over, and it cost a fixit citizen (`bisectQmover`) before
+    anybody read it as a rule. **An UNDECLARED name in an action body becomes an action LOCAL** —
+    `aCTionNamE` mints it with `isLocal` set (`ruleActions.rtn:864`) — **and
+    `parseRule`/`processAction` CLEAR locals on entry.** So the same spelling means two different
+    things depending on where it is written down, and neither meaning announces itself.
+    **MEASURED IN BOTH DIRECTIONS, one day, two files, each with its own control:**
+    | you want | spelling | what the WRONG spelling does |
+    |---|---|---|
+    | **two actions to share a counter** | **DECLARE it** in the `define` block | undeclared, each action gets its OWN node: the bumper increments its copy, the reader never sees it move — `incant/bisectQ`, commit `d3e8eef` |
+    | **one action, reset per invocation** | **leave it UNDECLARED** | declared, the field PERSISTS across calls — `notFirstTimeThru` emitted a leading conjunct on rule 2, `a33332a` |
+    **THE RULE OF THUMB THAT COVERS BOTH: DECLARE IT IF AND ONLY IF MORE THAN ONE ACTION TOUCHES
+    IT.** Both halves are certified by `incant/actionLocalT` (fleet, rows D and U), whose row U
+    is paired with a non-zero sibling because a zero-expecting row cannot stand alone.
+    ⚠ **THE DOWNSTREAM SYMPTOM NAMES THE WRONG THING, which is what made it expensive.** A shared
+    counter that never moves produces `ERROR Operator + failed on <name> and Token` — and the word
+    **`Token` in that message is bear-trap #26's tag coming back**, because the un-shared node has
+    no data and `.text` returns its own tag. The error names an operator; the defect is a
+    declaration two lines away.
+    ⚠ **AND IT IS A CLAUDE-HANDS TRAP FIRST.** It entered the tree in a mechanical patch that
+    edited twelve copies of one emitter and gave the counter declaration to eleven of them
+    (`e8e8619`). The failure is not "somebody forgot" — it is that **the wrong spelling is the one
+    a careful editor writes**, so a patch applied by hand across N copies will keep producing it.
+    A sweep that adds a cross-action counter must diff its OWN insertions against each other, not
+    just against the intended result.
 
 ⚠⚠ **THE RULE-LADDER SELECTION CRITERION — TWO CLAUSES, AND THE SECOND WAS PAID FOR.** Tony,
 2026-08-24.
