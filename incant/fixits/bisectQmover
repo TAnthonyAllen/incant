@@ -4,64 +4,121 @@ include(utilities);
 search reset stack Grokking UnitTests Utilities list;
 register(FixBQ);
 define
+    fqDeclared=0;
+    fqBumpDeclared code={
+        fqDeclared = fqDeclared + 1;
+        };
+    fqBumpUndeclared code={
+        fqUndeclared = fqUndeclared + 1;
+        };
     fqRun code={
+        cerr "ANCHOR fixBisectQHere -- cross-action counter, declared vs undeclared":;
         fixBisectQHere = 0;
-        cerr "ANCHOR fixBisectQHere -- bisectQ is the one wrong-way mover":;
-        cerr "This file does not reproduce it. Run the subject itself:":;
-        cerr "     ~/bin/incant incant/bisectQ 2>&1 | grep -c 'ERROR processCode'":;
-        cerr "  before the fbGen repair (commit e8e8619^):  0":;
-        cerr "  after:                                      1":;
+
+        fqDeclared = 0;
+        fqBumpDeclared();
+        fqBumpDeclared();
+        fqBumpDeclared();
+        cerr "DECLARED counter after 3 bumps   measured " fqDeclared "   pinned 3":;
+
+        fqUndeclared = 0;
+        fqBumpUndeclared();
+        fqBumpUndeclared();
+        fqBumpUndeclared();
+        cerr "UNDECLARED counter after 3 bumps measured " fqUndeclared "   pinned 0 -- THE DEFECT":;
+
+        cerr "The undeclared name is a LOCAL OF EACH ACTION, cleared on entry, so the":;
+        cerr "bumper increments its own node and the reader never sees it move.":;
         cerr "FIXIT SENTINEL -- bisectQmover reached its foot":;
         stop();
         };
     ;
 fqRun();
 
-bisectQ GAINED A processCode ERROR IN THE fbGen REPAIR PASS
+bisectQ GAINED A processCode ERROR IN THE fbGen REPAIR PASS -- CAUSE FOUND, FIXED
 
-On 2026-08-24 the scaffold emitter in incant/f31 and its eleven copies was
-repaired for families A, B and C (commit e8e8619). Eleven of the twelve patched
-files either improved or held. One did not.
+THE ORIGINAL SYMPTOM. On 2026-08-24 the scaffold emitter in incant/f31 and its
+eleven copies was repaired for families A, B and C (commit e8e8619). Eleven of
+the twelve patched files improved or held. incant/bisectQ went the wrong way,
+0 -> 1 processCode errors, and it was the only one that did.
 
-    file                    processCode errors before -> after   exit
-    incant/fixBisect                    1 -> 0                   0 -> 0
-    minionWork/probeM3                  1 -> 0                   0 -> 0
-    minionWork/probeExitExam            4 -> 1                 139 -> 139
-    incant/walkPhase                   49 -> 55                 139 -> 0
-    incant/phaseProbe                   0 -> 0                   0 -> 0
-    incant/bisectQ                      0 -> 1                   0 -> 0     <-- this
+THE CAUSE, found 2026-08-25 by step 1 of this file's own NEXT block, which was
+the cheapest one and was the right one: THE TWO INSERTIONS ARE NOT EQUIVALENT.
+Read the same patch against the sibling that went the RIGHT way:
 
-WHY IT IS EXPECTED THAT THESE MOVE AT ALL, so the row is not misread as a
-regression in the repair: every one of these files EMBEDS a copy of the emitter
-that was changed, and their whole purpose is to compile generated bodies. Their
-output moving is the repair working. What singles bisectQ out is DIRECTION -- it
-is the only file that went from clean to not-clean.
+    git diff e8e8619^ e8e8619 -- incant/fixBisect     ADDS  `fbTermN=0;`
+    git diff e8e8619^ e8e8619 -- incant/bisectQ       DOES NOT add `bqTermN=0;`
 
-WHAT IS NOT KNOWN
+The patch gave fixBisect its counter declaration and did not give bisectQ one.
 
-Whether the new error is collateral from the mechanical edit (the patch inserted
-a counter field, a bump action and a tag-match action into each copy, and
-bisectQ's surrounding shape may differ from the others in a way the patch did
-not respect), or whether bisectQ is compiling a rule that the repaired emitter
-now emits DIFFERENTLY and worse.
+WHY A MISSING DECLARATION IS FATAL RATHER THAN COSMETIC, and this is the part
+worth carrying away. An UNDECLARED name in an action body becomes an action
+LOCAL -- aCTionNamE mints it with isLocal set -- and parseRule/processAction
+CLEAR locals on entry. So `bqTermN` inside `bqBump` and `bqTermN` inside
+`bqGen` are TWO DIFFERENT NODES, each cleared per invocation. The bumper
+increments its own copy; the reader never sees it move.
 
-⚠ "LIKELY COLLATERAL FROM THE FIXTURE EDIT" IS THE STANDING GUESS AND IT IS
-RECORDED AS A GUESS. This project's ledger says structural claims hold here and
-causal ones are a coin flip until run; nothing below has been run.
+Everything downstream follows from that one fact:
+  - `bqTermN + 1` reads a node with no data, which under bear-trap #26 returns
+    its own TAG, so the runtime says `ERROR Operator + failed on bqTermN and
+    Token` -- and the word `Token` in that message IS the tag coming back.
+  - `bqTermN` stays 0 in bqGen, so `if bqTermN == 0; bqTagMatch(argument);`
+    fires on every rule instead of only on term-less ones.
+  - bqTagMatch is therefore CALLED for the first time, is lazily compiled at
+    that moment, and its compile fails in that context -- which is the single
+    `ERROR processCode` the whole row was about.
 
-NEXT: OPEN
+⚠ AND fixBisect IS NOT RIGHT, IT IS NOT-YET-WRONG. Its counter works, so
+fbTagMatch is never called, so it is never compiled and never exercised. The
+green row is green by not running the code. A first draft of this note claimed
+fbTagMatch carried the same latent PARSE defect; that was MEASURED AND IS
+FALSE -- the identical body compiles and emits `mNamE();` cleanly in isolation.
+The failure is context-dependent, and what it is context-dependent ON has not
+been chased. Captured, not chased.
 
-WHAT WOULD GENERATE AN ANSWER, cheapest first:
+NEXT: REMEDY -- BEHAVIOUR
 
-  1. `git diff e8e8619^ e8e8619 -- incant/bisectQ` and read the inserted block
-     against the same block in incant/fixBisect, which went the RIGHT way under
-     the identical patch. If the two insertions differ structurally, the patch
-     is the cause and the fix is local.
+THE FIX, LANDED. One line in incant/bisectQ's define block, beside bqMode:
 
-  2. If the insertions are equivalent, print the error: run bisectQ and read
-     which rule's processCode failed and at what text. The emitted body is
-     visible via the same route minionWork/probeBodyText uses.
+    bqTermN=0;
 
-  3. Only then decide whether the emitter or the fixture is wrong. Note that
-     bisectQ is a campaign bisect probe, not a fleet member and not a pinned
-     target, so nothing downstream is currently relying on it being clean.
+Site: incant/bisectQ, the `define` block. Nothing else changed, and no C++
+was touched.
+
+TAKEN vs NOT, measured both ways in one sitting:
+
+    remedy ABSENT    processCode errors 1   Operator+ errors 4   exit 0
+    remedy PRESENT   processCode errors 0   Operator+ errors 0   exit 0
+
+    ~/bin/incant incant/bisectQ 2>&1 | grep -c 'ERROR processCode'      -> 0
+    ~/bin/incant incant/bisectQ 2>&1 | grep -c 'Operator + failed'      -> 0
+    ~/bin/incant incant/bisectQ  prints TARGET ok and BISECTQ SENTINEL, exit 0
+
+BEHAVIOUR, not assertability: the counter now actually increments, so the
+emitter stops calling bqTagMatch on rules that have terms. The machine does
+something different.
+
+WHAT THE LIVE REGION ABOVE IS FOR. It no longer points at the subject -- it
+demonstrates the MECHANISM, so it survives bisectQ being edited or retired,
+and so it can promote into the fleet as the regression test for the trap. The
+declared arm is the anti-vacuity control: a run where BOTH arms read 0 is a
+broken instrument, not a passing test.
+
+THE GENERAL HAZARD, offered for minting and not minted here, because numbering
+is Tony's. It is bear-trap #38's twin one construct over:
+
+    #38          never declare an ITERATE CURSOR -- declaring it walks 1 member
+    this         never SHARE a per-invocation accumulator across two actions
+                 without declaring it -- undeclared, each action gets its own
+
+Both punish the tidy spelling and both fail silently with a plausible number.
+Independently measured the same day in IncantForms/WorkingOn/parser, where the
+OPPOSITE arm bites: `notFirstTimeThru` there must stay UNDECLARED, because it
+is read and written inside ONE action and a define-block field would persist
+across rules and emit a leading conjunct on rule 2. Same fact, both directions:
+
+    one action, per-invocation reset wanted   -> leave it UNDECLARED
+    two actions sharing one counter           -> it MUST be declared
+
+A rule of thumb that covers both: DECLARE IT IF AND ONLY IF MORE THAN ONE
+ACTION TOUCHES IT.

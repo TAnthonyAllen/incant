@@ -1166,6 +1166,14 @@ Hard-won lessons. Each one has cost real debugging time.
     `git status` or any commit here. Resurrection-reader: if a build fails on a missing field
     or extern that "should be there," check this file. Note it explicitly whenever a change
     touches it.
+    ⚠ **MITIGATED, NOT REMOVED — RULED 2026-08-25 (Tony): `groups.ext` IS ALWAYS COMMITTED.** It
+    never rides dirty awaiting a per-pass ruling, and **every clean-kitchen pass now ends with a
+    support-repo status check, not just a Groups one.** The invisibility is structural and nothing
+    can remove it — a Groups `git status` will never show this file. What the rule removes is the
+    **staleness**: a resurrection reader can now trust that what the support repo's history holds is
+    current, instead of having to guess how far behind it has drifted. Before the rule it had sat
+    uncommitted since 2026-08-21 carrying eleven insertions. First application: support `8100bb3`
+    (twelve insertions), alongside Groups `df9f634`.
 
 12. **`extern "C"` name collisions link-fail silently until `Ld`** — two unrelated `extern`s
     with the same name in different `.twk` files compile clean individually (each file's own

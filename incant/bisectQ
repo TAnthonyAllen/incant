@@ -39,6 +39,7 @@ define
     bqSeen=0;
     bqLimit=0;
     bqMode=0;
+    bqTermN=0;
     bqBump code={
         bqTermN = bqTermN + 1;
         };
