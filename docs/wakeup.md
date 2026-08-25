@@ -1,3 +1,84 @@
+# ⚠⚠⚠ SEALED 2026-08-25 — THE LABEL SEAM CLOSES, AND FOUR LATENT DEFECTS SURFACE. READ THIS FIRST.
+#
+#   ⚠ **THIS SUPERSEDES THE 2026-08-23 SEAL BELOW, WHICH IS INTACT AND STILL TRUE AS OF ITS OWN
+#   MARK.** That one closed F-31. This one made new parse answer correctly, and then spent the day
+#   finding what the fleet structurally cannot see.
+#
+#   ## THE ONE-LINE STATE: **NamE parses `foo` through the new parse and its action returns `foo`,
+#   byte-identical to old parse.** Fleet **57 green / 1 parked** (was 53 — four rows added, none
+#   lost). Canary **318**. Frontier **10 PASS, first failing station NONE**. decodePop 72 terms /
+#   22 checks. ddPop 6. Both repos clean and pushed. **Fixit queue: 9.**
+#
+#   ## ⚠⚠ THE FIVE THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   **1. THE LABEL FIX IS ONE SITE PLUS ONE GATE, AND THE GATE IS THE LOAD-BEARING HALF.**
+#   `runRuleAction` is the ONLY seam between the terms matching and the action firing, because the
+#   emitted tail is `return runRuleAction(this)` — the action fires from INSIDE the body. But that
+#   function is also on the ORDINARY path (`aCTionBrancH`, `runOP`), where no parse is in flight and
+#   `hereAt` is stale. `gNewParseInFlight` (jitContext.h) makes the stale-span write
+#   unconstructable. Ungated it would have written a plausible span into every ordinary dispatch.
+#
+#   **2. A GREEN FLEET IS NOT A CORPUS CHECK, AND THIS COST TWO NEAR-MISSES IN ONE DAY.** Bodies
+#   compile LAZILY AT FIRST CALL, so anything never called is invisible to `pop.sh`. The `SemI-`
+#   change ran 57 green **with a live hit sitting in `incant/utilities`** — `displayIfVisible`, four
+#   semicolon-less `if`s, in the file every fixture includes. And guard-1's symptom census, which
+#   sweeps only code that RUNS, misses that same function's two Operator errors for the same reason.
+#   **When a corpus gate reads clean, ask whether the corpus was executed.**
+#
+#   **3. `if field != 0;` IS NOT A SAFER `if field;` — THE TWELVE-CELL TABLE SAYS SO.** They ask
+#   different questions (presence vs numeric value) and each is wrong where the other is right.
+#   `!= 0` reads TRUE on an absent field and FALSE on a group; the bare test reads TRUE on a field
+#   holding zero and on a valueless one. **`if listLengtH;` is the CORRECT empty-list guard and
+#   `!= 0` breaks it** — nine sites would have moved under a blanket rule. Accessors disagree with
+#   each other and must be checked one at a time. `minionWork/probeBareTest`.
+#
+#   **4. BEAR-TRAP #39 HAS TWO VICTIMS, FOUND BY TWO DIFFERENT INSTRUMENTS.** An undeclared name in
+#   an action body is an action LOCAL, cleared on entry, so two actions sharing one never see each
+#   other's writes. `e8e8619`'s mechanical patch gave eleven of twelve emitter copies their counter
+#   declaration. `incant/bisectQ` was found by being banked as a citizen; `incant/phaseProbe` was
+#   found by guard-1 sweeping for the SYMPTOM. **Neither instrument would have found the other's
+#   file.** Both fixed, one line each.
+#
+#   **5. THE FIRE COUNT IS ONE PER ROAD, AND `parseSetLabel`'S FIRE WAS UNREACHABLE.** Tony's
+#   ruling: `parseSetLabel` = label work (alive as the future glom arm), `runRuleAction` = body road,
+#   `fireLabelMethod` = interpretive road. Stripping it discharged **fixIts row 1 BY RULING**. It
+#   could never have starved anything: only three rules are leaf-shaped AND method-bearing
+#   (`ANYtoken`, `NewGroup`, `ShortcuT`), all read `datA 6` = isGROUP, and `setParse` binds those to
+#   `parseMethod = null`.
+#
+#   ## ⚠ WHAT TONY IS ON THE HOOK FOR
+#   1. **`parentUnreachable`** — an action cannot reach its argument's parent; five of six
+#      navigation directions exist and only UP is missing. Two shapes graded, choosing is his.
+#   2. **`trailingContinue`** — REMEDY landed, awaiting step-and-bless, then it promotes.
+#   3. **`WhilE` grammar rule** — `SemI-` STOPPED at 19 live `while ++grup` sites. A style ruling on
+#      a live idiom, not a first-draft safety net. `ElseIf` and `IF` landed.
+#   4. **Guard-1's proposal** — standardise the refusal tail across all 13 operator sites; a halt
+#      would fire on NOTHING today, so it can be armed with no migration.
+#   5. **Bear-trap #39 minted** in CLAUDE.md (the seat ledger); the user-facing document is task 4
+#      and unwritten.
+#
+#   ## THE DISCIPLINE EXHIBITS, because each changed an outcome
+#   **FIVE INSTRUMENT FAULTS, EVERY ONE CAUGHT BY A CONTROL RATHER THAN BY A WRONG-LOOKING NUMBER:**
+#   unquoted globs returning 0 over a known-non-empty population; `xargs -a` (not BSD) erroring into
+#   a 0; a stale corpus list making an H11 control read ABSENT; a regex anchored on `NamE$` after a
+#   pointer print was appended; and `if isGROUP;` reading a constant, not a field kind.
+#   **A PREDICTION DIED ON ONE COMMAND** — `notFirstTimeThru` was predicted to break rule 2 and does
+#   not, because undeclared is the CORRECT spelling there. Recorded rather than dropped.
+#   **AN ASSERTION'S BLIND SPOT WAS AUDITED AND FOUND EMPTY** — the earlier fire-count grep did
+#   exclude `parseSetLabel`; re-run with every site counted, the figures are unchanged.
+#   **A REPORTED DEFECT WAS NEARLY MINE** — `displayIfVisible`'s Operator errors were first measured
+#   against a fixture whose argument had no parent. Re-measured with a properly parented specimen;
+#   they reproduce. The patient is sick; the first instrument could not prove it.
+#
+#   ## THE SEAL CHECKLIST, run 2026-08-25
+#   `incant/frontier` **exit 0, 10 PASS, FIRST FAILING STATION: NONE** · fleet **57 green / 1 parked**
+#   · decodePop **72 terms, 22 checks** · ddPop **6 green** · canary **318** · generated-file check
+#   **flags.tokened = 2, expected 2** · **support repo 0 uncommitted, 0 unpushed** (the standing step,
+#   ruled today) · Groups clean but for Tony's `IncantForms/WorkingOn/{incant++,tester}`.
+#   **Tony's fixit incantations waiting: 9 (oldest: byRefReview, since 2026-08-24)**
+
+# ---
+
 # ⚠⚠⚠ SEALED 2026-08-23 — THE CAMPAIGN CLOSES. READ THIS FIRST.
 
 #   ⚠ **THIS SUPERSEDES THE 2026-08-22 SEAL BELOW, WHICH IS INTACT AND STILL TRUE AS OF ITS OWN
