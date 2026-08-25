@@ -1,0 +1,60 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(TrailC);
+define
+    tcList one two three;
+    tcAfter=0;
+    tcSeen=0;
+
+    tcWhileArm code={
+        cerr "  WhilE  A -- arm entered":;
+        tcAfter = 0;
+        tcSeen  = 0;
+        while tcSeen < 3;
+            tcSeen = tcSeen + 1;
+            cerr "       B -- inside the loop body, pass " tcSeen:;
+            continue;
+        tcAfter = 1;
+        cerr "  WhilE  iterations " tcSeen "  after-loop statement ran -> " tcAfter "   want 3 / 1":;
+        };
+
+    tcForArm code={
+        cerr "  FOR  A -- arm entered":;
+        tcAfter = 0;
+        tcSeen  = 0;
+        for tcX in tcList;
+            tcSeen = tcSeen + 1;
+            cerr "       B -- inside the loop body, pass " tcSeen:;
+            continue;
+        tcAfter = 1;
+        cerr "  FOR    iterations " tcSeen "  after-loop statement ran -> " tcAfter "   want 3 / 1":;
+        };
+
+    tcDoArm code={
+        cerr "  DO  A -- arm entered":;
+        tcAfter = 0;
+        tcSeen  = 0;
+        do
+            tcSeen = tcSeen + 1;
+            cerr "       B -- inside the loop body, pass " tcSeen:;
+            continue;
+        while tcSeen < 3;
+        tcAfter = 1;
+        cerr "  DO     iterations " tcSeen "  after-loop statement ran -> " tcAfter "   want 3 / 1":;
+        };
+
+    tcRun code={
+        fixTrailingContinueHere = 0;
+        cerr "ANCHOR fixTrailingContinueHere -- trailing continue, three loop forms":;
+        cerr "CONTROL (aCTionWhilE, FIXED b88f33d):":;
+        tcWhileArm();
+        cerr "CENSUS (aCTionFOR / aCTionDO, line unchanged):":;
+        tcForArm();
+        tcDoArm();
+        cerr "TRAILINGCONTINUE SENTINEL -- all three arms ran":;
+        stop();
+        };
+    ;
+tcRun();

@@ -1,0 +1,119 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(FixTC);
+define
+    tkList one two three;
+    tkAfter=0;
+    tkSeen=0;
+
+    tkWhileArm code={
+        cerr "  WhilE  arm entered":;
+        tkAfter = 0;
+        tkSeen  = 0;
+        while tkSeen < 3;
+            tkSeen = tkSeen + 1;
+            continue;
+        tkAfter = 1;
+        cerr "  WhilE  after-loop statement ran -> " tkAfter "   pinned 1":;
+        };
+    tkForArm code={
+        cerr "  FOR    arm entered":;
+        tkAfter = 0;
+        tkSeen  = 0;
+        for tkX in tkList;
+            tkSeen = tkSeen + 1;
+            continue;
+        tkAfter = 1;
+        cerr "  FOR    after-loop statement ran -> " tkAfter "   pinned 1 -- YOU WILL NOT SEE THIS LINE":;
+        };
+    tkDoArm code={
+        cerr "  DO     arm entered":;
+        tkAfter = 0;
+        tkSeen  = 0;
+        do
+            tkSeen = tkSeen + 1;
+            continue;
+        while tkSeen < 3;
+        tkAfter = 1;
+        cerr "  DO     after-loop statement ran -> " tkAfter "   pinned 1 -- YOU WILL NOT SEE THIS LINE":;
+        };
+    tkRun code={
+        fixTrailingContinueHere = 0;
+        cerr "ANCHOR fixTrailingContinueHere -- a trailing continue eats the rest of the block":;
+        tkWhileArm();
+        tkForArm();
+        tkDoArm();
+        cerr "FIXIT SENTINEL -- all three arms were CALLED":;
+        stop();
+        };
+    ;
+tkRun();
+
+A TRAILING `continue` SILENTLY DELETES THE REST OF THE ENCLOSING BLOCK -- IN
+FOR AND DO. WhilE WAS FIXED 2026-08-24; ITS TWO SIBLINGS WERE NOT.
+
+WHAT YOU JUST SAW. Three arms, identical shape: a loop whose last executed
+statement is `continue`, then one statement after the loop. All three arms
+print "arm entered". All three loops run three passes. Only WhilE reaches the
+statement after its loop. FOR and DO print NOTHING after their loop -- not the
+assignment, not the report, nothing -- and the run still exits 0.
+
+/!\ THE ARM-ENTERED AND PASS MARKERS ARE THE ANTI-VACUITY CONTROL AND ARE NOT
+DECORATION. Without them, "FOR printed nothing" is indistinguishable from "the
+FOR arm never ran", which is a completely different defect. The markers prove
+the loop ran correctly and the TAIL was eaten.
+
+THE MECHANISM, and it is Tony's own, written when he fixed WhilE (b88f33d):
+when the last iteration hits a continue, the loop's `result` is still the
+continue SENTINEL, which then propagates to the ENCLOSING block as a continue
+and pooches it. One channel carrying two meanings -- "skip this iteration" and
+"this is the block's value" -- and the second meaning leaking across a boundary
+the first was never meant to cross. His word on the WhilE version: NOT AN
+OPTIONAL FIX.
+
+THE SITES, read and confirmed:
+    aCTionWhilE   ruleActions.rtn   FIXED -- sets result = trueResult, then continues
+    aCTionFOR     ruleActions.rtn   `if isContinue   continue;`   UNFIXED
+    aCTionDO      ruleActions.rtn   `if isContinue   continue;`   UNFIXED
+
+EXPOSURE TODAY: ZERO, and that is why nobody has been bitten. Census of the
+live corpus (283 files, incant + minionWork + IncantForms/WorkingOn) for files
+carrying BOTH a for/do loop and a `continue`: exactly one, incant/utilities,
+and its continue at :106 sits inside a `while ++grup;` -- the FIXED form. So
+the defect is real, severe, and currently untripped. The first person to write
+`for x in y; ... continue;` is the one who finds it, and what they will see is
+their own code silently not running with no error and exit 0.
+
+/!\ CENSUS METHOD NOTE, because the first run of it was VOID and said so. The
+file list was built before this probe existed, so the H11 known-positive control
+(this file must appear in the hits) came back ABSENT. Rebuilt, control present,
+census re-run. A stale corpus list is a census instrument that lies quietly.
+
+NEXT: RULED -- BEHAVIOUR
+
+THE SHAPE IS SELECTED AND THE BUILD IS GATED. Nothing here is applicable yet.
+
+WHAT IS RULED: the fix shape, because it already exists in this tree in Tony's
+hand. aCTionWhilE's block, verbatim:
+
+        if isContinue {
+            result      = trueResult;
+            continue; }
+
+WHAT IS NOT RULED: whether it lands in aCTionFOR and aCTionDO. Tony ruled the
+FAMILY when he called the WhilE version not optional, and the reasoning
+transfers without modification -- but he ruled it on one function, and the two
+siblings have never been named to him. That is the gate, and it is one word.
+
+WHEN IT LANDS, the taken-vs-not signature is this file:
+    remedy ABSENT   FOR and DO print their "arm entered" and pass lines and
+                    then NOTHING; only WhilE reports 1
+    remedy PRESENT  all three arms report `after-loop statement ran -> 1`
+Re-run this incantation after the build and bless the output.
+
+NOT A ONE-LINE EDIT TO ASSUME: aCTionFOR and aCTionDO each carry their own copy
+of the branch block with their own surrounding comments, so it is two edits, and
+each wants its own read of what `result` holds at that point rather than a
+paste. The WhilE fix is the model, not the patch.
