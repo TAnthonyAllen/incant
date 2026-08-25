@@ -27,15 +27,15 @@ define
         pxw = px + pw;
         :x y width height;
         goodToGo = x > px AND x < pxw;
-        if !goodToGo
+        if !goodToGo;
             xw  = x + width;
             goodToGo = xw > px AND xw < pxw;
-        if goodToGo
+        if goodToGo;
             goodToGo = y > py AND y < pyh;
-            if !goodToGo
+            if !goodToGo;
                 yh = y + height;
                 goodToGo = yh > py AND yh < pyh;
-        if goodToGo print "OK to display" argument.tag; };
+        if goodToGo; print "OK to display" argument.tag; };
     /***************************************************************************
         JSON rules invoked as JSONblock("json string or json file name");
         
