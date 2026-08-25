@@ -618,6 +618,38 @@ sentinel "displayFormT sentinel" "$T/dsp" "displayFormT SENTINEL"
 diffcheck "displayForm baseline (interpreter pin)" genLadder/displayForm.base "$T/dsp"
 
 #  ---------------------------------------------------------------------------
+#  THE ACTION-LOCAL COUNTER, promoted from Tony's fixit queue 2026-08-25 after
+#  bisectQmover was stepped and blessed. It is the regression test for the trap
+#  that produced that citizen: an UNDECLARED name in an action body is an action
+#  LOCAL, cleared on entry by parseRule/processAction, so two actions sharing an
+#  undeclared counter each get their OWN node and the bumps never land.
+#
+#  ⚠ ROW U EXPECTS ZERO AND THEREFORE CANNOT STAND ALONE -- a fixture that ran
+#  nothing would also read 0. ROW D IS ITS ANTI-VACUITY SIBLING and wants 3, so
+#  it fails unless the counter mechanism is genuinely live. Pair kept per the
+#  standing rule: every zero-expecting row gets a non-zero sibling.
+#
+#  ⚠ AND ROW U GOING RED IS NOT AUTOMATICALLY A BUG -- it means the LANGUAGE
+#  changed. If action locals stop being cleared per invocation, this row is the
+#  first thing in the fleet that will say so, and the right response is a ruling,
+#  not a repair. bear-trap #38 is its twin one construct over.
+run1 actionLocalT "$T/alc";  check "actionLocalT runs" 0 $?
+sentinel "actionLocalT sentinel" "$T/alc" "ACTIONLOCALT SENTINEL"
+if grep -q "^AL D ok" "$T/alc"; then
+    echo "  ok    action-local: a DECLARED counter is shared across actions (3 bumps land)"; green=$((green+1))
+else
+    echo "  FAIL  actionLocalT row D -- a declared counter did not reach 3, so the"
+    echo "        anti-vacuity sibling is dead and row U below asserts nothing."; fail=1
+fi
+if grep -q "^AL U ok" "$T/alc"; then
+    echo "  ok    action-local: an UNDECLARED counter is per-action (bumps do not land)"; green=$((green+1))
+else
+    echo "  FAIL  actionLocalT row U -- an undeclared counter MOVED across actions."
+    echo "        Action-local clearing semantics have changed. This wants a RULING,"
+    echo "        not a repair: incant/bisectQ and every emitter copy depend on it."; fail=1
+fi
+
+#  ---------------------------------------------------------------------------
 #  F-15 REGRESSION + THE PARTITION GUARD. Both landed 2026-08-18 with the guard
 #  reorder in parse; ruling 3 makes the census a standing fleet check.
 #

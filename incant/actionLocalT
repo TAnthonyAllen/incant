@@ -4,37 +4,43 @@ include(utilities);
 search reset stack Grokking UnitTests Utilities list;
 register(FixBQ);
 define
-    fqDeclared=0;
-    fqBumpDeclared code={
-        fqDeclared = fqDeclared + 1;
+    alDeclared=0;
+    alOk=0;
+    alBumpDeclared code={
+        alDeclared = alDeclared + 1;
         };
-    fqBumpUndeclared code={
-        fqUndeclared = fqUndeclared + 1;
+    alBumpUndeclared code={
+        alUndeclared = alUndeclared + 1;
         };
-    fqRun code={
-        cerr "ANCHOR fixBisectQHere -- cross-action counter, declared vs undeclared":;
-        fixBisectQHere = 0;
+    alRun code={
+        cerr "ANCHOR fixActionLocalHere -- cross-action counter, declared vs undeclared":;
+        fixActionLocalHere = 0;
 
-        fqDeclared = 0;
-        fqBumpDeclared();
-        fqBumpDeclared();
-        fqBumpDeclared();
-        cerr "DECLARED counter after 3 bumps   measured " fqDeclared "   pinned 3":;
+        alDeclared = 0;
+        alBumpDeclared();
+        alBumpDeclared();
+        alBumpDeclared();
+        cerr "AL row D DECLARED   measured " alDeclared " pinned 3":;
+        alOk = 0;
+        if alDeclared == 3;     alOk = 1;
+        if alOk == 1;   cerr "AL D ok -- a declared counter is SHARED, so the bumps land":;
+        if alOk == 0;   cerr "AL D FAIL -- declared counter did not reach 3":;
 
-        fqUndeclared = 0;
-        fqBumpUndeclared();
-        fqBumpUndeclared();
-        fqBumpUndeclared();
-        cerr "UNDECLARED counter after 3 bumps measured " fqUndeclared "   pinned 0 -- THE DEFECT":;
+        alUndeclared = 0;
+        alBumpUndeclared();
+        alBumpUndeclared();
+        alBumpUndeclared();
+        cerr "AL row U UNDECLARED measured " alUndeclared " pinned 0":;
+        alOk = 0;
+        if alUndeclared == 0;   alOk = 1;
+        if alOk == 1;   cerr "AL U ok -- an undeclared counter is PER-ACTION, so the bumps do not":;
+        if alOk == 0;   cerr "AL U FAIL -- undeclared counter moved; the semantics changed":;
 
-        cerr "The undeclared name is a LOCAL OF EACH ACTION, cleared on entry, so the":;
-        cerr "bumper increments its own node and the reader never sees it move.":;
-        cerr "FIXIT SENTINEL -- bisectQmover reached its foot":;
+        cerr "ACTIONLOCALT SENTINEL -- both rows ran":;
         stop();
         };
     ;
-fqRun();
-
+alRun();
 bisectQ GAINED A processCode ERROR IN THE fbGen REPAIR PASS -- CAUSE FOUND, FIXED
 
 THE ORIGINAL SYMPTOM. On 2026-08-24 the scaffold emitter in incant/f31 and its
