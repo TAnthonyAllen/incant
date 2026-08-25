@@ -230,9 +230,28 @@ GroupRules  ruler = groupRules;
 RuleStuff   ruleStuff = field.rStuff;
     if noAdvance    atRuleMark = hereAt;
     if label {
-        if rule.actionMethod {
-            if parseTrace   cerr "  ACTFIRE parseSetLabel " field.tag:;
-            label = rule.actionMethod(label); }
+        /*  ⚠ THE ACTION FIRE IS GONE FROM HERE, 2026-08-25, Tony's ruling, and
+            its absence is the point rather than an omission. THE SPLIT IS:
+                parseSetLabel   label work only -- and it stays alive as the
+                                future glom arm
+                runRuleAction   the action fire on the BODY road
+                fireLabelMethod the action fire on the INTERPRETIVE road
+            ONE FIRE PER ROAD. This discharges fixIts row 1's parked design
+            call: the actionMethod channel is the one that goes.
+
+            IT COULD ONLY EVER HAVE BEEN A DOUBLE FIRE, never a sole road.
+            parse()'s fork calls parseMethod and THEN, on success, calls
+            fireLabelMethod on the same stuff with the same method -- and
+            rStuff.actionMethod has exactly one writer, setParse:521
+            `actionMethod = method`, which is that same method. So every rule
+            reachable here was fired twice with one label.
+
+            MEASURED BEFORE THE STRIP, and it is why no rule can starve: of the
+            whole grammar only THREE rules are leaf-shaped AND method-bearing
+            -- ANYtoken, NewGroup, ShortcuT -- and all three read datA 6, which
+            GroupBody.h defines as isGROUP, which setParse binds to
+            parseMethod = null. They never reach a leaf executor, so they never
+            reached this line. The fire was unreachable, not merely redundant.  */
         if label && parentLabel parentLabel +% label;
         return label; }
     return trueResult;
