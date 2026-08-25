@@ -155,7 +155,7 @@ define
         loopOnMembers="members";
     ElsE
         BasicElse   else- followedBy StatemenT@ defer;
-        ElseIf      or- ExpressioN SemI-? StatemenT ElsE? ruleMethod=aCTionIF defer;
+        ElseIf      or- ExpressioN SemI- StatemenT ElsE? ruleMethod=aCTionIF defer;
     WardeD
         DEBUG       "debug"- followedBy rules?=NamE+ SemI-;
         DEF         "define"- followedBy define^;
