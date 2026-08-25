@@ -1,0 +1,68 @@
+Start();
+include(utilities);
+search reset stack Grokking Utilities list;
+register(BareT);
+define
+    btZero=0;
+    btOne=7;
+    btNoData;
+    btCell=0;
+
+    btStates code={
+        cerr "ANCHOR fixBareTestHere -- the bare-test truth table, ten cells":;
+        fixBareTestHere = 0;
+
+        cerr "STATE 1  absent entirely -- a lookup that returns NULL":;
+        btCell = 0;
+        if Grokking["zzzNoSuchRule"];       btCell = 1;
+        cerr "  1a  if field;        -> " btCell:;
+        btCell = 0;
+        if Grokking["zzzNoSuchRule"] != 0;  btCell = 1;
+        cerr "  1b  if field != 0;   -> " btCell:;
+
+        cerr "STATE 2  present, holding ZERO":;
+        btCell = 0;
+        if btZero;                          btCell = 1;
+        cerr "  2a  if field;        -> " btCell "   (field holds 0)":;
+        btCell = 0;
+        if btZero != 0;                     btCell = 1;
+        cerr "  2b  if field != 0;   -> " btCell "   (field holds 0)":;
+
+        cerr "STATE 3  present, holding NONZERO":;
+        btCell = 0;
+        if btOne;                           btCell = 1;
+        cerr "  3a  if field;        -> " btCell "   (field holds 7)":;
+        btCell = 0;
+        if btOne != 0;                      btCell = 1;
+        cerr "  3b  if field != 0;   -> " btCell "   (field holds 7)":;
+
+        cerr "STATE 4  present, NO DATA -- the tag-echo state":;
+        cerr "  4x  control: btNoData.text reads back as -> " btNoData:;
+        btCell = 0;
+        if btNoData;                        btCell = 1;
+        cerr "  4a  if field;        -> " btCell:;
+        btCell = 0;
+        if btNoData != 0;                   btCell = 1;
+        cerr "  4b  if field != 0;   -> " btCell:;
+
+        cerr "STATE 5  action-local, freshly cleared on entry":;
+        btCell = 0;
+        if btFreshLocal;                    btCell = 1;
+        cerr "  5a  if field;        -> " btCell:;
+        btCell = 0;
+        if btFreshLocal != 0;               btCell = 1;
+        cerr "  5b  if field != 0;   -> " btCell:;
+
+        cerr "STATE 6  present, GROUP-shaped (no numeric data)":;
+        btCell = 0;
+        if Grokking["NamE"];                btCell = 1;
+        cerr "  6a  if field;        -> " btCell "   (a live rule)":;
+        btCell = 0;
+        if Grokking["NamE"] != 0;           btCell = 1;
+        cerr "  6b  if field != 0;   -> " btCell "   (a live rule)":;
+
+        cerr "BARETEST SENTINEL -- all twelve cells printed":;
+        stop();
+        };
+    ;
+btStates();
