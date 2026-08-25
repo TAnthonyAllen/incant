@@ -25,7 +25,7 @@ define
         ph  = height;
         pyh = py + ph;
         pxw = px + pw;
-        :x y width height;
+        :argument x y width height;
         goodToGo = x > px AND x < pxw;
         if !goodToGo;
             xw  = x + width;
@@ -35,7 +35,7 @@ define
             if !goodToGo;
                 yh = y + height;
                 goodToGo = yh > py AND yh < pyh;
-        if goodToGo; print "OK to display" argument.tag; };
+        if goodToGo; print "OK to display" argument.taG; };
     /***************************************************************************
         JSON rules invoked as JSONblock("json string or json file name");
         

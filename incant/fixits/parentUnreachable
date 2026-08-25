@@ -1,0 +1,111 @@
+Start();
+include(utilities);
+search reset stack Grokking Utilities list;
+register(FixPar);
+define
+    fpWindow x=0 y=0 width=100 height=100
+        fpInside x=10 y=10 width=20 height=20;
+    fpProbe argument code={
+        fixParentHere = 0;
+        cerr "ANCHOR fixParentHere -- can an action reach its argument's PARENT?":;
+        cerr "CONTROL  argument.taG  = " argument.taG "        want fpInside":;
+        fpA <- argument.parent;
+        cerr "row a    .parent       = " fpA.taG "            want fpWindow":;
+        fpB <- argument.parenT;
+        cerr "row b    .parenT       = " fpB.taG "        want fpWindow":;
+        fpC <- argument.PARENT;
+        cerr "row c    .PARENT       = " fpC.taG "            want fpWindow":;
+        cerr "Every row misses, each in a different bear-trap #26 way. The control":;
+        cerr "reads correctly, so the probe is live and the misses are real.":;
+        };
+    fpScope argument code={
+        cerr "AND THE CONSEQUENCE, in displayIfVisible's own shape:":;
+        :parent x y width height;
+        cerr "  lookin `parent`   x = " x "  width = " width "   <- TAG ECHO, no data":;
+        :argument x y width height;
+        cerr "  lookin `argument` x = " x " width = " width "        <- correct":;
+        };
+    fpRun code={
+        fpChild <- fpWindow["fpInside"];
+        fpProbe(fpChild);
+        fpScope(fpChild);
+        cerr "FIXIT SENTINEL -- parentUnreachable reached its foot":;
+        stop();
+        };
+    ;
+fpRun();
+
+AN ACTION CANNOT REACH ITS ARGUMENT'S PARENT. EVERY OTHER DIRECTION EXISTS.
+
+WHAT IS BROKEN. incant/utilities' displayIfVisible opens with
+
+    :parent x y width height;
+
+which is meant to hoist the CONTAINER's box so the argument's own box can be
+tested against it. There is no way to write that. `parent` is not an accessor,
+so the bare name resolves to an empty local, aCTionScopeXP finds nothing in it
+(`lookin[name]` misses), calls grup.clear() on each of x/y/width/height, and
+the locals are left carrying NO DATA. Under bear-trap #26 a no-data field
+returns its own TAG from .text, so the arithmetic two lines later says
+
+    ERROR Operator + failed on py and ph
+    ERROR Operator + failed on px and pw
+
+and the message names an operator while the defect is a missing accessor.
+
+THE GAP IS ONE DIRECTION OUT OF SIX. opDot (Instruct.rtn:340-351) implements
+nextInParent (401), priorInParent (402), firstInList (403), lastInList (404)
+and nextMember (405). Sideways and downward are covered. UP IS NOT.
+
+WHAT WAS MEASURED, one run, with a control that reads correctly so the misses
+cannot be dismissed as a broken probe:
+
+    control  argument.taG   -> fpInside     correct
+    row a    .parent        -> fpA          the local's own tag echoed
+    row b    .parenT        -> argument     bound to the argument, not its parent
+    row c    .PARENT        -> fpC          tag echo
+
+Three spellings, three different wrong answers, no error from any of them.
+
+WHAT WAS ALREADY FIXED AND IS NOT THIS ISSUE. displayIfVisible carried four
+defects; three were unambiguous and are mended:
+    1  four semicolon-less `if`s          (the SemI- ruling)
+    2  `:x y width height;`               lookin was `x`; now `:argument ...`
+    3  `print ... argument.tag`           tok spelling; now .taG, prints dvInside
+Only the parent road is left, and it is the one that needs a ruling.
+
+NEXT: BEST GUESS
+
+TWO SHAPES. Explicitly NOT a recommendation of one over the other by fiat --
+the second is cheaper and the first is what the tree seems to want.
+
+  A  ADD A PARENT ACCESSOR to opDot -- one more case beside 401-405, plus a
+     decoder line and a fixture. GRADE: strong. It closes a gap that is
+     conspicuous rather than arguable (five navigation cases exist and only
+     "up" is missing), it makes the EXISTING source correct instead of asking
+     every caller to compensate, and Tony's stated reason for keeping this
+     function -- forms processing -- walks trees constantly and will want
+     "up" everywhere, not once.
+     WHAT WOULD PROMOTE IT: Tony ruling the accessor set is his to extend.
+     WHAT WOULD KILL IT: a reason parent is deliberately not exposed --
+     e.g. it would let incant code walk out of a scope it should not leave.
+     That reason is not known to me and I did not find one in the tree.
+
+  B  CHANGE THE CONTRACT so the container arrives explicitly -- as an
+     attribute on the argument, per the multi-arg idiom (attributes plus a
+     :scope statement). GRADE: workable, no language change, lands today.
+     WHAT WOULD KILL IT: it pushes wiring to every caller and leaves the
+     "up" gap in place for the next tree-walking action to rediscover.
+
+WHY IT IS NOT DECIDED HERE. A is a language addition and this SEQ's scope was
+a repair. Naming the shape is the deliverable; choosing it is Tony's.
+
+A THIRD THING, CAPTURED SEPARATELY AND NOT PART OF THIS ISSUE. Even with the
+parent road fixed, displayIfVisible's `if goodToGo;` tests a field that HOLDS
+ZERO, and incant/andProbe already ruled that a bare field test goes by
+PRESENCE, not value -- so it reads TRUE either way. andProbe's own note says
+"the only shipping consumer of this shape is displayIfVisible in incant
+utilities, which is defined and never called, so nothing live moved. The next
+caller of that idiom is the one who gets bitten." That caller was this SEQ.
+The function will need `if goodToGo == 1;` or the word form, whichever the
+ruling on A produces.
