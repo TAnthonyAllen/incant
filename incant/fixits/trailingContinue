@@ -26,7 +26,7 @@ define
             tkSeen = tkSeen + 1;
             continue;
         tkAfter = 1;
-        cerr "  FOR    after-loop statement ran -> " tkAfter "   pinned 1 -- YOU WILL NOT SEE THIS LINE":;
+        cerr "  FOR    after-loop statement ran -> " tkAfter "   pinned 1":;
         };
     tkDoArm code={
         cerr "  DO     arm entered":;
@@ -37,7 +37,7 @@ define
             continue;
         while tkSeen < 3;
         tkAfter = 1;
-        cerr "  DO     after-loop statement ran -> " tkAfter "   pinned 1 -- YOU WILL NOT SEE THIS LINE":;
+        cerr "  DO     after-loop statement ran -> " tkAfter "   pinned 1":;
         };
     tkRun code={
         fixTrailingContinueHere = 0;
@@ -91,29 +91,37 @@ file list was built before this probe existed, so the H11 known-positive control
 (this file must appear in the hits) came back ABSENT. Rebuilt, control present,
 census re-run. A stale corpus list is a census instrument that lies quietly.
 
-NEXT: RULED -- BEHAVIOUR
+NEXT: REMEDY -- BEHAVIOUR
 
-THE SHAPE IS SELECTED AND THE BUILD IS GATED. Nothing here is applicable yet.
+LANDED 2026-08-25 on Tony's word ("my word given on fix FOR and DO").
 
-WHAT IS RULED: the fix shape, because it already exists in this tree in Tony's
-hand. aCTionWhilE's block, verbatim:
+SITES, two edits, each read on its own rather than pasted:
+    aCTionFOR   ruleActions.rtn, the isBranch block
+    aCTionDO    ruleActions.rtn, the isBranch block
+Both now carry aCTionWhilE's cure:
 
         if isContinue {
             result      = trueResult;
             continue; }
 
-WHAT IS NOT RULED: whether it lands in aCTionFOR and aCTionDO. Tony ruled the
-FAMILY when he called the WhilE version not optional, and the reasoning
-transfers without modification -- but he ruled it on one function, and the two
-siblings have never been named to him. That is the gate, and it is one word.
+WHY EACH SITE WAS READ SEPARATELY, and it mattered in both:
+  aCTionFOR ALSO continues earlier, at the `restrict` test. That arm is SAFE
+  and was deliberately left alone -- `result = 0;` runs at the head of every
+  iteration, so no sentinel is in flight there. A blind paste would have been
+  harmless but the note would have been wrong.
+  aCTionDO has NO `result = 0;` at the head of its body, so `result` is always
+  the last statement's yield -- which is precisely why the sentinel survives
+  there without this line. Same cure, different reason.
 
-WHEN IT LANDS, the taken-vs-not signature is this file:
-    remedy ABSENT   FOR and DO print their "arm entered" and pass lines and
-                    then NOTHING; only WhilE reports 1
+TAKEN vs NOT -- run this file:
+    remedy ABSENT   FOR and DO print "arm entered" and then NOTHING;
+                    only WhilE reports `after-loop statement ran -> 1`
     remedy PRESENT  all three arms report `after-loop statement ran -> 1`
-Re-run this incantation after the build and bless the output.
 
-NOT A ONE-LINE EDIT TO ASSUME: aCTionFOR and aCTionDO each carry their own copy
-of the branch block with their own surrounding comments, so it is two edits, and
-each wants its own read of what `result` holds at that point rather than a
-paste. The WhilE fix is the model, not the patch.
+VERIFIED: all three arms report 1. minionWork/probeTrailingContinue agrees
+(3 iterations / after-loop 1, all three forms). Fleet unmoved.
+
+STEP IT AND BLESS IT. Then it promotes into the fleet as the regression test --
+its three arms are already assertion-shaped and its arm-entered markers are the
+anti-vacuity control, so a fixture that silently stopped running would fail
+rather than pass.

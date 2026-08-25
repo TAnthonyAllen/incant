@@ -435,8 +435,20 @@ GroupItem 	*result = 0;
 		result = StatemenT->groupBody->gMethod(StatemenT);
 		if ( result->groupBody->flags.isBranch )
 			{
+			/*  THE TRAILING-CONTINUE GUARD, 2026-08-25, Tony's word. Model is
+			aCTionWhilE's fix (b88f33d) -- same defect, same cure.
+			⚠ SITE-SPECIFIC READ, not a paste. In a do/while a `continue`
+			jumps to the CONDITION rather than out, so the loop keeps
+			running and this is the only arm that can leave a sentinel in
+			`result` at exit. Unlike aCTionFOR there is no `result = 0;` at
+			the head of the body, so `result` here is always whatever the
+			last statement yielded -- which is exactly why the sentinel
+			survives without this line.  */
 			if ( isContinue(result->groupBody->flags.isBranch) )
+				{
+				result = GroupControl::groupController->groupRules->trueResult;
 				continue;
+				}
 			else
 			if ( isReturn(result->groupBody->flags.isBranch) )
 				return result;
@@ -802,8 +814,21 @@ int 		restrict = 0;
 			grup = result->priorInParent;
 		if ( result->groupBody->flags.isBranch )
 			{
+			/*  THE TRAILING-CONTINUE GUARD, 2026-08-25, Tony's word. Model is
+			aCTionWhilE's fix (b88f33d): the sentinel must not survive the
+			loop that consumed it, or the LAST iteration's continue is
+			still sitting in `result` when the loop exits and propagates to
+			the enclosing block as a continue, deleting every statement
+			after the loop. Silent, exit 0.
+			⚠ SITE-SPECIFIC READ, not a paste. This loop ALSO continues
+			earlier, at the `restrict` test above -- that one is safe
+			because `result = 0;` runs at the top of every iteration and so
+			no sentinel is in flight there. Only this arm can carry one.  */
 			if ( isContinue(result->groupBody->flags.isBranch) )
+				{
+				result = ruler->trueResult;
 				continue;
+				}
 			else
 			if ( isReturn(result->groupBody->flags.isBranch) )
 				return result;
