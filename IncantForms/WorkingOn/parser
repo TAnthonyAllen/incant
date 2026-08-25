@@ -136,7 +136,6 @@ include(utilities);
 search reset stack Grokking;
 search GroupFields Utilities list;
 
-debug Start;
 register(Utilities);
 define
     codeBuffer buffer;
@@ -212,10 +211,12 @@ define
         print `"if ";
         iterate grup on argument;
         while ++grup;
+            if noPrinT;     continue;
+            if notFirstTimeThru > 0;    print _conjunct;
+            ++notFirstTimeThru;
             if spOn != 0;   setParse(grup);
             print $taG "()";
-            if nexT;    print _conjunct;
-            else        print ";";
+        print ";";
         @argument;
         print $"return runRuleAction(this);":;
         print `closeBrace:;
@@ -225,7 +226,6 @@ define
         codeCopy :. noPrinT;
         argument +% codeCopy;
         argument :. isCodeD;
-        argument :. hasNewParsE;
         printTO(0);
         @CodE;
         print taG "=" CodE:;
@@ -360,12 +360,18 @@ define
         anchorNamECompile = 1;
         compile(argument);
         cerr "NamE repro: compile returned -- THE HANG IS GONE, re-measure":;
-        **argument;
+        };
+    whatName code={
+        runNamE(NamE);
+        result = NamE("maybe a test;");
+        print result:;
+        // here result is empty, label for NamE never gets set in parseRule
         };
     ;
 
-runNamE(NamE);
-NamE("this is a test;");
+whatName();
 stop();
+runNamE(NamE);
+NamE("that is a test;");
 runNamEnoParse(NamE);
 runParse(NamE);
