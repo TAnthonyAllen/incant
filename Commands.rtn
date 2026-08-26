@@ -245,8 +245,25 @@ GroupItem   code,
         what a per-rule failure report needs.
 
         NO DOUBLE REPORT: processCode owns the message (GroupActions.rtn), and
-        compile owns only the verdict.  */
-    if !processCode(field)  return null;
+        compile owns only the verdict.
+
+        ⚠ THE TATTLE, Tony 2026-08-26 (refuse-loud on the compile road, R-2).
+        processCode names its own failure and the position it stopped at, but
+        it does NOT say who asked. A sweep over a hundred rules therefore
+        produced a column of positions with no patient attached to any of
+        them. This line names the rule compile was standing on when the
+        refusal came back, so the two messages read as one chain: processCode
+        says what broke and where, compile says whom it broke for.
+
+        IT IS A NAMING, NOT A VERDICT, AND THE DISTINCTION IS F-17e's RULING
+        STILL STANDING: a refused rule does not terminate the run, because a
+        flat sweep that exits on its first refusal can never report more than
+        one, and the census is the thing being terminated. Adding the name
+        costs nothing a caller was relying on -- the return value is unchanged
+        and every tally still counts a null as a refusal.  */
+    if !processCode(field) {
+        cerr "compile: REFUSING " field.tag " -- processCode would not parse the generated body; its message above names the position":;
+        return null; }
 endCompile:
     field.hasNewParse   = true;
     return field;
