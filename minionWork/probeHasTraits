@@ -1,0 +1,40 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+search GroupFields Utilities list;
+
+register(Utilities);
+define
+    phRun argument code={
+        phA = 0;
+        phT = 0;
+        if argument.hasAttributeS;  phA = 1;
+        if argument.hasTraitS;      phT = 1;
+        cerr "    " argument.taG " PRISTINE  hasAttributeS " phA "  hasTraitS " phT:;
+        setParse(argument);
+        phA = 0;
+        phT = 0;
+        if argument.hasAttributeS;  phA = 1;
+        if argument.hasTraitS;      phT = 1;
+        cerr "    " argument.taG " SETPARSE  hasAttributeS " phA "  hasTraitS " phT:;
+        };
+    phMain code={
+        probeHasTraitsHere = 0;
+        cerr "PROBE hasTraits -- the spelling cell, and the setParse ordering":;
+        cerr :;
+        cerr "ROW A  BlocK -- a SEQUENCE. Three real sub-terms, so it carries":;
+        cerr "       traits. HIT CONTROL: hasTraitS must read 1 in both lines.":;
+        phRun(Grokking["BlocK"]);
+        cerr :;
+        cerr "ROW B  StatemenT -- an ALTERNATION. Five members, ZERO real":;
+        cerr "       attributes. MISS CONTROL: hasTraitS must read 0 in both":;
+        cerr "       lines. The SETPARSE line is the decisive cell -- it is the":;
+        cerr "       state generateParse's gate actually reads.":;
+        phRun(Grokking["StatemenT"]);
+        cerr :;
+        cerr "PROBE SENTINEL -- both rows reported":;
+        stop();
+        };
+    ;
+
+phMain();

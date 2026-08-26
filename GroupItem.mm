@@ -198,6 +198,15 @@ GroupItem *GroupItem::addAttribute(GroupItem *grup)
 	grup = addGroup(grup);
 	grup->options.affiliation = 1;
 	groupBody->flags.hasAttributes = 1;
+	/***************************************************************
+	hasTraits is the CONNECTIVE half: attributes that are not
+	noPrint-class. setParse's builtinParsE/builtinActoR are
+	decoration and must not make a rule read as conjoining
+	traits. Co-writer: updateContentFlags(), which rebuilds
+	this flag with the same test.
+	***************************************************************/
+	if ( !grup->groupBody->flags.noPrint )
+		groupBody->flags.hasTraits = 1;
 	return grup;
 }
 
@@ -2402,29 +2411,37 @@ void GroupItem::updateContentFlags()
 {
 	if ( parent )
 		if ( isAttribute(options.affiliation) )
+			{
 			parent->groupBody->flags.hasAttributes = 1;
+			if ( !groupBody->flags.noPrint )
+				parent->groupBody->flags.hasTraits = 1;
+			}
 		else
 		if ( isMember(options.affiliation) )
 			parent->groupBody->flags.hasMembers = 1;
 	if ( groupBody->groupList->listLength )
 		{
 		GroupItem 	*item = 0;
+		/***********************************************************
+		Three flags, one pass. hasTraits uses the same test as
+		addAttribute() -- an attribute that is not noPrint-class.
+		The old early-outs are gone because they could break out
+		before a trait-bearing attribute was reached, which would
+		leave the third flag answering about a partial scan.
+		***********************************************************/
 		groupBody->flags.hasAttributes = 0;
 		groupBody->flags.hasMembers = 0;
+		groupBody->flags.hasTraits = 0;
 		while ( item = next(item) )
-			if ( !groupBody->flags.hasAttributes && isAttribute(item->options.affiliation) )
+			if ( isAttribute(item->options.affiliation) )
 				{
 				groupBody->flags.hasAttributes = 1;
-				if ( groupBody->flags.hasMembers )
-					break;
+				if ( !item->groupBody->flags.noPrint )
+					groupBody->flags.hasTraits = 1;
 				}
 			else
-			if ( !groupBody->flags.hasMembers && isMember(item->options.affiliation) )
-				{
+			if ( isMember(item->options.affiliation) )
 				groupBody->flags.hasMembers = 1;
-				if ( groupBody->flags.hasAttributes )
-					break;
-				}
 		}
 }
 

@@ -91,7 +91,8 @@ boolean bools {
     recursive
     reversePrint
     tokened
-    hasNewParse } flags;
+    hasNewParse
+    hasTraits } flags;
 	
 /*****************************************************************************
 	Constructors uses default constructor

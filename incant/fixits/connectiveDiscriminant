@@ -2,13 +2,11 @@ Start();
 include(utilities);
 search reset stack Grokking;
 search GroupFields Utilities list;
+
 register(Utilities);
 define
     cdBuf buffer;
     cdOpen="{";
-    cdAnd=0;
-    cdOr=0;
-    cdBoth=0;
     cdCount argument code={
         cdA = 0;
         cdM = 0;
@@ -20,9 +18,19 @@ define
             cdM = cdM + 1;
         cerr "   rule " argument.taG " attributes " cdA " members " cdM:;
         };
-    cdWhich argument code={
-        if hasAttributeS;   cerr "   bare hasAttributeS reads TRUE  -> emits AND":;
-        else                cerr "   bare hasAttributeS reads FALSE -> emits OR":;
+    cdRead argument code={
+        cdHa = 0;
+        cdHt = 0;
+        if argument.hasAttributeS;  cdHa = 1;
+        if argument.hasTraitS;      cdHt = 1;
+        cerr "   rule " argument.taG "  hasAttributeS " cdHa "   hasTraitS " cdHt:;
+        };
+    cdBoth argument code={
+        cerr "   PRISTINE -- as the node stands before any parse is bound:":;
+        cdRead(argument);
+        setParse(argument);
+        cerr "   AFTER setParse -- the state generateParse's gate reads:":;
+        cdRead(argument);
         };
     cdRun code={
         fixConnectiveHere = 0;
@@ -32,28 +40,42 @@ define
         cerr "ROW 1 StatemenT's real shape. It is an ALTERNATION: five rule":;
         cerr "      options, no attributes. Its parse should be an OR.":;
         cdCount(Grokking["StatemenT"]);
-        cerr "      measured above; PINNED expectation: attributes 0 members 5":;
+        cerr "      PINNED expectation: attributes 0 members 5":;
         cerr :;
 
-        cerr "ROW 2 what generateParse's discriminant actually answers for it.":;
-        cerr "      generateParse picks the connective with a BARE test:":;
-        cerr "          if hasAttributeS;   conjunct = AND;":;
-        cerr "          else                conjunct = OR;":;
-        cdWhich(Grokking["StatemenT"]);
-        cerr "      PINNED: this file reads FALSE. generateParse, running the":;
-        cerr "      SAME SPELLING on the same rule, emits AND -- so the two":;
-        cerr "      disagree, and the resolution context is the difference.":;
+        cerr "ROW 2 BlocK -- the HIT CONTROL. A sequence with three real":;
+        cerr "      sub-terms, so it genuinely conjoins traits and must read":;
+        cerr "      1 on BOTH flags in BOTH lines. Without it the miss row":;
+        cerr "      below asserts nothing, because a flag that is never set":;
+        cerr "      reads 0 for a rule that has no traits and for a rule that":;
+        cerr "      has five alike.":;
+        cdBoth(Grokking["BlocK"]);
+        cerr "      PINNED: 1 1 / 1 1":;
         cerr :;
 
-        cerr "ROW 3 the population. Across a full parser(Start) walk on":;
-        cerr "      2026-08-26, of 55 emitted bodies:":;
-        cerr "          36 carry AND":;
-        cerr "           0 carry OR":;
-        cerr "          19 are single-term or empty, so they carry neither":;
-        cerr "      NOT ONE OR IS EVER EMITTED. That is the finding.":;
+        cerr "ROW 3 StatemenT -- THE MISS ROW, and the decisive cell is the":;
+        cerr "      second line. hasTraitS answers CORRECTLY on the pristine":;
+        cerr "      node and WRONGLY once setParse has run.":;
+        cdBoth(Grokking["StatemenT"]);
+        cerr "      PINNED: 0 0 / 1 1":;
+        cerr "      The 0 0 is the fix working. The second 1 is the defect":;
+        cerr "      that survives it -- see NEXT below.":;
         cerr :;
 
-        cerr "CONNECTIVE SENTINEL -- all three rows reported":;
+        cerr "ROW 4 the population, measured 2026-08-26 over parser(Start),":;
+        cerr "      55 emitted bodies, as a 2x2 on gate x activating:":;
+        cerr :;
+        cerr "         gate           setParse RUNS      setParse OFF":;
+        cerr "         hasAttributeS  36 AND / 0 OR      28 AND / 8 OR":;
+        cerr "         hasTraitS      36 AND / 0 OR      28 AND / 8 OR":;
+        cerr :;
+        cerr "      Read the COLUMNS, not the rows. The gate spelling makes no":;
+        cerr "      difference anywhere; setParse makes all of it. With setParse":;
+        cerr "      off, BOTH spellings emit eight ORs and StatemenT is one of":;
+        cerr "      them. So the discriminant was never the variable.":;
+        cerr :;
+
+        cerr "CONNECTIVE SENTINEL -- all four rows reported":;
         stop();
         };
     ;
@@ -63,16 +85,11 @@ cdRun();
 ================================================================================
 WHAT IS WRONG
 
-generateParse chooses between AND and OR for a rule's emitted parse condition,
-and it chooses with a bare test:
-
-    if hasAttributeS;   conjunct = "AND";
-    else                conjunct = "OR";
-
+generateParse chooses between AND and OR for a rule's emitted parse condition.
 A rule whose list holds ATTRIBUTES is a sequence -- every term must match, so
 AND is right. A rule whose list holds MEMBERS is an alternation, because in a
-kant rule members are rule options -- so OR is right. That is the design, and
-KantParserHow in DesignDocs states it.
+kant rule members are rule options -- so OR is right. KantParserHow in
+DesignDocs states the design.
 
 The measurement says the discriminant never picks OR. StatemenT carries zero
 attributes and five members, which is the textbook alternation, and it is
@@ -91,35 +108,68 @@ future parser(Start) that runs to completion could still parse incorrectly,
 and the verifier's printed ANSWER would be the only thing standing between a
 wrong parse and a green run.
 
-It is queued behind the recursion work by ruling, and it is banked here so it
-cannot be forgotten while that work proceeds.
+WHAT THE 2026-08-26 REMEDY PASS ESTABLISHED, AND WHAT IT DID NOT
+
+The original NEXT block guessed BARE-NAME RESOLUTION -- that generateParse's
+bare hasAttributeS was answering about the wrong node. THAT IS DEAD. Read the
+same spelling against an explicit argument.hasAttributeS on the same node and
+the two agree; ROW 3 above is that reading, and the node is right.
+
+Tony's diagnosis replaced it and is CONFIRMED: setParse hangs builtinParsE and
+builtinActoR on every rule it touches, both noPrint, so hasAttributeS -- which
+answers "is this node marked up" -- reads TRUE for every walked rule and the OR
+branch is unreachable. ROW 3's second line is that flip, live: 0 before
+setParse, 1 after.
+
+hasTraitS was built to be the right question: an attribute that is NOT
+noPrint-class. It reads CORRECTLY on a pristine node -- ROW 2 and the first
+line of ROW 3 are its hit and miss controls -- and the ruled fix landed at all
+four registration sites plus both writers.
+
+IT STILL DOES NOT DISCHARGE THE ISSUE, and ROW 4 says why in one table. The
+gate spelling changes nothing in either column, because addAttribute cannot see
+noPrint at the only moment it gets to look.
 
 PROVENANCE
 
 Seen while docketing parseSelfRecursion on 2026-08-26 and recorded there as
-noted-not-graded, on the reasoning above. Tony promoted it to its own citizen
-the same day and asked for the charter question: is the connective discriminant
-sound across all 123 rules the walk reaches.
+noted-not-graded. Tony promoted it to its own citizen the same day and asked
+the charter question: is the connective discriminant sound across all 123 rules
+the walk reaches. The hasTraits remedy was ruled by Tony the same day, built,
+and measured; the bare-name candidate died in that pass.
 
-NEXT: BEST GUESS -- and it is a candidate, explicitly NOT a recommendation.
+NEXT: BEST GUESS -- one candidate, and it is a candidate, not a recommendation.
 
-CANDIDATE: the test is bare, and a bare field name in this codebase resolves
-against the most-recently-mentioned field rather than against the action's
-argument. generateParse mentions several fields before it reaches the
-connective choice, so `hasAttributeS` may be answering about the wrong node
-entirely -- which would explain a discriminant that never once selects OR.
+THE MECHANISM IS MEASURED, THE REPAIR IS NOT RULED. setParse builds each of its
+two decoration attributes in this order:
 
-WHAT WOULD PROMOTE IT: print the same bare test beside an explicit
-`argument.hasAttributeS` in the same position inside generateParse, on a rule
-known to carry zero attributes. Two different answers confirm it. ROW 2 of this
-file runs the bare test from a DIFFERENT action, so it is suggestive and is not
-that measurement -- the resolution context is what is in question, so the test
-has to be read where the defect lives.
+    GroupItem *builtinParsE = field->addString("builtinParsE");
+    builtinParsE->setRStuff(ruleStuff);
+    builtinParsE->groupBody->flags.noPrint = 1;
 
-WHAT WOULD KILL IT: the two spellings agreeing. Then the discriminant is being
-answered correctly and the defect is in what it is being ASKED -- attributes
-may simply be the wrong question for sequence-versus-alternation, and the
-charter becomes which property actually separates the two.
+addString reaches addAttribute, and addAttribute is where hasTraits is written.
+At that instant builtinParsE is not yet noPrint, so the inline test passes and
+hasTraits is raised on a rule whose only attribute is decoration. The flag that
+would repair it -- updateContentFlags, which rebuilds hasTraits with the same
+test and gets the right answer because by then noPrint IS set -- has exactly
+one caller in the tree, moveTo, and nothing on the parse path reaches it.
 
-GRADE: BEST GUESS. No ruling has been issued on the fix shape and no build has
-landed, so this is neither RULED nor REMEDY.
+CANDIDATE: have setParse call field.updateContentFlags() after it has marked
+both decoration attributes noPrint. One line, at Generate.rtn's setParse, after
+the second noPrint assignment. hasAttributeS would keep reading TRUE, which is
+correct -- the node IS marked up -- and hasTraits would fall back to 0 on a
+rule whose attributes are all decoration.
+
+WHAT WOULD PROMOTE IT: re-run ROW 3. The AFTER line must read hasAttributeS 1
+hasTraitS 0. Then re-run the ROW 4 census with the gate on hasTraitS and
+setParse ON: the setParse-RUNS column must move to 28 AND / 8 OR and StatemenT
+must emit OR, while the hasAttributeS row of that column stays at 36 / 0.
+
+WHAT WOULD KILL IT: ROW 3's AFTER line still reading hasTraitS 1, which would
+mean a second writer is raising the flag somewhere addAttribute is not, or the
+rebuild is not seeing the same children the gate does.
+
+GRADE: BEST GUESS. The MECHANISM is measured -- the 2x2 and ROW 3 are not
+inference. The REPAIR SHAPE has had no ruling and no build, so it is not RULED
+and it is certainly not REMEDY. It is one line and it is Tony's to call, and it
+touches setParse, which is on every rule's path.

@@ -9068,6 +9068,22 @@ GroupItem 	*product = 0;
 					if ( target->groupBody->flags.hasMembers )
 						product->setCount(1);
 					else	product = 0;
+					/*  hasTraitS -- the CONNECTIVE discriminant. hasAttributeS
+					(case 7) answers "is this node marked up", and setParse
+					hangs builtinParsE and builtinActoR on every rule it
+					touches, so every walked rule reads TRUE there and an
+					alternation is emitted as a conjunction. hasTraits counts
+					only attributes that are NOT noPrint-class, so it answers
+					"does this rule conjoin traits". Written to case 7's shape
+					deliberately -- same product.count = 1, same else
+					product = 0 -- so a gate swapping one for the other moves
+					the QUESTION and nothing else. Write halves: addAttribute
+					and updateContentFlags.  */
+					break;
+				case 42:
+					if ( target->groupBody->flags.hasTraits )
+						product->setCount(1);
+					else	product = 0;
 					break;
 				case 9:
 					if ( target->groupBody->flags.isLocal )

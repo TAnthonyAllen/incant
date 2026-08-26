@@ -214,8 +214,8 @@ define
             definition="A percent-dash inside a passthrough block terminates it, including inside a printf format string, so a left-justify flag silently closes the block and wipes the generated extern list."
             source="MEASURED 2026-08-26 building probeNode; the extern canary went 318 to 0 and back. Operational record: designDocs ProblemRecords passthroughPercentDash, status open.";
         connectiveDiscriminant
-            definition="generateParse picks AND versus OR with a bare hasAttributeS test that never once selects OR, so an alternation is emitted as a conjunction and parses wrongly rather than unboundedly."
-            source="MEASURED 2026-08-26: StatemenT carries 0 attributes and 5 members and is emitted with AND; across a full walk 36 bodies carry AND and 0 carry OR. Operational record: designDocs ProblemRecords connectiveDiscriminant, status open.";
+            definition="setParse's noPrint decoration makes every walked rule read as attributed, so generateParse's connective gate never selects OR and an alternation is emitted as a conjunction that parses wrongly rather than unboundedly."
+            source="MEASURED 2026-08-26 as a 2x2 over parser(Start), 55 bodies: setParse running 36 AND / 0 OR, setParse off 28 AND / 8 OR, gate spelling irrelevant in both columns. Operational record: designDocs ProblemRecords connectiveDiscriminant, status open.";
         parseSelfRecursion
             definition="A generated parse body that is both bound and compiled re-enters its own action at GroupRules.mm:1487 and overflows the stack, so the walk completes and the verification call dies at SIGSEGV."
             source="MEASURED 2026-08-26, parser iteration 2, with a 2x2 gate control and a 74702-frame backtrace. Operational record: designDocs ProblemRecords parseSelfRecursion, status open.";
@@ -267,6 +267,9 @@ define
         TOKENize
             definition="The flag-species declaration that says a rule's products carry spans -- noPrint, define-time, sets the tokened bit on groupBody through processFlags case T, and has no match-time existence at all.";
             source="DICTATED, minted 2026-08-23. Operational record: designDocs ProblemRecords.";
+        hasTraits
+            definition="A GroupBody flag raised by an attribute that is NOT noPrint-class, so it answers does-this-rule-conjoin-traits where hasAttributes answers is-this-node-marked-up; incant spelling hasTraitS, opDot case 42."
+            source="BUILT 2026-08-26 by Tony's ruling as the connectiveDiscriminant remedy. Writers addAttribute and updateContentFlags; sole reader today is generateParse's connective gate. Correct on a pristine node, wrong after setParse -- see designDocs ProblemRecords connectiveDiscriminant.";
         tokened
             definition="LIVE as of 2026-08-23, formerly a dormant groupBody bit with a setter nothing could reach -- its master is now TOKENize, and captureSpan is its only reader.";
             source="DICTATED. It was found already declared in GroupBody.twk, GroupBody.h and groups.ext with the bools blocks byte-identical, which is why the campaign needed no bitfield change.";

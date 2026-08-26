@@ -49,7 +49,7 @@ define
             cerr "leaf " taG:;
             printTO(0);
             return;
-        if hasAttributeS;   conjunct = "AND";
+        if hasTraitS;       conjunct = "AND";
         else                conjunct = "OR";
         print `"if ";
         iterate grup on argument;

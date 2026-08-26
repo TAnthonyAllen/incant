@@ -98,6 +98,14 @@ GroupItem addAttribute(GroupItem grup)
     grup                = addGroup(grup);
     grup.isAttribute	= true;
     hasAttributes       = true;
+    /***************************************************************
+        hasTraits is the CONNECTIVE half: attributes that are not
+        noPrint-class. setParse's builtinParsE/builtinActoR are
+        decoration and must not make a rule read as conjoining
+        traits. Co-writer: updateContentFlags(), which rebuilds
+        this flag with the same test.
+    ***************************************************************/
+    if !grup.noPrint    hasTraits = true;
 	return grup;
 }
 
@@ -1946,24 +1954,32 @@ String  saveText = text;
 void updateContentFlags()
 {
 	if parent
-        if isAttribute  parent.hasAttributes    = true;
+        if isAttribute
+            {
+            parent.hasAttributes    = true;
+            if !noPrint parent.hasTraits = true;
+            }
         or isMember     parent.hasMembers       = true;
     if listLength
         {
         GroupItem   item;
+        /***********************************************************
+            Three flags, one pass. hasTraits uses the same test as
+            addAttribute() -- an attribute that is not noPrint-class.
+            The old early-outs are gone because they could break out
+            before a trait-bearing attribute was reached, which would
+            leave the third flag answering about a partial scan.
+        ***********************************************************/
         hasAttributes   = false;
         hasMembers      = false;
+        hasTraits       = false;
         while item = next(item)
-            if !hasAttributes && item.isAttribute
+            if item.isAttribute
                 {
                 hasAttributes   = true;
-                if hasMembers   break;
+                if !item.noPrint    hasTraits = true;
                 }
-            or !hasMembers && item.isMember
-                {
-                hasMembers          = true;
-                if hasAttributes    break;
-                }
+            or item.isMember    hasMembers = true;
         }
 }
 

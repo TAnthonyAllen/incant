@@ -323,6 +323,19 @@ use argument
                             else    product = 0;
                 case 8:     if target.hasMembers    product.count = 1;
                             else    product = 0;
+                /*  hasTraitS -- the CONNECTIVE discriminant. hasAttributeS
+                    (case 7) answers "is this node marked up", and setParse
+                    hangs builtinParsE and builtinActoR on every rule it
+                    touches, so every walked rule reads TRUE there and an
+                    alternation is emitted as a conjunction. hasTraits counts
+                    only attributes that are NOT noPrint-class, so it answers
+                    "does this rule conjoin traits". Written to case 7's shape
+                    deliberately -- same product.count = 1, same else
+                    product = 0 -- so a gate swapping one for the other moves
+                    the QUESTION and nothing else. Write halves: addAttribute
+                    and updateContentFlags.  */
+                case 42:    if target.hasTraits     product.count = 1;
+                            else    product = 0;
                 case 9:     if target.isLocal       product.count = 1;
                 case 10:    if target.isArgument    product.count = 1;
                 case 11:    if target.invoke        product.count = 1;

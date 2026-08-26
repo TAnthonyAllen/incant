@@ -56,6 +56,7 @@ struct bools
 	unsigned int reversePrint:1;
 	unsigned int tokened:1;
 	unsigned int hasNewParse:1;
+	unsigned int hasTraits:1;
 	};
 #define isGROUP(button) (button == 6)
 #define isANY(button) (button == 1)

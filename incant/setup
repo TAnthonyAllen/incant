@@ -277,6 +277,7 @@ define
     hasActioN=36;
     hasAttributeS=7;
     hasMemberS=8;
+    hasTraitS=42;
     isLocaL=9;
     isArgumenT=10;
     invokE=11;
