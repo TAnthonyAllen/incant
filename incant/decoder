@@ -210,6 +210,9 @@ define
         F31
             definition="CLOSED 2026-08-23. The tokenize dual-role defect: installing a generated parse method gave the one bare hook its FIRST attribute, reclassifying it so its method stopped firing and the reader it served starved. Not a body-misread.";
             source="PULLED from docs/fixIts.md and the 2026-08-22 seal; CORRECTED and closed 2026-08-23. Operational record: designDocs ProblemRecords F31, status remedy.";
+        parseSelfRecursion
+            definition="A generated parse body that is both bound and compiled re-enters its own action at GroupRules.mm:1487 and overflows the stack, so the walk completes and the verification call dies at SIGSEGV."
+            source="MEASURED 2026-08-26, parser iteration 2, with a 2x2 gate control and a 74702-frame backtrace. Operational record: designDocs ProblemRecords parseSelfRecursion, status open.";
         bt4
             definition="A line comment wedged between an if condition and its governed statement is consumed as that statement and breaks the parse.";
             source="PULLED from CLAUDE.md bear trap 4. Operational record: designDocs ProblemRecords bt4.";
