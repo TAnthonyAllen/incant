@@ -15,6 +15,12 @@
     bare. A bare test on a declared field asks whether it exists, which is
     always true.
 
+    The witness line reports whether compile actually ran on the rule, read off
+    the hasNewParsE flag that compile sets as its last act. It exists because
+    the answer alone cannot tell the two gate positions apart: a body that was
+    never explicitly compiled still parses, because bodies compile lazily at
+    first call. So the run prints the answer AND who produced it.
+
     The design record for this file is in DesignDocs, entry ParserDesign. The
     walk crib, the hang provenance and the exhibit history retired there on
     2026-08-26 when the hang they measured stopped reproducing.
@@ -33,6 +39,7 @@ define
     activating=1;
     ruleText="maybe a test;";
     generateParse argument code={
+        cerr "generating parse for " argument.taG:;
         reset(codeBuffer);
         printTO(codeBuffer);
         print openBrace:;
@@ -82,6 +89,9 @@ define
     parser argument code={
         walkRules(argument);
         cerr "PARSER SENTINEL -- walk complete":;
+        compiledHere = 0;
+        if argument.hasNewParsE;     compiledHere = 1;
+        cerr "WITNESS compiled " compiledHere " -- 1 = compile ran on this rule, 0 = it did not":;
         parseAnswer = argument(ruleText);
         print ~"PARSE " argument.taG " <- " ruleText:;
         print `"ANSWER " parseAnswer:;
