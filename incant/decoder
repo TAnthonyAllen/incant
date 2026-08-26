@@ -216,6 +216,9 @@ define
         connectiveDiscriminant
             definition="setParse's noPrint decoration makes every walked rule read as attributed, so generateParse's connective gate never selects OR and an alternation is emitted as a conjunction that parses wrongly rather than unboundedly."
             source="MEASURED 2026-08-26 as a 2x2 over parser(Start), 55 bodies: setParse running 36 AND / 0 OR, setParse off 28 AND / 8 OR, gate spelling irrelevant in both columns. Operational record: designDocs ProblemRecords connectiveDiscriminant, status open.";
+        firstCallerNullList
+            definition="A helper with no live caller has never had to survive anything, so giving it its first one ships unexercised code into a hot path -- updateContentFlags read listLength through an unguarded groupList and died on the first leaf setParse handed it."
+            source="MEASURED 2026-08-27 landing connectiveDiscriminant part two: one backtrace named GroupItem.mm:2422 at address 0x10, and the fleet before-capture proved the two red rows were caused rather than pre-existing. Operational record: designDocs ProblemRecords firstCallerNullList, status remedy.";
         parseSelfRecursion
             definition="A generated parse body that is both bound and compiled re-enters its own action at GroupRules.mm:1487 and overflows the stack, so the walk completes and the verification call dies at SIGSEGV."
             source="MEASURED 2026-08-26, parser iteration 2, with a 2x2 gate control and a 74702-frame backtrace. Operational record: designDocs ProblemRecords parseSelfRecursion, status open.";

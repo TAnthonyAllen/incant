@@ -120,6 +120,14 @@ sentinel "decodeT sentinel (run reached the end)" "$T/dt.o" "DECODET SENTINEL"
 #  The two scalars decodeT prints. Both compared by value.
 nt=$(sed -n 's/^TALLY terms = *\([0-9][0-9]*\).*/\1/p'       "$T/dt.o" | head -1)
 nd=$(sed -n 's/^TALLY definitions = *\([0-9][0-9]*\).*/\1/p' "$T/dt.o" | head -1)
+#  ⚠ RE-PIN 2026-08-27 (fifteenth) -- ONE TERM, MINTED BY THE BIRTH RULE.
+#  76 -> 77 terms, 79 -> 80 dump rows. The term is `firstCallerNullList`
+#  (dead helper meets its first caller), born the moment the symptom was
+#  named: updateContentFlags gained its first live caller and died on an
+#  unguarded groupList it had never had to survive. Operational record:
+#  designDocs ProblemRecords firstCallerNullList, status remedy. NOTHING WAS
+#  LOST: +1 in every column and the addition is named on this line.
+#
 #  ⚠ RE-PIN 2026-08-26 (fourteenth, same day) -- ONE MORE, SAME RULE. 75 -> 76
 #  terms, 78 -> 79 dump rows. The term is `hasTraits` (attributes that are not
 #  decoration), the GroupBody flag built this day as the connectiveDiscriminant
@@ -212,8 +220,8 @@ nd=$(sed -n 's/^TALLY definitions = *\([0-9][0-9]*\).*/\1/p' "$T/dt.o" | head -1
 #      +1  `oneNumberTwoEras`  a green that survived a semantics change by
 #                              arithmetic accident. Dictated SEQ 29 from kant8T's
 #                              K6f, which is the measured case.
-check "corpus holds 76 terms"          76 "$nt"
-check "76 of them carry a definition"  76 "$nd"
+check "corpus holds 77 terms"          77 "$nt"
+check "77 of them carry a definition"  77 "$nd"
 check "every term is defined"     "$nt" "$nd"
 
 #  decodeT's own self-certification, asserted FROM OUTSIDE -- a harness that
@@ -272,7 +280,7 @@ fi
 #  sentinel line ("DECODE SENTINEL -- run reached the end"). An unanchored
 #  count read 38 for 37 real rows. A definition row is `<singleWord> -- `.
 nl=$(grep -cE '^[A-Za-z][A-Za-z0-9]* -- ' "$T/dc.o")
-check "corpus dump + decode line = 79 definition rows" 79 "$nl"
+check "corpus dump + decode line = 80 definition rows" 80 "$nl"
 
 #  ⚠ THE DATALESS-ECHO ROW, and the reason this file exists. A definition that
 #  never stored prints as the ATTRIBUTE'S OWN NAME. In-language it compares

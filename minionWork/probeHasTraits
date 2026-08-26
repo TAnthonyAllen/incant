@@ -10,13 +10,13 @@ define
         phT = 0;
         if argument.hasAttributeS;  phA = 1;
         if argument.hasTraitS;      phT = 1;
-        cerr "    " argument.taG " PRISTINE  hasAttributeS " phA "  hasTraitS " phT:;
+        cerr "    rule " argument.taG " PRISTINE  hasAttributeS " phA "  hasTraitS " phT:;
         setParse(argument);
         phA = 0;
         phT = 0;
         if argument.hasAttributeS;  phA = 1;
         if argument.hasTraitS;      phT = 1;
-        cerr "    " argument.taG " SETPARSE  hasAttributeS " phA "  hasTraitS " phT:;
+        cerr "    rule " argument.taG " SETPARSE  hasAttributeS " phA "  hasTraitS " phT:;
         };
     phMain code={
         probeHasTraitsHere = 0;

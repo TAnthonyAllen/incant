@@ -2419,7 +2419,13 @@ void GroupItem::updateContentFlags()
 		else
 		if ( isMember(options.affiliation) )
 			parent->groupBody->flags.hasMembers = 1;
-	if ( groupBody->groupList->listLength )
+	/*  ⚠ groupList GUARD, and it is not decoration. A LEAF has no list at
+	all, so the bare `if listLength` reads through a null groupList and
+	dies at EXC_BAD_ACCESS. It was latent for as long as moveTo was the
+	only caller; setParse became the second one and hands this function
+	every term it touches, leaves included. Same guard case 5 and cases
+	403/404 in opDot have always used for the same read.  */
+	if ( groupBody->groupList && groupBody->groupList->listLength )
 		{
 		GroupItem 	*item = 0;
 		/***********************************************************

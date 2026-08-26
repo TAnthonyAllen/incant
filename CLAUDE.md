@@ -1530,7 +1530,7 @@ Hard-won lessons. Each one has cost real debugging time.
     |---|---|
     | `group[argument.text]` in an action body | **exit 139, ZERO bytes of output** — before the `Search list:` line, so it reads as "the binary is broken". `group[argument.taG]` in the identical position works. Bear-trap #26's family: `.taG` is the reliable read of a name |
     | `if !x.attribute;` | **exit 139, ZERO bytes of output.** The positive form `if x.attribute;` is fine, and so is `x.attribute == "literal"` |
-    | `print "":;` for a blank line | prints the **string `quoteBody`**. Use `print :;` (jiquery's idiom). An empty string literal has no data, so it echoes its own tag — #26 again |
+    | `print "":;` for a blank line, **or any WHITESPACE-ONLY literal** | prints the **string `quoteBody`**. Use `print :;` (jiquery's idiom). A literal with no data echoes its own tag — #26 again. ⚠ **WIDENED 2026-08-27 (ruled, Tony): empty → EFFECTIVELY empty.** `cerr "   " x` prints `quoteBody` exactly as `""` does, which is worse than the empty case because the spelling looks like ordinary indentation and the output looks like a stray word rather than a missing one. Same mechanism, wider net. Put real characters in a leading literal (`cerr "   rule " x`) or use the bare `:` form |
     | `eq` against a tag inside an `iterate` body | **matches EVERY member.** Both `if taG eq "x"` and
       `if fbCur.taG eq "x"` used as a skip guard in an `iterate`/`while ++` walk skipped the entire
       population — 43 installs became 0. No error, no diagnostic; the walk simply does nothing and a

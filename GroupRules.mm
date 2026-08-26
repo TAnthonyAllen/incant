@@ -13494,6 +13494,22 @@ RuleStuff 	*ruleStuff = field->rStuff;
 		builtinActoR->groupBody->flags.noPrint = 1;
 		builtinActoR->setMethod(ruleStuff->actionMethod);
 		}
+	/*  REBUILD THE CONTENT FLAGS, and it is hasTraits that needs it.
+	Both attributes above are added FIRST and marked noPrint SECOND,
+	so addAttribute -- the other writer -- cannot see that they are
+	decoration at the one instant it gets to look, and it raises
+	hasTraits on a rule whose only attributes are these two. That
+	made generateParse's connective gate read AND for every walked
+	rule and the OR branch unreachable: 36 AND / 0 OR across a full
+	parser(Start) walk. Rebuilding here is a rebuild AT EXIT, which
+	works with the data flow rather than fighting it -- the flags are
+	recomputed once both attributes are fully formed.
+	⚠ THE COST IS NAMED: this is updateContentFlags' first live
+	caller, and it now runs on every rule's activation path.
+	hasAttributes deliberately keeps reading TRUE here -- the node IS
+	marked up -- which is the whole reason the two flags are separate
+	channels. See designDocs ProblemRecords connectiveDiscriminant.  */
+	field->updateContentFlags();
 	return 0;
 }
 

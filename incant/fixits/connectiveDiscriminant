@@ -54,25 +54,33 @@ define
         cerr :;
 
         cerr "ROW 3 StatemenT -- THE MISS ROW, and the decisive cell is the":;
-        cerr "      second line. hasTraitS answers CORRECTLY on the pristine":;
-        cerr "      node and WRONGLY once setParse has run.":;
+        cerr "      second line: the state generateParse's gate actually reads.":;
         cdBoth(Grokking["StatemenT"]);
-        cerr "      PINNED: 0 0 / 1 1":;
-        cerr "      The 0 0 is the fix working. The second 1 is the defect":;
-        cerr "      that survives it -- see NEXT below.":;
+        cerr "      PINNED: 0 0 / 1 0     <- RE-PINNED 2026-08-27, remedy taken":;
+        cerr "      hasAttributeS staying 1 on the second line is CORRECT and is":;
+        cerr "      not a leftover -- the node IS marked up. hasTraitS reading 0":;
+        cerr "      beside it is the whole point of two channels.":;
+        cerr "      BEFORE the remedy this line read 1 1.":;
         cerr :;
 
-        cerr "ROW 4 the population, measured 2026-08-26 over parser(Start),":;
-        cerr "      55 emitted bodies, as a 2x2 on gate x activating:":;
+        cerr "ROW 4 the population, over parser(Start), 55 emitted bodies,":;
+        cerr "      as a 2x2 on gate x activating. RE-MEASURED 2026-08-27:":;
         cerr :;
         cerr "         gate           setParse RUNS      setParse OFF":;
         cerr "         hasAttributeS  36 AND / 0 OR      28 AND / 8 OR":;
-        cerr "         hasTraitS      36 AND / 0 OR      28 AND / 8 OR":;
+        cerr "         hasTraitS      28 AND / 8 OR      28 AND / 8 OR":;
         cerr :;
-        cerr "      Read the COLUMNS, not the rows. The gate spelling makes no":;
-        cerr "      difference anywhere; setParse makes all of it. With setParse":;
-        cerr "      off, BOTH spellings emit eight ORs and StatemenT is one of":;
-        cerr "      them. So the discriminant was never the variable.":;
+        cerr "      The live row is hasTraitS and it now MATCHES ITS OFF TWIN.":;
+        cerr "      StatemenT emits, with setParse running:":;
+        cerr "         if SemI() OR BlocK() OR WardeD() OR Iterate() OR Xpress();":;
+        cerr :;
+        cerr "      ⚠ THE hasAttributeS ROW HOLDING AT 36 / 0 IS THE NEGATIVE":;
+        cerr "      CONTROL, NOT A MISS. It is the retired gate. If it had moved":;
+        cerr "      too, the census could not tell you the GATE did this rather":;
+        cerr "      than something else in the same build. Gate old, still wrong;":;
+        cerr "      gate new, right. That is the H7 shape.":;
+        cerr :;
+        cerr "      BEFORE the remedy the RUNS column read 36 / 0 on BOTH rows.":;
         cerr :;
 
         cerr "CONNECTIVE SENTINEL -- all four rows reported":;
@@ -108,68 +116,76 @@ future parser(Start) that runs to completion could still parse incorrectly,
 and the verifier's printed ANSWER would be the only thing standing between a
 wrong parse and a green run.
 
-WHAT THE 2026-08-26 REMEDY PASS ESTABLISHED, AND WHAT IT DID NOT
+HOW IT WAS FIXED, IN TWO RULINGS ON TWO DAYS
 
 The original NEXT block guessed BARE-NAME RESOLUTION -- that generateParse's
 bare hasAttributeS was answering about the wrong node. THAT IS DEAD. Read the
 same spelling against an explicit argument.hasAttributeS on the same node and
-the two agree; ROW 3 above is that reading, and the node is right.
+the two agree; the node was right all along. What it was ASKING was wrong,
+which is the other half of the kill condition this file wrote for itself.
 
-Tony's diagnosis replaced it and is CONFIRMED: setParse hangs builtinParsE and
-builtinActoR on every rule it touches, both noPrint, so hasAttributeS -- which
-answers "is this node marked up" -- reads TRUE for every walked rule and the OR
-branch is unreachable. ROW 3's second line is that flip, live: 0 before
-setParse, 1 after.
+Tony's diagnosis replaced it: setParse hangs builtinParsE and builtinActoR on
+every rule it touches, both noPrint, so hasAttributeS -- which answers "is this
+node marked up" -- reads TRUE for every walked rule and the OR branch is
+unreachable.
 
-hasTraitS was built to be the right question: an attribute that is NOT
-noPrint-class. It reads CORRECTLY on a pristine node -- ROW 2 and the first
-line of ROW 3 are its hit and miss controls -- and the ruled fix landed at all
-four registration sites plus both writers.
+REMEDY PART ONE, 2026-08-26. hasTraits, a GroupBody flag raised only by an
+attribute that is NOT noPrint-class, registered at four sites and written by
+addAttribute and updateContentFlags, with generateParse's gate swapped to it.
+It read correctly on a pristine node and WRONGLY after setParse, and the 2x2
+showed why in one table: the gate spelling changed nothing in either column.
+setParse adds each attribute FIRST and marks it noPrint SECOND, so addAttribute
+could not see that the decoration was decoration at the one instant it looked.
 
-IT STILL DOES NOT DISCHARGE THE ISSUE, and ROW 4 says why in one table. The
-gate spelling changes nothing in either column, because addAttribute cannot see
-noPrint at the only moment it gets to look.
+REMEDY PART TWO, 2026-08-27. setParse calls field.updateContentFlags() once,
+after both attributes are fully formed -- a rebuild AT EXIT, which works with
+the data flow instead of fighting it. The co-writer was already correct, so the
+dual-writer ruling of the day before had pre-built this half without knowing it.
+
+⚠ AND IT COST A THIRD EDIT NOBODY PLANNED, which is the part worth carrying.
+updateContentFlags read `if listLength` through an unguarded groupList and had
+done so forever. It was LATENT because moveTo was its only caller; the moment
+setParse became the second one and started handing it leaves, it died at
+EXC_BAD_ACCESS on the first listless term and took two fleet rows with it. A
+helper with no live caller has never had to survive anything. See designDocs
+ProblemRecords firstCallerNullList.
 
 PROVENANCE
 
 Seen while docketing parseSelfRecursion on 2026-08-26 and recorded there as
 noted-not-graded. Tony promoted it to its own citizen the same day and asked
 the charter question: is the connective discriminant sound across all 123 rules
-the walk reaches. The hasTraits remedy was ruled by Tony the same day, built,
-and measured; the bare-name candidate died in that pass.
+the walk reaches. Ruled, built and measured across 2026-08-26 and 2026-08-27.
 
-NEXT: BEST GUESS -- one candidate, and it is a candidate, not a recommendation.
+NEXT: REMEDY -- BEHAVIOUR. Landed, and this file is now a verification harness.
 
-THE MECHANISM IS MEASURED, THE REPAIR IS NOT RULED. setParse builds each of its
-two decoration attributes in this order:
+THE FIX, AND ITS SITES.
+  1. GroupBody.twk / groups.ext -- the hasTraits bit, appended after
+     hasNewParse so no existing offset shifts.
+  2. incant/setup -- hasTraitS=42 in GroupFields.
+  3. Instruct.rtn -- opDot case 42, written to case 7's shape.
+  4. GroupItem.twk addAttribute -- raises it for a non-noPrint attribute.
+  5. GroupItem.twk updateContentFlags -- rebuilds it in one pass, early-outs
+     removed, and its groupList read now guarded.
+  6. Generate.rtn setParse -- field.updateContentFlags() after both
+     decoration attributes are marked.
+  7. IncantForms/WorkingOn/parser generateParse -- the gate reads hasTraitS.
 
-    GroupItem *builtinParsE = field->addString("builtinParsE");
-    builtinParsE->setRStuff(ruleStuff);
-    builtinParsE->groupBody->flags.noPrint = 1;
+WHAT THE OUTPUT LOOKS LIKE WHEN THE REMEDY HAS TAKEN.
+  ROW 3 second line   rule StatemenT hasAttributeS 1  hasTraitS 0
+  ROW 4 hasTraitS row 28 AND / 8 OR in BOTH columns
+  StatemenT's body    if SemI() OR BlocK() OR WardeD() OR Iterate() OR Xpress();
 
-addString reaches addAttribute, and addAttribute is where hasTraits is written.
-At that instant builtinParsE is not yet noPrint, so the inline test passes and
-hasTraits is raised on a rule whose only attribute is decoration. The flag that
-would repair it -- updateContentFlags, which rebuilds hasTraits with the same
-test and gets the right answer because by then noPrint IS set -- has exactly
-one caller in the tree, moveTo, and nothing on the parse path reaches it.
+WHAT IT LOOKS LIKE WHEN IT HAS NOT.
+  ROW 3 second line reading 1 1, and the ROW 4 hasTraitS row reading 36 / 0
+  in the RUNS column. That is the state of 2026-08-26 and it is what this
+  file was minted to show.
 
-CANDIDATE: have setParse call field.updateContentFlags() after it has marked
-both decoration attributes noPrint. One line, at Generate.rtn's setParse, after
-the second noPrint assignment. hasAttributeS would keep reading TRUE, which is
-correct -- the node IS marked up -- and hasTraits would fall back to 0 on a
-rule whose attributes are all decoration.
+⚠ THE hasAttributeS ROW IS EXPECTED TO STAY AT 36 / 0 AND MUST NOT BE
+"FIXED". It is the retired gate, kept as the negative control. A run where
+BOTH rows move is a run that cannot tell you the gate did this.
 
-WHAT WOULD PROMOTE IT: re-run ROW 3. The AFTER line must read hasAttributeS 1
-hasTraitS 0. Then re-run the ROW 4 census with the gate on hasTraitS and
-setParse ON: the setParse-RUNS column must move to 28 AND / 8 OR and StatemenT
-must emit OR, while the hasAttributeS row of that column stays at 36 / 0.
-
-WHAT WOULD KILL IT: ROW 3's AFTER line still reading hasTraitS 1, which would
-mean a second writer is raising the flag somewhere addAttribute is not, or the
-rebuild is not seeing the same children the gate does.
-
-GRADE: BEST GUESS. The MECHANISM is measured -- the 2x2 and ROW 3 are not
-inference. The REPAIR SHAPE has had no ruling and no build, so it is not RULED
-and it is certainly not REMEDY. It is one line and it is Tony's to call, and it
-touches setParse, which is on every rule's path.
+WHAT IS STILL OPEN, and it is not this citizen's to answer: the charter
+question -- soundness across all 123 rules -- is not settled by eight ORs
+appearing. It is settled by a parse that runs and answers, and that waits on
+parseSelfRecursion.
