@@ -35,6 +35,7 @@ define
     activateAll immediateAction=activateAll;
     bodyCensus immediateAction=bodyCensus;
     parseClassify immediateAction;
+    probeNode immediateAction;
     condition immediateAction=processFlags noPrint;
     copy immediateAction=cOPY;
     copyOf immediateAction;

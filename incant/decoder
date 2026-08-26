@@ -210,6 +210,12 @@ define
         F31
             definition="CLOSED 2026-08-23. The tokenize dual-role defect: installing a generated parse method gave the one bare hook its FIRST attribute, reclassifying it so its method stopped firing and the reader it served starved. Not a body-misread.";
             source="PULLED from docs/fixIts.md and the 2026-08-22 seal; CORRECTED and closed 2026-08-23. Operational record: designDocs ProblemRecords F31, status remedy.";
+        passthroughPercentDash
+            definition="A percent-dash inside a passthrough block terminates it, including inside a printf format string, so a left-justify flag silently closes the block and wipes the generated extern list."
+            source="MEASURED 2026-08-26 building probeNode; the extern canary went 318 to 0 and back. Operational record: designDocs ProblemRecords passthroughPercentDash, status open.";
+        connectiveDiscriminant
+            definition="generateParse picks AND versus OR with a bare hasAttributeS test that never once selects OR, so an alternation is emitted as a conjunction and parses wrongly rather than unboundedly."
+            source="MEASURED 2026-08-26: StatemenT carries 0 attributes and 5 members and is emitted with AND; across a full walk 36 bodies carry AND and 0 carry OR. Operational record: designDocs ProblemRecords connectiveDiscriminant, status open.";
         parseSelfRecursion
             definition="A generated parse body that is both bound and compiled re-enters its own action at GroupRules.mm:1487 and overflows the stack, so the walk completes and the verification call dies at SIGSEGV."
             source="MEASURED 2026-08-26, parser iteration 2, with a 2x2 gate control and a 74702-frame backtrace. Operational record: designDocs ProblemRecords parseSelfRecursion, status open.";

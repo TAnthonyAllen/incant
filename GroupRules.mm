@@ -2663,8 +2663,14 @@ GroupItem 	*grup = 0;
 	one, and the census is the thing being terminated. Adding the name
 	costs nothing a caller was relying on -- the return value is unchanged
 	and every tally still counts a null as a refusal.  */
+	
+	gCompileAttempted++;
+	
 	if ( !::processCode(field) )
 		{
+		
+		gCompileRefused++;
+		
 		::fprintf(stderr,"compile: REFUSING %s -- processCode would not parse the generated body; its message above names the position\n",field->groupBody->tag);
 		return 0;
 		}
@@ -11918,6 +11924,45 @@ debugHere:
 }
 
 /*****************************************************************************
+    probeNode -- POINTER-LEVEL READ FOR THE parseSelfRecursion STATION.
+
+    Reports the three facts the docket's candidates disagree about, all as
+    POINTERS rather than names, because two faces of one rule share a tag by
+    construction and a reader that reports names cannot answer an identity
+    question (canonOf's own comment argues this at length).
+
+        gMethod     the dispatch target line 1487 reads
+        groupBody   the substance, which copyOf copies wholesale
+        parentLabel the rStuff link candidate 3 turns on
+
+    Passthrough because %p on a GroupItem* is not sayable in tok. Reports on
+    stderr, unbuffered, so a run that ends at a signal still carries it.
+
+    STATION INSTRUMENT, 2026-08-26. Returns the field so a walk can chain it.
+*****************************************************************************/
+extern "C" GroupItem *probeNode(GroupItem *argument)
+{
+GroupItem 	*probed = 0;
+	if ( !argument )
+		{
+		::fprintf(stderr,"probeNode: no field passed in\n");
+		return 0;
+		}
+	probed = argument;
+	
+	RuleStuff *rs = probed->rStuff;
+	GroupItem *pl = rs ? rs->parentLabel : (GroupItem *)0;
+	::fprintf(stderr,"PN %s node=%p body=%p gMethod=%p rStuff=%p parentLabel=%p %s\n",
+	probed->groupBody->tag,
+	(void*)probed,(void*)probed->groupBody,
+	(void*)probed->groupBody->gMethod,
+	(void*)rs,(void*)pl,
+	pl ? pl->groupBody->tag : (char *)"(none)");
+	
+	return probed;
+}
+
+/*****************************************************************************
      Run an action. If called as a rule action, the field passed in will be
      a label; otherwise it will be a field with an action.
 *****************************************************************************/
@@ -13684,6 +13729,18 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		ruler->endParse = 1;
 		::printf("\nstop: end parsing\n");
 		}
+	/*  ⚠ THE CENSUS FIRES AT COMPLETION, NOT AT THE REFUSAL, and that is the
+	whole of Tony's ruling: F-17e's full sweep is preserved -- all 42
+	refusals report as 42 -- and only then does the run refuse to call
+	itself successful. Exiting at the first refusal would report one.
+	
+	SILENT WHEN THE ROAD WAS NEVER TRAVELLED. A run that never called
+	compile has no compile census, so nothing prints and no baseline
+	moves. That is not a gate on the assertion; it is the difference
+	between a zero and an absence.  */
+	
+	::reportCompileCensus();
+	
 	return input;
 }
 

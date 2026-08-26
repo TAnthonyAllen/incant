@@ -552,4 +552,46 @@ public:
 // (tok generates their prototypes in GroupRules.h). jitEngine() returns the
 // llvm::orc::LLJIT* as void* to keep its tok-extern signature header-clean.
 
+// ---------------------------------------------------------------------------
+// THE COMPILE CENSUS — Tony's ruling 2026-08-26 (tally-then-exit).
+//
+// Two counters, not one, because a tally is only readable beside the
+// population it came out of: "3 refused" means nothing without "of how many".
+// ATTEMPTED counts every field that reached compile() carrying a body;
+// REFUSED counts those processCode would not parse.
+//
+// ⚠ IT LIVES IN THIS HEADER FOR ONE MECHANICAL REASON, not a design one: tok
+// honours a -% passthrough only INSIDE a function body, so a .rtn cannot
+// declare a file-scope C++ global at all. gNewParseInFlight above is the
+// standing precedent for exactly this, and this follows it rather than
+// inventing a second idiom. It is not JIT machinery and does not belong to
+// this header's subject; move both it and gNewParseInFlight the day a
+// hand-written header for runtime globals exists.
+//
+// ⚠ NOT AN INCANT FIELD, DELIBERATELY. An incant field would be visible to the
+// very grammar this road rewrites, and a census that can be read — or written
+// — by its own subject is not a census.
+// ---------------------------------------------------------------------------
+static int gCompileAttempted = 0;
+static int gCompileRefused   = 0;
+static int gCompileReported  = 0;
+
+// Fires at COMPLETION, never at the refusal: F-17e's full sweep is preserved,
+// all refusals report, and only then does the run refuse to call itself
+// successful. Exiting at the first refusal would report one.
+//
+// SILENT WHEN THE ROAD WAS NEVER TRAVELLED. A run that never called compile
+// has no compile census, so nothing prints and no baseline moves. That is not
+// a gate on the assertion; it is the difference between a zero and an absence.
+static inline void reportCompileCensus(void)
+{
+    if ( gCompileReported )         return;
+    if ( gCompileAttempted == 0 )   return;
+    gCompileReported = 1;
+    ::fprintf(stderr,"compile census: %d attempted, %d refused\n",
+        gCompileAttempted,gCompileRefused);
+    if ( gCompileRefused )
+        ::exit(1);
+}
+
 #endif // JITCONTEXT_H

@@ -1,0 +1,125 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+search GroupFields Utilities list;
+register(Utilities);
+define
+    cdBuf buffer;
+    cdOpen="{";
+    cdAnd=0;
+    cdOr=0;
+    cdBoth=0;
+    cdCount argument code={
+        cdA = 0;
+        cdM = 0;
+        iterate cdAt on argument attributes;
+        while ++cdAt;
+            cdA = cdA + 1;
+        iterate cdMe on argument members;
+        while ++cdMe;
+            cdM = cdM + 1;
+        cerr "   rule " argument.taG " attributes " cdA " members " cdM:;
+        };
+    cdWhich argument code={
+        if hasAttributeS;   cerr "   bare hasAttributeS reads TRUE  -> emits AND":;
+        else                cerr "   bare hasAttributeS reads FALSE -> emits OR":;
+        };
+    cdRun code={
+        fixConnectiveHere = 0;
+        cerr "ANCHOR fixConnectiveHere -- the AND/OR choice in generateParse":;
+        cerr :;
+
+        cerr "ROW 1 StatemenT's real shape. It is an ALTERNATION: five rule":;
+        cerr "      options, no attributes. Its parse should be an OR.":;
+        cdCount(Grokking["StatemenT"]);
+        cerr "      measured above; PINNED expectation: attributes 0 members 5":;
+        cerr :;
+
+        cerr "ROW 2 what generateParse's discriminant actually answers for it.":;
+        cerr "      generateParse picks the connective with a BARE test:":;
+        cerr "          if hasAttributeS;   conjunct = AND;":;
+        cerr "          else                conjunct = OR;":;
+        cdWhich(Grokking["StatemenT"]);
+        cerr "      PINNED: this file reads FALSE. generateParse, running the":;
+        cerr "      SAME SPELLING on the same rule, emits AND -- so the two":;
+        cerr "      disagree, and the resolution context is the difference.":;
+        cerr :;
+
+        cerr "ROW 3 the population. Across a full parser(Start) walk on":;
+        cerr "      2026-08-26, of 55 emitted bodies:":;
+        cerr "          36 carry AND":;
+        cerr "           0 carry OR":;
+        cerr "          19 are single-term or empty, so they carry neither":;
+        cerr "      NOT ONE OR IS EVER EMITTED. That is the finding.":;
+        cerr :;
+
+        cerr "CONNECTIVE SENTINEL -- all three rows reported":;
+        stop();
+        };
+    ;
+
+cdRun();
+
+================================================================================
+WHAT IS WRONG
+
+generateParse chooses between AND and OR for a rule's emitted parse condition,
+and it chooses with a bare test:
+
+    if hasAttributeS;   conjunct = "AND";
+    else                conjunct = "OR";
+
+A rule whose list holds ATTRIBUTES is a sequence -- every term must match, so
+AND is right. A rule whose list holds MEMBERS is an alternation, because in a
+kant rule members are rule options -- so OR is right. That is the design, and
+KantParserHow in DesignDocs states it.
+
+The measurement says the discriminant never picks OR. StatemenT carries zero
+attributes and five members, which is the textbook alternation, and it is
+emitted as
+
+    if SemI() AND BlocK() AND WardeD() AND Iterate() AND Xpress();
+
+Across a whole walk of the grammar, 36 bodies carry AND and NOT ONE carries OR.
+
+WHY IT MATTERS, AND WHY IT IS NOT THE CRASH
+
+This is a CORRECTNESS threat to the final POP and not a crash candidate. An
+alternation emitted as a conjunction produces a WRONG parse, not an unbounded
+one -- it demands that all five options match where any one should do. So a
+future parser(Start) that runs to completion could still parse incorrectly,
+and the verifier's printed ANSWER would be the only thing standing between a
+wrong parse and a green run.
+
+It is queued behind the recursion work by ruling, and it is banked here so it
+cannot be forgotten while that work proceeds.
+
+PROVENANCE
+
+Seen while docketing parseSelfRecursion on 2026-08-26 and recorded there as
+noted-not-graded, on the reasoning above. Tony promoted it to its own citizen
+the same day and asked for the charter question: is the connective discriminant
+sound across all 123 rules the walk reaches.
+
+NEXT: BEST GUESS -- and it is a candidate, explicitly NOT a recommendation.
+
+CANDIDATE: the test is bare, and a bare field name in this codebase resolves
+against the most-recently-mentioned field rather than against the action's
+argument. generateParse mentions several fields before it reaches the
+connective choice, so `hasAttributeS` may be answering about the wrong node
+entirely -- which would explain a discriminant that never once selects OR.
+
+WHAT WOULD PROMOTE IT: print the same bare test beside an explicit
+`argument.hasAttributeS` in the same position inside generateParse, on a rule
+known to carry zero attributes. Two different answers confirm it. ROW 2 of this
+file runs the bare test from a DIFFERENT action, so it is suggestive and is not
+that measurement -- the resolution context is what is in question, so the test
+has to be read where the defect lives.
+
+WHAT WOULD KILL IT: the two spellings agreeing. Then the discriminant is being
+answered correctly and the defect is in what it is being ASKED -- attributes
+may simply be the wrong question for sequence-versus-alternation, and the
+charter becomes which property actually separates the two.
+
+GRADE: BEST GUESS. No ruling has been issued on the fix shape and no build has
+landed, so this is neither RULED nor REMEDY.

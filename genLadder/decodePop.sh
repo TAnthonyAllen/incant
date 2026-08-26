@@ -120,6 +120,19 @@ sentinel "decodeT sentinel (run reached the end)" "$T/dt.o" "DECODET SENTINEL"
 #  The two scalars decodeT prints. Both compared by value.
 nt=$(sed -n 's/^TALLY terms = *\([0-9][0-9]*\).*/\1/p'       "$T/dt.o" | head -1)
 nd=$(sed -n 's/^TALLY definitions = *\([0-9][0-9]*\).*/\1/p' "$T/dt.o" | head -1)
+#  ⚠ RE-PIN 2026-08-26 (thirteenth, same day) -- ONE MORE, SAME RULE. 74 -> 75
+#  terms, 77 -> 78 dump rows. The term is `passthroughPercentDash` (a printf
+#  flag closes the passthrough), met while building the probe instrument for
+#  the recursion station and banked so the next author does not pay for it.
+#  Operational record: designDocs ProblemRecords passthroughPercentDash.
+#
+#  ⚠ RE-PIN 2026-08-26 (twelfth, same day) -- ONE MORE TERM, SAME RULE.
+#  73 -> 74 terms, 76 -> 77 dump rows. The term is `connectiveDiscriminant`
+#  (alternation emitted as conjunction), promoted from a noted-not-graded line
+#  on the recursion docket to its own citizen by Tony's ruling. Operational
+#  record: designDocs ProblemRecords connectiveDiscriminant, status open.
+#  Runnable citizen: incant/fixits/connectiveDiscriminant.
+#
 #  ⚠ RE-PIN 2026-08-26 (eleventh) -- ONE TERM, MINTED BY THE BIRTH RULE. 72 -> 73
 #  terms, 75 -> 76 dump rows. The term is `parseSelfRecursion` (generated parse
 #  re-enters itself), born the moment the symptom was first named, per the rule
@@ -192,8 +205,8 @@ nd=$(sed -n 's/^TALLY definitions = *\([0-9][0-9]*\).*/\1/p' "$T/dt.o" | head -1
 #      +1  `oneNumberTwoEras`  a green that survived a semantics change by
 #                              arithmetic accident. Dictated SEQ 29 from kant8T's
 #                              K6f, which is the measured case.
-check "corpus holds 73 terms"          73 "$nt"
-check "73 of them carry a definition"  73 "$nd"
+check "corpus holds 75 terms"          75 "$nt"
+check "75 of them carry a definition"  75 "$nd"
 check "every term is defined"     "$nt" "$nd"
 
 #  decodeT's own self-certification, asserted FROM OUTSIDE -- a harness that
@@ -252,7 +265,7 @@ fi
 #  sentinel line ("DECODE SENTINEL -- run reached the end"). An unanchored
 #  count read 38 for 37 real rows. A definition row is `<singleWord> -- `.
 nl=$(grep -cE '^[A-Za-z][A-Za-z0-9]* -- ' "$T/dc.o")
-check "corpus dump + decode line = 76 definition rows" 76 "$nl"
+check "corpus dump + decode line = 78 definition rows" 78 "$nl"
 
 #  ⚠ THE DATALESS-ECHO ROW, and the reason this file exists. A definition that
 #  never stored prints as the ATTRIBUTE'S OWN NAME. In-language it compares
