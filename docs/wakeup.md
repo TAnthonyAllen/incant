@@ -1,3 +1,238 @@
+# ⚠⚠⚠ SEALED 2026-08-27 — THE CONNECTIVE CLOSES, THE MIRROR'S DISEASE IS NAMED BY ADDRESS, AND
+# THE GUARD IS REFUSED PENDING A RULING. READ THIS FIRST.
+#
+#   ⚠ **THIS SUPERSEDES THE 2026-08-25 SEAL BELOW, WHICH IS INTACT AND STILL TRUE AS OF ITS OWN
+#   MARK.** That one closed the label seam. This one discharged a citizen by remedy, found the
+#   recursion's actual door, and STOPPED one step short of barring it because the door was not
+#   where the brief put it.
+#
+#   ## THE ONE-LINE STATE: **connectiveDiscriminant is DISCHARGED BY REMEDY and promoted into the
+#   fleet; parseSelfRecursion's mechanism is RULED and its door is measured, but NO GUARD IS BUILT.**
+#   Fleet **61 green / 1 parked** (was 57 — four rows added, none lost). Canary **319**. Frontier
+#   **10 PASS, first failing station NONE**. decodePop 77 terms / 22 checks. ddPop 6. All four repos
+#   clean and pushed but for Tony's own files. **Fixit queue: 8 (oldest countInputInTmp, 08-24).**
+#   **THE NEXT STATION IS THE UPSTREAM PROBE, chartered below and not run.** One disease named by
+#   address, one probe waiting at its door.
+#
+#   ## ⚠⚠ THE FIVE THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   **1. THE CONNECTIVE DEFECT WAS NEVER THE DISCRIMINANT — IT WAS setParse'S DECORATION, AND THE
+#   2x2 IS THE WHOLE PROOF.** `setParse` hangs `builtinParsE`/`builtinActoR` on every rule it
+#   touches, both noPrint, so `hasAttributeS` — which answers *is this node marked up* — read TRUE
+#   for all 36 emitted bodies and the OR branch was unreachable. `hasTraits` (a bit that counts only
+#   NON-noPrint attributes) fixed it in two ruled parts. Read the COLUMNS:
+#   ```
+#   gate           setParse RUNS      setParse OFF
+#   hasAttributeS  36 AND / 0 OR      28 AND / 8 OR     <- retired gate, PINNED, must not be "fixed"
+#   hasTraitS      28 AND / 8 OR      28 AND / 8 OR     <- live gate
+#   ```
+#   ⚠ **THE RETIRED GATE'S ROW NOT MOVING IS THE NEGATIVE CONTROL, NOT A MISS**, and it was
+#   pre-registered as a hold before the run. Old gate still wrong, new gate right, same build. A run
+#   where BOTH rows moved could not attribute the change to the gate at all.
+#
+#   **2. A RULED ONE-LINER COST A THIRD EDIT NOBODY PLANNED, AND THAT IS NOW A REGISTRY ROW.**
+#   `setParse` calling `updateContentFlags` crashed at EXC_BAD_ACCESS and took the fleet 57 → 55.
+#   `updateContentFlags` read `if listLength` through an **unguarded groupList** and always had —
+#   latent for exactly as long as `moveTo` was its only caller. Minted as **`firstCallerNullList`**
+#   (*dead helper meets its first caller*), status remedy, and it completes the demolition-arc pair:
+#   **condemned code gets READ before deletion; revived code gets DISTRUSTED before promotion.**
+#   ⚠ It was identifiable as CAUSED rather than pre-existing only because the before-captures were
+#   banked before the first edit. Two red rows in a fixture with nothing to do with connectives is
+#   otherwise a mystery of unknown vintage.
+#
+#   **3. THE MIRROR'S ENTRY PATH IS NOT THE runAction RECONSTRUCTION, AND IT IS WRONG IN THREE
+#   PARTICULARS.** Read outermost-inward from the stack bottom:
+#   ```
+#   runOP · runAction(argument=StatemenT, field=parser) · processAction · aCTionBlocK ·
+#   runOP · runOP · runRule(field=ruleText, rule=StatemenT) · parseRule(field=StatemenT) ·
+#   aCTionBlocK · aCTionStatemenT x74k
+#   ```
+#   (a) the `runOP/runAction/processAction` frames are the **verifier action `parser` running its own
+#   body**, not a generated parse body; (b) the rule-name call **DID take the legal road** —
+#   `runRule → parseRule`; (c) the first mirror entry is called by **`aCTionBlocK`**, and `runAction`
+#   has no gMethod dispatch line to guard at all — it calls `processAction`.
+#
+#   **4. THE ILLEGAL THING IS THE NODE, NOT THE ROAD — AND ITS PROVENANCE IS MEASURED.** The mirror
+#   node's parent is a node tagged `BlocK` whose parent is **Grokking**: it is **the grammar's own
+#   `BlocK[StatemenT]` term-reference**. `aCTionBlocK` is walking a legitimately parsed `BlocK`
+#   (parent StatemenT, listLength 9) and fires that grammar term as if it were a parsed statement.
+#   **TWO DOORS, both named.** OUTER — `aCTionBlocK` `GroupRules.mm:84-85`, which consults
+#   `isMethod(grup->groupBody->flags.instructType)` **and nothing else**; `instructType` and `gMethod`
+#   both live in the COPIED `groupBody` (bear-trap #34), so `isMethod` is a SHAPE fact and never a
+#   legality one. INNER — `aCTionStatemenT:1487`, where `datA 0` means the isGROUP unwrap never fires
+#   and the node dispatches its own handler on itself.
+#   ⚠ **`isRule` ALONE DOES NOT DISCRIMINATE:** `aCTionBlocK`'s own input — legitimate work — also
+#   reads `isRule 1`, `parseMethod` bound, registry Grokking. A guard keyed on it refuses correct work.
+#   ⚠ **AND A THIRD CANDIDATE SITE IS UPSTREAM OF BOTH:** whatever put the grammar term into that
+#   parsed BlocK's member list is earlier than either door, and a guard at either door treats a symptom.
+#   ⚠⚠ **THE THIRD-DOOR RECONSTRUCTION IS DEAD. DO NOT RE-DERIVE IT.** Killed in three measured
+#   particulars by the 08-27 docket (`8118146`). **ANY BRIEF CITING "the third door" OR "guard
+#   runAction" IS SUPERSEDED BY THIS SECTION** — there is no third door, there is a contaminated
+#   member list with two doors downstream of it.
+#
+#   **5. THE DOOR'S INVENTORY, because the routing decision needs it in hand.** `isRule 1` ·
+#   `isLabel 0` · `datA 0` · `actionType 1` · `hasNewParse 1` · `gMethod` = aCTionStatemenT ·
+#   registry Grokking · **`rStuff` LIVE with `parseMethod` BOUND, resolving to `parseRule`.** So
+#   route-to-parse **is constructable** — the rule's own parse is readable at the point of the
+#   illegal fire. Graded BEST GUESS, NOT built, and its promote conditions are in the report below.
+#
+#   ## ⚠ WHERE I DISAGREE WITH THE TOPSIDE ACCOUNTING — flagged, not silently reconciled
+#
+#   **A. `censusScratch` DOES NOT EXIST, AND THIS IS THE SECOND TIME.** The trim brief's NEVER-CUT
+#   list names it among the seal-checklist fixtures. It was renamed **`popScratch`** and the 08-05
+#   wakeup says so; the **08-25 seal's Amendment A already recorded this exact citation failure**.
+#   `pop.sh:187` drives `popScratch`. ⚠ **A NEVER-CUT LIST BUILT ON IT WOULD PROTECT A GHOST AND
+#   LEAVE THE REAL FILE UNPROTECTED** — the citation-from-a-sealed-document failure, third instance.
+#
+#   **B. `jitLadder/ladder.sh` IS MISSING FROM THE CITATION SOURCES, AND IT PROTECTS 40 FILES.**
+#   The brief's sweep names pop.sh + ladder targets, tree.sh, frontier, wakeup recipes, minionWork,
+#   seal-checklist fixtures. **Measured: 40 `incant/` files are named by `jitLadder/ladder.sh` and
+#   driven by NONE of `pop.sh`'s 14** — `jiquery`, `jitAttrPop`, `jitDfProbe`, `jitFalseT`,
+#   `jitIterTwice`, `jitJ1`–`jitJ7`, `jitJE/JF/JP/JPd/JPl/JR/JRL/JRt1..JRt4/JU/JUi`, `jitPrintT`,
+#   `jitSelfFn`, `jitSlotT`, `juiProbe` and siblings. That is a **fifth of the 190-file directory**,
+#   it is exactly the jit population the brief hands to my judgment, and with jitLadder omitted every
+#   one of them defaults to CUT or MAYBE. **jitLadder goes in the sweep.**
+#
+#   **C. THE GUARD DID NOT LAND, SO THE CENSUS'S FILL-CONDITION NEVER TRIGGERS.** The accounting has
+#   the third-door brief IN FLIGHT with the trim census "optional as fill if the guard lands early".
+#   Step 1's stop clause fired instead. **The census is therefore not fill — it is the only
+#   available work**, because the guard is blocked on a ruling that has not been made.
+#
+#   **D. THE ROUTING DECISION IS THREE-WAY, NOT TWO-WAY.** The accounting frames it as
+#   *route-to-parse vs refusal-only*. The **site** is open too: outer door on provenance, inner door
+#   on self-dispatch (which needs no new fact at all), or the upstream site. The briefed site,
+#   `runAction`, is gone.
+#
+#   **E. `parseSelfRecursion` HAS NO FIXIT CITIZEN — its "NEXT" is a problem-record field, not a
+#   `NEXT:` block.** The accounting says "parseSelfRecursion's NEXT" as though it were a citizen in
+#   the queue. It is not in `incant/fixits/`. ⚠ **So the hottest open item on the board is the one
+#   thing NOT pointing at Tony's foot at shutdown**, which inverts the loaded-gun mechanism exactly
+#   where it matters most. The standing rule since 08-19 is that banking an issue owed to Tony means
+#   writing its fixit incantation as part of the banking.
+#
+#   **F. THE FIRE-DOCTRINE SENTENCE IS OWED BUT HAS NO ADDRESS.** It is to land "beside the
+#   fire-count row" — and that row exists **only inside the 08-25 sealed vintage**, which is history
+#   and must not be rewritten. The write needs a destination ruling: CLAUDE.md's seat ledger, or a
+#   problem record of its own.
+#
+#   **G. `firstCallerNullList`'s `verdict` STILL READS `-- unreviewed --`/`-- awaiting Tony --`.**
+#   Tony ratified it on the wire; I did not write his verdict, because `verdict` is his loud channel
+#   and I have it only relayed. One line from him and it is done.
+#
+#   **H. THE UNTRACKED POPULATION IN `incant/` IS ZERO.** All 190 files plus the 8 fixits are
+#   tracked, so phase two's "untracked files just die" clause has an empty population there and
+#   **every cut is a commit**. Worth knowing before the razor comes out.
+#
+#   ## ⚠⚠ THE NEXT STATION ON RESURRECTION: THE UPSTREAM PROBE — THE DISEASE, NOT THE DOORS
+#   **Chartered, NOT run. Both doors treat symptoms until this answers.** In the crashing parse:
+#   1. **which member INDEX** of that parsed `BlocK` holds the term-reference;
+#   2. **what the other eight members ARE** — the diff between minted products and the intruder is
+#      the mechanism's fingerprint, and it is the whole point of the station;
+#   3. **which parse step APPENDED it.**
+#   ⚠ **LEDGER-ADJACENT SUSPECTS ARRIVE AS TREE-READS ONLY** — `<-` hands back copies; `copyOf` does
+#   not carry `gMethod`. Neither is to be reasoned forward into a mechanism. **This week produced two
+#   reconstructions that died on contact with frames, which is the proof of why.**
+#
+#   ## ⚠ RULINGS TEED UP FOR TONY — made in conversation, recorded nowhere else until this mark
+#   **INNER-DOOR SELF-DISPATCH BACKSTOP — Clay RECOMMENDS ruling it in regardless of the upstream
+#   fix.** A node dispatching its own `gMethod` on itself is detectable at `:1487`'s own site **on no
+#   new fact**, refuses a state that is never legal, and **cannot false-positive the way `isRule`
+#   would** — `aCTionBlocK`'s own legal input also reads `isRule 1`. It converts any future
+#   contamination from 74k frames into a one-line tattle. **Awaiting Tony's word.**
+#   **ROUTE-TO-PARSE — graded BEST GUESS and explicitly NOT recommended.** Kill condition on record:
+#   with the term-reference still sitting in the member list, a routed parse likely re-enters by the
+#   same door. **Do not build ahead of the upstream answer.**
+#   **THE FIRE-DOCTRINE SENTENCE is still owed and is UNCHANGED by the docket** — the doctrine was
+#   never wrong, only the map of where it was violated: *an action fires when its rule parses,
+#   holding a label, once, done — zero fires on every other road.* Dated, beside the fire-count row.
+#   ⚠ **AND FLAG F BELOW STILL STANDS AGAINST IT:** that row lives only inside the 08-25 SEALED
+#   vintage, which is history and must not be rewritten. **The sentence has a text and no address.**
+#
+#   ## ⚠ WHAT TONY IS ON THE HOOK FOR — in rough order of heat
+#   1. **The inner-door backstop: yes or no** (Clay recommends yes, independent of everything else).
+#      The door question proper — outer/inner/upstream — waits on the upstream probe, which is the
+#      next station and is chartered above. Route-vs-refuse does not get decided before it.
+#   2. **Jitter sketch margin notes** — seven holes, gated on the redirect ruling. Hole 4
+#      (print-redirect-to-buffer, kant can't) is the load-bearing move; hole 2 (method-cell fired
+#      from kant); hole 3 answered by the opSetFlag/isSTRING type-as-data ruling; holes 1, 5, 6, 7
+#      afternoon-sized seams.
+#   3. **Trim lists review** — `incant/` is overdue a high-and-tight trim. **PHASE ONE IS A
+#      READ-ONLY CENSUS: nothing cut, moved or renamed.** Clod produces three graded lists, Tony and
+#      Clay review, cutting is phase two under its own brief. Judge-jury-barber on the grades is
+#      Clod's — especially the jit population, his own build — **but the razor stays holstered.**
+#      **NEVER CUT** — derived mechanically first, judgment second: every `incant/` file cited by a
+#      standing instrument (pop.sh + ladder targets, tree.sh, **jitLadder — see flag B**, frontier
+#      stations, wakeup run recipes, minionWork probes, seal-checklist fixtures: `oneTest`,
+#      `jsonTest`, **`popScratch` — see flag A**, `walkPhase`, the decodePop/ddPop fixtures), the
+#      `kant8T` family (K5/K6 chartered-but-unrun — a fixture with chartered future work is cited by
+#      the charter), and `jitscratch` by name (sole exerciser of `jitRunAction`, home of the parked
+#      `opPlusPlus` 139). Each row: filename + the one-line citation that protects it. ⚠ **A file
+#      protected only by a STALE citation — an instrument that no longer runs — is a FINDING, not a
+#      protection.** **CUT** — answered one-shot probes, superseded rungs, dead scaffolding,
+#      fixtures for discharged-and-tombstoned defects. Each row: filename + what it was for + why
+#      it is done. `firstCallerNullList` is the doctrinal cover: deleting dormant machinery is the
+#      safe direction, no eulogies owed. **MAYBE** — probably-dead but a doubt survives: possible
+#      sole exerciser of some road, questions that could recur, jit files whose future under O6 is
+#      unclear. Each row: filename + what it exercises + **the specific doubt**. ⚠ **THE MAYBE LIST
+#      IS THE REVIEW'S REAL AGENDA; the other two should mostly rubber-stamp.**
+#      **INVERSE FINDING ALSO OWED:** instruments citing files that do not exist — trim-adjacent debt,
+#      and flag A is already one of them.
+#      Disposition PRE-RULED for phase two: **tracked die by commit — the repo is the archive, no
+#      attic directory, no ponytail in a drawer. Untracked just die.** Note tracked/untracked per
+#      file, since it picks the mechanism (⚠ but see flag H: in `incant/` that population is ZERO).
+#      ⚠ **Fold flags A and B in BEFORE the census runs, or it is built on a bad source.**
+#   4. **Parent text owed to me** for the two doctrine rows — the **opSetFlag contract** and the
+#      **typed-valueless accessor caution**. I refused to reconstruct them from the one-line
+#      summaries; a relayed amendment whose parent is unconfirmed is one clause of a convention.
+#
+#   ## CHARTERED, QUEUED AT TONY'S WORD, none in flight
+#   **The & campaign** — four read-only pre-design stations: `&` meaning census · R-3 assign-census
+#   slice · `<-` intent census (incl. the does-`<-`-ever-bind-node-fields grep that checks the
+#   locals-only scoping) · **runOP recon** (two roads walked, divergence named, touch-list graded —
+#   runOP the bear in waiting). Design session convenes on all four. **`byRefReview` is exhibit
+#   zero**, absorbed and moved to `minionWork/byRefReview` with its gate questions preserved verbatim
+#   — absorption is not an answer to them. K5/K6 clears the frame-model wall first if the recon
+#   confirms it load-bearing. **Retirement by census: `<-` dies when its site count reads zero.**
+#   **opSetFlag implementation** — clears-by-contract on data-flag set, population named via the
+#   flag-species declarations, before-captures (blast radius: every re-type site).
+#   **K5/K6** — the standing KANT-8 gate, chartered 08-05, still unrun; now has a live customer.
+#
+#   ## STANDING DESIGN STATE (O6, not yet open)
+#   Jitter incantation = parser's structural sibling, residing in `IncantForms/WorkingOn` beside it.
+#   Loader contract specced (`jitLoad(buffer, name)` → verdict, register into slot machinery,
+#   three-rung tattling refusal, interpreted floor). Two-layer POP (byte-agreement round-tripped +
+#   two-arm answer-agreement). Buffer = one per action, print-redirect, sink-doctrine (emission owns
+#   the redirected channel; everything with a voice speaks on stderr). O6 charter questions still
+#   Tony's: buttress death = loader is permanent residue; reflexive close = final POP, unscheduled.
+#   ⚠ **The third-door findings may inform jitter dispatch design — both threads converge on the
+#   dispatch door from opposite sides.**
+#
+#   ## THE DISCIPLINE EXHIBITS, because each changed an outcome
+#   **A PRE-REGISTERED PREDICTION HELD, TWICE, AND ONE OF THEM WAS A NON-MOVE.** The `hasAttributeS`
+#   row was called as a HOLD before the run and holding is the fix working; without the
+#   pre-registration it reads as a failed promote condition.
+#   **MY OWN CENSUS INSTRUMENT LIED IN THIS PASS AND I CAUGHT IT.** The first jitLadder comparison
+#   returned **0 files protected only by jitLadder** — plausible, quotable and wrong, because
+#   jitLadder drives fixtures through a variable rather than literals. The real figure is **40**.
+#   H9's exact shape, and it is recorded because the number was going into a seal.
+#   **TWO RECONSTRUCTIONS DIED ON CONTACT WITH FRAMES** — the citizen's bare-name-resolution guess,
+#   and the runAction door. Both were sound reasoning on premises nobody had run.
+#   **A BACKTRACE'S OFF-BY-ONE WAS CAUGHT AT ITS OWN VINTAGE.** The 08-26 docket cites `:1483` for
+#   `getGroup`; at that same commit `getGroup` is `:1484` and `:1483` is the guard above it —
+#   bear-trap #36. And the call is moot anyway: `datA 0`, so it never fires.
+#
+#   ## THE SEAL CHECKLIST, run 2026-08-27
+#   `incant/frontier` **exit 0, 10 PASS, FIRST FAILING STATION: NONE** · fleet **61 green / 1 parked**,
+#   rows diffed against a pre-session capture, **zero lost** · decodePop **77 terms, 22 checks** ·
+#   ddPop **6 green** · canary **319** · `oneTest`/`jsonTest` md5 unmoved · `parser(NamE)` transcript
+#   byte-identical · **support repo 0 uncommitted / 0 unpushed**, `groups.ext` committed per the
+#   standing rule (`4d1b252`) · Parse and Tokf clean · Groups clean but for Tony's
+#   `IncantForms/WorkingOn/{incant++, parser, tester, jitter}` — all his, all expected dirt, `jitter`
+#   new and untracked and named-WIP.
+#   **Tony's fixit incantations waiting: 8 (oldest: countInputInTmp, since 2026-08-24)**
+
+# ---
+
 # ⚠⚠⚠ SEALED 2026-08-25 — THE LABEL SEAM CLOSES, AND FOUR LATENT DEFECTS SURFACE. READ THIS FIRST.
 #
 #   ⚠ **THIS SUPERSEDES THE 2026-08-23 SEAL BELOW, WHICH IS INTACT AND STILL TRUE AS OF ITS OWN
