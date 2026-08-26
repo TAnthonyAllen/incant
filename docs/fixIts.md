@@ -709,7 +709,7 @@ registered in `docs/knownErrors.md`'s carry-over payload.
 **Owner:** fix is Clod's on any convenient landing, behind the payload row's ruling.
 
 ### F-13 — ⚠⚠ THE GENERATED PARSE BODIES ALL ALIAS ONE groupBody
-**Where:** `IncantForms/WorkingOn/parser`, `genParseTest` — `CodE = codeBuffer;` then
+**Where:** `IncantForms/WorkingOn/parser`, `generateParse` — `CodE = codeBuffer;` then
 `argument +% CodE;`. **Owner: Tony** (his file, and the fix is his edit).
 **What:** the 54-rule `walkRules(Start)` run **certified GENERATION, not INSTALLATION.** Every body
 was correct at the moment it printed; every install after the first **overwrote its predecessor's
@@ -857,14 +857,14 @@ parse method does, including the remaining half of F-18's own story.
 Eight items, none chased. Four are Clay's from the ruling brief, four were found doing the work.
 Each is a row in its own right; grouped only because they were captured in one pass.
 
-**F-17a — `setParse` binding mid-walk changes live routing.** The moment `genParseTest` calls
+**F-17a — `setParse` binding mid-walk changes live routing.** The moment `generateParse` calls
 `setParse`, `parse()` starts dispatching that rule through `defStuff.parseMethod` instead of the arm
 chain. That is **activation happening during generation**, and it is the napalm's sibling. **Third
 customer for off-rule storage + an explicit activation phase.** *Done when:* generation cannot
 change routing. **Owner:** with the activation work.
 
 **F-17b — `parseMethod` is dead infrastructure in ordinary runs.** `setParse` has exactly one caller
-in the tree (`genParseTest`); `setParseMethod` is reachable only through the kant door
+in the tree (`generateParse`); `setParseMethod` is reachable only through the kant door
 (`genParse.rtn:868`) and the `parseMethod=` binding (`:1456`). So `defStuff.parseMethod` is null in
 every ordinary run and every rule takes the arm chain — which is what made the F-15 gate a routing
 decision rather than a container-parser decision. Goes live with activation work. **Not a defect;
@@ -952,14 +952,14 @@ ANYorNum["NumbeR"] then who(n)   arrived as NumbeR      hasData len 2    <- the 
 **Why it matters, and it is the direct explanation of the 08-18 offline report:** `walkRules(NumbeR)`
 printed `numberSet=... CENSUS leaf-install : numberSet` and NumbeR "never got compiled" — because
 **NumbeR was never the argument.** The leaf-install was `numberSet` doing exactly the right thing.
-The read *"genParseTest early-outs because NumbeR has data"* is true of the node that arrived and
+The read *"generateParse early-outs because NumbeR has data"* is true of the node that arrived and
 says nothing about NumbeR.
 ⚠ **Scope, so this is not over-claimed:** the deref is at **name resolution**, so descent is
 UNAFFECTED — `iterate` and `[]` both hand back the real node (measured above). Only rules named
 directly in a driver line are hit. The `walkRules(Start)` census is therefore sound for everything
 it reached by descent.
 **Consequence for the "pick one" ruling:** the real `NumbeR` carries **data AND a 2-long list**, so
-`genParseTest`'s own both-present warning is correct and has simply never been reachable from a
+`generateParse`'s own both-present warning is correct and has simply never been reachable from a
 bare-name driver call. Whatever way the hybrid bootstrap rules are ruled, the partition assertion
 has to run over the walked population, not over hand-typed names.
 **Done when:** the driver reaches the real node — e.g. a `walkRules` entry point that takes the
@@ -979,7 +979,7 @@ rule by subscript from its registry — and `walkRules(NumbeR)` reports on `Numb
 `result` local, which stays false when every attribute was skipped. So an alternation rule holding
 nothing but noPrint attributes **matches nothing at all**.
 
-**Why the parse walk trips it:** `genParseTest` attaches its generated `CodE` with `+%`
+**Why the parse walk trips it:** `generateParse` attaches its generated `CodE` with `+%`
 (add-attribute) and marks it `noPrinT`; `processCode` attaches the resulting `BlocK` the same way
 (`GroupActions.rtn` — `field +% result; result.noPrint = true`). Either one is enough. The rule
 stops matching, the parse that was reading the body runs off the end of its input, and the report
@@ -1054,7 +1054,7 @@ which `parseContainer` implements and `testOptions` does not.
 
 ⚠ **AND THE ROUTE THAT WOULD HAVE SAVED THEM IS NOT INSTALLED.** `setParse` — which is what would
 give a bin or registry `parseContainer` — has **exactly one caller in the whole tree**, and it is
-`genParseTest` in `IncantForms/WorkingOn/parser`. The other door, `setParseMethod`, is reached only
+`generateParse` in `IncantForms/WorkingOn/parser`. The other door, `setParseMethod`, is reached only
 through the explicit kant/`parseMethod=` binding (`genParse.rtn:868`, `:1456`). So in an ordinary
 run `defStuff.parseMethod` is null and **every rule takes the arm chain**, exactly as `parse()`'s
 own comment says. Containers are not protected by having a container parser; they are protected
@@ -1137,6 +1137,30 @@ pair:
 **So it is not NamE, and it is not the population.** I attributed the difference to Ruling 4's
 two-phase split; the two-phase arm simply never armed the rules. **Structural claims on this project
 hold and causal ones fail — this was a causal one, and it is the sixth.**
+
+⚠⚠ **THE HANG NO LONGER REPRODUCES — MEASURED 2026-08-26, AND THE SENTENCE IS THE LABEL SEAM.**
+A full walk over `Start` with activation ON now **completes at exit 0 with its sentinel reached**:
+42 refusals, 68 leaf-installs, 22 already-coded. The crib this row was written against predicted six
+refusals and then a hang. The change it follows is the label seam closing on 2026-08-25 (`d28cd7d`);
+nothing in the parser form was touched between the two measurements except the rename.
+
+**The tables above are NOT rewritten** — they record what was run, under the names it was run under.
+`genParseTest` is now **`generateParse`**, and the two reproducers named in the second table
+(`runNamE`, `runNamEnoParse`) **retired 2026-08-26**; their provenance is in DesignDocs under
+`KantParser` → `KantParserHangHistory`.
+
+⚠ **`setParse` SURVIVES AS A GATE, FOR A DIFFERENT REASON THAN THE ONE THAT MINTED IT.** The toggle
+is now `activating` and it is **not** a hang control any more. Re-measured 2026-08-26, both arms
+completing:
+
+| activation | refusals | leaf-installs | refusal positions |
+|---|---|---|---|
+| **OFF** | 37 | 60 | every refusal names where it stopped |
+| **ON** | 42 | 68 | **36 of 42 collapse to `reached end of input`** |
+
+So it changes the population reached **and** the legibility of every refusal. It is kept as a
+measurement-quality gate of the `compiling` family. *Status:* **the hang is discharged; the gate is
+retained on new grounds.* **Owner:** Tony, on review.
 
 ⚠ **AND THE MECHANISM WAS IN WRITING BEFORE IT WAS MEASURED**, which is the only reason a reading is
 offered at all. `setParse` binds `parseMethod = parseRule` (`GroupRules.mm:12200`, one-shot behind
@@ -1278,7 +1302,7 @@ only leaves that do it — `numberSet`, `tik`, `quoteBody`, `leftBrace`, `pound`
 **Evidence it is NEW, with the control:** zero occurrences on the pre-pick-one binary
 (`git checkout 1f39bac -- GroupMain.{twk,mm}`, rebuilt, same driver file — `grep -c` returns 0 for
 both the `Braced` and `TokenXP` walks). It appears because pick-one made `FloaT` and `PoweR`
-WALKABLE: they used to carry rule-level data, so `genParseTest` leaf-installed them and never
+WALKABLE: they used to carry rule-level data, so `generateParse` leaf-installed them and never
 descended, and their terms were never reached at all.
 ⚠ **Cosmetic as measured, and that is a claim about today only.** The walk completes, the sentinel
 fires, and `FloaTCodE`/`PoweRCodE` come out correct. It is stderr noise, not a failed generation.
@@ -1287,7 +1311,7 @@ nothing, rather than handing a null to `appendString`.
 **Owner:** unassigned. **Size:** one print site. **Good minion candidate.**
 
 ### F-14 — the walk has four SILENT exits; there is no skipped-rules list
-**Where:** `parser` — three `continue` gates in `walkRules`, plus `genParseTest`'s `datA != 0`
+**Where:** `parser` — three `continue` gates in `walkRules`, plus `generateParse`'s `datA != 0`
 early return.
 **What:** the `Start` run shows **147 ENTERs, 54 generated, 21 refused-by-name — and 72 unaccounted.**
 Nothing failed to compile (zero `ERROR processCode`), and the refusals ARE named, but the 72 that
