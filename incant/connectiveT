@@ -157,6 +157,33 @@ noted-not-graded. Tony promoted it to its own citizen the same day and asked
 the charter question: is the connective discriminant sound across all 123 rules
 the walk reaches. Ruled, built and measured across 2026-08-26 and 2026-08-27.
 
+⚠⚠ PROMOTED INTO THE FLEET 2026-08-27, WHICH IS WHY IT IS NOT connectiveDiscriminant
+ANY MORE. Tony walked the REMEDY -- BEHAVIOUR row and blessed it; the gun
+discharged, and under the three-lives rule a stepped citizen either promotes into
+the fleet as the regression test or retires if the fleet already covers it. The
+fleet did not cover it, so this is the first branch: same file, same rows, new
+seat. It left incant/fixits/ -- Tony's queue -- and pop.sh now runs it.
+
+RETIREMENT BY MAPPING -- every assertion and where it now lives, checkable:
+  ROW 1  StatemenT is 0 attributes / 5 members      -> still here, still printed
+  ROW 2  BlocK hit control, 1 1 both lines          -> still here + pop.sh grep
+  ROW 3  StatemenT 0 0 pristine / 1 0 after         -> still here + pop.sh grep,
+                                                       and the second line is
+                                                       THE remedy assertion
+  ROW 4  the 2x2 population figures                 -> still here as PROSE ONLY.
+                                                       ⚠ NOT fleet-covered, and
+                                                       pop.sh says so out loud
+                                                       rather than implying it.
+  sentinel CONNECTIVE SENTINEL                      -> still here + pop.sh checks
+                                                       it by name, first
+
+⚠ WHY ROW 4 IS NOT FLEET-COVERED, stated rather than quietly dropped. The census
+drives off IncantForms/WorkingOn/parser, which is Tony's LIVE WORKING FILE -- its
+gates and its target rule move between sessions by design. A fleet row reading it
+would go red for reasons that say nothing about whether the connective is right,
+which is rule H3. The flag rows below are the stable half and they are what the
+fleet guards; the census is re-run by hand when the parser file is stable.
+
 NEXT: REMEDY -- BEHAVIOUR. Landed, and this file is now a verification harness.
 
 THE FIX, AND ITS SITES.

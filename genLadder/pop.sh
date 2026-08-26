@@ -251,6 +251,53 @@ sentinel "parseClass" "$T/pce" "PARSECLASS SENTINEL"
 grep '^PC ' "$T/pce" | sort > "$T/pcp"
 diffcheck "parseClass.target (setParse classification)" genLadder/parseClass.target "$T/pcp"
 
+#  connectiveT -- THE CONNECTIVE DISCRIMINANT, promoted out of Tony's fixit queue
+#  2026-08-27 after he stepped and blessed its REMEDY row. It was
+#  incant/fixits/connectiveDiscriminant; the three-lives rule says a stepped
+#  citizen becomes the regression test, and the fleet did not cover this.
+#
+#  WHAT IT GUARDS: hasTraits, the flag that answers "does this rule conjoin
+#  traits" where hasAttributes answers "is this node marked up". setParse hangs
+#  two noPrint decoration attributes on every rule it touches, which made the
+#  old gate read AND for all 36 emitted bodies and left the OR branch
+#  unreachable across the whole grammar.
+#
+#  ⚠ THE ASSERTED ROW IS StatemenT AFTER setParse, AND IT NEEDS BOTH NUMBERS.
+#  hasAttributeS 1 is CORRECT there -- the node genuinely is marked up -- and
+#  hasTraitS 0 beside it is the fix. Asserting either alone asserts nothing: a
+#  flag stuck at 1 passes the first, a flag never written at all passes the
+#  second. The BlocK row is the H11 hit control and is why a never-written flag
+#  cannot pass this block: it wants 1 on a rule that really does carry traits.
+#
+#  ⚠ AND THE CENSUS HALF IS DELIBERATELY NOT HERE. connectiveT's ROW 4 carries
+#  the 2x2 population figures as PROSE. The measurement behind them drives off
+#  IncantForms/WorkingOn/parser, which is Tony's live working file -- its gates
+#  and its target rule move between sessions by design -- so a fleet row reading
+#  it would move for reasons that say nothing about the connective. Rule H3. The
+#  flag rows are the stable half; the census is re-run by hand. Said out loud
+#  because a silent cap reads as coverage.
+run2 connectiveT "$T/ct.o" "$T/ct.e"; check "connectiveT runs" 0 $?
+sentinel "connectiveT sentinel (no truncation)" "$T/ct.e" "CONNECTIVE SENTINEL"
+CT_REMEDY="rule  StatemenT hasAttributeS  1 hasTraitS  0"
+CT_CONTROL="rule  BlocK hasAttributeS  1 hasTraitS  1"
+if grep -qF "$CT_REMEDY" "$T/ct.e"; then
+    echo "  ok    connectiveT: StatemenT after setParse reads hasAttributeS 1 hasTraitS 0"; green=$((green+1))
+else
+    echo "  FAIL  connectiveT: the remedied row MOVED:"
+    grep "StatemenT hasAttributeS" "$T/ct.e" | sed 's/^/          actual:   /' || echo "          (no StatemenT flag row at all -- did cdBoth stop being called?)"
+    echo "          expected: $CT_REMEDY"
+    echo "          1 0 is the remedy. 1 1 is the 2026-08-26 defect back."
+    fail=1
+fi
+if grep -qF "$CT_CONTROL" "$T/ct.e"; then
+    echo "  ok    connectiveT: BlocK hit control still reads 1 1 (hasTraits is not simply dead)"; green=$((green+1))
+else
+    echo "  FAIL  connectiveT: the HIT CONTROL moved -- hasTraits may be stuck off:"
+    grep "BlocK hasAttributeS" "$T/ct.e" | sed 's/^/          actual:   /' || echo "          (no BlocK flag row at all)"
+    echo "          expected: $CT_CONTROL"
+    fail=1
+fi
+
 #  emitLeaf's OWN target -- THE ORACLE IS THE FUNCTION BEING REPLACED. Captured
 #  while the C++ emitLeaf was still the only implementation, so a kant rewrite
 #  has something byte-exact to answer to (Minion A round 1).

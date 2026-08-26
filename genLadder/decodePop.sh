@@ -146,7 +146,8 @@ nd=$(sed -n 's/^TALLY definitions = *\([0-9][0-9]*\).*/\1/p' "$T/dt.o" | head -1
 #  (alternation emitted as conjunction), promoted from a noted-not-graded line
 #  on the recursion docket to its own citizen by Tony's ruling. Operational
 #  record: designDocs ProblemRecords connectiveDiscriminant, status open.
-#  Runnable citizen: incant/fixits/connectiveDiscriminant.
+#  Runnable citizen: incant/fixits/connectiveDiscriminant (promoted to the fleet
+#  as incant/connectiveT on 2026-08-27; the name here is its vintage name).
 #
 #  ⚠ RE-PIN 2026-08-26 (eleventh) -- ONE TERM, MINTED BY THE BIRTH RULE. 72 -> 73
 #  terms, 75 -> 76 dump rows. The term is `parseSelfRecursion` (generated parse
