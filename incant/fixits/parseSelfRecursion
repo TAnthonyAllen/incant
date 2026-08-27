@@ -1,0 +1,148 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(SelfRecursion);
+define
+    psrRun code={
+        fixParseSelfRecursionHere = 0;
+        cerr "ANCHOR fixParseSelfRecursionHere -- the door is named below. Every":;
+        cerr "fact in the inventory was MEASURED IN POINTERS on 2026-08-27, not":;
+        cerr "inferred from frame shape. Read the inventory, then the NEXT block.":;
+        };
+    ;
+psrRun();
+
+cerr :;
+cerr "THE SYMPTOM   a generated-parse walk completes and prints its sentinel,":;
+cerr "              then the verification call dies at SIGSEGV with 74705":;
+cerr "              identical frames, all naming aCTionStatemenT.":;
+cerr :;
+cerr "THE MECHANISM RULED 2026-08-27. aCTionStatemenT dispatches":;
+cerr "              statement.groupBody.gMethod(statement) at GroupRules.mm:1487.":;
+cerr "              Under a walked-and-compiled grammar that gMethod resolves to":;
+cerr "              aCTionStatemenT ITSELF, and the node handed down is THE SAME":;
+cerr "              NODE every time -- one node, its own action, period one.":;
+cerr :;
+cerr "THIS FILE DOES NOT REPRODUCE THE CRASH, AND THAT IS DELIBERATE.":;
+cerr "              The crash needs BOTH gates on -- compiling AND activating.":;
+cerr "              Any other cell of the 2x2 completes at exit 0. Reproducing":;
+cerr "              it here would hand a citizen the power to end its own run":;
+cerr "              before the reader got to the inventory.":;
+cerr "              To see it: IncantForms/WorkingOn/parser, both gates on.":;
+cerr :;
+cerr "FIXIT SENTINEL -- parseSelfRecursion reached its foot":;
+stop();
+
+THE GENERATED PARSE RE-ENTERS ITSELF, AND THE DOOR IS MEASURED
+
+WHAT THIS IS
+
+A generated parse body, under a walked-and-compiled grammar, fires a grammar
+term as though it were a parsed statement. The node dispatches its own handler
+on itself and never advances, so the recursion has period one. It runs until
+the stack guard page is touched.
+
+The mechanism is RULED. The fix is not. That gap is the whole reason this file
+exists, and it is why the grade below says RULED and not REMEDY.
+
+THE DOOR'S INVENTORY, measured 2026-08-27 in pointers
+
+    isRule 1 . isLabel 0 . datA 0 . actionType 1 . hasNewParse 1
+    gMethod = aCTionStatemenT . registry Grokking
+    rStuff LIVE with parseMethod BOUND, resolving to parseRule
+
+input == statement reads true, and input is identical at 0x...5f140 across 35
+consecutive frames read at depths 6, 8, 20 and 30, tag StatemenT throughout.
+74705 frames. The guard page is touched by the allocation at GroupRules.mm:1475.
+
+THREE THINGS A FRESH READER MUST NOT RE-DERIVE
+
+One. getGroup IS NOT INVOLVED AT ALL. StatemenT reads datA 0, not isGROUP, so
+the guard above the call is false and the call never fires. An earlier docket
+cited :1483 for getGroup; at that vintage getGroup is :1484 and :1483 is the
+guard above it, which is bear-trap 36 exactly -- a line number naming the test
+rather than the call. Moot either way.
+
+Two. THE ILLEGAL THING IS THE NODE, NOT THE ROAD. The mirror node's parent is a
+node tagged BlocK whose parent is Grokking: it is the grammar's own
+BlocK[StatemenT] term-reference. aCTionBlocK is walking a legitimately parsed
+BlocK, parent StatemenT, listLength 9, and fires that grammar term as if it
+were a parsed statement. The rule-name call took the LEGAL road, runRule then
+parseRule.
+
+Three. THE THIRD-DOOR RECONSTRUCTION IS DEAD. Killed in three measured
+particulars by the 2026-08-27 docket. Any brief citing the third door, or
+saying guard runAction, is superseded: runAction has no gMethod dispatch line
+to guard at all -- it calls processAction. There is no third door. There is a
+contaminated member list with two doors downstream of it.
+
+THE TWO DOORS, both named
+
+OUTER -- aCTionBlocK at GroupRules.mm:84-85, which consults
+isMethod on the instructType and nothing else. instructType and gMethod both
+live in the COPIED groupBody, bear-trap 34, so isMethod is a SHAPE fact and
+never a legality one.
+
+INNER -- aCTionStatemenT:1487, where datA 0 means the isGROUP unwrap never
+fires and the node dispatches its own handler on itself.
+
+AND A THIRD CANDIDATE SITE IS UPSTREAM OF BOTH: whatever put the grammar term
+into that parsed BlocK's member list is earlier than either door, and a guard at
+either door treats a symptom rather than the disease.
+
+WHY isRule ALONE CANNOT BE THE GUARD
+
+aCTionBlocK's own input -- legitimate work -- also reads isRule 1, with
+parseMethod bound and registry Grokking. A guard keyed on it refuses correct
+work. This is measured, not argued.
+
+THE WORKAROUND, which is why the fleet is not on fire
+
+Turn either gate off. The crash needs BOTH compiling and activating on; any
+other cell of the 2x2 completes at exit 0 and reaches the verify sentinel.
+
+NEXT: RULED
+
+The MECHANISM is ruled -- one node, its own action, dispatched at
+GroupRules.mm:1487, confirmed by print in pointers 2026-08-27. THE FIX SHAPE IS
+NOT SELECTED, and nothing here is buildable yet. What is gated, and on what:
+
+Upstream probe -- chartered 2026-08-27, unrun. Gated behind queue drain per
+08-28 next stations. Routing decision (outer door / inner door / upstream site)
+is Tony's, three-way, open.
+
+The probe, when it runs, answers three things in the crashing parse: which
+member INDEX of that parsed BlocK holds the term-reference; what the other
+eight members ARE, since the diff between minted products and the intruder is
+the mechanism's fingerprint and is the whole point of the station; and which
+parse step APPENDED it.
+
+Two candidate fixes exist and NEITHER is recommended, both recorded with their
+grade attached. The INNER-DOOR SELF-DISPATCH BACKSTOP is graded a backstop
+rather than a fix: a node dispatching its own gMethod on itself is detectable at
+:1487's own site on no new fact, refuses a state that is never legal, and cannot
+false-positive the way isRule would. Clay recommends ruling it in regardless of
+the upstream answer; it converts any future contamination from 74705 frames into
+a one-line tattle. ROUTE-TO-PARSE is graded BEST GUESS and explicitly NOT
+recommended, with its kill condition on record: with the term-reference still
+sitting in the member list, a routed parse likely re-enters by the same door.
+Do not build it ahead of the upstream answer.
+
+LEDGER-ADJACENT SUSPECTS ARRIVE AS TREE-READS ONLY. The rebind operator hands
+back copies and copyOf does not carry gMethod, and neither is to be reasoned
+forward into a mechanism. This week produced two reconstructions that died on
+contact with frames, which is the proof of why.
+
+PROVENANCE
+
+Problem record parseSelfRecursion, status ruled, vintage 2026-08-27. Minted as
+a fixit citizen 2026-08-28 by Tony's docket ruling A3, which closes the 08-27
+seal's disagreement E: the hottest open item on the board was the one thing NOT
+pointing at Tony's foot at shutdown, and the standing rule since 08-19 is that
+banking an issue owed to Tony means writing its fixit incantation as part of
+the banking.
+
+Bear-traps in play: 34 (truth-test fires action), 26 (valueless field returns
+its own tag), 36 (a backtrace names the line that died, not the line that read
+null).
