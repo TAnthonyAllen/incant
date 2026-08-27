@@ -109,22 +109,16 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	initialize punctuation fields
 	*************************************************************************/
 	strap = grok->addMember(new GroupItem("leftBrace"));
-	strap->setRuleStuff();
 	strap->setText("[");
 	strap = grok->addMember(new GroupItem("leftCurly"));
-	strap->setRuleStuff();
 	strap->setText("{");
 	strap = grok->addMember(new GroupItem("leftParen"));
-	strap->setRuleStuff();
 	strap->setText("(");
 	strap = grok->addMember(new GroupItem("rightBrace"));
-	strap->setRuleStuff();
 	strap->setText("]");
 	strap = grok->addMember(new GroupItem("rightCurly"));
-	strap->setRuleStuff();
 	strap->setText("}");
 	strap = grok->addMember(new GroupItem("rightParen"));
-	strap->setRuleStuff();
 	strap->setText(")");
 	/**************************************************************************
 	Define the setupFILE declared in GroupRules. It gets loaded at the

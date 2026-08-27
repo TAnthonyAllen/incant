@@ -103,22 +103,16 @@ GroupRules  ruler = groupRules;
         initialize punctuation fields
     *************************************************************************/
     strap           = grok += new("leftBrace");
-    setRuleStuff();
     text            = "[";
     strap           = grok += new("leftCurly");
-    setRuleStuff();
     text            = "{";
     strap           = grok += new("leftParen");
-    setRuleStuff();
     text            = "(";
     strap           = grok += new("rightBrace");
-    setRuleStuff();
     text            = "]";
     strap           = grok += new("rightCurly");
-    setRuleStuff();
     text            = "}";
     strap           = grok += new("rightParen");
-    setRuleStuff();
     text            = ")";
    /**************************************************************************
         Define the setupFILE declared in GroupRules. It gets loaded at the

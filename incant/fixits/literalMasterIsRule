@@ -1,0 +1,110 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(FixLitMaster);
+define
+    flRun code={
+        fixLitMasterHere = 0;
+        cerr "ANCHOR fixLitMasterHere -- the audit below reports SIX missing rules":;
+        cerr "in Grokking that are not missing anything. They are Tony's literal":;
+        cerr "masters, and by design a master carries NO rStuff.":;
+        cerr "MEASURED 2026-08-28: 10 missing rules. PINNED WAS 4. The six new":;
+        cerr "lines are leftBrace leftCurly leftParen rightBrace rightCurly":;
+        cerr "rightParen -- every one of them lawful.":;
+        };
+    ;
+flRun();
+audit();
+print "FIXIT SENTINEL -- literalMasterIsRule reached its foot":;
+stop();
+
+THE AUDIT CALLS SIX LAWFUL NODES MISSING RULES
+
+Run this and read the AUDIT MISSRULE lines. Six of them name Grokking members
+that were minted as bare literals:
+
+    strap  = grok += new("leftBrace");
+    text   = "[";
+
+They carry no rStuff, and THAT IS THE DESIGN, in Tony's words on 2026-08-28:
+rules added to Grokking do not carry rStuff; the rStuff gets added when those
+literal rules are added to other rules in the body of GroupMain, either by a
+setRuleStuff call or by a modify call which then runs setRuleStuff.
+
+So nothing is wrong with GroupMain. The audit is asking a question the answer
+to which is not a defect.
+
+WHY THE AUDIT SEES THEM AT ALL, WHICH IS THE PART WORTH KEEPING
+
+`auditMissingRules` tests `isRule && !rStuff`. The master never gets rStuff --
+correct. But it DOES get isRule, and it gets it retroactively, from a node that
+is not itself:
+
+  1. `grok += new("leftBrace")` mints the master. No isRule, no rStuff.
+  2. `strap +% grok/leftBrace` -- addGroup sees the node already has a parent,
+     so it COPIES it: `if (group->parent) group = new GroupItem(group);`
+  3. that copy constructor SHARES the body -- `groupBody = grup->groupBody` --
+     while rStuff is per-node and starts null.
+  4. `modify(copy,"-")` calls `copy->setRuleStuff()`, and setRuleStuff's first
+     act is `groupBody->flags.isRule = 1` when the registry is a rule registry.
+
+Step 4 writes the SHARED body. So the copy gets its own rStuff and the MASTER
+gets isRule. The master now reads isRule 1, rStuff 0 -- the audit's exact
+signature -- without anything ever having been done to the master.
+
+⚠ THIS IS RULING D'S DIAGNOSTIC, WORD FOR WORD: the defect is a question posed
+to the wrong oracle. `isRule` lives in groupBody, which is COPIED (here,
+shared). `rStuff` is never copied. Whenever a guard and its subject live in
+different structures, ask whether they can disagree. Here they do, and the
+audit is the place it becomes visible rather than the place it happens.
+
+THE NEGATIVE CONTROL, RUN, AND IT IS WHAT PROVES THE ABOVE
+
+A seventh master `zzNeverUsed` was minted exactly like the six -- same
+`grok += new(...)`, same text -- and referenced by NO rule. Built and run:
+
+    the six, each referenced by a rule      AUDIT MISSRULE, all six
+    zzNeverUsed, referenced by nothing      ABSENT from the audit entirely
+
+Minting is clean. Being ATTACHED is what marks the master. The control was
+removed after measuring; it is not in the tree.
+
+⚠ AND THE SAME MECHANISM IS WHY THE ODOMETER GREW. genParse's population
+filter is `if !isRulE; continue;`, so the six pass it on the back-propagated
+flag, enter the plan population, and refuse for want of the rStuff they are
+not supposed to have: "rule-level literal but no rStuff, so LIT vs LITTO is
+undecidable". Population 58 -> 64, red 39 -> 45. Same one fact, second
+instrument. odometer.base is re-pinned to that; the audit is NOT, pending the
+ruling below.
+
+⚠ A DEAD END ALREADY WALKED, so nobody walks it twice: adding setRuleStuff()
+to the six masters DOES clear both rows -- audit back to 4, odometer 25 green
+-- and it is WRONG, because it gives the masters an rStuff the design says
+they must not have. It was tried, measured green, and reverted on Tony's word.
+Green is not the test here.
+
+NEXT: RULED -- THE SHAPE IS TONY'S, AND NOTHING BELOW IS BUILT
+
+Three shapes, and the choice is a ruling rather than a measurement, because all
+three produce a green fleet and they disagree about what is true.
+
+  A. TEACH THE AUDIT THE CATEGORY. A literal master is distinguishable per-node
+     without consulting the shared flag -- it has data, no groupList, and its
+     parent is the registry rather than a rule. Exempt that shape from
+     MISSRULE. Cheapest, and it leaves the flag lying.
+
+  B. STOP THE BACK-PROPAGATION. setRuleStuff would raise isRule somewhere
+     per-node rather than in groupBody. Correct at the root and the only one
+     that also fixes the odometer without a second edit. ⚠ BLAST RADIUS
+     UNMEASURED AND LARGE: isRule is read across the tree and this changes what
+     it means for every copied node, not just these six.
+
+  C. ACCEPT AND RE-PIN. Declare 10 the right number and let the six sit in the
+     rule population. Costs nothing today and makes the audit permanently
+     unable to distinguish a literal master from a rule someone forgot to
+     finish -- which is the thing the audit exists to catch.
+
+WHAT WOULD MAKE THE CHOICE CHEAPER: a census of `isRule` reads that could see a
+shared-body node, which is the only unknown standing between B and the others.
+Not run.
