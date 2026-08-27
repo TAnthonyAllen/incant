@@ -17,7 +17,7 @@ search reset stack Grokking UnitTests Utilities list;
     because it writes every term spelling inside them, but only for the kinds the
     ladder reaches. Nothing in the ladder is a LABELLED literal (every Scaf term
     is noLabel), so LITTO is reached by no rung and BOTH of its spellings, litTo
-    and litOption, were UNGATED. `CodE` plans as a SEQ of two LITTO terms, so the
+    and litOption, were UNGATED. `CodeBody` plans as a SEQ of two LITTO terms, so the
     real grammar covers the kind the scaffolds cannot.
 
     THE ROWS, and each one is here for a named kind rather than for coverage's
@@ -29,7 +29,7 @@ search reset stack Grokking UnitTests Utilities list;
         ScafE    LIT OPT(CALL) LIT       OPT wrapping a reference -- emitLeaf's
                                          one SELF-RECURSIVE branch
         ScafF    LIT OPT(LIT) LIT        OPT wrapping a literal
-        CodE     LITTO LITTO             litTo and litOption, the ungated pair
+        CodeBody LITTO LITTO             litTo and litOption, the ungated pair
         ScafALT  CALL CALL               an ALT fold, whose sink is `into`
         Limit    (refusal)               a REFUSED rule -- the loud-refusal path
                                          is behaviour too, and it is the one a
@@ -44,7 +44,7 @@ search reset stack Grokking UnitTests Utilities list;
     literal and the slot are the SAME STRING, so this target cannot tell those
     two positions apart -- a rewrite that swapped them would pass. That is not
     an accident of the fixture, it is a property of planTerm: a literal term's
-    slot IS its text. Every LITTO in the whole census is like this (`CodE`'s two,
+    slot IS its text. Every LITTO in the whole census is like this (`CodeBody`'s two,
     and JSONtoken's `false`/`true`). So there is no rule to add that would close
     it; closing it needs a labelled literal whose tag differs from its text, and
     the grammar has none. Recorded so nobody reads this row as stronger than it is.
@@ -96,6 +96,6 @@ dumpSpellings('ScafC');
 dumpSpellings('ScafE');
 dumpSpellings('ScafF');
 dumpSpellings('ScafALT');
-dumpSpellings('CodE');
+dumpSpellings('CodeBody');
 dumpSpellings('Limit');
 stop();

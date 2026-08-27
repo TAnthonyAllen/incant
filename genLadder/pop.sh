@@ -769,7 +769,7 @@ diffcheck "jsonTest baseline" genLadder/jsonTest.base "$T/jsn"
 #  THE genParse ODOMETER, wired in 2026-08-24 once its first baseline existed.
 #
 #  ⚠ WHAT THIS ROW IS AND IS NOT. It is NOT a pass/fail on parse generation --
-#  the odometer is RED by design today (14 of 58) and a red odometer is the
+#  the odometer is RED by design today (39 of 64) and a red odometer is the
 #  correct state. This row asserts only that the number HAS NOT MOVED WITHOUT
 #  SOMEONE SAYING SO. A moved odometer is the point of having one; it just has
 #  to be a re-pin with a sentence behind it, like every other target here.
@@ -786,7 +786,7 @@ diffcheck "jsonTest baseline" genLadder/jsonTest.base "$T/jsn"
 #  and conflating them in a citation is the failure this wording exists to
 #  prevent.
 bash genLadder/odometer.sh 2>&1 | grep -v '^  bin ' > "$T/odo"
-diffcheck "genParse odometer (19 green / 39 red of 58 -- RED BY DESIGN, pinned; ratchet monotone)" \
+diffcheck "genParse odometer (25 green / 39 red of 64 -- RED BY DESIGN, pinned; ratchet monotone)" \
           genLadder/odometer.base "$T/odo"
 
 echo ""

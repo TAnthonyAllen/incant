@@ -42,11 +42,11 @@ SPELL ScafALT
   CALL sink=into  parseR( t1 , into ) 
   CALL sink=label parseR( t2 , label ) 
   CALL sink=into  parseR( t2 , into ) 
-SPELL CodE
+SPELL CodeBody
   fold SEQ
-  LITTO sink=label litTo( t1 ,label, " { " , " { " ) 
+  LITTO sink=label litTo( t1 ,label, " { " , " leftCurly " ) 
   LITTO sink=into  litOption( t1 ,into, " { " ) 
-  LITTO sink=label litTo( t2 ,label, " } " , " } " ) 
+  LITTO sink=label litTo( t2 ,label, " } " , " rightCurly " ) 
   LITTO sink=into  litOption( t2 ,into, " } " ) 
 SPELL Limit
   REFUSE min -- inline group / structural data isGROUP (named future kind)

@@ -1,4 +1,4 @@
-  pop   58 rules qualify (live walk, four filters: not noPrint, not a bin, is a rule, actionType 0)
+  pop   64 rules qualify (live walk, four filters: not noPrint, not a bin, is a rule, actionType 0)
 
   -- FRONTIER: 39 rules genParse cannot yet emit. Each is a row, not a total.
      ANYtoken         REFUSE rule ANYtoken -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
@@ -10,7 +10,7 @@
      DEBUG            REFUSE followedBy -- inline group / structural data isSET (named future kind)
      DEF              REFUSE followedBy -- inline group / structural data isSET (named future kind)
      DO               REFUSE followedBy -- inline group / structural data isSET (named future kind)
-     DatA             REFUSE CodE -- parseAction (tail position only, §2.8)
+     DatA             REFUSE CodeBody -- parseAction (tail position only, §2.8)
      DefinE           REFUSE NewGroup -- inline group / structural data isGROUP (named future kind)
      DelimText        REFUSE dtext -- inline group / structural data isGROUP (named future kind)
      FOR              REFUSE followedBy -- inline group / structural data isSET (named future kind)
@@ -24,12 +24,12 @@
      Modifier         REFUSE rule Modifier -- rule-level data isSET (§4.1 rule-as-data, rung 5)
      NewGroup         REFUSE rule NewGroup -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
      NumbeR           REFUSE numberSet -- inline group / structural data isSET (named future kind)
-     PoweR            REFUSE e -- inline group / structural data isSET (named future kind)
+     PoweR            REFUSE exponent -- inline group / structural data isSET (named future kind)
      PrinT            REFUSE followedBy -- inline group / structural data isSET (named future kind)
      QuotE            REFUSE tik -- inline group / structural data isSET (named future kind)
      ScopeXP          REFUSE scopeList -- inline group / structural data isGROUP (named future kind)
      Search           REFUSE followedBy -- inline group / structural data isSET (named future kind)
-     SetBrackets      REFUSE ] -- upTo/upToOver (not on the ladder yet)
+     SetBrackets      REFUSE rightBrace -- upTo/upToOver (not on the ladder yet)
      ShortcuT         REFUSE rule ShortcuT -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
      Start            REFUSE rule Start -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
      StringXP         REFUSE stuff -- inline group / structural data isGROUP (named future kind)
@@ -41,6 +41,6 @@
      nameSet          REFUSE rule nameSet -- rule-level data isSET (§4.1 rule-as-data, rung 5)
      numberSet        REFUSE rule numberSet -- rule-level data isSET (§4.1 rule-as-data, rung 5)
 
-  genParse count 19 green / 39 red of 58 attempted
+  genParse count 25 green / 39 red of 64 attempted
   ratchet  0 previously-green rules regressed (must be 0)
-  ODOMETER SENTINEL -- 58 of 58 attempted, foot reached
+  ODOMETER SENTINEL -- 64 of 64 attempted, foot reached

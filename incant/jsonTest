@@ -11,7 +11,7 @@ define
     testJSON argument code={
         clear(listed);
         field = JSONblock(argument);
-        if field    print "  ok  :" argument:;
+        if field;   print "  ok  :" argument:;
         else        print "  FAIL:" argument:;
         };
     ;

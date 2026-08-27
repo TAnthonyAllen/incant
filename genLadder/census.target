@@ -106,8 +106,8 @@ PLAN FloaT
   REFUSE point -- inline group / structural data isCHAR (named future kind)
   REFUSE rule FloaT -- term point unclassified
 PLAN PoweR
-  REFUSE e -- inline group / structural data isSET (named future kind)
-  REFUSE rule PoweR -- term e unclassified
+  REFUSE exponent -- inline group / structural data isSET (named future kind)
+  REFUSE rule PoweR -- term exponent unclassified
 PLAN QuotE
   REFUSE tik -- inline group / structural data isSET (named future kind)
   REFUSE rule QuotE -- term tik unclassified
@@ -120,18 +120,18 @@ PLAN GrouP
       at=1
     CALL QuotE
       at=2
-PLAN CodE
-  SEQ CodE
-    label=CodE
+PLAN CodeBody
+  SEQ CodeBody
+    label=CodeBody
     LITTO {
       at=1
-      slot={
+      slot=leftCurly
     LITTO }
       at=2
-      slot=}
+      slot=rightCurly
 PLAN DatA
-  REFUSE CodE -- parseAction (tail position only, §2.8)
-  REFUSE rule DatA -- term CodE unclassified
+  REFUSE CodeBody -- parseAction (tail position only, §2.8)
+  REFUSE rule DatA -- term CodeBody unclassified
 PLAN Limit
   REFUSE min -- inline group / structural data isGROUP (named future kind)
   REFUSE rule Limit -- term min unclassified
