@@ -1697,6 +1697,34 @@ Hard-won lessons. Each one has cost real debugging time.
     rules including a name that does not exist — uniform, confident, and void. **Every probe carries
     a hit/miss control pair** (`minionWork/probeTwinCopy` rows 0a/0b) for exactly this reason.
     **The rule: probes read through bare locals, and test existence with a direct subscript.**
+    ⚠⚠ **AND IT EXTENDS FROM PRINT POSITION INTO CONDITION POSITION, WHERE IT UNDER-FILTERS
+    A WALK AT EXIT 0 — measured six ways, 2026-08-28, one run each, same file, same binary.**
+    A property read **inside a compound condition** is unreliable, bare or dotted; the same
+    property read **bare and positive**, or **captured to a local first**, is correct. The
+    subject was `genLadder/countPopulation`'s walk, where 39 is the right answer:
+    | shape | population |
+    |---|---|
+    | `if listLengtH;` — bare, POSITIVE | **39 — correct** |
+    | `if !listLengtH;` | **64 — wrong** |
+    | `if listLengtH == 0;` | **64 — wrong** |
+    | `if cpCur.listLengtH == 0;` — explicit cursor, dotted | **64 — wrong** |
+    | `cpLen = listLengtH;` then `if cpLen == 0;` | **39 — correct** |
+    | `cpLen = listLengtH;` then `if !cpLen;` | **39 — correct** |
+    ⚠ **`!` IS NOT THE CULPRIT, AND THAT IS THE HALF A CAREFUL READER WILL GET WRONG.** `== 0`
+    fails identically, and once the value is in a local **both** `!` and `== 0` are fine. The
+    broken thing is reading the property *in the condition*; the negation is innocent. Every
+    failing arm read as always-truthy, so nothing filtered and the full 64 came through —
+    **a walk that returns too many members looks exactly like a walk that is working**, which
+    is why this is worse than bear-trap #38's under-walk-to-one: that number was obviously
+    wrong, this one is merely too big.
+    **The rule: CAPTURE, THEN TEST.** Same family as bear-trap #28's silent `!`-forms and #26's
+    plausible-wrong-reading, and the sibling of #38 — silent iterate miscount, opposite
+    direction again.
+    ⚠ **PROVENANCE, because it names what the instinct was worth:** Tony flagged that he does not
+    trust `!` applied to anything `opDot` returns *"or at all actually"*, having deliberately
+    written the positive-with-`else` form in `incant/fixits/countInputInTmp`. The distrust was
+    right and pointed at the right line; the *mechanism* was one step over, and it took one run
+    to find that out. Clod had written the `!` form and blamed `!` in prose before measuring.
 
 36. **A BACKTRACE NAMES THE LINE THAT DIED, NOT THE LINE THAT READ NULL — AND A CONTROL SPECIFIED
     OFF A BACKTRACE INHERITS THAT OFF-BY-ONE.** Found 2026-08-22 while building the rStuff census's

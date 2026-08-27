@@ -1,0 +1,78 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(CountPop);
+define
+    cpWalk argument code={
+        iterate cpCur on argument members;
+        while ++cpCur;
+            if noPrinT;             continue;
+            if binTypE;             continue;
+            if !isRulE;             continue;
+            if actionTypE != 0;     continue;
+            cpLen = listLengtH;
+            if cpLen == 0;          continue;
+            cpEmit(cpCur);
+        };
+    cpEmit argument code={
+        print "COUNTPOP" argument.taG:;
+        };
+    cpRun code={
+        cpWalk(Grokking);
+        print "COUNTPOP-END":;
+        stop();
+        };
+    ;
+cpRun();
+
+THE SCAFFOLD COUNT'S POPULATION, GENERATED AT RUN TIME AND NEVER READ FROM A FILE.
+
+This is the structural half of incant/fixits/countInputInTmp. The harness used to
+read its rule list from /tmp/b2/rules.txt; when that vanished on 2026-08-24 the
+list was rebuilt by scraping rule names out of the PREVIOUS RUN'S OWN LOG, which
+is circular -- it can only ever return what the last run happened to attempt.
+Measured 2026-08-28: the resulting 42-name file was byte-identical to the names
+in /tmp/b2/count.out, and it had already drifted -- it carried `CodE`, a rule
+renamed out of existence, and lacked `CodeBody`, the rule that replaced it. The
+ghost still scored `ok`.
+
+Deriving the list here makes that unconstructable rather than unlikely. There is
+no file to go stale, because the list IS the population.
+
+THE FILTERS ARE THE ODOMETER'S FOUR PLUS ONE, and the fifth is Tony's ruling of
+2026-08-28: a rule must HAVE A LIST to be worth compiling a parse body for.
+`tokenize` is a method hook with no terms (GroupMain: `method = tokenize`, then
+`modify(strap,"^@")`), and break/continue/return are members of the `BrancheS`
+bin. All four carry isRule only because modify() calls setRuleStuff(), which
+raises the flag -- the same back-propagation named in
+incant/fixits/literalMasterIsRule. None of them has a body to generate, so
+compiling one asserts nothing.
+
+⚠ THE LENGTH IS CAPTURED TO A LOCAL BEFORE IT IS TESTED, AND THAT IS NOT STYLE.
+A property read INSIDE a compound condition is unreliable -- bare or dotted --
+and it fails by UNDER-FILTERING at exit 0, which looks exactly like a walk that
+is working. Measured six ways, 2026-08-28, one run each, same file, same binary
+(39 is correct):
+
+    if listLengtH;                        39   correct   (bare, POSITIVE)
+    if !listLengtH;                       64   WRONG
+    if listLengtH == 0;                   64   WRONG
+    if cpCur.listLengtH == 0;             64   WRONG
+    cpLen = listLengtH; if cpLen == 0;    39   correct
+    cpLen = listLengtH; if !cpLen;        39   correct
+
+⚠ SO `!` IS NOT THE CULPRIT, WHICH IS THE HALF THAT WOULD HAVE BEEN GOT WRONG.
+`== 0` fails identically, and once the value is in a local BOTH `!` and `== 0`
+are fine. The broken thing is reading the property in the condition; the
+negation is innocent. In every failing arm the condition read as always-truthy,
+so nothing was filtered and all 64 came through.
+
+This is bear-trap 35 -- probes read through bare locals -- extending from print
+position into condition position. The safe shape is: capture, then test.
+⚠ `cpLen` IS DELIBERATELY UNDECLARED -- bear-trap 39: one action touches it, so
+it must be an action local; declaring it would make it persist across calls.
+
+⚠ THE CURSOR `cpCur` IS DELIBERATELY NOT DECLARED IN THE define BLOCK. Bear-trap
+38: a cursor named there limits the walk to exactly one member, silently, at
+exit 0. Do not "tidy" this by declaring it.
