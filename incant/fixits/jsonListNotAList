@@ -1,0 +1,154 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(FixJsonList);
+define
+    fjOne argument code={
+        clear(listed);
+        field = JSONblock(argument);
+        if field;   print "  ok  :" argument:;
+        else        print "  FAIL:" argument:;
+        };
+    fjRun code={
+        fixJsonListHere = 0;
+        cerr "ANCHOR fixJsonListHere -- watch STDERR, not stdout, while the rows below run.":;
+        cerr "EXPECTED: 13 ok rows on stdout, and EXACTLY ONE stray line on":;
+        cerr "stderr -- a nextGroup complaint that JSONlist is not a list.":;
+        cerr "The wording is NOT reproduced here on purpose: this anchor is":;
+        cerr "itself on stderr, so quoting the line verbatim would make every":;
+        cerr "grep for it count TWO. Pinned at 1; grep and subtract nothing.":;
+        cerr "No single row below produces it. All 13 were run one-per-process":;
+        cerr "and every one of them was clean. Only the SEQUENCE produces it.":;
+        };
+    ;
+fjRun();
+fjOne('{"a":[]}');
+fjOne('{"a":["x","y"]}');
+fjOne('{"a":"b"}');
+fjOne('{"a":"url://example.com/path#fragment"}');
+fjOne('{"a":"1.0","b":"hello"}');
+fjOne('{"a":[]}');
+fjOne('{"a":["x","y"]}');
+fjOne('{"a":[1,2,3]}');
+fjOne('{"a":{}}');
+fjOne('{"a":{"b":"c"}}');
+fjOne('{"a":{"b":"c","d":"e"}}');
+fjOne('{"family":"EB Garamond","variants":["regular","700"],"files":{"regular":"https://fonts.gstatic.com/foo.ttf","700":"https://fonts.gstatic.com/bar.ttf"}}');
+fjOne('{"kind":"webfonts#webfontList","items":[{"family":"ABeeZee","variants":["regular","italic"],"subsets":["latin"],"version":"v22","files":{"regular":"http://fonts.gstatic.com/s/abeezee/v22/a.ttf","italic":"http://fonts.gstatic.com/s/abeezee/v22/b.ttf"},"category":"sans-serif"},{"family":"Roboto","variants":["regular","700"],"subsets":["latin","cyrillic"],"version":"v30","files":{"regular":"http://fonts.gstatic.com/s/roboto/v30/c.ttf","700":"http://fonts.gstatic.com/s/roboto/v30/d.ttf"},"category":"sans-serif"}]}');
+print "FIXIT SENTINEL -- jsonListNotAList reached its foot":;
+stop();
+
+A STRAY nextGroup ERROR THAT ONLY THE SEQUENCE PRODUCES
+
+Run this file and watch stderr. One line appears that has no business being
+there:
+
+    nextGroup: ERROR JSONlist does not contain a list
+
+Every one of the thirteen rows still reports ok. The parse is not failing. A
+walk somewhere inside JSONarray is being handed something it cannot walk, is
+complaining, and is carrying on.
+
+WHY YOU HAVE NOT SEEN THIS BEFORE, AND IT IS THE MORE IMPORTANT HALF
+
+It has been invisible since 2026-08-25 because the fixture that would have
+shown it STOPPED PARSING that day and nobody noticed. The SemI- ruling made
+IF's semicolon mandatory, incant/jsonTest was written
+
+    if field    print "  ok  :" argument:;
+
+with no semicolon, and from that moment testJSON failed to parse. An incant
+parse failure abandons the rest of the file and STILL EXITS 0, so jsonTest
+printed its five section headers, none of its seventeen assertions, and
+reported a clean run. `pop.sh`'s jsonTest row went red and stayed red, which
+is exactly the state a fleet that already exits 1 does not distinguish from
+the background.
+
+So for three days every JSON assertion in the fleet was VOID -- not failing,
+not passing, ABSENT -- and the row that should have said so was one red line
+among several. The semicolon is fixed as of 2026-08-28 and the assertions are
+back; this file is what came out from under them.
+
+WHAT IS MEASURED
+
+  13 rows run individually, one process each     0 stray lines, every time
+  the same 13 rows in one process                exactly 1 stray line
+  against HEAD's GroupMain, before any of
+    Tony's punctuation work                      exactly 1 stray line
+
+That last row is the attribution and it is why this is not on Tony's offline
+edits: the error predates them. It is also not new behaviour as far as anyone
+can show -- it may have been there since long before 08-25, hidden first by
+whatever and then by the parse failure. Nobody can date its birth from here.
+
+WHAT IS NOT MEASURED, said plainly: WHICH row is the one that emits it, and
+whether the emitting row is the same one every time. The bisect done so far
+was one-row-per-process, which is precisely the arrangement that makes it go
+away.
+
+NEXT: OPEN
+
+THE OBVIOUS CANDIDATE WAS TRIED AND IS DEAD. That is this block's whole value:
+the next reader does not get to spend the afternoon on it.
+
+WHAT WAS TRIED: incant/utilities:73-76, JSONarray's body --
+
+    JSONarray isRule "["- JSONlist? "]"- code={
+        if JSONlist;
+            for grup in JSONlist;
+                grup <: grup;
+        };
+
+The reasoning was good and is on file elsewhere: `if JSONlist;` asks DOES THIS
+EXIST while `for grup in JSONlist;` needs IT IS A LIST, the twelve-cell
+accessor table says those are different questions, and the house rule for this
+exact shape names `if y.listLengtH;` as the guard and this exact nextGroup
+message as its symptom. Everything pointed one way.
+
+THE MEASUREMENT, one run, utilities being read at runtime so no rebuild:
+
+    guard `if JSONlist;`               13 ok rows,  1 stray line
+    guard `if JSONlist.listLengtH;`    13 ok rows,  2 stray lines
+
+IT GOT WORSE. Not unchanged -- WORSE, and the rows did not move, so the walk
+is not being fixed and is being complained about twice. Whatever hands that
+node to nextGroup is not the `for`, or is not only the `for`; reading
+`.listLengtH` on the same node appears to take the same road and complain on
+its own account. The guard was never the mechanism.
+
+⚠ THIS IS THE PROJECT'S OWN LEDGER EATING AGAIN, and it belongs in the record
+rather than being quietly dropped: a STRUCTURAL reading (these two tests ask
+different questions) was correct, and the CAUSAL claim built on it (therefore
+this is why the error fires) was wrong. Five prior failures of that exact
+shape are already counted. Cost of the check: one edit, one run, no rebuild.
+
+WHAT WOULD GENERATE A REAL CANDIDATE
+
+  1. Find WHICH row emits it. Bisect by DELETING rows from this file and
+     keeping the rest IN ONE PROCESS. ⚠ Do NOT bisect one row per process:
+     that was tried, all thirteen came back clean, and it proves nothing,
+     because isolating a row removes the sequence and the sequence is the only
+     thing that reproduces this. A one-item JSONlist was also tried on the
+     hunch that it would be present-but-not-a-list; clean, hunch falsified.
+
+  2. With the row known, put a breakpoint on nextGroup's refusal arm and read
+     what it was actually handed -- the TAG and the datA of the node, not the
+     name in the message. The message names JSONlist because that is what the
+     caller asked for, which is not evidence about what the node IS.
+
+  3. The sequence-dependence is itself the strongest lead and nobody has pulled
+     it: an error that needs thirteen rows and never one is a state effect, and
+     this project already has a named family for that -- an action mutating the
+     parse-tree nodes it was parsed from, where the SECOND execution pays. The
+     `grup <: grup;` inside that same body is a rebind ON THE WALK'S OWN CURSOR
+     and is the first thing to look at under that reading. Graded as a
+     DIRECTION, not a candidate: nothing has been measured about it.
+
+⚠ AND THE LARGER QUESTION THIS FILE DOES NOT ANSWER AND MUST NOT BE READ AS
+ANSWERING: how many other semicolon-less `if`s are sitting in the corpus,
+silently killing the parse of whatever file they are in. The 2026-08-25 seal
+already named `displayIfVisible` in incant/utilities -- the file EVERY fixture
+includes -- with four of them. A corpus gate reads clean only over code that
+RUNS, and this one did not run for three days. That census is owed and is not
+this citizen's job.
