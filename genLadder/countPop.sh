@@ -36,8 +36,8 @@ echo "rules:  $nrules (derived live from Grokking)"
 
 ok=0; bad=0; crash=0; ghost=0
 while read -r rule; do
-  python3 genLadder/mkProbeOne.py "$rule"
-  out=$("$INCANT" incant/../minionWork/probeOne 2>&1); st=$?
+  python3 genLadder/mkProbeOne.py "$rule" "$T/probeOne"
+  out=$("$INCANT" "$T/probeOne" 2>&1); st=$?
   #  ⚠ `ok` IS SCORED ON THE COMPILE CENSUS, NOT ON TARGETDONE, and that is the
   #  difference between an assertion and a decoration. Measured 2026-08-28 with
   #  a name that never existed: compile prints "REFUSING compile -- no compiled
