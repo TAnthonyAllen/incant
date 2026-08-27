@@ -789,6 +789,35 @@ bash genLadder/odometer.sh 2>&1 | grep -v '^  bin ' > "$T/odo"
 diffcheck "genParse odometer (19 green / 45 red of 64 -- RED BY DESIGN, pinned; ratchet monotone)" \
           genLadder/odometer.base "$T/odo"
 
+#  ---- THE SCAFFOLD COUNT, ruled into the fleet by Clay 2026-08-28 -----------
+#  ⚠ IT IS THE SOLE ASSERTOR THAT `DatA` DOES NOT CRASH THE COMPILER. That was
+#  incant/fixits/dataCrash's entire surviving coverage when it retired by
+#  mapping, and until now it lived OUTSIDE the standing instrument -- an
+#  assertion that only runs when someone remembers to run it, which is the
+#  ghost mechanism this fleet exists to abolish. 2.3s against the fleet's 3.5s.
+#
+#  ⚠ WHAT IS AND IS NOT ASSERTED HERE. countPop.sh is RED-BY-DESIGN about FAIL
+#  and CRASH rows -- those are the genParse frontier, like the odometer -- so a
+#  frontier row must NOT fail this fleet. What its exit status DOES carry is the
+#  instrument's own integrity: a MISSING row (a name the population handed it
+#  that compile never took), a truncated population walk, an empty population,
+#  or attempted != population. Those are the harness disagreeing with itself,
+#  and they are never facts about genParse.
+#  So: exit 0 is asserted, and the headline is asserted BY VALUE (H4) rather
+#  than by the absence of a complaint.
+bash genLadder/countPop.sh > "$T/cnt" 2>&1; check "countPop runs (scaffold count; instrument integrity)" 0 $?
+sentinel "countPop sentinel (no truncation)" "$T/cnt" "COUNTPOP SENTINEL"
+#  H4: the count is compared BY VALUE. A row that merely greps for the word
+#  "clean" would pass the day the number went to zero.
+cntline=$(grep -m1 '^THE COUNT:' "$T/cnt")
+if [ "$cntline" = "THE COUNT: 39 compiled clean, 0 parse-failed, 0 crashed/truncated, 0 missing, of 39 attempted" ]; then
+    echo "  ok    countPop headline (39/39 clean, 0 missing) -- PINNED BY VALUE"; green=$((green+1))
+else
+    echo "  FAIL  countPop headline moved"; echo "          actual:   $cntline"
+    echo "          expected: THE COUNT: 39 compiled clean, 0 parse-failed, 0 crashed/truncated, 0 missing, of 39 attempted"
+    fail=1
+fi
+
 echo ""
 if [ $fail = 0 ]; then echo "POP PASSED -- $green green / $parked parked-WIP"
 else echo "POP FAILED -- $green green / $parked parked-WIP"; fi
