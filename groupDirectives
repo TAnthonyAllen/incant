@@ -20,9 +20,8 @@ aCTionDebuG subrule.debugged ctive
 aCTionDebuG embed.debugged ctive
     if embed.debugged print "Debugging",embed.tag:;
 #;
-aCTionDefinE "if Attributes" before ctive
+aCTionDefinE "if Attributes" before active
     cerr "aCTionDefinE:",NewGroup.tag,lastIndent:;
-    if NewGroup.tag eq "Braced" item = 0;
 #;
 aCTionElsE if ctive
     if blocking cerr "unBlocked:", blocking:;
@@ -31,7 +30,7 @@ aCTionExpressioN while before ctive
     if entries.listLength == 1   result = 0;
 #;
 aCTionNamE starting active
-    if arg eq "this"   result = 0;
+    if arg eq "guard"   result = 0;
 #;
 aCTionRunRulE if within ctive
     if tag eq "define" debugAllRules = true;
@@ -79,7 +78,7 @@ guard GroupItem ctive
 guard clearData ctive
     debugGuards = false;
 #;
-loadInputFromFile if before ctive
+loadInputFromFile if before active
      cerr ```"including",tag:;
 #;
 /*******************************************************************************
@@ -232,7 +231,6 @@ parse "if !checkInput" before active
         if debugIndent < 0 debugIndent = 0;
         indent("  ");
         cerr "Match",ruleName,"on text",getDebugText(atRuleMark,20):;
-        if tag eq "NamE"   doNothing = false;
         debugIndent++; }
 #;
 parse ruleSTUFF ctive
@@ -294,9 +292,8 @@ updateContentFlags starting
 *******************************************************************************/
 #GroupMain
 bootstrapper pushInput active
-    debugRuleNamed("RunRulE");
-    debugRuleNamed("NamE");
-    debugRuleNamed("InvokE");
+    debugGuards     = true;
+    debugAllRules   = true;
 #;
 /*******************************************************************************
 	GroupRules

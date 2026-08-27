@@ -46,17 +46,17 @@ NamE                first-=[a-zA-Z] nameSet-^* tokenize;
 GrouP
     NamE;
     QuotE;
-CodE                "{" "}" parseAction;
+CodeBody            leftCurly rightCurly parseAction;
 DatA
     GrouP;
     NumbeR;         NumbeR is updated when setup is loaded in bootstrapper
-    CodE;
-    SetBrackets     '['- ']'};
-    DelimText       '('- dtext^=delimiter};
+    CodeBody;
+    SetBrackets     leftBrace- rightBrace};
+    DelimText       leftParen dtext^=delimiter};
     NotA=[^ \t\r\n;]+;
 debug               "ALL"? "GUARD"? rules=NamE* ';'-;
-InvokE              '('- NamE? ')'-;
-Limit               '['- min=[0-9]+ max?=[0-9]+ ']'- noPrint;
+InvokE              leftParen- NamE? rightParen-;
+Limit               leftBrace- min=[0-9]+ max?=[0-9]+ rightBrace- noPrint;
 MemberS             ':'- MEMBERs- Mlist=DefinE+;
 Modifier=[-~+?!%&|*@_<^{}$] noPrint;
 TraiTdata           '='- DatA Modifier* Limit?;

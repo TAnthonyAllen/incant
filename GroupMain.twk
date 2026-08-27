@@ -100,6 +100,21 @@ GroupRules  ruler = groupRules;
     member.isMethod     = true;
     member.unGuarded    = true;
    /**************************************************************************
+        initialize punctuation fields
+    *************************************************************************/
+    strap           = grok += new("leftBrace");
+    text            = "[";
+    strap           = grok += new("leftCurly");
+    text            = "{";
+    strap           = grok += new("leftParen");
+    text            = "(";
+    strap           = grok += new("rightBrace");
+    text            = "]";
+    strap           = grok += new("rightCurly");
+    text            = "}";
+    strap           = grok += new("rightParen");
+    text            = ")";
+   /**************************************************************************
         Define the setupFILE declared in GroupRules. It gets loaded at the
         end of this bootstrapper method.
     *************************************************************************/
@@ -136,8 +151,8 @@ GroupRules  ruler = groupRules;
     strap           = new("Limit");
     setRuleStuff();
     strap           = grok += strap;
-    item            = strap +% new("[");
-    item.setRuleStuff();
+    item            = strap +% grok/leftBrace;
+    modify(item,"-");
     item            = new("min");
     item            = strap +% item;
     item.setRuleStuff();
@@ -151,7 +166,7 @@ GroupRules  ruler = groupRules;
     item            = item.group;
     modify(item,"*");
     item            = new("]");
-    item.setRuleStuff();
+    modify(item,"-");
     item            = strap +% item;
 
     strap           = new("tokenize");
@@ -166,7 +181,7 @@ GroupRules  ruler = groupRules;
     
     strap           = grok += "PoweR";
     setRuleStuff();
-    item            = new("e");
+    item            = new("exponent");
     item.characterSet    = new("eE");
     item            = strap +% item;
     item.setRuleStuff();
@@ -253,26 +268,26 @@ GroupRules  ruler = groupRules;
     strap           = grok += "SetBrackets";
     setRuleStuff();
     method          = aCTionSetBrackets;
-    item            = strap += "[";
+    item            = strap +% grok/leftBrace;
     modify(item,"-");
-    item            = strap += "]";
+    item            = strap +% grok/rightBrace;
     modify(item,"}");
 
-    strap           = grok += new("CodE");
+    strap           = grok += new("CodeBody");
     setRuleStuff();
     method          = aCTionCodE;
     guardSet        = new("{");
     guarded         = true;
     parseACTION     = true;
     isRule          = true;
-    item            = strap += "{";
+    item            = strap +% grok/leftCurly;
     item.setRuleStuff();
-    item            = strap += "}";
+    item            = strap +% grok/rightCurly;
     item.setRuleStuff();
 
     strap           = grok += "DelimText";
     setRuleStuff();
-    item            = strap += "(";
+    item            = strap +% grok/leftParen;
     item.setRuleStuff();
     guardSet        = new("(");
     guarded         = true;
@@ -286,7 +301,7 @@ GroupRules  ruler = groupRules;
     setRuleStuff();
     item            = strap += grok/GrouP;
     item            = strap += grok/NumbeR;
-    item            = strap += grok/CodE;
+    item            = strap += grok/CodeBody;
     item            = strap += grok/SetBrackets;
     item            = strap += grok/DelimText;
     item            = new("NotA");
@@ -400,14 +415,12 @@ GroupRules  ruler = groupRules;
 
     strap           = grok += "InvokE";
     setRuleStuff();
-    item            = new("(");
-    item            = strap +% item;
+    item            = strap +% grok/leftParen;
     modify(item,"-");
     item            = grok/GrouP;
     item            = strap +% item;
     modify(item,"?");
-    item            = new(")");
-    item            = strap +% item;
+    item            = strap +% grok/rightParen;
     modify(item,"-");
 
     strap           = grok += "RunRulE";

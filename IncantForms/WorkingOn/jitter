@@ -1,0 +1,59 @@
+# jitter -- preliminary incantation, Clay draft for hole-exposure
+# shape: parser's, nouns swapped. one verb, argument-scoped.
+# jitter(opPlus) is little feet; jitter(everything) is the final POP.
+
+# ---- define block: every cross-action name DECLARED (#39) ----
+jitting = 1            # the gate, compiling's sibling; 0 = emit-only measuring run
+fixText = "3 + 4"      # the specimen, ruleText's sibling
+emitBuf = ""           # the one buffer, one action's module        [HOLE 1]
+tmpN    = 0            # SSA name counter -- THE #39 counter itself
+lblN    = 0            # label counter, same discipline
+
+# ---- the emitter walk: post-order, names as currency ----
+
+emitNode(node) {
+    # dispatch to the op's emitter cell -- O2's method-valued cell   [HOLE 2]
+    return node.op.jitEmitter(node)
+}
+
+emitBinary(node) {                      # the strict-binary 10, one shape
+    left  = emitNode(node.left)
+    right = emitNode(node.right)
+    tmpN = tmpN + 1
+    print "  %t" tmpN " = " node.op.irWord " " node.irType
+          " %t" left ", %t" right                                  # [HOLE 3]
+    return tmpN
+}
+
+emitAction(action) {
+    print action.name " emitting" onto stderr      # generation narration, ruled
+    redirect print onto emitBuf                    # [HOLE 4 -- THE BIG ONE]
+    print "define " action.irType " @" action.name "() {"
+    emitPrologue(action)     # allocas first, from the local census  [HOLE 5]
+    result = emitNode(action.body)
+    print "  ret " action.irType " %t" result
+    print "}"
+    restore print                                  # sink doctrine: emission only;
+}                                                  # every voice speaks on stderr
+
+# ---- the verb ----
+jitter(action) {
+    emitAction(action)
+    verdict = jitLoad(emitBuf, action.name)        # the extern     [HOLE 6]
+    if verdict != 1; {
+        print "jitLoad REFUSING " action.name " -- staying interpreted" onto stderr
+        # ruling 2: refusal degrades, never face-plants. censused, not fatal.
+    }
+    print "JITTER SENTINEL -- emission complete" onto stderr
+
+    # ---- two-arm verification, the binky ----
+    interpAns = runAction(action, fixText)         # arm 1: the floor [HOLE 7]
+    jitAns    = runJitted(action, fixText)         # arm 2: the slot  [HOLE 7]
+    print "INTERP " interpAns "   JITTED " jitAns
+    if interpAns == jitAns; print "AGREE";  else print "DISAGREE -- he pooched it"
+    print "WITNESS jitted " verdict " -- 1 = jitted arm ran the slot, 0 = it did not"
+    print "VERIFY SENTINEL -- answer reported" onto stderr
+}
+
+# ---- driver, parser-style: swap the argument, swap the specimen ----
+jitter(opPlus);

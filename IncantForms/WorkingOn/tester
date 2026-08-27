@@ -1,7 +1,8 @@
 Start();
 include(unitTests);
+include(designDocs);
 search reset stack Grokking;
-search UnitTests list;
+search UnitTests DesignDocs list;
 
 register(FORMs);
 define
@@ -32,7 +33,7 @@ define
         };
     ;
 
-displayForm(sample);
+displayForm(DesignDocs);
 stop();
 
 print "listRules:";

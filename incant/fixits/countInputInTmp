@@ -1,3 +1,5 @@
+//countInputInTmp
+
 Start();
 include(unitTests);
 include(utilities);
@@ -15,28 +17,32 @@ define
     fcWalk argument code={
         iterate fcCur on argument members;
         while ++fcCur;
-            if noPrinT;             continue;
-            if binTypE;             continue;
-            if !isRulE;             continue;
-            if actionTypE != 0;     continue;
-            fcBump(fcCur);
+            if noPrinT;
+                print `"noPrint ignored" taG:;
+                continue;
+            if binTypE;
+                print `"bin ignored" taG:;
+                continue;
+            if !isRulE;
+                print `"not a rule ignored" taG:;
+                continue;
+            if listLengtH;  ++fcN;
+            else
+                print `"no attributes or members so ignored" taG:;
+                continue;
+            print "Walked:" fcN taG:;
         };
     fcRun code={
         fixCountInputHere = 0;
-        cerr "ANCHOR fixCountInputHere -- the TRUE rule population is printed":;
-        cerr "below. The count harness does not read it from here. It reads it":;
-        cerr "from /tmp/b2/rules.txt, which does not survive a reboot.":;
-
-        fcNote();
+        cerr "ANCHOR fixCountInputHere -- the TRUE rule population is printed below. The count harness does not read it from here. It reads it from /tmp/b2/rules.txt, which does not survive a reboot.":;
+        cerr `"(the walk cursor is deliberately NOT declared above -- a cursor named in the define block walks exactly ONE member, silently)":;
         fcWalk(Grokking);
-        cerr "   rules the harness SHOULD attempt " fcN " (live, counted now)":;
-        cerr "   the harness attempted          42  (as of 2026-08-23 and -24)":;
-
+        cerr `"rules the harness SHOULD attempt" fcN "(live, counted now)":`"the harness attempted          42  (as of 2026-08-23 and -24)":;
         cerr "FIXIT SENTINEL -- countInputInTmp reached its foot":;
-        stop();
         };
     ;
 fcRun();
+stop();
 
 THE COUNT HARNESS READS ITS RULE LIST FROM /tmp AND FAILS BY UNDERCOUNTING
 

@@ -1,3 +1,5 @@
+//dataCrash
+
 Start();
 include(unitTests);
 include(utilities);
@@ -53,10 +55,10 @@ define
         cerr "   C2 compile returned -- IF YOU SEE THIS, THE CRASH IS GONE":;
 
         cerr "FIXIT SENTINEL -- dataCrash reached its foot":;
-        stop();
         };
     ;
 fdRun();
+stop();
 
 DatA CRASHES THE COMPILER AND NOTHING ELSE IN ITS FAMILY DOES
 
