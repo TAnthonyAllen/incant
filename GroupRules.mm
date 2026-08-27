@@ -13436,8 +13436,20 @@ extern "C" GroupItem *setParse(GroupItem *field)
 RuleStuff 	*ruleStuff = field->rStuff;
 	if ( isREGISTRY(field->groupBody->flags.binType) )
 		return 0;
+	/*  THE REFUSAL MUST RETURN. Before 2026-08-28 this arm printed and fell
+	through to `if parseMethod` below -- which resolves against ruleStuff,
+	the very null it had just refused -- so a rStuff-less field was
+	reported and then dereferenced. Latent for as long as every caller
+	happened to pass a rule; Tony's six punctuation members of Grokking
+	are the first callers that do not, and parseClass died at exit 139.
+	Same family as firstCallerNullList. Ruling D: absence of rStuff on a
+	non-label node is LAWFUL -- a specimen -- so the refusal is the
+	correct answer and it must be a refusal, not a remark.  */
 	if ( !ruleStuff )
+		{
 		::fprintf(stderr,"setParse: ERROR field passed in %s has no rStuff\n",field->groupBody->tag);
+		return 0;
+		}
 	else
 	if ( !ruleStuff->parseMethod )
 		{
