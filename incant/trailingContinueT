@@ -1,0 +1,119 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(FixTC);
+define
+    tkList one two three;
+    tkAfter=0;
+    tkSeen=0;
+
+    tkWhileArm code={
+        cerr "  WhilE  arm entered":;
+        tkAfter = 0;
+        tkSeen  = 0;
+        while tkSeen < 3;
+            tkSeen = tkSeen + 1;
+            continue;
+        tkAfter = 1;
+        cerr "  WhilE  after-loop statement ran -> " tkAfter "   pinned 1":;
+        };
+    tkForArm code={
+        cerr "  FOR    arm entered":;
+        tkAfter = 0;
+        tkSeen  = 0;
+        for tkX in tkList;
+            tkSeen = tkSeen + 1;
+            continue;
+        tkAfter = 1;
+        cerr "  FOR    after-loop statement ran -> " tkAfter "   pinned 1":;
+        };
+    tkDoArm code={
+        cerr "  DO     arm entered":;
+        tkAfter = 0;
+        tkSeen  = 0;
+        do
+            tkSeen = tkSeen + 1;
+            continue;
+        while tkSeen < 3;
+        tkAfter = 1;
+        cerr "  DO     after-loop statement ran -> " tkAfter "   pinned 1":;
+        };
+    tkRun code={
+        fixTrailingContinueHere = 0;
+        cerr "ANCHOR fixTrailingContinueHere -- a trailing continue eats the rest of the block":;
+        tkWhileArm();
+        tkForArm();
+        tkDoArm();
+        cerr "TC SENTINEL -- all three arms were CALLED":;
+        stop();
+        };
+    ;
+tkRun();
+
+A TRAILING `continue` SILENTLY DELETES THE REST OF THE ENCLOSING BLOCK.
+THIS IS THE REGRESSION TEST. It was incant/fixits/trailingContinue until
+2026-08-28, when the remedy was stepped, blessed by Tony, and the citizen
+promoted here.
+
+WHAT THE THREE ARMS ASSERT. Identical shape each: a loop whose last executed
+statement is `continue`, then one statement after the loop. All three must
+print "arm entered", run three passes, and reach the statement after the loop.
+
+/!\ THE ARM-ENTERED MARKERS ARE THE ANTI-VACUITY CONTROL AND ARE NOT
+DECORATION. Without them, "FOR printed nothing" is indistinguishable from "the
+FOR arm never ran", which is a completely different defect. The markers prove
+the loop ran and the TAIL was eaten.
+
+THE MECHANISM, Tony's own, written when he fixed WhilE (b88f33d): when the last
+iteration hits a continue, the loop's `result` is still the continue SENTINEL,
+which then propagates to the ENCLOSING block as a continue and pooches it. One
+channel carrying two meanings -- "skip this iteration" and "this is the block's
+value" -- the second leaking across a boundary the first was never meant to
+cross. His word on the WhilE version: NOT AN OPTIONAL FIX.
+
+THE THREE SITES, all now carrying the same cure:
+    aCTionWhilE   ruleActions.rtn:1470   fixed 2026-08-24
+    aCTionDO      ruleActions.rtn:579    fixed 2026-08-25
+    aCTionFOR     ruleActions.rtn:727    fixed 2026-08-25
+
+        if isContinue {
+            result      = trueResult;
+            continue; }
+
+/!\ aCTionFOR ALSO CONTINUES EARLIER, at the `restrict` test, AND THAT ARM IS
+DELIBERATELY UNTOUCHED -- `result = 0;` runs at the head of every iteration, so
+no sentinel is ever in flight there. A blind paste would have been harmless but
+the reason would have been wrong. aCTionDO, by contrast, has NO `result = 0;`
+at the head of its body, which is precisely why the sentinel survived there.
+Same cure, three different reasons. Do not "unify" these by pattern-match.
+
+/!\ THE NEGATIVE CONTROL, RUN 2026-08-28, AND IT IS WHY THIS FIXTURE IS WORTH
+HAVING. With the remedy stripped from aCTionFOR and aCTionDO, retok'd bare
+(canary 319) and rebuilt:
+
+    WhilE  arm entered
+    WhilE  after-loop statement ran -> 1      <- fixed site, still reports
+    FOR    arm entered
+                                              <- tail eaten, nothing printed
+    DO     arm entered
+                                              <- tail eaten, nothing printed
+    exit 0
+
+/!\ AND THE MEASUREMENT THAT MADE PROMOTION THE POINT RATHER THAN A TIDY-UP:
+THE FLEET DID NOT NOTICE. With the defect reinstated, pop.sh reported 62 green
+and a byte-identical failure set. NOTHING in the standing instrument covered
+this. incant/loopBranchT is adjacent -- it asserts break is consumed and
+continue skips correctly -- and it is blind to the tail being eaten.
+
+EXPOSURE WHEN THE REMEDY LANDED WAS ZERO, which is why nobody was ever bitten:
+a census of 283 live files (incant + minionWork + IncantForms/WorkingOn) found
+exactly ONE carrying both a for/do loop and a `continue` -- incant/utilities,
+whose continue at :106 sits inside a `while ++grup;`, the already-fixed form.
+Real, severe, and untripped. The first person to write `for x in y; ...
+continue;` would have found it by their own code silently not running, exit 0.
+
+/!\ CENSUS METHOD NOTE, because the first run of it was VOID and said so. The
+file list was built before the probe existed, so the H11 known-positive control
+(the probe must appear in the hits) came back ABSENT. Rebuilt, control present,
+census re-run. A stale corpus list is a census instrument that lies quietly.

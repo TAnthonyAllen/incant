@@ -597,6 +597,32 @@ valcheck loopBranchT "1 bare break in while  *->\\[ " 3 "break is CONSUMED by th
 valcheck loopBranchT "2 bare continue in while *->\\[ " 12 "continue still skips correctly (12)"
 
 #  ---------------------------------------------------------------------------
+#  trailingContinueT -- A TRAILING `continue` MUST NOT EAT THE REST OF THE BLOCK.
+#  Promoted from incant/fixits/trailingContinue on 2026-08-28, remedy stepped and
+#  blessed. Three arms, identical shape: a loop whose last executed statement is
+#  `continue`, then one statement after the loop. All three must reach it.
+#
+#  ⚠ WHY THIS IS NOT REDUNDANT WITH loopBranchT ABOVE, WHICH IS THE ADJACENT
+#  FIXTURE AND WAS MEASURED BLIND TO IT. loopBranchT asserts that a break is
+#  consumed and that continue skips correctly -- both about behaviour INSIDE the
+#  loop. This asserts what survives AFTER it. With the remedy stripped from
+#  aCTionFOR and aCTionDO and the binary rebuilt, the whole fleet reported 62
+#  green and a byte-identical failure set: NOTHING here covered it. That
+#  measurement is why the citizen was promoted rather than simply retired.
+#
+#  ⚠ THE arm-entered ROWS ARE THE ANTI-VACUITY CONTROL AND MUST NOT BE DROPPED
+#  AS NOISE. Without them "FOR reported nothing" cannot be told from "the FOR
+#  arm never ran", which is a different defect entirely. They are what makes the
+#  three value rows below mean the TAIL was reached rather than the arm was.
+branchrun trailingContinueT "TC SENTINEL" "trailingContinueT runs (trailing continue in all 3 loop forms)"
+armed=$(grep -c "arm entered" "$T/trailingContinueT")
+if [ "$armed" = "3" ]; then echo "  ok    trailingContinueT anti-vacuity: all 3 arms ENTERED (3)"; green=$((green+1))
+else echo "  FAIL  trailingContinueT anti-vacuity: $armed arms entered, want 3"; fail=1; fi
+valcheck trailingContinueT "WhilE  after-loop statement ran -> *" 1 "WhilE: statement after a trailing continue runs (1)"
+valcheck trailingContinueT "FOR    after-loop statement ran -> *" 1 "FOR: statement after a trailing continue runs (1)"
+valcheck trailingContinueT "DO     after-loop statement ran -> *" 1 "DO: statement after a trailing continue runs (1)"
+
+#  ---------------------------------------------------------------------------
 #  THE IA-2 PIN -- THE RULING MADE EXECUTABLE. SEQ 61, 2026-08-13.
 #
 #  bindSeamB binds a generated C++ parse method to Braced by CROSS-FILE
