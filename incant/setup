@@ -324,7 +324,13 @@ define
     utilities File='incant/utilities';
     unitTests File='incant/unitTests';
     generate File='incant/generate';
-    bytecode File='incant/bytecode';
+    /*  The bytecode row was struck here on 2026-08-28 by Tony's ruling, from trim
+        census phase one. Its file was deleted at cc2fd2d and nothing has included
+        it since. A registered includable naming a file that is gone fails at exit
+        zero with nothing saying why, which is bear-trap 28 fourth row.
+        This note is deliberately prose. Bear-trap 27 says a comment carrying
+        indented code-shaped text can kill the parse, and this file is read at
+        runtime, so a break here would take down every run.  */
     jigcorpus File='incant/jigcorpus';
     decoder File='incant/decoder';
     designDocs File='incant/designDocs';
