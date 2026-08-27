@@ -1,0 +1,141 @@
+# isRule CENSUS -- PRE-REGISTRATION, written BEFORE any number was read
+# 2026-08-28. Clay asked for "the census (reads and writes, as specced)" and
+# referenced "the pre-registered decision rule from before".
+#
+# ⚠ NO WRITTEN PRE-REGISTRATION EXISTS IN THE TREE. Searched ipc/clay-to-clod.md,
+# ipc/clod-to-clay.md, docs/, and the fixit citizens. Clay's version lived in
+# conversation. Per the citation discipline it is NOT reconstructed from context;
+# this is a fresh registration, and it is flagged as such in the report.
+
+## SUBJECT
+Every site that READS or WRITES `isRule`, classified by whether it can see a node
+whose groupBody is SHARED -- i.e. a copy made by GroupItem::GroupItem(GroupItem*),
+which does `groupBody = grup->groupBody` while rStuff stays per-node and null.
+
+## WHY IT IS BEING MEASURED
+literalMasterIsRule option B = stop the back-propagation (raise isRule somewhere
+per-node, or gate the write). Its blast radius is the ONLY unknown standing
+between B and the cheaper options A and C. This census measures that radius.
+
+## SCOPE
+HAND-WRITTEN SOURCE ONLY: *.twk, *.rtn (the *.mm are GENERATED from these and
+counting both double-counts), plus the incant corpus (incant/, minionWork/,
+genLadder/).
+SPELLINGS: tok/C++ source uses bare `isRule`; incant uses `isRulE`.
+⚠ H9: prose and comments must be separated from code. A file COUNT is not a site
+count, and the classification -- not the grep -- is the finding.
+
+## CONTROLS -- ALL THREE MUST APPEAR IN THE RAW HITS OR THE CENSUS IS VOID
+C1  WRITE  GroupItem.twk setRuleStuff -- the back-propagating write itself.
+           [CONFIRMED PRESENT at :1879-1880 before registration was closed]
+C2  READ   auditMissingRules -- reads isRule && !rStuff; it is the instrument
+           that SURFACED this whole problem. A census excluding it is void.
+C3  READ   the incant population walks (odoPopulation / countPopulation), which
+           filter on `if !isRulE;` and are how the six masters entered the
+           genParse population.
+
+## DECISION RULE -- fixed BEFORE the numbers, so the answer cannot be fitted after
+Under B the flag is raised on STRICTLY FEWER nodes. So a read changes its answer
+only where it currently sees a back-propagated true. Classify every READ site:
+  (a) WANTS-CORRECTED  -- a census/audit/population read that is currently WRONG
+                          because of back-propagation. B fixes it.
+  (b) INDIFFERENT      -- cannot receive a shared-body copy, or does not care.
+  (c) LOAD-BEARING     -- relies on the back-propagated true being there today;
+                          B would change live behaviour here.
+
+  B IS SAFE  iff (c) is EMPTY.
+  B IS COSTED, NOT REFUSED, if (c) is non-empty: each (c) site is named with
+             what it would need instead.
+  ⚠ A LARGE (a) COUNT IS NOT EVIDENCE AGAINST B -- it is evidence FOR it, and
+    that asymmetry is registered now so a big number is not misread later as
+    a big radius.
+
+## PREDICTION, with its mechanism, per H11's "predict mechanisms not counts"
+The WRITE is one site (setRuleStuff), because that is the only place the flag is
+raised from a registry/parent test. MECHANISM: modify() and every attach path
+funnel through it.
+At least one (c) is EXPECTED, mechanism: parse-time dispatch tests isRule to
+decide whether a node is a rule at all, and terms attached to rules are exactly
+the shared-body copies. If (c) comes back EMPTY, that is a surprise and gets
+re-checked before it is reported.
+
+# ============================================================================
+# RESULT, 2026-08-28. Controls C1/C2/C3 all present; census VALID.
+# ============================================================================
+
+## RAW
+89 hits in *.twk/*.rtn, 44 in the incant corpus. 68 survive prose-stripping and
+were READ BY EYE (H9: the classification is the finding, not the grep).
+⚠ C2 WAS MIS-SPECIFIED ON ITS FIRST RUN and self-reported 0. The check looked for
+the function NAME inside a hit-list that only contains lines matching `isRule`,
+so it could never match. Re-specified against the file and confirmed present at
+GroupActions.rtn:143. The control caught its own defect, which is the point of
+having one.
+
+## FINDING 1 -- THE PREDICTION IS FALSIFIED. THE WRITE IS NOT ONE SITE, IT IS EIGHT.
+Pre-registered: "The WRITE is one site (setRuleStuff), because that is the only
+place the flag is raised from a registry/parent test. MECHANISM: modify() and
+every attach path funnel through it." WRONG. Measured:
+
+    GroupItem.twk:1880    setRuleStuff, registry test
+    GroupItem.twk:1882    setRuleStuff, parent test
+    GroupMain.twk:16      grokking.isRule = true      (the registry itself)
+    GroupMain.twk:282     isRule = true               (a rule being defined)
+    ruleActions.rtn:398   if !binType isRule = true;
+    ruleActions.rtn:449   NewGroup.isRule -> item.isRule = true   (bin members)
+    ruleActions.rtn:1447  isRule = true;
+    Commands.rtn:863      isRule = true;              (the `isRule` command)
+
+SIX of the eight are OUTSIDE setRuleStuff. Any option-B design that gates one
+write site leaves the other seven raising the flag.
+
+## FINDING 2 -- B2 (gate the write on a shared-body copy) IS REFUTED, EMPIRICALLY.
+One line, `if !isRule && !isCopy`, tok'd bare and rebuilt. It does not merely
+cost too much -- IT DOES NOT ACHIEVE ITS GOAL:
+
+    audit          10 missing rules  -> STILL 10.  loose 4 -> 11 (WORSE)
+    countPop       39/39 clean       -> 38 clean, 1 CRASHED
+    odometer       Limit REFUSE min  -> "no emission and no refusal line"
+    fleet          67 green          -> 63
+
+The masters keep the flag because six other writers still raise it. Restored;
+GroupItem.twk md5-verified, fleet back to 67.
+
+## FINDING 3 -- tokenize IS NOT THIS DISEASE. Clay's premise needs one correction.
+The relayed suspicion was that tokenize, break, continue and return "all carry
+isRule only through the same back-propagation". Measured against the audit:
+
+    tokenize                 ABSENT from MISSRULE  => it HAS rStuff
+    break/continue/return    PRESENT in MISSRULE   => isRule, no rStuff
+
+tokenize gets `modify(strap,"^@")` called DIRECTLY on the master, not on a copy,
+so it legitimately owns both flag and rStuff. It is excluded from countPop's 39
+by the has-a-list filter and appears in the odometer's 64 only because that
+filter does not test for a list. So the tokenize question is REAL but it is a
+POPULATION question, not a shared-body question, and it is not blocked on this.
+⚠ break/continue/return ARE in the affected population, but by a different route
+-- they are Keywords members reached by ruleActions.rtn:449's bin propagation,
+not by a groupBody share. THREE mechanisms, not one.
+
+## FINDING 4 -- THE AFFECTED NODE POPULATION IS 10, AND IT IS NOT ONE CLASS.
+    6   Grokking punctuation masters   groupBody shared with an attached copy
+    3   Keywords break/continue/return bin-member propagation (rtn:449)
+    1   SearchList/Grokking            the registry itself (GroupMain.twk:16)
+
+## DECISION RULE, EXECUTED AS PRE-REGISTERED
+(c) LOAD-BEARING is NOT EMPTY, so B is COSTED, NOT REFUSED -- and B2 specifically
+is refuted on its own terms. The (c) evidence is the B2 run itself: a crash in
+countPop and a lost odometer refusal line are live behaviour changes, not census
+corrections.
+⚠ B1 -- move isRule out of groupBody so it is per-node -- IS NOT MEASURED HERE.
+It is a LAYOUT CHANGE (bear-trap #10: groups.ext sync + tokall, and the .mm below
+top level that tokall misses). It remains the only flavour that could give the
+copy the flag while denying it to the master. Cost unmeasured; radius now known
+to include eight write sites and the reads below.
+
+## WHAT THIS UNBLOCKS
+Option A (teach the audit the category) is now clearly the cheapest and is the
+only one whose blast radius is known to be zero -- it changes one predicate in
+auditMissingRules and touches no write site. Option C (accept, re-pin at 10) is
+unchanged. Option B is a layout change with eight writers, and B's cheap flavour
+is dead.
