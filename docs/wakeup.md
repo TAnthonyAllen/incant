@@ -1,3 +1,108 @@
+# ⚠⚠⚠ SEALED 2026-08-28 — TONY'S OFFLINE WORK RE-BASELINED, THREE CITIZENS OFF THE QUEUE,
+# AND THE isRule CENSUS KILLS OPTION B'S CHEAP FLAVOUR. READ THIS FIRST.
+#
+#   ⚠ **THIS SUPERSEDES THE 2026-08-27 SEAL BELOW, WHICH IS INTACT AND TRUE AS OF ITS OWN MARK.**
+#
+#   ## THE ONE-LINE STATE: **Tony's punctuation/rename work is landed and re-baselined; the fleet
+#   is 67 green / 1 parked (was 61, +9 rows added, one lost to a ruling); the fixit queue is 7
+#   (was 8, with three retired and two minted); and option B for `literalMasterIsRule` is measured
+#   dead in its cheap form.** Canary **319**. Frontier **10 PASS, first failing station NONE**.
+#   decodePop 77 terms / 22 checks. ddPop 6. countPop **39/39 clean**. All four repos clean and
+#   pushed. **Fixit queue: 7 (oldest kantGenPath, 08-24).**
+#
+#   ⚠ **CLOCK NOTE FOR A RESURRECTION READER: the machine clock read 2026-08-27 all session while
+#   the work was dated 08-28.** Every commit from this session is stamped Aug 27. Do not read that
+#   as the previous seal's day.
+#
+#   ## ⚠⚠ THE SIX THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   **1. THE `setParse` CRASH FIX IS REAL AND INDEPENDENT OF EVERYTHING ELSE.** Its refusal arm
+#   printed `field passed in %s has no rStuff` and then FELL THROUGH to `if parseMethod`, which
+#   resolves against the very null it had just refused. `incant/parseClass` died at exit 139.
+#   Tony's six punctuation members are the first callers ever to lack rStuff. Ruling D says a node
+#   without rStuff is LAWFUL, so the refusal is right and must actually refuse. Fixed in
+#   `Generate.rtn`; fleet 54 → 56.
+#
+#   **2. ⚠ DO NOT ADD `setRuleStuff()` TO THE SIX PUNCTUATION MASTERS. IT WAS TRIED, IT WAS GREEN,
+#   AND IT IS WRONG.** Tony's ruling: rules added to Grokking do NOT carry rStuff; the rStuff
+#   arrives when a literal is ATTACHED to another rule, by a `setRuleStuff` call or by a `modify`
+#   call that runs it. The addition cleared two fleet rows and took genParse 19 → 25 — it bought a
+#   better number by breaking an unwritten invariant. **Green was not the test.** Reverted.
+#
+#   **3. THE `isRule` BACK-PROPAGATION, AND ITS CENSUS.** `setRuleStuff` raises
+#   `groupBody->flags.isRule`; the copy constructor SHARES groupBody (`groupBody = grup->groupBody`)
+#   while rStuff is per-node. So attaching a literal marks the MASTER. Negative control: a seventh
+#   master attached to NO rule does not acquire the flag — minting is clean, ATTACHMENT marks it.
+#   Census banked at **`minionWork/isRuleCensus`**, pre-registration at its head. Its four findings:
+#   - **the write is EIGHT sites, six outside `setRuleStuff`** (a pre-registered prediction of ONE,
+#     falsified) — `GroupMain.twk:16,282`, `ruleActions.rtn:398,449,1447`, `Commands.rtn:863`;
+#   - **B2 (gate the write on a copy) is REFUTED and not on cost — it does not achieve its goal.**
+#     Audit stayed at 10 missing and loose went 4 → 11; countPop crashed a rule; the odometer lost
+#     `Limit`'s refusal line; fleet 67 → 63. Restored, md5-verified;
+#   - **`tokenize` is NOT this disease** — ABSENT from MISSRULE, so it HAS rStuff, because
+#     `modify(strap,"^@")` runs on the master not a copy. `break`/`continue`/`return` ARE affected
+#     but by a THIRD route, bin-member propagation at `ruleActions.rtn:449`. **Three mechanisms;**
+#   - the affected population is **10**, splitting **6 / 3 / 1** across those three.
+#   ⚠ **SO OPTION A (teach `auditMissingRules` the category) IS THE ONLY CHOICE WITH A KNOWN-ZERO
+#   BLAST RADIUS. B1 — move `isRule` out of groupBody — is a LAYOUT CHANGE (bear-trap #10) and is
+#   UNMEASURED. The ruling is still Tony's; `incant/fixits/literalMasterIsRule` holds all three.**
+#
+#   **4. BEAR-TRAP #35 EXTENDED — A PROPERTY READ INSIDE A COMPOUND CONDITION UNDER-FILTERS A WALK
+#   AT EXIT 0.** Six shapes measured, one run each, 39 correct: bare-positive and
+#   capture-then-test give 39; `!x`, `x == 0`, AND `cursor.x == 0` all give **64**. **`!` is not the
+#   culprit** — `== 0` fails identically and both work once the value is in a local. **CAPTURE,
+#   THEN TEST.** Worse than #38's under-walk-to-one, because 64 where 39 is right looks exactly
+#   like a working walk. Provenance: Tony distrusted `!` and was right about the line, one step off
+#   on the mechanism; Clod wrote the `!` and blamed `!` in prose before measuring.
+#
+#   **5. THE TWO REMAINING FLEET REDS ARE PRE-EXISTING AND WERE MEASURED SO.** Both were red at
+#   HEAD before Tony's edits: `parseClass.target` (its diff SHRANK under his change) and
+#   `jsonTest baseline`. ⚠ **`rStuff audit` and `oneTest baseline` are red BY CHOICE, not by
+#   neglect** — re-pinning them 4 → 10 would assert that ten missing rules is correct, which is the
+#   exact thing under ruling in item 3. **Do not re-pin them to get a green number.**
+#
+#   **6. THE WALKIE-TALKIE IS DOWN (Tony, 08-28).** `SEQ 92` in `ipc/clod-to-clay.md` is a RECORD,
+#   NOT A DELIVERY; the paste-ready text went to Tony in chat. ⚠ And while polling,
+#   `ipc/support-to-clod.md` **SEQ 2 has sat at `working` since 2026-08-03 — 25 days** — blocked on
+#   a ruling from Tony on the registry archive wire format, Part A landed green, Part B at the gate.
+#   Clay wants that Part B text when the channel carries it; the ruling stays his.
+#
+#   ## WHAT MOVED ON THE QUEUE
+#   **RETIRED (3):** `dataCrash` (crash gone, mapped onto countPop's `ok DatA`; ⚠ its listLength
+#   anti-vacuity control did NOT carry, said plainly) · `countInputInTmp` (population now DERIVED
+#   live — no file to go stale — and `ok` scored on the compile census, so a ghost name can no
+#   longer score green; ⚠ last session's "42/42 clean" was **41 real + 1 ghost**, corrected) ·
+#   `trailingContinue` (promoted to `incant/trailingContinueT`, five fleet rows).
+#   **MINTED (2):** `jsonListNotAList` · `literalMasterIsRule`.
+#   ⚠ **`incant/jsonTest` HAD NOT BEEN RUNNING SINCE 2026-08-25** — its semicolon-less `if` became
+#   illegal under the SemI- ruling, so it dropped all 17 assertions and still exited 0. Fixed; it
+#   now reproduces its 07-29 baseline byte-for-byte but for one stray line, which is `jsonListNotAList`.
+#
+#   ## ⚠ THE MEASUREMENT THAT JUSTIFIED PROMOTING trailingContinue, because it generalises
+#   With the remedy stripped and the binary rebuilt, **the fleet reported 62 green and a
+#   byte-identical failure set — it was BLIND.** After promotion the same control takes it 67 → 65
+#   with FOR and DO red by name. **Retiring a citizen without measuring whether the fleet covers it
+#   is how coverage is lost silently.** `incant/loopBranchT` is adjacent and asserts behaviour
+#   INSIDE the loop; nothing asserted what survives after it.
+#
+#   ## THE NEXT STATIONS, in Clay's order
+#   1. **`literalMasterIsRule`'s A/B/C ruling** — Tony's, now unblocked by the census.
+#   2. **The two-pattern corpus sweep** — semicolon-less `if`s (the 08-25 seal already named four
+#      in `displayIfVisible`, in the file every fixture includes) and in-condition property reads.
+#   3. **SEQ 2 Part B text to Clay** when the channel carries it.
+#   4. Then resume the queue: `kantGenPath` and `parentUnreachable` are both BEST GUESS.
+#
+#   ## THE SEAL CHECKLIST, run 2026-08-28
+#   fleet **67 green / 1 parked** · frontier **exit 0, 10 PASS, FIRST FAILING STATION: NONE**
+#   (⚠ NOT revised this session, and that is deliberate: the campaign edge did not move — the work
+#   was fixits and a census, not the parse campaign) · decodePop **77 terms, 22 checks** · ddPop
+#   **6 green** · countPop **39/39 clean, 0 missing** · canary **319** · `groups.ext` untouched
+#   (mtime predates the session; no flag or extern was added) · **all four repos 0 dirty /
+#   0 unpushed** · every retok BARE, so the binary is the real program and not an instrumented one.
+#   **Tony's fixit incantations waiting: 7 (oldest: kantGenPath, since 2026-08-24)**
+
+# ---
+
 # ⚠⚠⚠ SEALED 2026-08-27 — THE CONNECTIVE CLOSES, THE MIRROR'S DISEASE IS NAMED BY ADDRESS, AND
 # THE GUARD IS REFUSED PENDING A RULING. READ THIS FIRST.
 #
