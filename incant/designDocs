@@ -310,8 +310,7 @@ define
         bt29 gloss="block comment between arms" symptom="The extern count in the generated header drops from 288 to zero and the build fails three files away with a missing member, while the diagnostic names the start of an enclosing function that is perfectly fine." finding="A block comment placed between two arms of an if-or chain, immediately before the or, wipes the entire extern block." workaround="Put prose above the whole chain or inside the arm it describes, never in the gap between arms." solution="None owed separately; same no-lexer cause as bt4." status="workaround" verdict="-- awaiting Tony --" reviewed="-- unreviewed --" station="not met on the frontier" vintage="predates the frontier" site="CLAUDE.md bear trap 29" beartraps="bt4" description="THE BISECT IS THE PART WORTH COPYING, because content looks guilty and is not: every paragraph of the comment killed it individually, which is what proves the cause is POSITION and not any token inside it. The standing canary caught it -- count the externs in the generated header after every retok.";
     TokFiles="These are both twk and rtn files and the entries here contain notes that apply to methods in those files. Each file has an entry and contains entries for every method in it that has explanatory notes that were in the code and are now here.":
         Generate="is an rtn file that gets included into GroupRules.twk when it gets tokked. The text for these entries needs to be reviews to see if they are still relevant. They were relevant once but things change and no one has been going thru comments to keep them up to date. The comments cluttered up code. Now they do not. They are here and the same relevancy question applies.":
-            parseAny=(
-                THE LABEL WRITE IS GUARDED IN ALL FOUR OF THESE, and until 2026-08-18 it
+            parseAny=(THE LABEL WRITE IS GUARDED IN ALL FOUR OF THESE, and until 2026-08-18 it
                 was guarded in only one. parseSet had `if label` and parseAny,
                 parseCharacter and parseString wrote through it bare, so a rule matched
                 with no label in its frame stored into a null and took the process down.
@@ -371,8 +370,7 @@ define
                 so nothing here has been run -- the template diff is the control and the
                 Xcode walk is the measurement. What was NOT touched, and why, is in
                 docs/fixIts.md F-26.#);
-            parseSetLabel=(
-                THE ACTION FIRE IS GONE FROM HERE, 2026-08-25, Tony's ruling, and
+            parseSetLabel=(THE ACTION FIRE IS GONE FROM HERE, 2026-08-25, Tony's ruling, and
                 its absence is the point rather than an omission. THE SPLIT IS:
                     parseSetLabel   label work only -- and it stays alive as the
                                     future glom arm
@@ -394,8 +392,7 @@ define
                 GroupBody.h defines as isGROUP, which setParse binds to
                 parseMethod = null. They never reach a leaf executor, so they never
                 reached this line. The fire was unreachable, not merely redundant.#);
-            labelMinters=(
-                THE CONDITION IS COPIED FROM checkInput AND NOT FROM THE SPELLING, and that
+            labelMinters=(THE CONDITION IS COPIED FROM checkInput AND NOT FROM THE SPELLING, and that
                 is Tony's ruling of 2026-08-25 rather than a preference. RuleStuff.mm's
                 checkInput sets `label = 0` when
 
@@ -422,8 +419,7 @@ define
                 printed rather than a verdict asserted -- a caller that prints 0 and a
                 caller that prints 3 are telling the reader different things, and "false"
                 tells it neither.#);
-            runRuleAction=(
-                THE GATE IS LIFTED INTO A LOCAL AT ENTRY, in passthrough because a
+            runRuleAction=(THE GATE IS LIFTED INTO A LOCAL AT ENTRY, in passthrough because a
                 hand-declared C++ global in jitContext.h is invisible to tok's field
                 resolution -- gParseRecordArmed is the precedent and every one of ITS
                 uses is inside a passthrough too. `inFlight` is read OUTSIDE the block
@@ -507,8 +503,7 @@ define
                 the derived channel is populated where it is actually consumed --
                 which is the question the setParse mirror deliberately does NOT
                 change, and therefore the one worth watching while it does not.#);
-            setParse=(
-                THE `or data` GUARD IS THE TEMPLATE'S AND DROPPING IT COSTS REAL ROUTING.
+            setParse=(THE `or data` GUARD IS THE TEMPLATE'S AND DROPPING IT COSTS REAL ROUTING.
                 setTestMatch tests data THIRD, above every method-shaped arm, so a field
                 that CARRIES data is matched by its data and a method-bearing leaf is the
                 leftover case. With `or method` above an unguarded switch, the method arm
