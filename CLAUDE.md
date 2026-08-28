@@ -1982,6 +1982,35 @@ direction the campaign might take, it is a state the machinery must report as a 
 > bare count missed, in the same direction, by up to 3x.** Predict mechanisms; when you must predict
 > a count, say what mechanism sets it, or mark it as the guess it is.
 
+> **RULE H12 — A LANDING RUNS THE FULL SEAL CHECKLIST, NOT THE FLEET ALONE.** Tony, 2026-08-29,
+> joining the kitchen doctrine, **effective immediately and with no exception for an "obviously
+> neutral" edit** — the edit that forced this rule was exactly that class.
+>
+> **PROVENANCE, and it is the whole argument: the fleet was blind BY CONSTRUCTION.** A comment
+> move — 292 lines of prose out of `Generate.rtn` into `incant/designDocs`, zero code touched,
+> the retok byte-identical — landed under a fleet-only check. `pop.sh` read **67 green before and
+> 67 green after**, because no fleet row reads `designDocs`. Meanwhile **`ddPop` went 6 green → 3**,
+> with `ddGate sentinel MISSING`, its walk reading **zero records**, and its H7 negative control
+> reporting *"stayed GREEN — the gate certifies nothing."* The checklist saw it in one run. The
+> fleet could not have seen it in a hundred.
+>
+> ⚠ **THE GENERALISATION IS NOT "RUN MORE THINGS", IT IS THIS: A GREEN FLEET IS EVIDENCE ONLY
+> ABOUT WHAT THE FLEET READS.** Every instrument has a blast radius, and an edit outside it moves
+> nothing and proves nothing. So the question at a landing is never *"did the fleet move"* — it is
+> *"which instrument reads what I touched, and did I run it."* When the honest answer is *none of
+> them*, that is a coverage finding, not a clean bill.
+>
+> **The checklist, and all of it every time:** `pop.sh` · `decodePop.sh` · `ddPop.sh` ·
+> `countPop.sh` · `incant/frontier` · the extern canary (`grep -c '^extern' GroupRules.h`) ·
+> `groups.ext`'s state · both repos clean and pushed.
+>
+> ⚠ **AND A SECOND LESSON FROM THE SAME LANDING, about reading a red row rather than counting it:
+> `parseClass.target` had been red for weeks and was being read as its first six lines.** Under
+> those six, the census it pins had silently fallen from **239 rows to 66** — three quarters gone,
+> at exit 0, sentinel printing. **A red row absorbs new breakage silently**, because nobody diffs a
+> diff. When a row is red by choice, the choice covers the rows you named; it does not cover
+> whatever else moves underneath them.
+
 > **RULE H10 — THE CITATION BOUNDARY: SMOKE-GREEN AUTHORIZES CONTINUING, ONLY A FLEET CHECK
 > AUTHORIZES LANDING. A smoke-green is NEVER citable as fleet-green.** Adopted 2026-08-13 (SEQ 60,
 > Tony's two-tier proposal). `genLadder/smoke.sh` is the iteration bell — fixture-under-test ·
