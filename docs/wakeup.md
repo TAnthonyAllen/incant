@@ -1,3 +1,149 @@
+# ⚠⚠⚠ SEALED 2026-08-29 — THE isGROUP POISON HAS A MECHANISM AND IS DEAD, THE INSTRUMENT THAT
+# WAS ITS BIGGEST VICTIM IS RESTORED, AND THE FLEET GREW A DISEASE-CLASS DETECTOR. READ THIS FIRST.
+#
+#   ⚠ **THIS SUPERSEDES THE 2026-08-28 SEAL BELOW, WHICH IS INTACT AND TRUE AS OF ITS OWN MARK.**
+#
+#   ## THE ONE-LINE STATE: **`parser(ANYorNum)` goes 4-refused to 0-refused on a ruled one-line
+#   fix; `incant/parseClass` goes from 63 errors and a quarter of its census to zero errors and all
+#   of it; the fleet is 75 green / 1 parked (was 67, +8 rows, no row changed state); one id was
+#   born and discharged inside the session; and SEQ 2 is off `working` after 25 days.** Canary
+#   **319**. Frontier **10 PASS, first failing station NONE**. decodePop **22 checks / 79 terms**.
+#   ddPop 6. countPop **39/39 clean**. All repos clean and pushed. **Fixit queue: 8 (oldest
+#   kantGenPath, 08-24) — and it did NOT move today, see item 6.**
+#
+#   ⚠ **CLOCK NOTE, SECOND SESSION RUNNING: the machine clock read 2026-08-28 all day while the
+#   work was dated 08-29.** Every commit from this session is stamped Aug 28. Do not read that as
+#   the previous seal's day.
+#
+#   ## ⚠⚠ THE SIX THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   **1. THE POISON WAS ONE ARM, ATTRIBUTED BY A THREE-ARM PROBE, AND IT IS FIXED.** `setParse`
+#   takes `actionMethod = method` ABOVE its data switch, and the switch's isGROUP case sets
+#   `parseMethod = null` — so an isGROUP alias came away with an ACTOR AND NO EXECUTOR, and that
+#   half-installed executor broke every later parse of any grammar the alias could be reached from.
+#   Three aliases carry it: **ANYtoken, NewGroup, ShortcuT**, and `ANYtoken` sits under
+#   `TokenXP → ANYorNum`, which every expression parse crosses. One rebuild per arm:
+#   ```
+#   arm 1  suppress the builtinActoR attachment, keep the assignment   4 -> 0 refused   THE POISON
+#   arm 2  keep the attachment, null the persisted actionMethod        4 -> 4 refused
+#   arm 3  suppress updateContentFlags                                 4 -> 4 refused
+#   ```
+#   **EXACTLY ONE ARM CLEARS IT**, which is what makes it attribution and not correlation. Clay
+#   pre-registered arm 3 or arm 1 with arm 2 harmless: arm 1 confirmed, **arm 3 falsified**, arm 2
+#   harmless as predicted. Fix is `if actionMethod && parseMethod {` — the parked pointer STAYS
+#   (arm 2 says it is harmless and it is wanted the day an alias gains a real executor).
+#   ⚠ **ARM 2 NEEDED A CONSTRUCTION THE BRIEF DID NOT DESCRIBE:** suppressing the assignment
+#   outright also suppresses the attachment, which is gated on it, so the two arms would have been
+#   confounded. Arm 2 keeps both and nulls `rStuff->actionMethod` after.
+#
+#   **2. ⚠⚠ THE INSTRUMENT WAS THE DISEASE'S LARGEST VICTIM AND NOTHING SAID SO.**
+#   `incant/parseClass` had been emitting **63 `reached end of input` errors every run** and walking
+#   **66 of its 239 census rows** — three quarters gone, at exit 0, with its sentinel printing.
+#   After the fix: **0 errors, 237 rows, 118 distinct tags against 66.** Its "poisons the loader"
+#   header folklore now carries the address. **DOUBT THE INSTRUMENT HARDEST WHEN IT IS THE ONE
+#   INSTRUMENT POINTED AT THE THING YOU ARE HUNTING.**
+#
+#   **3. ⚠ `parseClass.target` IS STILL RED AND WAS DELIBERATELY NOT RE-PINNED.** Its remaining
+#   ~60-line diff is entirely Tony's punctuation rename plus parked `HeX` — literals to
+#   `leftParen`/`rightBrace`, `e`→`exponent`, `CodE`→`CodeBody`, and `followedBy`/`SemI`/`Modifier`/
+#   `nameSet`/`numberSet`/`while` moving off `parseSet`/`parseString` onto `parseRule`. Re-pinning
+#   would ALSO assert the six punctuation `NO-rSTUFF` rows are correct, which is the exact thing
+#   under ruling in `literalMasterIsRule`. **B3/B4 unlocks it; do not re-pin it before then.**
+#   ⚠ **AND THE ROW HAD BEEN READ AS ITS FIRST SIX LINES FOR WEEKS** while the census fell 239→66
+#   underneath them. **A red row absorbs new breakage silently, because nobody diffs a diff.**
+#
+#   **4. THE ACTION-PARKED CENSUS — TONY'S RECON ANSWER, ON THE COMPLETE WALK.** `setParse` parks
+#   `actionMethod` for EVERY rule it claims, not only `parseRule` ones. Of 237 rows: parseRule 65
+#   parked / 74 none, parseAction 8 / 0, **isGROUP-none 7 parked**, and **ZERO parked on every
+#   label-work executor** (parseString 37, parseSet 16, parseContainer 4, parseUpTo 2,
+#   parseCharacter 1, parseAny 1). **So none of them is owed a `runRuleAction` tail today** —
+#   `BrancheS` is `parseContainer`, `act=none`, exactly as Tony read it. ⚠ The safety is MEASURED,
+#   not structural, which is why P2 pins it.
+#   ⚠ **AN EARLIER REPORT OF THIS CENSUS SAID 66 ROWS AND IS CORRECTED HERE** — it was taken on the
+#   truncated run. **The conclusion is unchanged; only the magnitudes moved.**
+#
+#   **5. BEAR-TRAP CANDIDATE, MEASURED WITH CONTROLS: A `(…#)` LITERAL WHOSE OPENING LINE ENDS
+#   RIGHT AFTER THE `(` KILLS THE PARSE.** `name=(one line#);` parses · `name=(first\n second#);`
+#   parses · `name=(\n second#);` **BREAKS**. It took `ddPop` 6 green → 3 with
+#   `ddGate sentinel MISSING` and its H7 control going vacuous, and the symptom is bear-trap #32's
+#   misdirection exactly: `RunRulE: expected a method not DisplayDesignHTML` names the FIRST entry
+#   in the file, which is healthy, at exit 0. **Bisect by removing later entries.**
+#
+#   **6. ⚠ THE FIXIT QUEUE IS 8 AND DID NOT MOVE. A RELAY SAID 8 → 7 AND WAS READING A CITIZEN THAT
+#   NEVER EXISTED.** `isGroupActorPoison` was minted as a **problem record + decoder line only** —
+#   it never had a file in `incant/fixits/`, so its (correct, ruled) retirement discharges the
+#   RECORD and moves the directory not at all. The queue stands at 8, oldest `kantGenPath`, and
+#   `fixitNag.sh` says so. Generated, not typed — which is why the discrepancy was visible.
+#
+#   ## WHAT MOVED
+#   **BORN AND DISCHARGED IN ONE SESSION:** `isGroupActorPoison` (half-installed executor on an
+#   alias) — status **remedy**, verdict written, `reviewed` closed. ⚠ **The record KEEPS its table
+#   and discharge evidence by Tony's explicit instruction: it is trimmable by the gate and is NOT
+#   to be trimmed.**
+#   **BORN AND ESCALATING:** `verifyParse139` — `parser(PrintXP)` and `parser(ExpressioN)` **STILL
+#   exit 139 after the fix, signature identical** (PARSER SENTINEL · WITNESS compiled 1 · death).
+#   So it does NOT discharge as downstream-of-poison. **It is the campaign's last orphan with no
+#   mechanism.** Next measurement named and NOT taken: a backtrace under `script -q /dev/null`,
+#   read one line BACKWARD from whatever it names (bt36).
+#   **REGRADED:** `parentUnreachable` **BEST GUESS → OPEN**, and **nothing is owed by Tony at that
+#   grade** — a change from the version that asked him for a language addition.
+#   **RELAYED:** SEQ 2 Part B ruling to the support minion; `ipc/support-to-clod.md` off `working`
+#   after **25 days**. Part B is unblocked and NOT started; the campaign outranks it.
+#
+#   ## ⚠ `parentUnreachable`: THE GUESS WAS FALSIFIED BY ONE GREP, AND THIS IS THE SHAPE TO COPY
+#   It said "add a parent accessor to opDot — up is the one missing direction". **`parenT` IS
+#   opDot case 2**, registered in `incant/setup` as `parenT=2`, returning the real parent; the
+#   wrapper behaviour was repaired 08-24 and `minionWork/probeCanonTopo`'s "returns a WRAPPER" note
+#   is **stale**. Building it would have added a second parent road beside a working one.
+#   **What is actually broken, measured in one process with a control column:**
+#   ```
+#   accessor      kind       direct      through an action-argument holder
+#   .taG          property   fpInside    fpInside          ok
+#   .texT         property   --          fpInside          ok
+#   .listLengtH   property   4           4                 ok
+#   .parenT       NODE       fpWindow    argument          BROKEN
+#   ```
+#   **READ THE COLUMNS.** Direct is right for everything, so the accessor works. Through the holder
+#   every PROPERTY accessor is right and the NODE accessor hands back **the holder** — `runAction`
+#   binds by `ruleArg.group = argument`, so an action's `argument` is a field POINTING AT the
+#   subject. **A single-unwrap asymmetry between opDot cases, not a missing direction.** Contact
+#   with G5's two-faces hypothesis on a second road; noted, not chased.
+#
+#   ## THE NEW DOCTRINE — RULE H12, in CLAUDE.md
+#   **A LANDING RUNS THE FULL SEAL CHECKLIST, NOT THE FLEET ALONE.** No exception for an
+#   "obviously neutral" edit — that is the class that forced it. A comment move landed under a
+#   fleet-only check: **67 green before, 67 after**, because no fleet row reads `designDocs`, while
+#   `ddPop` went 6 → 3. **A GREEN FLEET IS EVIDENCE ONLY ABOUT WHAT THE FLEET READS**, and "no
+#   instrument reads what I touched" is a coverage finding, not a clean bill.
+#
+#   ## ⚠ THE FRONTIER HAS BEEN ALL-PASS FOR TWO SEALS, WHICH MEANS IT IS NO LONGER MEASURING AN EDGE
+#   `incant/frontier` is 10 PASS / first failing station NONE, unrevised, exactly as on 08-28. **A
+#   red frontier is its normal, correct state**, so two green seals running is a signal that the
+#   file has fallen behind the campaign rather than that the campaign is finished. **Revising it is
+#   real work owed.** The candidate edge, now that a single rule's nine stations all pass, is the
+#   MULTI-RULE WALK — which is what `incant/anyOrNumT` exercises and what `verifyParse139` dies in.
+#
+#   ## THE NEXT STATIONS, in Clay's order
+#   1. **The `verifyParse139` backtrace** — cheap, and it gives the campaign's last orphan a
+#      mechanism. `script -q /dev/null`, read one line backward.
+#   2. **B3/B4** — teach `auditMissingRules` the category, then re-pin. Carries the bonus of
+#      unlocking `parseClass.target`'s re-pin and starting the expected-red set down from four.
+#   3. **The widened opDot census** — every node-returning case, twice each, direct and through a
+#      holder, every row paired with its direct sibling.
+#   4. SEQ 2 Part B implementation, at Clod's sequencing. A6–A8, B5 at Tony's priority.
+#
+#   ## THE SEAL CHECKLIST, run 2026-08-29
+#   fleet **75 green / 1 parked** (was 67; +8 rows, **red/park set byte-identical — no row changed
+#   state**) · frontier **exit 0, 10 PASS, FIRST FAILING STATION: NONE** (⚠ not revised, and see
+#   the section above — that is now a finding, not a note) · decodePop **22 checks, 79 terms**
+#   (re-pinned +2, sixteenth, both additions named) · ddPop **6 green** · countPop **39/39 clean,
+#   0 missing** · canary **319** · `groups.ext` untouched (mtime predates the session) · **all
+#   repos 0 dirty / 0 unpushed but for Tony's two named-WIP files** · every retok BARE, so the
+#   binary is the real program and not an instrumented one.
+#   **Tony's fixit incantations waiting: 8 (oldest: kantGenPath, since 2026-08-24)**
+
+# ---
+
 # ⚠⚠⚠ SEALED 2026-08-28 — TONY'S OFFLINE WORK RE-BASELINED, THREE CITIZENS OFF THE QUEUE,
 # AND THE isRule CENSUS KILLS OPTION B'S CHEAP FLAVOUR. READ THIS FIRST.
 #
