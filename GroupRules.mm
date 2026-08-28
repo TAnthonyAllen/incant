@@ -7947,34 +7947,6 @@ GroupItem 	*inner = 0;
 
 /*******************************************************************************
     labelMinters -- HOW MANY OF THIS RULE'S SUB-TERMS WILL MINT A LABEL.
-
-    THE CONDITION IS COPIED FROM checkInput AND NOT FROM THE SPELLING, and that
-    is Tony's ruling of 2026-08-25 rather than a preference. RuleStuff.mm's
-    checkInput sets `label = 0` when
-
-        noLabel || (isRule && hasMembers && !binType)
-
-    -- so the dash is only HALF of it. A sub-term that is itself a rule with
-    members mints no label either, and a dash-only census calls such a rule
-    "has labelled components", declines to capture, and leaves it silently
-    returning an empty label while the specimen works. Mirror the mechanism,
-    never the grammar line.
-
-    ⚠ noLabel LIVES ON THE TERM'S rStuff, THE OTHER THREE ON ITS groupBody, and
-    a term with NO rStuff is NOT thereby label-free -- rStuff is materialised
-    lazily, so an unstuffed term still mints when it is parsed. Absence of
-    rStuff is therefore not a skip; only the two positive conditions are.
-    That is Ruling D1 read in the direction it actually points.
-
-    ⚠ next() IS SAFE HERE AND THE REASON IS LOCAL: its shared `entry` state is
-    clobbered by NESTED calls, and this loop body calls nothing that can parse
-    or re-enter. It counts flags and moves on. Do not copy the idiom into a
-    walk whose body descends.
-
-    Returns the COUNT, not a boolean, because rule H4 wants the quantity
-    printed rather than a verdict asserted -- a caller that prints 0 and a
-    caller that prints 3 are telling the reader different things, and "false"
-    tells it neither.
 *******************************************************************************/
 extern "C" int labelMinters(GroupItem *rule)
 {
@@ -10457,68 +10429,6 @@ extern "C" GroupItem *parseAction(GroupItem *field)
 /*******************************************************************************
 	Run a wild card test on this group against current input
 *******************************************************************************/
-/*****************************************************************************
-    ⚠ THE LABEL WRITE IS GUARDED IN ALL FOUR OF THESE, and until 2026-08-18 it
-    was guarded in only one. parseSet had `if label` and parseAny,
-    parseCharacter and parseString wrote through it bare, so a rule matched
-    with no label in its frame stored into a null and took the process down.
-
-    IT HAD NEVER FIRED because nothing in an ordinary run binds a parse method
-    at all, so these four are reached only once a generation walk has called
-    setParse. The first walk that did reached parseString on the `if` keyword
-    and died in setText with a null receiver -- same family as F-18 one layer
-    down, and found the same way, by a backtrace after the F-18 repair did not
-    stop the crash.
-
-    parseSet is the model and it was already correct. Copy the working sibling
-    rather than inventing a fifth spelling.
-
-    ⚠⚠ AND ON 2026-08-19 THE SAME FAMILY WAS AUDITED AGAINST ITS TEMPLATES AND
-    parseSet WAS NOT THE MODEL AFTER ALL. Tony's finding: it was derived from
-    RuleStuff's testSet and kept half of it. The half it dropped is the half
-    that MOVES. testMacro, which is what testAny/testCharacter/testSet are:
-
-        while tester
-            counter++, atRuleMark++, break at end-of-input or counter >= max
-        then, ONCE, if counter && counter >= min -- set the label, succeed
-
-    All three carried the tester and the label write and returned from INSIDE
-    the loop, with no atRuleMark++ and no min gate. So the match consumed NO
-    INPUT and reported success on the first character -- and a match that
-    succeeds while advancing nothing is a parse that cannot terminate. Restored
-    from testMacro. The noAdvance rewind stays in parseSetLabel, which is where
-    this family already keeps it.
-
-    parseString dropped testString's `if matchedString` guard, so it reported
-    success whenever checkInput passed, matched or not -- and it is the function
-    the F-19 backtrace named. Its `while counter++ < max` wrapper went with the
-    repair rather than gaining the guard inside it: `*` sets max to 268435457
-    (modify, GroupActions.rtn), so a guarded miss in that loop would spin, and
-    repetition on this path is parse()'s rung-6 tripwire, not this function's.
-
-    parseContainer took `atInput = atRuleMark` at DECLARATION time, before its
-    own checkInput() had run the skip pass, so the container scan could start on
-    whitespace. testContainer cannot have this bug: its caller had already
-    skipped. Re-taken inside the block. parseUpTo had no checkInput() at all,
-    for the same reason and with the same consequence.
-
-    parseAction had lost testAction's `parseACTION ||` disjunct, so a
-    parseACTION rule that happened to have a label was handed the LABEL where
-    the template hands it the FIELD.
-
-    ⚠ AND ON THE SAME DAY THE LOOP GAINED THE maxLimit CEILING REPORT. The three
-    loops above are the generated-path twins of RuleStuff's testMacro, so the
-    limit test moved to the top of each of them for the same reason and they
-    call the same reportMaxLimit. One implementer, so "both engines, same words"
-    is true by construction. See reportMaxLimit's header for why the report is
-    gated on `max > 1 && !limitsSet` -- ungated it rejects every name longer
-    than one letter.
-
-    ⚠ READ-GRADE, all of it. These are unreachable until a walk calls setParse,
-    so nothing here has been run -- the template diff is the control and the
-    Xcode walk is the measurement. What was NOT touched, and why, is in
-    docs/fixIts.md F-26.
-*****************************************************************************/
 extern "C" GroupItem *parseAny(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -11062,28 +10972,6 @@ RuleStuff 	*ruleStuff = field->rStuff;
 		ruler->atRuleMark = ruleStuff->hereAt;
 	if ( ruleStuff->label )
 		{
-		/*  ⚠ THE ACTION FIRE IS GONE FROM HERE, 2026-08-25, Tony's ruling, and
-		its absence is the point rather than an omission. THE SPLIT IS:
-		parseSetLabel   label work only -- and it stays alive as the
-		future glom arm
-		runRuleAction   the action fire on the BODY road
-		fireLabelMethod the action fire on the INTERPRETIVE road
-		ONE FIRE PER ROAD. This discharges fixIts row 1's parked design
-		call: the actionMethod channel is the one that goes.
-		
-		IT COULD ONLY EVER HAVE BEEN A DOUBLE FIRE, never a sole road.
-		parse()'s fork calls parseMethod and THEN, on success, calls
-		fireLabelMethod on the same stuff with the same method -- and
-		rStuff.actionMethod has exactly one writer, setParse:521
-		`actionMethod = method`, which is that same method. So every rule
-		reachable here was fired twice with one label.
-		
-		MEASURED BEFORE THE STRIP, and it is why no rule can starve: of the
-		whole grammar only THREE rules are leaf-shaped AND method-bearing
-		-- ANYtoken, NewGroup, ShortcuT -- and all three read datA 6, which
-		GroupBody.h defines as isGROUP, which setParse binds to
-		parseMethod = null. They never reach a leaf executor, so they never
-		reached this line. The fire was unreachable, not merely redundant.  */
 		if ( ruleStuff->label && ruleStuff->parentLabel )
 			ruleStuff->parentLabel->addAttribute(ruleStuff->label);
 		return ruleStuff->label;
@@ -12948,78 +12836,13 @@ GroupItem 	*aMethod = field->get("builtinActoR");
 RuleStuff 	*ruleStuff = field->rStuff;
 int 		inFlight = 0;
 int 		minters = 0;
-	/*  THE GATE IS LIFTED INTO A LOCAL AT ENTRY, in passthrough because a
-	hand-declared C++ global in jitContext.h is invisible to tok's field
-	resolution -- gParseRecordArmed is the precedent and every one of ITS
-	uses is inside a passthrough too. `inFlight` is read OUTSIDE the block
-	as well, which is what keeps bear-trap #13 from pruning it.  */
 	
 	inFlight = gNewParseInFlight;
 	
-	/*  ⚠ THE SPECIMEN GUARD, AND trueResult HERE IS A SEMANTIC RULING RATHER
-	THAN A CRASH GUARD SOMEBODY FORGOT TO REVISIT. Ruling A + Ruling D1,
-	Tony 2026-08-22.
-	
-	FOR AN INERT SPECIMEN, THE BODY'S YIELD IS trueResult BY DEFINITION:
-	no action exists to run, so "ran successfully, nothing happened" is
-	the truthful report. A copyOf twin is a specimen, not an organism --
-	copyOf copies the groupBody and the list, and rStuff is neither, so a
-	twin having no rStuff is LAWFUL and is what a twin IS.
-	
-	THIS LINE IS THE TAIL OF EVERY GENERATED BODY. `return
-	runRuleAction(this)` is what the generator emits, and on a specimen
-	`this` is the twin -- so this return is the body's yield for every
-	specimen there will ever be. When generated bodies are later wired
-	into the live yield protocol (null / labelNO / node), READ THIS AS A
-	DECISION, not as a placeholder.
-	
-	It was found the expensive way: incant/frontier station 5 ran a
-	generated body end to end -- the marker printed, the first body ever
-	to execute in that pipeline -- and then died here, at the last
-	statement, dereferencing a null rStuff.  */
-	/*  ⚠ THE pMethod GUARD, 2026-08-24. The classification attributes only
-	exist where setParse has run, which today is almost nowhere -- and
-	runRuleAction is NOT reached only by the new parse. It is on the
-	ORDINARY path: aCTionBrancH (GroupRules.mm:157) and runOP (:12698)
-	both dispatch a rule action through gMethod and land here, which is how
-	incant/frontier died at exit 139 without ever touching setParse,
-	generate or compile.
-	
-	SO THE DEFAULT IS THE OLD ADDRESS AND THE NEW ONE IS PREFERRED ONLY
-	WHEN PRESENT. An early `if !pMethod return trueResult` would have been
-	the obvious guard and is WRONG: it swaps the crash for a silent no-op
-	on every ordinary call, which is the undiscriminated-green shape --
-	the function would stop doing the actionMethod dispatch it has always
-	done and nothing would say so.
-	
-	⚠ AND THE DEREF CANNOT BE GUARDED IN PLACE, which is why the
-	declaration above changed rather than gaining a test: it was an
-	INITIALISER, so it ran unconditionally on entry, before any statement
-	could protect it. The specimen guard below tests the RESULT of that
-	deref and therefore could only ever fire when pMethod was already
-	non-null.  */
 	if ( pMethod )
 		ruleStuff = pMethod->rStuff;
 	if ( !ruleStuff )
 		return GroupControl::groupController->groupRules->trueResult;
-	/*  THE LABEL SOURCE FOR AN ALL-DASHED RULE (Tony's ruling, 2026-08-25).
-	Two label sources by case: a rule with labelled components gloms them;
-	a rule with NONE takes its label from the matched text, the way
-	tokenize did. This is the second arm, and it is the ONLY seam
-	available for it -- the emitted body's tail is
-	`return runRuleAction(this)`, so the action fires from INSIDE the
-	body and nothing outside can get between the terms matching and the
-	action running.
-	
-	⚠ THE GATE IS NOT OPTIONAL. See jitContext.h's gNewParseInFlight: this
-	function is on the ORDINARY path too, where no parse is in flight and
-	hereAt is stale. Ungated, this writes a plausible span into a label
-	every ordinary rule-action dispatch is about to read.
-	
-	⚠ AND THE `or` ARM IS SILENCE, DELIBERATELY. A rule WITH labelled
-	components belongs to the glom seam, which is separately uninherited
-	and separately parked; this fix must not fire across it. The count is
-	printed either way so the reader can see which arm was taken.  */
 	if ( inFlight && ruleStuff->label )
 		{
 		minters = ::labelMinters(field);
@@ -13027,13 +12850,6 @@ int 		minters = 0;
 			::fprintf(stderr,"  CENSUS %s labelMinters=%d\n",field->groupBody->tag,minters);
 		if ( minters == 0 )
 			{
-			/*  ⚠ IDENTITY IN POINTERS, NEVER IN TAGS -- assertion 3 of the
-			brief, and the standing lesson of the `<-` week: two faces of
-			one rule share a tag by construction, so a resolver that
-			reports names cannot answer a question about identity. The
-			twin print at the ACTFIRE site below reads the SAME locals, so
-			a reader can compare the write site and the read site directly
-			instead of inheriting that they agree.  */
 			
 			if ( GroupControl::groupController->groupRules->parseTrace )
 			::fprintf(stderr,"  SPANSET %s stuff=%p label=%p\n",
@@ -13042,12 +12858,6 @@ int 		minters = 0;
 			field->captureSpan(ruleStuff);
 			}
 		}
-	/*  THE actionMethod TAIL MEASUREMENT, parseTrace-gated. This is the
-	consumption site for the OTHER half of the classification pair, and it
-	reads the FACE's rStuff. Printing it here answers, per firing, whether
-	the derived channel is populated where it is actually consumed --
-	which is the question the setParse mirror deliberately does NOT
-	change, and therefore the one worth watching while it does not.  */
 	if ( ruleStuff->label )
 		{
 		if ( aMethod )
@@ -13353,98 +13163,11 @@ int 		offset = markOffset->getCount();
 /*******************************************************************************
 	Set parseMethod. For now does not handle macros
 *******************************************************************************/
-/*****************************************************************************
-    ⚠ THE `or data` GUARD IS THE TEMPLATE'S AND DROPPING IT COSTS REAL ROUTING.
-    setTestMatch tests data THIRD, above every method-shaped arm, so a field
-    that CARRIES data is matched by its data and a method-bearing leaf is the
-    leftover case. With `or method` above an unguarded switch, the method arm
-    claimed fields that have a data answer. Measured 2026-08-19 by
-    incant/parseClass, before and after: exactly three fields moved, and all
-    three are isGROUP references carrying a method -- `ANYtoken` (=NamE),
-    `NewGroup` (TraiT@) and `ShortcuT`. Each had bound parseAction; each is now
-    left UNBOUND, which is the template's answer for isGROUP and what lets
-    parse()'s onGroup dereference the reference instead of firing a method at
-    it. `tokenize` and `CodE` did not move. Data first, then the leftover
-    method leaf, then string.
-
-    ⚠ THE FIRST DRAFT OF THIS PARAGRAPH CALLED ShortcuT A CHARACTER SET and
-    said it should bind parseSet. It is isGROUP, and the right answer is
-    unbound -- the census said so and the prose had been written from the
-    grammar line `ShortcuT=[-+~`$_:,]+` before the measurement came back.
-
-    ⚠ REGISTRIES ARE SKIPPED AT THE ENTRY, AND THE SITE IS THE RULING (Tony,
-    2026-08-19). A registry is INFRASTRUCTURE, not grammar: `Operators` is
-    reachable as a member of `Grokking`, so a walk that binds parse methods
-    reached it, found no rStuff, and printed
-    `setParse: ERROR field passed in Operators has no rStuff` -- an error for a
-    node that was never a parse candidate. Skipping at the entry rather than
-    inside the chain means it never reaches arming AND never reaches the rStuff
-    complaint, which is the difference between a clean skip and a swallowed
-    error. Closes F-30.
-
-    ⚠ THE SKIP IS isREGISTRY ONLY, NEVER isBIN, and the two are different
-    answers to different questions. A bin is a grammar TERM whose entries are
-    the alternatives -- `BrancheS` and `UnaryOPS` are bins and both legitimately
-    bind parseContainer, measured. A registry is a namespace the walk happens to
-    be standing in. Widening this to binType would silently delete four
-    parseContainer rows.
-
-    ⚠ AND THIS PROSE LIVES ABOVE THE FUNCTION FOR A MEASURED REASON. Written
-    inside the if/or chain, immediately before an `or`, it silently DELETED
-    setParse from the generated extern block -- 307 externs to 306, tok exit 0,
-    build succeeded. That is bear-trap #29 exactly, and the standing canary
-    `grep -c '^extern' GroupRules.h` is what caught it. Comments go above the
-    chain or inside an arm's braces, never in the gap between arms.
-
-    ⚠⚠ THE CANON-RESOLUTION TRIAL WAS RUN HERE ON 2026-08-22 AND REVERTED THE
-    SAME DAY. Recorded so nobody re-runs it blind.
-
-    THE TRY (Tony's try-and-buy on Ruling E): resolve through definingRule()
-    to canon before binding -- `canon = field.definingRule()`, then bind
-    canon's rStuff, with the actionMethod write riding the same resolution.
-    One resolution function, both directions, since parse() forks on
-    definingRule().rStuff.parseMethod.
-
-    THE BUY FAILED, on measurement, and the numbers are the reason:
-
-      pristine setParse(Braced)   before: PC parseRule Braced
-                                   after: PC none Braced
-      parseClass census           parseRule 104 -> 39, none 23 -> 92,
-                                  parseContainer 4 -> 1
-      fleet                       53 green -> 52; parseClass.target the only
-                                  new red, exactly as pre-registered
-      finding 1                   NOT cured -- canon hasActioN still 0
-
-    So resolving the binder to canon does not merely fail to help, it stops
-    most rules binding at all. The census move was PRE-REGISTERED as expected
-    (minionWork/canonTrialPreReg) but its DIRECTION was not: the prediction was
-    that terms would classify as their canon, not that binding would collapse.
-
-    CANDIDATE MECHANISM, UNCONFIRMED AND DELIBERATELY NOT ACTED ON: parseClassify
-    reads the rStuff of the node it is HANDED, while the trial made setParse
-    write a different node's -- so every face would report `none` whether or not
-    canon was bound. It is contradicted by the same run reading `none` off canon
-    itself, so it does not stand as an explanation. Left as a candidate with its
-    grade attached, per the citation discipline.
-
-    WHAT SURVIVES THE REVERT: canonOf(), the instrument the trial was worth --
-    definingRule() had no incant road before it, which is why read 2 could not
-    be run honestly at all.
-*****************************************************************************/
 extern "C" GroupItem *setParse(GroupItem *field)
 {
 RuleStuff 	*ruleStuff = field->rStuff;
 	if ( isREGISTRY(field->groupBody->flags.binType) )
 		return 0;
-	/*  THE REFUSAL MUST RETURN. Before 2026-08-28 this arm printed and fell
-	through to `if parseMethod` below -- which resolves against ruleStuff,
-	the very null it had just refused -- so a rStuff-less field was
-	reported and then dereferenced. Latent for as long as every caller
-	happened to pass a rule; Tony's six punctuation members of Grokking
-	are the first callers that do not, and parseClass died at exit 139.
-	Same family as firstCallerNullList. Ruling D: absence of rStuff on a
-	non-label node is LAWFUL -- a specimen -- so the refusal is the
-	correct answer and it must be a refusal, not a remark.  */
 	if ( !ruleStuff )
 		{
 		::fprintf(stderr,"setParse: ERROR field passed in %s has no rStuff\n",field->groupBody->tag);
@@ -13506,21 +13229,6 @@ RuleStuff 	*ruleStuff = field->rStuff;
 		builtinActoR->groupBody->flags.noPrint = 1;
 		builtinActoR->setMethod(ruleStuff->actionMethod);
 		}
-	/*  REBUILD THE CONTENT FLAGS, and it is hasTraits that needs it.
-	Both attributes above are added FIRST and marked noPrint SECOND,
-	so addAttribute -- the other writer -- cannot see that they are
-	decoration at the one instant it gets to look, and it raises
-	hasTraits on a rule whose only attributes are these two. That
-	made generateParse's connective gate read AND for every walked
-	rule and the OR branch unreachable: 36 AND / 0 OR across a full
-	parser(Start) walk. Rebuilding here is a rebuild AT EXIT, which
-	works with the data flow rather than fighting it -- the flags are
-	recomputed once both attributes are fully formed.
-	⚠ THE COST IS NAMED: this is updateContentFlags' first live
-	caller, and it now runs on every rule's activation path.
-	hasAttributes deliberately keeps reading TRUE here -- the node IS
-	marked up -- which is the whole reason the two flags are separate
-	channels. See designDocs ProblemRecords connectiveDiscriminant.  */
 	field->updateContentFlags();
 	return 0;
 }
