@@ -4,7 +4,7 @@
   Clod's replies go in ipc/clod-to-support.md  (never write here, Clod).
 -------------------------------------------------------------------
 SEQ:      2
-STATUS:   working           # fresh = parked/unread | working = picked up, in progress | cleared = done
+STATUS:   cleared           # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-08-03  -  Support Minion round 2 (TASK 2 PART A)
 -------------------------------------------------------------------
 
