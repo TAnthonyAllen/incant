@@ -10585,6 +10585,27 @@ int 		more = 0;
     cerr rather than print: this is a diagnostic, a fixture may have print
     diverted, and stdout is block-buffered so a run that ends badly loses it.
     Returns the field so a walk can chain it.
+
+    ⚠ THE SECOND LINE, ADDED 2026-08-29 ON A SEPARATE PREFIX ON PURPOSE.
+    `PA` answers Tony's recon question -- setParse parks `actionMethod` for
+    EVERY rule it claims, not only the ones that get parseRule, so an action
+    can be parked on a rule whose executor never fires it. The PC line is
+    unchanged and genLadder/parseClass.target greps `^PC `, so this adds a
+    column without moving a pinned target.
+
+    ⚠ THREE FACTS, THREE FIELDS, because they can disagree and one of them
+    disagreeing is the finding:
+      act   -- what setParse parked in rStuff->actionMethod
+      hung  -- whether the builtinActoR attribute is actually on the node
+      fires -- whether anything on this executor's path ever runs it
+    act and hung are READ, like pcName. `fires` is DERIVED, and it is a table
+    over the pointer just read rather than a second implementation of
+    setParse's chain -- its authority is the READER side: parseRule's
+    generated tail reaches runRuleAction, which fires builtinActoR;
+    parseAction calls field.method(field) itself; every other builtin ends at
+    parseSetLabel, which does label work and no action. ⚠ IF A BUILTIN EVER
+    GAINS A FIRE, THIS TABLE IS THE THING THAT GOES STALE -- it is named here
+    so that lands as an edit and not as a silent wrong answer.
 *****************************************************************************/
 extern "C" GroupItem *parseClassify(GroupItem *field)
 {
@@ -10609,6 +10630,24 @@ char 	*pcName = "other";
 	}
 	
 	::fprintf(stderr,"PC %s %s\n",pcName,field->groupBody->tag);
+	
+	if ( field ) {
+	const char *acted = "n/a", *hung = "n/a", *fires = "n/a";
+	GroupItem *actor = field->get("builtinActoR");
+	if ( field->rStuff ) {
+	GroupItem *(*am)(GroupItem *) = field->rStuff->actionMethod;
+	GroupItem *(*pm)(GroupItem *) = field->rStuff->parseMethod;
+	acted = am ? "parked" : "none";
+	hung  = actor ? "yes" : "no";
+	if      ( !am )                  fires = "nothing-parked";
+	else if ( pm == ::parseRule )    fires = "body";
+	else if ( pm == ::parseAction )  fires = "self";
+	else                             fires = "NEVER";
+	}
+	::fprintf(stderr,"PA act=%s hung=%s fires=%s %s\n",
+	acted,hung,fires,field->groupBody->tag);
+	}
+	
 	return field;
 }
 
