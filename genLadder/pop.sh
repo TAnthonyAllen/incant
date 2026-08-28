@@ -251,6 +251,108 @@ sentinel "parseClass" "$T/pce" "PARSECLASS SENTINEL"
 grep '^PC ' "$T/pce" | sort > "$T/pcp"
 diffcheck "parseClass.target (setParse classification)" genLadder/parseClass.target "$T/pcp"
 
+#  ---------------------------------------------------------------------------
+#  P2 -- THE fires=NEVER ROSTER, PINNED. Minted 2026-08-29, Tony's ruling.
+#
+#  parseClassify's PA line carries three facts per field: what setParse parked
+#  (act), whether a builtinActoR is actually on the node (hung), and whether
+#  anything on this executor's path ever runs it (fires). The census answered
+#  Tony's recon question -- NO rule bound to a label-work executor carries a
+#  parked action -- and the answer is MEASURED, not structural. It changes the
+#  day a rule gains a method.
+#
+#  ⚠ SO THE CHEAP INSURANCE IS THIS PAIR: when the population moves, something
+#  goes red BY NAME here, instead of a code body dying silently three files
+#  downstream the way ANYorNum's did. This is the fleet learning to catch the
+#  disease class rather than the instance -- the same promotion convention the
+#  ANYorNum POP below answers YES for ("would the fleet have caught it?").
+#
+#  ⚠ AND THE ZERO ROW DOES NOT STAND ALONE. A count that expects 0 is exactly
+#  what a broken extractor also produces, so it is paired with a sibling that
+#  demands a NON-ZERO -- if the pipeline breaks, the sibling goes red and the
+#  zero row's silence is no longer evidence of anything.
+pcNEVER=$(awk '/^PA / && $4=="fires=NEVER" {print $5}' "$T/pce" | sort -u | tr '\n' ' ' | sed 's/ $//')
+#  ⚠ ONE LITERAL, READ BY BOTH THE TEST AND THE MESSAGE. Written as two, the
+#  FAIL arm printed "actual X, expected X" under its own H7 perturbation --
+#  a message that cannot describe the failure it is reporting.
+pcNEVERwant="ANYtoken NewGroup ShortcuT"
+if [ "$pcNEVER" = "$pcNEVERwant" ]; then
+    echo "  ok    fires=NEVER roster PINNED BY VALUE (ANYtoken NewGroup ShortcuT)"; green=$((green+1))
+else
+    echo "  FAIL  fires=NEVER roster MOVED"
+    echo "          actual:   [$pcNEVER]"
+    echo "          expected: [$pcNEVERwant]"
+    echo "          A rule gained or lost a parked action with no executor to run it."
+    echo "          That is isGroupActorPoison's shape. designDocs ProblemRecords."
+    fail=1
+fi
+#  The label-work executors: everything that ends at parseSetLabel and therefore
+#  never fires an action. parseRule fires via the generated body's
+#  runRuleAction; parseAction fires field.method itself; these seven do neither.
+#  ⚠ READ AS A PAIR, NOT AS TWO STREAMS. parseClassify prints PC then PA for
+#  the same field, adjacently, so awk carries the last PC method forward. A
+#  two-stream join would silently misalign the day either line moved.
+pcLABELWORK=$(awk '/^PC /{m=$2} /^PA / && $2=="act=parked" && m ~ /^parse(String|Set|Container|UpTo|Character|Any|Condition)$/ {n++} END{print n+0}' "$T/pce")
+if [ "$pcLABELWORK" = "0" ]; then
+    echo "  ok    label-work executors carry 0 parked actions -- PINNED BY VALUE"; green=$((green+1))
+else
+    echo "  FAIL  a label-work executor now carries a parked action ($pcLABELWORK of them)"
+    echo "          Those executors end at parseSetLabel and fire nothing, so the"
+    echo "          action is parked and unreachable. Either they owe a"
+    echo "          runRuleAction tail or the parking is wrong. Tony's call."
+    fail=1
+fi
+#  ⚠ THE ANTI-VACUITY SIBLING, and it is not optional: the row above expects a
+#  ZERO, which a broken extractor produces just as readily as a healthy tree.
+pcBODY=$(awk '/^PC /{m=$2} /^PA / && $2=="act=parked" && m=="parseRule" {n++} END{print n+0}' "$T/pce")
+if [ "$pcBODY" -gt 0 ]; then
+    echo "  ok    anti-vacuity: parseRule carries $pcBODY parked actions (must be > 0)"; green=$((green+1))
+else
+    echo "  FAIL  anti-vacuity: parseRule carries NO parked actions -- the extractor"
+    echo "        is broken, so the two rows above assert nothing whatever."
+    fail=1
+fi
+
+#  ---------------------------------------------------------------------------
+#  anyOrNumT -- THE isGROUP POISON STAYS FIXED. Minted 2026-08-29 immediately
+#  after the fix certified, and NOT before: a target captured earlier would have
+#  pinned four refusals as the truth.
+#
+#  ⚠ WOULD THE FLEET HAVE CAUGHT THE ORIGINAL POISON? NO -- and that is the
+#  reason this row exists. setParse binding an actor onto an isGROUP alias with
+#  no executor broke every code body compiled after it, and the fleet sat at 67
+#  green through all of it, because parseClass was the only row that ran
+#  setParse at all and its target was already red for unrelated reasons.
+#
+#  THREE ASSERTIONS, THREE FAILURE MODES, deliberately not blurred into one:
+#  the census line catches a refusal, the body target catches generation drift,
+#  and the answer catches a body that compiles and then does not run.
+#
+#  ⚠ ITS NEGATIVE CONTROL IS ON RECORD RATHER THAN ASSERTED. Remove the gate on
+#  the builtinActoR attachment in Generate.rtn's setParse and this reads 4
+#  attempted / 4 REFUSED -- that was the measured baseline of the three-arm
+#  probe. designDocs ProblemRecords isGroupActorPoison carries the table.
+run2 anyOrNumT "$T/aon" "$T/aone"; check "anyOrNumT runs" 0 $?
+sentinel "anyOrNumT sentinel (no truncation)" "$T/aone" "VERIFY SENTINEL"
+aonline=$(grep -m1 '^compile census:' "$T/aone")
+aonwant="compile census: 4 attempted, 0 refused"
+if [ "$aonline" = "$aonwant" ]; then
+    echo "  ok    anyOrNumT census (4 attempted, 0 refused) -- PINNED BY VALUE"; green=$((green+1))
+else
+    echo "  FAIL  anyOrNumT census moved -- the isGROUP poison is back or generation changed"
+    echo "          actual:   $aonline"
+    echo "          expected: $aonwant"
+    fail=1
+fi
+#  H4's vacuity guard: a body diff between two empty files passes and means
+#  nothing, so the target's own non-emptiness is asserted before it is used.
+if [ -s genLadder/anyOrNum.target ]; then
+    echo "  ok    anyOrNum.target is non-empty (vacuity guard)"; green=$((green+1))
+else
+    echo "  FAIL  anyOrNum.target is EMPTY -- the body diff below asserts nothing"; fail=1
+fi
+diffcheck "anyOrNum.target (generated bodies + the parsed answer)" genLadder/anyOrNum.target "$T/aon"
+
 #  connectiveT -- THE CONNECTIVE DISCRIMINANT, promoted out of Tony's fixit queue
 #  2026-08-27 after he stepped and blessed its REMEDY row. It was
 #  incant/fixits/connectiveDiscriminant; the three-lives rule says a stepped

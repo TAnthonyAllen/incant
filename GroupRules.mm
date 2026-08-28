@@ -13201,6 +13201,20 @@ int 		offset = markOffset->getCount();
 
 /*******************************************************************************
 	Set parseMethod. For now does not handle macros
+
+    THE ACTOR IS GATED ON THE EXECUTOR, ruled by Tony 2026-08-29. An isGROUP
+    alias takes actionMethod above the switch and then the isGROUP case sets
+    parseMethod to null, so before this gate it came away with an actor and no
+    executor. That half installed executor broke every later parse of any
+    grammar the alias could be reached from, and there are three of them:
+    ANYtoken, NewGroup and ShortcuT. The three arm suppression probe that
+    attributes it, and the arm by arm table, are in designDocs ProblemRecords
+    isGroupActorPoison.
+
+    THE PARKED POINTER STAYS. Arm two measured the persisted actionMethod
+    harmless, so it is still written for every rule setParse claims. It is
+    wanted the day an alias gains a real executor, and gating the write rather
+    than the attachment would throw that away for nothing.
 *******************************************************************************/
 extern "C" GroupItem *setParse(GroupItem *field)
 {
@@ -13261,7 +13275,7 @@ RuleStuff 	*ruleStuff = field->rStuff;
 		builtinParsE->groupBody->flags.noPrint = 1;
 		builtinParsE->setMethod(ruleStuff->parseMethod);
 		}
-	if ( ruleStuff->actionMethod )
+	if ( ruleStuff->actionMethod && ruleStuff->parseMethod )
 		{
 		GroupItem 	*builtinActoR = field->addString("builtinActoR");
 		builtinActoR->setRStuff(ruleStuff);

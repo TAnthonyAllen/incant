@@ -1,0 +1,21 @@
+Search list: Grokking GroupFields Utilities
+CodE = { 
+	if  NumbeR() OR ANYtoken(); return runRuleAction(this);
+	} 
+ 
+CodE = { 
+	if  numberSet() AND FloaT(); return runRuleAction(this);
+	} 
+ 
+CodE = { 
+	if  point() AND decimals() AND PoweR(); return runRuleAction(this);
+	} 
+ 
+CodE = { 
+	if  exponent() AND sign() AND power(); return runRuleAction(this);
+	} 
+ 
+PARSE  ANYorNum <-  maybe a test; 
+	ANSWER  1 
+
+stop: ending input divert

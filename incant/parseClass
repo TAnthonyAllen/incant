@@ -20,6 +20,27 @@
     define time, so a driver that never returns to the loader is the only shape
     that survives its own effect.
 
+    ⚠ AND ON 2026-08-29 "POISONS THE LOADER" GOT AN ADDRESS, so it stops being
+    folklore. It was one arm: an isGROUP alias took actionMethod above the data
+    switch and then the isGROUP case set parseMethod to null, so the alias came
+    away with an ACTOR AND NO EXECUTOR, and that half installed executor broke
+    every later parse of any grammar it could be reached from. Three aliases
+    carry it -- ANYtoken, NewGroup, ShortcuT -- and ANYtoken sits under TokenXP
+    then ANYorNum, which every expression parse crosses. Attributed by a three
+    arm suppression probe, one rebuild per arm, exactly one arm clearing it;
+    fixed by gating the attachment on the executor. designDocs ProblemRecords
+    isGroupActorPoison.
+
+    ⚠⚠ AND THIS FIXTURE WAS THE DISEASE'S LARGEST VICTIM, which nothing said.
+    Before the fix it emitted SIXTY THREE `reached end of input` errors per run
+    and walked 66 of its 239 census rows -- a quarter of its own census, gone,
+    at exit 0, with its sentinel printing. After: zero errors, 237 rows, 118
+    distinct tags against 66. Its target red was being read as six punctuation
+    rows while three quarters of the walk was missing underneath it. THE
+    INSTRUMENT BUILT TO MAKE THIS DISEASE VISIBLE WAS ITSELF SILENTLY EATEN BY
+    IT -- doubt the instrument, and doubt it hardest when it is the one
+    instrument pointed at the thing you are hunting.
+
     EVERY LINE IS ON CERR for the same reason the walk fixtures are: stdout is
     block buffered and a run that ends badly loses it.
 
