@@ -264,6 +264,12 @@ define
         canonOf
             definition="The C++ exposure that answers identity in POINTERS, because a resolver reporting names cannot distinguish two faces of one rule that share a tag by construction.";
             source="DICTATED from the 2026-08-22 seal.";
+        isGroupActorPoison
+            definition="An isGROUP alias gets NO parse method but still gets a builtinActoR hung on it, and that half-installed executor breaks every later parse of the grammar the alias sits in -- ANYtoken, NewGroup and ShortcuT are the whole population."
+            source="MEASURED 2026-08-29 as a three-arm suppression probe over one rebuild each: suppressing the builtinActoR attachment took the fixture 4-refused to 0, while suppressing the persisted actionMethod and suppressing updateContentFlags each left it at 4. Operational record: designDocs ProblemRecords isGroupActorPoison, status guess.";
+        verifyParse139
+            definition="parser(PrintXP) and parser(ExpressioN) exit 139 in the closing verification parse, AFTER the walk sentinel and the compile witness, so the walk and the compiles are known good and only the specimen parse dies."
+            source="OBSERVED 2026-08-29 while bisecting the isGROUP poison; banked, not chased, by Tony's ruling. Operational record: designDocs ProblemRecords verifyParse139, status open.";
         hookIdentityFork
             definition="Measured 2026-08-23 by Arm A -- install 43 gives the tokenize hook its FIRST attribute and its catalog face and canon become DIFFERENT NODES, while every healthy installed rule stays SAME NODE.";
             source="DICTATED, minted 2026-08-23 by the Arm A measurement. Operational record: designDocs ProblemRecords hookIdentityFork.";
