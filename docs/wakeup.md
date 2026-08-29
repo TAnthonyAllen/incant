@@ -1,3 +1,158 @@
+# ⚠⚠⚠ SEALED 2026-08-29, SECOND SESSION (EVENING) — THE GENERATED PARSE DISPATCHES AND CARRIES
+# A TRUE FRAME. XPRESS IS ONE HUNG DOOR FROM WALKING. READ THIS FIRST.
+#
+#   ⚠ **TWO SEALS CARRY THE DATE 2026-08-29.** This is the SECOND. The one below it is the
+#   isGROUP-poison session and is intact and true as of its own mark. ⚠ **AND THE CLOCK NOTE
+#   RETIRES: the machine clock read correctly today.** Two consecutive seals carried a
+#   clock-a-day-behind warning; this one does not, and commits are stamped 2026-08-29 truthfully.
+#
+#   ## THE ONE-LINE STATE: **Dispatch is proven four-deep on camera; the frame channel carries
+#   four distinct true parents as dataflow; the 4364 verdict is honest — frame and attachment are
+#   SEPARATE duties; Xpress is one unbuilt door from walking.** Fleet **75 green / 1 parked**, red
+#   set byte-identical to yesterday's four. Canary **322**. Frontier **exit 0, 10 PASS**.
+#   decodePop **22 checks / 80 terms**. ddPop **6 green / 29 records**. countPop **39/39 clean**.
+#   Nine commits G1–G9, both repos pushed. **Fixit queue: 8 (oldest kantGenPath, 08-24) —
+#   FOUR sessions unmoved, and it gets the first hour next session.**
+#
+#   ## ⚠⚠ THE SIX THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   **1. THE EVICTION IS THE MECHANISM, AND IT WORKS.** Step 3 of the original brief — install the
+#   parse INTO `gMethod` — is DEAD, killed by the `parseAction` finding. The replacement is
+#   bear-trap #34's retirement clause: **vacate `gMethod`, install nothing.** With the slot empty
+#   and `isMethod` retracted by the now-symmetric `setMethod`, `runOP` arm two stops claiming
+#   rules, and a bare `QuotE()` falls through to the `isRule` arm → `runRule` → `builtinParsE`.
+#   **The new parse wins by having no competitor.** Proof is a stack, not an absence:
+#   ```
+#   runOP -> runRule -> parseRule -> aCTionBlocK -> aCTionIF -> runShortCircuit
+#         -> runOP -> runRule -> parseRule -> ...      (four levels deep)
+#   ```
+#   That chain cannot exist while `gMethod` holds the action, because arm two claims the call first.
+#
+#   **2. ⚠ THE PARK HAD TO REACH THE MASTER, AND THE REFUSAL FOUND IT.** `rStuff` is PER NODE,
+#   `groupBody` is SHARED. `setParse` parked `actionMethod` on whatever FACE it was handed; the
+#   walk calls it on member TERMS; the eviction sweep reaches the MASTER. So the verified copy and
+#   the slot to be nulled sat on **different nodes**, and `evictAction` refused **nine of ten**
+#   cohort rules rather than destroy an action nothing was holding. `parkOnMaster` (resolving
+#   `definingRule()`) took it to **10 of 10**. **Additive, not a move** — the actor gate reads
+#   `actionMethod` off the face, so parking only on the master would silently stop hanging
+#   `builtinActoR` at all.
+#
+#   **3. ⚠⚠ A SINGLETON IS NOT A CHANNEL — AND THE CONTROL IS PRESERVED IN-ROW.** The frame's
+#   first implementation resolved the parent from `ruler->ruleSTUFF`. It printed **ONE pointer for
+#   all four invocations** (the driver's own `BlocK`, stale) where four distinct were
+#   pre-registered. Reading the holder's own `rStuff.label` — `runRule`'s existing argument —
+#   prints four distinct labels, **on the same line as the stale singleton pointer**, which is why
+#   `frameProbe` was KEPT rather than deleted as scaffolding. **A doctrine row whose control has
+#   been thrown away is a claim nobody can re-check.**
+#   ```
+#   PARENTPROBE Xpress      parentLabel=0x103536c00  ruleText     <- the argument holder
+#   PARENTPROBE ExpressioN  parentLabel=0x103560b00  InvokeArg
+#   PARENTPROBE Token       parentLabel=0x103563700  InvokeArg
+#   PARENTPROBE QuotE       parentLabel=0x103565340  InvokeArg
+#   ```
+#   Morning: all four `0x0`. Mid-evening: all four one stale `BlocK`. Now: four distinct, correct.
+#
+#   **4. THE FRAME-BYPASS MECHANISM, WITH ITS ADDRESS.** `parse()` documents `rStuff.parentLabel`
+#   as FRAME and its fork carries the comment *"THIS LINE IS ITS SINGLE WRITER"*. The new-parse
+#   road dispatches `newParse.method(rule)` **straight at `builtinParsE` and never calls
+#   `rule.parse()`**, so it never crossed the writing line. The channel existed; the road did not
+#   write it. Fixed by EXTRACTION, not duplication: `GroupItem::establishFrame` is one BODY with
+#   two call sites, and the fork's comment now says exactly that so it cannot decay into a lie.
+#   ⚠ **THE DISCIPLINE IS NOT SAVE/RESTORE.** There is none, and the incumbent had none — a bare
+#   write immediately before the call. **Recursion safety lives in the CALLEE**, which lifts
+#   `parentLabel` into a stack local at entry before descending; the emitted methods do it on their
+#   first line. **`parseRule` does NOT lift today**, and the lift is owed AT ENTRY when the door
+#   reads the frame.
+#
+#   **5. ⚠ 4364's VERDICT IS HONEST NOW, AND IT IS "SEPARATE DUTIES".** `interpretXP`
+#   (`GroupRules.mm`) dereferences `xpList->groupBody->groupList->listLength` unguarded and dies.
+#   It **fires unchanged under a true frame**, same five frames — so the orphaned-action mechanism
+#   is NOT explained by the missing frame, and frame and attachment are separate duties as
+#   designed. ⚠ That verdict was refused twice off broken gauges before being taken off a good
+#   one. **No guard was added there, deliberately**: a null check converts a crash into whatever
+#   an expression interpreter returns next, which is the silent-wrong-answer family.
+#
+#   **6. ⚠ THE DOOR WAS STOPPED DELIBERATELY, AND THE REASON IS SCHEDULING, NOT DIFFICULTY.**
+#   `setParentLabel` is unbuilt. What remains — Measurement 4's **walker-attach retirement in the
+#   same stroke the door goes live** — is the SILENT-FAILURE class: retire it wrongly and old-road
+#   rules duplicate or drop attachments with nothing going red. The session's ledger holds three
+#   mechanical slips caught **only by instruments**, which is exactly the state the 2026-08-08
+#   doctrine routes away from silent-failure work. **Measurements 3 and 4 are read-only and resume
+#   cold with nothing lost.**
+#
+#   ## WHAT MOVED
+#   **BORN:** `methodSlotFourReaders` (repointing method has four readers) — status **open**,
+#   decoder line + problem record + census. Its H11 control pair is pre-registered: any census of
+#   this class must return `parseAction` AND `aCTionStatemenT` or it is void.
+#   **ATTRIBUTED:** the P1 guard, by a one-arm revert-test Tony authorised — `if actionMethod`
+#   vs `if actionMethod && parseMethod` is **72 green vs 75**, and the three moved rows are the
+#   isGROUP-poison detector family, which **named the disease in words** on its first independent
+#   occasion.
+#   **CLOSED:** the `gMethod` write side — three raw-write bypasses converted through the
+#   now-symmetric setter; standing detector `grep -n "gMethod = " GroupRules.mm` reads **ZERO**.
+#   **ABOLISHED:** `gNewParseInFlight`, with its obituary standing in `jitContext.h`. The capture
+#   gate is now STRUCTURAL (`pMethod` — a property of the FIELD) where it was TEMPORAL (a global —
+#   a property of the moment). Tony's objection to the `-%` spelling was the better instinct: **the
+#   awkward spelling was the symptom of a guard asking its question about the wrong subject.**
+#
+#   ## MINTS
+#   - **THE SINGLETON DOCTRINE ROW.** Per-invocation facts travel as **dataflow**, or as
+#     write-then-lift **adjacency**. A distant read of shared state answers *"what happened last"*,
+#     never *"who is asking"*. Funded by four identical pointers where four distinct were
+#     pre-registered; **control preserved in-row** in `frameProbe`.
+#   - **⚠⚠ BEAR-TRAP: A DECLARATION INTRODUCED INTO A tok FUNCTION RE-BINDS EVERY BARE MEMBER NAME
+#     IN SCOPE — INCLUDING LINES ABOVE THE INSERTION.** tok resolves a bare field name against
+#     whichever DECLARED field owns that member, later declaration winning. Adding two locals to
+#     `setParse` silently re-pointed every bare `parseMethod`, `actionMethod`, `upTo` and `data` in
+#     the rest of the function onto the new declarations: **the rStuff refusal began testing the
+#     wrong node and the whole classification switch began writing the master's slot.** It compiled
+#     clean and the fleet would have run green. Caught **only** by reading the generated `.mm`.
+#     **ENFORCEMENT: cross-node work in a declared-field function goes in a SEPARATE FUNCTION — a
+#     call introduces no declaration.** `parkOnMaster`, `frameParent` and `frameProbe` all exist in
+#     that shape for this reason and say so in their headers.
+#   - **THE MASTER/FACE SEAM ROW, FOUR SIGHTINGS:** Ruling D, bear-trap #34, `methodSlotFourReaders`,
+#     `evictAction`'s nine refusals.
+#   - **TWO RENT COLLECTIONS.** `percentMinusClosesPassthrough` — a `%-` width specifier inside a
+#     `-%` block **is** the terminator; tok exited 139 with the extern canary at **ZERO**, and the
+#     register turned an hour into one bisect. And **bt36's backward read** on the crash frame.
+#   - **TWO GUARDS FIRED CORRECTLY ON FIRST CONTACT:** the fleet's poison detector on the `:300`
+#     revert, and `evictAction`'s structural relocate-then-null on the nine unparked rules.
+#
+#   ## THE NEXT STATIONS
+#   1. **`kantGenPath` — FIRST HOUR, four sessions unmoved.** Discharge staged behind the Start walk.
+#   2. **The door.** `setParentLabel` reads the frame; Measurements 3 (return census, `testAction`
+#      and refusal spellings named) and 4 (walker attach traced) resume as written; **walker's
+#      attachment retires in the same stroke, verified against duplication on an OLD-ROAD rule**;
+#      the `parseRule` entry lift lands with its reader.
+#   3. **Start's walk is Tony's**, triage map standing: **keyword-name** (9 refusals — `if()`,
+#      `while()`, `print()` parse as the KEYWORD, which is what Step 4's `parseR` fixes) /
+#      **empty-conjunct** (18 refusals — rules with neither data nor walkable members emit `if ;`;
+#      **no step on any page addresses this**) / **parseAction-cohort** (`DEFINing`, `PRINTing` —
+#      the Start-only intersection) / **fourth-column unknowns, which OUTRANK all three.**
+#   4. `verifyParse139` stands as its own citizen, NOT discharged as downstream.
+#
+#   ## THE SEAL CHECKLIST, run 2026-08-29 evening ON A BARE REBUILD
+#   ⚠ **AND THE REBUILD EARNED ITS KEEP ON THE FIRST COMMAND.** A bare retok moved `GroupRules.mm`
+#   by exactly one line — `frameProbe(...)` → `::frameProbe(...)`, tok emitting the global
+#   qualifier once the extern was declared in `groups.ext`, which landed AFTER the previous retok.
+#   No behaviour change, but **the committed artifact was not what its own sources generate**, and
+#   a certify-from-memory seal would have recorded a green checklist over a stale file.
+#   Bear-trap #11's family in miniature: `groups.ext` affects **codegen**, is out of repo, and can
+#   never appear in a Groups `git status`. **Rebuild THEN certify.**
+#
+#   fleet **75 green / 1 parked**, red set byte-identical to the four (`parseClass.target`,
+#   `rStuff audit`, `oneTest baseline`, `jsonTest baseline`) · frontier **exit 0, 10 PASS, first
+#   failing station NONE** (⚠ still unrevised — the standing finding that it has fallen behind the
+#   campaign holds) · decodePop **22 checks / 80 terms** (re-pinned +1, seventeenth, term named) ·
+#   ddPop **6 green / 29 records** · countPop **39/39 clean** · canary **322** (+3: `evictAction`,
+#   `parkOnMaster`, `frameProbe` — all declared in `groups.ext`) · `groups.ext` **committed, three
+#   commits, per the 08-25 rule** · both repos **0 dirty / 0 unpushed** but for Tony's
+#   `IncantForms/WorkingOn/incant++`, which is his status report and commits with his session ·
+#   every retok BARE.
+#   **Tony's fixit incantations waiting: 8 (oldest: kantGenPath, since 2026-08-24)**
+
+# ---
+
 # ⚠⚠⚠ SEALED 2026-08-29 — THE isGROUP POISON HAS A MECHANISM AND IS DEAD, THE INSTRUMENT THAT
 # WAS ITS BIGGEST VICTIM IS RESTORED, AND THE FLEET GREW A DISEASE-CLASS DETECTOR. READ THIS FIRST.
 #
