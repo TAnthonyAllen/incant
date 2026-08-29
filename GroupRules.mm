@@ -3545,6 +3545,59 @@ char 		dq = 34;
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
+/*******************************************************************************
+    evictAction -- THE EVICTION, AND IT REFUSES RATHER THAN SUBSTITUTES.
+
+    Tony's design, 2026-08-29. Step 3 of the earlier brief -- install the parse
+    INTO gMethod -- is dead, killed by the parseAction finding: gMethod is read
+    as THE ACTION by nine sites, one of which is a parse executor that would
+    then call itself. The replacement is bear-trap 34's retirement clause.
+    VACATE gMethod and install NOTHING. With the slot empty and isMethod
+    retracted by the symmetric setter, runOP arm two stops claiming the rule,
+    and a bare `QuotE()` in a generated body falls through to the isRule arm,
+    into runRule, into builtinParsE. The new parse wins by having no
+    competitor rather than by taking the old channel.
+
+    ⚠ RELOCATE-THEN-NULL IS STRUCTURAL HERE, NOT REMEMBERED. The whole reason
+    this is one extern rather than two statements in the driver is that the
+    null must be unreachable until the relocation is VERIFIED. setParse already
+    parks actionMethod for every rule it claims, so the relocation has usually
+    happened -- but "usually" is what the brief said not to trust, and a rule
+    that reached dual-flag by any road other than setParse is the burn case:
+    null its gMethod and the action is gone with nothing holding a copy.
+
+    ⚠ IT REPORTS A VALUE ON EVERY RULE, NOT A MESSAGE ON FAILURE (rule H4).
+    An eviction pass that printed only its refusals would go quiet the day it
+    stopped evicting anything, and quiet would read as success. Every rule
+    prints its outcome by name, so the driver can count them and a zero is
+    visible as a zero.
+
+    The passthrough reads two function pointers and compares them. There is no
+    kant spelling for that -- parseClassify above is the house precedent, and
+    the comparison is all that sits inside the escape.
+*******************************************************************************/
+extern "C" GroupItem *evictAction(GroupItem *field)
+{
+RuleStuff 	*ruleStuff = field->rStuff;
+char 		*outcome = "no-rstuff";
+int 		doEvict = 0;
+	if ( ruleStuff )
+		{
+		
+		GroupItem *(*am)(GroupItem *) = ruleStuff->actionMethod;
+		GroupItem *(*gm)(GroupItem *) = field->groupBody->gMethod;
+		if      ( !gm )        outcome = (char *)"already-vacant";
+		else if ( !am )        outcome = (char *)"REFUSED-unparked";
+		else if ( am != gm )   outcome = (char *)"REFUSED-mismatch";
+		else                 { outcome = (char *)"evicted"; doEvict = 1; }
+		
+		}
+	::fprintf(stderr,"EVICT %s %s\n",field->groupBody->tag,outcome);
+	if ( doEvict )
+		field->setMethod((GroupItem*(*)(GroupItem*))0);
+	return field;
+}
+
 /***************************************************************************
 	The fAIL method expects to have the name of the fail method passed in as
     text of the FAIL attribute.
@@ -12856,47 +12909,56 @@ int 		baseStak = 0;
 /*******************************************************************************
 	runRuleAction checks to see if there is a method parked in actionMethod.
     If there is, and there is a rule label, it runs actionMethod.
+
+    THE CAPTURE GATE IS STRUCTURAL NOW, AND THAT IS THE WHOLE POINT.
+    It asks pMethod -- does THIS FIELD carry a builtinParsE -- where it used to
+    ask gNewParseInFlight, a file scope C++ global raised by parseRule around
+    the generated body and read back through a -% pocket.
+
+    Both spellings answer the same question, "are we inside a new parse", but
+    they answer it about different subjects. The global answered it about TIME:
+    it was true for whatever ran while parseRule's frame was live, so its
+    correctness depended on every road that reaches here either being under
+    that frame or being excluded by hand. aCTionBrancH and runOP are two roads
+    that are not, which is why the global existed at all. pMethod answers it
+    about the FIELD, and a field either carries a generated parse or it does
+    not, on every road, with nothing to save and nothing to restore.
+
+    So this is the escape pocket doctrine's first payment: a temporal guard,
+    unspellable in kant and therefore written in C++ inside this function, is
+    replaced by an ordinary read of a node the function already had in a local.
+    Tony objected to the -% spelling before anyone noticed the gate could be
+    structural; the objection was the better instinct and this is where it led.
+
+    ⚠ AND IT IS NOT A BEHAVIOUR CHANGE TODAY, which is worth saying so nobody
+    reads the fleet staying still as the edit not landing. In an ordinary run
+    setParse never fires, so no field carries builtinParsE and this arm is dead
+    either way -- exactly as it was dead under the global, which nothing raised
+    once parseRule's set was removed. The gate becomes live the first time a
+    generated parse runs, which is the campaign.
 *******************************************************************************/
 extern "C" GroupItem *runRuleAction(GroupItem *field)
 {
 GroupItem 	*pMethod = field->get("builtinParsE");
 GroupItem 	*aMethod = field->get("builtinActoR");
 RuleStuff 	*ruleStuff = field->rStuff;
-int 		inFlight = 0;
 int 		minters = 0;
-	
-	inFlight = gNewParseInFlight;
-	
 	if ( pMethod )
 		ruleStuff = pMethod->rStuff;
 	if ( !ruleStuff )
 		return GroupControl::groupController->groupRules->trueResult;
-	if ( inFlight && ruleStuff->label )
+	if ( pMethod && ruleStuff->label )
 		{
 		minters = ::labelMinters(field);
 		if ( GroupControl::groupController->groupRules->parseTrace )
 			::fprintf(stderr,"  CENSUS %s labelMinters=%d\n",field->groupBody->tag,minters);
 		if ( minters == 0 )
-			{
-			
-			if ( GroupControl::groupController->groupRules->parseTrace )
-			::fprintf(stderr,"  SPANSET %s stuff=%p label=%p\n",
-			field->groupBody->tag,(void*)ruleStuff,(void*)ruleStuff->label);
-			
 			field->captureSpan(ruleStuff);
-			}
 		}
 	if ( ruleStuff->label )
 		{
 		if ( aMethod )
-			{
-			
-			if ( GroupControl::groupController->groupRules->parseTrace )
-			::fprintf(stderr,"  ACTFIRE runRuleAction %s stuff=%p label=%p\n",
-			field->groupBody->tag,(void*)ruleStuff,(void*)ruleStuff->label);
-			
 			ruleStuff->label = aMethod->groupBody->gMethod(ruleStuff->label);
-			}
 		return ruleStuff->label;
 		}
 	return GroupControl::groupController->groupRules->trueResult;

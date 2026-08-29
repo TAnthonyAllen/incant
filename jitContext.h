@@ -262,26 +262,34 @@ static GroupItem *gKantLabel = 0;
 static char      *gKantFrom  = 0;
 static GroupItem *gKantRule  = 0;
 
-// gNewParseInFlight — THE NEW-PARSE GATE (2026-08-25, Tony's ruling on the label
-// seam). Raised by parseRule around the generated body's run, tested by
-// runRuleAction, saved and restored in C++ locals at the set site so the call
-// stack IS the frame stack — the same property gKantLabel above relies on, and
-// for the same reason.
+// gNewParseInFlight — ABOLISHED 2026-08-29, WITH THE TWO-CHANNEL WORLD IT
+// GUARDED. Obituary kept deliberately: it was a correct answer to a question
+// that has since stopped being asked, and a reader who finds its name in the
+// git history or in a 2026-08-25 seal should land here rather than nowhere.
 //
-// ⚠ WHY IT EXISTS AT ALL, because an ungated fix looked correct and was not.
-// runRuleAction is NOT reached only by the new parse: aCTionBrancH
-// (GroupRules.mm:157) and runOP (:12698) both dispatch a rule action through
-// gMethod and land there, which is how incant/frontier died at exit 139 on
-// 2026-08-24 without ever touching setParse. On those roads NO PARSE IS IN
-// FLIGHT, so rStuff.hereAt is whatever the last parse left behind — a stale
-// start against a live atRuleMark yields a plausible span, silently written
-// into the label the action is about to read. The gate makes that
-// unconstructable rather than merely avoided.
+// WHAT IT WAS. A file-scope int raised by parseRule around the generated
+// body's run and read by runRuleAction, saved and restored in C++ locals so
+// the call stack was the frame stack. It gated captureSpan, because
+// runRuleAction is NOT reached only by the new parse — aCTionBrancH
+// (GroupRules.mm:157) and runOP both dispatch a rule action through gMethod
+// and land there, and on those roads rStuff.hereAt is whatever the last parse
+// left behind, so a stale start against a live atRuleMark yields a plausible
+// span written silently into the label the action is about to read.
 //
-// Lives here rather than in a .rtn for the reason the block above records: a
-// file-scope passthrough in a .rtn is relocated by tok to the END of the
-// generated .mm, so a static declared there is emitted after its users.
-static int gNewParseInFlight = 0;
+// WHY IT IS GONE, and it is not because the hazard stopped existing. It is
+// because the hazard's PREMISE did. Those roads reach a rule action by finding
+// it in gMethod; after the eviction there is nothing in gMethod to find, and
+// the only road to a rule action is builtinActoR through runRuleAction, from
+// inside its own parse. The guard was making an unwanted road safe. The
+// eviction deletes the road.
+//
+// AND THE SPELLING WAS THE SMALLER HALF OF THE OBJECTION. Tony objected to the
+// -% escape pockets it forced at both ends before anyone noticed the gate
+// could be structural. runRuleAction now asks pMethod — does THIS FIELD carry
+// a builtinParsE — which is a property of the subject rather than of time, so
+// it needs no global, no save, no restore, and no escape. The lesson worth
+// keeping is that an awkward spelling was the visible symptom of a guard asking
+// its question about the wrong thing.
 
 // THE FRAME (Increment 1, 2026-08-01). The action's own field list IS the frame
 // schema -- (isArgument || isLocal) && !noPrint -- which is not a new invention:
@@ -562,11 +570,11 @@ public:
 //
 // ⚠ IT LIVES IN THIS HEADER FOR ONE MECHANICAL REASON, not a design one: tok
 // honours a -% passthrough only INSIDE a function body, so a .rtn cannot
-// declare a file-scope C++ global at all. gNewParseInFlight above is the
-// standing precedent for exactly this, and this follows it rather than
-// inventing a second idiom. It is not JIT machinery and does not belong to
-// this header's subject; move both it and gNewParseInFlight the day a
-// hand-written header for runtime globals exists.
+// declare a file-scope C++ global at all. gNewParseInFlight above was the
+// standing precedent for exactly this; it was abolished 2026-08-29 and its
+// obituary now holds that slot, so this is the last resident of the idiom. It
+// is not JIT machinery and does not belong to this header's subject; move it
+// the day a hand-written header for runtime globals exists.
 //
 // ⚠ NOT AN INCANT FIELD, DELIBERATELY. An incant field would be visible to the
 // very grammar this road rewrites, and a census that can be read — or written

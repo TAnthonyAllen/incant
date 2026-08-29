@@ -162,6 +162,7 @@ extern "C" GroupItem *dumpSpellings(GroupItem *argument);
 extern "C" char *emitLeaf(GroupItem *node, char *local, char *sink);
 extern "C" int emitMany(GroupItem *node);
 extern "C" GroupItem *emitPlan(GroupItem *plan);
+extern "C" GroupItem *evictAction(GroupItem *field);
 extern "C" GroupItem *fAIL(GroupItem *input);
 extern "C" GroupItem *fireNewParse(GroupItem *rule);
 extern "C" void flushBuffer(GroupItem *bufField);

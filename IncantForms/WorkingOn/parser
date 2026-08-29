@@ -62,12 +62,33 @@ define
             else    cerr taG "has no CodE":;
         else    cerr taG "already has code so no parse generated":;
         };
+    evictTerms argument code={
+        iterate evA on argument attributes;
+        while ++evA;
+            if noPrinT;     continue;
+            if hasNewParsE; evictAction(evA);
+        iterate evM on argument members;
+        while ++evM;
+            if noPrinT;     continue;
+            if hasNewParsE; evictAction(evM);
+        };
+    evictWalk argument code={
+        iterate evR on argument members;
+        while ++evR;
+            if noPrinT;     continue;
+            if !isRulE;     continue;
+            if hasNewParsE; evictAction(evR);
+            if binTypE;     continue;
+            evictTerms(evR);
+        };
     parser argument code={
         walkRules(argument);
         cerr "PARSER SENTINEL -- walk complete":;
         compiledHere = 0;
         if argument.hasNewParsE;     compiledHere = 1;
         cerr "WITNESS compiled " compiledHere " -- 1 = compile ran on this rule, 0 = it did not":;
+        evictWalk(Grokking);
+        cerr "EVICTION SENTINEL -- cohort swept":;
         @argument;
         cout "Running" taG "on" ruleText:;
         debug;
