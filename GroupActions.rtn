@@ -1388,6 +1388,7 @@ use rule
     if field && field.data {
         divertToRule    = true;
         pushInput(field); }
+    if parseTrace   frameProbe(field,rule);
     if hasNewParse
         if newParse = rule["builtinParsE"] {
             rule.establishFrame(rule.frameParent(field));

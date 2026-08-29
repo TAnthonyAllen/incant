@@ -167,6 +167,7 @@ extern "C" GroupItem *fAIL(GroupItem *input);
 extern "C" GroupItem *fireNewParse(GroupItem *rule);
 extern "C" void flushBuffer(GroupItem *bufField);
 extern "C" char *foldOf(GroupItem *rule);
+extern "C" GroupItem *frameProbe(GroupItem *field, GroupItem *rule);
 extern "C" GroupItem *genKant(GroupItem *argument);
 extern "C" GroupItem *genParse(GroupItem *argument);
 extern "C" GroupItem *generateCode(GroupItem *field);

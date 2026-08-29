@@ -1338,10 +1338,24 @@ void establishFrame(GroupItem parentLabel)
     frameParent -- resolve the parse-time parent for a rule invoked through
     runRule, which has no pStuff to read one from.
 
-    An invocation reached from inside another rule's generated body carries the
-    invoking rule's stuff in the rules singleton, so its label is the in-flight
-    parent. A top-level invocation has none, and its parent is the argument
-    holder the caller diverted input from.
+    IT READS runRule's OWN ARGUMENT, and that is the whole finding. The holder
+    is the node the call site handed down -- the InvokeArg for a sub-rule call,
+    the argument field for a top-level one -- and its rStuff carries a label
+    that is DISTINCT PER INVOCATION. So the caller's name reaches the writer as
+    dataflow along the existing call, with no emitter change and no channel
+    invented.
+
+    ⚠ THE FIRST VERSION READ ruler->ruleSTUFF AND WAS WRONG, MEASURABLY.
+    A singleton is not a channel: a distant read of shared state answers "what
+    happened last", never "who is asking". It printed ONE pointer for all four
+    invocations of an Xpress walk -- the driver action's own BlocK, stale --
+    where four distinct ones were pre-registered. The holder's own stuff prints
+    four distinct labels on the same run, and the singleton prints its single
+    stale pointer beside them, which is the control.
+
+    A top-level invocation's holder has no rStuff at all (the probe shows
+    fieldStuff=0x0 for ruleText), so it falls through to the holder itself --
+    the argument holder, which is what a top-level parse should attach into.
 
     Separate from establishFrame deliberately: runRule is a declared-field
     function and after the parkOnMaster near-miss no new declarations go inside
@@ -1350,8 +1364,10 @@ void establishFrame(GroupItem parentLabel)
 ***************************************************************************/
 GroupItem frameParent(GroupItem holder)
 {
-GroupRules  ruler = groupRules;
-    if ruleSTUFF && ruleSTUFF.label     return ruleSTUFF.label;
+RuleStuff   holderStuff;
+    if !holder  return holder;
+    holderStuff = holder.rStuff;
+    if holderStuff && holderStuff.label     return holderStuff.label;
     return holder;
 }
 

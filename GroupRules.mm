@@ -3692,6 +3692,36 @@ extern "C" char *foldOf(GroupItem *rule)
 }
 
 /*******************************************************************************
+    frameProbe -- LOOK 1 of the handover brief. TEMPORARY, parseTrace gated.
+
+    Question: at a bare sub-rule call, does runRule's `field` argument reach the
+    INVOKING body's in-flight label? If it does, runRule can resolve the frame
+    from its own arguments and no emitter change is owed. Prints what field is
+    and every node reachable from it in one hop, with pointers, because the
+    discriminator is whether four sub-calls yield four DIFFERENT nodes.
+
+    Separate function, not lines inside runRule: runRule is a declared-field
+    function and after parkOnMaster no new declarations go inside one.
+    No percent-dash in the format string; that token closes passthrough.
+*******************************************************************************/
+extern "C" GroupItem *frameProbe(GroupItem *field, GroupItem *rule)
+{
+	
+	if ( GroupControl::groupController->groupRules->parseTrace )
+	::fprintf(stderr,"FRAMEPROBE rule=%s field=%p fieldTag=%s fieldParent=%p fieldStuff=%p fieldStuffLabel=%p fieldStuffLabelTag=%s ruleSTUFF=%p\n",
+	rule ? rule->groupBody->tag : "(none)",
+	(void*)field,
+	field ? field->groupBody->tag : "(none)",
+	field ? (void*)field->parent : (void*)0,
+	field ? (void*)field->rStuff : (void*)0,
+	(field && field->rStuff) ? (void*)field->rStuff->label : (void*)0,
+	(field && field->rStuff && field->rStuff->label) ? field->rStuff->label->groupBody->tag : "(none)",
+	(void*)GroupControl::groupController->groupRules->ruleSTUFF);
+	
+	return field;
+}
+
+/*******************************************************************************
     genKant -- EMIT A RULE'S KANT PARSE BODY FROM ITS LIVE TERMS.
 
     THE POINT OF THE WHOLE RATCHET. A hand-written body is a MANUAL RUN OF THIS
@@ -12957,6 +12987,8 @@ int 		baseStak = 0;
 		ruler->divertToRule = 1;
 		ruler->pushInput(field);
 		}
+	if ( ruler->parseTrace )
+		frameProbe(field,rule);
 	if ( rule->groupBody->flags.hasNewParse )
 		if ( newParse = rule->get("builtinParsE") )
 			{
