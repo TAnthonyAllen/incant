@@ -1298,6 +1298,63 @@ GroupItem   lab = stuff.label;
     pStuff.label +% lab;
 }
 
+/***************************************************************************
+    establishFrame -- THE SINGLE WRITER OF parentLabel, now one body with two
+    call sites. Tony's ruling via Clay, 2026-08-29.
+
+    parse()'s fork used to carry this write inline, under a comment reading
+    "THIS LINE IS ITS SINGLE WRITER". That was true and it is still true: the
+    doctrine is one BODY, not one call site. Both seams call here.
+
+    ⚠ WHY runRule NEEDED IT. The new parse road dispatches
+    `newParse.method(rule)` straight at builtinParsE and never calls
+    rule.parse(), so it never crossed the writing line. Measured 2026-08-29:
+    PARENTPROBE printed parentLabel=0x0 on all four invocations of an Xpress
+    walk -- Xpress, ExpressioN, Token, QuotE -- while the structural parent
+    named definitional positions (Token's own parent is Token). The frame
+    channel existed and the new road did not write it.
+
+    ⚠⚠ THE DISCIPLINE IS NOT SAVE/RESTORE, AND THAT IS WORTH KNOWING BEFORE
+    ANYONE "FIXES" IT. There is no save and no restore here, and the incumbent
+    had none either -- it is a bare write immediately before the call. The
+    recursion safety lives in the CALLEE: parse()'s fork comment states that
+    the callee lifts parentLabel into a stack local at entry before descending,
+    so a nested invocation overwriting this slot cannot disturb an outer frame
+    already under way. The genParse-emitted methods implement exactly that --
+    `GroupItem into = rule.rStuff.parentLabel;` is their first line.
+
+    THE CONSEQUENCE, NAMED RATHER THAN LEFT TO BITE: a parseMethod that reads
+    parentLabel LATE instead of lifting it at entry is unsafe under recursion,
+    and parseRule does not lift today because it does not yet read the frame at
+    all. When setParentLabel lands, the lift is owed AT parseRule's ENTRY, not
+    at the point of use.
+***************************************************************************/
+void establishFrame(GroupItem parentLabel)
+{
+    if rStuff   rStuff.parentLabel = parentLabel;
+}
+
+/***************************************************************************
+    frameParent -- resolve the parse-time parent for a rule invoked through
+    runRule, which has no pStuff to read one from.
+
+    An invocation reached from inside another rule's generated body carries the
+    invoking rule's stuff in the rules singleton, so its label is the in-flight
+    parent. A top-level invocation has none, and its parent is the argument
+    holder the caller diverted input from.
+
+    Separate from establishFrame deliberately: runRule is a declared-field
+    function and after the parkOnMaster near-miss no new declarations go inside
+    one. A call introduces no declaration, so the resolution happens here and
+    runRule's own bare-name resolution cannot move.
+***************************************************************************/
+GroupItem frameParent(GroupItem holder)
+{
+GroupRules  ruler = groupRules;
+    if ruleSTUFF && ruleSTUFF.label     return ruleSTUFF.label;
+    return holder;
+}
+
 GroupItem parse(RuleStuff pStuff)
 {
 GroupItem   parentLabel;
@@ -1407,7 +1464,7 @@ RuleStuff   ruleStuff   = getStuff(pStuff);
             defStuff ? (void*)defStuff->parseMethod : (void*)0);
 %-
     if defStuff && defStuff.parseMethod {
-        rStuff.parentLabel  = parentLabel;
+        establishFrame(parentLabel);
         label   = defStuff.parseMethod(this);
         sukcess = label != 0;
         /*  GX-1: fire the rule action, through the SAME method the

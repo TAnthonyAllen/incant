@@ -1389,7 +1389,9 @@ use rule
         divertToRule    = true;
         pushInput(field); }
     if hasNewParse
-        if newParse = rule["builtinParsE"]  result = newParse.method(rule);
+        if newParse = rule["builtinParsE"] {
+            rule.establishFrame(rule.frameParent(field));
+            result = newParse.method(rule); }
         else        cerr "runRule could not find builtinParsE attribute":;
     else            result = rule.parse(0);
     while field && field.data && inputSTAK && inputSTAK.length > baseStak

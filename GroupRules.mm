@@ -12959,7 +12959,10 @@ int 		baseStak = 0;
 		}
 	if ( rule->groupBody->flags.hasNewParse )
 		if ( newParse = rule->get("builtinParsE") )
+			{
+			rule->establishFrame(rule->frameParent(field));
 			result = newParse->groupBody->gMethod(rule);
+			}
 		else	::fprintf(stderr,"runRule could not find builtinParsE attribute\n");
 	else	result = rule->parse(0);
 	while ( field && field->groupBody->flags.data && ruler->inputSTAK && ruler->inputSTAK->length > baseStak )
