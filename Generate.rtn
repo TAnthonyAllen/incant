@@ -112,6 +112,23 @@ GroupItem   pMethod = field["builtinParsE"],
             grup;
 RuleStuff   ruleStuff = pMethod.rStuff;
     // assumes processCode was run on field already
+    /*  MEASUREMENT 1, setParentLabel brief. TEMPORARY, parseTrace gated.
+        Which parent can a parseMethod see from the field handed in: the
+        structural one, or the per-invocation parse-time one? Prints both with
+        POINTERS, because the discriminator is recursion -- one structural node
+        in flight at two depths prints the same address twice.
+        No percent-dash in the format string; that token closes passthrough.  */
+    -%
+    if ( GroupControl::groupController->groupRules->parseTrace )
+        ::fprintf(stderr,"PARENTPROBE %s self=%p parent=%p parentTag=%s stuff=%p parentLabel=%p parentLabelTag=%s\n",
+            field->groupBody->tag,
+            (void*)field,
+            (void*)field->parent,
+            field->parent ? field->parent->groupBody->tag : "(none)",
+            (void*)field->rStuff,
+            field->rStuff ? (void*)field->rStuff->parentLabel : (void*)0,
+            (field->rStuff && field->rStuff->parentLabel) ? field->rStuff->parentLabel->groupBody->tag : "(none)");
+    %-
     if checkInput() {
         if field.isAction {
             while grup = code.nextAttribute(grup)
