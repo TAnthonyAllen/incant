@@ -12988,7 +12988,7 @@ int 		baseStak = 0;
 		ruler->pushInput(field);
 		}
 	if ( ruler->parseTrace )
-		frameProbe(field,rule);
+		::frameProbe(field,rule);
 	if ( rule->groupBody->flags.hasNewParse )
 		if ( newParse = rule->get("builtinParsE") )
 			{
