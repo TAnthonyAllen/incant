@@ -322,6 +322,7 @@ extern "C" GroupItem *opSetTag(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opString(GroupItem *target, Buffer *buffer);
 extern "C" GroupItem *opUnaryMinus(GroupItem *result);
 extern "C" GroupItem *optRK(GroupItem *idx);
+extern "C" GroupItem *parkOnMaster(GroupItem *field);
 extern "C" int parkParse(GroupItem *rule, char *name);
 extern "C" GroupItem *parseAction(GroupItem *field);
 extern "C" GroupItem *parseAny(GroupItem *field);

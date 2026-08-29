@@ -10398,6 +10398,50 @@ int 		n = 0;
 	return ruler->trueResult;
 }
 
+/*******************************************************************************
+    parkOnMaster -- park the action on the DEFINING rule's rStuff.
+
+    Tony/Clay, 2026-08-29. rStuff is PER NODE and groupBody is SHARED, so
+    parking on whatever FACE setParse was handed put the eviction's verified
+    copy and the slot it must null on DIFFERENT NODES: the generation walk
+    calls setParse on member TERMS, the eviction sweep reaches the MASTER, and
+    the master's rStuff had never been parked. evictAction refused nine of ten
+    Xpress-cohort rules on exactly that, correctly. Resolving definingRule()
+    and parking there too means guard and write interrogate one node.
+
+    ⚠ IT IS A SEPARATE FUNCTION FOR A MEASURED REASON, not for tidiness, and
+    the reason is worth more than the function. Written inline in setParse it
+    needs two locals -- a GroupItem for the definer and a RuleStuff for its
+    stuff -- and tok resolves a bare field name against whichever DECLARED
+    field owns that member, later declaration winning. Adding them silently
+    re-pointed every bare `parseMethod`, `actionMethod`, `upTo` and `data` in
+    the REST of setParse onto the definer and its stuff, including the lines
+    ABOVE the insertion: the rStuff refusal began testing the wrong node and
+    the whole classification switch began writing the master's slot. It
+    compiled clean. Read in the generated .mm it is unmistakable, which is the
+    only reason it was caught -- project memory's "verify in the regen .mm".
+    A call introduces no declaration, so the caller's resolution cannot move.
+
+    ⚠ ADDITIVE, NOT A MOVE. setParse still parks on the face as well, because
+    the actor gate below reads actionMethod off THIS face; park only on the
+    master and that read goes null and builtinActoR stops being hung at all.
+    Writing both is what makes "the actor gate is untouched" a true sentence.
+    The face copy costs nothing -- arm two of the isGroupActorPoison probe
+    measured a persisted actionMethod harmless, on its own rebuild.
+
+    ⚠ NO MIGRATION IS OWED: parking happens fresh inside every parser run, so
+    re-running the driver IS the migration and no stale face copy survives
+    into a new process.
+*******************************************************************************/
+extern "C" GroupItem *parkOnMaster(GroupItem *field)
+{
+GroupItem 	*definer = field->definingRule();
+RuleStuff 	*defStuff = definer->rStuff;
+	if ( defStuff )
+		defStuff->actionMethod = field->groupBody->gMethod;
+	return field;
+}
+
 /***************************************************************************
     canonOf -- name the node definingRule() resolves to, from incant.
 
@@ -13280,6 +13324,7 @@ RuleStuff 	*ruleStuff = field->rStuff;
 	if ( !ruleStuff->parseMethod )
 		{
 		ruleStuff->actionMethod = field->groupBody->gMethod;
+		::parkOnMaster(field);
 		if ( upTo(ruleStuff->overTo) || upToOver(ruleStuff->overTo) )
 			ruleStuff->parseMethod = ::parseUpTo;
 		else
