@@ -2226,10 +2226,41 @@ void GroupItem::setMap(BitMAP *i)
 		updateListeners();
 }
 
+/***************************************************************************
+    setMethod -- SYMMETRIC, AND IT IS THE SOLE MAINTAINER OF A SHAPE FACT.
+    Tony's design, 2026-08-29, minted with the eviction campaign.
+
+    Present method  -> occupy gMethod and MINT isMethod.
+    Absent  method  -> vacate gMethod and RETRACT isMethod.
+
+    So `rule.method = 0;` is the whole eviction, in one ordinary write, and it
+    cannot leave the shape fact disagreeing with the occupancy.
+
+    ⚠ WHY EVERY WRITE GOES THROUGH HERE, both directions, with no raw
+    `gMethod =` anywhere but the line below. isMethod is not a second fact
+    about the slot -- it IS the slot's occupancy, read as
+    isMethod(instructType) by every dispatcher in the tree. A bypass does not
+    merely skip a courtesy update; it desynchronizes the two BY CONSTRUCTION,
+    and the failure it produces is the one this project has paid for five
+    times: a reader asking a channel for something other than what it holds.
+    runOP arm two claims any node whose isMethod reads true, so a raw clear
+    that leaves instructType at 1 hands that arm a null gMethod to call.
+
+    The asymmetric form this replaces set isMethod unconditionally, so a null
+    argument minted the flag over an empty slot -- a state no caller wanted
+    and none had yet constructed. Symmetry costs one branch and makes it
+    unbuildable rather than merely unbuilt.
+
+    House style is its siblings': setItem, setMap and setObject all test the
+    incoming value and clear the shape field on absence. This is that idiom
+    applied to the one setter that had been written the other way.
+***************************************************************************/
 void GroupItem::setMethod(GroupItem *(*m)(GroupItem *))
 {
-	groupBody->flags.instructType = 1;
 	groupBody->gMethod = m;
+	if ( m )
+		groupBody->flags.instructType = 1;
+	else	groupBody->flags.instructType = 0;
 }
 
 void GroupItem::setNumber(double d)

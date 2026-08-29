@@ -683,13 +683,10 @@ GroupItem 	*item = 0;
 				char 	*methodName = ::concat(2,"aCTion",NewGroup->groupBody->tag);
 				void 	*methodAddress = 0;
 				if ( methodAddress = ::dlsym(RTLD_SELF,methodName) )
-					NewGroup->groupBody->gMethod = (GroupItem*(*)(GroupItem*))methodAddress;
+					NewGroup->setMethod((GroupItem*(*)(GroupItem*))methodAddress);
 				::free(methodName);
 				if ( NewGroup->groupBody->gMethod )
-					{
-					NewGroup->groupBody->flags.instructType = 1;
 					NewGroup->groupBody->flags.methodType = 1;
-					}
 				}
 			}
 		}
@@ -7809,8 +7806,7 @@ int 		live = 0;
 	mint->groupBody->flags.actionType = 2;
 	mint->groupBody->flags.noPrint = 1;
 	/*  STARVE :1230. See note (2) above -- this is the clear, not an omission. */
-	rule->groupBody->gMethod = 0;
-	rule->groupBody->flags.instructType = 0;
+	rule->setMethod((GroupItem*(*)(GroupItem*))0);
 	rule->groupBody->flags.methodType = 0;
 	rule->groupBody->flags.actionType = 0;
 	/*  ⚠ getRStuff(), NEVER THE RAW rStuff FIELD. The first cut used
@@ -13099,7 +13095,6 @@ void 	*methodAddress = 0;
 		if ( methodAddress = ::dlsym(RTLD_DEFAULT,name) )
 			{
 			block->setMethod((GroupItem*(*)(GroupItem*))methodAddress);
-			block->groupBody->flags.instructType = 1;
 			return 1;
 			}
 		else	::fprintf(stderr,"\n\tsetCompiledMethod: ERROR no method found %s",name);

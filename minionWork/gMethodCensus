@@ -1,0 +1,96 @@
+# gMethod CENSUS -- READERS AND WRITERS
+# 2026-08-29, Step C of the eviction campaign brief (Clay -> Clod, ruled by Tony).
+
+## PRE-REGISTRATION, written before any number was read
+Stated in the G1 commit and in designDocs ProblemRecords methodSlotFourReaders:
+the census is VOID unless BOTH known members appear in the hits -- parseAction
+and aCTionStatemenT. A census that excludes a known member is bear-trap 19's
+wrong-search-space in exactly the shape H11 exists to catch.
+
+Expected magnitude, stated as a mechanism rather than a bare count (H11's
+prediction clause): "roughly forty", read off a `gMethod(` grep of the two
+files the brief named. That is a GUESS WEARING A NUMBER and is marked as one.
+
+## CONTROL RESULT
+parseAction     GroupRules.mm:10413, 10417   PRESENT
+aCTionStatemenT GroupRules.mm:1484           PRESENT
+CENSUS IS VALID.
+
+## METHOD
+Enclosing function resolved by column-0 anchored signature match over the three
+built files that carry any hit -- GroupRules.mm, GroupItem.mm, RuleStuff.mm.
+GroupControl, GroupMain, Bytecode, GroupDraw, GroupList, GroupStak, GroupBody
+carry zero and are named so the absence is measured rather than assumed.
+
+⚠ THE FIRST RUN OF THIS CENSUS WAS WRONG AND IS RECORDED. The signature regex
+matched `if ( ... )` lines as function heads, so 32 of 50 rows were attributed
+to a function called "if". The count was right and every attribution was
+garbage -- H9's family exactly, an instrument answering plausibly. Re-run with
+column-0 anchoring. Read the classification, not the number.
+
+⚠ AND THE GLOBS WERE UNQUOTED ON AN EARLIER PASS, which zsh expanded against the
+cwd before grep saw them, so `--include='*.twk'` silently searched .mm files.
+Same failure H11 was minted on, one month later, by someone who had read it.
+
+## POPULATION: 49 code call sites
+
+## CLASS A -- receiver can be RULE-SHAPED and gMethod is read AS THE ACTION.
+## This is the eviction's blast radius. Nine sites, six known, THREE NEW.
+  GroupItem.mm:874      fireLabelMethod    KNOWN  groupBody->gMethod(stuff->label) on the rule
+  GroupRules.mm:10413   parseAction        KNOWN  a PARSE EXECUTOR whose body IS the read
+  GroupRules.mm:10417   parseAction        KNOWN  its label arm
+  GroupRules.mm:1484    aCTionStatemenT    KNOWN  parseSelfRecursion, 74705 frames
+  GroupRules.mm:916     aCTionIF           KNOWN  bear-trap 34's site
+  GroupRules.mm:157     aCTionBrancH       KNOWN  jitContext.h road
+  GroupRules.mm:12808   runOP arm two      KNOWN  the QuotE site
+  RuleStuff.mm:685,689  testAction         ⚠ NEW  parseAction's TWIN, int-returning
+  RuleStuff.mm:431      parseJSONarray     ⚠ NEW  `ruleSTUFF = label.rStuff; label = rule.method(label)`
+  RuleStuff.mm:507      parseJSONfield     ⚠ NEW  same shape
+
+## CLASS B -- receiver is a STATEMENT or BLOCK node, never a rule.
+## Untouched by the eviction. aCTionBlocK, aCTionDO x2, aCTionDefinE, aCTionFOR,
+## aCTionIF x2 (its StatemenT/ElsE arms), aCTionPrinT, aCTionRunRulE x2,
+## aCTionWhilE x2, aCTionXpress, appendPrintXP, jitEmitDO x2, jitEmitGIF x3,
+## jitEmitShortCircuit x2, jitEmitWHILE x2, jitExecBlock, jitPrintList,
+## parseRule (the BlocK), printField, processAction, resolveList, runByteFn,
+## runOP x3 (operand resolution and the final isMethod arm), runShortCircuit x2,
+## GroupItem::runNotified.
+
+## CLASS C -- reads a DEDICATED attribute's method, not the rule's own slot.
+## These are the designed doors and the eviction leaves them alone.
+  GroupRules.mm:12848   runRule         newParse->gMethod(rule)   -- builtinParsE
+  GroupRules.mm:12898   runRuleAction   aMethod->gMethod(...)     -- builtinActoR
+
+## WRITERS -- every raw `gMethod =` in source, and their disposition
+  GroupItem.twk setMethod            THE SOLE LEGAL WRITER. Symmetric as of Step B.
+  ruleActions.rtn:523  aCTion dlsym  CONVERTED to `method =` (routes through setMethod)
+  GroupActions.rtn     setCompiledMethod  redundant `isMethod = true` DROPPED
+  genParse.rtn:881     STARVE clear  CONVERTED to `method = 0` -- the setter's first live null
+  GUI/Bwana.mm:1610    cssOnLoad     ⚠ FLAGGED, NOT CONVERTED. Not in the Groups
+                                     build (no Bwana.o), not in groupIncludes, and
+                                     GUI/*.twk is not swept by tokall (bear-trap 10's
+                                     correction), so editing it would leave a stale
+                                     .mm beside a changed .twk for zero benefit.
+
+## STANDING DETECTOR, and it is green today
+  grep -n "gMethod = " GroupRules.mm   -> ZERO
+  grep -rn "gMethod = " --include='*.mm' .  -> GroupItem.mm:2260 (setMethod's own
+  body, the one legal writer) and GUI/Bwana.mm:1610 (flagged above).
+  Cheap enough to be a pop station whenever someone wants it.
+
+## THE STOP
+The brief's clause: "If the census turns up a reader that can't repoint this
+session, STOP -- Tony rules narrower-now vs. retirement-now with the census in
+hand." Three did.
+
+  testAction is parseAction's twin and inherits its open question verbatim --
+  the brief already said of parseAction "it may need its own respelling rather
+  than a repoint. If so, file, don't improvise." There are two of them.
+
+  parseJSONarray and parseJSONfield are HAND-WRITTEN parse methods in
+  RuleStuff.twk -- NOT emitter output, checked -- that fire the rule's action
+  INLINE after a successful match. Under eviction they read a null gMethod:
+  crash, or the action silently does not fire. Repointing them is not
+  mechanical, because it decides whether a parse method fires the action inline
+  or delegates to runRuleAction as the single door. That is Step E's invariant
+  arriving early, inside Step C, on hand-written code.

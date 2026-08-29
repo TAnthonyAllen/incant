@@ -1560,7 +1560,6 @@ void*       methodAddress;
     if name
         if methodAddress = dlsym(RTLD_DEFAULT,name) {
             block.method    = methodAddress;
-            block.isMethod  = true;
             return true; }
         else cerr :`"setCompiledMethod: ERROR no method found",name;
     cerr :`"setCompiledMethod: failed for",block.tag:;

@@ -520,11 +520,9 @@ use NewGroup
                 or !isMethod {
                     String  methodName = "aCTion" tag;
                     void*   methodAddress;
-                    if methodAddress = dlsym(RTLD_SELF,methodName) gMethod = methodAddress;
+                    if methodAddress = dlsym(RTLD_SELF,methodName) method = methodAddress;
                     free(methodName);
-                    if gMethod {
-                        isMethod   = true;
-                        immediateACTION = true; }}}}
+                    if gMethod  immediateACTION = true; }}}
     /***********************************************************************
         THE DEFINITION IS COMPLETE HERE — attributes and members are both in —
         so this is where a term's rStuff is materialised (Clay SEQ 27). Doing it

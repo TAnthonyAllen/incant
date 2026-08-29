@@ -878,8 +878,7 @@ int         live;
     mint.noPrint    = true;
 use rule
     /*  STARVE :1230. See note (2) above -- this is the clear, not an omission. */
-    gMethod         = 0;
-    isMethod        = false;
+    method          = 0;
     immediateACTION = false;
     isCoded         = false;
     /*  ⚠ getRStuff(), NEVER THE RAW rStuff FIELD. The first cut used
