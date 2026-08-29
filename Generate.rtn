@@ -115,17 +115,10 @@ RuleStuff   ruleStuff = pMethod.rStuff;
     if checkInput() {
         if field.isAction {
             while grup = code.nextAttribute(grup)
-                if isLocal && !isRule && groupBody != field.groupBody clear();
+                if isLocal && !isRule && !noPrint && groupBody != field.groupBody clear();
             // here the parse action in method gets run
             if result = field["BlocK"] {
-                -%
-                int priorInFlight = gNewParseInFlight;
-                gNewParseInFlight = 1;
-                %-
                 result = result.gMethod(result);
-                -%
-                gNewParseInFlight = priorInFlight;
-                %-
                 if result   result.isBranch = 0; }
         else        reportNoBody(field); }
         if result   return result; }
@@ -308,7 +301,7 @@ RuleStuff   ruleStuff = rStuff;
         GroupItem builtinActoR = field += "builtinActoR";
         rStuff  = ruleStuff;
         noPrint  = true;
-        method   = actionMethod; }
+        method = actionMethod; }
     field.updateContentFlags();
     return null;
 }

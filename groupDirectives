@@ -99,6 +99,35 @@ opPrinter printText before
     printLIST.dumpContents();
 #;
 /*******************************************************************************
+	parseRule debugging
+        if tag eq "DEBUG"   doNothing = false;
+*******************************************************************************/
+parseRule if before active
+    if debugAllRules || rule.debugged {
+        if debugIndent < 0 debugIndent = 0;
+        indent("  ");
+        cerr "Match",ruleName,"on text",getDebugText(atRuleMark,20):;
+        debugIndent++; }
+#;
+parseRule "if label" before active
+    if debugAllRules || rule.debugged {
+        if result {
+            debugIndent--;
+            indent("  ");
+            cerr ruleName,"succeeded";
+            if label {
+                cerr ,"label:",label.tag;
+                if label.data  cerr "=" getDebugText(label.text,10); }
+            else    cerr " w/no label";
+            cerr ,"at: " getDebugText(atRuleMark,10):; }
+        else {
+            debugIndent--;
+            indent("  ");
+            cerr ruleName,"match failed"; }
+        cerr ,"at: " getDebugText(atRuleMark,10):;
+        doNothing = false; }
+#;
+/*******************************************************************************
     if !inputDiverted   cerr "Rules parsed " rulesParsed,"Rules avoided " rulesAvoided:;
         if tag eq "listOK"   trueResult.fLAG = false;
     if guardOK && (debugAllRules || debugRule)

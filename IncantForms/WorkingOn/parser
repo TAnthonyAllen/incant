@@ -11,7 +11,7 @@ define
     closeBrace="}";
     compiling=1;
     activating=1;
-    ruleText="maybe a test;";
+    ruleText="dumpContents(Xpress);";
     generateParse argument code={
         cerr "generating parse for " argument.taG:;
         reset(codeBuffer);
@@ -51,14 +51,15 @@ define
         if actionTypE == 0;
             length  = listLengtH;
             generateParse(argument);
-            if argument["CodE"];    compile(argument);
+            if argument["CodE"];
+                compile(argument);
+                if length > 0;
+                    iterate grup on argument;
+                    while ++grup;
+                        if noPrinT;     continue;
+                        if binTypE;     continue;
+                        if isRule;      walkRules(grup);
             else    cerr taG "has no CodE":;
-            if length > 0;
-                iterate grup on argument;
-                while ++grup;
-                    if noPrinT;     continue;
-                    if binTypE;     continue;
-                    if isRule;      walkRules(grup);
         else    cerr taG "already has code so no parse generated":;
         };
     parser argument code={
@@ -67,6 +68,9 @@ define
         compiledHere = 0;
         if argument.hasNewParsE;     compiledHere = 1;
         cerr "WITNESS compiled " compiledHere " -- 1 = compile ran on this rule, 0 = it did not":;
+        @argument;
+        cout "Running" taG "on" ruleText:;
+        debug;
         parseAnswer = argument(ruleText);
         print ~"PARSE " argument.taG " <- " ruleText:;
         print `"ANSWER " parseAnswer:;
@@ -75,7 +79,7 @@ define
         };
     ;
 
-parser(DatA);
+parser(Xpress);
 stop();
 
     parser -- generates a new kant parse for every rule its argument touches.

@@ -10753,19 +10753,12 @@ RuleStuff 	*ruleStuff = pMethod->rStuff;
 		if ( isAction(field->groupBody->flags.actionType) )
 			{
 			while ( grup = code->nextAttribute(grup) )
-				if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.isRule && grup->groupBody != field->groupBody )
+				if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.isRule && !grup->groupBody->flags.noPrint && grup->groupBody != field->groupBody )
 					grup->clear();
 			// here the parse action in method gets run
 			if ( result = field->get("BlocK") )
 				{
-				
-				int priorInFlight = gNewParseInFlight;
-				gNewParseInFlight = 1;
-				
 				result = result->groupBody->gMethod(result);
-				
-				gNewParseInFlight = priorInFlight;
-				
 				if ( result )
 					result->groupBody->flags.isBranch = 0;
 				}
