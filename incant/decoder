@@ -270,6 +270,9 @@ define
         verifyParse139
             definition="parser(PrintXP) and parser(ExpressioN) exit 139 in the closing verification parse, AFTER the walk sentinel and the compile witness, so the walk and the compiles are known good and only the specimen parse dies."
             source="OBSERVED 2026-08-29 while bisecting the isGROUP poison; banked, not chased, by Tony's ruling. Operational record: designDocs ProblemRecords verifyParse139, status open.";
+        methodSlotFourReaders
+            definition="A rule's gMethod slot is read as THE ACTION by at least four consumers -- fireLabelMethod, parseAction, aCTionStatemenT and aCTionIF -- so installing a parse method into it does not merely add an occupant, it changes what every one of those four runs."
+            source="MEASURED 2026-08-29 by reading the 40 gMethod call sites in the generated GroupRules.mm at step 0 of the QuotE brief; parseAction is Generate.rtn:5 and is a PARSE EXECUTOR, so the install makes it call itself. Operational record: designDocs ProblemRecords methodSlotFourReaders, status open.";
         hookIdentityFork
             definition="Measured 2026-08-23 by Arm A -- install 43 gives the tokenize hook its FIRST attribute and its catalog face and canon become DIFFERENT NODES, while every healthy installed rule stays SAME NODE.";
             source="DICTATED, minted 2026-08-23 by the Arm A measurement. Operational record: designDocs ProblemRecords hookIdentityFork.";

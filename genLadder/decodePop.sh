@@ -120,6 +120,18 @@ sentinel "decodeT sentinel (run reached the end)" "$T/dt.o" "DECODET SENTINEL"
 #  The two scalars decodeT prints. Both compared by value.
 nt=$(sed -n 's/^TALLY terms = *\([0-9][0-9]*\).*/\1/p'       "$T/dt.o" | head -1)
 nd=$(sed -n 's/^TALLY definitions = *\([0-9][0-9]*\).*/\1/p' "$T/dt.o" | head -1)
+#  ⚠ RE-PIN 2026-08-29 (seventeenth) -- ONE TERM, BY THE BIRTH RULE.
+#  79 -> 80 terms, 82 -> 83 dump rows. `methodSlotFourReaders` (repointing
+#  method has four readers) -- a rule's gMethod slot is read as THE ACTION by
+#  fireLabelMethod, parseAction, aCTionStatemenT and aCTionIF, so installing a
+#  parse method into it changes what all four run; parseAction is the sharp one
+#  because it is a PARSE EXECUTOR whose whole body is field.method(field), so
+#  the install makes it call itself. Measured by reading the 40 gMethod call
+#  sites in the generated GroupRules.mm at step 0 of the QuotE brief, which
+#  stopped there on its own census clause. Operational record: designDocs
+#  ProblemRecords methodSlotFourReaders (status open).
+#  NOTHING WAS LOST: +1 in every column and the addition is named here.
+#
 #  ⚠ RE-PIN 2026-08-29 (sixteenth) -- TWO TERMS, BOTH BY THE BIRTH RULE.
 #  77 -> 79 terms, 80 -> 82 dump rows. `isGroupActorPoison` (half-installed
 #  executor on an alias) -- an isGROUP alias gets no parse method but still
@@ -231,8 +243,8 @@ nd=$(sed -n 's/^TALLY definitions = *\([0-9][0-9]*\).*/\1/p' "$T/dt.o" | head -1
 #      +1  `oneNumberTwoEras`  a green that survived a semantics change by
 #                              arithmetic accident. Dictated SEQ 29 from kant8T's
 #                              K6f, which is the measured case.
-check "corpus holds 79 terms"          79 "$nt"
-check "79 of them carry a definition"  79 "$nd"
+check "corpus holds 80 terms"          80 "$nt"
+check "80 of them carry a definition"  80 "$nd"
 check "every term is defined"     "$nt" "$nd"
 
 #  decodeT's own self-certification, asserted FROM OUTSIDE -- a harness that
@@ -291,7 +303,7 @@ fi
 #  sentinel line ("DECODE SENTINEL -- run reached the end"). An unanchored
 #  count read 38 for 37 real rows. A definition row is `<singleWord> -- `.
 nl=$(grep -cE '^[A-Za-z][A-Za-z0-9]* -- ' "$T/dc.o")
-check "corpus dump + decode line = 82 definition rows" 82 "$nl"
+check "corpus dump + decode line = 83 definition rows" 83 "$nl"
 
 #  ⚠ THE DATALESS-ECHO ROW, and the reason this file exists. A definition that
 #  never stored prints as the ATTRIBUTE'S OWN NAME. In-language it compares

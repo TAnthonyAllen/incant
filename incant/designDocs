@@ -323,6 +323,34 @@ define
         ⚠ THE ORDER OF THE OUTPUT IS THE WHOLE FINDING and is the reason this is separable at all: PARSER SENTINEL comes first, then WITNESS compiled 1, then the death. Output printed before a crash is real, so those two lines are evidence and not noise -- everything above the specimen call ran.
         ⚠⚠ RE-RUN AGAINST THE isGROUP FIX, 2026-08-29, per the gate line above: BOTH STILL EXIT 139, and the signature is IDENTICAL -- PARSER SENTINEL, then WITNESS compiled 1, then death, on a binary where parseClass now emits zero `reached end of input` errors and parser(ANYorNum) is clean. So this DOES NOT discharge as downstream-of-poison. It ESCALATES, by its own text, and it is now the only thing left standing from the ANYorNum campaign that has no mechanism attached to it.
         THE NEXT MEASUREMENT IS CHEAP AND IS NOT TAKEN: a backtrace under `script -q /dev/null` (a segfault loses buffered stdout otherwise), read for the frame that dereferences -- and per bt36, read one line BACKWARD from whatever the backtrace names, because a null arrives on one line and dies on the next.";
+        methodSlotFourReaders gloss="repointing method has four readers" symptom="A generation walk installs a rule's generated parse into the rule's own method slot, and afterwards something that expected the rule's ACTION runs a parse instead -- or a parse executor whose whole body is field.method(field) calls itself until the stack is gone." finding="MEASURED 2026-08-29 by reading all 40 gMethod call sites in GroupRules.mm at step 0 of the QuotE brief. A rule-shaped node's gMethod is read as THE ACTION by at least four consumers, not one: fireLabelMethod (GroupItem.twk:1045, direct -- stuff.label = method(stuff.label)), parseAction (Generate.rtn:5, whose entire body is field.method(field) / field.method(label)), aCTionStatemenT (GroupRules.mm:1490) and aCTionIF (GroupRules.mm:920, which is bear-trap 34's site). aCTionBrancH (GroupRules.mm:157) and runOP (GroupRules.mm:12852) are two further roads, documented in jitContext.h as landing in runRuleAction. ⚠ parseAction is the sharp one because it is a PARSE EXECUTOR -- one of the two values setParse can install as parseMethod, carrying 8 rules by the 2026-08-29 census -- so writing parseMethod into method makes parse()'s fork call parseAction, which calls parseAction, unbounded." workaround="None built. The QuotE brief's step 3 stops here by its own census clause; nothing was repointed." solution="-- none known --" status="open" verdict="-- awaiting Tony --" reviewed="-- unreviewed --" station="step 0 of the QuotE campaign brief, not a frontier station" vintage="2026-08-29" site="GroupItem.twk:1045 fireLabelMethod; Generate.rtn:5 parseAction; GroupRules.mm:1490 aCTionStatemenT; GroupRules.mm:920 aCTionIF; GroupRules.mm:157 aCTionBrancH; GroupRules.mm:12852 runOP arm two" beartraps="bt34 parseSelfRecursion isGroupActorPoison" description="THE CLASS ALREADY HAD A MEMBER ON THE BOARD AND NOBODY HAD READ IT AS A CLASS. parseSelfRecursion, banked 2026-08-27 at status ruled, IS this problem arriving through aCTionStatemenT: one node, its own action, dispatched at GroupRules.mm:1490, 74705 frames. It was filed as a single site. It is not a single site -- it is the third of at least four readers of one channel, and the fix conversation its own record opens on is the same conversation as this one.
+
+                ⚠ THE STEP 3 ASSUMPTION IS THE THING THIS FALSIFIES. The brief says
+                repoint fireLabelMethod if step 0 says direct. Step 0 says direct --
+                fireLabelMethod reads bare method under this, confirmed by print of
+                the source and of the generated .mm. But repointing ONE reader leaves
+                three, and one of those three is an executor that would recurse.
+
+                THE MEASUREMENT NOW OWED, with its H11 control pair pre-registered:
+                a complete classification of the 40 gMethod call sites into those
+                whose receiver can be rule-shaped and those whose receiver cannot.
+                parseAction and aCTionStatemenT MUST both appear in the hits or the
+                census is void -- they are the two known members, and a census that
+                excludes a known member is bear-trap 19's wrong-search-space in the
+                shape H11 exists to catch.
+
+                AND THE DESIGN QUESTION UNDER IT, which is Tony's and not a coding
+                decision: the brief's own wording says isMethod minting is wanted
+                because the shape fact should tell the truth about the new occupant.
+                That is exactly right and is exactly the difficulty -- method today
+                already tells the truth about a DIFFERENT occupant, to four readers.
+                One channel, two meanings, and this project has paid five times.
+                bear-trap 34's retirement clause anticipates the answer: rule actions
+                relocate to rStuff.actionMethod and the vacated gMethod reverts to the
+                structural default. That is a move of the ACTION out, not an install
+                of the PARSE in, and it retires bt34 and its statement-scope twin in
+                one stroke. Whether the QuotE campaign wants that move now, or wants
+                a narrower gate, is the ruling.";
     TokFiles="These are both twk and rtn files and the entries here contain notes that apply to methods in those files. Each file has an entry and contains entries for every method in it that has explanatory notes that were in the code and are now here.":
         Generate="is an rtn file that gets included into GroupRules.twk when it gets tokked. The text for these entries needs to be reviews to see if they are still relevant. They were relevant once but things change and no one has been going thru comments to keep them up to date. The comments cluttered up code. Now they do not. They are here and the same relevancy question applies.":
             parseAny=(THE LABEL WRITE IS GUARDED IN ALL FOUR OF THESE, and until 2026-08-18 it
