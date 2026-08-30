@@ -1015,7 +1015,11 @@ GroupItem   grup;
                         result;
             if ExpressioN   result = ExpressioN;
             else            result = grup;
-            if result.isGROUP && !result.isArgument result = result.group;
+            -%
+            if (!gNoUnwrap)
+                if ( isGROUP(result->groupBody->flags.data) && !result->groupBody->flags.isArgument )
+                    result = result->getGroup();
+            %-
             if FormaT   result += FormaT;
             revisedList += result; }
         input.group = revisedList;
@@ -1559,7 +1563,11 @@ GroupItem   revisedList = new("revisedList");
 GroupItem   grup, store, tgt;
     if xpList.listLength == 1 {
         arg = xpList.firstInList;
-        if arg.isGROUP && !arg.isArgument   arg = arg.group;
+        -%
+        if (!gNoUnwrap)
+            if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
+                arg = arg->getGroup();
+        %-
         revisedList += arg; }
     else {
         /******************************************************************
@@ -1630,7 +1638,11 @@ extern GroupItem interpretXP(GroupItem xpList)
 GroupItem   op, target, arg, xl, token;
     if xpList.listLength == 1 {
         arg = xpList.firstInList;
-        if arg.isGROUP && !arg.isArgument   arg = arg.group;
+        -%
+        if (!gNoUnwrap)
+            if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
+                arg = arg->getGroup();
+        %-
         goto finishXP; }
     while token = xpList.prior(token) {
         if registry == opFields   op = token;

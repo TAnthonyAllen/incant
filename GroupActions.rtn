@@ -368,8 +368,18 @@ extern GroupItem jitBindArgRT(GroupItem argument,GroupItem field)
 {
 GroupItem   arg = argument,
             ruleArg;
-    if arg.isGROUP && !arg.isArgument   arg = arg.group;
-    if ruleArg = field["argument"]      ruleArg.group = arg;
+    /*  THE CODED PATH'S HALF, both clauses in one motion. The exemption above
+        was the wrapper's fingerprint -- "unwrap this, unless it is the argument"
+        -- and it retires WITH the wrapper, not before it.  */
+    -%
+    if (!gNoUnwrap) {
+        if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
+            arg = arg->getGroup();
+        if (( ruleArg = field->get("argument") ))  ruleArg->setGroup(arg);
+    }
+    else
+        if (( ruleArg = field->get("argument") ))  ruleArg->groupBody = arg->groupBody;
+    %-
     return arg;
 }
 
@@ -1060,6 +1070,13 @@ GroupItem   frame,
     while grup = action.prior(grup)
         if (grup.isArgument || grup.isLocal) && !grup.noPrint {
             body = recurseSTAK.pop();
+            -%
+            if (gNoUnwrap && grup->groupBody->flags.isArgument) {
+                grup->groupBody = body;
+                body = 0;
+                continue;
+            }
+            %-
             *groupBody = *body;
             body = 0;}
 }
@@ -1156,10 +1173,23 @@ use field
     if jitting {
         -% if (::jitEmitSelfCall(argument, field)) return field; %-
     }
-    if ruleArg = field["argument"]
-        if argument ruleArg.group = result = argument;
-        else        ruleArg.group = result = field;
-    else    result  = field;
+    /*  ⚠ BIND-BY-BODY, the flip's other half. Under gNoUnwrap the argument node
+        ADOPTS the caller's groupBody, so every read and write through the
+        argument name reaches caller storage with no hop -- which is what the
+        auto-unwrap was silently providing (filmed 2026-08-30: `argument = 5`
+        already reaches the caller today, via runOP's !op.isAssign arm). The two
+        retire together or the write stops arriving, silently.
+        ⚠ THE BODY IS THE STABLE IDENTITY AND THE NODE IS NOT: two calls passing
+        the same source field arrive as DIFFERENT NODES OVER ONE BODY. Binding
+        by body binds to what is already invariant.  */
+    -%
+    if (( ruleArg = field->get("argument") )) {
+        result = argument ? argument : field;
+        if (gNoUnwrap)  ruleArg->groupBody = result->groupBody;
+        else            ruleArg->setGroup(result);
+    }
+    else    result = field;
+    %-
     lastREF.gGroup  = result;
     lastREF.isGROUP = true;
     /*  UNCONDITIONAL, 2026-08-10, SEQ 27 rung B. See the note above
@@ -1259,8 +1289,20 @@ GroupItem   result,
             op      = field[1],
             arg     = field[3],
             target  = field[2];
-    if isGROUP && !isPointer && !isIterator && !op.isAssign    target = group;
-    if arg && arg.isGROUP && !arg.isPointer     arg = arg.group;
+    /*  ⚠ THE FLIP LIVES HERE. Both lines are the ORIGINAL generated code, moved
+        into passthrough unchanged and wrapped in the one gate. Under gNoUnwrap
+        they do not run, and an operand reaches its operator AS THE FIELD.
+        `!isPointer` is measured dead (0 suppressions in 29,634 runOP entries)
+        and `!op.isAssign` retires with the line rather than despite it -- the
+        exemption becomes the rule. See docs/unwrapRecon.md.  */
+    -%
+    if (!gNoUnwrap) {
+        if ( isGROUP(target->groupBody->flags.data) && !target->groupBody->flags.isPointer && !target->groupBody->flags.isIterator && !op->groupBody->flags.isAssign )
+            target = target->getGroup();
+        if ( arg && isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isPointer )
+            arg = arg->getGroup();
+    }
+    %-
     if op.instructType && isMethod && invoke    target = method(target);
     if arg
         if arg.isMethod && arg.invoke           arg = arg.method(arg);
@@ -1509,7 +1551,15 @@ int         leftIsTrue;
     if jitting {
         -% return jitEmitShortCircuit(field); %-
     }
-    if target.isGROUP && !target.isPointer && !target.isIterator    target = target.group;
+    /*  runShortCircuit's half of the flip. Measured NEVER to fire in this
+        corpus -- 31 entries, zero isGROUP arrivals -- and gated anyway, because
+        a divergence between `&&` and `+` is exactly the class nothing is aimed
+        at, and it becomes real the day someone writes `if a.group && b`.  */
+    -%
+    if (!gNoUnwrap)
+        if ( isGROUP(target->groupBody->flags.data) && !target->groupBody->flags.isPointer && !target->groupBody->flags.isIterator )
+            target = target->getGroup();
+    %-
     if op.instructType && target.isMethod && target.invoke   target = target.method(target);
     leftIsTrue = truthOf(target);
     /*  THE SKIP ITSELF. The right arm is never touched on these two paths
@@ -1520,7 +1570,11 @@ int         leftIsTrue;
         so only COUNTING shows it was skipped.  */
     if op.tag eq "AND"  && !leftIsTrue      return falseResult;
     if op.tag eq "OR"   &&  leftIsTrue      return trueResult;
-    if arg.isGROUP && !arg.isPointer                arg = arg.group;
+    -%
+    if (!gNoUnwrap)
+        if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isPointer )
+            arg = arg->getGroup();
+    %-
     if arg && arg.isMethod && arg.invoke            arg = arg.method(arg);
     if truthOf(arg)     return trueResult;
     return falseResult;
@@ -1595,6 +1649,23 @@ GroupItem   frame,
     else    recurseSTAK = frame.stak;
     while grup = action.next(grup)
         if (grup.isArgument || grup.isLocal) && !grup.noPrint {
+            /*  ⚠ THE SCHEMA SPLIT, and it is not optional under bind-by-body.
+                save/restore copy body CONTENTS. That is harmless while the
+                argument owns its own body. Once the argument SHARES the
+                caller's body, copying contents means the saved body is the
+                CALLER's and restore writes it back at return -- UNDOING every
+                write the action made through the argument, which is the
+                reference semantics the flip exists to preserve.
+                So: isLocal carries CONTENTS, isArgument carries the BODY
+                POINTER, and each activation re-points rather than overwrites.
+                K2 -- recursive, returns its ARGUMENT -- is the row that moves
+                first if this is wrong. It is pinned at 7.  */
+            -%
+            if (gNoUnwrap && grup->groupBody->flags.isArgument) {
+                recurseSTAK->push(grup->groupBody);
+                continue;
+            }
+            %-
             body    = new;
             *body   = *grup.groupBody;
             /*  DO NOT clear() HERE. `*body = *grup.groupBody` copies the body

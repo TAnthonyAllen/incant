@@ -1178,8 +1178,11 @@ GroupItem 	*grup = 0;
 			if ( ExpressioN )
 				result = ExpressioN;
 			else	result = grup;
+			
+			if (!gNoUnwrap)
 			if ( isGROUP(result->groupBody->flags.data) && !result->groupBody->flags.isArgument )
-				result = result->getGroup();
+			result = result->getGroup();
+			
 			if ( FormaT )
 				result->addMember(FormaT);
 			revisedList->addMember(result);
@@ -4076,8 +4079,11 @@ GroupItem 	*tgt = 0;
 	if ( xpList->groupBody->groupList->listLength == 1 )
 		{
 		arg = xpList->groupBody->groupList->firstInList;
+		
+		if (!gNoUnwrap)
 		if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
-			arg = arg->getGroup();
+		arg = arg->getGroup();
+		
 		revisedList->addMember(arg);
 		}
 	else {
@@ -4447,8 +4453,11 @@ GroupItem 	*token = 0;
 	if ( xpList->groupBody->groupList->listLength == 1 )
 		{
 		arg = xpList->groupBody->groupList->firstInList;
+		
+		if (!gNoUnwrap)
 		if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
-			arg = arg->getGroup();
+		arg = arg->getGroup();
+		
 		goto finishXP;
 		}
 	while ( token = xpList->prior(token) )
@@ -4557,10 +4566,18 @@ extern "C" GroupItem *jitBindArgRT(GroupItem *argument, GroupItem *field)
 {
 GroupItem 	*arg = argument;
 GroupItem 	*ruleArg = 0;
+	/*  THE CODED PATH'S HALF, both clauses in one motion. The exemption above
+	was the wrapper's fingerprint -- "unwrap this, unless it is the argument"
+	-- and it retires WITH the wrapper, not before it.  */
+	
+	if (!gNoUnwrap) {
 	if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
-		arg = arg->getGroup();
-	if ( ruleArg = field->get("argument") )
-		ruleArg->setGroup(arg);
+	arg = arg->getGroup();
+	if (( ruleArg = field->get("argument") ))  ruleArg->setGroup(arg);
+	}
+	else
+	if (( ruleArg = field->get("argument") ))  ruleArg->groupBody = arg->groupBody;
+	
 	return arg;
 }
 
@@ -12594,6 +12611,13 @@ GroupItem 	*grup = 0;
 		if ( (grup->groupBody->flags.isArgument || grup->groupBody->flags.isLocal) && !grup->groupBody->flags.noPrint )
 			{
 			body = (GroupBody*)recurseSTAK->pop();
+			
+			if (gNoUnwrap && grup->groupBody->flags.isArgument) {
+			grup->groupBody = body;
+			body = 0;
+			continue;
+			}
+			
 			*grup->groupBody = *body;
 			body = 0;
 			}
@@ -12827,11 +12851,23 @@ GroupItem 	*ruleArg = 0;
 		{
 		 if (::jitEmitSelfCall(argument, field)) return field; 
 		}
-	if ( ruleArg = field->get("argument") )
-		if ( argument )
-			ruleArg->setGroup(result = argument);
-		else	ruleArg->setGroup(result = field);
-	else	result = field;
+	/*  ⚠ BIND-BY-BODY, the flip's other half. Under gNoUnwrap the argument node
+	ADOPTS the caller's groupBody, so every read and write through the
+	argument name reaches caller storage with no hop -- which is what the
+	auto-unwrap was silently providing (filmed 2026-08-30: `argument = 5`
+	already reaches the caller today, via runOP's !op.isAssign arm). The two
+	retire together or the write stops arriving, silently.
+	⚠ THE BODY IS THE STABLE IDENTITY AND THE NODE IS NOT: two calls passing
+	the same source field arrive as DIFFERENT NODES OVER ONE BODY. Binding
+	by body binds to what is already invariant.  */
+	
+	if (( ruleArg = field->get("argument") )) {
+	result = argument ? argument : field;
+	if (gNoUnwrap)  ruleArg->groupBody = result->groupBody;
+	else            ruleArg->setGroup(result);
+	}
+	else    result = field;
+	
 	ruler->lastREF->groupBody->gGroup = result;
 	ruler->lastREF->groupBody->flags.data = 6;
 	/*  UNCONDITIONAL, 2026-08-10, SEQ 27 rung B. See the note above
@@ -12935,10 +12971,20 @@ GroupItem 	*result = 0;
 GroupItem 	*op = field->get(1);
 GroupItem 	*arg = field->get(3);
 GroupItem 	*target = field->get(2);
+	/*  ⚠ THE FLIP LIVES HERE. Both lines are the ORIGINAL generated code, moved
+	into passthrough unchanged and wrapped in the one gate. Under gNoUnwrap
+	they do not run, and an operand reaches its operator AS THE FIELD.
+	`!isPointer` is measured dead (0 suppressions in 29,634 runOP entries)
+	and `!op.isAssign` retires with the line rather than despite it -- the
+	exemption becomes the rule. See docs/unwrapRecon.md.  */
+	
+	if (!gNoUnwrap) {
 	if ( isGROUP(target->groupBody->flags.data) && !target->groupBody->flags.isPointer && !target->groupBody->flags.isIterator && !op->groupBody->flags.isAssign )
-		target = target->getGroup();
+	target = target->getGroup();
 	if ( arg && isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isPointer )
-		arg = arg->getGroup();
+	arg = arg->getGroup();
+	}
+	
 	if ( op->groupBody->flags.instructType && isMethod(target->groupBody->flags.instructType) && target->groupBody->flags.invoke )
 		target = target->groupBody->gMethod(target);
 	if ( arg )
@@ -13265,8 +13311,15 @@ int 		leftIsTrue = 0;
 		{
 		 return jitEmitShortCircuit(field); 
 		}
+	/*  runShortCircuit's half of the flip. Measured NEVER to fire in this
+	corpus -- 31 entries, zero isGROUP arrivals -- and gated anyway, because
+	a divergence between `&&` and `+` is exactly the class nothing is aimed
+	at, and it becomes real the day someone writes `if a.group && b`.  */
+	
+	if (!gNoUnwrap)
 	if ( isGROUP(target->groupBody->flags.data) && !target->groupBody->flags.isPointer && !target->groupBody->flags.isIterator )
-		target = target->getGroup();
+	target = target->getGroup();
+	
 	if ( op->groupBody->flags.instructType && isMethod(target->groupBody->flags.instructType) && target->groupBody->flags.invoke )
 		target = target->groupBody->gMethod(target);
 	leftIsTrue = ::truthOf(target);
@@ -13280,8 +13333,11 @@ int 		leftIsTrue = 0;
 		return GroupControl::groupController->groupRules->falseResult;
 	if ( ::compare(op->groupBody->tag,"OR") == 0 && leftIsTrue )
 		return GroupControl::groupController->groupRules->trueResult;
+	
+	if (!gNoUnwrap)
 	if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isPointer )
-		arg = arg->getGroup();
+	arg = arg->getGroup();
+	
 	if ( arg && isMethod(arg->groupBody->flags.instructType) && arg->groupBody->flags.invoke )
 		arg = arg->groupBody->gMethod(arg);
 	if ( ::truthOf(arg) )
@@ -13326,6 +13382,23 @@ GroupItem 	*grup = 0;
 	while ( grup = action->next(grup) )
 		if ( (grup->groupBody->flags.isArgument || grup->groupBody->flags.isLocal) && !grup->groupBody->flags.noPrint )
 			{
+			/*  ⚠ THE SCHEMA SPLIT, and it is not optional under bind-by-body.
+			save/restore copy body CONTENTS. That is harmless while the
+			argument owns its own body. Once the argument SHARES the
+			caller's body, copying contents means the saved body is the
+			CALLER's and restore writes it back at return -- UNDOING every
+			write the action made through the argument, which is the
+			reference semantics the flip exists to preserve.
+			So: isLocal carries CONTENTS, isArgument carries the BODY
+			POINTER, and each activation re-points rather than overwrites.
+			K2 -- recursive, returns its ARGUMENT -- is the row that moves
+			first if this is wrong. It is pinned at 7.  */
+			
+			if (gNoUnwrap && grup->groupBody->flags.isArgument) {
+			recurseSTAK->push(grup->groupBody);
+			continue;
+			}
+			
 			body = new GroupBody();
 			*body = *grup->groupBody;
 			/*  DO NOT clear() HERE. `*body = *grup.groupBody` copies the body

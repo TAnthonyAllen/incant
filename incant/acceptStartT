@@ -1,0 +1,91 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(AcceptStart);
+define
+    asSubject=41;
+    asTake argument code={
+        print "   INSIDE  the argument:":;
+        showBody(argument);
+        return argument; };
+    asRun code={
+        print "== ACCEPTANCE: does the callee RECEIVE the caller's field ==":;
+        print "   OUTSIDE the caller's field:":;
+        showBody(asSubject);
+        asTake(asSubject);
+        };
+    ;
+asRun();
+print "ACCEPT SENTINEL -- reached the foot":;
+stop();
+
+acceptStartT -- THE ACCEPTANCE LINE, IN FIXTURE FORM. Minted 2026-08-30 for the
+bind-by-body flip.
+
+    when the flip lands, parser(Start) receives Start.
+
+THE TEST IS BY POINTER, NEVER BY TEXT, and that is the whole design of this
+file. A wrapper and the thing it wraps READ THE SAME -- both answer with the
+caller's value, because the auto-unwrap makes the wrapper transparent. Text
+cannot tell them apart and never could. showBody is the only way to ask.
+
+    LEGACY  the argument is a CARRIER: its groupBody DIFFERS from the caller's
+    FLIPPED the argument IS the caller's storage: groupBody IDENTICAL
+
+⚠ COMPARE THE groupBody, NOT THE node. The node is expected to differ in both
+arms -- the argument slot is a persistent node on the action, re-pointed per
+call, and it stays one under bind-by-body. It is the BODY that is adopted, and
+the body is also the thing that was already stable: filmed 2026-08-30, two calls
+passing the same source field arrive as DIFFERENT NODES OVER ONE BODY. Binding
+by body binds to what was already invariant, which is why this is the honest
+comparison rather than a convenient one.
+
+⚠⚠ FIRST RUN, 2026-08-30: THE ACCEPTANCE LINE FAILED, AND THE MECHANISM IS
+STRUCTURAL. Recorded here because a certification that has been RUN and failed
+is worth more than one that has never been attempted.
+
+    legacy arm   BODY asSubject node=..8c0 groupBody=..230
+                 BODY asSubject node=..600 groupBody=..230   <- VOID, see below
+    flipped arm  BODY asSubject node=..8c0 groupBody=..230
+                 BODY argument  node=..9c0 groupBody=..eb0   <- NOT adopted
+
+⚠ AND THE LEGACY READING IS VOID RATHER THAN NEGATIVE, which had to be caught
+before the flip or it would have been read as an A/B. Under legacy, showBody's
+own argument is auto-unwrapped on the way in, so showBody receives the CALLER's
+node and prints a matching body no matter what the wrapper holds. THE WRAPPER IS
+UNOBSERVABLE FROM INCANT WHILE THE UNWRAP STANDS. This fixture can therefore
+CONFIRM the flip; it cannot discriminate against legacy from inside the language.
+That is not a defect in the fixture -- it is the two-half law restated as an
+epistemic fact.
+
+THE MECHANISM, probed at the bind site rather than inferred:
+
+    BEFORE  ruleArg tag=argument   isArg=1  body=0x..2eb0
+    AFTER   ruleArg tag=asSubject  isArg=0  body=0x..0230
+
+The adoption WORKS. That is the problem. `GroupBody` carries the node's IDENTITY
+-- tag, isArgument, isLocal, noPrint -- in the same struct as its STORAGE --
+data, gGroup, groupList, gCount/gText. Adopting the caller's body therefore
+adopts the caller's NAME as well, so the argument slot stops being called
+`argument` and stops being flagged as one. The name `argument` inside the body
+then resolves to nothing and mints a fresh action LOCAL (bear-trap #39), which
+is the stray node with the old body in the trace above.
+
+ONE CHANNEL, ONE MEANING, one level down from where the campaign has been
+reading it: not two flags on a node, but IDENTITY AND STORAGE IN ONE STRUCT.
+Bind-by-body wants the storage half and must not take the identity half.
+
+NEXT: RULED -- SHAPE OWED, NOTHING BUILDABLE YET
+
+The flip is REVERTED; the switch is at 0 and the fleet is byte-identical to its
+pre-flip baseline. What the next stroke needs is a ruling on HOW a node borrows
+storage without borrowing identity -- a storage/identity split in GroupBody, a
+redirect pointer on the node, or a named field-set adoption. That is a design
+ruling and is Tony's; nothing in this block is applicable until it is made.
+
+This fixture stays OUT of the fleet until then: its answer is chosen (bodies
+identical) but not yet achievable, which is precisely the parked condition.
