@@ -3,8 +3,14 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      93
+SEQ:      94
 STATUS:   fresh           # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-08-30  -  Clod  (SEQ 94 APPENDED at the FOOT -- THE FLIP RAN AND CERTIFICATION 1
+          FAILED. Bind-by-body adopts the caller's IDENTITY along with its storage, because
+          GroupBody carries tag/isArgument/isLocal in the same struct as data/gGroup/lists.
+          Switch back at 0, fleet byte-identical to baseline, nothing partial shipped. A design
+          ruling is owed: how a node borrows storage without borrowing identity.)
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-08-30  -  Clod  (SEQ 93 APPENDED at the FOOT -- THREE STROKES RUN AS DICTATED.
           t3 read the way that takes the warning label OFF the shared-body row; nine citizens
           stamped and goldenDrift minted as a REGRESSION not an annoyance; recon ledger is
@@ -4495,3 +4501,74 @@ Acceptance line pinned verbatim in the ledger.
 WHAT IS NOT DONE, AND IS NOT MINE: the flip ruling, taken by Tony against this
 ledger.  Fixit queue 9, oldest kantGenPath 08-24, full hour still pledged to the
 first session after the closing stroke.
+
+
+===================================================================
+SEQ 94  --  2026-08-30, Clod.  THE FLIP.  Ruled "let's rock"; ran; certification
+            1 failed on a structural cause; closed as measurement per the
+            dictation's own provision.  Acceptance verdict first, as asked.
+===================================================================
+
+THE ACCEPTANCE LINE: FAILED.  parser(Start) does NOT receive Start under naive
+bind-by-body, and the reason is not a bug in the bind.
+
+    BEFORE  ruleArg tag=argument   isArg=1  body=0x..2eb0
+    AFTER   ruleArg tag=asSubject  isArg=0  body=0x..0230
+
+THE ADOPTION WORKS.  THAT IS THE PROBLEM.  GroupBody carries the node's IDENTITY
+-- tag, isArgument, isLocal, noPrint -- in the SAME STRUCT as its STORAGE --
+data, gGroup, groupList, gCount/gText.  Taking the caller's body takes the
+caller's NAME with it, so the argument slot stops being called `argument` and
+stops being flagged as one.  The name `argument` inside the body then resolves to
+nothing and mints a fresh action LOCAL (bear-trap #39) -- which is the stray node
+the acceptance trace shows holding the OLD body.
+
+ONE CHANNEL, ONE MEANING, one level BELOW where this campaign has been reading
+it all week.  Not two flags on a node.  IDENTITY AND STORAGE IN ONE STRUCT.
+Bind-by-body wants the storage half and must not take the identity half.
+
+⚠ AND A VOIDING YOU SHOULD SEE, because it nearly became a false A/B.  The
+acceptance fixture reads THE SAME on the legacy arm -- matching bodies -- and
+that is VOID, not a pass: showBody's own argument is auto-unwrapped on the way
+in, so under legacy it receives the CALLER's node regardless of what the wrapper
+holds.  THE WRAPPER IS UNOBSERVABLE FROM INCANT WHILE THE UNWRAP STANDS.  The
+fixture can confirm the flip; it cannot discriminate against legacy from inside
+the language.  That is the two-half law restated as an epistemic fact -- and it
+is why the acceptance line could never have been pre-tested.
+
+LEDGER HEADLINE: intended flips certified 0 . escapes 0 . no-consequence holds
+NOT REACHED.  The per-site ledger never opened -- certification 1 gates it, and
+the fleet HUNG under the flip (>10 minutes against a 90s-per-fixture cap), which
+is what a dissolving argument slot should look like.
+
+WHAT SHIPPED, scaffolding not behaviour: the switch plus gates at every retiring
+site -- runOP's pair, runShortCircuit's pair, three !isArgument exemptions, both
+bind sites, and the bracket schema split (isLocal contents / isArgument body
+pointer).  All at gNoUnwrap 0.
+⚠ PROVED INERT BEFORE THE FLIP RATHER THAN ASSERTED: the legacy arm is
+byte-identical to the pre-flip baseline on pop.sh and on nine fixtures; the tenth
+differs only in ASLR addresses, which was CHECKED by running the same binary
+twice rather than assumed (rule H3).  Obituary pre-registered in jitContext.h.
+
+THE FLIP-BACK WORKED IN ONE LINE, exactly as designed, and the fleet returned
+BYTE-IDENTICAL to baseline: 86 green, the same four reds.
+
+SEAL: pop 86/1 parked . decodePop 22/80 . ddPop 6 . countPop 39/39 . frontier
+exit 0, 10 PASS . canary 325 . K2 7 . K7a/b/c 46 . argWriteT R2 5 . groups.ext
+unchanged, support clean . Tony's incant++ and groupDirectives untouched by md5;
+his `parser` was WIP-committed BEFORE corpus edits, as the dictation asked.
+
+NEW: incant/acceptStartT -- the acceptance line as a fixture, carrying its
+measured failure, the voiding note, and NEXT: RULED.  Deliberately OUT of the
+fleet: its answer is chosen but not yet achievable, which is the parked
+condition rather than a green one.
+
+WHAT IS OWED, AND IT IS A DESIGN RULING NOT A BUILD: how does a node borrow
+storage without borrowing identity?  Three shapes visible from here -- a
+storage/identity split inside GroupBody; a redirect pointer on the node; a named
+field-set adoption that copies the storage fields and leaves tag and flags
+alone.  All three are Tony's call and none is started.
+
+The closing stroke does NOT convene: it was conditional on certification
+holding.  The fixit hour stands pledged and is now the next session's opener
+unless Tony rules otherwise.
