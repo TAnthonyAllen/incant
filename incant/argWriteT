@@ -1,0 +1,67 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(ArgWrite);
+define
+    awCaller=7;
+    awOther=7;
+    awHolder;
+    awLeaf=99;
+    awRead argument code={ return argument; };
+    awWrite argument code={ argument = 5; return argument; };
+    awRun code={
+        r1 = awRead(awCaller);
+        print "R1 read through the argument      " r1 " (want 7)":;
+        awWrite(awCaller);
+        print "R2 caller after write through arg " awCaller " (want 5 -- REFERENCE)":;
+        print "R3 untouched sibling              " awOther " (want 7 -- ANTI-VACUITY)":;
+        awHolder := awLeaf;
+        r4 = awRead(awHolder);
+        print "R4 read a GROUP-carrying caller   " r4 " (want 99)":;
+        };
+    ;
+awRun();
+print "ARGWRITE SENTINEL -- reached the foot":;
+stop();
+
+argWriteT -- DOES A WRITE THROUGH AN ARGUMENT REACH THE CALLER'S FIELD.
+Minted 2026-08-30, and it is a PRE-FLIP instrument: it exists to be green NOW so
+that it can go red if the wrapper flip breaks the thing the flip is meant to
+preserve.
+
+WHY IT EXISTS. The bind-by-body ruling stamped "actions mutate their caller's
+field through the argument" as an eyes-open CONSEQUENCE of the flip. Filming the
+wrapper on 2026-08-30 showed it is not a consequence at all -- IT IS ALREADY
+TRUE. R2 reads 5 today. So the flip's job here is PRESERVATION, and the fleet
+had no row that would notice if preservation failed.
+
+⚠ AND THE MECHANISM THAT DELIVERS IT TODAY IS THE MECHANISM BEING REMOVED.
+Plain `=` carries no `assign` flag (incant/setup), so runOP's `!op.isAssign` arm
+is TRUE and the target IS unwrapped to the caller. Today the AUTO-UNWRAP is what
+makes the wrapper transparent. Retire the unwrap without the wrapper and
+`argument = 5` starts writing the wrapper instead of the caller -- no error, no
+crash, no K-row motion, just a write that stops arriving. That is bear-trap #35's
+class and it is the single hardest escape in the migration to see.
+
+THE ROWS
+  R1  a plain read through the argument reaches the caller's value      7
+  R2  A WRITE through the argument REACHES THE CALLER'S FIELD           5
+  R3  a sibling the action never touched is UNMOVED                     7
+      ANTI-VACUITY: without it, a run where every field reads 5 -- or
+      where writes leak everywhere -- would pass R2 and mean nothing.
+  R4  the same read against a GROUP-carrying caller                     99
+      pairs with R1 so the two data kinds are covered by one file, which
+      is what "uniform, no data-keyed arm" has to mean in practice.
+
+NEXT: RULED
+
+Nothing here is owed a fix -- every row is green and is meant to stay green. The
+ruling this file serves is the wrapper flip: ruleArg.group = argument, the four
+unwrap lines and the && !arg.isArgument exemptions retire in ONE stroke. This
+file is one of that stroke's certifications, pre-registered in
+docs/wrapperPlan.md section 4. If R2 goes red on the flip, the two-half law was
+violated -- half the stroke landed.

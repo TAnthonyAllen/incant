@@ -211,6 +211,37 @@ else
 fi
 
 #  ============================================================================
+#  ⚠ argWriteT -- A PRE-FLIP INSTRUMENT, GREEN NOW SO IT CAN GO RED LATER.
+#  Added 2026-08-30 with the bind-by-body build plan (docs/wrapperPlan.md §4).
+#
+#  A write through an action's argument REACHES THE CALLER'S FIELD today -- R2
+#  reads 5. That is delivered by the AUTO-UNWRAP, which the migration removes:
+#  plain `=` carries no assign flag, so runOP's !op.isAssign arm is true and the
+#  target is unwrapped to the caller. Retire the unwrap without the wrapper and
+#  the write silently stops arriving -- no error, no crash, NO K-ROW MOTION.
+#  The fleet had nothing that would notice. Now it does.
+#
+#  R3 is the anti-vacuity sibling and is not decoration: a run where writes leak
+#  everywhere, or where every field happens to read 5, passes R2 and means
+#  nothing. Asserted by VALUE per H4, never by absence of an error.
+run1 argWriteT "$T/aw"; check "argWriteT runs" 0 $?
+if grep -q "ARGWRITE SENTINEL" "$T/aw"; then
+    echo "  ok    argWriteT sentinel (no truncation)"; green=$((green+1))
+else
+    echo "  FAIL  argWriteT sentinel MISSING -- run truncated, rows above uninterpretable"; fail=1
+fi
+for _r in "R1 read through the argument       7" \
+          "R2 caller after write through arg  5" \
+          "R3 untouched sibling               7" \
+          "R4 read a GROUP-carrying caller    99"; do
+    if grep -qF "$_r" "$T/aw"; then
+        echo "  ok    argWriteT ${_r%% *} (write through an argument reaches the caller)"; green=$((green+1))
+    else
+        echo "  FAIL  argWriteT ${_r%% *} -- wanted: $_r"; fail=1
+    fi
+done
+
+#  ============================================================================
 #  ⚠ K7 -- THE FRAME BRACKET vs A FIELD THAT IS BOTH DATA AND BEHAVIOUR.
 #  Added 2026-08-30, and the reason it is HERE rather than only in kant8T is the
 #  promotion convention: would the fleet have caught it? It did not, for 20 days.
