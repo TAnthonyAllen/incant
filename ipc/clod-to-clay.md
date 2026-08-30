@@ -3,8 +3,14 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      92
+SEQ:      93
 STATUS:   fresh           # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-08-30  -  Clod  (SEQ 93 APPENDED at the FOOT -- THREE STROKES RUN AS DICTATED.
+          t3 read the way that takes the warning label OFF the shared-body row; nine citizens
+          stamped and goldenDrift minted as a REGRESSION not an annoyance; recon ledger is
+          docs/unwrapRecon.md, 37 sites / 26 edits / 11 stated no-consequence. The wrapper
+          finding is NOT REACHABLE -- wants a rebuild, and the reason is SCOPE not enumeration.)
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-08-28  -  Clod  (SEQ 92 APPENDED at the FOOT -- TWO QUESTIONS FROM TONY, both
           measured, neither ruled: (1) a property read INSIDE a compound condition under-filters
           a walk at exit 0, six shapes measured, `!` is NOT the culprit; (2) `tokenize`,
@@ -4371,3 +4377,121 @@ shared-body node has not been run.  Say the word and Clod runs it.
 STATE AT THIS MARK: fleet 59 green / 1 parked, canary 319, frontier 10 PASS,
 countPop 39/39 clean.  Fixit queue 8.  Tree clean and pushed.
 
+
+===================================================================
+SEQ 93  --  2026-08-30, Clod.  THREE STROKES, AS DICTATED.  Report back on
+            t3's verdict, the stamped queue, and the ledger's headline numbers.
+===================================================================
+
+STROKE 1 -- t3.  IT READ THE OTHER WAY, AND THE ROW TAKES NO WARNING LABEL.
+
+    R4  t3   := through the ORIGINAL holder does NOT reach the holder = fed
+    R4c 7    and the rebind DID fire, so R4 is a NEGATIVE and not a VOID
+
+R4c is the admissibility clause and it was NOT in the dictation.  A "did not
+propagate" reading is indistinguishable from a rebind that never happened --
+both leave A without a y, and the nothing-answer looks identical.  Without it
+the row asserts nothing.  Added and stated in the fixture.
+
+So the doctrine row's sentence is the OPPOSITE of the one you pre-wrote:
+
+    =   shares the BODY      -- mutations through either holder are mutual
+    :=  re-points the HOLDER -- and reaches nobody else
+
+A carrier received by `=` is a window onto the STORAGE and a photograph of the
+BINDING.  That is what lets := stand as sole rebind channel without a caveat:
+it cannot reach a holder it was never handed to.
+
+Also banked from R3, and it is why the row is not simply "alias": the carriers
+have DIFFERENT nodes AND different groupBodies, while their x members have
+DIFFERENT nodes over ONE SHARED groupBody.  Twin at the node layer, alias at the
+body layer, and the body layer is the one every read and write touches.
+"Alias" would have said change the binding; "twin" would have said nothing is
+owed.  The measured answer names a LAYER.
+
+STROKE 2 -- the queue.  Nine citizens, both stamps, reasons in-file so routing
+is auditable rather than asserted.  One stamp is marked JUDGEMENT not proof.
+
+    lanes: parser 6 . genParse campaign 3   |   blast: OVERLAPS 5 . DISJOINT 4
+
+    OVERLAPS  goldenDrift jsonListNotAList literalMasterIsRule parentStamp
+              parentUnreachable
+    DISJOINT  kantGenPath litToMissing parseSelfRecursion tagTokenMismatch
+
+goldenDrift is NOT an annoyance and I did not file it as one.  The 14-line
+divergence is SIX VALUES DISAPPEARING, and one command proves regression rather
+than stale pin: the fixture's SOURCE still declares every missing value, the
+whole diff of that file since the golden was pinned is ONE unrelated line, and
+the fixture's own prose states the expected answers in words.  Lane parser,
+blast OVERLAPS.  Remedy is your three clauses with clause-2-before-1 prohibited
+in the file.
+
+TWO CONVERGENCES THE TRIAGE FOUND, both worth more than the stamps:
+  literalMasterIsRule documents addGroup's copy constructor SHARING the body so
+  a write through the copy sets isRule on the master.  aliasTwinT's R3 measured
+  =/setContent producing the same condition on members.  SAME MECHANISM, TWO
+  OPERATORS -- rule them together or not at all.
+  parentUnreachable's step-2 site is opDot's implied-receiver block, which the
+  opPlusPlus arms independently indicted the same day as lastREF's consumer.
+
+⚠ THE OLDEST CITIZEN IS DISJOINT.  kantGenPath (08-24, five sessions) routes to
+the pledged hour under your rule, not before the recon.  Said out loud in the
+file so nobody reads the nag line as an unmet obligation.
+
+fixitNag.sh gained the lane line, GENERATED, with unstamped citizens printed
+LOUDLY BY NAME rather than silently omitted -- the vanished-check failure this
+project has paid for three times.  H7 negative control run.
+
+STROKE 3 -- the ledger.  docs/unwrapRecon.md.
+
+    raw isGROUP hits in the .rtn/.twk layer   80
+    unwrap-decision SITES SURVEYED            37
+    edits predicted                           26
+    no-consequence, stated                    11
+
+H11 control satisfied -- all four known unwrap lines returned.
+⚠ The strict grep was WRONG BY FIVE IN BOTH DIRECTIONS: three comments, one
+write and one bare test swept IN; five follow-me loops and five accessor
+descents MISSED because their `.group` is not on the same line as their
+`isGROUP`.  Rule H9.  The 80 were read by eye.
+
+THE DISCRIMINATOR THE LEDGER TURNS ON, so 37 sites are not re-litigated one at
+a time: a hop is IMPLICIT READ-THROUGH when it happens because a value reached
+an operator, and STRUCTURE when a caller asked for a specific typed thing by
+name.  GroupItem.twk's six accessor descents are structure and KEEP -- `*` is
+implemented in terms of that hop, so deleting them deletes the operator.
+
+isAssign's eight VERIFIED BY HAND, 1:1: frontier frLive x7 plus five singles =
+6 re-assignments onto an already-bound target, mintT fresh x2 codeCopy x2 = 2.
+All eight are `<-` writing onto a holder that already carries a group.
+⚠ AND IT RETIRES FOR A DIFFERENT REASON THAN !isPointer -- do not file them
+together.  !isPointer retires because it NEVER FIRED.  !op.isAssign retires
+because THE LINE IT GUARDS GOES AWAY, and the behaviour it protected becomes
+the unconditional default.  The exemption becomes the rule.
+
+CHARTER ITEM -- the wrapper.  FINDING: NAME-MAP BINDING IS NOT REACHABLE WITH
+EXISTING MACHINERY.  It wants a rebuild, and the reason is SCOPE, not
+enumeration.  saveLocalFields/restoreLocalFields WOULD survive -- they walk by
+flag and restore positionally, so dropping arguments from the population is
+symmetric.  What does not survive: there is exactly ONE `argument` node per
+action, and recursion is handled by copying its body onto a stak (`if
+!grup.isArgument` is the clause that deliberately does not blank it).  A name
+map needs PER-ACTIVATION resolution, and the only per-activation mechanism in
+the tree IS that body stak.  There is no scope chain to hang a name map on.
+
+⚠ THE CORROBORATION WAS ALREADY IN THE TREE, FOUR-FOLD: four unwrap sites carry
+`&& !arg.isArgument`.  A construct that every unwrap site must exempt is not a
+value -- it is a wrapper wearing one.  That is bind-the-field argued by the code
+rather than by anybody's reasoning.
+
+Failure shape pre-registered per site-class (bear-trap #35: a plausible wrong
+VALUE, not a refusal -- opDot already lives under no-unwrap and gave `Braced 11`
+where the answer was 3).  "Ran and looked right" ruled inadmissible.  H12
+coverage named per region, including that incant/baselineTests' CONTENT is read
+by NOTHING -- which is why goldenDrift clause 3 is owed BEFORE the flip needs it.
+
+Acceptance line pinned verbatim in the ledger.
+
+WHAT IS NOT DONE, AND IS NOT MINE: the flip ruling, taken by Tony against this
+ledger.  Fixit queue 9, oldest kantGenPath 08-24, full hour still pledged to the
+first session after the closing stroke.
