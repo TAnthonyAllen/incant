@@ -1,3 +1,82 @@
+# ⚠⚠⚠ SEALED 2026-08-31 — THE ACCEPTANCE LINE WAS NOT ASKED A THIRD TIME. THE SPLIT IS
+# BLOCKED ON A FLAG THAT WILL NOT ROUND-TRIP, AND THAT IS UPSTREAM OF EVERYTHING TRIED.
+#
+#   ## THE ONE-LINE STATE: **Three split attempts, three reverts, and today the instrument
+#   finally named something upstream of the search space — under the split a node cannot read
+#   a flag it just had set.** Fleet **86 green / 1 parked**, red set byte-identical to
+#   stroke-open. Canary **325**. Frontier **exit 0, 10 PASS**. decodePop **22 checks / 82
+#   terms**. ddPop **6 green / 31 records**. countPop **39/39**. Switch at **0**, probes
+#   **zero**, every retok BARE. Both repos clean and pushed but for Tony's two named files.
+#
+#   ## ⚠⚠ THE FIVE THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   **1. THE ACCEPTANCE LINE'S VERDICT IS "NOT ASKED".** It was asked twice before and failed
+#   both times on `parser(Start)` receiving a carrier. Today it was never reached: certification
+#   is gated on the audit number and the audit never came clean, so the flip did not re-arm and
+#   `acceptStartT` stayed parked. **Not asked is not the same as failed, and the seal says so
+#   rather than implying a third failure.**
+#
+#   **2. THE MECHANISM IS ONE LEVEL ABOVE WHERE THREE STROKES LOOKED.** `broadcastT`'s ARM 3 —
+#   its anti-vacuity control, *did the write land on the original at all* — **FAILS under the
+#   split**. `x :. noPrinT` then `x.noPrinT` does not round-trip on the same node. Every other
+#   arm is downstream of that, so the columns, the stamp, the roads and the writers were all
+#   being measured through a void control. **A three-line round-trip fixture is the next
+#   stroke's first build.**
+#
+#   **3. THE WRITER FIX WAS A NO-OP, AND THAT IS THE PER-SITE CHECK'S ANSWER.** All three late
+#   writes are already at the earliest moment their inputs exist — the bin write sits inside
+#   `aCTionDefinE`'s attachment walk, and `setRuleStuff`'s two arms derive from `registry` and
+#   `parent`, both set at attachment. Nothing to relocate. **A derivation cannot be asked before
+#   its answer exists**, and these are asked exactly when it does.
+#
+#   **4. `isVirtual` AT STAY IS RIGHT AND WAS NOT THE HANG.** Re-homing it was the standing
+#   hypothesis; the hang survives with it firmly in the body and the `copyOf` rider reverted.
+#   **`kant8T` times out at 90s.** The ruling is correct on its own terms — it is a mechanism
+#   flag — and that hypothesis is dead. Do not re-run it.
+#
+#   **5. THE BROADCAST IS REAL AND MEASURED, AND THE LAW OUTLAWS IT.** ARM 2b read 1 on the
+#   legacy binary: a late write to a shared body reaches every node sharing it. Ruled the same
+#   day — identity set at definition, post-definition writes user-beware with a squawk — so
+#   **post-mint silence is the law working, not a regression.** `incant/broadcastT` ships as a
+#   tripwire pinned to the pre-law answer; it goes red when the fix lands, which is when
+#   somebody should be looking.
+#
+#   ## WHAT MOVED
+#   **BORN:** `probePlacementInheritsConclusion` (a probe downstream of its predicate sees one
+#   outcome) and `parentStampOnRealNode` — decoder lines, problem records, rendered.
+#   **RETIRED:** `parentStamp`, unreproduced, queue 9 → 8. 33 measured arrivals at opDot's
+#   substituting cases, dangerous event zero. **Its coupling claim was STRUCK, not archived.**
+#   **DOCTRINE:** two rows in `hookRules.md` — probe placement, and `!` exonerated a second time
+#   with the capture convicted twice.
+#   **BUILT AND KEPT:** `incant/broadcastT`, the timing oracle — one second where the fleet took
+#   ten minutes and hung.
+#
+#   ## THE NEXT STATIONS
+#   1. **The three-line round-trip fixture.** Set a flag, read it back, same node, under the
+#      split. Upstream of every other question.
+#   2. The split re-attempt, unchanged in shape, once round-trip holds.
+#   3. The flip, and the acceptance line's third asking.
+#   4. **Fixit queue: 8 — the pledged hour ran today; parentStamp retired out of it.**
+#
+#   ## PARKED, WITH GRADES
+#   `gMethod` (own ruling, against #34 and methodSlotFourReaders) · `lastREF` channel redesign
+#   (named ledger row, outside the charter) · the J-arm · `goldenDrift` clusters 2/3/4 (cluster
+#   1 REMEDY; 3 narrowed to 08-02, four unbuildable commits, hand-read not bisect) ·
+#   `parseSelfRecursion` retest-post-flip · `literalMasterIsRule` on its four-node remainder ·
+#   `*` quarantined to fixtures until the flip certifies · the closing stroke's sweep list
+#   (switch obituary, dead-flag census, `isPointer`'s whole-organism retirement).
+#
+#   ## TRIPWIRES ARMED
+#   `incant/broadcastT` — pinned pre-law, goes RED when the propagation-writer fix lands.
+#   `incant/acceptStartT` — parked, un-parks at the flip. `incant/derefT` — parked, re-pins to
+#   R1 ≠ R2 at the flip.
+#
+#   Tony's fixit incantations waiting: 8 (oldest: kantGenPath, since 2026-08-24)
+  lanes: parser 5 . genParse campaign 3   |   blast: OVERLAPS 4 . DISJOINT 4
+  routing: OVERLAPS lands before the recon or rides the migration ledger; DISJOINT holds for the pledged hour
+
+# ---
+
 # ⚠⚠⚠ SEALED 2026-08-29, SECOND SESSION (EVENING) — THE GENERATED PARSE DISPATCHES AND CARRIES
 # A TRUE FRAME. XPRESS IS ONE HUNG DOOR FROM WALKING. READ THIS FIRST.
 #

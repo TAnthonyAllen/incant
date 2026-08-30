@@ -286,3 +286,73 @@ afternoon.
 3. **The residual is a specific wrong row, and the canary can name it** — but only with an
    instrument that runs in seconds. That instrument is the next stroke's first build, not
    its last.
+
+---
+
+# THIRD ATTEMPT, 2026-08-31 — writer fix + isVirtual re-homed. Still 1, and a sharper symptom.
+
+**Reverted; every fleet row byte-identical to stroke-open (86 green), all seven fixtures
+identical, all POPs green, frontier 0/10, canary 325, probes zero, switch at 0.**
+
+## The writer fix: per-site check says THE WRITES ARE ALREADY EARLIEST
+
+The ruling asked each of the three to move to the earliest moment its inputs exist, and to
+land at attachment rather than mint where registry or parent shape is not knowable. **Checked
+per site, and none of them moves:**
+
+| site | inputs | earliest possible | where it is |
+|---|---|---|---|
+| `ruleActions.rtn:449` bin write | `NewGroup.isRule`, `item.binType` | attachment | **already there** — it is inside `aCTionDefinE`'s attachment walk |
+| `GroupItem.twk:1983` registry arm | `registry.isRule` | attachment — `registry` is set then | **already there** |
+| `GroupItem.twk:1985` parent arm | `parent.isRule` | attachment — `parent` is set then | **already there** |
+
+`setRuleStuff`'s ~50 callers are `GroupMain`'s definition walk plus `modify` at attachment.
+**So "three writes moved earlier" resolves to a no-op**, and that is the per-site check's
+answer rather than a skipped step: a derivation cannot be asked before its inputs exist, and
+these are asked exactly when they come into existence.
+
+## `isVirtual` at STAY — ruled correctly, and it was NOT the hang
+
+Re-homing it was the standing hypothesis for the hang (list-sharing decided by a flag read
+from the wrong structure). **Measured: the hang survives.** `kant8T` times out at 90s with
+`isVirtual` firmly in the body and no rider. So the ruling's re-home is right on its own
+terms — it is a mechanism flag — but it does not explain the failure, and that hypothesis
+is dead.
+
+## ⚠ THE NEW AND SHARPEST DATUM: A NODE CANNOT READ A FLAG IT JUST HAD SET
+
+`broadcastT`'s **ARM 3 is the anti-vacuity control** — *the write landed on the original at
+all* — and under the split **it fails**:
+
+```
+ARM1  copy-time   copy reads <tag>     (was 1)
+ARM2a control     copy reads <tag>     (was 0)
+ARM2b broadcast   copy reads <tag>     (was 1)
+ARM3  ANTI-VACUITY  the ORIGINAL reads <tag>   -- MUST be 1. It is not.
+```
+
+**`x :. noPrinT` then `x.noPrinT` no longer round-trips on the same node.** The setter
+(`opSetFlag`, which spells `target.noPrint = true` and is tok-resolved) and the reader
+(`opDot`'s numbered case) have come apart across the move. Every other arm's failure is
+downstream of this one — with the control void, arms 1 and 2 assert nothing.
+
+**This is the lead, and it makes the next measurement three lines instead of a fleet run:**
+set a flag on a node and read it back on the same node, under the split, with nothing else
+in the fixture. If that fails, the setter/reader disagreement is isolated with no copy road,
+no inheritance and no broadcast anywhere near it — and the audit's 1 and the `kant8T` hang
+are both explained by flags that cannot be read after they are written.
+
+⚠ **AND IT REFRAMES ALL THREE ATTEMPTS.** The columns, the stamp, the roads and the writers
+have been the search space for three strokes. **A flag round-trip failing on a single node
+is upstream of every one of them** — it would produce exactly this signature no matter how
+perfect the copy law was. That question was never asked because the instrument that would
+have asked it, `broadcastT`, did not exist until today, and its control is what caught it.
+
+## The prediction, and why it is not graded
+
+The stroke was to write the predicted audit number before re-attempting. **It was not
+computed**, because the per-site check dissolved its inputs — no writes moved, so the
+pre-law census and the post-law census are the same census, and there was no new number to
+derive. The reading is **1** for the third time, and with ARM 3 void it is not evidence
+about identity residency at all. **An ungraded prediction is the honest outcome here; a
+computed one would have been arithmetic over a void control.**
