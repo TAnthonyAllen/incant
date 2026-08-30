@@ -243,6 +243,12 @@ define
         bt37
             definition="A commissioned artifact's return unwinds the block that fired it, so a block touching an armed rule can lose its tail silently.";
             source="PULLED from CLAUDE.md bear trap 37. Operational record: designDocs ProblemRecords bt37.";
+        probePlacementInheritsConclusion
+            definition="A probe placed downstream of the predicate it is testing can only observe one outcome, so its silence is structurally guaranteed rather than measured.";
+            source="MINTED 2026-08-30 from the parentStamp retirement. Operational record: designDocs ProblemRecords probePlacementInheritsConclusion.";
+        parentStampOnRealNode
+            definition="opDot's trailing parent stamp was suspected of writing real nodes; 33 measured arrivals produced zero, because the guards decline nulls and parented nodes alike.";
+            source="MINTED 2026-08-30, retired-unreproduced the same day. Operational record: designDocs ProblemRecords parentStampOnRealNode.";
         frontier
             definition="The campaign's live edge in executable form -- one file, revised in place and never forked, that walks the pipeline one station at a time and dies at the first thing that does not work yet.";
             source="DICTATED from CLAUDE.md's frontier clause.";

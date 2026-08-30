@@ -112,3 +112,63 @@ hook its first attribute, a capture gave the product its first child, a retired 
 sweeping the labels. **Every fix this campaign shipped is the same fix: say the thing explicitly.**
 A flag instead of bareness. `setToken` instead of decoration. A dash instead of an unread label.
 **Absence is not a channel.**
+
+---
+
+# Doctrine rows registered 2026-08-30
+
+These are not hook-rules. They are registered here because the dictation ruled that the pair
+belongs in **one row rather than three scattered files**, and this is the standing registry.
+
+## ⚠ PROBE PLACEMENT INHERITS THE CONCLUSION — the observational twin of H7
+
+**A probe placed downstream of the predicate it is testing can observe only one outcome, so its
+silence is structurally guaranteed rather than measured.**
+
+H7 asks whether a mechanism can be shown to **fire** before it is trusted. This is the same
+question asked of the *instrument*: **can it observe both answers?** An anti-vacuity-clean
+assertion can still be fed by a one-outcome probe, and then the assertion is honest about a
+measurement that was not.
+
+**The instance that funded it, 2026-08-30.** A `cerr` was placed inside `opDot`'s
+`if product && !product.parent` guard to ask whether the trailing parent stamp ever lands on a real
+node. It reported the two substituting cases as **firing zero times**. Moved *above* the guard, the
+same binary on the same corpus reported **33 arrivals**, with the dangerous event still at zero.
+
+**Same conclusion. Opposite epistemic status.** The first was a probe that could only print when the
+stamp fired; the declined class could never reach it, and its silence was read as absence. A whole
+mechanism story — a coupling to another citizen — was built on that silence and had to be struck.
+
+**THE RULE: argue a probe's placement before you read its silence, and print unconditionally on both
+sides so a decline is as visible as a fire.**
+
+⚠ **AND IT IS HALF A PAIR.** The other half is the `frameProbe` lesson of 2026-08-29, which points
+the same way from the opposite side: *a doctrine row whose control has been thrown away is a claim
+nobody can re-check*, which is why the stale-singleton reading was **kept on the same line** as the
+four correct ones. One says *put the instrument where both answers can reach it*; the other says
+*keep the wrong answer visible beside the right one*. **Both are about where the evidence sits, not
+what it says** — and neither is caught by reading the assertion.
+
+## ⚠ `!` WALKS FREE A SECOND TIME — the culprit is the capture, and the split will cure it
+
+**`!` has now been suspected twice and exonerated twice, and both times the real fault was reading a
+property through a capture that reimprints.**
+
+| occasion | suspected | actually |
+|---|---|---|
+| bear-trap #35's six-way table | `!` on an `opDot` result | reading the property **in the condition**; `== 0` failed identically and `!` on a captured local was fine |
+| 2026-08-30, the parent census | `!` again (architect's instinct) | `local = node.parenT` then `local.taG` — **the assignment reimprints the local's tag**, so the read answers with the holder, never the held |
+
+The 2026-08-30 probe that failed was in **positive** form — `if x.parenT … else …`, printing
+*neither* arm — so the negation is exonerated by the shape of its own failure.
+
+⚠ **AND THE CULPRIT HAS A NAME THIS PROJECT ALREADY RULED ON.** A capture answering with the
+holder's tag instead of the held value is **identity and storage sharing one struct**, observed from
+the probe side — the same conflation the `GroupBody` split was ruled to cure. `tag` lives in
+`GroupBody`; a copy takes the body; the copy therefore takes the name.
+
+**So the split does not only fix binding — it fixes PROBING.** After it, a captured local cannot
+reimprint a tag it no longer carries in shared storage, and the commonest way an instrument lies in
+this codebase stops being constructable. **In a shop whose failure ledger is mostly instrument-level,
+that may be the split's largest dividend** — and it is worth saying out loud, because it is not the
+reason the split was ruled and it will not otherwise appear in its motivation record.
