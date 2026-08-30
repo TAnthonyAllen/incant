@@ -212,3 +212,77 @@ acceptance failure was `tag` and `isArgument` travelling with the adopted body. 
 in tranche A, and neither has been shown free of load-bearing copy-inheritance. **The
 flip's unblocking is exactly step 2 applied to those two fields**, and it is now the
 cheapest next measurement in the campaign.
+
+---
+
+# SECOND ATTEMPT, 2026-08-31 — both halves in one motion. Canary read **1**.
+
+**Reverted; every fleet row byte-identical to the pre-stroke baseline (86 green), all POPs
+green, frontier 0/10, canary 325, both repos clean, audit back at 10.**
+
+## Census headline
+
+**TWO ROADS, four call sites.** `copyOf` (copies the body) and the **copy constructor**
+(shares it) — reached directly and from `addGroup`, `GroupRules.mm:1667` and `:2479`.
+`copyListTo` mints nothing; it re-adds existing entries.
+
+⚠ **THE COLUMNS WERE ALREADY IN THE CODE, WHICH IS WHY NO ROW WAS ARGUED AMBIGUOUS.**
+The copy constructor stamps `isCopy = true`; `copyOf` clears `isLocal = false` and
+`isVirtual = false`. **Those three lines are the DIVERGE column, written by hand before it
+had a name.** The split's job was to add the other half — an explicit INHERIT stamp — not
+to invent a policy.
+
+**23 INHERIT / 10 DIVERGE**, `isCopy` already node-resident. Full list in the commit.
+
+## What was built
+
+`GroupItem::inheritIdentity(grup)` — the copy law written once, called at **both** roads,
+so no road ships unstamped. Only the INHERIT column appears in it, and only upward: a false
+source flag never clears a true one, because the copy is fresh. **DIVERGE costs no code** —
+a fresh node defaults it false, which is the whole economy of the design.
+
+One consequential rider found while writing it: `copyOf`'s `if isVirtual isVirtual = false`
+read the **copied body**, where the source's virtualness had just landed. With identity on
+the node the copy starts false, so that test would always fail and silently switch every
+virtual source onto the list-copying arm. Re-subjected to `grup.isVirtual`. **Same
+decision, correct subject** — and it is exactly the class of thing the split surfaces.
+
+Generated code verified at the constructor per the standing instruction: `options.isCopy = 1;`
+then `inheritIdentity(grup);`, and `inheritIdentity` emitting `if (grup->options.isRule)
+options.isRule = 1;` — the shape is right.
+
+## Certification: FAILED, and the canary named the side
+
+| canary | baseline | wanted | **read** |
+|---|---|---|---|
+| audit MISSRULE | 10 | **4** | **1** |
+| fleet | 86 green | byte-identical | **hung** (>10 min against a 90s/fixture cap) |
+
+**1 is on the 10 → 0 side**, which the charter reads as *a road was missed or a freight
+flag wrongly diverged*. Nine nodes stopped reading `isRule`-without-`rStuff` where six were
+predicted to.
+
+**What the road hunt found, and it does not close it.** The only wholesale body writes
+outside the two stamped roads are `saveLocalFields`/`restoreLocalFields`
+(`*body = *grup.groupBody` and its inverse) — a **save/restore**, not a mint, and under the
+split it correctly no longer carries identity. No third minting road exists. **So the
+likelier residual is a column row, not a missed road** — and the direction says a freight
+flag diverged, i.e. something in the INHERIT list is not actually reaching the copy, or
+something that should be in it is not.
+
+⚠ **AND THE HANG IS THE REAL BLOCKER ON DIAGNOSING IT.** Every re-measure costs ten
+minutes, so the one-edit-and-re-certify economics the ruling prices this at do not hold at
+the moment: the loop is too slow to bisect a 33-row column by trial. **The next stroke
+needs a cheaper oracle than the fleet** — a single fixture that reads `isRule` on a known
+copy before and after, which would name the failing row in one run instead of one
+afternoon.
+
+## What is now known that was not
+
+1. **The columns are not the hard part.** They were derivable from the roads' own existing
+   lines and no row needed a judgement call.
+2. **The stamp mechanism works** — it builds, it generates correctly, and it is one function
+   at two sites.
+3. **The residual is a specific wrong row, and the canary can name it** — but only with an
+   instrument that runs in seconds. That instrument is the next stroke's first build, not
+   its last.
