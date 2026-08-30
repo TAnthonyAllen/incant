@@ -9,18 +9,14 @@ define
     codeBuffer buffer;
     openBrace="{";
     closeBrace="}";
-    compiling=1;
-    activating=1;
-    ruleText="dumpContents(Xpress);";
     generateParse argument code={
-        cerr "generating parse for " argument.taG:;
+        cout "Generating parse code for" taG:;
         reset(codeBuffer);
         printTO(codeBuffer);
         print openBrace:;
-        if activating != 0;     setParse(argument);
+        setParse(argument);
         if datA != 0;
             if listLengtH; print "rules should not have data and a list; one or the other":;
-            cerr "leaf " taG:;
             printTO(0);
             return;
         if hasTraitS;       conjunct = "AND";
@@ -31,7 +27,6 @@ define
             if noPrinT;     continue;
             if notFirstTimeThru > 0;    print _conjunct;
             ++notFirstTimeThru;
-            if activating != 0;     setParse(grup);
             print $taG "()";
         print ";";
         @argument;
@@ -44,23 +39,34 @@ define
         argument +% codeCopy;
         argument :. isCodeD;
         printTO(0);
-        @CodE;
-        print taG "=" CodE:;
-        };
+        //print taG "=" CodE.taG:;
+       };
     walkRules argument code={
+        **argument;
+        generateParse(argument);
         if actionTypE == 0;
             length  = listLengtH;
-            generateParse(argument);
-            if argument["CodE"];
-                compile(argument);
-                if length > 0;
-                    iterate grup on argument;
-                    while ++grup;
-                        if noPrinT;     continue;
-                        if binTypE;     continue;
-                        if isRule;      walkRules(grup);
-            else    cerr taG "has no CodE":;
-        else    cerr taG "already has code so no parse generated":;
+            if length > 0;
+                iterate grup on argument;
+                while ++grup;
+                    if noPrinT;     continue;
+                    if binTypE;     continue;
+                    if listLengtH;  walkRules(grup);
+                    else generateParse(grup);
+        };
+    compileRules argument code={
+        **argument;
+        compile(argument);
+        if actionTypE == 0;
+            length  = listLengtH;
+            if length > 0;
+                iterate grup on argument;
+                while ++grup;
+                    if noPrinT;     continue;
+                    if binTypE;     continue;
+                    cout `grup.taG:;
+                    if listLengtH;  walkRules(grup);
+                    else compile(grup);
         };
     evictTerms argument code={
         iterate evA on argument attributes;
@@ -82,7 +88,12 @@ define
             evictTerms(evR);
         };
     parser argument code={
-        walkRules(argument);
+        setPointer(Start);
+        **whatsIt;
+        whatsIt := Start;
+        **whatsIt;
+        walkRules(whatsIt);
+        compileRules(argument);
         cerr "PARSER SENTINEL -- walk complete":;
         compiledHere = 0;
         if argument.hasNewParsE;     compiledHere = 1;
@@ -92,7 +103,7 @@ define
         @argument;
         cout "Running" taG "on" ruleText:;
         debug;
-        parseAnswer = argument(ruleText);
+        Xpress("dumpContents(Xpress");
         print ~"PARSE " argument.taG " <- " ruleText:;
         print `"ANSWER " parseAnswer:;
         cerr "VERIFY SENTINEL -- answer reported":;
@@ -100,7 +111,8 @@ define
         };
     ;
 
-parser(Xpress);
+parser(Start);
+
 stop();
 
     parser -- generates a new kant parse for every rule its argument touches.
