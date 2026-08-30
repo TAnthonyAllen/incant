@@ -39,6 +39,16 @@ fjOne('{"kind":"webfonts#webfontList","items":[{"family":"ABeeZee","variants":["
 print "FIXIT SENTINEL -- jsonListNotAList reached its foot":;
 stop();
 
+LANE:  parser
+BLAST: OVERLAPS
+
+WHY THIS BLAST STAMP -- routing is auditable, not asserted.
+A walk inside JSONarray is handed a non-list and complains. `does not contain a list`
+is an isGROUP/list decision, and the rule it fires from is a GroupMain field action --
+both surveyed regions. JUDGEMENT, not proof: the recon passes over the site, so it is
+cheaper to look while there than to route it away and come back.
+
+
 A STRAY nextGroup ERROR THAT ONLY THE SEQUENCE PRODUCES
 
 Run this file and watch stderr. One line appears that has no business being

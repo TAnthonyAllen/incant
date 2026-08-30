@@ -30,3 +30,28 @@ since=${row%% *}
 oldest=${row#* }
 [ "$since" = "9999-99-99" ] && since="uncommitted"
 echo "Tony's fixit incantations waiting: $n (oldest: $oldest, since $since)"
+#  ⚠ THE LANE LINE, added 2026-08-30. It exists so the queue can be ROUTED at a
+#  glance instead of read file by file, and it is GENERATED for the same reason
+#  the count is: a routing table maintained by hand disagrees with the queue the
+#  first time somebody mints a citizen in a hurry.
+#
+#  ⚠ AND UNSTAMPED IS PRINTED LOUDLY, NEVER SILENTLY OMITTED. A citizen with no
+#  LANE would otherwise just be absent from the tally -- the vanished-check
+#  failure this project has paid for three times, where the number goes down and
+#  nothing says so. If `unstamped` is non-zero the stamps are owed, and the line
+#  says which files.
+lanes=""; blasts=""; unstamped=""
+for f in "$D"/*; do
+    [ -e "$f" ] || continue
+    l=$(grep -m1 '^LANE:'  "$f" 2>/dev/null | sed 's/^LANE:[ \t]*//')
+    b=$(grep -m1 '^BLAST:' "$f" 2>/dev/null | sed 's/^BLAST:[ \t]*//')
+    if [ -z "$l" ] || [ -z "$b" ]; then unstamped="$unstamped $(basename "$f")"; continue; fi
+    lanes="$lanes$l\n"; blasts="$blasts$b\n"
+done
+lanerow=$(printf "$lanes" | sort | uniq -c | sort -rn | awk '{c=$1; $1=""; sub(/^ /,""); printf "%s%s %s", (NR>1 ? " . " : ""), $0, c}')
+blastrow=$(printf "$blasts" | sort | uniq -c | sort -rn | awk '{c=$1; $1=""; sub(/^ /,""); printf "%s%s %s", (NR>1 ? " . " : ""), $0, c}')
+echo "  lanes: $lanerow   |   blast: $blastrow"
+if [ -n "$unstamped" ]; then
+    echo "  ⚠ UNSTAMPED (lane/blast owed):$unstamped"
+fi
+echo "  routing: OVERLAPS lands before the recon or rides the migration ledger; DISJOINT holds for the pledged hour"

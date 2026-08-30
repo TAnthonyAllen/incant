@@ -34,6 +34,16 @@ cerr :;
 cerr "FIXIT SENTINEL -- parseSelfRecursion reached its foot":;
 stop();
 
+LANE:  parser
+BLAST: DISJOINT
+
+WHY THIS BLAST STAMP -- routing is auditable, not asserted.
+A generated parse body fires a grammar term as a parsed statement and re-enters itself
+with period one. The defect is in DISPATCH -- which handler a node runs -- and the door
+work, not in what a reference resolves to. Adjacent to the campaign, outside the
+migration's surveyed regions. Adjacency is not scope.
+
+
 THE GENERATED PARSE RE-ENTERS ITSELF, AND THE DOOR IS MEASURED
 
 WHAT THIS IS

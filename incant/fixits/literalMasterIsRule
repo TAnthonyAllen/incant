@@ -19,6 +19,17 @@ audit();
 print "FIXIT SENTINEL -- literalMasterIsRule reached its foot":;
 stop();
 
+LANE:  parser
+BLAST: OVERLAPS
+
+WHY THIS BLAST STAMP -- routing is auditable, not asserted.
+⚠ ITS MECHANISM WAS MEASURED THIS SESSION FROM THE OTHER SIDE. This citizen documents
+addGroup's copy constructor SHARING the body so a write through the copy sets isRule on
+the master; incant/aliasTwinT's R3 measured `=`/setContent producing the same condition
+on members -- different nodes, one groupBody. Same mechanism, two operators. The recon
+surveys both, so they should be ruled together or not at all.
+
+
 THE AUDIT CALLS SIX LAWFUL NODES MISSING RULES
 
 Run this and read the AUDIT MISSRULE lines. Six of them name Grokking members

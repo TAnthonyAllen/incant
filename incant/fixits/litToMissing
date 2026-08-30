@@ -18,6 +18,14 @@ genParse('break');
 print "FIXIT SENTINEL -- litToMissing reached its foot":;
 stop();
 
+LANE:  genParse campaign
+BLAST: DISJOINT
+
+WHY THIS BLAST STAMP -- routing is auditable, not asserted.
+genParse emits litTo() and nothing implements it. A missing leaf helper in the emitted
+parse road; no unwrap decision, no field action, no rule-action body.
+
+
 genParse EMITS litTo() AND NOTHING IMPLEMENTS IT
 
 Read the emission printed above. That is genParse's output for `break`, and it

@@ -36,6 +36,15 @@ cerr :;
 cerr "FIXIT SENTINEL -- tagTokenMismatch reached its foot":;
 stop();
 
+LANE:  genParse campaign
+BLAST: DISJOINT
+
+WHY THIS BLAST STAMP -- routing is auditable, not asserted.
+The tag-as-data fallback is sound only where tag == token; two of five emissions match a
+literal that never appears in source. A question about what the fallback is FOR, inside
+the emitter. No unwrap decision on the path.
+
+
 THE TAG-AS-DATA FALLBACK IS ONLY SOUND WHERE THE TAG IS THE TOKEN
 
 WHAT YOU JUST RAN

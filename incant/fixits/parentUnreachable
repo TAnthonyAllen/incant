@@ -37,6 +37,16 @@ define
         fpScope(fpChild);
         cerr "FIXIT SENTINEL -- parentUnreachable reached its foot":;
         stop();
+
+LANE:  parser
+BLAST: OVERLAPS
+
+WHY THIS BLAST STAMP -- routing is auditable, not asserted.
+PRE-ROUTED BY RULING: rides the recon. Its step-2 measurement reads opDot's
+implied-receiver block, a surveyed site. ⚠ AND THE SAME BLOCK WAS INDICTED INDEPENDENTLY
+THIS SESSION: Instruct.rtn:305-307 is lastREF's consumer, and the opPlusPlus arms
+attribution showed the ++ advance is its unnamed producer.
+
         };
     ;
 fpRun();

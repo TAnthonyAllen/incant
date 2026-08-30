@@ -1,0 +1,109 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(GoldDrift);
+define
+    gdRun code={
+        print "=== CLUSTER 1 -- a value that comes back as its own tag ===":;
+        print "  PINNED    lefty: got reset to 46":;
+        print "  PINNED    printTest: lefty should return itself. It returns 46":;
+        print "  MEASURED:":;
+        printTest();
+        print "=== CLUSTER 2 -- an OR that takes the other arm ===":;
+        print "  PINNED    testOR: I see nothing":;
+        print "  MEASURED:":;
+        testOR();
+        fixGoldenDriftHere = 0;
+        print "ANCHOR fixGoldenDriftHere -- PINNED and MEASURED sit together above":;
+        };
+    ;
+gdRun();
+print "GOLDENDRIFT SENTINEL -- reached the foot":;
+stop();
+
+LANE:  parser
+BLAST: OVERLAPS
+
+goldenDrift -- SIX VALUES HAVE GONE MISSING FROM incant/baselineTests AND THE
+FLEET STRUCTURALLY CANNOT SEE IT. Minted 2026-08-30.
+
+THE MECHANISM IS BROKEN. THE INSTRUMENT THAT SHOULD HAVE SAID SO ASSERTS THE
+WRONG THING. Both halves are owed and the order they are fixed in matters.
+
+WHAT IS ACTUALLY WRONG
+
+`incant/baselineTests.golden` and what the binary produces disagree on six
+values in four clusters. Every one of them is a value DISAPPEARING:
+
+  cluster            pinned                    measured now
+  lefty (x2)         46                        leftydata type has no toString()
+  testOR             I see nothing             Saw 13 having a few doubts
+  testForC attrs     second=56;  third=WTF?    second;  third
+  nested form        width=50%   text=one      width=50   text
+
+THIS IS A REGRESSION AND NOT A STALE PIN, AND ONE COMMAND PROVES IT. The
+fixture's SOURCE still declares every missing value -- unitTests:147 has
+`lefty=3 code={ lefty += 43; ... }`, :153 has `second=56 third="WTF?"`, :102
+has `width=50%`, :103 has `text=one`. The whole diff of incant/unitTests since
+the golden was last pinned is ONE line, `aGroup one two three` gaining a `=2`,
+which touches none of them. And the fixture's own prose at :56 and :68 states
+the expected answers in words: "lefty should return itself. It returns 46".
+So the declarations stand, the pin stands, and the machine changed underneath
+both.
+
+WHY NOBODY SAW IT, WHICH IS THE HALF WORTH KEEPING
+
+`genLadder/pop.sh` asserts baselineTests on TWO things: that it exits 0, and
+that its last line is present. It never diffs the content. So a 76-line pinned
+artifact sits in the tree with nothing reading it, and six values could vanish
+without moving a single fleet row. The green was live evidence about truncation
+and evidence of NOTHING about the values.
+
+⚠ IT WAS FOUND BY ACCIDENT, which is the H12 lesson arriving in a file instead
+of a session. The `*` facility predicted this fixture would go red on `down=*`;
+it did not, and checking WHY the green was trustworthy is what opened the file.
+Nobody was auditing it. Nobody had reason to.
+
+THE WINDOW, bounded but not closed: the golden was last re-pinned 2026-07-31
+(f010977). The next commit to touch the driving fixture is 17d3642, 2026-08-04,
+"Tony's offline set: MEMBERs toggle, iterator rework, opDot 34/35, displayForm"
+-- which names opDot and the iterator rework, and cluster 1 and 3 are both
+"a field came back as its own tag". That is a LEAD, not an attribution.
+
+NEXT: REMEDY -- ASSERTABILITY AND BEHAVIOUR, IN THAT ORDER, AND THE ORDER IS
+NOT NEGOTIABLE
+
+Three clauses. CLAUSE 2 BEFORE CLAUSE 1 IS PROHIBITED: re-pinning first banks
+six unknown breakages as normal, permanently, and no later reader can tell the
+difference.
+
+  1  ATTRIBUTE THE DRIFT.  Bisect 2026-07-31..HEAD against this fixture's
+     content.  The window is 26 days and 17d3642 is the named candidate.
+     Clod-sized.  BEHAVIOUR.
+  2  RE-PIN ONLY WITH THE SENTENCE.  A target that moved is a claim that the
+     world changed and the claim needs a cause -- one named per cluster, or the
+     cluster is not re-pinned.  BEHAVIOUR.
+  3  GIVE THE ROW A CONTENT DIFF in pop.sh, so the golden pins the golden
+     instead of pinning the fact that the process reached its last line.
+     ASSERTABILITY -- the machine will not move and the fleet count will,
+     which is the expected and correct shape of an assertability remedy.
+
+⚠ WHY EVERY LINE HERE IS `print` AND NOT `cerr`, WHICH IS NOT A STYLE CHOICE.
+The actions this file fires -- printTest, testOR -- report on STDOUT, because
+that is what the fixture they live in does. Labelling them from `cerr` puts the
+PINNED value and the MEASURED value on two different streams, and stdout is
+block-buffered when it is not a tty, so the two halves of every comparison
+arrive out of order or in separate blocks. The whole point of this citizen is
+that the two numbers sit side by side on screen. One stream, or no comparison.
+
+⚠ BEST GUESS FOR CLUSTER 1 ONLY, graded and explicitly NOT a recommendation:
+bear-trap #26 row 1 is `+=`'s pre-load, whose guard must be `data` and not
+"text is non-empty", and whose documented failure is concatenating onto the
+field's OWN NAME. `lefty += 43` returning `lefty` + a toString failure is that
+signature exactly. What would promote it: read the `+=` pre-load guard at HEAD
+against its 07-31 state. What would kill it: clusters 3 and 4 lose values with
+no `+=` anywhere near them, so a single-cause story has to explain those too.
