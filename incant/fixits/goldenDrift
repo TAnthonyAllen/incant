@@ -17,9 +17,20 @@ define
         print "  PINNED    testOR: I see nothing":;
         print "  MEASURED:":;
         testOR();
+        print "=== THE MECHANISM, three arms and an anti-vacuity control ===":;
+        gdA = gdSelf();
+        print "  A  body references its OWN name    " gdA " (want 46)":;
+        gdB = gdNoSelf();
+        print "  B  body references ANOTHER field   " gdB " (want 46)":;
+        gdC = gdPlain();
+        print "  C  body references no field at all " gdC " (want 46 -- anti-vacuity)":;
         fixGoldenDriftHere = 0;
         print "ANCHOR fixGoldenDriftHere -- PINNED and MEASURED sit together above":;
         };
+    gdSelf=3   code={ gdSelf += 43; return gdSelf; };
+    gdOther=3;
+    gdNoSelf   code={ gdOther += 43; return gdOther; };
+    gdPlain=3  code={ return 46; };
     ;
 gdRun();
 print "GOLDENDRIFT SENTINEL -- reached the foot":;
@@ -68,11 +79,56 @@ of a session. The `*` facility predicted this fixture would go red on `down=*`;
 it did not, and checking WHY the green was trustworthy is what opened the file.
 Nobody was auditing it. Nobody had reason to.
 
-THE WINDOW, bounded but not closed: the golden was last re-pinned 2026-07-31
-(f010977). The next commit to touch the driving fixture is 17d3642, 2026-08-04,
-"Tony's offline set: MEMBERs toggle, iterator rework, opDot 34/35, displayForm"
--- which names opDot and the iterator rework, and cluster 1 and 3 are both
-"a field came back as its own tag". That is a LEAD, not an attribution.
+⚠ ATTRIBUTED 2026-08-30 BY BISECT, AND THE 17d3642 LEAD IS FALSIFIED. The
+earlier version of this file named 17d3642 (08-04) as the candidate. It is not
+the cause of any cluster. That is why clause 1 exists and why a lead is not an
+attribution.
+
+⚠⚠ AND THE DRIFT IS AT LEAST TWO INDEPENDENT CAUSES IN TWO DIFFERENT ERAS. A
+single-probe bisect finds ONE cause and looks complete, which is bear-trap #19's
+corollary wearing a bisect: the search space was one cluster.
+
+  CLUSTER 1  lefty x2      ATTRIBUTED  168453d, 2026-08-10, RUNG B
+  CLUSTER 3  second/third  NARROWED    2026-08-02, the finalize-phase day,
+                                       window 03d5c73 (good) .. 778c140 (bad),
+                                       eight commits, FOUR unbuildable and
+                                       skipped by the bisect
+  CLUSTER 2  testOR        NOT BISECTED
+  CLUSTER 4  width / text  NOT BISECTED
+
+CLUSTER 1's ATTRIBUTION, MEASURED THREE WAYS.
+
+168453d is "CLAIM KANT-8 REPAIRED: value-capture seam + unconditional bracket
+(SEQ 27, both rungs)" -- the K5/K6 work itself. Two one-arm reverts separate the
+rungs:
+
+  capture disabled, bracket ungated (rung B alone)   lefty STILL WRONG
+  four `if field.recursive` gates restored (rung A)  lefty = 46
+
+So it is RUNG B, the unconditional frame bracket, and not the value-capture seam.
+
+THE MECHANISM, and rows A/B/C above measure it live:
+
+  A  a field whose code body references ITS OWN NAME       BROKEN
+  B  a field whose code body references ANOTHER field      fine
+  C  a field whose code body references no field at all    fine
+
+Only the self-mentioning class breaks. An undeclared name in an action body is
+minted as an action LOCAL (bear-trap #39), `saveLocalFields` BLANKS non-argument
+locals on entry, and rung B made that blanking universal. So `gdSelf += 43`
+pre-loads onto a blanked node and comes back as its own tag -- bear-trap #26
+row 1, exactly, which is why the printed answer is a NAME followed by a
+toString failure rather than a wrong number.
+
+⚠ THE IRONY IS THE FINDING, NOT A GARNISH. `recursive` is set at PARSE time BY
+IDENTITY -- that is, precisely when a body mentions its own name. So the OLD
+gate ran the bracket on EXACTLY the self-mentioning actions, and rung B's own
+commit message says the coupling out loud: "while the return seam handed back
+the local's own node, ungating the sweep blanked every returned local rather
+than only the self-mentioning ones." Rung A was the stated prerequisite that
+made ungating safe. IT DOES NOT COVER THIS DOOR: the capture lives in runAction,
+and a field invoked BY REFERENCE with a code body never reaches it -- which is
+why disabling the capture changes nothing here.
 
 NEXT: REMEDY -- ASSERTABILITY AND BEHAVIOUR, IN THAT ORDER, AND THE ORDER IS
 NOT NEGOTIABLE
@@ -81,9 +137,10 @@ Three clauses. CLAUSE 2 BEFORE CLAUSE 1 IS PROHIBITED: re-pinning first banks
 six unknown breakages as normal, permanently, and no later reader can tell the
 difference.
 
-  1  ATTRIBUTE THE DRIFT.  Bisect 2026-07-31..HEAD against this fixture's
-     content.  The window is 26 days and 17d3642 is the named candidate.
-     Clod-sized.  BEHAVIOUR.
+  1  ATTRIBUTE THE DRIFT.  ✅ DONE for cluster 1 (168453d rung B, measured
+     three ways).  STILL OWED for clusters 2 and 4, and cluster 3 needs the
+     four unbuildable commits of 2026-08-02 reconstructed by retok before a
+     bisect can pass through them.  BEHAVIOUR.
   2  RE-PIN ONLY WITH THE SENTENCE.  A target that moved is a claim that the
      world changed and the claim needs a cause -- one named per cluster, or the
      cluster is not re-pinned.  BEHAVIOUR.
@@ -100,10 +157,17 @@ block-buffered when it is not a tty, so the two halves of every comparison
 arrive out of order or in separate blocks. The whole point of this citizen is
 that the two numbers sit side by side on screen. One stream, or no comparison.
 
-⚠ BEST GUESS FOR CLUSTER 1 ONLY, graded and explicitly NOT a recommendation:
-bear-trap #26 row 1 is `+=`'s pre-load, whose guard must be `data` and not
-"text is non-empty", and whose documented failure is concatenating onto the
-field's OWN NAME. `lefty += 43` returning `lefty` + a toString failure is that
-signature exactly. What would promote it: read the `+=` pre-load guard at HEAD
-against its 07-31 state. What would kill it: clusters 3 and 4 lose values with
-no `+=` anywhere near them, so a single-cause story has to explain those too.
+⚠ THE OLD BEST GUESS IS PROMOTED IN HALF AND CORRECTED IN HALF, and the
+correction is the useful part. It named `+=`'s pre-load, and the pre-load IS
+where the wrong value is produced -- rows A/B/C confirm it. But it guessed the
+PRE-LOAD GUARD had changed. It had not. What changed is that the field the
+pre-load reads is now BLANKED BEFORE IT, by a bracket that used to be gated.
+The symptom was at the right line; the cause was one stroke upstream.
+
+⚠ CLUSTER 1's FIX IS NOT "RESTORE THE GATES". Rung B is architecturally right
+and its reasons stand: the gate is set at parse time BY IDENTITY so mutual
+recursion never sets it, and it is CLEARED at run time so behaviour depends on
+invocation history. Restoring it re-opens both. The fix is to extend rung A's
+capture to the door this class arrives on, or to stop saveLocalFields blanking
+a local that shadows a defined field. THAT CHOICE IS A RULING, NOT A
+MEASUREMENT.
