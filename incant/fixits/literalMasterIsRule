@@ -118,4 +118,45 @@ three produce a green fleet and they disagree about what is true.
 
 WHAT WOULD MAKE THE CHOICE CHEAPER: a census of `isRule` reads that could see a
 shared-body node, which is the only unknown standing between B and the others.
-Not run.
+
+⚠⚠ RE-GRADED 2026-08-30, AND THE CENSUS WAS ALREADY RUN -- it is
+`minionWork/isRuleCensus`, and it removes most of this ruling from Tony's plate.
+
+FIRST, THE CENSUS' OWN FINDING 4: THE AFFECTED POPULATION IS 10 AND IT IS THREE
+MECHANISMS, NOT ONE.
+
+    6   Grokking punctuation masters   groupBody SHARED with an attached copy
+    3   Keywords break/continue/return BIN propagation (ruleActions.rtn:449)
+    1   SearchList/Grokking            a DIRECT write (GroupMain.twk:16)
+
+SECOND, AND IT IS WHY THIS ROW NO LONGER NEEDS ITS OWN RULING: OPTION B's
+UNMEASURED FLAVOUR B1 -- "move isRule out of groupBody so it is per-node" -- IS
+THE GROUPBODY SPLIT TONY RULED ON 2026-08-30. `isRule` answers *is this node a
+rule*, which describes the HOLDER, so under the split's law it is IDENTITY and
+moves to GroupItem by construction. B1 does not need to be chosen here; it
+ARRIVES.
+
+⚠ BUT IT ARRIVES FOR SIX OF TEN, AND THAT IS THE PART A CARELESS READER WILL GET
+WRONG. The split kills the groupBody share and nothing else. The three Keywords
+members propagate through a BIN walk and the registry writes itself directly --
+neither is a shared body, so both survive the split untouched.
+
+    after the split, the audit should read 10 -> 4, not 10 -> 0.
+
+**That number is a PREDICTION and it is registered here to be checked**, per the
+standing discipline: if the split lands and the audit does not move to exactly
+4, either the split missed a reader or this census' three-mechanism split is
+wrong, and both are findings.
+
+THIRD, WHAT IS STILL OWED AND STILL TONY'S: the remaining FOUR. Option A (teach
+the audit the category) and option C (accept and re-pin) are unchanged for them,
+and the census already grades A as the only one whose blast radius is known to
+be zero. The choice is smaller than it was -- four nodes, not ten -- and it can
+be made AFTER the split rather than before, against a measured remainder instead
+of an estimate.
+
+⚠ AND THE CENSUS ALREADY REFUTED B2 ON ITS OWN TERMS, so nobody re-tries it: the
+one-line `if !isRule && !isCopy` was RUN and made things worse -- audit loose
+4 -> 11, countPop 39/39 -> 38 with a crash, the odometer losing a refusal line,
+fleet 67 -> 63. Restored and md5-verified. That is live behaviour change, not a
+census correction.

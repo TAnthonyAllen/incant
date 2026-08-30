@@ -105,10 +105,54 @@ accessor is demonstrably live and the nulls below it are about the SUBJECT and
 not about a dead file. Finding a field that HAS a registry is part of
 measurement 2 below.
 
-NEXT: OPEN
+⚠⚠ MEASUREMENTS 1 AND 2 ARE TAKEN, 2026-08-30, and the answer moves this row
+from OPEN to BEST GUESS -- and couples it to another citizen.
 
-No candidate fix is recommended, because the measurement that would choose
-between the two obvious shapes has not been taken.
+MEASUREMENT 1 -- DOES THE STAMP FIRE? YES, 6,915 TIMES corpus-wide (a `cerr` at
+the stamp, bare build, whole corpus). So this is NOT documentation and does NOT
+close as retired-unreproduced. parseClass alone stamps 424 times.
+
+MEASUREMENT 2 -- WHICH CASES? Twenty distinct cases fire. The histogram's head:
+case 1 (taG) 2240 . case 29 1635 . case 6 943 . case 407 574 . case 406 414 .
+case 7 373 . case 23 230 . case 5 196 . case 40 144 . case 8 75 . then a tail.
+
+⚠⚠ CASES 2 (parenT) AND 3 (registrY) FIRE **ZERO** TIMES. Every one of the
+twenty firing cases is a MINTING case -- a property read that creates a fresh
+product wrapper, which is precisely what the stamp was written for. The two
+cases that make the stamp a DEFECT are unreached.
+
+⚠ AND THAT IS NOT A CLEARANCE -- IT IS A COUPLING, WHICH IS THE MORE USEFUL
+READING. Case 2 cannot fire because the parent road is broken, and that broken
+road is its own citizen: `parentUnreachable`. So this row's exposure is GATED BY
+THAT ONE. Discharge parentUnreachable and case 2 starts firing -- and only then
+does the stamp land on a REAL node instead of a minted wrapper. The zero is
+explained by a known adjacent defect, not by safety.
+
+**THE TWO CITIZENS MUST THEREFORE BE READ TOGETHER, and this one must not be
+retired on its zero.**
+
+NEXT: BEST GUESS -- explicitly NOT a recommendation
+
+CANDIDATE, and it is this file's own step-3 second option, now SUPPORTED by the
+measurement rather than merely preferred for being duller: set a local at each
+MINTING case and stamp only on that.
+
+WHAT PROMOTES IT: every one of the twenty firing cases is a minting case, so
+gating on "this case minted" is PROVABLY EQUIVALENT to today's behaviour on the
+current corpus -- a zero-risk edit today that becomes load-bearing the moment
+parentUnreachable is discharged. That is the rare shape where the cheap fix and
+the correct fix are the same edit, and it should be taken BEFORE the parent road
+is repaired, not after.
+
+WHAT WOULD KILL IT: a case that mints in some paths and returns a real node in
+others would need the local set per-path rather than per-case; the histogram
+cannot see that, because it counts firings and not provenance. One read of the
+twenty case bodies settles it and is not yet done.
+
+⚠ WHAT IS NOT RECOMMENDED, and the measurement is why: the `product != target`
+gate this file already warned about. It was wrong on its own terms then and the
+histogram does not rescue it -- a minted wrapper and a real node are both
+!= target, so it cannot separate the twenty safe cases from the two unsafe ones.
 
 WHAT WOULD GENERATE ONE -- in order, cheapest first:
 
