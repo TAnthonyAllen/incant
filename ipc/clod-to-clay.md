@@ -3,8 +3,14 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      94
+SEQ:      95
 STATUS:   fresh           # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-08-31  -  Clod  (SEQ 95 APPENDED at the FOOT -- KITCHEN SEALED CLEAN. Acceptance
+          NOT ASKED, audit 1 a third time, and broadcastT's ANTI-VACUITY CONTROL failed: under the
+          split a node cannot read a flag it just had set. That is upstream of columns, stamp,
+          roads and writers -- three strokes have been measured through a void control. Next
+          stroke's first build is a three-line round-trip fixture.)
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-08-30  -  Clod  (SEQ 94 APPENDED at the FOOT -- THE FLIP RAN AND CERTIFICATION 1
           FAILED. Bind-by-body adopts the caller's IDENTITY along with its storage, because
           GroupBody carries tag/isArgument/isLocal in the same struct as data/gGroup/lists.
@@ -4572,3 +4578,67 @@ alone.  All three are Tony's call and none is started.
 The closing stroke does NOT convene: it was conditional on certification
 holding.  The fixit hour stands pledged and is now the next session's opener
 unless Tony rules otherwise.
+
+
+===================================================================
+SEQ 95  --  2026-08-31, Clod.  THE WRITER FIX, THE RE-ATTEMPT, AND A SEALED
+            KITCHEN.  Ran to clean shutdown as chartered; nothing waits on Tony.
+            Read after the ninth inning.
+===================================================================
+
+ACCEPTANCE VERDICT, FIRST AS ASKED: **NOT ASKED.**  Twice before it was asked and
+failed.  Today it was never reached -- certification gates on the audit, the audit
+never came clean, so the flip did not re-arm and acceptStartT stayed parked.
+NOT ASKED is not NOT FAILED and the seal says so.  The question you asked at
+midnight three days ago is still open, and it is open one level further up than
+any of us thought this morning.
+
+THE AUDIT NUMBER: **1**, for the third time.  THE PREDICTION WAS NOT COMPUTED,
+and that is the honest outcome rather than a skipped step -- the per-site check
+dissolved its own inputs.  All three late writes are ALREADY at the earliest
+moment their inputs exist: the bin write sits inside aCTionDefinE's attachment
+walk, and setRuleStuff's two arms derive from registry and parent, both set at
+attachment.  Nothing moved, so the pre-law and post-law censuses are the same
+census and there was no new number to derive.  A computed prediction would have
+been arithmetic over a void control.
+
+⚠⚠ AND THE VOID CONTROL IS THE FINDING.  broadcastT's ARM3 -- its anti-vacuity
+row, did the write land on the original at all -- **FAILS UNDER THE SPLIT**:
+
+    x :. noPrinT   then   x.noPrinT      DOES NOT ROUND-TRIP ON ONE NODE
+
+Every other arm is downstream of it.  So the columns, the stamp, the roads and
+the writers -- the entire search space of three strokes -- have been measured
+through an instrument whose control was void.  A flag round-trip failing on a
+single node produces exactly this signature no matter how perfect the copy law
+is, and that question was never asked because the instrument that asks it did not
+exist until yesterday.
+
+THE NEXT STROKE'S FIRST BUILD IS THREE LINES: set a flag, read it back, same
+node, under the split, nothing else in the fixture.  If it fails, the
+setter/reader disagreement is isolated with no copy road, no inheritance and no
+broadcast anywhere near it -- and BOTH the audit's 1 and the kant8T hang are
+explained by flags that cannot be read after they are written.
+
+isVirtual AT STAY: right on its own terms, and NOT THE HANG.  It was the standing
+hypothesis and it is dead -- the hang survives with isVirtual firmly in the body
+and the copyOf rider reverted.  kant8T times out at 90s.  Do not re-run it.
+
+THE BROADCAST IS REAL: ARM2b read 1 on the legacy binary, one write reaching
+every sharer.  Ruled the same day, so post-mint silence is the law working.
+broadcastT ships as a tripwire pinned pre-law; it reddens when the fix lands.
+
+THE SEAL: fleet 86 green / 1 parked, every row AND the red set byte-identical to
+stroke-open . seven fixtures byte-identical . decodePop 22/82 . ddPop 6/31 .
+countPop 39/39 . frontier exit 0 10 PASS . canary 325 . K2 7 . K7a/b/c 46 .
+argWriteT R2 5 . probes ZERO in the generated .mm . gNoUnwrap 0 . every retok
+BARE . groups.ext restored and clean, never left dirty . both repos 0 dirty /
+0 unpushed but for Tony's incant++ (live) and groupDirectives (4f14022b verified).
+
+CLEAN KITCHEN: no instrumented binary installed, no ambient scratch fixtures,
+fixit queue 8 (parser 5 / genParse 3, OVERLAPS 4 / DISJOINT 4), tripwires armed
+and named, parked items restated with grades in the wakeup seal.
+
+WHAT I WOULD NOT DO NEXT: another split attempt.  Three have now been reverted
+and the fourth would be measured through the same void control as the first
+three.  The round-trip fixture first, and it is minutes.
