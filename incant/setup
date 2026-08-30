@@ -133,6 +133,11 @@ define
     AND     operateMethod=opAND;
     modedOP operateMethod=setFileOp;
     negate  unary ruleMethod=opUnaryMinus;
+    /*  `deref` -- the unary * that replaces auto-unwrapping. Named, not
+        symbol-spelled, for exactly the reason `negate` is: handleUnary
+        re-points a prefix `*` here so the BINARY `*` slot (opMultiply, three
+        consumers) is never touched. Same two-slot separation, same reason.  */
+    deref   unary ruleMethod=opDeref;
     '?';
     '>>';
     '>='    operateMethod=opGE  interpretMethod=runGE  jitEmitter=jitEmitGE;
@@ -142,7 +147,18 @@ define
     '=['    operateMethod=opGet;
     '=]'    operateMethod=opEnd;
     '=/'    assign operateMethod=opGetMember;
-    '=*'    unary ruleMethod=opPointer;
+    /*  ⚠ `'=*'` RETIRED 2026-08-30, ruled by Tony, and this is its obituary.
+        It was the manual way to set isPointer -- the flag that exempts a field
+        from runOP's auto-unwrap. It could never be USED, because the unwrap it
+        exempts from runs BEFORE the operator that sets it: the mechanism
+        intercepted its own repair. That is what prompted the unary-* ruling.
+        Measured 2026-08-30 across 178 fixtures and 29,634 runOP entries:
+        isPointer suppressed an unwrap ZERO times, against 5,447 unwraps fired
+        and 2,815 isIterator suppressions -- so the `!isPointer` clause in all
+        four unwrap lines is a never-true condition with no live customers.
+        `deref` above is its successor. `opPointer` the extern SURVIVES: it is
+        still reached as the `setPointer` definition-time command (line 91,
+        used by bcPushField), which is a different spelling with a real user.  */
     '=%'    operateMethod=opGetAttribute;
     '='     operateMethod=opAssign;
 
@@ -233,7 +249,7 @@ define
         '@';
         '!';
         '**';
-        '=*';
+        '*';
         '.';
     ;
 /*******************************************************************************

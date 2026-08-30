@@ -285,6 +285,7 @@ extern "C" GroupItem *opCerr(GroupItem *target, Buffer *buffer);
 extern "C" GroupItem *opCopyList(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opCout(GroupItem *target, Buffer *buffer);
 extern "C" GroupItem *opDebug(GroupItem *result);
+extern "C" GroupItem *opDeref(GroupItem *result);
 extern "C" GroupItem *opDiv(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opDivEQ(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opDot(GroupItem *argument, GroupItem *target);

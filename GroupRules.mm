@@ -1623,6 +1623,8 @@ handleUnary:
 		// their method straight from their own Operators entry.
 		if ( ::compare(UnaryOPS->groupBody->tag,"-") == 0 )
 			UnaryOPS = ruler->opFields->get("negate");
+		if ( ::compare(UnaryOPS->groupBody->tag,"*") == 0 )
+			UnaryOPS = ruler->opFields->get("deref");
 		op = new GroupItem("uxp");
 		op->addAttribute(UnaryOPS);
 		op->addAttribute(ANYtoken);
@@ -8962,6 +8964,35 @@ GroupItem 	*field = 0;
 }
 
 /***************************************************************************
+	opDeref -- the prefix unary * . Hands back the GROUP a field contains,
+	explicitly, where runOP used to do it silently for everything.
+
+	Routed here from handleUnary via the named "deref" op, keeping the binary
+	* slot (opMultiply, which carries all three of operateMethod,
+	interpretMethod and jitEmitter) completely isolated -- the same two-slot
+	separation prefix - has from opMinus, and for the same reason.
+
+	IT REFUSES RATHER THAN SUBSTITUTES. A * on a field holding no group is a
+	user error under the new algebra, and handing the field back would make
+	*field and field indistinguishable at exactly the sites the migration is
+	trying to tell apart. Null is the honest answer and it is loud.
+
+	NO JIT EMITTER YET, ruled: interpreter-only is fine for the facility, so
+	the jitting arm degrades by name rather than folding a value at emit time.
+***************************************************************************/
+extern "C" GroupItem *opDeref(GroupItem *result)
+{
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		 ::jitDegrade("unary * under jit -- no emitter yet",result); 
+		}
+	if ( isGROUP(result->groupBody->flags.data) )
+		return result->getGroup();
+	::fprintf(stderr,"ERROR unary * on %s -- it holds no group\n",result->groupBody->tag);
+	return 0;
+}
+
+/***************************************************************************
 	Rule action for the / divide operator
 ***************************************************************************/
 extern "C" GroupItem *opDiv(GroupItem *argument, GroupItem *target)
@@ -10905,7 +10936,10 @@ RuleStuff 	*ruleStuff = pMethod->rStuff;
 			else	::reportNoBody(field);
 			}
 		if ( result )
-			return result;
+			{
+			ruleStuff->label = result;
+			return parseSetLabel(field);
+			}
 		}
 	if ( ruleStuff->label )
 		ruleStuff->label->clear();
@@ -11144,8 +11178,16 @@ RuleStuff 	*ruleStuff = field->rStuff;
 		ruler->atRuleMark = ruleStuff->hereAt;
 	if ( ruleStuff->label )
 		{
-		if ( ruleStuff->label && ruleStuff->parentLabel )
-			ruleStuff->parentLabel->addAttribute(ruleStuff->label);
+		if ( ruleStuff->parentLabel )
+			if ( isGROUP(ruleStuff->label->groupBody->flags.data) && ruleStuff->max > 1 )
+				{
+				ruleStuff->parentLabel->addAttribute(ruleStuff->label->getGroup());
+				ruleStuff->label->clear();
+				}
+			else {
+				ruleStuff->parentLabel->addAttribute(ruleStuff->label);
+				ruleStuff->label = new GroupItem(field->groupBody->tag);
+				}
 		return ruleStuff->label;
 		}
 	return ruler->trueResult;
@@ -13346,21 +13388,7 @@ int 		offset = markOffset->getCount();
 }
 
 /*******************************************************************************
-	Set parseMethod. For now does not handle macros
-
-    THE ACTOR IS GATED ON THE EXECUTOR, ruled by Tony 2026-08-29. An isGROUP
-    alias takes actionMethod above the switch and then the isGROUP case sets
-    parseMethod to null, so before this gate it came away with an actor and no
-    executor. That half installed executor broke every later parse of any
-    grammar the alias could be reached from, and there are three of them:
-    ANYtoken, NewGroup and ShortcuT. The three arm suppression probe that
-    attributes it, and the arm by arm table, are in designDocs ProblemRecords
-    isGroupActorPoison.
-
-    THE PARKED POINTER STAYS. Arm two measured the persisted actionMethod
-    harmless, so it is still written for every rule setParse claims. It is
-    wanted the day an alias gains a real executor, and gating the write rather
-    than the attachment would throw that away for nothing.
+	Set parseMethod and label for the field passed in. For now does not handle macros
 *******************************************************************************/
 extern "C" GroupItem *setParse(GroupItem *field)
 {
@@ -13372,11 +13400,13 @@ RuleStuff 	*ruleStuff = field->rStuff;
 		::fprintf(stderr,"setParse: ERROR field passed in %s has no rStuff\n",field->groupBody->tag);
 		return 0;
 		}
-	else
 	if ( !ruleStuff->parseMethod )
 		{
+		/***********************************************************************
+		Set the parseMethod
+		***********************************************************************/
 		ruleStuff->actionMethod = field->groupBody->gMethod;
-		::parkOnMaster(field);
+		//parkOnMaster(field);
 		if ( upTo(ruleStuff->overTo) || upToOver(ruleStuff->overTo) )
 			ruleStuff->parseMethod = ::parseUpTo;
 		else
@@ -13414,22 +13444,22 @@ RuleStuff 	*ruleStuff = field->rStuff;
 		if ( field->groupBody->gMethod )
 			ruleStuff->parseMethod = ::parseAction;
 		else	ruleStuff->parseMethod = ::parseString;
+		if ( ruleStuff->parseMethod )
+			{
+			GroupItem 	*builtinParsE = field->addString("builtinParsE");
+			builtinParsE->setRStuff(ruleStuff);
+			builtinParsE->groupBody->flags.noPrint = 1;
+			builtinParsE->setMethod(ruleStuff->parseMethod);
+			}
+		if ( ruleStuff->actionMethod && ruleStuff->parseMethod )
+			{
+			GroupItem 	*builtinActoR = field->addString("builtinActoR");
+			builtinActoR->setRStuff(ruleStuff);
+			builtinActoR->groupBody->flags.noPrint = 1;
+			builtinActoR->setMethod(ruleStuff->actionMethod);
+			}
+		field->updateContentFlags();
 		}
-	if ( ruleStuff->parseMethod )
-		{
-		GroupItem 	*builtinParsE = field->addString("builtinParsE");
-		builtinParsE->setRStuff(ruleStuff);
-		builtinParsE->groupBody->flags.noPrint = 1;
-		builtinParsE->setMethod(ruleStuff->parseMethod);
-		}
-	if ( ruleStuff->actionMethod && ruleStuff->parseMethod )
-		{
-		GroupItem 	*builtinActoR = field->addString("builtinActoR");
-		builtinActoR->setRStuff(ruleStuff);
-		builtinActoR->groupBody->flags.noPrint = 1;
-		builtinActoR->setMethod(ruleStuff->actionMethod);
-		}
-	field->updateContentFlags();
 	return 0;
 }
 

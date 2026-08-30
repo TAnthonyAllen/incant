@@ -1,0 +1,46 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(DerefSubj);
+define
+    dtLeaf = 5;
+    dtHolder;
+    dtProbe code={
+        dtHolder := dtLeaf;
+        dtBare = dtHolder;
+        dtStar = *dtHolder;
+        cerr "R1 bare holder   " dtBare:;
+        cerr "R2 deref holder  " dtStar:;
+        cerr "R3 bare leaf     " dtLeaf:;
+        };
+    ;
+dtProbe();
+cerr "DEREF SENTINEL -- reached the foot":;
+stop();
+
+derefT -- the unary * facility, minted 2026-08-30.
+
+R1 reads a field that HOLDS a group.  R2 asks for that group explicitly with *.
+R3 is the anti-vacuity sibling -- a plain field carrying a real value, so a run
+that prints nothing useful cannot be mistaken for a pass.
+
+PRE-REGISTERED BEFORE THE FIRST RUN.  Under auto-unwrap R1 and R2 are expected
+to AGREE, because runOP unwraps the operand before opDeref is ever reached:
+
+    runOP:  if isGROUP && !isPointer && !isIterator && !op.isAssign  target = group;
+
+handleUnary builds uxp[1]=op uxp[2]=operand, so the operand IS runOP's target.
+AGREEMENT HERE IS THE DEFECT, NOT THE PASS.  It is the '=*' story arriving at
+its successor: the mechanism intercepting the operator that exists to replace
+it.  The facility is proven the day the flip lands and R1 and R2 DIVERGE.
+
+NEXT: RULED
+
+The fix SHAPE is ruled -- runOP stops unwrapping, behind the four-line switch.
+The build is GATED on the recon completing against the finished rulings table.
+Nothing in this block is applicable yet.  When the flip lands, this fixture
+re-pins R1 != R2 and promotes into the fleet as the regression test.

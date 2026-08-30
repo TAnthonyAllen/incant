@@ -138,7 +138,10 @@ RuleStuff   ruleStuff = pMethod.rStuff;
                 result = result.gMethod(result);
                 if result   result.isBranch = 0; }
         else        reportNoBody(field); }
-        if result   return result; }
+        if result {
+            label   = result;
+            return parseSetLabel(field); }
+        }
     if label    label.clear();
     atRuleMark = hereAt;
     return 0;
@@ -178,7 +181,13 @@ GroupRules  ruler = groupRules;
 RuleStuff   ruleStuff = field.rStuff;
     if noAdvance    atRuleMark = hereAt;
     if label {
-        if label && parentLabel parentLabel +% label;
+        if parentLabel
+            if label.isGROUP && max > 1 {
+                parentLabel     +% label.group;
+                label.clear(); }
+            else {
+                parentLabel +% label;
+                label   = new(tag); }
         return label; }
     return trueResult;
 }
@@ -405,21 +414,7 @@ RuleStuff   defStuff = definer.rStuff;
 }
 
 /*******************************************************************************
-	Set parseMethod. For now does not handle macros
-
-    THE ACTOR IS GATED ON THE EXECUTOR, ruled by Tony 2026-08-29. An isGROUP
-    alias takes actionMethod above the switch and then the isGROUP case sets
-    parseMethod to null, so before this gate it came away with an actor and no
-    executor. That half installed executor broke every later parse of any
-    grammar the alias could be reached from, and there are three of them:
-    ANYtoken, NewGroup and ShortcuT. The three arm suppression probe that
-    attributes it, and the arm by arm table, are in designDocs ProblemRecords
-    isGroupActorPoison.
-
-    THE PARKED POINTER STAYS. Arm two measured the persisted actionMethod
-    harmless, so it is still written for every rule setParse claims. It is
-    wanted the day an alias gains a real executor, and gating the write rather
-    than the attachment would throw that away for nothing.
+	Set parseMethod and label for the field passed in. For now does not handle macros
 *******************************************************************************/
 extern GroupItem setParse(GroupItem field)
 {
@@ -428,9 +423,12 @@ RuleStuff   ruleStuff = rStuff;
     if !ruleStuff {
         cerr "setParse: ERROR field passed in",tag,"has no rStuff":;
         return null; }
-    or !parseMethod {
+    if !parseMethod {
+        /***********************************************************************
+            Set the parseMethod
+        ***********************************************************************/
         actionMethod = method;
-        parkOnMaster(field);
+        //parkOnMaster(field);
         if upTo || upToOver     parseMethod = parseUpTo;
         or isBIN || isREGISTRY  parseMethod = parseContainer;
         or isCondition          parseMethod = parseCondition;
@@ -443,17 +441,17 @@ RuleStuff   ruleStuff = rStuff;
             case isGROUP:   parseMethod = null;
             default:        parseMethod = parseString; }
         or method               parseMethod = parseAction;
-        else                    parseMethod = parseString; }
-    if parseMethod {
-        GroupItem builtinParsE = field += "builtinParsE";
-        rStuff  = ruleStuff;
-        noPrint = true;
-        method  = parseMethod; }
-    if actionMethod && parseMethod {
-        GroupItem builtinActoR = field += "builtinActoR";
-        rStuff  = ruleStuff;
-        noPrint  = true;
-        method = actionMethod; }
-    field.updateContentFlags();
+        else                    parseMethod = parseString;
+        if parseMethod {
+            GroupItem builtinParsE = field += "builtinParsE";
+            rStuff  = ruleStuff;
+            noPrint = true;
+            method  = parseMethod; }
+        if actionMethod && parseMethod {
+            GroupItem builtinActoR = field += "builtinActoR";
+            rStuff  = ruleStuff;
+            noPrint  = true;
+            method = actionMethod; }
+        field.updateContentFlags(); }
     return null;
 }

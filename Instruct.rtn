@@ -1235,6 +1235,34 @@ extern GroupItem opString(GroupItem target,Buffer buffer)
 
 
 /***************************************************************************
+	opDeref -- the prefix unary * . Hands back the GROUP a field contains,
+	explicitly, where runOP used to do it silently for everything.
+
+	Routed here from handleUnary via the named "deref" op, keeping the binary
+	* slot (opMultiply, which carries all three of operateMethod,
+	interpretMethod and jitEmitter) completely isolated -- the same two-slot
+	separation prefix - has from opMinus, and for the same reason.
+
+	IT REFUSES RATHER THAN SUBSTITUTES. A * on a field holding no group is a
+	user error under the new algebra, and handing the field back would make
+	*field and field indistinguishable at exactly the sites the migration is
+	trying to tell apart. Null is the honest answer and it is loud.
+
+	NO JIT EMITTER YET, ruled: interpreter-only is fine for the facility, so
+	the jitting arm degrades by name rather than folding a value at emit time.
+***************************************************************************/
+extern GroupItem opDeref(GroupItem result)
+{
+    if jitting {
+        -% ::jitDegrade("unary * under jit -- no emitter yet",result); %-
+    }
+    if result.isGROUP   return result.group;
+    cerr "ERROR unary * on",result.tag,"-- it holds no group":;
+    return null;
+}
+
+
+/***************************************************************************
 	Rule action for the prefix unary minus (negate). Value-producing like
 	opMinus, NOT in-place like opMinusMinus: 0 - operand into tempField; the
 	operand is left untouched. Routed here from handleUnary via the named
