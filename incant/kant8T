@@ -263,6 +263,14 @@ define
         return k6seenB;
         };
 
+    /*  K7's subjects (2026-08-30). k7Self is the specimen: a field carrying a
+        VALUE and a CODE BLOCK that accumulates into its own name and returns
+        it. k7NoSelf and k7Plain are its discriminating siblings.  */
+    k7Self=3    code={ k7Self += 43; return k7Self; };
+    k7Other=3;
+    k7NoSelf    code={ k7Other += 43; return k7Other; };
+    k7Plain=3   code={ return 46; };
+
     /*  ===================== K6f (2026-08-07) =========================
         THE RESTART'S ARITHMETIC, IN THE MUTUAL SHAPE. K6e isolates the
         property; this row asks whether the property actually ACCOUNTS for
@@ -473,6 +481,33 @@ print "K6d second walk counted =" kOut " (want 3; 1 = the re-iterate did NOT re-
 print "== K6e: EXHAUSTED-CURSOR RESTART, ISOLATED -- no recursion at all ==":;
 kOut = k6Rst(k6big);
 print "K6e second walk counted =" kOut " (1 = cursor RESTARTS; 0 = exhaustion terminal)":;
+
+/*  ⚠ K7 IS A REGRESSION ROW, NOT AN INVESTIGATION -- promoted 2026-08-30 from
+    the goldenDrift specimen, because the fleet WOULD NOT HAVE CAUGHT IT. The
+    frame bracket wrote its save-stack into the action node's DATA slot. For an
+    ordinary action that slot is empty and the write is free; for a field that
+    carries BOTH DATA AND A CODE BLOCK it held the VALUE, and the bracket
+    destroyed it -- data type 5 (number) becoming 12 (isSTAK), measured.
+
+    ⚠ EVERY OTHER ROW IN THIS FILE WAS GREEN THROUGHOUT, which is why this row
+    exists and why it lives HERE rather than anywhere else. No K-row uses a
+    data-carrying action, so the KANT-8 family's blast radius never covered the
+    one shape incant/unitTests documents as incant's distinguishing feature:
+    data and behaviour on one field. The defect rode 20 days inside the family
+    that was supposed to be watching, and surfaced through a golden nobody diffs.
+
+    THREE ARMS, because a lone specimen cannot say WHICH thing broke:
+      K7a  body references its OWN name      -- the specimen; 46
+      K7b  body references ANOTHER field     -- 46, or the whole += path is out
+      K7c  body references no field at all   -- 46, ANTI-VACUITY: if this moves,
+           actions are broken generally and K7a says nothing about this class.  */
+print "== K7: A FIELD THAT IS BOTH DATA AND BEHAVIOUR, self-mentioning ==":;
+kOut = k7Self();
+print "K7a own name returned =" kOut " (want 46; a NAME here = the bracket ate the value)":;
+kOut = k7NoSelf();
+print "K7b other field returned =" kOut " (want 46; if this moves, += itself is out)":;
+kOut = k7Plain();
+print "K7c no field at all returned =" kOut " (want 46; ANTI-VACUITY, else K7a is void)":;
 
 print "== K6f: THE RESTART ARITHMETIC IN THE MUTUAL SHAPE, 4 vs 5 vs 2 ==":;
 k6depth4 = 1;

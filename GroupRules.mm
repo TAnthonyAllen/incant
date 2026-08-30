@@ -3693,6 +3693,15 @@ extern "C" char *foldOf(GroupItem *rule)
 	return "SEQ";
 }
 
+/*****************************************************************************
+	frameFind -- read-only twin. Returns null when no frame child exists, so
+	restore can tell "never saved" from "saved nothing" without minting one.
+*****************************************************************************/
+extern "C" GroupItem *frameFind(GroupItem *action)
+{
+	return action->get("frameSTAK");
+}
+
 /*******************************************************************************
     frameProbe -- LOOK 1 of the handover brief. TEMPORARY, parseTrace gated.
 
@@ -3721,6 +3730,48 @@ extern "C" GroupItem *frameProbe(GroupItem *field, GroupItem *rule)
 	(void*)GroupControl::groupController->groupRules->ruleSTUFF);
 	
 	return field;
+}
+
+/*****************************************************************************
+	frameStak -- THE FRAME BRACKET'S SAVE-STACK LIVES ON A noPrint CHILD OF THE
+	ACTION, NEVER IN THE ACTION'S OWN DATA SLOT.
+
+	THE DEFECT THIS REPAIRS, measured 2026-08-30. saveLocalFields opened with
+	`action.stak = recurseSTAK`, which writes the action node's DATA slot. For
+	an ordinary action that slot is empty and the write is free. For a field
+	that carries BOTH DATA AND A CODE BLOCK -- `lefty=3 code={ lefty += 43; }`,
+	the shape incant/unitTests documents as incant's distinguishing feature --
+	that slot holds the VALUE, and the bracket destroyed it. Measured directly:
+
+	    SLFENTRY action=spSelf data=5  text=3        <- the field holds 3
+	    SLFAFTER action=spSelf data=12 text=spSelf   <- data 12 = isSTAK, value gone
+
+	It read as CLAIM KANT-8's own symptom -- a field answering with its own tag
+	-- which is why it hid: the KANT-8 family is green on every row while this
+	is broken, because no K-row uses a data-carrying action.
+
+	ONE CHANNEL, ONE MEANING. The node's data slot was carrying the FIELD'S
+	VALUE and the FRAME'S SAVE-STACK. The cure is the standing one: a second
+	channel, not a cleverer test.
+
+	⚠ IT IS A REPAIR, NOT A SEMANTICS CHANGE, and rung B stands whole. The law
+	is that the bracket touches exactly MINTED SCRATCH; a defined field's value
+	was never its business. The recursive gates stay SHUT -- they are set at
+	parse time BY IDENTITY so mutual recursion never sets them, and cleared at
+	run time so behaviour follows invocation history. Both diseases documented.
+
+	SEPARATE FUNCTION on purpose: a declaration introduced into a declared-field
+	tok function re-binds every bare member name in scope, INCLUDING LINES ABOVE
+	IT. A call introduces no declaration. Same shape as parkOnMaster/frameParent.
+*****************************************************************************/
+extern "C" GroupItem *frameStak(GroupItem *action)
+{
+GroupItem 	*frame = action->get("frameSTAK");
+	if ( frame )
+		return frame;
+	frame = action->addString("frameSTAK");
+	frame->groupBody->flags.noPrint = 1;
+	return frame;
 }
 
 /*******************************************************************************
@@ -12521,9 +12572,21 @@ GroupItem 	*grup = 0;
 *****************************************************************************/
 extern "C" void restoreLocalFields(GroupItem *action)
 {
-Stak 		*recurseSTAK = action->getStak();
+Stak 		*recurseSTAK = 0;
 GroupBody 	*body = 0;
+GroupItem 	*frame = 0;
 GroupItem 	*grup = 0;
+	frame = ::frameFind(action);
+	if ( frame )
+		recurseSTAK = frame->getStak();
+	/*  THE NULL ARM IS REAL, not defensive. restore is reached on paths where
+	save never ran -- the jit bracket among them -- and before this repair
+	`action.stak` answered on any node, so the question could not arise.
+	With the stack on a child, "no frame child" is a state, and it means
+	exactly what a zero-length stack means: nothing was saved.  */
+	if ( !recurseSTAK )
+		action->groupBody->flags.recursive = 0;
+	else
 	if ( !recurseSTAK->length )
 		action->groupBody->flags.recursive = 0;
 	else
@@ -13251,13 +13314,15 @@ extern "C" void saveLocalFields(GroupItem *action)
 {
 Stak 		*recurseSTAK = 0;
 GroupBody 	*body = 0;
+GroupItem 	*frame = 0;
 GroupItem 	*grup = 0;
-	if ( !isSTAK(action->groupBody->flags.data) )
+	frame = ::frameStak(action);
+	if ( !isSTAK(frame->groupBody->flags.data) )
 		{
 		recurseSTAK = new Stak();
-		action->setStak(recurseSTAK);
+		frame->setStak(recurseSTAK);
 		}
-	else	recurseSTAK = action->getStak();
+	else	recurseSTAK = frame->getStak();
 	while ( grup = action->next(grup) )
 		if ( (grup->groupBody->flags.isArgument || grup->groupBody->flags.isLocal) && !grup->groupBody->flags.noPrint )
 			{

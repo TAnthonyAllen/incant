@@ -141,6 +141,33 @@ difference.
      three ways).  STILL OWED for clusters 2 and 4, and cluster 3 needs the
      four unbuildable commits of 2026-08-02 reconstructed by retok before a
      bisect can pass through them.  BEHAVIOUR.
+
+  ⚠⚠ CLUSTER 1 IS REMEDY AS OF 2026-08-30, AND THE FIX WAS NOT WHERE THIS FILE
+     SAID IT WAS.  BEHAVIOUR.  Site: GroupActions.rtn, saveLocalFields /
+     restoreLocalFields, via the new frameStak/frameFind pair.
+
+     THE DIAGNOSIS ABOVE NAMED THE BLANKING WALK.  IT WAS WRONG, and the probe
+     that corrected it is worth more than the fix: saveLocalFields NEVER FIRES
+     for a self-mentioning field at all.  What broke the value was its FIRST
+     LINE -- `action.stak = recurseSTAK` -- which writes the action node's DATA
+     SLOT.  Measured directly:
+
+         SLFENTRY action=spSelf data=5  text=3        <- the field holds 3
+         SLFAFTER action=spSelf data=12 text=spSelf   <- 12 = isSTAK, value gone
+
+     ONE CHANNEL, ONE MEANING: the node's data slot carried the FIELD'S VALUE
+     and the FRAME'S SAVE-STACK.  The cure is the standing one -- a second
+     channel.  The stack now lives on a noPrint CHILD, `frameSTAK`.
+
+     TAKEN vs NOT TAKEN, on the mechanism rows this file prints:
+         taken      A 46   B 46   C 46
+         not taken  A <a NAME plus a toString complaint>   B 46   C 46
+     Only arm A moves, which is what says the repair is scoped to the class and
+     did not reach for anything else.
+
+     RUNG B STANDS WHOLE and the recursive gates STAY SHUT.  This narrows the
+     bracket's scope to what it was always for; it does not restore the gate,
+     whose two diseases (parse-time identity, run-time clearing) are unchanged.
   2  RE-PIN ONLY WITH THE SENTENCE.  A target that moved is a claim that the
      world changed and the claim needs a cause -- one named per cluster, or the
      cluster is not re-pinned.  BEHAVIOUR.

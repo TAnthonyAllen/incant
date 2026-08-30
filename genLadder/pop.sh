@@ -210,6 +210,41 @@ else
     echo "  FAIL  baselineTests TRUNCATED -- exited 0 without reaching its last line"; fail=1
 fi
 
+#  ============================================================================
+#  ⚠ K7 -- THE FRAME BRACKET vs A FIELD THAT IS BOTH DATA AND BEHAVIOUR.
+#  Added 2026-08-30, and the reason it is HERE rather than only in kant8T is the
+#  promotion convention: would the fleet have caught it? It did not, for 20 days.
+#
+#  The frame bracket wrote its save-stack into the ACTION NODE'S DATA SLOT. For
+#  an ordinary action that slot is empty and the write is free; for a field
+#  carrying a VALUE and a CODE BLOCK it held the value, and the bracket
+#  destroyed it -- data type 5 becoming 12 (isSTAK), measured. kant8T was in NO
+#  pop script, so its whole K-family rode outside the fleet; and every K row was
+#  GREEN throughout anyway, because no other row uses a data-carrying action.
+#
+#  ⚠ ASSERTED BY VALUE, NEVER BY ABSENCE OF THE ERROR (rule H4). The failure
+#  prints a NAME plus a toString complaint, so "grep -v the complaint" would go
+#  green the day the complaint text changes. Each arm's 46 is compared instead.
+#  THREE ARMS BECAUSE ONE CANNOT DISCRIMINATE: K7b falling means `+=` itself is
+#  out, K7c falling means actions are broken generally -- and in either case
+#  K7a says nothing about THIS class. H7 negative control, run at promotion:
+#  with the repair reverted, K7a goes red while K7b, K7c, K1 and K5 stay green.
+run1 kant8T "$T/k8"; check "kant8T runs" 0 $?
+if grep -q "kant8T SENTINEL" "$T/k8"; then
+    echo "  ok    kant8T sentinel (no truncation)"; green=$((green+1))
+else
+    echo "  FAIL  kant8T sentinel MISSING -- the run truncated; every K row above is uninterpretable"; fail=1
+fi
+for _arm in "K7a own name returned = 46" \
+            "K7b other field returned = 46" \
+            "K7c no field at all returned = 46"; do
+    if grep -qF "$_arm" "$T/k8"; then
+        echo "  ok    ${_arm%% returned*} = 46 (frame bracket leaves a data+code field's value alone)"; green=$((green+1))
+    else
+        echo "  FAIL  $_arm -- got: $(grep -o "${_arm%% returned*}[^(]*" "$T/k8" | head -1)"; fail=1
+    fi
+done
+
 extract () { sed -n "/^extern [A-Za-z]* $1(/,/^}/p;/^extern [A-Za-z]* $2(/,/^}/p" "$T/gen"; }
 
 extract parseScaf   parseScaf2 > "$T/r12"; diffcheck "rung12.target" genLadder/rung12.target "$T/r12"
