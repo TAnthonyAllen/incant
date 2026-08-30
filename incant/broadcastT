@@ -1,0 +1,73 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(Broadcast);
+define
+    bcHa;  bcHb;  bcHc;  bcHd;
+    bcEarly;  bcLate;
+    bcOne;  bcTwo;  bcThree;
+    bcV1=9;  bcV2=9;  bcV3=9;  bcV4=9;
+    bcRun code={
+        bcEarly :. noPrinT;
+        bcHa +% bcEarly;
+        bcOne <- bcHa["bcEarly"];
+        bcV1 = bcOne.noPrinT;
+        cerr "ARM1 copy-time   flag set BEFORE the copy -- copy reads" bcV1 "(want 1, inherited)":;
+
+        bcHb +% bcLate;
+        bcTwo <- bcHb["bcLate"];
+        bcV2 = bcTwo.noPrinT;
+        cerr "ARM2a control    copy taken while clear -- copy reads" bcV2 "(want 0, else void)":;
+
+        bcLate :. noPrinT;
+        bcThree <- bcHb["bcLate"];
+        bcV3 = bcThree.noPrinT;
+        cerr "ARM2b BROADCAST  flag set AFTER, on the ORIGINAL -- copy reads" bcV3 "(1 = BROADCAST)":;
+
+        bcV4 = bcLate.noPrinT;
+        cerr "ARM3 anti-vacuity  the ORIGINAL reads" bcV4 "(MUST be 1 or 2b is void)":;
+        };
+    ;
+bcRun();
+cerr "BROADCAST SENTINEL -- reached the foot":;
+stop();
+
+VERDICT, FIRST RUN 2026-08-31: BROADCAST CONFIRMED.
+
+    ARM1  copy-time  flag set BEFORE the copy   copy reads 1    inherited
+    ARM2a control    copy taken while clear     copy reads 0    not void
+    ARM2b BROADCAST  flag set AFTER, on the ORIGINAL  copy reads 1
+    ARM3  anti-vacuity  the ORIGINAL reads 1
+
+A late write to a shared body reaches every node sharing it. ONE WRITE, MANY
+NODES. inheritIdentity copies the INHERIT column at MINT TIME, which is the only
+moment a copy road can act, so no stamp at any road can reproduce arm 2b -- the
+write happens after every road has already run. That is a different defect from
+a missed road or a wrong column, and it is what the audit's 10 -> 1 was pointing
+at all along.
+
+⚠ PRE-REGISTRATION AMENDED BY RULING, SAME DAY, AND IT INVERTS HOW ARM 2b READS
+UNDER THE SPLIT. Identity is set AT DEFINITION; post-definition writes are
+user-beware and earn a debug squawk at the stamp. So POST-MINT SILENCE IS THE
+LAW WORKING, not a regression: when the split lands, ARM2b reading 0 is CORRECT
+and this row inverts by design.
+
+THIS FIXTURE IS THEREFORE A TRIPWIRE, pinned to TODAY's pre-law answer. It goes
+RED exactly when the propagation-writer fix lands -- which is precisely when
+somebody should be looking at it -- and it re-pins to 0 with the ruling cited.
+Same shape as a deliberate divergence pin: a red row that means the fix arrived.
+
+⚠ AND THE AUDIT NUMBER IS NO LONGER THE BASELINE'S TO DICTATE. 10 -> 4 was
+derived from the pre-law world, where six masters lose a broadcast and four other
+mechanisms keep it. Under the ruled law the correct split-world number is
+whatever definition-time identity produces, and this oracle is what names it --
+not the old baseline.
+
+NEXT: RULED
+
+The mechanism is confirmed and the shape is set: columns unchanged, isVirtual
+re-homed to STAY (a mechanism flag, not identity -- which reverts the copyOf
+subject-swap rider written for it), and the late writes moved earlier so identity
+is known at definition. Nothing here is applicable until those writes move.
