@@ -138,3 +138,77 @@ groupBody-share class only, so `incant/fixits/literalMasterIsRule`'s audit shoul
 **10 → 4**, not 10 → 0 — the other six are bin-propagation (3), a direct registry write (1).
 **Any other number is a finding**, either about a missed reader or about that citizen's
 three-mechanism split being wrong.
+
+---
+
+# ⚠⚠ THE SPLIT WAS ATTEMPTED, 2026-08-30, AND CERTIFICATION FAILED — WITH A CAUSE
+
+**Reverted; fleet byte-identical to its pre-split baseline (86 green), all POPs green,
+frontier exit 0/10 PASS, canary 325, both repos clean.** Per the ruling, the stroke closes
+as measurement.
+
+## What was run
+
+| tranche | fields | build | certification |
+|---|---|---|---|
+| **A — `isLabel` alone** | 1 | clean | ✅ **BYTE-IDENTICAL** — fleet and six fixtures, stdout and stderr |
+| **B — 34 identity flags** | 34 | clean after 24 site repoints | ❌ **86 green → 3.** frontier **exit 139**. Every fixture moved |
+
+**Tranche A proved the pipeline exactly as the census predicted.** tok re-pointed every
+generated site to `->options.isLabel` with no source edit; bear-trap #16's removal check
+passed (`isLabel` gone from `GroupBody.h`, present on `GroupItem.h`); the sub-level files
+`tokall` misses carried none. **The mechanism is not in doubt.**
+
+## The cause, and it is not a missed reader
+
+**`copyOf` copies the BODY** — `*groupBody = *grup->groupBody`. So **every identity flag
+resident in `GroupBody` is inherited by a copy**, and that inheritance is not incidental:
+the grammar depends on it. Move the flag to `options` on the node and a copy stops
+inheriting it.
+
+The number that names it: `literalMasterIsRule`'s audit went **10 → 0**, not the 10 → 4
+this document predicted — and **not because the split fixed six masters.** `isRule` stopped
+propagating *everywhere*, so nothing read as a rule at all, and the grammar collapsed with
+it. `frontier` at 139 is the same fact from the other end.
+
+⚠ **THE PREDICTION REGISTERED IN THE FIXIT HOUR IS FALSIFIED, and in the more informative
+direction.** It assumed the split would remove one propagation *mechanism* among three.
+What it actually removes is the propagation *substrate* that all rule-shaped nodes stand
+on. `literalMasterIsRule`'s option B carried the warning — *"BLAST RADIUS UNMEASURED AND
+LARGE: isRule is read across the tree and this changes what it means for every copied
+node"* — and the radius is now measured. **It is not large. It is total.**
+
+## What this means for the ruled law
+
+**The law is right as a DESCRIPTION and insufficient as a MIGRATION PREDICATE.**
+*Identity describes the holder* correctly classifies `isRule`. It does not tell you that
+`isRule`'s residency in the shared body is **load-bearing** — that copies are *supposed* to
+inherit rule-ness, and that the body is currently the channel doing it.
+
+**So the move list needs a third column**, and `isLabel` versus `isRule` is the measured
+contrast that defines it:
+
+| | identity? | does `copyOf` propagation carry weight? | movable alone |
+|---|---|---|---|
+| `isLabel` | yes | **no** | ✅ measured byte-identical |
+| `isRule` | yes | **yes — the grammar stands on it** | ❌ collapses the parse |
+
+**A field is movable when it is identity AND its copy-inheritance is not load-bearing.**
+Everything else needs its inheritance re-provided explicitly before it can move — which is
+a design question per flag, not a sweep.
+
+## Recommended next shape — and it is a re-price, not a retreat
+
+1. **Bank `isLabel`.** It is measured byte-identical and it is the bridgehead.
+2. **Census the 34 by copy-inheritance**, not by identity alone: for each, does anything
+   depend on a copy inheriting it? `copyOf`'s callers are the population.
+3. **Move the free ones in a batch**, certifying byte-identical after each batch.
+4. **The load-bearing ones — `isRule` at least — need their inheritance re-provided** (an
+   explicit propagation at the copy site) *before* the move, and that is Tony's design call.
+5. `gMethod` stays held out, unchanged.
+
+⚠ **AND THE FLIP IS STILL BLOCKED ON THE SAME TWO FIELDS IT WAS BLOCKED ON.** The
+acceptance failure was `tag` and `isArgument` travelling with the adopted body. Neither is
+in tranche A, and neither has been shown free of load-bearing copy-inheritance. **The
+flip's unblocking is exactly step 2 applied to those two fields**, and it is now the
+cheapest next measurement in the campaign.
