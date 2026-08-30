@@ -1,0 +1,106 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(AliasTwin);
+define
+    avtC = 5;
+    avtD;
+    avtB  x=1;
+    avtA;
+    avtProbe code={
+        avtD    = avtC;
+        avtC    = 6;
+        cerr "R0 scalar control            " avtD " (want 5 -- = is honest copy on a leaf)":;
+
+        avtA    = avtB;
+        avtB.x  = 2;
+        t1      = avtA.x;
+        cerr "R1 read A.x after B.x = 2    " t1 " (2 = ALIAS, 1 = TWIN)":;
+
+        avtA.x  = 3;
+        t2      = avtB.x;
+        cerr "R2 read B.x after A.x = 3    " t2 " (3 = ALIAS, 2 = TWIN)":;
+
+        cerr "R3 identity -- the two carriers":;
+        showBody(avtA);
+        showBody(avtB);
+        cerr "R3 identity -- their x members":;
+        showBody(avtA["x"]);
+        showBody(avtB["x"]);
+        };
+    ;
+avtProbe();
+cerr "ALIASTWIN SENTINEL -- reached the foot":;
+stop();
+
+aliasTwinT -- does `A = B` on a group-carrying field ALIAS or TWIN.
+Minted 2026-08-30. The last paper row before the no-unwrap recon.
+
+WHAT EACH ROW IS FOR
+
+R0 is the PROBE CERTIFICATION and it must run first. Every row below reads its
+verdict through `=`, which is the operator under test, so without R0 the fixture
+measures its subject with a copy of its subject. R0 mutates the source after the
+copy: 5 means `=` is an honest copy on a scalar leaf, 6 would mean it aliased and
+every row below it is uninterpretable rather than wrong.
+
+R0 PRINTS avtD DIRECTLY, and that is deliberate. It is the one read in this file
+that does NOT land in a named intermediate first, because a named intermediate
+would be minted with the very operator R0 exists to certify -- the split would
+put the subject inside the probe. Every row after R0 uses intermediates, which
+is house style, and is legitimate precisely because R0 has banked the primitive.
+
+R3 is the IDENTITY row and it is why the verdict is not simply "alias". R1 and R2
+measure BEHAVIOUR, and behaviour cannot separate "one node, two holders" from "two
+nodes over one storage". showBody is the only way to ask, per mintT's doctrine that
+incant accessors are snapshot-by-value and two probes returning the same text prove
+text equality and never node identity. It prints directly rather than through a
+named intermediate because a pointer dump carries no verdict for an intermediate to
+hold -- the house rule binds reads that FEED a verdict, and this one is the evidence
+itself.
+
+R1 and R2 are the question, in both directions. R2 is not decoration: a one-
+directional result cannot tell a true alias from a share that only propagates
+one way, and the two rows must agree on their verdict or neither is trustworthy.
+
+⚠ WHY THE GROUP-SIDE READS STAY SINGLE-DOT AND ARE NOT SPLIT FURTHER.
+THIS COMMENT IS LOAD-BEARING -- DO NOT HELPFULLY TIDY THE LINES IT DESCRIBES.
+`avtB.x` is ONE hop, and that hop IS the probe: it is today's implicit
+read-through doing the reaching, which is the regime being measured. Splitting
+it into `hold = avtB;` first would inject a second `=` binding OF A GROUP
+CARRIER -- a copy of the operation under test, sitting inside its own
+measurement. So the file's own no-long-expressions rule stops at exactly one
+hop here, for cause, and the cause is contamination rather than brevity.
+
+THE ANSWER, read 2026-08-30, and it is NEITHER of the two names the row was
+written to choose between:
+
+    R0  5   -- instrument certified: it CAN see a twin when one exists
+    R1  2   -- behaves as ALIAS
+    R2  3   -- behaves as ALIAS in the mirror direction too, so = is not
+               direction-asymmetric, which was its own candidate finding
+    R3      -- carriers   avtA node/groupBody BOTH differ from avtB
+               x members  DIFFERENT nodes, ONE SHARED groupBody
+
+So `A = B` on a group carrier is a TWIN AT THE NODE LAYER AND AN ALIAS AT THE
+BODY LAYER, and the body layer is the one every read and every write actually
+touches. The member node is freshly minted; its groupBody -- where the data and
+the list pointers live -- is not copied. That is the same condition mintT records
+for the copy constructor ("it SHARES the body"), arriving here through = instead.
+
+⚠ WHY THAT MATTERS MORE THAN EITHER SIMPLE ANSWER WOULD HAVE. "Alias" would have
+said change the binding; "twin" would have said nothing is owed. The measured
+answer names a LAYER instead: the carriers are properly distinct, so A and B are
+genuinely separate holders, and every surprise lives one level down in the shared
+body. A ruling written against "alias" would have aimed at the wrong structure.
+
+NEXT: RULED
+
+The alias-vs-twin row of the no-unwrap table is CLOSED by the measurement above.
+The keep-or-change ruling on = is Tony's and is not made here. Nothing in this
+block is applicable yet; the recon may now run once against a finished table
+rather than producing "depends" entries in the rows where the bugs live.
