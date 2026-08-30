@@ -10,6 +10,7 @@ define
     avtC = 5;
     avtD;
     avtB  x=1;
+    avtG  y=7;
     avtA;
     avtProbe code={
         avtD    = avtC;
@@ -31,6 +32,13 @@ define
         cerr "R3 identity -- their x members":;
         showBody(avtA["x"]);
         showBody(avtB["x"]);
+
+        avtA    = avtB;
+        avtB    := avtG;
+        t3      = avtA.y;
+        cerr "R4 read A.y after B := G     " t3 " (7 = REBIND PROPAGATED, t3 = it did not)":;
+        t4      = avtB.y;
+        cerr "R4c control -- read B.y      " t4 " (MUST be 7, or R4 is VOID not negative)":;
         };
     ;
 avtProbe();
@@ -85,6 +93,8 @@ written to choose between:
                direction-asymmetric, which was its own candidate finding
     R3      -- carriers   avtA node/groupBody BOTH differ from avtB
                x members  DIFFERENT nodes, ONE SHARED groupBody
+    R4  t3  -- `:=` through the original holder does NOT propagate
+    R4c 7   -- and the rebind DID fire, so R4 is a negative and not a void
 
 So `A = B` on a group carrier is a TWIN AT THE NODE LAYER AND AN ALIAS AT THE
 BODY LAYER, and the body layer is the one every read and every write actually
@@ -97,6 +107,43 @@ said change the binding; "twin" would have said nothing is owed. The measured
 answer names a LAYER instead: the carriers are properly distinct, so A and B are
 genuinely separate holders, and every surprise lives one level down in the shared
 body. A ruling written against "alias" would have aimed at the wrong structure.
+
+R4 IS THE EXTENSION ROW AND IT IS GENUINELY OPEN -- no outcome is pre-registered
+here, deliberately. It asks what `:=` does to a carrier that `=` has already
+handed to somebody else. R1-R3 established that `A = B` gives A a fresh node over
+B's groupBody; R4 rebinds through the ORIGINAL holder and asks whether the new
+holder sees it.
+
+    reaches y (7)  the rebind wrote the SHARED BODY, so A re-pointed too
+    reads "t3"     the rebind wrote B's OWN node, and A still holds the old group
+
+⚠ READING THE SECOND OUTCOME. `t3` printing as the literal word "t3" IS the
+nothing-answer, not a broken probe: opDot returns null, the local comes away with
+no data, and a field with no data answers with its own tag. That is bear-trap #26
+being useful for once, and it is why this row needs no separate null check.
+
+⚠ R4c IS NOT OPTIONAL AND IT IS WHY R4 IS ADMISSIBLE. A "did not propagate"
+reading is indistinguishable from a rebind that never happened -- both leave A
+without a y, and the nothing-answer looks identical. R4c reads y through the
+holder that WAS rebound: 7 means the rebind fired and A genuinely did not follow;
+anything else means R4 is VOID rather than negative, and says nothing at all.
+Pair every nothing-expecting row with the sibling that must be non-empty.
+
+EITHER ANSWER IS BANKED INTO THE SHARED-BODY DOCTRINE ROW as a stated consequence.
+If it propagates, the row carries the warning label: A CARRIER RECEIVED BY `=` IS
+A WINDOW, NOT A PHOTOGRAPH.
+
+⚠ IT READ THE OTHER WAY, 2026-08-30, AND THE ROW TAKES NO WARNING LABEL. R4 = t3
+with R4c = 7: the rebind fired through avtB and avtA did not follow. So the two
+channels are CLEANLY SEPARATED, and that is the sentence the doctrine row carries
+instead:
+
+    `=`  shares the BODY      -- mutations through either holder are mutual
+    `:=` re-points the HOLDER -- and reaches nobody else
+
+A carrier received by `=` is a window onto the STORAGE and a photograph of the
+BINDING. Which is the result that lets `:=` stand as the sole rebind channel
+without a caveat: it cannot reach a holder it was never handed to.
 
 NEXT: RULED
 
