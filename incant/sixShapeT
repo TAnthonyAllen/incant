@@ -1,0 +1,123 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(SixShape);
+define
+    ssA=0; ssB=0; ssC=0; ssD=0; ssE=0; ssF=0;
+    ssW1 argument code={
+        iterate s1 on argument members;
+        while ++s1;
+            if noPrinT;             continue;
+            if binTypE;             continue;
+            if !isRulE;             continue;
+            if actionTypE != 0;     continue;
+            if listLengtH;      ssA = ssA + 1;
+        };
+    ssW2 argument code={
+        iterate s2 on argument members;
+        while ++s2;
+            if noPrinT;             continue;
+            if binTypE;             continue;
+            if !isRulE;             continue;
+            if actionTypE != 0;     continue;
+            if !listLengtH;     continue;
+            ssB = ssB + 1;
+        };
+    ssW3 argument code={
+        iterate s3 on argument members;
+        while ++s3;
+            if noPrinT;             continue;
+            if binTypE;             continue;
+            if !isRulE;             continue;
+            if actionTypE != 0;     continue;
+            if listLengtH == 0; continue;
+            ssC = ssC + 1;
+        };
+    ssW4 argument code={
+        iterate s4 on argument members;
+        while ++s4;
+            if noPrinT;             continue;
+            if binTypE;             continue;
+            if !isRulE;             continue;
+            if actionTypE != 0;     continue;
+            if s4.listLengtH == 0;  continue;
+            ssD = ssD + 1;
+        };
+    ssW5 argument code={
+        iterate s5 on argument members;
+        while ++s5;
+            if noPrinT;             continue;
+            if binTypE;             continue;
+            if !isRulE;             continue;
+            if actionTypE != 0;     continue;
+            s5Len = listLengtH;
+            if s5Len == 0;      continue;
+            ssE = ssE + 1;
+        };
+    ssW6 argument code={
+        iterate s6 on argument members;
+        while ++s6;
+            if noPrinT;             continue;
+            if binTypE;             continue;
+            if !isRulE;             continue;
+            if actionTypE != 0;     continue;
+            s6Len = listLengtH;
+            if !s6Len;          continue;
+            ssF = ssF + 1;
+        };
+    ssRun code={
+        fixSixShapeHere = 0;
+        ssW1(Grokking); ssW2(Grokking); ssW3(Grokking);
+        ssW4(Grokking); ssW5(Grokking); ssW6(Grokking);
+        cerr "S1 if listLengtH;                    =" ssA "(bare POSITIVE -- the correct arm)":;
+        cerr "S2 if !listLengtH; continue;         =" ssB:;
+        cerr "S3 if listLengtH == 0; continue;     =" ssC:;
+        cerr "S4 if s4.listLengtH == 0; continue;  =" ssD:;
+        cerr "S5 capture then == 0                 =" ssE:;
+        cerr "S6 capture then !                    =" ssF:;
+        };
+    ;
+ssRun();
+cerr "SIXSHAPE SENTINEL -- reached the foot":;
+stop();
+
+incant/sixShapeT -- BEAR-TRAP #35's SIX SHAPES, MADE RUNNABLE.
+
+Built 2026-09-02 as a STEP 0 CAPTURE for the flip (SEQ 101). Bear-trap #35's
+six-way table was measured on 2026-08-28 and written into genLadder/
+countPopulation's PROSE; it had no runnable form, so the flip's motion list --
+"the three 64s read 39, all six shapes agree" -- had nothing to read.
+
+THE TRAP: a property read INSIDE a compound condition under-filters a walk at
+exit 0. Bare-and-positive is correct; negated, compared-to-zero, or dotted in
+the condition is wrong; captured-to-a-local-first is correct either way.
+
+⚠ AND `!` IS NOT THE CULPRIT, which is the half a careful reader gets wrong.
+`== 0` fails identically, and once the value is in a local BOTH `!` and `== 0`
+are fine. The broken thing is reading the property IN THE CONDITION.
+
+⚠ THE FOUR FILTERS ARE countPopulation's, COPIED EXACTLY -- not noPrint, not a
+bin, is a rule, actionType 0 -- so this fixture's numbers are directly
+comparable to bear-trap #35's table and to the flip's motion list. Without them
+the same walk reads 41/65 instead of 39/64: the SPLIT is identical and only the
+population differs, which is worth knowing if anyone re-derives it.
+
+PRE-FLIP READING, taken 2026-09-02 before the flip: S1 39, S2 63, S3 63, S4 63,
+S5 39, S6 39.
+
+⚠ THE WRONG ARMS READ 63, NOT THE LEDGER'S 64, AND THE -1 IS ACCOUNTED FOR:
+`tokenize` retired earlier the same day, which took the rule population down by
+exactly one -- the same -1 the genParse odometer took (64 -> 63) in that stroke.
+The THREE CORRECT ARMS still read 39 because tokenize was never in the filtered
+population they count. A difference that reconciles is not drift.
+
+POST-FLIP EXPECTATION, pre-registered in SEQ 101: ALL SIX READ 39.
+
+⚠ A WALK THAT RETURNS TOO MANY MEMBERS LOOKS EXACTLY LIKE A WALK THAT IS
+WORKING, which is why this is worse than an under-walk: 64 is not obviously
+wrong, only bigger.
+
+NEXT: OPEN -- this is a gauge, not a citizen. It has no fix to recommend; it
+exists so the flip's central claim can be read rather than argued.

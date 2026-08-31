@@ -9118,9 +9118,24 @@ char 	*printText = buffer->string();
 }
 
 /***************************************************************************
-	Rule action for the $$ debug marker. Spelled ** until 2026-09-01, when
-    Tony freed that token so ** can compose as a double unwrap without being
+	Rule action for the $$ debug marker. Spelled ** until 2026-09-01, when Tony
+    freed that token so ** could become the fixpoint unwrap without being
     claimed by this marker first.
+
+    ⚠ THE UNWRAP STRIP IS RULED AND STAGED, NOT LANDED. It was ruled to RIDE
+    WITH the gNoUnwrap flip on 2026-09-02; the flip reverted on the acceptance
+    failure, so the strip reverted with it rather than shipping half a stroke.
+    It re-rides with the next flip attempt, unchanged. The argument for it, from
+    the marker's side, stands: a
+    breakpoint marker that quietly unwrapped its subject was auto-unwrap wearing
+    a debugger's hat, so it retires in the stroke that retires auto-unwrap. The
+    marker's whole job is to be a NAMED PLACE TO STOP, and a place to stop must
+    not change what you are stopping to look at.
+
+    ⚠ IF YOU WANTED THE OLD BEHAVIOUR, SPELL IT: `$$*x` -- marker, then an
+    explicit deref. That is the migration's entire thesis in one line, applied
+    to itself: the unwrap does not vanish, it becomes VISIBLE at the site that
+    wanted it.
 ***************************************************************************/
 extern "C" GroupItem *opDebug(GroupItem *result)
 {

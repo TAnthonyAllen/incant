@@ -17,8 +17,13 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      100
+SEQ:      101
 STATUS:   verdict        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 101, dictated via Tony; transcribed by Clod, WT-9)
+          ⚠ SEQ 101 IS LIVE AND IS AT THE FOOT -- THE FLIP, THE THIRD ASKING, ON
+          CLEAN GAUGES FOR THE FIRST TIME. One commit, one revert floor. The
+          failure branch is PRE-COMMITTED so it is not improvised at midnight.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-01  -  Clay (SEQ 100, dictated via Tony; transcribed by Clod, WT-9)
           ⚠ SEQ 100 IS LIVE AND IS AT THE FOOT -- F-35 FIRST, then the
           isRule-gated rStuff complaint, then A TABLE, NOT A REPAIR.
@@ -4437,4 +4442,55 @@ STATUS on read: working. STATUS on C3 table banked: verdict.
 Tony's window: grep -H '^STATUS:' ipc/*.md
 
   END SEQ 100
+
+
+===================================================================
+SEQ 101  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod, WT-9).
+             THE FLIP -- THE THIRD ASKING, ON CLEAN GAUGES FOR THE FIRST TIME.
+===================================================================
+
+STATUS: working -- picked up 2026-09-02.
+
+STEP 0 -- CAPTURES BEFORE ANYTHING. Fleet, both baselines, derefAllT, the #35
+six-shape fixture, all banked PRE-FLIP. ONE COMMIT for the flip itself so the
+revert floor is one command. NOTHING ELSE RIDES IN THE STROKE -- except the one
+item ruled to ride: opDebug's unwrap strip, `$$` goes inert, comment repointed
+to `$$*`.
+
+STEP 1 -- FLIP gNoUnwrap. Build, then the cheapest reads first.
+
+STEP 2 -- THE PRE-REGISTERED MOTION LIST. Exactly these move, in the direction
+stated. ANYTHING ELSE MOVING IS A FINDING, AND ANYTHING ON THIS LIST NOT MOVING
+IS A FINDING TOO.
+
+  #35 six-shape        the three 64s read 39. All six shapes agree.
+  derefT               un-parks, re-pins to R1 != R2.
+  derefAllT R4         *daWrap flips from error-naming-the-leaf to LEAF.
+  acceptStartT         un-parks.
+  the deref nest       BUILDABLE -- the := collapse gone. The composition law
+                       gets its first real verdict.
+  iterator fixture     STAYS GREEN (the 23df1b0 lesson, "runOP must not unwrap a
+                       handle") -- it was the flip's first customer, hand-carved.
+  broadcastT           STAYS AT PIN. The flip is not the propagation-writer fix;
+                       if it moves, that is a mechanism nobody predicted.
+
+STEP 3 -- THE ASKING. `parser(Start)` receives Start. That sentence is the
+campaign's acceptance criterion, unchanged since it was ruled.
+
+STEP 4 -- THE FAILURE BRANCH, PRE-COMMITTED SO IT IS NOT IMPROVISED AT MIDNIGHT.
+If Start arrives as a carrier a third time: DO NOT REVERT FIRST. The first two
+askings failed on DIRTY GAUGES and taught nothing; this is the first that can
+fail INFORMATIVELY. Capture the carrier ON CAMERA -- its address, its body
+address, what ONE unwrap of it yields, and the SITE that handed it over -- then
+revert if the fleet needs the floor. The carrier's source becomes the campaign's
+LAST FIXIT CITIZEN, minted with evidence instead of hypotheses. Two candidates
+already on file if it comes to that: argument binding at the call boundary, and
+the `<-`/copy family -- BUT CANDIDATES ARE NOT FINDINGS, AND THE CAPTURE DECIDES.
+
+STEP 5 -- IF IT IS GREEN: re-pin everything on the motion list, seal the
+campaign, and the sweep list finally un-parks -- switch obituary, dead-flag
+census, isPointer retirement, parseSelfRecursion retest. NONE OF IT IN THE
+FLIP'S STROKE.
+
+  END SEQ 101
 

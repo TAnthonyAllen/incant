@@ -1,0 +1,140 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(CarrierNode);
+define
+    caSubject=41;
+    caTake argument code={
+        fixCarrierNodeHere = 0;
+        print "   the argument, as the callee sees it:":;
+        showBody(argument);
+        print "   ONE UNWRAP of it:":;
+        showBody(*argument);
+        print "   value bare      =" argument:;
+        print "   value unwrapped =" *argument:;
+        return argument; };
+    caRun code={
+        print "== THE CARRIER, ON CAMERA ==":;
+        print "   the caller's field:":;
+        showBody(caSubject);
+        caTake(caSubject);
+        };
+    ;
+caRun();
+print "CARRIERNODE SENTINEL -- reached the foot":;
+stop();
+
+THE BIND WORKS. THE CALLEE READS A DIFFERENT NODE.
+
+WHAT YOU JUST RAN. Under the LEGACY layout this prints two bodies that differ,
+which is expected and is not the finding. The finding was taken under the FLIP
+(gNoUnwrap = 1) on 2026-09-02, the acceptance line's THIRD asking, and it is the
+first of the three that failed INFORMATIVELY.
+
+THE ACCEPTANCE CRITERION, unchanged since it was ruled:
+
+    parser(Start) receives Start.
+
+incant/acceptStartT states it by pointer: LEGACY means the argument is a CARRIER
+whose groupBody differs from the caller's; FLIPPED means the argument IS the
+caller's storage, groupBody identical. Under the flip it read:
+
+    BODY  asSubject  node=0x102fbb340  groupBody=0x102fbacd0
+    BODY  argument   node=0x102fbf440  groupBody=0x102fba960
+
+Different. A carrier, for the third time.
+
+THE CAMERA, AND IT IS THE WHOLE VALUE OF THIS ASKING
+
+A probe at the bind site (GroupActions.rtn, the `ruleArg->groupBody =
+result->groupBody` line) filmed the bind itself:
+
+    CARRIERCAM bind  field=caTake  ruleArg=0x100651780 ruleArgBody=0x100652960
+                     result=caSubject resultNode=0x100657f00 resultBody=0x100652cd0
+                     gNoUnwrap=1
+    CARRIERCAM after ruleArgBody=0x100652cd0   (want == resultBody)
+    BODY  argument   node=0x100657540  groupBody=0x100652960
+
+⚠⚠ READ THOSE FOUR LINES IN ORDER, BECAUSE THEY EXONERATE THE OBVIOUS SUSPECT.
+THE BIND WORKED. ruleArg's body went 0x100652960 -> 0x100652cd0, which is
+exactly resultBody. The flip's other half does precisely what it was designed to
+do, on the node it was handed.
+
+THE CALLEE THEN READS A DIFFERENT NODE. The bind wrote node 0x100651780. The
+callee's `argument` is node 0x100657540 -- and it carries 0x100652960, which is
+ruleArg's body BEFORE the bind. So the read node is a copy or a sibling minted
+from ruleArg ahead of the assignment, and the write never reaches it.
+
+AND ONE UNWRAP OF THE CARRIER YIELDS NOTHING:
+
+    ERROR unary * on argument -- it holds no group
+    value bare      = argument      (bear-trap 26: no data, so the tag comes back)
+    value unwrapped = 0
+
+So it is not even a wrapper POINTING at the subject. Under legacy the else-arm
+sets `ruleArg->setGroup(result)` and the node carries a group; under the flip
+that arm is skipped and the body adoption lands elsewhere, so the read node ends
+up with NEITHER. That is why the carrier is empty rather than merely indirect.
+
+⚠ THIS IS roundTripT ROW 3, ONE ROAD OVER, AND THAT IS THE HEADLINE
+
+The same mechanism has now been measured in three places on three different
+days, and it is one mechanism, not three bugs:
+
+    roundTripT   `x :. noPrinT` then `x.noPrinT` -- write and read land on
+                 DIFFERENT NODES over one body
+    broadcastT   an addGroup twin and its original -- two nodes, one body
+    here         the bind writes node A, the callee reads node B
+
+⚠ NEITHER OF THE TWO PRE-REGISTERED CANDIDATES SURVIVES AS STATED. The brief
+named argument binding at the call boundary, and the `<-`/copy family. The
+binding is EXONERATED ON CAMERA -- it is correct. The question that replaces
+both is narrower and answerable: WHICH ROAD MINTS THE NODE THE CALLEE READS,
+AND WHEN, RELATIVE TO THE BIND?
+
+TWO OTHER MOTIONS FAILED TO MOVE, AND THEY POINT THE SAME WAY
+
+  #35 six-shape  the three wrong arms stayed at 63; all six were pre-registered
+                 to read 39. So a property read inside a compound condition
+                 STILL under-filters under the flip.
+  derefT         R1 and R2 both read 5, where R1 != R2 was pre-registered. Bare
+                 `holder` still answers with the leaf, so the read path is still
+                 unwrapping somewhere the flip did not reach.
+
+Both say the same thing the camera says: THE FLIP REACHED THE BIND AND DID NOT
+REACH THE READS.
+
+WHAT DID MOVE, so the flip is not written off as inert:
+
+  derefAllT R4   `*daWrap` went from an error naming the leaf to LEAF. The
+                 explicit deref is correct under the flip.
+  broadcastT     ARM1 and ARM2b fell from 1 to false -- PRE-REGISTERED TO STAY
+                 AT PIN, so this is a finding in its own right. A copy stopped
+                 inheriting and stopped receiving the broadcast. ARM3, the
+                 anti-vacuity control, still reads 1, so the arms are not void.
+
+THE FLOOR WAS TAKEN AFTER THE CAPTURE, NOT BEFORE. gNoUnwrap is back to 0, the
+camera is out, and every pre-flip capture is byte-identical: the fleet row for
+row, oneTest, jsonTest, derefAllT, sixShapeT and broadcastT. The opDebug unwrap
+strip, which was ruled to RIDE with the flip, reverted with it -- no half-stroke
+shipped.
+
+NEXT: OPEN
+
+The question is named and it is not either candidate: WHICH ROAD MINTS THE NODE
+THE CALLEE READS AS `argument`, AND DOES IT RUN BEFORE OR AFTER THE BIND?
+
+WHAT WOULD GENERATE THE ANSWER, cheapest first:
+  1. Print the node pointer at every site that touches `field->get("argument")`
+     or mints an argument slot, in one run, and order them against CARRIERCAM's
+     two lines. The answer is a sequence, not a hypothesis.
+  2. If the mint is AFTER the bind, the bind has to move or the mint has to
+     adopt; if BEFORE, the mint is copying a node the bind is about to change,
+     which is the write-then-copy shape roundTripT already named.
+  3. The generalisation is worth pricing either way: THREE MEASUREMENTS ON THREE
+     DAYS SAY A NAMED READ DOES NOT REACH A WRITTEN NODE. A fix aimed only at
+     the argument road leaves the other two standing.
