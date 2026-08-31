@@ -188,6 +188,26 @@ establish that the remaining number means what the gate assumes.**
 `genParse.rtn`'s `unresolvedTerms` header independently records the old getter being *caught in the
 act* corrupting a term census.
 
+⚠⚠ **A STRONG CANDIDATE MECHANISM, FOUND AFTER THE ROW WAS WRITTEN AND GRADED AS A CANDIDATE, NOT A
+CONCLUSION: WHETHER A `.rStuff` READ WENT THROUGH THE CONSTRUCTING GETTER WAS FILE-DEPENDENT.**
+
+Adding `getRStuff` to `groups.ext`'s external `GroupItem` mirror on 2026-08-31 **changed codegen in
+`RuleStuff.mm` at 26 lines** — `term->rStuff` became `term->getRStuff()`. So before that commit,
+those sites read the **raw field** and were **immune** to the construction, while `GroupRules.mm`'s
+sites went through the accessor and were not. Bear-trap #11 exactly: `groups.ext` affects codegen,
+is out of repo, and can never appear in a Groups `git status`.
+
+**A residual immune population still exists — 21 hand-written passthrough sites that bypass the
+accessor entirely** (`GroupRules.mm` 19, `GroupItem.mm` 1, `RuleStuff.mm` 1, counted 2026-08-31
+after a full sweep). **So "does this read construct?" had at least three different answers depending
+on which file the line lived in and what the out-of-repo mirror said that week.**
+
+⚠ **This is a candidate for the discrepancy and is NOT established as its cause.** It would explain
+two audit paths disagreeing, and it is one grep from being checked — find which rendering
+`auditRStuff` and `auditMissingRules` each compiled to on the incumbent binary. **Check it before
+building on it**: the ledger for reasoning on top of an unmeasured premise in this codebase is
+four rulings dead in one day.
+
 **Done when:** one process runs both audits on both boards with the population printed per registry,
 and the discrepancy is either explained or one of the two audits is retired. ⚠ **Pair it with a
 control that must NOT move** — a board with no non-rules, where "loose" is 0 either way — so a fix

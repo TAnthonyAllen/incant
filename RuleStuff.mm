@@ -19,7 +19,7 @@ extern "C" int containerTo(GroupItem *term, GroupItem *into, char *slot)
 GroupItem 	*grup = 0;
 GroupItem 	*fresh = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*ruleStuff = term->rStuff;
+RuleStuff 	*ruleStuff = term->getRStuff();
 PLGset 		*inSet = term->getCharacterSet();
 char 		*atInput = ruler->atRuleMark;
 int 		advance = 0;
@@ -410,7 +410,7 @@ RuleStuff 	*bridge = new RuleStuff(rule);
 *******************************************************************************/
 extern "C" GroupItem *parseJSONarray(GroupItem *rule)
 {
-GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*into = rule->getRStuff()->parentLabel;
 GroupItem 	*label = new GroupItem("JSONarray");
 GroupItem 	*t1 = rule->get(1);
 GroupItem 	*t2 = rule->get(2);
@@ -419,7 +419,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*freshStuff = 0;
 char 		*from = ruler->atRuleMark;
 int 		ok = 0;
-	if ( !label->rStuff )
+	if ( !label->getRStuff() )
 		{
 		freshStuff = new RuleStuff(rule);
 		label->setRStuff(freshStuff);
@@ -427,7 +427,7 @@ int 		ok = 0;
 	ok = ::lit(t1,"[") && (::parseR(t2,label) || 1) && ::lit(t3,"]");
 	if ( ok )
 		{
-		ruler->ruleSTUFF = label->rStuff;
+		ruler->ruleSTUFF = label->getRStuff();
 		label = rule->groupBody->gMethod(label);
 		}
 	return ::leaveRule(rule,into,label,from,ok && label);
@@ -438,7 +438,7 @@ int 		ok = 0;
 *******************************************************************************/
 extern "C" GroupItem *parseJSONblock(GroupItem *rule)
 {
-GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*into = rule->getRStuff()->parentLabel;
 GroupItem 	*label = new GroupItem("JSONblock");
 GroupItem 	*t1 = rule->get(1);
 GroupItem 	*t2 = rule->get(2);
@@ -470,7 +470,7 @@ int 		ok = 0;
 *******************************************************************************/
 extern "C" GroupItem *parseJSONfield(GroupItem *rule)
 {
-GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*into = rule->getRStuff()->parentLabel;
 GroupItem 	*label = new GroupItem("JSONfield");
 GroupItem 	*t1 = rule->get(1);
 GroupItem 	*t2 = rule->get(2);
@@ -482,7 +482,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*freshStuff = 0;
 char 		*from = ruler->atRuleMark;
 int 		ok = 0;
-	if ( !label->rStuff )
+	if ( !label->getRStuff() )
 		{
 		freshStuff = new RuleStuff(rule);
 		label->setRStuff(freshStuff);
@@ -503,7 +503,7 @@ int 		ok = 0;
 	ok = ok && (::lit(t4,",") || 1);
 	if ( ok )
 		{
-		ruler->ruleSTUFF = label->rStuff;
+		ruler->ruleSTUFF = label->getRStuff();
 		label = rule->groupBody->gMethod(label);
 		}
 	return ::leaveRule(rule,into,label,from,ok && label);
@@ -518,7 +518,7 @@ int 		ok = 0;
 *******************************************************************************/
 extern "C" GroupItem *parseJSONitem(GroupItem *rule)
 {
-GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*into = rule->getRStuff()->parentLabel;
 GroupItem 	*t1 = rule->get(1);
 GroupItem 	*t2 = rule->get(2);
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -534,7 +534,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 *******************************************************************************/
 extern "C" GroupItem *parseJSONlist(GroupItem *rule)
 {
-GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*into = rule->getRStuff()->parentLabel;
 GroupItem 	*label = new GroupItem("JSONlist");
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*from = ruler->atRuleMark;
@@ -546,7 +546,7 @@ char 		*from = ruler->atRuleMark;
 *******************************************************************************/
 extern "C" GroupItem *parseJSONtoken(GroupItem *rule)
 {
-GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*into = rule->getRStuff()->parentLabel;
 GroupItem 	*t1 = rule->get(1);
 GroupItem 	*t2 = rule->get(2);
 GroupItem 	*t3 = rule->get(3);
@@ -562,7 +562,7 @@ char 		*from = ruler->atRuleMark;
 *******************************************************************************/
 extern "C" GroupItem *parseJSONvalue(GroupItem *rule)
 {
-GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*into = rule->getRStuff()->parentLabel;
 GroupItem 	*t1 = rule->get(1);
 GroupItem 	*t2 = rule->get(2);
 GroupItem 	*t3 = rule->get(3);
@@ -658,7 +658,7 @@ GroupItem 	*got = 0;
 *******************************************************************************/
 extern "C" int setMacroValue(GroupItem *field)
 {
-RuleStuff 	*ruleStuff = field->rStuff;
+RuleStuff 	*ruleStuff = field->getRStuff();
 GroupItem 	*grup = 0;
 GroupItem 	*macro = field->getGroup();
 GroupItem 	*ancestor = 0;
@@ -680,13 +680,13 @@ GroupItem 	*ancestor = 0;
 *******************************************************************************/
 extern "C" int testAction(GroupItem *field)
 {
-	if ( parseACTION(field->groupBody->flags.methodType) || !field->rStuff->label )
+	if ( parseACTION(field->groupBody->flags.methodType) || !field->getRStuff()->label )
 		{
 		if ( field->groupBody->gMethod(field) )
 			return 1;
 		}
 	else
-	if ( field->rStuff->label && field->groupBody->gMethod(field->rStuff->label) )
+	if ( field->getRStuff()->label && field->groupBody->gMethod(field->getRStuff()->label) )
 		return 1;
 	return 0;
 }
@@ -699,7 +699,7 @@ extern "C" int testAny(GroupItem *field)
 int 		counter = 0;
 int 		more = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*ruleStuff = field->rStuff;
+RuleStuff 	*ruleStuff = field->getRStuff();
 	ruleStuff->isOK = 0;
 	if ( *ruler->atRuleMark )
 		{
@@ -759,7 +759,7 @@ extern "C" int testCharacter(GroupItem *field)
 int 		counter = 0;
 int 		more = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*ruleStuff = field->rStuff;
+RuleStuff 	*ruleStuff = field->getRStuff();
 	ruleStuff->isOK = 0;
 	if ( *ruler->atRuleMark )
 		{
@@ -796,7 +796,7 @@ RuleStuff 	*ruleStuff = field->rStuff;
 *******************************************************************************/
 extern "C" int testCondition(GroupItem *field)
 {
-RuleStuff 	*ruleStuff = field->rStuff;
+RuleStuff 	*ruleStuff = field->getRStuff();
 	if ( ruleStuff->min )
 		return 1;
 	return 0;
@@ -827,7 +827,7 @@ extern "C" int testContainer(GroupItem *field)
 {
 GroupItem 	*grup = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*ruleStuff = field->rStuff;
+RuleStuff 	*ruleStuff = field->getRStuff();
 PLGset 		*inSet = field->getCharacterSet();
 char 		*atInput = ruler->atRuleMark;
 int 		advance = 0;
@@ -865,7 +865,7 @@ GroupItem 	*grup = 0;
 		{
 		if ( stuff->checkGuard(grup) )
 			{
-			grup->rStuff->guardOK = 1;
+			grup->getRStuff()->guardOK = 1;
 			if ( grup->parse(stuff) )
 				return 1;
 			}
@@ -882,7 +882,7 @@ PLGset 	*set = field->getCharacterSet();
 int 		counter = 0;
 int 		more = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*ruleStuff = field->rStuff;
+RuleStuff 	*ruleStuff = field->getRStuff();
 	ruleStuff->isOK = 0;
 	if ( *ruler->atRuleMark )
 		{
@@ -920,7 +920,7 @@ RuleStuff 	*ruleStuff = field->rStuff;
 extern "C" int testString(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*ruleStuff = field->rStuff;
+RuleStuff 	*ruleStuff = field->getRStuff();
 char 		*matchedString = ruleStuff->rule->matches(ruler->atRuleMark);
 	if ( matchedString )
 		{
@@ -943,7 +943,7 @@ char 		*matchedString = ruleStuff->rule->matches(ruler->atRuleMark);
 extern "C" int testUpTo(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*ruleStuff = field->rStuff;
+RuleStuff 	*ruleStuff = field->getRStuff();
 char 		*atText = ruler->atRuleMark;
 char 		*endString = 0;
 int 		counter = 1;
@@ -1214,7 +1214,7 @@ GroupItem 	*field = rule;
 				label->groupBody->flags.isLabel = 1;
 				}
 			else	label->groupBody->flags.fLAG = 0;
-			if ( !label->rStuff || ::compare(ruleName,field->groupBody->tag) != 0 )
+			if ( !label->getRStuff() || ::compare(ruleName,field->groupBody->tag) != 0 )
 				label->setRStuff(this);
 			}
 checkFailed:
@@ -1263,8 +1263,8 @@ GroupItem 	*grup = 0;
 		{
 		if ( (rule->groupBody->flags.data && rule->groupBody->flags.data < 4) || max == 1 )
 			isTarget = 1;
-		if ( !min && rule->parent->rStuff->min && rule->parent->allAttributesOptional() )
-			rule->parent->rStuff->min = 0;
+		if ( !min && rule->parent->getRStuff()->min && rule->parent->allAttributesOptional() )
+			rule->parent->getRStuff()->min = 0;
 		}
 	if ( !testMatch )
 		setTestMatch();
