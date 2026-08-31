@@ -9155,6 +9155,27 @@ extern "C" GroupItem *opDeref(GroupItem *result)
 	return 0;
 }
 
+// unwraps to a FIXPOINT, not twice; total on a non-group   Instruct.opDerefAll
+extern "C" GroupItem *opDerefAll(GroupItem *result)
+{
+int 	depth = 0;
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		 ::jitDegrade("unary ** under jit -- no emitter yet",result); 
+		}
+	while ( isGROUP(result->groupBody->flags.data) )
+		{
+		if ( depth >= 64 )
+			{
+			::fprintf(stderr,"ERROR unary ** on %s -- 64 levels, cycle suspected\n",result->groupBody->tag);
+			return 0;
+			}
+		result = result->getGroup();
+		depth++;
+		}
+	return result;
+}
+
 /***************************************************************************
 	Rule action for the / divide operator
 ***************************************************************************/

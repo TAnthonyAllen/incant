@@ -1,0 +1,114 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(DerefAll);
+define
+    daPlain="PLAIN";
+    daLeaf="LEAF";
+    daWrap;
+    daRun code={
+        fixDerefAllHere = 0;
+        daWrap := daLeaf;
+
+        cerr "R1 depth0  **plain  =" **daPlain "(want PLAIN -- TOTAL, no error)":;
+        cerr "R2 depth0  bare     =" daPlain "(want PLAIN -- the control R1 needs)":;
+        cerr "R3 depth1  **wrap   =" **daWrap "(want LEAF -- the fixpoint)":;
+        cerr "R4 depth1  *wrap    =" *daWrap "(want 0 + an error -- MUST DIFFER from R3)":;
+        };
+    ;
+daRun();
+cerr "DEREFALL SENTINEL -- reached the foot":;
+stop();
+
+incant/derefAllT -- THE ** FIXPOINT UNWRAP.
+Built 2026-09-01, Tony's ruling: keep ** as an operator and make its method
+unwrap turtles all the way down.
+
+WHY FIXPOINT AND NOT "TWICE"
+
+"Exactly twice" was a guess at how deep the wrapping goes, and ANYtoken proves
+the depth is not the reader's to know. "Unwrap until it stops unwrapping" is
+depth-independent, which is what a reader downstream of a wrap-happy rule needs.
+
+⚠ AND ** IS THE TOLERANT READER, NOT THE FIX FOR ANYtoken. The wart is the
+producer's. ** only means no reader has to count its turtles.
+
+THE THREE VERDICTS, as ruled
+
+  V1 DEPTH 0 -- ** on a non-group returns it UNCHANGED. No error, where a
+     single * refuses. So ** is TOTAL and IDEMPOTENT -- "normalize whatever
+     this is". It follows that ** is NOT * iterated: the last step forgives
+     what * refuses. Ruled, not inherited.
+  V2 SPELLING -- one token, one meaning. `**x` is the fixpoint and differs from
+     a single `*`. ⚠ THE SPACED FORM `* *x` IS NOT TESTED HERE BECAUSE IT
+     CRASHES -- see the crash note below.
+  V3 TERMINATION -- a depth cap with a squawk, 64 levels. Identity-at-definition
+     probably forbids a group containing itself, but "probably" is not a guard,
+     and one line turns a hang into a finding.
+
+WHAT THIS FIXTURE PINS, AND IT IS NOT EVERYTHING
+
+  R1  depth 0 is TOTAL          measured PLAIN, no error       V1
+  R2  the control for R1        measured PLAIN                 anti-vacuity
+  R3  the fixpoint at depth 1   measured LEAF                  the facility
+  R4  `*x` differs from `**x`   measured 0 + error             V2
+
+⚠ R2 IS NOT DECORATION. Without it R1 reading PLAIN is consistent with an
+operator that does nothing at all to anything, which is exactly the shape rule
+H4 forbids. The pair is the assertion; R1 alone is not.
+
+⚠⚠ TWO OF CLAY'S CERTIFICATION LAWS ARE NOT PINNED HERE, AND THE REASON IS THE
+FINDING RATHER THAN AN OMISSION
+
+LAW 1, `**x == *x` on a single wrapper, WAS EXPECTED TO BE BUILDABLE AT DEPTH 1
+AND IS NOT. Measured: `*daWrap` does not return LEAF, it ERRORS -- and the error
+names daLeaf, not daWrap. So by the time unary * runs, the wrapper level has
+ALREADY been consumed by runOP's auto-unwrap, and * is being handed the leaf.
+The two sides of the law are therefore not comparable on this binary: ** reads
+LEAF and * reads 0.
+
+That is the same buildability problem Clay flagged for a depth-2 specimen,
+ONE LEVEL LOWER THAN EXPECTED -- and it is also the plainest possible argument
+FOR the fixpoint ruling, because it shows a reader cannot know what depth it is
+handed even when it wrote the wrapper itself two lines earlier.
+
+LAW 2, idempotence `**(**x) == **x`, HAS NO SPELLING THAT COMPOSES. `****x`
+returns EMPTY, on a wrapped field and an unwrapped one alike, and `***x` errors
+and returns empty. So repeated unary tokens do not compose into repeated
+application, and the empty result is a fact about tokenising, NOT about
+opDerefAll. Idempotence holds STRUCTURALLY -- the loop exits only when the
+result is not a group, so a second application cannot enter the loop -- but that
+is an argument, not a measurement, and it is labelled as one.
+
+⚠ V2's REFUSAL CLAUSE IS UNIMPLEMENTED. Clay ruled `***x` should REFUSE. It does
+not: it errors from the inner * and yields empty. Refusing by name needs
+tokeniser work that was not in scope, and pinning the current behaviour would
+freeze a wrong answer. Left unpinned and named here on purpose.
+
+⚠⚠ AND A CRASH FOUND WHILE BUILDING THIS, BANKED AS docs/fixIts.md F-36:
+`* *x` -- TWO SINGLE UNWRAPS, SPACE-SEPARATED -- TAKES THE PROCESS DOWN AT 139.
+
+    ERROR Operator * failed on Token and xl1     then exit 139, no sentinel
+
+It is NOT in this fixture, deliberately: rule H5 says a fixture must not be able
+to delete the rest of the suite, and a crashing row would take every check below
+it with no output to be suspicious of. R4 uses the single `*` instead, which
+errors cleanly, returns 0, and lets the run continue.
+
+⚠ THE FIRST PROBE THAT FOUND THE FIXPOINT ALSO DIED THIS WAY AND I READ IT AS A
+CLEAN RUN, because the error line printed and I did not check for the sentinel.
+Doctrine's own rule, walked into by the person applying it: absent sentinel means
+the run truncated, and every "ok" above it is uninterpretable.
+
+⚠ SO CLAY'S V2 IS NOT MERELY UNPINNED -- ITS PREMISE IS WRONG. The ruling reads
+"a space means two single unwraps". Measured, a space means a CRASH. The
+one-token/spaced distinction cannot be a spelling law until that is fixed.
+
+NEXT: OPEN
+
+What would generate more: a specimen built by a road OTHER than `:=` -- an
+attribute attachment, or a rule that genuinely wraps twice -- which would give
+Law 1 a comparable pair and Law 2 a real depth-2 subject. The `:=` road is the
+one measured and it is the one that collapses.

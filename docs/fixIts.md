@@ -248,6 +248,40 @@ control that must NOT move** — a board with no non-rules, where "loose" is 0 e
 that merely changes both numbers together cannot pass.
 **Owner:** unassigned. **Size:** one fixture, no build. **Minion-ready.**
 
+### F-36 — ⚠ `* *x` (two space-separated unary stars) CRASHES THE PROCESS AT 139
+**Where:** unary `*` composition. `ruleActions.rtn`'s `handleUnary` re-points prefix `*` to the
+named `deref` op (`opDeref`, `Instruct.rtn`); the failure is in composing two of them, not in
+`opDeref` itself.
+
+**What:**
+```
+    daWrap := daLeaf;
+    cerr "x =" * *daWrap:;
+        ERROR Operator * failed on Token and xl1
+        <exit 139, no sentinel>
+```
+A single `*` on the same field is fine — it errors cleanly (`unary * on daLeaf -- it holds no
+group`), returns `0`, and the run continues. **It is the second star that kills it.**
+
+**Why it matters beyond the crash:** Clay's ruling for the new `**` fixpoint operator states the
+spelling law as *"one token, one meaning — a space means two single unwraps"*. **Measured, a space
+means a crash**, so that half of the ruling has no behaviour to name. `**x` versus `* *x` cannot be
+a spelling distinction until this is fixed.
+
+**Evidence:** found 2026-09-01 while building `incant/derefAllT`. ⚠ **And the first probe that
+established the fixpoint died the same way and was read as a clean run** — the error line printed,
+the sentinel did not, and nobody checked. That is the project's own truncation doctrine walked into
+by the seat applying it; the fixture now uses a single `*` for its differ-row precisely so it cannot
+take the suite down (rule H5).
+
+**Done when:** `* *x` either composes (two unwraps, an error on the second if the first yields a
+non-group) or refuses by name. ⚠ **Pair the fix with `***x`**, which today errors from the inner
+star and yields empty rather than refusing — Clay ruled it should refuse, and that clause is
+currently unimplemented. **Anti-vacuity: keep a row for single `*`, which must stay a clean error
+and NOT become a crash or a silent pass.**
+**Owner:** unassigned. **Size:** one tokeniser/handleUnary question plus a fixture row. **Not
+minion-sized — the refusal semantics are a ruling.**
+
 ### F-34 — the kant shim and the C++ emitter bake DIFFERENT literal text for a data-carrying term
 **Where:** `genParse.rtn`, `litK` (and now its twin `litToK`) versus `emitLeaf`'s `LIT`/`LITTO` arms.
 

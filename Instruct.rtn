@@ -1264,6 +1264,23 @@ extern GroupItem opDeref(GroupItem result)
 }
 
 
+// unwraps to a FIXPOINT, not twice; total on a non-group   Instruct.opDerefAll
+extern GroupItem opDerefAll(GroupItem result)
+{
+int depth = 0;
+    if jitting {
+        -% ::jitDegrade("unary ** under jit -- no emitter yet",result); %-
+    }
+    while result.isGROUP {
+        if depth >= 64 {
+            cerr "ERROR unary ** on",result.tag,"-- 64 levels, cycle suspected":;
+            return null; }
+        result  = result.group;
+        depth++; }
+    return result;
+}
+
+
 /***************************************************************************
 	Rule action for the prefix unary minus (negate). Value-producing like
 	opMinus, NOT in-place like opMinusMinus: 0 - operand into tempField; the
