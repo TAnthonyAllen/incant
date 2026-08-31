@@ -172,3 +172,52 @@ reimprint a tag it no longer carries in shared storage, and the commonest way an
 this codebase stops being constructable. **In a shop whose failure ledger is mostly instrument-level,
 that may be the split's largest dividend** — and it is worth saying out loud, because it is not the
 reason the split was ruled and it will not otherwise appear in its motivation record.
+
+## ⚠⚠ A `#autoGetSet` GETTER THAT DOES WORK ON A MISS TURNS EVERY EXISTENCE TEST INTO A MUTATION
+
+**SEQ 100 C7, 2026-09-01, and it is three rows that are really one.**
+
+**1. FLAGS ARE SHAPE FACTS AND LIVE ON THE BODY. USE FACTS LIVE ON `rStuff`.** The wrapper holds
+nothing durable for a *named reference* — `incant/roundTripT` row 3 measured the write and the read
+landing on **different nodes sharing one body**, so broadcast and round-trip are one mechanism seen
+from two sides. Anything that must survive being named twice belongs in shared storage or in
+`rStuff`, never on the wrapper.
+
+**2. `isRule` DOES NOT IMPLY `rStuff`.** A bare master is lawful (Ruling D). **Readers needing
+`rStuff` check `rStuff`** — not `isRule`, and not a flag that happens to correlate. Ruling D's own
+diagnostic applies: *whenever a guard and its subject live in different structures, ask whether they
+can disagree.* `isRule` is in `groupBody` and is **copied**; `rStuff` is per node and is **not**.
+
+**3. THE GETTER ROW, AND IT IS THE ONE THAT COST SOMETHING.** `getRStuff` used to construct on a
+miss. Because tok's `#autoGetSet` binds every bare `.rStuff` read to it, **every `if !x.rStuff`
+existence test in the tree was a mutation** — including `auditMissingRules`' own, which is how an
+audit came to repair what it was counting.
+
+⚠ **THE BLAST RADIUS IS SET BY THE MIRROR, NOT BY THE GETTER, AND THAT IS THE PART NOBODY WOULD
+GUESS.** Whether a read routes through the accessor depends on whether the method appears in
+`groups.ext`'s external mirror — a file **outside this repo** that no Groups `git status` can show.
+Measured the same day: **8 call sites before that one line, 137 after.** So the same getter is a
+17× larger hazard depending on the state of a file nobody is looking at. `pop.sh` now pins the raw
+read count by value as a drift tripwire.
+
+**CENSUS OF THE OTHER OFFENDERS, taken 2026-09-01. Four getters still do work on a miss:**
+
+| getter | call sites | what it does on a miss |
+|---|---|---|
+| `getText` | **169** | allocates, and on one arm **writes `data = 0`** |
+| `getGuard` | 6 | builds and caches the guard set — **and calls `setRuleStuff()`, so a READ can create `rStuff` AND set `isRule`** |
+| `getWhatFollows` | 4 | sets `followed`, `isTarget`, `onFail`, and **`parent.min = 0`** |
+| `getCharacter` | 3 | computes locals only — benign, listed for completeness |
+
+**`getGuard` is the sharpest survivor**: it is the same disease with a worse payload, because
+`setRuleStuff` sets `isRule` as well as minting `rStuff`. Its reach is small (6 sites, none
+`#autoGetSet`-bound), which is the only reason it has not cost anything yet. **Reach is not
+safety — it is luck about a mirror.**
+
+⚠ **AND THE DIAGNOSTIC THAT FALLS OUT, because a complaint in the getter does NOT find these:** when
+the isRule-gated complaint was built and run, **all five callers graded ASKING** — four were
+producers about to construct, one was the audit whose job is finding null. **A miss at a producer
+means "about to be fixed, this statement"; a miss at the audit means "genuinely absent". One channel,
+two meanings, and the getter fires before the fix on the same line.** So the population came out at
+115 nodes where ten were expected, and 105 of them were missing `rStuff` for the width of one
+statement. **Instrument a mutating getter at its CALLERS, never inside it.**

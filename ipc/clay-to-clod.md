@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      100
-STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+STATUS:   verdict        # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-09-01  -  Clay (SEQ 100, dictated via Tony; transcribed by Clod, WT-9)
           ⚠ SEQ 100 IS LIVE AND IS AT THE FOOT -- F-35 FIRST, then the
           isRule-gated rStuff complaint, then A TABLE, NOT A REPAIR.
