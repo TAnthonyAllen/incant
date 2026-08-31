@@ -141,6 +141,44 @@ three-mechanism split being wrong.
 
 ---
 
+# ⚠⚠⚠ THE CERTIFICATION GATE READS "AUDIT AT PIN", NOT "AUDIT CLEAN" — RULED 2026-09-02
+
+Tony's ruling on Clay's recommendation, and it closes a question that had been holding the flip.
+
+**The audit counts `isRule && !rStuff`.** Under **Ruling D** that conjunction is not a defect — it
+is the **lawful signature of a bare master**. SEQ 100's C3 table then measured that **no reader in
+the tree needs rStuff off those ten**: all five callers graded ASKING, four of them producers about
+to construct and the fifth the audit itself.
+
+**So the number cannot be driven to zero without breaking doctrine, and a gate that demands zero of
+a lawful count is a gate that never opens.**
+
+**The row is pinned at 10 missing / 4 loose** (`genLadder/pop.sh`), measured on the pure binary,
+twice, on two boards that now agree — which they did not before the `getRStuff` purity ruling closed
+F-35. What it asserts is **not** *"nothing is missing"*; it is **"the population of bare masters has
+not moved"**:
+
+| reads | means |
+|---|---|
+| **11** | a new route is marking masters |
+| **9** | an attachment road started constructing rStuff where it did not before |
+
+Either is exactly when somebody should look. **Same instrument-shape as `incant/broadcastT` pinned
+pre-law: the number is the fact, and MOTION is the alarm.**
+
+⚠ **THE REJECTED ALTERNATIVE IS RECORDED BECAUSE IT MAY LOOK BETTER LATER.** Re-specifying what
+"missing" counts was the other option. It means deciding what *missing* should mean — a semantic
+ruling about code **neither Tony nor Clay wrote** — and any new definition starts life unmeasured.
+Pinning requires no code change and no new understanding of the audit's internals, which is the
+honest position from both seats.
+
+⚠ **AND THE ROW'S NAME CHANGED WITH ITS MEANING**, so the number cannot decay into a lie: it reads
+*"bare-master population AT PIN (isRule without rStuff = 10, loose = 4)"*, not *"rStuff audit"*.
+A row whose name says `missing` while its doctrine says `lawful` is the one-channel-two-meanings
+failure waiting to happen.
+
+---
+
 # ⚠⚠⚠ THE ROUND-TRIP ORACLE ANSWERS, 2026-08-31 — **TRUTH-TABLE ROW 3, AND THE
 # COVERING MECHANISM IS CONFIRMED DIRECTLY ON THE BARE BINARY**
 

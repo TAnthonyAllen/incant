@@ -4232,7 +4232,15 @@ the `isRule` census predicted ONE site and found EIGHT.
 
 ### C5 — Flip re-arm gate, stated so it can be checked without judgement
 Re-arm the flip only when ALL of: every relocated flag has passed C4 · the audit number comes
-clean · `broadcastT` ARM 3 reads non-void. Then ask the acceptance line a third time:
+clean · `broadcastT` ARM 3 reads non-void.
+
+⚠ **AMENDED 2026-09-02 BY RULING (Tony, on Clay's recommendation): THE AUDIT CLAUSE READS "AUDIT AT
+PIN", NEVER "AUDIT CLEAN".** The audit counts `isRule && !rStuff`, which Ruling D makes the lawful
+signature of a bare master, and SEQ 100's C3 table showed no reader needs rStuff off those ten. So
+the number cannot reach zero without breaking doctrine and a gate demanding zero never opens. The
+row is pinned at **10 missing / 4 loose** and asserts that the bare-master population has not MOVED;
+11 means a new route is marking masters, 9 means an attachment road started constructing. C5's third
+clause and its "if the audit will not come clean" paragraph are satisfied by the pin. Then ask the acceptance line a third time:
 `parser(Start)` receives Start. `acceptStartT` and `derefT` un-park at that moment and not
 before; `derefT` re-pins to R1 ≠ R2.
 If the audit will not come clean after C4 is complete, that is its own fixit citizen with a

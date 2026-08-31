@@ -609,11 +609,33 @@ diffcheck "manyScratch.target (kant emitMany: emission + both refusals)" \
 #  Had this line been pinned at the natural-looking ZERO, a completely dead audit
 #  would have read GREEN. Pinning open populations at their real non-zero values
 #  is what made a dead instrument visible.
-AUDITLINE="AUDIT all registries: 4 missing rules, 0 missing terms, 4 loose, 0 unconsumed"
+#  ⚠⚠ RE-PINNED 10/4 ON 2026-09-02, AND THE ROW NOW COUNTS SOMETHING ELSE THAN
+#  ITS NAME SUGGESTS. Tony's ruling on Clay's recommendation. The audit counts
+#  `isRule && !rStuff`, and under Ruling D that conjunction IS NOT A DEFECT --
+#  it is the lawful signature of a BARE MASTER. The SEQ 100 C3 table then proved
+#  no reader in the tree needs rStuff off those ten: all five callers graded
+#  ASKING. So the number CANNOT be driven to zero without breaking doctrine, and
+#  a gate demanding zero of a lawful count is a gate that never opens.
+#
+#  WHAT THIS ROW ASSERTS IS NOT "nothing is missing". It is "THE POPULATION OF
+#  BARE MASTERS HAS NOT MOVED".
+#      reads 11  -> a new route is marking masters
+#      reads  9  -> an attachment road started constructing rStuff somewhere it
+#                   did not before
+#  Either is exactly when somebody should look. Same instrument-shape as
+#  incant/broadcastT pinned pre-law: the number is the fact, and MOTION is the
+#  alarm.
+#
+#  10/4 is measured on the PURE binary, twice, on two boards that now agree --
+#  which they did not before the getRStuff purity ruling (F-35, closed). The
+#  alternative was re-specifying what "missing" should mean, and that is a
+#  semantic ruling on code neither seat wrote, starting life unmeasured.
+#  ⚠ THE GATE READS "AUDIT AT PIN", NEVER "AUDIT CLEAN".
+AUDITLINE="AUDIT all registries: 10 missing rules, 0 missing terms, 4 loose, 0 unconsumed"
 if grep -qF "$AUDITLINE" "$T/one"; then
-    echo "  ok    rStuff audit (present, populations unchanged)"; green=$((green+1))
+    echo "  ok    bare-master population AT PIN (isRule without rStuff = 10, loose = 4)"; green=$((green+1))
 else
-    echo "  FAIL  rStuff audit -- line absent or populations MOVED:"
+    echo "  FAIL  bare-master population MOVED (row pinned 2026-09-02, NOT a defect count):"
     grep "^AUDIT all registries" "$T/one" | sed 's/^/          actual:   /' || echo "          (no AUDIT summary at all -- is audit() still called from oneTest?)"
     echo "          expected: $AUDITLINE"
     fail=1
