@@ -248,6 +248,52 @@ control that must NOT move** — a board with no non-rules, where "loose" is 0 e
 that merely changes both numbers together cannot pass.
 **Owner:** unassigned. **Size:** one fixture, no build. **Minion-ready.**
 
+### F-37 — `tokenize` (the glom) FIRES ZERO TIMES; `tokened`/`captureSpan` replaced it. RULING OWED.
+**Where:** `GroupActions.rtn:1772` `extern GroupItem tokenize(GroupItem label)` — the glom that
+flattens a parent label's components into a token. Bound at `GroupMain.twk:172-173`
+(`strap = new("tokenize"); method = tokenize;`), mirrored inertly at `incant/grammar:34`.
+
+**THE MEASUREMENT (2026-09-02, ephemeral counter, reverted and rebuilt bare before certification):**
+
+| run | probe installed | `tokenize` firings |
+|---|---|---|
+| the whole fleet | ✅ | **0** |
+| a names+numbers-heavy fixture | ✅ | **0** |
+| `incant/oneTest` | ✅ | **0** |
+| `incant/parseClass` (237-row census) | ✅ | **0** |
+| a fixture DEFINING a rule with a literal `tokenize` term | ✅ | **0** |
+
+The `PROBE INSTALLED` marker printed unconditionally from `stopParsingInput` on every run, so a zero
+reading is distinguishable from a missing instrument (rule H4).
+
+**⚠ THE MECHANISM, AND IT IS STRONGER THAN THE COUNTER.** `NamE` and `NumbeR` are built in
+`GroupMain.twk:228-258` with **`tokened = true`** — a *flag* — and **no `tokenize` term**. Their
+grammar lines are inert mirrors and say so. The flag's live consumer is `GroupItem.twk:1142`,
+`if tokened captureSpan(stuff);`, whose own comment reads *"the tokened bit, which TOKENize sets
+once at definition. It writes the span…"*. **`captureSpan` is the replacement road and `tokenize` is
+its predecessor.** `HeX`, the one rule whose definition still spelled a `tokenize` term, is parked
+inside a comment block, and the parking note says it *"removes one of tokenize's reads-through"*.
+
+**And the grammar mirror line is provably inert:** deleting `incant/grammar:34` left Grokking at 84
+members, `tokenize`'s presence unchanged, and the fleet byte-identical. `GroupMain` governs.
+
+⚠ **WHAT IS MISSING, STATED RATHER THAN GLOSSED: THERE IS NO KNOWN-POSITIVE CONTROL.** Rule H11 says
+a census without one is not a measurement. I could not make `tokenize` fire on purpose — defining a
+rule carrying the term did not do it, and driving a parse through that rule needs `parser`, which is
+an incant driver rather than a registered command. **So the counter alone cannot exclude "the
+instrument sits on a function nothing calls by that name"** — though it is installed on the exact
+extern `GroupMain:173` binds. **The conclusion rests on the MECHANISM above, with the counter as
+corroboration; it does not rest on the counter alone.**
+
+**Done when:** Tony rules how far the retirement goes. Clay's two branches, with this measurement the
+counter-reads-zero branch is live: *method, extern, binding, entry, and the `tokenize` attribute
+stripped from `NumbeR` and any sibling still spelling it.* Tony's alternative on the table is to
+**keep it as a command so kant can find it** rather than delete it. ⚠ **Either branch ends with
+F-31's fourth customer struck and nothing ever installing over `tokenize` — that part is settled
+regardless and does not wait on this row.**
+**Owner:** Tony (ruling), then Clod (sweep). **Size:** the sweep touches GroupMain's bootstrap, so it
+is not minion-sized.
+
 ### F-36 — ⚠ `* *x` (two space-separated unary stars) CRASHES THE PROCESS AT 139
 **Where:** unary `*` composition. `ruleActions.rtn`'s `handleUnary` re-points prefix `*` to the
 named `deref` op (`opDeref`, `Instruct.rtn`); the failure is in composing two of them, not in
