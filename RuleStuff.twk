@@ -141,7 +141,7 @@ int checkGuard(GroupItem field)
 {
 GroupRules  ruler = groupRules;
     if guardInProcess   guarding = 0;
-    if !guarding        getGuard();
+    if !guarding        ensureGuard();
     if unGuarded        return true;
     or guarded && guardSet.contains(*atRuleMark) return true;
     return false;
@@ -176,7 +176,7 @@ GroupItem   field = rule;
         sukcess = true; }
     else {
         if guardInProcess   guarding = 0;
-        if !guarding        getGuard();
+        if !guarding        ensureGuard();
         if unGuarded        sukcess = true;
         or guarded && guardSet.contains(*atRuleMark) sukcess = true;
         else    guardFAIL   = true; }

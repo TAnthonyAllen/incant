@@ -1146,7 +1146,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( guardInProcess(field->groupBody->flags.guarding) )
 		field->groupBody->flags.guarding = 0;
 	if ( !field->groupBody->flags.guarding )
-		field->getGuard();
+		field->ensureGuard();
 	if ( unGuarded(field->groupBody->flags.guarding) )
 		return 1;
 	else
@@ -1193,7 +1193,7 @@ GroupItem 	*field = rule;
 		if ( guardInProcess(field->groupBody->flags.guarding) )
 			field->groupBody->flags.guarding = 0;
 		if ( !field->groupBody->flags.guarding )
-			field->getGuard();
+			field->ensureGuard();
 		if ( unGuarded(field->groupBody->flags.guarding) )
 			sukcess = 1;
 		else

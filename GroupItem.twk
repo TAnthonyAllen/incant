@@ -485,10 +485,14 @@ GroupItem getGroup()
 	return 0;
 }
 
-/*******************************************************************************
-	Return the guard set. Create it if we have to
-*******************************************************************************/
+// pure read -- builds NOTHING; ensureGuard() constructs   GroupItem.getGuard
 PLGset getGuard()
+{
+    return guardSet;
+}
+
+// builds+memoises the guard set; LINE 1 raises isRule on the SHARED body   GroupItem.ensureGuard
+PLGset ensureGuard()
 {
 GroupRules  ruler = groupRules;
 GroupItem   item;
@@ -520,7 +524,7 @@ use guardSet
             switch(data) {
                 case isGROUP:
                     item = group;
-                    itemGuard           = item.getGuard();
+                    itemGuard           = item.ensureGuard();
                     if item.guardInProcess  goto returnGuard;
                     if item.unGuarded   unGuarded = true;
                     else                guardSet += itemGuard;
@@ -548,7 +552,7 @@ use guardSet
             while item = nextAttribute(item) {
                 if noMoreAttributes     break;
                 if item.noPrint         continue;
-                itemGuard       = item.getGuard();
+                itemGuard       = item.ensureGuard();
                 if item.isAttribute
                     if noMoreAttributes             continue;
                     or item.guardInProcess          goto returnGuard;
@@ -560,7 +564,7 @@ use guardSet
         if hasMembers
             while item = nextMember(item)
                 if item.contents()
-                    if itemGuard = item.getGuard()  guardSet += itemGuard; }
+                    if itemGuard = item.ensureGuard()  guardSet += itemGuard; }
     /***************************************************************************
         Rule guard set built. Assess result and see if we need to keep it.
     ***************************************************************************/

@@ -763,6 +763,135 @@ GroupItem 	*grup = 0;
 	else	::fprintf(stderr,"   %s  | data= %s  | (no list)\n",groupBody->tag,getText());
 }
 
+// builds+memoises the guard set; LINE 1 raises isRule on the SHARED body   GroupItem.ensureGuard
+PLGset *GroupItem::ensureGuard()
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*item = 0;
+PLGset 		*itemGuard = 0;
+char 		*junk = 0;
+int 		noMoreAttributes = 0;
+	setRuleStuff();
+	if ( groupBody->flags.guarding )
+		goto returnGuard;
+	if ( !isAttribute(options.affiliation) && !contents() )
+		goto returnGuard;
+	if ( groupBody->flags.isCondition )
+		{
+		groupBody->flags.guarding = 2;
+		goto endSetGuard;
+		}
+	groupBody->flags.guarding = 3;
+	if ( isSET(groupBody->flags.data) )
+		{
+		groupBody->guardSet = getCharacterSet();
+		groupBody->flags.guarding = 1;
+		goto endSetGuard;
+		}
+	groupBody->guardSet = new PLGset();
+	/***************************************************************************
+	Handle data
+	***************************************************************************/
+	if ( groupBody->registry == ruler->opFields || (!groupBody->flags.data && !groupBody->groupList) )
+		{
+		groupBody->guardSet->set((int)*groupBody->tag);
+		goto endSetGuard;
+		}
+	if ( !groupBody->flags.binType )
+		if ( groupBody->flags.data )
+			{
+			switch (groupBody->flags.data)
+				{
+				case 6:
+					item = getGroup();
+					itemGuard = item->ensureGuard();
+					if ( guardInProcess(item->groupBody->flags.guarding) )
+						goto returnGuard;
+					if ( unGuarded(item->groupBody->flags.guarding) )
+						groupBody->flags.guarding = 2;
+					else	groupBody->guardSet->set(itemGuard);
+					if ( item->getRStuff() && item->getRStuff()->min )
+						goto endSetGuard;
+					break;
+				case 1:
+				case 4:
+				case 7:
+				case 8:
+				case 10:
+				case 11:
+				case 12:
+					groupBody->flags.guarding = 2;
+					break;
+				default:
+					if ( junk = getText() )
+						groupBody->guardSet->set((int)*junk);
+					else	groupBody->flags.guarding = 2;
+				}
+			if ( getRStuff()->min )
+				goto endSetGuard;
+			}
+		else
+		if ( !groupBody->groupList )
+			groupBody->guardSet->set((int)*groupBody->tag);
+	/***************************************************************************
+	Handle hashes, attributes and members
+	***************************************************************************/
+	if ( groupBody->flags.binType )
+		while ( item = next(item) )
+			groupBody->guardSet->set(*item->groupBody->tag);
+	else {
+		if ( groupBody->flags.hasAttributes )
+			while ( item = nextAttribute(item) )
+				{
+				if ( noMoreAttributes )
+					break;
+				if ( item->groupBody->flags.noPrint )
+					continue;
+				itemGuard = item->ensureGuard();
+				if ( isAttribute(item->options.affiliation) )
+					if ( noMoreAttributes )
+						continue;
+					else
+					if ( guardInProcess(item->groupBody->flags.guarding) )
+						goto returnGuard;
+					else
+					if ( guarded(item->groupBody->flags.guarding) && item->getRStuff()->min )
+						noMoreAttributes = 1;
+				if ( unGuarded(item->groupBody->flags.guarding) )
+					groupBody->flags.guarding = 2;
+				if ( itemGuard )
+					groupBody->guardSet->set(itemGuard);
+				if ( unGuarded(groupBody->flags.guarding) )
+					break;
+				}
+		item = 0;
+		if ( groupBody->flags.hasMembers )
+			while ( item = nextMember(item) )
+				if ( item->contents() )
+					if ( itemGuard = item->ensureGuard() )
+						groupBody->guardSet->set(itemGuard);
+		}
+	/***************************************************************************
+	Rule guard set built. Assess result and see if we need to keep it.
+	***************************************************************************/
+endSetGuard:
+	if ( groupBody->guardSet )
+		{
+		if ( groupBody->guardSet->isEmpty() )
+			groupBody->guardSet = 0;
+		if ( groupBody->guardSet )
+			{
+			groupBody->guardSet->name = ::concat(2,groupBody->tag," Guardset");
+			groupBody->flags.guarding = 1;
+			if ( isMember(options.affiliation) && parent->groupBody->guardSet )
+				parent->groupBody->guardSet->set(groupBody->guardSet);
+			}
+		}
+	else	groupBody->flags.guarding = 2;
+returnGuard:
+	return groupBody->guardSet;
+}
+
 /*******************************************************************************
     ensureRStuff — THE CONSTRUCTING HALF, SPLIT OUT AND NAMED. 2026-08-31.
 
@@ -1182,134 +1311,9 @@ GroupItem *GroupItem::getGroup()
 	return 0;
 }
 
-/*******************************************************************************
-	Return the guard set. Create it if we have to
-*******************************************************************************/
+// pure read -- builds NOTHING; ensureGuard() constructs   GroupItem.getGuard
 PLGset *GroupItem::getGuard()
 {
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*item = 0;
-PLGset 		*itemGuard = 0;
-char 		*junk = 0;
-int 		noMoreAttributes = 0;
-	setRuleStuff();
-	if ( groupBody->flags.guarding )
-		goto returnGuard;
-	if ( !isAttribute(options.affiliation) && !contents() )
-		goto returnGuard;
-	if ( groupBody->flags.isCondition )
-		{
-		groupBody->flags.guarding = 2;
-		goto endSetGuard;
-		}
-	groupBody->flags.guarding = 3;
-	if ( isSET(groupBody->flags.data) )
-		{
-		groupBody->guardSet = getCharacterSet();
-		groupBody->flags.guarding = 1;
-		goto endSetGuard;
-		}
-	groupBody->guardSet = new PLGset();
-	/***************************************************************************
-	Handle data
-	***************************************************************************/
-	if ( groupBody->registry == ruler->opFields || (!groupBody->flags.data && !groupBody->groupList) )
-		{
-		groupBody->guardSet->set((int)*groupBody->tag);
-		goto endSetGuard;
-		}
-	if ( !groupBody->flags.binType )
-		if ( groupBody->flags.data )
-			{
-			switch (groupBody->flags.data)
-				{
-				case 6:
-					item = getGroup();
-					itemGuard = item->getGuard();
-					if ( guardInProcess(item->groupBody->flags.guarding) )
-						goto returnGuard;
-					if ( unGuarded(item->groupBody->flags.guarding) )
-						groupBody->flags.guarding = 2;
-					else	groupBody->guardSet->set(itemGuard);
-					if ( item->getRStuff() && item->getRStuff()->min )
-						goto endSetGuard;
-					break;
-				case 1:
-				case 4:
-				case 7:
-				case 8:
-				case 10:
-				case 11:
-				case 12:
-					groupBody->flags.guarding = 2;
-					break;
-				default:
-					if ( junk = getText() )
-						groupBody->guardSet->set((int)*junk);
-					else	groupBody->flags.guarding = 2;
-				}
-			if ( getRStuff()->min )
-				goto endSetGuard;
-			}
-		else
-		if ( !groupBody->groupList )
-			groupBody->guardSet->set((int)*groupBody->tag);
-	/***************************************************************************
-	Handle hashes, attributes and members
-	***************************************************************************/
-	if ( groupBody->flags.binType )
-		while ( item = next(item) )
-			groupBody->guardSet->set(*item->groupBody->tag);
-	else {
-		if ( groupBody->flags.hasAttributes )
-			while ( item = nextAttribute(item) )
-				{
-				if ( noMoreAttributes )
-					break;
-				if ( item->groupBody->flags.noPrint )
-					continue;
-				itemGuard = item->getGuard();
-				if ( isAttribute(item->options.affiliation) )
-					if ( noMoreAttributes )
-						continue;
-					else
-					if ( guardInProcess(item->groupBody->flags.guarding) )
-						goto returnGuard;
-					else
-					if ( guarded(item->groupBody->flags.guarding) && item->getRStuff()->min )
-						noMoreAttributes = 1;
-				if ( unGuarded(item->groupBody->flags.guarding) )
-					groupBody->flags.guarding = 2;
-				if ( itemGuard )
-					groupBody->guardSet->set(itemGuard);
-				if ( unGuarded(groupBody->flags.guarding) )
-					break;
-				}
-		item = 0;
-		if ( groupBody->flags.hasMembers )
-			while ( item = nextMember(item) )
-				if ( item->contents() )
-					if ( itemGuard = item->getGuard() )
-						groupBody->guardSet->set(itemGuard);
-		}
-	/***************************************************************************
-	Rule guard set built. Assess result and see if we need to keep it.
-	***************************************************************************/
-endSetGuard:
-	if ( groupBody->guardSet )
-		{
-		if ( groupBody->guardSet->isEmpty() )
-			groupBody->guardSet = 0;
-		if ( groupBody->guardSet )
-			{
-			groupBody->guardSet->name = ::concat(2,groupBody->tag," Guardset");
-			groupBody->flags.guarding = 1;
-			if ( isMember(options.affiliation) && parent->groupBody->guardSet )
-				parent->groupBody->guardSet->set(groupBody->guardSet);
-			}
-		}
-	else	groupBody->flags.guarding = 2;
-returnGuard:
 	return groupBody->guardSet;
 }
 

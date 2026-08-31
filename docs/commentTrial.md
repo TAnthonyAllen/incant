@@ -27,7 +27,8 @@ the interesting quantity is the one that can come back zero.
 
 | date | key | method / site | why it was long enough to move |
 |---|---|---|---|
-| — | — | — | *none yet — the trial starts at the next long comment Clod would have written* |
+| 2026-09-01 | `GroupItem.getGuard` | `GroupItem.twk:488` | the getter/setter split: the census that settled Tony's 5 vs Clod's 6, why three of five calls are the method's own recursion, and why the 17× mirror hazard cannot arise here |
+| 2026-09-01 | `GroupItem.ensureGuard` | `GroupItem.twk:494` | why `setRuleStuff` stays on line 1, what the split does and does not cure, and where anyone reopening it should start |
 
 ## LOOKUPS CLOD ACTUALLY MADE
 
@@ -44,3 +45,23 @@ that comment is now "existing". It is named here because it is the obvious first
 anyone edits that function, and because it is a good calibration for the too-short test: the claim
 is *"pure getter, does not construct — every bare `.rStuff` read routes here"*, and everything else
 under it is argument.
+
+
+## ⚠ FIRST FINDING, ON THE FIRST ENTRY — THE REGISTER ALREADY EXISTED
+
+The convention was first written as `method.slug` with entries under a new `MethodNotes` member.
+**`TokFiles` was already there** — `TokFiles → Generate → parseAny / parseSetLabel / labelMinters /
+runRuleAction / setParse` — and its own text reads *"The comments cluttered up code. Now they do
+not. They are here."* Tony had built this register already; the convention is **that register
+named**, not a new one.
+
+`MethodNotes` would have been a second population for one subject, which is the duplicate-register
+failure `CLAUDE.md` warns about — committed by the seat writing the warning down. It was caught by
+reading `designDocs` before writing to it, and only because a **parse failure** forced a second look:
+the first attempt used `"..."` strings, which do not carry apostrophes, and died with bear-trap #32's
+misdirection — `RunRulE: expected a method not DisplayDesignHTML`, naming the file's first and
+perfectly healthy entry.
+
+**Two things the trial learned before its first lookup:** prose entries use the `(…#)` literal, never
+a quoted string; and the key is the **tree path** `File.method`, because that is what the tree
+already is.

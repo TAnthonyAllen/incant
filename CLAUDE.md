@@ -1064,11 +1064,19 @@ must not miss, *then* the key. The why, the history and the measurement go under
 reading the doc, the line is too short.** Bear-trap markers and *"THIS LINE IS ITS SINGLE WRITER"*
 are the calibration.
 
-**KEYS ARE SLUGS, NOT LETTERS — `method.slug`.** `commentA` breaks the moment a method gains or loses
-a comment, and renumbering is the trail problem again. `parseRule.frameLift`,
-`setRuleStuff.reCloneArm`: unique, greppable **from both ends**, and it survives a rename as long as
-the entry moves with it. The dot maps onto the tree descent — entry `parseRule`, child `frameLift` —
-so the key is a path, not a label.
+**KEYS ARE SLUGS, NOT LETTERS, AND THE KEY IS THE TREE PATH — `File.method`.** `commentA` breaks the
+moment a method gains or loses a comment, and renumbering is the trail problem again. The dot is a
+**descent, not a label**: `GroupItem.getGuard` is `TokFiles → GroupItem → getGuard`. A method needing
+two notes extends the path — `GroupItem.getGuard.someSlug` — rather than renumbering anything.
+
+⚠ **CORRECTED 2026-09-01, ON THE FIRST ENTRY, AND THE CORRECTION IS THE LESSON.** This was first
+written as `method.slug` from the brief, without looking. **`TokFiles` already existed in
+`incant/designDocs`** — `TokFiles → Generate → parseAny / parseSetLabel / labelMinters /
+runRuleAction / setParse`, with its own text reading *"The comments cluttered up code. Now they do
+not. They are here."* **Tony had already built this register; the convention is that register named,
+not a new one.** Writing `MethodNotes` beside it would have been a second population for one
+subject — the duplicate-register failure this file warns about, committed by the person writing the
+warning down. **Read the register before you add to it.**
 
 **THE SHAPE IS PROVEN, NOT INVENTED.** `incant/designDocs`' `ParserIncantation` already does exactly
 this for `IncantForms/WorkingOn/parser` — `ParserGates`, `ParserHangHistory`, `ParserDriverShape` are

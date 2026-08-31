@@ -1,8 +1,8 @@
 class GroupBody;
 class RuleStuff;
 class JitData;
-class Buffer;
 class PLGset;
+class Buffer;
 class PLGitem;
 @class NSObject;
 class PLGrgx;
@@ -54,6 +54,7 @@ GroupItem *dQ();
 GroupItem *definingRule();
 void dispatch();
 void dumpField();
+PLGset *ensureGuard();
 RuleStuff *ensureRStuff();
 void establishFrame(GroupItem *parentLabel);
 GroupItem *findAttribute(char *name);

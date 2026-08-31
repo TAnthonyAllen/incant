@@ -656,4 +656,54 @@ define
                 hasAttributes deliberately keeps reading TRUE here -- the node IS
                 marked up -- which is the whole reason the two flags are separate
                 channels. See designDocs ProblemRecords connectiveDiscriminant.#);
+        GroupItem=(is the twk file for the core tree node. Entries here are method notes
+                lifted out of the code under the 2026-09-01 convention: the inline line
+                carries the claim, this carries the argument.#):
+            getGuard=(PURE READ OF THE GUARD SET. Builds nothing. Split out of the
+                constructing body 2026-09-01 by Tony's ruling -- the same cure applied to
+                getRStuff the day before.
+
+                IT LOOKED LIKE A GETTER AND ACTED LIKE A SETTER, and the side effect was
+                worse than construction. The old body opened with setRuleStuff, which sets
+                isRule as well as minting rStuff -- and isRule lives in groupBody, which is
+                SHARED. So a bare read could raise a SHAPE FACT and broadcast it to every
+                twin over that body. That is a reader changing what a node IS.
+                "Right now it works" is exactly what getRStuff said until an audit read
+                0 missing and 801 loose.
+
+                ⚠ THE CENSUS FOUND SOMETHING NEITHER COUNT CARRIED. Tony counted five call
+                sites, Clod counted six; the six was the definition line, an H9 surface-form
+                artefact. But THREE OF THE FIVE ARE getGuard'S OWN RECURSION, inside its own
+                body, building child guard sets. There are exactly TWO external callers,
+                both in RuleStuff.twk, both spelled `if !guarding getGuard();` and both
+                DISCARDING THE RETURN -- they were already pure ensure-for-effect calls and
+                had been misnamed all along.
+
+                ⚠ AND THE 17x HAZARD CANNOT ARISE HERE, which is the substantive difference
+                from getRStuff. getGuard is a HAND-WRITTEN method whose name merely starts
+                with `get`, not an autoGetSet accessor for a field called `guard` -- the
+                field is guardSet. It was already declared in groups.ext, so no mirror line
+                could ever bind a bare read to it. Its five sites are the whole population
+                and always were.
+
+                Certified byte-identical on the fleet against a capture banked before the
+                first edit, 87 green, raw-rStuff drift row unmoved at 30.#);
+            ensureGuard=(THE CONSTRUCTING HALF, byte-for-byte the old getGuard including its
+                setRuleStuff call, moved behind a verb that says what it does. Six sites:
+                three recursive within its own body, two in RuleStuff, one definition.
+
+                LINE ONE IS setRuleStuff AND IT IS KEPT DELIBERATELY. It raises isRule and
+                mints rStuff before any guard work begins, and the guard build depends on
+                both. Moving or removing it was explicitly out of scope -- one commit, one
+                change, so a regression could not hide inside a refactor.
+
+                WHAT THE SPLIT DOES CURE IS THE ROAD: a read no longer takes that path,
+                because getGuard now returns the field and nothing else. Whether the guard
+                builder should be raising a shape flag at all is LIVE AND UNTOUCHED, and it
+                is the same master-face seam Ruling D names -- isRule is copied with the
+                body, guardSet is copied with the body, rStuff is not.
+
+                Anyone reopening this starts from the fact that the three internal recursive
+                calls need the BUILT set from their children, which is why they route to
+                ensureGuard and not to the pure getter.#);
     ;
