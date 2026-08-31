@@ -407,7 +407,6 @@ extern "C" GroupItem *stopParsingInput(GroupItem *input);
 extern "C" GroupItem *storeBody(GroupItem *rule);
 extern "C" GroupItem *storedBody(GroupItem *rule);
 extern "C" GroupItem *testing(GroupItem *input);
-extern "C" GroupItem *tokenize(GroupItem *label);
 extern "C" GroupItem *traceParse(GroupItem *argument);
 extern "C" GroupItem *treeOf(GroupItem *argument);
 extern "C" int truthOf(GroupItem *field);

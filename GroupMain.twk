@@ -169,12 +169,6 @@ GroupRules  ruler = groupRules;
     modify(item,"-");
     item            = strap +% item;
 
-    strap           = new("tokenize");
-    method          = tokenize;
-    unGuarded       = true;
-    strap           = grok += strap;
-    modify(strap,"^@");
-
     strap           = grok += new("Any");
     isANY           = true;
     setRuleStuff();

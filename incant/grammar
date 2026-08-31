@@ -31,7 +31,6 @@ modifySet=[-~+?!%&|*@_<^{}$];
 nameSet=[a-zA-Z0-9];
 PoweR               e=[eE] sign?=[+-] power=[0-9]+;
 FloaT               point="." decimals=[0-9]+ PoweR?;
-tokenize^@;                                     // method set to tokenize()
     ⚠ THE NEXT TWO RULE LINES ARE INERT AND ARE MIRRORS, NOT DEFINITIONS.
     NumbeR and NamE are built in C++ in GroupMain, and THAT is the governing
     site. Measured twice with a live line as the control: adding a term to
@@ -39,10 +38,10 @@ tokenize^@;                                     // method set to tokenize()
     its rule's list length. Edit GroupMain, not here. As of 2026-08-23 the
     governing constructions carry the noLabel dash on their sub-terms and no
     tokenize term at all, so these lines no longer describe them.
-NumbeR              numberSet=[0-9]+ FloaT? tokenize;
+NumbeR              numberSet=[0-9]+ FloaT?;
 DefinE;
 QuotE               tik=['"] quoteBody}=tik$@;
-NamE                first-=[a-zA-Z] nameSet-^* tokenize;
+NamE                first-=[a-zA-Z] nameSet-^*;
 GrouP
     NamE;
     QuotE;
@@ -106,7 +105,12 @@ define
         its own -- that no parse could ever run. Parking it removes one of
         tokenize's reads-through without touching anything that fires.
 
-    HeX             zero-="0" x-=[xX] value-=[0-9a-fA-F]+ tokenize;
+    ⚠ THE `tokenize` TERM WAS STRIPPED FROM THE LINE BELOW ON 2026-09-02 when
+        tokenize retired. Stripped INSIDE the parking comment deliberately: if
+        HeX is ever un-parked it would otherwise die resolving a name that no
+        longer exists, three screens from the reason.
+
+    HeX             zero-="0" x-=[xX] value-=[0-9a-fA-F]+;
     *************************************************************************/
     ShortcuT=[-+~`$_:,]+;
     ANYtoken=NamE;

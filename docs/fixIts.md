@@ -248,7 +248,7 @@ control that must NOT move** — a board with no non-rules, where "loose" is 0 e
 that merely changes both numbers together cannot pass.
 **Owner:** unassigned. **Size:** one fixture, no build. **Minion-ready.**
 
-### F-37 — `tokenize` (the glom) FIRES ZERO TIMES; `tokened`/`captureSpan` replaced it. RULING OWED.
+### F-37 — ✅ CLOSED 2026-09-02 — RETIRED IN FULL on the zero branch. `tokened`/`captureSpan` is the live road.
 **Where:** `GroupActions.rtn:1772` `extern GroupItem tokenize(GroupItem label)` — the glom that
 flattens a parent label's components into a token. Bound at `GroupMain.twk:172-173`
 (`strap = new("tokenize"); method = tokenize;`), mirrored inertly at `incant/grammar:34`.

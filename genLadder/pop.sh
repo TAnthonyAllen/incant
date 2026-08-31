@@ -985,8 +985,18 @@ diffcheck "jsonTest baseline" genLadder/jsonTest.base "$T/jsn"
 #  THE genParse ODOMETER, wired in 2026-08-24 once its first baseline existed.
 #
 #  ⚠ WHAT THIS ROW IS AND IS NOT. It is NOT a pass/fail on parse generation --
-#  the odometer is RED by design today (45 of 64) and a red odometer is the
-#  correct state. This row asserts only that the number HAS NOT MOVED WITHOUT
+#  the odometer is RED by design today (45 of 63) and a red odometer is the
+#  correct state.
+#
+#  ⚠ RE-PINNED 2026-09-02, AND THE SENTENCE IS: `tokenize` RETIRED BY RULING.
+#  It was one of the NINETEEN genParse-green rules, so green went 19 -> 18 and
+#  the population 64 -> 63 in the same stroke. The ratchet did exactly what it
+#  is for -- it called STOP-THE-LINE and named `tokenize` as RED NOW, WAS GREEN
+#  -- and the correct response was to check the cause, not to regenerate a green
+#  diff. The cause is a deliberate removal (docs/fixIts.md F-37, retired on a
+#  zero-firing measurement plus the tokened/captureSpan succession), so the
+#  greenness went with the rule. ONE rule left the population and ONE left the
+#  green set; any other arithmetic here would have been a finding. This row asserts only that the number HAS NOT MOVED WITHOUT
 #  SOMEONE SAYING SO. A moved odometer is the point of having one; it just has
 #  to be a re-pin with a sentence behind it, like every other target here.
 #
@@ -1002,7 +1012,7 @@ diffcheck "jsonTest baseline" genLadder/jsonTest.base "$T/jsn"
 #  and conflating them in a citation is the failure this wording exists to
 #  prevent.
 bash genLadder/odometer.sh 2>&1 | grep -v '^  bin ' > "$T/odo"
-diffcheck "genParse odometer (19 green / 45 red of 64 -- RED BY DESIGN, pinned; ratchet monotone)" \
+diffcheck "genParse odometer (18 green / 45 red of 63 -- RED BY DESIGN, pinned; ratchet monotone)" \
           genLadder/odometer.base "$T/odo"
 
 #  ---- THE SCAFFOLD COUNT, ruled into the fleet by Clay 2026-08-28 -----------

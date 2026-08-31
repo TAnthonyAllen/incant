@@ -13,9 +13,61 @@ the hook.
 
 ## The rows
 
-| # | rule | site | role | added |
-|---|---|---|---|---|
-| 1 | `tokenize` | `incant/grammar:34` (constructed `GroupMain.twk:157`, `method = tokenize`) | the tokenizer — turns raw text into tokens for every read. Used by `NamE`, `NumbeR`, `HeX`, `FormaT` | 2026-08-20 |
+| # | rule | site | role | added | state |
+|---|---|---|---|---|---|
+| 1 | ~~`tokenize`~~ | ~~`incant/grammar:34`, constructed `GroupMain.twk:172`~~ | the glom — flattened a parent label's components into one token | 2026-08-20 | ⚠ **RETIRED 2026-09-02** |
+
+## ⚠⚠ ROW 1's OBITUARY — RETIRED BY MEASUREMENT **PLUS** MECHANISM, 2026-09-02
+
+**Tony's ruling on Clay's recommendation: the zero branch, full retirement.** Gone are the method
+(`GroupActions.rtn`), the extern and its `groups.ext` line, the `GroupMain` construction and binding,
+the inert `tokenize^@;` grammar mirror, and the term from every rule that still spelled it.
+
+**THE MECHANISM SETTLED IT, NOT THE COUNTER.** `GroupMain` builds `NamE` and `NumbeR` with
+**`tokened = true`** — a *flag* — and no `tokenize` term; `processFlags` sets the same bit for rules
+the grammar defines; and `GroupItem.twk:1142` reads it — `if tokened captureSpan(stuff);`.
+**`captureSpan` is the live consumer and `tokenize` was its predecessor.** The succession is written
+in the code's own comments, dated before anyone went looking.
+
+**The counter corroborated: ZERO firings** across the fleet, `oneTest`, `parseClass`'s 237-row
+census, a names-and-numbers-heavy fixture, and a fixture defining a rule that literally spelled the
+term — with an unconditional probe-installed marker on every run.
+
+⚠ **AND THE H11 GAP WAS CLOSED BY THE DELETION, NOT WAIVED.** The counter had **no known-positive
+control** — `tokenize` could not be made to fire on purpose, so a counter alone cannot certify death.
+**The removal is the positive control, run in the only direction available**, and unlike the counter
+a hidden caller shows up *loud*: a red row or a resolution failure naming its site, with a one-commit
+revert underneath. What it certified:
+
+| pre-registered | result |
+|---|---|
+| fleet | **88 green, red set unchanged** — after the odometer re-pin below |
+| `oneTest` | **byte-identical**, stdout and stderr |
+| `jsonTest` | **byte-identical**, stdout and stderr |
+| `parseClass` census | moved by **exactly two named rows** — `PC parseAction tokenize` and `PA act=parked hung=yes fires=self tokenize` |
+
+**TWO INSTRUMENTS MOVED AND BOTH WERE PREDICTED.** `shadowCensus` walked **84 → 83 rules** — the rule
+census dropping by one. And the **genParse odometer** went red: `tokenize` was one of the **nineteen
+genParse-GREEN rules**, so green fell 19 → 18 and the population 64 → 63 in the same stroke.
+
+⚠ **THE RATCHET DID ITS JOB AND IS WORTH THE ROW:** it called **STOP-THE-LINE** and named
+`tokenize` as *RED NOW, WAS GREEN*. The correct response was to check the cause, not to regenerate a
+green diff — and the cause is a deliberate removal, so the greenness went with the rule. **One rule
+left the population and one left the green set; any other arithmetic would have been a finding.**
+
+**THE COMMAND BRANCH WAS CONSIDERED AND IS RECORDED AS UNNEEDED.** Tony offered keeping `tokenize` as
+a command so kant could find it. The measurement's real finding is that **nothing needs to find it** —
+`captureSpan` already does the work. Relocating a corpse to a nicer register keeps the corpse.
+
+**STAYS, EXPLICITLY:** `tokened`, `processFlags`' setting of it, and `captureSpan`. That is the live
+road and nothing in this retirement touches it.
+
+⚠ **`HeX`'s TERM WAS STRIPPED INSIDE ITS PARKING COMMENT**, with a note saying why: if `HeX` is ever
+un-parked it would otherwise die resolving a name that no longer exists, three screens from the
+reason.
+
+**F-31's fourth customer is struck and nothing ever installs over `tokenize`** — settled independently
+of this retirement and not waiting on it.
 
 ⚠ **TWO CAUSES, AND THEY EXPLAIN DIFFERENT HALVES — do not merge them** (measured 2026-08-20, F-31
 Arm A):

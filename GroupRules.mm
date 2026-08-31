@@ -1083,9 +1083,12 @@ GroupItem 	*grup = field->getGroup();
 
 /*******************************************************************************
 	immediate method for the incant Number rule.
-        NumbeR=[0-9]+               FloaT? tokenize:
-            HeX='0'                 x=[xX] value=[0-9a-fA-F]+ tokenize;;
+        NumbeR=[0-9]+               FloaT?:
+            HeX='0'                 x=[xX] value=[0-9a-fA-F]+;;
         FloaT='.'                   float=[0-9]+ PoweR?;
+        ⚠ The `tokenize` terms this shape used to carry were stripped
+        2026-09-02 when tokenize retired. The flattening they describe still
+        happens -- it is now the `tokened` bit and captureSpan. HeX is parked.
 *******************************************************************************/
 extern "C" GroupItem *aCTionNumbeR(GroupItem *input)
 {
@@ -1103,7 +1106,10 @@ char 	*arg = input->getText();
 		is ABSENT while the token text is exactly "3.5" -- NumbeR matched
 		the decimal fine, but `tokenize` on NumbeR flattens the match into a
 		single token and the FloaT child label does not survive for this
-		action to see. So the branch was ALWAYS taking atoi, and every
+		action to see. (⚠ `tokenize` RETIRED 2026-09-02. This account is
+		dated 2026-08-01 and stands as what was measured then; the
+		flattening survives it, carried now by the `tokened` bit and
+		captureSpan, so the conclusion below is unaffected.) So the branch was ALWAYS taking atoi, and every
 		double literal in the language silently truncated at birth:
 		3.5 -> 3      0.25 -> 0      1.5e2 -> 1      3.5 + 1 -> 4
 		No rounding, no diagnostic. The text, however, is intact and
@@ -14106,18 +14112,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return ::jitRunIfTest(input) ? ruler->trueResult : 0;
 }
 
-/***************************************************************************
-	Gloms parent label components together into the label string
-***************************************************************************/
-extern "C" GroupItem *tokenize(GroupItem *label)
-{
-RuleStuff 	*ruleStuff = label->getRStuff();
-char 		*atEnd = GroupControl::groupController->groupRules->atRuleMark;
-int 		tokenLength = (int)(atEnd - ruleStuff->parentStuff->hereAt);
-	label->setToken(ruleStuff->parentStuff->hereAt,tokenLength);
-	return label;
-}
-
 /*******************************************************************************
     traceParse — the incant-side switch for §1.8's library instrumentation
     (GroupRules.parseTrace). Off by default, so the baselines cannot move.
@@ -14256,6 +14250,21 @@ int 		n = 0;
 	return n;
 }
 
+/***************************************************************************
+	tokenize -- RETIRED 2026-09-02, and this is its obituary rather than a gap.
+
+	It glommed a parent label's components into one token. Its successor is the
+	`tokened` BIT: GroupMain builds NamE and NumbeR with `tokened = true` and no
+	tokenize term, processFlags sets the same bit for rules the grammar defines,
+	and GroupItem.twk:1142 reads it -- `if tokened captureSpan(stuff);`.
+	captureSpan writes the span this used to glom.
+
+	Measured before removal: ZERO firings across the fleet, oneTest, parseClass's
+	237-row census, a names-and-numbers-heavy fixture, and a fixture defining a
+	rule that literally spelled the term -- with an unconditional
+	probe-installed marker on every run, so zero was distinguishable from a
+	missing instrument. See docs/fixIts.md F-37.
+***************************************************************************/
 /***************************************************************************
 	wrapped is used when printing to supply quotes around output text
 ***************************************************************************/

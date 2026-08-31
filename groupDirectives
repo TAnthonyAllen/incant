@@ -20,7 +20,7 @@ aCTionDebuG subrule.debugged ctive
 aCTionDebuG embed.debugged ctive
     if embed.debugged print "Debugging",embed.tag:;
 #;
-aCTionDefinE "if Attributes" before active
+aCTionDefinE "if Attributes" before ctive
     cerr "aCTionDefinE:",NewGroup.tag,lastIndent:;
 #;
 aCTionElsE if ctive
@@ -29,7 +29,7 @@ aCTionElsE if ctive
 aCTionExpressioN while before ctive
     if entries.listLength == 1   result = 0;
 #;
-aCTionNamE starting active
+aCTionNamE starting ctive
     if arg eq "guard"   result = 0;
 #;
 aCTionRunRulE if within ctive
@@ -41,7 +41,7 @@ aCTionSearch cout ctive
 aCTionXpress result before ctive
     print "Instructions for",action.tag: list:;
 #;
-compile if before active
+compile if before ctive
     print "compiling " field.tag:;
 #;
 /*******************************************************************************
@@ -60,7 +60,7 @@ compile if before active
     and is not coded bails and still prints succeeded. walkRules cannot produce
     that, since it gates on actionType being zero before it calls compile.
 *******************************************************************************/
-compile endCompile active
+compile endCompile ctive
     if field.isAction   print "compiling " field.tag " succeeded":;
     else                print "compiling " field.tag " SKIPPED -- not coded":;
 #;
@@ -78,7 +78,7 @@ guard GroupItem ctive
 guard clearData ctive
     debugGuards = false;
 #;
-loadInputFromFile if before active
+loadInputFromFile if before ctive
      cerr ```"including",tag:;
 #;
 /*******************************************************************************
@@ -91,12 +91,6 @@ opDot product ctive
     if target.isGROUP
     cerr "The following line was removed from opDot()":
         `"while target && target.isGROUP && target.group    target = target.group;":;
-#;
-opPrinter if
-    target.dumpContents();
-#;
-opPrinter printText before
-    printLIST.dumpContents();
 #;
 /*******************************************************************************
 	parseRule debugging

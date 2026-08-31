@@ -926,9 +926,12 @@ GroupItem   grup = group;
 
 /*******************************************************************************
 	immediate method for the incant Number rule.
-        NumbeR=[0-9]+               FloaT? tokenize:
-            HeX='0'                 x=[xX] value=[0-9a-fA-F]+ tokenize;;
+        NumbeR=[0-9]+               FloaT?:
+            HeX='0'                 x=[xX] value=[0-9a-fA-F]+;;
         FloaT='.'                   float=[0-9]+ PoweR?;
+        ⚠ The `tokenize` terms this shape used to carry were stripped
+        2026-09-02 when tokenize retired. The flattening they describe still
+        happens -- it is now the `tokened` bit and captureSpan. HeX is parked.
 *******************************************************************************/
 extern GroupItem aCTionNumbeR(GroupItem input)
 {
@@ -946,7 +949,10 @@ String  arg = input.text;
             is ABSENT while the token text is exactly "3.5" -- NumbeR matched
             the decimal fine, but `tokenize` on NumbeR flattens the match into a
             single token and the FloaT child label does not survive for this
-            action to see. So the branch was ALWAYS taking atoi, and every
+            action to see. (⚠ `tokenize` RETIRED 2026-09-02. This account is
+            dated 2026-08-01 and stands as what was measured then; the
+            flattening survives it, carried now by the `tokened` bit and
+            captureSpan, so the conclusion below is unaffected.) So the branch was ALWAYS taking atoi, and every
             double literal in the language silently truncated at birth:
                 3.5 -> 3      0.25 -> 0      1.5e2 -> 1      3.5 + 1 -> 4
             No rounding, no diagnostic. The text, however, is intact and

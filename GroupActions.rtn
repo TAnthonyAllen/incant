@@ -1767,16 +1767,20 @@ extern int statementMatches(GroupItem a,GroupItem b)
 
 
 /***************************************************************************
-	Gloms parent label components together into the label string
+	tokenize -- RETIRED 2026-09-02, and this is its obituary rather than a gap.
+
+	It glommed a parent label's components into one token. Its successor is the
+	`tokened` BIT: GroupMain builds NamE and NumbeR with `tokened = true` and no
+	tokenize term, processFlags sets the same bit for rules the grammar defines,
+	and GroupItem.twk:1142 reads it -- `if tokened captureSpan(stuff);`.
+	captureSpan writes the span this used to glom.
+
+	Measured before removal: ZERO firings across the fleet, oneTest, parseClass's
+	237-row census, a names-and-numbers-heavy fixture, and a fixture defining a
+	rule that literally spelled the term -- with an unconditional
+	probe-installed marker on every run, so zero was distinguishable from a
+	missing instrument. See docs/fixIts.md F-37.
 ***************************************************************************/
-extern GroupItem tokenize(GroupItem label)
-{
-RuleStuff   ruleStuff = rStuff;
-String      atEnd = atRuleMark;
-int tokenLength = (int)(atEnd - parentStuff.hereAt);
-    label.setToken(parentStuff.hereAt,tokenLength);
-    return label;
-}
 
 
 /***************************************************************************
