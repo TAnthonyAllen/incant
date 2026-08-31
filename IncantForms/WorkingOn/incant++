@@ -5,19 +5,66 @@
 /*****************************************************************************
     Working on
 *****************************************************************************/
-The mechanism settles it better than any counter could, and my recommendation is the zero-branch: full retirement. The command escape hatch answered "kant needs a way to find it" — but the measurement's real finding is that nothing needs to find it. GroupMain builds NamE and NumbeR with tokened = true directly and no tokenize term; captureSpan at GroupItem.twk:1142 is the live consumer; the comments name the succession in their own words. Relocating a corpse to a nicer register keeps the corpse. Your memory was right, and the code had already written it down.
+Dictating for transcription — Tony carries per WT-9.
 
-On Clod's stated gap — no known-positive control, so the counter can't exclude "probe on a function nothing calls by that name": the deletion is the positive control, run in the only direction available. A probe that can't be made to fire can't certify death, but a removal that leaves the fleet, both baselines, and the tokenize-heavy fixture byte-identical certifies it as hard as this project certifies anything — and unlike the counter, a hidden caller shows up loud, as a red row or a resolution failure naming the site, with the one-commit revert floor underneath. H11 is satisfied by the stronger instrument, not waived.
+CLAY → CLOD — eviction campaign brief, 2026-08-29. Supersedes the prior brief's steps 1–4 entirely; steps 5–6 amended below. Ruled by Tony this session. Execute in order; stop-and-file on any census surprise, same clause as before.
 
-Scope lines for the sweep, so it's one clean commit:
+Standing context: Step 3 (install parse into method) is dead, killed by your parseAction finding — correct stop. The replacement design is bear-trap #34's retirement clause: evict the action from gMethod; install nothing. With gMethod vacated and isMethod false, runOP arm 2 stops claiming rules, bare calls fall through to the isRule arm → runRule → builtinParsE. The new parse becomes the only show in town by having no competitor, not by taking the old channel.
 
-Goes: the method (GroupActions.rtn:1772), the extern (and its groups.ext line — support repo committed, per the standing rule), the GroupMain construction and binding at :172-176, the inert tokenize^@; grammar mirror, and the tokenize term from any unparked rule still spelling it.
-HeX: it's parked and its parking note already says it removes a read-through. Strip the term inside the comment block anyway, with a one-line note — otherwise HeX un-parks someday and dies resolving a name that no longer exists, three screens from the reason.
-Stays, explicitly: tokened, processFlags' setting of it, and captureSpan — the live road. The pre-registration for the commit is "fleet, oneTest, jsonTest, parseClass census all byte-identical," and any motion is a caller the counter missed, which would be a finding, not a failure.
-Ledger: hookRules.md row one gets its obituary — retired by measurement plus mechanism, F-37 closed on the zero branch, command branch recorded as considered-and-unneeded. F-31's strike is already banked.
+Step A — Generate.rtn closeout. Restore the :300 guard (if actionMethod && parseMethod {) — Tony's parked question stays parked, and parked means the tree holds the sealed state. Then commit Generate.rtn: !noPrint adjudicated as parity-restored with processAction's identical clause at GroupRules.mm:11987 — use that in the commit message, it's the stronger justification.
 
-The rule census drops by one and the parse-generation population shrinks by its strangest member — the snake finally leaves the room by the door instead of eating its tail.
+Step B — setMethod becomes symmetric (Tony's design). setMethod checks its parameter: present → set gMethod, mint isMethod; absent/null → clear gMethod, retract isMethod. So rule.method = 0; does the eviction in one ordinary write. Ruled by Tony: all gMethod writes, both directions, go through setMethod — no raw writes anywhere except setMethod's own body. Rationale for the header note: the setter is the sole maintainer of a shape fact; any bypass can desynchronize isMethod from occupancy by construction.
 
+Step C — H11 census, now readers and writers, mandatory before Step D. All 40 gMethod call sites classified by whether the receiver can be rule-shaped; void unless parseAction and aCTionStatemenT both appear, per your pre-registration. Same pass: flag every raw gMethod write site and convert it through the setter — flag-and-convert, not flag-and-file. Known reader population going in: fireLabelMethod (GroupItem.twk:1045), parseAction (Generate.rtn:5), aCTionStatemenT (:1490), aCTionIF (:920, bt34's site), plus the two jitContext.h roads (aCTionBrancH :157, runOP arm 2 :12852). If the census turns up a reader that can't repoint this session, STOP — Tony rules narrower-now vs. retirement-now with the census in hand.
+
+Step D — the eviction pass. Per rule carrying an action in gMethod: verify the action is present in rStuff.actionMethod (check, don't trust the 08-29 parked census — a rule that reached dual-flag by any road other than setParse is the burn case); then rule.method = 0; through the symmetric setter. Relocate-then-null order is load-bearing — null never runs before verified relocation, or the action vanishes silently. Action readers from the census repoint at actionMethod through runRuleAction as the single door — fireLabelMethod included. parseAction: it reads gMethod as its own executor body; classify carefully in C — it may need its own respelling rather than a repoint. If so, file, don't improvise.
+
+Step E — runRuleAction gate respelling (Tony's design). captureSpan gates on pMethod of the field passed in; gNewParseInFlight and its save/restore deleted entirely; the -% pocket's tracing content moves to armed groupDirectives entries; pocket empties completely. Inseparable from Step D — one commit or eviction-first, never gate-first. Post-eviction the invariant holds: no road reaches a rule action except from inside its parse.
+
+Step F — emitter change. $taG "()" → parseR(grup, label) for the into handover. Include the parseR stale-header correction and the setter rationale note in the same commit.
+
+Step G — rebuild bare, on Tony's call only. His parseRule trace is still hunting; the timing is his. After bare rebuild: take the decodePop re-pin (your three rows are honest, 79→80/79→80/82→83), then run the ladder.
+
+Step H — certification. parser on Xpress, front door, expect passage beyond QuotE. frontier green is an exit criterion — it certifies the invariant by the instrument that caught its violation. Pre-registered falsifier: any 139 or silent-span variant means a road reaches a generated rule's action outside its parse; fall back to carrying in-flight as dataflow and hunt the road. Standing: PrintXP/ExpressioN still at 139 with identical signature → verifyParse139 stands as its own citizen, not discharged as downstream.
+
+Step I — verifier station in genLadder/pop.sh, birth requirements final: per-rule round-trip on known input post-compile; H7 negative control (one deliberately ungenerated rule must come RED); H4 presence-with-value against a stated population, extended by the clear-census residue list when it exists; failing rule named; nonzero exit; parser stays the driver.
+
+Step J — clear census, read-only, off critical path, any time. Every clear site in the corpus classified: container cleared, long-lived attributes in range (written before, read after). Output: table, action-parked-census style. Residue sites owe a survivor rationale or a nothing-in-range note. Clay's pre-registration: residue count is small, a handful like parseRule's. Feed the residue attribute list to Step I's H4 population.
+
+Mint at seal: the escape-pocket doctrine row (funded: the near-deletion plus the two-natured pocket); the gMethod write-discipline row (funded: this campaign, enforcement = the C sweep, standing detector = gMethod-as-lvalue grep as optional pop station); the clear doctrine row (danger answered by measurement; census is the measurement existing); gNewParseInFlight's obituary (temporal guard for the two-channel world, abolished with it); bear-trap #34 retired by Step D if it completes, with parseSelfRecursion and methodSlotFourReaders discharging against the same stroke — check each record's own discharge criteria before closing, per discipline. Bear-trap #30 finding stays captured-not-chased.
+
+That's the road with every ruling from today on it. Queue note for the wakeup after: this makes two-plus sessions the fixit directory hasn't moved; kantGenPath gets the first hour next session if the campaign seals tonight.
 /*****************************************************************************
     Clod response
 *****************************************************************************/
+⏺ Yes — and the useful cut isn't age, it's what each one actually needs from you. Four of the eight shouldn't cost you a minute.
+
+  Take these three, in this order — each is one sentence, none needs a machine
+
+  1. tagTokenMismatch — the purest ruling on the board. Its own NEXT block says the gating question isn't a measurement: the tag-as-data fallback was introduced to stop no-terms rules being refused as degenerate, and that finding is true for three of the five. Your call is whether the other two are a defect in the fallback or rules that should still refuse. Decide that and candidate A is the whole fix, and 17/58 becomes the truer number — so it also corrects a figure the campaign quotes.
+
+  2. kantGenPath — oldest citizen (08-24), and it's one judgement away from graduating BEST GUESS → REMEDY. The shape is nearly forced: litToK beside litK, eleven near-identical lines, and gKantLabel already exists and is already read that way by two sibling helpers, so there's no new plumbing. The one open judgement is the slot name — whether term.tag is always the right slot, or whether it must come from the plan node. Settle that and it's buildable.
+
+  3. parentUnreachable — A or B, and the reason it's yours specifically is the kill condition. Clay grades A strong (five navigation directions exist, only "up" is missing) and says outright that what would kill it is a reason parent is deliberately not exposed — and that reason isn't known to him and isn't in the tree. If there's a scoping reason you never wrote down, you're the only one who has it. If there isn't, A is a short build.
+
+  Then one that wants a sitting, not a margin note
+
+  4. litToMissing — genuinely open, and its own text says why: the shape is obvious and the semantics are not. What litTo attaches, under what tag, and what happens on a failed match after a partial attach are naming decisions with a parse-tree shape behind them.
+
+  ⚠ Do it after kantGenPath, because they're the same mechanism. Both are about litTo/LITTO, and both hinge on where the slot comes from — the term or the plan. Answering #2's slot question probably sharpens this one, and might collapse part of it. Answering them in the other order does you no good.
+
+  Don't spend time on these four
+
+  - literalMasterIsRule — already ruled. Option A adopted, B1-layout and B2 dead. It's my build (B3), not your decision.
+  - parentStamp — its own step 1 is a cerr probe built bare, and it may well close as retired-unreproduced. That's mine to run, and it would be a waste of
+    your time to think about before the probe says whether the stamp fires at all.
+  - jsonListNotAList — OPEN, and the obvious candidate is already measured dead. Needs investigation, not a ruling.
+  - parseSelfRecursion — the mechanism is ruled; the three-way routing decision is yours, but it's explicitly gated behind the upstream probe, which is gated
+    behind queue drain. Asking you now would be asking ahead of the evidence — and the file's own NEXT block says don't build route-to-parse before the
+    upstream answer.
+
+  The one shape-level note
+
+  All three of the top items are rulings, and that's deliberate rather than a coincidence of what's in the queue. A ruling fails loudly — you either have an answer or you know you don't. The measurement-first items are the ones that go wrong quietly, and per the 08-08 doctrine on matching failure-loudness to mechanical state, those belong on my side of the line, not in an offline solo session.
+
+  If you only get to one: tagTokenMismatch. It's the cheapest, it's a clean yes/no, and it's the only one of the eight whose answer changes a number the campaign is currently quoting as true.
