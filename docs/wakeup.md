@@ -1,3 +1,95 @@
+# ⚠⚠⚠ SEALED 2026-09-02 — THE THIRD ASKING FAILED INFORMATIVELY, AND THAT IS THE DAY'S
+# HEADLINE. THE BIND IS EXONERATED ON CAMERA; ONE MECHANISM NOW EXPLAINS THREE MEASUREMENTS.
+#
+#   ⚠ **THIS SUPERSEDES THE 2026-08-31 SEAL BELOW, WHICH IS INTACT AND TRUE AS OF ITS OWN MARK.**
+#
+#   ## THE ONE-LINE STATE: **Twenty-two commits of little steps that compounded — the flip's
+#   blocker is now a filmed mechanism instead of a hypothesis, two getters lost their side
+#   effects, `tokenize` retired in full, the audit gate stopped demanding the impossible, and
+#   the tree is CLEAN WITH NO EXCEPTION CLAUSE for the first time since mid-August.** Fleet
+#   **88 green / 1 parked**, expected-red set **3** (was 4). Canary **326**. Frontier **exit 0,
+#   10 PASS**. decodePop 22/82 · ddPop 6 · countPop 39/39 · formsPop green. Both repos
+#   **0 dirty / 0 unpushed**. Every retok BARE.
+#
+#   ## ⚠⚠ THE SIX THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   **1. THE THIRD ASKING FAILED, AND THE CAMERA CHANGED THE QUESTION.** `parser(Start)` still
+#   receives a carrier — but the bind is **exonerated on film**:
+#   ```
+#   CARRIERCAM bind   ruleArg=0x100651780 ruleArgBody=0x100652960 -> resultBody=0x100652cd0
+#   CARRIERCAM after  ruleArgBody=0x100652cd0        THE BIND WORKED
+#   BODY  argument    node=0x100657540  body=0x100652960   THE CALLEE READS ANOTHER NODE
+#   ```
+#   One unwrap of the carrier yields **nothing** — "holds no group". Legacy's else-arm sets
+#   `setGroup`; the flip skips it and the body adoption lands elsewhere, so the read node ends up
+#   with **neither**. ⚠ **NEITHER PRE-REGISTERED CANDIDATE SURVIVED.** The replacement question
+#   is narrower: *which road mints the node the callee reads, and when.*
+#
+#   **2. PART 1 ANSWERED IT: MINT → BIND → READ, and the mint and bind are ALREADY different
+#   nodes** (0x100ced8c0 vs 0x100ced780, one body). **THREE nodes in play**, so the multi-node
+#   problem starts earlier than the bind — which is the measured argument for moving the channel
+#   to the FRAME rather than chasing identity across three roads.
+#
+#   **3. ⚠ IT IS ONE MECHANISM, MEASURED THREE TIMES ON THREE DAYS.** `roundTripT` (flag write vs
+#   read), `broadcastT` (twin vs original), and now the argument bind: **a named read does not
+#   reach a written node.** A fix aimed only at the argument road leaves the other two standing.
+#
+#   **4. THE GATE READS "AUDIT AT PIN", NEVER "AUDIT CLEAN".** The audit counts `isRule &&
+#   !rStuff`, which Ruling D makes the lawful signature of a bare master, and SEQ 100's C3 table
+#   showed **no reader needs rStuff off those ten**. Pinned **10/4** as a tripwire: 11 means a new
+#   route is marking masters, 9 means an attachment road started constructing. `literalMasterIsRule`
+#   discharged and retired on it.
+#
+#   **5. `tokenize` IS GONE — method, extern, mirror, GroupMain construction, every term.** Zero
+#   firings measured; the succession is `tokened` → `captureSpan`, named in the code's own
+#   comments. ⚠ **The H11 gap was closed by the DELETION, not waived** — a removal is the positive
+#   control a counter cannot be. Odometer re-pinned 18/45/63; `tokenize` was one of the nineteen
+#   genParse-GREEN rules.
+#
+#   **6. TWO GETTERS STOPPED BEING SETTERS.** `getRStuff` and `getGuard` are pure; `ensureRStuff`
+#   and `ensureGuard` carry the construction by name. ⚠ **The `getRStuff` census was wrong by 133
+#   sites** — tok's `#autoGetSet` binds every bare `.rStuff` read to it, and **the blast radius is
+#   set by the out-of-repo mirror, not by the getter**: 8 sites before one `groups.ext` line, 137
+#   after. `pop.sh` now pins the raw-read count as a drift tripwire.
+#
+#   ## WHAT MOVED
+#   **RETIRED:** `tokenize` (in full) · `literalMasterIsRule` (by mapping) · the seal's
+#   "but for Tony's two named files" clause · the 08-08 sweep-up trap (structurally).
+#   **BORN:** `carrierNode` (the campaign's last citizen, evidence not hypotheses) ·
+#   `roundTripT` · `sixShapeT` · `derefAllT` · `litToK` · `opDerefAll`.
+#   **CLOSED:** F-35 (codegen drift from one out-of-repo line) · F-37.
+#   **OPEN:** F-34 (kant/C++ literal text) · F-36 (`* *x` crashes at 139).
+#
+#   ## ⚠ THE NEXT SEAT OPENS WITH ONE OF THESE, NEVER BOTH
+#   **A — THE FRAME BIND (SEQ 102 Part 2).** Revert boundary is **R19**. The shape is
+#   `parentLabel`'s, transplanted: slot on the frame beside `parentLabel`; caller evaluates args,
+#   writes the slot, then calls (**write-last is load-bearing**); callee **lifts into a stack local
+#   at entry, first line**. No save/restore — a handoff window, not storage. Certificates
+#   pre-registered in `carrierNode`'s RULED block: the asking on camera, an A→B→A recursion
+#   fixture, an f(g(x)) nesting fixture, and `parseRule`'s owed lift. ⚠ **It is a `RuleStuff`
+#   LAYOUT change — bear-trap #10: `groups.ext` sync AND `tokall`, or it fails silently.**
+#   **B — THE COMMENT SWEEP of `ruleActions.rtn`** (1,714 lines, 37 externs, ~35 blocks).
+#   ⚠ **RECONCILE FIRST: `docs/commentMinion.md` is SIGNED with schema v2 and Tony's own
+#   METHOD-SCOPED-NOT-FILE-SCOPED amendment; tonight's exemplar uses `TokFiles`. TWO CONVENTIONS,
+#   ONE JOB** — and the two-line question from `opDot` is unruled. Ten-minute ruling, then a
+#   minion can run it mechanically.
+#
+#   ## NON-GOALS, so they do not creep
+#   The flag-write and addGroup-twin roads stay as ruled. The operand-pickup unwrap (#35's arms,
+#   `derefT`'s non-motion) is **the second gate, separately chartered.** `opDebug`'s unwrap strip
+#   re-rides whichever stroke carries the flip.
+#
+#   ## ⚠ THREE PROCESS FAILURES, RECORDED BECAUSE THEY WERE MECHANICAL AND MINE
+#   `git add -u` swept Tony's WIP into a commit that then described work it did not contain
+#   (fixed structurally — both files untracked). A fleet run **chained into the commit command**,
+#   so an 85 scrolled past above an already-made commit. And an instrument reverted in **source
+#   but not binary**, which is what produced that 85. **The rule earned: the fleet run is its own
+#   step, read before the commit is typed.**
+#
+#   Tony's fixit incantations waiting: 8 (oldest: kantGenPath, since 2026-08-24)
+
+# ---
+
 # ⚠⚠⚠ SEALED 2026-08-31 — THE ACCEPTANCE LINE WAS NOT ASKED A THIRD TIME. THE SPLIT IS
 # BLOCKED ON A FLAG THAT WILL NOT ROUND-TRIP, AND THAT IS UPSTREAM OF EVERYTHING TRIED.
 #
