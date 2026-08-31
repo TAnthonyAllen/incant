@@ -9112,7 +9112,9 @@ char 	*printText = buffer->string();
 }
 
 /***************************************************************************
-	Rule action for ** debug operator
+	Rule action for the $$ debug marker. Spelled ** until 2026-09-01, when
+    Tony freed that token so ** can compose as a double unwrap without being
+    claimed by this marker first.
 ***************************************************************************/
 extern "C" GroupItem *opDebug(GroupItem *result)
 {

@@ -181,7 +181,7 @@ define
     '-='    operateMethod=opMinusEQ;
     '--'    unary ruleMethod=opMinusMinus;
 
-    '**'    unary ruleMethod=opDebug;
+    '$$'    unary ruleMethod=opDebug;
     '-'     operateMethod=opMinus  jitEmitter=jitEmitSub;
     '+='    operateMethod=opPlusEQ;
     '++'    unary ruleMethod=opPlusPlus;
@@ -248,7 +248,7 @@ define
         '++';
         '@';
         '!';
-        '**';
+        '$$';
         '*';
         '.';
     ;
