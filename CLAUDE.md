@@ -1046,6 +1046,54 @@ nobody has to know which file to ask. `tombstone(x)` previews the trim. `lookupI
 record with its status. **`incant/decoder` stays one present-tense sentence per term; depth lives in
 the problem records and never in the decoder.**
 
+### ⚠ LONG METHOD COMMENTS GO TO DesignDocs — A TRIAL, STARTING 2026-09-01 (Tony's proposal, Clay refined)
+
+**Tony keeps short methods and wants to read them.** A long comment in a method body is now written
+as **one inline line + a DesignDocs entry**:
+
+```
+    // single writer of parentLabel; callee lifts at entry   parseRule.frameLift
+```
+
+and under the method's DesignDocs entry, a child `frameLift` holding the full text.
+
+**THE INLINE LINE CARRIES THE CLAIM; THE DOC CARRIES THE ARGUMENT.** A bare `parseRule.frameLift` is
+a pointer, and **a pointer is not a warning**. The line states the thing a reader at the edit site
+must not miss, *then* the key. The why, the history and the measurement go under the key.
+⚠ **THE TOO-SHORT TEST: if the one-line version would let someone break the invariant without
+reading the doc, the line is too short.** Bear-trap markers and *"THIS LINE IS ITS SINGLE WRITER"*
+are the calibration.
+
+**KEYS ARE SLUGS, NOT LETTERS — `method.slug`.** `commentA` breaks the moment a method gains or loses
+a comment, and renumbering is the trail problem again. `parseRule.frameLift`,
+`setRuleStuff.reCloneArm`: unique, greppable **from both ends**, and it survives a rename as long as
+the entry moves with it. The dot maps onto the tree descent — entry `parseRule`, child `frameLift` —
+so the key is a path, not a label.
+
+**THE SHAPE IS PROVEN, NOT INVENTED.** `incant/designDocs`' `ParserIncantation` already does exactly
+this for `IncantForms/WorkingOn/parser` — `ParserGates`, `ParserHangHistory`, `ParserDriverShape` are
+long design prose living as DesignDocs children instead of as comments in source. Copy that shape.
+And it lands on the north-star for free: the comment becomes a child GroupItem of the method's entry,
+so a method's doc is **queryable rather than scrolled past**.
+
+**SCOPE OF THE TRIAL, deliberately small:**
+- **Going forward only.** The next long comment Clod would write goes this way. **Existing long
+  comments stay exactly where they are until touched.** No sweep.
+- **No dangling-pointer fleet row yet.** It is obviously buildable — every key in source resolves to
+  an entry, every entry has a live key — and it **waits for evidence it is needed.** That is
+  measure-before-building applied to the process itself.
+- **A light tally at the seal**: entries written, and **lookups Clod actually made**, in
+  `docs/commentTrial.md`. ⚠ **The tally is the trial's whole point** — if the pointer is never
+  followed, the short line was all anyone needed and the doc half can go. If it is followed and the
+  entry is missing, *that* is the "deal with it then", and the dangling-pointer row earns its place.
+- **When a pointer is followed and the entry is absent: log it and move on.** Do not stop to build
+  the checker.
+
+⚠ **ONE CONSEQUENCE FOR CLAY'S SEAT, and it is not optional:** Clay reads what Tony uploads. Once the
+argument lives in DesignDocs, **DesignDocs travels with the wakeup whenever the argument matters** —
+otherwise Clay sees the claim and not the reasoning, which is exactly how a brief gets a tree
+attribution wrong.
+
 ⚠ **`incant/fixits/` IS TONY'S QUEUE, NOT THE FLEET.** Nothing in it runs under `pop.sh` until it is
 promoted. The single coupling is the seal line, and that line is **generated, not remembered** —
 `genLadder/fixitNag.sh` reads the directory and prints
