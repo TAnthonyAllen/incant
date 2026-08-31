@@ -29,6 +29,13 @@ the interesting quantity is the one that can come back zero.
 |---|---|---|---|
 | 2026-09-01 | `GroupItem.getGuard` | `GroupItem.twk:488` | the getter/setter split: the census that settled Tony's 5 vs Clod's 6, why three of five calls are the method's own recursion, and why the 17× mirror hazard cannot arise here |
 | 2026-09-01 | `GroupItem.ensureGuard` | `GroupItem.twk:494` | why `setRuleStuff` stays on line 1, what the split does and does not cure, and where anyone reopening it should start |
+| 2026-09-02 | `Instruct.opDot.accessorGate` | `Instruct.rtn` | the jit gate for the whole accessor family, and why finding #3 looked like a condition bug |
+| 2026-09-02 | `Instruct.opDot.cases403to404` | `Instruct.rtn` | the guard that dereferenced the pointer it guarded — exit 139, CLAIM KANT-18 |
+| 2026-09-02 | `Instruct.opDot.case405firstMember` | `Instruct.rtn` | why `.firsT` returns the ATTRIBUTE, CLAIM KANT-17 |
+| 2026-09-02 | `Instruct.opDot.case42hasTraits` | `Instruct.rtn` | why hasTraits is not hasAttributes, and the write halves |
+| 2026-09-02 | `Instruct.opDot.case407binType` | `Instruct.rtn` | binType is an enum; why nonzero is the right width |
+| 2026-09-02 | `Instruct.opDot.case408isAction` | `Instruct.rtn` | why 406 cannot witness the isCoded → isAction transition |
+| 2026-09-02 | `Instruct.opDot.case41hasNewParse` | `Instruct.rtn` | why the read and write halves ship together |
 
 ## LOOKUPS CLOD ACTUALLY MADE
 
@@ -67,3 +74,35 @@ never a quoted string; the key is the **tree path** `File.method`, because that 
 already is; and **`#` is the only working delimiter** — `docs/forms.md` promised a flexible one and
 was corrected on measurement, matrix included. The `Modifier`-set explanation for *why* was raised
 and falsified in the same run, so the symptom is recorded and the cause is open.
+
+
+## THE PRACTICE STROKE — `opDot`, 2026-09-02
+
+**Seven long comments migrated. `opDot` went 130 lines to 85 — 45 lines saved, a 35% cut**, and
+every claim an editor at a case site must not miss is still inline.
+
+**Certificate:** fleet **byte-identical row for row**, `oneTest` and `jsonTest` byte-identical on
+stdout and stderr, all POPs green, canary 326. Comments cannot change behaviour, so the only way
+this breaks is tok choking on one — which fails the build in your face. It didn't.
+
+### What resisted the format — one thing, and it is worth knowing before the sweep
+
+⚠ **Two comments could not shrink to one line and were given two**, because the acid test wouldn't
+let them: `cases403to404` carries a **segfault** invariant (the `groupList &&` prefix is
+load-bearing) and `accessorGate` carries a **silent-wrong-answer** one. A single line could state
+the fact but not the *consequence*, and the convention's own test says a line that lets someone
+break the invariant without following the key is too short. **Two lines is still one claim** — the
+rule is about the argument moving out, not about a line count.
+
+### What went easily
+
+The four enum/flag cases (42, 407, 408, 41) compressed cleanly — each was one distinction wrapped
+in six lines of justification, and the distinction *is* the claim.
+
+### The idiom that worked, for whoever sweeps the rest
+
+`//` comments sit safely **immediately above a `case` label** — verified by the build, and worth
+recording because bear-trap #4 makes `//` placement a live question and bear-trap #29 makes
+comment *position* fatal in an `if`/`or` chain. A switch is not that construct. **The header keeps
+its short base description; only the long sections move.** And claims travel to the **case site**
+rather than staying in the header, because that is where an editor is standing.

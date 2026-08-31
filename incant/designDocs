@@ -706,4 +706,73 @@ define
                 Anyone reopening this starts from the fact that the three internal recursive
                 calls need the BUILT set from their children, which is why they route to
                 ensureGuard and not to the pure getter.#);
+        Instruct=(is the rtn file holding the operator methods. Entries here are
+                method notes lifted out of the code under the 2026-09-01
+                convention: the inline line carries the claim, this carries the
+                argument.#):
+            opDot=(THE DOT OPERATOR. Returns the field referenced in a dot
+                expression, where the field may be a group field or the name of a
+                component of target that may or may not exist. Local fields are
+                ignored. Seven long comments moved here 2026-09-02 as the
+                convention's practice specimen; the code went 130 lines to 85.#):
+                accessorGate=(THE ACCESSOR GATE, Tony's ruling via Clay 2026-08-05.
+                    Emit a CALL to this very function and unbox its result --
+                    jitEmitRem's shape, and the same shared-implementation move as
+                    jitEmitIterStep and jitEmitIterate. ONE gate closes the whole
+                    GroupField accessor family; opDot resolves about 40 numbered
+                    cases and reimplementing that switch in IR would be a second
+                    copy of a table that has grown twice this month.
+                    ⚠ THIS IS WHY finding 3 LOOKED LIKE A CONDITION BUG. With no
+                    emitter here, `if noPrinT` emitted nothing and the enclosing
+                    `if` branched on whatever was last in flight -- the iterator's
+                    liveness. The condition was never wrong; it was reading a value
+                    nobody had produced.#);
+                cases403to404=(THE GUARD USED TO DEREFERENCE THE POINTER IT WAS
+                    GUARDING. `!target.firstInList` reads as a null check and
+                    generates `!target->groupBody->groupList->firstInList`, so a
+                    node carrying NO LIST segfaulted on exactly the case the guard
+                    existed to handle. Found 2026-07-30, exit 139, crash frame 0
+                    here; corpus CLAIM KANT-18. 401 and 402 were never affected --
+                    nextInParent and priorInParent are direct fields with no
+                    intermediate. The `target.groupList &&` prefix is the same
+                    idiom case 5 already uses eight lines up; this makes 403 and
+                    404 agree with it.#);
+                case405firstMember=(AFFILIATION-FILTERED FIRST. `.firsT` is plain
+                    firstInList and does NOT filter, CLAIM KANT-17: attributes and
+                    members share ONE list, so on any node built attribute-first
+                    `.firsT` returns the ATTRIBUTE. genParse's OPT plan node is
+                    exactly that shape -- `opt +% at;` then `opt += node;` -- so a
+                    walk wanting the wrapped term had no accessor for it and had to
+                    carry an iterator. nextMember(0) returns the first member, or
+                    null when there is none -- and the groupList guard is needed
+                    here too, because nextMember reaches nextGroup, which cerrs on
+                    a node with no list.#);
+                case42hasTraits=(THE CONNECTIVE DISCRIMINANT. hasAttributeS, case
+                    7, answers "is this node marked up", and setParse hangs
+                    builtinParsE and builtinActoR on every rule it touches -- so
+                    every walked rule reads TRUE there and an alternation is
+                    emitted as a conjunction. hasTraits counts only attributes that
+                    are NOT noPrint-class, so it answers "does this rule conjoin
+                    traits". Written to case 7's shape DELIBERATELY -- same
+                    product.count = 1, same else product = 0 -- so a gate swapping
+                    one for the other moves the QUESTION and nothing else. Write
+                    halves: addAttribute and updateContentFlags.#);
+                case407binType=(ANY CONTAINER KIND, NOT JUST BIN. binType is an
+                    ENUM and not a bitfield -- isBIN 1, isCLASS 2, isLIST 3,
+                    isREGISTRY 4, GroupBody.h:65-78 -- so a nonzero test answers
+                    "is this a container of some sort" in one read. That is
+                    deliberately WIDER than the isBIN or isREGISTRY pair setParse
+                    tests, and wider in the right direction: a CLASS and a LIST are
+                    no more a rule than a bin is.#);
+                case408isAction=(THE PARSER-READ HALF of the actionType enum.
+                    actionTypE, case 406, is nonzero for isAction OR isCoded and so
+                    cannot witness the transition between them; parseRule tests
+                    isAction SPECIFICALLY. This makes the exact condition the
+                    parser reads assertable from incant, which is what lets a
+                    fixture demonstrate the isCoded to isAction transition rather
+                    than assume it. See incant/enumT.#);
+                case41hasNewParse=(THE READ HALF. The write half is opSetFlag case
+                    41. Both halves land together on purpose: a flag a fixture can
+                    set and cannot read is a gate nobody can assert, which is rule
+                    H4's absence-versus-value in flag form.#);
     ;

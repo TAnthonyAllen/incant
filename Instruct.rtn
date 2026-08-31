@@ -281,39 +281,13 @@ use target
     expression like: field, IWC field can be a group field or the
     name (in field.tag) of a component of target that may or may not exist.
     Note: local fields are ignored
-
-    CASES 403/404 -- THE GUARD USED TO DEREFERENCE THE POINTER IT WAS GUARDING.
-    `!target.firstInList` reads as a null check and generates
-    `!target->groupBody->groupList->firstInList`, so a node carrying NO LIST
-    segfaulted on exactly the case the guard existed to handle (found 2026-07-30,
-    exit 139, crash frame 0 here; corpus CLAIM KANT-18). 401/402 were never
-    affected -- nextInParent/priorInParent are direct fields with no intermediate.
-    The `target.groupList &&` prefix is the same idiom case 5 already uses eight
-    lines up; this makes 403/404 agree with it.
-
-    CASE 405 (firstMembeR) -- AFFILIATION-FILTERED FIRST. `.firsT` is plain
-    firstInList and does NOT filter (CLAIM KANT-17): attributes and members share
-    ONE list, so on any node built attribute-first `.firsT` returns the
-    ATTRIBUTE. genParse's OPT plan node is exactly that shape (`opt +% at;` then
-    `opt += node;`), so a walk wanting the wrapped term had no accessor for it and
-    had to carry an iterator. nextMember(0) returns the first member, or null when
-    there is none -- and the groupList guard is needed here too, because
-    nextMember reaches nextGroup, which cerrs on a node with no list.
 ***************************************************************************/
 extern GroupItem opDot(GroupItem argument,GroupItem target)
 {
 GroupRules  ruler = groupRules;
 GroupItem   product;
-    /*  THE ACCESSOR GATE (Tony's ruling via Clay, 2026-08-05). Emit a CALL to
-        this very function and unbox its result -- jitEmitRem's shape, and the
-        same shared-implementation move as jitEmitIterStep and jitEmitIterate.
-        ONE gate closes the whole GroupField accessor family; opDot resolves ~40
-        numbered cases and reimplementing that switch in IR would be a second
-        copy of a table that has grown twice this month.
-        ⚠ THIS IS WHY finding #3 LOOKED LIKE A CONDITION BUG. With no emitter
-        here, `if noPrinT` emitted nothing and the enclosing `if` branched on
-        whatever was last in flight -- the iterator's liveness. The condition was
-        never wrong; it was reading a value nobody had produced.  */
+    // ONE gate for the whole accessor family; remove it and a jitted `if noPrinT`
+    // branches on whatever was last in flight   Instruct.opDot.accessorGate
     if jitting {
         -% return jitEmitDot(argument, target, ruler->tempField); %-
     }
@@ -340,17 +314,8 @@ use argument
                             else    product = 0;
                 case 8:     if target.hasMembers    product.count = 1;
                             else    product = 0;
-                /*  hasTraitS -- the CONNECTIVE discriminant. hasAttributeS
-                    (case 7) answers "is this node marked up", and setParse
-                    hangs builtinParsE and builtinActoR on every rule it
-                    touches, so every walked rule reads TRUE there and an
-                    alternation is emitted as a conjunction. hasTraits counts
-                    only attributes that are NOT noPrint-class, so it answers
-                    "does this rule conjoin traits". Written to case 7's shape
-                    deliberately -- same product.count = 1, same else
-                    product = 0 -- so a gate swapping one for the other moves
-                    the QUESTION and nothing else. Write halves: addAttribute
-                    and updateContentFlags.  */
+                // NOT case 7: setParse makes hasAttributes TRUE for every walked
+                // rule, so only this one discriminates   Instruct.opDot.case42hasTraits
                 case 42:    if target.hasTraits     product.count = 1;
                             else    product = 0;
                 case 9:     if target.isLocal       product.count = 1;
@@ -375,30 +340,23 @@ use argument
                             else {
                                 product = target.priorInParent;
                                 product.isInitialized = true; }
+                // ⚠ THE `groupList &&` PREFIX IS LOAD-BEARING. Without it these
+                // SEGFAULT on a listless node -- the guard dereferenced the very
+                // pointer it guarded   Instruct.opDot.cases403to404
                 case 403:   if !target.groupList || !target.firstInList  product = null; else product = target.firstInList;
                 case 404:   if !target.groupList || !target.lastInList   product = null; else product = target.lastInList;
+                // affiliation-FILTERED first, unlike `.firsT`, which returns the
+                // ATTRIBUTE on an attribute-first node   Instruct.opDot.case405firstMember
                 case 405:   if !target.groupList  product = null; else product = target.nextMember(0);
                 case 406:   if target.actionType  product.count = 1;
-                /*  binTypE -- ANY container kind, not just bin. binType is an
-                    ENUM and not a bitfield: isBIN 1, isCLASS 2, isLIST 3,
-                    isREGISTRY 4 (GroupBody.h:65-78), so a nonzero test answers
-                    "is this a container of some sort" in one read. That is
-                    deliberately WIDER than the isBIN || isREGISTRY pair
-                    setParse tests, and wider in the right direction -- a CLASS
-                    and a LIST are no more a rule than a bin is.  */
+                // binType is an ENUM, so nonzero means ANY container kind --
+                // deliberately wider than isBIN||isREGISTRY   Instruct.opDot.case407binType
                 case 407:   if target.binType     product.count = 1;
-                /*  isActioN -- the PARSER-READ half of the actionType enum.
-                    actionTypE (406) is nonzero for isAction OR isCoded and so
-                    cannot witness the transition between them; parseRule tests
-                    isAction SPECIFICALLY. This makes the exact condition the
-                    parser reads assertable from incant, which is what lets a
-                    fixture demonstrate the isCoded -> isAction transition
-                    rather than assume it. See incant/enumT.  */
+                // 406 cannot witness isCoded -> isAction; this tests isAction
+                // SPECIFICALLY, as parseRule does   Instruct.opDot.case408isAction
                 case 408:   if target.isAction    product.count = 1;
-                /*  hasNewParse READ half. The write half is opSetFlag case 41.
-                    Both halves land together on purpose: a flag a fixture can
-                    set and cannot read is a gate nobody can assert, which is
-                    rule H4's absence-versus-value in flag form.  */
+                // READ half; the WRITE half is opSetFlag case 41 -- they ship
+                // together or the flag is unassertable   Instruct.opDot.case41hasNewParse
                 case 41:    if target.hasNewParse product.count = 1;
                 default:    product.text    = "access to " tag " not supported yet"; }
             if product && !product.parent   product.parent = target; }}
