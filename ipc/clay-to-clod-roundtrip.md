@@ -1,5 +1,5 @@
 ## SEQ <next> — THE ROUND-TRIP FIXTURE, THE SPLIT ONE FLAG AT A TIME, THE FLIP'S THIRD ASKING
-STATUS: working
+STATUS: verdict
 FROM: Clay   TO: Clod   DATE: 2026-08-31   VIA: Tony (WT-9, dictated/transcribed)
 SUPERSEDES: nothing. Extends the 08-31 seal's NEXT STATIONS 1–3.
 CHARTER: interpreted only. No `*` outside fixtures. No flip re-arm until C5's gate is met.

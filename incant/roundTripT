@@ -1,0 +1,218 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(RoundTrip);
+define
+    rtA;  rtClean;  rtB;  rtHost;  rtShare;  rtTwin;
+    rtRa=9;  rtRc=9;  rtRb1=9;  rtRb2=9;
+    rtRun code={
+        fixRoundTripHere = 0;
+        cerr "== ARM 0   PROBE CONTROL -- two adjacent probes, NOTHING between ==":;
+        probeNode(rtA);
+        probeNode(rtA);
+        cerr "   the two node= above MUST match, or every address below is void":;
+
+        cerr "== ARM A   ROUND TRIP ON ONE NODE -- the whole question ==":;
+        cerr "   WRITE SITE:":;
+        probeNode(rtA);
+        rtA :. noPrinT;
+        cerr "   READ SITE:":;
+        probeNode(rtA);
+        rtRa = rtA.noPrinT;
+        cerr "ARM A   r =" rtRa "(MUST be 1)":;
+
+        cerr "== ARM C   NEGATIVE CONTROL -- never written ==":;
+        probeNode(rtClean);
+        rtRc = rtClean.noPrinT;
+        cerr "ARM C   r =" rtRc "(MUST be 0, else ARM A asserts nothing)":;
+
+        cerr "== ARM B1  copyOf TWIN -- write the TWIN, read the ORIGINAL ==":;
+        cerr "   original:":;
+        probeNode(rtB);
+        rtTwin <- copyOf(rtB);
+        cerr "   twin:":;
+        probeNode(rtTwin);
+        rtTwin :. noPrinT;
+        rtRb1 = rtB.noPrinT;
+        cerr "ARM B1  original reads" rtRb1 "(copyOf COPIES the body)":;
+
+        cerr "== ARM B2  addGroup TWIN -- write the TWIN, read the ORIGINAL ==":;
+        cerr "   original:":;
+        probeNode(rtShare);
+        rtHost +% rtShare;
+        cerr "   twin:":;
+        probeNode(rtHost["rtShare"]);
+        rtHost["rtShare"] :. noPrinT;
+        rtRb2 = rtShare.noPrinT;
+        cerr "ARM B2  original reads" rtRb2 "(addGroup SHARES the body)":;
+        };
+    ;
+rtRun();
+cerr "ROUNDTRIP SENTINEL -- reached the foot":;
+stop();
+
+incant/roundTripT -- THE FLAG ROUND-TRIP ORACLE.
+Built 2026-08-31 for Clay's SEQ round-trip brief, section C1.
+
+WHY THIS FILE EXISTS
+
+Three whole-split attempts, three reverts, and on the third the instrument
+finally named something UPSTREAM of everything the first three searched.
+incant/broadcastT's ARM 3 is its anti-vacuity control -- did the write land on
+the original at all -- and under the split it FAILS. So the columns, the stamp,
+the roads and the writers were all being measured through a void control.
+
+    x :. noPrinT      then      x.noPrinT      does not round-trip.
+
+If that is true, it is true with no copy road, no inheritance and no broadcast
+anywhere near it, and it would produce the audit's stubborn 1 and the kant8T
+hang no matter how perfect the copy law was. THE UNIT OF CHANGE HAD BEEN LARGER
+THAN THE UNIT OF MEASUREMENT. This file is the smallest unit that can carry the
+question.
+
+HOW TO READ IT
+
+    ARM A    write and read the SAME NAME. r MUST be 1. This is the question.
+    ARM C    a node never written. r MUST be 0.
+    ARM B1   write a copyOf twin, read the original.
+    ARM B2   write an addGroup twin, read the original.
+
+ARM C IS NOT DECORATION. Without it, ARM A reading 1 is consistent with a reader
+that answers 1 for everything, which is the shape rule H4 exists to forbid. The
+pair is the assertion; either row alone is not.
+
+⚠ ANTI-VACUITY, AND IT IS THE BRIEF'S OWN CLAUSE: a run that prints no addresses,
+or prints only the r values, is VOID and this fixture has failed to build. Say
+so; do not score it. The addresses are what turn "the flag did not survive" into
+"the flag was written to one node and read from another", and only the second
+of those routes a repair.
+
+⚠⚠ TWO CORRECTIONS TO THE BRIEF'S TREE CLAIM, BOTH CHECKED AT THE SITE BEFORE
+ANY SCORING, PER ITS OWN ATTRIBUTION RULE
+
+FIRST -- NEITHER ROAD GOES THROUGH A COPY, AND BOTH ARE AUTO-REPOINTED. The
+brief's mechanism was "the write path goes through a copy; the shared body was
+covering for it". Read at the site:
+
+    write   Instruct.rtn opSetFlag  case 29    target.noPrint = true;
+    read    Instruct.rtn opDot      case 29    if target.noPrint  product.count = 1;
+
+Both act on `target` -- the operand the operator was handed -- and neither mints,
+copies or unwraps anything on the way. Both are BARE tok-resolved spellings, so
+a field moving from GroupBody to GroupItem re-points BOTH on the next retok, by
+the same mechanism docs/groupBodySplit.md section 1 measures. AT THE SOURCE
+LEVEL THE SETTER AND THE READER CANNOT COME APART.
+
+So if ARM A fails under the split, the divergence is NOT between the two
+switch cases. It is in what `target` IS at each site -- that is, in the road
+that resolves a NAME to a NODE -- or in the copy constructor, or in how
+`options` is initialised. That is a different repair from the one the brief's
+row 2 routes to, which is why the check comes before the scoring.
+
+SECOND -- `copyOf` IS NOT THE SHARING ROAD, SO ARM B1 ALONE WOULD ASSERT
+NOTHING. The brief's mechanism sentence says "the copy constructor shares
+groupBody", and that is right; but the arm it specifies uses `copyOf`, which
+COPIES the body. docs/groupBodySplit.md's own second-attempt census is explicit
+about the two roads and which does which. A write through a copyOf twin should
+fail to reach the original under BOTH layouts, so that arm cannot discriminate
+bare from split -- it is a control, not a probe. ARM B2 is therefore added, on
+the addGroup road, which is the one that actually shares a body and the one
+incant/broadcastT's ARM 2b already fires in the opposite direction.
+
+Both arms are kept. B1 is the brief's row, honestly run and honestly labelled as
+the control it turns out to be; B2 is the probe it was reaching for.
+
+MUTATION IS BY DIRECT SUBSCRIPT, READING IS THROUGH A CAPTURE
+
+ARM B2 writes with `rtHost["rtShare"] :. noPrinT;` rather than through a `<-`
+capture, because copy-on-rebind is a RULED DEFECT: a `<-` hands back a copy, so
+a write through one can confirm itself and change nothing. Bear-trap 35 states
+the rule and this file obeys it.
+
+⚠⚠ ARM 0 IS THE ARM THAT MATTERED, AND IT VOIDED THE COLUMN IT WAS GUARDING
+
+Two adjacent probeNode calls on the same name, with NOTHING between them, report
+DIFFERENT node= addresses and the SAME body=. So probeNode's own road mints a
+fresh wrapper per call, and the node= column in ARMs A, B1 and B2 CANNOT be read
+as evidence about what `:.` and `.` see. It is not wrong; it is about probeNode.
+
+That is the brief's own attribution rule biting the instrument rather than the
+claim, and it is the third outcome a two-outcome prediction has nowhere to put:
+not pass, not fail -- VOID. Reported as void rather than graded.
+
+WHAT SURVIVES ARM 0, and it is not nothing: the body= column is STABLE across
+every call and every arm on a given field, and DIFFERENT between fields. So the
+naming road does not preserve node identity, and the BODY is what is stable.
+
+THE ADDRESSES THAT DO ANSWER THE QUESTION COME FROM THE TWO SITES THEMSELVES
+
+Ephemeral source instrument, run 2026-08-31, then reverted and the binary
+rebuilt BARE before any capture was taken. Re-applying it is thirty seconds:
+
+    Instruct.rtn  opSetFlag case 29, above the assignment
+        -% ::fprintf(stderr,"RTWRITE noPrint target=%p body=%p\n",
+                     (void*)target,(void*)target->groupBody); %-
+    Instruct.rtn  opDot     case 29, above the test
+        -% ::fprintf(stderr,"RTREAD  noPrint target=%p body=%p\n",
+                     (void*)target,(void*)target->groupBody); %-
+
+Both go inside braces on the case, so the tok-resolved line beside them still
+re-points under a split. Neither passthrough reads a flag field, so the
+instrument is layout-agnostic and can be carried across the move unchanged.
+
+⚠ It is NOT left in the tree. It prints on every `:.` and every `.noPrinT`, so
+it would move fleet baselines the moment anybody ran a POP against it. The
+recipe is the artifact; the code is not.
+
+VERDICT, FIRST RUN 2026-08-31, ON THE BARE BINARY
+
+    ARM 0   node= DIFFERS between two adjacent probes, body= same   COLUMN VOID
+    ARM A   RTWRITE target=0x104f74c00  body=0x104f68280
+            RTREAD  target=0x104f77e80  body=0x104f68280
+            r = 1
+    ARM C   r reads false                                            control holds
+    ARM B1  write body 0x104f86000, read body 0x104f6cf50  DIFFERENT bodies
+            original reads false                                     control holds
+    ARM B2  write body 0x104f6ccd0, read body 0x104f6ccd0  SAME body
+            original reads 1
+
+⚠⚠ THE WRITE AND THE READ LAND ON DIFFERENT NODES SHARING ONE BODY. Under the
+legacy layout, on the bare binary, with no split anywhere near it. The round
+trip works TODAY for exactly one reason: the flag lives in the shared GroupBody.
+
+⚠⚠ AND ARM A AND ARM B2 ARE THE SAME PHENOMENON. Naming a field twice is, at
+the node level, indistinguishable from taking an addGroup twin -- two nodes, one
+body, in both. The thing the campaign has been calling "broadcast" and the thing
+it has been calling "a round trip" are one mechanism seen from two sides.
+
+THAT IS ROW 3 OF THE BRIEF'S TRUTH TABLE: addresses differ, r reads 1 in R1 --
+the covering mechanism confirmed DIRECTLY. Row 3 takes no R2 column, by the
+table's own construction, so R2 is a don't-care for the scoring and was NOT run.
+
+⚠ AND IT SETTLES noPrint's OWN GATE WITHOUT MOVING IT. Section C4 requires
+`R2 r == 1` before a flag may move. A bit resident on the NODE and written to
+node X cannot be read back from node Y; the naming road is independent of where
+flags live, so no layout change alters it. noPrint therefore CANNOT meet its
+gate, and C4's own clause applies: a flag that fails the gate STAYS in the body
+and gets a register row naming the row it hit. That row is written in
+docs/groupBodySplit.md.
+
+⚠ ARM C READING `noPrinT` IS THE CORRECT FALSE READING, NOT A DEFECT. opDot mints
+`product = new(tag)` and only sets `product.count` when the flag is on, so a
+false read hands back a field with no data -- and a field with no data returns
+its own tag (bear-trap 26). Distinct from 1 and distinct from the uninitialised
+9, which is all a control has to be. Do not "fix" it into a 0.
+
+NEXT: OPEN
+
+This is an oracle, not a citizen -- it has no fix to recommend because it exists
+to find out which repair is owed. What it produces is a row in the brief's C3
+truth table, and each row routes somewhere different: to the layout in
+GroupItem.twk, to the write path, to the copy constructor, or to a census before
+any second flag moves.
+
+WHAT WOULD GENERATE MORE: run it on the bare binary, then move `noPrint` alone
+to GroupItem's options block and run it again. The two runs are the measurement.
+Anything the table has no row for is filed OPEN and not guessed.

@@ -141,6 +141,148 @@ three-mechanism split being wrong.
 
 ---
 
+# ⚠⚠⚠ THE ROUND-TRIP ORACLE ANSWERS, 2026-08-31 — **TRUTH-TABLE ROW 3, AND THE
+# COVERING MECHANISM IS CONFIRMED DIRECTLY ON THE BARE BINARY**
+
+`incant/roundTripT`, built to Clay's C1. **The split was not attempted a fourth time and did
+not need to be.**
+
+## The measurement, at the two sites themselves
+
+An ephemeral `%p` instrument in `opSetFlag` case 29 and `opDot` case 29 — the actual write and
+the actual read — reverted and the binary rebuilt **bare** before any capture:
+
+```
+ARM A   RTWRITE noPrint target=0x104f74c00  body=0x104f68280
+        RTREAD  noPrint target=0x104f77e80  body=0x104f68280
+        r = 1
+```
+
+**Two different nodes. One shared body. Legacy layout, no split anywhere near it.**
+
+**THE ROUND TRIP WORKS TODAY FOR EXACTLY ONE REASON: THE FLAG LIVES IN THE SHARED
+`GroupBody`.** `x :. noPrinT` writes one node and `x.noPrinT` reads another, and the two agree
+only because they are looking at the same storage.
+
+⚠ **AND ARM A AND ARM B2 ARE ONE PHENOMENON.** ARM B2 takes an `addGroup` twin, writes the
+twin and reads the original: same body, different nodes, original reads **1**. Naming a field
+twice is, at the node level, **indistinguishable from taking an addGroup twin**. So what this
+document has been calling *broadcast* and what the brief calls *a round trip* are the same
+mechanism seen from opposite sides — and `incant/broadcastT`'s ARM 2b was already firing it in
+the other direction.
+
+## ⚠⚠ THIS IS UPSTREAM OF ALL THREE ATTEMPTS, AND IT RE-READS THEM
+
+The columns, the stamp, the roads and the writers were the search space for three strokes.
+**None of them is the mechanism.** Attempts 2 and 3 built a correct copy law and got `1` twice
+because the copy law is not what was carrying the flag between the write and the read — **the
+shared body was**, and it was doing it for ordinary named access, with no copy road involved.
+
+**A stamp at a minting road cannot help**, and now the reason is structural rather than
+temporal: `inheritIdentity` fires when a copy is MINTED, and the nodes in ARM A are not a
+mint-and-a-copy — they are two wrappers over one body, produced by the naming road on demand.
+There is no moment for a road to stamp.
+
+## ⚠ WHAT IT COSTS `noPrint`, AND THE GATE DECIDES IT WITHOUT A FOURTH ATTEMPT
+
+C4 requires `roundTripT` green under the split — `R2 r == 1` — before a flag may move. **A bit
+resident on the NODE, written to node X, cannot be read back from node Y.** The naming road is
+independent of where flags live, so no layout change alters it.
+
+**`noPrint` therefore CANNOT meet its gate**, and C4's own clause applies: *a flag that fails
+the gate STAYS in the body and gets a register row naming which truth-table row it hit.*
+
+| flag | truth-table row | verdict |
+|---|---|---|
+| `noPrint` | **row 3** — addresses differ, `r` reads 1 in R1 | **STAYS in `GroupBody`.** Fails C4's gate for a reason no layout change can fix |
+
+**AND THE ROW GENERALISES, WHICH IS WHY IT IS A CENSUS TRIGGER AND NOT ONE FLAG'S PROBLEM:**
+nothing in ARM A is about `noPrint`. Any flag read back through a name has the same two nodes
+under it. ⚠ **So the question the campaign now owes is not "which flags are identity" — §2's
+list answers that and is not in doubt — it is "which flags are ever READ BACK THROUGH A NAME
+after being written", because those are the ones the shared body is currently carrying.**
+
+⚠ **AND `isLabel` IS THE MEASURED COUNTER-EXAMPLE ALREADY ON FILE**, which is what makes this
+a discriminator rather than a blanket refusal: tranche A moved it alone and certified
+**byte-identical**. Nothing writes `isLabel` through `:.` and reads it back through a name, so
+the covering never mattered for it. **The bridgehead stands.**
+
+## The price, re-measured — and it moved
+
+| | register §3 said | measured 2026-08-31 |
+|---|---|---|
+| `noPrint` hand-written sites | **4** | **5** — `genParse.rtn:757`, `jitEmitters.rtn:219`, `:2458`, `:2708`, `:3140` |
+
+Small, and it changes no routing. Recorded because **a cited number that is never re-run cannot
+be told apart from one that has expired.** H11's control was pre-registered — all five rows
+named by eye before the count — and it is the reason a first attempt at this census, **run with
+UNQUOTED `--include` globs so the shell expanded them against the cwd**, was caught and thrown
+away rather than reported. That is H11's own recorded failure, walked into again by someone who
+had read it the same day, which is the standing argument that **structure beats vigilance**.
+
+⚠ **The bear-trap #10 sweep gap IS clear for this flag, and a correction was withdrawn before
+it was reported.** `GUI/Bwana.mm`, `GUI/Control.mm` and `GUI/Details.mm` do carry `noPrint` —
+but as `item->noPrint`, the GUI widget classes' **own** member, with no `groupBody` in the path.
+Nothing is owed there and §3's clearance claim stands.
+
+## ⚠ AND ONE ARM VOIDED ITSELF, WHICH IS THE INSTRUMENT LESSON
+
+ARM 0 — two adjacent `probeNode` calls on one name, nothing between — reports **different
+`node=` and the same `body=`**. So `probeNode` mints a wrapper per call and **its** address
+column cannot attribute anything to `:.` or `.`. The arm was added as a control on a reading
+that already looked decisive, and it voided that reading; the site instrument was built only
+because it did. **Reported as void, not graded.** Had ARM 0 been skipped, a confident and
+unsupported conclusion would have gone into this document in its place.
+
+---
+
+# ⚠⚠⚠ THE THREE-ATTEMPT LEDGER — written 2026-08-31 at Clay's instruction, because
+# nothing on file answered "did the reverts teach anything about SHAPE"
+
+**They did. THE THREE ATTEMPTS WERE NOT THE SAME SHAPE**, and a fourth described as
+*"unchanged in shape"* would need to say unchanged from **which one**. Each attempt added
+machinery the one before it lacked, and the reading moved once and then stopped moving.
+
+| # | date | shape — what was actually built | audit MISSRULE | other instruments | write-up commit |
+|---|---|---|---|---|---|
+| **0** | 08-30 | the census. No code. | — | — | `31e6acb` (S11) |
+| **1** | 08-30 | **move only.** Tranche A `isLabel` alone, then tranche B's 34 identity flags. **No copy law at all** | baseline 10 → **0** | fleet 86 green → **3**; frontier **139** | `a115cd8` (S13) |
+| **2** | 08-31 | move **+ `GroupItem::inheritIdentity(grup)`**, the copy law written once and called at both minting roads. 23 INHERIT / 10 DIVERGE. Plus `copyOf`'s `isVirtual` test re-subjected to `grup.isVirtual` | **1** | fleet **HUNG** (>10 min against a 90s/fixture cap) | `3ee1d0f` (S14) |
+| **3** | 08-31 | attempt 2 **+ the writer fix (checked per site, resolved to a NO-OP)** **+ `isVirtual` re-homed to STAY**, rider reverted | **1** | `kant8T` still **times out at 90s** | `058d2cf` (the 08-31 seal) |
+
+**WHAT THE PROGRESSION SAYS.** Attempt 1's `0` is a *substrate* failure — nothing read as a
+rule at all. Attempt 2's `1` is a *residual* failure, and it is the copy law doing almost all
+of its job: 9 of 10 recovered. **Attempt 3 moved the reading not at all**, which is the datum
+that sent the search upstream — two different additions, same number, so neither addition was
+touching the thing that was wrong.
+
+⚠ **AND THE SHAPE-CHANGE IS WHY "TRY IT AGAIN UNCHANGED" IS NOT A NULL INSTRUCTION.** Attempts
+2 and 3 differ by two edits, one of which (`isVirtual` at STAY) was **reverted** and one of
+which (the writer fix) **was never written because the per-site check dissolved it**. So
+attempt 3's *delivered* shape is attempt 2's shape. **The re-attempt is unchanged from attempt
+TWO, and attempt one is a different animal that should not be counted as a precedent for it.**
+
+## ⚠⚠ THE PART THAT IS A RISK ROW RATHER THAN A HISTORY ROW: **NO SPLIT CODE HAS EVER BEEN
+## COMMITTED. NOT ONCE, IN THREE ATTEMPTS.**
+
+Measured, not assumed — `git log -S"inheritIdentity" --all` and `git log -S"options.isRule"
+--all` return `3ee1d0f` and `ca92331`, and **both are prose**: S14 touched only this file, S15
+only `incant/broadcastT`. The working tree carries no `inheritIdentity` today.
+
+**So every attempt's shape exists ONLY as the paragraphs above.** There is no diff to re-read,
+no branch to check out, nothing to compare a fourth attempt against. That is what turns
+*"unchanged in shape"* from a cheap instruction into an unverifiable one, and it is the same
+class as bear-trap #21 — **a description is evidence about what someone was doing, never about
+what landed.**
+
+**THE CHEAP FIX, AND IT COSTS NOTHING THE NEXT TIME:** land the next attempt on a **named WIP
+branch** before certifying it, or `git stash` it under a named message at the revert. The
+revert stays the right call; what is wrong is that the revert has been taking the only copy of
+the artifact with it. `git merge -s ours` exists for precisely the discard-but-keep-reachable
+case (bear-trap #21's other half).
+
+---
+
 # ⚠⚠ THE SPLIT WAS ATTEMPTED, 2026-08-30, AND CERTIFICATION FAILED — WITH A CAUSE
 
 **Reverted; fleet byte-identical to its pre-split baseline (86 green), all POPs green,
