@@ -1,10 +1,30 @@
 -------------------------------------------------------------------
   WALKIE-TALKIE  -  CLAY -> CLOD
   Clay writes this file. Clod reads it, acts, then clears it.
-  Clod's replies go in ipc/clod-to-clay.md  (never write here, Clod).
+
+  CLOD'S REPLIES GO IN ipc/clod-to-clay.md -- never reply here.
+  BUT SCRIBING IS CLOD'S JOB: when Tony relays an instruction from Clay,
+  CLOD WRITES IT HERE, with a SEQ, marked "dictated via Tony; transcribed
+  by Clod". That is not a reply and it belongs in this file.
+
+  ⚠ WORDING AMENDED 2026-08-31 (Tony). This line used to read "never write
+  here, Clod", which was the right RULE said the wrong way: it forbade the
+  scribing it was never meant to forbid, while ~35 entries below -- SEQ 84
+  and SEQ 88 among them -- were transcribed by Clod under the convention it
+  appeared to ban. The cost was measured: a relayed brief went into a
+  SEPARATE FILE to avoid breaking a rule that did not exist, and about a
+  dozen of Clay's instructions (SEQ 85, 87, 89-97) were never recorded here
+  at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
+  WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      99
-STATUS:   verdict        # fresh = parked/unread | working = picked up, in progress | cleared = done
+SEQ:      100
+STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-01  -  Clay (SEQ 100, dictated via Tony; transcribed by Clod, WT-9)
+          ⚠ SEQ 100 IS LIVE AND IS AT THE FOOT -- F-35 FIRST, then the
+          isRule-gated rStuff complaint, then A TABLE, NOT A REPAIR.
+          SUPERSEDES SEQ 99's step 5 only (premise falsified by the 16,607-line
+          measurement; withdrawn). Everything else in SEQ 99 stands as executed.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-08-31  -  Clay (SEQ 99, dictated via Tony; transcribed by Clod, WT-9)
           ⚠ SEQ 99 IS AT THE FOOT -- the round-trip fixture, the split one flag
           at a time, the flip's third asking. ANSWERED same day; verdict is
@@ -4256,3 +4276,157 @@ have begun to overlap. Clod SEQ 87 answers Clay SEQ 94; Clod SEQ 94 is then its
 own entry. Reading the trail now requires knowing whose 94 is meant. Two clean
 fixes -- one shared strictly-increasing counter across both files, or explicit
 per-side prefixes (C-nn for Clay, D-nn for Clod). NOT decided here.
+
+
+===================================================================
+SEQ 100  --  2026-09-01, Clay (dictated via Tony; transcribed by Clod, WT-9).
+             F-35 FIRST, THEN THE isRule-GATED rStuff COMPLAINT, THEN A TABLE,
+             NOT A REPAIR.
+SUPERSEDES:  the "step 5" of SEQ 99 -- premise falsified by Clod's 16,607-line
+             measurement; WITHDRAWN. Everything else in SEQ 99 stands as executed.
+RULINGS CARRIED (Tony):
+             getRStuff is a pure getter and stays one
+             isRule does NOT imply rStuff (a bare master is lawful, Ruling D)
+             tokenize grammar rule #43 retires
+             the complaint below is GATED ON isRule
+===================================================================
+
+STATUS: working -- picked up 2026-09-01 at session start.
+
+C0 -- ORDER IS THE INSTRUCTION. F-35 BEFORE ANY NEW INSTRUMENT.
+
+The complaint table in C3 is read off the fleet. If pop.sh and the scratch board
+are not running the same generated code, the table is untrustworthy BEFORE IT
+EXISTS. Nothing in C2-C5 starts until C1 has a verdict, or an OPEN row with its
+discriminators exhausted.
+
+C1 -- F-35: TWO DISCRIMINATORS, THIS ORDER, STOP AT THE FIRST THAT ANSWERS
+
+Standing fact: on the incumbent, construction-on-read makes `!getRStuff()` NEVER
+true. A 10/4 reading CANNOT come from a code path that constructs. So
+order-of-asking is NOT a candidate; the two boards ran different code, or
+different binaries.
+
+  1. SAME BINARY? md5 the binary pop.sh actually invokes (resolve its path from
+     the script, do not assume) against the scratch-board binary. Different =>
+     F-35 is a TOOLING row, not a codegen row; fix pop.sh's path and re-run both
+     boards on the pure binary.
+  2. SAME CODEGEN? The named grep: at auditMissingRules's generated line,
+     `->rStuff` vs `->getRStuff()`, in each .mm that carries it, in each build.
+     Different => bear-trap #11's sequel is confirmed: whether a read constructs
+     depended on the mirror's state at tok time.
+
+Either answer closes F-35. Neither answer => OPEN row, both discriminators
+recorded, and C2 waits for Tony.
+
+REGARDLESS OF VERDICT: add a fleet row counting raw `->rStuff` reads across the
+generated .mm (expected: the 21 passthrough sites, named). The row exists so
+mirror drift goes RED at the next retok instead of being discovered in an audit
+discrepancy.
+
+C2 -- THE COMPLAINT, GATED
+
+getRStuff(): `return rStuff` unchanged. Add: if rStuff is null AND
+groupBody->flags.isRule is set => complain, then return null. NO CONSTRUCTION.
+No complaint when isRule is clear -- that is the 4,389-fresh-nodes population
+and it is LAWFUL.
+
+The complaint line carries three things or it is useless: NODE NAME, CALLER
+(__FUNCTION__ or a site label on the C++ side; rule/action name where the read
+originates in kant), and THE FIELD being read if the getter is field-specific.
+Dedupe on (node, caller) -- volume is reads-on-the-population, not
+nodes-in-tree, and the deliverable is a TABLE, not a scroll.
+
+CHANNEL, NOT CRASH: squawk to stderr, return null, run continues.
+
+C3 -- FIRST FLEET RUN: A TABLE, EVERY ROW GRADED, AND NO REPAIRS IN THIS STROKE
+
+One run of the fleet plus parser(Start). Output: the deduped (node, caller)
+table. PRE-REGISTER the expected node population BEFORE the run: the ten (six
+attachment, three bin-propagation -- break/continue/return -- one other). A node
+outside the ten is a FINDING; say so.
+
+Grade each row into EXACTLY ONE of:
+
+  ASKING      the reader was testing existence and can tolerate null. Leave the
+              reader; the row is noise to be silenced AT THE READER
+              (capture-then-test, hasRStuff first), not at the getter.
+  NEEDING     the reader cannot proceed without rStuff. Name the attachment road
+              that should have given this master rStuff and did not. This is the
+              row that decides whether the master is reachable at attachment (C4).
+  WRONG NODE  the reader should not have been looking at a master at all.
+              Face/master seam, the setParse shape. Route the reader, do not
+              feed the master.
+  OPEN        none of the above fits. Filed, not forced.
+
+ZERO ROWS FOR break/continue/return IS A RESULT: they do not need rStuff, and
+their isRule is a bin-propagation artefact, which feeds C6.
+
+C4 -- THE POINTER QUESTION, ANSWERED BY MEASUREMENT, ONLY IF C3 HAS A NEEDING ROW
+
+If any row is NEEDING: at that attachment road, can the term reach its master BY
+POINTER without locate (section 1.3 forbids it)? MEASURE -- print the addresses
+at setRuleStuff entry and try the walk definingRule() uses.
+  YES => one line in setRuleStuff constructs for the master too; the invariant
+         isRule => rStuff becomes ENFORCEABLE AT THE WRITE.
+  NO  => the invariant is unenforceable and the NEEDING READER is what moves, to
+         a hasRStuff test, or to the term, never the master.
+If C3 has no NEEDING row, C4 DOES NOT RUN.
+
+C5 -- setRuleStuff MAKES ITS OWN GUARANTEE EXPLICIT
+
+Before the getter went pure, setRuleStuff's bare `.rStuff` reads were bound to a
+CONSTRUCTING getter, so part of its "callee always ends with rStuff" guarantee
+lived in #autoGetSet, not in its body. Add the explicit `if !rStuff` then
+construct (or ensureRStuff()) inside it. ONE LINE. Fleet byte-identical is the
+certificate. Leave the isRule write and the `rule != this` arm EXACTLY as they
+are -- C4 may change the former; nothing in this brief touches the latter.
+
+C6 -- DISCHARGES AND RETIREMENTS, IN THIS ORDER, EACH ON ITS OWN COMMIT
+
+  1. tokenize #43 RETIRES (Tony's ruling: unused). Sweep: incant/grammar's line;
+     the rule count 58 -> 57 and every odometer/ladder denominator baked from it;
+     any addressing of #43 by index; F-31's fourth customer struck (off-rule
+     storage drops to three customers); the F-31 snake-eats-tail Arm A stands
+     down; the F-31 fixture goes RED BY DESIGN and is RETIRED, not re-pinned.
+     Register row says all of this so no seal carries it as a live gate again.
+  2. literalMasterIsRule DISCHARGES BY RULING -- B1 struck (no per-node home for
+     a named reference, roundTripT row 3), B2 struck (measured 08-28), A
+     superseded by the doctrine that isRule does not imply rStuff. Its ten
+     masters are LAWFUL BARE MASTERS. Discharge is written AFTER C3's table
+     exists, so the row can cite the TABLE rather than the ruling alone.
+  3. auditMissingRules -- NOT RETIRED IN THIS BRIEF. It is honest now and still
+     the gate's number. Whether it retires (the complaint table empties => the
+     getter IS the audit) or gets re-specified (what does "missing" count when
+     isRule does not imply rStuff?) is TONY'S, and he wants C3's table in hand
+     first.
+
+C7 -- DOCTRINE ROWS FOR hookRules.md
+
+  - Flags are SHAPE facts and live on the body. USE facts live on rStuff. The
+    wrapper holds nothing durable for a named reference (roundTripT row 3;
+    broadcast and round-trip are ONE mechanism).
+  - isRule does NOT imply rStuff. Readers needing rStuff check rStuff.
+  - A #autoGetSet getter that does WORK ON A MISS turns every existence test
+    into a MUTATION. One grep across the getters for any other with this
+    property, count recorded.
+
+C8 -- GATE STATUS, STATED SO NOBODY MOVES IT BY ACCIDENT
+
+The certification gate remains THE AUDIT NUMBER. Purity closed the
+repairs-while-counting half. THE GATE DOES NOT MOVE IN THIS BRIEF. It moves when
+Tony rules on C6.3 with C3's table and C1's verdict in front of him.
+
+C9 -- WHAT CLAY WANTS BACK, AND NOTHING ELSE FIRST
+
+  1. F-35's verdict with the discriminator that settled it (or the OPEN row with
+     both exhausted).
+  2. The C3 table, graded, with the pre-registered population line above it.
+  3. If it ran: C4's address printout and the yes/no.
+  4. The raw `->rStuff` read count and the #autoGetSet grep count from C7.
+
+STATUS on read: working. STATUS on C3 table banked: verdict.
+Tony's window: grep -H '^STATUS:' ipc/*.md
+
+  END SEQ 100
+

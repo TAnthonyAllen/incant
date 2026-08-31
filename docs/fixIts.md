@@ -155,7 +155,41 @@ divergence is intended and why. **Owner: Tony** (his file, his intent). **Size:*
 edits. **For 1 and 5 the ruling can be read off the sites above; the runnable demonstration is owed
 an instrument first.**
 
-### F-35 — ⚠⚠ TWO `audit()` PASSES IN ONE PROCESS DISAGREE WITH `pop.sh`'s AUDIT ROW, AND NOBODY KNOWS WHY
+### F-35 — ✅ CLOSED 2026-09-01 by discriminator 2 — it was CODEGEN DRIFT FROM ONE OUT-OF-REPO LINE
+**Verdict:** SEQ 100 C1. Discriminator 1 (same binary?) answered SAME — `pop.sh` resolves
+`${INCANT:-$HOME/bin/incant}` and the md5 matched the scratch board's byte for byte, so not a
+tooling row. **Discriminator 2 (same codegen?) answered DIFFERENT, and closed it:**
+
+| build | `auditMissingRules`, GroupRules.mm:2217 |
+|---|---|
+| incumbent `b0fca3d` | `if ( entry->groupBody->flags.isRule && !entry->rStuff )` — **RAW field, IMMUNE** |
+| current | `if ( ... && !entry->getRStuff() )` — accessor |
+
+⚠⚠ **AND IT CORRECTS THE R3 COMMIT, WHICH GOT THE STORY BACKWARDS.** R3 claimed *"the audit was
+constructing an rStuff for every node it reported as missing one"*. **False for the incumbent** —
+the audit read the raw field and never constructed. That became true only *after* `getRStuff` was
+added to `groups.ext`'s external `GroupItem` mirror, in the same commit. **The claim was measured on
+one build and cited as a timeless fact about another**, which is precisely the re-measure-before-you-
+cite failure this project already keeps a ledger for.
+
+**What actually produced the 0/801 reading:** on the incumbent, `auditMissingRules` was immune but
+the **~137 accessor sites around it were not**. A heavy preamble parses a great deal before `audit()`
+runs, and every `if !x.rStuff` existence test along the way silently constructed — so the audit read
+a tree that everything else had been mutating. **The corruption was upstream of the audit, never
+inside it.** Confirmed by preamble-dependence: on the pure binary, light and heavy preambles both
+report **10 missing / 4 loose**; on the incumbent, heavy reported **0 / 801**.
+
+⚠ **THE MIRROR LINE'S REACH, MEASURED: 8 `getRStuff()` call sites before, 137 after.** One line in a
+file outside this repo moved ~129 reads from the raw field onto the accessor. Harmless while the
+getter is pure; a tree-wide mutation the day anyone puts work back into it. **A standing fleet row
+now pins the raw-read count at 30 so this drift goes RED at the next retok** instead of being
+rediscovered as an audit mystery. H7 control: under the incumbent mirror the row reads 136.
+
+**Status:** closed. Stays one cycle for the trail.
+
+---
+
+### F-35 (superseded) — the original open row, kept for the reasoning trail
 **Where:** `Commands.rtn` `auditRStuff` (the `audit` command) and `GroupActions.rtn`
 `auditMissingRules`. Surfaced 2026-08-31 while measuring the `getRStuff` purity ruling.
 

@@ -1420,9 +1420,42 @@ void *GroupItem::getPointer()
     unresolvedTerms header says so), and `getStuff` now names it: it calls
     ensureRStuff, because that is what it always wanted.
 
-    ⚠ ZERO CALLERS TODAY, DELIBERATELY, AND THAT IS NOT DEAD CODE. Every bare
-    `.rStuff` in the tree IS a call to this function — the four literal
-    spellings were the only ones that wanted the other half.
+    ⚠ ZERO LITERAL CALLERS, AND THAT IS NOT DEAD CODE. Every bare `.rStuff` in
+    the tree IS a call to this function — the four literal spellings were the
+    only ones that wanted the other half.
+
+    ⚠⚠ THE isRule-GATED COMPLAINT WAS BUILT, RUN, GRADED AND REMOVED — SEQ 100
+    C2/C3, 2026-09-01. It shipped nothing because it had NO SIGNAL, and the
+    reason is worth more than the instrument: EVERY CALLER IS ASKING.
+
+        caller                                  rows   grade
+        setRuleStuff        GroupItem.mm:2530     45   ASKING
+        aCTionDefinE        GroupRules.mm:528     48   ASKING
+        aCTionDefinE        GroupRules.mm:593     16   ASKING
+        auditMissingRules   GroupRules.mm:2217    10   ASKING
+        processFlags        GroupRules.mm:12445    9   ASKING
+
+    Five callers, ZERO NEEDING, zero WRONG NODE, zero OPEN — so C4 did not run,
+    by its own gate. Four of the five are the IDENTICAL idiom,
+    `if !X.rStuff  X.rStuff = new(X)`, which is a producer about to construct;
+    the fifth is the audit, whose entire job is to find null. A complaint here
+    fires on the code that FIXES the condition and on the code that COUNTS it,
+    and on nothing else.
+
+    ⚠ AND THE PLACEMENT IS THE ONE-CHANNEL-TWO-MEANINGS FAULT, not the volume.
+    A miss at a producer means "about to be constructed, this statement"; a miss
+    at the audit means "genuinely absent". SAME SIGNAL, OPPOSITE MEANINGS, and
+    that is why the deduped population was 115 nodes where ten were
+    pre-registered: 105 of them were missing rStuff for the width of one
+    statement. The getter cannot tell those apart because it fires BEFORE the
+    fix, on the same line.
+
+    THE RECIPE, kept because the instrument is worth rebuilding and is not worth
+    shipping: gate on `!rStuff && isRule`; take the caller from
+    `__builtin_return_address(0)`; dedupe on (node tag, caller) in a static
+    table; print an anchor once — `(void*)::probeNode` — and symbolise offline
+    with `atos -o ~/bin/incant -l <0x100000000 + runtimeAnchor - nmAnchor>`.
+    dladdr is NOT available in GroupItem.mm's include chain; do not reach for it.
 *******************************************************************************/
 RuleStuff *GroupItem::getRStuff()
 {

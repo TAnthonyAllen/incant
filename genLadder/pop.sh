@@ -1012,6 +1012,36 @@ else
     fail=1
 fi
 
+#  ---------------------------------------------------------------------------
+#  RAW ->rStuff READS IN THE GENERATED .mm -- THE MIRROR-DRIFT TRIPWIRE.
+#  SEQ 100 C1, 2026-09-01. This row exists because F-35 was discovered as an
+#  AUDIT DISCREPANCY when it was really codegen drift, and the drift came from
+#  ONE LINE IN AN OUT-OF-REPO FILE that a Groups `git status` can never show.
+#
+#  Adding getRStuff to groups.ext's external GroupItem mirror moved ~129 reads
+#  from the raw field onto the accessor -- measured: 8 getRStuff() call sites
+#  before, 137 after. That is harmless while the getter is PURE and would be a
+#  tree-wide mutation the day anybody puts work back into it (bear-trap #11's
+#  sequel; the getter's own header carries the argument).
+#
+#  H4: the count is printed and compared BY VALUE, never asserted as an absence.
+#  The 21 survivors are hand-written `-%` passthrough sites, which no mirror
+#  change can reach. If this row moves, the mirror moved -- go and read it
+#  BEFORE believing any audit number taken on the new binary.
+rawreads=$(grep -o -- "->rStuff" GroupItem.mm GroupBody.mm GroupControl.mm GroupMain.mm \
+                       GroupRules.mm RuleStuff.mm 2>/dev/null | grep -vc "getRStuff\|setRStuff")
+rawlines=$(grep -l -- "->rStuff" *.mm 2>/dev/null | wc -l | tr -d ' ')
+if [ "$rawreads" = "30" ]; then
+    echo "  ok    raw ->rStuff reads = 30 across $rawlines .mm -- PINNED BY VALUE (mirror-drift tripwire)"; green=$((green+1))
+else
+    echo "  FAIL  raw ->rStuff reads MOVED -- the groups.ext mirror changed codegen"
+    echo "          actual:   $rawreads"
+    echo "          expected: 30   (21 hand-written passthrough lines)"
+    echo "          => read ~/Dropbox/data/InProcess/Include/groups.ext before trusting"
+    echo "             any audit number taken on this binary. See F-35."
+    fail=1
+fi
+
 echo ""
 if [ $fail = 0 ]; then echo "POP PASSED -- $green green / $parked parked-WIP"
 else echo "POP FAILED -- $green green / $parked parked-WIP"; fi
