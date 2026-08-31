@@ -1078,6 +1078,19 @@ not a new one.** Writing `MethodNotes` beside it would have been a second popula
 subject — the duplicate-register failure this file warns about, committed by the person writing the
 warning down. **Read the register before you add to it.**
 
+⚠ **PROSE ENTRIES USE THE `(…#)` LITERAL, NEVER A `"…"` STRING — Tony, 2026-09-01.** A quoted
+string cannot carry an apostrophe or a double quote, and reaching for one is what killed the first
+`designDocs` write under this convention: it died with bear-trap #32's misdirection, naming
+`DisplayDesignHTML`, the file's first and perfectly healthy entry. Inside `(…#)`, apostrophes,
+double quotes and a bare `)` are all fine — measured, and there are 27 double-quotes living inside
+`(…#)` blocks in `incant/designDocs` today.
+
+⚠⚠ **AND `#` IS THE ONLY DELIMITER — `docs/forms.md` used to promise an escape hatch that does not
+exist, and it is corrected there with the matrix.** `@)`, `*)`, `%)`, `~)`, `/)` and `.)` all fail;
+only `#)` parses. **If a body genuinely contains `#)`, restructure the prose** — there is no second
+delimiter to reach for. (The `Modifier`-set hypothesis was raised and falsified in the same run;
+cause undiagnosed, symptom recorded.)
+
 **THE SHAPE IS PROVEN, NOT INVENTED.** `incant/designDocs`' `ParserIncantation` already does exactly
 this for `IncantForms/WorkingOn/parser` — `ParserGates`, `ParserHangHistory`, `ParserDriverShape` are
 long design prose living as DesignDocs children instead of as comments in source. Copy that shape.

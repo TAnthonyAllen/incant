@@ -62,6 +62,8 @@ the first attempt used `"..."` strings, which do not carry apostrophes, and died
 misdirection — `RunRulE: expected a method not DisplayDesignHTML`, naming the file's first and
 perfectly healthy entry.
 
-**Two things the trial learned before its first lookup:** prose entries use the `(…#)` literal, never
-a quoted string; and the key is the **tree path** `File.method`, because that is what the tree
-already is.
+**Three things the trial learned before its first lookup:** prose entries use the `(…#)` literal,
+never a quoted string; the key is the **tree path** `File.method`, because that is what the tree
+already is; and **`#` is the only working delimiter** — `docs/forms.md` promised a flexible one and
+was corrected on measurement, matrix included. The `Modifier`-set explanation for *why* was raised
+and falsified in the same run, so the symptom is recorded and the cause is open.

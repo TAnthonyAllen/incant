@@ -102,12 +102,40 @@ by the delimiter (`#`) rather than the bare `)`, so an ordinary `)` inside the
 text does *not* terminate it — verified: `(… a ) paren inside#)` parses with the
 embedded `)` intact.
 
-**Close-delimiter flexibility.** The closing marker is *captured by the rule*
-(`=delimiter`), not hardcoded to one character — so it can be chosen to avoid
-whatever the prose contains. The corpus convention is **`#)`** (delimiter `#`
-immediately before the closing paren). Stick to `#)` unless a body genuinely
-contains `#)`, in which case pick another delimiter; document it inline if you
-do.
+⚠ **CLOSE-DELIMITER FLEXIBILITY — CORRECTED 2026-09-01. IT DOES NOT WORK. `#` IS
+THE ONLY DELIMITER.** This paragraph used to say the closing marker is *captured
+by the rule* (`=delimiter`), not hardcoded, so it could be chosen to avoid
+whatever the prose contains. **Measured, in a `define` block under the standard
+preamble — the position `incant/designDocs` actually uses — and only `#)`
+parses:**
+
+| close | in the `Modifier` set? | result |
+|---|---|---|
+| `#)` | no | **PARSES** — the control, and the test is void without it |
+| `@)` `*)` `%)` `~)` | yes | FAILS |
+| `/)` `.)` | no | FAILS |
+
+**The `Modifier` set is not the discriminator** — that hypothesis was raised
+(`Modifier=[-~+?!%&|*@_<^{}$]` swallows `@`) and **falsified in the same run**,
+because `/` and `.` are outside it and fail too. Why `delimiter` resolves to `#`
+alone is **not diagnosed**: `incant/grammar:55` is `DelimText leftParen
+dtext^=delimiter}` and `delimiter` is defined nowhere in `grammar` or `setup`,
+so it is presumably bootstrapped. **Symptom recorded, cause open** — bear-trap
+#18's split.
+
+**SO THE PRACTICAL RULE IS: use `#)`, and if a body genuinely contains `#)`,
+RESTRUCTURE THE PROSE.** There is no second delimiter to reach for. The old
+paragraph offered an escape hatch that does not exist, which is worse than
+offering none — a future author would have written `@)`, watched the parse die
+naming a healthy entry three screens up (bear-trap #32's misdirection), and
+hunted the wrong thing.
+
+⚠ **AND THE REST OF THE SECTION ABOVE STANDS AND WAS RE-MEASURED THE SAME DAY:**
+apostrophes, double quotes, and a bare `)` all live happily inside `(…#)`. There
+are 27 double-quotes inside `(…#)` blocks in `incant/designDocs` today. **That is
+the reason to reach for this form** — a `"…"` string cannot carry an apostrophe,
+and reaching for one instead is what killed the first `designDocs` write of
+2026-09-01.
 
 ---
 
