@@ -17,8 +17,12 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      101
-STATUS:   verdict        # fresh = parked/unread | working = picked up, in progress | cleared = done
+SEQ:      102
+STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 102, dictated via Tony; transcribed by Clod, WT-9)
+          ⚠ SEQ 102 IS LIVE AND IS AT THE FOOT -- CARRIERNODE: CONFIRM THE ORDER,
+          THEN BUILD THE FRAME BIND. The campaign's endgame.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 101, dictated via Tony; transcribed by Clod, WT-9)
           ⚠ SEQ 101 IS LIVE AND IS AT THE FOOT -- THE FLIP, THE THIRD ASKING, ON
           CLEAN GAUGES FOR THE FIRST TIME. One commit, one revert floor. The
@@ -4493,4 +4497,53 @@ census, isPointer retirement, parseSelfRecursion retest. NONE OF IT IN THE
 FLIP'S STROKE.
 
   END SEQ 101
+
+
+===================================================================
+SEQ 102  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod, WT-9).
+             CARRIERNODE: CONFIRM THE ORDER, THEN BUILD THE FRAME BIND.
+===================================================================
+
+STATUS: working -- picked up 2026-09-02.
+
+PART 1 -- THE ORDERING RUN, PREDICTION PRE-REGISTERED. carrierNode's OPEN
+measurement with the prediction now attached: order every argument-slot touch
+against CARRIERCAM's two lines in one run, and THE CALLEE'S READ-NODE MINTS
+BEFORE THE BIND LANDS. If the sequence reads MINT -> BIND -> READ, the mechanism
+is confirmed and Part 2 proceeds. ⚠ ANY OTHER ORDER IS A FINDING THAT STOPS THE
+LINE -- the frame fix PRESUMES this sequence.
+
+PART 2 -- THE FRAME BIND, parentLabel's PATTERN TRANSPLANTED.
+  the channel  an argument slot ON THE FRAME, alongside parentLabel, same
+               residence.
+  the caller   evaluate ALL argument expressions first, THEN write the slot,
+               THEN call. WRITE-LAST IS LOAD-BEARING.
+  the callee   LIFT INTO A STACK LOCAL AT ENTRY, first line, before any descent
+               -- the emitted parse methods' existing discipline, now MANDATORY
+               for every door that reads the slot.
+  no save/restore anywhere; the slot is a HANDOFF WINDOW, not storage.
+  body adoption at the bind RETIRES -- the write CARRIERCAM watched land on
+  ruleArg's wrapper stops being the mechanism.
+
+PART 3 -- THE CERTIFICATES, ALL PRE-REGISTERED:
+  the asking   parser(Start) receives Start -- node AND body on camera,
+               CARRIERCAM's format.
+  recursion    an A->B->A fixture carrying an argument across the cycle -- K6's
+               shape, now with a customer. THE LIFT DISCIPLINE IS WHAT IT
+               CERTIFIES.
+  nesting      f(g(x)) -- a call in argument position; the inner bind must not
+               clobber the outer setup. New fixture, small.
+  parseRule    gets its OWED LIFT in the same stroke, since the slot it reads is
+               now live traffic.
+  the floor    one commit, pre-flip captures banked, gNoUnwrap rides ONLY if
+               Part 2 lands green. Clod's call whether flip and frame-bind share
+               a stroke or sequence, but THE REVERT BOUNDARY IS NAMED EITHER WAY.
+  opDebug      its strip re-rides whichever stroke carries the flip.
+
+NON-GOALS, STATED SO THEY DO NOT CREEP: the flag-write and addGroup-twin roads
+stay as ruled -- governed by law, not awaiting this fix. The operand-pickup
+unwrap (#35's arms, derefT's non-motion) is THE SECOND GATE, separately
+chartered, NOT THIS BRIEF.
+
+  END SEQ 102
 

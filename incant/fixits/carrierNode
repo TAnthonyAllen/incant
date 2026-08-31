@@ -123,10 +123,43 @@ row, oneTest, jsonTest, derefAllT, sixShapeT and broadcastT. The opDebug unwrap
 strip, which was ruled to RIDE with the flip, reverted with it -- no half-stroke
 shipped.
 
-NEXT: OPEN
+⚠⚠ THE ORDERING RUN IS DONE, 2026-09-02 (SEQ 102 Part 1). MINT -> BIND -> READ.
+CLAY'S PREDICTION CONFIRMED, and Part 2 proceeds on it.
 
-The question is named and it is not either candidate: WHICH ROAD MINTS THE NODE
-THE CALLEE READS AS `argument`, AND DOES IT RUN BEFORE OR AFTER THE BIND?
+    SEQ 30  MINT(aCTionDefinE) slotNode=0x100ced8c0 slotBody=0x100cee960 on caTake
+    SEQ 32  BIND(runAction)    slotNode=0x100ced780 slotBody=0x100cee960
+                               -> resultBody=0x100ceecd0
+    SEQ 33  READ(showBody)     node=0x100cf8780     body=0x100ceecd0
+
+One shared counter across four stamped sites -- the mint in aCTionDefinE, both
+binds in GroupActions, and the read in showBody -- so the order is a SEQUENCE
+READ OFF ONE RUN rather than an inference from four separate ones.
+
+⚠ AND AN EXTRA FINDING THAT STRENGTHENS THE FRAME PLAN RATHER THAN BLOCKING IT:
+THE MINT AND THE BIND ARE ALREADY ON DIFFERENT NODES. Mint slotNode 0x100ced8c0,
+bind slotNode 0x100ced780 -- two nodes over ONE body, 0x100cee960. So there are
+at least THREE nodes in play (mint, bind, read) all deriving one body, and the
+multi-node problem starts EARLIER than the bind.
+
+That is the argument for the frame channel stated as a measurement: a fix that
+chased node identity would have to chase it across three roads, and moving the
+slot to the FRAME dissolves the question instead of answering it three times.
+
+NEXT: RULED -- THE FRAME BIND, SEQ 102 Part 2. Nothing below is built yet.
+
+The shape is parentLabel's, transplanted: the slot lives on the FRAME
+(RuleStuff, alongside parentLabel, same residence); the caller evaluates every
+argument expression FIRST, then writes the slot, then calls -- write-last is
+load-bearing; the callee LIFTS INTO A STACK LOCAL AT ENTRY, first line, before
+any descent. No save/restore: the slot is a HANDOFF WINDOW, not storage. Body
+adoption at the bind retires, so the write CARRIERCAM filmed stops being the
+mechanism.
+
+Certificates pre-registered: the asking on camera in CARRIERCAM's format; an
+A->B->A recursion fixture (K6's shape, finally with a customer) certifying the
+lift discipline; an f(g(x)) nesting fixture where the inner bind must not
+clobber the outer setup; and parseRule's owed lift, since the slot it reads
+becomes live traffic.
 
 WHAT WOULD GENERATE THE ANSWER, cheapest first:
   1. Print the node pointer at every site that touches `field->get("argument")`
