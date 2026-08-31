@@ -28,6 +28,16 @@ caRun();
 print "CARRIERNODE SENTINEL -- reached the foot":;
 stop();
 
+LANE:  parser
+BLAST: OVERLAPS
+
+WHY THIS BLAST STAMP -- routing is auditable, not asserted.
+The fix is the frame bind: a slot on RuleStuff beside parentLabel, runAction's
+bind retiring, and every door that reads the slot lifting at entry. That is a
+LAYOUT change to RuleStuff plus the action-call boundary -- squarely inside the
+recon's surface, and it must land before or ride the migration ledger. It is
+also gated on the gNoUnwrap flip, which is the campaign's own stroke.
+
 THE BIND WORKS. THE CALLEE READS A DIFFERENT NODE.
 
 WHAT YOU JUST RAN. Under the LEGACY layout this prints two bodies that differ,
