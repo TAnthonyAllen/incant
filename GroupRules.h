@@ -265,6 +265,7 @@ extern "C" void limitWriteCheck(GroupItem *target, int priorLimit);
 extern "C" int limitWriteGuard(GroupItem *target);
 extern "C" GroupItem *listenTo(GroupItem *input);
 extern "C" GroupItem *litK(GroupItem *idx);
+extern "C" GroupItem *litToK(GroupItem *idx);
 extern "C" GroupItem *loadDirectory(GroupItem *input);
 extern "C" GroupItem *loadInputFromFile(GroupItem *source);
 extern "C" void loadRegistryFromString(char *name, char *content);

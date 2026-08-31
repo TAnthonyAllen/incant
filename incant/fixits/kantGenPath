@@ -23,8 +23,22 @@ genKant('Xpress');
 cerr :;
 cerr "STAGE 1  THE SUBJECT -- break, the same rule the C++ path was walked on,":;
 cerr "         so the two generators are measured against one another.":;
-cerr "         This is where it breaks. The refusal prints next.":;
+cerr "         REMEDY LANDED 2026-08-31. TAKEN looks like:":;
+cerr "             return litToK(0);":;
+cerr "         NOT TAKEN is the old refusal naming LITTO.":;
 genKant('break');
+
+cerr :;
+cerr "STAGE 1b TERM-POSITION SLOTS -- break exercises the marker-0 slot only,":;
+cerr "         so Braced exercises the OTHER derivation. TAKEN looks like:":;
+cerr "             return litToK(1) AND parseRK(2) AND litToK(3);":;
+genKant('Braced');
+
+cerr :;
+cerr "STAGE 1c THE NEXT BLOCKER, shown on purpose -- BlocK no longer refuses on":;
+cerr "         LITTO. It refuses on MANY, one term further in. That is a refusal":;
+cerr "         census reporting FRONTIERS and not causes (rule H9 corollary).":;
+genKant('BlocK');
 
 cerr :;
 cerr "STAGE 2  and beyond do not run. See the dead region below for the whole":;
@@ -86,36 +100,99 @@ the C++ side of the labelled literal is closed and THE KANT SIDE IS THE HALF
 STILL OPEN. Both generators reached the labelled literal and neither could spell
 it; they are the same missing rung seen from two directions.
 
-NEXT: BEST GUESS -- explicitly NOT a recommendation
+NEXT: REMEDY -- BEHAVIOUR
 
-CANDIDATE: add `litToK` beside `litK`, and give kantLeaf its LITTO case.
-Graded BEST GUESS because the shape is nearly forced but one judgement is not.
-`litK` (genParse.rtn:1015) is eleven lines: resolve the term from `gKantRule`,
-refuse loud if absent, then `if lit(term,term.tag) return trueResult;`. The
-labelled twin is the same eleven lines calling the C++ `litTo(term, into,
-term.tag, slot)` instead, with `into = gKantLabel` -- and gKantLabel ALREADY
-EXISTS and is already read this way by two sibling helpers (genParse.rtn:1389
-and :1450), so no new frame plumbing is needed. kantLeaf then gains
-`or node.tag eq "LITTO"  leaf = "litToK(" at ")";`.
+THE FIX, ITS SITE, AND WHAT TAKEN VERSUS NOT LOOKS LIKE
 
-WHAT WOULD PROMOTE IT: the one judgement is the SLOT NAME. emitLeaf's C++ LITTO
-case takes the slot from the plan node's `slot` attribute; a one-argument
-`litToK(idx)` would have to derive it from the term instead, and whether
-`term.tag` is always the right slot is the question to settle before writing the
-line. Settle that and the candidate becomes a remedy.
-WHAT WOULD KILL IT: if the slot must come from the plan and cannot be derived
-from the term, then litToK needs two arguments, and a kant action takes one --
-which routes through the attributes-plus-scope idiom and is a bigger change than
-this paragraph describes.
+    site 1   genParse.rtn, litToK, inserted immediately below litK
+    site 2   genParse.rtn, kantLeaf -- one arm:
+                 or node.tag eq "LITTO"  leaf = "litToK(" at ")";
+    landed   2026-08-31. Extern canary 325 -> 326, the +1 named as litToK.
+             Fleet byte-identical across the rebuild, every row, both the 86
+             green and the four expected reds.
 
-⚠ litTo ITSELF IS ALREADY WRITTEN AND OBEYS THE ATTACH-AT-SUCCESS LAW
-(Ruling E-A): match first, attach after, nothing minted before the match is
-known good. Anything built here inherits that and must not re-open it.
+    TAKEN        stage 1 emits    return litToK(0);
+                 stage 1b emits   return litToK(1) AND parseRK(2) AND litToK(3);
+    NOT TAKEN    stage 1 prints   genKant: REFUSING break -- term 0 is LITTO,
+                                  which has no kant spelling
+
+BEHAVIOUR, not ASSERTABILITY: the generator emits a body where it used to
+refuse. Stage 0, the anti-vacuity control, is unchanged and must stay unchanged
+-- if stage 0 ever moves, this remedy has broken the two rows it was not
+supposed to touch.
+
+⚠ THE ONE JUDGEMENT THAT WAS OPEN IS ANSWERED, AND THE OBVIOUS ANSWER WAS WRONG
+
+The BEST GUESS this file carried said: settle whether `term.tag` is always the
+right slot, and the candidate becomes a remedy. Settled, by reading the two
+places that mint a `slot` attribute. There are exactly two, and they disagree:
+
+    planTerm   at >= 1   slot.text = term.tag      a TERM position
+    planRule   at == 0   slot.text = rule.tag      THE ZERO-MEANS-SELF MARKER,
+                         literal = rule.text        and there is NO term at all
+
+`break` -- this file's own subject -- plans at 0. It is a rule with no terms
+whose match content is its own tag, picked up by bear-trap 26's fallback, which
+planRule documents as doing real work rather than as an accident. So a
+one-argument litToK that resolved `gKantRule->get(n)` unconditionally would have
+refused THE SUBJECT while passing on every term-position specimen -- green on
+Braced and Parens, red on break, with nothing naming why.
+
+⚠ IT STILL TAKES ONE ARGUMENT. Both slots are derivable from the index once the
+FRAME is consulted, and the frame already holds the rule as gKantRule. So litK's
+stated law survives intact -- A KANT BODY NAMES A TERM AND NOTHING ELSE -- and
+the two-argument shape this file listed as the killing outcome is not needed.
+Zero-means-self is the landed convention of 2026-08-24 (rule-ladder rung two);
+this is its first reader on the kant side.
+
+WHAT THE REMEDY MOVED, MEASURED THE DAY IT LANDED
+
+    Xpress   return parseRK(1) AND litK(2);                  control, UNMOVED
+    break    return litToK(0);                               was REFUSING
+    Braced   return litToK(1) AND parseRK(2) AND litToK(3);  was REFUSING
+    Parens   return litToK(1) AND optRK(2) AND litToK(3);    was REFUSING
+    BlocK    REFUSING -- term 2 is MANY                      was REFUSING on LITTO
+    CodE     kant: no rule named CodE                        SEE BELOW
+
+⚠ BlocK IS THE RULE H9 COROLLARY ON CAMERA. A refusal census reports the FIRST
+blocker, never the blocker set. Closing LITTO did not unblock BlocK; it revealed
+BlocK's next refusal, one term further in. Four of the five named rules cleared,
+the fifth advanced. Both are the correct outcome and neither was predicted as
+such by the count.
+
+⚠ AND `CodE` IS A STALE NAME IN THIS FILE, NOT A NEW DEFECT. Tony's punctuation
+and rename pass moved `CodE` to `CodeBody` (recorded in the 2026-08-29 seal).
+The row above is what the old name now answers. Nothing is owed; the name is
+corrected here so a resurrection reader does not go hunting a vanished rule.
+
+CAPTURED, NOT CHASED -- litK's literal and emitLeaf's disagree
+
+litK spells the literal as `term.tag` for every term. emitLeaf bakes `node.text`,
+which planTerm sets to `term.text` when the term carries string data and to
+`term.tag` when it does not. For a data-carrying literal term the two generators
+therefore match DIFFERENT text. litToK copies litK deliberately, so the twin
+agrees with its sibling rather than hiding the divergence behind a third
+spelling. Banked as a row in docs/fixIts.md the day this landed. It predates this
+remedy and is not repaired by it.
+
+HOW THIS CITIZEN DISCHARGES
+
+Run the file. Stage 0 must still pass; stages 1 and 1b must emit bodies; stage 1c
+must refuse on MANY rather than on LITTO. That is the whole verification, and it
+is on screen rather than in a document.
+
+Then it is Tony's call which way it leaves the queue: PROMOTE into the fleet as
+the regression test for the kant LITTO spelling (nothing in pop.sh reads
+genKant today, so the coverage is real and currently absent), or RETIRE through
+parked.sh's two-stage pattern. It is left IN the queue rather than retired by
+Clod because the blessing is the discharge.
 
 THE DEAD REGION -- the whole intended path, and how much of it is real
 
     STAGE 0  control: genKant spells a LIT + CALL rule           REAL, passes
-    STAGE 1  genKant('break') emits a kant body                  BREAKS HERE
+    STAGE 1  genKant('break') emits a kant body                  REAL, passes
+    STAGE 1b genKant('Braced') -- term-position slots            REAL, passes
+    STAGE 1c genKant('BlocK') -- refuses on MANY, the next gap   REAL, refuses
     STAGE 2  store the body off-rule                             not reached
     STAGE 3  activate / compile it                               not reached
     STAGE 4  bind it as break's parse implementation             not reached
@@ -123,16 +200,16 @@ THE DEAD REGION -- the whole intended path, and how much of it is real
     STAGE 6  unbind, prove the interpreter path comes back       not reached
 
 Stages 2 through 4 are the machinery the Braced campaign already proved, so they
-are expected to work when a body finally reaches them -- that is why this file
-stops at 1 rather than attempting them against nothing.
+are expected to work when a body finally reaches them.
 
 ⚠ STAGE 5 CARRIES A SEPARATE, ALREADY-MEASURED HAZARD, and it is worth knowing
 before anyone spends a day on it: `break` CANNOT FIRE. It is a member of the
 `BrancheS bin`, matched by CONTAINER LOOKUP, and the parse trace shows
 `fireLabelMethod BrancheS isMethod=0` with `break` never firing as a label at
-all. A parse method bound to it is inert because nothing invokes it. So when the
-LITTO gap closes, THE SUBJECT MUST CHANGE for the execution stages -- pick a
-rule that is genuinely invoked. Xpress, the control above, is one.
+all. A parse method bound to it is inert because nothing invokes it. So the
+subject MUST CHANGE for the execution stages -- pick a rule that is genuinely
+invoked. Braced, now that it emits, is one; Xpress is another.
 
-RE-RUN THIS FILE after any remedy. Stage 0 must still pass and stage 1 must emit
-a body instead of refusing; that is the discharge test.
+⚠ litTo ITSELF OBEYS THE ATTACH-AT-SUCCESS LAW (Ruling E-A): match first, attach
+after, nothing minted before the match is known good. litToK inherits that by
+calling it and adds nothing of its own that could re-open it.

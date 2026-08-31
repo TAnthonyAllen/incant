@@ -27,7 +27,7 @@ eye. The right column is what kant can say today.
 | optional `?` | `(parseR(tN,label) \|\| 1)` | — | ❌ **no shim.** `OR` exists but there is no kant spelling of the `1` |
 | repetition `+` `*` | a generated `manyX(label,tN)` helper | — | ❌ **no shim, and no helper generator** |
 | alternation (a rule with options) | `leaveAlt(rule,from, parseR(t1,into) \|\| …)` | — | ❌ **no shim.** Also a different frame — `into`, not `label` |
-| literal captured to the label | `litTo(tN,label,"{","{")` | — | ❌ no shim |
+| **literal captured to the label** | `litTo(tN,label,"{","{")` | **`litToK(N)`** | ✅ **BUILT 2026-08-31** — discharges `incant/fixits/kantGenPath`. ⚠ **`N` may be `0`**, the zero-means-self marker, where the slot is `rule.tag` and the literal `rule.text`; at `N >= 1` both are `term.tag`. Two derivations, one argument |
 | **keyword** (`do`, `while`, `if`, `in`, …) | **never emitted by anyone** | — | ❌ **unpriced.** These are `Keywords` registry entries (`incant/setup:222`), not literals, and none of the twelve emitted rules contains one |
 
 ⚠ **THE KEYWORD ROW IS THE ONE THAT WILL SURPRISE SOMEONE.** `DO do- followedBy StatemenT while- …`
@@ -238,10 +238,20 @@ and kinds come from the rule **as it exists in the tree at that moment**, never 
 eye. That is the staleness class §7.1's index-guard item exists to name, closed here for the
 emitter's half.
 
-**`kantLeaf` spells the two kinds the shim vocabulary HAS** and returns null for everything else.
-⚠ **Refusing is the feature.** §1's table has four dead rows — optional, repetition, alternation,
-captured-literal — and an emitter that guessed at them would produce a body that parses and answers
-**wrong**, which is this project's worst failure shape. It names the kind it could not spell.
+**`kantLeaf` spells the kinds the shim vocabulary HAS** and returns null for everything else.
+⚠ **Refusing is the feature.** §1's table now has **two** dead rows — repetition and alternation —
+and an emitter that guessed at them would produce a body that parses and answers **wrong**, which
+is this project's worst failure shape. It names the kind it could not spell.
+
+⚠ **THE OTHER TWO DIED ON DATES, and the order matters to anyone reading a stale copy:** optional
+gained `optRK` (reference-inner only; an optional wrapping a literal still refuses BY KIND, because
+`optLK` is not built), and **captured-literal gained `litToK` on 2026-08-31.** The live count is
+four: `litK`, `litToK`, `parseRK`, `optRK`.
+
+⚠ **AND CLOSING ONE DEAD ROW DOES NOT UNBLOCK THE RULES IT APPEARED IN — rule H9's corollary,
+observed on camera the day `litToK` landed.** `BlocK` stopped refusing on LITTO and began refusing
+on **MANY**, one term further in. Four of the five rules that carried a LITTO refusal cleared
+outright; the fifth advanced to its next blocker. **A refusal census is a census of frontiers.**
 
 ## PROVENANCE IS ASSERTED IN-RUN, NEVER ASSUMED
 

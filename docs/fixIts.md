@@ -155,6 +155,39 @@ divergence is intended and why. **Owner: Tony** (his file, his intent). **Size:*
 edits. **For 1 and 5 the ruling can be read off the sites above; the runnable demonstration is owed
 an instrument first.**
 
+### F-34 — the kant shim and the C++ emitter bake DIFFERENT literal text for a data-carrying term
+**Where:** `genParse.rtn`, `litK` (and now its twin `litToK`) versus `emitLeaf`'s `LIT`/`LITTO` arms.
+
+**What:** the two generators derive a literal term's match text from different places.
+
+| generator | spelling | source of the text |
+|---|---|---|
+| C++ `emitLeaf` | `lit(tN,"x")` | bakes `node.text`, which `planTerm` sets to **`term.text`** when `term.data && term.isSTRING`, and to `term.tag` otherwise |
+| kant `litK` | `litK(N)` | resolves the term from the frame and matches **`term.tag`**, always |
+
+So for a term that carries string data the two paths match different strings. For every other term
+they agree, which is why the ladder has never seen it: `litK`'s own header states the rule it relies
+on — *for a noLabel literal term the TERM'S OWN TAG IS the literal* — and that rule holds for the
+`!term.contents()` shape but **not** for the `term.data && term.isSTRING` shape one arm above it in
+`planTerm`.
+
+**Evidence:** `planTerm` has two LIT/LITTO mints. The data-carrying one sets `node.text = term.text`;
+the contents-less one sets `node.text = term.tag`. `litK` reads neither — it reads `term.tag` off the
+live term. Found 2026-08-31 while building `litToK`, which **deliberately copies `litK` rather than
+`emitLeaf`** so the twin agrees with its sibling instead of introducing a third spelling.
+
+**Why it is a capture and not a fix:** it predates `litToK`, the two engines are compared by
+`kantRatchet.sh` on rules where they agree, and picking a winner is a decision about which generator
+is authoritative — not a repair. **Naming the wrong winner would make two engines disagree silently
+on a shape neither has been driven on yet.**
+
+**Done when:** a specimen with a data-carrying literal term is driven through BOTH generators and
+the divergence is either measured to be unreachable (in which case say so, with the census) or one
+spelling is ruled authoritative and the other repaired to match. ⚠ **Pair it with a control on a
+tag-only literal term, which must stay byte-identical either way** — an anti-vacuity row, because a
+change that moved both shapes would pass a test that only looked at the divergent one.
+**Owner:** unassigned. **Size:** one census plus one ruling. **Not minion-sized — the ruling is not.**
+
 ### F-30 — `Operators` reaches `setParse` as a term and has no `rStuff`
 **Where:** found by `incant/parseClass`, 2026-08-19 — the one surviving `NO-rSTUFF` row out of 239
 once the census was aligned with `walkPhase`'s skips.

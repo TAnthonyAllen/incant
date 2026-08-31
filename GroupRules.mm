@@ -8036,16 +8036,22 @@ char 		*mintName = 0;
     kantLeaf -- ONE PLAN KIND, ONE KANT SPELLING. SEQ 67 part B / 66-r1 phase 2.
 
     The kant twin of emitLeaf, and deliberately much smaller: emitLeaf spells
-    every kind for two sinks in C++, this spells the two kinds the kant shim
+    every kind for two sinks in C++, this spells the kinds the kant shim
     vocabulary actually HAS. Everything else returns null, which the caller
     turns into a loud refusal.
 
     ⚠ REFUSING IS THE FEATURE. The shim table in docs/kantParseTemplates.md has
-    exactly two live rows -- literal and rule-reference -- and four dead ones:
-    optional, repetition, alternation and captured-literal have no kant spelling
-    at all. An emitter that GUESSED at those would produce a body that parses
-    and answers wrong, which is this project's worst failure shape. It names the
-    kind it could not spell instead.
+    FOUR live rows -- literal (litK), captured-literal (litToK), rule-reference
+    (parseRK) and optional-reference (optRK) -- and the dead ones are repetition,
+    alternation, and the optional wrapping anything but a CALL. An emitter that
+    GUESSED at those would produce a body that parses and answers wrong, which is
+    this project's worst failure shape. It names the kind it could not spell
+    instead.
+
+    ⚠ LITTO WAS THE THIRD DEAD ROW UNTIL 2026-08-31 and its arrival is the
+    discharge of incant/fixits/kantGenPath. Read litToK's own header for the one
+    thing that was NOT obvious about it: the slot has two derivations, and the
+    citizen's subject rule uses the one the naive reading misses.
 *******************************************************************************/
 extern "C" char *kantLeaf(GroupItem *node, char *at)
 {
@@ -8071,6 +8077,9 @@ GroupItem 	*inner = 0;
 	known.  */
 	if ( ::compare(node->groupBody->tag,"LIT") == 0 )
 		leaf = ::concat(3,"litK(",at,")");
+	else
+	if ( ::compare(node->groupBody->tag,"LITTO") == 0 )
+		leaf = ::concat(3,"litToK(",at,")");
 	else
 	if ( ::compare(node->groupBody->tag,"CALL") == 0 )
 		leaf = ::concat(3,"parseRK(",at,")");
@@ -8273,6 +8282,86 @@ int 		n = 0;
 		return 0;
 		}
 	if ( ::lit(term,term->groupBody->tag) )
+		return GroupControl::groupController->groupRules->trueResult;
+	return 0;
+}
+
+/*******************************************************************************
+    litToK -- THE LABELLED LITERAL'S KANT SHIM. litK's twin, and the rung the
+    kant generator stopped at (incant/fixits/kantGenPath, minted 2026-08-24).
+
+    ⚠ TWO DERIVATIONS OF THE SLOT, NOT ONE, AND THAT IS THE FINDING THE CITIZEN
+    ASKED FOR. The candidate was graded BEST GUESS on exactly one open judgement
+    -- "is `term.tag` always the right slot" -- and the naive answer, yes-always,
+    is WRONG on the very rule the citizen drives:
+
+      at >= 1   a TERM position.  slot is `term.tag`   (planTerm, the `slot`
+                mint beside the LITTO node)
+      at == 0   THE ZERO-MEANS-SELF MARKER. There is no term -- `rule[0]` names
+                nothing -- and the slot is `rule.tag`, the literal `rule.text`
+                (planRule's `if literal` block)
+
+    `break`, the citizen's subject, plans at 0. So a one-argument litToK that
+    resolved through `gKantRule->get(n)` unconditionally would have refused the
+    subject while looking correct on every term-position specimen.
+
+    IT STILL TAKES ONE ARGUMENT, which is the convention litK's header states as
+    a law -- A KANT BODY NAMES A TERM AND NOTHING ELSE -- because both slots are
+    derivable from the index once the FRAME is consulted, and the frame already
+    holds the rule. Zero-means-self is the landed convention of 2026-08-24
+    (rule-ladder rung two), stated at the emit site in emitPlan; this is its
+    first reader on the kant side.
+
+    `into` is `gKantLabel`, read exactly as parseRK and optRK read it -- the
+    body says what to match, the frame says where it goes.
+
+    ⚠ THE LITERAL FOR A TERM POSITION IS `term.tag`, COPIED FROM litK RATHER
+    THAN FROM emitLeaf, DELIBERATELY. emitLeaf bakes `node.text`, which planTerm
+    sets to `term.text` when the term carries string data and to `term.tag` when
+    it does not. litK has always used `term.tag` for both. That divergence is
+    litK's, it predates this function, and making the twin disagree with its
+    sibling would hide it rather than fix it. Captured as a row in docs/fixIts.md
+    the day this landed; it is NOT repaired here.
+*******************************************************************************/
+extern "C" GroupItem *litToK(GroupItem *idx)
+{
+GroupItem 	*into = 0;
+GroupItem 	*term = 0;
+GroupItem 	*rule = 0;
+int 		n = 0;
+	if ( !idx )
+		return 0;
+	n = ::atoi(idx->getText());
+	/*  Passthrough for parseRK's reason -- tok cannot see a hand-declared
+	global. All three locals are referenced OUTSIDE the block as well, which
+	is what keeps bear-trap #13 from pruning them.  */
+	
+	into = gKantLabel;
+	rule = gKantRule;
+	term = gKantRule ? gKantRule->get(n) : 0;
+	
+	if ( !into )
+		{
+		::fprintf(stderr,"litToK: called outside a kant parse frame -- no label to attach under\n");
+		return 0;
+		}
+	if ( n == 0 )
+		{
+		if ( !rule )
+			{
+			::fprintf(stderr,"litToK: marker 0 outside a kant parse frame -- no rule to spell\n");
+			return 0;
+			}
+		if ( ::litTo(rule,into,rule->getText(),rule->groupBody->tag) )
+			return GroupControl::groupController->groupRules->trueResult;
+		return 0;
+		}
+	if ( !term )
+		{
+		::fprintf(stderr,"litToK: no term %s in the current kant parse frame\n",idx->getText());
+		return 0;
+		}
+	if ( ::litTo(term,into,term->groupBody->tag,term->groupBody->tag) )
 		return GroupControl::groupController->groupRules->trueResult;
 	return 0;
 }
