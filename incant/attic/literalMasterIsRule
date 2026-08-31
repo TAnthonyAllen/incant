@@ -95,6 +95,54 @@ to the six masters DOES clear both rows -- audit back to 4, odometer 25 green
 they must not have. It was tried, measured green, and reverted on Tony's word.
 Green is not the test here.
 
+⚠⚠⚠ DISCHARGED BY RULING, 2026-09-02 (Tony, on Clay's recommendation). RETIRED
+BY MAPPING -- every assertion below has a new home and each one is checkable.
+Everything after this block is the reasoning trail and is no longer owed.
+
+WHAT THE RULING SAYS. The audit counts `isRule && !rStuff`, and under Ruling D
+that conjunction is the LAWFUL SIGNATURE OF A BARE MASTER, not a defect. SEQ
+100's C3 table then measured that NO READER IN THE TREE NEEDS rStuff off those
+ten -- all five callers graded ASKING, four of them producers about to construct
+and the fifth the audit itself. So the ten masters are lawful and the count
+cannot go to zero without breaking doctrine.
+
+THE THREE OPTIONS BELOW ARE ALL SETTLED, AND NONE BY BEING BUILT:
+
+  A  teach the audit the category   SUPERSEDED. The doctrine that isRule does
+                                    not imply rStuff makes the exemption
+                                    unnecessary -- there is no category to teach
+                                    when the shape is lawful everywhere.
+  B1 move isRule out of groupBody   STRUCK. roundTripT row 3 measured that a
+                                    named reference has NO PER-NODE HOME: the
+                                    write and the read land on different nodes
+                                    over one body. B1 has nowhere to put the
+                                    flag.
+  B2 stop the back-propagation      STRUCK, measured 2026-08-28.
+  C  accept and re-pin              THIS IS WHAT LANDED, as a TRIPWIRE.
+
+THE MAPPING -- where each assertion now lives:
+
+  the six lawful masters        genLadder/pop.sh, the bare-master row, pinned
+                                10 missing / 4 loose on 2026-09-02
+  "10 is the right number"      the same row, and docs/groupBodySplit.md's
+                                "audit at pin" section carries the argument
+  the three mechanisms (6/3/1)  minionWork/isRuleCensus, unchanged
+  "no reader needs it"          SEQ 100 C3's graded caller table, in
+                                GroupItem.twk's getRStuff header
+  the audit's own honesty       the getRStuff purity ruling -- it no longer
+                                constructs while counting (F-35, closed)
+
+⚠ AND OPTION C'S OWN OBJECTION IS ANSWERED RATHER THAN IGNORED. C warned that
+accepting makes the audit "permanently unable to distinguish a literal master
+from a rule someone forgot to finish -- which is the thing the audit exists to
+catch". Under the PIN that cost is much smaller than C feared: an unfinished
+rule appearing later moves the count to ELEVEN, and the row goes red on the
+motion. What is lost is only the ability to name WHICH of the eleven is the new
+one, and that is one census away when it happens. The tripwire keeps the alarm;
+it gives up the diagnosis.
+
+--- everything below is the reasoning trail, retained, not owed ---
+
 NEXT: RULED -- THE SHAPE IS TONY'S, AND NOTHING BELOW IS BUILT
 
 Three shapes, and the choice is a ruling rather than a measurement, because all
