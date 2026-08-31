@@ -549,11 +549,21 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 > NO, a pre-registered prediction falsified — while the *mechanical* layer degraded: a harness
 > banner contradicting its own rows, a census matching prose, an anchored regex undercounting 13→8,
 > a `git add -A <paths>` omitting a directory so a commit **described work it did not contain**, a
-> second `git add -A` sweeping up a file held back one command earlier, a fixture comment header
+> second `git add -A` sweeping up a file held back one command earlier ⚠ **(CLOSED STRUCTURALLY
+> 2026-09-02 — see below)**, a fixture comment header
 > crashing the parser, a broken `printf`, and **`${PIPESTATUS[0]}` used by someone who had read
 > that bear-trap the same day.**
 >
-> **That last one is the whole argument: knowing the rule did not prevent the error.** Which is why
+> ⚠⚠ **THE SWEEP-UP TRAP IS NOW CLOSED STRUCTURALLY, AND IT IS THIS SECTION'S OWN THESIS COLLECTING.**
+It recurred on 2026-09-02 — `git add -u` after an explicit `git add <paths>` swept
+`IncantForms/WorkingOn/incant++` and `groupDirectives` into a commit about the `tokenize`
+retirement, which then described work it did not contain. **Committed by a seat that had read this
+very entry the same session.** The fix was not more care and not a protected-paths checker: both
+files were **untracked and gitignored**, so *there is nothing left to sweep*. **Prefer a structure
+that makes the failure unconstructable over a discipline that avoids it** — the family named
+above, applied to the family's own ledger.
+
+**That last one is the whole argument: knowing the rule did not prevent the error.** Which is why
 > the answer is *structure and scheduling*, not *more care* — and why it belongs beside the
 > make-the-failure-unconstructable family rather than in a list of things to remember.
 
@@ -2071,7 +2081,18 @@ direction the campaign might take, it is a state the machinery must report as a 
 >
 > **The checklist, and all of it every time:** `pop.sh` · `decodePop.sh` · `ddPop.sh` ·
 > `countPop.sh` · `incant/frontier` · the extern canary (`grep -c '^extern' GroupRules.h`) ·
-> `groups.ext`'s state · both repos clean and pushed.
+> `groups.ext`'s state · **both repos clean and pushed, with no exception clause.**
+>
+> ⚠ **THE "BUT FOR TONY'S TWO NAMED FILES" CLAUSE RETIRED 2026-09-02, AND ITS RETIREMENT IS THE
+> QUIET PAYOFF OF UNTRACKING THEM.** From mid-August until that date every seal read *"clean and
+> pushed but for Tony's two named files"*, and `IncantForms/WorkingOn/incant++` and
+> `groupDirectives` are now **untracked and gitignored**. So **a dirty tree is a FINDING from here
+> on, never a standing state** — which is a real sharpening of the cleanliness instrument rather
+> than tidiness: **the baseline stops carrying an exception**, and an exception in a baseline is
+> the thing nobody re-examines. Drop the clause from every kitchen pass, from the register's
+> commit-check line, and from any brief template that repeats it.
+> ⚠ **Historical seals in `docs/wakeup.md` KEEP the clause** — it was true when written, and
+> rewriting a dated record to match a later convention falsifies it.
 >
 > ⚠ **AND A SECOND LESSON FROM THE SAME LANDING, about reading a red row rather than counting it:
 > `parseClass.target` had been red for weeks and was being read as its first six lines.** Under

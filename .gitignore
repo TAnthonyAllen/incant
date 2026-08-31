@@ -75,3 +75,18 @@ XML/WorkingOn/incant++
 # to relax it. Commits are batched AT SEAL, not per dispatch. See WT-14a–d in
 # docs/walkieTalkie.md.
 genLadder/smoke.fleet.base
+
+#  ⚠ TONY'S DAILY WIP -- NEVER FOR ARCHIVING. Untracked 2026-09-02 after R16's
+#  `git add -u` swept both into a commit about the tokenize retirement, so that
+#  commit described work it did not contain. Untracking closes the trap
+#  STRUCTURALLY: there is nothing left to sweep, and no protected-paths
+#  machinery is needed. Working copies are untouched and stay on disk.
+#  ⚠ CONSEQUENCE, WRITTEN DOWN BECAUSE OUT-OF-REPO BUILD INPUTS BITE SILENTLY
+#  (bear-trap #11's family): a FRESH CLONE RECEIVES NEITHER FILE. Nothing
+#  resolves them by path in an executable sense -- checked: no script, manifest,
+#  .twk, .rtn or groupIncludes entry, and the Xcode reference is a navigator
+#  file-reference only -- but an instrumented build wants a `groupDirectives`
+#  to name on tok's command line (bear-trap #23), so create an empty one if you
+#  need one. The DEFAULT BUILD IS BARE and never names it.
+IncantForms/WorkingOn/incant++
+groupDirectives
