@@ -155,6 +155,45 @@ divergence is intended and why. **Owner: Tony** (his file, his intent). **Size:*
 edits. **For 1 and 5 the ruling can be read off the sites above; the runnable demonstration is owed
 an instrument first.**
 
+### F-35 — ⚠⚠ TWO `audit()` PASSES IN ONE PROCESS DISAGREE WITH `pop.sh`'s AUDIT ROW, AND NOBODY KNOWS WHY
+**Where:** `Commands.rtn` `auditRStuff` (the `audit` command) and `GroupActions.rtn`
+`auditMissingRules`. Surfaced 2026-08-31 while measuring the `getRStuff` purity ruling.
+
+**What:** the same command, on the same binary, reports two different boards depending on the
+preamble it is run under — and the *incumbent* constructing getter made the difference enormous.
+
+| binary | scratch (`include unitTests/utilities`, `search reset stack Grokking UnitTests Utilities`) | `pop.sh`'s audit row |
+|---|---|---|
+| incumbent (getter constructs) | **0 missing, 801 loose** | **10 missing, 4 loose** |
+| pure getter (shipped) | **10 missing, 4 loose** | **10 missing, 4 loose** |
+
+**Read the incumbent's scratch row.** `0 missing / 801 loose` is exactly the signature of an
+audit that repairs as it counts: `auditMissingRules`' test is `if entry.isRule && !entry.rStuff`,
+which tok renders `!entry->getRStuff()` — so on the old getter **asking created one**, no rule
+could ever read as missing, and every non-rule it had touched then read as *loose*. Mechanism and
+numbers agree in both columns.
+
+⚠ **BUT `pop.sh`'S ROW DID NOT MOVE, ON EITHER BINARY, AND THAT IS THE UNEXPLAINED PART.** If the
+corruption were simply "asking creates", it should have zeroed the missing count on *any* board.
+It did not zero `pop.sh`'s. So the two runs are walking different boards, or the two audit
+functions differ in how they read (one may use a raw passthrough and be immune) — **both are
+guesses and neither has been checked.** Recorded as an open discrepancy rather than explained.
+
+**Why it matters even though the shipped number is unmoved:** the campaign's certification gate is
+an audit number. A number produced by an instrument whose reading depends on which preamble ran
+first is not a gate. The purity ruling closes the repairs-while-counting half; **it does not
+establish that the remaining number means what the gate assumes.**
+
+**Evidence:** exhibit is four runs — two binaries × two boards — reproducible from the table above;
+`genParse.rtn`'s `unresolvedTerms` header independently records the old getter being *caught in the
+act* corrupting a term census.
+
+**Done when:** one process runs both audits on both boards with the population printed per registry,
+and the discrepancy is either explained or one of the two audits is retired. ⚠ **Pair it with a
+control that must NOT move** — a board with no non-rules, where "loose" is 0 either way — so a fix
+that merely changes both numbers together cannot pass.
+**Owner:** unassigned. **Size:** one fixture, no build. **Minion-ready.**
+
 ### F-34 — the kant shim and the C++ emitter bake DIFFERENT literal text for a data-carrying term
 **Where:** `genParse.rtn`, `litK` (and now its twin `litToK`) versus `emitLeaf`'s `LIT`/`LITTO` arms.
 

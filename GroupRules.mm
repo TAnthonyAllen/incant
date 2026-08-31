@@ -314,7 +314,7 @@ extern "C" GroupItem *aCTionCodE(GroupItem *rule)
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*lefty = rule->get(1);
 GroupItem 	*righty = rule->get(2);
-GroupItem 	*label = rule->rStuff->label;
+GroupItem 	*label = rule->getRStuff()->label;
 	if ( lefty && righty )
 		{
 		char 	*atInput = ruler->atRuleMark;
@@ -525,7 +525,7 @@ GroupItem 	*item = 0;
 				NewGroup = ruler->currentRegistry->addMember(NewGroup);
 				if ( !NewGroup->groupBody->flags.binType )
 					NewGroup->groupBody->flags.isRule = 1;
-				if ( !NewGroup->rStuff )
+				if ( !NewGroup->getRStuff() )
 					NewGroup->setRStuff(new RuleStuff(NewGroup));
 				/*  ⚠ THE PRODUCER OWNS THE INVARIANT: EVERY LIVE RULE
 				CARRIES rStuff. Mark 3, Tony 2026-08-22.
@@ -546,7 +546,7 @@ GroupItem 	*item = 0;
 				take, which would mean the allocation itself failed and
 				every downstream guard is about to report "specimen" for
 				something that is really a broken rule.  */
-				if ( !NewGroup->rStuff )
+				if ( !NewGroup->getRStuff() )
 					::fprintf(stderr,"REGISTER: INVARIANT BROKEN -- %s promoted to a rule in registry %s but carries no rStuff. Every live rule must carry rStuff (Mark 3); downstream guards will now read this broken rule as a lawful specimen.\n",NewGroup->groupBody->tag,ruler->currentRegistry->groupBody->tag);
 				}
 			else
@@ -590,17 +590,17 @@ GroupItem 	*item = 0;
 				if ( NewGroup->groupBody->flags.isRule && !item->groupBody->flags.binType && !item->groupBody->flags.isRule )
 					item->groupBody->flags.isRule = 1;
 				if ( item->groupBody->flags.isRule )
-					if ( !item->rStuff )
+					if ( !item->getRStuff() )
 						item->setRStuff(new RuleStuff(item));
 					else {
-						item->setRStuff(new RuleStuff(item->rStuff));
+						item->setRStuff(new RuleStuff(item->getRStuff()));
 						grup = item->parent;
-						if ( grup && grup->rStuff )
+						if ( grup && grup->getRStuff() )
 							{
-							item->rStuff->parentStuff = grup->rStuff;
-							item->rStuff->parentLabel = grup->rStuff->parentLabel;
+							item->getRStuff()->parentStuff = grup->getRStuff();
+							item->getRStuff()->parentLabel = grup->getRStuff()->parentLabel;
 							}
-						item->rStuff->rule = item;
+						item->getRStuff()->rule = item;
 						}
 				grup = NewGroup->addAttribute(item);
 				}
@@ -638,8 +638,8 @@ GroupItem 	*item = 0;
 		while ( item = MemberS->next(item) )
 			{
 			GroupItem 	*newMember = NewGroup->addMember(item);
-			if ( newMember->groupBody->flags.isRule && newMember->rStuff && (!newMember->groupBody->flags.data || newMember->groupBody->flags.data > 3) )
-				if ( newMember->rStuff->max != 1 || newMember->rStuff->min != 1 )
+			if ( newMember->groupBody->flags.isRule && newMember->getRStuff() && (!newMember->groupBody->flags.data || newMember->groupBody->flags.data > 3) )
+				if ( newMember->getRStuff()->max != 1 || newMember->getRStuff()->min != 1 )
 					{
 					RuleStuff 	*fresh = new RuleStuff(newMember);
 					newMember->setRStuff(fresh);
@@ -886,9 +886,9 @@ GroupItem 	*lastStatement = GroupControl::groupController->groupRules->lastState
 	with its value either way (rule H4): an absence that prints nothing
 	would be indistinguishable from a parse that failed at offset zero.  */
 	::printf("Rule %s\n",input->groupBody->tag);
-	if ( input->rStuff )
-		::printf("\tFailed at:\t%s\n",::getDebugText(input->rStuff->failedAt,40));
-	if ( !input->rStuff )
+	if ( input->getRStuff() )
+		::printf("\tFailed at:\t%s\n",::getDebugText(input->getRStuff()->failedAt,40));
+	if ( !input->getRStuff() )
 		::printf("\tFailed at:  <unavailable -- this subject carries no rStuff; see Ruling D>\n");
 	::printf("\ton Line:\t\t%d \n",GroupControl::groupController->groupRules->sourceLINE);
 	// added the gText guard (for cases that do not use StatemenT
@@ -1471,7 +1471,7 @@ extern "C" GroupItem *aCTionShortcuT(GroupItem *group)
 extern "C" GroupItem *aCTionStatemenT(GroupItem *input)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*ruleStuff = input->rStuff;
+RuleStuff 	*ruleStuff = input->getRStuff();
 GroupItem 	*sourceFile = new GroupItem("sourceFile");
 	ruleStuff->sourceLine = new GroupItem("sourceAt");
 	ruleStuff->sourceLine->setCount(ruler->sourceLINE);
@@ -1663,7 +1663,7 @@ GroupItem 	*trait = input->get(1);
 	if ( Modifier || Limit )
 		{
 		trait->options.affiliation = 1;
-		if ( trait->rStuff )
+		if ( trait->getRStuff() )
 			trait = new GroupItem(trait);
 		else	trait->setRuleStuff();
 		if ( Modifier )
@@ -1689,7 +1689,7 @@ GroupItem 	*DatA = input->getLabelGroup("DatA");
 	if ( Modifier || Limit )
 		{
 		DatA->options.affiliation = 1;
-		if ( DatA->rStuff )
+		if ( DatA->getRStuff() )
 			DatA = new GroupItem(DatA);
 		else	DatA->setRuleStuff();
 		if ( Modifier )
@@ -2214,7 +2214,7 @@ extern "C" int auditMissingRules(GroupItem *registry)
 GroupItem 	*entry = 0;
 int 		missing = 0;
 	while ( entry = registry->next(entry) )
-		if ( entry->groupBody->flags.isRule && !entry->rStuff )
+		if ( entry->groupBody->flags.isRule && !entry->getRStuff() )
 			{
 			::fprintf(stderr,"AUDIT MISSRULE %s/%s -- isRule, no rStuff\n",registry->groupBody->tag,entry->groupBody->tag);
 			missing++;
@@ -2234,7 +2234,7 @@ int 		missing = 0;
 			i = 1;
 			while ( term = entry->get(i) )
 				{
-				if ( term->groupBody->flags.isRule && !term->rStuff )
+				if ( term->groupBody->flags.isRule && !term->getRStuff() )
 					{
 					::fprintf(stderr,"AUDIT MISSTERM %s [%s] %s -- isRule term, no rStuff\n",entry->groupBody->tag,::toStringFromInt(i),term->groupBody->tag);
 					missing++;
@@ -2333,7 +2333,7 @@ int 		i = 0;
 int 		spurious = 0;
 	while ( entry = registry->next(entry) )
 		{
-		if ( !entry->groupBody->flags.isRule && entry->rStuff )
+		if ( !entry->groupBody->flags.isRule && entry->getRStuff() )
 			{
 			::fprintf(stderr,"AUDIT LOOSE    %s/%s -- not a rule, not a rule term, has rStuff\n",registry->groupBody->tag,entry->groupBody->tag);
 			spurious++;
@@ -2341,7 +2341,7 @@ int 		spurious = 0;
 		i = 1;
 		while ( term = entry->get(i) )
 			{
-			if ( !term->groupBody->flags.isRule && term->rStuff )
+			if ( !term->groupBody->flags.isRule && term->getRStuff() )
 				if ( entry->groupBody->flags.isRule )
 					::fprintf(stderr,"AUDIT TERM     %s [%s] %s -- rule TERM, not isRule, has rStuff\n",entry->groupBody->tag,::toStringFromInt(i),term->groupBody->tag);
 				else {
@@ -3202,7 +3202,7 @@ int 		i = 1;
 		::fprintf(stderr,"dumpRuleTerms: no rule named  %s\n",argument->getText());
 		return 0;
 		}
-	ruleStuff = rule->rStuff;
+	ruleStuff = rule->getRStuff();
 	::fprintf(stderr,"RULE %s fold=%s\n",rule->groupBody->tag,foldOf(rule));
 	if ( rule->groupBody->flags.isRule )
 		::fprintf(stderr,"     isRule\n");
@@ -3220,7 +3220,7 @@ int 		i = 1;
 		::fprintf(stderr,"     rule.onGroup=NONE\n");
 	while ( term = rule->get(i) )
 		{
-		rs = term->rStuff;
+		rs = term->getRStuff();
 		definer = term->definingRule();
 		::fprintf(stderr,"    [%s] %s\n",::toStringFromInt(i),term->groupBody->tag);
 		if ( term->groupBody->flags.noPrint )
@@ -3583,7 +3583,7 @@ char 		dq = 34;
 *******************************************************************************/
 extern "C" GroupItem *evictAction(GroupItem *field)
 {
-RuleStuff 	*ruleStuff = field->rStuff;
+RuleStuff 	*ruleStuff = field->getRStuff();
 char 		*outcome = "no-rstuff";
 int 		doEvict = 0;
 	if ( ruleStuff )
@@ -7962,7 +7962,11 @@ int 		live = 0;
 	rule->setMethod((GroupItem*(*)(GroupItem*))0);
 	rule->groupBody->flags.methodType = 0;
 	rule->groupBody->flags.actionType = 0;
-	/*  ⚠ getRStuff(), NEVER THE RAW rStuff FIELD. The first cut used
+	/*  ⚠ ensureRStuff(), NEVER THE RAW rStuff FIELD. (Spelled getRStuff()
+	until 2026-08-31, when the getter was split into a pure read and an
+	explicit ensure; this site was always relying on the CONSTRUCTION half,
+	which is why it moved and the reasoning below is unchanged.)
+	The first cut used
 	`if !rStuff rStuff = new(rule)` and the bind SILENTLY DID NOT TAKE:
 	parse() forks on definingRule().rStuff.parseMethod, and the raw field
 	is not necessarily the materialised stuff that fork reads. The trace
@@ -7971,8 +7975,8 @@ int 		live = 0;
 	Meanwhile the method-slot clear HAD landed, so nothing built the
 	result and the consumer dereferenced a null.
 	parseRuleMethod -- the working parseMethod= door -- has always used
-	getRStuff(). Copy the working door rather than inventing a second one. */
-	setParseMethod(rule->getRStuff(),"parseViaKant");
+	the same door. Copy the working door rather than inventing a second one. */
+	setParseMethod(rule->ensureRStuff(),"parseViaKant");
 	::parkParse(rule,"parseViaKant");
 	::fprintf(stderr,"kantDoor: %s -> %s via parseViaKant, %s terms\n",rule->groupBody->tag,mintName,::toStringFromInt(live));
 	::free(mintName);
@@ -8117,7 +8121,7 @@ int 		minters = 0;
 		{
 		if ( grup->groupBody->flags.noPrint )
 			continue;
-		termStuff = grup->rStuff;
+		termStuff = grup->getRStuff();
 		if ( termStuff && termStuff->noLabel )
 			continue;
 		if ( grup->groupBody->flags.isRule && grup->groupBody->flags.hasMembers && !grup->groupBody->flags.binType )
@@ -8892,14 +8896,14 @@ extern "C" int materialiseTerms(GroupItem *rule)
 GroupItem 	*term = 0;
 int 		i = 1;
 int 		made = 0;
-	if ( !rule->rStuff )
+	if ( !rule->getRStuff() )
 		{
 		rule->setRuleStuff();
 		made++;
 		}
 	while ( term = rule->get(i) )
 		{
-		if ( !term->rStuff )
+		if ( !term->getRStuff() )
 			{
 			term->setRuleStuff();
 			made++;
@@ -8919,22 +8923,22 @@ extern "C" void modify(GroupItem *field, char *modifier)
 		switch ( *(modifier++) )
 			{
 			case '+':
-				field->rStuff->max = GroupControl::groupController->groupRules->maxLimit->getCount();
-				field->rStuff->maxRepeat = GroupControl::groupController->groupRules->repeatLimit->getCount();
+				field->getRStuff()->max = GroupControl::groupController->groupRules->maxLimit->getCount();
+				field->getRStuff()->maxRepeat = GroupControl::groupController->groupRules->repeatLimit->getCount();
 				break;
 			case '*':
-				field->rStuff->min = 0;
-				field->rStuff->max = GroupControl::groupController->groupRules->maxLimit->getCount();
-				field->rStuff->maxRepeat = GroupControl::groupController->groupRules->repeatLimit->getCount();
+				field->getRStuff()->min = 0;
+				field->getRStuff()->max = GroupControl::groupController->groupRules->maxLimit->getCount();
+				field->getRStuff()->maxRepeat = GroupControl::groupController->groupRules->repeatLimit->getCount();
 				break;
 			case '?':
-				field->rStuff->min = 0;
+				field->getRStuff()->min = 0;
 				break;
 			case '!':
-				field->rStuff->banged = 1;
+				field->getRStuff()->banged = 1;
 				break;
 			case '<':
-				field->rStuff->noAdvance = 1;
+				field->getRStuff()->noAdvance = 1;
 				break;
 			case '%':
 				field->groupBody->flags.isPercent = 1;
@@ -8943,23 +8947,23 @@ extern "C" void modify(GroupItem *field, char *modifier)
 				field->groupBody->flags.isPointer = 1;
 				break;
 			case '@':
-				field->rStuff->isTarget = 1;
+				field->getRStuff()->isTarget = 1;
 				break;
 			case '-':
-				field->rStuff->noLabel = 1;
+				field->getRStuff()->noLabel = 1;
 				break;
 			case '_':
 				field->groupBody->flags.guarding = 2;
 				break;
 			case '^':
-				field->rStuff->noSkip = 1;
+				field->getRStuff()->noSkip = 1;
 				break;
 			case '{':
-				field->rStuff->overTo = 1;
+				field->getRStuff()->overTo = 1;
 				field->groupBody->flags.guarding = 2;
 				break;
 			case '}':
-				field->rStuff->overTo = 2;
+				field->getRStuff()->overTo = 2;
 				field->groupBody->flags.guarding = 2;
 				break;
 			case '$':
@@ -9361,7 +9365,7 @@ GroupItem 	*product = 0;
 						product->setCount(1);
 					break;
 				case 28:
-					if ( target->rStuff && target->rStuff->noLabel )
+					if ( target->getRStuff() && target->getRStuff()->noLabel )
 						product->setCount(1);
 					break;
 				case 29:
@@ -9377,7 +9381,7 @@ GroupItem 	*product = 0;
 						product->setCount(1);
 					break;
 				case 36:
-					if ( target->rStuff && target->rStuff->actionMethod )
+					if ( target->getRStuff() && target->getRStuff()->actionMethod )
 						product->setCount(1);
 					break;
 				case 401:
@@ -10654,7 +10658,7 @@ int 		n = 0;
 extern "C" GroupItem *parkOnMaster(GroupItem *field)
 {
 GroupItem 	*definer = field->definingRule();
-RuleStuff 	*defStuff = definer->rStuff;
+RuleStuff 	*defStuff = definer->getRStuff();
 	if ( defStuff )
 		defStuff->actionMethod = field->groupBody->gMethod;
 	return field;
@@ -10723,17 +10727,17 @@ GroupItem 	*artifact = 0;
 *******************************************************************************/
 extern "C" GroupItem *parseAction(GroupItem *field)
 {
-	if ( parseACTION(field->groupBody->flags.methodType) || !field->rStuff->label )
+	if ( parseACTION(field->groupBody->flags.methodType) || !field->getRStuff()->label )
 		{
 		if ( field->groupBody->gMethod(field) )
 			return GroupControl::groupController->groupRules->trueResult;
 		}
 	else
-	if ( field->rStuff->label && field->groupBody->gMethod(field->rStuff->label) )
+	if ( field->getRStuff()->label && field->groupBody->gMethod(field->getRStuff()->label) )
 		return parseSetLabel(field);
-	if ( field->rStuff->label )
-		field->rStuff->label->clear();
-	GroupControl::groupController->groupRules->atRuleMark = field->rStuff->hereAt;
+	if ( field->getRStuff()->label )
+		field->getRStuff()->label->clear();
+	GroupControl::groupController->groupRules->atRuleMark = field->getRStuff()->hereAt;
 	return 0;
 }
 
@@ -10743,7 +10747,7 @@ extern "C" GroupItem *parseAction(GroupItem *field)
 extern "C" GroupItem *parseAny(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*ruleStuff = field->rStuff;
+RuleStuff 	*ruleStuff = field->getRStuff();
 int 		counter = 0;
 int 		more = 0;
 	if ( ruleStuff->checkInput() )
@@ -10797,7 +10801,7 @@ int 		more = 0;
     cross-file control.  */
 extern "C" GroupItem *parseBraced(GroupItem *rule)
 {
-GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*into = rule->getRStuff()->parentLabel;
 GroupItem 	*label = new GroupItem("Braced");
 GroupItem 	*t1 = rule->get(1);
 GroupItem 	*t2 = rule->get(2);
@@ -10812,7 +10816,7 @@ char 		*from = GroupControl::groupController->groupRules->atRuleMark;
 extern "C" GroupItem *parseCharacter(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*ruleStuff = field->rStuff;
+RuleStuff 	*ruleStuff = field->getRStuff();
 int 		counter = 0;
 int 		more = 0;
 	if ( ruleStuff->checkInput() )
@@ -10967,7 +10971,7 @@ char 	*pcName = "other";
 *******************************************************************************/
 extern "C" GroupItem *parseCondition(GroupItem *field)
 {
-RuleStuff 	*ruleStuff = field->rStuff;
+RuleStuff 	*ruleStuff = field->getRStuff();
 	if ( ruleStuff->min )
 		return GroupControl::groupController->groupRules->trueResult;
 	return 0;
@@ -10980,7 +10984,7 @@ extern "C" GroupItem *parseContainer(GroupItem *field)
 {
 GroupItem 	*grup = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*ruleStuff = field->rStuff;
+RuleStuff 	*ruleStuff = field->getRStuff();
 PLGset 		*inSet = field->getCharacterSet();
 char 		*atInput = ruler->atRuleMark;
 int 		advance = 0;
@@ -11057,7 +11061,7 @@ GroupItem 	*pMethod = field->get("builtinParsE");
 GroupItem 	*code = field->get("CodE");
 GroupItem 	*result = 0;
 GroupItem 	*grup = 0;
-RuleStuff 	*ruleStuff = pMethod->rStuff;
+RuleStuff 	*ruleStuff = pMethod->getRStuff();
 	// assumes processCode was run on field already
 	/*  MEASUREMENT 1, setParentLabel brief. TEMPORARY, parseTrace gated.
 	Which parent can a parseMethod see from the field handed in: the
@@ -11116,7 +11120,7 @@ int 		live = 0;
 			if ( grup )
 				{
 				GroupItem 	*ruleNode = grup->definingRule();
-				stuff = ruleNode->getRStuff();
+				stuff = ruleNode->ensureRStuff();
 				live = ::countRuleTerms(ruleNode);
 				if ( !stuff->termCount )
 					::fprintf(stderr,"parseMethod: WARNING binding %s to %s with no parseTerms -- indices unguarded\n",name,grup->groupBody->tag);
@@ -11165,7 +11169,7 @@ int 		live = 0;
 /*  === GENERATED by genParse('Scaf'), pasted verbatim (rung-1 emission) === */
 extern "C" GroupItem *parseScaf(GroupItem *rule)
 {
-GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*into = rule->getRStuff()->parentLabel;
 GroupItem 	*label = new GroupItem("Scaf");
 GroupItem 	*t1 = rule->get(1);
 char 		*from = GroupControl::groupController->groupRules->atRuleMark;
@@ -11175,7 +11179,7 @@ char 		*from = GroupControl::groupController->groupRules->atRuleMark;
 /*  === GENERATED by genParse('Scaf2'), pasted verbatim (rung-2 emission) === */
 extern "C" GroupItem *parseScaf2(GroupItem *rule)
 {
-GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*into = rule->getRStuff()->parentLabel;
 GroupItem 	*label = new GroupItem("Scaf2");
 GroupItem 	*t1 = rule->get(1);
 GroupItem 	*t2 = rule->get(2);
@@ -11186,7 +11190,7 @@ char 		*from = GroupControl::groupController->groupRules->atRuleMark;
 /*  === GENERATED by genParse('ScafA'), pasted verbatim (rung-4 callee) === */
 extern "C" GroupItem *parseScafA(GroupItem *rule)
 {
-GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*into = rule->getRStuff()->parentLabel;
 GroupItem 	*label = new GroupItem("ScafA");
 GroupItem 	*t1 = rule->get(1);
 char 		*from = GroupControl::groupController->groupRules->atRuleMark;
@@ -11195,7 +11199,7 @@ char 		*from = GroupControl::groupController->groupRules->atRuleMark;
 
 extern "C" GroupItem *parseScafALT(GroupItem *rule)
 {
-GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*into = rule->getRStuff()->parentLabel;
 GroupItem 	*t1 = rule->get(1);
 GroupItem 	*t2 = rule->get(2);
 char 		*from = GroupControl::groupController->groupRules->atRuleMark;
@@ -11210,7 +11214,7 @@ char 		*from = GroupControl::groupController->groupRules->atRuleMark;
     and has its own rStuff.  */
 extern "C" GroupItem *parseScafB(GroupItem *rule)
 {
-GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*into = rule->getRStuff()->parentLabel;
 GroupItem 	*label = new GroupItem("ScafB");
 GroupItem 	*t1 = rule->get(1);
 GroupItem 	*t2 = rule->get(2);
@@ -11220,7 +11224,7 @@ char 		*from = GroupControl::groupController->groupRules->atRuleMark;
 
 extern "C" GroupItem *parseScafC(GroupItem *rule)
 {
-GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*into = rule->getRStuff()->parentLabel;
 GroupItem 	*label = new GroupItem("ScafC");
 GroupItem 	*t1 = rule->get(1);
 GroupItem 	*t2 = rule->get(2);
@@ -11237,7 +11241,7 @@ char 		*from = GroupControl::groupController->groupRules->atRuleMark;
     neighbour can catch it.  */
 extern "C" GroupItem *parseScafE(GroupItem *rule)
 {
-GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*into = rule->getRStuff()->parentLabel;
 GroupItem 	*label = new GroupItem("ScafE");
 GroupItem 	*t1 = rule->get(1);
 GroupItem 	*t2 = rule->get(2);
@@ -11248,7 +11252,7 @@ char 		*from = GroupControl::groupController->groupRules->atRuleMark;
 
 extern "C" GroupItem *parseScafF(GroupItem *rule)
 {
-GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*into = rule->getRStuff()->parentLabel;
 GroupItem 	*label = new GroupItem("ScafF");
 GroupItem 	*t1 = rule->get(1);
 GroupItem 	*t2 = rule->get(2);
@@ -11266,7 +11270,7 @@ char 		*from = GroupControl::groupController->groupRules->atRuleMark;
     its own `label` down as that `into`.  */
 extern "C" GroupItem *parseScafI(GroupItem *rule)
 {
-GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*into = rule->getRStuff()->parentLabel;
 GroupItem 	*label = new GroupItem("ScafI");
 GroupItem 	*t1 = rule->get(1);
 char 		*from = GroupControl::groupController->groupRules->atRuleMark;
@@ -11275,7 +11279,7 @@ char 		*from = GroupControl::groupController->groupRules->atRuleMark;
 
 extern "C" GroupItem *parseScafOUT(GroupItem *rule)
 {
-GroupItem 	*into = rule->rStuff->parentLabel;
+GroupItem 	*into = rule->getRStuff()->parentLabel;
 GroupItem 	*label = new GroupItem("ScafOUT");
 GroupItem 	*t1 = rule->get(1);
 GroupItem 	*t2 = rule->get(2);
@@ -11291,7 +11295,7 @@ extern "C" GroupItem *parseSet(GroupItem *field)
 {
 PLGset 		*set = field->getCharacterSet();
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*ruleStuff = field->rStuff;
+RuleStuff 	*ruleStuff = field->getRStuff();
 int 		counter = 0;
 int 		more = 0;
 	if ( ruleStuff->checkInput() )
@@ -11330,7 +11334,7 @@ int 		more = 0;
 extern "C" GroupItem *parseSetLabel(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*ruleStuff = field->rStuff;
+RuleStuff 	*ruleStuff = field->getRStuff();
 	if ( ruleStuff->noAdvance )
 		ruler->atRuleMark = ruleStuff->hereAt;
 	if ( ruleStuff->label )
@@ -11356,7 +11360,7 @@ RuleStuff 	*ruleStuff = field->rStuff;
 extern "C" GroupItem *parseString(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*ruleStuff = field->rStuff;
+RuleStuff 	*ruleStuff = field->getRStuff();
 	if ( ruleStuff->checkInput() )
 		{
 		char 	*matchedString = ruleStuff->rule->matches(ruler->atRuleMark);
@@ -11389,8 +11393,12 @@ RuleStuff 	*ruleStuff = field->rStuff;
     interpretMethod=. In the kant world this whole function is one ORC-compile
     and a stored handle; here it is a dlsym.
 
-    getRStuff, not rStuff: a rule reached at definition time may not have been
-    parsed yet, and the fork reads the field off the rule's OWN stuff.
+    ensureRStuff, not rStuff: a rule reached at definition time may not have
+    been parsed yet, and the fork reads the field off the rule's OWN stuff. This
+    is a definition-attribute door, so it fires DURING attachment -- which is
+    exactly the moment the 2026-08-31 ruling says construction belongs, and why
+    this site keeps its mint rather than losing it. (Spelled getRStuff until
+    that ruling split the getter's two jobs apart.)
 
     definingRule(), not parent -- SEQ 58, 2026-08-13, and it is a MEASURED
     repair, not a tidy-up. Both doors used to bind onto the node aCTionDefinE
@@ -11428,7 +11436,7 @@ RuleStuff 	*stuff = 0;
 			if ( grup )
 				{
 				GroupItem 	*ruleNode = grup->definingRule();
-				stuff = ruleNode->getRStuff();
+				stuff = ruleNode->ensureRStuff();
 				stuff->termCount = ::atoi(name);
 				}
 			else	::fprintf(stderr,"parseTerms: no rule to record against\n");
@@ -11444,7 +11452,7 @@ RuleStuff 	*stuff = 0;
 extern "C" GroupItem *parseUpTo(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*ruleStuff = field->rStuff;
+RuleStuff 	*ruleStuff = field->getRStuff();
 	if ( ruleStuff->checkInput() )
 		if ( ::testUpTo(field) )
 			return ::parseSetLabel(field);
@@ -11598,7 +11606,7 @@ char 		*at = 0;
 *******************************************************************************/
 extern "C" GroupItem *planRule(GroupItem *rule)
 {
-RuleStuff 	*rs = rule->rStuff;
+RuleStuff 	*rs = rule->getRStuff();
 GroupItem 	*plan = 0;
 GroupItem 	*term = 0;
 GroupItem 	*node = 0;
@@ -11855,7 +11863,7 @@ extern "C" int planTally(int mode)
 *******************************************************************************/
 extern "C" GroupItem *planTerm(GroupItem *term, int index)
 {
-RuleStuff 	*rs = term->rStuff;
+RuleStuff 	*rs = term->getRStuff();
 GroupItem 	*definer = term->definingRule();
 GroupItem 	*node = 0;
 GroupItem 	*at = 0;
@@ -12323,13 +12331,13 @@ int 		processing = ruler->processingCode;
 	The guard it replaces asked isLabel (groupBody, COPIED) before
 	dereferencing rStuff (never copied): a question posed to the wrong
 	oracle, and one flag away from firing.  */
-	if ( field->groupBody->flags.isLabel && !field->rStuff )
+	if ( field->groupBody->flags.isLabel && !field->getRStuff() )
 		{
 		::fprintf(stderr,"processCode: REFUSING %s -- isLabel with no rStuff. Only a live parse mints a label (Ruling D2), so this node is wreckage, not a specimen; look upstream at whatever copied or hand-built it.\n",field->groupBody->tag);
 		return 0;
 		}
 	if ( field->groupBody->flags.isLabel )
-		field = field->rStuff->rule;
+		field = field->getRStuff()->rule;
 	/*  PJ-8, THE INTERPRETING HALF OF THE LIFECYCLE. An action's IR record is
 	cleared whenever the action is COMPILED, and this is the compile for
 	interpreting: the lines below re-parse CodE and attach a fresh BlocK,
@@ -12421,8 +12429,8 @@ GroupItem 	*target = item->groupBody->flags.fLAG ? item->parent : item;
 				::exit(0);
 				break;
 			case 'f':
-				if ( target->rStuff )
-					target->rStuff->notifyFail = 1;
+				if ( target->getRStuff() )
+					target->getRStuff()->notifyFail = 1;
 				break;
 			case 'i':
 				if ( ::compare(command,"index") == 0 )
@@ -12434,7 +12442,7 @@ GroupItem 	*target = item->groupBody->flags.fLAG ? item->parent : item;
 				if ( ::compare(command,"isRule") == 0 )
 					{
 					target->groupBody->flags.isRule = 1;
-					if ( !target->rStuff )
+					if ( !target->getRStuff() )
 						target->setRStuff(new RuleStuff(target));
 					}
 				break;
@@ -12578,7 +12586,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 extern "C" int reportMaxLimit(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*ruleStuff = field->rStuff;
+RuleStuff 	*ruleStuff = field->getRStuff();
 	::fprintf(stderr,"REFUSED match limit: rule %s term %s\n",ruleStuff->ruleName,field->groupBody->tag);
 	::fprintf(stderr,"    hit maxLimit %s with input still matching\n",::toStringFromInt(ruleStuff->max));
 	::fprintf(stderr,"    at %s\n",::getDebugText(ruler->atRuleMark,40));
@@ -12721,7 +12729,7 @@ GroupItem 	*grup = 0;
 *******************************************************************************/
 extern "C" char *row42(GroupItem *term)
 {
-RuleStuff 	*rs = term->rStuff;
+RuleStuff 	*rs = term->getRStuff();
 int 		d = term->groupBody->flags.data;
 	if ( !rs )
 		return "(no rStuff)";
@@ -13277,10 +13285,10 @@ extern "C" GroupItem *runRuleAction(GroupItem *field)
 {
 GroupItem 	*pMethod = field->get("builtinParsE");
 GroupItem 	*aMethod = field->get("builtinActoR");
-RuleStuff 	*ruleStuff = field->rStuff;
+RuleStuff 	*ruleStuff = field->getRStuff();
 int 		minters = 0;
 	if ( pMethod )
-		ruleStuff = pMethod->rStuff;
+		ruleStuff = pMethod->getRStuff();
 	if ( !ruleStuff )
 		return GroupControl::groupController->groupRules->trueResult;
 	if ( pMethod && ruleStuff->label )
@@ -13572,7 +13580,7 @@ extern "C" GroupItem *setInternalType(GroupItem *grup)
 *****************************************************************************/
 extern "C" void setLimits(GroupItem *rule, GroupItem *limits)
 {
-RuleStuff 	*ruleStuff = rule->rStuff;
+RuleStuff 	*ruleStuff = rule->getRStuff();
 GroupItem 	*maximum = limits->getAttribute("max");
 GroupItem 	*minimum = limits->getAttribute("min");
 	ruleStuff->min = minimum->getCount();
@@ -13619,7 +13627,7 @@ int 		offset = markOffset->getCount();
 *******************************************************************************/
 extern "C" GroupItem *setParse(GroupItem *field)
 {
-RuleStuff 	*ruleStuff = field->rStuff;
+RuleStuff 	*ruleStuff = field->getRStuff();
 	if ( isREGISTRY(field->groupBody->flags.binType) )
 		return 0;
 	if ( !ruleStuff )
@@ -14080,7 +14088,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 ***************************************************************************/
 extern "C" GroupItem *tokenize(GroupItem *label)
 {
-RuleStuff 	*ruleStuff = label->rStuff;
+RuleStuff 	*ruleStuff = label->getRStuff();
 char 		*atEnd = GroupControl::groupController->groupRules->atRuleMark;
 int 		tokenLength = (int)(atEnd - ruleStuff->parentStuff->hereAt);
 	label->setToken(ruleStuff->parentStuff->hereAt,tokenLength);
@@ -14218,7 +14226,7 @@ int 		i = 1;
 int 		n = 0;
 	while ( term = rule->get(i) )
 		{
-		if ( !term->groupBody->flags.noPrint && !term->rStuff )
+		if ( !term->groupBody->flags.noPrint && !term->getRStuff() )
 			n++;
 		i++;
 		}
@@ -14570,6 +14578,4 @@ int 	result = 0;
 /*	Warning: the following methods were referenced but not declared
 	read(int,char*,long)
 	floor(double)
-	setParseMethod(char*,char*)
-	getRStuff()
 */

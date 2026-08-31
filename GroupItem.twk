@@ -614,11 +614,74 @@ PLGrgx getRegex()
 }
 
 /*******************************************************************************
-    getRStuff is the ensure-and-fetch reader. Warns if it had to create one so
-    we can ID a node that reached this path with no rStuff. Existence-check
-    reads (if !rStuff) stay raw elsewhere to avoid warn-spam.
+    getRStuff — A PURE GETTER. IT DOES NOT CONSTRUCT. Tony's ruling, 2026-08-31.
+
+    ⚠ IT USED TO, AND ITS OWN HEADER LIED ABOUT IT. The old body minted an
+    rStuff on a miss, and the header said it "warns if it had to create one".
+    The warn — `getRStuff: <node> no rStuff - creating` — was DELETED on
+    2026-07-29, so for a month the function constructed in total silence while
+    its documentation promised otherwise. Two comments elsewhere in the tree
+    (GroupActions.rtn, Commands.rtn) record the deletion and are the only
+    reason it was findable; `auditMissingRules` was built as the presence-based
+    replacement precisely because an absence-based grep cannot tell "nothing
+    fired" from "the cerr is gone".
+
+    ⚠⚠ THE REASON THE RULING IS A ROAD FIX AND NOT A READER FIX: a getter that
+    constructs makes a MISS UNOBSERVABLE, so every census over rStuff is taken
+    through an instrument that repairs its own subject as it counts. That is
+    not hypothetical — genParse.rtn's `unresolvedTerms` header records the old
+    cerr being CAUGHT IN THE ACT, printing "no rStuff - creating" for one of
+    the very terms that function was trying to count.
+
+    ⚠⚠ IT IS SILENT, AND A COMPLAINT WAS BUILT, MEASURED AND REMOVED. The brief
+    asked for a complaint on the miss so the getter could become the live audit
+    and retire auditMissingRules. It was built and run:
+
+        one fixture   4853 complaints over 4389 DISTINCT nodes (near 1:1)
+        whole fleet   16607 complaints, and THREE baseline rows red on the noise
+
+    THE PREMISE IS FALSIFIED, AND ONE MEASUREMENT NAMES WHY: this getter is not
+    called at four sites, it is called at ONE HUNDRED AND THIRTY-SEVEN, because
+    tok's #autoGetSet binds EVERY bare `.rStuff` read in the tree to it. So the
+    complaint fires loudest exactly where the code is CORRECTLY asking "is there
+    one?" — `if !x.rStuff` is an existence test, and finding nothing is its right
+    answer. A complaint here cannot tell a reader that NEEDS an rStuff from a
+    reader ASKING WHETHER THERE IS ONE. One channel, two meanings, so the cure is
+    not a quieter complaint — it is no complaint in this seat. The audit stays
+    where it is, and is now honest because the getter no longer repairs.
+
+    THE POPULATION WAS THE ANSWER, NOT THE DEFECT LIST: 4389 distinct nodes,
+    not one node asked repeatedly, so the parse legitimately meets fresh nodes
+    without rStuff. Lazy materialisation is the design (genParse.rtn's
+    unresolvedTerms header says so), and `getStuff` now names it: it calls
+    ensureRStuff, because that is what it always wanted.
+
+    ⚠ ZERO CALLERS TODAY, DELIBERATELY, AND THAT IS NOT DEAD CODE. Every bare
+    `.rStuff` in the tree IS a call to this function — the four literal
+    spellings were the only ones that wanted the other half.
 *******************************************************************************/
 RuleStuff getRStuff()
+{
+    return rStuff;
+}
+
+/*******************************************************************************
+    ensureRStuff — THE CONSTRUCTING HALF, SPLIT OUT AND NAMED. 2026-08-31.
+
+    Byte-for-byte the body getRStuff used to carry, moved behind a verb that
+    says what it does. ONE CHANNEL, ONE MEANING: `get` reads, `ensure` mints,
+    and no site can silently get the second while asking for the first.
+
+    ⚠ IT IS NOT `setRuleStuff`, AND THE DIFFERENCE IS NOT COSMETIC. setRuleStuff
+    also sets isRule, and carries a second arm — `or rule != this` — that
+    RE-CLONES an rStuff belonging to another node. That arm is the master/face
+    seam, and adopting it here would change behaviour at three call sites in the
+    same stroke that removes the construction from the getter, making any
+    regression indistinguishable from the refactor. Whether those three sites
+    WANT setRuleStuff's re-clone is a live question and now a visible one; it is
+    deliberately not answered here.
+*******************************************************************************/
+RuleStuff ensureRStuff()
 {
     if !rStuff {
         RuleStuff   fresh = new(this);
@@ -637,7 +700,26 @@ Stak getStak()
 *******************************************************************************/
 RuleStuff getStuff(RuleStuff pStuff)
 {
-RuleStuff   stuff = getRStuff();
+    /*  ⚠ ensureRStuff, AND IT IS THE FOURTH CALLER THE 2026-08-31 RULING FIXED.
+        This spelled getRStuff() for as long as getRStuff constructed, and it is
+        the site that made the construction load-bearing: parse() is its only
+        caller, so EVERY node that is parsed comes through here, and the ones
+        with no rStuff got one minted silently.
+
+        ⚠⚠ IT IS NOT A MIS-USE TO BE REPAIRED, WHICH IS THE MEASURED PART.
+        With the getter made pure and complaining, one fixture run produced
+        4853 complaints over 4389 DISTINCT NODES — near one-to-one, so these
+        are fresh nodes each legitimately arriving without rStuff, not one node
+        asked repeatedly. LAZY MATERIALISATION IS THE PARSER'S DESIGN, recorded
+        as such in genParse.rtn's unresolvedTerms header, and this is where it
+        happens. So the honest fix is the honest VERB: it always wanted the
+        ensure, and now it asks for it by name.
+
+        WHAT THAT COSTS THE "LIVE AUDIT" IDEA is written up rather than
+        discovered again — see docs/fixIts.md F-35. A getter-complaint cannot
+        replace auditMissingRules, because its population is not defects: it is
+        every node the parse mints.  */
+RuleStuff   stuff = ensureRStuff();
     if stuff.rule != this || stuff.inProcess {
         stuff       = new(rStuff);
         stuff.rule  = this; }

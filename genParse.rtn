@@ -881,7 +881,11 @@ use rule
     method          = 0;
     immediateACTION = false;
     isCoded         = false;
-    /*  ⚠ getRStuff(), NEVER THE RAW rStuff FIELD. The first cut used
+    /*  ⚠ ensureRStuff(), NEVER THE RAW rStuff FIELD. (Spelled getRStuff()
+        until 2026-08-31, when the getter was split into a pure read and an
+        explicit ensure; this site was always relying on the CONSTRUCTION half,
+        which is why it moved and the reasoning below is unchanged.)
+        The first cut used
         `if !rStuff rStuff = new(rule)` and the bind SILENTLY DID NOT TAKE:
         parse() forks on definingRule().rStuff.parseMethod, and the raw field
         is not necessarily the materialised stuff that fork reads. The trace
@@ -890,8 +894,8 @@ use rule
         Meanwhile the method-slot clear HAD landed, so nothing built the
         result and the consumer dereferenced a null.
         parseRuleMethod -- the working parseMethod= door -- has always used
-        getRStuff(). Copy the working door rather than inventing a second one. */
-    setParseMethod(rule.getRStuff(),"parseViaKant");
+        the same door. Copy the working door rather than inventing a second one. */
+    setParseMethod(rule.ensureRStuff(),"parseViaKant");
     parkParse(rule,"parseViaKant");
     cerr "kantDoor: " rule.tag " -> " mintName " via parseViaKant, "
          toStringFromInt(live) " terms":;
@@ -1549,7 +1553,7 @@ use input
             GroupItem   grup = parent;
             if grup {
                 GroupItem   ruleNode = grup.definingRule();
-                stuff = ruleNode.getRStuff();
+                stuff = ruleNode.ensureRStuff();
                 live  = countRuleTerms(ruleNode);
                 if !stuff.termCount
                     cerr "parseMethod: WARNING binding " name " to " grup.tag " with no parseTerms -- indices unguarded":;
@@ -1740,8 +1744,12 @@ String      from  = atRuleMark;
     interpretMethod=. In the kant world this whole function is one ORC-compile
     and a stored handle; here it is a dlsym.
 
-    getRStuff, not rStuff: a rule reached at definition time may not have been
-    parsed yet, and the fork reads the field off the rule's OWN stuff.
+    ensureRStuff, not rStuff: a rule reached at definition time may not have
+    been parsed yet, and the fork reads the field off the rule's OWN stuff. This
+    is a definition-attribute door, so it fires DURING attachment -- which is
+    exactly the moment the 2026-08-31 ruling says construction belongs, and why
+    this site keeps its mint rather than losing it. (Spelled getRStuff until
+    that ruling split the getter's two jobs apart.)
 
     definingRule(), not parent -- SEQ 58, 2026-08-13, and it is a MEASURED
     repair, not a tidy-up. Both doors used to bind onto the node aCTionDefinE
@@ -1778,7 +1786,7 @@ use input
             GroupItem   grup = parent;
             if grup {
                 GroupItem   ruleNode = grup.definingRule();
-                stuff = ruleNode.getRStuff();
+                stuff = ruleNode.ensureRStuff();
                 stuff.termCount = atoi(name); }
             else    cerr "parseTerms: no rule to record against":; }
         else    cerr "parseTerms: expected a count in text":;

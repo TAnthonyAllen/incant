@@ -54,6 +54,7 @@ GroupItem *dQ();
 GroupItem *definingRule();
 void dispatch();
 void dumpField();
+RuleStuff *ensureRStuff();
 void establishFrame(GroupItem *parentLabel);
 GroupItem *findAttribute(char *name);
 GroupItem *findParent(char *name);

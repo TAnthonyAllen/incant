@@ -166,7 +166,7 @@ GroupItem::GroupItem(GroupItem *grup)
 	if ( grup->rStuff )
 		{
 		rStuff = new RuleStuff(this);
-		*rStuff = *grup->rStuff;
+		*rStuff = *grup->getRStuff();
 		rStuff->rule = this;
 		rStuff->followed = rStuff->isOK = rStuff->sukcess = 0;
 		}
@@ -304,7 +304,7 @@ int GroupItem::allAttributesOptional()
 {
 GroupItem 	*attr = 0;
 	while ( attr = nextAttribute(attr) )
-		if ( !attr->rStuff || attr->rStuff->min )
+		if ( !attr->getRStuff() || attr->getRStuff()->min )
 			return 0;
 	return 1;
 }
@@ -763,6 +763,32 @@ GroupItem 	*grup = 0;
 	else	::fprintf(stderr,"   %s  | data= %s  | (no list)\n",groupBody->tag,getText());
 }
 
+/*******************************************************************************
+    ensureRStuff — THE CONSTRUCTING HALF, SPLIT OUT AND NAMED. 2026-08-31.
+
+    Byte-for-byte the body getRStuff used to carry, moved behind a verb that
+    says what it does. ONE CHANNEL, ONE MEANING: `get` reads, `ensure` mints,
+    and no site can silently get the second while asking for the first.
+
+    ⚠ IT IS NOT `setRuleStuff`, AND THE DIFFERENCE IS NOT COSMETIC. setRuleStuff
+    also sets isRule, and carries a second arm — `or rule != this` — that
+    RE-CLONES an rStuff belonging to another node. That arm is the master/face
+    seam, and adopting it here would change behaviour at three call sites in the
+    same stroke that removes the construction from the getter, making any
+    regression indistinguishable from the refactor. Whether those three sites
+    WANT setRuleStuff's re-clone is a live question and now a visible one; it is
+    deliberately not answered here.
+*******************************************************************************/
+RuleStuff *GroupItem::ensureRStuff()
+{
+	if ( !getRStuff() )
+		{
+		RuleStuff 	*fresh = new RuleStuff(this);
+		setRStuff(fresh);
+		}
+	return getRStuff();
+}
+
 /***************************************************************************
     establishFrame -- THE SINGLE WRITER OF parentLabel, now one body with two
     call sites. Tony's ruling via Clay, 2026-08-29.
@@ -796,8 +822,8 @@ GroupItem 	*grup = 0;
 ***************************************************************************/
 void GroupItem::establishFrame(GroupItem *parentLabel)
 {
-	if ( rStuff )
-		rStuff->parentLabel = parentLabel;
+	if ( getRStuff() )
+		getRStuff()->parentLabel = parentLabel;
 }
 
 /*****************************************************************************
@@ -971,7 +997,7 @@ GroupItem *GroupItem::frameParent(GroupItem *holder)
 RuleStuff 	*holderStuff = 0;
 	if ( !holder )
 		return holder;
-	holderStuff = holder->rStuff;
+	holderStuff = holder->getRStuff();
 	if ( holderStuff && holderStuff->label )
 		return holderStuff->label;
 	return holder;
@@ -1205,7 +1231,7 @@ int 		noMoreAttributes = 0;
 					if ( unGuarded(item->groupBody->flags.guarding) )
 						groupBody->flags.guarding = 2;
 					else	groupBody->guardSet->set(itemGuard);
-					if ( item->rStuff && item->rStuff->min )
+					if ( item->getRStuff() && item->getRStuff()->min )
 						goto endSetGuard;
 					break;
 				case 1:
@@ -1222,7 +1248,7 @@ int 		noMoreAttributes = 0;
 						groupBody->guardSet->set((int)*junk);
 					else	groupBody->flags.guarding = 2;
 				}
-			if ( rStuff->min )
+			if ( getRStuff()->min )
 				goto endSetGuard;
 			}
 		else
@@ -1250,7 +1276,7 @@ int 		noMoreAttributes = 0;
 					if ( guardInProcess(item->groupBody->flags.guarding) )
 						goto returnGuard;
 					else
-					if ( guarded(item->groupBody->flags.guarding) && item->rStuff->min )
+					if ( guarded(item->groupBody->flags.guarding) && item->getRStuff()->min )
 						noMoreAttributes = 1;
 				if ( unGuarded(item->groupBody->flags.guarding) )
 					groupBody->flags.guarding = 2;
@@ -1352,17 +1378,54 @@ void *GroupItem::getPointer()
 }
 
 /*******************************************************************************
-    getRStuff is the ensure-and-fetch reader. Warns if it had to create one so
-    we can ID a node that reached this path with no rStuff. Existence-check
-    reads (if !rStuff) stay raw elsewhere to avoid warn-spam.
+    getRStuff — A PURE GETTER. IT DOES NOT CONSTRUCT. Tony's ruling, 2026-08-31.
+
+    ⚠ IT USED TO, AND ITS OWN HEADER LIED ABOUT IT. The old body minted an
+    rStuff on a miss, and the header said it "warns if it had to create one".
+    The warn — `getRStuff: <node> no rStuff - creating` — was DELETED on
+    2026-07-29, so for a month the function constructed in total silence while
+    its documentation promised otherwise. Two comments elsewhere in the tree
+    (GroupActions.rtn, Commands.rtn) record the deletion and are the only
+    reason it was findable; `auditMissingRules` was built as the presence-based
+    replacement precisely because an absence-based grep cannot tell "nothing
+    fired" from "the cerr is gone".
+
+    ⚠⚠ THE REASON THE RULING IS A ROAD FIX AND NOT A READER FIX: a getter that
+    constructs makes a MISS UNOBSERVABLE, so every census over rStuff is taken
+    through an instrument that repairs its own subject as it counts. That is
+    not hypothetical — genParse.rtn's `unresolvedTerms` header records the old
+    cerr being CAUGHT IN THE ACT, printing "no rStuff - creating" for one of
+    the very terms that function was trying to count.
+
+    ⚠⚠ IT IS SILENT, AND A COMPLAINT WAS BUILT, MEASURED AND REMOVED. The brief
+    asked for a complaint on the miss so the getter could become the live audit
+    and retire auditMissingRules. It was built and run:
+
+        one fixture   4853 complaints over 4389 DISTINCT nodes (near 1:1)
+        whole fleet   16607 complaints, and THREE baseline rows red on the noise
+
+    THE PREMISE IS FALSIFIED, AND ONE MEASUREMENT NAMES WHY: this getter is not
+    called at four sites, it is called at ONE HUNDRED AND THIRTY-SEVEN, because
+    tok's #autoGetSet binds EVERY bare `.rStuff` read in the tree to it. So the
+    complaint fires loudest exactly where the code is CORRECTLY asking "is there
+    one?" — `if !x.rStuff` is an existence test, and finding nothing is its right
+    answer. A complaint here cannot tell a reader that NEEDS an rStuff from a
+    reader ASKING WHETHER THERE IS ONE. One channel, two meanings, so the cure is
+    not a quieter complaint — it is no complaint in this seat. The audit stays
+    where it is, and is now honest because the getter no longer repairs.
+
+    THE POPULATION WAS THE ANSWER, NOT THE DEFECT LIST: 4389 distinct nodes,
+    not one node asked repeatedly, so the parse legitimately meets fresh nodes
+    without rStuff. Lazy materialisation is the design (genParse.rtn's
+    unresolvedTerms header says so), and `getStuff` now names it: it calls
+    ensureRStuff, because that is what it always wanted.
+
+    ⚠ ZERO CALLERS TODAY, DELIBERATELY, AND THAT IS NOT DEAD CODE. Every bare
+    `.rStuff` in the tree IS a call to this function — the four literal
+    spellings were the only ones that wanted the other half.
 *******************************************************************************/
 RuleStuff *GroupItem::getRStuff()
 {
-	if ( !rStuff )
-		{
-		RuleStuff 	*fresh = new RuleStuff(this);
-		setRStuff(fresh);
-		}
 	return rStuff;
 }
 
@@ -1385,10 +1448,29 @@ Stak *GroupItem::getStak()
 *******************************************************************************/
 RuleStuff *GroupItem::getStuff(RuleStuff *pStuff)
 {
-RuleStuff 	*stuff = getRStuff();
+	/*  ⚠ ensureRStuff, AND IT IS THE FOURTH CALLER THE 2026-08-31 RULING FIXED.
+	This spelled getRStuff() for as long as getRStuff constructed, and it is
+	the site that made the construction load-bearing: parse() is its only
+	caller, so EVERY node that is parsed comes through here, and the ones
+	with no rStuff got one minted silently.
+	
+	⚠⚠ IT IS NOT A MIS-USE TO BE REPAIRED, WHICH IS THE MEASURED PART.
+	With the getter made pure and complaining, one fixture run produced
+	4853 complaints over 4389 DISTINCT NODES — near one-to-one, so these
+	are fresh nodes each legitimately arriving without rStuff, not one node
+	asked repeatedly. LAZY MATERIALISATION IS THE PARSER'S DESIGN, recorded
+	as such in genParse.rtn's unresolvedTerms header, and this is where it
+	happens. So the honest fix is the honest VERB: it always wanted the
+	ensure, and now it asks for it by name.
+	
+	WHAT THAT COSTS THE "LIVE AUDIT" IDEA is written up rather than
+	discovered again — see docs/fixIts.md F-35. A getter-complaint cannot
+	replace auditMissingRules, because its population is not defects: it is
+	every node the parse mints.  */
+RuleStuff *stuff = ensureRStuff();
 	if ( stuff->rule != this || stuff->inProcess )
 		{
-		stuff = new RuleStuff(rStuff);
+		stuff = new RuleStuff(getRStuff());
 		stuff->rule = this;
 		}
 	stuff->parentStuff = pStuff;
@@ -1786,7 +1868,7 @@ RuleStuff 	*ruleStuff = getStuff(pStuff);
 	rule.rStuff.parentLabel has to be this invocation's.
 	***********************************************************************/
 	definer = definingRule();
-	defStuff = definer->rStuff;
+	defStuff = definer->getRStuff();
 	/*  THE READ HALF OF THE BIND-READ SEAM PROBE, SEQ 58, 2026-08-13. Its
 	write half sits in the binding door in genParse. Together they
 	answered, in one bit, why a cross-file parse-method bind was written
@@ -2410,13 +2492,13 @@ void GroupItem::setRuleStuff()
 		if ( parent && parent->groupBody->flags.isRule )
 			if ( !groupBody->registry || groupBody->registry == GroupControl::groupController->groupRules->keyWords )
 				groupBody->flags.isRule = 1;
-	if ( !rStuff )
+	if ( !getRStuff() )
 		setRStuff(new RuleStuff(this));
 	else
-	if ( rStuff->rule != this )
+	if ( getRStuff()->rule != this )
 		{
-		setRStuff(new RuleStuff(rStuff));
-		rStuff->rule = this;
+		setRStuff(new RuleStuff(getRStuff()));
+		getRStuff()->rule = this;
 		}
 }
 
