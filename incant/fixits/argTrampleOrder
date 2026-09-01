@@ -1,0 +1,170 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(ArgTrample);
+define
+    atBig       aa bb cc;
+    atSmall     xx;
+    atDepth;
+    atOut;
+
+    atA argument code={
+        if atDepth > 0;
+            atDepth = atDepth - 1;
+            atA(atSmall);
+        return argument.taG;
+        };
+
+    atCtl argument code={
+        return argument.taG;
+        };
+
+    atB argument code={
+        atA2(argument);
+        return 0;
+        };
+    atA2 argument code={
+        if atDepth > 0;
+            atDepth = atDepth - 1;
+            atB(atSmall);
+        return argument.taG;
+        };
+
+    atRun code={
+        print "=== ROW 0  ANTI-VACUITY CONTROL -- no recursion at all ===":;
+        atOut = atCtl(atBig);
+        print "   measured" atOut "   PINNED atBig   (if this moves, every row below is void)":;
+
+        print "=== ROW 1  DIRECT RECURSION, a DIFFERENT node passed inward ===":;
+        atDepth = 1;
+        atOut = atA(atBig);
+        print "   measured" atOut "   PINNED atSmall  (WRONG -- the outer wants atBig)":;
+
+        print "=== ROW 2  SAME ACTION, depth 0 -- the call never happens ===":;
+        atDepth = 0;
+        atOut = atA(atBig);
+        print "   measured" atOut "   PINNED atBig   (isolates the CALL from the FLAG)":;
+
+        print "=== ROW 3  MUTUAL RECURSION A->B->A, the same question ===":;
+        atDepth = 1;
+        atOut = atA2(atBig);
+        print "   measured" atOut "   PINNED atSmall  (WRONG -- the outer wants atBig)":;
+
+        fixArgTrampleHere = 0;
+        print "ANCHOR fixArgTrampleHere -- measured and PINNED sit together above":;
+        };
+    ;
+atRun();
+print "ARGTRAMPLEORDER SENTINEL -- reached the foot":;
+stop();
+
+LANE:  parser
+BLAST: OVERLAPS
+
+WHY THIS BLAST STAMP: the candidate fix edits runAction, which the frame bind
+(SEQ 102 Part 2) also edits. The two land in the same function and must be
+sequenced, not merged blindly.
+
+argTrampleOrder -- AN ACTION'S ARGUMENT IS TRAMPLED BY ITS OWN NESTED CALL, IN
+BOTH DIRECTIONS OF RECURSION, AND ONE STATEMENT'S POSITION EXPLAINS IT.
+Minted 2026-09-01 (SEQ 103 Part 2, standing-gate check).
+
+WHAT YOU ARE LOOKING AT
+
+Four rows. Rows 0 and 2 are controls and read atBig. Rows 1 and 3 read atSmall
+and SHOULD read atBig: an action passed atBig, which then calls something that
+passes atSmall inward, comes back and finds its OWN argument is now atSmall.
+Row 1 is direct recursion, row 3 is mutual A->B->A. Same wrong answer.
+
+HOW IT WAS FOUND, because the route matters more than the bug
+
+The standing 08-05 gate requires K5/K6 on incant/kant8T before any frame-model
+ruling. They ran. K5 is green, K6c has been RED for a while -- the argument IS
+trampled in mutual recursion -- and K2, the gate's row for the DIRECT case,
+answers 7 and has been read as "direct recursion is fine".
+
+K2 CANNOT ANSWER THE QUESTION K2 ASKS. Its body is
+
+    k2 argument code={ if k2depth > 0; k2depth = k2depth - 1; k2(argument);
+                       return argument; };
+
+and it passes `argument` STRAIGHT DOWN. The inner activation binds the value the
+outer already had, so restoring 7 over 7 is indistinguishable from never
+trampling. A trampled run and a clean run BOTH PRINT 7. The row discriminated
+nothing while being read as the gate's answer, and K6c's own comment built an
+asymmetry on top of it -- "in DIRECT recursion an argument DODGES the emptying".
+
+THAT ASYMMETRY IS FALSIFIED. Row 1 above is K2 with the one defect removed, and
+it reads atSmall. Direct recursion tramples too and always has.
+
+THE MECHANISM, AND IT IS POINTABLE RATHER THAN INFERRED
+
+GroupActions.rtn, runAction, in this order today:
+
+    ... bind: ruleArg = field["argument"];  ruleArg.setGroup(result);
+    lastREF.gGroup = result;
+    saveLocalFields(field);
+
+saveLocalFields walks `(isArgument || isLocal) && !noPrint`, so THE ARGUMENT IS
+IN THE FRAME SET. With the bind first, the frame captures the NEW argument, and
+restoreLocalFields hands the NEW one back when the nested call returns. The
+outer activation never gets its own argument restored -- it gets the inner's.
+
+NEXT: BEST GUESS -- MEASURED, FLEET-CLEAN, AND EXPLICITLY NOT A RECOMMENDATION
+
+CANDIDATE: move `saveLocalFields(field);` ABOVE the argument bind in runAction.
+One statement, one position.
+
+  GRADE: MEASURED, not guessed. Built and run 2026-09-01 as a probe and then
+  REVERTED in the same session. Pre-registered prediction, both target rows
+  moved, every control held:
+
+      taken       row 1 atBig   row 3 atBig   rows 0/2 atBig
+      not taken   row 1 atSmall row 3 atSmall rows 0/2 atBig
+
+  and on incant/kant8T: K2x row 1 atSmall -> atBig, K6c k6small -> k6big, while
+  K1/K3/K4/K5/K7a/K7b/K7c and K6a/b/d/e ALL HELD.
+
+  BLAST RADIUS, measured rather than asserted: the whole fleet was captured
+  before and after. THE ONLY ROW THAT MOVED WAS THE K2x TRIPWIRE PINNED AT THE
+  DEFECT ON PURPOSE. oneTest, jsonTest, baselineTests and popScratch were
+  BYTE-IDENTICAL on stdout AND stderr -- checked directly, because oneTest and
+  jsonTest are already-red rows and a red row absorbs new breakage silently.
+  genScratch's stderr and carrierNode differ in POINTER VALUES ONLY (ASLR);
+  structure, tags and counts identical.
+
+WHAT WOULD KILL IT, and both are rulings rather than measurements:
+
+  1  saveLocalFields IS UNDER A DELETION SENTENCE. docs/jit.md section 0 says it
+     gets DELETED rather than repaired when locals-as-frames lands in the JIT.
+     Re-ordering a statement inside condemned machinery may be exactly the wrong
+     investment -- or exactly the right cheap holding action. THAT IS A RULING.
+
+  2  SEQ 102 Part 2 RULED A DIFFERENT SHAPE for this area -- an argument slot on
+     the frame, written last by the caller, lifted by the callee at entry, with
+     NO SAVE/RESTORE ANYWHERE. This candidate is the opposite move: it makes the
+     save/restore bracket work CORRECTLY rather than removing the argument from
+     it. The two are not compatible as written and must be sequenced.
+
+WHAT IT DOES NOT FIX, AND THIS IS THE PART THAT PROTECTS THE CHARTER
+
+IT DOES NOT TOUCH THE CARRIER. incant/fixits/carrierNode was captured under the
+probe and its structure did not move: the two caSubject rows still report TWO
+DISTINCT NODES OVER ONE BODY, exactly as before. So the argument TRAMPLE and the
+CARRIER/three-nodes problem are SEPARATE, and this candidate closes only the
+first.
+
+⚠ THE USEFUL CONSEQUENCE FOR SEQ 102 PART 2: the frame bind is still needed and
+its scope is now NARROWER AND BETTER DEFINED. It does not have to also fix the
+trample, because the trample has its own measured one-statement cause. A frame
+bind that lands and leaves rows 1 and 3 red is not thereby a failure -- it was
+never the thing that made them red.
+
+TO RE-RUN THE CANDIDATE: move the one statement, `tok GroupRules.twk` with NO
+directives file (bear-trap 23/30 -- a directives build is a different program),
+check `grep -c '^extern' GroupRules.h` reads 326, rebuild the Groups scheme of
+InProcess/TOK/TOK.xcodeproj, then run this file. Rows 1 and 3 flip to atBig.
