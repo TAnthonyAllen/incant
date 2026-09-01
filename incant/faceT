@@ -101,13 +101,38 @@ is the absence of one wearing the shape of a reading.
     readable spelling for the parent column ever lands, F4 moves and someone
     reads this note.
 
-⚠ THE OPTIONS AND rStuff COLUMNS ARE NOT HERE, FOR THE SAME REASON, and their
-absence is deliberate rather than forgotten. `isCopy` is visible only through
-`addrOf`, and `addrOf` reports the CARRIER -- every subject passed to an action
-reads isCopy=1 including originals -- so it cannot report the subject's own bit.
-An rStuff counter needs a live rule and a readable counter, and neither exists in
-a form incant can ask today. Writing rows that echo their own tags would have
-produced two more green rows asserting nothing.
+⚠ THE OPTIONS AND rStuff COLUMNS ARE NOT HERE, and their absence is deliberate
+rather than forgotten. An rStuff counter needs a live rule and a readable
+counter, and neither exists in a form incant can ask today. Writing rows that
+echo their own tags would have produced green rows asserting nothing.
+
+⚠⚠ THE OPTIONS ROW'S RECORDED REASON WAS HALF-WRONG AND IS CORRECTED HERE
+(2026-09-02, SEQ 115). It read: *"`isCopy` is visible only through `addrOf`, and
+`addrOf` reports the CARRIER -- every subject reads isCopy=1 including originals
+-- so it cannot report the subject's own bit."* THE SECOND HALF IS FALSE. C20
+measured a subject reading **isCopy=0**: the result of a SUBSCRIPT, which is
+nobody's copy. So the column DOES discriminate, and it is now pinned by
+pointerT's L5a/L5b. The original reason had been generalised from a population
+that happened to be all named reads.
+
+⚠ THE ROW IS STILL UNBUILDABLE, AND THE REAL REASON IS STRONGER THAN THE WRONG
+ONE. faceT's question is a WRITE question -- write a bit through one face, read
+it through the other -- and there is no road in EITHER direction:
+
+    READ   `.isCopY` echoes its own tag on a named field AND on an element
+           (bear-trap #26), measured in minionWork/probeIsCopy
+    WRITE  `:. isCopY` does not land -- isCopy reads 1 before and after,
+           measured in minionWork/probeIsCopyWrite
+
+`isCopy` lives in GroupItem's `options` (groups.ext:202), not in GroupBody's
+`flags` where `noPrinT` lives, and no incant spelling reaches it. So the row
+waits on a spelling, not on an instrument.
+
+⚠ AND THE DISTINCTION IS WORTH KEEPING BECAUSE IT NEARLY WENT THE OTHER WAY. On
+the C20 finding the obvious move was to declare the row RE-OPENED -- the stated
+blocker had just been falsified. It took one probe to find that the row is still
+blocked, for a reason nobody had written down. A falsified reason is not the same
+thing as a cleared gate.
 
 ⚠ BEAR-TRAP #35 GOVERNS EVERY READ IN THIS FILE. The first draft read
 `faBag["faSrc"].noPrinT` and got `ORIG noPrinT` -- the chained subscript is

@@ -11,13 +11,26 @@ search reset stack Grokking UnitTests Utilities list;
         A fixpoint read is a named call or nothing.
 
     ⚠ `**` IS NO LONGER AN OPERATOR. It left the Operators table and the
-    UnaryOPS bin, and opDerefAll retired with it (zero call sites). Longest match
-    no longer merges two stars, so `**x` tokenizes as two unaries.
+    UnaryOPS bin, and opDerefAll retired with it (zero call sites).
 
-    ⚠⚠ THE ROW THAT IS THE WHOLE ARGUMENT IS S2b: `**x` ON A ONE-DEEP POINTER
-    MUST REFUSE. Under the old fixpoint it READ THE LEAF. If it ever reads again,
-    the fixpoint has crept back in and this row says so by name -- which is why
-    it is written as its own row rather than folded into S2a.  */
+    ⚠⚠ BUT REMOVING THE MERGED OPERATOR DID NOT PRODUCE COMPOSITION. This header
+    used to finish that sentence with "so `**x` tokenizes as two unaries", which
+    was read off the operator table and is FALSIFIED BY MEASUREMENT (C19, graded
+    on addrOf): ONLY ONE STAR IS EVER APPLIED, and N stars behave as exactly one.
+    Spaced `* *x` reads identically, so it is not longest match merging them. The
+    LAW above is Tony's and stands; the machine does not implement it yet.
+
+    ⚠⚠ SO THE ROW THAT IS THE WHOLE ARGUMENT IS S2b, AND ITS DESCRIPTION HERE WAS
+    WRONG UNTIL 2026-09-02. S2b is `**x` on a TWO-DEEP pointer and it WANTS THE
+    LEAF -- that is what composition means. Under the flip it gets the MIDDLE. So
+    when this fixture re-pins at the flip, S2b must go RED and stay red until
+    composition works. The name had been relocated to S2b at C19 and the sentence
+    around it still described S3a, which is a half-applied edit and reads as a
+    ruling nobody made.
+
+    ⚠ S3a WILL READ THE LEAF AT THE FLIP AND WILL BE RIGHT TO -- FOR THE WRONG
+    REASON, because one star on a one-deep pointer reaches the leaf by itself.
+    Do not read a green S3a as evidence that the second star ran.  */
 
 register(StarT);
 define

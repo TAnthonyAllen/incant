@@ -75,6 +75,14 @@ define
         cerr "  L4e that capture STARRED -- law 4 says THIS is the source:":;
         addrOf(ptFollowed);
 
+        cerr "pointerT L5 -- THE isCopy COLUMN. A NAMED read reads 1; the ELEMENT reads 0.":;
+        cerr "  L5a a NAMED field -- isCopy must read 1:":;
+        addrOf(ptSrc);
+        cerr "  L5b the SUBSCRIPT ELEMENT -- isCopy must read 0:":;
+        addrOf(ptElem);
+        ptFlagRead = ptSrc.isCopY;
+        print "pointerT L5c flag road   =" ptFlagRead "  want ptFlagRead -- UNREADABLE, see the note":;
+
         ptInner := ptOther;
         ptBagD +* ptInner;
         print "pointerT D  depth        =" ptBagD["ptInner"] "  want 0 flip-OFF, OTHER flip-ON -- a flip tripwire":;
@@ -191,6 +199,41 @@ element is the one thing here that does not arrive wearing a copy's flag. WHY is
 not diagnosed and is not guessed at -- reproduction proves the symptom, never the
 cause, and the causal-claim ledger in this codebase is why that split is standing
 doctrine.
+
+⚠⚠ ROW L5 -- THE isCopy COLUMN, PROMOTED FROM A FOOTNOTE TO A ROW (SEQ 115).
+C20 recorded in passing that L4d was the only subject in the run reading
+isCopy=0. That is not a curiosity, it is the second road into the same fact L4
+certifies, and it now has rows so the fleet trips if EITHER road changes.
+
+    L5a  a NAMED field        isCopy=1
+    L5b  the SUBSCRIPT ELEMENT isCopy=0
+
+⚠ THE PRE-REGISTERED READING, which the rows assert rather than assume: a named
+reference arrives through the argument carrier, which MINTS A COPY -- isCopy
+true, body shared, which is exactly Tony's definition of a copy of a field -- and
+a subscript reaches the ELEMENT ITSELF, which nobody copied. So the 0 is not an
+anomaly in the element; it is the ABSENCE of the carrier's copy, and it is the
+same fact as law 2 seen through a different column. If a NAMED read of a defined
+field ever comes back isCopy=0, L5a is the row that says so.
+
+⚠⚠ L5c IS THE FLAG ROAD AND IT IS PINNED AT ITS OWN ABSENCE, DELIBERATELY.
+SEQ 115 asked for the finding asserted "both by flag and by addrOf". The addrOf
+road is L5a/L5b. THE FLAG ROAD DOES NOT EXIST TODAY, and that was MEASURED, not
+assumed -- minionWork/probeIsCopy: `.isCopY` echoes its own tag on BOTH a named
+field and an element, which is bear-trap #26 and not a reading. `isCopy` lives in
+GroupItem's `options` (groups.ext:202), not in GroupBody's `flags` where noPrinT
+lives, and there is no incant spelling that reaches it.
+
+⚠ SO L5c PRINTS THE TAG-ECHO AND THE FLEET PINS IT. That is presence-with-value
+on an absence (H4): the day `.isCopY` becomes readable, L5c goes RED and someone
+builds the by-flag half properly. The alternative -- omitting the row and noting
+the gap in prose -- is how a gap becomes permanent, because nothing trips when
+the road opens.
+
+⚠ AND THE WRITE ROAD IS DEAD TOO, which is a separate question and was asked
+separately: `:. isCopY` does not land -- isCopy reads 1 before and after, in
+minionWork/probeIsCopyWrite. That is what keeps faceT's options row unbuilt, and
+it is a DIFFERENT REASON than the one faceT recorded. See faceT's note.
 
 ⚠ ROW L3's REFUSAL IS NOW ASSERTED BY ITS TEXT, AND ITS WORDING IS A FINDING.
 L3 was pinned only at 0, which is exactly the weakness row X's own note forbids:

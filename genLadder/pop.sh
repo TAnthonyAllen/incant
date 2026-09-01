@@ -500,12 +500,26 @@ done
 #  ⚠ EVERY ROW IS FLIP-GATED AND PINNED AT ITS FLIP-OFF VALUE. Flip-off the
 #  auto-unwrap overshoots and every star refuses; the whole file goes red at the
 #  flip and re-pins, deliberately, like holderT row 3.
-#  ⚠⚠ S3a IS RECORDED UNRESOLVED, NOT GRADED. Under the flip it READ where the law
-#  says refuse -- a fixpoint signature -- but neither witness can be trusted: a
-#  printed pointer follows the chain, and the tag witness returns `argument`
-#  because of the carrier defect. The instrument is blocked by the defect the
-#  campaign is fixing. S4 is the only row asserting something the law uniquely
-#  predicts today.
+#  ⚠⚠ S3a IS GRADED AS OF 2026-09-01 (C19), AND THIS COMMENT REPLACES THE ONE
+#  SAYING IT WAS UNRESOLVED. The blocker was identity and addrOf removed it. The
+#  suspicion -- a fixpoint -- was FALSIFIED, and something larger was found:
+#
+#      ONLY ONE STAR IS EVER APPLIED. N stars behave as exactly one.
+#
+#  Measured under gNoUnwrap=1 by addrOf's body column. R4 is the discriminator and
+#  R2 alone never could have been: a fixpoint AND a working composition both
+#  predict `**s3Two` reaches the LEAF; it reaches the MIDDLE. The reading that
+#  looked like a fixpoint was a one-deep coincidence.
+#  ⚠ AND IT RELOCATES THE ROW THAT MATTERS TO S2b, NOT S3a. S2b is `**x` on a
+#  TWO-deep pointer wanting the LEAF and getting the MIDDLE, so when this fixture
+#  re-pins at the flip S2b must go RED and stay red until composition works.
+#  S3a will read the leaf at the flip and be RIGHT to -- FOR THE WRONG REASON.
+#  ⚠ NONE OF THAT IS PINNED BY THE ROWS BELOW, AND SAYING SO IS THE POINT. The
+#  grading ran under the FLIP; the fleet runs flip-OFF, where every star refuses
+#  for the auto-unwrap's reasons rather than the law's. So these rows pin the
+#  flip-OFF baseline and nothing more, and S4 remains the only row asserting
+#  something the law uniquely predicts TODAY. The grading lives in starT's dead
+#  region and re-pins here when the flip lands.
 run1 starT "$T/star"; check "starT runs" 0 $?
 if grep -q "START SENTINEL" "$T/star"; then
     echo "  ok    starT sentinel (no truncation)"; green=$((green+1))
@@ -567,6 +581,9 @@ done
 #  ⚠ EACH ROW IS ANCHORED TO ITS OWN LABEL LINE (grep -A1), not to a count of
 #  matching bodies. Four of the five ADDROF lines carry the tag `ptSrc` and three
 #  carry body=#2, so an unanchored grep would pass on the wrong line.
+#  ⚠ L5's NEGATIVE CONTROL, run the same way and recorded here with L4's: L5b was
+#  aimed at a NAMED field instead of the element, and it went RED (isCopy 0 -> 1)
+#  while L5a stayed green, which is exactly the split the two rows claim.
 #  ⚠⚠ NEGATIVE CONTROL RECORDED, 2026-09-02 (rule H7 -- a rung certifies only what
 #  fails when the mechanism is removed). The subscript was replaced by a direct
 #  capture of the source, `ptElem <- ptSrc`, and the fleet re-run:
@@ -595,7 +612,8 @@ for _arm in "pointerT P0 both added   = 1 1" \
             "pointerT L2 name-then-star = CHANGED" \
             "pointerT L3 assign-then-star = 0" \
             "pointerT D  depth        = 0" \
-            "pointerT X  star binds tightest = 0"; do
+            "pointerT X  star binds tightest = 0" \
+            "pointerT L5c flag road   = ptFlagRead"; do
     if grep -qF "$_arm" "$T/ptr"; then
         echo "  ok    ${_arm} -- PINNED BY VALUE"; green=$((green+1))
     else
@@ -624,13 +642,29 @@ if grep -qF "ERROR unary * on ptSrc -- it holds no group" "$T/ptr"; then
 else
     echo "  FAIL  pointerT L3 witness MISSING -- the = -then-star refusal changed"; fail=1
 fi
+#  ⚠⚠ L5 -- THE isCopy COLUMN, PROMOTED FROM C20's FOOTNOTE TO ROWS (SEQ 115).
+#  A NAMED read arrives through the argument carrier, which mints a COPY (isCopy
+#  true, body shared -- Tony's definition); a SUBSCRIPT reaches the element, which
+#  nobody copied. So L5b's 0 is the ABSENCE of the carrier's copy and is the same
+#  fact law 2 certifies, seen through a second column. Both roads are pinned so
+#  the fleet trips if EITHER changes, and L5a is the row that fires if a named
+#  read of a defined field ever comes back isCopy=0.
+#  ⚠ L5c PINS AN ABSENCE BY ITS VALUE, ON PURPOSE. The flag road does not exist:
+#  `.isCopY` echoes its own tag (bear-trap #26) on a named field AND on an
+#  element -- MEASURED in minionWork/probeIsCopy, not assumed. isCopy lives in
+#  GroupItem's options (groups.ext:202), not GroupBody's flags. So the row pins
+#  the tag-echo, and the day the spelling starts reading, L5c goes RED and the
+#  by-flag half gets built. Omitting it instead is how a gap becomes permanent --
+#  nothing trips when the road opens (H4).
 for _l4 in "L4a source asked once:|body=#2|source body, first ask" \
            "L4b SAME source again|body=#2|source body REPEATS -- column is stable" \
            "L4c a DIFFERENT field|body=#5|other body DIFFERS -- column discriminates" \
            "L4d the SUBSCRIPT RESULT|body=#7|the subscript STOPPED (law 2, certified)" \
-           "L4e that capture STARRED|body=#2|the star REACHED the source (law 4)"; do
+           "L4e that capture STARRED|body=#2|the star REACHED the source (law 4)" \
+           "L5a a NAMED field|isCopy=1|a NAMED read is a COPY (the carrier mints one)" \
+           "L5b the SUBSCRIPT ELEMENT|isCopy=0|the ELEMENT is nobody's copy"; do
     _lbl=${_l4%%|*}; _rest=${_l4#*|}; _want=${_rest%%|*}; _why=${_rest##*|}
-    if grep -A1 -F "$_lbl" "$T/ptr" | grep -qE "ADDROF .* $_want( |\$)"; then
+    if grep -A1 -F "$_lbl" "$T/ptr" | grep -qE "ADDROF .*[ ]$_want([ ]|\$)"; then
         echo "  ok    pointerT ${_lbl%% *}: $_why -- PINNED BY IDENTITY"; green=$((green+1))
     else
         echo "  FAIL  pointerT ${_lbl%% *} -- $_want not on the line after its label"; fail=1

@@ -17,8 +17,15 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      114
+SEQ:      115
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 115, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 115 IS LIVE AND IS AT THE FOOT -- THE isCopy COLUMN GETS A ROW, and
+          S3a + the pair fixture are called owed before step 4. MEASURED AT PICKUP:
+          both landed at C19. What is genuinely new is the isCopy row -- AND the
+          finding behind it RE-OPENS faceT's options row, which had been ruled
+          unbuildable on the grounds that every subject read isCopy=1.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 114, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 114 IS LIVE AND IS AT THE FOOT -- THE PEAS-PASS RETIRES, carrierNode
           DISCHARGES ONLY AT THE ASKING (parser(Start) receiving Start, after step 5),
@@ -5099,3 +5106,57 @@ Hand it over and let him start on pointerT L and X.
         and unasserted -- and it names ptSrc, NOT ptAssigned.
 
   END SEQ 114
+
+
+===================================================================
+SEQ 115  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  THE isCopy COLUMN IS THE FINDING. S3a AND THE
+             PAIR FIXTURE OWED BEFORE STEP 4.
+===================================================================
+
+STATUS: working -- picked up 2026-09-02, transcribed AT PICKUP before any
+        work started, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+C-nn — THE isCopy COLUMN IS THE FINDING. S3a AND THE PAIR FIXTURE ARE OWED BEFORE STEP 4.
+Drafted by Clay, ruled by Tony, 2026-09-01. Clod assigns the number.
+
+Accepted: C19/C20, law 2 certified by identity, L3's attribution measured, pointerT's header corrected. Measuring before redoing was right.
+
+The isCopy column gets a row, not a footnote. Every named subject reads isCopy=1; the subscript result alone reads 0. Pre-registered reading: a named reference mints a copy (per Tony's definition — isCopy true, body shared), and subscript reaches the element itself. Add a pointerT row that asserts both by flag and by addrOf, so the fleet trips if either road changes. If any named read of a defined field ever comes back isCopy=0, that's the row that says so.
+
+Owed before step 4, in the ruled order:
+
+starT S3a graded on addrOf. Not mentioned in C20.
+The pair fixture (faceT) as dispatched: flags bit, options bit, rStuff counter, parent; write through one name, read through another; identity by addrOf. Pre-registered: flags crosses, the other three don't. Report which column noPrinT lives in.
+
+Then step 4, unchanged.
+
+F-42: accepted as written. The unmeasured "off" is the seal's housekeeping line.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP, kept separate from the verbatim above.
+
+  The isCopy row is NEW work and is taken as ordered.
+
+  The two items listed as "owed before step 4" were measured at pickup rather
+  than assumed, and BOTH LANDED AT C19 -- the same shape as SEQ 113 item 1 in
+  SEQ 114, which is why the check was run before any building:
+    - starT S3a IS GRADED on addrOf, at C19, and its suspicion is FALSIFIED --
+      no fixpoint and no composition, N stars behave as exactly one. It is
+      absent from C20 because C20 was the pointerT stroke and did not touch it.
+    - faceT EXISTS and its dispatched rows are built, with TWO of the four
+      DELIBERATELY ABSENT and a stated reason: the options bit was held to be
+      unreadable (addrOf reported the carrier, and every subject read isCopy=1),
+      and an rStuff counter has no readable spelling today. noPrinT lives in
+      GroupBody's flags -- THE SHARED COLUMN -- and that was reported.
+
+  ⚠ WHAT IS ACTUALLY NEW HERE, and it is the dispatch's own finding turned on
+  the dispatch's own gap: C20 measured a subject reading isCopy=0. So the
+  options column DOES discriminate, and the reason faceT's options row was
+  ruled unbuildable no longer holds. That row is re-opened by this finding
+  rather than by anybody changing their mind.
+
+  END SEQ 115

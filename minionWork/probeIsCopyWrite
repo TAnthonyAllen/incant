@@ -1,0 +1,52 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(IsCopyW);
+define
+    iwSrc="ORIG";
+    iwBag;
+    iwRun code={
+        iwBag +% iwSrc;
+        iwFace <- iwBag["iwSrc"];
+        cerr "IW1 BEFORE any write -- the named source:":;
+        addrOf(iwSrc);
+        cerr "IW2 BEFORE any write -- the other face:":;
+        addrOf(iwFace);
+        iwSrc :. isCopY;
+        cerr "IW3 AFTER  :. isCopY on the source -- source:":;
+        addrOf(iwSrc);
+        cerr "IW4 AFTER  :. isCopY on the source -- other face:":;
+        addrOf(iwFace);
+        };
+    ;
+iwRun();
+print "PROBEISCOPYWRITE SENTINEL -- reached the foot":;
+stop();
+
+ASKS WHETHER faceT'S OPTIONS ROW IS BUILDABLE, which is a WRITE question and not
+a read question. probeIsCopy already settled the read: `.isCopY` is unreadable
+from incant, echoing its own tag (#26), so addrOf is the only road IN.
+
+But faceT's row needs a road OUT as well -- it writes a bit through one face and
+reads it through the other. `:.` is the setFlag operator and faceT uses it on
+noPrinT. If `:. isCopY` cannot write, the row is unbuildable for a REASON THAT IS
+NOT THE ONE ON RECORD: faceT omitted it because "isCopy is visible only through
+addrOf, and every subject reads 1". C20 showed the column DOES discriminate -- the
+subscript element reads 0 -- so the recorded reason is now half-wrong, and the
+question is whether the row is nevertheless still unbuildable.
+
+READING, and the addrOf isCopy column is the witness because the flag read is
+known-dead:
+  IW3 differs from IW1  ->  the write LANDED. The row is buildable and faceT
+                            owes it.
+  IW3 identical to IW1  ->  the write did NOT land. The row stays unbuilt, and
+                            the RECORDED REASON gets corrected to the real one.
+  IW4 vs IW2            ->  only meaningful if the write landed at all; it is the
+                            actual crossing question and it is not asked unless
+                            IW3 says there is something to ask about.
+⚠ BOTH FACES ARE NAMED, so both arrive through the carrier and both are expected
+to read isCopy=1 at IW1/IW2. That expectation is itself worth seeing: if the two
+faces DISAGREE before any write, the column is reporting the carrier and not the
+subject, and every row below is void.

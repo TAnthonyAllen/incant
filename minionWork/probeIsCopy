@@ -1,0 +1,49 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(IsCopy);
+define
+    icSrc="ORIG";
+    icBag;
+    icRun code={
+        icBag +* icSrc;
+        icR1 = icSrc.isCopY;
+        print "IC1 named field .isCopY      =" icR1 "  readable?":;
+        icElem <- icBag["icSrc"];
+        icR2 = icElem.isCopY;
+        print "IC2 subscript elem .isCopY   =" icR2 "  readable?":;
+        cerr "IC3 addrOf on the named field:":;
+        addrOf(icSrc);
+        cerr "IC4 addrOf on the subscript element:":;
+        addrOf(icElem);
+        };
+    ;
+icRun();
+print "PROBEISCOPY SENTINEL -- reached the foot":;
+stop();
+
+ASKS ONE QUESTION BEFORE ANY ROW IS WRITTEN: is `isCopy` readable from incant at
+all, or is addrOf the only road to it?
+
+SEQ 115 orders a pointerT row asserting the isCopy finding "both by flag and by
+addrOf". The by-addrOf half is already proven -- C20 measured it. The by-flag
+half assumes a spelling that may not exist: `isCopy` lives in GroupItem's
+`options` struct (groups.ext:202), NOT in GroupBody's `flags` where `noPrinT`
+lives, and faceT's note states outright that isCopy is visible only through
+addrOf. faceT deliberately omitted an options row on those grounds.
+
+BEAR-TRAP #26 IS THE WHOLE HAZARD HERE. A field with no data returns its OWN TAG,
+so an unreadable `.isCopY` comes back as the string `icR1`, not as an error and
+not as a zero. That is a plausible-looking answer and it is how a row gets written
+against a spelling that reads nothing. faceT's F4 already hit this on `parenT`
+and was recorded as UNREADABLE rather than as a verdict.
+
+READING:
+  BOTH rows print 0 or 1  ->  the flag road exists; the by-flag half is buildable.
+  EITHER row echoes its own name (icR1 / icR2)  ->  UNREADABLE, and the row is
+  built on addrOf alone, with the absence reported rather than papered over.
+  The two ADDROF lines are the control: their isCopy column is known to read 1
+  and 0 respectively, so if the flag road disagrees with them, the flag road is
+  answering a different question and gets reported, not used.
