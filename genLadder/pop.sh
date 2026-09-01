@@ -436,7 +436,7 @@ else
     echo "  FAIL  spacingT sentinel MISSING -- F-36 regressed to a crash"; fail=1
 fi
 for _arm in "spacingT A tight-1  = spA" \
-            "spacingT B tight-2  = LEAF" \
+            "spacingT B tight-2  = spB" \
             "spacingT C spaced   = spC" \
             "spacingT D tight-3  = spD" \
             "spacingT E survived"; do
@@ -480,14 +480,82 @@ fi
 #  ⚠ G2 PINS `a + *b` AS A REFUSAL ON PURPOSE. The `*` quarantine lifts at the
 #  flip; if a single star ever starts reading a pointer, G2 goes RED and somebody
 #  re-reads the law. A row that only agreed with itself could not do that.
-for _arm in "spacingT G a + **b  = 12" \
+for _arm in "spacingT G a + **b  = spG" \
             "spacingT G2 a + *b  = spG2" \
-            "spacingT H a +* b   = 3" \
-            "spacingT I a+*b     = 3"; do
+            "spacingT H a +* b   = 1" \
+            "spacingT I a+*b     = 1"; do
     if grep -qF "$_arm" "$T/spc"; then
         echo "  ok    ${_arm} -- PINNED BY VALUE (longest match)"; green=$((green+1))
     else
         echo "  FAIL  $_arm -- got: $(grep -oF "${_arm%% =*}" "$T/spc" | head -1)"; fail=1
+    fi
+done
+
+#  ============================================================================
+#  ⚠ starT -- THE STAR LAW. Added 2026-09-01 (SEQ 111). `*x` reads ONE level,
+#  `**x` is `*` applied TWICE, a `*` past the leaf refuses, and a fixpoint read
+#  is a named call or nothing. `**` left the operator table and the UnaryOPS bin;
+#  opDerefAll retired with it (zero call sites). derefAllT retired BY MAPPING into
+#  this fixture -- it was never in the fleet, so no coverage moved.
+#  ⚠ EVERY ROW IS FLIP-GATED AND PINNED AT ITS FLIP-OFF VALUE. Flip-off the
+#  auto-unwrap overshoots and every star refuses; the whole file goes red at the
+#  flip and re-pins, deliberately, like holderT row 3.
+#  ⚠⚠ S3a IS RECORDED UNRESOLVED, NOT GRADED. Under the flip it READ where the law
+#  says refuse -- a fixpoint signature -- but neither witness can be trusted: a
+#  printed pointer follows the chain, and the tag witness returns `argument`
+#  because of the carrier defect. The instrument is blocked by the defect the
+#  campaign is fixing. S4 is the only row asserting something the law uniquely
+#  predicts today.
+run1 starT "$T/star"; check "starT runs" 0 $?
+if grep -q "START SENTINEL" "$T/star"; then
+    echo "  ok    starT sentinel (no truncation)"; green=$((green+1))
+else
+    echo "  FAIL  starT sentinel MISSING"; fail=1
+fi
+for _arm in "starT S1  *x   one-deep   = stA" \
+            "starT S3a **x  ONE-deep   = stD" \
+            "starT S4  *x   on a LEAF  = stF"; do
+    if grep -qF "$_arm" "$T/star"; then
+        echo "  ok    ${_arm} -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  $_arm -- moved"; fail=1
+    fi
+done
+
+#  ============================================================================
+#  ⚠ pointerT -- THE `+*` CERTIFICATE. Added 2026-09-01 (SEQ 111). `+*` is now
+#  opAddPointer: `a +% b` adds a copy, `a +* b` adds a POINTER to b. Read back
+#  with a SUBSCRIPT, which already follows the pointer.
+#  ⚠⚠ P1 AND P2 ARE A PAIR AND NEITHER MEANS ANYTHING ALONE. P1 writes to the
+#  source after the add and must see the NEW value through the pointer.
+#  ⚠ P2 IS PINNED AT `CHANGED`, WHICH IS A FINDING, NOT A TARGET. It was written
+#  expecting ORIG -- a copy should not see later writes -- and `+%` sees them too,
+#  measured identically with the flip ON and OFF. `+%` ALREADY SHARES the source's
+#  GroupBody (Bytecode.twk:77 says so). So the copy/pointer difference is the
+#  LINK, not the contents, and any plan resting on `+%` isolating a value needs
+#  re-reading. If `+%` ever DOES start isolating, P2 goes red and someone reads
+#  pointerT's note.
+#  ⚠ ROW D IS A FLIP TRIPWIRE: 0 with the flip off, OTHER with it on, measured
+#  both ways. Pinned at the baseline value.
+run1 pointerT "$T/ptr"; check "pointerT runs" 0 $?
+if grep -q "POINTERT SENTINEL" "$T/ptr"; then
+    echo "  ok    pointerT sentinel (no truncation)"; green=$((green+1))
+else
+    echo "  FAIL  pointerT sentinel MISSING"; fail=1
+fi
+for _arm in "pointerT P0 both added   = 1 1" \
+            "pointerT P0b before write = ORIG ORIG" \
+            "pointerT P1 pointer      = CHANGED" \
+            "pointerT P2 copy         = CHANGED" \
+            "pointerT R  rebind       = OTHER" \
+            "pointerT L  three ptrs   = 3" \
+            "pointerT L1 each follows = CHANGED OTHER" \
+            "pointerT D  depth        = 0" \
+            "pointerT X  extra star   = 0"; do
+    if grep -qF "$_arm" "$T/ptr"; then
+        echo "  ok    ${_arm} -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  $_arm -- moved"; fail=1
     fi
 done
 

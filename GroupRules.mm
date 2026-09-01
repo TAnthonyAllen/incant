@@ -9032,6 +9032,38 @@ GroupItem 	*grup = 0;
 }
 
 /***************************************************************************
+	Rule action for the +* add-pointer operator
+***************************************************************************/
+extern "C" GroupItem *opAddPointer(GroupItem *argument, GroupItem *target)
+{
+GroupItem 	*ptr = 0;
+	/*  `a +* b` -- ADD A POINTER. The sibling of `+%`, and the whole difference
+	is copy versus reference: `a +% b` adds a COPY of b, `a +* b` adds an
+	attribute that POINTS AT b. Read it back with `*`; `**` is `*` twice.
+	Minted 2026-09-01 (SEQ 111), taking the `+*` slot from opCopyList, which
+	had ZERO call sites and retires with it. copyListTo is frozen substrate
+	and did not move -- anything wanting a list copy calls it on GroupItem.
+	⚠ THE LIFETIME RULE IS A LAW, NOT A GUARD (Tony): the target is a real
+	field, so its contents are safe. Point at a tempField and it changes
+	underneath you -- user beware, exactly as for any post-definition write.
+	Nothing here checks, deliberately, and incant/pointerT carries a row that
+	WITNESSES the tempField case rather than forbidding it.
+	⚠ AND IT REFUSES A NULL OPERAND BY NAME, F-41's shape, because
+	`a +* *b` is now an ordinary thing to type.  */
+	if ( !argument )
+		{
+		::fprintf(stderr,"ERROR Operator +* failed on %s and a refused operand\n",ptr->groupBody->tag);
+		return target;
+		}
+	ptr = new GroupItem(argument->groupBody->tag);
+	ptr->groupBody->gGroup = argument;
+	ptr->groupBody->flags.data = 6;
+	ptr->groupBody->flags.isInitialized = 1;
+	target->addAttribute(ptr);
+	return target;
+}
+
+/***************************************************************************
 	Rule action for the = assign operator. A byRef argument (one that came
 	through := / opSetGroup) is stored BY REFERENCE so the `=` does not undo the
 	reference via setContent. Everything else copies via setContent exactly as
@@ -9096,17 +9128,6 @@ char 	*printText = buffer->string();
 	buffer->reset();
 	GroupControl::groupController->groupRules->bufferSTAK->push(buffer);
 	return GroupControl::groupController->groupRules->trueResult;
-}
-
-/***************************************************************************
-	Rule action for the +* copy list operator
-***************************************************************************/
-extern "C" GroupItem *opCopyList(GroupItem *argument, GroupItem *target)
-{
-	if ( argument->groupBody->groupList )
-		argument->copyListTo(target);
-	else	::fprintf(stderr,"ERROR Operator +* failed because missing list for %s\n",argument->groupBody->tag);
-	return target;
 }
 
 /***************************************************************************
@@ -9190,27 +9211,6 @@ extern "C" GroupItem *opDeref(GroupItem *result)
 		return result->getGroup();
 	::fprintf(stderr,"ERROR unary * on %s -- it holds no group\n",result->groupBody->tag);
 	return 0;
-}
-
-// unwraps to a FIXPOINT, not twice; total on a non-group   Instruct.opDerefAll
-extern "C" GroupItem *opDerefAll(GroupItem *result)
-{
-int 	depth = 0;
-	if ( GroupControl::groupController->groupRules->jitting )
-		{
-		 ::jitDegrade("unary ** under jit -- no emitter yet",result); 
-		}
-	while ( isGROUP(result->groupBody->flags.data) )
-		{
-		if ( depth >= 64 )
-			{
-			::fprintf(stderr,"ERROR unary ** on %s -- 64 levels, cycle suspected\n",result->groupBody->tag);
-			return 0;
-			}
-		result = result->getGroup();
-		depth++;
-		}
-	return result;
 }
 
 /***************************************************************************
@@ -10606,6 +10606,18 @@ extern "C" GroupItem *opString(GroupItem *target, Buffer *buffer)
 	return target;
 }
 
+/*  opDerefAll RETIRED 2026-09-01 (SEQ 111), with the `**` operator it served.
+    Tony's star law: `*x` reads ONE level, `**x` is `*` applied TWICE, and a `*`
+    past the leaf refuses. A FIXPOINT IS NOT A SPELLING -- it is a named call or
+    nothing. So `**` leaves the operator table AND the UnaryOPS bin,
+    longest-match stops merging two stars, and `**x` tokenizes as two unaries
+    that COMPOSE.
+    Censused before removal: ZERO call sites. The only `**` operator uses in the
+    whole corpus were FOUR, all inside fixtures -- derefAllT x2, spacingT x2 --
+    and the other 39 textual hits are markdown bold in prose or stale comments
+    about the debug marker, which was renamed `**` -> `$$` earlier the same day.
+    The certificate that it is gone is incant/starT: `**x` on a ONE-deep pointer
+    must REFUSE. If it ever reads, the fixpoint has crept back in.  */
 /***************************************************************************
 	Rule action for the prefix unary minus (negate). Value-producing like
 	opMinus, NOT in-place like opMinusMinus: 0 - operand into tempField; the

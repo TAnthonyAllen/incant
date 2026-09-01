@@ -57,7 +57,7 @@ define
         spC = * *spWrap;
         spD = ***spWrap;
         print "spacingT A tight-1  =" spA "  want spA -- holds nothing, named error above":;
-        print "spacingT B tight-2  =" spB "  want LEAF -- the fixpoint":;
+        print "spacingT B tight-2  =" spB "  want spB -- TWO stars, one too many now":;
         print "spacingT C spaced   =" spC "  want spC -- TWO unwraps, both refuse, NO crash":;
         print "spacingT D tight-3  =" spD "  want spD -- no crash":;
         print "spacingT E print-position, the F-36 line, binary multiply follows:":;
@@ -100,6 +100,19 @@ define
             is exactly derefAllT's standing ruling. SO THE WORKING SPELLING TODAY
             IS `a + **b`, and row G uses it.
 
+            ⚠⚠ SUPERSEDED THE SAME DAY BY SEQ 111'S STAR LAW, and the rows are
+            re-pinned rather than rewritten so the movement is visible. `**` is no
+            longer ONE token: it left the operator table and the UnaryOPS bin, so
+            `**x` is now `*` applied TWICE. On a ONE-deep wrapper that is one star
+            too many, so B and G REFUSE where they used to read LEAF and 12. Both
+            re-pin to their tag echo, and both are FLIP TRIPWIRES -- under
+            gNoUnwrap they read again, measured.
+            ⚠ AND H AND I MOVED 3 -> 1 because `+*` is now opAddPointer, not
+            opCopyList: it adds ONE pointer attribute rather than copying a
+            three-member list. That is the operator changing under them, not the
+            spelling law, and the law itself -- that H and I agree and differ from
+            G by one space -- is UNCHANGED and still what the rows certify.
+
             ⚠ ROW G2 PINS `a + *b` AS A REFUSAL, ON PURPOSE. It is the tripwire:
             the `*` quarantine lifts at the flip, and if `*` ever starts reading a
             pointer this row goes RED and somebody looks at the law again. A row
@@ -116,10 +129,10 @@ define
         spDest2+*spListSrc;
         spH = spDest1.listLengtH;
         spI = spDest2.listLengtH;
-        print "spacingT G a + **b  =" spG "  want 12 -- SUM through a pointer":;
+        print "spacingT G a + **b  =" spG "  want spG -- two stars refuse flip-OFF":;
         print "spacingT G2 a + *b  =" spG2 "  want spG2 -- a single star REFUSES today":;
-        print "spacingT H a +* b   =" spH "  want 3 -- the OPERATOR, spaced":;
-        print "spacingT I a+*b     =" spI "  want 3 -- the OPERATOR, tight":;
+        print "spacingT H a +* b   =" spH "  want 1 -- the OPERATOR adds ONE pointer":;
+        print "spacingT I a+*b     =" spI "  want 1 -- the OPERATOR adds ONE pointer":;
         };
     ;
 spRun();

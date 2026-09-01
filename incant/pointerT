@@ -1,0 +1,107 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+/*  pointerT -- THE +* CERTIFICATE. Minted 2026-09-01 (SEQ 111).
+
+    `a +% b` adds a COPY of b.  `a +* b` adds a POINTER to b.
+    Read either back with a SUBSCRIPT -- `bag["b"]` -- which already follows the
+    pointer. A `*` on top of that is one level too many and refuses; that is the
+    star law working, not a defect, and row X pins it.
+
+    ⚠ ROW P IS THE WHOLE ARGUMENT AND ITS TWIN IS NOT OPTIONAL. P1 writes to the
+    source after the add and reads the pointer: it must see the NEW value. P2 is
+    the identical shape through `+%` and must still see the OLD one. EITHER ROW
+    ALONE PROVES NOTHING -- a pointer that reads ORIG and a copy that reads ORIG
+    are the same reading, and only the pair separates them. If `+*` ever quietly
+    becomes a copy, P1 goes red before anybody ships a body on it.  */
+
+register(PointerT);
+define
+    ptSrc="ORIG";
+    ptSrc2="ORIG2";
+    ptOther="OTHER";
+    ptA1 aa bb;
+    ptA2 cc;
+    ptBagP;
+    ptBagC;
+    ptBagR;
+    ptBagL;
+    ptBagD;
+    ptBagT;
+    ptInner;
+    ptRun code={
+        ptBagP +* ptSrc;
+        ptBagC +% ptSrc;
+        print "pointerT P0 both added   =" ptBagP.listLengtH ptBagC.listLengtH "  want 1 1":;
+        print "pointerT P0b before write =" ptBagP["ptSrc"] ptBagC["ptSrc"] "  want ORIG ORIG":;
+        ptSrc = "CHANGED";
+        print "pointerT P1 pointer      =" ptBagP["ptSrc"] "  want CHANGED -- IT FOLLOWED":;
+        print "pointerT P2 copy         =" ptBagC["ptSrc"] "  want CHANGED -- SEE THE NOTE, +% SHARES THE BODY":;
+
+        ptBagR +* ptSrc2;
+        ptSrc2 := ptOther;
+        print "pointerT R  rebind       =" ptBagR["ptSrc2"] "  want OTHER -- reads the rebound body":;
+
+        ptBagL +* ptSrc;
+        ptBagL +* ptSrc2;
+        ptBagL +* ptOther;
+        print "pointerT L  three ptrs   =" ptBagL.listLengtH "  want 3":;
+        print "pointerT L1 each follows =" ptBagL["ptSrc"] ptBagL["ptOther"] "  want CHANGED OTHER":;
+
+        ptInner := ptOther;
+        ptBagD +* ptInner;
+        print "pointerT D  depth        =" ptBagD["ptInner"] "  want 0 flip-OFF, OTHER flip-ON -- a flip tripwire":;
+
+        print "pointerT X  extra star   =" *ptBagP["ptSrc"] "  want 0 -- the subscript ALREADY read":;
+
+        ptBagT +* nosuchFieldAtAll;
+        print "pointerT F1 undeclared   =" ptBagT.listLengtH "  want 1 -- NOT a refusal, see the note":;
+        };
+    ;
+ptRun();
+print "POINTERT SENTINEL -- reached the foot":;
+stop();
+
+⚠⚠ P2 IS PINNED AT `CHANGED`, AND THAT IS A FINDING RATHER THAN A TARGET.
+
+The twin was written expecting ORIG -- `+%` adds a copy, so a later write to the
+source should not be visible. IT IS VISIBLE. Measured with the flip BOTH ON AND
+OFF, identical in both, so it is not the flip: `+%` ALREADY SHARES THE SOURCE'S
+GroupBody. Bytecode.twk:77 says so in as many words -- "the +% attribute shares
+the field's GroupBody" -- and nothing in the operator isolates the storage.
+
+SO THE COPY-VERSUS-POINTER DISTINCTION IS NOT WHERE THE CHARTER PUT IT. Both
+operators leave the reader seeing later writes. What actually differs is the LINK:
+`+*` sets an explicit `gGroup` pointer, `+%` shares the body directly. That is a
+real difference -- R and D below only work through `+*` -- but it is not
+copy-versus-reference of the contents, and any plan resting on `+%` isolating a
+value needs re-reading.
+
+⚠ THE PAIR IS STILL THE RIGHT SHAPE AND STILL EARNS ITS PLACE. It now pins a
+measured fact instead of an assumed one, and if `+%` ever DOES start isolating,
+P2 goes red and someone reads this note.
+
+⚠ ROW D IS A FLIP TRIPWIRE. It reads 0 with gNoUnwrap OFF and OTHER with it ON,
+measured both ways. Pinned at the flip-OFF value because that is the fleet's
+baseline; it goes RED at the flip and re-pins to OTHER, exactly like holderT
+row 3.
+
+⚠ ROW F1 IS NOT A REFUSAL TEST, AND THAT IS WHY IT SAYS SO. It was written as
+one -- `+*` a field that does not exist -- but there is no such thing in that
+position: an undeclared name in an action body is MINTED as an action local
+(bear-trap #39), so `nosuchFieldAtAll` exists by the time `+*` sees it and a
+pointer to it is duly added. The row is kept because it documents that, and
+because a reader will otherwise write the same test and misread the 1.
+
+WHY THE READ IS A SUBSCRIPT AND NOT A STAR.
+
+`+*` adds an ATTRIBUTE to the target, and that attribute is the pointer. So the
+target is not itself a pointer -- `*bag` has nothing to dereference and refuses.
+`bag["x"]` reaches the attribute, and the subscript ALREADY follows it to the
+source, which is why row P1 reads CHANGED without a star anywhere.
+
+Row X pins the consequence: `*bag["x"]` is one level too many and refuses. That
+is the star law applied to something +* built, and it is the spelling a reader
+will reach for first, so it is worth a row.

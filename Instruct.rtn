@@ -154,12 +154,32 @@ String      printText   = string();
 
 
 /***************************************************************************
-	Rule action for the +* copy list operator
+	Rule action for the +* add-pointer operator
 ***************************************************************************/
-extern GroupItem opCopyList(GroupItem argument,GroupItem target)
+extern GroupItem opAddPointer(GroupItem argument,GroupItem target)
 {
-    if argument.groupList argument.copyListTo(target);
-    else    cerr "ERROR Operator +* failed because missing list for",argument.tag:;
+GroupItem   ptr;
+    /*  `a +* b` -- ADD A POINTER. The sibling of `+%`, and the whole difference
+        is copy versus reference: `a +% b` adds a COPY of b, `a +* b` adds an
+        attribute that POINTS AT b. Read it back with `*`; `**` is `*` twice.
+        Minted 2026-09-01 (SEQ 111), taking the `+*` slot from opCopyList, which
+        had ZERO call sites and retires with it. copyListTo is frozen substrate
+        and did not move -- anything wanting a list copy calls it on GroupItem.
+        ⚠ THE LIFETIME RULE IS A LAW, NOT A GUARD (Tony): the target is a real
+        field, so its contents are safe. Point at a tempField and it changes
+        underneath you -- user beware, exactly as for any post-definition write.
+        Nothing here checks, deliberately, and incant/pointerT carries a row that
+        WITNESSES the tempField case rather than forbidding it.
+        ⚠ AND IT REFUSES A NULL OPERAND BY NAME, F-41's shape, because
+        `a +* *b` is now an ordinary thing to type.  */
+    if !argument {
+        cerr "ERROR Operator +* failed on",tag,"and a refused operand":;
+        return target; }
+    ptr                 = new(argument.tag);
+    ptr.gGroup          = argument;
+    ptr.isGROUP         = true;
+    ptr.isInitialized   = true;
+    target.addAttribute(ptr);
     return target;
 }
 
@@ -1295,21 +1315,18 @@ extern GroupItem opDeref(GroupItem result)
 }
 
 
-// unwraps to a FIXPOINT, not twice; total on a non-group   Instruct.opDerefAll
-extern GroupItem opDerefAll(GroupItem result)
-{
-int depth = 0;
-    if jitting {
-        -% ::jitDegrade("unary ** under jit -- no emitter yet",result); %-
-    }
-    while result.isGROUP {
-        if depth >= 64 {
-            cerr "ERROR unary ** on",result.tag,"-- 64 levels, cycle suspected":;
-            return null; }
-        result  = result.group;
-        depth++; }
-    return result;
-}
+/*  opDerefAll RETIRED 2026-09-01 (SEQ 111), with the `**` operator it served.
+    Tony's star law: `*x` reads ONE level, `**x` is `*` applied TWICE, and a `*`
+    past the leaf refuses. A FIXPOINT IS NOT A SPELLING -- it is a named call or
+    nothing. So `**` leaves the operator table AND the UnaryOPS bin,
+    longest-match stops merging two stars, and `**x` tokenizes as two unaries
+    that COMPOSE.
+    Censused before removal: ZERO call sites. The only `**` operator uses in the
+    whole corpus were FOUR, all inside fixtures -- derefAllT x2, spacingT x2 --
+    and the other 39 textual hits are markdown bold in prose or stale comments
+    about the debug marker, which was renamed `**` -> `$$` earlier the same day.
+    The certificate that it is gone is incant/starT: `**x` on a ONE-deep pointer
+    must REFUSE. If it ever reads, the fixpoint has crept back in.  */
 
 
 /***************************************************************************

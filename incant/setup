@@ -182,11 +182,10 @@ define
     '--'    unary ruleMethod=opMinusMinus;
 
     '$$'    unary ruleMethod=opDebug;
-    '**'    unary ruleMethod=opDerefAll;
     '-'     operateMethod=opMinus  jitEmitter=jitEmitSub;
     '+='    operateMethod=opPlusEQ;
     '++'    unary ruleMethod=opPlusPlus;
-    '+*'    operateMethod=opCopyList;
+    '+*'    operateMethod=opAddPointer;
     '+%'    operateMethod=opAddAttribute;
     '+'     operateMethod=opPlus  interpretMethod=runPlus  jitEmitter=jitEmitAdd;
     '*='    operateMethod=opMultiplyEQ;
@@ -250,7 +249,6 @@ define
         '@';
         '!';
         '$$';
-        '**';
         '*';
         '.';
     ;

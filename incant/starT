@@ -1,0 +1,101 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+/*  starT -- THE STAR LAW. Minted 2026-09-01 (SEQ 111), Tony's ruling.
+
+        *x   reads ONE level.
+        **x  is `*` applied TWICE -- composition, NOT a fixpoint.
+        a `*` past the leaf REFUSES.
+        A fixpoint read is a named call or nothing.
+
+    ⚠ `**` IS NO LONGER AN OPERATOR. It left the Operators table and the
+    UnaryOPS bin, and opDerefAll retired with it (zero call sites). Longest match
+    no longer merges two stars, so `**x` tokenizes as two unaries.
+
+    ⚠⚠ THE ROW THAT IS THE WHOLE ARGUMENT IS S2b: `**x` ON A ONE-DEEP POINTER
+    MUST REFUSE. Under the old fixpoint it READ THE LEAF. If it ever reads again,
+    the fixpoint has crept back in and this row says so by name -- which is why
+    it is written as its own row rather than folded into S2a.  */
+
+register(StarT);
+define
+    stLeaf="LEAF";
+    st1;
+    st2;
+    st3;
+    stA; stB; stC; stD; stE; stF;
+    stRun code={
+        st1 := stLeaf;
+        st2 := st1;
+        st3 := st2;
+
+        stA = *st1;
+        stB = *st2;
+        stC = **st2;
+        stD = **st1;
+        stE = ***st3;
+        stF = *stLeaf;
+
+        print "starT S1  *x   one-deep   =" stA "  want stA flip-OFF -- the auto-unwrap overshoots":;
+        print "starT S2a *x   two-deep   =" stB "  want stB flip-OFF":;
+        print "starT S2b **x  two-deep   =" stC "  want stC flip-OFF":;
+        print "starT S3a **x  ONE-deep   =" stD "  want stD -- MUST refuse in BOTH arms":;
+        print "starT S3b ***x three-deep =" stE "  want stE flip-OFF":;
+        print "starT S4  *x   on a LEAF  =" stF "  want stF -- MUST refuse, ANTI-VACUITY, BOTH arms":;
+        };
+    ;
+stRun();
+print "START SENTINEL -- reached the foot":;
+stop();
+
+⚠⚠ EVERY ROW HERE IS FLIP-GATED, AND THE FIXTURE IS PINNED AT ITS FLIP-OFF
+VALUES BECAUSE THAT IS THE FLEET'S BASELINE.
+
+With gNoUnwrap OFF every row refuses, and the reason is not the star: the
+AUTO-UNWRAP dereferences the operand on the way in, so opDeref receives the LEAF
+and its own single step is one too many. The error names the leaf, not the
+pointer, which is the tell. Under gNoUnwrap ON the auto-unwrap is gone and the
+stars start reading. So this whole fixture goes RED at the flip and re-pins --
+deliberately, like holderT row 3.
+
+⚠⚠⚠ AND ONE ROW IS RECORDED AS UNRESOLVED RATHER THAN AS A VERDICT: S3a.
+Measured under gNoUnwrap ON, `**x` on a ONE-deep pointer READ THE LEAF where the
+law says the second star must refuse. That is the signature of a fixpoint. But
+the reading CANNOT BE TRUSTED YET, because both available witnesses are
+compromised:
+  - printing a pointer FOLLOWS THE CHAIN, so a value witness cannot tell "read
+    one level" from "read to the leaf";
+  - the identity witness -- passing the result to an action and printing
+    `argument.taG` -- returns `argument`, because reading a tag through an
+    action-argument holder yields the HOLDER. That is the carrier defect this
+    campaign exists to fix (incant/holderT row 3).
+SO THE INSTRUMENT NEEDED TO CERTIFY THE STAR LAW IS BLOCKED BY THE DEFECT THE
+CAMPAIGN IS FIXING, and S3a is reported as unmeasured rather than graded. Do not
+read its flip-OFF green as evidence about the law -- flip-OFF it refuses for the
+auto-unwrap's reasons, not the law's.
+⚠ WHEN THE CARRIER LANDS, S3a GETS ITS IDENTITY WITNESS AND BECOMES THE ROW THIS
+FILE WAS BUILT FOR. Until then S4 is the only row asserting something the law
+uniquely predicts.
+
+HOW TO READ THE ROWS.
+
+S1 and S2a are the same shape at different depths and are the positive controls:
+a single star takes exactly one level off, so on a one-deep pointer it reaches
+the leaf and on a two-deep pointer it reaches the middle.
+
+S2b and S3b are composition: two stars off a two-deep pointer, three off a
+three-deep, both reaching the leaf. If `*` were still overshooting by one -- the
+pre-SEQ-111 behaviour -- these would refuse instead.
+
+S3a IS THE CERTIFICATE. Two stars on a ONE-deep pointer is one star too many, so
+the second star is past the leaf and must refuse. Under the retired `**`
+fixpoint operator this row READ THE LEAF, because a fixpoint stops when it stops
+rather than counting. A green S3a is the only thing standing between the law and
+a silent return of the fixpoint.
+
+S4 IS THE ANTI-VACUITY CONTROL AND IS RE-READ ON EVERY RUN. A star on a bare
+leaf must refuse by name. If it ever succeeds, every refusal row above becomes
+unfalsifiable -- there would be nothing left that a star cannot read -- so S4 is
+what makes S3a mean anything.

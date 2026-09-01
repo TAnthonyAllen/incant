@@ -42,3 +42,18 @@ retirement that drops coverage silently is the failure this project has a ledger
 `goldenDrift`'s clusters 3 and 4 keep their warning in `genLadder/pop.sh` beside the
 `baselineTests` block -- the golden is a deliberately mixed artifact and re-pinning those two
 clusters is still prohibited. Nothing else was carried, and nothing else was owed.
+
+**Placed 2026-09-01 (SEQ 111): `derefAllT`.** It was the `**` FIXPOINT operator's certificate, and
+Tony's star law retired that operator: `*x` reads one level, `**x` is `*` applied twice, and a
+fixpoint read is a named call or nothing. `opDerefAll` went with it (zero call sites), so the
+fixture's whole subject is gone.
+
+⚠ **RETIRED BY MAPPING, and it cost the fleet nothing because it was never in it** — `derefAllT`
+appears in no `pop.sh` row. Its four assertions live on in **`incant/starT`**, which is in the
+fleet:
+- R1 `**` on a non-group is total → starT **S4**, a star on a bare leaf, as the anti-vacuity control.
+- R2 the bare control → starT reads every row against a declared leaf for the same reason.
+- R3 `**wrap` reaches the leaf → starT **S2b/S3b**, now as COMPOSITION at the matching depth.
+- R4 `*wrap` differs from `**wrap` → starT **S3a**, which is the sharper form: on a ONE-deep
+  pointer the second star must REFUSE, and that is the row that would catch a fixpoint creeping
+  back.
