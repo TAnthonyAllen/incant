@@ -1756,6 +1756,25 @@ Hard-won lessons. Each one has cost real debugging time.
     ⚠ Detector: a command whose first line of tracing never appears, while the statement before it
     completed normally. Look at the RETURN TYPE before you look at the registration.
 
+40. **A `%-` INSIDE A FORMAT STRING TERMINATES A `-% ... %-` PASSTHROUGH EARLY, AND WIPES THE
+    ENTIRE EXTERN BLOCK.** Measured 2026-09-01 as a one-token A/B in `GroupActions.rtn`, same
+    file, same everything else:
+    | the format string | canary `grep -c '^extern' GroupRules.h` |
+    |---|---|
+    | `"COPYQ tag=%-9s node=%p"` — a LEFT-JUSTIFY width | **0 — fatal** |
+    | `"COPYQ tag=%s node=%p"` | **326 — fine** |
+    `%-` is the passthrough's CLOSE marker, and there is no lexer, so `printf`'s left-justify
+    flag closes the block in the middle of a string literal. Everything after it is parsed as
+    tok source, which fails, and the failure **cascades and wipes the extern block** — the
+    build then dies three files away in `Bytecode.mm` with `no member named 'opEQ'`, naming
+    nothing relevant. Same signature and same misdirection as bear-traps #10, #24 and #29.
+    ⚠ **THE FALSE LEAD IS WORTH RECORDING because it cost the first bisect step:** the block
+    also contained `||`, and bear-trap #29's family made an `or`-adjacent parse failure the
+    obvious suspect. Removing `||` changed **nothing** — canary still 0. One more A/B found the
+    real token. Reproduction proves the symptom; only the A/B proved the cause.
+    **The rule: no `%-` in any format string inside passthrough.** Use `%s` and pad by hand if
+    a column is wanted. The standing canary after every retok is what catches it.
+
 34. **TRUTH-TESTING A RULE-SHAPED VALUE FIRES ITS ACTION. `if x;` IS NOT A READ — IT IS A CALL.**
     Found by Tony 2026-08-22 in `incant/frontier` station 3; reproduced the same day, and it took
     the investigating agent's OWN probe within the hour. `aCTionIF` evaluates its condition by

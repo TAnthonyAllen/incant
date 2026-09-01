@@ -1,0 +1,28 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(CopyQ);
+define
+    cqOther     zz;
+    cqSink argument code={ return argument.taG; };
+    cqA argument code={
+        cqSink(argument);
+        cqSink(cqOther);
+        cqSink(argument);
+        cqSink(cqOther);
+        return 0;
+        };
+    ;
+cqA(cqOther);
+print "PROBECOPYQ SENTINEL -- reached the foot":;
+stop();
+
+ITEM 2 OF THE SEQ 108 RECON. cqA's body passes `argument` BARE to a call twice,
+and a NAMED FIELD `cqOther` bare to a call twice, in the same body. If the BlocK
+holds one copy of argument and one of cqOther, the walk is uniform and argument
+is not special. If argument gets a copy and cqOther does not (or vice versa),
+the walk discriminates and the recon needs to know on what.
