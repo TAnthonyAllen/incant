@@ -75,6 +75,7 @@ define
     k2depth;
     k4depth;
     kOut;
+    k2xOut;
     kArg;
 
     k1 argument code={
@@ -90,6 +91,32 @@ define
             k2depth = k2depth - 1;
             k2(argument);
         return argument;
+        };
+
+    /*  K2x -- K2's HONEST SIBLING, and it exists because K2 CANNOT ANSWER THE
+        QUESTION K2 ASKS. Added 2026-09-01 (SEQ 103), measured before the frame
+        bind was built rather than after.
+        K2 passes `argument` STRAIGHT DOWN, so the inner activation binds the
+        value the outer already had and restoring 7 over 7 is indistinguishable
+        from never trampling. A trampled run and a clean run both print 7.
+        That is this fixture's own anti-vacuity rule left unapplied: a constant
+        the default could also produce asserts nothing, and every zero-expecting
+        row wants a non-zero sibling.
+        K2x removes the one defect -- a DIFFERENT node goes down -- and keeps
+        K6c's honest witness, `.taG`, because printing a group node prints its
+        ATTRIBUTE COUNT, a legal-looking number in the answer's own range (the
+        instrument failure K6d was built to record).  */
+    k2xBig      aa bb cc;
+    k2xSmall    xx;
+    k2xdepth;
+    k2x argument code={
+        if k2xdepth > 0;
+            k2xdepth = k2xdepth - 1;
+            k2x(k2xSmall);
+        return argument.taG;
+        };
+    k2xCtl argument code={
+        return argument.taG;
         };
 
     k3 code={
@@ -393,6 +420,19 @@ print "== K2 OPEN PROBE: recursive action returning its ARGUMENT ==":;
 k2depth = 1;
 kOut = k2(kArg);
 print "K2 returned =" kOut " (kArg is 7; does an argument dodge the restore?)":;
+/*  ⚠⚠ AND K2's ANSWER IS VOID -- READ K2x, NOT K2. See the note on k2x above.
+    K2 prints 7 whether or not the argument was trampled, so it discriminates
+    nothing. It is kept because removing it would erase the record of a row this
+    gate relied on for a month; it is NOT evidence.  */
+print "== K2x: K2's HONEST SIBLING -- direct recursion, DIFFERENT inner arg ==":;
+k2xOut = k2xCtl(k2xBig);
+print "K2x row 0 control  =" k2xOut " (MUST be k2xBig, else rows 1-2 are void)":;
+k2xdepth = 1;
+k2xOut = k2x(k2xBig);
+print "K2x row 1 recursed =" k2xOut " (k2xBig = DODGES; k2xSmall = TRAMPLED)":;
+k2xdepth = 0;
+k2xOut = k2x(k2xBig);
+print "K2x row 2 depth 0  =" k2xOut " (MUST be k2xBig; isolates CALL from FLAG)":;
 
 print "== K5: INVOCATION-HISTORY DEPENDENCE -- K1's shape, called TWICE ==":;
 /*  ⚠ THE FLAG ITSELF CANNOT BE PRINTED FROM HERE, AND THAT IS A REPORTED

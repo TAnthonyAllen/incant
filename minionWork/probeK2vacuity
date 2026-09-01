@@ -1,0 +1,88 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(K2X);
+define
+    k2xBig      aa bb cc;
+    k2xSmall    xx;
+    k2xdepth;
+    k2xOut;
+
+    k2xA argument code={
+        if k2xdepth > 0;
+            k2xdepth = k2xdepth - 1;
+            k2xA(k2xSmall);
+        return argument.taG;
+        };
+
+    k2xCtl argument code={
+        return argument.taG;
+        };
+    ;
+
+print "== ROW 0  ANTI-VACUITY CONTROL: no recursion at all ==":;
+k2xOut = k2xCtl(k2xBig);
+print "   returned =" k2xOut " (MUST be k2xBig, else every row below is void)":;
+
+print "== ROW 1  DIRECT RECURSION, DIFFERENT inner argument ==":;
+k2xdepth = 1;
+k2xOut = k2xA(k2xBig);
+print "   returned =" k2xOut " (k2xBig = argument DODGES; k2xSmall = TRAMPLED)":;
+
+print "== ROW 2  SAME SHAPE, depth 0 -- recursion never taken ==":;
+k2xdepth = 0;
+k2xOut = k2xA(k2xBig);
+print "   returned =" k2xOut " (MUST be k2xBig; isolates the CALL from the flag)":;
+
+print "PROBEK2VACUITY SENTINEL -- reached the foot":;
+stop();
+
+WHY THIS PROBE EXISTS -- incant/kant8T's K2 CANNOT ANSWER THE QUESTION IT ASKS.
+
+K2 is the standing gate's row for "does an argument dodge the restore?" and it
+reads 7, which has been taken as YES for direct recursion -- the asymmetry
+K6c's own comment states in so many words: "In DIRECT recursion an argument
+DODGES the emptying ... In MUTUAL recursion there is no bracket at all."
+
+K2's body is:
+
+    k2 argument code={
+        if k2depth > 0;
+            k2depth = k2depth - 1;
+            k2(argument);
+        return argument;
+        };
+
+IT PASSES THE SAME ARGUMENT DOWN. So the inner activation binds the value the
+outer already had, and restoring 7 over 7 is indistinguishable from never
+trampling at all. A trampled run and a clean run produce THE SAME 7.
+
+That is this project's own anti-vacuity rule, unapplied: a constant the default
+could also produce asserts nothing, and every zero-expecting row wants a
+non-zero sibling. K6c is the honest form of the same question -- it hands the
+inner activation a DIFFERENT node and reads argument.taG rather than the node
+-- and K6c comes back TRAMPLED.
+
+So the direct-vs-mutual asymmetry may be real or may be an artifact of K2's
+shape, and NOTHING IN THE FLEET DISCRIMINATES. This probe is K2 with the one
+defect removed: a different inner argument, and .taG as the witness (printing a
+group node prints its ATTRIBUTE COUNT -- a legal-looking number in the same
+range as the answer, which is the instrument failure K6d was built to record).
+
+WHAT THE ANSWER DECIDES, and this is why it runs before the frame bind and not
+after:
+
+  ROW 1 = k2xBig    the asymmetry is REAL. Direct and mutual recursion differ,
+                    so the argument channel has TWO mechanisms and a fix aimed
+                    at one leaves the other standing.
+
+  ROW 1 = k2xSmall  THE ASYMMETRY IS AN ARTIFACT. Direct recursion tramples too
+                    and always has; K2 could not see it. One mechanism explains
+                    both rows, the fix is one place, and K2 is owed a re-pin
+                    plus an honest sibling.
+
+Either way the gate gains a row it does not have today.

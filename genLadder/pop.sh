@@ -290,6 +290,39 @@ for _arm in "K7a own name returned = 46" \
     fi
 done
 
+#  ============================================================================
+#  ⚠⚠ K2x -- A TRIPWIRE PINNED AT A DEFECT ON PURPOSE. Added 2026-09-01, SEQ 103.
+#
+#  kant8T's K2 asks "does an argument dodge the frame restore?" and answers 7 --
+#  and 7 IS WHAT A TRAMPLED RUN PRINTS TOO, because K2 passes `argument` straight
+#  down, so the inner activation binds the value the outer already had. It has
+#  discriminated nothing for a month while being read as the gate's answer.
+#
+#  K2x is K2 with the one defect removed: a DIFFERENT node goes down, and the
+#  witness is `.taG` rather than the node (printing a group node prints its
+#  ATTRIBUTE COUNT -- a legal-looking number in the answer's own range).
+#
+#  ROWS 0 AND 2 ARE ANTI-VACUITY CONTROLS AND MUST BE GREEN FOREVER. Row 0 is a
+#  bare non-recursive call; row 2 is the same action with the recursive branch
+#  never taken. If either goes red the fixture is void and row 1 means nothing --
+#  which is the whole failure K3 exists to prevent one row up.
+#
+#  ⚠ ROW 1 IS PINNED AT THE WRONG ANSWER, DELIBERATELY. It reads k2xSmall today:
+#  the argument IS trampled by direct recursion, exactly as K6c shows for mutual
+#  recursion. THE ASYMMETRY K6c's OWN COMMENT ASSERTS -- "in DIRECT recursion an
+#  argument DODGES the emptying" -- IS FALSIFIED; one mechanism covers both.
+#  SO: WHEN THE FRAME BIND LANDS, THIS ROW GOES RED. That is the fix arriving,
+#  not a regression. Re-pin it to k2xBig, with the sentence, and say so.
+for _arm in "K2x row 0 control  = k2xBig" \
+            "K2x row 1 recursed = k2xSmall" \
+            "K2x row 2 depth 0  = k2xBig"; do
+    if grep -qF "$_arm" "$T/k8"; then
+        echo "  ok    ${_arm%% =*} = ${_arm##*= } -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  $_arm -- got: $(grep -o "${_arm%% =*}[^(]*" "$T/k8" | head -1)"; fail=1
+    fi
+done
+
 extract () { sed -n "/^extern [A-Za-z]* $1(/,/^}/p;/^extern [A-Za-z]* $2(/,/^}/p" "$T/gen"; }
 
 extract parseScaf   parseScaf2 > "$T/r12"; diffcheck "rung12.target" genLadder/rung12.target "$T/r12"
