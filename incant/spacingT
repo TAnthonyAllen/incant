@@ -29,6 +29,10 @@ define
     spLeaf="LEAF";
     spWrap;
     spA; spB; spC; spD;
+    spNum=5; spNumLeaf=7; spNumWrap;
+    spListSrc q1 q2 q3;
+    spDest1; spDest2;
+    spG; spG2; spH; spI;
     spFp; spFm; spFg; spFl; spFe; spFge; spFle;
     spRun code={
         spWrap := spLeaf;
@@ -76,6 +80,46 @@ define
         spFge = 1 >= *spWrap;
         spFle = 1 <= *spWrap;
         print "spacingT F seven operators driven into a refused operand, above":;
+        /*  ⚠ THE LONGEST-MATCH ROWS. This is Tony's question -- does longest
+            match solve `a + *b`? -- asked of the machine rather than reasoned
+            about, and it can be asked TODAY because `+*` ALREADY EXISTS: it has
+            been bound to opCopyList in incant/setup since before this charter,
+            with ZERO call sites anywhere in the corpus.
+
+            ⚠⚠ AND THE ANSWER CORRECTS THE LAW'S SPELLING. `a + *b` was stated as
+            "addition through a pointer", but MEASURED, A SINGLE `*` NEVER YIELDS
+            A VALUE HERE -- it unwraps one level PAST the leaf and refuses, at
+            every wrapping depth. Probed directly:
+
+                *dpW    refuses        **dpW    = 7
+                *dpD    refuses        **dpD    = 7      (dpD wraps dpW)
+                5 + **dpW = 12         5 + *dpD  refuses
+
+            Wrapping deeper does not help, so this is not a depth accident: `**`
+            is the fixpoint read and `*` is the differ-row that must refuse, which
+            is exactly derefAllT's standing ruling. SO THE WORKING SPELLING TODAY
+            IS `a + **b`, and row G uses it.
+
+            ⚠ ROW G2 PINS `a + *b` AS A REFUSAL, ON PURPOSE. It is the tripwire:
+            the `*` quarantine lifts at the flip, and if `*` ever starts reading a
+            pointer this row goes RED and somebody looks at the law again. A row
+            that only ever agreed with itself would not do that.
+
+            G, H and I are the law: G is SPACED-then-TIGHT and is arithmetic;
+            H and I are the OPERATOR, spaced and tight. H DIFFERS FROM G BY ONE
+            SPACE AND NOTHING ELSE, which is the whole hazard, and both are
+            correct behaviour.  */
+        spNumWrap := spNumLeaf;
+        spG  = spNum + **spNumWrap;
+        spG2 = spNum + *spNumWrap;
+        spDest1 +* spListSrc;
+        spDest2+*spListSrc;
+        spH = spDest1.listLengtH;
+        spI = spDest2.listLengtH;
+        print "spacingT G a + **b  =" spG "  want 12 -- SUM through a pointer":;
+        print "spacingT G2 a + *b  =" spG2 "  want spG2 -- a single star REFUSES today":;
+        print "spacingT H a +* b   =" spH "  want 3 -- the OPERATOR, spaced":;
+        print "spacingT I a+*b     =" spI "  want 3 -- the OPERATOR, tight":;
         };
     ;
 spRun();

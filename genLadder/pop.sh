@@ -470,6 +470,26 @@ if grep -qF "spacingT F seven operators driven into a refused operand" "$T/spc";
 else
     echo "  FAIL  spacingT F marker missing -- the operator rows did not run"; fail=1
 fi
+#  ⚠ THE LONGEST-MATCH ROWS -- the spelling law, certified on the machine.
+#  `+*` already existed as opCopyList (incant/setup) with ZERO call sites, so the
+#  law could be asked without minting anything. H and I differ from G by ONE
+#  SPACE and nothing else, which is the whole hazard and is correct behaviour.
+#  ⚠ G USES `**`, NOT `*`, AND THAT IS A MEASURED CORRECTION TO THE LAW AS
+#  STATED. A single `*` unwraps one level PAST the leaf and refuses at every
+#  wrapping depth, so `a + *b` does not read a pointer -- `a + **b` does.
+#  ⚠ G2 PINS `a + *b` AS A REFUSAL ON PURPOSE. The `*` quarantine lifts at the
+#  flip; if a single star ever starts reading a pointer, G2 goes RED and somebody
+#  re-reads the law. A row that only agreed with itself could not do that.
+for _arm in "spacingT G a + **b  = 12" \
+            "spacingT G2 a + *b  = spG2" \
+            "spacingT H a +* b   = 3" \
+            "spacingT I a+*b     = 3"; do
+    if grep -qF "$_arm" "$T/spc"; then
+        echo "  ok    ${_arm} -- PINNED BY VALUE (longest match)"; green=$((green+1))
+    else
+        echo "  FAIL  $_arm -- got: $(grep -oF "${_arm%% =*}" "$T/spc" | head -1)"; fail=1
+    fi
+done
 
 extract () { sed -n "/^extern [A-Za-z]* $1(/,/^}/p;/^extern [A-Za-z]* $2(/,/^}/p" "$T/gen"; }
 
