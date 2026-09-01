@@ -1,7 +1,50 @@
-# ⚠⚠⚠ SEALED 2026-09-02 — THE THIRD ASKING FAILED INFORMATIVELY, AND THAT IS THE DAY'S
+# ⚠⚠⚠ SEALED 2026-08-31 — THE THIRD ASKING FAILED INFORMATIVELY, AND THAT IS THE DAY'S
 # HEADLINE. THE BIND IS EXONERATED ON CAMERA; ONE MECHANISM NOW EXPLAINS THREE MEASUREMENTS.
 #
-#   ⚠ **THIS SUPERSEDES THE 2026-08-31 SEAL BELOW, WHICH IS INTACT AND TRUE AS OF ITS OWN MARK.**
+#   ⚠⚠ **DATE CORRECTED 2026-09-01 (SEQ 103 housekeeping). THIS SEAL WAS MARKED `2026-09-02`,
+#   WRONG BY TWO DAYS — AND IT WAS *NOT* THE CLOCK. THE CLOCK IS THE ONE INSTRUMENT THAT HAS
+#   BEEN RIGHT ALL ALONG.** The seal prose has been running AHEAD of the machine, and two
+#   earlier seals diagnosed that backwards.
+#
+#   **THE PROOF, for this seal, independent of any earlier claim:** every commit this seal
+#   describes is machine-stamped **2026-08-31 08:19–12:49 EDT** (`R1`…`R20`, the seal commit
+#   `8fb096a`, and `2a947d2`); the machine now reads **2026-09-01**; and **Tony's own calendar
+#   agrees at 09-01**. That timeline is monotonic and ~20h wide, so a clock two days *behind*
+#   on 08-31 would put today at 09-03, which Tony says it is not.
+#
+#   **THE DRIFT LEDGER — each seal's claimed date against the machine stamp on its own commit:**
+#   ```
+#   claimed 2026-09-02   commit 08-31   +2      <- this seal
+#   claimed 2026-08-31   commit 08-30   +1      <- the seal below; ALSO mis-stamped
+#   claimed 2026-08-29e  commit 08-29    0
+#   claimed 2026-08-29   commit 08-28   +1
+#   claimed 2026-08-28   commit 08-27   +1
+#   claimed 2026-08-27   commit 08-26   +1
+#   claimed 2026-08-25   commit 08-25    0      <- and 08-23, -22, -21, -20, -19 all 0
+#   ```
+#   ⚠ **SO THE SEAL BELOW IS MIS-STAMPED TOO — its true date is 2026-08-30 — and the two seals
+#   do NOT both belong to one day.** It is left as written rather than rewritten, per the
+#   standing rule that a dated record is not restated to match a later finding; **read it as
+#   08-30.** Same for `ipc/clay-to-clod.md`'s **SEQ 100** (`2026-09-01`) and **SEQ 101 /
+#   SEQ 102** (`2026-09-02`): all three were transcribed in the **08-31** session. Read them
+#   as 08-31.
+#
+#   ⚠⚠ **AND THE FINDING WORTH MORE THAN THE DATES: THE 08-27 AND 08-28 SEALS' "the machine
+#   clock read a day behind" NOTES WERE POINTING AT THE WRONG INSTRUMENT.** Both sit in the +1
+#   band above, and the note "retired" on 08-29 exactly when the drift happened to fall to zero
+#   — which reads as the clock correcting itself and is equally consistent with the prose
+#   landing on the right day by accident. **The unreliable instrument is the seat's inherited
+#   sense of the date, not the machine** — and the machine is the only one of the two that
+#   leaves a checkable stamp on every commit.
+#   ⚠ **GRADE, stated because this file's own doctrine demands it: the top row is MEASURED
+#   against Tony's calendar. The older rows are a CONSISTENT PATTERN, not independently
+#   confirmed** — nobody has a calendar witness for 08-26, and none is now obtainable.
+#   ⚠ **The standing check is one command, and it is owed before any seal mark is typed:
+#   `date` beside `git log -1 --date=iso`.** A seal date is a measurement like any other; this
+#   one was being written from memory for six seals running.
+#
+#   ⚠ **THIS SUPERSEDES THE SEAL BELOW (marked 2026-08-31, truly 08-30), WHICH IS INTACT AND
+#   TRUE AS OF ITS OWN MARK.**
 #
 #   ## THE ONE-LINE STATE: **Twenty-two commits of little steps that compounded — the flip's
 #   blocker is now a filmed mechanism instead of a hypothesis, two getters lost their side

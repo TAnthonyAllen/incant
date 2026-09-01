@@ -17,8 +17,15 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      102
+SEQ:      103
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-01  -  Clay (SEQ 103, dictated via Tony; transcribed by Clod, WT-9)
+          ⚠ SEQ 103 IS LIVE AND IS AT THE FOOT -- TONY'S 09-01 FIXIT VERDICTS +
+          THE FRAME BIND CHARTER. Executes the last seal's Option A; Option B
+          (comment sweep) stays PARKED. Supersedes nothing. Clay drafted it as
+          "Fearless: C-nn"; Clod assigns SEQ 103, and C is this session's stroke
+          letter (C1, C2, ... -- A/B/G/J/M/O/P/R are taken, C is free).
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 102, dictated via Tony; transcribed by Clod, WT-9)
           ⚠ SEQ 102 IS LIVE AND IS AT THE FOOT -- CARRIERNODE: CONFIRM THE ORDER,
           THEN BUILD THE FRAME BIND. The campaign's endgame.
@@ -4547,3 +4554,125 @@ chartered, NOT THIS BRIEF.
 
   END SEQ 102
 
+
+
+===================================================================
+SEQ 103  --  2026-09-01, Clay (dictated via Tony; transcribed by Clod, WT-9).
+             TONY'S 09-01 VERDICTS + THE FRAME BIND CHARTER.
+             Clay drafted this as "Fearless: C-nn"; Clod assigns the number.
+             SEQ 103 in this channel; C is the session's stroke letter.
+===================================================================
+
+STATUS: working -- picked up 2026-09-01 at session start.
+
+Supersedes nothing. Executes the 09-02 seal's Option A. Option B (the
+ruleActions.rtn comment sweep) STAYS PARKED.
+
+-------------------------------------------------------------------
+PART 1 -- FIXIT REGISTER VERDICTS  (Tony's verdict channel, his words)
+-------------------------------------------------------------------
+
+  goldenDrift
+    VERDICT   printTest() and testOR() hand-measured 09-01: both correct as
+              designed. The drift is in the golden, not the function.
+    ACTION    Locate the cluster holding those two rows. Re-pin the golden;
+              record "no defect, golden stale". Clusters 2/3/4 otherwise stay
+              parked as ruled.
+
+  parseSelfRecursion
+    VERDICT   The parse-generation walk is mid-flight and will not complete
+              until after *unary and unwrapping. The post-flip parser will
+              differ. walkRules recursion is sound.
+    ACTION    Grade unchanged. Mark RETEST-POST-FLIP. No guard built pre-flip.
+
+  kantGenPath
+    VERDICT   Not fixing. Expected moot at the new parser.
+    ACTION    Mark DEFER -- retest-post-flip.
+
+  tagTokenMismatch
+    VERDICT   Same family as kantGenPath.
+    ACTION    Same line.
+
+  parentUnreachable
+    VERDICT   (a) `:parent x y width height;` in displayIfVisible is wrong --
+              parent is not a field; the groupField is parenT. Retire the line.
+    ACTION    (a) Retire the line. displayIfVisible is measured LATENT (defined,
+              never called) -- record that nothing live moved.
+              (b) The record's measured defect -- .parenT through an
+              action-argument holder returning the holder -- is the flip's
+              territory. Mark RETEST-POST-FLIP; do not build a pre-flip fix.
+
+  DesignDocs Instruct.rtn / opDot
+    VERDICT   Reviewed. Looks good.
+    ACTION    Ratified. Close the review row.
+
+  Queue after transcription: 8 -> 7 if goldenDrift's cluster discharges; the
+  rest are RE-GRADED, not retired.
+
+-------------------------------------------------------------------
+PART 2 -- THE SEAT: OPTION A, THE FRAME BIND (SEQ 102 Part 2)
+-------------------------------------------------------------------
+
+REVERT BOUNDARY: R19.
+
+STANDING-GATE CHECK FIRST. The 08-05 GATE requires K5/K6 on incant/kant8T
+before any frame-model ruling. The ruling is made (carrierNode RULED block),
+but STATE K5/K6 STATUS IN THE REPORT. If they have not run, SAY SO -- do not
+silently proceed.
+
+SHAPE -- parentLabel's, transplanted:
+  - A slot on the frame beside parentLabel.
+  - Caller evaluates args, writes the slot, then calls. WRITE-LAST IS
+    LOAD-BEARING.
+  - Callee lifts the slot into a stack local at entry, first line.
+  - No save/restore. It is a HANDOFF WINDOW, not storage.
+
+⚠ BEAR-TRAP #10. This is a RuleStuff LAYOUT change: groups.ext sync AND
+tokall, or it fails silently. groups.ext is committed, per the 08-25 rule.
+
+CERTIFICATES (pre-registered in carrierNode's RULED block -- all four, none
+waived):
+  1. The asking on camera: CARRIERCAM shows the node the callee reads IS the
+     bound node.
+  2. A->B->A recursion fixture, node-resident local carried across.
+  3. f(g(x)) nesting fixture.
+  4. parseRule's owed entry lift, landed.
+
+PROCESS RULES IN FORCE:
+  - The fleet run is its own step, read BEFORE the commit is typed.
+  - H12: a landing runs the FULL SEAL CHECKLIST, not the fleet alone.
+  - Bare retok before certifying.
+
+STOP CLAUSE. If the asking fails a FOURTH time: film it, bank the captures,
+STOP. Do not chase identity across the three roads. Report the new question.
+
+-------------------------------------------------------------------
+PART 3 -- ON CERTIFICATION: THE FLIP STROKE
+-------------------------------------------------------------------
+
+Only after Part 2's four certificates read GREEN:
+
+  - Flip gNoUnwrap.
+  - incant/acceptStartT un-parks. incant/derefT re-pins to R1 != R2.
+    The * quarantine lifts. opDebug's unwrap strip rides this stroke.
+  - CERTIFICATION STATION -- THE unitTests SWEEP. Every unit test adjusted for
+    *unary, every one run. This is PART OF THE FLIP STROKE, not a follow-up:
+    a fleet-green flip over untouched unit tests is the "corpus not executed"
+    class (08-25 seal, item 2). Report: tests touched, tests green, fleet
+    before/after.
+  - Then the three post-flip retests: parseSelfRecursion, kantGenPath +
+    tagTokenMismatch, parentUnreachable (b).
+
+NON-GOALS. Flag-write and addGroup-twin roads stay as ruled. Operand-pickup
+unwrap (#35's arms, derefT's non-motion) is THE SECOND GATE, separately
+chartered. Comment sweep PARKED.
+
+-------------------------------------------------------------------
+HOUSEKEEPING
+-------------------------------------------------------------------
+  - The top seal is dated 2026-09-02; the calendar reads 09-01. Check the
+    machine clock; correct the seal mark if it is the clock again.
+  - Support-repo pending-commit check at every kitchen pass, per the 08-25
+    rule.
+
+  END SEQ 103
