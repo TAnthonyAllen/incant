@@ -386,6 +386,10 @@ extern GroupItem opEQ(GroupItem argument,GroupItem target)
     if jitting {
         -% return jitEmitCompare(argument, target, jitEQ); %-
     }
+    /*  F-41 null-operand guard -- see the note on opPlus.  */
+    if !argument {
+        cerr "ERROR Operator == failed on",tag,"and a refused operand":;
+        return null; }
     if target && !data {
         if argument.isCOUNT || argument.isNUMBER
             if argument.gCount == 0     return trueResult; }
@@ -405,6 +409,10 @@ extern GroupItem opGE(GroupItem argument,GroupItem target)
     if jitting {
         -% return jitEmitCompare(argument, target, jitGE); %-
     }
+    /*  F-41 null-operand guard -- see the note on opPlus.  */
+    if !argument {
+        cerr "ERROR Operator >= failed on",tag,"and a refused operand":;
+        return null; }
     if target && !data {
         if argument.isCOUNT || argument.isNUMBER
             if argument.gCount <= 0     return trueResult; }
@@ -460,6 +468,10 @@ extern GroupItem opGT(GroupItem argument,GroupItem target)
     if jitting {
         -% return jitEmitCompare(argument, target, jitGT); %-
     }
+    /*  F-41 null-operand guard -- see the note on opPlus.  */
+    if !argument {
+        cerr "ERROR Operator > failed on",tag,"and a refused operand":;
+        return null; }
     if target && !data {
         if argument.isCOUNT || argument.isNUMBER
             if argument.gCount < 0      return trueResult; }
@@ -520,6 +532,10 @@ extern GroupItem opLE(GroupItem argument,GroupItem target)
     if jitting {
         -% return jitEmitCompare(argument, target, jitLE); %-
     }
+    /*  F-41 null-operand guard -- see the note on opPlus.  */
+    if !argument {
+        cerr "ERROR Operator <= failed on",tag,"and a refused operand":;
+        return null; }
     if target && !data {
         if argument.isCOUNT || argument.isNUMBER
             if argument.gCount >= 0     return trueResult; }
@@ -539,6 +555,10 @@ extern GroupItem opLT(GroupItem argument,GroupItem target)
     if jitting {
         -% return jitEmitCompare(argument, target, jitLT); %-
     }
+    /*  F-41 null-operand guard -- see the note on opPlus.  */
+    if !argument {
+        cerr "ERROR Operator < failed on",tag,"and a refused operand":;
+        return null; }
     if target && !data {
         if argument.isCOUNT || argument.isNUMBER
             if argument.gCount > 0      return trueResult; }
@@ -568,6 +588,10 @@ extern GroupItem opMinus(GroupItem argument,GroupItem target)
     if jitting {
         -% return jitEmitBinary(argument, target, jitSub); %-
     }
+    /*  F-41 null-operand guard -- see the note on opPlus.  */
+    if !argument {
+        cerr "ERROR Operator - failed on",tag,"and a refused operand":;
+        return null; }
     if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER) {
         /*  BINARY FAMILY PROMOTES (Tony, 2026-08-01, greenlight after Word 2).
             `.count` on a double operand narrowed it AT ENTRY, so 0 - 2.5 gave
@@ -785,6 +809,26 @@ extern GroupItem opPlus(GroupItem argument,GroupItem target)
     if jitting {
         -% return jitEmitBinary(argument, target, jitAdd); %-
     }
+    /*  ⚠⚠ F-41, 2026-09-01: A REFUSED OPERAND IS NOT A NUMBER, AND READING IT
+        WAS A LATENT 139 IN SEVEN OPERATORS AT ONCE. A refusing unary returns
+        null -- `*x` on a field holding no group prints its own error and hands
+        back nothing -- and that null arrives here as the right operand. Every
+        `argument.` read below dies on it.
+        Measured on opMultiply during F-36 (opMultiply+76, GroupRules.mm:9903,
+        from runOP <- appendPrintXP <- aCTionPrinT); the other six were censused
+        structurally -- zero `if !argument` guards against 3 to 6 dereferences
+        each -- and are guarded here on that basis rather than on seven separate
+        crashes.
+        ⚠ WHY NOW RATHER THAN WHEN IT BITES: unary `*` is quarantined from the
+        corpus until the flip, so refused operands are rare TODAY. The flip makes
+        them ordinary, and `a + *b` is a spelling the +* fixture is about to put
+        in front of people. This is the arm-the-latent-bug pattern caught one
+        stroke early instead of one stroke late.
+        REFUSE BY NAME. A missing operand is simply the other way an operator
+        cannot apply, beside the wrong-type case each already names.  */
+    if !argument {
+        cerr "ERROR Operator + failed on",tag,"and a refused operand":;
+        return null; }
     if data && (argument.isCOUNT || argument.isNUMBER) {
         /*  BINARY FAMILY PROMOTES (Tony, 2026-08-01, greenlight after Word 2).
             `.count` on a double operand narrowed it AT ENTRY, so 0 - 2.5 gave

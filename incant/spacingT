@@ -29,6 +29,7 @@ define
     spLeaf="LEAF";
     spWrap;
     spA; spB; spC; spD;
+    spFp; spFm; spFg; spFl; spFe; spFge; spFle;
     spRun code={
         spWrap := spLeaf;
         /*  ⚠ CAPTURE FIRST, THEN PRINT -- and the two positions are DIFFERENT
@@ -58,6 +59,23 @@ define
         print "spacingT E print-position, the F-36 line, binary multiply follows:":;
         print "spacingT E value    =" * *spWrap:;
         print "spacingT E survived -- reaching this line IS the certificate":;
+        /*  F-41 ROWS. Each drives ONE operator into a refused operand with the
+            spelling the +* fixture is about to make ordinary -- `a OP *b` where
+            b holds no group, so the tight unary refuses and hands the operator
+            nothing. Every row is asserted by THE TEXT OF ITS REFUSAL, never by
+            the absence of a crash (H4): a check that passes because no message
+            appeared would also pass the day somebody deletes the guard.
+            ⚠ ROW A ABOVE IS RE-READ ON THIS SAME RUN and is what says the unary
+            still refuses cleanly rather than having started to succeed -- which
+            would make every row here vacuous, since there would be no null.  */
+        spFp = 1 + *spWrap;
+        spFm = 1 - *spWrap;
+        spFg = 1 > *spWrap;
+        spFl = 1 < *spWrap;
+        spFe = 1 == *spWrap;
+        spFge = 1 >= *spWrap;
+        spFle = 1 <= *spWrap;
+        print "spacingT F seven operators driven into a refused operand, above":;
         };
     ;
 spRun();

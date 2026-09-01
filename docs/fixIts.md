@@ -358,7 +358,25 @@ degenerate reading.
 
 ---
 
-### F-41 — SEVEN BINARY OPERATORS DEREFERENCE A NULL OPERAND, SAME LATENT 139 AS F-36
+### F-41 — ✅ CLOSED 2026-09-01, all seven guarded, eight rows in `pop.sh`
+
+Each of `opPlus` `opMinus` `opGT` `opLT` `opEQ` `opGE` `opLE` now refuses a null operand by name,
+the same shape `opMultiply` got in F-36. Certified in `incant/spacingT` by driving each one into a
+refused operand with `a OP *b` — the spelling the `+*` fixture is about to make ordinary — and
+asserting **the text of each refusal**, never the absence of a crash.
+
+⚠ **The eight rows are only meaningful while `spacingT` row A is green.** Row A is the unary still
+refusing cleanly; if it ever starts succeeding there is no null, and all eight go green while
+asserting nothing. That dependency is written into `pop.sh` beside them.
+
+⚠ **Grade at the time of fixing, kept because it is the honest record:** the crash was **measured**
+on `opMultiply` only. The other six were **censused structurally** — zero `if !argument` guards
+against 3–6 dereferences each — and guarded on that basis, not on six separate crashes. All seven
+now produce their named refusal on demand, which is the measurement the census stood in for.
+
+**Original entry follows.**
+
+### F-41 (original) — SEVEN BINARY OPERATORS DEREFERENCE A NULL OPERAND, SAME LATENT 139 AS F-36
 
 **Where:** `Instruct.rtn`. Censused 2026-09-01 immediately after F-36's fix, by counting
 `if !argument` guards against `argument.` dereferences per function:

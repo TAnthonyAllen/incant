@@ -9486,6 +9486,12 @@ extern "C" GroupItem *opEQ(GroupItem *argument, GroupItem *target)
 		{
 		 return jitEmitCompare(argument, target, jitEQ); 
 		}
+	/*  F-41 null-operand guard -- see the note on opPlus.  */
+	if ( !argument )
+		{
+		::fprintf(stderr,"ERROR Operator == failed on %s and a refused operand\n",target->groupBody->tag);
+		return 0;
+		}
 	if ( target && !target->groupBody->flags.data )
 		{
 		if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
@@ -9528,6 +9534,12 @@ extern "C" GroupItem *opGE(GroupItem *argument, GroupItem *target)
 		{
 		 return jitEmitCompare(argument, target, jitGE); 
 		}
+	/*  F-41 null-operand guard -- see the note on opPlus.  */
+	if ( !argument )
+		{
+		::fprintf(stderr,"ERROR Operator >= failed on %s and a refused operand\n",target->groupBody->tag);
+		return 0;
+		}
 	if ( target && !target->groupBody->flags.data )
 		{
 		if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
@@ -9555,6 +9567,12 @@ extern "C" GroupItem *opGT(GroupItem *argument, GroupItem *target)
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		 return jitEmitCompare(argument, target, jitGT); 
+		}
+	/*  F-41 null-operand guard -- see the note on opPlus.  */
+	if ( !argument )
+		{
+		::fprintf(stderr,"ERROR Operator > failed on %s and a refused operand\n",target->groupBody->tag);
+		return 0;
 		}
 	if ( target && !target->groupBody->flags.data )
 		{
@@ -9660,6 +9678,12 @@ extern "C" GroupItem *opLE(GroupItem *argument, GroupItem *target)
 		{
 		 return jitEmitCompare(argument, target, jitLE); 
 		}
+	/*  F-41 null-operand guard -- see the note on opPlus.  */
+	if ( !argument )
+		{
+		::fprintf(stderr,"ERROR Operator <= failed on %s and a refused operand\n",target->groupBody->tag);
+		return 0;
+		}
 	if ( target && !target->groupBody->flags.data )
 		{
 		if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
@@ -9687,6 +9711,12 @@ extern "C" GroupItem *opLT(GroupItem *argument, GroupItem *target)
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		 return jitEmitCompare(argument, target, jitLT); 
+		}
+	/*  F-41 null-operand guard -- see the note on opPlus.  */
+	if ( !argument )
+		{
+		::fprintf(stderr,"ERROR Operator < failed on %s and a refused operand\n",target->groupBody->tag);
+		return 0;
 		}
 	if ( target && !target->groupBody->flags.data )
 		{
@@ -9735,6 +9765,12 @@ extern "C" GroupItem *opMinus(GroupItem *argument, GroupItem *target)
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		 return jitEmitBinary(argument, target, jitSub); 
+		}
+	/*  F-41 null-operand guard -- see the note on opPlus.  */
+	if ( !argument )
+		{
+		::fprintf(stderr,"ERROR Operator - failed on %s and a refused operand\n",target->groupBody->tag);
+		return 0;
 		}
 	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
 		{
@@ -10018,6 +10054,28 @@ extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target)
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		 return jitEmitBinary(argument, target, jitAdd); 
+		}
+	/*  ⚠⚠ F-41, 2026-09-01: A REFUSED OPERAND IS NOT A NUMBER, AND READING IT
+	WAS A LATENT 139 IN SEVEN OPERATORS AT ONCE. A refusing unary returns
+	null -- `*x` on a field holding no group prints its own error and hands
+	back nothing -- and that null arrives here as the right operand. Every
+	`argument.` read below dies on it.
+	Measured on opMultiply during F-36 (opMultiply+76, GroupRules.mm:9903,
+	from runOP <- appendPrintXP <- aCTionPrinT); the other six were censused
+	structurally -- zero `if !argument` guards against 3 to 6 dereferences
+	each -- and are guarded here on that basis rather than on seven separate
+	crashes.
+	⚠ WHY NOW RATHER THAN WHEN IT BITES: unary `*` is quarantined from the
+	corpus until the flip, so refused operands are rare TODAY. The flip makes
+	them ordinary, and `a + *b` is a spelling the +* fixture is about to put
+	in front of people. This is the arm-the-latent-bug pattern caught one
+	stroke early instead of one stroke late.
+	REFUSE BY NAME. A missing operand is simply the other way an operator
+	cannot apply, beside the wrong-type case each already names.  */
+	if ( !argument )
+		{
+		::fprintf(stderr,"ERROR Operator + failed on %s and a refused operand\n",target->groupBody->tag);
+		return 0;
 		}
 	if ( target->groupBody->flags.data && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
 		{

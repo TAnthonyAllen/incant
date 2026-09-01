@@ -446,11 +446,29 @@ for _arm in "spacingT A tight-1  = spA" \
         echo "  FAIL  $_arm -- missing"; fail=1
     fi
 done
-#  H4: the refusal is asserted BY ITS TEXT, not by the absence of a crash.
-if grep -qF "ERROR Operator * failed on Token and a refused operand" "$T/spc"; then
-    echo "  ok    spacingT E refuses BY NAME (presence-with-value, not absence)"; green=$((green+1))
+#  H4: every refusal is asserted BY ITS TEXT, never by the absence of a crash.
+#  A check that passed because no message appeared would also pass the day
+#  somebody deleted the guard, which is the failure H4 exists to forbid.
+#
+#  ⚠ F-41's EIGHT ROWS. Each drives ONE operator into a refused operand with the
+#  spelling `a OP *b`, where b holds no group -- so the tight unary refuses and
+#  hands the operator nothing. Guards added 2026-09-01 after F-36 measured the
+#  crash on opMultiply and a structural census found seven siblings with zero
+#  guards against 3-6 dereferences each.
+#  ⚠ THESE ROWS ARE ONLY MEANINGFUL WHILE spacingT ROW A IS GREEN. Row A is the
+#  unary still refusing cleanly; if it ever starts succeeding there is no null,
+#  and all eight rows below go green while asserting nothing.
+for _op in "*" "+" "-" ">" "<" "==" ">=" "<="; do
+    if grep -qF "ERROR Operator $_op failed on Token and a refused operand" "$T/spc"; then
+        echo "  ok    spacingT refuses BY NAME on '$_op' (F-41)"; green=$((green+1))
+    else
+        echo "  FAIL  spacingT '$_op' named refusal missing -- its guard stopped naming it"; fail=1
+    fi
+done
+if grep -qF "spacingT F seven operators driven into a refused operand" "$T/spc"; then
+    echo "  ok    spacingT F reached (all eight operators were actually driven)"; green=$((green+1))
 else
-    echo "  FAIL  spacingT E named refusal missing -- the guard stopped naming it"; fail=1
+    echo "  FAIL  spacingT F marker missing -- the operator rows did not run"; fail=1
 fi
 
 extract () { sed -n "/^extern [A-Za-z]* $1(/,/^}/p;/^extern [A-Za-z]* $2(/,/^}/p" "$T/gen"; }
