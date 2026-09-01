@@ -3,8 +3,16 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      99
+SEQ:      100
 STATUS:   fresh           # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-01  -  Clod  (SEQ 100 APPENDED at the FOOT -- THE FRAME BIND IS BUILT AND
+          LANDED, CERTIFICATES 2 AND 3 ARE GREEN, AND THE FOURTH ASKING FAILED WITH THE SAME
+          SIGNATURE. STOP CLAUSE INVOKED. The slot was never written: an interpreted action has
+          NO rStuff -- 16 of 16 binds read rStuff=0x0 -- so a slot on RuleStuff cannot exist on
+          the road that binds arguments. Certificates 2 and 3 passed ENTIRELY on the save
+          reorder. The slot is inert code today. RuleStuff is the wrong RESIDENCE, which is not
+          the same as the frame being the wrong channel.)
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-01  -  Clod  (SEQ 99 APPENDED at the FOOT -- PART 2 STOPPED BEFORE THE LAYOUT
           CHANGE. The certificate-scoping clause caught something bigger than certificates 2 and
           3: THE PARSE ROAD BINDS NO ARGUMENT AT ALL. runRule has ZERO argument binds -- it
@@ -5119,3 +5127,75 @@ before spending one.
 FLEET UNMOVED THROUGHOUT: 96 green / 1 parked / same 3 expected-red, canary 326.
 
   END SEQ 99
+
+
+===================================================================
+SEQ 100  -  2026-09-01  -  Clod -> Clay
+            FRAME BIND BUILT. CERTS 2 AND 3 GREEN. FOURTH ASKING FAILED.
+            STOP CLAUSE INVOKED -- filmed, banked, no identity chase.
+===================================================================
+
+BUILT AND LANDED (C8, support 9815333). RuleStuff gained `frameArg` beside
+parentLabel; groups.ext synced and committed; full bare tokall; canary 326
+throughout; bear-trap #10's subdirectory check found ZERO RuleStuff hits below
+top level. runAction now saves BEFORE binding and writes the slot write-last.
+
+CERTIFICATE 2 -- A->B->A interpreted, argument carried: DISCHARGED.
+    K2x row 1  k2xSmall -> k2xBig     K6c  k6small -> k6big
+    controls held: K2x 0/2, K1, K3, K4, K5, K6a, K6b, K6d, K6e, K7a/b/c, K6f=4.
+
+CERTIFICATE 3 -- f(g(x)) interpreted: DISCHARGED. New fixture incant/nestT, five
+fleet rows, g deliberately returning a DIFFERENT node so the row can be believed.
+
+CERTIFICATE 4 -- struck by the charter.
+
+CERTIFICATE 1 -- THE ASKING. FAILED. Under gNoUnwrap = 1, camera in:
+
+    CARRIERCAM rStuff field=asTake rStuff=0x0
+    CARRIERCAM bind   ruleArg=0x103074780 ruleArgBody=0x103075870
+                      resultBody=0x103075be0  slot=0x0  gNoUnwrap=1
+    CARRIERCAM after  ruleArgBody=0x103075be0        THE BIND WORKED
+    BODY  argument    node=0x10307b440 groupBody=0x103075870   PRE-BIND BODY
+
+Identical to the third asking. The frame bind did not move this line at all.
+
+⚠⚠ AND THE CAMERA CAUGHT WHY, WHICH IS WORTH MORE THAN THE FAILURE: slot=0x0.
+THE SLOT WAS NEVER WRITTEN. An interpreted action has NO rStuff --
+
+    rStuff = 0x0 on 16 of 16 action binds in kant8T
+
+-- so `if (field->rStuff) field->rStuff->frameArg = result;` never fires. That
+is not a wiring defect. It is RULING D WORKING AS WRITTEN: rStuff presence IS
+the liveness test, and an action is not a rule, so it lawfully has none.
+
+⚠ THEREFORE CERTIFICATES 2 AND 3 PASSED ENTIRELY ON THE SAVE REORDER, NOT ON THE
+SLOT, and I am saying so rather than letting two green rows imply otherwise. The
+trample fix is real and landed and I stand behind it. It is simply a DIFFERENT
+fix that rode the same stroke. THE SLOT IS INERT CODE IN THE TREE RIGHT NOW.
+
+WHAT THIS DOES NOT SAY: it does not say the frame is the wrong channel. It says
+RuleStuff is the wrong RESIDENCE for it on the road that binds arguments.
+parentLabel's customers are RULES, which have rStuff by construction. Actions are
+not rules. The charter picked the residence from the precedent's shape rather
+than from the customer's.
+
+⚠ AND I HAVE NOT CHASED IT, per the stop clause. Three residences are available
+and choosing between them is a ruling, not a measurement:
+  (i)   give actions an rStuff -- widest blast radius, and it collides with
+        Ruling D's "presence is liveness", which several readers depend on;
+  (ii)  put the slot on GroupBody or on the action node itself -- no Ruling D
+        collision, but it is no longer "the frame" in parentLabel's sense;
+  (iii) the mint, not the residence -- R19 measured MINT(aCTionDefinE, via `+%`)
+        -> BIND -> READ with mint and bind ALREADY different nodes. The read node
+        is the parse-time `+%` copy the cached BlocK holds; the bind finds a
+        different one through get("argument"). Binding the node the BODY holds
+        needs no new slot anywhere.
+I flagged (iii) last time as C and you ruled A precisely to avoid the three-road
+chase. I am NOT reopening that -- I am reporting that the slot as chartered is
+unreachable, and (iii) is the only one of the three that needs no new storage.
+
+STATE: instrument and flip fully reverted, rebuilt bare, fleet byte-identical to
+the C8 floor -- 101 green / 1 parked / same 3 expected-red, canary 326. The
+frame bind and the reorder REMAIN LANDED; only the camera and gNoUnwrap came out.
+
+  END SEQ 100

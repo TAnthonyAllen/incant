@@ -19,6 +19,49 @@ GUESS     NONE OUTSTANDING -- the mechanism is FILMED, not guessed, and the
 NEXT block below are now that charter's to discharge, not this file's to hold.
 This citizen carries the EVIDENCE; the charter carries the acceptance.
 
+⚠⚠⚠ FOURTH ASKING, 2026-09-01, SEQ 106. FAILED -- SAME SIGNATURE -- AND THE
+FRAME SLOT WAS NEVER WRITTEN. STOP CLAUSE INVOKED: filmed, banked, reported, and
+NO identity chase across the three roads.
+
+The frame bind was BUILT and LANDED (C8): RuleStuff gained `frameArg` beside
+parentLabel, groups.ext synced, full bare tokall, canary 326. Certificates 2 and
+3 discharged. Then the asking, under gNoUnwrap = 1, with the camera in:
+
+    BODY  asSubject  node=0x103077340  groupBody=0x103075be0
+    CARRIERCAM rStuff field=asTake rStuff=0x0
+    CARRIERCAM bind   field=asTake ruleArg=0x103074780 ruleArgBody=0x103075870
+                      result=asSubject resultNode=0x10307be00
+                      resultBody=0x103075be0 slot=0x0 gNoUnwrap=1
+    CARRIERCAM after  ruleArgBody=0x103075be0   (want == resultBody)
+    BODY  argument    node=0x10307b440  groupBody=0x103075870
+
+THE BIND STILL WORKS. ruleArgBody went 0x103075870 -> 0x103075be0, exactly
+resultBody. THE CALLEE STILL READS A DIFFERENT NODE -- 0x10307b440, carrying
+0x103075870, which is ruleArg's body BEFORE the bind. Unchanged from the third
+asking. The frame bind did not move this line at all.
+
+⚠⚠ AND THE REASON IS ONE MEASURED FACT: AN INTERPRETED ACTION HAS NO rStuff, SO
+A SLOT ON RuleStuff CANNOT EXIST ON THE ACTION ROAD.
+
+    rStuff = 0x0 on 16 of 16 action binds in kant8T
+    slot   = 0x0 at every bind
+
+`if (field->rStuff) field->rStuff->frameArg = result;` never fires. That is not
+a defect in the wiring -- it is Ruling D working exactly as written: rStuff
+presence IS the liveness test, and an action is not a rule, so it lawfully has
+none.
+
+⚠ SO CERTIFICATES 2 AND 3 PASSED ENTIRELY ON THE SAVE REORDER, NOT ON THE SLOT.
+That is worth stating plainly rather than letting two green rows imply the slot
+works: the trample fix is real, measured, and landed, and it is a DIFFERENT fix
+that happened to ride the same stroke. THE SLOT IS INERT CODE TODAY.
+
+WHAT THIS DOES NOT SAY. It does not say the frame is the wrong channel. It says
+RuleStuff is the wrong RESIDENCE for it on the road that binds arguments. The
+charter put the slot beside parentLabel because parentLabel is the working
+precedent -- but parentLabel's customers are RULES, which have rStuff by
+construction, and an action is not one.
+
 THE BIND WORKS. THE CALLEE READS A DIFFERENT NODE.
 
 WHAT YOU JUST RAN. Under the LEGACY layout this prints two bodies that differ,
