@@ -85,6 +85,29 @@ every claim an editor at a case site must not miss is still inline.
 stdout and stderr, all POPs green, canary 326. Comments cannot change behaviour, so the only way
 this breaks is tok choking on one — which fails the build in your face. It didn't.
 
+### ⚠⚠ RATIFIED BY TONY, 2026-09-01 (SEQ 103 Part 1) — THE REVIEW ROW IS CLOSED
+
+Tony reviewed the `Instruct.rtn` / `opDot` migration and the DesignDocs entries it produced.
+**Verdict: "Reviewed. Looks good."** Ratified; nothing owed back on it.
+
+**AND THAT SETTLES THE TWO-LINE QUESTION, which the last seal recorded as UNRULED and named as a
+blocker on the `ruleActions.rtn` sweep.** The exemplar below took two inline lines for two of the
+seven comments, on the ground that a single line could state the fact but not the consequence.
+Reviewing the exemplar and approving it approves that. **So the rule is: ONE CLAIM, however many
+lines the claim honestly needs — the convention is about moving the ARGUMENT out, not about a line
+count.** Two is not a licence for three; the acid test is still the acid test, and both two-liners
+here are load-bearing invariants (a segfault and a silent wrong answer).
+
+⚠ **ONE BLOCKER REMAINS ON THE SWEEP AND IT IS NOT THIS ONE.** `docs/commentMinion.md` is signed
+with schema v2 and Tony's **method-scoped-not-file-scoped** amendment, while this exemplar uses
+`TokFiles`. **Two conventions, one job** — still unreconciled, and the sweep does not open until it
+is. That is a ten-minute ruling, not a build.
+
+⚠ **DATE NOTE:** the nine rows in the table above are stamped `2026-09-01` / `2026-09-02`. The
+machine says those entries were all written on **2026-08-31** — see the seal-date drift ledger at
+the head of `docs/wakeup.md`, where the same two-day prose drift is measured across six seals. The
+rows are **left as written** rather than restated; read `09-02` as `08-31`.
+
 ### What resisted the format — one thing, and it is worth knowing before the sweep
 
 ⚠ **Two comments could not shrink to one line and were given two**, because the acid test wouldn't

@@ -360,7 +360,7 @@ define
                 one stroke. Whether the QuotE campaign wants that move now, or wants
                 a narrower gate, is the ruling.";
     TokFiles="These are both twk and rtn files and the entries here contain notes that apply to methods in those files. Each file has an entry and contains entries for every method in it that has explanatory notes that were in the code and are now here.":
-        Generate="is an rtn file that gets included into GroupRules.twk when it gets tokked. The text for these entries needs to be reviews to see if they are still relevant. They were relevant once but things change and no one has been going thru comments to keep them up to date. The comments cluttered up code. Now they do not. They are here and the same relevancy question applies.":
+        Generate="is an rtn file that gets included into GroupRules.twk when it gets tokked. The text for these entries needs to be reviewed to see if they are still relevant. They were relevant once but things change and no one has been going thru comments to keep them up to date. The comments cluttered up code. Now they do not. They are here and the same relevancy question applies.":
             parseAny=(THE LABEL WRITE IS GUARDED IN ALL FOUR OF THESE, and until 2026-08-18 it
                 was guarded in only one. parseSet had `if label` and parseAny,
                 parseCharacter and parseString wrote through it bare, so a rule matched

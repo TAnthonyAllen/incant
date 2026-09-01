@@ -196,6 +196,20 @@ run1 jsonTest "$T/jsn";      check "jsonTest runs"    0 $?
 #  moves, which is a different maintenance contract from the ladder targets, so
 #  only the exit code is asserted here. Promote to a diffcheck if that contract
 #  ever stabilises.
+#
+#  ⚠⚠ AND IF YOU ARE THE PERSON SWITCHING ON THAT CONTENT DIFF, READ THIS FIRST.
+#  incant/baselineTests.golden IS A DELIBERATELY MIXED ARTIFACT AS OF 2026-09-01.
+#  Its testOR row (line 16) was re-pinned that day under Tony's ruling -- the
+#  function is correct as designed and the pin was eleven weeks stale. Its OTHER
+#  TWO drifted clusters were left STALE ON PURPOSE, parked by the same ruling and
+#  still unattributed:
+#        lines 65-66   second=56 / third=WTF?   (values disappearing)
+#        lines 70-71   width=50% / text         (see incant/fixits/goldenDrift)
+#  So a content diff turned on today comes up RED ON TWO CLUSTERS BY DESIGN. That
+#  is the pin being honest, NOT a regression -- do not "fix" it by re-pinning
+#  them, which is precisely the move goldenDrift's clause 2 prohibits: re-pinning
+#  an unattributed drift banks an unknown breakage as normal, permanently, and no
+#  later reader can tell the difference. Attribute first, then pin.
 run1 baselineTests "$T/base"; check "baselineTests runs (smoke, exit code only)" 0 $?
 #  ⚠ AND ITS COMPLETENESS IS ASSERTED SEPARATELY, per standing harness rule H2.
 #  Exit-code-only is exactly the shape a truncated run passes: an incant parse

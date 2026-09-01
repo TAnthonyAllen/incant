@@ -15,10 +15,39 @@ define
         };
     /***************************************************************************
         Check to make sure the field passed in fits in the current frame before
-        displaying it.
+        displaying it. This was written long ago to be included in setFrame which
+        does not include it. It should be retired along with the parentUnreachable
+        fixits incantation.
+        (Spelling of that filename corrected 2026-09-01; the citizen is
+        parentUnreachable, and a dangling name is the one failure this register
+        exists to prevent.)
+
+        THE CONTAINER-BOX HOIST IS MISSING, NOT FORGOTTEN. px/py/pw/ph below are
+        never set. The line `:parent x y width height;` stood as this body's
+        first statement and was RETIRED 2026-09-01 on Tony's verdict (SEQ 103
+        Part 1). `parent` is not a spelling of anything, so aCTionScopeXP found
+        nothing, cleared the four locals, and under bear-trap 26 each echoed its
+        own tag -- which is what produced `ERROR Operator + failed on py and ph`,
+        an error naming an operator two roads away from the defect. The
+        groupField is spelled `parenT`.
+
+        RESTORING THE HOIST IS BLOCKED, AND IT IS NOT BLOCKED HERE. It needs the
+        ARGUMENT's parent, and an action cannot reach that today: every
+        property-returning accessor survives the action-argument holder and the
+        one node-returning accessor hands back the holder instead. That is the
+        flip's territory. See incant/fixits/parentUnreachable -- RETEST-POST-FLIP,
+        and no pre-flip fix is to be built.
+
+        DO NOT re-add the line, and DO NOT substitute `:argument x y width
+        height;` for it -- argument is the box being TESTED, not the box tested
+        AGAINST, so that spelling would compare the field with itself and read
+        true forever.
+
+        NOTHING LIVE MOVED when the line went. displayIfVisible is LATENT --
+        defined here and called from nowhere in the tree, measured again on
+        2026-09-01 and agreeing with docs/andOrRung.md and incant/andProbe.
     ***************************************************************************/
     displayIfVisible argument code={
-        :parent x y width height;
         px  = x;
         py  = y;
         pw  = width;

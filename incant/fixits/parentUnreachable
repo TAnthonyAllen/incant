@@ -115,6 +115,33 @@ displayIfVisible's `if goodToGo;` tests a field that HOLDS ZERO, and
 incant/andProbe already ruled a bare field test goes by PRESENCE, not value --
 so it reads TRUE either way. It will need `if goodToGo == 1;`.
 
+⚠⚠ VERDICT 2026-09-01 (SEQ 103 Part 1, Tony). TWO HALVES, DIFFERENT FATES.
+
+(a) DISCHARGED, TODAY. Tony's words: "`:parent x y width height;` in
+displayIfVisible is wrong -- parent is not a field; the groupField is parenT.
+Retire the line." DONE: the line is gone from incant/utilities and the comment
+block above displayIfVisible now carries why, what is missing in its place, and
+two spellings not to substitute for it.
+⚠ NOTHING LIVE MOVED, and that was measured rather than assumed: displayIfVisible
+is LATENT -- defined in incant/utilities and called from NOWHERE in the tree
+(re-measured 2026-09-01; agrees with docs/andOrRung.md and incant/andProbe).
+Fleet before and after: 88 green / 1 parked / 3 expected-red, byte-identical.
+
+(b) RETEST-POST-FLIP, AND NO PRE-FLIP FIX IS TO BE BUILT. The measured defect --
+.parenT through an action-argument holder returning the HOLDER -- is the flip's
+territory. Tony ruled it there.
+
+GRADE UNCHANGED -- OPEN below, and it stays OPEN because half (b) is still
+exactly that. The census in the OPEN block (every node-returning opDot case,
+direct and through a holder, paired) is STILL THE RIGHT NEXT MEASUREMENT and is
+still Clod-sized -- it is now simply scheduled AFTER the flip rather than before
+it, because the flip may change its answer.
+
+⚠ DO NOT READ (a) AS PROGRESS ON (b). Retiring the line removed a CONSUMER of
+the defect, not the defect. The accessor is still wrong through the holder --
+this citizen's own row 4 still prints `argument` where it wants `fpWindow`, and
+it printed exactly that today after the edit.
+
 NEXT: OPEN
 
 THE OLD BEST GUESS IS FALSIFIED AS WRITTEN AND IS WITHDRAWN. Candidate A was

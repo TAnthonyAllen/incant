@@ -13,7 +13,7 @@ lefty: 		got reset to 46
 printTest: 	lefty should return itself. It returns 46 
 simpleIF: 
 	anotherTest: max should be 48 + 3 		it is 51 and we done 
-testOR: 	I see nothing 
+testOR: 	Saw 13 having a few doubts ends here 
 testARG: Argument is: hasGroup 
 testARG: Argument is: 35 
 testARG: Argument is: 57 

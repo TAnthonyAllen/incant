@@ -14,7 +14,7 @@ define
         print "  MEASURED:":;
         printTest();
         print "=== CLUSTER 2 -- an OR that takes the other arm ===":;
-        print "  PINNED    testOR: I see nothing":;
+        print "  PINNED    testOR: Saw 13 having a few doubts ends here":;
         print "  MEASURED:":;
         testOR();
         print "=== THE MECHANISM, three arms and an anti-vacuity control ===":;
@@ -39,8 +39,77 @@ stop();
 LANE:  parser
 BLAST: OVERLAPS
 
-goldenDrift -- SIX VALUES HAVE GONE MISSING FROM incant/baselineTests AND THE
-FLEET STRUCTURALLY CANNOT SEE IT. Minted 2026-08-30.
+goldenDrift -- SIX VALUES WENT MISSING FROM incant/baselineTests AND THE FLEET
+STRUCTURALLY COULD NOT SEE IT. Minted 2026-08-30.
+
+⚠⚠ STATUS 2026-09-01 (SEQ 103 Part 1, Tony's verdict): FOUR OF THE SIX ARE
+DISCHARGED. TWO REMAIN, PARKED. The count in the title above is the mint-day
+count and is kept so the arithmetic below still reads; the live tally is here.
+
+  cluster                 was              is now
+  1  lefty x2             BROKEN           ✅ DISCHARGED -- BEHAVIOUR
+  2  testOR               BROKEN           ✅ DISCHARGED -- NO DEFECT, GOLDEN STALE
+  3  second / third       BROKEN           PARKED, unattributed
+  4  width / text         BROKEN           PARKED, unattributed
+
+CLUSTER 1 DISCHARGED BY MEASUREMENT, NOT BY RE-PIN, AND THAT IS THE STRONGER
+OUTCOME. The 08-30 frameSTAK remedy (second channel for the frame save-stack,
+GroupActions.rtn) took. Measured 2026-09-01 on this file's own arms:
+
+    A  body references its OWN name     46   (want 46)
+    B  body references ANOTHER field    46   (want 46)
+    C  body references no field at all  46   (want 46 -- anti-vacuity)
+
+and both cluster-1 rows now MATCH the golden as it already stood -- the golden
+was never wrong about lefty, so NOTHING WAS RE-PINNED for cluster 1. The row
+simply left the diff. Arm C is the anti-vacuity control and holding at 46 is
+what says the walk still ran.
+
+CLUSTER 2 RE-PINNED, AND HERE IS THE SENTENCE CLAUSE 2 DEMANDS. Tony
+hand-measured printTest() and testOR() on 2026-09-01 and ruled both CORRECT AS
+DESIGNED: the drift is in the golden, not in the function. testOR is
+`if !righty OR feeling;` with `righty=13` and
+`feeling='having a few doubts ends here'` both declared (incant/scopeUnits:100,
+:140). `!` binds tight to its operand, so the test is `(!righty) OR feeling` --
+false OR a live field -- which is TRUE, and the true arm prints
+`Saw 13 having a few doubts ends here`. THAT IS THE DESIGNED ANSWER. The pin
+that said `I see nothing` required the OR to be FALSE.
+
+  ⚠ THE PIN WAS ELEVEN WEEKS STALE. `git log -S` puts its last movement at
+    1597282, 2026-06-14. It is the oldest thing in this file by a wide margin.
+
+  ⚠ AND THE MECHANISM -- WHY IT WAS FALSE IN JUNE -- IS A GRADED CANDIDATE AND
+    NOT A FINDING, because nobody has run it. `feeling` and `testOR` have both
+    existed unchanged since 2026-05-31 and moved together into scopeUnits at
+    b9fbb5d (2026-08-01, "name-scope recon"), so the likeliest story is that
+    `feeling` DID NOT RESOLVE inside testOR's body in June and the name-scope
+    work made it resolve. PLAUSIBLE, UNMEASURED, and it is recorded at that
+    grade deliberately -- this project's ledger says causal claims here fail
+    about half the time, and the re-pin does not depend on this one. The
+    re-pin rests on Tony's ruling plus the operand reading above, both of
+    which are checkable today.
+
+⚠⚠ AND A DEFECT IN THIS FILE'S OWN TABLE, FOUND WHILE DISCHARGING THE ABOVE:
+CLUSTER 4's `text` ROW IS PRINTED BACKWARDS. The mint-day table below says
+pinned `text=one`, measured `text`. The tree says the opposite -- the GOLDEN
+carries `stuff text pad=6;` and the MACHINE produces `stuff text=one pad=6;`.
+So for that half of cluster 4 the value is PRESENT now and ABSENT in the pin,
+which is the reverse of the disappearing-value story the whole file is built
+on. `width=50%` -> `width=50` is still a genuine disappearance. NOT CHASED --
+cluster 4 is parked by ruling -- but whoever un-parks it must re-read the row
+before reasoning on it, because a mis-transcribed table that generates
+well-reasoned unnecessary questions is exactly the failure this project has a
+named ledger for.
+
+⚠ CLAUSE 3 IS STILL OWED AND IS NOW MORE URGENT, NOT LESS. The golden is a
+MIXED artifact from today: line 16 is current, lines 65-66 and 70-71 are
+DELIBERATELY STALE. Nothing in the fleet reads any of it -- pop.sh asserts only
+exit 0 and the presence of the last line -- so if the content diff of clause 3
+is ever switched on it will come up RED ON TWO CLUSTERS BY DESIGN, and that is
+correct rather than a regression. A note to this effect now sits beside the
+baselineTests block in genLadder/pop.sh.
+
+THE MINT-DAY RECORD FOLLOWS, UNCHANGED EXCEPT WHERE MARKED.
 
 THE MECHANISM IS BROKEN. THE INSTRUMENT THAT SHOULD HAVE SAID SO ASSERTS THE
 WRONG THING. Both halves are owed and the order they are fixed in matters.

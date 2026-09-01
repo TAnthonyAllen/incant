@@ -112,6 +112,25 @@ THE WORKAROUND, which is why the fleet is not on fire
 Turn either gate off. The crash needs BOTH compiling and activating on; any
 other cell of the 2x2 completes at exit 0 and reaches the verify sentinel.
 
+⚠⚠ VERDICT 2026-09-01 (SEQ 103 Part 1, Tony). RETEST-POST-FLIP.
+GRADE UNCHANGED -- the block below still reads RULED and has earned that word.
+This stamp is a DISPOSITION, not a grade, and it does not promote or demote
+anything.
+
+Tony's words: "The parse-generation walk is mid-flight and will not complete
+until after *unary and unwrapping. The post-flip parser will differ. walkRules
+recursion is sound."
+
+SO: NO GUARD IS TO BE BUILT PRE-FLIP. The recursion this file worries about is
+not a defect to be fenced; it is a walk that has not finished being written.
+Re-run this citizen AFTER the flip stroke lands and grade it then -- the parser
+it measures will be a different parser, and a guard built now would be built
+against a shape that is about to stop existing.
+
+⚠ AND A PRE-FLIP GREEN HERE WOULD MEAN NOTHING, which is why the retest is
+scheduled rather than optional: the answer is expected to move for reasons that
+have nothing to do with whether the recursion is sound (rule H3).
+
 NEXT: RULED
 
 The MECHANISM is ruled -- one node, its own action, dispatched at

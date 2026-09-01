@@ -100,6 +100,19 @@ the C++ side of the labelled literal is closed and THE KANT SIDE IS THE HALF
 STILL OPEN. Both generators reached the labelled literal and neither could spell
 it; they are the same missing rung seen from two directions.
 
+⚠⚠ VERDICT 2026-09-01 (SEQ 103 Part 1, Tony). DEFER -- RETEST-POST-FLIP.
+NOT BEING FIXED. The REMEDY block below is left standing exactly as written --
+it is a real recommendation and it may still be the right one -- but it is
+GATED, not actionable, and nobody should pick it up in that state.
+
+Tony's words: "Not fixing. Expected moot at the new parser."
+
+SO: the expectation is that the new parser DISSOLVES this rather than fixing
+it. Re-run after the flip stroke. If it is moot, this citizen retires by
+measurement -- which is the strongest way for one to go, because a removal is
+a positive control that a counter cannot be. If it is NOT moot, the REMEDY
+below is still sitting there and loses nothing by having waited.
+
 NEXT: REMEDY -- BEHAVIOUR
 
 THE FIX, ITS SITE, AND WHAT TAKEN VERSUS NOT LOOKS LIKE
