@@ -318,6 +318,21 @@ done
 #  The falsified asymmetry stays falsified: K6c's own comment claimed "in DIRECT
 #  recursion an argument DODGES the emptying", and K2 could not see otherwise
 #  because it passed its argument straight down. One mechanism covers both rows.
+#  ⚠ K6c IS PINNED HERE AS OF 2026-09-01 BECAUSE IT WAS NOT, AND THAT WAS A HOLE.
+#  Certificate 2 of the frame-bind charter leaned on K6c -- mutual recursion
+#  A->B->A carrying an argument -- and NO FLEET ROW PINNED IT. When the SEQ 107
+#  copy-bind attempt regressed it from k6big to k6small, the fleet stayed at 101
+#  green and said nothing; it was caught only because the certificate was re-run
+#  by hand. A certificate the fleet cannot see is a certificate that expires the
+#  day someone stops re-running it.
+#  It is the MUTUAL sibling of K2x row 1's DIRECT case, and the two are pinned
+#  together deliberately: the save reorder fixed both, and any change that moves
+#  one without the other is a finding.
+if grep -qF "K6c outer returned = k6big" "$T/k8"; then
+    echo "  ok    K6c outer = k6big (mutual recursion carries its own argument) -- PINNED BY VALUE"; green=$((green+1))
+else
+    echo "  FAIL  K6c outer -- got: $(grep -o 'K6c outer returned = [a-zA-Z0-9]*' "$T/k8" | head -1)"; fail=1
+fi
 for _arm in "K2x row 0 control  = k2xBig" \
             "K2x row 1 recursed = k2xBig" \
             "K2x row 2 depth 0  = k2xBig"; do

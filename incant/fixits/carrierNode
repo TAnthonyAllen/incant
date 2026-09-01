@@ -62,6 +62,53 @@ charter put the slot beside parentLabel because parentLabel is the working
 precedent -- but parentLabel's customers are RULES, which have rStuff by
 construction, and an action is not one.
 
+⚠⚠⚠ FIFTH ASKING NOT REACHED -- THE COPY BIND WAS BUILT AND FAILED ITS OWN
+CONTROL, 2026-09-01, SEQ 107. Filmed, banked, reverted. Revert boundary C10.
+
+THE MEASUREMENT THE CHARTER ORDERED FIRST CAME BACK ARM 1, cleanly. Censused
+with PARENT ATTRIBUTION across 23 actions: every action holds exactly ONE
+original `argument` (parent = the action) and AT MOST ONE copy (parent = a Token
+in the cached BlocK). NOT one per mention -- ntF says `argument` twice and has no
+copy; asTake says it twice and has one. The copy appears exactly when the body
+passes `argument` BARE TO ANOTHER CALL (asTake's showBody(argument), k1's
+k1(argument)) and never for a property read like argument.taG.
+
+⚠ ATTRIBUTION WAS LOAD-BEARING. Without parents the same walk reported 1, 2 or 3
+distinct nodes and a count that CHANGED BETWEEN INVOCATIONS of one action -- the
+extras were OTHER actions' arguments reached through cross-links (`parent=k6A`
+turning up in k6B's census). H11 exactly: that census would have reported a fork
+that does not exist.
+
+SO THE COPY WAS BOUND, as arm 1 directs. AND IT BROKE CERTIFICATE 2:
+
+    K2x row 1 (DIRECT recursion)   k2xBig    still correct
+    K6c       (MUTUAL recursion)   k6small   REGRESSED, was k6big
+
+⚠ THE REASON IS THE HALF OF ARM 1 THAT DOES NOT HOLD: "one line PLUS THE EXISTING
+SAVE/RESTORE". THE COPY IS NOT IN THE EXISTING SAVE/RESTORE. saveLocalFields
+walks the action's DIRECT CHILDREN, and the copy lives down inside the cached
+BlocK under a Token. So binding it hands the body a node that nothing brackets,
+and a nested activation tramples it -- which is the very defect the save reorder
+had just fixed for the original, re-introduced one level down on the node the
+body actually reads. k6Barg is the case: its body passes `argument` bare, so it
+HAS a copy, and K6c reads through it.
+
+⚠ AND A COVERAGE HOLE THE FAILURE EXPOSED, now closed: K6c WAS NOT A PINNED FLEET
+ROW. The fleet stayed at 101 green through the regression and said nothing; it
+was caught only because the certificate was re-run by hand. K6c is now pinned in
+pop.sh beside K2x row 1, its direct-recursion sibling.
+
+WHAT IS NOT OWED: a second attempt. Bracketing the copy is a materially larger
+change to machinery already under a deletion sentence (docs/jit.md section 0),
+and choosing that is a ruling, not a measurement.
+
+    THE STANDING SCORE: the SAVE REORDER is real, landed, and certified --
+    K2x row 1, K6c and nestT all green on it. The frameArg slot was unreachable
+    and is stripped. The copy bind is measured, reverted, and NOT recommended in
+    the shape arm 1 describes.
+
+-------------------------------------------------------------------------------
+
 THE BIND WORKS. THE CALLEE READS A DIFFERENT NODE.
 
 WHAT YOU JUST RAN. Under the LEGACY layout this prints two bodies that differ,
