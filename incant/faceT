@@ -107,7 +107,7 @@ counter, and neither exists in a form incant can ask today. Writing rows that
 echo their own tags would have produced green rows asserting nothing.
 
 ⚠⚠ THE OPTIONS ROW'S RECORDED REASON WAS HALF-WRONG AND IS CORRECTED HERE
-(2026-09-02, SEQ 115). It read: *"`isCopy` is visible only through `addrOf`, and
+(2026-09-01, SEQ 115). It read: *"`isCopy` is visible only through `addrOf`, and
 `addrOf` reports the CARRIER -- every subject reads isCopy=1 including originals
 -- so it cannot report the subject's own bit."* THE SECOND HALF IS FALSE. C20
 measured a subject reading **isCopy=0**: the result of a SUBSCRIPT, which is

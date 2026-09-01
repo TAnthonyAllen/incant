@@ -113,7 +113,7 @@ THE BIND WORKS. THE CALLEE READS A DIFFERENT NODE.
 
 WHAT YOU JUST RAN. Under the LEGACY layout this prints two bodies that differ,
 which is expected and is not the finding. The finding was taken under the FLIP
-(gNoUnwrap = 1) on 2026-09-02, the acceptance line's THIRD asking, and it is the
+(gNoUnwrap = 1) on 2026-09-01, the acceptance line's THIRD asking, and it is the
 first of the three that failed INFORMATIVELY.
 
 THE ACCEPTANCE CRITERION, unchanged since it was ruled:
@@ -204,7 +204,7 @@ row, oneTest, jsonTest, derefAllT, sixShapeT and broadcastT. The opDebug unwrap
 strip, which was ruled to RIDE with the flip, reverted with it -- no half-stroke
 shipped.
 
-⚠⚠ THE ORDERING RUN IS DONE, 2026-09-02 (SEQ 102 Part 1). MINT -> BIND -> READ.
+⚠⚠ THE ORDERING RUN IS DONE, 2026-09-01 (SEQ 102 Part 1). MINT -> BIND -> READ.
 CLAY'S PREDICTION CONFIRMED, and Part 2 proceeds on it.
 
     SEQ 30  MINT(aCTionDefinE) slotNode=0x100ced8c0 slotBody=0x100cee960 on caTake
@@ -253,7 +253,7 @@ WHAT WOULD GENERATE THE ANSWER, cheapest first:
      DAYS SAY A NAMED READ DOES NOT REACH A WRITTEN NODE. A fix aimed only at
      the argument road leaves the other two standing.
 
-⚠⚠ ADDED 2026-09-02 (SEQ 116): `<-` IS CARRIER-STABLE, AND IT IS THE FIRST NAMED
+⚠⚠ ADDED 2026-09-01 (SEQ 116): `<-` IS CARRIER-STABLE, AND IT IS THE FIRST NAMED
 READ MEASURED TO REACH A STABLE FIELD.
 
 Everything above is a record of the argument road minting fresh nodes. This is
@@ -300,7 +300,7 @@ ruled: it is a dated ruling and rewriting its words would falsify the record. Re
 its "frame" as the argument channel. New text in this file uses the current
 vocabulary.
 
-⚠⚠ ADDED 2026-09-02 (SEQ 117): THE ACCEPTANCE-LINE FAILURE, MEASURED BY addrOf
+⚠⚠ ADDED 2026-09-01 (SEQ 117): THE ACCEPTANCE-LINE FAILURE, MEASURED BY addrOf
 FOR THE FIRST TIME -- AND IT IS WORSE UNDER THE FLIP THAN WITHOUT IT.
 
 This arrived as the CONTROL for step 4 rather than as its result, which is why it
@@ -365,7 +365,7 @@ RESTORED TO THE C22 BOUNDARY AND VERIFIED: ruleActions.rtn and jitContext.h back
 to their committed blobs, retok bare, rebuilt, fleet byte-identical to C22 at 169
 green / 3 red, canary 326, every other instrument green.
 
-⚠⚠ ADDED 2026-09-02 (SEQ 118): STEP 4 RE-AIMED TO TONY'S SCOPE, BUILT, FIRED --
+⚠⚠ ADDED 2026-09-01 (SEQ 118): STEP 4 RE-AIMED TO TONY'S SCOPE, BUILT, FIRED --
 AND THE CALLEE'S READ DID NOT MOVE. STOP CLAUSE INVOKED A SECOND TIME.
 
 Scope ruling: a pointer is installed only for the ATTRIBUTES of a definition that
@@ -417,7 +417,7 @@ blobs, all traces removed, retok BARE, rebuilt, fleet BYTE-IDENTICAL to the
 no-step-4 baseline at 171 green / 3 red, canary 326, every other instrument green.
 F-43's fix is KEPT, as ordered.
 
-⚠⚠⚠ ADDED 2026-09-02 (SEQ 119): THE BIND IS THE LEVER, MEASURED -- AND THE
+⚠⚠⚠ ADDED 2026-09-01 (SEQ 119): THE BIND IS THE LEVER, MEASURED -- AND THE
 CHANNEL CARRIES. THE GATE'S OWN QUESTION IS ANSWERED FOR THE ARGUMENT ROAD.
 
 PART 1 -- THE PROBE. One run, addrOf called FROM C++ at the bind site so the
@@ -489,3 +489,46 @@ STILL OWED ON THIS CHANNEL, and none of it is done:
 STATE: the channel is FLIP-GATED and gNoUnwrap is 0, so it is inert in every
 ordinary build -- fleet BYTE-IDENTICAL to C24 at 171 green / 3 red, all
 instruments green, canary 326.
+
+⚠⚠ ADDED 2026-09-01 (SEQ 120): THE UNION TRIPWIRE IS BUILT, AND THE setGroup
+RULING IS BLOCKED ON A MEASUREMENT.
+
+TRIPWIRE. The channel writes gGroup only when that union reads 0x0 and refuses BY
+NAME otherwise -- `ARGCHANNEL REFUSED on <action>`. Certified under the flip: the
+channel still carries and ZERO refusals fired.
+⚠ IT HAS NO NEGATIVE CONTROL. The refusal has never been made to fire, so "it stays
+silent" is not yet evidence that it CAN speak. Named, not implied, per H7.
+
+THE setGroup RULING, ASKED AND MEASURED. Tony asked whether C25 wrote gGroup
+directly or through setGroup, on the reading that direct would leave the union
+undiscriminated with isGROUP unset.
+
+    IT WAS DIRECT -- AND IT SET flags.data = 6 ALONGSIDE. The premise does not
+    hold: isGROUP IS set and nothing prior stays readable as data.
+
+The ruling was built anyway and measured. setGroup stores the FIELD only when the
+target body is isLocal or isLabel, or the source is byRef, or the source has NO
+PARENT. Otherwise it stores `new GroupItem(g)` -- A COPY. An argument attribute is
+neither local nor label and a define-block field has a parent, so:
+
+    the SOURCE handed to setGroup        field #3  body #2
+    what gGroup HOLDS after setGroup     field #4  body #2
+    same field?                          NO -- A COPY
+    addrOf(*argument)                    field #4  body #2   <- the copy
+
+⚠ SO setGroup COSTS THE CHANNEL ITS WHOLE POINT: *argument reaches a COPY of the
+source instead of the source. Direct reaches the FIELD.
+⚠ AND THE BODY COLUMN CANNOT TELL THEM APART -- the copy SHARES the body (C18), so
+both spellings read body #2. Only the field column separates them, and only with a
+camera at the bind. That is why the question was worth asking and why the answer
+needed a build rather than a read.
+
+AND THE OTHER HALF: setGroup does NOT inspect the prior union. It overwrites
+gGroup, sets data=6 and isInitialized, and zeroes only when handed null. So it is
+NOT a union guard, and the 0x4 is not the method's own problem -- the tripwire
+remains the only thing between the channel and a clobbered union.
+
+HELD AT DIRECT pending Tony's re-ruling, which is the FIRST thing tomorrow, ahead
+of jitBindArgRT, because it decides what jitBindArgRT is supposed to lift. A third
+option is named and unpriced: setGroup takes the field itself when the source is
+byRef. Not measured, not recommended.

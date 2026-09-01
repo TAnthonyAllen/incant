@@ -563,7 +563,7 @@ done
 #  ⚠ L2/L3 ARE A PAIR AND THE PAIR IS THE POINT: `<-` then star FOLLOWS (CHANGED),
 #  `=` then star REFUSES (0). "Name it" means REBIND it. L3 exists so the next
 #  reader who writes the natural `=` spelling does not conclude the law is broken.
-#  ⚠⚠ LAW 2 IS CERTIFIED AS OF 2026-09-02 BY ROW L4, and this comment replaces
+#  ⚠⚠ LAW 2 IS CERTIFIED AS OF 2026-09-01 BY ROW L4, and this comment replaces
 #  the one saying it was not. The blocker was identity -- addrOf -- which landed
 #  in the SAME stroke (SEQ 113 item 2); nobody walked through the open gate for a
 #  day. L4 asks it by ADDRESS: the subscript result is a DIFFERENT BODY from the
@@ -603,7 +603,7 @@ done
 #  ⚠ L5's NEGATIVE CONTROL, run the same way and recorded here with L4's: L5b was
 #  aimed at a NAMED field instead of the element, and it went RED (isCopy 0 -> 1)
 #  while L5a stayed green, which is exactly the split the two rows claim.
-#  ⚠⚠ NEGATIVE CONTROL RECORDED, 2026-09-02 (rule H7 -- a rung certifies only what
+#  ⚠⚠ NEGATIVE CONTROL RECORDED, 2026-09-01 (rule H7 -- a rung certifies only what
 #  fails when the mechanism is removed). The subscript was replaced by a direct
 #  capture of the source, `ptElem <- ptSrc`, and the fleet re-run:
 #
@@ -666,7 +666,7 @@ fi
 #  listLengtH of 0 is also what an operator that did nothing at all produces, so
 #  the zero alone cannot tell a refusal from a no-op. This names WHICH operand was
 #  refused, and it is the row that goes red if F-43 ever regresses -- that guard
-#  printed a null field's tag and CRASHED at exit 139 until 2026-09-02, and it
+#  printed a null field's tag and CRASHED at exit 139 until 2026-09-01, and it
 #  survived because nothing in the fleet could reach it (F1 mints a local rather
 #  than a null, bear-trap #39).
 if grep -qF "ERROR Operator +* failed on ptBagN and a refused operand" "$T/ptr"; then
@@ -747,7 +747,7 @@ for _arm in "ADDROF faSrc field=#1 body=#2" \
 done
 
 #  ============================================================================
-#  ⚠⚠ roundTripT -- JOINS THE FLEET 2026-09-02 (SEQ 116), AND IT HAD NEVER BEEN
+#  ⚠⚠ roundTripT -- JOINS THE FLEET 2026-09-01 (SEQ 116), AND IT HAD NEVER BEEN
 #  IN IT. Born 2026-08-31, it carries the founding measurement of the mechanism
 #  table -- which twinning road SHARES a body and which COPIES one -- and nothing
 #  pinned it, so it could have gone silently wrong at any point since.
@@ -1138,7 +1138,7 @@ diffcheck "manyScratch.target (kant emitMany: emission + both refusals)" \
 #  Had this line been pinned at the natural-looking ZERO, a completely dead audit
 #  would have read GREEN. Pinning open populations at their real non-zero values
 #  is what made a dead instrument visible.
-#  ⚠⚠ RE-PINNED 10/4 ON 2026-09-02, AND THE ROW NOW COUNTS SOMETHING ELSE THAN
+#  ⚠⚠ RE-PINNED 10/4 ON 2026-09-01, AND THE ROW NOW COUNTS SOMETHING ELSE THAN
 #  ITS NAME SUGGESTS. Tony's ruling on Clay's recommendation. The audit counts
 #  `isRule && !rStuff`, and under Ruling D that conjunction IS NOT A DEFECT --
 #  it is the lawful signature of a BARE MASTER. The SEQ 100 C3 table then proved
@@ -1164,7 +1164,7 @@ AUDITLINE="AUDIT all registries: 10 missing rules, 0 missing terms, 4 loose, 0 u
 if grep -qF "$AUDITLINE" "$T/one"; then
     echo "  ok    bare-master population AT PIN (isRule without rStuff = 10, loose = 4)"; green=$((green+1))
 else
-    echo "  FAIL  bare-master population MOVED (row pinned 2026-09-02, NOT a defect count):"
+    echo "  FAIL  bare-master population MOVED (row pinned 2026-09-01, NOT a defect count):"
     grep "^AUDIT all registries" "$T/one" | sed 's/^/          actual:   /' || echo "          (no AUDIT summary at all -- is audit() still called from oneTest?)"
     echo "          expected: $AUDITLINE"
     fail=1
@@ -1517,7 +1517,7 @@ diffcheck "jsonTest baseline" genLadder/jsonTest.base "$T/jsn"
 #  the odometer is RED by design today (45 of 63) and a red odometer is the
 #  correct state.
 #
-#  ⚠ RE-PINNED 2026-09-02, AND THE SENTENCE IS: `tokenize` RETIRED BY RULING.
+#  ⚠ RE-PINNED 2026-09-01, AND THE SENTENCE IS: `tokenize` RETIRED BY RULING.
 #  It was one of the NINETEEN genParse-green rules, so green went 19 -> 18 and
 #  the population 64 -> 63 in the same stroke. The ratchet did exactly what it
 #  is for -- it called STOP-THE-LINE and named `tokenize` as RED NOW, WAS GREEN

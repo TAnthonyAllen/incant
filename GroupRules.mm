@@ -9231,7 +9231,7 @@ char 	*printText = buffer->string();
     claimed by this marker first.
 
     ⚠ THE UNWRAP STRIP IS RULED AND STAGED, NOT LANDED. It was ruled to RIDE
-    WITH the gNoUnwrap flip on 2026-09-02; the flip reverted on the acceptance
+    WITH the gNoUnwrap flip on 2026-09-01; the flip reverted on the acceptance
     failure, so the strip reverted with it rather than shipping half a stroke.
     It re-rides with the next flip attempt, unchanged. The argument for it, from
     the marker's side, stands: a
@@ -13174,11 +13174,32 @@ GroupItem 	*ruleArg = 0;
 	if (( ruleArg = field->get("argument") )) {
 	result = argument ? argument : field;
 	if (gNoUnwrap)  {
+	/*  THE UNION TRIPWIRE (Tony, SEQ 120). gGroup shares storage with gCount,
+	gNumber, gBuffer and six others, so this write CLOBBERS whatever else
+	that union holds. It is safe only because an action's argument attribute
+	body holds nothing -- measured, gGroup reads 0x0 there. That is a
+	CONSTRAINT WITH AN ALARM, not a fix: write only when the union is empty,
+	and refuse BY NAME otherwise. The refusal never fires in a correct build;
+	the day it does, it names the day the assumption broke.   GroupActions.runAction.unionTripwire  */
+	if ( ruleArg->groupBody->gGroup ) {
+	::fprintf(stderr,"ARGCHANNEL REFUSED on %s -- the argument body's union is not empty; gGroup would clobber it\n",
+	field->groupBody->tag);
+	::fflush(stderr);
+	ruleArg->groupBody = result->groupBody;
+	}
+	else {
+	/*  ⚠ DIRECT, AND THE isGROUP FLAG IS SET WITH IT -- the union is NOT left
+	undiscriminated. setGroup was RULED (Tony, SEQ 120) and MEASURED to cost
+	the channel its whole point: it stores `new GroupItem(g)` for a parented
+	source, so *argument reaches a COPY, not the field. The ruling's premise
+	was that direct leaves isGROUP unset; it does not. HELD AT DIRECT pending
+	Tony's re-ruling; the fork is in the seal.   GroupActions.runAction.argChannel  */
 	chanPrevGroup = ruleArg->groupBody->gGroup;
 	chanPrevData  = ruleArg->groupBody->flags.data;
 	chanBody      = ruleArg->groupBody;
 	chanBody->gGroup     = result;
 	chanBody->flags.data = 6;
+	}
 	}
 	else            ruleArg->setGroup(result);
 	}
@@ -14440,7 +14461,7 @@ int 		n = 0;
 }
 
 /***************************************************************************
-	tokenize -- RETIRED 2026-09-02, and this is its obituary rather than a gap.
+	tokenize -- RETIRED 2026-09-01, and this is its obituary rather than a gap.
 
 	It glommed a parent label's components into one token. Its successor is the
 	`tokened` BIT: GroupMain builds NamE and NumbeR with `tokened = true` and no

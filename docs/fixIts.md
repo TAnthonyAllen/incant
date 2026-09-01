@@ -63,7 +63,7 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
-### ✅ F-43 (the guard that crashes) — CLOSED 2026-09-02, fixed and certified
+### ✅ F-43 (the guard that crashes) — CLOSED 2026-09-01, fixed and certified
 **Fix:** `Instruct.rtn` `opAddPointer` — the refusal now names `target.tag` explicitly instead of
 a bare `tag`, which is what every other F-41 guard resolves to (`opMultiply` generates
 `target->groupBody->tag`). One identifier.
@@ -101,13 +101,13 @@ housekeeping already records one "off" — *"the iCloud `Documents` twin was scr
 verified 458 MB copy to `~/iCloudDocs-retired-2026-09-01`"* — and that one **was** measured.
 **What:** there is a SECOND, different "off", and it is not in any seal. **System Settings →
 name → iCloud → iCloud Drive → "Desktop & Documents Folders" was STILL ON at ~15:xx on
-2026-09-01**, after the twin was scrubbed; **Tony switched it off himself on 2026-09-02**, on
+2026-09-01**, after the twin was scrubbed; **Tony switched it off himself on 2026-09-01**, on
 Clay's instruction, and Finder then found `Documents`. So the scrub did not turn the sync off —
 it emptied what the sync was serving, and the sync stayed on for another day.
 ⚠ **THE POINT OF THE ROW IS THE ASYMMETRY, not the setting.** Written carelessly, the record says
 "off" twice and a reader takes them for one event with one measurement behind it. The scrub was
 measured; **the setting's prior ON state is Tony's report and was never measured** — by the time
-anyone looked it was already off. What Clod measured is only the AFTERMATH, on 2026-09-02:
+anyone looked it was already off. What Clod measured is only the AFTERMATH, on 2026-09-01:
 `~/Documents` a real local directory, 15 items / 1.6 GB, `Wiki` and `PDFs` and `Codex` present;
 `~/Desktop` empty but for `.localized`; iCloud Drive's leftover `Desktop/` holding 8 KB of
 `.DS_Store` and `.localized` and no `Documents/` at all; `~/iCloudDocs-retired-2026-09-01` intact.
@@ -338,12 +338,12 @@ control that must NOT move** — a board with no non-rules, where "loose" is 0 e
 that merely changes both numbers together cannot pass.
 **Owner:** unassigned. **Size:** one fixture, no build. **Minion-ready.**
 
-### F-37 — ✅ CLOSED 2026-09-02 — RETIRED IN FULL on the zero branch. `tokened`/`captureSpan` is the live road.
+### F-37 — ✅ CLOSED 2026-09-01 — RETIRED IN FULL on the zero branch. `tokened`/`captureSpan` is the live road.
 **Where:** `GroupActions.rtn:1772` `extern GroupItem tokenize(GroupItem label)` — the glom that
 flattens a parent label's components into a token. Bound at `GroupMain.twk:172-173`
 (`strap = new("tokenize"); method = tokenize;`), mirrored inertly at `incant/grammar:34`.
 
-**THE MEASUREMENT (2026-09-02, ephemeral counter, reverted and rebuilt bare before certification):**
+**THE MEASUREMENT (2026-09-01, ephemeral counter, reverted and rebuilt bare before certification):**
 
 | run | probe installed | `tokenize` firings |
 |---|---|---|

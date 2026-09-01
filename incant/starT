@@ -21,7 +21,7 @@ search reset stack Grokking UnitTests Utilities list;
     LAW above is Tony's and stands; the machine does not implement it yet.
 
     ⚠⚠ SO THE ROW THAT IS THE WHOLE ARGUMENT IS S2b, AND ITS DESCRIPTION HERE WAS
-    WRONG UNTIL 2026-09-02. S2b is `**x` on a TWO-DEEP pointer and it WANTS THE
+    WRONG UNTIL 2026-09-01. S2b is `**x` on a TWO-DEEP pointer and it WANTS THE
     LEAF -- that is what composition means. Under the flip it gets the MIDDLE. So
     when this fixture re-pins at the flip, S2b must go RED and stay red until
     composition works. The name had been relocated to S2b at C19 and the sentence

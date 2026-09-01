@@ -1,3 +1,181 @@
+# ⚠⚠⚠ SEALED 2026-09-01f — THE CHANNEL CARRIES. `*argument` IS THE SOURCE FIELD BY
+# ADDRESS, AND THE FOUR-ASKING MYSTERY IS CLOSED BY ADDRESS TOO. THE ASKING IS
+# TOMORROW'S FIRST STROKE.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-01 17:56 and
+#   `git log -1 --date=iso` stamps 2026-09-01 17:53. They agree. THIRD seal of the
+#   day — 2f0e0dc covers C1–C17, 1f0a82b covers C18–C19, this one covers C20–C26.
+#   ⚠⚠ AND THE CHECK CAUGHT ITS FIRST REAL ERROR, WHICH IS THE POINT OF RUNNING IT:
+#   this session stamped **2026-09-02** on 35 lines across 8 files before the mark
+#   was typed. Corrected to 09-01 in every line this session added.
+#   ⚠ AND A FINDING FELL OUT OF THE CORRECTION, LEFT UNTOUCHED BECAUSE IT IS NOT
+#   CLOD'S TO REWRITE: **the tree already carried `2026-09-02` prose in nine files,
+#   including `CLAUDE.md` (committed 2026-09-01) and `docs/groupBodySplit.md`
+#   (committed 2026-08-31).** So the registers disagree with the clock and with each
+#   other about what day it is. The seals use the clock; the prose does not always.
+#   **Tony's to rule.** Recorded here rather than fixed.
+#
+#   ⚠ VOCABULARY: **field** and **copy of a field**. "Frame" is retired (SEQ 114) —
+#   where an older ruling says frame, read the argument channel. The peas-pass and
+#   the loaded-gun pair are retired with it.
+#
+#   ## THE ONE-LINE STATE: **The channel carries. `*argument` reaches the SOURCE
+#   FIELD — same pointer, not merely the same body — and the four-asking mystery is
+#   closed by address: the bind repointed the ORIGINAL's body while every named read
+#   went through a COPY still holding the pre-bind body.** Flip-gated at 0 and inert;
+#   fleet **171 green / 1 parked / 3 red (the pinned set), byte-identical** to C24;
+#   canary **326**; frontier **exit 0, 10 PASS**; `jitBindArgRT` **deliberately not
+#   yet touched**. Both repos 0 dirty / 0 unpushed.
+#
+#   ## ⚠⚠ THE FIVE THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   **1. THE CHANNEL CARRIES, BY ADDRESS.** In `runAction` under `gNoUnwrap`: set the
+#   argument attribute BODY's `gGroup` to the source field and mark it isGROUP — the
+#   `+*` link — saving the previous pair and restoring after `processAction`. The
+#   parse road is untouched.
+#   ```
+#   the callee's `argument`     field #6  body #4  isCopy=1   as pre-registered
+#   addrOf(*argument) DIRECT    field #5  body #2  tag s4Src  THE SOURCE FIELD
+#   ```
+#   **Field #5 is the same field the bind saw as its source, same raw pointer, same
+#   run.** Not merely the same body — the same FIELD.
+#
+#   **2. THE FOUR-ASKING MYSTERY IS CLOSED, AND THE ANSWER IS AN ADDRESS.** The bind's
+#   target and the callee's read are **different fields over one body**: target field
+#   #3 / body #4, callee field #6 / body #4. The bind repoints the ORIGINAL's body
+#   pointer to #2; the copy still points at #4. That is why four askings failed, and
+#   the comment above the bind had been saying it, unmeasured, the whole time.
+#
+#   **3. ⚠⚠ THE SPELLING NEARLY COST A WORKING BUILD ITS VERDICT, and Clod's words
+#   are kept: THE VALUE READ SAID SOMETHING ARRIVED, THE DIRECT READ SAID WHAT, AND
+#   ONLY IDENTITY DISCRIMINATES.** `s4Star <- *argument; addrOf(s4Star)` reads body #8
+#   — a FRESH node — and would have been reported as the channel failing. It is
+#   bear-trap #35's ruled copy-on-rebind. ⚠ And the value witness alone could never
+#   have saved it: **bare `argument` also prints ORIG**, because print follows (law 1).
+#
+#   **4. STEP 4 IS DEAD, AND SO IS WIDENING IT.** The sweep at `ruleActions.rtn:459`
+#   was built twice — unscoped, then scoped to the attributes of CODED definitions —
+#   and **the second one FIRED** (`coded=1` on `s4Callee`, `POINTER installed for
+#   argument` ×17) while the callee's read **did not move a byte**. So the sweep is
+#   not the road: changing what the definition HOLDS does not change what the call
+#   HANDS OVER. Members widening dies for the same reason. Both patches are in
+#   `minionWork/`.
+#   ⚠ **AND THE HEAD-VS-COUNT LESSON, IN CLOD'S WORDS: the trace's first twenty lines
+#   all read `coded=0`, because every early definition in the corpus is a command with
+#   no code body. A `head` said the gate never fired. A COUNT said 43.** Reported off
+#   the head, step 4 would have gone into the record as never engaging — a different
+#   and false finding, and one that would have sent the next stroke after a phantom.
+#
+#   **5. LAW 2 IS CERTIFIED BY IDENTITY (C20), AND ITS GATE HAD BEEN OPEN FOR A DAY.**
+#   `pointerT` row L4: the subscript result is a DIFFERENT BODY from the source (#7 vs
+#   #2) and the same capture STARRED is the source (#2). Law 2 is the difference, law
+#   4 is the match, each the other's control. The blocker was identity — `addrOf` —
+#   which landed in the SAME stroke that wrote the note saying law 2 was blocked.
+#
+#   ## ⚠⚠⚠ ONE RULING IS BLOCKED ON A MEASUREMENT, AND IT IS THE FIRST THING TOMORROW
+#
+#   **TONY ASKED, BEFORE THE MARK: did C25 write `gGroup` DIRECTLY or through `setGroup`?**
+#   **ANSWER: DIRECTLY — AND WITH `flags.data = 6` SET ALONGSIDE IT.** So the premise the
+#   ruling rested on does not hold: the union is **not** left undiscriminated, isGROUP **is**
+#   set, and nothing of the prior contents stays readable as data. The direct write set both
+#   halves, copied from `opAddPointer`'s own generated form.
+#
+#   **THE RULING WAS THEN BUILT ANYWAY AND MEASURED, AND IT COSTS THE CHANNEL ITS WHOLE POINT.**
+#   `setGroup` (`GroupItem.mm`) stores the field ITSELF only when the target body is `isLocal`
+#   or `isLabel`, or the source is `byRef`, or **the source has no parent**. Otherwise it stores
+#   **`new GroupItem(g)` — a copy.** An action's argument attribute is neither local nor label,
+#   and a define-block field HAS a parent, so the copy branch is the one taken:
+#   ```
+#   CHANCAM  the SOURCE handed to setGroup            field #3  body #2
+#   CHANCAM  what gGroup ACTUALLY HOLDS after it      field #4  body #2
+#   CHANCAM  same field?  NO -- A COPY   (source parent=0x1049e7300, isLocal=0, isLabel=0)
+#   then     addrOf(*argument)                        field #4  body #2   <- THE COPY
+#   ```
+#   **So through `setGroup`, `*argument` reaches a COPY OF THE SOURCE, not the source** — which
+#   is precisely the disease this campaign exists to cure. Direct reaches the FIELD.
+#   ⚠ **AND THE BODY COLUMN CANNOT TELL THEM APART**, which is why this needed asking: the copy
+#   SHARES the source's body (C18), so both spellings read `body #2`. Only the field column
+#   separates them, and only with the camera at the bind.
+#
+#   **AND THE OTHER HALF OF TONY'S QUESTION — what does `setGroup` do when the body already
+#   holds data? NOTHING. It never inspects the prior union**; it overwrites `gGroup`, sets
+#   `data = 6` and `isInitialized`, and only zeroes when handed null. **So `setGroup` is not a
+#   union guard, and the `0x4` is not the method's own problem — the tripwire is still the only
+#   thing standing between the channel and a clobbered union.**
+#
+#   ⚠ **HELD AT DIRECT, NOT SHIPPED THROUGH setGroup, AND THE HOLD IS THE REPORT.** The ruling
+#   said change it tonight so `jitBindArgRT` lifts the right lines tomorrow — but the lines it
+#   would lift are lines that lose the field. **Tony's re-ruling is the first thing tomorrow,
+#   ahead of `jitBindArgRT`**, because it decides WHAT jitBindArgRT lifts. The code carries the
+#   fork in a comment at the site.
+#   ⚠ **A third option nobody has priced: `setGroup` takes the field itself when the source is
+#   `byRef`.** Not measured, not recommended, and named only so the re-ruling has the full menu.
+#
+#   ## ⚠ TWO RULINGS TAKEN THIS SESSION (Tony, SEQ 120)
+#
+#   **THE UNION — A CONSTRAINT WITH A TRIPWIRE, NOT A FIX. BUILT.** `gGroup` shares
+#   storage with `gCount`, `gNumber`, `gBuffer` and six others (`GroupBody.h:119-131`),
+#   so the channel's write CLOBBERS whatever else that union holds. It is safe today
+#   only because an action's argument attribute body holds nothing. So the channel
+#   **writes `gGroup` only when that union reads 0x0, and refuses BY NAME otherwise**
+#   (`ARGCHANNEL REFUSED on <action>`). Certified under the flip: the channel still
+#   carries and **zero refusals fired**. ⚠ **The refusal has NO NEGATIVE CONTROL — it
+#   has never been made to fire, so "it stays silent" is not yet evidence that it CAN
+#   speak.** Named, not implied.
+#   ⚠ The `0x4` on the source's body stays an **undiagnosed identification**: `s4Src`
+#   holds "ORIG", four characters, so it is probably `gCount` read as a pointer. The
+#   union is structural; the 4 is not diagnosed.
+#
+#   **THE ORDER FOR TOMORROW, AND NOTHING SHIPS BETWEEN.**
+#   0. **THE setGroup RE-RULING FIRST** — see the blocked ruling above. It decides what
+#      `jitBindArgRT` is supposed to lift, so it cannot come after it.
+#   1. **`jitBindArgRT`** (`GroupActions.rtn:382`) — JIT-first, and Clod's own
+#      finding is that **the two roads now differ**, which they were built never to do:
+#      it lifts `runAction`'s binding lines VERBATIM and its comment says so.
+#   2. `nestT` f(g(x)) — the inner bind must not clobber the outer setup.
+#   3. The A→B→A recursion fixture, through the bracket.
+#   4. **FLEET ROWS**, so the channel is certified by something that runs every day
+#      and not by one probe in `minionWork/`.
+#   5. **The asking: `parser(Start)` receives Start.**
+#   ⚠ **A ONE-ROAD CHANNEL IS EXACTLY THE INTERMEDIATE STATE THE TWO-HALF LAW FORBIDS.**
+#
+#   ## WHAT ELSE LANDED — C20 THROUGH C26
+#
+#   ```
+#   C20  law 2 certified by identity; L3's attribution measured; pointerT's header
+#        corrected -- it still carried the falsified account
+#   C21  the isCopy column gets rows (L5); faceT's options row held on a SPELLING,
+#        not on an instrument -- a falsified reason is not a cleared gate
+#   C22  the results table; roundTripT JOINS THE FLEET and its ARM 0 control, failing
+#        since birth, is pinned at MISMATCH; `<-` pinned as carrier-stable
+#   C23  step 4 built unscoped, measured, reverted -- stop clause; F-43 banked
+#   C24  F-43 fixed and certified by DRIVING the arm; step 4 re-aimed, FIRED, and the
+#        callee's read did not move
+#   C25  the bind is the lever -- probe confirmed both clauses; the channel carries
+#   C26  the union tripwire; the date correction; the seal
+#   ```
+#
+#   **F-43 (the guard that crashes) — CLOSED.** `opAddPointer`'s null-refusal arm, added
+#   by F-41 so a refused operand would be named instead of crashing, **contained the
+#   crash**: bare `tag` resolved to the still-null `ptr`. Exit 139 → exit 0, certified by
+#   driving it. ⚠ **It survived because nothing could reach it** — `pointerT`'s F1 uses an
+#   undeclared name, which bear-trap #39 mints as a local, so it never yielded a null.
+#   Row **F2** exists to be the refusal test F1 never was.
+#
+#   ## ⚠ HOUSEKEEPING A FRESH SESSION SHOULD KNOW
+#
+#   - **`gNoUnwrap` is 0 and the shipped binary is bare.** Every retok this session was
+#     BARE; no directives build was ever measured. The flip was raised and lowered four
+#     times, with a rebuild each way, and only probes were run on a flipped build.
+#   - **The fixit queue is 1** — `carrierNode`, since 2026-08-31 — and it is still the
+#     gate. It does NOT discharge on the channel carrying: discharge is `parser(Start)`
+#     receiving Start, at the asking, after step 5. Nothing earlier (SEQ 114).
+#   - **Off-repo, 2026-09-01:** iCloud's "Desktop & Documents Folders" was still ON after
+#     the 08-31 twin scrub; Tony switched it off and Finder found `Documents` again. The
+#     scrub was MEASURED, the setting's prior ON state is REPORTED and was never measured,
+#     the aftermath was MEASURED (`~/Documents` real, 15 items, 1.6 GB; iCloud `Desktop/`
+#     8 KB and empty; the 458 MB retired copy intact). See `docs/fixIts.md` F-42.
+#
 # ⚠⚠⚠ SEALED 2026-09-01e — REBOOT SEAL. C18 AND C19, AND THE DAY'S BEST RESULT IS A
 # SUSPICION THAT DIED: THE STAR HAS NO FIXPOINT AND NO COMPOSITION EITHER — IT HAS ONE STAR.
 #

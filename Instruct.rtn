@@ -216,7 +216,7 @@ String      printText   = string();
     claimed by this marker first.
 
     ⚠ THE UNWRAP STRIP IS RULED AND STAGED, NOT LANDED. It was ruled to RIDE
-    WITH the gNoUnwrap flip on 2026-09-02; the flip reverted on the acceptance
+    WITH the gNoUnwrap flip on 2026-09-01; the flip reverted on the acceptance
     failure, so the strip reverted with it rather than shipping half a stroke.
     It re-rides with the next flip attempt, unchanged. The argument for it, from
     the marker's side, stands: a

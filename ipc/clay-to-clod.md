@@ -17,22 +17,30 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      119
+SEQ:      120
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
-WRITTEN:  2026-09-02  -  Clay (SEQ 119, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+WRITTEN:  2026-09-01  -  Clay (SEQ 120, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 120 IS LIVE AND IS AT THE FOOT -- THE SESSION'S CLOSING DISPATCH.
+          Two rulings: the UNION TRIPWIRE (write gGroup only when the union reads
+          0x0, refuse BY NAME otherwise -- a constraint with an alarm, not a fix),
+          and TOMORROW'S ORDER: jitBindArgRT FIRST, then nestT and A->B->A through
+          the bracket, then FLEET ROWS, then the asking. NOTHING SHIPS BETWEEN --
+          a one-road channel is the intermediate state the two-half law forbids.
+          PRIOR HEADER PRESERVED BELOW.
+WRITTEN:  2026-09-01  -  Clay (SEQ 119, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 119 IS LIVE AND IS AT THE FOOT -- STEP 4 IS DEAD (the sweep is not
           the road; members widening dies with it). THE BIND IS THE LEVER. One
           probe first, switch on, addrOf throughout. STOP IF THE BODIES DIFFER.
           Then the channel, Option A, if and only if the probe holds.
           Revert boundary C24.
           PRIOR HEADER PRESERVED BELOW.
-WRITTEN:  2026-09-02  -  Clay (SEQ 118, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+WRITTEN:  2026-09-01  -  Clay (SEQ 118, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 118 IS LIVE AND IS AT THE FOOT -- STEP 4 SCOPED to ATTRIBUTES OF
           DEFINITIONS THAT CARRY CODE; members stay copies; code-less definitions
           sweep as today. F-43 fixed in passing with one pop.sh row. Revert
           boundary C23. Pre-registration and stop clause UNCHANGED.
           PRIOR HEADER PRESERVED BELOW.
-WRITTEN:  2026-09-02  -  Clay (SEQ 117, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+WRITTEN:  2026-09-01  -  Clay (SEQ 117, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 117 IS LIVE AND IS AT THE FOOT -- STEP 4 IS A BUILD. Revert
           boundary C22 (938b4e4). THREE PRE-REGISTERED READS and a STOP CLAUSE:
           switch 0 -> fleet byte-identical; switch on -> the callee's argument is
@@ -40,21 +48,21 @@ WRITTEN:  2026-09-02  -  Clay (SEQ 117, dictated via Tony; transcribed by Clod, 
           Any of the three reading otherwise: STOP AND REPORT, it is the mechanism
           disagreeing and not a build error.
           PRIOR HEADER PRESERVED BELOW.
-WRITTEN:  2026-09-02  -  Clay (SEQ 116, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+WRITTEN:  2026-09-01  -  Clay (SEQ 116, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 116 IS LIVE AND IS AT THE FOOT -- RESULTS, NOT DESCRIPTIONS. One
           table owed before step 4: S3a's GRADE, faceT's four rows AS MEASURED
           against the pre-registration, and roundTripT's CURRENT reading now that
           the split is dead. Plus a pinned `<-` carrier-stability row and a note
           in carrierNode. Then step 4.
           PRIOR HEADER PRESERVED BELOW.
-WRITTEN:  2026-09-02  -  Clay (SEQ 115, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+WRITTEN:  2026-09-01  -  Clay (SEQ 115, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 115 IS LIVE AND IS AT THE FOOT -- THE isCopy COLUMN GETS A ROW, and
           S3a + the pair fixture are called owed before step 4. MEASURED AT PICKUP:
           both landed at C19. What is genuinely new is the isCopy row -- AND the
           finding behind it RE-OPENS faceT's options row, which had been ruled
           unbuildable on the grounds that every subject read isCopy=1.
           PRIOR HEADER PRESERVED BELOW.
-WRITTEN:  2026-09-02  -  Clay (SEQ 114, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+WRITTEN:  2026-09-01  -  Clay (SEQ 114, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 114 IS LIVE AND IS AT THE FOOT -- THE PEAS-PASS RETIRES, carrierNode
           DISCHARGES ONLY AT THE ASKING (parser(Start) receiving Start, after step 5),
           and "frame" LEAVES THE VOCABULARY: write in FIELD and COPY.
@@ -113,11 +121,11 @@ WRITTEN:  2026-09-01  -  Clay (SEQ 103, dictated via Tony; transcribed by Clod, 
           "Fearless: C-nn"; Clod assigns SEQ 103, and C is this session's stroke
           letter (C1, C2, ... -- A/B/G/J/M/O/P/R are taken, C is free).
           PRIOR HEADER PRESERVED BELOW.
-WRITTEN:  2026-09-02  -  Clay (SEQ 102, dictated via Tony; transcribed by Clod, WT-9)
+WRITTEN:  2026-09-01  -  Clay (SEQ 102, dictated via Tony; transcribed by Clod, WT-9)
           ⚠ SEQ 102 IS LIVE AND IS AT THE FOOT -- CARRIERNODE: CONFIRM THE ORDER,
           THEN BUILD THE FRAME BIND. The campaign's endgame.
           PRIOR HEADER PRESERVED BELOW.
-WRITTEN:  2026-09-02  -  Clay (SEQ 101, dictated via Tony; transcribed by Clod, WT-9)
+WRITTEN:  2026-09-01  -  Clay (SEQ 101, dictated via Tony; transcribed by Clod, WT-9)
           ⚠ SEQ 101 IS LIVE AND IS AT THE FOOT -- THE FLIP, THE THIRD ASKING, ON
           CLEAN GAUGES FOR THE FIRST TIME. One commit, one revert floor. The
           failure branch is PRE-COMMITTED so it is not improvised at midnight.
@@ -4337,7 +4345,7 @@ the `isRule` census predicted ONE site and found EIGHT.
 Re-arm the flip only when ALL of: every relocated flag has passed C4 · the audit number comes
 clean · `broadcastT` ARM 3 reads non-void.
 
-⚠ **AMENDED 2026-09-02 BY RULING (Tony, on Clay's recommendation): THE AUDIT CLAUSE READS "AUDIT AT
+⚠ **AMENDED 2026-09-01 BY RULING (Tony, on Clay's recommendation): THE AUDIT CLAUSE READS "AUDIT AT
 PIN", NEVER "AUDIT CLEAN".** The audit counts `isRule && !rStuff`, which Ruling D makes the lawful
 signature of a bare master, and SEQ 100's C3 table showed no reader needs rStuff off those ten. So
 the number cannot reach zero without breaking doctrine and a gate demanding zero never opens. The
@@ -4543,11 +4551,11 @@ Tony's window: grep -H '^STATUS:' ipc/*.md
 
 
 ===================================================================
-SEQ 101  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod, WT-9).
+SEQ 101  --  2026-09-01, Clay (dictated via Tony; transcribed by Clod, WT-9).
              THE FLIP -- THE THIRD ASKING, ON CLEAN GAUGES FOR THE FIRST TIME.
 ===================================================================
 
-STATUS: working -- picked up 2026-09-02.
+STATUS: working -- picked up 2026-09-01.
 
 STEP 0 -- CAPTURES BEFORE ANYTHING. Fleet, both baselines, derefAllT, the #35
 six-shape fixture, all banked PRE-FLIP. ONE COMMIT for the flip itself so the
@@ -4594,11 +4602,11 @@ FLIP'S STROKE.
 
 
 ===================================================================
-SEQ 102  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod, WT-9).
+SEQ 102  --  2026-09-01, Clay (dictated via Tony; transcribed by Clod, WT-9).
              CARRIERNODE: CONFIRM THE ORDER, THEN BUILD THE FRAME BIND.
 ===================================================================
 
-STATUS: working -- picked up 2026-09-02.
+STATUS: working -- picked up 2026-09-01.
 
 PART 1 -- THE ORDERING RUN, PREDICTION PRE-REGISTERED. carrierNode's OPEN
 measurement with the prediction now attached: order every argument-slot touch
@@ -4757,7 +4765,7 @@ chartered. Comment sweep PARKED.
 -------------------------------------------------------------------
 HOUSEKEEPING
 -------------------------------------------------------------------
-  - The top seal is dated 2026-09-02; the calendar reads 09-01. Check the
+  - The top seal is dated 2026-09-01; the calendar reads 09-01. Check the
     machine clock; correct the seal mark if it is the clock again.
   - Support-repo pending-commit check at every kitchen pass, per the 08-25
     rule.
@@ -5090,13 +5098,13 @@ Step 5 and the asking: unchanged. K2x row 1 / K6c / nestT pre-registered. Then t
 
 
 ===================================================================
-SEQ 114  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+SEQ 114  --  2026-09-01, Clay (dictated via Tony; transcribed by Clod,
              WT-9/WT-15).  THE PEAS-PASS RETIRES. carrierNode DISCHARGES
              AT THE ASKING AND NOWHERE EARLIER. "FRAME" LEAVES THE
              VOCABULARY.
 ===================================================================
 
-STATUS: working -- picked up 2026-09-02, transcribed AT PICKUP before any
+STATUS: working -- picked up 2026-09-01, transcribed AT PICKUP before any
         work started, per WT-15.
 
 ------------------------- BEGIN VERBATIM -------------------------
@@ -5137,12 +5145,12 @@ Hand it over and let him start on pointerT L and X.
 
 
 ===================================================================
-SEQ 115  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+SEQ 115  --  2026-09-01, Clay (dictated via Tony; transcribed by Clod,
              WT-9/WT-15).  THE isCopy COLUMN IS THE FINDING. S3a AND THE
              PAIR FIXTURE OWED BEFORE STEP 4.
 ===================================================================
 
-STATUS: working -- picked up 2026-09-02, transcribed AT PICKUP before any
+STATUS: working -- picked up 2026-09-01, transcribed AT PICKUP before any
         work started, per WT-15.
 
 ------------------------- BEGIN VERBATIM -------------------------
@@ -5191,11 +5199,11 @@ F-42: accepted as written. The unmeasured "off" is the seal's housekeeping line.
 
 
 ===================================================================
-SEQ 116  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+SEQ 116  --  2026-09-01, Clay (dictated via Tony; transcribed by Clod,
              WT-9/WT-15).  RESULTS, NOT DESCRIPTIONS. THEN STEP 4.
 ===================================================================
 
-STATUS: working -- picked up 2026-09-02, transcribed AT PICKUP before any
+STATUS: working -- picked up 2026-09-01, transcribed AT PICKUP before any
         work started, per WT-15.
 
 ------------------------- BEGIN VERBATIM -------------------------
@@ -5228,12 +5236,12 @@ Then step 4, unchanged in shape.
 
 
 ===================================================================
-SEQ 117  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+SEQ 117  --  2026-09-01, Clay (dictated via Tony; transcribed by Clod,
              WT-9/WT-15).  STEP 4: BUILD IT. THE ONE-STAR FINDING GOES
              IN THE SEAL.
 ===================================================================
 
-STATUS: working -- picked up 2026-09-02, transcribed AT PICKUP before any
+STATUS: working -- picked up 2026-09-01, transcribed AT PICKUP before any
         work started, per WT-15.
 
 ------------------------- BEGIN VERBATIM -------------------------
@@ -5260,12 +5268,12 @@ Then step 5 and the asking.
 
 
 ===================================================================
-SEQ 118  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+SEQ 118  --  2026-09-01, Clay (dictated via Tony; transcribed by Clod,
              WT-9/WT-15).  STEP 4 SCOPED: ACTIONS' ATTRIBUTES ONLY.
              F-43 FIXED IN PASSING.
 ===================================================================
 
-STATUS: working -- picked up 2026-09-02, transcribed AT PICKUP before any
+STATUS: working -- picked up 2026-09-01, transcribed AT PICKUP before any
         work started, per WT-15.
 
 ------------------------- BEGIN VERBATIM -------------------------
@@ -5299,12 +5307,12 @@ The scope line is the ruling; everything else follows. If you'd rather the sweep
 
 
 ===================================================================
-SEQ 119  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+SEQ 119  --  2026-09-01, Clay (dictated via Tony; transcribed by Clod,
              WT-9/WT-15).  STEP 4 DEAD. THE BIND IS THE LEVER.
              ONE PROBE, THEN THE CHANNEL.
 ===================================================================
 
-STATUS: working -- picked up 2026-09-02, transcribed AT PICKUP before any
+STATUS: working -- picked up 2026-09-01, transcribed AT PICKUP before any
         work started, per WT-15.
 
 ------------------------- BEGIN VERBATIM -------------------------
@@ -5333,3 +5341,38 @@ The probe costs one build. If it confirms, the channel is a small write in a pla
   wrong, stop there, do not build the channel.
 
   END SEQ 119
+
+
+===================================================================
+SEQ 120  --  2026-09-01, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  SEAL HANDOFF: THE UNION TRIPWIRE, AND THE
+             ORDER FOR TOMORROW.
+===================================================================
+
+STATUS: working -- picked up 2026-09-01, transcribed AT PICKUP before any
+        work started, per WT-15. This is the session's closing dispatch.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+One-line read: the channel carries — *argument reaches the source field, same pointer, not just the same body — and the four-asking mystery is closed by address: the bind repointed the original's body while every named read went through a copy still holding the pre-bind body.
+
+Seal headline: THE CHANNEL CARRIES. *argument IS THE SOURCE FIELD BY ADDRESS. THE ASKING IS TOMORROW'S FIRST STROKE. State: flip-gated at 0, fleet byte-identical, jitBindArgRT deliberately not yet touched.
+
+Two rulings for the seal, both short, both yours:
+
+The union. gGroup shares storage with gCount, gNumber, gBuffer and six others; the channel is safe today only because an action's argument attribute body holds nothing. Rule it as a constraint with a tripwire, not a fix: the channel writes gGroup only when that union reads 0x0, and refuses by name otherwise. The refusal never fires in a correct build, and if it ever does, it names the day the assumption broke. The 0x4 on the source's body (gCount, probably, for "ORIG") stays recorded as an undiagnosed identification.
+
+Order for tomorrow. jitBindArgRT first — you ruled JIT-first this morning, and Clod's own finding is that the two roads now differ, which they were built never to do. Then nestT and A→B→A through the bracket, fleet rows so the channel is certified by something that runs every day and not by a probe in minionWork, and then the asking. Nothing ships between; a one-road channel is exactly the intermediate state your two-half law forbids.
+
+The bear-trap #35 catch is worth a seal line in Clod's words: the value read said something arrived, the direct read said what, and only identity discriminates.
+
+That's the whole handoff. Seal, kitchen, shutdown, Sox.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP. The union tripwire is a BUILD and it lands BEFORE the
+  seal describes it, so the seal reports a measured state rather than an intended
+  one. Certification needs the flip ON once (channel still carries, refusal
+  SILENT) and the flip back OFF for the shipped state.
+
+  END SEQ 120

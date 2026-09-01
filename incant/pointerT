@@ -12,7 +12,7 @@ search reset stack Grokking UnitTests Utilities list;
     written directly on a subscript binds to the BAG instead (law 3) and refuses,
     which is row X.
 
-    ⚠ THIS HEADER SAID THE OPPOSITE UNTIL 2026-09-02 -- "a subscript which already
+    ⚠ THIS HEADER SAID THE OPPOSITE UNTIL 2026-09-01 -- "a subscript which already
     follows the pointer" -- and the dead region below records why that was wrong
     and how long its own output had been saying so. A fixture pinned against a
     reading instead of a ruling is a lie the fleet tells, and so is its header.
@@ -136,7 +136,7 @@ baseline; it goes RED at the flip and re-pins to OTHER, exactly like holderT
 row 3.
 
 ⚠⚠ ROW F2 IS THE REFUSAL TEST F1 IS NOT, AND IT EXISTS BECAUSE THE ARM IT DRIVES
-CONTAINED A CRASH THAT NOTHING HAD EVER REACHED (F-43, fixed 2026-09-02).
+CONTAINED A CRASH THAT NOTHING HAD EVER REACHED (F-43, fixed 2026-09-01).
 
 `opAddPointer` gained a null-operand guard under F-41 so a refused operand would
 be reported BY NAME instead of crashing. The guard printed `ptr->groupBody->tag`
@@ -202,7 +202,7 @@ follow; `<-` hands back the field and the star follows it. L3 is not decoration
 -- it is the row that stops the next reader from writing the natural spelling
 and concluding the law is broken.
 
-⚠⚠ LAW 2 IS CERTIFIED AS OF 2026-09-02, BY ROW L4, AND THIS NOTE REPLACES THE
+⚠⚠ LAW 2 IS CERTIFIED AS OF 2026-09-01, BY ROW L4, AND THIS NOTE REPLACES THE
 ONE THAT SAID IT WAS NOT. The blocker named here was identity -- `addrOf`, SEQ
 113 item 2 -- and addrOf landed in the SAME stroke that wrote this paragraph.
 Nobody walked through the open gate for a day; that is the only reason it stood.
