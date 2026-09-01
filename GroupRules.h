@@ -126,6 +126,7 @@ extern "C" GroupItem *aCTionXpress(GroupItem *input);
 extern "C" GroupItem *actK(GroupItem *ignored);
 extern "C" GroupItem *activateAll(GroupItem *ignored);
 extern "C" GroupItem *activateBody(GroupItem *rule);
+extern "C" GroupItem *addrOf(GroupItem *field);
 extern "C" GroupItem *appendGroup(GroupItem *input, GroupItem *FormaT, Buffer *buffer);
 extern "C" GroupItem *appendGroupValue(int value, GroupItem *FormaT, Buffer *buffer);
 extern "C" void appendPrintXP(GroupItem *stuff, Buffer *buffer);

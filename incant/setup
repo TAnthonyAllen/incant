@@ -18,6 +18,7 @@ define
     include=loadInputFromFile immediateAction;
     virtual immediateAction=processFlags noPrint;
     guard immediateAction noPrint virtual;
+    addrOf immediateAction;
     activateAll immediateAction=activateAll;
     activateBody immediateAction=activateBody;
     arrondir immediateAction=arrondir;

@@ -1,0 +1,25 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(AddrProbe);
+define
+    apSrc="ORIG";
+    apBag;
+    apRun code={
+        print "-- A: the same field asked twice: numbers must REPEAT":;
+        addrOf(apSrc);
+        addrOf(apSrc);
+        print "-- B: a different field: numbers must DIFFER":;
+        addrOf(apBag);
+        print "-- C: a +* element vs its source":;
+        apBag +* apSrc;
+        apElem <- apBag["apSrc"];
+        addrOf(apElem);
+        addrOf(apSrc);
+        };
+    ;
+apRun();
+print "PROBEADDROF SENTINEL -- reached the foot":;
+stop();

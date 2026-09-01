@@ -1,0 +1,121 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(FaceT);
+define
+    faSrc="ORIG";
+    faSrc2="ORIG2";
+    faBag;
+    faBag2;
+    faClean;
+    faRun code={
+        faBag +% faSrc;
+        faFace <- faBag["faSrc"];
+
+        cerr "faceT F1  identity -- two fields, ONE body:":;
+        addrOf(faSrc);
+        addrOf(faFace);
+
+        faSrc :. noPrinT;
+        faR1 = faFace.noPrinT;
+        print "faceT F2 flags FORWARD  =" faR1 "  want 1 -- wrote original, read face":;
+
+        faR0 = faClean.noPrinT;
+        print "faceT F0 anti-vacuity   =" faR0 "  want noPrinT -- never written, must NOT read 1":;
+
+        faBag2 +% faSrc2;
+        faFace2 <- faBag2["faSrc2"];
+        faFace2 :. noPrinT;
+        faR2 = faSrc2.noPrinT;
+        print "faceT F3 flags REVERSE  =" faR2 "  want 1 -- wrote face, read original":;
+
+        faP1 = faSrc.parenT;
+        print "faceT F4 parent read    =" faP1 "  want faP1 -- NOT READABLE, see the note":;
+        };
+    ;
+faRun();
+print "FACET SENTINEL -- reached the foot":;
+stop();
+
+faceT -- THE PAIR FIXTURE. Minted 2026-09-01 (SEQ 113 item 3), Clay's charter.
+
+WHAT IT IS FOR
+
+Step 3 measured that the definition sweep at ruleActions.rtn:459 makes a COPY OF
+A FIELD -- adopted=0 on 317 of 317 firings -- and that the copy SHARES the
+original's GroupBody. Tony's definition, same day: a copy of a field is a field
+with isCopy true whose body is shared with the original. A copy knows it is a
+copy; the original does not know it has any.
+
+So a field can have TWO FACES over ONE BODY, and the useful question is no longer
+"is it a copy" but WHICH COLUMN a given piece of state lives in -- because the
+body is shared and the field is not. This file asks that column by column.
+
+⚠⚠ F1 IS THE ROW EVERYTHING ELSE RESTS ON, AND WITHOUT IT THE FILE ASSERTS
+NOTHING. Every row below reads through two names. If those two names were the
+same field, every "it round-tripped" would be trivially true and the fixture
+would be a very confident tautology. F1 uses `addrOf` to show they are not:
+
+    ADDROF faSrc field=#1 body=#2
+    ADDROF faSrc field=#3 body=#2      DIFFERENT FIELD, SAME BODY
+
+⚠ THE NUMBERS ARE THE POINT AND THE RAW ADDRESSES ARE NOT. `addrOf` prints a
+per-run sequence number -- first distinct pointer is #1, and a pointer already
+seen reads back its own number -- precisely so a fixture can pin identity. Raw
+`%p` moves every run (measured: 0x104de3280 one run, 0x1035f1f00 the next) and
+rule H3 forbids pinning a value that moves for correctness-unrelated reasons.
+The numbers are stable across runs; the addresses are not.
+
+WHAT THE COLUMNS DID
+
+    F2  flags, FORWARD   write the original, read the face      1     SHARED
+    F3  flags, REVERSE   write the face, read the original      1     SHARED
+    F0  flags, clean     never written                     noPrinT    control
+    F4  parent                                              unreadable
+
+⚠ noPrinT LIVES IN GroupBody's `flags`, WHICH IS THE SHARED COLUMN. Asked and
+answered for Clay: `GroupItem`'s `options` struct holds only `affiliation:2` and
+`isCopy:1` -- noPrint is not in it. So the conditional in the charter resolves
+the OTHER way: incant/roundTripT's ARM B2 was never this fixture's field-half
+arm, it was already a BODY-half arm, and it reads 1 for the same reason F3 does.
+What roundTripT lacks and this file adds is the identity proof, the FORWARD
+direction, and the columns below.
+
+⚠ BOTH DIRECTIONS ARE HERE ON PURPOSE. roundTripT B2 writes the twin and reads
+the original. F2 does the opposite. A body that is genuinely shared must carry
+the write either way, and a mechanism that happened to work in one direction only
+would pass B2 and fail F2 -- which is a thing worth being able to find out.
+
+⚠⚠ F4 IS RECORDED AS UNREADABLE, NOT AS A VERDICT, AND THE DISTINCTION IS THE
+WHOLE OF THIS PROJECT'S DOCTRINE ABOUT VOID CONTROLS. `parent` is per-FIELD, so
+the charter predicted it would not round-trip and this row was meant to show it.
+It cannot: `faP1 = faSrc.parenT;` yields a field with no data, and a field with
+no data returns its OWN TAG (bear-trap #26), so the row prints `faP1` -- the name
+of the local it was captured into. That is not a reading of the parent column. It
+is the absence of one wearing the shape of a reading.
+
+    A PREDICTION THAT CANNOT BE MEASURED IS NOT CONFIRMED BY FAILING TO MEASURE
+    IT. F4 is pinned at the tag echo so the row is honest and stays green; if a
+    readable spelling for the parent column ever lands, F4 moves and someone
+    reads this note.
+
+⚠ THE OPTIONS AND rStuff COLUMNS ARE NOT HERE, FOR THE SAME REASON, and their
+absence is deliberate rather than forgotten. `isCopy` is visible only through
+`addrOf`, and `addrOf` reports the CARRIER -- every subject passed to an action
+reads isCopy=1 including originals -- so it cannot report the subject's own bit.
+An rStuff counter needs a live rule and a readable counter, and neither exists in
+a form incant can ask today. Writing rows that echo their own tags would have
+produced two more green rows asserting nothing.
+
+⚠ BEAR-TRAP #35 GOVERNS EVERY READ IN THIS FILE. The first draft read
+`faBag["faSrc"].noPrinT` and got `ORIG noPrinT` -- the chained subscript is
+unreliable in print position. Every row reads through a BARE LOCAL captured with
+`<-`, and that is not style: it is the difference between a measurement and a
+plausible string.
+
+⚠ F0 IS THE ANTI-VACUITY CONTROL AND IS RE-READ ON EVERY RUN. It reads the tag
+`noPrinT` rather than 0, which is bear-trap #26 again and is the correct honest
+answer for an unset flag. What matters is that it is NOT 1 -- if it ever were,
+F2 and F3 would be asserting nothing at all.

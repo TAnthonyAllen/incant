@@ -48,13 +48,17 @@ define
         ptBagL +* ptSrc2;
         ptBagL +* ptOther;
         print "pointerT L  three ptrs   =" ptBagL.listLengtH "  want 3":;
-        print "pointerT L1 each follows =" ptBagL["ptSrc"] ptBagL["ptOther"] "  want CHANGED OTHER":;
+        print "pointerT L1 print follows =" ptBagL["ptSrc"] ptBagL["ptOther"] "  want CHANGED OTHER -- LAW 1, print follows":;
+        ptNamed <- ptBagL["ptSrc"];
+        print "pointerT L2 name-then-star =" *ptNamed "  want CHANGED -- LAW 4, the lawful read":;
+        ptAssigned = ptBagL["ptSrc"];
+        print "pointerT L3 assign-then-star =" *ptAssigned "  want 0 -- name it means <- , NOT =":;
 
         ptInner := ptOther;
         ptBagD +* ptInner;
         print "pointerT D  depth        =" ptBagD["ptInner"] "  want 0 flip-OFF, OTHER flip-ON -- a flip tripwire":;
 
-        print "pointerT X  extra star   =" *ptBagP["ptSrc"] "  want 0 -- the subscript ALREADY read":;
+        print "pointerT X  star binds tightest =" *ptBagP["ptSrc"] "  want 0 -- LAW 3, the star took ptBagP":;
 
         ptBagT +* nosuchFieldAtAll;
         print "pointerT F1 undeclared   =" ptBagT.listLengtH "  want 1 -- NOT a refusal, see the note":;
@@ -95,13 +99,46 @@ position: an undeclared name in an action body is MINTED as an action local
 pointer to it is duly added. The row is kept because it documents that, and
 because a reader will otherwise write the same test and misread the 1.
 
-WHY THE READ IS A SUBSCRIPT AND NOT A STAR.
+THE FOLLOW-THROUGH LAWS (Tony, 2026-09-01, SEQ 113). Rows L and X were
+re-pinned to these on the day they were ruled, because a fixture pinned against
+a reading instead of a ruling is a lie the fleet tells.
 
-`+*` adds an ATTRIBUTE to the target, and that attribute is the pointer. So the
-target is not itself a pointer -- `*bag` has nothing to dereference and refuses.
-`bag["x"]` reaches the attribute, and the subscript ALREADY follows it to the
-source, which is why row P1 reads CHANGED without a star anywhere.
+    LAW 1  print follows -- a field holding a pointer prints its group.
+    LAW 2  subscript stops at the ELEMENT.
+    LAW 3  unary binds tightest: `*a[0]` is `(*a)[0]`, and refuses on a +* list.
+    LAW 4  the read of a pointer out of a list is NAME IT, THEN STAR IT.
 
-Row X pins the consequence: `*bag["x"]` is one level too many and refuses. That
-is the star law applied to something +* built, and it is the spelling a reader
-will reach for first, so it is worth a row.
+⚠⚠ THE ORIGINAL NOTE HERE WAS WRONG, AND ITS OWN OUTPUT HAD BEEN SAYING SO.
+It read "the subscript ALREADY follows it to the source, which is why P1 reads
+CHANGED without a star anywhere." THE SUBSCRIPT DOES NOT FOLLOW. Law 2 stops it
+at the element and LAW 1 is what followed -- P1 and L1 are in PRINT position, so
+print did the work and the subscript got the credit. The values never moved;
+only the account of them was wrong, which is exactly the failure a value-pinned
+row cannot catch by itself.
+
+⚠ ROW X's REASON WAS WRONG IN A WAY THAT MATTERED, and the witness was sitting
+in the output the whole time, unread:
+
+    ERROR unary * on ptBagP -- it holds no group
+
+The star never reached the subscript's result. It bound to `ptBagP` -- law 3,
+`(*a)[0]` -- so the refusal is about the BAG, not about a read that had already
+happened. pop.sh now asserts that error BY ITS TEXT (H4), because a row pinned
+only at 0 would go green the day the star started binding the other way.
+
+⚠⚠ LAW 4's SPELLING IS `<-` AND NOT `=`, MEASURED IN minionWork/probeFollowLaws
+AND PINNED AS ROWS L2/L3:
+
+    ptNamed    <- ptBagL["ptSrc"];   then  *ptNamed     ->  CHANGED   works
+    ptAssigned  = ptBagL["ptSrc"];   then  *ptAssigned  ->  0         refuses
+
+"NAME IT" MEANS REBIND IT. `=` copies content and the star then has nothing to
+follow; `<-` hands back the field and the star follows it. L3 is not decoration
+-- it is the row that stops the next reader from writing the natural spelling
+and concluding the law is broken.
+
+⚠ LAW 2 IS NOT YET CERTIFIED HERE, AND THIS ROW SAYS SO RATHER THAN IMPLYING IT.
+Separating "the subscript stopped at the element" from "the subscript followed"
+needs the element and the source shown to be TWO FIELDS, which needs identity --
+`addrOf`, SEQ 113 item 2. Until that lands, law 2 is asserted by its
+consequences (L2/L3) and not directly. No row here should be read as proving it.

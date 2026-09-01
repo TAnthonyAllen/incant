@@ -537,6 +537,21 @@ done
 #  pointerT's note.
 #  ⚠ ROW D IS A FLIP TRIPWIRE: 0 with the flip off, OTHER with it on, measured
 #  both ways. Pinned at the baseline value.
+#  ⚠⚠ L AND X RE-PINNED 2026-09-01 (SEQ 113) TO TONY'S FOLLOW-THROUGH LAWS.
+#  The VALUES did not move; the MECHANISM they were pinned against was wrong, and
+#  a value-pinned row cannot catch that by itself. Law 1 print follows; law 2
+#  subscript stops at the ELEMENT; law 3 unary binds tightest, `*a[0]` is
+#  `(*a)[0]`; law 4 the read of a pointer out of a list is NAME IT THEN STAR IT.
+#  L1 was credited to the subscript and belongs to PRINT. X was credited to "one
+#  level too many after the subscript read" and is really the star binding to the
+#  BAG -- which is why the X ROW BELOW IS PAIRED WITH AN ERROR-TEXT ASSERTION:
+#  a row pinned only at 0 goes green the day the star binds the other way.
+#  ⚠ L2/L3 ARE A PAIR AND THE PAIR IS THE POINT: `<-` then star FOLLOWS (CHANGED),
+#  `=` then star REFUSES (0). "Name it" means REBIND it. L3 exists so the next
+#  reader who writes the natural `=` spelling does not conclude the law is broken.
+#  ⚠ LAW 2 IS NOT CERTIFIED BY THESE ROWS and pointerT says so -- separating
+#  "stopped at the element" from "followed" needs identity (addrOf, SEQ 113
+#  item 2). Asserted by consequence only until that lands.
 run1 pointerT "$T/ptr"; check "pointerT runs" 0 $?
 if grep -q "POINTERT SENTINEL" "$T/ptr"; then
     echo "  ok    pointerT sentinel (no truncation)"; green=$((green+1))
@@ -549,10 +564,60 @@ for _arm in "pointerT P0 both added   = 1 1" \
             "pointerT P2 copy         = CHANGED" \
             "pointerT R  rebind       = OTHER" \
             "pointerT L  three ptrs   = 3" \
-            "pointerT L1 each follows = CHANGED OTHER" \
+            "pointerT L1 print follows = CHANGED OTHER" \
+            "pointerT L2 name-then-star = CHANGED" \
+            "pointerT L3 assign-then-star = 0" \
             "pointerT D  depth        = 0" \
-            "pointerT X  extra star   = 0"; do
+            "pointerT X  star binds tightest = 0"; do
     if grep -qF "$_arm" "$T/ptr"; then
+        echo "  ok    ${_arm} -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  $_arm -- moved"; fail=1
+    fi
+done
+#  ⚠ THE STAR'S REFUSAL ASSERTED BY ITS TEXT, NOT BY ROW X's ZERO (H4). Row X
+#  reads 0 whenever the star refuses ANYTHING; this names WHAT it refused, and it
+#  is the only thing in the fleet that would go red if `*a[0]` ever started
+#  binding as `*(a[0])` instead of `(*a)[0]`.
+if grep -qF "ERROR unary * on ptBagP -- it holds no group" "$T/ptr"; then
+    echo "  ok    pointerT X witness: the star bound to the BAG (law 3)"; green=$((green+1))
+else
+    echo "  FAIL  pointerT X witness MISSING -- the star no longer binds to ptBagP"; fail=1
+fi
+
+#  ============================================================================
+#  ⚠ faceT -- THE PAIR FIXTURE. Added 2026-09-01 (SEQ 113 item 3). Step 3 measured
+#  that the definition sweep makes a COPY OF A FIELD sharing the original's body,
+#  so a field can have TWO FACES OVER ONE BODY. This asks WHICH COLUMN state lives
+#  in -- the body is shared, the field is not.
+#  ⚠⚠ F1 IS LOAD-BEARING FOR EVERY OTHER ROW. Without it, "the write round-tripped"
+#  could just mean both names were the same field, and the fixture would be a
+#  tautology. addrOf prints per-run SEQUENCE NUMBERS (not raw %p, which moves every
+#  run and cannot be pinned under H3), so F1 asserts field=#1 vs field=#3 with a
+#  SHARED body=#2 -- two fields, one body, by value.
+#  ⚠ noPrinT LIVES IN GroupBody's flags, THE SHARED COLUMN -- asked and answered
+#  for Clay. GroupItem's options struct holds only affiliation and isCopy. So
+#  roundTripT's ARM B2 was already a body-half arm, not a field-half arm; what
+#  faceT adds is identity, the FORWARD direction, and the column census.
+#  ⚠ F4 IS PINNED AT A TAG ECHO AND IS NOT A VERDICT. The parent column cannot be
+#  read from incant -- `x.parenT` captured yields a data-less field, which returns
+#  its own tag (bear-trap #26). A prediction that cannot be measured is not
+#  confirmed by failing to measure it. See faceT's note.
+#  ⚠ F0 is the anti-vacuity control: if an unwritten flag ever reads 1, F2 and F3
+#  assert nothing.
+run1 faceT "$T/face"; check "faceT runs" 0 $?
+if grep -q "FACET SENTINEL" "$T/face"; then
+    echo "  ok    faceT sentinel (no truncation)"; green=$((green+1))
+else
+    echo "  FAIL  faceT sentinel MISSING"; fail=1
+fi
+for _arm in "ADDROF faSrc field=#1 body=#2" \
+            "ADDROF faSrc field=#3 body=#2" \
+            "faceT F2 flags FORWARD  = 1" \
+            "faceT F0 anti-vacuity   = noPrinT" \
+            "faceT F3 flags REVERSE  = 1" \
+            "faceT F4 parent read    = faP1"; do
+    if grep -qF "$_arm" "$T/face"; then
         echo "  ok    ${_arm} -- PINNED BY VALUE"; green=$((green+1))
     else
         echo "  FAIL  $_arm -- moved"; fail=1

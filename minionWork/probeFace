@@ -1,0 +1,44 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(FaceProbe);
+define
+    fpSrc="ORIG";
+    fpBag;
+    fpClean;
+    fpSrc2="ORIG2";
+    fpBag2;
+    fpRun code={
+        fpBag +% fpSrc;
+        fpFace <- fpBag["fpSrc"];
+
+        print "-- identity: two faces, one body?":;
+        addrOf(fpSrc);
+        addrOf(fpFace);
+
+        print "-- flags FORWARD: write the ORIGINAL, read the FACE (bare local)":;
+        fpSrc :. noPrinT;
+        fpR1 = fpFace.noPrinT;
+        print "   face reads  =" fpR1 "  want 1":;
+        fpR0 = fpClean.noPrinT;
+        print "   clean reads =" fpR0 "  want NOT 1 -- anti-vacuity":;
+
+        print "-- flags REVERSE: write a second FACE, read the original":;
+        fpBag2 +% fpSrc2;
+        fpFace2 <- fpBag2["fpSrc2"];
+        fpFace2 :. noPrinT;
+        fpR2 = fpSrc2.noPrinT;
+        print "   original reads =" fpR2 "  want 1":;
+
+        print "-- parent column, through bare locals":;
+        fpP1 = fpSrc.parenT;
+        fpP2 = fpFace.parenT;
+        print "   src.parenT  =" fpP1:;
+        print "   face.parenT =" fpP2:;
+        };
+    ;
+fpRun();
+print "PROBEFACE SENTINEL -- reached the foot":;
+stop();

@@ -17,8 +17,16 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      112
+SEQ:      113
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-01  -  Clay (SEQ 113, dictated via Tony; transcribed by Clod, WT-9)
+          ⚠ SEQ 113 IS LIVE AND IS AT THE FOOT -- STEP 3 ACCEPTED, COPY OF A FIELD
+          DEFINED BY TONY, AND A PAIR FIXTURE BEFORE STEP 4. Order: pointerT L/X
+          re-pin FIRST (a fixture pinned against a ruling is a lie the fleet tells),
+          then addrOf + starT S3a graded, then faceT, then step 4.
+          ⚠ TRANSCRIBED AT PICKUP, before any work started -- the practice SEQ 112's
+          backfill bought, applied to the very next dispatch.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-01  -  Clay (SEQ 112, dictated via Tony; transcribed by Clod, WT-9)
           ⚠ SEQ 112 IS LIVE AND IS AT THE FOOT -- SEAL FIRST, THEN STEP 3. It is
           THE DISPATCH THAT NEVER ARRIVED: printed in chat after SEQ 111 and never
@@ -4997,3 +5005,41 @@ After step 5, the try-and-buy: flip gNoUnwrap on a branch, fleet + unitTests, in
 ⚠ TONY'S ADDITION, same message: "add clean kitchen to that."
 
   END SEQ 112
+
+
+===================================================================
+SEQ 113  --  2026-09-01, Clay (dictated via Tony; transcribed by Clod,
+             WT-9).  STEP 3 ANSWERED. COPY OF A FIELD DEFINED.
+             THE PAIR FIXTURE BEFORE STEP 4.
+===================================================================
+
+STATUS: working -- picked up 2026-09-01, transcribed AT PICKUP before any
+        work started, per the rule SEQ 112's backfill bought.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+C-nn — STEP 3 ANSWERED. COPY OF A FIELD DEFINED. THE PAIR FIXTURE BEFORE STEP 4.
+Drafted by Clay, ruled by Tony, 2026-09-01. Clod assigns the number.
+
+Accepted: step 3 sweep-made, 317/317, no edit. Seal 2f0e0dc with the date check — that's the standard now. "Scribe at pickup, not at leisure" goes into docs/walkieTalkie.md as the next WT row, Clod's wording.
+
+Copy of a field (Tony): a field with isCopy true whose body is shared with the original. That is what the copy constructor produces and what the sweep at 459 produces. copyOf makes something else — its own body — and is referred to by method name, never as a copy. A copy knows it is a copy; the original does not know it has any. Ruling A re-read against this definition is Clay's, owed before step 5 is graded.
+
+Order:
+
+pointerT L and X re-pin to the follow-through laws — a fixture pinned against a ruling is a lie the fleet tells. Ten minutes, first.
+addrOf extern — instrument, canary-declared. starT S3a graded on it.
+The pair fixture, below.
+Step 4, unchanged in shape.
+
+The pair fixture — faceT or a sibling. Two named references to one field. Write through one, read through the other, both directions. Rows: a flags bit; an options bit; an rStuff counter; parent. Pre-registered by Clay: flags round-trips, the other three do not. Identity via addrOf on both faces, so each row proves two fields and not one. Report which column noPrinT lives in — if options, roundTripT was this fixture's field-half arm all along and its comment says so. pop.sh rows.
+
+Graded candidate, not driven: the callee's fresh, zeroed rStuff is the leading account of parser(Start) not receiving Start — it received Start's body wearing a copy's rule state. The asking stays after step 5; this is the prediction it is asked against.
+
+Step 4: +* at the sweep behind gNoUnwrap for bare mentions of the action's own fields; the body reads *argument. The step 3 finding is its argument — +* hands the callee the field, not a copy.
+
+Step 5 and the asking: unchanged. K2x row 1 / K6c / nestT pre-registered. Then the try-and-buy as ruled.
+
+-------------------------- END VERBATIM --------------------------
+
+  END SEQ 113

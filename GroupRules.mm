@@ -1975,6 +1975,75 @@ GroupItem 	*hung = 0;
 	return rule;
 }
 
+/***************************************************************************
+    addrOf -- IDENTITY, ASKED IN A FORM A FIXTURE CAN PIN. SEQ 113, 2026-09-01.
+
+    showBody already prints node and body addresses, and that is the right
+    question asked in the wrong currency: a raw %p MOVES EVERY RUN, so a fixture
+    can eyeball it and can never assert it. Rule H3 -- an assertion that moves
+    for correctness-unrelated reasons is noise, and a target regenerated green is
+    not a target.
+
+    So addrOf prints a per-run SEQUENCE NUMBER instead. The first distinct
+    pointer seen in a run is #1, the second #2, and a pointer already seen reads
+    back its own number. Identity therefore becomes a SMALL STABLE INTEGER:
+
+        two faces of one field   ->  field=#1 body=#1   then  field=#2 body=#1
+        one field asked twice    ->  field=#1 body=#1   then  field=#1 body=#1
+
+    The numbers repeat exactly when the identity repeats and never otherwise, so
+    a pop.sh row pins what it means to pin. The raw addresses are still printed,
+    after the numbers, because they cost nothing and a human debugging a live
+    seam wants them.
+
+    ⚠ THE TABLE IS PER-PROCESS AND ORDER-DEPENDENT BY DESIGN. #1 means "first
+    thing this run asked about", not anything about the field. A fixture that
+    reorders its calls will renumber; that is correct, and it is why the numbers
+    are only ever compared WITHIN one run's output.
+
+    ⚠ RETURNS THE FIELD, NEVER AN int -- bear-trap #33. A command whose return
+    is read as a GroupItem* kills the process on the statement AFTER the call,
+    and the callee's own trace never fires, which reads as "never registered".
+
+    stderr, not stdout: same reason as showBody -- a run ending in stop() loses
+    buffered stdout, and a probe whose output vanishes on the interesting runs is
+    not a probe.
+***************************************************************************/
+extern "C" GroupItem *addrOf(GroupItem *field)
+{
+	if ( !field )
+		{
+		::fprintf(stderr,"addrOf: no field\n");
+		return 0;
+		}
+	/*  ⚠ NO WIDTH SPECIFIER IN ANY FORMAT STRING BELOW -- `%` followed by `-`
+	is the passthrough CLOSE marker and ends the block inside the string
+	literal, wiping the extern block to zero. Bear-trap #40, measured
+	2026-09-01 in this very file.  */
+	
+	{
+	static void *seenTable[512];
+	static int   seenCount = 0;
+	void *nodeKey = (void*)field;
+	void *bodyKey = (void*)field->groupBody;
+	int nodeNum = 0, bodyNum = 0, i;
+	for ( i = 0; i < seenCount; i++ )
+	{
+	if ( seenTable[i] == nodeKey ) nodeNum = i + 1;
+	if ( seenTable[i] == bodyKey ) bodyNum = i + 1;
+	}
+	if ( !nodeNum && seenCount < 512 ) { seenTable[seenCount++] = nodeKey; nodeNum = seenCount; }
+	if ( !bodyNum && seenCount < 512 ) { seenTable[seenCount++] = bodyKey; bodyNum = seenCount; }
+	::fprintf(stderr,"ADDROF %s field=#%d body=#%d  isCopy=%d  raw %p %p\n",
+	field->groupBody->tag ? field->groupBody->tag : "(untagged)",
+	nodeNum, bodyNum, (int)field->options.isCopy,
+	nodeKey, bodyKey);
+	::fflush(stderr);
+	}
+	
+	return field;
+}
+
 /*******************************************************************************
 	Print the field passed in to the buffer passed in
 *******************************************************************************/

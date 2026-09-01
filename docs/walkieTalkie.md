@@ -361,3 +361,40 @@ and never mid-work**, so seal-time commits are **the channel's natural rhythm an
 mitigation**. The dirty-tree concern dissolves on that fact — `pop.sh`'s kitchen-law readout stays
 clean between seals, so the visibility-is-the-enforcement property that readout depends on is not
 eroded by channel churn.
+
+### CLAIM WT-15 — SCRIBE AT PICKUP, NOT AT LEISURE
+```
+statement:   A dictated dispatch is transcribed into ipc/ BEFORE the work it orders
+             begins -- not after, and never "once the stroke lands".
+confidence:  RULING
+provenance:  Tony via Clay, SEQ 113, 2026-09-01. Wording Clod's, as instructed.
+asOf:        2026-09-01
+scope:       Both directions. Independent of WT-14d, which governs COMMIT cadence,
+             not WRITE timing -- a scribed-but-uncommitted entry satisfies this rule.
+```
+**The rule exists because the failure is silent at both ends.** Clay dictates, Clod acts, and
+the acting *feels* like receipt — so nothing anywhere reports that the words were never written
+down. **SEQ 106 through SEQ 111 were each dictated, each acted on, and not one was scribed**, and
+nobody noticed until a usage wall forced a cold restart and the reconstruction came up empty.
+
+⚠ **THE COST IS NOT THE MISSING TEXT. IT IS THAT THE ACTED-ON VERSION BECOMES UNCHECKABLE.** What
+survives is a commit message — Clod's account of what Clod did — with no independent record of what
+was asked. **A relay whose instruction cannot be re-read is a relay with no error detection**, and
+SEQ 112 proved it in the smallest possible way: two of its items were CORRECTIONS to work already
+landed, so the un-scribed gap had already let a fixture be pinned against Clod's reading instead of
+Tony's ruling.
+
+⚠⚠ **AND THE MARGIN WAS THREE MINUTES.** SEQ 111 was recovered only because it happened to sit in
+`IncantForms/WorkingOn/incant++` and was read at 14:26; Tony overwrote that section at 14:29. That
+file is **untracked and gitignored**, so there was no second copy anywhere on disk. The operator
+table, the star law, and both fixture charters survived on an accident of timing. **A retention
+policy that depends on nobody editing a scratch file is not a retention policy.**
+
+**THE PRACTICE, and it is deliberately dumber than a judgement call:** transcribe first, set
+`STATUS: working`, then start. Not "if it looks load-bearing" — *load-bearing* is exactly the
+assessment that cannot be made before the work, and five of the six lost dispatches would have
+failed that test on the day. **Scribing costs one tool call; reconstruction costs a session.**
+
+**Its sibling one register over is the fixit ledger's founding argument** — the question is never
+*did we write it down*, it is *will it be there when somebody needs it*. WT-15 is that question
+asked of the channel.

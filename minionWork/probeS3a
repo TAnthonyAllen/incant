@@ -1,0 +1,36 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(S3aProbe);
+define
+    s3Leaf="LEAF";
+    s3One;
+    s3Two;
+    s3Run code={
+        s3One := s3Leaf;
+        s3Two := s3One;
+
+        print "-- baselines: leaf, one-deep, two-deep":;
+        addrOf(s3Leaf);
+        addrOf(s3One);
+        addrOf(s3Two);
+
+        print "-- R1  *one-deep   : law says LEAF":;
+        addrOf(*s3One);
+        print "-- R2  **one-deep  : LAW SAYS REFUSE -- this is S3a":;
+        addrOf(**s3One);
+        print "-- R3  *two-deep   : law says the MIDDLE (s3One)":;
+        addrOf(*s3Two);
+        print "-- R4  **two-deep  : law says LEAF":;
+        addrOf(**s3Two);
+        print "-- R5  * *two-deep SPACED : tokenizer-merge or parse-drop?":;
+        addrOf(* *s3Two);
+        print "-- R6  ***two-deep : does a THIRD star change anything?":;
+        addrOf(***s3Two);
+        };
+    ;
+s3Run();
+print "PROBES3A SENTINEL -- reached the foot":;
+stop();

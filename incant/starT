@@ -60,7 +60,60 @@ pointer, which is the tell. Under gNoUnwrap ON the auto-unwrap is gone and the
 stars start reading. So this whole fixture goes RED at the flip and re-pins --
 deliberately, like holderT row 3.
 
-⚠⚠⚠ AND ONE ROW IS RECORDED AS UNRESOLVED RATHER THAN AS A VERDICT: S3a.
+⚠⚠⚠ S3a IS NOW GRADED, AND THE ANSWER IS NEITHER OPTION ANYBODY OFFERED.
+Graded 2026-09-01 (SEQ 113 item 2) on the `addrOf` instrument, which is what the
+paragraph below said was missing. THE SUSPICION WAS FALSIFIED AND SOMETHING
+LARGER WAS FOUND: there is no fixpoint, and there is no composition either.
+
+    ONLY ONE STAR IS EVER APPLIED. N stars behave as exactly one.
+
+MEASURED, gNoUnwrap = 1, one run, identity by `addrOf`'s body column -- which is
+carrier-proof, because the argument carrier mints a fresh FIELD every call but
+the BODY survives it:
+
+    baselines      s3Leaf body #2      s3One body #4      s3Two body #6
+    R1   *s3One      -> body #2   LEAF      one star, one-deep     LAW HOLDS
+    R2   **s3One     -> body #2   LEAF      <- this is S3a
+    R3   *s3Two      -> body #4   MIDDLE    one star, two-deep     LAW HOLDS
+    R4   **s3Two     -> body #4   MIDDLE    <- THE ROW THAT DECIDES
+    R5   * *s3Two    -> body #4   MIDDLE    spaced: no different
+    R6   ***s3Two    -> body #4   MIDDLE    a third star: no different
+
+⚠ R4 IS THE DISCRIMINATOR AND R2 ALONE COULD NEVER HAVE BEEN. Both a fixpoint
+and a working composition predict `**s3Two` reaches the LEAF (#2). It reaches the
+MIDDLE (#4). Only "the second star does nothing" predicts that -- and the same
+hypothesis explains R2's leaf without any fixpoint, because one star on a
+ONE-deep pointer reaches the leaf all by itself. THE READING THAT LOOKED LIKE A
+FIXPOINT WAS A ONE-DEEP COINCIDENCE.
+
+⚠ AND THE ABSENCE IS EVIDENCE HERE, unusually: there is NOT ONE `ERROR unary *`
+LINE in the flip-ON run. If a second star were being applied and refusing, it
+would say so by name -- F-41 made all seven operators refuse by name for exactly
+this reason. Nothing refused, so nothing second ever ran.
+
+⚠ R5 KILLS THE OBVIOUS MECHANISM. `* *x` with a space reads identically, so this
+is NOT longest-match merging two stars into one token -- spacing would separate
+them. The extra stars are dropped somewhere after tokenizing. WHERE is not
+diagnosed and is not guessed at here, per the standing split: reproduction proves
+the SYMPTOM, never the CAUSE.
+
+⚠⚠ THIS CONTRADICTS C16/C17's CLAIM THAT "`**x` IS NOW `*` TWICE." The operator
+and the bin entry were both removed and that much is certified by the canary --
+but removing the merged operator did not produce composition, it produced a
+single star. The claim was structural and read from the table; this is measured.
+
+⚠⚠ AND IT RELOCATES THE ROW THAT MATTERS: **S2b, NOT S3a.** S2b is `**x` on a
+two-deep pointer wanting the LEAF, and under the flip it gets the MIDDLE. When
+this fixture re-pins at the flip, S2b is the row that must go red and stay red
+until composition works. S3a will read the leaf and be RIGHT to -- for the wrong
+reason, which is why it is written down here rather than left for a reader to
+rediscover.
+
+THE PARAGRAPH BELOW IS THE PRE-GRADING STATE, KEPT AS THE REASONING TRAIL. Its
+diagnosis of WHY the earlier witnesses were void is correct and still worth
+reading; its conclusion that the row could not be graded is now superseded.
+
+⚠⚠⚠ AND ONE ROW WAS RECORDED AS UNRESOLVED RATHER THAN AS A VERDICT: S3a.
 Measured under gNoUnwrap ON, `**x` on a ONE-deep pointer READ THE LEAF where the
 law says the second star must refuse. That is the signature of a fixpoint. But
 the reading CANNOT BE TRUSTED YET, because both available witnesses are

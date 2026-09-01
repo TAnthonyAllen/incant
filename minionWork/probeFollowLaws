@@ -1,0 +1,33 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(FollowLaws);
+define
+    flSrc="ORIG";
+    flOther="OTHER";
+    flBag;
+    flRun code={
+        flBag +* flSrc;
+        flBag +* flOther;
+        flSrc = "CHANGED";
+
+        print "FL1 bare subscript in print =" flBag["flSrc"] "  (print follows?)":;
+
+        flNamed = flBag["flSrc"];
+        print "FL2 named, then printed     =" flNamed:;
+        print "FL3 named, then STARRED     =" *flNamed:;
+
+        flCap <- flBag["flSrc"];
+        print "FL4 rebound capture printed =" flCap:;
+        print "FL5 rebound then STARRED    =" *flCap:;
+
+        print "FL6 star on the bag         =" *flBag "  (law 3: binds to the bag)":;
+
+        print "FL7 bag listLengtH          =" flBag.listLengtH "  want 2":;
+        };
+    ;
+flRun();
+print "PROBEFOLLOWLAWS SENTINEL -- reached the foot":;
+stop();
