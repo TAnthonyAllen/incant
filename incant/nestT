@@ -1,0 +1,60 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+/*  nestT -- f(g(x)): A CALL IN ARGUMENT POSITION. Certificate 3 of the frame
+    bind (SEQ 106). Minted 2026-09-01.
+
+    THE QUESTION: when the outer call's argument is itself a call, the INNER
+    activation binds an argument while the OUTER one is still being set up. If
+    the two share a channel, the inner bind clobbers the outer setup and f
+    receives the wrong thing.
+
+    WRITE-LAST IS WHAT MAKES THIS SAFE, and this fixture is what says so: the
+    caller must evaluate every argument expression FIRST and write the slot
+    LAST, so g's own bind has finished and been consumed before f's is written.
+
+    g DELIBERATELY IGNORES ITS ARGUMENT AND RETURNS A DIFFERENT NODE. That is
+    the discrimination: if f reports ntSmall it received g's RESULT, which is
+    correct. If it reports ntBig it received the OUTER's operand -- the inner
+    bind was clobbered, or never happened. A g that returned its own argument
+    could not tell those apart, which is bear-trap territory (kant8T's K2 is
+    exactly that mistake).  */
+
+register(NestT);
+define
+    ntBig       aa bb cc;
+    ntSmall     xx;
+    ntOut;
+
+    ntG argument code={
+        return ntSmall;
+        };
+
+    ntF argument code={
+        return argument.taG;
+        };
+
+    ntRun code={
+        print "== ROW 0  ANTI-VACUITY: f reads its argument at all ==":;
+        ntOut = ntF(ntBig);
+        print "   f(ntBig)      =" ntOut "   want ntBig":;
+
+        print "== ROW 1  DISCRIMINATION: f reports what it is given ==":;
+        ntOut = ntF(ntSmall);
+        print "   f(ntSmall)    =" ntOut "   want ntSmall":;
+
+        print "== ROW 2  THE NESTING: f(g(x)), g returns a DIFFERENT node ==":;
+        ntOut = ntF(ntG(ntBig));
+        print "   f(g(ntBig))   =" ntOut "   want ntSmall -- ntBig = inner bind clobbered":;
+
+        fixNestHere = 0;
+        print "ANCHOR fixNestHere -- the three rows sit together above":;
+        };
+    ;
+ntRun();
+print "NESTT SENTINEL -- reached the foot":;
+stop();

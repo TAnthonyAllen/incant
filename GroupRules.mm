@@ -12959,9 +12959,35 @@ GroupItem 	*ruleArg = 0;
 	⚠ THE BODY IS THE STABLE IDENTITY AND THE NODE IS NOT: two calls passing
 	the same source field arrive as DIFFERENT NODES OVER ONE BODY. Binding
 	by body binds to what is already invariant.  */
+	/*  ⚠⚠ THE SAVE COMES FIRST, AND THE ORDER IS THE WHOLE FIX FOR THE TRAMPLE.
+	SEQ 106. saveLocalFields walks (isArgument || isLocal), so the argument
+	is IN the frame set. While the bind ran first the frame captured the NEW
+	argument and restore handed the NEW one back -- so an outer activation
+	never got its own argument returned, in BOTH directions of recursion.
+	Measured: kant8T K2x row 1 (direct) and K6c (mutual) both read the
+	inner's argument; with the save moved above the bind both read the
+	outer's, and no other fleet row moved.
+	⚠ THIS IS THE INTERPRETED CALLEE'S ENTIRE RECURSION SAFETY. It has no
+	stack local to lift into, unlike a generated C++ parse method, so the
+	save/restore bracket IS the frame -- correctly ordered. The frame bind's
+	"no save/restore" clause governs the C++ handoff only.
+	UNCONDITIONAL since 2026-08-10, SEQ 27 rung B; see the note above
+	jitSaveFrameRT for why the gate was the defect rather than the
+	protection, and why rung A's return seam had to land first.  */
+	::saveLocalFields(field);
+	/*  ⚠ BIND-BY-BODY, the flip's other half. Under gNoUnwrap the argument node
+	ADOPTS the caller's groupBody, so every read and write through the
+	argument name reaches caller storage with no hop.
+	⚠⚠ AND THE FRAME SLOT IS WRITTEN HERE, WRITE-LAST, immediately before the
+	body runs (SEQ 106). rStuff.frameArg is the action-argument channel --
+	ONE slot, where `which node is the argument` had three answers: R19
+	measured MINT(aCTionDefinE, via `+%`) -> BIND(here) -> READ(callee) with
+	the mint and the bind ALREADY on different nodes over one body. The slot
+	does not pick one of the three; it makes the question not arise.  */
 	
 	if (( ruleArg = field->get("argument") )) {
 	result = argument ? argument : field;
+	if (field->rStuff)  field->rStuff->frameArg = result;
 	if (gNoUnwrap)  ruleArg->groupBody = result->groupBody;
 	else            ruleArg->setGroup(result);
 	}
@@ -12969,10 +12995,6 @@ GroupItem 	*ruleArg = 0;
 	
 	ruler->lastREF->groupBody->gGroup = result;
 	ruler->lastREF->groupBody->flags.data = 6;
-	/*  UNCONDITIONAL, 2026-08-10, SEQ 27 rung B. See the note above
-	jitSaveFrameRT for why the gate was the defect rather than the
-	protection, and why rung A's return seam had to land first.  */
-	::saveLocalFields(field);
 	/*  BRACKET THE INLINE. Under jitting this call is being INLINED -- the
 	BlocK below re-executes into the caller's builder -- so for the duration
 	the action being walked is `field`, and a recursive call inside it must

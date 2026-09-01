@@ -307,14 +307,19 @@ done
 #  never taken. If either goes red the fixture is void and row 1 means nothing --
 #  which is the whole failure K3 exists to prevent one row up.
 #
-#  ⚠ ROW 1 IS PINNED AT THE WRONG ANSWER, DELIBERATELY. It reads k2xSmall today:
-#  the argument IS trampled by direct recursion, exactly as K6c shows for mutual
-#  recursion. THE ASYMMETRY K6c's OWN COMMENT ASSERTS -- "in DIRECT recursion an
-#  argument DODGES the emptying" -- IS FALSIFIED; one mechanism covers both.
-#  SO: WHEN THE FRAME BIND LANDS, THIS ROW GOES RED. That is the fix arriving,
-#  not a regression. Re-pin it to k2xBig, with the sentence, and say so.
+#  ⚠⚠ ROW 1 RE-PINNED 2026-09-01, k2xSmall -> k2xBig, AND HERE IS THE SENTENCE.
+#  It was pinned at the WRONG answer on purpose, as a tripwire for exactly this
+#  event, and the tripwire fired: THE FRAME BIND LANDED (SEQ 106) and the trample
+#  is fixed in BOTH directions of recursion. The cause is one statement's
+#  position -- saveLocalFields now runs BEFORE the argument bind in runAction, so
+#  the frame captures the OUTER argument and restore returns it, where before it
+#  captured the NEW one and handed the inner's back. K6c moved with it,
+#  k6small -> k6big, on the same run and the same mechanism.
+#  The falsified asymmetry stays falsified: K6c's own comment claimed "in DIRECT
+#  recursion an argument DODGES the emptying", and K2 could not see otherwise
+#  because it passed its argument straight down. One mechanism covers both rows.
 for _arm in "K2x row 0 control  = k2xBig" \
-            "K2x row 1 recursed = k2xSmall" \
+            "K2x row 1 recursed = k2xBig" \
             "K2x row 2 depth 0  = k2xBig"; do
     if grep -qF "$_arm" "$T/k8"; then
         echo "  ok    ${_arm%% =*} = ${_arm##*= } -- PINNED BY VALUE"; green=$((green+1))
@@ -354,6 +359,39 @@ for _arm in "holderT 1 direct    .parenT = htWindow" \
         echo "  ok    ${_arm%% =*} = ${_arm##*= } -- PINNED BY VALUE"; green=$((green+1))
     else
         echo "  FAIL  $_arm -- got: $(grep -o "${_arm%% =*}[^ ]*.*" "$T/hold" | head -1)"; fail=1
+    fi
+done
+
+#  ============================================================================
+#  ⚠ nestT -- f(g(x)), A CALL IN ARGUMENT POSITION. Certificate 3 of the frame
+#  bind (SEQ 106), added 2026-09-01.
+#
+#  When the outer call's argument is itself a call, the INNER activation binds an
+#  argument while the OUTER one is still being set up. WRITE-LAST is what makes
+#  that safe -- the caller evaluates every argument expression first and writes
+#  the frame slot last, so g's bind has finished and been consumed before f's is
+#  written. Row 2 is the certificate; if it ever reads ntBig, the inner bind
+#  clobbered the outer setup.
+#
+#  ⚠ g DELIBERATELY IGNORES ITS ARGUMENT AND RETURNS A DIFFERENT NODE, and that
+#  is the discrimination rather than a quirk: a g that returned its own argument
+#  would print the right answer whether or not the channel worked. That is
+#  exactly kant8T's K2 mistake, which discriminated nothing for a month.
+#  Rows 0 and 1 are the anti-vacuity pair -- f reads its argument at all, and f
+#  reports what it is given rather than a constant.
+run1 nestT "$T/nest"; check "nestT runs" 0 $?
+if grep -q "NESTT SENTINEL" "$T/nest"; then
+    echo "  ok    nestT sentinel (no truncation)"; green=$((green+1))
+else
+    echo "  FAIL  nestT sentinel MISSING -- the run truncated"; fail=1
+fi
+for _arm in "f(ntBig)      = ntBig" \
+            "f(ntSmall)    = ntSmall" \
+            "f(g(ntBig))   = ntSmall"; do
+    if grep -qF "$_arm" "$T/nest"; then
+        echo "  ok    nestT ${_arm%% =*} = ${_arm##*= } -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  nestT $_arm -- got: $(grep -oF "${_arm%% =*}" "$T/nest" | head -1)"; fail=1
     fi
 done
 
@@ -1144,8 +1182,17 @@ fi
 rawreads=$(grep -o -- "->rStuff" GroupItem.mm GroupBody.mm GroupControl.mm GroupMain.mm \
                        GroupRules.mm RuleStuff.mm 2>/dev/null | grep -vc "getRStuff\|setRStuff")
 rawlines=$(grep -l -- "->rStuff" *.mm 2>/dev/null | wc -l | tr -d ' ')
-if [ "$rawreads" = "30" ]; then
-    echo "  ok    raw ->rStuff reads = 30 across $rawlines .mm -- PINNED BY VALUE (mirror-drift tripwire)"; green=$((green+1))
+#  ⚠ RE-PINNED 30 -> 32 on 2026-09-01, AND THE SENTENCE IS THE WHOLE +2. The frame
+#  bind (SEQ 106) added ONE line to runAction --
+#      if (field->rStuff)  field->rStuff->frameArg = result;
+#  -- which carries TWO raw reads, the guard and the write. 30 + 2 = 32, exactly.
+#  ⚠ AND THE NEGATIVE MATTERS MORE THAN THE ARITHMETIC: adding `frameArg` to the
+#  RuleStuff block in groups.ext moved NOTHING ELSE. Verified line-by-line against
+#  HEAD, not inferred from the total -- the only added raw-read site is the one
+#  above. That is the opposite of F-35, where a single mirror line took one
+#  getter's blast radius from 8 sites to 137, and it is why this row exists.
+if [ "$rawreads" = "32" ]; then
+    echo "  ok    raw ->rStuff reads = 32 across $rawlines .mm -- PINNED BY VALUE (mirror-drift tripwire)"; green=$((green+1))
 else
     echo "  FAIL  raw ->rStuff reads MOVED -- the groups.ext mirror changed codegen"
     echo "          actual:   $rawreads"

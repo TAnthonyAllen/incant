@@ -1064,6 +1064,7 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	onFail = 0;
 	onGroup = 0;
 	parentLabel = 0;
+	frameArg = 0;
 	sourceLine = 0;
 	kount = 0;
 	termCount = 0;
@@ -1108,6 +1109,7 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	onFail = 0;
 	onGroup = 0;
 	parentLabel = 0;
+	frameArg = 0;
 	sourceLine = 0;
 	rule = 0;
 	max = 0;
