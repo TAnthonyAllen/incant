@@ -13168,9 +13168,18 @@ GroupItem 	*ruleArg = 0;
 	(ntF mentions it twice and has none; asTake mentions it twice and has
 	one).  */
 	
+	GroupItem *chanPrevGroup = 0;
+	GroupBody *chanBody      = 0;
+	int        chanPrevData  = 0;
 	if (( ruleArg = field->get("argument") )) {
 	result = argument ? argument : field;
-	if (gNoUnwrap)  ruleArg->groupBody = result->groupBody;
+	if (gNoUnwrap)  {
+	chanPrevGroup = ruleArg->groupBody->gGroup;
+	chanPrevData  = ruleArg->groupBody->flags.data;
+	chanBody      = ruleArg->groupBody;
+	chanBody->gGroup     = result;
+	chanBody->flags.data = 6;
+	}
 	else            ruleArg->setGroup(result);
 	}
 	else    result = field;
@@ -13186,6 +13195,9 @@ GroupItem 	*ruleArg = 0;
 		 jitInlinePush(field); 
 		}
 	result = ::processAction(field);
+	
+	if ( chanBody ) { chanBody->gGroup = chanPrevGroup; chanBody->flags.data = chanPrevData; }
+	
 	/*  ⚠ `result` IS PASSED BECAUSE IT IS THE VALUE CHANNEL. An enclosing
 	assignment reads its operand's jitData, and this node is that operand --
 	so when E2's merge produces the callee's answer, this is what has to

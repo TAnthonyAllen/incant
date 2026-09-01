@@ -416,3 +416,76 @@ RESTORED AND VERIFIED: ruleActions.rtn and jitContext.h back to their committed
 blobs, all traces removed, retok BARE, rebuilt, fleet BYTE-IDENTICAL to the
 no-step-4 baseline at 171 green / 3 red, canary 326, every other instrument green.
 F-43's fix is KEPT, as ordered.
+
+⚠⚠⚠ ADDED 2026-09-02 (SEQ 119): THE BIND IS THE LEVER, MEASURED -- AND THE
+CHANNEL CARRIES. THE GATE'S OWN QUESTION IS ANSWERED FOR THE ARGUMENT ROAD.
+
+PART 1 -- THE PROBE. One run, addrOf called FROM C++ at the bind site so the
+bind's numbers and the fixture's numbers come out of ONE sequence table. Switch
+on. Pre-registered by Clay; both clauses CONFIRMED:
+
+    TARGET ruleArg, the field the bind writes to   field #3   body #4
+    SOURCE result, what is bound in                field #5   body #2
+    gGroup on the PRE-BIND body, BEFORE            0x0
+    TARGET after the bind                          field #3   body #2
+    gGroup on the PRE-BIND body, AFTER             0x0    <- still null
+    the CALLEE's argument read                     field #6   body #4
+
+    ⚠ DIFFERENT FIELDS (#3 and #6) OVER THE SAME BODY (#4). The bind repoints the
+    ORIGINAL's body pointer to #2; the callee's copy still points at #4. That is
+    why the callee reads the pre-bind body, and it is now MEASURED rather than
+    read off the comment above the bind, which had been saying it all along.
+
+⚠ ONE CORRECTION MADE MID-PROBE, because the first instrument asked the wrong
+question: it read gGroup through `ruleArg->groupBody` AFTER the bind, which is a
+DIFFERENT BODY by then. The clause is about the body the CALLEE reads, so the
+second cut saves that body pointer before the bind and reads it after. A reading
+of the right field on the wrong body is not a weaker answer, it is another one.
+
+PART 2 -- THE CHANNEL, Option A, BUILT AND CARRYING. In runAction under
+gNoUnwrap: set the argument attribute BODY's gGroup to the source field and mark
+it isGROUP -- the +* link -- saving the previous pair and restoring it after
+processAction returns. The parse road is untouched.
+
+    the callee's `argument`      field #6  body #4  isCopy=1   as pre-registered
+    addrOf(*argument) DIRECT     field #5  body #2  tag s4Src  THE SOURCE FIELD
+
+⚠ FIELD #5 IS THE SAME FIELD THE BIND SAW AS ITS SOURCE, same raw pointer, in the
+same run. Not merely the same body -- the same FIELD. That is the identity the
+campaign has been unable to demonstrate.
+
+⚠⚠ AND THE SPELLING IS LOAD-BEARING: `addrOf(*argument)` DIRECT. The natural
+`s4Star <- *argument; addrOf(s4Star)` reads body #8 -- a fresh node -- and would
+have been reported as the channel FAILING. It is bear-trap #35's ruled
+copy-on-rebind defect, and it nearly cost a working build its verdict. Two
+witnesses saved it: the value read (`*argument` = ORIG) said something arrived,
+and the direct read said WHAT arrived.
+⚠ THE VALUE READ ALONE COULD NOT HAVE DONE IT, and that is worth keeping: bare
+`argument` ALSO prints ORIG, because print follows (law 1). A value witness here
+discriminates nothing. Only identity does.
+
+⚠ A CONSTRAINT ON THIS DESIGN, MEASURED AND STRUCTURAL: gGroup lives in a UNION
+with gCount, gNumber, gBuffer, gCharacter, gMap, gObject, gRegex, gStak and gItem
+(GroupBody.h:119-131). Writing gGroup CLOBBERS whatever else that union holds.
+It is safe HERE because the argument attribute's body carries nothing -- its
+gGroup read 0x0 before the write -- but it is not safe in general, and any
+widening of this channel to a body that carries data must reckon with it.
+⚠ The probe saw the union directly: gGroup on the SOURCE's body read `0x4` before
+the channel existed. `s4Src` holds "ORIG" -- four characters -- so that is almost
+certainly gCount being read as a pointer. Recorded as measured; the union is
+structural, the identification of the 4 is not diagnosed.
+
+STILL OWED ON THIS CHANNEL, and none of it is done:
+  - nestT f(g(x)): the inner bind must not clobber the outer setup.
+  - the A->B->A recursion fixture, through the bracket.
+  - jitBindArgRT, GroupActions.rtn:382 -- THE EMITTED-CALL TWIN. It lifts
+    runAction's binding lines VERBATIM so the two cannot drift, and its own
+    comment says so. The channel changed runAction and NOT jitBindArgRT, so the
+    two roads now differ. That is a KNOWN, NAMED gap, not an oversight.
+  - the asking: parser(Start) receives Start.
+  - fleet rows. There are none for the channel yet; it is certified today by one
+    probe in minionWork, which is not the fleet.
+
+STATE: the channel is FLIP-GATED and gNoUnwrap is 0, so it is inert in every
+ordinary build -- fleet BYTE-IDENTICAL to C24 at 171 green / 3 red, all
+instruments green, canary 326.

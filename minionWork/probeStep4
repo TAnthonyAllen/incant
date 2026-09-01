@@ -11,6 +11,14 @@ define
         addrOf(argument);
         cerr "S4-D the CALLEE's argument, by probeNode (rStuff column):":;
         probeNode(argument);
+        cerr "S4-E0 the CALLEE's argument by VALUE (no rebind):":;
+        print "  S4-E0 argument  =" argument:;
+        print "  S4-E1 *argument =" *argument "  want ORIG if the channel carries":;
+        cerr "S4-E2 addrOf(*argument) DIRECT -- no rebind, read the BODY column:":;
+        addrOf(*argument);
+        s4Star <- *argument;
+        cerr "S4-E3 the same through a <- capture (known to mint -- bear-trap #35):":;
+        addrOf(s4Star);
         };
     s4Run code={
         cerr "S4-A the SOURCE before the call, by addrOf:":;

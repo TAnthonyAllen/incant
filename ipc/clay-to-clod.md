@@ -17,8 +17,15 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      118
+SEQ:      119
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 119, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 119 IS LIVE AND IS AT THE FOOT -- STEP 4 IS DEAD (the sweep is not
+          the road; members widening dies with it). THE BIND IS THE LEVER. One
+          probe first, switch on, addrOf throughout. STOP IF THE BODIES DIFFER.
+          Then the channel, Option A, if and only if the probe holds.
+          Revert boundary C24.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 118, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 118 IS LIVE AND IS AT THE FOOT -- STEP 4 SCOPED to ATTRIBUTES OF
           DEFINITIONS THAT CARRY CODE; members stay copies; code-less definitions
@@ -5289,3 +5296,40 @@ The scope line is the ruling; everything else follows. If you'd rather the sweep
   for a code attribute. Same fact the gate reads, asked one pass earlier.
 
   END SEQ 118
+
+
+===================================================================
+SEQ 119  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  STEP 4 DEAD. THE BIND IS THE LEVER.
+             ONE PROBE, THEN THE CHANNEL.
+===================================================================
+
+STATUS: working -- picked up 2026-09-02, transcribed AT PICKUP before any
+        work started, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+C-nn — STEP 4 DEAD. THE BIND IS THE LEVER. ONE PROBE, THEN THE CHANNEL.
+Drafted by Clay, ruled by Tony, 2026-09-01. Clod assigns the number.
+
+Accepted: F-43 certified by driving the arm; the head-vs-count lesson goes in the seal in your words. Step 4's patch to the attic with its result written on it: the sweep is not the road; the callee reads downstream of the bind. Members widening is dead for the same reason. Revert boundary is C24.
+
+Probe first — one run, addrOf throughout, switch on. Film the bind: the field it writes to, that field's body, and gGroup on that body before and after. Beside it, the callee's argument read: field, body. Pre-registered: the bind's target and the callee's read are different fields over the same body (#4), and gGroup on that body is null after the bind under the flip — the skipped setGroup. If the bodies differ, the candidate is wrong and stop there.
+
+If the probe holds — the channel, Option A as ruled. In runAction, under gNoUnwrap: bind an argument by setting the attribute body's gGroup to the source field — the +* link — inside saveLocalFields's bracket, write-last before the call, restored after. jitBindArgRT is the reference and does the same. Callee reads *argument. Nothing on the parse road moves.
+
+Pre-registered for the channel: argument still reads isCopy=1 (it's the carrier's copy — expected); *argument reads tag s4Src, body #2, same addrOf as the source; nestT f(g(x)) and the A→B→A fixture hold through the bracket. Then the asking: parser(Start) receives Start.
+
+The probe costs one build. If it confirms, the channel is a small write in a place you've already ruled; if it doesn't, we've spent one build to not build the wrong thing again.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP. The probe's instrument will be addrOf ITSELF, called
+  from C++ at the bind site, so the bind's numbers and the fixture's numbers come
+  out of ONE sequence table in ONE run and are directly comparable. Filming the
+  bind with raw %p beside a fixture printing #n would have made the two halves
+  uncomparable, which is the failure this probe exists to avoid.
+  Stop condition recorded before building: BODIES DIFFER -> the candidate is
+  wrong, stop there, do not build the channel.
+
+  END SEQ 119
