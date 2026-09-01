@@ -11,6 +11,21 @@ int         indenting;
 GroupItem   grup,
             field;
     field = input;
+    /*  ⚠ A REFUSING OPERATOR HANDS THIS A NULL, AND DEREFERENCING IT WAS F-36's
+        CRASH. Fixed 2026-09-01. A binary op that cannot apply prints its own
+        named error and returns NULL -- opMultiply does exactly that
+        (`ERROR Operator * failed on <a> and <b>`) and so do opPlus, opMinus and
+        the rest. appendPrintXP then runs the expression and passes the result
+        straight here, so every such refusal inside a `print`/`cerr` item list
+        arrived as a null and died on the isShortcut read two lines below.
+        ⚠ THE REPORTED SYMPTOM WAS `* *x` AT EXIT 139 WITH NO SENTINEL, and the
+        star was a red herring: with a SPACE the leading `*` is BINARY MULTIPLY
+        against the preceding item, not a second unary. So the crash was never
+        about composing unwraps -- it is every refusing binary operator in print
+        position, and `*` was merely the one somebody typed.
+        THE ERROR IS ALREADY NAMED BY THE OPERATOR, so this returns quietly
+        rather than printing a second time. Skipping the item is the refusal.  */
+    if !field   return null;
     if FormaT {
         format = FormaT.text;
         *format = '%'; }

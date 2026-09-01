@@ -410,6 +410,49 @@ for _arm in "f(ntBig)      = ntBig" \
     fi
 done
 
+#  ============================================================================
+#  ⚠ spacingT -- THE SPELLING LAW, and F-36's certificate. Added 2026-09-01.
+#
+#  TIGHT BINDS, SPACED DOES NOT: an operator character written tight to its
+#  operand is the prefix/unary form; the same character with a space is the
+#  binary form and binds to what PRECEDES it. Longest match picks the token,
+#  spacing picks the operator. User beware, no guard.
+#
+#  ⚠ ROWS A-D ARE ASSIGNMENT POSITION, ROW E IS PRINT-ITEM POSITION, AND THEY ARE
+#  DIFFERENT MEASUREMENTS. With nothing to the left, `* *x` is unary-of-unary and
+#  composes; with a literal to the left it is BINARY MULTIPLY. Same three
+#  characters, two operators. Row E is the line F-36 actually reported.
+#
+#  ⚠ ROW A IS THE ANTI-VACUITY CONTROL: a single `*` on a field holding no group
+#  must stay a CLEAN error returning nothing. If it becomes a crash, or starts
+#  succeeding, rows B-E assert nothing.
+#  ⚠ ROWS A, C, D READ BACK AS THEIR OWN TAG. That is bear-trap #26 working as
+#  designed -- a refusal leaves the field with no data, and a field with no data
+#  returns its tag -- so pinning the echo is pinning "holds nothing".
+run1 spacingT "$T/spc"; check "spacingT runs" 0 $?
+if grep -q "SPACINGT SENTINEL" "$T/spc"; then
+    echo "  ok    spacingT sentinel (no truncation)"; green=$((green+1))
+else
+    echo "  FAIL  spacingT sentinel MISSING -- F-36 regressed to a crash"; fail=1
+fi
+for _arm in "spacingT A tight-1  = spA" \
+            "spacingT B tight-2  = LEAF" \
+            "spacingT C spaced   = spC" \
+            "spacingT D tight-3  = spD" \
+            "spacingT E survived"; do
+    if grep -qF "$_arm" "$T/spc"; then
+        echo "  ok    ${_arm} -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  $_arm -- missing"; fail=1
+    fi
+done
+#  H4: the refusal is asserted BY ITS TEXT, not by the absence of a crash.
+if grep -qF "ERROR Operator * failed on Token and a refused operand" "$T/spc"; then
+    echo "  ok    spacingT E refuses BY NAME (presence-with-value, not absence)"; green=$((green+1))
+else
+    echo "  FAIL  spacingT E named refusal missing -- the guard stopped naming it"; fail=1
+fi
+
 extract () { sed -n "/^extern [A-Za-z]* $1(/,/^}/p;/^extern [A-Za-z]* $2(/,/^}/p" "$T/gen"; }
 
 extract parseScaf   parseScaf2 > "$T/r12"; diffcheck "rung12.target" genLadder/rung12.target "$T/r12"

@@ -1987,6 +1987,22 @@ int 		indenting = 0;
 GroupItem 	*grup = 0;
 GroupItem 	*field = 0;
 	field = input;
+	/*  ⚠ A REFUSING OPERATOR HANDS THIS A NULL, AND DEREFERENCING IT WAS F-36's
+	CRASH. Fixed 2026-09-01. A binary op that cannot apply prints its own
+	named error and returns NULL -- opMultiply does exactly that
+	(`ERROR Operator * failed on <a> and <b>`) and so do opPlus, opMinus and
+	the rest. appendPrintXP then runs the expression and passes the result
+	straight here, so every such refusal inside a `print`/`cerr` item list
+	arrived as a null and died on the isShortcut read two lines below.
+	⚠ THE REPORTED SYMPTOM WAS `* *x` AT EXIT 139 WITH NO SENTINEL, and the
+	star was a red herring: with a SPACE the leading `*` is BINARY MULTIPLY
+	against the preceding item, not a second unary. So the crash was never
+	about composing unwraps -- it is every refusing binary operator in print
+	position, and `*` was merely the one somebody typed.
+	THE ERROR IS ALREADY NAMED BY THE OPERATOR, so this returns quietly
+	rather than printing a second time. Skipping the item is the refusal.  */
+	if ( !field )
+		return 0;
 	if ( FormaT )
 		{
 		format = FormaT->getText();
@@ -9884,6 +9900,22 @@ extern "C" GroupItem *opMultiply(GroupItem *argument, GroupItem *target)
 	(`0 - 2.5 -> -2.5 TYPED DOUBLE`) is asking for premise 2's
 	promotion-first rule applied in the interpreter. Count OP count stays
 	a count, so nothing that was already integral moves.  */
+	/*  ⚠ A NULL OPERAND IS REACHABLE AND WAS F-36's SECOND CRASH. Guarded
+	2026-09-01. A refusing UNARY returns null -- `*x` on a field holding no
+	group prints `ERROR unary * on x` and returns null -- and that null
+	arrives here as the right operand of the very next operator. Reading
+	`argument.isCOUNT` on it dies at 139.
+	This is why `* *x` crashed in PRINT-ITEM position: the leading spaced `*`
+	is BINARY MULTIPLY (there is an operand to its left), and its right
+	operand is the refused inner unary. The star was never the subject; a
+	refusing operand feeding the next operator is.
+	REFUSE BY NAME, which is what the operator already does for a wrong TYPE
+	-- a missing operand is simply the other way it cannot apply.  */
+	if ( !argument )
+		{
+		::fprintf(stderr,"ERROR Operator * failed on %s and a refused operand\n",target->groupBody->tag);
+		return 0;
+		}
 	if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
 		if ( isNUMBER(target->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
 			GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() * argument->getNumber());

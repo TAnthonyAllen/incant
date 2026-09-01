@@ -1,0 +1,77 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+/*  spacingT -- THE SPELLING LAW: TIGHT BINDS, SPACED DOES NOT.
+    Minted 2026-09-01 as F-36's certificate, and built to hold the `+*` rows in
+    the same file when that operator lands -- it is one law, not two.
+
+    THE LAW, as ruled: an operator character written TIGHT to its operand is the
+    prefix/unary form; the same character with a SPACE after it is the binary
+    form and binds to whatever precedes it. Longest match decides the token; the
+    spacing decides which operator you get. USER BEWARE, no guard -- C has lived
+    with a+*b for forty years.
+
+    ⚠ ROW C IS THE ROW THAT MATTERS AND IT IS NOT WHAT ITS NAME SUGGESTS.
+    `* *x` was recorded as F-36, "two space-separated unary stars", and read as a
+    defect in composing unwraps. IT IS NOT. With a space the leading `*` is
+    BINARY MULTIPLY against the preceding item, so row C is a multiply that
+    cannot apply -- and it correctly REFUSES BY NAME. What was broken was only
+    that the refusal then CRASHED THE PROCESS at 139 with no sentinel.
+
+    ⚠ ROW A IS THE ANTI-VACUITY CONTROL AND MUST STAY A CLEAN ERROR. A single
+    `*` on a field holding no group has always errored cleanly and returned 0. If
+    it ever becomes a crash, or silently succeeds, rows B and C mean nothing.  */
+
+register(SpacingT);
+define
+    spLeaf="LEAF";
+    spWrap;
+    spA; spB; spC; spD;
+    spRun code={
+        spWrap := spLeaf;
+        /*  ⚠ CAPTURE FIRST, THEN PRINT -- and the two positions are DIFFERENT
+            MEASUREMENTS, which is why both are here. Writing the expression
+            inside a print item list makes the LABEL an operand: `"C =" * *spWrap`
+            is the string TIMES the deref, ONE item, so a refusal prints nothing
+            at all and the row cannot be asserted by value.
+            ⚠⚠ AND IT ALSO CHANGES WHICH OPERATOR YOU GET. In ASSIGNMENT position
+            there is nothing to the left, so a spaced leading `*` is UNARY and
+            `* *x` composes as two unwraps. In PRINT-ITEM position there IS
+            something to the left, so it is BINARY MULTIPLY. Same three
+            characters, two operators, decided by what precedes them. Rows A-D
+            measure the assignment side; ROW E measures the print side and is the
+            line F-36 actually reported.
+            ⚠ ROWS A, C, D READ BACK AS THEIR OWN TAG, and that is the honest
+            value rather than a defect: a refusal leaves the field with no data,
+            and a field with no data returns its tag (bear-trap #26). Pinning the
+            tag echo is pinning "holds nothing".  */
+        spA = *spWrap;
+        spB = **spWrap;
+        spC = * *spWrap;
+        spD = ***spWrap;
+        print "spacingT A tight-1  =" spA "  want spA -- holds nothing, named error above":;
+        print "spacingT B tight-2  =" spB "  want LEAF -- the fixpoint":;
+        print "spacingT C spaced   =" spC "  want spC -- TWO unwraps, both refuse, NO crash":;
+        print "spacingT D tight-3  =" spD "  want spD -- no crash":;
+        print "spacingT E print-position, the F-36 line, binary multiply follows:":;
+        print "spacingT E value    =" * *spWrap:;
+        print "spacingT E survived -- reaching this line IS the certificate":;
+        };
+    ;
+spRun();
+print "SPACINGT SENTINEL -- reached the foot":;
+stop();
+
+WHAT THE FIX WAS, and it is not where the ticket pointed.
+
+opMultiply refuses correctly -- it prints `ERROR Operator * failed on <a> and <b>`
+and returns NULL, exactly as opPlus and opMinus do. appendPrintXP then runs the
+expression for a print item and hands the result straight to appendGroup, which
+dereferenced it two lines in. So EVERY refusing binary operator in print position
+was a latent 139, and `*` was merely the one somebody typed.
+
+The guard is in appendGroup (GroupActions.rtn), not in the star: a null input
+returns quietly, because the operator has already named the error and printing a
+second one would say nothing new.

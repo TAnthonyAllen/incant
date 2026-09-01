@@ -330,7 +330,73 @@ regardless and does not wait on this row.**
 **Owner:** Tony (ruling), then Clod (sweep). **Size:** the sweep touches GroupMain's bootstrap, so it
 is not minion-sized.
 
-### F-36 — ⚠ `* *x` (two space-separated unary stars) CRASHES THE PROCESS AT 139
+### F-36 — ✅ CLOSED 2026-09-01, AND THE TICKET NAMED THE WRONG SUBJECT
+
+**Fixed and certified by `incant/spacingT`, 8 rows in `pop.sh`.** Two guards, neither in the star:
+`appendGroup` (`GroupActions.rtn`) returns on a null input instead of dereferencing it, and
+`opMultiply` (`Instruct.rtn`) refuses a null operand by name.
+
+⚠ **THE STAR WAS A RED HERRING AND THE TITLE BELOW IS WRONG.** `* *x` is not "two
+space-separated unary stars" — **what it is depends on position**, and both readings are correct
+behaviour under the tight-vs-spaced spelling law:
+
+| position | what `* *x` is | why |
+|---|---|---|
+| assignment, `spC = * *x;` | **unary of unary**, composes | nothing to the left to bind to |
+| print item, `print "v =" * *x:;` | **binary multiply** | the literal IS its left operand |
+
+So the *parse* was right all along. **The defect was that a REFUSAL CRASHED.** A refusing unary
+returns null; that null became the next operator's operand, and nothing guarded it. `*` was
+merely the character somebody typed.
+
+⚠ **AND THE GENERAL FORM IS BIGGER THAN THE TICKET — SEE F-41.** Seven sibling operators have
+the identical unguarded deref.
+
+**Anti-vacuity preserved:** row A, a single `*` on a field holding no group, still errors cleanly
+and yields nothing. It was checked at every step precisely so B–E could not go green on a
+degenerate reading.
+
+---
+
+### F-41 — SEVEN BINARY OPERATORS DEREFERENCE A NULL OPERAND, SAME LATENT 139 AS F-36
+
+**Where:** `Instruct.rtn`. Censused 2026-09-01 immediately after F-36's fix, by counting
+`if !argument` guards against `argument.` dereferences per function:
+
+```
+  opPlus   null-guard=0  argument-derefs=5
+  opMinus  null-guard=0  argument-derefs=6
+  opGT     null-guard=0  argument-derefs=3
+  opLT     null-guard=0  argument-derefs=3
+  opEQ     null-guard=0  argument-derefs=3
+  opGE     null-guard=0  argument-derefs=3
+  opLE     null-guard=0  argument-derefs=3
+```
+`opMultiply` is guarded as of F-36 and is the model: one `if !argument` that refuses by name.
+
+**What:** a refusing unary returns null, and any of these will dereference it. Reachable from
+ordinary source — `a + *b` where `b` holds no group is enough.
+
+**Evidence:** F-36's exact crash, reproduced through `opMultiply` before its guard landed
+(`opMultiply + 76 … GroupRules.mm:9903`, from `runOP` ← `appendPrintXP` ← `aCTionPrinT`). The
+other seven were not individually crashed — **the census is structural, the crash is measured on
+the one sibling.** Stated at that grade deliberately.
+
+**Why it is not already biting:** unary `*` is quarantined from the corpus until the flip, so
+refusing operands are rare today. ⚠ **The flip makes them ordinary**, which is this project's
+"the fix that improves the system is what arms the latent bug" pattern.
+
+**Done when:** each of the seven carries `opMultiply`'s guard, and a fixture drives at least one
+non-`*` operator into a refused operand — `a + *b` is the obvious row, and it belongs in
+`incant/spacingT` beside the others.
+
+**Owner:** unassigned. **Size:** seven one-line guards plus one fixture row. Minion-ready.
+⚠ **Not done in F-36's stroke on purpose** — the charter scoped that stroke to `* *x`, and
+seven operators is a separate ruling.
+
+---
+
+### F-36 (original text, kept for the trail) — ⚠ `* *x` (two space-separated unary stars) CRASHES THE PROCESS AT 139
 **Where:** unary `*` composition. `ruleActions.rtn`'s `handleUnary` re-points prefix `*` to the
 named `deref` op (`opDeref`, `Instruct.rtn`); the failure is in composing two of them, not in
 `opDeref` itself.
