@@ -1182,17 +1182,24 @@ fi
 rawreads=$(grep -o -- "->rStuff" GroupItem.mm GroupBody.mm GroupControl.mm GroupMain.mm \
                        GroupRules.mm RuleStuff.mm 2>/dev/null | grep -vc "getRStuff\|setRStuff")
 rawlines=$(grep -l -- "->rStuff" *.mm 2>/dev/null | wc -l | tr -d ' ')
-#  ⚠ RE-PINNED 30 -> 32 on 2026-09-01, AND THE SENTENCE IS THE WHOLE +2. The frame
-#  bind (SEQ 106) added ONE line to runAction --
-#      if (field->rStuff)  field->rStuff->frameArg = result;
-#  -- which carries TWO raw reads, the guard and the write. 30 + 2 = 32, exactly.
-#  ⚠ AND THE NEGATIVE MATTERS MORE THAN THE ARITHMETIC: adding `frameArg` to the
-#  RuleStuff block in groups.ext moved NOTHING ELSE. Verified line-by-line against
-#  HEAD, not inferred from the total -- the only added raw-read site is the one
-#  above. That is the opposite of F-35, where a single mirror line took one
-#  getter's blast radius from 8 sites to 137, and it is why this row exists.
-if [ "$rawreads" = "32" ]; then
-    echo "  ok    raw ->rStuff reads = 32 across $rawlines .mm -- PINNED BY VALUE (mirror-drift tripwire)"; green=$((green+1))
+#  ⚠ WENT 30 -> 32 -> 30 ON 2026-09-01 AND IS BACK AT ITS ORIGINAL VALUE, which is
+#  the strongest thing this row could say: SEQ 106's frame bind added one line
+#  carrying two raw reads, SEQ 107 stripped it, and the codegen returned EXACTLY to
+#  where it started. Adding and then removing `frameArg` in the groups.ext RuleStuff
+#  block moved nothing else in either direction -- verified line-by-line against the
+#  commits, not inferred from the total. That is the opposite of F-35, where a single
+#  mirror line took one getter's blast radius from 8 sites to 137.
+#
+#  ⚠⚠ AND A WEAKNESS IN THIS ROW, FOUND BY IT MISCOUNTING ITSELF: THE MATCH COUNTS
+#  COMMENT TEXT. During the strip the count came back 31 instead of 30, and the extra
+#  hit was a COMMENT in runAction that quoted the guard verbatim. Nothing had drifted;
+#  prose had. The `grep -v getRStuff` above is also a no-op -- `grep -o` prints the
+#  matched text, so the filter can never fire -- which is fine for a pure occurrence
+#  count but is not the filter it looks like.
+#  SO: WHEN THIS ROW MOVES, CHECK WHETHER A COMMENT MOVED IT BEFORE BELIEVING THE
+#  CODEGEN DID. And do not write `->rStuff` literally in prose near this file.
+if [ "$rawreads" = "30" ]; then
+    echo "  ok    raw ->rStuff reads = 30 across $rawlines .mm -- PINNED BY VALUE (mirror-drift tripwire)"; green=$((green+1))
 else
     echo "  FAIL  raw ->rStuff reads MOVED -- the groups.ext mirror changed codegen"
     echo "          actual:   $rawreads"

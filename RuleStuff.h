@@ -10,28 +10,18 @@ class GroupItem;
     stack local at ENTRY, before descending, which is what closes the recursion
     window (same reasoning as genParseRuleAccess S1.5's act()).
 
-    frameArg (SEQ 106, 2026-09-01) -- THE ACTION-ARGUMENT CHANNEL, parentLabel's
-    pattern transplanted from the parse road to the action road. It lives here,
-    beside parentLabel, because a frame is exactly what an argument needs and
-    the alternative was chasing node identity across three roads.
-
-    ⚠ WHY A SLOT AND NOT THE `argument` FIELD. Measured 2026-08-31 (R19), one run,
-    one shared counter across four stamped sites: the argument slot is MINTED by
-    aCTionDefinE, BOUND by runAction, and READ by the callee -- and the mint and
-    the bind are ALREADY DIFFERENT NODES over one body. THREE nodes derive one
-    body, so "which node is the argument" has no single answer and a fix that
-    picks one has to pick again on the next road. The frame has ONE slot and the
-    question dissolves rather than being answered three times.
-
-    ⚠⚠ ITS RECURSION SAFETY IS NOT THE SAME AS parentLabel'S, AND THIS IS THE
-    LINE TO READ BEFORE CHANGING EITHER. parentLabel's callee is a GENERATED C++
-    parse method, so it lifts into a real stack local on its first line and the
-    slot may be freely overwritten by a nested call. An INTERPRETED callee has no
-    stack local; its safety is the road's existing saveLocalFields/restore
-    bracket, CORRECTLY ORDERED -- the argument write must land AFTER the save, so
-    the frame captures the OUTER value and restore returns it. Writing it before
-    the save is what trampled an argument in both directions of recursion
-    (kant8T K2x row 1, K6c). So "no save/restore" governs the C++ handoff ONLY.
+    frameArg -- MINTED AND STRIPPED THE SAME DAY, 2026-09-01 (SEQ 106 built it,
+    SEQ 107 removed it), and the note survives the field because the reason is
+    reusable. It was parentLabel's pattern transplanted to carry an ACTION's
+    argument. IT COULD NEVER FIRE: `if (field->rStuff)` is false for an
+    interpreted action -- measured at 16 of 16 action binds, every one
+    rStuff = 0x0 -- because Ruling D makes rStuff presence the LIVENESS test and
+    an action is not a rule. parentLabel's customers are RULES and have rStuff by
+    construction; the residence was chosen from the precedent's shape rather than
+    from the customer's.
+    ⚠ IT WAS STRIPPED RATHER THAN LEFT INERT because an unused field in a MIRRORED
+    struct is bear-trap #10's next victim: the layout is duplicated out of repo in
+    groups.ext, and a slot nobody writes is a slot nobody keeps in sync.
 
     termCount (Clay SEQ 26 S3) -- how many REAL terms genParse emitted indices
     against, recorded by the parseTerms binding attribute and checked by the
@@ -100,7 +90,6 @@ GroupItem *label;
 GroupItem *onFail;
 GroupItem *onGroup;
 GroupItem *parentLabel;
-GroupItem *frameArg;
 GroupItem *sourceLine;
 GroupItem *rule;
 int kount;
