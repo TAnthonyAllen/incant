@@ -6,9 +6,16 @@ search reset stack Grokking UnitTests Utilities list;
 /*  pointerT -- THE +* CERTIFICATE. Minted 2026-09-01 (SEQ 111).
 
     `a +% b` adds a COPY of b.  `a +* b` adds a POINTER to b.
-    Read either back with a SUBSCRIPT -- `bag["b"]` -- which already follows the
-    pointer. A `*` on top of that is one level too many and refuses; that is the
-    star law working, not a defect, and row X pins it.
+    Read either back with a SUBSCRIPT, which STOPS AT THE ELEMENT -- law 2, and
+    as of row L4 that is certified by identity rather than inferred. What follows
+    the pointer is PRINT (law 1) or a STAR ON A REBOUND CAPTURE (law 4). A star
+    written directly on a subscript binds to the BAG instead (law 3) and refuses,
+    which is row X.
+
+    ⚠ THIS HEADER SAID THE OPPOSITE UNTIL 2026-09-02 -- "a subscript which already
+    follows the pointer" -- and the dead region below records why that was wrong
+    and how long its own output had been saying so. A fixture pinned against a
+    reading instead of a ruling is a lie the fleet tells, and so is its header.
 
     ⚠ ROW P IS THE WHOLE ARGUMENT AND ITS TWIN IS NOT OPTIONAL. P1 writes to the
     source after the add and reads the pointer: it must see the NEW value. P2 is
@@ -53,6 +60,20 @@ define
         print "pointerT L2 name-then-star =" *ptNamed "  want CHANGED -- LAW 4, the lawful read":;
         ptAssigned = ptBagL["ptSrc"];
         print "pointerT L3 assign-then-star =" *ptAssigned "  want 0 -- name it means <- , NOT =":;
+
+        cerr "pointerT L4 -- LAW 2 ASKED BY IDENTITY. Read the BODY column only.":;
+        cerr "  L4a source asked once:":;
+        addrOf(ptSrc);
+        cerr "  L4b SAME source again -- body must REPEAT (column is stable):":;
+        addrOf(ptSrc);
+        cerr "  L4c a DIFFERENT field -- body must DIFFER (column discriminates):":;
+        addrOf(ptOther);
+        ptElem <- ptBagL["ptSrc"];
+        cerr "  L4d the SUBSCRIPT RESULT -- law 2 says this is NOT the source:":;
+        addrOf(ptElem);
+        ptFollowed <- *ptElem;
+        cerr "  L4e that capture STARRED -- law 4 says THIS is the source:":;
+        addrOf(ptFollowed);
 
         ptInner := ptOther;
         ptBagD +* ptInner;
@@ -137,8 +158,50 @@ follow; `<-` hands back the field and the star follows it. L3 is not decoration
 -- it is the row that stops the next reader from writing the natural spelling
 and concluding the law is broken.
 
-⚠ LAW 2 IS NOT YET CERTIFIED HERE, AND THIS ROW SAYS SO RATHER THAN IMPLYING IT.
-Separating "the subscript stopped at the element" from "the subscript followed"
-needs the element and the source shown to be TWO FIELDS, which needs identity --
-`addrOf`, SEQ 113 item 2. Until that lands, law 2 is asserted by its
-consequences (L2/L3) and not directly. No row here should be read as proving it.
+⚠⚠ LAW 2 IS CERTIFIED AS OF 2026-09-02, BY ROW L4, AND THIS NOTE REPLACES THE
+ONE THAT SAID IT WAS NOT. The blocker named here was identity -- `addrOf`, SEQ
+113 item 2 -- and addrOf landed in the SAME stroke that wrote this paragraph.
+Nobody walked through the open gate for a day; that is the only reason it stood.
+
+MEASURED, ONE RUN, IDENTITY BY THE BODY COLUMN:
+
+    L4a  the source asked once             body=#2
+    L4b  the SAME source asked again       body=#2   the column is STABLE
+    L4c  a DIFFERENT field                 body=#5   the column DISCRIMINATES
+    L4d  the SUBSCRIPT RESULT              body=#7   NOT THE SOURCE -- law 2
+    L4e  that same capture, STARRED        body=#2   THE SOURCE -- law 4
+
+⚠ READ THE BODY COLUMN AND NEVER THE FIELD COLUMN. The argument carrier mints a
+fresh FIELD on every call -- the source reads field=#1, #3 and #8 across three
+asks in this very run while its body stays #2 throughout -- so a field-column
+comparison here would be answering a question about the carrier. The body column
+asks the identity question THROUGH that defect instead of being voided by it.
+
+⚠ L4b AND L4c ARE THE ANTI-VACUITY PAIR AND NEITHER HALF IS WORTH ANYTHING
+ALONE. A column that answered "same" to everything would pass L4b; one that
+answered "different" to everything would pass L4c. Only the pair earns L4d's
+difference and L4e's match, and the two of them are each other's control: law 2
+is the difference, law 4 is the match, and a mechanism that faked either one
+would have to break the other.
+
+⚠ AN UNLOOKED-FOR COLUMN, RECORDED AS MEASURED AND NOT EXPLAINED. L4d is the only
+subject in the run reading `isCopy=0`; every other row, ORIGINALS INCLUDED, reads
+1, because addrOf reports the carrier and the carrier is a copy. So the subscript
+element is the one thing here that does not arrive wearing a copy's flag. WHY is
+not diagnosed and is not guessed at -- reproduction proves the symptom, never the
+cause, and the causal-claim ledger in this codebase is why that split is standing
+doctrine.
+
+⚠ ROW L3's REFUSAL IS NOW ASSERTED BY ITS TEXT, AND ITS WORDING IS A FINDING.
+L3 was pinned only at 0, which is exactly the weakness row X's own note forbids:
+a row pinned only at 0 goes green the day the star binds the other way. The
+witness was in the output all along, unread, and it is
+
+    ERROR unary * on ptSrc -- it holds no group
+
+⚠ IT NAMES THE SOURCE, NOT THE ASSIGNEE. `=` is documented to reimprint the
+left-hand tag (bear-trap #1), so a reader expects `ptAssigned` here. Attribution
+was MEASURED rather than read off the source, in `minionWork/probeL3name`, which
+isolates the `=`-then-star shape as the only star in its file: the refusal names
+`l3Src`. The wording is recorded and NOT explained, same split as the isCopy
+column above.

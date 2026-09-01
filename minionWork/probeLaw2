@@ -1,0 +1,80 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(Law2);
+define
+    l2Src="ORIG";
+    l2Other="OTHER";
+    l2Bag;
+    l2Run code={
+        l2Bag +* l2Src;
+        l2Src = "CHANGED";
+
+        cerr "L2-W0a control, the source asked once:":;
+        addrOf(l2Src);
+        cerr "L2-W0b control, the SAME source asked again -- body must repeat:":;
+        addrOf(l2Src);
+        cerr "L2-W0c control, a DIFFERENT field -- body must differ:":;
+        addrOf(l2Other);
+
+        l2Named <- l2Bag["l2Src"];
+        cerr "L2-W1 the SUBSCRIPT RESULT -- the element:":;
+        addrOf(l2Named);
+
+        l2Followed <- *l2Named;
+        cerr "L2-W2 the element STARRED -- the follow:":;
+        addrOf(l2Followed);
+
+        print "L2-V1 element printed =" l2Named "  (law 1, print follows)":;
+        print "L2-V2 element starred =" *l2Named "  (law 4, the lawful read)":;
+        };
+    ;
+l2Run();
+print "PROBELAW2 SENTINEL -- reached the foot":;
+stop();
+
+PRE-REGISTERED BEFORE THE RUN, 2026-09-02. Clod. Three outcomes, not two.
+
+THE QUESTION. Law 2 says the SUBSCRIPT STOPS AT THE ELEMENT. Law 1 says PRINT
+FOLLOWS. Both are consistent with pointerT's every current value, which is
+exactly why pointerT's own note says law 2 is asserted by consequence and never
+directly. Identity is the missing witness and addrOf is now the instrument.
+
+READ THE BODY COLUMN, NEVER THE FIELD COLUMN. The argument carrier mints a fresh
+FIELD on every call -- measured 2026-09-01, one subject reading field=#1, #3, #8
+across three asks while its body stayed #2 throughout. So the field column says
+nothing here and the body column is the whole probe.
+
+  W0a / W0b   the same field asked twice.  Body number MUST REPEAT.
+              Without this the column is not stable and nothing below is readable.
+  W0c         a different field.  Body number MUST DIFFER from W0a.
+              Without this the column does not discriminate and every match below
+              is vacuous. THE PAIR IS THE ANTI-VACUITY GUARD AND NEITHER HALF
+              ALONE IS WORTH ANYTHING -- a column that answers "same" to
+              everything passes W0b, and a column that answers "different" to
+              everything passes W0c.
+
+  W1          the subscript result, captured with <- and not starred.
+  W2          that same capture, starred.
+
+OUTCOME A -- LAW 2 CERTIFIED.  W1 body != W0a body, AND W2 body == W0a body.
+The subscript stopped at a field that is NOT the source, and the star is what
+reached the source. Law 2 direct, law 4 by identity, each the other's control.
+
+OUTCOME B -- LAW 2 FALSIFIED.  W1 body == W0a body. The subscript arrived at the
+source by itself, print never had anything to do, and pointerT's L1 credit to
+law 1 goes back to being wrong -- in the other direction this time.
+
+OUTCOME C -- VOID, AND IT IS A RESULT.  Enumerated because the treatment touches
+the very read machinery the fixture uses, and this project has been bitten by a
+prediction with nowhere to put a voided run. Three ways it can land here:
+  - W0b fails: the body column is not stable across calls, so no comparison below
+    it means anything.
+  - W0c matches W0a: the column does not discriminate, so OUTCOME A's match is
+    unearned.
+  - `l2Followed <- *l2Named;` refuses or does not parse, so W2 never happens and
+    OUTCOME A is missing half its evidence.
+A void run is REPORTED AS VOID. It is not graded as B on the grounds that A did
+not appear, and no row is written into pointerT off a void column.

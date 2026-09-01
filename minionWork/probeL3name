@@ -1,0 +1,27 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(L3Name);
+define
+    l3Src="ORIG";
+    l3Bag;
+    l3Run code={
+        l3Bag +* l3Src;
+        l3Assigned = l3Bag["l3Src"];
+        print "L3N-A assign-then-star =" *l3Assigned "  want 0":;
+        };
+    ;
+l3Run();
+print "PROBEL3NAME SENTINEL -- reached the foot":;
+stop();
+
+ISOLATES ONE STATEMENT so the refusal line can be attributed with certainty.
+pointerT's run emits TWO refusals -- "on ptSrc" and "on ptBagP" -- and only the
+second is asserted. Attributing the first by reading the source is exactly the
+citation-without-measurement this project keeps paying for, so it is measured.
+The `=`-then-star shape is the ONLY star in this file. Whatever refusal appears
+is L3's, and its WORDING is the finding: `=` is documented to reimprint the
+left-hand tag, so a refusal naming the SOURCE rather than the assignee is worth
+recording as measured and NOT worth explaining from here.

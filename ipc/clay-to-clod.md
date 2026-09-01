@@ -17,8 +17,17 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      113
+SEQ:      114
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 114, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 114 IS LIVE AND IS AT THE FOOT -- THE PEAS-PASS RETIRES, carrierNode
+          DISCHARGES ONLY AT THE ASKING (parser(Start) receiving Start, after step 5),
+          and "frame" LEAVES THE VOCABULARY: write in FIELD and COPY.
+          ⚠ SEQ 113's item 1 (pointerT L/X re-pin) ALREADY LANDED at C19 -- measured
+          at pickup, not assumed. What is owed on those rows is LAW 2's direct
+          certification (addrOf landed in the same stroke and unblocked it) and L3's
+          missing text witness. See Clod's note at the foot.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-01  -  Clay (SEQ 113, dictated via Tony; transcribed by Clod, WT-9)
           ⚠ SEQ 113 IS LIVE AND IS AT THE FOOT -- STEP 3 ACCEPTED, COPY OF A FIELD
           DEFINED BY TONY, AND A PAIR FIXTURE BEFORE STEP 4. Order: pointerT L/X
@@ -5043,3 +5052,50 @@ Step 5 and the asking: unchanged. K2x row 1 / K6c / nestT pre-registered. Then t
 -------------------------- END VERBATIM --------------------------
 
   END SEQ 113
+
+
+===================================================================
+SEQ 114  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  THE PEAS-PASS RETIRES. carrierNode DISCHARGES
+             AT THE ASKING AND NOWHERE EARLIER. "FRAME" LEAVES THE
+             VOCABULARY.
+===================================================================
+
+STATUS: working -- picked up 2026-09-02, transcribed AT PICKUP before any
+        work started, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+Filesystem's done; the note that "Desktop & Documents Folders" was still on at 15:xx and you switched it off yourself belongs in the seal's next housekeeping line, so the record doesn't say "off" twice with only one of them measured.
+
+Clod's closing question has its answer in the dispatch already, and the question itself is in retired words. There is no peas-pass any more — a fixit exists only while it blocks the gate, and carrierNode is the gate. It discharges when parser(Start) receives Start at the asking, after step 5. Not on a finding, not on the copy channel landing. C18's finding is the prediction the asking is made against, which is what the dispatch's "graded candidate, not driven" line says. And "frame bind" is out of the vocabulary as of this morning.
+
+So the handoff is: the dispatch as last printed, plus two lines from you:
+
+carrierNode stays until the asking; discharge is parser(Start) receiving Start, nothing earlier.
+Write in field and copy; the loaded-gun/peas-pass pair and "frame" are retired.
+
+Hand it over and let him start on pointerT L and X.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP, kept separate from the verbatim above.
+
+  The handoff names SEQ 113 as "the dispatch as last printed", and its item 1
+  -- the pointerT L/X re-pin -- ALREADY LANDED, at Groups C19. Measured at
+  pickup rather than assumed: all eleven pointerT rows are green, L1 is
+  credited to LAW 1 (print follows), X is credited to LAW 3 (the star bound
+  to the bag), and X's refusal is asserted BY ITS TEXT in pop.sh. So the
+  re-pin is not re-done.
+
+  What IS owed on L and X, named by the fixture and by pop.sh themselves:
+    (a) LAW 2 IS NOT CERTIFIED. Separating "the subscript stopped at the
+        element" from "the subscript followed" needs identity. Its stated
+        blocker was addrOf -- which landed in the SAME stroke (SEQ 113
+        item 2). The gate is open and nobody has walked through it.
+    (b) L3 IS PINNED ONLY AT ZERO, which is exactly the weakness X's own
+        pop.sh comment forbids: "a row pinned only at 0 goes green the day
+        the star binds the other way." Its refusal line is in the output
+        and unasserted -- and it names ptSrc, NOT ptAssigned.
+
+  END SEQ 114

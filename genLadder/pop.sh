@@ -549,9 +549,36 @@ done
 #  ⚠ L2/L3 ARE A PAIR AND THE PAIR IS THE POINT: `<-` then star FOLLOWS (CHANGED),
 #  `=` then star REFUSES (0). "Name it" means REBIND it. L3 exists so the next
 #  reader who writes the natural `=` spelling does not conclude the law is broken.
-#  ⚠ LAW 2 IS NOT CERTIFIED BY THESE ROWS and pointerT says so -- separating
-#  "stopped at the element" from "followed" needs identity (addrOf, SEQ 113
-#  item 2). Asserted by consequence only until that lands.
+#  ⚠⚠ LAW 2 IS CERTIFIED AS OF 2026-09-02 BY ROW L4, and this comment replaces
+#  the one saying it was not. The blocker was identity -- addrOf -- which landed
+#  in the SAME stroke (SEQ 113 item 2); nobody walked through the open gate for a
+#  day. L4 asks it by ADDRESS: the subscript result is a DIFFERENT BODY from the
+#  source (law 2), and the same capture STARRED is the source (law 4).
+#  ⚠ THE BODY COLUMN IS PINNED AND THE FIELD COLUMN IS DELIBERATELY NOT. The
+#  argument carrier mints a fresh FIELD per call -- the source reads field=#1, #3
+#  and #8 in one run while its body stays #2 -- so the rows below match
+#  `field=#<anything> body=#<pinned>`. Pinning the field column would be pinning
+#  the carrier, which moves for reasons that say nothing about the laws (H3).
+#  ⚠ L4b AND L4c ARE THE ANTI-VACUITY PAIR. A column answering "same" to
+#  everything passes L4b; one answering "different" to everything passes L4c.
+#  Only the pair earns L4d's difference and L4e's match, and those two are each
+#  other's control -- law 2 IS the difference, law 4 IS the match, and anything
+#  faking one would have to break the other.
+#  ⚠ EACH ROW IS ANCHORED TO ITS OWN LABEL LINE (grep -A1), not to a count of
+#  matching bodies. Four of the five ADDROF lines carry the tag `ptSrc` and three
+#  carry body=#2, so an unanchored grep would pass on the wrong line.
+#  ⚠⚠ NEGATIVE CONTROL RECORDED, 2026-09-02 (rule H7 -- a rung certifies only what
+#  fails when the mechanism is removed). The subscript was replaced by a direct
+#  capture of the source, `ptElem <- ptSrc`, and the fleet re-run:
+#
+#      MECHANISM REMOVED   L4a ok   L4b ok   L4c ok   L4d FAIL   L4e FAIL
+#      MECHANISM PRESENT   L4a ok   L4b ok   L4c ok   L4d ok     L4e ok
+#
+#  So L4d and L4e are load-bearing and the three control rows are correctly
+#  indifferent to the subscript -- which is what they are FOR. L4e failing with
+#  L4d is not noise either: with the capture pointing at the source, the star has
+#  nothing to follow and refuses, so the pair moves together exactly as the two
+#  laws predict.
 run1 pointerT "$T/ptr"; check "pointerT runs" 0 $?
 if grep -q "POINTERT SENTINEL" "$T/ptr"; then
     echo "  ok    pointerT sentinel (no truncation)"; green=$((green+1))
@@ -584,6 +611,31 @@ if grep -qF "ERROR unary * on ptBagP -- it holds no group" "$T/ptr"; then
 else
     echo "  FAIL  pointerT X witness MISSING -- the star no longer binds to ptBagP"; fail=1
 fi
+
+#  ⚠ L3's REFUSAL, ASSERTED BY ITS TEXT FOR THE SAME REASON X's IS (H4). L3 was
+#  pinned only at 0 -- the exact weakness X's comment above forbids -- and the
+#  witness had been in the output all along, unread.
+#  ⚠ IT NAMES THE SOURCE, NOT THE ASSIGNEE. `=` reimprints the left-hand tag
+#  (bear-trap #1), so a reader expects `ptAssigned`. The attribution was MEASURED,
+#  not read off the source: minionWork/probeL3name isolates the `=`-then-star
+#  shape as the only star in its file and the refusal names the source there too.
+if grep -qF "ERROR unary * on ptSrc -- it holds no group" "$T/ptr"; then
+    echo "  ok    pointerT L3 witness: the star refused, naming the SOURCE"; green=$((green+1))
+else
+    echo "  FAIL  pointerT L3 witness MISSING -- the = -then-star refusal changed"; fail=1
+fi
+for _l4 in "L4a source asked once:|body=#2|source body, first ask" \
+           "L4b SAME source again|body=#2|source body REPEATS -- column is stable" \
+           "L4c a DIFFERENT field|body=#5|other body DIFFERS -- column discriminates" \
+           "L4d the SUBSCRIPT RESULT|body=#7|the subscript STOPPED (law 2, certified)" \
+           "L4e that capture STARRED|body=#2|the star REACHED the source (law 4)"; do
+    _lbl=${_l4%%|*}; _rest=${_l4#*|}; _want=${_rest%%|*}; _why=${_rest##*|}
+    if grep -A1 -F "$_lbl" "$T/ptr" | grep -qE "ADDROF .* $_want( |\$)"; then
+        echo "  ok    pointerT ${_lbl%% *}: $_why -- PINNED BY IDENTITY"; green=$((green+1))
+    else
+        echo "  FAIL  pointerT ${_lbl%% *} -- $_want not on the line after its label"; fail=1
+    fi
+done
 
 #  ============================================================================
 #  ⚠ faceT -- THE PAIR FIXTURE. Added 2026-09-01 (SEQ 113 item 3). Step 3 measured

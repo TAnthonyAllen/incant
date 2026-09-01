@@ -63,6 +63,28 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### F-42 (the second "off") — the next seal's housekeeping owes it, and only one of the two was measured
+**Where:** `docs/wakeup.md`, the next seal's housekeeping block. The 2026-09-01e seal's
+housekeeping already records one "off" — *"the iCloud `Documents` twin was scrubbed after a
+verified 458 MB copy to `~/iCloudDocs-retired-2026-09-01`"* — and that one **was** measured.
+**What:** there is a SECOND, different "off", and it is not in any seal. **System Settings →
+name → iCloud → iCloud Drive → "Desktop & Documents Folders" was STILL ON at ~15:xx on
+2026-09-01**, after the twin was scrubbed; **Tony switched it off himself on 2026-09-02**, on
+Clay's instruction, and Finder then found `Documents`. So the scrub did not turn the sync off —
+it emptied what the sync was serving, and the sync stayed on for another day.
+⚠ **THE POINT OF THE ROW IS THE ASYMMETRY, not the setting.** Written carelessly, the record says
+"off" twice and a reader takes them for one event with one measurement behind it. The scrub was
+measured; **the setting's prior ON state is Tony's report and was never measured** — by the time
+anyone looked it was already off. What Clod measured is only the AFTERMATH, on 2026-09-02:
+`~/Documents` a real local directory, 15 items / 1.6 GB, `Wiki` and `PDFs` and `Codex` present;
+`~/Desktop` empty but for `.localized`; iCloud Drive's leftover `Desktop/` holding 8 KB of
+`.DS_Store` and `.localized` and no `Documents/` at all; `~/iCloudDocs-retired-2026-09-01` intact.
+**Done when:** the next seal's housekeeping carries both events as two lines with their grades
+attached — the scrub MEASURED, the setting's ON state REPORTED, the aftermath MEASURED — rather
+than one line reading "off".
+**Owner:** whoever writes the next seal. **Size:** two lines of housekeeping. **Off-repo subject,
+in-repo record — none of it is repo material and that is exactly why it needs saying once, well.**
+
 ### F-4 — `docs/gui.md` cites files a fresh clone no longer receives
 **Where:** `docs/gui.md:729` and `:818`, citing `Aside/WithJIT/ParseXML.rtn` as the verified
 track-builder to "bring in before porting". Also `docs/plg-*-recon-2026-05-29.md` citing
